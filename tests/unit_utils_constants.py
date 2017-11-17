@@ -22,7 +22,7 @@
 
 import os
 
-from core import util
+from util import encoding as enc
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 _PARENT_DIR = os.path.normpath(os.path.join(
@@ -35,7 +35,7 @@ REGRESSIONTEST_DIR = os.path.normpath(os.path.join(
     _PARENT_DIR, 'tests', 'regression'
 ))
 AUTONAMEOW_SRCROOT_DIR = os.path.normpath(os.path.join(
-    _PARENT_DIR, util.enc.syspath('autonameow')
+    _PARENT_DIR, enc.syspath('autonameow')
 ))
 
 

@@ -29,7 +29,11 @@ import unittest
 from contextlib import contextmanager
 from datetime import datetime
 
-from core import util
+from util import encoding as enc
+from util import (
+    nested_dict_get,
+    nested_dict_set
+)
 from core.config import rules
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
@@ -79,7 +83,7 @@ def abspath_testfile(testfile_basename):
 
 
 def normpath(path):
-    return util.enc.normpath(path)
+    return enc.normpath(path)
 
 
 def all_testfiles():
@@ -107,7 +111,7 @@ def file_exists(file_path):
         True if the file exists, else False.
     """
     try:
-        return os.path.isfile(util.enc.syspath(file_path))
+        return os.path.isfile(enc.syspath(file_path))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -122,7 +126,7 @@ def dir_exists(dir_path):
     Returns:
         True if the directory exists and is readable, else False.
     """
-    _path = util.enc.syspath(dir_path)
+    _path = enc.syspath(dir_path)
     try:
         return os.path.exists(_path) and os.path.isdir(_path)
     except (OSError, TypeError, ValueError):
@@ -141,7 +145,7 @@ def path_is_readable(file_path):
         False for any other case, including errors.
     """
     try:
-        return os.access(util.enc.syspath(file_path), os.R_OK)
+        return os.access(enc.syspath(file_path), os.R_OK)
     except (OSError, TypeError, ValueError):
         return False
 
@@ -158,7 +162,7 @@ def is_abspath(path):
         False for any other case, including errors.
     """
     try:
-        return os.path.isabs(util.enc.syspath(path))
+        return os.path.isabs(enc.syspath(path))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -170,7 +174,7 @@ def make_temp_dir():
     Returns:
         The path to a new temporary directory, as an "internal" bytestring.
     """
-    return util.enc.normpath(tempfile.mkdtemp())
+    return enc.normpath(tempfile.mkdtemp())
 
 
 def make_temporary_file(prefix=None, suffix=None, basename=None):
@@ -197,7 +201,7 @@ def make_temporary_file(prefix=None, suffix=None, basename=None):
         f = os.path.realpath(tempfile.NamedTemporaryFile(delete=False).name)
         _dest_dir = os.path.realpath(os.path.dirname(f))
         _dest_path = os.path.join(_dest_dir,
-                                  util.enc.syspath(basename))
+                                  enc.syspath(basename))
         os.rename(f, _dest_path)
 
         out = os.path.realpath(_dest_path)
@@ -205,7 +209,7 @@ def make_temporary_file(prefix=None, suffix=None, basename=None):
         out = os.path.realpath(tempfile.NamedTemporaryFile(delete=False,
                                                            prefix=prefix,
                                                            suffix=suffix).name)
-    return util.enc.bytestring_path(out)
+    return enc.bytestring_path(out)
 
 
 def get_mock_fileobject(mime_type=None):
@@ -237,14 +241,14 @@ def get_mock_fileobject(mime_type=None):
     else:
         temp_file = make_temporary_file()
 
-    return FileObject(util.enc.normpath(temp_file))
+    return FileObject(enc.normpath(temp_file))
 
 
 def fileobject_testfile(testfile_basename):
     """
     Like 'abspath_testfile' but wraps the result in a 'FileObject' instance.
     """
-    _f = util.enc.normpath(abspath_testfile(testfile_basename))
+    _f = enc.normpath(abspath_testfile(testfile_basename))
     return FileObject(_f)
 
 
@@ -258,7 +262,7 @@ def get_mock_empty_extractor_data():
 def mock_request_data_callback(fileobject, label):
     data = mock_session_data_pool_with_extractor_and_analysis_data(fileobject)
     try:
-        d = util.nested_dict_get(data, [fileobject, label])
+        d = nested_dict_get(data, [fileobject, label])
     except KeyError:
         return None
     else:
@@ -288,7 +292,7 @@ def load_repository_dump(file_path):
     except ImportError:
         import pickle
 
-    with open(util.enc.syspath(file_path), 'rb') as fh:
+    with open(enc.syspath(file_path), 'rb') as fh:
         _data = pickle.load(fh, encoding='bytes')
 
     if not _data:
@@ -304,37 +308,37 @@ def mock_session_data_pool(fileobject):
     Returns: Mock session data pool with typical extractor data.
     """
     data = {}
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL],
         b'gmail.pdf'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT],
         b'pdf.pdf'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX],
         b'pdf.pdf'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_PATHNAME_PARENT],
         b'test_files'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_MIMETYPE],
         'application/pdf'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR],
         'Chromium'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, 'extractor.metadata.exiftool'],
         {'File:MIMEType': 'application/bar'}
@@ -345,32 +349,32 @@ def mock_session_data_pool(fileobject):
 
 def mock_session_data_pool_empty_analysis_data(fileobject):
     data = {}
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_DATETIME],
         []
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
         []
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
         []
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME],
         []
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_TAGS],
         []
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_TITLE],
         []
@@ -380,21 +384,21 @@ def mock_session_data_pool_empty_analysis_data(fileobject):
 
 def mock_session_data_pool_with_analysis_data(fileobject):
     data = {}
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
         [{'source': 'filenamepart_tags',
           'value': ['tagfoo', 'tagbar'],
           'weight': 1}]
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
         [{'source': 'filenamepart_base',
           'value': 'gmail',
           'weight': 0.25}]
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME],
         [{'source': 'modified',
@@ -412,76 +416,76 @@ def mock_session_data_pool_with_analysis_data(fileobject):
 
 def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
     data = {}
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL],
         b'gmail.pdf'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT],
         b'pdf.pdf'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX],
         b'pdf.pdf'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_PATHNAME_PARENT],
         b'test_files'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_MIMETYPE],
         'application/pdf'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR],
         'Chromium'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, 'extractor.metadata.exiftool'],
         {'File:MIMEType': 'application/bar'}
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
         [{'source': 'filenamepart_tags',
           'value': ['tagfoo', 'tagbar'],
           'weight': 1}]
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILETAGS_TAGS],
         []
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION],
         'gmail'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILETAGS_EXTENSION],
         'pdf'
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILETAGS_DATETIME],
         None
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
         [{'source': 'filenamepart_base',
           'value': 'gmail',
           'weight': 0.25}]
     )
-    util.nested_dict_set(
+    nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME],
         [{'source': 'modified',
@@ -512,7 +516,7 @@ def get_named_fileobject(basename):
     Returns: A FileObject based on a temporary file with the given basename.
     """
     _tf = make_temporary_file(basename=basename)
-    _f = util.enc.normpath(_tf)
+    _f = enc.normpath(_tf)
     return FileObject(_f)
 
 
@@ -748,7 +752,7 @@ def is_internalbytestring(thing):
 
 def get_default_config():
     init_session_repository()
-    _config_path = util.enc.normpath(abspath_testfile('default_config.yaml'))
+    _config_path = enc.normpath(abspath_testfile('default_config.yaml'))
     return Configuration.from_file(_config_path)
 
 

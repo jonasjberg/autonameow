@@ -23,7 +23,7 @@ import re
 from datetime import datetime
 
 from analyzers import BaseAnalyzer
-from core.util import dateandtime
+from util import dateandtime
 
 
 # TODO: [TD0040] Add assigning tags to GPS coordinates.

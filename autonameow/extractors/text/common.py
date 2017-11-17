@@ -21,19 +21,19 @@
 
 import logging
 
+
 from core import (
     persistence,
     types,
-    util
 )
 from core.model import genericfields as gf
-from core.util import (
-    sanity,
-    textutils
-)
 from extractors import (
     BaseExtractor,
     ExtractorError
+)
+from util import (
+    sanity,
+    textutils
 )
 
 
@@ -130,7 +130,7 @@ def decode_raw(raw_text):
             return ''
 
     if text:
-        text = util.remove_nonbreaking_spaces(text)
+        text = textutils.remove_nonbreaking_spaces(text)
         return text
 
 

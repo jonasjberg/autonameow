@@ -22,12 +22,12 @@
 
 import unittest
 
-from core import util
 from extractors import ExtractorError
 from extractors.text import (
     TesseractOCRTextExtractor,
     tesseractocr
 )
+from util import encoding as enc
 import unit_utils as uu
 from unit_utils_extractors import TestCaseExtractorBasics
 
@@ -101,7 +101,7 @@ class TestTesseractWrapper(unittest.TestCase):
         # Tests both Unicode or bytestring file names, even though the
         # intended primary caller 'TesseractOCRTextExtractor' uses bytestrings.
         for _image_file in [self.TEST_FILE,
-                            util.enc.normpath(self.TEST_FILE)]:
+                            enc.normpath(self.TEST_FILE)]:
             actual = tesseractocr.pil_read_image(_image_file)
             self.assertTrue(isinstance(actual, PIL.Image.Image))
 
@@ -122,6 +122,6 @@ class TestTesseractWrapper(unittest.TestCase):
 
         # def test_pil_read_image_raises_exception_for_invalid_images(self):
         # _test_inputs = [
-        #     image_file = util.enc.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
+        #     image_file = enc.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
         # ]
         # actual = ocr.pil_read_image(image_file)

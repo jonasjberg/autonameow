@@ -29,12 +29,12 @@ except ImportError:
 from core import (
     exceptions,
     types,
-    util,
 )
-from core.model import WeightedMapping
 from core.model import genericfields as gf
+from core.model import WeightedMapping
 from core.namebuilder import fields
 from plugins import BasePlugin
+from util import mimemagic
 
 
 class GuessitPlugin(BasePlugin):
@@ -131,7 +131,7 @@ class GuessitPlugin(BasePlugin):
         _mime_type = self.request_data(
             fileobject, 'extractor.filesystem.xplat.contents.mime_type'
         )
-        return util.mimemagic.eval_glob(_mime_type, 'video/*')
+        return mimemagic.eval_glob(_mime_type, 'video/*')
 
     @classmethod
     def test_init(cls):

@@ -52,16 +52,15 @@ import os
 import re
 from datetime import datetime
 
-from core import (
-    exceptions,
-    util
-)
-from core.util import (
+
+from core import constants as C
+from core import exceptions
+from util import encoding as enc
+from util import (
     mimemagic,
     sanity,
     textutils
 )
-from core import constants as C
 
 
 # TODO: [TD0084] Add handling collections to type coercion classes.
@@ -224,7 +223,7 @@ class Path(BaseType):
     def coerce(self, value):
         if value:
             try:
-                return util.enc.bytestring_path(value)
+                return enc.bytestring_path(value)
             except (ValueError, TypeError):
                 pass
 
@@ -233,13 +232,13 @@ class Path(BaseType):
     def normalize(self, value):
         value = self.__call__(value)
         if value:
-            return util.enc.normpath(value)
+            return enc.normpath(value)
 
         self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         _normalized = self.normalize(value)
-        return util.enc.displayable_path(_normalized)
+        return enc.displayable_path(_normalized)
 
 
 class PathComponent(BaseType):
@@ -249,7 +248,7 @@ class PathComponent(BaseType):
 
     def coerce(self, value):
         try:
-            return util.enc.bytestring_path(value)
+            return enc.bytestring_path(value)
         except (ValueError, TypeError):
             self._fail_coercion(value)
 
@@ -258,14 +257,14 @@ class PathComponent(BaseType):
         if value:
             # Expand user home directory if present.
             return os.path.normpath(
-                os.path.expanduser(util.enc.syspath(value))
+                os.path.expanduser(enc.syspath(value))
             )
 
         self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         _coerced = self.__call__(value)
-        return util.enc.displayable_path(_coerced)
+        return enc.displayable_path(_coerced)
 
 
 class Boolean(BaseType):
@@ -443,7 +442,7 @@ class String(BaseType):
 
         if isinstance(value, bytes):
             try:
-                return util.enc.decode_(value)
+                return enc.decode_(value)
             except Exception:
                 return self.null()
 

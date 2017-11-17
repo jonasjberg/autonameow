@@ -23,14 +23,18 @@
 import os
 from unittest import TestCase
 
-from core import util
-from core.util.misc import (
-    unique_identifier,
-    multiset_count,
-    flatten_dict,
+from util.misc import (
+    contains_none,
+    count_dict_recursive,
     expand_meowuri_data_dict,
+    filter_none,
+    flatten_dict,
+    git_commit_hash,
+    is_executable,
+    multiset_count,
     nested_dict_get,
-    nested_dict_set
+    nested_dict_set,
+    unique_identifier
 )
 import unit_utils as uu
 
@@ -196,26 +200,26 @@ class TestFlattenDictWithRawMetadata(TestCase):
 
 class TestCountDictRecursive(TestCase):
     def test_count_dict_recursive_function_is_defined(self):
-        self.assertIsNotNone(util.count_dict_recursive)
+        self.assertIsNotNone(count_dict_recursive)
 
     def test_raises_exception_for_invalid_input(self):
         with self.assertRaises(TypeError):
-            util.count_dict_recursive([])
-            util.count_dict_recursive([{}])
-            util.count_dict_recursive([{'foo': []}])
+            count_dict_recursive([])
+            count_dict_recursive([{}])
+            count_dict_recursive([{'foo': []}])
 
     def test_returns_zero_given_none_or_false(self):
-        self.assertEqual(util.count_dict_recursive(None), 0)
-        self.assertEqual(util.count_dict_recursive(False), 0)
+        self.assertEqual(count_dict_recursive(None), 0)
+        self.assertEqual(count_dict_recursive(False), 0)
 
     def test_returns_zero_given_empty_dictionary(self):
-        self.assertEqual(util.count_dict_recursive({}), 0)
-        self.assertEqual(util.count_dict_recursive({'foo': {}}), 0)
-        self.assertEqual(util.count_dict_recursive({'foo': {'bar': {}}}), 0)
+        self.assertEqual(count_dict_recursive({}), 0)
+        self.assertEqual(count_dict_recursive({'foo': {}}), 0)
+        self.assertEqual(count_dict_recursive({'foo': {'bar': {}}}), 0)
 
     def test_returns_zero_given_empty_containers(self):
         def _assert_zero(test_data):
-            self.assertEqual(util.count_dict_recursive(test_data), 0)
+            self.assertEqual(count_dict_recursive(test_data), 0)
 
         _assert_zero({'a': []})
         _assert_zero({'a': [[]]})
@@ -232,7 +236,7 @@ class TestCountDictRecursive(TestCase):
 
     def test_returns_expected_count(self):
         def _assert_count(test_data, expect_count):
-            self.assertEqual(util.count_dict_recursive(test_data), expect_count)
+            self.assertEqual(count_dict_recursive(test_data), expect_count)
 
         _assert_count({'a': 'foo'}, 1)
         _assert_count({'a': 'foo', 'b': None}, 1)
@@ -450,20 +454,20 @@ class TestNestedDictSetRetrieveLists(TestCase):
 
 class TestWhichExecutable(TestCase):
     def test_returns_true_for_executable_commands(self):
-        self.assertTrue(util.is_executable('python'))
+        self.assertTrue(is_executable('python'))
 
     def test_returns_false_for_bogus_commands(self):
-        self.assertFalse(util.is_executable('thisisntexecutablesurely'))
+        self.assertFalse(is_executable('thisisntexecutablesurely'))
 
 
 class TestContainsNone(TestCase):
     def _assert_false(self, test_data):
-        actual = util.contains_none(test_data)
+        actual = contains_none(test_data)
         self.assertFalse(actual)
         self.assertTrue(isinstance(actual, bool))
 
     def _assert_true(self, test_data):
-        actual = util.contains_none(test_data)
+        actual = contains_none(test_data)
         self.assertTrue(actual)
         self.assertTrue(isinstance(actual, bool))
 
@@ -491,7 +495,7 @@ class TestContainsNone(TestCase):
 
 class TestFilterNone(TestCase):
     def _assert_filters(self, test_data, expected):
-        actual = util.filter_none(test_data)
+        actual = filter_none(test_data)
         self.assertTrue(isinstance(actual, list))
         self.assertListEqual(actual, expected)
         self.assertEqual(len(actual), len(expected))
@@ -513,12 +517,12 @@ class TestFilterNone(TestCase):
 
 class TestGitCommitHash(TestCase):
     def test_returns_expected_type(self):
-        actual = util.git_commit_hash()
+        actual = git_commit_hash()
         self.assertTrue(uu.is_internalstring(actual))
 
     def test_resets_curdir(self):
         curdir_before = os.path.curdir
-        _ = util.git_commit_hash()
+        _ = git_commit_hash()
         curdir_after = os.path.curdir
 
         self.assertEqual(curdir_before, curdir_after)

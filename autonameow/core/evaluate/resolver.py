@@ -141,8 +141,7 @@ class TemplateFieldDataResolver(object):
 
                         if len(seen_data) == 1:
                             log.debug('Using first of {} equivalent '
-                                      'entries'.format(len(_data))
-                            )
+                                      'entries'.format(len(_data)))
                             _data = _data[0]
                             # TODO: [TD0112] FIX THIS!
 

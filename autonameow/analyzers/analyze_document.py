@@ -26,7 +26,7 @@ from core import types
 from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
-from core.util import (
+from util import (
     dateandtime,
     textutils
 )
@@ -206,7 +206,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                         WeightedMapping(fields.Date, probability=0.25)
                     ],
                     'generic_field': gf.GenericDateCreated
-            })
+                    })
 
         # TODO: Temporary premature return skips brute force search ..
         return results

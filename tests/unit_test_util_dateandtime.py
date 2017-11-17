@@ -22,16 +22,16 @@
 from datetime import datetime
 from unittest import TestCase
 
-from core.util.dateandtime import (
+import unit_utils as uu
+from util.dateandtime import (
+    find_isodate_like,
     hyphenate_date,
     match_any_unix_timestamp,
     match_special_case,
-    to_datetime,
     naive_to_timezone_aware,
     timezone_aware_to_naive,
-    find_isodate_like
+    to_datetime
 )
-import unit_utils as uu
 
 
 class TestDateAndTime(TestCase):

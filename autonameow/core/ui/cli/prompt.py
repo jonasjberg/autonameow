@@ -50,11 +50,11 @@ from core import (
     config,
     disk,
     providers,
-    util
 )
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from core.ui import cli
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -76,12 +76,12 @@ def get_config_history_path():
         elif disk.isdir(_history_path):
             log.warning('Expected history path to include a file ..')
             _fixed_path = os.path.join(
-                util.enc.syspath(_history_path),
-                util.enc.syspath(C.DEFAULT_HISTORY_FILE_BASENAME)
+                enc.syspath(_history_path),
+                enc.syspath(C.DEFAULT_HISTORY_FILE_BASENAME)
             )
             if _fixed_path:
                 log.warning('Using fixed history path: "{!s}"'.format(
-                    util.enc.displayable_path(_fixed_path)
+                    enc.displayable_path(_fixed_path)
                 ))
                 return _fixed_path
 
@@ -124,7 +124,7 @@ class MeowURICompleter(Completer):
 def meowuri_prompt(message=None):
     _history_file_path = get_config_history_path()
     log.debug('Using prompt history file: "{!s}"'.format(
-        util.enc.displayable_path(_history_file_path)
+        enc.displayable_path(_history_file_path)
     ))
     history = FileHistory(_history_file_path)
     meowuri_completer = MeowURICompleter()

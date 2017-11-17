@@ -36,17 +36,18 @@ from core import (
     providers,
     repository,
     ui,
-    util
 )
 from core import constants as C
 from core.config.configuration import Configuration
 from core.evaluate import (
-    TemplateFieldDataResolver,
-    RuleMatcher
+    RuleMatcher,
+    TemplateFieldDataResolver
 )
 from core.fileobject import FileObject
 from core.plugin_handler import PluginHandler
-from core.util import sanity
+import util
+from util import sanity
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -163,10 +164,10 @@ class Autonameow(object):
             _default_config_path = config.DefaultConfigFilePath
             include_opts = {
                 'config_file_path': '"{!s}"'.format(
-                    util.enc.displayable_path(_default_config_path)
+                    enc.displayable_path(_default_config_path)
                 ),
                 'cache_directory_path': '"{!s}"'.format(
-                    util.enc.displayable_path(_config_path)
+                    enc.displayable_path(_config_path)
                 )
             }
             ui.options.prettyprint_options(self.opts, include_opts)
@@ -228,13 +229,13 @@ class Autonameow(object):
         ui.msg('\n')
 
     def _load_config_from_default_path(self):
-        _dp = util.enc.displayable_path(config.DefaultConfigFilePath)
+        _dp = enc.displayable_path(config.DefaultConfigFilePath)
         log.info('Using configuration: "{}"'.format(_dp))
         self.load_config(config.DefaultConfigFilePath)
 
     def _write_template_config_to_default_path_and_exit(self):
         log.info('No configuration file was found. Writing default ..')
-        _dp = util.enc.displayable_path(config.DefaultConfigFilePath)
+        _dp = enc.displayable_path(config.DefaultConfigFilePath)
         try:
             config.write_default_config()
         except exceptions.ConfigError:
@@ -252,7 +253,7 @@ class Autonameow(object):
 
     def _load_config_from_alternate_path(self):
         log.info('Using configuration file: "{!s}"'.format(
-            util.enc.displayable_path(self.opts.get('config_path'))
+            enc.displayable_path(self.opts.get('config_path'))
         ))
         self.load_config(self.opts.get('config_path'))
 
@@ -264,7 +265,7 @@ class Autonameow(object):
         """
         for file_path in file_paths:
             log.info('Processing: "{!s}"'.format(
-                util.enc.displayable_path(file_path))
+                enc.displayable_path(file_path))
             )
 
             # Sanity checking the "file_path" is part of 'FileObject' init.
@@ -273,7 +274,7 @@ class Autonameow(object):
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                    e, util.enc.displayable_path(file_path))
+                    e, enc.displayable_path(file_path))
                 )
                 continue
 
@@ -281,7 +282,7 @@ class Autonameow(object):
                 self._handle_file(current_file)
             except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
-                    util.enc.displayable_path(file_path))
+                    enc.displayable_path(file_path))
                 )
                 self.exit_code = C.EXIT_WARNING
                 continue
@@ -391,10 +392,10 @@ class Autonameow(object):
                 # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
                 candidates = None
                 choice = interactive.select_template(candidates)
-                #if choice != ui.action.ABORT:
-                #    name_template = choice
-                #else:
-                #    name_template = None
+                # if choice != ui.action.ABORT:
+                #     name_template = choice
+                # else:
+                #     name_template = None
                 name_template = None
 
                 best_match = rule_matcher.best_match
@@ -472,7 +473,7 @@ class Autonameow(object):
             raise exceptions.AutonameowException
 
         log.info('New name: "{}"'.format(
-            util.enc.displayable_path(new_name))
+            enc.displayable_path(new_name))
         )
         self.do_rename(
             from_path=current_file.abspath,
@@ -523,9 +524,9 @@ class Autonameow(object):
         sanity.check_internal_string(new_basename)
 
         # Encoding boundary.  Internal str --> internal filename bytestring
-        dest_basename = util.enc.bytestring_path(new_basename)
+        dest_basename = enc.bytestring_path(new_basename)
         log.debug('Destination basename (bytestring): "{!s}"'.format(
-            util.enc.displayable_path(dest_basename))
+            enc.displayable_path(dest_basename))
         )
         sanity.check_internal_bytestring(dest_basename)
 
@@ -534,8 +535,8 @@ class Autonameow(object):
         if disk.compare_basenames(from_basename, dest_basename):
             _msg = (
                 'Skipped "{!s}" because the current name is the same as '
-                'the new name'.format(util.enc.displayable_path(from_basename),
-                                      util.enc.displayable_path(dest_basename))
+                'the new name'.format(enc.displayable_path(from_basename),
+                                      enc.displayable_path(dest_basename))
             )
             log.debug(_msg)
             ui.msg(_msg)

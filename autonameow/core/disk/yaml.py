@@ -30,10 +30,8 @@ except ImportError:
     )
 
 from core import constants as C
-from core import (
-    exceptions,
-    util
-)
+from core import exceptions
+from util import encoding as enc
 
 
 def load_yaml_file(file_path):
@@ -57,7 +55,7 @@ def load_yaml_file(file_path):
             'Missing required argument "file_path"'
         )
     try:
-        with open(util.enc.syspath(file_path), 'r',
+        with open(enc.syspath(file_path), 'r',
                   encoding=C.DEFAULT_ENCODING) as fh:
             return yaml.safe_load(fh)
     except (OSError, UnicodeDecodeError, yaml.YAMLError) as e:
@@ -85,7 +83,7 @@ def write_yaml_file(dest_path, yaml_data):
         raise exceptions.FilesystemError(dest_path, 'Insufficient permissions')
 
     try:
-        with open(util.enc.syspath(dest_path), 'w',
+        with open(enc.syspath(dest_path), 'w',
                   encoding=C.DEFAULT_ENCODING) as fh:
             yaml.dump(yaml_data, fh,
                       encoding=C.DEFAULT_ENCODING,

@@ -21,8 +21,8 @@
 
 import re
 
-from core.util import sanity
 from thirdparty import nameparser
+from util import sanity
 
 
 RE_AUTHOR_ET_AL = re.compile(

@@ -19,3 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from util import dateandtime
+from util.checksum import *
+from util.misc import *

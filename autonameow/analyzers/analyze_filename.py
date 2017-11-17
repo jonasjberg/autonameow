@@ -22,16 +22,17 @@
 import re
 from collections import Counter
 
+
 from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
-from core.util import (
+from util import (
     dateandtime,
     textutils
 )
-from core.util.text import find_edition
+from util.text import find_edition
 
 
 # Use two different types of separators;  "SPACE" and "SEPARATOR".

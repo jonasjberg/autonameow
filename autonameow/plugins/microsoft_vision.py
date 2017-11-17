@@ -29,16 +29,14 @@ import os
 import json
 from urllib.parse import urlencode
 
-from core import (
-    types,
-    util
-)
+from core import types
 from core import constants as C
 from core.exceptions import AutonameowPluginError
 from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from plugins import BasePlugin
+from util import mimemagic
 
 
 def query_api(image_file, api_key):
@@ -222,7 +220,7 @@ class MicrosoftVisionPlugin(BasePlugin):
     def can_handle(self, fileobject):
         _mime_type = self.request_data(fileobject,
                                        'filesystem.contents.mime_type')
-        return util.mimemagic.eval_glob(_mime_type, 'image/*')
+        return mimemagic.eval_glob(_mime_type, 'image/*')
 
     @classmethod
     def test_init(cls):

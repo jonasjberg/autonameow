@@ -19,10 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    TestCase,
-    util
-)
+import unittest
+from unittest import TestCase
 
 from core.ui.cli.common import (
     colorize,
@@ -36,7 +34,7 @@ import unit_utils as uu
 class TestMsg(TestCase):
     def setUp(self):
         self.maxDiff = None
-        util._MAX_LENGTH = 2000
+        unittest.util._MAX_LENGTH = 2000
 
     def test_msg_is_defined_and_available(self):
         self.assertIsNotNone(msg)

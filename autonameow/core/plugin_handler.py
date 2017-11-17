@@ -130,7 +130,6 @@ class PluginHandler(object):
             collect_results(fileobject, _meowuri_prefix, _results)
 
 
-
 def request_data(fileobject, meowuri):
     response = repository.SessionRepository.query(fileobject, meowuri)
     return response.get('value')

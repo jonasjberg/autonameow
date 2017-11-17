@@ -22,15 +22,15 @@
 import logging
 import re
 
+from core import constants as C
 from core import (
     disk,
     exceptions,
     ui,
-    util
 )
-from core import constants as C
 from core.namebuilder.fields import NameTemplateField
-from core.util import sanity
+from util import sanity
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ def build(config, name_template, field_data_map):
             new_name = disk.sanitize_filename(new_name)
 
         log.debug('Sanitized basename (unicode): "{!s}"'.format(
-            util.enc.displayable_path(new_name))
+            enc.displayable_path(new_name))
         )
     else:
         log.debug('Skipped sanitizing filename')

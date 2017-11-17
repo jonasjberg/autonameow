@@ -26,9 +26,13 @@ from core import constants as C
 from core import (
     disk,
     exceptions,
-    util
 )
-from core.util import sanity
+import util
+from util import (
+    mimemagic,
+    sanity
+)
+from util import encoding as enc
 
 
 class FileObject(object):
@@ -44,17 +48,17 @@ class FileObject(object):
         validate_path_argument(path)
         self.abspath = path
 
-        self.filename = util.enc.bytestring_path(
-            os.path.basename(util.enc.syspath(path))
+        self.filename = enc.bytestring_path(
+            os.path.basename(enc.syspath(path))
         )
-        self.pathname = util.enc.bytestring_path(
-            os.path.dirname(util.enc.syspath(path))
+        self.pathname = enc.bytestring_path(
+            os.path.dirname(enc.syspath(path))
         )
-        self.pathparent = util.enc.bytestring_path(
-            os.path.basename(os.path.dirname(util.enc.syspath(path)))
+        self.pathparent = enc.bytestring_path(
+            os.path.basename(os.path.dirname(enc.syspath(path)))
         )
 
-        self.mime_type = util.mimemagic.filetype(self.abspath)
+        self.mime_type = mimemagic.filetype(self.abspath)
 
         # Extract parts of the file name.
         self.basename_prefix = disk.basename_prefix(self.abspath) or b''
@@ -85,7 +89,7 @@ class FileObject(object):
 
     def _get_bytesize(self):
         try:
-            statinfo = os.stat(util.enc.syspath(self.abspath))
+            statinfo = os.stat(enc.syspath(self.abspath))
             if statinfo:
                 return statinfo.st_size
         except OSError:
@@ -99,14 +103,14 @@ class FileObject(object):
 
     def __str__(self):
         if self.__cached_str is None:
-            self.__cached_str = util.enc.displayable_path(self.filename)
+            self.__cached_str = enc.displayable_path(self.filename)
 
         return self.__cached_str
 
     def __repr__(self):
         if self.__cached_repr is None:
             self.__cached_repr = '<{!s}("{!s}")>'.format(
-                self.__class__.__name__, util.enc.displayable_path(self.abspath)
+                self.__class__.__name__, enc.displayable_path(self.abspath)
             )
 
         return self.__cached_repr
@@ -151,7 +155,7 @@ def validate_path_argument(path):
     elif not path.strip():
         _raise('Path is None/empty')
 
-    _path = util.enc.syspath(path)
+    _path = enc.syspath(path)
 
     if not os.path.exists(_path):
         _raise('Path does not exist')

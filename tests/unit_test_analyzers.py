@@ -23,9 +23,7 @@
 from unittest import TestCase
 
 import analyzers
-from core import (
-    exceptions,
-)
+from core import exceptions
 from core import constants as C
 import unit_utils as uu
 

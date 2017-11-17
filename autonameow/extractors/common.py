@@ -22,11 +22,9 @@
 import logging
 
 from core import constants as C
-from core import (
-    providers,
-    util
-)
+from core import providers
 from core.exceptions import AutonameowException
+from util import mimemagic
 
 
 class ExtractorError(AutonameowException):
@@ -161,8 +159,8 @@ class BaseExtractor(object):
             )
 
         try:
-            return util.mimemagic.eval_glob(fileobject.mime_type,
-                                            cls.HANDLES_MIME_TYPES)
+            return mimemagic.eval_glob(fileobject.mime_type,
+                                       cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
             raise ExtractorError(
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)

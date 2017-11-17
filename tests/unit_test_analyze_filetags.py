@@ -23,7 +23,6 @@ from collections import namedtuple
 from unittest import TestCase
 
 from analyzers import analyze_filetags
-
 import unit_utils as uu
 
 

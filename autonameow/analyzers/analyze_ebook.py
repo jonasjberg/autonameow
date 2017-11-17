@@ -31,14 +31,16 @@ from analyzers import BaseAnalyzer
 from core import (
     persistence,
     types,
-    util,
 )
 from core.namebuilder import fields
 from core.model import WeightedMapping
 from core.model import genericfields as gf
-from core.util import sanity
-from core.util.textutils import extractlines_do
-from core.util.text import (
+from util import (
+    mimemagic,
+    sanity
+)
+from util.textutils import extractlines_do
+from util.text import (
     find_edition,
     RE_EDITION
 )
@@ -264,11 +266,12 @@ class EbookAnalyzer(BaseAnalyzer):
     @classmethod
     def can_handle(cls, fileobject):
         try:
-            return util.mimemagic.eval_glob(fileobject.mime_type,
-                                            cls.HANDLES_MIME_TYPES)
+            return mimemagic.eval_glob(fileobject.mime_type,
+                                       cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
-            log.error('Error evaluating "{!s}" MIME handling; {!s}'.format(cls,
-                                                                           e))
+            log.error(
+                'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
+            )
         if (fileobject.basename_suffix == b'mobi' and
                 fileobject.mime_type == 'application/octet-stream'):
             return True

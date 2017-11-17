@@ -22,15 +22,15 @@
 import logging
 import subprocess
 
-from core import util
-from core.util import (
-    sanity,
-    textutils
-)
 from extractors import ExtractorError
 from extractors.text.common import (
     AbstractTextExtractor,
     decode_raw
+)
+import util
+from util import (
+    sanity,
+    textutils
 )
 
 

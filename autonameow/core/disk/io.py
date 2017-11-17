@@ -23,24 +23,22 @@ import logging
 import os
 import tempfile
 
-from core import (
-    exceptions,
-    util
-)
-from core.util import sanity
+from core import exceptions
+from util import sanity
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
 
 
 def rename_file(source_path, new_basename):
-    dest_base = util.enc.syspath(new_basename)
-    source = util.enc.syspath(source_path)
+    dest_base = enc.syspath(new_basename)
+    source = enc.syspath(source_path)
 
     source = os.path.realpath(os.path.normpath(source))
     if not os.path.exists(source):
         raise FileNotFoundError('Source does not exist: "{!s}"'.format(
-            util.enc.displayable_path(source)
+            enc.displayable_path(source)
         ))
 
     dest_abspath = os.path.normpath(
@@ -48,12 +46,12 @@ def rename_file(source_path, new_basename):
     )
     if os.path.exists(dest_abspath):
         raise FileExistsError('Destination exists: "{!s}"'.format(
-            util.enc.displayable_path(dest_abspath)
+            enc.displayable_path(dest_abspath)
         ))
 
     log.debug('Renaming "{!s}" to "{!s}"'.format(
-        util.enc.displayable_path(source),
-        util.enc.displayable_path(dest_abspath))
+        enc.displayable_path(source),
+        enc.displayable_path(dest_abspath))
     )
     try:
         os.rename(source, dest_abspath)
@@ -63,21 +61,21 @@ def rename_file(source_path, new_basename):
 
 def exists(path):
     try:
-        return os.path.exists(util.enc.syspath(path))
+        return os.path.exists(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
         raise exceptions.FilesystemError(e)
 
 
 def isdir(path):
     try:
-        return os.path.isdir(util.enc.syspath(path))
+        return os.path.isdir(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
         raise exceptions.FilesystemError(e)
 
 
 def isfile(path):
     try:
-        return os.path.isfile(util.enc.syspath(path))
+        return os.path.isfile(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
         raise exceptions.FilesystemError(e)
 
@@ -92,7 +90,7 @@ def tempdir():
         FilesystemError: The directory could not be created.
     """
     try:
-        return util.enc.normpath(tempfile.mkdtemp())
+        return enc.normpath(tempfile.mkdtemp())
     except OSError as e:
         raise exceptions.FilesystemError(e)
 
@@ -104,7 +102,7 @@ def makedirs(path):
         raise ValueError('Got empty argument "path"')
 
     try:
-        os.makedirs(util.enc.syspath(path))
+        os.makedirs(enc.syspath(path))
     except (OSError, ValueError, TypeError) as e:
         raise exceptions.FilesystemError(e)
 
@@ -129,19 +127,19 @@ def delete(path, ignore_missing=False):
     if not path or not path.strip():
         raise ValueError('Argument "path" is empty or only whitespace')
 
-    p = util.enc.syspath(path)
+    p = enc.syspath(path)
     if ignore_missing and not os.path.exists(p):
         return
 
     try:
-        os.remove(util.enc.syspath(p))
+        os.remove(enc.syspath(p))
     except OSError as e:
         raise exceptions.FilesystemError(e)
 
 
 def file_basename(file_path):
-    _basename = os.path.basename(util.enc.syspath(file_path))
-    return util.enc.bytestring_path(_basename)
+    _basename = os.path.basename(enc.syspath(file_path))
+    return enc.bytestring_path(_basename)
 
 
 CHAR_PERMISSION_LOOKUP = {
@@ -186,7 +184,7 @@ def has_permissions(path, permissions):
     for char in CHAR_PERMISSION_LOOKUP.keys():
         if char in perms:
             try:
-                ok = os.access(util.enc.syspath(path),
+                ok = os.access(enc.syspath(path),
                                CHAR_PERMISSION_LOOKUP[char])
             except OSError:
                 return False

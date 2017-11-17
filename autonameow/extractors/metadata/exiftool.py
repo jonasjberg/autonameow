@@ -19,10 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core import (
-    types,
-    util
-)
+from core import types
 from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
@@ -31,6 +28,7 @@ from extractors import (
     ExtractorError
 )
 from thirdparty import pyexiftool
+import util
 
 
 IGNORED_EXIFTOOL_TAGNAMES = frozenset([

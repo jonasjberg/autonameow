@@ -27,8 +27,8 @@ from core import (
     exceptions,
     types,
 )
-from core.util import sanity
-from core.util.text import format_name
+from util import sanity
+from util.text import format_name
 
 
 log = logging.getLogger(__name__)

@@ -21,13 +21,13 @@
 
 from unittest import TestCase
 
+from core import constants as C
 from core.config.configuration import Configuration
 from core.config import DEFAULT_CONFIG
 from core.evaluate.rulematcher import (
     RuleMatcher,
     prioritize_rules,
 )
-from core import constants as C
 import unit_utils as uu
 import unit_utils_constants as uuconst
 

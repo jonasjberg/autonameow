@@ -23,7 +23,7 @@ import unittest
 from collections import namedtuple
 from unittest import TestCase
 
-from core.util.text.humannames import (
+from util.text.humannames import (
     format_name,
     format_name_list,
     HumanNameFormatter,

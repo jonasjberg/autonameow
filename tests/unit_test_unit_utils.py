@@ -28,11 +28,11 @@ from unittest import TestCase
 
 import analyzers
 from analyzers import BaseAnalyzer
-from core import util
 from core.config import rules
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
 from core.model import MeowURI
+from util import encoding as enc
 
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -201,8 +201,8 @@ class TestUnitUtilityDirExists(TestCase):
             uuconst.AUTONAMEOW_SRCROOT_DIR,
             '/',
             b'/',
-            util.enc.bytestring_path(os.path.dirname(__file__)),
-            util.enc.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
+            enc.bytestring_path(os.path.dirname(__file__)),
+            enc.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
         ]
         for df in _files:
             self._check_return(df)
@@ -247,8 +247,8 @@ class TestUnitUtilityPathIsReadable(TestCase):
         _paths = [
             __file__,
             os.path.dirname(__file__),
-            util.enc.bytestring_path(__file__),
-            util.enc.bytestring_path(os.path.dirname(__file__)),
+            enc.bytestring_path(__file__),
+            enc.bytestring_path(os.path.dirname(__file__)),
         ]
         for df in _paths:
             self._check_return(df)

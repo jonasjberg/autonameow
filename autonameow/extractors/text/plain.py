@@ -26,13 +26,13 @@ try:
 except ImportError:
     chardet = None
 
-from core.util import (
-    sanity,
-    textutils
-)
 from core import constants as C
 from extractors import ExtractorError
 from extractors.text.common import AbstractTextExtractor
+from util import (
+    sanity,
+    textutils
+)
 
 
 log = logging.getLogger(__name__)

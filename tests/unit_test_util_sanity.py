@@ -23,7 +23,7 @@ from unittest import TestCase
 
 from core import constants as C
 from core.exceptions import EncodingBoundaryViolation
-from core.util import sanity
+from util import sanity
 
 
 class TestSanityCheckInternalBytestring(TestCase):

@@ -28,7 +28,7 @@ try:
 except ImportError:
     chardet = None
 
-from core.util import sanity
+from util import sanity
 
 
 def extract_digits(string):
@@ -166,6 +166,8 @@ def extract_lines(text, firstline, lastline):
 
     extracted = lines[firstline:lastline]
     return ''.join(extracted)
+
+
 # \u002D Hyphen-minus
 # \u05BE Hebrew punctuation MAQAF
 # \u2010 Hyphen

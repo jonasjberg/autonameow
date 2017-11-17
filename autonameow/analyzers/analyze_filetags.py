@@ -25,11 +25,11 @@ from analyzers import BaseAnalyzer
 from core import (
     disk,
     types,
-    util
 )
 from core.model import genericfields as gf
 from core.model import WeightedMapping
 from core.namebuilder import fields
+from util import encoding as enc
 
 
 # TODO: [TD0037] Allow further customizing of "filetags" options.
@@ -46,14 +46,14 @@ FILENAMEPART_TS_REGEX = re.compile(
 
 
 # TODO: [TD0043][TD0009] Fetch values from the active configuration.
-# BETWEEN_TAG_SEPARATOR = util.enc.bytestring_path(
+# BETWEEN_TAG_SEPARATOR = enc.bytestring_path(
 #     opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
 # )
-BETWEEN_TAG_SEPARATOR = util.enc.bytestring_path(' ')
-# FILENAME_TAG_SEPARATOR = util.enc.bytestring_path(
+BETWEEN_TAG_SEPARATOR = enc.bytestring_path(' ')
+# FILENAME_TAG_SEPARATOR = enc.bytestring_path(
 #     opts.options['FILETAGS_OPTIONS'].get('filename_tag_separator')
 # )
-FILENAME_TAG_SEPARATOR = util.enc.bytestring_path(' -- ')
+FILENAME_TAG_SEPARATOR = enc.bytestring_path(' -- ')
 
 
 class FiletagsAnalyzer(BaseAnalyzer):
@@ -255,7 +255,7 @@ def partition_basename(file_path):
     # Encoding boundary;  Internal filename bytestring --> internal Unicode str
     def decode_if_not_none_or_empty(bytestring_maybe):
         if bytestring_maybe:
-            return util.enc.decode_(bytestring_maybe)
+            return enc.decode_(bytestring_maybe)
         else:
             return None
 

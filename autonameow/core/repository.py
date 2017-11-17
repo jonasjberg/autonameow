@@ -24,10 +24,11 @@ import logging
 from core import (
     disk,
     exceptions,
-    util
 )
 from core.model import MeowURI
-from core.util import textutils
+import util
+from util import textutils
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -172,7 +173,7 @@ class Repository(object):
         for fileobject, data in self.data.items():
             out.append('FileObject basename: "{!s}"'.format(fileobject))
 
-            _abspath = util.enc.displayable_path(fileobject.abspath)
+            _abspath = enc.displayable_path(fileobject.abspath)
             out.append('FileObject absolute path: "{!s}"'.format(_abspath))
 
             out.append('')
@@ -210,7 +211,7 @@ class Repository(object):
                     v = d.get('value')
                     try:
                         if isinstance(v, bytes):
-                            temp_list.append(util.enc.displayable_path(v))
+                            temp_list.append(enc.displayable_path(v))
                         elif meowuri.matchglobs(['generic.contents.text',
                                                  'extractor.text.*']):
                             # Often *a lot* of text, trim to arbitrary size..
@@ -226,7 +227,7 @@ class Repository(object):
             else:
                 v = data.get('value')
                 if isinstance(v, bytes):
-                    temp[meowuri] = util.enc.displayable_path(v)
+                    temp[meowuri] = enc.displayable_path(v)
 
                 elif meowuri.matchglobs(['generic.contents.text',
                                          'extractor.text.*']):
@@ -292,7 +293,7 @@ class Repository(object):
         except ImportError:
             import pickle
 
-        with open(util.enc.syspath(file_path), 'wb') as fh:
+        with open(enc.syspath(file_path), 'wb') as fh:
             pickle.dump(self.data, fh, pickle.HIGHEST_PROTOCOL)
 
     # def __repr__(self):

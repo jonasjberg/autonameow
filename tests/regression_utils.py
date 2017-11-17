@@ -28,8 +28,8 @@ from core import (
     disk,
     exceptions,
     types,
-    util
 )
+from util import encoding as enc
 import unit_utils as uu
 import unit_utils_constants as uuconst
 
@@ -188,20 +188,20 @@ class RegressionTestLoader(object):
             )
 
         log.debug('Set config_path "{!s}" to "{!s}"'.format(_path, _abspath))
-        _options['config_path'] = util.enc.normpath(_abspath)
+        _options['config_path'] = enc.normpath(_abspath)
         return _options
 
     def _joinpath(self, leaf):
         assert type(leaf) == bytes
         return os.path.join(
-            util.enc.syspath(self.abspath), util.enc.syspath(leaf)
+            enc.syspath(self.abspath), enc.syspath(leaf)
         )
 
     def load(self):
         _setup_dict = self._get_test_setup_dict_from_files()
         _setup_dict['test_abspath'] = self.abspath
         _setup_dict['test_dirname'] = os.path.basename(
-            util.enc.syspath(self.abspath)
+            enc.syspath(self.abspath)
         )
         return _setup_dict
 
@@ -266,7 +266,7 @@ def get_regressiontests_rootdir():
         _rootdir = os.path.join(
             C.AUTONAMEOW_SRCROOT_DIR, 'tests', 'regression'
         )
-        REGRESSIONTESTS_ROOT_ABSPATH = util.enc.normpath(_rootdir)
+        REGRESSIONTESTS_ROOT_ABSPATH = enc.normpath(_rootdir)
 
     assert disk.isdir(REGRESSIONTESTS_ROOT_ABSPATH)
     return REGRESSIONTESTS_ROOT_ABSPATH
@@ -276,10 +276,10 @@ def regtest_abspath(basename):
     _root = get_regressiontests_rootdir()
     try:
         _abspath = os.path.join(
-            util.enc.syspath(_root),
-            util.enc.syspath(basename)
+            enc.syspath(_root),
+            enc.syspath(basename)
         )
-        _normalized_abspath = util.enc.normpath(_abspath)
+        _normalized_abspath = enc.normpath(_abspath)
     except Exception:
         raise AssertionError
 

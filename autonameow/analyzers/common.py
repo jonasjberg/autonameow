@@ -25,9 +25,9 @@ from core import constants as C
 from core import (
     exceptions,
     providers,
-    util
 )
 from core.exceptions import AutonameowException
+from util import mimemagic
 
 
 class AnalyzerError(AutonameowException):
@@ -227,8 +227,7 @@ class BaseAnalyzer(object):
         Returns:
             True if the analyzer class can handle the given file, else False.
         """
-        if util.mimemagic.eval_glob(fileobject.mime_type,
-                                    cls.HANDLES_MIME_TYPES):
+        if mimemagic.eval_glob(fileobject.mime_type, cls.HANDLES_MIME_TYPES):
             return True
         else:
             return False

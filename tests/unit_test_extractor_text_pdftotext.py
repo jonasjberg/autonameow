@@ -21,11 +21,11 @@
 
 import unittest
 
-from core import util
 from extractors.text import PdftotextTextExtractor
 from extractors.text.pdftotext import extract_pdf_content_with_pdftotext
-import unit_utils as uu
 from unit_utils_extractors import TestCaseExtractorBasics
+from util import encoding as enc
+import unit_utils as uu
 
 
 UNMET_DEPENDENCIES = PdftotextTextExtractor.check_dependencies() is False
@@ -82,7 +82,7 @@ class TestPdftotextTextExtractorWithTestFile(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.test_file = util.enc.normpath(uu.abspath_testfile('gmail.pdf'))
+        self.test_file = enc.normpath(uu.abspath_testfile('gmail.pdf'))
         self.test_fileobject = uu.fileobject_testfile('gmail.pdf')
         self.e = PdftotextTextExtractor()
 

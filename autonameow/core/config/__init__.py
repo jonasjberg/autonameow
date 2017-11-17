@@ -36,8 +36,8 @@ from core.config.default_config import DEFAULT_CONFIG
 from core import (
     disk,
     exceptions,
-    util,
 )
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ class ConfigReadError(exceptions.ConfigError):
 
         message = 'file {} could not be read'.format(filename)
         if (isinstance(reason, yaml.scanner.ScannerError)
-            and reason.problem == YAML_TAB_PROBLEM):
+                and reason.problem == YAML_TAB_PROBLEM):
             # Special-case error message for tab indentation in YAML markup.
             message += ': found tab character at line {}, column {}'.format(
                 reason.problem_mark.line + 1,
@@ -141,7 +141,7 @@ def config_file_path():
 
     # Path name encoding boundary. Convert to internal bytestring format.
     config_path = os.path.normpath(os.path.join(dirs[0], CONFIG_BASENAME))
-    return util.enc.normpath(config_path)
+    return enc.normpath(config_path)
 
 
 def has_config_file():
@@ -151,7 +151,7 @@ def has_config_file():
     Returns:
         True if a configuration file is available, else False.
     """
-    config_path = util.enc.syspath(DefaultConfigFilePath)
+    config_path = enc.syspath(DefaultConfigFilePath)
     if os.path.exists(config_path):
         if os.path.isfile(config_path) or os.path.islink(config_path):
             return True
@@ -168,9 +168,9 @@ def write_default_config():
     """
     config_path = DefaultConfigFilePath
 
-    if os.path.exists(util.enc.syspath(config_path)):
+    if os.path.exists(enc.syspath(config_path)):
         log.warning(
-            'Path exists: "{}"'.format(util.enc.displayable_path(config_path))
+            'Path exists: "{}"'.format(enc.displayable_path(config_path))
         )
         raise ConfigWriteError
 

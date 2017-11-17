@@ -25,12 +25,12 @@ import analyzers
 from core import (
     exceptions,
     repository,
-    util
 )
 from core.config.configuration import Configuration
 from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
 from core.model import MeowURI
+from util.queue import GenericQueue
 
 
 log = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ current file.
 """
 
 
-class AnalysisRunQueue(util.GenericQueue):
+class AnalysisRunQueue(GenericQueue):
     """
     Execution queue for analyzers.
 
@@ -155,7 +155,7 @@ def collect_results(fileobject, meowuri_prefix, data):
         repository.SessionRepository.store(fileobject, _meowuri, data)
 
     # if isinstance(data, dict):
-    #     flat_data = util.flatten_dict(data)
+    #     flat_data = flatten_dict(data)
     #     for _uri_leaf, _data in flat_data.items():
     #         try:
     #             _meowuri = MeowURI(meowuri_prefix, _uri_leaf)

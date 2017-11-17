@@ -20,7 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from analyzers import BaseAnalyzer
-from core.util import dateandtime
+from util import dateandtime
 
 
 class TextAnalyzer(BaseAnalyzer):

@@ -32,10 +32,10 @@ from core import (
     disk,
     exceptions,
     types,
-    util
 )
 from core import constants as C
-from core.util import sanity
+from util import sanity
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -94,7 +94,7 @@ class BasePersistence(object):
         else:
             self.persistence_dir_abspath = persistence_dir_abspath
         sanity.check_internal_bytestring(self.persistence_dir_abspath)
-        assert os.path.isabs(util.enc.syspath(self.persistence_dir_abspath))
+        assert os.path.isabs(enc.syspath(self.persistence_dir_abspath))
 
         _prefix = types.force_string(file_prefix)
         if not _prefix.strip():
@@ -103,7 +103,7 @@ class BasePersistence(object):
             )
         self.persistencefile_prefix = _prefix
 
-        self._dp = util.enc.displayable_path(self.persistence_dir_abspath)
+        self._dp = enc.displayable_path(self.persistence_dir_abspath)
         if not self.has_persistencedir():
             log.debug('Directory for persistent storage does not exist:'
                       ' "{!s}"'.format(self._dp))
@@ -128,13 +128,12 @@ class BasePersistence(object):
 
     def has_persistencedir_permissions(self):
         try:
-            return disk.has_permissions(self.persistence_dir_abspath,
-                                             'rwx')
+            return disk.has_permissions(self.persistence_dir_abspath, 'rwx')
         except (TypeError, ValueError):
             return False
 
     def has_persistencedir(self):
-        _path = util.enc.syspath(self.persistence_dir_abspath)
+        _path = enc.syspath(self.persistence_dir_abspath)
         try:
             return bool(os.path.exists(_path) and os.path.isdir(_path))
         except (OSError, ValueError, TypeError):
@@ -150,9 +149,9 @@ class BasePersistence(object):
             sep=self.PERSISTENCE_FILE_PREFIX_SEPARATOR,
             key=key
         )
-        _p = util.enc.normpath(
-            os.path.join(util.enc.syspath(self.persistence_dir_abspath),
-                         util.enc.syspath(util.enc.encode_(_basename)))
+        _p = enc.normpath(
+            os.path.join(enc.syspath(self.persistence_dir_abspath),
+                         enc.syspath(enc.encode_(_basename)))
         )
         return _p
 
@@ -177,7 +176,7 @@ class BasePersistence(object):
 
         if key not in self._data:
             _file_path = self._persistence_file_abspath(key)
-            if not os.path.exists(util.enc.syspath(_file_path)):
+            if not os.path.exists(enc.syspath(_file_path)):
                 # Avoid displaying errors on first use.
                 raise KeyError
 
@@ -185,14 +184,14 @@ class BasePersistence(object):
                 value = self._load(_file_path)
                 self._data[key] = value
             except ValueError as e:
-                _dp = util.enc.displayable_path(_file_path)
+                _dp = enc.displayable_path(_file_path)
                 log.error(
                     'Error when reading key "{!s}" from persistence file "{!s}"'
                     ' (corrupt file?); {!s}'.format(key, _dp, e)
                 )
                 self.delete(key)
             except OSError as e:
-                _dp = util.enc.displayable_path(_file_path)
+                _dp = enc.displayable_path(_file_path)
                 log.warning(
                     'Error while trying to read key "{!s}" from persistence'
                     ' file "{!s}"; {!s}'.format(key, _dp, e)
@@ -219,7 +218,7 @@ class BasePersistence(object):
         try:
             self._dump(value, _file_path)
         except OSError as e:
-            _dp = util.enc.displayable_path(_file_path)
+            _dp = enc.displayable_path(_file_path)
             log.error(
                 'Error while trying to write key "{!s}" with value "{!s}" to '
                 'persistence file "{!s}"; {!s}'.format(key, value, _dp, e)
@@ -232,7 +231,7 @@ class BasePersistence(object):
             pass
 
         _p = self._persistence_file_abspath(key)
-        _dp = util.enc.displayable_path(_p)
+        _dp = enc.displayable_path(_p)
         log.debug('Deleting persistence file "{!s}"'.format(_dp))
         try:
             disk.delete(_p, ignore_missing=True)
@@ -294,11 +293,11 @@ class PicklePersistence(BasePersistence):
     Persistence implementation using 'pickle' to read/write data to disk.
     """
     def _load(self, file_path):
-        with open(util.enc.syspath(file_path), 'rb') as fh:
+        with open(enc.syspath(file_path), 'rb') as fh:
             return pickle.load(fh, encoding='bytes')
 
     def _dump(self, value, file_path):
-        with open(util.enc.syspath(file_path), 'wb') as fh:
+        with open(enc.syspath(file_path), 'wb') as fh:
             pickle.dump(value, fh, pickle.HIGHEST_PROTOCOL)
 
 

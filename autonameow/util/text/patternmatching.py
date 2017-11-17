@@ -22,7 +22,7 @@
 import re
 
 from core import types
-from core.util import textutils
+from util import textutils
 
 
 RE_EDITION = re.compile(

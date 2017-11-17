@@ -26,11 +26,11 @@ from core import (
     exceptions,
     providers,
     types,
-    util
 )
 from core.config import field_parsers
 from core.model import MeowURI
 from core.namebuilder import fields
+import util
 
 
 log = logging.getLogger(__name__)

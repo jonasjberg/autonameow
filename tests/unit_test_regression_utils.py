@@ -23,7 +23,7 @@ import os
 from unittest import TestCase
 
 from core import constants as C
-from core.util import enc
+from util import encoding as enc
 from regression_utils import (
     AutonameowWrapper,
     check_renames,

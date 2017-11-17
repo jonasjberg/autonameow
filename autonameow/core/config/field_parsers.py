@@ -28,11 +28,12 @@ from core import (
     exceptions,
     namebuilder,
     types,
-    util
 )
 from core.model import genericfields as gf
 from core.model import MeowURI
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
+from util import mimemagic
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -209,8 +210,8 @@ class RegexConfigFieldParser(ConfigFieldParser):
             return False
 
         # test_data = _normalize(test_data)
-        test_data = util.enc.encode_(test_data)
-        expression = util.enc.encode_(expression)
+        test_data = enc.encode_(test_data)
+        expression = enc.encode_(expression)
 
         # log.debug('test_data: "{!s}" ({})"'.format(test_data,
         #                                            type(test_data)))
@@ -292,7 +293,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         # True is returned if any of the given expressions evaluates true.
         for expr in expression:
             try:
-                evaluates_true = util.mimemagic.eval_glob(mime_to_match, expr)
+                evaluates_true = mimemagic.eval_glob(mime_to_match, expr)
             except (TypeError, ValueError) as e:
                 log.error(
                     'Error evaluating expression "{!s}"; {!s}'.format(expr, e)

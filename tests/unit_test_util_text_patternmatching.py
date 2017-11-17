@@ -21,7 +21,7 @@
 
 from unittest import TestCase
 
-from core.util.text.patternmatching import find_edition
+from util.text.patternmatching import find_edition
 
 
 class TestFindEdition(TestCase):

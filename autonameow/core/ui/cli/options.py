@@ -23,8 +23,8 @@ import argparse
 import os
 
 from core import constants as C
-from core import util
 from core.ui import cli
+from util import encoding as enc
 
 
 def arg_is_year(value):
@@ -60,7 +60,7 @@ def arg_is_readable_file(arg):
             and os.access(arg, os.R_OK)):
         if arg.startswith('~/'):
             arg = os.path.expanduser(arg)
-        return util.enc.normpath(arg)
+        return enc.normpath(arg)
 
     raise argparse.ArgumentTypeError('Invalid file: "{!s}"'.format(arg))
 
@@ -75,7 +75,7 @@ def init_argparser():
     parser = cli.get_argparser(
         prog='autonameow',
         description='{} {}'.format(C.STRING_PROGRAM_NAME,
-                                         C.STRING_PROGRAM_VERSION),
+                                   C.STRING_PROGRAM_VERSION),
         epilog='Automatic renaming of files from analysis of '
                'several sources of information.' +
                '\n Project website:  {}'.format(C.STRING_REPO_URL),

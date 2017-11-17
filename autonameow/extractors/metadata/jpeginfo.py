@@ -22,15 +22,13 @@
 import re
 import subprocess
 
-from core import (
-    types,
-    util
-)
+from core import types
 from core.model import genericfields as gf
 from extractors import (
     BaseExtractor,
     ExtractorError
 )
+import util
 
 
 class JpeginfoMetadataExtractor(BaseExtractor):

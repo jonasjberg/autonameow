@@ -31,7 +31,7 @@ except ImportError:
     )
 
 from core import types
-from core.util import sanity
+from util import sanity
 
 
 log = logging.getLogger(__name__)

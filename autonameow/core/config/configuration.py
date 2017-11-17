@@ -28,7 +28,6 @@ from core import (
     disk,
     exceptions,
     types,
-    util
 )
 from core.config import rules
 from core.config.field_parsers import (
@@ -37,7 +36,12 @@ from core.config.field_parsers import (
     parse_versioning
 )
 from core.namebuilder import fields
-from core.util import sanity
+import util
+from util import (
+    sanity,
+    textutils
+)
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -116,7 +120,7 @@ class Configuration(object):
 
         if not _loaded_data:
             raise exceptions.ConfigError('Read empty config: "{!s}"'.format(
-                util.enc.displayable_path(path)
+                enc.displayable_path(path)
             ))
 
         return cls(_loaded_data)
@@ -169,7 +173,7 @@ class Configuration(object):
                 raise exceptions.ConfigurationSyntaxError(_error)
 
             # Remove any non-breaking spaces in the name template.
-            templ = util.remove_nonbreaking_spaces(templ)
+            templ = textutils.remove_nonbreaking_spaces(templ)
 
             if NameFormatConfigFieldParser.is_valid_nametemplate_string(templ):
                 validated[name] = templ
@@ -295,7 +299,7 @@ class Configuration(object):
             raise exceptions.ConfigurationSyntaxError(
                 'uses invalid name template format'
             )
-        name_template = util.remove_nonbreaking_spaces(valid_format)
+        name_template = textutils.remove_nonbreaking_spaces(valid_format)
 
         try:
             _rule = rules.get_valid_rule(
@@ -410,12 +414,12 @@ class Configuration(object):
                 try:
                     _bytes_path = types.AW_PATH.normalize(_value)
                 except types.AWTypeError as e:
-                    _dp = util.enc.displayable_path(_value)
+                    _dp = enc.displayable_path(_value)
                     log.error(
                         'Invalid cache directory "{!s}"; {!s}'.format(_dp, e)
                     )
                 else:
-                    _dp = util.enc.displayable_path(_bytes_path)
+                    _dp = enc.displayable_path(_bytes_path)
                     log.debug('Added persistence option :: '
                               '{!s}: {!s}'.format(option, _dp))
                     util.nested_dict_set(
@@ -423,8 +427,8 @@ class Configuration(object):
                     )
                     return
 
-            _bytes_path = util.enc.normpath(default)
-            _dp = util.enc.displayable_path(_bytes_path)
+            _bytes_path = enc.normpath(default)
+            _dp = enc.displayable_path(_bytes_path)
             log.debug('Using default persistence option :: '
                       '{!s}: {!s}'.format(option, _dp))
             util.nested_dict_set(
@@ -585,14 +589,14 @@ class Configuration(object):
 
         for number, rule in enumerate(self.rules):
             out.append('Rule {}:\n'.format(number + 1))
-            out.append(util.indent(str(rule), amount=4) + '\n')
+            out.append(textutils.indent(str(rule), amount=4) + '\n')
 
         out.append('\nReusable Name Templates:\n')
         out.append(
-            util.indent(util.dump(self.reusable_nametemplates), amount=4)
+            textutils.indent(util.dump(self.reusable_nametemplates), amount=4)
         )
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(util.indent(util.dump(self.options), amount=4))
+        out.append(textutils.indent(util.dump(self.options), amount=4))
 
         return ''.join(out)

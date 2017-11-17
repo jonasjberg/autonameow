@@ -29,10 +29,10 @@ from core import (
     disk,
     exceptions,
     logs,
-    util
 )
 from core.fileobject import FileObject
 import extractors
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -195,7 +195,7 @@ def main(options=None):
         except (exceptions.InvalidFileArgumentError,
                 exceptions.FilesystemError) as e:
             log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                e, util.enc.displayable_path(_file))
+                e, enc.displayable_path(_file))
             )
             continue
 
