@@ -182,6 +182,7 @@ class EbookAnalyzer(BaseAnalyzer):
             return
 
         return {
+            'source': self,
             'value': list_of_authors,
             'coercer': types.AW_STRING,
             'mapped_fields': [
@@ -203,6 +204,7 @@ class EbookAnalyzer(BaseAnalyzer):
             return
 
         return {
+            'source': self,
             'value': date_string,
             'coercer': types.AW_DATE,
             'mapped_fields': [
@@ -226,8 +228,10 @@ class EbookAnalyzer(BaseAnalyzer):
 
     def _wrap_publisher(self, publisher_string):
         return {
+            'source': self,
             'value': publisher_string,
             'coercer': types.AW_STRING,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
@@ -248,6 +252,7 @@ class EbookAnalyzer(BaseAnalyzer):
 
     def _wrap_title(self, title_string):
         return {
+            'source': self,
             'value': title_string,
             'coercer': types.AW_STRING,
             'mapped_fields': [
