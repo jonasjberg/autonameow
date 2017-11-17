@@ -190,6 +190,7 @@ class NameTemplateFieldCompatible(TestCase):
 
     def test_not_compatible_with_name_template_field_description(self):
         self._incompatible(fields.Description, types.AW_TIMEDATE)
+        self._incompatible(fields.Description, types.listof(types.AW_STRING))
 
     def test_compatible_with_name_template_field_tags(self):
         self._compatible(fields.Tags, types.AW_STRING)
@@ -197,3 +198,4 @@ class NameTemplateFieldCompatible(TestCase):
 
     def test_not_compatible_with_name_template_field_tags(self):
         self._incompatible(fields.Description, types.AW_TIMEDATE)
+        self._incompatible(fields.Description, types.listof(types.AW_TIMEDATE))
