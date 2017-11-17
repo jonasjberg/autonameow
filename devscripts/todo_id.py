@@ -180,6 +180,25 @@ Found {} IDs used in both the sources and the DONE-list:
     return ok
 
 
+def list_orphaned():
+    _source_files = get_source_files([AUTONAMEOW_SRC_ROOT])
+    found_ids = set()
+    for _file in _source_files:
+        found_ids.update(find_todo_ids_in_file(_file))
+
+    ids_todolist = find_todo_ids_in_file(todo_path)
+    ids_in_todo_but_not_sources = [
+        i for i in ids_todolist if i not in found_ids
+    ]
+    print('''
+Found {} IDs in the TODO-list that are not in the sources:
+
+{}
+'''.format(len(ids_in_todo_but_not_sources),
+           '\n'.join([TODO_IDENTIFIER_FORMAT.format(int(i))
+                      for i in ids_in_todo_but_not_sources])))
+
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(
@@ -187,7 +206,9 @@ if __name__ == '__main__':
         epilog='"{}" -- Utility for listing and verifying TODO-list item '
                'identifiers used in the autonameow project.'.format(SELFNAME)
     )
-    parser.add_argument(
+
+    argument_group_actions = parser.add_mutually_exclusive_group()
+    argument_group_actions.add_argument(
         '-n', '--next',
         dest='do_get_next_todo_id',
         action='store_true',
@@ -195,7 +216,7 @@ if __name__ == '__main__':
         help='Print the next free (unused) TODO-list entry '
              'identifier. (DEFAULT)'
     )
-    parser.add_argument(
+    argument_group_actions.add_argument(
         '-c', '--check',
         dest='do_check',
         action='store_true',
@@ -205,6 +226,13 @@ if __name__ == '__main__':
              'IDs used in the TODO- and DONE-list are mutually exclusive. '
              'Exits silently with status code 0 if all checks pass.'
     )
+    argument_group_actions.add_argument(
+        '--orphaned',
+        dest='do_list_orphaned',
+        action='store_true',
+        default=False,
+        help='Print entries that are in the TODO-list but not in the sources.'
+    )
 
     exit_status = EXIT_SUCCESS
 
@@ -213,6 +241,9 @@ if __name__ == '__main__':
         _checks_pass = do_check()
         if not _checks_pass:
             exit_status &= EXIT_FAILURE
+
+    elif opts.do_list_orphaned:
+        list_orphaned()
 
     elif opts.do_get_next_todo_id:
         _next_id = get_next_todo_id()
