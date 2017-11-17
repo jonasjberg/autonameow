@@ -159,3 +159,24 @@ class TestCaseExtractorBasics(unittest.TestCase):
             isinstance(actual, str),
             'Expected "str". Got "{!s}"'.format(type(actual))
         )
+
+    def test_method_check_dependencies_returns_expected_type(self):
+        actual = self.extractor.check_dependencies()
+        self.assertTrue(
+            isinstance(actual, bool),
+            'Expected "bool". Got "{!s}"'.format(type(actual))
+        )
+
+    def test_method_can_handle_returns_expected_type(self):
+        actual_list = []
+
+        all_testfiles = [uu.fileobject_testfile(f) for f in uu.all_testfiles()]
+        for f in all_testfiles:
+            actual = self.extractor.can_handle(f)
+            actual_list.append(actual)
+
+        for actual in actual_list:
+            self.assertTrue(
+                isinstance(actual, bool),
+                'Expected "bool". Got "{!s}"'.format(type(actual))
+            )
