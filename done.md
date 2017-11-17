@@ -27,6 +27,15 @@ University mail: `js224eh[a]student.lnu.se`
     > ---------------
     >
     > * `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
+    >
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0033]` Refactor unit tests.
+    >     * Mitigate superlinear increase in unit test execution speed.
+    >     * Try to rewrite tests that operate on actual files
+    >         * Cache results from expensive calls, avoid repeated actions.
+    >         * Substitute I/O-operations with some kind of mocking.
 
 * 2017-11-10
 

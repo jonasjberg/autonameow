@@ -223,12 +223,6 @@ Low Priority
 
 * `[TD0029]` Add support for extracting MacOS Spotlight metadata (`mdls`)
 
-* `[TD0033]` Refactor unit tests.
-    * Mitigate superlinear increase in unit test execution speed.
-    * Try to rewrite tests that operate on actual files
-        * Cache results from expensive calls, avoid repeated actions.
-        * Substitute I/O-operations with some kind of mocking.
-
 * __Look into filtering__
     * Think about the concept of filtering data at a high-level.
     * Who should be able to control filtering?
