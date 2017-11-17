@@ -23,9 +23,9 @@ import unittest
 
 from extractors import ExtractorError
 from extractors.metadata import JpeginfoMetadataExtractor
-from extractors.metadata.jpeginfo import _run_jpeginfo
 from unit_utils_extractors import (
     TestCaseExtractorBasics,
+    TestCaseExtractorOutput,
     TestCaseExtractorOutputTypes
 )
 import unit_utils as uu
@@ -57,86 +57,33 @@ class TestJpeginfoMetadataExtractor(TestCaseExtractorBasics):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorWithImageA(unittest.TestCase):
-    def setUp(self):
-        self.e = JpeginfoMetadataExtractor()
-        self.test_file = uu.abspath_testfile('magic_jpg.jpg')
-        self.test_fileobject = uu.fileobject_testfile('magic_jpg.jpg')
-        self.actual_get_metadata = self.e._get_metadata(self.test_file)
-        self.actual_extract = self.e.extract(self.test_fileobject)
-
-    def test__get_metadata_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual_get_metadata, dict))
-
-    def test__get_metadata_raises_expected_exceptions(self):
-        with self.assertRaises(ExtractorError):
-            e = JpeginfoMetadataExtractor()
-            e._get_metadata(None)
-
-        # with self.assertRaises(ExtractorError):
-        #     f = JpeginfoMetadataExtractor()
-        #     f._get_metadata('not_a_file_surely')
-
-    def test__run_jpeginfo_returns_expected_type(self):
-        actual = _run_jpeginfo(self.test_file)
-        self.assertTrue(isinstance(actual, str))
-
-    def test__run_jpeginfo_raises_expected_exception(self):
-        with self.assertRaises(ExtractorError):
-            _run_jpeginfo(None)
-
-        # with self.assertRaises(ExtractorError):
-        #     _run_jpeginfo('not_a_file_surely')
-
-    def test_method_extract_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual_extract, dict))
+class TestJpeginfoMetadataExtractorOutputTypesImageA(TestCaseExtractorOutput):
+    EXTRACTOR_CLASS = JpeginfoMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('health', float, 1.0),
+        ('is_jpeg', bool, True),
+    ]
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorWithImageB(unittest.TestCase):
-    def setUp(self):
-        self.test_fileobject = uu.fileobject_testfile('magic_jpg.jpg')
-        self.e = JpeginfoMetadataExtractor()
-        self.actual = self.e.extract(self.test_fileobject)
-
-    def test_returns_expected_values(self):
-        _actual_health = self.actual['health']
-        self.assertEqual(_actual_health, 1.0)
-        self.assertTrue(isinstance(_actual_health, float))
-
-        _actual_is_jpeg = self.actual['is_jpeg']
-        self.assertEqual(_actual_is_jpeg, True)
-        self.assertTrue(isinstance(_actual_is_jpeg, bool))
+class TestJpeginfoMetadataExtractorOutputTypesImageB(TestCaseExtractorOutput):
+    EXTRACTOR_CLASS = JpeginfoMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_png.png')
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('health', float, 0.66),
+        ('is_jpeg', bool, False),
+    ]
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorExtractTestFileJpeg(unittest.TestCase):
-    def setUp(self):
-        _fo = uu.fileobject_testfile('magic_jpg.jpg')
-        _extractor_instance = JpeginfoMetadataExtractor()
-        self.actual = _extractor_instance.extract(_fo)
-
-    def test_extract_returns_expected_keys(self):
-        for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
-            self.assertIn(_field, self.actual)
-
-    def test_extract_returns_expected_values(self):
-        def _aE(field, expected):
-            actual = self.actual.get(field)
-            self.assertEqual(actual, expected)
-
-        _aE('health', 1.0)
-        _aE('is_jpeg', True)
-
-    def test_extract_returns_expected_types(self):
-        for _field, _type in ALL_EXTRACTOR_FIELDS_TYPES:
-            actual = self.actual.get(_field)
-            self.assertTrue(
-                isinstance(actual, _type),
-                'Expected "{!s}" ({!s}) to be of type "{!s}"'.format(
-                    actual, type(actual), _type
-                )
-            )
+class TestJpeginfoMetadataExtractorOutputTypesImageC(TestCaseExtractorOutput):
+    EXTRACTOR_CLASS = JpeginfoMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_txt.txt')
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('health', float, 0.0),
+        ('is_jpeg', bool, False),
+    ]
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
