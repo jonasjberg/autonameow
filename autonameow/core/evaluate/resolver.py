@@ -131,9 +131,6 @@ class TemplateFieldDataResolver(object):
                     )
                     continue
 
-                _data_info = 'Type "{!s}" Contents: "{!s}"'.format(
-                    type(_data.get('value')), _data
-                )
                 if isinstance(_data, list):
                     if len(_data) == 1:
                         _data = _data[0]
@@ -149,6 +146,9 @@ class TemplateFieldDataResolver(object):
                             _data = _data[0]
                             # TODO: [TD0112] FIX THIS!
 
+                _data_info = 'Type "{!s}" Contents: "{!s}"'.format(
+                    type(_data.get('value')), _data
+                )
                 log.debug('Got {}'.format(_data_info))
                 # # TODO: [TD0112] Clean up merging data.
                 if isinstance(_data.get('value'), list):
