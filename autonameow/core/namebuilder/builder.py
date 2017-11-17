@@ -132,7 +132,9 @@ def pre_assemble_format(field_data_dict, config):
         if _formatted is not None:
             out[field] = _formatted
         else:
-            out[field] = data
+            raise exceptions.NameBuilderError(
+                'Unable to format name template field "{!s}"'.format(field)
+            )
 
     return out
 
