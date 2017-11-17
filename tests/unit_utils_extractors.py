@@ -104,6 +104,11 @@ class TestCaseExtractorOutputTypes(unittest.TestCase):
             )
 
 
+ALL_TESTFILES = [
+    uu.fileobject_testfile(f) for f in uu.all_testfiles()
+]
+
+
 class TestCaseExtractorBasics(unittest.TestCase):
     __test__ = False
 
@@ -170,8 +175,7 @@ class TestCaseExtractorBasics(unittest.TestCase):
     def test_method_can_handle_returns_expected_type(self):
         actual_list = []
 
-        all_testfiles = [uu.fileobject_testfile(f) for f in uu.all_testfiles()]
-        for f in all_testfiles:
+        for f in ALL_TESTFILES:
             actual = self.extractor.can_handle(f)
             actual_list.append(actual)
 
@@ -179,4 +183,51 @@ class TestCaseExtractorBasics(unittest.TestCase):
             self.assertTrue(
                 isinstance(actual, bool),
                 'Expected "bool". Got "{!s}"'.format(type(actual))
+            )
+
+
+class TestCaseExtractorOutput(unittest.TestCase):
+    __test__ = False
+
+    EXTRACTOR_CLASS = None
+    SOURCE_FILEOBJECT = None
+
+    # List of tuples of expected extracted data for a given "SOURCE_FILEOBJECT"
+    #
+    # Tuple values:    FIELD      EXPECTED_TYPE   EXPECTED_VALUE
+    #      Example:    'is_jpeg'  bool            True
+    #
+    EXPECTED_FIELD_TYPE_VALUE = [
+        (None, None, None),
+    ]
+
+    def setUp(self):
+        if self.EXTRACTOR_CLASS is None:
+            self.skipTest('Base class attribute "EXTRACTOR_CLASS" is None')
+
+        if self.SOURCE_FILEOBJECT is None:
+            self.skipTest('Base class attribute "SOURCE_FILEOBJECT" is None')
+
+        self.extractor = self.EXTRACTOR_CLASS()
+        self.actual_extracted = self.extractor.extract(self.SOURCE_FILEOBJECT)
+
+    def test_extracted_data_contains_all_expected_fields(self):
+        for expect_field, _, expect_value in self.EXPECTED_FIELD_TYPE_VALUE:
+            self.assertIn(expect_field, self.actual_extracted)
+
+    def test_extracted_data_has_expected_values(self):
+        for expect_field, _, expect_value in self.EXPECTED_FIELD_TYPE_VALUE:
+            actual_datadict = self.actual_extracted.get(expect_field)
+            actual_value = actual_datadict.get('value')
+            self.assertEqual(actual_value, expect_value)
+
+    def test_extracted_data_has_expected_types(self):
+        for expect_field, expect_type, _ in self.EXPECTED_FIELD_TYPE_VALUE:
+            actual_datadict = self.actual_extracted.get(expect_field)
+            actual_value = actual_datadict.get('value')
+            self.assertTrue(
+                isinstance(actual_value, expect_type),
+                'Expected "{!s}" ({!s}) to be of type "{!s}"'.format(
+                    actual_value, type(actual_value), expect_type
+                )
             )
