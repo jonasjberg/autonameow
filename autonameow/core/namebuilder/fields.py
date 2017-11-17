@@ -38,9 +38,7 @@ class NameTemplateField(object):
     COMPATIBLE_TYPES = (None, )
     MULTIVALUED = None
 
-    def __init__(self, content):
-        self._content = content
-
+    def __init__(self):
         self._transforms = {
             Title: None,  # TODO: Function?
             Edition: None,  # TODO: Function?
@@ -48,8 +46,6 @@ class NameTemplateField(object):
 
     def transform(self, target_field):
         # TODO: Implement transforming data between field types, if possible.
-        # target_field_type = type(target_field)
-        # result = self._transforms[target_field_type](self._content)
         pass
 
     @classmethod
@@ -76,8 +72,8 @@ class Title(NameTemplateField):
                         types.AW_INTEGER)
     MULTIVALUED = False
 
-    def __init__(self, content):
-        super(Title).__init__(content)
+    def __init__(self):
+        super(Title).__init__()
 
     @classmethod
     def normalize(cls, data):
@@ -127,8 +123,8 @@ class Edition(NameTemplateField):
             ('19th', 'nineteenth'),  ('20th', 'twentieth')):
         REPLACE_ORDINALS.append((re.compile(_find, re.IGNORECASE), _replace))
 
-    def __init__(self, content):
-        super(Edition).__init__(content)
+    def __init__(self):
+        super(Edition).__init__()
 
     @classmethod
     def normalize(cls, edition):
@@ -167,8 +163,8 @@ class Extension(NameTemplateField):
                         types.AW_MIMETYPE)
     MULTIVALUED = False
 
-    def __init__(self, content):
-        super(Extension).__init__(content)
+    def __init__(self):
+        super(Extension).__init__()
 
     @classmethod
     def normalize(cls, data):
