@@ -614,7 +614,10 @@ class TimeDate(BaseType):
 
 class ExifToolTimeDate(TimeDate):
     def coerce(self, value):
-        if re.match(r'.*0000:00:00 00:00:00.*', value):
+        try:
+            if re.match(r'.*0000:00:00 00:00:00.*', value):
+                self._fail_coercion(value)
+        except TypeError:
             self._fail_coercion(value)
 
         try:

@@ -821,6 +821,8 @@ class TestTypeExiftoolTimeDate(TestCase):
         _assert_raises('0000:00:00 00:00:00')
         _assert_raises('0000:00:00 00:00:00Z')
         _assert_raises('1234:56:78 90:00:00')
+        _assert_raises([1918, '2009:08:20'])
+        _assert_raises(['1918', '2009:08:20'])
 
     def test_call_with_valid_exiftool_string_returns_expected_type(self):
         actual = types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200')
