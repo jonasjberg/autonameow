@@ -176,7 +176,14 @@ class Extension(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        string = types.force_string(data.get('value'))
+        value = data.get('value')
+        coercer = data.get('coercer')
+        if coercer:
+            string = coercer.format(value)
+        else:
+            log.warning('{!s} coercer unknown for "{!s}"'.format(cls, value))
+            string = types.force_string(value)
+
         if string is None:
             raise exceptions.NameBuilderError(
                 'Unicode string conversion failed for "{!r}"'.format(data)
