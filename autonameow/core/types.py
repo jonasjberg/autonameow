@@ -832,21 +832,21 @@ def force_stringlist(raw_values):
 
 class MultipleTypes(object):
     def __init__(self, coercer):
-        self._coercer = coercer
+        self.coercer = coercer
 
     def __call__(self, value=None):
         if value is None:
-            return [self._coercer.null()]
+            return [self.coercer.null()]
 
         if not isinstance(value, list):
             value = [value]
 
         if not value:
-            return [self._coercer.null()]
+            return [self.coercer.null()]
 
         out = []
         for v in value:
-            _coerced = self._coercer(v)
+            _coerced = self.coercer(v)
             if _coerced is None:
                 continue
 
