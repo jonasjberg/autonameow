@@ -306,7 +306,11 @@ class Description(NameTemplateField):
                         types.AW_INTEGER,
                         types.AW_FLOAT)
     MULTIVALUED = False
-    pass
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        value = data.get('value')
+        return types.force_string(value)
 
 
 class Publisher(NameTemplateField):
