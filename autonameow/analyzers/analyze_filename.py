@@ -76,11 +76,14 @@ class FilenameAnalyzer(BaseAnalyzer):
         if fn_timestamps:
             if len(fn_timestamps) == 1:
                 _timestamp = fn_timestamps[0]
-                _value = _timestamp.get('value')
-                if _value:
+                try:
+                    _coerced_value = types.AW_TIMEDATE(_timestamp.get('value'))
+                except types.AWTypeError:
+                    pass
+                else:
                     _prob = _timestamp.get('weight', 0.001)
                     return {
-                        'value': _value,
+                        'value': _coerced_value,
                         'coercer': types.AW_TIMEDATE,
                         'mapped_fields': [
                             WeightedMapping(fields.DateTime, probability=_prob),
@@ -89,7 +92,9 @@ class FilenameAnalyzer(BaseAnalyzer):
                         'generic_field': gf.GenericDateCreated
                     }
 
-        return fn_timestamps or None
+        # return fn_timestamps or None
+        # TODO: Fix inconsistent analyzer results data.
+        return None
 
     def get_title(self):
         return None
