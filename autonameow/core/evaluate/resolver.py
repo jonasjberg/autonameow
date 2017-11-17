@@ -197,7 +197,8 @@ class TemplateFieldDataResolver(object):
                'Expected "data" not to be a list. Got {}'.format(_data_info))
 
         log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
-        _compatible = field.type_compatible(data.get('coercer'))
+        _coercer = data.get('coercer')
+        _compatible = field.type_compatible(_coercer)
         if _compatible:
             log.debug('Verified Field-Data Compatibility  OK!')
         else:
