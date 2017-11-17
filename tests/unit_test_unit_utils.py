@@ -494,6 +494,10 @@ class TestStrToDatetime(TestCase):
         actual = uu.str_to_datetime('2017-08-09 001225')
         self.assertTrue(isinstance(actual, datetime))
 
+    def test_returns_expected_type_with_timezone(self):
+        actual = uu.str_to_datetime('2017-08-09 001225', tz='+0000')
+        self.assertTrue(isinstance(actual, datetime))
+
     def test_raises_exception_if_given_invalid_argument(self):
         def _assert_raises(test_data):
             with self.assertRaises((ValueError, TypeError)):

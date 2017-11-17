@@ -691,7 +691,7 @@ def is_class(thing):
     return inspect.isclass(thing)
 
 
-def str_to_datetime(yyyy_mm_ddthhmmss):
+def str_to_datetime(yyyy_mm_ddthhmmss, tz=None):
     """
     Converts a string on the form "YYYY-MM-DD HHMMSS" to a 'datetime' object.
 
@@ -703,7 +703,11 @@ def str_to_datetime(yyyy_mm_ddthhmmss):
     Raises:
         ValueError: The string could not be converted.
     """
-    return datetime.strptime(yyyy_mm_ddthhmmss, '%Y-%m-%d %H%M%S')
+    if tz is None:
+        return datetime.strptime(yyyy_mm_ddthhmmss, '%Y-%m-%d %H%M%S')
+    else:
+        _time_string = yyyy_mm_ddthhmmss + tz
+        return datetime.strptime(_time_string, '%Y-%m-%d %H%M%S%z')
 
 
 def is_importable(module_name):
