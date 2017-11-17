@@ -211,15 +211,38 @@ class TestCaseExtractorOutput(unittest.TestCase):
         self.extractor = self.EXTRACTOR_CLASS()
         self.actual_extracted = self.extractor.extract(self.SOURCE_FILEOBJECT)
 
+    def test_extracted_data_is_not_none(self):
+        self.assertIsNotNone(
+            self.actual_extracted, 'Extracted data unexpectedly None!'
+        )
+
     def test_extracted_data_contains_all_expected_fields(self):
         for expect_field, _, expect_value in self.EXPECTED_FIELD_TYPE_VALUE:
             self.assertIn(expect_field, self.actual_extracted)
 
-    def test_extracted_data_has_expected_values(self):
+    def test_extracted_data_contains_no_none_values_when_expected_not_none(self):
         for expect_field, _, expect_value in self.EXPECTED_FIELD_TYPE_VALUE:
+            if expect_value is None:
+                continue
+
             actual_datadict = self.actual_extracted.get(expect_field)
             actual_value = actual_datadict.get('value')
-            self.assertEqual(actual_value, expect_value)
+            self.assertIsNotNone(
+                actual_value,
+                'Field value is unexpectedly None: "{!s}"'.format(expect_field)
+            )
+
+    def test_extracted_data_has_expected_values(self):
+        for expect_field, expect_type, expect_value in self.EXPECTED_FIELD_TYPE_VALUE:
+            actual_datadict = self.actual_extracted.get(expect_field)
+            actual_value = actual_datadict.get('value')
+            self.assertEqual(
+                actual_value, expect_value,
+                '[{!s}] :: Expected "{!s}" ({!s}) NOT "{!s}" ({!s})'.format(
+                    expect_field, expect_value, expect_type, actual_value,
+                    type(actual_value)
+                )
+            )
 
     def test_extracted_data_has_expected_types(self):
         for expect_field, expect_type, _ in self.EXPECTED_FIELD_TYPE_VALUE:
