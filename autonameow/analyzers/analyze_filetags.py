@@ -32,7 +32,8 @@ from core.model import WeightedMapping
 from core.namebuilder import fields
 
 
-# TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
+# TODO: [TD0037] Allow further customizing of "filetags" options.
+# TODO: [TD0043] Allow further customizing of "filetags" options.
 
 DATE_SEP = b'[:\-._ ]?'
 TIME_SEP = b'[:\-._ T]?'

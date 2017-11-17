@@ -32,6 +32,11 @@ from core.util import (
 )
 
 
+# TODO: [TD0094] Search text for DOIs and query external services
+# Example DOI: `10.1109/TPDS.2010.125`. Could be used to query external
+# services for publication metadata, as with ISBN-numbers.
+
+
 class DocumentAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['application/pdf', 'text/*']

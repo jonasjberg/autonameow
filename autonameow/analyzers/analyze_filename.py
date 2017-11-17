@@ -364,6 +364,7 @@ def likely_extension(basename_suffix, mime_type):
     return None
 
 
+# TODO: [TD0020] Identify data fields in file names.
 class SubstringFinder(object):
     # TODO: (?) Implement or remove ..
 

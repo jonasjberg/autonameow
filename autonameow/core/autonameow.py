@@ -518,6 +518,7 @@ class Autonameow(object):
         Returns:
             True if the rename succeeded or would be a NO-OP, otherwise False.
         """
+        # TODO: [TD0092] Add storing history and ability to "undo" renames.
         sanity.check_internal_bytestring(from_path)
         sanity.check_internal_string(new_basename)
 

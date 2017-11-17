@@ -43,6 +43,13 @@ from core.util import sanity
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0014] Possibly redesign high-level "configuration".
+#
+#       * Decouple the `Configuration` instance from I/O.
+#       * Think about separating validation and parsing of incoming
+#         configuration data from the `Configuration` class.
+
+
 class Configuration(object):
     """
     Container for a loaded and active configuration.

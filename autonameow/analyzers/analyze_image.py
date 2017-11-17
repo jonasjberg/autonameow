@@ -26,6 +26,9 @@ from analyzers import BaseAnalyzer
 from core.util import dateandtime
 
 
+# TODO: [TD0040] Add assigning tags to GPS coordinates.
+
+
 class ImageAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.1
     HANDLES_MIME_TYPES = ['image/*']
