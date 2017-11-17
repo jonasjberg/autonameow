@@ -150,6 +150,11 @@ University mail: `js224eh[a]student.lnu.se`
     >     * Image OCR is very slow, should only be executed when needed, caching the
     >       results for all accesses.
     >
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0023]` Add additional option to force non-interactive mode (`--batch`?)
+    >
     > Low Priority
     > ------------
     >

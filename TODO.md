@@ -114,8 +114,6 @@ Medium Priority
             This information could be used to weight this format higher to
             help improve the results of parsing `foo_08.18.17.txt`.
 
-* `[TD0023]` Add additional option to force non-interactive mode (`--batch`?)
-
 * `[TD0024]` Rework handling of unresolved operations
     * Instead of aborting if a rule data source is unavailable, use an
       *interactive mode* and ask the user how to proceed.
