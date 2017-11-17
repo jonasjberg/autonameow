@@ -61,7 +61,7 @@ class AbstractTextExtractor(BaseExtractor):
         sanity.check_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
-        return {'value': text}
+        return {'full': text}
 
     def _get_text(self, fileobject):
         # Read cached text
