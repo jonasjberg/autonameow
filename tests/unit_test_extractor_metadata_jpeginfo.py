@@ -57,7 +57,7 @@ class TestJpeginfoMetadataExtractor(TestCaseExtractorBasics):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorOutputTypesImageA(TestCaseExtractorOutput):
+class TestJpeginfoMetadataExtractorOutputTestFileA(TestCaseExtractorOutput):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -67,7 +67,7 @@ class TestJpeginfoMetadataExtractorOutputTypesImageA(TestCaseExtractorOutput):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorOutputTypesImageB(TestCaseExtractorOutput):
+class TestJpeginfoMetadataExtractorOutputTestFileB(TestCaseExtractorOutput):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_png.png')
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -77,11 +77,11 @@ class TestJpeginfoMetadataExtractorOutputTypesImageB(TestCaseExtractorOutput):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorOutputTypesImageC(TestCaseExtractorOutput):
+class TestJpeginfoMetadataExtractorOutputTestFileC(TestCaseExtractorOutput):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_txt.txt')
     EXPECTED_FIELD_TYPE_VALUE = [
-        ('health', float, 0.0),
+        ('health', float, 0.66),
         ('is_jpeg', bool, False),
     ]
 
