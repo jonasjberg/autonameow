@@ -129,8 +129,9 @@ def do_check():
             # All IDs in the sources are also in the TODO-list.
             return True
 
-        ids_only_in_sources = [i for i in found_ids
-                               if i not in ids_todolist]
+        ids_only_in_sources = sorted(
+            [i for i in found_ids if i not in ids_todolist]
+        )
         print('''
 FAILED Check #2
 ===============
@@ -150,7 +151,9 @@ Found {} IDs in the sources that are not in the TODO-list:
             # None of the IDs in the sources are in the DONE-list.
             return True
 
-        ids_in_sources_and_done = [i for i in found_ids if i in ids_done]
+        ids_in_sources_and_done = sorted(
+            [i for i in found_ids if i in ids_done]
+        )
         print('''
 FAILED Check #3
 ===============
@@ -187,9 +190,9 @@ def list_orphaned():
         found_ids.update(find_todo_ids_in_file(_file))
 
     ids_todolist = find_todo_ids_in_file(todo_path)
-    ids_in_todo_but_not_sources = [
-        i for i in ids_todolist if i not in found_ids
-    ]
+    ids_in_todo_but_not_sources = sorted(
+        [i for i in ids_todolist if i not in found_ids]
+    )
     print('''
 Found {} IDs in the TODO-list that are not in the sources:
 
