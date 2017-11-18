@@ -13,7 +13,7 @@ import uuid
 # used to parse html to add anchor tags and generate the table of contents
 from bs4 import BeautifulSoup
 
-from core import util
+from util import encoding as enc
 
 """epubzilla.py: a python library for creating, editing and extracting data from EPUB files
 __author__: "Nicholas O'Deegan"
@@ -114,8 +114,8 @@ class Epub(object):
         elif isinstance(epub_file, str):
             self.filename = epub_file
         elif isinstance(epub_file, bytes):
-            self.filename = util.enc.decode_(epub_file)
-            epub_file = util.enc.decode_(epub_file)
+            self.filename = enc.decode_(epub_file)
+            epub_file = enc.decode_(epub_file)
 
         try:
             archive = zipfile.ZipFile(epub_file)
