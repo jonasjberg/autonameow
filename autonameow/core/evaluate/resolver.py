@@ -54,7 +54,8 @@ class TemplateFieldDataResolver(object):
 
     def add_known_source(self, field, meowuri):
         assert meowuri and isinstance(meowuri, MeowURI), (
-               'TODO: Fix collecting/verifying data from sources.')
+               'TODO: Fix collecting/verifying data from sources. '
+               'Expected MeowURI, not "{!s}"'.format(type(meowuri)))
 
         if field in self._fields:
             if not self.data_sources.get(field):
@@ -138,7 +139,12 @@ class TemplateFieldDataResolver(object):
                     else:
                         seen_data = set()
                         for d in _data:
-                            seen_data.add(d.get('value'))
+                            _value = d.get('value')
+                            if not _value:
+                                continue
+
+                            if not isinstance(_value, list):
+                                seen_data.add(_value)
 
                         if len(seen_data) == 1:
                             log.debug('Using first of {} equivalent '

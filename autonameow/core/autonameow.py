@@ -44,6 +44,7 @@ from core.evaluate import (
     TemplateFieldDataResolver
 )
 from core.fileobject import FileObject
+from core.model import MeowURI
 from core.plugin_handler import PluginHandler
 import util
 from util import sanity
@@ -450,7 +451,15 @@ class Autonameow(object):
                             log.info('Aborting ..')
                             return
 
-                        resolver.add_known_source(field, choice)
+                        # TODO: This should not be done here.
+                        try:
+                            choice_uri = MeowURI(choice)
+                        except exceptions.InvalidMeowURIError as e:
+                            log.critical('Failed to convert string choice to '
+                                         'MeowURI :: {!s}'.format(e))
+                            pass
+                        else:
+                            resolver.add_known_source(field, choice_uri)
 
                     resolver.collect()
 
