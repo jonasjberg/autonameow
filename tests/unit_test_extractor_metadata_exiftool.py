@@ -32,9 +32,9 @@ from extractors.metadata.exiftool import (
 import unit_utils as uu
 import unit_utils_constants as uuconst
 from unit_utils_extractors import (
-    TestCaseExtractorBasics,
-    TestCaseExtractorOutput,
-    TestCaseExtractorOutputTypes
+    CaseExtractorBasics,
+    CaseExtractorOutput,
+    CaseExtractorOutputTypes
 )
 
 
@@ -47,13 +47,13 @@ temp_file = uu.make_temporary_file()
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestExiftoolMetadataExtractorOutputTypes(TestCaseExtractorOutputTypes):
+class TestExiftoolMetadataExtractorOutputTypes(CaseExtractorOutputTypes):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestExiftoolMetadataExtractor(TestCaseExtractorBasics):
+class TestExiftoolMetadataExtractor(CaseExtractorBasics):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
 
     def test_method_str_returns_expected(self):
@@ -63,7 +63,7 @@ class TestExiftoolMetadataExtractor(TestCaseExtractorBasics):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestExiftoolMetadataExtractorOutputTestFileA(TestCaseExtractorOutput):
+class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('smulan.jpg')
     _dt = uu.str_to_datetime
@@ -76,7 +76,7 @@ class TestExiftoolMetadataExtractorOutputTestFileA(TestCaseExtractorOutput):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestExiftoolMetadataExtractorOutputTestFileB(TestCaseExtractorOutput):
+class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('simplest_pdf.md.pdf')
     _dt = uu.str_to_datetime

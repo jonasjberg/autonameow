@@ -24,9 +24,9 @@ import unittest
 from extractors import ExtractorError
 from extractors.metadata import JpeginfoMetadataExtractor
 from unit_utils_extractors import (
-    TestCaseExtractorBasics,
-    TestCaseExtractorOutput,
-    TestCaseExtractorOutputTypes
+    CaseExtractorBasics,
+    CaseExtractorOutput,
+    CaseExtractorOutputTypes
 )
 import unit_utils as uu
 
@@ -41,13 +41,13 @@ dependency_error = 'Extractor dependencies not satisfied'
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorOutputTypes(TestCaseExtractorOutputTypes):
+class TestJpeginfoMetadataExtractorOutputTypes(CaseExtractorOutputTypes):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractor(TestCaseExtractorBasics):
+class TestJpeginfoMetadataExtractor(CaseExtractorBasics):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
 
     def test_method_str_returns_expected_value(self):
@@ -57,7 +57,7 @@ class TestJpeginfoMetadataExtractor(TestCaseExtractorBasics):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorOutputTestFileA(TestCaseExtractorOutput):
+class TestJpeginfoMetadataExtractorOutputTestFileA(CaseExtractorOutput):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -67,7 +67,7 @@ class TestJpeginfoMetadataExtractorOutputTestFileA(TestCaseExtractorOutput):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorOutputTestFileB(TestCaseExtractorOutput):
+class TestJpeginfoMetadataExtractorOutputTestFileB(CaseExtractorOutput):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_png.png')
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -77,7 +77,7 @@ class TestJpeginfoMetadataExtractorOutputTestFileB(TestCaseExtractorOutput):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorOutputTestFileC(TestCaseExtractorOutput):
+class TestJpeginfoMetadataExtractorOutputTestFileC(CaseExtractorOutput):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_txt.txt')
     EXPECTED_FIELD_TYPE_VALUE = [

@@ -30,7 +30,7 @@ from extractors.text.plain import (
     read_entire_text_file,
     autodetect_encoding
 )
-from unit_utils_extractors import TestCaseExtractorBasics
+from unit_utils_extractors import CaseExtractorBasics
 
 
 # This really shouldn't happen. Probably caused by an error if it does.
@@ -40,7 +40,7 @@ assert not UNMET_DEPENDENCIES
 
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPlainTextExtractor(TestCaseExtractorBasics):
+class TestPlainTextExtractor(CaseExtractorBasics):
     EXTRACTOR_CLASS = PlainTextExtractor
 
     def test_method_str_returns_expected(self):

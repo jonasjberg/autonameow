@@ -24,9 +24,9 @@ import unittest
 from extractors.metadata import EpubMetadataExtractor
 import unit_utils as uu
 from unit_utils_extractors import (
-    TestCaseExtractorBasics,
-    TestCaseExtractorOutput,
-    TestCaseExtractorOutputTypes
+    CaseExtractorBasics,
+    CaseExtractorOutput,
+    CaseExtractorOutputTypes
 )
 
 
@@ -35,7 +35,7 @@ dependency_error = 'Extractor dependencies not satisfied'
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestEpubMetadataExtractor(TestCaseExtractorBasics):
+class TestEpubMetadataExtractor(CaseExtractorBasics):
     EXTRACTOR_CLASS = EpubMetadataExtractor
 
     def test_method_str_returns_expected(self):
@@ -45,13 +45,13 @@ class TestEpubMetadataExtractor(TestCaseExtractorBasics):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestEpubMetadataExtractorOutputTypes(TestCaseExtractorOutputTypes):
+class TestEpubMetadataExtractorOutputTypes(CaseExtractorOutputTypes):
     EXTRACTOR_CLASS = EpubMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestEpubMetadataExtractorOutputTestFileA(TestCaseExtractorOutput):
+class TestEpubMetadataExtractorOutputTestFileA(CaseExtractorOutput):
     EXTRACTOR_CLASS = EpubMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
     _dt = uu.str_to_datetime

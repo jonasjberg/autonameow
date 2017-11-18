@@ -25,8 +25,8 @@ import unit_utils as uu
 from extractors.text import EpubTextExtractor
 from thirdparty import epubzilla
 from unit_utils_extractors import (
-    TestCaseExtractorBasics,
-    TestCaseExtractorOutputTypes
+    CaseExtractorBasics,
+    CaseExtractorOutputTypes
 )
 
 
@@ -35,7 +35,7 @@ DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
 
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestEpubTextExtractor(TestCaseExtractorBasics):
+class TestEpubTextExtractor(CaseExtractorBasics):
     EXTRACTOR_CLASS = EpubTextExtractor
 
     def test_method_str_returns_expected(self):

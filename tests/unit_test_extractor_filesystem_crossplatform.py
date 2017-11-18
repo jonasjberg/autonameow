@@ -28,7 +28,7 @@ from extractors.filesystem.crossplatform import (
     CrossPlatformFileSystemExtractor,
     datetime_from_timestamp
 )
-from unit_utils_extractors import TestCaseExtractorBasics
+from unit_utils_extractors import CaseExtractorBasics
 
 
 # This really shouldn't happen. Probably caused by an error if it does.
@@ -38,7 +38,7 @@ assert not UNMET_DEPENDENCIES
 
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPlainTextExtractor(TestCaseExtractorBasics):
+class TestPlainTextExtractor(CaseExtractorBasics):
     EXTRACTOR_CLASS = CrossPlatformFileSystemExtractor
 
     def test_method_str_returns_expected(self):

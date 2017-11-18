@@ -23,7 +23,7 @@ import unittest
 
 from extractors.text import PdftotextTextExtractor
 from extractors.text.pdftotext import extract_pdf_content_with_pdftotext
-from unit_utils_extractors import TestCaseExtractorBasics
+from unit_utils_extractors import CaseExtractorBasics
 from util import encoding as enc
 import unit_utils as uu
 

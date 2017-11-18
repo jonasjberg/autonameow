@@ -29,7 +29,7 @@ Shared utilities for extractor unit tests.
 """
 
 
-class TestCaseExtractorOutputTypes(unittest.TestCase):
+class CaseExtractorOutputTypes(unittest.TestCase):
     __test__ = False
 
     EXTRACTOR_CLASS = None
@@ -88,7 +88,7 @@ ALL_TESTFILES = [
 ]
 
 
-class TestCaseExtractorBasics(unittest.TestCase):
+class CaseExtractorBasics(unittest.TestCase):
     __test__ = False
 
     EXTRACTOR_CLASS = None
@@ -165,7 +165,7 @@ class TestCaseExtractorBasics(unittest.TestCase):
             )
 
 
-class TestCaseExtractorOutput(unittest.TestCase):
+class CaseExtractorOutput(unittest.TestCase):
     __test__ = False
 
     EXTRACTOR_CLASS = None

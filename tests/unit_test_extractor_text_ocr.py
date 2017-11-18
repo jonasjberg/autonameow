@@ -29,7 +29,10 @@ from extractors.text import (
 )
 from util import encoding as enc
 import unit_utils as uu
-from unit_utils_extractors import TestCaseExtractorBasics
+from unit_utils_extractors import (
+    CaseExtractorBasics,
+    CaseExtractorOutputTypes
+)
 
 
 UNMET_DEPENDENCIES = TesseractOCRTextExtractor.check_dependencies() is False
@@ -37,7 +40,7 @@ DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
 
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestTesseractOCRTextExtractor(TestCaseExtractorBasics):
+class TestTesseractOCRTextExtractor(CaseExtractorBasics):
     EXTRACTOR_CLASS = TesseractOCRTextExtractor
 
     def test_method_str_returns_expected(self):
