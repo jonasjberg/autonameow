@@ -107,10 +107,12 @@ class TemplateFieldDataResolver(object):
 
     def _gather_data(self):
         for _field, _meowuris in self.data_sources.items():
+            _str_field = str(_field.as_placeholder())
+
             if (_field in self.fields_data
                     and self.fields_data.get(_field) is not None):
                 log.debug('Skipping previously gathered data for field '
-                          '"{!s}"'.format(_field))
+                          '{{{}}}"'.format(_str_field))
                 continue
 
             if not _meowuris:
@@ -121,13 +123,14 @@ class TemplateFieldDataResolver(object):
 
             for _meowuri in _meowuris:
                 log.debug(
-                    'Gathering data for field "{!s}" from source [{:8.8}]->'
-                    '[{!s}]'.format(_field, self.file.hash_partial, _meowuri)
+                    'Gathering data for template field {{{}}} from [{:8.8}]->'
+                    '[{!s}]'.format(_str_field, self.file.hash_partial,
+                                    _meowuri)
                 )
 
                 _data = self._request_data(self.file, _meowuri)
                 if _data is None:
-                    log.debug('Got NONE data for [{:8.8}]->"{!s}"'.format(
+                    log.debug('Got NONE data from [{:8.8}]->[{!s}]'.format(
                         self.file.hash_partial, _meowuri)
                     )
                     continue
@@ -173,7 +176,9 @@ class TemplateFieldDataResolver(object):
                         )
                         _data['value'] = list(seen_data)[0]
 
-                log.debug('Updated data for field "{!s}"'.format(_field))
+                log.debug('Updated data for field {{{}}} :: "{!s}"'.format(
+                    _str_field, _data.get('value')
+                ))
                 self.fields_data[_field] = _data
 
     def _verify_types(self):
@@ -184,7 +189,7 @@ class TemplateFieldDataResolver(object):
                     self.fields_data[field] = None
                     log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
                     log.debug(
-                        'Template field "{!s}" expects a single value. '
+                        'Template field {{{!s}}} expects a single value. '
                         'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
                                                    type(data), data)
                     )

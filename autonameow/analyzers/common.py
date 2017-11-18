@@ -159,7 +159,9 @@ class BaseAnalyzer(object):
         else:
             self.results[_meowuri] = data
 
-        self.log.debug('{!s} stored [{!s}] "{!s}"'.format(self, _meowuri, data))
+        self.log.debug('{!s} stored [{!s}] :: "{!s}"'.format(
+            self, _meowuri, data.get('value'))
+        )
 
     def request_any_textual_content(self):
         _response = self.request_data(self.fileobject,

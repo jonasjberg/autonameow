@@ -112,8 +112,16 @@ class Repository(object):
             __store(data)
 
     def _store(self, fileobject, meowuri, data):
-        log.debug('Repository storing: [{:8.8}]->[{!s}] :: "{!r}"'.format(
-            fileobject.hash_partial, meowuri, data
+        if meowuri.matchglobs(['generic.contents.text', 'extractor.text.*']):
+            _debugmsg_data = dict(data)
+            _truncated_value = textutils.truncate_text(_debugmsg_data['value'])
+            _debugmsg_data['value'] = _truncated_value
+        else:
+            _debugmsg_data = data
+
+        log.debug('{} storing: [{:8.8}]->[{!s}] :: "{!s}"'.format(
+            self.__class__.__name__, fileobject.hash_partial, meowuri,
+            _debugmsg_data.get('value')
         ))
         try:
             any_existing = self.__get_data(fileobject, meowuri)
