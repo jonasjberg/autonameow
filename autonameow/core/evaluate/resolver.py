@@ -251,16 +251,25 @@ def dedupe_list_of_datadicts(datadict_list):
 
     deduped = []
     seen_values = set()
+    seen_lists = []
     for datadict in list_of_datadicts:
         value = datadict.get('value')
         # Assume that the data is free from None values at this point.
         assert value is not None
-        assert not isinstance(value, list)
+        # if value is None:
+        #     continue
 
-        if value in seen_values:
-            continue
+        if isinstance(value, list):
+            sorted_list_value = sorted(list(value))
+            if sorted_list_value in seen_lists:
+                continue
+            seen_lists.append(sorted_list_value)
+            deduped.append(datadict)
+        else:
+            if value in seen_values:
+                continue
 
-        seen_values.add(value)
-        deduped.append(datadict)
+            seen_values.add(value)
+            deduped.append(datadict)
 
     return deduped
