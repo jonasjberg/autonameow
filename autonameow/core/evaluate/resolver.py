@@ -222,3 +222,40 @@ class TemplateFieldDataResolver(object):
 
     def __str__(self):
         return self.__class__.__name__
+
+
+def dedupe_list_of_datadicts(datadict_list):
+    """
+    Given a list of provider result data dicts, deduplicate identical data.
+
+    If two dicts contain equivalent values, one of the dicts is arbitrarily
+    chosen for removal.
+    Note that this means that some possibly useful meta-information is lost.
+
+    Args:
+        datadict_list: List of dictionaries with extracted/"provider" data.
+
+    Returns:
+        A list of dictionaries where dictionaries containing equivalent values
+        have been removed, leaving only one arbitrarily chosen dict per group
+        of duplicates.
+    """
+    list_of_datadicts = list(datadict_list)
+    if len(list_of_datadicts) == 1:
+        return list_of_datadicts
+
+    deduped = []
+    seen_values = set()
+    for datadict in list_of_datadicts:
+        value = datadict.get('value')
+        # Assume that the data is free from None values at this point.
+        assert value is not None
+        assert not isinstance(value, list)
+
+        if value in seen_values:
+            continue
+
+        seen_values.add(value)
+        deduped.append(datadict)
+
+    return deduped

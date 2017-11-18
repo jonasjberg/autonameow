@@ -20,6 +20,57 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-import unit_utils as uu
 
-# TODO: ..
+import unit_utils as uu
+from core.evaluate.resolver import dedupe_list_of_datadicts
+
+
+class TestDedupeListOfDatadicts(TestCase):
+    def _t(self, given, expect):
+        actual = dedupe_list_of_datadicts(given)
+        self.assertEqual(actual, expect)
+
+    def test_dedupes_list_with_one_element(self):
+        self._t(
+            given=[{'value': 'foo'}],
+            expect=[{'value': 'foo'}]
+        )
+
+    def test_dedupes_two_equivalent_values(self):
+        self._t(
+            given=[{'value': 'foo'}, {'value': 'foo'}],
+            expect=[{'value': 'foo'}]
+        )
+
+    def test_dedupes_three_equivalent_values(self):
+        given = [{'value': 'foo'}, {'value': 'foo'}, {'value': 'foo'}]
+        expect = [{'value': 'foo'}]
+        actual = dedupe_list_of_datadicts(given)
+        self.assertEqual(actual, expect)
+
+        self._t(
+            given=[{'value': 'foo'}, {'value': 'foo'}, {'value': 'foo'}],
+            expect=[{'value': 'foo'}]
+        )
+
+    def test_returns_list_of_only_unique_values_as_is(self):
+        given = [{'value': 'foo'}, {'value': 'bar'}]
+        expect = [{'value': 'foo'}, {'value': 'bar'}]
+        actual = dedupe_list_of_datadicts(given)
+        self.assertEqual(actual, expect)
+
+        self._t(
+            given=[{'value': 'foo'}, {'value': 'bar'}],
+            expect=[{'value': 'foo'}, {'value': 'bar'}]
+        )
+
+    def test_dedupes_two_duplicate_values_and_returns_one_as_is(self):
+        given = [{'value': 'foo'}, {'value': 'bar'}, {'value': 'foo'}]
+        expect = [{'value': 'foo'}, {'value': 'bar'}]
+        actual = dedupe_list_of_datadicts(given)
+        self.assertEqual(actual, expect)
+
+        self._t(
+            given=[{'value': 'foo'}, {'value': 'bar'}, {'value': 'foo'}],
+            expect=[{'value': 'foo'}, {'value': 'bar'}]
+        )
