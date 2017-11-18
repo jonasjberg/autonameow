@@ -44,6 +44,12 @@ class TestEpubTextExtractor(CaseExtractorBasics):
         self.assertEqual(actual, expect)
 
 
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestEpubTextExtractorOutputTypes(CaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = EpubTextExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
+
+
 # TODO:  Rework the tests or the extractors.. ?
 # NOTE(jonas): Text extractors pass results to parent class that wraps the data
 #              to the format returned directly by the metadata extractors ..

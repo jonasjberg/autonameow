@@ -49,6 +49,12 @@ class TestTesseractOCRTextExtractor(CaseExtractorBasics):
         self.assertEqual(actual, expect)
 
 
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestTesseractOCRTextExtractorOutputTypes(CaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = TesseractOCRTextExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('2007-04-23_12-comments.png')
+
+
 class TestTesseractOCRTextExtractorCanHandle(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
