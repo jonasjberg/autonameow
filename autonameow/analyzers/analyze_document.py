@@ -23,32 +23,32 @@ import re
 
 from analyzers import BaseAnalyzer
 from core import types
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
-from core.util import (
+from util import (
     dateandtime,
-    sanity,
     textutils
 )
 
 
+# TODO: [TD0094] Search text for DOIs and query external services
+# Example DOI: `10.1109/TPDS.2010.125`. Could be used to query external
+# services for publication metadata, as with ISBN-numbers.
+
+
 class DocumentAnalyzer(BaseAnalyzer):
-    run_queue_priority = 1
+    RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['application/pdf', 'text/*']
 
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         super(DocumentAnalyzer, self).__init__(
-            fileobject, config, add_results_callback, request_data_callback
+            fileobject, config, request_data_callback
         )
 
         self.text = None
 
-    def run(self):
+    def analyze(self):
         _maybe_text = self.request_any_textual_content()
         if not _maybe_text:
             return
@@ -117,7 +117,6 @@ class DocumentAnalyzer(BaseAnalyzer):
         # possible_publishers = [
         #     ('extractor.metadata.exiftool.PDF:EBX_PUBLISHER', 1),
         #     ('extractor.metadata.exiftool.XMP:EbxPublisher', 1),
-        #     ('extractor.metadata.pypdf.EBX_PUBLISHER', 1)
         # ]
         # for meowuri, weight in possible_publishers:
         #     results += self.__collect_results(meowuri, weight)
@@ -133,7 +132,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         # first to line number "max_lines".
         # The first line is assigned probability 1, probabilities decrease
         # for each line until line number "max_lines" with probability 0.
-        max_lines = 10
+        max_lines = 1
         for num, line in enumerate(text.splitlines()):
             if num > max_lines:
                 break
@@ -151,7 +150,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         else:
             _candidates = _options.get('candidates', {})
 
-        sanity.check(self.text is not None)
+        assert self.text is not None
         _text = textutils.extract_lines(self.text, firstline=0, lastline=100)
         result = find_publisher(_text, _candidates)
         if not result:
@@ -162,22 +161,24 @@ class DocumentAnalyzer(BaseAnalyzer):
         )
 
     def _wrap_publisher(self, data):
-        return ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        return {
+            'value': data,
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            generic_field=gf.GenericPublisher
-        )(data)
+            'generic_field': gf.GenericPublisher
+        }
 
     def _wrap_generic_title(self, data, probability):
-        return ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        return {
+            'value': data,
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Title, probability=probability),
             ],
-            generic_field=gf.GenericTitle
-        )(data)
+            'generic_field': gf.GenericTitle
+        }
 
     def _get_datetime_from_text(self):
         """
@@ -195,30 +196,21 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         dt_regex = dateandtime.regex_search_str(text)
         if dt_regex:
-            dt_regex_wrapper = ExtractedData(
-                coercer=types.AW_TIMEDATE,
-                mapped_fields=[
-                    WeightedMapping(fields.DateTime, probability=0.25),
-                    WeightedMapping(fields.Date, probability=0.25)
-                ],
-                generic_field=gf.GenericDateCreated
-            )
-
-            sanity.check_isinstance(dt_regex, list)
-            for v in dt_regex:
-                results.append(ExtractedData.from_raw(dt_regex_wrapper, v))
+            assert isinstance(dt_regex, list)
+            for data in dt_regex:
+                results.append({
+                    'value': data,
+                    'coercer': types.AW_TIMEDATE,
+                    'mapped_fields': [
+                        WeightedMapping(fields.DateTime, probability=0.25),
+                        WeightedMapping(fields.Date, probability=0.25)
+                    ],
+                    'generic_field': gf.GenericDateCreated
+                    })
 
         # TODO: Temporary premature return skips brute force search ..
         return results
 
-        dt_brute_wrapper = ExtractedData(
-            coercer=types.AW_TIMEDATE,
-            mapped_fields=[
-                WeightedMapping(fields.DateTime, probability=0.1),
-                WeightedMapping(fields.Date, probability=0.1)
-            ],
-            generic_field=gf.GenericDateCreated
-        )
         matches = 0
         text_split = text.split('\n')
         self.log.debug('Try getting datetime from text split by newlines')
@@ -226,9 +218,17 @@ class DocumentAnalyzer(BaseAnalyzer):
             dt_brute = dateandtime.bruteforce_str(t)
             if dt_brute:
                 matches += 1
-                sanity.check_isinstance(dt_brute, list)
+                assert isinstance(dt_brute, list)
                 for v in dt_brute:
-                    results.append(ExtractedData.from_raw(dt_brute_wrapper, v))
+                    results.append({
+                        'value': data,
+                        'coercer': types.AW_TIMEDATE,
+                        'mapped_fields': [
+                            WeightedMapping(fields.DateTime, probability=0.1),
+                            WeightedMapping(fields.Date, probability=0.1)
+                        ],
+                        'generic_field': gf.GenericDateCreated
+                    })
 
         if matches == 0:
             self.log.debug('No matches. Trying with text split by whitespace')
@@ -237,9 +237,17 @@ class DocumentAnalyzer(BaseAnalyzer):
                 dt_brute = dateandtime.bruteforce_str(t)
                 if dt_brute:
                     matches += 1
-                    sanity.check_isinstance(dt_brute, list)
+                    assert isinstance(dt_brute, list)
                     for v in dt_brute:
-                        results.append(ExtractedData.from_raw(dt_brute_wrapper, v))
+                        results.append({
+                            'value': data,
+                            'coercer': types.AW_TIMEDATE,
+                            'mapped_fields': [
+                                WeightedMapping(fields.DateTime, probability=0.1),
+                                WeightedMapping(fields.Date, probability=0.1)
+                            ],
+                            'generic_field': gf.GenericDateCreated
+                        })
 
         return results
 

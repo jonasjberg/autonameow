@@ -23,13 +23,13 @@ import os
 from unittest import TestCase
 from datetime import datetime
 
-from core import (
-    types,
-    util,
-)
-from core import constants as C
+from core import types
+from util import encoding as enc
 
 import unit_utils as uu
+
+
+USER_HOME = os.path.expanduser('~')
 
 
 class TestBaseType(TestCase):
@@ -38,6 +38,9 @@ class TestBaseType(TestCase):
 
     def test_null(self):
         self.assertEqual(self.base_type(None), self.base_type.NULL)
+        self.assertEqual(self.base_type.NULL, types.BaseNullValue())
+        self.assertFalse(self.base_type.NULL)
+        self.assertFalse(self.base_type.null())
 
     def test_normalize(self):
         with self.assertRaises(NotImplementedError):
@@ -45,7 +48,7 @@ class TestBaseType(TestCase):
 
     def test_base_type_call(self):
         self.assertEqual(self.base_type('foo'), 'foo')
-        self.assertEqual(self.base_type(None), 'NULL')
+        self.assertEqual(self.base_type(None), types.BaseNullValue())
 
     def test_inheriting_classes_must_implement_format(self):
         with self.assertRaises(NotImplementedError):
@@ -58,13 +61,93 @@ class TestBaseType(TestCase):
         self.assertFalse(self.base_type.equivalent(1))
 
 
+class TestBaseNullValue(TestCase):
+    def setUp(self):
+        self.bn = types.BaseNullValue()
+
+    def test_boolean_evaluation_returns_false(self):
+        self.assertFalse(self.bn)
+        self.assertEqual(self.bn, False)
+        self.assertFalse(bool(self.bn))
+        self.assertEqual(bool(self.bn), False)
+        self.assertTrue(not self.bn)
+        self.assertTrue(not bool(self.bn))
+        self.assertEqual(not self.bn, True)
+        self.assertEqual(not bool(self.bn), True)
+
+    def test_comparison(self):
+        def _is_equal(expected, value):
+            actual = self.bn == value
+            self.assertEqual(expected, actual)
+            self.assertTrue(bool(expected) == bool(actual))
+            self.assertTrue(isinstance(actual, bool))
+
+        _is_equal(True, value=False)
+        _is_equal(True, value=self.bn)
+        _is_equal(True, value=types.BaseNullValue())
+        _is_equal(True, value=types.BaseNullValue)
+        _is_equal(False, value=None)
+        _is_equal(False, value=True)
+        _is_equal(False, value=1)
+        _is_equal(False, value=[])
+        _is_equal(False, value={})
+        _is_equal(False, value=object)
+        _is_equal(False, value=object())
+        _is_equal(False, value='foo')
+
+    def test_str(self):
+        expected = '(NULL BaseType value)'
+        self.assertEqual(str(self.bn), expected)
+
+
+class TestNullMIMEType(TestCase):
+    def setUp(self):
+        self.nm = types.NullMIMEType()
+
+    def test_boolean_evaluation_returns_false(self):
+        self.assertFalse(self.nm)
+        self.assertEqual(self.nm, False)
+        self.assertFalse(bool(self.nm))
+        self.assertEqual(bool(self.nm), False)
+        self.assertTrue(not self.nm)
+        self.assertTrue(not bool(self.nm))
+        self.assertEqual(not self.nm, True)
+        self.assertEqual(not bool(self.nm), True)
+
+    def test_comparison(self):
+        def _is_equal(expected, value):
+            actual = self.nm == value
+            self.assertEqual(expected, actual)
+            self.assertTrue(bool(expected) == bool(actual))
+            self.assertTrue(isinstance(actual, bool))
+
+        _is_equal(True, value=False)
+        _is_equal(True, value=self.nm)
+        _is_equal(True, value=types.NullMIMEType())
+        _is_equal(True, value=types.NullMIMEType)
+        _is_equal(False, value=types.BaseNullValue())
+        _is_equal(False, value=types.BaseNullValue())
+        _is_equal(False, value=None)
+        _is_equal(False, value=True)
+        _is_equal(False, value=1)
+        _is_equal(False, value=[])
+        _is_equal(False, value={})
+        _is_equal(False, value=object)
+        _is_equal(False, value=object())
+        _is_equal(False, value='foo')
+
+    def test_str(self):
+        expected = types.NullMIMEType.AS_STRING
+        self.assertEqual(str(self.nm), expected)
+
+
 class TestTypeBoolean(TestCase):
     def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_BOOLEAN(None)), bool)
 
     def test_null(self):
         self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.NULL)
-        self.assertNotEqual(types.AW_BOOLEAN(None), 'NULL',
+        self.assertNotEqual(types.AW_BOOLEAN(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -121,6 +204,11 @@ class TestTypeBoolean(TestCase):
         _assert_returns('No', False)
         _assert_returns('false', False)
         _assert_returns('False', False)
+        _assert_returns('positive', True)
+        _assert_returns('on', True)
+        _assert_returns('enable', True)
+        _assert_returns('enabled', True)
+        _assert_returns('active', True)
         _assert_returns(b'true', True)
         _assert_returns(b'True', True)
         _assert_returns(b'True', True)
@@ -130,6 +218,11 @@ class TestTypeBoolean(TestCase):
         _assert_returns(b'No', False)
         _assert_returns(b'false', False)
         _assert_returns(b'False', False)
+        _assert_returns(b'negative', False)
+        _assert_returns(b'off', False)
+        _assert_returns(b'disable', False)
+        _assert_returns(b'disabled', False)
+        _assert_returns(b'inactive', False)
         _assert_returns(-1, False)
         _assert_returns(0, False)
         _assert_returns(1, True)
@@ -205,7 +298,7 @@ class TestTypeInteger(TestCase):
 
     def test_null(self):
         self.assertEqual(types.AW_INTEGER(None), types.AW_INTEGER.NULL)
-        self.assertNotEqual(types.AW_INTEGER(None), 'NULL',
+        self.assertNotEqual(types.AW_INTEGER(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -293,7 +386,7 @@ class TestTypeFloat(TestCase):
 
     def test_null(self):
         self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.NULL)
-        self.assertNotEqual(types.AW_FLOAT(None), 'NULL',
+        self.assertNotEqual(types.AW_FLOAT(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -494,7 +587,6 @@ class TestTypeTimeDate(TestCase):
 
     def test_null(self):
         self.assertEqual(types.AW_TIMEDATE.NULL, 'INVALID DATE')
-
         with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_TIMEDATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
@@ -521,9 +613,25 @@ class TestTypeTimeDate(TestCase):
 
     def test_call_with_coercible_data(self):
         expected = datetime.strptime('2017-07-12T20:50:15', '%Y-%m-%dT%H:%M:%S')
-        self.assertEqual(types.AW_TIMEDATE(expected), expected)
-        self.assertEqual(types.AW_TIMEDATE('2017-07-12T20:50:15'), expected)
-        self.assertEqual(types.AW_TIMEDATE('2017-07-12T205015'), expected)
+
+        def _ok(test_input):
+            actual = types.AW_TIMEDATE(test_input)
+            self.assertEqual(actual, expected)
+
+        _ok(expected)
+        _ok('2017-07-12T20:50:15')
+        _ok('2017-07-12T20-50-15')
+        _ok('2017-07-12T20_50_15')
+        _ok('2017-07-12T205015')
+        _ok('2017-07-12_20:50:15')
+        _ok('2017-07-12_20-50-15')
+        _ok('2017-07-12_20_50_15')
+        _ok('2017-07-12_205015')
+        _ok('2017-07-12-20:50:15')
+        _ok('2017-07-12-20-50-15')
+        _ok('2017-07-12-20_50_15')
+        _ok('2017-07-12-205015')
+
         # TODO: Handle things like 'Thu Aug 31 11:51:57 2017 +0200'
         # TODO: Add testing additional input data.
 
@@ -570,7 +678,7 @@ class TestTypeDate(TestCase):
         self.assertEqual(types.AW_DATE.NULL, 'INVALID DATE')
 
         with self.assertRaises(types.AWTypeError):
-            self.assertNotEqual(types.AW_DATE(None), 'NULL',
+            self.assertNotEqual(types.AW_DATE(None), types.BaseNullValue,
                                 'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -665,8 +773,10 @@ class TestTypeExiftoolTimeDate(TestCase):
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE.NULL, 'INVALID DATE')
 
         with self.assertRaises(types.AWTypeError):
-            self.assertNotEqual(types.AW_EXIFTOOLTIMEDATE(None), 'NULL',
-                                'BaseType default "null" must be overridden')
+            self.assertNotEqual(
+                types.AW_EXIFTOOLTIMEDATE(None), types.BaseNullValue,
+                'BaseType default "null" must be overridden'
+            )
 
     def test_call_with_none(self):
         with self.assertRaises(types.AWTypeError):
@@ -711,6 +821,8 @@ class TestTypeExiftoolTimeDate(TestCase):
         _assert_raises('0000:00:00 00:00:00')
         _assert_raises('0000:00:00 00:00:00Z')
         _assert_raises('1234:56:78 90:00:00')
+        _assert_raises([1918, '2009:08:20'])
+        _assert_raises(['1918', '2009:08:20'])
 
     def test_call_with_valid_exiftool_string_returns_expected_type(self):
         actual = types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200')
@@ -741,64 +853,6 @@ class TestTypeExiftoolTimeDate(TestCase):
         _assert_raises('1234:56:78 90:00:00')
 
 
-class TestTypePyPDFTimeDate(TestCase):
-    def test_coerces_expected_primitive(self):
-        with self.assertRaises(types.AWTypeError):
-            self.assertEqual(type(types.AW_PYPDFTIMEDATE(None)), str)
-
-    def test_null(self):
-        self.assertEqual(types.AW_PYPDFTIMEDATE.NULL, 'INVALID DATE')
-
-        with self.assertRaises(types.AWTypeError):
-            self.assertNotEqual(types.AW_PYPDFTIMEDATE(None), 'NULL',
-                                'BaseType default "null" must be overridden')
-
-    def test_call_with_none(self):
-        with self.assertRaises(types.AWTypeError):
-            self.assertEqual(types.AW_PYPDFTIMEDATE(None),
-                             types.AW_PYPDFTIMEDATE.null)
-
-    def test_call_with_coercible_data(self):
-        expected = datetime.strptime('2012-12-25T23:52:37+0530',
-                                     '%Y-%m-%dT%H:%M:%S%z')
-        self.assertEqual(types.AW_PYPDFTIMEDATE(expected), expected,
-                         'datetime objects should be passed through as-is')
-        self.assertEqual(types.AW_PYPDFTIMEDATE("D:20121225235237 +05'30'"),
-                         expected)
-
-    def test_call_with_coercible_data_2(self):
-        expected = datetime.strptime('2016-01-11T12:41:32+0000',
-                                     '%Y-%m-%dT%H:%M:%S%z')
-        self.assertEqual(types.AW_PYPDFTIMEDATE(expected), expected,
-                         'datetime objects should be passed through as-is')
-        self.assertEqual(types.AW_PYPDFTIMEDATE("D:20160111124132+00'00'"),
-                         expected)
-
-    def test_call_with_coercible_data_no_time(self):
-        expected = uu.str_to_datetime('2005-10-23 000000')
-        self.assertEqual(types.AW_PYPDFTIMEDATE('D:20051023'), expected)
-
-    def test_call_with_noncoercible_data(self):
-        def _assert_raises(test_data):
-            with self.assertRaises(types.AWTypeError):
-                types.AW_PYPDFTIMEDATE(test_data)
-
-        _assert_raises(None)
-        _assert_raises('')
-        _assert_raises('foo')
-        _assert_raises([])
-        _assert_raises([''])
-        _assert_raises([None])
-
-    def test_call_with_valid_pypdf_string_returns_expected_type(self):
-        actual = types.AW_PYPDFTIMEDATE("D:20160111124132+00'00'")
-        self.assertTrue(isinstance(actual, datetime))
-
-    def test_format(self):
-        # TODO: Add additional tests.
-        self.skipTest('TODO: Add additional tests ..')
-
-
 class TestTypePath(TestCase):
     def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
@@ -812,19 +866,18 @@ class TestTypePath(TestCase):
             self.assertEqual(types.AW_PATH(None), types.AW_PATH.NULL)
 
         with self.assertRaises(types.AWTypeError):
-            self.assertNotEqual(types.AW_PATH(None), 'NULL',
+            self.assertNotEqual(types.AW_PATH(None), types.BaseNullValue,
                                 'BaseType default "null" must be overridden')
 
     def test_normalize(self):
-        user_home = os.path.expanduser('~')
         self.assertEqual(types.AW_PATH.normalize('~'),
-                         util.enc.encode_(user_home))
+                         enc.encode_(USER_HOME))
         self.assertEqual(types.AW_PATH.normalize('~/'),
-                         util.enc.encode_(user_home))
+                         enc.encode_(USER_HOME))
 
-        expected = os.path.normpath(os.path.join(user_home, 'foo'))
+        expected = os.path.normpath(os.path.join(USER_HOME, 'foo'))
         self.assertEqual(types.AW_PATH.normalize('~/foo'),
-                         util.enc.encode_(expected))
+                         enc.encode_(expected))
 
     def test_normalize_invalid_value(self):
         with self.assertRaises(types.AWTypeError):
@@ -858,8 +911,15 @@ class TestTypePath(TestCase):
         _assert_raises('')
 
     def test_format(self):
-        # TODO: Add additional tests.
-        self.skipTest('TODO: Add additional tests ..')
+        def _assert_formats(test_data, expected):
+            self.assertEqual(types.AW_PATH.format(test_data), expected)
+
+        _assert_formats(b'/tmp', '/tmp')
+        _assert_formats(b'/tmp/foo', '/tmp/foo')
+        _assert_formats(b'/tmp/foo.bar', '/tmp/foo.bar')
+        _assert_formats(b'~', USER_HOME)
+        _assert_formats(b'~/foo', os.path.join(USER_HOME, 'foo'))
+        _assert_formats(b'~/foo.bar', os.path.join(USER_HOME, 'foo.bar'))
 
 
 class TestTypePathComponent(TestCase):
@@ -871,19 +931,18 @@ class TestTypePathComponent(TestCase):
         self.assertEqual(types.AW_PATHCOMPONENT(None),
                          types.AW_PATHCOMPONENT.NULL)
 
-        self.assertNotEqual(types.AW_PATHCOMPONENT(None), 'NULL',
+        self.assertNotEqual(types.AW_PATHCOMPONENT(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize_path_with_user_home(self):
-        user_home = os.path.expanduser('~')
         self.assertEqual(types.AW_PATHCOMPONENT.normalize('~'),
-                         util.enc.encode_(user_home))
+                         enc.encode_(USER_HOME))
         self.assertEqual(types.AW_PATHCOMPONENT.normalize('~/'),
-                         util.enc.encode_(user_home))
+                         enc.encode_(USER_HOME))
 
-        expected = os.path.normpath(os.path.join(user_home, 'foo'))
+        expected = os.path.normpath(os.path.join(USER_HOME, 'foo'))
         self.assertEqual(types.AW_PATHCOMPONENT.normalize('~/foo'),
-                         util.enc.encode_(expected))
+                         enc.encode_(expected))
 
     def test_normalize_path_components(self):
         def _assert_normalizes(test_data, expected):
@@ -934,8 +993,24 @@ class TestTypePathComponent(TestCase):
         _assert_raises(datetime.now())
 
     def test_format(self):
-        # TODO: Add additional tests.
-        self.skipTest('TODO: Add additional tests ..')
+        def _assert_formats(test_data, expected):
+            actual = types.AW_PATHCOMPONENT.format(test_data)
+            self.assertEqual(actual, expected)
+
+        _assert_formats('', '')
+        _assert_formats(None, '')
+        _assert_formats(b'/tmp', '/tmp')
+        _assert_formats(b'/tmp/foo', '/tmp/foo')
+        _assert_formats(b'/tmp/foo.bar', '/tmp/foo.bar')
+        _assert_formats('/tmp', '/tmp')
+        _assert_formats('/tmp/foo', '/tmp/foo')
+        _assert_formats('/tmp/foo.bar', '/tmp/foo.bar')
+        _assert_formats(b'~', '~')
+        _assert_formats(b'~/foo', '~/foo')
+        _assert_formats(b'~/foo.bar', '~/foo.bar')
+        _assert_formats('~', '~')
+        _assert_formats('~/foo', '~/foo')
+        _assert_formats('~/foo.bar', '~/foo.bar')
 
 
 class TestTypeString(TestCase):
@@ -945,7 +1020,7 @@ class TestTypeString(TestCase):
     def test_null(self):
         self.assertEqual(types.AW_STRING.NULL, '')
 
-        self.assertNotEqual(types.AW_STRING(None), 'NULL',
+        self.assertNotEqual(types.AW_STRING(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -1037,18 +1112,20 @@ class TestTypeString(TestCase):
 
 
 class TestTypeMimeType(TestCase):
-    def test_coerces_expected_primitive(self):
-        self.assertEqual(type(types.AW_MIMETYPE(None)), str)
-
     def test_null(self):
-        self.assertEqual(types.AW_MIMETYPE.NULL, C.MAGIC_TYPE_UNKNOWN)
-        self.assertNotEqual(types.AW_MIMETYPE(None), 'NULL',
+        self.assertEqual(types.AW_MIMETYPE.NULL, types.NullMIMEType())
+        self.assertNotEqual(types.AW_MIMETYPE(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
+
+        self.assertFalse(types.AW_MIMETYPE.NULL)
+        self.assertFalse(types.AW_MIMETYPE.null())
 
     def test_normalize(self):
         def _assert_normalizes(test_data, expected):
             self.assertEqual(types.AW_MIMETYPE.normalize(test_data), expected)
 
+        _assert_normalizes('asm', 'text/x-asm')
+        _assert_normalizes('gz', 'application/gzip')
         _assert_normalizes('pdf', 'application/pdf')
         _assert_normalizes('.pdf', 'application/pdf')
         _assert_normalizes('PDF', 'application/pdf')
@@ -1117,6 +1194,20 @@ class TestTypeMimeType(TestCase):
         _assert_coerces(b'.JPG', 'image/jpeg')
         _assert_coerces(b'image/jpeg', 'image/jpeg')
         _assert_coerces('application/epub+zip', 'application/epub+zip')
+        _assert_coerces('application/x-lzma', 'application/x-lzma')
+        _assert_coerces('application/gzip', 'application/gzip')
+        _assert_coerces('asm', 'text/x-asm')
+        _assert_coerces('gz', 'application/gzip')
+        _assert_coerces('lzma', 'application/x-lzma')
+        _assert_coerces('mov', 'video/quicktime')
+        _assert_coerces('mp4', 'video/mp4')
+        _assert_coerces('rar', 'application/rar')
+        _assert_coerces('rtf', 'text/rtf')
+        _assert_coerces('sh', 'text/x-shellscript')
+        _assert_coerces('tar.gz', 'application/gzip')
+        _assert_coerces('tar.lzma', 'application/x-lzma')
+        _assert_coerces('txt', 'text/plain')
+        _assert_coerces('inode/x-empty', 'inode/x-empty')
 
     def test_call_with_noncoercible_data(self):
         def _assert_uncoercible(test_data):
@@ -1138,6 +1229,16 @@ class TestTypeMimeType(TestCase):
         def _assert_formats(test_data, expected):
             self.assertEqual(types.AW_MIMETYPE.format(test_data), expected)
 
+        _unknown = types.NULL_AW_MIMETYPE.AS_STRING
+
+        _assert_formats(None, _unknown)
+        _assert_formats('', _unknown)
+        _assert_formats('this is not a MIME-type', _unknown)
+        _assert_formats(1, _unknown)
+        _assert_formats(False, _unknown)
+        _assert_formats(True, _unknown)
+        _assert_formats([], _unknown)
+        _assert_formats({}, _unknown)
         _assert_formats('JPG', 'jpg')
         _assert_formats('image/jpeg', 'jpg')
         _assert_formats('pdf', 'pdf')
@@ -1177,53 +1278,153 @@ class TestTypeMimeType(TestCase):
         _assert_formats(b'EPUB', 'epub')
         _assert_formats(b'.EPUB', 'epub')
         _assert_formats(b'application/epub+zip', 'epub')
+        _assert_formats('text/plain', 'txt')
+        _assert_formats('inode/x-empty', '')
+
+    def test_boolean_evaluation(self):
+        actual = types.AW_MIMETYPE('this is an unknown MIME-type ..')
+        self.assertFalse(actual)
 
 
 class TestTryCoerce(TestCase):
+    def _test(self, given, expect, type_):
+        actual = types.try_coerce(given)
+        self.assertEqual(actual, expect)
+
+        if isinstance(actual, list):
+            for a in actual:
+                self.assertTrue(isinstance(a, type_))
+        else:
+            self.assertTrue(isinstance(actual, type_))
+
     def test_try_coerce_none(self):
         self.assertIsNone(types.try_coerce(None))
 
-    def test_try_coerce_list(self):
-        # TODO: [TD0084] Add handling collections to type coercion classes.
-        self.assertIsNone(types.try_coerce([]))
-        self.assertIsNone(types.try_coerce(['foo', 'bar']))
-        self.assertIsNone(types.try_coerce([1, 2]))
-
     def test_try_coerce_primitive_bool(self):
-        self.assertEqual(types.try_coerce(False), False)
-        self.assertEqual(types.try_coerce(True), True)
-        self.assertTrue(isinstance(types.try_coerce(False), bool))
-        self.assertTrue(isinstance(types.try_coerce(True), bool))
+        self._test(given=False, expect=False, type_=bool)
+        self._test(given=True, expect=True, type_=bool)
 
     def test_try_coerce_primitive_int(self):
-        self.assertEqual(types.try_coerce(1), 1)
-        self.assertEqual(types.try_coerce(0), 0)
-        self.assertTrue(isinstance(types.try_coerce(1), int))
-        self.assertTrue(isinstance(types.try_coerce(0), int))
+        self._test(given=1, expect=1, type_=int)
+        self._test(given=0, expect=0, type_=int)
 
     def test_try_coerce_primitive_float(self):
-        self.assertEqual(types.try_coerce(1.0), 1.0)
-        self.assertEqual(types.try_coerce(0.0), 0.0)
-        self.assertTrue(isinstance(types.try_coerce(1.0), float))
-        self.assertTrue(isinstance(types.try_coerce(0.0), float))
+        self._test(given=1.0, expect=1.0, type_=float)
+        self._test(given=0.0, expect=0.0, type_=float)
 
     def test_try_coerce_primitive_str(self):
-        self.assertEqual(types.try_coerce('foo'), 'foo')
-        self.assertEqual(types.try_coerce(''), '')
-        self.assertTrue(isinstance(types.try_coerce('foo'), str))
-        self.assertTrue(isinstance(types.try_coerce(''), str))
+        self._test(given='foo', expect='foo', type_=str)
+        self._test(given='', expect='', type_=str)
 
     def test_try_coerce_primitive_bytes(self):
-        self.assertEqual(types.try_coerce(b'foo'), 'foo')
-        self.assertEqual(types.try_coerce(b''), '')
-        self.assertTrue(isinstance(types.try_coerce(b'foo'), str))
-        self.assertTrue(isinstance(types.try_coerce(b''), str))
+        self._test(given=b'foo', expect='foo', type_=str)
+        self._test(given=b'', expect='', type_=str)
 
     def test_try_coerce_datetime(self):
         dt = datetime.now()
-        self.assertEqual(types.try_coerce(dt), dt)
-        self.assertTrue(isinstance(types.try_coerce(dt), datetime))
-        self.assertTrue(isinstance(types.try_coerce(datetime.now()), datetime))
+        self._test(given=dt, expect=dt, type_=datetime)
+
+    def test_try_coerce_list_primitive_bool(self):
+        self._test(given=[False], expect=[False], type_=bool)
+        self._test(given=[True, False], expect=[True, False], type_=bool)
+
+    def test_try_coerce_list_mixed_primitives_to_bool(self):
+        self._test(given=[True, 'False'], expect=[True, False], type_=bool)
+        self._test(given=[True, 1.5, b'c'], expect=[True, True, False],
+                   type_=bool)
+        self._test(given=[True, 'False', b'True', 'true'],
+                   expect=[True, False, True, True], type_=bool)
+
+    def test_try_coerce_list_primitive_str(self):
+        self._test(given=['foo'], expect=['foo'], type_=str)
+        self._test(given=['foo', 'bar'], expect=['foo', 'bar'], type_=str)
+
+    def test_try_coerce_list_mixed_primitives_to_str(self):
+        self._test(given=['foo', 1], expect=['foo', '1'], type_=str)
+        self._test(given=['a', 1.5, b'c'], expect=['a', '1.5', 'c'], type_=str)
+
+    def test_try_coerce_list_primitive_int(self):
+        self._test(given=[1], expect=[1], type_=int)
+        self._test(given=[1, 2], expect=[1, 2], type_=int)
+
+    def test_try_coerce_list_mixed_primitives_to_int(self):
+        self._test(given=[1, 2.5], expect=[1, 2], type_=int)
+        self._test(given=[1, 2.5, b'3'], expect=[1, 2, 3], type_=int)
+        self._test(given=[1, '2', b'3'], expect=[1, 2, 3], type_=int)
+
+    def test_try_coerce_list_primitive_float(self):
+        self._test(given=[1.0], expect=[1.0], type_=float)
+        self._test(given=[1.0, 2.0], expect=[1.0, 2.0], type_=float)
+
+    def test_try_coerce_list_mixed_primitives_to_float(self):
+        self._test(given=[1.0, 2], expect=[1.0, 2.0], type_=float)
+        self._test(given=[1.0, 2.5, b'3'], expect=[1.0, 2.5, 3.0], type_=float)
+        self._test(given=[1.0, '2', b'3'], expect=[1.0, 2.0, 3.0], type_=float)
+
+
+class TestCoercerFor(TestCase):
+    def _check(self, test_input, expected):
+        assert isinstance(expected, types.BaseType)
+        actual = types.coercer_for(test_input)
+        self.assertEqual(actual, expected)
+
+    def test_none(self):
+        actual = types.coercer_for(None)
+        self.assertIsNone(actual)
+
+    def test_empty_empty(self):
+        actual = types.coercer_for([])
+        self.assertIsNone(actual)
+
+    def test_bytes(self):
+        self._check(b'foo', types.AW_STRING)
+        self._check(b'', types.AW_STRING)
+        self._check([b''], types.AW_STRING)
+        self._check([b'', 1], types.AW_STRING)
+        self._check((b'', ), types.AW_STRING)
+        self._check((b'', 1), types.AW_STRING)
+        self._check({b'a': b''}, types.AW_STRING)
+        self._check({b'a': b'1', b'b': b'2'}, types.AW_STRING)
+
+    def test_string(self):
+        self._check('foo', types.AW_STRING)
+        self._check('', types.AW_STRING)
+        self._check([''], types.AW_STRING)
+        self._check(['', 1], types.AW_STRING)
+        self._check(('', ), types.AW_STRING)
+        self._check(('', 1), types.AW_STRING)
+        self._check({'a': ''}, types.AW_STRING)
+        self._check({'a': '1', 'b': '2'}, types.AW_STRING)
+
+    def test_integer(self):
+        self._check(1, types.AW_INTEGER)
+        self._check(-1, types.AW_INTEGER)
+        self._check([1], types.AW_INTEGER)
+        self._check([1, 'foo'], types.AW_INTEGER)
+        self._check((1, ), types.AW_INTEGER)
+        self._check((1, 'foo'), types.AW_INTEGER)
+        self._check({'a': 1}, types.AW_INTEGER)
+        self._check({'a': 1, 'b': 2}, types.AW_INTEGER)
+
+    def test_boolean(self):
+        self._check(False, types.AW_BOOLEAN)
+        self._check(True, types.AW_BOOLEAN)
+        self._check([True], types.AW_BOOLEAN)
+        self._check([True, 'foo'], types.AW_BOOLEAN)
+        self._check((True, ), types.AW_BOOLEAN)
+        self._check((True, 'foo'), types.AW_BOOLEAN)
+        self._check({'a': True}, types.AW_BOOLEAN)
+        self._check({'a': True, 'b': False}, types.AW_BOOLEAN)
+
+    def test_float(self):
+        self._check(1.0, types.AW_FLOAT)
+        self._check(-1.0, types.AW_FLOAT)
+        self._check([-1.0], types.AW_FLOAT)
+        self._check([-1.0, 'foo'], types.AW_FLOAT)
+        self._check((-1.0, ), types.AW_FLOAT)
+        self._check((-1.0, 'foo'), types.AW_FLOAT)
+        self._check({'a': -1.0}, types.AW_FLOAT)
+        self._check({'a': -1.0, 'b': 2.0}, types.AW_FLOAT)
 
 
 class TestForceString(TestCase):
@@ -1235,12 +1436,91 @@ class TestForceString(TestCase):
         _aS(1)
         _aS(1.0)
         _aS('')
+        _aS(' ')
+        _aS(b'')
+        _aS(b' ')
+        _aS('foo')
+        _aS(b'foo')
+        _aS([])
+        _aS([''])
+        _aS(['foo'])
+        _aS({})
+        _aS(None)
+
+    def test_returns_expected_value(self):
+        def _aE(test_input, expected):
+            actual = types.force_string(test_input)
+            self.assertEqual(actual, expected)
+
+        _aE(1, '1')
+        _aE(1.0, '1.0')
+        _aE('', '')
+        _aE(' ', ' ')
+        _aE(b'', '')
+        _aE(b' ', ' ')
+        _aE('foo', 'foo')
+        _aE(b'foo', 'foo')
+        _aE([], '')
+        _aE([''], '')
+        _aE(['foo'], 'foo')
+        _aE({}, '')
+        _aE(None, '')
+
+
+class TestForceStringList(TestCase):
+    def test_returns_list_of_strings(self):
+        def _aS(test_input):
+            actual = types.force_stringlist(test_input)
+            self.assertTrue(isinstance(actual, list))
+            for a in actual:
+                self.assertTrue(isinstance(a, str))
+
+        _aS(1)
+        _aS(1.0)
+        _aS('')
         _aS(b'')
         _aS('foo')
         _aS(b'foo')
         _aS([])
         _aS({})
         _aS(None)
+        _aS([1])
+        _aS([1.0])
+        _aS([''])
+        _aS([b''])
+        _aS(['foo'])
+        _aS([b'foo'])
+        _aS([[]])
+        _aS([{}])
+        _aS([None])
+
+    def test_returns_expected_values(self):
+        def _aE(test_input, expected):
+            actual = types.force_stringlist(test_input)
+            self.assertEqual(actual, expected)
+
+        _aE(1, ['1'])
+        _aE(1.0, ['1.0'])
+        _aE('', [''])
+        _aE(b'', [''])
+        _aE('foo', ['foo'])
+        _aE(b'foo', ['foo'])
+        _aE([], [''])
+        _aE({}, [''])
+        _aE(None, [''])
+        _aE([1], ['1'])
+        _aE([1.0], ['1.0'])
+        _aE([''], [''])
+        _aE([b''], [''])
+        _aE(['foo'], ['foo'])
+        _aE([b'foo'], ['foo'])
+        _aE([[]], [''])
+        _aE([{}], [''])
+        _aE([None], [''])
+        _aE([None, ''], ['', ''])
+        _aE([None, 'foo'], ['', 'foo'])
+        _aE([None, None], ['', ''])
+        _aE([None, None, 'foo'], ['', '', 'foo'])
 
 
 class TestTryParseDate(TestCase):
@@ -1582,3 +1862,122 @@ class TestNormalizeDatetimeWithMicroseconds(TestCase):
 
         # TODO: Add handling more difficult patterns here?
         # _assert_match('12_7_2017_20_50_15_641659')
+
+
+# TODO: [TD0084] Handle collections (lists, etc) with wrapper classes.
+class TestListofStrings(TestCase):
+    def test_call_with_coercible_data(self):
+        def _assert_returns(test_data, expected):
+            actual = types.listof(types.AW_STRING)(test_data)
+            self.assertEqual(actual, expected)
+
+        _assert_returns([''], [''])
+        _assert_returns([' '], [' '])
+        _assert_returns([b''], [''])
+        _assert_returns([b' '], [' '])
+        _assert_returns([-1], ['-1'])
+        _assert_returns([0], ['0'])
+        _assert_returns([1], ['1'])
+        _assert_returns([-1.5], ['-1.5'])
+        _assert_returns([-1.0], ['-1.0'])
+        _assert_returns([1.0], ['1.0'])
+        _assert_returns([1.5], ['1.5'])
+        _assert_returns(['-1'], ['-1'])
+        _assert_returns(['-1.0'], ['-1.0'])
+        _assert_returns(['0'], ['0'])
+        _assert_returns(['1'], ['1'])
+        _assert_returns(['foo'], ['foo'])
+        _assert_returns([None], [''])
+        _assert_returns([False], ['False'])
+        _assert_returns([True], ['True'])
+
+    def test_call_with_noncoercible_data(self):
+        with self.assertRaises(types.AWTypeError):
+            types.AW_STRING(datetime.now())
+
+        with self.assertRaises(types.AWTypeError):
+            types.AW_STRING([datetime.now()])
+
+    def test_listof_string_passthrough(self):
+        _coercer = types.listof(types.AW_STRING)
+        self.assertTrue(callable(_coercer))
+
+        actual = _coercer(['a', 'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
+
+    def test_listof_string_passthrough_direct_call(self):
+        actual = types.listof(types.AW_STRING)(['a', 'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
+
+    def test_listof_string_bytes(self):
+        _coercer = types.listof(types.AW_STRING)
+        self.assertTrue(callable(_coercer))
+
+        actual = _coercer([b'a', b'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
+
+    def test_listof_string_bytes_direct_call(self):
+        actual = types.listof(types.AW_STRING)([b'a', b'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
+
+
+class TestListofIntegers(TestCase):
+    def test_call_with_coercible_data(self):
+        def _assert_returns(test_data, expected):
+            actual = types.listof(types.AW_INTEGER)(test_data)
+            self.assertEqual(actual, expected)
+
+        _assert_returns([None], [0])
+        _assert_returns([-1], [-1])
+        _assert_returns([0], [0])
+        _assert_returns([1], [1])
+        _assert_returns([-1.5], [-1])
+        _assert_returns([-1.0], [-1])
+        _assert_returns([1.0], [1])
+        _assert_returns([1.5], [1])
+        _assert_returns(['-1'], [-1])
+        _assert_returns(['-1.0'], [-1])
+        _assert_returns(['0'], [0])
+        _assert_returns(['1'], [1])
+
+        _assert_returns(None, [0])
+        _assert_returns(-1, [-1])
+        _assert_returns(0, [0])
+        _assert_returns(1, [1])
+        _assert_returns(-1, [-1])
+        _assert_returns('0', [0])
+        _assert_returns('1', [1])
+        _assert_returns('-1', [-1])
+        _assert_returns('-1.5', [-1])
+        _assert_returns('-1.0', [-1])
+        _assert_returns('1.0', [1])
+        _assert_returns('1.5', [1])
+
+    def test_call_with_noncoercible_data(self):
+        with self.assertRaises(types.AWTypeError):
+            types.AW_INTEGER('')
+
+        with self.assertRaises(types.AWTypeError):
+            types.AW_INTEGER('foo')
+
+    def test_listof_integer_passthrough(self):
+        _coercer = types.listof(types.AW_INTEGER)
+        self.assertTrue(callable(_coercer))
+
+        actual = _coercer([1, 2])
+        expect = [1, 2]
+        self.assertEqual(actual, expect)
+
+    def test_listof_integer_passthrough_direct_call(self):
+        actual = types.listof(types.AW_INTEGER)([1, 2])
+        expect = [1, 2]
+        self.assertEqual(actual, expect)
+
+    def test_listof_string_floats_direct_call(self):
+        actual = types.listof(types.AW_INTEGER)([1.0, 2.0])
+        expect = [1, 2]
+        self.assertEqual(actual, expect)

@@ -58,11 +58,12 @@ CLI_MSG_HEADING_CHAR = '='
 ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 
 
-# Default MIME type string used if the MIME type detection fails.
-MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
-
 # Default file size in bytes, if the size can not be determined.
 UNKNOWN_BYTESIZE = 0
+
+
+# Fallback encoding.
+DEFAULT_ENCODING = 'utf8'
 
 
 # Default values for required configuration fields.
@@ -194,9 +195,10 @@ YEAR_LOWER_LIMIT = datetime.datetime.strptime('1900', '%Y')
 # Normal, successful termination should return "0" (EXIT_SUCCESS)
 # Any non-zero value is interpreted as an error. Higher values should
 # correspond to increasingly critical error conditions.
-EXIT_SUCCESS = 0    # Program finished successfully.
-EXIT_WARNING = 1    # Program execution completed but there were errors.
-EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.
+EXIT_SUCCESS = 0     # Program finished successfully.
+EXIT_WARNING = 1     # Program execution completed but there were errors.
+EXIT_ERROR = 2       # Program execution halted due to irrecoverable errors.
+EXIT_SANITYFAIL = 3  # Program failure due to failed sanity check.
 
 
 # Repository and internal data storage

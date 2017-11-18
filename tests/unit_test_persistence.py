@@ -22,7 +22,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from core import util
+from util import unique_identifier
 from core.persistence import get_config_persistence_path
 from core.persistence.base import (
     BasePersistence,
@@ -190,7 +190,7 @@ class TestPicklePersistence(TestCase):
         self.assertEqual(actual, self.datavalue)
 
     def test_get_from_empty(self):
-        random_key = util.unique_identifier()
+        random_key = unique_identifier()
         c = PicklePersistence(random_key)
 
         # The persistence should not have the key in 'self._data' nor should

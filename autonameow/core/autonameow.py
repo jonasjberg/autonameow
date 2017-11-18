@@ -27,24 +27,28 @@ import time
 from core import (
     analysis,
     config,
+    disk,
     exceptions,
     extraction,
     interactive,
     namebuilder,
-    options,
     persistence,
+    providers,
     repository,
-    util
+    ui,
 )
 from core import constants as C
 from core.config.configuration import Configuration
-from core.evaluate.resolver import Resolver
-from core.evaluate.rulematcher import RuleMatcher
+from core.evaluate import (
+    RuleMatcher,
+    TemplateFieldDataResolver
+)
 from core.fileobject import FileObject
-from core.filter import ResultFilter
+from core.model import MeowURI
 from core.plugin_handler import PluginHandler
-from core.ui import cli
-from core.util import sanity
+import util
+from util import sanity
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -60,20 +64,65 @@ class Autonameow(object):
         Main program entry point.  Initializes a autonameow instance/session.
 
         Args:
-            opts: Dict with parsed options.
+            opts: Dict with parsed and validated options.
         """
-        self.opts = opts
+        assert isinstance(opts, dict)
+        self.opts = self.check_option_combinations(opts)
 
         # For calculating the total runtime.
         self.start_time = time.time()
 
-        self.filter = None
         self.active_config = None
         self._exit_code = C.EXIT_SUCCESS
 
+    @staticmethod
+    def check_option_combinations(options):
+        opts = dict(options)
+
+        # Check legality of option combinations.
+        if opts.get('mode_automagic') and opts.get('mode_interactive'):
+            log.warning('Operating mode must be either one of "automagic" or '
+                        '"interactive", not both. Reverting to default: '
+                        '[interactive mode].')
+            opts['mode_automagic'] = False
+            opts['mode_interactive'] = True
+
+        if (not opts.get('mode_automagic') and not opts.get('mode_rulematch')
+                and opts.get('mode_batch')):
+            log.warning('Running in "batch" mode without specifying an '
+                        'operating mode ("automagic" or rule-matching) does '
+                        'not make any sense.  Nothing to do!')
+
+        if opts.get('mode_batch'):
+            if opts.get('mode_interactive'):
+                log.warning('Operating mode must be either one of "batch" or '
+                            '"interactive", not both.  Disabling "batch"..')
+                opts['mode_batch'] = False
+
+            if opts.get('mode_timid'):
+                log.warning('Operating mode must be either one of "batch" or '
+                            '"timid", not both. Disabling "batch"..')
+                opts['mode_batch'] = False
+
+        if opts.get('mode_interactive'):
+            if opts.get('mode_timid'):
+                log.warning('Operating mode "interactive" implies "timid". '
+                            'Disabling "timid"..')
+                opts['mode_timid'] = False
+
+        if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
+            log.info('No operating-mode selected!')
+
+        if not opts.get('mode_rulematch'):
+            log.info('Enabled rule-matching..')
+            opts['mode_rulematch'] = True
+
+        return opts
+
     def __enter__(self):
-        # Set up a session repository for this process.
+        # Set up singletons for this process.
         repository.initialize(self)
+        providers.initialize()
 
         return self
 
@@ -82,15 +131,15 @@ class Autonameow(object):
 
     def run(self):
         if self.opts.get('quiet'):
-            cli.silence()
+            ui.silence()
 
         # Display various information depending on verbosity level.
         if self.opts.get('verbose') or self.opts.get('debug'):
-            cli.print_start_info()
+            ui.print_start_info()
 
         # Display startup banner with program version and exit.
         if self.opts.get('show_version'):
-            cli.print_version_info(verbose=self.opts.get('verbose'))
+            ui.print_version_info(verbose=self.opts.get('verbose'))
             self.exit_program(C.EXIT_SUCCESS)
 
         # Check configuration file. If no alternate config file path is
@@ -111,21 +160,18 @@ class Autonameow(object):
         # Set globally accessible configuration instance.
         config.set_active(self.active_config)
 
-        # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
-        self.filter = ResultFilter().configure_filter(self.opts)
-
         if self.opts.get('dump_options'):
             _config_path = persistence.get_config_persistence_path()
             _default_config_path = config.DefaultConfigFilePath
             include_opts = {
                 'config_file_path': '"{!s}"'.format(
-                    util.enc.displayable_path(_default_config_path)
+                    enc.displayable_path(_default_config_path)
                 ),
                 'cache_directory_path': '"{!s}"'.format(
-                    util.enc.displayable_path(_config_path)
+                    enc.displayable_path(_config_path)
                 )
             }
-            options.prettyprint_options(self.opts, include_opts)
+            ui.options.prettyprint_options(self.opts, include_opts)
 
         if self.opts.get('dump_config'):
             self._dump_active_config_and_exit()
@@ -139,7 +185,7 @@ class Autonameow(object):
             self.exit_program(C.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
-        files_to_process = util.disk.normpaths_from_opts(
+        files_to_process = disk.normpaths_from_opts(
             self.opts.get('input_paths'),
             self.active_config.options['FILESYSTEM_OPTIONS']['ignore'],
             self.opts.get('recurse_paths')
@@ -157,40 +203,40 @@ class Autonameow(object):
 
     def _dump_active_config_and_exit(self):
         log.info('Dumping active configuration ..')
-        cli.msg('Active Configuration:', style='heading')
-        cli.msg(str(self.active_config))
+        ui.msg('Active Configuration:', style='heading')
+        ui.msg(str(self.active_config))
         self.exit_program(C.EXIT_SUCCESS)
 
     def _dump_registered_meowuris(self):
-        cli.msg('Registered MeowURIs', style='heading')
+        ui.msg('Registered MeowURIs', style='heading')
 
         if not self.opts.get('debug'):
-            _meowuris = sorted(repository.SessionRepository.mapped_meowuris)
+            _meowuris = sorted(providers.Registry.mapped_meowuris)
             for _meowuri in _meowuris:
-                cli.msg(str(_meowuri))
+                ui.msg(str(_meowuri))
         else:
-            cf = cli.ColumnFormatter()
+            cf = ui.ColumnFormatter()
 
             for _type in C.MEOWURI_ROOTS_SOURCES:
                 cf.addemptyrow()
-                klasses = repository.SessionRepository.meowuri_class_map.get(_type, {})
-                for _meowuri, _klasses in klasses.items():
+                sourcemap = providers.Registry.meowuri_sources.get(_type, {})
+                for _meowuri, _klasses in sourcemap.items():
                     cf.addrow(_meowuri, str(_klasses.pop()))
                     if _klasses:
                         for k in _klasses:
                             cf.addrow(None, str(k))
-            cli.msg(str(cf))
+            ui.msg(str(cf))
 
-        cli.msg('\n')
+        ui.msg('\n')
 
     def _load_config_from_default_path(self):
-        _dp = util.enc.displayable_path(config.DefaultConfigFilePath)
+        _dp = enc.displayable_path(config.DefaultConfigFilePath)
         log.info('Using configuration: "{}"'.format(_dp))
         self.load_config(config.DefaultConfigFilePath)
 
     def _write_template_config_to_default_path_and_exit(self):
         log.info('No configuration file was found. Writing default ..')
-        _dp = util.enc.displayable_path(config.DefaultConfigFilePath)
+        _dp = enc.displayable_path(config.DefaultConfigFilePath)
         try:
             config.write_default_config()
         except exceptions.ConfigError:
@@ -198,48 +244,29 @@ class Autonameow(object):
                          '"{!s}"'.format(_dp))
             self.exit_program(C.EXIT_ERROR)
         else:
-            cli.msg('A template configuration file was written to '
-                    '"{!s}"'.format(_dp), style='info')
-            cli.msg('Use this file to configure {}. '
-                    'Refer to the documentation for additional '
-                    'information.'.format(C.STRING_PROGRAM_NAME),
-                    style='info')
+            ui.msg('A template configuration file was written to '
+                   '"{!s}"'.format(_dp), style='info')
+            ui.msg('Use this file to configure {}. '
+                   'Refer to the documentation for additional '
+                   'information.'.format(C.STRING_PROGRAM_NAME),
+                   style='info')
             self.exit_program(C.EXIT_SUCCESS)
 
     def _load_config_from_alternate_path(self):
         log.info('Using configuration file: "{!s}"'.format(
-            util.enc.displayable_path(self.opts.get('config_path'))
+            enc.displayable_path(self.opts.get('config_path'))
         ))
         self.load_config(self.opts.get('config_path'))
 
     def _handle_files(self, file_paths):
         """
         Main loop. Iterate over input paths/files.
-
-        For each file:
-        1. Create a 'FileObject' representing the current file.
-        2. Extract data from the file with suitable and/or required extractors.
-        3. Perform analysis of the file with suitable analyzers.
-        4. Run any available plugins.
-        5A -- "AUTOMAGIC MODE"
-            1. Determine which rules match the given file.
-            2. Use the "name template" and "data sources" specified in the
-               highest ranked rule, if any.
-            3. Use a 'Resolver' to collect data from "data sources" to be used
-               to populate "name template".
-            4. Construct a file name with the "name builder" if all required
-               data is available.
-            5. If not --dry-run; rename the file to the new file name.
-        5B -- "INTERACTIVE MODE"
-          1. Not implemented yet!
-        6. Do any reporting of results to the user.
-
         Assume all state is setup and completely reset for each loop iteration.
         It is not currently possible to share "information" between runs.
         """
         for file_path in file_paths:
             log.info('Processing: "{!s}"'.format(
-                util.enc.displayable_path(file_path))
+                enc.displayable_path(file_path))
             )
 
             # Sanity checking the "file_path" is part of 'FileObject' init.
@@ -248,7 +275,7 @@ class Autonameow(object):
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                    e, util.enc.displayable_path(file_path))
+                    e, enc.displayable_path(file_path))
                 )
                 continue
 
@@ -256,16 +283,20 @@ class Autonameow(object):
                 self._handle_file(current_file)
             except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
-                    util.enc.displayable_path(file_path))
+                    enc.displayable_path(file_path))
                 )
                 self.exit_code = C.EXIT_WARNING
                 continue
 
         if self.opts.get('list_all'):
             log.info('Listing session repository contents ..')
-            cli.msg('Session Repository Data', style='heading',
-                    add_info_log=True)
-            cli.msg(str(repository.SessionRepository))
+            ui.msg('Session Repository Data', style='heading',
+                   add_info_log=True)
+
+            if len(repository.SessionRepository) == 0:
+                ui.msg('The session repository does not contain any data ..\n')
+            else:
+                ui.msg(str(repository.SessionRepository))
 
             # TODO:  TEMPORARY debugging experiment --- Remove!
             # repository.SessionRepository.to_filedump('/tmp/repository_{:10.10}.state'.format(self.start_time))
@@ -276,7 +307,7 @@ class Autonameow(object):
                                    or self.opts.get('list_all'))
 
         # Extract data from the file.
-        required_extractors = repository.get_sources_for_meowuris(
+        required_extractors = providers.get_sources_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['extractor']
         )
@@ -293,7 +324,7 @@ class Autonameow(object):
         _run_analysis(current_file, self.active_config)
 
         # Run plugins.
-        required_plugins = repository.get_sources_for_meowuris(
+        required_plugins = providers.get_sources_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['plugin']
         )
@@ -311,6 +342,7 @@ class Autonameow(object):
 
         # Perform actions.
         if self.opts.get('mode_automagic'):
+            # TODO: [TD0100] Run rule-matching by default.
             self._perform_automagic_actions(current_file, matcher)
         elif self.opts.get('mode_interactive'):
             # TODO: Create a interactive interface.
@@ -318,7 +350,7 @@ class Autonameow(object):
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
     def _perform_automagic_actions(self, current_file, rule_matcher):
-        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         best_match = None
         name_template = None
 
@@ -338,7 +370,7 @@ class Autonameow(object):
                 else:
                     best_match = rule_matcher.best_match
 
-        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         else:
             if rule_matcher.best_match:
                 _best_match_score = rule_matcher.best_match_score()
@@ -361,15 +393,15 @@ class Autonameow(object):
                 # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
                 candidates = None
                 choice = interactive.select_template(candidates)
-                #if choice != cli.action.ABORT:
-                #    name_template = choice
-                #else:
-                #    name_template = None
+                # if choice != ui.action.ABORT:
+                #     name_template = choice
+                # else:
+                #     name_template = None
                 name_template = None
 
                 best_match = rule_matcher.best_match
 
-        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         if best_match and not name_template:
             name_template = best_match.name_template
             log.info(
@@ -380,7 +412,7 @@ class Autonameow(object):
             log.warning('No valid name template chosen. Aborting.')
             return
 
-        resolver = Resolver(current_file, name_template)
+        resolver = TemplateFieldDataResolver(current_file, name_template)
         resolver.add_known_sources(rule_matcher.best_match.data_sources)
 
         if self.opts.get('mode_batch'):
@@ -392,7 +424,7 @@ class Autonameow(object):
 
         resolver.collect()
 
-        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         if not resolver.collected_all():
             if self.opts.get('mode_batch'):
                 log.warning('Unable to populate name.')
@@ -419,7 +451,15 @@ class Autonameow(object):
                             log.info('Aborting ..')
                             return
 
-                        resolver.add_known_source(field, choice)
+                        # TODO: This should not be done here.
+                        try:
+                            choice_uri = MeowURI(choice)
+                        except exceptions.InvalidMeowURIError as e:
+                            log.critical('Failed to convert string choice to '
+                                         'MeowURI :: {!s}'.format(e))
+                            pass
+                        else:
+                            resolver.add_known_source(field, choice_uri)
 
                     resolver.collect()
 
@@ -442,13 +482,17 @@ class Autonameow(object):
             raise exceptions.AutonameowException
 
         log.info('New name: "{}"'.format(
-            util.enc.displayable_path(new_name))
+            enc.displayable_path(new_name))
         )
         self.do_rename(
             from_path=current_file.abspath,
             new_basename=new_name,
             dry_run=self.opts.get('dry_run')
         )
+
+    @property
+    def runtime_seconds(self):
+        return time.time() - self.start_time
 
     def exit_program(self, exit_code_):
         """
@@ -458,13 +502,14 @@ class Autonameow(object):
             exit_code_: Integer exit code to pass to the parent process.
                 Indicate success with 0, failure non-zero.
         """
-        elapsed_time = time.time() - self.start_time
         self.exit_code = exit_code_
 
+        _elapsed_time = self.runtime_seconds
         if self.opts and self.opts.get('verbose'):
-            cli.print_exit_info(self.exit_code, elapsed_time)
+            ui.print_exit_info(self.exit_code, _elapsed_time)
+
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
-        log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
+        log.debug('Total execution time: {:.6f} seconds'.format(_elapsed_time))
 
         sys.exit(self.exit_code)
 
@@ -483,35 +528,36 @@ class Autonameow(object):
         Returns:
             True if the rename succeeded or would be a NO-OP, otherwise False.
         """
+        # TODO: [TD0092] Add storing history and ability to "undo" renames.
         sanity.check_internal_bytestring(from_path)
         sanity.check_internal_string(new_basename)
 
         # Encoding boundary.  Internal str --> internal filename bytestring
-        dest_basename = util.enc.bytestring_path(new_basename)
+        dest_basename = enc.bytestring_path(new_basename)
         log.debug('Destination basename (bytestring): "{!s}"'.format(
-            util.enc.displayable_path(dest_basename))
+            enc.displayable_path(dest_basename))
         )
         sanity.check_internal_bytestring(dest_basename)
 
-        from_basename = util.disk.file_basename(from_path)
+        from_basename = disk.file_basename(from_path)
 
-        if util.disk.compare_basenames(from_basename, dest_basename):
+        if disk.compare_basenames(from_basename, dest_basename):
             _msg = (
                 'Skipped "{!s}" because the current name is the same as '
-                'the new name'.format(util.enc.displayable_path(from_basename),
-                                      util.enc.displayable_path(dest_basename))
+                'the new name'.format(enc.displayable_path(from_basename),
+                                      enc.displayable_path(dest_basename))
             )
             log.debug(_msg)
-            cli.msg(_msg)
+            ui.msg(_msg)
         else:
             if dry_run is False:
                 try:
-                    util.disk.rename_file(from_path, dest_basename)
+                    disk.rename_file(from_path, dest_basename)
                 except (FileNotFoundError, FileExistsError, OSError) as e:
                     log.error('Rename FAILED: {!s}'.format(e))
                     raise exceptions.AutonameowException
 
-            cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
+            ui.msg_rename(from_basename, dest_basename, dry_run=dry_run)
 
     @property
     def exit_code(self):
@@ -539,7 +585,7 @@ class Autonameow(object):
             self._exit_code = value
 
     def __hash__(self):
-        return hash(util.process_id()) + hash(self.start_time)
+        return hash((util.process_id(), self.start_time))
 
 
 def _run_extraction(fileobject, require_extractors, run_all_extractors=False):
@@ -579,13 +625,10 @@ def _run_plugins(fileobject, require_plugins=None, run_all_plugins=False):
         AutonameowException: An unrecoverable error occurred during analysis.
     """
     plugin_handler = PluginHandler()
-    if run_all_plugins:
-        plugin_handler.use_all_plugins()
-    elif require_plugins:
-        plugin_handler.use_plugins(require_plugins)
-
     try:
-        plugin_handler.execute_plugins(fileobject)
+        plugin_handler.start(fileobject,
+                             require_plugins=require_plugins,
+                             run_all_plugins=run_all_plugins is True)
     except exceptions.AutonameowPluginError as e:
         log.critical('Plugins FAILED: {!s}'.format(e))
         raise exceptions.AutonameowException(e)

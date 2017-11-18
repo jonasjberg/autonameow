@@ -23,7 +23,7 @@
 import logging
 import sys
 
-from core.ui import cli
+from core import ui
 
 
 log = logging.getLogger(__name__)
@@ -36,8 +36,8 @@ class Choice(object):
 def select_field(templatefield, candidates):
     # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
 
-    cli.msg('Unresolved Field: {!s}'.format(templatefield.as_placeholder()))
-    cli.msg('Candidates:')
+    ui.msg('Unresolved Field: {!s}'.format(templatefield.as_placeholder()))
+    ui.msg('Candidates:')
     for c in candidates:
         _probs = []
         for fm in c.field_map:
@@ -45,7 +45,7 @@ def select_field(templatefield, candidates):
                 _probs.append(fm.probability)
 
         _prob = ['probability: {}'.format(p) for p in _probs]
-        cli.msg(
+        ui.msg(
             '- "{!s}" ({})'.format(c.coercer.format(c.value), ' '.join(_prob))
         )
 
@@ -68,7 +68,7 @@ def meowuri_prompt(message):
                     'AssertionError in "prompt_toolkit". ABORTING!')
         return Choice.ABORT
 
-    response = cli.meowuri_prompt(message)
+    response = ui.meowuri_prompt(message)
     if response:
         return response
     else:
@@ -87,6 +87,6 @@ def ask_confirm(message=None):
     else:
         msg = '\n{}  [y/n]'.format(message)
 
-    response = cli.ask_confirm(msg)
+    response = ui.ask_confirm(msg)
     assert isinstance(response, bool)
     return response

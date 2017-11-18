@@ -22,10 +22,9 @@
 import logging
 
 from core import constants as C
-from core import util
+from core import providers
 from core.exceptions import AutonameowException
-from core.fileobject import FileObject
-from core.util import sanity
+from util import mimemagic
 
 
 class ExtractorError(AutonameowException):
@@ -57,7 +56,6 @@ class BaseExtractor(object):
                     |  '--* PdfTextExtractor
                     |
                     +--* ExiftoolMetadataExtractor
-                    '--* PyPDFMetadataExtractor
 
     The abstract extractors defines additional interfaces, extending the base.
     It is pretty messy and should be redesigned and simplified at some point ..
@@ -71,7 +69,7 @@ class BaseExtractor(object):
     # Middle part of the full MeowURI ('metadata', 'contents', 'filesystem', ..)
     MEOWURI_NODE = C.UNDEFINED_MEOWURI_PART
 
-    # Last part of the full MeowURI ('exiftool', 'pypdf', 'xplat', ..)
+    # Last part of the full MeowURI ('exiftool', 'xplat', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
     # Controls whether the extractor is enabled and used by default.
@@ -80,43 +78,18 @@ class BaseExtractor(object):
     # specified in order to be enqueued in the extractor run queue.
     is_slow = False
 
+    # Dictionary with extractor-specific information, keyed by the fields that
+    # the raw source produces. Stores information on types, etc..
+    FIELD_LOOKUP = {}
+
+    # TODO: Hack ..
+    coerce_field_value = providers.ProviderMixin.coerce_field_value
+
     def __init__(self):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
-
-    def __call__(self, fileobject, **kwargs):
-        """
-        Extracts and returns data using a specific extractor.
-
-          NOTE: This method __MUST__ be implemented by inheriting classes!
-
-        The return value should be a dictionary keyed by "MeowURIs", storing
-        data. The stored data can be either single elements or lists.
-        The data should be "safe", I.E. validated and converted to a suitable
-        "internal format" --- text should be returned as Unicode strings.
-
-        Implementing classes should make sure to catch all exceptions and
-        re-raise an "ExtractorError", passing any valuable information along.
-
-        Only raise the "ExtractorError" exception for irrecoverable errors.
-        Otherwise, implementers should strive to return empty values of the
-        expected type. The type coercers in 'types.py' could be useful here.
-
-        Args:
-            fileobject: Source of data from which to extract information as an
-                        instance of 'FileObject'.
-
-        Returns:
-            All data gathered by the extractor, as a dictionary.
-
-        Raises:
-            ExtractorError: The extraction could not be completed successfully.
-        """
-        sanity.check_isinstance(fileobject, FileObject)
-
-        extracted_data = self.execute(fileobject, **kwargs)
-        return extracted_data
+        # TODO: Set 'FIELD_LOOKUP' default values? Maybe 'multivalued' = False?
 
     @classmethod
     def meowuri_prefix(cls):
@@ -147,6 +120,9 @@ class BaseExtractor(object):
             else:
                 return _name
 
+        # "The base class for the exceptions that are raised when a key or
+        # index used on a mapping or sequence is invalid: IndexError, KeyError.
+        # This can be raised directly by codecs.lookup()." -- Python 3.6.1 docs
         except LookupError:
             return C.UNDEFINED_MEOWURI_PART
 
@@ -183,14 +159,14 @@ class BaseExtractor(object):
             )
 
         try:
-            return util.magic.eval_glob(fileobject.mime_type,
-                                        cls.HANDLES_MIME_TYPES)
+            return mimemagic.eval_glob(fileobject.mime_type,
+                                       cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
             raise ExtractorError(
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
             )
 
-    def execute(self, fileobject, **kwargs):
+    def extract(self, fileobject, **kwargs):
         """
         Extracts and returns data using a specific extractor.
 
@@ -199,7 +175,7 @@ class BaseExtractor(object):
         The return value should be a dictionary keyed by "MeowURIs", storing
         data. The stored data can be either single elements or lists.
         The data should be "safe", I.E. validated and converted to a suitable
-        "internal format" --- text should be returned as Unicode strings.
+        "internal format" --- text should be returned as Unicode strings, etc.
 
         Implementing classes should make sure to catch all exceptions and
         re-raise an "ExtractorError", passing any valuable information along.
@@ -221,6 +197,9 @@ class BaseExtractor(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
+    def metainfo(self, *args, **kwargs):
+        return dict(self.FIELD_LOOKUP)
+
     @classmethod
     def check_dependencies(cls):
         """
@@ -236,10 +215,6 @@ class BaseExtractor(object):
             is usable, else False.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    @classmethod
-    def __str__(cls):
-        return cls.__name__
 
     def __str__(self):
         return self.__class__.__name__

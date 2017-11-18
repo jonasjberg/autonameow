@@ -24,18 +24,15 @@ from analyzers import BaseAnalyzer
 
 
 class VideoAnalyzer(BaseAnalyzer):
-    run_queue_priority = 0.1
+    RUN_QUEUE_PRIORITY = 0.1
     HANDLES_MIME_TYPES = ['video/*']
 
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         super(VideoAnalyzer, self).__init__(
-            fileobject, config, add_results_callback, request_data_callback
+            fileobject, config, request_data_callback
         )
-        self.add_results = add_results_callback
 
-    def run(self):
-        # Pass results through callback function provided by the 'Analysis'.
+    def analyze(self):
         self._add_results('author', self.get_author())
         self._add_results('title', self.get_title())
         self._add_results('datetime', self.get_datetime())

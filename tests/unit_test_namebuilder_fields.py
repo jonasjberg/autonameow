@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 
+from core import types
 from core.namebuilder import fields
 import unit_utils as uu
 
@@ -170,3 +171,31 @@ class TestNametemplatefieldClassesInFormatstring(TestCase):
                  [fields.Title, fields.Author, fields.Description])
         self._aC('foo {title} {author} - {description}.foo',
                  [fields.Title, fields.Author, fields.Description])
+
+
+class NameTemplateFieldCompatible(TestCase):
+    def _compatible(self, nametemplate_field, coercer_class):
+        tf = nametemplate_field()
+        actual = tf.type_compatible(coercer_class)
+        self.assertTrue(actual)
+
+    def _incompatible(self, nametemplate_field, coercer_class):
+        tf = nametemplate_field()
+        actual = tf.type_compatible(coercer_class)
+        self.assertFalse(actual)
+
+    def test_compatible_with_name_template_field_description(self):
+        self._compatible(fields.Description, types.AW_STRING)
+        self._compatible(fields.Description, types.AW_INTEGER)
+
+    def test_not_compatible_with_name_template_field_description(self):
+        self._incompatible(fields.Description, types.AW_TIMEDATE)
+        self._incompatible(fields.Description, types.listof(types.AW_STRING))
+
+    def test_compatible_with_name_template_field_tags(self):
+        self._compatible(fields.Tags, types.AW_STRING)
+        self._compatible(fields.Tags, types.listof(types.AW_STRING))
+
+    def test_not_compatible_with_name_template_field_tags(self):
+        self._incompatible(fields.Description, types.AW_TIMEDATE)
+        self._incompatible(fields.Description, types.listof(types.AW_TIMEDATE))

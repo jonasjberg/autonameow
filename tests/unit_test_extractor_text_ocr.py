@@ -22,20 +22,40 @@
 
 import unittest
 
-from core import util
 from extractors import ExtractorError
 from extractors.text import (
     TesseractOCRTextExtractor,
     tesseractocr
 )
+from util import encoding as enc
 import unit_utils as uu
+from unit_utils_extractors import (
+    CaseExtractorBasics,
+    CaseExtractorOutputTypes
+)
 
 
-unmet_dependencies = TesseractOCRTextExtractor.check_dependencies() is False
-dependency_error = 'Extractor dependencies not satisfied'
+UNMET_DEPENDENCIES = TesseractOCRTextExtractor.check_dependencies() is False
+DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
 
 
-class TestTesseractOCRTextExtractor(unittest.TestCase):
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestTesseractOCRTextExtractor(CaseExtractorBasics):
+    EXTRACTOR_CLASS = TesseractOCRTextExtractor
+
+    def test_method_str_returns_expected(self):
+        actual = str(self.extractor)
+        expect = 'TesseractOCRTextExtractor'
+        self.assertEqual(actual, expect)
+
+
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestTesseractOCRTextExtractorOutputTypes(CaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = TesseractOCRTextExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('2007-04-23_12-comments.png')
+
+
+class TestTesseractOCRTextExtractorCanHandle(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -47,32 +67,9 @@ class TestTesseractOCRTextExtractor(unittest.TestCase):
         self.fo_image = DummyFileObject(mime='image/jpeg')
         self.fo_pdf = DummyFileObject(mime='application/pdf')
 
-    def test_class_method_can_handle_is_defined(self):
-        self.assertIsNotNone(self.e.can_handle)
-
     def test_class_method_can_handle_returns_expected(self):
         self.assertTrue(self.e.can_handle(self.fo_image))
         self.assertFalse(self.e.can_handle(self.fo_pdf))
-
-
-class TestTesseractOCRTextExtractorWithEmptyFile(unittest.TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-        self.e = TesseractOCRTextExtractor()
-
-    def test_extractor_class_is_available(self):
-        self.assertIsNotNone(TesseractOCRTextExtractor)
-
-    def test_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test_specifies_handles_mime_types(self):
-        self.assertIsNotNone(self.e.HANDLES_MIME_TYPES)
-        self.assertTrue(isinstance(self.e.HANDLES_MIME_TYPES, list))
-
-    def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'TesseractOCRTextExtractor')
 
 
 # NOTE(jonas): Use a shared instance to maintain test execution speed.
@@ -86,28 +83,22 @@ class TestTesseractOCRTextExtractorWithImageFile(unittest.TestCase):
         self.maxDiff = None
         self.e = image_ocr_extractor
 
-    def test_extractor_class_is_available(self):
-        self.assertIsNotNone(TesseractOCRTextExtractor)
-
-    def test_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
+    @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
     def test__get_raw_text_returns_expected_type(self):
-        self.assertTrue(uu.is_internalstring(self.e._get_text(TEST_IMAGE_FILE)))
+        self.assertTrue(uu.is_internalstring(self.e.extract_text(TEST_IMAGE_FILE)))
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_returns_expected_type(self):
-        actual = self.e.execute(TEST_IMAGE_FILE)
+    @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+    def test_method_extract_returns_expected_type(self):
+        actual = self.e.extract(TEST_IMAGE_FILE)
         self.assertTrue(isinstance(actual, dict))
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_all_result_contains_expected(self):
+    @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+    def test_method_extract_all_result_contains_expected(self):
         self.skipTest(
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'"
         )
-        actual = self.e.execute(TEST_IMAGE_FILE)
-        self.assertEqual(actual['raw_text'].value, TEST_IMAGE_FILE_TEXT)
+        actual = self.e.extract(TEST_IMAGE_FILE)
+        self.assertEqual(actual['full'], TEST_IMAGE_FILE_TEXT)
 
 
 class TestTesseractWrapper(unittest.TestCase):
@@ -119,7 +110,7 @@ class TestTesseractWrapper(unittest.TestCase):
         # Tests both Unicode or bytestring file names, even though the
         # intended primary caller 'TesseractOCRTextExtractor' uses bytestrings.
         for _image_file in [self.TEST_FILE,
-                            util.enc.normpath(self.TEST_FILE)]:
+                            enc.normpath(self.TEST_FILE)]:
             actual = tesseractocr.pil_read_image(_image_file)
             self.assertTrue(isinstance(actual, PIL.Image.Image))
 
@@ -131,13 +122,15 @@ class TestTesseractWrapper(unittest.TestCase):
             uu.abspath_testfile('empty'),
             uu.abspath_testfile('magic_txt.txt')
         ]
+        # TODO: Fix ResourceWarning: unclosed file <_io.BufferedReader
+        #           name='<SNIP>/test_files/empty'>
+        #           actual = tesseractocr.pil_read_image(_test_file)
         for _test_file in _test_files:
             with self.assertRaises(ExtractorError):
                 actual = tesseractocr.pil_read_image(_test_file)
 
-
-            #def test_pil_read_image_raises_exception_for_invalid_images(self):
-        #_test_inputs = [
-        #    image_file = util.enc.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
-        #]
-        #actual = ocr.pil_read_image(image_file)
+        # def test_pil_read_image_raises_exception_for_invalid_images(self):
+        # _test_inputs = [
+        #     image_file = enc.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
+        # ]
+        # actual = ocr.pil_read_image(image_file)

@@ -20,29 +20,27 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from analyzers import BaseAnalyzer
-from core.util import dateandtime
+from util import dateandtime
 
 
 class TextAnalyzer(BaseAnalyzer):
-    run_queue_priority = 0.5
+    RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['text/plain']
 
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         super(TextAnalyzer, self).__init__(
-            fileobject, config, add_results_callback, request_data_callback
+            fileobject, config, request_data_callback
         )
 
         self.text = None
 
-    def run(self):
+    def analyze(self):
         _maybe_text = self.request_any_textual_content()
         if not _maybe_text:
             return
 
         self.text = _maybe_text
 
-        # Pass results through callback function provided by the 'Analysis'.
         self._add_results('author', self.get_author())
         self._add_results('title', self.get_title())
         self._add_results('datetime', self.get_datetime())

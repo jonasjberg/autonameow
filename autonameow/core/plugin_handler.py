@@ -26,27 +26,49 @@ from core import (
     exceptions,
     repository
 )
-from core.model import ExtractedData
-from core.util import sanity
+from core.exceptions import InvalidMeowURIError
+from core.model import MeowURI
+
+
+log = logging.getLogger(__name__)
 
 
 # TODO: [TD0009] Implement a proper plugin interface.
-
-
 class PluginHandler(object):
     def __init__(self):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
+        self._plugins_to_use = []
+        self.available_plugins = []
+
+    def start(self, fileobject, require_plugins=None, run_all_plugins=False):
+        self.log.debug(' Plugins Starting '.center(80, '='))
 
         # Get instantiated and validated plugins.
         self.available_plugins = plugins.UsablePlugins
-        sanity.check_isinstance(self.available_plugins, list)
+        assert isinstance(self.available_plugins, list)
 
-        _p = ' '.join(map(lambda x: '"' + str(x) + '"', self.available_plugins))
-        self.log.debug('Available plugins: {!s}'.format(_p))
+        if self.available_plugins:
+            _p = ' '.join(
+                map(lambda x: '"' + str(x) + '"', self.available_plugins)
+            )
+            self.log.debug('Available plugins: {!s}'.format(_p))
+        else:
+            self.log.debug('No plugins are available')
 
-        self._plugins_to_use = []
+        if run_all_plugins:
+            self.use_all_plugins()
+        elif require_plugins:
+            assert isinstance(require_plugins, list), (
+                'Expected "require_plugins" to be a list. Got {!s}'.format(
+                    type(require_plugins))
+            )
+            self.use_plugins(list(require_plugins))
+
+        self.execute_plugins(fileobject)
+
+        self.log.debug(' Plugins Completed '.center(80, '='))
 
     def use_plugins(self, plugin_list):
         self.log.debug(
@@ -69,45 +91,51 @@ class PluginHandler(object):
         self._plugins_to_use = [p for p in self.available_plugins]
 
     def execute_plugins(self, fileobject):
-        self.log.debug(' Plugins Starting '.center(80, '='))
-
         self.log.debug('Running {} plugins'.format(len(self._plugins_to_use)))
         for plugin_klass in self._plugins_to_use:
             plugin = plugin_klass()
 
-            if plugin.can_handle(fileobject):
-                self.log.debug(
-                    '"{!s}" plugin CAN handle file "{!s}"'.format(
-                        plugin, fileobject)
-                )
-                self.log.debug('Executing plugin: "{!s}" ..'.format(plugin))
-                try:
-                    plugin(fileobject)
-                except exceptions.AutonameowPluginError:
-                    # log.critical('Plugin instance "{!s}" execution '
-                    #              'FAILED'.format(plugin_instance))
-                    raise
-            else:
+            if not plugin.can_handle(fileobject):
                 self.log.debug(
                     '"{!s}" plugin can not handle file "{!s}"'.format(
                         plugin, fileobject)
                 )
+                continue
 
-        self.log.debug(' Plugins Completed '.center(80, '='))
+            self.log.debug(
+                '"{!s}" plugin CAN handle file "{!s}"'.format(
+                    plugin, fileobject)
+            )
+            self.log.debug('Executing plugin: "{!s}" ..'.format(plugin))
+
+            try:
+                _metainfo = plugin.metainfo()
+            except (AttributeError, NotImplementedError) as e:
+                log.error('Failed to get meta info! Halted plugin "{!s}":'
+                          ' {!s}'.format(plugin, e))
+                continue
+            try:
+                data = plugin(fileobject)
+            except exceptions.AutonameowPluginError:
+                log.critical('Plugin instance "{!s}" execution '
+                             'FAILED'.format(plugin))
+                continue
+
+            # TODO: [TD0108] Fix inconsistencies in results passed back by plugins.
+            if not data:
+                continue
+
+            _results = _wrap_extracted_data(data, _metainfo, plugin)
+            _meowuri_prefix = plugin.meowuri_prefix()
+            collect_results(fileobject, _meowuri_prefix, _results)
 
 
 def request_data(fileobject, meowuri):
     response = repository.SessionRepository.query(fileobject, meowuri)
-    if response is None:
-        return None
-    else:
-        if isinstance(response, ExtractedData):
-            return response.value
-        else:
-            return response
+    return response.get('value')
 
 
-def collect_results(fileobject, meowuri, data):
+def collect_results(fileobject, meowuri_prefix, data):
     """
     Collects plugin results. Passed to plugins as a callback.
 
@@ -115,8 +143,31 @@ def collect_results(fileobject, meowuri, data):
 
     Args:
         fileobject: File that produced the data to add.
-        meowuri: Label that uniquely identifies the data.
+        meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
         data: The data to add.
     """
     # TODO: [TD0108] Fix inconsistencies in results passed back by plugins.
-    repository.SessionRepository.store(fileobject, meowuri, data)
+    for _uri_leaf, _data in data.items():
+        try:
+            _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
+        except InvalidMeowURIError as e:
+            log.critical(
+                'Got invalid MeowURI from plugin -- !{!s}"'.format(e)
+            )
+            continue
+        repository.SessionRepository.store(fileobject, _meowuri, _data)
+
+
+def _wrap_extracted_data(extracteddata, metainfo, source_klass):
+    out = {}
+
+    for field, value in extracteddata.items():
+        field_metainfo = dict(metainfo.get(field, {}))
+        if not field_metainfo:
+            log.warning('Missing metainfo for field "{!s}"'.format(field))
+
+        field_metainfo['value'] = value
+        field_metainfo['source'] = source_klass
+        out[field] = field_metainfo
+
+    return out

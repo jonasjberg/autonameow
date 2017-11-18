@@ -26,27 +26,26 @@ try:
 except ImportError:
     chardet = None
 
-from core.util import (
+from core import constants as C
+from extractors import ExtractorError
+from extractors.text.common import AbstractTextExtractor
+from util import (
     sanity,
     textutils
 )
-from extractors import ExtractorError
-from extractors.text.common import AbstractTextExtractor
 
 
 log = logging.getLogger(__name__)
 
 
-DEFAULT_ENCODING = 'utf8'
-
-
 class PlainTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['text/plain']
+    is_slow = False
 
     def __init__(self):
         super(PlainTextExtractor, self).__init__()
 
-    def _get_text(self, fileobject):
+    def extract_text(self, fileobject):
         self.log.debug('Extracting raw text from plain text file ..')
         source = fileobject.abspath
         result = read_entire_text_file(source)
@@ -70,7 +69,7 @@ class PlainTextExtractor(AbstractTextExtractor):
 def read_entire_text_file(file_path):
     contents = None
     try:
-        with open(file_path, 'r', encoding=DEFAULT_ENCODING) as fh:
+        with open(file_path, 'r', encoding=C.DEFAULT_ENCODING) as fh:
             contents = fh.readlines()
     except FileNotFoundError as e:
         raise ExtractorError(e)
@@ -79,7 +78,7 @@ def read_entire_text_file(file_path):
         if chardet is not None:
             log.debug(
                 'Unable to decode text with {} encoding. Reading as bytes and '
-                'trying to auto-detect the encoding.'.format(DEFAULT_ENCODING)
+                'trying to auto-detect the encoding.'.format(C.DEFAULT_ENCODING)
             )
             contents = _read_entire_text_file_autodetect_encoding(file_path)
 

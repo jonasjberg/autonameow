@@ -21,27 +21,24 @@
 
 import unittest
 
-from core import util
 from extractors.text import PdftotextTextExtractor
 from extractors.text.pdftotext import extract_pdf_content_with_pdftotext
+from unit_utils_extractors import (
+    CaseExtractorBasics,
+    CaseExtractorOutput,
+    CaseExtractorOutputTypes
+)
 import unit_utils as uu
 
 
-class TestExtractPdfContentWithPdftotext(unittest.TestCase):
-    def setUp(self):
-        self.maxDiff = None
+UNMET_DEPENDENCIES = PdftotextTextExtractor.check_dependencies() is False
+DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
 
-    def test_returns_expected_type(self):
-        self.assertEqual(type(extract_pdf_content_with_pdftotext(pdf_file)),
-                         str)
+# NOTE: It seems that pdftotext strips trailing whitespace on MacOS (v0.57.0)
+#       but not on Linux (v0.41.0) --- gives inconsistent test results (?)
 
-    def test_returns_expected_text(self):
-        self.assertEqual(extract_pdf_content_with_pdftotext(pdf_file),
-                         expected_text)
-
-
-pdf_file = uu.abspath_testfile('simplest_pdf.md.pdf')
-expected_text = '''Probably a title
+TESTFILE_A = uu.abspath_testfile('simplest_pdf.md.pdf')
+TESTFILE_A_EXPECTED = '''Probably a title
 Text following the title, probably.
 
 Chapter One
@@ -51,22 +48,223 @@ Chapter Two
 Second chapter depends on Chapter one ..
 Test test. This file contains no digits whatsoever.
 
-1
+1'''
 
-'''
+TESTFILE_B = uu.abspath_testfile('magic_pdf.pdf')
+TESTFILE_B_EXPECTED = '''KURSPLAN
+
+Akademin för teknik och miljö
+Faculty of Engineering and Sustainable Development
+
+Styrteknik med digitalteknik A 7,5 hp
+Digital Control Theory 7,5 credits
+
+Fastställd av Akademin för teknik och miljö
+Version
+
+Beslutad den
+2010-03-15
+2012-09-12
+
+Fördjupning
+
+G1N
+
+Utbildningsnivå
+
+Grundnivå
+
+Kurskod
+
+EE467A
+
+Högskolepoäng
+
+7,5 hp
+
+Huvudområde
+
+Elektronik
+
+Ämnesgrupp
+
+Elektronik
+
+Utbildningsområde
+
+Tekniska området 100%
+
+Mål
+
+Gäller fr.o.m.
+2010-03-15
+2012-11-05
+
+Kursens mål är ett ge grundläggande kunskaper om komponenter utrustningar och metoder
+som används inom digitaltekniken och vid styrning av industriella processer samt att ge
+laborativa färdigheter och tillräckliga kunskaper för att utföra ett projektarbete med
+logikstyrning.
+Efter avslutad kurs skall studenten:
+1. förstå och kunna analysera och dokumentera fundamentala logiska och enkla
+reglertekniska konstruktioner
+2. beskriva och använda de teorier och metoder som kursen omfattas av på ett korrekt sätt
+3. visa på förståelse för och kunna uttrycka vanligt förekommande typer av beskrivningar av
+logiska funktioner och sekvenser.
+4. visa förmåga att med hjälp av adekvat metodik lösa uppgifter inom konstruktion och
+programmering av logiska system.
+5. tillgodogöra sig standardlitteratur inom området (inkl. datablad och liknande information)
+6. använda laboratorieutrustning och programmerbara system i tillämplig mån
+
+Kursens innehåll
+
+Kobinatorik och sekvensstyrning
+Översikt, grundläggande begrepp och komponenter inom styrning och reglering
+Funktionsbeskrivningar
+Programmerbara logikenheter
+Praktisk reglerteknik
+Funktionsbeskrivningar
+Praktisk reglerteknik
+
+Sida 1 av 2
+Högskolan i Gävle accepterar inte fusk i någon form. Plagiat är en form av fusk, som innebär att du imiterar eller kopierar någon annans arbete, till exempel en text,
+en bild eller en tabell, och framställer materialet som ditt eget. Högskolan använder antiplagiatsystem för att förebygga och upptäcka fusk i samband med skriftliga
+inlämningsuppgifter.
+
+Sortering och behandling av elektronik för återvinning
+Beaktande av miljö- och energiaspekter vid dimensionering av styrsystem
+Undervisning
+
+Undervisningen ges i form av föreläsningar/övningar, laborationer samt ett projektarbete.
+Laborationerna utförs normalt i grupper om två studenter. Stor vikt läggs vid förberedelser,
+genomförandet och redovisningen av laborationerna och projektet. Undervisningen är ej
+obligatorisk, med undantag för laborationerna och eventuella obligatoriska uppgifter.
+
+Förkunskaper
+
+Matematik D, Fysik B eller Matematik 3c, Fysik 2, (Områdesbehörighet 8/A8). Undantag
+ges för Kemi A eller Kemi 1.
+
+Examinationsform
+
+0030 Tentamen 4,5 hp
+0040 Laborationer 1,5 hp
+0050 Projekt 1,5 hp
+
+Moment
+
+Saknas
+
+Betyg
+
+A, B, C, D, E, Fx, F
+
+Begränsningar
+
+Skriftlig tentamen ges vid kursens slut. Vid varje kursomgång ges ett ordinarie samt ett
+omtentamenstillfälle.
+Dessutom erfordras fullgjord laborationskurs och redovisat projektarbete.
+Laborationsredovisningarna lämnas in senast en vecka efter ordinarie laborationstillfälle om
+annan tid ej meddelats. Den som lämnar in redovisningen senare får vänta på rättning till
+nästa kurstillfälle. Icke godkänd redovisning måste omarbetas enligt givna kommentarer.
+
+Hållbar utveckling
+
+Kursen har inslag av hållbar utveckling.
+
+Kurslitteratur
+
+Haag, Bengt (senaste upplagan). Industriell systemteknik. Lund: Studentlitteratur.
+Kompendier och utdelat material
+
+Sida 2 av 2
+Högskolan i Gävle accepterar inte fusk i någon form. Plagiat är en form av fusk, som innebär att du imiterar eller kopierar någon annans arbete, till exempel en text,
+en bild eller en tabell, och framställer materialet som ditt eget. Högskolan använder antiplagiatsystem för att förebygga och upptäcka fusk i samband med skriftliga
+inlämningsuppgifter.'''
 
 
-class TestSetup(unittest.TestCase):
-    def test_sample_pdf_file_exists(self):
-        self.assertTrue(uu.file_exists(pdf_file))
+class TestPrerequisites(unittest.TestCase):
+    def test_test_file_exists_a(self):
+        self.assertTrue(uu.file_exists(TESTFILE_A))
+
+    def test_test_file_exists_b(self):
+        self.assertTrue(uu.file_exists(TESTFILE_B))
 
 
-class TestPdftotextTextExtractor(unittest.TestCase):
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestPdftotextTextExtractor(CaseExtractorBasics):
+    EXTRACTOR_CLASS = PdftotextTextExtractor
+
+    def test_method_str_returns_expected(self):
+        actual = str(self.extractor)
+        expect = 'PdftotextTextExtractor'
+        self.assertEqual(actual, expect)
+
+
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestPdftotextTextExtractorOutputTypes(CaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = PdftotextTextExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
+
+
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestPdftotextTextExtractorOutputTestFileA(CaseExtractorOutput):
+    EXTRACTOR_CLASS = PdftotextTextExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
+    _dt = uu.str_to_datetime
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('full', str, TESTFILE_A_EXPECTED),
+    ]
+
+
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestPdftotextTextExtractorOutputTestFileB(CaseExtractorOutput):
+    EXTRACTOR_CLASS = PdftotextTextExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_B)
+    _dt = uu.str_to_datetime
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('full', str, TESTFILE_B_EXPECTED),
+    ]
+
+
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestExtractPdfContentWithPdftotext(unittest.TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.actual = extract_pdf_content_with_pdftotext(TESTFILE_A)
+
+    def test_returns_expected_type(self):
+        self.assertTrue(uu.is_internalstring(self.actual))
+
+    def test_returns_expected_text(self):
+        self.assertEqual(self.actual, TESTFILE_A_EXPECTED)
+
+
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestPdftotextTextExtractorInternals(unittest.TestCase):
+    def setUp(self):
+        self.test_fileobject = uu.fileobject_testfile('gmail.pdf')
+        self.e = PdftotextTextExtractor()
+
+    def test__get_text_returns_something(self):
+        actual = self.e.extract_text(self.test_fileobject)
+        self.assertIsNotNone(actual)
+
+    def test__get_text_returns_expected_type(self):
+        actual = self.e.extract_text(self.test_fileobject)
+        self.assertEqual(type(actual), str)
+
+    def test_method_extract_returns_something(self):
+        self.assertIsNotNone(self.e.extract(self.test_fileobject))
+
+    def test_method_extract_returns_expected_type(self):
+        actual = self.e.extract(self.test_fileobject)
+        self.assertTrue(isinstance(actual, dict))
+
+
+class TestPdftotextTextExtractorCanHandle(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.test_file = util.enc.normpath(uu.abspath_testfile('gmail.pdf'))
-        self.test_fileobject = uu.fileobject_testfile('gmail.pdf')
         self.e = PdftotextTextExtractor()
 
         class DummyFileObject(object):
@@ -74,102 +272,6 @@ class TestPdftotextTextExtractor(unittest.TestCase):
                 self.mime_type = mime
         self.fo_image = DummyFileObject(mime='image/jpeg')
         self.fo_pdf = DummyFileObject(mime='application/pdf')
-
-        self.EXPECT_TEXT = '''1/11/2016
-
-Gmail - Välkommen till kursen Introduktion till Linux och små nätverk!
-
-Jonas Sjöberg <jomeganas@gmail.com>
-
-Välkommen till kursen Introduktion till Linux och små nätverk!
-1 message
-Camilla Nordin <Camilla.Nordin@hig.se>
-To: Camilla Nordin <Camilla.Nordin@hig.se>
-
-Fri, Jan 8, 2016 at 3:50 PM
-
-Välkommen till Högskolan i Gävle och kursen Introduktion till Linux och små nätverk
-7,5 hp!
-
-Ditt välkomstbrev hittar du här: http://www.hig.se/Ext/Sv/Student/Ny­student/Valkomstbrev/Kurser/
-Datateknik.html
-
-LÄS DITT VÄLKOMSTBREV NOGGRANT!
-
-Kursen börjar den 25:e januari men är öppen för webbregistrering via Studentportalen från och
-med den 18:e januari, se välkomstbrevet.
-
-Åtkomstkoden som i vissa fall behövs för inskrivning på kursen i Blackboard är: Debian­Mint
-
-Kursinstansen i Blackboard öppnar den 25:e januari. Observera att du ibland måste söka fram
-kursen den första gången du loggar in i Blackboard. Följ instruktionerna i manualen som finns
-länkad i välkomstbrevet.
-
-Det finns bra information för nya studenter på vår hemsida: www.hig.se/nystudent
-
-Du behöver inte tacka ja eller nej till kursen utan accepterar din plats genom att registrera dig
-via Studentportalen.
-
-Lycka till med studierna!
-
-Hälsningar Camilla
-***************************************************************
-Camilla Nordin
-Högskolan i Gävle
-Akademin för teknik och miljö
-https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df...
-
-1/2
-
-1/11/2016
-
-Gmail - Välkommen till kursen Introduktion till Linux och små nätverk!
-
-801 76 GÄVLE
-Tel: 026­64 87 46
-Fax: 026­64 87 58
-e­mail: cnn@hig.se
-Besöksadress: Kungsbäcksvägen 47, rum 12:208
-
-Högskolan i Gävle, 801 76 Gävle • 026 64 85 00 • www.hig.se
-För en hållbar livsmiljö för människan
-University of Gävle, SE­801 76 Gävle, Sweden • +46 (0) 26 64 85 00 • www.hig.se
-
-https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df...
-
-2/2
-
-'''
-
-    def test_class_is_available(self):
-        self.assertIsNotNone(PdftotextTextExtractor)
-
-    def test_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test__get_text_returns_something(self):
-        self.assertIsNotNone(self.e._get_text(self.test_fileobject))
-
-    def test__get_text_returns_expected_type(self):
-        self.assertEqual(type(self.e._get_text(self.test_fileobject)), str)
-
-    def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute(self.test_fileobject))
-
-    def test_method_execute_returns_expected_type(self):
-        actual = self.e.execute(self.test_fileobject)
-        self.assertTrue(isinstance(actual, dict))
-
-    def test_method_execute_contains_expected(self):
-        self.skipTest(
-            'TODO: It seems that pdftotext strips trailing whitespace on'
-            ' MacOS (v0.57.0) but not on Linux (v0.41.0) ..'
-        )
-        actual = self.e.execute(self.test_fileobject)
-        self.assertEqual(actual['full'].value, self.EXPECT_TEXT)
-
-    def test_class_method_can_handle_is_defined(self):
-        self.assertIsNotNone(self.e.can_handle)
 
     def test_class_method_can_handle_returns_expected(self):
         self.assertFalse(self.e.can_handle(self.fo_image))

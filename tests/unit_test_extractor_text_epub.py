@@ -22,7 +22,41 @@
 import unittest
 
 import unit_utils as uu
+from extractors.text import EpubTextExtractor
 from thirdparty import epubzilla
+from unit_utils_extractors import (
+    CaseExtractorBasics,
+    CaseExtractorOutputTypes
+)
+
+
+UNMET_DEPENDENCIES = not EpubTextExtractor.check_dependencies()
+DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
+
+
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestEpubTextExtractor(CaseExtractorBasics):
+    EXTRACTOR_CLASS = EpubTextExtractor
+
+    def test_method_str_returns_expected(self):
+        actual = str(self.extractor)
+        expect = 'EpubTextExtractor'
+        self.assertEqual(actual, expect)
+
+
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestEpubTextExtractorOutputTypes(CaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = EpubTextExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
+
+
+# TODO:  Rework the tests or the extractors.. ?
+# NOTE(jonas): Text extractors pass results to parent class that wraps the data
+#              to the format returned directly by the metadata extractors ..
+# @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+# class TestEpubTextExtractorOutputTypes(TestCaseExtractorOutputTypes):
+#     EXTRACTOR_CLASS = EpubTextExtractor
+#     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
 @unittest.skipIf(epubzilla is None, 'Failed to import "thirdparty.epubzilla"')
@@ -36,7 +70,7 @@ class TestExtractTextWithEpubzilla(unittest.TestCase):
         self.assertTrue(uu.file_exists(not_epub_file))
 
         with self.assertRaises(Exception):
-            actual = epubzilla.Epub.from_file(not_epub_file)
+            _ = epubzilla.Epub.from_file(not_epub_file)
 
     def test_opens_sample_epub_file(self):
         actual = epubzilla.Epub.from_file(self.sample_file)

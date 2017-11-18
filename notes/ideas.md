@@ -15,6 +15,7 @@ Various ideas on possible upcoming features and changes to `autonameow`.
 * 2017-09-25 --- `jonasjberg` Add notes on the "Resolver"
 * 2017-09-28 --- `jonasjberg` Add notes on auto-completing MeowURIs.
 * 2017-10-14 --- `jonasjberg` Add thoughts on a reasoning/probability system.
+* 2017-10-28 --- `jonasjberg` Using a proper Metadata Repository.
 
 
 Field Candidates
@@ -422,7 +423,8 @@ example of updating the old analyzers.
 ### Contextual information
 The analyzers should be provided with *contextual information*.
 
-The "weighted field" that is currently part of the `ExtractedData` class is one possible method of providing context.
+The "weighted field" that is currently part of the `ExtractedData` class is one
+possible method of providing context.
 Extractors are probably best suited to give initial "value judgements" on the
 data they extract. For any piece of extracted data; how likely is it correct?
 Is it really what it says it is?
@@ -726,3 +728,36 @@ related to file extension, would probably be weighted a bit lower.
 
 Everything would be combined and returned as an answer to the question
 originally posed by the `FilenameTokenizer` component.
+
+
+--------------------------------------------------------------------------------
+
+
+Using a proper Metadata Repository
+----------------------------------
+> Jonas Sjöberg, 2017-10-28.
+
+
+The current means of central storage uses the `Repository` class to store all
+data in a simple two level key-value store.
+The first primary key (level 1) is the `FileObject` that produced the data.
+These contain values keyed by `MeowURI` (level 2).
+
+
+### "Proper" Metadata Repositories
+
+> Metadata repository not only stores metadata like Metadata registry but also
+> adds relationships with related metadata types.
+>
+> <https://en.wikipedia.org/wiki/Metadata_repository>
+
+Blog post on nomenclature: [Metadata Repositories vs. Metadata
+Registries](http://datadictionary.blogspot.se/2008/03/metadata-repositories-vs-metadata.html)
+
+### Retrieval
+The current system is far from being able to arrange and retrieve data
+"dynamically", using relational queries. This would sometimes be very useful..
+
+### Primary Keys
+One specific general case is metadata that share a single unique identifier,
+like ISBN-numbers. This is currently not easy to implement.

@@ -100,16 +100,6 @@ log_test_suite_results_summary()
     logmsg "======================================================================"
 }
 
-# Calculates the execution time by taking the difference of two unix
-# timestamps.  The expected arguments are start and end times.
-# Returns the time delta in milliseconds.
-calculate_execution_time()
-{
-    local _time_start="$1"
-    local _time_end="$2"
-    echo "$(((${_time_end} - ${_time_start}) / 1000000))"
-}
-
 # Logs a test failure message and increments counters.
 test_fail()
 {
@@ -152,24 +142,6 @@ assert_false()
     else
         shift ; test_fail "$*"
     fi
-}
-
-# Returns the current time as a UNIX timestamp.
-current_unix_time()
-{
-    # The 'date' command differs between versions; the GNU coreutils version
-    # uses '+%N' to print nanoseconds, which is missing in the BSD version
-    # shipped with MacOS.  Circumvent hackily by inlining Python call ..
-    #
-    # NOTE: This should probably only be done once for performance.
-    #       Lets just assume we're mostly interested in relative measurements.
-
-    case "$OSTYPE" in
-        darwin*) python -c 'import time ; t="%.9f"%time.time() ; print t.replace(".","")';;
-         linux*) date "+%s%N" ;;
-           msys) date "+%s%N" ;; # NOTE: Not a target OS!
-              *) { echo 'ERROR: Unsupported Operating System!' 1>&2 ; exit 1 ; } ;;
-    esac
 }
 
 # TODO: Finish this function ..
@@ -242,13 +214,6 @@ convert_raw_log_to_html()
 grep_todos()
 {
     grep -q "\(TODO\|FIXME\|XXX\).*" -- "$1"
-}
-
-# Get the absolute path to a file in the "$SRCROOT/test_files" directory.
-# Expects the first and only argument to be the basename of the desired file.
-abspath_testfile()
-{
-    ( cd "$SELF_DIR" && realpath -e "../test_files/${1}" )
 }
 
 

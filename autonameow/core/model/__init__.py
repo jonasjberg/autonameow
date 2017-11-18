@@ -20,6 +20,5 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .extracteddata import ExtractedData
 from .mapping import WeightedMapping
 from .meowuri import MeowURI

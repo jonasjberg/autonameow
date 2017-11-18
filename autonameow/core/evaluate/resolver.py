@@ -22,9 +22,10 @@
 import logging
 
 from core import repository
-from core.model import ExtractedData
+from core.model import MeowURI
+from core.model import genericfields as gf
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
-from core.util import sanity
+from util.text import format_name
 
 
 log = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ log = logging.getLogger(__name__)
 # "pipeline" --- from "raw" data to the final new file name.
 
 
-class Resolver(object):
+class TemplateFieldDataResolver(object):
     def __init__(self, fileobject, name_template):
         self.file = fileobject
         self.name_template = name_template
@@ -54,15 +55,26 @@ class Resolver(object):
         return all(field in self.data_sources for field in self._fields)
 
     def add_known_source(self, field, meowuri):
+        assert meowuri and isinstance(meowuri, MeowURI), (
+               'TODO: Fix collecting/verifying data from sources. '
+               'Expected MeowURI, not "{!s}"'.format(type(meowuri)))
+
         if field in self._fields:
-            self.data_sources[field] = meowuri
+            if not self.data_sources.get(field):
+                self.data_sources[field] = [meowuri]
+            else:
+                self.data_sources[field] += [meowuri]
         else:
             log.debug('Attempted to add source for unused name template field '
                       '"{!s}": {!s}'.format(field, meowuri))
 
     def add_known_sources(self, source_dict):
         for _field, _meowuri in source_dict.items():
-            self.add_known_source(_field, _meowuri)
+            if isinstance(_meowuri, list):
+                for m in _meowuri:
+                    self.add_known_source(_field, m)
+            else:
+                self.add_known_source(_field, _meowuri)
 
     @property
     def unresolved(self):
@@ -96,67 +108,69 @@ class Resolver(object):
         return True
 
     def _gather_data(self):
-        # TODO: [TD0082] Integrate the 'ExtractedData' class.
-        for _field, _meowuri in self.data_sources.items():
+        for _field, _meowuris in self.data_sources.items():
+            _str_field = str(_field.as_placeholder())
+
             if (_field in self.fields_data
                     and self.fields_data.get(_field) is not None):
                 log.debug('Skipping previously gathered data for field '
-                          '"{!s}"'.format(_field))
+                          '{{{}}}"'.format(_str_field))
                 continue
 
-            if not _meowuri:
+            if not _meowuris:
                 log.debug(
                     'Resolver attempted to gather data with empty MeowURI!'
                 )
                 continue
 
-            log.debug('Gathering data for field "{!s}" from source [{:8.8}]->'
-                      '[{!s}]'.format(_field, self.file.hash_partial, _meowuri))
-            _data = self._request_data(self.file, _meowuri)
-            if _data is not None:
-                _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(_data),
-                                                                   _data)
-
-                if isinstance(_data, list):
-                    # TODO: Fix this!
-                    log.info('Not sure which of many entries to use ..')
-                    continue
-
-                log.debug('Got {}'.format(_data_info))
-                sanity.check(
-                    isinstance(_data, ExtractedData),
-                    'Expected "data" to be an instance of "ExtractedData".'
-                    ' Got {}'.format(_data_info)
+            for _meowuri in _meowuris:
+                log.debug(
+                    'Gathering data for template field {{{}}} from [{:8.8}]->'
+                    '[{!s}]'.format(_str_field, self.file.hash_partial,
+                                    _meowuri)
                 )
 
+                _data = self._request_data(self.file, _meowuri)
+                if _data is None:
+                    log.debug('Got NONE data from [{:8.8}]->[{!s}]'.format(
+                        self.file.hash_partial, _meowuri)
+                    )
+                    continue
+
+                # TODO: [TD0112] FIX THIS HORRIBLE MESS!
+                if isinstance(_data, list):
+                    _deduped_list = dedupe_list_of_datadicts(_data)
+                    if len(_deduped_list) == 1:
+                        log.debug('Using one of {} equivalent '
+                                  'entries'.format(len(_data)))
+                        _data = _data[0]
+                    else:
+                        log.warning('Not sure what data to use for field '
+                                    '{{{}}}..'.format(_str_field))
+                        for i, d in enumerate(_data):
+                            log.warning('Field {{{}}} candidate {:03d} :: '
+                                        '"{!s}"'.format(_str_field, i,
+                                                        d.get('value')))
+                        continue
+
                 # # TODO: [TD0112] Clean up merging data.
-                if isinstance(_data.value, list):
+                elif isinstance(_data.get('value'), list):
 
                     seen_data = set()
-                    for d in _data.value:
+                    for d in _data.get('value'):
                         seen_data.add(d)
 
                     if len(seen_data) == 1:
-                        log.debug(
-                            'Merged {} ExtractedData entries'.format(
-                                len(_data.value)
-                            )
-                        )
                         # TODO: [TD0112] FIX THIS!
-                        # _data.value = _data.value[0]
+                        log.debug('Merged {} equivalent entries'.format(
+                            len(_data.get('value')))
+                        )
+                        _data['value'] = list(seen_data)[0]
 
-                log.debug('Updated data for field "{!s}"'.format(_field))
+                log.debug('Updated data for field {{{}}} :: "{!s}"'.format(
+                    _str_field, _data.get('value')
+                ))
                 self.fields_data[_field] = _data
-            else:
-                log.debug('Got NONE data for [{:8.8}]->"{!s}"'.format(
-                    self.file.hash_partial, _meowuri)
-                )
-
-                # Remove the source that returned None data.
-                log.debug(
-                    'Removing source "{!s}"'.format(self.data_sources[_field])
-                )
-                self.data_sources[_field] = None
 
     def _verify_types(self):
         # TODO: [TD0115] Clear up uncertainties about data multiplicities.
@@ -166,7 +180,7 @@ class Resolver(object):
                     self.fields_data[field] = None
                     log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
                     log.debug(
-                        'Template field "{!s}" expects a single value. '
+                        'Template field {{{!s}}} expects a single value. '
                         'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
                                                    type(data), data)
                     )
@@ -184,18 +198,12 @@ class Resolver(object):
 
     def _verify_type(self, field, data):
         _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
-        sanity.check(
-            not isinstance(data, list),
-            'Expected "data" not to be a list. Got {}'.format(_data_info)
-        )
-        sanity.check(
-            isinstance(data, ExtractedData),
-            'Expected "data" to be an instance of "ExtractedData".'
-            'Got {}'.format(_data_info)
-        )
+        assert not isinstance(data, list), (
+               'Expected "data" not to be a list. Got {}'.format(_data_info))
 
         log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
-        _compatible = field.type_compatible(data.coercer)
+        _coercer = data.get('coercer')
+        _compatible = field.type_compatible(_coercer)
         if _compatible:
             log.debug('Verified Field-Data Compatibility  OK!')
         else:
@@ -210,3 +218,56 @@ class Resolver(object):
 
     def __str__(self):
         return self.__class__.__name__
+
+
+def dedupe_list_of_datadicts(datadict_list):
+    """
+    Given a list of provider result data dicts, deduplicate identical data.
+
+    If two dicts contain equivalent values, one of the dicts is arbitrarily
+    chosen for removal.
+    Note that this means that some possibly useful meta-information is lost.
+
+    Args:
+        datadict_list: List of dictionaries with extracted/"provider" data.
+
+    Returns:
+        A list of dictionaries where dictionaries containing equivalent values
+        have been removed, leaving only one arbitrarily chosen dict per group
+        of duplicates.
+    """
+    list_of_datadicts = list(datadict_list)
+    if len(list_of_datadicts) == 1:
+        return list_of_datadicts
+
+    deduped = []
+    seen_values = set()
+    seen_lists = []
+    for datadict in list_of_datadicts:
+        value = datadict.get('value')
+        # Assume that the data is free from None values at this point.
+        assert value is not None
+        # if value is None:
+        #     continue
+
+        if isinstance(value, list):
+            sorted_list_value = sorted(list(value))
+            if sorted_list_value in seen_lists:
+                continue
+            seen_lists.append(sorted_list_value)
+            deduped.append(datadict)
+        else:
+            # TODO: [TD0112] Hack! Do this in a separate system.
+            if datadict.get('generic_field') is gf.GenericAuthor:
+                _normalized_author = format_name(value)
+                if _normalized_author in seen_values:
+                    continue
+                seen_values.add(_normalized_author)
+            else:
+                if value in seen_values:
+                    continue
+                seen_values.add(value)
+
+            deduped.append(datadict)
+
+    return deduped

@@ -30,6 +30,9 @@ from core.exceptions import InvalidMeowURIError
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0125] Add aliases (generics) for MeowURI leafs
+
+
 class MeowURI(object):
     """
     (Meow) _U_niform _R_esource _I_dentifier
@@ -226,6 +229,10 @@ class MeowURI(object):
                     return True
 
         return False
+
+    @property
+    def is_generic(self):
+        return self.root == C.MEOWURI_ROOT_GENERIC
 
     def __contains__(self, item):
         _self_string = str(self)

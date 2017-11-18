@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from .cli import *
+
 
 # This package is intended to be the interface to multiple containing
 # subpackages that each implement different UIs.
@@ -26,3 +28,9 @@
 # There is currently only a command-line interface, so this interface
 # does not exist. BUT it might be good to implement the interface only once
 # another UI is added and the real use and requirements are clearer anyway.
+#
+# For now, most of the core code should strive to call 'ui.msg()' instead of
+# using 'ui.cli.msg()' directly, even if future addition of an alternative
+# 'msg()' implementation will require massive rework..
+
+# TODO: [TD0111] Separate abstract user interaction from UI specifics.

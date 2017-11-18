@@ -22,16 +22,13 @@
 import re
 import subprocess
 
-from core import (
-    types,
-    util
-)
-from core.model import ExtractedData
+from core import types
 from core.model import genericfields as gf
 from extractors import (
     BaseExtractor,
     ExtractorError
 )
+import util
 
 
 class JpeginfoMetadataExtractor(BaseExtractor):
@@ -39,6 +36,7 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     Extracts jpeg/jfif image metadata using "jpeginfo".
     """
     HANDLES_MIME_TYPES = ['image/jpeg', 'image/jfif']
+    is_slow = False
 
     STATUS_LOOKUP = {
         'OK': 1.0,
@@ -47,10 +45,25 @@ class JpeginfoMetadataExtractor(BaseExtractor):
         'ERROR': 0.0
     }
 
+    FIELD_LOOKUP = {
+        'health': {
+            'coercer': types.AW_FLOAT,
+            'multivalued': False,
+            'mapped_fields': None,
+            'generic_field': gf.GenericHealth
+        },
+        'is_jpeg': {
+            'coercer': types.AW_BOOLEAN,
+            'multivalued': False,
+            'mapped_fields': None,
+            'generic_field': None
+        }
+    }
+
     def __init__(self):
         super(JpeginfoMetadataExtractor, self).__init__()
 
-    def execute(self, fileobject, **kwargs):
+    def extract(self, fileobject, **kwargs):
         source = fileobject.abspath
         _metadata = self._get_metadata(source)
         return _metadata
@@ -72,18 +85,16 @@ class JpeginfoMetadataExtractor(BaseExtractor):
             health = self.STATUS_LOOKUP.get(status,
                                             self.STATUS_LOOKUP.get('UNKNOWN'))
 
-        out = {
-            'health': ExtractedData(
-                coercer=types.AW_FLOAT,
-                mapped_fields=None,
-                generic_field=gf.GenericHealth
-            )(health),
-            'is_jpeg': ExtractedData(
-                coercer=types.AW_BOOLEAN,
-                mapped_fields=None,
-                generic_field=None
-            )(is_jpeg)
-        }
+        out = {}
+
+        _coerced_health = self.coerce_field_value('health', health)
+        if _coerced_health is not None:
+            out['health'] = _coerced_health
+
+        _coerced_is_jpeg = self.coerce_field_value('is_jpeg', is_jpeg)
+        if _coerced_is_jpeg is not None:
+            out['is_jpeg'] = _coerced_is_jpeg
+
         return out
 
     @classmethod

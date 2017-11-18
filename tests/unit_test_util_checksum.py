@@ -22,7 +22,7 @@
 import unittest
 from unittest import TestCase
 
-from core.util import checksum
+from util import checksum
 import unit_utils as uu
 
 

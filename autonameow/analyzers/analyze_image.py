@@ -23,23 +23,25 @@ import re
 from datetime import datetime
 
 from analyzers import BaseAnalyzer
-from core.util import dateandtime
+from util import dateandtime
+
+
+# TODO: [TD0040] Add assigning tags to GPS coordinates.
 
 
 class ImageAnalyzer(BaseAnalyzer):
-    run_queue_priority = 0.5
+    RUN_QUEUE_PRIORITY = 0.1
     HANDLES_MIME_TYPES = ['image/*']
 
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         super(ImageAnalyzer, self).__init__(
-            fileobject, config, add_results_callback, request_data_callback
+            fileobject, config, request_data_callback
         )
 
         self.exiftool = None
         self.text = None
 
-    def run(self):
+    def analyze(self):
         # self.text = self.request_data(self.fileobject,
         #                               'extractor.text.ocr.full')
 
@@ -52,7 +54,6 @@ class ImageAnalyzer(BaseAnalyzer):
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
 
-        # Pass results through callback function provided by the 'Analysis'.
         self._add_results('datetime', self.get_datetime())
         self._add_results('author', self.get_author())
         self._add_results('title', self.get_title())

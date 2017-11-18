@@ -27,10 +27,8 @@ from unittest.mock import (
     patch
 )
 
-from core import (
-    config,
-    util
-)
+from core import config
+from util import encoding as enc
 import unit_utils as uu
 
 
@@ -77,7 +75,7 @@ class TestConfigDirs(TestCase):
 class TestConfigFilePath(TestCase):
     def _assert_expected_basename(self, config_path):
         actual_basename = os.path.basename(config_path)
-        expect_basename = util.enc.encode_(config.CONFIG_BASENAME)
+        expect_basename = enc.encode_(config.CONFIG_BASENAME)
         self.assertEqual(expect_basename, actual_basename)
 
     def _assert_expected_encoding(self, config_path):

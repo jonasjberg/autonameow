@@ -30,6 +30,7 @@ import unit_utils_constants as uuconst
 
 
 uu.init_session_repository()
+uu.init_provider_registry()
 
 
 class TestRuleCondition(TestCase):
@@ -193,6 +194,8 @@ class TestIsValidSourceSpecification(TestCase):
         def _aF(test_input):
             self.assertFalse(rules.is_valid_source(test_input))
 
+        _aF(None)
+        _aF('')
         _aF('not.a.valid.source.surely')
         _aF('foobar')
         _aF('exiftool')
@@ -204,11 +207,19 @@ class TestIsValidSourceSpecification(TestCase):
         def _aT(test_input):
             self.assertTrue(rules.is_valid_source(test_input))
 
-        _aT('extractor.metadata.exiftool')
-        _aT(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE)
-        _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
-        _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
-        _aT(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        _aT(MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE))
+        _aT(MeowURI(uuconst.MEOWURI_GEN_CONTENTS_TEXT))
+        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_AUTHOR))
+        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_CREATOR))
+        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_PRODUCER))
+        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_SUBJECT))
+        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_TAGS))
+        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_DATECREATED))
+        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED))
+        _aT(MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE))
+        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL))
+        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT))
+        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE))
 
 
 class TestParseConditions(TestCase):

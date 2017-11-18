@@ -22,10 +22,7 @@
 import zipfile
 
 from core import types
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from extractors import (
@@ -38,50 +35,53 @@ from thirdparty import epubzilla
 
 class EpubMetadataExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
+    is_slow = False
+    FIELD_LOOKUP = {
+        'author': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=1),
+            ],
+            'generic_field': gf.GenericAuthor
+        },
+        'title': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Title, probability=1),
+            ],
+            'generic_field': gf.GenericTitle
+        },
+        'producer': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=0.1),
+            ],
+            'generic_field': gf.GenericProducer
+        }
+    }
 
     def __init__(self):
         super(EpubMetadataExtractor, self).__init__()
 
-    def execute(self, fileobject, **kwargs):
+    def extract(self, fileobject, **kwargs):
+        # NOTE: epubzilla returns a class instance.
         _raw_metadata = _get_epub_metadata(fileobject.abspath)
         if _raw_metadata:
-            return self._to_internal_format(_raw_metadata)
+            # Internal data format boundary.  Wrap "raw" data with type classes.
+            metadata = self._to_internal_format(_raw_metadata)
+            return metadata
 
     def _to_internal_format(self, raw_metadata):
         out = {}
 
-        _author_maybe = raw_metadata.get('author')
-        if _author_maybe:
-            out['author'] = ExtractedData(
-                coercer=types.AW_STRING,
-                mapped_fields=[
-                    WeightedMapping(fields.Author, probability=1),
-                ],
-                generic_field=gf.GenericAuthor
-            )(_author_maybe)
-
-        _title_maybe = raw_metadata.get('title')
-        if _title_maybe:
-            out['title'] = ExtractedData(
-                coercer=types.AW_STRING,
-                mapped_fields=[
-                    WeightedMapping(fields.Title, probability=1),
-                ],
-                generic_field=gf.GenericTitle
-            )(_title_maybe)
-
-        _producer_maybe = raw_metadata.get('producer')
-        if _producer_maybe:
-            out['producer'] = ExtractedData(
-                coercer=types.AW_STRING,
-                mapped_fields=[
-                    WeightedMapping(fields.Author, probability=0.1),
-                ],
-                generic_field=gf.GenericProducer
-            )(_producer_maybe)
+        for tag_name in self.FIELD_LOOKUP.keys():
+            _data = raw_metadata.get(tag_name)
+            if _data is not None:
+                coerced = self.coerce_field_value(tag_name, _data)
+                if coerced is not None:
+                    out[tag_name] = coerced
 
         return out
-
 
     @classmethod
     def check_dependencies(cls):

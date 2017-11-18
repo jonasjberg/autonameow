@@ -274,3 +274,8 @@ junk
 
 # API keys
 autonameow/plugins/*.key
+
+# Non-versioned
+local
+tests/regression/*LOCAL*
+tests/regression/*/skip

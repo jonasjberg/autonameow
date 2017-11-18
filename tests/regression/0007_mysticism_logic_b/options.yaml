@@ -1,0 +1,25 @@
+config_path: $THISTEST/config.yaml
+debug: false
+dry_run: true
+dump_config: false
+dump_meowuris: false
+dump_options: false
+input_paths:
+- $TESTFILES/2016-01-11T124132 gmail.pdf
+- $TESTFILES/4123.pdf
+- $TESTFILES/Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf
+- $TESTFILES/Corsair_RM750x_750W_specs.pdf
+- $TESTFILES/gmail.pdf
+- $TESTFILES/gmail€åäö.pdf
+- $TESTFILES/magic_pdf.pdf
+- $TESTFILES/simplest_pdf.md.pdf
+list_all: false
+list_datetime: false
+list_title: false
+mode_automagic: true
+mode_batch: true
+mode_interactive: false
+quiet: true
+recurse_paths: false
+show_version: false
+verbose: false

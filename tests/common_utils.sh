@@ -74,6 +74,13 @@ else
     export AUTONAMEOW_WIKI_ROOT_DIR
 fi
 
+# Get the absolute path to a file in the "$SRCROOT/test_files" directory.
+# Expects the first and only argument to be the basename of the desired file.
+abspath_testfile()
+{
+    ( cd "$SELF_DIR" && realpath -e "../test_files/${1}" )
+}
+
 # Takes the basename of a logfile as the first and only argument.
 # Any dates matching 'YYYY-MM-DDTHHMMSS' are returned as 'YYYY-MM-DD HH:MM:SS'.
 get_timestamp_from_basename()
@@ -125,4 +132,32 @@ run_task()
     else
         printf " ${C_RED}[FAILED]${C_RESET}\n"
     fi
+}
+
+# Returns the current time as a UNIX timestamp.
+current_unix_time()
+{
+    # The 'date' command differs between versions; the GNU coreutils version
+    # uses '+%N' to print nanoseconds, which is missing in the BSD version
+    # shipped with MacOS.  Circumvent hackily by inlining Python call ..
+    #
+    # NOTE: This should probably only be done once for performance.
+    #       Lets just assume we're mostly interested in relative measurements.
+
+    case "$OSTYPE" in
+        darwin*) python -c 'import time ; t="%.9f"%time.time() ; print t.replace(".","")';;
+         linux*) date "+%s%N" ;;
+           msys) date "+%s%N" ;; # NOTE: Not a target OS!
+              *) { echo 'ERROR: Unsupported Operating System!' 1>&2 ; exit 1 ; } ;;
+    esac
+}
+
+# Calculates the execution time by taking the difference of two unix
+# timestamps.  The expected arguments are start and end times.
+# Returns the time delta in milliseconds.
+calculate_execution_time()
+{
+    local _time_start="$1"
+    local _time_end="$2"
+    echo "$(((${_time_end} - ${_time_start}) / 1000000))"
 }

@@ -15,18 +15,14 @@ High Priority
 -------------
 
 * `[TD0115]` __Clear up uncertainties about data multiplicities.__  
-  I.E. list of `ExtractedData` instances vs. single `ExtractedData` instance
-  that contains a list of data (`multivalued=True`).
+  I.E. list of data dicts vs. single data dict that contains a list
+  of data (`multivalued: True`).
 
 * `[TD0100]` Spec out "operating modes" and functionality requirements.
 
 * `[TD0099]` Use `python-prompt-toolkit` for the interactive cli UI.
 
 * `[TD0089]` Validate only "generic" data fields when reading config.
-
-* `[TD0088]` Handle case where `ExtractedData.wrapper` is `None`.
-
-* `[TD0082]` Integrate the `ExtractedData` class.
 
 * `[TD0084]` Add handling collections (lists, etc) to the type wrapper classes.
 
@@ -41,13 +37,21 @@ High Priority
 
 * `[TD0108]` Fix inconsistencies in results passed back by plugins.
 
-* `[TD0087]` Clean up messy and sometimes duplicated wrapping of "raw" data.
-
 
 Medium Priority
 ---------------
 
-* `[TD0112]` Handle merging "equivalent" data in the `Resolver`.
+* `[TD0112]` __Handle merging "equivalent" data in the `Resolver`.__  
+  Add some sort of system for normalizing entities.
+  Example of problem this is intended to solve:
+    ```
+    [WARNING]  Not sure what data to use for field "<class 'core.namebuilder.fields.Author'>"..
+    [WARNING]  Field candidate 000 :: "['G. C. Sjöberg']"
+    [WARNING]  Field candidate 001 :: "['Gibson C. Sjöberg']"
+    [WARNING]  Not sure what data to use for field "<class 'core.namebuilder.fields.Title'>"..
+    [WARNING]  Field candidate 000 :: "Everyday Fur And Statistics: Meow, Kibble, Dogs And War"
+    [WARNING]  Field candidate 001 :: "Everyday Fur And Statistics Meow, Kibble, Dogs And War"
+    ```
 
 * `[TD0111]` Add abstraction between user interaction and CLI specifics.
 
@@ -83,8 +87,6 @@ Medium Priority
     * Test if a rule is applicable by evaluating conditionals.
         * Textual contents of the file matches a regular expression?
         * Some date/time-information lies within some specific range.
-
-* `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
 
 * `[TD0019]` Rework the `FilenameAnalyzer`
     * `[TD0020]` Identify data fields in file names.
@@ -122,8 +124,6 @@ Medium Priority
             This information could be used to weight this format higher to
             help improve the results of parsing `foo_08.18.17.txt`.
 
-* `[TD0023]` Add additional option to force non-interactive mode (`--batch`?)
-
 * `[TD0024]` Rework handling of unresolved operations
     * Instead of aborting if a rule data source is unavailable, use an
       *interactive mode* and ask the user how to proceed.
@@ -145,6 +145,38 @@ Medium Priority
 
 Low Priority
 ------------
+
+* `[TD0125]` __Add aliases (generics) for MeowURI leafs__
+  Should probably provide a consistent internal alternative field name when
+  specifying extractor-specific MeowURIs, not only with "generic".
+  Example of equivalent MeowURIs with the "alias" or "generic":
+    ```
+    extractor.metadata.exiftool.PDF:CreateDate
+    extractor.metadata.exiftool.date_created
+    ```
+  Another example:
+    ```
+    extractor.metadata.exiftool.EXIF:DateTimeOriginal
+    extractor.metadata.exiftool.date_created
+    ```
+  The examples illustrate that multiple provider-specific fields would have to
+  share a single "alias" or "generic", because there will always be fewer of
+  them. If these were not based on the subclasses of `GenericField`, they could
+  simply be made to map directly with the provider fields, maybe only with a
+  slight transformation like converting to lower-case.
+  Example of alternative using simple transformations:
+    ```
+    extractor.metadata.exiftool.EXIF:DateTimeOriginal
+    extractor.metadata.exiftool.exif_datetimeoriginal
+    ```
+
+* `[TD0124]` Add option (script?) to run failed regression tests manually.
+
+* `[TD0123]` Add option (script?) to re-run failed regression tests.
+
+* `[TD0121]` Create a script for generating regression tests.
+
+* `[TD0118]` Improve robustness and refactor searching text for editions.
 
 * `[TD0114]` Improve the `EbookAnalyzer`.
 
@@ -200,12 +232,6 @@ Low Priority
         * Extract plain text with `djvutxt`
 
 * `[TD0029]` Add support for extracting MacOS Spotlight metadata (`mdls`)
-
-* `[TD0033]` Refactor unit tests.
-    * Mitigate superlinear increase in unit test execution speed.
-    * Try to rewrite tests that operate on actual files
-        * Cache results from expensive calls, avoid repeated actions.
-        * Substitute I/O-operations with some kind of mocking.
 
 * __Look into filtering__
     * Think about the concept of filtering data at a high-level.
@@ -265,7 +291,7 @@ Wishlist
 
     ```
        Given the file:  "cats-tale.pdf"
-     Desired Template:  {datetime} {title} -- {tags}.{extension}
+     Desired Template:  {datetime} {title} -- {tags}.{extension}
     Expected Filename:  "2017-06-10T224655 A Cats Taile -- gibson biography.pdf"
     ```
 
@@ -276,3 +302,10 @@ Wishlist
     and added to the user configuration.
 
 * Add API for developing GUI wrappers and web frontends.
+
+
+Windows-compatibility *(Very Low Priority)*
+-------------------------------------------
+
+* Bundle `python-magic` dependencies?
+  https://github.com/ahupp/python-magic#dependencies

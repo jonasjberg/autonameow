@@ -25,13 +25,12 @@ import analyzers
 from core import (
     exceptions,
     repository,
-    util
 )
 from core.config.configuration import Configuration
 from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
 from core.model import MeowURI
-from core.util import sanity
+from util.queue import GenericQueue
 
 
 log = logging.getLogger(__name__)
@@ -41,16 +40,15 @@ log = logging.getLogger(__name__)
 Performs high-level handling of an analysis.
 
 A run queue is populated based on which analyzers are suited for the
-current file.  The enqueued analyzers are executed and any results are
-passed back through a callback function.
+current file.
 """
 
 
-class AnalysisRunQueue(util.GenericQueue):
+class AnalysisRunQueue(GenericQueue):
     """
     Execution queue for analyzers.
 
-    The queue order is determined by the class variable "run_queue_priority".
+    The queue order is determined by the class variable "RUN_QUEUE_PRIORITY".
     """
     def __init__(self):
         super().__init__()
@@ -68,7 +66,8 @@ class AnalysisRunQueue(util.GenericQueue):
             self._items.insert(0, analyzer)
 
     def __iter__(self):
-        for item in sorted(self._items, key=lambda x: x.run_queue_priority):
+        for item in sorted(self._items,
+                           key=lambda x: x.RUN_QUEUE_PRIORITY or 0.1):
             yield item
 
     def __str__(self):
@@ -88,10 +87,15 @@ def _execute_run_queue(analyzer_queue):
 
         log.debug('Running Analyzer "{!s}"'.format(a))
         try:
-            a.run()
+            results = a.run()
         except analyzers.AnalyzerError as e:
+
             log.error('Halted analyzer "{!s}": {!s}'.format(a, e))
             continue
+
+        fileobject = a.fileobject
+        for _uri, _data in results.items():
+            collect_results(fileobject, _uri, _data)
 
         log.debug('Finished running "{!s}"'.format(a))
 
@@ -103,9 +107,7 @@ def request_global_data(fileobject, meowuri):
 
 def collect_results(fileobject, meowuri_prefix, data):
     """
-    Collects analysis results. Passed to analyzers as a callback.
-
-    Analyzers call this to store results data in the session repository.
+    Collects analyzer results to store in the session repository.
 
     If argument "data" is a dictionary, it is "flattened" here.
     Example:
@@ -123,23 +125,26 @@ def collect_results(fileobject, meowuri_prefix, data):
         data: The data to add, as any type or container.
     """
     # TODO: [TD0102] Fix inconsistencies in results passed back by analyzers.
-    if not isinstance(data, dict):
-        log.debug('[TD0102] Got non-dict data "analysis.collect_results()"')
-        log.debug('[TD0102] Data type: {!s}'.format(type(data)))
-        log.debug('[TD0102] Data contents: {!s}'.format(data))
-
-    if isinstance(data, dict):
-        flat_data = util.flatten_dict(data)
-        for _uri_leaf, _data in flat_data.items():
+    if isinstance(data, list):
+        for d in data:
+            assert isinstance(d, dict), (
+                '[TD0102] Expected list elements passed to "collect_results()"'
+                ' to be type dict. Got: ({!s}) "{!s}"'.format(type(d), d)
+            )
             try:
-                _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
+                _meowuri = MeowURI(meowuri_prefix)
             except InvalidMeowURIError as e:
                 log.critical(
                     'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
                 )
-                continue
-            repository.SessionRepository.store(fileobject, _meowuri, _data)
+                return
+            repository.SessionRepository.store(fileobject, _meowuri, d)
     else:
+        assert isinstance(data, dict), (
+            '[TD0102] Got non-dict data in "analysis.collect_results()" :: '
+            '({!s}) "{!s}"'.format(type(data), data)
+        )
+
         try:
             _meowuri = MeowURI(meowuri_prefix)
         except InvalidMeowURIError as e:
@@ -148,6 +153,27 @@ def collect_results(fileobject, meowuri_prefix, data):
             )
             return
         repository.SessionRepository.store(fileobject, _meowuri, data)
+
+    # if isinstance(data, dict):
+    #     flat_data = flatten_dict(data)
+    #     for _uri_leaf, _data in flat_data.items():
+    #         try:
+    #             _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
+    #         except InvalidMeowURIError as e:
+    #             log.critical(
+    #                 'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
+    #             )
+    #             continue
+    #         repository.SessionRepository.store(fileobject, _meowuri, _data)
+    # else:
+    #     try:
+    #         _meowuri = MeowURI(meowuri_prefix)
+    #     except InvalidMeowURIError as e:
+    #         log.critical(
+    #             'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
+    #         )
+    #         return
+    #     repository.SessionRepository.store(fileobject, _meowuri, data)
 
 
 def _instantiate_analyzers(fileobject, klass_list, config):
@@ -161,11 +187,12 @@ def _instantiate_analyzers(fileobject, klass_list, config):
     Returns:
         One instance of each of the given classes as a list of objects.
     """
-    return [analyzer(fileobject,
-                     config,
-                     add_results_callback=collect_results,
-                     request_data_callback=request_global_data)
-            for analyzer in klass_list]
+    return [
+        analyzer(
+            fileobject, config,
+            request_data_callback=request_global_data
+        ) for analyzer in klass_list
+    ]
 
 
 def start(fileobject, config):
@@ -174,8 +201,10 @@ def start(fileobject, config):
     """
     log.debug(' Analysis Starting '.center(80, '='))
 
-    sanity.check_isinstance(fileobject, FileObject)
-    sanity.check_isinstance(config, Configuration)
+    assert isinstance(fileobject, FileObject), (
+           'Expected type "FileObject". Got {!s}')
+    assert isinstance(config, Configuration), (
+           'Expected type "Configuration". Got {!s}'.format(type(config)))
 
     klasses = analyzers.suitable_analyzers_for(fileobject)
     if not klasses:

@@ -34,12 +34,11 @@ except ImportError:
 import unittest
 from unittest import TestCase
 
-from core import (
-    exceptions,
-    util
-)
-from core.config.default_config import DEFAULT_CONFIG
+from core import constants as C
+from core import exceptions
 from core.config.configuration import Configuration
+from core.config.default_config import DEFAULT_CONFIG
+from util import encoding as enc
 import unit_utils as uu
 import unit_utils_constants as uuconst
 
@@ -55,15 +54,15 @@ def load_yaml(path):
     if yaml is None:
         raise AssertionError('Missing required module "yaml". Install "pyyaml"')
 
-    with open(path, 'r', encoding='utf-8') as fh:
+    with open(path, 'r', encoding=C.DEFAULT_ENCODING) as fh:
         data = yaml.safe_load(fh)
     return data
 
 
 def get_temporary_config_path():
-    return util.enc.normpath(
-        os.path.join(util.enc.syspath(uu.make_temp_dir()),
-                     util.enc.syspath(b'test_config.yaml'))
+    return enc.normpath(
+        os.path.join(enc.syspath(uu.make_temp_dir()),
+                     enc.syspath(b'test_config.yaml'))
     )
 
 

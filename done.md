@@ -10,6 +10,62 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-11-17
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0088]` Handle case where `ExtractedData.wrapper` is `None`.
+    >
+    > * `[TD0082]` Integrate the `ExtractedData` class.
+    >
+    > * `[TD0087]` Clean up messy and sometimes duplicated wrapping of "raw" data.
+    >
+    > * `[TD0119]` Separate adding contextual information from type coercion.
+    >
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
+    >
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0033]` Refactor unit tests.
+    >     * Mitigate superlinear increase in unit test execution speed.
+    >     * Try to rewrite tests that operate on actual files
+    >         * Cache results from expensive calls, avoid repeated actions.
+    >         * Substitute I/O-operations with some kind of mocking.
+
+* 2017-11-10
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0122]` __Move away from using callbacks to return analyzer results.__  
+    >   Using callbacks to pass data back from the analyzers do not currently
+    >   provide any benefits but is a lot more difficult to read and test than
+    >   just simply returning the data directly, as the extractors do.
+    >
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0120]` Use less verbose default output in the regression test runner.
+
+* 2017-11-07
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0117]` Implement automated regression testing.
+
+* 2017-10-29
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0116]` Remove persistent caching in the text extractors.
+
 * 2017-10-21
 
     > High Priority
@@ -102,6 +158,11 @@ University mail: `js224eh[a]student.lnu.se`
     >       or the text is needed elsewhere.
     >     * Image OCR is very slow, should only be executed when needed, caching the
     >       results for all accesses.
+    >
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0023]` Add additional option to force non-interactive mode (`--batch`?)
     >
     > Low Priority
     > ------------

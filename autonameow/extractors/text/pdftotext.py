@@ -22,18 +22,15 @@
 import logging
 import subprocess
 
-from core import (
-    persistence,
-    util
-)
-from core.util import (
-    sanity,
-    textutils
-)
 from extractors import ExtractorError
 from extractors.text.common import (
     AbstractTextExtractor,
     decode_raw
+)
+import util
+from util import (
+    sanity,
+    textutils
 )
 
 
@@ -42,23 +39,12 @@ log = logging.getLogger(__name__)
 
 class PdftotextTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
+    is_slow = False
 
     def __init__(self):
         super(PdftotextTextExtractor, self).__init__()
 
-        _cache = persistence.get_cache(str(self))
-        if _cache:
-            self.cache = _cache
-        else:
-            self.cache = None
-
-    def _get_text(self, fileobject):
-        if self.cache:
-            _cached = self.cache.get(fileobject)
-            if _cached is not None:
-                self.log.info('Using cached text for: {!r}'.format(fileobject))
-                return _cached
-
+    def extract_text(self, fileobject):
         result = extract_pdf_content_with_pdftotext(fileobject.abspath)
         if not result:
             return ''
@@ -68,8 +54,6 @@ class PdftotextTextExtractor(AbstractTextExtractor):
         text = textutils.normalize_unicode(text)
         text = textutils.remove_nonbreaking_spaces(text)
         if text:
-            if self.cache:
-                self.cache.set(fileobject, text)
             return text
         else:
             return ''
@@ -106,7 +90,7 @@ def extract_pdf_content_with_pdftotext(file_path):
                 process.returncode, stderr)
         )
 
-    result = decode_raw(stdout)
+    result = decode_raw(stdout).strip()
     if not result:
         return ''
     return result

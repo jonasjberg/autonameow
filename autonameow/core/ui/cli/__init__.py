@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from . import options
+from .argparser import get_argparser
 from .common import (
     colorize,
     ColumnFormatter,

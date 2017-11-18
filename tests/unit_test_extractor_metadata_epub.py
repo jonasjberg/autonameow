@@ -20,46 +20,41 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from unittest import TestCase
 
 from extractors.metadata import EpubMetadataExtractor
 import unit_utils as uu
+from unit_utils_extractors import (
+    CaseExtractorBasics,
+    CaseExtractorOutput,
+    CaseExtractorOutputTypes
+)
+
 
 unmet_dependencies = not EpubMetadataExtractor.check_dependencies()
 dependency_error = 'Extractor dependencies not satisfied'
 
 
-class TestEpubMetadataExtractor(TestCase):
-    def setUp(self):
-        self.e = EpubMetadataExtractor()
-
-    def test_extractor_class_is_available(self):
-        self.assertIsNotNone(EpubMetadataExtractor)
-
-    def test_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test_specifies_handles_mime_types(self):
-        self.assertIsNotNone(self.e.HANDLES_MIME_TYPES)
-        self.assertTrue(isinstance(self.e.HANDLES_MIME_TYPES, list))
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestEpubMetadataExtractor(CaseExtractorBasics):
+    EXTRACTOR_CLASS = EpubMetadataExtractor
 
     def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'EpubMetadataExtractor')
+        actual = str(self.extractor)
+        expect = 'EpubMetadataExtractor'
+        self.assertEqual(actual, expect)
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestEpubMetadataExtractorWithTestFile(unittest.TestCase):
-    def setUp(self):
-        self.e = EpubMetadataExtractor()
-        self.test_file = uu.abspath_testfile('pg38145-images.epub')
-        self.test_fileobject = uu.fileobject_testfile('pg38145-images.epub')
+class TestEpubMetadataExtractorOutputTypes(CaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = EpubMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
 
-    def test_method_execute_returns_expected_type(self):
-        actual = self.e.execute(self.test_fileobject)
-        self.assertTrue(isinstance(actual, dict))
 
-    def test_method_execute_returns_expected_title(self):
-        actual = self.e.execute(self.test_fileobject)
-        _actual_title = actual['title'].value
-        expected = 'Human, All Too Human: A Book for Free Spirits'
-        self.assertEqual(_actual_title, expected)
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestEpubMetadataExtractorOutputTestFileA(CaseExtractorOutput):
+    EXTRACTOR_CLASS = EpubMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
+    _dt = uu.str_to_datetime
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('title', str, 'Human, All Too Human: A Book for Free Spirits'),
+    ]

@@ -19,14 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core import (
-    types,
-    util
-)
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core import types
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from extractors import (
@@ -34,6 +28,7 @@ from extractors import (
     ExtractorError
 )
 from thirdparty import pyexiftool
+import util
 
 
 IGNORED_EXIFTOOL_TAGNAMES = frozenset([
@@ -61,403 +56,489 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     """
     HANDLES_MIME_TYPES = ['video/*', 'application/pdf', 'image/*',
                           'application/epub+zip', 'text/*']
+    is_slow = False
 
-    EXTRACTEDDATA_WRAPPER_LOOKUP = {
-        'ASF:CreationDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+    FIELD_LOOKUP = {
+        'ASF:CreationDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'multivalued': False,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'ASF:ImageHeight': ExtractedData(types.AW_INTEGER),
-        'ASF:ImageWidth': ExtractedData(types.AW_INTEGER),
-        'ASF:VideoCodecName': ExtractedData(types.AW_STRING),
-        'Composite:Aperture': ExtractedData(types.AW_FLOAT),
-        'Composite:ImageSize': ExtractedData(types.AW_STRING),
-        'Composite:Megapixels': ExtractedData(types.AW_FLOAT),
-        'Composite:HyperfocalDistance': ExtractedData(types.AW_FLOAT),
-        # 'ExifTool:ExifToolVersion': ExtractedData(types.AW_FLOAT),
-        'EXIF:CreateDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'ASF:ImageHeight': {'coercer': types.AW_INTEGER},
+        'ASF:ImageWidth': {'coercer': types.AW_INTEGER},
+        'ASF:VideoCodecName': {'coercer': types.AW_STRING},
+        'Composite:Aperture': {'coercer': types.AW_FLOAT},
+        'Composite:ImageSize': {'coercer': types.AW_STRING},
+        'Composite:Megapixels': {'coercer': types.AW_FLOAT},
+        'Composite:HyperfocalDistance': {'coercer': types.AW_FLOAT},
+        'EXIF:CreateDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'multivalued': False,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'EXIF:DateTimeDigitized': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'EXIF:DateTimeDigitized': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'multivalued': False,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'EXIF:DateTimeOriginal': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'EXIF:DateTimeOriginal': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'multivalued': False,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'EXIF:ExifVersion': ExtractedData(types.AW_INTEGER),
-        'EXIF:GainControl': ExtractedData(types.AW_INTEGER),
+            'generic_field': gf.GenericDateCreated
+        },
+        'EXIF:ExifVersion': {'coercer': types.AW_INTEGER},
+        'EXIF:GainControl': {'coercer': types.AW_INTEGER},
         # TODO: Handle GPS date/time-information.
         #       EXIF:GPSTimeStamp: '12:07:59'
         #       EXIF:GPSDateStamp: '2016:03:26'
 
-        # 'EXIF:GPSTimeStamp': ExtractedData(
-        #     coercer=types.AW_EXIFTOOLTIMEDATE,
-        #     mapped_fields=[
+        # 'EXIF:GPSTimeStamp': {
+        #     'coercer': types.AW_EXIFTOOLTIMEDATE,
+        #     'mapped_fields': [
         #         fields.WeightedMapping(fields.Time, probability=1),
         #     ]
-        # ),
-        'EXIF:GPSDateStamp': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+        # },
+        'EXIF:GPSDateStamp': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.Date, probability=1),
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'EXIF:ImageDescription': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'EXIF:ImageDescription': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Tags, probability=0.5),
                 WeightedMapping(fields.Title, probability=0.25)
             ],
-            generic_field=gf.GenericDescription
-        ),
-        'EXIF:Make': ExtractedData(types.AW_STRING),
-        'EXIF:Model': ExtractedData(types.AW_STRING),
-        'EXIF:ModifyDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDescription
+        },
+        'EXIF:ExifImageHeight': {'coercer': types.AW_INTEGER},
+        'EXIF:ExifImageWidth': {'coercer': types.AW_INTEGER},
+        'EXIF:Make': {'coercer': types.AW_STRING},
+        'EXIF:Model': {'coercer': types.AW_STRING},
+        'EXIF:ModifyDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'EXIF:Software': ExtractedData(types.AW_STRING),
-        'EXIF:UserComment': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericDateModified
+        },
+        'EXIF:Software': {'coercer': types.AW_STRING},
+        'EXIF:UserComment': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Description, probability=0.5),
                 WeightedMapping(fields.Tags, probability=0.5)
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'File:Directory': ExtractedData(types.AW_PATH),
-        'File:FileAccessDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDescription
+        },
+        'File:Comment': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Description, probability=0.5),
+                WeightedMapping(fields.Tags, probability=0.5)
+            ],
+            'generic_field': gf.GenericDescription
+        },
+        'File:Directory': {'coercer': types.AW_PATH},
+        'File:FileAccessDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.01),
                 WeightedMapping(fields.Date, probability=0.01)
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'File:FileInodeChangeDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateModified
+        },
+        'File:FileInodeChangeDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.01),
                 WeightedMapping(fields.Date, probability=0.01)
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'File:FileModifyDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateModified
+        },
+        'File:FileModifyDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'File:FileName': ExtractedData(types.AW_PATH),
-        'File:FilePermissions': ExtractedData(types.AW_INTEGER),
-        'File:FileSize': ExtractedData(types.AW_INTEGER),
-        'File:FileType': ExtractedData(types.AW_STRING),
-        'File:FileTypeExtension': ExtractedData(types.AW_PATHCOMPONENT),
-        'File:ImageHeight': ExtractedData(types.AW_INTEGER),
-        'File:ImageWidth': ExtractedData(types.AW_INTEGER),
-        'File:MIMEType': ExtractedData(
-            coercer=types.AW_MIMETYPE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateModified
+        },
+        'File:FileName': {'coercer': types.AW_PATH},
+        'File:FilePermissions': {'coercer': types.AW_INTEGER},
+        'File:FileSize': {'coercer': types.AW_INTEGER},
+        'File:FileType': {'coercer': types.AW_STRING},
+        'File:FileTypeExtension': {'coercer': types.AW_PATHCOMPONENT},
+        'File:ImageHeight': {'coercer': types.AW_INTEGER},
+        'File:ImageWidth': {'coercer': types.AW_INTEGER},
+        'File:MIMEType': {
+            'coercer': types.AW_MIMETYPE,
+            'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1)
             ],
-            generic_field=gf.GenericMimeType
-        ),
-        'PDF:Author': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericMimeType
+        },
+        'PDF:Author': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
             ],
-            generic_field=gf.GenericAuthor
-        ),
-        'PDF:CreateDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericAuthor
+        },
+        'PDF:CreateDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'PDF:Creator': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'PDF:Creator': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Creator, probability=1),
                 WeightedMapping(fields.Author, probability=0.025),
                 WeightedMapping(fields.Publisher, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=gf.GenericCreator
-        ),
-        'PDF:Keywords': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericCreator
+        },
+        'PDF:Keywords': {
+            'coercer': types.AW_STRING,
+            'multivalued': True,
+            'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
             ],
-            generic_field=gf.GenericTags,
-            multivalued=True
-        ),
-        'PDF:Linearized': ExtractedData(types.AW_BOOLEAN),
-        'PDF:ModifyDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericTags
+        },
+        'PDF:Linearized': {'coercer': types.AW_BOOLEAN},
+        'PDF:ModifyDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'PDF:PDFVersion': ExtractedData(types.AW_FLOAT),
-        'PDF:PageCount': ExtractedData(types.AW_INTEGER),
-        'PDF:Producer': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericDateModified
+        },
+        'PDF:PDFVersion': {'coercer': types.AW_FLOAT},
+        'PDF:PageCount': {'coercer': types.AW_INTEGER},
+        'PDF:Producer': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=0.25),
                 WeightedMapping(fields.Author, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=gf.GenericProducer
-        ),
-        'PDF:Title': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericProducer
+        },
+        'PDF:Subject': {
+            'coercer': types.AW_STRING,
+            # 'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Description, probability=1),
+                WeightedMapping(fields.Tags, probability=0.8),
+                WeightedMapping(fields.Title, probability=0.5)
+            ],
+            'generic_field': gf.GenericSubject,
+        },
+        'PDF:Title': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1)
             ],
-            generic_field=gf.GenericTitle
-        ),
-        'SourceFile': ExtractedData(types.AW_PATH),
-        'QuickTime:CompatibleBrands': ExtractedData(
-            coercer=types.AW_STRING,
-            multivalued=True
-        ),
-        'QuickTime:CreateDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericTitle
+        },
+        'PDF:Trapped': {'coercer': types.AW_BOOLEAN},
+        'SourceFile': {'coercer': types.AW_PATH},
+        'QuickTime:CompatibleBrands': {
+            'coercer': types.AW_STRING,
+            'multivalued': True
+        },
+        'QuickTime:CreateDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'QuickTime:CreationDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'QuickTime:CreationDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'QuickTime:ModifyDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'QuickTime:ModifyDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.5),
                 WeightedMapping(fields.Date, probability=0.5)
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'QuickTime:CreationDate-und-SE': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateModified
+        },
+        'QuickTime:CreationDate-und-SE': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'QuickTime:TrackCreateDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'QuickTime:TrackCreateDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'QuickTime:TrackModifyDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'QuickTime:TrackModifyDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.5),
                 WeightedMapping(fields.Date, probability=0.5)
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'QuickTime:MediaCreateDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateModified
+        },
+        'QuickTime:MediaCreateDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'QuickTime:MediaModifyDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'QuickTime:MediaModifyDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.5),
                 WeightedMapping(fields.Date, probability=0.5)
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'XMP:About': ExtractedData(types.AW_STRING),
-        'XMP:CreateDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateModified
+        },
+        'XMP:About': {'coercer': types.AW_STRING},
+        'XMP:CreateDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'XMP:Creator': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'XMP:Creator': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
                 WeightedMapping(fields.Creator, probability=0.5),
                 WeightedMapping(fields.Publisher, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=gf.GenericAuthor
-        ),
-        'XMP:CreatorTool': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericAuthor
+        },
+        'XMP:CreatorFile-as': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=1),
+                WeightedMapping(fields.Creator, probability=0.5),
+                WeightedMapping(fields.Publisher, probability=0.02),
+                WeightedMapping(fields.Title, probability=0.01)
+            ],
+            'generic_field': gf.GenericAuthor
+        },
+        'XMP:CreatorTool': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Creator, probability=1),
                 WeightedMapping(fields.Author, probability=0.025),
                 WeightedMapping(fields.Publisher, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=gf.GenericCreator
-        ),
-        'XMP:DocumentID': ExtractedData(types.AW_STRING),
-        'XMP:Format': ExtractedData(
-            coercer=types.AW_MIMETYPE,
-            mapped_fields=[
+            'generic_field': gf.GenericCreator
+        },
+        'XMP:Date': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=0.9),
+                WeightedMapping(fields.Date, probability=0.9)
+            ],
+            'generic_field': gf.GenericDateCreated
+        },
+        'XMP:DocumentID': {'coercer': types.AW_STRING},
+        'XMP:EntryAuthorName': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=1),
+                WeightedMapping(fields.Creator, probability=0.5),
+                WeightedMapping(fields.Publisher, probability=0.02),
+                WeightedMapping(fields.Title, probability=0.01)
+            ],
+            'generic_field': gf.GenericAuthor
+        },
+        'XMP:EntryIssued': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
+            ],
+            'generic_field': gf.GenericDateCreated
+        },
+        'XMP:EntryTitle': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Title, probability=1)
+            ],
+            'generic_field': gf.GenericTitle
+        },
+        'XMP:EntrySummary': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Description, probability=0.5),
+                WeightedMapping(fields.Tags, probability=0.5)
+            ],
+            'generic_field': gf.GenericDescription
+        },
+        'XMP:Format': {
+            'coercer': types.AW_MIMETYPE,
+            'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=0.75)
             ],
-            generic_field=gf.GenericMimeType
-        ),
-        'XMP:HistoryAction': ExtractedData(
-            coercer=types.AW_STRING,
-            multivalued=True
-        ),
-        'XMP:HistoryChanged': ExtractedData(
-            coercer=types.AW_STRING,
-            multivalued=True
-        ),
-        'XMP:HistoryInstanceID': ExtractedData(
-            coercer=types.AW_STRING,
-            multivalued=True
-        ),
-        'XMP:HistoryParameters': ExtractedData(
-            coercer=types.AW_STRING,
-            multivalued=True
-        ),
-        'XMP:HistorySoftwareAgent': ExtractedData(
-            coercer=types.AW_STRING,
-            multivalued=True
-        ),
-        'XMP:HistoryWhen': ExtractedData(
-            coercer=types.AW_TIMEDATE,
-            multivalued=True
-        ),
-        'XMP:Keywords': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericMimeType
+        },
+        'XMP:HistoryAction': {
+            'coercer': types.AW_STRING,
+            'multivalued': True
+        },
+        'XMP:HistoryChanged': {
+            'coercer': types.AW_STRING,
+            'multivalued': True
+        },
+        'XMP:HistoryInstanceID': {
+            'coercer': types.AW_STRING,
+            'multivalued': True
+        },
+        'XMP:HistoryParameters': {
+            'coercer': types.AW_STRING,
+            'multivalued': True
+        },
+        'XMP:HistorySoftwareAgent': {
+            'coercer': types.AW_STRING,
+            'multivalued': True
+        },
+        'XMP:HistoryWhen': {
+            'coercer': types.AW_TIMEDATE,
+            'multivalued': True
+        },
+        'XMP:Keywords': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
                 WeightedMapping(fields.Title, probability=0.5),
                 WeightedMapping(fields.Description, probability=0.8)
             ],
-            generic_field=gf.GenericTags
-        ),
-        'XMP:ManifestLinkForm': ExtractedData(
-            coercer=types.AW_STRING,
-            multivalued=True
-        ),
-        'XMP:ManifestReferenceInstanceID': ExtractedData(
-            coercer=types.AW_STRING,
-            multivalued=True
-        ),
-        'XMP:ManifestReferenceDocumentID': ExtractedData(
-            coercer=types.AW_STRING,
-            multivalued=True
-        ),
-        'XMP:MetadataDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericTags
+        },
+        'XMP:ManifestLinkForm': {
+            'coercer': types.AW_STRING,
+            'multivalued': True
+        },
+        'XMP:ManifestReferenceInstanceID': {
+            'coercer': types.AW_STRING,
+            'multivalued': True
+        },
+        'XMP:ManifestReferenceDocumentID': {
+            'coercer': types.AW_STRING,
+            'multivalued': True
+        },
+        'XMP:MetadataDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'XMP:ModifyDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateModified
+        },
+        'XMP:ModifyDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'XMP:Producer': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericDateModified
+        },
+        'XMP:Producer': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=0.25),
                 WeightedMapping(fields.Author, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=gf.GenericProducer
-        ),
-        'XMP:Subject': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericProducer
+        },
+        'XMP:Publisher': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Publisher, probability=1),
+                WeightedMapping(fields.Author, probability=0.5),
+                WeightedMapping(fields.Creator, probability=0.2),
+                WeightedMapping(fields.Title, probability=0.01)
+            ],
+            'generic_field': gf.GenericAuthor
+        },
+        'XMP:Subject': {
+            'coercer': types.AW_STRING,
+            # 'multivalued': False,
+            'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Tags, probability=0.8),
                 WeightedMapping(fields.Title, probability=0.5)
             ],
-            generic_field=gf.GenericSubject,
-            multivalued=True
-        ),
-        'XMP:TagsList': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericSubject,
+        },
+        'XMP:TagsList': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
                 WeightedMapping(fields.Title, probability=0.5),
                 WeightedMapping(fields.Description, probability=0.8)
             ],
-            generic_field=gf.GenericTags
-        ),
-        'XMP:Title': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericTags
+        },
+        'XMP:Title': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1)
             ],
-            generic_field=gf.GenericTitle
-        ),
-        'XMP:XMPToolkit': ExtractedData(types.AW_STRING),
+            'generic_field': gf.GenericTitle
+        },
+        'XMP:XMPToolkit': {'coercer': types.AW_STRING}
     }
 
     def __init__(self):
         super(ExiftoolMetadataExtractor, self).__init__()
 
-    def execute(self, fileobject, **kwargs):
+    def extract(self, fileobject, **kwargs):
         self.log.debug('{!s}: Starting extraction'.format(self))
         source = fileobject.abspath
 
@@ -473,53 +554,28 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     def _get_metadata(self, source):
         _raw_metadata = _get_exiftool_data(source)
         if _raw_metadata:
+            _filtered_metadata = self._filter_raw_data(_raw_metadata)
+
             # Internal data format boundary.  Wrap "raw" data with type classes.
-            metadata = self._to_internal_format(_raw_metadata)
+            metadata = self._to_internal_format(_filtered_metadata)
             return metadata
+
+    def _filter_raw_data(self, raw_metadata):
+        return {tag: value for tag, value in raw_metadata.items()
+                if value is not None
+                and not is_ignored_tagname(tag)
+                and not is_binary_blob(value)
+                and not is_bad_metadata(tag, value)}
 
     def _to_internal_format(self, raw_metadata):
         out = {}
 
         for tag_name, value in raw_metadata.items():
-            if value is None:
-                continue
-            if is_ignored_tagname(tag_name):
-                continue
-            if is_binary_blob(value):
-                continue
-
-            if not is_bad_metadata(tag_name, value):
-                _wrapped = self._wrap_tag_value(tag_name, value)
-                if _wrapped:
-                    _wrapped.source = self
-                    out[tag_name] = _wrapped
+            coerced = self.coerce_field_value(tag_name, value)
+            if coerced is not None:
+                out[tag_name] = coerced
 
         return out
-
-    def _wrap_tag_value(self, tagname, value):
-        wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(tagname)
-        if not wrapper:
-            self.log.debug(
-                'Used default "ExtractedData" with unspecified coercer for '
-                'tag: "{!s}" with value: "{!s}"'.format(tagname, value)
-            )
-            wrapper = ExtractedData(coercer=None, mapped_fields=None)
-
-        # TODO: [TD0084] Add handling collections to type wrapper classes.
-        if isinstance(value, list):
-            if not wrapper.multivalued:
-                self.log.warning(
-                    'Got list but "ExtractedData" wrapper is not multivalued.'
-                    ' Tag: "{!s}" Value: "{!s}"'.format(tagname, value)
-                )
-                return
-
-        wrapped = ExtractedData.from_raw(wrapper, value)
-        if wrapped:
-            return wrapped
-        else:
-            self.log.debug('Wrapping exiftool data returned None '
-                           'for "{!s}" ({})'.format(value, type(value)))
 
     @classmethod
     def check_dependencies(cls):

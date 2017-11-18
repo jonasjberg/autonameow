@@ -29,17 +29,14 @@ import os
 import json
 from urllib.parse import urlencode
 
-from core import (
-    types,
-    util
-)
+from core import types
+from core import constants as C
 from core.exceptions import AutonameowPluginError
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
+from core.model import genericfields as gf
 from core.namebuilder import fields
 from plugins import BasePlugin
+from util import mimemagic
 
 
 def query_api(image_file, api_key):
@@ -68,7 +65,7 @@ def query_api(image_file, api_key):
         conn.request("POST", "/vision/v1.0/describe?%s" % params, content,
                      headers)
         response = conn.getresponse()
-        response_data = response.read().decode('utf-8')
+        response_data = response.read().decode(C.DEFAULT_ENCODING)
         json_data = json.loads(response_data)
         conn.close()
         return json_data
@@ -131,7 +128,7 @@ def get_tags(json_data, count=None):
 
 def _read_api_key_from_file(file_path):
     try:
-        with open(file_path, mode='r', encoding='utf8') as f:
+        with open(file_path, mode='r', encoding=C.DEFAULT_ENCODING) as f:
             api_key = f.read()
             return api_key.strip()
     except OSError:
@@ -139,9 +136,6 @@ def _read_api_key_from_file(file_path):
 
 
 class MicrosoftVisionPlugin(BasePlugin):
-    DISPLAY_NAME = 'MicrosoftVision'
-    MEOWURI_LEAF = DISPLAY_NAME.lower()
-
     """
     'microsoft_vision.py'
     =====================
@@ -154,6 +148,30 @@ class MicrosoftVisionPlugin(BasePlugin):
     Add your API key to the file 'microsoft_vision.key' in this directory,
     or modify the line below to point to the file containing your API key.
     """
+    DISPLAY_NAME = 'MicrosoftVision'
+    MEOWURI_LEAF = DISPLAY_NAME.lower()
+    FIELD_LOOKUP = {
+        'caption': {
+            'coercer': types.AW_STRING,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Title, probability=1),
+                WeightedMapping(fields.Description, probability=1)
+            ],
+            'generic_field': None
+        },
+        'tags': {
+            'coercer': types.listof(types.AW_STRING),
+            'multivalued': True,
+            'mapped_fields': [
+                WeightedMapping(fields.Tags, probability=1),
+                WeightedMapping(fields.Title, probability=0.5),
+                WeightedMapping(fields.Description, probability=0.8)
+            ],
+            'generic_field': gf.GenericTags
+        }
+    }
+
     api_key_path = os.path.join(
         os.path.realpath(os.path.dirname(__file__)), 'microsoft_vision.key'
     )
@@ -163,15 +181,6 @@ class MicrosoftVisionPlugin(BasePlugin):
         super(MicrosoftVisionPlugin, self).__init__(
             display_name=self.DISPLAY_NAME
         )
-
-    @classmethod
-    def test_init(cls):
-        return cls.API_KEY is not None
-
-    def can_handle(self, fileobject):
-        _mime_type = self.request_data(fileobject,
-                                       'filesystem.contents.mime_type')
-        return util.magic.eval_glob(_mime_type, ['image/png', 'image/jpeg'])
 
     def execute(self, fileobject):
         _source_path = self.request_data(fileobject, 'filesystem.abspath.full')
@@ -191,30 +200,29 @@ class MicrosoftVisionPlugin(BasePlugin):
                     )
                 )
 
+        # TODO: Improve error handling!
+
+        results = {}
         _caption = get_caption_text(response)
         if _caption:
-            wrapper = ExtractedData(
-                coercer=types.AW_STRING,
-                mapped_fields=[
-                    WeightedMapping(fields.Title, probability=1),
-                    WeightedMapping(fields.Description, probability=1)
-                ]
-            )
-            self.log.debug('Returning caption: "{!s}"'.format(_caption))
-            self.add_results(fileobject, 'caption',
-                             ExtractedData.from_raw(wrapper, _caption))
+            _coerced_caption = self.coerce_field_value('caption', _caption)
+            if _coerced_caption is not None:
+                results['caption'] = _coerced_caption
 
         _tags = get_tags(response)
         if _tags:
-            wrapper = ExtractedData(
-                coercer=types.AW_STRING,
-                mapped_fields=[
-                    WeightedMapping(fields.Tags, probability=1),
-                ]
-            )
-            _tags_pretty = ' '.join(map(lambda x: '"' + x + '"', _tags))
-            self.log.debug('Returning tags: {}'.format(_tags_pretty))
-            self.add_results(fileobject, 'tags',
-                             ExtractedData.from_raw(wrapper, _tags))
+            _coerced_tags = self.coerce_field_value('tags', _tags)
+            if _coerced_tags is not None:
+                results['tags'] = _coerced_tags
 
+        return results
+
+    def can_handle(self, fileobject):
+        _mime_type = self.request_data(fileobject,
+                                       'filesystem.contents.mime_type')
+        return mimemagic.eval_glob(_mime_type, 'image/*')
+
+    @classmethod
+    def test_init(cls):
+        return cls.API_KEY is not None
 

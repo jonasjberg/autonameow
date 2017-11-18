@@ -293,14 +293,6 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
             e = '{}.{}'.format(_prefix, _key)
             self.assertEqual(str(a), e)
 
-    def test_extraction_collect_extractor_metadata_pypdf(self):
-        _prefix = 'extractor.metadata.pypdf'
-        for _key in ['Creator', 'Producer', 'CreationDate', 'ModDate',
-                     'creator', 'producer', 'creator_raw']:
-            a = MeowURI(_prefix, _key)
-            e = '{}.{}'.format(_prefix, _key)
-            self.assertEqual(str(a), e)
-
     def test_extraction_collect_extractor_text_pdftotext(self):
         _prefix = 'extractor.text.pdftotext'
         _key = 'full'
@@ -714,3 +706,30 @@ class TestMeowURIList(TestCase):
                          ['filesystem', 'contents', 'mime_type'])
         self.assertEqual(meowuri_list('metadata.exiftool.EXIF:Foo'),
                          ['metadata', 'exiftool', 'EXIF:Foo'])
+
+
+class TestMeowURIIsGeneric(TestCase):
+    def test_generic_meowuris_return_true(self):
+        def _aT(test_input):
+            actual = MeowURI(test_input).is_generic
+            self.assertTrue(actual)
+
+        _aT(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
+        _aT(uuconst.MEOWURI_GEN_CONTENTS_TEXT)
+        _aT(uuconst.MEOWURI_GEN_METADATA_AUTHOR)
+        _aT(uuconst.MEOWURI_GEN_METADATA_CREATOR)
+        _aT(uuconst.MEOWURI_GEN_METADATA_PRODUCER)
+        _aT(uuconst.MEOWURI_GEN_METADATA_SUBJECT)
+        _aT(uuconst.MEOWURI_GEN_METADATA_TAGS)
+        _aT(uuconst.MEOWURI_GEN_METADATA_DATECREATED)
+        _aT(uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED)
+
+    def test_non_generic_meowuris_return_false(self):
+        def _aF(test_input):
+            actual = MeowURI(test_input).is_generic
+            self.assertFalse(actual)
+
+        _aF(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        _aF(uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME)
+        _aF(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        _aF(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE)

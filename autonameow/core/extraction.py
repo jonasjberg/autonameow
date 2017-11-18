@@ -24,6 +24,7 @@ import logging
 import extractors
 from core import repository
 from core.exceptions import InvalidMeowURIError
+from core.fileobject import FileObject
 from core.model import MeowURI
 from extractors import ExtractorError
 
@@ -84,18 +85,15 @@ def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
     out = []
 
     for klass in extractor_klasses:
-        if klass.is_slow is True:
-            if klass in required_extractors:
-                out.append(klass)
-                log.debug(
-                    'Included required slow extractor "{!s}"'.format(klass)
-                )
-            else:
-                log.debug(
-                    'Excluded slow extractor "{!s}"'.format(klass)
-                )
-        else:
+        if not klass.is_slow:
             out.append(klass)
+        elif klass.is_slow:
+            if klass in required_extractors:
+                log.debug('Extractor "{!s}" is required ..'.format(klass))
+                out.append(klass)
+                log.debug('Included slow extractor "{!s}"'.format(klass))
+            else:
+                log.debug('Excluded slow extractor "{!s}"'.format(klass))
 
     return out
 
@@ -108,11 +106,18 @@ def start(fileobject,
     """
     log.debug(' Extraction Started '.center(80, '='))
 
+    assert isinstance(fileobject, FileObject), (
+        'Expected type "FileObject". Got {!s}'.format(type(fileobject)))
+
     if require_extractors:
-        required_extractors = require_extractors
+        assert isinstance(require_extractors, list), (
+            'Expected "require_extractors" to be a list. Got {!s}'.format(
+                type(require_extractors))
+        )
+        _required_extractors = list(require_extractors)
     else:
-        required_extractors = []
-    log.debug('Required extractors: {!s}'.format(required_extractors))
+        _required_extractors = []
+    log.debug('Required extractors: {!s}'.format(_required_extractors))
 
     klasses = extractors.suitable_extractors_for(fileobject)
     log.debug('Extractors able to handle the file: {}'.format(len(klasses)))
@@ -120,7 +125,7 @@ def start(fileobject,
     if not require_all_extractors:
         # Exclude "slow" extractors if they are not explicitly required.
         klasses = keep_slow_extractors_if_required(klasses,
-                                                   required_extractors)
+                                                   _required_extractors)
 
     # TODO: Use sets for required/actual klasses to easily display differences.
     # Which required extractors were not "suitable" for the file and therefore
@@ -134,14 +139,40 @@ def start(fileobject,
             continue
 
         try:
-            _results = _extractor_instance(fileobject)
-        except ExtractorError as e:
-            log.error('Halted extractor "{!s}": {!s}'.format(
-                _extractor_instance, e
-            ))
+            _metainfo = _extractor_instance.metainfo()
+        except (ExtractorError, NotImplementedError) as e:
+            log.error('Failed to get meta info! Halted extractor "{!s}":'
+                      ' {!s}'.format(_extractor_instance, e))
             continue
-        else:
-            _meowuri_prefix = klass.meowuri_prefix()
-            collect_results(fileobject, _meowuri_prefix, _results)
+
+        try:
+            _extracted_data = _extractor_instance.extract(fileobject)
+        except (ExtractorError, NotImplementedError) as e:
+            log.error('Failed to extract data! Halted extractor "{!s}":'
+                      ' {!s}'.format(_extractor_instance, e))
+            continue
+
+        if not _extracted_data:
+            continue
+
+        _results = _wrap_extracted_data(_extracted_data, _metainfo,
+                                        _extractor_instance)
+        _meowuri_prefix = klass.meowuri_prefix()
+        collect_results(fileobject, _meowuri_prefix, _results)
 
     log.debug(' Extraction Completed '.center(80, '='))
+
+
+def _wrap_extracted_data(extracteddata, metainfo, source_klass):
+    out = {}
+
+    for field, value in extracteddata.items():
+        field_metainfo = dict(metainfo.get(field, {}))
+        if not field_metainfo:
+            log.warning('Missing metainfo for field "{!s}"'.format(field))
+
+        field_metainfo['value'] = value
+        field_metainfo['source'] = source_klass
+        out[field] = field_metainfo
+
+    return out

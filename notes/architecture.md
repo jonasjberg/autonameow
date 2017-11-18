@@ -124,6 +124,50 @@ The data could be either;
 Which choices are presented to the user?
 How are possible candidates collected?
 
+### Working Backwards ..
+.. to figure out where and if to place a "uncertainty boundary".
+Which part of the program should only receive the single truth and not lists of
+possible alternatives, etc.
+
+Data pipeline in reverse order; working backwards from the final result:
+
+1. __Name Builder__
+    * Receives a name template string and a `field_data_map` dict:
+        ```python
+        field_data_map = {
+            <class 'core.namebuilder.fields.Extension'>: <ExtractedData(
+                PathComponent,
+                mapped_fields=[
+                    WeightedMapping(field=<class 'core.namebuilder.fields.Extension'>, probability=1)
+                ],
+                generic_field=None)(png)>,
+            <class 'core.namebuilder.fields.Title'>: <ExtractedData(
+                PathComponent,
+                mapped_fields=[],
+                generic_field=None)(simple-lexical-analysis)>
+        }
+        ```
+      That is passed to `pre_assemble_format()` and then
+      `_with_simple_string_keys()`, which turns it into:
+
+        ```python
+        data = {
+            'extension': 'png',
+            'title': 'simple-lexical-analysis'
+        }
+        ```
+      This form is used to populate the name template string.
+
+    * __The name builder should (does) receive unambigous, validated data__
+
+2. __Resolver__
+    * Receives the current `FileObject` and a name template string.
+    * Generates a list of name template field classes from the name
+      template string.
+    * Data sources for template fields are added by calls to
+      `add_known_sources()`.
+    * *TODO: ..*
+
 
 
 2017-06-15 --- Notes on possible changes to the overall architecture

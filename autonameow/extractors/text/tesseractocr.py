@@ -33,18 +33,16 @@ try:
 except ImportError:
     Image = None
 
-from core import (
-    persistence,
-    util
-)
-from core.util import (
-    sanity,
-    textutils
-)
 from extractors import ExtractorError
 from extractors.text.common import (
     AbstractTextExtractor,
     decode_raw
+)
+import util
+from util import encoding as enc
+from util import (
+    sanity,
+    textutils
 )
 
 
@@ -58,19 +56,9 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(TesseractOCRTextExtractor, self).__init__()
 
-        _cache = persistence.get_cache(str(self))
-        if _cache:
-            self.cache = _cache
-        else:
-            self.cache = None
+        self.init_cache()
 
-    def _get_text(self, fileobject):
-        if self.cache:
-            _cached = self.cache.get(fileobject)
-            if _cached is not None:
-                self.log.info('Using cached text for: {!r}'.format(fileobject))
-                return _cached
-
+    def extract_text(self, fileobject):
         # NOTE: Tesseract behaviour will likely need tweaking depending
         #       on the image contents. Will need to pass "tesseract_args"
         #       somehow. I'm starting to think image OCR does not belong
@@ -78,7 +66,7 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         tesseract_args = None
 
         self.log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
-            tesseract_args, util.enc.displayable_path(fileobject.abspath)
+            tesseract_args, enc.displayable_path(fileobject.abspath)
         ))
         result = get_text_from_ocr(fileobject.abspath,
                                    tesseract_args=tesseract_args)
@@ -90,8 +78,6 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         text = textutils.normalize_unicode(text)
         text = textutils.remove_nonbreaking_spaces(text)
         if text:
-            if self.cache:
-                self.cache.set(fileobject, text)
             return text
         else:
             return ''
@@ -143,7 +129,7 @@ def get_text_from_ocr(image_path, tesseract_args=None):
     #
     # def get_errors(error_string):
     #     lines = error_string.splitlines()
-    #     lines = [util.enc.decode_(line) for line in lines]
+    #     lines = [enc.decode_(line) for line in lines]
     #     error_lines = tuple(line for line in lines if line.find('Error') >= 0)
 
     try:
@@ -200,7 +186,7 @@ def get_errors(error_string):
     Returns all lines in the error_string that start with the string "error".
     """
     lines = error_string.splitlines()
-    lines = [util.enc.decode_(line) for line in lines]
+    lines = [enc.decode_(line) for line in lines]
     error_lines = tuple(line for line in lines if line.find('Error') >= 0)
     if len(error_lines) > 0:
         return '\n'.join(error_lines)

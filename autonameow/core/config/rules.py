@@ -24,14 +24,13 @@ import logging
 from core import constants as C
 from core import (
     exceptions,
-    repository,
+    providers,
     types,
-    util
 )
 from core.config import field_parsers
 from core.model import MeowURI
 from core.namebuilder import fields
-from core.util import sanity
+import util
 
 
 log = logging.getLogger(__name__)
@@ -139,13 +138,10 @@ class RuleCondition(object):
 
         parsers = field_parsers.suitable_field_parser_for(meowuri)
         if parsers:
-            # Assume only one parser can handle a "meowURI" for now.
-            sanity.check(
-                len(parsers) == 1,
-                'Unexpectedly got {} parsers for meowURI "{!s}"'.format(
-                    len(parsers), meowuri
-                )
-            )
+            # NOTE(jonas): Assume only one parser per "meowURI" for now ..
+            assert len(parsers) == 1, (
+                   'Unexpectedly got {} parsers for meowURI '
+                   '"{!s}"'.format(len(parsers), meowuri))
 
             self._parser = parsers[0]
             return self._parser
@@ -276,11 +272,21 @@ class Rule(object):
         return self._conditions
 
     @conditions.setter
-    def conditions(self, raw_conditions):
-        try:
-            self._conditions = parse_conditions(raw_conditions)
-        except exceptions.ConfigurationSyntaxError as e:
-            raise exceptions.InvalidRuleError(e)
+    def conditions(self, valid_conditions):
+        def _raise_exception():
+            raise exceptions.InvalidRuleError(
+                'Invalid condition: ({!s}) "{!s}"'.format(type(c), c)
+            )
+
+        if not valid_conditions:
+            _raise_exception()
+        if not isinstance(valid_conditions, list):
+            _raise_exception()
+        for c in valid_conditions:
+            if not isinstance(c, RuleCondition):
+                _raise_exception()
+
+        self._conditions = valid_conditions
 
     @property
     def data_sources(self):
@@ -305,8 +311,9 @@ class Rule(object):
         for condition in self.conditions:
             unique_meowuris.add(condition.meowuri)
 
-        for _, _meowuri in self.data_sources.items():
-            unique_meowuris.add(_meowuri)
+        for _, _meowuris in self.data_sources.items():
+            for m in _meowuris:
+                unique_meowuris.add(m)
 
         return unique_meowuris
 
@@ -359,8 +366,8 @@ class Rule(object):
         Returns:
             The number of met conditions as an integer.
         """
-        sanity.check(self.conditions and len(self.conditions) > 0,
-                     'Rule.conditions is missing or empty')
+        assert self.conditions and len(self.conditions) > 0, (
+               'Rule.conditions is missing or empty')
 
         if self.description:
             _desc = '{} :: '.format(self.description)
@@ -396,6 +403,32 @@ class Rule(object):
         return 'Rule({})'.format(', '.join(out))
 
 
+def get_valid_rule(description, exact_match, ranking_bias, name_template,
+                   conditions, data_sources):
+    """
+    Main retrieval mechanism for 'Rule' class instances.
+
+    Does validation of all data, suited to handle input from untrusted sources.
+
+    Returns:
+        An instance of 'Rule' if the given arguments are valid.
+    Raises:
+        InvalidRuleError: Validation failed or the 'Rule' could not be created.
+    """
+    try:
+        valid_conditions = parse_conditions(conditions)
+    except exceptions.ConfigurationSyntaxError as e:
+        raise exceptions.InvalidRuleError(e)
+
+    try:
+        _rule = Rule(description, exact_match, ranking_bias, name_template,
+                     valid_conditions, data_sources)
+    except exceptions.InvalidRuleError as e:
+        raise e
+    else:
+        return _rule
+
+
 def get_valid_rule_condition(meowuri, raw_expression):
     """
     Tries to create and return a 'RuleCondition' instance.
@@ -414,7 +447,7 @@ def get_valid_rule_condition(meowuri, raw_expression):
     Raises:
         InvalidRuleError: The 'RuleCondition' instance could not be created.
     """
-    sanity.check_isinstance(meowuri, MeowURI)
+    assert isinstance(meowuri, MeowURI), 'Expected instance of "MeowURI"'
 
     try:
         condition = RuleCondition(meowuri, raw_expression)
@@ -549,7 +582,10 @@ def parse_data_sources(raw_sources):
                 log.debug('Validated source: [{!s}]: {!s}'.format(
                     tf.as_placeholder(), _meowuri
                 ))
-                passed[tf] = _meowuri
+                if not passed.get(tf):
+                    passed[tf] = [_meowuri]
+                else:
+                    passed[tf] += [_meowuri]
             else:
                 log.debug('Invalid source: [{!s}]: {!s}'.format(
                     tf.as_placeholder(), _meowuri
@@ -562,7 +598,7 @@ def parse_data_sources(raw_sources):
     return passed
 
 
-def is_valid_source(source_value):
+def is_valid_source(meowuri):
     """
     Check if the source is valid.
 
@@ -574,11 +610,18 @@ def is_valid_source(source_value):
     by a source.
 
     Args:
-        source_value: The source to test as a text string.
+        meowuri: The source to test as an instance of 'MeowURI'.
 
     Returns:
         The given source value if it passes the test, otherwise False.
     """
-    if repository.SessionRepository.resolvable(source_value):
+    if not meowuri or not isinstance(meowuri, MeowURI):
+        print('Not meowuri or not instance of "MeowURI"')
+        return False
+
+    if meowuri.is_generic:
         return True
+    if providers.Registry.resolvable(meowuri):
+        return True
+
     return False

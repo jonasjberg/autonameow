@@ -21,19 +21,19 @@
 
 import logging
 
+
 from core import (
+    persistence,
     types,
-    util
 )
-from core.model import ExtractedData
 from core.model import genericfields as gf
-from core.util import (
-    sanity,
-    textutils
-)
 from extractors import (
     BaseExtractor,
     ExtractorError
+)
+from util import (
+    sanity,
+    textutils
 )
 
 
@@ -41,13 +41,39 @@ log = logging.getLogger(__name__)
 
 
 class AbstractTextExtractor(BaseExtractor):
+    FIELD_LOOKUP = {
+        'full': {
+            'coercer': types.AW_STRING,
+            'multivalued': False,
+            'mapped_fields': None,
+            'generic_field': gf.GenericText
+        }
+    }
+
     def __init__(self):
         super(AbstractTextExtractor, self).__init__()
 
-    def execute(self, fileobject, **kwargs):
+        self.cache = None
+        # NOTE(jonas): Call 'self.init_cache()' in subclass init to use caching.
+
+    def extract(self, fileobject, **kwargs):
+        text = self._get_text(fileobject)
+        sanity.check_internal_string(text)
+
+        self.log.debug('{!s} returning all extracted data'.format(self))
+        return {'full': text}
+
+    def _get_text(self, fileobject):
+        # Read cached text
+        if self.cache:
+            _cached = self.cache.get(fileobject)
+            if _cached is not None:
+                self.log.info('Using cached text for: {!r}'.format(fileobject))
+                return _cached
+
         try:
             self.log.debug('{!s} starting initial extraction'.format(self))
-            text = self._get_text(fileobject)
+            text = self.extract_text(fileobject)
         except ExtractorError as e:
             self.log.warning('{!s}: {!s}'.format(self, e))
             raise
@@ -56,24 +82,41 @@ class AbstractTextExtractor(BaseExtractor):
                            '{!s}'.format(self, e))
             raise ExtractorError
 
-        sanity.check_internal_string(text)
+        # Store text to cache
+        if text and self.cache:
+            self.cache.set(fileobject, text)
 
-        self.log.debug('{!s} returning all extracted data'.format(self))
+        return text
 
-        # TODO: [TD0087] Clean up messy (and duplicated) coercion of "raw" data.
-        wrapper = ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=None,
-            generic_field=gf.GenericText,
-        )
-        return {'full': ExtractedData.from_raw(wrapper, text)}
+    def extract_text(self, fileobject):
+        """
+        Extracts any unstructured textual contents from the given file.
 
-    def _get_text(self, fileobject):
+        NOTE: Should return an Unicode str or raise an exception.
+              DO NOT return None! Instead, return an empty string.
+
+        Args:
+            fileobject: The instance of 'FileObject' to extract text from.
+
+        Returns:
+            Any textual contents of the file as an "internal" Unicode str.
+            An empty string is returned if no text is found.
+
+        Raises:
+            ExtractorError: An error occurred during extraction.
+        """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
     def check_dependencies(cls):
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def init_cache(self):
+        _cache = persistence.get_cache(str(self))
+        if _cache:
+            self.cache = _cache
+        else:
+            self.cache = None
 
 
 def decode_raw(raw_text):
@@ -87,7 +130,7 @@ def decode_raw(raw_text):
             return ''
 
     if text:
-        text = util.remove_nonbreaking_spaces(text)
+        text = textutils.remove_nonbreaking_spaces(text)
         return text
 
 

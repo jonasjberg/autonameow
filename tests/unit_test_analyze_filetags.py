@@ -23,15 +23,16 @@ from collections import namedtuple
 from unittest import TestCase
 
 from analyzers import analyze_filetags
-
 import unit_utils as uu
+
+
+uu.init_provider_registry()
 
 
 def get_filetags_analyzer(fileobject):
     return analyze_filetags.FiletagsAnalyzer(
         fileobject,
         uu.get_default_config(),
-        add_results_callback=uu.mock_add_results_callback,
         request_data_callback=uu.mock_request_data_callback
     )
 
@@ -53,68 +54,118 @@ class TestPartitionBasename(TestCase):
 
         self.testdata_expected = [
             (b'2010-01-31_161251.jpg',
-             Expect('2010-01-31_161251', None, [], 'jpg')),
+             Expect(timestamp='2010-01-31_161251',
+                    description=None,
+                    tags=[],
+                    extension='jpg')),
 
             (b'2016-08-01_104304_p.n.edu oyepa - Linux tag fs -- wk pim.html',
-             Expect('2016-08-01_104304', 'p.n.edu oyepa - Linux tag fs',
-                    ['wk', 'pim'], 'html')),
+             Expect(timestamp='2016-08-01_104304',
+                    description='p.n.edu oyepa - Linux tag fs',
+                    tags=['wk', 'pim'],
+                    extension='html')),
 
             (b'2016-07-30T175241 Tablet krita_x86_xp_2.8.1.1 -- projects.png',
-             Expect('2016-07-30T175241', 'Tablet krita_x86_xp_2.8.1.1',
-                    ['projects'], 'png')),
+             Expect(timestamp='2016-07-30T175241',
+                    description='Tablet krita_x86_xp_2.8.1.1',
+                    tags=['projects'],
+                    extension='png')),
 
             (b'2016-08-05_18-46-34 Working on PLL-monstret -- projects frfx.png',
-             Expect('2016-08-05_18-46-34', 'Working on PLL-monstret',
-                    ['projects', 'frfx'], 'png')),
+             Expect(timestamp='2016-08-05_18-46-34',
+                    description='Working on PLL-monstret',
+                    tags=['projects', 'frfx'],
+                    extension='png')),
 
             (b'20160722 Descriptive name -- firsttag tagtwo.txt',
-             Expect('20160722', 'Descriptive name',
-                    ['firsttag', 'tagtwo'], 'txt')),
+             Expect(timestamp='20160722',
+                    description='Descriptive name',
+                    tags=['firsttag', 'tagtwo'],
+                    extension='txt')),
 
             (b'.tar.gz name -- gz firsttag 2ndtag.tar.gz',
-             Expect(None, '.tar.gz name',
-                    ['gz', 'firsttag', '2ndtag'], 'tar.gz')),
+             Expect(timestamp=None,
+                    description='.tar.gz name',
+                    tags=['gz', 'firsttag', '2ndtag'],
+                    extension='tar.gz')),
 
             (b'.tar name -- gz firsttag 2ndtag.tar.gz',
-             Expect(None, '.tar name',
-                    ['gz', 'firsttag', '2ndtag'], 'tar.gz')),
+             Expect(timestamp=None,
+                    description='.tar name',
+                    tags=['gz', 'firsttag', '2ndtag'],
+                    extension='tar.gz')),
 
             (b'.name -- tar firsttag 2ndtag.tar.gz',
-             Expect(None, '.name', ['tar', 'firsttag', '2ndtag'], 'tar.gz')),
+             Expect(timestamp=None,
+                    description='.name',
+                    tags=['tar', 'firsttag', '2ndtag'],
+                    extension='tar.gz')),
 
             (b'.name -- firsttag 2ndtag.tar.gz',
-             Expect(None, '.name', ['firsttag', '2ndtag'], 'tar.gz')),
+             Expect(timestamp=None,
+                    description='.name',
+                    tags=['firsttag', '2ndtag'],
+                    extension='tar.gz')),
 
             (b'.name -- firsttag 2ndtag.jpg',
-             Expect(None, '.name', ['firsttag', '2ndtag'], 'jpg')),
+             Expect(timestamp=None,
+                    description='.name',
+                    tags=['firsttag', '2ndtag'],
+                    extension='jpg')),
 
             (b'.name.tar.gz',
-             Expect(None, '.name', [], 'tar.gz')),
+             Expect(timestamp=None,
+                    description='.name',
+                    tags=[],
+                    extension='tar.gz')),
 
             (b'.name.jpg',
-             Expect(None, '.name', [], 'jpg')),
+             Expect(timestamp=None,
+                    description='.name',
+                    tags=[],
+                    extension='jpg')),
 
             (b'.name',
-             Expect(None, '.name', [], None)),
+             Expect(timestamp=None,
+                    description='.name',
+                    tags=[],
+                    extension=None)),
 
             (b'19920722 --Descriptive-- name -- firsttag tagtwo.txt',
-             Expect('19920722', '--Descriptive-- name',
-                    ['firsttag', 'tagtwo'], 'txt')),
+             Expect(timestamp='19920722',
+                    description='--Descriptive-- name',
+                    tags=['firsttag', 'tagtwo'],
+                    extension='txt')),
 
             (b'19990212 Descriptive name -- firsttag tagtwo.txt',
-             Expect('19990212', 'Descriptive name',
-                    ['firsttag', 'tagtwo'], 'txt')),
+             Expect(timestamp='19990212',
+                    description='Descriptive name',
+                    tags=['firsttag', 'tagtwo'],
+                    extension='txt')),
 
             (b'20160722 Descriptive name.txt',
-             Expect('20160722', 'Descriptive name', [], 'txt')),
+             Expect(timestamp='20160722',
+                    description='Descriptive name',
+                    tags=[],
+                    extension='txt')),
 
             (b'2017-09-29_06-04-15 Running autonameow on a lot of files with empty caches -- dev projects.png',
-             Expect('2017-09-29_06-04-15', 'Running autonameow on a lot of files with empty caches',
-                    ['dev', 'projects'], 'png')),
+             Expect(timestamp='2017-09-29_06-04-15',
+                    description='Running autonameow on a lot of files with empty caches',
+                    tags=['dev', 'projects'],
+                    extension='png')),
 
             (b'2017-09-01T215342 People make people UML reflexive assocation -- 1dv607 lnu screenshot macbookpro.png',
-             Expect('2017-09-01T215342', 'People make people UML reflexive assocation',
-                    ['1dv607', 'lnu', 'screenshot', 'macbookpro'], 'png')),
+             Expect(timestamp='2017-09-01T215342',
+                    description='People make people UML reflexive assocation',
+                    tags=['1dv607', 'lnu', 'screenshot', 'macbookpro'],
+                    extension='png')),
+
+            (b'2017-09-12T224820 filetags-style name -- tag2 a tag1.txt',
+             Expect(timestamp='2017-09-12T224820',
+                    description='filetags-style name',
+                    tags=['tag2', 'a', 'tag1'],
+                    extension='txt')),
         ]
 
     def test_partitions_basenames(self):

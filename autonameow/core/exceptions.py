@@ -24,7 +24,7 @@ class AutonameowException(Exception):
     """Base exception. All custom exceptions should subclass this."""
 
 
-class AWAssertionError(Exception):
+class AWAssertionError(AssertionError):
     """Error due to incorrect assumptions about internal interactions.
        Equivalent to assertions, intended to prevent bugs and regressions."""
 
@@ -47,10 +47,6 @@ class AutonameowPluginError(AutonameowException):
 
 class AnalysisResultsFieldError(AutonameowException):
     """Attempt to query/access an invalid analyzer data field."""
-
-
-class InvalidDataSourceError(AutonameowException):
-    """Attempt to use an invalid data source."""
 
 
 class NameBuilderError(AutonameowException):

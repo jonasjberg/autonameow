@@ -21,20 +21,18 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import types
 from datetime import datetime
 from unittest import TestCase
 
 import analyzers
 from analyzers import BaseAnalyzer
-from core import util
 from core.config import rules
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
-from core.model import (
-    ExtractedData,
-    MeowURI
-)
+from core.model import MeowURI
+from util import encoding as enc
 
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -71,6 +69,21 @@ class TestUnitUtilityConstants(TestCase):
     def test_autonameow_srcroot_dir_is_executable(self):
         self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.X_OK))
 
+    def test_regressiontest_dir_is_defined(self):
+        self.assertIsNotNone(uuconst.REGRESSIONTEST_DIR)
+
+    def test_regressiontest_dir_exists(self):
+        self.assertTrue(os.path.exists(uuconst.REGRESSIONTEST_DIR))
+
+    def test_regressiontest_dir_is_a_directory(self):
+        self.assertTrue(os.path.isdir(uuconst.REGRESSIONTEST_DIR))
+
+    def test_regressiontest_dir_is_readable(self):
+        self.assertTrue(os.access(uuconst.REGRESSIONTEST_DIR, os.R_OK))
+
+    def test_regressiontest_dir_is_executable(self):
+        self.assertTrue(os.access(uuconst.REGRESSIONTEST_DIR, os.X_OK))
+
 
 class TestUnitUtilityAbsPathTestFile(TestCase):
     def test_returns_expected_encoding(self):
@@ -101,6 +114,11 @@ class TestUnitUtilityAllTestFiles(TestCase):
             self.assertTrue(os.path.exists(f))
             self.assertTrue(os.path.isfile(f) | os.path.islink(f))
             self.assertTrue(os.path.isabs(f))
+
+    def test_does_not_return_symbolic_links(self):
+        actual = uu.all_testfiles()
+        for f in actual:
+            self.assertFalse(os.path.islink(f))
 
 
 class TestUnitUtilityFileExists(TestCase):
@@ -183,8 +201,8 @@ class TestUnitUtilityDirExists(TestCase):
             uuconst.AUTONAMEOW_SRCROOT_DIR,
             '/',
             b'/',
-            util.enc.bytestring_path(os.path.dirname(__file__)),
-            util.enc.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
+            enc.bytestring_path(os.path.dirname(__file__)),
+            enc.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
         ]
         for df in _files:
             self._check_return(df)
@@ -229,8 +247,8 @@ class TestUnitUtilityPathIsReadable(TestCase):
         _paths = [
             __file__,
             os.path.dirname(__file__),
-            util.enc.bytestring_path(__file__),
-            util.enc.bytestring_path(os.path.dirname(__file__)),
+            enc.bytestring_path(__file__),
+            enc.bytestring_path(os.path.dirname(__file__)),
         ]
         for df in _paths:
             self._check_return(df)
@@ -349,10 +367,21 @@ class TestUnitUtilityGetMockFileObject(TestCase):
 class TestCaptureStdout(TestCase):
     def test_capture_stdout(self):
         with uu.capture_stdout() as out:
-            print('should_be_captured')
+            print('stdOUT should be captured')
+            print('stdERR should NOT be captured', file=sys.stderr)
 
-        self.assertEqual(out.getvalue().strip(), 'should_be_captured')
-        self.assertEqual(out.getvalue(), 'should_be_captured\n')
+        self.assertEqual(out.getvalue().strip(), 'stdOUT should be captured')
+        self.assertEqual(out.getvalue(), 'stdOUT should be captured\n')
+
+
+class TestCaptureStderr(TestCase):
+    def test_capture_stderr(self):
+        with uu.capture_stderr() as out:
+            print('stdERR should be captured', file=sys.stderr)
+            print('stdOUT should NOT be captured')
+
+        self.assertEqual(out.getvalue().strip(), 'stdERR should be captured')
+        self.assertEqual(out.getvalue(), 'stdERR should be captured\n')
 
 
 class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
@@ -465,6 +494,10 @@ class TestStrToDatetime(TestCase):
         actual = uu.str_to_datetime('2017-08-09 001225')
         self.assertTrue(isinstance(actual, datetime))
 
+    def test_returns_expected_type_with_timezone(self):
+        actual = uu.str_to_datetime('2017-08-09 001225', tz='+0000')
+        self.assertTrue(isinstance(actual, datetime))
+
     def test_raises_exception_if_given_invalid_argument(self):
         def _assert_raises(test_data):
             with self.assertRaises((ValueError, TypeError)):
@@ -529,28 +562,6 @@ class TestGetDummyRawConditions(TestCase):
         self.assertEqual(actual, expected)
 
 
-class TestIsExtractedData(TestCase):
-    def test_returns_false_as_expected(self):
-        def _aF(test_input):
-            actual = uu.is_extracteddata(test_input)
-            self.assertFalse(actual)
-            self.assertTrue(isinstance(actual, bool))
-
-        _aF(None)
-        _aF(object())
-        _aF(b'foo')
-        _aF('foo')
-
-    def test_returns_true_as_expected(self):
-        def _aT(test_input):
-            actual = uu.is_extracteddata(test_input)
-            self.assertTrue(actual)
-            self.assertTrue(isinstance(actual, bool))
-
-        ed = ExtractedData(coercer=None)
-        _aT(ed)
-
-
 class TestIsInternalString(TestCase):
     def test_returns_false_as_expected(self):
         def _aF(test_input):
@@ -597,6 +608,7 @@ class TestIsInternalByteString(TestCase):
 class TestGetDefaultConfig(TestCase):
     def test_returns_expected_type(self):
         uu.init_session_repository()
+        uu.init_provider_registry()
 
         actual = uu.get_default_config()
         self.assertTrue(isinstance(actual, Configuration))

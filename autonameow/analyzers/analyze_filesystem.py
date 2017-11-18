@@ -24,16 +24,15 @@ from analyzers import BaseAnalyzer
 
 
 class FilesystemAnalyzer(BaseAnalyzer):
-    run_queue_priority = 1
+    RUN_QUEUE_PRIORITY = 1
     HANDLES_MIME_TYPES = ['*/*']
 
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         super(FilesystemAnalyzer, self).__init__(
-            fileobject, config, add_results_callback, request_data_callback
+            fileobject, config, request_data_callback
         )
 
-    def run(self):
+    def analyze(self):
         pass
 
     @classmethod

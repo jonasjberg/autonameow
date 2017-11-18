@@ -75,6 +75,112 @@ class TestAutonameowWithoutOptions(TestCase):
         a.exit_program.assert_called_with(C.EXIT_SUCCESS)
 
 
+# class TestAutonameowDefaultOptions(TestCase):
+#     def setUp(self):
+#         from core.autonameow import Autonameow
+#         Autonameow.exit_program = mock.MagicMock()
+#         self.A = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
+#
+#     def test_default_verbose(self):
+#         expect = False
+#         actual = self.A.opts.get('verbose')
+#         self.assertEqual(actual, expect)
+
+
+class TestAutonameowOptionCombinations(TestCase):
+    def setUp(self):
+        from core.autonameow import Autonameow
+        self.a = Autonameow
+
+    def _check_options(self, given, expect):
+        actual = self.a.check_option_combinations(given)
+        for k, v in expect.items():
+            self.assertEqual(actual.get(k), v)
+
+    def test_valid_user_interaction_combination(self):
+        self._check_options(
+            given={'mode_batch': False, 'mode_interactive': False},
+            expect={'mode_batch': False, 'mode_interactive': False}
+        )
+        self._check_options(
+            given={'mode_batch': True, 'mode_interactive': False},
+            expect={'mode_batch': True, 'mode_interactive': False}
+        )
+        self._check_options(
+            given={'mode_batch': False, 'mode_interactive': True},
+            expect={'mode_batch': False, 'mode_interactive': True}
+        )
+
+    def test_illegal_user_interaction_combination(self):
+        # Expect the "safer" option to take precedence.
+        self._check_options(
+            given={'mode_batch': True, 'mode_interactive': True,
+                   'mode_timid': False},
+            expect={'mode_batch': False, 'mode_interactive': True,
+                    'mode_timid': False}
+        )
+
+        # Interactive is basically a superset of timid.
+        self._check_options(
+            given={'mode_batch': False, 'mode_interactive': True,
+                   'mode_timid': True},
+            expect={'mode_batch': False, 'mode_interactive': True,
+                    'mode_timid': False}
+        )
+
+    def test_valid_operating_mode_combination(self):
+        self._check_options(
+            given={'mode_automagic': False, 'mode_rulematch': True},
+            expect={'mode_automagic': False, 'mode_rulematch': True}
+        )
+        self._check_options(
+            given={'mode_automagic': True, 'mode_rulematch': False},
+            expect={'mode_automagic': True, 'mode_rulematch': True}
+        )
+        self._check_options(
+            given={'mode_automagic': True, 'mode_rulematch': True},
+            expect={'mode_automagic': True, 'mode_rulematch': True}
+        )
+
+    def test_default_operating_mode_combination(self):
+        # Always enable rule-matching for now.
+        # TODO: Really enable options like this? Better to error out and exit?
+        self._check_options(
+            given={'mode_automagic': False, 'mode_rulematch': False},
+            expect={'mode_automagic': False, 'mode_rulematch': True}
+        )
+
+    def test_user_interaction_and_operating_mode_combination(self):
+        self._check_options(
+            given={'mode_automagic': False, 'mode_rulematch': False,
+                   'mode_batch': False},
+            expect={'mode_automagic': False, 'mode_rulematch': True,
+                    'mode_batch': False}
+        )
+        self._check_options(
+            given={'mode_automagic': False, 'mode_rulematch': True,
+                   'mode_batch': False},
+            expect={'mode_automagic': False, 'mode_rulematch': True,
+                    'mode_batch': False}
+        )
+        self._check_options(
+            given={'mode_automagic': True, 'mode_rulematch': False,
+                   'mode_batch': False},
+            expect={'mode_automagic': True, 'mode_rulematch': True,
+                    'mode_batch': False}
+        )
+
+    def test_illegal_user_interaction_and_operating_mode_combination(self):
+        # Always enable rule-matching for now.
+        # TODO: Really enable options like this? Better to error out and exit?
+        self._check_options(
+            given={'mode_automagic': False, 'mode_rulematch': False,
+                   'mode_batch': True},
+            expect={'mode_automagic': False, 'mode_rulematch': True,
+                    'mode_batch': True}
+        )
+
+
 class TestAutonameowContextManagementProtocol(TestCase):
     def test_with_statement(self):
         from core.autonameow import Autonameow
@@ -82,6 +188,28 @@ class TestAutonameowContextManagementProtocol(TestCase):
 
         with Autonameow(AUTONAMEOW_OPTIONS_EMPTY) as ameow:
             ameow.run()
+
+
+class TestAutonameowHash(TestCase):
+    def setUp(self):
+        from core.autonameow import Autonameow
+        self.a = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
+        self.b = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
+
+    def test_hash(self):
+        actual = hash(self.a)
+        self.assertIsNotNone(actual)
+        self.assertTrue(isinstance(actual, int))
+
+    def test_instances_return_different_hashes(self):
+        hash_a = hash(self.a)
+        hash_b = hash(self.b)
+        self.assertNotEqual(hash_a, hash_b)
+
+    def test_instance_comparison(self):
+        self.assertNotEqual(self.a, self.b)
+        self.assertTrue(self.a != self.b)
+        self.assertTrue(self.a is not self.b)
 
 
 @unittest.skipIf(*prompt_toolkit_unavailable())
@@ -131,22 +259,22 @@ class TestDoRename(TestCase):
         _config = Configuration(config.DEFAULT_CONFIG)
         self.amw.active_config = _config
 
-    @mock.patch('core.util.disk.rename_file')
+    @mock.patch('core.disk.rename_file')
     def test_dry_run_true_will_not_call_diskutils_rename_file(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=True)
         mockrename.assert_not_called()
 
-    @mock.patch('core.util.disk.rename_file')
+    @mock.patch('core.disk.rename_file')
     def test_dry_run_false_calls_diskutils_rename_file(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=False)
         mockrename.assert_called_with(b'/tmp/dummy/path', b'mjaopath')
 
-    @mock.patch('core.util.disk.rename_file')
+    @mock.patch('core.disk.rename_file')
     def test_skip_rename_if_new_name_equals_old_name(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=False)
         mockrename.assert_not_called()
 
-    @mock.patch('core.util.disk.rename_file')
+    @mock.patch('core.disk.rename_file')
     def test_skip_rename_if_new_name_equals_old_name_dry_run(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=True)
         mockrename.assert_not_called()

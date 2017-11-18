@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# Copyright(c) 2016-2017 Jonas Sjöberg
-# https://github.com/jonasjberg
-# http://www.jonasjberg.com
-# University mail: js224eh[a]student.lnu.se
-# _____________________________________________________________________________
+#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Personal site:   http://www.jonasjberg.com
+#   GitHub:          https://github.com/jonasjberg
+#   University mail: js224eh[a]student.lnu.se
+#   _________________________________________________________________________
 #
 #   This file is part of autonameow.
 #
@@ -19,33 +19,59 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
-# _____________________________________________________________________________
-#
+#   _________________________________________________________________________
+
+set -o noclobber -o nounset -o pipefail -o errexit
 
 SELF="$(basename "$0")"
 
+
+# TODO: Figure out if this is stupid. Still not sure whether it is stupid.
+# TODO: UPDATE 2017-11-09 Still not sure whether this is stupid..
+
+
 if [ "$#" -ne "1" ] || [ ! -e "$1" ]
 then
-    echo "USAGE: $SELF [PYTHON_PROGRAM]"
-    echo "Lists modules imported by the specified Python program."
-    echo "Imports used by a simple \"no-op\" program is used to filter the"
-    echo "listing.  The idea is to get rid of default standard libraries."
-    echo "NOTE:  This method *might* be thoroughly unsound and misguided."
-    # TODO: Figure out if this is stupid.
+    cat <<EOF
+
+  USAGE:  ${SELF} [PATH TO PYTHON PROGRAM]
+
+  Lists modules imported by the specified Python program.
+  Imports used by a simple "no-op" program is used to filter the
+  listing.  The idea is to get rid of default standard libraries.
+
+  NOTE:  This method *might* be thoroughly unsound and misguided.
+
+EOF
     exit 1
 fi
 
 
-# Searches the verbose output for module imports, sorts and makes a list.
-# Then another trivial Python program is executed, and a similar module listing
-# is produced.  This second listing is used to filter the first listing;
-# the "trivial program" module listing is used a wordlist in the 'grep -vFf'
-# call by means of process substitution.
+# Grabs imports by searching the verbose output for module imports.
+# Matching is _NOT_ robust to future changes of the output format!
 
-python3 -v "$1" 2>&1 | grep -Eo "^import\ \'[A-Za-z0-9]+" | sort -u | \
+# Get a reference list of imports from a trivial program.
+trivial_imports="$(python3 -v -c 'print("no-op")' 2>&1 |
+    grep -Eo -- "^import\ \'[A-Za-z0-9]+" |
+    sort -u |
+    while IFS='\n' read -r __line
+    do
+        __module="${__line#import \'}"
+        echo "$__module"
+    done)"
+
+# Get list of imports from the specified Python program.
+python3 -v "$1" 2>&1 |
+grep -Eo -- "^import\ \'[A-Za-z0-9]+" |
+sort -u |
 while IFS='\n' read -r _line
 do
     _module="${_line#import \'}"
     echo "$_module"
-done | grep -vFf <(python3 -v -c 'print("no-op")' 2>&1 | grep -Eo "^import\ \'[A-Za-z0-9]+" | sort -u | while IFS='\n' read -r __line ; do __module="${__line#import \'}" ; echo "$__module" ; done)
+done |
+# Filter out the trivial program imports.
+grep -vF -- "$trivial_imports"
+
+
+exit 0
 

@@ -31,13 +31,14 @@ log = logging.getLogger(__name__)
 
 class EpubTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
+    is_slow = False
 
     # TODO: [TD0028] Implement extractor for E-books (pdf/epub/mobi/..)
 
     def __init__(self):
         super(EpubTextExtractor, self).__init__()
 
-    def _get_text(self, fileobject):
+    def extract_text(self, fileobject):
         self.log.debug('Extracting raw text from EPUB file ..')
         result = extract_text_with_epubzilla(fileobject.abspath)
         return result

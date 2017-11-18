@@ -22,19 +22,17 @@
 import re
 from collections import Counter
 
+
 from analyzers import BaseAnalyzer
 from core import types
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
-from core.util import (
+from util import (
     dateandtime,
     textutils
 )
-from core.util.text import find_edition
+from util.text import find_edition
 
 
 # Use two different types of separators;  "SPACE" and "SEPARATOR".
@@ -58,17 +56,15 @@ PREFERRED_FILENAME_CHAR_SEPARATOR = '_'
 
 
 class FilenameAnalyzer(BaseAnalyzer):
-    run_queue_priority = 1
+    RUN_QUEUE_PRIORITY = 1
     HANDLES_MIME_TYPES = ['*/*']
 
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         super(FilenameAnalyzer, self).__init__(
-            fileobject, config, add_results_callback, request_data_callback
+            fileobject, config, request_data_callback
         )
 
-    def run(self):
-        # Pass results through callback function provided by the 'Analysis'.
+    def analyze(self):
         self._add_results('datetime', self.get_datetime())
         self._add_results('title', self.get_title())
         self._add_results('edition', self.get_edition())
@@ -77,13 +73,29 @@ class FilenameAnalyzer(BaseAnalyzer):
 
     def get_datetime(self):
         # TODO: [TD0110] Improve finding probable date/time in file names.
-        results = []
-
         fn_timestamps = self._get_datetime_from_name()
         if fn_timestamps:
-            results += fn_timestamps
+            if len(fn_timestamps) == 1:
+                _timestamp = fn_timestamps[0]
+                try:
+                    _coerced_value = types.AW_TIMEDATE(_timestamp.get('value'))
+                except types.AWTypeError:
+                    pass
+                else:
+                    _prob = _timestamp.get('weight', 0.001)
+                    return {
+                        'value': _coerced_value,
+                        'coercer': types.AW_TIMEDATE,
+                        'mapped_fields': [
+                            WeightedMapping(fields.DateTime, probability=_prob),
+                            WeightedMapping(fields.Date, probability=_prob),
+                        ],
+                        'generic_field': gf.GenericDateCreated
+                    }
 
-        return results if results else None
+        # return fn_timestamps or None
+        # TODO: Fix inconsistent analyzer results data.
+        return None
 
     def get_title(self):
         return None
@@ -96,15 +108,16 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not basename:
             return None
 
-        _number = find_edition(basename.as_string())
+        _number = find_edition(types.force_string(basename.get('value')))
         if _number:
-            return ExtractedData(
-                coercer=types.AW_INTEGER,
-                mapped_fields=[
+            return {
+                'value': _number,
+                'coercer': types.AW_INTEGER,
+                'mapped_fields': [
                     WeightedMapping(fields.Edition, probability=1),
                 ],
-                generic_field=gf.GenericEdition
-            )(_number)
+                'generic_field': gf.GenericEdition
+            }
         else:
             return None
 
@@ -123,18 +136,20 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not ed_file_mimetype:
             return
 
-        file_basename_suffix = ed_basename_suffix.as_string()
-        file_mimetype = ed_file_mimetype.value
+        file_basename_suffix = types.force_string(ed_basename_suffix.get('value'))
+        file_mimetype = ed_file_mimetype.get('value')
         self.log.debug(
             'Attempting to get likely extension for MIME-type: "{!s}"  Basename'
             ' suffix: "{!s}"'.format(file_mimetype, file_basename_suffix))
         result = likely_extension(file_basename_suffix, file_mimetype)
-        return ExtractedData(
-            coercer=types.AW_PATHCOMPONENT,
-            mapped_fields=[
+        self.log.debug('Likely extension: "{!s}"'.format(result))
+        return {
+            'value': result,
+            'coercer': types.AW_PATHCOMPONENT,
+            'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ]
-        )(result)
+        }
 
     def get_publisher(self):
         ed_basename_prefix = self.request_data(
@@ -144,7 +159,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not ed_basename_prefix:
             return
 
-        file_basename_prefix = ed_basename_prefix.as_string()
+        file_basename_prefix = types.force_string(ed_basename_prefix.get('value'))
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
         if _options:
             _candidates = _options.get('candidates', {})
@@ -155,13 +170,14 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not result:
             return None
 
-        return ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        return {
+            'value': result,
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            generic_field=gf.GenericPublisher
-        )(result)
+            'generic_field': gf.GenericPublisher
+        }
 
     def _get_datetime_from_name(self):
         """
@@ -177,6 +193,18 @@ class FilenameAnalyzer(BaseAnalyzer):
             fn = types.AW_STRING(fn)
         except types.AWTypeError:
             return []
+
+        # Strip non-digits from the left.
+        fn = re.sub(r'^[^\d]+', '', fn)
+
+        try:
+            dt = types.AW_TIMEDATE(fn)
+        except types.AWTypeError:
+            pass
+        else:
+            return [{'value': dt,
+                     'source': 'timedate_coercion',
+                     'weight': 1}]
 
         results = []
 
@@ -267,16 +295,26 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'mobi': {'mobi'},
         'pdf': {'pdf'}
     },
+    'application/gzip': {
+        'gz': {'gz'},
+        'tar.gz': {'tar.gz'},
+    },
     'application/zip': {
         'zip': {'zip'},
         'epub': {'epub'},
     },
+    'text/html': {
+        'html': {'html', 'htm'},
+        'txt': {'txt'},
+    },
     'text/plain': {
         'c': {'c'},
         'cpp': {'cpp', 'c++'},
+        'css': {'css'},
         'csv': {'csv'},
         'gemspec': {'gemspec'},
         'h': {'h'},
+        'html': {'html', 'htm'},
         'java': {'java'},
         'js': {'js'},
         'json': {'json'},
@@ -289,6 +327,12 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'sh': {'bash', 'sh'},
         'txt': {'txt'},
         'yaml': {'yaml'},
+    },
+    'text/x-makefile': {
+        'asm': {'asm'}
+    },
+    'application/vnd.ms-powerpoint': {
+        'ppt': {'ppt'},
     },
     'application/x-gzip': {
         'tar.gz': {'tar.gz'}
@@ -304,15 +348,24 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
 
 
 def likely_extension(basename_suffix, mime_type):
-    ext_suffixes_map = MIMETYPE_EXTENSION_SUFFIXES_MAP.get(mime_type)
-    if ext_suffixes_map:
+    if mime_type and basename_suffix:
+        ext_suffixes_map = MIMETYPE_EXTENSION_SUFFIXES_MAP.get(mime_type, {})
         for ext, suffixes in ext_suffixes_map.items():
             if basename_suffix in suffixes:
                 return ext
 
-    return types.AW_MIMETYPE.format(mime_type)
+    _coerced_mime = types.AW_MIMETYPE(mime_type)
+    if _coerced_mime:
+        return types.AW_MIMETYPE.format(_coerced_mime)
+
+    _coerced_suffix = types.AW_MIMETYPE(basename_suffix)
+    if _coerced_suffix:
+        return types.AW_MIMETYPE.format(_coerced_suffix)
+
+    return None
 
 
+# TODO: [TD0020] Identify data fields in file names.
 class SubstringFinder(object):
     # TODO: (?) Implement or remove ..
 
@@ -371,8 +424,35 @@ class FilenameTokenizer(object):
             return self.filename.split(_sep)
 
     @property
-    def separators(self):
-        return self._find_separators(self.filename) or []
+    def separators(self, maxcount=None):
+        if not maxcount:
+            maxcount = 3
+
+        _seps = self._find_separators(self.filename)
+        if not _seps:
+            return []
+
+        if len(_seps) == 1:
+            return _seps
+
+        _tied_seps = self.get_seps_with_tied_counts(_seps)
+        if _tied_seps:
+            # Remove tied separators.
+            _not_tied_seps = [s for s in _seps if s[0] not in _tied_seps]
+
+            # Get preferred separator as a single character.
+            _preferred = self.resolve_tied_count(_tied_seps)
+            if _preferred:
+                # Add back (sep, count)-tuple from preferred single char.
+                _not_tied_seps.extend([s for s in _seps if s[0] == _preferred])
+
+                # Add back the rest.
+                _not_tied_seps.extend([s for s in _seps if s[0] != _preferred
+                                       and s not in _not_tied_seps])
+
+            _seps = _not_tied_seps
+
+        return _seps[:maxcount]
 
     @property
     def main_separator(self):
@@ -386,7 +466,7 @@ class FilenameTokenizer(object):
             _first_count = _seps[0][1]
             _second_count = _seps[1][1]
             if _first_count == _second_count:
-                return self.resolve_tied_count(_seps[0][0], _seps[1][0])
+                return self.resolve_tied_count([_seps[0][0], _seps[1][0]])
 
         if _seps:
             try:
@@ -397,7 +477,21 @@ class FilenameTokenizer(object):
         return None
 
     @classmethod
-    def resolve_tied_count(cls, *candidates):
+    def get_seps_with_tied_counts(cls, separator_counts):
+        seen = set()
+        dupes = set()
+        for _sep, _count in separator_counts:
+            if _count in seen:
+                dupes.add(_count)
+            seen.add(_count)
+
+        return [s[0] for s in separator_counts if s[1] in dupes]
+
+    @classmethod
+    def resolve_tied_count(cls, candidates):
+        if not candidates:
+            return []
+
         # Prefer to use the single space.
         if ' ' in candidates:
             return ' '
@@ -408,8 +502,8 @@ class FilenameTokenizer(object):
             # Use hardcoded preferred space separator character.
             return PREFERRED_FILENAME_CHAR_SPACE
         else:
-            # Last resort, uses arbitrary value.
-            return sorted(candidates)[0]
+            # Last resort uses arbitrary value, sorted for consistency.
+            return sorted(candidates, key=lambda x: x[0])[0]
 
     @classmethod
     def _find_separators(cls, string):
@@ -427,7 +521,7 @@ class FilenameTokenizer(object):
             return None
 
         counts = Counter(sep_chars)
-        _most_common = counts.most_common(3)
+        _most_common = counts.most_common(5)
         return _most_common
 
 

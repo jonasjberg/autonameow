@@ -46,14 +46,15 @@ except ImportError:
     )
 
 from core import constants as C
-from core import config
 from core import (
-    repository,
-    util
+    config,
+    disk,
+    providers,
 )
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from core.ui import cli
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -70,17 +71,17 @@ def get_config_history_path():
         _history_path = None
 
     if _history_path:
-        if util.disk.isfile(_history_path):
+        if disk.isfile(_history_path):
             return _history_path
-        elif util.disk.isdir(_history_path):
+        elif disk.isdir(_history_path):
             log.warning('Expected history path to include a file ..')
             _fixed_path = os.path.join(
-                util.enc.syspath(_history_path),
-                util.enc.syspath(C.DEFAULT_HISTORY_FILE_BASENAME)
+                enc.syspath(_history_path),
+                enc.syspath(C.DEFAULT_HISTORY_FILE_BASENAME)
             )
             if _fixed_path:
                 log.warning('Using fixed history path: "{!s}"'.format(
-                    util.enc.displayable_path(_fixed_path)
+                    enc.displayable_path(_fixed_path)
                 ))
                 return _fixed_path
 
@@ -101,7 +102,7 @@ class MeowURIValidator(Validator):
 
 class MeowURICompleter(Completer):
     def __init__(self):
-        self.all_meowuris = repository.all_meowuris()
+        self.all_meowuris = providers.all_meowuris()
 
     # TODO: [TD0099] Split by MeowURI separators.
     def get_completions(self, document, complete_event):
@@ -123,7 +124,7 @@ class MeowURICompleter(Completer):
 def meowuri_prompt(message=None):
     _history_file_path = get_config_history_path()
     log.debug('Using prompt history file: "{!s}"'.format(
-        util.enc.displayable_path(_history_file_path)
+        enc.displayable_path(_history_file_path)
     ))
     history = FileHistory(_history_file_path)
     meowuri_completer = MeowURICompleter()

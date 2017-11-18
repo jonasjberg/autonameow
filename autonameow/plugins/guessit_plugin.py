@@ -29,100 +29,89 @@ except ImportError:
 from core import (
     exceptions,
     types,
-    util,
-)
-from core.model import (
-    ExtractedData,
-    WeightedMapping
 )
 from core.model import genericfields as gf
+from core.model import WeightedMapping
 from core.namebuilder import fields
 from plugins import BasePlugin
+from util import mimemagic
 
 
 class GuessitPlugin(BasePlugin):
     DISPLAY_NAME = 'Guessit'
     MEOWURI_LEAF = DISPLAY_NAME.lower()
 
-    EXTRACTEDDATA_WRAPPER_LOOKUP = {
-        'audio_codec': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[],
-            generic_field=None
-        ),
-        'date': ExtractedData(
-            coercer=types.AW_TIMEDATE,
-            mapped_fields=[
+    FIELD_LOOKUP = {
+        'audio_codec': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [],
+            'generic_field': None
+        },
+        'date': {
+            'coercer': types.AW_TIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'episode': ExtractedData(
-            coercer=types.AW_INTEGER,
-            mapped_fields=[],
-            generic_field=None
-        ),
-        'format': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[],
-            generic_field=None
-        ),
-        'release_group': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'episode': {
+            'coercer': types.AW_INTEGER,
+            'mapped_fields': [],
+            'generic_field': None
+        },
+        'format': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [],
+            'generic_field': None
+        },
+        'release_group': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=0.1),
                 WeightedMapping(fields.Description, probability=0.001),
             ]
-        ),
-        'screen_size': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[],
-            generic_field=None
-        ),
-        'season': ExtractedData(
-            coercer=types.AW_INTEGER,
-            mapped_fields=[],
-            generic_field=None
-        ),
-        'title': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        },
+        'screen_size': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [],
+            'generic_field': None
+        },
+        'season': {
+            'coercer': types.AW_INTEGER,
+            'mapped_fields': [],
+            'generic_field': None
+        },
+        'title': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
             ]
-        ),
-        'type': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[],
-            generic_field=None
-        ),
-        'video_codec': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[],
-            generic_field=None
-        ),
-        'year': ExtractedData(
-            coercer=types.AW_DATE,
-            mapped_fields=[
+        },
+        'type': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [],
+            'generic_field': None
+        },
+        'video_codec': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [],
+            'generic_field': None
+        },
+        'year': {
+            'coercer': types.AW_DATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ]
-        ),
+        },
     }
 
     def __init__(self):
         super(GuessitPlugin, self).__init__(self.DISPLAY_NAME)
 
-    def can_handle(self, fileobject):
-        _mime_type = self.request_data(
-            fileobject, 'extractor.filesystem.xplat.contents.mime_type'
-        )
-        return util.magic.eval_glob(_mime_type, 'video/*')
-
     def execute(self, fileobject):
-        _file_basename = self.request_data(
-            fileobject, 'extractor.filesystem.xplat.basename.full'
-        )
+        _file_basename = fileobject.filename
         if _file_basename is None:
             raise exceptions.AutonameowPluginError('Required data unavailable')
 
@@ -130,17 +119,19 @@ class GuessitPlugin(BasePlugin):
         if not data:
             raise exceptions.AutonameowPluginError('Got no data from "guessit"')
 
+        _results = {}
         for field, value in data.items():
-            _wrapped = self._add_context(field, value)
-            if _wrapped:
-                self.add_results(fileobject, field, _wrapped)
+            _coerced = self.coerce_field_value(field, value)
+            if _coerced is not None:
+                _results[field] = _coerced
 
-    def _add_context(self, field, value):
-        context = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(field)
-        if not context:
-            context = ExtractedData(coercer=None, mapped_fields=None)
+        return _results
 
-        return ExtractedData.from_raw(context, value)
+    def can_handle(self, fileobject):
+        _mime_type = self.request_data(
+            fileobject, 'extractor.filesystem.xplat.contents.mime_type'
+        )
+        return mimemagic.eval_glob(_mime_type, 'video/*')
 
     @classmethod
     def test_init(cls):

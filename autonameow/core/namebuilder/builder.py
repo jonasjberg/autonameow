@@ -24,13 +24,13 @@ import re
 
 from core import constants as C
 from core import (
+    disk,
     exceptions,
-    util
+    ui,
 )
-from core.model import ExtractedData
 from core.namebuilder.fields import NameTemplateField
-from core.ui import cli
-from core.util import sanity
+from util import sanity
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -43,15 +43,15 @@ def build(config, name_template, field_data_map):
     """
     log.debug('Using name template: "{}"'.format(name_template))
 
+    if not field_data_map:
+        log.error('Name builder got empty data map! This should not happen ..')
+        raise exceptions.NameBuilderError('Unable to assemble basename')
+
     # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
     formatted_fields = pre_assemble_format(field_data_map, config)
 
     # TODO: Move to use name template field classes as keys.
     data = _with_simple_string_keys(formatted_fields)
-
-    if not field_data_map:
-        log.error('Name builder got empty data map! This should not happen ..')
-        raise exceptions.NameBuilderError('Unable to assemble basename')
 
     log.debug('After pre-assembly formatting;')
     log.debug(str(data))
@@ -74,14 +74,13 @@ def build(config, name_template, field_data_map):
     if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_filename']):
         if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_strict']):
             log.debug('Sanitizing filename (restricted=True)')
-            new_name = util.disk.sanitize_filename(new_name,
-                                                   restricted=True)
+            new_name = disk.sanitize_filename(new_name, restricted=True)
         else:
             log.debug('Sanitizing filename')
-            new_name = util.disk.sanitize_filename(new_name)
+            new_name = disk.sanitize_filename(new_name)
 
         log.debug('Sanitized basename (unicode): "{!s}"'.format(
-            util.enc.displayable_path(new_name))
+            enc.displayable_path(new_name))
         )
     else:
         log.debug('Skipped sanitizing filename')
@@ -115,15 +114,14 @@ def pre_assemble_format(field_data_dict, config):
 
     for field, data in field_data_dict.items():
         log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))
-        sanity.check(field and issubclass(field, NameTemplateField))
-        sanity.check_isinstance(data, ExtractedData)
+        assert field and issubclass(field, NameTemplateField)
 
         # TODO: [TD0115] Clear up uncertainties about data multiplicities
-        if data.multivalued:
+        if data.get('multivalued'):
             if not field.MULTIVALUED:
                 log.critical(
                     'Template field "{!s}" expects a single value. Got '
-                    'multivalued ExtractedData'.format(field.as_placeholder())
+                    'multivalued data'.format(field.as_placeholder())
                 )
                 raise exceptions.NameBuilderError(
                     'Template field "{!s}" expects a single value. '
@@ -134,13 +132,15 @@ def pre_assemble_format(field_data_dict, config):
         if _formatted is not None:
             out[field] = _formatted
         else:
-            out[field] = data
+            raise exceptions.NameBuilderError(
+                'Unable to format name template field "{!s}"'.format(field)
+            )
 
     return out
 
 
 def msg_replacement(original, replacement, regex, color):
-    _name_old = cli.colorize_re_match(original, regex=regex, color=color)
+    _name_old = ui.colorize_re_match(original, regex=regex, color=color)
     _name_new = _colorize_replacement(original, replacement, regex, color)
     log.info('Applying custom replacement: "{!s}" -> "{!s}"'.format(_name_old,
                                                                     _name_new))
@@ -153,7 +153,7 @@ def msg_replacement(original, replacement, regex, color):
 
 
 def _colorize_replacement(original, replacement, regex, color):
-    _colored_replacement = cli.colorize(replacement, fore=color)
+    _colored_replacement = ui.colorize(replacement, fore=color)
     return re.sub(regex, _colored_replacement, original)
 
 

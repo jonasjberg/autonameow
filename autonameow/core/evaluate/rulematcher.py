@@ -22,7 +22,6 @@
 import logging
 
 from core import repository
-from core.model import ExtractedData
 
 
 log = logging.getLogger(__name__)
@@ -48,12 +47,10 @@ class RuleMatcher(object):
         # )
         response = repository.SessionRepository.query(fileobject, meowuri)
         # log.debug('Got response ({}): {!s}'.format(type(response), response))
-
-        # TODO: [TD0082] Integrate the 'ExtractedData' class.
-        if response is not None and isinstance(response, ExtractedData):
-            return response.value
+        if response:
+            return response.get('value')
         else:
-            return response
+            return None
 
     def request_data(self, meowuri):
         # Functions that use this does not have access to 'self.fileobject'.
@@ -103,12 +100,12 @@ class RuleMatcher(object):
             _candidates.append(rule)
 
             _exact = 'Yes' if rule.exact_match else 'No '
-            log.info('Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias:'
-                     ' {:.2f}) {} '.format(
-                i + 1, _exact,
-                self._scored_rules[rule]['score'],
-                self._scored_rules[rule]['weight'],
-                rule.ranking_bias, rule.description)
+            log.info(
+                'Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias:'
+                ' {:.2f}) {} '.format(i + 1, _exact,
+                                      self._scored_rules[rule]['score'],
+                                      self._scored_rules[rule]['weight'],
+                                      rule.ranking_bias, rule.description)
             )
 
         _discarded_rules = [r for r in self._rules if r not in remaining_rules]
@@ -117,7 +114,7 @@ class RuleMatcher(object):
             _exact = 'Yes' if rule.exact_match else 'No '
             log.info('Rule #{} (Exact: {}  Score: N/A   Weight: N/A   Bias:'
                      ' {:.2f}) {} '.format(i + 1, _exact, rule.ranking_bias,
-                                          rule.description))
+                                           rule.description))
 
         self._candidates = _candidates
 

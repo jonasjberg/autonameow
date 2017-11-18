@@ -22,15 +22,32 @@
 
 import os
 
-from core import util
+from util import encoding as enc
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-_PARENT_DIR = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
-TEST_FILES_DIR = os.path.normpath(os.path.join(_PARENT_DIR, 'test_files'))
-AUTONAMEOW_SRCROOT_DIR = os.path.normpath(
-    os.path.join(_PARENT_DIR,
-                 util.enc.syspath('autonameow'))
-)
+_PARENT_DIR = os.path.normpath(os.path.join(
+    _THIS_DIR, os.pardir
+))
+TEST_FILES_DIR = os.path.normpath(os.path.join(
+    _PARENT_DIR, 'test_files'
+))
+REGRESSIONTEST_DIR = os.path.normpath(os.path.join(
+    _PARENT_DIR, 'tests', 'regression'
+))
+AUTONAMEOW_SRCROOT_DIR = os.path.normpath(os.path.join(
+    _PARENT_DIR, enc.syspath('autonameow')
+))
+
+
+REGRESSIONTEST_DIR_BASENAMES = [
+    b'0000_unittest_dummy',
+    b'0001',
+    b'0001_duplicate_inputpath',
+    b'0002',
+    b'0003_filetags',
+    b'0004_add_extension',
+    b'0005_add_extension'
+]
 
 
 ASSUMED_NONEXISTENT_BASENAME = b'not_a_file_surely'
@@ -141,11 +158,10 @@ DUMMY_MAPPED_MEOWURIS = list({
     'analyzer.filetags',
     'analyzer.image',
     'analyzer.text',
-    'analyzer.video'
+    'analyzer.video',
     'extractor.filesystem.xplat',
     'extractor.metadata.exiftool',
     'extractor.metadata.jpeginfo',
-    'extractor.metadata.pypdf',
     'extractor.text.pdftotext',
     'extractor.text.plain',
     'extractor.text.tesseractocr',

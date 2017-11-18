@@ -23,11 +23,9 @@ import os
 import unittest
 from unittest import TestCase
 
-from core import (
-    fileobject,
-    util
-)
+from core import fileobject
 from core.exceptions import InvalidFileArgumentError
+from util import encoding as enc
 import unit_utils as uu
 import unit_utils_constants as uuconst
 
@@ -71,7 +69,7 @@ class TestFileObject(TestCase):
     def test_abspath(self):
         actual = self.fo.abspath
         self.assertTrue(uu.file_exists(actual))
-        self.assertTrue(os.path.isabs(util.enc.syspath(actual)))
+        self.assertTrue(os.path.isabs(enc.syspath(actual)))
 
     def test_basename_suffix(self):
         actual = self.fo.basename_suffix
@@ -90,13 +88,13 @@ class TestFileObject(TestCase):
 
     def test_pathname(self):
         actual = self.fo.pathname
-        expect = util.enc.normpath(uuconst.TEST_FILES_DIR)
+        expect = enc.normpath(uuconst.TEST_FILES_DIR)
         self.assertEqual(actual, expect)
 
     def test_pathparent(self):
         actual = self.fo.pathparent
-        expect = util.enc.encode_(os.path.basename(os.path.normpath(
-            util.enc.syspath(uuconst.TEST_FILES_DIR)
+        expect = enc.encode_(os.path.basename(os.path.normpath(
+            enc.syspath(uuconst.TEST_FILES_DIR)
         )))
         self.assertEqual(actual, expect)
 
@@ -259,7 +257,7 @@ class TestValidatePathArgument(TestCase):
         _num_files = min(len(uu.all_testfiles()), 5)
         self.unicode_paths = uu.all_testfiles()[:_num_files]
         self.bytestr_paths = [
-            util.enc.bytestring_path(p)
+            enc.bytestring_path(p)
             for p in uu.all_testfiles()[:_num_files]
         ]
 

@@ -23,13 +23,41 @@ import logging
 import sys
 import traceback
 
+from core import constants as C
 from core import (
-    constants,
-    logs
+    logs,
+    ui
 )
 from core.autonameow import Autonameow
 from core.exceptions import AWAssertionError
-from core.options import parse_args
+
+
+# Default options passed to the main 'Autonameow' class instance.
+DEFAULT_OPTIONS = {
+    'debug': False,
+    'verbose': False,
+    'quiet': False,
+
+    'show_version': False,
+    'dump_config': False,
+    'dump_options': False,
+    'dump_meowuris': False,
+
+    'list_all': False,
+    'list_datetime': False,
+    'list_title': False,
+
+    'mode_batch': False,
+    'mode_automagic': False,
+    'mode_interactive': True,
+
+    'config_path': None,
+
+    'dry_run': True,
+    'recurse_paths': False,
+
+    'input_paths': [],
+}
 
 
 def real_main(options=None):
@@ -49,33 +77,8 @@ def real_main(options=None):
     if options is None:
         options = {}
 
-    # Default options are defined here.
     # Passed in 'options' always take precedence and overrides the defaults.
-    opts = {
-        'debug': False,
-        'verbose': False,
-        'quiet': False,
-
-        'show_version': False,
-        'dump_config': False,
-        'dump_options': False,
-        'dump_meowuris': False,
-
-        'list_all': False,
-        'list_datetime': False,
-        'list_title': False,
-
-        'mode_batch': False,
-        'mode_automagic': False,
-        'mode_interactive': True,
-
-        'config_path': None,
-
-        'dry_run': True,
-        'recurse_paths': False,
-
-        'input_paths': [],
-    }
+    opts = dict(DEFAULT_OPTIONS)
     opts.update(options)
 
     # Initialize global logging.
@@ -83,29 +86,6 @@ def real_main(options=None):
     log = logging.getLogger(__name__)
     if opts.get('quiet'):
         logs.silence()
-
-    # Check legality of option combinations.
-    if opts.get('mode_automagic') and opts.get('mode_interactive'):
-        log.warning('Operating mode must be either one of "automagic" or '
-                    '"interactive", not both. Reverting to default: '
-                    '[interactive mode].')
-        opts['mode_automagic'] = False
-        opts['mode_interactive'] = True
-
-    if not opts.get('mode_automagic') and opts.get('mode_batch'):
-        log.warning('Running in "batch" mode without "automagic" mode does'
-                    'not make any sense. Nothing to do!')
-
-    if opts.get('mode_batch') and opts.get('mode_interactive'):
-        log.warning('Operating mode must be either one of "batch" or '
-                    '"interactive", not both. Reverting to default: '
-                    '[interactive mode].')
-        opts['mode_batch'] = False
-        opts['mode_interactive'] = True
-
-    if not opts.get('mode_automagic') and not opts.get('mode_interactive'):
-        log.info('Using default operating mode: [interactive mode].')
-        opts['mode_interactive'] = True
 
     # Main program entry point.
     with Autonameow(opts) as ameow:
@@ -138,7 +118,6 @@ ______________________________________________________
 '''
     # TODO: [TD0095] Clean this up. Try to minimize imports.
     import platform
-    from core import constants as C
 
     typ, val, tb = sys.exc_info()
     msg = ERROR_MSG_TEMPLATE.format(
@@ -163,10 +142,10 @@ def cli_main(argv=None):
     args = argv
     if not args:
         print('Add "--help" to display usage information.')
-        sys.exit(constants.EXIT_SUCCESS)
+        sys.exit(C.EXIT_SUCCESS)
 
     # Handle the command line arguments with argparse.
-    opts = parse_args(args)
+    opts = ui.options.cli_parse_args(args)
 
     # Translate from 'argparse'-specific format to internal options dict.
     options = {
@@ -199,7 +178,7 @@ def cli_main(argv=None):
         real_main(options)
     except KeyboardInterrupt:
         sys.exit('\nReceived keyboard interrupt; Exiting ..')
-    except AWAssertionError as e:
+    except (AssertionError, AWAssertionError) as e:
         _error_msg = format_sanitycheck_error(str(e))
         print_error(_error_msg)
-        sys.exit(3)
+        sys.exit(C.EXIT_SANITYFAIL)

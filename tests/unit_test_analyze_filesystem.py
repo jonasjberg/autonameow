@@ -29,7 +29,6 @@ def get_filesystem_analyzer(fileobject):
     return FilesystemAnalyzer(
         fileobject,
         uu.get_default_config(),
-        add_results_callback=uu.mock_add_results_callback,
         request_data_callback=uu.mock_request_data_callback
     )
 

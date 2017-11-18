@@ -29,30 +29,71 @@ The values are "passed through" the type classes and returned as primitive or
 standard library types (E.G. "datetime").
 These classes are meant to be used as "filters" for coercing values to known
 types --- they are shared and should not retain any kind of state.
+
+The coercion is more "generous" than the default Python casting. The coercion
+was originally intended to be used primarily by data extractors to tame
+incoming "raw" data. Making the coercion very flexible at the risk of
+unintended type casting and very unpredictable behaviour due to having to
+learn this arbitrary type-coercion system, MADE SENSE for this use-case.
+
+However, functionality provided by these classes have expanded and multiple
+parts of autonameow now use these types in various ways. The exact workings
+of the coercion _IS_ relevant for some of the usages..
+The best way to get a grip on what these classes are doing is to look at the
+tests in 'unit_test_types.py'.
+
+Note that the behaviours of for instance 'format()' and 'normalize()' vary
+a lot between classes.
+
+# TODO: [cleanup] This should probably be cleaned up at some point ..
 """
 
 import os
-import mimetypes
 import re
 from datetime import datetime
 
-from core import (
-    exceptions,
-    util
-)
-from core.util import (
+
+from core import constants as C
+from core import exceptions
+from util import encoding as enc
+from util import (
+    mimemagic,
     sanity,
     textutils
 )
-from core import constants as C
+
 
 # TODO: [TD0084] Add handling collections to type coercion classes.
-
-mimetypes.add_type('application/epub+zip', '.epub')
 
 
 class AWTypeError(exceptions.AutonameowException):
     """Failure to coerce a value with one of the type coercers."""
+
+
+class BaseNullValue(object):
+    AS_STRING = '(NULL BaseType value)'
+
+    def __bool__(self):
+        return False
+
+    def __str__(self):
+        return self.AS_STRING
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        if type(other) == type(self):
+            return True
+        if self.__class__ == other:
+            return True
+        if isinstance(other, bool) and other is False:
+            return True
+        return False
+
+
+class NullMIMEType(BaseNullValue):
+    # Default MIME type string used if the MIME type detection fails.
+    AS_STRING = '(UNKNOWN MIME-TYPE)'
 
 
 class BaseType(object):
@@ -61,7 +102,7 @@ class BaseType(object):
     Does not store values -- intended to act as filters.
     """
     # Default "None" value to fall back to.
-    NULL = 'NULL'
+    NULL = BaseNullValue()
 
     # Types that can be coerced with the 'coerce' method.
     COERCIBLE_TYPES = (str,)
@@ -75,7 +116,7 @@ class BaseType(object):
         elif self.equivalent(value):
             # Pass through if type is "equivalent" without coercion.
             return value
-        elif self.acquiescent(value):
+        elif self.coercible(value):
             # Type can be coerced, check after coercion to make sure.
             value = self.coerce(value)
             if self.equivalent(value):
@@ -89,7 +130,7 @@ class BaseType(object):
     def equivalent(self, value):
         return isinstance(value, self.EQUIVALENT_TYPES)
 
-    def acquiescent(self, value):
+    def coercible(self, value):
         return isinstance(value, self.COERCIBLE_TYPES)
 
     def coerce(self, value):
@@ -172,7 +213,7 @@ class Path(BaseType):
         # Overrides the 'BaseType' __call__ method as to not perform the test
         # after the the value coercion. This is because the path could be a
         # byte string and still not be properly normalized.
-        if value is not None and self.acquiescent(value):
+        if value is not None and self.coercible(value):
             if value.strip() is not None:
                 value = self.coerce(value)
                 return value
@@ -182,7 +223,7 @@ class Path(BaseType):
     def coerce(self, value):
         if value:
             try:
-                return util.enc.bytestring_path(value)
+                return enc.bytestring_path(value)
             except (ValueError, TypeError):
                 pass
 
@@ -191,13 +232,13 @@ class Path(BaseType):
     def normalize(self, value):
         value = self.__call__(value)
         if value:
-            return util.enc.normpath(value)
+            return enc.normpath(value)
 
         self._fail_normalization(value)
 
     def format(self, value, **kwargs):
-        parsed = self.__call__(value)
-        return util.enc.displayable_path(parsed)
+        _normalized = self.normalize(value)
+        return enc.displayable_path(_normalized)
 
 
 class PathComponent(BaseType):
@@ -207,7 +248,7 @@ class PathComponent(BaseType):
 
     def coerce(self, value):
         try:
-            return util.enc.bytestring_path(value)
+            return enc.bytestring_path(value)
         except (ValueError, TypeError):
             self._fail_coercion(value)
 
@@ -216,14 +257,14 @@ class PathComponent(BaseType):
         if value:
             # Expand user home directory if present.
             return os.path.normpath(
-                os.path.expanduser(util.enc.syspath(value))
+                os.path.expanduser(enc.syspath(value))
             )
 
         self._fail_normalization(value)
 
     def format(self, value, **kwargs):
-        value = self.__call__(value)
-        return util.enc.displayable_path(value)
+        _coerced = self.__call__(value)
+        return enc.displayable_path(_coerced)
 
 
 class Boolean(BaseType):
@@ -231,8 +272,10 @@ class Boolean(BaseType):
     EQUIVALENT_TYPES = (bool, )
     NULL = False
 
-    STR_TRUE = frozenset('positive true yes'.split())
-    STR_FALSE = frozenset('negative false no'.split())
+    STR_TRUE = frozenset('positive true yes on enable enabled active'.split())
+    STR_FALSE = frozenset(
+        'negative false no off disable disabled inactive passive'.split()
+    )
 
     def string_to_bool(self, string_value):
         value = string_value.lower().strip()
@@ -240,6 +283,7 @@ class Boolean(BaseType):
             return True
         if value in self.STR_FALSE:
             return False
+        return None
 
     @staticmethod
     def bool_to_string(bool_value):
@@ -389,12 +433,6 @@ class Float(BaseType):
 
 class String(BaseType):
     COERCIBLE_TYPES = (str, bytes, int, float, bool)
-    try:
-        from PyPDF2.generic import TextStringObject
-        COERCIBLE_TYPES = COERCIBLE_TYPES + (TextStringObject,)
-    except ImportError:
-        pass
-
     EQUIVALENT_TYPES = (str, )
     NULL = ''
 
@@ -404,11 +442,11 @@ class String(BaseType):
 
         if isinstance(value, bytes):
             try:
-                return util.enc.decode_(value)
+                return enc.decode_(value)
             except Exception:
                 return self.null()
 
-        if self.acquiescent(value):
+        if self.coercible(value):
             try:
                 return str(value)
             except (ValueError, TypeError):
@@ -425,45 +463,14 @@ class String(BaseType):
 class MimeType(BaseType):
     COERCIBLE_TYPES = (str, bytes)
     EQUIVALENT_TYPES = ()
-    NULL = C.MAGIC_TYPE_UNKNOWN
-
-    try:
-        MIME_TYPE_LOOKUP = {
-            ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
-        }
-    except AttributeError:
-        MIME_TYPE_LOOKUP = {}
-
-    # TODO: Improve robustness of interfacing with 'mimetypes'.
-    sanity.check(len(MIME_TYPE_LOOKUP) > 0,
-                 'MIME_TYPE_LOOKUP is empty')
-
-    # Any custom "extension to MIME-type"-mappings goes here.
-    MIME_TYPE_LOOKUP['gz'] = 'application/x-gzip'
-    MIME_TYPE_LOOKUP['lzma'] = 'application/x-lzma'
-    MIME_TYPE_LOOKUP['rar'] = 'application/x-rar'
-    MIME_TYPE_LOOKUP['rtf'] = 'text/rtf'
-    MIME_TYPE_LOOKUP['sh'] = 'text/x-shellscript'
-
-    MIME_TYPE_LOOKUP_INV = {
-        mime: ext for ext, mime in MIME_TYPE_LOOKUP.items()
-    }
-
-    # Override "MIME-type to extension"-mappings here.
-    MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
-    MIME_TYPE_LOOKUP_INV['image/jpeg'] = 'jpg'
-    MIME_TYPE_LOOKUP_INV['video/quicktime'] = 'mov'
-    MIME_TYPE_LOOKUP_INV['video/mp4'] = 'mp4'
-
-    KNOWN_EXTENSIONS = frozenset(MIME_TYPE_LOOKUP.keys())
-    KNOWN_MIME_TYPES = frozenset(MIME_TYPE_LOOKUP.values())
+    NULL = NullMIMEType()
 
     def __call__(self, value=None):
         # Overrides the 'BaseType' __call__ method as to not perform the test
         # after the the value coercion. A valid MIME-type can not be determined
         # by looking at the primitive type alone.
-        if value is not None and self.acquiescent(value):
-            if value.strip() is not None:
+        if value is not None and self.coercible(value):
+            if value.strip():
                 value = self.coerce(value)
                 return value
         return self.null()
@@ -473,10 +480,16 @@ class MimeType(BaseType):
         string_value = string_value.lstrip('.').strip().lower()
 
         if string_value:
-            if string_value in self.KNOWN_MIME_TYPES:
+            _ext = mimemagic.get_extension(string_value)
+            if _ext is not None:
+                # The value is a MIME-type.
+                # Note that an empty string is considered a valid extension.
                 return string_value
-            elif string_value in self.KNOWN_EXTENSIONS:
-                return self.MIME_TYPE_LOOKUP[string_value]
+
+            _mime = mimemagic.get_mimetype(string_value)
+            if _mime:
+                # The value is an extension. Return mapped MIME-type.
+                return _mime
 
         return self.null()
 
@@ -484,11 +497,12 @@ class MimeType(BaseType):
         return self.__call__(value)
 
     def format(self, value, **kwargs):
-        if value == C.MAGIC_TYPE_UNKNOWN:
-            return ''
-
         value = self.__call__(value)
-        formatted = self.MIME_TYPE_LOOKUP_INV.get(value)
+
+        if value == self.null():
+            return str(self.null())
+
+        formatted = mimemagic.get_extension(value)
         return formatted if formatted is not None else self.null()
 
 
@@ -563,7 +577,12 @@ class TimeDate(BaseType):
 
     def coerce(self, value):
         try:
-            return try_parse_datetime(value)
+            string_value = AW_STRING(value)
+        except AWTypeError as e:
+            self._fail_coercion(value, msg=e)
+
+        try:
+            return try_parse_datetime(string_value)
         except (TypeError, ValueError) as e:
             self._fail_coercion(value, msg=e)
 
@@ -595,7 +614,10 @@ class TimeDate(BaseType):
 
 class ExifToolTimeDate(TimeDate):
     def coerce(self, value):
-        if re.match(r'.*0000:00:00 00:00:00.*', value):
+        try:
+            if re.match(r'.*0000:00:00 00:00:00.*', value):
+                self._fail_coercion(value)
+        except TypeError:
             self._fail_coercion(value)
 
         try:
@@ -606,54 +628,6 @@ class ExifToolTimeDate(TimeDate):
             return try_parse_date(value)
         except ValueError:
             pass
-
-        self._fail_coercion(value)
-
-
-class PyPDFTimeDate(TimeDate):
-    # Expected date/time format:      D:20121225235237 +05'30'
-    #                                   ^____________^ ^_____^
-    # Regex search matches two groups:        #1         #2
-    RE_DATETIME_TZ = re.compile(r'D:(\d{14}) ?(\+\d{2}\'?\d{2}\'?)')
-
-    # Date/time without timezone, alternate pattern:
-    RE_DATETIME = re.compile(r'D:(\d{14})')
-
-    # Only date, without timezone:
-    RE_DATE = re.compile(r'D:(\d{8})')
-
-    def coerce(self, value):
-        value = value.replace("'", '')
-
-        re_match_tz = self.RE_DATETIME_TZ.search(value)
-        if re_match_tz:
-            datetime_str = re_match_tz.group(1)
-            timezone_str = re_match_tz.group(2)
-
-            try:
-                return datetime.strptime(str(datetime_str + timezone_str),
-                                         '%Y%m%d%H%M%S%z')
-            except ValueError:
-                pass
-            try:
-                # Without timezone
-                return datetime.strptime(datetime_str, '%Y%m%d%H%M%S')
-            except ValueError:
-                pass
-
-        re_match = self.RE_DATETIME.search(value)
-        if re_match:
-            try:
-                return datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
-            except ValueError:
-                pass
-
-        re_match = self.RE_DATE.search(value)
-        if re_match:
-            try:
-                return datetime.strptime(re_match.group(1), '%Y%m%d')
-            except ValueError:
-                pass
 
         self._fail_coercion(value)
 
@@ -788,26 +762,104 @@ def try_parse_date(string):
 def try_coerce(value):
     coercer = coercer_for(value)
     if coercer:
-        try:
-            return coercer(value)
-        except AWTypeError:
-            pass
+        if isinstance(value, list):
+            try:
+                return listof(coercer)(value)
+            except AWTypeError:
+                pass
+        else:
+            try:
+                return coercer(value)
+            except AWTypeError:
+                pass
+
     return None
 
 
 def coercer_for(value):
+    """
+    Returns a coercer class suitable for the type of the given value.
+
+    Note that this does not properly handle cases where the primitive types
+    alone does not indicate the proper coercion class, for instance MIME-types
+    are strings but should really be handled by the 'MimeType' class.
+    Text of type bytes should be coerced with the 'String' class, but paths of
+    the same type should not. Paths/filenames should be coerced with 'AW_PATH*'.
+
+    This function should be used as a last resort to prevent bad coercion.
+
+    Args:
+        value: The value of unknown type to get a suitable coercer class for.
+
+    Returns:
+        A shared "singleton" instance of a suitable 'BaseType' subclass or None.
+    """
     if value is None:
         return None
-    return PRIMITIVE_AW_TYPE_MAP.get(type(value), None)
+
+    _sample = value
+    if value and isinstance(value, (list, tuple)):
+        _sample = value[0]
+    elif isinstance(value, dict):
+        try:
+            _any_element = list(value.keys())[0]
+            _sample = value.get(_any_element)
+        except (IndexError, KeyError, TypeError, ValueError):
+            pass
+
+    return PRIMITIVE_AW_TYPE_MAP.get(type(_sample), None)
 
 
 def force_string(raw_value):
+    # Silently fetch single value from list.
+    if isinstance(raw_value, list) and len(raw_value) == 1:
+        raw_value = raw_value[0]
+
     try:
         str_value = AW_STRING(raw_value)
     except AWTypeError:
         return AW_STRING.null()
     else:
         return str_value
+
+
+def force_stringlist(raw_values):
+    try:
+        str_list = listof(AW_STRING)(raw_values)
+    except AWTypeError:
+        return [AW_STRING.null()]
+    else:
+        return str_list
+
+
+class MultipleTypes(object):
+    def __init__(self, coercer):
+        self.coercer = coercer
+
+    def __call__(self, value=None):
+        if value is None:
+            return [self.coercer.null()]
+
+        if not isinstance(value, list):
+            value = [value]
+
+        if not value:
+            return [self.coercer.null()]
+
+        out = []
+        for v in value:
+            _coerced = self.coercer(v)
+            if _coerced is None:
+                continue
+
+            out.append(_coerced)
+
+        return out
+
+
+def listof(coercer):
+    # TODO: [TD0084] Handle collections (lists, etc) with wrapper classes.
+    return MultipleTypes(coercer)
 
 
 # Singletons for actual use.
@@ -821,7 +873,8 @@ AW_STRING = String()
 AW_MIMETYPE = MimeType()
 AW_TIMEDATE = TimeDate()
 AW_EXIFTOOLTIMEDATE = ExifToolTimeDate()
-AW_PYPDFTIMEDATE = PyPDFTimeDate()
+
+NULL_AW_MIMETYPE = NullMIMEType()
 
 
 # This is not clearly defined otherwise.

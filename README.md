@@ -11,15 +11,27 @@ __`autonameow` does automatic renaming of files__
 The primary goal is to reduce the overhead and manual work required to
 apply a strict file naming convention uniformly and consistently.
 
-
 #### PLEASE NOTE
-__This software is still undergoing active development --- NOT READY FOR USE!__
+__This software is still in early stages of development --- NOT READY FOR USE!__
+
+--------------------------------------------------------------------------------
+
+`autonameow` is written for __Python 3.6__, targeting __Linux__ and
+__MacOS__.
+
+Support for additional platforms will probably be added at some future time.
+
+~~(Both Android and Windows already seems to work good enough with some
+tweaking and/or inconveniences)~~
+
+Don't expect `autonameow` to run on anything but the targeted platforms, for
+now.
 
 
 Installing
 ----------
-If you want to use `autonameow`, __please wait for the next stable release__,
-probably version `v1.0.0`.
+If you want to use `autonameow`, __please wait for the first stable release__;
+version `v1.0.0`.
 
 Don't feel like waiting?  See [`install.md`](./install.md) for a *(temporary)*
 guide to installing under Linux and MacOS.
@@ -27,7 +39,7 @@ guide to installing under Linux and MacOS.
 
 Running
 -------
-Use the wrapper script `run.sh` to start `autonameow`.
+Use the wrapper script `bin/autonameow.sh` to start `autonameow`.
 
 
 Documentation

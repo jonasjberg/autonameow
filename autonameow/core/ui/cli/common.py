@@ -31,13 +31,13 @@ try:
 except ImportError:
     colorama = None
 
-import core
 from core import constants as C
 from core import (
-    util,
-    types
+    types,
+    version
 )
-from core.util import sanity
+import util
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -66,11 +66,11 @@ def print_version_info(verbose):
             _commit = ''
 
         cf = ColumnFormatter()
-        cf.addrow(C.STRING_PROGRAM_NAME, core.version.__copyright__)
+        cf.addrow(C.STRING_PROGRAM_NAME, version.__copyright__)
         cf.addrow('version {}'.format(C.STRING_PROGRAM_VERSION),
-                  core.version.__email__)
-        cf.addrow(_commit, core.version.__url__)
-        cf.addrow('', core.version.__url_repo__)
+                  version.__email__)
+        cf.addrow(_commit, version.__url__)
+        cf.addrow('', version.__url_repo__)
         cf.setalignment('left', 'right')
         columnated_text = str(cf)
         columnated_text_width = cf.max_column_width()
@@ -174,7 +174,9 @@ def colorize(text, fore=None, back=None, style=None):
 
 
 def colorize_re_match(text, regex, color=None):
-    sanity.check_isinstance(regex, types.BUILTIN_REGEX_TYPE)
+    _re_type = types.BUILTIN_REGEX_TYPE
+    assert regex and isinstance(regex, _re_type), (
+           'Expected type {!s}. Got {!s}'.format(type(_re_type), type(regex)))
 
     if color is not None:
         _color = color
@@ -283,11 +285,11 @@ def msg_rename(from_basename, dest_basename, dry_run):
         dry_run: True if the operation was a "dry run"/simulation.
     """
     _name_old = colorize_quoted(
-        '"{!s}"'.format(util.enc.displayable_path(from_basename)),
+        '"{!s}"'.format(enc.displayable_path(from_basename)),
         color='WHITE'
     )
     _name_new = colorize_quoted(
-        '"{!s}"'.format(util.enc.displayable_path(dest_basename)),
+        '"{!s}"'.format(enc.displayable_path(dest_basename)),
         color='LIGHTGREEN_EX'
     )
 

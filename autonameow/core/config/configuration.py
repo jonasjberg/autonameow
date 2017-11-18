@@ -25,10 +25,9 @@ import re
 
 from core import constants as C
 from core import (
-    config,
+    disk,
     exceptions,
     types,
-    util
 )
 from core.config import rules
 from core.config.field_parsers import (
@@ -37,10 +36,22 @@ from core.config.field_parsers import (
     parse_versioning
 )
 from core.namebuilder import fields
-from core.util import sanity
+import util
+from util import (
+    sanity,
+    textutils
+)
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
+
+
+# TODO: [TD0014] Possibly redesign high-level "configuration".
+#
+#       * Decouple the `Configuration` instance from I/O.
+#       * Think about separating validation and parsing of incoming
+#         configuration data from the `Configuration` class.
 
 
 class Configuration(object):
@@ -102,10 +113,14 @@ class Configuration(object):
         """
         sanity.check_internal_bytestring(path)
 
-        _loaded_data = config.load_yaml_file(path)
+        try:
+            _loaded_data = disk.load_yaml_file(path)
+        except exceptions.FilesystemError as e:
+            raise exceptions.ConfigError(e)
+
         if not _loaded_data:
             raise exceptions.ConfigError('Read empty config: "{!s}"'.format(
-                    util.enc.displayable_path(path)
+                enc.displayable_path(path)
             ))
 
         return cls(_loaded_data)
@@ -132,7 +147,7 @@ class Configuration(object):
         if os.path.exists(dest_path):
             raise FileExistsError
         else:
-            config.write_yaml_file(dest_path, self._data)
+            disk.write_yaml_file(dest_path, self._data)
 
     def _load_reusable_nametemplates(self):
         raw_templates = self._data.get('NAME_TEMPLATES')
@@ -158,7 +173,7 @@ class Configuration(object):
                 raise exceptions.ConfigurationSyntaxError(_error)
 
             # Remove any non-breaking spaces in the name template.
-            templ = util.remove_nonbreaking_spaces(templ)
+            templ = textutils.remove_nonbreaking_spaces(templ)
 
             if NameFormatConfigFieldParser.is_valid_nametemplate_string(templ):
                 validated[name] = templ
@@ -284,15 +299,17 @@ class Configuration(object):
             raise exceptions.ConfigurationSyntaxError(
                 'uses invalid name template format'
             )
-        name_template = util.remove_nonbreaking_spaces(valid_format)
+        name_template = textutils.remove_nonbreaking_spaces(valid_format)
 
         try:
-            _rule = rules.Rule(description=raw_rule.get('description'),
-                               exact_match=raw_rule.get('exact_match'),
-                               ranking_bias=raw_rule.get('ranking_bias'),
-                               name_template=name_template,
-                               conditions=raw_rule.get('CONDITIONS'),
-                               data_sources=raw_rule.get('DATA_SOURCES'))
+            _rule = rules.get_valid_rule(
+                description=raw_rule.get('description'),
+                exact_match=raw_rule.get('exact_match'),
+                ranking_bias=raw_rule.get('ranking_bias'),
+                name_template=name_template,
+                conditions=raw_rule.get('CONDITIONS'),
+                data_sources=raw_rule.get('DATA_SOURCES')
+            )
         except exceptions.InvalidRuleError as e:
             raise exceptions.ConfigurationSyntaxError(e)
         else:
@@ -315,11 +332,9 @@ class Configuration(object):
                           '{!s}: "{!s}"'.format(option, default))
                 self._options['DATETIME_FORMAT'][option] = default
             else:
-                sanity.check(
-                    False,
-                    'Invalid internal default value "{!s}: {!s}"'.format(
-                        option, default)
-                )
+                assert False, (
+                       'Invalid internal default value "{!s}: '
+                       '{!s}"'.format(option, default))
 
         def _try_load_filetags_option(option, default):
             if 'FILETAGS_OPTIONS' in self._data:
@@ -399,12 +414,12 @@ class Configuration(object):
                 try:
                     _bytes_path = types.AW_PATH.normalize(_value)
                 except types.AWTypeError as e:
-                    _dp = util.enc.displayable_path(_value)
+                    _dp = enc.displayable_path(_value)
                     log.error(
                         'Invalid cache directory "{!s}"; {!s}'.format(_dp, e)
                     )
                 else:
-                    _dp = util.enc.displayable_path(_bytes_path)
+                    _dp = enc.displayable_path(_bytes_path)
                     log.debug('Added persistence option :: '
                               '{!s}: {!s}'.format(option, _dp))
                     util.nested_dict_set(
@@ -412,8 +427,8 @@ class Configuration(object):
                     )
                     return
 
-            _bytes_path = util.enc.normpath(default)
-            _dp = util.enc.displayable_path(_bytes_path)
+            _bytes_path = enc.normpath(default)
+            _dp = enc.displayable_path(_bytes_path)
             log.debug('Using default persistence option :: '
                       '{!s}: {!s}'.format(option, _dp))
             util.nested_dict_set(
@@ -574,14 +589,14 @@ class Configuration(object):
 
         for number, rule in enumerate(self.rules):
             out.append('Rule {}:\n'.format(number + 1))
-            out.append(util.indent(str(rule), amount=4) + '\n')
+            out.append(textutils.indent(str(rule), amount=4) + '\n')
 
         out.append('\nReusable Name Templates:\n')
         out.append(
-            util.indent(util.dump(self.reusable_nametemplates), amount=4)
+            textutils.indent(util.dump(self.reusable_nametemplates), amount=4)
         )
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(util.indent(util.dump(self.options), amount=4))
+        out.append(textutils.indent(util.dump(self.options), amount=4))
 
         return ''.join(out)

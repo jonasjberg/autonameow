@@ -31,6 +31,11 @@ from extractors.metadata.exiftool import (
 
 import unit_utils as uu
 import unit_utils_constants as uuconst
+from unit_utils_extractors import (
+    CaseExtractorBasics,
+    CaseExtractorOutput,
+    CaseExtractorOutputTypes
+)
 
 
 unmet_dependencies = not ExiftoolMetadataExtractor.check_dependencies()
@@ -41,32 +46,58 @@ temp_fileobject = uu.get_mock_fileobject()
 temp_file = uu.make_temporary_file()
 
 
-class TestExiftoolMetadataExtractor(unittest.TestCase):
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestExiftoolMetadataExtractorOutputTypes(CaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = ExiftoolMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
+
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestExiftoolMetadataExtractor(CaseExtractorBasics):
+    EXTRACTOR_CLASS = ExiftoolMetadataExtractor
+
+    def test_method_str_returns_expected(self):
+        actual = str(self.extractor)
+        expect = 'ExiftoolMetadataExtractor'
+        self.assertEqual(actual, expect)
+
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput):
+    EXTRACTOR_CLASS = ExiftoolMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('smulan.jpg')
+    _dt = uu.str_to_datetime
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('EXIF:CreateDate', datetime, _dt('2010-01-31 161251')),
+        ('EXIF:DateTimeOriginal', datetime, _dt('2010-01-31 161251')),
+        ('EXIF:ExifImageHeight', int, 1944),
+        ('EXIF:ExifImageWidth', int, 2592)
+    ]
+
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput):
+    EXTRACTOR_CLASS = ExiftoolMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('simplest_pdf.md.pdf')
+    _dt = uu.str_to_datetime
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('File:FileSize', int, 51678),
+        ('File:FileType', str, 'PDF'),
+        ('File:FileTypeExtension', bytes, b'PDF'),
+        ('File:MIMEType', str, 'application/pdf'),
+        ('PDF:CreateDate', datetime, _dt('2016-05-24 144711', tz='+0200')),
+        ('PDF:ModifyDate', datetime, _dt('2016-05-24 144711', tz='+0200')),
+        ('PDF:Creator', str, 'LaTeX with hyperref package'),
+        ('PDF:PageCount', int, 1),
+        ('PDF:Producer', str, 'pdfTeX-1.40.16')
+    ]
+
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestExiftoolMetadataExtractorInternals(unittest.TestCase):
     def setUp(self):
         self.e = ExiftoolMetadataExtractor()
 
-    def test_exiftool_metadata_extractor_class_is_available(self):
-        self.assertIsNotNone(ExiftoolMetadataExtractor)
-
-    def test_exiftool_metadata_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test_specifies_handles_mime_types(self):
-        self.assertIsNotNone(self.e.HANDLES_MIME_TYPES)
-        self.assertTrue(isinstance(self.e.HANDLES_MIME_TYPES, list))
-
-    def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'ExiftoolMetadataExtractor')
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test__get_metadata_returns_something(self):
-        self.assertIsNotNone(self.e._get_metadata(temp_file))
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test__get_metadata_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e._get_metadata(temp_file), dict))
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test__get_metadata_raises_expected_exceptions(self):
         with self.assertRaises(ExtractorError):
             e = ExiftoolMetadataExtractor()
@@ -76,73 +107,14 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
             f = ExiftoolMetadataExtractor()
             f._get_metadata(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_get_exiftool_data_returns_something(self):
-        self.assertIsNotNone(_get_exiftool_data(temp_file))
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_get_exiftool_data_returns_expected_type(self):
-        self.assertTrue(isinstance(_get_exiftool_data(temp_file), dict))
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_raises_expected_exception(self):
         with self.assertRaises(ExtractorError):
-            e = ExiftoolMetadataExtractor()
+            _ = ExiftoolMetadataExtractor()
             _get_exiftool_data(None)
 
         with self.assertRaises(ExtractorError):
-            f = ExiftoolMetadataExtractor()
+            _ = ExiftoolMetadataExtractor()
             _get_exiftool_data(uuconst.ASSUMED_NONEXISTENT_BASENAME)
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute(temp_fileobject))
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.execute(temp_fileobject), dict))
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_all_result_contains_file_size(self):
-        actual = self.e.execute(temp_fileobject)
-        self.assertTrue('File:FileSize' in actual)
-
-
-class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
-    def _to_datetime(self, value):
-        return datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
-
-    def setUp(self):
-        self.test_file = uu.fileobject_testfile('smulan.jpg')
-        self.e = ExiftoolMetadataExtractor()
-
-        self.EXPECT_FIELD_VALUE = [
-            ('EXIF:CreateDate', self._to_datetime('2010-01-31 16:12:51')),
-            ('EXIF:DateTimeOriginal', self._to_datetime('2010-01-31 16:12:51')),
-            ('EXIF:ExifImageHeight', 1944),
-            ('EXIF:ExifImageWidth', 2592)
-        ]
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute(self.test_file))
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.execute(self.test_file), dict))
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_all_result_contains_expected_fields(self):
-        actual = self.e.execute(self.test_file)
-        for field, _ in self.EXPECT_FIELD_VALUE:
-            self.assertTrue(field in actual)
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_all_result_contains_expected_values(self):
-        actual_result = self.e.execute(self.test_file)
-        for field, value in self.EXPECT_FIELD_VALUE:
-            actual = actual_result.get(field)
-            self.assertEqual(actual.value, value)
 
 
 class TestIsBadMetadata(unittest.TestCase):

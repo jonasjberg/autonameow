@@ -31,17 +31,16 @@ from analyzers import BaseAnalyzer
 from core import (
     persistence,
     types,
-    util,
 )
 from core.namebuilder import fields
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
-from core.util import sanity
-from core.util.textutils import extractlines_do
-from core.util.text import (
+from util import (
+    mimemagic,
+    sanity
+)
+from util.textutils import extractlines_do
+from util.text import (
     find_edition,
     RE_EDITION
 )
@@ -68,14 +67,13 @@ CACHE_KEY_ISBNMETA = 'isbnlib_meta'
 
 
 class EbookAnalyzer(BaseAnalyzer):
-    run_queue_priority = 1
+    RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
                           'image/vnd.djvu']
 
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         super(EbookAnalyzer, self).__init__(
-            fileobject, config, add_results_callback, request_data_callback
+            fileobject, config, request_data_callback
         )
 
         self.text = None
@@ -88,7 +86,7 @@ class EbookAnalyzer(BaseAnalyzer):
             if _cached_isbn_metadata:
                 self._cached_isbn_metadata = _cached_isbn_metadata
 
-    def run(self):
+    def analyze(self):
         _maybe_text = self.request_any_textual_content()
         if not _maybe_text:
             return
@@ -185,19 +183,20 @@ class EbookAnalyzer(BaseAnalyzer):
         if not list_of_authors:
             return
 
-        return ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        return {
+            'source': self,
+            'value': list_of_authors,
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
             ],
-            generic_field=gf.GenericAuthor,
-            multivalued=True
-        )(list_of_authors)
+            'generic_field': gf.GenericAuthor,
+            'multivalued': True
+        }
 
     def _filter_date(self, raw_string):
         # TODO: Cleanup and filter date/year
         try:
-            # TODO: Calling 'ExtractedData' "wraps" the value a second time!
             return types.AW_DATE(raw_string)
         except types.AWTypeError:
             return None
@@ -206,18 +205,19 @@ class EbookAnalyzer(BaseAnalyzer):
         if not date_string:
             return
 
-        return ExtractedData(
-            coercer=types.AW_DATE,
-            mapped_fields=[
+        return {
+            'source': self,
+            'value': date_string,
+            'coercer': types.AW_DATE,
+            'mapped_fields': [
                 WeightedMapping(fields.Date, probability=1),
                 WeightedMapping(fields.DateTime, probability=1),
             ],
-            generic_field=gf.GenericDateCreated
-        )(date_string)
+            'generic_field': gf.GenericDateCreated
+        }
 
     def _filter_publisher(self, raw_string):
         try:
-            # TODO: Calling 'ExtractedData' "wraps" the value a second time!
             string_ = types.AW_STRING(raw_string)
         except types.AWTypeError:
             return
@@ -229,17 +229,19 @@ class EbookAnalyzer(BaseAnalyzer):
             return string_
 
     def _wrap_publisher(self, publisher_string):
-        return ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        return {
+            'source': self,
+            'value': publisher_string,
+            'coercer': types.AW_STRING,
+            'multivalued': False,
+            'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            generic_field=gf.GenericPublisher
-        )(publisher_string)
+            'generic_field': gf.GenericPublisher
+        }
 
     def _filter_title(self, raw_string):
         try:
-            # TODO: Calling 'ExtractedData' "wraps" the value a second time!
             string_ = types.AW_STRING(raw_string)
         except types.AWTypeError:
             return
@@ -251,22 +253,25 @@ class EbookAnalyzer(BaseAnalyzer):
             return string_
 
     def _wrap_title(self, title_string):
-        return ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        return {
+            'source': self,
+            'value': title_string,
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
             ],
-            generic_field=gf.GenericTitle
-        )(title_string)
+            'generic_field': gf.GenericTitle
+        }
 
     @classmethod
     def can_handle(cls, fileobject):
         try:
-            return util.magic.eval_glob(fileobject.mime_type,
-                                        cls.HANDLES_MIME_TYPES)
+            return mimemagic.eval_glob(fileobject.mime_type,
+                                       cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
-            log.error('Error evaluating "{!s}" MIME handling; {!s}'.format(cls,
-                                                                           e))
+            log.error(
+                'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
+            )
         if (fileobject.basename_suffix == b'mobi' and
                 fileobject.mime_type == 'application/octet-stream'):
             return True
@@ -342,7 +347,7 @@ def filter_isbns(isbn_list):
     if not isbn_list:
         return []
 
-    sanity.check_isinstance(isbn_list, list)
+    assert isinstance(isbn_list, list)
 
     # Remove any duplicates.
     isbn_list = list(set(isbn_list))
@@ -386,7 +391,9 @@ class ISBNMetadata(object):
 
     @authors.setter
     def authors(self, value):
-        if value and isinstance(value, list):
+        if value:
+            if not isinstance(value, list):
+                value = [value]
             self._authors = value
 
     @property

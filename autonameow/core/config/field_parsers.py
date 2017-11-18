@@ -28,12 +28,12 @@ from core import (
     exceptions,
     namebuilder,
     types,
-    util
 )
 from core.model import genericfields as gf
 from core.model import MeowURI
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
-from core.util import sanity
+from util import mimemagic
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -210,8 +210,8 @@ class RegexConfigFieldParser(ConfigFieldParser):
             return False
 
         # test_data = _normalize(test_data)
-        test_data = util.enc.encode_(test_data)
-        expression = util.enc.encode_(expression)
+        test_data = enc.encode_(test_data)
+        expression = enc.encode_(expression)
 
         # log.debug('test_data: "{!s}" ({})"'.format(test_data,
         #                                            type(test_data)))
@@ -293,7 +293,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         # True is returned if any of the given expressions evaluates true.
         for expr in expression:
             try:
-                evaluates_true = util.magic.eval_glob(mime_to_match, expr)
+                evaluates_true = mimemagic.eval_glob(mime_to_match, expr)
             except (TypeError, ValueError) as e:
                 log.error(
                     'Error evaluating expression "{!s}"; {!s}'.format(expr, e)
@@ -353,8 +353,12 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
 
 
 # Used for validating name templates. Populated like so;
-#   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
-DATA_FIELDS = dict.fromkeys(
+#   NAMETEMPLATEFIELDS_DUMMYDATA = {
+#       'author': 'DUMMY',
+#        .. additional placeholders, dynamically generated in 'fields.py' ..
+#       'year': 'DUMMY'
+#   }
+NAMETEMPLATEFIELDS_DUMMYDATA = dict.fromkeys(
     NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS, 'DUMMY'
 )
 
@@ -368,7 +372,8 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
             return False
 
         try:
-            namebuilder.populate_name_template(expression, **DATA_FIELDS)
+            namebuilder.populate_name_template(expression,
+                                               **NAMETEMPLATEFIELDS_DUMMYDATA)
         except (exceptions.NameTemplateSyntaxError, TypeError):
             return False
         else:
@@ -421,7 +426,7 @@ def suitable_field_parser_for(meowuri):
         A list of instantiated field parsers suited for the given "meowURI".
     """
     log.debug('suitable_field_parser_for("{!s}")'.format(meowuri))
-    sanity.check_isinstance(meowuri, MeowURI)
+    assert isinstance(meowuri, MeowURI)
 
     return [p for p in FieldParserInstances
             if meowuri.matchglobs(p.applies_to_meowuri)]
