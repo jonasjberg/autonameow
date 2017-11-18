@@ -23,7 +23,9 @@ import logging
 
 from core import repository
 from core.model import MeowURI
+from core.model import genericfields as gf
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
+from util.text import format_name
 
 
 log = logging.getLogger(__name__)
@@ -255,10 +257,17 @@ def dedupe_list_of_datadicts(datadict_list):
             seen_lists.append(sorted_list_value)
             deduped.append(datadict)
         else:
-            if value in seen_values:
-                continue
+            # TODO: [TD0112] Hack! Do this in a separate system.
+            if datadict.get('generic_field') is gf.GenericAuthor:
+                _normalized_author = format_name(value)
+                if _normalized_author in seen_values:
+                    continue
+                seen_values.add(_normalized_author)
+            else:
+                if value in seen_values:
+                    continue
+                seen_values.add(value)
 
-            seen_values.add(value)
             deduped.append(datadict)
 
     return deduped
