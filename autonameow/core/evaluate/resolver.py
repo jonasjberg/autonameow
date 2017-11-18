@@ -137,30 +137,19 @@ class TemplateFieldDataResolver(object):
 
                 # TODO: [TD0112] FIX THIS HORRIBLE MESS!
                 if isinstance(_data, list):
-                    if len(_data) == 1:
+                    _deduped_list = dedupe_list_of_datadicts(_data)
+                    if len(_deduped_list) == 1:
+                        log.debug('Using one of {} equivalent '
+                                  'entries'.format(len(_data)))
                         _data = _data[0]
                     else:
-                        seen_data = set()
-                        for d in _data:
-                            _value = d.get('value')
-                            if not _value:
-                                continue
-
-                            if not isinstance(_value, list):
-                                seen_data.add(_value)
-
-                        if len(seen_data) == 1:
-                            log.debug('Using first of {} equivalent '
-                                      'entries'.format(len(_data)))
-                            _data = _data[0]
-                            # TODO: [TD0112] FIX THIS!
-                        else:
-                            log.warning('Not sure what data to use for field '
-                                        '"{!s}"..'.format(_field))
-                            for i, d in enumerate(_data):
-                                log.warning('Field candidate {:03d} :: '
-                                            '"{!s}"'.format(i, d.get('value')))
-                            continue
+                        log.warning('Not sure what data to use for field '
+                                    '{{{}}}..'.format(_str_field))
+                        for i, d in enumerate(_data):
+                            log.warning('Field {{{}}} candidate {:03d} :: '
+                                        '"{!s}"'.format(_str_field, i,
+                                                        d.get('value')))
+                        continue
 
                 # # TODO: [TD0112] Clean up merging data.
                 elif isinstance(_data.get('value'), list):
