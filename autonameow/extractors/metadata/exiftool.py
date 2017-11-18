@@ -253,7 +253,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'PDF:Subject': {
             'coercer': types.AW_STRING,
-            'multivalued': True,
+            # 'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Tags, probability=0.8),
@@ -508,7 +508,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'XMP:Subject': {
             'coercer': types.AW_STRING,
-            'multivalued': True,
+            # 'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Tags, probability=0.8),
