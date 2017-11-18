@@ -1,3 +1,177 @@
+2017-11-18  [autonameow v0.5.1]
+            Major refactoring and extensive rework of internals and tests.
+            Added new regression test "framework" that will replace most of
+            the tests in 'integration_test_rename.sh'.
+
+            See the git log for all changes and detailed descriptions.
+
+            Additions:
+            - Add initial deduplication of values in the resolver.
+            - Add (WIP) stand-alone content extraction 'bin/extract.sh'.
+            - Add regression tests and runner 'tests/regression_runner.sh'.
+            - Add 'BaseNullValue' and 'NullMIMEType' classes in 'types.py'.
+            - Add verification to 'todo_id.py'.
+
+              Adds additional features to 'todo_id.py'.
+
+              * Adds option flag '-n'/'--next':
+
+                  Print the next free (unused) TODO-list entry identifier.
+                  I.E. the previous functionality. This is enabled by default,
+                  and so the script can still be used in exactly the same way.
+
+              * Adds option flag '-c'/'--check':
+
+                  Checks that the sources does not contain completed TODO-list
+                  entries or entries that are not in the TODO-list. And also
+                  that entry IDs in the TODO- and DONE-list are mutually
+                  exclusive.
+                  Exits silently with status code 0 if all checks pass.
+
+              * Adds option flag '--oprhaned':
+
+                  Print entries that are in the TODO-list but not the sources.
+
+            - And a lot more --- refer to the git log for additional details.
+
+            Changes:
+            - Rename 'bin/run.sh' to 'bin/autonameow.sh'.
+            - Refactor most extractor unit tests to use shared base classes.
+            - Remove the 'ExtractedData' class.
+            - Improved readability of log messages.
+            - Remove text extractor 'PyPDFTextExtractor'.
+              This extractor has been disabled for some time due to poor
+              results.  It is now removed. Should probably be replaced with
+              some other PDF text extraction method to provide an alternative
+              to 'pdftotext' for cases where it is not available.
+              But 'pdftotext' will have to do for now.
+            - Remove everything related to 'PyPDF2'.
+              Removes the 'PyPDFMetadataExtractor' and related.
+
+              Removes the coercion type class 'PyPDFTimeDate' along with other
+              code related to 'PyPDF', 'PyPDFMetadataExtractor' and leftovers
+              from the previously removed class 'PyPDFTextExtractor'
+
+              This removes the 'PyPDF' dependency entirely, which is reflected
+              in 'install.md'.
+
+            - Move package 'util/disk' to 'core'.
+            - Move package 'autonameow/core/util' to 'autonameow/util'.
+            - Factor out parts of 'Repository' into new 'ProviderRegistry'.
+              Adds a new class 'ProviderRegistry' to handle keeping track of
+              sources (extractors, analyzers, plugins) and registering partial
+              MeowURIs.
+              This was all previously handled in the 'Repository' class, which
+              should only deal with storing data from now on.
+            - Rework mapping MIME-types to extensions with new 'mimemagic.py'.
+              Adds a 'MimeExtensionMapper' class in place of directory lookup.
+              The new class is meant to provide a better interface to the
+              'mimetypes' library as well as functionality for adding preferred
+              extensions for specific MIME-types.
+
+            - Remove caching in all text extractors except OCR.
+            - Add partial separation of CLI-specifics from UI.
+              Adds rework of module/package structure and imports.
+
+              * Replaces calls to 'cli.msg()' with 'ui.msg()'.
+              * Moves 'core/options.py' to 'core/ui/cli/options.py'.
+
+              The 'ui' package is intended to provide an interface to any UI.
+              Even if this is currently not relevant and future addition of an
+              alternative to the only current command-line interface UI, would
+              require reworking a lot of stuff due to incorrect assumptions;
+              enforcing this separation at this stage improves readability.
+
+              Note that code inside 'ui/cli' that needs to call 'msg()' does
+              not call through the interface with 'ui.msg()', but instead uses
+              the CLI-specific function 'cli.msg()' directly.
+
+              Code that is outside of 'ui/cli' should call 'ui.msg()'.
+
+            - Refactor constructing 'RuleCondition' instances.
+              Moves constructing 'RuleCondition' instances outside of 'Rule'.
+            - Remove 'BaseExtractor.__call__()'.
+              Calling extractors like this no longer makes much sense when
+              moving to separate methods of accessing the extracted data
+              through 'extract()' and the additional information through
+              'metainfo()'.
+
+            - Remove 'sanity.check()'.
+              Replaces uses of 'sanity.check()' with 'assert'.
+
+              While cute, this function does not add any additional value and
+              serves only to add unwarranted indirection and complexity.
+
+            - Remove 'sanity.check_isinstance()'.
+              Replaces uses of 'sanity.check_isinstance()' with assertions.
+
+              Adds catching 'AssertionError' in the top-most exception handler.
+              The 'AWAssertionError' class should probably be removed as it is
+              now only used when inherited from by 'EncodingBoundaryViolation'.
+
+            - Add 'cli/argparser.py'.
+              Moves modifying the 'argparse.ArgumentParser' to a new file.
+
+              Adds a shared public interface for getting the modified argument
+              parser.  Avoids duplicating code in the autonameow 'options.py'
+              and future changes to the regression test runner main.
+
+            - Move 'BaseAnalyzer' and 'AnalyzerError' to new file.
+              Adds a new file 'analyzers/common.py' to mirror the extractors.
+
+              Moves classes out of '__init__.py' to a separate for consistency
+              with the structure used by the extractors.
+
+            - Modify analyzer run queue priorities.
+              Prioritizes analyzers to run that providers of often used data
+              first.
+              This ranking is probably not even necessary and should be
+              removed, but seeing as it is still here it might as well be a
+              bit more sensible.
+
+            - Remove passing analyzer results through callbacks.
+              Completes TODO-list item [TD0122].
+
+              Replaces the callback-method with returning results stored in an
+              instance attribute dict 'results'.
+
+              The 'run()' method is reworked to call a new method 'analyze()'
+              that does what 'run()' did previously, and then return the
+              results.
+
+              This changes is motivated by making it easier to follow what is
+              going on and simplify the overall workings of the results
+              collection, that is currently undergoing various refactorings.
+
+            - And a lot more --- refer to the git log for additional details.
+
+            Fixes:
+            - Various bugs in the resolver causing crashes.
+            - A lot of miscellaneous cleanup, removal of dead code, etc.
+            - Modify returned value for empty 'FileObject' parts.
+              Returns empty bytestrings for missing 'FileObject' parts.
+
+              File name parts 'basename_prefix' and 'basename_suffix' now
+              return empty byte strings instead of None for files that do not
+              have the relevant part(s). That is, for instance; 'empty' has no
+              extension.
+
+            - Fix multiple sources was overwritten.
+              Adds temporary fix to bug where multiple MeowURIs was clobbered.
+
+              Multiple sources for a name template field in the configuration
+              file would not be properly parsed in 'config/rules.py'.
+              Only the last source would be used, clobbering the previous.
+
+              This commit fixes this by storing the MeowURI sources in a list,
+              which also required changes in the "resolver". These changes is
+              temporary in that the resolver is a terrible mess, and must be
+              cleaned up and/or rewritten in conjunction with reworking usage
+              of the 'ExtractedData' class.
+            - Catch exceptions thrown by failed imports.
+            - And a lot more --- refer to the git log for additional details.
+
+
 2017-10-23  [autonameow v0.5.0]
             Various bug fixes and refactoring.
 
