@@ -84,15 +84,18 @@ class TestGetRegressiontestDirs(TestCase):
 
     def test_returns_existing_directories(self):
         for d in self.actual:
-            self.assertTrue(uu.dir_exists(d))
+            with self.subTest(directory=d):
+                self.assertTrue(uu.dir_exists(d))
 
     def test_returns_absolute_paths(self):
         for d in self.actual:
-            self.assertTrue(uu.is_abspath(d))
+            with self.subTest(directory=d):
+                self.assertTrue(uu.is_abspath(d))
 
     def test_returns_bytestring_paths(self):
         for d in self.actual:
-            self.assertTrue(uu.is_internalbytestring(d))
+            with self.subTest(directory=d):
+                self.assertTrue(uu.is_internalbytestring(d))
 
 
 class TestRegressionTestLoaderSetTestfilePath(TestCase):
@@ -269,11 +272,13 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
         }
         actual = self.actual.get('options')
         for _option in expected_options:
-            self.assertIn(_option, actual)
+            with self.subTest(expected_option=_option):
+                self.assertIn(_option, actual)
 
         # Direct comparison won't work because "input_paths" should differ.
         for _option, _value in expected_options.items():
-            self.assertEqual(_value, actual.get(_option))
+            with self.subTest():
+                self.assertEqual(_value, actual.get(_option))
 
     def test_asserts(self):
         expected_asserts = {
