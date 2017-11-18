@@ -41,7 +41,17 @@ High Priority
 Medium Priority
 ---------------
 
-* `[TD0112]` Handle merging "equivalent" data in the `Resolver`.
+* `[TD0112]` __Handle merging "equivalent" data in the `Resolver`.__  
+  Add some sort of system for normalizing entities.
+  Example of problem this is intended to solve:
+    ```
+    [WARNING]  Not sure what data to use for field "<class 'core.namebuilder.fields.Author'>"..
+    [WARNING]  Field candidate 000 :: "['G. C. Sjöberg']"
+    [WARNING]  Field candidate 001 :: "['Gibson C. Sjöberg']"
+    [WARNING]  Not sure what data to use for field "<class 'core.namebuilder.fields.Title'>"..
+    [WARNING]  Field candidate 000 :: "Everyday Fur And Statistics: Meow, Kibble, Dogs And War"
+    [WARNING]  Field candidate 001 :: "Everyday Fur And Statistics Meow, Kibble, Dogs And War"
+    ```
 
 * `[TD0111]` Add abstraction between user interaction and CLI specifics.
 
