@@ -21,6 +21,7 @@
 
 import unittest
 
+from core import constants as C
 import unit_utils as uu
 from extractors import BaseExtractor
 
@@ -165,6 +166,29 @@ class CaseExtractorBasics(unittest.TestCase):
                 isinstance(actual, bool),
                 'Expected "bool". Got "{!s}"'.format(type(actual))
             )
+
+    def test_method_meowuri_prefix_does_not_return_none(self):
+        actual = self.extractor.meowuri_prefix()
+        self.assertIsNotNone(
+            actual, 'expected "meowuri_prefix()" to not return none'
+        )
+
+    def test_method_meowuri_prefix_returns_type_unicode_string(self):
+        actual = self.extractor.meowuri_prefix()
+        self.assertTrue(
+            isinstance(actual, str),
+            'Expected "str". Got "{!s}"'.format(type(actual))
+        )
+
+    def test_method_meowuri_prefix_return_starts_with_extractor_root(self):
+        actual = self.extractor.meowuri_prefix()
+        expect_starts_with = C.MEOWURI_ROOT_SOURCE_EXTRACTORS
+        self.assertTrue(
+            actual.startswith(expect_starts_with),
+            'Expected "meowuri_prefix()" to return a string that starts with '
+            '"{!s}".  Got "{!s}"'.format(expect_starts_with, actual)
+        )
+
 
 
 class CaseExtractorOutput(unittest.TestCase):
