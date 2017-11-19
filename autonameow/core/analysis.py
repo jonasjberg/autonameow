@@ -30,7 +30,6 @@ from core.config.configuration import Configuration
 from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
 from core.model import MeowURI
-from util.queue import GenericQueue
 
 
 log = logging.getLogger(__name__)
@@ -42,39 +41,6 @@ Performs high-level handling of an analysis.
 A run queue is populated based on which analyzers are suited for the
 current file.
 """
-
-
-class AnalysisRunQueue(GenericQueue):
-    """
-    Execution queue for analyzers.
-
-    The queue order is determined by the class variable "RUN_QUEUE_PRIORITY".
-    """
-    def __init__(self):
-        super().__init__()
-
-    def enqueue(self, analyzer):
-        """
-        Adds a analyzer to the queue.
-
-        The queue acts as a set; duplicate analyzers are silently ignored.
-
-        Args:
-            analyzer: Analyzer to enqueue as type 'type'.
-        """
-        if analyzer not in self._items:
-            self._items.insert(0, analyzer)
-
-    def __iter__(self):
-        for item in sorted(self._items,
-                           key=lambda x: x.RUN_QUEUE_PRIORITY or 0.1):
-            yield item
-
-    def __str__(self):
-        out = []
-        for pos, item in enumerate(self):
-            out.append('{:02d}: {!s}'.format(pos, item))
-        return ', '.join(out)
 
 
 def _execute_run_queue(analyzer_queue):
@@ -204,10 +170,22 @@ def start(fileobject, config):
             'None of the analyzers applies (!)'
         )
 
-    analyzer_queue = AnalysisRunQueue()
+    analyzer_queue = []
     for a in _instantiate_analyzers(fileobject, klasses, config):
-        analyzer_queue.enqueue(a)
-    log.debug('Enqueued analyzers: {!s}'.format(analyzer_queue))
+        if a not in analyzer_queue:
+            analyzer_queue.insert(0, a)
+        else:
+            log.error('Attempted to enqueue queued analyzer: "{!s}"'.format(a))
+
+    def _prettyprint(list_):
+        out = []
+        for pos, item in enumerate(list_):
+            out.append('{:02d}: {!s}'.format(pos, item))
+        return ', '.join(out)
+    log.debug('Enqueued analyzers: {}'.format(_prettyprint(analyzer_queue)))
+
+    # Sort queue by analyzer priority.
+    sorted(analyzer_queue, key=lambda x: x.RUN_QUEUE_PRIORITY or 0.1)
 
     # Run all analyzers in the queue.
     _execute_run_queue(analyzer_queue)

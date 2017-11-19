@@ -74,41 +74,6 @@ class TestAnalysis(TestCase):
     #     )
 
 
-class TestAnalysisRunQueue(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.q = analysis.AnalysisRunQueue()
-
-    def test_init(self):
-        self.assertIsNotNone(self.q)
-
-    def test_len_initial(self):
-        self.assertEqual(len(self.q), 0)
-
-    def test_len_after_enqueueing_analyzer(self):
-        self.q.enqueue(uu.get_mock_analyzer())
-        self.assertEqual(len(self.q), 1)
-        self.q.enqueue(uu.get_mock_analyzer())
-        self.assertEqual(len(self.q), 2)
-
-    def test_enqueue_single_analyzer(self):
-        ma = next(uu.get_mock_analyzer())
-        self.q.enqueue(ma)
-
-        for a in self.q:
-            self.assertEqual(ma, a)
-
-    def test_enqueue_multiple_analyzers(self):
-        enqueued = []
-
-        for ma in uu.get_mock_analyzer():
-            enqueued.append(ma)
-            self.q.enqueue(ma)
-
-        for dequeued in self.q:
-            self.assertTrue(dequeued in enqueued)
-
-
 class TestSuitableAnalyzersFor(TestCase):
     def test_returns_expected_analyzers_for_mp4_video_file(self):
         self.fo = uu.get_mock_fileobject(mime_type='video/mp4')
