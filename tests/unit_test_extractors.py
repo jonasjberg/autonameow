@@ -144,24 +144,25 @@ def subclasses_base_extractor(klass):
 class TestGetAllExtractorClasses(TestCase):
     def setUp(self):
         self.sources = ['text', 'metadata']
+        self.actual = extractors._get_package_classes(self.sources)
 
-    def test_get_extractor_classes_returns_expected_type(self):
-        actual = extractors._get_package_classes(self.sources)
-        self.assertTrue(isinstance(actual, tuple))
+    def test_returns_expected_type(self):
+        self.assertTrue(isinstance(self.actual, tuple))
 
-    def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
-        actual = extractors._get_package_classes(self.sources)
-
-        actual_abstract, _ = actual
+    def test_returns_abstract_subclasses_of_base_extractor(self):
+        actual_abstract, _ = self.actual
         for _abstract in actual_abstract:
-            self.assertTrue(subclasses_base_extractor(_abstract))
+            with self.subTest(klass=_abstract):
+                self.assertTrue(subclasses_base_extractor(_abstract))
 
-        _, actual_implemented = actual
+    def test_returns_implemented_subclasses_of_base_extractor(self):
+        _, actual_implemented = self.actual
         for _implemented in actual_implemented:
-            self.assertTrue(subclasses_base_extractor(_implemented))
+            with self.subTest(_implemented):
+                self.assertTrue(subclasses_base_extractor(_implemented))
 
-    def test_get_extractor_classes_does_not_include_base_extractor(self):
-        abstract, implemented = extractors._get_package_classes(self.sources)
+    def test_does_not_include_base_extractor(self):
+        abstract, implemented = self.actual
         self.assertNotIn(extractors.BaseExtractor, abstract)
         self.assertNotIn(extractors.BaseExtractor, implemented)
 
@@ -210,35 +211,44 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
 class TestSuitableExtractorsForFile(TestCase):
     extractor_class_names = [e.__name__ for e in extractors.ExtractorClasses]
 
-    def assert_in_if_available(self, member, container):
+    def _assert_in_if_available(self, member, container):
         """
         Test with the currently available extractors.
         """
         if member in self.extractor_class_names:
             self.assertIn(member, container)
 
+    def _get_suitable_extractors_for(self, fileobject):
+        return [
+            c.__name__ for c in extractors.suitable_extractors_for(fileobject)
+        ]
+
     def test_returns_expected_extractors_for_mp4_video_file(self):
-        self.fo = uu.get_mock_fileobject(mime_type='video/mp4')
-        actual = [c.__name__ for c in
-                  extractors.suitable_extractors_for(self.fo)]
+        fo = uu.get_mock_fileobject(mime_type='video/mp4')
+        actual = self._get_suitable_extractors_for(fo)
         self.assertIn('CrossPlatformFileSystemExtractor', actual)
-        self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
+        self._assert_in_if_available('ExiftoolMetadataExtractor', actual)
 
     def test_returns_expected_extractors_for_png_image_file(self):
-        self.fo = uu.get_mock_fileobject(mime_type='image/png')
-        actual = [c.__name__ for c in
-                  extractors.suitable_extractors_for(self.fo)]
+        fo = uu.get_mock_fileobject(mime_type='image/png')
+        actual = self._get_suitable_extractors_for(fo)
         self.assertIn('CrossPlatformFileSystemExtractor', actual)
-        self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
-        self.assert_in_if_available('TesseractOCRTextExtractor', actual)
+        self._assert_in_if_available('ExiftoolMetadataExtractor', actual)
+        self._assert_in_if_available('TesseractOCRTextExtractor', actual)
 
     def test_returns_expected_extractors_for_pdf_file(self):
-        self.fo = uu.get_mock_fileobject(mime_type='application/pdf')
-        actual = [c.__name__ for c in
-                  extractors.suitable_extractors_for(self.fo)]
+        fo = uu.get_mock_fileobject(mime_type='application/pdf')
+        actual = self._get_suitable_extractors_for(fo)
         self.assertIn('CrossPlatformFileSystemExtractor', actual)
-        self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
-        self.assert_in_if_available('PdftotextTextExtractor', actual)
+        self._assert_in_if_available('ExiftoolMetadataExtractor', actual)
+        self._assert_in_if_available('PdftotextTextExtractor', actual)
+
+    def test_returns_expected_extractors_for_text_file(self):
+        fo = uu.get_mock_fileobject(mime_type='text/plain')
+        actual = self._get_suitable_extractors_for(fo)
+        self.assertIn('CrossPlatformFileSystemExtractor', actual)
+        self.assertIn('PlainTextExtractor', actual)
+        self._assert_in_if_available('ExiftoolMetadataExtractor', actual)
 
 
 class TestMapMeowURIToExtractors(TestCase):
