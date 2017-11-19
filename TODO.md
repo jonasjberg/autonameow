@@ -35,6 +35,12 @@ High Priority
 
 * `[TD0108]` Fix inconsistencies in results passed back by plugins.
 
+* `[TD0126]` Clean up boundaries/interface to the `analyzers` package.
+
+* `[TD0127]` Clean up boundaries/interface to the `extractors` package.
+
+* `[TD0128]` Clean up boundaries/interface to the `plugins` package.
+
 
 Medium Priority
 ---------------

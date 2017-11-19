@@ -38,6 +38,9 @@ sys.path.insert(0, AUTONAMEOW_ANALYZER_PATH)
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0126] Clean up boundaries/interface to the 'analyzers' package.
+
+
 def find_analyzer_files():
     """
     Finds Python source files assumed to be autonameow analyzers.

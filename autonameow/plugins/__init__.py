@@ -36,6 +36,7 @@ log = logging.getLogger(__name__)
 
 
 # TODO: [TD0009] Implement a proper plugin interface.
+# TODO: [TD0128] Clean up boundaries/interface to the 'plugins' package.
 
 
 def find_plugin_files():
