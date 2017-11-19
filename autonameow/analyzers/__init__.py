@@ -52,19 +52,6 @@ def find_analyzer_files():
     return analyzer_files
 
 
-def suitable_analyzers_for(fileobject):
-    """
-    Returns analyzer classes that can handle the given file object.
-
-    Args:
-        fileobject: File to get analyzers for as an instance of 'FileObject'.
-
-    Returns:
-        A list of analyzer classes that can analyze the given file.
-    """
-    return [a for a in AnalyzerClasses if a.can_handle(fileobject)]
-
-
 def _get_implemented_analyzer_classes(analyzer_files):
     # Strip extensions.
     _to_import = [f[:-3] for f in analyzer_files]

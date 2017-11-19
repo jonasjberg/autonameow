@@ -174,6 +174,19 @@ def _instantiate_analyzers(fileobject, klass_list, config):
     ]
 
 
+def suitable_analyzers_for(fileobject):
+    """
+    Returns analyzer classes that can handle the given file object.
+
+    Args:
+        fileobject: File to get analyzers for as an instance of 'FileObject'.
+
+    Returns:
+        A list of analyzer classes that can analyze the given file.
+    """
+    return [a for a in analyzers.AnalyzerClasses if a.can_handle(fileobject)]
+
+
 def start(fileobject, config):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
@@ -185,7 +198,7 @@ def start(fileobject, config):
     assert isinstance(config, Configuration), (
            'Expected type "Configuration". Got {!s}'.format(type(config)))
 
-    klasses = analyzers.suitable_analyzers_for(fileobject)
+    klasses = suitable_analyzers_for(fileobject)
     if not klasses:
         raise exceptions.AutonameowException(
             'None of the analyzers applies (!)'

@@ -131,32 +131,6 @@ class TestFindAnalyzerSourceFiles(TestCase):
         self.assertIn('analyze_video.py', actual)
 
 
-class TestSuitableAnalyzersForFile(TestCase):
-    def test_returns_expected_analyzers_for_mp4_video_file(self):
-        self.fo = uu.get_mock_fileobject(mime_type='video/mp4')
-        actual = [c.__name__ for c in
-                  analyzers.suitable_analyzers_for(self.fo)]
-        self.assertIn('FilesystemAnalyzer', actual)
-        self.assertIn('FilenameAnalyzer', actual)
-        self.assertIn('VideoAnalyzer', actual)
-
-    def test_returns_expected_analyzers_for_png_image_file(self):
-        self.fo = uu.get_mock_fileobject(mime_type='image/png')
-        actual = [c.__name__ for c in
-                  analyzers.suitable_analyzers_for(self.fo)]
-        self.assertIn('FilenameAnalyzer', actual)
-        self.assertIn('FilesystemAnalyzer', actual)
-        self.assertIn('ImageAnalyzer', actual)
-
-    def test_returns_expected_analyzers_for_pdf_file(self):
-        self.fo = uu.get_mock_fileobject(mime_type='application/pdf')
-        actual = [c.__name__ for c in
-                  analyzers.suitable_analyzers_for(self.fo)]
-        self.assertIn('FilenameAnalyzer', actual)
-        self.assertIn('FilesystemAnalyzer', actual)
-        self.assertIn('DocumentAnalyzer', actual)
-
-
 class TestGetAnalyzerClasses(TestCase):
     def setUp(self):
         self.maxDiff = None
