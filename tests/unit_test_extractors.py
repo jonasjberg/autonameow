@@ -21,9 +21,9 @@
 
 from unittest import TestCase
 
+from core import constants as C
 import extractors
 from extractors.text.common import AbstractTextExtractor
-from core import constants as C
 import unit_utils as uu
 import unit_utils_constants as uuconst
 
@@ -206,76 +206,6 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
 
     def test_get_extractor_classes_returns_at_least_three_extractors(self):
         self.assertGreaterEqual(len(self.actual), 3)
-
-
-class TestSuitableExtractorsForFile(TestCase):
-    extractor_class_names = [e.__name__ for e in extractors.ExtractorClasses]
-
-    def _assert_in_if_available(self, member, container):
-        """
-        Test with the currently available extractors.
-        """
-        if member in self.extractor_class_names:
-            self.assertIn(member, container)
-        else:
-            self.assertNotIn(member, container)
-
-    @staticmethod
-    def _get_suitable_extractors_for(fileobject):
-        return [c.__name__
-                for c in extractors.suitable_extractors_for(fileobject)]
-
-    def _check_returned_extractors_for(self, fileobject, expected, if_available):
-        actual = self._get_suitable_extractors_for(fileobject)
-        for x in expected:
-            with self.subTest(expected=x):
-                self.assertIn(x, actual)
-
-        for cx in if_available:
-            with self.subTest(expect_if_available=cx):
-                self._assert_in_if_available(cx, actual)
-
-        with self.subTest('Number of expected should >= number of actual'):
-            _num_total = len(expected) + len(if_available)
-            self.assertGreaterEqual(_num_total, len(actual))
-
-    def test_returns_expected_extractors_for_mp4_video_file(self):
-        self._check_returned_extractors_for(
-            fileobject=uu.get_mock_fileobject(mime_type='video/mp4'),
-            expected=['CrossPlatformFileSystemExtractor'],
-            if_available=['ExiftoolMetadataExtractor']
-        )
-
-    def test_returns_expected_extractors_for_png_image_file(self):
-        self._check_returned_extractors_for(
-            fileobject=uu.get_mock_fileobject(mime_type='image/png'),
-            expected=['CrossPlatformFileSystemExtractor'],
-            if_available=['ExiftoolMetadataExtractor',
-                          'TesseractOCRTextExtractor']
-        )
-
-    def test_returns_expected_extractors_for_pdf_file(self):
-        self._check_returned_extractors_for(
-            fileobject=uu.get_mock_fileobject(mime_type='application/pdf'),
-            expected=['CrossPlatformFileSystemExtractor'],
-            if_available=['ExiftoolMetadataExtractor',
-                          'PdftotextTextExtractor']
-        )
-
-    def test_returns_expected_extractors_for_text_file(self):
-        self._check_returned_extractors_for(
-            fileobject=uu.get_mock_fileobject(mime_type='text/plain'),
-            expected=['CrossPlatformFileSystemExtractor',
-                      'PlainTextExtractor'],
-            if_available=['ExiftoolMetadataExtractor']
-        )
-
-    def test_returns_expected_extractors_for_empty_file(self):
-        self._check_returned_extractors_for(
-            fileobject=uu.get_mock_fileobject(mime_type='inode/x-empty'),
-            expected=['CrossPlatformFileSystemExtractor'],
-            if_available=[]
-        )
 
 
 class TestMapMeowURIToExtractors(TestCase):

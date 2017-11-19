@@ -121,19 +121,6 @@ def get_extractor_classes(packages, modules):
     return out
 
 
-def suitable_extractors_for(fileobject):
-    """
-    Returns extractor classes that can handle the given file object.
-
-    Args:
-        fileobject: File to get extractors for as an instance of 'FileObject'.
-
-    Returns:
-        A list of extractor classes that can extract data from the given file.
-    """
-    return [e for e in ExtractorClasses if e.can_handle(fileobject)]
-
-
 def map_meowuri_to_extractors():
     """
     Returns a mapping of the extractor "meowURIs" and extractor classes.

@@ -87,6 +87,19 @@ def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
     return out
 
 
+def suitable_extractors_for(fileobject):
+    """
+    Returns extractor classes that can handle the given file object.
+
+    Args:
+        fileobject: File to get extractors for as an instance of 'FileObject'.
+
+    Returns:
+        A list of extractor classes that can extract data from the given file.
+    """
+    return [e for e in extractors.ExtractorClasses if e.can_handle(fileobject)]
+
+
 def start(fileobject,
           require_extractors=None,
           require_all_extractors=False):
@@ -108,7 +121,7 @@ def start(fileobject,
         _required_extractors = []
     log.debug('Required extractors: {!s}'.format(_required_extractors))
 
-    klasses = extractors.suitable_extractors_for(fileobject)
+    klasses = suitable_extractors_for(fileobject)
     log.debug('Extractors able to handle the file: {}'.format(len(klasses)))
 
     if not require_all_extractors:
