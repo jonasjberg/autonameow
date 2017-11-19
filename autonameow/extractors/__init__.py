@@ -99,12 +99,6 @@ def _get_module_classes(modules):
     return _abstract_extractor_classes, _extractor_classes
 
 
-def get_abstract_extractor_classes(extractor_files):
-    _p_abstract, _p_implemented = _get_package_classes(['metadata', 'text'])
-    _m_abstract, _m_implemented = _get_module_classes(extractor_files)
-    return _p_abstract + _m_abstract
-
-
 def get_extractor_classes(packages, modules):
     _p_abstract, _p_implemented = _get_package_classes(packages)
     _m_abstract, _m_implemented = _get_module_classes(modules)
