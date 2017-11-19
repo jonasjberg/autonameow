@@ -39,33 +39,22 @@ def collect_results(fileobject, meowuri_prefix, data):
     Args:
         fileobject: Instance of 'FileObject' that produced the data to add.
         meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
-        data: The data to add, as any type or container.
+        data: Data to add, as a dict containing the data and meta-information.
     """
-    # TODO: [TD0106] Fix inconsistencies in results passed back by extractors.
-    if not isinstance(data, dict):
-        log.debug('[TD0106] Got non-dict data "extraction.collect_results()"')
-        log.debug('[TD0106] Data type: {!s}'.format(type(data)))
-        log.debug('[TD0106] Data contents: {!s}'.format(data))
+    assert isinstance(data, dict), (
+        'Expected data of type "dict" in "extraction.collect_results()" '
+        ':: ({!s}) {!s}'.format(type(data), data)
+    )
 
-    if isinstance(data, dict):
-        for _uri_leaf, _data in data.items():
-            try:
-                _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
-            except InvalidMeowURIError as e:
-                log.critical(
-                    'Got invalid MeowURI from extractor -- !{!s}"'.format(e)
-                )
-                continue
-            repository.SessionRepository.store(fileobject, _meowuri, _data)
-    else:
+    for _uri_leaf, _data in data.items():
         try:
-            _meowuri = MeowURI(meowuri_prefix)
+            _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
         except InvalidMeowURIError as e:
             log.critical(
                 'Got invalid MeowURI from extractor -- !{!s}"'.format(e)
             )
-            return
-        repository.SessionRepository.store(fileobject, _meowuri, data)
+            continue
+        repository.SessionRepository.store(fileobject, _meowuri, _data)
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):

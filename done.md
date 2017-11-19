@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-11-19
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0106]` Fix inconsistencies in results passed back by extractors.
+
 * 2017-11-17
 
     > High Priority
