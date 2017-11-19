@@ -135,6 +135,12 @@ def map_meowuri_to_extractors():
     """
     Returns a mapping of the extractor "meowURIs" and extractor classes.
 
+    Example return value: {
+        'extractor.filesystem.xplat': [CrossPlatformFilesystemExtractor],
+        'extractor.metadata.exiftool': [ExiftoolMetadataExtractor],
+        'extractor.text.pdftotext': PdftotextTextExtractor
+    }
+
     Returns: A dictionary where the keys are Unicode string "meowURIs",
              with values beings lists of extractor classes.
     """
