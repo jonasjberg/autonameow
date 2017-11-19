@@ -154,27 +154,6 @@ def collect_results(fileobject, meowuri_prefix, data):
             return
         repository.SessionRepository.store(fileobject, _meowuri, data)
 
-    # if isinstance(data, dict):
-    #     flat_data = flatten_dict(data)
-    #     for _uri_leaf, _data in flat_data.items():
-    #         try:
-    #             _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
-    #         except InvalidMeowURIError as e:
-    #             log.critical(
-    #                 'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-    #             )
-    #             continue
-    #         repository.SessionRepository.store(fileobject, _meowuri, _data)
-    # else:
-    #     try:
-    #         _meowuri = MeowURI(meowuri_prefix)
-    #     except InvalidMeowURIError as e:
-    #         log.critical(
-    #             'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-    #         )
-    #         return
-    #     repository.SessionRepository.store(fileobject, _meowuri, data)
-
 
 def _instantiate_analyzers(fileobject, klass_list, config):
     """
