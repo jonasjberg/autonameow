@@ -36,9 +36,6 @@ class TestMsg(TestCase):
         self.maxDiff = None
         unittest.util._MAX_LENGTH = 2000
 
-    def test_msg_is_defined_and_available(self):
-        self.assertIsNotNone(msg)
-
     def test_msg_no_keyword_arguments(self):
         with uu.capture_stdout() as out:
             msg('text printed by msg()')

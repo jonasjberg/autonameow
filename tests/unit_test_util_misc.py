@@ -199,9 +199,6 @@ class TestFlattenDictWithRawMetadata(TestCase):
 
 
 class TestCountDictRecursive(TestCase):
-    def test_count_dict_recursive_function_is_defined(self):
-        self.assertIsNotNone(count_dict_recursive)
-
     def test_raises_exception_for_invalid_input(self):
         with self.assertRaises(TypeError):
             count_dict_recursive([])

@@ -45,9 +45,6 @@ class TestGuessitPlugin(TestCase):
 
 
 class TestRunGuessit(TestCase):
-    def test_run_guessit_is_defined(self):
-        self.assertIsNotNone(run_guessit)
-
     def test_run_guessit_no_options_returns_expected_type(self):
         actual = run_guessit('foo', options=None)
         self.assertTrue(isinstance(actual, dict))

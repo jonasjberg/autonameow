@@ -30,9 +30,6 @@ class TestFindPluginSourceFiles(TestCase):
     def setUp(self):
         pass
 
-    def test_find_plugin_files_is_defined(self):
-        self.assertIsNotNone(plugins.find_plugin_files)
-
     def test_find_plugin_files_returns_expected_type(self):
         actual = plugins.find_plugin_files()
         self.assertTrue(isinstance(actual, list))

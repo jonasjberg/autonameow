@@ -56,9 +56,6 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
         fo = uu.get_mock_fileobject()
         self.rm = RuleMatcher(fo, dummy_config)
 
-    def test_query_data_is_defined(self):
-        self.assertIsNotNone(self.rm._request_data)
-
     def test_query_data_returns_something(self):
         self.skipTest('TODO: Fix broken unit tests')
         self.assertIsNotNone(

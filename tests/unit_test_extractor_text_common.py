@@ -48,7 +48,7 @@ class TestAbstractTextExtractor(TestCase):
     def test_abstract_text_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
-    def test_method_str_is_defined_and_reachable(self):
+    def test_method_str_does_not_return_none(self):
         self.assertIsNotNone(str(self.e))
         self.assertIsNotNone(self.e.__str__)
 
@@ -58,9 +58,6 @@ class TestAbstractTextExtractor(TestCase):
 
     def test_method_str_returns_expected(self):
         self.assertEqual(str(self.e), 'AbstractTextExtractor')
-
-    def test_class_method_can_handle_is_defined(self):
-        self.assertIsNotNone(self.e.can_handle)
 
     def test_class_method_can_handle_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

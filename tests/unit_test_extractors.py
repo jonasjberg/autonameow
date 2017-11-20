@@ -122,9 +122,6 @@ class TestBaseExtractorClassMethods(TestCase):
 
 
 class TestFindExtractorModuleSourceFiles(TestCase):
-    def test_find_extractor_module_files_is_defined(self):
-        self.assertIsNotNone(extractors.find_extractor_module_files)
-
     def test_returns_expected_type(self):
         actual = extractors.find_extractor_module_files()
         self.assertTrue(isinstance(actual, list))

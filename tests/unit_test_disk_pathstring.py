@@ -187,9 +187,6 @@ class TestBasenamePrefix(TestCase):
 
 
 class TestCompareBasenames(TestCase):
-    def test_compare_basenames_is_defined(self):
-        self.assertIsNotNone(compare_basenames)
-
     def test_compare_basenames_raises_exceptions_given_invalid_input(self):
         def _raises(exception_, a, b):
             with self.assertRaises(exception_):

@@ -71,9 +71,6 @@ class TestEvalMagicGlob(TestCase):
         self.assertTrue(isinstance(actual, bool))
         self.assertTrue(actual)
 
-    def test_eval_magic_blob_is_defined(self):
-        self.assertIsNotNone(mimemagic.eval_glob)
-
     def test_eval_magic_blob_returns_false_given_bad_arguments(self):
         self.assertIsNotNone(mimemagic.eval_glob(None, None))
         self.assertFalse(mimemagic.eval_glob(None, None))

@@ -103,8 +103,7 @@ class TestBaseAnalyzer(TestCase):
         with self.assertRaises(AttributeError):
             self.a.get_publisher()
 
-    def test_class_method_can_handle_is_defined_and_does_not_return_none(self):
-        self.assertIsNotNone(self.a.can_handle)
+    def test_class_method_can_handle_does_not_return_none(self):
         self.assertIsNotNone(self.a.can_handle(self.dummy_fo))
 
     def test_class_method_can_handle_returns_false(self):
@@ -112,9 +111,6 @@ class TestBaseAnalyzer(TestCase):
 
 
 class TestFindAnalyzerSourceFiles(TestCase):
-    def test_find_analyzer_files_is_defined(self):
-        self.assertIsNotNone(analyzers.find_analyzer_files)
-
     def test_find_analyzer_files_returns_expected_type(self):
         actual = analyzers.find_analyzer_files()
         self.assertTrue(isinstance(actual, list))

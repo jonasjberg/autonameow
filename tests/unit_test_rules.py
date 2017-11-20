@@ -33,11 +33,6 @@ uu.init_session_repository()
 uu.init_provider_registry()
 
 
-class TestRuleCondition(TestCase):
-    def test_rulecondition_is_defined(self):
-        self.assertIsNotNone(rules.RuleCondition)
-
-
 class TestRuleConditionFromValidInput(TestCase):
     def _assert_valid(self, query, data):
         _meowuri = MeowURI(query)

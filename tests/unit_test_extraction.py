@@ -92,10 +92,7 @@ class TestKeepSlowExtractorsIfRequiredWithSlowExtractor(TestCase):
 
         self.input = [self.fast, self.fast, self.slow]
 
-    def test_keep_slow_extractors_if_required_is_defined(self):
-        self.assertIsNotNone(extraction.keep_slow_extractors_if_required)
-
-    def test_slow_extractor_are_excluded_if_not_required(self):
+    def test_slow_extractors_are_excluded_if_not_required(self):
         actual = extraction.keep_slow_extractors_if_required(self.input, [])
 
         self.assertNotIn(self.slow, actual,
@@ -103,7 +100,7 @@ class TestKeepSlowExtractorsIfRequiredWithSlowExtractor(TestCase):
         self.assertNotEqual(len(self.input), len(actual),
                             'Expect one less extractor class in the output')
 
-    def test_slow_extractor_are_included_if_required(self):
+    def test_slow_extractors_are_included_if_required(self):
         required = [self.slow]
         actual = extraction.keep_slow_extractors_if_required(self.input,
                                                              required)
@@ -119,9 +116,6 @@ class TestKeepSlowExtractorsIfRequired(TestCase):
         self.slow = MockSlowExtractor
 
         self.input = [self.fast, self.fast, self.fast]
-
-    def test_keep_slow_extractors_if_required_is_defined(self):
-        self.assertIsNotNone(extraction.keep_slow_extractors_if_required)
 
     def test_slow_extractor_are_excluded_if_not_required(self):
         actual = extraction.keep_slow_extractors_if_required(self.input, [])
