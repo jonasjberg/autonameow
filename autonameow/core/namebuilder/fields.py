@@ -394,10 +394,11 @@ class Time(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
+        _value = data.get('value')
         c = kwargs.get('config')
         if c:
             datetime_format = c.options['DATETIME_FORMAT']['time']
-            return formatted_datetime(data.get('value'), datetime_format)
+            return formatted_datetime(_value, datetime_format)
         else:
             raise exceptions.NameBuilderError('Unknown "time" format')
 
