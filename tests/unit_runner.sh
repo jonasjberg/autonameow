@@ -77,6 +77,34 @@ else
 fi
 
 
+HAS_PYTEST='false'
+if command -v "pytest" >/dev/null 2>&1
+then
+    HAS_PYTEST='true'
+fi
+
+
+if [ "$option_write_report" == 'true' ]
+then
+    # Make sure required executables are available.
+    if [ "$HAS_PYTEST" != 'true' ]
+    then
+        echo "This script requires \"pytest\" to generate HTML reports." 1>&2
+        echo "Install using pip by executing:  pip3 install pytest"
+        exit 1
+    fi
+
+    # Workaround for pytest crashing when writing something other than stdout ..
+    _pytesthelp="$(pytest --help 2>&1)"
+    if ! grep -q -- '--html' <<< "$_pytesthelp"
+    then
+        echo "This script requires \"pytest-html\" to generate HTML reports." 1>&2
+        echo "Install using pip by executing:  pip3 install pytest-html"
+        exit 1
+    fi
+fi
+
+
 _timestamp="$(date "+%Y-%m-%dT%H%M%S")"
 _unittest_log="${AUTONAMEOW_TESTRESULTS_DIR}/unittest_log_${_timestamp}.html"
 if [ -e "$_unittest_log" ]
@@ -94,10 +122,24 @@ run_unittest()
     )
 }
 
-PYTHONPATH=autonameow:tests python3 -m unittest
+run_pytest()
+{
+    _pytest_report_opts=''
+    [ "$option_write_report" != 'true' ] || _pytest_report_opts="--self-contained-html --html="${_unittest_log}""
+    (
+      cd "$AUTONAMEOW_ROOT_DIR" || return 1
+      PYTHONPATH=autonameow:tests pytest ${_pytest_report_opts} tests/unit_test_*.py
+    )
+}
+
 
 count_fail=0
-run_task "$option_quiet" "Running \"unittest\"" run_unittest
+if [ "$HAS_PYTEST" != 'true' ]
+then
+    run_task "$option_quiet" "Running \"unittest\"" run_unittest
+else
+    run_task "$option_quiet" "Running \"pytest\"" run_pytest
+fi
 
 
 if [ -s "$_unittest_log" ]
