@@ -600,10 +600,11 @@ def _run_extraction(fileobject, require_extractors, run_all_extractors=False):
     Raises:
         AutonameowException: An unrecoverable error occurred during extraction.
     """
+    runner = extraction.get_extractor_runner()
     try:
-        extraction.start(fileobject,
-                         require_extractors=require_extractors,
-                         require_all_extractors=run_all_extractors is True)
+        runner.start(fileobject,
+                     request_extractors=require_extractors,
+                     request_all=run_all_extractors)
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
         raise

@@ -100,71 +100,6 @@ def suitable_extractors_for(fileobject):
     return [e for e in extractors.ExtractorClasses if e.can_handle(fileobject)]
 
 
-def start(fileobject,
-          require_extractors=None,
-          require_all_extractors=False):
-    """
-    Starts extracting data for a given 'fileobject'.
-    """
-    log.debug(' Extraction Started '.center(80, '='))
-
-    assert isinstance(fileobject, FileObject), (
-        'Expected type "FileObject". Got {!s}'.format(type(fileobject)))
-
-    if require_extractors:
-        assert isinstance(require_extractors, list), (
-            'Expected "require_extractors" to be a list. Got {!s}'.format(
-                type(require_extractors))
-        )
-        _required_extractors = list(require_extractors)
-    else:
-        _required_extractors = []
-    log.debug('Required extractors: {!s}'.format(_required_extractors))
-
-    klasses = suitable_extractors_for(fileobject)
-    log.debug('Extractors able to handle the file: {}'.format(len(klasses)))
-
-    if not require_all_extractors:
-        # Exclude "slow" extractors if they are not explicitly required.
-        klasses = keep_slow_extractors_if_required(klasses,
-                                                   _required_extractors)
-
-    # TODO: Use sets for required/actual klasses to easily display differences.
-    # Which required extractors were not "suitable" for the file and therefore
-    # not included?
-
-    log.debug('Running {} extractors'.format(len(klasses)))
-    for klass in klasses:
-        _extractor_instance = klass()
-        if not _extractor_instance:
-            log.critical('Error instantiating extractor "{!s}"!'.format(klass))
-            continue
-
-        try:
-            _metainfo = _extractor_instance.metainfo()
-        except (ExtractorError, NotImplementedError) as e:
-            log.error('Failed to get meta info! Halted extractor "{!s}":'
-                      ' {!s}'.format(_extractor_instance, e))
-            continue
-
-        try:
-            _extracted_data = _extractor_instance.extract(fileobject)
-        except (ExtractorError, NotImplementedError) as e:
-            log.error('Failed to extract data! Halted extractor "{!s}":'
-                      ' {!s}'.format(_extractor_instance, e))
-            continue
-
-        if not _extracted_data:
-            continue
-
-        _results = _wrap_extracted_data(_extracted_data, _metainfo,
-                                        _extractor_instance)
-        _meowuri_prefix = klass.meowuri_prefix()
-        collect_results(fileobject, _meowuri_prefix, _results)
-
-    log.debug(' Extraction Completed '.center(80, '='))
-
-
 def _wrap_extracted_data(extracteddata, metainfo, source_klass):
     out = {}
 
@@ -178,3 +113,111 @@ def _wrap_extracted_data(extracteddata, metainfo, source_klass):
         out[field] = field_metainfo
 
     return out
+
+
+def filter_able_to_handle(extractor_klasses, fileobject):
+    return {k for k in extractor_klasses if k.can_handle(fileobject)}
+
+
+def filter_meowuri_prefix(extractor_klasses, match_string):
+    assert isinstance(match_string, str)
+    return {k for k in extractor_klasses
+            if k.meowuri_prefix().startswith(match_string)}
+
+
+def filter_not_slow(extractor_klasses):
+    return {k for k in extractor_klasses if not k.is_slow}
+
+
+class ExtractorRunner(object):
+    def __init__(self, available_extractors=None, add_results_callback=None):
+        if not available_extractors:
+            self._available_extractors = set()
+        else:
+            self._available_extractors = set(available_extractors)
+
+        # TODO: Separate repository from the runner ('extract.py' use-case)
+        self.add_results_callback = add_results_callback
+        self.exclude_slow = True
+
+    def start(self, fileobject, request_extractors=None, request_all=None):
+        log.debug(' Extractor Runner Started '.center(80, '='))
+        assert isinstance(fileobject, FileObject), (
+            'Expected type "FileObject". Got {!s}'.format(type(fileobject)))
+
+        _requested_extractors = set()
+        if request_extractors:
+            _requested_extractors = set(request_extractors)
+
+        _request_all = False
+        if request_all is not None:
+            _request_all = bool(request_all)
+
+        klasses = set(self._available_extractors)
+        log.debug('Available extractors: {}'.format(len(klasses)))
+        for k in klasses:
+            log.debug('Available: {!s}'.format(str(k.__name__)))
+
+        if not _request_all:
+            if self.exclude_slow:
+                klasses = filter_not_slow(klasses)
+                log.debug('Removed slow extractors. Remaining: {}'.format(
+                    len(klasses)
+                ))
+
+            # Add back requested slow extractors.
+            if _requested_extractors:
+                log.debug('Requested {} extractors'.format(
+                    len(_requested_extractors)
+                ))
+                for k in _requested_extractors:
+                    log.debug('Requested:  {!s}'.format(str(k.__name__)))
+                klasses.union(_requested_extractors)
+
+        log.debug('Available extractors: {}'.format(len(klasses)))
+        # Get only extractors suitable for the given file.
+        klasses = filter_able_to_handle(klasses, fileobject)
+
+        log.debug('Prepared {} extractors that can handle "{!s}"'.format(
+            len(klasses), fileobject
+        ))
+        for k in klasses:
+            log.debug('Prepared:  {!s}'.format(str(k.__name__)))
+
+        log.debug(' Extraction Started '.center(80, '='))
+        self._run_extractors(fileobject, klasses)
+        log.debug(' Extraction Completed '.center(80, '='))
+
+    @staticmethod
+    def _run_extractors(fileobject, klasses):
+        for klass in klasses:
+            _extractor_instance = klass()
+            if not _extractor_instance:
+                log.critical('Error instantiating extractor "{!s}"!'.format(klass))
+                continue
+
+            try:
+                _metainfo = _extractor_instance.metainfo()
+            except (ExtractorError, NotImplementedError) as e:
+                log.error('Failed to get meta info! Halted extractor "{!s}":'
+                          ' {!s}'.format(_extractor_instance, e))
+                continue
+
+            try:
+                _extracted_data = _extractor_instance.extract(fileobject)
+            except (ExtractorError, NotImplementedError) as e:
+                log.error('Failed to extract data! Halted extractor "{!s}":'
+                          ' {!s}'.format(_extractor_instance, e))
+                continue
+
+            if not _extracted_data:
+                continue
+
+            _results = _wrap_extracted_data(_extracted_data, _metainfo,
+                                            _extractor_instance)
+            _meowuri_prefix = klass.meowuri_prefix()
+            collect_results(fileobject, _meowuri_prefix, _results)
+
+
+def get_extractor_runner():
+    return ExtractorRunner(available_extractors=extractors.ExtractorClasses)

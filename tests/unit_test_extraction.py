@@ -23,28 +23,72 @@ from unittest import TestCase
 
 import extractors
 from core import extraction
-from core.extraction import suitable_extractors_for
+from core.extraction import (
+    ExtractorRunner,
+    suitable_extractors_for
+)
 import unit_utils as uu
 import unit_utils_constants as uuconst
 
 
-class TestExtraction(TestCase):
-    def test_TODO(self):
-        self.skipTest('TODO: Add tests of extraction')
+class TestExtractorRunnerWithNoAvailableExtractors(TestCase):
+    def setUp(self):
+        self.er = ExtractorRunner()
+
+    # def test_available_extractors_returns_empty_list(self):
+    #     actual = self.er.available_extractors
+    #     self.assertEqual(actual, [])
 
 
-class _DummyExtractor(object):
+class MockExtractor(object):
     is_slow = False
 
+    def __init__(self):
+        pass
 
-class _DummySlowExtractor(object):
+    @classmethod
+    def can_handle(cls, fileobject):
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return True
+        return False
+
+
+class MockSlowExtractor(MockExtractor):
     is_slow = True
+
+
+class TestExtractorRunnerWithOneAvailableExtractor(TestCase):
+    def setUp(self):
+        self.er = ExtractorRunner(available_extractors=[MockExtractor])
+
+    # def test_available_extractors_returns_one_extractor(self):
+    #     actual = self.er.available_extractors
+    #     self.assertEqual(actual, [MockExtractor])
+
+    # def test_suitable_extractors_for_returns_mock_extractor(self):
+    #     fo = uu.get_mock_fileobject(mime_type='text/plain')
+    #     actual = self.er.suitable_extractors_for(fo)
+    #     self.assertEqual(actual, [MockExtractor])
+
+
+class TestExtractorRunnerUsageA(TestCase):
+    def setUp(self):
+        self.er = ExtractorRunner(available_extractors=[MockExtractor])
+
+    # def test_foo(self):
+    #     er = ExtractorRunner(available_extractors=[MockExtractor])
+    #     er.skip_slow = False
+    #     er.filter = None
+    #     er.extractfrom(fo)
 
 
 class TestKeepSlowExtractorsIfRequiredWithSlowExtractor(TestCase):
     def setUp(self):
-        self.fast = _DummyExtractor
-        self.slow = _DummySlowExtractor
+        self.fast = MockExtractor
+        self.slow = MockSlowExtractor
 
         self.input = [self.fast, self.fast, self.slow]
 
@@ -71,8 +115,8 @@ class TestKeepSlowExtractorsIfRequiredWithSlowExtractor(TestCase):
 
 class TestKeepSlowExtractorsIfRequired(TestCase):
     def setUp(self):
-        self.fast = _DummyExtractor
-        self.slow = _DummySlowExtractor
+        self.fast = MockExtractor
+        self.slow = MockSlowExtractor
 
         self.input = [self.fast, self.fast, self.fast]
 
