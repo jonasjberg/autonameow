@@ -310,18 +310,17 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
 
 
 class TestLoadRegressiontests(TestCase):
-    def setUp(self):
-        self.actual = load_regressiontests()
+    actual_loaded = load_regressiontests()
 
     def test_returns_list(self):
-        self.assertTrue(isinstance(self.actual, list))
+        self.assertTrue(isinstance(self.actual_loaded, list))
 
     def test_returns_list_of_dicts(self):
-        for a in self.actual:
+        for a in self.actual_loaded:
             self.assertEqual(type(a), dict)
 
     def test_returns_at_least_one_test(self):
-        self.assertGreaterEqual(len(self.actual), 1)
+        self.assertGreaterEqual(len(self.actual_loaded), 1)
 
 
 class TestAutonameowWrapper(TestCase):
