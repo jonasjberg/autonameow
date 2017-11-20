@@ -499,20 +499,5 @@ def nametemplatefield_classes_in_formatstring(format_string):
 
 
 def formatted_datetime(datetime_object, format_string):
-    """
-    Takes a date/time string, converts it to a datetime object and
-    returns a formatted version on the form specified with "format_string".
-
-    Note that the parsing of "datetime_string" might fail.
-    TODO: Handle the [raw data] -> [formatted datetime] conversion better!
-
-    Args:
-        datetime_object: Date/time information as a datetime object.
-        format_string: The format string to use for the output. Refer to:
-            https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
-
-    Returns:
-        A string in the specified format with the data from the given string.
-    """
     assert isinstance(datetime_object, datetime.datetime)
     return datetime_object.strftime(format_string)
