@@ -349,19 +349,25 @@ class Tags(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        _tags = []
-        for d in data.get('value'):
-            assert isinstance(d, str)
-            _tags.append(d)
+        _value = data.get('value')
+        _tag_list = types.listof(types.AW_STRING)(_value)
+
+        # TODO: Is this kind of double-double-check really necessary..?
+        assert isinstance(_tag_list, list)
+        for t in _tag_list:
+            assert isinstance(t, str)
+
+        if len(_tag_list) == 1:
+            # Single tag doesn't need to be joined.
+            return _tag_list[0]
 
         c = kwargs.get('config')
         if c:
             sep = c.options['FILETAGS_OPTIONS']['between_tag_separator']
             sanity.check_internal_string(sep)
-            return sep.join(_tags)
+            return sep.join(_tag_list)
         else:
             raise exceptions.NameBuilderError('Unknown "between_tag_separator"')
-        pass
 
 
 class Time(NameTemplateField):
