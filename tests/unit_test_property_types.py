@@ -25,7 +25,9 @@ try:
     from hypothesis import given
     from hypothesis.strategies import (
         binary,
+        booleans,
         characters,
+        integers,
         text
     )
 except ImportError:
@@ -77,3 +79,22 @@ class TestCoerceString(TestCase):
     def test_character_input(self, s):
         coerced_string = types.AW_STRING(s)
         self.assertEqual(coerced_string, s)
+
+    @given(binary())
+    def test_binary_input_raises_only_expected_exception(self, s):
+        try:
+            coerced_string = types.AW_STRING(s)
+        except types.AWTypeError:
+            return
+        except Exception as e:
+            raise AssertionError('AW_STRING("{!s}") raised: {!s}'.format(s, e))
+
+    @given(integers())
+    def test_integer_input(self, s):
+        coerced_string = types.AW_STRING(s)
+        self.assertEqual(coerced_string, str(s))
+
+    @given(booleans())
+    def test_boolean_input(self, s):
+        coerced_string = types.AW_STRING(s)
+        self.assertIn(coerced_string, ('True', 'False'))
