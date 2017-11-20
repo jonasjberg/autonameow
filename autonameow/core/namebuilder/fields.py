@@ -91,6 +91,7 @@ class Title(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
+        # TODO: [TD0129] Data validation at this point should be made redundant
         if data.get('coercer') in (types.AW_PATHCOMPONENT, types.AW_PATH):
             string = types.force_string(data.get('value'))
             if not string:
@@ -144,6 +145,7 @@ class Edition(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
+        # TODO: [TD0129] Data validation at this point should be made redundant
         if data.get('coercer') in (types.AW_PATHCOMPONENT, types.AW_PATH):
             string = types.force_string(data.get('value'))
             if not string:
@@ -177,6 +179,7 @@ class Extension(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
+        # TODO: [TD0129] Data validation at this point should be made redundant
         value = data.get('value')
         coercer = data.get('coercer')
         if coercer:
@@ -202,6 +205,7 @@ class Author(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
+        # TODO: [TD0129] Data validation at this point should be made redundant
         if isinstance(data.get('value'), list):
             # Multiple authors
             _formatted = []
@@ -264,6 +268,7 @@ class DateTime(NameTemplateField):
     def format(cls, data, *args, **kwargs):
         _datetime_data = data.get('value')
         if not _datetime_data:
+        # TODO: [TD0129] Data validation at this point should be made redundant
             raise exceptions.NameBuilderError(
                 '{!s}.format() got empty data'.format(cls)
             )
@@ -291,6 +296,7 @@ class Date(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
+        # TODO: [TD0129] Data validation at this point should be made redundant
         _value = data.get('value')
         if not _value:
             raise exceptions.NameBuilderError(
@@ -364,7 +370,7 @@ class Tags(NameTemplateField):
         _value = data.get('value')
         _tag_list = types.listof(types.AW_STRING)(_value)
 
-        # TODO: Is this kind of double-double-check really necessary..?
+        # TODO: [TD0129] Is this kind of double-double-check really necessary..?
         assert isinstance(_tag_list, list)
         for t in _tag_list:
             assert isinstance(t, str)

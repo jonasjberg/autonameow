@@ -41,6 +41,8 @@ High Priority
 
 * `[TD0128]` Clean up boundaries/interface to the `plugins` package.
 
+* `[TD0129]` Enforce passing validated data to `NameTemplateField.format()`.
+
 
 Medium Priority
 ---------------
