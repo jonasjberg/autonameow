@@ -36,6 +36,43 @@ from util import encoding as enc
 log = logging.getLogger(__name__)
 
 
+class FilenamePostprocessor(object):
+    def __init__(self, lowercase_filename=None, uppercase_filename=None,
+                 regex_replacements=None):
+        self.lowercase_filename = lowercase_filename or False
+        self.uppercase_filename = uppercase_filename or False
+
+        # List of tuples containing a compiled regex and a unicode string.
+        self.regex_replacements = regex_replacements or []
+
+    def __call__(self, filename):
+        _filename = filename
+
+        # Do replacements first as the regular expressions are case-sensitive.
+        if self.regex_replacements:
+            _filename = self._do_replacements(_filename,
+                                              self.regex_replacements)
+        if self.lowercase_filename:
+            _filename = _filename.lower()
+        elif self.uppercase_filename:
+            _filename = _filename.upper()
+
+        return _filename
+
+    @staticmethod
+    def _do_replacements(filename, replacements):
+        for regex, replacement in replacements:
+            _match = re.search(regex, filename)
+            if _match:
+                log.debug('Applying custom replacement. Regex: "{!s}" '
+                          'Replacement: "{!s}"'.format(regex, replacement))
+                msg_replacement(filename, replacement, regex,
+                                color=C.REPLACEMENT_HIGHLIGHT_COLOR)
+
+                filename = re.sub(regex, replacement, filename)
+        return filename
+
+
 def build(config, name_template, field_data_map):
     """
     Constructs a new filename given a name template and a dict mapping
@@ -86,26 +123,17 @@ def build(config, name_template, field_data_map):
         log.debug('Skipped sanitizing filename')
 
     # Do any case-transformations.
-    if config.get(['CUSTOM_POST_PROCESSING', 'lowercase_filename']):
-        new_name = new_name.lower()
-    elif config.get(['CUSTOM_POST_PROCESSING', 'uppercase_filename']):
-        new_name = new_name.upper()
-
-    # Do any user-defined "custom post-processing".
-    replacements = config.get(['CUSTOM_POST_PROCESSING', 'replacements'])
-    if replacements:
-        for regex, replacement in replacements:
-            _match = re.search(regex, new_name)
-            if _match:
-                log.debug('Applying custom replacement. Regex: "{!s}" '
-                          'Replacement: "{!s}"'.format(regex, replacement))
-                msg_replacement(new_name, replacement, regex,
-                                color=C.REPLACEMENT_HIGHLIGHT_COLOR)
-
-                new_name = re.sub(regex, replacement, new_name)
+    postprocessor = FilenamePostprocessor(
+        lowercase_filename=config.get(['CUSTOM_POST_PROCESSING',
+                                       'lowercase_filename']),
+        uppercase_filename=config.get(['CUSTOM_POST_PROCESSING',
+                                       'uppercase_filename']),
+        regex_replacements=config.get(['CUSTOM_POST_PROCESSING',
+                                       'replacements'])
+    )
+    new_name = postprocessor(new_name)
 
     # TODO: [TD0036] Allow per-field replacements and customization.
-
     return new_name
 
 
