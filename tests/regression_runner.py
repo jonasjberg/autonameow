@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import shutil
 import sys
 import time
 
@@ -36,7 +37,7 @@ from regression_utils import (
 )
 
 
-TERMINAL_WIDTH = 120
+TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120,48))
 msg_label_pass = ui.colorize('P', fore='GREEN')
 msg_label_fail = ui.colorize('F', fore='RED')
 
@@ -128,6 +129,10 @@ def msg_overall_failure():
     print(ui.colorize(_center_with_fill('  SOME TESTS FAILED  '), fore='RED'))
 
 
+MAX_DESCRIPTION_LENGTH = TERMINAL_WIDTH - 70
+assert MAX_DESCRIPTION_LENGTH > 0, 'Terminal is not wide enough ..'
+
+
 def msg_test_start(shortname, description):
     if VERBOSE:
         _desc = ui.colorize(description, style='DIM')
@@ -135,12 +140,12 @@ def msg_test_start(shortname, description):
         print('Running "{}"'.format(shortname))
         print(_desc)
     else:
-        MAXLEN = 51
+        maxlen = MAX_DESCRIPTION_LENGTH
         _desc_len = len(description)
-        if _desc_len > MAXLEN:
-            _desc = description[0:MAXLEN] + '..'
+        if _desc_len > maxlen:
+            _desc = description[0:maxlen] + '..'
         else:
-            _desc = description + ' '*(2 + MAXLEN - _desc_len)
+            _desc = description + ' '*(2 + maxlen - _desc_len)
 
         _colordesc = ui.colorize(_desc, style='DIM')
         print('{:30.30s} {!s} '.format(shortname, _colordesc), end='')
@@ -154,12 +159,12 @@ def msg_test_skipped(shortname, description):
         print('{} "{!s}"'.format(_label, shortname))
         print(_desc)
     else:
-        MAXLEN = 51
+        maxlen = MAX_DESCRIPTION_LENGTH
         _desc_len = len(description)
-        if _desc_len > MAXLEN:
-            _desc = description[0:MAXLEN] + '..'
+        if _desc_len > maxlen:
+            _desc = description[0:maxlen] + '..'
         else:
-            _desc = description + ' '*(2 + MAXLEN - _desc_len)
+            _desc = description + ' '*(2 + maxlen - _desc_len)
 
         _colordesc = ui.colorize(_desc, style='DIM')
         _label = ui.colorize('[SKIPPED]', fore='YELLOW')
