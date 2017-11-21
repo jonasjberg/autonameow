@@ -27,40 +27,6 @@ from core.namebuilder.builder import FilenamePostprocessor
 
 
 class TestFilenamePostprocessor(TestCase):
-    def test_lowercase_filename_true(self):
-        p = FilenamePostprocessor(lowercase_filename=True)
-        actual = p('Foo Bar')
-        self.assertEqual(actual, 'foo bar')
-
-    def test_lowercase_filename_false(self):
-        p = FilenamePostprocessor(lowercase_filename=False)
-        actual = p('Foo Bar')
-        self.assertEqual(actual, 'Foo Bar')
-
-    def test_uppercase_filename_true(self):
-        p = FilenamePostprocessor(uppercase_filename=True)
-        actual = p('Foo Bar')
-        self.assertEqual(actual, 'FOO BAR')
-
-    def test_uppercase_filename_false(self):
-        p = FilenamePostprocessor(uppercase_filename=False)
-        actual = p('Foo Bar')
-        self.assertEqual(actual, 'Foo Bar')
-
-    def test_lowercase_filename_true_and_uppercase_filename_true(self):
-        p = FilenamePostprocessor(uppercase_filename=True,
-                                  lowercase_filename=True)
-        actual = p('Foo Bar')
-        self.assertEqual(actual, 'foo bar')
-
-    def test_no_replacements(self):
-        for reps in [None, {}]:
-            p = FilenamePostprocessor(regex_replacements=reps)
-            actual = p('Foo Bar')
-            self.assertEqual(actual, 'Foo Bar')
-
-
-class TestFilenamePostprocessor2(TestCase):
     def __check_call(self, **kwargs):
         given = kwargs.pop('given')
         expect = kwargs.pop('expect')
@@ -91,23 +57,21 @@ class TestFilenamePostprocessor2(TestCase):
 
     def test_no_replacements(self):
         for reps in [None, {}]:
-            p = FilenamePostprocessor(regex_replacements=reps)
-            actual = p('Foo Bar')
-            self.assertEqual(actual, 'Foo Bar')
+            with self.subTest(reps=reps):
+                self.__check_call(given='Foo Bar', expect='Foo Bar',
+                                  regex_replacements=reps)
 
     def test_one_replacement(self):
         reps = [
             (re.compile(r'Foo'), 'Mjao')
         ]
-        p = FilenamePostprocessor(regex_replacements=reps)
-        actual = p('Foo Bar')
-        self.assertEqual(actual, 'Mjao Bar')
+        self.__check_call(given='Foo Bar', expect='Mjao Bar',
+                          regex_replacements=reps)
 
     def test_two_replacements(self):
         reps = [
             (re.compile(r'Foo'), 'Mjao'),
             (re.compile(r' '), 'X'),
         ]
-        p = FilenamePostprocessor(regex_replacements=reps)
-        actual = p('Foo Bar')
-        self.assertEqual(actual, 'MjaoXBar')
+        self.__check_call(given='Foo Bar', expect='MjaoXBar',
+                          regex_replacements=reps)
