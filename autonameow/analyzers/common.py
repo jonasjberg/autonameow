@@ -155,7 +155,9 @@ class BaseAnalyzer(object):
         _meowuri = '{}.{}'.format(self.meowuri_prefix(), meowuri_leaf)
         _existing_data = self.results.get(_meowuri)
         if _existing_data:
-            self.results[_meowuri] = [_existing_data] + [data]
+            if not isinstance(_existing_data, list):
+                _existing_data = [_existing_data]
+            self.results[_meowuri] = _existing_data + [data]
         else:
             self.results[_meowuri] = data
 
