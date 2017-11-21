@@ -52,6 +52,8 @@ class FilenamePostprocessor(object):
         if self.regex_replacements:
             _filename = self._do_replacements(_filename,
                                               self.regex_replacements)
+
+        # Convert to lower-case if both upper- and lower- are enabled.
         if self.lowercase_filename:
             _filename = _filename.lower()
         elif self.uppercase_filename:
