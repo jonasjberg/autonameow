@@ -41,12 +41,15 @@ class RegressionTestError(exceptions.AutonameowException):
     """Error caused by an invalid regression test."""
 
 
-def read_plaintext_file(file_path):
+def read_plaintext_file(file_path, ignore_errors=None):
     try:
         with open(file_path, 'r', encoding=C.DEFAULT_ENCODING) as fh:
             contents = fh.read()
     except (FileNotFoundError, UnicodeDecodeError) as e:
-        raise RegressionTestError(e)
+        if ignore_errors:
+            return ''
+        else:
+            raise RegressionTestError(e)
     else:
         return contents
 
@@ -65,7 +68,7 @@ class RegressionTestLoader(object):
 
     def _get_test_setup_dict_from_files(self):
         _abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
-        _description = read_plaintext_file(_abspath_desc)
+        _description = read_plaintext_file(_abspath_desc, ignore_errors=True)
 
         _abspath_opts = self._joinpath(self.BASENAME_YAML_OPTIONS)
         try:
@@ -73,6 +76,11 @@ class RegressionTestLoader(object):
         except exceptions.FilesystemError as e:
             raise RegressionTestError(e)
 
+        if not _options:
+            log.warning(
+                'Read empty options from file: "{!s}"'.format(_abspath_opts)
+            )
+            _options = {}
         _options = self._set_testfile_path(_options)
         _options = self._set_config_path(_options)
 
@@ -82,15 +90,22 @@ class RegressionTestLoader(object):
         except exceptions.FilesystemError as e:
             raise RegressionTestError(e)
 
+        if not _asserts:
+            raise RegressionTestError(
+                'Read empty asserts from file: "{!s}"'.format(_abspath_asserts)
+            )
+
         _abspath_skip = self._joinpath(self.BASENAME_SKIP)
         if uu.file_exists(_abspath_skip):
             _skiptest = True
         else:
             _skiptest = False
 
+        assert isinstance(_asserts, dict)
+        assert isinstance(_options, dict)
         return {
             'asserts': _asserts,
-            'description': _description.strip(),
+            'description': _description.strip() or '(description unavailable)',
             'options': _options,
             'skiptest': _skiptest
         }
