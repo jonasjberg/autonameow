@@ -489,7 +489,7 @@ class Configuration(object):
         if 'FILESYSTEM_OPTIONS' in self._data:
             _user_ignores = self._data['FILESYSTEM_OPTIONS'].get('ignore')
             if isinstance(_user_ignores, list):
-                _user_ignores = util.filter_none(_user_ignores)
+                _user_ignores = [i for i in _user_ignores if i is not None]
                 if _user_ignores:
                     for _ui in _user_ignores:
                         log.debug('Added filesystem option :: '

@@ -362,13 +362,6 @@ def contains_none(iterable):
     return not iterable or None in iterable
 
 
-def filter_none(iterable):
-    """
-    Removes any None values from the given iterable and returns the result.
-    """
-    return [item for item in iterable if item is not None]
-
-
 def process_id():
     return os.getpid()
 
