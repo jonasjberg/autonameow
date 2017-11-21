@@ -58,11 +58,12 @@ This script accepts optional argument flags, described in the usage text;
   USAGE:  unit_runner.sh ([OPTIONS])
 
   OPTIONS:  -h   Display usage information and exit.
+            -c   Enable checking unit test coverage.
             -w   Write HTML test reports to disk.
                  Note: the "raw" log file is always written.
             -q   Suppress output from test suites.
 
-  All options are optional. Default behaviour is to export test result
+  All options are optional. Default behaviour is to not write any
   reports and print the test results to stdout/stderr in real-time.
 ```
 
