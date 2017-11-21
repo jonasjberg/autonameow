@@ -193,24 +193,27 @@ class ExtractorRunner(object):
         for klass in klasses:
             _extractor_instance = klass()
             if not _extractor_instance:
-                log.critical('Error instantiating extractor "{!s}"!'.format(klass))
+                log.critical('Error instantiating "{!s}" (!!)'.format(klass))
                 continue
 
             try:
                 _metainfo = _extractor_instance.metainfo()
             except (ExtractorError, NotImplementedError) as e:
-                log.error('Failed to get meta info! Halted extractor "{!s}":'
+                log.error('Unable to get meta info! Aborting extractor "{!s}":'
                           ' {!s}'.format(_extractor_instance, e))
                 continue
 
             try:
                 _extracted_data = _extractor_instance.extract(fileobject)
             except (ExtractorError, NotImplementedError) as e:
-                log.error('Failed to extract data! Halted extractor "{!s}":'
+                log.error('Unable to extract data! Aborting extractor "{!s}":'
                           ' {!s}'.format(_extractor_instance, e))
                 continue
 
             if not _extracted_data:
+                log.warning('Got empty data from extractor "{!s}"'.format(
+                    _extractor_instance)
+                )
                 continue
 
             _results = _wrap_extracted_data(_extracted_data, _metainfo,
