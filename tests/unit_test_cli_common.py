@@ -24,6 +24,7 @@ from unittest import TestCase
 
 from core.ui.cli.common import (
     colorize,
+    colorize_quoted,
     ColumnFormatter,
     msg,
     msg_rename
@@ -114,8 +115,8 @@ class TestMsg(TestCase):
         )
 
 
+# NOTE(jonas): This will likely fail on some platforms!
 class TestColorize(TestCase):
-    # NOTE:  This will likely fail on some platforms!
 
     COLORIZE_FOREGROUND_ANSI_LOOKUP = {
         'RED': '\x1b[31m',
@@ -233,6 +234,7 @@ class TestColorize(TestCase):
                               fore='BLUE', back='BLUE')
 
 
+# NOTE(jonas): This will likely fail on some platforms!
 class TestMsgRename(TestCase):
     ANSI_COL_FROM = '\x1b[37m'
     ANSI_COL_DEST = '\x1b[92m'
@@ -517,3 +519,60 @@ OOOOOOOOOOAAAAJM{p}B
               42{p}0x4E4F4F42
                C{p}D               {p}E'''.format(p=self.padding).lstrip('\n')
         self.assertEqual(actual, expected)
+
+
+# NOTE(jonas): This will likely fail on some platforms!
+class TestColorizeQuoted(TestCase):
+    def test_colorize_quoted(self):
+        # ANSI_COLOR must match actual color. Currently 'LIGHTGREEN_EX'
+        ANSI_COLOR = '\x1b[92m'
+
+        def __unescape_ansi(s):
+            u = s.replace(ANSI_COLOR, '{COL}').replace(ANSI_RESET_FG, '{RES}')
+            return u
+
+        def __check(given, expect):
+            assert isinstance(given, str)
+            assert isinstance(expect, str)
+            actual = colorize_quoted(given)
+            _expected = expect.format(COL=ANSI_COLOR, RES=ANSI_RESET_FG)
+            self.assertEqual(
+                _expected, actual,
+                'Expected: {!s}  Actual: {!s}'.format(
+                    __unescape_ansi(_expected), __unescape_ansi(actual)
+                )
+            )
+
+        __check('', '')
+        __check('foo', 'foo')
+        __check('"', '"')
+        __check('""', '""')
+        __check(' ""', ' ""')
+        __check('"" ', '"" ')
+        __check(' "" ', ' "" ')
+        __check('"foo', '"foo')
+        __check('foo"', 'foo"')
+        __check('"foo"', '"{COL}foo{RES}"')
+        __check('"foo""', '"{COL}foo{RES}""')
+        __check(' "foo', ' "foo')
+        __check(' foo"', ' foo"')
+        __check(' "foo"', ' "{COL}foo{RES}"')
+        __check(' "foo""', ' "{COL}foo{RES}""')
+        __check('"foo ', '"foo ')
+        __check('foo" ', 'foo" ')
+        __check('"foo" ', '"{COL}foo{RES}" ')
+        __check('"foo"" ', '"{COL}foo{RES}"" ')
+        __check(' "foo ', ' "foo ')
+        __check(' foo" ', ' foo" ')
+        __check(' "foo" ', ' "{COL}foo{RES}" ')
+        __check(' "foo"" ', ' "{COL}foo{RES}"" ')
+        __check(' "foo "bar"', ' "{COL}foo {RES}"bar"')
+        __check(' foo"x"bar"', ' foo"{COL}x{RES}"bar"')
+        __check(' foo"  "bar"', ' foo"{COL}  {RES}"bar"')
+
+        # TODO: This case still fails ..
+        # __check(' foo" "bar"', ' foo"{COL} {RES}"bar"')
+
+        __check(' "foo" "bar"', ' "{COL}foo{RES}" "{COL}bar{RES}"')
+        __check(' "foo"" "bar"', ' "{COL}foo{RES}""{COL} {RES}"bar"')
+        __check(' "a"" ""b"', ' "{COL}a{RES}""{COL} {RES}""{COL}b{RES}"')

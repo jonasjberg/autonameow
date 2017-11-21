@@ -185,6 +185,9 @@ def colorize_re_match(text, regex, color=None):
 
     replacements = []
     match_iter = regex.findall(text)
+    if not match_iter:
+        return text
+
     for match in match_iter:
         replacements.append((match, colorize(match, fore=_color)))
 
@@ -216,10 +219,11 @@ def colorize_re_match(text, regex, color=None):
     return out
 
 
-RE_ANYTHING_QUOTED = re.compile(r'"([^"]*)"')
+RE_ANYTHING_QUOTED = re.compile(r'"([^"]+)"')
 
 
 def colorize_quoted(text, color=None):
+    # TODO: This is still buggy. See unit tests for case that fails.
     return colorize_re_match(text, RE_ANYTHING_QUOTED, color)
 
 
