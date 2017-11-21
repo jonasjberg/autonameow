@@ -31,6 +31,10 @@ from core.ui.cli.common import (
 import unit_utils as uu
 
 
+ANSI_RESET_FG = '\x1b[39m'
+ANSI_RESET_BG = '\x1b[49m'
+
+
 class TestMsg(TestCase):
     def setUp(self):
         self.maxDiff = None
@@ -73,7 +77,6 @@ class TestMsg(TestCase):
     def test_msg_type_color_quoted_including_escape_sequences(self):
         # ANSI_COLOR must match actual color. Currently 'LIGHTGREEN_EX'
         ANSI_COLOR = '\x1b[92m'
-        ANSI_RESET = '\x1b[39m'
 
         def __check_output(given, expect):
             assert isinstance(given, str)
@@ -81,7 +84,7 @@ class TestMsg(TestCase):
             with uu.capture_stdout() as _stdout:
                 msg(given, style='color_quoted')
                 self.assertEqual(
-                    expect.format(COL=ANSI_COLOR, RES=ANSI_RESET),
+                    expect.format(COL=ANSI_COLOR, RES=ANSI_RESET_FG),
                     _stdout.getvalue().strip()
                 )
 
@@ -114,32 +117,63 @@ class TestMsg(TestCase):
 class TestColorize(TestCase):
     # NOTE:  This will likely fail on some platforms!
 
-    def test_colorize_returns_expected(self):
+    COLORIZE_FOREGROUND_ANSI_LOOKUP = {
+        'RED': '\x1b[31m',
+        'GREEN': '\x1b[32m',
+        'BLUE': '\x1b[34m',
+    }
+    COLORIZE_BACKGROUND_ANSI_LOOKUP = {
+        'RED': '\x1b[41m',
+        'GREEN': '\x1b[42m',
+        'BLUE': '\x1b[44m',
+    }
+
+    def __check_colorize(self, text, expect,
+                         fore=None, back=None):
+        actual = colorize(text, fore, back)
+
+        _ansi_fg = self.COLORIZE_FOREGROUND_ANSI_LOOKUP.get(fore, '')
+        _ansi_bg = self.COLORIZE_BACKGROUND_ANSI_LOOKUP.get(back, '')
+        _expected = expect.format(
+            BGCOL=_ansi_bg, FGCOL=_ansi_fg, FGRES=ANSI_RESET_FG,
+            BGRES=ANSI_RESET_BG
+        )
+        self.assertEqual(actual, _expected)
+
+    def test_colorize_pass_through_with_no_fore_no_back_no_style(self):
+        self.assertEqual(colorize(''), '')
+        self.assertEqual(colorize(' '), ' ')
         self.assertEqual(colorize('foo'), 'foo')
 
     def test_colorize_returns_expected_with_fore_red(self):
-        self.assertEqual(colorize('foo', fore='RED'),
-                         '\x1b[31mfoo\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}foo{FGRES}',
+                              fore='RED')
 
     def test_colorize_returns_expected_with_fore_green(self):
-        self.assertEqual(colorize('foo', fore='GREEN'),
-                         '\x1b[32mfoo\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}foo{FGRES}',
+                              fore='GREEN')
 
     def test_colorize_returns_expected_with_fore_blue(self):
-        self.assertEqual(colorize('foo', fore='BLUE'),
-                         '\x1b[34mfoo\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}foo{FGRES}',
+                              fore='BLUE')
 
     def test_colorize_returns_expected_with_back_red(self):
-        self.assertEqual(colorize('foo', back='RED'),
-                         '\x1b[41mfoo\x1b[49m')
+        self.__check_colorize(text='foo',
+                              expect='{BGCOL}foo{BGRES}',
+                              back='RED')
 
     def test_colorize_returns_expected_with_back_green(self):
-        self.assertEqual(colorize('foo', back='GREEN'),
-                         '\x1b[42mfoo\x1b[49m')
+        self.__check_colorize(text='foo',
+                              expect='{BGCOL}foo{BGRES}',
+                              back='GREEN')
 
     def test_colorize_returns_expected_with_back_blue(self):
-        self.assertEqual(colorize('foo', back='BLUE'),
-                         '\x1b[44mfoo\x1b[49m')
+        self.__check_colorize(text='foo',
+                              expect='{BGCOL}foo{BGRES}',
+                              back='BLUE')
 
     def test_colorize_returns_expected_with_style_normal(self):
         self.assertEqual(colorize('foo', style='NORMAL'),
@@ -154,40 +188,49 @@ class TestColorize(TestCase):
                          '\x1b[1mfoo\x1b[0m')
 
     def test_colorize_returns_expected_with_fore_red_back_red(self):
-        self.assertEqual(colorize('foo', fore='RED', back='RED'),
-                         '\x1b[31m\x1b[41mfoo\x1b[49m\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}{BGCOL}foo{BGRES}{FGRES}',
+                              fore='RED', back='RED')
 
     def test_colorize_returns_expected_with_fore_green_back_red(self):
-        self.assertEqual(colorize('foo', fore='GREEN', back='RED'),
-                         '\x1b[32m\x1b[41mfoo\x1b[49m\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}{BGCOL}foo{BGRES}{FGRES}',
+                              fore='GREEN', back='RED')
 
     def test_colorize_returns_expected_with_fore_blue_back_red(self):
-        self.assertEqual(colorize('foo', fore='BLUE', back='RED'),
-                         '\x1b[34m\x1b[41mfoo\x1b[49m\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}{BGCOL}foo{BGRES}{FGRES}',
+                              fore='BLUE', back='RED')
 
     def test_colorize_returns_expected_with_fore_red_back_green(self):
-        self.assertEqual(colorize('foo', fore='RED', back='GREEN'),
-                         '\x1b[31m\x1b[42mfoo\x1b[49m\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}{BGCOL}foo{BGRES}{FGRES}',
+                              fore='RED', back='GREEN')
 
     def test_colorize_returns_expected_with_fore_green_back_green(self):
-        self.assertEqual(colorize('foo', fore='GREEN', back='GREEN'),
-                         '\x1b[32m\x1b[42mfoo\x1b[49m\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}{BGCOL}foo{BGRES}{FGRES}',
+                              fore='GREEN', back='GREEN')
 
     def test_colorize_returns_expected_with_fore_blue_back_green(self):
-        self.assertEqual(colorize('foo', fore='BLUE', back='GREEN'),
-                         '\x1b[34m\x1b[42mfoo\x1b[49m\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}{BGCOL}foo{BGRES}{FGRES}',
+                              fore='BLUE', back='GREEN')
 
     def test_colorize_returns_expected_with_fore_red_back_blue(self):
-        self.assertEqual(colorize('foo', fore='RED', back='BLUE'),
-                         '\x1b[31m\x1b[44mfoo\x1b[49m\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}{BGCOL}foo{BGRES}{FGRES}',
+                              fore='RED', back='BLUE')
 
     def test_colorize_returns_expected_with_fore_green_back_blue(self):
-        self.assertEqual(colorize('foo', fore='GREEN', back='BLUE'),
-                         '\x1b[32m\x1b[44mfoo\x1b[49m\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}{BGCOL}foo{BGRES}{FGRES}',
+                              fore='GREEN', back='BLUE')
 
     def test_colorize_returns_expected_with_fore_blue_back_blue(self):
-        self.assertEqual(colorize('foo', fore='BLUE', back='BLUE'),
-                         '\x1b[34m\x1b[44mfoo\x1b[49m\x1b[39m')
+        self.__check_colorize(text='foo',
+                              expect='{FGCOL}{BGCOL}foo{BGRES}{FGRES}',
+                              fore='BLUE', back='BLUE')
 
 
 class TestMsgRename(TestCase):
