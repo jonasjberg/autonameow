@@ -267,7 +267,7 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
         print(_colored_heading_underline)
 
     elif style == 'color_quoted':
-        print(colorize_quoted(message))
+        print(colorize_quoted(message, color='LIGHTGREEN_EX'))
 
     else:
         print_default_msg(message)
