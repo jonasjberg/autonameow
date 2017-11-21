@@ -41,6 +41,7 @@ assert not UNMET_DEPENDENCIES
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPlainTextExtractor(CaseExtractorBasics):
+    __test__ = True
     EXTRACTOR_CLASS = PlainTextExtractor
 
     def test_method_str_returns_expected(self):

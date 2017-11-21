@@ -192,6 +192,7 @@ class TestPrerequisites(unittest.TestCase):
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPdftotextTextExtractor(CaseExtractorBasics):
+    __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
 
     def test_method_str_returns_expected(self):
@@ -202,12 +203,14 @@ class TestPdftotextTextExtractor(CaseExtractorBasics):
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPdftotextTextExtractorOutputTypes(CaseExtractorOutputTypes):
+    __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
 
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPdftotextTextExtractorOutputTestFileA(CaseExtractorOutput):
+    __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
     _dt = uu.str_to_datetime
@@ -218,6 +221,7 @@ class TestPdftotextTextExtractorOutputTestFileA(CaseExtractorOutput):
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPdftotextTextExtractorOutputTestFileB(CaseExtractorOutput):
+    __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_B)
     _dt = uu.str_to_datetime

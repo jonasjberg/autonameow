@@ -36,6 +36,7 @@ DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestEpubTextExtractor(CaseExtractorBasics):
+    __test__ = True
     EXTRACTOR_CLASS = EpubTextExtractor
 
     def test_method_str_returns_expected(self):
@@ -46,6 +47,7 @@ class TestEpubTextExtractor(CaseExtractorBasics):
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestEpubTextExtractorOutputTypes(CaseExtractorOutputTypes):
+    __test__ = True
     EXTRACTOR_CLASS = EpubTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
 

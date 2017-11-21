@@ -41,6 +41,7 @@ DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestTesseractOCRTextExtractor(CaseExtractorBasics):
+    __test__ = True
     EXTRACTOR_CLASS = TesseractOCRTextExtractor
 
     def test_method_str_returns_expected(self):
@@ -51,6 +52,7 @@ class TestTesseractOCRTextExtractor(CaseExtractorBasics):
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestTesseractOCRTextExtractorOutputTypes(CaseExtractorOutputTypes):
+    __test__ = True
     EXTRACTOR_CLASS = TesseractOCRTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('2007-04-23_12-comments.png')
 

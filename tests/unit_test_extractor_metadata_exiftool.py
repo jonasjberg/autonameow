@@ -48,12 +48,14 @@ temp_file = uu.make_temporary_file()
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
 class TestExiftoolMetadataExtractorOutputTypes(CaseExtractorOutputTypes):
+    __test__ = True
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
 class TestExiftoolMetadataExtractor(CaseExtractorBasics):
+    __test__ = True
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
 
     def test_method_str_returns_expected(self):
@@ -64,6 +66,7 @@ class TestExiftoolMetadataExtractor(CaseExtractorBasics):
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
 class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput):
+    __test__ = True
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('smulan.jpg')
     _dt = uu.str_to_datetime
@@ -77,6 +80,7 @@ class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput):
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
 class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput):
+    __test__ = True
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('simplest_pdf.md.pdf')
     _dt = uu.str_to_datetime
