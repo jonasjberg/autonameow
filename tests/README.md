@@ -10,24 +10,35 @@
 Testing TL;DR
 =============
 
-| File Name                   | Execute this to run ..                    |
-| --------------------------- | ----------------------------------------- |
-| `common_runner.sh`          | __ALL tests__ (`-h` for help)             |
-| `integration_runner.sh`     | __ALL Integration Tests__ (`-h` for help) |
-| `integration_test_cli.sh`   | The "Command-Line Interface" test suite   |
-| `integration_test_docs.sh`  | The "Documentation" test suite            |
-| `integration_test_src.sh`   | The "Source Code" test suite              |
-| `integration_test_tests.sh` | The "Test Suite" test suite"              |
-| `unit_runner.sh`            | __ALL Unit Tests__ (`-h` for help)        |
+| File Name                     | Execute this to run ..                    |
+| ----------------------------  | ----------------------------------------- |
+| `common_runner.sh`            | __ALL tests__ (`-h` for help)             |
+| `integration_runner.sh`       | __ALL Integration Tests__ (`-h` for help) |
+| `integration_test_cli.sh`     | The "Command-Line Interface" test suite   |
+| `integration_test_compat.sh`  | The "Compatibility" test suite            |
+| `integration_test_docs.sh`    | The "Documentation" test suite            |
+| `integration_test_plugins.sh` | The "Plugins" test suite                  |
+| `integration_test_rename.sh`  | The "Rename Files" test suite             |
+| `integration_test_src.sh`     | The "Source Code" test suite              |
+| `integration_test_tests.sh`   | The "Test Suite" test suite"              |
+| `regression_runner.sh`        | __ALL Regression Tests__ (`-h` for help)  |
+| `unit_runner.sh`              | __ALL Unit Tests__ (`-h` for help)        |
 
 
 
 Notes on `autonameow` testing
 =============================
-Tests are separated into two main types, "*unit tests*" and
-"*integration tests*". This separation is not enforced. Some of the
-"integration tests" are not strictly correct integration tests; in practice,
-all code that was easier to write as a bash script ended up in this pile.
+Tests are separated into three main types, "*unit tests*", "*integration
+tests*" and "*regression tests*".
+This separation is not enforced. Some of the "integration tests" are not
+strictly correct integration tests; in practice, all code that was easier to
+write as a bash script ended up in this pile.
+
+Moving forward, the "integration tests" will be used less in favor of the new
+"regression tests". The unit tests should be fast and test very small parts of
+the system, like individual classes, methods and functions.
+The regression tests should exercise the entire system with actual use-cases.
+
 
 Unit Tests
 ----------
@@ -67,7 +78,6 @@ In order to run all tests, execute the script `tests/integration_runner.sh`.
 
 This script accepts optional argument flags, as described in the usage text;
 
-
 ```
 "integration_runner.sh"  --  autonameow integration test suite runner
 
@@ -80,4 +90,158 @@ This script accepts optional argument flags, as described in the usage text;
 
   All options are optional. Default behaviour is to export test result
   reports and print the test results to stdout/stderr in real-time.
+```
+
+
+Regression Tests
+----------------
+Actually not strictly regression tests, written in Python.
+These tests will hit a lot of systems, depending on the test case.
+The proper name would probable be "functional tests" or "system tests"..
+
+Regression test source files share the common prefix `regression_test_`.
+
+Regression test cases are executed sequentially, each using a fresh instance
+of `autonameow`. Only a few parts of the system are patched; execution time
+measurement, exit status, and the function that actually performs renaming of
+files.
+
+This means that __regression tests never actually rename files__, even without
+the `--dry-run` option. The state of this option is captured by does not
+actually matter, the rename function call is captured and always results in a
+no-op.
+
+
+The test cases are stored as directories in `tests/regression`. Parameters and
+options for the test case is split up across different files in the directory.
+
+Example regression test case directory contents:
+
+```
+0003_filetags_c
+|
+|-- asserts.yaml
+|-- config.yaml
+|-- description
+'-- options.yaml
+```
+
+The directory basename is the short-form name of the test, used by the runner
+to refer to the test case. It also determines the order of execution.
+
+In order for the regression test loader to recognize a directory as a test,
+the directory name should match this regular expression:
+
+```python
+\d{4}(_[\w]+)?
+```
+
+.. E.G. `1234`, `1337_foo` and `6666_foo_bar` are all valid regression test
+directory names.
+
+
+The directory contains the following files:
+
+* `description` --- Plain-text file with a longer description of
+  the test.
+
+* `asserts.yaml` --- __[REQUIRED]__ Assertions to be evaluated to
+  determine whether the test passes or fails.
+
+    * Example `asserts.yaml`:
+        ```yaml
+        exit_code: 0
+        renames:
+            2017-09-12 foo -- tag2 a tag1.txt: '2017-09-12 foo -- a tag1 tag2.txt'
+            2017-11-20 bar -- tag1.txt: '2017-11-20T020738 bar -- tag1.txt'
+        ```
+
+* `options.yaml` --- Options to pass to the `autonameow` instance.
+  These mirror the "internal format" options dict passed to the program
+  in `autonameow/core/main.py`.
+
+    * Example `options.yaml`:
+        ```yaml
+        config_path: $THISTEST/config.yaml
+        debug: true
+        dry_run: true
+        dump_config: false
+        dump_meowuris: false
+        dump_options: false
+        input_paths:
+        - '$TESTFILES/2017-11-20 bar -- tag1.txt'
+        - '$TESTFILES/2017-09-12 foo -- tag2 a tag1.txt'
+        list_all: false
+        list_datetime: false
+        list_title: false
+        mode_automagic: true
+        mode_batch: true
+        mode_interactive: false
+        quiet: false
+        recurse_paths: false
+        show_version: false
+        verbose: false
+        ```
+
+* `config.yaml` --- Configuration file, stored with the test for convenience.
+  Use `config_path: $THISTEST/config.yaml` in `options.yaml` to refer to the
+  config in the current test directory without having to pass in a full path.
+
+
+### Special Variables in `options.yaml`
+Paths can include the special keywords `$THISTEST` and `$TESTFILES`, this is
+pretty ad-hoc and very likely to change. Refer to existing tests for hints on
+how to write your own.
+
+The following holds true as of version `v0.5.1`:
+
+#### The `config_path` field
+If the `config_path` entry..
+
+* .. is missing, the path of the default (unit test) config is used.
+
+    ```
+    -->  'config_path': (Path to the default config)
+    ```
+
+* .. starts with `$TESTFILES/`, the full absolute path to the
+     "test_files" directory is inserted in place of `$TESTFILES/`.
+
+    ```
+         'config_path': '$TESTFILES/config.yaml'
+    -->  'config_path': '$SRCROOT/test_files/config.yaml'
+    ```
+
+* .. starts with `$THISTEST/`, the full absolute path to the current
+     regression test directory is inserted in place of `$THISTEST/`.
+
+    ```
+         'config_path': '$THISTEST/config.yaml'
+    -->  'config_path': 'self.abspath/config.yaml'
+    ```
+
+
+#### The `input_paths` field
+The string `$TESTFILES` is replaced with the full absolute path to the
+`test_files` directory.
+For instance; `'$TESTFILES/foo.txt' --> '$SRCROOT/test_files/foo.txt'`,
+where `$SRCROOT` is the full absolute path to the autonameow sources.
+
+
+
+### Running the Regression Tests
+In order to run all tests, execute the script `tests/regression_runner.sh`.
+
+This script accepts optional argument flags, as described in the usage text;
+
+```
+Usage: regression_runner.py [-h] [-v]
+
+autonameow v0.5.1 -- regression test suite runner
+
+Optional arguments:
+  -h, --help     Show this help message and exit.
+  -v, --verbose  Enables verbose mode, prints additional information.
+
+Project website: www.github.com/jonasjberg/autonameow
 ```
