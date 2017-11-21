@@ -69,51 +69,46 @@ class TestMsg(TestCase):
         self.assertIn('no', out.getvalue().strip())
         self.assertIn('yes', out.getvalue().strip())
 
+    # NOTE(jonas): This will likely fail on some platforms!
     def test_msg_type_color_quoted_including_escape_sequences(self):
-        # NOTE:  This will likely fail on some platforms!
+        # ANSI_COLOR must match actual color. Currently 'LIGHTGREEN_EX'
+        ANSI_COLOR = '\x1b[92m'
+        ANSI_RESET = '\x1b[39m'
 
-        with uu.capture_stdout() as out:
-            msg('msg() text with type="color_quoted" no "yes" no',
-                style='color_quoted')
-            self.assertEqual(
-                'msg() text with type="\x1b[92mcolor_quoted\x1b[39m" no "\x1b[92myes\x1b[39m" no',
-                out.getvalue().strip()
-            )
+        def __check_output(given, expect):
+            assert isinstance(given, str)
+            assert isinstance(expect, str)
+            with uu.capture_stdout() as _stdout:
+                msg(given, style='color_quoted')
+                self.assertEqual(
+                    expect.format(COL=ANSI_COLOR, RES=ANSI_RESET),
+                    _stdout.getvalue().strip()
+                )
 
-        with uu.capture_stdout() as out:
-            msg('no "yes" no', style='color_quoted')
-            self.assertEqual(
-                'no "\x1b[92myes\x1b[39m" no',
-                out.getvalue().strip()
-            )
-
-        with uu.capture_stdout() as out:
-            msg('no "yes yes" no', style='color_quoted')
-            self.assertEqual(
-                'no "\x1b[92myes yes\x1b[39m" no',
-                out.getvalue().strip()
-            )
-
-        with uu.capture_stdout() as out:
-            msg('Word "1234-56 word" -> "1234-56 word"', style='color_quoted')
-            self.assertEqual(
-                'Word "\x1b[92m1234-56 word\x1b[39m" -> "\x1b[92m1234-56 word\x1b[39m"',
-                out.getvalue().strip()
-            )
-
-        with uu.capture_stdout() as out:
-            msg('Word "word 1234-56" -> "1234-56 word"', style='color_quoted')
-            self.assertEqual(
-                'Word "\x1b[92mword 1234-56\x1b[39m" -> "\x1b[92m1234-56 word\x1b[39m"',
-                out.getvalue().strip()
-            )
-
-        with uu.capture_stdout() as out:
-            msg('A "b 123" -> A "b 123"', style='color_quoted')
-            self.assertEqual(
-                'A "\x1b[92mb 123\x1b[39m" -> A "\x1b[92mb 123\x1b[39m"',
-                out.getvalue().strip()
-            )
+        __check_output(
+            given='msg() text with type="color_quoted" no "yes" no',
+            expect='msg() text with type="{COL}color_quoted{RES}" no "{COL}yes{RES}" no'
+        )
+        __check_output(
+            given='no "yes" no',
+            expect='no "{COL}yes{RES}" no'
+        )
+        __check_output(
+            given='no "yes yes" no',
+            expect='no "{COL}yes yes{RES}" no'
+        )
+        __check_output(
+            given='Word "1234-56 word" -> "1234-56 word"',
+            expect='Word "{COL}1234-56 word{RES}" -> "{COL}1234-56 word{RES}"'
+        )
+        __check_output(
+            given='Word "word 1234-56" -> "1234-56 word"',
+            expect='Word "{COL}word 1234-56{RES}" -> "{COL}1234-56 word{RES}"'
+        )
+        __check_output(
+            given='A "b 123" -> A "b 123"',
+            expect='A "{COL}b 123{RES}" -> A "{COL}b 123{RES}"'
+        )
 
 
 class TestColorize(TestCase):
@@ -198,9 +193,6 @@ class TestColorize(TestCase):
 class TestMsgRename(TestCase):
     def setUp(self):
         self.maxDiff = None
-
-    def test_msg_rename_is_defined(self):
-        self.assertIsNotNone(msg_rename)
 
     def test_can_be_called_with_valid_args_dry_run_true(self):
         msg_rename('smulan.jpg',
