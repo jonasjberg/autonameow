@@ -90,8 +90,9 @@ def extract_pdf_content_with_pdftotext(file_path):
                 process.returncode, stderr)
         )
 
-    result = decode_raw(stdout).strip()
+    result = decode_raw(stdout)
     if not result:
         return ''
-    return result
+    else:
+        return result.strip()
 
