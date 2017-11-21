@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-11-21
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0123]` Add option (script?) to re-run failed regression tests.
+
 * 2017-11-19
 
     > High Priority

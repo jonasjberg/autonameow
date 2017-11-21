@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import sys
 import time
 
@@ -27,6 +28,7 @@ from core import (
     types,
     ui
 )
+from core.persistence import get_persistence
 from regression_utils import (
     AutonameowWrapper,
     check_renames,
@@ -40,6 +42,9 @@ msg_label_fail = ui.colorize('F', fore='RED')
 
 
 VERBOSE = False
+PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
+_this_dir = os.path.abspath(os.path.dirname(__file__))
+PERSISTENCE_DIR_ABSPATH = types.AW_PATH.normalize(_this_dir)
 
 
 def run_test(test):
@@ -222,12 +227,35 @@ def msg_overall_stats(count_total, count_skipped, count_success, count_failure):
     print('_' * TERMINAL_WIDTH)
 
 
+def write_failed_tests(tests):
+    p = get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
+                        persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH)
+    if p:
+        p.set('lastrun', {'failed': tests})
+
+
+def load_failed_tests():
+    p = get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
+                        persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH)
+    if p:
+        try:
+            lastrun = p.get('lastrun')
+        except KeyError:
+            pass
+        else:
+            if lastrun and isinstance(lastrun, dict):
+                return lastrun.get('failed', [])
+    return []
+
+
 def run_regressiontests(tests):
     count_success = 0
     count_failure = 0
     count_skipped = 0
     count_total = len(tests)
     should_abort = False
+
+    failed_tests = []
 
     for test in tests:
         if should_abort:
@@ -265,10 +293,18 @@ def run_regressiontests(tests):
         elif failures > 0:
             msg_test_failure()
             count_failure += 1
+            failed_tests.append(test)
 
         msg_test_runtime(elapsed_time, captured_time)
 
     msg_overall_stats(count_total, count_skipped, count_success, count_failure)
+
+    if not should_abort:
+        # Store failed tests only if all tests were executed.
+        # Otherwise all tests would have to be re-run in order to "catch"
+        # the failed tests, if re-running the failed tests and aborting
+        # before completion..
+        write_failed_tests(failed_tests)
 
 
 def main(args):
@@ -284,10 +320,16 @@ def main(args):
         default=False,
         help='Enables verbose mode, prints additional information.'
     )
+    parser.add_argument(
+        '--last-failed',
+        dest='run_lastfailed',
+        action='store_true',
+        default=False,
+        help='Run only the test cases that failed during the last completed'
+             'run, or all if none failed.'
+    )
 
     opts = parser.parse_args(args)
-
-    # TODO: [TD0123] Add option to re-run failed regression tests.
 
     # TODO: [TD0124] Add option (script?) to get command-line of failed tests.
 
@@ -297,10 +339,30 @@ def main(args):
     else:
         VERBOSE = False
 
-    tests = load_regressiontests()
-    print('Loaded {} regression test(s) ..'.format(len(tests)))
+    loaded_tests = load_regressiontests()
+    print('Loaded {} regression test(s) ..'.format(len(loaded_tests)))
+    if not loaded_tests:
+        return
 
-    run_regressiontests(tests)
+    if opts.run_lastfailed:
+        _failed_lastrun = load_failed_tests()
+        if _failed_lastrun:
+            # TODO: Improve comparing regression test cases.
+            # Fails if any option is modified. Compare only directory basenames?
+            tests_to_run = [t for t in loaded_tests if t in _failed_lastrun]
+            print('Running {} of the {} test case(s) that failed during the '
+                  'last completed run ..'.format(len(tests_to_run),
+                                                 len(_failed_lastrun)))
+        else:
+            tests_to_run = list(loaded_tests)
+            print('Running all {} test case(s) as None failed during the '
+                  'last completed run ..'.format(len(tests_to_run)))
+    else:
+        tests_to_run = list(loaded_tests)
+        print('Running {} test case(s) ..'.format(len(tests_to_run)))
+
+    print()
+    run_regressiontests(tests_to_run)
 
 
 if __name__ == '__main__':
