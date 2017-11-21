@@ -25,6 +25,7 @@ from unittest.mock import patch
 from util import unique_identifier
 from core.persistence import get_config_persistence_path
 from core.persistence.base import (
+    get_persistence,
     BasePersistence,
     PicklePersistence
 )
@@ -216,9 +217,29 @@ class TestPicklePersistence(TestCase):
 
         actual = self.c.keys()
         expect = [data_keys[0], data_keys[1]]
-        self.assertListEqual(actual, expect)
+        self.assertEqual(sorted(actual), sorted(expect))
 
         self.c.set(data_keys[2], data_value)
         actual = self.c.keys()
         expect = [data_keys[0], data_keys[1], data_keys[2]]
-        self.assertListEqual(actual, expect)
+        self.assertEqual(sorted(actual), sorted(expect))
+
+
+class TestGetPersistence(TestCase):
+    def setUp(self):
+        self.p = get_persistence('foo')
+
+    def tearDown(self):
+        self.p.flush()
+
+    def test_returns_persistence_class_instance(self):
+        self.assertTrue(uu.is_class_instance(self.p))
+        self.assertTrue(isinstance(self.p, BasePersistence))
+
+    def test_stores_data(self):
+        data = 'dummy test data'
+        key = 'dummytestkey'
+        self.p.set(key, data)
+
+        actual = self.p.get(key)
+        self.assertEqual(actual, data)

@@ -304,3 +304,22 @@ class PicklePersistence(BasePersistence):
 class PersistenceError(exceptions.AutonameowException):
     """Irrecoverable error while reading or writing persistent data."""
 
+
+def get_persistence(file_prefix):
+    """
+    Main "public" interface for getting a mechanism for persistent storage.
+
+    Callers should not be concerned with how (if) files are written to disk.
+    This provides a common interface for using "some" persistent storage.
+
+    Args:
+        file_prefix: Used as the first part of the storage file basename.
+                     The second part is the "key" used when calling 'set()'.
+
+    Returns: An instance of a 'BasePersistence' subclass.
+    """
+    try:
+        return PicklePersistence(file_prefix)
+    except PersistenceError as e:
+        log.error('Persistence unavailable :: {!s}'.format(e))
+        return None
