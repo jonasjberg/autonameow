@@ -169,11 +169,19 @@ def pre_assemble_format(field_data_dict, config):
     return out
 
 
+def displayable_replacement(original, replacement, regex, color):
+    if re.sub(regex, replacement, original) == original:
+        # Something was matched but replaced with the same string.
+        return original, original
+
+    colored_old = ui.colorize_re_match(original, regex=regex, color=color)
+    colored_new = _colorize_replacement(original, replacement, regex, color)
+    return colored_old, colored_new
+
+
 def msg_replacement(original, replacement, regex, color):
-    _name_old = ui.colorize_re_match(original, regex=regex, color=color)
-    _name_new = _colorize_replacement(original, replacement, regex, color)
-    log.info('Applying custom replacement: "{!s}" -> "{!s}"'.format(_name_old,
-                                                                    _name_new))
+    _old, _new = displayable_replacement(original, replacement, regex, color)
+    log.info('Applied custom replacement: "{}" -> "{}"'.format(_old, _new))
     # TODO: [TD0096] Fix invalid colouring if the replacement is the last character.
     #
     # Applying custom replacement. Regex: "re.compile('\\.$')" Replacement: ""
