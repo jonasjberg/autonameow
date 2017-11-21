@@ -78,7 +78,7 @@ class TestMsg(TestCase):
         # ANSI_COLOR must match actual color. Currently 'LIGHTGREEN_EX'
         ANSI_COLOR = '\x1b[92m'
 
-        def __check_output(given, expect):
+        def __check_color_quoted_msg(given, expect):
             assert isinstance(given, str)
             assert isinstance(expect, str)
             with uu.capture_stdout() as _stdout:
@@ -88,27 +88,27 @@ class TestMsg(TestCase):
                     _stdout.getvalue().strip()
                 )
 
-        __check_output(
+        __check_color_quoted_msg(
             given='msg() text with type="color_quoted" no "yes" no',
             expect='msg() text with type="{COL}color_quoted{RES}" no "{COL}yes{RES}" no'
         )
-        __check_output(
+        __check_color_quoted_msg(
             given='no "yes" no',
             expect='no "{COL}yes{RES}" no'
         )
-        __check_output(
+        __check_color_quoted_msg(
             given='no "yes yes" no',
             expect='no "{COL}yes yes{RES}" no'
         )
-        __check_output(
+        __check_color_quoted_msg(
             given='Word "1234-56 word" -> "1234-56 word"',
             expect='Word "{COL}1234-56 word{RES}" -> "{COL}1234-56 word{RES}"'
         )
-        __check_output(
+        __check_color_quoted_msg(
             given='Word "word 1234-56" -> "1234-56 word"',
             expect='Word "{COL}word 1234-56{RES}" -> "{COL}1234-56 word{RES}"'
         )
-        __check_output(
+        __check_color_quoted_msg(
             given='A "b 123" -> A "b 123"',
             expect='A "{COL}b 123{RES}" -> A "{COL}b 123{RES}"'
         )
@@ -234,68 +234,71 @@ class TestColorize(TestCase):
 
 
 class TestMsgRename(TestCase):
+    ANSI_COL_FROM = '\x1b[37m'
+    ANSI_COL_DEST = '\x1b[92m'
+
     def setUp(self):
         self.maxDiff = None
 
-    def test_can_be_called_with_valid_args_dry_run_true(self):
-        msg_rename('smulan.jpg',
-                   '2010-0131T161251 a cat lying on a rug.jpg',
-                   dry_run=True)
+    def test_can_be_called_with_valid_unicode_strings(self):
+        for _dry_run_enabled in (True, False):
+            with self.subTest(dry_run=_dry_run_enabled):
+                with uu.capture_stdout() as _:
+                    msg_rename('smulan.jpg',
+                               '2010-0131T161251 a cat lying on a rug.jpg',
+                               dry_run=_dry_run_enabled)
 
-    def test_can_be_called_with_valid_args_dry_run_false(self):
-        msg_rename('smulan.jpg',
-                   '2010-0131T161251 a cat lying on a rug.jpg',
-                   dry_run=False)
+    def test_can_be_called_with_valid_bytestring_strings(self):
+        for _dry_run_enabled in (True, False):
+            with self.subTest(dry_run=_dry_run_enabled):
+                with uu.capture_stdout() as _:
+                    msg_rename(b'smulan.jpg',
+                               b'2010-0131T161251 a cat lying on a rug.jpg',
+                               dry_run=_dry_run_enabled)
 
-    def test_can_be_called_with_valid_bytestring_args_dry_run_true(self):
-        msg_rename(b'smulan.jpg',
-                   b'2010-0131T161251 a cat lying on a rug.jpg',
-                   dry_run=True)
-
-    def test_can_be_called_with_valid_bytestring_args_dry_run_false(self):
-        msg_rename(b'smulan.jpg',
-                   b'2010-0131T161251 a cat lying on a rug.jpg',
-                   dry_run=False)
+    def __check_msg_rename(self, given_from, given_dest, dry_run, expect):
+        with uu.capture_stdout() as out:
+            msg_rename(given_from, given_dest, dry_run)
+            _expected = expect.format(
+                CF=self.ANSI_COL_FROM, CD=self.ANSI_COL_DEST, R=ANSI_RESET_FG
+            )
+            self.assertEqual(_expected, out.getvalue().strip())
 
     def test_valid_args_dry_run_true_gives_expected_output(self):
-        with uu.capture_stdout() as out:
-            msg_rename('smulan.jpg',
-                       '2010-0131T161251 a cat lying on a rug.jpg',
-                       dry_run=True)
-            self.assertEqual(
-                'Would have renamed  "\x1b[37msmulan.jpg\x1b[39m"\n                ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
-                out.getvalue().strip()
-            )
+        self.__check_msg_rename(
+            given_from='smulan.jpg',
+            given_dest='2010-0131T161251 a cat lying on a rug.jpg',
+            dry_run=True,
+            expect='''Would have renamed  "{CF}smulan.jpg{R}"
+                ->  "{CD}2010-0131T161251 a cat lying on a rug.jpg{R}"''',
+        )
 
     def test_valid_args_dry_run_false_gives_expected_output(self):
-        with uu.capture_stdout() as out:
-            msg_rename('smulan.jpg',
-                       '2010-0131T161251 a cat lying on a rug.jpg',
-                       dry_run=False)
-            self.assertEqual(
-                'Renamed  "\x1b[37msmulan.jpg\x1b[39m"\n     ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
-                 out.getvalue().strip()
-            )
+        self.__check_msg_rename(
+            given_from='smulan.jpg',
+            given_dest='2010-0131T161251 a cat lying on a rug.jpg',
+            dry_run=False,
+            expect='''Renamed  "{CF}smulan.jpg{R}"
+     ->  "{CD}2010-0131T161251 a cat lying on a rug.jpg{R}"''',
+        )
 
     def test_valid_bytestring_args_dry_run_true_gives_expected_output(self):
-        with uu.capture_stdout() as out:
-            msg_rename(b'smulan.jpg',
-                       b'2010-0131T161251 a cat lying on a rug.jpg',
-                       dry_run=True)
-            self.assertEqual(
-                'Would have renamed  "\x1b[37msmulan.jpg\x1b[39m"\n                ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
-                out.getvalue().strip()
-            )
+        self.__check_msg_rename(
+            given_from=b'smulan.jpg',
+            given_dest=b'2010-0131T161251 a cat lying on a rug.jpg',
+            dry_run=True,
+            expect='''Would have renamed  "{CF}smulan.jpg{R}"
+                ->  "{CD}2010-0131T161251 a cat lying on a rug.jpg{R}"''',
+        )
 
     def test_valid_bytestring_args_dry_run_false_gives_expected_output(self):
-        with uu.capture_stdout() as out:
-            msg_rename(b'smulan.jpg',
-                       b'2010-0131T161251 a cat lying on a rug.jpg',
-                       dry_run=False)
-            self.assertEqual(
-                'Renamed  "\x1b[37msmulan.jpg\x1b[39m"\n     ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
-                out.getvalue().strip()
-            )
+        self.__check_msg_rename(
+            given_from=b'smulan.jpg',
+            given_dest=b'2010-0131T161251 a cat lying on a rug.jpg',
+            dry_run=False,
+            expect='''Renamed  "{CF}smulan.jpg{R}"
+     ->  "{CD}2010-0131T161251 a cat lying on a rug.jpg{R}"''',
+        )
 
 
 class TestColumnFormatter(TestCase):
