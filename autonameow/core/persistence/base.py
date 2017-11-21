@@ -305,7 +305,7 @@ class PersistenceError(exceptions.AutonameowException):
     """Irrecoverable error while reading or writing persistent data."""
 
 
-def get_persistence(file_prefix):
+def get_persistence(file_prefix, persistence_dir_abspath=None):
     """
     Main "public" interface for getting a mechanism for persistent storage.
 
@@ -315,11 +315,13 @@ def get_persistence(file_prefix):
     Args:
         file_prefix: Used as the first part of the storage file basename.
                      The second part is the "key" used when calling 'set()'.
+        persistence_dir_abspath: Optional absolute bytestring path to the
+                                 directory to use when storing persistent data.
 
     Returns: An instance of a 'BasePersistence' subclass.
     """
     try:
-        return PicklePersistence(file_prefix)
+        return PicklePersistence(file_prefix, persistence_dir_abspath)
     except PersistenceError as e:
         log.error('Persistence unavailable :: {!s}'.format(e))
         return None
