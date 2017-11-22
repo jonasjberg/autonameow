@@ -131,40 +131,44 @@ class FiletagsAnalyzer(BaseAnalyzer):
             'follows_filetags_convention', _raw_follows_convention
         )
 
-        self._add_results('datetime', {
-            'value': self._timestamp,
-            'coercer': types.AW_TIMEDATE,
-            'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1),
-            ],
-            'generic_field': gf.GenericDateCreated
-        })
-        self._add_results('description', {
-            'value': self._description,
-            'coercer': types.AW_STRING,
-            'mapped_fields': [
-                WeightedMapping(fields.Description, probability=1),
-            ],
-            'generic_field': gf.GenericDescription
-        })
-        self._add_results('tags', {
-            'value': self._tags,
-            'coercer': types.listof(types.AW_STRING),
-            'mapped_fields': [
-                WeightedMapping(fields.Tags, probability=1),
-            ],
-            'generic_field': gf.GenericTags
+        if self._timestamp:
+            self._add_results('datetime', {
+                'value': self._timestamp,
+                'coercer': types.AW_TIMEDATE,
+                'mapped_fields': [
+                    WeightedMapping(fields.DateTime, probability=1),
+                    WeightedMapping(fields.Date, probability=1),
+                ],
+                'generic_field': gf.GenericDateCreated
+            })
+        if self._description:
+            self._add_results('description', {
+                'value': self._description,
+                'coercer': types.AW_STRING,
+                'mapped_fields': [
+                    WeightedMapping(fields.Description, probability=1),
+                ],
+                'generic_field': gf.GenericDescription
+            })
+        if self._tags:
+            self._add_results('tags', {
+                'value': self._tags,
+                'coercer': types.listof(types.AW_STRING),
+                'mapped_fields': [
+                    WeightedMapping(fields.Tags, probability=1),
+                ],
+                'generic_field': gf.GenericTags
 
-        })
-        self._add_results('extension', {
-            'value': self._extension,
-            'coercer': types.AW_MIMETYPE,
-            'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
-            ],
-            'generic_field': gf.GenericMimeType
-        })
+            })
+        if self._extension:
+            self._add_results('extension', {
+                'value': self._extension,
+                'coercer': types.AW_MIMETYPE,
+                'mapped_fields': [
+                    WeightedMapping(fields.Extension, probability=1),
+                ],
+                'generic_field': gf.GenericMimeType
+            })
         self._add_results('follows_filetags_convention', {
             'value': self._follows_filetags_convention,
             'multivalued': False,
