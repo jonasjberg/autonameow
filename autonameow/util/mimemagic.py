@@ -309,6 +309,7 @@ MAPPER.add_mapping('inode/x-empty', '')
 MAPPER.add_mapping('text/rtf', 'rtf')
 MAPPER.add_mapping('text/x-asm', 'asm')
 MAPPER.add_mapping('text/x-shellscript', 'sh')
+MAPPER.add_mapping('application/vnd.oasis.opendocument.presentation', 'odp')
 
 # Any custom overrides of the "extension to MIME-type"-mapping goes here.
 MAPPER.add_preferred_extension('image/jpeg', 'jpg')
