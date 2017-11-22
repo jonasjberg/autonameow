@@ -17,7 +17,8 @@ Metadata
 * [Automatic Metadata Extraction The High Energy Physics Use Case][1]  
   Master Thesis, EPFL, Switzerland. Boyd, J. 2015.
 
-* Intelligent Big Multimedia Databases. World Scientific, Wichert, A. 2015.
+* "Intelligent Big Multimedia Databases"  
+  World Scientific, Wichert, A. 2015.
 
 * [Evaluation of Header Metadata Extraction Approaches and Tools for Scientific
   PDF Documents][2]  
@@ -37,8 +38,12 @@ Metadata
 
 * [Estimating the Date of First Publication in a Large-Scale Digital
   Library][5]  
-  Digital Libraries (JCDL), 2017 ACM/IEEE Joint Conference on
+  Digital Libraries (JCDL), 2017 ACM/IEEE Joint Conference.
   Bamman D.  Carney M.  Gillick J.  Hennesy C.  Sridhar V. 2017.
+
+* [Rule-based Deduplication of Article Records from Bibliographic Databases][6]  
+  Database: The Journal of Biological Databases and Curation.
+  Jiang Y, Lin C, Meng W, Yu C, Cohen AM, Smalheiser NR. 2014.
 
 
 Implementing Plugin Systems
@@ -62,3 +67,4 @@ Implementing Plugin Systems
 [3]: http://repositorio.furg.br/bitstream/handle/1/1702/An%20Automatic%20Approach%20for%20Duplicate%20Bibliographic.pdf?sequence=1
 [4]: http://repositorio.furg.br/bitstream/handle/1/1701/A%20CLASSIFICATION-BASED%20APPROACH%20FOR.pdf?sequence=1
 [5]: http://people.ischool.berkeley.edu/~dbamman/pubs/pdf/jcdl2017.pdf
+[6]: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3893659/
