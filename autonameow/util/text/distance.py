@@ -65,26 +65,23 @@ if __name__ == '__main__':
     import sys
 
     if len(sys.argv) < 3:
-        sys.exit('Expected at least two arguments..')
-
-    # a = sys.argv[1]
-    # b = sys.argv[2]
-    # similarity = normalized_similarity(a, b)
-    # difference = normalized_levenshtein(a, b)
-    # print('Normalized difference: {!s}'.format(difference))
-    # print('Normalized similarity: {!s}'.format(similarity))
+        sys.exit('Expected at least two arguments!')
 
     args = sys.argv[1:]
     arg_combinations = list(itertools.combinations(args, 2))
     results = []
     for a, b in arg_combinations:
+        # Trivial canonicalization
+        # a = a.lower().replace('.', '').strip()
+        # b = b.lower().replace('.', '').strip()
+
         s = normalized_similarity(a, b)
         d = normalized_difference(a, b)
         results.append((a, b, s, d))
 
     cf = ColumnFormatter()
-    cf.addrow('A', 'B', 'Similarity', 'Difference')
-    cf.addrow('A', 'B', 'Similarity', 'Difference')
+    cf.addrow('String A', 'String B', 'Similarity', 'Difference')
+    cf.addrow('========', '========', '==========', '==========')
     _float = '{:.2f}'
     for a, b, s, d in sorted(results, key=lambda x: x[2], reverse=True):
         cf.addrow(a, b, _float.format(s), _float.format(d))
