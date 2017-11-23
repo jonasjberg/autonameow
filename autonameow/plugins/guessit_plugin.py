@@ -30,7 +30,7 @@ from core import (
     exceptions,
     types,
 )
-from core.model import fields as gf
+from core.model import genericfields as gf
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from plugins import BasePlugin
