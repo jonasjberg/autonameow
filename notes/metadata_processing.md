@@ -46,6 +46,50 @@ How would this map to the existing coercer classes and how providers
 declare certain data as "multivalued" in the `metainfo`?
 
 
+Going with `Records` and `Fields`
+---------------------------------
+Proceeding under the assumption that the data model is based on
+two new classes; `Records` and `Fields` ..
+
+### Problems hopefully solved by `Records`
+Some records are more likely to be correct;
+
+* Increase weight of records that contain a unique identifier.
+* Weight by number of fields.
+* Use field-specific weights from contained fields.
+
+```python
+r1 = Record(author='Gibson', title='Meow', identifier=ISBN('123456789'))
+r2 = Record(author='Gibson', title='Meow')
+r3 = Record(author='G.', title='Meow')
+assert r1.weight > r2.weight > r3.weight
+```
+
+
+### Problems hopefully solved by `Fields`
+
+* Comparison/similarity-tests
+
+```python
+f1 = Field('AUTHOR', 'Gibson Sjöberg')
+f2 = Field('AUTHOR', 'Gibson')
+f3 = Field('AUTHOR', 'G.S.')
+f4 = Field('AUTHOR', 'G')
+assert f1 == f2
+assert f1 != f3
+assert f1 != f4
+assert f1.weight == f2.weight > f3.weight > f4.weight
+
+# Using 'util.text.similarity.normalized_levenshtein()':
+assert similarity(f1, f2) == 0.43   # 'Gibson Sjöberg' -> 'Gibson'
+assert similarity(f1, f3) == 0.14   # 'Gibson Sjöberg' -> 'G.S.'
+assert similarity(f1, f4) == 0.07   # 'Gibson Sjöberg' -> 'G'
+assert similarity(f2, f3) == 0.17   # 'Gibson'         -> 'G.S.'
+assert similarity(f2, f4) == 0.17   # 'Gibson'         -> 'G'
+assert similarity(f3, f4) == 0.25   # 'G.S.'           -> 'G'
+```
+
+
 
 Metadata Deduplication
 ----------------------
