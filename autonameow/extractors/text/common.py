@@ -26,7 +26,7 @@ from core import (
     persistence,
     types,
 )
-from core.model import genericfields as gf
+from core.model import fields as gf
 from extractors import (
     BaseExtractor,
     ExtractorError

@@ -26,7 +26,7 @@ from core import (
     disk,
     types,
 )
-from core.model import genericfields as gf
+from core.model import fields as gf
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from util import encoding as enc

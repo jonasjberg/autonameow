@@ -29,7 +29,7 @@ from core import (
     namebuilder,
     types,
 )
-from core.model import genericfields as gf
+from core.model import fields as gf
 from core.model import MeowURI
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
 from util import mimemagic

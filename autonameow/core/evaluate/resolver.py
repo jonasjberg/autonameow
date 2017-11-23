@@ -23,7 +23,7 @@ import logging
 
 from core import repository
 from core.model import MeowURI
-from core.model import genericfields as gf
+from core.model import fields as gf
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
 from util.text import format_name
 

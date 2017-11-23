@@ -34,7 +34,7 @@ from core import (
 )
 from core.namebuilder import fields
 from core.model import WeightedMapping
-from core.model import genericfields as gf
+from core.model import fields as gf
 from util import (
     mimemagic,
     sanity

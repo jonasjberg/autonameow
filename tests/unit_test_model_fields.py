@@ -23,7 +23,7 @@ from unittest import TestCase
 
 from core import constants as C
 from core.model import MeowURI
-from core.model.genericfields import (
+from core.model.fields import (
     GenericAuthor,
     GenericCreator,
     GenericDateCreated,

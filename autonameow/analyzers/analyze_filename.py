@@ -26,7 +26,7 @@ from collections import Counter
 from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
-from core.model import genericfields as gf
+from core.model import fields as gf
 from core.namebuilder import fields
 from util import (
     dateandtime,
