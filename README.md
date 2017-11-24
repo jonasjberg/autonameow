@@ -16,7 +16,7 @@ __This software is still in early stages of development --- NOT READY FOR USE!__
 
 --------------------------------------------------------------------------------
 
-`autonameow` is written for __Python 3.6__, targeting __Linux__ and
+`autonameow` is written for __Python 3.5+__, targeting __Linux__ and
 __MacOS__.
 
 Support for additional platforms will probably be added at some future time.
