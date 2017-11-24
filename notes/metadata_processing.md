@@ -71,10 +71,10 @@ assert r1.weight > r2.weight > r3.weight
 * Comparison/similarity-tests
 
 ```python
-f1 = Field('AUTHOR', 'Gibson Sjöberg')
-f2 = Field('AUTHOR', 'Gibson')
-f3 = Field('AUTHOR', 'G.S.')
-f4 = Field('AUTHOR', 'G')
+f1 = Author('Gibson Sjöberg')
+f2 = Author('gibson sjöberg')
+f3 = Author('G.S.')
+f4 = Author('G')
 assert f1 == f2
 assert f1 != f3
 assert f1 != f4
