@@ -87,9 +87,3 @@ if __name__ == '__main__':
         cf.addrow(a, b, _float.format(s), _float.format(d))
 
     print(str(cf))
-
-    # for a, b, s, d in results:
-    #     print('"{}" "{}" {:.2f} {:.2f}'.format(a, b, s, d))
-    #     # print('similarity("{!s}", "{!s}") = {:.2f}'.format(a, b, s))
-
-
