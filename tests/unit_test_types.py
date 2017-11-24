@@ -1468,59 +1468,44 @@ class TestForceString(TestCase):
 
 
 class TestForceStringList(TestCase):
-    def test_returns_list_of_strings(self):
-        def _aS(test_input):
-            actual = types.force_stringlist(test_input)
-            self.assertTrue(isinstance(actual, list))
-            for a in actual:
-                self.assertTrue(isinstance(a, str))
+    GIVEN_EXPECT = [
+        (1, ['1']),
+        (1.0, ['1.0']),
+        ('', ['']),
+        (b'', ['']),
+        ('foo', ['foo']),
+        (b'foo', ['foo']),
+        ([], ['']),
+        ({}, ['']),
+        (None, ['']),
+        ([1], ['1']),
+        ([1.0], ['1.0']),
+        ([''], ['']),
+        ([b''], ['']),
+        (['foo'], ['foo']),
+        ([b'foo'], ['foo']),
+        ([[]], ['']),
+        ([{}], ['']),
+        ([None], ['']),
+        ([None, ''], ['', '']),
+        ([None, 'foo'], ['', 'foo']),
+        ([None, None], ['', '']),
+        ([None, None, 'foo'], ['', '', 'foo'])
+    ]
 
-        _aS(1)
-        _aS(1.0)
-        _aS('')
-        _aS(b'')
-        _aS('foo')
-        _aS(b'foo')
-        _aS([])
-        _aS({})
-        _aS(None)
-        _aS([1])
-        _aS([1.0])
-        _aS([''])
-        _aS([b''])
-        _aS(['foo'])
-        _aS([b'foo'])
-        _aS([[]])
-        _aS([{}])
-        _aS([None])
+    def test_returns_list_of_strings(self):
+        for given, _ in self.GIVEN_EXPECT:
+            with self.subTest(given):
+                actual = types.force_stringlist(given)
+                self.assertTrue(isinstance(actual, list))
+                for a in actual:
+                    self.assertTrue(isinstance(a, str))
 
     def test_returns_expected_values(self):
-        def _aE(test_input, expected):
-            actual = types.force_stringlist(test_input)
-            self.assertEqual(actual, expected)
-
-        _aE(1, ['1'])
-        _aE(1.0, ['1.0'])
-        _aE('', [''])
-        _aE(b'', [''])
-        _aE('foo', ['foo'])
-        _aE(b'foo', ['foo'])
-        _aE([], [''])
-        _aE({}, [''])
-        _aE(None, [''])
-        _aE([1], ['1'])
-        _aE([1.0], ['1.0'])
-        _aE([''], [''])
-        _aE([b''], [''])
-        _aE(['foo'], ['foo'])
-        _aE([b'foo'], ['foo'])
-        _aE([[]], [''])
-        _aE([{}], [''])
-        _aE([None], [''])
-        _aE([None, ''], ['', ''])
-        _aE([None, 'foo'], ['', 'foo'])
-        _aE([None, None], ['', ''])
-        _aE([None, None, 'foo'], ['', '', 'foo'])
+        for given, expect in self.GIVEN_EXPECT:
+            with self.subTest(given):
+                actual = types.force_stringlist(given)
+                self.assertEqual(actual, expect)
 
 
 class TestTryParseDate(TestCase):
