@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-11-24
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0084]` Add handling collections (lists, etc) to the type wrapper classes.
+
 * 2017-11-21
 
     > Low Priority

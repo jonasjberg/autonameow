@@ -24,8 +24,6 @@ High Priority
 
 * `[TD0089]` Validate only "generic" data fields when reading config.
 
-* `[TD0084]` Add handling collections (lists, etc) to the type wrapper classes.
-
 * `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
   When listing results with any of the `--list-*` options, paths are not
   displayed properly due to them not being handled properly before being passed

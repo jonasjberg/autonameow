@@ -1864,7 +1864,6 @@ class TestNormalizeDatetimeWithMicroseconds(TestCase):
         # _assert_match('12_7_2017_20_50_15_641659')
 
 
-# TODO: [TD0084] Handle collections (lists, etc) with wrapper classes.
 class TestListofStrings(TestCase):
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):

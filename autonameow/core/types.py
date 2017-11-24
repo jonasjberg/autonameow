@@ -63,9 +63,6 @@ from util import (
 )
 
 
-# TODO: [TD0084] Add handling collections to type coercion classes.
-
-
 class AWTypeError(exceptions.AutonameowException):
     """Failure to coerce a value with one of the type coercers."""
 
@@ -858,7 +855,6 @@ class MultipleTypes(object):
 
 
 def listof(coercer):
-    # TODO: [TD0084] Handle collections (lists, etc) with wrapper classes.
     return MultipleTypes(coercer)
 
 
