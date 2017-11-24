@@ -821,6 +821,9 @@ def force_string(raw_value):
 
 
 def force_stringlist(raw_values):
+    if not raw_values:
+        return [AW_STRING.null()]
+
     try:
         str_list = listof(AW_STRING)(raw_values)
     except AWTypeError:
@@ -839,9 +842,6 @@ class MultipleTypes(object):
 
         if not isinstance(value, list):
             value = [value]
-
-        if not value:
-            return [self.coercer.null()]
 
         out = []
         for v in value:
