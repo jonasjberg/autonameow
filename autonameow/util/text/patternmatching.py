@@ -32,6 +32,15 @@ RE_EDITION = re.compile(
 
 
 def find_edition(text):
+    """
+    Extract an "edition", like "1st Edition", from a Unicode text string.
+
+    Args:
+        text: Unicode string to search.
+
+    Returns:
+        Any found edition as an integer or None if no edition was found.
+    """
     # TODO: [TD0118] Refactor and improve robustness.
     text = text.replace('_', ' ')
     text = text.replace('-', ' ')
