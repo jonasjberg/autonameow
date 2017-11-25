@@ -32,18 +32,19 @@ class TestLogRunTime(TestCase):
     def test_logger_called_at_enter_and_exit(self):
         with log_runtime(self.mock_logger, 'Foo'):
             pass
-        self.mock_logger.debug.assert_called()
         self.assertEqual(self.mock_logger.debug.call_count, 2)
 
     def test_logged_messages(self):
         with log_runtime(self.mock_logger, 'Foo'):
-            self.assertIn('Foo Started', self.mock_logger.debug.call_args[0][0])
-            pass
-        self.assertIn('Foo Completed', self.mock_logger.debug.call_args[0][0])
+            self.assertIn('Foo Started',
+                          self.mock_logger.debug.call_args[0][0])
+        self.assertIn('Foo Completed',
+                      self.mock_logger.debug.call_args[0][0])
 
     @patch('time.time')
     def test_timing_measurement(self, mock_time):
         mock_time.side_effect = [1511626070.045472, 1511626071.045472]
         with log_runtime(self.mock_logger, 'Foo'):
             pass
-        self.assertIn('1.000000000', self.mock_logger.debug.call_args[0][0])
+        self.assertIn('Foo Completed in 1.000000000 seconds',
+                      self.mock_logger.debug.call_args[0][0])
