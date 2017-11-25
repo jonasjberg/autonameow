@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import time
 
 import extractors
 from core import repository
@@ -141,7 +142,7 @@ class ExtractorRunner(object):
         self.exclude_slow = True
 
     def start(self, fileobject, request_extractors=None, request_all=None):
-        log.debug(' Extractor Runner Started '.center(80, '='))
+        log.debug(' Extractor Runner Started '.center(120, '='))
         assert isinstance(fileobject, FileObject), (
             'Expected type "FileObject". Got {!s}'.format(type(fileobject)))
 
@@ -184,9 +185,14 @@ class ExtractorRunner(object):
         for k in klasses:
             log.debug('Prepared:  {!s}'.format(str(k.__name__)))
 
-        log.debug(' Extraction Started '.center(80, '='))
+        log.debug(' Extraction Starting '.center(120, '='))
+        start_time = time.time()
+
         self._run_extractors(fileobject, klasses)
-        log.debug(' Extraction Completed '.center(80, '='))
+
+        elapsed_time = time.time() - start_time
+        msg = ' Extraction Completed in {:.9f} seconds '.format(elapsed_time)
+        log.debug(msg.center(120, '='))
 
     @staticmethod
     def _run_extractors(fileobject, klasses):

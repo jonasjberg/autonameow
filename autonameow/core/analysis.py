@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import time
 
 import analyzers
 from core import (
@@ -157,7 +158,7 @@ def start(fileobject, config):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
-    log.debug(' Analysis Starting '.center(80, '='))
+    log.debug(' Analysis Preparation Started '.center(120, '='))
 
     assert isinstance(fileobject, FileObject), (
            'Expected type "FileObject". Got {!s}')
@@ -187,7 +188,12 @@ def start(fileobject, config):
     # Sort queue by analyzer priority.
     sorted(analyzer_queue, key=lambda x: x.RUN_QUEUE_PRIORITY or 0.1)
 
+    log.debug(' Analysis Started '.center(120, '='))
+    start_time = time.time()
+
     # Run all analyzers in the queue.
     _execute_run_queue(analyzer_queue)
 
-    log.debug(' Analysis Completed '.center(80, '='))
+    elapsed_time = time.time() - start_time
+    msg = ' Analysis Completed in {:.9f} seconds '.format(elapsed_time)
+    log.debug(msg.center(120, '='))

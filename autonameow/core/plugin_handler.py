@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import time
 
 import plugins
 from core import (
@@ -43,7 +44,8 @@ class PluginHandler(object):
         self.available_plugins = []
 
     def start(self, fileobject, require_plugins=None, run_all_plugins=False):
-        self.log.debug(' Plugins Starting '.center(80, '='))
+        self.log.debug(' Plugins Starting '.center(120, '='))
+        start_time = time.time()
 
         # Get instantiated and validated plugins.
         self.available_plugins = plugins.UsablePlugins
@@ -68,7 +70,9 @@ class PluginHandler(object):
 
         self.execute_plugins(fileobject)
 
-        self.log.debug(' Plugins Completed '.center(80, '='))
+        elapsed_time = time.time() - start_time
+        msg = ' Plugins Completed in {:.9f} seconds '.format(elapsed_time)
+        self.log.debug(msg.center(120, '='))
 
     def use_plugins(self, plugin_list):
         self.log.debug(
