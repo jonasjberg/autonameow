@@ -290,6 +290,7 @@ def run_regressiontests(tests):
         if failures == -10:
             # TODO: Fix formatting of failure due to top-level exception error.
             count_failure += 1
+            failed_tests.append(test)
             continue
 
         if failures == 0:
