@@ -330,7 +330,7 @@ def main(args):
         dest='run_lastfailed',
         action='store_true',
         default=False,
-        help='Run only the test cases that failed during the last completed'
+        help='Run only the test cases that failed during the last completed '
              'run, or all if none failed.'
     )
 
