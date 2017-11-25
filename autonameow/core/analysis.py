@@ -20,12 +20,12 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import time
 
 import analyzers
 from core import (
     exceptions,
-    repository,
+    logs,
+    repository
 )
 from core.config.configuration import Configuration
 from core.exceptions import InvalidMeowURIError
@@ -188,12 +188,6 @@ def start(fileobject, config):
     # Sort queue by analyzer priority.
     sorted(analyzer_queue, key=lambda x: x.RUN_QUEUE_PRIORITY or 0.1)
 
-    log.debug(' Analysis Started '.center(120, '='))
-    start_time = time.time()
-
     # Run all analyzers in the queue.
-    _execute_run_queue(analyzer_queue)
-
-    elapsed_time = time.time() - start_time
-    msg = ' Analysis Completed in {:.9f} seconds '.format(elapsed_time)
-    log.debug(msg.center(120, '='))
+    with logs.log_runtime(log, 'Analysis'):
+        _execute_run_queue(analyzer_queue)

@@ -20,11 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import time
 
 import plugins
 from core import (
     exceptions,
+    logs,
     repository
 )
 from core.exceptions import InvalidMeowURIError
@@ -44,8 +44,7 @@ class PluginHandler(object):
         self.available_plugins = []
 
     def start(self, fileobject, require_plugins=None, run_all_plugins=False):
-        self.log.debug(' Plugins Starting '.center(120, '='))
-        start_time = time.time()
+        self.log.debug(' Plugin Handler Started '.center(120, '='))
 
         # Get instantiated and validated plugins.
         self.available_plugins = plugins.UsablePlugins
@@ -68,11 +67,8 @@ class PluginHandler(object):
             )
             self.use_plugins(list(require_plugins))
 
-        self.execute_plugins(fileobject)
-
-        elapsed_time = time.time() - start_time
-        msg = ' Plugins Completed in {:.9f} seconds '.format(elapsed_time)
-        self.log.debug(msg.center(120, '='))
+        with logs.log_runtime(log, 'Plugins'):
+            self.execute_plugins(fileobject)
 
     def use_plugins(self, plugin_list):
         self.log.debug(

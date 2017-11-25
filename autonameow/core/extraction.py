@@ -20,10 +20,12 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import time
 
 import extractors
-from core import repository
+from core import (
+    logs,
+    repository
+)
 from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
 from core.model import MeowURI
@@ -185,14 +187,9 @@ class ExtractorRunner(object):
         for k in klasses:
             log.debug('Prepared:  {!s}'.format(str(k.__name__)))
 
-        log.debug(' Extraction Starting '.center(120, '='))
-        start_time = time.time()
-
-        self._run_extractors(fileobject, klasses)
-
-        elapsed_time = time.time() - start_time
-        msg = ' Extraction Completed in {:.9f} seconds '.format(elapsed_time)
-        log.debug(msg.center(120, '='))
+        # Run all prepared extractors.
+        with logs.log_runtime(log, 'Extraction'):
+            self._run_extractors(fileobject, klasses)
 
     @staticmethod
     def _run_extractors(fileobject, klasses):
