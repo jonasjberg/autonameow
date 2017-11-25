@@ -153,10 +153,9 @@ def eval_glob(mime_to_match, glob_list):
     if not isinstance(glob_list, list):
         glob_list = [glob_list]
 
-    log.debug(
-        'Evaluating MIME. MimeToMatch: "{!s}" Globs: {!s}'.format(mime_to_match,
-                                                                  glob_list)
-    )
+    # log.debug('Evaluating MIME. MimeToMatch: "{!s}" Globs: {!s}'.format(
+    #     mime_to_match, glob_list
+    # ))
     mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
     for glob in glob_list:
         sanity.check_internal_string(glob)
