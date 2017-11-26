@@ -238,6 +238,11 @@ def msg_captured_stderr(stderr):
     print(_stderr)
 
 
+def msg_captured_stdout(stdout):
+    print('\nCaptured stdout:')
+    print(stdout)
+
+
 def write_failed_tests(tests):
     p = get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
                         persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH)
@@ -259,7 +264,7 @@ def load_failed_tests():
     return []
 
 
-def run_regressiontests(tests, print_stderr):
+def run_regressiontests(tests, print_stderr, print_stdout):
     count_success = 0
     count_failure = 0
     count_skipped = 0
@@ -300,6 +305,8 @@ def run_regressiontests(tests, print_stderr):
         if failures == -10:
             if print_stderr and captured_stderr:
                 msg_captured_stderr(captured_stderr)
+            if print_stdout and captured_stdout:
+                msg_captured_stdout(captured_stdout)
 
             # TODO: Fix formatting of failure due to top-level exception error.
             count_failure += 1
@@ -318,6 +325,8 @@ def run_regressiontests(tests, print_stderr):
 
         if print_stderr and captured_stderr:
             msg_captured_stderr(captured_stderr)
+        if print_stdout and captured_stdout:
+            msg_captured_stdout(captured_stdout)
 
     msg_overall_stats(count_total, count_skipped, count_success, count_failure)
 
@@ -357,6 +366,13 @@ def main(args):
         default=False,
         help='Print captured stderr.'
     )
+    parser.add_argument(
+        '--stdout',
+        dest='print_stdout',
+        action='store_true',
+        default=False,
+        help='Print captured stdout.'
+    )
 
     opts = parser.parse_args(args)
 
@@ -391,7 +407,9 @@ def main(args):
         print('Running {} test case(s) ..'.format(len(tests_to_run)))
 
     print()
-    run_regressiontests(tests_to_run, print_stderr=bool(opts.print_stderr))
+    run_regressiontests(tests_to_run,
+                        print_stderr=bool(opts.print_stderr),
+                        print_stdout=bool(opts.print_stdout))
 
 
 if __name__ == '__main__':
