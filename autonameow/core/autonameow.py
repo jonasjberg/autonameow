@@ -337,10 +337,54 @@ class Autonameow(object):
             run_all_plugins=should_list_any_results
         )
 
-        # Determine matching rule.
-        matcher = _run_rule_matcher(current_file, self.active_config)
+        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
+        active_rule = None
+        name_template = None
+        if self.opts.get('mode_rulematch'):
+            matcher = _run_rule_matcher(current_file, self.active_config)
 
-        # Perform actions.
+            # Is there a "best matched" rule?
+            if not matcher.best_match:
+                if self.opts.get('mode_batch'):
+                    log.warning('No rule matched, name template unknown.')
+                    self.exit_code = C.EXIT_WARNING
+                    return
+                else:
+                    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                    candidates = None
+                    choice = interactive.select_template(candidates)
+                    # if choice != ui.action.ABORT:
+                    #     name_template = choice
+                    # else:
+                    #     name_template = None
+                    name_template = None
+            else:
+                # OK! But is the score of the best matched rule high enough?
+                _best_match_score = matcher.best_match_score()
+                if _best_match_score > 0:
+                    active_rule = matcher.best_match
+                else:
+                    if self.opts.get('mode_batch'):
+                        log.warning(
+                            'Best matched rule score: {} --- Require user '
+                            'confirmation.'.format(_best_match_score)
+                        )
+                        log.info('Skipping file ..')
+                        return
+                    else:
+                        log.debug('Best matched rule score: {} --- Require user '
+                                  'confirmation.'.format(_best_match_score))
+                        ok = interactive.ask_confirm(
+                            'Best matched rule "{!s}" score: {}\n'
+                            'Proceed with this rule?'.format(
+                                matcher.best_match.description,
+                                _best_match_score
+                            )
+                        )
+                        log.debug('User response: "{!s}"'.format(ok))
+                        if ok:
+                            active_rule = matcher.best_match
+
         if self.opts.get('mode_automagic'):
             # TODO: [TD0100] Run rule-matching by default.
             self._perform_automagic_actions(current_file, matcher)
@@ -351,59 +395,8 @@ class Autonameow(object):
 
     def _perform_automagic_actions(self, current_file, rule_matcher):
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
-        best_match = None
-        name_template = None
-
-        if self.opts.get('mode_batch'):
-            if not rule_matcher.best_match:
-                log.warning('No rule matched, name template unknown.')
-                self.exit_code = C.EXIT_WARNING
-                return
-
-            else:
-                _best_match_score = rule_matcher.best_match_score()
-                if _best_match_score == 0:
-                    log.warning('Best matched rule score: {} --- Require user '
-                                'confirmmation.'.format(_best_match_score))
-                    log.info('Skipping file ..')
-                    return
-                else:
-                    best_match = rule_matcher.best_match
-
-        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
-        else:
-            if rule_matcher.best_match:
-                _best_match_score = rule_matcher.best_match_score()
-                if _best_match_score > 0:
-                    best_match = rule_matcher.best_match
-                else:
-                    log.debug('Best matched rule score: {} --- Require user '
-                              'confirmation.'.format(_best_match_score))
-                    ok = interactive.ask_confirm(
-                        'Best matched rule "{!s}" score: {}\n'
-                        'Proceed with this rule?'.format(
-                            rule_matcher.best_match.description,
-                            _best_match_score
-                        )
-                    )
-                    log.debug('User response: "{!s}"'.format(ok))
-                    if ok:
-                        best_match = rule_matcher.best_match
-            else:
-                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-                candidates = None
-                choice = interactive.select_template(candidates)
-                # if choice != ui.action.ABORT:
-                #     name_template = choice
-                # else:
-                #     name_template = None
-                name_template = None
-
-                best_match = rule_matcher.best_match
-
-        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
-        if best_match and not name_template:
-            name_template = best_match.name_template
+        if active_rule and not name_template:
+            name_template = active_rule.name_template
             log.info(
                 'Using rule: "{!s}"'.format(rule_matcher.best_match.description)
             )

@@ -47,9 +47,10 @@ DEFAULT_OPTIONS = {
     'list_datetime': False,
     'list_title': False,
 
-    'mode_batch': False,
     'mode_automagic': False,
+    'mode_batch': False,
     'mode_interactive': True,
+    'mode_rulematch': True,
 
     'config_path': None,
 
@@ -162,9 +163,10 @@ def cli_main(argv=None):
         'list_datetime': opts.list_datetime,
         'list_title': opts.list_title,
 
-        'mode_batch': opts.mode_batch,
         'mode_automagic': opts.mode_automagic,
+        'mode_batch': opts.mode_batch,
         'mode_interactive': opts.mode_interactive,
+        'mode_rulematch': opts.mode_rulematch,
 
         'config_path': opts.config_path,
 
