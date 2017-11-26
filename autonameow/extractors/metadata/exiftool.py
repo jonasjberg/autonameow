@@ -393,6 +393,17 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ]
         },
         'XMP:About': {'coercer': types.AW_STRING},
+        'XMP:Contributor': {
+            'coercer': types.AW_STRING,
+            'multivalued': True,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=1),
+                WeightedMapping(fields.Creator, probability=0.5),
+                WeightedMapping(fields.Publisher, probability=0.02),
+                WeightedMapping(fields.Title, probability=0.01)
+            ],
+            'generic_field': gf.GenericAuthor
+        },
         'XMP:CreateDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
             'mapped_fields': [
@@ -404,8 +415,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'XMP:Creator': {
             'coercer': types.AW_STRING,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
-                WeightedMapping(fields.Creator, probability=0.5),
+                WeightedMapping(fields.Creator, probability=1),
+                WeightedMapping(fields.Author, probability=0.5),
                 WeightedMapping(fields.Publisher, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
@@ -434,10 +445,19 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'XMP:Date': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.9),
-                WeightedMapping(fields.Date, probability=0.9)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
             'generic_field': gf.GenericDateCreated
+        },
+        'XMP:Description': {
+            # TODO: Possibly HTML; <p>TEXT</p>, HTML-encoded characters, etc.
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Description, probability=1),
+                WeightedMapping(fields.Tags, probability=0.5)
+            ],
+            'generic_field': gf.GenericDescription
         },
         'XMP:DocumentID': {'coercer': types.AW_STRING},
         'XMP:EntryAuthorName': {
@@ -504,6 +524,9 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': types.AW_TIMEDATE,
             'multivalued': True
         },
+        'XMP:Identifier': {
+            'coercer': types.AW_STRING,
+        },
         'XMP:Keywords': {
             'coercer': types.AW_STRING,
             'mapped_fields': [
@@ -558,7 +581,14 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Creator, probability=0.2),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            'generic_field': gf.GenericAuthor
+            'generic_field': gf.GenericPublisher
+        },
+        'XMP:Rights': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Publisher, probability=0.5),
+                WeightedMapping(fields.Author, probability=0.5),
+            ],
         },
         'XMP:Subject': {
             'coercer': types.AW_STRING,

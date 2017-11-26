@@ -98,7 +98,8 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
-        # TODO: [TD0114] Check metadata for ISBNs: 'PDF:Keywords', ..
+        # TODO: [TD0114] Check metadata for ISBNs.
+        # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier'
 
         isbns = extractlines_do(find_ebook_isbns_in_text, self.text,
                                 fromline=0, toline=100)
