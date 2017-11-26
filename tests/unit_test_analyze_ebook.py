@@ -38,6 +38,9 @@ from analyzers.analyze_ebook import (
 import unit_utils as uu
 
 
+uu.init_provider_registry()
+
+
 def get_ebook_analyzer(fileobject):
     return analyze_ebook.EbookAnalyzer(
         fileobject,
@@ -209,6 +212,17 @@ class TestISBNMetadata(unittest.TestCase):
             'isbn13': '9783540762874'
         }
 
+        # ISBN
+        self.m6 = {
+            'title': 'Computational Intelligence: Methods And Techniques',
+            'authors': ['Leszek Rutkowski'],
+            'publisher': 'Springer',
+            'year': '2008',
+            'language': 'eng',
+            'isbn10': '3540762876',
+            'isbn13': '9783540762874'
+        }
+
     def test_isbn_metadata_from_args(self):
         isbn_metadata = ISBNMetadata(**self.m1)
         self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
@@ -229,28 +243,7 @@ class TestISBNMetadata(unittest.TestCase):
 
     def test_equality(self):
         self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
-
-        # TODO: .. ?
-        # self.assertEqual(ISBNMetadata(**self.m5), ISBNMetadata(**self.m6))
-
-    def test_equality_2(self):
-        self.skipTest('TODO: .. ?')
-        m5 = ISBNMetadata(authors=['Leszek Rutkowski'],
-                          language='eng',
-                          publisher='Springer',
-                          isbn10='3540762884',
-                          isbn13='9783540762881',
-                          title='Computational Intelligence Methods And Techniques',
-                          year='2008')
-        m6 = ISBNMetadata(authors=['Leszek Rutkowski'],
-                          language='eng',
-                          publisher='Springer',
-                          isbn10='3540762876',
-                          isbn13='9783540762874',
-                          title='Computational Intelligence: Methods And Techniques',
-                          year='2008')
-
-        self.assertEqual(m5, m6)
+        self.assertEqual(ISBNMetadata(**self.m5), ISBNMetadata(**self.m6))
 
     def test_equality_based_on_isbn_numbers(self):
         self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m3))
@@ -272,16 +265,188 @@ class TestISBNMetadata(unittest.TestCase):
         metadataset.add(ISBNMetadata(**self.m5))
         self.assertEqual(len(metadataset), 2)
 
-        # TODO: .. ?
-        # metadataset.add(ISBNMetadata(**self.m6))
-        # self.assertEqual(len(metadataset), 2)
-
     def test_edition_in_title(self):
         self.skipTest('TODO: ..')
 
         m = ISBNMetadata(title='Microcontrollers, Second Edition')
         self.assertEqual(m.title, 'Microcontrollers')
         self.assertEqual(m.edition, '2')
+
+
+class TestISBNMetadataEquality(unittest.TestCase):
+    ISBN10_A = '3540762884'
+    ISBN10_B = '3540762876'
+    ISBN13_A = '9783540762881'
+    ISBN13_B = '9783540762874'
+
+    def test_all_same_except_isbn_numbers(self):
+        # Case where one book has multiple ISBNs for different editions, etc.
+        m1 = ISBNMetadata(
+            authors=['Leszek Rutkowski'],
+            language='eng',
+            publisher='Springer',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='Computational Intelligence Methods And Techniques',
+            year='2008'
+        )
+        m2 = ISBNMetadata(
+            authors=['Leszek Rutkowski'],
+            language='eng',
+            publisher='Springer',
+            isbn10=self.ISBN10_B,
+            isbn13=self.ISBN13_B,
+            title='Computational Intelligence: Methods And Techniques',
+            year='2008'
+        )
+        self.assertEqual(m1, m2)
+
+    def test_same_isbn_numbers_missing_author(self):
+        m1 = ISBNMetadata(
+            authors=['Leszek Rutkowski'],
+            language='eng',
+            publisher='Springer',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='Computational Intelligence Methods And Techniques',
+            year='2008'
+        )
+        m2 = ISBNMetadata(
+            authors=[''],
+            language='eng',
+            publisher='Springer',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='Computational Intelligence: Methods And Techniques',
+            year='2008'
+        )
+        self.assertEqual(m1, m2)
+
+    def test_same_isbn_numbers_shortened_author(self):
+        m1 = ISBNMetadata(
+            authors=['Leszek Rutkowski'],
+            language='eng',
+            publisher='Springer',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='Computational Intelligence Methods And Techniques',
+            year='2008'
+        )
+        m2 = ISBNMetadata(
+            authors=['Rutkowski L.'],
+            language='eng',
+            publisher='Springer',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='Computational Intelligence: Methods And Techniques',
+            year='2008'
+        )
+        self.assertEqual(m1, m2)
+
+    def test_same_isbn_numbers_different_author(self):
+        m1 = ISBNMetadata(
+            authors=['Leszek Rutkowski'],
+            language='eng',
+            publisher='Springer',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='Computational Intelligence Methods And Techniques',
+            year='2008'
+        )
+        m2 = ISBNMetadata(
+            authors=['Gibson Sjöberg'],
+            language='eng',
+            publisher='Springer',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='Computational Intelligence: Methods And Techniques',
+            year='2008'
+        )
+        self.assertEqual(m1, m2)
+
+    def test_same_isbn_numbers_all_other_fields_missing(self):
+        m1 = ISBNMetadata(
+            authors=[],
+            language='',
+            publisher='',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='',
+            year=''
+        )
+        m2 = ISBNMetadata(
+            authors=[],
+            language='',
+            publisher='',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='',
+            year=''
+        )
+        self.assertEqual(m1, m2)
+
+    def test_same_isbn_numbers_different_author_and_publisher(self):
+        m1 = ISBNMetadata(
+            authors=['Leszek Rutkowski'],
+            language='eng',
+            publisher='Springer',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='Computational Intelligence Methods And Techniques',
+            year='2008'
+        )
+        m2 = ISBNMetadata(
+            authors=['Gibson Sjöberg'],
+            language='eng',
+            publisher='CatPub',
+            isbn10=self.ISBN10_B,
+            isbn13=self.ISBN13_A,
+            title='Computational Intelligence: Methods And Techniques',
+            year='2008'
+        )
+        self.assertEqual(m1, m2)
+
+    def test_different_author_publisher_isbn_numbers(self):
+        m1 = ISBNMetadata(
+            authors=['Leszek Rutkowski'],
+            language='eng',
+            publisher='Springer',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='Computational Intelligence Methods And Techniques',
+            year='2008'
+        )
+        m2 = ISBNMetadata(
+            authors=['Gibson Sjöberg'],
+            language='eng',
+            publisher='CatPub',
+            isbn10=self.ISBN10_B,
+            isbn13=self.ISBN13_B,
+            title='Computational Intelligence: Methods And Techniques',
+            year='2008'
+        )
+        self.assertNotEqual(m1, m2)
+
+    def test_different_isbn_numbers_all_other_fields_missing(self):
+        m1 = ISBNMetadata(
+            authors=[],
+            language='',
+            publisher='',
+            isbn10=self.ISBN10_A,
+            isbn13=self.ISBN13_A,
+            title='',
+            year=''
+        )
+        m2 = ISBNMetadata(
+            authors=[],
+            language='',
+            publisher='',
+            isbn10=self.ISBN10_B,
+            isbn13=self.ISBN13_B,
+            title='',
+            year=''
+        )
+        self.assertNotEqual(m1, m2)
 
 
 class TestFindEbookISBNsInText(unittest.TestCase):

@@ -35,6 +35,10 @@ from core import (
 from core.namebuilder import fields
 from core.model import WeightedMapping
 from core.model import genericfields as gf
+from core.model.normalize import (
+    normalize_full_human_name,
+    normalize_full_title
+)
 from util import (
     mimemagic,
     sanity
@@ -398,16 +402,36 @@ def fetch_isbn_metadata(isbn_number):
 
 
 class ISBNMetadata(object):
+    NORMALIZED_YEAR_UNKNOWN = 1337
+
     def __init__(self, authors=None, language=None, publisher=None,
                  isbn10=None, isbn13=None, title=None, year=None, edition=None):
-        self._authors = authors
-        self._language = language
-        self._publisher = publisher
-        self._isbn10 = isbn10
-        self._isbn13 = isbn13
-        self._title = title
-        self._year = year
-        self._edition = edition
+        self._authors = None
+        self._language = None
+        self._publisher = None
+        self._isbn10 = None
+        self._isbn13 = None
+        self._title = None
+        self._year = None
+        self._edition = None
+
+        # Used when comparing class instances.
+        self._normalized_authors = []
+        self._normalized_language = None
+        self._normalized_publisher = None
+        self._normalized_title = None
+        self._normalized_year = None
+        self._normalized_edition = None
+
+        self.authors = authors
+        self.language = language
+        self.publisher = publisher
+        self.isbn10 = isbn10
+        self.isbn13 = isbn13
+        self.title = title
+        self.year = year
+        self.edition = edition
+
 
     @property
     def authors(self):
@@ -419,6 +443,13 @@ class ISBNMetadata(object):
             if not isinstance(value, list):
                 value = [value]
             self._authors = value
+            self._normalized_authors = [
+               normalize_full_human_name(a) for a in value if a
+            ]
+
+    @property
+    def normalized_authors(self):
+        return self._normalized_authors or []
 
     @property
     def edition(self):
@@ -428,6 +459,11 @@ class ISBNMetadata(object):
     def edition(self, value):
         if value and isinstance(value, str):
             self._edition = value
+            self._normalized_edition = value.lower().strip()
+
+    @property
+    def normalized_edition(self):
+        return self._normalized_edition or 0
 
     @property
     def isbn10(self):
@@ -467,6 +503,11 @@ class ISBNMetadata(object):
     def language(self, value):
         if value and isinstance(value, str):
             self._language = value
+            self._normalized_language = value.lower().strip()
+
+    @property
+    def normalized_language(self):
+        return self._normalized_language or ''
 
     @property
     def publisher(self):
@@ -476,6 +517,11 @@ class ISBNMetadata(object):
     def publisher(self, value):
         if value and isinstance(value, str):
             self._publisher = value
+            self._normalized_publisher = value.lower().strip()
+
+    @property
+    def normalized_publisher(self):
+        return self._normalized_publisher or ''
 
     @property
     def year(self):
@@ -485,6 +531,18 @@ class ISBNMetadata(object):
     def year(self, value):
         if value and isinstance(value, str):
             self._year = value
+            try:
+                self._normalized_year = types.AW_INTEGER(value)
+            except types.AWTypeError:
+                self._normalized_year = self.NORMALIZED_YEAR_UNKNOWN
+
+    @property
+    def normalized_year(self):
+        return self._normalized_year or self.NORMALIZED_YEAR_UNKNOWN
+
+    @property
+    def normalized_language(self):
+        return self._normalized_language or ''
 
     @property
     def title(self):
@@ -496,9 +554,92 @@ class ISBNMetadata(object):
             match = find_edition(value)
             if match:
                 self.edition = match
+                # TODO: This is WRONG!
+                # Result of 'find_edition()' might not come from the part of
+                # the string that matched 'RE_EDITION'. Need a better way to
+                # identify and extract substrings ("fields") from strings.
                 value = re.sub(RE_EDITION, '', value)
 
             self._title = value
+            self._normalized_title = normalize_full_title(value)
+
+    @property
+    def normalized_title(self):
+        return self._normalized_title or ''
+
+    def similarity(self, other):
+        """
+        Fuzzy comparison with ad-hoc threshold values.
+        """
+        UNLIKELY_YEAR_DIFF = 42
+        FIELDS_MISSING_SIMILARITY = 0.1
+
+        if self.normalized_title and other.normalized_title:
+            _sim_title = string_similarity(self.normalized_title,
+                                           other.normalized_title)
+        else:
+            _sim_title = FIELDS_MISSING_SIMILARITY
+
+        if (self.normalized_year == self.NORMALIZED_YEAR_UNKNOWN and
+                other.normalized_year == self.NORMALIZED_YEAR_UNKNOWN):
+            _year_diff = UNLIKELY_YEAR_DIFF
+        else:
+            _year_diff = int(abs(self.normalized_year - other.normalized_year))
+
+        if len(self.normalized_authors) == 0:
+            _sim_authors = FIELDS_MISSING_SIMILARITY
+        elif len(self.normalized_authors) != len(other.normalized_authors):
+            _sim_authors = 0.0
+        else:
+            _sim_authors = float(
+                sum(string_similarity(a, b)
+                    for a, b in zip(self.normalized_authors,
+                                    other.normalized_authors)
+                    ) / len(self.normalized_authors)
+            )
+
+        if self.normalized_publisher and other.normalized_publisher:
+            _sim_publisher = string_similarity(self.normalized_publisher,
+                                               other.normalized_publisher)
+        else:
+            _sim_publisher = FIELDS_MISSING_SIMILARITY
+
+        # TODO: Arbitrary threshold values..
+        # Solving "properly" requires machine learning techniques; HMM? Bayes?
+        if _year_diff == 0:
+            if _sim_title > 0.9:
+                if _sim_publisher > 0.9:
+                    if _sim_authors > 0.5:
+                        return True
+                elif _sim_publisher > 0.5:
+                    if _sim_authors > 0.7:
+                        return True
+                else:
+                    if _sim_authors > 0.9:
+                        return True
+        if _year_diff < 2:
+            if _sim_authors > 0.7:
+                if _sim_title > 0.3:
+                    return True
+                if _sim_publisher > 0.2:
+                    return True
+            elif _sim_authors > 0.5:
+                if _sim_title > 0.7:
+                    return True
+                if _sim_publisher > 0.7:
+                    return True
+        else:
+            if _sim_authors == 1:
+                if _sim_title > 0.5:
+                    return True
+                if _sim_publisher > 0.5:
+                    return True
+            elif _sim_authors > 0.5:
+                if _sim_title > 0.7:
+                    return True
+                if _sim_publisher > 0.7:
+                    return True
+        return False
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -507,12 +648,8 @@ class ISBNMetadata(object):
             return True
         if self.isbn13 == other.isbn13:
             return True
-        if (self.title == other.title
-                and self.authors == other.authors
-                and self.publisher == other.publisher
-                and self.year == other.year
-                and self.language == other.language):
-            return True
+
+        return self.similarity(other)
 
     def __hash__(self):
         return hash((self.isbn10, self.isbn13))
