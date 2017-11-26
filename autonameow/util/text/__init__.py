@@ -19,6 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from .distance import (
+    string_difference,
+    string_similarity
+)
 from .humannames import (
     format_name,
     format_name_list

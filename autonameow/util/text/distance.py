@@ -48,11 +48,11 @@ def normalized_levenshtein(a, b):
     return _normdiff
 
 
-def normalized_difference(a, b):
+def string_difference(a, b):
     return normalized_levenshtein(a, b)
 
 
-def normalized_similarity(a, b):
+def string_similarity(a, b):
     _diff = levenshtein(a, b)
     _normdiff = _diff / max(1, max(len(a), len(b)))
     _normalized_similarity = 1 - _normdiff
@@ -75,8 +75,8 @@ if __name__ == '__main__':
         # a = a.lower().replace('.', '').strip()
         # b = b.lower().replace('.', '').strip()
 
-        s = normalized_similarity(a, b)
-        d = normalized_difference(a, b)
+        s = string_similarity(a, b)
+        d = string_difference(a, b)
         results.append((a, b, s, d))
 
     cf = ColumnFormatter()

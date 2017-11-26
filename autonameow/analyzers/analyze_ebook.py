@@ -42,6 +42,7 @@ from util import (
 from util.textutils import extractlines_do
 from util.text import (
     find_edition,
+    string_similarity,
     RE_EDITION
 )
 
