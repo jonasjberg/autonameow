@@ -26,7 +26,10 @@ from core.model.fields import (
     # Isbn,
     Title
 )
-from core.model.record import Record
+from core.model.record import (
+    RecordComparator,
+    Record
+)
 
 
 # From 'notes/metadata_processing.md':
@@ -74,13 +77,25 @@ class TestRecordComparator(TestCase):
     def setUp(self):
         self.c = RecordComparator()
 
+    def _check(self, *records, expect=None):
+        actual = self.c.weigh(*records)
+        self.assertEqual(actual, expect)
+
     def test_prefer_record_with_more_fields(self):
         r1 = Record(Author('Gibson'))
         r2 = Record(Author('Gibson'), Title('Meow'))
-        w = self.c.compare(r1, r2)
-        w = self.assertGreater(r2, r1)
+        self._check(r1, r2, expect=r2)
+
+    def test_prefer_record_with_complete_fields(self):
+        r1 = Record(Author(''))
+        r2 = Record(Author('Gibson'))
+        self._check(r1, r2, expect=r2)
 
     def test_prefer_record_with_more_complete_field(self):
         r1 = Record(Author('Gibson Sjöberg'))
         r2 = Record(Author('Gibson'))
-        # self.assertGreater(r1, r2)
+        self._check(r1, r2, expect=r1)
+
+        r3 = Record(Author('Gibso'))
+        r4 = Record(Author('Gibson'))
+        self._check(r3, r4, expect=r4)

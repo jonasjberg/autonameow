@@ -19,44 +19,60 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from core.model.normalize import (
+    normalize_full_human_name,
+    normalize_full_title
+)
+
 
 class BaseField(object):
     def __init__(self, value):
         self.value = value
         self.record = None
 
+        self._normvalue = None
+        self.normalize = lambda x: x
+
+    @property
+    def normvalue(self):
+        if self._normvalue is None:
+            self._normvalue = self.normalize(self.value)
+        return self._normvalue
+
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
         if self.value == other.value:
             return True
+        if self.normvalue == other.normvalue:
+            return True
 
         return False
 
-    @property
-    def weight(self):
-        return self._calculate_weight()
+    def __bool__(self):
+        return self.normvalue is not ''
 
-    def _calculate_weight(self):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    # def relative_score(self, *others):
-    #     raise NotImplementedError('Must be implemented by inheriting classes.')
+    def __len__(self):
+        return len(self.normvalue) or 0
 
 
 class Author(BaseField):
+    def __init__(self, value):
+        super().__init__(value)
+        self.normalize = normalize_full_human_name
+
     def _calculate_weight(self):
         if not self.value:
             return 0.0
 
         return 1.0
 
-    # def relative_score(self, *others):
-    #     for other in others:
-    #         if
-
 
 class Title(BaseField):
+    def __init__(self, value):
+        super().__init__(value)
+        self.normalize = normalize_full_title
+
     def _calculate_weight(self):
         if not self.value:
             return 0.0

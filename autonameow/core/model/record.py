@@ -47,4 +47,19 @@ class Record(object):
 
 
 class RecordComparator(object):
-    pass
+    def weigh(self, record1, record2):
+        # Prefer record with most number of non-empty fields.
+        _record1_len = len([f for f in record1.fields if f])
+        _record2_len = len([f for f in record2.fields if f])
+        if _record1_len > _record2_len:
+            return record1
+        elif _record2_len > _record1_len:
+            return record2
+
+        # Prefer record with highest total field-length.
+        _record1_field_sum = sum(len(f) for f in record1.fields if f)
+        _record2_field_sum = sum(len(f) for f in record2.fields if f)
+        if _record1_field_sum > _record2_field_sum:
+            return record1
+        elif _record2_field_sum > _record1_field_sum:
+            return record2
