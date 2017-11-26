@@ -38,7 +38,7 @@ def strip_author_et_al(string):
     return _subbed.strip().rstrip(',').lstrip('.')
 
 
-def parse_name(human_name):
+def _parse_name(human_name):
     """
     Thin wrapper around 'nameparser'.
 
@@ -75,6 +75,41 @@ def parse_name(human_name):
     return {}
 
 
+class HumanNameParser(object):
+    # List of words to exclude from the output.
+    IGNORED_AUTHOR_WORDS = frozenset([
+        '',
+    ])
+
+    # Regex matching names in the class-specific format.
+    # NOTE: This __MUST__ be defined by inheriting classes!
+    RE_FORMATTED_NAME = None
+
+    def __call__(self, name):
+        if name is None:
+            return {}
+        sanity.check_internal_string(name)
+
+        preprocessed_name = self._preprocess(name)
+        parsed_name = _parse_name(preprocessed_name)
+        if not parsed_name:
+            return {}
+
+        return parsed_name
+
+    @classmethod
+    def _preprocess(cls, name):
+        if not name or not name.strip():
+            return ''
+
+        for ignored_word in cls.IGNORED_AUTHOR_WORDS:
+            name = name.replace(ignored_word, '')
+
+        name = strip_author_et_al(name)
+        name = name.strip().rstrip(',').lstrip('.')
+        return name
+
+
 class HumanNameFormatter(object):
     """
     Base class for all human name formatters with shared utility functionality.
@@ -94,34 +129,18 @@ class HumanNameFormatter(object):
     # NOTE: This __MUST__ be defined by inheriting classes!
     RE_FORMATTED_NAME = None
 
-    def __call__(self, name):
-        sanity.check_internal_string(name)
+    def __call__(self, parsed_name):
+        assert isinstance(parsed_name, dict)
         if not self.RE_FORMATTED_NAME:
             raise NotImplementedError(
                 'Inheriting classes must define "RE_FORMATTED_NAME"'
             )
 
-        preprocessed_name = self._preprocess(name)
-        if self._is_formatted(preprocessed_name):
-            return preprocessed_name
-
-        parsed_name = parse_name(preprocessed_name)
-        if not parsed_name:
-            return ''
+        _original_string = parsed_name.get('original', '')
+        if self._is_formatted(_original_string):
+            return _original_string
 
         return self.format(parsed_name)
-
-    @classmethod
-    def _preprocess(cls, name):
-        if not name or not name.strip():
-            return ''
-
-        for ignored_word in cls.IGNORED_AUTHOR_WORDS:
-            name = name.replace(ignored_word, '')
-
-        name = strip_author_et_al(name)
-        name = name.strip().rstrip(',').lstrip('.')
-        return name
 
     @classmethod
     def _is_formatted(cls, name):
@@ -155,9 +174,9 @@ class LastNameInitialsFormatter(HumanNameFormatter):
     RE_FORMATTED_NAME = re.compile(r'[\w-]+ (\w\.)+$')
 
     def format(self, parsed_name):
-        first_list = parsed_name['first_list']
-        middle_list = parsed_name['middle_list']
-        last = parsed_name['last']
+        first_list = parsed_name.get('first_list', '')
+        middle_list = parsed_name.get('middle_list', '')
+        last = parsed_name.get('last', '')
 
         def _to_initial(string):
             string = string.strip('.')
@@ -181,6 +200,7 @@ def format_name_list(list_of_human_names, formatter=None):
     Formats a list of human names using a specific formatter.
 
     This is intended to be the primary public interface for formatting names.
+    The name is first "parsed" into a dict that is then passed to the formatter.
 
     Args:
         list_of_human_names: List of human names as Unicode strings.
@@ -199,7 +219,12 @@ def format_name_list(list_of_human_names, formatter=None):
         # Cannot call the class directly, requires instantiating first.
         formatter = formatter()
 
-    _formatted_names = [formatter(n) for n in list_of_human_names]
+    parser = HumanNameParser()
+    _parsed_names = [parser(n) for n in list_of_human_names]
+    if not _parsed_names:
+        return []
+
+    _formatted_names = [formatter(n) for n in _parsed_names]
     return sorted(_formatted_names, key=str.lower)
 
 
@@ -208,6 +233,7 @@ def format_name(human_name, formatter=None):
     Formats a human name using a specific formatter.
 
     This is intended to be the primary public interface for formatting a name.
+    The name is first "parsed" into a dict that is then passed to the formatter.
 
     Args:
         human_name: Human name as a Unicode string.
@@ -225,4 +251,8 @@ def format_name(human_name, formatter=None):
         # Cannot call the class directly, requires instantiating first.
         formatter = formatter()
 
-    return formatter(human_name)
+    _parsed_name = HumanNameParser()(human_name)
+    if not _parsed_name:
+        return ''
+
+    return formatter(_parsed_name)

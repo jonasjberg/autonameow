@@ -24,17 +24,17 @@ from collections import namedtuple
 from unittest import TestCase
 
 from util.text.humannames import (
+    _parse_name,
     format_name,
     format_name_list,
     HumanNameFormatter,
+    HumanNameParser,
     LastNameInitialsFormatter,
-    parse_name,
-    strip_author_et_al
+    strip_author_et_al,
 )
 
 
 TD = namedtuple('TD', 'Given Expect')
-
 
 TESTDATA_NAME_LASTNAME_INITIALS = [
     # Special cases
@@ -192,68 +192,97 @@ class TeststripAuthorEtAl(TestCase):
         _t('Gibson Catberg ... {et al.}')
 
 
-class TestParseNameReturnType(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-    def test_return_type_with_nameparser(self):
+class TestNameParser(TestCase):
+    def test_nameparser_return_type(self):
         # Make sure that 'nameparser' is indeed available.
         from thirdparty import nameparser
         self.assertIsNotNone(nameparser)
 
-        actual = parse_name('foo')
+        actual = _parse_name('foo')
         self.assertTrue(isinstance(actual, dict))
-
-    # TODO: This works on MacOS, both the PyCharm (unittest) test runner as well
-    #       as the 'tests/unit_runner.sh' script consistently passes all tests.
-    #       On Linux, the PyCharm test runner BUT 'tests/unit_runner.sh' fails!
-
-    # def test_return_type_when_nameparser_is_unavailable(self):
-    #     # TODO: Use 'mock.patch' instead ..
-    #     from core.util.text import humannames
-    #     humannames.nameparser = None
-
-    #     actual = parse_name('foo')
-    #     self.assertTrue(isinstance(actual, dict))
-
-    #    # Check that nameparser was made unavailable by monkey-path above.
-    #    self.assertEqual(actual, {})
 
 
 @unittest.skipIf(*nameparser_unavailable())
-class TestParseName(TestCase):
+class TestHumanNameParser(TestCase):
+    TESTDATA_FULLNAME_EXPECTED = [
+        TD(Given=None, Expect={}),
+        TD(Given='', Expect={}),
+        TD(Given=' ', Expect={}),
+        # NOTE: Includes empty values, which are NOT tested!
+        TD(Given='G',
+           Expect={'first': 'G',
+                   'first_list': ['G'],
+                   'last': '',
+                   'last_list': [],
+                   'middle': '',
+                   'middle_list': [],
+                   'original': 'G',
+                   'suffix': '',
+                   'title': '',
+                   'title_list': []}),
+        # NOTE: This is equivalent to the above.
+        TD(Given='G',
+           Expect={'first': 'G',
+                   'first_list': ['G'],
+                   'original': 'G'}),
+        TD(Given='Gibson',
+           Expect={'first': 'Gibson',
+                   'first_list': ['Gibson'],
+                   'original': 'Gibson'}),
+        TD(Given='Gibson Sjöberg',
+           Expect={'first': 'Gibson',
+                   'first_list': ['Gibson'],
+                   'last': 'Sjöberg',
+                   'last_list': ['Sjöberg'],
+                   'original': 'Gibson Sjöberg'}),
+        TD(Given='Russell, Bertrand',
+           Expect={'first': 'Bertrand',
+                   'first_list': ['Bertrand'],
+                   'last': 'Russell',
+                   'last_list': ['Russell'],
+                   'original': 'Russell, Bertrand'}),
+        TD(Given='Bertrand Russell',
+           Expect={'first': 'Bertrand',
+                   'first_list': ['Bertrand'],
+                   'last': 'Russell',
+                   'last_list': ['Russell'],
+                   'original': 'Bertrand Russell'}),
+        TD(Given='Friedrich Wilhelm Nietzsche',
+           Expect={'first': 'Friedrich',
+                   'first_list': ['Friedrich'],
+                   'last': 'Nietzsche',
+                   'last_list': ['Nietzsche'],
+                   'middle': 'Wilhelm',
+                   'middle_list': ['Wilhelm'],
+                   'original': 'Friedrich Wilhelm Nietzsche'}),
+        TD(Given='Nietzsche, Friedrich Wilhelm',
+           Expect={'first': 'Friedrich',
+                   'first_list': ['Friedrich'],
+                   'last': 'Nietzsche',
+                   'last_list': ['Nietzsche'],
+                   'middle': 'Wilhelm',
+                   'middle_list': ['Wilhelm'],
+                   'original': 'Nietzsche, Friedrich Wilhelm'}),
+    ]
+
+    def setUp(self):
+        self.name_parser = HumanNameParser()
+
     def test_parses_strings(self):
-        actual = parse_name('foo')
-        self.assertIsNotNone(actual)
+        actual = self.name_parser('foo')
+        self.assertTrue(isinstance(actual, dict))
         self.assertEqual(actual['original'], 'foo')
 
     def test_parses_name(self):
-        actual = parse_name('Gibson Catson, Ph.D.')
-        self.assertIsNotNone(actual)
+        actual = self.name_parser('Gibson Catson, Ph.D.')
+        self.assertTrue(isinstance(actual, dict))
         self.assertEqual(actual['first'], 'Gibson')
         self.assertEqual(actual['last'], 'Catson')
         self.assertEqual(actual['suffix'], 'Ph.D.')
 
-
-class TestHumanNameFormatter(TestCase):
-    def setUp(self):
-        self.name_formatter = HumanNameFormatter()
-
-    def test_call_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
-            _ = self.name_formatter('foo')
-
-    def test_format_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
-            _ = self.name_formatter.format('foo')
-
-    def test_call_raises_exception_given_none(self):
-        with self.assertRaises(AssertionError):
-            _ = self.name_formatter(None)
-
     def test_preprocess_returns_empty_string_for_empty_input(self):
         def _assert_empty_string(given):
-            actual = self.name_formatter._preprocess(given)
+            actual = self.name_parser._preprocess(given)
             self.assertEqual(actual, '')
 
         _assert_empty_string('')
@@ -262,7 +291,7 @@ class TestHumanNameFormatter(TestCase):
         _assert_empty_string('\t ')
 
     def _check_preprocess(self, given, expect):
-        actual = self.name_formatter._preprocess(given)
+        actual = self.name_parser._preprocess(given)
         self.assertEqual(actual, expect)
 
     def test_preprocess_pass_through_valid_input_as_is(self):
@@ -283,30 +312,54 @@ class TestHumanNameFormatter(TestCase):
         self._check_preprocess('foo et al.', 'foo')
         self._check_preprocess('foo, et al.', 'foo')
 
+    def test_parses_human_names(self):
+        for given, expect in self.TESTDATA_FULLNAME_EXPECTED:
+            actual = self.name_parser(given)
+            self.assertTrue(isinstance(actual, dict))
+            for k, v in actual.items():
+                # Skip comparison of empty values for brevity.
+                if v:
+                    expected = expect.get(k)
+                    self.assertEqual(v, expected,
+                                     'Key "{}". Expected: "{!s}"  '
+                                     'Got: "{!s}"'.format(k, expected, v))
+
+
+class TestHumanNameFormatter(TestCase):
+    def setUp(self):
+        self.name_formatter = HumanNameFormatter()
+
+    def test_call_raises_exception_gives_invalid_arguments(self):
+        with self.assertRaises(AssertionError):
+            _ = self.name_formatter('foo')
+
+    def test_format_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            _ = self.name_formatter.format('foo')
+
+    def test_call_raises_exception_given_none(self):
+        with self.assertRaises(AssertionError):
+            _ = self.name_formatter(None)
+
 
 @unittest.skipIf(*nameparser_unavailable())
 class TestLastNameInitialsFormatter(TestCase):
-    def setUp(self):
-        self.name_formatter = LastNameInitialsFormatter()
-
     def test_formats_full_human_names(self):
         for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
-            actual = self.name_formatter(given)
+            actual = format_name(given, formatter=LastNameInitialsFormatter)
             self.assertEqual(actual, expect)
 
     def test_raises_exception_given_byte_strings(self):
         with self.assertRaises(AssertionError):
-            _ = self.name_formatter(b'foo')
-
-    def test_raises_exception_given_none(self):
-        with self.assertRaises(AssertionError):
-            _ = self.name_formatter(None)
+            _ = format_name(b'foo', formatter=LastNameInitialsFormatter)
 
     def test_returns_empty_string_for_none_or_empty_input(self):
         def _aE(test_input):
-            actual = self.name_formatter(test_input)
+            actual = format_name(test_input,
+                                 formatter=LastNameInitialsFormatter)
             self.assertEqual(actual, '')
 
+        _aE(None)
         _aE('')
         _aE(' ')
         _aE('\t')
