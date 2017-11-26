@@ -54,8 +54,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """
-    HANDLES_MIME_TYPES = ['video/*', 'application/pdf', 'image/*',
-                          'application/epub+zip', 'text/*']
+    HANDLES_MIME_TYPES = [
+        'video/*', 'application/pdf', 'image/*', 'application/epub+zip',
+        'text/*', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ]
     is_slow = False
 
     FIELD_LOOKUP = {
@@ -337,6 +339,58 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Date, probability=0.5)
             ],
             'generic_field': gf.GenericDateModified
+        },
+        'XML:Application': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Creator, probability=1),
+                WeightedMapping(fields.Author, probability=0.025),
+                WeightedMapping(fields.Publisher, probability=0.02),
+                WeightedMapping(fields.Title, probability=0.01)
+            ],
+            'generic_field': gf.GenericCreator
+        },
+        'XML:Company': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=0.9),
+                WeightedMapping(fields.Publisher, probability=0.7),
+                WeightedMapping(fields.Creator, probability=0.1)
+            ],
+            'generic_field': gf.GenericAuthor
+        },
+        'XML:CreateDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
+            ],
+            'generic_field': gf.GenericDateCreated
+        },
+        # Typically a username.
+        'XML:LastModifiedBy': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=0.9),
+                WeightedMapping(fields.Publisher, probability=0.5),
+                WeightedMapping(fields.Creator, probability=0.1)
+            ],
+            'generic_field': gf.GenericAuthor
+        },
+        'XML:ModifyDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
+            ],
+            'generic_field': gf.GenericDateModified
+        },
+        'XML:TitlesOfParts': {
+            'coercer': types.AW_STRING,
+            'multivalued': True,
+            'mapped_fields': [
+                WeightedMapping(fields.Title, probability=0.7)
+            ]
         },
         'XMP:About': {'coercer': types.AW_STRING},
         'XMP:CreateDate': {
