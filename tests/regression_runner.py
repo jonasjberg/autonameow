@@ -97,20 +97,48 @@ def run_test(test):
         for _in, _out in actual_renames.items():
             _msg_run_test_success('Renamed "{!s}" -> "{!s}"'.format(_in, _out))
     else:
-        _msg_run_test_failure('Renames differ')
-        if actual_renames:
-            for _in, _out in actual_renames.items():
-                _msg('  Actual:  "{!s}" -> "{!s}"'.format(_in, _out))
-        else:
-            _msg('  Actual:  No files were renamed')
+        failures += 1
+        _msg_run_test_failure(
+            'Renames differ. Expected {} files to be renamed. '
+            '{} files were renamed.'.format(len(expect_renames), len(actual_renames))
+        )
 
         if expect_renames:
-            for _in, _out in expect_renames.items():
-                _msg('Expected:  "{!s}" -> "{!s}"'.format(_in, _out))
-        else:
-            _msg('Expected:  Expected no files to be renamed')
+            if not actual_renames:
+                _msg('  Expected {} files to be renamed but none were!'.format(len(expect_renames)))
+                for _in, _out in expect_renames.items():
+                    _msg('  Expected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
+            else:
+                # Expected renames and got renames.
+                for _expect_in, _expect_out in expect_renames.items():
+                    if _expect_in not in actual_renames:
+                        _msg('  Not renamed. Expected:  "{!s}" -> "{!s}"'.format(_expected_in, _expected_out))
+                    else:
+                        assert _expect_in in actual_renames
+                        _actual_out = actual_renames.get(_expect_in)
+                        if _actual_out != _expect_out:
+                            _msg('  New file name differs from expected file name.')
+                            _msg('  Expected: "{!s}"'.format(_expect_out))
+                            _msg('  Actual:   "{!s}"'.format(_actual_out))
 
-        failures += 1
+                for _actual_in, _actual_out in actual_renames.items():
+                    if _actual_in not in expect_renames:
+                        _msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_actual_in, _actual_out))
+                    else:
+                        assert _actual_in in expect_renames
+                        _expect_out = expect_renames.get(_actual_in)
+                        if _expect_out != _actual_out:
+                            _msg('  New file name differs from expected file name.')
+                            _msg('  Expected: "{!s}"'.format(_expect_out))
+                            _msg('  Actual:   "{!s}"'.format(_actual_out))
+        else:
+            if actual_renames:
+                _msg('  Did not expect any files to be renamed but {} were!'.format(len(actual_renames)))
+                for _in, _out in actual_renames.items():
+                    _msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
+            else:
+                # All good
+                pass
 
     return failures, captured_runtime, aw.captured_stdout, aw.captured_stderr
 
