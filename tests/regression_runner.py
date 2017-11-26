@@ -54,16 +54,15 @@ def run_test(test):
     expect_renames = test['asserts'].get('renames', {})
 
     aw = AutonameowWrapper(opts)
-    try:
-        aw()
-    except Exception as e:
+    aw()
+    if aw.captured_exception:
         print(' '
               + ui.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ', back='RED'))
         if VERBOSE:
-            print(str(e))
+            print(aw.captured_exception)
 
         # TODO: Fix magic number return for exceptions for use when formatting.
-        return -10, None
+        return -10, None, aw.captured_stdout, aw.captured_stderr
 
     captured_runtime = aw.captured_runtime_secs
     failures = 0
@@ -114,7 +113,7 @@ def run_test(test):
 
         failures += 1
 
-    return failures, captured_runtime
+    return failures, captured_runtime, aw.captured_stdout, aw.captured_stderr
 
 
 def _center_with_fill(text):
@@ -232,6 +231,13 @@ def msg_overall_stats(count_total, count_skipped, count_success, count_failure):
     print('_' * TERMINAL_WIDTH)
 
 
+def msg_captured_stderr(stderr):
+    _header = ui.colorize('Captured stderr:', fore='RED')
+    _stderr = ui.colorize(stderr, fore='RED')
+    print('\n' + _header)
+    print(_stderr)
+
+
 def write_failed_tests(tests):
     p = get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
                         persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH)
@@ -253,7 +259,7 @@ def load_failed_tests():
     return []
 
 
-def run_regressiontests(tests):
+def run_regressiontests(tests, print_stderr):
     count_success = 0
     count_failure = 0
     count_skipped = 0
@@ -279,15 +285,22 @@ def run_regressiontests(tests):
 
         failures = 0
         captured_time = None
+        captured_stderr = ''
+        captured_stdout = ''
         start_time = time.time()
         try:
-            failures, captured_time = run_test(test)
+            (failures, captured_time, captured_stdout,
+             captured_stderr) = run_test(test)
         except KeyboardInterrupt:
             print('\nReceived keyboard interrupt. Skipping remaining tests ..')
             should_abort = True
+
         elapsed_time = time.time() - start_time
 
         if failures == -10:
+            if print_stderr and captured_stderr:
+                msg_captured_stderr(captured_stderr)
+
             # TODO: Fix formatting of failure due to top-level exception error.
             count_failure += 1
             failed_tests.append(test)
@@ -302,6 +315,9 @@ def run_regressiontests(tests):
             failed_tests.append(test)
 
         msg_test_runtime(elapsed_time, captured_time)
+
+        if print_stderr and captured_stderr:
+            msg_captured_stderr(captured_stderr)
 
     msg_overall_stats(count_total, count_skipped, count_success, count_failure)
 
@@ -333,6 +349,13 @@ def main(args):
         default=False,
         help='Run only the test cases that failed during the last completed '
              'run, or all if none failed.'
+    )
+    parser.add_argument(
+        '--stderr',
+        dest='print_stderr',
+        action='store_true',
+        default=False,
+        help='Print captured stderr.'
     )
 
     opts = parser.parse_args(args)
@@ -368,7 +391,7 @@ def main(args):
         print('Running {} test case(s) ..'.format(len(tests_to_run)))
 
     print()
-    run_regressiontests(tests_to_run)
+    run_regressiontests(tests_to_run, print_stderr=bool(opts.print_stderr))
 
 
 if __name__ == '__main__':
