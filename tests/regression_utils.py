@@ -348,7 +348,8 @@ def check_renames(actual, expected):
         # Something unexpected happened.
         return False
     elif expected and not actual:
-        # Expected something to happened but it didn't.
+        # Expected something to happen but it didn't.
         return False
 
+    # Compare dict of expected from-tos to the dict of actual from-tos.
     return bool(expected == actual)
