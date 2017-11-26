@@ -31,6 +31,9 @@ RE_EDITION = re.compile(
 )
 
 
+# TODO: [TD0130] Implement general-purpose substring matching/extraction.
+
+
 def find_edition(text):
     """
     Extract an "edition", like "1st Edition", from a Unicode text string.

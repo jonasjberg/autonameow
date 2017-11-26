@@ -174,6 +174,20 @@ Low Priority
     extractor.metadata.exiftool.exif_datetimeoriginal
     ```
 
+* `[TD0130]` __Implement general-purpose matching/extraction of substrings.__  
+  Primary purpose is to provide matching and also removal of matched parts.
+  For instance, given a full string like `Skill: 1337 Meow - foo`,  searching
+  for "skills" with regex `r'[sS]kill: ?(\d)+'`, the matched part should be
+  returned and also removed from the original string. Alternatively, the match
+  results would contain information on where in the original string that the
+  match was found.
+
+  This is a non-issue when using only regexes to do the substring searches,
+  but if the search is performed with a function call, removing the matched
+  substring becomes a bit messy.
+
+  Related to `[TD0020]`. This functionality is provided by `guessit`!
+
 * `[TD0124]` Add option (script?) to run failed regression tests manually.
 
 * `[TD0121]` Create a script for generating regression tests.
