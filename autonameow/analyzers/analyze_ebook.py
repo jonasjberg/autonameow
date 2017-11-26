@@ -160,6 +160,10 @@ class EbookAnalyzer(BaseAnalyzer):
                 if maybe_date:
                     self._add_results('date', self._wrap_date(maybe_date))
 
+                maybe_edition = self._filter_edition(_isbn_metadata.edition)
+                if maybe_edition:
+                    self._add_results('edition', self._wrap_edition(maybe_edition))
+
     def _get_isbn_metadata(self, isbn):
         if isbn in self._cached_isbn_metadata:
             self.log.info(
@@ -262,6 +266,25 @@ class EbookAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.Title, probability=1),
             ],
             'generic_field': gf.GenericTitle
+        }
+
+    def _filter_edition(self, raw_string):
+        try:
+            int_ = types.AW_INTEGER(raw_string)
+        except types.AWTypeError:
+            return None
+        else:
+            return int_ if int_ != 0 else None
+
+    def _wrap_edition(self, edition_integer):
+        return {
+            'source': self,
+            'value': edition_integer,
+            'coercer': types.AW_INTEGER,
+            'mapped_fields': [
+                WeightedMapping(fields.Edition, probability=1),
+            ],
+            'generic_field': gf.GenericEdition
         }
 
     @classmethod
