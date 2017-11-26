@@ -89,6 +89,44 @@ assert similarity(f2, f4) == 0.17   # 'Gibson'         -> 'G'
 assert similarity(f3, f4) == 0.25   # 'G.S.'           -> 'G'
 ```
 
+### Unique Identifiers and Special Cases
+A notable special case when comparing ISBN metadata from a book that specifies
+different ISBN-numbers for different "releases", E.G. "e-ISBN", "ISBN", etc.
+
+Example:
+
+```python
+eISBN = {
+    'title': 'Computational Intelligence Methods And Techniques',
+    'authors': ['Leszek Rutkowski'],
+    'publisher': 'Springer',
+    'year': '2008',
+    'language': 'eng',
+    'isbn10': '3540762884',
+    'isbn13': '9783540762881'
+}
+
+ISBN = {
+    'title': 'Computational Intelligence: Methods And Techniques',
+    'authors': ['Leszek Rutkowski'],
+    'publisher': 'Springer',
+    'year': '2008',
+    'language': 'eng',
+    'isbn10': '3540762876',
+    'isbn13': '9783540762874'
+}
+```
+
+For the purposes of finding say a suitable `title`, these two *records* should
+probably be considered equivalent..
+
+All fields except the "unique identifiers"; `isbn10`, `isbn13` and the `title`
+differ.  Trivial normalization of the titles before comparison probably renders
+the `title` fields identical.
+
+The point is that the system must be flexible enough to handle cases like this,
+where "unique identifiers" no longer carry the assumed "probabilistic weight".
+
 
 
 Metadata Deduplication
