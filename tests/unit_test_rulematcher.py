@@ -42,34 +42,15 @@ def get_testrules():
 
 
 class TestRuleMatcher(TestCase):
-    def setUp(self):
+    def test_can_be_instantiated_with_none_fileobject_and_mock_rules(self):
         rules = get_testrules()
-        self.rm = RuleMatcher(None, rules)
+        matcher = RuleMatcher(None, rules)
+        self.assertIsNotNone(matcher)
 
-    def test_rule_matcher_can_be_instantiated(self):
-        self.assertIsNotNone(self.rm)
-
-    def test_rule_matcher_has_property_best_match(self):
-        self.assertIsNotNone(self.rm.best_match)
-
-    def test_rule_matcher_best_match_initially_returns_false(self):
-        self.assertFalse(self.rm.best_match)
-
-
-class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
-    def setUp(self):
-        fo = uu.get_mock_fileobject()
-        rules = get_testrules()
-        self.rm = RuleMatcher(fo, rules)
-
-    def test_query_data_returns_something(self):
-        self.skipTest('TODO: Fix broken unit tests')
-        self.assertIsNotNone(
-            self.rm.request_data(uuconst.MEOWURI_AZR_FILENAME_TAGS)
-        )
-        self.assertIsNotNone(
-            self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        )
+    def test_can_be_instantiated_with_none_fileobject_and_no_rules(self):
+        rules = []
+        matcher = RuleMatcher(None, rules)
+        self.assertIsNotNone(matcher)
 
 
 class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
@@ -82,18 +63,6 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
         self.assertFalse(
             self.rm.request_data(uuconst.MEOWURI_AZR_FILENAME_PUBLISHER)
         )
-
-    def test_querying_available_data_returns_expected_type(self):
-        self.skipTest('TODO: Fix broken unit tests')
-        self.assertTrue(
-            isinstance(self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
-                       str)
-        )
-
-    def test_querying_available_data_returns_expected(self):
-        self.skipTest('TODO: Fix broken unit tests')
-        actual = self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        self.assertEqual(actual, 'application/pdf')
 
 
 class TestRuleMatcherProducesExpectedMatches(TestCase):
