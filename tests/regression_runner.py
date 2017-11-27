@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import shutil
 import sys
 import time
 
@@ -33,11 +32,11 @@ from core.persistence import get_persistence
 from regression_utils import (
     AutonameowWrapper,
     check_renames,
-    load_regressiontests
+    load_regressiontests,
+    TerminalReporter
 )
 
 
-TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120,48))
 msg_label_pass = ui.colorize('P', fore='GREEN')
 msg_label_fail = ui.colorize('F', fore='RED')
 
@@ -98,149 +97,50 @@ def run_test(test):
         for _in, _out in actual_renames.items():
             _msg_run_test_success('Renamed "{!s}" -> "{!s}"'.format(_in, _out))
     else:
-        _msg_run_test_failure('Renames differ')
-        if actual_renames:
-            for _in, _out in actual_renames.items():
-                _msg('  Actual:  "{!s}" -> "{!s}"'.format(_in, _out))
-        else:
-            _msg('  Actual:  No files were renamed')
+        failures += 1
+        _msg_run_test_failure(
+            'Renames differ. Expected {} files to be renamed. '
+            '{} files were renamed.'.format(len(expect_renames), len(actual_renames))
+        )
 
         if expect_renames:
-            for _in, _out in expect_renames.items():
-                _msg('Expected:  "{!s}" -> "{!s}"'.format(_in, _out))
-        else:
-            _msg('Expected:  Expected no files to be renamed')
+            if not actual_renames:
+                _msg('  Expected {} files to be renamed but none were!'.format(len(expect_renames)))
+                for _in, _out in expect_renames.items():
+                    _msg('  Expected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
+            else:
+                # Expected renames and got renames.
+                for _expect_in, _expect_out in expect_renames.items():
+                    if _expect_in not in actual_renames:
+                        _msg('  Not renamed. Expected:  "{!s}" -> "{!s}"'.format(_expected_in, _expected_out))
+                    else:
+                        assert _expect_in in actual_renames
+                        _actual_out = actual_renames.get(_expect_in)
+                        if _actual_out != _expect_out:
+                            _msg('  New file name differs from expected file name.')
+                            _msg('  Expected: "{!s}"'.format(_expect_out))
+                            _msg('  Actual:   "{!s}"'.format(_actual_out))
 
-        failures += 1
+                for _actual_in, _actual_out in actual_renames.items():
+                    if _actual_in not in expect_renames:
+                        _msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_actual_in, _actual_out))
+                    else:
+                        assert _actual_in in expect_renames
+                        _expect_out = expect_renames.get(_actual_in)
+                        if _expect_out != _actual_out:
+                            _msg('  New file name differs from expected file name.')
+                            _msg('  Expected: "{!s}"'.format(_expect_out))
+                            _msg('  Actual:   "{!s}"'.format(_actual_out))
+        else:
+            if actual_renames:
+                _msg('  Did not expect any files to be renamed but {} were!'.format(len(actual_renames)))
+                for _in, _out in actual_renames.items():
+                    _msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
+            else:
+                # All good
+                pass
 
     return failures, captured_runtime, aw.captured_stdout, aw.captured_stderr
-
-
-def _center_with_fill(text):
-    return text.center(TERMINAL_WIDTH, '=')
-
-
-def msg_overall_success():
-    print(ui.colorize(_center_with_fill('  ALL TESTS PASSED!  '), fore='GREEN'))
-
-
-def msg_overall_failure():
-    print(ui.colorize(_center_with_fill('  SOME TESTS FAILED  '), fore='RED'))
-
-
-MAX_DESCRIPTION_LENGTH = TERMINAL_WIDTH - 70
-assert MAX_DESCRIPTION_LENGTH > 0, 'Terminal is not wide enough ..'
-
-
-def msg_test_start(shortname, description):
-    if VERBOSE:
-        _desc = ui.colorize(description, style='DIM')
-        print()
-        print('Running "{}"'.format(shortname))
-        print(_desc)
-    else:
-        maxlen = MAX_DESCRIPTION_LENGTH
-        _desc_len = len(description)
-        if _desc_len > maxlen:
-            _desc = description[0:maxlen] + '..'
-        else:
-            _desc = description + ' '*(2 + maxlen - _desc_len)
-
-        _colordesc = ui.colorize(_desc, style='DIM')
-        print('{:30.30s} {!s} '.format(shortname, _colordesc), end='')
-
-
-def msg_test_skipped(shortname, description):
-    if VERBOSE:
-        print()
-        _label = ui.colorize('[SKIPPED]', fore='YELLOW')
-        _desc = ui.colorize(description, style='DIM')
-        print('{} "{!s}"'.format(_label, shortname))
-        print(_desc)
-    else:
-        maxlen = MAX_DESCRIPTION_LENGTH
-        _desc_len = len(description)
-        if _desc_len > maxlen:
-            _desc = description[0:maxlen] + '..'
-        else:
-            _desc = description + ' '*(2 + maxlen - _desc_len)
-
-        _colordesc = ui.colorize(_desc, style='DIM')
-        _label = ui.colorize('[SKIPPED]', fore='YELLOW')
-        print('{:30.30s} {!s}  {} '.format(shortname, _colordesc, _label), end='')
-
-
-def msg_test_success():
-    if VERBOSE:
-        _label = ui.colorize('[SUCCESS]', fore='GREEN')
-        print('{} All assertions passed!'.format(_label))
-    else:
-        _label = ui.colorize('[SUCCESS]', fore='GREEN')
-        print(' ' + _label + ' ', end='')
-
-
-def msg_test_failure():
-    if VERBOSE:
-        _label = ui.colorize('[FAILURE]', fore='RED')
-        print('{} One or more assertions FAILED!'.format(_label))
-    else:
-        _label = ui.colorize('[FAILURE]', fore='RED')
-        print(' ' + _label + ' ', end='')
-
-
-def msg_test_runtime(elapsed_time, captured_time):
-    if captured_time:
-        _captured = '{:.6f}s)'.format(captured_time)
-    else:
-        _captured = 'N/A)'
-
-    if elapsed_time:
-        _elapsed = '{:.6f}s'.format(elapsed_time)
-    else:
-        _elapsed = 'N/A'
-
-    _time_1 = '{:10.10s}'.format(_elapsed)
-    _time_2 = '{:10.10s}'.format(_captured)
-    if VERBOSE:
-        print(' '*10 + 'Runtime: {} (captured {}'.format(_time_1, _time_2))
-    else:
-        print('  {} ({}'.format(_time_1, _time_2))
-
-
-def msg_overall_stats(count_total, count_skipped, count_success, count_failure):
-    print('\n')
-
-    _skipped = '{} skipped'.format(count_skipped)
-    if count_skipped > 0:
-        _skipped = ui.colorize(_skipped, fore='YELLOW')
-
-    _failure = '{} failed'.format(count_failure)
-    if count_failure == 0:
-        msg_overall_success()
-    else:
-        msg_overall_failure()
-        _failure = ui.colorize(_failure, fore='RED')
-
-    _stats = 'Regression Test Summary:  {} total, {}, {} passed, {}'.format(
-        count_total, _skipped, count_success, _failure
-    )
-
-    # print('~' * TERMINAL_WIDTH)
-    print()
-    print(_stats)
-    print('_' * TERMINAL_WIDTH)
-
-
-def msg_captured_stderr(stderr):
-    _header = ui.colorize('Captured stderr:', fore='RED')
-    _stderr = ui.colorize(stderr, fore='RED')
-    print('\n' + _header)
-    print(_stderr)
-
-
-def msg_captured_stdout(stdout):
-    print('\nCaptured stdout:')
-    print(stdout)
 
 
 def write_failed_tests(tests):
@@ -265,10 +165,11 @@ def load_failed_tests():
 
 
 def run_regressiontests(tests, print_stderr, print_stdout):
+    reporter = TerminalReporter(VERBOSE)
+    count_total = len(tests)
     count_success = 0
     count_failure = 0
     count_skipped = 0
-    count_total = len(tests)
     should_abort = False
 
     failed_tests = []
@@ -281,12 +182,12 @@ def run_regressiontests(tests, print_stderr, print_stdout):
         _dirname = types.force_string(test.get('test_dirname', '(?)'))
         _description = test.get('description', '(UNDESCRIBED)')
         if test.get('skiptest'):
-            msg_test_skipped(_dirname, _description)
-            msg_test_runtime(None, None)
+            reporter.msg_test_skipped(_dirname, _description)
+            reporter.msg_test_runtime(None, None)
             count_skipped += 1
             continue
 
-        msg_test_start(_dirname, _description)
+        reporter.msg_test_start(_dirname, _description)
 
         failures = 0
         captured_time = None
@@ -304,9 +205,9 @@ def run_regressiontests(tests, print_stderr, print_stdout):
 
         if failures == -10:
             if print_stderr and captured_stderr:
-                msg_captured_stderr(captured_stderr)
+                reporter.msg_captured_stderr(captured_stderr)
             if print_stdout and captured_stdout:
-                msg_captured_stdout(captured_stdout)
+                reporter.msg_captured_stdout(captured_stdout)
 
             # TODO: Fix formatting of failure due to top-level exception error.
             count_failure += 1
@@ -314,21 +215,22 @@ def run_regressiontests(tests, print_stderr, print_stdout):
             continue
 
         if failures == 0:
-            msg_test_success()
+            reporter.msg_test_success()
             count_success += 1
         elif failures > 0:
-            msg_test_failure()
+            reporter.msg_test_failure()
             count_failure += 1
             failed_tests.append(test)
 
-        msg_test_runtime(elapsed_time, captured_time)
+        reporter.msg_test_runtime(elapsed_time, captured_time)
 
         if print_stderr and captured_stderr:
-            msg_captured_stderr(captured_stderr)
+            reporter.msg_captured_stderr(captured_stderr)
         if print_stdout and captured_stdout:
-            msg_captured_stdout(captured_stdout)
+            reporter.msg_captured_stdout(captured_stdout)
 
-    msg_overall_stats(count_total, count_skipped, count_success, count_failure)
+    reporter.msg_overall_stats(count_total, count_skipped, count_success,
+                               count_failure)
 
     if not should_abort:
         # Store failed tests only if all tests were executed.

@@ -22,12 +22,14 @@
 import logging
 import os
 import re
+import shutil
 
 from core import constants as C
 from core import (
     disk,
     exceptions,
     types,
+    ui
 )
 from util import encoding as enc
 import unit_utils as uu
@@ -35,6 +37,9 @@ import unit_utils_constants as uuconst
 
 
 log = logging.getLogger(__name__)
+
+
+TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120,48))
 
 
 class RegressionTestError(exceptions.AutonameowException):
@@ -52,6 +57,132 @@ def read_plaintext_file(file_path, ignore_errors=None):
             raise RegressionTestError(e)
     else:
         return contents
+
+
+class TerminalReporter(object):
+    def __init__(self, verbose=False):
+        self.verbose = verbose
+
+        self.MAX_DESCRIPTION_LENGTH = TERMINAL_WIDTH - 70
+        assert self.MAX_DESCRIPTION_LENGTH > 0, 'Terminal is not wide enough ..'
+
+    def msg_test_success(self):
+        if self.verbose:
+            _label = ui.colorize('[SUCCESS]', fore='GREEN')
+            print('{} All assertions passed!'.format(_label))
+        else:
+            _label = ui.colorize('[SUCCESS]', fore='GREEN')
+            print(' ' + _label + ' ', end='')
+
+    def msg_test_failure(self):
+        if self.verbose:
+            _label = ui.colorize('[FAILURE]', fore='RED')
+            print('{} One or more assertions FAILED!'.format(_label))
+        else:
+            _label = ui.colorize('[FAILURE]', fore='RED')
+            print(' ' + _label + ' ', end='')
+
+    @staticmethod
+    def _center_with_fill(text):
+        padded_text = '  ' + text + '  '
+        return padded_text.center(TERMINAL_WIDTH, '=')
+
+    def msg_overall_success(self):
+        print(ui.colorize(self._center_with_fill('ALL TESTS PASSED!'),
+                          fore='GREEN'))
+
+    def msg_overall_failure(self):
+        print(ui.colorize(self._center_with_fill('SOME TESTS FAILED'),
+                          fore='RED'))
+
+    def msg_overall_stats(self, count_total, count_skipped, count_success,
+                          count_failure):
+        print('\n')
+
+        _skipped = '{} skipped'.format(count_skipped)
+        if count_skipped > 0:
+            _skipped = ui.colorize(_skipped, fore='YELLOW')
+
+        _failure = '{} failed'.format(count_failure)
+        if count_failure == 0:
+            self.msg_overall_success()
+        else:
+            self.msg_overall_failure()
+            _failure = ui.colorize(_failure, fore='RED')
+
+        _stats = 'Regression Test Summary:  {} total, {}, {} passed, {}'.format(
+            count_total, _skipped, count_success, _failure
+        )
+
+        print()
+        print(_stats)
+        print('_' * TERMINAL_WIDTH)
+
+    def msg_test_start(self, shortname, description):
+        if self.verbose:
+            _desc = ui.colorize(description, style='DIM')
+            print()
+            print('Running "{}"'.format(shortname))
+            print(_desc)
+        else:
+            maxlen = self.MAX_DESCRIPTION_LENGTH
+            _desc_len = len(description)
+            if _desc_len > maxlen:
+                _desc = description[0:maxlen] + '..'
+            else:
+                _desc = description + ' '*(2 + maxlen - _desc_len)
+
+            _colordesc = ui.colorize(_desc, style='DIM')
+            print('{:30.30s} {!s} '.format(shortname, _colordesc), end='')
+
+    def msg_test_skipped(self, shortname, description):
+        if self.verbose:
+            print()
+            _label = ui.colorize('[SKIPPED]', fore='YELLOW')
+            _desc = ui.colorize(description, style='DIM')
+            print('{} "{!s}"'.format(_label, shortname))
+            print(_desc)
+        else:
+            maxlen = self.MAX_DESCRIPTION_LENGTH
+            _desc_len = len(description)
+            if _desc_len > maxlen:
+                _desc = description[0:maxlen] + '..'
+            else:
+                _desc = description + ' '*(2 + maxlen - _desc_len)
+
+            _colordesc = ui.colorize(_desc, style='DIM')
+            _label = ui.colorize('[SKIPPED]', fore='YELLOW')
+            print('{:30.30s} {!s}  {} '.format(shortname, _colordesc, _label), end='')
+
+    def msg_test_runtime(self, elapsed_time, captured_time):
+        if captured_time:
+            _captured = '{:.6f}s)'.format(captured_time)
+        else:
+            _captured = 'N/A)'
+
+        if elapsed_time:
+            _elapsed = '{:.6f}s'.format(elapsed_time)
+        else:
+            _elapsed = 'N/A'
+
+        _time_1 = '{:10.10s}'.format(_elapsed)
+        _time_2 = '{:10.10s}'.format(_captured)
+        if self.verbose:
+            print(' '*10 + 'Runtime: {} (captured {}'.format(_time_1, _time_2))
+        else:
+            print('  {} ({}'.format(_time_1, _time_2))
+
+    @staticmethod
+    def msg_captured_stderr(stderr):
+        _header = ui.colorize('Captured stderr:', fore='RED')
+        _stderr = ui.colorize(stderr, fore='RED')
+        print('\n' + _header)
+        print(_stderr)
+
+    @staticmethod
+    def msg_captured_stdout(stdout):
+        print('\nCaptured stdout:')
+        print(stdout)
 
 
 class RegressionTestLoader(object):
@@ -348,7 +479,8 @@ def check_renames(actual, expected):
         # Something unexpected happened.
         return False
     elif expected and not actual:
-        # Expected something to happened but it didn't.
+        # Expected something to happen but it didn't.
         return False
 
+    # Compare dict of expected from-tos to the dict of actual from-tos.
     return bool(expected == actual)

@@ -82,7 +82,7 @@ class EbookAnalyzer(BaseAnalyzer):
         )
 
         self.text = None
-        self._isbn_metadata = set()
+        self._isbn_metadata = []
 
         self._cached_isbn_metadata = {}
         self.cache = persistence.get_cache(str(self))
@@ -98,7 +98,8 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
-        # TODO: [TD0114] Check metadata for ISBNs: 'PDF:Keywords', ..
+        # TODO: [TD0114] Check metadata for ISBNs.
+        # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier'
 
         isbns = extractlines_do(find_ebook_isbns_in_text, self.text,
                                 fromline=0, toline=100)
@@ -138,7 +139,8 @@ class EbookAnalyzer(BaseAnalyzer):
                 # Duplicates are removed here. When both ISBN-10 and ISBN-13
                 # text is found and two queries are made, the two metadata
                 # results are "joined" when being added to this set.
-                self._isbn_metadata.add(metadata)
+                if metadata not in self._isbn_metadata:
+                    self._isbn_metadata.append(metadata)
 
             self.log.info('Got {} instances of ISBN metadata'.format(
                 len(self._isbn_metadata)
@@ -572,7 +574,7 @@ class ISBNMetadata(object):
         Fuzzy comparison with ad-hoc threshold values.
         """
         UNLIKELY_YEAR_DIFF = 42
-        FIELDS_MISSING_SIMILARITY = 0.1
+        FIELDS_MISSING_SIMILARITY = 0.001
 
         if self.normalized_title and other.normalized_title:
             _sim_title = string_similarity(self.normalized_title,
@@ -586,10 +588,9 @@ class ISBNMetadata(object):
         else:
             _year_diff = int(abs(self.normalized_year - other.normalized_year))
 
-        if len(self.normalized_authors) == 0:
+        if (len(self.normalized_authors) == 0
+                or len(other.normalized_authors) == 0):
             _sim_authors = FIELDS_MISSING_SIMILARITY
-        elif len(self.normalized_authors) != len(other.normalized_authors):
-            _sim_authors = 0.0
         else:
             _sim_authors = float(
                 sum(string_similarity(a, b)
@@ -606,13 +607,18 @@ class ISBNMetadata(object):
 
         # TODO: Arbitrary threshold values..
         # Solving "properly" requires machine learning techniques; HMM? Bayes?
+        log.debug('Comparing {!s} to {!s} ..'.format(self, other))
+        log.debug('Difference Year: {}'.format(_year_diff))
+        log.debug('Similarity Authors: {}'.format(_sim_authors))
+        log.debug('Similarity Publisher: {}'.format(_sim_publisher))
+        log.debug('Similarity Title: {}'.format(_sim_title))
         if _year_diff == 0:
-            if _sim_title > 0.9:
-                if _sim_publisher > 0.9:
-                    if _sim_authors > 0.5:
+            if _sim_title > 0.95:
+                if _sim_publisher > 0.5:
+                    if _sim_authors > 0.2:
                         return True
-                elif _sim_publisher > 0.5:
-                    if _sim_authors > 0.7:
+                elif _sim_publisher > 0.2:
+                    if _sim_authors > 0.4:
                         return True
                 else:
                     if _sim_authors > 0.9:
