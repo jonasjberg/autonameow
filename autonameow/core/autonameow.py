@@ -354,66 +354,10 @@ class Autonameow(object):
         #                      '--> Data Sources
 
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
-        active_rule = None
         data_sources = None
         name_template = None
 
-        RULE_SCORE_CONFIRM_THRESHOLD = 1
-
-        def _confirm_apply_rule(rule):
-            if self.opts.get('mode_batch'):
-                log.info('Rule required confirmation but in batch mode -- '
-                         'Skipping file ..')
-                return False
-
-            user_response = interactive.ask_confirm(
-                'Best matched rule "{!s}"'
-                '\nProceed with this rule?'.format(rule.description)
-            )
-            log.debug('User response: "{!s}"'.format(user_response))
-            return bool(user_response)
-
-        if self.opts.get('mode_rulematch'):
-            matcher = _run_rule_matcher(current_file, self.active_config)
-
-            if self.opts.get('mode_interactive'):
-                log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
-
-                # Have the user select a rule from any candidate matches.
-                # candidates = matcher.candidates()
-                candidates = None
-                if candidates:
-                    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-                    # choice = interactive.select_rule(candidates)
-                    # if choice != ui.action.ABORT:
-                    #     active_rule = choice
-                    pass
-                else:
-                    log.debug('There are no rules available for the user to '
-                              'choose from..')
-
-            if not active_rule:
-                # User rule selection did not happen or failed.
-                # Is there a "best matched" rule?
-                if matcher.best_match:
-                    # OK! But is the score of the best matched rule high enough?
-                    _best_match_score = matcher.best_match_score()
-                    _best_match_desc = matcher.best_match.description
-                    if _best_match_score > RULE_SCORE_CONFIRM_THRESHOLD:
-                        active_rule = matcher.best_match
-                    else:
-                        # Best matched rule might be a bad fit.
-                        log.debug('Score {} is below threshold {} for rule "{!s}"'.format(_best_match_score, RULE_SCORE_CONFIRM_THRESHOLD, _best_match_desc))
-                        log.debug('Asking user to confirm use of this rule..')
-                        ok_to_use_rule = _confirm_apply_rule(matcher.best_match)
-                        if ok_to_use_rule:
-                            log.debug('User answered YES. Using rule "{!s}"'.format(_best_match_desc))
-                            active_rule = matcher.best_match
-                        else:
-                            log.debug('User answered NO! Will not use rule "{!s}"'.format(_best_match_desc))
-                else:
-                    log.debug('Rule-matcher did not find a "best match" rule')
-
+        active_rule = self._try_get_rule(current_file)
         if active_rule:
             log.info(
                 'Using rule: "{!s}"'.format(active_rule.description)
@@ -460,8 +404,13 @@ class Autonameow(object):
         resolver = TemplateFieldDataResolver(current_file, name_template)
         resolver.add_known_sources(data_sources)
 
-        if self.opts.get('mode_batch'):
-            if not resolver.mapped_all_template_fields():
+        # TODO: Rework the rule matcher and this logic to try another candidate.
+        # if not resolver.mapped_all_template_fields():
+        #     if self.opts.get('mode_automagic'):
+        #         data_sources = matcher.candidates()[1]
+
+        if not resolver.mapped_all_template_fields():
+            if self.opts.get('mode_batch'):
                 log.error('All name template placeholder fields must be '
                           'given a data source; Check the configuration!')
                 self.exit_code = C.EXIT_WARNING
@@ -534,6 +483,68 @@ class Autonameow(object):
             new_basename=new_name,
             dry_run=self.opts.get('dry_run')
         )
+
+    def _try_get_rule(self, current_file):
+        active_rule = None
+        if not self.opts.get('mode_rulematch'):
+            # TODO: Cleanup ..
+            return active_rule
+
+        matcher = _run_rule_matcher(current_file, self.active_config)
+
+        if self.opts.get('mode_interactive'):
+            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
+
+            # Have the user select a rule from any candidate matches.
+            # candidates = matcher.candidates()
+            candidates = None
+            if candidates:
+                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                # choice = interactive.select_rule(candidates)
+                # if choice != ui.action.ABORT:
+                #     active_rule = choice
+                pass
+            else:
+                log.debug('There are no rules available for the user to '
+                          'choose from..')
+
+        RULE_SCORE_CONFIRM_THRESHOLD = 0
+        if not active_rule:
+            # User rule selection did not happen or failed.
+            # Is there a "best matched" rule?
+            if matcher.best_match:
+                # OK! But is the score of the best matched rule high enough?
+                _best_match_score = matcher.best_match_score()
+                _best_match_desc = matcher.best_match.description
+                if _best_match_score > RULE_SCORE_CONFIRM_THRESHOLD:
+                    active_rule = matcher.best_match
+                else:
+                    # Best matched rule might be a bad fit.
+                    log.debug('Score {} is below threshold {} for rule "{!s}"'.format(_best_match_score, RULE_SCORE_CONFIRM_THRESHOLD, _best_match_desc))
+                    log.debug('Need confirmation before using this rule..')
+                    ok_to_use_rule = self._confirm_apply_rule(matcher.best_match)
+                    if ok_to_use_rule:
+                        log.debug('Positive response. Using rule "{!s}"'.format(_best_match_desc))
+                        active_rule = matcher.best_match
+                    else:
+                        log.debug('Negative response. Will not use rule "{!s}"'.format(_best_match_desc))
+            else:
+                log.debug('Rule-matcher did not find a "best match" rule')
+
+        return active_rule
+
+    def _confirm_apply_rule(self, rule):
+        if self.opts.get('mode_batch'):
+            log.info('Rule required confirmation but in batch mode -- '
+                     'Skipping file ..')
+            return False
+
+        user_response = interactive.ask_confirm(
+            'Best matched rule "{!s}"'
+            '\nProceed with this rule?'.format(rule.description)
+        )
+        log.debug('User response: "{!s}"'.format(user_response))
+        return bool(user_response)
 
     @property
     def runtime_seconds(self):
