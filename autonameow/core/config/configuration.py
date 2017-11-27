@@ -570,7 +570,7 @@ class Configuration(object):
     @property
     def rules(self):
         if self._rules and len(self._rules) > 0:
-            return self._rules
+            return list(self._rules)
         else:
             return []
 

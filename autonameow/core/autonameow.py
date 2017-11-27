@@ -722,7 +722,13 @@ def _run_rule_matcher(fileobject, active_config):
     Raises:
         AutonameowException: An unrecoverable error occurred during execution.
     """
-    matcher = RuleMatcher(fileobject, active_config)
+    if not active_config or not active_config.rules:
+        log.error('Configuration does not contain any rules to evaluate')
+        rules = []
+    else:
+        rules = active_config.rules
+
+    matcher = RuleMatcher(fileobject, rules)
     try:
         matcher.start()
     except exceptions.AutonameowException as e:

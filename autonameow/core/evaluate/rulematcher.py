@@ -28,15 +28,10 @@ log = logging.getLogger(__name__)
 
 
 class RuleMatcher(object):
-    def __init__(self, fileobject, active_config):
+    def __init__(self, fileobject, rules):
         self.fileobject = fileobject
 
-        if not active_config or not active_config.rules:
-            log.error('Configuration does not contain any rules to evaluate')
-            self._rules = []
-        else:
-            self._rules = list(active_config.rules)
-
+        self._rules = rules
         self._scored_rules = {}
         self._candidates = []
 

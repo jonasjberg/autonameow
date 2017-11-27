@@ -34,12 +34,17 @@ import unit_utils_constants as uuconst
 
 uu.init_session_repository()
 uu.init_provider_registry()
-dummy_config = Configuration(DEFAULT_CONFIG)
+
+
+def get_testrules():
+    test_config = Configuration(DEFAULT_CONFIG)
+    return test_config.rules
 
 
 class TestRuleMatcher(TestCase):
     def setUp(self):
-        self.rm = RuleMatcher(None, dummy_config)
+        rules = get_testrules()
+        self.rm = RuleMatcher(None, rules)
 
     def test_rule_matcher_can_be_instantiated(self):
         self.assertIsNotNone(self.rm)
@@ -54,7 +59,8 @@ class TestRuleMatcher(TestCase):
 class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
     def setUp(self):
         fo = uu.get_mock_fileobject()
-        self.rm = RuleMatcher(fo, dummy_config)
+        rules = get_testrules()
+        self.rm = RuleMatcher(fo, rules)
 
     def test_query_data_returns_something(self):
         self.skipTest('TODO: Fix broken unit tests')
@@ -65,34 +71,12 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
             self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         )
 
-    def test_querying_available_data_returns_expected_type(self):
-        self.skipTest('TODO: Fix broken unit tests')
-        self.assertTrue(
-            isinstance(self.rm.request_data(uuconst.MEOWURI_AZR_FILENAME_TAGS),
-                       list)
-        )
-        self.assertTrue(
-            isinstance(self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
-                       str)
-        )
-
-    def test_querying_available_data_returns_expected(self):
-        self.skipTest('TODO: Fix broken unit tests')
-        actual_result = self.rm.request_data(uuconst.MEOWURI_AZR_FILENAME_TAGS)
-        actual_tags = actual_result[0].get('value', [])
-        expected_tags = ['tagfoo', 'tagbar']
-        self.assertEqual(expected_tags, actual_tags)
-
-        self.assertEqual(
-            self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
-            'application/pdf'
-        )
-
 
 class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
     def setUp(self):
         fo = uu.get_mock_fileobject()
-        self.rm = RuleMatcher(fo, dummy_config)
+        rules = get_testrules()
+        self.rm = RuleMatcher(fo, rules)
 
     def test_querying_unavailable_data_returns_false(self):
         self.assertFalse(
@@ -110,6 +94,17 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
         self.skipTest('TODO: Fix broken unit tests')
         actual = self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         self.assertEqual(actual, 'application/pdf')
+
+
+class TestRuleMatcherProducesExpectedMatches(TestCase):
+    def setUp(self):
+        fo = uu.get_mock_fileobject()
+        rules = get_testrules()
+        self.rm = RuleMatcher(fo, rules)
+
+    def test_best_match(self):
+        actual = self.rm.best_match
+        pass
 
 
 class DummyRule(object):
