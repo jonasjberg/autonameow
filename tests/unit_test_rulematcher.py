@@ -97,14 +97,20 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
 
 
 class TestRuleMatcherProducesExpectedMatches(TestCase):
-    def setUp(self):
-        fo = uu.get_mock_fileobject()
-        rules = get_testrules()
-        self.rm = RuleMatcher(fo, rules)
+    SHARED_FILEOBJECT = uu.get_mock_fileobject(mime_type='application/pdf')
 
-    def test_best_match(self):
-        actual = self.rm.best_match
-        pass
+    def test_returns_none_if_no_rules_are_available(self):
+        rules = []
+        matcher = RuleMatcher(self.SHARED_FILEOBJECT, rules)
+        matcher.start()
+        actual = matcher.best_match
+        self.assertIsNone(actual)
+
+    # def test_best_match(self):
+    #     rules = get_testrules()
+    #     matcher = RuleMatcher(self.SHARED_FILEOBJECT, rules)
+    #     actual = matcher.best_match
+    #     self.assertEqual(actual.description, 'Foo Rule Description')
 
 
 class DummyRule(object):

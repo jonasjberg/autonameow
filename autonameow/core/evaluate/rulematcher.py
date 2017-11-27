@@ -116,7 +116,7 @@ class RuleMatcher(object):
     @property
     def best_match(self):
         if not self._candidates:
-            return False
+            return None
         return self._candidates[0]
 
     def candidates(self):
