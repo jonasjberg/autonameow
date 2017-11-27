@@ -337,68 +337,100 @@ class Autonameow(object):
             run_all_plugins=should_list_any_results
         )
 
+        #  * Matched Rule ---+--> Template
+        #                    '--> Data Sources
+        #
+        #  FIND:
+        #
+        #    * Template
+        #      Sources:   * User selection (interactive mode)
+        #                 * Matched rule   (rule-matching, automagic)
+        #
+        #    * Data Sources
+        #      Sources:   * User selection (interactive mode)
+        #                 * Matched rule   (rule-matching, automagic)
+        #                 * Yet unknown    (automagic)
+
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         active_rule = None
         name_template = None
+
+        RULE_SCORE_CONFIRM_THRESHOLD = 1
+
+        def _confirm_apply_rule(rule):
+            if self.opts.get('mode_batch'):
+                log.info('Rule required confirmation but in batch mode -- '
+                         'Skipping file ..')
+                return False
+            else:
+                user_response = interactive.ask_confirm(
+                    'Best matched rule "{!s}"'
+                    '\nProceed with this rule?'.format(rule.description)
+                )
+                log.debug('User response: "{!s}"'.format(user_response))
+                return bool(user_response)
+
         if self.opts.get('mode_rulematch'):
             matcher = _run_rule_matcher(current_file, self.active_config)
 
             # Is there a "best matched" rule?
-            if not matcher.best_match:
-                if self.opts.get('mode_batch'):
-                    log.warning('No rule matched, name template unknown.')
-                    self.exit_code = C.EXIT_WARNING
-                    return
-                else:
-                    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-                    candidates = None
-                    choice = interactive.select_template(candidates)
-                    # if choice != ui.action.ABORT:
-                    #     name_template = choice
-                    # else:
-                    #     name_template = None
-                    name_template = None
-            else:
+            if matcher.best_match:
                 # OK! But is the score of the best matched rule high enough?
                 _best_match_score = matcher.best_match_score()
-                if _best_match_score > 0:
+                if _best_match_score > RULE_SCORE_CONFIRM_THRESHOLD:
                     active_rule = matcher.best_match
                 else:
-                    if self.opts.get('mode_batch'):
-                        log.warning(
-                            'Best matched rule score: {} --- Require user '
-                            'confirmation.'.format(_best_match_score)
-                        )
-                        log.info('Skipping file ..')
-                        return
+                    # Best matched rule might be a bad fit.
+                    log.debug('Rule score {} is below threshold {}'.format(
+                        _best_match_score, RULE_SCORE_CONFIRM_THRESHOLD
+                    ))
+                    log.debug('Asking user to confirm using the rule..')
+                    ok_to_use_rule = _confirm_apply_rule(matcher.best_match)
+                    if ok_to_use_rule:
+                        log.debug('User answered YES. Using the rule')
+                        active_rule = matcher.best_match
                     else:
-                        log.debug('Best matched rule score: {} --- Require user '
-                                  'confirmation.'.format(_best_match_score))
-                        ok = interactive.ask_confirm(
-                            'Best matched rule "{!s}" score: {}\n'
-                            'Proceed with this rule?'.format(
-                                matcher.best_match.description,
-                                _best_match_score
-                            )
-                        )
-                        log.debug('User response: "{!s}"'.format(ok))
-                        if ok:
-                            active_rule = matcher.best_match
+                        log.debug('User answered NO! Will not use the rule')
+
+        if not active_rule:
+            # Figure out which name template to use by any other means..
+            if self.opts.get('mode_batch'):
+                log.debug('Batch mode and name template unknown. ABORTING!')
+                log.warning('No rule matched, name template unknown.')
+                self.exit_code = C.EXIT_WARNING
+                return
+            else:
+                # Have the user select a name template.
+                # TODO: Ask the user to select a *name template* or a *rule*?
+                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                candidates = None
+                choice = interactive.select_template(candidates)
+                # if choice != ui.action.ABORT:
+                #     name_template = choice
+                # else:
+                #     name_template = None
+                name_template = None
+
+        if self.opts.get('mode_interactive'):
+            # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+            # TODO: Create a interactive interface.
+            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
+            # candidates = None
+            # choice = interactive.select_template(candidates)
+            # if choice != ui.action.ABORT:
+            #     name_template = choice
+            # else:
+            #     name_template = None
+            name_template = None
 
         if self.opts.get('mode_automagic'):
-            # TODO: [TD0100] Run rule-matching by default.
-            self._perform_automagic_actions(current_file, matcher)
-        elif self.opts.get('mode_interactive'):
-            # TODO: Create a interactive interface.
-            # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
-            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
+            pass
 
-    def _perform_automagic_actions(self, current_file, rule_matcher):
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         if active_rule and not name_template:
             name_template = active_rule.name_template
             log.info(
-                'Using rule: "{!s}"'.format(rule_matcher.best_match.description)
+                'Using rule: "{!s}"'.format(matcher.best_match.description)
             )
 
         if not name_template:
@@ -406,7 +438,7 @@ class Autonameow(object):
             return
 
         resolver = TemplateFieldDataResolver(current_file, name_template)
-        resolver.add_known_sources(rule_matcher.best_match.data_sources)
+        resolver.add_known_sources(matcher.best_match.data_sources)
 
         if self.opts.get('mode_batch'):
             if not resolver.mapped_all_template_fields():
