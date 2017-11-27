@@ -337,22 +337,25 @@ class Autonameow(object):
             run_all_plugins=should_list_any_results
         )
 
-        #  * Matched Rule ---+--> Template
-        #                    '--> Data Sources
+        #  Things to find:
         #
-        #  FIND:
-        #
-        #    * Template
+        #    * NAME TEMPLATE
         #      Sources:   * User selection (interactive mode)
         #                 * Matched rule   (rule-matching, automagic)
         #
-        #    * Data Sources
+        #    * DATA SOURCES for name template fields
         #      Sources:   * User selection (interactive mode)
         #                 * Matched rule   (rule-matching, automagic)
         #                 * Yet unknown    (automagic)
+        #
+        #  Keeping in mind that:
+        #
+        #    * Matched Rule ---+--> Template
+        #                      '--> Data Sources
 
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         active_rule = None
+        data_sources = None
         name_template = None
 
         RULE_SCORE_CONFIRM_THRESHOLD = 1
@@ -362,83 +365,100 @@ class Autonameow(object):
                 log.info('Rule required confirmation but in batch mode -- '
                          'Skipping file ..')
                 return False
-            else:
-                user_response = interactive.ask_confirm(
-                    'Best matched rule "{!s}"'
-                    '\nProceed with this rule?'.format(rule.description)
-                )
-                log.debug('User response: "{!s}"'.format(user_response))
-                return bool(user_response)
+
+            user_response = interactive.ask_confirm(
+                'Best matched rule "{!s}"'
+                '\nProceed with this rule?'.format(rule.description)
+            )
+            log.debug('User response: "{!s}"'.format(user_response))
+            return bool(user_response)
 
         if self.opts.get('mode_rulematch'):
             matcher = _run_rule_matcher(current_file, self.active_config)
 
-            # Is there a "best matched" rule?
-            if matcher.best_match:
-                # OK! But is the score of the best matched rule high enough?
-                _best_match_score = matcher.best_match_score()
-                if _best_match_score > RULE_SCORE_CONFIRM_THRESHOLD:
-                    active_rule = matcher.best_match
+            if self.opts.get('mode_interactive'):
+                log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
+
+                # Have the user select a rule from any candidate matches.
+                # candidates = matcher.candidates()
+                candidates = None
+                if candidates:
+                    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                    # choice = interactive.select_rule(candidates)
+                    # if choice != ui.action.ABORT:
+                    #     active_rule = choice
+                    pass
                 else:
-                    # Best matched rule might be a bad fit.
-                    log.debug('Rule score {} is below threshold {}'.format(
-                        _best_match_score, RULE_SCORE_CONFIRM_THRESHOLD
-                    ))
-                    log.debug('Asking user to confirm using the rule..')
-                    ok_to_use_rule = _confirm_apply_rule(matcher.best_match)
-                    if ok_to_use_rule:
-                        log.debug('User answered YES. Using the rule')
+                    log.debug('There are no rules available for the user to '
+                              'choose from..')
+
+            if not active_rule:
+                # User rule selection did not happen or failed.
+                # Is there a "best matched" rule?
+                if matcher.best_match:
+                    # OK! But is the score of the best matched rule high enough?
+                    _best_match_score = matcher.best_match_score()
+                    _best_match_desc = matcher.best_match.description
+                    if _best_match_score > RULE_SCORE_CONFIRM_THRESHOLD:
                         active_rule = matcher.best_match
                     else:
-                        log.debug('User answered NO! Will not use the rule')
+                        # Best matched rule might be a bad fit.
+                        log.debug('Score {} is below threshold {} for rule "{!s}"'.format(_best_match_score, RULE_SCORE_CONFIRM_THRESHOLD, _best_match_desc))
+                        log.debug('Asking user to confirm use of this rule..')
+                        ok_to_use_rule = _confirm_apply_rule(matcher.best_match)
+                        if ok_to_use_rule:
+                            log.debug('User answered YES. Using rule "{!s}"'.format(_best_match_desc))
+                            active_rule = matcher.best_match
+                        else:
+                            log.debug('User answered NO! Will not use rule "{!s}"'.format(_best_match_desc))
+                else:
+                    log.debug('Rule-matcher did not find a "best match" rule')
 
-        if not active_rule:
-            # Figure out which name template to use by any other means..
+        if active_rule:
+            log.info(
+                'Using rule: "{!s}"'.format(active_rule.description)
+            )
+            data_sources = active_rule.data_sources
+            name_template = active_rule.name_template
+
+        if not name_template:
             if self.opts.get('mode_batch'):
-                log.debug('Batch mode and name template unknown. ABORTING!')
-                log.warning('No rule matched, name template unknown.')
+                log.warning('Name template unknown! Aborting ..')
                 self.exit_code = C.EXIT_WARNING
                 return
-            else:
-                # Have the user select a name template.
-                # TODO: Ask the user to select a *name template* or a *rule*?
-                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-                candidates = None
-                choice = interactive.select_template(candidates)
-                # if choice != ui.action.ABORT:
-                #     name_template = choice
-                # else:
-                #     name_template = None
-                name_template = None
 
-        if self.opts.get('mode_interactive'):
+            # Have the user select a name template.
             # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-            # TODO: Create a interactive interface.
-            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
             # candidates = None
             # choice = interactive.select_template(candidates)
             # if choice != ui.action.ABORT:
             #     name_template = choice
-            # else:
-            #     name_template = None
-            name_template = None
-
-        if self.opts.get('mode_automagic'):
+            # if not name_template:
+            #     log.warning('No valid name template chosen. Aborting ..')
             pass
 
-        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
-        if active_rule and not name_template:
-            name_template = active_rule.name_template
-            log.info(
-                'Using rule: "{!s}"'.format(matcher.best_match.description)
-            )
-
         if not name_template:
-            log.warning('No valid name template chosen. Aborting.')
+            # User name template selection did not happen or failed.
+            log.warning('Name template unknown! Aborting ..')
+            self.exit_code = C.EXIT_WARNING
             return
 
+        if not data_sources:
+            if self.opts.get('mode_automagic'):
+                # Try real hard to figure it out (?)
+                pass
+
+            if self.opts.get('mode_batch'):
+                log.warning('Data sources unknown! Aborting ..')
+                self.exit_code = C.EXIT_WARNING
+                return
+
+            # Have the user select data sources.
+            # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+            pass
+
         resolver = TemplateFieldDataResolver(current_file, name_template)
-        resolver.add_known_sources(matcher.best_match.data_sources)
+        resolver.add_known_sources(data_sources)
 
         if self.opts.get('mode_batch'):
             if not resolver.mapped_all_template_fields():
