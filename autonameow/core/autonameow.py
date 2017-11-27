@@ -87,6 +87,10 @@ class Autonameow(object):
             opts['mode_automagic'] = False
             opts['mode_interactive'] = True
 
+        if not opts.get('mode_rulematch'):
+            log.info('Enabled rule-matching..')
+            opts['mode_rulematch'] = True
+
         if (not opts.get('mode_automagic') and not opts.get('mode_rulematch')
                 and opts.get('mode_batch')):
             log.warning('Running in "batch" mode without specifying an '
@@ -112,10 +116,6 @@ class Autonameow(object):
 
         if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
             log.info('No operating-mode selected!')
-
-        if not opts.get('mode_rulematch'):
-            log.info('Enabled rule-matching..')
-            opts['mode_rulematch'] = True
 
         return opts
 
