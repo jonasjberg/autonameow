@@ -567,7 +567,10 @@ def commandline_for_testcase(loaded_test):
     Returns:
         Full equivalent command-line as a Unicode string.
     """
-    assert isinstance(loaded_test, dict)
+    assert isinstance(loaded_test, dict), (
+        'Expected dict, NOT {!s}.  Value: {!s}'.format(type(loaded_test),
+                                                       loaded_test)
+    )
     arguments = _commandline_args_for_testcase(loaded_test)
     argument_string = ' '.join(arguments)
     commandline = 'autonameow ' + argument_string

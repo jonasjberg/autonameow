@@ -32,6 +32,7 @@ from core.persistence import get_persistence
 from regression_utils import (
     AutonameowWrapper,
     check_renames,
+    commandline_for_testcase,
     load_regressiontests,
     TerminalReporter
 )
@@ -278,6 +279,15 @@ def main(args):
         default=False,
         help='Print captured stdout.'
     )
+    parser.add_argument(
+        '--get-cmd',
+        dest='get_cmd',
+        nargs='+',
+        metavar='TEST_DIRNAME',
+        help='Prints equivalent command-line invocations for the specified'
+             'test case(s). These would be executed "manually" to produce the '
+             'same behaviour and results as the corresponding regression test.'
+    )
 
     opts = parser.parse_args(args)
 
@@ -293,6 +303,39 @@ def main(args):
     print('Loaded {} regression test(s) ..'.format(len(loaded_tests)))
     if not loaded_tests:
         return
+
+    if opts.get_cmd:
+        matching_tests = []
+        for _test_to_get in opts.get_cmd:
+            # Must convert to bytes in order to do the comparison.
+            try:
+                _b_test_to_get = types.AW_PATHCOMPONENT(_test_to_get)
+            except types.AWTypeError as e:
+                print(str(e))
+                continue
+
+            matching_test = [t for t in loaded_tests
+                             if t.get('test_dirname') == _b_test_to_get]
+            if matching_test:
+                matching_tests.extend(matching_test)
+            else:
+                print('Not among the loaded tests: "{!s}"'.format(_test_to_get))
+
+        if not matching_tests:
+            _get_cmd = '"{!s}"'.format('", "'.join(opts.get_cmd))
+            print('Does not match any loaded test: {!s}'.format(_get_cmd))
+            # print('\nLoaded tests:')
+            # _test_dirnames = [types.force_string(t.get('test_dirname'))
+            #                   for t in loaded_tests]
+            # print('\n'.join(_test_dirnames))
+
+            sys.exit(1)
+        else:
+            for test in matching_tests:
+                test_dirname = types.force_string(test.get('test_dirname'))
+                arg_string = commandline_for_testcase(test)
+                print('# {!s}\n{!s}\n'.format(test_dirname, arg_string))
+            sys.exit(0)
 
     if opts.run_lastfailed:
         _failed_lastrun = load_failed_tests()
