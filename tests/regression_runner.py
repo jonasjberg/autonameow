@@ -253,6 +253,8 @@ def run_regressiontests(tests, print_stderr, print_stdout):
         # before completion..
         write_failed_tests(failed_tests)
 
+    return count_failure
+
 
 def main(args):
     _description = '{} {} -- regression test suite runner'.format(
@@ -379,14 +381,19 @@ def main(args):
         tests_to_run = list(loaded_tests)
         log.info('Running {} test case(s) ..'.format(len(tests_to_run)))
 
-    run_regressiontests(tests_to_run,
-                        print_stderr=bool(opts.print_stderr),
-                        print_stdout=bool(opts.print_stdout))
+    failed = 0
+    failed = run_regressiontests(tests_to_run,
+                                 print_stderr=bool(opts.print_stderr),
+                                 print_stdout=bool(opts.print_stdout))
+    return failed
 
 
 if __name__ == '__main__':
+    exit_code = 0
     try:
-        main(sys.argv[1:])
+        exit_code = main(sys.argv[1:])
     except KeyboardInterrupt:
         print('\nReceived keyboard interrupt. Exiting ..')
-        sys.exit(0)
+        sys.exit(exit_code)
+    finally:
+        sys.exit(exit_code)
