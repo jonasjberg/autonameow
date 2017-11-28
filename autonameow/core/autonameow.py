@@ -73,6 +73,7 @@ class Autonameow(object):
         self.start_time = time.time()
 
         self.active_config = None
+        self.matcher = None
         self._exit_code = C.EXIT_SUCCESS
 
     @staticmethod
@@ -191,6 +192,14 @@ class Autonameow(object):
             self.opts.get('recurse_paths')
         )
         log.info('Got {} files to process'.format(len(files_to_process)))
+
+        if not self.active_config.rules:
+            log.warning('Configuration does not contain any rules to evaluate')
+            rules = []
+        else:
+            rules = self.active_config.rules
+
+        self.matcher = RuleMatcher(rules)
 
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
@@ -354,10 +363,13 @@ class Autonameow(object):
         #                      '--> Data Sources
 
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
+        active_rule = None
         data_sources = None
         name_template = None
+        if self.opts.get('mode_rulematch'):
+            # TODO: Cleanup ..
+            active_rule = self._try_get_rule(current_file)
 
-        active_rule = self._try_get_rule(current_file)
         if active_rule:
             log.info(
                 'Using rule: "{!s}"'.format(active_rule.description)
@@ -486,19 +498,15 @@ class Autonameow(object):
 
     def _try_get_rule(self, current_file):
         active_rule = None
-        if not self.opts.get('mode_rulematch'):
-            # TODO: Cleanup ..
-            return active_rule
-
-        matcher = _run_rule_matcher(current_file, self.active_config)
+        candidates = self.matcher.match(current_file)
 
         if self.opts.get('mode_interactive'):
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
             # Have the user select a rule from any candidate matches.
             # candidates = matcher.candidates()
-            candidates = None
             if candidates:
+                log.warning('TODO: Implement interactive rule selection.')
                 # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
                 # choice = interactive.select_rule(candidates)
                 # if choice != ui.action.ABORT:
@@ -509,25 +517,26 @@ class Autonameow(object):
                           'choose from..')
 
         RULE_SCORE_CONFIRM_THRESHOLD = 0
-        if not active_rule:
+        if candidates and not active_rule:
             # User rule selection did not happen or failed.
             # Is there a "best matched" rule?
-            if matcher.best_match:
+            best_match = candidates[0]
+            if best_match:
                 # OK! But is the score of the best matched rule high enough?
-                _best_match_score = matcher.best_match_score()
-                _best_match_desc = matcher.best_match.description
-                if _best_match_score > RULE_SCORE_CONFIRM_THRESHOLD:
-                    active_rule = matcher.best_match
+                rule, score, weight = best_match
+                description = rule.description
+                if score > RULE_SCORE_CONFIRM_THRESHOLD:
+                    active_rule = rule
                 else:
                     # Best matched rule might be a bad fit.
-                    log.debug('Score {} is below threshold {} for rule "{!s}"'.format(_best_match_score, RULE_SCORE_CONFIRM_THRESHOLD, _best_match_desc))
+                    log.debug('Score {} is below threshold {} for rule "{!s}"'.format(score, RULE_SCORE_CONFIRM_THRESHOLD, description))
                     log.debug('Need confirmation before using this rule..')
-                    ok_to_use_rule = self._confirm_apply_rule(matcher.best_match)
+                    ok_to_use_rule = self._confirm_apply_rule(rule)
                     if ok_to_use_rule:
-                        log.debug('Positive response. Using rule "{!s}"'.format(_best_match_desc))
-                        active_rule = matcher.best_match
+                        log.debug('Positive response. Using rule "{!s}"'.format(description))
+                        active_rule = rule
                     else:
-                        log.debug('Negative response. Will not use rule "{!s}"'.format(_best_match_desc))
+                        log.debug('Negative response. Will not use rule "{!s}"'.format(description))
             else:
                 log.debug('Rule-matcher did not find a "best match" rule')
 
@@ -707,32 +716,3 @@ def _run_analysis(fileobject, active_config):
     except exceptions.AutonameowException as e:
         log.critical('Analysis FAILED: {!s}'.format(e))
         raise
-
-
-def _run_rule_matcher(fileobject, active_config):
-    """
-    Instantiates, executes and returns a 'RuleMatcher' instance.
-
-    Args:
-        active_config: An instance of the 'Configuration' class.
-
-    Returns:
-        An instance of the 'RuleMatcher' class that has executed successfully.
-
-    Raises:
-        AutonameowException: An unrecoverable error occurred during execution.
-    """
-    if not active_config or not active_config.rules:
-        log.error('Configuration does not contain any rules to evaluate')
-        rules = []
-    else:
-        rules = active_config.rules
-
-    matcher = RuleMatcher(fileobject, rules)
-    try:
-        matcher.start()
-    except exceptions.AutonameowException as e:
-        log.critical('Rule Matching FAILED: {!s}'.format(e))
-        raise
-    else:
-        return matcher

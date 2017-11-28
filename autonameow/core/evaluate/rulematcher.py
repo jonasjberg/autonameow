@@ -28,14 +28,10 @@ log = logging.getLogger(__name__)
 
 
 class RuleMatcher(object):
-    def __init__(self, fileobject, rules):
-        self.fileobject = fileobject
+    def __init__(self, rules):
+        self._rules = list(rules)
 
-        self._rules = rules
-        self._scored_rules = {}
-        self._candidates = []
-
-    def _request_data(self, fileobject, meowuri):
+    def request_data(self, fileobject, meowuri):
         # log.debug(
         #     'requesting [{:8.8}]->[{!s}]'.format(fileobject.hash_partial,
         #                                          meowuri)
@@ -47,90 +43,88 @@ class RuleMatcher(object):
         else:
             return None
 
-    def request_data(self, meowuri):
+    def match(self, fileobject):
+        if not self._rules:
+            log.debug('No rules available for matching!')
+            return []
+
+        all_rules = list(self._rules)
+
         # Functions that use this does not have access to 'self.fileobject'.
         # This method, which calls a callback, is itself passed as a callback..
-        return self._request_data(self.fileobject, meowuri)
+        def _request_data(meowuri):
+            return self.request_data(fileobject, meowuri)
+        scored_rules = {}
 
-    def start(self):
-        log.debug('Examining {} rules ..'.format(len(self._rules)))
-
-        remaining_rules = remove_rules_failing_exact_match(self._rules,
-                                                           self.request_data)
+        log.debug('Examining {} rules ..'.format(len(all_rules)))
+        remaining_rules = remove_rules_failing_exact_match(all_rules,
+                                                           _request_data)
         if len(remaining_rules) == 0:
-            log.debug('No rules remain after discarding those who requires an'
-                      ' exact match but failed evaluation ..')
-            return
+            log.debug('No rules remain after discarding those that require an '
+                      'exact match and failed evaluation of any condition ..')
+            return []
 
-        log.debug('{} rules remain after removing rules that require exact'
-                  ' matches'.format(len(remaining_rules)))
+        log.debug('{} rules remain after discarding those that require an '
+                  'exact match and failed evaluation.'.format(len(remaining_rules)))
 
         # Calculate score and weight for each rule, store the results in a
         # new local dict instead of mutating the 'Rule' instances.
         # The new dict is keyed by the 'Rule' class instances.
-        max_condition_count = max(len(rule.conditions)
+        max_condition_count = max(rule.number_conditions
                                   for rule in remaining_rules)
         for rule in remaining_rules:
-            met_conditions = rule.number_conditions_met(self.request_data)
+            met_conditions = rule.number_conditions_met(_request_data)
 
             # Ratio of met conditions to the total number of conditions
             # for a single rule.
-            score = met_conditions / max(1, len(rule.conditions))
+            score = met_conditions / max(1, rule.number_conditions)
 
             # Ratio of number of conditions in this rule to the number of
             # conditions in the rule with the highest number of conditions.
-            weight = len(rule.conditions) / max(1, max_condition_count)
+            weight = rule.number_conditions / max(1, max_condition_count)
 
-            self._scored_rules[rule] = {'score': score,
-                                        'weight': weight}
+            scored_rules[rule] = {'score': score, 'weight': weight}
 
-        log.debug('Prioritizing remaining {} candidates ..'.format(
+        log.debug('Prioritizing the remaining {} candidates ..'.format(
             len(remaining_rules))
         )
-        prioritized_rules = prioritize_rules(self._scored_rules)
+        prioritized_rules = prioritize_rules(scored_rules)
 
-        _candidates = []
         log.info('Remaining, prioritized rules:')
-        for i, rule in enumerate(prioritized_rules):
-            _candidates.append(rule)
-
-            _exact = 'Yes' if rule.exact_match else 'No '
-            log.info(
-                'Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias:'
-                ' {:.2f}) {} '.format(i + 1, _exact,
-                                      self._scored_rules[rule]['score'],
-                                      self._scored_rules[rule]['weight'],
-                                      rule.ranking_bias, rule.description)
+        for i, rule in enumerate(prioritized_rules, start=1):
+            self._prettyprint_prioritized_rule(
+                i, rule.exact_match, scored_rules[rule]['score'],
+                scored_rules[rule]['weight'], rule.ranking_bias,
+                rule.description
             )
 
-        _discarded_rules = [r for r in self._rules if r not in remaining_rules]
+        _discarded_rules = [r for r in all_rules if r not in remaining_rules]
         log.info('Discarded rules:')
-        for i, rule in enumerate(_discarded_rules, start=i+1):
-            _exact = 'Yes' if rule.exact_match else 'No '
-            log.info('Rule #{} (Exact: {}  Score: N/A   Weight: N/A   Bias:'
-                     ' {:.2f}) {} '.format(i + 1, _exact, rule.ranking_bias,
-                                           rule.description))
+        for i, rule in enumerate(_discarded_rules, start=1):
+            self._prettyprint_discarded_rule(
+                i, rule.exact_match, rule.ranking_bias, rule.description
+            )
+        # Return list of ( RULE, SCORE(float), WEIGHT(float) ) tuples.
+        return [
+            (r, scored_rules[r]['score'], scored_rules[r]['weight'])
+            for r in prioritized_rules
+        ]
 
-        self._candidates = _candidates
+    @staticmethod
+    def _prettyprint_prioritized_rule(num, exact, score, weight, bias, desc):
+        _exact = 'Yes' if exact else 'No '
+        log.info(
+            'Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias: {:.2f})'
+            '{} '.format(num, _exact, score, weight, bias, desc)
+        )
 
-    @property
-    def best_match(self):
-        if not self._candidates:
-            return None
-        return self._candidates[0]
-
-    def candidates(self):
-        if not self._candidates:
-            return []
-        return self._candidates
-
-    def best_match_score(self):
-        best = self.best_match
-        if best:
-            rule = self._scored_rules.get(best)
-            if rule:
-                return rule.get('score')
-        return 0
+    @staticmethod
+    def _prettyprint_discarded_rule(number, exact, bias, desc):
+        _exact = 'Yes' if exact else 'No '
+        log.info(
+            'Rule #{} (Exact: {}  Score: N/A   Weight: N/A   Bias: {:.2f}) '
+            '{} '.format(number, _exact, bias, desc)
+        )
 
 
 def prioritize_rules(rules):

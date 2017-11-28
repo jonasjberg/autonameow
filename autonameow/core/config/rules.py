@@ -289,6 +289,10 @@ class Rule(object):
         self._conditions = valid_conditions
 
     @property
+    def number_conditions(self):
+        return len(self._conditions)
+
+    @property
     def data_sources(self):
         return self._data_sources
 

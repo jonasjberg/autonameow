@@ -20,10 +20,12 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+from unittest.mock import Mock, patch
 
 from core import constants as C
 from core.config.configuration import Configuration
 from core.config import DEFAULT_CONFIG
+from core.config.rules import Rule
 from core.evaluate.rulematcher import (
     RuleMatcher,
     prioritize_rules,
@@ -42,44 +44,132 @@ def get_testrules():
 
 
 class TestRuleMatcher(TestCase):
-    def test_can_be_instantiated_with_none_fileobject_and_mock_rules(self):
-        rules = get_testrules()
-        matcher = RuleMatcher(None, rules)
+    def test_can_be_instantiated_with_mock_rules(self):
+        matcher = RuleMatcher(rules=get_testrules())
         self.assertIsNotNone(matcher)
 
-    def test_can_be_instantiated_with_none_fileobject_and_no_rules(self):
-        rules = []
-        matcher = RuleMatcher(None, rules)
+    def test_can_be_instantiated_with_no_rules(self):
+        matcher = RuleMatcher(rules=[])
         self.assertIsNotNone(matcher)
 
 
-class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
-    def setUp(self):
-        fo = uu.get_mock_fileobject()
-        rules = get_testrules()
-        self.rm = RuleMatcher(fo, rules)
-
-    def test_querying_unavailable_data_returns_false(self):
-        self.assertFalse(
-            self.rm.request_data(uuconst.MEOWURI_AZR_FILENAME_PUBLISHER)
-        )
-
-
-class TestRuleMatcherProducesExpectedMatches(TestCase):
+class TestRuleMatcherMatching(TestCase):
     SHARED_FILEOBJECT = uu.get_mock_fileobject(mime_type='application/pdf')
 
-    def test_returns_none_if_no_rules_are_available(self):
-        rules = []
-        matcher = RuleMatcher(self.SHARED_FILEOBJECT, rules)
-        matcher.start()
-        actual = matcher.best_match
-        self.assertIsNone(actual)
+    def test_returns_empty_list_if_no_rules_are_available(self):
+        matcher = RuleMatcher(rules=[])
+        actual = matcher.match(self.SHARED_FILEOBJECT)
+        expect = []
+        self.assertEqual(actual, expect)
 
-    # def test_best_match(self):
-    #     rules = get_testrules()
-    #     matcher = RuleMatcher(self.SHARED_FILEOBJECT, rules)
-    #     actual = matcher.best_match
-    #     self.assertEqual(actual.description, 'Foo Rule Description')
+    def test_expected_return_values_given_rules_and_valid_fileobject(self):
+        matcher = RuleMatcher(rules=get_testrules())
+        actual = matcher.match(self.SHARED_FILEOBJECT)
+        self.assertTrue(isinstance(actual, list))
+
+        for triple in actual:
+            self.assertTrue(isinstance(triple, tuple))
+
+            self.assertTrue(isinstance(triple[0], Rule))
+
+            _assumed_score = triple[1]
+            _assumed_weight = triple[2]
+            self.assertTrue(isinstance(_assumed_score, float))
+            self.assertTrue(isinstance(_assumed_weight, float))
+            self.assertTrue(0 <= _assumed_score <= 1)
+            self.assertTrue(0 <= _assumed_weight <= 1)
+
+    @staticmethod
+    def _get_mock_rule(exact_match, evaluates_exact, num_conditions,
+                       num_conditions_met, bias):
+        rule = Mock()
+        rule.description = 'Mock Rule'
+        rule.exact_match = bool(exact_match)
+        rule.evaluate_exact.return_value = bool(evaluates_exact)
+        rule.number_conditions = int(num_conditions)
+        rule.number_conditions_met.return_value = int(num_conditions_met)
+        rule.ranking_bias = float(bias)
+
+        _conditions = []
+        for _ in range(num_conditions):
+            rule_condition = Mock()
+            _conditions.append(rule_condition)
+        rule.conditions = _conditions
+
+        return rule
+
+    def _check_matcher_result(self, given, expect):
+        matcher = RuleMatcher(rules=given)
+        actual = matcher.match(self.SHARED_FILEOBJECT)
+        self.assertEqual(actual, expect)
+
+    def test_non_exact_matched_rule_has_zero_score_one_weight(self):
+        rule = self._get_mock_rule(
+            exact_match=False, evaluates_exact=True, num_conditions=3,
+            num_conditions_met=0, bias=0.5
+        )
+        matcher = RuleMatcher(rules=[rule])
+        actual = matcher.match(self.SHARED_FILEOBJECT)
+        expect = [(rule, 0.0, 1.0)]
+        self.assertEqual(actual, expect)
+
+        self._check_matcher_result(
+            given=[rule],
+            expect=[(rule, 0.0, 1.0)]
+        )
+
+    def test_exact_matched_rule_has_one_score_one_weight(self):
+        rule = self._get_mock_rule(
+            exact_match=True, evaluates_exact=True, num_conditions=3,
+            num_conditions_met=3, bias=0.5
+        )
+        matcher = RuleMatcher(rules=[rule])
+        actual = matcher.match(self.SHARED_FILEOBJECT)
+        expect = [(rule, 1.0, 1.0)]
+        self.assertEqual(actual, expect)
+
+    def test_one_exact_rule_one_not_exact_rule_same_score_and_weight(self):
+        rule1 = self._get_mock_rule(
+            exact_match=True, evaluates_exact=True, num_conditions=3,
+            num_conditions_met=3, bias=0.5
+        )
+        rule2 = self._get_mock_rule(
+            exact_match=False, evaluates_exact=True, num_conditions=3,
+            num_conditions_met=3, bias=0.5
+        )
+        matcher = RuleMatcher(rules=[rule1, rule2])
+        actual = matcher.match(self.SHARED_FILEOBJECT)
+        expect = [(rule1, 1.0, 1.0), (rule2, 1.0, 1.0)]
+        self.assertEqual(actual, expect)
+
+    def test_one_exact_rule_one_not_exact_rule_different_score(self):
+        rule1 = self._get_mock_rule(
+            exact_match=True, evaluates_exact=True, num_conditions=3,
+            num_conditions_met=3, bias=0.5
+        )
+        rule2 = self._get_mock_rule(
+            exact_match=False, evaluates_exact=True, num_conditions=3,
+            num_conditions_met=2, bias=0.5
+        )
+        matcher = RuleMatcher(rules=[rule1, rule2])
+        actual = matcher.match(self.SHARED_FILEOBJECT)
+        expect = [(rule1, 1.0, 1.0), (rule2, 0.6666666666666666, 1.0)]
+        self.assertEqual(actual, expect)
+
+    def test_one_exact_rule_one_not_exact_rule_different_weight(self):
+        rule1 = self._get_mock_rule(
+            exact_match=True, evaluates_exact=True, num_conditions=2,
+            num_conditions_met=2, bias=0.5
+        )
+        rule2 = self._get_mock_rule(
+            exact_match=False, evaluates_exact=True, num_conditions=5,
+            num_conditions_met=5, bias=0.5
+        )
+        matcher = RuleMatcher(rules=[rule1, rule2])
+        actual = matcher.match(self.SHARED_FILEOBJECT)
+        expect = [(rule2, 1.0, 1.0), (rule1, 1.0, 0.4)]
+        self.assertEqual(actual, expect)
+
 
 
 class DummyRule(object):
