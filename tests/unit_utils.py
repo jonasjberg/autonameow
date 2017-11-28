@@ -572,7 +572,6 @@ def capture_stderr(finally_print=False):
             print(capture.getvalue())
 
 
-
 def get_instantiated_analyzers():
     """
     Get a list of all available analyzers as instantiated class objects.
@@ -589,7 +588,6 @@ def get_instantiated_analyzers():
 
 
 def get_dummy_rules_to_examine():
-
     _raw_conditions = get_dummy_raw_conditions()
     _raw_sources = get_dummy_raw_data_sources()
 
