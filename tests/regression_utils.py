@@ -550,3 +550,25 @@ def _commandline_args_for_testcase(loaded_test):
                 arguments.append("'{}'".format(p))
 
     return arguments
+
+
+def commandline_for_testcase(loaded_test):
+    """
+    Converts a regression test to a equivalent command-line invocation string.
+
+    Given a loaded "regression test case", it returns a full command that
+    could be pasted into a terminal to produce  behaviour equivalent to the
+    given regression test case.
+
+    Args:
+        loaded_test: Regression "test case" returned from
+                     'load_regressiontests()', as type dict.
+
+    Returns:
+        Full equivalent command-line as a Unicode string.
+    """
+    assert isinstance(loaded_test, dict)
+    arguments = _commandline_args_for_testcase(loaded_test)
+    argument_string = ' '.join(arguments)
+    commandline = 'autonameow ' + argument_string
+    return commandline.strip()

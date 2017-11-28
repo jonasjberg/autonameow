@@ -27,6 +27,7 @@ from util import encoding as enc
 from regression_utils import (
     AutonameowWrapper,
     check_renames,
+    commandline_for_testcase,
     _commandline_args_for_testcase,
     get_regressiontest_dirs,
     get_regressiontests_rootdir,
@@ -526,3 +527,20 @@ class TestCommandlineArgsForTestcase(TestCase):
         self.assertEqual(len(expected_options), len(actual))
         for expect_option in expected_options:
             self.assertIn(expect_option, actual)
+
+
+class TestCommandlineForTestcase(TestCase):
+    def test_returns_expected_for_empty_testcase(self):
+        actual = commandline_for_testcase({})
+        expect = 'autonameow'
+        self.assertEqual(actual, expect)
+
+    def test_returns_expected_for_testcase_0000(self):
+        actual = commandline_for_testcase(SAMPLE_TESTCASE_0000)
+        expect = "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/default_config.yaml'"
+        self.assertEqual(actual, expect)
+
+    def test_returns_expected_for_testcase_0006(self):
+        actual = commandline_for_testcase(SAMPLE_TESTCASE_0006)
+        expect = "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/default_config.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'"
+        self.assertEqual(actual, expect)
