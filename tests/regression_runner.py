@@ -115,7 +115,7 @@ def run_test(test):
                 # Expected renames and got renames.
                 for _expect_in, _expect_out in expect_renames.items():
                     if _expect_in not in actual_renames:
-                        _msg('  Not renamed. Expected:  "{!s}" -> "{!s}"'.format(_expected_in, _expected_out))
+                        _msg('  Not renamed. Expected:  "{!s}" -> "{!s}"'.format(_expect_in, _expect_out))
                     else:
                         assert _expect_in in actual_renames
                         _actual_out = actual_renames.get(_expect_in)
