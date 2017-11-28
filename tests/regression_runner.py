@@ -172,6 +172,11 @@ def load_failed_tests():
     return []
 
 
+def print_test_dirnames(tests):
+    _test_dirnames = [types.force_string(t.get('test_dirname')) for t in tests]
+    print('\n'.join(_test_dirnames))
+
+
 def run_regressiontests(tests, print_stderr, print_stdout):
     reporter = TerminalReporter(VERBOSE)
     count_total = len(tests)
@@ -292,6 +297,14 @@ def main(args):
              'test case(s). These would be executed "manually" to produce the '
              'same behaviour and results as the corresponding regression test.'
     )
+    parser.add_argument(
+        '--list',
+        dest='list_tests',
+        action='store_true',
+        default=False,
+        help='Print the ("short name") test directory basename of all loaded '
+             'tests and exit. '
+    )
 
     opts = parser.parse_args(args)
 
@@ -314,6 +327,10 @@ def main(args):
     if not loaded_tests:
         return
 
+    if opts.list_tests:
+        print_test_dirnames(loaded_tests)
+        sys.exit(0)
+
     if opts.get_cmd:
         matching_tests = []
         for _test_to_get in opts.get_cmd:
@@ -335,10 +352,7 @@ def main(args):
             _get_cmd = '"{!s}"'.format('", "'.join(opts.get_cmd))
             log.warning('Does not match any loaded test: {!s}'.format(_get_cmd))
             # print('\nLoaded tests:')
-            # _test_dirnames = [types.force_string(t.get('test_dirname'))
-            #                   for t in loaded_tests]
-            # print('\n'.join(_test_dirnames))
-
+            # print_test_dirnames(loaded_tests)
             sys.exit(1)
         else:
             for test in matching_tests:
