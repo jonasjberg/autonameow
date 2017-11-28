@@ -490,3 +490,58 @@ def check_renames(actual, expected):
 
     # Compare dict of expected from-tos to the dict of actual from-tos.
     return bool(expected == actual)
+
+
+def _commandline_args_for_testcase(loaded_test):
+    """
+    Converts a regression test to a list of command-line arguments.
+
+    Given a loaded "regression test case", it returns command-line components
+    that would result in equivalent behaviour.
+    The returned arguments would be used when invoking autonameow "manually"
+    from the command-line.
+
+    Args:
+        loaded_test: Regression "test case" returned from
+                     'load_regressiontests()', as type dict.
+
+    Returns:
+        Command-line arguments as a list of Unicode strings.
+    """
+    # TODO: [hardcoded] Generate from 'autonameow/core/ui/cli/options.py'.
+    TESTOPTION_CMDARG_MAP = {
+        'debug': '--debug',
+        'dry_run': '--dry-run',
+        'dump_config': '--dump-config',
+        'dump_meowuris': '--dump-meowuris',
+        'dump_options': '--dump-options',
+        'list_all': '--list-all',
+        'mode_automagic': '--automagic',
+        'mode_batch': '--batch',
+        'mode_interactive': '--interactive',
+        'quiet': '--quiet',
+        'recurse_paths': '--recurse',
+        'show_version': '--version',
+        'verbose': '--verbose',
+    }
+
+    arguments = []
+    loaded_options = loaded_test.get('options')
+    if loaded_options:
+        for opt, arg in TESTOPTION_CMDARG_MAP.items():
+            if loaded_options.get(opt):
+                arguments.append(arg)
+
+        _config_path = loaded_options.get('config_path')
+        if _config_path:
+            _str_config_path = types.force_string(_config_path)
+            assert _str_config_path != ''
+            arguments.append("--config-path '{}'".format(_str_config_path))
+
+        _input_paths = loaded_options.get('input_paths')
+        if _input_paths:
+            # arguments.append(' -- ')
+            for p in _input_paths:
+                arguments.append("'{}'".format(p))
+
+    return arguments
