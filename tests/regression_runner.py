@@ -211,7 +211,8 @@ def run_regressiontests(tests, print_stderr, print_stdout):
             (failures, captured_time, captured_stdout,
              captured_stderr) = run_test(test)
         except KeyboardInterrupt:
-            print('\nReceived keyboard interrupt. Skipping remaining tests ..')
+            print('\n')
+            log.critical('Received keyboard interrupt. Skipping remaining ..')
             should_abort = True
 
         elapsed_time = time.time() - start_time
