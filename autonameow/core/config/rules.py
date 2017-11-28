@@ -606,9 +606,6 @@ def is_valid_source(meowuri):
     """
     Check if the source is valid.
 
-    Tests if the given source starts with the same text as any of the
-    date source "meowURIs" stored in the 'SessionRepository'.
-
     For example, the source value "extractor.metadata.exiftool.PDF:CreateDate"
     would be considered valid if "extractor.metadata.exiftool" was registered
     by a source.
@@ -620,7 +617,9 @@ def is_valid_source(meowuri):
         The given source value if it passes the test, otherwise False.
     """
     if not meowuri or not isinstance(meowuri, MeowURI):
-        print('Not meowuri or not instance of "MeowURI"')
+        log.warning('Not meowuri or not instance of "MeowURI"')
+        log.debug('"is_valid_source()" got ({!s}) {!s}'.format(type(meowuri),
+                                                               meowuri))
         return False
 
     if meowuri.is_generic:
