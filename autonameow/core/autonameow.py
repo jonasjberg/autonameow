@@ -314,7 +314,7 @@ class Autonameow(object):
         should_list_any_results = self.opts.get('list_all')
 
         # Extract data from the file.
-        required_extractors = providers.get_sources_for_meowuris(
+        required_extractors = providers.get_providers_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['extractor']
         )
@@ -331,7 +331,7 @@ class Autonameow(object):
         _run_analysis(current_file, self.active_config)
 
         # Run plugins.
-        required_plugins = providers.get_sources_for_meowuris(
+        required_plugins = providers.get_providers_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['plugin']
         )

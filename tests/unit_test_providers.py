@@ -21,17 +21,17 @@
 
 import collections
 from unittest import TestCase
+from unittest.mock import Mock
 
 from core.providers import (
-    get_sources_for_meowuris,
-    map_meowuri_to_source_class,
+    get_providers_for_meowuris,
     ProviderRegistry
 )
 import unit_utils as uu
 import unit_utils_constants as uuconst
 
 
-class TestGetSourcesForMeowURIs(TestCase):
+class TestGetProvidersForMeowURIs(TestCase):
     def setUp(self):
         self._meowuris_filetags = [
             uuconst.MEOWURI_AZR_FILETAGS_DATETIME,
@@ -69,6 +69,8 @@ class TestGetSourcesForMeowURIs(TestCase):
                               + self._meowuris_exiftool
                               + self._meowuris_guessit)
 
+        uu.init_provider_registry()
+
     def _assert_maps(self, actual_sources, expected_source):
         self.assertEqual(len(actual_sources), len(expected_source))
         for s in actual_sources:
@@ -77,7 +79,7 @@ class TestGetSourcesForMeowURIs(TestCase):
 
     def test_returns_no_sources_for_invalid_meowuris(self):
         def _assert_empty_mapping(meowuri_list):
-            actual = get_sources_for_meowuris(meowuri_list)
+            actual = get_providers_for_meowuris(meowuri_list)
             self.assertEqual(len(actual), 0)
 
         _assert_empty_mapping(None)
@@ -88,23 +90,23 @@ class TestGetSourcesForMeowURIs(TestCase):
         _assert_empty_mapping([None, 'xxxyyyzzz'])
 
     def test_returns_expected_source_filetags(self):
-        actual = get_sources_for_meowuris(self._meowuris_filetags)
+        actual = get_providers_for_meowuris(self._meowuris_filetags)
         self._assert_maps(actual, ['FiletagsAnalyzer'])
 
     def test_returns_expected_source_filesystem(self):
-        actual = get_sources_for_meowuris(self._meowuris_filesystem)
+        actual = get_providers_for_meowuris(self._meowuris_filesystem)
         self._assert_maps(actual, ['CrossPlatformFileSystemExtractor'])
 
     def test_returns_expected_source_exiftool(self):
-        actual = get_sources_for_meowuris(self._meowuris_exiftool)
+        actual = get_providers_for_meowuris(self._meowuris_exiftool)
         self._assert_maps(actual, ['ExiftoolMetadataExtractor'])
 
     def test_returns_expected_source_guessit(self):
-        actual = get_sources_for_meowuris(self._meowuris_guessit)
+        actual = get_providers_for_meowuris(self._meowuris_guessit)
         self._assert_maps(actual, ['GuessitPlugin'])
 
     def test_returns_expected_sources(self):
-        actual = get_sources_for_meowuris(self._all_meowuris)
+        actual = get_providers_for_meowuris(self._all_meowuris)
         self.assertEqual(len(actual), 4)
         self._assert_maps(actual, ['CrossPlatformFileSystemExtractor',
                                    'ExiftoolMetadataExtractor',
@@ -112,20 +114,20 @@ class TestGetSourcesForMeowURIs(TestCase):
                                    'GuessitPlugin'])
 
     def test_returns_included_sources_analyzers(self):
-        actual = get_sources_for_meowuris(
+        actual = get_providers_for_meowuris(
             self._all_meowuris, include_roots=['analyzer']
         )
         self._assert_maps(actual, ['FiletagsAnalyzer'])
 
     def test_returns_included_sources_extractorss(self):
-        actual = get_sources_for_meowuris(
+        actual = get_providers_for_meowuris(
             self._all_meowuris, include_roots=['extractor']
         )
         self._assert_maps(actual, ['CrossPlatformFileSystemExtractor',
                                    'ExiftoolMetadataExtractor'])
 
     def test_returns_included_sources_plugins(self):
-        actual = get_sources_for_meowuris(
+        actual = get_providers_for_meowuris(
             self._all_meowuris, include_roots=['plugin']
         )
         self._assert_maps(actual, ['GuessitPlugin'])
@@ -163,11 +165,13 @@ class TestMapMeowURItoSourceClass(TestCase):
         self._all_meowURI_sourcemap = (self._analyzer_meowURI_sourcemap
                                        + self._extractor_meowURI_sourcemap)
 
+        self.registry = ProviderRegistry()
+
     def test_maps_meowuris_to_expected_source(self):
         expect_num = 1
         for meowuris, expected_source in self._all_meowURI_sourcemap:
             for uri in meowuris:
-                actual = map_meowuri_to_source_class(uri)
+                actual = self.registry.provider_for_meowuri(uri)
                 self.assertEqual(
                     len(actual), expect_num,
                     'Got {} sources but expected {} for "{!s}"'.format(
@@ -182,7 +186,7 @@ class TestMapMeowURItoSourceClass(TestCase):
     def test_maps_meowuris_to_expected_source_include_analyzers(self):
         for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
             for uri in meowuris:
-                actual = map_meowuri_to_source_class(
+                actual = self.registry.provider_for_meowuri(
                     uri, includes='analyzer'
                 )
                 self.assertEqual(len(actual), 1)
@@ -193,7 +197,7 @@ class TestMapMeowURItoSourceClass(TestCase):
 
         for meowuris, expected_source in self._extractor_meowURI_sourcemap:
             for uri in meowuris:
-                actual = map_meowuri_to_source_class(
+                actual = self.registry.provider_for_meowuri(
                     uri, includes='analyzer'
                 )
                 self.assertEqual(len(actual), 0)
@@ -201,7 +205,7 @@ class TestMapMeowURItoSourceClass(TestCase):
     def test_maps_meowuris_to_expected_source_include_extractors(self):
         for meowuris, expected_source in self._extractor_meowURI_sourcemap:
             for uri in meowuris:
-                actual = map_meowuri_to_source_class(
+                actual = self.registry.provider_for_meowuri(
                     uri, includes='extractor'
                 )
                 self.assertEqual(len(actual), 1)
@@ -212,7 +216,7 @@ class TestMapMeowURItoSourceClass(TestCase):
 
         for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
             for uri in meowuris:
-                actual = map_meowuri_to_source_class(
+                actual = self.registry.provider_for_meowuri(
                     uri, includes='extractors'
                 )
                 self.assertEqual(len(actual), 0)
@@ -220,14 +224,14 @@ class TestMapMeowURItoSourceClass(TestCase):
     def test_maps_meowuris_to_expected_source_include_plugins(self):
         for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
             for uri in meowuris:
-                actual = map_meowuri_to_source_class(
+                actual = self.registry.provider_for_meowuri(
                     uri, includes='plugins'
                 )
                 self.assertEqual(len(actual), 0)
 
         for meowuris, expected_source in self._extractor_meowURI_sourcemap:
             for uri in meowuris:
-                actual = map_meowuri_to_source_class(
+                actual = self.registry.provider_for_meowuri(
                     uri, includes='plugins'
                 )
                 self.assertEqual(len(actual), 0)
@@ -262,4 +266,47 @@ class TestProviderRegistryMethodResolvable(TestCase):
         _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
         _aT(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
+    def test_with_meowuri_and_no_mapped_meowuirs(self):
+        p = ProviderRegistry()
 
+        # Patch the instance attribute.
+        p.mapped_meowuris = {}
+
+        meowuri = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE)
+        self.assertFalse(p.resolvable(meowuri))
+
+    def test_with_meowuri_and_single_mapped_meowuri(self):
+        p = ProviderRegistry()
+
+        # Patch the instance attribute.
+        p.mapped_meowuris = {'plugin.guessit'}
+
+        meowuri_guessit = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_DATE)
+        self.assertTrue(p.resolvable(meowuri_guessit))
+
+        meowuri_exiftool = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE)
+        self.assertFalse(p.resolvable(meowuri_exiftool))
+
+    def test_with_meowuri_and_three_mapped_meowuris(self):
+        p = ProviderRegistry()
+
+        # Patch the instance attribute.
+        p.mapped_meowuris = {'plugin.guessit',
+                             'extractor.metadata.exiftool',
+                             'analyzer.filename'}
+
+        meowuri_guessit_a = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_DATE)
+        meowuri_guessit_b = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_TYPE)
+        meowuri_guessit_c = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_TITLE)
+        self.assertTrue(p.resolvable(meowuri_guessit_a))
+        self.assertTrue(p.resolvable(meowuri_guessit_b))
+        self.assertTrue(p.resolvable(meowuri_guessit_c))
+
+        meowuri_exiftool = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE)
+        self.assertTrue(p.resolvable(meowuri_exiftool))
+
+        meowuri_fs = uu.as_meowuri(uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME)
+        self.assertFalse(p.resolvable(meowuri_fs))
+
+        meowuri_fn = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_TAGS)
+        self.assertTrue(p.resolvable(meowuri_fn))

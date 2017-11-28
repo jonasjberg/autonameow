@@ -102,6 +102,9 @@ MEOWURI_EXT_EXIFTOOL_XMPDCTITLE = 'extractor.metadata.exiftool.XMP-dc:Title'
 MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE = 'extractor.metadata.exiftool.QuickTime:CreationDate'
 
 MEOWURI_PLU_MSVISION_CAPTION = 'plugin.microsoft_vision.caption'
+MEOWURI_PLU_GUESSIT_DATE = 'plugin.guessit.date'
+MEOWURI_PLU_GUESSIT_TITLE = 'plugin.guessit.title'
+MEOWURI_PLU_GUESSIT_TYPE = 'plugin.guessit.type'
 
 
 ALL_FULL_MEOWURIS = frozenset([

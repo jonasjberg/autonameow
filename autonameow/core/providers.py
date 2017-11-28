@@ -86,19 +86,23 @@ class ProviderMixin(object):
 
 class ProviderRegistry(object):
     def __init__(self):
-        self.meowuri_sources = {}
-        self.mapped_meowuris = set()
-
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        self.meowuri_sources = get_meowuri_source_map()
+        self.meowuri_sources = _get_meowuri_source_map()
+        assert isinstance(self.meowuri_sources, dict)
+
+        # Debug logging
+        for key in self.meowuri_sources.keys():
+            for meowuri, klass in self.meowuri_sources[key].items():
+                self.log.debug(
+                    'Mapped meowURI "{!s}" to "{!s}" ({!s})'.format(meowuri,
+                                                                    klass, key)
+                )
 
         # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
-        self.mapped_meowuris = unique_map_meowuris(self.meowuri_sources)
-
-        self._log_string_class_map()
+        self.mapped_meowuris = self.unique_map_meowuris(self.meowuri_sources)
 
     def resolvable(self, meowuri):
         if not meowuri:
@@ -110,19 +114,64 @@ class ProviderRegistry(object):
             return True
         return False
 
-    def _log_string_class_map(self):
-        for key in self.meowuri_sources.keys():
-            for meowuri, klass in self.meowuri_sources[key].items():
-                self.log.debug(
-                    'Mapped meowURI "{!s}" to "{!s}" ({!s})'.format(meowuri,
-                                                                    klass, key)
-                )
+    def provider_for_meowuri(self, meowuri, includes=None):
+        """
+        Returns a list of classes that could store data using the given "MeowURI".
+
+        Args:
+            meowuri: The "MeowURI" of interest.
+            includes: Optional list of sources to include. Default: include all
+
+        Returns:
+            A list of classes that "could" produce and store data with a MeowURI
+            that matches the given MeowURI.
+        """
+        def _search_source_type(key):
+            for k, v in self.meowuri_sources[key].items():
+                if k in meowuri:
+                    return self.meowuri_sources[key][k]
+            return None
+
+        if not meowuri:
+            log.error('"provider_for_meowuri()" got empty MeowURI!')
+            return []
+
+        if includes is None:
+            return (_search_source_type('extractor')
+                    or _search_source_type('analyzer')
+                    or _search_source_type('plugin')
+                    or [])
+        else:
+            if not isinstance(includes, list):
+                includes = [includes]
+            for include in includes:
+                if include not in ('analyzer', 'extractor', 'plugin'):
+                    continue
+
+                result = _search_source_type(include)
+                if result is not None:
+                    return result
+
+            return []
+
+    @staticmethod
+    def unique_map_meowuris(meowuri_class_map):
+        out = set()
+
+        # for key in ['extractors', 'analyzer', 'plugin'] ..
+        for key in meowuri_class_map.keys():
+            for _meowuri in meowuri_class_map[key].keys():
+                assert not isinstance(_meowuri, list), (
+                    'Unexpectedly got "meowuri" of type list')
+                out.add(_meowuri)
+
+        return out
 
 
 MEOWURI_SOURCE_MAP_DICT = {}
 
 
-def get_meowuri_source_map():
+def _get_meowuri_source_map():
     """
     The 'MeowURIClassMap' attributes in non-core modules keep
     references to the available component classes.
@@ -148,19 +197,13 @@ def get_meowuri_source_map():
     return MEOWURI_SOURCE_MAP_DICT
 
 
-def all_meowuris():
-    # TODO: [TD0099] FIX THIS! Temporary hack for 'prompt_toolkit' experiments.
-    meowuri_class_map = get_meowuri_source_map()
-    return unique_map_meowuris(meowuri_class_map)
-
-
-def get_sources_for_meowuris(meowuri_list, include_roots=None):
+def get_providers_for_meowuris(meowuri_list, include_roots=None):
     if not meowuri_list:
         return []
 
     out = set()
     for uri in meowuri_list:
-        source_classes = map_meowuri_to_source_class(uri, include_roots)
+        source_classes = Registry.provider_for_meowuri(uri, include_roots)
 
         # TODO: Improve robustness of linking "MeowURIs" to data source classes.
         if source_classes:
@@ -169,62 +212,6 @@ def get_sources_for_meowuris(meowuri_list, include_roots=None):
                 out.add(source)
 
     return list(out)
-
-
-def unique_map_meowuris(meowuri_class_map):
-    out = set()
-
-    # for key in ['extractors', 'analyzer', 'plugin'] ..
-    for key in meowuri_class_map.keys():
-        for _meowuri in meowuri_class_map[key].keys():
-            assert not isinstance(_meowuri, list), (
-                   'Unexpectedly got "meowuri" of type list')
-            out.add(_meowuri)
-
-    return out
-
-
-def map_meowuri_to_source_class(meowuri, includes=None):
-    """
-    Returns a list of classes that could store data using the given "MeowURI".
-
-    Args:
-        meowuri: The "MeowURI" of interest.
-        includes: Optional list of sources to include. Default: include all
-
-    Returns:
-        A list of classes that "could" produce and store data with a MeowURI
-        that matches the given MeowURI.
-    """
-    meowuri_class_map = get_meowuri_source_map()
-
-    def _search_source_type(key):
-        for k, v in meowuri_class_map[key].items():
-            if k in meowuri:
-                return meowuri_class_map[key][k]
-        return None
-
-    if not meowuri:
-        log.error('Got empty meowuri in "map_meowuri_to_source_class"')
-        return []
-
-    if includes is None:
-        return (_search_source_type('extractor')
-                or _search_source_type('analyzer')
-                or _search_source_type('plugin')
-                or [])
-    else:
-        if not isinstance(includes, list):
-            includes = [includes]
-        for include in includes:
-            if include not in ('analyzer', 'extractor', 'plugin'):
-                continue
-
-            result = _search_source_type(include)
-            if result is not None:
-                return result
-
-        return []
 
 
 Registry = None
