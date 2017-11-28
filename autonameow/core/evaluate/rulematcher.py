@@ -114,7 +114,7 @@ class RuleMatcher(object):
     def _prettyprint_prioritized_rule(num, exact, score, weight, bias, desc):
         _exact = 'Yes' if exact else 'No '
         log.info(
-            'Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias: {:.2f})'
+            'Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias: {:.2f}) '
             '{} '.format(num, _exact, score, weight, bias, desc)
         )
 
