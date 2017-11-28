@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import logging
 import sys
 import time
 
@@ -46,6 +47,9 @@ VERBOSE = False
 PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 _this_dir = os.path.abspath(os.path.dirname(__file__))
 PERSISTENCE_DIR_ABSPATH = types.AW_PATH.normalize(_this_dir)
+
+
+log = logging.getLogger('regression_runner')
 
 
 def run_test(test):
@@ -293,14 +297,20 @@ def main(args):
 
     # TODO: [TD0124] Add option (script?) to get command-line of failed tests.
 
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(name)s %(levelname)-9.9s %(message)s')
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
     global VERBOSE
     if opts.verbose:
         VERBOSE = True
+        log.setLevel(logging.INFO)
     else:
         VERBOSE = False
+        log.setLevel(logging.WARNING)
 
     loaded_tests = load_regressiontests()
-    print('Loaded {} regression test(s) ..'.format(len(loaded_tests)))
+    log.info('Loaded {} regression test(s) ..'.format(len(loaded_tests)))
     if not loaded_tests:
         return
 
@@ -319,11 +329,11 @@ def main(args):
             if matching_test:
                 matching_tests.extend(matching_test)
             else:
-                print('Not among the loaded tests: "{!s}"'.format(_test_to_get))
+                log.warning('Not among the loaded tests: "{!s}"'.format(_test_to_get))
 
         if not matching_tests:
             _get_cmd = '"{!s}"'.format('", "'.join(opts.get_cmd))
-            print('Does not match any loaded test: {!s}'.format(_get_cmd))
+            log.warning('Does not match any loaded test: {!s}'.format(_get_cmd))
             # print('\nLoaded tests:')
             # _test_dirnames = [types.force_string(t.get('test_dirname'))
             #                   for t in loaded_tests]
@@ -343,18 +353,17 @@ def main(args):
             # TODO: Improve comparing regression test cases.
             # Fails if any option is modified. Compare only directory basenames?
             tests_to_run = [t for t in loaded_tests if t in _failed_lastrun]
-            print('Running {} of the {} test case(s) that failed during the '
-                  'last completed run ..'.format(len(tests_to_run),
-                                                 len(_failed_lastrun)))
+            log.info('Running {} of the {} test case(s) that failed during the '
+                     'last completed run ..'.format(len(tests_to_run),
+                                                    len(_failed_lastrun)))
         else:
             tests_to_run = list(loaded_tests)
-            print('Running all {} test case(s) as None failed during the '
-                  'last completed run ..'.format(len(tests_to_run)))
+            log.info('Running all {} test case(s) as None failed during the '
+                     'last completed run ..'.format(len(tests_to_run)))
     else:
         tests_to_run = list(loaded_tests)
-        print('Running {} test case(s) ..'.format(len(tests_to_run)))
+        log.info('Running {} test case(s) ..'.format(len(tests_to_run)))
 
-    print()
     run_regressiontests(tests_to_run,
                         print_stderr=bool(opts.print_stderr),
                         print_stdout=bool(opts.print_stdout))
