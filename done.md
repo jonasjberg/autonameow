@@ -335,7 +335,7 @@ University mail: `js224eh[a]student.lnu.se`
     >   template field. Take the following example rule;
     >
     >     ```yaml
-    > 	-   CONDITIONS:
+    >   -   CONDITIONS:
     >             filesystem.basename.full: 'P[0-9]{7}.JPG'
     >             filesystem.contents.mime_type: image/jpeg
     >         DATA_SOURCES:
@@ -347,10 +347,10 @@ University mail: `js224eh[a]student.lnu.se`
     >   This rule will not pass validation because the literal string `jpg` is
     >   discarded by the `is_valid_source` function in `core/config/rules.py`;
     >
-    > 	```
-    > 	$ autonameow --debug --dry-run --automagic P1020738.JPG 2>&1 | grep -i invalid
-    > 	[DEBUG] parse_data_sources (549) Invalid data source: [extension]: jpg
-    > 	```
+    >   ```
+    >   $ autonameow --debug --dry-run --automagic P1020738.JPG 2>&1 | grep -i invalid
+    >   [DEBUG] parse_data_sources (549) Invalid data source: [extension]: jpg
+    >   ```
     >
     >   __Related:__ `[TD0015][TD0017][TD0049]`
 
