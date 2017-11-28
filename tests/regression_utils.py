@@ -532,6 +532,10 @@ def _commandline_args_for_testcase(loaded_test):
             if loaded_options.get(opt):
                 arguments.append(arg)
 
+        # For more consistent output and easier testing, sort before adding
+        # positional and "key-value"-type options.
+        arguments = sorted(arguments)
+
         _config_path = loaded_options.get('config_path')
         if _config_path:
             _str_config_path = types.force_string(_config_path)
@@ -540,7 +544,8 @@ def _commandline_args_for_testcase(loaded_test):
 
         _input_paths = loaded_options.get('input_paths')
         if _input_paths:
-            # arguments.append(' -- ')
+            # Mark end of options, start of arguments (input paths)
+            arguments.append('--')
             for p in _input_paths:
                 arguments.append("'{}'".format(p))
 

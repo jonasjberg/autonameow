@@ -440,90 +440,89 @@ class TestRenames(TestCase):
                    expect_renames={'B': 'A', 'C': 'C'})
 
 
-class TestCommandlineArgsForTestcase(TestCase):
-    def test_returns_expected_command_a(self):
-        sample_testcase = {
-            'asserts': {
-                'exit_code': 0
-            },
-            'description': 'Dummy test used by regression runner and utilities unit tests',
-            'options': {
-                'config_path': b'foo/test_files/default_config.yaml',
-                'debug': False,
-                'dry_run': True,
-                'dump_config': False,
-                'dump_meowuris': False,
-                'dump_options': False,
-                'list_all': False,
-                'mode_automagic': True,
-                'mode_batch': True,
-                'mode_interactive': False,
-                'quiet': False,
-                'recurse_paths': False,
-                'show_version': False,
-                'verbose': False,
-            },
-            'skiptest': False,
-            'test_abspath': b'foo/tests/regression/0000_unittest_dummy',
-            'test_dirname': b'0000_unittest_dummy'
-        }
+SAMPLE_TESTCASE_0000 = {
+    'asserts': {
+        'exit_code': 0
+    },
+    'description': 'Dummy test used by regression runner and utilities unit tests',
+    'options': {
+        'config_path': b'foo/test_files/default_config.yaml',
+        'debug': False,
+        'dry_run': True,
+        'dump_config': False,
+        'dump_meowuris': False,
+        'dump_options': False,
+        'list_all': False,
+        'mode_automagic': True,
+        'mode_batch': True,
+        'mode_interactive': False,
+        'quiet': False,
+        'recurse_paths': False,
+        'show_version': False,
+        'verbose': False,
+    },
+    'skiptest': False,
+    'test_abspath': b'foo/tests/regression/0000_unittest_dummy',
+    'test_dirname': b'0000_unittest_dummy'
+}
+SAMPLE_TESTCASE_0006 = {
+    'asserts': {
+        'exit_code': 0
+    },
+    'description': 'All *.jpg test files with minimal settings for output and actions',
+    'options': {
+        'config_path': b'foo/test_files/default_config.yaml',
+        'debug': False,
+        'dry_run': True,
+        'dump_config': False,
+        'dump_meowuris': False,
+        'dump_options': False,
+        'input_paths': [
+            'foo/test_files/smulan.jpg',
+            'foo/test_files/magic_jpg.jpg'
+        ],
+        'list_all': False,
+        'mode_automagic': True,
+        'mode_batch': True,
+        'mode_interactive': False,
+        'quiet': True,
+        'recurse_paths': False,
+        'show_version': False,
+        'verbose': False,
+    },
+    'skiptest': False,
+    'test_abspath': b'foo/tests/regression/0006_all_testfiles',
+    'test_dirname': b'0006_all_testfiles'
+}
 
+
+class TestCommandlineArgsForTestcase(TestCase):
+    def test_returns_expected_command_for_testcase_0000(self):
         expected_options = [
             '--dry-run',
             '--automagic',
             '--batch',
             "--config-path 'foo/test_files/default_config.yaml'"
         ]
-        actual = _commandline_args_for_testcase(sample_testcase)
+        actual = _commandline_args_for_testcase(SAMPLE_TESTCASE_0000)
 
         self.assertEqual(len(expected_options), len(actual))
-
         for expect_option in expected_options:
             self.assertIn(expect_option, actual)
 
-    def test_returns_expected_command_b(self):
-        sample_testcase = {
-            'asserts': {
-                'exit_code': 0
-            },
-            'description': 'All *.jpg test files with minimal settings for output and actions',
-            'options': {
-                'config_path': b'foo/test_files/default_config.yaml',
-                'debug': False,
-                'dry_run': True,
-                'dump_config': False,
-                'dump_meowuris': False,
-                'dump_options': False,
-                'input_paths': [
-                    'foo/test_files/smulan.jpg',
-                    'foo/test_files/magic_jpg.jpg'
-                ],
-                'list_all': False,
-                'mode_automagic': True,
-                'mode_batch': True,
-                'mode_interactive': False,
-                'quiet': True,
-                'recurse_paths': False,
-                'show_version': False,
-                'verbose': False,
-            },
-            'skiptest': False,
-            'test_abspath': b'foo/tests/regression/0006_all_testfiles',
-            'test_dirname': b'0006_all_testfiles'
-        }
-
+    def test_returns_expected_command_for_testcase_0006(self):
         expected_options = [
             '--dry-run',
             '--automagic',
             '--batch',
             '--quiet',
             "--config-path 'foo/test_files/default_config.yaml'",
+            '--',
             "'foo/test_files/smulan.jpg'",
             "'foo/test_files/magic_jpg.jpg'"
         ]
-        actual = _commandline_args_for_testcase(sample_testcase)
+        actual = _commandline_args_for_testcase(SAMPLE_TESTCASE_0006)
 
         self.assertEqual(len(expected_options), len(actual))
-
         for expect_option in expected_options:
             self.assertIn(expect_option, actual)
