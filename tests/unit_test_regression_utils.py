@@ -262,8 +262,6 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
             'dump_options': False,
             'dump_meowuris': False,
             'list_all': True,
-            'list_datetime': False,
-            'list_title': False,
             'mode_batch': True,
             'mode_automagic': True,
             'mode_interactive': False,

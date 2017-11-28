@@ -232,9 +232,6 @@ Low Priority
 
 * `[TD0068]` Let the user specify which languages to use for OCR.
 
-* `[TD0059]` Replace `--list-datetime`, `--list-title` and `--list-all`
-  with something more flexible like `--list {FIELD}`.
-
 * `[TD0055]` Fully implement the `VideoAnalyzer` class.
 
 * `[TD0026]` Implement safe handling of symbolic link input paths.

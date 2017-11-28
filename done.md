@@ -10,6 +10,14 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-11-28
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0059]` Replace `--list-datetime`, `--list-title` and `--list-all`
+    >   with something more flexible like `--list {FIELD}`.
+
 * 2017-11-24
 
     > High Priority

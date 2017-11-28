@@ -311,9 +311,7 @@ class Autonameow(object):
             # repository.SessionRepository.to_filedump('/tmp/repository_{:10.10}.state'.format(self.start_time))
 
     def _handle_file(self, current_file):
-        should_list_any_results = (self.opts.get('list_datetime')
-                                   or self.opts.get('list_title')
-                                   or self.opts.get('list_all'))
+        should_list_any_results = self.opts.get('list_all')
 
         # Extract data from the file.
         required_extractors = providers.get_sources_for_meowuris(

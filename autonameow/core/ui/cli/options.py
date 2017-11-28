@@ -108,20 +108,6 @@ def init_argparser():
         'Action options',
         # description='Enable ACTIONS to perform for any matched files.'
     )
-    # TODO: [TD0059] Replace '--list-*' options with something more flexible.
-    #       I.E. '--list-datetime' and '--list-title' could be '--list {FIELD}'
-    optgrp_action.add_argument(
-        '--list-datetime',
-        dest='list_datetime',
-        action='store_true',
-        help='List all found "date/time"-information.'
-    )
-    optgrp_action.add_argument(
-        '--list-title',
-        dest='list_title',
-        action='store_true',
-        help='List all "title"-information.'
-    )
     optgrp_action.add_argument(
         '--list-all',
         dest='list_all',

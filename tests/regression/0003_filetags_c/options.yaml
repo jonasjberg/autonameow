@@ -8,8 +8,6 @@ input_paths:
 - '$TESTFILES/2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
 - '$TESTFILES/2017-11-20T020738 filetags-style name -- tag1.txt'
 list_all: false
-list_datetime: false
-list_title: false
 mode_automagic: true
 mode_batch: true
 mode_interactive: false

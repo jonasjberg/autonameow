@@ -5,8 +5,6 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 list_all: false
-list_datetime: false
-list_title: false
 mode_automagic: true
 mode_batch: true
 mode_interactive: false

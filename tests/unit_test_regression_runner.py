@@ -36,7 +36,7 @@ class TestTemporaryStuff(TestCase):
 
     # def test_temporary_write_options(self):
     #     from core.disk import write_yaml_file
-    #     _opts = {'debug': False, 'verbose': True, 'quiet': False, 'show_version': False, 'dump_config': False, 'dump_options': False, 'dump_meowuris': False, 'list_all': True, 'list_datetime': False, 'list_title': False, 'mode_batch': True, 'mode_automagic': True, 'mode_interactive': False, 'config_path': None, 'dry_run': True, 'recurse_paths': False, 'input_paths': ['/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf']}
+    #     _opts = {'debug': False, 'verbose': True, 'quiet': False, 'show_version': False, 'dump_config': False, 'dump_options': False, 'dump_meowuris': False, 'list_all': True, 'mode_batch': True, 'mode_automagic': True, 'mode_interactive': False, 'config_path': None, 'dry_run': True, 'recurse_paths': False, 'input_paths': ['/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf']}
     #     write_yaml_file(b'/tmp/test_options.yaml', _opts)
 
     def test_noop(self):

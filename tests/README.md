@@ -173,8 +173,6 @@ The directory contains the following files:
         - '$TESTFILES/2017-11-20 bar -- tag1.txt'
         - '$TESTFILES/2017-09-12 foo -- tag2 a tag1.txt'
         list_all: false
-        list_datetime: false
-        list_title: false
         mode_automagic: true
         mode_batch: true
         mode_interactive: false
