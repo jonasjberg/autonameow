@@ -288,7 +288,7 @@ def main(args):
         dest='get_cmd',
         nargs='+',
         metavar='TEST_DIRNAME',
-        help='Prints equivalent command-line invocations for the specified'
+        help='Print equivalent command-line invocations for the specified'
              'test case(s). These would be executed "manually" to produce the '
              'same behaviour and results as the corresponding regression test.'
     )
