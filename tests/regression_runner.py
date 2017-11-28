@@ -58,8 +58,10 @@ def run_test(test):
         print(' '
               + ui.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ', back='RED'))
         if VERBOSE:
-            print('Captured exception:')
+            print('\nCaptured exception:')
             print(str(aw.captured_exception))
+            print('\nCaptured traceback:')
+            print(str(aw.captured_exception_traceback))
 
         # TODO: Fix magic number return for exceptions for use when formatting.
         return -10, None, aw.captured_stdout, aw.captured_stderr

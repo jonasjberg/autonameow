@@ -23,6 +23,8 @@ import logging
 import os
 import re
 import shutil
+import sys
+import traceback
 
 from core import constants as C
 from core import (
@@ -372,6 +374,7 @@ class AutonameowWrapper(object):
         self.captured_renames = dict()
         self.captured_runtime_secs = None
         self.captured_exception = None
+        self.captured_exception_traceback = None
 
     def mock_exit_program(self, exitcode):
         self.captured_exitcode = exitcode
@@ -401,7 +404,10 @@ class AutonameowWrapper(object):
                     ameow.run()
                     self.captured_runtime_secs = ameow.runtime_seconds
             except Exception as e:
+                typ, val, tb = sys.exc_info()
+                exception_info = ''.join(traceback.format_exception(typ, val, tb))
                 self.captured_exception = e
+                self.captured_exception_traceback = exception_info
 
         self.captured_stdout = stdout.getvalue()
         self.captured_stderr = stderr.getvalue()
