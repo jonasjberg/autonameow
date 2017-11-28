@@ -177,7 +177,6 @@ then
     set +o noclobber
     echo "${_unittest_log}" > "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
     set -o noclobber
-
-    exit 0
 fi
 
+exit "$count_fail"
