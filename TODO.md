@@ -24,11 +24,6 @@ High Priority
 
 * `[TD0089]` Validate only "generic" data fields when reading config.
 
-* `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
-  When listing results with any of the `--list-*` options, paths are not
-  displayed properly due to them not being handled properly before being passed
-  to `yaml.dump` which performs the formatting of the results dict.
-
 * `[TD0102]` Fix inconsistencies in results passed back by analyzers.
 
 * `[TD0108]` Fix inconsistencies in results passed back by plugins.

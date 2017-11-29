@@ -10,6 +10,16 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-11-29
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
+    >   When listing results with any of the `--list-*` options, paths are not
+    >   displayed properly due to them not being handled properly before being passed
+    >   to `yaml.dump` which performs the formatting of the results dict.
+
 * 2017-11-28
 
     > Low Priority
