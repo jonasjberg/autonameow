@@ -231,7 +231,16 @@ class TestPdftotextTextExtractorOutputTestFileB(CaseExtractorOutput):
     ]
 
 
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestCachingRuntime(unittest.TestCase):
+    """
+    These will likely fail on some systems. The idea is to make sure that
+    the caching system works as intended for an actual use-case. The timing
+    thresholds are arbitrarily chosen and should be tweaked if these tests
+    fail on other systems.
+
+    Just make sure that the caching does not make the extraction SLOWER!
+    """
     def setUp(self):
         source_a = uu.fileobject_testfile(TESTFILE_A)
         source_b = uu.fileobject_testfile(TESTFILE_B)
