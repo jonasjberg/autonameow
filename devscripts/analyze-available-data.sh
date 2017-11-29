@@ -98,6 +98,9 @@
 
 set -o noclobber -o nounset -o pipefail
 
+# Substitute path to the runner script.
+AUTONAMEOW="autonameow"
+
 print_autonameow_matches()
 {
     while IFS='\n' read -r line
@@ -121,7 +124,7 @@ main()
         printf '    Title: "%s"\n'       "$title"
         printf '     Year: "%s"\n\n'     "$year"
 
-        autonameow_output="$(autonameow --list-all --dry-run -- "$abspath" 2>&1 |
+        autonameow_output="$(${AUTONAMEOW} --list-all --dry-run -- "$abspath" 2>&1 |
                              grep -v 'Would have renamed' | # hacky
                              grep -v '    ->  ' |           # hacky
                              grep -v 'because the current name is the' | # hacky
