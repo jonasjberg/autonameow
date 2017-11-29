@@ -127,9 +127,15 @@ class TestValidateISBN(unittest.TestCase):
 
 
 class TestFilterISBN(unittest.TestCase):
+    BLACKLISTED_ISBN_NUMBERS = ['0000000000', '1111111111', '2222222222',
+                                '3333333333', '4444444444', '5555555555',
+                                '6666666666', '7777777777', '8888888888',
+                                '9999999999', '0123456789']
+
     def test_returns_valid_isbn_numbers(self):
         sample_isbn = ['1565923065']
-        self.assertEqual(filter_isbns(sample_isbn), sample_isbn)
+        actual = filter_isbns(sample_isbn, self.BLACKLISTED_ISBN_NUMBERS)
+        self.assertEqual(actual, sample_isbn)
 
     def test_returns_non_for_invalid_isbn_numbers(self):
         sample_invalid_isbns = [
@@ -140,7 +146,8 @@ class TestFilterISBN(unittest.TestCase):
             ['9999999999'],
         ]
         for sample_isbn in sample_invalid_isbns:
-            self.assertEqual(filter_isbns(sample_isbn), [])
+            actual = filter_isbns(sample_isbn, self.BLACKLISTED_ISBN_NUMBERS)
+            self.assertEqual(actual, [])
 
 
 class TestRemoveIgnoredTextLines(unittest.TestCase):

@@ -69,6 +69,7 @@ RE_E_ISBN = re.compile(r'^e-ISBN.*', re.MULTILINE)
 
 
 CACHE_KEY_ISBNMETA = 'isbnlib_meta'
+CACHE_KEY_ISBNBLACKLIST = 'isbnlib_blacklist'
 
 
 class EbookAnalyzer(BaseAnalyzer):
@@ -85,11 +86,22 @@ class EbookAnalyzer(BaseAnalyzer):
         self._isbn_metadata = []
 
         self._cached_isbn_metadata = {}
+        self._isbn_num_blacklist = set(BLACKLISTED_ISBN_NUMBERS)
         self.cache = persistence.get_cache(str(self))
         if self.cache:
             _cached_isbn_metadata = self.cache.get(CACHE_KEY_ISBNMETA)
             if _cached_isbn_metadata:
                 self._cached_isbn_metadata = _cached_isbn_metadata
+
+            _blacklisted_isbn_numbers = self.cache.get(CACHE_KEY_ISBNBLACKLIST)
+            if _blacklisted_isbn_numbers:
+                log.debug('Read {} blacklisted ISBN numbers from cache'.format(
+                    len(_blacklisted_isbn_numbers)
+                ))
+                self._isbn_num_blacklist.update(_blacklisted_isbn_numbers)
+            log.debug('Blacklisted {!s} ISBN numbers'.format(
+                self._isbn_num_blacklist
+            ))
 
     def analyze(self):
         _maybe_text = self.request_any_textual_content()
@@ -107,7 +119,7 @@ class EbookAnalyzer(BaseAnalyzer):
             isbns = extractlines_do(extract_isbns_from_text, self.text,
                                     fromline=0, toline=100)
         if isbns:
-            isbns = filter_isbns(isbns)
+            isbns = filter_isbns(isbns, self._isbn_num_blacklist)
             for isbn in isbns:
                 self.log.debug('Extracted ISBN: {!s}'.format(isbn))
 
@@ -116,6 +128,11 @@ class EbookAnalyzer(BaseAnalyzer):
                     self.log.warning(
                         'Unable to get metadata for ISBN: "{}"'.format(isbn)
                     )
+                    self.log.debug('Blacklisting ISBN: "{}"'.format(isbn))
+                    self._isbn_num_blacklist.add(isbn)
+                    if self.cache:
+                        self.cache.set(CACHE_KEY_ISBNBLACKLIST,
+                                       self._isbn_num_blacklist)
                     continue
 
                 metadata = ISBNMetadata(
@@ -373,7 +390,7 @@ def validate_isbn(possible_isbn):
         return isbn_number
 
 
-def filter_isbns(isbn_list):
+def filter_isbns(isbn_list, isbn_blacklist):
     if not isbn_list:
         return []
 
@@ -383,8 +400,7 @@ def filter_isbns(isbn_list):
     isbn_list = list(set(isbn_list))
 
     # Remove known bad ISBN numbers.
-    isbn_list = [n for n in isbn_list if n
-                 and n not in BLACKLISTED_ISBN_NUMBERS]
+    isbn_list = [n for n in isbn_list if n and n not in isbn_blacklist]
     return isbn_list
 
 
