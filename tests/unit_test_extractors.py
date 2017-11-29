@@ -20,6 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+from unittest.mock import (
+    Mock,
+    PropertyMock,
+    patch
+)
 
 from core import constants as C
 import extractors
@@ -110,15 +115,32 @@ class TestBaseExtractor(TestCase):
 
 class TestBaseExtractorClassMethods(TestCase):
     def setUp(self):
-        self.c = extractors.BaseExtractor
+        self.mock_fileobject = Mock()
+        self.mock_fileobject.mime_type = 'image/jpeg'
+
+        self.e = extractors.BaseExtractor
 
     def test_unimplemented_check_dependencies(self):
         with self.assertRaises(NotImplementedError):
-            _ = self.c.check_dependencies()
+            _ = self.e.check_dependencies()
 
-    def test_unimplemented_can_handle(self):
+    def test_can_handle_raises_exception_if_handles_mime_types_is_none(self):
         with self.assertRaises(NotImplementedError):
-            self.c.can_handle('foo')
+            _ = self.e.can_handle(self.mock_fileobject)
+
+    @patch('extractors.BaseExtractor.HANDLES_MIME_TYPES',
+           new_callable=PropertyMock, return_value=['text/plain'])
+    def test_can_handle_returns_false(self, mock_attribute):
+        e = extractors.BaseExtractor()
+        actual = e.can_handle(self.mock_fileobject)
+        self.assertFalse(actual)
+
+    @patch('extractors.BaseExtractor.HANDLES_MIME_TYPES',
+           new_callable=PropertyMock, return_value=['image/jpeg'])
+    def test_can_handle_returns_true(self, mock_attribute):
+        e = extractors.BaseExtractor()
+        actual = e.can_handle(self.mock_fileobject)
+        self.assertTrue(actual)
 
 
 class TestFindExtractorModuleSourceFiles(TestCase):

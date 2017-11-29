@@ -144,6 +144,8 @@ class BaseExtractor(object):
         Inheriting extractor classes can override this method if they need
         to perform additional tests in order to determine if they can handle
         a given file object.
+        If this method is __NOT__ overridden, the inheriting class must contain
+        a class attribute with MIME-types (globs) as a list of Unicode strings.
 
         Args:
             fileobject: The file to test as an instance of 'FileObject'.
@@ -157,6 +159,7 @@ class BaseExtractor(object):
                 'Classes without class attribute "HANDLES_MIME_TYPES" must '
                 'implement (override) class method "can_handle"!'
             )
+        assert isinstance(cls.HANDLES_MIME_TYPES, list)
 
         try:
             return mimemagic.eval_glob(fileobject.mime_type,
