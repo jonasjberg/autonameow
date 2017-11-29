@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+import time
 
 from extractors.text import PdftotextTextExtractor
 from extractors.text.pdftotext import extract_pdf_content_with_pdftotext
@@ -228,6 +229,56 @@ class TestPdftotextTextExtractorOutputTestFileB(CaseExtractorOutput):
     EXPECTED_FIELD_TYPE_VALUE = [
         ('full', str, TESTFILE_B_EXPECTED),
     ]
+
+
+class TestCachingRuntime(unittest.TestCase):
+    def setUp(self):
+        source_a = uu.fileobject_testfile(TESTFILE_A)
+        source_b = uu.fileobject_testfile(TESTFILE_B)
+
+        # Patch to disable caching.
+        # "Should" be equivalent to not calling 'init_cache()' in '__init__()'.
+        e_no_cache = PdftotextTextExtractor()
+        e_no_cache.cache = None
+
+        start_time = time.time()
+        _ = e_no_cache.extract(source_a)
+        _ = e_no_cache.extract(source_b)
+        self.runtime_cache_disabled = time.time() - start_time
+
+        # Enable caching.
+        e_cached = PdftotextTextExtractor()
+        e_cached.init_cache()
+
+        start_time = time.time()
+        _ = e_cached.extract(source_a)
+        _ = e_cached.extract(source_b)
+        self.runtime_cache_enabled = time.time() - start_time
+
+    def test_sanity_check_runtime_cache_disabled(self):
+        self.assertGreater(self.runtime_cache_disabled, 0.0)
+
+    def test_sanity_check_runtime_cache_enabled(self):
+        self.assertGreater(self.runtime_cache_enabled, 0.0)
+
+    def test_caching_decreases_total_runtime(self):
+        self.assertLess(self.runtime_cache_enabled, self.runtime_cache_disabled)
+
+    def __assert_runtime_improvement(self, seconds):
+        delta = self.runtime_cache_disabled - self.runtime_cache_enabled
+        self.assertGreaterEqual(delta, seconds)
+
+    def test_caching_improves_runtime_by_at_least_one_nanosecond(self):
+        self.__assert_runtime_improvement(0.001 * 0.001 * 0.001)
+
+    def test_caching_improves_runtime_by_at_least_one_microsecond(self):
+        self.__assert_runtime_improvement(0.001 * 0.001)
+
+    def test_caching_improves_runtime_by_at_least_one_millisecond(self):
+        self.__assert_runtime_improvement(0.001)
+
+    def test_caching_improves_runtime_by_at_least_ten_milliseconds(self):
+        self.__assert_runtime_improvement(0.010)
 
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
