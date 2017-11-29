@@ -366,7 +366,10 @@ class Autonameow(object):
         name_template = None
         if self.opts.get('mode_rulematch'):
             # TODO: Cleanup ..
-            active_rule = self._try_get_rule(current_file)
+            candidates = self.matcher.match(current_file)
+            if candidates:
+                active_rule = self._try_get_rule(candidates)
+                candidates.pop(0)
 
         if active_rule:
             log.info(
@@ -411,6 +414,46 @@ class Autonameow(object):
             # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
             pass
 
+        field_data_dict = self._try_resolve(current_file, name_template,
+                                            data_sources)
+        if not field_data_dict:
+            if self.opts.get('mode_automagic'):
+                # Try real hard to figure it out (?)
+                active_rule = self._try_get_rule(candidates)
+                if active_rule:
+                    log.info(
+                        'Using rule: "{!s}"'.format(active_rule.description)
+                    )
+                    data_sources = active_rule.data_sources
+                    name_template = active_rule.name_template
+                    field_data_dict = self._try_resolve(current_file,
+                                                        name_template,
+                                                        data_sources)
+        if not field_data_dict:
+            log.warning('Unable to populate name.')
+            self.exit_code = C.EXIT_WARNING
+            return
+
+        try:
+            new_name = namebuilder.build(
+                config=self.active_config,
+                name_template=name_template,
+                field_data_map=field_data_dict
+            )
+        except exceptions.NameBuilderError as e:
+            log.critical('Name assembly FAILED: {!s}'.format(e))
+            raise exceptions.AutonameowException
+
+        log.info('New name: "{}"'.format(
+            enc.displayable_path(new_name))
+        )
+        self.do_rename(
+            from_path=current_file.abspath,
+            new_basename=new_name,
+            dry_run=self.opts.get('dry_run')
+        )
+
+    def _try_resolve(self, current_file, name_template, data_sources):
         resolver = TemplateFieldDataResolver(current_file, name_template)
         resolver.add_known_sources(data_sources)
 
@@ -473,30 +516,12 @@ class Autonameow(object):
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
             log.warning('Unable to populate name. Missing field data.')
             self.exit_code = C.EXIT_WARNING
-            return
+            return None
 
-        try:
-            new_name = namebuilder.build(
-                config=self.active_config,
-                name_template=name_template,
-                field_data_map=resolver.fields_data
-            )
-        except exceptions.NameBuilderError as e:
-            log.critical('Name assembly FAILED: {!s}'.format(e))
-            raise exceptions.AutonameowException
+        return resolver.fields_data
 
-        log.info('New name: "{}"'.format(
-            enc.displayable_path(new_name))
-        )
-        self.do_rename(
-            from_path=current_file.abspath,
-            new_basename=new_name,
-            dry_run=self.opts.get('dry_run')
-        )
-
-    def _try_get_rule(self, current_file):
+    def _try_get_rule(self, candidates):
         active_rule = None
-        candidates = self.matcher.match(current_file)
 
         if self.opts.get('mode_interactive'):
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
