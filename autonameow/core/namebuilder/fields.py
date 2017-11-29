@@ -85,7 +85,7 @@ class Title(NameTemplateField):
         data = data.strip(',.:;-_ ')
         data = data.replace('&', 'and')
         data = data.replace('&#8211;', '-')
-        data = data.replace(' - ', '')
+        # data = data.replace(' - ', '')
         return data
 
     @classmethod
