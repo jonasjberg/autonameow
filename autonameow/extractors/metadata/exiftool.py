@@ -414,6 +414,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'XMP:Creator': {
             'coercer': types.AW_STRING,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Creator, probability=1),
                 WeightedMapping(fields.Author, probability=0.5),
