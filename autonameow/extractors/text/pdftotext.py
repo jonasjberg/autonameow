@@ -44,6 +44,8 @@ class PdftotextTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(PdftotextTextExtractor, self).__init__()
 
+        self.init_cache()
+
     def extract_text(self, fileobject):
         result = extract_pdf_content_with_pdftotext(fileobject.abspath)
         if not result:
