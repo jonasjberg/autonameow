@@ -17,6 +17,8 @@ University mail: `js224eh[a]student.lnu.se`
     >
     > * `[TD0059]` Replace `--list-datetime`, `--list-title` and `--list-all`
     >   with something more flexible like `--list {FIELD}`.
+    >
+    > * `[TD0124]` Add option (script?) to run failed regression tests manually.
 
 * 2017-11-24
 

@@ -311,8 +311,6 @@ def main(args):
 
     opts = parser.parse_args(args)
 
-    # TODO: [TD0124] Add option (script?) to get command-line of failed tests.
-
     handler = logging.StreamHandler()
     formatter = logging.Formatter('%(name)s %(levelname)-9.9s %(message)s')
     handler.setFormatter(formatter)

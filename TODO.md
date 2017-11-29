@@ -188,8 +188,6 @@ Low Priority
 
   Related to `[TD0020]`. This functionality is provided by `guessit`!
 
-* `[TD0124]` Add option (script?) to run failed regression tests manually.
-
 * `[TD0121]` Create a script for generating regression tests.
 
 * `[TD0118]` Improve robustness and refactor searching text for editions.
