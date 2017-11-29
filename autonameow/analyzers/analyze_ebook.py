@@ -95,12 +95,12 @@ class EbookAnalyzer(BaseAnalyzer):
 
             _blacklisted_isbn_numbers = self.cache.get(CACHE_KEY_ISBNBLACKLIST)
             if _blacklisted_isbn_numbers:
-                log.debug('Read {} blacklisted ISBN numbers from cache'.format(
+                self.log.debug('Read {} blacklisted ISBN numbers from cache'.format(
                     len(_blacklisted_isbn_numbers)
                 ))
                 self._isbn_num_blacklist.update(_blacklisted_isbn_numbers)
-            log.debug('Blacklisted {!s} ISBN numbers'.format(
-                self._isbn_num_blacklist
+            self.log.debug('Blacklisted {!s} ISBN numbers in total'.format(
+                len(self._isbn_num_blacklist)
             ))
 
     def analyze(self):
