@@ -224,6 +224,8 @@ class BaseAnalyzer(object):
         Inheriting analyzer classes can override this method if they need
         to perform additional tests in order to determine if they can handle
         the given file object.
+        If this method is __NOT__ overridden, the inheriting class must contain
+        a class attribute with MIME-types (globs) as a list of Unicode strings.
 
         Args:
             fileobject: The file to test as an instance of 'FileObject'.
@@ -231,10 +233,20 @@ class BaseAnalyzer(object):
         Returns:
             True if the analyzer class can handle the given file, else False.
         """
-        if mimemagic.eval_glob(fileobject.mime_type, cls.HANDLES_MIME_TYPES):
-            return True
-        else:
-            return False
+        if cls.HANDLES_MIME_TYPES is None:
+            raise NotImplementedError(
+                'Classes without class attribute "HANDLES_MIME_TYPES" must '
+                'implement (override) class method "can_handle"!'
+            )
+        assert isinstance(cls.HANDLES_MIME_TYPES, list)
+
+        try:
+            return mimemagic.eval_glob(fileobject.mime_type,
+                                       cls.HANDLES_MIME_TYPES)
+        except (TypeError, ValueError) as e:
+            raise AnalyzerError(
+                'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
+            )
 
     @classmethod
     def check_dependencies(cls):

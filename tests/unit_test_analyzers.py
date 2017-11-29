@@ -21,6 +21,11 @@
 
 
 from unittest import TestCase
+from unittest.mock import (
+    Mock,
+    patch,
+    PropertyMock
+)
 
 import analyzers
 from core import exceptions
@@ -48,14 +53,14 @@ def subclasses_base_analyzer(klass):
 class TestBaseAnalyzer(TestCase):
     def setUp(self):
         self.maxDiff = None
+
+        self.mock_config = Mock()
         self.a = analyzers.BaseAnalyzer(
-            uu.get_mock_fileobject(), uu.get_default_config(), None
+            uu.get_mock_fileobject(), self.mock_config, None
         )
 
-        class DummyFileObject(object):
-            def __init__(self):
-                self.mime_type = 'image/jpeg'
-        self.dummy_fo = DummyFileObject()
+        self.mock_fileobject = Mock()
+        self.mock_fileobject.mime_type = 'image/jpeg'
 
     def test_run_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
@@ -103,11 +108,39 @@ class TestBaseAnalyzer(TestCase):
         with self.assertRaises(AttributeError):
             self.a.get_publisher()
 
-    def test_class_method_can_handle_does_not_return_none(self):
-        self.assertIsNotNone(self.a.can_handle(self.dummy_fo))
 
-    def test_class_method_can_handle_returns_false(self):
-        self.assertFalse(self.a.can_handle(self.dummy_fo))
+class TestBaseAnalyzerClassMethods(TestCase):
+    def setUp(self):
+        self.mock_fileobject = Mock()
+        self.mock_fileobject.mime_type = 'image/jpeg'
+
+        self.mock_config = Mock()
+
+        self.a = analyzers.BaseAnalyzer(
+            self.mock_fileobject, self.mock_config, None
+        )
+
+    def test_can_handle_raises_exception_if_none(self):
+        with self.assertRaises(NotImplementedError):
+            _ = self.a.can_handle(self.mock_fileobject)
+
+    @patch('analyzers.BaseAnalyzer.HANDLES_MIME_TYPES',
+           new_callable=PropertyMock, return_value=['text/plain'])
+    def test_can_handle_returns_false(self, mock_attribute):
+        a = analyzers.BaseAnalyzer(
+            uu.get_mock_fileobject(), self.mock_config, None
+        )
+        actual = a.can_handle(self.mock_fileobject)
+        self.assertFalse(actual)
+
+    @patch('analyzers.BaseAnalyzer.HANDLES_MIME_TYPES',
+           new_callable=PropertyMock, return_value=['image/jpeg'])
+    def test_can_handle_returns_true(self, mock_attribute):
+        a = analyzers.BaseAnalyzer(
+            uu.get_mock_fileobject(), self.mock_config, None
+        )
+        actual = a.can_handle(self.mock_fileobject)
+        self.assertTrue(actual)
 
 
 class TestFindAnalyzerSourceFiles(TestCase):
