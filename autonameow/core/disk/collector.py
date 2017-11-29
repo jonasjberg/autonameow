@@ -130,7 +130,7 @@ class PathCollector(object):
                 for f in self.filter_paths(_files):
                     file_list.add(f)
 
-        return list(file_list)
+        return sorted(list(file_list))
 
     def filter_paths(self, path_list):
         if not self.ignore_globs:
