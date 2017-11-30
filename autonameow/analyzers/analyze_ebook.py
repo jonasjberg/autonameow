@@ -113,11 +113,29 @@ class EbookAnalyzer(BaseAnalyzer):
         # TODO: [TD0114] Check metadata for ISBNs.
         # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier'
 
+        # First try to find "e-book ISBNs" from front to back.
+        # If that failed, try again but from back to front.
+        #
+        # Then try to find any ISBNs from front to back and finally reversed.
+        #
+        _line_from = 0
+        _line_to = 1000
+        _line_from_rev = len(self.text)
+        _line_to_rev = len(self.text) - 1000
         isbns = extractlines_do(find_ebook_isbns_in_text, self.text,
-                                fromline=0, toline=1000)
+                                fromline=_line_from, toline=_line_to)
+        if not isbns:
+            isbns = extractlines_do(find_ebook_isbns_in_text, self.text,
+                                    fromline=_line_from_rev,
+                                    toline=_line_to_rev)
         if not isbns:
             isbns = extractlines_do(extract_isbns_from_text, self.text,
-                                    fromline=0, toline=1000)
+                                    fromline=_line_from, toline=_line_to)
+        if not isbns:
+            isbns = extractlines_do(extract_isbns_from_text, self.text,
+                                    fromline=_line_from_rev,
+                                    toline=_line_to_rev)
+
         if isbns:
             isbns = filter_isbns(isbns, self._isbn_num_blacklist)
             for isbn in isbns:
