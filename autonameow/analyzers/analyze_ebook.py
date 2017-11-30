@@ -114,10 +114,10 @@ class EbookAnalyzer(BaseAnalyzer):
         # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier'
 
         isbns = extractlines_do(find_ebook_isbns_in_text, self.text,
-                                fromline=0, toline=100)
+                                fromline=0, toline=1000)
         if not isbns:
             isbns = extractlines_do(extract_isbns_from_text, self.text,
-                                    fromline=0, toline=100)
+                                    fromline=0, toline=1000)
         if isbns:
             isbns = filter_isbns(isbns, self._isbn_num_blacklist)
             for isbn in isbns:
