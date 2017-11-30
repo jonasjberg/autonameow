@@ -22,7 +22,17 @@
 import re
 
 
+__all__ = [
+    'remove_nonbreaking_spaces',
+    'strip_ansiescape'
+]
+
+
 RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+
+
+def remove_nonbreaking_spaces(text):
+    return text.replace('\xa0', ' ')
 
 
 def strip_ansiescape(string):

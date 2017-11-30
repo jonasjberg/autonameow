@@ -31,7 +31,6 @@ except ImportError:
 
 from core import types
 from core.exceptions import EncodingBoundaryViolation
-from util import encoding as enc
 from util.textutils import (
     autodetect_decode,
     compiled_ordinal_regexes,
@@ -40,31 +39,9 @@ from util.textutils import (
     extractlines_do,
     indent,
     normalize_unicode,
-    remove_nonbreaking_spaces,
     urldecode
 )
 import unit_utils as uu
-
-
-class TestRemoveNonBreakingSpaces(TestCase):
-    def test_remove_non_breaking_spaces_removes_expected(self):
-        expected = 'foo bar'
-
-        non_breaking_space = '\xa0'
-        actual = remove_nonbreaking_spaces(
-            'foo' + enc.decode_(non_breaking_space) + 'bar'
-        )
-        self.assertEqual(expected, actual)
-
-    def test_remove_non_breaking_spaces_returns_expected(self):
-        expected = 'foo bar'
-        actual = remove_nonbreaking_spaces('foo bar')
-        self.assertEqual(expected, actual)
-
-    def test_remove_non_breaking_spaces_handles_empty_string(self):
-        expected = ''
-        actual = remove_nonbreaking_spaces('')
-        self.assertEqual(expected, actual)
 
 
 class TestIndent(TestCase):

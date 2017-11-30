@@ -41,10 +41,6 @@ def extract_digits(string):
     return digits if digits.strip() else ''
 
 
-def remove_nonbreaking_spaces(text):
-    return text.replace('\xa0', ' ')
-
-
 def indent(text, amount=None, ch=None):
     """
     Indents (multi-line) text by a specified amount.

@@ -42,6 +42,7 @@ from util import (
     textutils
 )
 from util import encoding as enc
+from util.text import remove_nonbreaking_spaces
 
 
 log = logging.getLogger(__name__)
@@ -173,7 +174,7 @@ class Configuration(object):
                 raise exceptions.ConfigurationSyntaxError(_error)
 
             # Remove any non-breaking spaces in the name template.
-            templ = textutils.remove_nonbreaking_spaces(templ)
+            templ = remove_nonbreaking_spaces(templ)
 
             if NameFormatConfigFieldParser.is_valid_nametemplate_string(templ):
                 validated[name] = templ
@@ -299,7 +300,7 @@ class Configuration(object):
             raise exceptions.ConfigurationSyntaxError(
                 'uses invalid name template format'
             )
-        name_template = textutils.remove_nonbreaking_spaces(valid_format)
+        name_template = remove_nonbreaking_spaces(valid_format)
 
         try:
             _rule = rules.get_valid_rule(

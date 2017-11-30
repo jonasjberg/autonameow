@@ -21,7 +21,32 @@
 
 from unittest import TestCase
 
-from util.text.transform import strip_ansiescape
+from util import encoding as enc
+from util.text.transform import (
+    remove_nonbreaking_spaces,
+    strip_ansiescape
+)
+
+
+class TestRemoveNonBreakingSpaces(TestCase):
+    def test_remove_non_breaking_spaces_removes_expected(self):
+        expected = 'foo bar'
+
+        non_breaking_space = '\xa0'
+        actual = remove_nonbreaking_spaces(
+            'foo' + enc.decode_(non_breaking_space) + 'bar'
+        )
+        self.assertEqual(expected, actual)
+
+    def test_remove_non_breaking_spaces_returns_expected(self):
+        expected = 'foo bar'
+        actual = remove_nonbreaking_spaces('foo bar')
+        self.assertEqual(expected, actual)
+
+    def test_remove_non_breaking_spaces_handles_empty_string(self):
+        expected = ''
+        actual = remove_nonbreaking_spaces('')
+        self.assertEqual(expected, actual)
 
 
 class TestStripAnsiEscape(TestCase):

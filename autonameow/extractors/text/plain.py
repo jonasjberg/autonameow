@@ -33,6 +33,7 @@ from util import (
     sanity,
     textutils
 )
+from util.text import remove_nonbreaking_spaces
 
 
 log = logging.getLogger(__name__)
@@ -55,7 +56,7 @@ class PlainTextExtractor(AbstractTextExtractor):
         sanity.check_internal_string(result)
         text = result
         text = textutils.normalize_unicode(text)
-        text = textutils.remove_nonbreaking_spaces(text)
+        text = remove_nonbreaking_spaces(text)
         if text:
             return text
         else:

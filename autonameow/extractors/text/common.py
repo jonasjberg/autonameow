@@ -128,9 +128,4 @@ def decode_raw(raw_text):
         except ValueError:
             log.warning('Unable to decode raw text')
             return ''
-
-    if text:
-        text = textutils.remove_nonbreaking_spaces(text)
-        return text
-
-
+    return text
