@@ -326,7 +326,14 @@ def displayable_replacement(original, replacement, regex, color):
 def msg_replacement(original, replacement, regex):
     _old, _new = displayable_replacement(original, replacement, regex,
                                          C.REPLACEMENT_HIGHLIGHT_COLOR)
-    log.info('Applied custom replacement: "{}" -> "{}"'.format(_old, _new))
+    # log.info('Applied custom replacement: "{}" -> "{}"'.format(_old, _new))
+
+    cf = ColumnFormatter(align='right')
+    cf.addrow('Applied replacement:', '{!s}')
+    cf.addrow('->', '{!s}')
+    _message = str(cf)
+    msg(_message.format(_old, _new), ignore_quiet=False)
+
     # TODO: [TD0096] Fix invalid colouring if the replacement is the last character.
     #
     # Applying custom replacement. Regex: "re.compile('\\.$')" Replacement: ""
