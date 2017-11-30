@@ -592,6 +592,11 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
         },
         'XMP:Subject': {
+            #
+            # TODO: Handle unexpected list with ISBN. Example;
+            #
+            # Tag: "XMP:Subject" Value: "['ISBN-13:', 9781847197283]"
+            #
             'coercer': types.AW_STRING,
             # 'multivalued': False,
             'mapped_fields': [
