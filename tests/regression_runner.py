@@ -334,20 +334,20 @@ def main(args):
 
     if opts.get_cmd:
         matching_tests = []
-        for _test_to_get in opts.get_cmd:
+        for _requested_test in opts.get_cmd:
             # Must convert to bytes in order to do the comparison.
             try:
-                _b_test_to_get = types.AW_PATHCOMPONENT(_test_to_get)
+                _b_requested_test = types.AW_PATHCOMPONENT(_requested_test)
             except types.AWTypeError as e:
                 print(str(e))
                 continue
 
             matching_test = [t for t in loaded_tests
-                             if t.get('test_dirname') == _b_test_to_get]
+                             if t.get('test_dirname') == _b_requested_test]
             if matching_test:
                 matching_tests.extend(matching_test)
             else:
-                log.warning('Not among the loaded tests: "{!s}"'.format(_test_to_get))
+                log.warning('Not a loaded test: "{!s}"'.format(_requested_test))
 
         if not matching_tests:
             _get_cmd = '"{!s}"'.format('", "'.join(opts.get_cmd))
