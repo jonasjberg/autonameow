@@ -112,7 +112,8 @@ def _wrap_extracted_data(extracteddata, metainfo, source_klass):
             log.warning('Missing metainfo for field "{!s}"'.format(field))
 
         field_metainfo['value'] = value
-        field_metainfo['source'] = source_klass
+        # Do not store a reference to the class itself before actually needed..
+        field_metainfo['source'] = str(source_klass)
         out[field] = field_metainfo
 
     return out
