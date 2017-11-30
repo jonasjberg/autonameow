@@ -22,7 +22,6 @@
 import logging
 import re
 
-from core import constants as C
 from core import (
     disk,
     exceptions,
@@ -68,8 +67,7 @@ class FilenamePostprocessor(object):
             if _match:
                 log.debug('Applying custom replacement. Regex: "{!s}" '
                           'Replacement: "{!s}"'.format(regex, replacement))
-                msg_replacement(filename, replacement, regex,
-                                color=C.REPLACEMENT_HIGHLIGHT_COLOR)
+                ui.msg_replacement(filename, replacement, regex)
 
                 filename = re.sub(regex, replacement, filename)
         return filename
@@ -167,32 +165,6 @@ def pre_assemble_format(field_data_dict, config):
             )
 
     return out
-
-
-def displayable_replacement(original, replacement, regex, color):
-    if re.sub(regex, replacement, original) == original:
-        # Something was matched but replaced with the same string.
-        return original, original
-
-    colored_old = ui.colorize_re_match(original, regex=regex, color=color)
-    colored_new = _colorize_replacement(original, replacement, regex, color)
-    return colored_old, colored_new
-
-
-def msg_replacement(original, replacement, regex, color):
-    _old, _new = displayable_replacement(original, replacement, regex, color)
-    log.info('Applied custom replacement: "{}" -> "{}"'.format(_old, _new))
-    # TODO: [TD0096] Fix invalid colouring if the replacement is the last character.
-    #
-    # Applying custom replacement. Regex: "re.compile('\\.$')" Replacement: ""
-    # Applying custom replacement: "2007-04-23_12-comments.png." -> "2007-04-23_12-comments.png"
-    #                                                     ^   ^
-    #                 Should not be colored red, but is --'   '-- Should be red, but isn't ..
-
-
-def _colorize_replacement(original, replacement, regex, color):
-    _colored_replacement = ui.colorize(replacement, fore=color)
-    return re.sub(regex, _colored_replacement, original)
 
 
 def _with_simple_string_keys(data_dict):
