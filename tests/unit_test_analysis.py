@@ -20,20 +20,20 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+from unittest.mock import Mock
 
 import analyzers
-from core import analysis, types
-from core.analysis import suitable_analyzers_for
 import unit_utils as uu
-import unit_utils_constants as uuconst
+from core import analysis
+from core.analysis import suitable_analyzers_for
 
 
 class TestAnalysis(TestCase):
     def setUp(self):
-        uu.init_provider_registry()
-        uu.init_session_repository()
         self.fo = uu.get_mock_fileobject()
-        self.config = uu.get_default_config()
+
+        mock_config = Mock()
+        self.config = mock_config
 
     def test_analysis_start_requires_fileobject_argument(self):
         for _bad_arg in [None, 'foo', object()]:
@@ -56,42 +56,27 @@ class TestAnalysis(TestCase):
             self.assertTrue(uu.is_class_instance(ac))
             self.assertTrue(issubclass(ac.__class__, analyzers.BaseAnalyzer))
 
-    # def test_collects_valid_results(self):
-    #     _dummy_results = {
-    #         'title': {
-    #             'value': 'foo',
-    #             'coercer': types.AW_STRING,
-    #             'mapped_fields': None,
-    #             'generic_field': None,
-    #             'multivalued': False,
-    #             'source': object
-    #         }
-    #     }
-    #     analysis.collect_results(
-    #         self.fo,
-    #         'analyzer.filename',
-    #         _dummy_results
-    #     )
-
 
 class TestSuitableAnalyzersFor(TestCase):
+    def _assert_suitable(self, fileobject, expect_analyzers):
+        actual = [c.__name__ for c in suitable_analyzers_for(fileobject)]
+        for analyzer in expect_analyzers:
+            self.assertIn(analyzer, actual)
+
     def test_returns_expected_analyzers_for_mp4_video_file(self):
-        self.fo = uu.get_mock_fileobject(mime_type='video/mp4')
-        actual = [c.__name__ for c in suitable_analyzers_for(self.fo)]
-        self.assertIn('FilesystemAnalyzer', actual)
-        self.assertIn('FilenameAnalyzer', actual)
-        self.assertIn('VideoAnalyzer', actual)
+        fo = uu.get_mock_fileobject(mime_type='video/mp4')
+        self._assert_suitable(fo, expect_analyzers=['FilesystemAnalyzer',
+                                                    'FilenameAnalyzer',
+                                                    'VideoAnalyzer'])
 
     def test_returns_expected_analyzers_for_png_image_file(self):
-        self.fo = uu.get_mock_fileobject(mime_type='image/png')
-        actual = [c.__name__ for c in suitable_analyzers_for(self.fo)]
-        self.assertIn('FilenameAnalyzer', actual)
-        self.assertIn('FilesystemAnalyzer', actual)
-        self.assertIn('ImageAnalyzer', actual)
+        fo = uu.get_mock_fileobject(mime_type='image/png')
+        self._assert_suitable(fo, expect_analyzers=['FilenameAnalyzer',
+                                                    'FilesystemAnalyzer',
+                                                    'ImageAnalyzer'])
 
     def test_returns_expected_analyzers_for_pdf_file(self):
-        self.fo = uu.get_mock_fileobject(mime_type='application/pdf')
-        actual = [c.__name__ for c in suitable_analyzers_for(self.fo)]
-        self.assertIn('FilenameAnalyzer', actual)
-        self.assertIn('FilesystemAnalyzer', actual)
-        self.assertIn('DocumentAnalyzer', actual)
+        fo = uu.get_mock_fileobject(mime_type='application/pdf')
+        self._assert_suitable(fo, expect_analyzers=['FilenameAnalyzer',
+                                                    'FilesystemAnalyzer',
+                                                    'DocumentAnalyzer'])
