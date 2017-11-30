@@ -297,6 +297,16 @@ class Autonameow(object):
                 self.exit_code = C.EXIT_WARNING
                 continue
 
+            # TODO: [TD0131] Hack!
+            # _repositorysize = sys.getsizeof(repository.SessionRepository)
+            _repositorysize = len(str(repository.SessionRepository))
+            log.info('Approximate Memory Usage of the Repository: {}'.format(
+                _repositorysize
+            ))
+
+            # TODO: [TD0131] Limit repository size!
+            repository.SessionRepository.data.pop(current_file)
+
         if self.opts.get('list_all'):
             log.info('Listing session repository contents ..')
             ui.msg('Session Repository Data', style='heading',

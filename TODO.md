@@ -14,6 +14,10 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0131]` __Limit `Repository` memory usage__  
+  Given enough files, it currently eats up all the RAM, which causes other
+  parts of the program to fail, especially launching subprocesses.
+
 * `[TD0115]` __Clear up uncertainties about data multiplicities.__  
   I.E. list of data dicts vs. single data dict that contains a list
   of data (`multivalued: True`).
