@@ -316,7 +316,7 @@ class EbookAnalyzer(BaseAnalyzer):
             return mimemagic.eval_glob(fileobject.mime_type,
                                        cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
-            log.error(
+            cls.log.error(
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
             )
         if (fileobject.basename_suffix == b'mobi' and
