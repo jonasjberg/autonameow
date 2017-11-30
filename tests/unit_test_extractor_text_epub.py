@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+from unittest import TestCase
 
 import unit_utils as uu
 from extractors.text import EpubTextExtractor
@@ -62,7 +63,7 @@ class TestEpubTextExtractorOutputTypes(CaseExtractorOutputTypes):
 
 
 @unittest.skipIf(epubzilla is None, 'Failed to import "thirdparty.epubzilla"')
-class TestExtractTextWithEpubzilla(unittest.TestCase):
+class TestExtractTextWithEpubzilla(TestCase):
     def setUp(self):
         self.sample_file = uu.abspath_testfile('pg38145-images.epub')
         self.assertTrue(uu.file_exists(self.sample_file))

@@ -21,7 +21,10 @@
 
 import unittest
 from datetime import datetime
+from unittest import TestCase
 
+import unit_utils as uu
+import unit_utils_constants as uuconst
 from extractors import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor
 from extractors.metadata.exiftool import (
@@ -29,8 +32,6 @@ from extractors.metadata.exiftool import (
     is_bad_metadata
 )
 
-import unit_utils as uu
-import unit_utils_constants as uuconst
 from unit_utils_extractors import (
     CaseExtractorBasics,
     CaseExtractorOutput,
@@ -98,7 +99,7 @@ class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestExiftoolMetadataExtractorInternals(unittest.TestCase):
+class TestExiftoolMetadataExtractorInternals(TestCase):
     def setUp(self):
         self.e = ExiftoolMetadataExtractor()
 
@@ -121,7 +122,7 @@ class TestExiftoolMetadataExtractorInternals(unittest.TestCase):
             _get_exiftool_data(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
 
-class TestIsBadMetadata(unittest.TestCase):
+class TestIsBadMetadata(TestCase):
     def test_good_tags_values_return_true(self):
         def _aT(tag, value):
             actual = is_bad_metadata(tag, value)

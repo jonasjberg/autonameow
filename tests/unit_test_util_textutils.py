@@ -19,7 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
+from unittest import (
+    skipIf,
+    TestCase
+)
 
 try:
     import chardet
@@ -44,7 +47,7 @@ from util.textutils import (
 import unit_utils as uu
 
 
-class TestRemoveNonBreakingSpaces(unittest.TestCase):
+class TestRemoveNonBreakingSpaces(TestCase):
     def test_remove_non_breaking_spaces_removes_expected(self):
         expected = 'foo bar'
 
@@ -65,7 +68,7 @@ class TestRemoveNonBreakingSpaces(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-class TestIndent(unittest.TestCase):
+class TestIndent(TestCase):
     def test_invalid_arguments_raises_exception(self):
         def _assert_raises(exception_type, *args, **kwargs):
             with self.assertRaises(exception_type):
@@ -186,7 +189,7 @@ class TestIndent(unittest.TestCase):
         self.assertEqual(indent(input_, ch='X', amount=3), expect)
 
 
-class TestExtractDigits(unittest.TestCase):
+class TestExtractDigits(TestCase):
     def test_extract_digits_returns_empty_string_given_no_digits(self):
         def _assert_empty(test_data):
             actual = extract_digits(test_data)
@@ -230,7 +233,7 @@ class TestExtractDigits(unittest.TestCase):
 
 
 @unittest.skipIf(chardet is None, 'Unable to import required module "chardet"')
-class TestAutodetectDecode(unittest.TestCase):
+class TestAutodetectDecode(TestCase):
     def _assert_encodes(self, encoding, string):
         _encoded_text = string.encode(encoding)
         self.assertTrue(uu.is_internalbytestring(_encoded_text))
@@ -287,7 +290,7 @@ class TestAutodetectDecode(unittest.TestCase):
         self._assert_encodes('utf-8', 'foo \n ')
 
 
-class TestExtractLines(unittest.TestCase):
+class TestExtractLines(TestCase):
     def test_returns_none_for_none_input(self):
         self.assertIsNone(extract_lines(None, 0, 0))
         self.assertIsNone(extract_lines(None, 0, 1))
@@ -394,7 +397,7 @@ class TestExtractLines(unittest.TestCase):
             extract_lines('foo', 0, -1)
 
 
-class TestNormalizeUnicode(unittest.TestCase):
+class TestNormalizeUnicode(TestCase):
     def _aE(self, test_input, expected):
         actual = normalize_unicode(test_input)
         self.assertEqual(actual, expected)
@@ -440,7 +443,7 @@ class TestNormalizeUnicode(unittest.TestCase):
         self._aE('\u203e', '-')
 
 
-class TestStripAnsiEscape(unittest.TestCase):
+class TestStripAnsiEscape(TestCase):
     def _aE(self, test_input, expected):
         actual = strip_ansiescape(test_input)
         self.assertEqual(actual, expected)
@@ -451,7 +454,7 @@ class TestStripAnsiEscape(unittest.TestCase):
         self._aE('[30m[44mautonameow[49m[39m', 'autonameow')
 
 
-class TestExtractlinesDo(unittest.TestCase):
+class TestExtractlinesDo(TestCase):
     def setUp(self):
         self.text = '''foo
 2. bar
@@ -482,7 +485,7 @@ class TestExtractlinesDo(unittest.TestCase):
         self.assertEqual(actual, expect)
 
 
-class TestCompiledOrdinalRegexes(unittest.TestCase):
+class TestCompiledOrdinalRegexes(TestCase):
     def setUp(self):
         self.actual = compiled_ordinal_regexes()
 
@@ -511,7 +514,7 @@ class TestCompiledOrdinalRegexes(unittest.TestCase):
         _aM('foo 2ND bar')
 
 
-class TestUrlDecode(unittest.TestCase):
+class TestUrlDecode(TestCase):
     def test_returns_expected_given_valid_arguments(self):
         def _aE(test_input, expected):
             actual = urldecode(test_input)

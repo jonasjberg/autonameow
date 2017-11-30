@@ -19,10 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
+from unittest import TestCase
 
-from core import constants as C
 import unit_utils as uu
+from core import constants as C
 from extractors import BaseExtractor
 
 """
@@ -30,7 +30,7 @@ Shared utilities for extractor unit tests.
 """
 
 
-class CaseExtractorOutputTypes(unittest.TestCase):
+class CaseExtractorOutputTypes(TestCase):
     __test__ = False
 
     EXTRACTOR_CLASS = None
@@ -91,7 +91,7 @@ ALL_TESTFILES = [
 ]
 
 
-class CaseExtractorBasics(unittest.TestCase):
+class CaseExtractorBasics(TestCase):
     __test__ = False
 
     EXTRACTOR_CLASS = None
@@ -191,7 +191,7 @@ class CaseExtractorBasics(unittest.TestCase):
 
 
 
-class CaseExtractorOutput(unittest.TestCase):
+class CaseExtractorOutput(TestCase):
     __test__ = False
 
     EXTRACTOR_CLASS = None

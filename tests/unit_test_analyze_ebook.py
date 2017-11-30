@@ -20,12 +20,14 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+from unittest import TestCase
 
 try:
     import isbnlib
 except ImportError:
     isbnlib = None
 
+import unit_utils as uu
 from analyzers import analyze_ebook
 from analyzers.analyze_ebook import (
     extract_isbns_from_text,
@@ -35,7 +37,6 @@ from analyzers.analyze_ebook import (
     ISBNMetadata,
     remove_ignored_textlines
 )
-import unit_utils as uu
 
 
 uu.init_provider_registry()
@@ -50,7 +51,7 @@ def get_ebook_analyzer(fileobject):
 
 
 @unittest.skipIf(isbnlib is None, 'Failed to import required module "isbnlib"')
-class TestEbookAnalyzer(unittest.TestCase):
+class TestEbookAnalyzer(TestCase):
     def setUp(self):
         self.fileobject = uu.get_named_fileobject('2010-01-31_161251.jpg')
         self.analyzer = get_ebook_analyzer(self.fileobject)
@@ -60,7 +61,7 @@ class TestEbookAnalyzer(unittest.TestCase):
         self.assertIsNotNone(self.analyzer)
 
 
-class TestExtractIsbnsFromText(unittest.TestCase):
+class TestExtractIsbnsFromText(TestCase):
     def test_returns_expected_type(self):
         text = 'fooo1-56592-306-5baar'
         actual = extract_isbns_from_text(text)
@@ -109,7 +110,7 @@ ISBN: 1-56592-306-5
         self.assertIn('1565923065', actual)
 
 
-class TestValidateISBN(unittest.TestCase):
+class TestValidateISBN(TestCase):
     def test_returns_valid_isbn_numbers(self):
         sample_isbn = '1565923065'
         self.assertEqual(validate_isbn(sample_isbn), sample_isbn)
@@ -126,7 +127,7 @@ class TestValidateISBN(unittest.TestCase):
             self.assertIsNone(validate_isbn(sample_isbn))
 
 
-class TestFilterISBN(unittest.TestCase):
+class TestFilterISBN(TestCase):
     BLACKLISTED_ISBN_NUMBERS = ['0000000000', '1111111111', '2222222222',
                                 '3333333333', '4444444444', '5555555555',
                                 '6666666666', '7777777777', '8888888888',
@@ -150,7 +151,7 @@ class TestFilterISBN(unittest.TestCase):
             self.assertEqual(actual, [])
 
 
-class TestRemoveIgnoredTextLines(unittest.TestCase):
+class TestRemoveIgnoredTextLines(TestCase):
     def test_removes_lines_as_expected(self):
         input_text = '''Foo Bar: A Modern Approach
 This page intentionally left blank
@@ -162,7 +163,7 @@ Foo Bar'''
         self.assertEqual(actual, expect_text)
 
 
-class TestISBNMetadata(unittest.TestCase):
+class TestISBNMetadata(TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -280,7 +281,7 @@ class TestISBNMetadata(unittest.TestCase):
         self.assertEqual(m.edition, '2')
 
 
-class TestISBNMetadataEquality(unittest.TestCase):
+class TestISBNMetadataEquality(TestCase):
     ISBN10_A = '3540762884'
     ISBN10_B = '3540762876'
     ISBN13_A = '9783540762881'
@@ -456,7 +457,7 @@ class TestISBNMetadataEquality(unittest.TestCase):
         self.assertNotEqual(m1, m2)
 
 
-class TestFindEbookISBNsInText(unittest.TestCase):
+class TestFindEbookISBNsInText(TestCase):
     def test_finds_expected(self):
         text = '''Computational Intelligence
 

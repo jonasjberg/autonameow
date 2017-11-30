@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+from unittest import TestCase
 import time
 
 from extractors.text import PdftotextTextExtractor
@@ -183,7 +184,7 @@ en bild eller en tabell, och framställer materialet som ditt eget. Högskolan a
 inlämningsuppgifter.'''
 
 
-class TestPrerequisites(unittest.TestCase):
+class TestPrerequisites(TestCase):
     def test_test_file_exists_a(self):
         self.assertTrue(uu.file_exists(TESTFILE_A))
 
@@ -232,7 +233,7 @@ class TestPdftotextTextExtractorOutputTestFileB(CaseExtractorOutput):
 
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestCachingRuntime(unittest.TestCase):
+class TestCachingRuntime(TestCase):
     """
     These will likely fail on some systems. The idea is to make sure that
     the caching system works as intended for an actual use-case. The timing
@@ -291,7 +292,7 @@ class TestCachingRuntime(unittest.TestCase):
 
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestExtractPdfContentWithPdftotext(unittest.TestCase):
+class TestExtractPdfContentWithPdftotext(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.actual = extract_pdf_content_with_pdftotext(TESTFILE_A)
@@ -304,7 +305,7 @@ class TestExtractPdfContentWithPdftotext(unittest.TestCase):
 
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPdftotextTextExtractorInternals(unittest.TestCase):
+class TestPdftotextTextExtractorInternals(TestCase):
     def setUp(self):
         self.test_fileobject = uu.fileobject_testfile('gmail.pdf')
         self.e = PdftotextTextExtractor()
@@ -325,7 +326,7 @@ class TestPdftotextTextExtractorInternals(unittest.TestCase):
         self.assertTrue(isinstance(actual, dict))
 
 
-class TestPdftotextTextExtractorCanHandle(unittest.TestCase):
+class TestPdftotextTextExtractorCanHandle(TestCase):
     def setUp(self):
         self.maxDiff = None
 

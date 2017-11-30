@@ -19,16 +19,16 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import unittest
+from unittest import TestCase
 
+import unit_utils as uu
 from extractors import ExtractorError
 from extractors.text import (
     TesseractOCRTextExtractor,
     tesseractocr
 )
 from util import encoding as enc
-import unit_utils as uu
 from unit_utils_extractors import (
     CaseExtractorBasics,
     CaseExtractorOutputTypes
@@ -57,7 +57,7 @@ class TestTesseractOCRTextExtractorOutputTypes(CaseExtractorOutputTypes):
     SOURCE_FILEOBJECT = uu.fileobject_testfile('2007-04-23_12-comments.png')
 
 
-class TestTesseractOCRTextExtractorCanHandle(unittest.TestCase):
+class TestTesseractOCRTextExtractorCanHandle(TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -80,7 +80,7 @@ TEST_IMAGE_FILE_TEXT = 'Apr 23, 2007 - 12 Comments'
 image_ocr_extractor = TesseractOCRTextExtractor()
 
 
-class TestTesseractOCRTextExtractorWithImageFile(unittest.TestCase):
+class TestTesseractOCRTextExtractorWithImageFile(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.e = image_ocr_extractor
@@ -103,7 +103,7 @@ class TestTesseractOCRTextExtractorWithImageFile(unittest.TestCase):
         self.assertEqual(actual['full'], TEST_IMAGE_FILE_TEXT)
 
 
-class TestTesseractWrapper(unittest.TestCase):
+class TestTesseractWrapper(TestCase):
     TEST_FILE = uu.abspath_testfile('2007-04-23_12-comments.png')
 
     def test_pil_read_image_returns_pil_image_for_valid_images(self):

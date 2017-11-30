@@ -29,25 +29,25 @@ import unittest
 from contextlib import contextmanager
 from datetime import datetime
 
+import unit_utils_constants as uuconst
+from core.config import rules
+from core.config.configuration import Configuration
+from core.fileobject import FileObject
+from core.model import MeowURI
 from util import encoding as enc
 from util import (
     nested_dict_get,
     nested_dict_set
 )
-from core.config import rules
-from core.config.configuration import Configuration
-from core.fileobject import FileObject
-from core.model import MeowURI
-import unit_utils_constants as uuconst
 
 
-class TestCase(unittest.TestCase):
-    # TODO: Use this to get rid of duplicate self.maxDiff settings, etc.
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+# class TestCase(unittest.TestCase):
+#     # TODO: Use this to get rid of duplicate self.maxDiff settings, etc.
+#     def setUp(self):
+#         pass
+#
+#     def tearDown(self):
+#         pass
 
 
 def ok_(expr, msg=None):

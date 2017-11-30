@@ -20,7 +20,9 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+from unittest import TestCase
 
+import unit_utils as uu
 from extractors import ExtractorError
 from extractors.metadata import JpeginfoMetadataExtractor
 from unit_utils_extractors import (
@@ -28,7 +30,6 @@ from unit_utils_extractors import (
     CaseExtractorOutput,
     CaseExtractorOutputTypes
 )
-import unit_utils as uu
 
 
 ALL_EXTRACTOR_FIELDS_TYPES = [
@@ -92,7 +93,7 @@ class TestJpeginfoMetadataExtractorOutputTestFileC(CaseExtractorOutput):
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorMetainfo(unittest.TestCase):
+class TestJpeginfoMetadataExtractorMetainfo(TestCase):
     def setUp(self):
         _extractor_instance = JpeginfoMetadataExtractor()
         self.actual = _extractor_instance.metainfo()
