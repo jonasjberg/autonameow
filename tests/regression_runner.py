@@ -187,6 +187,8 @@ def run_regressiontests(tests, print_stderr, print_stdout):
 
     failed_tests = []
 
+    global_start_time = time.time()
+
     for test in tests:
         if should_abort:
             count_skipped += count_total - count_success - count_failure
@@ -243,8 +245,9 @@ def run_regressiontests(tests, print_stderr, print_stdout):
         if print_stdout and captured_stdout:
             reporter.msg_captured_stdout(captured_stdout)
 
+    global_elapsed_time = time.time() - global_start_time
     reporter.msg_overall_stats(count_total, count_skipped, count_success,
-                               count_failure)
+                               count_failure, global_elapsed_time)
 
     if not should_abort:
         # Store failed tests only if all tests were executed.

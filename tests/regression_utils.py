@@ -98,7 +98,7 @@ class TerminalReporter(object):
                           fore='RED'))
 
     def msg_overall_stats(self, count_total, count_skipped, count_success,
-                          count_failure):
+                          count_failure, elapsed_time):
         print('\n')
 
         _skipped = '{} skipped'.format(count_skipped)
@@ -112,9 +112,11 @@ class TerminalReporter(object):
             self.msg_overall_failure()
             _failure = ui.colorize(_failure, fore='RED')
 
-        _stats = 'Regression Test Summary:  {} total, {}, {} passed, {}'.format(
-            count_total, _skipped, count_success, _failure
-        )
+        _runtime = '{:.6f}s'.format(elapsed_time)
+
+        _stats = 'Regression Test Summary:  {} total, {}, {} passed, {}  ' \
+                 'in {} seconds'.format(count_total, _skipped,
+                                           count_success, _failure, _runtime)
 
         print()
         print(_stats)
