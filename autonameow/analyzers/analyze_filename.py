@@ -32,7 +32,7 @@ from util import (
     dateandtime,
     textutils
 )
-from util.text import find_edition
+from util.text.patternmatching import find_edition
 
 
 # Use two different types of separators;  "SPACE" and "SEPARATOR".
