@@ -122,6 +122,8 @@ class EbookAnalyzer(BaseAnalyzer):
         _line_to = 1000
         _line_from_rev = len(self.text)
         _line_to_rev = len(self.text) - 1000
+        if _line_to_rev < 0:
+            _line_to_rev = 0
         isbns = extractlines_do(find_ebook_isbns_in_text, self.text,
                                 fromline=_line_from, toline=_line_to)
         if not isbns:
