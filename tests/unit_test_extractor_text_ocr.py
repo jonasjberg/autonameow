@@ -19,8 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
-from unittest import TestCase
+from unittest import (
+    skipIf,
+    TestCase,
+)
 
 import unit_utils as uu
 from extractors import ExtractorError
@@ -39,7 +41,7 @@ UNMET_DEPENDENCIES = TesseractOCRTextExtractor.check_dependencies() is False
 DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
 
 
-@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestTesseractOCRTextExtractor(CaseExtractorBasics):
     __test__ = True
     EXTRACTOR_CLASS = TesseractOCRTextExtractor
@@ -50,7 +52,7 @@ class TestTesseractOCRTextExtractor(CaseExtractorBasics):
         self.assertEqual(actual, expect)
 
 
-@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestTesseractOCRTextExtractorOutputTypes(CaseExtractorOutputTypes):
     __test__ = True
     EXTRACTOR_CLASS = TesseractOCRTextExtractor
@@ -85,16 +87,16 @@ class TestTesseractOCRTextExtractorWithImageFile(TestCase):
         self.maxDiff = None
         self.e = image_ocr_extractor
 
-    @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+    @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
     def test__get_raw_text_returns_expected_type(self):
         self.assertTrue(uu.is_internalstring(self.e.extract_text(TEST_IMAGE_FILE)))
 
-    @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+    @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
     def test_method_extract_returns_expected_type(self):
         actual = self.e.extract(TEST_IMAGE_FILE)
         self.assertTrue(isinstance(actual, dict))
 
-    @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+    @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
     def test_method_extract_all_result_contains_expected(self):
         self.skipTest(
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'"

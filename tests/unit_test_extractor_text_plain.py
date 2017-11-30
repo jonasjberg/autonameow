@@ -20,9 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
-import unittest
-from unittest import TestCase
+from unittest import (
+    skipIf,
+    TestCase,
+)
 
 import unit_utils as uu
 from extractors.text.plain import (
@@ -39,7 +40,7 @@ UNMET_DEPENDENCIES = PlainTextExtractor.check_dependencies() is False
 assert not UNMET_DEPENDENCIES
 
 
-@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPlainTextExtractor(CaseExtractorBasics):
     __test__ = True
     EXTRACTOR_CLASS = PlainTextExtractor

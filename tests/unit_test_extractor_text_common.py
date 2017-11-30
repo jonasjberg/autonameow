@@ -21,10 +21,10 @@
 
 from unittest import TestCase
 
+import unit_utils as uu
 from core import constants as C
 from extractors import ExtractorError
 from extractors.text.common import AbstractTextExtractor
-import unit_utils as uu
 
 
 ALL_EXTRACTOR_FIELDS_TYPES = [

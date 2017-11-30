@@ -19,8 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
-from unittest import TestCase
+from unittest import (
+    skipIf,
+    TestCase,
+)
 
 try:
     import isbnlib
@@ -50,7 +52,7 @@ def get_ebook_analyzer(fileobject):
     )
 
 
-@unittest.skipIf(isbnlib is None, 'Failed to import required module "isbnlib"')
+@skipIf(isbnlib is None, 'Failed to import required module "isbnlib"')
 class TestEbookAnalyzer(TestCase):
     def setUp(self):
         self.fileobject = uu.get_named_fileobject('2010-01-31_161251.jpg')

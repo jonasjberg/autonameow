@@ -20,8 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime
-from unittest import TestCase
-import unittest
+from unittest import (
+    skipIf,
+    TestCase,
+)
 
 import unit_utils as uu
 from extractors.filesystem.crossplatform import (
@@ -37,7 +39,7 @@ UNMET_DEPENDENCIES = CrossPlatformFileSystemExtractor.check_dependencies() is Fa
 assert not UNMET_DEPENDENCIES
 
 
-@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPlainTextExtractor(CaseExtractorBasics):
     __test__ = True
     EXTRACTOR_CLASS = CrossPlatformFileSystemExtractor

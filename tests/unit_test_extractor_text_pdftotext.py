@@ -19,10 +19,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
-from unittest import TestCase
 import time
+from unittest import (
+    skipIf,
+    TestCase,
+)
 
+import unit_utils as uu
 from extractors.text import PdftotextTextExtractor
 from extractors.text.pdftotext import extract_pdf_content_with_pdftotext
 from unit_utils_extractors import (
@@ -30,7 +33,6 @@ from unit_utils_extractors import (
     CaseExtractorOutput,
     CaseExtractorOutputTypes
 )
-import unit_utils as uu
 
 
 UNMET_DEPENDENCIES = PdftotextTextExtractor.check_dependencies() is False
@@ -192,7 +194,7 @@ class TestPrerequisites(TestCase):
         self.assertTrue(uu.file_exists(TESTFILE_B))
 
 
-@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPdftotextTextExtractor(CaseExtractorBasics):
     __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
@@ -203,14 +205,14 @@ class TestPdftotextTextExtractor(CaseExtractorBasics):
         self.assertEqual(actual, expect)
 
 
-@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPdftotextTextExtractorOutputTypes(CaseExtractorOutputTypes):
     __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
 
 
-@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPdftotextTextExtractorOutputTestFileA(CaseExtractorOutput):
     __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
@@ -221,7 +223,7 @@ class TestPdftotextTextExtractorOutputTestFileA(CaseExtractorOutput):
     ]
 
 
-@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPdftotextTextExtractorOutputTestFileB(CaseExtractorOutput):
     __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
@@ -232,7 +234,7 @@ class TestPdftotextTextExtractorOutputTestFileB(CaseExtractorOutput):
     ]
 
 
-@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestCachingRuntime(TestCase):
     """
     These will likely fail on some systems. The idea is to make sure that
@@ -291,7 +293,7 @@ class TestCachingRuntime(TestCase):
         self.__assert_runtime_improvement(0.010)
 
 
-@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestExtractPdfContentWithPdftotext(TestCase):
     def setUp(self):
         self.maxDiff = None
@@ -304,7 +306,7 @@ class TestExtractPdfContentWithPdftotext(TestCase):
         self.assertEqual(self.actual, TESTFILE_A_EXPECTED)
 
 
-@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPdftotextTextExtractorInternals(TestCase):
     def setUp(self):
         self.test_fileobject = uu.fileobject_testfile('gmail.pdf')

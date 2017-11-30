@@ -232,7 +232,7 @@ class TestExtractDigits(TestCase):
         _assert_raises(b'1')
 
 
-@unittest.skipIf(chardet is None, 'Unable to import required module "chardet"')
+@skipIf(chardet is None, 'Unable to import required module "chardet"')
 class TestAutodetectDecode(TestCase):
     def _assert_encodes(self, encoding, string):
         _encoded_text = string.encode(encoding)

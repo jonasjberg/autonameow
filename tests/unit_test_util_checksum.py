@@ -19,11 +19,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
-from unittest import TestCase
+from unittest import (
+    skipIf,
+    TestCase,
+)
 
-from util import checksum
 import unit_utils as uu
+from util import checksum
 
 
 # NOTE(jonas): Optionally add the absolute path to some big file here.
@@ -94,7 +96,7 @@ class TestSha256Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @unittest.skipIf(*really_big_testfile_unavailable())
+    @skipIf(*really_big_testfile_unavailable())
     def test_big_file(self):
         a = checksum.sha256digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))
@@ -130,7 +132,7 @@ class TestSha1Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @unittest.skipIf(*really_big_testfile_unavailable())
+    @skipIf(*really_big_testfile_unavailable())
     def test_big_file(self):
         a = checksum.sha1digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))
@@ -166,7 +168,7 @@ class TestMD5Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @unittest.skipIf(*really_big_testfile_unavailable())
+    @skipIf(*really_big_testfile_unavailable())
     def test_big_file(self):
         a = checksum.md5digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))
@@ -202,7 +204,7 @@ class TestPartialSha256Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @unittest.skipIf(*really_big_testfile_unavailable())
+    @skipIf(*really_big_testfile_unavailable())
     def test_big_file(self):
         a = checksum.partial_sha256digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))
@@ -238,7 +240,7 @@ class TestPartialSha1Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @unittest.skipIf(*really_big_testfile_unavailable())
+    @skipIf(*really_big_testfile_unavailable())
     def test_big_file(self):
         a = checksum.partial_sha1digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))
@@ -274,7 +276,7 @@ class TestPartialMD5Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @unittest.skipIf(*really_big_testfile_unavailable())
+    @skipIf(*really_big_testfile_unavailable())
     def test_big_file(self):
         a = checksum.partial_md5digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))

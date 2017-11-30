@@ -20,10 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import unittest
 from unittest import (
-    TestCase,
-    mock
+    mock,
+    skipIf,
+    TestCase
 )
 
 try:
@@ -50,7 +50,7 @@ def prompt_toolkit_unavailable():
 AUTONAMEOW_OPTIONS_EMPTY = {}
 
 
-@unittest.skipIf(*prompt_toolkit_unavailable())
+@skipIf(*prompt_toolkit_unavailable())
 class TestAutonameowWithoutOptions(TestCase):
     def setUp(self):
         from core.autonameow import Autonameow
@@ -212,7 +212,7 @@ class TestAutonameowHash(TestCase):
         self.assertTrue(self.a is not self.b)
 
 
-@unittest.skipIf(*prompt_toolkit_unavailable())
+@skipIf(*prompt_toolkit_unavailable())
 class TestSetAutonameowExitCode(TestCase):
     def setUp(self):
         from core.autonameow import Autonameow
@@ -249,7 +249,7 @@ class TestSetAutonameowExitCode(TestCase):
         self.assertEqual(self.expected_initial, self.amw.exit_code)
 
 
-@unittest.skipIf(*prompt_toolkit_unavailable())
+@skipIf(*prompt_toolkit_unavailable())
 class TestDoRename(TestCase):
     def setUp(self):
         from core.autonameow import Autonameow

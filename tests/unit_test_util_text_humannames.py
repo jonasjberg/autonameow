@@ -19,9 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
 from collections import namedtuple
-from unittest import TestCase
+from unittest import (
+    skipIf,
+    TestCase,
+)
 
 from util.text.humannames import (
     _parse_name,
@@ -202,7 +204,7 @@ class TestNameParser(TestCase):
         self.assertTrue(isinstance(actual, dict))
 
 
-@unittest.skipIf(*nameparser_unavailable())
+@skipIf(*nameparser_unavailable())
 class TestHumanNameParser(TestCase):
     TESTDATA_FULLNAME_EXPECTED = [
         TD(Given=None, Expect={}),
@@ -342,7 +344,7 @@ class TestHumanNameFormatter(TestCase):
             _ = self.name_formatter(None)
 
 
-@unittest.skipIf(*nameparser_unavailable())
+@skipIf(*nameparser_unavailable())
 class TestLastNameInitialsFormatter(TestCase):
     def test_formats_full_human_names(self):
         for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
@@ -366,7 +368,7 @@ class TestLastNameInitialsFormatter(TestCase):
         _aE('\t ')
 
 
-@unittest.skipIf(*nameparser_unavailable())
+@skipIf(*nameparser_unavailable())
 class TestFormatName(TestCase):
     def test_formats_full_name_with_default_formatter(self):
         for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
@@ -386,7 +388,7 @@ class TestFormatName(TestCase):
             self.assertEqual(actual, expect)
 
 
-@unittest.skipIf(*nameparser_unavailable())
+@skipIf(*nameparser_unavailable())
 class TestFormatNameList(TestCase):
     def test_formats_list_of_full_human_names_with_default_formatter(self):
         for given, expect in TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS:

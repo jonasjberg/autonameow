@@ -19,9 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
 from datetime import datetime
-from unittest import TestCase
+from unittest import (
+    skipIf,
+    TestCase,
+)
 
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -47,14 +49,14 @@ temp_fileobject = uu.get_mock_fileobject()
 temp_file = uu.make_temporary_file()
 
 
-@unittest.skipIf(unmet_dependencies, dependency_error)
+@skipIf(unmet_dependencies, dependency_error)
 class TestExiftoolMetadataExtractorOutputTypes(CaseExtractorOutputTypes):
     __test__ = True
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
-@unittest.skipIf(unmet_dependencies, dependency_error)
+@skipIf(unmet_dependencies, dependency_error)
 class TestExiftoolMetadataExtractor(CaseExtractorBasics):
     __test__ = True
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
@@ -65,7 +67,7 @@ class TestExiftoolMetadataExtractor(CaseExtractorBasics):
         self.assertEqual(actual, expect)
 
 
-@unittest.skipIf(unmet_dependencies, dependency_error)
+@skipIf(unmet_dependencies, dependency_error)
 class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput):
     __test__ = True
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
@@ -79,7 +81,7 @@ class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput):
     ]
 
 
-@unittest.skipIf(unmet_dependencies, dependency_error)
+@skipIf(unmet_dependencies, dependency_error)
 class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput):
     __test__ = True
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
@@ -98,7 +100,7 @@ class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput):
     ]
 
 
-@unittest.skipIf(unmet_dependencies, dependency_error)
+@skipIf(unmet_dependencies, dependency_error)
 class TestExiftoolMetadataExtractorInternals(TestCase):
     def setUp(self):
         self.e = ExiftoolMetadataExtractor()
