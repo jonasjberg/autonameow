@@ -75,7 +75,7 @@ def init_logging(opts):
         logging.basicConfig(level=logging.CRITICAL, format=fmt)
     else:
         fmt = '%(levelname)s %(message)s'
-        logging.basicConfig(level=logging.WARNING, format=fmt)
+        logging.basicConfig(level=logging.ERROR, format=fmt)
 
 
 def silence():
