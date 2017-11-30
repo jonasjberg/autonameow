@@ -23,12 +23,52 @@ import re
 
 
 __all__ = [
+    'collapse_whitespace',
     'remove_nonbreaking_spaces',
     'strip_ansiescape'
 ]
 
 
+# Attempt at matching ANSI escape sequences. Likely incomplete.
 RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+
+# Matches sequentially repeating whitespace, except newlines.
+#
+# Inverting the following classes solves the problem of matching whitespace
+# Unicode characters included in the '\s' class but NOT newlines,
+# which is also included in '\s'.
+#
+#   \S   Any character which is not a Unicode whitespace character.
+#   \r   ASCII Carriage Return (CR)
+#   \n   ASCII ASCII Linefeed (LF)
+#
+RE_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]{2,}')
+
+
+def collapse_whitespace(string):
+    """
+    Replaces repeating whitespace, except newlines, with a single space.
+
+    Does not remove leading or trailing whitespace.
+    Does not change linefeeds or carriage returns.
+    Handles Unicode whitespace characters.
+
+    Args:
+        string: Unicode String to transform.
+
+    Returns:
+        Transformed text as a Unicode string.
+    """
+    #  Assume type-checks is handled elsewhere. Pass through None, [], {}, etc.
+    if not string:
+        return string
+
+    assert isinstance(string, str), (
+        'Expected Unicode string. Got {!s} "{!s}"'.format(type(string), string)
+    )
+
+    collapsed = re.sub(RE_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
+    return collapsed
 
 
 def remove_nonbreaking_spaces(text):
