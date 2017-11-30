@@ -30,6 +30,7 @@ from util import (
     dateandtime,
     textutils
 )
+from util.text.patternmatching import find_publisher_in_copyright_notice
 
 
 # TODO: [TD0094] Search text for DOIs and query external services
@@ -61,7 +62,8 @@ class DocumentAnalyzer(BaseAnalyzer):
         self._add_results('publisher', self.get_publisher())
 
         self._add_title_from_text_to_results()
-        self._add_publisher_from_text_to_results()
+        self._search_text_for_candidate_publisher()
+        self._search_text_for_copyright_publisher()
 
     def __collect_results(self, meowuri, weight):
         value = self.request_data(self.fileobject, meowuri)
@@ -143,7 +145,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                     'title', self._wrap_generic_title(line, _prob)
                 )
 
-    def _add_publisher_from_text_to_results(self):
+    def _search_text_for_candidate_publisher(self):
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
         if not _options:
             return
@@ -151,8 +153,19 @@ class DocumentAnalyzer(BaseAnalyzer):
             _candidates = _options.get('candidates', {})
 
         assert self.text is not None
-        _text = textutils.extract_lines(self.text, firstline=0, lastline=100)
+        _text = textutils.extract_lines(self.text, firstline=0, lastline=1000)
         result = find_publisher(_text, _candidates)
+        if not result:
+            return
+
+        self._add_results(
+            'publisher', self._wrap_publisher(result)
+        )
+
+    def _search_text_for_copyright_publisher(self):
+        assert self.text is not None
+        result = textutils.extractlines_do(find_publisher_in_copyright_notice,
+                                           self.text, fromline=0, toline=1000)
         if not result:
             return
 
