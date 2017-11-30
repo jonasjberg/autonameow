@@ -281,14 +281,6 @@ def normalize_unicode(text):
     return unicodedata.normalize(NORMALIZATION_FORM, text)
 
 
-RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-
-
-def strip_ansiescape(string):
-    stripped = re.sub(RE_ANSI_ESCAPE, '', string)
-    return stripped
-
-
 def extractlines_do(callback, text, fromline, toline):
     """
     Perform an action within certain lines of some given text.

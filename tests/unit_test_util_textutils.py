@@ -41,7 +41,6 @@ from util.textutils import (
     indent,
     normalize_unicode,
     remove_nonbreaking_spaces,
-    strip_ansiescape,
     urldecode
 )
 import unit_utils as uu
@@ -441,17 +440,6 @@ class TestNormalizeUnicode(TestCase):
     def test_replaces_overlines(self):
         self._aE('\u0305', '-')
         self._aE('\u203e', '-')
-
-
-class TestStripAnsiEscape(TestCase):
-    def _aE(self, test_input, expected):
-        actual = strip_ansiescape(test_input)
-        self.assertEqual(actual, expected)
-
-    def test_strips_ansi_escape_codes(self):
-        self._aE('', '')
-        self._aE('a', 'a')
-        self._aE('[30m[44mautonameow[49m[39m', 'autonameow')
 
 
 class TestExtractlinesDo(TestCase):

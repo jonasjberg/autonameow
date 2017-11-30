@@ -391,7 +391,6 @@ class ColumnFormatter(object):
         self.addrow(' ')
 
     def _update_column_widths(self, strings):
-        # strings = [textutils.strip_ansiescape(s) for s in strings]
         # strings = [textutils.normalize_unicode(s) for s in strings]
         new_widths = [len(s) for s in strings]
 
