@@ -23,11 +23,39 @@ import re
 
 from core import types
 from util import textutils
+from util.text.transform import collapse_whitespace
 
 
 RE_EDITION = re.compile(
     r'([0-9])+\s?((st|nd|rd|th)\s?|(e|ed.?|edition))\b',
     re.IGNORECASE
+)
+
+# Like '\w' but without numbers (Unicode letters): '[^\W\d]'
+_re_copyright_name = r'(?P<name>[^\W\d]+[\D\.]+)'
+_re_copyright_symbol = r'(©|\(?[Cc]\)?)'
+_re_copyright_text = r'[Cc]opyright'
+_re_copyright_symbol_and_or_text = r'({CS}{SEP}{CT}|{CT}{SEP}{CS}|{CT}{SEP}|{CS}{SEP})'.format(CS=_re_copyright_symbol, CT=_re_copyright_text, SEP=' +?')
+_re_copyright_year = r'(?P<year>\d{4})'
+_re_copyright_years = r'(?P<year_range>\d{4}[- ]+\d{4})'
+
+RE_COPYRIGHT_NOTICE_A = re.compile(
+    '({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?({year}|{years}) ?{name}'.format(
+        copyright=_re_copyright_text,
+        symbol=_re_copyright_symbol,
+        year=_re_copyright_year,
+        years=_re_copyright_years,
+        name=_re_copyright_name
+    ), re.IGNORECASE
+)
+RE_COPYRIGHT_NOTICE_B = re.compile(
+    '({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?{name}[,\ ]+?({year}|{years})'.format(
+        copyright=_re_copyright_text,
+        symbol=_re_copyright_symbol,
+        year=_re_copyright_year,
+        years=_re_copyright_years,
+        name=_re_copyright_name
+    ), re.IGNORECASE
 )
 
 
@@ -70,3 +98,26 @@ def find_edition(text):
             pass
 
     return None
+
+
+def find_publisher_in_copyright_notice(string):
+    text = collapse_whitespace(string)
+    text = text.replace(',', ' ')
+    text = text.strip()
+
+    if 'copyright' not in text.lower():
+        return None
+
+    # endmarker = text.find('and/or')
+    # if endmarker > 1:
+    #     text = text[:endmarker]
+
+    matches = RE_COPYRIGHT_NOTICE_A.search(text)
+    if not matches:
+        matches = RE_COPYRIGHT_NOTICE_B.search(text)
+        if not matches:
+            return None
+
+    match = matches.group('name')
+
+    return match.strip()

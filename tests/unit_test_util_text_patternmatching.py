@@ -21,7 +21,10 @@
 
 from unittest import TestCase
 
-from util.text.patternmatching import find_edition
+from util.text.patternmatching import (
+    find_edition,
+    find_publisher_in_copyright_notice
+)
 
 
 class TestFindEdition(TestCase):
@@ -89,3 +92,53 @@ class TestFindEdition(TestCase):
         _aN('Foo 7 Entities')
         _aN('7 Entities')
         _aN('7')
+
+
+class TestFindPublisherInCopyrightNotice(TestCase):
+    def test_returns_expected_publisher(self):
+        def _aE(test_input, expected):
+            actual = find_publisher_in_copyright_notice(test_input)
+            self.assertEqual(expected, actual)
+
+        _aE('Copyright © Excellent Media P.C., 2017', 'Excellent Media P.C.')
+        _aE('Copyright (c) Excellent Media P.C., 2017', 'Excellent Media P.C.')
+
+        _aE('Copyright © 2017 Excellent Media P.C.', 'Excellent Media P.C.')
+        _aE('Copyright (c) 2017 Excellent Media P.C.', 'Excellent Media P.C.')
+        _aE('Copyright © 2016 Catckt', 'Catckt')
+        _aE('Copyright (c) 2016 Catckt', 'Catckt')
+        _aE('Copyright (C) 2016 Catckt', 'Catckt')
+        _aE('Copyright(c)2016 Catckt', 'Catckt')
+        _aE('Copyright(C)2016 Catckt', 'Catckt')
+        _aE('Copyright © 2016 Catckt Publishing', 'Catckt Publishing')
+        _aE('Copyright (c) 2016 Catckt Publishing', 'Catckt Publishing')
+        _aE('Copyright (C) 2016 Catckt Publishing', 'Catckt Publishing')
+        _aE('Copyright(c)2016 Catckt Publishing', 'Catckt Publishing')
+        _aE('Copyright(C)2016 Catckt Publishing', 'Catckt Publishing')
+        _aE('Copyright © 2011-2012 Bmf Btpveis', 'Bmf Btpveis')
+        _aE('Copyright (C) 2011-2012 Bmf Btpveis', 'Bmf Btpveis')
+
+        _aE('(C) Copyright 1985-2001 Gibson Corp.', 'Gibson Corp.')
+
+        # Works:
+        # 'Copyright (c) 2000 2015 Kibble'
+
+        # NOGO:
+        # 'Copyright (c) 2000  2015  Kibble '
+
+        _aE('Copyright (c) 2000 2015 Kibble', 'Kibble')
+        _aE('Copyright (c) 2000-2015  Kibble ', 'Kibble')
+        _aE('Copyright (c) 2000, 2015  Kibble', 'Kibble')
+        # _aE('Copyright (c) 2000, 2015, Kibble and/or its affiliates.', 'Kibble')
+
+    def test_returns_none_for_unavailable_publishers(self):
+        def _aN(test_input):
+            actual = find_publisher_in_copyright_notice(test_input)
+            self.assertIsNone(actual)
+
+        _aN('Foo Bar')
+        _aN('copyright reserved above, no part of this publication')
+        _aN('permission of the copyright owner.')
+        _aN('is common practice to put any licensing or copyright information in a comment at the')
+        _aN('107 or 108 of the 1976 United States Copyright Act, without either the prior written permission of the Publisher, or')
+        _aN('America. Except as permitted under the Copyright Act of 1976, no part of this publication may be')
