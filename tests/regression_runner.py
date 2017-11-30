@@ -295,10 +295,14 @@ def main(args):
         '--get-cmd',
         dest='get_cmd',
         nargs='+',
-        metavar='TEST_DIRNAME',
-        help='Print equivalent command-line invocations for the specified'
-             'test case(s). These would be executed "manually" to produce the '
-             'same behaviour and results as the corresponding regression test.'
+        metavar='TEST_NAME',
+        help='Print equivalent command-line invocations for the specified '
+             'test case(s). If executed "manually", these would produce the '
+             'same behaviour and results as the corresponding regression test. '
+             'Each result is printed as two lines; first being "# TEST_NAME", '
+             'where "TEST_NAME" is the dirname of the test case. '
+             'The second line is the equivalent command-line. '
+             'Valid arguments can be found with the "--list" option.'
     )
     parser.add_argument(
         '--list',
@@ -329,10 +333,12 @@ def main(args):
         return
 
     if opts.list_tests:
+        # List the "short name" (dirname) of all tests and exit.
         print_test_dirnames(loaded_tests)
         sys.exit(0)
 
     if opts.get_cmd:
+        # Get equivalent command-lines for the specified test dirnames.
         matching_tests = []
         for _requested_test in opts.get_cmd:
             # Must convert to bytes in order to do the comparison.
