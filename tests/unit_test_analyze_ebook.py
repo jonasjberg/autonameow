@@ -23,6 +23,7 @@ from unittest import (
     skipIf,
     TestCase,
 )
+from unittest.mock import Mock
 
 try:
     import isbnlib
@@ -41,13 +42,12 @@ from analyzers.analyze_ebook import (
 )
 
 
-uu.init_provider_registry()
-
-
 def get_ebook_analyzer(fileobject):
+    mock_config = Mock()
+
     return analyze_ebook.EbookAnalyzer(
         fileobject,
-        uu.get_default_config(),
+        mock_config,
         request_data_callback=uu.mock_request_data_callback
     )
 
