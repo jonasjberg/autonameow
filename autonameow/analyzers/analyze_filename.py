@@ -66,7 +66,6 @@ class FilenameAnalyzer(BaseAnalyzer):
 
     def analyze(self):
         self._add_results('datetime', self.get_datetime())
-        self._add_results('title', self.get_title())
         self._add_results('edition', self.get_edition())
         self._add_results('extension', self.get_extension())
         self._add_results('publisher', self.get_publisher())
@@ -95,9 +94,6 @@ class FilenameAnalyzer(BaseAnalyzer):
 
         # return fn_timestamps or None
         # TODO: Fix inconsistent analyzer results data.
-        return None
-
-    def get_title(self):
         return None
 
     def get_edition(self):

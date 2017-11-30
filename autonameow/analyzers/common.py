@@ -22,10 +22,7 @@
 import logging
 
 from core import constants as C
-from core import (
-    exceptions,
-    providers,
-)
+from core import providers
 from core.exceptions import AutonameowException
 from util import mimemagic
 
@@ -108,34 +105,6 @@ class BaseAnalyzer(object):
             AnalyzerError: The extraction could not be completed successfully.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def get(self, field):
-        """
-        Wrapper method allows calling 'a.get_FIELD()' as 'a.get("FIELD")'.
-
-        This method simply calls other methods by assembling the method name
-        to call from the prefix 'get_' and the given "field" as the postfix.
-
-        Args:
-            field: Name of the field to get.  Must be included in
-                ANALYSIS_RESULTS_FIELDS, else an exception is raised.
-
-        Returns:
-            Equivalent to calling 'a.get_FIELD()'
-
-        Raises:
-            AnalysisResultsFieldError: Error caused by invalid argument "field",
-                which must be included in ANALYSIS_RESULTS_FIELDS.
-        """
-        if field not in C.ANALYSIS_RESULTS_FIELDS:
-            raise exceptions.AnalysisResultsFieldError(field)
-
-        _func_name = 'get_{}'.format(field)
-        get_func = getattr(self, _func_name, False)
-        if get_func and callable(get_func):
-            return get_func()
-        else:
-            raise NotImplementedError(field)
 
     def _add_results(self, meowuri_leaf, data):
         """

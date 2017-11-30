@@ -56,10 +56,7 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
-        self._add_results('author', self.get_author())
-        self._add_results('title', self.get_title())
         self._add_results('datetime', self.get_datetime())
-        self._add_results('publisher', self.get_publisher())
 
         self._add_title_from_text_to_results()
         self._search_text_for_candidate_publisher()
@@ -72,33 +69,6 @@ class DocumentAnalyzer(BaseAnalyzer):
         else:
             return []
 
-    def get_author(self):
-        results = []
-
-        # TODO: [TD0102] Do not add duplicate results.
-        # possible_authors = [
-        #     ('generic.metadata.author', 1),
-        #     ('generic.metadata.creator', 0.5),
-        #     ('generic.metadata.producer', 0.1),
-        # ]
-        # for meowuri, weight, in possible_authors:
-        #     results += self.__collect_results(meowuri, weight)
-
-        return results if results else None
-
-    def get_title(self):
-        results = []
-
-        # TODO: [TD0102] Do not add duplicate results.
-        # possible_titles = [
-        #     ('generic.metadata.title', 1),
-        #     ('generic.metadata.subject', 0.25),
-        # ]
-        # for meowuri, weight in possible_titles:
-        #     results += self.__collect_results(meowuri, weight)
-
-        return results if results else None
-
     def get_datetime(self):
         results = []
 
@@ -106,22 +76,6 @@ class DocumentAnalyzer(BaseAnalyzer):
             text_timestamps = self._get_datetime_from_text()
             if text_timestamps:
                 results += text_timestamps
-
-        return results if results else None
-
-    def get_tags(self):
-        raise NotImplementedError('Get "tags" from PdfAnalyzer')
-
-    def get_publisher(self):
-        results = []
-
-        # TODO: [TD0102] Do not add duplicate results.
-        # possible_publishers = [
-        #     ('extractor.metadata.exiftool.PDF:EBX_PUBLISHER', 1),
-        #     ('extractor.metadata.exiftool.XMP:EbxPublisher', 1),
-        # ]
-        # for meowuri, weight in possible_publishers:
-        #     results += self.__collect_results(meowuri, weight)
 
         return results if results else None
 

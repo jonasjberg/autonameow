@@ -66,48 +66,6 @@ class TestBaseAnalyzer(TestCase):
         with self.assertRaises(NotImplementedError):
             self.a.run()
 
-    def test_get_with_invalid_field_name_raises_exception(self):
-        with self.assertRaises(exceptions.AnalysisResultsFieldError):
-            self.a.get('not_a_field')
-
-    def test_get_with_invalid_non_callable_field_name_raises_exception(self):
-        with self.assertRaises(exceptions.AnalysisResultsFieldError):
-            self.a.get('__str__')
-
-    def test_get_with_none_field_name_raises_exception(self):
-        with self.assertRaises(exceptions.AnalysisResultsFieldError):
-            self.a.get(None)
-
-    def test_get_with_valid_field_name_raises_attribute_error(self):
-        _field_name = C.ANALYSIS_RESULTS_FIELDS[0]
-        with self.assertRaises(NotImplementedError):
-            self.a.get(_field_name)
-
-    def test_get_with_valid_field_names_raises_not_implemented_error(self):
-        for _field_name in C.ANALYSIS_RESULTS_FIELDS:
-            with self.assertRaises(NotImplementedError):
-                self.a.get(_field_name)
-
-    def test_get_datetime_raises_attribute_error(self):
-        with self.assertRaises(AttributeError):
-            self.a.get_datetime()
-
-    def test_get_title_raises_attribute_error(self):
-        with self.assertRaises(AttributeError):
-            self.a.get_title()
-
-    def test_get_author_raises_attribute_error(self):
-        with self.assertRaises(AttributeError):
-            self.a.get_author()
-
-    def test_get_tags_raises_attribute_error(self):
-        with self.assertRaises(AttributeError):
-            self.a.get_tags()
-
-    def test_get_publisher_raises_attrbitute_error(self):
-        with self.assertRaises(AttributeError):
-            self.a.get_publisher()
-
 
 class TestBaseAnalyzerClassMethods(TestCase):
     def setUp(self):

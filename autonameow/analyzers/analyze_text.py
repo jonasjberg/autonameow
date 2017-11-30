@@ -41,15 +41,7 @@ class TextAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
-        self._add_results('author', self.get_author())
-        self._add_results('title', self.get_title())
         self._add_results('datetime', self.get_datetime())
-
-    def get_author(self):
-        pass
-
-    def get_title(self):
-        pass
 
     def get_datetime(self):
         results = []
@@ -59,9 +51,6 @@ class TextAnalyzer(BaseAnalyzer):
                 results += text_timestamps
 
         return results if results else None
-
-    def get_tags(self):
-        pass
 
     def _is_gmail(self):
         text = self.text
