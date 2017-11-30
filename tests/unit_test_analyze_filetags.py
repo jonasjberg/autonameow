@@ -21,6 +21,7 @@
 
 from collections import namedtuple
 from unittest import TestCase
+from unittest.mock import Mock
 
 from analyzers import analyze_filetags
 import unit_utils as uu
@@ -30,9 +31,11 @@ uu.init_provider_registry()
 
 
 def get_filetags_analyzer(fileobject):
+    mock_config = Mock()
+
     return analyze_filetags.FiletagsAnalyzer(
         fileobject,
-        uu.get_default_config(),
+        mock_config,
         request_data_callback=uu.mock_request_data_callback
     )
 

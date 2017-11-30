@@ -20,15 +20,18 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+from unittest.mock import Mock
 
 from analyzers.analyze_filesystem import FilesystemAnalyzer
 import unit_utils as uu
 
 
 def get_filesystem_analyzer(fileobject):
+    mock_config = Mock()
+
     return FilesystemAnalyzer(
         fileobject,
-        uu.get_default_config(),
+        mock_config,
         request_data_callback=uu.mock_request_data_callback
     )
 

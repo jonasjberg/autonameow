@@ -22,6 +22,7 @@
 from collections import namedtuple
 from datetime import datetime
 from unittest import TestCase
+from unittest.mock import Mock
 
 from analyzers.analyze_filename import (
     FilenameAnalyzer,
@@ -38,9 +39,11 @@ uu.init_provider_registry()
 
 
 def get_filename_analyzer(fileobject):
+    mock_config = Mock()
+
     return FilenameAnalyzer(
         fileobject,
-        uu.get_default_config(),
+        mock_config,
         request_data_callback=uu.mock_request_data_callback
     )
 
