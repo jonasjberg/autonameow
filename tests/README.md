@@ -40,6 +40,11 @@ All unit tests are written in Python and uses the `unittest` library.
 
 Unit test source files are located in the `tests/unit` directory.
 
+File names that start with `test_property_` uses the Python library
+[hypothesis](http://hypothesis.works/) to do property-based testing.
+These are skipped if `hypothesis` is unavailable.
+
+
 ### Running the Unit Tests
 All unit tests can be executed with the bash script `tests/unit_runner.sh`.
 
@@ -67,6 +72,7 @@ Integration Tests
 These are not strictly integration tests, written in bash.
 
 Integration test source files are located in the `tests/integration` directory.
+
 
 ### Running the Integration Tests
 In order to run all tests, execute the script `tests/integration_runner.sh`.
@@ -213,13 +219,11 @@ If the `config_path` entry..
     -->  'config_path': 'self.abspath/config.yaml'
     ```
 
-
 #### The `input_paths` field
 The string `$TESTFILES` is replaced with the full absolute path to the
 `test_files` directory.
 For instance; `'$TESTFILES/foo.txt' --> '$SRCROOT/test_files/foo.txt'`,
 where `$SRCROOT` is the full absolute path to the autonameow sources.
-
 
 
 ### Running the Regression Tests
