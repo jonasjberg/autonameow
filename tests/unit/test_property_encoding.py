@@ -19,14 +19,16 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
+from unittest import (
+    SkipTest,
+    TestCase
+)
 
 try:
     from hypothesis import given
     from hypothesis import strategies as st
 except ImportError:
-    hypothesis = None
-# TODO: Skip tests if 'hypothesis' is unavailable.
+    raise SkipTest('Unable to import "hypothesis". Skipping ..')
 
 from util.encoding import (
     decode_,
