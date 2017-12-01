@@ -273,6 +273,8 @@ class Autonameow(object):
         Assume all state is setup and completely reset for each loop iteration.
         It is not currently possible to share "information" between runs.
         """
+        results_to_list = []
+
         for file_path in file_paths:
             log.info('Processing: "{!s}"'.format(
                 enc.displayable_path(file_path))
@@ -299,10 +301,7 @@ class Autonameow(object):
 
             # TODO: [TD0131] Hack!
             # _repositorysize = sys.getsizeof(repository.SessionRepository)
-            _repositorysize = len(str(repository.SessionRepository))
-            log.info('Approximate Memory Usage of the Repository: {}'.format(
-                _repositorysize
-            ))
+            results_to_list.append(str(repository.SessionRepository))
 
             # TODO: [TD0131] Limit repository size!
             repository.SessionRepository.data.pop(current_file)
@@ -312,10 +311,10 @@ class Autonameow(object):
             ui.msg('Session Repository Data', style='heading',
                    add_info_log=True)
 
-            if len(repository.SessionRepository) == 0:
+            if len(results_to_list) == 0:
                 ui.msg('The session repository does not contain any data ..\n')
             else:
-                ui.msg(str(repository.SessionRepository))
+                ui.msg('\n'.join(results_to_list))
 
     def _handle_file(self, current_file):
         should_list_any_results = self.opts.get('list_all')
