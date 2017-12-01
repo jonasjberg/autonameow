@@ -21,15 +21,28 @@
 
 set -o noclobber -o nounset -o pipefail
 
-SELF="$(basename "$0")"
-SELF_DIR="$(realpath -e "$(dirname "$0")")"
+SELF_BASENAME="$(basename "$0")"
+SELF_DIRNAME="$(realpath -e "$(dirname "$0")")"
 
-echo "common_runner.sh SELF_DIR: \"${SELF_DIR}\""
-
-if ! source "${SELF_DIR}/common_utils.sh"
+if ! source "${SELF_DIRNAME}/setup_environment.sh"
 then
-    echo "Shared test utility library is missing. Aborting .." 1>&2
+    cat >&2 <<EOF
+
+[ERROR] Unable to source "${SELF_DIRNAME}/setup_environment.sh"
+        Environment variable setup script is missing. Aborting ..
+
+EOF
     exit 1
+fi
+
+if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+then
+    cat >&2 <<EOF
+
+[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+        Shared test utility library is missing. Aborting ..
+
+EOF
 fi
 
 
@@ -49,9 +62,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"${SELF}"  --  autonameow test suite helper script
+"${SELF_BASENAME}"  --  autonameow test suite helper script
 
-  USAGE:  ${SELF} ([OPTIONS])
+  USAGE:  ${SELF_BASENAME} ([OPTIONS])
 
   OPTIONS:  -h   Display usage information and exit.
             -u   Add test reports to the project wiki.
@@ -129,7 +142,7 @@ wiki_add_unit_link()
 # caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
-    printf "(USING DEFAULTS -- "${SELF} -h" for usage information)\n\n"
+    printf "(USING DEFAULTS -- "${SELF_BASENAME} -h" for usage information)\n\n"
 else
     while getopts huvw opt
     do
@@ -150,9 +163,9 @@ runner_opts='-w'
 [ "$option_write_reports" != 'true' ] && runner_opts=''
 
 count_fail=0
-run_task "$option_quiet" 'Running unit test runner'        "${SELF_DIR}/unit_runner.sh ${runner_opts}"
-run_task "$option_quiet" 'Running regression test runner'  "${SELF_DIR}/regression_runner.sh"
-run_task "$option_quiet" 'Running integration test runner' "${SELF_DIR}/integration_runner.sh ${runner_opts}"
+run_task "$option_quiet" 'Running unit test runner'        "${SELF_DIRNAME}/unit_runner.sh ${runner_opts}"
+run_task "$option_quiet" 'Running regression test runner'  "${SELF_DIRNAME}/regression_runner.sh"
+run_task "$option_quiet" 'Running integration test runner' "${SELF_DIRNAME}/integration_runner.sh ${runner_opts}"
 
 # Do not proceed if a runner failed.
 if [ "$count_fail" -ne "0" ]
