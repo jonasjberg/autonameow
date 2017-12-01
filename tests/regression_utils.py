@@ -33,9 +33,9 @@ from core import (
     types,
     ui
 )
+import unit.unit_utils as uu
+import unit.unit_utils_constants as uuconst
 from util import encoding as enc
-import unit_utils as uu
-import unit_utils_constants as uuconst
 
 
 log = logging.getLogger(__name__)
