@@ -10,20 +10,14 @@
 Testing TL;DR
 =============
 
-| File Name                     | Execute this to run ..                    |
-| ----------------------------  | ----------------------------------------- |
-| `common_runner.sh`            | __ALL tests__ (`-h` for help)             |
-| `integration_runner.sh`       | __ALL Integration Tests__ (`-h` for help) |
-| `integration_test_cli.sh`     | The "Command-Line Interface" test suite   |
-| `integration_test_compat.sh`  | The "Compatibility" test suite            |
-| `integration_test_docs.sh`    | The "Documentation" test suite            |
-| `integration_test_plugins.sh` | The "Plugins" test suite                  |
-| `integration_test_rename.sh`  | The "Rename Files" test suite             |
-| `integration_test_src.sh`     | The "Source Code" test suite              |
-| `integration_test_tests.sh`   | The "Test Suite" test suite"              |
-| `regression_runner.sh`        | __ALL Regression Tests__ (`-h` for help)  |
-| `unit_runner.sh`              | __ALL Unit Tests__ (`-h` for help)        |
+| File Name               | Execute this to run .. |
+| ----------------------- | -----------------------|
+| `common_runner.sh`      | __All tests__          |
+| `integration_runner.sh` | Integration Tests      |
+| `regression_runner.sh`  | Regression Tests       |
+| `unit_runner.sh`        | Unit Tests             |
 
+All runner scripts will print usage information if started with `-h`.
 
 
 Notes on `autonameow` testing
@@ -44,7 +38,7 @@ Unit Tests
 ----------
 All unit tests are written in Python and uses the `unittest` library.
 
-Unit test source files share the common prefix `unit_test_`.
+Unit test source files are located in the `tests/unit` directory.
 
 ### Running the Unit Tests
 All unit tests can be executed with the bash script `tests/unit_runner.sh`.
@@ -72,7 +66,7 @@ Integration Tests
 -----------------
 These are not strictly integration tests, written in bash.
 
-Integration test source files share the common prefix `integration_test_`.
+Integration test source files are located in the `tests/integration` directory.
 
 ### Running the Integration Tests
 In order to run all tests, execute the script `tests/integration_runner.sh`.
@@ -100,7 +94,7 @@ Actually not strictly regression tests, written in Python.
 These tests will hit a lot of systems, depending on the test case.
 The proper name would probable be "functional tests" or "system tests"..
 
-Regression test source files share the common prefix `regression_test_`.
+Regression tests are located in the `tests/regression` directory.
 
 Regression test cases are executed sequentially, each using a fresh instance
 of `autonameow`. Only a few parts of the system are patched; execution time
