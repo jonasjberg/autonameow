@@ -30,7 +30,7 @@ from core import (
     ui
 )
 from core.persistence import get_persistence
-from regression_utils import (
+from regression.regression_utils import (
     AutonameowWrapper,
     check_renames,
     commandline_for_testcase,
@@ -402,5 +402,8 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('\nReceived keyboard interrupt. Exiting ..')
         sys.exit(exit_code)
+    except Exception as e:
+        print('\nUnhandled exception reached regression __main__ (!)')
+        print(str(e))
     finally:
         sys.exit(exit_code)

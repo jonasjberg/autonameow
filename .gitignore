@@ -258,7 +258,7 @@ tags
 test_files/
 docs/test_results/.integrationlog.toreport
 docs/test_results/.unittestlog.toreport
-tests/.regressionrunner_*
+.regressionrunner_lastrun
 
 # Documentation
 docs/test_results/
