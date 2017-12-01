@@ -283,11 +283,11 @@ class TestFileBasename(TestCase):
             actual = file_basename(given)
             self.assertEqual(actual, expect)
 
-        _aE(b'unit_test_disk_io.py', b'unit_test_disk_io.py')
-        _aE('unit_test_disk_io.py', b'unit_test_disk_io.py')
-        _aE(__file__, b'unit_test_disk_io.py')
-        _aE(os.path.abspath(__file__), b'unit_test_disk_io.py')
-        _aE(os.path.realpath(__file__), b'unit_test_disk_io.py')
+        _aE(b'test_disk_io.py', b'test_disk_io.py')
+        _aE('test_disk_io.py', b'test_disk_io.py')
+        _aE(__file__, b'test_disk_io.py')
+        _aE(os.path.abspath(__file__), b'test_disk_io.py')
+        _aE(os.path.realpath(__file__), b'test_disk_io.py')
 
     def test_returns_expected_given_invalid_paths(self):
         def _aE(given, expect):

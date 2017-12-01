@@ -157,7 +157,7 @@ run_unittest()
 {
     (
       cd "$AUTONAMEOW_ROOT_DIR" || return 1
-      PYTHONPATH=autonameow:tests python3 -m unittest discover --catch --buffer --start-directory tests/unit --pattern "unit_test_*.py" --top-level-directory .
+      PYTHONPATH=autonameow:tests python3 -m unittest discover --catch --buffer --start-directory tests/unit --pattern "test_*.py" --top-level-directory .
     )
 }
 
@@ -171,7 +171,7 @@ run_pytest()
 
     (
       cd "$AUTONAMEOW_ROOT_DIR" || return 1
-      PYTHONPATH=autonameow:tests pytest ${_pytest_report_opts} ${_pytest_coverage_opts} tests/unit/unit_test_*.py
+      PYTHONPATH=autonameow:tests pytest ${_pytest_report_opts} ${_pytest_coverage_opts} tests/unit/test_*.py
     )
 }
 
