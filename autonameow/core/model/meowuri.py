@@ -33,6 +33,70 @@ log = logging.getLogger(__name__)
 # TODO: [TD0125] Add aliases (generics) for MeowURI leafs
 
 
+class MeowURIParser(object):
+    def parse(self, *args):
+        def _ensure_list(list_or_tuple):
+            # This mess allows using either 'parse(*args)' or 'parseMeowURI(args)'.
+            _list = []
+            for _element in list_or_tuple:
+                if isinstance(_element, tuple):
+                    _list.extend([a for a in _element])
+                elif isinstance(_element, list):
+                    _list.extend(_element)
+                else:
+                    _list.append(_element)
+            return _list
+
+        _args_list = _ensure_list(args)
+
+        # Normalize into a list of period-separated (Unicode(!)) words ..
+        _raw_parts = []
+        for arg in _args_list:
+            if is_meowuri_parts(arg):
+                _raw_parts.extend(self._split(arg))
+            elif is_meowuri_part(arg):
+                _raw_parts.append(arg)
+            else:
+                raise InvalidMeowURIError('Invalid arg: "{!s}"'.format(arg))
+
+        if not _raw_parts:
+            raise InvalidMeowURIError('Insufficient and/or invalid arguments')
+
+        _first_part = _raw_parts.pop(0)
+        try:
+            _root = MeowURIRoot(_first_part)
+        except InvalidMeowURIError:
+            raise
+
+        _last_part = None
+        try:
+            _last_part = _raw_parts.pop()
+        except IndexError:
+            raise InvalidMeowURIError('MeowURI is incomplete')
+
+        try:
+            _leaf = MeowURILeaf(_last_part)
+        except InvalidMeowURIError:
+            _leaf = None
+
+        _nodes = []
+        if _raw_parts:
+            _nodes = [MeowURINode(p) for p in _raw_parts]
+
+        return _root, _nodes, _leaf
+
+    @staticmethod
+    def _split(raw_string):
+        # TODO: Data has already passed through functions requiring Unicode str
+        #       .. this makes no sense here.  Remove or relocate.
+        string = types.force_string(raw_string)
+        if not string:
+            return []
+        else:
+            # Split the "meowURI" by periods to a list of strings.
+            return meowuri_list(string)
+
+
 class MeowURI(object):
     """
     (Meow) _U_niform _R_esource _I_dentifier
@@ -48,82 +112,14 @@ class MeowURI(object):
 
     NOTE: Assume that instances of this class are immutable once instantiated.
     """
+    MP = MeowURIParser()
+
     def __init__(self, *args):
-        # This mess allows using either 'MeowURI(*args)' or 'MeowURI(args)'.
-        _args_list = []
-        for arg in args:
-            if isinstance(arg, tuple):
-                _args_list.extend([a for a in arg])
-            elif isinstance(arg, list):
-                log.debug('{!s} unexpectedly got list argument'.format(self))
-                _args_list.extend(arg)
-            else:
-                _args_list.append(arg)
-
-        # Normalize into a list of period-separated (Unicode(!)) words ..
-        _raw_parts = []
-        for arg in _args_list:
-            if is_meowuri_parts(arg):
-                _raw_parts.extend(self._split(arg))
-            elif is_meowuri_part(arg):
-                _raw_parts.append(arg)
-            else:
-                raise InvalidMeowURIError('Invalid arg: "{!s}"'.format(arg))
-
-        if not _raw_parts:
-            raise InvalidMeowURIError('Insufficient and/or invalid arguments')
-
-        self._raw_parts = _raw_parts
-
-        _first_part = _raw_parts.pop(0)
-        try:
-            self._root = MeowURIRoot(_first_part)
-        except InvalidMeowURIError:
-            raise
-
-        _p = None
-        try:
-            _p = _raw_parts.pop()
-        except IndexError:
-            raise InvalidMeowURIError('MeowURI is incomplete')
-
-        try:
-            self._leaf = MeowURILeaf(_p)
-        except InvalidMeowURIError:
-            self._leaf = None
-
-        self._nodes = []
-        if _raw_parts:
-            self._nodes = [MeowURINode(p) for p in _raw_parts]
-
+        self._root, self._nodes, self._leaf = self.MP.parse(*args)
         self._parts = [self._root] + self._nodes + [self._leaf]
 
         # Lazily computed.
         self.__cached_str = None
-
-    @staticmethod
-    def _split(raw_string):
-        # TODO: Data has already passed through functions requiring Unicode str
-        #       .. this makes no sense here.  Remove or relocate.
-        string = types.force_string(raw_string)
-        if not string:
-            return []
-        else:
-            # Split the "meowURI" by periods to a list of strings.
-            return meowuri_list(string)
-
-    @classmethod
-    def generic(cls, *args):
-        if len(args) == 1:
-            _raw_parts = cls._split(args[0])
-        else:
-            _raw_parts = list(args)
-
-        if _raw_parts[0] != C.MEOWURI_ROOT_GENERIC:
-            _parts = [C.MEOWURI_ROOT_GENERIC] + _raw_parts
-            return cls(*_parts)
-        else:
-            return cls(*_raw_parts)
 
     @property
     def root(self):
@@ -202,7 +198,7 @@ class MeowURI(object):
 
             # No wildcards, do direct comparison.
             if '*' not in glob_parts:
-                if glob_parts == self._raw_parts:
+                if glob == str(self):
                     return True
                 else:
                     continue
@@ -361,8 +357,6 @@ RE_MEOWURI_PARTS = re.compile(
 def is_meowuri_part(raw_string):
     """
     Safely check if an unknown (string) argument is a valid MeowURI part.
-
-    The MeowURI is
 
     Args:
         raw_string: The string to test. Types other than Unicode strings fail.

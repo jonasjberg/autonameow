@@ -19,22 +19,21 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from unittest import TestCase
 
+import unit.constants as uuconst
 from core import constants as C
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from core.model.meowuri import (
+    is_meowuri_part,
+    is_meowuri_parts,
+    meowuri_list,
     MeowURILeaf,
     MeowURINode,
-    MeowURIRoot,
-    meowuri_list,
-    is_meowuri_part,
-    is_meowuri_parts
+    MeowURIParser,
+    MeowURIRoot
 )
-import unit.utils as uu
-import unit.constants as uuconst
 
 
 class TestMeowURIStringMatchingFunctions(TestCase):
@@ -149,7 +148,7 @@ class TestMeowURIRoot(TestCase):
     def test_from_invalid_input(self):
         def _f(test_input):
             with self.assertRaises(InvalidMeowURIError):
-                a = MeowURIRoot(test_input)
+                _ = MeowURIRoot(test_input)
 
         _f(None)
         _f('')
@@ -158,154 +157,6 @@ class TestMeowURIRoot(TestCase):
         _f('filesystem')
         _f('plugins')
         _f('metadata')
-
-
-class TestMeowURIwithValidInput(TestCase):
-    @staticmethod
-    def _format_expected(root=None, node=None, leaf=None):
-        if root is None and node is None and leaf is None:
-            raise AssertionError('This should not happen. Bad test input.')
-
-        if node is None and leaf is None:
-            return '{root}'.format(root=root)
-        elif leaf is None:
-            return '{root}{sep}{node}'.format(
-                root=root, sep=C.MEOWURI_SEPARATOR, node=node
-            )
-        else:
-            return '{root}{sep}{node}{sep}{leaf}'.format(
-                root=root, sep=C.MEOWURI_SEPARATOR, node=node, leaf=leaf
-            )
-
-    def test_multiple_arguments(self):
-        a = MeowURI('extractor', 'filesystem', 'xplat')
-        ea = self._format_expected(
-            root='extractor', node='filesystem', leaf='xplat'
-        )
-        self.assertEqual(ea, str(a))
-
-        b = MeowURI('extractor', 'filesystem')
-        eb = self._format_expected(
-            root='extractor', node='filesystem'
-        )
-        self.assertEqual(eb, str(b))
-
-    def test_single_argument(self):
-        a = MeowURI('extractor.filesystem.xplat')
-        ea = self._format_expected(
-            root='extractor', node='filesystem', leaf='xplat'
-        )
-        self.assertEqual(ea, str(a))
-
-        b = MeowURI('extractor.filesystem')
-        eb = self._format_expected(
-            root='extractor', node='filesystem'
-        )
-        self.assertEqual(eb, str(b))
-
-
-class TestDifferentNumberOfStringArgs(TestCase):
-    def test_valid_meowuri_a(self):
-        def _aE(*args):
-            actual = MeowURI(*args)
-            self.assertEqual(str(actual), 'generic.contents.text')
-            actual_two = MeowURI(args)
-            self.assertEqual(str(actual_two), 'generic.contents.text')
-
-        _aE('generic.contents.text')
-        _aE('generic.contents', 'text')
-        _aE('generic', 'contents.text')
-        _aE('generic', 'contents', 'text')
-
-    def test_valid_meowuri_b(self):
-        def _aE(*args):
-            actual = MeowURI(*args)
-            self.assertEqual(
-                str(actual), 'extractor.filesystem.xplat.basename.suffix'
-            )
-
-        _aE('extractor.filesystem.xplat.basename.suffix')
-        _aE('extractor.filesystem.xplat.basename', 'suffix')
-        _aE('extractor.filesystem.xplat', 'basename', 'suffix')
-        _aE('extractor.filesystem', 'xplat', 'basename', 'suffix')
-        _aE('extractor', 'filesystem', 'xplat', 'basename', 'suffix')
-        _aE('extractor', 'filesystem.xplat.basename.suffix')
-        _aE('extractor', 'filesystem', 'xplat.basename.suffix')
-        _aE('extractor', 'filesystem', 'xplat', 'basename.suffix')
-
-
-class TestMeowURI(TestCase):
-    def test_partitions_parts(self):
-        a = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        self.assertTrue(isinstance(a._root, MeowURIRoot))
-        self.assertTrue(isinstance(a._nodes, list))
-        self.assertTrue(isinstance(a._nodes[0], MeowURINode))
-        self.assertTrue(isinstance(a._leaf, MeowURILeaf))
-
-        b = MeowURI('extractor.metadata.exiftool.File:MIMEType')
-        self.assertTrue(isinstance(b._root, MeowURIRoot))
-        self.assertTrue(isinstance(b._nodes, list))
-        self.assertTrue(isinstance(b._nodes[0], MeowURINode))
-        self.assertTrue(isinstance(b._nodes[1], MeowURINode))
-        self.assertTrue(isinstance(b._leaf, MeowURILeaf))
-
-    def test_returns_partitioned_parts_as_strings(self):
-        a = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        self.assertTrue(uu.is_internalstring(a.root))
-        self.assertTrue(isinstance(a.nodes, list))
-        self.assertTrue(uu.is_internalstring(a.nodes[0]))
-        self.assertTrue(uu.is_internalstring(a.leaf))
-        self.assertEqual(a.root, 'generic')
-        self.assertEqual(a.nodes[0], 'contents')
-        self.assertEqual(a.leaf, 'mime_type')
-
-        b = MeowURI('extractor.metadata.exiftool.File:MIMEType')
-        self.assertEqual(b.root, 'extractor')
-        self.assertEqual(b.nodes[0], 'metadata')
-        self.assertEqual(b.nodes[1], 'exiftool')
-        self.assertEqual(b.leaf, 'File:MIMEType')
-
-
-class TestMeowURIBasedOnDebuggerFindings(TestCase):
-    def test_extraction_collect_results(self):
-        _prefix = 'extractor.filesystem.xplat'
-        _leaf = 'basename.suffix'
-        a = MeowURI(_prefix, _leaf)
-        e = 'extractor.filesystem.xplat.basename.suffix'
-        self.assertEqual(str(a), e)
-
-    def test_extraction_collect_extractor_xplat_filesystem(self):
-        _prefix = 'extractor.filesystem.xplat'
-        for _key in ['abspath.full', 'basename.full', 'basename.extension',
-                     'basename.suffix', 'basename.prefix', 'contents.mime_type',
-                     'date_accessed', 'date_created', 'date_modified',
-                     'pathname.full', 'pathname.parent']:
-            a = MeowURI(_prefix, _key)
-            e = '{}.{}'.format(_prefix, _key)
-            self.assertEqual(str(a), e)
-
-    def test_extraction_collect_extractor_metadata_exiftool(self):
-        _prefix = 'extractor.metadata.exiftool'
-        for _key in ['SourceFile', 'File:FileName', 'File:Directory',
-                     'File:FileSize', 'File:FileModifyDate',
-                     'File:FileAccessDate', 'File:MIMEType', 'PDF:Creator']:
-            a = MeowURI(_prefix, _key)
-            e = '{}.{}'.format(_prefix, _key)
-            self.assertEqual(str(a), e)
-
-    def test_extraction_collect_extractor_text_pdftotext(self):
-        _prefix = 'extractor.text.pdftotext'
-        _key = 'full'
-        a = MeowURI(_prefix, _key)
-        e = 'extractor.text.pdftotext.full'
-        self.assertEqual(str(a), e)
-
-    def test_extraction_collect_extractor_metadata_jpeginfo(self):
-        _prefix = 'extractor.metadata.jpeginfo'
-        for _key in ['health', 'is_jpeg']:
-            a = MeowURI(_prefix, _key)
-            e = '{}.{}'.format(_prefix, _key)
-            self.assertEqual(str(a), e)
 
 
 class TestMeowURIMutability(TestCase):
@@ -320,24 +171,6 @@ class TestMeowURIMutability(TestCase):
 
         after = self.m.parts
         self.assertEqual(before, after)
-
-
-class TestMeowURIClassMethodGeneric(TestCase):
-    def test_returns_expected_from_string(self):
-        actual = MeowURI.generic('contents.text')
-        self.assertEqual(str(actual), uuconst.MEOWURI_GEN_CONTENTS_TEXT)
-
-    def test_returns_expected_from_string_with_root(self):
-        actual = MeowURI.generic(uuconst.MEOWURI_GEN_CONTENTS_TEXT)
-        self.assertEqual(str(actual), uuconst.MEOWURI_GEN_CONTENTS_TEXT)
-
-    def test_returns_expected_from_multiple_strings(self):
-        actual = MeowURI.generic('contents', 'text')
-        self.assertEqual(str(actual), uuconst.MEOWURI_GEN_CONTENTS_TEXT)
-
-    def test_returns_expected_from_multiple_strings_with_root(self):
-        actual = MeowURI.generic('generic', 'contents', 'text')
-        self.assertEqual(str(actual), uuconst.MEOWURI_GEN_CONTENTS_TEXT)
 
 
 class TestEvalMeowURIGlob(TestCase):
@@ -576,7 +409,6 @@ class TestEvalMeowURIGlobF(TestCase):
         _t(['*.exiftool.PDF:Creator'])
         _t(['*.PDF:Creator'])
 
-
     # def test_eval_glob_b(self):
     #     self.assertFalse(eval_meowuri_glob(
     #         'filesystem.pathname.parent', ['*.pathname.full',
@@ -733,3 +565,149 @@ class TestMeowURIIsGeneric(TestCase):
         _aF(uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME)
         _aF(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         _aF(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE)
+
+
+class TestMeowURIBasedOnDebuggerFindings(TestCase):
+    def _check(self, *test_input, expected=None):
+        actual = MeowURI(*test_input)
+        self.assertEqual(expected, str(actual))
+
+    def test_extraction_collect_results(self):
+        _prefix = 'extractor.filesystem.xplat'
+        _leaf = 'basename.suffix'
+        self._check(_prefix, _leaf,
+                    expected='extractor.filesystem.xplat.basename.suffix')
+
+    def test_extraction_collect_extractor_xplat_filesystem(self):
+        _prefix = 'extractor.filesystem.xplat'
+        for _key in ['abspath.full', 'basename.full', 'basename.extension',
+                     'basename.suffix', 'basename.prefix', 'contents.mime_type',
+                     'date_accessed', 'date_created', 'date_modified',
+                     'pathname.full', 'pathname.parent']:
+            self._check(_prefix, _key, expected='{}.{}'.format(_prefix, _key))
+
+    def test_extraction_collect_extractor_metadata_exiftool(self):
+        _prefix = 'extractor.metadata.exiftool'
+        for _key in ['SourceFile', 'File:FileName', 'File:Directory',
+                     'File:FileSize', 'File:FileModifyDate',
+                     'File:FileAccessDate', 'File:MIMEType', 'PDF:Creator']:
+            self._check(_prefix, _key, expected='{}.{}'.format(_prefix, _key))
+
+    def test_extraction_collect_extractor_text_pdftotext(self):
+        _prefix = 'extractor.text.pdftotext'
+        _key = 'full'
+        self._check(_prefix, _key, expected='extractor.text.pdftotext.full')
+
+    def test_extraction_collect_extractor_metadata_jpeginfo(self):
+        _prefix = 'extractor.metadata.jpeginfo'
+        for _key in ['health', 'is_jpeg']:
+            self._check(_prefix, _key, expected='{}.{}'.format(_prefix, _key))
+
+
+class TestMeowURIwithValidInput(TestCase):
+    @staticmethod
+    def _format_expected(root=None, node=None, leaf=None):
+        if root is None and node is None and leaf is None:
+            raise AssertionError('This should not happen. Bad test input.')
+
+        if node is None and leaf is None:
+            return '{root}'.format(root=root)
+        elif leaf is None:
+            return '{root}{sep}{node}'.format(
+                root=root, sep=C.MEOWURI_SEPARATOR, node=node
+            )
+        else:
+            return '{root}{sep}{node}{sep}{leaf}'.format(
+                root=root, sep=C.MEOWURI_SEPARATOR, node=node, leaf=leaf
+            )
+
+    def test_multiple_arguments(self):
+        a = MeowURI('extractor', 'filesystem', 'xplat')
+        ea = self._format_expected(
+            root='extractor', node='filesystem', leaf='xplat'
+        )
+        self.assertEqual(ea, str(a))
+
+        b = MeowURI('extractor', 'filesystem')
+        eb = self._format_expected(
+            root='extractor', node='filesystem'
+        )
+        self.assertEqual(eb, str(b))
+
+    def test_single_argument(self):
+        a = MeowURI('extractor.filesystem.xplat')
+        ea = self._format_expected(
+            root='extractor', node='filesystem', leaf='xplat'
+        )
+        self.assertEqual(ea, str(a))
+
+        b = MeowURI('extractor.filesystem')
+        eb = self._format_expected(
+            root='extractor', node='filesystem'
+        )
+        self.assertEqual(eb, str(b))
+
+
+class TestDifferentNumberOfStringArgs(TestCase):
+    def test_valid_meowuri_a(self):
+        def _aE(*args):
+            actual = MeowURI(*args)
+            self.assertEqual(str(actual), 'generic.contents.text')
+            actual_two = MeowURI(args)
+            self.assertEqual(str(actual_two), 'generic.contents.text')
+
+        _aE('generic.contents.text')
+        _aE('generic.contents', 'text')
+        _aE('generic', 'contents.text')
+        _aE('generic', 'contents', 'text')
+
+    def test_valid_meowuri_b(self):
+        def _aE(*args):
+            actual = MeowURI(*args)
+            self.assertEqual(
+                str(actual), 'extractor.filesystem.xplat.basename.suffix'
+            )
+
+        _aE('extractor.filesystem.xplat.basename.suffix')
+        _aE('extractor.filesystem.xplat.basename', 'suffix')
+        _aE('extractor.filesystem.xplat', 'basename', 'suffix')
+        _aE('extractor.filesystem', 'xplat', 'basename', 'suffix')
+        _aE('extractor', 'filesystem', 'xplat', 'basename', 'suffix')
+        _aE('extractor', 'filesystem.xplat.basename.suffix')
+        _aE('extractor', 'filesystem', 'xplat.basename.suffix')
+        _aE('extractor', 'filesystem', 'xplat', 'basename.suffix')
+
+
+class TestMeowURIParser(TestCase):
+    def setUp(self):
+        self.p = MeowURIParser()
+
+    def test_parse_none_raises_exception(self):
+        with self.assertRaises(InvalidMeowURIError):
+            self.p.parse(None)
+
+    def test_partitions_parts(self):
+        a = self.p.parse(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
+        self.assertTrue(isinstance(a[0], MeowURIRoot))
+        self.assertTrue(isinstance(a[1], list))
+        self.assertTrue(isinstance(a[1][0], MeowURINode))
+        self.assertTrue(isinstance(a[2], MeowURILeaf))
+
+        b = self.p.parse('extractor.metadata.exiftool.File:MIMEType')
+        self.assertTrue(isinstance(b[0], MeowURIRoot))
+        self.assertTrue(isinstance(b[1], list))
+        self.assertTrue(isinstance(b[1][0], MeowURINode))
+        self.assertTrue(isinstance(b[1][1], MeowURINode))
+        self.assertTrue(isinstance(b[2], MeowURILeaf))
+
+    def test_returns_partitioned_parts_as_strings(self):
+        a = self.p.parse(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
+        self.assertEqual(str(a[0]), 'generic')
+        self.assertEqual(str(a[1][0]), 'contents')
+        self.assertEqual(str(a[2]), 'mime_type')
+
+        b = self.p.parse('extractor.metadata.exiftool.File:MIMEType')
+        self.assertEqual(str(b[0]), 'extractor')
+        self.assertEqual(str(b[1][0]), 'metadata')
+        self.assertEqual(str(b[1][1]), 'exiftool')
+        self.assertEqual(str(b[2]), 'File:MIMEType')
