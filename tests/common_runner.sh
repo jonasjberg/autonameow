@@ -24,6 +24,8 @@ set -o noclobber -o nounset -o pipefail
 SELF="$(basename "$0")"
 SELF_DIR="$(realpath -e "$(dirname "$0")")"
 
+echo "common_runner.sh SELF_DIR: \"${SELF_DIR}\""
+
 if ! source "${SELF_DIR}/common_utils.sh"
 then
     echo "Shared test utility library is missing. Aborting .." 1>&2

@@ -19,15 +19,31 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
 set -o noclobber -o nounset -o pipefail
 
-SELF="$(basename "$0")"
-SELF_DIR="$(realpath -e "$(dirname "$0")")"
 
-if ! source "${SELF_DIR}/common_utils.sh"
+SELF_BASENAME="$(basename "$0")"
+SELF_DIRNAME="$(dirname "$0")"
+
+if ! source "${SELF_DIRNAME}/setup_environment.sh"
 then
-    echo "Shared test utility library is missing. Aborting .." 1>&2
+    cat >&2 <<EOF
+
+[ERROR] Unable to source "${SELF_DIRNAME}/setup_environment.sh"
+        Environment variable setup script is missing. Aborting ..
+
+EOF
+    exit 1
+fi
+
+if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+then
+    cat >&2 <<EOF
+
+[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+        Shared test utility library is missing. Aborting ..
+
+EOF
     exit 1
 fi
 
@@ -41,9 +57,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"${SELF}"  --  autonameow unit tests runner
+"${SELF_BASENAME}"  --  autonameow unit tests runner
 
-  USAGE:  ${SELF} ([OPTIONS])
+  USAGE:  ${SELF_BASENAME} ([OPTIONS])
 
   OPTIONS:  -h   Display usage information and exit.
             -c   Enable checking unit test coverage.
@@ -64,7 +80,7 @@ EOF
 # caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
-    printf "(USING DEFAULTS -- "${SELF} -h" for usage information)\n\n"
+    printf "(USING DEFAULTS -- "${SELF_BASENAME} -h" for usage information)\n\n"
 else
     while getopts chwq opt
     do

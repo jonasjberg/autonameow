@@ -21,16 +21,19 @@
 
 set -o noclobber -o nounset -o pipefail
 
-SELF="$(basename "$0")"
-SELF_DIR="$(dirname "$0")"
-TESTSUITE_NAME='Source Code'
-
-# Source 'integration_utils.sh', which in turn sources 'common_utils.sh'.
-if ! source "${SELF_DIR}/integration_utils.sh"
+SELF_BASENAME="$(basename "$0")"
+if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
-    echo "Integration test utility library is missing. Aborting .." 1>&2
+    cat >&2 <<EOF
+
+[ERROR] Integration test suites can no longer be run stand-alone.
+        Please use use the designated integration test runner.
+
+EOF
     exit 1
 fi
+
+source "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_utils.sh"
 
 
 
@@ -40,16 +43,17 @@ fi
 # Store current time for later calculation of total execution time.
 time_start="$(current_unix_time)"
 
-logmsg "Started \"${SELF}\""
+TESTSUITE_NAME='Plugins'
+logmsg "Started \"${SELF_BASENAME}\""
 logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 
 
-ANALYSIS_RESULTS="$( ( cd "$SELF_DIR" && realpath -e "../autonameow/core/analysis.py" ) )"
-assert_true '[ -f "$ANALYSIS_RESULTS" ]' \
-            'The source file containing the "analysis" class exists'
-assert_false 'grep -qE -- "def print.*\(" "$ANALYSIS_RESULTS"' \
-             "[TC007] The analysis class should not perform results printing"
+assert_true 'command -v guessit' \
+            "guessit is available on the system"
+
+assert_true 'guessit -h ; [ "$?" -eq "0" ]' \
+            'Executing "guessit -h" returns success'
 
 
 

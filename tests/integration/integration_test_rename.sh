@@ -21,16 +21,20 @@
 
 set -o noclobber -o nounset -o pipefail
 
-SELF="$(basename "$0")"
-SELF_DIR="$(dirname "$0")"
-TESTSUITE_NAME='Rename Files'
-
-# Source 'integration_utils.sh', which in turn sources 'common_utils.sh'.
-if ! source "${SELF_DIR}/integration_utils.sh"
+SELF_BASENAME="$(basename "$0")"
+if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
-    echo "Integration test utility library is missing. Aborting .." 1>&2
+    cat >&2 <<EOF
+
+[ERROR] Integration test suites can no longer be run stand-alone.
+        Please use use the designated integration test runner.
+
+EOF
     exit 1
 fi
+
+source "$AUTONAMEOW_ROOT_DIR/tests/integration/integration_utils.sh"
+
 
 
 # A sample file is copied to a temporary directory, autonameow is then started
@@ -118,7 +122,8 @@ test_automagic_dryrun()
 # Store current time for later calculation of total execution time.
 time_start="$(current_unix_time)"
 
-logmsg "Started \"${SELF}\""
+TESTSUITE_NAME='Rename Files'
+logmsg "Started \"${SELF_BASENAME}\""
 logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 
@@ -126,7 +131,6 @@ logmsg "Running the "$TESTSUITE_NAME" test suite .."
 assert_true 'command -v python3' \
             "Python v3.x is available on the system"
 
-AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../bin/autonameow.sh" ) )"
 assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
              'Variable "AUTONAMEOW_RUNNER" should not be unset'
 

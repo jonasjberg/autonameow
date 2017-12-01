@@ -30,12 +30,13 @@ C_RESET="$(tput sgr0)"
 # Also handles case where the script being sourced.
 _self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
 SELF_DIR="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
+TEST_DIR="$(dirname -- "$SELF_DIR")"
 
-if ! source "${SELF_DIR}/common_utils.sh"
-then
-    echo "Shared test utility library is missing. Aborting .." 1>&2
-    exit 1
-fi
+# if ! source "${TEST_DIR}/common_utils.sh"
+# then
+#     echo "Shared test utility library is missing. Aborting .." 1>&2
+#     exit 1
+# fi
 
 
 # Initialize counter variables every time this script is sourced
@@ -214,6 +215,49 @@ convert_raw_log_to_html()
 grep_todos()
 {
     grep -q "\(TODO\|FIXME\|XXX\).*" -- "$1"
+}
+
+# Returns the current time as a UNIX timestamp.
+current_unix_time()
+{
+    # The 'date' command differs between versions; the GNU coreutils version
+    # uses '+%N' to print nanoseconds, which is missing in the BSD version
+    # shipped with MacOS.  Circumvent hackily by inlining Python call ..
+    #
+    # NOTE: This should probably only be done once for performance.
+    #       Lets just assume we're mostly interested in relative measurements.
+
+    case "$OSTYPE" in
+        darwin*) python -c 'import time ; t="%.9f"%time.time() ; print t.replace(".","")';;
+         linux*) date "+%s%N" ;;
+           msys) date "+%s%N" ;; # NOTE: Not a target OS!
+              *) { echo 'ERROR: Unsupported Operating System!' 1>&2 ; exit 1 ; } ;;
+    esac
+}
+
+# Calculates the execution time by taking the difference of two unix
+# timestamps.  The expected arguments are start and end times.
+# Returns the time delta in milliseconds.
+calculate_execution_time()
+{
+    local _time_start="$1"
+    local _time_end="$2"
+    echo "$(((${_time_end} - ${_time_start}) / 1000000))"
+}
+
+# Get the absolute path to a file in the "$SRCROOT/test_files" directory.
+# Expects the first and only argument to be the basename of the desired file.
+abspath_testfile()
+{
+    ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e "test_files/${1}" )
+}
+
+# Takes the basename of a logfile as the first and only argument.
+# Any dates matching 'YYYY-MM-DDTHHMMSS' are returned as 'YYYY-MM-DD HH:MM:SS'.
+get_timestamp_from_basename()
+{
+    local ts="$(grep -Eo -- "20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{6}" <<< "$1")"
+    sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)T\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3 \4:\5:\6/' <<< "$ts"
 }
 
 

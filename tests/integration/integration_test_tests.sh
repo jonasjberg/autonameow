@@ -21,16 +21,19 @@
 
 set -o noclobber -o nounset -o pipefail
 
-SELF="$(basename "$0")"
-SELF_DIR="$(dirname "$0")"
-TESTSUITE_NAME='Test Suite'
-
-# Source 'integration_utils.sh', which in turn sources 'common_utils.sh'.
-if ! source "${SELF_DIR}/integration_utils.sh"
+SELF_BASENAME="$(basename "$0")"
+if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
-    echo "Integration test utility library is missing. Aborting .." 1>&2
+    cat >&2 <<EOF
+
+[ERROR] Integration test suites can no longer be run stand-alone.
+        Please use use the designated integration test runner.
+
+EOF
     exit 1
 fi
+
+source "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_utils.sh"
 
 
 
@@ -40,7 +43,8 @@ fi
 # Store current time for later calculation of total execution time.
 time_start="$(current_unix_time)"
 
-logmsg "Started \"${SELF}\""
+TESTSUITE_NAME='Test Suite'
+logmsg "Started \"${SELF_BASENAME}\""
 logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 
@@ -51,10 +55,10 @@ assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
 #assert_false '[ "1" -ne "0" ]' 'Expect failure .. (false negative)'
 
 
-assert_true '[ -e "${SELF_DIR}/common_utils.sh" ]' \
+assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh" ]' \
             'Shared test utility library exists'
 
-assert_true '[ -x "${SELF_DIR}/common_utils.sh" ]' \
+assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh" ]' \
             'Shared test utility library is executable'
 
 assert_false '[ -z "$AUTONAMEOW_ROOT_DIR" ]' \
@@ -75,28 +79,28 @@ assert_false '[ -z "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
 assert_true '[ -d "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
             'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should be a directory'
 
-assert_true '[ -e "${SELF_DIR}/integration_runner.sh" ]' \
+assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh" ]' \
             'The integration test runner exists'
 
-assert_true '[ -x "${SELF_DIR}/integration_runner.sh" ]' \
+assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh" ]' \
             'The integration test runner is executable'
 
-assert_true '[ -e "${SELF_DIR}/integration_test_cli.sh" ]' \
+assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_test_cli.sh" ]' \
             "The Command-Line Interface test suite exists"
 
-assert_true '[ -x "${SELF_DIR}/integration_test_cli.sh" ]' \
+assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_test_cli.sh" ]' \
             'The Command-Line Interface test suite is executable'
 
-assert_true '[ -e "${SELF_DIR}/integration_test_docs.sh" ]' \
+assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_test_docs.sh" ]' \
             'The Documentation test suite exists'
 
-assert_true '[ -x "${SELF_DIR}/integration_test_docs.sh" ]' \
+assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_test_docs.sh" ]' \
             'The Documentation test suite is executable'
 
-assert_true '[ -e "${SELF_DIR}/unit_runner.sh" ]' \
+assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/unit_runner.sh" ]' \
             'The unit test runner exists'
 
-assert_true '[ -x "${SELF_DIR}/unit_runner.sh" ]' \
+assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/unit_runner.sh" ]' \
             'The unit test runner is executable'
 
 assert_true 'command -v "aha"' \
