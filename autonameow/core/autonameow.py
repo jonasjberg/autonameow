@@ -317,9 +317,6 @@ class Autonameow(object):
             else:
                 ui.msg(str(repository.SessionRepository))
 
-            # TODO:  TEMPORARY debugging experiment --- Remove!
-            # repository.SessionRepository.to_filedump('/tmp/repository_{:10.10}.state'.format(self.start_time))
-
     def _handle_file(self, current_file):
         should_list_any_results = self.opts.get('list_all')
 
