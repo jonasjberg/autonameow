@@ -10,6 +10,18 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-12-01
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0011]` Think about how the overall "analysis" might be executed more than
+    >   once.
+    >     * Results from an initial analysis might be passed to the second analysis.
+    >     * If a matched and active rule does not specify all required sources; the
+    >       missing sources might be filled in by a more targeted approach using data
+    >       gathered during the first run.
+
 * 2017-11-29
 
     > High Priority

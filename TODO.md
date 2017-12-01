@@ -281,13 +281,6 @@ Low Priority
   consecutive runs.
     * In relation to future weighting and prioritizing of analysis results.
 
-* `[TD0011]` Think about how the overall "analysis" might be executed more than
-  once.
-    * Results from an initial analysis might be passed to the second analysis.
-    * If a matched and active rule does not specify all required sources; the
-      missing sources might be filled in by a more targeted approach using data
-      gathered during the first run.
-
 * `[TD0094]` __Search text for DOIs and query external services__  
   Example DOI: `10.1109/TPDS.2010.125`.  Could be used to query external
   services for publication metadata, as with ISBN-numbers.
