@@ -168,6 +168,9 @@ class EbookAnalyzer(BaseAnalyzer):
                     self.log.warning(
                         'Unable to get metadata for ISBN: "{}"'.format(isbn)
                     )
+
+                    # TODO: [TD0132] Improve blacklisting failed requests..
+                    # TODO: [TD0132] Prevent hammering APIs with bad request.
                     self.log.debug('Blacklisting ISBN: "{}"'.format(isbn))
                     self._isbn_num_blacklist.add(isbn)
                     if self.cache:

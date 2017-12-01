@@ -44,6 +44,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0132]` Improve blacklisting data, prevent repeated bad requests to APIs.
+
 * `[TD0112]` __Handle merging "equivalent" data in the `Resolver`.__  
   Add some sort of system for normalizing entities.
   Example of problem this is intended to solve:
