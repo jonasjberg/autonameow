@@ -24,7 +24,7 @@ from unittest import (
     TestCase,
 )
 
-import unit.unit_utils as uu
+import unit.utils as uu
 from extractors.text import EpubTextExtractor
 from thirdparty import epubzilla
 from unit.unit_utils_extractors import (

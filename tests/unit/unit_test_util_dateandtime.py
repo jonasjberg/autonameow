@@ -22,7 +22,7 @@
 from datetime import datetime
 from unittest import TestCase
 
-import unit.unit_utils as uu
+import unit.utils as uu
 from util.dateandtime import (
     find_isodate_like,
     hyphenate_date,

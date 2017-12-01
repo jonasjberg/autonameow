@@ -22,7 +22,7 @@
 
 from unittest import TestCase
 
-import unit.unit_utils as uu
+import unit.utils as uu
 from plugins.guessit_plugin import (
     GuessitPlugin,
     run_guessit

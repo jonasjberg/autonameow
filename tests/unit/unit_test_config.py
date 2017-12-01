@@ -29,7 +29,7 @@ from unittest.mock import (
 
 from core import config
 from util import encoding as enc
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 class TestConfigDirs(TestCase):

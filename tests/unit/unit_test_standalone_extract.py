@@ -23,7 +23,7 @@ from unittest import TestCase
 
 from core import constants as C
 from extractors import extract
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 class TestStandaloneExtract(TestCase):

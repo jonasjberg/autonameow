@@ -22,7 +22,7 @@
 from unittest import TestCase
 
 from core.persistence import cache
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 class TestBaseCache(TestCase):

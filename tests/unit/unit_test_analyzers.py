@@ -30,7 +30,7 @@ from unittest.mock import (
 import analyzers
 from core import exceptions
 from core import constants as C
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 # TODO: [hardcoded] Likely to break; fixed analyzer names!

@@ -31,7 +31,7 @@ from core.disk import (
     split_basename
 )
 from core.exceptions import EncodingBoundaryViolation
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 class TestSplitBasename(TestCase):

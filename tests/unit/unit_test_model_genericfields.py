@@ -35,7 +35,7 @@ from core.model.genericfields import (
     GenericTags,
     meowuri_genericfield_map
 )
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 
 

@@ -27,7 +27,7 @@ from core.disk.collector import (
     PathCollector
 )
 from util import encoding as enc
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 def shorten_path(abs_path):

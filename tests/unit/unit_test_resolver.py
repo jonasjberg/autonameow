@@ -21,7 +21,7 @@
 
 from unittest import TestCase
 
-import unit.unit_utils as uu
+import unit.utils as uu
 from core.evaluate.resolver import dedupe_list_of_datadicts
 
 

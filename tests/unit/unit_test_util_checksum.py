@@ -24,7 +24,7 @@ from unittest import (
     TestCase,
 )
 
-import unit.unit_utils as uu
+import unit.utils as uu
 from util import checksum
 
 

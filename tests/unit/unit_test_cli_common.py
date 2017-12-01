@@ -23,7 +23,7 @@ import re
 import unittest
 from unittest import TestCase
 
-import unit.unit_utils as uu
+import unit.utils as uu
 from core.types import BUILTIN_REGEX_TYPE
 from core.ui.cli.common import (
     colorize,

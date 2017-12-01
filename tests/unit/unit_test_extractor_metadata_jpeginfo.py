@@ -24,7 +24,7 @@ from unittest import (
     TestCase,
 )
 
-import unit.unit_utils as uu
+import unit.utils as uu
 from extractors.metadata import JpeginfoMetadataExtractor
 from unit.unit_utils_extractors import (
     CaseExtractorBasics,

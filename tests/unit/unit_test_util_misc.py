@@ -35,7 +35,7 @@ from util.misc import (
     nested_dict_set,
     unique_identifier
 )
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 DUMMY_RESULTS_DICT = {

@@ -33,7 +33,7 @@ from core import (
     types,
     ui
 )
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 from util import encoding as enc
 

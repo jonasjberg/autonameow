@@ -34,7 +34,7 @@ from core.fileobject import FileObject
 from core.model import MeowURI
 from util import encoding as enc
 
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 
 

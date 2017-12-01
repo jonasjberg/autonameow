@@ -25,7 +25,7 @@ from unittest import (
     TestCase,
 )
 
-import unit.unit_utils as uu
+import unit.utils as uu
 from extractors.text.plain import (
     PlainTextExtractor,
     read_entire_text_file,

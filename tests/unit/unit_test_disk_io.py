@@ -35,7 +35,7 @@ from core.disk import (
 )
 from core.exceptions import FilesystemError
 from util import encoding as enc
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 
 

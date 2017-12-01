@@ -28,7 +28,7 @@ from core.ui.cli.options import (
     init_argparser,
     cli_parse_args
 )
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 class TestArgumentValidators(TestCase):

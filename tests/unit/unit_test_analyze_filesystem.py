@@ -23,7 +23,7 @@ from unittest import TestCase
 from unittest.mock import Mock
 
 from analyzers.analyze_filesystem import FilesystemAnalyzer
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 def get_filesystem_analyzer(fileobject):

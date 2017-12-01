@@ -27,7 +27,7 @@ from core.extraction import (
     ExtractorRunner,
     suitable_extractors_for
 )
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 
 

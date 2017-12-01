@@ -30,7 +30,7 @@ try:
 except ImportError:
     isbnlib = None
 
-import unit.unit_utils as uu
+import unit.utils as uu
 from analyzers import analyze_ebook
 from analyzers.analyze_ebook import (
     extract_isbns_from_text,

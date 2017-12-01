@@ -33,7 +33,7 @@ from core.model.meowuri import (
     is_meowuri_part,
     is_meowuri_parts
 )
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 
 

@@ -41,7 +41,7 @@ from util.textutils import (
     normalize_unicode,
     urldecode
 )
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 class TestIndent(TestCase):

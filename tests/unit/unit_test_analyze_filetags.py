@@ -24,7 +24,7 @@ from unittest import TestCase
 from unittest.mock import Mock
 
 from analyzers import analyze_filetags
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 uu.init_provider_registry()

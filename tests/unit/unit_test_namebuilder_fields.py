@@ -23,7 +23,7 @@ from unittest import TestCase
 
 from core import types
 from core.namebuilder import fields
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 class TestFormatStringPlaceholders(TestCase):

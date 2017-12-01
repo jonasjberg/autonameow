@@ -27,7 +27,7 @@ from core.providers import (
     get_providers_for_meowuris,
     ProviderRegistry
 )
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 
 

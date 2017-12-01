@@ -26,7 +26,7 @@ from unittest import TestCase
 from core import fileobject
 from core.exceptions import InvalidFileArgumentError
 from util import encoding as enc
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 
 

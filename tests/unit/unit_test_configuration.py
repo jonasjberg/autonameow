@@ -35,7 +35,7 @@ except ImportError:
           'Make sure "pyyaml" is available before running this program.',
           file=sys.stderr)
 
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 from core import constants as C
 from core import exceptions

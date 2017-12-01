@@ -27,7 +27,7 @@ from core import (
 )
 from core.repository import Repository
 
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 
 

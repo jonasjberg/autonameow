@@ -29,7 +29,7 @@ from unittest.mock import (
 from core import constants as C
 import extractors
 from extractors.text.common import AbstractTextExtractor
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 
 

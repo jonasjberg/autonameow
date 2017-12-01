@@ -22,7 +22,7 @@
 from unittest import TestCase
 
 from core import constants as C
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 class TestConstants(TestCase):

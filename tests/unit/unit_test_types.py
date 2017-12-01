@@ -26,7 +26,7 @@ from datetime import datetime
 from core import types
 from util import encoding as enc
 
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 USER_HOME = os.path.expanduser('~')

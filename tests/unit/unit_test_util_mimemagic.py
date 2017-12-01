@@ -23,7 +23,7 @@ from unittest import TestCase
 
 from core import types
 from core.exceptions import EncodingBoundaryViolation
-import unit.unit_utils as uu
+import unit.utils as uu
 from util import mimemagic
 
 

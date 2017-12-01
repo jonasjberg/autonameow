@@ -29,7 +29,7 @@ from core.persistence.base import (
     BasePersistence,
     PicklePersistence
 )
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 class TestPersistenceDirectory(TestCase):

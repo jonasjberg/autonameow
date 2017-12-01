@@ -25,7 +25,7 @@ from unittest import (
     TestCase,
 )
 
-import unit.unit_utils as uu
+import unit.utils as uu
 from extractors.text import PdftotextTextExtractor
 from extractors.text.pdftotext import extract_pdf_content_with_pdftotext
 from unit.unit_utils_extractors import (

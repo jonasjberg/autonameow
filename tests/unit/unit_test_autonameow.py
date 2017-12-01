@@ -40,7 +40,7 @@ from core import config
 from core import constants as C
 from core.main import cli_main
 from core.config.configuration import Configuration
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 def prompt_toolkit_unavailable():

@@ -25,7 +25,7 @@ from unittest import (
     TestCase,
 )
 
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 from extractors import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor

@@ -31,7 +31,7 @@ from analyzers.analyze_filename import (
     likely_extension
 )
 from core.namebuilder import fields
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 uu.init_session_repository()

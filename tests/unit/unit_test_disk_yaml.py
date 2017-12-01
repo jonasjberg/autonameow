@@ -26,7 +26,7 @@ from core.disk import (
     load_yaml_file,
     write_yaml_file
 )
-import unit.unit_utils as uu
+import unit.utils as uu
 
 
 class TestLoadYAML(TestCase):

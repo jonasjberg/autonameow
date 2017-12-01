@@ -25,7 +25,7 @@ from core import constants as C
 from core import exceptions
 from core.config import rules
 from core.model import MeowURI
-import unit.unit_utils as uu
+import unit.utils as uu
 import unit.constants as uuconst
 
 
