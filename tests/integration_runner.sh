@@ -49,11 +49,11 @@ then
 EOF
 fi
 
-if ! source "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_utils.sh"
+if ! source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_utils.sh"
+[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
         Integration test utility library is missing. Aborting ..
 
 EOF
@@ -113,10 +113,10 @@ time_start="$(current_unix_time)"
 initialize_logging
 search_dir="${SELF_DIRNAME}/integration"
 logmsg "Started integration test runner \"${SELF_BASENAME}\""
-logmsg "Executing all files in \"${search_dir}\" matching \"integration_test_*.sh\".."
+logmsg "Executing all files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
-find "$search_dir" -mindepth 1 -maxdepth 1 -type f -name "integration_test_*.sh" \
+find "$search_dir" -mindepth 1 -maxdepth 1 -type f -name "test_*.sh" \
 | while IFS='\n' read -r testscript
 do
     if [ ! -x "$testscript" ]

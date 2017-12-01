@@ -33,7 +33,7 @@ EOF
     exit 1
 fi
 
-source "$AUTONAMEOW_ROOT_DIR/tests/integration/integration_utils.sh"
+source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 
 
 
@@ -43,13 +43,17 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/integration_utils.sh"
 # Store current time for later calculation of total execution time.
 time_start="$(current_unix_time)"
 
-TESTSUITE_NAME='Source Code'
+TESTSUITE_NAME='Plugins'
 logmsg "Started \"${SELF_BASENAME}\""
 logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 
 
-# (tests go here)
+assert_true 'command -v guessit' \
+            "guessit is available on the system"
+
+assert_true 'guessit -h ; [ "$?" -eq "0" ]' \
+            'Executing "guessit -h" returns success'
 
 
 

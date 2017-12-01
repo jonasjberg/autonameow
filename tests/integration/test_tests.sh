@@ -33,7 +33,7 @@ EOF
     exit 1
 fi
 
-source "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_utils.sh"
+source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 
 
 
@@ -85,16 +85,16 @@ assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh" ]' \
 assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh" ]' \
             'The integration test runner is executable'
 
-assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_test_cli.sh" ]' \
+assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/integration/test_cli.sh" ]' \
             "The Command-Line Interface test suite exists"
 
-assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_test_cli.sh" ]' \
+assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/integration/test_cli.sh" ]' \
             'The Command-Line Interface test suite is executable'
 
-assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_test_docs.sh" ]' \
+assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/integration/test_docs.sh" ]' \
             'The Documentation test suite exists'
 
-assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/integration/integration_test_docs.sh" ]' \
+assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/integration/test_docs.sh" ]' \
             'The Documentation test suite is executable'
 
 assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/unit_runner.sh" ]' \

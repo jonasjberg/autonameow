@@ -33,7 +33,7 @@ EOF
     exit 1
 fi
 
-source "$AUTONAMEOW_ROOT_DIR/tests/integration/integration_utils.sh"
+source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 
 
 
