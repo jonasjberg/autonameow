@@ -31,7 +31,7 @@ from extractors.text.plain import (
     read_entire_text_file,
     autodetect_encoding
 )
-from unit.unit_utils_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorBasics
 
 
 # This really shouldn't happen. Probably caused by an error if it does.

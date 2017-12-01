@@ -31,7 +31,7 @@ from extractors.text import (
     tesseractocr
 )
 from util import encoding as enc
-from unit.unit_utils_extractors import (
+from unit.case_extractors import (
     CaseExtractorBasics,
     CaseExtractorOutputTypes
 )

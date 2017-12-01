@@ -28,7 +28,7 @@ from unittest import (
 import unit.utils as uu
 from extractors.text import PdftotextTextExtractor
 from extractors.text.pdftotext import extract_pdf_content_with_pdftotext
-from unit.unit_utils_extractors import (
+from unit.case_extractors import (
     CaseExtractorBasics,
     CaseExtractorOutput,
     CaseExtractorOutputTypes

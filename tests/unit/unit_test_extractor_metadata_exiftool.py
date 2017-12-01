@@ -34,7 +34,7 @@ from extractors.metadata.exiftool import (
     is_bad_metadata
 )
 
-from unit.unit_utils_extractors import (
+from unit.case_extractors import (
     CaseExtractorBasics,
     CaseExtractorOutput,
     CaseExtractorOutputTypes

@@ -27,7 +27,7 @@ from unittest import (
 import unit.utils as uu
 from extractors.text import EpubTextExtractor
 from thirdparty import epubzilla
-from unit.unit_utils_extractors import (
+from unit.case_extractors import (
     CaseExtractorBasics,
     CaseExtractorOutputTypes
 )

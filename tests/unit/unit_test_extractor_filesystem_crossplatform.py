@@ -30,7 +30,7 @@ from extractors.filesystem.crossplatform import (
     CrossPlatformFileSystemExtractor,
     datetime_from_timestamp
 )
-from unit.unit_utils_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorBasics
 
 
 # This really shouldn't happen. Probably caused by an error if it does.
