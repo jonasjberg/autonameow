@@ -43,7 +43,10 @@ from util import (
     mimemagic,
     sanity
 )
-from util.textutils import extractlines_do
+from util.textutils import (
+    extractlines_do,
+    extract_lines
+)
 from util.text import (
     find_edition,
     string_similarity,
@@ -111,32 +114,49 @@ class EbookAnalyzer(BaseAnalyzer):
         self.text = _maybe_text
 
         # TODO: [TD0114] Check metadata for ISBNs.
-        # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier'
+        # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier', "XMP:Subject"
 
-        # First try to find "e-book ISBNs" from front to back.
-        # If that failed, try again but from back to front.
+        # NOTE(jonas): Works under the assumption that relevant ISBN-numbers
+        #              are more likely found either at the beginning or the
+        #              end of the text, NOT somewhere in the middle.
         #
-        # Then try to find any ISBNs from front to back and finally reversed.
-        #
-        _line_from = 0
-        _line_to = 1000
-        _line_from_rev = len(self.text)
-        _line_to_rev = len(self.text) - 1000
-        if _line_to_rev < 0:
-            _line_to_rev = 0
-        isbns = extractlines_do(find_ebook_isbns_in_text, self.text,
-                                fromline=_line_from, toline=_line_to)
+        # First try to find "e-book ISBNs" in the beginning, then at the end.
+        # Then try to find _any_ ISBNs in the beginning, then at the end.
+
+        num_text_lines = len(self.text)
+
+        # Arbitrarily search the text in chunks of 20%
+        chunk_size = int(num_text_lines / 5)
+
+        # Chunk #1: from BEGINNING to (BEGINNING + CHUNK_SIZE)
+        _chunk1_start = 1
+        _chunk1_end = chunk_size
+
+        # Chunk #2: from (END - CHUNK_SIZE) to END
+        _chunk2_start = num_text_lines - chunk_size
+        _chunk2_end = num_text_lines
+        if _chunk2_end < 0:
+            _chunk2_end = 0
+
+        # Find e-ISBNs in chunk #1
+        _text_chunk_1 = extract_lines(self.text, _chunk1_start, _chunk1_end)
+        assert num_text_lines > len(_text_chunk_1), (
+            'extract_lines() is broken'
+        )
+        isbns = find_ebook_isbns_in_text(_text_chunk_1)
         if not isbns:
-            isbns = extractlines_do(find_ebook_isbns_in_text, self.text,
-                                    fromline=_line_from_rev,
-                                    toline=_line_to_rev)
+            # Find e-ISBNs in chunk #2
+            _text_chunk_2 = extract_lines(self.text, _chunk2_start, _chunk2_end)
+            assert num_text_lines > len(_text_chunk_2), (
+                'extract_lines() is broken'
+            )
+            isbns = find_ebook_isbns_in_text(_text_chunk_2)
         if not isbns:
-            isbns = extractlines_do(extract_isbns_from_text, self.text,
-                                    fromline=_line_from, toline=_line_to)
+            # Find any ISBNs in chunk #1
+            isbns = extract_isbns_from_text(_text_chunk_1)
         if not isbns:
-            isbns = extractlines_do(extract_isbns_from_text, self.text,
-                                    fromline=_line_from_rev,
-                                    toline=_line_to_rev)
+            # Find for any ISBNs in chunk #2
+            isbns = extract_isbns_from_text(_text_chunk_2)
 
         if isbns:
             isbns = filter_isbns(isbns, self._isbn_num_blacklist)
@@ -177,7 +197,10 @@ class EbookAnalyzer(BaseAnalyzer):
                 # text is found and two queries are made, the two metadata
                 # results are "joined" when being added to this set.
                 if metadata not in self._isbn_metadata:
+                    self.log.debug('Added metadata for ISBN: {}'.format(isbn))
                     self._isbn_metadata.append(metadata)
+                else:
+                    self.log.debug('Skipped "duplicate" metadata for ISBN: {}'.format(isbn))
 
             self.log.info('Got {} instances of ISBN metadata'.format(
                 len(self._isbn_metadata)
