@@ -44,6 +44,9 @@ log = logging.getLogger(__name__)
 TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120,48))
 
 
+# TODO: [TD0121] Generate regression tests from manual invocations.
+
+
 class RegressionTestError(exceptions.AutonameowException):
     """Error caused by an invalid regression test."""
 
