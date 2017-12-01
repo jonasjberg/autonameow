@@ -57,11 +57,13 @@ from util.text import (
 log = logging.getLogger(__name__)
 
 
-# Known bad numbers that keep turning up ..
-BLACKLISTED_ISBN_NUMBERS = ['0000000000', '1111111111', '2222222222',
-                            '3333333333', '4444444444', '5555555555',
-                            '6666666666', '7777777777', '8888888888',
-                            '9999999999', '0123456789']
+# Known bad or likely incorrect.
+BLACKLISTED_ISBN_NUMBERS = [
+    '0000000000', '1111111111', '2222222222', '3333333333', '4444444444',
+    '5555555555', '6666666666', '7777777777', '8888888888', '9999999999',
+    '0123456789', '1101111100', '0111111110', '0111111110', '0000110000',
+    '1101100001'
+]
 
 IGNORED_TEXTLINES = frozenset([
     'This page intentionally left blank'
