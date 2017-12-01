@@ -69,19 +69,17 @@ class TerminalReporter(object):
         assert self.MAX_DESCRIPTION_LENGTH > 0, 'Terminal is not wide enough ..'
 
     def msg_test_success(self):
+        _label = ui.colorize('[SUCCESS]', fore='GREEN')
         if self.verbose:
-            _label = ui.colorize('[SUCCESS]', fore='GREEN')
             print('{} All assertions passed!'.format(_label))
         else:
-            _label = ui.colorize('[SUCCESS]', fore='GREEN')
             print(' ' + _label + ' ', end='')
 
     def msg_test_failure(self):
+        _label = ui.colorize('[FAILURE]', fore='RED')
         if self.verbose:
-            _label = ui.colorize('[FAILURE]', fore='RED')
             print('{} One or more assertions FAILED!'.format(_label))
         else:
-            _label = ui.colorize('[FAILURE]', fore='RED')
             print(' ' + _label + ' ', end='')
 
     @staticmethod
@@ -110,6 +108,7 @@ class TerminalReporter(object):
             self.msg_overall_success()
         else:
             self.msg_overall_failure()
+            # Make the failed count red if any test failed.
             _failure = ui.colorize(_failure, fore='RED')
 
         _runtime = '{:.6f}s'.format(elapsed_time)
