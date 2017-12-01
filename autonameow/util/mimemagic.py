@@ -91,7 +91,8 @@ def filetype(file_path):
 
     try:
         found_type = MY_MAGIC.file(file_path)
-    except (AttributeError, magic.MagicException, TypeError):
+    except (AttributeError, TypeError):
+        # TODO: Fix 'magic.MagicException' not available in both libraries.
         found_type = _unknown_mime_type
 
     return found_type
