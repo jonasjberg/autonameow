@@ -24,7 +24,7 @@ import os
 from unittest import TestCase
 
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 
 
 THIRDPARTY_ROOT_DIR = os.path.join(uuconst.AUTONAMEOW_SRCROOT_DIR, 'thirdparty')

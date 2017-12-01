@@ -36,7 +36,7 @@ except ImportError:
           file=sys.stderr)
 
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 from core import constants as C
 from core import exceptions
 from core.config.configuration import Configuration

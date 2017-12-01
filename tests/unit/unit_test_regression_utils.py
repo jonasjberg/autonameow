@@ -37,7 +37,7 @@ from regression.regression_utils import (
     regtest_abspath
 )
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 
 
 class TestGetRegressiontestsRootdir(TestCase):

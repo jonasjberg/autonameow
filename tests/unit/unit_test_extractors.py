@@ -30,7 +30,7 @@ from core import constants as C
 import extractors
 from extractors.text.common import AbstractTextExtractor
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 
 
 class TestExtractorsConstants(TestCase):

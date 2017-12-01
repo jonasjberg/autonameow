@@ -34,7 +34,7 @@ from core.model.meowuri import (
     is_meowuri_parts
 )
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 
 
 class TestMeowURIStringMatchingFunctions(TestCase):

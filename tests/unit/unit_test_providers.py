@@ -28,7 +28,7 @@ from core.providers import (
     ProviderRegistry
 )
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 
 
 class TestGetProvidersForMeowURIs(TestCase):

@@ -29,7 +29,7 @@ import unittest
 from contextlib import contextmanager
 from datetime import datetime
 
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 from core.config import rules
 from core.config.configuration import Configuration
 from core.fileobject import FileObject

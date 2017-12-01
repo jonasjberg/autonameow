@@ -28,7 +28,7 @@ from core import (
 from core.repository import Repository
 
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 
 
 class TestRepository(TestCase):

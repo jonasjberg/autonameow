@@ -26,7 +26,7 @@ from core import exceptions
 from core.config import rules
 from core.model import MeowURI
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 
 
 uu.init_session_repository()

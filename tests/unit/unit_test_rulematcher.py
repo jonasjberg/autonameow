@@ -31,7 +31,7 @@ from core.evaluate.rulematcher import (
     prioritize_rules,
 )
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 
 
 uu.init_session_repository()

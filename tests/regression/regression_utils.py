@@ -34,7 +34,7 @@ from core import (
     ui
 )
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 from util import encoding as enc
 
 

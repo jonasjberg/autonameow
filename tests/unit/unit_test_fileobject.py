@@ -27,7 +27,7 @@ from core import fileobject
 from core.exceptions import InvalidFileArgumentError
 from util import encoding as enc
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 
 
 class TestFileObjectTypes(TestCase):

@@ -36,7 +36,7 @@ from core.config.field_parsers import (
 from core import constants as C
 from core.model import MeowURI
 import unit.unit_utils as uu
-import unit.unit_utils_constants as uuconst
+import unit.constants as uuconst
 
 
 class TestFieldParserFunctions(TestCase):
