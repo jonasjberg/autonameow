@@ -30,7 +30,7 @@ from core import (
     ui
 )
 from core.persistence import get_persistence
-from regression.regression_utils import (
+from regression.utils import (
     AutonameowWrapper,
     check_renames,
     commandline_for_testcase,

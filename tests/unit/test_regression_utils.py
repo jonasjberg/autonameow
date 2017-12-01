@@ -24,7 +24,7 @@ from unittest import TestCase
 
 from core import constants as C
 from util import encoding as enc
-from regression.regression_utils import (
+from regression.utils import (
     AutonameowWrapper,
     check_renames,
     commandline_for_testcase,
