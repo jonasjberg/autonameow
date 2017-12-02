@@ -97,7 +97,7 @@ class TestKeepSlowExtractorsIfRequiredWithSlowExtractor(TestCase):
 
         self.assertNotIn(self.slow, actual,
                          'Slow extractor class should be excluded')
-        self.assertNotEqual(len(self.input), len(actual),
+        self.assertNotEqual(len(actual), len(self.input),
                             'Expect one less extractor class in the output')
 
     def test_slow_extractors_are_included_if_required(self):

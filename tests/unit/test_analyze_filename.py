@@ -72,8 +72,9 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
         dt_special, = filter(lambda dt: dt['source'] == 'very_special_case',
                              self.fna.get_datetime())
 
+        actual = dt_special.get('value')
         expected = datetime.strptime('20100131 161251', '%Y%m%d %H%M%S')
-        self.assertEqual(expected, dt_special.get('value'))
+        self.assertEqual(actual, expected)
 
 
 class TestLikelyExtension(TestCase):

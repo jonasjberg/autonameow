@@ -32,7 +32,7 @@ from util.text.transform import (
 class TestCollapseWhitespace(TestCase):
     def _check(self, given, expect):
         actual = collapse_whitespace(given)
-        self.assertEqual(expect, actual)
+        self.assertEqual(actual, expect)
 
     def test_returns_empty_as_is(self):
         self._check('', '')
@@ -172,17 +172,17 @@ class TestRemoveNonBreakingSpaces(TestCase):
         actual = remove_nonbreaking_spaces(
             'foo' + enc.decode_(non_breaking_space) + 'bar'
         )
-        self.assertEqual(expected, actual)
+        self.assertEqual(actual, expected)
 
     def test_remove_non_breaking_spaces_returns_expected(self):
         expected = 'foo bar'
         actual = remove_nonbreaking_spaces('foo bar')
-        self.assertEqual(expected, actual)
+        self.assertEqual(actual, expected)
 
     def test_remove_non_breaking_spaces_handles_empty_string(self):
         expected = ''
         actual = remove_nonbreaking_spaces('')
-        self.assertEqual(expected, actual)
+        self.assertEqual(actual, expected)
 
 
 class TestStripAnsiEscape(TestCase):

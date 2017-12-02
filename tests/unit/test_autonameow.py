@@ -223,7 +223,7 @@ class TestSetAutonameowExitCode(TestCase):
         self.assertTrue(isinstance(self.amw.exit_code, int))
 
     def test_exit_code_defaults_to_expected_value(self):
-        self.assertEqual(self.expected_initial, self.amw.exit_code)
+        self.assertEqual(self.amw.exit_code, self.expected_initial)
 
     def test_exit_code_is_not_changed_when_set_to_lower_value(self):
         self.amw.exit_code = C.EXIT_WARNING
@@ -240,13 +240,13 @@ class TestSetAutonameowExitCode(TestCase):
         self.assertEqual(self.amw.exit_code, C.EXIT_ERROR)
 
     def test_exit_code_ignores_invalid_values(self):
-        self.assertEqual(self.expected_initial, self.amw.exit_code)
+        self.assertEqual(self.amw.exit_code, self.expected_initial)
         self.amw.exit_code = None
-        self.assertEqual(self.expected_initial, self.amw.exit_code)
+        self.assertEqual(self.amw.exit_code, self.expected_initial)
         self.amw.exit_code = '1'
-        self.assertEqual(self.expected_initial, self.amw.exit_code)
+        self.assertEqual(self.amw.exit_code, self.expected_initial)
         self.amw.exit_code = 'mjao'
-        self.assertEqual(self.expected_initial, self.amw.exit_code)
+        self.assertEqual(self.amw.exit_code, self.expected_initial)
 
 
 @skipIf(*prompt_toolkit_unavailable())

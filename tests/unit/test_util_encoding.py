@@ -102,7 +102,7 @@ class PathConversionTest(TestCase):
 
 class TestByteStringPathWithInvalidInput(TestCase):
     def test_bytestring_path_returns_expected_for_empty_input(self):
-        self.assertEqual(b'', enc.bytestring_path(''))
+        self.assertEqual(enc.bytestring_path(''), b'')
 
 
 class TestNormPath(TestCase):

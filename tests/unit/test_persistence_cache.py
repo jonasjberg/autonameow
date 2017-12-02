@@ -60,7 +60,7 @@ class TestBaseCacheStorage(TestCase):
         self.c.set(self.data_key, self.data_value)
 
         retrieved = self.c.get(self.data_key)
-        self.assertEqual(self.data_value, retrieved)
+        self.assertEqual(retrieved, self.data_value)
 
     def test_cache_get_from_empty_cache_returns_none(self):
         actual = self.c.get(self.data_key)

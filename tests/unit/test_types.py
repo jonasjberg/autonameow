@@ -78,7 +78,7 @@ class TestBaseNullValue(TestCase):
     def test_comparison(self):
         def _is_equal(expected, value):
             actual = self.bn == value
-            self.assertEqual(expected, actual)
+            self.assertEqual(actual, expected)
             self.assertTrue(bool(expected) == bool(actual))
             self.assertTrue(isinstance(actual, bool))
 
@@ -117,7 +117,7 @@ class TestNullMIMEType(TestCase):
     def test_comparison(self):
         def _is_equal(expected, value):
             actual = self.nm == value
-            self.assertEqual(expected, actual)
+            self.assertEqual(actual, expected)
             self.assertTrue(bool(expected) == bool(actual))
             self.assertTrue(isinstance(actual, bool))
 

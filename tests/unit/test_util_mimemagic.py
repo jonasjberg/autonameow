@@ -52,7 +52,7 @@ class TestFileTypeMagic(TestCase):
     def test_filetype_magic(self):
         for test_file, expected_mime in self.test_files:
             actual = mimemagic.filetype(test_file)
-            self.assertEqual(expected_mime, actual)
+            self.assertEqual(actual, expected_mime)
 
     def test_filetype_magic_with_invalid_args(self):
         actual = mimemagic.filetype(None)
@@ -160,7 +160,7 @@ class TestMimeExtensionMapper(TestCase):
         for expected_mime in expected:
             self.assertIn(expected_mime, _actual_mimes)
 
-        self.assertEqual(len(expected), len(_actual_mimes))
+        self.assertEqual(len(_actual_mimes), len(expected))
 
     def _assert_returns_exts(self, mimetype, expected):
         _actual_exts = self.m.get_candidate_extensions(mimetype)
@@ -168,7 +168,7 @@ class TestMimeExtensionMapper(TestCase):
         for expected_ext in expected:
             self.assertIn(expected_ext, _actual_exts)
 
-        self.assertEqual(len(expected), len(_actual_exts))
+        self.assertEqual(len(_actual_exts), len(expected))
 
     def test_initially_empty(self):
         _mimes = self.m.get_candidate_mimetypes('rtf')

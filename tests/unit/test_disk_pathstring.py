@@ -37,7 +37,7 @@ import unit.utils as uu
 class TestSplitBasename(TestCase):
     def _assert_splits(self, expected, test_input):
         actual = split_basename(test_input)
-        self.assertEqual(expected, actual)
+        self.assertEqual(actual, expected)
 
     def test_returns_bytestrings(self):
         c, d = split_basename(b'c.d')
@@ -74,7 +74,7 @@ class TestSplitBasename(TestCase):
 class TestBasenameSuffix(TestCase):
     def _assert_suffix(self, expected, test_input):
         actual = basename_suffix(test_input)
-        self.assertEqual(expected, actual)
+        self.assertEqual(actual, expected)
 
     def test_no_name(self):
         self.assertIsNone(basename_suffix(b''))

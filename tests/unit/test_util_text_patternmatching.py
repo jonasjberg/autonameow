@@ -98,7 +98,7 @@ class TestFindPublisherInCopyrightNotice(TestCase):
     def test_returns_expected_publisher(self):
         def _aE(test_input, expected):
             actual = find_publisher_in_copyright_notice(test_input)
-            self.assertEqual(expected, actual)
+            self.assertEqual(actual, expected)
 
         _aE('Copyright © Excellent Media P.C., 2017', 'Excellent Media P.C.')
         _aE('Copyright (c) Excellent Media P.C., 2017', 'Excellent Media P.C.')
