@@ -562,7 +562,6 @@ class TestMeowURIIsGeneric(TestCase):
             self.assertFalse(actual)
 
         _aF(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        _aF(uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME)
         _aF(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         _aF(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE)
 

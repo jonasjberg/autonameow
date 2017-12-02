@@ -305,8 +305,5 @@ class TestProviderRegistryMethodResolvable(TestCase):
         meowuri_exiftool = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE)
         self.assertTrue(p.resolvable(meowuri_exiftool))
 
-        meowuri_fs = uu.as_meowuri(uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME)
-        self.assertFalse(p.resolvable(meowuri_fs))
-
         meowuri_fn = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_TAGS)
         self.assertTrue(p.resolvable(meowuri_fn))

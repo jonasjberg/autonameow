@@ -59,10 +59,6 @@ MEOWURI_AZR_FILENAME_PUBLISHER = 'analyzer.filename.publisher'
 MEOWURI_AZR_FILENAME_TAGS = 'analyzer.filename.tags'
 MEOWURI_AZR_FILENAME_TITLE = 'analyzer.filename.title'
 
-MEOWURI_AZR_FILESYSTEM_DATETIME = 'analyzer.filesystem.datetime'
-MEOWURI_AZR_FILESYSTEM_TAGS = 'analyzer.filesystem.tags'
-MEOWURI_AZR_FILESYSTEM_TITLE = 'analyzer.filesystem.title'
-
 MEOWURI_AZR_FILETAGS_DATETIME = 'analyzer.filetags.datetime'
 MEOWURI_AZR_FILETAGS_DESCRIPTION = 'analyzer.filetags.description'
 MEOWURI_AZR_FILETAGS_EXTENSION = 'analyzer.filetags.extension'
@@ -112,9 +108,6 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_AZR_FILENAME_PUBLISHER,
     MEOWURI_AZR_FILENAME_TAGS,
     MEOWURI_AZR_FILENAME_TITLE,
-    MEOWURI_AZR_FILESYSTEM_DATETIME,
-    MEOWURI_AZR_FILESYSTEM_TAGS,
-    MEOWURI_AZR_FILESYSTEM_TITLE,
     MEOWURI_AZR_FILETAGS_DATETIME,
     MEOWURI_AZR_FILETAGS_DESCRIPTION,
     MEOWURI_AZR_FILETAGS_EXTENSION,
@@ -157,7 +150,6 @@ DUMMY_MAPPED_MEOWURIS = list({
     'analyzer.document',
     'analyzer.ebook',
     'analyzer.filename',
-    'analyzer.filesystem',
     'analyzer.filetags',
     'analyzer.image',
     'analyzer.text',

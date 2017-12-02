@@ -364,21 +364,6 @@ def mock_session_data_pool_empty_analysis_data(fileobject):
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
         []
     )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME],
-        []
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_TAGS],
-        []
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_TITLE],
-        []
-    )
     return data
 
 
@@ -396,19 +381,6 @@ def mock_session_data_pool_with_analysis_data(fileobject):
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
         [{'source': 'filenamepart_base',
           'value': 'gmail',
-          'weight': 0.25}]
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME],
-        [{'source': 'modified',
-          'value': datetime(2017, 6, 12, 22, 38, 34),
-          'weight': 1},
-         {'source': 'created',
-          'value': datetime(2017, 6, 12, 22, 38, 34),
-          'weight': 1},
-         {'source': 'accessed',
-          'value': datetime(2017, 6, 12, 22, 38, 34),
           'weight': 0.25}]
     )
     return data
@@ -483,19 +455,6 @@ def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
         [{'source': 'filenamepart_base',
           'value': 'gmail',
-          'weight': 0.25}]
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME],
-        [{'source': 'modified',
-          'value': datetime(2017, 6, 12, 22, 38, 34),
-          'weight': 1},
-         {'source': 'created',
-          'value': datetime(2017, 6, 12, 22, 38, 34),
-          'weight': 1},
-         {'source': 'accessed',
-          'value': datetime(2017, 6, 12, 22, 38, 34),
           'weight': 0.25}]
     )
     return data
