@@ -35,7 +35,6 @@ import unit.utils as uu
 
 # TODO: [hardcoded] Likely to break; fixed analyzer names!
 EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
-                           'analyzers.analyze_filesystem.FilesystemAnalyzer',
                            'analyzers.analyze_filename.FilenameAnalyzer',
                            'analyzers.analyze_filetags.FiletagsAnalyzer',
                            'analyzers.analyze_video.VideoAnalyzer',
@@ -111,7 +110,6 @@ class TestFindAnalyzerSourceFiles(TestCase):
 
         # TODO: [hardcoded] Likely to break; requires manual updates.
         self.assertIn('analyze_filename.py', actual)
-        self.assertIn('analyze_filesystem.py', actual)
         self.assertIn('analyze_image.py', actual)
         self.assertIn('analyze_document.py', actual)
         self.assertIn('analyze_text.py', actual)
@@ -210,7 +208,6 @@ class TestAnalyzerClassMeowURIs(TestCase):
 
         _assert_in('analyzer.document')
         _assert_in('analyzer.filename')
-        _assert_in('analyzer.filesystem')
         _assert_in('analyzer.filetags')
         _assert_in('analyzer.image')
         _assert_in('analyzer.text')
