@@ -76,24 +76,6 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
         self.assertEqual(expected, dt_special.get('value'))
 
 
-class TestFilenameAnalyzerWithEmptyFile(TestCase):
-    def setUp(self):
-        self.fo = uu.get_named_fileobject('gmail.pdf')
-        self.fna = get_filename_analyzer(self.fo)
-
-    def test_setup(self):
-        self.assertIsNotNone(self.fo)
-        self.assertIsNotNone(self.fna)
-
-    def test_get_datetime_does_not_return_none(self):
-        self.skipTest('TODO')
-        self.assertIsNotNone(self.fna.get_datetime())
-
-    def test_get_datetime_returns_empty_list(self):
-        self.skipTest('TODO')
-        self.assertEqual([], self.fna.get_datetime())
-
-
 class TestLikelyExtension(TestCase):
     def setUp(self):
         Given = namedtuple('Given', 'suffix mime')
