@@ -42,30 +42,32 @@ class TestDateAndTime(TestCase):
 
 
 class TestMatchUnixTimestamp(TestCase):
-    def test_match_unix_timestamp(self):
-        expected = datetime.strptime('20160528 201245', '%Y%m%d %H%M%S')
-        expected2 = datetime.strptime('20160427 214010', '%Y%m%d %H%M%S')
-        self.assertIsInstance(expected, datetime)
-        self.assertIsInstance(expected2, datetime)
-        self.assertNotEqual(expected, expected2)
+    def _assert_match(self, given, expect):
+        actual = match_any_unix_timestamp(given)
+        self.assertEqual(actual, expect)
 
-        self.assertEqual(expected, match_any_unix_timestamp('1464459165'))
-        self.assertEqual(expected, match_any_unix_timestamp('1464459165038'))
-        self.assertEqual(expected,
-                         match_any_unix_timestamp('IMG_1464459165038.jpg'))
-        self.assertEqual(expected,
-                         match_any_unix_timestamp('IMG_1464459165038.jpg'
-                                                  '1464459165038'))
-        self.assertEqual(expected,
-                         match_any_unix_timestamp('1464459165038 '
-                                                  '1464459165038'))
+    def test_matches_strings_a(self):
+        dt_a = datetime.strptime('20160528 201245', '%Y%m%d %H%M%S')
 
-        self.assertEqual(expected2,
-                         match_any_unix_timestamp('date --date="@1461786010" '
-                                                  '--rfc-3339=seconds'))
-        self.assertNotEqual(expected2, match_any_unix_timestamp('1464459165'))
+        def __check(test_input):
+            self._assert_match(given=test_input, expect=dt_a)
 
-    def test_match_unix_timestamp_with_invalid_argument(self):
+        __check('1464459165')
+        __check('1464459165038')
+        __check('IMG_1464459165038.jpg')
+        __check('IMG_1464459165038.jpg1464459165038')
+        __check('1464459165038 1464459165038')
+
+    def test_matches_strings_b(self):
+        dt_b = datetime.strptime('20160427 214010', '%Y%m%d %H%M%S')
+
+        def __check(test_input):
+            self._assert_match(given=test_input, expect=dt_b)
+
+        __check('1461786010')
+        __check('date --date="@1461786010" --rfc-3339=seconds')
+
+    def test_returns_none_as_expected(self):
         self.assertIsNone(match_any_unix_timestamp(None))
         self.assertIsNone(match_any_unix_timestamp(''))
         self.assertIsNone(match_any_unix_timestamp(' '))
