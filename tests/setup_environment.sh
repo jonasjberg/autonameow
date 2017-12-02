@@ -25,48 +25,47 @@ set -o nounset
 # Get the full absolute path to this file.
 # Also handles case where the script being sourced.
 _self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
-setup_environment_script_path="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
+self_path="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
+
+
+error_msg_exit()
+{
+    printf '[ERROR] %s: "%s"\n' "$1" "$2" >&2
+    exit 1
+}
 
 
 # Absolute path to the autonameow source root.
-AUTONAMEOW_ROOT_DIR="$( ( cd "$setup_environment_script_path" && realpath -e -- ".." ) )"
+AUTONAMEOW_ROOT_DIR="$( ( cd "$self_path" && realpath -e -- ".." ) )"
 if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
 then
-    echo "[ERROR] Not a directory: \"${AUTONAMEOW_ROOT_DIR}\"" >&2
-    exit 1
-else
-    export AUTONAMEOW_ROOT_DIR
+    error_msg_exit 'Not a directory' "$AUTONAMEOW_ROOT_DIR"
 fi
+export AUTONAMEOW_ROOT_DIR
 
 # Absolute path to the main executable for running autonameow.
 AUTONAMEOW_RUNNER="${AUTONAMEOW_ROOT_DIR}/bin/autonameow.sh"
 if [ ! -f "$AUTONAMEOW_RUNNER" ]
 then
-    echo "[ERROR] Not a file: \"${AUTONAMEOW_RUNNER}\"" >&2
-    exit 1
-else
-    export AUTONAMEOW_RUNNER
+    error_msg_exit 'Not a file' "$AUTONAMEOW_RUNNER"
 fi
+export AUTONAMEOW_RUNNER
 
 # Absolute path to the "test_files" directory.
 AUTONAMEOW_TESTFILES_DIR="${AUTONAMEOW_ROOT_DIR}/test_files"
 if [ ! -d "$AUTONAMEOW_TESTFILES_DIR" ]
 then
-    echo "[ERROR] Not a directory: \"${AUTONAMEOW_TESTFILES_DIR}\"" >&2
-    exit 1
-else
-    export AUTONAMEOW_TESTFILES_DIR
+    error_msg_exit 'Not a directory' "$AUTONAMEOW_TESTFILES_DIR"
 fi
+export AUTONAMEOW_TESTFILES_DIR
 
 # Absolute path to the test results directory and make sure it is valid.
 AUTONAMEOW_TESTRESULTS_DIR="$( ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e -- "./docs/test_results/" ) )"
 if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ]
 then
-    echo "[ERROR] Not a directory: \"${AUTONAMEOW_TESTRESULTS_DIR}\"" >&2
-    exit 1
-else
-    export AUTONAMEOW_TESTRESULTS_DIR
+    error_msg_exit 'Not a directory' "$AUTONAMEOW_TESTRESULTS_DIR"
 fi
+export AUTONAMEOW_TESTRESULTS_DIR
 
 # Absolute path to the project wiki source root.
 #
@@ -86,6 +85,5 @@ then
 EOF
 
     exit 1
-else
-    export AUTONAMEOW_WIKI_ROOT_DIR
 fi
+export AUTONAMEOW_WIKI_ROOT_DIR
