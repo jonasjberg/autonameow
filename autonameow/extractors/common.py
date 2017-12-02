@@ -67,7 +67,7 @@ class BaseExtractor(object):
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
     # Middle part of the full MeowURI ('metadata', 'contents', 'filesystem', ..)
-    MEOWURI_NODE = C.UNDEFINED_MEOWURI_PART
+    MEOWURI_CHILD = C.UNDEFINED_MEOWURI_PART
 
     # Last part of the full MeowURI ('exiftool', 'xplat', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
@@ -98,7 +98,7 @@ class BaseExtractor(object):
         def _undefined(attribute):
             return attribute == C.UNDEFINED_MEOWURI_PART
 
-        _node = cls.MEOWURI_NODE
+        _node = cls.MEOWURI_CHILD
         if _undefined(_node):
             _node = cls._meowuri_node_from_module_name()
 

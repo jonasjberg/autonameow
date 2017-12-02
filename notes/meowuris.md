@@ -229,14 +229,14 @@ Going the "Alternative approach 2" mentioned above means having to solve;
 ```
   MeowURI:      extractor . metadata . exiftool . File:MIMEType
               |-----------|----------|----------|---------------|
-Part Type:    '   ROOT    '   NODE   '   NODE   '     LEAF      '
+Part Type:    '   ROOT    '  CHILD   '  CHILD   '     LEAF      '
    Origin:     (constant)  (package)   (module)    (dict key)
 ```
 
 ```
   MeowURI:      extractor .  text  .  plain  . full
               |-----------|--------|---------|------|
-Part Type:    '   ROOT    '  NODE  '   NODE  ' LEAF '
+Part Type:    '   ROOT    ' CHILD  '  CHILD  ' LEAF '
    Origin:     (constant)  (package)(module) (dict key)
 ```
 
@@ -245,7 +245,7 @@ a dictionary:
 ```
   MeowURI:      extractor . filesystem . xplat . contents . mime_type
               |-----------|------------|-------|----------|-----------|
-Part Type:    '   ROOT    '    NODE    ' NODE  '  NODE?   '   LEAF    '
+Part Type:    '   ROOT    '   CHILD    ' CHILD '  CHILD?  '   LEAF    '
                                                    LEAF?
    Origin:     (constant)    (package)   (??)    ^--- (dict keys) ---^
 ```
@@ -254,7 +254,7 @@ Part Type:    '   ROOT    '    NODE    ' NODE  '  NODE?   '   LEAF    '
 ```
   MeowURI:      generic . contents . mimetype
               |---------|----------|----------|
-Part Type:    '   Root  '   NODE   '   LEAF   '
+Part Type:    '   Root  '  CHILD   '   LEAF   '
    Origin:     (constant)   (??)       (??)
 ```
 
@@ -268,7 +268,7 @@ __source-specific__ and __generic__.
 
 #### Extractor --- Source-Specific
 The current implementation uses the Python package hierarchy to construct the
-center MeowURI nodes for source-specific MeowURIs.
+center MeowURI nodes (children) for source-specific MeowURIs.
 
 Take for instance `extractor.metadata.exiftool.File:MIMEType`, consisting of;
 

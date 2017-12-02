@@ -45,13 +45,14 @@ from core.model import MeowURI
 
 class GenericField(object):
     meowuri_root = C.MEOWURI_ROOT_GENERIC
-    meowuri_node = C.UNDEFINED_MEOWURI_PART
+    meowuri_child = C.UNDEFINED_MEOWURI_PART
     meowuri_leaf = C.UNDEFINED_MEOWURI_PART
 
     @classmethod
     def uri(cls):
+        assert not isinstance(cls.meowuri_child, list)
         _uri = '{}.{}.{}'.format(cls.meowuri_root.lower(),
-                                 cls.meowuri_node.lower(),
+                                 cls.meowuri_child.lower(),
                                  cls.meowuri_leaf.lower())
         return MeowURI(_uri)
 
@@ -61,7 +62,7 @@ class GenericField(object):
 
 
 class GenericAuthor(GenericField):
-    meowuri_node = 'metadata'
+    meowuri_child = 'metadata'
     meowuri_leaf = 'Author'
 
     @classmethod
@@ -70,7 +71,7 @@ class GenericAuthor(GenericField):
 
 
 class GenericCreator(GenericField):
-    meowuri_node = 'metadata'
+    meowuri_child = 'metadata'
     meowuri_leaf = 'Creator'
 
     @classmethod
@@ -79,7 +80,7 @@ class GenericCreator(GenericField):
 
 
 class GenericDescription(GenericField):
-    meowuri_node = 'metadata'
+    meowuri_child = 'metadata'
     meowuri_leaf = 'Description'
 
     @classmethod
@@ -88,7 +89,7 @@ class GenericDescription(GenericField):
 
 
 class GenericDateCreated(GenericField):
-    meowuri_node = 'metadata'
+    meowuri_child = 'metadata'
     meowuri_leaf = 'Date_Created'
 
     @classmethod
@@ -97,7 +98,7 @@ class GenericDateCreated(GenericField):
 
 
 class GenericDateModified(GenericField):
-    meowuri_node = 'metadata'
+    meowuri_child = 'metadata'
     meowuri_leaf = 'Date_Modified'
 
     @classmethod
@@ -106,7 +107,7 @@ class GenericDateModified(GenericField):
 
 
 class GenericEdition(GenericField):
-    meowuri_node = 'metadata'
+    meowuri_child = 'metadata'
     meowuri_leaf = 'Edition'
 
     @classmethod
@@ -119,7 +120,7 @@ class GenericHealth(GenericField):
     Measure of file corruption/integrity/"health" as a float in range 0-1.
     Where 0 is severely corrupted and 1 is a seemingly valid, intact file.
     """
-    meowuri_node = 'contents'
+    meowuri_child = 'contents'
     meowuri_leaf = 'health'
 
     @classmethod
@@ -128,7 +129,7 @@ class GenericHealth(GenericField):
 
 
 class GenericMimeType(GenericField):
-    meowuri_node = 'contents'
+    meowuri_child = 'contents'
     meowuri_leaf = 'Mime_Type'
 
     @classmethod
@@ -137,7 +138,7 @@ class GenericMimeType(GenericField):
 
 
 class GenericProducer(GenericField):
-    meowuri_node = 'metadata'
+    meowuri_child = 'metadata'
     meowuri_leaf = 'Producer'
 
     @classmethod
@@ -146,7 +147,7 @@ class GenericProducer(GenericField):
 
 
 class GenericPublisher(GenericField):
-    meowuri_node = 'metadata'
+    meowuri_child = 'metadata'
     meowuri_leaf = 'Publisher'
 
     @classmethod
@@ -155,7 +156,7 @@ class GenericPublisher(GenericField):
 
 
 class GenericSubject(GenericField):
-    meowuri_node = 'metadata'
+    meowuri_child = 'metadata'
     meowuri_leaf = 'Subject'
 
     @classmethod
@@ -164,7 +165,7 @@ class GenericSubject(GenericField):
 
 
 class GenericTags(GenericField):
-    meowuri_node = 'metadata'
+    meowuri_child = 'metadata'
     meowuri_leaf = 'Tags'
 
     @classmethod
@@ -173,7 +174,7 @@ class GenericTags(GenericField):
 
 
 class GenericText(GenericField):
-    meowuri_node = 'contents'
+    meowuri_child = 'contents'
     meowuri_leaf = 'text'
 
     @classmethod
@@ -182,7 +183,7 @@ class GenericText(GenericField):
 
 
 class GenericTitle(GenericField):
-    meowuri_node = 'metadata'
+    meowuri_child = 'metadata'
     meowuri_leaf = 'Title'
 
     @classmethod

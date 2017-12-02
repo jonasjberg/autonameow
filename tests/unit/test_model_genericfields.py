@@ -43,7 +43,7 @@ class TestGenericFieldBase(TestCase):
     def test_uri_returns_expected(self):
         actual = GenericField.uri()
         expected = '{}.{}.{}'.format(GenericField.meowuri_root.lower(),
-                                     GenericField.meowuri_node.lower(),
+                                     GenericField.meowuri_child.lower(),
                                      GenericField.meowuri_leaf.lower())
         self.assertEqual(actual, expected)
 
@@ -51,8 +51,8 @@ class TestGenericFieldBase(TestCase):
         self.assertEqual(GenericField.meowuri_root,
                          C.MEOWURI_ROOT_GENERIC)
 
-    def test_base_class_uri_node_is_undefined(self):
-        self.assertEqual(GenericField.meowuri_node,
+    def test_base_class_uri_child_is_undefined(self):
+        self.assertEqual(GenericField.meowuri_child,
                          C.UNDEFINED_MEOWURI_PART)
 
     def test_base_class_uri_leaf_is_undefined(self):

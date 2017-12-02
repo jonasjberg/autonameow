@@ -30,7 +30,7 @@ from core.model.meowuri import (
     is_meowuri_parts,
     meowuri_list,
     MeowURILeaf,
-    MeowURINode,
+    MeowURIChild,
     MeowURIParser,
     MeowURIRoot
 )
@@ -606,44 +606,44 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
 
 class TestMeowURIwithValidInput(TestCase):
     @staticmethod
-    def _format_expected(root=None, node=None, leaf=None):
-        if root is None and node is None and leaf is None:
+    def _format_expected(root=None, child=None, leaf=None):
+        if root is None and child is None and leaf is None:
             raise AssertionError('This should not happen. Bad test input.')
 
-        if node is None and leaf is None:
+        if child is None and leaf is None:
             return '{root}'.format(root=root)
         elif leaf is None:
-            return '{root}{sep}{node}'.format(
-                root=root, sep=C.MEOWURI_SEPARATOR, node=node
+            return '{root}{sep}{child}'.format(
+                root=root, sep=C.MEOWURI_SEPARATOR, child=child
             )
         else:
-            return '{root}{sep}{node}{sep}{leaf}'.format(
-                root=root, sep=C.MEOWURI_SEPARATOR, node=node, leaf=leaf
+            return '{root}{sep}{child}{sep}{leaf}'.format(
+                root=root, sep=C.MEOWURI_SEPARATOR, child=child, leaf=leaf
             )
 
     def test_multiple_arguments(self):
         a = MeowURI('extractor', 'filesystem', 'xplat')
         ea = self._format_expected(
-            root='extractor', node='filesystem', leaf='xplat'
+            root='extractor', child='filesystem', leaf='xplat'
         )
         self.assertEqual(ea, str(a))
 
         b = MeowURI('extractor', 'filesystem')
         eb = self._format_expected(
-            root='extractor', node='filesystem'
+            root='extractor', child='filesystem'
         )
         self.assertEqual(eb, str(b))
 
     def test_single_argument(self):
         a = MeowURI('extractor.filesystem.xplat')
         ea = self._format_expected(
-            root='extractor', node='filesystem', leaf='xplat'
+            root='extractor', child='filesystem', leaf='xplat'
         )
         self.assertEqual(ea, str(a))
 
         b = MeowURI('extractor.filesystem')
         eb = self._format_expected(
-            root='extractor', node='filesystem'
+            root='extractor', child='filesystem'
         )
         self.assertEqual(eb, str(b))
 
@@ -690,14 +690,14 @@ class TestMeowURIParser(TestCase):
         a = self.p.parse(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         self.assertTrue(isinstance(a[0], MeowURIRoot))
         self.assertTrue(isinstance(a[1], list))
-        self.assertTrue(isinstance(a[1][0], MeowURINode))
+        self.assertTrue(isinstance(a[1][0], MeowURIChild))
         self.assertTrue(isinstance(a[2], MeowURILeaf))
 
         b = self.p.parse('extractor.metadata.exiftool.File:MIMEType')
         self.assertTrue(isinstance(b[0], MeowURIRoot))
         self.assertTrue(isinstance(b[1], list))
-        self.assertTrue(isinstance(b[1][0], MeowURINode))
-        self.assertTrue(isinstance(b[1][1], MeowURINode))
+        self.assertTrue(isinstance(b[1][0], MeowURIChild))
+        self.assertTrue(isinstance(b[1][1], MeowURIChild))
         self.assertTrue(isinstance(b[2], MeowURILeaf))
 
     def test_returns_partitioned_parts_as_strings(self):

@@ -62,28 +62,30 @@ class MeowURIParser(object):
         if not _raw_parts:
             raise InvalidMeowURIError('Insufficient and/or invalid arguments')
 
+        # Get and remove the first element ("root")
         _first_part = _raw_parts.pop(0)
         try:
             _root = MeowURIRoot(_first_part)
         except InvalidMeowURIError:
             raise
 
+        # Get and remove the last element ("leaf")
         _last_part = None
         try:
             _last_part = _raw_parts.pop()
         except IndexError:
             raise InvalidMeowURIError('MeowURI is incomplete')
-
         try:
             _leaf = MeowURILeaf(_last_part)
         except InvalidMeowURIError:
             _leaf = None
 
-        _nodes = []
+        # Remaining elements are children
+        _children = []
         if _raw_parts:
-            _nodes = [MeowURINode(p) for p in _raw_parts]
+            _children = [MeowURIChild(n) for n in _raw_parts]
 
-        return _root, _nodes, _leaf
+        return _root, _children, _leaf
 
     @staticmethod
     def _split(raw_string):
@@ -115,8 +117,8 @@ class MeowURI(object):
     MP = MeowURIParser()
 
     def __init__(self, *args):
-        self._root, self._nodes, self._leaf = self.MP.parse(*args)
-        self._parts = [self._root] + self._nodes + [self._leaf]
+        self._root, self._children, self._leaf = self.MP.parse(*args)
+        self._parts = [self._root] + self._children + [self._leaf]
 
         # Lazily computed.
         self.__cached_str = None
@@ -129,9 +131,9 @@ class MeowURI(object):
             return C.UNDEFINED_MEOWURI_PART
 
     @property
-    def nodes(self):
-        if self._nodes:
-            return [str(n) for n in self._nodes]
+    def children(self):
+        if self._children:
+            return [str(n) for n in self._children]
         else:
             return C.UNDEFINED_MEOWURI_PART
 
@@ -261,8 +263,8 @@ class MeowURI(object):
                 return sp < op
             if self.root != other.root:
                 return self.root < other.root
-            if self.nodes != other.nodes:
-                return self.nodes < other.nodes
+            if self.children != other.children:
+                return self.children < other.children
             if self.leaf != other.leaf:
                 return self.leaf < other.leaf
         else:
@@ -282,7 +284,7 @@ class MeowURI(object):
         return self.__cached_str
 
 
-class MeowURINode(object):
+class MeowURIChild(object):
     def __init__(self, raw_string):
         string = _normalize_string(raw_string)
         self._validate(string)
@@ -294,7 +296,7 @@ class MeowURINode(object):
             raise InvalidMeowURIError('Got empty string')
         if string in C.MEOWURI_ROOTS:
             raise InvalidMeowURIError(
-                'Leaf must not contain root-node: "{!s}"'.format(string)
+                'Child must not contain root node: "{!s}"'.format(string)
             )
 
     def __str__(self):
@@ -313,7 +315,7 @@ class MeowURILeaf(object):
             raise InvalidMeowURIError('Got empty string')
         if string in C.MEOWURI_ROOTS:
             raise InvalidMeowURIError(
-                'Leaf must not contain root-node: "{!s}"'.format(string)
+                'Leaf must not contain root node: "{!s}"'.format(string)
             )
 
     def __str__(self):
