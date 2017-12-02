@@ -40,6 +40,8 @@ High Priority
 
 * `[TD0129]` Enforce passing validated data to `NameTemplateField.format()`.
 
+* `[TD0133]` Fix inconsistent use of MeowURIs; `MeowURI` instances and strings.
+
 
 Medium Priority
 ---------------

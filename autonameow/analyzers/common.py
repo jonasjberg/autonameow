@@ -121,6 +121,8 @@ class BaseAnalyzer(object):
         if data is None:
             return
 
+        # TODO: [TD0133] Fix inconsistent use of MeowURIs
+        #       Stick to using either instances of 'MeowURI' _OR_ strings.
         _meowuri = '{}.{}'.format(self.meowuri_prefix(), meowuri_leaf)
         _existing_data = self.results.get(_meowuri)
         if _existing_data:
@@ -175,6 +177,8 @@ class BaseAnalyzer(object):
         """
         Returns: Analyzer-specific "MeowURI" root/prefix as a Unicode string.
         """
+        # TODO: [TD0133] Fix inconsistent use of MeowURIs
+        #       Stick to using either instances of 'MeowURI' _OR_ strings.
         _leaf = cls.__module__.split('_')[-1] or cls.MEOWURI_LEAF
 
         return '{root}{sep}{leaf}'.format(

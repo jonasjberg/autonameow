@@ -93,6 +93,8 @@ class BaseExtractor(object):
 
     @classmethod
     def meowuri_prefix(cls):
+        # TODO: [TD0133] Fix inconsistent use of MeowURIs
+        #       Stick to using either instances of 'MeowURI' _OR_ strings.
         def _undefined(attribute):
             return attribute == C.UNDEFINED_MEOWURI_PART
 
