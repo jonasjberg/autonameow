@@ -102,7 +102,7 @@ class MeowURIValidator(Validator):
 
 class MeowURICompleter(Completer):
     def __init__(self):
-        self.all_meowuris = providers.all_meowuris()
+        self.all_meowuris = list(providers.Registry.mapped_meowuris)
 
     # TODO: [TD0099] Split by MeowURI separators.
     def get_completions(self, document, complete_event):

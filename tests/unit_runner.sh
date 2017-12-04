@@ -19,39 +19,58 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
 set -o noclobber -o nounset -o pipefail
 
-SELF="$(basename "$0")"
-SELF_DIR="$(realpath -e "$(dirname "$0")")"
 
-if ! source "${SELF_DIR}/common_utils.sh"
+SELF_BASENAME="$(basename "$0")"
+SELF_DIRNAME="$(dirname "$0")"
+
+if ! source "${SELF_DIRNAME}/setup_environment.sh"
 then
-    echo "Shared test utility library is missing. Aborting .." 1>&2
+    cat >&2 <<EOF
+
+[ERROR] Unable to source "${SELF_DIRNAME}/setup_environment.sh"
+        Environment variable setup script is missing. Aborting ..
+
+EOF
+    exit 1
+fi
+
+if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+then
+    cat >&2 <<EOF
+
+[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+        Shared test utility library is missing. Aborting ..
+
+EOF
     exit 1
 fi
 
 # Default configuration.
 option_write_report='false'
 option_quiet='false'
+option_enable_coverage='false'
 
 
 print_usage_info()
 {
     cat <<EOF
 
-"${SELF}"  --  autonameow unit tests runner
+"${SELF_BASENAME}"  --  autonameow unit tests runner
 
-  USAGE:  ${SELF} ([OPTIONS])
+  USAGE:  ${SELF_BASENAME} ([OPTIONS])
 
   OPTIONS:  -h   Display usage information and exit.
+            -c   Enable checking unit test coverage.
             -w   Write HTML test reports to disk.
                  Note: the "raw" log file is always written.
             -q   Suppress output from test suites.
 
-  All options are optional. Default behaviour is to export test result
+  All options are optional. Default behaviour is to not write any
   reports and print the test results to stdout/stderr in real-time.
 
+  Project website: www.github.com/jonasjberg/autonameow
 EOF
 }
 
@@ -62,11 +81,12 @@ EOF
 # caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
-    printf "(USING DEFAULTS -- "${SELF} -h" for usage information)\n\n"
+    printf "(USING DEFAULTS -- "${SELF_BASENAME} -h" for usage information)\n\n"
 else
-    while getopts hwq opt
+    while getopts chwq opt
     do
         case "$opt" in
+            c) option_enable_coverage='true' ;;
             h) print_usage_info ; exit 0 ;;
             w) option_write_report='true' ;;
             q) option_quiet='true' ;;
@@ -75,6 +95,54 @@ else
 
     shift $(( $OPTIND - 1 ))
 fi
+
+
+HAS_PYTEST='false'
+if command -v "pytest" >/dev/null 2>&1
+then
+    HAS_PYTEST='true'
+
+    # Workaround for pytest crashing when writing something other than stdout ..
+    captured_pytest_help="$(pytest --help 2>&1)"
+fi
+
+if [ "$option_write_report" == 'true' ]
+then
+    # Make sure required executables are available.
+    if [ "$HAS_PYTEST" != 'true' ]
+    then
+        echo "This script requires \"pytest\" to generate HTML reports." 1>&2
+        echo "Install using pip by executing:  pip3 install pytest"
+        exit 1
+    fi
+
+    if ! grep -q -- '--html' <<< "$captured_pytest_help"
+    then
+        echo "This script requires \"pytest-html\" to generate HTML reports." 1>&2
+        echo "Install using pip by executing:  pip3 install pytest-html"
+        exit 1
+    fi
+fi
+
+if [ "$option_enable_coverage" == 'true' ]
+then
+    # Make sure required executables are available.
+    if [ "$HAS_PYTEST" != 'true' ]
+    then
+        echo "This script requires \"pytest\" to check test coverage." 1>&2
+        echo "Install using pip by executing:  pip3 install pytest"
+        exit 1
+    fi
+
+    if ! grep -q -- '--cov' <<< "$captured_pytest_help"
+    then
+        echo "This script requires \"pytest-cov\" to check test coverage." 1>&2
+        echo "Install using pip by executing:  pip3 install pytest-cov"
+        exit 1
+    fi
+fi
+
+
 
 
 _timestamp="$(date "+%Y-%m-%dT%H%M%S")"
@@ -90,14 +158,32 @@ run_unittest()
 {
     (
       cd "$AUTONAMEOW_ROOT_DIR" || return 1
-      PYTHONPATH=autonameow:tests python3 -m unittest discover --catch --buffer --start-directory tests --pattern "unit_test_*.py" --top-level-directory .
+      PYTHONPATH=autonameow:tests python3 -m unittest discover --catch --buffer --start-directory tests/unit --pattern "test_*.py" --top-level-directory .
     )
 }
 
-PYTHONPATH=autonameow:tests python3 -m unittest
+run_pytest()
+{
+    _pytest_report_opts=''
+    [ "$option_write_report" != 'true' ] || _pytest_report_opts="--self-contained-html --html="${_unittest_log}""
+
+    _pytest_coverage_opts=''
+    [ "$option_enable_coverage" != 'true' ] || _pytest_coverage_opts="--cov=autonameow --cov-report=term"
+
+    (
+      cd "$AUTONAMEOW_ROOT_DIR" || return 1
+      PYTHONPATH=autonameow:tests pytest ${_pytest_report_opts} ${_pytest_coverage_opts} tests/unit/test_*.py
+    )
+}
+
 
 count_fail=0
-run_task "$option_quiet" "Running \"unittest\"" run_unittest
+if [ "$HAS_PYTEST" != 'true' ]
+then
+    run_task "$option_quiet" "Running \"unittest\"" run_unittest
+else
+    run_task "$option_quiet" "Running \"pytest\"" run_pytest
+fi
 
 
 if [ -s "$_unittest_log" ]
@@ -108,7 +194,6 @@ then
     set +o noclobber
     echo "${_unittest_log}" > "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
     set -o noclobber
-
-    exit 0
 fi
 
+exit "$count_fail"

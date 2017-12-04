@@ -25,6 +25,7 @@ from core import (
     disk,
     exceptions,
 )
+from core.ui.cli import ColumnFormatter
 from core.model import MeowURI
 import util
 from util import textutils
@@ -185,50 +186,31 @@ class Repository(object):
             out.append('FileObject absolute path: "{!s}"'.format(_abspath))
 
             out.append('')
-            out.extend(self._human_readable_contents(data))
+            # out.extend(self._human_readable_contents(data))
+            out.append(self._machine_readable_contents(data))
             out.append('\n')
 
         return '\n'.join(out)
 
-    def _human_readable_contents(self, data):
-        def _fmt_list_entry(width, _value, _key=None):
-            if _key is None:
-                return '{: <{}}  * {!s}'.format('', width, _value)
-            else:
-                return '{: <{}}: * {!s}'.format(str(_key), width, _value)
-
-        def _fmt_text_line(width, _value, _key=None):
-            if _key is None:
-                return '{: <{}}  > {!s}'.format('', width, _value)
-            else:
-                return '{: <{}}: > {!s}'.format(str(_key), width, _value)
-
-        def _fmt_entry(_key, width, _value):
-            return '{: <{}}: {!s}'.format(str(_key), width, _value)
-
-        # TODO: [TD0066] Handle all encoding properly.
+    @staticmethod
+    def _machine_readable_contents(data):
+        # First pass -- handle encoding and truncating extracted text.
         temp = {}
-        _max_len_meowuri = 20
         for meowuri, data in sorted(data.items()):
-            _max_len_meowuri = max(_max_len_meowuri, len(str(meowuri)))
-
             if isinstance(data, list):
                 log.debug('TODO: Improve robustness of handling this case')
                 temp_list = []
                 for d in data:
                     v = d.get('value')
-                    try:
-                        if isinstance(v, bytes):
-                            temp_list.append(enc.displayable_path(v))
-                        elif meowuri.matchglobs(['generic.contents.text',
-                                                 'extractor.text.*']):
-                            # Often *a lot* of text, trim to arbitrary size..
-                            _truncated = textutils.truncate_text(v)
-                            temp_list.append(_truncated)
-                        else:
-                            temp_list.append(str(v))
-                    except AttributeError:
-                        pass
+                    if isinstance(v, bytes):
+                        temp_list.append(enc.displayable_path(v))
+                    elif meowuri.matchglobs(['generic.contents.text',
+                                             'extractor.text.*']):
+                        # Often *a lot* of text, trim to arbitrary size..
+                        _truncated = textutils.truncate_text(v)
+                        temp_list.append(_truncated)
+                    else:
+                        temp_list.append(str(v))
 
                 temp[meowuri] = temp_list
 
@@ -244,39 +226,30 @@ class Repository(object):
                 else:
                     temp[meowuri] = str(v)
 
-        out = []
-        for meowuri, data in temp.items():
-            if not data:
+        cf = ColumnFormatter()
+        COLUMN_DELIMITER = '::'
+        MAX_VALUE_WIDTH = 80
+        def _add_row(str_meowuri, value):
+            str_value = str(value)
+            if len(str_value) > MAX_VALUE_WIDTH:
+                str_value = str_value[:MAX_VALUE_WIDTH]
+            cf.addrow(str_meowuri, COLUMN_DELIMITER, str_value)
+
+        for meowuri, data in sorted(temp.items()):
+            _meowuri_str = str(meowuri)
+            if isinstance(data, list):
+                for v in data:
+                    _add_row(_meowuri_str, v)
                 continue
 
-            if isinstance(data, list):
-                out.append(
-                    _fmt_list_entry(_max_len_meowuri, data[0], meowuri)
-                )
-                for v in data[1:]:
-                    out.append(_fmt_list_entry(_max_len_meowuri, v))
-            else:
-                # datavalue = data.get('value')
-                datavalue = data
-                if meowuri.matchglobs(['generic.contents.text',
-                                       'extractor.text.*']):
-                    _text = textutils.extract_lines(
-                        datavalue, firstline=0, lastline=1
-                    )
-                    _text = _text.rstrip('\n')
-                    out.append(
-                        _fmt_text_line(_max_len_meowuri, _text, meowuri)
-                    )
-                    _lines = textutils.extract_lines(
-                        datavalue, firstline=1,
-                        lastline=len(datavalue.splitlines())
-                    )
-                    for _line in _lines.splitlines():
-                        out.append(_fmt_text_line(_max_len_meowuri, _line))
-                else:
-                    out.append(_fmt_entry(meowuri, _max_len_meowuri, datavalue))
+            if meowuri.matchglobs(['generic.contents.text',
+                                   'extractor.text.*']):
+                _text = textutils.extract_lines(data, firstline=0, lastline=1)
+                _text = _text.rstrip('\n')
+                data = _text
+            _add_row(_meowuri_str, data)
 
-        return out
+        return str(cf)
 
     def __len__(self):
         # TODO:  FIX THIS! Unverified after removing the 'ExtractedData' class.
@@ -285,24 +258,6 @@ class Repository(object):
 
     def __str__(self):
         return self.human_readable_contents()
-
-    def to_filedump(self, file_path):
-        # NOTE: Debugging/testing experiment --- TO BE REMOVED!
-        if not isinstance(file_path, (str, bytes)):
-            return
-        if not file_path.strip():
-            return
-
-        if disk.exists(file_path):
-            return
-
-        try:
-            import cPickle as pickle
-        except ImportError:
-            import pickle
-
-        with open(enc.syspath(file_path), 'wb') as fh:
-            pickle.dump(self.data, fh, pickle.HIGHEST_PROTOCOL)
 
     # def __repr__(self):
     #     # TODO: Implement this properly.

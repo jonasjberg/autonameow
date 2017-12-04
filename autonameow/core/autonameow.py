@@ -73,6 +73,7 @@ class Autonameow(object):
         self.start_time = time.time()
 
         self.active_config = None
+        self.matcher = None
         self._exit_code = C.EXIT_SUCCESS
 
     @staticmethod
@@ -86,6 +87,10 @@ class Autonameow(object):
                         '[interactive mode].')
             opts['mode_automagic'] = False
             opts['mode_interactive'] = True
+
+        if not opts.get('mode_rulematch'):
+            log.info('Enabled rule-matching..')
+            opts['mode_rulematch'] = True
 
         if (not opts.get('mode_automagic') and not opts.get('mode_rulematch')
                 and opts.get('mode_batch')):
@@ -112,10 +117,6 @@ class Autonameow(object):
 
         if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
             log.info('No operating-mode selected!')
-
-        if not opts.get('mode_rulematch'):
-            log.info('Enabled rule-matching..')
-            opts['mode_rulematch'] = True
 
         return opts
 
@@ -192,6 +193,14 @@ class Autonameow(object):
         )
         log.info('Got {} files to process'.format(len(files_to_process)))
 
+        if not self.active_config.rules:
+            log.warning('Configuration does not contain any rules to evaluate')
+            rules = []
+        else:
+            rules = self.active_config.rules
+
+        self.matcher = RuleMatcher(rules)
+
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
 
@@ -264,6 +273,8 @@ class Autonameow(object):
         Assume all state is setup and completely reset for each loop iteration.
         It is not currently possible to share "information" between runs.
         """
+        results_to_list = []
+
         for file_path in file_paths:
             log.info('Processing: "{!s}"'.format(
                 enc.displayable_path(file_path))
@@ -288,26 +299,28 @@ class Autonameow(object):
                 self.exit_code = C.EXIT_WARNING
                 continue
 
+            # TODO: [TD0131] Hack!
+            # _repositorysize = sys.getsizeof(repository.SessionRepository)
+            results_to_list.append(str(repository.SessionRepository))
+
+            # TODO: [TD0131] Limit repository size!
+            repository.SessionRepository.data.pop(current_file)
+
         if self.opts.get('list_all'):
             log.info('Listing session repository contents ..')
             ui.msg('Session Repository Data', style='heading',
                    add_info_log=True)
 
-            if len(repository.SessionRepository) == 0:
+            if len(results_to_list) == 0:
                 ui.msg('The session repository does not contain any data ..\n')
             else:
-                ui.msg(str(repository.SessionRepository))
-
-            # TODO:  TEMPORARY debugging experiment --- Remove!
-            # repository.SessionRepository.to_filedump('/tmp/repository_{:10.10}.state'.format(self.start_time))
+                ui.msg('\n'.join(results_to_list))
 
     def _handle_file(self, current_file):
-        should_list_any_results = (self.opts.get('list_datetime')
-                                   or self.opts.get('list_title')
-                                   or self.opts.get('list_all'))
+        should_list_any_results = self.opts.get('list_all')
 
         # Extract data from the file.
-        required_extractors = providers.get_sources_for_meowuris(
+        required_extractors = providers.get_providers_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['extractor']
         )
@@ -324,7 +337,7 @@ class Autonameow(object):
         _run_analysis(current_file, self.active_config)
 
         # Run plugins.
-        required_plugins = providers.get_sources_for_meowuris(
+        required_plugins = providers.get_providers_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['plugin']
         )
@@ -337,86 +350,126 @@ class Autonameow(object):
             run_all_plugins=should_list_any_results
         )
 
-        # Determine matching rule.
-        matcher = _run_rule_matcher(current_file, self.active_config)
+        #  Things to find:
+        #
+        #    * NAME TEMPLATE
+        #      Sources:   * User selection (interactive mode)
+        #                 * Matched rule   (rule-matching, automagic)
+        #
+        #    * DATA SOURCES for name template fields
+        #      Sources:   * User selection (interactive mode)
+        #                 * Matched rule   (rule-matching, automagic)
+        #                 * Yet unknown    (automagic)
+        #
+        #  Keeping in mind that:
+        #
+        #    * Matched Rule ---+--> Template
+        #                      '--> Data Sources
 
-        # Perform actions.
-        if self.opts.get('mode_automagic'):
-            # TODO: [TD0100] Run rule-matching by default.
-            self._perform_automagic_actions(current_file, matcher)
-        elif self.opts.get('mode_interactive'):
-            # TODO: Create a interactive interface.
-            # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
-            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
-
-    def _perform_automagic_actions(self, current_file, rule_matcher):
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
-        best_match = None
+        active_rule = None
+        data_sources = None
         name_template = None
+        if self.opts.get('mode_rulematch'):
+            # TODO: Cleanup ..
+            candidates = self.matcher.match(current_file)
+            if candidates:
+                active_rule = self._try_get_rule(candidates)
+                candidates.pop(0)
 
-        if self.opts.get('mode_batch'):
-            if not rule_matcher.best_match:
-                log.warning('No rule matched, name template unknown.')
+        if active_rule:
+            log.info(
+                'Using rule: "{!s}"'.format(active_rule.description)
+            )
+            data_sources = active_rule.data_sources
+            name_template = active_rule.name_template
+
+        if not name_template:
+            if self.opts.get('mode_batch'):
+                log.warning('Name template unknown! Aborting ..')
                 self.exit_code = C.EXIT_WARNING
                 return
 
-            else:
-                _best_match_score = rule_matcher.best_match_score()
-                if _best_match_score == 0:
-                    log.warning('Best matched rule score: {} --- Require user '
-                                'confirmmation.'.format(_best_match_score))
-                    log.info('Skipping file ..')
-                    return
-                else:
-                    best_match = rule_matcher.best_match
-
-        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
-        else:
-            if rule_matcher.best_match:
-                _best_match_score = rule_matcher.best_match_score()
-                if _best_match_score > 0:
-                    best_match = rule_matcher.best_match
-                else:
-                    log.debug('Best matched rule score: {} --- Require user '
-                              'confirmation.'.format(_best_match_score))
-                    ok = interactive.ask_confirm(
-                        'Best matched rule "{!s}" score: {}\n'
-                        'Proceed with this rule?'.format(
-                            rule_matcher.best_match.description,
-                            _best_match_score
-                        )
-                    )
-                    log.debug('User response: "{!s}"'.format(ok))
-                    if ok:
-                        best_match = rule_matcher.best_match
-            else:
-                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-                candidates = None
-                choice = interactive.select_template(candidates)
-                # if choice != ui.action.ABORT:
-                #     name_template = choice
-                # else:
-                #     name_template = None
-                name_template = None
-
-                best_match = rule_matcher.best_match
-
-        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
-        if best_match and not name_template:
-            name_template = best_match.name_template
-            log.info(
-                'Using rule: "{!s}"'.format(rule_matcher.best_match.description)
-            )
+            # Have the user select a name template.
+            # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+            # candidates = None
+            # choice = interactive.select_template(candidates)
+            # if choice != ui.action.ABORT:
+            #     name_template = choice
+            # if not name_template:
+            #     log.warning('No valid name template chosen. Aborting ..')
+            pass
 
         if not name_template:
-            log.warning('No valid name template chosen. Aborting.')
+            # User name template selection did not happen or failed.
+            log.warning('Name template unknown! Aborting ..')
+            self.exit_code = C.EXIT_WARNING
             return
 
-        resolver = TemplateFieldDataResolver(current_file, name_template)
-        resolver.add_known_sources(rule_matcher.best_match.data_sources)
+        if not data_sources:
+            if self.opts.get('mode_automagic'):
+                # Try real hard to figure it out (?)
+                pass
 
-        if self.opts.get('mode_batch'):
-            if not resolver.mapped_all_template_fields():
+            if self.opts.get('mode_batch'):
+                log.warning('Data sources unknown! Aborting ..')
+                self.exit_code = C.EXIT_WARNING
+                return
+
+            # Have the user select data sources.
+            # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+            pass
+
+        field_data_dict = self._try_resolve(current_file, name_template,
+                                            data_sources)
+        if not field_data_dict:
+            if self.opts.get('mode_automagic'):
+                # Try real hard to figure it out (?)
+                active_rule = self._try_get_rule(candidates)
+                if active_rule:
+                    log.info(
+                        'Using rule: "{!s}"'.format(active_rule.description)
+                    )
+                    data_sources = active_rule.data_sources
+                    name_template = active_rule.name_template
+                    field_data_dict = self._try_resolve(current_file,
+                                                        name_template,
+                                                        data_sources)
+        if not field_data_dict:
+            log.warning('(439) Unable to populate name.')
+            self.exit_code = C.EXIT_WARNING
+            return
+
+        try:
+            new_name = namebuilder.build(
+                config=self.active_config,
+                name_template=name_template,
+                field_data_map=field_data_dict
+            )
+        except exceptions.NameBuilderError as e:
+            log.critical('Name assembly FAILED: {!s}'.format(e))
+            raise exceptions.AutonameowException
+
+        log.info('New name: "{}"'.format(
+            enc.displayable_path(new_name))
+        )
+        self.do_rename(
+            from_path=current_file.abspath,
+            new_basename=new_name,
+            dry_run=self.opts.get('dry_run')
+        )
+
+    def _try_resolve(self, current_file, name_template, data_sources):
+        resolver = TemplateFieldDataResolver(current_file, name_template)
+        resolver.add_known_sources(data_sources)
+
+        # TODO: Rework the rule matcher and this logic to try another candidate.
+        # if not resolver.mapped_all_template_fields():
+        #     if self.opts.get('mode_automagic'):
+        #         data_sources = matcher.candidates()[1]
+
+        if not resolver.mapped_all_template_fields():
+            if self.opts.get('mode_batch'):
                 log.error('All name template placeholder fields must be '
                           'given a data source; Check the configuration!')
                 self.exit_code = C.EXIT_WARNING
@@ -427,8 +480,8 @@ class Autonameow(object):
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         if not resolver.collected_all():
             if self.opts.get('mode_batch'):
-                log.warning('Unable to populate name.')
-                self.exit_code = C.EXIT_WARNING
+                log.warning('(483) Unable to populate name.')
+                # self.exit_code = C.EXIT_WARNING
                 return
             else:
                 # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
@@ -467,28 +520,69 @@ class Autonameow(object):
         # Add automatically resolving missing sources from possible candidates.
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-            log.warning('Unable to populate name. Missing field data.')
+            log.warning('(523) Unable to populate name. Missing field data.')
             self.exit_code = C.EXIT_WARNING
-            return
+            return None
 
-        try:
-            new_name = namebuilder.build(
-                config=self.active_config,
-                name_template=name_template,
-                field_data_map=resolver.fields_data
-            )
-        except exceptions.NameBuilderError as e:
-            log.critical('Name assembly FAILED: {!s}'.format(e))
-            raise exceptions.AutonameowException
+        return resolver.fields_data
 
-        log.info('New name: "{}"'.format(
-            enc.displayable_path(new_name))
+    def _try_get_rule(self, candidates):
+        active_rule = None
+
+        if self.opts.get('mode_interactive'):
+            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
+
+            # Have the user select a rule from any candidate matches.
+            # candidates = matcher.candidates()
+            if candidates:
+                log.warning('TODO: Implement interactive rule selection.')
+                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                # choice = interactive.select_rule(candidates)
+                # if choice != ui.action.ABORT:
+                #     active_rule = choice
+                pass
+            else:
+                log.debug('There are no rules available for the user to '
+                          'choose from..')
+
+        RULE_SCORE_CONFIRM_THRESHOLD = 0
+        if candidates and not active_rule:
+            # User rule selection did not happen or failed.
+            # Is there a "best matched" rule?
+            best_match = candidates[0]
+            if best_match:
+                # OK! But is the score of the best matched rule high enough?
+                rule, score, weight = best_match
+                description = rule.description
+                if score > RULE_SCORE_CONFIRM_THRESHOLD:
+                    active_rule = rule
+                else:
+                    # Best matched rule might be a bad fit.
+                    log.debug('Score {} is below threshold {} for rule "{!s}"'.format(score, RULE_SCORE_CONFIRM_THRESHOLD, description))
+                    log.debug('Need confirmation before using this rule..')
+                    ok_to_use_rule = self._confirm_apply_rule(rule)
+                    if ok_to_use_rule:
+                        log.debug('Positive response. Using rule "{!s}"'.format(description))
+                        active_rule = rule
+                    else:
+                        log.debug('Negative response. Will not use rule "{!s}"'.format(description))
+            else:
+                log.debug('Rule-matcher did not find a "best match" rule')
+
+        return active_rule
+
+    def _confirm_apply_rule(self, rule):
+        if self.opts.get('mode_batch'):
+            log.info('Rule required confirmation but in batch mode -- '
+                     'Skipping file ..')
+            return False
+
+        user_response = interactive.ask_confirm(
+            'Best matched rule "{!s}"'
+            '\nProceed with this rule?'.format(rule.description)
         )
-        self.do_rename(
-            from_path=current_file.abspath,
-            new_basename=new_name,
-            dry_run=self.opts.get('dry_run')
-        )
+        log.debug('User response: "{!s}"'.format(user_response))
+        return bool(user_response)
 
     @property
     def runtime_seconds(self):
@@ -600,10 +694,11 @@ def _run_extraction(fileobject, require_extractors, run_all_extractors=False):
     Raises:
         AutonameowException: An unrecoverable error occurred during extraction.
     """
+    runner = extraction.get_extractor_runner()
     try:
-        extraction.start(fileobject,
-                         require_extractors=require_extractors,
-                         require_all_extractors=run_all_extractors is True)
+        runner.start(fileobject,
+                     request_extractors=require_extractors,
+                     request_all=run_all_extractors)
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
         raise
@@ -650,26 +745,3 @@ def _run_analysis(fileobject, active_config):
     except exceptions.AutonameowException as e:
         log.critical('Analysis FAILED: {!s}'.format(e))
         raise
-
-
-def _run_rule_matcher(fileobject, active_config):
-    """
-    Instantiates, executes and returns a 'RuleMatcher' instance.
-
-    Args:
-        active_config: An instance of the 'Configuration' class.
-
-    Returns:
-        An instance of the 'RuleMatcher' class that has executed successfully.
-
-    Raises:
-        AutonameowException: An unrecoverable error occurred during execution.
-    """
-    matcher = RuleMatcher(fileobject, active_config)
-    try:
-        matcher.start()
-    except exceptions.AutonameowException as e:
-        log.critical('Rule Matching FAILED: {!s}'.format(e))
-        raise
-    else:
-        return matcher

@@ -32,7 +32,7 @@ from util import (
     dateandtime,
     textutils
 )
-from util.text import find_edition
+from util.text.patternmatching import find_edition
 
 
 # Use two different types of separators;  "SPACE" and "SEPARATOR".
@@ -66,7 +66,6 @@ class FilenameAnalyzer(BaseAnalyzer):
 
     def analyze(self):
         self._add_results('datetime', self.get_datetime())
-        self._add_results('title', self.get_title())
         self._add_results('edition', self.get_edition())
         self._add_results('extension', self.get_extension())
         self._add_results('publisher', self.get_publisher())
@@ -95,9 +94,6 @@ class FilenameAnalyzer(BaseAnalyzer):
 
         # return fn_timestamps or None
         # TODO: Fix inconsistent analyzer results data.
-        return None
-
-    def get_title(self):
         return None
 
     def get_edition(self):
@@ -287,13 +283,17 @@ class FilenameAnalyzer(BaseAnalyzer):
         return True
 
 
+# For each MIME-type; use the file extension in the dict key if the
+# current file extension is any of the dict values stored under that key.
+# NOTE(jonas): The inner-most values are set-literals.
 MIMETYPE_EXTENSION_SUFFIXES_MAP = {
-    # Note that the inner-most values are set-literals.
     'application/octet-stream': {
+        # Might be corrupt files.
         'azw3': {'azw3'},
         'chm': {'chm'},
         'mobi': {'mobi'},
-        'pdf': {'pdf'}
+        'pdf': {'pdf'},
+        'prc': {'prc'}
     },
     'application/gzip': {
         'gz': {'gz'},
@@ -302,6 +302,15 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     'application/zip': {
         'zip': {'zip'},
         'epub': {'epub'},
+    },
+    'application/vnd.ms-powerpoint': {
+        'ppt': {'ppt'},
+    },
+    'application/x-gzip': {
+        'tar.gz': {'tar.gz'}
+    },
+    'application/x-lzma': {
+        'tar.lzma': {'tar.lzma'}
     },
     'text/html': {
         'html': {'html', 'htm'},
@@ -319,6 +328,7 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'js': {'js'},
         'json': {'json'},
         'key': {'key'},
+        'log': {'log'},
         'md': {'markdown', 'md', 'mkd'},
         'puml': {'puml'},
         'py': {'py', 'python'},
@@ -328,22 +338,26 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'txt': {'txt'},
         'yaml': {'yaml'},
     },
+    'text/x-c': {
+        'c': {'c', 'txt'},
+        'h': {'h'}
+    },
+    'text/x-c++': {
+        'cpp': {'cpp', 'txt'},
+        'h': {'h'}
+    },
     'text/x-makefile': {
         'asm': {'asm'}
-    },
-    'application/vnd.ms-powerpoint': {
-        'ppt': {'ppt'},
-    },
-    'application/x-gzip': {
-        'tar.gz': {'tar.gz'}
-    },
-    'application/x-lzma': {
-        'tar.lzma': {'tar.lzma'}
     },
     'text/x-shellscript': {
         'sh': {'bash', 'sh', 'txt'},
         'py': {'py'},
     },
+    'video/mpeg': {
+        'VOB': {'VOB'},
+        'vob': {'vob'},
+        'mpg': {'mpeg'}
+    }
 }
 
 

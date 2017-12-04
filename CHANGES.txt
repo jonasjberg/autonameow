@@ -1,3 +1,167 @@
+2017-12-04  [autonameow v0.5.2]
+            Bug fixes, various refactoring and reworked test code.
+
+            See the git log for all changes and detailed descriptions.
+
+            Additions:
+            - Add a lot of missing unit tests.
+            - Add additional data validation in types 'format()' methods.
+            - Add 'hypothesis'-based tests 'unit/test_property_encoding.py'.
+            - Add 'hypothesis'-based tests 'unit/test_property_fieldparsers.py'.
+            - Add 'hypothesis'-based tests 'unit/test_property_types.py'.
+            - Add option '-c' to 'unit_runner.sh'.
+              Adds optional coverage reporting with 'unit_runner.sh -c'.
+
+            - Add function 'get_persistence()'.
+              Adds "public" interface for getting a persistence mechanism.
+
+            - Add option '--last-failed' to the regression test runner.
+              Adds option for only running tests that failed during the last run.
+              Completes TODO-list item [TD0123].
+
+            - Add (WIP) string distance functions.
+            - Add improved "fuzzy" ISBN metadata de-duplication.
+            - Add blacklisting ISBN numbers that failed metadata queries.
+
+            - And a lot more --- refer to the git log for additional details.
+
+            Changes:
+            - Various improvements to the regression test runner.
+            - Refactor a lot of the unit tests.
+            - Rework structure of the test code.
+            - Add 'FilenamePostprocessor' class to 'builder.py'.
+              Moves inline procedure post-processing the filename to new class.
+            - Removes unused function 'get_abstract_extractor_classes()'.
+              Added directories 'tests/unit'. 'tests/integration' to go along
+              with 'tests/regression'.
+
+              - Removed common 'unit_test_' prefix from unit test code.
+              - Removed 'integration_test_' prefix from integration test code.
+
+              Also modified the integration test "suites" which no longer can
+              be executed as stand-alone scripts.
+
+              A lot of scripts are changed due to complications when handling
+              sourcing and paths of bash scripts. It is not really possible to
+              get the absolute path of the current script that works in all
+              cases; running the script from the same directory, using a
+              relative path, absolute path, through a symlink, etc..
+
+              This commit adds a simpler solution where one script exports
+              global environment variables that are used by the other scripts.
+              This is handled by the new 'setup_environment.sh'.
+
+              This new arrangement means that integration test suites no longer
+              can be executed as stand-alone scripts.
+              The complexity and workarounds just isn't worth the hassle.
+
+              Integration tests should be executed with 'integration_runner.sh'.
+
+            - Remove the 'AnalysisRunQueue' class.
+            - Remove the 'GenericQueue' class.
+            - Rework running extractors in 'extraction.py'.
+
+              Adds new class 'ExtractorRunner' to 'extraction.py'.
+
+              Reworks filtering extractors, but is essentially the same as the
+              now deleted 'start()' function with some filtering functions
+              factored out and mostly using sets instead of lists for storing
+              the extractor classes.
+
+            - Have 'unit_runner.sh' use 'pytest' if available.
+
+              Modifies 'unit_runner.sh' to use the available test runner.
+              Prefer 'pytest' but use 'unittest' if 'pytest' is not installed.
+
+              If running with the '-w' option, 'pytest' as well as 'pytest.html'
+              must be installed, otherwise the program exists with status 1 and
+              an error message.
+
+            - Add optional path argument to 'get_persistence()'.
+
+              Works around confusion around which persistence path is used.
+              Currently inconsistent depending on the use-case..
+
+              If the main 'Autonameow' class sets the active configuration with
+              'config.set_active()', any valid persistence path in the user
+              configuration file is used.  Otherwise, the default path defined
+              in 'constants.py' is used.
+
+              This problem tells of broader architectural issues..
+              When calling 'get_persistence()' from 'regression_runner.py',
+              before 'config.set_active()' has been called, results in one
+              persistence path being used at the start of
+              'regression_runner.py' execution and another at the end,
+              after having called 'Autonameow' main the first time..
+
+            - Refactor coloring replacements in 'builder.py'.
+              Adds refactoring of utility functions and unit tests.
+
+            - Remove the unimplemented 'FilesystemAnalyzer'.
+
+            - Call middle parts of MeowURI "children".
+              Renames the 'MeowURINode' class to 'MeowURIChild'
+              Changes other usage of a "node" to "child",
+              "nodes" to "children".
+
+              The reason is that a "node" probably is a better describes for
+              all parts of a MeowURI, which might be joined in an abstract base
+              class with this name.
+              This is also more similar to basic computer science terminology.
+
+            - Move MeowURI parsing to separate class.
+              Extracts parts of the 'MeowURI' class into new 'MeowURIParser'.
+
+            - Add searching full text in chunks in the analyzers.
+            - Improve searching for ISBN-numbers in the 'EbookAnalyzer'.
+
+            - And a lot more --- refer to the git log for additional details.
+
+            Fixes:
+            - Fix broken import in 'epubzilla.py'.
+
+            - Add type assertion in 'extraction.collect_results()'.
+              Asserts that extractors return data of type dict.
+
+              This is pretty much guaranteed by the extensive new unit testing
+              of extractors using shared test case base classes.
+
+              Completes TODO-list entry [TD0106].
+
+            - Fix resolver not stopping after finding match.
+
+              Fixes bug caused by a missing 'break' in the resolver.
+
+              This caused the loop that fetches and verifies data for specific
+              name template field to go on, overwriting perfectly good data,
+              causing the resolver to fail even when the requested data is
+              valid and available.
+
+            - Fix bug in name template field 'Tags.format()'.
+
+              Fixes bug in the format method of the 'Tags' template field.
+
+              The format-method worked fine when passed a list of strings, but
+              when passed a single string, the string was split up and joined
+              with the "between-tag-separator", causing "tag" to become
+              "t a g", assuming a single space as "between-tag-separator".
+
+              This commit fixes this by coercing the data to a list of strings.
+
+              Added regression tests '0003_filetags_b' and '0003_filetags_c'
+              that demonstrates this failure case.
+
+            - Fix various bugs in field parsers found by 'hypothesis'-tests.
+
+            - Fix bug in 'PdftotextTextExtractor'.
+              Crash caused by calling 'strip()' when extracted text is None.
+
+            - Fix bug in 'BaseAnalyzer._add_results()'.
+              Fixes bug where lists was nested instead of simply added.
+
+            - And a lot more --- refer to the git log for additional details.
+
+
 2017-11-18  [autonameow v0.5.1]
             Major refactoring and extensive rework of internals and tests.
             Added new regression test "framework" that will replace most of

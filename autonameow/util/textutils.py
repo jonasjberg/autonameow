@@ -41,10 +41,6 @@ def extract_digits(string):
     return digits if digits.strip() else ''
 
 
-def remove_nonbreaking_spaces(text):
-    return text.replace('\xa0', ' ')
-
-
 def indent(text, amount=None, ch=None):
     """
     Indents (multi-line) text by a specified amount.
@@ -279,14 +275,6 @@ def normalize_unicode(text):
     text = re.sub(RE_UNICODE_DOUBLE_QUOTES, '"', text)
 
     return unicodedata.normalize(NORMALIZATION_FORM, text)
-
-
-RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-
-
-def strip_ansiescape(string):
-    stripped = re.sub(RE_ANSI_ESCAPE, '', string)
-    return stripped
 
 
 def extractlines_do(callback, text, fromline, toline):

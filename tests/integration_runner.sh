@@ -25,13 +25,38 @@
 
 set -o noclobber -o nounset -o pipefail
 
-SELF="$(basename "$0")"
-SELF_DIR="$(realpath -e "$(dirname "$0")")"
+SELF_BASENAME="$(basename "$0")"
+SELF_DIRNAME="$(realpath -e "$(dirname "$0")")"
 
-# Source 'integration_utils.sh', which in turn sources 'common_utils.sh'.
-if ! source "${SELF_DIR}/integration_utils.sh"
+if ! source "${SELF_DIRNAME}/setup_environment.sh"
 then
-    echo "Integration test utility library is missing. Aborting .." 1>&2
+    cat >&2 <<EOF
+
+[ERROR] Unable to source "${SELF_DIRNAME}/setup_environment.sh"
+        Environment variable setup script is missing. Aborting ..
+
+EOF
+    exit 1
+fi
+
+if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+then
+    cat >&2 <<EOF
+
+[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+        Shared test utility library is missing. Aborting ..
+
+EOF
+fi
+
+if ! source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
+then
+    cat >&2 <<EOF
+
+[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
+        Integration test utility library is missing. Aborting ..
+
+EOF
     exit 1
 fi
 
@@ -44,9 +69,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"${SELF}"  --  autonameow integration test suite runner
+"${SELF_BASENAME}"  --  autonameow integration test suite runner
 
-  USAGE:  ${SELF} ([OPTIONS])
+  USAGE:  ${SELF_BASENAME} ([OPTIONS])
 
   OPTIONS:  -h   Display usage information and exit.
             -q   Suppress output from test suites.
@@ -64,7 +89,7 @@ EOF
 # caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
-    printf "(USING DEFAULTS -- "${SELF} -h" for usage information)\n\n"
+    printf "(USING DEFAULTS -- "${SELF_BASENAME} -h" for usage information)\n\n"
 else
     while getopts hwq opt
     do
@@ -86,11 +111,12 @@ count_fail=0
 time_start="$(current_unix_time)"
 
 initialize_logging
-logmsg "Started integration test runner \"${SELF}\""
-logmsg "Executing all files in \"${SELF_DIR}\" matching \"integration_test_*.sh\".."
+search_dir="${SELF_DIRNAME}/integration"
+logmsg "Started integration test runner \"${SELF_BASENAME}\""
+logmsg "Executing all files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
-find "$SELF_DIR" -mindepth 1 -maxdepth 1 -type f -name "integration_test_*.sh" \
+find "$search_dir" -mindepth 1 -maxdepth 1 -type f -name "test_*.sh" \
 | while IFS='\n' read -r testscript
 do
     if [ ! -x "$testscript" ]

@@ -268,6 +268,21 @@ Information Extraction in Python
 > information, especially associative data and data about WWW resources.
 
 
+`FRIL`
+------
+Fine-Grained Records Integration and Linkage Tool
+
+* Website: <http://fril.sourceforge.net/>
+* Sources: <http://fril.sourceforge.net/download.html>
+* Documentation: <http://fril.sourceforge.net/publications.html>
+
+> FRIL is FREE open source tool that enables fast and easy record linkage.
+> The tool extends traditional record linkage tools with a richer set of
+> parameters.
+> Users may systematically and iteratively explore the optimal combination
+> of parameter values to enhance linking performance and accuracy.
+
+
 
 [1]: http://karl-voit.at
 [2]: http://karl-voit.at/managing-digital-photographs/

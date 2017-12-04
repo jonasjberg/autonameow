@@ -32,6 +32,7 @@ from util import (
     sanity,
     textutils
 )
+from util.text import remove_nonbreaking_spaces
 
 
 log = logging.getLogger(__name__)
@@ -44,6 +45,8 @@ class PdftotextTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(PdftotextTextExtractor, self).__init__()
 
+        self.init_cache()
+
     def extract_text(self, fileobject):
         result = extract_pdf_content_with_pdftotext(fileobject.abspath)
         if not result:
@@ -52,7 +55,7 @@ class PdftotextTextExtractor(AbstractTextExtractor):
         sanity.check_internal_string(result)
         text = result
         text = textutils.normalize_unicode(text)
-        text = textutils.remove_nonbreaking_spaces(text)
+        text = remove_nonbreaking_spaces(text)
         if text:
             return text
         else:
@@ -90,8 +93,9 @@ def extract_pdf_content_with_pdftotext(file_path):
                 process.returncode, stderr)
         )
 
-    result = decode_raw(stdout).strip()
+    result = decode_raw(stdout)
     if not result:
         return ''
-    return result
+    else:
+        return result.strip()
 

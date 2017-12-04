@@ -61,30 +61,31 @@ def get_files_gen(search_path, recurse=False):
 
     sanity.check_internal_bytestring(search_path)
 
-    if not (os.path.isfile(enc.syspath(search_path))
-            or os.path.isdir(enc.syspath(search_path))):
+    _sys_search_path = enc.syspath(search_path)
+    if not (os.path.isfile(_sys_search_path)
+            or os.path.isdir(_sys_search_path)):
         raise FileNotFoundError
 
-    if os.path.isfile(enc.syspath(search_path)):
+    if os.path.isfile(_sys_search_path):
         sanity.check_internal_bytestring(search_path)
         yield search_path
-    elif os.path.isdir(enc.syspath(search_path)):
+    elif os.path.isdir(_sys_search_path):
         try:
-            _dir_listing = os.listdir(enc.syspath(search_path))
+            _dir_listing = os.listdir(_sys_search_path)
         except PermissionError as e:
             log.warning(str(e))
-            pass
         else:
             for entry in _dir_listing:
-                entry_path = os.path.join(enc.syspath(search_path),
+                entry_path = os.path.join(_sys_search_path,
                                           enc.syspath(entry))
-                if not os.path.exists(enc.syspath(entry_path)):
+                _sys_entry_path = enc.syspath(entry_path)
+                if not os.path.exists(_sys_entry_path):
                     raise FileNotFoundError
 
-                if os.path.isfile(entry_path):
+                if os.path.isfile(_sys_entry_path):
                     sanity.check_internal_bytestring(entry_path)
                     yield entry_path
-                elif recurse and os.path.isdir(entry_path):
+                elif recurse and os.path.isdir(_sys_entry_path):
                     for f in get_files_gen(entry_path, recurse=recurse):
                         sanity.check_internal_bytestring(f)
                         yield f
@@ -129,7 +130,7 @@ class PathCollector(object):
                 for f in self.filter_paths(_files):
                     file_list.add(f)
 
-        return list(file_list)
+        return sorted(list(file_list))
 
     def filter_paths(self, path_list):
         if not self.ignore_globs:

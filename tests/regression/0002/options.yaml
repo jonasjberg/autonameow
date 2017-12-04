@@ -8,8 +8,6 @@ input_paths:
 - $TESTFILES/gmail.pdf
 - $TESTFILES/simplest_pdf.md.pdf
 list_all: true
-list_datetime: false
-list_title: false
 mode_automagic: true
 mode_batch: true
 mode_interactive: false

@@ -67,7 +67,7 @@ class BaseExtractor(object):
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
     # Middle part of the full MeowURI ('metadata', 'contents', 'filesystem', ..)
-    MEOWURI_NODE = C.UNDEFINED_MEOWURI_PART
+    MEOWURI_CHILD = C.UNDEFINED_MEOWURI_PART
 
     # Last part of the full MeowURI ('exiftool', 'xplat', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
@@ -93,10 +93,12 @@ class BaseExtractor(object):
 
     @classmethod
     def meowuri_prefix(cls):
+        # TODO: [TD0133] Fix inconsistent use of MeowURIs
+        #       Stick to using either instances of 'MeowURI' _OR_ strings.
         def _undefined(attribute):
             return attribute == C.UNDEFINED_MEOWURI_PART
 
-        _node = cls.MEOWURI_NODE
+        _node = cls.MEOWURI_CHILD
         if _undefined(_node):
             _node = cls._meowuri_node_from_module_name()
 
@@ -144,6 +146,8 @@ class BaseExtractor(object):
         Inheriting extractor classes can override this method if they need
         to perform additional tests in order to determine if they can handle
         a given file object.
+        If this method is __NOT__ overridden, the inheriting class must contain
+        a class attribute with MIME-types (globs) as a list of Unicode strings.
 
         Args:
             fileobject: The file to test as an instance of 'FileObject'.
@@ -157,6 +161,7 @@ class BaseExtractor(object):
                 'Classes without class attribute "HANDLES_MIME_TYPES" must '
                 'implement (override) class method "can_handle"!'
             )
+        assert isinstance(cls.HANDLES_MIME_TYPES, list)
 
         try:
             return mimemagic.eval_glob(fileobject.mime_type,

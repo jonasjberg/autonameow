@@ -185,6 +185,9 @@ def colorize_re_match(text, regex, color=None):
 
     replacements = []
     match_iter = regex.findall(text)
+    if not match_iter:
+        return text
+
     for match in match_iter:
         replacements.append((match, colorize(match, fore=_color)))
 
@@ -216,10 +219,11 @@ def colorize_re_match(text, regex, color=None):
     return out
 
 
-RE_ANYTHING_QUOTED = re.compile(r'"([^"]*)"')
+RE_ANYTHING_QUOTED = re.compile(r'"([^"]+)"')
 
 
 def colorize_quoted(text, color=None):
+    # TODO: This is still buggy. See unit tests for case that fails.
     return colorize_re_match(text, RE_ANYTHING_QUOTED, color)
 
 
@@ -267,7 +271,7 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
         print(_colored_heading_underline)
 
     elif style == 'color_quoted':
-        print(colorize_quoted(message))
+        print(colorize_quoted(message, color='LIGHTGREEN_EX'))
 
     else:
         print_default_msg(message)
@@ -302,6 +306,40 @@ def msg_rename(from_basename, dest_basename, dry_run):
     cf.addrow('->', '{!s}')
     _message = str(cf)
     msg(_message.format(_name_old, _name_new), ignore_quiet=True)
+
+
+def _colorize_replacement(original, replacement, regex, color):
+    _colored_replacement = colorize(replacement, fore=color)
+    return re.sub(regex, _colored_replacement, original)
+
+
+def displayable_replacement(original, replacement, regex, color):
+    if re.sub(regex, replacement, original) == original:
+        # Something was matched but replaced with the same string.
+        return original, original
+
+    colored_old = colorize_re_match(original, regex=regex, color=color)
+    colored_new = _colorize_replacement(original, replacement, regex, color)
+    return colored_old, colored_new
+
+
+def msg_replacement(original, replacement, regex):
+    _old, _new = displayable_replacement(original, replacement, regex,
+                                         C.REPLACEMENT_HIGHLIGHT_COLOR)
+    # log.info('Applied custom replacement: "{}" -> "{}"'.format(_old, _new))
+
+    cf = ColumnFormatter(align='right')
+    cf.addrow('Applied replacement:', '{!s}')
+    cf.addrow('->', '{!s}')
+    _message = str(cf)
+    msg(_message.format(_old, _new), ignore_quiet=False)
+
+    # TODO: [TD0096] Fix invalid colouring if the replacement is the last character.
+    #
+    # Applying custom replacement. Regex: "re.compile('\\.$')" Replacement: ""
+    # Applying custom replacement: "2007-04-23_12-comments.png." -> "2007-04-23_12-comments.png"
+    #                                                     ^   ^
+    #                 Should not be colored red, but is --'   '-- Should be red, but isn't ..
 
 
 class ColumnFormatter(object):
@@ -387,7 +425,6 @@ class ColumnFormatter(object):
         self.addrow(' ')
 
     def _update_column_widths(self, strings):
-        # strings = [textutils.strip_ansiescape(s) for s in strings]
         # strings = [textutils.normalize_unicode(s) for s in strings]
         new_widths = [len(s) for s in strings]
 

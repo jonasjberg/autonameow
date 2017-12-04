@@ -24,13 +24,13 @@ import logging
 import analyzers
 from core import (
     exceptions,
-    repository,
+    logs,
+    repository
 )
 from core.config.configuration import Configuration
 from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
 from core.model import MeowURI
-from util.queue import GenericQueue
 
 
 log = logging.getLogger(__name__)
@@ -42,39 +42,6 @@ Performs high-level handling of an analysis.
 A run queue is populated based on which analyzers are suited for the
 current file.
 """
-
-
-class AnalysisRunQueue(GenericQueue):
-    """
-    Execution queue for analyzers.
-
-    The queue order is determined by the class variable "RUN_QUEUE_PRIORITY".
-    """
-    def __init__(self):
-        super().__init__()
-
-    def enqueue(self, analyzer):
-        """
-        Adds a analyzer to the queue.
-
-        The queue acts as a set; duplicate analyzers are silently ignored.
-
-        Args:
-            analyzer: Analyzer to enqueue as type 'type'.
-        """
-        if analyzer not in self._items:
-            self._items.insert(0, analyzer)
-
-    def __iter__(self):
-        for item in sorted(self._items,
-                           key=lambda x: x.RUN_QUEUE_PRIORITY or 0.1):
-            yield item
-
-    def __str__(self):
-        out = []
-        for pos, item in enumerate(self):
-            out.append('{:02d}: {!s}'.format(pos, item))
-        return ', '.join(out)
 
 
 def _execute_run_queue(analyzer_queue):
@@ -154,27 +121,6 @@ def collect_results(fileobject, meowuri_prefix, data):
             return
         repository.SessionRepository.store(fileobject, _meowuri, data)
 
-    # if isinstance(data, dict):
-    #     flat_data = flatten_dict(data)
-    #     for _uri_leaf, _data in flat_data.items():
-    #         try:
-    #             _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
-    #         except InvalidMeowURIError as e:
-    #             log.critical(
-    #                 'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-    #             )
-    #             continue
-    #         repository.SessionRepository.store(fileobject, _meowuri, _data)
-    # else:
-    #     try:
-    #         _meowuri = MeowURI(meowuri_prefix)
-    #     except InvalidMeowURIError as e:
-    #         log.critical(
-    #             'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-    #         )
-    #         return
-    #     repository.SessionRepository.store(fileobject, _meowuri, data)
-
 
 def _instantiate_analyzers(fileobject, klass_list, config):
     """
@@ -195,29 +141,53 @@ def _instantiate_analyzers(fileobject, klass_list, config):
     ]
 
 
+def suitable_analyzers_for(fileobject):
+    """
+    Returns analyzer classes that can handle the given file object.
+
+    Args:
+        fileobject: File to get analyzers for as an instance of 'FileObject'.
+
+    Returns:
+        A list of analyzer classes that can analyze the given file.
+    """
+    return [a for a in analyzers.AnalyzerClasses if a.can_handle(fileobject)]
+
+
 def start(fileobject, config):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
-    log.debug(' Analysis Starting '.center(80, '='))
+    log.debug(' Analysis Preparation Started '.center(120, '='))
 
     assert isinstance(fileobject, FileObject), (
            'Expected type "FileObject". Got {!s}')
     assert isinstance(config, Configuration), (
            'Expected type "Configuration". Got {!s}'.format(type(config)))
 
-    klasses = analyzers.suitable_analyzers_for(fileobject)
+    klasses = suitable_analyzers_for(fileobject)
     if not klasses:
         raise exceptions.AutonameowException(
             'None of the analyzers applies (!)'
         )
 
-    analyzer_queue = AnalysisRunQueue()
+    analyzer_queue = []
     for a in _instantiate_analyzers(fileobject, klasses, config):
-        analyzer_queue.enqueue(a)
-    log.debug('Enqueued analyzers: {!s}'.format(analyzer_queue))
+        if a not in analyzer_queue:
+            analyzer_queue.insert(0, a)
+        else:
+            log.error('Attempted to enqueue queued analyzer: "{!s}"'.format(a))
+
+    def _prettyprint(list_):
+        out = []
+        for pos, item in enumerate(list_):
+            out.append('{:02d}: {!s}'.format(pos, item))
+        return ', '.join(out)
+    log.debug('Enqueued analyzers: {}'.format(_prettyprint(analyzer_queue)))
+
+    # Sort queue by analyzer priority.
+    sorted(analyzer_queue, key=lambda x: x.RUN_QUEUE_PRIORITY or 0.1)
 
     # Run all analyzers in the queue.
-    _execute_run_queue(analyzer_queue)
-
-    log.debug(' Analysis Completed '.center(80, '='))
+    with logs.log_runtime(log, 'Analysis'):
+        _execute_run_queue(analyzer_queue)

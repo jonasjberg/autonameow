@@ -19,7 +19,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from contextlib import contextmanager
 import logging
+import time
 
 from core import ui
 
@@ -73,7 +75,7 @@ def init_logging(opts):
         logging.basicConfig(level=logging.CRITICAL, format=fmt)
     else:
         fmt = '%(levelname)s %(message)s'
-        logging.basicConfig(level=logging.WARNING, format=fmt)
+        logging.basicConfig(level=logging.ERROR, format=fmt)
 
 
 def silence():
@@ -86,3 +88,19 @@ def silence():
 
 def unsilence():
     logging.disabled = False
+
+
+@contextmanager
+def log_runtime(logger, name):
+    def _log(message):
+        MAX_WIDTH = 120
+        message = ' ' + message + ' '
+        logger.debug(message.center(MAX_WIDTH, '='))
+
+    _log('{} Started'.format(name))
+    start_time = time.time()
+    try:
+        yield
+    finally:
+        elapsed_time = time.time() - start_time
+        _log('{} Completed in {:.9f} seconds'.format(name, elapsed_time))

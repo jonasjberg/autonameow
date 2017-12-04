@@ -91,7 +91,8 @@ def filetype(file_path):
 
     try:
         found_type = MY_MAGIC.file(file_path)
-    except (AttributeError, magic.MagicException, TypeError):
+    except (AttributeError, TypeError):
+        # TODO: Fix 'magic.MagicException' not available in both libraries.
         found_type = _unknown_mime_type
 
     return found_type
@@ -153,10 +154,9 @@ def eval_glob(mime_to_match, glob_list):
     if not isinstance(glob_list, list):
         glob_list = [glob_list]
 
-    log.debug(
-        'Evaluating MIME. MimeToMatch: "{!s}" Globs: {!s}'.format(mime_to_match,
-                                                                  glob_list)
-    )
+    # log.debug('Evaluating MIME. MimeToMatch: "{!s}" Globs: {!s}'.format(
+    #     mime_to_match, glob_list
+    # ))
     mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
     for glob in glob_list:
         sanity.check_internal_string(glob)
@@ -299,15 +299,22 @@ MAPPER.add_mapping('application/gzip', 'gz')
 MAPPER.add_mapping('application/gzip', 'tar.gz')
 MAPPER.add_mapping('application/rar', 'rar')
 MAPPER.add_mapping('application/rtf', 'rtf')
+MAPPER.add_mapping('application/vnd.oasis.opendocument.presentation', 'odp')
+MAPPER.add_mapping('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx')
 MAPPER.add_mapping('application/x-gzip', 'gz')
 MAPPER.add_mapping('application/x-gzip', 'tar.gz')
 MAPPER.add_mapping('application/x-lzma', 'lzma')
 MAPPER.add_mapping('application/x-lzma', 'tar.lzma')
 MAPPER.add_mapping('application/x-rar', 'rar')
+MAPPER.add_mapping('audio/x-flac', 'flac')
+MAPPER.add_mapping('image/vnd.djvu', 'djvu')
 MAPPER.add_mapping('inode/x-empty', '')
 MAPPER.add_mapping('text/rtf', 'rtf')
 MAPPER.add_mapping('text/x-asm', 'asm')
+MAPPER.add_mapping('text/x-c', 'c')
+MAPPER.add_mapping('text/x-c++', 'cpp')
 MAPPER.add_mapping('text/x-shellscript', 'sh')
+MAPPER.add_mapping('video/x-matroska', 'mkv')
 
 # Any custom overrides of the "extension to MIME-type"-mapping goes here.
 MAPPER.add_preferred_extension('image/jpeg', 'jpg')

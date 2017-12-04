@@ -38,6 +38,9 @@ sys.path.insert(0, AUTONAMEOW_ANALYZER_PATH)
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0126] Clean up boundaries/interface to the 'analyzers' package.
+
+
 def find_analyzer_files():
     """
     Finds Python source files assumed to be autonameow analyzers.
@@ -47,19 +50,6 @@ def find_analyzer_files():
     analyzer_files = [x for x in os.listdir(AUTONAMEOW_ANALYZER_PATH)
                       if x.endswith('.py') and x.startswith('analyze_')]
     return analyzer_files
-
-
-def suitable_analyzers_for(fileobject):
-    """
-    Returns analyzer classes that can handle the given file object.
-
-    Args:
-        fileobject: File to get analyzers for as an instance of 'FileObject'.
-
-    Returns:
-        A list of analyzer classes that can analyze the given file.
-    """
-    return [a for a in AnalyzerClasses if a.can_handle(fileobject)]
 
 
 def _get_implemented_analyzer_classes(analyzer_files):

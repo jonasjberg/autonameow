@@ -10,6 +10,59 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-12-01
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0011]` Think about how the overall "analysis" might be executed more than
+    >   once.
+    >     * Results from an initial analysis might be passed to the second analysis.
+    >     * If a matched and active rule does not specify all required sources; the
+    >       missing sources might be filled in by a more targeted approach using data
+    >       gathered during the first run.
+
+* 2017-11-29
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
+    >   When listing results with any of the `--list-*` options, paths are not
+    >   displayed properly due to them not being handled properly before being passed
+    >   to `yaml.dump` which performs the formatting of the results dict.
+
+* 2017-11-28
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0059]` Replace `--list-datetime`, `--list-title` and `--list-all`
+    >   with something more flexible like `--list {FIELD}`.
+    >
+    > * `[TD0124]` Add option (script?) to run failed regression tests manually.
+
+* 2017-11-24
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0084]` Add handling collections (lists, etc) to the type wrapper classes.
+
+* 2017-11-21
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0123]` Add option (script?) to re-run failed regression tests.
+
+* 2017-11-19
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0106]` Fix inconsistencies in results passed back by extractors.
+
 * 2017-11-17
 
     > High Priority
@@ -306,7 +359,7 @@ University mail: `js224eh[a]student.lnu.se`
     >   template field. Take the following example rule;
     >
     >     ```yaml
-    > 	-   CONDITIONS:
+    >   -   CONDITIONS:
     >             filesystem.basename.full: 'P[0-9]{7}.JPG'
     >             filesystem.contents.mime_type: image/jpeg
     >         DATA_SOURCES:
@@ -318,10 +371,10 @@ University mail: `js224eh[a]student.lnu.se`
     >   This rule will not pass validation because the literal string `jpg` is
     >   discarded by the `is_valid_source` function in `core/config/rules.py`;
     >
-    > 	```
-    > 	$ autonameow --debug --dry-run --automagic P1020738.JPG 2>&1 | grep -i invalid
-    > 	[DEBUG] parse_data_sources (549) Invalid data source: [extension]: jpg
-    > 	```
+    >   ```
+    >   $ autonameow --debug --dry-run --automagic P1020738.JPG 2>&1 | grep -i invalid
+    >   [DEBUG] parse_data_sources (549) Invalid data source: [extension]: jpg
+    >   ```
     >
     >   __Related:__ `[TD0015][TD0017][TD0049]`
 

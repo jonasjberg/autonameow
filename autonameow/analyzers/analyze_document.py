@@ -30,6 +30,7 @@ from util import (
     dateandtime,
     textutils
 )
+from util.text.patternmatching import find_publisher_in_copyright_notice
 
 
 # TODO: [TD0094] Search text for DOIs and query external services
@@ -47,6 +48,8 @@ class DocumentAnalyzer(BaseAnalyzer):
         )
 
         self.text = None
+        self.text_lines = 0
+        self.candidate_publishers = {}
 
     def analyze(self):
         _maybe_text = self.request_any_textual_content()
@@ -54,14 +57,26 @@ class DocumentAnalyzer(BaseAnalyzer):
             return
 
         self.text = _maybe_text
+        self.text_lines = len(self.text)
 
-        self._add_results('author', self.get_author())
-        self._add_results('title', self.get_title())
-        self._add_results('datetime', self.get_datetime())
-        self._add_results('publisher', self.get_publisher())
+        # Arbitrarily search the text in chunks of 10%
+        text_chunk_1 = self._extract_leading_text_chunk(chunk_ratio=0.1)
 
-        self._add_title_from_text_to_results()
-        self._add_publisher_from_text_to_results()
+        _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
+        if _options:
+            _candidates = _options.get('candidates', {})
+            if _candidates:
+                self.candidate_publishers = _candidates
+
+        self._add_results('datetime',
+                          self._get_datetime_from_text(text_chunk_1))
+
+        self._add_title_from_text_to_results(text_chunk_1)
+
+        # TODO: [cleanup] ..
+        if self.candidate_publishers:
+            self._search_text_for_candidate_publisher(text_chunk_1)
+            self._search_text_for_copyright_publisher(text_chunk_1)
 
     def __collect_results(self, meowuri, weight):
         value = self.request_data(self.fileobject, meowuri)
@@ -70,64 +85,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         else:
             return []
 
-    def get_author(self):
-        results = []
-
-        # TODO: [TD0102] Do not add duplicate results.
-        # possible_authors = [
-        #     ('generic.metadata.author', 1),
-        #     ('generic.metadata.creator', 0.5),
-        #     ('generic.metadata.producer', 0.1),
-        # ]
-        # for meowuri, weight, in possible_authors:
-        #     results += self.__collect_results(meowuri, weight)
-
-        return results if results else None
-
-    def get_title(self):
-        results = []
-
-        # TODO: [TD0102] Do not add duplicate results.
-        # possible_titles = [
-        #     ('generic.metadata.title', 1),
-        #     ('generic.metadata.subject', 0.25),
-        # ]
-        # for meowuri, weight in possible_titles:
-        #     results += self.__collect_results(meowuri, weight)
-
-        return results if results else None
-
-    def get_datetime(self):
-        results = []
-
-        if self.text:
-            text_timestamps = self._get_datetime_from_text()
-            if text_timestamps:
-                results += text_timestamps
-
-        return results if results else None
-
-    def get_tags(self):
-        raise NotImplementedError('Get "tags" from PdfAnalyzer')
-
-    def get_publisher(self):
-        results = []
-
-        # TODO: [TD0102] Do not add duplicate results.
-        # possible_publishers = [
-        #     ('extractor.metadata.exiftool.PDF:EBX_PUBLISHER', 1),
-        #     ('extractor.metadata.exiftool.XMP:EbxPublisher', 1),
-        # ]
-        # for meowuri, weight in possible_publishers:
-        #     results += self.__collect_results(meowuri, weight)
-
-        return results if results else None
-
-    def _add_title_from_text_to_results(self):
-        text = self.text
-        if not text:
-            return
-
+    def _add_title_from_text_to_results(self, text):
         # Add all lines that aren't all whitespace or all dashes, from the
         # first to line number "max_lines".
         # The first line is assigned probability 1, probabilities decrease
@@ -143,18 +101,23 @@ class DocumentAnalyzer(BaseAnalyzer):
                     'title', self._wrap_generic_title(line, _prob)
                 )
 
-    def _add_publisher_from_text_to_results(self):
-        _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
-        if not _options:
-            return
-        else:
-            _candidates = _options.get('candidates', {})
-
-        assert self.text is not None
-        _text = textutils.extract_lines(self.text, firstline=0, lastline=100)
-        result = find_publisher(_text, _candidates)
+    def _search_text_for_candidate_publisher(self, text):
+        result = find_publisher(text, self.candidate_publishers)
         if not result:
             return
+
+        self._add_results(
+            'publisher', self._wrap_publisher(result)
+        )
+
+    def _search_text_for_copyright_publisher(self, text):
+        result = find_publisher_in_copyright_notice(text)
+        if not result:
+            return
+
+        if self.candidate_publishers:
+            # TODO: [cleanup] ..
+            result = find_publisher(result, self.candidate_publishers)
 
         self._add_results(
             'publisher', self._wrap_publisher(result)
@@ -180,33 +143,24 @@ class DocumentAnalyzer(BaseAnalyzer):
             'generic_field': gf.GenericTitle
         }
 
-    def _get_datetime_from_text(self):
-        """
-        Extracts date and time information from the documents textual content.
-        :return: a list of dictionaries on the form:
-                 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
-                     'source' : 'content',
-                     'weight'  : 0.1
-                   }, .. ]
-        """
-        results = []
-        text = self.text
-        if type(text) == list:
-            text = ' '.join(text)
-
+    def _get_datetime_from_text(self, text):
         dt_regex = dateandtime.regex_search_str(text)
-        if dt_regex:
-            assert isinstance(dt_regex, list)
-            for data in dt_regex:
-                results.append({
-                    'value': data,
-                    'coercer': types.AW_TIMEDATE,
-                    'mapped_fields': [
-                        WeightedMapping(fields.DateTime, probability=0.25),
-                        WeightedMapping(fields.Date, probability=0.25)
-                    ],
-                    'generic_field': gf.GenericDateCreated
-                    })
+        if not dt_regex:
+            return None
+
+        assert isinstance(dt_regex, list)
+        results = []
+        for data in dt_regex:
+            results.append({
+                'value': data,
+                'coercer': types.AW_TIMEDATE,
+                'mapped_fields': [
+                    WeightedMapping(fields.DateTime, probability=0.25),
+                    WeightedMapping(fields.Date, probability=0.25)
+                ],
+                'generic_field': gf.GenericDateCreated,
+                'source': str(self)
+                })
 
         # TODO: Temporary premature return skips brute force search ..
         return results
@@ -250,6 +204,16 @@ class DocumentAnalyzer(BaseAnalyzer):
                         })
 
         return results
+
+    def _extract_leading_text_chunk(self, chunk_ratio):
+        assert chunk_ratio >= 0, 'Argument chunk_ratio is negative'
+
+        # Chunk #1: from BEGINNING to (BEGINNING + CHUNK_SIZE)
+        _chunk1_start = 1
+        _chunk1_end = int(self.text_lines * chunk_ratio)
+        text = textutils.extract_lines(self.text, firstline=_chunk1_start,
+                                       lastline=_chunk1_end)
+        return text
 
     @classmethod
     def check_dependencies(cls):

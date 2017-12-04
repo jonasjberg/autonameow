@@ -21,17 +21,22 @@
 
 set -o nounset
 
-SELF="$(basename "$0")"
-SELF_DIR="$(realpath -e "$(dirname "$0")")"
+SELF_BASENAME="$(basename "$0")"
+SELF_DIRNAME="$(realpath -e "$(dirname "$0")")"
 
-if ! source "${SELF_DIR}/common_utils.sh"
+if ! source "${SELF_DIRNAME}/setup_environment.sh"
 then
-    echo "Shared test utility library is missing. Aborting .." 1>&2
+    cat >&2 <<EOF
+
+[ERROR] Unable to source "${SELF_DIRNAME}/setup_environment.sh"
+        Environment variable setup script is missing. Aborting ..
+
+EOF
     exit 1
 fi
 
 
 (
-  cd "$AUTONAMEOW_ROOT_DIR" \
-  && PYTHONPATH=autonameow:tests python3 tests/regression_runner.py "$@"
+cd "$AUTONAMEOW_ROOT_DIR" \
+&& PYTHONPATH=autonameow:tests python3 tests/regression/regression_runner.py "$@"
 )

@@ -33,29 +33,6 @@ class VideoAnalyzer(BaseAnalyzer):
         )
 
     def analyze(self):
-        self._add_results('author', self.get_author())
-        self._add_results('title', self.get_title())
-        self._add_results('datetime', self.get_datetime())
-        self._add_results('publisher', self.get_publisher())
-        self._add_results('tags', self.get_tags())
-
-    def get_author(self):
-        # TODO: [TD0055] Implement the video analyzer.
-        pass
-
-    def get_title(self):
-        # TODO: [TD0055] Implement the video analyzer.
-        pass
-
-    def get_datetime(self):
-        # TODO: [TD0055] Implement the video analyzer.
-        pass
-
-    def get_publisher(self):
-        # TODO: [TD0055] Implement the video analyzer.
-        pass
-
-    def get_tags(self):
         # TODO: [TD0055] Implement the video analyzer.
         pass
 

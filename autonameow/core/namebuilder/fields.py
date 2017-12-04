@@ -85,12 +85,13 @@ class Title(NameTemplateField):
         data = data.strip(',.:;-_ ')
         data = data.replace('&', 'and')
         data = data.replace('&#8211;', '-')
-        data = data.replace(' - ', '')
+        # data = data.replace(' - ', '')
         return data
 
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
+        # TODO: [TD0129] Data validation at this point should be made redundant
         if data.get('coercer') in (types.AW_PATHCOMPONENT, types.AW_PATH):
             string = types.force_string(data.get('value'))
             if not string:
@@ -144,6 +145,7 @@ class Edition(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
+        # TODO: [TD0129] Data validation at this point should be made redundant
         if data.get('coercer') in (types.AW_PATHCOMPONENT, types.AW_PATH):
             string = types.force_string(data.get('value'))
             if not string:
@@ -177,6 +179,7 @@ class Extension(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
+        # TODO: [TD0129] Data validation at this point should be made redundant
         value = data.get('value')
         coercer = data.get('coercer')
         if coercer:
@@ -202,6 +205,7 @@ class Author(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
+        # TODO: [TD0129] Data validation at this point should be made redundant
         if isinstance(data.get('value'), list):
             # Multiple authors
             _formatted = []
@@ -262,23 +266,23 @@ class DateTime(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        _datetime_data = data.get('value')
-        if not _datetime_data:
+        # TODO: [TD0129] Data validation at this point should be made redundant
+        _value = data.get('value')
+        if not _value:
             raise exceptions.NameBuilderError(
                 '{!s}.format() got empty data'.format(cls)
             )
 
-        if not isinstance(_datetime_data, datetime.datetime):
+        if not isinstance(_value, datetime.datetime):
             raise exceptions.NameBuilderError(
                 '{!s}.format() expected data of type "datetime". '
-                'Got "{!s}" with value "{!s}"'.format(cls, type(_datetime_data),
-                                                      _datetime_data)
+                'Got "{!s}" with value "{!s}"'.format(cls, type(_value), _value)
             )
 
         c = kwargs.get('config')
         if c:
             _format = c.options['DATETIME_FORMAT']['datetime']
-            return formatted_datetime(data.get('value'), _format)
+            return formatted_datetime(_value, _format)
         else:
             raise exceptions.NameBuilderError('Unknown "datetime" format')
 
@@ -291,10 +295,23 @@ class Date(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
+        # TODO: [TD0129] Data validation at this point should be made redundant
+        _value = data.get('value')
+        if not _value:
+            raise exceptions.NameBuilderError(
+                '{!s}.format() got empty data'.format(cls)
+            )
+
+        if not isinstance(_value, datetime.datetime):
+            raise exceptions.NameBuilderError(
+                '{!s}.format() expected data of type "datetime". '
+                'Got "{!s}" with value "{!s}"'.format(cls, type(_value), _value)
+            )
+
         c = kwargs.get('config')
         if c:
             datetime_format = c.options['DATETIME_FORMAT']['date']
-            return formatted_datetime(data.get('value'), datetime_format)
+            return formatted_datetime(_value, datetime_format)
         else:
             raise exceptions.NameBuilderError('Unknown "date" format')
 
@@ -349,19 +366,25 @@ class Tags(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        _tags = []
-        for d in data.get('value'):
-            assert isinstance(d, str)
-            _tags.append(d)
+        _value = data.get('value')
+        _tag_list = types.listof(types.AW_STRING)(_value)
+
+        # TODO: [TD0129] Is this kind of double-double-check really necessary..?
+        assert isinstance(_tag_list, list)
+        for t in _tag_list:
+            assert isinstance(t, str)
+
+        if len(_tag_list) == 1:
+            # Single tag doesn't need to be joined.
+            return _tag_list[0]
 
         c = kwargs.get('config')
         if c:
             sep = c.options['FILETAGS_OPTIONS']['between_tag_separator']
             sanity.check_internal_string(sep)
-            return sep.join(_tags)
+            return sep.join(_tag_list)
         else:
             raise exceptions.NameBuilderError('Unknown "between_tag_separator"')
-        pass
 
 
 class Time(NameTemplateField):
@@ -371,10 +394,11 @@ class Time(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
+        _value = data.get('value')
         c = kwargs.get('config')
         if c:
             datetime_format = c.options['DATETIME_FORMAT']['time']
-            return formatted_datetime(data.get('value'), datetime_format)
+            return formatted_datetime(_value, datetime_format)
         else:
             raise exceptions.NameBuilderError('Unknown "time" format')
 
@@ -481,20 +505,5 @@ def nametemplatefield_classes_in_formatstring(format_string):
 
 
 def formatted_datetime(datetime_object, format_string):
-    """
-    Takes a date/time string, converts it to a datetime object and
-    returns a formatted version on the form specified with "format_string".
-
-    Note that the parsing of "datetime_string" might fail.
-    TODO: Handle the [raw data] -> [formatted datetime] conversion better!
-
-    Args:
-        datetime_object: Date/time information as a datetime object.
-        format_string: The format string to use for the output. Refer to:
-            https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
-
-    Returns:
-        A string in the specified format with the data from the given string.
-    """
     assert isinstance(datetime_object, datetime.datetime)
     return datetime_object.strftime(format_string)

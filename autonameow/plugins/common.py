@@ -59,6 +59,8 @@ class BasePlugin(object):
 
     @classmethod
     def meowuri_prefix(cls):
+        # TODO: [TD0133] Fix inconsistent use of MeowURIs
+        #       Stick to using either instances of 'MeowURI' _OR_ strings.
         _leaf = cls.__module__.split('_')[0] or cls.MEOWURI_LEAF
 
         return '{root}{sep}{leaf}'.format(

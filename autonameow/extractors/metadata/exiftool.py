@@ -54,8 +54,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """
-    HANDLES_MIME_TYPES = ['video/*', 'application/pdf', 'image/*',
-                          'application/epub+zip', 'text/*']
+    HANDLES_MIME_TYPES = [
+        'video/*', 'application/pdf', 'image/*', 'application/epub+zip',
+        'text/*', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ]
     is_slow = False
 
     FIELD_LOOKUP = {
@@ -338,7 +340,70 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': gf.GenericDateModified
         },
+        'XML:Application': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Creator, probability=1),
+                WeightedMapping(fields.Author, probability=0.025),
+                WeightedMapping(fields.Publisher, probability=0.02),
+                WeightedMapping(fields.Title, probability=0.01)
+            ],
+            'generic_field': gf.GenericCreator
+        },
+        'XML:Company': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=0.9),
+                WeightedMapping(fields.Publisher, probability=0.7),
+                WeightedMapping(fields.Creator, probability=0.1)
+            ],
+            'generic_field': gf.GenericAuthor
+        },
+        'XML:CreateDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
+            ],
+            'generic_field': gf.GenericDateCreated
+        },
+        # Typically a username.
+        'XML:LastModifiedBy': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=0.9),
+                WeightedMapping(fields.Publisher, probability=0.5),
+                WeightedMapping(fields.Creator, probability=0.1)
+            ],
+            'generic_field': gf.GenericAuthor
+        },
+        'XML:ModifyDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
+            ],
+            'generic_field': gf.GenericDateModified
+        },
+        'XML:TitlesOfParts': {
+            'coercer': types.AW_STRING,
+            'multivalued': True,
+            'mapped_fields': [
+                WeightedMapping(fields.Title, probability=0.7)
+            ]
+        },
         'XMP:About': {'coercer': types.AW_STRING},
+        'XMP:Contributor': {
+            'coercer': types.AW_STRING,
+            'multivalued': True,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=1),
+                WeightedMapping(fields.Creator, probability=0.5),
+                WeightedMapping(fields.Publisher, probability=0.02),
+                WeightedMapping(fields.Title, probability=0.01)
+            ],
+            'generic_field': gf.GenericAuthor
+        },
         'XMP:CreateDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
             'mapped_fields': [
@@ -349,9 +414,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'XMP:Creator': {
             'coercer': types.AW_STRING,
+            'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
-                WeightedMapping(fields.Creator, probability=0.5),
+                WeightedMapping(fields.Creator, probability=1),
+                WeightedMapping(fields.Author, probability=0.5),
                 WeightedMapping(fields.Publisher, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
@@ -380,10 +446,19 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'XMP:Date': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.9),
-                WeightedMapping(fields.Date, probability=0.9)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
             'generic_field': gf.GenericDateCreated
+        },
+        'XMP:Description': {
+            # TODO: Possibly HTML; <p>TEXT</p>, HTML-encoded characters, etc.
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Description, probability=1),
+                WeightedMapping(fields.Tags, probability=0.5)
+            ],
+            'generic_field': gf.GenericDescription
         },
         'XMP:DocumentID': {'coercer': types.AW_STRING},
         'XMP:EntryAuthorName': {
@@ -450,6 +525,9 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': types.AW_TIMEDATE,
             'multivalued': True
         },
+        'XMP:Identifier': {
+            'coercer': types.AW_STRING,
+        },
         'XMP:Keywords': {
             'coercer': types.AW_STRING,
             'mapped_fields': [
@@ -504,9 +582,21 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Creator, probability=0.2),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            'generic_field': gf.GenericAuthor
+            'generic_field': gf.GenericPublisher
+        },
+        'XMP:Rights': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Publisher, probability=0.5),
+                WeightedMapping(fields.Author, probability=0.5),
+            ],
         },
         'XMP:Subject': {
+            #
+            # TODO: Handle unexpected list with ISBN. Example;
+            #
+            # Tag: "XMP:Subject" Value: "['ISBN-13:', 9781847197283]"
+            #
             'coercer': types.AW_STRING,
             # 'multivalued': False,
             'mapped_fields': [
@@ -547,6 +637,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         except NotImplementedError as e:
             raise ExtractorError('Called unimplemented code in {!s}: '
                                  '{!s}'.format(self, e))
+        except ValueError as e:
+            raise ExtractorError('Possible bug in "pyexiftool": {!s}'.format(e))
 
         self.log.debug('{!s}: Completed extraction'.format(self))
         return _metadata
@@ -608,9 +700,17 @@ def _get_exiftool_data(source):
     Returns:
         Exiftool results as a dictionary of strings/ints/floats.
     """
-    with pyexiftool.ExifTool() as et:
-        try:
-            return et.get_metadata(source)
-        except (AttributeError, ValueError, TypeError) as e:
-            # Raises ValueError if an ExifTool instance isn't running.
-            raise ExtractorError(e)
+    try:
+        with pyexiftool.ExifTool() as et:
+            try:
+                return et.get_metadata(source)
+            except (AttributeError, ValueError, TypeError) as e:
+                # Raises ValueError if an ExifTool instance isn't running.
+                raise ExtractorError(e)
+    except OSError as e:
+        # 'OSError: [Errno 12] Cannot allocate memory'
+        # This apparently happens, not sure if it is a bug in 'pyexiftool' or
+        # if the repository or something else grows way too large when running
+        # with a lot of files ..
+        # TODO: [TD0131] Limit repository size!
+        raise ExtractorError(e)

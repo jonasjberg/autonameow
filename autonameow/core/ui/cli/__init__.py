@@ -28,6 +28,7 @@ from .common import (
     colorize_quoted,
     msg,
     msg_rename,
+    msg_replacement,
     print_exit_info,
     print_start_info,
     print_version_info,

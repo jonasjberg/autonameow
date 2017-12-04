@@ -38,6 +38,9 @@ AUTONAMEOW_EXTRACTOR_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_EXTRACTOR_PATH)
 
 
+# TODO: [TD0127] Clean up boundaries/interface to the 'extractors' package.
+
+
 def find_extractor_module_files():
     """
     Finds Python source files assumed to be autonameow extractors.
@@ -99,12 +102,6 @@ def _get_module_classes(modules):
     return _abstract_extractor_classes, _extractor_classes
 
 
-def get_abstract_extractor_classes(extractor_files):
-    _p_abstract, _p_implemented = _get_package_classes(['metadata', 'text'])
-    _m_abstract, _m_implemented = _get_module_classes(extractor_files)
-    return _p_abstract + _m_abstract
-
-
 def get_extractor_classes(packages, modules):
     _p_abstract, _p_implemented = _get_package_classes(packages)
     _m_abstract, _m_implemented = _get_module_classes(modules)
@@ -124,22 +121,15 @@ def get_extractor_classes(packages, modules):
     return out
 
 
-def suitable_extractors_for(fileobject):
-    """
-    Returns extractor classes that can handle the given file object.
-
-    Args:
-        fileobject: File to get extractors for as an instance of 'FileObject'.
-
-    Returns:
-        A list of extractor classes that can extract data from the given file.
-    """
-    return [e for e in ExtractorClasses if e.can_handle(fileobject)]
-
-
 def map_meowuri_to_extractors():
     """
     Returns a mapping of the extractor "meowURIs" and extractor classes.
+
+    Example return value: {
+        'extractor.filesystem.xplat': [CrossPlatformFilesystemExtractor],
+        'extractor.metadata.exiftool': [ExiftoolMetadataExtractor],
+        'extractor.text.pdftotext': PdftotextTextExtractor
+    }
 
     Returns: A dictionary where the keys are Unicode string "meowURIs",
              with values beings lists of extractor classes.

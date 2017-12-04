@@ -14,6 +14,10 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0131]` __Limit `Repository` memory usage__  
+  Given enough files, it currently eats up all the RAM, which causes other
+  parts of the program to fail, especially launching subprocesses.
+
 * `[TD0115]` __Clear up uncertainties about data multiplicities.__  
   I.E. list of data dicts vs. single data dict that contains a list
   of data (`multivalued: True`).
@@ -24,22 +28,25 @@ High Priority
 
 * `[TD0089]` Validate only "generic" data fields when reading config.
 
-* `[TD0084]` Add handling collections (lists, etc) to the type wrapper classes.
-
-* `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
-  When listing results with any of the `--list-*` options, paths are not
-  displayed properly due to them not being handled properly before being passed
-  to `yaml.dump` which performs the formatting of the results dict.
-
 * `[TD0102]` Fix inconsistencies in results passed back by analyzers.
 
-* `[TD0106]` Fix inconsistencies in results passed back by extractors.
-
 * `[TD0108]` Fix inconsistencies in results passed back by plugins.
+
+* `[TD0126]` Clean up boundaries/interface to the `analyzers` package.
+
+* `[TD0127]` Clean up boundaries/interface to the `extractors` package.
+
+* `[TD0128]` Clean up boundaries/interface to the `plugins` package.
+
+* `[TD0129]` Enforce passing validated data to `NameTemplateField.format()`.
+
+* `[TD0133]` Fix inconsistent use of MeowURIs; `MeowURI` instances and strings.
 
 
 Medium Priority
 ---------------
+
+* `[TD0132]` Improve blacklisting data, prevent repeated bad requests to APIs.
 
 * `[TD0112]` __Handle merging "equivalent" data in the `Resolver`.__  
   Add some sort of system for normalizing entities.
@@ -170,9 +177,19 @@ Low Priority
     extractor.metadata.exiftool.exif_datetimeoriginal
     ```
 
-* `[TD0124]` Add option (script?) to run failed regression tests manually.
+* `[TD0130]` __Implement general-purpose matching/extraction of substrings.__  
+  Primary purpose is to provide matching and also removal of matched parts.
+  For instance, given a full string like `Skill: 1337 Meow - foo`,  searching
+  for "skills" with regex `r'[sS]kill: ?(\d)+'`, the matched part should be
+  returned and also removed from the original string. Alternatively, the match
+  results would contain information on where in the original string that the
+  match was found.
 
-* `[TD0123]` Add option (script?) to re-run failed regression tests.
+  This is a non-issue when using only regexes to do the substring searches,
+  but if the search is performed with a function call, removing the matched
+  substring becomes a bit messy.
+
+  Related to `[TD0020]`. This functionality is provided by `guessit`!
 
 * `[TD0121]` Create a script for generating regression tests.
 
@@ -215,9 +232,6 @@ Low Priority
 * `[TD0091]` Take a look at old code in `util/dateandtime.py`.
 
 * `[TD0068]` Let the user specify which languages to use for OCR.
-
-* `[TD0059]` Replace `--list-datetime`, `--list-title` and `--list-all`
-  with something more flexible like `--list {FIELD}`.
 
 * `[TD0055]` Fully implement the `VideoAnalyzer` class.
 
@@ -268,13 +282,6 @@ Low Priority
 * `[TD0010]` Think about how data might need to be processed in multiple
   consecutive runs.
     * In relation to future weighting and prioritizing of analysis results.
-
-* `[TD0011]` Think about how the overall "analysis" might be executed more than
-  once.
-    * Results from an initial analysis might be passed to the second analysis.
-    * If a matched and active rule does not specify all required sources; the
-      missing sources might be filled in by a more targeted approach using data
-      gathered during the first run.
 
 * `[TD0094]` __Search text for DOIs and query external services__  
   Example DOI: `10.1109/TPDS.2010.125`.  Could be used to query external

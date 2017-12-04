@@ -28,10 +28,11 @@ from core import constants as C
 from core import (
     disk,
     exceptions,
+    extraction,
     logs,
 )
 from core.fileobject import FileObject
-import extractors
+from extractors import ExtractorError
 from util import encoding as enc
 
 
@@ -39,7 +40,7 @@ log = logging.getLogger(__name__)
 
 
 def do_extract_text(fileobject):
-    klasses = extractors.suitable_extractors_for(fileobject)
+    klasses = extraction.suitable_extractors_for(fileobject)
     if klasses:
         log.debug('Got {} extractors for "{!s}"'.format(len(klasses),
                                                         fileobject))
@@ -66,7 +67,7 @@ def do_extract_text(fileobject):
             _extractor_instance = te()
             try:
                 _text = _extractor_instance.extract(fileobject)
-            except extractors.ExtractorError as e:
+            except ExtractorError as e:
                 log.error('Halted extractor "{!s}": {!s}'.format(
                     _extractor_instance, e
                 ))
@@ -87,7 +88,7 @@ def do_extract_text(fileobject):
 
 
 def do_extract_metadata(fileobject):
-    klasses = extractors.suitable_extractors_for(fileobject)
+    klasses = extraction.suitable_extractors_for(fileobject)
     if klasses:
         log.debug('Got {} extractors for "{!s}"'.format(len(klasses),
                                                         fileobject))
@@ -114,7 +115,7 @@ def do_extract_metadata(fileobject):
             _extractor_instance = me()
             try:
                 _metadata = _extractor_instance.extract(fileobject)
-            except extractors.ExtractorError as e:
+            except ExtractorError as e:
                 log.error('Halted extractor "{!s}": {!s}'.format(
                     _extractor_instance, e
                 ))
@@ -122,7 +123,7 @@ def do_extract_metadata(fileobject):
 
             try:
                 _metainfo = _extractor_instance.metainfo(fileobject)
-            except extractors.ExtractorError as e:
+            except ExtractorError as e:
                 log.error('Halted extractor "{!s}": {!s}'.format(
                     _extractor_instance, e
                 ))

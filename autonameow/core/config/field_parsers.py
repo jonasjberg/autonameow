@@ -276,8 +276,11 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
             if not string_expr:
                 return False
 
-            # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
-            if not re.match(r'^([a-z]+|\*)/([a-z0-9\-.+]+|\*)$', expr):
+            try:
+                # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
+                if not re.match(r'^([a-z]+|\*)/([a-z0-9\-.+]+|\*)$', expr):
+                    return False
+            except TypeError:
                 return False
 
         return True
@@ -368,7 +371,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
     @staticmethod
     def is_valid_nametemplate_string(expression):
-        if not expression or not expression.strip():
+        if not expression:
             return False
 
         try:

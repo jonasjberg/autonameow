@@ -171,6 +171,7 @@ class TemplateFieldDataResolver(object):
                     _str_field, _data.get('value')
                 ))
                 self.fields_data[_field] = _data
+                break
 
     def _verify_types(self):
         # TODO: [TD0115] Clear up uncertainties about data multiplicities.

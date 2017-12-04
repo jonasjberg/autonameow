@@ -24,6 +24,7 @@ import logging
 import plugins
 from core import (
     exceptions,
+    logs,
     repository
 )
 from core.exceptions import InvalidMeowURIError
@@ -43,7 +44,7 @@ class PluginHandler(object):
         self.available_plugins = []
 
     def start(self, fileobject, require_plugins=None, run_all_plugins=False):
-        self.log.debug(' Plugins Starting '.center(80, '='))
+        self.log.debug(' Plugin Handler Started '.center(120, '='))
 
         # Get instantiated and validated plugins.
         self.available_plugins = plugins.UsablePlugins
@@ -66,9 +67,8 @@ class PluginHandler(object):
             )
             self.use_plugins(list(require_plugins))
 
-        self.execute_plugins(fileobject)
-
-        self.log.debug(' Plugins Completed '.center(80, '='))
+        with logs.log_runtime(log, 'Plugins'):
+            self.execute_plugins(fileobject)
 
     def use_plugins(self, plugin_list):
         self.log.debug(
@@ -167,7 +167,8 @@ def _wrap_extracted_data(extracteddata, metainfo, source_klass):
             log.warning('Missing metainfo for field "{!s}"'.format(field))
 
         field_metainfo['value'] = value
-        field_metainfo['source'] = source_klass
+        # Do not store a reference to the class itself before actually needed..
+        field_metainfo['source'] = str(source_klass)
         out[field] = field_metainfo
 
     return out

@@ -40,7 +40,7 @@ However, functionality provided by these classes have expanded and multiple
 parts of autonameow now use these types in various ways. The exact workings
 of the coercion _IS_ relevant for some of the usages..
 The best way to get a grip on what these classes are doing is to look at the
-tests in 'unit_test_types.py'.
+tests in 'tests/unit/test_types.py'.
 
 Note that the behaviours of for instance 'format()' and 'normalize()' vary
 a lot between classes.
@@ -61,9 +61,6 @@ from util import (
     sanity,
     textutils
 )
-
-
-# TODO: [TD0084] Add handling collections to type coercion classes.
 
 
 class AWTypeError(exceptions.AutonameowException):
@@ -824,6 +821,9 @@ def force_string(raw_value):
 
 
 def force_stringlist(raw_values):
+    if not raw_values:
+        return [AW_STRING.null()]
+
     try:
         str_list = listof(AW_STRING)(raw_values)
     except AWTypeError:
@@ -843,9 +843,6 @@ class MultipleTypes(object):
         if not isinstance(value, list):
             value = [value]
 
-        if not value:
-            return [self.coercer.null()]
-
         out = []
         for v in value:
             _coerced = self.coercer(v)
@@ -858,7 +855,6 @@ class MultipleTypes(object):
 
 
 def listof(coercer):
-    # TODO: [TD0084] Handle collections (lists, etc) with wrapper classes.
     return MultipleTypes(coercer)
 
 

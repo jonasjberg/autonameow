@@ -22,10 +22,7 @@
 import logging
 
 from core import constants as C
-from core import (
-    exceptions,
-    providers,
-)
+from core import providers
 from core.exceptions import AutonameowException
 from util import mimemagic
 
@@ -109,34 +106,6 @@ class BaseAnalyzer(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def get(self, field):
-        """
-        Wrapper method allows calling 'a.get_FIELD()' as 'a.get("FIELD")'.
-
-        This method simply calls other methods by assembling the method name
-        to call from the prefix 'get_' and the given "field" as the postfix.
-
-        Args:
-            field: Name of the field to get.  Must be included in
-                ANALYSIS_RESULTS_FIELDS, else an exception is raised.
-
-        Returns:
-            Equivalent to calling 'a.get_FIELD()'
-
-        Raises:
-            AnalysisResultsFieldError: Error caused by invalid argument "field",
-                which must be included in ANALYSIS_RESULTS_FIELDS.
-        """
-        if field not in C.ANALYSIS_RESULTS_FIELDS:
-            raise exceptions.AnalysisResultsFieldError(field)
-
-        _func_name = 'get_{}'.format(field)
-        get_func = getattr(self, _func_name, False)
-        if get_func and callable(get_func):
-            return get_func()
-        else:
-            raise NotImplementedError(field)
-
     def _add_results(self, meowuri_leaf, data):
         """
         Stores results in an instance variable dict under a full MeowURI.
@@ -152,10 +121,14 @@ class BaseAnalyzer(object):
         if data is None:
             return
 
+        # TODO: [TD0133] Fix inconsistent use of MeowURIs
+        #       Stick to using either instances of 'MeowURI' _OR_ strings.
         _meowuri = '{}.{}'.format(self.meowuri_prefix(), meowuri_leaf)
         _existing_data = self.results.get(_meowuri)
         if _existing_data:
-            self.results[_meowuri] = [_existing_data] + [data]
+            if not isinstance(_existing_data, list):
+                _existing_data = [_existing_data]
+            self.results[_meowuri] = _existing_data + [data]
         else:
             self.results[_meowuri] = data
 
@@ -204,6 +177,8 @@ class BaseAnalyzer(object):
         """
         Returns: Analyzer-specific "MeowURI" root/prefix as a Unicode string.
         """
+        # TODO: [TD0133] Fix inconsistent use of MeowURIs
+        #       Stick to using either instances of 'MeowURI' _OR_ strings.
         _leaf = cls.__module__.split('_')[-1] or cls.MEOWURI_LEAF
 
         return '{root}{sep}{leaf}'.format(
@@ -222,6 +197,8 @@ class BaseAnalyzer(object):
         Inheriting analyzer classes can override this method if they need
         to perform additional tests in order to determine if they can handle
         the given file object.
+        If this method is __NOT__ overridden, the inheriting class must contain
+        a class attribute with MIME-types (globs) as a list of Unicode strings.
 
         Args:
             fileobject: The file to test as an instance of 'FileObject'.
@@ -229,10 +206,20 @@ class BaseAnalyzer(object):
         Returns:
             True if the analyzer class can handle the given file, else False.
         """
-        if mimemagic.eval_glob(fileobject.mime_type, cls.HANDLES_MIME_TYPES):
-            return True
-        else:
-            return False
+        if cls.HANDLES_MIME_TYPES is None:
+            raise NotImplementedError(
+                'Classes without class attribute "HANDLES_MIME_TYPES" must '
+                'implement (override) class method "can_handle"!'
+            )
+        assert isinstance(cls.HANDLES_MIME_TYPES, list)
+
+        try:
+            return mimemagic.eval_glob(fileobject.mime_type,
+                                       cls.HANDLES_MIME_TYPES)
+        except (TypeError, ValueError) as e:
+            raise AnalyzerError(
+                'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
+            )
 
     @classmethod
     def check_dependencies(cls):

@@ -44,12 +44,11 @@ DEFAULT_OPTIONS = {
     'dump_meowuris': False,
 
     'list_all': False,
-    'list_datetime': False,
-    'list_title': False,
 
-    'mode_batch': False,
     'mode_automagic': False,
+    'mode_batch': False,
     'mode_interactive': True,
+    'mode_rulematch': True,
 
     'config_path': None,
 
@@ -159,12 +158,11 @@ def cli_main(argv=None):
         'dump_meowuris': opts.dump_meowuris,
 
         'list_all': opts.list_all,
-        'list_datetime': opts.list_datetime,
-        'list_title': opts.list_title,
 
-        'mode_batch': opts.mode_batch,
         'mode_automagic': opts.mode_automagic,
+        'mode_batch': opts.mode_batch,
         'mode_interactive': opts.mode_interactive,
+        'mode_rulematch': opts.mode_rulematch,
 
         'config_path': opts.config_path,
 
