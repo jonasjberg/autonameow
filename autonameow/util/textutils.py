@@ -19,8 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import urllib
-
 from util import sanity
 
 
@@ -93,7 +91,3 @@ def extractlines_do(callback, text, fromline, toline):
 
     lines = extract_lines(text, fromline, toline)
     return callback(lines)
-
-
-def urldecode(string):
-    return urllib.parse.unquote(string)

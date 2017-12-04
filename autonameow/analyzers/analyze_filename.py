@@ -28,11 +28,11 @@ from core import types
 from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
-from util import (
-    dateandtime,
-    textutils
+from util import dateandtime
+from util.text import (
+    find_edition,
+    urldecode
 )
-from util.text.patternmatching import find_edition
 
 
 # Use two different types of separators;  "SPACE" and "SEPARATOR".
@@ -415,7 +415,7 @@ class FilenamePreprocessor(object):
             _decoded = None
 
             if '%20' in filename:
-                _decoded = textutils.urldecode(filename)
+                _decoded = urldecode(filename)
             elif '+' in filename:
                 _decoded = filename.replace('+', ' ')
 

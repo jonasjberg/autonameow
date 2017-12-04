@@ -21,14 +21,13 @@
 
 from unittest import TestCase
 
+import unit.utils as uu
 from core.exceptions import EncodingBoundaryViolation
 from util.textutils import (
     extract_digits,
     extract_lines,
     extractlines_do,
-    urldecode
 )
-import unit.utils as uu
 
 
 class TestExtractDigits(TestCase):
@@ -208,14 +207,3 @@ class TestExtractlinesDo(TestCase):
 3. BAZ
 '''
         self.assertEqual(actual, expect)
-
-
-class TestUrlDecode(TestCase):
-    def test_returns_expected_given_valid_arguments(self):
-        def _aE(test_input, expected):
-            actual = urldecode(test_input)
-            self.assertEqual(actual, expected)
-
-        _aE('%2C', ',')
-        _aE('%20', ' ')
-        _aE('f.bar?t=%D0%B7%D0%B0%D1%89%D0%B8%D1%82%D0%B0', 'f.bar?t=защита')

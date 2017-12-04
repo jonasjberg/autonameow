@@ -21,6 +21,7 @@
 
 import re
 import unicodedata
+import urllib
 
 from util import sanity
 
@@ -31,7 +32,8 @@ __all__ = [
     'normalize_unicode',
     'remove_nonbreaking_spaces',
     'strip_ansiescape',
-    'truncate_text'
+    'truncate_text',
+    'urldecode'
 ]
 
 
@@ -248,3 +250,7 @@ def truncate_text(text, number_chars=500):
     if len(text) <= number_chars:
         return text
     return text[0:number_chars] + msg
+
+
+def urldecode(string):
+    return urllib.parse.unquote(string)
