@@ -132,6 +132,21 @@ def date_is_probable(date):
         return True
 
 
+DATE_SEP = r'[:\-._ /]?'
+TIME_SEP = r'[T:\-. _]?'
+DATE_REGEX = r'[12]\d{3}' + DATE_SEP + r'[01]\d' + DATE_SEP + r'[0123]\d'
+TIME_REGEX = TIME_SEP + r'[012]\d' + TIME_SEP + r'[012345]\d(.[012345]\d)?'
+DATETIME_REGEX = r'(' + DATE_REGEX + r'(' + TIME_REGEX + r')?)'
+
+DT_PATTERN_1 = re.compile(DATETIME_REGEX)
+
+# Expected date format:         2016:04:07
+DT_PATTERN_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
+
+# Matches '(C) 2014' and similar.
+DT_PATTERN_3 = re.compile(r'\( ?[Cc] ?\) ?([12]\d{3})')
+
+
 def regex_search_str(text):
     """
     Extracts date/time-information from a text string using regex searches.
@@ -151,65 +166,46 @@ def regex_search_str(text):
 
     # TODO: [TD0091] This code should be removed and/or rewritten ..
 
-    DATE_SEP = r'[:\-._ /]?'
-    TIME_SEP = r'[T:\-. _]?'
-    DATE_REGEX = r'[12]\d{3}' + DATE_SEP + r'[01]\d' + DATE_SEP + r'[0123]\d'
-    TIME_REGEX = TIME_SEP + r'[012]\d' + TIME_SEP + r'[012345]\d(.[012345]\d)?'
-    DATETIME_REGEX = r'(' + DATE_REGEX + r'(' + TIME_REGEX + r')?)'
+    for m_date, m_time, m_time_ms in re.findall(DT_PATTERN_1, text):
+        # Skip if entries doesn't contain digits.
+        m_date = textutils.extract_digits(m_date)
+        m_time = textutils.extract_digits(m_time)
+        m_time_ms = textutils.extract_digits(m_time_ms)
 
-    try:
-        # TODO: [hack] Fix this!
-        dt_pattern_1 = re.compile(DATETIME_REGEX)
-    except Exception as e:
-        log.error(str(e))
-        dt_pattern_1 = False
+        if not m_date or not m_time:
+            continue
 
-    matches = 0
+        # Check if m_date is actually m_date *AND* m_date.
+        if len(m_date) > 8 and m_date.endswith(m_time):
+            m_date = m_date.replace(m_time, '')
 
-    # TODO: [hack] Fix this!
-    if dt_pattern_1:
-        for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
-            # Skip if entries doesn't contain digits.
-            m_date = textutils.extract_digits(m_date)
-            m_time = textutils.extract_digits(m_time)
-            m_time_ms = textutils.extract_digits(m_time_ms)
+        if len(m_time) < 6:
+            pass
 
-            if not m_date or not m_time:
-                continue
+        # Skip matches with unexpected number of digits.
+        if len(m_date) != 8 or len(m_time) != 6:
+            continue
 
-            # Check if m_date is actually m_date *AND* m_date.
-            if len(m_date) > 8 and m_date.endswith(m_time):
-                m_date = m_date.replace(m_time, '')
+        dt_fmt_1 = '%Y%m%d_%H%M%S'
+        dt_str = (m_date + '_' + m_time).strip()
+        try:
+            dt = datetime.strptime(dt_str, dt_fmt_1)
+        except (TypeError, ValueError):
+            pass
+        else:
+            if date_is_probable(dt):
+                log.debug('Extracted datetime from text: "{}"'.format(dt))
+                results.append(dt)
 
-            if len(m_time) < 6:
-                pass
-
-            # Skip matches with unexpected number of digits.
-            if len(m_date) != 8 or len(m_time) != 6:
-                continue
-
-            dt_fmt_1 = '%Y%m%d_%H%M%S'
-            dt_str = (m_date + '_' + m_time).strip()
-            try:
-                dt = datetime.strptime(dt_str, dt_fmt_1)
-            except (TypeError, ValueError):
-                pass
-            else:
-                if date_is_probable(dt):
-                    log.debug('Extracted datetime from text: "{}"'.format(dt))
-                    results.append(dt)
-                    matches += 1
-
-                if matches >= MAX_NUMBER_OF_RESULTS:
-                    log.debug(
-                        'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
-                    )
-                    return results
+            if len(results) >= MAX_NUMBER_OF_RESULTS:
+                log.debug(
+                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
+                )
+                return results
 
     # Expected date format:         2016:04:07
-    dt_pattern_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
-    for dt_str in re.findall(dt_pattern_2, text):
+    for dt_str in re.findall(DT_PATTERN_2, text):
         try:
             dt = datetime.strptime(dt_str, dt_fmt_2)
         except (TypeError, ValueError):
@@ -218,18 +214,16 @@ def regex_search_str(text):
             if date_is_probable(dt):
                 log.debug('Extracted datetime from text: "{}"'.format(dt))
                 results.append(dt)
-                matches += 1
 
-            if matches >= MAX_NUMBER_OF_RESULTS:
+            if len(results) >= MAX_NUMBER_OF_RESULTS:
                 log.debug(
                     'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
                 )
                 return results
 
     # Matches '(C) 2014' and similar.
-    dt_pattern_3 = re.compile(r'\( ?[Cc] ?\) ?([12]\d{3})')
     dt_fmt_3 = '%Y'
-    for dt_str in re.findall(dt_pattern_3, text):
+    for dt_str in re.findall(DT_PATTERN_3, text):
         try:
             dt = datetime.strptime(dt_str, dt_fmt_3)
         except (TypeError, ValueError):
@@ -238,15 +232,14 @@ def regex_search_str(text):
             if date_is_probable(dt):
                 log.debug('Extracted datetime from text: "{}"'.format(dt))
                 results.append(dt)
-                matches += 1
 
-            if matches >= MAX_NUMBER_OF_RESULTS:
+            if len(results) >= MAX_NUMBER_OF_RESULTS:
                 log.debug(
                     'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
                 )
                 return results
 
-    log.debug('[DATETIME] Regex matcher found {:^3} matches'.format(matches))
+    log.debug('DATETIME Regex matcher found {:^3} matches'.format(len(results)))
     return results
 
 
