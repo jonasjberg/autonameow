@@ -21,10 +21,15 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Execute autonameow by running either one of;
+Main autonameow entry point.
 
-  $ python3 autonameow/__main__.py
-  $ python3 -m autonameow
+Execute autonameow by running either;
+
+  python3 autonameow/__main__.py
+
+Or, as a module;
+
+  PYTHONPATH=autonameow python3 -m autonameow
 
 """
 
