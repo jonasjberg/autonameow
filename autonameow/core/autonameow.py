@@ -436,7 +436,7 @@ class Autonameow(object):
                                                         name_template,
                                                         data_sources)
         if not field_data_dict:
-            log.warning('Unable to populate name.')
+            log.warning('(439) Unable to populate name.')
             self.exit_code = C.EXIT_WARNING
             return
 
@@ -480,8 +480,8 @@ class Autonameow(object):
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         if not resolver.collected_all():
             if self.opts.get('mode_batch'):
-                log.warning('Unable to populate name.')
-                self.exit_code = C.EXIT_WARNING
+                log.warning('(483) Unable to populate name.')
+                # self.exit_code = C.EXIT_WARNING
                 return
             else:
                 # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
@@ -520,7 +520,7 @@ class Autonameow(object):
         # Add automatically resolving missing sources from possible candidates.
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-            log.warning('Unable to populate name. Missing field data.')
+            log.warning('(523) Unable to populate name. Missing field data.')
             self.exit_code = C.EXIT_WARNING
             return None
 
