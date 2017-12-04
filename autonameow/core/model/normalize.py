@@ -21,7 +21,7 @@
 
 import re
 
-from util.textutils import normalize_unicode
+from util.text import normalize_unicode
 
 
 RE_NOT_LETTER_NUMBER_WHITESPACE = re.compile(r'[^\w\d\s]')

@@ -40,11 +40,11 @@ from extractors.text.common import (
 )
 import util
 from util import encoding as enc
-from util import (
-    sanity,
-    textutils
+from util import sanity
+from util.text import (
+    normalize_unicode,
+    remove_nonbreaking_spaces
 )
-from util.text import remove_nonbreaking_spaces
 
 
 TESSERACT_COMMAND = 'tesseract'
@@ -76,7 +76,7 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
 
         sanity.check_internal_string(result)
         text = result
-        text = textutils.normalize_unicode(text)
+        text = normalize_unicode(text)
         text = remove_nonbreaking_spaces(text)
         if text:
             return text

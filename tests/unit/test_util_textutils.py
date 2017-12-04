@@ -37,7 +37,6 @@ from util.textutils import (
     extract_digits,
     extract_lines,
     extractlines_do,
-    normalize_unicode,
     urldecode
 )
 import unit.utils as uu
@@ -249,52 +248,6 @@ class TestExtractLines(TestCase):
 
         with self.assertRaises(AssertionError):
             extract_lines('foo', 0, -1)
-
-
-class TestNormalizeUnicode(TestCase):
-    def _aE(self, test_input, expected):
-        actual = normalize_unicode(test_input)
-        self.assertEqual(actual, expected)
-
-    def test_raises_exception_given_bad_input(self):
-        def _aR(test_input):
-            with self.assertRaises(TypeError):
-                normalize_unicode(test_input)
-
-        _aR(None)
-        _aR([])
-        _aR(['foo'])
-        _aR({})
-        _aR({'foo': 'bar'})
-        _aR(object())
-        _aR(1)
-        _aR(1.0)
-        _aR(b'')
-        _aR(b'foo')
-
-    def test_returns_expected(self):
-        self._aE('', '')
-        self._aE(' ', ' ')
-        self._aE('foo', 'foo')
-        self._aE('...', '...')
-
-    def test_simplifies_three_periods(self):
-        self._aE('…', '...')
-        self._aE(' …', ' ...')
-        self._aE(' … ', ' ... ')
-
-    def test_replaces_dashes(self):
-        self._aE('\u2212', '-')
-        self._aE('\u2013', '-')
-        self._aE('\u2014', '-')
-        self._aE('\u05be', '-')
-        self._aE('\u2010', '-')
-        self._aE('\u2015', '-')
-        self._aE('\u30fb', '-')
-
-    def test_replaces_overlines(self):
-        self._aE('\u0305', '-')
-        self._aE('\u203e', '-')
 
 
 class TestExtractlinesDo(TestCase):

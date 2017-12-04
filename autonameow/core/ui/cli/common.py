@@ -425,7 +425,6 @@ class ColumnFormatter(object):
         self.addrow(' ')
 
     def _update_column_widths(self, strings):
-        # strings = [textutils.normalize_unicode(s) for s in strings]
         new_widths = [len(s) for s in strings]
 
         if not self._column_widths:
