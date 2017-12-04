@@ -232,13 +232,29 @@ In order to run all tests, execute the script `tests/regression_runner.sh`.
 This script accepts optional argument flags, as described in the usage text;
 
 ```
-Usage: regression_runner.py [-h] [-v]
+Usage: regression_runner.py [-h] [-v] [--last-failed] [--stderr] [--stdout]
+                            [--get-cmd TEST_NAME [TEST_NAME ...]] [--list]
 
 autonameow v0.5.1 -- regression test suite runner
 
 Optional arguments:
-  -h, --help     Show this help message and exit.
-  -v, --verbose  Enables verbose mode, prints additional information.
+  -h, --help            Show this help message and exit.
+  -v, --verbose         Enables verbose mode, prints additional information.
+  --last-failed         Run only the test cases that failed during the last
+                        completed run, or all if none failed.
+  --stderr              Print captured stderr.
+  --stdout              Print captured stdout.
+  --get-cmd TEST_NAME [TEST_NAME ...]
+                        Print equivalent command-line invocations for the
+                        specified test case(s). If executed "manually", these
+                        would produce the same behaviour and results as the
+                        corresponding regression test. Each result is printed
+                        as two lines; first being "# TEST_NAME", where
+                        "TEST_NAME" is the dirname of the test case. The
+                        second line is the equivalent command-line. Valid
+                        arguments can be found with the "--list" option.
+  --list                Print the ("short name") test directory basename of
+                        all loaded tests and exit.
 
 Project website: www.github.com/jonasjberg/autonameow
 ```

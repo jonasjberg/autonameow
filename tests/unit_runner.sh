@@ -70,6 +70,7 @@ print_usage_info()
   All options are optional. Default behaviour is to not write any
   reports and print the test results to stdout/stderr in real-time.
 
+  Project website: www.github.com/jonasjberg/autonameow
 EOF
 }
 
