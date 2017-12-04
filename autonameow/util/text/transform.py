@@ -30,7 +30,8 @@ __all__ = [
     'indent',
     'normalize_unicode',
     'remove_nonbreaking_spaces',
-    'strip_ansiescape'
+    'strip_ansiescape',
+    'truncate_text'
 ]
 
 
@@ -239,3 +240,11 @@ def remove_nonbreaking_spaces(text):
 def strip_ansiescape(string):
     stripped = re.sub(RE_ANSI_ESCAPE, '', string)
     return stripped
+
+
+def truncate_text(text, number_chars=500):
+    msg = '  (.. TRUNCATED to {}/{} characters)'.format(number_chars, len(text))
+
+    if len(text) <= number_chars:
+        return text
+    return text[0:number_chars] + msg

@@ -21,15 +21,13 @@
 
 import logging
 
-from core import (
-    disk,
-    exceptions,
-)
+import util
+from core import exceptions
 from core.ui.cli import ColumnFormatter
 from core.model import MeowURI
-import util
-from util import textutils
 from util import encoding as enc
+from util import textutils
+from util.text import truncate_text
 
 
 log = logging.getLogger(__name__)
@@ -115,7 +113,7 @@ class Repository(object):
     def _store(self, fileobject, meowuri, data):
         if meowuri.matchglobs(['generic.contents.text', 'extractor.text.*']):
             _debugmsg_data = dict(data)
-            _truncated_value = textutils.truncate_text(_debugmsg_data['value'])
+            _truncated_value = truncate_text(_debugmsg_data['value'])
             _debugmsg_data['value'] = _truncated_value
         else:
             _debugmsg_data = data
@@ -207,7 +205,7 @@ class Repository(object):
                     elif meowuri.matchglobs(['generic.contents.text',
                                              'extractor.text.*']):
                         # Often *a lot* of text, trim to arbitrary size..
-                        _truncated = textutils.truncate_text(v)
+                        _truncated = truncate_text(v)
                         temp_list.append(_truncated)
                     else:
                         temp_list.append(str(v))
@@ -222,7 +220,7 @@ class Repository(object):
                 elif meowuri.matchglobs(['generic.contents.text',
                                          'extractor.text.*']):
                     # Often *a lot* of text, trim to arbitrary size..
-                    temp[meowuri] = textutils.truncate_text(v)
+                    temp[meowuri] = truncate_text(v)
                 else:
                     temp[meowuri] = str(v)
 

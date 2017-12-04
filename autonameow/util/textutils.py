@@ -142,14 +142,6 @@ def extractlines_do(callback, text, fromline, toline):
     return callback(lines)
 
 
-def truncate_text(text, number_chars=500):
-    msg = '  (.. TRUNCATED to {}/{} characters)'.format(number_chars, len(text))
-
-    if len(text) <= number_chars:
-        return text
-    return text[0:number_chars] + msg
-
-
 __ordinal_number_patterns = [
     (1, r'1st|first'),             (2, r'2nd|second'),
     (3, r'3rd|third'),             (4, r'4th|fourth'),
