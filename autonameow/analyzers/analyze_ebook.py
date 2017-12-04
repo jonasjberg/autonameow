@@ -127,8 +127,11 @@ class EbookAnalyzer(BaseAnalyzer):
 
         num_text_lines = len(self.text)
 
-        # Arbitrarily search the text in chunks of 20%
-        chunk_size = int(num_text_lines / 5)
+        # Search the text in arbitrarily sized chunks.
+        chunk_size = int(num_text_lines / 100)
+        self.log.debug('Got {} lines of text. Using chunks of {} lines'.format(
+            num_text_lines, chunk_size
+        ))
 
         # Chunk #1: from BEGINNING to (BEGINNING + CHUNK_SIZE)
         _chunk1_start = 1
