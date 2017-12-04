@@ -39,7 +39,7 @@ from core.namebuilder import fields
 import util
 from util import (
     sanity,
-    textutils
+    text
 )
 from util import encoding as enc
 from util.text import remove_nonbreaking_spaces
@@ -590,14 +590,14 @@ class Configuration(object):
 
         for number, rule in enumerate(self.rules):
             out.append('Rule {}:\n'.format(number + 1))
-            out.append(textutils.indent(str(rule), amount=4) + '\n')
+            out.append(text.indent(str(rule), amount=4) + '\n')
 
         out.append('\nReusable Name Templates:\n')
         out.append(
-            textutils.indent(util.dump(self.reusable_nametemplates), amount=4)
+            text.indent(util.dump(self.reusable_nametemplates), amount=4)
         )
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(textutils.indent(util.dump(self.options), amount=4))
+        out.append(text.indent(util.dump(self.options), amount=4))
 
         return ''.join(out)

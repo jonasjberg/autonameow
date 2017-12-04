@@ -41,49 +41,6 @@ def extract_digits(string):
     return digits if digits.strip() else ''
 
 
-def indent(text, amount=None, ch=None):
-    """
-    Indents (multi-line) text by a specified amount.
-
-    Shifts text right by a given "amount" (default: 4) using the character
-    "ch" for padding (defaults to ' ').
-
-    Based on this post; https://stackoverflow.com/a/8348914/7802196
-
-    Args:
-        text: Single or multi-line text to indent, as a Unicode str.
-        amount: Optional padding character ('ch') multiple, as an integer.
-        ch: Optional character to use for padding.
-
-    Returns:
-        An indented version of the given text as an Unicode str.
-    Raises:
-        ValueError: Given 'text' is None or a optional argument is set to None.
-    """
-    DEFAULT_AMOUNT = 4
-    DEFAULT_PADDING = ' '
-
-    if amount is None:
-        amount = DEFAULT_AMOUNT
-    else:
-        if not isinstance(amount, int):
-            raise TypeError('Expected "amount" to be of type int')
-        elif amount <= 0:
-            raise ValueError('Expected "amount" to be greater than zero')
-
-    if ch is None:
-        ch = DEFAULT_PADDING
-
-    if text is None:
-        raise ValueError('Got None argument "text"')
-
-    sanity.check_internal_string(text)
-    sanity.check_internal_string(ch)
-
-    padding = amount * ch
-    return ''.join(padding + line for line in text.splitlines(True))
-
-
 def autodetect_decode(string):
     """
     Tries to decode a string with an unknown encoding to a Unicode str.

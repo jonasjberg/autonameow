@@ -21,9 +21,11 @@
 
 from unittest import TestCase
 
+from core.exceptions import EncodingBoundaryViolation
 from util import encoding as enc
 from util.text.transform import (
     collapse_whitespace,
+    indent,
     remove_nonbreaking_spaces,
     strip_ansiescape
 )
@@ -162,6 +164,127 @@ class TestCollapseWhitespace(TestCase):
         self._check('foo\t\t\tbar', 'foo bar')
         self._check('\t\tfoo bar', ' foo bar')
         self._check('\t\t\tfoo bar', ' foo bar')
+
+
+class TestIndent(TestCase):
+    def test_invalid_arguments_raises_exception(self):
+        def _assert_raises(exception_type, *args, **kwargs):
+            with self.assertRaises(exception_type):
+                indent(*args, **kwargs)
+
+        _assert_raises(ValueError, None)
+        _assert_raises(EncodingBoundaryViolation, b'')
+        _assert_raises(ValueError, 'foo', amount=0)
+        _assert_raises(TypeError, 'foo', amount=object())
+
+        # TODO: Should raise 'TypeError' when given 'ch=1' (expects str)
+        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=1)
+        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=b'')
+        _assert_raises(EncodingBoundaryViolation, 'foo', ch=b'')
+
+    def test_indents_single_line(self):
+        self.assertEqual(indent('foo'), '    foo')
+        self.assertEqual(indent('foo bar'), '    foo bar')
+
+    def test_indents_two_lines(self):
+        self.assertEqual(indent('foo\nbar'), '    foo\n    bar')
+
+    def test_indents_three_lines(self):
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('    foo\n'
+                  '      bar\n'
+                  '    baz\n')
+        self.assertEqual(indent(input_), expect)
+
+    def test_indents_single_line_specified_amount(self):
+        self.assertEqual(indent('foo', amount=1), ' foo')
+        self.assertEqual(indent('foo', amount=2), '  foo')
+        self.assertEqual(indent('foo', amount=3), '   foo')
+        self.assertEqual(indent('foo', amount=4), '    foo')
+        self.assertEqual(indent('foo bar', amount=2), '  foo bar')
+
+    def test_indents_two_lines_specified_amount(self):
+        self.assertEqual(indent('foo\nbar', amount=2), '  foo\n  bar')
+
+    def test_indents_three_lines_specified_amount(self):
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('  foo\n'
+                  '    bar\n'
+                  '  baz\n')
+        self.assertEqual(indent(input_, amount=2), expect)
+
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('   foo\n'
+                  '     bar\n'
+                  '   baz\n')
+        self.assertEqual(indent(input_, amount=3), expect)
+
+    def test_indents_single_line_specified_padding(self):
+        self.assertEqual(indent('foo', ch='X'), 'XXXXfoo')
+        self.assertEqual(indent('foo bar', ch='X'), 'XXXXfoo bar')
+
+    def test_indents_two_lines_specified_padding(self):
+        self.assertEqual(indent('foo\nbar', ch='X'),
+                         'XXXXfoo\nXXXXbar')
+        self.assertEqual(indent('foo\nbar', ch='Xj'),
+                         'XjXjXjXjfoo\nXjXjXjXjbar')
+
+    def test_indents_three_lines_specified_padding(self):
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XXXXfoo\n'
+                  'XXXX  bar\n'
+                  'XXXXbaz\n')
+        self.assertEqual(indent(input_, ch='X'), expect)
+
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XjXjXjXjfoo\n'
+                  'XjXjXjXj  bar\n'
+                  'XjXjXjXjbaz\n')
+        self.assertEqual(indent(input_, ch='Xj'), expect)
+
+    def test_indents_text_single_line_specified_padding_and_amount(self):
+        self.assertEqual(indent('foo', amount=1, ch='  '), '  foo')
+        self.assertEqual(indent('foo', amount=2, ch='  '), '    foo')
+        self.assertEqual(indent('foo', amount=1, ch=''), 'foo')
+        self.assertEqual(indent('foo', amount=2, ch=''), 'foo')
+        self.assertEqual(indent('foo', amount=3, ch=''), 'foo')
+        self.assertEqual(indent('foo', amount=4, ch=''), 'foo')
+        self.assertEqual(indent('foo', ch='X', amount=2), 'XXfoo')
+        self.assertEqual(indent('foo bar', ch='X', amount=2),
+                         'XXfoo bar')
+
+    def test_indents_two_lines_specified_padding_and_amount(self):
+        self.assertEqual(indent('foo\nbar', ch='X', amount=2),
+                         'XXfoo\nXXbar')
+        self.assertEqual(indent('foo\nbar', ch='X', amount=4),
+                         'XXXXfoo\nXXXXbar')
+
+    def test_indents_three_lines_specified_padding_and_amount(self):
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XXfoo\n'
+                  'XX  bar\n'
+                  'XXbaz\n')
+        self.assertEqual(indent(input_, ch='X', amount=2), expect)
+
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XXXfoo\n'
+                  'XXX  bar\n'
+                  'XXXbaz\n')
+        self.assertEqual(indent(input_, ch='X', amount=3), expect)
 
 
 class TestRemoveNonBreakingSpaces(TestCase):
