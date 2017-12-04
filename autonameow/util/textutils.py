@@ -142,40 +142,5 @@ def extractlines_do(callback, text, fromline, toline):
     return callback(lines)
 
 
-__ordinal_number_patterns = [
-    (1, r'1st|first'),             (2, r'2nd|second'),
-    (3, r'3rd|third'),             (4, r'4th|fourth'),
-    (5, r'5th|fifth'),             (6, r'6th|sixth'),
-    (7, r'7th|seventh'),           (8, r'8th|eighth'),
-    (9, r'9th|ninth'),             (10, r'10th|tenth'),
-    (11, r'11th|eleventh'),        (12, r'12th|twelfth'),
-    (13, r'13th|thirteenth'),      (14, r'14th|fourteenth'),
-    (15, r'15th|fifteenth'),       (16, r'16th|sixteenth'),
-    (17, r'17th|seventeenth'),     (18, r'18th|eighteenth'),
-    (19, r'19th|nineteenth'),      (20, r'20th|twentieth'),
-    (21, r'21th|twenty-?first'),   (22, r'22th|twenty-?second'),
-    (23, r'23th|twenty-?third'),   (24, r'24th|twenty-?fourth'),
-    (25, r'25th|twenty-?fifth'),   (26, r'26th|twenty-?sixth'),
-    (27, r'27th|twenty-?seventh'), (28, r'28th|twenty-?eighth'),
-    (29, r'29th|twenty-?ninth'),   (30, r'30th|thirtieth'),
-]
-
-
-RE_ORDINALS = {}
-
-
-def compiled_ordinal_regexes():
-    """
-    Returns:
-        Dictionary of compiled regular expressions keyed by positive integers,
-        each storing patterns for matching ordinal strings of that number.
-    """
-    global RE_ORDINALS
-    if not RE_ORDINALS:
-        for _number, _patterns in __ordinal_number_patterns:
-            RE_ORDINALS[_number] = re.compile(_patterns, re.IGNORECASE)
-    return RE_ORDINALS
-
-
 def urldecode(string):
     return urllib.parse.unquote(string)
