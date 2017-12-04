@@ -192,7 +192,7 @@ Paths can include the special keywords `$THISTEST` and `$TESTFILES`, this is
 pretty ad-hoc and very likely to change. Refer to existing tests for hints on
 how to write your own.
 
-The following holds true as of version `v0.5.1`:
+The following holds true as of version `v0.5.2`:
 
 #### The `config_path` field
 If the `config_path` entry..
@@ -235,7 +235,7 @@ This script accepts optional argument flags, as described in the usage text;
 Usage: regression_runner.py [-h] [-v] [--last-failed] [--stderr] [--stdout]
                             [--get-cmd TEST_NAME [TEST_NAME ...]] [--list]
 
-autonameow v0.5.1 -- regression test suite runner
+autonameow v0.5.2 -- regression test suite runner
 
 Optional arguments:
   -h, --help            Show this help message and exit.
