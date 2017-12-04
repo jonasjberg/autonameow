@@ -31,10 +31,8 @@ from extractors import (
     BaseExtractor,
     ExtractorError
 )
-from util import (
-    sanity,
-    textutils
-)
+from util import encoding as enc
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -124,7 +122,7 @@ def decode_raw(raw_text):
         text = types.AW_STRING(raw_text)
     except types.AWTypeError:
         try:
-            text = textutils.autodetect_decode(raw_text)
+            text = enc.autodetect_decode(raw_text)
         except ValueError:
             log.warning('Unable to decode raw text')
             return ''

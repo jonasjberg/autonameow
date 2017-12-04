@@ -45,10 +45,18 @@ import os
 import sys
 
 from core import constants as C
+from util import sanity
+
+try:
+    import chardet
+except ImportError:
+    chardet = None
+
 
 __all__ = [
-    'arg_encoding', 'bytestring_path', 'convert_command_args',
-    'decode_', 'displayable_path', 'encode_', 'normpath', 'syspath'
+    'arg_encoding', 'autodetect_decode', 'bytestring_path',
+    'convert_command_args', 'decode_', 'displayable_path', 'encode_',
+    'normpath', 'syspath'
 ]
 
 
@@ -258,3 +266,44 @@ def decode_(string):
             return string.decode(C.DEFAULT_ENCODING)
         except (UnicodeError, LookupError):
             return string.decode(C.DEFAULT_ENCODING, errors='replace')
+
+
+def autodetect_decode(string):
+    """
+    Tries to decode a string with an unknown encoding to a Unicode str.
+
+    Unicode strings are passed through as-is.
+
+    Args:
+        string: The string to decode as a Unicode str or a bytestring.
+
+    Returns:
+        The given string decoded to an ("internal") Unicode string.
+    Raises:
+        ValueError: Autodetection and/or decoding was unsuccessful because
+                    the given string is None or not a string type,
+                    or the "chardet" module is not available.
+    """
+    if isinstance(string, str):
+        return string
+
+    # Guard against chardet "expects a bytes object, not a unicode object".
+    # Although this check probably only applies if given a non-string arg.
+    if not isinstance(string, bytes):
+        raise TypeError('Module "chardet" expects bytestrings')
+
+    if string == b'':
+        return ''
+
+    if chardet is None:
+        raise ValueError('Required module "chardet" is not available!')
+
+    detected_encoding = chardet.detect(string)
+    if detected_encoding and 'encoding' in detected_encoding:
+        try:
+            string = string.decode(detected_encoding['encoding'])
+        except ValueError:
+            raise ValueError('Unable to autodetect encoding and decode string')
+
+    sanity.check_internal_string(string)
+    return string

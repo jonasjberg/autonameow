@@ -19,13 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
 import urllib
-
-try:
-    import chardet
-except ImportError:
-    chardet = None
 
 from util import sanity
 
@@ -38,47 +32,6 @@ def extract_digits(string):
 
     digits = ''.join(c for c in string if c.isdigit())
     return digits if digits.strip() else ''
-
-
-def autodetect_decode(string):
-    """
-    Tries to decode a string with an unknown encoding to a Unicode str.
-
-    Unicode strings are passed through as-is.
-
-    Args:
-        string: The string to decode as a Unicode str or a bytestring.
-
-    Returns:
-        The given string decoded to an ("internal") Unicode string.
-    Raises:
-        ValueError: Autodetection and/or decoding was unsuccessful because
-                    the given string is None or not a string type,
-                    or the "chardet" module is not available.
-    """
-    if isinstance(string, str):
-        return string
-
-    # Guard against chardet "expects a bytes object, not a unicode object".
-    # Although this check probably only applies if given a non-string arg.
-    if not isinstance(string, bytes):
-        raise TypeError('Module "chardet" expects bytestrings')
-
-    if string == b'':
-        return ''
-
-    if chardet is None:
-        raise ValueError('Required module "chardet" is not available!')
-
-    detected_encoding = chardet.detect(string)
-    if detected_encoding and 'encoding' in detected_encoding:
-        try:
-            string = string.decode(detected_encoding['encoding'])
-        except ValueError:
-            raise ValueError('Unable to autodetect encoding and decode string')
-
-    sanity.check_internal_string(string)
-    return string
 
 
 def extract_lines(text, firstline, lastline):

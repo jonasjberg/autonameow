@@ -19,19 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skipIf,
-    TestCase
-)
-
-try:
-    import chardet
-except ImportError:
-    chardet = None
+from unittest import TestCase
 
 from core.exceptions import EncodingBoundaryViolation
 from util.textutils import (
-    autodetect_decode,
     extract_digits,
     extract_lines,
     extractlines_do,
@@ -81,66 +72,6 @@ class TestExtractDigits(TestCase):
         _assert_raises(1)
         _assert_raises(b'foo')
         _assert_raises(b'1')
-
-
-@skipIf(chardet is None, 'Unable to import required module "chardet"')
-class TestAutodetectDecode(TestCase):
-    def _assert_encodes(self, encoding, string):
-        _encoded_text = string.encode(encoding)
-        self.assertTrue(uu.is_internalbytestring(_encoded_text))
-
-        actual = autodetect_decode(_encoded_text)
-        self.assertEqual(string, actual)
-        self.assertEqual(type(string), type(actual))
-
-    def test_raises_exception_for_non_strings(self):
-        with self.assertRaises(TypeError):
-            autodetect_decode(object())
-
-        with self.assertRaises(TypeError):
-            autodetect_decode(None)
-
-    def test_returns_expected_given_unicode(self):
-        actual = autodetect_decode('foo bar')
-        self.assertEqual('foo bar', actual)
-
-    def test_returns_expected_given_ascii(self):
-        self._assert_encodes('ascii', '')
-        self._assert_encodes('ascii', ' ')
-        self._assert_encodes('ascii', '\n')
-        self._assert_encodes('ascii', '\n ')
-        self._assert_encodes('ascii', ' \n ')
-        self._assert_encodes('ascii', 'foo bar')
-        self._assert_encodes('ascii', 'foo \n ')
-
-    def test_returns_expected_given_ISO8859(self):
-        self._assert_encodes('iso-8859-1', '')
-        self._assert_encodes('iso-8859-1', ' ')
-        self._assert_encodes('iso-8859-1', '\n')
-        self._assert_encodes('iso-8859-1', '\n ')
-        self._assert_encodes('iso-8859-1', ' \n ')
-        self._assert_encodes('iso-8859-1', 'foo bar')
-        self._assert_encodes('iso-8859-1', 'foo \n ')
-
-    def test_returns_expected_given_cp1252(self):
-        self._assert_encodes('cp1252', '')
-        self._assert_encodes('cp1252', ' ')
-        self._assert_encodes('cp1252', '\n')
-        self._assert_encodes('cp1252', '\n ')
-        self._assert_encodes('cp1252', ' \n ')
-        self._assert_encodes('cp1252', 'foo bar')
-        self._assert_encodes('cp1252', 'foo \n ')
-
-    def test_returns_expected_given_utf8(self):
-        self._assert_encodes('utf-8', '')
-        self._assert_encodes('utf-8', ' ')
-        self._assert_encodes('utf-8', '\n')
-        self._assert_encodes('utf-8', '\n ')
-        self._assert_encodes('utf-8', ' \n ')
-        self._assert_encodes('utf-8', 'foo bar')
-        self._assert_encodes('utf-8', 'foo \n ')
-
-
 class TestExtractLines(TestCase):
     def test_returns_none_for_none_input(self):
         self.assertIsNone(extract_lines(None, 0, 0))
