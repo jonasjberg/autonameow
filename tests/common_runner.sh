@@ -167,21 +167,21 @@ run_task "$option_quiet" 'Running unit test runner'        "${SELF_DIRNAME}/unit
 run_task "$option_quiet" 'Running regression test runner'  "${SELF_DIRNAME}/regression_runner.sh"
 run_task "$option_quiet" 'Running integration test runner' "${SELF_DIRNAME}/integration_runner.sh ${runner_opts}"
 
-# Do not proceed if a runner failed.
-if [ "$count_fail" -ne "0" ]
-then
-    printf '\nAn error occurred; Aborting ..\n' 1>&2
-    exit 1
-fi
+printf "\nFinished in $SECONDS seconds with ${count_fail} failed tasks\n"
 
 
 if [ ! "$option_update_wiki" != 'true' ]
 then
+    # Do not proceed if a runner failed.
+    if [ "$count_fail" -ne "0" ]
+    then
+        printf "\n${count_fail} tasks failed. Aborting ..\n" 1>&2
+        exit 1
+    fi
+
     run_task "$option_quiet" 'Adding heading with current date to report if needed' wiki_check_add_header
     run_task "$option_quiet" 'Adding integration test log to Test Results wiki page' wiki_add_integration_link
     run_task "$option_quiet" 'Adding unit test log to Test Results wiki page' wiki_add_unit_link
 
     # TODO: Commit reports to version control.
 fi
-
-printf "\nCompleted in $SECONDS seconds\n"
