@@ -126,6 +126,7 @@ do
     fi
 
     _testscript_base="$(basename -- "$testscript")"
+    # TODO: Fix all descendant processes not killed.
     run_task "$option_quiet" "Running \"${_testscript_base}\"" "$testscript"
 done
 
