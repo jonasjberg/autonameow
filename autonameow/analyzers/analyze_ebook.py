@@ -127,6 +127,7 @@ class EbookAnalyzer(BaseAnalyzer):
 
         num_text_lines = len(self.text)
 
+        # TODO: [TD0134] Consolidate splitting up text into chunks.
         # Search the text in arbitrarily sized chunks.
         chunk_size = int(num_text_lines / 100)
         self.log.debug('Got {} lines of text. Using chunks of {} lines'.format(

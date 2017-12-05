@@ -60,6 +60,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         self.text_lines = len(self.text)
 
         # Arbitrarily search the text in chunks of 10%
+        # TODO: [TD0134] Consolidate splitting up text into chunks.
         text_chunk_1 = self._extract_leading_text_chunk(chunk_ratio=0.1)
 
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
