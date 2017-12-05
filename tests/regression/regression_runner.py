@@ -392,21 +392,25 @@ def main(args):
                                  print_stdout=bool(opts.print_stdout))
 
     # TODO: Rework passing number of failures between high-level functions.
-    assert failed != 130, (
-        'Wrapper scripts interpret exit status 130 as "killed by SIGINT"'
-    )
-    return failed
+    if not failed:
+        return C.EXIT_SUCCESS
+    else:
+        return C.EXIT_WARNING
 
 
 if __name__ == '__main__':
-    exit_code = 0
+    exit_code = C.EXIT_SUCCESS
     try:
         exit_code = main(sys.argv[1:])
     except KeyboardInterrupt:
         print('\nReceived keyboard interrupt. Exiting ..')
-        sys.exit(exit_code)
+    except AssertionError as e:
+        print('\nCaught AssertionError in __main__ (!)')
+        print(str(e))
+        exit_code = C.EXIT_SANITYFAIL
     except Exception as e:
         print('\nUnhandled exception reached regression __main__ (!)')
         print(str(e))
+        exit_code = C.EXIT_ERROR
     finally:
         sys.exit(exit_code)
