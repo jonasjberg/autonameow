@@ -167,7 +167,7 @@ run_task "$option_quiet" 'Running unit test runner'        "${SELF_DIRNAME}/unit
 run_task "$option_quiet" 'Running regression test runner'  "${SELF_DIRNAME}/regression_runner.sh"
 run_task "$option_quiet" 'Running integration test runner' "${SELF_DIRNAME}/integration_runner.sh ${runner_opts}"
 
-printf "\nFinished in $SECONDS seconds with ${count_fail} failed tasks\n"
+printf "\nCompleted in $SECONDS seconds"
 
 
 if [ ! "$option_update_wiki" != 'true' ]

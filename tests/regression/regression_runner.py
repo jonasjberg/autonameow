@@ -392,6 +392,11 @@ def main(args):
     failed = run_regressiontests(tests_to_run,
                                  print_stderr=bool(opts.print_stderr),
                                  print_stdout=bool(opts.print_stdout))
+
+    # TODO: Rework passing number of failures between high-level functions.
+    assert failed != 130, (
+        'Wrapper scripts interpret exit status 130 as "killed by SIGINT"'
+    )
     return failed
 
 

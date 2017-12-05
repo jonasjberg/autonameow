@@ -27,6 +27,10 @@ C_GREEN="$(tput setaf 2)"
 C_RESET="$(tput sgr0)"
 
 
+kill_running_task()
+{
+    kill "$TASK_PID"
+}
 
 # Runs a "task" (evaluates an expression) and prints messages.
 #
@@ -50,25 +54,45 @@ run_task()
     [ "$_opt_quiet" = 'true' ] && local FMT='%s ..' || local FMT='%s ..\n'
     printf "$FMT" "$_msg"
 
-    # Run task and check exit status.
+    # Catch SIGUP (1) SIGINT (2) and SIGTERM (15)
+    trap kill_running_task SIGHUP SIGINT SIGTERM
+
+    # Run task and check exit code.
     if [ "$_opt_quiet" != 'true' ]
     then
-        eval "${_cmd}"
+        eval "${_cmd}" &
+        TASK_PID="$!"
     else
-        eval "${_cmd}" 2>&1 >/dev/null
+        eval "${_cmd}" 2>&1 >/dev/null &
+        TASK_PID="$!"
     fi
+    wait "$TASK_PID"
+
     local _retcode="$?"
     if [ "$_retcode" -ne '0' ]
     then
         count_fail="$((count_fail + 1))"
     fi
 
-    # Print task has ended message.
+    # Print task has ended message, interpreting exit codes as;
+    #
+    #     0     -- OK
+    #     130   -- ABORTED (Terminated by Control-C)
+    #     other -- ERROR
+    #
     [ "$_opt_quiet" = 'true' ] || printf "${_msg} .."
     if [ "$_retcode" -eq '0' ]
     then
+        # Success
         printf " ${C_GREEN}[FINISHED]${C_RESET}\n"
     else
-        printf " ${C_RED}[FAILED]${C_RESET}\n"
+        # Failure
+        if [ "$_retcode" -eq '130' ]
+        then
+            printf " ${C_RED}[ABORTED]${C_RESET}"
+        else
+            printf " ${C_RED}[FAILED]${C_RESET}"
+        fi
+        printf " (exit code ${_retcode})\n"
     fi
 }
