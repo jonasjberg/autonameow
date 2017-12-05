@@ -39,17 +39,15 @@ from regression.utils import (
 )
 
 
-msg_label_pass = ui.colorize('P', fore='GREEN')
-msg_label_fail = ui.colorize('F', fore='RED')
-
-
 VERBOSE = False
-PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 _this_dir = os.path.abspath(os.path.dirname(__file__))
 PERSISTENCE_DIR_ABSPATH = types.AW_PATH.normalize(_this_dir)
+PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 
 
 log = logging.getLogger('regression_runner')
+msg_label_pass = ui.colorize('P', fore='GREEN')
+msg_label_fail = ui.colorize('F', fore='RED')
 
 
 def run_test(test):
