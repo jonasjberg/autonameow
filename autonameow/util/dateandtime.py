@@ -142,9 +142,11 @@ DT_PATTERN_1 = re.compile(DATETIME_REGEX)
 
 # Expected date format:         2016:04:07
 DT_PATTERN_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
+DT_STRPTIME_FMT_2 = '%Y-%m-%d'
 
 # Matches '(C) 2014' and similar.
 DT_PATTERN_3 = re.compile(r'\( ?[Cc] ?\) ?([12]\d{3})')
+DT_STRPTIME_FMT_3 = '%Y'
 
 
 def regex_search_str(text):
@@ -157,12 +159,14 @@ def regex_search_str(text):
     :param text: the text to extract information from
     :return: list of any datetime-objects or None if nothing was found
     """
-    MAX_NUMBER_OF_RESULTS = 30
+    MAX_NUMBER_OF_RESULTS = 10
+
+    results = []
+    if not text:
+        return results
 
     if isinstance(text, list):
         text = ' '.join(text)
-
-    results = []
 
     # TODO: [TD0091] This code should be removed and/or rewritten ..
 
@@ -179,15 +183,12 @@ def regex_search_str(text):
         if len(m_date) > 8 and m_date.endswith(m_time):
             m_date = m_date.replace(m_time, '')
 
-        if len(m_time) < 6:
-            pass
-
         # Skip matches with unexpected number of digits.
         if len(m_date) != 8 or len(m_time) != 6:
             continue
 
         dt_fmt_1 = '%Y%m%d_%H%M%S'
-        dt_str = (m_date + '_' + m_time).strip()
+        dt_str = m_date + '_' + m_time
         try:
             dt = datetime.strptime(dt_str, dt_fmt_1)
         except (TypeError, ValueError):
@@ -203,41 +204,23 @@ def regex_search_str(text):
                 )
                 return results
 
-    # Expected date format:         2016:04:07
-    dt_fmt_2 = '%Y-%m-%d'
-    for dt_str in re.findall(DT_PATTERN_2, text):
-        try:
-            dt = datetime.strptime(dt_str, dt_fmt_2)
-        except (TypeError, ValueError):
-            pass
-        else:
-            if date_is_probable(dt):
-                log.debug('Extracted datetime from text: "{}"'.format(dt))
-                results.append(dt)
+    for re_pattern, datetime_format in [(DT_PATTERN_2, DT_PATTERN_3),
+                                        (DT_STRPTIME_FMT_2, DT_STRPTIME_FMT_3)]:
+        for dt_str in re.findall(re_pattern, text):
+            try:
+                dt = datetime.strptime(dt_str, datetime_format)
+            except (TypeError, ValueError):
+                pass
+            else:
+                if date_is_probable(dt):
+                    log.debug('Extracted datetime from text: "{}"'.format(dt))
+                    results.append(dt)
 
-            if len(results) >= MAX_NUMBER_OF_RESULTS:
-                log.debug(
-                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
-                )
-                return results
-
-    # Matches '(C) 2014' and similar.
-    dt_fmt_3 = '%Y'
-    for dt_str in re.findall(DT_PATTERN_3, text):
-        try:
-            dt = datetime.strptime(dt_str, dt_fmt_3)
-        except (TypeError, ValueError):
-            pass
-        else:
-            if date_is_probable(dt):
-                log.debug('Extracted datetime from text: "{}"'.format(dt))
-                results.append(dt)
-
-            if len(results) >= MAX_NUMBER_OF_RESULTS:
-                log.debug(
-                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
-                )
-                return results
+                if len(results) >= MAX_NUMBER_OF_RESULTS:
+                    log.debug(
+                        'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
+                    )
+                    return results
 
     log.debug('DATETIME Regex matcher found {:^3} matches'.format(len(results)))
     return results
