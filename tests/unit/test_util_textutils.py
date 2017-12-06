@@ -71,98 +71,94 @@ class TestExtractDigits(TestCase):
         _assert_raises(1)
         _assert_raises(b'foo')
         _assert_raises(b'1')
+
+
 class TestExtractLines(TestCase):
+    SAMPLE_TEXT = '''A
+B
+C
+D
+E
+'''
+    SAMPLE_TEXT_NUMLINES = len(SAMPLE_TEXT.split())
+
     def test_returns_none_for_none_input(self):
-        self.assertIsNone(extract_lines(None, 0, 0))
-        self.assertIsNone(extract_lines(None, 0, 1))
         self.assertIsNone(extract_lines(None, 1, 1))
         self.assertIsNone(extract_lines(None, 1, 0))
 
-    def test_extracts_lines_from_zero_to_any_last(self):
-        sample_text = 'A\nB\nC\nD\nE\n'
-
+    def test_extracts_lines_from_first_to_any_last(self):
         def _assert_extracts(first_line, last_line, expected):
             self.assertEqual(
-                extract_lines(sample_text, first_line, last_line),
+                extract_lines(self.SAMPLE_TEXT, first_line, last_line),
                 expected
             )
 
-        _assert_extracts(0, 1, 'A\n')
-        _assert_extracts(0, 2, 'A\nB\n')
-        _assert_extracts(0, 3, 'A\nB\nC\n')
-        _assert_extracts(0, 4, 'A\nB\nC\nD\n')
-        _assert_extracts(0, 5, 'A\nB\nC\nD\nE\n')
-        _assert_extracts(0, 6, 'A\nB\nC\nD\nE\n')
-        _assert_extracts(0, 7, 'A\nB\nC\nD\nE\n')
+        first = 1
+        _assert_extracts(first, 1, 'A\n')
+        _assert_extracts(first, 2, 'A\nB\n')
+        _assert_extracts(first, 3, 'A\nB\nC\n')
+        _assert_extracts(first, 4, 'A\nB\nC\nD\n')
+        _assert_extracts(first, 5, 'A\nB\nC\nD\nE\n')
+        _assert_extracts(first, 6, 'A\nB\nC\nD\nE\n')
+        _assert_extracts(first, 7, 'A\nB\nC\nD\nE\n')
 
     def test_extracts_lines_from_any_first_to_last(self):
-        sample_text = 'A\nB\nC\nD\nE\n'
-
         def _assert_extracts(first_line, last_line, expected):
-            self.assertEqual(
-                extract_lines(sample_text, first_line, last_line),
-                expected
-            )
+            actual = extract_lines(self.SAMPLE_TEXT, first_line, last_line)
+            self.assertEqual(expected, actual)
 
         last = 6
-        _assert_extracts(0, last, 'A\nB\nC\nD\nE\n')
-        _assert_extracts(1, last, 'B\nC\nD\nE\n')
-        _assert_extracts(2, last, 'C\nD\nE\n')
-        _assert_extracts(3, last, 'D\nE\n')
-        _assert_extracts(4, last, 'E\n')
-        _assert_extracts(5, last, '')
+        _assert_extracts(1, last, 'A\nB\nC\nD\nE\n')
+        _assert_extracts(2, last, 'B\nC\nD\nE\n')
+        _assert_extracts(3, last, 'C\nD\nE\n')
+        _assert_extracts(4, last, 'D\nE\n')
+        _assert_extracts(5, last, 'E\n')
         _assert_extracts(6, last, '')
         _assert_extracts(7, last, '')
+        _assert_extracts(8, last, '')
 
     def test_extracts_lines_from_any_first_to_any_last(self):
-        sample_text = 'A\nB\nC\nD\nE\n'
-
         def _assert_extracts(first_line, last_line, expected):
             self.assertEqual(
-                extract_lines(sample_text, first_line, last_line),
+                extract_lines(self.SAMPLE_TEXT, first_line, last_line),
                 expected
             )
 
-        _assert_extracts(0, 0, '')
-        _assert_extracts(0, 1, 'A\n')
-        _assert_extracts(0, 2, 'A\nB\n')
-        _assert_extracts(0, 3, 'A\nB\nC\n')
-        _assert_extracts(0, 4, 'A\nB\nC\nD\n')
-        _assert_extracts(0, 5, 'A\nB\nC\nD\nE\n')
-        _assert_extracts(1, 0, '')
-        _assert_extracts(1, 1, '')
-        _assert_extracts(1, 2, 'B\n')
-        _assert_extracts(1, 3, 'B\nC\n')
-        _assert_extracts(1, 4, 'B\nC\nD\n')
-        _assert_extracts(1, 5, 'B\nC\nD\nE\n')
-        _assert_extracts(2, 0, '')
+        # _assert_extracts(1, 0, '')
+        _assert_extracts(1, 1, 'A\n')
+        _assert_extracts(1, 2, 'A\nB\n')
+        _assert_extracts(1, 3, 'A\nB\nC\n')
+        _assert_extracts(1, 4, 'A\nB\nC\nD\n')
+        _assert_extracts(1, 5, 'A\nB\nC\nD\nE\n')
         _assert_extracts(2, 1, '')
-        _assert_extracts(2, 2, '')
-        _assert_extracts(2, 3, 'C\n')
-        _assert_extracts(2, 4, 'C\nD\n')
-        _assert_extracts(2, 5, 'C\nD\nE\n')
-        _assert_extracts(3, 0, '')
+        _assert_extracts(2, 2, 'B\n')
+        _assert_extracts(2, 3, 'B\nC\n')
+        _assert_extracts(2, 4, 'B\nC\nD\n')
+        _assert_extracts(2, 5, 'B\nC\nD\nE\n')
         _assert_extracts(3, 1, '')
         _assert_extracts(3, 2, '')
-        _assert_extracts(3, 3, '')
-        _assert_extracts(3, 4, 'D\n')
-        _assert_extracts(3, 5, 'D\nE\n')
-        _assert_extracts(4, 0, '')
+        _assert_extracts(3, 3, 'C\n')
+        _assert_extracts(3, 4, 'C\nD\n')
+        _assert_extracts(3, 5, 'C\nD\nE\n')
         _assert_extracts(4, 1, '')
         _assert_extracts(4, 2, '')
         _assert_extracts(4, 3, '')
-        _assert_extracts(4, 4, '')
-        _assert_extracts(4, 5, 'E\n')
-        _assert_extracts(5, 0, '')
+        _assert_extracts(4, 4, 'D\n')
+        _assert_extracts(4, 5, 'D\nE\n')
         _assert_extracts(5, 1, '')
         _assert_extracts(5, 2, '')
         _assert_extracts(5, 3, '')
         _assert_extracts(5, 4, '')
-        _assert_extracts(5, 5, '')
+        _assert_extracts(5, 5, 'E\n')
+        _assert_extracts(6, 1, '')
+        _assert_extracts(6, 2, '')
+        _assert_extracts(6, 3, '')
+        _assert_extracts(6, 4, '')
+        _assert_extracts(6, 5, '')
 
     def test_edge_cases(self):
-        self.assertEqual(extract_lines('', 0, 0), '')
-        self.assertEqual(extract_lines(' ', 0, 0), '')
+        self.assertEqual(extract_lines('', 1, 1), '')
+        self.assertEqual(extract_lines(' ', 1, 1), ' ')
 
     def test_raises_exceptions_given_bad_argument(self):
         with self.assertRaises(EncodingBoundaryViolation):
@@ -177,6 +173,35 @@ class TestExtractLines(TestCase):
         with self.assertRaises(AssertionError):
             extract_lines('foo', 0, -1)
 
+    def test_number_of_extracted_lines(self):
+        sample_text = '''first
+second
+third
+
+fifth
+'''
+
+        def _check_number_of_lines(first, last, expect):
+            actual = extract_lines(sample_text, first, last)
+            actual_numlines = len(actual.splitlines())
+            self.assertEqual(expect, actual_numlines)
+
+        sample_lines = len(sample_text.splitlines())
+        _check_number_of_lines(first=1, last=sample_lines, expect=sample_lines)
+        _check_number_of_lines(first=2, last=sample_lines, expect=sample_lines-1)
+        _check_number_of_lines(first=3, last=sample_lines, expect=sample_lines-2)
+
+        _check_number_of_lines(first=1, last=1, expect=1)
+        _check_number_of_lines(first=1, last=2, expect=2)
+        _check_number_of_lines(first=1, last=3, expect=3)
+        _check_number_of_lines(first=1, last=4, expect=4)
+        _check_number_of_lines(first=1, last=5, expect=5)
+
+        _check_number_of_lines(first=5, last=5, expect=1)
+        _check_number_of_lines(first=4, last=5, expect=2)
+        _check_number_of_lines(first=3, last=5, expect=3)
+        _check_number_of_lines(first=2, last=5, expect=4)
+
 
 class TestExtractlinesDo(TestCase):
     def setUp(self):
@@ -186,24 +211,27 @@ class TestExtractlinesDo(TestCase):
 4. foo
 '''
 
-    def test_transforms_all_lines(self):
+    def __assert_transforms_lines(self, first, last, expect):
         actual = extractlines_do(
             lambda t: t.upper(),
-            self.text, fromline=0, toline=4
+            self.text, fromline=first, toline=last
         )
-        expect = '''FOO
-2. BAR
-3. BAZ
-4. FOO
-'''
         self.assertEqual(actual, expect)
 
-    def test_transforms_subset_of_lines(self):
-        actual = extractlines_do(
-            lambda t: t.upper(),
-            self.text, fromline=1, toline=3
+    def test_transforms_all_lines(self):
+        self.__assert_transforms_lines(
+            first=1, last=4,
+            expect='FOO\n2. BAR\n3. BAZ\n4. FOO\n'
         )
-        expect = '''2. BAR
-3. BAZ
-'''
-        self.assertEqual(actual, expect)
+
+    def test_transforms_lines_two_to_three(self):
+        self.__assert_transforms_lines(
+            first=2, last=3,
+            expect='2. BAR\n3. BAZ\n'
+        )
+
+    def test_transforms_lines_three_to_three(self):
+        self.__assert_transforms_lines(
+            first=3, last=3,
+            expect='3. BAZ\n'
+        )

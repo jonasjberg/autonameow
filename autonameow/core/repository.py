@@ -242,7 +242,7 @@ class Repository(object):
 
             if meowuri.matchglobs(['generic.contents.text',
                                    'extractor.text.*']):
-                _text = textutils.extract_lines(data, firstline=0, lastline=1)
+                _text = textutils.extract_lines(data, firstline=1, lastline=1)
                 _text = _text.rstrip('\n')
                 data = _text
             _add_row(_meowuri_str, data)

@@ -43,10 +43,7 @@ from util import (
     mimemagic,
     sanity
 )
-from util.textutils import (
-    extractlines_do,
-    extract_lines
-)
+from util.textutils import extract_lines
 from util.text import (
     find_edition,
     string_similarity,
@@ -125,12 +122,14 @@ class EbookAnalyzer(BaseAnalyzer):
         # First try to find "e-book ISBNs" in the beginning, then at the end.
         # Then try to find _any_ ISBNs in the beginning, then at the end.
 
-        num_text_lines = len(self.text)
+        num_text_lines = len(self.text.splitlines())
 
         # TODO: [TD0134] Consolidate splitting up text into chunks.
         # Search the text in arbitrarily sized chunks.
-        chunk_size = int(num_text_lines / 100)
-        self.log.debug('Got {} lines of text. Using chunks of {} lines'.format(
+        chunk_size = int(num_text_lines * 0.01)
+        if chunk_size < 1:
+            chunk_size = 1
+        self.log.debug('Got {} lines of text. Using chunk size {}'.format(
             num_text_lines, chunk_size
         ))
 
@@ -141,28 +140,31 @@ class EbookAnalyzer(BaseAnalyzer):
         # Chunk #2: from (END - CHUNK_SIZE) to END
         _chunk2_start = num_text_lines - chunk_size
         _chunk2_end = num_text_lines
-        if _chunk2_end < 0:
-            _chunk2_end = 0
+        if _chunk2_end < 1:
+            _chunk2_end = 1
 
         # Find e-ISBNs in chunk #1
         _text_chunk_1 = extract_lines(self.text, _chunk1_start, _chunk1_end)
-        assert num_text_lines > len(_text_chunk_1), (
-            'extract_lines() is broken'
+        _chunk_1_numlines = len(_text_chunk_1.splitlines())
+        assert num_text_lines > _chunk_1_numlines, (
+            'extract_lines() might be broken -- full text: {} '
+            'chunk 1: {}'.format(num_text_lines, _chunk_1_numlines)
+        )
+        self.log.debug(
+            'Searching for eISBNs in chunk 1 lines {}-{} '
+            '({} lines)'.format(_chunk1_start, _chunk1_end, _chunk_1_numlines)
         )
         isbns = find_ebook_isbns_in_text(_text_chunk_1)
         if not isbns:
             # Find e-ISBNs in chunk #2
             _text_chunk_2 = extract_lines(self.text, _chunk2_start, _chunk2_end)
-            assert num_text_lines > len(_text_chunk_2), (
-                'extract_lines() is broken'
-            )
             isbns = find_ebook_isbns_in_text(_text_chunk_2)
-        if not isbns:
-            # Find any ISBNs in chunk #1
-            isbns = extract_isbns_from_text(_text_chunk_1)
-        if not isbns:
-            # Find for any ISBNs in chunk #2
-            isbns = extract_isbns_from_text(_text_chunk_2)
+            if not isbns:
+                # Find any ISBNs in chunk #1
+                isbns = extract_isbns_from_text(_text_chunk_1)
+                if not isbns:
+                    # Find for any ISBNs in chunk #2
+                    isbns = extract_isbns_from_text(_text_chunk_2)
 
         if isbns:
             isbns = filter_isbns(isbns, self._isbn_num_blacklist)

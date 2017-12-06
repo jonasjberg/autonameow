@@ -57,22 +57,22 @@ class DocumentAnalyzer(BaseAnalyzer):
             return
 
         self.text = _maybe_text
-        self.text_lines = len(self.text)
+        self.text_lines = len(self.text.splitlines())
 
         # Arbitrarily search the text in chunks of 10%
         # TODO: [TD0134] Consolidate splitting up text into chunks.
         text_chunk_1 = self._extract_leading_text_chunk(chunk_ratio=0.1)
+
+        self._add_results('datetime',
+                          self._get_datetime_from_text(text_chunk_1))
+
+        self._add_title_from_text_to_results(text_chunk_1)
 
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
         if _options:
             _candidates = _options.get('candidates', {})
             if _candidates:
                 self.candidate_publishers = _candidates
-
-        self._add_results('datetime',
-                          self._get_datetime_from_text(text_chunk_1))
-
-        self._add_title_from_text_to_results(text_chunk_1)
 
         # TODO: [cleanup] ..
         if self.candidate_publishers:
@@ -212,6 +212,8 @@ class DocumentAnalyzer(BaseAnalyzer):
         # Chunk #1: from BEGINNING to (BEGINNING + CHUNK_SIZE)
         _chunk1_start = 1
         _chunk1_end = int(self.text_lines * chunk_ratio)
+        if _chunk1_end < 1:
+            _chunk1_end = 1
         text = textutils.extract_lines(self.text, firstline=_chunk1_start,
                                        lastline=_chunk1_end)
         return text

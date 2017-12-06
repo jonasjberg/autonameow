@@ -57,8 +57,10 @@ def extract_lines(text, firstline, lastline):
         return text
 
     sanity.check_internal_string(text)
-    assert firstline >= 0, 'Argument first_line is negative'
-    assert lastline >= 0, 'Argument last_line is negative'
+    assert firstline >= 1, 'Argument first_line is < 1'
+    assert lastline >= 1, 'Argument last_line is < 1'
+
+    firstline -= 1
 
     lines = text.splitlines(keepends=True)
     if lastline > len(lines):
