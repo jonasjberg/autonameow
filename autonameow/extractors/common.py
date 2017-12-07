@@ -72,6 +72,9 @@ class BaseExtractor(object):
     # Last part of the full MeowURI ('exiftool', 'xplat', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
+    # Set at first call to 'meowuri_prefix()'.
+    _meowuri_prefix = None
+
     # Controls whether the extractor is enabled and used by default.
     # Used to exclude slow running extractors from always being executed.
     # If the extractor is not enabled by the default, it must be explicitly
@@ -95,21 +98,24 @@ class BaseExtractor(object):
     def meowuri_prefix(cls):
         # TODO: [TD0133] Fix inconsistent use of MeowURIs
         #       Stick to using either instances of 'MeowURI' _OR_ strings.
-        def _undefined(attribute):
-            return attribute == C.UNDEFINED_MEOWURI_PART
+        if not cls._meowuri_prefix:
+            def _undefined(attribute):
+                return attribute == C.UNDEFINED_MEOWURI_PART
 
-        _node = cls.MEOWURI_CHILD
-        if _undefined(_node):
-            _node = cls._meowuri_node_from_module_name()
+            _node = cls.MEOWURI_CHILD
+            if _undefined(_node):
+                _node = cls._meowuri_node_from_module_name()
 
-        _leaf = cls.MEOWURI_LEAF
-        if _undefined(_leaf):
-            _leaf = cls._meowuri_leaf_from_module_name()
+            _leaf = cls.MEOWURI_LEAF
+            if _undefined(_leaf):
+                _leaf = cls._meowuri_leaf_from_module_name()
 
-        return '{root}{sep}{node}{sep}{leaf}'.format(
-            root=C.MEOWURI_ROOT_SOURCE_EXTRACTORS, sep=C.MEOWURI_SEPARATOR,
-            node=_node, leaf=_leaf
-        )
+            cls._meowuri_prefix = '{root}{sep}{node}{sep}{leaf}'.format(
+                root=C.MEOWURI_ROOT_SOURCE_EXTRACTORS, sep=C.MEOWURI_SEPARATOR,
+                node=_node, leaf=_leaf
+            )
+
+        return cls._meowuri_prefix
 
     @classmethod
     def _meowuri_node_from_module_name(cls):

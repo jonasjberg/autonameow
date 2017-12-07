@@ -52,6 +52,9 @@ class BaseAnalyzer(object):
     # Last part of the full MeowURI ('filetags', 'filename', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
+    # Set at first call to 'meowuri_prefix()'.
+    _meowuri_prefix = None
+
     # Dictionary with analyzer-specific information, keyed by the fields that
     # the analyzer produces. Stores information on types, etc..
     FIELD_LOOKUP = {}
@@ -179,12 +182,14 @@ class BaseAnalyzer(object):
         """
         # TODO: [TD0133] Fix inconsistent use of MeowURIs
         #       Stick to using either instances of 'MeowURI' _OR_ strings.
-        _leaf = cls.__module__.split('_')[-1] or cls.MEOWURI_LEAF
+        if not cls._meowuri_prefix:
+            _leaf = cls.__module__.split('_')[-1] or cls.MEOWURI_LEAF
 
-        return '{root}{sep}{leaf}'.format(
-            root=C.MEOWURI_ROOT_SOURCE_ANALYZERS, sep=C.MEOWURI_SEPARATOR,
-            leaf=_leaf
-        )
+            cls._meowuri_prefix = '{root}{sep}{leaf}'.format(
+                root=C.MEOWURI_ROOT_SOURCE_ANALYZERS, sep=C.MEOWURI_SEPARATOR,
+                leaf=_leaf
+            )
+        return cls._meowuri_prefix
 
     @classmethod
     def can_handle(cls, fileobject):
