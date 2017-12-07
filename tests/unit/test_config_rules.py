@@ -34,11 +34,11 @@ uu.init_provider_registry()
 
 
 class TestRuleConditionFromValidInput(TestCase):
-    def _is_valid(self, query, data):
+    def _is_valid(self, query, expression):
         _meowuri = MeowURI(query)
         self.assertIsInstance(_meowuri, MeowURI, 'Dependency init failed')
 
-        actual = rules.RuleCondition(_meowuri, data)
+        actual = rules.RuleCondition(_meowuri, expression)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, rules.RuleCondition)
 
@@ -105,19 +105,20 @@ class TestRuleConditionFromValidInput(TestCase):
         self._is_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE, 'foo')
 
 
-class TestRuleConditionFromInvalidInput(TestCase):
-    def _assert_raises(self, query, data):
+class TestRuleConditionGivenInvalidExpression(TestCase):
+    def _assert_raises(self, query, expression):
         with self.assertRaises(exceptions.InvalidRuleError):
             _meowuri = MeowURI(query)
-            _ = rules.get_valid_rule_condition(_meowuri, data)
+            _ = rules.get_valid_rule_condition(_meowuri, expression)
 
     def test_invalid_condition_contents_mime_type(self):
-        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, None)
-        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, '')
-        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, '/')
-        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application/*//pdf')
-        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application///pdf')
-        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/')
+        _meowuri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        self._assert_raises(_meowuri, None)
+        self._assert_raises(_meowuri, '')
+        self._assert_raises(_meowuri, '/')
+        self._assert_raises(_meowuri, 'application/*//pdf')
+        self._assert_raises(_meowuri, 'application///pdf')
+        self._assert_raises(_meowuri, 'text/')
 
     def test_invalid_condition_filesystem_basename_full(self):
         self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, None)
@@ -134,6 +135,35 @@ class TestRuleConditionFromInvalidInput(TestCase):
     def test_invalid_condition_filesystem_extension(self):
         self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, None)
         self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, '')
+
+
+class TestRuleConditionGivenInvalidMeowURI(TestCase):
+    def _assert_raises(self, meowuri, expression):
+        with self.assertRaises(TypeError):
+            _ = rules.RuleCondition(meowuri, expression)
+
+    def test_meowuri_none_expression_valid(self):
+        self._assert_raises(None, 'application/pdf')
+
+    def test_meowuri_none_expression_invalid(self):
+        self._assert_raises(None, 'application///pdf')
+
+    def test_meowuri_none_expression_none(self):
+        self._assert_raises(None, None)
+
+    def test_meowuri_empty_string_expression_valid(self):
+        self._assert_raises('', 'application/pdf')
+
+    def test_meowuri_empty_string_expression_invalid(self):
+        self._assert_raises('', 'application///pdf')
+
+    def test_meowuri_empty_string_expression_none(self):
+        self._assert_raises('', None)
+
+    def test_meowuri_not_handled_by_parser(self):
+        _unhandled_meowuri = uu.as_meowuri('extractor.foo.bar')
+        with self.assertRaises(ValueError):
+            _ = rules.RuleCondition(_unhandled_meowuri, 'baz')
 
 
 class TestRuleConditionMethods(TestCase):
@@ -173,16 +203,16 @@ class TestRuleMethods(TestCase):
 
 
 class TestGetValidRuleCondition(TestCase):
-    def _aV(self, query, data):
+    def _aV(self, query, expression):
         _meowuri = MeowURI(query)
-        actual = rules.get_valid_rule_condition(_meowuri, data)
+        actual = rules.get_valid_rule_condition(_meowuri, expression)
         self.assertIsNotNone(actual)
         self.assertTrue(isinstance(actual, rules.RuleCondition))
 
-    def _aR(self, query, data):
+    def _aR(self, query, expression):
         _meowuri = MeowURI(query)
         with self.assertRaises(exceptions.InvalidRuleError):
-            _ = rules.get_valid_rule_condition(_meowuri, data)
+            _ = rules.get_valid_rule_condition(_meowuri, expression)
 
     def test_returns_valid_rule_condition_for_valid_query_valid_data(self):
         self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application/pdf')
