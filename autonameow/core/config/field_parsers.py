@@ -52,9 +52,9 @@ class ConfigFieldParser(object):
     The "value" is some kind of expression.
 
     The "meowURI" (key) determines which parser class is to be used by
-    matching the "meowURI" against class variables 'applies_to_meowuri'.
+    matching the "meowURI" against class variables 'APPLIES_TO_MEOWURIS'.
     This is handled with the 'eval_meowuri_glob' function, which supports
-    "globs"/wildcards. Parser classes whose 'applies_to_meowuri' attribute
+    "globs"/wildcards. Parser classes whose 'APPLIES_TO_MEOWURIS' attribute
     evaluates True for a given "meowURI" is used to parse the associated value.
 
     * The 'validate' methods
@@ -79,7 +79,7 @@ class ConfigFieldParser(object):
     # part during comparison.
     #
     # Example:  ['filesystem.basename.*', 'filesystem.*.extension]
-    applies_to_meowuri = []
+    APPLIES_TO_MEOWURIS = []
 
     def __init__(self):
         self.init()
@@ -149,7 +149,7 @@ class ConfigFieldParser(object):
 
 
 class BooleanConfigFieldParser(ConfigFieldParser):
-    applies_to_meowuri = ['*.filetags.follows_filetags_convention']
+    APPLIES_TO_MEOWURIS = ['*.filetags.follows_filetags_convention']
 
     @staticmethod
     def is_valid_boolean(expression):
@@ -182,13 +182,13 @@ class BooleanConfigFieldParser(ConfigFieldParser):
 
 class RegexConfigFieldParser(ConfigFieldParser):
     # NOTE: Globs does not include all possible extractor globs.
-    applies_to_meowuri = [
+    APPLIES_TO_MEOWURIS = [
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
         '*.XMP-dc:Title', '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher',
         '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.text.*', '*.text',
     ]
     # Add MeowURIs from "generic" fields.
-    applies_to_meowuri.extend([
+    APPLIES_TO_MEOWURIS.extend([
         field.uri() for field in gf.get_string_fields()
     ])
 
@@ -261,7 +261,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
-    applies_to_meowuri = ['*.mime_type', gf.GenericMimeType.uri()]
+    APPLIES_TO_MEOWURIS = ['*.mime_type', gf.GenericMimeType.uri()]
 
     @staticmethod
     def is_valid_mime_type(expression):
@@ -320,12 +320,12 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
     # NOTE: Globs does not include all possible extractor globs.
-    applies_to_meowuri = [
+    APPLIES_TO_MEOWURIS = [
         '*.PDF:CreateDate', '*.PDF:ModifyDate', '*.EXIF:DateTimeOriginal',
         '*.EXIF:ModifyDate'
     ]
     # Add MeowURIs from "generic" fields.
-    applies_to_meowuri.extend([
+    APPLIES_TO_MEOWURIS.extend([
         field.uri() for field in gf.get_datetime_fields()
     ])
 
@@ -367,7 +367,7 @@ NAMETEMPLATEFIELDS_DUMMYDATA = dict.fromkeys(
 
 
 class NameFormatConfigFieldParser(ConfigFieldParser):
-    applies_to_meowuri = []
+    APPLIES_TO_MEOWURIS = []
 
     @staticmethod
     def is_valid_nametemplate_string(expression):
@@ -432,7 +432,7 @@ def suitable_field_parser_for(meowuri):
     assert isinstance(meowuri, MeowURI)
 
     return [p for p in FieldParserInstances
-            if meowuri.matchglobs(p.applies_to_meowuri)]
+            if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
 
 
 # Instantiate rule parsers inheriting from the 'Parser' class.
