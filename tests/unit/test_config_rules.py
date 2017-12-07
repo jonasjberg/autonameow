@@ -34,47 +34,75 @@ uu.init_provider_registry()
 
 
 class TestRuleConditionFromValidInput(TestCase):
-    def _assert_valid(self, query, data):
+    def _is_valid(self, query, data):
         _meowuri = MeowURI(query)
+        self.assertIsInstance(_meowuri, MeowURI, 'Dependency init failed')
+
         actual = rules.RuleCondition(_meowuri, data)
         self.assertIsNotNone(actual)
-        self.assertTrue(isinstance(actual, rules.RuleCondition))
+        self.assertIsInstance(actual, rules.RuleCondition)
 
     def test_condition_contents_mime_type(self):
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/rtf')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/*')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, '*/application')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, '*/*')
+        _meowuri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        self._is_valid(_meowuri, 'text/rtf')
+        self._is_valid(_meowuri, 'text/*')
+        self._is_valid(_meowuri, '*/application')
+        self._is_valid(_meowuri, '*/*')
+
+    def test_condition_contents_mime_type_with_expression_list(self):
+        _meowuri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        self._is_valid(_meowuri, ['text/rtf'])
+        self._is_valid(_meowuri, ['text/*'])
+        self._is_valid(_meowuri, ['*/application'])
+        self._is_valid(_meowuri, ['*/*'])
+
+        self._is_valid(_meowuri, ['text/rtf', 'text/rtf'])
+        self._is_valid(_meowuri, ['text/rtf', 'text/*'])
+        self._is_valid(_meowuri, ['text/*', '*/rtf'])
+        self._is_valid(_meowuri, ['*/application', 'pdf/application'])
+        self._is_valid(_meowuri, ['*/*', '*/*'])
 
     def test_condition_filesystem_basename_full(self):
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, 'foo.tar.gz')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, 'foo.*')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, '.*foo.*')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, '.*')
+        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL
+        self._is_valid(_meowuri, 'foo.tar.gz')
+        self._is_valid(_meowuri, 'foo.*')
+        self._is_valid(_meowuri, '.*foo.*')
+        self._is_valid(_meowuri, '.*')
+
+    def test_condition_filesystem_basename_full_with_expression_list(self):
+        self.skipTest('TODO: ..')
+        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL
+        self._is_valid(_meowuri, ['foo.tar.gz'])
+        self._is_valid(_meowuri, ['foo.*'])
+        self._is_valid(_meowuri, ['.*foo.*'])
+        self._is_valid(_meowuri, ['.*'])
 
     def test_condition_filesystem_basename_prefix(self):
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX, 'foo')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX, '.*')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX, 'foo(bar)?')
+        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX
+        self._is_valid(_meowuri, 'foo')
+        self._is_valid(_meowuri, '.*')
+        self._is_valid(_meowuri, 'foo(bar)?')
 
     def test_condition_filesystem_basename_suffix(self):
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX, 'tar.gz')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX, 'tar.*')
+        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX
+        self._is_valid(_meowuri, 'tar.gz')
+        self._is_valid(_meowuri, 'tar.*')
 
     def test_condition_filesystem_extension(self):
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, '.*')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, '.?')
-        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf?')
+        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT
+        self._is_valid(_meowuri, 'pdf')
+        self._is_valid(_meowuri, '.*')
+        self._is_valid(_meowuri, '.?')
+        self._is_valid(_meowuri, 'pdf?')
 
     def test_condition_metadata_exiftool(self):
-        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE, '1996')
-        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR, 'foo')
-        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFMODIFYDATE, '1996-01-20')
-        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFPRODUCER, 'foo')
-        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR, 'foo')
-        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER, 'foo')
-        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE, 'foo')
+        self._is_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE, '1996')
+        self._is_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR, 'foo')
+        self._is_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFMODIFYDATE, '1996-01-20')
+        self._is_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFPRODUCER, 'foo')
+        self._is_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR, 'foo')
+        self._is_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER, 'foo')
+        self._is_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE, 'foo')
 
 
 class TestRuleConditionFromInvalidInput(TestCase):
