@@ -112,20 +112,18 @@ class TestFieldParserSubclasses(TestCase):
             self.assertTrue(hasattr(p.get_validation_function(), '__call__'))
 
     def test_validation_function_should_return_booleans(self):
+        def __assert_returns_bool(valfunc, given):
+            actual = valfunc(given)
+            self.assertIsInstance(
+                actual, bool, 'Validation function should always return boolean'
+            )
+
         for p in self.parsers:
             valfunc = p.get_validation_function()
-
-            result = valfunc('dummy_value')
-            self.assertEqual(type(result), bool,
-                             'Validation function should always return boolean')
-
-            result = valfunc(None)
-            self.assertEqual(type(result), bool,
-                             'Validation function should always return boolean')
-
-            result = valfunc('123')
-            self.assertEqual(type(result), bool,
-                             'Validation function should always return boolean')
+            __assert_returns_bool(valfunc, None)
+            __assert_returns_bool(valfunc, 'foo')
+            __assert_returns_bool(valfunc, [None])
+            __assert_returns_bool(valfunc, ['foo'])
 
     def test_get_evaluation_function_should_not_return_none(self):
         for p in self.parsers:
@@ -136,38 +134,100 @@ class TestFieldParserSubclasses(TestCase):
             self.assertTrue(hasattr(p.get_evaluation_function(), '__call__'))
 
 
-class TestRegexFieldParser(TestCase):
+class TestRegexFieldParserValidation(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = RegexConfigFieldParser()
-        self.val_func = self.p.get_validation_function()
+
+    def aF(self, test_input):
+        self.assertFalse(self.p.validate(test_input))
+
+    def aT(self, test_input):
+        self.assertTrue(self.p.validate(test_input))
 
     def test_validation_function_expect_fail(self):
-        self.assertFalse(self.val_func('[[['))
-        self.assertFalse(self.val_func('"  |[2'))
-        self.assertFalse(self.val_func(None))
+        self.aF('[[[')
+        self.aF('"  |[2')
+        self.aF(None)
+
+        # Expect validation to fail if one expression is invalid.
+        self.aF(['[A-Za-z]+', '[[['])
+        self.aF(['.*', '"  |[2'])
+        self.aF(['4123', None])
+        self.aF(['[A-Za-z]+', ''])
+        self.aF(['.*', ''])
+        self.aF(['4123', ''])
 
     def test_validation_function_expect_pass(self):
-        self.assertTrue(self.val_func('[A-Za-z]+'))
-        self.assertTrue(self.val_func('.*'))
-        self.assertTrue(self.val_func('4123'))
+        # Single valid expression.
+        self.aT('[A-Za-z]+')
+        self.aT('.*')
+        self.aT('4123')
 
-    def test__normalize_returns_expected(self):
-        self.assertEqual(self.p._normalize('foo'), 'foo')
-        self.assertEqual(self.p._normalize('ö'), 'ö')
+        # List of one valid expression.
+        self.aT(['[A-Za-z]+'])
+        self.aT(['.*'])
+        self.aT(['4123'])
+
+        # List of two valid expressions.
+        self.aT(['[A-Za-z]+', '.*'])
+        self.aT(['[A-Za-z]+', '.*'])
+        self.aT(['4123', '1337'])
 
 
-class TestMimeTypeFieldParser(TestCase):
+class TestRegexFieldParserEvaluation(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.p = RegexConfigFieldParser()
+
+    def aF(self, expression, data):
+        self.assertFalse(self.p.evaluate(expression, data))
+
+    def aT(self, expression, data):
+        self.assertTrue(self.p.evaluate(expression, data))
+
+    def test_expect_evaluates_true(self):
+        # One expression.
+        self.aT('[A-Za-z]+', 'foo')
+        self.aT('.*', 'foo')
+        self.aT('.*', '1337')
+        self.aT('4123', '4123')
+
+        self.aT(['[A-Za-z]+'], 'foo')
+        self.aT(['.*'], 'foo')
+        self.aT(['.*'], '1337')
+        self.aT(['4123'], '4123')
+
+        # Two expressions.
+        self.aT(['[A-Za-z]+', '.*'], 'foo')
+        self.aT(['[A-Za-z]+', '.*'], '1337')
+        self.aT(['4123', '1337'], '4123')
+        self.aT(['4123', '1337'], '1337')
+
+    def test_expect_evaluates_false(self):
+        # One expression.
+        self.aF('[A-Za-z]+', '')
+        self.aF('[A-Za-z]+', '1337')
+        self.aF('.*', '')
+        self.aF('4123', '1337')
+        self.aF('4123', 'foo')
+
+        # Two expressions.
+        self.aF(['[A-Za-z]+', 'foo'], '')
+        self.aF(['[A-Za-z]+', 'foo'], '1337')
+        self.aF(['4123', '1337'], 'foo')
+
+
+class TestMimeTypeFieldParserValidation(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = MimeTypeConfigFieldParser()
-        self.val_func = self.p.get_validation_function()
 
     def aF(self, test_input):
-        self.assertFalse(self.val_func(test_input))
+        self.assertFalse(self.p.validate(test_input))
 
     def aT(self, test_input):
-        self.assertTrue(self.val_func(test_input))
+        self.assertTrue(self.p.validate(test_input))
 
     def test_expect_fail_for_invalid_mime_types(self):
         self.aF('')
@@ -260,53 +320,58 @@ class TestMimeTypeFieldParser(TestCase):
         self.aT(['image/jpeg', 'image/gif'])
         self.aT(['video/quicktime', 'image/jpeg'])
 
-    def test_expect_mime_type_globs_to_evaluate_true(self):
-        def _aT(expression, data):
-            actual = self.p.evaluate_mime_type_globs(expression, data)
-            self.assertTrue(isinstance(actual, bool))
-            self.assertTrue(actual)
 
-        _aT('image/jpeg', 'image/jpeg')
-        _aT('image/*', 'image/jpeg')
-        _aT('*/jpeg', 'image/jpeg')
-        _aT(['*/jpeg', 'application/pdf'], 'image/jpeg')
-        _aT(['image/*', 'application/pdf'], 'image/jpeg')
-        _aT(['image/*', 'application/pdf'], 'application/pdf')
-        _aT(['image/jpeg', 'application/pdf'], 'application/pdf')
-        _aT(['image/jpeg', '*/pdf'], 'application/pdf')
+class TestMimeTypeFieldParserEvaluation(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.p = MimeTypeConfigFieldParser()
 
-    def test_expect_mime_type_globs_to_evaluate_false(self):
-        def _aF(expression, data):
-            actual = self.p.evaluate_mime_type_globs(expression, data)
-            self.assertTrue(isinstance(actual, bool))
-            self.assertFalse(actual)
+    def aF(self, expression, data):
+        actual = self.p.evaluate(expression, data)
+        self.assertIsInstance(actual, bool)
+        self.assertFalse(actual)
 
-        _aF('image/png', 'image/jpeg')
-        _aF('application/*', 'image/jpeg')
-        _aF('*/png', 'image/jpeg')
-        _aF(['*/png', 'application/pdf'], 'image/jpeg')
-        _aF(['application/*', 'video/quicktime'], 'image/png')
-        _aF(['image/*', 'application/pdf'], 'text/p,ain')
-        _aF(['image/jpeg', 'application/pdf'], 'image/gif')
+    def aT(self, expression, data):
+        actual = self.p.evaluate(expression, data)
+        self.assertIsInstance(actual, bool)
+        self.assertTrue(actual)
+
+    def test_expect_evaluates_true(self):
+        self.aT('image/jpeg', 'image/jpeg')
+        self.aT('image/*', 'image/jpeg')
+        self.aT('*/jpeg', 'image/jpeg')
+        self.aT(['*/jpeg', 'application/pdf'], 'image/jpeg')
+        self.aT(['image/*', 'application/pdf'], 'image/jpeg')
+        self.aT(['image/*', 'application/pdf'], 'application/pdf')
+        self.aT(['image/jpeg', 'application/pdf'], 'application/pdf')
+        self.aT(['image/jpeg', '*/pdf'], 'application/pdf')
+
+    def test_expect_evaluates_false(self):
+        self.aF('image/png', 'image/jpeg')
+        self.aF('application/*', 'image/jpeg')
+        self.aF('*/png', 'image/jpeg')
+        self.aF(['*/png', 'application/pdf'], 'image/jpeg')
+        self.aF(['application/*', 'video/quicktime'], 'image/png')
+        self.aF(['image/*', 'application/pdf'], 'text/p,ain')
+        self.aF(['image/jpeg', 'application/pdf'], 'image/gif')
 
 
 class TestDateTimeFieldParser(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = DateTimeConfigFieldParser()
-        self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):
         def _aF(test_input):
-            self.assertFalse(self.val_func(test_input))
+            self.assertFalse(self.p.validate(test_input))
 
-        _aF(self.val_func(None))
-        _aF(self.val_func(1))
-        _aF(self.val_func(''))
+        _aF(None)
+        _aF(1)
+        _aF('')
 
     def test_validation_function_expect_pass(self):
         def _aT(test_input):
-            self.assertTrue(self.val_func(test_input))
+            self.assertTrue(self.p.validate(test_input))
 
         _aT('%Y-%m-%d %H:%M:%S')
         _aT('%Y-%m-%d')
@@ -319,11 +384,10 @@ class TestNameFormatFieldParser(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = NameFormatConfigFieldParser()
-        self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):
         def _aF(test_input):
-            self.assertFalse(self.val_func(test_input))
+            self.assertFalse(self.p.validate(test_input))
 
         _aF(None)
         _aF('')
@@ -332,7 +396,7 @@ class TestNameFormatFieldParser(TestCase):
 
     def test_validation_function_expect_pass(self):
         def _aT(test_input):
-            self.assertTrue(self.val_func(test_input))
+            self.assertTrue(self.p.validate(test_input))
 
         _aT('{datetime}')
         _aT('{publisher} "abc" {tags}')
