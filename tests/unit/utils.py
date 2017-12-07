@@ -32,6 +32,7 @@ from datetime import datetime
 import unit.constants as uuconst
 from core.config import rules
 from core.config.configuration import Configuration
+from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
 from core.model import MeowURI
 from util import encoding as enc
@@ -722,4 +723,8 @@ def mock_cache_path():
 
 
 def as_meowuri(string):
-    return MeowURI(string)
+    try:
+        meowuri = MeowURI(string)
+    except InvalidMeowURIError as e:
+        raise AssertionError(e)
+    return meowuri

@@ -615,9 +615,19 @@ class TestGetDefaultConfig(TestCase):
 
 
 class TestAsMeowURI(TestCase):
-    def test_returns_meowuri_instance_from_unit_utils_constants_strings(self):
+    def test_returns_meowuri_instance_from_unit_utils_constants_string(self):
         expect = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         actual = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
         self.assertEqual(actual, expect)
         self.assertTrue(isinstance(actual, MeowURI))
+
+    def test_returns_meowuri_instance_from_unit_utils_constants_strings(self):
+        for given in uuconst.ALL_FULL_MEOWURIS:
+            actual = uu.as_meowuri(given)
+            self.assertTrue(isinstance(actual, MeowURI))
+
+    def test_raises_assertion_error_given_invalid_argument(self):
+        for given in [None, '', ' ', {}, []]:
+            with self.assertRaises(AssertionError):
+                _ = uu.as_meowuri(given)
