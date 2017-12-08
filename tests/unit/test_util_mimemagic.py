@@ -154,21 +154,21 @@ class TestMimeExtensionMapper(TestCase):
     def setUp(self):
         self.m = mimemagic.MimeExtensionMapper()
 
-    def _assert_returns_mimes(self, extension, expected):
-        _actual_mimes = self.m.get_candidate_mimetypes(extension)
+    def _assert_returns_mimes(self, given, expect):
+        _actual_mimes = self.m.get_candidate_mimetypes(given)
         self.assertTrue(isinstance(_actual_mimes, list))
-        for expected_mime in expected:
+        for expected_mime in expect:
             self.assertIn(expected_mime, _actual_mimes)
 
-        self.assertEqual(len(_actual_mimes), len(expected))
+        self.assertEqual(len(_actual_mimes), len(expect))
 
-    def _assert_returns_exts(self, mimetype, expected):
-        _actual_exts = self.m.get_candidate_extensions(mimetype)
+    def _assert_candidate_extensions(self, given, expect):
+        _actual_exts = self.m.get_candidate_extensions(given)
         self.assertTrue(isinstance(_actual_exts, list))
-        for expected_ext in expected:
+        for expected_ext in expect:
             self.assertIn(expected_ext, _actual_exts)
 
-        self.assertEqual(len(_actual_exts), len(expected))
+        self.assertEqual(len(_actual_exts), len(expect))
 
     def test_initially_empty(self):
         _mimes = self.m.get_candidate_mimetypes('rtf')
@@ -187,13 +187,18 @@ class TestMimeExtensionMapper(TestCase):
 
     def test_add_mime_for_extension(self):
         self.m.add_mapping('application/rtf', 'rtf')
-        self._assert_returns_mimes('rtf', ['application/rtf'])
-        self._assert_returns_exts('application/rtf', ['rtf'])
+        self._assert_returns_mimes(given='rtf',
+                                   expect=['application/rtf'])
+        self._assert_candidate_extensions(given='application/rtf',
+                                          expect=['rtf'])
 
         self.m.add_mapping('text/rtf', 'rtf')
-        self._assert_returns_mimes('rtf', ['application/rtf', 'text/rtf'])
-        self._assert_returns_exts('application/rtf', ['rtf'])
-        self._assert_returns_exts('text/rtf', ['rtf'])
+        self._assert_returns_mimes(given='rtf',
+                                   expect=['application/rtf', 'text/rtf'])
+        self._assert_candidate_extensions(given='application/rtf',
+                                          expect=['rtf'])
+        self._assert_candidate_extensions(given='text/rtf',
+                                          expect=['rtf'])
 
     def test_get_candidate_mimetypes(self):
         self.m.add_mapping('text/x-shellscript', 'sh')
@@ -201,24 +206,27 @@ class TestMimeExtensionMapper(TestCase):
         self.m.add_mapping('text/shellscript', 'sh')
 
         self._assert_returns_mimes(
-            'sh',
-            ['text/shellscript', 'text/x-sh', 'text/x-shellscript']
+            given='sh',
+            expect=['text/shellscript', 'text/x-sh', 'text/x-shellscript']
         )
 
     def test_get_candidate_extensions(self):
         self.m.add_mapping('application/gzip', 'gz')
         self.m.add_mapping('application/gzip', 'tar.gz')
 
-        self._assert_returns_exts('application/gzip', ['gz', 'tar.gz'])
+        self._assert_candidate_extensions(given='application/gzip',
+                                          expect=['gz', 'tar.gz'])
 
     def test_get_preferred_extension(self):
         self.m.add_mapping('foo/bar', 'foo')
         self.m.add_mapping('foo/bar', 'foobar')
 
-        self._assert_returns_exts('foo/bar', ['foo', 'foobar'])
+        self._assert_candidate_extensions(given='foo/bar',
+                                          expect=['foo', 'foobar'])
 
         self.m.add_preferred_extension('foo/bar', 'baz')
-        self._assert_returns_exts('foo/bar', ['baz', 'foo', 'foobar'])
+        self._assert_candidate_extensions(given='foo/bar',
+                                          expect=['baz', 'foo', 'foobar'])
         _preferred = self.m.get_extension('foo/bar')
         self.assertEqual(_preferred, 'baz')
 
