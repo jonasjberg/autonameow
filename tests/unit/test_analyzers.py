@@ -28,7 +28,6 @@ from unittest.mock import (
 )
 
 import analyzers
-from core import exceptions
 from core import constants as C
 import unit.utils as uu
 
