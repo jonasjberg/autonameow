@@ -71,9 +71,6 @@ def get_plugin_classes():
                 _plugin_classes.append(_obj_type)
                 break
 
-        # log.debug('Imported plugin source file "{!s}" but no plugins were'
-        #           ' loaded ..'.format(plugin_file))
-
     return _plugin_classes
 
 

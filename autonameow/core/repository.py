@@ -61,7 +61,6 @@ class Repository(object):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
-        # self.log.setLevel(logging.DEBUG)
 
     def shutdown(self):
         # TODO: Any shutdown tasks goes here ..

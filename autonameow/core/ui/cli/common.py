@@ -326,8 +326,6 @@ def displayable_replacement(original, replacement, regex, color):
 def msg_replacement(original, replacement, regex):
     _old, _new = displayable_replacement(original, replacement, regex,
                                          C.REPLACEMENT_HIGHLIGHT_COLOR)
-    # log.info('Applied custom replacement: "{}" -> "{}"'.format(_old, _new))
-
     cf = ColumnFormatter(align='right')
     cf.addrow('Applied replacement:', '{!s}')
     cf.addrow('->', '{!s}')

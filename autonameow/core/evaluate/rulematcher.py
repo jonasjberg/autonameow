@@ -32,12 +32,7 @@ class RuleMatcher(object):
         self._rules = list(rules)
 
     def request_data(self, fileobject, meowuri):
-        # log.debug(
-        #     'requesting [{:8.8}]->[{!s}]'.format(fileobject.hash_partial,
-        #                                          meowuri)
-        # )
         response = repository.SessionRepository.query(fileobject, meowuri)
-        # log.debug('Got response ({}): {!s}'.format(type(response), response))
         if response:
             return response.get('value')
         else:
@@ -159,10 +154,6 @@ def prioritize_rules(rules):
     prioritized_rules = sorted(
         rules.items(),
         reverse=True,
-        # key=lambda d: (d[1]['score'],
-        #                d[0].exact_match,
-        #                d[1]['weight'],
-        #                d[0].ranking_bias)
         key=lambda d: (d[1]['score'] * d[1]['weight'],
                        d[0].exact_match,
                        d[1]['score'],

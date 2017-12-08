@@ -56,7 +56,6 @@ def string_similarity(a, b):
     _diff = levenshtein(a, b)
     _normdiff = _diff / max(1, max(len(a), len(b)))
     _normalized_similarity = 1 - _normdiff
-    # assert 0 <= normalized_similarity <= 1
     return _normalized_similarity
 
 
