@@ -23,9 +23,15 @@
 import os
 
 from unittest import TestCase
+from unittest.mock import (
+    MagicMock,
+    patch
+)
 
-import unit.utils as uu
 import unit.constants as uuconst
+import unit.utils as uu
+from core import constants as C
+from core.main import cli_main
 
 
 class TestMainFileExistsAndIsExecutable(TestCase):
@@ -45,3 +51,25 @@ class TestMainFileExistsAndIsExecutable(TestCase):
 
     def test_assumed_main_source_file_is_executable(self):
         self.assertTrue(os.access(self.main_file, os.X_OK))
+
+
+class TestCliMain(TestCase):
+    EMPTY_COMMANDLINE_OPTIONS = []
+
+    @patch('core.main.sys.exit', MagicMock())
+    def test_prints_help_when_started_without_args(self):
+        with uu.capture_stdout() as out:
+            cli_main(self.EMPTY_COMMANDLINE_OPTIONS)
+
+        # NOTE: [hardcoded] Likely to break if usage help text is changed.
+        self.assertIn('"--help"', out.getvalue().strip())
+
+    @patch('core.main.sys.exit')
+    @patch('core.main.Autonameow.exit_program')
+    def test_exits_with_expected_return_code_when_started_without_args(
+            self, exit_program_mock, sys_exit_mock):
+
+        cli_main(self.EMPTY_COMMANDLINE_OPTIONS)
+
+        exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
+        sys_exit_mock.assert_called_with(C.EXIT_SUCCESS)

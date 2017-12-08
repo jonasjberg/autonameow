@@ -21,10 +21,14 @@
 
 import sys
 from unittest import (
-    mock,
     skipIf,
     TestCase
 )
+from unittest.mock import (
+    MagicMock,
+    patch
+)
+
 
 try:
     import prompt_toolkit
@@ -38,9 +42,8 @@ except ImportError:
 
 from core import config
 from core import constants as C
-from core.main import cli_main
+from core.autonameow import Autonameow
 from core.config.configuration import Configuration
-import unit.utils as uu
 
 
 def prompt_toolkit_unavailable():
@@ -52,39 +55,31 @@ AUTONAMEOW_OPTIONS_EMPTY = {}
 
 @skipIf(*prompt_toolkit_unavailable())
 class TestAutonameowWithoutOptions(TestCase):
-    def setUp(self):
-        from core.autonameow import Autonameow
-        Autonameow.exit_program = mock.MagicMock()
-        self.A = Autonameow
+    # @classmethod
+    # def setUpClass(cls):
+    #     from core.autonameow import Autonameow
+    #     cls.A = Autonameow
 
-    def test_autonameow_can_be_instantiated_without_args(self):
-        self.assertIsNotNone(self.A(AUTONAMEOW_OPTIONS_EMPTY))
+    @patch('core.autonameow.Autonameow.exit_program', MagicMock())
+    def test_instantiated_instance_is_not_none(self):
+        self.assertIsNotNone(Autonameow(opts=AUTONAMEOW_OPTIONS_EMPTY))
 
-    # TODO: Figure out how mocking is supposed to work and fix this ..
-    # @mock.patch('core.main.Autonameow', 'exit_program', mock.MagicMock())
-    # def test_prints_help_when_started_without_args(self):
-    #     with uu.capture_stdout() as out:
-    #         cli_main([])
-    #
-    #     # NOTE: [hardcoded] Likely to break if usage help text is changed.
-    #     self.assertIn('"--help"', out.getvalue().strip())
+    @patch('core.autonameow.Autonameow.exit_program')
+    def test_instantiated_does_not_call_exit_program(self, exit_program_mock):
+        _ = Autonameow(opts=AUTONAMEOW_OPTIONS_EMPTY)
+        exit_program_mock.assert_not_called()
 
-    def test_exits_program_successfully_when_started_without_args(self):
-        a = self.A(AUTONAMEOW_OPTIONS_EMPTY)
+    @patch('core.autonameow.Autonameow.exit_program')
+    def test_exit_program_called_after_running(self, exit_program_mock):
+        a = Autonameow(opts=AUTONAMEOW_OPTIONS_EMPTY)
         a.run()
-        a.exit_program.assert_called_with(C.EXIT_SUCCESS)
+        exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
 
-
-# class TestAutonameowDefaultOptions(TestCase):
-#     def setUp(self):
-#         from core.autonameow import Autonameow
-#         Autonameow.exit_program = mock.MagicMock()
-#         self.A = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
-#
-#     def test_default_verbose(self):
-#         expect = False
-#         actual = self.A.opts.get('verbose')
-#         self.assertEqual(actual, expect)
+    @patch('core.autonameow.Autonameow.exit_program')
+    def test_exit_program_called_after_running_context(self, exit_program_mock):
+        with Autonameow(opts=AUTONAMEOW_OPTIONS_EMPTY) as a:
+            a.run()
+        exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
 
 
 class TestAutonameowOptionCombinations(TestCase):
@@ -184,7 +179,7 @@ class TestAutonameowOptionCombinations(TestCase):
 class TestAutonameowContextManagementProtocol(TestCase):
     def test_with_statement(self):
         from core.autonameow import Autonameow
-        Autonameow.exit_program = mock.MagicMock()
+        Autonameow.exit_program = MagicMock()
 
         with Autonameow(AUTONAMEOW_OPTIONS_EMPTY) as ameow:
             ameow.run()
@@ -259,22 +254,22 @@ class TestDoRename(TestCase):
         _config = Configuration(config.DEFAULT_CONFIG)
         self.amw.active_config = _config
 
-    @mock.patch('core.disk.rename_file')
+    @patch('core.disk.rename_file')
     def test_dry_run_true_will_not_call_diskutils_rename_file(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=True)
         mockrename.assert_not_called()
 
-    @mock.patch('core.disk.rename_file')
+    @patch('core.disk.rename_file')
     def test_dry_run_false_calls_diskutils_rename_file(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=False)
         mockrename.assert_called_with(b'/tmp/dummy/path', b'mjaopath')
 
-    @mock.patch('core.disk.rename_file')
+    @patch('core.disk.rename_file')
     def test_skip_rename_if_new_name_equals_old_name(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=False)
         mockrename.assert_not_called()
 
-    @mock.patch('core.disk.rename_file')
+    @patch('core.disk.rename_file')
     def test_skip_rename_if_new_name_equals_old_name_dry_run(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=True)
         mockrename.assert_not_called()
