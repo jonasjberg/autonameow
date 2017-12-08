@@ -74,14 +74,15 @@ class RuleMatcher(object):
                                   for rule in remaining_rules)
         for rule in remaining_rules:
             met_conditions = rule.number_conditions_met(_request_data)
+            num_conditions = rule.number_conditions
 
             # Ratio of met conditions to the total number of conditions
             # for a single rule.
-            score = met_conditions / max(1, rule.number_conditions)
+            score = met_conditions / max(1, num_conditions)
 
             # Ratio of number of conditions in this rule to the number of
             # conditions in the rule with the highest number of conditions.
-            weight = rule.number_conditions / max(1, max_condition_count)
+            weight = num_conditions / max(1, max_condition_count)
 
             scored_rules[rule] = {'score': score, 'weight': weight}
 

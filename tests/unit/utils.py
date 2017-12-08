@@ -604,8 +604,13 @@ def get_dummy_raw_data_sources():
     return uuconst.DUMMY_RAW_RULE_DATA_SOURCES
 
 
-def get_dummy_rule():
+def get_dummy_parsed_conditions():
     _valid_conditions = rules.parse_conditions(get_dummy_raw_conditions()[0])
+    return _valid_conditions
+
+
+def get_dummy_rule():
+    _valid_conditions = get_dummy_parsed_conditions()
     return rules.Rule(
         description='dummy',
         exact_match=False,

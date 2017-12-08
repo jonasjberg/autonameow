@@ -50,6 +50,77 @@ class TestRuleMethods(TestCase):
         self.assertTrue(uu.is_internalstring(actual))
 
 
+class TestRuleInit(TestCase):
+    def test_required_arguments_no_conditions_no_data_sources(self):
+        rule = Rule(
+            conditions=[],
+            data_sources=dict(),
+            name_template='dummy',
+        )
+        self.assertEqual(rule.conditions, [])
+        self.assertEqual(rule.data_sources, dict())
+        self.assertEqual(rule.name_template, 'dummy')
+
+    def test_required_arguments_no_data_sources(self):
+        _valid_conditions = uu.get_dummy_parsed_conditions()
+        rule = Rule(
+            conditions=_valid_conditions,
+            data_sources=dict(),
+            name_template='dummy',
+        )
+        self.assertEqual(rule.conditions, _valid_conditions)
+        self.assertEqual(rule.data_sources, dict())
+        self.assertEqual(rule.name_template, 'dummy')
+
+    def test_required_arguments(self):
+        _valid_conditions = uu.get_dummy_parsed_conditions()
+        _valid_data_sources = uu.get_dummy_raw_data_sources()[0]
+        rule = Rule(
+            conditions=_valid_conditions,
+            data_sources=_valid_data_sources,
+            name_template='dummy',
+        )
+        self.assertEqual(rule.conditions, _valid_conditions)
+        self.assertEqual(len(rule.data_sources), len(_valid_data_sources))
+        self.assertEqual(rule.name_template, 'dummy')
+
+    def test_optional_argument_exact_match(self):
+        # Defaults (coerces) to False if None.
+        rule = Rule(
+            conditions=[],
+            data_sources=dict(),
+            name_template='dummy',
+            exact_match=None,
+        )
+        self.assertEqual(rule.exact_match, False)
+
+        # Defaults to False if unspecified.
+        rule = Rule(
+            conditions=[],
+            data_sources=dict(),
+            name_template='dummy',
+        )
+        self.assertEqual(rule.exact_match, False)
+
+    def test_optional_argument_ranking_bias(self):
+        # Uses default value if None.
+        rule = Rule(
+            conditions=[],
+            data_sources=dict(),
+            name_template='dummy',
+            ranking_bias=None
+        )
+        self.assertEqual(rule.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
+
+        # Uses default value if unspecified.
+        rule = Rule(
+            conditions=[],
+            data_sources=dict(),
+            name_template='dummy',
+        )
+        self.assertEqual(rule.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
+
+
 class TestRuleConditionFromValidInput(TestCase):
     def _is_valid(self, query, expression):
         _meowuri = MeowURI(query)
@@ -313,6 +384,10 @@ class TestParseConditions(TestCase):
         self.assertEqual(actual[0].meowuri,
                          uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL)
         self.assertEqual(actual[0].expression, 'Defined')
+
+    def test_parse_empty_conditions_is_allowed(self):
+        raw_conditions = dict()
+        actual = parse_conditions(raw_conditions)
 
 
 class TestParseRankingBias(TestCase):

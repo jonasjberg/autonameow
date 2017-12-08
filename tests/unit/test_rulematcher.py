@@ -171,7 +171,6 @@ class TestRuleMatcherMatching(TestCase):
         self.assertEqual(actual, expect)
 
 
-
 class DummyRule(object):
     def __init__(self, exact_match):
         self.exact_match = exact_match

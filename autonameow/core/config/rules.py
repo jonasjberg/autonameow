@@ -182,18 +182,21 @@ class Rule(object):
 
     All data validation happens at 'Rule' init or when setting any attribute.
     """
-    def __init__(self, description, exact_match, ranking_bias, name_template,
-                 conditions, data_sources):
+    def __init__(self, conditions, data_sources, name_template,
+                 description=None, exact_match=None, ranking_bias=None):
         """
         Creates a new 'Rule' instance.
 
         Args:
-            description: (OPTIONAL) Human-readable description.
-            exact_match: True if all conditions must be met at evaluation.
-            ranking_bias: (OPTIONAL) Float between 0-1 that influences ranking.
-            name_template: Name template to use for files matching the rule.
-            conditions: Dict used to create instances of 'RuleCondition'
+            conditions: Dict used to create instances of 'RuleCondition'.
+                        NOTE: Rules without conditions always evaluates True.
             data_sources: Dict of template field names and "MeowURIs".
+                          NOTE: Rules without data sources are allowed.
+            name_template: Name template to use for files matching the rule.
+            description: (OPTIONAL) Human-readable description.
+            exact_match: (OPTIONAL) True if all conditions must be met at
+                         evaluation. Defaults to False.
+            ranking_bias: (OPTIONAL) Float between 0-1 that influences ranking.
         """
         self._description = None
         self._exact_match = None
@@ -208,11 +211,6 @@ class Rule(object):
         self.name_template = name_template
         self.conditions = conditions
         self.data_sources = data_sources
-
-        if not self.conditions:
-            raise exceptions.InvalidRuleError(
-                'Rule does not specify any conditions: "{!s}"'.format(self)
-            )
 
     @property
     def description(self):
@@ -269,18 +267,15 @@ class Rule(object):
 
     @conditions.setter
     def conditions(self, valid_conditions):
-        def _raise_exception():
-            raise exceptions.InvalidRuleError(
-                'Invalid condition: ({!s}) "{!s}"'.format(type(c), c)
-            )
-
-        if not valid_conditions:
-            _raise_exception()
         if not isinstance(valid_conditions, list):
-            _raise_exception()
+            raise exceptions.InvalidRuleError(
+                'Expected list. Got {!s}'.format(type(valid_conditions))
+            )
         for c in valid_conditions:
             if not isinstance(c, RuleCondition):
-                _raise_exception()
+                raise exceptions.InvalidRuleError(
+                    'Invalid condition: ({!s}) "{!s}"'.format(type(c), c)
+                )
 
         self._conditions = valid_conditions
 
@@ -366,9 +361,6 @@ class Rule(object):
         Returns:
             The number of met conditions as an integer.
         """
-        assert self.conditions and len(self.conditions) > 0, (
-               'Rule.conditions is missing or empty')
-
         if self.description:
             _desc = '{} :: '.format(self.description)
         else:
@@ -415,14 +407,17 @@ def get_valid_rule(description, exact_match, ranking_bias, name_template,
     Raises:
         InvalidRuleError: Validation failed or the 'Rule' could not be created.
     """
+    if not conditions:
+        conditions = dict()
+
     try:
         valid_conditions = parse_conditions(conditions)
     except exceptions.ConfigurationSyntaxError as e:
         raise exceptions.InvalidRuleError(e)
 
     try:
-        _rule = Rule(description, exact_match, ranking_bias, name_template,
-                     valid_conditions, data_sources)
+        _rule = Rule(valid_conditions, data_sources, name_template,
+                     description, exact_match, ranking_bias)
     except exceptions.InvalidRuleError as e:
         raise e
     else:
@@ -500,14 +495,11 @@ def parse_ranking_bias(value):
 
 
 def parse_conditions(raw_conditions):
-    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
-
-    if not raw_conditions:
-        raise exceptions.ConfigurationSyntaxError('Got no conditions')
     if not isinstance(raw_conditions, dict):
         raise exceptions.ConfigurationSyntaxError(
             'Expected conditions to be of type dict'
         )
+    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
     passed = []
     try:
@@ -540,10 +532,11 @@ def parse_conditions(raw_conditions):
 def parse_data_sources(raw_sources):
     passed = {}
 
-    log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
-
     if not raw_sources:
-        raise exceptions.ConfigurationSyntaxError('Got no sources')
+        # Allow empty/None data sources.
+        raw_sources = dict()
+
+    log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
     if not isinstance(raw_sources, dict):
         raise exceptions.ConfigurationSyntaxError(
             'Expected sources to be of type dict'
