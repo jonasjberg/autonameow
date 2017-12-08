@@ -56,20 +56,29 @@ class TestMainFileExistsAndIsExecutable(TestCase):
 class TestCliMain(TestCase):
     EMPTY_COMMANDLINE_OPTIONS = []
 
+    # TODO: Calling 'init_logging()' here messes up other tests for some reason.
+    # If only 'test_regression_utils.py' is executed, all tests pass.
+    # But if this test case is executed before 'test_regression_utils.py',
+    # the "captured stdout" is always empty which causes tests in
+    # 'test_regression_utils.py' to fail..
+
     @patch('core.main.sys.exit', MagicMock())
+    @patch('core.logs.init_logging', MagicMock())
     def test_prints_help_when_started_without_args(self):
         with uu.capture_stdout() as out:
             cli_main(self.EMPTY_COMMANDLINE_OPTIONS)
 
-        # NOTE: [hardcoded] Likely to break if usage help text is changed.
-        self.assertIn('"--help"', out.getvalue().strip())
+            # NOTE: [hardcoded] Likely to break if usage help text is changed.
+            self.assertIn('"--help"', out.getvalue().strip())
 
     @patch('core.main.sys.exit')
     @patch('core.main.Autonameow.exit_program')
+    @patch('core.logs.init_logging', MagicMock())
     def test_exits_with_expected_return_code_when_started_without_args(
-            self, exit_program_mock, sys_exit_mock):
+            self, mock_exit_program, mock_sys_exit):
 
-        cli_main(self.EMPTY_COMMANDLINE_OPTIONS)
+        with uu.capture_stdout() as _:
+            cli_main(self.EMPTY_COMMANDLINE_OPTIONS)
 
-        exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
-        sys_exit_mock.assert_called_with(C.EXIT_SUCCESS)
+        mock_exit_program.assert_called_with(C.EXIT_SUCCESS)
+        mock_sys_exit.assert_called_with(C.EXIT_SUCCESS)

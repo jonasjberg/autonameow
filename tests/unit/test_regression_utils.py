@@ -22,6 +22,8 @@
 import os
 from unittest import TestCase
 
+import unit.constants as uuconst
+import unit.utils as uu
 from core import constants as C
 from util import encoding as enc
 from regression.utils import (
@@ -36,8 +38,6 @@ from regression.utils import (
     RegressionTestLoader,
     regtest_abspath
 )
-import unit.utils as uu
-import unit.constants as uuconst
 
 
 class TestGetRegressiontestsRootdir(TestCase):
@@ -350,9 +350,10 @@ class TestAutonameowWrapper(TestCase):
 
 
 class TestAutonameowWrapperWithDefaultOptions(TestCase):
-    def setUp(self):
-        self.aw = AutonameowWrapper()
-        self.aw()
+    @classmethod
+    def setUpClass(cls):
+        cls.aw = AutonameowWrapper()
+        cls.aw()
 
     def test_exitcode_is_exit_success(self):
         actual = self.aw.captured_exitcode
