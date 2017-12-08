@@ -193,11 +193,9 @@ class Autonameow(object):
         )
         log.info('Got {} files to process'.format(len(files_to_process)))
 
-        if not self.active_config.rules:
-            log.warning('Configuration does not contain any rules to evaluate')
-            rules = []
-        else:
-            rules = self.active_config.rules
+        rules = self.active_config.rules
+        if not rules:
+            log.warning('Configuration does not contain any rules!')
 
         self.matcher = RuleMatcher(rules)
 
