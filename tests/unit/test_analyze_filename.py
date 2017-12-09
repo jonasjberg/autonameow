@@ -20,10 +20,13 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import namedtuple
-from datetime import datetime
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import (
+    Mock,
+    patch
+)
 
+import unit.utils as uu
 from analyzers.analyze_filename import (
     FilenameAnalyzer,
     FilenameTokenizer,
@@ -31,50 +34,55 @@ from analyzers.analyze_filename import (
     likely_extension
 )
 from core.namebuilder import fields
-import unit.utils as uu
 
 
 uu.init_session_repository()
 uu.init_provider_registry()
 
 
-def get_filename_analyzer(fileobject):
-    mock_config = Mock()
-
-    return FilenameAnalyzer(
-        fileobject,
-        mock_config,
-        request_data_callback=uu.mock_request_data_callback
-    )
-
-
-class TestFilenameAnalyzerWithImageFile(TestCase):
+class TestFieldGetterMethods(TestCase):
     def setUp(self):
-        self.fo = uu.get_named_fileobject('2010-01-31_161251.jpg')
-        self.fna = get_filename_analyzer(self.fo)
+        mock_config = Mock()
+        mock_config.get.return_value = {
+            'candidates': {
+                'ProjectGutenberg': [
+                    # NOTE: None is only ok if 'find_publisher()' is mocked!
+                    None
+                    # re.compile('Project Gutenberg', re.IGNORECASE)
+                ]
+            }
+        }
 
-    def test_setup(self):
-        self.assertIsNotNone(self.fo)
-        self.assertIsNotNone(self.fna)
+        self.fna = FilenameAnalyzer(None, mock_config, None)
 
-    def test_get_datetime_does_not_return_none(self):
-        dt_list = self.fna.get_datetime()
-        self.assertIsNotNone(dt_list)
-
-
-class TestGetEdition(TestCase):
-    def setUp(self):
-        self.fna = FilenameAnalyzer(None, None, None)
-
-    def test__get_edition_returns_expected_for_basename_with_edition(self):
+    def test__get_edition_returns_expected_given_basename_with_edition(self):
         self.fna._basename_prefix = 'foo 2nd Edition bar'
         actual = self.fna._get_edition()
         self.assertIn('value', actual)
-        self.assertEqual(2, actual['value'])
+        self.assertEqual(actual['value'], 2)
 
-    def test__get_edition_returns_expected_for_basename_without_edition(self):
+    def test__get_edition_returns_expected_given_basename_without_edition(self):
         self.fna._basename_prefix = 'foo'
         actual = self.fna._get_edition()
+        self.assertIsNone(actual)
+
+    @patch('analyzers.analyze_filename.find_publisher')
+    def test__get_publisher_returns_expected_given_basename_with_publisher(
+            self, mock_find_publisher
+    ):
+        mock_find_publisher.return_value = 'Foo Pub'
+        self.fna._basename_prefix = 'x'
+        actual = self.fna._get_publisher()
+        self.assertIn('value', actual)
+        self.assertEqual(actual['value'], 'Foo Pub')
+
+    @patch('analyzers.analyze_filename.find_publisher')
+    def test__get_publisher_returns_expected_given_basename_without_publisher(
+            self, mock_find_publisher
+    ):
+        mock_find_publisher.return_value = None
+        self.fna._basename_prefix = 'x'
+        actual = self.fna._get_publisher()
         self.assertIsNone(actual)
 
 

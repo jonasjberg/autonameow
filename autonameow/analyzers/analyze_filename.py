@@ -76,7 +76,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._add_results('datetime', self.get_datetime())
         self._add_results('edition', self._get_edition())
         self._add_results('extension', self.get_extension())
-        self._add_results('publisher', self.get_publisher())
+        self._add_results('publisher', self._get_publisher())
 
     def get_datetime(self):
         # TODO: [TD0110] Improve finding probable date/time in file names.
@@ -151,22 +151,16 @@ class FilenameAnalyzer(BaseAnalyzer):
             ]
         }
 
-    def get_publisher(self):
-        ed_basename_prefix = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.basename.prefix'
-        )
-        if not ed_basename_prefix:
-            return
+    def _get_publisher(self):
+        if not self._basename_prefix:
+            return None
 
-        file_basename_prefix = types.force_string(ed_basename_prefix.get('value'))
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
-        if _options:
-            _candidates = _options.get('candidates', {})
-        else:
-            _candidates = {}
+        if not _options:
+            return None
 
-        result = find_publisher(file_basename_prefix, _candidates)
+        _candidates = _options.get('candidates', {})
+        result = find_publisher(self._basename_prefix, _candidates)
         if not result:
             return None
 
