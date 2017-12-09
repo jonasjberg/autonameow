@@ -102,16 +102,13 @@ def get_next_todo_id():
     return TODO_IDENTIFIER_FORMAT.format(last_id + 1)
 
 
-def check_todo_done_does_not_contain_same_id():
-    ids_todolist = find_todo_ids_in_file(todo_path)
-    ids_done = find_todo_ids_in_file(done_path)
-
-    ids_in_both_todolist_and_done = ids_todolist & ids_done
-    if not ids_in_both_todolist_and_done:
-        return True
 def do_all_checks():
+    def check_todo_done_does_not_contain_same_id():
+        ids_in_both_todolist_and_done = ids_todolist & ids_done
+        if not ids_in_both_todolist_and_done:
+            return True
 
-    print('''
+        print('''
 FAILED Check #1
 ===============
 Expected the TODO-list and the list of completed items
@@ -120,13 +117,11 @@ Found {} IDs used in both the TODO-list and DONE-list:
 
 {}
 '''.format(len(ids_in_both_todolist_and_done),
-           '\n'.join([TODO_IDENTIFIER_FORMAT.format(int(i))
-                      for i in ids_in_both_todolist_and_done])))
-    return False
-
+               '\n'.join([TODO_IDENTIFIER_FORMAT.format(int(i))
+                          for i in ids_in_both_todolist_and_done])))
+        return False
 
     def check_sources_does_not_contain_ids_not_in_todo():
-        ids_todolist = find_todo_ids_in_file(todo_path)
         if ids_in_sources.issubset(ids_todolist):
             # All IDs in the sources are also in the TODO-list.
             return True
@@ -148,7 +143,6 @@ Found {} IDs in the sources that are not in the TODO-list:
         return False
 
     def check_sources_does_not_contain_ids_in_done():
-        ids_done = find_todo_ids_in_file(done_path)
         if not ids_in_sources.intersection(ids_done):
             # None of the IDs in the sources are in the DONE-list.
             return True
@@ -169,11 +163,12 @@ Found {} IDs used in both the sources and the DONE-list:
                       for i in ids_in_sources_and_done])))
         return False
 
-    _source_files = get_source_files([AUTONAMEOW_SRC_ROOT])
     ids_in_sources = find_todo_ids_in_source_files()
     if not ids_in_sources:
         print('[WARNING] Unable to find any IDs (!)')
-        return False
+
+    ids_todolist = find_todo_ids_in_file(todo_path)
+    ids_done = find_todo_ids_in_file(done_path)
 
     ok = True
     ok &= check_todo_done_does_not_contain_same_id()
@@ -183,7 +178,6 @@ Found {} IDs used in both the sources and the DONE-list:
 
 
 def list_orphaned():
-    _source_files = get_source_files([AUTONAMEOW_SRC_ROOT])
     ids_in_sources = find_todo_ids_in_source_files()
     if not ids_in_sources:
         return
