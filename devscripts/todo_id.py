@@ -50,11 +50,6 @@ def is_readable_file(file_path):
     return os.path.isfile(file_path) and os.access(file_path, os.R_OK)
 
 
-for _path in (todo_path, done_path):
-    if not is_readable_file(_path):
-        sys.exit('File does not exist or is not readable: "{!s}"'.format(_path))
-
-
 def get_source_files(paths):
     def _recurse(path):
         matches = []
@@ -240,10 +235,16 @@ if __name__ == '__main__':
         default=False,
         help='Print entries that are in the TODO-list but not in the sources.'
     )
+    opts = parser.parse_args(sys.argv[1:])
+
+    # Make sure that both the TODO-list and DONE-list exist.
+    for _path in (todo_path, done_path):
+        if not is_readable_file(_path):
+            print('File does not exist or is not readable: "{!s}"'.format(_path),
+                  file=sys.stderr)
+            sys.exit(EXIT_FAILURE)
 
     exit_status = EXIT_SUCCESS
-
-    opts = parser.parse_args(sys.argv[1:])
     if opts.do_check:
         _checks_pass = do_check()
         if not _checks_pass:
