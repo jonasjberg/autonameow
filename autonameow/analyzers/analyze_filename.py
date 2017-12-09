@@ -288,11 +288,15 @@ class FilenameAnalyzer(BaseAnalyzer):
 MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     'application/octet-stream': {
         # Might be corrupt files.
+        '': {''},
         'azw3': {'azw3'},
+        'bin': {'bin', 'binary'},
         'chm': {'chm'},
+        'hex': {'hex'},
         'mobi': {'mobi'},
         'pdf': {'pdf'},
-        'prc': {'prc'}
+        'prc': {'prc'},
+        'txt': {'txt'}
     },
     'application/gzip': {
         'gz': {'gz'},
@@ -342,10 +346,11 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'h': {'h'}
     },
     'text/x-c++': {
-        'cpp': {'cpp', 'txt'},
+        'cpp': {'cpp', 'c++', 'txt'},
         'h': {'h'}
     },
     'text/x-makefile': {
+        '': {''},
         'asm': {'asm'}
     },
     'text/x-shellscript': {
@@ -361,15 +366,19 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
 
 
 def likely_extension(basename_suffix, mime_type):
-    if mime_type and basename_suffix:
+    if mime_type and basename_suffix is not None:
         ext_suffixes_map = MIMETYPE_EXTENSION_SUFFIXES_MAP.get(mime_type, {})
         for ext, suffixes in ext_suffixes_map.items():
             if basename_suffix in suffixes:
                 return ext
 
+    # NOTE(jonas): Calling 'format()' returns a extension as a Unicode string.
     _coerced_mime = types.AW_MIMETYPE(mime_type)
     if _coerced_mime:
         return types.AW_MIMETYPE.format(_coerced_mime)
+
+    if basename_suffix == '':
+        return ''
 
     _coerced_suffix = types.AW_MIMETYPE(basename_suffix)
     if _coerced_suffix:

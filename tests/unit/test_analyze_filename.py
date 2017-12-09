@@ -130,31 +130,47 @@ class TestFieldGetterMethods(TestCase):
 
 
 class TestLikelyExtension(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         Given = namedtuple('Given', 'suffix mime')
         Expect = namedtuple('Expect', 'expected')
 
-        self.expect_testinput = [
-            (Expect('txt'), Given(suffix='txt', mime='text/plain')),
-            (Expect('sh'), Given(suffix='sh', mime='text/plain')),
-            (Expect('sh'), Given(suffix='sh', mime='text/x-shellscript')),
-            (Expect('sh'), Given(suffix='txt', mime='text/x-shellscript')),
-            (Expect('pdf'), Given(suffix='pdf', mime='application/pdf')),
+        cls.expect_testinput = [
+            (Expect(''), Given(suffix='',
+                               mime='application/octet-stream')),
+            (Expect('azw3'), Given(suffix='azw3',
+                                   mime='application/octet-stream')),
+            (Expect('bin'), Given(suffix='bin',
+                                  mime='application/octet-stream')),
+            (Expect('chm'), Given(suffix='chm',
+                                  mime='application/octet-stream')),
+            (Expect('c'), Given(suffix='c', mime='text/x-c')),
+            (Expect('c'), Given(suffix='txt', mime='text/x-c')),
+            (Expect('c'), Given(suffix='c', mime='text/plain')),
+            (Expect('cpp'), Given(suffix='cpp', mime='text/x-c++')),
+            (Expect('cpp'), Given(suffix='cpp', mime='text/plain')),
+            (Expect('cpp'), Given(suffix='c++', mime='text/x-c++')),
+            (Expect('cpp'), Given(suffix='c++', mime='text/plain')),
+            (Expect('hex'), Given(suffix='hex',
+                                  mime='application/octet-stream')),
             (Expect('md'), Given(suffix='md', mime='text/plain')),
             (Expect('md'), Given(suffix='mkd', mime='text/plain')),
             (Expect('md'), Given(suffix='markdown', mime='text/plain')),
-            (Expect('yaml'), Given(suffix='yaml', mime='text/plain')),
+            (Expect('mobi'), Given(suffix='mobi',
+                                   mime='application/octet-stream')),
+            (Expect('pdf'), Given(suffix='pdf', mime='application/pdf')),
+            (Expect('pdf'), Given(suffix='pdf',
+                                  mime='application/octet-stream')),
             (Expect('py'), Given(suffix='py', mime='text/x-shellscript')),
             (Expect('py'), Given(suffix='py', mime='text/x-python')),
             (Expect('py'), Given(suffix='', mime='text/x-python')),
-            (Expect('chm'), Given(suffix='chm',
+            (Expect('sh'), Given(suffix='sh', mime='text/plain')),
+            (Expect('sh'), Given(suffix='sh', mime='text/x-shellscript')),
+            (Expect('sh'), Given(suffix='txt', mime='text/x-shellscript')),
+            (Expect('txt'), Given(suffix='txt', mime='text/plain')),
+            (Expect('txt'), Given(suffix='txt',
                                   mime='application/octet-stream')),
-            (Expect('mobi'), Given(suffix='mobi',
-                                   mime='application/octet-stream')),
-            (Expect('azw3'), Given(suffix='azw3',
-                                   mime='application/octet-stream')),
-            (Expect('pdf'), Given(suffix='pdf',
-                                  mime='application/octet-stream')),
+            (Expect('yaml'), Given(suffix='yaml', mime='text/plain')),
         ]
 
     def test_returns_expected(self):
@@ -163,7 +179,7 @@ class TestLikelyExtension(TestCase):
             _m = 'Expected: "{!s}"  Actual: "{!s}”  ("{!s}”)'.format(
                 expect.expected, actual, input_args
             )
-            self.assertEqual(actual, expect.expected, _m)
+            self.assertEqual(expect.expected, actual, _m)
 
 
 class TestIdentifyFields(TestCase):
