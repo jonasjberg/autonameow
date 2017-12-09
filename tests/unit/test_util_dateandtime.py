@@ -24,6 +24,7 @@ from unittest import TestCase
 
 import unit.utils as uu
 from util.dateandtime import (
+    date_is_probable,
     find_isodate_like,
     hyphenate_date,
     match_any_unix_timestamp,
@@ -32,6 +33,31 @@ from util.dateandtime import (
     timezone_aware_to_naive,
     to_datetime
 )
+
+
+class TestDateIsProbable(TestCase):
+    def _assert_probable(self, expect, given):
+        given_datetime = uu.str_to_datetime(given)
+        actual = date_is_probable(given_datetime)
+        self.assertEqual(expect, actual)
+
+    def test_returns_false_given_improbable_dates(self):
+        self._assert_probable(False, '0001-01-01 000000')
+        self._assert_probable(False, '0020-01-01 000000')
+        self._assert_probable(False, '0030-01-01 000000')
+        self._assert_probable(False, '0111-01-01 000000')
+        self._assert_probable(False, '1000-01-01 120000')
+        self._assert_probable(False, '1100-01-01 135959')
+        self._assert_probable(False, '2200-01-02 000000')
+        self._assert_probable(False, '4875-01-01 000000')
+
+    def test_returns_true_given_probable_dates(self):
+        self._assert_probable(True, '2001-01-01 000000')
+        self._assert_probable(True, '2017-01-01 000000')
+        self._assert_probable(True, '2001-01-01 120000')
+        self._assert_probable(True, '2017-01-01 135959')
+        self._assert_probable(True, '2018-01-01 000000')
+        self._assert_probable(True, '2018-01-01 135959')
 
 
 class TestDateAndTime(TestCase):

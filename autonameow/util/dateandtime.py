@@ -112,24 +112,18 @@ def date_is_probable(date):
     Check if date is "probable", meaning greater than 1900 and
     not in the future, I.E. greater than the year of todays date.
     That is, simply: 1900 < date < today
-    :param date: Date to check, preferably as a datetime-object.
-                 Other types will be converted if possible.
-    :return: True if the date is probable.
-             False if the date is not probable or a conversion to
-             datetime-object failed.
-    """
-    if type(date) is not datetime:
-        log.warning('Got unexpected type "{}" '
-                    '(expected datetime)'.format(type(date)))
-        return False
 
+    Args:
+        date: The date to test as an instance of 'datetime'.
+
+    Returns:
+        True if the date is "probable", else False.
+    """
     if date.year > C.YEAR_UPPER_LIMIT.year:
         return False
     elif date.year < C.YEAR_LOWER_LIMIT.year:
         return False
-    else:
-        # Date lies within window, assume it is OK.
-        return True
+    return True
 
 
 DATE_SEP = r'[:\-._ /]?'
