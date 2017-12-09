@@ -156,6 +156,32 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0135]` __Add option to display rule matching information.__  
+    Provide additional information on which rule conditions failed/passed
+    evaluation. Running in verbose mode currently shows the following;
+    ```
+    [INFO] Remaining, prioritized rules:
+    [INFO] Rule #1 (Exact: No   Score: 1.00  Weight: 0.25  Bias: 0.01) Extension from MIME-type
+    [INFO] Rule #2 (Exact: No   Score: 0.33  Weight: 0.75  Bias: 0.80) Dropbox Camera Uploads Images screenshots
+    [INFO] Rule #3 (Exact: No   Score: 0.25  Weight: 1.00  Bias: 0.80) Dropbox Camera Uploads Images named as per filetags convention
+    [INFO] Rule #4 (Exact: No   Score: 0.00  Weight: 0.75  Bias: 0.90) Quicktime Desktop Recording
+    [INFO] Discarded rules:
+    [INFO] Rule #1 (Exact: Yes  Score: N/A   Weight: N/A   Bias: 1.00) DCIMs in HOME/Pictures/incoming
+    [INFO] Rule #2 (Exact: Yes  Score: N/A   Weight: N/A   Bias: 0.80) Dropbox Camera Uploads Images
+    [INFO] Rule #3 (Exact: Yes  Score: N/A   Weight: N/A   Bias: 0.90) Unsorted Ebooks
+    [INFO] Rule #4 (Exact: Yes  Score: N/A   Weight: N/A   Bias: 0.70) Unsorted Ebooks without edition
+    [INFO] Rule #5 (Exact: Yes  Score: N/A   Weight: N/A   Bias: 0.10) Might be Ebooks
+    [INFO] Rule #6 (Exact: Yes  Score: N/A   Weight: N/A   Bias: 1.00) IMG_s in HOME/Pictures/incoming
+    [INFO] Rule #7 (Exact: Yes  Score: N/A   Weight: N/A   Bias: 0.10) Fix extension of jpeg images
+    [INFO] Using rule: "Extension from MIME-type"
+    [INFO] New name: "IMG_20170829_083638.jpg"
+    ```
+    Information on *which rule conditions* that caused a rule to be discarded
+    is currently only available in the debug mode output.
+
+    It would be useful to add an option to display information on the rule
+    matching, to aid in writing new rules.
+
 * `[TD0125]` __Add aliases (generics) for MeowURI leafs__  
   Should probably provide a consistent internal alternative field name when
   specifying extractor-specific MeowURIs, not only with "generic".

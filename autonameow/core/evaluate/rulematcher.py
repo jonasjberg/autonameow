@@ -86,6 +86,7 @@ class RuleMatcher(object):
         )
         prioritized_rules = prioritize_rules(scored_rules)
 
+        # TODO: [TD0135] Add option to display rule matching details.
         log.info('Remaining, prioritized rules:')
         for i, rule in enumerate(prioritized_rules, start=1):
             self._prettyprint_prioritized_rule(
