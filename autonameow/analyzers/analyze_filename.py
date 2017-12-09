@@ -64,9 +64,17 @@ class FilenameAnalyzer(BaseAnalyzer):
             fileobject, config, request_data_callback
         )
 
+        self._basename_prefix = None
+
     def analyze(self):
+        basename_prefix = self.request_data(
+            self.fileobject,
+            'extractor.filesystem.xplat.basename.prefix'
+        )
+        self._basename_prefix = types.force_string(basename_prefix.get('value'))
+
         self._add_results('datetime', self.get_datetime())
-        self._add_results('edition', self.get_edition())
+        self._add_results('edition', self._get_edition())
         self._add_results('extension', self.get_extension())
         self._add_results('publisher', self.get_publisher())
 
@@ -96,15 +104,11 @@ class FilenameAnalyzer(BaseAnalyzer):
         # TODO: Fix inconsistent analyzer results data.
         return None
 
-    def get_edition(self):
-        basename = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.basename.prefix'
-        )
-        if not basename:
+    def _get_edition(self):
+        if not self._basename_prefix:
             return None
 
-        _number = find_edition(types.force_string(basename.get('value')))
+        _number = find_edition(self._basename_prefix)
         if _number:
             return {
                 'value': _number,

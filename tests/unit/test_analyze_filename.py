@@ -62,6 +62,22 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
         self.assertIsNotNone(dt_list)
 
 
+class TestGetEdition(TestCase):
+    def setUp(self):
+        self.fna = FilenameAnalyzer(None, None, None)
+
+    def test__get_edition_returns_expected_for_basename_with_edition(self):
+        self.fna._basename_prefix = 'foo 2nd Edition bar'
+        actual = self.fna._get_edition()
+        self.assertIn('value', actual)
+        self.assertEqual(2, actual['value'])
+
+    def test__get_edition_returns_expected_for_basename_without_edition(self):
+        self.fna._basename_prefix = 'foo'
+        actual = self.fna._get_edition()
+        self.assertIsNone(actual)
+
+
 class TestLikelyExtension(TestCase):
     def setUp(self):
         Given = namedtuple('Given', 'suffix mime')
