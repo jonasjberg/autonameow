@@ -297,6 +297,7 @@ else:
 MAPPER.add_mapping('application/epub+zip', 'epub')
 MAPPER.add_mapping('application/gzip', 'gz')
 MAPPER.add_mapping('application/gzip', 'tar.gz')
+MAPPER.add_mapping('application/octet-stream', 'bin')
 MAPPER.add_mapping('application/rar', 'rar')
 MAPPER.add_mapping('application/rtf', 'rtf')
 MAPPER.add_mapping('application/vnd.oasis.opendocument.presentation', 'odp')

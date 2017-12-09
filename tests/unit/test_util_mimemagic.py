@@ -239,11 +239,17 @@ class TestMimeExtensionMapper(TestCase):
 
 
 class TestMimemagicGetExtension(TestCase):
-    def test_get_image_jpeg(self):
+    def test_image_jpeg(self):
         self.assertEqual(mimemagic.get_extension('image/jpeg'), 'jpg')
+
+    def test_image_png(self):
+        self.assertEqual(mimemagic.get_extension('image/png'), 'png')
 
 
 class TestMimemagicGetMimetype(TestCase):
-    def test_get_image_jpeg(self):
+    def test_image_jpeg(self):
         self.assertEqual(mimemagic.get_mimetype('jpg'), 'image/jpeg')
         self.assertEqual(mimemagic.get_mimetype('jpeg'), 'image/jpeg')
+
+    def test_image_png(self):
+        self.assertEqual(mimemagic.get_mimetype('png'), 'image/png')
