@@ -67,6 +67,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._basename_prefix = None
 
     def analyze(self):
+        # TODO: [TD0136] Look into "requesting" already available data.
         basename_prefix = self.request_data(
             self.fileobject,
             'extractor.filesystem.xplat.basename.prefix'
@@ -129,6 +130,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not ed_basename_suffix:
             return
 
+        # TODO: [TD0136] Look into "requesting" already available data.
         ed_file_mimetype = self.request_data(
             self.fileobject,
             'extractor.filesystem.xplat.contents.mime_type'
