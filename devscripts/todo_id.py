@@ -109,6 +109,7 @@ def check_todo_done_does_not_contain_same_id():
     ids_in_both_todolist_and_done = ids_todolist & ids_done
     if not ids_in_both_todolist_and_done:
         return True
+def do_all_checks():
 
     print('''
 FAILED Check #1
@@ -124,7 +125,6 @@ Found {} IDs used in both the TODO-list and DONE-list:
     return False
 
 
-def do_check():
     def check_sources_does_not_contain_ids_not_in_todo():
         ids_todolist = find_todo_ids_in_file(todo_path)
         if ids_in_sources.issubset(ids_todolist):
@@ -246,7 +246,7 @@ if __name__ == '__main__':
 
     exit_status = EXIT_SUCCESS
     if opts.do_check:
-        _checks_pass = do_check()
+        _checks_pass = do_all_checks()
         if not _checks_pass:
             exit_status |= EXIT_FAILURE
 
