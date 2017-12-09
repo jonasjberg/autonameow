@@ -61,21 +61,6 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
         dt_list = self.fna.get_datetime()
         self.assertIsNotNone(dt_list)
 
-    def test_get_datetime_contains_special_case(self):
-        self.skipTest('TODO: Clean up old code ..')
-        dt_special, = filter(lambda dt: dt['source'] == 'very_special_case',
-                             self.fna.get_datetime())
-        self.assertIsNotNone(dt_special)
-
-    def test_get_datetime_special_case_is_valid(self):
-        self.skipTest('TODO: Clean up old code ..')
-        dt_special, = filter(lambda dt: dt['source'] == 'very_special_case',
-                             self.fna.get_datetime())
-
-        actual = dt_special.get('value')
-        expected = datetime.strptime('20100131 161251', '%Y%m%d %H%M%S')
-        self.assertEqual(actual, expected)
-
 
 class TestLikelyExtension(TestCase):
     def setUp(self):
