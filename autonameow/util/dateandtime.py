@@ -582,61 +582,6 @@ def fuzzy_datetime(text, prefix):
     return dt
 
 
-def get_datetime_from_text(text, prefix='NULL'):
-    """
-    Extracts date/time-information from text.
-    This method is used by both the text-analyzer and the pdf-analyzer.
-
-    :param text: try to extract date/time-information from this text
-    :param prefix: prefix this to the resulting dictionary keys
-    :return: dictionary of lists of any datetime-objects found
-             The dictionary is keyed by search method used to extract the
-             datetime-objects.
-    """
-    # TODO: [cleanup][TD0091] Should this even be used at all?
-    if text is None:
-        log.warning('Got NULL argument')
-        return None
-    if prefix == 'NULL':
-        pass
-    # text = enc.decode_(text)
-
-    # TODO: [TD0091] Improve handling of generalized "text" from any source.
-    #       (currently plain text and pdf documents)
-    if type(text) == list:
-        text = ' '.join(text)
-
-    results_brute = []
-    results_regex = []
-
-    matches = 0
-    text_split = text.split('\n')
-    # log.debug('Try getting datetime from text split by newlines')
-    for t in text_split:
-        dt = bruteforce_str(t)
-        if dt and dt is not None:
-            results_brute.append(dt)
-            matches += 1
-
-    if matches == 0:
-        # log.debug('No matches. Trying with text split by whitespace')
-        text_split = text.split()
-        for t in text_split:
-            dt = bruteforce_str(t)
-            if dt and dt is not None:
-                results_brute.append(dt)
-                matches += 1
-
-    # TODO: [cleanup] Fix this here below. Looks completely broken.
-    regex_match = 0
-    dt_regex = regex_search_str(text)
-    if dt_regex and dt_regex is not None:
-        results_regex.append(dt_regex)
-        regex_match += 1
-
-    return results_regex, results_brute
-
-
 def special_datetime_ocr_search(text):
     """
     Very special case. OCR text often mistakes "/" for "7", hence
