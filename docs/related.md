@@ -283,6 +283,20 @@ Fine-Grained Records Integration and Linkage Tool
 > of parameter values to enhance linking performance and accuracy.
 
 
+`MALLET`
+--------
+MAchine Learning for LanguagE Toolkit
+
+* Website: <http://mallet.cs.umass.edu/>
+* Sources: <https://github.com/mimno/Mallet>
+* Documentation: <http://mallet.cs.umass.edu/classification.php>
+
+> MALLET is a Java-based package for statistical natural language processing,
+> document classification, clustering, topic modeling, information extraction,
+> and other machine learning applications to text.
+
+
+
 
 [1]: http://karl-voit.at
 [2]: http://karl-voit.at/managing-digital-photographs/
