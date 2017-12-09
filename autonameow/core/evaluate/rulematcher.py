@@ -51,6 +51,8 @@ class RuleMatcher(object):
             return self.request_data(fileobject, meowuri)
         scored_rules = {}
 
+        # Out of all possible rules, remove those that require an exact match
+        # and contains any condition that fail evaluation.
         log.debug('Examining {} rules ..'.format(len(all_rules)))
         remaining_rules = remove_rules_failing_exact_match(all_rules,
                                                            _request_data)
