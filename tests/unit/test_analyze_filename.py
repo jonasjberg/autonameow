@@ -60,7 +60,7 @@ class TestFieldGetterMethods(TestCase):
         self.fna._basename_prefix = 'foo 2nd Edition bar'
         actual = self.fna._get_edition()
         self.assertIn('value', actual)
-        self.assertEqual(actual['value'], 2)
+        self.assertEqual(2, actual['value'])
 
     def test__get_edition_returns_expected_given_basename_without_edition(self):
         self.fna._basename_prefix = 'foo'
@@ -75,7 +75,7 @@ class TestFieldGetterMethods(TestCase):
         self.fna._basename_prefix = 'x'
         actual = self.fna._get_publisher()
         self.assertIn('value', actual)
-        self.assertEqual(actual['value'], 'Foo Pub')
+        self.assertEqual('Foo Pub', actual['value'])
 
     @patch('analyzers.analyze_filename.find_publisher')
     def test__get_publisher_returns_expected_given_basename_without_publisher(
@@ -86,47 +86,40 @@ class TestFieldGetterMethods(TestCase):
         actual = self.fna._get_publisher()
         self.assertIsNone(actual)
 
+    def __assert_extension(self, expected):
+        actual = self.fna._get_extension()
+        self.assertIn('value', actual)
+        self.assertEqual(expected, actual['value'])
+
     def test__get_extension_returns_expected_given_mime_type_and_suffix(self):
         self.fna._file_mimetype = 'image/jpeg'
         self.fna._basename_suffix = 'jpg'
-        actual = self.fna._get_extension()
-        self.assertIn('value', actual)
-        self.assertEqual(actual['value'], 'jpg')
+        self.__assert_extension('jpg')
 
     def test__get_extension_returns_expected_given_mime_type_empty_suffix(self):
         self.fna._file_mimetype = 'image/jpeg'
         self.fna._basename_suffix = ''
-        actual = self.fna._get_extension()
-        self.assertIn('value', actual)
-        self.assertEqual(actual['value'], 'jpg')
+        self.__assert_extension('jpg')
 
     def test__get_extension_returns_expected_given_mime_type_none_suffix(self):
         self.fna._file_mimetype = 'image/jpeg'
         self.fna._basename_suffix = None
-        actual = self.fna._get_extension()
-        self.assertIn('value', actual)
-        self.assertEqual(actual['value'], 'jpg')
+        self.__assert_extension('jpg')
 
     def test__get_extension_returns_expected_given_suffix_null_mime_type(self):
         self.fna._file_mimetype = NullMIMEType()
         self.fna._basename_suffix = 'jpg'
-        actual = self.fna._get_extension()
-        self.assertIn('value', actual)
-        self.assertEqual(actual['value'], 'jpg')
+        self.__assert_extension('jpg')
 
     def test__get_extension_returns_expected_given_empty_suffix_null_mime(self):
         self.fna._file_mimetype = NullMIMEType()
         self.fna._basename_suffix = ''
-        actual = self.fna._get_extension()
-        self.assertIn('value', actual)
-        self.assertEqual(actual['value'], '')
+        self.__assert_extension('')
 
     def test__get_extension_returns_none_given_none_suffix_null_mime(self):
         self.fna._file_mimetype = NullMIMEType()
         self.fna._basename_suffix = None
-        actual = self.fna._get_extension()
-        self.assertIn('value', actual)
-        self.assertIsNone(actual['value'])
+        self.__assert_extension(None)
 
 
 class TestLikelyExtension(TestCase):
@@ -188,7 +181,7 @@ class TestIdentifyFields(TestCase):
 
         def _assert_splits(test_data, expected):
             actual = f.substrings(test_data)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _assert_splits('a', ['a'])
         _assert_splits('a b', ['a', 'b'])
@@ -217,18 +210,18 @@ class TestIdentifyFields(TestCase):
         actual = f.identify_fields(test_input, [fields.Creator, fields.Title])
 
         self.assertTrue(isinstance(actual.get(fields.Creator), list))
-        self.assertEqual(actual.get(fields.Creator)[0], 'TheBeatles')
-        self.assertEqual(actual.get(fields.Creator)[1], 'PaperbackWriter')
-        self.assertNotIn(actual.get(fields.Creator), '.flac')
-        self.assertNotIn(actual.get(fields.Creator), 'flac')
-        self.assertNotIn(actual.get(fields.Creator), '-')
+        self.assertEqual('TheBeatles', actual.get(fields.Creator)[0])
+        self.assertEqual('PaperbackWriter', actual.get(fields.Creator)[1])
+        self.assertNotIn('.flac', actual.get(fields.Creator))
+        self.assertNotIn('flac', actual.get(fields.Creator))
+        self.assertNotIn('-', actual.get(fields.Creator))
 
         self.assertTrue(isinstance(actual.get(fields.Title), list))
-        self.assertEqual(actual.get(fields.Title)[0], 'PaperbackWriter')
-        self.assertEqual(actual.get(fields.Title)[1], 'TheBeatles')
-        self.assertNotIn(actual.get(fields.Title), '.flac')
-        self.assertNotIn(actual.get(fields.Title), 'flac')
-        self.assertNotIn(actual.get(fields.Title), '-')
+        self.assertEqual('PaperbackWriter', actual.get(fields.Title)[0])
+        self.assertEqual('TheBeatles', actual.get(fields.Title)[1])
+        self.assertNotIn('.flac', actual.get(fields.Title))
+        self.assertNotIn('flac', actual.get(fields.Title))
+        self.assertNotIn('-', actual.get(fields.Title))
 
     def test_uses_constraints(self):
         pass
@@ -245,8 +238,8 @@ class TestIdentifyFields(TestCase):
 class TestFilenameTokenizerSeparators(TestCase):
     def _t(self, filename, separators, main_separator):
         tokenizer = FilenameTokenizer(filename)
-        self.assertEqual(tokenizer.separators, separators)
-        self.assertEqual(tokenizer.main_separator, main_separator)
+        self.assertEqual(separators, tokenizer.separators)
+        self.assertEqual(main_separator, tokenizer.main_separator)
         tokenizer = None
 
     def test_find_separators_all_periods(self):
@@ -317,7 +310,7 @@ class TestFilenameTokenizerSeparators(TestCase):
     def test_find_main_separator(self):
         def _aE(filename, main_separator):
             tokenizer = FilenameTokenizer(filename)
-            self.assertEqual(tokenizer.main_separator, main_separator)
+            self.assertEqual(main_separator, tokenizer.main_separator)
             tokenizer = None
 
         _aE('a b', ' ')
@@ -340,7 +333,7 @@ class TestFilenameTokenizerSeparators(TestCase):
 
         def _aE(filename, main_separator):
             tokenizer = FilenameTokenizer(filename)
-            self.assertEqual(tokenizer.main_separator, main_separator)
+            self.assertEqual(main_separator, tokenizer.main_separator)
             tokenizer = None
 
         _aE('a-b c', ' ')
@@ -367,7 +360,7 @@ class TestFilenameTokenizerSeparators(TestCase):
     def test_get_seps_with_tied_counts(self):
         def _aE(test_input, expect):
             actual = FilenameTokenizer.get_seps_with_tied_counts(test_input)
-            self.assertEqual(actual, expect)
+            self.assertEqual(expect, actual)
 
         _aE([('a', 2), ('b', 1)],
             expect=[])
@@ -384,7 +377,7 @@ class TestFilenameTokenizerSeparators(TestCase):
 class TestFilenameTokenizerTokens(TestCase):
     def _t(self, filename, tokens):
         tokenizer = FilenameTokenizer(filename)
-        self.assertEqual(tokenizer.tokens, tokens)
+        self.assertEqual(tokens, tokenizer.tokens)
 
     def test_only_spaces(self):
         self._t(filename='foo bar 1234 baz',
