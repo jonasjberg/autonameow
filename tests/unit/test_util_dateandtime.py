@@ -62,15 +62,15 @@ class TestDateIsProbable(TestCase):
 
 class TestDateAndTime(TestCase):
     def test_hyphenate_date(self):
-        self.assertEqual(hyphenate_date('20161224'), '2016-12-24')
-        self.assertEqual(hyphenate_date('20161224T121314'), '20161224T121314')
-        self.assertEqual(hyphenate_date('return as-is'), 'return as-is')
+        self.assertEqual('2016-12-24', hyphenate_date('20161224'))
+        self.assertEqual('20161224T121314', hyphenate_date('20161224T121314'))
+        self.assertEqual('return as-is', hyphenate_date('return as-is'))
 
 
 class TestMatchUnixTimestamp(TestCase):
     def _assert_match(self, given, expect):
         actual = match_any_unix_timestamp(given)
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_matches_strings_a(self):
         dt_a = datetime.strptime('20160528 201245', '%Y%m%d %H%M%S')
@@ -142,7 +142,7 @@ class TestToDatetime(TestCase):
 
     def test_returns_expected_given_valid_data(self):
         for given, expected in self.TEST_DATA:
-            self.assertEqual(str(to_datetime(given)), expected)
+            self.assertEqual(expected, str(to_datetime(given)))
 
 
 class TestNaiveToTimezoneAware(TestCase):
@@ -157,7 +157,7 @@ class TestNaiveToTimezoneAware(TestCase):
         self.assertIsNotNone(self.aware)
 
     def test_naive_dt_should_equal_aware_dt(self):
-        self.assertEqual(naive_to_timezone_aware(self.unaware), self.aware)
+        self.assertEqual(self.aware, naive_to_timezone_aware(self.unaware))
 
 
 class TestTimezoneAwareToNaive(TestCase):
@@ -172,7 +172,7 @@ class TestTimezoneAwareToNaive(TestCase):
         self.assertIsNotNone(self.aware)
 
     def test_aware_dt_should_forget_timezone_and_equal_unaware_dt(self):
-        self.assertEqual(timezone_aware_to_naive(self.aware), self.unaware)
+        self.assertEqual(self.unaware, timezone_aware_to_naive(self.aware))
 
 
 class FindIsoDateLike(TestCase):
@@ -194,9 +194,6 @@ class FindIsoDateLike(TestCase):
         self.assertIsNone(find_isodate_like(test_data))
 
     def test_returns_none_for_no_possible_matches(self):
-        def _assert_none(test_data):
-            self.assertIsNone(find_isodate_like(test_data))
-
         self._assert_none('abc')
         self._assert_none(' a ')
         self._assert_none(' 1 ')
