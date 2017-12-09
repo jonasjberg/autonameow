@@ -369,18 +369,18 @@ class TestAutonameowWrapperWithDefaultOptions(TestCase):
 
 
 class TestRenames(TestCase):
-    def _fail(self, actual_renames, expect_renames):
-        actual = check_renames(actual_renames, expect_renames)
+    def _fail(self, actual, expect):
+        actual = check_renames(actual, expect)
         self.assertFalse(actual)
 
-    def _ok(self, actual_renames, expect_renames):
-        actual = check_renames(actual_renames, expect_renames)
+    def _ok(self, actual, expect):
+        actual = check_renames(actual, expect)
         self.assertTrue(actual)
 
     def test_raises_exception_given_bad_arguments(self):
-        def _fail(actual_renames, expect_renames):
+        def _fail(actual, expect):
             with self.assertRaises(RegressionTestError):
-                _ = check_renames(actual_renames, expect_renames)
+                _ = check_renames(actual, expect)
 
         _fail(None, None)
         _fail('', None)
@@ -389,57 +389,51 @@ class TestRenames(TestCase):
         _fail('', {})
 
     def test_returns_true_given_one_matching_rename(self):
-        self._ok(actual_renames={}, expect_renames={})
-        self._ok(actual_renames={'A': 'A'}, expect_renames={'A': 'A'})
-        self._ok(actual_renames={'A': 'foo'}, expect_renames={'A': 'foo'})
-        self._ok(actual_renames={'A': 'bar'}, expect_renames={'A': 'bar'})
+        self._ok(actual={}, expect={})
+        self._ok(actual={'A': 'A'}, expect={'A': 'A'})
+        self._ok(actual={'A': 'foo'}, expect={'A': 'foo'})
+        self._ok(actual={'A': 'bar'}, expect={'A': 'bar'})
 
     def test_returns_true_given_matching_renames(self):
-        self._ok(actual_renames={'A': 'foo', 'B': 'B'},
-                 expect_renames={'A': 'foo', 'B': 'B'})
-        self._ok(actual_renames={'A': 'foo', 'B': 'bar'},
-                 expect_renames={'A': 'foo', 'B': 'bar'})
+        self._ok(actual={'A': 'foo', 'B': 'B'},
+                 expect={'A': 'foo', 'B': 'B'})
+        self._ok(actual={'A': 'foo', 'B': 'bar'},
+                 expect={'A': 'foo', 'B': 'bar'})
 
     def test_returns_false_given_one_non_matching_rename(self):
-        self._fail(actual_renames={}, expect_renames={'A': 'A'})
-        self._fail(actual_renames={}, expect_renames={'A': 'B'})
-        self._fail(actual_renames={}, expect_renames={'B': 'A'})
-        self._fail(actual_renames={'A': 'A'}, expect_renames={})
-        self._fail(actual_renames={'A': 'B'}, expect_renames={})
-        self._fail(actual_renames={'B': 'A'}, expect_renames={})
-        self._fail(actual_renames={'A': 'A'}, expect_renames={'A': 'B'})
-        self._fail(actual_renames={'A': 'A'}, expect_renames={'B': 'A'})
-        self._fail(actual_renames={'A': 'A'}, expect_renames={'B': 'B'})
-        self._fail(actual_renames={'A': 'B'}, expect_renames={'A': 'A'})
-        self._fail(actual_renames={'A': 'B'}, expect_renames={'B': 'A'})
-        self._fail(actual_renames={'A': 'B'}, expect_renames={'B': 'B'})
-        self._fail(actual_renames={'B': 'A'}, expect_renames={'A': 'A'})
-        self._fail(actual_renames={'B': 'A'}, expect_renames={'A': 'B'})
-        self._fail(actual_renames={'B': 'A'}, expect_renames={'B': 'B'})
-        self._fail(actual_renames={'B': 'B'}, expect_renames={'A': 'A'})
-        self._fail(actual_renames={'B': 'B'}, expect_renames={'A': 'B'})
-        self._fail(actual_renames={'B': 'B'}, expect_renames={'B': 'A'})
+        self._fail(actual={}, expect={'A': 'A'})
+        self._fail(actual={}, expect={'A': 'B'})
+        self._fail(actual={}, expect={'B': 'A'})
+        self._fail(actual={'A': 'A'}, expect={})
+        self._fail(actual={'A': 'B'}, expect={})
+        self._fail(actual={'B': 'A'}, expect={})
+        self._fail(actual={'A': 'A'}, expect={'A': 'B'})
+        self._fail(actual={'A': 'A'}, expect={'B': 'A'})
+        self._fail(actual={'A': 'A'}, expect={'B': 'B'})
+        self._fail(actual={'A': 'B'}, expect={'A': 'A'})
+        self._fail(actual={'A': 'B'}, expect={'B': 'A'})
+        self._fail(actual={'A': 'B'}, expect={'B': 'B'})
+        self._fail(actual={'B': 'A'}, expect={'A': 'A'})
+        self._fail(actual={'B': 'A'}, expect={'A': 'B'})
+        self._fail(actual={'B': 'A'}, expect={'B': 'B'})
+        self._fail(actual={'B': 'B'}, expect={'A': 'A'})
+        self._fail(actual={'B': 'B'}, expect={'A': 'B'})
+        self._fail(actual={'B': 'B'}, expect={'B': 'A'})
 
     def test_returns_false_given_non_matching_renames(self):
-        self._fail(actual_renames={}, expect_renames={'A': 'A', 'B': 'A'})
-        self._fail(actual_renames={}, expect_renames={'A': 'A', 'B': 'B'})
-        self._fail(actual_renames={}, expect_renames={'A': 'B', 'B': 'A'})
-        self._fail(actual_renames={}, expect_renames={'A': 'B', 'B': 'B'})
-        self._fail(actual_renames={'A': 'A', 'B': 'A'}, expect_renames={})
-        self._fail(actual_renames={'A': 'A', 'B': 'B'}, expect_renames={})
-        self._fail(actual_renames={'A': 'B', 'B': 'A'}, expect_renames={})
-        self._fail(actual_renames={'A': 'B', 'B': 'B'}, expect_renames={})
-
-        self._fail(actual_renames={'A': 'A', 'B': 'A'},
-                   expect_renames={'A': 'A', 'B': 'B'})
-        self._fail(actual_renames={'A': 'A', 'B': 'B'},
-                   expect_renames={'A': 'A', 'B': 'A'})
-        self._fail(actual_renames={'A': 'B', 'B': 'B'},
-                   expect_renames={'A': 'A', 'B': 'B'})
-        self._fail(actual_renames={'A': 'A', 'C': 'C'},
-                   expect_renames={'B': 'A', 'C': 'C'})
-        self._fail(actual_renames={'A': 'A', 'C': 'D'},
-                   expect_renames={'B': 'A', 'C': 'C'})
+        self._fail(actual={}, expect={'A': 'A', 'B': 'A'})
+        self._fail(actual={}, expect={'A': 'A', 'B': 'B'})
+        self._fail(actual={}, expect={'A': 'B', 'B': 'A'})
+        self._fail(actual={}, expect={'A': 'B', 'B': 'B'})
+        self._fail(actual={'A': 'A', 'B': 'A'}, expect={})
+        self._fail(actual={'A': 'A', 'B': 'B'}, expect={})
+        self._fail(actual={'A': 'B', 'B': 'A'}, expect={})
+        self._fail(actual={'A': 'B', 'B': 'B'}, expect={})
+        self._fail(actual={'A': 'A', 'B': 'A'}, expect={'A': 'A', 'B': 'B'})
+        self._fail(actual={'A': 'A', 'B': 'B'}, expect={'A': 'A', 'B': 'A'})
+        self._fail(actual={'A': 'B', 'B': 'B'}, expect={'A': 'A', 'B': 'B'})
+        self._fail(actual={'A': 'A', 'C': 'C'}, expect={'B': 'A', 'C': 'C'})
+        self._fail(actual={'A': 'A', 'C': 'D'}, expect={'B': 'A', 'C': 'C'})
 
 
 SAMPLE_TESTCASE_0000 = {
