@@ -623,44 +623,6 @@ def match_screencapture_unixtime(text):
     return None
 
 
-def to_datetime(datetime_string):
-    """
-    Convert a string with date/time information to a datetime-object.
-
-    Args:
-        datetime_string: Date/time data as a string.
-
-    Returns:
-        A datetime object representing the given input if successful.
-    Raises:
-        ValueError: An error occurred during the conversion.
-        TypeError: An error occurred during the conversion.
-    """
-    # TODO: Handle timezone offsets properly!
-
-    if datetime_string.endswith('+00:00'):
-        datetime_string = datetime_string.replace('+00:00', '')
-    elif datetime_string.endswith('+02:00'):
-        datetime_string = datetime_string.replace('+02:00', '')
-
-    REGEX_FORMAT_MAP = [(r'^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$',
-                         '%Y:%m:%d %H:%M:%S'),  # '2010:01:31 16:12:51'
-                        ]
-
-    for regex_pattern, datetime_format in REGEX_FORMAT_MAP:
-        if re.match(regex_pattern, datetime_string):
-            return datetime.strptime(datetime_string, datetime_format)
-
-    try:
-        datetime_object = parser.parse(datetime_string)
-    except ValueError:
-        raise ValueError
-    except TypeError:
-        raise TypeError
-    else:
-        return datetime_object
-
-
 def timezone_aware_to_naive(aware_datetime):
     """
     Removes timezone information from a datetime object to make it "naive".

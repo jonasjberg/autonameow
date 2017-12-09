@@ -31,7 +31,6 @@ from util.dateandtime import (
     match_special_case,
     naive_to_timezone_aware,
     timezone_aware_to_naive,
-    to_datetime
 )
 
 
@@ -127,22 +126,6 @@ class TestMatchSpecialCase(TestCase):
         self.assertIsNone(match_special_case(''))
         self.assertIsNone(match_special_case(' '))
         self.assertIsNone(match_special_case('abc'))
-
-
-class TestToDatetime(TestCase):
-    # TODO: Handle time zone offsets properly!
-
-    def setUp(self):
-        self.TEST_DATA = [('2010:01:31 16:12:51', '2010-01-31 16:12:51'),
-                          ('2016:01:11 12:41:32+00:00', '2016-01-11 12:41:32')]
-
-    def test_does_not_return_none_given_valid_data(self):
-        for given, expected in self.TEST_DATA:
-            self.assertIsNotNone(to_datetime(given))
-
-    def test_returns_expected_given_valid_data(self):
-        for given, expected in self.TEST_DATA:
-            self.assertEqual(expected, str(to_datetime(given)))
 
 
 class TestNaiveToTimezoneAware(TestCase):
