@@ -89,14 +89,6 @@ class TestYearIsProbable(TestCase):
         self._assert_probable(True, 2017)
         self._assert_probable(True, 2018)
 
-    def test_all(self):
-        for i in range(0, 9999, 10):
-            actual = _year_is_probable(i)
-            if actual:
-                print('_year_is_probable  TRUE {}'.format(i))
-            else:
-                print('_year_is_probable FALSE {}'.format(i))
-
 
 class TestDateAndTime(TestCase):
     def test_hyphenate_date(self):
