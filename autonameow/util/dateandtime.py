@@ -60,51 +60,34 @@ def hyphenate_date(date_str):
         return date_str
 
 
-def _year_is_probable(year):
+def _year_is_probable(int_year):
     """
     Check if year is "probable", meaning greater than 1900 and
     not in the future, I.E. greater than the current year.
     That is, simply: 1900 < year < this year
-    :param year: Year to check, preferably as a datetime-object.
-                 Other types will be converted if possible.
-    :return: True if the year is probable.
-             False if the year is not probable or a conversion to
-             datetime-object failed.
+
+    Args:
+        int_year: The year to test as an integer.
+
+    Returns:
+        True if the year is "probable", else False.
     """
-    if type(year) is not datetime:
-        # Try to convert to integer, then from integer to datetime.
-        try:
-            year = int(year)
-        except ValueError as ex:
-            log.warning('Got unexpected type "{}". '
-                        'Casting failed: {}'.format(type(year), ex))
-            return False
+    # Check if number of digits in "year" is less than three,
+    # I.E. we got something like '86' (1986) or maybe '08' (2008).
+    year = int_year
+    if len(str(year)) <= 2:
+        # Assume 50-99 becomes 1950-1999, and 0-49 becomes 2000-2049.
+        if year < 50:
+            year += 2000
+        else:
+            year += 1900
 
-        # Check if number of digits in "year" is less than three,
-        # I.E. we got something like '86' (1986) or maybe '08' (2008).
-        if year < 999:
-            # Assume 50-99 becomes 1950-1999, and 0-49 becomes 2000-2049.
-            if year < 50:
-                year += 2000
-            else:
-                year += 1900
-
-        if not isinstance(year, int):
-            year = enc.decode_(year)
-        try:
-            year = datetime.strptime(str(year), '%Y')
-        except (ValueError, TypeError):
-            log.debug('Failed converting "{}" '
-                      'to datetime-object.'.format(year))
-            return False
-
-    if year.year > C.YEAR_UPPER_LIMIT.year:
+    try:
+        year = datetime.strptime(str(year), '%Y')
+    except (ValueError, TypeError):
         return False
-    elif year.year < C.YEAR_LOWER_LIMIT.year:
-        return False
-    else:
-        # Year lies within window, assume it is OK.
-        return True
+
+    return date_is_probable(year)
 
 
 def date_is_probable(date):
