@@ -51,8 +51,9 @@ Medium Priority
 * `[TD0132]` Improve blacklisting data, prevent repeated bad requests to APIs.
 
 * `[TD0112]` __Handle merging "equivalent" data in the `Resolver`.__  
-  Add some sort of system for normalizing entities.
-  Example of problem this is intended to solve:
+    Add some sort of system for normalizing entities.
+
+    Example of problem this is intended to solve:
     ```
     [WARNING]  Not sure what data to use for field "<class 'core.namebuilder.fields.Author'>"..
     [WARNING]  Field candidate 000 :: "['G. C. Sjöberg']"
@@ -155,7 +156,7 @@ Medium Priority
 Low Priority
 ------------
 
-* `[TD0125]` __Add aliases (generics) for MeowURI leafs__
+* `[TD0125]` __Add aliases (generics) for MeowURI leafs__  
   Should probably provide a consistent internal alternative field name when
   specifying extractor-specific MeowURIs, not only with "generic".
   Example of equivalent MeowURIs with the "alias" or "generic":
@@ -180,18 +181,19 @@ Low Priority
     ```
 
 * `[TD0130]` __Implement general-purpose matching/extraction of substrings.__  
-  Primary purpose is to provide matching and also removal of matched parts.
-  For instance, given a full string like `Skill: 1337 Meow - foo`,  searching
-  for "skills" with regex `r'[sS]kill: ?(\d)+'`, the matched part should be
-  returned and also removed from the original string. Alternatively, the match
-  results would contain information on where in the original string that the
-  match was found.
+    Primary purpose is to provide matching and also removal of matched parts.
 
-  This is a non-issue when using only regexes to do the substring searches,
-  but if the search is performed with a function call, removing the matched
-  substring becomes a bit messy.
+    For instance, given a full string like `Skill: 1337 Meow - foo`,  searching
+    for "skills" with regex `r'[sS]kill: ?(\d)+'`, the matched part should be
+    returned and also removed from the original string. Alternatively, the match
+    results would contain information on where in the original string that the
+    match was found.
 
-  Related to `[TD0020]`. This functionality is provided by `guessit`!
+    This is a non-issue when using only regexes to do the substring searches,
+    but if the search is performed with a function call, removing the matched
+    substring becomes a bit messy.
+
+    Related to `[TD0020]`. This functionality is provided by `guessit`!
 
 * `[TD0121]` Create a script for generating regression tests.
 
