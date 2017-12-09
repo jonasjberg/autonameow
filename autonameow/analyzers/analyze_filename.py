@@ -65,6 +65,8 @@ class FilenameAnalyzer(BaseAnalyzer):
         )
 
         self._basename_prefix = None
+        self._basename_suffix = None
+        self._file_mimetype = None
 
     def analyze(self):
         # TODO: [TD0136] Look into "requesting" already available data.
@@ -74,9 +76,21 @@ class FilenameAnalyzer(BaseAnalyzer):
         )
         self._basename_prefix = types.force_string(basename_prefix.get('value'))
 
+        basename_suffix = self.request_data(
+            self.fileobject,
+            'extractor.filesystem.xplat.basename.suffix'
+        )
+        self._basename_suffix = types.force_string(basename_suffix.get('value'))
+
+        file_mimetype = self.request_data(
+            self.fileobject,
+            'extractor.filesystem.xplat.contents.mime_type'
+        )
+        self._file_mimetype = file_mimetype.get('value')
+
         self._add_results('datetime', self.get_datetime())
         self._add_results('edition', self._get_edition())
-        self._add_results('extension', self.get_extension())
+        self._add_results('extension', self._get_extension())
         self._add_results('publisher', self._get_publisher())
 
     def get_datetime(self):
@@ -122,29 +136,14 @@ class FilenameAnalyzer(BaseAnalyzer):
         else:
             return None
 
-    def get_extension(self):
-        ed_basename_suffix = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.basename.suffix'
-        )
-        if not ed_basename_suffix:
-            return
-
-        # TODO: [TD0136] Look into "requesting" already available data.
-        ed_file_mimetype = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.contents.mime_type'
-        )
-        if not ed_file_mimetype:
-            return
-
-        file_basename_suffix = types.force_string(ed_basename_suffix.get('value'))
-        file_mimetype = ed_file_mimetype.get('value')
+    def _get_extension(self):
         self.log.debug(
             'Attempting to get likely extension for MIME-type: "{!s}"  Basename'
-            ' suffix: "{!s}"'.format(file_mimetype, file_basename_suffix))
-        result = likely_extension(file_basename_suffix, file_mimetype)
+            ' suffix: "{!s}"'.format(self._file_mimetype, self._basename_suffix)
+        )
+        result = likely_extension(self._basename_suffix, self._file_mimetype)
         self.log.debug('Likely extension: "{!s}"'.format(result))
+
         return {
             'value': result,
             'coercer': types.AW_PATHCOMPONENT,

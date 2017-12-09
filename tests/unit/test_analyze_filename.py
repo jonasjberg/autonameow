@@ -30,10 +30,11 @@ import unit.utils as uu
 from analyzers.analyze_filename import (
     FilenameAnalyzer,
     FilenameTokenizer,
-    SubstringFinder,
-    likely_extension
+    likely_extension,
+    SubstringFinder
 )
 from core.namebuilder import fields
+from core.types import NullMIMEType
 
 
 uu.init_session_repository()
@@ -84,6 +85,48 @@ class TestFieldGetterMethods(TestCase):
         self.fna._basename_prefix = 'x'
         actual = self.fna._get_publisher()
         self.assertIsNone(actual)
+
+    def test__get_extension_returns_expected_given_mime_type_and_suffix(self):
+        self.fna._file_mimetype = 'image/jpeg'
+        self.fna._basename_suffix = 'jpg'
+        actual = self.fna._get_extension()
+        self.assertIn('value', actual)
+        self.assertEqual(actual['value'], 'jpg')
+
+    def test__get_extension_returns_expected_given_mime_type_empty_suffix(self):
+        self.fna._file_mimetype = 'image/jpeg'
+        self.fna._basename_suffix = ''
+        actual = self.fna._get_extension()
+        self.assertIn('value', actual)
+        self.assertEqual(actual['value'], 'jpg')
+
+    def test__get_extension_returns_expected_given_mime_type_none_suffix(self):
+        self.fna._file_mimetype = 'image/jpeg'
+        self.fna._basename_suffix = None
+        actual = self.fna._get_extension()
+        self.assertIn('value', actual)
+        self.assertEqual(actual['value'], 'jpg')
+
+    def test__get_extension_returns_expected_given_suffix_null_mime_type(self):
+        self.fna._file_mimetype = NullMIMEType()
+        self.fna._basename_suffix = 'jpg'
+        actual = self.fna._get_extension()
+        self.assertIn('value', actual)
+        self.assertEqual(actual['value'], 'jpg')
+
+    def test__get_extension_returns_expected_given_empty_suffix_null_mime(self):
+        self.fna._file_mimetype = NullMIMEType()
+        self.fna._basename_suffix = ''
+        actual = self.fna._get_extension()
+        self.assertIn('value', actual)
+        self.assertEqual(actual['value'], '')
+
+    def test__get_extension_returns_none_given_none_suffix_null_mime(self):
+        self.fna._file_mimetype = NullMIMEType()
+        self.fna._basename_suffix = None
+        actual = self.fna._get_extension()
+        self.assertIn('value', actual)
+        self.assertIsNone(actual['value'])
 
 
 class TestLikelyExtension(TestCase):
