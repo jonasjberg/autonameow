@@ -248,7 +248,7 @@ if __name__ == '__main__':
     if opts.do_check:
         _checks_pass = do_check()
         if not _checks_pass:
-            exit_status &= EXIT_FAILURE
+            exit_status |= EXIT_FAILURE
 
     elif opts.do_list_orphaned:
         list_orphaned()
@@ -258,6 +258,6 @@ if __name__ == '__main__':
         if _next_id:
             print(_next_id)
         else:
-            exit_status &= EXIT_FAILURE
+            exit_status |= EXIT_FAILURE
 
     sys.exit(exit_status)
