@@ -37,7 +37,7 @@ class TestBaseType(TestCase):
         self.base_type = types.BaseType()
 
     def test_null(self):
-        self.assertEqual(self.base_type(None), self.base_type.NULL)
+        self.assertEqual(self.base_type.NULL, self.base_type(None))
         self.assertEqual(self.base_type.NULL, types.BaseNullValue())
         self.assertFalse(self.base_type.NULL)
         self.assertFalse(self.base_type.null())
@@ -47,8 +47,8 @@ class TestBaseType(TestCase):
             self.base_type.normalize(None)
 
     def test_base_type_call(self):
-        self.assertEqual(self.base_type('foo'), 'foo')
-        self.assertEqual(self.base_type(None), types.BaseNullValue())
+        self.assertEqual('foo', self.base_type('foo'))
+        self.assertEqual(types.BaseNullValue(), self.base_type(None))
 
     def test_inheriting_classes_must_implement_format(self):
         with self.assertRaises(NotImplementedError):
@@ -67,18 +67,18 @@ class TestBaseNullValue(TestCase):
 
     def test_boolean_evaluation_returns_false(self):
         self.assertFalse(self.bn)
-        self.assertEqual(self.bn, False)
+        self.assertEqual(False, self.bn)
         self.assertFalse(bool(self.bn))
-        self.assertEqual(bool(self.bn), False)
+        self.assertEqual(False, bool(self.bn))
         self.assertTrue(not self.bn)
         self.assertTrue(not bool(self.bn))
-        self.assertEqual(not self.bn, True)
-        self.assertEqual(not bool(self.bn), True)
+        self.assertEqual(True, not self.bn)
+        self.assertEqual(True, not bool(self.bn))
 
     def test_comparison(self):
         def _is_equal(expected, value):
             actual = self.bn == value
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
             self.assertTrue(bool(expected) == bool(actual))
             self.assertTrue(isinstance(actual, bool))
 
@@ -97,7 +97,7 @@ class TestBaseNullValue(TestCase):
 
     def test_str(self):
         expected = '(NULL BaseType value)'
-        self.assertEqual(str(self.bn), expected)
+        self.assertEqual(expected, str(self.bn))
 
 
 class TestNullMIMEType(TestCase):
@@ -106,18 +106,18 @@ class TestNullMIMEType(TestCase):
 
     def test_boolean_evaluation_returns_false(self):
         self.assertFalse(self.nm)
-        self.assertEqual(self.nm, False)
+        self.assertEqual(False, self.nm)
         self.assertFalse(bool(self.nm))
-        self.assertEqual(bool(self.nm), False)
+        self.assertEqual(False, bool(self.nm))
         self.assertTrue(not self.nm)
         self.assertTrue(not bool(self.nm))
-        self.assertEqual(not self.nm, True)
-        self.assertEqual(not bool(self.nm), True)
+        self.assertEqual(True, not self.nm)
+        self.assertEqual(True, not bool(self.nm))
 
     def test_comparison(self):
         def _is_equal(expected, value):
             actual = self.nm == value
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
             self.assertTrue(bool(expected) == bool(actual))
             self.assertTrue(isinstance(actual, bool))
 
@@ -138,21 +138,21 @@ class TestNullMIMEType(TestCase):
 
     def test_str(self):
         expected = types.NullMIMEType.AS_STRING
-        self.assertEqual(str(self.nm), expected)
+        self.assertEqual(expected, str(self.nm))
 
 
 class TestTypeBoolean(TestCase):
     def test_coerces_expected_primitive(self):
-        self.assertEqual(type(types.AW_BOOLEAN(None)), bool)
+        self.assertEqual(bool, type(types.AW_BOOLEAN(None)))
 
     def test_null(self):
-        self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.NULL)
-        self.assertNotEqual(types.AW_BOOLEAN(None), types.BaseNullValue,
+        self.assertEqual(types.AW_BOOLEAN.NULL, types.AW_BOOLEAN(None))
+        self.assertNotEqual(types.BaseNullValue, types.AW_BOOLEAN(None),
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
         def _assert_normalizes(test_data, expected):
-            self.assertEqual(types.AW_BOOLEAN.normalize(test_data), expected)
+            self.assertEqual(expected, types.AW_BOOLEAN.normalize(test_data))
 
         _assert_normalizes(True, True)
         _assert_normalizes(False, False)
@@ -187,11 +187,11 @@ class TestTypeBoolean(TestCase):
         _assert_normalizes(b'False', False)
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_BOOLEAN(None), False)
+        self.assertEqual(False, types.AW_BOOLEAN(None))
 
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
-            self.assertEqual(types.AW_BOOLEAN(test_data), expected)
+            self.assertEqual(expected, types.AW_BOOLEAN(test_data))
 
         _assert_returns(True, True)
         _assert_returns(False, False)
@@ -261,8 +261,8 @@ class TestTypeBoolean(TestCase):
             with self.assertRaises(types.AWTypeError):
                 types.AW_BOOLEAN(test_data)
 
-        self.assertEqual(types.AW_BOOLEAN('foo'), types.AW_BOOLEAN.NULL)
-        self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.NULL)
+        self.assertEqual(types.AW_BOOLEAN.NULL, types.AW_BOOLEAN('foo'))
+        self.assertEqual(types.AW_BOOLEAN.NULL, types.AW_BOOLEAN(None))
 
         class _NoBool(object):
             def __raise(self):
@@ -275,7 +275,7 @@ class TestTypeBoolean(TestCase):
 
     def test_format(self):
         def _assert_formats(test_data, expected):
-            self.assertEqual(types.AW_BOOLEAN.format(test_data), expected)
+            self.assertEqual(expected, types.AW_BOOLEAN.format(test_data))
 
         _assert_formats(None, 'False')
         _assert_formats(False, 'False')
@@ -294,26 +294,26 @@ class TestTypeBoolean(TestCase):
 
 class TestTypeInteger(TestCase):
     def test_coerces_expected_primitive(self):
-        self.assertEqual(type(types.AW_INTEGER(None)), int)
+        self.assertEqual(int, type(types.AW_INTEGER(None)))
 
     def test_null(self):
-        self.assertEqual(types.AW_INTEGER(None), types.AW_INTEGER.NULL)
+        self.assertEqual(types.AW_INTEGER.NULL, types.AW_INTEGER(None))
         self.assertNotEqual(types.AW_INTEGER(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
-        self.assertEqual(types.AW_INTEGER.normalize(None),
-                         types.AW_INTEGER.NULL)
-        self.assertEqual(types.AW_INTEGER.normalize(-1), -1)
-        self.assertEqual(types.AW_INTEGER.normalize(0), 0)
-        self.assertEqual(types.AW_INTEGER.normalize(1), 1)
+        self.assertEqual(types.AW_INTEGER.NULL,
+                         types.AW_INTEGER.normalize(None))
+        self.assertEqual(-1, types.AW_INTEGER.normalize(-1))
+        self.assertEqual(0, types.AW_INTEGER.normalize(0))
+        self.assertEqual(1, types.AW_INTEGER.normalize(1))
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_INTEGER(None), 0)
+        self.assertEqual(0, types.AW_INTEGER(None))
 
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
-            self.assertEqual(types.AW_INTEGER(test_data), expected)
+            self.assertEqual(expected, types.AW_INTEGER(test_data))
 
         _assert_returns(None, 0)
         _assert_returns(-1, -1)
@@ -346,7 +346,7 @@ class TestTypeInteger(TestCase):
 
     def test_format_valid_data(self):
         def _assert_formats(test_data, expected):
-            self.assertEqual(types.AW_INTEGER.format(test_data), expected)
+            self.assertEqual(expected, types.AW_INTEGER.format(test_data))
 
         _assert_formats(1, '1')
         _assert_formats('1', '1')
@@ -355,8 +355,8 @@ class TestTypeInteger(TestCase):
     def test_format_valid_data_with_format_string(self):
         def _assert_formats(test_data, format_string, expected):
             self.assertEqual(
-                types.AW_INTEGER.format(test_data, format_string=format_string),
-                expected
+                expected,
+                types.AW_INTEGER.format(test_data, format_string=format_string)
             )
 
         _assert_formats(None, '{:01d}', '0')
@@ -382,24 +382,24 @@ class TestTypeInteger(TestCase):
 
 class TestTypeFloat(TestCase):
     def test_coerces_expected_primitive(self):
-        self.assertEqual(type(types.AW_FLOAT(None)), float)
+        self.assertEqual(float, type(types.AW_FLOAT(None)))
 
     def test_null(self):
-        self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.NULL)
+        self.assertEqual(types.AW_FLOAT.NULL, types.AW_FLOAT(None))
         self.assertNotEqual(types.AW_FLOAT(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
-        self.assertEqual(types.AW_FLOAT.normalize(-1), -1)
-        self.assertEqual(types.AW_FLOAT.normalize(0), 0)
-        self.assertEqual(types.AW_FLOAT.normalize(1), 1)
+        self.assertEqual(-1, types.AW_FLOAT.normalize(-1))
+        self.assertEqual(0, types.AW_FLOAT.normalize(0))
+        self.assertEqual(1, types.AW_FLOAT.normalize(1))
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.NULL)
+        self.assertEqual(types.AW_FLOAT.NULL, types.AW_FLOAT(None))
 
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
-            self.assertEqual(types.AW_FLOAT(test_data), expected)
+            self.assertEqual(expected, types.AW_FLOAT(test_data))
 
         _assert_returns(None, 0.0)
         _assert_returns(-1, -1.0)
@@ -432,7 +432,7 @@ class TestTypeFloat(TestCase):
 
     def test_format_valid_data(self):
         def _assert_formats(test_data, expected):
-            self.assertEqual(types.AW_FLOAT.format(test_data), expected)
+            self.assertEqual(expected, types.AW_FLOAT.format(test_data))
 
         _assert_formats(None, '0.0')
         _assert_formats(1, '1.0')
@@ -445,8 +445,8 @@ class TestTypeFloat(TestCase):
     def test_format_valid_data_with_format_string(self):
         def _assert_formats(test_data, format_string, expected):
             self.assertEqual(
-                types.AW_FLOAT.format(test_data, format_string=format_string),
-                expected
+                expected,
+                types.AW_FLOAT.format(test_data, format_string=format_string)
             )
 
         _assert_formats(None, '{0:.1f}', '0.0')
@@ -484,7 +484,7 @@ class TestTypeFloat(TestCase):
     def test_bounded_low(self):
         def _aE(test_input, low, expected):
             actual = types.AW_FLOAT.bounded(test_input, low=low)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _aE(10.0,    0, 10.0)
         _aE(1.0,     0,  1.0)
@@ -507,7 +507,7 @@ class TestTypeFloat(TestCase):
     def test_bounded_high(self):
         def _aE(test_input, high, expected):
             actual = types.AW_FLOAT.bounded(test_input, high=high)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _aE(10.0,    0,   0.0)
         _aE(1.0,     0,   0.0)
@@ -530,7 +530,7 @@ class TestTypeFloat(TestCase):
     def test_bounded_low_and_high(self):
         def _aE(test_input, low, high, expected):
             actual = types.AW_FLOAT.bounded(test_input, low=low, high=high)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _aE(10.0,    0,  0,  0.0)
         _aE(1.0,     0,  0,  0.0)
@@ -583,10 +583,10 @@ class TestTypeFloat(TestCase):
 class TestTypeTimeDate(TestCase):
     def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
-            self.assertEqual(type(types.AW_TIMEDATE(None)), str)
+            self.assertEqual(str, type(types.AW_TIMEDATE(None)))
 
     def test_null(self):
-        self.assertEqual(types.AW_TIMEDATE.NULL, 'INVALID DATE')
+        self.assertEqual('INVALID DATE', types.AW_TIMEDATE.NULL)
         with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_TIMEDATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
@@ -595,7 +595,8 @@ class TestTypeTimeDate(TestCase):
         expected = datetime.strptime('2017-07-12T20:50:15',
                                      '%Y-%m-%dT%H:%M:%S')
         self.assertEqual(
-            types.AW_TIMEDATE.normalize('2017-07-12T20:50:15.641659'), expected
+            expected,
+            types.AW_TIMEDATE.normalize('2017-07-12T20:50:15.641659')
         )
 
     def test_compare_normalized(self):
@@ -609,14 +610,14 @@ class TestTypeTimeDate(TestCase):
 
     def test_call_with_none(self):
         with self.assertRaises(types.AWTypeError):
-            self.assertEqual(types.AW_TIMEDATE(None), types.AW_TIMEDATE.NULL)
+            self.assertEqual(types.AW_TIMEDATE.NULL, types.AW_TIMEDATE(None))
 
     def test_call_with_coercible_data(self):
         expected = datetime.strptime('2017-07-12T20:50:15', '%Y-%m-%dT%H:%M:%S')
 
         def _ok(test_input):
             actual = types.AW_TIMEDATE(test_input)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _ok(expected)
         _ok('2017-07-12T20:50:15')
@@ -650,7 +651,7 @@ class TestTypeTimeDate(TestCase):
 
     def test_format_coercible_data(self):
         def _assert_formats(test_data, expected):
-            self.assertEqual(types.AW_TIMEDATE.format(test_data), expected)
+            self.assertEqual(expected, types.AW_TIMEDATE.format(test_data))
 
         _assert_formats('2017:02:03 10:20:30', '2017-02-03T102030')
         _assert_formats('2017-02-03 10:20:30', '2017-02-03T102030')
@@ -672,10 +673,10 @@ class TestTypeTimeDate(TestCase):
 class TestTypeDate(TestCase):
     def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
-            self.assertEqual(type(types.AW_DATE(None)), datetime)
+            self.assertEqual(datetime, type(types.AW_DATE(None)))
 
     def test_null(self):
-        self.assertEqual(types.AW_DATE.NULL, 'INVALID DATE')
+        self.assertEqual('INVALID DATE', types.AW_DATE.NULL)
 
         with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_DATE(None), types.BaseNullValue,
@@ -684,7 +685,7 @@ class TestTypeDate(TestCase):
     def test_normalize(self):
         def _assert_equal(test_data, expected):
             actual = types.AW_DATE.normalize(test_data)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
             self.assertTrue(isinstance(actual, datetime))
 
         expected = datetime.strptime('2017-07-12', '%Y-%m-%d')
@@ -700,32 +701,47 @@ class TestTypeDate(TestCase):
 
     def test_call_with_coercible_data_year_month_day(self):
         expected = datetime.strptime('2017-07-12', '%Y-%m-%d')
-        self.assertEqual(types.AW_DATE(expected), expected)
-        self.assertEqual(types.AW_DATE('2017-07-12'), expected)
-        self.assertEqual(types.AW_DATE('2017:07:12'), expected)
-        self.assertEqual(types.AW_DATE('2017_07_12'), expected)
-        self.assertEqual(types.AW_DATE('2017 07 12'), expected)
-        self.assertEqual(types.AW_DATE(b'2017-07-12'), expected)
-        self.assertEqual(types.AW_DATE(b'2017:07:12'), expected)
-        self.assertEqual(types.AW_DATE(b'2017_07_12'), expected)
-        self.assertEqual(types.AW_DATE(b'2017 07 12'), expected)
+
+        def _check(given):
+            actual = types.AW_DATE(given)
+            self.assertEqual(expected, actual)
+
+        _check(expected)
+        _check('2017-07-12')
+        _check('2017:07:12')
+        _check('2017_07_12')
+        _check('2017 07 12')
+        _check(b'2017-07-12')
+        _check(b'2017:07:12')
+        _check(b'2017_07_12')
+        _check(b'2017 07 12')
 
     def test_call_with_coercible_data_year_month(self):
         expected = datetime.strptime('2017-07', '%Y-%m')
-        self.assertEqual(types.AW_DATE(expected), expected)
-        self.assertEqual(types.AW_DATE('2017-07'), expected)
-        self.assertEqual(types.AW_DATE('2017:07'), expected)
-        self.assertEqual(types.AW_DATE('2017_07'), expected)
-        self.assertEqual(types.AW_DATE(b'2017-07'), expected)
-        self.assertEqual(types.AW_DATE(b'2017:07'), expected)
-        self.assertEqual(types.AW_DATE(b'2017_07'), expected)
+
+        def _check(given):
+            actual = types.AW_DATE(given)
+            self.assertEqual(expected, actual)
+
+        _check(expected)
+        _check('2017-07')
+        _check('2017:07')
+        _check('2017_07')
+        _check(b'2017-07')
+        _check(b'2017:07')
+        _check(b'2017_07')
 
     def test_call_with_coercible_data_year(self):
         expected = datetime.strptime('2017', '%Y')
-        self.assertEqual(types.AW_DATE(expected), expected)
-        self.assertEqual(types.AW_DATE('2017'), expected)
-        self.assertEqual(types.AW_DATE(b'2017'), expected)
-        self.assertEqual(types.AW_DATE(2017), expected)
+
+        def _check(given):
+            actual = types.AW_DATE(given)
+            self.assertEqual(expected, actual)
+
+        _check(expected)
+        _check('2017')
+        _check(b'2017')
+        _check(2017)
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(test_data):
@@ -935,19 +951,17 @@ class TestTypePathComponent(TestCase):
                             'BaseType default "null" must be overridden')
 
     def test_normalize_path_with_user_home(self):
-        self.assertEqual(types.AW_PATHCOMPONENT.normalize('~'),
-                         enc.encode_(USER_HOME))
-        self.assertEqual(types.AW_PATHCOMPONENT.normalize('~/'),
-                         enc.encode_(USER_HOME))
+        expected = enc.encode_(USER_HOME)
+        self.assertEqual(expected, types.AW_PATHCOMPONENT.normalize('~'))
+        self.assertEqual(expected, types.AW_PATHCOMPONENT.normalize('~/'))
 
-        expected = os.path.normpath(os.path.join(USER_HOME, 'foo'))
-        self.assertEqual(types.AW_PATHCOMPONENT.normalize('~/foo'),
-                         enc.encode_(expected))
+        expected = enc.encode_(os.path.normpath(os.path.join(USER_HOME, 'foo')))
+        self.assertEqual(expected, types.AW_PATHCOMPONENT.normalize('~/foo'))
 
     def test_normalize_path_components(self):
         def _assert_normalizes(test_data, expected):
-            self.assertEqual(types.AW_PATHCOMPONENT.normalize(test_data),
-                             expected)
+            self.assertEqual(expected,
+                             types.AW_PATHCOMPONENT.normalize(test_data))
 
         _assert_normalizes('/', b'/')
         _assert_normalizes('/foo', b'/foo')
@@ -962,7 +976,7 @@ class TestTypePathComponent(TestCase):
 
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
-            self.assertEqual(types.AW_PATHCOMPONENT(test_data), expected)
+            self.assertEqual(expected, types.AW_PATHCOMPONENT(test_data))
 
         _assert_returns('', b'')
         _assert_returns(None, b'')
@@ -975,7 +989,7 @@ class TestTypePathComponent(TestCase):
 
     def test_call_with_coercible_data_including_user_home(self):
         def _assert_returns(test_data, expected):
-            self.assertEqual(types.AW_PATHCOMPONENT(test_data), expected)
+            self.assertEqual(expected, types.AW_PATHCOMPONENT(test_data))
 
         _assert_returns(b'~', b'~')
         _assert_returns(b'~/foo', b'~/foo')
@@ -995,7 +1009,7 @@ class TestTypePathComponent(TestCase):
     def test_format(self):
         def _assert_formats(test_data, expected):
             actual = types.AW_PATHCOMPONENT.format(test_data)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _assert_formats('', '')
         _assert_formats(None, '')
@@ -1015,17 +1029,17 @@ class TestTypePathComponent(TestCase):
 
 class TestTypeString(TestCase):
     def test_coerces_expected_primitive(self):
-        self.assertEqual(type(types.AW_STRING(None)), str)
+        self.assertEqual(str, type(types.AW_STRING(None)))
 
     def test_null(self):
-        self.assertEqual(types.AW_STRING.NULL, '')
+        self.assertEqual('', types.AW_STRING.NULL)
 
         self.assertNotEqual(types.AW_STRING(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
         def _assert_normalizes(test_data, expected):
-            self.assertEqual(types.AW_STRING.normalize(test_data), expected)
+            self.assertEqual(expected, types.AW_STRING.normalize(test_data))
 
         _assert_normalizes(None, '')
         _assert_normalizes('', '')
@@ -1056,11 +1070,11 @@ class TestTypeString(TestCase):
         _assert_normalizes(True, 'True')
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_STRING(None), types.AW_STRING.NULL)
+        self.assertEqual(types.AW_STRING.NULL, types.AW_STRING(None))
 
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
-            self.assertEqual(types.AW_STRING(test_data), expected)
+            self.assertEqual(expected, types.AW_STRING(test_data))
 
         _assert_returns('', '')
         _assert_returns(' ', ' ')
@@ -1088,7 +1102,7 @@ class TestTypeString(TestCase):
 
     def test_format(self):
         def _assert_formats(test_data, expected):
-            self.assertEqual(types.AW_STRING.format(test_data), expected)
+            self.assertEqual(expected, types.AW_STRING.format(test_data))
 
         _assert_formats('', '')
         _assert_formats(' ', ' ')
@@ -1114,7 +1128,7 @@ class TestTypeString(TestCase):
 class TestTypeMimeType(TestCase):
     def test_null(self):
         self.assertEqual(types.AW_MIMETYPE.NULL, types.NullMIMEType())
-        self.assertNotEqual(types.AW_MIMETYPE(None), types.BaseNullValue,
+        self.assertNotEqual(types.BaseNullValue, types.AW_MIMETYPE(None),
                             'BaseType default "null" must be overridden')
 
         self.assertFalse(types.AW_MIMETYPE.NULL)
@@ -1122,7 +1136,7 @@ class TestTypeMimeType(TestCase):
 
     def test_normalize(self):
         def _assert_normalizes(test_data, expected):
-            self.assertEqual(types.AW_MIMETYPE.normalize(test_data), expected)
+            self.assertEqual(expected, types.AW_MIMETYPE.normalize(test_data))
 
         _assert_normalizes('asm', 'text/x-asm')
         _assert_normalizes('gz', 'application/gzip')
@@ -1160,11 +1174,11 @@ class TestTypeMimeType(TestCase):
         _assert_normalizes(b'APPLICATION/EPUB+ZIP', 'application/epub+zip')
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_MIMETYPE(None), types.AW_MIMETYPE.NULL)
+        self.assertEqual(types.AW_MIMETYPE.NULL, types.AW_MIMETYPE(None))
 
     def test_call_with_coercible_data(self):
         def _assert_coerces(test_data, expected):
-            self.assertEqual(types.AW_MIMETYPE(test_data), expected)
+            self.assertEqual(expected, types.AW_MIMETYPE(test_data))
 
         _assert_coerces('pdf', 'application/pdf')
         _assert_coerces('.pdf', 'application/pdf')
@@ -1211,8 +1225,8 @@ class TestTypeMimeType(TestCase):
 
     def test_call_with_noncoercible_data(self):
         def _assert_uncoercible(test_data):
-            self.assertEqual(types.AW_MIMETYPE(test_data),
-                             types.AW_MIMETYPE.NULL)
+            self.assertEqual(types.AW_MIMETYPE.NULL,
+                             types.AW_MIMETYPE(test_data))
 
         _assert_uncoercible(None)
         _assert_uncoercible(False)
@@ -1227,7 +1241,7 @@ class TestTypeMimeType(TestCase):
 
     def test_format(self):
         def _assert_formats(test_data, expected):
-            self.assertEqual(types.AW_MIMETYPE.format(test_data), expected)
+            self.assertEqual(expected, types.AW_MIMETYPE.format(test_data))
 
         _unknown = types.NULL_AW_MIMETYPE.AS_STRING
 
@@ -1289,7 +1303,7 @@ class TestTypeMimeType(TestCase):
 class TestTryCoerce(TestCase):
     def _test(self, given, expect, type_):
         actual = types.try_coerce(given)
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
         if isinstance(actual, list):
             for a in actual:
@@ -1366,7 +1380,7 @@ class TestCoercerFor(TestCase):
     def _check(self, test_input, expected):
         assert isinstance(expected, types.BaseType)
         actual = types.coercer_for(test_input)
-        self.assertEqual(actual, expected)
+        self.assertEqual(expected, actual)
 
     def test_none(self):
         actual = types.coercer_for(None)
@@ -1450,7 +1464,7 @@ class TestForceString(TestCase):
     def test_returns_expected_value(self):
         def _aE(test_input, expected):
             actual = types.force_string(test_input)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _aE(1, '1')
         _aE(1.0, '1.0')
@@ -1505,7 +1519,7 @@ class TestForceStringList(TestCase):
         for given, expect in self.GIVEN_EXPECT:
             with self.subTest(given):
                 actual = types.force_stringlist(given)
-                self.assertEqual(actual, expect)
+                self.assertEqual(expect, actual)
 
 
 class TestTryParseDate(TestCase):
@@ -1514,7 +1528,7 @@ class TestTryParseDate(TestCase):
 
         def _assert_match(test_data):
             actual = types.try_parse_date(test_data)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
             self.assertTrue(isinstance(actual, datetime))
 
         _assert_match('2017 09 14')
@@ -1557,7 +1571,7 @@ class TestTryParseDate(TestCase):
 class TestTryParseDateTime(TestCase):
     def _assert_equal(self, test_data, expected):
         actual = types.try_parse_datetime(test_data)
-        self.assertEqual(actual, expected)
+        self.assertEqual(expected, actual)
         self.assertTrue(isinstance(actual, datetime))
 
     def test_parses_valid_datetime(self):
@@ -1591,9 +1605,9 @@ class TestRegexLooseDate(TestCase):
         def _assert_matches(test_data):
             actual = types.RE_LOOSE_DATE.match(test_data)
             self.assertIsNotNone(actual)
-            self.assertEqual(actual.group(1), '2017')
-            self.assertEqual(actual.group(2), '09')
-            self.assertEqual(actual.group(3), '14')
+            self.assertEqual('2017', actual.group(1))
+            self.assertEqual('09', actual.group(2))
+            self.assertEqual('14', actual.group(3))
 
         _assert_matches('20170914')
         _assert_matches('2017-0914')
@@ -1633,9 +1647,9 @@ class TestRegexLooseTime(TestCase):
         def _assert_matches(test_data):
             actual = types.RE_LOOSE_TIME.match(test_data)
             self.assertIsNotNone(actual)
-            self.assertEqual(actual.group(1), '16')
-            self.assertEqual(actual.group(2), '33')
-            self.assertEqual(actual.group(3), '59')
+            self.assertEqual('16', actual.group(1))
+            self.assertEqual('33', actual.group(2))
+            self.assertEqual('59', actual.group(3))
 
         _assert_matches('163359')
         _assert_matches('16-3359')
@@ -1675,12 +1689,12 @@ class TestRegexLooseDateTime(TestCase):
         def _assert_matches(test_data):
             actual = types.RE_LOOSE_DATETIME.match(test_data)
             self.assertIsNotNone(actual)
-            self.assertEqual(actual.group(1), '2017')
-            self.assertEqual(actual.group(2), '09')
-            self.assertEqual(actual.group(3), '14')
-            self.assertEqual(actual.group(4), '16')
-            self.assertEqual(actual.group(5), '33')
-            self.assertEqual(actual.group(6), '59')
+            self.assertEqual('2017', actual.group(1))
+            self.assertEqual('09', actual.group(2))
+            self.assertEqual('14', actual.group(3))
+            self.assertEqual('16', actual.group(4))
+            self.assertEqual('33', actual.group(5))
+            self.assertEqual('59', actual.group(6))
 
         _assert_matches('20170914163359')
         _assert_matches('2017-091416-3359')
@@ -1721,13 +1735,13 @@ class TestRegexLooseDateTimeMicroseconds(TestCase):
         def _assert_matches(test_data):
             actual = types.RE_LOOSE_DATETIME_US.match(test_data)
             self.assertIsNotNone(actual)
-            self.assertEqual(actual.group(1), '2017')
-            self.assertEqual(actual.group(2), '07')
-            self.assertEqual(actual.group(3), '12')
-            self.assertEqual(actual.group(4), '20')
-            self.assertEqual(actual.group(5), '50')
-            self.assertEqual(actual.group(6), '15')
-            self.assertEqual(actual.group(7), '641659')
+            self.assertEqual('2017', actual.group(1))
+            self.assertEqual('07', actual.group(2))
+            self.assertEqual('12', actual.group(3))
+            self.assertEqual('20', actual.group(4))
+            self.assertEqual('50', actual.group(5))
+            self.assertEqual('15', actual.group(6))
+            self.assertEqual('641659', actual.group(7))
 
         _assert_matches('2017-07-12T20:50:15.641659')
         _assert_matches('2017-07-12 20:50:15.641659')
@@ -1764,7 +1778,7 @@ class TestNormalizeDate(TestCase):
         def _assert_match(test_data):
             actual = types.normalize_date(test_data)
             self.assertIsNotNone(actual)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _assert_match(expected)
         _assert_match('2017 09 14')
@@ -1796,7 +1810,7 @@ class TestNormalizeDatetimeWithTimeZone(TestCase):
         def _assert_match(test_data):
             actual = types.normalize_datetime_with_timezone(test_data)
             self.assertIsNotNone(actual)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _assert_match(expected)
         _assert_match('2017 07 12 20 50 15+0200')
@@ -1812,7 +1826,7 @@ class TestNormalizeDatetime(TestCase):
         def _assert_match(test_data):
             actual = types.normalize_datetime(test_data)
             self.assertIsNotNone(actual)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _assert_match(expected)
         _assert_match('2017 07 12 20 50 15')
@@ -1832,7 +1846,7 @@ class TestNormalizeDatetimeWithMicroseconds(TestCase):
         def _assert_match(test_data):
             actual = types.normalize_datetime_with_microseconds(test_data)
             self.assertIsNotNone(actual)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _assert_match(expected)
         _assert_match('2017-07-12T20:50:15.641659')
@@ -1853,7 +1867,7 @@ class TestListofStrings(TestCase):
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
             actual = types.listof(types.AW_STRING)(test_data)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _assert_returns([''], [''])
         _assert_returns([' '], [' '])
@@ -1888,12 +1902,12 @@ class TestListofStrings(TestCase):
 
         actual = _coercer(['a', 'b'])
         expect = ['a', 'b']
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_listof_string_passthrough_direct_call(self):
         actual = types.listof(types.AW_STRING)(['a', 'b'])
         expect = ['a', 'b']
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_listof_string_bytes(self):
         _coercer = types.listof(types.AW_STRING)
@@ -1901,19 +1915,19 @@ class TestListofStrings(TestCase):
 
         actual = _coercer([b'a', b'b'])
         expect = ['a', 'b']
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_listof_string_bytes_direct_call(self):
         actual = types.listof(types.AW_STRING)([b'a', b'b'])
         expect = ['a', 'b']
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
 
 class TestListofIntegers(TestCase):
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
             actual = types.listof(types.AW_INTEGER)(test_data)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _assert_returns([None], [0])
         _assert_returns([-1], [-1])
@@ -1954,14 +1968,14 @@ class TestListofIntegers(TestCase):
 
         actual = _coercer([1, 2])
         expect = [1, 2]
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_listof_integer_passthrough_direct_call(self):
         actual = types.listof(types.AW_INTEGER)([1, 2])
         expect = [1, 2]
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_listof_string_floats_direct_call(self):
         actual = types.listof(types.AW_INTEGER)([1.0, 2.0])
         expect = [1, 2]
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
