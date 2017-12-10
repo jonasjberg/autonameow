@@ -471,6 +471,7 @@ class Configuration(object):
             C.DEFAULT_FILESYSTEM_UPPERCASE_FILENAME
         )
 
+        # TODO: [TD0137] Add rule-specific replacements.
         _try_load_custom_postprocessing_replacements()
 
         # Handle conflicting upper-case and lower-case options.

@@ -47,6 +47,7 @@ class FilenamePostprocessor(object):
     def __call__(self, filename):
         _filename = filename
 
+        # TODO: [TD0137] Add rule-specific replacements.
         # Do replacements first as the regular expressions are case-sensitive.
         if self.regex_replacements:
             _filename = self._do_replacements(_filename,

@@ -46,6 +46,39 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0137]` __Add rule-specific replacements.__  
+    Maybe have the current replacements apply globally, as in that they are
+    always used as a final step in preparing the file name.
+    It might be useful to also allow specifying rule-specific replacements
+    that are used only if the containing rule is chosen.
+
+    Example of current configuration replacements;
+    ```yaml
+    CUSTOM_POST_PROCESSING:
+        replacements:
+            -{3,}: '--'
+            \.{2,}: '.'
+            _{2,}: '_'
+    ```
+
+    Possible rule-specific replacements:
+    ```yaml
+    Quicktime Desktop Recording:
+        CONDITIONS:
+            extractor.filesystem.xplat.basename.full: 'Untitled.mov'
+            extractor.filesystem.xplat.contents.mime_type: 'video/quicktime'
+            extractor.filesystem.xplat.pathname.full: '/Users/jonas/Desktop'
+        NAME_FORMAT: '{datetime} -- screenshot macbookpro.mov'
+        DATA_SOURCES:
+            datetime: extractor.metadata.exiftool.QuickTime:CreationDate
+        exact_match: false
+        ranking_bias: 0.9
+        CUSTOM_POST_PROCESSING:
+            replacements:
+                (bar){2,}: bar
+                foo: Gibson Rules
+    ```
+
 * `[TD0136]` Look into "requesting" already available data.
 
 * `[TD0134]` Consolidate splitting up text into "chunks".
