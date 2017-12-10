@@ -20,27 +20,26 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import os
 import re
 
+import util
 from core import constants as C
 from core import (
-    disk,
-    exceptions,
     types,
 )
-from core.config import rules
+from core.config.configuration import NewConfiguration
+from core.config.rules import get_valid_rule
 from core.config.field_parsers import (
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser,
     parse_versioning
 )
-from core.namebuilder import fields
-import util
-from util import (
-    sanity,
-    text
+from core.exceptions import (
+    ConfigurationSyntaxError,
+    ConfigError,
+    InvalidRuleError
 )
+from core.namebuilder.fields import is_valid_template_field
 from util import encoding as enc
 from util.text import remove_nonbreaking_spaces
 
@@ -48,110 +47,37 @@ from util.text import remove_nonbreaking_spaces
 log = logging.getLogger(__name__)
 
 
-# TODO: [TD0014] Possibly redesign high-level "configuration".
-#
-#       * Decouple the `Configuration` instance from I/O.
-#       * Think about separating validation and parsing of incoming
-#         configuration data from the `Configuration` class.
-
-
-class Configuration(object):
-    """
-    Container for a loaded and active configuration.
-
-    Loads and validates data from a dictionary or YAML file.
-    """
-    def __init__(self, source):
-        """
-        Instantiates a new Configuration object.
-
-        Loads configuration from a dictionary.
-        All parsing and loading happens at instantiation.
-
-        Args:
-            source: Configuration data to load as a dict.
-        """
+class ConfigurationParser(object):
+    def __init__(self):
         self._rules = []
         self._reusable_nametemplates = {}
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
         self._version = None
-        self.referenced_meowuris = set()
 
-        if not isinstance(source, dict):
-            raise TypeError('Expected Configuration source to be type dict')
+    def parse(self, config_dict):
+        self._load_reusable_nametemplates(config_dict)
+        self._load_template_fields(config_dict)
+        self._load_rules(config_dict)
+        self._load_options(config_dict)
+        self._load_version(config_dict)
 
-        self._load_from_dict(source)
+        parsed = {
+            'rules': self._rules,
+            'reusable_nametemplates': self._reusable_nametemplates,
+            'options': self._options,
+            'version': self._version,
+        }
+        new_config = NewConfiguration(
+            options=self._options,
+            rules_=self._rules,
+            reusable_nametemplates=self._reusable_nametemplates,
+            version=self._version
+        )
+        return new_config
 
-        if self.version:
-            if self.version != C.STRING_PROGRAM_VERSION:
-                log.warning('Possible configuration compatibility mismatch!')
-                log.warning('Loaded configuration created by {} (currently '
-                            'running {})'.format(self.version,
-                                                 C.STRING_PROGRAM_VERSION))
-                log.info(
-                    'The current recommended procedure is to move the '
-                    'current config to a temporary location, re-run '
-                    'the program so that a new template config file is '
-                    'generated and then manually transfer rules to this file.'
-                )
-
-    @classmethod
-    def from_file(cls, path):
-        """
-        Returns a new Configuration instantiated from data at a given path.
-
-        Args:
-            path: Path of the (YAML) file to read, as an "internal" bytestring.
-
-        Returns:
-            An instance of 'Configuration', created from the data at "path".
-
-        Raises:
-            EncodingBoundaryViolation: Argument "path" is not a bytestring.
-            ConfigReadError: The configuration file could not be read.
-            ConfigError: The configuration file is empty.
-        """
-        sanity.check_internal_bytestring(path)
-
-        try:
-            _loaded_data = disk.load_yaml_file(path)
-        except exceptions.FilesystemError as e:
-            raise exceptions.ConfigError(e)
-
-        if not _loaded_data:
-            raise exceptions.ConfigError('Read empty config: "{!s}"'.format(
-                enc.displayable_path(path)
-            ))
-
-        return cls(_loaded_data)
-
-    def _load_from_dict(self, data):
-        if not data:
-            raise exceptions.ConfigError('Attempted to load empty data')
-
-        self._data = data
-        self._load_reusable_nametemplates()
-        self._load_template_fields()
-        self._load_rules()
-        self._load_options()
-        self._load_version()
-
-        # For Debugging/development only.
-        _referenced_meowuris = sorted(self.referenced_meowuris)
-        for _meowuri in _referenced_meowuris:
-            log.debug('Configuration Rule referenced meowURI'
-                      ' "{!s}"'.format(_meowuri))
-
-    def write_to_disk(self, dest_path):
-        # TODO: This method is currently unused. Remove?
-        if os.path.exists(dest_path):
-            raise FileExistsError
-        else:
-            disk.write_yaml_file(dest_path, self._data)
-
-    def _load_reusable_nametemplates(self):
-        raw_templates = self._data.get('NAME_TEMPLATES')
+    def _load_reusable_nametemplates(self, config_dict):
+        raw_templates = config_dict.get('NAME_TEMPLATES')
         if not raw_templates:
             log.debug('Configuration does not contain any name reusable name '
                       'templates')
@@ -167,11 +93,11 @@ class Configuration(object):
             )
             name = types.force_string(raw_name)
             if not name:
-                raise exceptions.ConfigurationSyntaxError(_error)
+                raise ConfigurationSyntaxError(_error)
 
             templ = types.force_string(raw_templ)
             if not templ:
-                raise exceptions.ConfigurationSyntaxError(_error)
+                raise ConfigurationSyntaxError(_error)
 
             # Remove any non-breaking spaces in the name template.
             templ = remove_nonbreaking_spaces(templ)
@@ -179,13 +105,13 @@ class Configuration(object):
             if NameFormatConfigFieldParser.is_valid_nametemplate_string(templ):
                 validated[name] = templ
             else:
-                raise exceptions.ConfigurationSyntaxError(_error)
+                raise ConfigurationSyntaxError(_error)
 
         self._reusable_nametemplates.update(validated)
 
-    def _load_template_fields(self):
+    def _load_template_fields(self, config_dict):
         # TODO: [TD0036] Allow per-field replacements and customization.
-        raw_templatefields = self._data.get('NAME_TEMPLATE_FIELDS')
+        raw_templatefields = config_dict.get('NAME_TEMPLATE_FIELDS')
         if not raw_templatefields:
             log.debug(
                 'Configuration does not contain name template field options'
@@ -195,10 +121,11 @@ class Configuration(object):
             log.warning('Name template field options is not of type dict')
             return
 
+        validated = {}
         for raw_field, raw_options in raw_templatefields.items():
             field = types.force_string(raw_field)
-            if not field or not fields.is_valid_template_field(field):
-                raise exceptions.ConfigurationSyntaxError(
+            if not field or not is_valid_template_field(field):
+                raise ConfigurationSyntaxError(
                     'Invalid name template field: "{!s}"'.format(raw_field)
                 )
 
@@ -226,10 +153,10 @@ class Configuration(object):
                         _validated_candidates
                     )
 
-    def _load_rules(self):
-        raw_rules = self._data.get('RULES')
+    def _load_rules(self, config_dict):
+        raw_rules = config_dict.get('RULES')
         if not raw_rules:
-            raise exceptions.ConfigError(
+            raise ConfigError(
                 'The configuration file does not contain any rules'
             )
 
@@ -243,18 +170,13 @@ class Configuration(object):
             log.debug('Validating rule "{!s}" ..'.format(name))
             try:
                 valid_rule = self.to_rule_instance(raw_contents)
-            except exceptions.ConfigurationSyntaxError as e:
+            except ConfigurationSyntaxError as e:
                 log.error('Bad rule "{!s}"; {!s}'.format(name, e))
             else:
                 log.debug('Validated rule "{!s}" .. OK!'.format(name))
 
                 # Create and populate "Rule" objects with *validated* data.
                 self._rules.append(valid_rule)
-
-                # Keep track of all "meowURIs" referenced by rules.
-                self.referenced_meowuris.update(
-                    valid_rule.referenced_meowuris()
-                )
 
     def _validate_name_format(self, _raw_name_format):
         _format = types.force_string(_raw_name_format)
@@ -264,9 +186,9 @@ class Configuration(object):
         # TODO: [TD0109] Allow arbitrary name template placeholder fields.
 
         # First test if the field data is a valid name template entry,
-        if _format in self.reusable_nametemplates:
+        if _format in self._reusable_nametemplates:
             # If it is, use the format string defined in that entry.
-            return self.reusable_nametemplates.get(_format)
+            return self._reusable_nametemplates.get(_format)
         else:
             # If not, check if it is a valid format string.
             if NameFormatConfigFieldParser.is_valid_nametemplate_string(_format):
@@ -292,18 +214,18 @@ class Configuration(object):
                 "Bad rule "x"; {message}"
         """
         if 'NAME_FORMAT' not in raw_rule:
-            raise exceptions.ConfigurationSyntaxError(
+            raise ConfigurationSyntaxError(
                 'is missing name template format'
             )
         valid_format = self._validate_name_format(raw_rule.get('NAME_FORMAT'))
         if not valid_format:
-            raise exceptions.ConfigurationSyntaxError(
+            raise ConfigurationSyntaxError(
                 'uses invalid name template format'
             )
         name_template = remove_nonbreaking_spaces(valid_format)
 
         try:
-            _rule = rules.get_valid_rule(
+            _rule = get_valid_rule(
                 description=raw_rule.get('description'),
                 exact_match=raw_rule.get('exact_match'),
                 ranking_bias=raw_rule.get('ranking_bias'),
@@ -311,15 +233,15 @@ class Configuration(object):
                 conditions=raw_rule.get('CONDITIONS'),
                 data_sources=raw_rule.get('DATA_SOURCES')
             )
-        except exceptions.InvalidRuleError as e:
-            raise exceptions.ConfigurationSyntaxError(e)
+        except InvalidRuleError as e:
+            raise ConfigurationSyntaxError(e)
         else:
             return _rule
 
-    def _load_options(self):
+    def _load_options(self, config_dict):
         def _try_load_datetime_format_option(option, default):
-            if 'DATETIME_FORMAT' in self._data:
-                _value = self._data['DATETIME_FORMAT'].get(option, None)
+            if 'DATETIME_FORMAT' in config_dict:
+                _value = config_dict['DATETIME_FORMAT'].get(option, None)
                 if (_value is not None and
                         DateTimeConfigFieldParser.is_valid_datetime(_value)):
                     log.debug('Added datetime format option :: '
@@ -334,12 +256,12 @@ class Configuration(object):
                 self._options['DATETIME_FORMAT'][option] = default
             else:
                 assert False, (
-                       'Invalid internal default value "{!s}: '
-                       '{!s}"'.format(option, default))
+                    'Invalid internal default value "{!s}: '
+                    '{!s}"'.format(option, default))
 
         def _try_load_filetags_option(option, default):
-            if 'FILETAGS_OPTIONS' in self._data:
-                _value = self._data['FILETAGS_OPTIONS'].get(option)
+            if 'FILETAGS_OPTIONS' in config_dict:
+                _value = config_dict['FILETAGS_OPTIONS'].get(option)
             else:
                 _value = None
             if _value is not None:
@@ -352,8 +274,8 @@ class Configuration(object):
                 self._options['FILETAGS_OPTIONS'][option] = default
 
         def _try_load_custom_postprocessing_option(option, default):
-            if 'CUSTOM_POST_PROCESSING' in self._data:
-                _value = self._data['CUSTOM_POST_PROCESSING'].get(option)
+            if 'CUSTOM_POST_PROCESSING' in config_dict:
+                _value = config_dict['CUSTOM_POST_PROCESSING'].get(option)
             else:
                 _value = None
             if _value is not None:
@@ -370,8 +292,8 @@ class Configuration(object):
                 )
 
         def _try_load_custom_postprocessing_replacements():
-            if 'CUSTOM_POST_PROCESSING' in self._data:
-                _reps = self._data['CUSTOM_POST_PROCESSING'].get('replacements')
+            if 'CUSTOM_POST_PROCESSING' in config_dict:
+                _reps = config_dict['CUSTOM_POST_PROCESSING'].get('replacements')
                 if not _reps or not isinstance(_reps, dict):
                     return
 
@@ -405,9 +327,9 @@ class Configuration(object):
 
         def _try_load_persistence_option(option, default):
             _value = None
-            if 'PERSISTENCE' in self._data:
+            if 'PERSISTENCE' in config_dict:
                 try:
-                    _value = self._data['PERSISTENCE'].get(option)
+                    _value = config_dict['PERSISTENCE'].get(option)
                 except AttributeError:
                     pass
 
@@ -488,8 +410,8 @@ class Configuration(object):
             self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
             C.DEFAULT_FILESYSTEM_IGNORE
         )
-        if 'FILESYSTEM_OPTIONS' in self._data:
-            _user_ignores = self._data['FILESYSTEM_OPTIONS'].get('ignore')
+        if 'FILESYSTEM_OPTIONS' in config_dict:
+            _user_ignores = config_dict['FILESYSTEM_OPTIONS'].get('ignore')
             if isinstance(_user_ignores, list):
                 _user_ignores = [i for i in _user_ignores if i is not None]
                 if _user_ignores:
@@ -520,9 +442,9 @@ class Configuration(object):
             C.DEFAULT_HISTORY_FILE_ABSPATH
         )
 
-    def _load_version(self):
-        if 'COMPATIBILITY' in self._data:
-            _raw_version = self._data['COMPATIBILITY'].get('autonameow_version')
+    def _load_version(self, config_dict):
+        if 'COMPATIBILITY' in config_dict:
+            _raw_version = config_dict['COMPATIBILITY'].get('autonameow_version')
             valid_version = parse_versioning(_raw_version)
             if valid_version:
                 self._version = valid_version
@@ -532,176 +454,32 @@ class Configuration(object):
 
         log.error('Unable to read program version from configuration.')
 
-    def get(self, key_list):
-        try:
-            return util.nested_dict_get(self._options, key_list)
-        except KeyError:
-            return None
-
-    @property
-    def version(self):
-        """
-        Returns:
-            The version number of the program that wrote the configuration as
-            a Unicode string, if it is available.  Otherwise None.
-        """
-        if self._version:
-            return 'v' + '.'.join(map(str, self._version))
-        else:
-            return None
-
-    @property
-    def options(self):
-        """
-        Public interface for configuration options.
-        Returns:
-            Current and valid configuration options.
-        """
-        return self._options
-
-    @property
-    def data(self):
-        """
-        NOTE: Intended for debugging and testing!
-
-        Returns:
-            Raw configuration data as a dictionary.
-        """
-        return self._data
-
-    @property
-    def rules(self):
-        if self._rules and len(self._rules) > 0:
-            return list(self._rules)
-        else:
-            return []
-
-    @property
-    def reusable_nametemplates(self):
-        return self._reusable_nametemplates
-
-    @property
-    def name_templates(self):
-        _rule_templates = [r.name_template for r in self.rules]
-        _reusable_templates = [t for t in self.reusable_nametemplates.values()]
-        return _rule_templates + _reusable_templates
-
-    def __str__(self):
-        out = ['Written by autonameow version v{}\n\n'.format(self.version)]
-
-        for number, rule in enumerate(self.rules):
-            out.append('Rule {}:\n'.format(number + 1))
-            out.append(text.indent(str(rule), amount=4) + '\n')
-
-        out.append('\nReusable Name Templates:\n')
-        out.append(
-            text.indent(util.dump(self.reusable_nametemplates), amount=4)
-        )
-
-        out.append('\nMiscellaneous Options:\n')
-        out.append(text.indent(util.dump(self.options), amount=4))
-
-        return ''.join(out)
-
-
-class NewConfiguration(object):
-    """
-    Container for a loaded and active configuration.
-    """
-    def __init__(self, options, rules_, reusable_nametemplates, version):
-        self._rules = list(rules_)
-        self._reusable_nametemplates = dict(reusable_nametemplates)
-
-        self._options = {'DATETIME_FORMAT': {},
-                         'FILETAGS_OPTIONS': {}}
-        self._options.update(options)
-
-        self._version = version
-
-        self.referenced_meowuris = set()
-
-        if self.version:
-            if self.version != C.STRING_PROGRAM_VERSION:
-                log.warning('Possible configuration compatibility mismatch!')
-                log.warning('Loaded configuration created by {} (currently '
-                            'running {})'.format(self.version,
-                                                 C.STRING_PROGRAM_VERSION))
-                log.info(
-                    'The current recommended procedure is to move the '
-                    'current config to a temporary location, re-run '
-                    'the program so that a new template config file is '
-                    'generated and then manually transfer rules to this file.'
-                )
-
-        for rule in self._rules:
-            # Keep track of all "meowURIs" referenced by rules.
-            self.referenced_meowuris.update(
-                rule.referenced_meowuris()
-            )
-
-        # For Debugging/development only.
-        _referenced_meowuris = sorted(self.referenced_meowuris)
-        for _meowuri in _referenced_meowuris:
-            log.debug('Configuration Rule referenced meowURI'
-                      ' "{!s}"'.format(_meowuri))
-
-    def get(self, key_list):
-        try:
-            return util.nested_dict_get(self._options, key_list)
-        except KeyError:
-            return None
-
-    @property
-    def version(self):
-        """
-        Returns:
-            The version number of the program that wrote the configuration as
-            a Unicode string, if it is available.  Otherwise None.
-        """
-        if self._version:
-            return 'v' + '.'.join(map(str, self._version))
-        else:
-            return None
-
-    @property
-    def options(self):
-        """
-        Public interface for configuration options.
-        Returns:
-            Current and valid configuration options.
-        """
-        return self._options
-
-    @property
-    def rules(self):
-        if self._rules and len(self._rules) > 0:
-            return list(self._rules)
-        else:
-            return []
-
-    @property
-    def reusable_nametemplates(self):
-        return self._reusable_nametemplates
-
-    @property
-    def name_templates(self):
-        _rule_templates = [r.name_template for r in self.rules]
-        _reusable_templates = [t for t in self.reusable_nametemplates.values()]
-        return _rule_templates + _reusable_templates
-
-    def __str__(self):
-        out = ['Written by autonameow version v{}\n\n'.format(self.version)]
-
-        for number, rule in enumerate(self.rules):
-            out.append('Rule {}:\n'.format(number + 1))
-            out.append(text.indent(str(rule), amount=4) + '\n')
-
-        out.append('\nReusable Name Templates:\n')
-        out.append(
-            text.indent(util.dump(self.reusable_nametemplates), amount=4)
-        )
-
-        out.append('\nMiscellaneous Options:\n')
-        out.append(text.indent(util.dump(self.options), amount=4))
-
-        return ''.join(out)
+    # @classmethod
+    # def from_file(cls, path):
+    #     """
+    #     Returns a new Configuration instantiated from data at a given path.
+    #
+    #     Args:
+    #         path: Path of the (YAML) file to read, as an "internal" bytestring.
+    #
+    #     Returns:
+    #         An instance of 'Configuration', created from the data at "path".
+    #
+    #     Raises:
+    #         EncodingBoundaryViolation: Argument "path" is not a bytestring.
+    #         ConfigReadError: The configuration file could not be read.
+    #         ConfigError: The configuration file is empty.
+    #     """
+    #     sanity.check_internal_bytestring(path)
+    #
+    #     try:
+    #         _loaded_data = disk.load_yaml_file(path)
+    #     except FilesystemError as e:
+    #         raise ConfigError(e)
+    #
+    #     if not _loaded_data:
+    #         raise ConfigError('Read empty config: "{!s}"'.format(
+    #             enc.displayable_path(path)
+    #         ))
+    #
+    #     return cls(_loaded_data)
