@@ -296,6 +296,21 @@ MAchine Learning for LanguagE Toolkit
 > and other machine learning applications to text.
 
 
+`parserator`
+------------
+A toolkit for making domain-specific probabilistic parsers
+
+* Website: <http://parserator.datamade.us/>
+* Sources: <https://github.com/datamade/parserator>
+* Documentation: <http://parserator.rtfd.org/>
+
+> Do you have domain-specific text data that would be much more useful if you
+> could derive structure from the strings? This toolkit will help you create a
+> custom NLP model that learns from patterns in real data and then uses that
+> knowledge to process new strings automatically. All you need is some training
+> data to teach your parser about its domain.
+
+
 
 
 [1]: http://karl-voit.at
