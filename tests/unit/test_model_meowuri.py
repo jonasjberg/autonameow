@@ -202,6 +202,31 @@ class TestMeowURIEquality(TestCase):
         c = MeowURI(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
         self.assertEqual(b, c)
 
+    def test_set_membership(self):
+        a = MeowURI(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
+        b = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        c = MeowURI(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
+        d = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+
+        container = set()
+        container.add(a)
+        self.assertIn(a, container)
+        self.assertNotIn(b, container)
+        self.assertIn(c, container)
+        self.assertNotIn(d, container)
+
+        container.add(d)
+        self.assertIn(a, container)
+        self.assertIn(b, container)
+        self.assertIn(c, container)
+        self.assertIn(d, container)
+
+        container.remove(a)
+        self.assertNotIn(a, container)
+        self.assertIn(b, container)
+        self.assertNotIn(c, container)
+        self.assertIn(d, container)
+
     def test_compare_with_other_types(self):
         def _aF(test_input):
             self.assertNotEqual(self.m, test_input)
