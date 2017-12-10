@@ -44,9 +44,6 @@ from core.config.default_config import DEFAULT_CONFIG
 from util import encoding as enc
 
 
-uu.init_session_repository()
-
-
 def yaml_unavailable():
     return yaml is None, 'Failed to import "yaml"'
 
@@ -69,6 +66,10 @@ def get_temporary_config_path():
 
 @skipIf(*yaml_unavailable())
 class TestWriteConfig(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        uu.init_provider_registry()
+
     def setUp(self):
         self.dest_path = get_temporary_config_path()
         self.configuration = Configuration(DEFAULT_CONFIG)
@@ -97,6 +98,10 @@ class TestWriteConfig(TestCase):
 
 @skipIf(*yaml_unavailable())
 class TestDefaultConfig(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        uu.init_provider_registry()
+
     def setUp(self):
         self.configuration = Configuration(DEFAULT_CONFIG)
 
@@ -176,6 +181,10 @@ class TestConfigurationInit(TestCase):
 
 @skipIf(*yaml_unavailable())
 class TestConfigurationDataAccess(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        uu.init_provider_registry()
+
     def setUp(self):
         self.configuration = Configuration(DEFAULT_CONFIG)
         self.maxDiff = None
