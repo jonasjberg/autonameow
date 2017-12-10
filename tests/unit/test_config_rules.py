@@ -316,14 +316,16 @@ class TestGetValidRuleCondition(TestCase):
 class TestIsValidSourceSpecification(TestCase):
     def test_empty_source_returns_false(self):
         def _aF(test_input):
-            self.assertFalse(is_valid_source(test_input))
+            with uu.capture_stderr() as _:
+                self.assertFalse(is_valid_source(test_input))
 
         _aF(None)
         _aF('')
 
     def test_bad_source_returns_false(self):
         def _aF(test_input):
-            self.assertFalse(is_valid_source(test_input))
+            with uu.capture_stderr() as _:
+                self.assertFalse(is_valid_source(test_input))
 
         _aF(None)
         _aF('')
