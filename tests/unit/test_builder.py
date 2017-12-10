@@ -20,8 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-
 from unittest import TestCase
+from unittest.mock import (
+    MagicMock,
+    patch
+)
 
 from core.namebuilder.builder import (
     FilenamePostprocessor
@@ -29,10 +32,13 @@ from core.namebuilder.builder import (
 
 
 class TestFilenamePostprocessor(TestCase):
+    @patch('core.namebuilder.builder.ui', MagicMock())
     def __check_call(self, **kwargs):
         given = kwargs.pop('given')
         expect = kwargs.pop('expect')
+
         p = FilenamePostprocessor(**kwargs)
+
         actual = p(given)
         self.assertEqual(actual, expect)
 
@@ -76,4 +82,13 @@ class TestFilenamePostprocessor(TestCase):
             (re.compile(r' '), 'X'),
         ]
         self.__check_call(given='Foo Bar', expect='MjaoXBar',
+                          regex_replacements=reps)
+
+    def test_three_replacements(self):
+        reps = [
+            (re.compile(r'Foo'), 'Mjao'),
+            (re.compile(r' '), 'X'),
+            (re.compile(r'(bar){2,}'), 'bar'),
+        ]
+        self.__check_call(given='Foo barbar Bar', expect='MjaoXbarXBar',
                           regex_replacements=reps)
