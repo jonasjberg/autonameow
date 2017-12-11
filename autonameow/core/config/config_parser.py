@@ -50,31 +50,31 @@ log = logging.getLogger(__name__)
 
 class ConfigurationParser(object):
     def __init__(self):
-        self._reusable_nametemplates = {}
         self._options = {}
         self._version = None
 
     def parse(self, config_dict):
         # TODO: Make sure that resetting instance attributes is not needed..
-        self._reusable_nametemplates = {}
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
         self._version = None
 
-        self._reusable_nametemplates.update(
-            self._load_reusable_nametemplates(config_dict)
-        )
+        _reusable_nametemplates = self._load_reusable_nametemplates(config_dict)
         self._options.update(
             self._load_template_fields(config_dict)
         )
-        _rules = self._load_rules(config_dict)
+
+        rule_parser = ConfigurationRuleParser(_reusable_nametemplates)
+        _raw_rules = config_dict.get('RULES')
+        _rules = rule_parser.parse(_raw_rules)
+
         self._load_options(config_dict)
         self._load_version(config_dict)
 
         new_config = Configuration(
             options=self._options,
             rules_=_rules,
-            reusable_nametemplates=self._reusable_nametemplates,
+            reusable_nametemplates=_reusable_nametemplates,
             version=self._version
         )
         return new_config
@@ -161,95 +161,6 @@ class ConfigurationParser(object):
                     )
 
         return validated
-
-    def _load_rules(self, config_dict):
-        validated = []
-
-        raw_rules = config_dict.get('RULES')
-        if not raw_rules:
-            raise ConfigError(
-                'The configuration file does not contain any rules'
-            )
-
-        for raw_name, raw_contents in raw_rules.items():
-            name = types.force_string(raw_name)
-            if not name:
-                log.error('Skipped rule with bad name: "{!s}"'.format(raw_name))
-                continue
-
-            raw_contents.update({'description': name})
-            log.debug('Validating rule "{!s}" ..'.format(name))
-            try:
-                valid_rule = self.to_rule_instance(raw_contents)
-            except ConfigurationSyntaxError as e:
-                log.error('Bad rule "{!s}"; {!s}'.format(name, e))
-            else:
-                log.debug('Validated rule "{!s}" .. OK!'.format(name))
-
-                # Create and populate "Rule" objects with *validated* data.
-                validated.append(valid_rule)
-
-        return validated
-
-    def _validate_name_format(self, _raw_name_format):
-        _format = types.force_string(_raw_name_format)
-        if not _format:
-            return None
-
-        # TODO: [TD0109] Allow arbitrary name template placeholder fields.
-
-        # First test if the field data is a valid name template entry,
-        if _format in self._reusable_nametemplates:
-            # If it is, use the format string defined in that entry.
-            return self._reusable_nametemplates.get(_format)
-        else:
-            # If not, check if it is a valid format string.
-            if NameFormatConfigFieldParser.is_valid_nametemplate_string(_format):
-                return _format
-
-        return None
-
-    def to_rule_instance(self, raw_rule):
-        """
-        Validates one "raw" rule from a configuration and returns an
-        instance of the 'Rule' class, representing the "raw" rule.
-
-        Args:
-            raw_rule: A single rule entry from a configuration.
-
-        Returns:
-            An instance of the 'Rule' class representing the given rule.
-
-        Raises:
-            ConfigurationSyntaxError: The given rule contains bad data,
-                making instantiating a 'Rule' object impossible.
-                Note that the message will be used in the following sentence:
-                "Bad rule "x"; {message}"
-        """
-        if 'NAME_FORMAT' not in raw_rule:
-            raise ConfigurationSyntaxError(
-                'is missing name template format'
-            )
-        valid_format = self._validate_name_format(raw_rule.get('NAME_FORMAT'))
-        if not valid_format:
-            raise ConfigurationSyntaxError(
-                'uses invalid name template format'
-            )
-        name_template = remove_nonbreaking_spaces(valid_format)
-
-        try:
-            _rule = get_valid_rule(
-                description=raw_rule.get('description'),
-                exact_match=raw_rule.get('exact_match'),
-                ranking_bias=raw_rule.get('ranking_bias'),
-                name_template=name_template,
-                conditions=raw_rule.get('CONDITIONS'),
-                data_sources=raw_rule.get('DATA_SOURCES')
-            )
-        except InvalidRuleError as e:
-            raise ConfigurationSyntaxError(e)
-        else:
-            return _rule
 
     def _load_options(self, config_dict):
         def _try_load_datetime_format_option(option, default):
@@ -505,16 +416,16 @@ class ConfigurationRuleParser(object):
             self._reusable_nametemplates = dict()
 
     def parse(self, rules_dict):
+        if not rules_dict:
+            raise ConfigError(
+                'The configuration file does not contain any rules'
+            )
+
         validated = self._load_rules(rules_dict)
         return validated
 
     def _load_rules(self, rules_dict):
         validated = []
-
-        if not rules_dict:
-            raise ConfigError(
-                'The configuration file does not contain any rules'
-            )
 
         for raw_name, raw_contents in rules_dict.items():
             name = types.force_string(raw_name)
@@ -525,7 +436,7 @@ class ConfigurationRuleParser(object):
             raw_contents.update({'description': name})
             log.debug('Validating rule "{!s}" ..'.format(name))
             try:
-                valid_rule = self.to_rule_instance(raw_contents)
+                valid_rule = self._to_rule_instance(raw_contents)
             except ConfigurationSyntaxError as e:
                 log.error('Bad rule "{!s}"; {!s}'.format(name, e))
             else:
@@ -536,7 +447,7 @@ class ConfigurationRuleParser(object):
 
         return validated
 
-    def to_rule_instance(self, raw_rule):
+    def _to_rule_instance(self, raw_rule):
         """
         Validates one "raw" rule from a configuration and returns an
         instance of the 'Rule' class, representing the "raw" rule.
