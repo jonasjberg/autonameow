@@ -50,44 +50,48 @@ log = logging.getLogger(__name__)
 
 class ConfigurationParser(object):
     def __init__(self):
-        self._rules = []
+        self._reusable_nametemplates = {}
+        self._options = {}
+        self._version = None
+
+    def parse(self, config_dict):
+        # TODO: Make sure that resetting instance attributes is not needed..
         self._reusable_nametemplates = {}
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
         self._version = None
 
-    def parse(self, config_dict):
-        self._load_reusable_nametemplates(config_dict)
-        self._load_template_fields(config_dict)
-        self._load_rules(config_dict)
+        self._reusable_nametemplates.update(
+            self._load_reusable_nametemplates(config_dict)
+        )
+        self._options.update(
+            self._load_template_fields(config_dict)
+        )
+        _rules = self._load_rules(config_dict)
         self._load_options(config_dict)
         self._load_version(config_dict)
 
-        # parsed = {
-        #     'rules': self._rules,
-        #     'reusable_nametemplates': self._reusable_nametemplates,
-        #     'options': self._options,
-        #     'version': self._version,
-        # }
         new_config = Configuration(
             options=self._options,
-            rules_=self._rules,
+            rules_=_rules,
             reusable_nametemplates=self._reusable_nametemplates,
             version=self._version
         )
         return new_config
 
-    def _load_reusable_nametemplates(self, config_dict):
+    @staticmethod
+    def _load_reusable_nametemplates(config_dict):
+        validated = {}
+
         raw_templates = config_dict.get('NAME_TEMPLATES')
         if not raw_templates:
             log.debug('Configuration does not contain any name reusable name '
                       'templates')
-            return
+            return validated
         if not isinstance(raw_templates, dict):
             log.debug('Configuration templates is not of type dict')
-            return
+            return validated
 
-        validated = {}
         for raw_name, raw_templ in raw_templates.items():
             _error = 'Got invalid name template: "{!s}": {!s}"'.format(
                 raw_name, raw_templ
@@ -108,21 +112,23 @@ class ConfigurationParser(object):
             else:
                 raise ConfigurationSyntaxError(_error)
 
-        self._reusable_nametemplates.update(validated)
+        return validated
 
-    def _load_template_fields(self, config_dict):
+    @staticmethod
+    def _load_template_fields(config_dict):
         # TODO: [TD0036] Allow per-field replacements and customization.
+        validated = {}
+
         raw_templatefields = config_dict.get('NAME_TEMPLATE_FIELDS')
         if not raw_templatefields:
             log.debug(
                 'Configuration does not contain name template field options'
             )
-            return
+            return validated
         if not isinstance(raw_templatefields, dict):
             log.warning('Name template field options is not of type dict')
-            return
+            return validated
 
-        validated = {}
         for raw_field, raw_options in raw_templatefields.items():
             field = types.force_string(raw_field)
             if not field or not is_valid_template_field(field):
@@ -137,24 +143,28 @@ class ConfigurationParser(object):
                     try:
                         compiled_pat = re.compile(_pat, re.IGNORECASE)
                     except re.error:
-                        log.warning(
+                        raise ConfigurationSyntaxError(
                             'Malformed regular expression: "{!s}"'.format(_pat)
                         )
-                    else:
-                        log.debug(
-                            'Added name template field pattern :: Match: "{!s}"'
-                            ' Replace: "{!s}"'.format(_pat, repl)
-                        )
-                        _validated_candidates.append(compiled_pat)
+
+                    log.debug(
+                        'Added name template field pattern :: Match: "{!s}"'
+                        ' Replace: "{!s}"'.format(_pat, repl)
+                    )
+                    _validated_candidates.append(compiled_pat)
 
                 if _validated_candidates:
                     util.nested_dict_set(
-                        self._options,
+                        validated,
                         ['NAME_TEMPLATE_FIELDS', field, 'candidates', repl],
                         _validated_candidates
                     )
 
+        return validated
+
     def _load_rules(self, config_dict):
+        validated = []
+
         raw_rules = config_dict.get('RULES')
         if not raw_rules:
             raise ConfigError(
@@ -177,7 +187,9 @@ class ConfigurationParser(object):
                 log.debug('Validated rule "{!s}" .. OK!'.format(name))
 
                 # Create and populate "Rule" objects with *validated* data.
-                self._rules.append(valid_rule)
+                validated.append(valid_rule)
+
+        return validated
 
     def _validate_name_format(self, _raw_name_format):
         _format = types.force_string(_raw_name_format)

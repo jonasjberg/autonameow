@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
 import sys
 from unittest import (
     skipIf,
@@ -36,7 +37,10 @@ except ImportError:
 import unit.utils as uu
 import unit.constants as uuconst
 from core.config.config_parser import ConfigurationParser
-from core.exceptions import EncodingBoundaryViolation
+from core.exceptions import (
+    ConfigurationSyntaxError,
+    EncodingBoundaryViolation
+)
 
 
 def yaml_unavailable():
@@ -44,8 +48,176 @@ def yaml_unavailable():
 
 
 class TestConfigurationParser(TestCase):
-    # TODO: ..
-    pass
+    @classmethod
+    def setUpClass(cls):
+        uu.init_provider_registry()
+
+    def setUp(self):
+        self.p = ConfigurationParser()
+
+    def test__load_reusable_nametemplates_returns_empty_if_missing(self):
+        config_dict = dict()
+        actual = self.p._load_reusable_nametemplates(config_dict)
+        expect = dict()
+        self.assertEqual(expect, actual)
+
+    def test__load_reusable_nametemplates_returns_empty_if_wrong_type(self):
+        config_dict = {'NAME_TEMPLATES': ['foo']}
+        actual = self.p._load_reusable_nametemplates(config_dict)
+        expect = dict()
+        self.assertEqual(expect, actual)
+
+    def test__load_reusable_nametemplates_returns_empty_if_none(self):
+        config_dict = {'NAME_TEMPLATES': None}
+        actual = self.p._load_reusable_nametemplates(config_dict)
+        expect = dict()
+        self.assertEqual(expect, actual)
+
+    def test__load_reusable_nametemplates_returns_empty_if_empty_dict(self):
+        config_dict = {'NAME_TEMPLATES': dict()}
+        actual = self.p._load_reusable_nametemplates(config_dict)
+        expect = dict()
+        self.assertEqual(expect, actual)
+
+    def test__load_reusable_nametemplates_returns_one_as_expected(self):
+        config_dict = {
+            'NAME_TEMPLATES': {
+                'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}'
+            }
+        }
+        actual = self.p._load_reusable_nametemplates(config_dict)
+        expect = {
+            'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}'
+        }
+        self.assertEqual(expect, actual)
+
+    def test__load_reusable_nametemplates_returns_two_as_expected(self):
+        config_dict = {
+            'NAME_TEMPLATES': {
+                'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}',
+                'default_photo': '{datetime} {description} -- {tags}.{extension}'
+            }
+        }
+        actual = self.p._load_reusable_nametemplates(config_dict)
+        expect = {
+            'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}',
+            'default_photo': '{datetime} {description} -- {tags}.{extension}'
+        }
+        self.assertEqual(expect, actual)
+
+    def test__load_template_fields_returns_empty_if_missing(self):
+        config_dict = dict()
+        actual = self.p._load_template_fields(config_dict)
+        expect = dict()
+        self.assertEqual(expect, actual)
+
+    def test__load_template_fields_returns_empty_if_wrong_type(self):
+        config_dict = {'NAME_TEMPLATE_FIELDS': ['foo']}
+        actual = self.p._load_template_fields(config_dict)
+        expect = dict()
+        self.assertEqual(expect, actual)
+
+    def test__load_template_fields_returns_empty_if_none(self):
+        config_dict = {'NAME_TEMPLATE_FIELDS': None}
+        actual = self.p._load_template_fields(config_dict)
+        expect = dict()
+        self.assertEqual(expect, actual)
+
+    def test__load_template_fields_returns_empty_if_empty_dict(self):
+        config_dict = {'NAME_TEMPLATE_FIELDS': dict()}
+        actual = self.p._load_template_fields(config_dict)
+        expect = dict()
+        self.assertEqual(expect, actual)
+
+    def test__load_template_fields_returns_one_as_expected(self):
+        config_dict = {
+            'NAME_TEMPLATE_FIELDS': {
+                'publisher': {
+                    'candidates': {
+                        'FeedBooks': [
+                            'This book is brought to you by Feedbooks',
+                            'http://www.feedbooks.com'
+                        ]
+                    }
+                }
+            }
+        }
+        actual = self.p._load_template_fields(config_dict)
+        expect = {
+            'NAME_TEMPLATE_FIELDS': {
+                'publisher': {
+                    'candidates': {
+                        'FeedBooks': [
+                            re.compile('This book is brought to you by Feedbooks', re.IGNORECASE),
+                            re.compile('http://www.feedbooks.com', re.IGNORECASE)
+                        ]
+                    }
+                }
+            }
+        }
+        self.assertEqual(expect, actual)
+
+    def test__load_template_fields_returns_two_as_expected(self):
+        config_dict = {
+            'NAME_TEMPLATE_FIELDS': {
+                'publisher': {
+                    'candidates': {
+                        'FeedBooks': [
+                            'This book is brought to you by Feedbooks',
+                            'http://www.feedbooks.com'
+                        ],
+                        'ProjectGutenberg': [
+                            'Project Gutenberg',
+                            'www.gutenberg.net'
+                        ]
+                    }
+                }
+            }
+        }
+        actual = self.p._load_template_fields(config_dict)
+        expect = {
+            'NAME_TEMPLATE_FIELDS': {
+                'publisher': {
+                    'candidates': {
+                        'FeedBooks': [
+                            re.compile('This book is brought to you by Feedbooks', re.IGNORECASE),
+                            re.compile('http://www.feedbooks.com', re.IGNORECASE)
+                        ],
+                        'ProjectGutenberg': [
+                            re.compile('Project Gutenberg', re.IGNORECASE),
+                            re.compile('www.gutenberg.net', re.IGNORECASE)
+                        ]
+                    }
+                }
+            }
+        }
+        self.assertEqual(expect, actual)
+
+    def test__load_template_fields_raises_exception_given_invalid_field(self):
+        config_dict = {
+            'NAME_TEMPLATE_FIELDS': {
+                '______': {
+                    'candidates': {
+                        'foo': ['bar']
+                    }
+                }
+            }
+        }
+        with self.assertRaises(ConfigurationSyntaxError):
+            _ = self.p._load_template_fields(config_dict)
+
+    def test__load_template_fields_raises_exception_given_bad_regex(self):
+        config_dict = {
+            'NAME_TEMPLATE_FIELDS': {
+                'title': {
+                    'candidates': {
+                        'bad_regex': ['[[[']
+                    }
+                }
+            }
+        }
+        with self.assertRaises(ConfigurationSyntaxError):
+            _ = self.p._load_template_fields(config_dict)
 
 
 @skipIf(*yaml_unavailable())
