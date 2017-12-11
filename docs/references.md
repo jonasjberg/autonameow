@@ -60,6 +60,9 @@ Implementing Plugin Systems
   The Python Standard Library by Example. Pearson, Hellmann D. 2011.
   Chapter 18, page 1178.
 
+* [Fundamental concepts of plugin infrastructures][7]  
+  Eli Bendersky's website, 2012-08-07.
+
 
 
 [1]: https://preprints.cern.ch/record/2039361/files/CERN-THESIS-2015-105.pdf
@@ -68,3 +71,4 @@ Implementing Plugin Systems
 [4]: http://repositorio.furg.br/bitstream/handle/1/1701/A%20CLASSIFICATION-BASED%20APPROACH%20FOR.pdf?sequence=1
 [5]: http://people.ischool.berkeley.edu/~dbamman/pubs/pdf/jcdl2017.pdf
 [6]: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3893659/
+[7]: https://eli.thegreenplace.net/2012/08/07/fundamental-concepts-of-plugin-infrastructures
