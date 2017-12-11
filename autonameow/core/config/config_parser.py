@@ -30,7 +30,6 @@ from core.config.rules import get_valid_rule
 from core.config.field_parsers import (
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser,
-    parse_versioning
 )
 from core.disk import load_yaml_file
 from core.exceptions import (
@@ -510,3 +509,37 @@ class ConfigurationRuleParser(object):
                 validated.append(valid_rule)
 
         return validated
+
+
+def parse_versioning(semver_string):
+    """
+    Validates a "raw" version number string.
+
+    The version number is expected to be a Unicode string on the form 'v1.2.3',
+    where the initial 'v' is optional;  I.E. '111.222.333' is also valid.
+
+    Args:
+        semver_string: The version number to validate as a Unicode string.
+
+    Returns:
+        A tuple of three integers representing the "major", "minor" and
+        "patch" version numbers.  Or None if the validation fails.
+    """
+    if not semver_string or not isinstance(semver_string, str):
+        return None
+    if not semver_string.strip():
+        return None
+
+    RE_VERSION_NUMBER = re.compile(r'v?(\d+)\.(\d+)\.(\d+)')
+    match = RE_VERSION_NUMBER.search(semver_string)
+    if match:
+        try:
+            major = int(match.group(1))
+            minor = int(match.group(2))
+            patch = int(match.group(3))
+        except TypeError:
+            pass
+        else:
+            return major, minor, patch
+
+    return None

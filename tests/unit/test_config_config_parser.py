@@ -36,14 +36,16 @@ except ImportError:
 
 import unit.utils as uu
 import unit.constants as uuconst
+from core import constants as C
 from core.config.config_parser import (
     ConfigurationParser,
-    ConfigurationRuleParser
+    ConfigurationRuleParser,
+    parse_versioning
 )
 from core.exceptions import (
+    ConfigError,
     ConfigurationSyntaxError,
     EncodingBoundaryViolation,
-    ConfigError
 )
 
 
@@ -281,3 +283,90 @@ class TestConfigurationRuleParser(TestCase):
 
         with self.assertRaises(ConfigError):
             _ = rule_parser.parse(rules_dict)
+
+
+class TestValidateVersionNumber(TestCase):
+    def test_valid_version_number_returns_expected(self):
+        def _assert_equal(test_input, expected):
+            actual = parse_versioning(test_input)
+            self.assertTrue(isinstance(actual, tuple))
+            self.assertEqual(actual, expected)
+
+        _assert_equal('0.0.0', (0, 0, 0))
+        _assert_equal('0.4.6', (0, 4, 6))
+        _assert_equal('1.2.3', (1, 2, 3))
+        _assert_equal('9.9.9', (9, 9, 9))
+        _assert_equal('10.11.12', (10, 11, 12))
+        _assert_equal('1.2.34', (1, 2, 34))
+        _assert_equal('1.23.4', (1, 23, 4))
+        _assert_equal('12.3.4', (12, 3, 4))
+        _assert_equal('12.3.45', (12, 3, 45))
+        _assert_equal('12.34.5', (12, 34, 5))
+        _assert_equal('12.34.56', (12, 34, 56))
+        _assert_equal('1337.1337.1337', (1337, 1337, 1337))
+
+        _assert_equal('v0.0.0', (0, 0, 0))
+        _assert_equal('v0.4.6', (0, 4, 6))
+        _assert_equal('v1.2.3', (1, 2, 3))
+        _assert_equal('v9.9.9', (9, 9, 9))
+        _assert_equal('v10.11.12', (10, 11, 12))
+        _assert_equal('v1.2.34', (1, 2, 34))
+        _assert_equal('v1.23.4', (1, 23, 4))
+        _assert_equal('v12.3.4', (12, 3, 4))
+        _assert_equal('v12.3.45', (12, 3, 45))
+        _assert_equal('v12.34.5', (12, 34, 5))
+        _assert_equal('v12.34.56', (12, 34, 56))
+        _assert_equal('v1337.1337.1337', (1337, 1337, 1337))
+
+    def test_invalid_version_number_returns_none(self):
+        def _assert_none(test_data):
+            actual = parse_versioning(test_data)
+            self.assertIsNone(actual)
+
+        _assert_none(None)
+        _assert_none([])
+        _assert_none({})
+        _assert_none('')
+        _assert_none(b'')
+        _assert_none(' ')
+        _assert_none(b' ')
+        _assert_none('0.0')
+        _assert_none('1.2')
+        _assert_none('1.2.x')
+        _assert_none('1.2 x')
+        _assert_none('1.2 3')
+        _assert_none('1 2.3')
+        _assert_none('1 2 3')
+        _assert_none('€.2.3')
+        _assert_none('€.%.3')
+        _assert_none('€.%.&')
+        _assert_none(b'0.0')
+        _assert_none(b'1.2')
+        _assert_none(b'1.2.x')
+        _assert_none(b'1.2 x')
+        _assert_none(b'1.2 3')
+        _assert_none(b'1 2.3')
+        _assert_none(b'1 2 3')
+        _assert_none('€.2.3'.encode(C.DEFAULT_ENCODING))
+        _assert_none('€.%.3'.encode(C.DEFAULT_ENCODING))
+        _assert_none('€.%.&'.encode(C.DEFAULT_ENCODING))
+        _assert_none('v0.0')
+        _assert_none('v1.2')
+        _assert_none('v1.2.x')
+        _assert_none('v1.2 x')
+        _assert_none('v1.2 3')
+        _assert_none('v1 2.3')
+        _assert_none('v1 2 3')
+        _assert_none('v€.2.3')
+        _assert_none('v€.%.3')
+        _assert_none('v€.%.&')
+        _assert_none(b'v0.0')
+        _assert_none(b'v1.2')
+        _assert_none(b'v1.2.x')
+        _assert_none(b'v1.2 x')
+        _assert_none(b'v1.2 3')
+        _assert_none(b'v1 2.3')
+        _assert_none(b'v1 2 3')
+        _assert_none('v€.2.3'.encode(C.DEFAULT_ENCODING))
+        _assert_none('v€.%.3'.encode(C.DEFAULT_ENCODING))
+        _assert_none('v€.%.&'.encode(C.DEFAULT_ENCODING))
