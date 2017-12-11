@@ -51,13 +51,11 @@ log = logging.getLogger(__name__)
 class ConfigurationParser(object):
     def __init__(self):
         self._options = {}
-        self._version = None
 
     def parse(self, config_dict):
         # TODO: Make sure that resetting instance attributes is not needed..
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
-        self._version = None
 
         _reusable_nametemplates = self._load_reusable_nametemplates(config_dict)
         self._options.update(
@@ -69,13 +67,13 @@ class ConfigurationParser(object):
         _rules = rule_parser.parse(_raw_rules)
 
         self._load_options(config_dict)
-        self._load_version(config_dict)
+        version = self._load_version(config_dict)
 
         new_config = Configuration(
             options=self._options,
             rules_=_rules,
             reusable_nametemplates=_reusable_nametemplates,
-            version=self._version
+            version=version
         )
         return new_config
 
@@ -366,17 +364,18 @@ class ConfigurationParser(object):
             C.DEFAULT_HISTORY_FILE_ABSPATH
         )
 
-    def _load_version(self, config_dict):
+    @staticmethod
+    def _load_version(config_dict):
         if 'COMPATIBILITY' in config_dict:
             _raw_version = config_dict['COMPATIBILITY'].get('autonameow_version')
             valid_version = parse_versioning(_raw_version)
             if valid_version:
-                self._version = valid_version
-                return
+                return valid_version
             else:
                 log.debug('Read invalid version: "{!s}"'.format(_raw_version))
 
         log.error('Unable to read program version from configuration.')
+        return None
 
     def from_file(self, path):
         """
