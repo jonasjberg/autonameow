@@ -169,23 +169,18 @@ DUMMY_MAPPED_MEOWURIS = list({
 
 # Constants used to construct dummy/mock test fixtures.
 DUMMY_RAW_RULE_CONDITIONS = [
-    # Part of Rule 1
     (MEOWURI_GEN_CONTENTS_MIMETYPE, 'application/pdf'),
     (MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf'),
     (MEOWURI_FS_XPLAT_BASENAME_FULL, 'gmail.pdf'),
 
-    # Part of Rule 2
-    (MEOWURI_GEN_CONTENTS_MIMETYPE, 'image/jpeg'),
     (MEOWURI_FS_XPLAT_BASENAME_FULL, 'smulan.jpg'),
 
-    # Part of Rule 3
     (MEOWURI_GEN_CONTENTS_MIMETYPE, 'image/jpeg'),
     (MEOWURI_FS_XPLAT_BASENAME_EXT, 'jpg'),
     (MEOWURI_FS_XPLAT_BASENAME_FULL, 'DCIM*'),
     (MEOWURI_FS_XPLAT_PATHNAME_FULL, '~/Pictures/incoming'),
     (MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL, 'Defined'),
 
-    # Part of Rule 4
     (MEOWURI_GEN_CONTENTS_MIMETYPE, 'application/epub+zip'),
     (MEOWURI_FS_XPLAT_BASENAME_EXT, 'epub'),
     (MEOWURI_FS_XPLAT_BASENAME_FULL, '.*'),

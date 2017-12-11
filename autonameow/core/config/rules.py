@@ -68,6 +68,7 @@ class RuleCondition(object):
         self._parser = None
         self._meowuri = None
         self._expression = None
+        # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
 
         self.meowuri = meowuri
         self.expression = raw_expression
@@ -109,6 +110,8 @@ class RuleCondition(object):
 
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
+
+        # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
 
         if not self._get_parser_for(self.meowuri):
             raise ValueError('Found no suitable parsers for MeowURI: '
@@ -167,6 +170,27 @@ class RuleCondition(object):
             return result
         else:
             return False
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+
+        return (
+            self.expression == other.expression and
+            self.meowuri == other.meowuri
+        )
+
+    def __hash__(self):
+        # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
+        if isinstance(self.expression, list):
+            expression = self.expression
+        else:
+            expression = [self.expression]
+
+        hashed_expressions = sum(hash(x) for x in expression)
+        return hash(
+            (hashed_expressions, self.meowuri)
+        )
 
     def __str__(self):
         return '{!s}: {!s}'.format(self.meowuri, self.expression)
@@ -268,14 +292,13 @@ class Rule(object):
     @conditions.setter
     def conditions(self, valid_conditions):
         if not isinstance(valid_conditions, list):
-            raise exceptions.InvalidRuleError(
-                'Expected list. Got {!s}'.format(type(valid_conditions))
-            )
+            _msg = 'Expected list. Got {!s}'.format(type(valid_conditions))
+            raise exceptions.InvalidRuleError(_msg)
+
         for c in valid_conditions:
             if not isinstance(c, RuleCondition):
-                raise exceptions.InvalidRuleError(
-                    'Invalid condition: ({!s}) "{!s}"'.format(type(c), c)
-                )
+                _msg = 'Invalid condition: ({!s}) "{!s}"'.format(type(c), c)
+                raise exceptions.InvalidRuleError(_msg)
 
         self._conditions = valid_conditions
 
@@ -384,6 +407,33 @@ class Rule(object):
             return False
 
         return condition.evaluate(data)
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+
+        return (
+            self.conditions == other.conditions and
+            self.data_sources == other.data_sources and
+            self.description == other.description and
+            self.exact_match == other.exact_match and
+            self.name_template == other.name_template and
+            self.ranking_bias == other.ranking_bias
+        )
+
+    def __hash__(self):
+        hashed_conditions = sum(hash(c) for c in self.conditions)
+        hashed_data_sources = 0
+        for template_field, meowuri_list in self.data_sources.items():
+            partial_hash = hash(template_field) + sum(
+                hash(meowuri) for meowuri in meowuri_list
+            )
+            hashed_data_sources += partial_hash
+
+        return hash(
+            (hashed_conditions, hashed_data_sources, self.description,
+             self.exact_match, self.name_template, self.ranking_bias)
+        )
 
     def __str__(self):
         return util.dump(self.__dict__)

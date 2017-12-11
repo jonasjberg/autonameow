@@ -42,6 +42,10 @@ High Priority
 
 * `[TD0133]` Fix inconsistent use of MeowURIs; `MeowURI` instances and strings.
 
+* `[TD0138]` __Fix inconsistent type of `RuleCondition.expression`.__  
+  Probably best to always store a list of expressions, even when there is only one.
+  Alternatively, implement separate abstraction of an "expression".
+
 
 Medium Priority
 ---------------
@@ -122,11 +126,6 @@ Medium Priority
         * Means of providing input data to the plugin.
         * Means of executing the plugin.
         * Means of querying for all or a specific field.
-
-* `[TD0014]` Possibly redesign high-level handling of a "configuration".
-    * Decouple the `Configuration` instance from I/O.
-    * Think about separating validation and parsing of incoming
-      configuration data from the `Configuration` class.
 
 * `[TD0015]` Allow conditionals in the configuration rules.
     * Test if a rule is applicable by evaluating conditionals.

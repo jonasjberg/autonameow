@@ -38,7 +38,6 @@ from core import (
     ui,
 )
 from core import constants as C
-from core.config.configuration import Configuration
 from core.evaluate import (
     RuleMatcher,
     TemplateFieldDataResolver
@@ -204,7 +203,7 @@ class Autonameow(object):
 
     def load_config(self, path):
         try:
-            self.active_config = Configuration.from_file(path)
+            self.active_config = config.load_config_from_file(path)
         except exceptions.ConfigError as e:
             log.critical('Unable to load configuration -- {!s}'.format(e))
 

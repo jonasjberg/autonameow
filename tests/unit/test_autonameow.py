@@ -40,10 +40,9 @@ except ImportError:
         file=sys.stderr
     )
 
-from core import config
+import unit.utils as uu
 from core import constants as C
 from core.autonameow import Autonameow
-from core.config.configuration import Configuration
 
 
 def prompt_toolkit_unavailable():
@@ -251,7 +250,7 @@ class TestDoRename(TestCase):
         self.amw = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
         self.assertIsNotNone(self.amw)
 
-        _config = Configuration(config.DEFAULT_CONFIG)
+        _config = uu.get_default_config()
         self.amw.active_config = _config
 
     @patch('core.disk.rename_file')

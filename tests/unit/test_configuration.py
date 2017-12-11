@@ -20,7 +20,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import sys
 from unittest import (
     skipIf,
@@ -36,64 +35,11 @@ except ImportError:
           file=sys.stderr)
 
 import unit.utils as uu
-import unit.constants as uuconst
-from core import constants as C
-from core import exceptions
-from core.config.configuration import Configuration
 from core.config.default_config import DEFAULT_CONFIG
-from util import encoding as enc
 
 
 def yaml_unavailable():
     return yaml is None, 'Failed to import "yaml"'
-
-
-def load_yaml(path):
-    if yaml is None:
-        raise AssertionError('Missing required module "yaml". Install "pyyaml"')
-
-    with open(path, 'r', encoding=C.DEFAULT_ENCODING) as fh:
-        data = yaml.safe_load(fh)
-    return data
-
-
-def get_temporary_config_path():
-    return enc.normpath(
-        os.path.join(enc.syspath(uu.make_temp_dir()),
-                     enc.syspath(b'test_config.yaml'))
-    )
-
-
-@skipIf(*yaml_unavailable())
-class TestWriteConfig(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        uu.init_provider_registry()
-
-    def setUp(self):
-        self.dest_path = get_temporary_config_path()
-        self.configuration = Configuration(DEFAULT_CONFIG)
-
-    def test_setup(self):
-        self.assertFalse(uu.file_exists(self.dest_path),
-                         'Destination path should not already exist')
-
-    def test_load_from_dict(self):
-        self.configuration._load_from_dict(DEFAULT_CONFIG)
-        self.assertIsNotNone(self.configuration.data,
-                             'Configuration data should be loaded')
-
-    def test_write_config(self):
-        self.configuration.write_to_disk(self.dest_path)
-        self.assertTrue(uu.file_exists(self.dest_path),
-                        'Configuration file exists on disk')
-
-    def test_write_and_verify(self):
-        self.configuration.write_to_disk(self.dest_path)
-
-        expected = load_yaml(self.dest_path)
-        self.assertEqual(expected, self.configuration.data,
-                         'Loaded, written and then re-read data should match')
 
 
 @skipIf(*yaml_unavailable())
@@ -101,9 +47,7 @@ class TestDefaultConfig(TestCase):
     @classmethod
     def setUpClass(cls):
         uu.init_provider_registry()
-
-    def setUp(self):
-        self.configuration = Configuration(DEFAULT_CONFIG)
+        cls.configuration = uu.get_default_config()
 
     def test_default_configuration_exists(self):
         self.assertIsNotNone(DEFAULT_CONFIG,
@@ -121,76 +65,14 @@ class TestDefaultConfig(TestCase):
 
 
 @skipIf(*yaml_unavailable())
-class TestDefaultConfigFromFile(TestCase):
-    def setUp(self):
-        self.config_path_unicode = uu.abspath_testfile(
-            uuconst.DEFAULT_YAML_CONFIG_BASENAME
-        )
-        uu.file_exists(self.config_path_unicode)
-        uu.path_is_readable(self.config_path_unicode)
-        self.assertTrue(uu.is_internalstring(self.config_path_unicode))
-
-        self.config_path_bytestring = uu.normpath(self.config_path_unicode)
-        uu.file_exists(self.config_path_bytestring)
-        uu.path_is_readable(self.config_path_bytestring)
-        self.assertTrue(uu.is_internalbytestring(self.config_path_bytestring))
-
-    def test_loads_default_config_from_bytestring_path(self):
-        config = Configuration.from_file(self.config_path_bytestring)
-        self.assertIsNotNone(config)
-
-    def test_loading_unicode_path_raises_exception(self):
-        with self.assertRaises(exceptions.EncodingBoundaryViolation):
-            config = Configuration.from_file(self.config_path_unicode)
-
-
-@skipIf(*yaml_unavailable())
-class TestWriteDefaultConfig(TestCase):
-    # Show contents of most recent temporary log on Mac OS;
-    # cat "$(find /var/folders -type f -name "test_default_config.yaml" -exec stat -f %m %N {} \; 2>/dev/null | sort -n | cut -f2 -d  | tail -n 1)"
-
-    def setUp(self):
-        self.dest_path = get_temporary_config_path()
-        self.configuration = Configuration(DEFAULT_CONFIG)
-
-    def test_setup(self):
-        self.assertFalse(uu.file_exists(self.dest_path),
-                         'Destination path should not already exist')
-        self.assertIsNotNone(self.configuration.data,
-                             'Configuration data should exist')
-
-    def test_write_default_config_to_disk(self):
-        self.configuration.write_to_disk(self.dest_path)
-        self.assertTrue(uu.file_exists(self.dest_path),
-                        'Default configuration file exists on disk')
-
-    def test_write_default_config_to_disk_and_verify(self):
-        self.configuration.write_to_disk(self.dest_path)
-
-        expected = load_yaml(self.dest_path)
-        self.assertEqual(expected, self.configuration.data,
-                         'Loaded, written and then re-read data should match')
-
-
-@skipIf(*yaml_unavailable())
-class TestConfigurationInit(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.configuration = Configuration(DEFAULT_CONFIG)
-
-
-@skipIf(*yaml_unavailable())
 class TestConfigurationDataAccess(TestCase):
     @classmethod
     def setUpClass(cls):
         uu.init_provider_registry()
 
     def setUp(self):
-        self.configuration = Configuration(DEFAULT_CONFIG)
+        self.configuration = uu.get_default_config()
         self.maxDiff = None
-
-    def test_data_does_not_return_none(self):
-        self.assertIsNotNone(self.configuration.data)
 
     def test_rules_does_not_return_none(self):
         self.assertIsNotNone(self.configuration.rules)

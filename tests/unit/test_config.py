@@ -27,9 +27,11 @@ from unittest.mock import (
     patch
 )
 
-from core import config
-from util import encoding as enc
+import unit.constants as uuconst
 import unit.utils as uu
+from core import config
+from core.config import load_config_from_file
+from util import encoding as enc
 
 
 class TestConfigDirs(TestCase):
@@ -113,3 +115,16 @@ class TestConfigFilePath(TestCase):
             self.assertIsNotNone(config_path)
             self._assert_expected_encoding(config_path)
             self._assert_expected_basename(config_path)
+
+
+class TestLoadConfigFromFile(TestCase):
+    def test_raises_exception_given_none(self):
+        with self.assertRaises(AssertionError):
+            _ = load_config_from_file(None)
+
+    def test_loads_valid_config_from_absolute_path(self):
+        _config_path = enc.normpath(
+            uu.abspath_testfile(uuconst.DEFAULT_YAML_CONFIG_BASENAME)
+        )
+        actual = load_config_from_file(_config_path)
+        self.assertIsNotNone(actual)

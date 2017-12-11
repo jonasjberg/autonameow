@@ -32,11 +32,12 @@ except ImportError:
     )
 
 from core import constants as C
-from core.config.default_config import DEFAULT_CONFIG
 from core import (
     disk,
     exceptions,
 )
+from core.config.config_parser import ConfigurationParser
+from core.config.default_config import DEFAULT_CONFIG
 from util import encoding as enc
 
 
@@ -193,6 +194,12 @@ def set_active(config):
     global ActiveConfig
     log.debug('Updated active global config ..')
     ActiveConfig = config
+
+
+def load_config_from_file(file_path):
+    parser = ConfigurationParser()
+    loaded_config = parser.from_file(file_path)
+    return loaded_config
 
 
 # Variables listed here are intended for public, global use.
