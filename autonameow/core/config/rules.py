@@ -183,11 +183,11 @@ class RuleCondition(object):
     def __hash__(self):
         # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
         if isinstance(self.expression, list):
-            expression = self.expression
+            expressions = self.expression
         else:
-            expression = [self.expression]
+            expressions = [self.expression]
 
-        hashed_expressions = sum(hash(x) for x in expression)
+        hashed_expressions = sum(hash(x) for x in expressions)
         return hash(
             (hashed_expressions, self.meowuri)
         )
