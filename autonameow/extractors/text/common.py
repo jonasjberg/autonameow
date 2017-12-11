@@ -33,6 +33,10 @@ from extractors import (
 )
 from util import encoding as enc
 from util import sanity
+from util.text import (
+    normalize_unicode,
+    remove_nonbreaking_spaces
+)
 
 
 log = logging.getLogger(__name__)
@@ -80,11 +84,13 @@ class AbstractTextExtractor(BaseExtractor):
                            '{!s}'.format(self, e))
             raise ExtractorError
 
-        # Store text to cache
-        if text and self.cache:
-            self.cache.set(fileobject, text)
+        if not text:
+            return ''
 
-        return text
+        clean_text = self.cleanup(text)
+        if self.cache:
+            self.cache.set(fileobject, clean_text)
+        return clean_text
 
     def extract_text(self, fileobject):
         """
@@ -115,6 +121,20 @@ class AbstractTextExtractor(BaseExtractor):
             self.cache = _cache
         else:
             self.cache = None
+
+    @staticmethod
+    def cleanup(raw_text):
+        if not raw_text:
+            return ''
+
+        sanity.check_internal_string(raw_text)
+        text = raw_text
+        text = normalize_unicode(text)
+        text = remove_nonbreaking_spaces(text)
+        if text:
+            return text
+        else:
+            return ''
 
 
 def decode_raw(raw_text):
