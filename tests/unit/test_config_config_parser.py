@@ -36,10 +36,14 @@ except ImportError:
 
 import unit.utils as uu
 import unit.constants as uuconst
-from core.config.config_parser import ConfigurationParser
+from core.config.config_parser import (
+    ConfigurationParser,
+    ConfigurationRuleParser
+)
 from core.exceptions import (
     ConfigurationSyntaxError,
-    EncodingBoundaryViolation
+    EncodingBoundaryViolation,
+    ConfigError
 )
 
 
@@ -244,3 +248,37 @@ class TestDefaultConfigFromFile(TestCase):
     def test_loading_unicode_path_raises_exception(self):
         with self.assertRaises(EncodingBoundaryViolation):
             _ = self.config_parser.from_file(self.config_path_unicode)
+
+
+class TestConfigurationRuleParser(TestCase):
+    def test_parses_rules_from_default_config_given_all_nametemplates(self):
+        from core.config.default_config import DEFAULT_CONFIG
+        rules_dict = DEFAULT_CONFIG.get('RULES')
+        self.assertIsNotNone(rules_dict)
+
+        reusable_nametemplates = {
+            'NAME_TEMPLATE_FIELDS': {
+                'publisher': {
+                    'candidates': {
+                        'FeedBooks': [
+                            re.compile('This book is brought to you by Feedbooks', re.IGNORECASE),
+                            re.compile('http://www.feedbooks.com', re.IGNORECASE)
+                        ]
+                    }
+                }
+            }
+        }
+        reusable_nametemplates = dict()
+        rule_parser = ConfigurationRuleParser(reusable_nametemplates)
+        actual = rule_parser.parse(rules_dict)
+        self.assertIsNotNone(actual)
+        self.assertIsInstance(actual, list)
+        self.assertGreater(len(actual), 1)
+        self.assertEqual(len(rules_dict), len(actual))
+
+    def test_raises_exception_given_no_rules(self):
+        rule_parser = ConfigurationRuleParser()
+        rules_dict = dict()
+
+        with self.assertRaises(ConfigError):
+            _ = rule_parser.parse(rules_dict)

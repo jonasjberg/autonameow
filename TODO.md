@@ -190,6 +190,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0139]` Warn if data sources does not match name template placeholders?
+
 * `[TD0135]` __Add option to display rule matching information.__  
     Provide additional information on which rule conditions failed/passed
     evaluation. Running in verbose mode currently shows the following;

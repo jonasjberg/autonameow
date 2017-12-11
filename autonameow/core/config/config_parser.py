@@ -495,3 +495,108 @@ class ConfigurationParser(object):
             ))
 
         return self.parse(_loaded_data)
+
+
+class ConfigurationRuleParser(object):
+    def __init__(self, reusable_nametemplates=None):
+        if reusable_nametemplates:
+            self._reusable_nametemplates = reusable_nametemplates
+        else:
+            self._reusable_nametemplates = dict()
+
+    def parse(self, rules_dict):
+        validated = self._load_rules(rules_dict)
+        return validated
+
+    def _load_rules(self, rules_dict):
+        validated = []
+
+        if not rules_dict:
+            raise ConfigError(
+                'The configuration file does not contain any rules'
+            )
+
+        for raw_name, raw_contents in rules_dict.items():
+            name = types.force_string(raw_name)
+            if not name:
+                log.error('Skipped rule with bad name: "{!s}"'.format(raw_name))
+                continue
+
+            raw_contents.update({'description': name})
+            log.debug('Validating rule "{!s}" ..'.format(name))
+            try:
+                valid_rule = self.to_rule_instance(raw_contents)
+            except ConfigurationSyntaxError as e:
+                log.error('Bad rule "{!s}"; {!s}'.format(name, e))
+            else:
+                log.debug('Validated rule "{!s}" .. OK!'.format(name))
+
+                # Create and populate "Rule" objects with *validated* data.
+                validated.append(valid_rule)
+
+        return validated
+
+    def to_rule_instance(self, raw_rule):
+        """
+        Validates one "raw" rule from a configuration and returns an
+        instance of the 'Rule' class, representing the "raw" rule.
+
+        Args:
+            raw_rule: A single rule entry from a configuration.
+
+        Returns:
+            An instance of the 'Rule' class representing the given rule.
+
+        Raises:
+            ConfigurationSyntaxError: The given rule contains bad data,
+                making instantiating a 'Rule' object impossible.
+                Note that the message will be used in the following sentence:
+                "Bad rule "x"; {message}"
+        """
+        if 'NAME_FORMAT' not in raw_rule:
+            raise ConfigurationSyntaxError(
+                'is missing name template format'
+            )
+        valid_format = self._validate_name_format(raw_rule.get('NAME_FORMAT'))
+        if not valid_format:
+            raise ConfigurationSyntaxError(
+                'uses invalid name template format'
+            )
+        name_template = remove_nonbreaking_spaces(valid_format)
+
+        try:
+            _rule = get_valid_rule(
+                description=raw_rule.get('description'),
+                exact_match=raw_rule.get('exact_match'),
+                ranking_bias=raw_rule.get('ranking_bias'),
+                name_template=name_template,
+                conditions=raw_rule.get('CONDITIONS'),
+                data_sources=raw_rule.get('DATA_SOURCES')
+            )
+        except InvalidRuleError as e:
+            raise ConfigurationSyntaxError(e)
+        else:
+            return _rule
+
+    def _validate_name_format(self, _raw_name_format):
+        _format = types.force_string(_raw_name_format)
+        if not _format:
+            return None
+
+        # TODO: [TD0109] Allow arbitrary name template placeholder fields.
+
+        # First test if the field data is a valid name template entry,
+        if _format in self._reusable_nametemplates:
+            # If it is, use the format string defined in that entry.
+            return self._reusable_nametemplates.get(_format)
+        else:
+            # If not, check if it is a valid format string.
+            if NameFormatConfigFieldParser.is_valid_nametemplate_string(_format):
+                # TODO: [TD0139] This currently passes just about everything.
+                # If the user intends to use a "reusable name template" but
+                # misspelled it slightly, it currently goes unnoticed.
+
+                # TODO: [TD0139] Warn if sources do not match placeholders?
+                return _format
+
+        return None
