@@ -38,8 +38,6 @@ from core import (
     ui,
 )
 from core import constants as C
-from core.config.config_parser import ConfigurationParser
-from core.config.configuration import Configuration
 from core.evaluate import (
     RuleMatcher,
     TemplateFieldDataResolver
@@ -204,10 +202,8 @@ class Autonameow(object):
         self.exit_program(self.exit_code)
 
     def load_config(self, path):
-        # TODO: [TD0014] Possibly redesign high-level "configuration".
-        config_parser = ConfigurationParser()
         try:
-            self.active_config = config_parser.from_file(path)
+            self.active_config = config.load_config_from_file(path)
         except exceptions.ConfigError as e:
             log.critical('Unable to load configuration -- {!s}'.format(e))
 

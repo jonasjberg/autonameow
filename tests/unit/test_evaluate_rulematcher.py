@@ -24,8 +24,6 @@ from unittest.mock import Mock
 
 import unit.utils as uu
 from core import constants as C
-from core.config import DEFAULT_CONFIG
-from core.config.configuration import Configuration
 from core.config.rules import Rule
 from core.evaluate.rulematcher import (
     prioritize_rules,
@@ -38,7 +36,7 @@ uu.init_provider_registry()
 
 
 def get_testrules():
-    test_config = Configuration(DEFAULT_CONFIG)
+    test_config = uu.get_default_config()
     return test_config.rules
 
 

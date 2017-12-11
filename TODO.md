@@ -127,11 +127,6 @@ Medium Priority
         * Means of executing the plugin.
         * Means of querying for all or a specific field.
 
-* `[TD0014]` Possibly redesign high-level handling of a "configuration".
-    * Decouple the `Configuration` instance from I/O.
-    * Think about separating validation and parsing of incoming
-      configuration data from the `Configuration` class.
-
 * `[TD0015]` Allow conditionals in the configuration rules.
     * Test if a rule is applicable by evaluating conditionals.
         * Textual contents of the file matches a regular expression?

@@ -31,7 +31,7 @@ from datetime import datetime
 
 import unit.constants as uuconst
 from core.config import rules
-from core.config.configuration import Configuration
+from core.config.config_parser import ConfigurationParser
 from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
 from core.model import MeowURI
@@ -715,9 +715,12 @@ def is_internalbytestring(thing):
 
 
 def get_default_config():
+    _config_basename = uuconst.DEFAULT_YAML_CONFIG_BASENAME
+    _config_path = enc.normpath(abspath_testfile(_config_basename))
+
     init_session_repository()
-    _config_path = enc.normpath(abspath_testfile('default_config.yaml'))
-    return Configuration.from_file(_config_path)
+    config_parser = ConfigurationParser()
+    return config_parser.from_file(_config_path)
 
 
 def mock_persistence_path():

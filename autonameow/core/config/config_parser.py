@@ -25,7 +25,7 @@ import re
 import util
 from core import constants as C
 from core import types
-from core.config.configuration import NewConfiguration
+from core.config.configuration import Configuration
 from core.config.rules import get_valid_rule
 from core.config.field_parsers import (
     DateTimeConfigFieldParser,
@@ -69,7 +69,7 @@ class ConfigurationParser(object):
         #     'options': self._options,
         #     'version': self._version,
         # }
-        new_config = NewConfiguration(
+        new_config = Configuration(
             options=self._options,
             rules_=self._rules,
             reusable_nametemplates=self._reusable_nametemplates,

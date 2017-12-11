@@ -10,6 +10,16 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+### 2017-12-11
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0014]` Possibly redesign high-level handling of a "configuration".
+>     * Decouple the `Configuration` instance from I/O.
+>     * Think about separating validation and parsing of incoming
+>       configuration data from the `Configuration` class.
+
 ### 2017-12-01
 
 > Low Priority

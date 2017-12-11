@@ -29,7 +29,6 @@ from unittest import TestCase
 import analyzers
 from analyzers import BaseAnalyzer
 from core.config import rules
-from core.config.configuration import Configuration
 from core.fileobject import FileObject
 from core.model import MeowURI
 from util import encoding as enc
@@ -611,6 +610,7 @@ class TestGetDefaultConfig(TestCase):
         uu.init_provider_registry()
 
         actual = uu.get_default_config()
+        from core.config.configuration import Configuration
         self.assertTrue(isinstance(actual, Configuration))
 
 

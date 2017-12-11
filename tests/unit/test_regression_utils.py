@@ -182,7 +182,7 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
         expected = {
             'verbose': True,
             'config_path': uu.normpath(
-                uu.abspath_testfile('default_config.yaml')
+                uu.abspath_testfile(uuconst.DEFAULT_YAML_CONFIG_BASENAME)
             ),
             'mode_batch': True,
         }
@@ -197,22 +197,23 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
         expected = {
             'verbose': True,
             'config_path': uu.normpath(
-                uu.abspath_testfile('default_config.yaml')
+                uu.abspath_testfile(uuconst.DEFAULT_YAML_CONFIG_BASENAME)
             ),
             'mode_batch': True,
         }
         self._check(input_options, expected)
 
     def test_replaces_config_path_variable_testfiles(self):
+        config_basename = uuconst.DEFAULT_YAML_CONFIG_BASENAME
         input_options = {
             'verbose': True,
-            'config_path': '$TESTFILES/default_config.yaml',
+            'config_path': '$TESTFILES/{}'.format(config_basename),
             'mode_batch': True,
         }
         expected = {
             'verbose': True,
             'config_path': uu.normpath(
-                uu.abspath_testfile('default_config.yaml')
+                uu.abspath_testfile(config_basename)
             ),
             'mode_batch': True,
         }

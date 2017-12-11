@@ -19,40 +19,56 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
+import sys
+from unittest import (
+    skipIf,
+    TestCase
+)
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
+    print('Missing required module "yaml". '
+          'Make sure "pyyaml" is available before running this program.',
+          file=sys.stderr)
 
 import unit.utils as uu
-from core.config.configuration import Configuration
+import unit.constants as uuconst
 from core.config.config_parser import ConfigurationParser
-from core.config.default_config import DEFAULT_CONFIG
+from core.exceptions import EncodingBoundaryViolation
 
 
-uu.init_provider_registry()
-uu.init_session_repository()
+def yaml_unavailable():
+    return yaml is None, 'Failed to import "yaml"'
 
 
 class TestConfigurationParser(TestCase):
-    def test_behaves_as_old_configuration(self):
-        # TODO: Temporary test! Remove once configuration is refactored.
-        old = Configuration(DEFAULT_CONFIG)
+    # TODO: ..
+    pass
 
-        parser = ConfigurationParser()
-        new = parser.parse(DEFAULT_CONFIG)
 
-        self.assertEqual(old.options, new.options)
-        self.assertEqual(old.reusable_nametemplates, new.reusable_nametemplates)
-        self.assertEqual(old.referenced_meowuris, new.referenced_meowuris)
-        self.assertEqual(old.rules, new.rules)
-        self.assertEqual(old.version, new.version)
-        self.assertEqual(old.name_templates, new.name_templates)
+@skipIf(*yaml_unavailable())
+class TestDefaultConfigFromFile(TestCase):
+    def setUp(self):
+        self.config_parser = ConfigurationParser()
 
-    def test_string_representation_same_as_old_configuration(self):
-        self.maxDiff = None
+        self.config_path_unicode = uu.abspath_testfile(
+            uuconst.DEFAULT_YAML_CONFIG_BASENAME
+        )
+        uu.file_exists(self.config_path_unicode)
+        uu.path_is_readable(self.config_path_unicode)
+        self.assertTrue(uu.is_internalstring(self.config_path_unicode))
 
-        # TODO: Temporary test! Remove once configuration is refactored.
-        old = Configuration(DEFAULT_CONFIG)
+        self.config_path_bytestring = uu.normpath(self.config_path_unicode)
+        uu.file_exists(self.config_path_bytestring)
+        uu.path_is_readable(self.config_path_bytestring)
+        self.assertTrue(uu.is_internalbytestring(self.config_path_bytestring))
 
-        parser = ConfigurationParser()
-        new = parser.parse(DEFAULT_CONFIG)
+    def test_loads_default_config_from_bytestring_path(self):
+        config = self.config_parser.from_file(self.config_path_bytestring)
+        self.assertIsNotNone(config)
 
-        self.assertEqual(str(old), str(new))
+    def test_loading_unicode_path_raises_exception(self):
+        with self.assertRaises(EncodingBoundaryViolation):
+            _ = self.config_parser.from_file(self.config_path_unicode)
