@@ -268,7 +268,6 @@ class TestConfigurationRuleParser(TestCase):
                 }
             }
         }
-        reusable_nametemplates = dict()
         rule_parser = ConfigurationRuleParser(reusable_nametemplates)
         actual = rule_parser.parse(rules_dict)
         self.assertIsNotNone(actual)

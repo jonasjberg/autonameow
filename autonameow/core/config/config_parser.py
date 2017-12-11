@@ -420,31 +420,31 @@ class ConfigurationRuleParser(object):
                 'The configuration file does not contain any rules'
             )
 
-        validated = self._load_rules(rules_dict)
+        validated = self._validate_rules(rules_dict)
         return validated
 
-    def _load_rules(self, rules_dict):
-        validated = []
+    def _validate_name_format(self, _raw_name_format):
+        _format = types.force_string(_raw_name_format)
+        if not _format:
+            return None
 
-        for raw_name, raw_contents in rules_dict.items():
-            name = types.force_string(raw_name)
-            if not name:
-                log.error('Skipped rule with bad name: "{!s}"'.format(raw_name))
-                continue
+        # TODO: [TD0109] Allow arbitrary name template placeholder fields.
 
-            raw_contents.update({'description': name})
-            log.debug('Validating rule "{!s}" ..'.format(name))
-            try:
-                valid_rule = self._to_rule_instance(raw_contents)
-            except ConfigurationSyntaxError as e:
-                log.error('Bad rule "{!s}"; {!s}'.format(name, e))
-            else:
-                log.debug('Validated rule "{!s}" .. OK!'.format(name))
+        # First test if the field data is a valid name template entry,
+        if _format in self._reusable_nametemplates:
+            # If it is, use the format string defined in that entry.
+            return self._reusable_nametemplates.get(_format)
+        else:
+            # If not, check if it is a valid format string.
+            if NameFormatConfigFieldParser.is_valid_nametemplate_string(_format):
+                # TODO: [TD0139] This currently passes just about everything.
+                # If the user intends to use a "reusable name template" but
+                # misspelled it slightly, it currently goes unnoticed.
 
-                # Create and populate "Rule" objects with *validated* data.
-                validated.append(valid_rule)
+                # TODO: [TD0139] Warn if sources do not match placeholders?
+                return _format
 
-        return validated
+        return None
 
     def _to_rule_instance(self, raw_rule):
         """
@@ -488,25 +488,25 @@ class ConfigurationRuleParser(object):
         else:
             return _rule
 
-    def _validate_name_format(self, _raw_name_format):
-        _format = types.force_string(_raw_name_format)
-        if not _format:
-            return None
+    def _validate_rules(self, rules_dict):
+        validated = []
 
-        # TODO: [TD0109] Allow arbitrary name template placeholder fields.
+        for raw_name, raw_contents in rules_dict.items():
+            name = types.force_string(raw_name)
+            if not name:
+                log.error('Skipped rule with bad name: "{!s}"'.format(raw_name))
+                continue
 
-        # First test if the field data is a valid name template entry,
-        if _format in self._reusable_nametemplates:
-            # If it is, use the format string defined in that entry.
-            return self._reusable_nametemplates.get(_format)
-        else:
-            # If not, check if it is a valid format string.
-            if NameFormatConfigFieldParser.is_valid_nametemplate_string(_format):
-                # TODO: [TD0139] This currently passes just about everything.
-                # If the user intends to use a "reusable name template" but
-                # misspelled it slightly, it currently goes unnoticed.
+            raw_contents.update({'description': name})
+            log.debug('Validating rule "{!s}" ..'.format(name))
+            try:
+                valid_rule = self._to_rule_instance(raw_contents)
+            except ConfigurationSyntaxError as e:
+                log.error('Bad rule "{!s}"; {!s}'.format(name, e))
+            else:
+                log.debug('Validated rule "{!s}" .. OK!'.format(name))
 
-                # TODO: [TD0139] Warn if sources do not match placeholders?
-                return _format
+                # Create and populate "Rule" objects with *validated* data.
+                validated.append(valid_rule)
 
-        return None
+        return validated
