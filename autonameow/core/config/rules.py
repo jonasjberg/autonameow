@@ -68,6 +68,7 @@ class RuleCondition(object):
         self._parser = None
         self._meowuri = None
         self._expression = None
+        # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
 
         self.meowuri = meowuri
         self.expression = raw_expression
@@ -109,6 +110,8 @@ class RuleCondition(object):
 
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
+
+        # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
 
         if not self._get_parser_for(self.meowuri):
             raise ValueError('Found no suitable parsers for MeowURI: '
@@ -178,6 +181,7 @@ class RuleCondition(object):
         )
 
     def __hash__(self):
+        # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
         if isinstance(self.expression, list):
             expression = self.expression
         else:
