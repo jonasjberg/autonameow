@@ -24,9 +24,7 @@ import re
 
 import util
 from core import constants as C
-from core import (
-    types,
-)
+from core import types
 from core.config.configuration import NewConfiguration
 from core.config.rules import get_valid_rule
 from core.config.field_parsers import (
@@ -34,13 +32,16 @@ from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     parse_versioning
 )
+from core.disk import load_yaml_file
 from core.exceptions import (
     ConfigurationSyntaxError,
     ConfigError,
+    FilesystemError,
     InvalidRuleError
 )
 from core.namebuilder.fields import is_valid_template_field
 from util import encoding as enc
+from util import sanity
 from util.text import remove_nonbreaking_spaces
 
 
@@ -62,12 +63,12 @@ class ConfigurationParser(object):
         self._load_options(config_dict)
         self._load_version(config_dict)
 
-        parsed = {
-            'rules': self._rules,
-            'reusable_nametemplates': self._reusable_nametemplates,
-            'options': self._options,
-            'version': self._version,
-        }
+        # parsed = {
+        #     'rules': self._rules,
+        #     'reusable_nametemplates': self._reusable_nametemplates,
+        #     'options': self._options,
+        #     'version': self._version,
+        # }
         new_config = NewConfiguration(
             options=self._options,
             rules_=self._rules,
@@ -454,32 +455,31 @@ class ConfigurationParser(object):
 
         log.error('Unable to read program version from configuration.')
 
-    # @classmethod
-    # def from_file(cls, path):
-    #     """
-    #     Returns a new Configuration instantiated from data at a given path.
-    #
-    #     Args:
-    #         path: Path of the (YAML) file to read, as an "internal" bytestring.
-    #
-    #     Returns:
-    #         An instance of 'Configuration', created from the data at "path".
-    #
-    #     Raises:
-    #         EncodingBoundaryViolation: Argument "path" is not a bytestring.
-    #         ConfigReadError: The configuration file could not be read.
-    #         ConfigError: The configuration file is empty.
-    #     """
-    #     sanity.check_internal_bytestring(path)
-    #
-    #     try:
-    #         _loaded_data = disk.load_yaml_file(path)
-    #     except FilesystemError as e:
-    #         raise ConfigError(e)
-    #
-    #     if not _loaded_data:
-    #         raise ConfigError('Read empty config: "{!s}"'.format(
-    #             enc.displayable_path(path)
-    #         ))
-    #
-    #     return cls(_loaded_data)
+    def from_file(self, path):
+        """
+        Returns a new Configuration instantiated from data at a given path.
+
+        Args:
+            path: Path of the (YAML) file to read, as an "internal" bytestring.
+
+        Returns:
+            An instance of 'Configuration', created from the data at "path".
+
+        Raises:
+            EncodingBoundaryViolation: Argument "path" is not a bytestring.
+            ConfigReadError: The configuration file could not be read.
+            ConfigError: The configuration file is empty.
+        """
+        sanity.check_internal_bytestring(path)
+
+        try:
+            _loaded_data = load_yaml_file(path)
+        except FilesystemError as e:
+            raise ConfigError(e)
+
+        if not _loaded_data:
+            raise ConfigError('Read empty config: "{!s}"'.format(
+                enc.displayable_path(path)
+            ))
+
+        return self.parse(_loaded_data)

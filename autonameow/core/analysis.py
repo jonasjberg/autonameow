@@ -160,10 +160,11 @@ def start(fileobject, config):
     """
     log.debug(' Analysis Preparation Started '.center(120, '='))
 
+    # TODO: [TD0126] Remove assertions once "boundaries" are cleaned up.
     assert isinstance(fileobject, FileObject), (
            'Expected type "FileObject". Got {!s}')
-    assert isinstance(config, Configuration), (
-           'Expected type "Configuration". Got {!s}'.format(type(config)))
+    # assert isinstance(config, Configuration), (
+    #        'Expected type "Configuration". Got {!s}'.format(type(config)))
 
     klasses = suitable_analyzers_for(fileobject)
     if not klasses:
