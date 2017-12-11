@@ -20,18 +20,17 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
+import unit.utils as uu
 from core import constants as C
-from core.config.configuration import Configuration
 from core.config import DEFAULT_CONFIG
+from core.config.configuration import Configuration
 from core.config.rules import Rule
 from core.evaluate.rulematcher import (
-    RuleMatcher,
     prioritize_rules,
+    RuleMatcher
 )
-import unit.utils as uu
-import unit.constants as uuconst
 
 
 uu.init_session_repository()

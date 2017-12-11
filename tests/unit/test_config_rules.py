@@ -49,6 +49,131 @@ class TestRuleMethods(TestCase):
         actual = str(self.rule)
         self.assertTrue(uu.is_internalstring(actual))
 
+    def test_rule_hash(self):
+        actual = hash(self.rule)
+        self.assertIsNotNone(actual)
+
+
+class TestRuleComparison(TestCase):
+    def setUp(self):
+        self.a = Rule(
+            conditions=[],
+            data_sources=dict(),
+            name_template='dummy',
+        )
+
+    def test_not_equal_to_dict_with_equivalent_contents(self):
+        b = {
+            'conditions': [],
+            'data_sources': dict(),
+            'name_template': 'dummy',
+        }
+        self.assertNotEqual(self.a, b)
+
+    def test_not_equal_to_objects_of_another_type(self):
+        for b in [None, {}, [], 'foo']:
+            self.assertNotEqual(self.a, b)
+
+    def test_is_equal_to_itself(self):
+        self.assertEqual(self.a, self.a)
+
+    def test_hashable_for_set_membership(self):
+        # NOTE(jonas): Assumes dummy rule conditions are unique.
+        all_rules = uu.get_dummy_rules_to_examine()
+        container = set(all_rules)
+        self.assertEqual(len(all_rules), len(container))
+
+    def test_equality_only_required_arguments(self):
+        b = Rule(
+            conditions=[],
+            data_sources=dict(),
+            name_template='dummy',
+        )
+        self.assertEqual(self.a, b)
+
+    def test_equality_required_arguments_no_data_sources(self):
+        _valid_conditions = uu.get_dummy_parsed_conditions()
+        b = Rule(
+            conditions=_valid_conditions[0],
+            data_sources=dict(),
+            name_template='dummy',
+        )
+        c = Rule(
+            conditions=_valid_conditions[0],
+            data_sources=dict(),
+            name_template='dummy',
+        )
+        d = Rule(
+            conditions=_valid_conditions[0],
+            data_sources=dict(),
+            name_template='foo',
+        )
+        self.assertNotEqual(self.a, b)
+        self.assertNotEqual(self.a, c)
+        self.assertNotEqual(self.a, d)
+        self.assertNotEqual(b, d)
+        self.assertNotEqual(c, d)
+        self.assertEqual(b, c)
+
+    def test_equality_required_arguments(self):
+        _valid_conditions = uu.get_dummy_parsed_conditions()
+        _valid_data_sources = uu.get_dummy_raw_data_sources()
+        a = Rule(
+            conditions=_valid_conditions[0],
+            data_sources=_valid_data_sources[0],
+            name_template='dummy',
+        )
+        b = Rule(
+            conditions=_valid_conditions[0],
+            data_sources=_valid_data_sources[0],
+            name_template='dummy',
+        )
+        c = Rule(
+            conditions=_valid_conditions[0],
+            data_sources=_valid_data_sources[1],
+            name_template='dummy',
+        )
+        d = Rule(
+            conditions=_valid_conditions[1],
+            data_sources=_valid_data_sources[0],
+            name_template='dummy',
+        )
+        e = Rule(
+            conditions=_valid_conditions[1],
+            data_sources=_valid_data_sources[1],
+            name_template='dummy',
+        )
+        f = Rule(
+            conditions=_valid_conditions[1],
+            data_sources=_valid_data_sources[1],
+            name_template='dummy',
+        )
+        # Equal to itself.
+        self.assertEqual(a, a)
+        self.assertEqual(b, b)
+        self.assertEqual(c, c)
+        self.assertEqual(d, d)
+        self.assertEqual(e, e)
+        self.assertEqual(f, f)
+
+        # Equal if Same conditions and data sources.
+        self.assertEqual(a, b)
+        self.assertEqual(e, f)
+
+        self.assertNotEqual(a, c)
+        self.assertNotEqual(a, d)
+        self.assertNotEqual(a, e)
+        self.assertNotEqual(a, f)
+        self.assertNotEqual(b, c)
+        self.assertNotEqual(b, d)
+        self.assertNotEqual(b, e)
+        self.assertNotEqual(b, f)
+        self.assertNotEqual(c, d)
+        self.assertNotEqual(c, e)
+        self.assertNotEqual(c, f)
+        self.assertNotEqual(d, e)
+        self.assertNotEqual(d, f)
+
 
 class TestRuleInit(TestCase):
     def test_required_arguments_no_conditions_no_data_sources(self):
@@ -64,11 +189,11 @@ class TestRuleInit(TestCase):
     def test_required_arguments_no_data_sources(self):
         _valid_conditions = uu.get_dummy_parsed_conditions()
         rule = Rule(
-            conditions=_valid_conditions,
+            conditions=_valid_conditions[0],
             data_sources=dict(),
             name_template='dummy',
         )
-        self.assertEqual(rule.conditions, _valid_conditions)
+        self.assertEqual(rule.conditions, _valid_conditions[0])
         self.assertEqual(rule.data_sources, dict())
         self.assertEqual(rule.name_template, 'dummy')
 
@@ -76,11 +201,11 @@ class TestRuleInit(TestCase):
         _valid_conditions = uu.get_dummy_parsed_conditions()
         _valid_data_sources = uu.get_dummy_raw_data_sources()[0]
         rule = Rule(
-            conditions=_valid_conditions,
+            conditions=_valid_conditions[0],
             data_sources=_valid_data_sources,
             name_template='dummy',
         )
-        self.assertEqual(rule.conditions, _valid_conditions)
+        self.assertEqual(rule.conditions, _valid_conditions[0])
         self.assertEqual(len(rule.data_sources), len(_valid_data_sources))
         self.assertEqual(rule.name_template, 'dummy')
 
@@ -119,6 +244,62 @@ class TestRuleInit(TestCase):
             name_template='dummy',
         )
         self.assertEqual(rule.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
+
+
+class TestRuleConditionComparison(TestCase):
+    def setUp(self):
+        _meowuri = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        _expression = 'text/plain'
+        self.a = RuleCondition(_meowuri, _expression)
+
+    def test_not_equal_to_objects_of_another_type(self):
+        for b in [None, {}, [], 'foo', object()]:
+            self.assertNotEqual(self.a, b)
+
+    def test_is_equal_to_itself(self):
+        self.assertEqual(self.a, self.a)
+
+    def test_hashable_for_set_membership(self):
+        # NOTE(jonas): Assumes dummy rule conditions are unique.
+        all_ruleconditions = uu.get_dummy_rulecondition_instances()
+        container = set(all_ruleconditions)
+        self.assertEqual(len(all_ruleconditions), len(container))
+
+    def test_equal_for_same_meowuri_identical_expression(self):
+        a = RuleCondition(
+            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'text/plain'
+        )
+        b = RuleCondition(
+            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'text/plain'
+        )
+        self.assertEqual(a, b)
+
+    def test_not_equal_for_same_meowuri_different_expressions(self):
+        a = RuleCondition(
+            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'text/plain'
+        )
+        b = RuleCondition(
+            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'application/pdf'
+        )
+        self.assertNotEqual(a, b)
+
+    def test_not_equal_for_different_meowuris_identical_expression(self):
+        a = RuleCondition(
+            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL), '.*'
+        )
+        b = RuleCondition(
+            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX), '.*'
+        )
+        self.assertNotEqual(a, b)
+
+    def test_not_equal_for_different_meowuris_different_expressions(self):
+        a = RuleCondition(
+            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL), 'foo'
+        )
+        b = RuleCondition(
+            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX), 'bar'
+        )
+        self.assertNotEqual(a, b)
 
 
 class TestRuleConditionFromValidInput(TestCase):

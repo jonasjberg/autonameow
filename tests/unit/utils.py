@@ -548,7 +548,7 @@ def get_instantiated_analyzers():
 
 
 def get_dummy_rules_to_examine():
-    _raw_conditions = get_dummy_raw_conditions()
+    _raw_conditions = get_dummy_parsed_conditions()
     _raw_sources = get_dummy_raw_data_sources()
 
     out = []
@@ -573,16 +573,16 @@ def get_dummy_rules_to_examine():
         exact_match=True,
         ranking_bias=1.0,
         name_template='{datetime} {description} -- {tags}.{extension}',
-        conditions=_raw_conditions[1],
-        data_sources=_raw_sources[1]
+        conditions=_raw_conditions[2],
+        data_sources=_raw_sources[2]
     ))
     out.append(rules.Rule(
         description='Sample Entry for EPUB e-books',
         exact_match=True,
         ranking_bias=1.0,
         name_template='{publisher} {title} {edition} - {author} {date}.{extension}',
-        conditions=_raw_conditions[1],
-        data_sources=_raw_sources[1]
+        conditions=_raw_conditions[3],
+        data_sources=_raw_sources[3]
     ))
 
     return out
@@ -605,8 +605,9 @@ def get_dummy_raw_data_sources():
 
 
 def get_dummy_parsed_conditions():
-    _valid_conditions = rules.parse_conditions(get_dummy_raw_conditions()[0])
-    return _valid_conditions
+    _raw_conditions = get_dummy_raw_conditions()
+    conditions = [rules.parse_conditions(c) for c in _raw_conditions]
+    return conditions
 
 
 def get_dummy_rule():
@@ -616,7 +617,7 @@ def get_dummy_rule():
         exact_match=False,
         ranking_bias=0.5,
         name_template='dummy',
-        conditions=_valid_conditions,
+        conditions=_valid_conditions[0],
         data_sources=get_dummy_raw_data_sources()[0]
     )
 

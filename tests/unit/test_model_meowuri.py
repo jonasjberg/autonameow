@@ -202,7 +202,7 @@ class TestMeowURIEquality(TestCase):
         c = MeowURI(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
         self.assertEqual(b, c)
 
-    def test_set_membership(self):
+    def test_hashable_for_set_membership(self):
         a = MeowURI(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
         b = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         c = MeowURI(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
