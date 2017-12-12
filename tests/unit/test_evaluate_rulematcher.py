@@ -58,7 +58,7 @@ class TestRuleMatcherMatching(TestCase):
         matcher = RuleMatcher(rules=[])
         actual = matcher.match(self.SHARED_FILEOBJECT)
         expect = []
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_expected_return_values_given_rules_and_valid_fileobject(self):
         matcher = RuleMatcher(rules=get_testrules())
@@ -99,7 +99,7 @@ class TestRuleMatcherMatching(TestCase):
     def _check_matcher_result(self, given, expect):
         matcher = RuleMatcher(rules=given)
         actual = matcher.match(self.SHARED_FILEOBJECT)
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_non_exact_matched_rule_has_zero_score_one_weight(self):
         rule = self._get_mock_rule(
@@ -124,7 +124,7 @@ class TestRuleMatcherMatching(TestCase):
         matcher = RuleMatcher(rules=[rule])
         actual = matcher.match(self.SHARED_FILEOBJECT)
         expect = [(rule, 1.0, 1.0)]
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_one_exact_rule_one_not_exact_rule_same_score_and_weight(self):
         rule1 = self._get_mock_rule(
@@ -267,3 +267,4 @@ class TestRuleEvaluator(TestCase):
         rule_conditions = rule.conditions
         for condition in rule_conditions:
             self.assertIn(condition, evaluator.results[rule]['failed'])
+            self.assertNotIn(condition, evaluator.results[rule]['passed'])
