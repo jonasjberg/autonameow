@@ -236,6 +236,10 @@ class Rule(object):
         self.conditions = conditions
         self.data_sources = data_sources
 
+        # NOTE(jonas): This assumes instances of 'RuleCondition' are immutable!
+        self.__cached_hash = None
+
+
     @property
     def description(self):
         return self._description
@@ -422,18 +426,22 @@ class Rule(object):
         )
 
     def __hash__(self):
-        hashed_conditions = sum(hash(c) for c in self.conditions)
-        hashed_data_sources = 0
-        for template_field, meowuri_list in self.data_sources.items():
-            partial_hash = hash(template_field) + sum(
-                hash(meowuri) for meowuri in meowuri_list
-            )
-            hashed_data_sources += partial_hash
+        # NOTE(jonas): This assumes instances of 'RuleCondition' are immutable!
+        if not self.__cached_hash:
+            hashed_conditions = sum(hash(c) for c in self.conditions)
+            hashed_data_sources = 0
+            for template_field, meowuri_list in self.data_sources.items():
+                data_source_hash = hash(template_field) + sum(
+                    hash(meowuri) for meowuri in meowuri_list
+                )
+                hashed_data_sources += data_source_hash
 
-        return hash(
-            (hashed_conditions, hashed_data_sources, self.description,
-             self.exact_match, self.name_template, self.ranking_bias)
-        )
+            self.__cached_hash = hash(
+                (hashed_conditions, hashed_data_sources, self.description,
+                 self.exact_match, self.name_template, self.ranking_bias)
+            )
+
+        return self.__cached_hash
 
     def __str__(self):
         return util.dump(self.__dict__)
