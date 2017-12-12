@@ -232,7 +232,8 @@ class MimeExtensionMapper(object):
         #              Gives more consistent results, which helps with testing.
         _sorted_mimes = sorted(
             list(_mimes),
-            key=lambda x: ('x-' in x, 'text' not in x, len(x))
+            key=lambda x: ('x-' not in x, 'text' in x, len(x)),
+            reverse=True
         )
         return _sorted_mimes
 
