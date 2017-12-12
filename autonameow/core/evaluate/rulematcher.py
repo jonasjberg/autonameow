@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from collections import defaultdict
 
 from core import repository
 
@@ -169,3 +170,39 @@ def prioritize_rules(rules):
 def remove_rules_failing_exact_match(rules_to_examine, data_query_function):
     return [rule for rule in rules_to_examine if
             rule.evaluate_exact(data_query_function)]
+
+
+class RuleEvaluator(object):
+    def __init__(self, data_query_function):
+        self.data_query_function = data_query_function
+
+        # Allows setting values two levels down without intermediate keys.
+        self.results = defaultdict(dict)
+
+    def evaluate(self, rule_to_evaluate):
+        assert rule_to_evaluate not in self.results, (
+            'Rule has already been evaluated; {!r}'.format(rule_to_evaluate)
+        )
+        self.results[rule_to_evaluate]['passed'] = []
+        self.results[rule_to_evaluate]['failed'] = []
+
+        self.evaluate_rule_conditions(rule_to_evaluate)
+
+    def evaluate_rule_conditions(self, rule):
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
+        for condition in rule.conditions:
+            if self._evaluate_condition(condition):
+                self.results[rule]['passed'].append(condition)
+            else:
+                self.results[rule]['failed'].append(condition)
+
+    def _evaluate_condition(self, condition):
+        _data_meowuri = condition.meowuri
+        data = self.data_query_function(_data_meowuri)
+        if data is None:
+            log.warning('Unable to evaluate condition due to missing data:'
+                        ' "{!s}"'.format(condition))
+            return False
+
+        return condition.evaluate(data)

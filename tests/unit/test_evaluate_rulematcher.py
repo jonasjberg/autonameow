@@ -27,6 +27,7 @@ from core import constants as C
 from core.config.rules import Rule
 from core.evaluate.rulematcher import (
     prioritize_rules,
+    RuleEvaluator,
     RuleMatcher
 )
 
@@ -232,3 +233,37 @@ class TestPrioritizeRules(TestCase):
         expected = [r_b, r_a]
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)
+
+
+class TestRuleEvaluator(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        def _mock_request_data_function(fileobject, meowuri):
+            response = uu.mock_request_data_callback(fileobject, meowuri)
+            if response:
+                return response.get('value')
+            else:
+                return None
+
+        cls._mock_request_data_function = _mock_request_data_function
+
+    def test_init(self):
+        evaluator = RuleEvaluator(self._mock_request_data_function)
+
+    def test_evaluate_rule(self):
+        evaluator = RuleEvaluator(self._mock_request_data_function)
+        _rule = uu.get_dummy_rule()
+        evaluator.evaluate(_rule)
+
+    def test_all_conditions_fails_if_requested_data_is_unavailable(self):
+        mock_request_data_function = Mock()
+        evaluator = RuleEvaluator(mock_request_data_function)
+        rule = uu.get_dummy_rule()
+
+        self.assertEqual(dict(), evaluator.results,
+                         'Results are initially empty')
+        evaluator.evaluate(rule)
+
+        rule_conditions = rule.conditions
+        for condition in rule_conditions:
+            self.assertIn(condition, evaluator.results[rule]['failed'])
