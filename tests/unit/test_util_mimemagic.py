@@ -216,10 +216,20 @@ class TestMimeExtensionMapper(TestCase):
         self.m.add_mapping('text/x-shellscript', 'sh')
         self.m.add_mapping('text/x-sh', 'sh')
         self.m.add_mapping('text/shellscript', 'sh')
-
         self._assert_returns_candidate_mimes(
             given='sh',
             expect=['text/shellscript', 'text/x-sh', 'text/x-shellscript']
+        )
+
+    def test_get_candidate_mimetypes_for_empty_extension(self):
+        self._assert_returns_candidate_mimes(
+            given='',
+            expect=[]
+        )
+        self.m.add_mapping('inode/x-empty', '')
+        self._assert_returns_candidate_mimes(
+            given='',
+            expect=['inode/x-empty']
         )
 
     def test_get_candidate_extensions(self):
@@ -268,6 +278,13 @@ class TestMimemagicGetMimetype(TestCase):
     def _assert_returns_mime(self, given, expect):
         _actual = mimemagic.get_mimetype(given)
         self.assertEqual(expect, _actual)
+
+    def test_unknown_mime_type(self):
+        self._assert_returns_mime(given=None, expect=types.NULL_AW_MIMETYPE)
+        self._assert_returns_mime(given='  ', expect=types.NULL_AW_MIMETYPE)
+        self._assert_returns_mime(given=' ', expect=types.NULL_AW_MIMETYPE)
+        self._assert_returns_mime(given='', expect=types.NULL_AW_MIMETYPE)
+        self._assert_returns_mime(given='meoww', expect=types.NULL_AW_MIMETYPE)
 
     def test_image_jpeg(self):
         self._assert_returns_mime(given='jpg', expect='image/jpeg')

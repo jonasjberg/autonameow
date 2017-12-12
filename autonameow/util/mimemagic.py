@@ -248,9 +248,10 @@ class MimeExtensionMapper(object):
             string. See the "get_candidates"-method for info on prioritization.
             An instance of 'NullMIMEType' is returned if no MIME-type is found.
         """
-        _candidates = self.get_candidate_mimetypes(extension)
-        if _candidates:
-            return _candidates[0]
+        if extension and extension.strip():
+            _candidates = self.get_candidate_mimetypes(extension)
+            if _candidates:
+                return _candidates[0]
 
         return types.NullMIMEType()
 
