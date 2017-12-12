@@ -292,3 +292,7 @@ class TestMimemagicGetMimetype(TestCase):
 
     def test_image_png(self):
         self._assert_returns_mime(given='png', expect='image/png')
+
+    def test_text_sh(self):
+        self._assert_returns_mime(given='sh', expect='text/x-shellscript')
+        self._assert_returns_mime(given='bash', expect='text/x-shellscript')

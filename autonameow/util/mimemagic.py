@@ -318,6 +318,7 @@ MAPPER.add_mapping('text/x-asm', 'asm')
 MAPPER.add_mapping('text/x-c', 'c')
 MAPPER.add_mapping('text/x-c++', 'cpp')
 MAPPER.add_mapping('text/x-shellscript', 'sh')
+MAPPER.add_mapping('text/x-shellscript', 'bash')
 MAPPER.add_mapping('video/x-matroska', 'mkv')
 
 # Any custom overrides of the "extension to MIME-type"-mapping goes here.
