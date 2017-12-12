@@ -20,7 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import (
+    Mock,
+    patch
+)
 
 import unit.utils as uu
 from core import constants as C
@@ -78,14 +81,11 @@ class TestRuleMatcherMatching(TestCase):
             self.assertTrue(0 <= _assumed_weight <= 1)
 
     @staticmethod
-    def _get_mock_rule(exact_match, evaluates_exact, num_conditions,
-                       num_conditions_met, bias):
+    def _get_mock_rule(exact_match, num_conditions, bias):
         rule = Mock()
         rule.description = 'Mock Rule'
         rule.exact_match = bool(exact_match)
-        rule.evaluate_exact.return_value = bool(evaluates_exact)
         rule.number_conditions = int(num_conditions)
-        rule.number_conditions_met.return_value = int(num_conditions_met)
         rule.ranking_bias = float(bias)
 
         _conditions = []
@@ -101,11 +101,13 @@ class TestRuleMatcherMatching(TestCase):
         actual = matcher.match(self.SHARED_FILEOBJECT)
         self.assertEqual(expect, actual)
 
-    def test_non_exact_matched_rule_has_zero_score_one_weight(self):
+    @patch('core.evaluate.rulematcher.RuleEvaluator.passed')
+    def test_non_exact_matched_rule_has_zero_score_one_weight(self, mock_passed):
+        # num_conditions_met=0,
         rule = self._get_mock_rule(
-            exact_match=False, evaluates_exact=True, num_conditions=3,
-            num_conditions_met=0, bias=0.5
+            exact_match=False, num_conditions=3, bias=0.5
         )
+        mock_passed = {rule: []}
         matcher = RuleMatcher(rules=[rule])
         actual = matcher.match(self.SHARED_FILEOBJECT)
         expect = [(rule, 0.0, 1.0)]
@@ -116,24 +118,29 @@ class TestRuleMatcherMatching(TestCase):
             expect=[(rule, 0.0, 1.0)]
         )
 
-    def test_exact_matched_rule_has_one_score_one_weight(self):
+    @patch('core.evaluate.rulematcher.RuleEvaluator.evaluate')
+    def test_exact_matched_rule_has_one_score_one_weight(self, mock_evaluate):
+        # num_conditions_met=3,
         rule = self._get_mock_rule(
-            exact_match=True, evaluates_exact=True, num_conditions=3,
-            num_conditions_met=3, bias=0.5
+            exact_match=True, num_conditions=3, bias=0.5
         )
+
+        mock_evaluate = Mock()
+        # mock_failed = {rule: []}
+
         matcher = RuleMatcher(rules=[rule])
         actual = matcher.match(self.SHARED_FILEOBJECT)
         expect = [(rule, 1.0, 1.0)]
         self.assertEqual(expect, actual)
 
     def test_one_exact_rule_one_not_exact_rule_same_score_and_weight(self):
+        # num_conditions_met=3,
         rule1 = self._get_mock_rule(
-            exact_match=True, evaluates_exact=True, num_conditions=3,
-            num_conditions_met=3, bias=0.5
+            exact_match=True, num_conditions=3, bias=0.5
         )
+        # num_conditions_met=3,
         rule2 = self._get_mock_rule(
-            exact_match=False, evaluates_exact=True, num_conditions=3,
-            num_conditions_met=3, bias=0.5
+            exact_match=False, num_conditions=3, bias=0.5
         )
         matcher = RuleMatcher(rules=[rule1, rule2])
         actual = matcher.match(self.SHARED_FILEOBJECT)
@@ -141,13 +148,13 @@ class TestRuleMatcherMatching(TestCase):
         self.assertEqual(actual, expect)
 
     def test_one_exact_rule_one_not_exact_rule_different_score(self):
+        # num_conditions_met=3,
         rule1 = self._get_mock_rule(
-            exact_match=True, evaluates_exact=True, num_conditions=3,
-            num_conditions_met=3, bias=0.5
+            exact_match=True, num_conditions=3, bias=0.5
         )
+        # num_conditions_met=2,
         rule2 = self._get_mock_rule(
-            exact_match=False, evaluates_exact=True, num_conditions=3,
-            num_conditions_met=2, bias=0.5
+            exact_match=False, num_conditions=3, bias=0.5
         )
         matcher = RuleMatcher(rules=[rule1, rule2])
         actual = matcher.match(self.SHARED_FILEOBJECT)
@@ -155,13 +162,13 @@ class TestRuleMatcherMatching(TestCase):
         self.assertEqual(actual, expect)
 
     def test_one_exact_rule_one_not_exact_rule_different_weight(self):
+        # num_conditions_met=2,
         rule1 = self._get_mock_rule(
-            exact_match=True, evaluates_exact=True, num_conditions=2,
-            num_conditions_met=2, bias=0.5
+            exact_match=True, num_conditions=2, bias=0.5
         )
+        # num_conditions_met=5,
         rule2 = self._get_mock_rule(
-            exact_match=False, evaluates_exact=True, num_conditions=5,
-            num_conditions_met=5, bias=0.5
+            exact_match=False, num_conditions=5, bias=0.5
         )
         matcher = RuleMatcher(rules=[rule1, rule2])
         actual = matcher.match(self.SHARED_FILEOBJECT)
@@ -260,11 +267,13 @@ class TestRuleEvaluator(TestCase):
         evaluator = RuleEvaluator(mock_request_data_function)
         rule = uu.get_dummy_rule()
 
-        self.assertEqual(dict(), evaluator.results,
-                         'Results are initially empty')
+        self.assertEqual([], evaluator.failed(rule),
+                         'Initially no rule conditions failed')
+        self.assertEqual([], evaluator.passed(rule),
+                         'Initially no rule conditions passed')
         evaluator.evaluate(rule)
 
         rule_conditions = rule.conditions
         for condition in rule_conditions:
-            self.assertIn(condition, evaluator.results[rule]['failed'])
-            self.assertNotIn(condition, evaluator.results[rule]['passed'])
+            self.assertIn(condition, evaluator.failed(rule))
+            self.assertNotIn(condition, evaluator.passed(rule))
