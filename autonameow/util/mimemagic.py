@@ -260,7 +260,15 @@ class MimeExtensionMapper(object):
         """
         Returns a list of all extensions mapped to a given MIME-type.
         """
-        return list(self._mime_to_ext.get(mimetype, []))
+        _candidates = self._mime_to_ext.get(mimetype, [])
+        if not _candidates:
+            return []
+
+        # De-prioritize any composite extensions like "tar.gz".
+        _sorted_candidates = sorted(list(_candidates),
+                                    key=lambda x: '.' not in x,
+                                    reverse=True)
+        return _sorted_candidates
 
     def get_extension(self, mimetype):
         """
@@ -272,11 +280,7 @@ class MimeExtensionMapper(object):
 
         _candidates = self.get_candidate_extensions(mimetype)
         if _candidates:
-            # De-prioritize any composite extensions like "tar.gz".
-            _sorted_candidates = sorted(list(_candidates),
-                                        key=lambda x: '.' not in x,
-                                        reverse=True)
-            return _sorted_candidates[0]
+            return _candidates[0]
 
         return None
 
