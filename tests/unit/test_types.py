@@ -95,9 +95,28 @@ class TestBaseNullValue(TestCase):
         _is_equal(False, value=object())
         _is_equal(False, value='foo')
 
-    def test_str(self):
+    def test___str__(self):
         expected = '(NULL BaseType value)'
         self.assertEqual(expected, str(self.bn))
+
+    def test___hash__(self):
+        actual = hash(self.bn)
+        self.assertIsNotNone(actual)
+
+    def test_hashable_for_set_membership(self):
+        a = types.BaseNullValue()
+        b = types.BaseNullValue()
+
+        container = set()
+        container.add(a)
+        self.assertEqual(len(container), 1)
+        self.assertIn(a, container)
+        self.assertIn(b, container)
+
+        container.add(b)
+        self.assertEqual(len(container), 1)
+        self.assertIn(a, container)
+        self.assertIn(b, container)
 
 
 class TestNullMIMEType(TestCase):
@@ -136,9 +155,28 @@ class TestNullMIMEType(TestCase):
         _is_equal(False, value=object())
         _is_equal(False, value='foo')
 
-    def test_str(self):
+    def test___str__(self):
         expected = types.NullMIMEType.AS_STRING
         self.assertEqual(expected, str(self.nm))
+
+    def test___hash__(self):
+        actual = hash(self.nm)
+        self.assertIsNotNone(actual)
+
+    def test_hashable_for_set_membership(self):
+        a = types.NullMIMEType()
+        b = types.NullMIMEType()
+
+        container = set()
+        container.add(a)
+        self.assertEqual(len(container), 1)
+        self.assertIn(a, container)
+        self.assertIn(b, container)
+
+        container.add(b)
+        self.assertEqual(len(container), 1)
+        self.assertIn(a, container)
+        self.assertIn(b, container)
 
 
 class TestTypeBoolean(TestCase):

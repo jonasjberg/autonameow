@@ -87,6 +87,9 @@ class BaseNullValue(object):
             return True
         return False
 
+    def __hash__(self):
+        return hash(self.__class__)
+
 
 class NullMIMEType(BaseNullValue):
     # Default MIME type string used if the MIME type detection fails.
