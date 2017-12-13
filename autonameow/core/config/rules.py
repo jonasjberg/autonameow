@@ -470,13 +470,12 @@ def parse_ranking_bias(value):
             'Expected float but got "{!s}" ({!s})'.format(value, type(value))
         )
     else:
-        if float(0) <= _value <= float(1):
-            return _value
-        else:
+        if not 0.0 <= _value <= 1.0:
             raise exceptions.ConfigurationSyntaxError(
-                'Expected float within 0.0-1.0 but got {} -- Using default:'
-                ' {}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
+                'Expected float between 0.0 and 1.0. Got {} -- Using default: '
+                '{}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
             )
+        return _value
 
 
 def parse_conditions(raw_conditions):
