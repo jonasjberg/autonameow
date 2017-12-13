@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from collections import defaultdict
 
 from core import repository
 
@@ -99,20 +98,9 @@ class RuleMatcher(object):
         prioritized_rules = prioritize_rules(scored_rules)
 
         # TODO: [TD0135] Add option to display rule matching details.
-        log.info('Remaining, prioritized rules:')
-        for i, rule in enumerate(prioritized_rules, start=1):
-            self._prettyprint_prioritized_rule(
-                i, rule.exact_match, scored_rules[rule]['score'],
-                scored_rules[rule]['weight'], rule.ranking_bias,
-                rule.description
-            )
+        discarded_rules = [r for r in all_rules if r not in remaining_rules]
+        self._log_results(prioritized_rules, scored_rules, discarded_rules)
 
-        _discarded_rules = [r for r in all_rules if r not in remaining_rules]
-        log.info('Discarded rules:')
-        for i, rule in enumerate(_discarded_rules, start=1):
-            self._prettyprint_discarded_rule(
-                i, rule.exact_match, rule.ranking_bias, rule.description
-            )
         # Return list of ( RULE, SCORE(float), WEIGHT(float) ) tuples.
         return [
             (r, scored_rules[r]['score'], scored_rules[r]['weight'])
@@ -120,20 +108,38 @@ class RuleMatcher(object):
         ]
 
     @staticmethod
-    def _prettyprint_prioritized_rule(num, exact, score, weight, bias, desc):
-        _exact = 'Yes' if exact else 'No '
-        log.info(
-            'Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias: {:.2f}) '
-            '{} '.format(num, _exact, score, weight, bias, desc)
-        )
+    def _log_results(prioritized_rules, scored_rules, discarded_rules):
+        if log.getEffectiveLevel() < logging.INFO:
+            return
+
+        FMT_DISCARDED = 'Rule #{} (Exact: {}  Score: N/A   Weight: N/A   Bias: {}) {}'
+        FMT_PRIORITIZED = 'Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias: {:.2f}) {}'
+
+        def _prettyprint_prioritized_rule(n, exact, score, weight, bias, desc):
+            _exact = 'Yes' if exact else 'No '
+            log.info(
+                FMT_PRIORITIZED.format(n, _exact, score, weight, bias, desc)
+            )
+
+        def _prettyprint_discarded_rule(n, exact, bias, desc):
+            _exact = 'Yes' if exact else 'No '
+            log.info(FMT_DISCARDED.format(n, _exact, bias, desc))
+
+        log.info('Remaining, prioritized rules:')
+        for i, rule in enumerate(prioritized_rules, start=1):
+            _prettyprint_prioritized_rule(
+                i, rule.exact_match, scored_rules[rule]['score'],
+                scored_rules[rule]['weight'], rule.ranking_bias,
+                rule.description
+            )
+
+        log.info('Discarded rules:')
+        for i, rule in enumerate(discarded_rules, start=1):
+            _prettyprint_discarded_rule(
+                i, rule.exact_match, rule.ranking_bias, rule.description
+            )
 
     @staticmethod
-    def _prettyprint_discarded_rule(number, exact, bias, desc):
-        _exact = 'Yes' if exact else 'No '
-        log.info(
-            'Rule #{} (Exact: {}  Score: N/A   Weight: N/A   Bias: {:.2f}) '
-            '{} '.format(number, _exact, bias, desc)
-        )
 
 
 def prioritize_rules(rules):
