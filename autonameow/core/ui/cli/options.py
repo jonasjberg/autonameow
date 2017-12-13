@@ -114,6 +114,12 @@ def init_argparser():
         action='store_true',
         help='List all information found.'
     )
+    optgrp_action.add_argument(
+        '--list-rulematch',
+        dest='list_rulematch',
+        action='store_true',
+        help='List detailed information on any rule matching.'
+    )
 
     optgrp_mode_method = parser.add_argument_group(
         'Operating mode',

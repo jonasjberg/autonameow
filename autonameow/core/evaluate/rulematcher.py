@@ -28,8 +28,9 @@ log = logging.getLogger(__name__)
 
 
 class RuleMatcher(object):
-    def __init__(self, rules):
+    def __init__(self, rules, list_rulematch=None):
         self._rules = list(rules)
+        self._list_rulematch = bool(list_rulematch)
 
     def request_data(self, fileobject, meowuri):
         response = repository.SessionRepository.query(fileobject, meowuri)
@@ -49,8 +50,6 @@ class RuleMatcher(object):
         # This method, which calls a callback, is itself passed as a callback..
         def _data_request_callback(meowuri):
             return self.request_data(fileobject, meowuri)
-        scored_rules = {}
-
         log.debug('Examining {} rules ..'.format(len(all_rules)))
         condition_evaluator = RuleConditionEvaluator(_data_request_callback)
         for rule in all_rules:
@@ -78,6 +77,7 @@ class RuleMatcher(object):
         # new local dict keyed by the 'Rule' class instances.
         max_condition_count = max(rule.number_conditions
                                   for rule in remaining_rules)
+        scored_rules = {}
         for rule in remaining_rules:
             met_conditions = len(condition_evaluator.passed(rule))
             num_conditions = rule.number_conditions
@@ -97,9 +97,14 @@ class RuleMatcher(object):
         )
         prioritized_rules = prioritize_rules(scored_rules)
 
-        # TODO: [TD0135] Add option to display rule matching details.
         discarded_rules = [r for r in all_rules if r not in remaining_rules]
         self._log_results(prioritized_rules, scored_rules, discarded_rules)
+
+        if self._list_rulematch:
+            self._display_details(prioritized_rules, scored_rules,
+                                  discarded_rules, condition_evaluator)
+        else:
+            self._log_results(prioritized_rules, scored_rules, discarded_rules)
 
         # Return list of ( RULE, SCORE(float), WEIGHT(float) ) tuples.
         return [
@@ -140,6 +145,36 @@ class RuleMatcher(object):
             )
 
     @staticmethod
+    def _display_details(prioritized_rules, scored_rules, discarded_rules,
+                         condition_evaluator):
+        # TODO: [TD0135] Add option to display rule matching details.
+
+        def _prettyprint_rule_details(n, _rule):
+            conditions_passed = condition_evaluator.passed(_rule)
+            conditions_failed = condition_evaluator.failed(_rule)
+
+            print('Rule #{:03d}  {!s}  ({} conditions))'.format(n, _rule.description, _rule.number_conditions))
+            for c in conditions_passed:
+                d = condition_evaluator.evaluated(_rule, c)
+                print('[PASSED] {!s}'.format(c.meowuri))
+                print('         Expression     : "{!s}"'.format(c.expression))
+                print('         Evaluated Data : "{!s}"'.format(d))
+                print('')
+
+            for c in conditions_failed:
+                d = condition_evaluator.evaluated(_rule, c)
+                print('[FAILED] {!s}'.format(c.meowuri))
+                print('         Expression     : "{!s}"'.format(c.expression))
+                print('         Evaluated Data : "{!s}"'.format(d))
+                print('')
+
+        print('\nDISCARDED RULES:')
+        for i, rule in enumerate(discarded_rules, start=1):
+            _prettyprint_rule_details(i, rule)
+
+        print('\nPRIORITIZED RULES:')
+        for i, rule in enumerate(prioritized_rules, start=1):
+            _prettyprint_rule_details(i, rule)
 
 
 def prioritize_rules(rules):
@@ -188,6 +223,7 @@ class RuleConditionEvaluator(object):
 
         self._failed = dict()
         self._passed = dict()
+        self._evaluated = dict()
 
     def evaluate(self, rule_to_evaluate):
         assert rule_to_evaluate not in (self._failed, self._passed), (
@@ -195,6 +231,7 @@ class RuleConditionEvaluator(object):
         )
         self._failed[rule_to_evaluate] = []
         self._passed[rule_to_evaluate] = []
+        self._evaluated[rule_to_evaluate] = dict()
 
         self.evaluate_rule_conditions(rule_to_evaluate)
 
@@ -203,6 +240,11 @@ class RuleConditionEvaluator(object):
 
     def passed(self, rule):
         return self._passed.get(rule, [])
+
+    def evaluated(self, rule, condition):
+        if rule not in self._evaluated:
+            return None
+        return self._evaluated[rule].get(condition)
 
     def evaluate_rule_conditions(self, rule):
         # TODO: [TD0015] Handle expression in 'condition_value'
@@ -222,6 +264,8 @@ class RuleConditionEvaluator(object):
                 log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
                 self._failed[rule].append(condition)
 
+            # assert condition not in self._evaluated
+            self._evaluated[rule][condition] = data
 
     @staticmethod
     def _evaluate_condition(condition, data):

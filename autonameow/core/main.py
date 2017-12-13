@@ -44,6 +44,7 @@ DEFAULT_OPTIONS = {
     'dump_meowuris': False,
 
     'list_all': False,
+    'list_rulematch': False,
 
     'mode_automagic': False,
     'mode_batch': False,
@@ -158,6 +159,7 @@ def cli_main(argv=None):
         'dump_meowuris': opts.dump_meowuris,
 
         'list_all': opts.list_all,
+        'list_rulematch': opts.list_rulematch,
 
         'mode_automagic': opts.mode_automagic,
         'mode_batch': opts.mode_batch,

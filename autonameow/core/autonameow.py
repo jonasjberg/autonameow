@@ -196,7 +196,7 @@ class Autonameow(object):
         if not rules:
             log.warning('Configuration does not contain any rules!')
 
-        self.matcher = RuleMatcher(rules)
+        self.matcher = RuleMatcher(rules, self.opts.get('list_rulematch'))
 
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
