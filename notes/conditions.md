@@ -15,6 +15,7 @@ Notes on Conditions in the Rules defined in the Configuration.
 * 2017-06-28 --- `jonasjberg` Added alternative "flat" config syntax
 * 2017-06-30 --- `jonasjberg` The "flattened" config syntax is now default.
 * 2017-09-23 --- `jonasjberg` Merged with `2017-07-07_raw-conditions.md`
+* 2017-12-12 --- `jonasjberg` Add notes on rule evaluation details.
 
 
 Current format for a file rule in the configuration file:
@@ -146,3 +147,55 @@ Possible solutions:
       validated by the `MimeTypeConfigFieldParser`, while the
       `filesystem.basename` condition should be checked by the
       `RegexConfigFieldParser`.
+
+
+2017-12-12 --- Reworking Rule Evaluation
+========================================
+Notes on reworking the messy rule evaluation and adding better "diagnostics".
+
+
+Current, shorter listing
+------------------------
+```
+Rule #001 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
+Rule #002 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
+Rule #003 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
+Rule #004 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
+Rule #005 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
+```
+
+
+
+Adding Detailed Listing of Rule Evaluation
+------------------------------------------
+As per TODO-list entry "`[TD0135]` Add option to display rule matching
+information."
+
+
+Mockup of possible output format:
+
+```
+Rule #001 [RULE DESCRIPTION] (3 conditions)
+
+PASSED
+
+  - extractor.filesystem.xplat.basename.full
+    Expression          'Untitled.mov'
+    Evaluated Data      'Untitled.mov'
+
+  - extractor.filesystem.xplat.contents.mime_type
+    Expression         'video/quicktime'
+    Evaluated Data     'video/quicktime'
+
+FAILED
+
+  - extractor.filesystem.xplat.pathname.full
+    Expression         '/Users/jonas/Desktop'
+    Evaluated Data     '/home/jonas/whatever'
+
+Exact: Yes  Score: 0.0  Weight: 0.0  Bias: 0.0
+```
+
+Would probably be nice to display additional detailed of possible
+transformations of the expression and evaluated data, like expanding
+`~` in paths before matching a regular expression, etc.

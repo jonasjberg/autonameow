@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from collections import defaultdict
 
 from core import repository
 
@@ -47,15 +48,25 @@ class RuleMatcher(object):
 
         # Functions that use this does not have access to 'self.fileobject'.
         # This method, which calls a callback, is itself passed as a callback..
-        def _request_data(meowuri):
+        def _data_request_callback(meowuri):
             return self.request_data(fileobject, meowuri)
         scored_rules = {}
 
-        # Out of all possible rules, remove those that require an exact match
-        # and contains any condition that fail evaluation.
         log.debug('Examining {} rules ..'.format(len(all_rules)))
-        remaining_rules = remove_rules_failing_exact_match(all_rules,
-                                                           _request_data)
+        condition_evaluator = RuleConditionEvaluator(_data_request_callback)
+        for rule in all_rules:
+            condition_evaluator.evaluate(rule)
+
+        # Remove rules that require an exact match and contains a condition
+        # that failed evaluation.
+        remaining_rules = []
+        for rule in all_rules:
+            if rule.exact_match:
+                if condition_evaluator.failed(rule):
+                    # List of failed conditions for this rule is not empty.
+                    continue
+            remaining_rules.append(rule)
+
         if len(remaining_rules) == 0:
             log.debug('No rules remain after discarding those that require an '
                       'exact match and failed evaluation of any condition ..')
@@ -65,12 +76,11 @@ class RuleMatcher(object):
                   'exact match and failed evaluation.'.format(len(remaining_rules)))
 
         # Calculate score and weight for each rule, store the results in a
-        # new local dict instead of mutating the 'Rule' instances.
-        # The new dict is keyed by the 'Rule' class instances.
+        # new local dict keyed by the 'Rule' class instances.
         max_condition_count = max(rule.number_conditions
                                   for rule in remaining_rules)
         for rule in remaining_rules:
-            met_conditions = rule.number_conditions_met(_request_data)
+            met_conditions = len(condition_evaluator.passed(rule))
             num_conditions = rule.number_conditions
 
             # Ratio of met conditions to the total number of conditions
@@ -166,6 +176,50 @@ def prioritize_rules(rules):
     return [rule[0] for rule in prioritized_rules]
 
 
-def remove_rules_failing_exact_match(rules_to_examine, data_query_function):
-    return [rule for rule in rules_to_examine if
-            rule.evaluate_exact(data_query_function)]
+class RuleConditionEvaluator(object):
+    def __init__(self, data_query_function):
+        self.data_query_function = data_query_function
+
+        self._failed = dict()
+        self._passed = dict()
+
+    def evaluate(self, rule_to_evaluate):
+        assert rule_to_evaluate not in (self._failed, self._passed), (
+            'Rule has already been evaluated; {!r}'.format(rule_to_evaluate)
+        )
+        self._failed[rule_to_evaluate] = []
+        self._passed[rule_to_evaluate] = []
+
+        self.evaluate_rule_conditions(rule_to_evaluate)
+
+    def failed(self, rule):
+        return self._failed.get(rule, [])
+
+    def passed(self, rule):
+        return self._passed.get(rule, [])
+
+    def evaluate_rule_conditions(self, rule):
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
+        if rule.description:
+            _desc = '{} :: '.format(rule.description)
+        else:
+            _desc = ''
+
+        for condition in rule.conditions:
+            if self._evaluate_condition(condition):
+                log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
+                self._passed[rule].append(condition)
+            else:
+                log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
+                self._failed[rule].append(condition)
+
+    def _evaluate_condition(self, condition):
+        _data_meowuri = condition.meowuri
+        data = self.data_query_function(_data_meowuri)
+        if data is None:
+            log.warning('Unable to evaluate condition due to missing data:'
+                        ' "{!s}"'.format(condition))
+            return False
+
+        return condition.evaluate(data)

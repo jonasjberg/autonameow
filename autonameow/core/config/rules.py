@@ -236,6 +236,10 @@ class Rule(object):
         self.conditions = conditions
         self.data_sources = data_sources
 
+        # NOTE(jonas): This assumes instances of 'RuleCondition' are immutable!
+        self.__cached_hash = None
+
+
     @property
     def description(self):
         return self._description
@@ -335,79 +339,6 @@ class Rule(object):
 
         return unique_meowuris
 
-    def evaluate_exact(self, data_query_function):
-        """
-        Evaluates this rule using data provided by a callback function.
-
-        This tests rules that require exact matches.
-        Returns False at first unmatched condition if the rule requires an
-        exact match. If the rule does not required an exact match, True is
-        returned at once.
-
-        Args:
-            data_query_function: Callback for retrieving the data to evaluate.
-
-        Returns:
-            If the rule requires an exact match:
-                True if all rule conditions evaluates to True.
-                False if any rule condition evaluates to False.
-            If the rule does not require an exact match:
-                True
-        """
-        if self.description:
-            _desc = '{} :: '.format(self.description)
-        else:
-            _desc = ''
-
-        # Pass if exact match isn't required.
-        if not self.exact_match:
-            log.debug('{}Exact match not required'.format(_desc))
-            return True
-
-        for condition in self.conditions:
-            if not self._evaluate_condition(condition, data_query_function):
-                log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
-                log.debug('{}Exact match FAILED!'.format(_desc))
-                return False
-            else:
-                log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
-        log.debug('{}Exact match PASSED!'.format(_desc))
-        return True
-
-    def number_conditions_met(self, data_query_function):
-        """
-        Evaluates rule conditions using data provided by a callback function.
-
-        Args:
-            data_query_function: Callback for retrieving the data to evaluate.
-
-        Returns:
-            The number of met conditions as an integer.
-        """
-        if self.description:
-            _desc = '{} :: '.format(self.description)
-        else:
-            _desc = ''
-
-        _count_met_conditions = 0
-        for condition in self.conditions:
-            if self._evaluate_condition(condition, data_query_function):
-                log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
-                _count_met_conditions += 1
-            else:
-                log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
-
-        return _count_met_conditions
-
-    def _evaluate_condition(self, condition, data_query_function):
-        data = data_query_function(condition.meowuri)
-        if data is None:
-            log.warning('Unable to evaluate condition due to missing data:'
-                        ' "{!s}"'.format(condition))
-            return False
-
-        return condition.evaluate(data)
-
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
@@ -422,18 +353,22 @@ class Rule(object):
         )
 
     def __hash__(self):
-        hashed_conditions = sum(hash(c) for c in self.conditions)
-        hashed_data_sources = 0
-        for template_field, meowuri_list in self.data_sources.items():
-            partial_hash = hash(template_field) + sum(
-                hash(meowuri) for meowuri in meowuri_list
-            )
-            hashed_data_sources += partial_hash
+        # NOTE(jonas): This assumes instances of 'RuleCondition' are immutable!
+        if not self.__cached_hash:
+            hashed_conditions = sum(hash(c) for c in self.conditions)
+            hashed_data_sources = 0
+            for template_field, meowuri_list in self.data_sources.items():
+                data_source_hash = hash(template_field) + sum(
+                    hash(meowuri) for meowuri in meowuri_list
+                )
+                hashed_data_sources += data_source_hash
 
-        return hash(
-            (hashed_conditions, hashed_data_sources, self.description,
-             self.exact_match, self.name_template, self.ranking_bias)
-        )
+            self.__cached_hash = hash(
+                (hashed_conditions, hashed_data_sources, self.description,
+                 self.exact_match, self.name_template, self.ranking_bias)
+            )
+
+        return self.__cached_hash
 
     def __str__(self):
         return util.dump(self.__dict__)

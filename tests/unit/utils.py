@@ -260,10 +260,19 @@ def get_mock_empty_extractor_data():
     return {}
 
 
+MOCK_SESSION_DATA_POOLS = dict()
+
+
 def mock_request_data_callback(fileobject, label):
-    data = mock_session_data_pool_with_extractor_and_analysis_data(fileobject)
+    global MOCK_SESSION_DATA_POOLS
+
+    cached_data = MOCK_SESSION_DATA_POOLS.get(fileobject)
+    if not cached_data:
+        d = mock_session_data_pool_with_extractor_and_analysis_data(fileobject)
+        cached_data = MOCK_SESSION_DATA_POOLS[fileobject] = d
+
     try:
-        d = nested_dict_get(data, [fileobject, label])
+        d = nested_dict_get(cached_data, [fileobject, label])
     except KeyError:
         return None
     else:
