@@ -149,11 +149,30 @@ class RuleMatcher(object):
                          condition_evaluator):
         # TODO: [TD0135] Add option to display rule matching details.
 
-        def _prettyprint_rule_details(n, _rule):
+        def _prettyprint_rule_details(n, _rule, _bias, _score=None, _weight=None):
             conditions_passed = condition_evaluator.passed(_rule)
             conditions_failed = condition_evaluator.failed(_rule)
 
-            print('Rule #{:03d}  {!s}  ({} conditions))'.format(n, _rule.description, _rule.number_conditions))
+            UNAVAILABLE = 'N/A '
+            FMT_DECIMAL = '{:.2f}'
+
+            if _score is None:
+                _str_score = UNAVAILABLE
+            else:
+                _str_score = FMT_DECIMAL.format(_score)
+            if _weight is None:
+                _str_weight = UNAVAILABLE
+            else:
+                _str_weight = FMT_DECIMAL.format(_weight)
+
+            _str_exact = 'Yes' if rule.exact_match else 'No '
+
+            print('#{:03d}  {!s}  ({} conditions))'.format(
+                n, _rule.description, _rule.number_conditions
+            ))
+            print('Exact: {}  Score: {}  Weight: {}  Bias: {}'.format(
+                _str_exact, _str_score, _str_weight, _bias
+            ))
             for c in conditions_passed:
                 d = condition_evaluator.evaluated(_rule, c)
                 print('[PASSED] {!s}'.format(c.meowuri))
@@ -168,13 +187,17 @@ class RuleMatcher(object):
                 print('         Evaluated Data : "{!s}"'.format(d))
                 print('')
 
-        print('\nDISCARDED RULES:')
-        for i, rule in enumerate(discarded_rules, start=1):
-            _prettyprint_rule_details(i, rule)
-
-        print('\nPRIORITIZED RULES:')
+        print('\nRemaining, prioritized rules:')
         for i, rule in enumerate(prioritized_rules, start=1):
-            _prettyprint_rule_details(i, rule)
+            _bias = rule.ranking_bias
+            _score = scored_rules[rule]['score']
+            _weight = scored_rules[rule]['weight']
+            _prettyprint_rule_details(i, rule, _bias, _score, _weight)
+
+        print('\nDiscarded rules:')
+        for i, rule in enumerate(discarded_rules, start=1):
+            _bias = rule.ranking_bias
+            _prettyprint_rule_details(i, rule, _bias)
 
 
 def prioritize_rules(rules):
