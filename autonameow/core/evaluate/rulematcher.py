@@ -213,16 +213,18 @@ class RuleConditionEvaluator(object):
             _desc = ''
 
         for condition in rule.conditions:
-            if self._evaluate_condition(condition):
+            _data_meowuri = condition.meowuri
+            data = self.data_query_function(_data_meowuri)
+            if self._evaluate_condition(condition, data):
                 log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
                 self._passed[rule].append(condition)
             else:
                 log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
                 self._failed[rule].append(condition)
 
-    def _evaluate_condition(self, condition):
-        _data_meowuri = condition.meowuri
-        data = self.data_query_function(_data_meowuri)
+
+    @staticmethod
+    def _evaluate_condition(condition, data):
         if data is None:
             log.warning('Unable to evaluate condition due to missing data:'
                         ' "{!s}"'.format(condition))
