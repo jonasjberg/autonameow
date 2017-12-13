@@ -48,19 +48,22 @@ class RuleMatcher(object):
 
         # Functions that use this does not have access to 'self.fileobject'.
         # This method, which calls a callback, is itself passed as a callback..
-        def _request_data(meowuri):
+        def _data_request_callback(meowuri):
             return self.request_data(fileobject, meowuri)
         scored_rules = {}
 
         log.debug('Examining {} rules ..'.format(len(all_rules)))
-        rule_evaluator = RuleEvaluator(_request_data)
+        condition_evaluator = RuleConditionEvaluator(_data_request_callback)
         for rule in all_rules:
-            rule_evaluator.evaluate(rule)
+            condition_evaluator.evaluate(rule)
 
+        # Remove rules that require an exact match and contains a condition
+        # that failed evaluation.
         remaining_rules = []
         for rule in all_rules:
             if rule.exact_match:
-                if rule_evaluator.failed(rule):
+                if condition_evaluator.failed(rule):
+                    # List of failed conditions for this rule is not empty.
                     continue
             remaining_rules.append(rule)
 
@@ -73,12 +76,11 @@ class RuleMatcher(object):
                   'exact match and failed evaluation.'.format(len(remaining_rules)))
 
         # Calculate score and weight for each rule, store the results in a
-        # new local dict instead of mutating the 'Rule' instances.
-        # The new dict is keyed by the 'Rule' class instances.
+        # new local dict keyed by the 'Rule' class instances.
         max_condition_count = max(rule.number_conditions
                                   for rule in remaining_rules)
         for rule in remaining_rules:
-            met_conditions = len(rule_evaluator.passed(rule))
+            met_conditions = len(condition_evaluator.passed(rule))
             num_conditions = rule.number_conditions
 
             # Ratio of met conditions to the total number of conditions
@@ -116,7 +118,6 @@ class RuleMatcher(object):
             (r, scored_rules[r]['score'], scored_rules[r]['weight'])
             for r in prioritized_rules
         ]
-
 
     @staticmethod
     def _prettyprint_prioritized_rule(num, exact, score, weight, bias, desc):
@@ -175,24 +176,17 @@ def prioritize_rules(rules):
     return [rule[0] for rule in prioritized_rules]
 
 
-class RuleEvaluator(object):
+class RuleConditionEvaluator(object):
     def __init__(self, data_query_function):
         self.data_query_function = data_query_function
-
-        # Allows setting values two levels down without intermediate keys.
-        self.results = defaultdict(dict)
 
         self._failed = dict()
         self._passed = dict()
 
     def evaluate(self, rule_to_evaluate):
-        assert rule_to_evaluate not in self.results, (
+        assert rule_to_evaluate not in (self._failed, self._passed), (
             'Rule has already been evaluated; {!r}'.format(rule_to_evaluate)
         )
-        # self.results[rule_to_evaluate]['passed'] = []
-        # self.results[rule_to_evaluate]['failed'] = []
-
-        # TODO: [cleanup] Remove duplication ..
         self._failed[rule_to_evaluate] = []
         self._passed[rule_to_evaluate] = []
 
@@ -215,15 +209,9 @@ class RuleEvaluator(object):
         for condition in rule.conditions:
             if self._evaluate_condition(condition):
                 log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
-                # self.results[rule]['passed'].append(condition)
-
-                # TODO: [cleanup] Remove duplication ..
                 self._passed[rule].append(condition)
             else:
                 log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
-                # self.results[rule]['failed'].append(condition)
-
-                # TODO: [cleanup] Remove duplication ..
                 self._failed[rule].append(condition)
 
     def _evaluate_condition(self, condition):
