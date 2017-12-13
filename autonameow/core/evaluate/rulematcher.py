@@ -21,7 +21,10 @@
 
 import logging
 
-from core import repository
+from core import (
+    repository,
+    ui
+)
 
 
 log = logging.getLogger(__name__)
@@ -147,15 +150,12 @@ class RuleMatcher(object):
     @staticmethod
     def _display_details(prioritized_rules, scored_rules, discarded_rules,
                          condition_evaluator):
-        # TODO: [TD0135] Add option to display rule matching details.
-
         def _prettyprint_rule_details(n, _rule, _bias, _score=None, _weight=None):
             conditions_passed = condition_evaluator.passed(_rule)
             conditions_failed = condition_evaluator.failed(_rule)
 
             UNAVAILABLE = 'N/A '
             FMT_DECIMAL = '{:.2f}'
-
             if _score is None:
                 _str_score = UNAVAILABLE
             else:
@@ -166,35 +166,43 @@ class RuleMatcher(object):
                 _str_weight = FMT_DECIMAL.format(_weight)
 
             _str_exact = 'Yes' if rule.exact_match else 'No '
+            # s = 'Rule #{:02d} (Exact: {}  Score: {}  Weight: {}  Bias: {})  [{!s}]'
+            # ui.msg(s.format(n, _str_exact, _str_score, _str_weight, _bias,
+            #                _rule.description))
+            sr = 'Rule #{:02d}  {!s}'.format(n, _rule.description)
+            ui.msg(ui.colorize(sr, fore='LIGHTWHITE_EX'))
 
-            print('#{:03d}  {!s}  ({} conditions))'.format(
-                n, _rule.description, _rule.number_conditions
-            ))
-            print('Exact: {}  Score: {}  Weight: {}  Bias: {}'.format(
-                _str_exact, _str_score, _str_weight, _bias
-            ))
+            si = 'Exact: {}  Score: {}  Weight: {}  Bias: {}'.format(_str_exact, _str_score, _str_weight, _bias)
+            ui.msg(si + '\n')
+
+            cf = ui.ColumnFormatter()
+            cf.setalignment('right', 'left')
+            msg_label_pass = ui.colorize('PASSED', fore='GREEN')
+            msg_label_fail = ui.colorize('FAILED', fore='RED')
             for c in conditions_passed:
                 d = condition_evaluator.evaluated(_rule, c)
-                print('[PASSED] {!s}'.format(c.meowuri))
-                print('         Expression     : "{!s}"'.format(c.expression))
-                print('         Evaluated Data : "{!s}"'.format(d))
-                print('')
+
+                cf.addrow(msg_label_pass, str(c.meowuri))
+                cf.addrow('Expression:', str(c.expression))
+                cf.addrow('Evaluated Data:', str(d))
 
             for c in conditions_failed:
                 d = condition_evaluator.evaluated(_rule, c)
-                print('[FAILED] {!s}'.format(c.meowuri))
-                print('         Expression     : "{!s}"'.format(c.expression))
-                print('         Evaluated Data : "{!s}"'.format(d))
-                print('')
+                cf.addrow(msg_label_fail, str(c.meowuri))
+                cf.addrow('Expression:', str(c.expression))
+                cf.addrow('Evaluated Data:', str(d))
 
-        print('\nRemaining, prioritized rules:')
+            ui.msg(str(cf))
+            ui.msg('\n')
+
+        ui.msg('\nRemaining, prioritized rules:', style='heading')
         for i, rule in enumerate(prioritized_rules, start=1):
             _bias = rule.ranking_bias
             _score = scored_rules[rule]['score']
             _weight = scored_rules[rule]['weight']
             _prettyprint_rule_details(i, rule, _bias, _score, _weight)
 
-        print('\nDiscarded rules:')
+        ui.msg('\nDiscarded rules:', style='heading')
         for i, rule in enumerate(discarded_rules, start=1):
             _bias = rule.ranking_bias
             _prettyprint_rule_details(i, rule, _bias)
@@ -270,8 +278,6 @@ class RuleConditionEvaluator(object):
         return self._evaluated[rule].get(condition)
 
     def evaluate_rule_conditions(self, rule):
-        # TODO: [TD0015] Handle expression in 'condition_value'
-        #                ('Defined', '> 2017', etc)
         if rule.description:
             _desc = '{} :: '.format(rule.description)
         else:
@@ -287,7 +293,7 @@ class RuleConditionEvaluator(object):
                 log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
                 self._failed[rule].append(condition)
 
-            # assert condition not in self._evaluated
+            assert condition not in self._evaluated.get(rule, {})
             self._evaluated[rule][condition] = data
 
     @staticmethod
@@ -297,4 +303,6 @@ class RuleConditionEvaluator(object):
                         ' "{!s}"'.format(condition))
             return False
 
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
         return condition.evaluate(data)
