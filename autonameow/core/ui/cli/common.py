@@ -263,7 +263,7 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
             log.info(message)
 
     elif style == 'heading':
-        _heading_underline = C.CLI_MSG_HEADING_CHAR * len(message)
+        _heading_underline = C.CLI_MSG_HEADING_CHAR * len(message.strip())
         _colored_heading_underline = colorize(_heading_underline, style='DIM')
         _colored_heading_text = colorize(message, style='BRIGHT')
         print('\n')
