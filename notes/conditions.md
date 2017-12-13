@@ -16,6 +16,7 @@ Notes on Conditions in the Rules defined in the Configuration.
 * 2017-06-30 --- `jonasjberg` The "flattened" config syntax is now default.
 * 2017-09-23 --- `jonasjberg` Merged with `2017-07-07_raw-conditions.md`
 * 2017-12-12 --- `jonasjberg` Add notes on rule evaluation details.
+* 2017-12-13 --- `jonasjberg` Start writing possible expression syntax.
 
 
 2017-12-13 --- Expression Syntax
@@ -23,6 +24,52 @@ Notes on Conditions in the Rules defined in the Configuration.
 Some kind of initial syntax is required in order to properly implement rule
 condition expressions as per `[TD0015]`.
 
+Old use-case examples, with possible configuration entries that satisfy
+the requirement;
+
+* __Is some metadata field available?__  
+  Examples:
+    * *Does the file metadata contain `EXIF:DateTimeOriginal`?*
+        * Rule condition:
+            ```yaml
+            extractor.metadata.exiftool.EXIF:DateTimeOriginal: DEFINED
+            ```
+    * *Does the file metadata contain __any__ creation date? (`DateCreated`)*
+        * Rule condition:
+            ```yaml
+            generic.metadata.date_created: DEFINED
+            ```
+
+* __Is some date/time-data within a range?__  
+  Examples:
+    * *Was `EXIF:DateTimeOriginal` more recent than 2017-05-04 and older than 2017-06-27?*
+        * Rule condition:
+            ```yaml
+            extractor.metadata.exiftool.EXIF:DateTimeOriginal: 2017-05-04 > X > 2017-06-27
+            ```
+    * *Was `DateCreated` at or after 2017-06-27?*
+        * Rule condition:
+            ```yaml
+            extractor.metadata.exiftool.EXIF:DateTimeOriginal: X >= 2017-06-27
+            ```
+    * *Was `DateCreated` before 2017-05-04?*
+        * Rule condition:
+            ```yaml
+            extractor.metadata.exiftool.EXIF:DateTimeOriginal: X < 2017-05-04
+            ```
+    * ~~*Was `DateCreated` before `DateModified`?*~~
+        * Rule condition:
+            ```yaml
+            generic.metadata.date_created: < generic.metadata.date_modified
+            ```
+    * ~~*Was `DateCreated` before `DateModified` and after 2017-06-27?*~~
+        * Rule condition:
+            ```yaml
+            generic.metadata.date_created: X < generic.metadata.date_modified ???
+            ```
+
+It is pretty clear that the current format using the YAML-version of a
+dictionary does not work very well for some of the above expressions..
 
 
 
