@@ -280,6 +280,9 @@ class MeowURI(object):
                                                          for p in self._parts)
         return self.__cached_str
 
+    def __repr__(self):
+        return str(self)
+
 
 class MeowURIChild(object):
     def __init__(self, raw_string):
