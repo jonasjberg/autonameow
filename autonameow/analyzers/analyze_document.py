@@ -119,10 +119,12 @@ class DocumentAnalyzer(BaseAnalyzer):
         if self.candidate_publishers:
             # TODO: [cleanup] ..
             result = find_publisher(result, self.candidate_publishers)
+            if not result:
+                return
 
-        self._add_results(
-            'publisher', self._wrap_publisher(result)
-        )
+            self._add_results(
+                'publisher', self._wrap_publisher(result)
+            )
 
     def _wrap_publisher(self, data):
         return {
