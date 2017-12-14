@@ -247,7 +247,7 @@ def dedupe_list_of_datadicts(datadict_list):
     for datadict in list_of_datadicts:
         value = datadict.get('value')
         # Assume that the data is free from None values at this point.
-        assert value is not None
+        assert value is not None, 'None value in datadict: ' + str(datadict)
 
         if isinstance(value, list):
             sorted_list_value = sorted(list(value))
