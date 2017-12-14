@@ -43,9 +43,9 @@ class TestForceStringRaisesOnlyExpectedException(TestCase):
     @given(text())
     def test_text_input(self, s):
         try:
-            coerced_string = types.force_string(s)
+            _ = types.force_string(s)
         except types.AWTypeError:
-            return
+            pass
         except Exception as e:
             raise AssertionError('force_string("{!s}") raised: {!s}'.format(s,
                                                                             e))
@@ -53,9 +53,9 @@ class TestForceStringRaisesOnlyExpectedException(TestCase):
     @given(characters())
     def test_character_input(self, s):
         try:
-            coerced_string = types.force_string(s)
+            _ = types.force_string(s)
         except types.AWTypeError:
-            return
+            pass
         except Exception as e:
             raise AssertionError('force_string("{!s}") raised: {!s}'.format(s,
                                                                             e))
@@ -63,9 +63,9 @@ class TestForceStringRaisesOnlyExpectedException(TestCase):
     @given(binary())
     def test_binary_input(self, s):
         try:
-            coerced_string = types.force_string(s)
+            _ = types.force_string(s)
         except types.AWTypeError:
-            return
+            pass
         except Exception as e:
             raise AssertionError('force_string("{!s}") raised: {!s}'.format(s,
                                                                             e))
@@ -74,29 +74,37 @@ class TestForceStringRaisesOnlyExpectedException(TestCase):
 class TestCoerceString(TestCase):
     @given(text())
     def test_text_input(self, s):
+        self.assertIsInstance(s, str, 'Expected hypothesis data of type str')
+
         coerced_string = types.AW_STRING(s)
+        self.assertIsInstance(coerced_string, str)
         self.assertEqual(coerced_string, s)
 
     @given(characters())
     def test_character_input(self, s):
+        self.assertIsInstance(s, str, 'Expected hypothesis data of type str')
+
         coerced_string = types.AW_STRING(s)
+        self.assertIsInstance(coerced_string, str)
         self.assertEqual(coerced_string, s)
 
     @given(binary())
     def test_binary_input_raises_only_expected_exception(self, s):
         try:
-            coerced_string = types.AW_STRING(s)
+            _ = types.AW_STRING(s)
         except types.AWTypeError:
-            return
+            pass
         except Exception as e:
             raise AssertionError('AW_STRING("{!s}") raised: {!s}'.format(s, e))
 
     @given(integers())
     def test_integer_input(self, s):
         coerced_string = types.AW_STRING(s)
+        self.assertIsInstance(coerced_string, str)
         self.assertEqual(coerced_string, str(s))
 
     @given(booleans())
     def test_boolean_input(self, s):
         coerced_string = types.AW_STRING(s)
+        self.assertIsInstance(coerced_string, str)
         self.assertIn(coerced_string, ('True', 'False'))
