@@ -119,6 +119,27 @@ FAILED
 Exact: Yes  Score: 0.0  Weight: 0.0  Bias: 0.0
 ```
 
+Alternative mockup:
+```
+Rule #001 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
+
+PASSED  extractor.filesystem.xplat.basename.full
+        Expr:  'Untitled.mov'
+        Data:  'Untitled.mov'
+PASSED  extractor.filesystem.xplat.contents.mime_type
+        Expr:  'video/quicktime'
+        Data:  'video/quicktime'
+FAILED  extractor.filesystem.xplat.pathname.full
+        Expr:  '/Users/jonas/Desktop'
+        Data:  '/home/jonas/whatever'
+
+Rule #002 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
+Rule #003 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
+Rule #004 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
+Rule #005 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
+```
+
+
 Would probably be nice to display additional detailed of possible
 transformations of the expression and evaluated data, like expanding
 `~` in paths before matching a regular expression, etc.
