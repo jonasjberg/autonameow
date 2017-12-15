@@ -41,6 +41,8 @@ class PdftotextTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(PdftotextTextExtractor, self).__init__()
 
+        # NOTE(jonas): DECREASES performance when cache file size reaches ~100MB
+        # TODO: [TD0101] Add ability to limit sizes of cache file.
         self.init_cache()
 
     def extract_text(self, fileobject):
