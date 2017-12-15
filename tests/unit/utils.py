@@ -83,6 +83,30 @@ def abspath_testfile(testfile_basename):
                                         testfile_basename))
 
 
+def abspath_testconfig(testconfig_basename=None):
+    """
+    Utility function used by tests to construct a full path to individual
+    configuration files in the 'test_files/configs' directory.
+
+    Args:
+        testconfig_basename: The basename of a file in the 'test_files/configs'
+                             directory as a Unicode string.
+
+    Returns:
+        The absolute path to the given configuration file as a Unicode string.
+        Or the default configuration file is no basename is specified.
+    """
+    if testconfig_basename is None:
+        _basename = uuconst.DEFAULT_YAML_CONFIG_BASENAME
+    else:
+        _basename = testconfig_basename
+    assert isinstance(_basename, str), type(_basename)
+
+    return os.path.abspath(
+        os.path.join(uuconst.TEST_FILES_DIR, 'configs', _basename)
+    )
+
+
 def normpath(path):
     return enc.normpath(path)
 
@@ -724,10 +748,11 @@ def is_internalbytestring(thing):
 
 
 def get_default_config():
-    _config_basename = uuconst.DEFAULT_YAML_CONFIG_BASENAME
-    _config_path = enc.normpath(abspath_testfile(_config_basename))
-
     init_session_repository()
+
+    _config_path = enc.normpath(abspath_testconfig())
+    assert isinstance(_config_path, bytes)
+
     config_parser = ConfigurationParser()
     return config_parser.from_file(_config_path)
 

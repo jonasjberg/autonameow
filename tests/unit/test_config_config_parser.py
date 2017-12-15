@@ -35,7 +35,6 @@ except ImportError:
           file=sys.stderr)
 
 import unit.utils as uu
-import unit.constants as uuconst
 from core import constants as C
 from core.config.config_parser import (
     ConfigurationParser,
@@ -231,9 +230,7 @@ class TestDefaultConfigFromFile(TestCase):
     def setUp(self):
         self.config_parser = ConfigurationParser()
 
-        self.config_path_unicode = uu.abspath_testfile(
-            uuconst.DEFAULT_YAML_CONFIG_BASENAME
-        )
+        self.config_path_unicode = uu.abspath_testconfig()
         uu.file_exists(self.config_path_unicode)
         uu.path_is_readable(self.config_path_unicode)
         self.assertTrue(uu.is_internalstring(self.config_path_unicode))

@@ -194,7 +194,6 @@ class TerminalReporter(object):
 class RegressionTestLoader(object):
     BASENAME_DESCRIPTION = b'description'
     BASENAME_SKIP = b'skip'
-    BASENAME_YAML_CONFIG = b'config.yaml'
     BASENAME_YAML_OPTIONS = b'options.yaml'
     BASENAME_YAML_ASSERTS = b'asserts.yaml'
 
@@ -315,9 +314,7 @@ class RegressionTestLoader(object):
         _path = types.force_string(_options.get('config_path'))
         if not _path:
             # Use default config.
-            _abspath = uu.abspath_testfile(
-                uuconst.DEFAULT_YAML_CONFIG_BASENAME
-            )
+            _abspath = uu.abspath_testconfig()
         elif _path.startswith('$TESTFILES/'):
             # Substitute "variable".
             _basename = _path.replace('$TESTFILES/', '').strip()

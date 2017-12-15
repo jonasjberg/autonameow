@@ -222,4 +222,4 @@ EXTRACTOR_CLASS_PACKAGES = ['filesystem', 'metadata', 'text']
 EXTRACTOR_CLASS_MODULES = []
 
 # Various test files (hopefully) included with the sources.
-DEFAULT_YAML_CONFIG_BASENAME = 'default_config.yaml'
+DEFAULT_YAML_CONFIG_BASENAME = 'default.yaml'

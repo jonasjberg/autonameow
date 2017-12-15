@@ -26,15 +26,12 @@ from core.disk import (
     load_yaml_file,
     write_yaml_file
 )
-import unit.constants as uuconst
 import unit.utils as uu
 
 
 class TestLoadYAML(TestCase):
     def test_loads_valid_file(self):
-        _config_basename = uuconst.DEFAULT_YAML_CONFIG_BASENAME
-        _yaml_path = uu.abspath_testfile(_config_basename)
-
+        _yaml_path = uu.abspath_testconfig()
         actual = load_yaml_file(_yaml_path)
         self.assertEqual(type(actual), dict)
 

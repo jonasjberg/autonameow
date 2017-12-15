@@ -27,7 +27,6 @@ from unittest.mock import (
     patch
 )
 
-import unit.constants as uuconst
 import unit.utils as uu
 from core import config
 from core.config import load_config_from_file
@@ -123,8 +122,6 @@ class TestLoadConfigFromFile(TestCase):
             _ = load_config_from_file(None)
 
     def test_loads_valid_config_from_absolute_path(self):
-        _config_path = enc.normpath(
-            uu.abspath_testfile(uuconst.DEFAULT_YAML_CONFIG_BASENAME)
-        )
+        _config_path = enc.normpath(uu.abspath_testconfig())
         actual = load_config_from_file(_config_path)
         self.assertIsNotNone(actual)

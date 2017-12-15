@@ -94,6 +94,44 @@ class TestUnitUtilityAbsPathTestFile(TestCase):
         self.assertTrue(os.path.isabs(actual))
 
 
+class TestUnitUtilityAbsPathTestConfig(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.actual_specified = uu.abspath_testconfig(
+            uuconst.DEFAULT_YAML_CONFIG_BASENAME
+        )
+        cls.actual_default = uu.abspath_testconfig()
+
+    def test_returns_expected_encoding(self):
+        self.assertIsInstance(self.actual_specified, str)
+
+    def test_returns_absolute_path(self):
+        self.assertTrue(os.path.isabs(self.actual_specified))
+
+    def test_returns_existing_path(self):
+        self.assertTrue(os.path.exists(self.actual_specified))
+
+    def test_returns_path_to_existing_file(self):
+        self.assertTrue(os.path.isfile(self.actual_specified))
+
+    def test_returns_default_config_if_basename_is_unspecified(self):
+        self.assertTrue(
+            self.actual_default.endswith(uuconst.DEFAULT_YAML_CONFIG_BASENAME)
+        )
+
+    def test_basename_unspecified_returns_expected_encoding(self):
+        self.assertIsInstance(self.actual_default, str)
+
+    def test_basename_unspecified_returns_absolute_path(self):
+        self.assertTrue(os.path.isabs(self.actual_default))
+
+    def test_basename_unspecified_returns_existing_path(self):
+        self.assertTrue(os.path.exists(self.actual_default))
+
+    def test_basename_unspecified_returns_path_to_existing_file(self):
+        self.assertTrue(os.path.isfile(self.actual_default))
+
+
 class TestUnitUtilityFileObjectTestFile(TestCase):
     def test_returns_expected_type(self):
         actual = uu.fileobject_testfile('empty')
@@ -605,11 +643,16 @@ class TestIsInternalByteString(TestCase):
 
 
 class TestGetDefaultConfig(TestCase):
-    def test_returns_expected_type(self):
+    @classmethod
+    def setUpClass(cls):
         uu.init_session_repository()
         uu.init_provider_registry()
+        cls.actual = uu.get_default_config()
 
-        actual = uu.get_default_config()
+    def test_does_not_return_none(self):
+        self.assertIsNotNone(self.actual)
+
+    def test_returns_an_instance_of_the_configuration_class(self):
         from core.config.configuration import Configuration
         self.assertTrue(isinstance(actual, Configuration))
 

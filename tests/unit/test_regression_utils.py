@@ -165,6 +165,7 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
 
 class TestRegressionTestLoaderSetConfigPath(TestCase):
     def setUp(self):
+        self._default_config_path = uu.normpath(uu.abspath_testconfig())
         self._regressiontest_dir = regtest_abspath(
             uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
         )
@@ -181,9 +182,7 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
         }
         expected = {
             'verbose': True,
-            'config_path': uu.normpath(
-                uu.abspath_testfile(uuconst.DEFAULT_YAML_CONFIG_BASENAME)
-            ),
+            'config_path': self._default_config_path,
             'mode_batch': True,
         }
         self._check(input_options, expected)
@@ -196,25 +195,20 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
         }
         expected = {
             'verbose': True,
-            'config_path': uu.normpath(
-                uu.abspath_testfile(uuconst.DEFAULT_YAML_CONFIG_BASENAME)
-            ),
+            'config_path': self._default_config_path,
             'mode_batch': True,
         }
         self._check(input_options, expected)
 
     def test_replaces_config_path_variable_testfiles(self):
-        config_basename = uuconst.DEFAULT_YAML_CONFIG_BASENAME
         input_options = {
             'verbose': True,
-            'config_path': '$TESTFILES/{}'.format(config_basename),
+            'config_path': '$TESTFILES/configs/default.yaml',
             'mode_batch': True,
         }
         expected = {
             'verbose': True,
-            'config_path': uu.normpath(
-                uu.abspath_testfile(config_basename)
-            ),
+            'config_path': self._default_config_path,
             'mode_batch': True,
         }
         self._check(input_options, expected)
@@ -443,7 +437,7 @@ SAMPLE_TESTCASE_0000 = {
     },
     'description': 'Dummy test used by regression runner and utilities unit tests',
     'options': {
-        'config_path': b'foo/test_files/default_config.yaml',
+        'config_path': b'foo/test_files/configs/default.yaml',
         'debug': False,
         'dry_run': True,
         'dump_config': False,
@@ -468,7 +462,7 @@ SAMPLE_TESTCASE_0006 = {
     },
     'description': 'All *.jpg test files with minimal settings for output and actions',
     'options': {
-        'config_path': b'foo/test_files/default_config.yaml',
+        'config_path': b'foo/test_files/configs/default.yaml',
         'debug': False,
         'dry_run': True,
         'dump_config': False,
@@ -499,7 +493,7 @@ class TestCommandlineArgsForTestcase(TestCase):
             '--dry-run',
             '--automagic',
             '--batch',
-            "--config-path 'foo/test_files/default_config.yaml'"
+            "--config-path 'foo/test_files/configs/default.yaml'"
         ]
         actual = _commandline_args_for_testcase(SAMPLE_TESTCASE_0000)
 
@@ -513,7 +507,7 @@ class TestCommandlineArgsForTestcase(TestCase):
             '--automagic',
             '--batch',
             '--quiet',
-            "--config-path 'foo/test_files/default_config.yaml'",
+            "--config-path 'foo/test_files/configs/default.yaml'",
             '--',
             "'foo/test_files/smulan.jpg'",
             "'foo/test_files/magic_jpg.jpg'"
@@ -533,10 +527,10 @@ class TestCommandlineForTestcase(TestCase):
 
     def test_returns_expected_for_testcase_0000(self):
         actual = commandline_for_testcase(SAMPLE_TESTCASE_0000)
-        expect = "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/default_config.yaml'"
+        expect = "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/configs/default.yaml'"
         self.assertEqual(actual, expect)
 
     def test_returns_expected_for_testcase_0006(self):
         actual = commandline_for_testcase(SAMPLE_TESTCASE_0006)
-        expect = "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/default_config.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'"
+        expect = "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/configs/default.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'"
         self.assertEqual(actual, expect)

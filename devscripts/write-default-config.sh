@@ -33,7 +33,7 @@ then
 fi
 
 
-dest_path="${AUTONAMEOW_ROOT_DIR}/test_files/default_config.yaml"
+dest_path="${AUTONAMEOW_ROOT_DIR}/test_files/configs/default.yaml"
 if [ -e "$dest_path" ]
 then
     echo "Destination exists: \"${dest_path}\""
