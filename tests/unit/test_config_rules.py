@@ -466,7 +466,7 @@ class TestGetValidRuleCondition(TestCase):
         _meowuri = MeowURI(query)
         actual = get_valid_rule_condition(_meowuri, expression)
         self.assertIsNotNone(actual)
-        self.assertTrue(isinstance(actual, RuleCondition))
+        self.assertIsInstance(actual, RuleCondition)
 
     def _aR(self, query, expression):
         _meowuri = MeowURI(query)

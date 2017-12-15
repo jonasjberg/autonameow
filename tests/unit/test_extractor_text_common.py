@@ -95,7 +95,7 @@ class TestAbstractTextExtractorMetainfo(TestCase):
         self.actual = _extractor_instance.metainfo()
 
     def test_metainfo_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual, dict))
+        self.assertIsInstance(self.actual, dict)
 
     def test_metainfo_returns_expected_fields(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
@@ -111,4 +111,4 @@ class TestAbstractTextExtractorMetainfo(TestCase):
             self.assertIn('multivalued', _field_lookup_entry)
 
             actual = _field_lookup_entry.get('multivalued')
-            self.assertTrue(isinstance(actual, (bool, type(None))))
+            self.assertIsInstance(actual, (bool, type(None)))

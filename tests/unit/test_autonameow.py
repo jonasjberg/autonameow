@@ -193,7 +193,7 @@ class TestAutonameowHash(TestCase):
     def test_hash(self):
         actual = hash(self.a)
         self.assertIsNotNone(actual)
-        self.assertTrue(isinstance(actual, int))
+        self.assertIsInstance(actual, int)
 
     def test_instances_return_different_hashes(self):
         hash_a = hash(self.a)
@@ -214,7 +214,7 @@ class TestSetAutonameowExitCode(TestCase):
         self.expected_initial = C.EXIT_SUCCESS
 
     def test_exit_code_has_expected_type(self):
-        self.assertTrue(isinstance(self.amw.exit_code, int))
+        self.assertIsInstance(self.amw.exit_code, int)
 
     def test_exit_code_defaults_to_expected_value(self):
         self.assertEqual(self.amw.exit_code, self.expected_initial)

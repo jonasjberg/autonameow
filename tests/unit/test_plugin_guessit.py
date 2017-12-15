@@ -47,11 +47,11 @@ class TestGuessitPlugin(TestCase):
 class TestRunGuessit(TestCase):
     def test_run_guessit_no_options_returns_expected_type(self):
         actual = run_guessit('foo', options=None)
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
     def test_run_guessit_using_default_options_returns_expected_type(self):
         actual = run_guessit('foo')
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
 
 class TestRunGuessitWithDummyData(TestCase):

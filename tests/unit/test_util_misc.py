@@ -145,7 +145,7 @@ class TestFlattenDict(TestCase):
     def test_returns_expected_type(self):
         actual = flatten_dict(self.INPUT)
 
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
     def test_returns_expected_len(self):
         actual = flatten_dict(self.INPUT)
@@ -184,7 +184,7 @@ class TestFlattenDictWithRawMetadata(TestCase):
 
     def test_returns_expected_type(self):
         actual = flatten_dict(self.INPUT)
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
     def test_returns_expected_len(self):
         actual = flatten_dict(self.INPUT)
@@ -265,7 +265,7 @@ class TestExpandMeowURIDataDict(TestCase):
     def test_returns_expected_type(self):
         actual = expand_meowuri_data_dict(self.INPUT)
 
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
     def test_returns_expected_len(self):
         actual = len(expand_meowuri_data_dict(self.INPUT))
@@ -460,12 +460,12 @@ class TestContainsNone(TestCase):
     def _assert_false(self, test_data):
         actual = contains_none(test_data)
         self.assertFalse(actual)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
     def _assert_true(self, test_data):
         actual = contains_none(test_data)
         self.assertTrue(actual)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
     def test_returns_true_as_expected(self):
         self._assert_true([])

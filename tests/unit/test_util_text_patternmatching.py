@@ -35,14 +35,14 @@ class TestCompiledOrdinalRegexes(TestCase):
 
     def test_returns_expected_type(self):
         self.assertIsNotNone(self.actual)
-        self.assertTrue(isinstance(self.actual, dict))
+        self.assertIsInstance(self.actual, dict)
 
     def test_returns_compiled_regular_expressions(self):
         re_one = self.actual.get(1)
-        self.assertTrue(isinstance(re_one, types.BUILTIN_REGEX_TYPE))
+        self.assertIsInstance(re_one, types.BUILTIN_REGEX_TYPE)
 
         for _pattern in self.actual.values():
-            self.assertTrue(isinstance(_pattern, types.BUILTIN_REGEX_TYPE))
+            self.assertIsInstance(_pattern, types.BUILTIN_REGEX_TYPE)
 
     def test_returned_regexes_matches_strings(self):
         def _aM(test_input):

@@ -67,17 +67,17 @@ class TestRuleMatcherMatching(TestCase):
     def test_expected_return_values_given_rules_and_valid_fileobject(self):
         matcher = RuleMatcher(rules=get_testrules())
         actual = matcher.match(self.SHARED_FILEOBJECT)
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
 
         for triple in actual:
-            self.assertTrue(isinstance(triple, tuple))
+            self.assertIsInstance(triple, tuple)
 
-            self.assertTrue(isinstance(triple[0], Rule))
+            self.assertIsInstance(triple[0], Rule)
 
             _assumed_score = triple[1]
             _assumed_weight = triple[2]
-            self.assertTrue(isinstance(_assumed_score, float))
-            self.assertTrue(isinstance(_assumed_weight, float))
+            self.assertIsInstance(_assumed_score, float)
+            self.assertIsInstance(_assumed_weight, float)
             self.assertTrue(0 <= _assumed_score <= 1)
             self.assertTrue(0 <= _assumed_weight <= 1)
 

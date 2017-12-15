@@ -326,7 +326,7 @@ class TestPdftotextTextExtractorInternals(TestCase):
 
     def test_method_extract_returns_expected_type(self):
         actual = self.e.extract(self.test_fileobject)
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
 
 class TestPdftotextTextExtractorCanHandle(TestCase):

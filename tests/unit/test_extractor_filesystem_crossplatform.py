@@ -68,7 +68,7 @@ ALL_EXTRACTOR_FIELDS_TYPES = [
 class TestDatetimeFromTimestamp(TestCase):
     def test_returns_expected_type(self):
         actual = datetime_from_timestamp(1505579505.0)
-        self.assertTrue(isinstance(actual, datetime))
+        self.assertIsInstance(actual, datetime)
 
     def test_returns_expected_datetime(self):
         actual = datetime_from_timestamp(1505579505.0)
@@ -83,7 +83,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
         self.actual = _extractor_instance.extract(_fo)
 
     def test_extract_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual, dict))
+        self.assertIsInstance(self.actual, dict)
 
     def test_extract_returns_expected_keys(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
@@ -111,7 +111,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
     def test_extract_returns_expected_types(self):
         for _field, _type in ALL_EXTRACTOR_FIELDS_TYPES:
             actual = self.actual.get(_field)
-            self.assertTrue(isinstance(actual, _type))
+            self.assertIsInstance(actual, _type)
 
 
 class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
@@ -121,7 +121,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
         self.actual = _extractor_instance.extract(_fo)
 
     def test_extract_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual, dict))
+        self.assertIsInstance(self.actual, dict)
 
     def test_extract_returns_expected_keys(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
@@ -149,7 +149,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
     def test_extract_returns_expected_types(self):
         for _field, _type in ALL_EXTRACTOR_FIELDS_TYPES:
             actual = self.actual.get(_field)
-            self.assertTrue(isinstance(actual, _type))
+            self.assertIsInstance(actual, _type)
 
 
 class TestCrossPlatformFileSystemExtractorMetainfo(TestCase):
@@ -158,7 +158,7 @@ class TestCrossPlatformFileSystemExtractorMetainfo(TestCase):
         self.actual = _extractor_instance.metainfo()
 
     def test_metainfo_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual, dict))
+        self.assertIsInstance(self.actual, dict)
 
     def test_metainfo_returns_expected_fields(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
@@ -174,4 +174,4 @@ class TestCrossPlatformFileSystemExtractorMetainfo(TestCase):
             self.assertIn('multivalued', _field_lookup_entry)
 
             actual = _field_lookup_entry.get('multivalued')
-            self.assertTrue(isinstance(actual, (bool, type(None))))
+            self.assertIsInstance(actual, (bool, type(None)))

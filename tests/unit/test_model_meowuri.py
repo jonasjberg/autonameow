@@ -40,7 +40,7 @@ class TestMeowURIStringMatchingFunctions(TestCase):
     def test_is_meowuri_part(self):
         def _aT(test_input):
             actual = is_meowuri_part(test_input)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
             self.assertTrue(actual)
 
         _aT('f')
@@ -51,7 +51,7 @@ class TestMeowURIStringMatchingFunctions(TestCase):
 
         def _aF(test_input):
             actual = is_meowuri_part(test_input)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
             self.assertFalse(actual)
 
         for _bad_input in [None, b'', b'foo', 1, {}, [], object()]:
@@ -74,7 +74,7 @@ class TestMeowURIStringMatchingFunctions(TestCase):
     def test_is_meowuri_parts(self):
         def _aT(test_input):
             actual = is_meowuri_parts(test_input)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
             self.assertTrue(actual)
 
         _aT('f.o')
@@ -91,7 +91,7 @@ class TestMeowURIStringMatchingFunctions(TestCase):
 
         def _aF(test_input):
             actual = is_meowuri_parts(test_input)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
             self.assertFalse(actual)
 
         for _bad_input in [None, b'', b'foo', 1, {}, [], object()]:
@@ -120,7 +120,7 @@ class TestMeowURIStringMatchingFunctions(TestCase):
     def test_full_meowuris(self):
         def _aT(test_input):
             actual = is_meowuri_parts(test_input)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
             self.assertTrue(actual,
                             'Expected True for "{!s}"'.format(test_input))
 
@@ -475,7 +475,7 @@ class TestMeowURIContains(TestCase):
                 m = MeowURI(_dummy_meowuris)
                 actual = test_input in m
                 self.assertFalse(actual)
-                self.assertTrue(isinstance(actual, bool))
+                self.assertIsInstance(actual, bool)
 
         _aF(None)
         _aF('')
@@ -486,7 +486,7 @@ class TestMeowURIContains(TestCase):
                 m = MeowURI(_dummy_meowuris)
                 actual = test_input in m
                 self.assertFalse(actual)
-                self.assertTrue(isinstance(actual, bool))
+                self.assertIsInstance(actual, bool)
 
         _aF(1)
         _aF(1.0)
@@ -501,7 +501,7 @@ class TestMeowURIContains(TestCase):
         def _aT(test_input):
             actual = test_input in m
             self.assertTrue(actual)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
 
         _aT('extractor.filesystem.xplat.contents.mime_type')
         _aT('extractor.filesystem.xplat.contents')
@@ -526,7 +526,7 @@ class TestMeowURIList(TestCase):
             self.assertIsNone(meowuri_list('...'))
 
     def test_return_value_is_type_list(self):
-        self.assertTrue(isinstance(meowuri_list('a.b'), list))
+        self.assertIsInstance(meowuri_list('a.b'), list)
 
     def test_valid_argument_returns_expected(self):
         self.assertEqual(meowuri_list('a'), ['a'])
@@ -712,17 +712,17 @@ class TestMeowURIParser(TestCase):
 
     def test_partitions_parts(self):
         a = self.p.parse(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        self.assertTrue(isinstance(a[0], MeowURIRoot))
-        self.assertTrue(isinstance(a[1], list))
-        self.assertTrue(isinstance(a[1][0], MeowURIChild))
-        self.assertTrue(isinstance(a[2], MeowURILeaf))
+        self.assertIsInstance(a[0], MeowURIRoot)
+        self.assertIsInstance(a[1], list)
+        self.assertIsInstance(a[1][0], MeowURIChild)
+        self.assertIsInstance(a[2], MeowURILeaf)
 
         b = self.p.parse('extractor.metadata.exiftool.File:MIMEType')
-        self.assertTrue(isinstance(b[0], MeowURIRoot))
-        self.assertTrue(isinstance(b[1], list))
-        self.assertTrue(isinstance(b[1][0], MeowURIChild))
-        self.assertTrue(isinstance(b[1][1], MeowURIChild))
-        self.assertTrue(isinstance(b[2], MeowURILeaf))
+        self.assertIsInstance(b[0], MeowURIRoot)
+        self.assertIsInstance(b[1], list)
+        self.assertIsInstance(b[1][0], MeowURIChild)
+        self.assertIsInstance(b[1][1], MeowURIChild)
+        self.assertIsInstance(b[2], MeowURILeaf)
 
     def test_returns_partitioned_parts_as_strings(self):
         a = self.p.parse(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)

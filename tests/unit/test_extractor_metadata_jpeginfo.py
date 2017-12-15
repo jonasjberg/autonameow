@@ -113,4 +113,4 @@ class TestJpeginfoMetadataExtractorMetainfo(TestCase):
             self.assertIn('multivalued', _field_lookup_entry)
 
             actual = _field_lookup_entry.get('multivalued')
-            self.assertTrue(isinstance(actual, (bool, type(None))))
+            self.assertIsInstance(actual, (bool, type(None)))

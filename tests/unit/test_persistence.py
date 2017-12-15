@@ -234,7 +234,7 @@ class TestGetPersistence(TestCase):
 
     def test_returns_persistence_class_instance(self):
         self.assertTrue(uu.is_class_instance(self.p))
-        self.assertTrue(isinstance(self.p, BasePersistence))
+        self.assertIsInstance(self.p, BasePersistence)
 
     def test_stores_data(self):
         data = 'dummy test data'

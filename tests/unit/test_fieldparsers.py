@@ -42,7 +42,7 @@ class TestFieldParserFunctions(TestCase):
         self.maxDiff = None
 
     def test_get_instantiated_parsers_returns_list(self):
-        self.assertTrue(isinstance(get_instantiated_field_parsers(), list))
+        self.assertIsInstance(get_instantiated_field_parsers(), list)
 
     def test_get_instantiated_parsers_returns_arbitrary_number(self):
         # TODO: [hardcoded] Likely to break; Fix or remove!
@@ -58,7 +58,7 @@ class TestFieldParserFunctions(TestCase):
 
     def test_get_available_parsers_returns_expected_type(self):
         actual = available_field_parsers()
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
 
         for p in actual:
             self.assertTrue(uu.is_class(p))
@@ -408,7 +408,7 @@ class TestInstantiatedFieldParsers(TestCase):
 
     def test_field_parsers_subclass_config_field_parser(self):
         for parser in field_parsers.FieldParserInstances:
-            self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
+            self.assertIsInstance(parser, field_parsers.ConfigFieldParser)
             self.assertTrue(issubclass(parser.__class__,
                                        field_parsers.ConfigFieldParser))
 
@@ -427,7 +427,7 @@ class TestSuitableFieldParserFor(TestCase):
     def test_returns_expected_type_list(self):
         _meowuri = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         actual = suitable_field_parser_for(_meowuri)
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
 
     def test_returns_expected_given_invalid_mime_type_field(self):
         actual = suitable_field_parser_for(
@@ -478,4 +478,4 @@ class TestSuitableFieldParserFor(TestCase):
 class TestFieldParserConstants(TestCase):
     def test_has_dummy_data_fields_constant(self):
         self.assertIsNotNone(field_parsers.NAMETEMPLATEFIELDS_DUMMYDATA)
-        self.assertTrue(isinstance(field_parsers.NAMETEMPLATEFIELDS_DUMMYDATA, dict))
+        self.assertIsInstance(field_parsers.NAMETEMPLATEFIELDS_DUMMYDATA, dict)

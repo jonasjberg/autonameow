@@ -211,10 +211,9 @@ class TestCompareBasenames(TestCase):
 
     def test_comparing_equal_basenames_returns_true(self):
         def _assert_true(first, second):
-            self.assertTrue(compare_basenames(first, second))
-            self.assertTrue(
-                isinstance(compare_basenames(first, second), bool)
-            )
+            actual = compare_basenames(first, second)
+            self.assertTrue(actual)
+            self.assertIsInstance(actual, bool)
 
         _assert_true(b'', b'')
         _assert_true(b' ', b' ')
@@ -231,10 +230,9 @@ class TestCompareBasenames(TestCase):
 
     def test_comparing_unequal_basenames_returns_false(self):
         def _assert_false(first, second):
-            self.assertFalse(compare_basenames(first, second))
-            self.assertTrue(
-                isinstance(compare_basenames(first, second), bool)
-            )
+            actual = compare_basenames(first, second)
+            self.assertFalse(actual)
+            self.assertIsInstance(actual, bool)
 
         _assert_false(b' ', b'y')
         _assert_false(b'x', b'y')

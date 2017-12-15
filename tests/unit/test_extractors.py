@@ -66,7 +66,7 @@ class TestBaseExtractor(TestCase):
 
     def test_metainfo_returns_expected_type(self):
         actual = self.e.metainfo(self.test_file)
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
     def test_abstract_class_does_not_specify_metainfo(self):
         actual = self.e.metainfo(self.test_file)
@@ -146,7 +146,7 @@ class TestBaseExtractorClassMethods(TestCase):
 class TestFindExtractorModuleSourceFiles(TestCase):
     def test_returns_expected_type(self):
         actual = extractors.find_extractor_module_files()
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
 
     def test_returns_expected_files(self):
         actual = extractors.find_extractor_module_files()
@@ -166,7 +166,7 @@ class TestGetAllExtractorClasses(TestCase):
         self.actual = extractors._get_package_classes(self.sources)
 
     def test_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual, tuple))
+        self.assertIsInstance(self.actual, tuple)
 
     def test_returns_abstract_subclasses_of_base_extractor(self):
         actual_abstract, _ = self.actual
@@ -194,7 +194,7 @@ class TestGetImplementedExtractorClasses(TestCase):
         )
 
     def test_get_extractor_classes_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual, list))
+        self.assertIsInstance(self.actual, list)
 
     def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
         for klass in self.actual:
@@ -233,7 +233,7 @@ class TestMapMeowURIToExtractors(TestCase):
 
     def test_returns_expected_type(self):
         self.assertIsNotNone(self.actual)
-        self.assertTrue(isinstance(self.actual, dict))
+        self.assertIsInstance(self.actual, dict)
 
         for meowuri, klass_list in self.actual.items():
             self.assertTrue(uu.is_internalstring(meowuri))

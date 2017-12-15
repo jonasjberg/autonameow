@@ -59,7 +59,7 @@ class TestFileObjectTypes(TestCase):
         self.assertTrue(uu.is_internalstring(str(self.fo)))
 
     def test_bytesize_is_integer(self):
-        self.assertTrue(isinstance(self.fo.bytesize, int))
+        self.assertIsInstance(self.fo.bytesize, int)
 
 
 class TestFileObject(TestCase):

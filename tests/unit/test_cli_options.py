@@ -75,8 +75,7 @@ class TestArgumentValidators(TestCase):
 
 class TestArgParse(TestCase):
     def test_init_argparser(self):
-        self.assertTrue(isinstance(init_argparser(),
-                                   argparse.ArgumentParser))
+        self.assertIsInstance(init_argparser(), argparse.ArgumentParser)
 
     def test_parse_args_returns_expected_type(self):
         self.assertEqual(type(cli_parse_args('')), argparse.Namespace)

@@ -42,7 +42,7 @@ from util import encoding as enc
 class TestExists(TestCase):
     def _check_return(self, file_to_test):
         actual = exists(file_to_test)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
         if not file_to_test:
             expected = False
@@ -88,7 +88,7 @@ class TestExists(TestCase):
 class TestIsdir(TestCase):
     def _check_return(self, path_to_test):
         actual = isdir(path_to_test)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
         if not path_to_test:
             expected = False
@@ -141,7 +141,7 @@ class TestIsdir(TestCase):
 class TestIsfile(TestCase):
     def _check_return(self, file_to_test):
         actual = isfile(file_to_test)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
         if not file_to_test:
             expected = False
@@ -307,7 +307,7 @@ class TestHasPermissions(TestCase):
     def _test(self, path, perms, expected):
         actual = has_permissions(path, perms)
         self.assertEqual(actual, expected)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
     def test_invalid_arguments(self):
         def _aR(_path, perms):

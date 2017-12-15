@@ -42,7 +42,7 @@ class TestRepositoryMethodStore(TestCase):
         self.fileobject = uu.get_mock_fileobject(mime_type='text/plain')
 
     def test_repository_init_in_expected_state(self):
-        self.assertTrue(isinstance(self.r.data, dict))
+        self.assertIsInstance(self.r.data, dict)
         self.assertEqual(len(self.r), 0)
 
     def test_storing_data_increments_len(self):

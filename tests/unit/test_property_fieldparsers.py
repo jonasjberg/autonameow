@@ -62,7 +62,7 @@ class CaseFieldParserValidation(TestCase):
         except Exception as e:
             raise AssertionError('"{!s}" raised: {!s}'.format(s, e))
         else:
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
 
     @given(text())
     def test_text_input(self, s):

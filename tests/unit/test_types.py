@@ -1210,7 +1210,7 @@ class TestTypeMimeType(TestCase):
         _assert_normalizes(b'APPLICATION/EPUB+ZIP', 'application/epub+zip')
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_MIMETYPE.NULL, types.AW_MIMETYPE(None))
+        self.assertEqual(types.AW_MIMETYPE(None), types.AW_MIMETYPE.NULL)
 
     def test_call_with_coercible_data(self):
         def _assert_coerces(test_data, expected):

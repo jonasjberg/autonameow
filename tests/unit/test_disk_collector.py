@@ -350,7 +350,7 @@ class UnitTestIgnorePaths(TestCase):
         actual = pc.filter_paths(self.input_paths)
         self.assertIsNotNone(actual)
 
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
         for p in actual:
             self.assertTrue(uu.is_internalbytestring(p))
 

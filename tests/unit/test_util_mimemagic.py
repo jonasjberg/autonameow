@@ -63,12 +63,12 @@ class TestFileTypeMagic(TestCase):
 class TestEvalMagicGlob(TestCase):
     def _aF(self, mime_to_match, glob_list):
         actual = mimemagic.eval_glob(mime_to_match, glob_list)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
         self.assertFalse(actual)
 
     def _aT(self, mime_to_match, glob_list):
         actual = mimemagic.eval_glob(mime_to_match, glob_list)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
         self.assertTrue(actual)
 
     def test_eval_magic_blob_returns_false_given_bad_arguments(self):

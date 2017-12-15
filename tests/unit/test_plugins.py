@@ -32,7 +32,7 @@ class TestFindPluginSourceFiles(TestCase):
 
     def test_find_plugin_files_returns_expected_type(self):
         actual = plugins.find_plugin_files()
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
 
     def test_find_plugin_files_returns_expected_files(self):
         actual = plugins.find_plugin_files()
@@ -48,7 +48,7 @@ class TestGetPluginClasses(TestCase):
         self.klasses = plugins.get_plugin_classes()
 
     def test_get_plugin_classes_returns_expected_type(self):
-        self.assertTrue(isinstance(self.klasses, list))
+        self.assertIsInstance(self.klasses, list)
 
     def test_get_plugin_classes_returns_class_objects(self):
         for klass in self.klasses:
@@ -74,7 +74,7 @@ class TestMapMeowURIToPlugins(TestCase):
 
     def test_returns_expected_type(self):
         self.assertIsNotNone(self.actual)
-        self.assertTrue(isinstance(self.actual, dict))
+        self.assertIsInstance(self.actual, dict)
 
         for meowuri, klass_list in self.actual.items():
             self.assertTrue(uu.is_internalstring(meowuri))

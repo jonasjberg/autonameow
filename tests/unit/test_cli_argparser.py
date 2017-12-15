@@ -32,7 +32,7 @@ class TestGetArgparser(TestCase):
     def test_returns_expected_type_given_no_arguments(self):
         import argparse
         actual = get_argparser()
-        self.assertTrue(isinstance(actual, argparse.ArgumentParser))
+        self.assertIsInstance(actual, argparse.ArgumentParser)
 
     def test_returns_something_given_valid_arguments(self):
         actual = get_argparser(description='foo', epilog='bar')
@@ -41,4 +41,4 @@ class TestGetArgparser(TestCase):
     def test_returns_expected_type_given_valid_arguments(self):
         import argparse
         actual = get_argparser(description='foo', epilog='bar')
-        self.assertTrue(isinstance(actual, argparse.ArgumentParser))
+        self.assertIsInstance(actual, argparse.ArgumentParser)

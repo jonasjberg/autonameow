@@ -51,7 +51,7 @@ class TestAnalysis(TestCase):
             self.fo, analyzer_classes, self.config
         )
 
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
         for ac in actual:
             self.assertTrue(uu.is_class_instance(ac))
             self.assertTrue(issubclass(ac.__class__, analyzers.BaseAnalyzer))

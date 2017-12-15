@@ -104,7 +104,7 @@ class TestDisplayablePath(TestCase):
 
     def _assert_return_type_str(self, s):
         actual = displayable_path(s)
-        self.assertTrue(isinstance(actual, str))
+        self.assertIsInstance(actual, str)
 
     @given(st.binary())
     def test_does_not_raise_exception_given_binary_input(self, s):

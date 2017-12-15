@@ -93,7 +93,7 @@ class TestTesseractOCRTextExtractorWithImageFile(TestCase):
     @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
     def test_method_extract_returns_expected_type(self):
         actual = self.e.extract(TEST_IMAGE_FILE)
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
     @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
     def test_method_extract_all_result_contains_expected(self):
@@ -115,7 +115,7 @@ class TestTesseractWrapper(TestCase):
         for _image_file in [self.TEST_FILE,
                             uu.normpath(self.TEST_FILE)]:
             actual = tesseractocr.pil_read_image(_image_file)
-            self.assertTrue(isinstance(actual, PIL.Image.Image))
+            self.assertIsInstance(actual, PIL.Image.Image)
 
     def test_pil_read_image_raises_expected_exception_for_invalid_images(self):
         _test_files = [

@@ -80,8 +80,8 @@ class CaseExtractorOutputTypes(TestCase):
         )
 
     def test_extract_returns_expected_container_type(self):
-        self.assertTrue(
-            isinstance(self.actual_extracted, dict),
+        self.assertIsInstance(
+            self.actual_extracted, dict,
             'Expected "dict". Got "{!s}"'.format(type(self.actual_extracted))
         )
 
@@ -133,24 +133,24 @@ class CaseExtractorBasics(TestCase):
 
     def test_class_attribute_handles_mime_type_is_a_list(self):
         actual = self.extractor.HANDLES_MIME_TYPES
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
 
     def test_class_attribute_handles_mime_type_is_a_list_of_strings(self):
         actual = self.extractor.HANDLES_MIME_TYPES
         for a in actual:
-            self.assertTrue(isinstance(a, str))
+            self.assertIsInstance(a, str)
 
     def test_method_str_returns_type_unicode_string(self):
         actual = str(self.extractor)
-        self.assertTrue(
-            isinstance(actual, str),
+        self.assertIsInstance(
+            actual, str,
             'Expected "str". Got "{!s}"'.format(type(actual))
         )
 
     def test_method_check_dependencies_returns_expected_type(self):
         actual = self.extractor.check_dependencies()
-        self.assertTrue(
-            isinstance(actual, bool),
+        self.assertIsInstance(
+            actual, bool,
             'Expected "bool". Got "{!s}"'.format(type(actual))
         )
 
@@ -162,8 +162,8 @@ class CaseExtractorBasics(TestCase):
             actual_list.append(actual)
 
         for actual in actual_list:
-            self.assertTrue(
-                isinstance(actual, bool),
+            self.assertIsInstance(
+                actual, bool,
                 'Expected "bool". Got "{!s}"'.format(type(actual))
             )
 
@@ -175,8 +175,8 @@ class CaseExtractorBasics(TestCase):
 
     def test_method_meowuri_prefix_returns_type_unicode_string(self):
         actual = self.extractor.meowuri_prefix()
-        self.assertTrue(
-            isinstance(actual, str),
+        self.assertIsInstance(
+            actual, str,
             'Expected "str". Got "{!s}"'.format(type(actual))
         )
 
@@ -254,8 +254,8 @@ class CaseExtractorOutput(TestCase):
                 # if it is expected to be there.
                 continue
 
-            self.assertTrue(
-                isinstance(actual_results, expect_type),
+            self.assertIsInstance(
+                actual_results, expect_type,
                 'Expected type "{!s}" but got {!s} for "{!s}"'.format(
                     expect_type, type(actual_results), actual_results
                 )

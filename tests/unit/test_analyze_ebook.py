@@ -67,7 +67,7 @@ class TestExtractIsbnsFromText(TestCase):
     def test_returns_expected_type(self):
         text = 'fooo1-56592-306-5baar'
         actual = extract_isbns_from_text(text)
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
 
     def test_returns_expected_given_text_without_isbns(self):
         text = 'fooo'

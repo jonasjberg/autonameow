@@ -286,7 +286,7 @@ class TestValidateVersionNumber(TestCase):
     def test_valid_version_number_returns_expected(self):
         def _assert_equal(test_input, expected):
             actual = parse_versioning(test_input)
-            self.assertTrue(isinstance(actual, tuple))
+            self.assertIsInstance(actual, tuple)
             self.assertEqual(actual, expected)
 
         _assert_equal('0.0.0', (0, 0, 0))

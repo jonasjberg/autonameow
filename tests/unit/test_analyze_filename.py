@@ -209,14 +209,14 @@ class TestIdentifyFields(TestCase):
         # f.add_context('TheBeatles - ItsGettingBetter.flac')
         actual = f.identify_fields(test_input, [fields.Creator, fields.Title])
 
-        self.assertTrue(isinstance(actual.get(fields.Creator), list))
+        self.assertIsInstance(actual.get(fields.Creator), list)
         self.assertEqual('TheBeatles', actual.get(fields.Creator)[0])
         self.assertEqual('PaperbackWriter', actual.get(fields.Creator)[1])
         self.assertNotIn('.flac', actual.get(fields.Creator))
         self.assertNotIn('flac', actual.get(fields.Creator))
         self.assertNotIn('-', actual.get(fields.Creator))
 
-        self.assertTrue(isinstance(actual.get(fields.Title), list))
+        self.assertIsInstance(actual.get(fields.Title), list)
         self.assertEqual('PaperbackWriter', actual.get(fields.Title)[0])
         self.assertEqual('TheBeatles', actual.get(fields.Title)[1])
         self.assertNotIn('.flac', actual.get(fields.Title))

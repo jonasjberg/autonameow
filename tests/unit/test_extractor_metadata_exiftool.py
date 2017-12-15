@@ -129,7 +129,7 @@ class TestIsBadMetadata(TestCase):
         def _aT(tag, value):
             actual = is_bad_metadata(tag, value)
             self.assertFalse(actual)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
 
         _aT('File:FileName', 'gmail.pdf')
         _aT('File:FileSize', 2702410)
@@ -143,7 +143,7 @@ class TestIsBadMetadata(TestCase):
         def _aF(tag, value):
             actual = is_bad_metadata(tag, value)
             self.assertTrue(actual)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
 
         _aF('PDF:Subject', 'Subject')
         _aF('PDF:Author', 'Author')

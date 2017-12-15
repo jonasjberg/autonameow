@@ -82,11 +82,11 @@ class TestGenericFieldStr(TestCase):
 class TestGenericMeowURIs(TestCase):
     def test_returns_expected_type(self):
         actual = meowuri_genericfield_map()
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
         for meowuri, field_klass in actual.items():
             self.assertTrue(uu.is_class_instance(meowuri))
-            self.assertTrue(isinstance(meowuri, MeowURI))
+            self.assertIsInstance(meowuri, MeowURI)
 
             self.assertTrue(uu.is_class(field_klass))
             self.assertTrue(issubclass(field_klass, GenericField))

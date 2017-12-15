@@ -38,7 +38,7 @@ class TestConstants(TestCase):
 
     def test_constants_contains_default_rule_ranking_bias(self):
         self.assertIsNotNone(C.DEFAULT_RULE_RANKING_BIAS)
-        self.assertTrue(isinstance(C.DEFAULT_RULE_RANKING_BIAS, float))
+        self.assertIsInstance(C.DEFAULT_RULE_RANKING_BIAS, float)
 
     def test_constants_contains_default_file_tags_options(self):
         self.assertIsNotNone(C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR)
@@ -67,7 +67,7 @@ class TestConstants(TestCase):
 
     def test_constants_contains_analysis_results_fields(self):
         self.assertIsNotNone(C.ANALYSIS_RESULTS_FIELDS)
-        self.assertTrue(isinstance(C.ANALYSIS_RESULTS_FIELDS, list))
+        self.assertIsInstance(C.ANALYSIS_RESULTS_FIELDS, list)
 
     def test_default_cache_path(self):
         p = C.DEFAULT_PERSISTENCE_DIR_ABSPATH

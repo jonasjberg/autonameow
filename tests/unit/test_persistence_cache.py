@@ -83,4 +83,4 @@ class CacheInterface(TestCase):
     def test_get_cache(self):
         actual = cache.get_cache('foo')
         self.assertTrue(uu.is_class_instance(actual))
-        self.assertTrue(isinstance(actual, cache.BaseCache))
+        self.assertIsInstance(actual, cache.BaseCache)

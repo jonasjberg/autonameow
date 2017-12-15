@@ -215,7 +215,7 @@ class TestNameParser(TestCase):
         self.assertIsNotNone(nameparser)
 
         actual = _parse_name('foo')
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
 
 @skipIf(*nameparser_unavailable())
@@ -286,12 +286,12 @@ class TestHumanNameParser(TestCase):
 
     def test_parses_strings(self):
         actual = self.name_parser('foo')
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
         self.assertEqual(actual['original'], 'foo')
 
     def test_parses_name(self):
         actual = self.name_parser('Gibson Catson, Ph.D.')
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
         self.assertEqual(actual['first'], 'Gibson')
         self.assertEqual(actual['last'], 'Catson')
         self.assertEqual(actual['suffix'], 'Ph.D.')
@@ -331,7 +331,7 @@ class TestHumanNameParser(TestCase):
     def test_parses_human_names(self):
         for given, expect in self.TESTDATA_FULLNAME_EXPECTED:
             actual = self.name_parser(given)
-            self.assertTrue(isinstance(actual, dict))
+            self.assertIsInstance(actual, dict)
             for k, v in actual.items():
                 # Skip comparison of empty values for brevity.
                 if v:

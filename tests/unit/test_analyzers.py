@@ -102,7 +102,7 @@ class TestBaseAnalyzerClassMethods(TestCase):
 class TestFindAnalyzerSourceFiles(TestCase):
     def test_find_analyzer_files_returns_expected_type(self):
         actual = analyzers.find_analyzer_files()
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
 
     def test_find_analyzer_files_returns_expected_files(self):
         actual = analyzers.find_analyzer_files()
@@ -121,7 +121,7 @@ class TestGetAnalyzerClasses(TestCase):
         self.klasses = analyzers.get_analyzer_classes()
 
     def test_get_analyzer_classes_returns_expected_type(self):
-        self.assertTrue(isinstance(self.klasses, list))
+        self.assertIsInstance(self.klasses, list)
         for klass in self.klasses:
             self.assertTrue(issubclass(klass, analyzers.BaseAnalyzer))
 
@@ -174,7 +174,7 @@ class TestMapMeowURIToAnalyzers(TestCase):
 
     def test_returns_expected_type(self):
         self.assertIsNotNone(self.actual)
-        self.assertTrue(isinstance(self.actual, dict))
+        self.assertIsInstance(self.actual, dict)
 
         for meowuri, klass_list in self.actual.items():
             self.assertTrue(uu.is_internalstring(meowuri))
