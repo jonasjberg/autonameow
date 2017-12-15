@@ -24,6 +24,11 @@ import re
 import unicodedata
 import urllib
 
+try:
+    from unidecode import unidecode
+except ImportError:
+    unidecode = None
+
 from util import sanity
 
 
@@ -246,8 +251,21 @@ def strip_accents(string):
     """
     if not string:
         return string
+
+    if unidecode:
+        return _strip_accents_unidecode(string)
+    else:
+        return _strip_accents_homerolled(string)
+
+
+def _strip_accents_homerolled(string):
+    assert isinstance(string, str)
     nkfd_form = unicodedata.normalize('NFKD', string)
     return ''.join([c for c in nkfd_form if not unicodedata.combining(c)])
+
+
+def _strip_accents_unidecode(string):
+    return unidecode(string)
 
 
 def remove_nonbreaking_spaces(text):

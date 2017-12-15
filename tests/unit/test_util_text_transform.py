@@ -30,8 +30,10 @@ from util.text.transform import (
     normalize_unicode,
     remove_nonbreaking_spaces,
     strip_accents,
+    _strip_accents_homerolled,
+    _strip_accents_unidecode,
     strip_ansiescape,
-    urldecode
+    urldecode,
 )
 
 
@@ -401,6 +403,54 @@ class TestStripAccents(TestCase):
 
     def test_returns_none_as_is(self):
         self._assert_strips(None, None)
+
+    def test_pass_through(self):
+        self._assert_strips(given='', expect='')
+        self._assert_strips(given=' ', expect=' ')
+        self._assert_strips(given='foo', expect='foo')
+
+    def test_strips_accent(self):
+        self._assert_strips(given='ç', expect='c')
+        self._assert_strips(given='Fooçalbar', expect='Foocalbar')
+        self._assert_strips(given='Montréal', expect='Montreal')
+        self._assert_strips(given=' über, 12.89', expect=' uber, 12.89')
+
+        # TODO: Handle "strokes" like 'ø'.
+        # self._assert_strips(given='ø', expect='o')
+
+    def test_strips_accents(self):
+        self._assert_strips(given='Mère, Françoise, noël, 889',
+                            expect='Mere, Francoise, noel, 889')
+
+
+class TestStripAccentsHomeRolled(TestCase):
+    def _assert_strips(self, given, expect):
+        actual = _strip_accents_homerolled(given)
+        self.assertEqual(expect, actual)
+
+    def test_pass_through(self):
+        self._assert_strips(given='', expect='')
+        self._assert_strips(given=' ', expect=' ')
+        self._assert_strips(given='foo', expect='foo')
+
+    def test_strips_accent(self):
+        self._assert_strips(given='ç', expect='c')
+        self._assert_strips(given='Fooçalbar', expect='Foocalbar')
+        self._assert_strips(given='Montréal', expect='Montreal')
+        self._assert_strips(given=' über, 12.89', expect=' uber, 12.89')
+
+        # TODO: Handle "strokes" like 'ø'.
+        # self._assert_strips(given='ø', expect='o')
+
+    def test_strips_accents(self):
+        self._assert_strips(given='Mère, Françoise, noël, 889',
+                            expect='Mere, Francoise, noel, 889')
+
+
+class TestStripAccentsUnidecode(TestCase):
+    def _assert_strips(self, given, expect):
+        actual = _strip_accents_unidecode(given)
+        self.assertEqual(expect, actual)
 
     def test_pass_through(self):
         self._assert_strips(given='', expect='')
