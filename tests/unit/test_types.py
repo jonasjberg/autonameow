@@ -23,10 +23,8 @@ import os
 from unittest import TestCase
 from datetime import datetime
 
-from core import types
-from util import encoding as enc
-
 import unit.utils as uu
+from core import types
 
 
 USER_HOME = os.path.expanduser('~')
@@ -925,13 +923,13 @@ class TestTypePath(TestCase):
 
     def test_normalize(self):
         self.assertEqual(types.AW_PATH.normalize('~'),
-                         enc.encode_(USER_HOME))
+                         uu.encode(USER_HOME))
         self.assertEqual(types.AW_PATH.normalize('~/'),
-                         enc.encode_(USER_HOME))
+                         uu.encode(USER_HOME))
 
         expected = os.path.normpath(os.path.join(USER_HOME, 'foo'))
         self.assertEqual(types.AW_PATH.normalize('~/foo'),
-                         enc.encode_(expected))
+                         uu.encode(expected))
 
     def test_normalize_invalid_value(self):
         with self.assertRaises(types.AWTypeError):
@@ -989,11 +987,11 @@ class TestTypePathComponent(TestCase):
                             'BaseType default "null" must be overridden')
 
     def test_normalize_path_with_user_home(self):
-        expected = enc.encode_(USER_HOME)
+        expected = uu.encode(USER_HOME)
         self.assertEqual(expected, types.AW_PATHCOMPONENT.normalize('~'))
         self.assertEqual(expected, types.AW_PATHCOMPONENT.normalize('~/'))
 
-        expected = enc.encode_(os.path.normpath(os.path.join(USER_HOME, 'foo')))
+        expected = uu.encode(os.path.normpath(os.path.join(USER_HOME, 'foo')))
         self.assertEqual(expected, types.AW_PATHCOMPONENT.normalize('~/foo'))
 
     def test_normalize_path_components(self):

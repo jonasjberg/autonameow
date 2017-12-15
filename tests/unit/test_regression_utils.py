@@ -222,7 +222,7 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
 
         _expect_path = os.path.join(
             enc.syspath(self._regressiontest_dir),
-            enc.syspath(enc.encode_('config.yaml'))
+            enc.syspath(uu.encode('config.yaml'))
         )
         self.assertIsInstance(_expect_path, bytes)
 

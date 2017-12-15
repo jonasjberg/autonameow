@@ -107,6 +107,10 @@ def abspath_testconfig(testconfig_basename=None):
     )
 
 
+def encode(string):
+    return enc.encode_(string)
+
+
 def normpath(path):
     return enc.normpath(path)
 
