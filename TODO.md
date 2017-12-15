@@ -193,6 +193,11 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0143]` __Add option to execute "hooks" at certain events.__
+    Allow specifying executing arbitrary commands when specific events occur.
+    One use-case example is moving successfully renamed files to another
+    directory.
+
 * `[TD0141]` Coerce raw values to known types in the `ConfigurationParser`.
 
 * `[TD0140]` Template field classes `str()` method not working as intended.
