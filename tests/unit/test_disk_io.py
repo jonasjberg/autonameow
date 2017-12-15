@@ -29,6 +29,7 @@ from core.disk import (
     delete,
     exists,
     file_basename,
+    file_bytesize,
     has_permissions,
     isdir,
     isfile,
@@ -379,3 +380,45 @@ class TestHasPermissions(TestCase):
         self._test(path, 'rwx', False)
 
         os.chmod(enc.syspath(path), OWNER_R | OWNER_W)
+
+
+class TestFileByteSize(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # List of (path to existing file, size in bytes) tuples
+        cls.test_files = [
+            (uu.abspath_testfile('magic_pdf.pdf'), 10283),
+            (uu.abspath_testfile('magic_jpg.jpg'), 547),
+            (uu.abspath_testfile('empty'), 0)
+        ]
+
+    def test_setup_class(self):
+        for test_file_path, _ in self.test_files:
+            self.assertTrue(uu.file_exists(test_file_path))
+
+    def test_returns_expected_type(self):
+        for test_file_path, _ in self.test_files:
+            actual = file_bytesize(test_file_path)
+            self.assertIsInstance(actual, int)
+
+    def test_returns_expected_size(self):
+        for test_file_path, test_file_size in self.test_files:
+            actual = file_bytesize(test_file_path)
+            self.assertEqual(test_file_size, actual)
+
+    def test_raises_exception_given_invalid_arguments(self):
+        def _assert_raises(test_input):
+            with self.assertRaises(FilesystemError):
+                _ = file_bytesize(test_input)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises(b'')
+        _assert_raises(' ')
+        _assert_raises(b' ')
+        _assert_raises(object())
+        _assert_raises([])
+        _assert_raises([''])
+        _assert_raises({})
+        _assert_raises({'a': 'b'})
+        _assert_raises(uuconst.ASSUMED_NONEXISTENT_BASENAME)

@@ -193,3 +193,22 @@ def has_permissions(path, permissions):
                     return False
 
     return True
+
+
+def file_bytesize(path):
+    """
+    Returns the size of the file at "path" in bytes.
+
+    Args:
+        path: The path to the file of interest.
+
+    Returns:
+        The size of the file at the given path in bytes, as an integer.
+
+    Raises:
+        FilesystemError: The file size could not be ascertained for any reason.
+    """
+    try:
+        return os.path.getsize(enc.syspath(path))
+    except (OSError, TypeError, ValueError) as e:
+        raise exceptions.FilesystemError(e)

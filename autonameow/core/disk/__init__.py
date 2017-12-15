@@ -26,6 +26,7 @@ from .io import (
     delete,
     exists,
     file_basename,
+    file_bytesize,
     has_permissions,
     isdir,
     isfile,
