@@ -327,6 +327,7 @@ class Autonameow(object):
         should_list_any_results = self.opts.get('list_all')
 
         # Extract data from the file.
+        # TODO: [TD0142] Fetch only explicitly required data.
         required_extractors = providers.get_providers_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['extractor']
@@ -341,9 +342,11 @@ class Autonameow(object):
         )
 
         # Begin analysing the file.
+        # TODO: [TD0142] Fetch only explicitly required data.
         _run_analysis(current_file, self.active_config)
 
         # Run plugins.
+        # TODO: [TD0142] Fetch only explicitly required data.
         required_plugins = providers.get_providers_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['plugin']

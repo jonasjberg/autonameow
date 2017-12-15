@@ -14,6 +14,9 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0142]` __Rework overall architecture to fetch only explicitly needed data.__
+  Refer to `notes/architecture.md` for details.
+
 * `[TD0131]` __Limit `Repository` memory usage__  
   Given enough files, it currently eats up all the RAM, which causes other
   parts of the program to fail, especially launching subprocesses.
