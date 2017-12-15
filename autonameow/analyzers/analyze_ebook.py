@@ -466,10 +466,16 @@ def fetch_isbn_metadata(isbn_number):
     isbn_metadata = None
     try:
         isbn_metadata = isbnlib.meta(isbn_number)
-    except isbnlib.NotValidISBNError:
+    except isbnlib.NotValidISBNError as e:
         log.error(
             'Metadata query FAILED for ISBN: "{}"'.format(isbn_number)
         )
+        log.debug(str(e))
+    except Exception as e:
+        # TODO: [TD0132] Improve blacklisting failed requests..
+        # NOTE: isbnlib does not expose all exceptions.
+        # We should handle 'ISBNLibHTTPError' ("with code 403 [Forbidden]")
+        log.error(e)
 
     logging.disable(logging.NOTSET)
     return isbn_metadata
