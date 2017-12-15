@@ -40,8 +40,10 @@ from core.exceptions import (
 )
 from core.namebuilder.fields import is_valid_template_field
 from util import encoding as enc
-from util import sanity
-from util.text import remove_nonbreaking_spaces
+from util import (
+    sanity,
+    text
+)
 
 
 log = logging.getLogger(__name__)
@@ -102,7 +104,7 @@ class ConfigurationParser(object):
                 raise ConfigurationSyntaxError(_error)
 
             # Remove any non-breaking spaces in the name template.
-            templ = remove_nonbreaking_spaces(templ)
+            templ = text.remove_nonbreaking_spaces(templ)
 
             if NameFormatConfigFieldParser.is_valid_nametemplate_string(templ):
                 validated[name] = templ
@@ -471,7 +473,7 @@ class ConfigurationRuleParser(object):
             raise ConfigurationSyntaxError(
                 'uses invalid name template format'
             )
-        name_template = remove_nonbreaking_spaces(valid_format)
+        name_template = text.remove_nonbreaking_spaces(valid_format)
 
         try:
             _rule = get_valid_rule(

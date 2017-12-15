@@ -27,8 +27,10 @@ from core import (
     exceptions,
     types,
 )
-from util import sanity
-from util.text import format_name
+from util import (
+    sanity,
+    text
+)
 
 
 log = logging.getLogger(__name__)
@@ -225,7 +227,7 @@ class Author(NameTemplateField):
                     )
 
                 sanity.check_internal_string(string)
-                _formatted.append(format_name(string))
+                _formatted.append(text.format_name(string))
 
             return ' '.join(sorted(_formatted))
         else:
@@ -245,7 +247,7 @@ class Author(NameTemplateField):
                 )
 
             sanity.check_internal_string(string)
-            return format_name(data.get('value'))
+            return text.format_name(data.get('value'))
 
 
 class Creator(NameTemplateField):

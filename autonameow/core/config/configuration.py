@@ -24,9 +24,9 @@ import logging
 from core import constants as C
 from util import (
     dump,
-    nested_dict_get
+    nested_dict_get,
+    text
 )
-from util.text import indent
 
 
 log = logging.getLogger(__name__)
@@ -122,14 +122,14 @@ class Configuration(object):
 
         for number, rule in enumerate(self.rules):
             out.append('Rule {}:\n'.format(number + 1))
-            out.append(indent(str(rule), amount=4) + '\n')
+            out.append(text.indent(str(rule), amount=4) + '\n')
 
         out.append('\nReusable Name Templates:\n')
         out.append(
-            indent(dump(self.reusable_nametemplates), amount=4)
+            text.indent(dump(self.reusable_nametemplates), amount=4)
         )
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(indent(dump(self.options), amount=4))
+        out.append(text.indent(dump(self.options), amount=4))
 
         return ''.join(out)
