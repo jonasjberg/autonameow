@@ -37,7 +37,7 @@ __all__ = [
     'html_unescape',
     'indent',
     'normalize_unicode',
-    'strip_accents',
+    'simplify_unicode',
     'remove_nonbreaking_spaces',
     'strip_ansiescape',
     'truncate_text',
@@ -243,7 +243,7 @@ def normalize_unicode(text):
     return unicodedata.normalize(NORMALIZATION_FORM, text)
 
 
-def strip_accents(string):
+def simplify_unicode(string):
     """
     Strips accents or diacritics from a Unicode string.
 

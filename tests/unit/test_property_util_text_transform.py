@@ -26,7 +26,7 @@ from unittest import (
 
 from util.text.transform import (
     normalize_unicode,
-    strip_accents
+    simplify_unicode
 )
 
 try:
@@ -49,8 +49,8 @@ class TestNormalizeUnicode(TestCase):
         self.assertIsInstance(actual, str)
 
 
-class TestStripAccents(TestCase):
+class TestSimplifyUnicode(TestCase):
     @given(text())
     def test_text_input(self, s):
-        actual = strip_accents(s)
+        actual = simplify_unicode(s)
         self.assertIsInstance(actual, str)

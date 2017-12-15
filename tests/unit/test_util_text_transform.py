@@ -29,7 +29,7 @@ from util.text.transform import (
     indent,
     normalize_unicode,
     remove_nonbreaking_spaces,
-    strip_accents,
+    simplify_unicode,
     _strip_accents_homerolled,
     _strip_accents_unidecode,
     strip_ansiescape,
@@ -396,9 +396,9 @@ class TestHtmlUnescape(TestCase):
         _aE('Gibson &amp; Associates', 'Gibson & Associates')
 
 
-class TestStripAccents(TestCase):
+class TestSimplifyUnicode(TestCase):
     def _assert_strips(self, given, expect):
-        actual = strip_accents(given)
+        actual = simplify_unicode(given)
         self.assertEqual(expect, actual)
 
     def test_returns_none_as_is(self):
