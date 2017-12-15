@@ -23,11 +23,11 @@ import os
 import unittest
 from unittest import TestCase
 
+import unit.constants as uuconst
+import unit.utils as uu
 from core import fileobject
 from core.exceptions import InvalidFileArgumentError
 from util import encoding as enc
-import unit.utils as uu
-import unit.constants as uuconst
 
 
 class TestFileObjectTypes(TestCase):
@@ -69,7 +69,8 @@ class TestFileObject(TestCase):
     def test_abspath(self):
         actual = self.fo.abspath
         self.assertTrue(uu.file_exists(actual))
-        self.assertTrue(os.path.isabs(enc.syspath(actual)))
+        self.assertTrue(uu.is_abspath(uu.normpath(actual)))
+        self.assertTrue(uu.is_abspath(actual))
 
     def test_basename_suffix(self):
         actual = self.fo.basename_suffix

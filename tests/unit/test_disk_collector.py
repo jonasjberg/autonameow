@@ -332,7 +332,7 @@ class UnitTestIgnorePaths(TestCase):
     def test_setup(self):
         for path in self.input_paths:
             self.assertTrue(uu.is_internalbytestring(path))
-            self.assertTrue(os.path.isabs(enc.syspath(path)))
+            self.assertTrue(uu.is_abspath(path))
 
     def test_passes_all_paths_if_no_ignore_globs_are_provided(self):
         pc = PathCollector(ignore_globs=[])
