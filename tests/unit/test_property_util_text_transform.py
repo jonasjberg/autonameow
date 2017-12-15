@@ -25,6 +25,7 @@ from unittest import (
 )
 
 from util.text.transform import (
+    normalize_unicode,
     strip_accents
 )
 
@@ -39,6 +40,13 @@ try:
     )
 except ImportError:
     raise SkipTest('Unable to import "hypothesis". Skipping ..')
+
+
+class TestNormalizeUnicode(TestCase):
+    @given(text())
+    def test_text_input(self, s):
+        actual = normalize_unicode(s)
+        self.assertIsInstance(actual, str)
 
 
 class TestStripAccents(TestCase):
