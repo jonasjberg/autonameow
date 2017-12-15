@@ -131,8 +131,8 @@ class TestIsdir(TestCase):
             uuconst.AUTONAMEOW_SRCROOT_DIR,
             '/',
             b'/',
-            enc.bytestring_path(os.path.dirname(__file__)),
-            enc.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
+            uu.bytestring_path(os.path.dirname(__file__)),
+            uu.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
         ]
         for df in _files:
             self._check_return(df)

@@ -258,7 +258,7 @@ class TestValidatePathArgument(TestCase):
         _num_files = min(len(uu.all_testfiles()), 5)
         self.unicode_paths = uu.all_testfiles()[:_num_files]
         self.bytestr_paths = [
-            enc.bytestring_path(p)
+            uu.bytestring_path(p)
             for p in uu.all_testfiles()[:_num_files]
         ]
 

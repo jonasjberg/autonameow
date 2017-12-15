@@ -115,6 +115,10 @@ def decode(string):
     return enc.decode_(string)
 
 
+def bytestring_path(path):
+    return enc.bytestring_path(path)
+
+
 def normpath(path):
     return enc.normpath(path)
 
@@ -242,7 +246,7 @@ def make_temporary_file(prefix=None, suffix=None, basename=None):
         out = os.path.realpath(tempfile.NamedTemporaryFile(delete=False,
                                                            prefix=prefix,
                                                            suffix=suffix).name)
-    return enc.bytestring_path(out)
+    return bytestring_path(out)
 
 
 def get_mock_fileobject(mime_type=None):

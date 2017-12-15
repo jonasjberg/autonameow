@@ -37,7 +37,7 @@ def shorten_path(abs_path):
 
 
 def to_abspath(path_list):
-    paths = [enc.bytestring_path(tf)
+    paths = [uu.bytestring_path(tf)
              for tf in (uu.abspath_testfile(f)
                         for f in path_list)]
     if len(paths) == 1:
@@ -64,13 +64,13 @@ ABSPATH_FILES_SUBSUBDIR_B = to_abspath(FILES_SUBSUBDIR_B)
 ABSPATH_FILES_ALL = to_abspath(FILES_ALL)
 
 EXPECT_FILES_SUBDIR = [
-    enc.bytestring_path(p) for p in FILES_SUBDIR
+    uu.bytestring_path(p) for p in FILES_SUBDIR
 ]
 EXPECT_FILES_SUBSUBDIR_A = [
-    enc.bytestring_path(p) for p in FILES_SUBSUBDIR_A
+    uu.bytestring_path(p) for p in FILES_SUBSUBDIR_A
 ]
 EXPECT_FILES_SUBSUBDIR_B = [
-    enc.bytestring_path(p) for p in FILES_SUBSUBDIR_B
+    uu.bytestring_path(p) for p in FILES_SUBSUBDIR_B
 ]
 
 
