@@ -21,8 +21,8 @@
 
 from unittest import TestCase
 
+import unit.utils as uu
 from core.exceptions import EncodingBoundaryViolation
-from util import encoding as enc
 from util.text.transform import (
     collapse_whitespace,
     html_unescape,
@@ -345,7 +345,7 @@ class TestRemoveNonBreakingSpaces(TestCase):
 
         non_breaking_space = '\xa0'
         actual = remove_nonbreaking_spaces(
-            'foo' + enc.decode_(non_breaking_space) + 'bar'
+            'foo' + uu.decode(non_breaking_space) + 'bar'
         )
         self.assertEqual(actual, expected)
 

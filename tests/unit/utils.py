@@ -111,6 +111,10 @@ def encode(string):
     return enc.encode_(string)
 
 
+def decode(string):
+    return enc.decode_(string)
+
+
 def normpath(path):
     return enc.normpath(path)
 
