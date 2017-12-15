@@ -33,6 +33,7 @@ from util.text.humannames import (
     HumanNameParser,
     LastNameInitialsFormatter,
     strip_author_et_al,
+    strip_edited_by
 )
 
 
@@ -192,6 +193,19 @@ class TeststripAuthorEtAl(TestCase):
         _t('Gibson Catberg ... [et al.]')
         _t('Gibson Catberg ... {et al}')
         _t('Gibson Catberg ... {et al.}')
+
+
+class TeststripEditedBy(TestCase):
+    def test_strips_edited_by_variations(self):
+        def _t(test_input):
+            actual = strip_edited_by(test_input)
+            expect = 'Gibson Catberg'
+            self.assertEqual(expect, actual)
+
+        _t('ed. by Gibson Catberg')
+        _t('Ed. by Gibson Catberg')
+        _t('edited by Gibson Catberg')
+        _t('Edited by Gibson Catberg')
 
 
 class TestNameParser(TestCase):
