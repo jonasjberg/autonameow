@@ -211,7 +211,7 @@ def make_temp_dir():
     Returns:
         The path to a new temporary directory, as an "internal" bytestring.
     """
-    return enc.normpath(tempfile.mkdtemp())
+    return normpath(tempfile.mkdtemp())
 
 
 def make_temporary_file(prefix=None, suffix=None, basename=None):
@@ -278,14 +278,14 @@ def get_mock_fileobject(mime_type=None):
     else:
         temp_file = make_temporary_file()
 
-    return FileObject(enc.normpath(temp_file))
+    return FileObject(normpath(temp_file))
 
 
 def fileobject_testfile(testfile_basename):
     """
     Like 'abspath_testfile' but wraps the result in a 'FileObject' instance.
     """
-    _f = enc.normpath(abspath_testfile(testfile_basename))
+    _f = normpath(abspath_testfile(testfile_basename))
     return FileObject(_f)
 
 
@@ -521,7 +521,7 @@ def get_named_fileobject(basename):
     Returns: A FileObject based on a temporary file with the given basename.
     """
     _tf = make_temporary_file(basename=basename)
-    _f = enc.normpath(_tf)
+    _f = normpath(_tf)
     return FileObject(_f)
 
 
@@ -762,7 +762,7 @@ def is_internalbytestring(thing):
 def get_default_config():
     init_session_repository()
 
-    _config_path = enc.normpath(abspath_testconfig())
+    _config_path = normpath(abspath_testconfig())
     assert isinstance(_config_path, bytes)
 
     config_parser = ConfigurationParser()

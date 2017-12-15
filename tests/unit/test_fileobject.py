@@ -250,7 +250,7 @@ class TestFileObjectDoesNotHandleSymlinks(TestCase):
     # TODO: [TD0026] Implement safe handling of symlinks.
     def test_raises_exception_given_symlinks(self):
         with self.assertRaises(InvalidFileArgumentError):
-            testfile_symlink = uu.fileobject_testfile('empty.symlink')
+            _ = uu.fileobject_testfile('empty.symlink')
 
 
 class TestValidatePathArgument(TestCase):

@@ -130,7 +130,7 @@ class TestTesseractWrapper(TestCase):
         #           actual = tesseractocr.pil_read_image(_test_file)
         for _test_file in _test_files:
             with self.assertRaises(ExtractorError):
-                actual = tesseractocr.pil_read_image(_test_file)
+                _ = tesseractocr.pil_read_image(_test_file)
 
         # def test_pil_read_image_raises_exception_for_invalid_images(self):
         # _test_inputs = [

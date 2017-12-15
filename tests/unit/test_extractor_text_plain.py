@@ -126,7 +126,7 @@ def get_sample_text_files(prefix, suffix='.txt'):
     _sample_files = [
         f for f in uu.all_testfiles()
         if os.path.basename(f).startswith(prefix)
-           and os.path.basename(f).endswith(suffix)
+        and os.path.basename(f).endswith(suffix)
     ]
 
     samplefile_expectedencoding = [

@@ -100,7 +100,7 @@ class TestDateTimeConfigFieldParser(CaseFieldParserValidation):
     FIELD_PARSER_CLASS = DateTimeConfigFieldParser
 
 
-class TestDateTimeConfigFieldParser(CaseFieldParserValidation):
+class TestNameFormatConfigFieldParser(CaseFieldParserValidation):
     __test__ = True
     FIELD_PARSER_CLASS = NameFormatConfigFieldParser
 

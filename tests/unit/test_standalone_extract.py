@@ -41,12 +41,3 @@ class TestStandaloneExtract(TestCase):
             extract.main(_options)
             self.assertEqual(e.type, SystemExit)
             self.assertEqual(e.value.code, C.EXIT_SUCCESS)
-
-    def test_main_exits_with_exit_success_if_not_specifying_actions(self):
-        _path = uu.abspath_testfile('magic_txt.txt')
-        _options = {'input_paths': [_path]}
-
-        with self.assertRaises(SystemExit) as e:
-            extract.main(_options)
-            self.assertEqual(e.type, SystemExit)
-            self.assertEqual(e.value.code, C.EXIT_SUCCESS)

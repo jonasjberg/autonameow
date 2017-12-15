@@ -94,7 +94,7 @@ class TestRepositoryMethodStore(TestCase):
 
         self.assertEqual(len(self.r), 2)
 
-    def test_adding_list_of_two_results_increments_len_twice(self):
+    def test_adding_two_lists_of_two_results_increments_len_twice(self):
         self.skipTest('TODO: Reimplement "Repository.__len__()"')
         _field_one = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         _result_one = {'value_A': ['foo', 'bar']}

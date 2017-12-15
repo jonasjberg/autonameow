@@ -27,14 +27,12 @@ from datetime import datetime
 from unittest import TestCase
 
 import analyzers
+import unit.utils as uu
+import unit.constants as uuconst
 from analyzers import BaseAnalyzer
 from core.config import rules
 from core.fileobject import FileObject
 from core.model import MeowURI
-from util import encoding as enc
-
-import unit.utils as uu
-import unit.constants as uuconst
 
 
 class TestUnitUtilityConstants(TestCase):

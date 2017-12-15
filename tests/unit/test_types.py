@@ -78,7 +78,7 @@ class TestBaseNullValue(TestCase):
             actual = self.bn == value
             self.assertEqual(expected, actual)
             self.assertTrue(bool(expected) == bool(actual))
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
 
         _is_equal(True, value=False)
         _is_equal(True, value=self.bn)
@@ -136,7 +136,7 @@ class TestNullMIMEType(TestCase):
             actual = self.nm == value
             self.assertEqual(expected, actual)
             self.assertTrue(bool(expected) == bool(actual))
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
 
         _is_equal(True, value=False)
         _is_equal(True, value=self.nm)
@@ -719,10 +719,10 @@ class TestTypeDate(TestCase):
                                 'BaseType default "null" must be overridden')
 
     def test_normalize(self):
-        def _assert_equal(test_data, expected):
+        def _assert_equal(test_data, expect):
             actual = types.AW_DATE.normalize(test_data)
-            self.assertEqual(expected, actual)
-            self.assertTrue(isinstance(actual, datetime))
+            self.assertEqual(expect, actual)
+            self.assertIsInstance(actual, datetime)
 
         expected = datetime.strptime('2017-07-12', '%Y-%m-%d')
         _assert_equal('2017-07-12', expected)
@@ -878,7 +878,7 @@ class TestTypeExiftoolTimeDate(TestCase):
 
     def test_call_with_valid_exiftool_string_returns_expected_type(self):
         actual = types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200')
-        self.assertTrue(isinstance(actual, datetime))
+        self.assertIsInstance(actual, datetime)
 
     def test_format_coercible_data(self):
         def _assert_formats(test_data, expected):
@@ -1343,9 +1343,9 @@ class TestTryCoerce(TestCase):
 
         if isinstance(actual, list):
             for a in actual:
-                self.assertTrue(isinstance(a, type_))
+                self.assertIsInstance(a, type_)
         else:
-            self.assertTrue(isinstance(actual, type_))
+            self.assertIsInstance(actual, type_)
 
     def test_try_coerce_none(self):
         self.assertIsNone(types.try_coerce(None))
@@ -1481,7 +1481,7 @@ class TestForceString(TestCase):
     def test_returns_strings(self):
         def _aS(test_input):
             actual = types.force_string(test_input)
-            self.assertTrue(isinstance(actual, str))
+            self.assertIsInstance(actual, str)
 
         _aS(1)
         _aS(1.0)
@@ -1547,9 +1547,9 @@ class TestForceStringList(TestCase):
         for given, _ in self.GIVEN_EXPECT:
             with self.subTest(given):
                 actual = types.force_stringlist(given)
-                self.assertTrue(isinstance(actual, list))
+                self.assertIsInstance(actual, list)
                 for a in actual:
-                    self.assertTrue(isinstance(a, str))
+                    self.assertIsInstance(a, str)
 
     def test_returns_expected_values(self):
         for given, expect in self.GIVEN_EXPECT:
@@ -1565,7 +1565,7 @@ class TestTryParseDate(TestCase):
         def _assert_match(test_data):
             actual = types.try_parse_date(test_data)
             self.assertEqual(expected, actual)
-            self.assertTrue(isinstance(actual, datetime))
+            self.assertIsInstance(actual, datetime)
 
         _assert_match('2017 09 14')
         _assert_match('2017-09-14')
@@ -1608,7 +1608,7 @@ class TestTryParseDateTime(TestCase):
     def _assert_equal(self, test_data, expected):
         actual = types.try_parse_datetime(test_data)
         self.assertEqual(expected, actual)
-        self.assertTrue(isinstance(actual, datetime))
+        self.assertIsInstance(actual, datetime)
 
     def test_parses_valid_datetime(self):
         expected = uu.str_to_datetime('2017-07-12 205015')

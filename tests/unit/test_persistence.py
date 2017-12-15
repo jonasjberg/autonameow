@@ -152,7 +152,7 @@ class TestPicklePersistence(TestCase):
 
     def setUp(self):
         self.datakey = 'fookey'
-        self.datavalue  = 'bardata'
+        self.datavalue = 'bardata'
         self.c = PicklePersistence(self.PERSISTENCE_KEY)
 
     def tearDown(self):

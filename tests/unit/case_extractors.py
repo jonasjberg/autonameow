@@ -190,7 +190,6 @@ class CaseExtractorBasics(TestCase):
         )
 
 
-
 class CaseExtractorOutput(TestCase):
     __test__ = False
 

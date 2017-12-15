@@ -23,6 +23,8 @@ import os
 import stat
 from unittest import TestCase
 
+import unit.constants as uuconst
+import unit.utils as uu
 from core.disk import (
     delete,
     exists,
@@ -35,8 +37,6 @@ from core.disk import (
 )
 from core.exceptions import FilesystemError
 from util import encoding as enc
-import unit.utils as uu
-import unit.constants as uuconst
 
 
 class TestExists(TestCase):
@@ -226,12 +226,12 @@ class TestMakedirs(TestCase):
 
 class TestDelete(TestCase):
     def _get_non_existent_file(self):
-        tempdir = uu.make_temp_dir()
-        self.assertTrue(uu.dir_exists(tempdir))
-        self.assertTrue(uu.is_internalbytestring(tempdir))
+        _tempdir = uu.make_temp_dir()
+        self.assertTrue(uu.dir_exists(_tempdir))
+        self.assertTrue(uu.is_internalbytestring(_tempdir))
 
         not_a_file = uu.normpath(
-            os.path.join(enc.syspath(tempdir),
+            os.path.join(enc.syspath(_tempdir),
                          enc.syspath(uuconst.ASSUMED_NONEXISTENT_BASENAME))
         )
         self.assertFalse(uu.dir_exists(not_a_file))
@@ -250,10 +250,10 @@ class TestDelete(TestCase):
     def test_deletes_existing_directory(self):
         self.skipTest('TODO: [Errno 1] Operation not permitted')
 
-        tempdir = uu.make_temp_dir()
+        _tempdir = uu.make_temp_dir()
 
         _dir = enc.syspath(
-            os.path.join(enc.syspath(tempdir),
+            os.path.join(enc.syspath(_tempdir),
                          enc.syspath(uuconst.ASSUMED_NONEXISTENT_BASENAME))
         )
         self.assertTrue(uu.is_internalbytestring(_dir))
@@ -310,12 +310,11 @@ class TestHasPermissions(TestCase):
         self.assertTrue(isinstance(actual, bool))
 
     def test_invalid_arguments(self):
-        path = uu.make_temporary_file()
-
-        def _aR(path, perms):
+        def _aR(_path, perms):
             with self.assertRaises(TypeError):
-                _ = has_permissions(path, perms)
+                _ = has_permissions(_path, perms)
 
+        path = uu.make_temporary_file()
         _aR(path, None)
         _aR(path, [])
         _aR(path, object())

@@ -27,7 +27,6 @@ from core.disk.collector import (
     get_files_gen,
     PathCollector
 )
-from util import encoding as enc
 
 
 def shorten_path(abs_path):

@@ -570,7 +570,7 @@ class TestParseConditions(TestCase):
 
     def test_parse_empty_conditions_is_allowed(self):
         raw_conditions = dict()
-        actual = parse_conditions(raw_conditions)
+        _ = parse_conditions(raw_conditions)
 
 
 class TestParseRankingBias(TestCase):
