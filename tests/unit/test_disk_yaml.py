@@ -33,7 +33,8 @@ class TestLoadYAML(TestCase):
     def test_loads_valid_file(self):
         _yaml_path = uu.abspath_testconfig()
         actual = load_yaml_file(_yaml_path)
-        self.assertEqual(type(actual), dict)
+        self.assertIsNotNone(actual)
+        self.assertIsInstance(actual, dict)
 
     def test_raises_exception_given_invalid_arguments(self):
         def _fail(yaml_path):

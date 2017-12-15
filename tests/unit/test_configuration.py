@@ -78,10 +78,10 @@ class TestConfigurationDataAccess(TestCase):
         self.assertIsNotNone(self.configuration.rules)
 
     def test_rules_returns_expected_type(self):
-        self.assertTrue(isinstance(self.configuration.rules, list))
+        self.assertIsInstance(self.configuration.rules, list)
 
     def test_rules_returns_expected_rule_count(self):
         self.assertGreaterEqual(len(self.configuration.rules), 3)
 
     def test_name_templates_returns_expected_type(self):
-        self.assertTrue(isinstance(self.configuration.name_templates, list))
+        self.assertIsInstance(self.configuration.name_templates, list)

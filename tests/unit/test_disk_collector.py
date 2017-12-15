@@ -22,12 +22,12 @@
 import os
 from unittest import TestCase
 
+import unit.utils as uu
 from core.disk.collector import (
     get_files_gen,
     PathCollector
 )
 from util import encoding as enc
-import unit.utils as uu
 
 
 def shorten_path(abs_path):
@@ -81,7 +81,7 @@ class TestTestFiles(TestCase):
                             'Expected file: "{}"'.format(tf))
             self.assertTrue(uu.is_internalbytestring(tf))
 
-        self.assertEqual(len(ABSPATH_FILES_ALL), 8)
+        self.assertEqual(8, len(ABSPATH_FILES_ALL))
 
     def test_abspath_subdir(self):
         for tf in ABSPATH_FILES_SUBDIR:
@@ -120,7 +120,7 @@ class TestGetFilesGen(TestCase):
 
     def test_returns_expected_number_of_files_non_recursive(self):
         actual = list(get_files_gen(to_abspath(['subdir'])))
-        self.assertEqual(len(actual), 3)
+        self.assertEqual(3, len(actual))
 
     def test_returns_expected_files_non_recursive(self):
         actual = get_files_gen(to_abspath(['subdir']))
@@ -136,7 +136,7 @@ class TestGetFilesGen(TestCase):
         actual = list(
             get_files_gen(to_abspath(['subdir']), recurse=True)
         )
-        self.assertEqual(len(actual), 8)
+        self.assertEqual(8, len(actual))
 
     def test_returns_expected_files_recursive(self):
         actual = get_files_gen(to_abspath(['subdir']), recurse=True)
@@ -150,7 +150,7 @@ class TestGetFilesGen(TestCase):
         actual = list(
             get_files_gen(to_abspath(['subdir/subsubdir_A']), recurse=True)
         )
-        self.assertEqual(len(actual), 2)
+        self.assertEqual(2, len(actual))
 
     def test_returns_expected_files_recursive_from_subsubdir_a(self):
         actual = list(
@@ -192,7 +192,7 @@ class TestPathCollector(TestCase):
     def test_returns_empty_list_given_invalid_paths(self):
         def _aE(test_input):
             actual = self.pc.get_paths(test_input)
-            self.assertEqual(actual, [])
+            self.assertEqual([], actual)
 
         _aE(None)
         _aE('')
@@ -201,7 +201,7 @@ class TestPathCollector(TestCase):
     def test_returns_expected_number_of_files_non_recursive(self):
         _search_path = [to_abspath(['subdir'])]
         actual = self.pc.get_paths(_search_path)
-        self.assertEqual(len(actual), 3)
+        self.assertEqual(3, len(actual))
 
     def test_returns_expected_files_non_recursive(self):
         _search_path = [to_abspath(['subdir'])]
@@ -218,7 +218,7 @@ class TestPathCollector(TestCase):
         _search_paths = [to_abspath(['subdir'])]
         pc = PathCollector(recurse=True)
         actual = pc.get_paths(_search_paths)
-        self.assertEqual(len(actual), 8)
+        self.assertEqual(8, len(actual))
 
     def test_returns_expected_files_recursive(self):
         _search_paths = [to_abspath(['subdir'])]
@@ -234,14 +234,14 @@ class TestPathCollector(TestCase):
         _search_paths = [to_abspath(['subdir/subsubdir_A'])]
         pc = PathCollector(recurse=True)
         actual = pc.get_paths(_search_paths)
-        self.assertEqual(len(actual), 2)
+        self.assertEqual(2, len(actual))
 
     def test_returns_expected_files_recursive_from_subsubdir_a(self):
         _search_paths = [to_abspath(['subdir/subsubdir_A'])]
         pc = PathCollector(recurse=True)
         actual = pc.get_paths(_search_paths)
 
-        self.assertEqual(len(actual), len(ABSPATH_FILES_SUBSUBDIR_A))
+        self.assertEqual(len(ABSPATH_FILES_SUBSUBDIR_A), len(actual))
         for f in actual:
             self.assertTrue(uu.file_exists(f))
             self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_A)
@@ -254,7 +254,7 @@ class TestPathCollector(TestCase):
         pc = PathCollector(recurse=True)
         actual = pc.get_paths(_search_paths)
 
-        self.assertEqual(len(actual), len(ABSPATH_FILES_SUBSUBDIR_B))
+        self.assertEqual(len(ABSPATH_FILES_SUBSUBDIR_B), len(actual))
         for f in actual:
             self.assertTrue(uu.file_exists(f))
             self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_B)
@@ -267,18 +267,18 @@ class TestPathCollector(TestCase):
 
         pc = PathCollector(recurse=False, ignore_globs=['*'])
         a = pc.get_paths(_search_paths)
-        self.assertEqual(len(a), 0)
+        self.assertEqual(0, len(a))
 
         pc = PathCollector(recurse=True, ignore_globs=['*'])
         b = pc.get_paths(_search_paths)
-        self.assertEqual(len(b), 0)
+        self.assertEqual(0, len(b))
 
     def test_returns_all_for_non_matching_glob(self):
         _search_paths = [to_abspath(['subdir'])]
         pc = PathCollector(recurse=True, ignore_globs=['*foobar*'])
         actual = pc.get_paths(_search_paths)
 
-        self.assertEqual(len(actual), len(ABSPATH_FILES_ALL))
+        self.assertEqual(len(ABSPATH_FILES_ALL), len(actual))
         for f in actual:
             self.assertTrue(uu.file_exists(f))
             self.assertIn(f, ABSPATH_FILES_ALL)
@@ -337,8 +337,8 @@ class UnitTestIgnorePaths(TestCase):
     def test_passes_all_paths_if_no_ignore_globs_are_provided(self):
         pc = PathCollector(ignore_globs=[])
         actual = pc.filter_paths(self.input_paths)
-        self.assertEqual(actual, self.input_paths)
-        self.assertEqual(len(actual), len(self.input_paths))
+        self.assertEqual(self.input_paths, actual)
+        self.assertEqual(len(self.input_paths), len(actual))
 
     def _assert_filters(self, ignore_globs, remain, missing):
         # Sanity check arguments.

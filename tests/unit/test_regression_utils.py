@@ -79,7 +79,7 @@ class TestGetRegressiontestDirs(TestCase):
         self.actual = get_regressiontest_dirs()
 
     def test_returns_list(self):
-        self.assertTrue(isinstance(self.actual, list))
+        self.assertIsInstance(self.actual, list)
 
     def test_returns_at_least_one_test(self):
         self.assertGreaterEqual(len(self.actual), 1)
@@ -224,7 +224,7 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
             enc.syspath(self._regressiontest_dir),
             enc.syspath(enc.encode_('config.yaml'))
         )
-        self.assertTrue(isinstance(_expect_path, bytes))
+        self.assertIsInstance(_expect_path, bytes)
 
         expected = {
             'verbose': True,
@@ -290,7 +290,7 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
 
     def test_test_abspath(self):
         actual = self.actual.get('test_abspath')
-        self.assertTrue(isinstance(actual, bytes))
+        self.assertIsInstance(actual, bytes)
         self.assertTrue(uu.is_abspath(actual))
 
         expect = uuconst.REGRESSIONTEST_DIR_BASENAMES[1]
@@ -298,7 +298,7 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
 
     def test_test_dirname(self):
         actual = self.actual.get('test_dirname')
-        self.assertTrue(isinstance(actual, bytes))
+        self.assertIsInstance(actual, bytes)
 
         expect = uuconst.REGRESSIONTEST_DIR_BASENAMES[1]
         self.assertEqual(actual, expect)
@@ -308,7 +308,7 @@ class TestLoadRegressiontests(TestCase):
     actual_loaded = load_regressiontests()
 
     def test_returns_list(self):
-        self.assertTrue(isinstance(self.actual_loaded, list))
+        self.assertIsInstance(self.actual_loaded, list)
 
     def test_returns_list_of_dicts(self):
         for a in self.actual_loaded:
