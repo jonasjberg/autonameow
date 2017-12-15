@@ -46,6 +46,8 @@ from util import (
 from util.textutils import extract_lines
 from util.text import (
     find_edition,
+    html_unescape,
+    normalize_unicode,
     string_similarity,
     RE_EDITION
 )
@@ -588,8 +590,9 @@ class ISBNMetadata(object):
     @publisher.setter
     def publisher(self, value):
         if value and isinstance(value, str):
-            self._publisher = value
-            self._normalized_publisher = value.lower().strip()
+            str_value = normalize_unicode(html_unescape(value)).strip()
+            self._publisher = str_value
+            self._normalized_publisher = str_value.lower()
 
     @property
     def normalized_publisher(self):
