@@ -213,7 +213,7 @@ class TestMakedirs(TestCase):
         self.parentdir = uu.make_temp_dir()
 
         destbase = b'foobar'
-        self.destpath = enc.normpath(
+        self.destpath = uu.normpath(
             os.path.join(enc.syspath(self.parentdir),
                          enc.syspath(destbase))
         )
@@ -230,7 +230,7 @@ class TestDelete(TestCase):
         self.assertTrue(uu.dir_exists(tempdir))
         self.assertTrue(uu.is_internalbytestring(tempdir))
 
-        not_a_file = enc.normpath(
+        not_a_file = uu.normpath(
             os.path.join(enc.syspath(tempdir),
                          enc.syspath(uuconst.ASSUMED_NONEXISTENT_BASENAME))
         )

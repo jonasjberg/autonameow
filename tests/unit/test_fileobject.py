@@ -88,7 +88,7 @@ class TestFileObject(TestCase):
 
     def test_pathname(self):
         actual = self.fo.pathname
-        expect = enc.normpath(uuconst.TEST_FILES_DIR)
+        expect = uu.normpath(uuconst.TEST_FILES_DIR)
         self.assertEqual(actual, expect)
 
     def test_pathparent(self):

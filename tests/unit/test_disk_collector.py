@@ -326,7 +326,7 @@ class UnitTestIgnorePaths(TestCase):
             '~/foo/.DS_Store'
         ]
         self.input_paths = [
-            enc.normpath(p) for p in _paths
+            uu.normpath(p) for p in _paths
         ]
 
     def test_setup(self):
@@ -345,7 +345,7 @@ class UnitTestIgnorePaths(TestCase):
         self.assertEqual(len(self.input_paths),
                          len(remain) + len(missing))
         for path in missing + remain:
-            self.assertIn(enc.normpath(path), self.input_paths)
+            self.assertIn(uu.normpath(path), self.input_paths)
 
         pc = PathCollector(ignore_globs=ignore_globs)
         actual = pc.filter_paths(self.input_paths)
@@ -356,9 +356,9 @@ class UnitTestIgnorePaths(TestCase):
             self.assertTrue(uu.is_internalbytestring(p))
 
         for m in missing:
-            self.assertNotIn(enc.normpath(m), actual)
+            self.assertNotIn(uu.normpath(m), actual)
         for r in remain:
-            self.assertIn(enc.normpath(r), actual)
+            self.assertIn(uu.normpath(r), actual)
 
     def test_ignores_txt_extensions(self):
         self._assert_filters(

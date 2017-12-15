@@ -30,7 +30,6 @@ from unittest.mock import (
 import unit.utils as uu
 from core import config
 from core.config import load_config_from_file
-from util import encoding as enc
 
 
 class TestConfigDirs(TestCase):
@@ -122,6 +121,6 @@ class TestLoadConfigFromFile(TestCase):
             _ = load_config_from_file(None)
 
     def test_loads_valid_config_from_absolute_path(self):
-        _config_path = enc.normpath(uu.abspath_testconfig())
+        _config_path = uu.normpath(uu.abspath_testconfig())
         actual = load_config_from_file(_config_path)
         self.assertIsNotNone(actual)
