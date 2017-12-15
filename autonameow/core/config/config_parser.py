@@ -305,19 +305,20 @@ class ConfigurationParser(object):
         )
         _try_load_custom_postprocessing_option(
             'sanitize_filename',
-            C.DEFAULT_FILESYSTEM_SANITIZE_FILENAME
+            C.DEFAULT_POSTPROCESS_SANITIZE_FILENAME
         )
         _try_load_custom_postprocessing_option(
             'sanitize_strict',
-            C.DEFAULT_FILESYSTEM_SANITIZE_STRICT
+            C.DEFAULT_POSTPROCESS_SANITIZE_STRICT
         )
         _try_load_custom_postprocessing_option(
             'lowercase_filename',
-            C.DEFAULT_FILESYSTEM_LOWERCASE_FILENAME
+            C.DEFAULT_POSTPROCESS_LOWERCASE_FILENAME
         )
         _try_load_custom_postprocessing_option(
             'uppercase_filename',
-            C.DEFAULT_FILESYSTEM_UPPERCASE_FILENAME
+            C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME
+        )
         )
 
         # TODO: [TD0137] Add rule-specific replacements.

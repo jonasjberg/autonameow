@@ -27,12 +27,14 @@ import unit.utils as uu
 
 class TestConstants(TestCase):
     def test_constants_contains_program_exit_codes(self):
-        self.assertIsNotNone(C.EXIT_ERROR)
-        self.assertTrue(isinstance(C.EXIT_ERROR, int))
-        self.assertIsNotNone(C.EXIT_WARNING)
-        self.assertTrue(isinstance(C.EXIT_WARNING, int))
-        self.assertIsNotNone(C.EXIT_SUCCESS)
-        self.assertTrue(isinstance(C.EXIT_SUCCESS, int))
+        def _assert_defined_and_int(test_input):
+            self.assertIsNotNone(test_input)
+            self.assertIsInstance(test_input, int)
+
+        _assert_defined_and_int(C.EXIT_SUCCESS)
+        _assert_defined_and_int(C.EXIT_WARNING)
+        _assert_defined_and_int(C.EXIT_SANITYFAIL)
+        _assert_defined_and_int(C.EXIT_ERROR)
 
     def test_constants_contains_default_rule_ranking_bias(self):
         self.assertIsNotNone(C.DEFAULT_RULE_RANKING_BIAS)
@@ -48,15 +50,15 @@ class TestConstants(TestCase):
             uu.is_internalstring(C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR)
         )
 
-    def test_constants_contains_default_filesystem_options(self):
-        self.assertIsNotNone(C.DEFAULT_FILESYSTEM_SANITIZE_FILENAME)
-        self.assertTrue(
-            isinstance(C.DEFAULT_FILESYSTEM_SANITIZE_FILENAME, bool)
-        )
-        self.assertIsNotNone(C.DEFAULT_FILESYSTEM_SANITIZE_STRICT)
-        self.assertTrue(
-            isinstance(C.DEFAULT_FILESYSTEM_SANITIZE_STRICT, bool)
-        )
+    def test_constants_contains_default_postprocessing_options(self):
+        def _assert_defined_and_bool(test_input):
+            self.assertIsNotNone(test_input)
+            self.assertIsInstance(test_input, bool)
+
+        _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_SANITIZE_FILENAME)
+        _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_SANITIZE_STRICT)
+        _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_LOWERCASE_FILENAME)
+        _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME)
 
     def test_constants_contains_python_version(self):
         self.assertIsNotNone(C.STRING_PYTHON_VERSION)
