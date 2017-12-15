@@ -183,6 +183,7 @@ class ConfigurationParser(object):
                     '{!s}"'.format(option, default))
 
         def _try_load_filetags_option(option, default):
+            # TODO: [TD0141] Coerce raw values to a known type.
             if 'FILETAGS_OPTIONS' in config_dict:
                 _value = config_dict['FILETAGS_OPTIONS'].get(option)
             else:
@@ -197,6 +198,7 @@ class ConfigurationParser(object):
                 self._options['FILETAGS_OPTIONS'][option] = default
 
         def _try_load_custom_postprocessing_option(option, default):
+            # TODO: [TD0141] Coerce raw values to a known type.
             if 'CUSTOM_POST_PROCESSING' in config_dict:
                 _value = config_dict['CUSTOM_POST_PROCESSING'].get(option)
             else:
@@ -215,6 +217,7 @@ class ConfigurationParser(object):
                 )
 
         def _try_load_custom_postprocessing_replacements():
+            # TODO: [TD0141] Coerce raw values to a known type.
             if 'CUSTOM_POST_PROCESSING' in config_dict:
                 _reps = config_dict['CUSTOM_POST_PROCESSING'].get('replacements')
                 if not _reps or not isinstance(_reps, dict):
@@ -249,6 +252,7 @@ class ConfigurationParser(object):
                     )
 
         def _try_load_persistence_option(option, default):
+            # TODO: [TD0141] Coerce raw values to a known type.
             _value = None
             if 'PERSISTENCE' in config_dict:
                 try:
