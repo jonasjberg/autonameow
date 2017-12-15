@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import html
 import re
 import unicodedata
 import urllib
@@ -28,6 +29,7 @@ from util import sanity
 
 __all__ = [
     'collapse_whitespace',
+    'html_unescape',
     'indent',
     'normalize_unicode',
     'remove_nonbreaking_spaces',
@@ -254,3 +256,7 @@ def truncate_text(text, number_chars=500):
 
 def urldecode(string):
     return urllib.parse.unquote(string)
+
+
+def html_unescape(string):
+    return html.unescape(string)
