@@ -69,6 +69,10 @@ class NameTemplateField(object):
             return type_class in cls.COMPATIBLE_TYPES
 
     def __str__(self):
+        # TODO: [TD0140] str() method not working as intended.
+        # These classes are mostly not instantiated and used as classes.
+        # Calling str() on a class will not call this method, resulting in
+        # for instance 'core.namebuilder.fields.Extension' and not 'Extension'.
         return self.__class__.__name__.lower()
 
 

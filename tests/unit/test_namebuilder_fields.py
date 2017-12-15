@@ -199,3 +199,11 @@ class NameTemplateFieldCompatible(TestCase):
     def test_not_compatible_with_name_template_field_tags(self):
         self._incompatible(fields.Description, types.AW_TIMEDATE)
         self._incompatible(fields.Description, types.listof(types.AW_TIMEDATE))
+
+
+class TestTitle(TestCase):
+    def test___str__(self):
+        self.skipTest('TODO: [TD0140] Fix Template field classes __str__')
+        actual = str(fields.Title)
+        expect = 'Title'
+        self.assertEqual(expect, actual)
