@@ -73,6 +73,11 @@ class Autonameow(object):
 
         self.active_config = None
         self.matcher = None
+        self.rename_stats = {
+            'failed': 0,
+            'skipped': 0,
+            'renamed': 0,
+        }
         self._exit_code = C.EXIT_SUCCESS
 
     @staticmethod
@@ -199,6 +204,11 @@ class Autonameow(object):
         self.matcher = RuleMatcher(rules, self.opts.get('list_rulematch'))
 
         self._handle_files(files_to_process)
+
+        log.info('Processed {} files. Renamed {}  Skipped {}  Failed {}'.format(
+            len(files_to_process), self.rename_stats['renamed'],
+            self.rename_stats['skipped'], self.rename_stats['failed'])
+        )
         self.exit_program(self.exit_code)
 
     def load_config(self, path):
@@ -633,6 +643,7 @@ class Autonameow(object):
         from_basename = disk.file_basename(from_path)
 
         if disk.compare_basenames(from_basename, dest_basename):
+            self.rename_stats['skipped'] += 1
             _msg = (
                 'Skipped "{!s}" because the current name is the same as '
                 'the new name'.format(enc.displayable_path(from_basename),
@@ -641,10 +652,12 @@ class Autonameow(object):
             log.debug(_msg)
             ui.msg(_msg)
         else:
+            self.rename_stats['renamed'] += 1
             if dry_run is False:
                 try:
                     disk.rename_file(from_path, dest_basename)
                 except (FileNotFoundError, FileExistsError, OSError) as e:
+                    self.rename_stats['failed'] += 1
                     log.error('Rename FAILED: {!s}'.format(e))
                     raise exceptions.AutonameowException
 
