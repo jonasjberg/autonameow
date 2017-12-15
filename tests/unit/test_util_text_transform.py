@@ -29,6 +29,7 @@ from util.text.transform import (
     indent,
     normalize_unicode,
     remove_nonbreaking_spaces,
+    strip_accents,
     strip_ansiescape,
     urldecode
 )
@@ -391,3 +392,30 @@ class TestHtmlUnescape(TestCase):
 
         _aE('&amp;', '&')
         _aE('Gibson &amp; Associates', 'Gibson & Associates')
+
+
+class TestStripAccents(TestCase):
+    def _assert_strips(self, given, expect):
+        actual = strip_accents(given)
+        self.assertEqual(expect, actual)
+
+    def test_returns_none_as_is(self):
+        self._assert_strips(None, None)
+
+    def test_pass_through(self):
+        self._assert_strips(given='', expect='')
+        self._assert_strips(given=' ', expect=' ')
+        self._assert_strips(given='foo', expect='foo')
+
+    def test_strips_accent(self):
+        self._assert_strips(given='ç', expect='c')
+        self._assert_strips(given='Fooçalbar', expect='Foocalbar')
+        self._assert_strips(given='Montréal', expect='Montreal')
+        self._assert_strips(given=' über, 12.89', expect=' uber, 12.89')
+
+        # TODO: Handle "strokes" like 'ø'.
+        # self._assert_strips(given='ø', expect='o')
+
+    def test_strips_accents(self):
+        self._assert_strips(given='Mère, Françoise, noël, 889',
+                            expect='Mere, Francoise, noel, 889')

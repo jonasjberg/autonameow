@@ -32,6 +32,7 @@ __all__ = [
     'html_unescape',
     'indent',
     'normalize_unicode',
+    'strip_accents',
     'remove_nonbreaking_spaces',
     'strip_ansiescape',
     'truncate_text',
@@ -235,6 +236,18 @@ def normalize_unicode(text):
     text = re.sub(RE_UNICODE_DOUBLE_QUOTES, '"', text)
 
     return unicodedata.normalize(NORMALIZATION_FORM, text)
+
+
+def strip_accents(string):
+    """
+    Strips accents or diacritics from a Unicode string.
+
+    Based on this post:  https://stackoverflow.com/a/17069876
+    """
+    if not string:
+        return string
+    nkfd_form = unicodedata.normalize('NFKD', string)
+    return ''.join([c for c in nkfd_form if not unicodedata.combining(c)])
 
 
 def remove_nonbreaking_spaces(text):
