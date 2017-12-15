@@ -40,7 +40,7 @@ class TestFilenamePostprocessor(TestCase):
         p = FilenamePostprocessor(**kwargs)
 
         actual = p(given)
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_lowercase_filename_true(self):
         self.__check_call(given='Foo Bar', expect='foo bar',
@@ -92,3 +92,11 @@ class TestFilenamePostprocessor(TestCase):
         ]
         self.__check_call(given='Foo barbar Bar', expect='MjaoXbarXBar',
                           regex_replacements=reps)
+
+    def test_simplify_unicode(self):
+        self.__check_call(given='foo', expect='foo',
+                          simplify_unicode=False)
+        self.__check_call(given='Fooçalbar', expect='Fooçalbar',
+                          simplify_unicode=False)
+        self.__check_call(given='Fooçalbar', expect='Foocalbar',
+                          simplify_unicode=True)

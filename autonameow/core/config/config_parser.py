@@ -319,6 +319,9 @@ class ConfigurationParser(object):
             'uppercase_filename',
             C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME
         )
+        _try_load_custom_postprocessing_option(
+            'simplify_unicode',
+            C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE
         )
 
         # TODO: [TD0137] Add rule-specific replacements.

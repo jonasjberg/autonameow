@@ -59,6 +59,7 @@ class TestConstants(TestCase):
         _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_SANITIZE_STRICT)
         _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_LOWERCASE_FILENAME)
         _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME)
+        _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE)
 
     def test_constants_contains_python_version(self):
         self.assertIsNotNone(C.STRING_PYTHON_VERSION)

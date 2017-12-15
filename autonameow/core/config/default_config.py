@@ -230,7 +230,8 @@ DEFAULT_CONFIG = {
         'lowercase_filename': False,
         'uppercase_filename': False,
         'sanitize_filename': True,
-        'sanitize_strict': False
+        'sanitize_strict': False,
+        'simplify_unicode': True
     },
 
     #  Filetags Options

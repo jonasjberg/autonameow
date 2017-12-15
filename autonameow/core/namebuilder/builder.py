@@ -28,7 +28,10 @@ from core import (
     ui,
 )
 from core.namebuilder.fields import NameTemplateField
-from util import sanity
+from util import (
+    sanity,
+    text
+)
 from util import encoding as enc
 
 
@@ -37,9 +40,10 @@ log = logging.getLogger(__name__)
 
 class FilenamePostprocessor(object):
     def __init__(self, lowercase_filename=None, uppercase_filename=None,
-                 regex_replacements=None):
+                 regex_replacements=None, simplify_unicode=None):
         self.lowercase_filename = lowercase_filename or False
         self.uppercase_filename = uppercase_filename or False
+        self.simplify_unicode = simplify_unicode or False
 
         # List of tuples containing a compiled regex and a unicode string.
         self.regex_replacements = regex_replacements or []
@@ -59,6 +63,9 @@ class FilenamePostprocessor(object):
         elif self.uppercase_filename:
             _filename = _filename.upper()
 
+        if self.simplify_unicode:
+            _filename = self._do_simplify_unicode(_filename)
+
         return _filename
 
     @staticmethod
@@ -72,6 +79,10 @@ class FilenamePostprocessor(object):
 
                 filename = re.sub(regex, replacement, filename)
         return filename
+
+    @staticmethod
+    def _do_simplify_unicode(filename):
+        return text.simplify_unicode(filename)
 
 
 def build(config, name_template, field_data_map):
@@ -130,7 +141,9 @@ def build(config, name_template, field_data_map):
         uppercase_filename=config.get(['CUSTOM_POST_PROCESSING',
                                        'uppercase_filename']),
         regex_replacements=config.get(['CUSTOM_POST_PROCESSING',
-                                       'replacements'])
+                                       'replacements']),
+        simplify_unicode=config.get(['CUSTOM_POST_PROCESSING',
+                                     'simplify_unicode'])
     )
     new_name = postprocessor(new_name)
 

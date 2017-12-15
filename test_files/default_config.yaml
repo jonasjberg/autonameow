@@ -8,6 +8,7 @@ CUSTOM_POST_PROCESSING:
         _{2,}: _
     sanitize_filename: true
     sanitize_strict: false
+    simplify_unicode: true
     uppercase_filename: false
 DATETIME_FORMAT:
     date: '%Y-%m-%d'
@@ -108,9 +109,3 @@ RULES:
         NAME_FORMAT: '{datetime} {description}.{extension}'
         exact_match: true
         ranking_bias: 1
-    Rule without conditions:
-        DATA_SOURCES:
-            title: extractor.filesystem.xplat.basename.prefix
-            extension: extractor.filesystem.xplat.contents.mime_type
-        NAME_FORMAT: '{title}.{extension}'
-        ranking_bias: 0.001
