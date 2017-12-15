@@ -17,6 +17,107 @@ __NOTE: This information is not being kept up to date!__
 * 2017-09-22 --- `jonasjberg` Added notes from `ideas.md`
 * 2017-09-23 --- `jonasjberg` Merged with `2017-06-15_architecture.md`
 * 2017-12-02 --- `jonasjberg` Remove old part. Add note that it is all old.
+* 2017-12-15 --- `jonasjberg` Add section on "on demand" extraction.
+
+
+Rethinking Requests and Gathering Required Data
+===============================================
+Currently, either all extractors are executed when "listing all results" or
+only extractors that are "mapped" to MeowURIs that are referenced in the active
+configuration are executed.
+
+For performance and implementing coming features like evaluating conditions
+like *"does the textual contents match this regular expression?"*, it would
+probably make more sense to rethink data extraction to something more like
+"streaming" and non-blocking/request-based;
+__gathering only the data that is explicitly required.__
+
+When evaluating a rule like;
+
+> * Conditions:
+>     1. MIME-type is `image/jpeg`
+>     2. Textual contents match `meow*`
+>
+> * Exact match is required
+
+Given a file `foo.pdf`, the first condition will fail and because the rule
+requires all conditions to evaluate true, the entire rule should be discarded.
+
+Rule evaluation should be aborted after the first failed condition, there is no
+need to extract textual contents.
+
+
+"Streaming" or "On-demand" Extraction
+-------------------------------------
+Example of rule evaluation using this proposed re-design, using a configuration;
+
+> 1. Rule 1
+>     * Conditions:
+>         1. MIME-type is `image/jpeg`
+>         2. Textual contents match `meow*`
+>     * Exact match is required
+> 2. Rule 2
+>     * Conditions:
+>         1. MIME-type is `application/*`
+>         2. Textual contents match `meow*`
+>     * Exact match is required
+
+Rule evaluation would follow something like the following sequence of events.
+
+* Given a file `foo.pdf`;
+    * __Start evaluating Rule 1__
+        * Start evaluating condition 1
+            * Get data (MIME-type) required to evaluate condition 1
+                * Execute extractor that can provide the required data.
+            * Evaluate condition 1:  `application/pdf == image/jpeg`
+            * Condition evaluates FALSE
+    * __Discard Rule 1__
+    * __Start evaluating Rule 2__
+        * Start evaluating condition 1
+            * Get __previously extracted data__ (MIME-type)
+            * Evaluate condition 1:  `application/pdf == application/*`
+            * Condition evaluates TRUE
+        * Start evaluating condition 2
+            * Extract data (textual contents) required to evaluate condition 2
+                * Execute extractor that can provide the required data.
+            * Evaluate condition 2:  `text.matches(meow*)`
+            * Condition evaluates FALSE
+    * __Discard Rule 2__ *(assuming the text does not match `meow*`)*
+
+* Given a file `foo_bar.jpg`;
+    * __Start evaluating Rule 1__
+        * Start evaluating condition 1
+            * Get data (MIME-type) required to evaluate condition 1
+                * Execute extractor that can provide the required data.
+            * Evaluate condition 1:  `image/jpeg == image/jpeg`
+            * Condition evaluates TRUE.
+        * Start evaluating condition 2
+            * Extract data (textual contents) required to evaluate condition 2
+                * Execute extractor that can provide the required data.
+            * Evaluate condition 2:  `text.matches(meow*)`
+            * Condition evaluates FALSE.
+    * __Start evaluating Rule 2__
+        * Start evaluating condition 1
+            * Get __previously extracted data__ (MIME-type)
+            * Evaluate condition 1:  `image/jpeg == application/*`
+            * Condition evaluates FALSE.
+    * __Discard Rule 2__
+
+
+### Take-away Points
+
+* Avoid preemptively extracting data that is not explicitly required.
+* Re-use data that has been extracted previously.
+* Instead of running extraction and rule evaluation as completely separate
+  processes, gather data "on demand".
+
+
+### Practical Concerns
+If a rule condition requires a single piece of data, say `EXIF:CreateDate`, it
+makes no sense to start the relevant provider (`exiftool`) and store *only this
+single field* and discard the other metadata.  Rather, some requests for data
+might make more data available as a side-effect if doing so results in a faster
+overall execution time.
 
 
 Modular Design
