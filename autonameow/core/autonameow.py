@@ -383,9 +383,9 @@ class Autonameow(object):
         if self.opts.get('mode_rulematch'):
             # TODO: Cleanup ..
             candidates = self.matcher.match(current_file)
+            log.debug('Matcher returned {} candidate rules'.format(len(candidates)))
             if candidates:
                 active_rule = self._try_get_rule(candidates)
-                candidates.pop(0)
 
         if active_rule:
             log.info(
@@ -433,8 +433,19 @@ class Autonameow(object):
         field_data_dict = self._try_resolve(current_file, name_template,
                                             data_sources)
         if not field_data_dict:
-            if self.opts.get('mode_automagic'):
+            if not self.opts.get('mode_automagic'):
+                log.warning('(437) Not in automagic mode. Unable to populate name.')
+                self.exit_code = C.EXIT_WARNING
+                return
+
+            while not field_data_dict and candidates:
                 # Try real hard to figure it out (?)
+                log.debug('Start of try-hard rule matching loop ..')
+                if not candidates:
+                    log.debg('No candidates! Exiting try-hard matching loop')
+                    break
+
+                log.debug('Remaining candidates: {}'.format(len(candidates)))
                 active_rule = self._try_get_rule(candidates)
                 if active_rule:
                     log.info(
@@ -445,8 +456,9 @@ class Autonameow(object):
                     field_data_dict = self._try_resolve(current_file,
                                                         name_template,
                                                         data_sources)
+
         if not field_data_dict:
-            log.warning('(439) Unable to populate name.')
+            log.warning('(461) Unable to populate name.')
             self.exit_code = C.EXIT_WARNING
             return
 
@@ -490,7 +502,7 @@ class Autonameow(object):
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         if not resolver.collected_all():
             if self.opts.get('mode_batch'):
-                log.warning('(483) Unable to populate name.')
+                log.warning('(505) Unable to populate name.')
                 # self.exit_code = C.EXIT_WARNING
                 return
             else:
@@ -530,7 +542,7 @@ class Autonameow(object):
         # Add automatically resolving missing sources from possible candidates.
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-            log.warning('(523) Unable to populate name. Missing field data.')
+            log.warning('(545) Unable to populate name. Missing field data.')
             self.exit_code = C.EXIT_WARNING
             return None
 
@@ -558,10 +570,9 @@ class Autonameow(object):
         RULE_SCORE_CONFIRM_THRESHOLD = 0
         if candidates and not active_rule:
             # User rule selection did not happen or failed.
-            # Is there a "best matched" rule?
-            best_match = candidates[0]
+            best_match = candidates.pop(0)
             if best_match:
-                # OK! But is the score of the best matched rule high enough?
+                # Is the score of the best matched rule high enough?
                 rule, score, weight = best_match
                 description = rule.description
                 if score > RULE_SCORE_CONFIRM_THRESHOLD:
