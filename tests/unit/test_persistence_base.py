@@ -24,8 +24,8 @@ from unittest.mock import patch
 
 from core import constants as C
 from util import unique_identifier
-from core.persistence import get_config_persistence_path
 from core.persistence.base import (
+    get_config_persistence_path,
     get_persistence,
     BasePersistence,
     PicklePersistence
