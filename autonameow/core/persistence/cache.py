@@ -78,22 +78,21 @@ class BaseCache(object):
 
     def __init__(self, owner, cache_dir_abspath=None, max_filesize=None):
         self._owner = None
+        self.owner = owner
 
         self._persistence = _get_persistence_backend(
             file_prefix=self.CACHE_PERSISTENCE_FILE_PREFIX,
             persistence_dir_abspath=cache_dir_abspath
         )
 
-        if max_filesize is not None:
+        if max_filesize is None:
+            self.max_filesize = C.DEFAULT_CACHE_MAX_FILESIZE
+        else:
             assert isinstance(max_filesize, int) and max_filesize > 0, (
                 'Expected argument "max_filesize" to be a positive integer. '
                 'Got ({!s}) "{!s}"'.format(type(max_filesize), max_filesize)
             )
             self.max_filesize = max_filesize
-        else:
-            self.max_filesize = C.DEFAULT_CACHE_MAX_FILESIZE
-
-        self.owner = owner
 
         try:
             self._data = self._persistence.get(self.owner)
