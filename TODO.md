@@ -193,6 +193,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0144]` Avoid enforcing/pruning cache file size too frequently.
+
 * `[TD0143]` __Add option to execute "hooks" at certain events.__
     Allow specifying executing arbitrary commands when specific events occur.
     One use-case example is moving successfully renamed files to another

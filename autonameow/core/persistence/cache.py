@@ -183,12 +183,15 @@ class BaseCache(object):
         return self._persistence.filesize(self.owner)
 
     def _enforce_max_filesize(self):
+        # TODO: [TD0144] Avoid enforcing cache file size too frequently.
         size = self.filesize()
         if size >= self.max_filesize:
-            log.debug('Cache filesize {!s} exceeds limit {!s}'.format(
-                size, self.max_filesize
-            ))
+            log.debug('Cache filesize {!s} bytes exceeds {!s} '
+                      'byte limit'.format(size, self.max_filesize))
             self._prune_oldest()
+
+            size = self.filesize()
+            log.debug('Cache filesize {!s} bytes after prune'.format(size))
 
     def _prune_oldest(self):
         """
