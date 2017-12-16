@@ -191,17 +191,23 @@ class BaseCache(object):
             self._prune_oldest()
 
     def _prune_oldest(self):
+        """
+        Removes half of all cached items, favouring recent items.
+        """
         # 'data_items' will be a list of nested tuples:
         # [(key1, (timestamp1, data1)), (key2, (timestamp2, data2))]
         data_items = list(self._data.items())
         sorted_by_timestamp = sorted(data_items, key=lambda x: x[1][0])
 
-        # Get the last (oldest) 'number_items_to_remove' number of items.
-        number_items_to_remove = int(len(data_items) / 2)
+        number_data_items = len(data_items)
+        number_items_to_remove = int(number_data_items / 2)
+        # Pop the last (oldest) 'number_items_to_remove' number of items.
         for key, _ in sorted_by_timestamp[:number_items_to_remove]:
             self._data.pop(key)
 
-        log.debug('Pruned {!s} oldest items'.format(number_items_to_remove))
+        log.debug('Cache pruned {!s} oldest items (was {!s} total)'.format(
+            number_items_to_remove, number_data_items
+        ))
 
 
 def get_cache(owner, max_filesize=None):
