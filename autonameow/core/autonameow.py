@@ -480,8 +480,8 @@ class Autonameow(object):
 
         if not resolver.mapped_all_template_fields():
             if self.opts.get('mode_batch'):
-                log.error('All name template placeholder fields must be '
-                          'given a data source; Check the configuration!')
+                log.error('Unable to resolve all name template fields. '
+                          'Running in batch mode -- Aborting..')
                 self.exit_code = C.EXIT_WARNING
                 return
 
