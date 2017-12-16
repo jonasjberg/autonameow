@@ -219,6 +219,12 @@ class EbookAnalyzer(BaseAnalyzer):
                 len(self._isbn_metadata)
             ))
             for _isbn_metadata in self._isbn_metadata:
+                # NOTE(jonas): Arbitrary removal of metadata records ..
+                if not _isbn_metadata.authors and not _isbn_metadata.publisher:
+                    self.log.debug('Skipped ISBN metadata missing both '
+                                   'authors and publisher')
+                    continue
+
                 maybe_title = self._filter_title(_isbn_metadata.title)
                 if maybe_title:
                     self._add_results('title', self._wrap_title(maybe_title))
@@ -522,9 +528,11 @@ class ISBNMetadata(object):
         if value:
             if not isinstance(value, list):
                 value = [value]
-            self._authors = value
+
+            stripped_value = [v for v in value if v.strip()]
+            self._authors = stripped_value
             self._normalized_authors = [
-               normalize_full_human_name(a) for a in value if a
+               normalize_full_human_name(a) for a in stripped_value if a
             ]
 
     @property
