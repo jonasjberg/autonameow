@@ -116,7 +116,8 @@ class AbstractTextExtractor(BaseExtractor):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def init_cache(self):
-        _cache = persistence.get_cache(str(self))
+        _max_filesize = 50 * 1024**2  # ~50MB
+        _cache = persistence.get_cache(str(self), max_filesize=_max_filesize)
         if _cache:
             self.cache = _cache
         else:

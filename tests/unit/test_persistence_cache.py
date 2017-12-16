@@ -21,8 +21,8 @@
 
 from unittest import TestCase
 
-from core.persistence import cache
 import unit.utils as uu
+from core.persistence import cache
 
 
 class TestBaseCache(TestCase):
@@ -77,6 +77,54 @@ class TestBaseCacheStorage(TestCase):
         expect = [self.data_key]
         actual = self.c.keys()
         self.assertEqual(actual, expect)
+
+    def test_empty_cache_filesize_is_zero(self):
+        actual = self.c.filesize()
+        self.assertEqual(0, actual)
+
+    def test_caching_data_increases_filesize(self):
+        actual_initial = self.c.filesize()
+        self.assertEqual(0, actual_initial)
+
+        self.c.set('key', 'data' * 10)
+        actual_after_first_set = self.c.filesize()
+        self.assertGreater(actual_after_first_set, 0)
+
+        self.c.set('key', 'data' * 20)
+        actual_after_second_set = self.c.filesize()
+        self.assertGreater(actual_after_second_set, 0)
+        self.assertGreater(actual_after_second_set, actual_after_first_set)
+
+    def test_caching_continuously_increases_filesize(self):
+        previous_size = 0
+        for data_size in range(100, 2000, 100):
+            self.c.set('key', 'data' * data_size)
+
+            current_size = self.c.filesize()
+            self.assertGreater(current_size, previous_size)
+            previous_size = current_size
+
+
+class TestBaseCacheMaxFilesize(TestCase):
+    def setUp(self):
+        owner = 'test_owner'
+        self.c = cache.BaseCache(owner, max_filesize=500)
+
+    def tearDown(self):
+        self.c.flush()
+
+    def test_cache_does_not_exceed_max_filesize(self):
+        data = 'data' * 10
+
+        # Allow exceeding the limit (size of recently cached data)
+        failing_limit = self.c.max_filesize + len(data)
+
+        for data_size in range(10, 1000, 10):
+            key = str(data_size)
+            self.c.set(key, data)
+
+            current_size = self.c.filesize()
+            self.assertLess(current_size, failing_limit)
 
 
 class CacheInterface(TestCase):

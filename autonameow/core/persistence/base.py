@@ -256,6 +256,7 @@ class BasePersistence(object):
             return True
 
     def keys(self):
+        # TODO: This is a major security vulnerability (!)
         out = []
         for bytestring_file in os.listdir(self.persistence_dir_abspath):
             string_file = types.force_string(bytestring_file)
@@ -276,6 +277,28 @@ class BasePersistence(object):
                 self.delete(key)
             except PersistenceError:
                 pass
+
+    def filesize(self, key):
+        """
+        Get the file size in bytes of the stored data under the given key.
+        """
+        if not key:
+            raise KeyError
+
+        _file_path = self._persistence_file_abspath(key)
+        if not os.path.exists(enc.syspath(_file_path)):
+            return 0
+
+        try:
+            size = disk.file_bytesize(_file_path)
+            return size
+        except exceptions.FilesystemError as e:
+            _dp = enc.displayable_path(_file_path)
+            log.error(
+                'Error when getting file size for persistence file "{!s}"'
+                ' from key "{!s}"; {!s}'.format(_dp, key, e)
+            )
+            raise PersistenceError(e)
 
     def _load(self, file_path):
         raise NotImplementedError('Must be implemented by inheriting classes.')

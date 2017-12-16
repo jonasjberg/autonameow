@@ -91,7 +91,9 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self._cached_isbn_metadata = {}
         self._isbn_num_blacklist = set(BLACKLISTED_ISBN_NUMBERS)
-        self.cache = persistence.get_cache(str(self))
+
+        # NOTE(jonas): Tweak max cache file size. Now 50MB.
+        self.cache = persistence.get_cache(str(self), max_filesize=50000000)
         if self.cache:
             _cached_isbn_metadata = self.cache.get(CACHE_KEY_ISBNMETA)
             if _cached_isbn_metadata:

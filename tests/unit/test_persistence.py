@@ -22,6 +22,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 
+from core import constants as C
 from util import unique_identifier
 from core.persistence import get_config_persistence_path
 from core.persistence.base import (
@@ -146,6 +147,24 @@ class TestBasePersistence(TestCase):
         with self.assertRaises(KeyError):
             c.get(datakey)
 
+    def test_filesize_raises_key_error_given_invalid_keys(self):
+        c = BasePersistence(
+            'foo', persistence_dir_abspath=uu.mock_persistence_path()
+        )
+
+        with self.assertRaises(KeyError):
+            for _invalid_key in ['key_a', None, '', ' ']:
+                _ = c.filesize(_invalid_key)
+
+    def test_empty_persistence_filesize_is_zero(self):
+        c = BasePersistence(
+            'foo', persistence_dir_abspath=uu.mock_persistence_path()
+        )
+
+        datakey = 'dummykey'
+        actual = c.filesize(datakey)
+        self.assertEqual(0, actual)
+
 
 class TestPicklePersistence(TestCase):
     PERSISTENCE_KEY = 'temp_unit_test_persistence'
@@ -224,10 +243,29 @@ class TestPicklePersistence(TestCase):
         expect = [data_keys[0], data_keys[1], data_keys[2]]
         self.assertEqual(sorted(actual), sorted(expect))
 
+    def test_initial_filesize_is_zero(self):
+        actual_initial = self.c.filesize(self.datakey)
+        self.assertEqual(0, actual_initial)
+
+    def test_storing_bigger_data_increases_filesize(self):
+        actual_initial = self.c.filesize(self.datakey)
+        self.assertEqual(0, actual_initial)
+
+        self.c.set(self.datakey, 'foo' * 10)
+        actual_after_first_set = self.c.filesize(self.datakey)
+        self.assertGreater(actual_after_first_set, 0)
+
+        self.c.set(self.datakey, 'foo' * 20)
+        actual_after_second_set = self.c.filesize(self.datakey)
+        self.assertGreater(actual_after_second_set, 0)
+        self.assertGreater(actual_after_second_set, actual_after_first_set)
+
 
 class TestGetPersistence(TestCase):
     def setUp(self):
-        self.p = get_persistence('foo')
+        self.p = get_persistence(
+            'foo', persistence_dir_abspath=C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+        )
 
     def tearDown(self):
         self.p.flush()

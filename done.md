@@ -10,6 +10,15 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+### 2017-12-16
+
+> Low Priority
+> ------------
+>
+> * `[TD0101]` __Add ability to limit sizes of persistent storage/caches.__  
+>   Store timestamps with stored data and remove oldest entries when exceeding
+>   the file size limit.
+
 ### 2017-12-13
 
 > Low Priority

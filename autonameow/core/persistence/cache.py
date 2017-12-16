@@ -22,6 +22,7 @@
 import logging
 import time
 
+from core import constants as C
 from core import types
 from core.exceptions import AutonameowException
 from core.persistence.base import (
@@ -75,17 +76,22 @@ class BaseCache(object):
     """
     CACHE_PERSISTENCE_FILE_PREFIX = 'cache'
 
-    # TODO: [TD0101] Add ability to limit sizes of persistent storage/caches.
-    #                Store timestamps with stored data and remove oldest
-    #                entries when exceeding the file size limit.
-
-    def __init__(self, owner, cache_dir_abspath=None):
+    def __init__(self, owner, cache_dir_abspath=None, max_filesize=None):
         self._owner = None
 
         self._persistence = _get_persistence_backend(
             file_prefix=self.CACHE_PERSISTENCE_FILE_PREFIX,
             persistence_dir_abspath=cache_dir_abspath
         )
+
+        if max_filesize is not None:
+            assert isinstance(max_filesize, int) and max_filesize > 0, (
+                'Expected argument "max_filesize" to be a positive integer. '
+                'Got ({!s}) "{!s}"'.format(type(max_filesize), max_filesize)
+            )
+            self.max_filesize = max_filesize
+        else:
+            self.max_filesize = C.DEFAULT_CACHE_MAX_FILESIZE
 
         self.owner = owner
 
@@ -143,9 +149,10 @@ class BaseCache(object):
             key (str): The key to store the data under.
             value: The data to store, as any serializable type.
         """
-        _timestamped_value = (self.get_timestamp(), value)
+        _timestamped_value = (self._get_timestamp(), value)
         self._data[key] = _timestamped_value
 
+        self._enforce_max_filesize()
         self._persistence.set(self.owner, self._data)
 
     def delete(self, key):
@@ -169,13 +176,40 @@ class BaseCache(object):
         except PersistenceError as e:
             raise CacheError(e)
 
-    def get_timestamp(self):
+    @staticmethod
+    def _get_timestamp():
         return int(time.time())
 
+    def filesize(self):
+        return self._persistence.filesize(self.owner)
 
-def get_cache(owner):
+    def _enforce_max_filesize(self):
+        size = self.filesize()
+        if size >= self.max_filesize:
+            log.warning('Cache filesize {!s} exceeds limit {!s}'.format(
+                size, self.max_filesize
+            ))
+            self._prune_oldest()
+
+    def _prune_oldest(self):
+        # if items_to_remove == 0:
+        #     items_to_remove = 1
+        data_items = list(self._data.items())
+        # 'data_items' now contains:
+        #   [(key1, (timestamp1, data1)), (key2, (timestamp2, data2))]
+        sorted_by_timestamp = sorted(data_items, key=lambda x: x[1][0])
+
+        # Get the last (oldest) 'number_items_to_remove' number of items.
+        number_items_to_remove = int(len(data_items) / 2)
+        for key, _ in sorted_by_timestamp[:number_items_to_remove]:
+            self._data.pop(key)
+
+        log.warning('Pruned {!s} oldest items'.format(number_items_to_remove))
+
+
+def get_cache(owner, max_filesize=None):
     try:
-        return BaseCache(owner)
+        return BaseCache(owner, max_filesize=max_filesize)
     except PersistenceError as e:
         log.error('Cache unavailable :: {!s}'.format(e))
         return None

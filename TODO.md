@@ -275,10 +275,6 @@ Low Priority
     template fields or by allowing arbitrary placeholder fields with some
     simple format like `{a}`, `{b}`, etc.
 
-* `[TD0101]` __Add ability to limit sizes of persistent storage/caches.__  
-  Store timestamps with stored data and remove oldest entries when exceeding
-  the file size limit.
-
 * `[TD0096]` Fix some replacements cause incorrect color highlighting.
 
 * `[TD0091]` Take a look at old code in `util/dateandtime.py`.

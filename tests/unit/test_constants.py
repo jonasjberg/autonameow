@@ -26,57 +26,54 @@ import unit.utils as uu
 
 
 class TestConstants(TestCase):
-    def test_constants_contains_program_exit_codes(self):
-        def _assert_defined_and_int(test_input):
-            self.assertIsNotNone(test_input)
-            self.assertIsInstance(test_input, int)
+    def _is_defined_type(self, type_, test_input):
+        self.assertIsNotNone(test_input)
+        self.assertIsInstance(test_input, type_)
 
-        _assert_defined_and_int(C.EXIT_SUCCESS)
-        _assert_defined_and_int(C.EXIT_WARNING)
-        _assert_defined_and_int(C.EXIT_SANITYFAIL)
-        _assert_defined_and_int(C.EXIT_ERROR)
+    def _is_defined_internal_string(self, test_input):
+        self.assertIsNotNone(test_input)
+        self.assertTrue(uu.is_internalstring(test_input))
+
+    def _is_defined_absolute_path(self, test_input):
+        self.assertIsNotNone(test_input)
+        self.assertTrue(uu.is_internalbytestring(test_input))
+        self.assertTrue(uu.is_abspath(test_input))
+
+    def test_constants_contains_program_exit_codes(self):
+        self._is_defined_type(int, C.EXIT_SUCCESS)
+        self._is_defined_type(int, C.EXIT_WARNING)
+        self._is_defined_type(int, C.EXIT_SANITYFAIL)
+        self._is_defined_type(int, C.EXIT_ERROR)
 
     def test_constants_contains_default_rule_ranking_bias(self):
-        self.assertIsNotNone(C.DEFAULT_RULE_RANKING_BIAS)
-        self.assertIsInstance(C.DEFAULT_RULE_RANKING_BIAS, float)
+        self._is_defined_type(float, C.DEFAULT_RULE_RANKING_BIAS)
 
     def test_constants_contains_default_file_tags_options(self):
-        self.assertIsNotNone(C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR)
-        self.assertTrue(
-            uu.is_internalstring(C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR)
+        self._is_defined_internal_string(
+            C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
         )
-        self.assertIsNotNone(C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR)
-        self.assertTrue(
-            uu.is_internalstring(C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR)
+        self._is_defined_internal_string(
+            C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR
         )
 
     def test_constants_contains_default_postprocessing_options(self):
-        def _assert_defined_and_bool(test_input):
-            self.assertIsNotNone(test_input)
-            self.assertIsInstance(test_input, bool)
-
-        _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_SANITIZE_FILENAME)
-        _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_SANITIZE_STRICT)
-        _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_LOWERCASE_FILENAME)
-        _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME)
-        _assert_defined_and_bool(C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE)
+        self._is_defined_type(bool, C.DEFAULT_POSTPROCESS_SANITIZE_FILENAME)
+        self._is_defined_type(bool, C.DEFAULT_POSTPROCESS_SANITIZE_STRICT)
+        self._is_defined_type(bool, C.DEFAULT_POSTPROCESS_LOWERCASE_FILENAME)
+        self._is_defined_type(bool, C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME)
+        self._is_defined_type(bool, C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE)
 
     def test_constants_contains_python_version(self):
-        self.assertIsNotNone(C.STRING_PYTHON_VERSION)
-        self.assertTrue(uu.is_internalstring(C.STRING_PYTHON_VERSION))
+        self._is_defined_internal_string(C.STRING_PYTHON_VERSION)
 
     def test_constants_contains_analysis_results_fields(self):
-        self.assertIsNotNone(C.ANALYSIS_RESULTS_FIELDS)
-        self.assertIsInstance(C.ANALYSIS_RESULTS_FIELDS, list)
+        self._is_defined_type(list, C.ANALYSIS_RESULTS_FIELDS)
 
     def test_default_cache_path(self):
-        p = C.DEFAULT_PERSISTENCE_DIR_ABSPATH
-        self.assertTrue(uu.is_internalbytestring(p))
-        self.assertTrue(uu.is_abspath(p))
-        self.assertFalse(uu.file_exists(p))
+        self._is_defined_absolute_path(C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
 
     def test_default_history_path(self):
-        p = C.DEFAULT_HISTORY_FILE_ABSPATH
-        self.assertTrue(uu.is_internalbytestring(p))
-        self.assertTrue(uu.is_abspath(p))
-        self.assertFalse(uu.dir_exists(p))
+        self._is_defined_absolute_path(C.DEFAULT_HISTORY_FILE_ABSPATH)
+
+    def test_default_cache_max_filesize(self):
+        self._is_defined_type(int, C.DEFAULT_CACHE_MAX_FILESIZE)
