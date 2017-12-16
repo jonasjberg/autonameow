@@ -185,17 +185,15 @@ class BaseCache(object):
     def _enforce_max_filesize(self):
         size = self.filesize()
         if size >= self.max_filesize:
-            log.warning('Cache filesize {!s} exceeds limit {!s}'.format(
+            log.debug('Cache filesize {!s} exceeds limit {!s}'.format(
                 size, self.max_filesize
             ))
             self._prune_oldest()
 
     def _prune_oldest(self):
-        # if items_to_remove == 0:
-        #     items_to_remove = 1
+        # 'data_items' will be a list of nested tuples:
+        # [(key1, (timestamp1, data1)), (key2, (timestamp2, data2))]
         data_items = list(self._data.items())
-        # 'data_items' now contains:
-        #   [(key1, (timestamp1, data1)), (key2, (timestamp2, data2))]
         sorted_by_timestamp = sorted(data_items, key=lambda x: x[1][0])
 
         # Get the last (oldest) 'number_items_to_remove' number of items.
@@ -203,7 +201,7 @@ class BaseCache(object):
         for key, _ in sorted_by_timestamp[:number_items_to_remove]:
             self._data.pop(key)
 
-        log.warning('Pruned {!s} oldest items'.format(number_items_to_remove))
+        log.debug('Pruned {!s} oldest items'.format(number_items_to_remove))
 
 
 def get_cache(owner, max_filesize=None):
