@@ -311,6 +311,20 @@ A toolkit for making domain-specific probabilistic parsers
 > data to teach your parser about its domain.
 
 
+`Hazel`
+-------
+Automated Organization for Your Mac.
+
+* Website: <https://www.noodlesoft.com/>
+* Sources: *N/A*
+* Documentation: <https://www.noodlesoft.com/manual/hazel>
+
+> Hazel helps you reduce clutter and save time by automatically moving,
+> sorting, renaming, and performing various other actions on the folders that
+> tend to accumulate lots of files (such as your Desktop and Downloads
+> folders).
+
+
 
 
 [1]: http://karl-voit.at
