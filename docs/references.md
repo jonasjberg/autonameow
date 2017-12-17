@@ -45,6 +45,14 @@ Metadata
   Database: The Journal of Biological Databases and Curation.
   Jiang Y, Lin C, Meng W, Yu C, Cohen AM, Smalheiser NR. 2014.
 
+* [DCC - Automated Metadata Generation][8]  
+  DCC Digital Curation Reference Manual. ISSN 1747-1524.
+  Dobreva M. Kim Y. and Ross S. 2013.
+
+* [DCC - Archival Metadata][9]  
+  DCC Digital Curation Reference Manual. ISSN 1747-1524.
+  Duff W. vanBallegooie M. 2006.
+
 
 Implementing Plugin Systems
 --------------------------------------------------------------------------------
@@ -72,3 +80,5 @@ Implementing Plugin Systems
 [5]: http://people.ischool.berkeley.edu/~dbamman/pubs/pdf/jcdl2017.pdf
 [6]: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3893659/
 [7]: https://eli.thegreenplace.net/2012/08/07/fundamental-concepts-of-plugin-infrastructures
+[8]: http://www.dcc.ac.uk/sites/default/files/documents/dcc_amg_final.pdf
+[9]: http://www.dcc.ac.uk/sites/default/files/documents/resource/curation-manual/chapters/archival-metadata/archival-metadata.pdf

@@ -325,6 +325,21 @@ Automated Organization for Your Mac.
 > folders).
 
 
+`Archivematica`
+---------------
+Free and open-source digital preservation system designed to maintain
+standards-based, long-term access to collections of digital objects.
+
+* Website: <https://www.archivematica.org/>
+* Sources: <https://github.com/artefactual/archivematica>
+* Documentation: <https://www.archivematica.org/>
+
+> Archivematica is a web- and standards-based, open-source application which
+> allows your institution to preserve long-term access to trustworthy,
+> authentic and reliable digital content. Our target users are archivists,
+> librarians, and anyone working to preserve digital objects.
+
+
 
 
 [1]: http://karl-voit.at
