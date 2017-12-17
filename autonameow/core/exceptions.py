@@ -45,10 +45,6 @@ class AutonameowPluginError(AutonameowException):
     """A plugin encountered an unrecoverable error."""
 
 
-class AnalysisResultsFieldError(AutonameowException):
-    """Attempt to query/access an invalid analyzer data field."""
-
-
 class NameBuilderError(AutonameowException):
     """An error occurred while constructing a name. Unable to proceed."""
 
