@@ -14,7 +14,7 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0142]` __Rework overall architecture to fetch only explicitly needed data.__
+* `[TD0142]` __Rework overall architecture to fetch only explicitly needed data.__  
   Refer to `notes/architecture.md` for details.
 
 * `[TD0131]` __Limit `Repository` memory usage__  
@@ -60,6 +60,7 @@ Medium Priority
     that are used only if the containing rule is chosen.
 
     Example of current configuration replacements;
+
     ```yaml
     CUSTOM_POST_PROCESSING:
         replacements:
@@ -69,6 +70,7 @@ Medium Priority
     ```
 
     Possible rule-specific replacements:
+
     ```yaml
     Quicktime Desktop Recording:
         CONDITIONS:
@@ -96,6 +98,7 @@ Medium Priority
     Add some sort of system for normalizing entities.
 
     Example of problem this is intended to solve:
+
     ```
     [WARNING]  Not sure what data to use for field "<class 'core.namebuilder.fields.Author'>"..
     [WARNING]  Field candidate 000 :: "['G. C. Sjöberg']"
@@ -113,8 +116,9 @@ Medium Priority
 
 * `[TD0092]` Add tracking history and ability to "undo" renames.
 
-* `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time
-  to UTC and convert to local time as a final step before presentation or use.
+* `[TD0054]` __Represent datetime as UTC within autonameow.__  
+  Convert incoming time to UTC and convert to local time as a final step before
+  presentation or use.
 
 * `[TD0008]` Simplify installation.
     * Add support for `pip` or similar package manager.
@@ -137,11 +141,13 @@ Medium Priority
 
 * `[TD0019]` Rework the `FilenameAnalyzer`
     * `[TD0020]` Identify data fields in file names.
+
         ```
         screencapture-github-jonasjberg-autonameow-1497964021919.png
         ^___________^ ^__________________________^ ^___________^
              tag            title/description        timestamp
         ```
+
         * Use some kind of iterative evaluation; split into parts at
           separators, assign field types to the parts and find a "best fit".
           Might have to try several times at different separators, re-evaluting
@@ -157,6 +163,7 @@ Medium Priority
         * Look at any surrounding __context__ of files.
 
             For instance, given a directory containing files:
+
             ```
             foo_08.18.17.txt
             bar_11.04.16.txt
@@ -195,7 +202,7 @@ Low Priority
 
 * `[TD0144]` Avoid enforcing/pruning cache file size too frequently.
 
-* `[TD0143]` __Add option to execute "hooks" at certain events.__
+* `[TD0143]` __Add option to execute "hooks" at certain events.__  
     Allow specifying executing arbitrary commands when specific events occur.
     One use-case example is moving successfully renamed files to another
     directory.
@@ -209,12 +216,16 @@ Low Priority
 * `[TD0125]` __Add aliases (generics) for MeowURI leafs__  
   Should probably provide a consistent internal alternative field name when
   specifying extractor-specific MeowURIs, not only with "generic".
+
   Example of equivalent MeowURIs with the "alias" or "generic":
+
     ```
     extractor.metadata.exiftool.PDF:CreateDate
     extractor.metadata.exiftool.date_created
     ```
+
   Another example:
+
     ```
     extractor.metadata.exiftool.EXIF:DateTimeOriginal
     extractor.metadata.exiftool.date_created
@@ -224,7 +235,9 @@ Low Priority
   them. If these were not based on the subclasses of `GenericField`, they could
   simply be made to map directly with the provider fields, maybe only with a
   slight transformation like converting to lower-case.
+
   Example of alternative using simple transformations:
+
     ```
     extractor.metadata.exiftool.EXIF:DateTimeOriginal
     extractor.metadata.exiftool.exif_datetimeoriginal
@@ -255,7 +268,8 @@ Low Priority
 
 * `[TD0109]` __Allow arbitrary name template placeholder fields.__  
     It is currently difficult to use a rule similar to this:
-    ```
+
+    ```yaml
     TV-series:
         CONDITIONS:
             extractor.filesystem.xplat.pathname.full: '/tank/media/tvseries'
@@ -270,9 +284,11 @@ Low Priority
     ```
 
     This rule gives the following error:
+
     ```
     [ERROR] Bad rule "TV-series"; uses invalid name template format
     ```
+
     This could be solved by either adding `{season}` and `{episode}` as new
     template fields or by allowing arbitrary placeholder fields with some
     simple format like `{a}`, `{b}`, etc.
@@ -331,11 +347,12 @@ Low Priority
 
 * `[TD0010]` Think about how data might need to be processed in multiple
   consecutive runs.
-    * In relation to future weighting and prioritizing of analysis results.
+  In relation to future weighting and prioritizing of analysis results.
 
 * `[TD0094]` __Search text for DOIs and query external services__  
-  Example DOI: `10.1109/TPDS.2010.125`.  Could be used to query external
-  services for publication metadata, as with ISBN-numbers.
+  Similar to ISBN-numbers. Could be used as primary identifier/key in records
+  and to query external services for publication metadata.
+  Example DOI: `10.1109/TPDS.2010.125`.
 
 
 Wishlist
@@ -358,7 +375,7 @@ Wishlist
     A suitable rule that reproduces the expected result should be generated
     and added to the user configuration.
 
-* Add API for developing GUI wrappers and web frontends.
+* Graphical User Interface of some kind, as an alternative to the command-line.
 
 
 Windows-compatibility *(Very Low Priority)*
