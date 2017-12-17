@@ -79,13 +79,6 @@ class DocumentAnalyzer(BaseAnalyzer):
             self._search_text_for_candidate_publisher(text_chunk_1)
             self._search_text_for_copyright_publisher(text_chunk_1)
 
-    def __collect_results(self, meowuri, weight):
-        value = self.request_data(self.fileobject, meowuri)
-        if value:
-            return result_list_add(value, meowuri, weight)
-        else:
-            return []
-
     def _add_title_from_text_to_results(self, text):
         # Add all lines that aren't all whitespace or all dashes, from the
         # first to line number "max_lines".
