@@ -114,7 +114,7 @@ class EbookAnalyzer(BaseAnalyzer):
         if not _maybe_text:
             return
 
-        self.text = _maybe_text
+        self.text = remove_ignored_textlines(_maybe_text)
 
         # TODO: [TD0114] Check metadata for ISBNs.
         # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier', "XMP:Subject"
