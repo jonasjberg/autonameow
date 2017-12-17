@@ -38,7 +38,6 @@ class ImageAnalyzer(BaseAnalyzer):
             fileobject, config, request_data_callback
         )
 
-        self.exiftool = None
         self.text = None
 
     def analyze(self):
