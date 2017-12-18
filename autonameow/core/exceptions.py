@@ -58,10 +58,6 @@ class InvalidMeowURIError(ConfigError):
     """An error caused by an invalid "meowURI"."""
 
 
-class RulePriorityError(ConfigError):
-    """Failed to prioritize rules. Rule comparison failed."""
-
-
 class NameTemplateSyntaxError(ConfigError):
     """The name format template is invalid."""
     pass
