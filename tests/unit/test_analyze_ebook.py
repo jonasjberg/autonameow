@@ -166,6 +166,9 @@ Foo Bar'''
 
 
 class TestISBNMetadata(TestCase):
+    ISBN13_A = '9780136070474'
+    ISBN10_A = '0136070477'
+
     def setUp(self):
         self.maxDiff = None
 
@@ -175,8 +178,8 @@ class TestISBNMetadata(TestCase):
             'publisher': 'Pearson Addison-Wesley',
             'year': '2009',
             'language': 'eng',
-            'isbn10': '0136070477',
-            'isbn13': '9780136070474'
+            'isbn10': self.ISBN10_A,
+            'isbn13': self.ISBN13_A
         }
 
         self.m2 = {
@@ -185,7 +188,7 @@ class TestISBNMetadata(TestCase):
             'publisher': 'Pearson Addison-Wesley',
             'year': '2009',
             'language': 'eng',
-            'isbn13': '9780136070474'
+            'isbn13': self.ISBN13_A
         }
         self.m3 = {
             'title': None,
@@ -193,11 +196,11 @@ class TestISBNMetadata(TestCase):
             'publisher': None,
             'year': None,
             'language': None,
-            'isbn13': '9780136070474'
+            'isbn13': self.ISBN13_A
         }
 
         self.m4 = {
-            'isbn10': '0136070477',
+            'isbn10': self.ISBN10_A,
         }
 
         # e-ISBN
@@ -233,14 +236,22 @@ class TestISBNMetadata(TestCase):
             'isbn13': '9783540762874'
         }
 
+    def test_derives_isbn13_from_isbn10(self):
+        actual = ISBNMetadata(isbn10=self.ISBN10_A)
+        self.assertEqual(self.ISBN13_A, actual.isbn13)
+
+    def test_derives_isbn10_from_isbn13(self):
+        actual = ISBNMetadata(isbn13=self.ISBN13_A)
+        self.assertEqual(self.ISBN10_A, actual.isbn10)
+
     def test_isbn_metadata_from_args(self):
         isbn_metadata = ISBNMetadata(**self.m1)
         self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
         self.assertEqual(isbn_metadata.authors, ['George F. Luger', 'William A. Stubblefield'])
         self.assertEqual(isbn_metadata.year, '2009')
         self.assertEqual(isbn_metadata.language, 'eng')
-        self.assertEqual(isbn_metadata.isbn10, '0136070477')
-        self.assertEqual(isbn_metadata.isbn13, '9780136070474')
+        self.assertEqual(isbn_metadata.isbn10, self.ISBN10_A)
+        self.assertEqual(isbn_metadata.isbn13, self.ISBN13_A)
 
     def test_isbn_metadata_from_kwargs(self):
         isbn_metadata = ISBNMetadata(**self.m1)
@@ -248,8 +259,8 @@ class TestISBNMetadata(TestCase):
         self.assertEqual(isbn_metadata.authors, ['George F. Luger', 'William A. Stubblefield'])
         self.assertEqual(isbn_metadata.year, '2009')
         self.assertEqual(isbn_metadata.language, 'eng')
-        self.assertEqual(isbn_metadata.isbn10, '0136070477')
-        self.assertEqual(isbn_metadata.isbn13, '9780136070474')
+        self.assertEqual(isbn_metadata.isbn10, self.ISBN10_A)
+        self.assertEqual(isbn_metadata.isbn13, self.ISBN13_A)
 
     def test_equality(self):
         self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
