@@ -63,6 +63,7 @@ fi
 # Default configuration.
 option_write_report='false'
 option_quiet='false'
+optionarg_filter=''
 
 
 print_usage_info()
@@ -73,10 +74,14 @@ print_usage_info()
 
   USAGE:  ${SELF_BASENAME} ([OPTIONS])
 
-  OPTIONS:  -h   Display usage information and exit.
-            -q   Suppress output from test suites.
-            -w   Write HTML test reports to disk.
-                 Note: The "raw" log file is always written.
+  OPTIONS:  -f [EXP]   Execute scripts by filtering basenames.
+                       Argument [EXP] is passed to grep as-is.
+                       Scripts whose basename does not match the
+                       expression are skipped.
+            -h         Display usage information and exit.
+            -q         Suppress output from test suites.
+            -w         Write HTML test reports to disk.
+                       Note: The "raw" log file is always written.
 
   All options are optional. Default behaviour is to export test result
   reports and print the test results to stdout/stderr in real-time.
@@ -91,14 +96,21 @@ if [ "$#" -eq "0" ]
 then
     printf "(USING DEFAULTS -- "${SELF_BASENAME} -h" for usage information)\n\n"
 else
-    while getopts hwq opt
+    while getopts f:hwq opt
     do
         case "$opt" in
+            f) optionarg_filter="${OPTARG:-}"
+               if [ -z "$optionarg_filter" ]
+               then
+                   printf '[ERROR] Expected non-empty argument for option "-f"\n' >&2
+                   exit 1
+               fi ;;
             h) print_usage_info ; exit 0 ;;
             w) option_write_report='true' ;;
             q) option_quiet='true' ;;
         esac
     done
+
 
     shift $(( $OPTIND - 1 ))
 fi
@@ -113,7 +125,7 @@ time_start="$(current_unix_time)"
 initialize_logging
 search_dir="${SELF_DIRNAME}/integration"
 logmsg "Started integration test runner \"${SELF_BASENAME}\""
-logmsg "Executing all files in \"${search_dir}\" matching \"test_*.sh\".."
+logmsg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
 find "$search_dir" -mindepth 1 -maxdepth 1 -type f -name "test_*.sh" \
@@ -125,7 +137,17 @@ do
         continue
     fi
 
+    # Skip scripts not matching filtering expression, if any.
     _testscript_base="$(basename -- "$testscript")"
+    if [ -n "$optionarg_filter" ]
+    then
+        if ! grep -q -- "$optionarg_filter" <<< "${_testscript_base}"
+        then
+            logmsg "Skipped \""${_testscript_base}"\" (filter expression \"${optionarg_filter}\")"
+            continue
+        fi
+    fi
+
     # TODO: Fix all descendant processes not killed.
     run_task "$option_quiet" "Running \"${_testscript_base}\"" "$testscript"
 done

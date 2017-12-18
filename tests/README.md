@@ -84,10 +84,14 @@ This script accepts optional argument flags, as described in the usage text;
 
   USAGE:  integration_runner.sh ([OPTIONS])
 
-  OPTIONS:  -h   Display usage information and exit.
-            -q   Suppress output from test suites.
-            -w   Write HTML test reports to disk.
-                 Note: The "raw" log file is always written.
+  OPTIONS:  -f [EXP]   Execute scripts by filtering basenames.
+                       Argument [EXP] is passed to grep as-is.
+                       Scripts whose basename does not match the
+                       expression are skipped.
+            -h         Display usage information and exit.
+            -q         Suppress output from test suites.
+            -w         Write HTML test reports to disk.
+                       Note: The "raw" log file is always written.
 
   All options are optional. Default behaviour is to export test result
   reports and print the test results to stdout/stderr in real-time.
