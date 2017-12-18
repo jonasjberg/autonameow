@@ -57,6 +57,7 @@ class RuleMatcher(object):
         # This method, which calls a callback, is itself passed as a callback..
         def _data_request_callback(meowuri):
             return self.request_data(fileobject, meowuri)
+
         log.debug('Examining {} rules ..'.format(len(all_rules)))
         condition_evaluator = RuleConditionEvaluator(_data_request_callback)
         for rule in all_rules:
@@ -72,13 +73,14 @@ class RuleMatcher(object):
                     continue
             remaining_rules.append(rule)
 
-        if len(remaining_rules) == 0:
+        num_rules_remain = len(remaining_rules)
+        if num_rules_remain == 0:
             log.debug('No rules remain after discarding those that require an '
                       'exact match and failed evaluation of any condition ..')
             return []
 
         log.debug('{} rules remain after discarding those that require an '
-                  'exact match and failed evaluation.'.format(len(remaining_rules)))
+                  'exact match and failed evaluation.'.format(num_rules_remain))
 
         # Calculate score and weight for each rule, store the results in a
         # new local dict keyed by the 'Rule' class instances.
@@ -100,7 +102,7 @@ class RuleMatcher(object):
             scored_rules[rule] = {'score': score, 'weight': weight}
 
         log.debug('Prioritizing the remaining {} candidates ..'.format(
-            len(remaining_rules))
+            num_rules_remain)
         )
         prioritized_rules = prioritize_rules(scored_rules)
 
