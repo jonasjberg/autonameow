@@ -203,7 +203,7 @@ class BaseCache(object):
         sorted_by_timestamp = sorted(data_items, key=lambda x: x[1][0])
 
         number_data_items = len(data_items)
-        number_items_to_remove = int(number_data_items / 2)
+        number_items_to_remove = number_data_items // 2
         # Pop the last (oldest) 'number_items_to_remove' number of items.
         for key, _ in sorted_by_timestamp[:number_items_to_remove]:
             self._data.pop(key)
