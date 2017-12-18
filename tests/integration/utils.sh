@@ -32,12 +32,6 @@ _self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
 SELF_DIR="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
 TEST_DIR="$(dirname -- "$SELF_DIR")"
 
-# if ! source "${TEST_DIR}/common_utils.sh"
-# then
-#     echo "Shared test utility library is missing. Aborting .." 1>&2
-#     exit 1
-# fi
-
 
 # Initialize counter variables every time this script is sourced
 # by each of the test suites. Used in 'log_test_suite_results_summary'.

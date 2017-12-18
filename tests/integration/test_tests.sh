@@ -55,17 +55,25 @@ assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
 #assert_false '[ "1" -ne "0" ]' 'Expect failure .. (false negative)'
 
 
-assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh" ]' \
-            'Shared test utility library exists'
-
-assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh" ]' \
-            'Shared test utility library is executable'
-
 assert_false '[ -z "$AUTONAMEOW_ROOT_DIR" ]' \
              'Environment variable "AUTONAMEOW_ROOT_DIR" should not be unset'
 
 assert_true '[ -d "$AUTONAMEOW_ROOT_DIR" ]' \
             'Environment variable "AUTONAMEOW_ROOT_DIR" should be a directory'
+
+_common_utils_path="${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+assert_true '[ -e "$_common_utils_path" ]' \
+            'Shared test utility library exists'
+
+assert_true '[ -x "$_common_utils_path" ]' \
+            'Shared test utility library is executable'
+
+_setup_environment_path="${AUTONAMEOW_ROOT_DIR}/tests/setup_environment.sh"
+assert_true '[ -e "$_setup_environment_path" ]' \
+            'Shared test environment setup script exists'
+
+assert_true '[ -x "$_setup_environment_path" ]' \
+            'Shared test environment setup script is executable'
 
 assert_false '[ -z "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
              'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should not be unset'
@@ -79,29 +87,26 @@ assert_false '[ -z "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
 assert_true '[ -d "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
             'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should be a directory'
 
-assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh" ]' \
+_integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh"
+assert_true '[ -e "$_integration_runner_path" ]' \
             'The integration test runner exists'
 
-assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh" ]' \
+assert_true '[ -x "$_integration_runner_path" ]' \
             'The integration test runner is executable'
 
-assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/integration/test_cli.sh" ]' \
-            "The Command-Line Interface test suite exists"
-
-assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/integration/test_cli.sh" ]' \
-            'The Command-Line Interface test suite is executable'
-
-assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/integration/test_docs.sh" ]' \
-            'The Documentation test suite exists'
-
-assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/integration/test_docs.sh" ]' \
-            'The Documentation test suite is executable'
-
-assert_true '[ -e "${AUTONAMEOW_ROOT_DIR}/tests/unit_runner.sh" ]' \
+_unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/unit_runner.sh"
+assert_true '[ -e "$_unit_runner_path" ]' \
             'The unit test runner exists'
 
-assert_true '[ -x "${AUTONAMEOW_ROOT_DIR}/tests/unit_runner.sh" ]' \
+assert_true '[ -x "$_unit_runner_path" ]' \
             'The unit test runner is executable'
+
+_regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/regression_runner.sh"
+assert_true '[ -e "$_regression_runner_path" ]' \
+            'The regression test runner exists'
+
+assert_true '[ -x "$_regression_runner_path" ]' \
+            'The regression test runner is executable'
 
 assert_true 'command -v "aha"' \
             'The executable "aha" is available on the system'
@@ -117,13 +122,13 @@ assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
 
 assert_true 'type -t get_timestamp_from_basename' \
-            '"get_timestamp_from_basename" is a function'
+            'get_timestamp_from_basename is a function'
 
 assert_false '[ -n "$(get_timestamp_from_basename "abc")" ]' \
-             '"get_timestamp_from_basename" returns empty string given "abc"'
+             'get_timestamp_from_basename returns empty string given "abc"'
 
 assert_true 'get_timestamp_from_basename "unittest_log_2017-05-15T134801.html" | grep -qE -- "^2017-05-15 13:48:01$"' \
-            '"get_timestamp_from_basename" returns "2017-05-15 13:48:01" given "unittest_log_2017-05-15T134801.html"'
+            'get_timestamp_from_basename returns "2017-05-15 13:48:01" given "unittest_log_2017-05-15T134801.html"'
 
 _abspath_testfile_empty="$(abspath_testfile "empty")"
 assert_false '[ -z "${_abspath_testfile_empty}" ]' \
@@ -146,7 +151,7 @@ assert_true '[ -d "${_abspath_testfile_subdir}" ]' \
             'abspath_testfile "subdir" should the path to an existing directory'
 
 assert_true 'type -t calculate_execution_time' \
-            '"calculate_execution_time" is a function'
+            'calculate_execution_time is a function'
 
 assert_true '[ "$(calculate_execution_time 1501987087187088013 1501987087942286968)" -eq "755" ]' \
             'calculate_execution_time returns expected (755ms)'
