@@ -25,14 +25,6 @@ import string
 from datetime import datetime
 
 try:
-    import dateutil
-    from dateutil import parser
-except ImportError:
-    raise SystemExit(
-        'Missing required module "dateutil". '
-        'Make sure "dateutil" is available before running this program.'
-    )
-try:
     import pytz
 except ImportError:
     raise SystemExit(
@@ -329,7 +321,7 @@ def match_any_unix_timestamp(text):
     return None
 
 
-def bruteforce_str(text, return_first_match=False):
+def bruteforce_str(text):
     """
     Extracts date/time-information from a text string.
 
@@ -547,22 +539,6 @@ def bruteforce_str(text, return_first_match=False):
     log.debug('Second matcher found {:>3} matches after {:>4} '
               'tries.'.format(bruteforce_str.matches_total, tries_total))
     return results
-
-
-def fuzzy_datetime(text, prefix):
-    # TODO: [cleanup] Currently not used at all!
-    dt = None
-    try:
-        try:
-            dt = dateutil.parser.parse(text)
-            print(('Sharp {} -> {}'.format(text, dt)))
-        except ValueError:
-            dt = dateutil.parser.parse(text, fuzzy=True)
-            print(('Fuzzy {} -> {}'.format(text, dt)))
-    except Exception as e:
-        print(('Try as I may, I cannot parse {} ({})'.format(text, e)))
-
-    return dt
 
 
 def special_datetime_ocr_search(text):
