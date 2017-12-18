@@ -218,12 +218,6 @@ class DocumentAnalyzer(BaseAnalyzer):
         return True
 
 
-def result_list_add(value, source, weight):
-    return [{'value': value,
-             'source': source,
-             'weight': weight}]
-
-
 def find_publisher(text, candidates):
     text = text.lower()
     for repl, patterns in candidates.items():
