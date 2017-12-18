@@ -18,7 +18,8 @@ Metadata
   Master Thesis, EPFL, Switzerland. Boyd, J. 2015.
 
 * "Intelligent Big Multimedia Databases"  
-  World Scientific, Wichert, A. 2015.
+  World Scientific.
+  Wichert A. 2015.
 
 * [Evaluation of Header Metadata Extraction Approaches and Tools for Scientific
   PDF Documents][2]  
@@ -34,12 +35,12 @@ Metadata
 * [Classification-Based Approach for Bibliographic Metadata Deduplication][4]  
   Computational Science Center, Federal University of Rio Grande.
   Institute of Informatics, Federal University of Rio Grande do Sul.
-  Borges E.N. Becker K.  Heuser C.A.  Galante R. 2011.
+  Borges E.N. Becker K. Heuser C.A. Galante R. 2011.
 
 * [Estimating the Date of First Publication in a Large-Scale Digital
   Library][5]  
   Digital Libraries (JCDL), 2017 ACM/IEEE Joint Conference.
-  Bamman D.  Carney M.  Gillick J.  Hennesy C.  Sridhar V. 2017.
+  Bamman D. Carney M. Gillick J. Hennesy C. Sridhar V. 2017.
 
 * [Rule-based Deduplication of Article Records from Bibliographic Databases][6]  
   Database: The Journal of Biological Databases and Curation.
