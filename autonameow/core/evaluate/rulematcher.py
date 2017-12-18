@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from collections import namedtuple
 
 from core import (
     repository,
@@ -28,6 +29,9 @@ from core import (
 
 
 log = logging.getLogger(__name__)
+
+
+MatchResult = namedtuple('MatchResult', 'rule score weight')
 
 
 class RuleMatcher(object):
@@ -109,10 +113,12 @@ class RuleMatcher(object):
         else:
             self._log_results(prioritized_rules, scored_rules, discarded_rules)
 
-        # Return list of ( RULE, SCORE(float), WEIGHT(float) ) tuples.
+        # Return list of (RULE (Rule), SCORE (float), WEIGHT (float) tuples.
         return [
-            (r, scored_rules[r]['score'], scored_rules[r]['weight'])
-            for r in prioritized_rules
+            MatchResult(rule=rule,
+                        score=scored_rules[rule]['score'],
+                        weight=scored_rules[rule]['weight'])
+            for rule in prioritized_rules
         ]
 
     @staticmethod
