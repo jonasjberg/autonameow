@@ -20,9 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import (
+    Mock,
+    patch
+)
 
-import unit.utils as uu
 from core.logs import (
     deinit_logging,
     init_logging,
@@ -56,6 +58,9 @@ class TestLogRunTime(TestCase):
 
 
 class TestInitLogging(TestCase):
+    def tearDown(self):
+        deinit_logging()
+
     def test_init_logging_empty_opts(self):
         opts = dict()
         init_logging(opts)
@@ -71,7 +76,3 @@ class TestInitLogging(TestCase):
     def test_init_logging_quiet(self):
         opts = {'quiet': True}
         init_logging(opts)
-
-    @classmethod
-    def tearDownClass(cls):
-        deinit_logging()
