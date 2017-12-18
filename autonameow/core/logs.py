@@ -19,9 +19,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from contextlib import contextmanager
 import logging
 import time
+from contextlib import contextmanager
 
 from core import ui
 
@@ -76,6 +76,21 @@ def init_logging(opts):
     else:
         fmt = '%(levelname)s %(message)s'
         logging.basicConfig(level=logging.ERROR, format=fmt)
+
+
+def deinit_logging():
+    """
+    Attempt to reset logging to an initial state.
+    Used by unit tests to clean up after themselves.
+    """
+    # This seems to be enough to solve the problems at hand.
+    if logging.root:
+        del logging.root.handlers[:]
+
+    # Additional methods for reloading the module, currently not required.
+    # import importlib
+    # logging.shutdown()
+    # importlib.reload(logging)
 
 
 def silence():

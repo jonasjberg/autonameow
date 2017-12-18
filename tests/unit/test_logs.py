@@ -22,7 +22,12 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from core.logs import log_runtime
+import unit.utils as uu
+from core.logs import (
+    deinit_logging,
+    init_logging,
+    log_runtime,
+)
 
 
 class TestLogRunTime(TestCase):
@@ -48,3 +53,25 @@ class TestLogRunTime(TestCase):
             pass
         self.assertIn('Foo Completed in 1.000000000 seconds',
                       self.mock_logger.debug.call_args[0][0])
+
+
+class TestInitLogging(TestCase):
+    def test_init_logging_empty_opts(self):
+        opts = dict()
+        init_logging(opts)
+
+    def test_init_logging_debug(self):
+        opts = {'debug': True}
+        init_logging(opts)
+
+    def test_init_logging_verbose(self):
+        opts = {'verbose': True}
+        init_logging(opts)
+
+    def test_init_logging_quiet(self):
+        opts = {'quiet': True}
+        init_logging(opts)
+
+    @classmethod
+    def tearDownClass(cls):
+        deinit_logging()
