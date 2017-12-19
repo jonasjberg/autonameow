@@ -25,7 +25,7 @@ RULES:
             datetime: analyzer.document.datetime
             extension: extractor.filesystem.xplat.contents.mime_type
             title: analyzer.document.datetime
-        NAME_FORMAT: '{datetime} {title} {author}.{extension}'
+        NAME_TEMPLATE: '{datetime} {title} {author}.{extension}'
         exact_match: true
         ranking_bias: 1
 COMPATIBILITY:

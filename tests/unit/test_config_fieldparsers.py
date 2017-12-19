@@ -26,7 +26,7 @@ from core.config.field_parsers import (
     ConfigFieldParser,
     DateTimeConfigFieldParser,
     MimeTypeConfigFieldParser,
-    NameFormatConfigFieldParser,
+    NameTemplateConfigFieldParser,
     RegexConfigFieldParser,
     available_field_parsers,
     get_instantiated_field_parsers,
@@ -378,10 +378,10 @@ class TestDateTimeFieldParser(TestCase):
         _aT('foo')
 
 
-class TestNameFormatFieldParser(TestCase):
+class TestNameTemplateFieldParser(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.p = NameFormatConfigFieldParser()
+        self.p = NameTemplateConfigFieldParser()
 
     def test_validation_function_expect_fail(self):
         def _aF(test_input):

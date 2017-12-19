@@ -12,6 +12,6 @@ RULES:
         DATA_SOURCES:
             extension: extractor.filesystem.xplat.contents.mime_type
             title: generic.metadata.title
-        NAME_FORMAT: '{title}.{extension}'
+        NAME_TEMPLATE: '{title}.{extension}'
         exact_match: true
         ranking_bias: null

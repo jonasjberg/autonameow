@@ -17,6 +17,6 @@ RULES:
             author: generic.metadata.author
             extension: extractor.filesystem.xplat.contents.mime_type
             title: generic.metadata.title
-        NAME_FORMAT: '{author} {title}.{extension}'
+        NAME_TEMPLATE: '{author} {title}.{extension}'
         exact_match: true
         ranking_bias: null

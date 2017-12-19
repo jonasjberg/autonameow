@@ -202,7 +202,7 @@ Current format for a file rule in the configuration file:
         datetime: metadata.exiftool.EXIF:DateTimeOriginal
         description: plugin.microsoft_vision.caption
         extension: filesystem.basename.extension
-    NAME_FORMAT: '{datetime} {description}.{extension}'
+    NAME_TEMPLATE: '{datetime} {description}.{extension}'
     description: test_files smulan.jpg
     exact_match: true
     weight: 1
@@ -246,7 +246,7 @@ Possible new format for a file rule in the configuration file:
         datetime: metadata.exiftool.EXIF:DateTimeOriginal
         description: plugin.microsoft_vision.caption
         extension: filesystem.basename.extension
-    NAME_FORMAT: '{datetime} {description}.{extension}'
+    NAME_TEMPLATE: '{datetime} {description}.{extension}'
     description: Photos taken between 2017-05-04 and 2017-06-27
     exact_match: true
     weight: 1
@@ -270,7 +270,7 @@ Another hypothetical file rule using unimplemented features:
         description: book_analyzer.isbn.title
         extension: pdf
         title: book_analyzer.isbn.title
-    NAME_FORMAT: '{date} {description} - {author}.{extension}'
+    NAME_TEMPLATE: '{date} {description} - {author}.{extension}'
     description: Engineering textbook written by Gibson
     exact_match: true
     weight: 1

@@ -14,6 +14,6 @@ RULES:
             datetime: extractor.metadata.exiftool.PDF:CreateDate
             extension: extractor.filesystem.xplat.basename.extension
             title: extractor.filesystem.xplat.basename.prefix
-        NAME_FORMAT: '{datetime} {title}.{extension}'
+        NAME_TEMPLATE: '{datetime} {title}.{extension}'
         exact_match: true
         ranking_bias: null

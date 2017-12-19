@@ -140,7 +140,7 @@ files.
             extension: contents.basename.extension
             datetime: analysis.filename.{?????}
             title: filesystem.basename.prefix
-        NAME_FORMAT: "{datetime} {title}.{extension}"
+        NAME_TEMPLATE: "{datetime} {title}.{extension}"
     DATETIME_FORMAT:
         datetime: '%Y-%m-%dT%H%M%S'
     ```

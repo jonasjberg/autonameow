@@ -271,7 +271,7 @@ class TestEvalMeowURIGlobA(TestCase):
         _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
         _f(['extractor.filesystem.xplat.contents.full'])
         _f(['extractor.filesystem.xplat.pathname.*', 'filesystem.pathname.full'])
-        _f(['NAME_FORMAT'])
+        _f(['NAME_TEMPLATE'])
         _f(['extractor.filesystem.xplat.pathname.*'])
         _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
 
@@ -299,7 +299,7 @@ class TestEvalMeowURIGlobB(TestCase):
         _f(['extractor.filesystem.xplat.contents.full'])
         _f(['extractor.filesystem.xplat.pathname.*',
             uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
-        _f(['NAME_FORMAT'])
+        _f(['NAME_TEMPLATE'])
         _f(['extractor.filesystem.pathname.*'])
         _f(['extractor.filesystem.pathname.full'])
         _f(['extractor.filesystem.xplat.pathname.*'])

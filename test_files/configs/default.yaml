@@ -57,7 +57,7 @@ RULES:
             - analyzer.filename.publisher
             title: analyzer.ebook.title
             year: analyzer.ebook.date
-        NAME_FORMAT: default_book
+        NAME_TEMPLATE: default_book
         exact_match: false
         ranking_bias: 0.1
     Sample Entry for Photos with strict rules:
@@ -75,7 +75,7 @@ RULES:
             description: plugin.microsoft_vision.caption
             extension: extractor.filesystem.xplat.basename.extension
             tags: plugin.microsoft_vision.tags
-        NAME_FORMAT: '{datetime} {description} -- {tags}.{extension}'
+        NAME_TEMPLATE: '{datetime} {description} -- {tags}.{extension}'
         exact_match: true
         ranking_bias: 1
     test_files Gmail print-to-pdf:
@@ -87,7 +87,7 @@ RULES:
             datetime: extractor.metadata.exiftool.PDF:CreateDate
             extension: extractor.filesystem.xplat.basename.extension
             title: extractor.filesystem.xplat.basename.prefix
-        NAME_FORMAT: '{datetime} {title}.{extension}'
+        NAME_TEMPLATE: '{datetime} {title}.{extension}'
         exact_match: true
         ranking_bias: null
     test_files simplest_pdf.md.pdf:
@@ -95,7 +95,7 @@ RULES:
             extractor.filesystem.xplat.basename.full: simplest_pdf.md.pdf
         DATA_SOURCES:
             extension: extractor.filesystem.xplat.basename.extension
-        NAME_FORMAT: simplest_pdf.md.{extension}
+        NAME_TEMPLATE: simplest_pdf.md.{extension}
         exact_match: true
         ranking_bias: 1
     test_files smulan.jpg:
@@ -106,6 +106,6 @@ RULES:
             datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
             description: plugin.microsoft_vision.caption
             extension: extractor.filesystem.xplat.basename.extension
-        NAME_FORMAT: '{datetime} {description}.{extension}'
+        NAME_TEMPLATE: '{datetime} {description}.{extension}'
         exact_match: true
         ranking_bias: 1

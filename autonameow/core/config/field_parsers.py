@@ -387,7 +387,7 @@ NAMETEMPLATEFIELDS_DUMMYDATA = dict.fromkeys(
 )
 
 
-class NameFormatConfigFieldParser(ConfigFieldParser):
+class NameTemplateConfigFieldParser(ConfigFieldParser):
     APPLIES_TO_MEOWURIS = []
     ALLOW_MULTIVALUED_EXPRESSION = False
 

@@ -61,7 +61,7 @@ DEFAULT_CONFIG = {
         'test_files Gmail print-to-pdf': {
             'exact_match': True,
             'ranking_bias': None,
-            'NAME_FORMAT': '{datetime} {title}.{extension}',
+            'NAME_TEMPLATE': '{datetime} {title}.{extension}',
             'CONDITIONS': {
                 'extractor.filesystem.xplat.basename.full': 'gmail.pdf',
                 'extractor.filesystem.xplat.basename.extension': 'pdf',
@@ -77,7 +77,7 @@ DEFAULT_CONFIG = {
         'test_files smulan.jpg': {
             'exact_match': True,
             'ranking_bias': 1,
-            'NAME_FORMAT': '{datetime} {description}.{extension}',
+            'NAME_TEMPLATE': '{datetime} {description}.{extension}',
             'CONDITIONS': {
                 'extractor.filesystem.xplat.basename.full': 'smulan.jpg',
                 'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
@@ -92,7 +92,7 @@ DEFAULT_CONFIG = {
         'test_files simplest_pdf.md.pdf': {
             'exact_match': True,
             'ranking_bias': 1,
-            'NAME_FORMAT': 'simplest_pdf.md.{extension}',
+            'NAME_TEMPLATE': 'simplest_pdf.md.{extension}',
             'CONDITIONS': {
                 'extractor.filesystem.xplat.basename.full': 'simplest_pdf.md.pdf',
             },
@@ -104,7 +104,7 @@ DEFAULT_CONFIG = {
         'Sample Entry for Photos with strict rules': {
             'exact_match': True,
             'ranking_bias': 1,
-            'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
+            'NAME_TEMPLATE': '{datetime} {description} -- {tags}.{extension}',
             'CONDITIONS': {
                 'extractor.filesystem.xplat.pathname.full': '~/Pictures/incoming',
                 'extractor.filesystem.xplat.basename.full': 'DCIM*',
@@ -128,7 +128,7 @@ DEFAULT_CONFIG = {
         'Sample Entry for E-books': {
             'exact_match': False,
             'ranking_bias': 0.1,
-            'NAME_FORMAT': 'default_book',
+            'NAME_TEMPLATE': 'default_book',
             'CONDITIONS': {
                 'extractor.filesystem.xplat.contents.mime_type': [
                     'application/epub+zip',
@@ -158,11 +158,7 @@ DEFAULT_CONFIG = {
     #  File Name Templates
     #  ===================
     #  These file name templates can be reused by multiple rules.
-    #  Simply add the template name to the rule 'NAME_FORMAT' field.
-    #
-    #  NOTE: If a rule specifies both 'NAME_FORMAT' and 'NAME_TEMPLATE',
-    #        'NAME_FORMAT' will be prioritized.
-    #
+    #  Simply add the template name to the rule 'NAME_TEMPLATE' field.
     'NAME_TEMPLATES': {
         'default_document': '{title} - {author} {datetime}.{extension}',
         'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}',

@@ -17,7 +17,7 @@ RULES:
             datetime: analysis.filename.unixtimestamp
             extension: filesystem.basename.extension
             title: filesystem.basename.prefix
-        NAME_FORMAT: "{datetime} {title} -- screenshot macbookpro.{extension}"
+        NAME_TEMPLATE: "{datetime} {title} -- screenshot macbookpro.{extension}"
         exact_match: true
         weight: 1
     MacOS Screen Recording:
@@ -32,7 +32,7 @@ RULES:
             datetime: metadata.exiftool.QuickTime:CreationDate
             extension: filesystem.basename.extension
             title: filesystem.basename.prefix
-        NAME_FORMAT: "{datetime} {title} -- screenshot macbookpro.{extension}"
+        NAME_TEMPLATE: "{datetime} {title} -- screenshot macbookpro.{extension}"
         exact_match: true
         weight: 1
     test_files Gmail print-to-pdf:
@@ -46,7 +46,7 @@ RULES:
             datetime: metadata.exiftool.PDF:CreateDate
             extension: filesystem.basename.extension
             title: filesystem.basename.prefix
-        NAME_FORMAT: "{datetime}\_{title}.{extension}"
+        NAME_TEMPLATE: "{datetime}\_{title}.{extension}"
         exact_match: true
         weight: null
     test_files smulan.jpg:
@@ -59,7 +59,7 @@ RULES:
             datetime: metadata.exiftool.EXIF:DateTimeOriginal
             description: plugin.microsoft_vision.caption
             extension: filesystem.basename.extension
-        NAME_FORMAT: "{datetime}\_{description}.{extension}"
+        NAME_TEMPLATE: "{datetime}\_{description}.{extension}"
         exact_match: true
         weight: 1
 NAME_TEMPLATES:

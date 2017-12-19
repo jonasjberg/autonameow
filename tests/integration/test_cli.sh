@@ -49,6 +49,13 @@ logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 
 
+ACTIVE_CONFIG="$(abspath_testfile "configs/default.yaml")"
+assert_false '[ -z "$ACTIVE_CONFIG" ]' \
+             'Variable "ACTIVE_CONFIG" should not be unset'
+
+assert_true '[ -e "$ACTIVE_CONFIG" ]' \
+            "The config file \""$(basename -- "$ACTIVE_CONFIG")"\" exists"
+
 assert_true 'command -v python3' \
             "Python v3.x is available on the system"
 
@@ -77,22 +84,22 @@ assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -- "--interactive"' \
             "[TC013] autonameow should provide a \"--interactive\" option"
 
 assert_true '"$AUTONAMEOW_RUNNER" --interactive -- ' \
-            "[TC013] autonameow should return zero when started with \"--interactive\" without specifying files"
+            "[TC013] autonameow should return 0 when started with \"--interactive\" without specifying files"
 
 assert_true '"$AUTONAMEOW_RUNNER" --interactive --verbose -- ' \
-            "[TC013] autonameow should return zero when started with \"--interactive\" and \"--verbose\" without specifying files"
+            "[TC013] autonameow should return 0 when started with \"--interactive\" and \"--verbose\" without specifying files"
 
 assert_true '"$AUTONAMEOW_RUNNER" --interactive --debug -- ' \
-            "[TC013] autonameow should return zero when started with \"--interactive\" and \"--debug\" without specifying files"
+            "[TC013] autonameow should return 0 when started with \"--interactive\" and \"--debug\" without specifying files"
 
 assert_true '"$AUTONAMEOW_RUNNER" --automagic -- ' \
-            "autonameow should return zero when started with \"--automagic\" without specifying files"
+            "autonameow should return 0 when started with \"--automagic\" without specifying files"
 
 assert_true '"$AUTONAMEOW_RUNNER" --automagic --verbose -- ' \
-            "autonameow should return zero when started with \"--automagic\" and \"--verbose\" without specifying files"
+            "autonameow should return 0 when started with \"--automagic\" and \"--verbose\" without specifying files"
 
 assert_true '"$AUTONAMEOW_RUNNER" --automagic --debug -- ' \
-            "autonameow should return zero when started with \"--automagic\" and \"--debug\" without specifying files"
+            "autonameow should return 0 when started with \"--automagic\" and \"--debug\" without specifying files"
 
 assert_false '"$AUTONAMEOW_RUNNER" --verbose --debug -- ' \
              "Starting with mutually exclusive options \"--verbose\" and \"--debug\" should generate an error"
@@ -120,37 +127,37 @@ SAMPLE_EMPTY_FILE="$(abspath_testfile "empty")"
 assert_true '[ -e "$SAMPLE_EMPTY_FILE" ]' \
             "The test sample jpg file exists. Add suitable test file if this test fails!"
 
-assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_EMPTY_FILE"' \
-            "Expect exit status zero when started with \"--automagic\", \"--dry-run\" and an empty file"
+assert_true '"$AUTONAMEOW_RUNNER" --batch --automagic --dry-run -- "$SAMPLE_EMPTY_FILE"' \
+            "Expect exit status 0 when started with \"--automagic\", \"--dry-run\" and an empty file"
 
 assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_EMPTY_FILE"' \
-            "Expect exit status zero when started with \"--automagic\", \"--dry-run\", \"--verbose\" and an empty file"
+            "Expect exit status 0 when started with \"--automagic\", \"--dry-run\", \"--verbose\" and an empty file"
 
 assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "$SAMPLE_EMPTY_FILE"' \
-            "Expect exit status zero when started with \"--automagic\", \"--dry-run\", \"--debug\" and an empty file"
+            "Expect exit status 0 when started with \"--automagic\", \"--dry-run\", \"--debug\" and an empty file"
 
 
 assert_true '"$AUTONAMEOW_RUNNER" --version' \
-            "autonameow should return zero when started with \"--version\""
+            "autonameow should return 0 when started with \"--version\""
 
 assert_true '"$AUTONAMEOW_RUNNER" --version --verbose' \
-            "autonameow should return zero when started with \"--version\" and \"--verbose\""
+            "autonameow should return 0 when started with \"--version\" and \"--verbose\""
 
 assert_true '"$AUTONAMEOW_RUNNER" --version --debug' \
-            "autonameow should return zero when started with \"--version\" and \"--debug\""
+            "autonameow should return 0 when started with \"--version\" and \"--debug\""
 
 assert_true '"$AUTONAMEOW_RUNNER" --version --quiet' \
-            "autonameow should return zero when started with \"--version\" and \"--quiet\""
+            "autonameow should return 0 when started with \"--version\" and \"--quiet\""
 
 
 SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
 assert_true '[ -e "$SAMPLE_PDF_FILE" ]' \
             "The test sample pdf file exists. Add suitable test file if this test fails!"
 
-assert_true '"$AUTONAMEOW_RUNNER" --list-all -- "$SAMPLE_PDF_FILE"' \
-            "Expect exit code 0 when started with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --dry-run --list-all -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--dry-run --list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -- "2016-01-11 12:41:32"' \
+assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -- "2016-01-11 12:41:32"' \
             "Output should include expected date when started with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
 assert_false '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -- " !!binary "' \
@@ -164,11 +171,11 @@ TEST_FILES_SUBDIR="$(abspath_testfile "subdir")"
 assert_true '[ -d "$TEST_FILES_SUBDIR" ]' \
             "The \"test_files/subdir\" directory exists. Add suitable test files if this test fails!"
 
-assert_true '"$AUTONAMEOW_RUNNER" --recurse --dry-run -- "$TEST_FILES_SUBDIR"' \
-            "Expect exit code 0 when running \"--recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
+assert_true '"$AUTONAMEOW_RUNNER" --batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"' \
+            "Expect exit code 0 when running \"--batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 | grep -- ".*Got 8 files to process.*"' \
-            "Expect output to contain \"Got 8 files to process\" when running \"--verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
+assert_true '"$AUTONAMEOW_RUNNER" --batch --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 | grep -- ".*Got 8 files to process.*"' \
+            "Expect output to contain \"Got 8 files to process\" when running \"--batch --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
 
 
 # Tests with the same input paths used more than once.

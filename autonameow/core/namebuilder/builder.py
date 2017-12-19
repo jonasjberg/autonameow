@@ -191,13 +191,13 @@ def post_assemble_format(new_name):
 
 def populate_name_template(name_template, **kwargs):
     """
-    Assembles a basename string from a given "name_template" format string
-    that is populated with an arbitrary number of keyword arguments.
+    Assembles a basename string from a given "name_template" filename format
+    string that is populated with an arbitrary number of keyword arguments.
 
     Args:
-        name_template: The format string to populate and return.
+        name_template: The filename format string to populate and return.
         **kwargs: An arbitrary number of keyword arguments used to fill out
-            the format string.
+                  the filename format string.
 
     Returns:
         A string on the form specified by the given name template, populated
@@ -205,7 +205,7 @@ def populate_name_template(name_template, **kwargs):
 
     Raises:
         NameTemplateSyntaxError: Error due to either an invalid "name_template"
-            or insufficient/invalid keyword arguments.
+                                 or insufficient/invalid keyword arguments.
     """
     if not isinstance(name_template, str):
         raise TypeError('"name_template" must be of type "str"')
@@ -218,7 +218,7 @@ def populate_name_template(name_template, **kwargs):
     while '"' in name_template:
         name_template = name_template.replace('"', '')
 
-    # NOTE: Used to validate name formatting strings in the configuration file.
+    # NOTE: Used to validate name template strings in the configuration file.
     try:
         out = name_template.format(**kwargs)
     except (TypeError, KeyError, ValueError) as e:

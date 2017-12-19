@@ -29,7 +29,7 @@ from core.config.configuration import Configuration
 from core.config.rules import get_valid_rule
 from core.config.field_parsers import (
     DateTimeConfigFieldParser,
-    NameFormatConfigFieldParser,
+    NameTemplateConfigFieldParser,
 )
 from core.disk import load_yaml_file
 from core.exceptions import (
@@ -106,7 +106,7 @@ class ConfigurationParser(object):
             # Remove any non-breaking spaces in the name template.
             templ = text.remove_nonbreaking_spaces(templ)
 
-            if NameFormatConfigFieldParser.is_valid_nametemplate_string(templ):
+            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(templ):
                 validated[name] = templ
             else:
                 raise ConfigurationSyntaxError(_error)
@@ -432,26 +432,26 @@ class ConfigurationRuleParser(object):
         validated = self._validate_rules(rules_dict)
         return validated
 
-    def _validate_name_format(self, _raw_name_format):
-        _format = types.force_string(_raw_name_format)
-        if not _format:
+    def _validate_name_template(self, _raw_name_template):
+        _template = types.force_string(_raw_name_template)
+        if not _template:
             return None
 
         # TODO: [TD0109] Allow arbitrary name template placeholder fields.
 
         # First test if the field data is a valid name template entry,
-        if _format in self._reusable_nametemplates:
+        if _template in self._reusable_nametemplates:
             # If it is, use the format string defined in that entry.
-            return self._reusable_nametemplates.get(_format)
+            return self._reusable_nametemplates.get(_template)
         else:
-            # If not, check if it is a valid format string.
-            if NameFormatConfigFieldParser.is_valid_nametemplate_string(_format):
+            # If not, check if it is a valid name template string.
+            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(_template):
                 # TODO: [TD0139] This currently passes just about everything.
                 # If the user intends to use a "reusable name template" but
                 # misspelled it slightly, it currently goes unnoticed.
 
                 # TODO: [TD0139] Warn if sources do not match placeholders?
-                return _format
+                return _template
 
         return None
 
@@ -472,16 +472,16 @@ class ConfigurationRuleParser(object):
                 Note that the message will be used in the following sentence:
                 "Bad rule "x"; {message}"
         """
-        if 'NAME_FORMAT' not in raw_rule:
+        if 'NAME_TEMPLATE' not in raw_rule:
             raise ConfigurationSyntaxError(
-                'is missing name template format'
+                'is missing name template'
             )
-        valid_format = self._validate_name_format(raw_rule.get('NAME_FORMAT'))
-        if not valid_format:
+        valid_template = self._validate_name_template(raw_rule.get('NAME_TEMPLATE'))
+        if not valid_template:
             raise ConfigurationSyntaxError(
                 'uses invalid name template format'
             )
-        name_template = text.remove_nonbreaking_spaces(valid_format)
+        name_template = text.remove_nonbreaking_spaces(valid_template)
 
         try:
             _rule = get_valid_rule(

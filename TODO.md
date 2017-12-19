@@ -77,7 +77,7 @@ Medium Priority
             extractor.filesystem.xplat.basename.full: 'Untitled.mov'
             extractor.filesystem.xplat.contents.mime_type: 'video/quicktime'
             extractor.filesystem.xplat.pathname.full: '/Users/jonas/Desktop'
-        NAME_FORMAT: '{datetime} -- screenshot macbookpro.mov'
+        NAME_TEMPLATE: '{datetime} -- screenshot macbookpro.mov'
         DATA_SOURCES:
             datetime: extractor.metadata.exiftool.QuickTime:CreationDate
         exact_match: false
@@ -274,7 +274,7 @@ Low Priority
         CONDITIONS:
             extractor.filesystem.xplat.pathname.full: '/tank/media/tvseries'
             extractor.filesystem.xplat.contents.mime_type: video/*
-        NAME_FORMAT: '{title} S{season}E{episode}.{extension}'
+        NAME_TEMPLATE: '{title} S{season}E{episode}.{extension}'
         DATA_SOURCES:
             title: plugin.guessit.title
             season: plugin.guessit.season

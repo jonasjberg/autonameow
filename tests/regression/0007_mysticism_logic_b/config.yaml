@@ -12,6 +12,6 @@ RULES:
         DATA_SOURCES:
             extension: extractor.metadata.exiftool.File:MIMEType
             title: extractor.metadata.exiftool.PDF:Title
-        NAME_FORMAT: '{title}.{extension}'
+        NAME_TEMPLATE: '{title}.{extension}'
         exact_match: true
         ranking_bias: null

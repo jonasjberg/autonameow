@@ -40,7 +40,7 @@ from core.config.field_parsers import (
     BooleanConfigFieldParser,
     DateTimeConfigFieldParser,
     MimeTypeConfigFieldParser,
-    NameFormatConfigFieldParser,
+    NameTemplateConfigFieldParser,
     RegexConfigFieldParser
 )
 
@@ -100,9 +100,9 @@ class TestDateTimeConfigFieldParser(CaseFieldParserValidation):
     FIELD_PARSER_CLASS = DateTimeConfigFieldParser
 
 
-class TestNameFormatConfigFieldParser(CaseFieldParserValidation):
+class TestNameTemplateConfigFieldParser(CaseFieldParserValidation):
     __test__ = True
-    FIELD_PARSER_CLASS = NameFormatConfigFieldParser
+    FIELD_PARSER_CLASS = NameTemplateConfigFieldParser
 
 
 class TestMimeTypeConfigFieldParser(CaseFieldParserValidation):
