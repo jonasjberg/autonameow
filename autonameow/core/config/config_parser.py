@@ -338,7 +338,7 @@ class ConfigurationParser(object):
         # Unlike the previous options; first load the default ignore patterns,
         # then combine these defaults with any user-specified patterns.
         util.nested_dict_set(
-            self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
+            self._options, ['FILESYSTEM', 'ignore'],
             C.DEFAULT_FILESYSTEM_IGNORE
         )
         if 'FILESYSTEM_OPTIONS' in config_dict:
@@ -351,7 +351,7 @@ class ConfigurationParser(object):
                                   '{!s}: {!s}'.format('ignore', _ui))
 
                     _defaults = util.nested_dict_get(
-                        self._options, ['FILESYSTEM_OPTIONS', 'ignore']
+                        self._options, ['FILESYSTEM', 'ignore']
                     )
                     log.debug('Adding {} default filesystem ignore '
                               'patterns'.format(len(_defaults)))
@@ -360,7 +360,7 @@ class ConfigurationParser(object):
                     log.debug('Using combined total of {} filesystem ignore '
                               'patterns'.format(len(_combined)))
                     util.nested_dict_set(
-                        self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
+                        self._options, ['FILESYSTEM', 'ignore'],
                         _combined
                     )
 
