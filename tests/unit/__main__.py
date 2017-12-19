@@ -19,34 +19,22 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import glob
-import importlib
 import os
 import unittest
 
+from unit import build_testsuite
 
-UNIT_TEST_BASENAME_GLOB = "test_*.py"
+
+runner = unittest.TextTestRunner(verbosity=1, buffer=True)
+
+# suite_all_tests = build_testsuite()
+suite_excluding_property_based_tests = build_testsuite(
+    filename_filter=lambda x: not x.startswith('test_property_')
+)
 
 
-def build_testsuite(filename_filter=None):
-    test_directory = os.path.dirname(__file__)
-    current_dir = os.getcwd()
-    os.chdir(test_directory)
+# print('Loaded {} all test cases ..'.format(suite_all_tests.countTestCases()))
+print('Loaded {} test cases. Excluded property-based tests..'.format(suite_excluding_property_based_tests.countTestCases()))
 
-    test_files = glob.glob(UNIT_TEST_BASENAME_GLOB)
-    if filename_filter:
-        assert callable(filename_filter)
-        test_files = [f for f in test_files if filename_filter(f)]
-
-    test_modules = [name for name, _ in map(os.path.splitext, test_files)]
-
-    loader = unittest.TestLoader()
-    suite = unittest.TestSuite()
-
-    for module_name in test_modules:
-        module_path = '{}.{}'.format(__name__, module_name)
-        module = importlib.import_module(module_path, __name__)
-        suite.addTest(loader.loadTestsFromModule(module))
-
-    os.chdir(current_dir)
-    return suite
+os.chdir(os.pardir)
+runner.run(suite_excluding_property_based_tests)
