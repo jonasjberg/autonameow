@@ -54,40 +54,42 @@ AUTONAMEOW_OPTIONS_EMPTY = {}
 
 @skipIf(*prompt_toolkit_unavailable())
 class TestAutonameowWithoutOptions(TestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     from core.autonameow import Autonameow
-    #     cls.A = Autonameow
+    @classmethod
+    def setUpClass(cls):
+        cls.amw = Autonameow
 
     @patch('core.autonameow.Autonameow.exit_program', MagicMock())
     def test_instantiated_instance_is_not_none(self):
-        self.assertIsNotNone(Autonameow(opts=AUTONAMEOW_OPTIONS_EMPTY))
+        self.assertIsNotNone(self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY))
 
     @patch('core.autonameow.Autonameow.exit_program')
     def test_instantiated_does_not_call_exit_program(self, exit_program_mock):
-        _ = Autonameow(opts=AUTONAMEOW_OPTIONS_EMPTY)
+        _ = self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY)
         exit_program_mock.assert_not_called()
 
     @patch('core.autonameow.Autonameow.exit_program')
     def test_exit_program_called_after_running(self, exit_program_mock):
-        a = Autonameow(opts=AUTONAMEOW_OPTIONS_EMPTY)
+        a = self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY)
         a.run()
         exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
 
     @patch('core.autonameow.Autonameow.exit_program')
     def test_exit_program_called_after_running_context(self, exit_program_mock):
-        with Autonameow(opts=AUTONAMEOW_OPTIONS_EMPTY) as a:
+        with self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY) as a:
             a.run()
         exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
 
 
 class TestAutonameowOptionCombinations(TestCase):
-    def setUp(self):
-        from core.autonameow import Autonameow
-        self.a = Autonameow
+    @classmethod
+    def setUpClass(cls):
+        cls.amw = Autonameow
+
+    def test_setup_class(self):
+        self.assertIsNotNone(self.amw)
 
     def _check_options(self, given, expect):
-        actual = self.a.check_option_combinations(given)
+        actual = self.amw.check_option_combinations(given)
         for k, v in expect.items():
             self.assertEqual(actual.get(k), v)
 
@@ -177,7 +179,6 @@ class TestAutonameowOptionCombinations(TestCase):
 
 class TestAutonameowContextManagementProtocol(TestCase):
     def test_with_statement(self):
-        from core.autonameow import Autonameow
         Autonameow.exit_program = MagicMock()
 
         with Autonameow(AUTONAMEOW_OPTIONS_EMPTY) as ameow:
@@ -185,33 +186,39 @@ class TestAutonameowContextManagementProtocol(TestCase):
 
 
 class TestAutonameowHash(TestCase):
-    def setUp(self):
-        from core.autonameow import Autonameow
-        self.a = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
-        self.b = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
+    @classmethod
+    def setUpClass(cls):
+        cls.amw_A = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
+        cls.amw_B = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
+
+    def test_setup_class(self):
+        self.assertIsNotNone(self.amw_A)
+        self.assertIsNotNone(self.amw_B)
 
     def test_hash(self):
-        actual = hash(self.a)
+        actual = hash(self.amw_A)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, int)
 
     def test_instances_return_different_hashes(self):
-        hash_a = hash(self.a)
-        hash_b = hash(self.b)
+        hash_a = hash(self.amw_A)
+        hash_b = hash(self.amw_B)
         self.assertNotEqual(hash_a, hash_b)
 
     def test_instance_comparison(self):
-        self.assertNotEqual(self.a, self.b)
-        self.assertTrue(self.a != self.b)
-        self.assertTrue(self.a is not self.b)
+        self.assertNotEqual(self.amw_A, self.amw_B)
+        self.assertTrue(self.amw_A != self.amw_B)
+        self.assertTrue(self.amw_A is not self.amw_B)
 
 
 @skipIf(*prompt_toolkit_unavailable())
 class TestSetAutonameowExitCode(TestCase):
     def setUp(self):
-        from core.autonameow import Autonameow
         self.amw = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
         self.expected_initial = C.EXIT_SUCCESS
+
+    def test_setup(self):
+        self.assertIsNotNone(self.amw)
 
     def test_exit_code_has_expected_type(self):
         self.assertIsInstance(self.amw.exit_code, int)
@@ -245,30 +252,32 @@ class TestSetAutonameowExitCode(TestCase):
 
 @skipIf(*prompt_toolkit_unavailable())
 class TestDoRename(TestCase):
-    def setUp(self):
-        from core.autonameow import Autonameow
-        self.amw = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
-        self.assertIsNotNone(self.amw)
+    @classmethod
+    def setUpClass(cls):
+        cls.amw = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
 
         _config = uu.get_default_config()
-        self.amw.active_config = _config
+        cls.amw.active_config = _config
 
-    @patch('core.disk.rename_file')
+    def test_setup_class(self):
+        self.assertIsNotNone(self.amw)
+
+    @patch('core.autonameow.disk.rename_file')
     def test_dry_run_true_will_not_call_diskutils_rename_file(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=True)
         mockrename.assert_not_called()
 
-    @patch('core.disk.rename_file')
+    @patch('core.autonameow.disk.rename_file')
     def test_dry_run_false_calls_diskutils_rename_file(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=False)
         mockrename.assert_called_with(b'/tmp/dummy/path', b'mjaopath')
 
-    @patch('core.disk.rename_file')
+    @patch('core.autonameow.disk.rename_file')
     def test_skip_rename_if_new_name_equals_old_name(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=False)
         mockrename.assert_not_called()
 
-    @patch('core.disk.rename_file')
+    @patch('core.autonameow.disk.rename_file')
     def test_skip_rename_if_new_name_equals_old_name_dry_run(self, mockrename):
         self.amw.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=True)
         mockrename.assert_not_called()
