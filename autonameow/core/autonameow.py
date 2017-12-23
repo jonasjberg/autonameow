@@ -226,13 +226,8 @@ class Autonameow(object):
     def _dump_registered_meowuris(self):
         ui.msg('Registered MeowURIs', style='heading')
 
-        if not self.opts.get('debug'):
-            _meowuris = sorted(providers.Registry.mapped_meowuris)
-            for _meowuri in _meowuris:
-                ui.msg(str(_meowuri))
-        else:
+        if self.opts.get('debug'):
             cf = ui.ColumnFormatter()
-
             for _type in C.MEOWURI_ROOTS_SOURCES:
                 cf.addemptyrow()
                 sourcemap = providers.Registry.meowuri_sources.get(_type, {})
@@ -242,6 +237,10 @@ class Autonameow(object):
                         for k in _klasses:
                             cf.addrow(None, str(k))
             ui.msg(str(cf))
+        else:
+            _meowuris = sorted(providers.Registry.mapped_meowuris)
+            for _meowuri in _meowuris:
+                ui.msg(str(_meowuri))
 
         ui.msg('\n')
 
