@@ -1,0 +1,6 @@
+exit_code: 0
+stdout:
+    #    matches:
+    #    - 'foo.bar'
+    does_not_match:
+    - 'analyzer.document'
