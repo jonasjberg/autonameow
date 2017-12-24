@@ -1,6 +1,6 @@
 COMPATIBILITY:
     autonameow_version: v0.5.2
-CUSTOM_POST_PROCESSING:
+POST_PROCESSING:
     lowercase_filename: false
     replacements:
         -{2,}: '-'

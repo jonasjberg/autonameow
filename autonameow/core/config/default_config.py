@@ -217,7 +217,7 @@ DEFAULT_CONFIG = {
     #  just before the file is renamed. The syntax is 'MATCH: REPLACE'
     #  For instance, using "'foo': 'bar'" would result in every occurrence of
     #  "foo" in a file name to be replaced by "bar".
-    'CUSTOM_POST_PROCESSING': {
+    'POST_PROCESSING': {
         'replacements': {
             '_{2,}': '_',
             '-{2,}': '-',

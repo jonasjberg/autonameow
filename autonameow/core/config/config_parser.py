@@ -58,8 +58,15 @@ class ConfigurationParser(object):
         # TODO: Make sure that resetting instance attributes is not needed..
         self._options = {
             'DATETIME_FORMAT': dict(),
+
+            # Default ignores to be combined with any user-specified patterns.
+            'FILESYSTEM': {
+                'ignore': C.DEFAULT_FILESYSTEM_IGNORE
+            },
+
             'FILETAGS_OPTIONS': dict(),
-            'CUSTOM_POST_PROCESSING': dict()
+            'PERSISTENCE': dict(),
+            'POST_PROCESSING': dict()
         }
 
         _reusable_nametemplates = self._load_reusable_nametemplates(config_dict)
@@ -183,10 +190,10 @@ class ConfigurationParser(object):
                     'Invalid internal default value "{!s}: '
                     '{!s}"'.format(key, default))
 
-        def _try_load_custom_postprocessing_replacements():
+        def _try_load_postprocessing_replacements():
             # TODO: [TD0141] Coerce raw values to a known type.
-            if 'CUSTOM_POST_PROCESSING' in config_dict:
-                _reps = config_dict['CUSTOM_POST_PROCESSING'].get('replacements')
+            if 'POST_PROCESSING' in config_dict:
+                _reps = config_dict['POST_PROCESSING'].get('replacements')
                 if not _reps or not isinstance(_reps, dict):
                     return
 
@@ -214,7 +221,7 @@ class ConfigurationParser(object):
                 if match_replace_pairs:
                     util.nested_dict_set(
                         self._options,
-                        ['CUSTOM_POST_PROCESSING', 'replacements'],
+                        ['POST_PROCESSING', 'replacements'],
                         match_replace_pairs
                     )
 
@@ -286,75 +293,70 @@ class ConfigurationParser(object):
         )
 
         _try_load_option(
-            section='CUSTOM_POST_PROCESSING',
+            section='POST_PROCESSING',
             key='sanitize_filename',
             validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_SANITIZE_FILENAME
         )
         _try_load_option(
-            section='CUSTOM_POST_PROCESSING',
+            section='POST_PROCESSING',
             key='sanitize_strict',
             validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_SANITIZE_STRICT
         )
         _try_load_option(
-            section='CUSTOM_POST_PROCESSING',
+            section='POST_PROCESSING',
             key='lowercase_filename',
             validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_LOWERCASE_FILENAME
         )
         _try_load_option(
-            section='CUSTOM_POST_PROCESSING',
+            section='POST_PROCESSING',
             key='uppercase_filename',
             validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME
         )
         _try_load_option(
-            section='CUSTOM_POST_PROCESSING',
+            section='POST_PROCESSING',
             key='simplify_unicode',
             validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE
         )
 
         # TODO: [TD0137] Add rule-specific replacements.
-        _try_load_custom_postprocessing_replacements()
+        _try_load_postprocessing_replacements()
 
         # Handle conflicting upper-case and lower-case options.
-        if (self._options['CUSTOM_POST_PROCESSING'].get('lowercase_filename')
-                and self._options['CUSTOM_POST_PROCESSING'].get('uppercase_filename')):
+        if (self._options['POST_PROCESSING']['lowercase_filename']
+                and self._options['POST_PROCESSING']['uppercase_filename']):
 
             log.warning('Conflicting options: "lowercase_filename" and '
                         '"uppercase_filename". Ignoring "uppercase_filename".')
-            self._options['CUSTOM_POST_PROCESSING']['uppercase_filename'] = False
+            self._options['POST_PROCESSING']['uppercase_filename'] = False
 
-        # Unlike the previous options; first load the default ignore patterns,
-        # then combine these defaults with any user-specified patterns.
-        util.nested_dict_set(
-            self._options, ['FILESYSTEM', 'ignore'],
-            C.DEFAULT_FILESYSTEM_IGNORE
-        )
+        # Combine the default ignore patterns with any user-specified patterns.
         if 'FILESYSTEM_OPTIONS' in config_dict:
-            _user_ignores = config_dict['FILESYSTEM_OPTIONS'].get('ignore')
-            if isinstance(_user_ignores, list):
-                _user_ignores = [i for i in _user_ignores if i is not None]
-                if _user_ignores:
-                    for _ui in _user_ignores:
-                        log.debug('Added filesystem option :: '
-                                  '{!s}: {!s}'.format('ignore', _ui))
+            _maybe_str_list = config_dict['FILESYSTEM_OPTIONS'].get('ignore')
+            _user_ignores = types.force_stringlist(_maybe_str_list)
+            _user_ignores = [i for i in _user_ignores if i.strip()]
+            if _user_ignores:
+                for _ui in _user_ignores:
+                    log.debug('Added filesystem option :: '
+                              '{!s}: {!s}'.format('ignore', _ui))
 
-                    _defaults = util.nested_dict_get(
-                        self._options, ['FILESYSTEM', 'ignore']
-                    )
-                    log.debug('Adding {} default filesystem ignore '
-                              'patterns'.format(len(_defaults)))
+                _defaults = util.nested_dict_get(
+                    self._options, ['FILESYSTEM', 'ignore']
+                )
+                log.debug('Adding {} default filesystem ignore '
+                          'patterns'.format(len(_defaults)))
 
-                    _combined = _defaults.union(frozenset(_user_ignores))
-                    log.debug('Using combined total of {} filesystem ignore '
-                              'patterns'.format(len(_combined)))
-                    util.nested_dict_set(
-                        self._options, ['FILESYSTEM', 'ignore'],
-                        _combined
-                    )
+                _combined = _defaults.union(frozenset(_user_ignores))
+                log.debug('Using combined total of {} filesystem ignore '
+                          'patterns'.format(len(_combined)))
+                util.nested_dict_set(
+                    self._options, ['FILESYSTEM', 'ignore'],
+                    _combined
+                )
 
         _try_load_persistence_option(
             'cache_directory',

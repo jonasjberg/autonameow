@@ -1,4 +1,4 @@
-CUSTOM_POST_PROCESSING:
+POST_PROCESSING:
     replacements:
         ',': ''
         ' - ': ' '

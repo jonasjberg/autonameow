@@ -62,7 +62,7 @@ Medium Priority
     Example of current configuration replacements;
 
     ```yaml
-    CUSTOM_POST_PROCESSING:
+    POST_PROCESSING:
         replacements:
             -{3,}: '--'
             \.{2,}: '.'
@@ -82,7 +82,7 @@ Medium Priority
             datetime: extractor.metadata.exiftool.QuickTime:CreationDate
         exact_match: false
         ranking_bias: 0.9
-        CUSTOM_POST_PROCESSING:
+        POST_PROCESSING:
             replacements:
                 (bar){2,}: bar
                 foo: Gibson Rules

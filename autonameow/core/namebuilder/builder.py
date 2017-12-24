@@ -120,8 +120,8 @@ def build(config, name_template, field_data_map):
     log.debug('Assembled basename: "{!s}"'.format(new_name))
 
     # Do any file name "sanitation".
-    if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_filename']):
-        if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_strict']):
+    if config.get(['POST_PROCESSING', 'sanitize_filename']):
+        if config.get(['POST_PROCESSING', 'sanitize_strict']):
             log.debug('Sanitizing filename (restricted=True)')
             new_name = disk.sanitize_filename(new_name, restricted=True)
         else:
@@ -136,13 +136,13 @@ def build(config, name_template, field_data_map):
 
     # Do any case-transformations.
     postprocessor = FilenamePostprocessor(
-        lowercase_filename=config.get(['CUSTOM_POST_PROCESSING',
+        lowercase_filename=config.get(['POST_PROCESSING',
                                        'lowercase_filename']),
-        uppercase_filename=config.get(['CUSTOM_POST_PROCESSING',
+        uppercase_filename=config.get(['POST_PROCESSING',
                                        'uppercase_filename']),
-        regex_replacements=config.get(['CUSTOM_POST_PROCESSING',
+        regex_replacements=config.get(['POST_PROCESSING',
                                        'replacements']),
-        simplify_unicode=config.get(['CUSTOM_POST_PROCESSING',
+        simplify_unicode=config.get(['POST_PROCESSING',
                                      'simplify_unicode'])
     )
     new_name = postprocessor(new_name)

@@ -1,15 +1,5 @@
 COMPATIBILITY:
     autonameow_version: v0.5.2
-CUSTOM_POST_PROCESSING:
-    lowercase_filename: false
-    replacements:
-        -{2,}: '-'
-        \.{2,}: .
-        _{2,}: _
-    sanitize_filename: true
-    sanitize_strict: false
-    simplify_unicode: true
-    uppercase_filename: false
 DATETIME_FORMAT:
     date: '%Y-%m-%d'
     datetime: '%Y-%m-%dT%H%M%S'
@@ -37,6 +27,16 @@ NAME_TEMPLATE_FIELDS:
 PERSISTENCE:
     cache_directory: null
     history_file_path: null
+POST_PROCESSING:
+    lowercase_filename: false
+    replacements:
+        -{2,}: '-'
+        \.{2,}: .
+        _{2,}: _
+    sanitize_filename: true
+    sanitize_strict: false
+    simplify_unicode: true
+    uppercase_filename: false
 RULES:
     Sample Entry for E-books:
         CONDITIONS:
