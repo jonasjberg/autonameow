@@ -177,7 +177,8 @@ class ConfigurationParser(object):
             if section in config_dict:
                 _value = config_dict[section].get(key, None)
                 if _value is not None and validation_func(_value):
-                    log.debug('Added option {!s}: "{!s}"'.format(key, _value))
+                    log.debug('Added {} option :: '
+                              '{!s}: "{!s}"'.format(section, key, _value))
                     self._options[section][key] = _value
                     return  # OK!
 
@@ -188,7 +189,8 @@ class ConfigurationParser(object):
             else:
                 assert False, (
                     'Invalid internal default value "{!s}: '
-                    '{!s}"'.format(key, default))
+                    '{!s}"'.format(key, default)
+                )
 
         def _try_load_postprocessing_replacements():
             # TODO: [TD0141] Coerce raw values to a known type.
@@ -304,6 +306,7 @@ class ConfigurationParser(object):
             validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_SANITIZE_STRICT
         )
+
         _try_load_option(
             section='POST_PROCESSING',
             key='lowercase_filename',
@@ -316,6 +319,14 @@ class ConfigurationParser(object):
             validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME
         )
+        # Handle conflicting upper-case and lower-case options.
+        if (self._options['POST_PROCESSING']['lowercase_filename']
+                and self._options['POST_PROCESSING']['uppercase_filename']):
+
+            log.warning('Conflicting options: "lowercase_filename" and '
+                        '"uppercase_filename". Ignoring "uppercase_filename".')
+            self._options['POST_PROCESSING']['uppercase_filename'] = False
+
         _try_load_option(
             section='POST_PROCESSING',
             key='simplify_unicode',
@@ -325,14 +336,6 @@ class ConfigurationParser(object):
 
         # TODO: [TD0137] Add rule-specific replacements.
         _try_load_postprocessing_replacements()
-
-        # Handle conflicting upper-case and lower-case options.
-        if (self._options['POST_PROCESSING']['lowercase_filename']
-                and self._options['POST_PROCESSING']['uppercase_filename']):
-
-            log.warning('Conflicting options: "lowercase_filename" and '
-                        '"uppercase_filename". Ignoring "uppercase_filename".')
-            self._options['POST_PROCESSING']['uppercase_filename'] = False
 
         # Combine the default ignore patterns with any user-specified patterns.
         if 'FILESYSTEM_OPTIONS' in config_dict:
