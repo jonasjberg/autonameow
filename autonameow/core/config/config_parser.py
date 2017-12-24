@@ -28,6 +28,7 @@ from core import types
 from core.config.configuration import Configuration
 from core.config.rules import get_valid_rule
 from core.config.field_parsers import (
+    BooleanConfigFieldParser,
     DateTimeConfigFieldParser,
     NameTemplateConfigFieldParser,
 )
@@ -283,34 +284,35 @@ class ConfigurationParser(object):
             validation_func=lambda x: True,
             default=C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
         )
+
         _try_load_option(
             section='CUSTOM_POST_PROCESSING',
             key='sanitize_filename',
-            validation_func=lambda x: True,
+            validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_SANITIZE_FILENAME
         )
         _try_load_option(
             section='CUSTOM_POST_PROCESSING',
             key='sanitize_strict',
-            validation_func=lambda x: True,
+            validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_SANITIZE_STRICT
         )
         _try_load_option(
             section='CUSTOM_POST_PROCESSING',
             key='lowercase_filename',
-            validation_func=lambda x: True,
+            validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_LOWERCASE_FILENAME
         )
         _try_load_option(
             section='CUSTOM_POST_PROCESSING',
             key='uppercase_filename',
-            validation_func=lambda x: True,
+            validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME
         )
         _try_load_option(
             section='CUSTOM_POST_PROCESSING',
             key='simplify_unicode',
-            validation_func=lambda x: True,
+            validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE
         )
 
