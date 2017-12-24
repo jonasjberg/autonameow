@@ -162,25 +162,22 @@ class ConfigurationParser(object):
         return validated
 
     def _load_options(self, config_dict):
-        def _try_load_datetime_format_option(option, default):
-            if 'DATETIME_FORMAT' in config_dict:
-                _value = config_dict['DATETIME_FORMAT'].get(option, None)
-                if (_value is not None and
-                        DateTimeConfigFieldParser.is_valid_datetime(_value)):
-                    log.debug('Added datetime format option :: '
-                              '{!s}: "{!s}"'.format(option, _value))
-                    self._options['DATETIME_FORMAT'][option] = _value
+        def _try_load_option(section, key, validation_func, default):
+            if section in config_dict:
+                _value = config_dict[section].get(key, None)
+                if _value is not None and validation_func(_value):
+                    log.debug('Added option {!s}: "{!s}"'.format(key, _value))
+                    self._options[section][key] = _value
                     return  # OK!
 
             # Use verified default value.
-            if DateTimeConfigFieldParser.is_valid_datetime(default):
-                log.debug('Using default datetime format option :: '
-                          '{!s}: "{!s}"'.format(option, default))
-                self._options['DATETIME_FORMAT'][option] = default
+            if validation_func(default):
+                log.debug('Using default {!s}: "{!s}"'.format(key, default))
+                self._options[section][key] = default
             else:
                 assert False, (
                     'Invalid internal default value "{!s}: '
-                    '{!s}"'.format(option, default))
+                    '{!s}"'.format(key, default))
 
         def _try_load_filetags_option(option, default):
             # TODO: [TD0141] Coerce raw values to a known type.
@@ -285,14 +282,23 @@ class ConfigurationParser(object):
                 self._options, ['PERSISTENCE', option], _bytes_path
             )
 
-        _try_load_datetime_format_option(
-            'date', C.DEFAULT_DATETIME_FORMAT_DATE
+        _try_load_option(
+            section='DATETIME_FORMAT',
+            key='date',
+            validation_func=DateTimeConfigFieldParser.is_valid_datetime,
+            default=C.DEFAULT_DATETIME_FORMAT_DATE
         )
-        _try_load_datetime_format_option(
-            'time', C.DEFAULT_DATETIME_FORMAT_TIME
+        _try_load_option(
+            section='DATETIME_FORMAT',
+            key='time',
+            validation_func=DateTimeConfigFieldParser.is_valid_datetime,
+            default=C.DEFAULT_DATETIME_FORMAT_TIME
         )
-        _try_load_datetime_format_option(
-            'datetime', C.DEFAULT_DATETIME_FORMAT_DATETIME
+        _try_load_option(
+            section='DATETIME_FORMAT',
+            key='datetime',
+            validation_func=DateTimeConfigFieldParser.is_valid_datetime,
+            default=C.DEFAULT_DATETIME_FORMAT_DATETIME
         )
 
         _try_load_filetags_option(
