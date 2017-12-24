@@ -66,7 +66,7 @@ class ConfigReadError(exceptions.ConfigError):
             message += ': found tab character at line {}, column {}'.format(
                 reason.problem_mark.line + 1,
                 reason.problem_mark.column + 1,
-                )
+            )
         elif reason:
             # Generic error message uses exception's message.
             message += ': {}'.format(reason)
