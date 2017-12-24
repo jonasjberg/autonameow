@@ -182,6 +182,39 @@ assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY_BUT_SECT
 set -o pipefail
 
 
+# Find all files matching "test_files/configs/bad_0*.yaml"
+# and check for non-zero return codes in various options.
+while IFS= read -r -d '' bad_config_file
+do
+    config_file_abspath="$(realpath -e -- "$bad_config_file")"
+    config_file_basename="$(basename -- "$bad_config_file")"
+    assert_true '[ -e "$config_file_abspath" ]' \
+                "Bad configuration file exists: \"${config_file_basename}\""
+
+    assert_false '"$AUTONAMEOW_RUNNER" --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
+                 "Expect non-zero exit code for bad config: \"${config_file_basename}\""
+
+    assert_false '"$AUTONAMEOW_RUNNER" -v --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
+                 "Expect non-zero exit code for bad config: \"${config_file_basename}\" in batch, verbose mode"
+
+    assert_false '"$AUTONAMEOW_RUNNER" --debug --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
+                 "Expect non-zero exit code for bad config: \"${config_file_basename}\" in batch, debug mode"
+
+    assert_false '"$AUTONAMEOW_RUNNER" --quiet --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
+                 "Expect non-zero exit code for bad config: \"${config_file_basename}\" in batch, quiet mode"
+
+    assert_false '"$AUTONAMEOW_RUNNER" -v --dry-run --config-path "$BAD_CONFIG_FILE"' \
+                 "Expect non-zero exit code for bad config: \"${config_file_basename}\" in verbose mode"
+
+    assert_false '"$AUTONAMEOW_RUNNER" --debug --dry-run --config-path "$BAD_CONFIG_FILE"' \
+                 "Expect non-zero exit code for bad config: \"${config_file_basename}\" in debug mode"
+
+    assert_false '"$AUTONAMEOW_RUNNER" --quiet --dry-run --config-path "$BAD_CONFIG_FILE"' \
+                 "Expect non-zero exit code for bad config: \"${config_file_basename}\" in quiet mode"
+
+done < <(find "${AUTONAMEOW_TESTFILES_DIR}/configs" -maxdepth 1 -xdev -type f -name 'bad_0*.yaml' -print0 | sort -z)
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"

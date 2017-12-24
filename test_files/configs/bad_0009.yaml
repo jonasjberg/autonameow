@@ -1,0 +1,63 @@
+COMPATIBILITY:
+    autonameow_version: v0.5.2
+DATETIME_FORMAT:
+    date: '%Y-%m-%d'
+    datetime: '%Y-%m-%dT%H%M%S'
+    time: '%H-%M-%S'
+FILESYSTEM_OPTIONS:
+    ignore:
+    - '*.swp'
+    - '*/.*'
+FILETAGS_OPTIONS:
+    between_tag_separator: ' '
+    filename_tag_separator: ' -- '
+NAME_TEMPLATES:
+    default_book: '{publisher} {title} {edition} - {author} {year}.{extension}'
+    default_document: '{title} - {author} {datetime}.{extension}'
+    default_photo: '{datetime} {description} -- {tags}.{extension}'
+NAME_TEMPLATE_FIELDS:
+    publisher:
+        candidates:
+            FeedBooks:
+            - This book is brought to you by Feedbooks
+            - http://www.feedbooks.com
+            ProjectGutenberg:
+            - Project Gutenberg
+            - www.gutenberg.net
+PERSISTENCE:
+    cache_directory: null
+    history_file_path: null
+POST_PROCESSING:
+    lowercase_filename: false
+    replacements:
+        -{2,}: '-'
+        \.{2,}: .
+        _{2,}: _
+    sanitize_filename: true
+    sanitize_strict: false
+    simplify_unicode: true
+    uppercase_filename: false
+RULES:
+    - Sample Entry for E-books:
+        CONDITIONS:
+            extractor.filesystem.xplat.basename.extension: (pdf|mobi)
+            extractor.filesystem.xplat.contents.mime_type:
+            - application/epub+zip
+            - image/vnd.djvu
+            - application/pdf
+            - application/octet-stream
+        DATA_SOURCES:
+            author: analyzer.ebook.author
+            edition:
+            - analyzer.ebook.edition
+            - analyzer.filename.edition
+            extension: extractor.filesystem.xplat.contents.mime_type
+            publisher:
+            - analyzer.ebook.publisher
+            - analyzer.filename.publisher
+            title: analyzer.ebook.title
+            year: analyzer.ebook.date
+        NAME_TEMPLATE: default_book
+        exact_match: false
+        ranking_bias: 0.1
+        ranking_bias: 0.1
