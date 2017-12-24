@@ -102,10 +102,7 @@ class Configuration(object):
 
     @property
     def rules(self):
-        if self._rules and len(self._rules) > 0:
-            return list(self._rules)
-        else:
-            return []
+        return list(self._rules)
 
     @property
     def reusable_nametemplates(self):
