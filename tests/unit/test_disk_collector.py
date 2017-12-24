@@ -299,19 +299,19 @@ class TestPathCollector(TestCase):
         _search_paths = uu.abspath_testfile('configs')
         pc = PathCollector(ignore_globs=None)
         actual = pc.get_paths(_search_paths)
-        self.assertEqual(6, len(actual))
+        self.assertEqual(11, len(actual))
 
     def test_returns_expected_for_glob_d(self):
         _search_paths = uu.abspath_testfile('configs')
         pc = PathCollector(ignore_globs=['*_filetags.yaml'])
         actual = pc.get_paths(_search_paths)
-        self.assertEqual(5, len(actual))
+        self.assertEqual(10, len(actual))
 
     def test_returns_expected_for_glob_e(self):
         _search_paths = uu.abspath_testfile('configs')
         pc = PathCollector(ignore_globs=['*/integration_test_config_*a*.yaml'])
         actual = pc.get_paths(_search_paths)
-        self.assertEqual(3, len(actual))
+        self.assertEqual(8, len(actual))
 
 
 class UnitTestIgnorePaths(TestCase):

@@ -124,7 +124,7 @@ assert_false '"$AUTONAMEOW_RUNNER" --config-path /tmp/does_not_exist_surely.mjao
              "Specifying an invalid path with \"--config-path\" should be handled properly"
 
 
-BAD_CONFIG_FILE="$(abspath_testfile "bad_config.yaml")"
+BAD_CONFIG_FILE="$(abspath_testfile "configs/bad_corrupt_gif.yaml")"
 assert_true '[ -e "$BAD_CONFIG_FILE" ]' \
             "A known bad configuration file exists. Add suitable test file if this test fails!"
 
@@ -136,7 +136,7 @@ assert_true '"$AUTONAMEOW_RUNNER" --dump-options --verbose' \
             "autonameow should return zero when started with \"--dump-options\" and \"--verbose\""
 
 
-NONASCII_CONFIG_FILE="$(abspath_testfile "autonam€öw.yaml")"
+NONASCII_CONFIG_FILE="$(abspath_testfile "configs/autonam€öw.yaml")"
 assert_true '[ -e "$NONASCII_CONFIG_FILE" ]' \
             "A non-ASCII configuration file exists. Add suitable test file if this test fails!"
 
@@ -166,26 +166,19 @@ assert_true '"$AUTONAMEOW_RUNNER" --dump-options --quiet --config-path "$NONASCI
 
 
 set +o pipefail
-BAD_CONFIG_FILE_NO_FILE_RULES="$(abspath_testfile "bad_config_no_file_rules.yaml")"
+BAD_CONFIG_FILE_NO_FILE_RULES="$(abspath_testfile "configs/bad_no_file_rules.yaml")"
 assert_true '[ -e "$BAD_CONFIG_FILE_NO_FILE_RULES" ]' \
             "A configuration file without file rules exists. Add suitable test file if this test fails!"
 
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_NO_FILE_RULES" 2>&1 | grep -q "Unable to load configuration"' \
             "Attempting to load a configuration file without any file rules should be handled properly"
 
-BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS="$(abspath_testfile "bad_config_empty_but_sections.yaml")"
+BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS="$(abspath_testfile "configs/bad_empty_but_sections.yaml")"
 assert_true '[ -e "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" ]' \
             "A configuration file that contains only sections without contents exists. Add suitable test file if this test fails!"
 
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" 2>&1 | grep -q "Unable to load configuration"' \
             "Attempting to load a configuration file with just bare sections should be handled properly"
-
-BAD_CONFIG_FILE_EMPTY_BUT_VERSION="$(abspath_testfile "bad_config_empty_but_version.yaml")"
-assert_true '[ -e "$BAD_CONFIG_FILE_EMPTY_BUT_VERSION" ]' \
-            "A configuration file that only contains the program version exists. Add suitable test file if this test fails!"
-
-assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY_BUT_VERSION" 2>&1 | grep -q "Unable to load configuration"' \
-            "Attempting to load a configuration file that only contains the program version should be handled properly"
 set -o pipefail
 
 
