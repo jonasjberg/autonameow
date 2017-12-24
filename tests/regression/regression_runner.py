@@ -19,8 +19,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import logging
+import os
+import re
 import sys
 import time
 
@@ -54,6 +55,7 @@ def run_test(test):
     opts = test.get('options')
     expect_exitcode = test['asserts'].get('exit_code', None)
     expect_renames = test['asserts'].get('renames', {})
+    expect_stdout_matches = test['asserts'].get('renames', {})
 
     aw = AutonameowWrapper(opts)
     aw()
@@ -175,6 +177,44 @@ def print_test_dirnames(tests):
     print('\n'.join(_test_dirnames))
 
 
+def check_asserts_stdout(test, captured_stdout):
+    failures = 0
+    if 'asserts' not in test:
+        return failures
+    if 'stdout' not in test['asserts']:
+        return failures
+
+    stdout_match_asserts = []
+    stdout_matches = test['asserts']['stdout'].get('matches', [])
+    for regexp in stdout_matches:
+        try:
+            stdout_match_asserts.append(re.compile(regexp, re.MULTILINE))
+        except (ValueError, TypeError) as e:
+            print(str(e))
+            continue
+
+    for regexp in stdout_match_asserts:
+        if not regexp.match(captured_stdout):
+            print('Match assertion failed for "{!s}"'.format(regexp))
+            failures += 1
+
+    stdout_not_match_asserts = []
+    stdout_not_matches = test['asserts']['stdout'].get('does_not_match', [])
+    for regexp in stdout_not_matches:
+        try:
+            stdout_not_match_asserts.append(re.compile(regexp, re.MULTILINE))
+        except (ValueError, TypeError) as e:
+            print(str(e))
+            continue
+
+    for regexp in stdout_not_match_asserts:
+        if regexp.match(captured_stdout):
+            print('Non-match assertion failed for "{!s}"'.format(regexp))
+            failures += 1
+
+    return failures
+
+
 def run_regressiontests(tests, print_stderr, print_stdout):
     reporter = TerminalReporter(VERBOSE)
     count_total = len(tests)
@@ -217,6 +257,8 @@ def run_regressiontests(tests, print_stderr, print_stdout):
 
         elapsed_time = time.time() - start_time
 
+        failures += check_asserts_stdout(test, captured_stdout)
+
         if failures == -10:
             if print_stderr and captured_stderr:
                 reporter.msg_captured_stderr(captured_stderr)
@@ -255,6 +297,19 @@ def run_regressiontests(tests, print_stderr, print_stdout):
         write_failed_tests(failed_tests)
 
     return count_failure
+
+
+def glob_filter(expression, string):
+    if b'*' not in expression:
+        return expression == string
+
+    regexp = expression.replace(b'*', b'.*')
+    return bool(re.match(regexp, string))
+
+
+def filter_loaded_tests(expression, loaded_tests):
+    # TODO: ...
+    pass
 
 
 def main(args):
@@ -313,6 +368,14 @@ def main(args):
         help='Print the ("short name") test directory basename of all loaded '
              'tests and exit. '
     )
+    parser.add_argument(
+        '-f', '--flter',
+        dest='filter_tests',
+        nargs='+',
+        metavar='BASENAME_GLOB',
+        help='Filter tests '
+    )
+
 
     opts = parser.parse_args(args)
 
@@ -340,30 +403,33 @@ def main(args):
 
     if opts.get_cmd:
         # Get equivalent command-lines for the specified test dirnames.
-        matching_tests = []
-        for _requested_test in opts.get_cmd:
+        filter_loaded_tests()
+        matched_tests = []
+        for _basename_glob in opts.get_cmd:
             # Must convert to bytes in order to do the comparison.
             try:
-                _b_requested_test = types.AW_PATHCOMPONENT(_requested_test)
+                _basename_glob_bytes = types.AW_PATHCOMPONENT(_basename_glob)
             except types.AWTypeError as e:
                 print(str(e))
                 continue
 
-            matching_test = [t for t in loaded_tests
-                             if t.get('test_dirname') == _b_requested_test]
-            if matching_test:
-                matching_tests.extend(matching_test)
+            matches = [
+                t for t in loaded_tests
+                if glob_filter(_basename_glob_bytes, t.get('test_dirname', b''))
+            ]
+            if matches:
+                matched_tests.extend(matches)
             else:
-                log.warning('Not a loaded test: "{!s}"'.format(_requested_test))
+                log.warning('Not a loaded test: "{!s}"'.format(_basename_glob))
 
-        if not matching_tests:
+        if not matched_tests:
             _get_cmd = '"{!s}"'.format('", "'.join(opts.get_cmd))
             log.warning('Does not match any loaded test: {!s}'.format(_get_cmd))
             # print('\nLoaded tests:')
             # print_test_dirnames(loaded_tests)
             sys.exit(1)
         else:
-            for test in matching_tests:
+            for test in matched_tests:
                 test_dirname = types.force_string(test.get('test_dirname'))
                 arg_string = commandline_for_testcase(test)
                 print('# {!s}\n{!s}\n'.format(test_dirname, arg_string))
