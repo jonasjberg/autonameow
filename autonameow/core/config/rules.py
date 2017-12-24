@@ -23,11 +23,15 @@ import logging
 
 from core import constants as C
 from core import (
-    exceptions,
     providers,
     types,
 )
 from core.config import field_parsers
+from core.exceptions import (
+    ConfigError,
+    ConfigurationSyntaxError,
+    InvalidMeowURIError
+)
 from core.model import MeowURI
 from core.namebuilder import fields
 import util
@@ -36,7 +40,7 @@ import util
 log = logging.getLogger(__name__)
 
 
-class InvalidRuleError(exceptions.ConfigError):
+class InvalidRuleError(ConfigError):
     """The Rule is in a bad state. The Rule state should only be set
     with known good data. This error implies data validation has failed."""
 
@@ -279,7 +283,7 @@ class Rule(object):
     def ranking_bias(self, raw_ranking_bias):
         try:
             self._ranking_bias = parse_ranking_bias(raw_ranking_bias)
-        except exceptions.ConfigurationSyntaxError as e:
+        except InvalidRuleError as e:
             log.warning(e)
             self._ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
 
@@ -394,15 +398,16 @@ def get_valid_rule(description, exact_match, ranking_bias, name_template,
 
     Returns:
         An instance of 'Rule' if the given arguments are valid.
+
     Raises:
-        InvalidRuleError: Validation failed or the 'Rule' could not be created.
+        InvalidRuleError: Validation failed or the 'Rule' instantiation failed.
     """
     if not conditions:
         conditions = dict()
 
     try:
         valid_conditions = parse_conditions(conditions)
-    except exceptions.ConfigurationSyntaxError as e:
+    except ConfigurationSyntaxError as e:
         raise InvalidRuleError(e)
 
     try:
@@ -471,12 +476,12 @@ def parse_ranking_bias(value):
     try:
         _value = types.AW_FLOAT(value)
     except types.AWTypeError:
-        raise exceptions.ConfigurationSyntaxError(
+        raise ConfigurationSyntaxError(
             'Expected float but got "{!s}" ({!s})'.format(value, type(value))
         )
     else:
         if not 0.0 <= _value <= 1.0:
-            raise exceptions.ConfigurationSyntaxError(
+            raise ConfigurationSyntaxError(
                 'Expected float between 0.0 and 1.0. Got {} -- Using default: '
                 '{}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
             )
@@ -485,29 +490,28 @@ def parse_ranking_bias(value):
 
 def parse_conditions(raw_conditions):
     if not isinstance(raw_conditions, dict):
-        raise exceptions.ConfigurationSyntaxError(
-            'Expected conditions to be of type dict'
-        )
-    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
+        raise ConfigurationSyntaxError('Expected conditions of type "dict". '
+                                       'Got {!s}'.format(type(raw_conditions)))
 
+    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
     passed = []
     try:
         for meowuri_string, expression_string in raw_conditions.items():
             try:
                 _meowuri = MeowURI(meowuri_string)
-            except exceptions.InvalidMeowURIError as e:
-                raise exceptions.ConfigurationSyntaxError(e)
+            except InvalidMeowURIError as e:
+                raise ConfigurationSyntaxError(e)
 
             try:
                 valid_condition = get_valid_rule_condition(_meowuri,
                                                            expression_string)
             except InvalidRuleError as e:
-                raise exceptions.ConfigurationSyntaxError(e)
+                raise ConfigurationSyntaxError(e)
             else:
                 passed.append(valid_condition)
                 log.debug('Validated condition: "{!s}"'.format(valid_condition))
     except ValueError as e:
-        raise exceptions.ConfigurationSyntaxError(
+        raise ConfigurationSyntaxError(
             'contains invalid condition: ' + str(e)
         )
 
@@ -527,7 +531,7 @@ def parse_data_sources(raw_sources):
 
     log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
     if not isinstance(raw_sources, dict):
-        raise exceptions.ConfigurationSyntaxError(
+        raise ConfigurationSyntaxError(
             'Expected sources to be of type dict'
         )
 
@@ -555,7 +559,7 @@ def parse_data_sources(raw_sources):
         for meowuri_string in raw_meowuri_strings:
             try:
                 _meowuri = MeowURI(meowuri_string)
-            except exceptions.InvalidMeowURIError as e:
+            except InvalidMeowURIError as e:
                 log.warning('Skipped source with invalid MeoWURI: '
                             '"{!s}"; {!s}'.format(meowuri_string, e))
                 continue
