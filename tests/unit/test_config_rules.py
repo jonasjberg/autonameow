@@ -28,6 +28,7 @@ from core import exceptions
 from core.config.rules import (
     get_valid_rule_condition,
     is_valid_source,
+    InvalidRuleError,
     parse_conditions,
     parse_ranking_bias,
     Rule,
@@ -376,7 +377,7 @@ class TestRuleConditionFromValidInput(TestCase):
 
 class TestRuleConditionGivenInvalidExpression(TestCase):
     def _assert_raises(self, query, expression):
-        with self.assertRaises(exceptions.InvalidRuleError):
+        with self.assertRaises(InvalidRuleError):
             _meowuri = MeowURI(query)
             _ = get_valid_rule_condition(_meowuri, expression)
 
@@ -470,7 +471,7 @@ class TestGetValidRuleCondition(TestCase):
 
     def _aR(self, query, expression):
         _meowuri = MeowURI(query)
-        with self.assertRaises(exceptions.InvalidRuleError):
+        with self.assertRaises(InvalidRuleError):
             _ = get_valid_rule_condition(_meowuri, expression)
 
     def test_returns_valid_rule_condition_for_valid_query_valid_data(self):

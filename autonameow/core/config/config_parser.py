@@ -26,7 +26,10 @@ import util
 from core import constants as C
 from core import types
 from core.config.configuration import Configuration
-from core.config.rules import get_valid_rule
+from core.config.rules import (
+    get_valid_rule,
+    InvalidRuleError
+)
 from core.config.field_parsers import (
     BooleanConfigFieldParser,
     DateTimeConfigFieldParser,
@@ -37,7 +40,6 @@ from core.exceptions import (
     ConfigurationSyntaxError,
     ConfigError,
     FilesystemError,
-    InvalidRuleError
 )
 from core.namebuilder.fields import is_valid_template_field
 from util import encoding as enc

@@ -36,6 +36,11 @@ import util
 log = logging.getLogger(__name__)
 
 
+class InvalidRuleError(exceptions.ConfigError):
+    """The Rule is in a bad state. The Rule state should only be set
+    with known good data. This error implies data validation has failed."""
+
+
 class RuleCondition(object):
     """
     Represents a single condition contained in a configuration rule.
@@ -261,7 +266,7 @@ class Rule(object):
         try:
             self._exact_match = types.AW_BOOLEAN(raw_exact_match)
         except types.AWTypeError as e:
-            raise exceptions.InvalidRuleError(e)
+            raise InvalidRuleError(e)
 
     @property
     def ranking_bias(self):
@@ -286,7 +291,7 @@ class Rule(object):
     def name_template(self, raw_name_template):
         # Name template has already been validated in the 'Configuration' class.
         if not raw_name_template:
-            raise exceptions.InvalidRuleError('Got None name template')
+            raise InvalidRuleError('Got None name template')
         self._name_template = raw_name_template
 
     @property
@@ -297,12 +302,12 @@ class Rule(object):
     def conditions(self, valid_conditions):
         if not isinstance(valid_conditions, list):
             _msg = 'Expected list. Got {!s}'.format(type(valid_conditions))
-            raise exceptions.InvalidRuleError(_msg)
+            raise InvalidRuleError(_msg)
 
         for c in valid_conditions:
             if not isinstance(c, RuleCondition):
                 _msg = 'Invalid condition: ({!s}) "{!s}"'.format(type(c), c)
-                raise exceptions.InvalidRuleError(_msg)
+                raise InvalidRuleError(_msg)
 
         self._conditions = valid_conditions
 
@@ -398,12 +403,12 @@ def get_valid_rule(description, exact_match, ranking_bias, name_template,
     try:
         valid_conditions = parse_conditions(conditions)
     except exceptions.ConfigurationSyntaxError as e:
-        raise exceptions.InvalidRuleError(e)
+        raise InvalidRuleError(e)
 
     try:
         _rule = Rule(valid_conditions, data_sources, name_template,
                      description, exact_match, ranking_bias)
-    except exceptions.InvalidRuleError as e:
+    except InvalidRuleError as e:
         raise e
     else:
         return _rule
@@ -434,7 +439,7 @@ def get_valid_rule_condition(meowuri, raw_expression):
     except (TypeError, ValueError) as e:
         # Add information and then pass the exception up the chain so that the
         # error can be displayed with additional contextual information.
-        raise exceptions.InvalidRuleError(
+        raise InvalidRuleError(
             'Invalid rule condition ("{!s}": "{!s}"); {!s}'.format(
                 meowuri, raw_expression, e
             )
@@ -496,7 +501,7 @@ def parse_conditions(raw_conditions):
             try:
                 valid_condition = get_valid_rule_condition(_meowuri,
                                                            expression_string)
-            except exceptions.InvalidRuleError as e:
+            except InvalidRuleError as e:
                 raise exceptions.ConfigurationSyntaxError(e)
             else:
                 passed.append(valid_condition)
