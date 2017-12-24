@@ -75,7 +75,7 @@ class ConfigurationParser(object):
         )
 
         rule_parser = ConfigurationRuleParser(_reusable_nametemplates)
-        _raw_rules = config_dict.get('RULES')
+        _raw_rules = config_dict.get('RULES', dict())
         _rules = rule_parser.parse(_raw_rules)
 
         self._load_options(config_dict)
@@ -414,10 +414,9 @@ class ConfigurationRuleParser(object):
             self._reusable_nametemplates = dict()
 
     def parse(self, rules_dict):
-        if not rules_dict:
-            raise ConfigError(
-                'The configuration file does not contain any rules'
-            )
+        if not isinstance(rules_dict, dict):
+            raise ConfigurationSyntaxError('Expected rules to be type "dict". '
+                                           'Got {!s}'.format(type(rules_dict)))
 
         validated = self._validate_rules(rules_dict)
         return validated

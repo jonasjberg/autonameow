@@ -42,7 +42,6 @@ from core.config.config_parser import (
     parse_versioning
 )
 from core.exceptions import (
-    ConfigError,
     ConfigurationSyntaxError,
     EncodingBoundaryViolation,
 )
@@ -252,8 +251,8 @@ class TestDefaultConfigFromFile(TestCase):
 class TestConfigurationRuleParser(TestCase):
     def test_parses_rules_from_default_config_given_all_nametemplates(self):
         from core.config.default_config import DEFAULT_CONFIG
-        rules_dict = DEFAULT_CONFIG.get('RULES')
-        self.assertIsNotNone(rules_dict)
+        given_rules = DEFAULT_CONFIG.get('RULES')
+        self.assertIsNotNone(given_rules)
 
         reusable_nametemplates = {
             'NAME_TEMPLATE_FIELDS': {
@@ -268,18 +267,25 @@ class TestConfigurationRuleParser(TestCase):
             }
         }
         rule_parser = ConfigurationRuleParser(reusable_nametemplates)
-        actual = rule_parser.parse(rules_dict)
+        actual = rule_parser.parse(given_rules)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, list)
         self.assertGreater(len(actual), 1)
-        self.assertEqual(len(rules_dict), len(actual))
+        self.assertEqual(len(given_rules), len(actual))
 
-    def test_raises_exception_given_no_rules(self):
+    def test_returns_expected_given_empty_dict(self):
         rule_parser = ConfigurationRuleParser()
-        rules_dict = dict()
+        given_rules = dict()
+        expect = []
+        self.assertEqual(expect, rule_parser.parse(given_rules))
 
-        with self.assertRaises(ConfigError):
-            _ = rule_parser.parse(rules_dict)
+    def test_raises_exception_given_non_dict(self):
+        rule_parser = ConfigurationRuleParser()
+        bad_rules = (['foo'], object(), 'foo')
+
+        for given_rules in bad_rules:
+            with self.assertRaises(ConfigurationSyntaxError):
+                _ = rule_parser.parse(given_rules)
 
 
 class TestValidateVersionNumber(TestCase):

@@ -1,0 +1,2 @@
+Config empty except for COMPATIBILITY. Batch mode, dry run. Smoke test; exit status assertion only.
+
