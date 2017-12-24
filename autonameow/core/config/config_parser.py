@@ -55,8 +55,11 @@ class ConfigurationParser(object):
 
     def parse(self, config_dict):
         # TODO: Make sure that resetting instance attributes is not needed..
-        self._options = {'DATETIME_FORMAT': {},
-                         'FILETAGS_OPTIONS': {}}
+        self._options = {
+            'DATETIME_FORMAT': dict(),
+            'FILETAGS_OPTIONS': dict(),
+            'CUSTOM_POST_PROCESSING': dict()
+        }
 
         _reusable_nametemplates = self._load_reusable_nametemplates(config_dict)
         self._options.update(
@@ -179,25 +182,6 @@ class ConfigurationParser(object):
                     'Invalid internal default value "{!s}: '
                     '{!s}"'.format(key, default))
 
-        def _try_load_custom_postprocessing_option(option, default):
-            # TODO: [TD0141] Coerce raw values to a known type.
-            if 'CUSTOM_POST_PROCESSING' in config_dict:
-                _value = config_dict['CUSTOM_POST_PROCESSING'].get(option)
-            else:
-                _value = None
-            if _value is not None:
-                log.debug('Added post-processing option :: '
-                          '{!s}: {!s}'.format(option, _value))
-                util.nested_dict_set(
-                    self._options, ['CUSTOM_POST_PROCESSING', option], _value
-                )
-            else:
-                log.debug('Using default post-processing option :: '
-                          '{!s}: {!s}'.format(option, default))
-                util.nested_dict_set(
-                    self._options, ['CUSTOM_POST_PROCESSING', option], default
-                )
-
         def _try_load_custom_postprocessing_replacements():
             # TODO: [TD0141] Coerce raw values to a known type.
             if 'CUSTOM_POST_PROCESSING' in config_dict:
@@ -299,25 +283,35 @@ class ConfigurationParser(object):
             validation_func=lambda x: True,
             default=C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
         )
-        _try_load_custom_postprocessing_option(
-            'sanitize_filename',
-            C.DEFAULT_POSTPROCESS_SANITIZE_FILENAME
+        _try_load_option(
+            section='CUSTOM_POST_PROCESSING',
+            key='sanitize_filename',
+            validation_func=lambda x: True,
+            default=C.DEFAULT_POSTPROCESS_SANITIZE_FILENAME
         )
-        _try_load_custom_postprocessing_option(
-            'sanitize_strict',
-            C.DEFAULT_POSTPROCESS_SANITIZE_STRICT
+        _try_load_option(
+            section='CUSTOM_POST_PROCESSING',
+            key='sanitize_strict',
+            validation_func=lambda x: True,
+            default=C.DEFAULT_POSTPROCESS_SANITIZE_STRICT
         )
-        _try_load_custom_postprocessing_option(
-            'lowercase_filename',
-            C.DEFAULT_POSTPROCESS_LOWERCASE_FILENAME
+        _try_load_option(
+            section='CUSTOM_POST_PROCESSING',
+            key='lowercase_filename',
+            validation_func=lambda x: True,
+            default=C.DEFAULT_POSTPROCESS_LOWERCASE_FILENAME
         )
-        _try_load_custom_postprocessing_option(
-            'uppercase_filename',
-            C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME
+        _try_load_option(
+            section='CUSTOM_POST_PROCESSING',
+            key='uppercase_filename',
+            validation_func=lambda x: True,
+            default=C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME
         )
-        _try_load_custom_postprocessing_option(
-            'simplify_unicode',
-            C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE
+        _try_load_option(
+            section='CUSTOM_POST_PROCESSING',
+            key='simplify_unicode',
+            validation_func=lambda x: True,
+            default=C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE
         )
 
         # TODO: [TD0137] Add rule-specific replacements.
