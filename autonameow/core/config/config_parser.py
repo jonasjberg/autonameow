@@ -337,26 +337,20 @@ class ConfigurationParser(object):
         # Combine the default ignore patterns with any user-specified patterns.
         if 'FILESYSTEM_OPTIONS' in config_dict:
             _maybe_str_list = config_dict['FILESYSTEM_OPTIONS'].get('ignore')
-            _user_ignores = types.force_stringlist(_maybe_str_list)
-            _user_ignores = [i for i in _user_ignores if i.strip()]
+            _user_ignores = [
+                s for s in types.force_stringlist(_maybe_str_list) if s.strip()
+            ]
             if _user_ignores:
-                for _ui in _user_ignores:
+                for s in _user_ignores:
                     log.debug('Added filesystem option :: '
-                              '{!s}: {!s}'.format('ignore', _ui))
+                              '{!s}: {!s}'.format('user ignore', s))
 
-                _defaults = util.nested_dict_get(
-                    self._options, ['FILESYSTEM', 'ignore']
-                )
-                log.debug('Adding {} default filesystem ignore '
-                          'patterns'.format(len(_defaults)))
-
+                _defaults = self._options['FILESYSTEM']['ignore']
                 _combined = _defaults.union(frozenset(_user_ignores))
-                log.debug('Using combined total of {} filesystem ignore '
-                          'patterns'.format(len(_combined)))
-                util.nested_dict_set(
-                    self._options, ['FILESYSTEM', 'ignore'],
-                    _combined
-                )
+                log.debug('Loaded {} filesystem ignore patterns ({} default + '
+                          '{} user)'.format(len(_combined), len(_defaults),
+                                            len(_user_ignores)))
+                self._options['FILESYSTEM']['ignore'] = _combined
 
         _try_load_persistence_option(
             'cache_directory',
