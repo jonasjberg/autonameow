@@ -184,13 +184,12 @@ class ConfigurationParser(object):
 
             # Use verified default value.
             if validation_func(default):
-                log.debug('Using default {!s}: "{!s}"'.format(key, default))
+                log.debug('Using default {} option {!s}: '
+                          '"{!s}"'.format(key, section, default))
                 self._options[section][key] = default
             else:
-                assert False, (
-                    'Invalid internal default value "{!s}: '
-                    '{!s}"'.format(key, default)
-                )
+                raise AssertionError('Invalid internal default value "{!s}: '
+                                     '{!s}"'.format(key, default))
 
         def _try_load_postprocessing_replacements():
             # TODO: [TD0141] Coerce raw values to a known type.
