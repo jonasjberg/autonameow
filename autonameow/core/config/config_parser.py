@@ -179,21 +179,6 @@ class ConfigurationParser(object):
                     'Invalid internal default value "{!s}: '
                     '{!s}"'.format(key, default))
 
-        def _try_load_filetags_option(option, default):
-            # TODO: [TD0141] Coerce raw values to a known type.
-            if 'FILETAGS_OPTIONS' in config_dict:
-                _value = config_dict['FILETAGS_OPTIONS'].get(option)
-            else:
-                _value = None
-            if _value is not None:
-                log.debug('Added filetags option :: '
-                          '{!s}: "{!s}"'.format(option, _value))
-                self._options['FILETAGS_OPTIONS'][option] = _value
-            else:
-                log.debug('Using default filetags option :: '
-                          '{!s}: "{!s}"'.format(option, _value))
-                self._options['FILETAGS_OPTIONS'][option] = default
-
         def _try_load_custom_postprocessing_option(option, default):
             # TODO: [TD0141] Coerce raw values to a known type.
             if 'CUSTOM_POST_PROCESSING' in config_dict:
@@ -301,13 +286,18 @@ class ConfigurationParser(object):
             default=C.DEFAULT_DATETIME_FORMAT_DATETIME
         )
 
-        _try_load_filetags_option(
-            'filename_tag_separator',
-            C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR
+        # TODO: [TD0141] Coerce raw values to a known type.
+        _try_load_option(
+            section='FILETAGS_OPTIONS',
+            key='filename_tag_separator',
+            validation_func=lambda x: True,
+            default=C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR
         )
-        _try_load_filetags_option(
-            'between_tag_separator',
-            C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
+        _try_load_option(
+            section='FILETAGS_OPTIONS',
+            key='between_tag_separator',
+            validation_func=lambda x: True,
+            default=C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
         )
         _try_load_custom_postprocessing_option(
             'sanitize_filename',
