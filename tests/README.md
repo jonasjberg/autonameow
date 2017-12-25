@@ -236,29 +236,41 @@ In order to run all tests, execute the script `tests/regression_runner.sh`.
 This script accepts optional argument flags, as described in the usage text;
 
 ```
-Usage: regression_runner.py [-h] [-v] [--last-failed] [--stderr] [--stdout]
-                            [--get-cmd TEST_NAME [TEST_NAME ...]] [--list]
+Usage: regression_runner.py [-h] [-v] [--stderr] [--stdout] [-f GLOB]
+                            [--last-failed] [--list] [--get-cmd] [--run]
 
 autonameow v0.5.2 -- regression test suite runner
 
 Optional arguments:
   -h, --help            Show this help message and exit.
   -v, --verbose         Enables verbose mode, prints additional information.
-  --last-failed         Run only the test cases that failed during the last
-                        completed run, or all if none failed.
   --stderr              Print captured stderr.
   --stdout              Print captured stdout.
-  --get-cmd TEST_NAME [TEST_NAME ...]
-                        Print equivalent command-line invocations for the
-                        specified test case(s). If executed "manually", these
-                        would produce the same behaviour and results as the
-                        corresponding regression test. Each result is printed
-                        as two lines; first being "# TEST_NAME", where
-                        "TEST_NAME" is the dirname of the test case. The
-                        second line is the equivalent command-line. Valid
-                        arguments can be found with the "--list" option.
-  --list                Print the ("short name") test directory basename of
-                        all loaded tests and exit.
+
+Test Selection:
+  Selection is performed in the order in which the options are listed here.
+
+  -f GLOB, --filter GLOB
+                        Select tests whose "TEST_NAME" (dirname) matches
+                        "GLOB".
+  --last-failed         Select only the test cases that failed during the last
+                        completed run. Selects all if none failed.
+
+Actions to Perform:
+  Only the first active option is used, ordered as per this listing.
+
+  --list                Print the "short name" (directory basename) of the
+                        selected test case(s) and exit.
+  --get-cmd             Print equivalent command-line invocations for the
+                        selected test case(s) and exit.If executed "manually",
+                        these would produce the same behaviour and results as
+                        the corresponding regression test. Each result is
+                        printed as two lines; first being "# TEST_NAME", where
+                        "TEST_NAME" is the directory basename of the test
+                        case. The second line is the equivalent command-line.
+                        Use "test selection" options to narrow down the
+                        results.
+  --run                 Run the selected test case(s). (DEFAULT: True)
 
 Project website: www.github.com/jonasjberg/autonameow
 ```
