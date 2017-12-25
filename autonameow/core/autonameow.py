@@ -24,6 +24,8 @@ import logging
 import sys
 import time
 
+import util
+from core import constants as C
 from core import (
     analysis,
     config,
@@ -37,7 +39,6 @@ from core import (
     repository,
     ui,
 )
-from core import constants as C
 from core.evaluate import (
     RuleMatcher,
     TemplateFieldDataResolver
@@ -45,9 +46,8 @@ from core.evaluate import (
 from core.fileobject import FileObject
 from core.model import MeowURI
 from core.plugin_handler import PluginHandler
-import util
-from util import sanity
 from util import encoding as enc
+from util import sanity
 
 
 log = logging.getLogger(__name__)
