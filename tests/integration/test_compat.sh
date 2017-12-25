@@ -215,6 +215,46 @@ do
 done < <(find "${AUTONAMEOW_TESTFILES_DIR}/configs" -maxdepth 1 -xdev -type f -name 'bad_0*.yaml' -print0 | sort -z)
 
 
+#
+# START of testing that persistence options from the config are used.
+#
+# Tests the assumption that autonameow writes at least one file to the
+# persistence path set in the config.
+#
+TEMPLATED_DEFAULT_CONFIG="$(abspath_testfile "configs/integration_default_templated.yaml")"
+assert_true '[ -f "$TEMPLATED_DEFAULT_CONFIG" ]' \
+            'The "templated" default configuration file exists.'
+
+TEMP_PERSISTENCE_DIR="$(realpath -e -- "$(mktemp -d)")"
+assert_true '[ -d "$TEMP_PERSISTENCE_DIR" ]' \
+            'Created a temporary directory for persistence.'
+
+_sed_backup_suffix='.orig'
+assert_true 'sed -i${_sed_backup_suffix} "s@___cache_directory___@${TEMP_PERSISTENCE_DIR}@g" "$TEMPLATED_DEFAULT_CONFIG"' \
+            'Expect OK exit status for sed call replacing template placeholder ___cache_directory___'
+
+templated_default_config_backup="${TEMPLATED_DEFAULT_CONFIG}${_sed_backup_suffix}"
+assert_true '[ -f "$templated_default_config_backup" ]' \
+            'Expect sed to have created a backup of the original templated default config'
+
+_number_files_in_temp_persistence_dir="$(find "$TEMP_PERSISTENCE_DIR" -type f -mindepth 1 -type f | wc -l)"
+assert_true '[ "$_number_files_in_temp_persistence_dir" -eq "0" ]' \
+            'Temporary persistence directory should initially not contain any files'
+
+# Arbitrary execution just to do *something* with the persistence directory.
+"$AUTONAMEOW_RUNNER" --quiet --dry-run --batch --config-path "$TEMPLATED_DEFAULT_CONFIG" -- "${AUTONAMEOW_TESTFILES_DIR}" >/dev/null 2>&1
+
+_number_files_in_temp_persistence_dir="$(find "$TEMP_PERSISTENCE_DIR" -type f -mindepth 1 -type f | wc -l)"
+assert_true '[ "$_number_files_in_temp_persistence_dir" -ge "1" ]' \
+            'Temporary persistence directory should contain at least one file after autonameow execution'
+
+assert_true '[ -f "$templated_default_config_backup" ] && mv -- "$templated_default_config_backup" "$TEMPLATED_DEFAULT_CONFIG"' \
+            'Successfully restored the original templated configuration file'
+#
+# END of testing that persistence options from the config are used.
+#
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"

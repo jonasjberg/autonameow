@@ -159,6 +159,12 @@ assert_true '[ "$(calculate_execution_time 1501987087187088013 15019870879422869
 assert_true '[ "$(calculate_execution_time 1501987193168368101 1501987208094155073)" -eq "14925" ]' \
             'calculate_execution_time returns expected (14925ms)'
 
+assert_true 'command -v sed' \
+            "sed is available on the system"
+
+assert_true 'man sed | grep -- "^ \+-i\b"' \
+            'sed supports the "-i" option, required by some integration tests'
+
 
 
 # Calculate total execution time.
