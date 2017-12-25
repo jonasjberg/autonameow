@@ -181,6 +181,13 @@ def print_test_dirnames(tests):
     print('\n'.join(_test_dirnames))
 
 
+def print_test_commandlines(tests):
+    for test in tests:
+        test_dirname = types.force_string(test.get('test_dirname'))
+        arg_string = commandline_for_testcase(test)
+        print('# {!s}\n{!s}\n'.format(test_dirname, arg_string))
+
+
 def run_regressiontests(tests, print_stderr, print_stdout):
     reporter = TerminalReporter(VERBOSE)
     count_total = len(tests)
@@ -290,23 +297,11 @@ def main(args):
         default=False,
         help='Print captured stdout.'
     )
-    parser.add_argument(
-        '--list-all',
-        dest='list_all_tests',
-        action='store_true',
-        default=False,
-        help='Print the ("short name") test directory basename of all loaded '
-             'tests and exit. '
-    )
 
-    optgrp_select = parser.add_argument_group('Test Selection')
-    optgrp_select.add_argument(
-        '--last-failed',
-        dest='filter_lastfailed',
-        action='store_true',
-        default=False,
-        help='Select only the test cases that failed during the last completed '
-             'run. Selects all if none failed.'
+    optgrp_select = parser.add_argument_group(
+        'Test Selection',
+        'Selection is performed in the order in which the options are listed '
+        'here.'
     )
     optgrp_select.add_argument(
         '-f', '--filter',
@@ -315,18 +310,38 @@ def main(args):
         metavar='GLOB',
         help='Select tests whose "TEST_NAME" (dirname) matches "GLOB".'
     )
+    optgrp_select.add_argument(
+        '--last-failed',
+        dest='filter_lastfailed',
+        action='store_true',
+        default=False,
+        help='Select only the test cases that failed during the last completed '
+             'run. Selects all if none failed.'
+    )
 
-    optgrp_action = parser.add_argument_group('Actions to Perform')
+    optgrp_action = parser.add_argument_group(
+        'Actions to Perform',
+        'Only the first active option is used, ordered as per this listing.'
+    )
+    optgrp_action.add_argument(
+        '--list',
+        dest='list_tests',
+        action='store_true',
+        default=False,
+        help='Print the "short name" (directory basename) of the selected '
+             'test case(s) and exit.'
+    )
     optgrp_action.add_argument(
         '--get-cmd',
         dest='get_cmd',
         action='store_true',
         default=False,
         help='Print equivalent command-line invocations for the selected '
-             'test case(s). If executed "manually", these would produce the '
-             'same behaviour and results as the corresponding regression test. '
+             'test case(s) and exit.'
+             'If executed "manually", these would produce the same behaviour '
+             'and results as the corresponding regression test. '
              'Each result is printed as two lines; first being "# TEST_NAME", '
-             'where "TEST_NAME" is the dirname of the test case. '
+             'where "TEST_NAME" is the directory basename of the test case. '
              'The second line is the equivalent command-line. '
              'Use "test selection" options to narrow down the results.'
     )
@@ -335,7 +350,7 @@ def main(args):
         dest='run_tests',
         action='store_true',
         default=True,
-        help='Enable running tests. (DEFAULT: True)'
+        help='Run the selected test case(s). (DEFAULT: True)'
     )
 
     opts = parser.parse_args(args)
@@ -357,11 +372,6 @@ def main(args):
     if not loaded_tests:
         return
 
-    # Perform any actions that terminates the program.
-    if opts.list_all_tests:
-        print_test_dirnames(loaded_tests)
-        return C.EXIT_SUCCESS
-
     # Start test selection based on any criteria given with the options.
     filtered_tests = list(loaded_tests)
     if opts.filter_glob:
@@ -370,6 +380,7 @@ def main(args):
             t for t in loaded_tests
             if glob_filter(glob, t.get('test_dirname', b''))
         ]
+        log.info('Glob selected {} test case(s) ..'.format(len(filtered_tests)))
 
     selected_tests = filtered_tests
     if opts.filter_lastfailed:
@@ -393,13 +404,13 @@ def main(args):
     if not selected_tests:
         log.warning('None of the loaded tests were selected ..')
 
-    if opts.get_cmd:
-        # Get equivalent command-lines for the selected tests.
-        for test in selected_tests:
-            test_dirname = types.force_string(test.get('test_dirname'))
-            arg_string = commandline_for_testcase(test)
-            print('# {!s}\n{!s}\n'.format(test_dirname, arg_string))
+    # Perform actions on the selected tests.
+    if opts.list_tests:
+        print_test_dirnames(selected_tests)
+        return C.EXIT_SUCCESS
 
+    if opts.get_cmd:
+        print_test_commandlines(loaded_tests)
         return C.EXIT_SUCCESS
 
     if opts.run_tests:
