@@ -46,8 +46,6 @@ class Configuration(object):
 
         self._version = version
 
-        self.referenced_meowuris = set()
-
         if self.version:
             if self.version != C.STRING_PROGRAM_VERSION:
                 log.warning('Possible configuration compatibility mismatch!')
@@ -61,11 +59,10 @@ class Configuration(object):
                     'generated and then manually transfer rules to this file.'
                 )
 
+        self.referenced_meowuris = set()
         for rule in self._rules:
             # Keep track of all "meowURIs" referenced by rules.
-            self.referenced_meowuris.update(
-                rule.referenced_meowuris()
-            )
+            self.referenced_meowuris.update(rule.referenced_meowuris())
 
         # For Debugging/development only.
         _referenced_meowuris = sorted(self.referenced_meowuris)
