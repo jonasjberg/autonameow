@@ -337,7 +337,7 @@ def main(args):
         action='store_true',
         default=False,
         help='Print equivalent command-line invocations for the selected '
-             'test case(s) and exit.'
+             'test case(s) and exit. '
              'If executed "manually", these would produce the same behaviour '
              'and results as the corresponding regression test. '
              'Each result is printed as two lines; first being "# TEST_NAME", '

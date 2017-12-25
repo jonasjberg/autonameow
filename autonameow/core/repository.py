@@ -26,6 +26,7 @@ from core import exceptions
 from core.ui.cli import ColumnFormatter
 from core.model import MeowURI
 from util import encoding as enc
+from util import sanity
 from util import textutils
 from util.text import truncate_text
 
@@ -85,9 +86,7 @@ class Repository(object):
             data_sample = data[0]
         else:
             data_sample = data
-        assert isinstance(data_sample, dict), (
-            'Expected "data" to be of type dict. Got "{!s}"'.format(type(data))
-        )
+        sanity.check_isinstance(data_sample, dict)
 
         self._store(fileobject, meowuri, data)
         self._store_generic(fileobject, data)

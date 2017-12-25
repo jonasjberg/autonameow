@@ -50,10 +50,10 @@ class TestCollapseWhitespace(TestCase):
         self._check([], [])
 
     def test_raises_exception_given_non_string_types(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             _ = collapse_whitespace(['foo'])
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             _ = collapse_whitespace(object())
 
     def test_returns_string_without_whitespace_as_is(self):

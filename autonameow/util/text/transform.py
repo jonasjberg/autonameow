@@ -78,10 +78,8 @@ def collapse_whitespace(string):
     #  Assume type-checks is handled elsewhere. Pass through None, [], {}, etc.
     if not string:
         return string
-
-    assert isinstance(string, str), (
-        'Expected Unicode string. Got {!s} "{!s}"'.format(type(string), string)
-    )
+    if not isinstance(string, str):
+        raise TypeError('Expected argument "string" to be a Unicode str')
 
     collapsed = re.sub(RE_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
     return collapsed

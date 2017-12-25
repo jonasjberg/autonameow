@@ -26,6 +26,8 @@ import shutil
 import sys
 import traceback
 
+import unit.constants as uuconst
+import unit.utils as uu
 from core import constants as C
 from core import (
     disk,
@@ -33,9 +35,8 @@ from core import (
     types,
     ui
 )
-import unit.utils as uu
-import unit.constants as uuconst
 from util import encoding as enc
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -613,10 +614,7 @@ def commandline_for_testcase(loaded_test):
     Returns:
         Full equivalent command-line as a Unicode string.
     """
-    assert isinstance(loaded_test, dict), (
-        'Expected dict, NOT {!s}.  Value: {!s}'.format(type(loaded_test),
-                                                       loaded_test)
-    )
+    sanity.check_isinstance(loaded_test, dict)
     arguments = _commandline_args_for_testcase(loaded_test)
     argument_string = ' '.join(arguments)
     commandline = 'autonameow ' + argument_string
