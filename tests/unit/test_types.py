@@ -943,7 +943,7 @@ class TestTypePath(TestCase):
         _assert_normalizes(given='//home//foo', expect=b'//home/foo')
 
     def test_normalize_relative_path(self):
-        _this_dir = os.path.realpath(os.path.dirname(__file__))
+        _this_dir = os.path.curdir
         expect = uu.normpath(os.path.join(_this_dir, 'home/foo'))
         self.assertEqual(expect, types.AW_PATH.normalize('home/foo'))
         self.assertEqual(expect, types.AW_PATH.normalize('home//foo'))
