@@ -284,34 +284,34 @@ class TestPathCollector(TestCase):
             self.assertTrue(uu.is_internalbytestring(f))
 
     def test_returns_expected_for_glob_a(self):
-        _search_paths = uu.abspath_testfile('configs')
+        _search_paths = uu.abspath_testfile('subdir')
         pc = PathCollector(ignore_globs=['*'])
         actual = pc.get_paths(_search_paths)
         self.assertEqual(0, len(actual))
 
     def test_returns_expected_for_glob_b(self):
-        _search_paths = uu.abspath_testfile('configs')
-        pc = PathCollector(ignore_globs=['*.yaml'])
+        _search_paths = uu.abspath_testfile('subdir')
+        pc = PathCollector(ignore_globs=['*_1'])
+        actual = pc.get_paths(_search_paths)
+        self.assertEqual(2, len(actual))
+
+    def test_returns_expected_for_glob_c(self):
+        _search_paths = uu.abspath_testfile('subdir')
+        pc = PathCollector(ignore_globs=None)
+        actual = pc.get_paths(_search_paths)
+        self.assertEqual(3, len(actual))
+
+    def test_returns_expected_for_glob_d(self):
+        _search_paths = uu.abspath_testfile('subdir')
+        pc = PathCollector(ignore_globs=['*_*'])
         actual = pc.get_paths(_search_paths)
         self.assertEqual(0, len(actual))
 
-    def test_returns_expected_for_glob_c(self):
-        _search_paths = uu.abspath_testfile('configs')
-        pc = PathCollector(ignore_globs=None)
-        actual = pc.get_paths(_search_paths)
-        self.assertEqual(11, len(actual))
-
-    def test_returns_expected_for_glob_d(self):
-        _search_paths = uu.abspath_testfile('configs')
-        pc = PathCollector(ignore_globs=['*_filetags.yaml'])
-        actual = pc.get_paths(_search_paths)
-        self.assertEqual(10, len(actual))
-
     def test_returns_expected_for_glob_e(self):
-        _search_paths = uu.abspath_testfile('configs')
-        pc = PathCollector(ignore_globs=['*/integration_test_config_*a*.yaml'])
+        _search_paths = uu.abspath_testfile('subdir')
+        pc = PathCollector(ignore_globs=['*-*', '*foo*'])
         actual = pc.get_paths(_search_paths)
-        self.assertEqual(8, len(actual))
+        self.assertEqual(3, len(actual))
 
 
 class UnitTestIgnorePaths(TestCase):

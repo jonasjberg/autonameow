@@ -98,6 +98,10 @@ class TerminalReporter(object):
         print(ui.colorize(self._center_with_fill('SOME TESTS FAILED'),
                           fore='RED'))
 
+    def msg_overall_noop(self):
+        print(ui.colorize(self._center_with_fill('DID NOT RUN ANY TESTS'),
+                          fore='YELLOW'))
+
     def msg_overall_stats(self, count_total, count_skipped, count_success,
                           count_failure, elapsed_time):
         print('\n')
@@ -108,7 +112,10 @@ class TerminalReporter(object):
 
         _failure = '{} failed'.format(count_failure)
         if count_failure == 0:
-            self.msg_overall_success()
+            if count_total == 0:
+                self.msg_overall_noop()
+            else:
+                self.msg_overall_success()
         else:
             self.msg_overall_failure()
             # Make the failed count red if any test failed.
@@ -118,7 +125,7 @@ class TerminalReporter(object):
 
         _stats = 'Regression Test Summary:  {} total, {}, {} passed, {}  ' \
                  'in {} seconds'.format(count_total, _skipped,
-                                           count_success, _failure, _runtime)
+                                        count_success, _failure, _runtime)
 
         print()
         print(_stats)
@@ -493,6 +500,44 @@ def check_renames(actual, expected):
     return bool(expected == actual)
 
 
+def check_stdout_asserts(test, captured_stdout):
+    failures = 0
+    if 'asserts' not in test:
+        return failures
+    if 'stdout' not in test['asserts']:
+        return failures
+
+    stdout_match_asserts = []
+    stdout_matches = test['asserts']['stdout'].get('matches', [])
+    for regexp in stdout_matches:
+        try:
+            stdout_match_asserts.append(re.compile(regexp, re.MULTILINE))
+        except (ValueError, TypeError) as e:
+            print('Bad stdout match regexp "{!s}" :: {!s}'.format(regexp, e))
+            continue
+
+    for regexp in stdout_match_asserts:
+        if not regexp.match(captured_stdout):
+            print('Match assertion failed for "{!s}"'.format(regexp))
+            failures += 1
+
+    stdout_not_match_asserts = []
+    stdout_not_matches = test['asserts']['stdout'].get('does_not_match', [])
+    for regexp in stdout_not_matches:
+        try:
+            stdout_not_match_asserts.append(re.compile(regexp, re.MULTILINE))
+        except (ValueError, TypeError) as e:
+            print(str(e))
+            continue
+
+    for regexp in stdout_not_match_asserts:
+        if regexp.match(captured_stdout):
+            print('Non-match assertion failed for "{!s}"'.format(regexp))
+            failures += 1
+
+    return failures
+
+
 def _commandline_args_for_testcase(loaded_test):
     """
     Converts a regression test to a list of command-line arguments.
@@ -576,3 +621,34 @@ def commandline_for_testcase(loaded_test):
     argument_string = ' '.join(arguments)
     commandline = 'autonameow ' + argument_string
     return commandline.strip()
+
+
+def glob_filter(glob, bytestring):
+    """
+    Evaluates if a string (test basename) matches a given "glob".
+
+    Matching is case-sensitive. The asterisk matches anything.
+    Examples:
+                    string          glob            Returns
+                    ---------------------------------------
+                    'foo bar'       'foo bar'       True
+                    'foo bar'       'foo*'          True
+                    'foo x bar'     '*x*'           True
+                    'bar'           'foo*'          False
+    """
+    if not isinstance(bytestring, bytes):
+        raise RegressionTestError(
+            'Expected type bytes for argument "string". '
+            'Got {} ({!s})'.format(type(bytestring), bytestring)
+        )
+    try:
+        # Coercing to "AW_PATHCOMPONENT" because there is no "AW_BYTES".
+        bytes_glob = types.AW_PATHCOMPONENT(glob)
+    except types.AWTypeError as e:
+        raise RegressionTestError(e)
+
+    if b'*' not in bytes_glob:
+        return bytes_glob == bytestring
+
+    regexp = bytes_glob.replace(b'*', b'.*')
+    return bool(re.match(regexp, bytestring))

@@ -21,7 +21,6 @@
 
 import logging
 import os
-import re
 import sys
 import time
 
@@ -34,7 +33,9 @@ from core.persistence import get_persistence
 from regression.utils import (
     AutonameowWrapper,
     check_renames,
+    check_stdout_asserts,
     commandline_for_testcase,
+    glob_filter,
     load_regressiontests,
     TerminalReporter
 )
@@ -55,7 +56,6 @@ def run_test(test):
     opts = test.get('options')
     expect_exitcode = test['asserts'].get('exit_code', None)
     expect_renames = test['asserts'].get('renames', {})
-    expect_stdout_matches = test['asserts'].get('renames', {})
 
     aw = AutonameowWrapper(opts)
     aw()
@@ -148,7 +148,11 @@ def run_test(test):
                 # All good
                 pass
 
-    return failures, captured_runtime, aw.captured_stdout, aw.captured_stderr
+    captured_stdout = aw.captured_stdout
+    captured_stderr = aw.captured_stderr
+    failures += check_stdout_asserts(test, captured_stdout)
+
+    return failures, captured_runtime, captured_stdout, captured_stderr
 
 
 def write_failed_tests(tests):
@@ -175,44 +179,6 @@ def load_failed_tests():
 def print_test_dirnames(tests):
     _test_dirnames = [types.force_string(t.get('test_dirname')) for t in tests]
     print('\n'.join(_test_dirnames))
-
-
-def check_asserts_stdout(test, captured_stdout):
-    failures = 0
-    if 'asserts' not in test:
-        return failures
-    if 'stdout' not in test['asserts']:
-        return failures
-
-    stdout_match_asserts = []
-    stdout_matches = test['asserts']['stdout'].get('matches', [])
-    for regexp in stdout_matches:
-        try:
-            stdout_match_asserts.append(re.compile(regexp, re.MULTILINE))
-        except (ValueError, TypeError) as e:
-            print(str(e))
-            continue
-
-    for regexp in stdout_match_asserts:
-        if not regexp.match(captured_stdout):
-            print('Match assertion failed for "{!s}"'.format(regexp))
-            failures += 1
-
-    stdout_not_match_asserts = []
-    stdout_not_matches = test['asserts']['stdout'].get('does_not_match', [])
-    for regexp in stdout_not_matches:
-        try:
-            stdout_not_match_asserts.append(re.compile(regexp, re.MULTILINE))
-        except (ValueError, TypeError) as e:
-            print(str(e))
-            continue
-
-    for regexp in stdout_not_match_asserts:
-        if regexp.match(captured_stdout):
-            print('Non-match assertion failed for "{!s}"'.format(regexp))
-            failures += 1
-
-    return failures
 
 
 def run_regressiontests(tests, print_stderr, print_stdout):
@@ -257,8 +223,6 @@ def run_regressiontests(tests, print_stderr, print_stdout):
 
         elapsed_time = time.time() - start_time
 
-        failures += check_asserts_stdout(test, captured_stdout)
-
         if failures == -10:
             if print_stderr and captured_stderr:
                 reporter.msg_captured_stderr(captured_stderr)
@@ -299,19 +263,6 @@ def run_regressiontests(tests, print_stderr, print_stdout):
     return count_failure
 
 
-def glob_filter(expression, string):
-    if b'*' not in expression:
-        return expression == string
-
-    regexp = expression.replace(b'*', b'.*')
-    return bool(re.match(regexp, string))
-
-
-def filter_loaded_tests(expression, loaded_tests):
-    # TODO: ...
-    pass
-
-
 def main(args):
     _description = '{} {} -- regression test suite runner'.format(
         C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION)
@@ -324,14 +275,6 @@ def main(args):
         action='store_true',
         default=False,
         help='Enables verbose mode, prints additional information.'
-    )
-    parser.add_argument(
-        '--last-failed',
-        dest='run_lastfailed',
-        action='store_true',
-        default=False,
-        help='Run only the test cases that failed during the last completed '
-             'run, or all if none failed.'
     )
     parser.add_argument(
         '--stderr',
@@ -348,34 +291,52 @@ def main(args):
         help='Print captured stdout.'
     )
     parser.add_argument(
-        '--get-cmd',
-        dest='get_cmd',
-        nargs='+',
-        metavar='TEST_NAME',
-        help='Print equivalent command-line invocations for the specified '
-             'test case(s). If executed "manually", these would produce the '
-             'same behaviour and results as the corresponding regression test. '
-             'Each result is printed as two lines; first being "# TEST_NAME", '
-             'where "TEST_NAME" is the dirname of the test case. '
-             'The second line is the equivalent command-line. '
-             'Valid arguments can be found with the "--list" option.'
-    )
-    parser.add_argument(
-        '--list',
-        dest='list_tests',
+        '--list-all',
+        dest='list_all_tests',
         action='store_true',
         default=False,
         help='Print the ("short name") test directory basename of all loaded '
              'tests and exit. '
     )
-    parser.add_argument(
-        '-f', '--flter',
-        dest='filter_tests',
-        nargs='+',
-        metavar='BASENAME_GLOB',
-        help='Filter tests '
+
+    optgrp_select = parser.add_argument_group('Test Selection')
+    optgrp_select.add_argument(
+        '--last-failed',
+        dest='filter_lastfailed',
+        action='store_true',
+        default=False,
+        help='Select only the test cases that failed during the last completed '
+             'run. Selects all if none failed.'
+    )
+    optgrp_select.add_argument(
+        '-f', '--filter',
+        dest='filter_glob',
+        nargs=1,
+        metavar='GLOB',
+        help='Select tests whose "TEST_NAME" (dirname) matches "GLOB".'
     )
 
+    optgrp_action = parser.add_argument_group('Actions to Perform')
+    optgrp_action.add_argument(
+        '--get-cmd',
+        dest='get_cmd',
+        action='store_true',
+        default=False,
+        help='Print equivalent command-line invocations for the selected '
+             'test case(s). If executed "manually", these would produce the '
+             'same behaviour and results as the corresponding regression test. '
+             'Each result is printed as two lines; first being "# TEST_NAME", '
+             'where "TEST_NAME" is the dirname of the test case. '
+             'The second line is the equivalent command-line. '
+             'Use "test selection" options to narrow down the results.'
+    )
+    optgrp_action.add_argument(
+        '--run',
+        dest='run_tests',
+        action='store_true',
+        default=True,
+        help='Enable running tests. (DEFAULT: True)'
+    )
 
     opts = parser.parse_args(args)
 
@@ -396,72 +357,62 @@ def main(args):
     if not loaded_tests:
         return
 
-    if opts.list_tests:
-        # List the "short name" (dirname) of all tests and exit.
+    # Perform any actions that terminates the program.
+    if opts.list_all_tests:
         print_test_dirnames(loaded_tests)
-        sys.exit(0)
+        return C.EXIT_SUCCESS
 
-    if opts.get_cmd:
-        # Get equivalent command-lines for the specified test dirnames.
-        filter_loaded_tests()
-        matched_tests = []
-        for _basename_glob in opts.get_cmd:
-            # Must convert to bytes in order to do the comparison.
-            try:
-                _basename_glob_bytes = types.AW_PATHCOMPONENT(_basename_glob)
-            except types.AWTypeError as e:
-                print(str(e))
-                continue
+    # Start test selection based on any criteria given with the options.
+    filtered_tests = list(loaded_tests)
+    if opts.filter_glob:
+        glob = opts.filter_glob[0]
+        filtered_tests = [
+            t for t in loaded_tests
+            if glob_filter(glob, t.get('test_dirname', b''))
+        ]
 
-            matches = [
-                t for t in loaded_tests
-                if glob_filter(_basename_glob_bytes, t.get('test_dirname', b''))
-            ]
-            if matches:
-                matched_tests.extend(matches)
-            else:
-                log.warning('Not a loaded test: "{!s}"'.format(_basename_glob))
-
-        if not matched_tests:
-            _get_cmd = '"{!s}"'.format('", "'.join(opts.get_cmd))
-            log.warning('Does not match any loaded test: {!s}'.format(_get_cmd))
-            # print('\nLoaded tests:')
-            # print_test_dirnames(loaded_tests)
-            sys.exit(1)
-        else:
-            for test in matched_tests:
-                test_dirname = types.force_string(test.get('test_dirname'))
-                arg_string = commandline_for_testcase(test)
-                print('# {!s}\n{!s}\n'.format(test_dirname, arg_string))
-            sys.exit(0)
-
-    if opts.run_lastfailed:
+    selected_tests = filtered_tests
+    if opts.filter_lastfailed:
         _failed_lastrun = load_failed_tests()
         if _failed_lastrun:
             # TODO: Improve comparing regression test cases.
             # Fails if any option is modified. Compare only directory basenames?
-            tests_to_run = [t for t in loaded_tests if t in _failed_lastrun]
-            log.info('Running {} of the {} test case(s) that failed during the '
-                     'last completed run ..'.format(len(tests_to_run),
+            selected_tests = [
+                t for t in filtered_tests if t in _failed_lastrun
+            ]
+            log.info('Selected {} of {} test case(s) that failed during the '
+                     'last completed run ..'.format(len(selected_tests),
                                                     len(_failed_lastrun)))
         else:
-            tests_to_run = list(loaded_tests)
-            log.info('Running all {} test case(s) as None failed during the '
-                     'last completed run ..'.format(len(tests_to_run)))
+            log.info('Selected all {} test case(s) as None failed during the '
+                     'last completed run ..'.format(len(selected_tests)))
     else:
-        tests_to_run = list(loaded_tests)
-        log.info('Running {} test case(s) ..'.format(len(tests_to_run)))
+        log.info('Selected {} test case(s) ..'.format(len(selected_tests)))
 
-    failed = 0
-    failed = run_regressiontests(tests_to_run,
-                                 print_stderr=bool(opts.print_stderr),
-                                 print_stdout=bool(opts.print_stdout))
+    # End of test selection.
+    if not selected_tests:
+        log.warning('None of the loaded tests were selected ..')
 
-    # TODO: Rework passing number of failures between high-level functions.
-    if not failed:
+    if opts.get_cmd:
+        # Get equivalent command-lines for the selected tests.
+        for test in selected_tests:
+            test_dirname = types.force_string(test.get('test_dirname'))
+            arg_string = commandline_for_testcase(test)
+            print('# {!s}\n{!s}\n'.format(test_dirname, arg_string))
+
         return C.EXIT_SUCCESS
-    else:
-        return C.EXIT_WARNING
+
+    if opts.run_tests:
+        failed = 0
+        failed = run_regressiontests(selected_tests,
+                                     print_stderr=bool(opts.print_stderr),
+                                     print_stdout=bool(opts.print_stdout))
+
+        # TODO: Rework passing number of failures between high-level functions.
+        if failed:
+            return C.EXIT_WARNING
+
+    return C.EXIT_SUCCESS
 
 
 if __name__ == '__main__':

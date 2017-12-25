@@ -33,6 +33,7 @@ from regression.utils import (
     _commandline_args_for_testcase,
     get_regressiontest_dirs,
     get_regressiontests_rootdir,
+    glob_filter,
     load_regressiontests,
     RegressionTestError,
     RegressionTestLoader,
@@ -534,3 +535,25 @@ class TestCommandlineForTestcase(TestCase):
         actual = commandline_for_testcase(SAMPLE_TESTCASE_0006)
         expect = "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/configs/default.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'"
         self.assertEqual(actual, expect)
+
+
+class TestGlobFilter(TestCase):
+    def _assert_match(self, expected, string, glob):
+        actual = glob_filter(glob, string)
+        self.assertIsInstance(actual, bool)
+        self.assertEqual(expected, actual)
+
+    def test_returns_false_for_non_matches(self):
+        self._assert_match(False, b'foo', glob='bar')
+        self._assert_match(False, b'foo', glob='foobar')
+        self._assert_match(False, b'foo', glob='fooo')
+        self._assert_match(False, b'foo bar', glob='bar foo')
+        self._assert_match(False, b'fooxbar', glob='*xfoo')
+        self._assert_match(False, b'fooxbar', glob='*x*foo')
+
+    def test_returns_true_for_matches(self):
+        self._assert_match(True, b'foo', glob='foo')
+        self._assert_match(True, b'foo', glob='fo*')
+        self._assert_match(True, b'fooxbar', glob='foo*x*')
+        self._assert_match(True, b'fooxbar', glob='foox*')
+        self._assert_match(True, b'fooxbar', glob='*x*')
