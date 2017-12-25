@@ -223,46 +223,33 @@ class ConfigurationParser(object):
                         )
                         match_replace_pairs.append((compiled_pat, _replace))
 
-                if match_replace_pairs:
-                    util.nested_dict_set(
-                        self._options,
-                        ['POST_PROCESSING', 'replacements'],
-                        match_replace_pairs
-                    )
+                self._options['POST_PROCESSING']['replacements'] = match_replace_pairs
 
         def _try_load_persistence_option(option, default):
             # TODO: [TD0141] Coerce raw values to a known type.
-            _value = None
             if 'PERSISTENCE' in config_dict:
-                try:
-                    _value = config_dict['PERSISTENCE'].get(option)
-                except AttributeError:
-                    pass
-
-            if _value is not None:
+                _value = config_dict['PERSISTENCE'].get(option)
                 try:
                     _bytes_path = types.AW_PATH.normalize(_value)
                 except types.AWTypeError as e:
                     _dp = enc.displayable_path(_value)
-                    log.error(
-                        'Invalid cache directory "{!s}"; {!s}'.format(_dp, e)
-                    )
+                    log.error('Bad value for option {}: "{!s}"'.format(option,
+                                                                       _dp))
+                    log.debug(str(e))
                 else:
-                    _dp = enc.displayable_path(_bytes_path)
-                    log.debug('Added persistence option :: '
-                              '{!s}: {!s}'.format(option, _dp))
-                    util.nested_dict_set(
-                        self._options, ['PERSISTENCE', option], _bytes_path
-                    )
+                    log.debug('Added persistence option :: {!s}: {!s}'.format(
+                        option, enc.displayable_path(_bytes_path)
+                    ))
+                    self._options['PERSISTENCE'][option] = _bytes_path
                     return
 
-            _bytes_path = enc.normpath(default)
-            _dp = enc.displayable_path(_bytes_path)
-            log.debug('Using default persistence option :: '
-                      '{!s}: {!s}'.format(option, _dp))
-            util.nested_dict_set(
-                self._options, ['PERSISTENCE', option], _bytes_path
+            _bytes_path = types.AW_PATH.normalize(default)
+            log.debug(
+                'Using default persistence option :: {!s}: {!s}'.format(
+                    option, enc.displayable_path(_bytes_path)
+                )
             )
+            self._options['PERSISTENCE'][option] = _bytes_path
 
         _try_load_option(
             section='DATETIME_FORMAT',
