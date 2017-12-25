@@ -921,19 +921,42 @@ class TestTypePath(TestCase):
             self.assertNotEqual(types.AW_PATH(None), types.BaseNullValue,
                                 'BaseType default "null" must be overridden')
 
-    def test_normalize(self):
-        self.assertEqual(types.AW_PATH.normalize('~'),
-                         uu.encode(USER_HOME))
-        self.assertEqual(types.AW_PATH.normalize('~/'),
-                         uu.encode(USER_HOME))
+    def test_normalize_expands_tilde_to_user_home(self):
+        self.assertEqual(uu.encode(USER_HOME),types.AW_PATH.normalize('~'))
+        self.assertEqual(uu.encode(USER_HOME), types.AW_PATH.normalize('~/'))
 
         expected = os.path.normpath(os.path.join(USER_HOME, 'foo'))
-        self.assertEqual(types.AW_PATH.normalize('~/foo'),
-                         uu.encode(expected))
+        self.assertEqual(uu.encode(expected), types.AW_PATH.normalize('~/foo'))
+
+    def test_normalize_collapses_repeating_path_separators(self):
+        def _assert_normalizes(given, expect):
+            actual = types.AW_PATH.normalize(given)
+            self.assertEqual(expect, actual)
+
+        _assert_normalizes(given='/home/foo', expect=b'/home/foo')
+        _assert_normalizes(given='/home//foo', expect=b'/home/foo')
+        _assert_normalizes(given='///home/foo', expect=b'/home/foo')
+        _assert_normalizes(given='////home/foo', expect=b'/home/foo')
+        _assert_normalizes(given='////home//foo', expect=b'/home/foo')
+        _assert_normalizes(given='////home////foo', expect=b'/home/foo')
+
+        _assert_normalizes(given='//home//foo', expect=b'//home/foo')
+
+    def test_normalize_relative_path(self):
+        _this_dir = os.path.realpath(os.path.dirname(__file__))
+        expect = uu.normpath(os.path.join(_this_dir, 'home/foo'))
+        self.assertEqual(expect, types.AW_PATH.normalize('home/foo'))
+        self.assertEqual(expect, types.AW_PATH.normalize('home//foo'))
+        self.assertEqual(expect, types.AW_PATH.normalize('home///foo'))
 
     def test_normalize_invalid_value(self):
-        with self.assertRaises(types.AWTypeError):
-            types.AW_PATH.normalize('')
+        def _assert_raises(test_data):
+            with self.assertRaises(types.AWTypeError):
+                _ = types.AW_PATH.normalize(test_data)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises(b'')
 
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
