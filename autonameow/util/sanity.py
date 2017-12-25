@@ -33,6 +33,8 @@ def check_internal_bytestring(value):
     Raises:
         EncodingBoundaryViolation: The given value is not a bytestring.
     """
+    if not __debug__:
+        return
     if not isinstance(value, bytes):
         _msg = ('Assertion Failed - Expected an "internal" bytestring.'
                 '  Got "{!s}" ("{!s}")'.format(type(value), value))
@@ -50,6 +52,8 @@ def check_internal_string(value):
     Raises:
         EncodingBoundaryViolation: The given value is not a Unicode str.
     """
+    if not __debug__:
+        return
     if not isinstance(value, str):
         _msg = ('Assertion Failed - Expected a Unicode string.'
                 '  Got "{!s}" ("{!s}")'.format(type(value), value))
