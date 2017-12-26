@@ -52,6 +52,14 @@ msg_label_pass = ui.colorize('P', fore='GREEN')
 msg_label_fail = ui.colorize('F', fore='RED')
 
 
+class TestResults(object):
+    def __init__(self, failures, runtime, stdout, stderr):
+        self.failures = failures
+        self.captured_runtime = runtime
+        self.captured_stdout = stdout
+        self.captured_stderr = stderr
+
+
 def run_test(test):
     opts = test.get('options')
     expect_exitcode = test['asserts'].get('exit_code', None)
@@ -69,7 +77,8 @@ def run_test(test):
             print(str(aw.captured_exception_traceback))
 
         # TODO: Fix magic number return for exceptions for use when formatting.
-        return -10, None, aw.captured_stdout, aw.captured_stderr
+        return TestResults(failures=-10, runtime=None,
+                           stdout=aw.captured_stdout, stderr=aw.captured_stderr)
 
     captured_runtime = aw.captured_runtime_secs
     failures = 0
@@ -152,7 +161,7 @@ def run_test(test):
     captured_stderr = aw.captured_stderr
     failures += check_stdout_asserts(test, captured_stdout)
 
-    return failures, captured_runtime, captured_stdout, captured_stderr
+    return TestResults(failures, captured_runtime, captured_stdout, captured_stderr)
 
 
 def write_failed_tests(tests):
@@ -221,14 +230,18 @@ def run_regressiontests(tests, print_stderr, print_stdout):
         captured_stdout = ''
         start_time = time.time()
         try:
-            (failures, captured_time, captured_stdout,
-             captured_stderr) = run_test(test)
+            results = run_test(test)
         except KeyboardInterrupt:
             print('\n')
             log.critical('Received keyboard interrupt. Skipping remaining ..')
             should_abort = True
 
         elapsed_time = time.time() - start_time
+
+        failures = results.failures
+        captured_time = results.captured_runtime
+        captured_stdout = results.captured_stdout
+        captured_stderr = results.captured_stderr
 
         if failures == -10:
             if print_stderr and captured_stderr:
