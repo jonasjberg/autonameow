@@ -41,6 +41,9 @@ Lists modules imported by the specified Python program.
 ### `run-tests-and-update-wiki.sh`
 Used to automate documentation for the `1dv430` course.
 
+### `todo_grep.sh`
+Simple `grep` wrapper for searching the sources for TODOs.
+
 ### `todo_id.py`
 Helper utility for listing and verifying TODO-list item identifiers.
 
