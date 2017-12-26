@@ -284,6 +284,10 @@ def run_regressiontests(tests, print_stderr, print_stdout):
     return count_failure
 
 
+def filter_tests(tests, filter_func, expr):
+    return [t for t in tests if filter_func(expr, t.get('test_dirname', b''))]
+
+
 def main(args):
     _description = '{} {} -- regression test suite runner'.format(
         C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION)
@@ -387,24 +391,19 @@ def main(args):
         return
 
     # Start test selection based on any criteria given with the options.
-    filtered_tests = list(loaded_tests)
+    filtered = list(loaded_tests)
     if opts.filter_glob:
-        glob = opts.filter_glob[0]
-        filtered_tests = [
-            t for t in loaded_tests
-            if glob_filter(glob, t.get('test_dirname', b''))
-        ]
-        log.info('Glob selected {} test case(s) ..'.format(len(filtered_tests)))
+        filtered = filter_tests(loaded_tests, glob_filter,
+                                expr=opts.filter_glob[0])
+        log.info('Filter selected {} test case(s) ..'.format(len(filtered)))
 
-    selected_tests = filtered_tests
+    selected_tests = filtered
     if opts.filter_lastfailed:
         _failed_lastrun = load_failed_tests()
         if _failed_lastrun:
             # TODO: Improve comparing regression test cases.
             # Fails if any option is modified. Compare only directory basenames?
-            selected_tests = [
-                t for t in filtered_tests if t in _failed_lastrun
-            ]
+            selected_tests = [t for t in filtered if t in _failed_lastrun]
             log.info('Selected {} of {} test case(s) that failed during the '
                      'last completed run ..'.format(len(selected_tests),
                                                     len(_failed_lastrun)))
