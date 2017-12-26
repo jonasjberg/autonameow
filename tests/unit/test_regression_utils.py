@@ -35,6 +35,7 @@ from regression.utils import (
     get_regressiontests_rootdir,
     glob_filter,
     load_regressiontests,
+    regexp_filter,
     RegressionTestError,
     RegressionTestLoader,
     regtest_abspath
@@ -569,3 +570,30 @@ class TestGlobFilter(TestCase):
         self._assert_match(True, b'foo bar', glob='foo*')
         self._assert_match(True, b'0000', glob='!0001')
         self._assert_match(True, b'9008_LOCAL_dropbox', glob='*LOCAL*')
+
+
+class TestRegexpFilter(TestCase):
+    def _assert_match(self, expected, string, expression):
+        actual = regexp_filter(expression, string)
+        self.assertIsInstance(actual, bool)
+        self.assertEqual(expected, actual)
+
+    def test_raises_exception_given_invalid_regular_expression(self):
+        with self.assertRaises(RegressionTestError):
+            _ = regexp_filter('*a', b'foo')
+
+    def test_returns_false_for_non_matches(self):
+        self._assert_match(False, b'foo', expression='bar')
+        self._assert_match(False, b'foo', expression='foobar')
+        self._assert_match(False, b'foo', expression='fooo')
+        self._assert_match(False, b'foo bar', expression='bar foo')
+        self._assert_match(False, b'fooxbar', expression='.*xfoo')
+        self._assert_match(False, b'fooxbar', expression='.*x.*foo')
+
+    def test_returns_true_for_matches(self):
+        self._assert_match(True, b'foo', expression='foo')
+        self._assert_match(True, b'foo', expression='fo?')
+        self._assert_match(True, b'foo', expression='f.*')
+        self._assert_match(True, b'fooxbar', expression='foo*x.*')
+        self._assert_match(True, b'fooxbar', expression='foox[abr]+')
+        self._assert_match(True, b'Fooxbar', expression='[fF]oox(bar|foo)')

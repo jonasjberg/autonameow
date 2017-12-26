@@ -37,6 +37,7 @@ from regression.utils import (
     commandline_for_testcase,
     glob_filter,
     load_regressiontests,
+    regexp_filter,
     TerminalReporter
 )
 

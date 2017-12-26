@@ -654,3 +654,26 @@ def glob_filter(glob, bytestring):
         return not bool(re.match(regexp, bytestring))
 
     return bool(re.match(regexp, bytestring))
+
+
+def regexp_filter(expression, bytestring):
+    """
+    Evaluates if a string (test basename) matches a given regular expression.
+    """
+    if not isinstance(bytestring, bytes):
+        raise RegressionTestError(
+            'Expected type bytes for argument "bytestring". '
+            'Got {} ({!s})'.format(type(bytestring), bytestring)
+        )
+    try:
+        # Coercing to "AW_PATHCOMPONENT" because there is no "AW_BYTES".
+        bytes_expr = types.AW_PATHCOMPONENT(expression)
+    except types.AWTypeError as e:
+        raise RegressionTestError(e)
+
+    try:
+        regexp = re.compile(bytes_expr)
+    except (TypeError, ValueError, re.error) as e:
+        raise RegressionTestError(e)
+
+    return bool(regexp.match(bytestring))
