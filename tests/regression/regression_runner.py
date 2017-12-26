@@ -235,13 +235,13 @@ def run_regressiontests(tests, print_stderr, print_stdout):
             print('\n')
             log.critical('Received keyboard interrupt. Skipping remaining ..')
             should_abort = True
+        else:
+            failures = results.failures
+            captured_time = results.captured_runtime
+            captured_stdout = results.captured_stdout
+            captured_stderr = results.captured_stderr
 
         elapsed_time = time.time() - start_time
-
-        failures = results.failures
-        captured_time = results.captured_runtime
-        captured_stdout = results.captured_stdout
-        captured_stderr = results.captured_stderr
 
         if failures == -10:
             if print_stderr and captured_stderr:
