@@ -439,6 +439,14 @@ def main(args):
     return C.EXIT_SUCCESS
 
 
+def print_traceback():
+    DELIM = '-' * 80
+    print('\n' + DELIM)
+    import traceback
+    traceback.print_exc()
+    print(DELIM)
+
+
 if __name__ == '__main__':
     exit_code = C.EXIT_SUCCESS
     try:
@@ -450,8 +458,9 @@ if __name__ == '__main__':
         print(str(e))
         exit_code = C.EXIT_SANITYFAIL
     except Exception as e:
-        print('\nUnhandled exception reached regression __main__ (!)')
-        print(str(e))
+        print('\n\nUnhandled exception reached regression __main__ (!)')
+        print('[ERROR] {!s}'.format(e))
+        print_traceback()
         exit_code = C.EXIT_ERROR
     finally:
         sys.exit(exit_code)
