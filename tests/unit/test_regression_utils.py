@@ -550,6 +550,12 @@ class TestGlobFilter(TestCase):
         self._assert_match(False, b'foo bar', glob='bar foo')
         self._assert_match(False, b'fooxbar', glob='*xfoo')
         self._assert_match(False, b'fooxbar', glob='*x*foo')
+        self._assert_match(False, b'foo', glob='!foo')
+        self._assert_match(False, b'foo', glob='!*o')
+        self._assert_match(False, b'foo', glob='!*')
+        self._assert_match(False, b'foo x bar', glob='!foo*')
+        self._assert_match(False, b'bar', glob='foo*')
+        self._assert_match(False, b'9008_LOCAL_dropbox', glob='!*LOCAL*')
 
     def test_returns_true_for_matches(self):
         self._assert_match(True, b'foo', glob='foo')
@@ -557,3 +563,9 @@ class TestGlobFilter(TestCase):
         self._assert_match(True, b'fooxbar', glob='foo*x*')
         self._assert_match(True, b'fooxbar', glob='foox*')
         self._assert_match(True, b'fooxbar', glob='*x*')
+        self._assert_match(True, b'foo x bar', glob='*x*')
+        self._assert_match(True, b'bar', glob='!foo')
+        self._assert_match(True, b'foo bar', glob='foo bar')
+        self._assert_match(True, b'foo bar', glob='foo*')
+        self._assert_match(True, b'0000', glob='!0001')
+        self._assert_match(True, b'9008_LOCAL_dropbox', glob='*LOCAL*')

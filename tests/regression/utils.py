@@ -626,6 +626,7 @@ def glob_filter(glob, bytestring):
     Evaluates if a string (test basename) matches a given "glob".
 
     Matching is case-sensitive. The asterisk matches anything.
+    If the glob starts with '!', the matching is negated.
     Examples:
                     string          glob            Returns
                     ---------------------------------------
@@ -633,10 +634,12 @@ def glob_filter(glob, bytestring):
                     'foo bar'       'foo*'          True
                     'foo x bar'     '*x*'           True
                     'bar'           'foo*'          False
+                    'bar'           '!foo'          True
+                    'foo x bar'     '!foo*'         False
     """
     if not isinstance(bytestring, bytes):
         raise RegressionTestError(
-            'Expected type bytes for argument "string". '
+            'Expected type bytes for argument "bytestring". '
             'Got {} ({!s})'.format(type(bytestring), bytestring)
         )
     try:
@@ -645,8 +648,9 @@ def glob_filter(glob, bytestring):
     except types.AWTypeError as e:
         raise RegressionTestError(e)
 
-    if b'*' not in bytes_glob:
-        return bytes_glob == bytestring
-
     regexp = bytes_glob.replace(b'*', b'.*')
+    if regexp.startswith(b'!'):
+        regexp = regexp[1:]
+        return not bool(re.match(regexp, bytestring))
+
     return bool(re.match(regexp, bytestring))
