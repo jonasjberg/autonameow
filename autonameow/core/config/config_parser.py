@@ -106,7 +106,7 @@ class ConfigurationParser(object):
             _error = 'Got invalid name template: "{!s}": {!s}"'.format(
                 raw_name, raw_templ
             )
-            name = types.force_string(raw_name)
+            name = types.force_string(raw_name).strip()
             templ = types.force_string(raw_templ)
             if not name or not templ:
                 raise ConfigurationSyntaxError(_error)
