@@ -95,13 +95,10 @@ class ConfigurationParser(object):
     def _load_reusable_nametemplates(config_dict):
         validated = {}
 
-        raw_templates = config_dict.get('NAME_TEMPLATES')
-        if not raw_templates:
-            log.debug('Configuration does not contain any name reusable name '
-                      'templates')
-            return validated
+        raw_templates = config_dict.get('NAME_TEMPLATES', {})
         if not isinstance(raw_templates, dict):
-            log.debug('Configuration templates is not of type dict')
+            log.debug('Expected NAME_TEMPLATES to be of type "dict". '
+                      'Got {}'.format(type(raw_templates)))
             return validated
 
         for raw_name, raw_templ in raw_templates.items():
@@ -109,11 +106,8 @@ class ConfigurationParser(object):
                 raw_name, raw_templ
             )
             name = types.force_string(raw_name)
-            if not name:
-                raise ConfigurationSyntaxError(_error)
-
             templ = types.force_string(raw_templ)
-            if not templ:
+            if not name or not templ:
                 raise ConfigurationSyntaxError(_error)
 
             # Remove any non-breaking spaces in the name template.
