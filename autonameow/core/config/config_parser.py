@@ -97,6 +97,7 @@ class ConfigurationParser(object):
 
         raw_templates = config_dict.get('NAME_TEMPLATES', {})
         if not isinstance(raw_templates, dict):
+            log.warning('Configuration templates is not of type dict')
             log.debug('Expected NAME_TEMPLATES to be of type "dict". '
                       'Got {}'.format(type(raw_templates)))
             return validated
