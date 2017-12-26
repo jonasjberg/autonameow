@@ -1,0 +1,56 @@
+DATETIME_FORMAT:
+    date: '%Y-%m-%d'
+    datetime: '%Y-%m-%dT%H%M%S'
+    time: '%H-%M-%S'
+FILESYSTEM_OPTIONS:
+    ignore:
+    - '*.swp'
+    - '*/.*'
+    sanitize_filename: true
+    sanitize_strict: false
+FILETAGS_OPTIONS:
+    between_tag_separator: ' '
+    filename_tag_separator: ' -- '
+NAME_TEMPLATES:
+    default_book: '{publisher} {title} {edition} - {author} {datetime}.{extension}'
+    default_document: '{title} - {author} {datetime}.{extension}'
+    default_photo: '{datetime} {description} -- {tags}.{extension}'
+POST_PROCESSING:
+    uppercase_filename: true
+
+RULES:
+    test_files Gmail print-to-pdf:
+        CONDITIONS:
+            extractor.filesystem.xplat.basename.extension: pdf
+            extractor.filesystem.xplat.basename.full: gmail.pdf
+            extractor.filesystem.xplat.contents.mime_type: application/pdf
+        DATA_SOURCES:
+            datetime: extractor.metadata.exiftool.PDF:CreateDate
+            extension: extractor.filesystem.xplat.basename.extension
+            title: extractor.filesystem.xplat.basename.prefix
+        NAME_TEMPLATE: '{datetime} {title}.{extension}'
+        description: 
+        exact_match: true
+        ranking_bias: null
+    test_files smulan.jpg:
+        CONDITIONS:
+            extractor.filesystem.xplat.basename.full: smulan.jpg
+            extractor.filesystem.xplat.contents.mime_type: image/jpeg
+        DATA_SOURCES:
+            datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
+            description: plugin.microsoft_vision.caption
+            extension: extractor.filesystem.xplat.basename.extension
+        NAME_TEMPLATE: '{datetime} {description}.{extension}'
+        description: 
+        exact_match: true
+        ranking_bias: 1
+    test_files simplest_pdf.md.pdf:
+        CONDITIONS:
+            extractor.filesystem.xplat.basename.full: simplest_pdf.md.pdf
+        DATA_SOURCES:
+            extension: extractor.filesystem.xplat.basename.extension
+        NAME_TEMPLATE: simplest_pdf.md.{extension}
+        exact_match: true
+        ranking_bias: 1
+COMPATIBILITY:
+    autonameow_version: v0.5.2
