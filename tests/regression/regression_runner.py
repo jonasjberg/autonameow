@@ -410,9 +410,9 @@ def main(args):
         else:
             log.info('Selected all {} test case(s) as None failed during the '
                      'last completed run ..'.format(len(selected_tests)))
-    else:
-        log.info('Selected {} test case(s) ..'.format(len(selected_tests)))
 
+    log.info('Selected {} of {} test case(s) ..'.format(len(selected_tests),
+                                                        len(loaded_tests)))
     # End of test selection.
     if not selected_tests:
         log.warning('None of the loaded tests were selected ..')
