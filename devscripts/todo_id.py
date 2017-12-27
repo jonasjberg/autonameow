@@ -32,8 +32,10 @@ used in the autonameow project.
 TODO_BASENAME = 'TODO.md'
 DONE_BASENAME = 'done.md'
 TODO_IDENTIFIER_FORMAT = '[TD{:04d}]'
-RE_TODO_IDENTIFIER = re.compile(r'(?![Rr]e(lated|fers?)).*\[TD(\d{4})\]')
+RE_TODO_IDENTIFIER = re.compile(r'\[TD(\d{4})\]')
+RE_TODO_IGNORED = re.compile(r'[Rr]e(lated|fers?)')
 SOURCEFILE_EXTENSIONS = ['.py', '.sh']
+SOURCEFILE_IGNORED = ['test_todo_id.py']
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
@@ -55,6 +57,9 @@ def get_source_files(paths):
         matches = []
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
+                if filename in SOURCEFILE_IGNORED:
+                    continue
+
                 try:
                     extension = os.path.splitext(filename)[1]
                 except (IndexError, OSError):
@@ -74,11 +79,22 @@ def get_source_files(paths):
     return files
 
 
+def find_todo_ids_in_line(string):
+    matches = set()
+
+    if re.search(RE_TODO_IGNORED, string):
+        return matches
+
+    for match in re.finditer(RE_TODO_IDENTIFIER, string):
+        matches.add(match.group(1))
+
+    return matches
+
+
 def find_todo_ids_in_file(file_path):
     found_ids = set()
     for line in open(file_path, 'r', encoding='utf8'):
-        for match in re.finditer(RE_TODO_IDENTIFIER, line):
-            found_ids.add(match.group(2))
+            found_ids.update(find_todo_ids_in_line(line))
     return found_ids
 
 
