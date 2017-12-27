@@ -225,6 +225,7 @@ class Repository(object):
         cf = ColumnFormatter()
         COLUMN_DELIMITER = '::'
         MAX_VALUE_WIDTH = 80
+
         def _add_row(str_meowuri, value):
             str_value = str(value)
             if len(str_value) > MAX_VALUE_WIDTH:
