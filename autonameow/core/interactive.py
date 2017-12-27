@@ -34,7 +34,7 @@ class Choice(object):
 
 
 def select_field(templatefield, candidates):
-    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+    # TODO: [TD0024][TD0025] Implement Interactive mode.
 
     ui.msg('Unresolved Field: {!s}'.format(templatefield.as_placeholder()))
     ui.msg('Candidates:')
@@ -54,14 +54,14 @@ def select_field(templatefield, candidates):
 
 
 def select_template(candidates):
-    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+    # TODO: [TD0024][TD0025] Implement Interactive mode.
     log.warning('TODO: Implement user name template selection')
 
     return None
 
 
 def meowuri_prompt(message):
-    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+    # TODO: [TD0024][TD0025] Implement Interactive mode.
     if not sys.__stdout__.isatty():
         # TODO: [TD0111] Separate abstract user interaction from CLI specifics.
         log.warning('Standard input is not a TTY --- would have triggered an '

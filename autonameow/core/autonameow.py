@@ -400,7 +400,7 @@ class Autonameow(object):
                 return
 
             # Have the user select a name template.
-            # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+            # TODO: [TD0024][TD0025] Implement Interactive mode.
             # candidates = None
             # choice = interactive.select_template(candidates)
             # if choice != ui.action.ABORT:
@@ -426,7 +426,7 @@ class Autonameow(object):
                 return
 
             # Have the user select data sources.
-            # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+            # TODO: [TD0024][TD0025] Implement Interactive mode.
             pass
 
         field_data_dict = self._try_resolve(current_file, name_template,
@@ -505,7 +505,7 @@ class Autonameow(object):
                 # self.exit_code = C.EXIT_WARNING
                 return
             else:
-                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                # TODO: [TD0024][TD0025] Implement Interactive mode.
                 while not resolver.collected_all():
                     log.info('Resolver has not collected all fields ..')
                     for field in resolver.unresolved:
@@ -557,7 +557,7 @@ class Autonameow(object):
             # candidates = matcher.candidates()
             if candidates:
                 log.warning('TODO: Implement interactive rule selection.')
-                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                # TODO: [TD0024][TD0025] Implement Interactive mode.
                 # choice = interactive.select_rule(candidates)
                 # if choice != ui.action.ABORT:
                 #     active_rule = choice
