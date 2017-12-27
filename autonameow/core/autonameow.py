@@ -509,10 +509,11 @@ class Autonameow(object):
                 while not resolver.collected_all():
                     log.info('Resolver has not collected all fields ..')
                     for field in resolver.unresolved:
+                        log.info('Resolver is looking up candidates for field "{!s}"'.format(field))
                         candidates = resolver.lookup_candidates(field)
+                        log.info('Resolver found {} candidates'.format(len(candidates)))
                         choice = None
                         if candidates:
-                            log.info('Resolver found {} candidates'.format(len(candidates)))
                             choice = interactive.select_field(field, candidates)
                         else:
                             log.info('Resolver did not find any candidates ..')
