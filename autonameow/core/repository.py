@@ -324,7 +324,12 @@ def shutdown(id_=None):
 
 
 def maps_field(datadict, field):
-    for mapping in datadict.get('field_map', {}):
+    # This might return a None, using a default dict value will not work.
+    mapped_fields = datadict.get('mapped_fields')
+    if not mapped_fields:
+        return False
+
+    for mapping in mapped_fields:
         if field == mapping.field:
             return True
     return False
