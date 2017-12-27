@@ -41,6 +41,16 @@ log = logging.getLogger(__name__)
 # "pipeline" --- from "raw" data to the final new file name.
 
 
+class FieldDataCandidate(object):
+    """
+    Simple "struct"-like container used by 'lookup_candidates()'.
+    """
+    def __init__(self, value, source, probability):
+        self.value = value
+        self.source = source
+        self.probability = probability
+
+
 class TemplateFieldDataResolver(object):
     def __init__(self, fileobject, name_template):
         self.file = fileobject
@@ -94,8 +104,33 @@ class TemplateFieldDataResolver(object):
         # TODO: [TD0024][TD0025] Implement Interactive mode.
         candidates = repository.SessionRepository.query_mapped(self.file, field)
 
+        out = []
+        for candidate in candidates:
+            _probs = []
+            mapped_fields = candidate.get('mapped_fields')
+            if not mapped_fields:
+                continue
+
+            for fm in mapped_fields:
+                if fm.field == field:
+                    _probs.append(fm.probability)
+
+            _prob = ['probability: {}'.format(p) for p in _probs]
+            _coercer = candidate.get('coercer')
+            _value = candidate.get('value')
+            _formatted_value = ''
+            if _value and _coercer:
+                _formatted_value = _coercer.format(_value)
+
+            _source = candidate.get('source', '(unknown source)')
+
+            out.append(
+                FieldDataCandidate(value=_formatted_value, source=_source,
+                                   probability=_prob)
+            )
+
         # TODO: [TD0104] Merge candidates and re-normalize probabilities.
-        return candidates if candidates else []
+        return out
 
     def _has_data_for_placeholder_fields(self):
         for field in self._fields:

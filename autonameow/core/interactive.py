@@ -38,16 +38,16 @@ def select_field(templatefield, candidates):
 
     ui.msg('Unresolved Field: {!s}'.format(templatefield.as_placeholder()))
     ui.msg('Candidates:')
-    for c in candidates:
-        _probs = []
-        for fm in c.field_map:
-            if fm.field == templatefield:
-                _probs.append(fm.probability)
 
-        _prob = ['probability: {}'.format(p) for p in _probs]
-        ui.msg(
-            '- "{!s}" ({})'.format(c.coercer.format(c.value), ' '.join(_prob))
-        )
+    cf = ui.ColumnFormatter()
+    for c in sorted(candidates, key=lambda x: (x.probability, x.value), reverse=True):
+        _value = '"{!s}"'.format(c.value)
+        _source = str(c.source)
+        _prob = ' '.join(c.probability)
+
+        cf.addrow('-', _source, _prob, _value)
+
+    ui.msg(str(cf))
 
     log.warning('TODO: Implement interactive field selection')
     return None
