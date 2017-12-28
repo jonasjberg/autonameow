@@ -76,11 +76,33 @@ assert_true '[ -x "$AUTONAMEOW_RUNNER" ]' \
 assert_true '"$AUTONAMEOW_RUNNER"' \
             "The autonameow launcher script can be started with no arguments"
 
+
+# ______________________________________________________________________________
+# Reporting program version and related.
+# Testing version in the compatilibity section of the config.
+
 assert_true '"$AUTONAMEOW_RUNNER" --version' \
             "autonameow should return zero when started with \"--version\""
 
+assert_true '"$AUTONAMEOW_RUNNER" --version -v' \
+            "autonameow should return zero when started with \"--version -v\""
+
 assert_true '"$AUTONAMEOW_RUNNER" --version 2>&1 | grep -o -- "v[0-9]\.[0-9]\.[0-9]"' \
-            "The output should contain a version string matching \"vX.X.X\" when started with \"--version\""
+            "output should contain a version string matching \"vX.X.X\" when started with \"--version\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- "v[0-9]\.[0-9]\.[0-9]"' \
+            "Output should contain a version string matching \"vX.X.X\" when started with \"--version -v\""
+
+current_git_commit_hash="$(cd "$AUTONAMEOW_ROOT_DIR" && git rev-parse --short HEAD)"
+assert_false '[ -z "$current_git_commit_hash" ]' \
+             'This test script should be able to retrieve the git hash of the current git commit'
+
+assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- "(commit [a-zA-Z0-9]\{7\})"' \
+            'Output should contain a string matching "(commit [a-zA-Z0-9]\{7\})" when started with "--version -v"'
+
+assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- "${current_git_commit_hash}"' \
+            'Output should contain a string matching the previously retrieved git commit hash when started with "--version -v"'
+
 
 AUTONAMEOW_VERSION="$(( "$AUTONAMEOW_RUNNER" --version 2>&1 ) | grep -o -- "v[0-9]\.[0-9]\.[0-9]" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
 assert_false '[ -z "$AUTONAMEOW_VERSION" ]' \

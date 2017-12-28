@@ -165,6 +165,9 @@ assert_true 'command -v sed' \
 assert_true 'man sed | grep -- "^ \+.*-i\b"' \
             'sed supports the "-i" option, required by some integration tests'
 
+assert_true 'command -v git' \
+            "git is available on the system"
+
 
 
 # Calculate total execution time.
