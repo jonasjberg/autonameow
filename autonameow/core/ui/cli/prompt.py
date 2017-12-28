@@ -88,6 +88,21 @@ def get_config_history_path():
     return C.DEFAULT_HISTORY_FILE_ABSPATH
 
 
+class NumberSelectionValidator(Validator):
+    def __init__(self, candidates=None):
+        super(NumberSelectionValidator, self).__init__()
+        self.candidates = candidates
+
+    def validate(self, document):
+        _text = document.text
+        if _text not in self.candidates:
+            _valid = ', '.join(c for c in self.candidates)
+            raise ValidationError(
+                message='Enter one of; {!s}'.format(_valid),
+                cursor_position=len(_text)  # Move cursor to end of input.
+            )
+
+
 class MeowURIValidator(Validator):
     def validate(self, document):
         _text = document.text
@@ -147,6 +162,16 @@ def meowuri_prompt(message=None):
         enable_history_search=True,
         on_abort=AbortAction.RETURN_NONE,
         validator=MeowURIValidator()
+    )
+    return text
+
+
+def field_selection_prompt(candidates):
+    _candidate_numbers = list(candidates.keys())
+    text = prompt(
+        'Enter #: ',
+        on_abort=AbortAction.RETURN_NONE,
+        validator=NumberSelectionValidator(candidates=_candidate_numbers)
     )
     return text
 

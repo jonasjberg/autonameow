@@ -143,9 +143,11 @@ class Repository(object):
             if isinstance(data, list):
                 for d in data:
                     if maps_field(d, field):
+                        d.update(meowuri=meowuri)
                         out.append(d)
             else:
                 if maps_field(data, field):
+                    data.update(meowuri=meowuri)
                     out.append(data)
 
         return out

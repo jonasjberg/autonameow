@@ -45,10 +45,11 @@ class FieldDataCandidate(object):
     """
     Simple "struct"-like container used by 'lookup_candidates()'.
     """
-    def __init__(self, value, source, probability):
+    def __init__(self, value, source, probability, meowuri):
         self.value = value
         self.source = source
         self.probability = probability
+        self.meowuri = meowuri
 
 
 class TemplateFieldDataResolver(object):
@@ -106,6 +107,10 @@ class TemplateFieldDataResolver(object):
 
         out = []
         for candidate in candidates:
+            if not candidate:
+                # TODO: Fix None candidates getting here.
+                continue
+
             mapped_fields = candidate.get('mapped_fields')
             if not mapped_fields:
                 continue
@@ -127,10 +132,11 @@ class TemplateFieldDataResolver(object):
                 _formatted_value = _coercer.format(_value)
 
             _source = candidate.get('source', '(unknown source)')
+            _meowuri = candidate.get('meowuri', '')
 
             out.append(
                 FieldDataCandidate(value=_formatted_value, source=_source,
-                                   probability=str(_prob))
+                                   probability=str(_prob), meowuri=_meowuri)
             )
 
         # TODO: [TD0104] Merge candidates and re-normalize probabilities.

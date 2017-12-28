@@ -526,15 +526,7 @@ class Autonameow(object):
                             log.info('Aborting ..')
                             return
 
-                        # TODO: This should not be done here.
-                        try:
-                            choice_uri = MeowURI(choice)
-                        except exceptions.InvalidMeowURIError as e:
-                            log.critical('Failed to convert string choice to '
-                                         'MeowURI :: {!s}'.format(e))
-                            pass
-                        else:
-                            resolver.add_known_source(field, choice_uri)
+                        resolver.add_known_source(field, choice.meowuri)
 
                     resolver.collect()
 

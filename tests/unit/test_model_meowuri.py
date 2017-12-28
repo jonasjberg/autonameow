@@ -627,6 +627,9 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
         for _key in ['health', 'is_jpeg']:
             self._check(_prefix, _key, expected='{}.{}'.format(_prefix, _key))
 
+    def test_analyzer_ebook_title(self):
+        self._check('analyzer.ebook.title', expected='analyzer.ebook.title')
+
 
 class TestMeowURIwithValidInput(TestCase):
     @staticmethod

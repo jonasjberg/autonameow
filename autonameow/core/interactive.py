@@ -46,17 +46,22 @@ def select_field(templatefield, candidates):
     prioritized_candidates = sorted(
         candidates, key=lambda x: (x.probability, x.value), reverse=True
     )
+    numbered_candidates = dict()
     for n, c in enumerate(prioritized_candidates):
         _value = '"{!s}"'.format(c.value)
         _source = str(c.source)
         _prob = str(c.probability)
 
-        cf.addrow(str(n), _source, _prob, _value)
+        num = str(n)
+        cf.addrow(num, _source, _prob, _value)
+        numbered_candidates[num] = c
 
     ui.msg(str(cf))
 
     log.warning('TODO: Implement interactive field selection')
-    return None
+    response = ui.field_selection_prompt(numbered_candidates)
+    assert response in numbered_candidates
+    return numbered_candidates.get(response)
 
 
 def select_template(candidates):

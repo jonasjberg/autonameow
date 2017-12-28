@@ -37,5 +37,6 @@ from .common import (
 )
 from .prompt import (
     ask_confirm,
+    field_selection_prompt,
     meowuri_prompt
 )

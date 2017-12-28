@@ -471,9 +471,8 @@ class ColumnFormatter(object):
             if _element is None:
                 out.append('')
             elif not isinstance(_element, str):
-                raise TypeError(
-                    'Expected Unicode str. Got "{!s}"'.format(type(_element))
-                )
+                _msg = 'Expected Unicode str. Got "{!s}"'.format(type(_element))
+                raise TypeError(_msg)
             else:
                 out.append(_element.strip())
 
