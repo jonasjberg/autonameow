@@ -93,15 +93,15 @@ class TerminalReporter(object):
 
     def msg_overall_success(self):
         print(ui.colorize(self._center_with_fill('ALL TESTS PASSED!'),
-                          fore='GREEN'))
+                          fore='GREEN', style='BRIGHT'))
 
     def msg_overall_failure(self):
         print(ui.colorize(self._center_with_fill('SOME TESTS FAILED'),
-                          fore='RED'))
+                          fore='RED', style='BRIGHT'))
 
     def msg_overall_noop(self):
         print(ui.colorize(self._center_with_fill('DID NOT RUN ANY TESTS'),
-                          fore='YELLOW'))
+                          fore='YELLOW', style='BRIGHT'))
 
     def msg_overall_stats(self, count_total, count_skipped, count_success,
                           count_failure, elapsed_time):
