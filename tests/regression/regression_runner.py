@@ -319,14 +319,16 @@ def main(args):
     optgrp_select = parser.add_argument_group(
         'Test Selection',
         'Selection is performed in the order in which the options are listed '
-        'here.'
+        'here. I.E. first any glob filtering, then selecting last failed, etc.'
     )
     optgrp_select.add_argument(
         '-f', '--filter',
         dest='filter_glob',
         nargs=1,
         metavar='GLOB',
-        help='Select tests whose "TEST_NAME" (dirname) matches "GLOB".'
+        help='Select tests whose "TEST_NAME" (dirname) matches "GLOB". '
+             'Matching is case-sensitive. An asterisk matches anything '
+             'and if "GLOB" begins with "!", the matching is inverted.'
     )
     optgrp_select.add_argument(
         '--last-failed',
