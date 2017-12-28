@@ -292,34 +292,57 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'azw3': {'azw3'},
         'bin': {'bin', 'binary'},
         'chm': {'chm'},
+        'gz.sig': {'gz.sig'},
         'hex': {'hex'},
         'mobi': {'mobi'},
         'pdf': {'pdf'},
         'prc': {'prc'},
+        'scpt': {'scpt'},
+        'sig': {'sig'},
+        'sln': {'sln'},  # Visual Studio Solution
+        'tar.gz.sig': {'tar.gz.sig'},
         'txt': {'txt'}
+    },
+    'application/msword': {
+        'doc': {'doc'}
+    },
+    'application/postscript': {
+        'ps': {'ps'},
+        'eps': {'eps'},
     },
     'application/gzip': {
         'gz': {'gz'},
-        'tar.gz': {'tar.gz'},
+        'tar.gz': {'tar.gz'}
     },
     'application/zip': {
         'zip': {'zip'},
         'epub': {'epub'},
+        'alfredworkflow': {'alfredworkflow'}
     },
     'application/vnd.ms-powerpoint': {
         'ppt': {'ppt'},
     },
+    'application/x-bzip2': {
+        'tar.bz2': {'tar.bz2'},
+    },
     'application/x-gzip': {
-        'tar.gz': {'tar.gz'}
+        'tar.gz': {'tar.gz', 'tgz'},
+        'txt.gz': {'txt.gz'},
+        'w.gz': {'w.gz'}  # CWEB source code
     },
     'application/x-lzma': {
         'tar.lzma': {'tar.lzma'}
     },
+    'audio/mpeg': {
+        'mp3': {'mp3'}
+    },
     'text/html': {
         'html': {'html', 'htm'},
+        'html.gz': {'htm.gz', 'html.gz'},
         'txt': {'txt'},
     },
     'text/plain': {
+        'bibtex': {'bibtex'},
         'c': {'c'},
         'cpp': {'cpp', 'c++'},
         'css': {'css'},
@@ -339,11 +362,17 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'spec': {'spec'},
         'sh': {'bash', 'sh'},
         'txt': {'txt'},
+        'txt.gz': {'txt.gz'},
         'yaml': {'yaml'},
+    },
+    'text/xml': {
+        'cbp': {'cbp'},
+        'workspace': {'workspace'}
     },
     'text/x-c': {
         'c': {'c', 'txt'},
-        'h': {'h'}
+        'h': {'h'},
+        'w': {'w'}  # CWEB source code
     },
     'text/x-c++': {
         'cpp': {'cpp', 'c++', 'txt'},
@@ -356,6 +385,10 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     'text/x-shellscript': {
         'sh': {'bash', 'sh', 'txt'},
         'py': {'py'},
+    },
+    'text/x-tex': {
+        'log': {'log'},
+        'tex': {'tex'},
     },
     'video/mpeg': {
         'VOB': {'VOB'},
