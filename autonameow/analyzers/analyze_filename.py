@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import re
 from collections import Counter
 
@@ -33,6 +34,9 @@ from util.text import (
     find_edition,
     urldecode
 )
+
+
+log = logging.getLogger(__name__)
 
 
 # Use two different types of separators;  "SPACE" and "SEPARATOR".
@@ -408,13 +412,18 @@ def likely_extension(basename_suffix, mime_type):
     # NOTE(jonas): Calling 'format()' returns a extension as a Unicode string.
     _coerced_mime = types.AW_MIMETYPE(mime_type)
     if _coerced_mime:
+        log.debug('Passing coerced MIME "{!s}" to '
+                  'AW_MIMETYPE.format()'.format(_coerced_mime))
         return types.AW_MIMETYPE.format(_coerced_mime)
 
     if basename_suffix == '':
+        log.debug('Basename suffix is empty. Giving up..')
         return ''
 
     _coerced_suffix = types.AW_MIMETYPE(basename_suffix)
     if _coerced_suffix:
+        log.debug('Passing coerced suffix "{!s}" to '
+                  'AW_MIMETYPE.format()'.format(_coerced_suffix))
         return types.AW_MIMETYPE.format(_coerced_suffix)
 
     return None
