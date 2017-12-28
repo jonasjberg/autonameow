@@ -52,7 +52,7 @@ def split_basename(file_path):
 
     # Split "base" twice to make compound suffix out of the two extensions.
     if ext.lower() in [b'.bz2', b'.gz', b'.lz', b'.lzma', b'.lzo', b'.xz',
-                       b'.z']:
+                       b'.z', b'.sig']:
         ext = os.path.splitext(base)[1] + ext
         base = os.path.splitext(base)[0]
 
