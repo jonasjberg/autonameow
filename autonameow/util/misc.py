@@ -371,8 +371,8 @@ def git_commit_hash():
         return None
 
     _old_pwd = os.path.curdir
-    os.chdir(C.AUTONAMEOW_SRCROOT_DIR)
     try:
+        os.chdir(C.AUTONAMEOW_SRCROOT_DIR)
         process = subprocess.Popen(
             ['git', 'rev-parse', '--short', 'HEAD'],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
