@@ -52,13 +52,6 @@ def print_version_info(verbose):
         return colorize('-' * length, fore='LIGHTBLACK_EX', style='DIM')
 
     if verbose:
-        print('')
-        print(
-            colorize('  {}  '.format(C.STRING_PROGRAM_NAME),
-                     back='BLUE', fore='BLACK') +
-            colorize('  Automagic File Renamer by Cats for Cats', fore='BLUE')
-        )
-
         _commit_info = util.git_commit_hash()
         if _commit_info:
             _commit = '(commit {!s})'.format(_commit_info)
@@ -75,6 +68,18 @@ def print_version_info(verbose):
         columnated_text = str(cf)
         columnated_text_width = cf.max_column_width()
 
+        # TODO: [hardcoded] Uses fixed spaces for alignment.
+        # Passing colored texts with ANSI escape sequences messes
+        # up the text width detected by the the 'ColumnFormatter' .. 
+        program_name = colorize(
+            '  {}  '.format(C.STRING_PROGRAM_NAME), back='BLUE', fore='BLACK'
+        )
+        program_slogan = colorize(
+            '    Automagic File Renamer by Cats for Cats', fore='BLUE'
+        )
+
+        print('')
+        print(program_name + program_slogan)
         print(divider_string(columnated_text_width))
         print(columnated_text)
         print(divider_string(columnated_text_width))
