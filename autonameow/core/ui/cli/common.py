@@ -64,7 +64,7 @@ def print_version_info(verbose):
         cf.addrow(C.STRING_PROGRAM_NAME, version.__copyright__)
         cf.addrow('version {}'.format(C.STRING_PROGRAM_VERSION),
                   version.__email__)
-        cf.addrow('Released 2017-12-04', version.__url__)
+        cf.addrow(_release_date, version.__url__)
         cf.addrow(_commit, version.__url_repo__)
         cf.setalignment('left', 'right')
         columnated_text = str(cf)
