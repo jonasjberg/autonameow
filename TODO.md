@@ -200,6 +200,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0145]` Add script for automating release of a new version.
+
 * `[TD0144]` Avoid enforcing/pruning cache file size too frequently.
 
 * `[TD0143]` __Add option to execute "hooks" at certain events.__  

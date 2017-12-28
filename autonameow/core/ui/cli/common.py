@@ -58,12 +58,14 @@ def print_version_info(verbose):
         else:
             _commit = ''
 
+        _release_date = 'Released {}'.format(version.RELEASE_DATE)
+
         cf = ColumnFormatter()
         cf.addrow(C.STRING_PROGRAM_NAME, version.__copyright__)
         cf.addrow('version {}'.format(C.STRING_PROGRAM_VERSION),
                   version.__email__)
-        cf.addrow(_commit, version.__url__)
-        cf.addrow('', version.__url_repo__)
+        cf.addrow('Released 2017-12-04', version.__url__)
+        cf.addrow(_commit, version.__url_repo__)
         cf.setalignment('left', 'right')
         columnated_text = str(cf)
         columnated_text_width = cf.max_column_width()

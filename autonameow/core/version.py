@@ -35,3 +35,8 @@ __url__ = 'www.jonasjberg.com'
 __url_repo__ = 'www.github.com/jonasjberg/autonameow'
 __license__ = 'GNU General Public License Version 2'
 __copyright__ = 'Copyright \N{COPYRIGHT SIGN} 2016-2017 {}'.format(__author__)
+
+
+# TODO: Automaticaly update this when tagging a new version.
+# TODO: [TD0145] Add script for automating release of a new version.
+RELEASE_DATE = '2017-12-04'

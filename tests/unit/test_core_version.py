@@ -67,3 +67,7 @@ class TestVersionModuleAttributes(TestCase):
 
     def test___copyright__(self):
         self._is_defined_internal_string(version.__copyright__)
+
+    def test_RELEASE_DATE(self):
+        # TODO: [TD0145] Add script for automating release of a new version.
+        self._is_defined_internal_string(version.RELEASE_DATE)
