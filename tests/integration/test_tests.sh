@@ -162,7 +162,7 @@ assert_true '[ "$(calculate_execution_time 1501987193168368101 15019872080941550
 assert_true 'command -v sed' \
             "sed is available on the system"
 
-assert_true 'man sed | grep -- "^ \+-i\b"' \
+assert_true 'man sed | grep -- "^ \+.*-i\b"' \
             'sed supports the "-i" option, required by some integration tests'
 
 
