@@ -50,7 +50,7 @@ logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 
 assert_true 'command -v guessit' \
-            "guessit is available on the system"
+            'guessit is available on the system'
 
 assert_true 'guessit -h ; [ "$?" -eq "0" ]' \
             'Executing "guessit -h" returns success'

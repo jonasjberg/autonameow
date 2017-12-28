@@ -57,7 +57,7 @@ assert_true '[ -e "$ACTIVE_CONFIG" ]' \
             "The config file \""$(basename -- "$ACTIVE_CONFIG")"\" exists"
 
 assert_true 'command -v python3' \
-            "Python v3.x is available on the system"
+            'Python v3.x is available on the system'
 
 assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
              'Environment variable "AUTONAMEOW_RUNNER" should not be unset'
@@ -66,93 +66,93 @@ assert_true '[ -e "$AUTONAMEOW_RUNNER" ]' \
             "The autonameow launcher script \""$(basename -- "$AUTONAMEOW_RUNNER")"\" exists"
 
 assert_true '[ -x "$AUTONAMEOW_RUNNER" ]' \
-            "The autonameow launcher script has executable permission"
+            'The autonameow launcher script has executable permission'
 
 assert_true '"$AUTONAMEOW_RUNNER"' \
-            "The autonameow launcher script can be started with no arguments"
+            'The autonameow launcher script can be started with no arguments'
 
 assert_true '"$AUTONAMEOW_RUNNER" 2>&1 | grep -- "--help"' \
-            "[TC005] autonameow should print how to get help when started with no arguments"
+            '[TC005] autonameow should print how to get help when started with no arguments'
 
 assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | head -n 1 | grep -- "Usage"' \
-            "[TC005] autonameow should display usage information when started with \"--help\""
+            '[TC005] autonameow should display usage information when started with "--help"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -- "dry-run"' \
-            "[TC001] autonameow should provide a \"--dry-run\" option"
+            '[TC001] autonameow should provide a "--dry-run" option'
 
 assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -- "--interactive"' \
-            "[TC013] autonameow should provide a \"--interactive\" option"
+            '[TC013] autonameow should provide a "--interactive" option'
 
 assert_true '"$AUTONAMEOW_RUNNER" --interactive -- ' \
-            "[TC013] autonameow should return 0 when started with \"--interactive\" without specifying files"
+            '[TC013] autonameow should return 0 when started with "--interactive" without specifying files'
 
 assert_true '"$AUTONAMEOW_RUNNER" --interactive --verbose -- ' \
-            "[TC013] autonameow should return 0 when started with \"--interactive\" and \"--verbose\" without specifying files"
+            '[TC013] autonameow should return 0 when started with "--interactive" and "--verbose" without specifying files'
 
 assert_true '"$AUTONAMEOW_RUNNER" --interactive --debug -- ' \
-            "[TC013] autonameow should return 0 when started with \"--interactive\" and \"--debug\" without specifying files"
+            '[TC013] autonameow should return 0 when started with "--interactive" and "--debug" without specifying files'
 
 assert_true '"$AUTONAMEOW_RUNNER" --automagic -- ' \
-            "autonameow should return 0 when started with \"--automagic\" without specifying files"
+            'autonameow should return 0 when started with "--automagic" without specifying files'
 
 assert_true '"$AUTONAMEOW_RUNNER" --automagic --verbose -- ' \
-            "autonameow should return 0 when started with \"--automagic\" and \"--verbose\" without specifying files"
+            'autonameow should return 0 when started with "--automagic" and "--verbose" without specifying files'
 
 assert_true '"$AUTONAMEOW_RUNNER" --automagic --debug -- ' \
-            "autonameow should return 0 when started with \"--automagic\" and \"--debug\" without specifying files"
+            'autonameow should return 0 when started with "--automagic" and "--debug" without specifying files'
 
 assert_false '"$AUTONAMEOW_RUNNER" --verbose --debug -- ' \
-             "Starting with mutually exclusive options \"--verbose\" and \"--debug\" should generate an error"
+             'Starting with mutually exclusive options "--verbose" and "--debug" should generate an error'
 
 assert_false '"$AUTONAMEOW_RUNNER" --verbose --quiet -- ' \
-             "Starting with mutually exclusive options \"--verbose\" and \"--quiet\" should generate an error"
+             'Starting with mutually exclusive options "--verbose" and "--quiet" should generate an error'
 
 assert_false '"$AUTONAMEOW_RUNNER" --debug --quiet -- ' \
-             "Starting with mutually exclusive options \"--debug\" and \"--quiet\" should generate an error"
+             'Starting with mutually exclusive options "--debug" and "--quiet" should generate an error'
 
 assert_false '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- " :root:"' \
-             "Output should not contain \" :root:\" when starting with \"--verbose\""
+             'Output should not contain " :root:" when starting with "--verbose"'
 
 assert_false '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- ":root:"' \
-             "Output should not contain \":root:\" when starting with \"--verbose\""
+             'Output should not contain ":root:" when starting with "--verbose"'
 
 assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- " :root:"' \
-             "Output should not contain \" :root:\" when starting with \"--debug\""
+             'Output should not contain " :root:" when starting with "--debug"'
 
 assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- ":root:"' \
-             "Output should not contain \":root:\" when starting with \"--debug\""
+             'Output should not contain ":root:" when starting with "--debug"'
 
 
 SAMPLE_EMPTY_FILE="$(abspath_testfile "empty")"
 assert_true '[ -e "$SAMPLE_EMPTY_FILE" ]' \
-            "The test sample jpg file exists. Add suitable test file if this test fails!"
+            'The test sample jpg file exists. Add suitable test file if this test fails!'
 
 assert_true '"$AUTONAMEOW_RUNNER" --batch --automagic --dry-run -- "$SAMPLE_EMPTY_FILE"' \
-            "Expect exit status 0 when started with \"--automagic\", \"--dry-run\" and an empty file"
+            'Expect exit status 0 when started with "--automagic", "--dry-run" and an empty file'
 
 assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_EMPTY_FILE"' \
-            "Expect exit status 0 when started with \"--automagic\", \"--dry-run\", \"--verbose\" and an empty file"
+            'Expect exit status 0 when started with "--automagic", "--dry-run", "--verbose" and an empty file'
 
 assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "$SAMPLE_EMPTY_FILE"' \
-            "Expect exit status 0 when started with \"--automagic\", \"--dry-run\", \"--debug\" and an empty file"
+            'Expect exit status 0 when started with "--automagic", "--dry-run", "--debug" and an empty file'
 
 
 assert_true '"$AUTONAMEOW_RUNNER" --version' \
-            "autonameow should return 0 when started with \"--version\""
+            'autonameow should return 0 when started with "--version"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --version --verbose' \
-            "autonameow should return 0 when started with \"--version\" and \"--verbose\""
+            'autonameow should return 0 when started with "--version" and "--verbose"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --version --debug' \
-            "autonameow should return 0 when started with \"--version\" and \"--debug\""
+            'autonameow should return 0 when started with "--version" and "--debug"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --version --quiet' \
-            "autonameow should return 0 when started with \"--version\" and \"--quiet\""
+            'autonameow should return 0 when started with "--version" and "--quiet"'
 
 
 SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
 assert_true '[ -e "$SAMPLE_PDF_FILE" ]' \
-            "The test sample pdf file exists. Add suitable test file if this test fails!"
+            'The test sample pdf file exists. Add suitable test file if this test fails!'
 
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --dry-run --list-all -- "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 when started with \"--dry-run --list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
@@ -164,12 +164,12 @@ assert_false '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PD
              "Output should not contain \" !!binary \" when running with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
 assert_false '"$AUTONAMEOW_RUNNER" --dump-config 2>&1 | grep -- " \!\!python/object:"' \
-             "Output should not contain \" !!python/object:\" when running with \"--dump-config\""
+             'Output should not contain " !!python/object:" when running with "--dump-config"'
 
 
 TEST_FILES_SUBDIR="$(abspath_testfile "subdir")"
 assert_true '[ -d "$TEST_FILES_SUBDIR" ]' \
-            "The \"test_files/subdir\" directory exists. Add suitable test files if this test fails!"
+            'The "test_files/subdir" directory exists. Add suitable test files if this test fails!'
 
 assert_true '"$AUTONAMEOW_RUNNER" --batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"' \
             "Expect exit code 0 when running \"--batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
@@ -178,7 +178,9 @@ assert_true '"$AUTONAMEOW_RUNNER" --batch --verbose --recurse --dry-run -- "$TES
             "Expect output to contain \"Got 8 files to process\" when running \"--batch --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
 
 
+# ______________________________________________________________________________
 # Tests with the same input paths used more than once.
+
 sample_empty_file_basename="$(basename -- "${SAMPLE_EMPTY_FILE}")"
 sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
 

@@ -81,11 +81,13 @@ assert_false '[ -z "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
 assert_true '[ -d "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
             'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should be a directory'
 
+
 assert_false '[ -z "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
              'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should not be unset'
 
 assert_true '[ -d "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
             'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should be a directory'
+
 
 _integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh"
 assert_true '[ -e "$_integration_runner_path" ]' \
@@ -94,12 +96,14 @@ assert_true '[ -e "$_integration_runner_path" ]' \
 assert_true '[ -x "$_integration_runner_path" ]' \
             'The integration test runner is executable'
 
+
 _unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/unit_runner.sh"
 assert_true '[ -e "$_unit_runner_path" ]' \
             'The unit test runner exists'
 
 assert_true '[ -x "$_unit_runner_path" ]' \
             'The unit test runner is executable'
+
 
 _regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/regression_runner.sh"
 assert_true '[ -e "$_regression_runner_path" ]' \
@@ -120,6 +124,11 @@ assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
 
 assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
+
+
+# ______________________________________________________________________________
+#
+# Shared bash script (integration test) functionality.
 
 assert_true 'type -t get_timestamp_from_basename' \
             'get_timestamp_from_basename is a function'
@@ -160,13 +169,13 @@ assert_true '[ "$(calculate_execution_time 1501987193168368101 15019872080941550
             'calculate_execution_time returns expected (14925ms)'
 
 assert_true 'command -v sed' \
-            "sed is available on the system"
+            'sed is available on the system'
 
 assert_true 'man sed | grep -- "^ \+.*-i\b"' \
             'sed supports the "-i" option, required by some integration tests'
 
 assert_true 'command -v git' \
-            "git is available on the system"
+            'git is available on the system'
 
 
 

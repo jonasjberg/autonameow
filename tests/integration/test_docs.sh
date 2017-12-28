@@ -58,7 +58,7 @@ assert_true '[ -f "$_srcroot_readme" ]' \
             'The root source directory should contain a "README.md"'
 
 assert_false 'grep_todos "$_srcroot_readme"' \
-             "Main README.md does not contain TODOs"
+             'Main README.md does not contain TODOs'
 
 _wiki_report_results="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
 assert_true '[ -f "$_wiki_report_results" ]' \

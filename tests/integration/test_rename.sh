@@ -129,7 +129,7 @@ logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 
 assert_true 'command -v python3' \
-            "Python v3.x is available on the system"
+            'Python v3.x is available on the system'
 
 assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
              'Variable "AUTONAMEOW_RUNNER" should not be unset'
@@ -138,7 +138,7 @@ assert_true '[ -e "$AUTONAMEOW_RUNNER" ]' \
             "The autonameow launcher script \""$(basename -- "$AUTONAMEOW_RUNNER")"\" exists"
 
 assert_true '[ -x "$AUTONAMEOW_RUNNER" ]' \
-            "The autonameow launcher script has executable permission"
+            'The autonameow launcher script has executable permission'
 
 ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_1.yaml")"
 assert_false '[ -z "$ACTIVE_CONFIG" ]' \

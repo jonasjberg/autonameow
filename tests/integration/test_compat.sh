@@ -53,16 +53,16 @@ assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
 
 assert_true 'command -v python3' \
-            "Python v3.x is available on the system"
+            'Python v3.x is available on the system'
 
 assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
-            "Python v3.5.0 or newer is available on the system"
+            'Python v3.5.0 or newer is available on the system'
 
 assert_true 'command -v exiftool' \
-            "exiftool is available on the system"
+            'exiftool is available on the system'
 
 assert_true 'command -v tesseract' \
-            "tesseract is available on the system"
+            'tesseract is available on the system'
 
 assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
              'Environment variable "AUTONAMEOW_RUNNER" should not be unset'
@@ -71,10 +71,10 @@ assert_true '[ -e "$AUTONAMEOW_RUNNER" ]' \
             "The autonameow launcher script \""$(basename -- "$AUTONAMEOW_RUNNER")"\" exists"
 
 assert_true '[ -x "$AUTONAMEOW_RUNNER" ]' \
-            "The autonameow launcher script has executable permission"
+            'The autonameow launcher script has executable permission'
 
 assert_true '"$AUTONAMEOW_RUNNER"' \
-            "The autonameow launcher script can be started with no arguments"
+            'The autonameow launcher script can be started with no arguments'
 
 
 # ______________________________________________________________________________
@@ -82,16 +82,16 @@ assert_true '"$AUTONAMEOW_RUNNER"' \
 # Testing version in the compatilibity section of the config.
 
 assert_true '"$AUTONAMEOW_RUNNER" --version' \
-            "autonameow should return zero when started with \"--version\""
+            'autonameow should return zero when started with "--version"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --version -v' \
-            "autonameow should return zero when started with \"--version -v\""
+            'autonameow should return zero when started with "--version -v"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --version 2>&1 | grep -o -- "v[0-9]\.[0-9]\.[0-9]"' \
-            "output should contain a version string matching \"vX.X.X\" when started with \"--version\""
+            'Output should contain a version string matching "vX.X.X" when started with "--version"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- "v[0-9]\.[0-9]\.[0-9]"' \
-            "Output should contain a version string matching \"vX.X.X\" when started with \"--version -v\""
+            'Output should contain a version string matching "vX.X.X" when started with "--version -v"'
 
 current_git_commit_hash="$(cd "$AUTONAMEOW_ROOT_DIR" && git rev-parse --short HEAD)"
 assert_false '[ -z "$current_git_commit_hash" ]' \
@@ -109,7 +109,7 @@ assert_false '[ -z "$AUTONAMEOW_VERSION" ]' \
              'This test script should be able to retrieve the program version.'
 
 assert_true '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -o -- "Using configuration: \".*\"$"' \
-            "The output should include the currently used configuration file when started with \"--verbose\""
+            'The output should include the currently used configuration file when started with "--verbose"'
 
 AUTONAMEOW_CONFIG_PATH="$(( "$AUTONAMEOW_RUNNER" --verbose 2>&1 ) | grep -o -- "Using configuration: \".*\"$" | grep -o -- "\".*\"")"
 assert_false '[ -z "$AUTONAMEOW_CONFIG_PATH" ]' \
@@ -122,7 +122,7 @@ assert_true '[ -f "$AUTONAMEOW_CONFIG_PATH" ]' \
             'The path of the used configuration file should be a existing file.'
 
 assert_true 'grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH"' \
-            "The retrieved configuration file contents should match \"autonameow_version: X.X.X$\""
+            'The retrieved configuration file contents should match "autonameow_version: X.X.X$"'
 
 CONFIG_FILE_VERSION="$(grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
 assert_false '[ -z "$CONFIG_FILE_VERSION" ]' \
@@ -132,75 +132,79 @@ assert_true '[ "$AUTONAMEOW_VERSION" = "$CONFIG_FILE_VERSION" ]' \
             'The configuration file version should equal the program version'
 
 
+# ______________________________________________________________________________
+#
+# Handling of various bad configuration files.
+
 EMPTY_CONFIG='/tmp/autonameow_empty_config.yaml'
 assert_true 'touch "$EMPTY_CONFIG"' \
-            "detect_empty_config Test setup should succeed"
+            'detect_empty_config Test setup should succeed'
 
 assert_false '"$AUTONAMEOW_RUNNER" --config-path "$EMPTY_CONFIG"' \
-             "detect_empty_config Specifying a empty configuration file with \"--config-path\" should be handled properly"
+             'detect_empty_config Specifying a empty configuration file with "--config-path" should be handled properly'
 
 assert_true '[ -f "$EMPTY_CONFIG" ] && rm -- "$EMPTY_CONFIG"' \
-            "detect_empty_config Test teardown should succeed"
+            'detect_empty_config Test teardown should succeed'
 
 assert_false '"$AUTONAMEOW_RUNNER" --config-path /tmp/does_not_exist_surely.mjao' \
-             "Specifying an invalid path with \"--config-path\" should be handled properly"
+             'Specifying an invalid path with "--config-path" should be handled properly'
 
 
 BAD_CONFIG_FILE="$(abspath_testfile "configs/bad_corrupt_gif.yaml")"
 assert_true '[ -e "$BAD_CONFIG_FILE" ]' \
-            "A known bad configuration file exists. Add suitable test file if this test fails!"
+            'A known bad configuration file exists. Add suitable test file if this test fails!'
 
 assert_false '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE"' \
-             "Attempting to load a invalid configuration file with \"--config-path\" should be handled properly"
+             'Attempting to load a invalid configuration file with "--config-path" should be handled properly'
 
 
 assert_true '"$AUTONAMEOW_RUNNER" --dump-options --verbose' \
-            "autonameow should return zero when started with \"--dump-options\" and \"--verbose\""
+            'autonameow should return zero when started with "--dump-options" and "--verbose"'
 
 
 NONASCII_CONFIG_FILE="$(abspath_testfile "configs/autonam€öw.yaml")"
 assert_true '[ -e "$NONASCII_CONFIG_FILE" ]' \
-            "A non-ASCII configuration file exists. Add suitable test file if this test fails!"
+            'A non-ASCII configuration file exists. Add suitable test file if this test fails!'
 
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$NONASCII_CONFIG_FILE"' \
-             "Attempting to load a non-ASCII configuration file with \"--config-path\" should be handled properly"
+            'Attempting to load a non-ASCII configuration file with "--config-path" should be handled properly'
 
 assert_true '"$AUTONAMEOW_RUNNER" --verbose --config-path "$NONASCII_CONFIG_FILE"' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--verbose\""
+            'Expect exit code 0 for non-ASCII configuration file and "--verbose"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --debug --config-path "$NONASCII_CONFIG_FILE"' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--debug\""
+            'Expect exit code 0 for non-ASCII configuration file and "--debug"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --quiet --config-path "$NONASCII_CONFIG_FILE"' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--quiet\""
+            'Expect exit code 0 for non-ASCII configuration file and "--quiet"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --dump-options --config-path "$NONASCII_CONFIG_FILE"' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--dump-options\""
+            'Expect exit code 0 for non-ASCII configuration file and "--dump-options"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --dump-options --verbose --config-path "$NONASCII_CONFIG_FILE"' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--dump-options\", \"--verbose\""
+            'Expect exit code 0 for non-ASCII configuration file and "--dump-options", "--verbose"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --dump-options --debug --config-path "$NONASCII_CONFIG_FILE"' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--dump-options\", \"--debug\""
+            'Expect exit code 0 for non-ASCII configuration file and "--dump-options", "--debug"'
 
 assert_true '"$AUTONAMEOW_RUNNER" --dump-options --quiet --config-path "$NONASCII_CONFIG_FILE"' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--dump-options\", \"--quiet\""
+            'Expect exit code 0 for non-ASCII configuration file and "--dump-options", "--quiet"'
 
 
 set +o pipefail
 BAD_CONFIG_FILE_NO_FILE_RULES="$(abspath_testfile "configs/bad_no_file_rules.yaml")"
 assert_true '[ -e "$BAD_CONFIG_FILE_NO_FILE_RULES" ]' \
-            "A configuration file without file rules exists. Add suitable test file if this test fails!"
+            'A configuration file without file rules exists. Add suitable test file if this test fails!'
 
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_NO_FILE_RULES" 2>&1 | grep -q "Unable to load configuration"' \
-            "Attempting to load a configuration file without any file rules should be handled properly"
+            'Attempting to load a configuration file without any file rules should be handled properly'
 
 BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS="$(abspath_testfile "configs/bad_empty_but_sections.yaml")"
 assert_true '[ -e "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" ]' \
-            "A configuration file that contains only sections without contents exists. Add suitable test file if this test fails!"
+            'A configuration file that contains only sections without contents exists. Add suitable test file if this test fails!'
 
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" 2>&1 | grep -q "Unable to load configuration"' \
-            "Attempting to load a configuration file with just bare sections should be handled properly"
+            'Attempting to load a configuration file with just bare sections should be handled properly'
 set -o pipefail
 
 
@@ -237,12 +241,13 @@ do
 done < <(find "${AUTONAMEOW_TESTFILES_DIR}/configs" -maxdepth 1 -xdev -type f -name 'bad_0*.yaml' -print0 | sort -z)
 
 
+# ______________________________________________________________________________
 #
 # START of testing that persistence options from the config are used.
 #
 # Tests the assumption that autonameow writes at least one file to the
 # persistence path set in the config.
-#
+
 TEMPLATED_DEFAULT_CONFIG="$(abspath_testfile "configs/integration_default_templated.yaml")"
 assert_true '[ -f "$TEMPLATED_DEFAULT_CONFIG" ]' \
             'The "templated" default configuration file exists.'
@@ -272,9 +277,9 @@ assert_true '[ "$_number_files_in_temp_persistence_dir" -ge "1" ]' \
 
 assert_true '[ -f "$templated_default_config_backup" ] && mv -- "$templated_default_config_backup" "$TEMPLATED_DEFAULT_CONFIG"' \
             'Successfully restored the original templated configuration file'
-#
+
 # END of testing that persistence options from the config are used.
-#
+# ______________________________________________________________________________
 
 
 
