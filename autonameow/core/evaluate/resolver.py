@@ -106,16 +106,20 @@ class TemplateFieldDataResolver(object):
 
         out = []
         for candidate in candidates:
-            _probs = []
             mapped_fields = candidate.get('mapped_fields')
             if not mapped_fields:
                 continue
 
+            _prob = 0.0
             for fm in mapped_fields:
                 if fm.field == field:
-                    _probs.append(fm.probability)
+                    _prob = fm.probability
+                    break
+            else:
+                assert False, (
+                    'Duplicated field mapped in "{!s}"'.format(candidate)
+                )
 
-            _prob = ['probability: {}'.format(p) for p in _probs]
             _coercer = candidate.get('coercer')
             _value = candidate.get('value')
             _formatted_value = ''
@@ -126,7 +130,7 @@ class TemplateFieldDataResolver(object):
 
             out.append(
                 FieldDataCandidate(value=_formatted_value, source=_source,
-                                   probability=_prob)
+                                   probability=str(_prob))
             )
 
         # TODO: [TD0104] Merge candidates and re-normalize probabilities.

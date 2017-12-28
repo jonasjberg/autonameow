@@ -40,12 +40,18 @@ def select_field(templatefield, candidates):
     ui.msg('Candidates:')
 
     cf = ui.ColumnFormatter()
-    for c in sorted(candidates, key=lambda x: (x.probability, x.value), reverse=True):
+    cf.addemptyrow()
+    cf.addrow('#', 'SOURCE', 'PROBABILITY', 'FORMATTED VALUE')
+    cf.addrow('=', '======', '===========', '===============')
+    prioritized_candidates = sorted(
+        candidates, key=lambda x: (x.probability, x.value), reverse=True
+    )
+    for n, c in enumerate(prioritized_candidates):
         _value = '"{!s}"'.format(c.value)
         _source = str(c.source)
-        _prob = ' '.join(c.probability)
+        _prob = str(c.probability)
 
-        cf.addrow('-', _source, _prob, _value)
+        cf.addrow(str(n), _source, _prob, _value)
 
     ui.msg(str(cf))
 
