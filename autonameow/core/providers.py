@@ -85,12 +85,12 @@ class ProviderMixin(object):
 
 
 class ProviderRegistry(object):
-    def __init__(self):
+    def __init__(self, meowuri_source_map):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        self.meowuri_sources = _get_meowuri_source_map()
+        self.meowuri_sources = meowuri_source_map
         assert isinstance(self.meowuri_sources, dict)
 
         # Debug logging
@@ -221,4 +221,6 @@ def initialize():
     # Keep one global 'ProviderRegistry' singleton per 'Autonameow' instance.
     global Registry
     if not Registry:
-        Registry = ProviderRegistry()
+        Registry = ProviderRegistry(
+            meowuri_source_map=_get_meowuri_source_map()
+        )
