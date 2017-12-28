@@ -254,6 +254,32 @@ get_timestamp_from_basename()
     sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)T\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3 \4:\5:\6/' <<< "$ts"
 }
 
+# Test a bunch of '[ -d "foo" ]'-style assertions at once.
+# For instance;  'bulk_assert_test "/foo/bar" e f r'
+# is equivalent to three separate assertions with messages, etc.
+bulk_assert_test()
+{
+    local _file="$1"
+    shift
+
+    while [ "$#" -gt "0" ]
+    do
+        case "$1" in
+            d) _exp='-d' ; _msg='exists and is a directory'                ;;
+            r) _exp='-r' ; _msg='exists and read permission is granted'    ;;
+            w) _exp='-w' ; _msg='exists and write permission is granted'   ;;
+            x) _exp='-x' ; _msg='exists and execute permission is granted' ;;
+            f) _exp='-f' ; _msg='exists and is a regular file'             ;;
+            z) _exp='-z' ; _msg='is a zero length string ("undefined")'    ;;
+            n) _exp='-n' ; _msg='is a non-zero length string ("defined")'  ;;
+            *) _exp='-e' ; _msg='exists'                                   ;;
+        esac
+        shift
+
+        assert_true "[ "$_exp" "$_file" ]" "Path \"${_file}\" ${_msg}"
+    done
+}
+
 
 
 # Test Cases

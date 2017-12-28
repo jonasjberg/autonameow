@@ -201,6 +201,50 @@ assert_true '[ "$(calculate_execution_time 1501987087187088013 15019870879422869
 assert_true '[ "$(calculate_execution_time 1501987193168368101 1501987208094155073)" -eq "14925" ]' \
             'calculate_execution_time returns expected (14925ms)'
 
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR"
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" d
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" r
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" w
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" x
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e d
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e d r
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e d r w
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e d r x
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e r
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e r w
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e r x
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e w
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e w x
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e x
+
+
+_temporary_file='.___temporary__file__'
+[ -f "$_temporary_file" ] || touch "$_temporary_file"
+assert_true '[ -e "${_temporary_file}" ]' \
+            'Reference dummy temporary file exists'
+
+bulk_assert_test "$_temporary_file"
+bulk_assert_test "$_temporary_file" e
+bulk_assert_test "$_temporary_file" f
+bulk_assert_test "$_temporary_file" r
+bulk_assert_test "$_temporary_file" w
+bulk_assert_test "$_temporary_file" e f
+bulk_assert_test "$_temporary_file" e f r
+bulk_assert_test "$_temporary_file" e f r w
+bulk_assert_test "$_temporary_file" e r
+bulk_assert_test "$_temporary_file" e r w
+bulk_assert_test "$_temporary_file" e w
+bulk_assert_test "$_temporary_file" e w
+bulk_assert_test "$_temporary_file" e
+bulk_assert_test "$_temporary_file" f
+bulk_assert_test "$_temporary_file" f r
+bulk_assert_test "$_temporary_file" f r w
+bulk_assert_test "$_temporary_file" f w
+
+rm "$_temporary_file"
+assert_false '[ -e "${_temporary_file}" ]' \
+             'Reference dummy temporary file was deleted'
 
 
 
