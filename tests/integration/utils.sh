@@ -51,10 +51,10 @@ initialize_logging()
     fi
 
     # Export variables to be used by all sourcing scripts during this test run.
-    AUTONAMEOW_TEST_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
-    export AUTONAMEOW_TEST_TIMESTAMP
+    AUTONAMEOW_INTEGRATION_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
+    export AUTONAMEOW_INTEGRATION_TIMESTAMP
 
-    AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/integration_log_${AUTONAMEOW_TEST_TIMESTAMP}.raw"
+    AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/integration_log_${AUTONAMEOW_INTEGRATION_TIMESTAMP}.raw"
     export AUTONAMEOW_INTEGRATION_LOG
 
     logmsg "Logging to file: \"${AUTONAMEOW_INTEGRATION_LOG}\""
@@ -183,7 +183,7 @@ convert_raw_log_to_html()
     fi
 
     _html_integration_log="${AUTONAMEOW_INTEGRATION_LOG%.*}.html"
-    _html_title="autonameow Integration Test Log ${AUTONAMEOW_TEST_TIMESTAMP}"
+    _html_title="autonameow Integration Test Log ${AUTONAMEOW_INTEGRATION_TIMESTAMP}"
 
     if aha --title "$_html_title" \
         < "$AUTONAMEOW_INTEGRATION_LOG" | sed 's///g' > "$_html_integration_log"
