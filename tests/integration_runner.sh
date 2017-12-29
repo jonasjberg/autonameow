@@ -39,16 +39,6 @@ EOF
     exit 1
 fi
 
-if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
-then
-    cat >&2 <<EOF
-
-[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
-        Shared test utility library is missing. Aborting ..
-
-EOF
-fi
-
 if ! source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 then
     cat >&2 <<EOF
@@ -116,9 +106,6 @@ else
 fi
 
 
-
-count_fail=0
-
 # Store current time for later calculation of total execution time.
 time_start="$(current_unix_time)"
 
@@ -148,8 +135,53 @@ do
         fi
     fi
 
-    # TODO: Fix all descendant processes not killed.
-    run_task "$option_quiet" "Running \"${_testscript_base}\"" "$testscript"
+    # !! # TODO: Fix all descendant processes not killed.
+    # !! # Catch SIGUP (1) SIGINT (2) and SIGTERM (15)
+    # !! trap kill_running_task SIGHUP SIGINT SIGTERM
+
+    # !! # Run task and check exit code.
+    # !! if [ "$option_quiet" != 'true' ]
+    # !! then
+    # !!     printf "%s ..\n" "Running \"${_testscript_base}\""
+
+    # !!     eval "${testscript}" &
+    # !!     TASK_PID="$!"
+    # !! else
+    # !!     printf "%s .." "Running \"${_testscript_base}\""
+
+    # !!     eval "${testscript}" 2>&1 >/dev/null &
+    # !!     TASK_PID="$!"
+    # !! fi
+    # !! wait "$TASK_PID"
+
+    source "${testscript}"
+
+    # Print task has ended message, interpreting exit codes as;
+    #
+    #     0     -- OK
+    #     130   -- ABORTED (Terminated by Control-C)
+    #     other -- ERROR
+    #
+    if [ "$option_quiet" != 'true' ]
+    then
+        printf "Running \"${_testscript_base}\" .."
+    fi
+
+    _retcode="$?"
+    if [ "$_retcode" -eq '0' ]
+    then
+        # Success
+        printf " ${C_GREEN}[FINISHED]${C_RESET}\n"
+    else
+        # Failure
+        if [ "$_retcode" -eq '130' ]
+        then
+            printf " ${C_RED}[ABORTED]${C_RESET}"
+        else
+            printf " ${C_RED}[FAILED]${C_RESET}"
+        fi
+        printf " (exit code ${_retcode})\n"
+    fi
 done
 
 
