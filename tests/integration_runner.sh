@@ -110,6 +110,7 @@ fi
 time_start="$(current_unix_time)"
 
 initialize_logging
+initialize_global_stats
 search_dir="${SELF_DIRNAME}/integration"
 logmsg "Started integration test runner \"${SELF_BASENAME}\""
 logmsg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
@@ -190,8 +191,19 @@ time_end="$(current_unix_time)"
 total_time="$((($time_end - $time_start) / 1000000))"
 logmsg "Total execution time: ${total_time} ms"
 
-if [ ! "$option_write_report" != 'true' ]
-then
-    run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
-fi
+
+while read -r _count _pass _fail
+do
+    _total_count="$((_count + suite_tests_count))"
+    _total_passed="$((_pass + suite_tests_passed))"
+    _total_failed="$((_fail + suite_tests_failed))"
+done < "$AUTONAMEOW_INTEGRATION_STATS"
+
+log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_total_failed"
+
+
+# if [ ! "$option_write_report" != 'true' ]
+# then
+#     run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
+# fi
 

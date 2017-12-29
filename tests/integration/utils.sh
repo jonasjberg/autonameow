@@ -60,6 +60,23 @@ initialize_logging()
     logmsg "Logging to file: \"${AUTONAMEOW_INTEGRATION_LOG}\""
 }
 
+initialize_global_stats()
+{
+    if ! AUTONAMEOW_INTEGRATION_STATS="$(realpath -e -- "$(mktemp)")"
+    then
+        echo "Unable to create temporary global statistics file .. Aborting" >&2
+        exit 1
+    fi
+
+    logmsg "Writing global statistics to file: \"${AUTONAMEOW_INTEGRATION_STATS}\""
+    export AUTONAMEOW_INTEGRATION_STATS
+
+    # Set total, passed and failed to 0
+    set +o noclobber
+    echo '0 0 0' > "$AUTONAMEOW_INTEGRATION_STATS"
+    set -o noclobber
+}
+
 # Print message to stdout and append message to AUTONAMEOW_INTEGRATION_LOG.
 # ANSI escape codes are allowed and included in the log file.
 
@@ -95,6 +112,31 @@ log_test_suite_results_summary()
     logmsg "======================================================================"
 }
 
+# Prints out a total test results ummary for all tests.
+log_total_results_summary()
+{
+    local _execution_time="$1"
+    local _tests_count="$2"
+    local _tests_passed="$3"
+    local _tests_failed="$4"
+    local _highlight_red=''
+
+    logmsg "Reading global statistics from file: \"${AUTONAMEOW_INTEGRATION_STATS}\""
+    logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    if [ "$_tests_failed" -eq "0" ]
+    then
+        logmsg "${C_GREEN}[ ALL TEST SUITE(S) TESTS PASSED ]${C_RESET}"
+    else
+        logmsg "${C_RED}[ SOME TEST SUITE(S) TESTS FAILED ]${C_RESET}"
+        _highlight_red="${C_RED}"
+    fi
+
+    logmsg "$(printf "Total Test Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
+              "$_tests_count" "$_tests_passed" "$_tests_failed")"
+    logmsg "Completed all tests in ${_execution_time} ms"
+    logmsg "======================================================================"
+}
+
 # Logs a test failure message and increments counters.
 test_fail()
 {
@@ -110,6 +152,21 @@ test_pass()
     suite_tests_passed="$((suite_tests_passed + 1))"
     suite_tests_count="$((suite_tests_count + 1))"
 }
+
+update_global_test_results()
+{
+    while IFS=' ' read -r _count _pass _fail
+    do
+        _total_count="$((_count + suite_tests_count))"
+        _total_passed="$((_pass + suite_tests_passed))"
+        _total_failed="$((_fail + suite_tests_failed))"
+    done < "$AUTONAMEOW_INTEGRATION_STATS"
+
+    set +o noclobber
+    echo "${_total_count} ${_total_passed} ${_total_failed}" > "$AUTONAMEOW_INTEGRATION_STATS"
+    set -o noclobber
+}
+
 
 # Evaluates an expression, given as the first argument.
 # Calls 'test_fail' if the expression returns NON-zero.
