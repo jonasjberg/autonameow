@@ -139,17 +139,13 @@ do
     # !! # TODO: Fix all descendant processes not killed.
     # !! # Catch SIGUP (1) SIGINT (2) and SIGTERM (15)
     # !! trap kill_running_task SIGHUP SIGINT SIGTERM
-
+    # !!
     # !! # Run task and check exit code.
     # !! if [ "$option_quiet" != 'true' ]
     # !! then
-    # !!     printf "%s ..\n" "Running \"${_testscript_base}\""
-
     # !!     eval "${testscript}" &
     # !!     TASK_PID="$!"
     # !! else
-    # !!     printf "%s .." "Running \"${_testscript_base}\""
-
     # !!     eval "${testscript}" 2>&1 >/dev/null &
     # !!     TASK_PID="$!"
     # !! fi
@@ -158,33 +154,6 @@ do
     logmsg "Starting \""${_testscript_base}"\" .."
     source "${testscript}"
     logmsg "Finished \""${_testscript_base}"\""
-
-    # Print task has ended message, interpreting exit codes as;
-    #
-    #     0     -- OK
-    #     130   -- ABORTED (Terminated by Control-C)
-    #     other -- ERROR
-    #
-    if [ "$option_quiet" != 'true' ]
-    then
-        printf "Running \"${_testscript_base}\" .."
-    fi
-
-    _retcode="$?"
-    if [ "$_retcode" -eq '0' ]
-    then
-        # Success
-        printf " ${C_GREEN}[FINISHED]${C_RESET}\n"
-    else
-        # Failure
-        if [ "$_retcode" -eq '130' ]
-        then
-            printf " ${C_RED}[ABORTED]${C_RESET}"
-        else
-            printf " ${C_RED}[FAILED]${C_RESET}"
-        fi
-        printf " (exit code ${_retcode})\n"
-    fi
 done
 
 
