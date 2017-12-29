@@ -222,7 +222,7 @@ bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e x
 _temporary_file='.___temporary__file__'
 [ -f "$_temporary_file" ] || touch "$_temporary_file"
 assert_true '[ -e "${_temporary_file}" ]' \
-            'Reference dummy temporary file exists'
+            'Reference dummy temporary was created'
 
 bulk_assert_test "$_temporary_file"
 bulk_assert_test "$_temporary_file" e

@@ -64,14 +64,7 @@ assert_true 'command -v exiftool' \
 assert_true 'command -v tesseract' \
             'tesseract is available on the system'
 
-assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
-             'Environment variable "AUTONAMEOW_RUNNER" should not be unset'
-
-assert_true '[ -e "$AUTONAMEOW_RUNNER" ]' \
-            "The autonameow launcher script \""$(basename -- "$AUTONAMEOW_RUNNER")"\" exists"
-
-assert_true '[ -x "$AUTONAMEOW_RUNNER" ]' \
-            'The autonameow launcher script has executable permission'
+bulk_assert_test "$AUTONAMEOW_RUNNER" n e r x
 
 assert_true '"$AUTONAMEOW_RUNNER"' \
             'The autonameow launcher script can be started with no arguments'
@@ -118,8 +111,7 @@ assert_false '[ -z "$AUTONAMEOW_CONFIG_PATH" ]' \
 # Strip quotes from configuration file path.
 AUTONAMEOW_CONFIG_PATH="${AUTONAMEOW_CONFIG_PATH//\"/}"
 
-assert_true '[ -f "$AUTONAMEOW_CONFIG_PATH" ]' \
-            'The path of the used configuration file should be a existing file.'
+bulk_assert_test "$AUTONAMEOW_CONFIG_PATH" e f r w
 
 assert_true 'grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH"' \
             'The retrieved configuration file contents should match "autonameow_version: X.X.X$"'
@@ -249,20 +241,17 @@ done < <(find "${AUTONAMEOW_TESTFILES_DIR}/configs" -maxdepth 1 -xdev -type f -n
 # persistence path set in the config.
 
 TEMPLATED_DEFAULT_CONFIG="$(abspath_testfile "configs/integration_default_templated.yaml")"
-assert_true '[ -f "$TEMPLATED_DEFAULT_CONFIG" ]' \
-            'The "templated" default configuration file exists.'
-
+bulk_assert_test "$TEMPLATED_DEFAULT_CONFIG" f r w
+ 
 TEMP_PERSISTENCE_DIR="$(realpath -e -- "$(mktemp -d)")"
-assert_true '[ -d "$TEMP_PERSISTENCE_DIR" ]' \
-            'Created a temporary directory for persistence.'
+bulk_assert_test "$TEMP_PERSISTENCE_DIR" d r w x
 
 _sed_backup_suffix='.orig'
 assert_true 'sed -i${_sed_backup_suffix} "s@___cache_directory___@${TEMP_PERSISTENCE_DIR}@g" "$TEMPLATED_DEFAULT_CONFIG"' \
             'Expect OK exit status for sed call replacing template placeholder ___cache_directory___'
 
 templated_default_config_backup="${TEMPLATED_DEFAULT_CONFIG}${_sed_backup_suffix}"
-assert_true '[ -f "$templated_default_config_backup" ]' \
-            'Expect sed to have created a backup of the original templated default config'
+bulk_assert_test "$templated_default_config_backup" f r w
 
 _number_files_in_temp_persistence_dir="$(find "$TEMP_PERSISTENCE_DIR" -type f -mindepth 1 -type f | wc -l)"
 assert_true '[ "$_number_files_in_temp_persistence_dir" -eq "0" ]' \
