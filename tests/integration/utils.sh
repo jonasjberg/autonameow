@@ -35,9 +35,9 @@ TEST_DIR="$(dirname -- "$SELF_DIR")"
 
 # Initialize counter variables every time this script is sourced
 # by each of the test suites. Used in 'log_test_suite_results_summary'.
-tests_total=0
-tests_passed=0
-tests_failed=0
+suite_tests_count=0
+suite_tests_passed=0
+suite_tests_failed=0
 
 
 # Should be called once at the start of a test run. Creates a timestamped log
@@ -81,7 +81,7 @@ log_test_suite_results_summary()
     local _highlight_red=''
 
     logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    if [ "$tests_failed" -eq "0" ]
+    if [ "$suite_tests_failed" -eq "0" ]
     then
         logmsg "${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
     else
@@ -90,7 +90,7 @@ log_test_suite_results_summary()
     fi
 
     logmsg "$(printf "Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
-              "$tests_total" "$tests_passed" "$tests_failed")"
+              "$suite_tests_count" "$suite_tests_passed" "$suite_tests_failed")"
     logmsg "Completed the "$_name" test suite tests in ${_execution_time} ms"
     logmsg "======================================================================"
 }
@@ -99,16 +99,16 @@ log_test_suite_results_summary()
 test_fail()
 {
     logmsg "${C_RED}[FAILED]${C_RESET} " "$*"
-    tests_failed="$((tests_failed + 1))"
-    tests_total="$((tests_total + 1))"
+    suite_tests_failed="$((suite_tests_failed + 1))"
+    suite_tests_count="$((suite_tests_count + 1))"
 }
 
 # Logs a test success message and increments counters.
 test_pass()
 {
     logmsg "${C_GREEN}[PASSED]${C_RESET} " "$*"
-    tests_passed="$((tests_passed + 1))"
-    tests_total="$((tests_total + 1))"
+    suite_tests_passed="$((suite_tests_passed + 1))"
+    suite_tests_count="$((suite_tests_count + 1))"
 }
 
 # Evaluates an expression, given as the first argument.
