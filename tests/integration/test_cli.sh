@@ -21,7 +21,6 @@
 
 set -o noclobber -o nounset -o pipefail
 
-SELF_BASENAME="$(basename "$0")"
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
     cat >&2 <<EOF
@@ -45,7 +44,6 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 time_start="$(current_unix_time)"
 
 TESTSUITE_NAME='Command-Line Interface'
-logmsg "Started \"${SELF_BASENAME}\""
 logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 

@@ -155,7 +155,9 @@ do
     # !! fi
     # !! wait "$TASK_PID"
 
+    logmsg "Starting \""${_testscript_base}"\" .."
     source "${testscript}"
+    logmsg "Finished \""${_testscript_base}"\""
 
     # Print task has ended message, interpreting exit codes as;
     #
