@@ -276,7 +276,7 @@ bulk_assert_test()
         esac
         shift
 
-        assert_true "[ "$_exp" "$_file" ]" "Path \"${_file}\" ${_msg}"
+        assert_true '[ "$_exp" "$_file" ]' "Path \"${_file}\" ${_msg}"
     done
 }
 
