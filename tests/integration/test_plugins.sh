@@ -33,6 +33,7 @@ EOF
     exit 1
 fi
 
+# Resets test suite counter variables.
 source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 
 
