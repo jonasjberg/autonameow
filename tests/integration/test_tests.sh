@@ -108,6 +108,30 @@ assert_true '[ -d "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
             'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should be a directory'
 
 
+# ______________________________________________________________________________
+#
+# Check environment variables used by specific types of tests.
+
+assert_false '[ -z "$AUTONAMEOW_INTEGRATION_STATS" ]' \
+             'Environment variable "AUTONAMEOW_INTEGRATION_STATS" should not be unset'
+
+assert_true '[ -f "$AUTONAMEOW_INTEGRATION_STATS" ]' \
+            'Environment variable "AUTONAMEOW_INTEGRATION_STATS" should be a file'
+
+assert_false '[ -z "$AUTONAMEOW_INTEGRATION_LOG" ]' \
+             'Environment variable "AUTONAMEOW_INTEGRATION_LOG" should not be unset'
+
+assert_false '[ -d "$AUTONAMEOW_INTEGRATION_LOG" ]' \
+             'Environment variable "AUTONAMEOW_INTEGRATION_LOG" should not be a directory'
+
+assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
+             'Environment variable "AUTONAMEOW_INTEGRATION_TIMESTAMP" should not be unset'
+
+
+# ______________________________________________________________________________
+#
+# Check the test runner scripts.
+
 _integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh"
 assert_true '[ -e "$_integration_runner_path" ]' \
             'The integration test runner exists'
