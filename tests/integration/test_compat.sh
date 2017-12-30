@@ -96,20 +96,19 @@ assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- "${current_git_
             'Output should contain a string matching the previously retrieved git commit hash when started with "--version -v"'
 
 
-AUTONAMEOW_VERSION="$(( "$AUTONAMEOW_RUNNER" --version 2>&1 ) | grep -o -- "v[0-9]\.[0-9]\.[0-9]" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
+AUTONAMEOW_VERSION="$( ( "$AUTONAMEOW_RUNNER" --version 2>&1 ) | grep -o -- "v[0-9]\.[0-9]\.[0-9]" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
 assert_false '[ -z "$AUTONAMEOW_VERSION" ]' \
              'This test script should be able to retrieve the program version.'
 
 assert_true '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -o -- "Using configuration: \".*\"$"' \
             'The output should include the currently used configuration file when started with "--verbose"'
 
-AUTONAMEOW_CONFIG_PATH="$(( "$AUTONAMEOW_RUNNER" --verbose 2>&1 ) | grep -o -- "Using configuration: \".*\"$" | grep -o -- "\".*\"")"
+AUTONAMEOW_CONFIG_PATH="$( ( "$AUTONAMEOW_RUNNER" --verbose 2>&1 ) | grep -o -- "Using configuration: \".*\"$" | grep -o -- "\".*\"")"
 assert_false '[ -z "$AUTONAMEOW_CONFIG_PATH" ]' \
              'This test script should be able to retrieve the path of the used configuration file.'
 
 # Strip quotes from configuration file path.
 AUTONAMEOW_CONFIG_PATH="${AUTONAMEOW_CONFIG_PATH//\"/}"
-
 bulk_assert_test "$AUTONAMEOW_CONFIG_PATH" e f r w
 
 assert_true 'grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH"' \
