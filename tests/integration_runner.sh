@@ -152,7 +152,12 @@ do
     # !! wait "$TASK_PID"
 
     logmsg "Starting \"${_testscript_base}\" .."
-    source "${testscript}"
+    if [ "$option_quiet" != 'true' ]
+    then
+        source "${testscript}"
+    else
+        source "${testscript}" >/dev/null 2>&1
+    fi
     logmsg "Finished \"${_testscript_base}\""
 done
 
