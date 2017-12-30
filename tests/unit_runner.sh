@@ -81,7 +81,7 @@ EOF
 # caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
-    printf "(USING DEFAULTS -- "%s -h" for usage information)\n\n" "$SELF_BASENAME"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
 else
     while getopts chwq opt
     do

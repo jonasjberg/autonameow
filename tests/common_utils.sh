@@ -80,7 +80,7 @@ run_task()
     #     130   -- ABORTED (Terminated by Control-C)
     #     other -- ERROR
     #
-    [ "$_opt_quiet" = 'true' ] || printf "${_msg} .."
+    [ "$_opt_quiet" = 'true' ] || printf '%s ..' "$_msg"
     if [ "$_retcode" -eq '0' ]
     then
         # Success
@@ -93,6 +93,6 @@ run_task()
         else
             printf " ${C_RED}[FAILED]${C_RESET}"
         fi
-        printf " (exit code ${_retcode})\n"
+        printf ' (exit code %s)\n' "$_retcode"
     fi
 }
