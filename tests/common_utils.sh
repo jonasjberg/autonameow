@@ -87,14 +87,14 @@ run_task()
     if [ "$_retcode" -eq '0' ]
     then
         # Success
-        printf " ${C_GREEN}[FINISHED]${C_RESET}\n"
+        printf ' %s\n' "${C_GREEN}[FINISHED]${C_RESET}"
     else
         # Failure
         if [ "$_retcode" -eq '130' ]
         then
-            printf " ${C_RED}[ABORTED]${C_RESET}"
+            printf ' %s' "${C_RED}[ABORTED]${C_RESET}"
         else
-            printf " ${C_RED}[FAILED]${C_RESET}"
+            printf ' %s' "${C_RED}[FAILED]${C_RESET}"
         fi
         printf ' (exit code %s)\n' "$_retcode"
     fi
