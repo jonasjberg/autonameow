@@ -154,7 +154,7 @@ else
         esac
     done
 
-    shift $(( $OPTIND - 1 ))
+    shift $(( OPTIND - 1 ))
 fi
 
 [ "$option_verbose" != 'true' ] && option_quiet='true' || option_quiet='false'

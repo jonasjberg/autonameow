@@ -159,7 +159,7 @@ done
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
-total_time="$((($time_end - $time_start) / 1000000))"
+total_time="$(((time_end - time_start) / 1000000))"
 logmsg "Total execution time: ${total_time} ms"
 
 
