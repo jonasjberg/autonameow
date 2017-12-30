@@ -170,9 +170,9 @@ logmsg "Total execution time: ${total_time} ms"
 
 while read -r _count _pass _fail
 do
-    _total_count="$((_count + suite_tests_count))"
-    _total_passed="$((_pass + suite_tests_passed))"
-    _total_failed="$((_fail + suite_tests_failed))"
+    _total_count="$_count"
+    _total_passed="$_pass"
+    _total_failed="$_fail"
 done < "$AUTONAMEOW_INTEGRATION_STATS"
 
 log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_total_failed"
