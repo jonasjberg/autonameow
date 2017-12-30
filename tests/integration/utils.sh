@@ -108,7 +108,7 @@ log_test_suite_results_summary()
 
     logmsg "$(printf "Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$suite_tests_count" "$suite_tests_passed" "$suite_tests_failed")"
-    logmsg "Completed the "$_name" test suite tests in ${_execution_time} ms"
+    logmsg "Completed the ${_name} test suite tests in ${_execution_time} ms"
     logmsg "======================================================================"
 }
 

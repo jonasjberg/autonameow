@@ -140,14 +140,15 @@ assert_true '"$AUTONAMEOW_RUNNER" --version --quiet' \
 SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
 bulk_assert_test "$SAMPLE_PDF_FILE" e f r
 
+sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --dry-run --list-all -- "$SAMPLE_PDF_FILE"' \
-            "Expect exit code 0 when started with \"--dry-run --list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+            "Expect exit code 0 when started with \"--dry-run --list-all\" given the file \"${sample_pdf_file_basename}\""
 
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -- "2016-01-11 12:41:32"' \
-            "Output should include expected date when started with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+            "Output should include expected date when started with \"--list-all\" given the file \"${sample_pdf_file_basename}\""
 
 assert_false '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -- " !!binary "' \
-             "Output should not contain \" !!binary \" when running with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+             "Output should not contain \" !!binary \" when running with \"--list-all\" given the file \"${sample_pdf_file_basename}\""
 
 assert_false '"$AUTONAMEOW_RUNNER" --dump-config 2>&1 | grep -- " \!\!python/object:"' \
              'Output should not contain " !!python/object:" when running with "--dump-config"'
@@ -157,10 +158,10 @@ TEST_FILES_SUBDIR="$(abspath_testfile "subdir")"
 bulk_assert_test "$TEST_FILES_SUBDIR" d r w x
 
 assert_true '"$AUTONAMEOW_RUNNER" --batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"' \
-            "Expect exit code 0 when running \"--batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
+            "Expect exit code 0 when running \"--batch --recurse --dry-run -- \"${TEST_FILES_SUBDIR}\"\""
 
 assert_true '"$AUTONAMEOW_RUNNER" --batch --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 | grep -- ".*Got 8 files to process.*"' \
-            "Expect output to contain \"Got 8 files to process\" when running \"--batch --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
+            "Expect output to contain \"Got 8 files to process\" when running \"--batch --verbose --recurse --dry-run -- ${TEST_FILES_SUBDIR}\""
 
 
 # ______________________________________________________________________________

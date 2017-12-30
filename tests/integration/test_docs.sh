@@ -49,8 +49,9 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 DOC_PATH="$( ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e "./docs/" ) )"
+doc_path_basename="$(basename -- "$DOC_PATH")"
 assert_true '[ -d "$DOC_PATH" ]' \
-            "Documentation directory \""$(basename -- "$DOC_PATH")"\" should exist"
+            "Documentation directory \"${doc_path_basename}\" should exist"
 
 _srcroot_readme="${AUTONAMEOW_ROOT_DIR}/README.md"
 assert_true '[ -f "$_srcroot_readme" ]' \
