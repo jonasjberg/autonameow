@@ -86,13 +86,20 @@ assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- "v[0-9]\.[0-9]\
             'Output should contain a version string matching "vX.X.X" when started with "--version -v"'
 
 current_git_commit_hash="$(cd "$AUTONAMEOW_ROOT_DIR" && git rev-parse --short HEAD)"
+# NOTE(jonas): git rev-parse --short HEAD returns different length.
+#              Hash string is one extra character on MacOS (git version 2.15.1)
+#              compared to Linux (git version 2.7.4).
+
+# Truncate to 7 characters before matching.
+current_git_commit_hash="${current_git_commit_hash:0:6}"
+
 assert_false '[ -z "$current_git_commit_hash" ]' \
              'This test script should be able to retrieve the git hash of the current git commit'
 
 assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- "(commit [a-zA-Z0-9]\{7\})"' \
             'Output should contain a string matching "(commit [a-zA-Z0-9]\{7\})" when started with "--version -v"'
 
-assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- "${current_git_commit_hash}"' \
+assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- ".*${current_git_commit_hash}.*"' \
             'Output should contain a string matching the previously retrieved git commit hash when started with "--version -v"'
 
 

@@ -54,7 +54,10 @@ def print_version_info(verbose):
     if verbose:
         _commit_info = util.git_commit_hash()
         if _commit_info:
-            _commit = '(commit {!s})'.format(_commit_info)
+            # NOTE(jonas): git rev-parse --short HEAD returns different length.
+            # Hash string is one extra character on MacOS (git version 2.15.1)
+            # compared to Linux (git version 2.7.4).
+            _commit = '(commit {!s:7.7})'.format(_commit_info)
         else:
             _commit = ''
 
