@@ -35,6 +35,9 @@ Delete all `*.pyc` files and `__pycache__` directories.
 Runs autonameow with the given file(s) and the `--list-all` option and filters
 the output to display a lexicographically sorted list of unique MeowURIs.
 
+### `lint-bash-scripts.sh`
+Perform static analysis on all bash scripts using `shellcheck`.
+
 ### `list-imported-modules.sh`
 Lists modules imported by the specified Python program.
 
