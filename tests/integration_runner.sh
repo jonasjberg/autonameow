@@ -117,7 +117,7 @@ logmsg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
 find "$search_dir" -mindepth 1 -maxdepth 1 -type f -name "test_*.sh" \
-| while IFS='\n' read -r testscript
+| sort -r | while IFS='\n' read -r testscript
 do
     if [ ! -x "$testscript" ]
     then
