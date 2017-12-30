@@ -26,11 +26,6 @@ C_GREEN="$(tput setaf 2)"
 C_RESET="$(tput sgr0)"
 # C_RESET='\E[0m'
 
-# Get the full absolute path to this file.
-# Also handles case where the script being sourced.
-_self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
-SELF_DIR="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
-
 
 # Initialize counter variables every time this script is sourced
 # by each of the test suites. Used in 'log_test_suite_results_summary'.
