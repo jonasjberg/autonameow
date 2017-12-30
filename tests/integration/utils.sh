@@ -30,7 +30,6 @@ C_RESET="$(tput sgr0)"
 # Also handles case where the script being sourced.
 _self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
 SELF_DIR="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
-TEST_DIR="$(dirname -- "$SELF_DIR")"
 
 
 # Initialize counter variables every time this script is sourced
