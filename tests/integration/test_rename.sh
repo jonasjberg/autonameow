@@ -130,10 +130,10 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 assert_true 'command -v python3' \
             'Python v3.x is available on the system'
 
-bulk_assert_test "$AUTONAMEOW_RUNNER" n e r x
+assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
 ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_1.yaml")"
-bulk_assert_test "$ACTIVE_CONFIG" n e r
+assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 
 # SAMPLE_JPG_FILE="$(abspath_testfile "smulan.jpg")"
@@ -147,7 +147,7 @@ bulk_assert_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
 SAMPLE_PDF_FILE_EXPECTED='2016-01-11T124132 gmail.pdf'
-bulk_assert_test "$SAMPLE_PDF_FILE" e f r
+assert_bulk_test "$SAMPLE_PDF_FILE" e f r
 
 test_automagic_rename 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
 test_automagic_dryrun 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
@@ -155,7 +155,7 @@ test_automagic_dryrun 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPL
 
 SAMPLE_SIMPLESTPDF_FILE="$(abspath_testfile "simplest_pdf.md.pdf")"
 SAMPLE_SIMPLESTPDF_FILE_EXPECTED='simplest_pdf.md.pdf'
-bulk_assert_test "$SAMPLE_SIMPLESTPDF_FILE" e f r
+assert_bulk_test "$SAMPLE_SIMPLESTPDF_FILE" e f r
 
 test_automagic_rename 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
 test_automagic_dryrun 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
@@ -163,11 +163,11 @@ test_automagic_dryrun 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE
 
 # ==============================================================================
 ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_filetags.yaml")"
-bulk_assert_test "$ACTIVE_CONFIG" n e r
+assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_FILETAGS_FILE="$(abspath_testfile "2017-09-12T224820 filetags-style name -- tag2 a tag1.txt")"
 SAMPLE_FILETAGS_FILE_EXPECTED='2017-09-12T224820 filetags-style name -- a tag1 tag2.txt'
-bulk_assert_test "$SAMPLE_FILETAGS_FILE" e f r
+assert_bulk_test "$SAMPLE_FILETAGS_FILE" e f r
 
 test_automagic_rename 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
 test_automagic_dryrun 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
@@ -175,11 +175,11 @@ test_automagic_dryrun 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SA
 
 # ==============================================================================
 ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext_1.yaml")"
-bulk_assert_test "$ACTIVE_CONFIG" n e r
+assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_EMPTY_FILE="$(abspath_testfile "empty")"
 SAMPLE_EMPTY_FILE_EXPECTED='empty'
-bulk_assert_test "$SAMPLE_EMPTY_FILE" e f r
+assert_bulk_test "$SAMPLE_EMPTY_FILE" e f r
 
 test_automagic_rename 'Fix incorrect extensions Method 1 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
 test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
@@ -187,7 +187,7 @@ test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/empty' "$SAM
 
 SAMPLE_NOEXT_FILE="$(abspath_testfile "simple-lexical-analysis")"
 SAMPLE_NOEXT_FILE_EXPECTED='simple-lexical-analysis.png'
-bulk_assert_test "$SAMPLE_NOEXT_FILE" e f r
+assert_bulk_test "$SAMPLE_NOEXT_FILE" e f r
 
 test_automagic_rename 'Fix incorrect extensions Method 1 test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
 test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
@@ -195,7 +195,7 @@ test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/simple-lexic
 
 # ==============================================================================
 ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext_2.yaml")"
-bulk_assert_test "$ACTIVE_CONFIG" n e r
+assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 test_automagic_rename 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
 test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
@@ -203,7 +203,7 @@ test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/empty' "$SAM
 
 SAMPLE_MAGICTXTMD_FILE="$(abspath_testfile "magic_txt.md")"
 SAMPLE_MAGICTXTMD_FILE_EXPECTED='magic_txt.md'
-bulk_assert_test "$SAMPLE_MAGICTXTMD_FILE" e f r
+assert_bulk_test "$SAMPLE_MAGICTXTMD_FILE" e f r
 
 test_automagic_rename 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
 test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"

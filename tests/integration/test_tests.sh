@@ -58,7 +58,7 @@ assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
 #
 # Check shared environment variables, used by all tests.
 
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" n e d r w x
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" n e d r w x
 
 assert_false '[ -z "$AUTONAMEOW_ROOT_DIR" ]' \
              'Environment variable "AUTONAMEOW_ROOT_DIR" should not be unset'
@@ -71,10 +71,10 @@ assert_true '[ -r "$AUTONAMEOW_ROOT_DIR" ]' \
 
 
 _common_utils_path="${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
-bulk_assert_test "$_common_utils_path" e r x
+assert_bulk_test "$_common_utils_path" e r x
 
 _setup_environment_path="${AUTONAMEOW_ROOT_DIR}/tests/setup_environment.sh"
-bulk_assert_test "$_setup_environment_path" e r x
+assert_bulk_test "$_setup_environment_path" e r x
 
 assert_true '[ -e "$_setup_environment_path" ]' \
             'Shared test environment setup script exists'
@@ -86,7 +86,7 @@ assert_true '[ -x "$_setup_environment_path" ]' \
             'Shared test environment setup script is executable'
 
 
-bulk_assert_test "$AUTONAMEOW_TESTRESULTS_DIR" n e d
+assert_bulk_test "$AUTONAMEOW_TESTRESULTS_DIR" n e d
 
 assert_false '[ -z "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
              'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should not be unset'
@@ -95,7 +95,7 @@ assert_true '[ -d "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
             'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should be a directory'
 
 
-bulk_assert_test "$AUTONAMEOW_WIKI_ROOT_DIR" n e d
+assert_bulk_test "$AUTONAMEOW_WIKI_ROOT_DIR" n e d
 
 assert_false '[ -z "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
              'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should not be unset'
@@ -108,21 +108,21 @@ assert_true '[ -d "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
 #
 # Check environment variables used by specific types of tests.
 
-bulk_assert_test "$AUTONAMEOW_INTEGRATION_STATS" n e f
+assert_bulk_test "$AUTONAMEOW_INTEGRATION_STATS" n e f
 assert_false '[ -z "$AUTONAMEOW_INTEGRATION_STATS" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_STATS" should not be unset'
 
 assert_true '[ -f "$AUTONAMEOW_INTEGRATION_STATS" ]' \
             'Environment variable "AUTONAMEOW_INTEGRATION_STATS" should be a file'
 
-bulk_assert_test "$AUTONAMEOW_INTEGRATION_LOG" n
+assert_bulk_test "$AUTONAMEOW_INTEGRATION_LOG" n
 assert_false '[ -z "$AUTONAMEOW_INTEGRATION_LOG" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_LOG" should not be unset'
 
 assert_false '[ -d "$AUTONAMEOW_INTEGRATION_LOG" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_LOG" should not be a directory'
 
-bulk_assert_test "$AUTONAMEOW_INTEGRATION_TIMESTAMP" n
+assert_bulk_test "$AUTONAMEOW_INTEGRATION_TIMESTAMP" n
 assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_TIMESTAMP" should not be unset'
 
@@ -132,13 +132,13 @@ assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
 # Check the test runner scripts.
 
 _integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh"
-bulk_assert_test "$_integration_runner_path" n e r x
+assert_bulk_test "$_integration_runner_path" n e r x
 
 _unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/unit_runner.sh"
-bulk_assert_test "$_unit_runner_path" n e r x
+assert_bulk_test "$_unit_runner_path" n e r x
 
 _regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/regression_runner.sh"
-bulk_assert_test "$_regression_runner_path" n e r x
+assert_bulk_test "$_regression_runner_path" n e r x
 
 
 # ______________________________________________________________________________
@@ -210,22 +210,22 @@ assert_true '[ "$(calculate_execution_time 1501987087187088013 15019870879422869
 assert_true '[ "$(calculate_execution_time 1501987193168368101 1501987208094155073)" -eq "14925" ]' \
             'calculate_execution_time returns expected (14925ms)'
 
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR"
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" d
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" r
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" w
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" x
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e d
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e d r
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e d r w
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e d r x
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e r
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e r w
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e r x
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e w
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e w x
-bulk_assert_test "$AUTONAMEOW_ROOT_DIR" e x
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR"
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" d
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" r
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" w
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" x
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r w
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r x
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r w
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r x
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e w
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e w x
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e x
 
 
 _temporary_file='.___temporary__file__'
@@ -233,23 +233,23 @@ _temporary_file='.___temporary__file__'
 assert_true '[ -e "${_temporary_file}" ]' \
             'Reference dummy temporary was created'
 
-bulk_assert_test "$_temporary_file"
-bulk_assert_test "$_temporary_file" e
-bulk_assert_test "$_temporary_file" f
-bulk_assert_test "$_temporary_file" r
-bulk_assert_test "$_temporary_file" w
-bulk_assert_test "$_temporary_file" e f
-bulk_assert_test "$_temporary_file" e f r
-bulk_assert_test "$_temporary_file" e f r w
-bulk_assert_test "$_temporary_file" e r
-bulk_assert_test "$_temporary_file" e r w
-bulk_assert_test "$_temporary_file" e w
-bulk_assert_test "$_temporary_file" e w
-bulk_assert_test "$_temporary_file" e
-bulk_assert_test "$_temporary_file" f
-bulk_assert_test "$_temporary_file" f r
-bulk_assert_test "$_temporary_file" f r w
-bulk_assert_test "$_temporary_file" f w
+assert_bulk_test "$_temporary_file"
+assert_bulk_test "$_temporary_file" e
+assert_bulk_test "$_temporary_file" f
+assert_bulk_test "$_temporary_file" r
+assert_bulk_test "$_temporary_file" w
+assert_bulk_test "$_temporary_file" e f
+assert_bulk_test "$_temporary_file" e f r
+assert_bulk_test "$_temporary_file" e f r w
+assert_bulk_test "$_temporary_file" e r
+assert_bulk_test "$_temporary_file" e r w
+assert_bulk_test "$_temporary_file" e w
+assert_bulk_test "$_temporary_file" e w
+assert_bulk_test "$_temporary_file" e
+assert_bulk_test "$_temporary_file" f
+assert_bulk_test "$_temporary_file" f r
+assert_bulk_test "$_temporary_file" f r w
+assert_bulk_test "$_temporary_file" f w
 
 rm "$_temporary_file"
 assert_false '[ -e "${_temporary_file}" ]' \

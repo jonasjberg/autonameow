@@ -316,9 +316,9 @@ get_timestamp_from_basename()
 }
 
 # Test a bunch of '[ -d "foo" ]'-style assertions at once.
-# For instance;  'bulk_assert_test "/foo/bar" e f r'
+# For instance;  'assert_bulk_test "/foo/bar" e f r'
 # is equivalent to three separate assertions with messages, etc.
-bulk_assert_test()
+assert_bulk_test()
 {
     local _file="$1"
     shift

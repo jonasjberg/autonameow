@@ -63,7 +63,7 @@ assert_true 'command -v exiftool' \
 assert_true 'command -v tesseract' \
             'tesseract is available on the system'
 
-bulk_assert_test "$AUTONAMEOW_RUNNER" n e r x
+assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
 assert_true '"$AUTONAMEOW_RUNNER"' \
             'The autonameow launcher script can be started with no arguments'
@@ -116,7 +116,7 @@ assert_false '[ -z "$AUTONAMEOW_CONFIG_PATH" ]' \
 
 # Strip quotes from configuration file path.
 AUTONAMEOW_CONFIG_PATH="${AUTONAMEOW_CONFIG_PATH//\"/}"
-bulk_assert_test "$AUTONAMEOW_CONFIG_PATH" e f r w
+assert_bulk_test "$AUTONAMEOW_CONFIG_PATH" e f r w
 
 assert_true 'grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH"' \
             'The retrieved configuration file contents should match "autonameow_version: X.X.X$"'
@@ -136,7 +136,7 @@ assert_true '[ "$AUTONAMEOW_VERSION" = "$CONFIG_FILE_VERSION" ]' \
 EMPTY_CONFIG='/tmp/autonameow_empty_config.yaml'
 assert_true 'touch "$EMPTY_CONFIG"' \
             'detect_empty_config Test setup should succeed'
-bulk_assert_test "$EMPTY_CONFIG" e f r
+assert_bulk_test "$EMPTY_CONFIG" e f r
 
 assert_false '"$AUTONAMEOW_RUNNER" --config-path "$EMPTY_CONFIG"' \
              'detect_empty_config Specifying a empty configuration file with "--config-path" should be handled properly'
@@ -149,7 +149,7 @@ assert_false '"$AUTONAMEOW_RUNNER" --config-path /tmp/does_not_exist_surely.mjao
 
 
 BAD_CONFIG_FILE="$(abspath_testfile "configs/bad_corrupt_gif.yaml")"
-bulk_assert_test "$BAD_CONFIG_FILE" e f r
+assert_bulk_test "$BAD_CONFIG_FILE" e f r
 
 assert_false '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE"' \
              'Attempting to load a invalid configuration file with "--config-path" should be handled properly'
@@ -160,7 +160,7 @@ assert_true '"$AUTONAMEOW_RUNNER" --dump-options --verbose' \
 
 
 NONASCII_CONFIG_FILE="$(abspath_testfile "configs/autonam€öw.yaml")"
-bulk_assert_test "$NONASCII_CONFIG_FILE" e f r
+assert_bulk_test "$NONASCII_CONFIG_FILE" e f r
 
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$NONASCII_CONFIG_FILE"' \
             'Attempting to load a non-ASCII configuration file with "--config-path" should be handled properly'
@@ -189,13 +189,13 @@ assert_true '"$AUTONAMEOW_RUNNER" --dump-options --quiet --config-path "$NONASCI
 
 set +o pipefail
 BAD_CONFIG_FILE_NO_FILE_RULES="$(abspath_testfile "configs/bad_no_file_rules.yaml")"
-bulk_assert_test "$BAD_CONFIG_FILE_NO_FILE_RULES" e f r
+assert_bulk_test "$BAD_CONFIG_FILE_NO_FILE_RULES" e f r
 
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_NO_FILE_RULES" 2>&1 | grep -q "Unable to load configuration"' \
             'Attempting to load a configuration file without any file rules should be handled properly'
 
 BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS="$(abspath_testfile "configs/bad_empty_but_sections.yaml")"
-bulk_assert_test "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" e f r
+assert_bulk_test "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" e f r
 
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" 2>&1 | grep -q "Unable to load configuration"' \
             'Attempting to load a configuration file with just bare sections should be handled properly'
@@ -243,17 +243,17 @@ done < <(find "${AUTONAMEOW_TESTFILES_DIR}/configs" -maxdepth 1 -xdev -type f -n
 # persistence path set in the config.
 
 TEMPLATED_DEFAULT_CONFIG="$(abspath_testfile "configs/integration_default_templated.yaml")"
-bulk_assert_test "$TEMPLATED_DEFAULT_CONFIG" f r w
+assert_bulk_test "$TEMPLATED_DEFAULT_CONFIG" f r w
  
 TEMP_PERSISTENCE_DIR="$(realpath -e -- "$(mktemp -d)")"
-bulk_assert_test "$TEMP_PERSISTENCE_DIR" d r w x
+assert_bulk_test "$TEMP_PERSISTENCE_DIR" d r w x
 
 _sed_backup_suffix='.orig'
 assert_true 'sed -i${_sed_backup_suffix} "s@___cache_directory___@${TEMP_PERSISTENCE_DIR}@g" "$TEMPLATED_DEFAULT_CONFIG"' \
             'Expect OK exit status for sed call replacing template placeholder ___cache_directory___'
 
 templated_default_config_backup="${TEMPLATED_DEFAULT_CONFIG}${_sed_backup_suffix}"
-bulk_assert_test "$templated_default_config_backup" f r w
+assert_bulk_test "$templated_default_config_backup" f r w
 
 _number_files_in_temp_persistence_dir="$(find "$TEMP_PERSISTENCE_DIR" -type f -mindepth 1 -type f | wc -l)"
 assert_true '[ "$_number_files_in_temp_persistence_dir" -eq "0" ]' \

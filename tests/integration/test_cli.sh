@@ -52,9 +52,9 @@ assert_true 'command -v python3' \
             'Python v3.x is available on the system'
 
 ACTIVE_CONFIG="$(abspath_testfile "configs/default.yaml")"
-bulk_assert_test "$ACTIVE_CONFIG" n e f r
+assert_bulk_test "$ACTIVE_CONFIG" n e f r
 
-bulk_assert_test "$AUTONAMEOW_RUNNER" n e r x
+assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
 assert_true '"$AUTONAMEOW_RUNNER"' \
             'The autonameow launcher script can be started with no arguments'
@@ -112,7 +112,7 @@ assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- ":root:"' \
 
 
 SAMPLE_EMPTY_FILE="$(abspath_testfile "empty")"
-bulk_assert_test "$SAMPLE_EMPTY_FILE" e f r
+assert_bulk_test "$SAMPLE_EMPTY_FILE" e f r
 
 assert_true '"$AUTONAMEOW_RUNNER" --batch --automagic --dry-run -- "$SAMPLE_EMPTY_FILE"' \
             'Expect exit status 0 when started with "--automagic", "--dry-run" and an empty file'
@@ -138,7 +138,7 @@ assert_true '"$AUTONAMEOW_RUNNER" --version --quiet' \
 
 
 SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
-bulk_assert_test "$SAMPLE_PDF_FILE" e f r
+assert_bulk_test "$SAMPLE_PDF_FILE" e f r
 
 sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
 assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --dry-run --list-all -- "$SAMPLE_PDF_FILE"' \
@@ -155,7 +155,7 @@ assert_false '"$AUTONAMEOW_RUNNER" --dump-config 2>&1 | grep -- " \!\!python/obj
 
 
 TEST_FILES_SUBDIR="$(abspath_testfile "subdir")"
-bulk_assert_test "$TEST_FILES_SUBDIR" d r w x
+assert_bulk_test "$TEST_FILES_SUBDIR" d r w x
 
 assert_true '"$AUTONAMEOW_RUNNER" --batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"' \
             "Expect exit code 0 when running \"--batch --recurse --dry-run -- \"${TEST_FILES_SUBDIR}\"\""
