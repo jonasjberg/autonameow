@@ -58,6 +58,8 @@ assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
 #
 # Check shared environment variables, used by all tests.
 
+bulk_assert_test "$AUTONAMEOW_ROOT_DIR" n e d r w x
+
 assert_false '[ -z "$AUTONAMEOW_ROOT_DIR" ]' \
              'Environment variable "AUTONAMEOW_ROOT_DIR" should not be unset'
 
@@ -67,22 +69,13 @@ assert_true '[ -d "$AUTONAMEOW_ROOT_DIR" ]' \
 assert_true '[ -r "$AUTONAMEOW_ROOT_DIR" ]' \
             'Environment variable "AUTONAMEOW_ROOT_DIR" should be a existing readable path'
 
-assert_true '[ -w "$AUTONAMEOW_ROOT_DIR" ]' \
-            'Environment variable "AUTONAMEOW_ROOT_DIR" should be a existing writable path'
-
 
 _common_utils_path="${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
-assert_true '[ -e "$_common_utils_path" ]' \
-            'Shared test utility library exists'
-
-assert_true '[ -r "$_common_utils_path" ]' \
-            'Shared test utility library exists and is readable'
-
-assert_true '[ -x "$_common_utils_path" ]' \
-            'Shared test utility library is executable'
-
+bulk_assert_test "$_common_utils_path" e r x
 
 _setup_environment_path="${AUTONAMEOW_ROOT_DIR}/tests/setup_environment.sh"
+bulk_assert_test "$_setup_environment_path" e r x
+
 assert_true '[ -e "$_setup_environment_path" ]' \
             'Shared test environment setup script exists'
 
@@ -93,12 +86,16 @@ assert_true '[ -x "$_setup_environment_path" ]' \
             'Shared test environment setup script is executable'
 
 
+bulk_assert_test "$AUTONAMEOW_TESTRESULTS_DIR" n e d
+
 assert_false '[ -z "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
              'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should not be unset'
 
 assert_true '[ -d "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
             'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should be a directory'
 
+
+bulk_assert_test "$AUTONAMEOW_WIKI_ROOT_DIR" n e d
 
 assert_false '[ -z "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
              'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should not be unset'
@@ -111,18 +108,21 @@ assert_true '[ -d "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
 #
 # Check environment variables used by specific types of tests.
 
+bulk_assert_test "$AUTONAMEOW_INTEGRATION_STATS" n e f
 assert_false '[ -z "$AUTONAMEOW_INTEGRATION_STATS" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_STATS" should not be unset'
 
 assert_true '[ -f "$AUTONAMEOW_INTEGRATION_STATS" ]' \
             'Environment variable "AUTONAMEOW_INTEGRATION_STATS" should be a file'
 
+bulk_assert_test "$AUTONAMEOW_INTEGRATION_LOG" n
 assert_false '[ -z "$AUTONAMEOW_INTEGRATION_LOG" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_LOG" should not be unset'
 
 assert_false '[ -d "$AUTONAMEOW_INTEGRATION_LOG" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_LOG" should not be a directory'
 
+bulk_assert_test "$AUTONAMEOW_INTEGRATION_TIMESTAMP" n
 assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_TIMESTAMP" should not be unset'
 
@@ -132,27 +132,13 @@ assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
 # Check the test runner scripts.
 
 _integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh"
-assert_true '[ -e "$_integration_runner_path" ]' \
-            'The integration test runner exists'
-
-assert_true '[ -x "$_integration_runner_path" ]' \
-            'The integration test runner is executable'
-
+bulk_assert_test "$_integration_runner_path" n e r x
 
 _unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/unit_runner.sh"
-assert_true '[ -e "$_unit_runner_path" ]' \
-            'The unit test runner exists'
-
-assert_true '[ -x "$_unit_runner_path" ]' \
-            'The unit test runner is executable'
-
+bulk_assert_test "$_unit_runner_path" n e r x
 
 _regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/regression_runner.sh"
-assert_true '[ -e "$_regression_runner_path" ]' \
-            'The regression test runner exists'
-
-assert_true '[ -x "$_regression_runner_path" ]' \
-            'The regression test runner is executable'
+bulk_assert_test "$_regression_runner_path" n e r x
 
 
 # ______________________________________________________________________________
