@@ -54,7 +54,7 @@ fi
 trivial_imports="$(python3 -v -c 'print("no-op")' 2>&1 |
     grep -Eo -- "^import\ \'[A-Za-z0-9]+" |
     sort -u |
-    while IFS='\n' read -r __line
+    while IFS=$'\n' read -r __line
     do
         __module="${__line#import \'}"
         echo "$__module"
@@ -64,7 +64,7 @@ trivial_imports="$(python3 -v -c 'print("no-op")' 2>&1 |
 python3 -v "$1" 2>&1 |
 grep -Eo -- "^import\ \'[A-Za-z0-9]+" |
 sort -u |
-while IFS='\n' read -r _line
+while IFS=$'\n' read -r _line
 do
     _module="${_line#import \'}"
     echo "$_module"

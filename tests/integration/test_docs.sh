@@ -76,7 +76,7 @@ count_file_in_document()
     [ -z "${1:-}" ] && { echo "0" ; return ; }
 
     local _file
-    while IFS='\n' read -r _file
+    while IFS=$'\n' read -r _file
     do
         grep -- "${_file}" "${_wiki_report_results}"
     done <<< "$1" | wc -l

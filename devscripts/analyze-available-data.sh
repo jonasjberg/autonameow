@@ -103,7 +103,7 @@ AUTONAMEOW="autonameow"
 
 print_autonameow_matches()
 {
-    while IFS='\n' read -r line
+    while IFS=$'\n' read -r line
     do
         printf '%-13.13s %s\n' "$1" "$line"
     done <<< "$2"
