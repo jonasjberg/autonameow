@@ -177,7 +177,7 @@ update_global_test_results()
 # Calls 'test_pass' if the expression returns zero.
 assert_true()
 {
-    ( eval "${1}" 2>&1 >/dev/null ) >/dev/null
+    ( eval "${1}" >/dev/null 2>&1 ) >/dev/null
     if [ "$?" -ne "0" ]
     then
         shift ; test_fail "$*"
@@ -191,7 +191,7 @@ assert_true()
 # Calls 'test_fail' if the expression returns zero.
 assert_false()
 {
-    ( eval "${1}" 2>&1 >/dev/null ) >/dev/null
+    ( eval "${1}" >/dev/null 2>&1 ) >/dev/null
     if [ "$?" -ne "0" ]
     then
         shift ; test_pass "$*"
