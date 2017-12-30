@@ -47,14 +47,18 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 # 3. The expected basename of the file after having been renamed.
 test_automagic_rename()
 {
-    local _test_name="RENAME ${1}"
-    local _sample_file="$2"
-    local _expected_basename="$3"
+    local -r _test_name="RENAME ${1}"
+    local -r _sample_file="$2"
+    local -r _expected_basename="$3"
+    local _sample_file_basename
+    local _temp_dir
+    local _expected_name
+    local _temp_file
 
-    local _sample_file_basename="$(basename -- "${_sample_file}")"
-    local _temp_dir="$(mktemp -d)"
-    local _expected_name="${_temp_dir}/${_expected_basename}"
-    local _temp_file="${_temp_dir}/${_sample_file_basename}"
+    _sample_file_basename="$(basename -- "${_sample_file}")"
+    _temp_dir="$(mktemp -d)"
+    _expected_name="${_temp_dir}/${_expected_basename}"
+    _temp_file="${_temp_dir}/${_sample_file_basename}"
 
     assert_true 'cp -n -- "${_sample_file}" "${_temp_file}"' \
                 "(${_test_name}) Test setup should succeed in copying the sample file to a temporary directory"

@@ -45,13 +45,13 @@ kill_running_task()
 #    any other return code is considered a failure.
 run_task()
 {
-    local _opt_quiet="$1"
-    local _msg="$2"
-    local _cmd="$3"
+    local -r _opt_quiet="$1"
+    local -r _msg="$2"
+    local -r _cmd="$3"
 
     # Print tasks is starting message.
     local FMT
-    [ "$_opt_quiet" = 'true' ] && local FMT='%s ..' || local FMT='%s ..\n'
+    [ "$_opt_quiet" = 'true' ] && FMT='%s ..' || FMT='%s ..\n'
     printf "$FMT" "$_msg"
 
     # Catch SIGUP (1) SIGINT (2) and SIGTERM (15)

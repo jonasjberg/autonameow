@@ -90,7 +90,8 @@ wiki_report_append()
 wiki_check_add_header()
 {
     # Insert heading with todays date if not already present.
-    local _date="$(date "+%Y-%m-%d")"
+    local _date
+    _date="$(date "+%Y-%m-%d")"
     if ! grep -q "^### ${_date}$" "$WIKI_REPORT_RESULTS"
     then
         wiki_report_append "\n### ${_date}\n\n"

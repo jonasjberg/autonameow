@@ -78,25 +78,31 @@ initialize_global_stats()
 
 # Print message to stdout and append message to AUTONAMEOW_INTEGRATION_LOG.
 # ANSI escape codes are allowed and included in the log file.
-
+#
 # Conditional piping inside the subshell allows executing only this file, in
 # which case AUTONAMEOW_INTEGRATION_LOG will be undefined and the 'tee' call is
 # skipped. In this case no log file is written do disk.
+#
+# shellcheck disable=SC2015
 logmsg()
 {
-    local _timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+    local _timestamp
+    _timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
     printf '%s %s\n' "$_timestamp" "$*" |
+
     ( [ ! -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] && tee -a "$AUTONAMEOW_INTEGRATION_LOG" || cat )
 }
 
 # Prints out a summary of test results for the currently sourcing script.
 log_test_suite_results_summary()
 {
-    local _name="$1"
-    local _execution_time="$2"
-    local _highlight_red=''
+    local -r _name="$1"
+    local -r _execution_time="$2"
+    local _highlight_red
 
     logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+    _highlight_red=''
     if [ "$suite_tests_failed" -eq "0" ]
     then
         logmsg "${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
@@ -114,14 +120,16 @@ log_test_suite_results_summary()
 # Prints out a total test results ummary for all tests.
 log_total_results_summary()
 {
-    local _execution_time="$1"
-    local _tests_count="$2"
-    local _tests_passed="$3"
-    local _tests_failed="$4"
-    local _highlight_red=''
+    local -r _execution_time="$1"
+    local -r _tests_count="$2"
+    local -r _tests_passed="$3"
+    local -r _tests_failed="$4"
+    local _highlight_red
 
     logmsg "Reading global statistics from file: \"${AUTONAMEOW_INTEGRATION_STATS}\""
     logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+    _highlight_red=''
     if [ "$_tests_failed" -eq "0" ]
     then
         logmsg "${C_GREEN}[ ALL TEST SUITE(S) TESTS PASSED ]${C_RESET}"
@@ -130,11 +138,14 @@ log_total_results_summary()
         _highlight_red="${C_RED}"
     fi
 
-    local _seconds="$((_execution_time / 1000))"
-    local _duration="$(printf '%02dh:%02dm:%02ds\n' \
-                     $((_seconds % 86400 / 3600))   \
-                     $((_seconds % 3600 / 60))      \
-                     $((_seconds % 60)))"
+    local _duration
+    local _seconds
+    _seconds="$((_execution_time / 1000))"
+    _duration="$(printf '%02dh:%02dm:%02ds\n' \
+               $((_seconds % 86400 / 3600))   \
+               $((_seconds % 3600 / 60))      \
+               $((_seconds % 60)))"
+
     logmsg "$(printf "Total Test Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$_tests_count" "$_tests_passed" "$_tests_failed")"
     logmsg "Completed all tests in ${_duration}  (${_execution_time} ms)"
@@ -203,9 +214,12 @@ assert_false()
 # TODO: Finish this function ..
 log_system_info()
 {
-    local _os_name="$(uname -s)"
-    local _os_vers="$(uname -r)"
+    local _os_name
+    local _os_vers
     local _cpu_info
+
+    _os_name="$(uname -s)"
+    _os_vers="$(uname -r)"
 
     case "$OSTYPE" in
         darwin*)
@@ -295,8 +309,8 @@ current_unix_time()
 # Returns the time delta in milliseconds.
 calculate_execution_time()
 {
-    local _time_start="$1"
-    local _time_end="$2"
+    local -r _time_start="$1"
+    local -r _time_end="$2"
     echo "$(((_time_end - _time_start) / 1000000))"
 }
 
@@ -311,16 +325,19 @@ abspath_testfile()
 # Any dates matching 'YYYY-MM-DDTHHMMSS' are returned as 'YYYY-MM-DD HH:MM:SS'.
 get_timestamp_from_basename()
 {
-    local ts="$(grep -Eo -- "20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{6}" <<< "$1")"
-    sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)T\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3 \4:\5:\6/' <<< "$ts"
+    local _ts
+    _ts="$(grep -Eo -- "20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{6}" <<< "$1")"
+    sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)T\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3 \4:\5:\6/' <<< "$_ts"
 }
 
 # Test a bunch of '[ -d "foo" ]'-style assertions at once.
 # For instance;  'assert_bulk_test "/foo/bar" e f r'
 # is equivalent to three separate assertions with messages, etc.
+#
+# shellcheck disable=SC2016
 assert_bulk_test()
 {
-    local _file="$1"
+    local -r _file="$1"
     shift
 
     while [ "$#" -gt "0" ]
