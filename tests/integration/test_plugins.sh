@@ -44,7 +44,7 @@ source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 time_start="$(current_unix_time)"
 
 TESTSUITE_NAME='Plugins'
-logmsg "Running the "$TESTSUITE_NAME" test suite .."
+logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
