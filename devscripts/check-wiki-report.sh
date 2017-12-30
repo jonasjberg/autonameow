@@ -24,7 +24,7 @@
 
 set -o noclobber -o nounset -o pipefail
 
-AUTOAMEOW_TESTRESULTS_DIR="/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/docs/test_results"
+AUTONAMEOW_TESTRESULTS_DIR="/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/docs/test_results"
 TEST_RESULTS_DOCUMENT="/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.wiki.git/Test-Results.md"
 
 
