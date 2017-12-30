@@ -84,7 +84,7 @@ EOF
 # caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
-    printf "(USING DEFAULTS -- "${SELF_BASENAME} -h" for usage information)\n\n"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "${SELF_BASENAME}"
 else
     while getopts f:hwq opt
     do
@@ -102,7 +102,7 @@ else
     done
 
 
-    shift $(( $OPTIND - 1 ))
+    shift $(( OPTIND - 1 ))
 fi
 
 
@@ -131,7 +131,7 @@ do
     then
         if ! grep -q -- "$optionarg_filter" <<< "${_testscript_base}"
         then
-            logmsg "Skipped \""${_testscript_base}"\" (filter expression \"${optionarg_filter}\")"
+            logmsg "Skipped \"${_testscript_base}\" (filter expression \"${optionarg_filter}\")"
             continue
         fi
     fi
@@ -151,9 +151,9 @@ do
     # !! fi
     # !! wait "$TASK_PID"
 
-    logmsg "Starting \""${_testscript_base}"\" .."
+    logmsg "Starting \"${_testscript_base}\" .."
     source "${testscript}"
-    logmsg "Finished \""${_testscript_base}"\""
+    logmsg "Finished \"${_testscript_base}\""
 done
 
 
