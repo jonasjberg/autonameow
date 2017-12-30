@@ -70,7 +70,7 @@ test_automagic_rename()
     then
         assert_true '[ "1" -eq "0" ]' \
         "(${_test_name}) Test setup FAILED. Unable to continue. Skipping remaining tests .."
-        return -1
+        return 127
     fi
 
     assert_true '"$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic -- "${_temp_file}" && [ -e "$_expected_name" ]' \
@@ -97,7 +97,7 @@ test_automagic_dryrun()
     then
         assert_true '[ "1" -eq "0" ]' \
         "(${_test_name}) Test setup FAILED. Unable to continue. Skipping remaining tests .."
-        return -1
+        return 127
     fi
 
     assert_true '"$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
