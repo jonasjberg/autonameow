@@ -89,9 +89,9 @@ test_automagic_rename()
 # 3. The expected basename of the file after having been renamed.
 test_automagic_dryrun()
 {
-    local _test_name="DRY-RUN ${1}"
-    local _sample_file="$2"
-    local _expected_basename="$3"
+    local -r _test_name="DRY-RUN ${1}"
+    local -r _sample_file="$2"
+    local -r _expected_basename="$3"
 
     if ! [ -f "${_sample_file}" ]
     then
