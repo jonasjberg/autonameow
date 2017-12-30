@@ -215,7 +215,7 @@ log_system_info()
         linux*|msys)
             if [ -e '/proc/cpuinfo' ]
             then
-                _cpu_info="$(cat /proc/cpuinfo | grep -m1 'model name')"
+                _cpu_info="$(grep -m1 'model name' '/proc/cpuinfo')"
                 _cpu_info="${_cpu_info#*:}"
             fi ;;
 
