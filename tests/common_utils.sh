@@ -50,9 +50,12 @@ run_task()
     local -r _cmd="$3"
 
     # Print tasks is starting message.
-    local FMT
-    [ "$_opt_quiet" = 'true' ] && FMT='%s ..' || FMT='%s ..\n'
-    printf "$FMT" "$_msg"
+    if [ "$_opt_quiet" = 'true' ]
+    then
+        printf '%s ..' "$_msg"
+    else
+        printf '%s ..\n' "$_msg"
+    fi
 
     # Catch SIGUP (1) SIGINT (2) and SIGTERM (15)
     trap kill_running_task SIGHUP SIGINT SIGTERM
