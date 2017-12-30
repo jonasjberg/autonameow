@@ -54,6 +54,8 @@ assert_true '[ -d "$DOC_PATH" ]' \
             "Documentation directory \"${doc_path_basename}\" should exist"
 
 _srcroot_readme="${AUTONAMEOW_ROOT_DIR}/README.md"
+assert_bulk_test "$_srcroot_readme" n e f r
+
 assert_true '[ -f "$_srcroot_readme" ]' \
             'The root source directory should contain a "README.md"'
 
@@ -61,6 +63,8 @@ assert_false 'grep_todos "$_srcroot_readme"' \
              'Main README.md does not contain TODOs'
 
 _wiki_report_results="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
+assert_bulk_test "$_wiki_report_results" n e f r
+
 assert_true '[ -f "$_wiki_report_results" ]' \
             'The project Wiki should contain "Test-Results.md"'
 
