@@ -63,7 +63,7 @@ run_task()
         eval "${_cmd}" &
         TASK_PID="$!"
     else
-        eval "${_cmd}" 2>&1 >/dev/null &
+        eval "${_cmd}" >/dev/null 2>&1 &
         TASK_PID="$!"
     fi
     wait "$TASK_PID"
