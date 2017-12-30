@@ -64,8 +64,8 @@ else
 fi
 
 
-echo "Currently skipped regression tests:"
-( cd "$SELF_DIR" && find . -xdev -type f -name 'skip' -printf "%P\n" | sed 's/\/skip//' )
+printf 'Currently skipped regression tests:\n'
+( cd "$SELF_DIR" && find . -xdev -type f -name 'skip' -printf '%P\n' | sed 's/\/skip//' )
 
 if [ "$option_clear_all_skipped" == 'true' ]
 then

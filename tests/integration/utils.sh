@@ -85,8 +85,8 @@ initialize_global_stats()
 # skipped. In this case no log file is written do disk.
 logmsg()
 {
-    local _timestamp="$(date "+%Y-%m-%d %H:%M:%S")"
-    printf "%s %s\n" "$_timestamp" "$*" |
+    local _timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+    printf '%s %s\n' "$_timestamp" "$*" |
     ( [ ! -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] && tee -a "$AUTONAMEOW_INTEGRATION_LOG" || cat )
 }
 
@@ -213,7 +213,7 @@ log_system_info()
             _cpu_info="$(sysctl -n machdep.cpu.brand_string)" ;;
 
         linux*|msys)
-            if [ -e "/proc/cpuinfo" ]
+            if [ -e '/proc/cpuinfo' ]
             then
                 _cpu_info="$(cat /proc/cpuinfo | grep -m1 'model name')"
                 _cpu_info="${_cpu_info#*:}"
@@ -358,10 +358,10 @@ bulk_assert_test()
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
 then
     logmsg "Starting self-tests .."
-    assert_true  "[ "0" -eq "0" ]" '(Internal Test) Expect success ..'
-    assert_true  "[ "1" -eq "0" ]" '(Internal Test) Expect failure ..'
-    assert_false "[ "1" -eq "0" ]" '(Internal Test) Expect success ..'
-    assert_false "[ "1" -ne "0" ]" '(Internal Test) Expect failure ..'
+    assert_true  '[ "0" -eq "0" ]' '(Internal Test) Expect success ..'
+    assert_true  '[ "1" -eq "0" ]' '(Internal Test) Expect failure ..'
+    assert_false '[ "1" -eq "0" ]' '(Internal Test) Expect success ..'
+    assert_false '[ "1" -ne "0" ]' '(Internal Test) Expect failure ..'
     logmsg "Finished self-tests!"
 fi
 
