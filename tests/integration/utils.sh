@@ -131,9 +131,14 @@ log_total_results_summary()
         _highlight_red="${C_RED}"
     fi
 
+    local _seconds="$((_execution_time / 1000))"
+    local _duration="$(printf '%02dh:%02dm:%02ds\n' \
+                     $((${_seconds}%86400/3600))    \
+                     $((${_seconds}%3600/60))       \
+                     $((${_seconds}%60)))"
     logmsg "$(printf "Total Test Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$_tests_count" "$_tests_passed" "$_tests_failed")"
-    logmsg "Completed all tests in ${_execution_time} ms"
+    logmsg "Completed all tests in ${_duration}  (${_execution_time} ms)"
     logmsg "======================================================================"
 }
 
