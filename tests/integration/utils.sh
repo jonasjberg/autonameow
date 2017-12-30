@@ -349,6 +349,8 @@ assert_bulk_test()
         esac
         shift
 
+        [ -n "$_exp" ] || { printf '\nINTERNAL ERROR! Aborting..\n' ; exit 1 ; }
+        [ -n "$_msg" ] || { printf '\nINTERNAL ERROR! Aborting..\n' ; exit 1 ; }
         assert_true '[ "$_exp" "$_file" ]' "Path \"${_file}\" ${_msg}"
     done
 }
