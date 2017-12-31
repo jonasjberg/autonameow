@@ -23,7 +23,6 @@ import zipfile
 
 from core import types
 from core.model import WeightedMapping
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
@@ -42,21 +41,21 @@ class EpubMetadataExtractor(BaseExtractor):
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
             ],
-            'generic_field': gf.GenericAuthor
+            'generic_field': 'author'
         },
         'title': {
             'coercer': types.AW_STRING,
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
             ],
-            'generic_field': gf.GenericTitle
+            'generic_field': 'title'
         },
         'producer': {
             'coercer': types.AW_STRING,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=0.1),
             ],
-            'generic_field': gf.GenericProducer
+            'generic_field': 'producer'
         }
     }
 

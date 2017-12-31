@@ -29,6 +29,7 @@ from core import (
 )
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
+from core.model.genericfields import get_field_class
 from util import sanity
 
 
@@ -167,6 +168,14 @@ def _wrap_extracted_data(extracteddata, metainfo, source_klass):
         field_metainfo['value'] = value
         # Do not store a reference to the class itself before actually needed..
         field_metainfo['source'] = str(source_klass)
+
+        # Map strings to generic field classes.
+        _generic_field_string = field_metainfo.get('generic_field')
+        if _generic_field_string:
+            _generic_field_klass = get_field_class(_generic_field_string)
+            if _generic_field_klass:
+                field_metainfo['generic_field'] = _generic_field_klass
+
         out[field] = field_metainfo
 
     return out

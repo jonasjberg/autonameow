@@ -33,7 +33,6 @@ from core import types
 from core import constants as C
 from core.exceptions import AutonameowPluginError
 from core.model import WeightedMapping
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from plugins import BasePlugin
 from util import mimemagic
@@ -168,7 +167,7 @@ class MicrosoftVisionPlugin(BasePlugin):
                 WeightedMapping(fields.Title, probability=0.5),
                 WeightedMapping(fields.Description, probability=0.8)
             ],
-            'generic_field': gf.GenericTags
+            'generic_field': 'tags'
         }
     }
 

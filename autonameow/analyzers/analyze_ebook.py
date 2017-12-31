@@ -34,7 +34,6 @@ from core import (
 )
 from core.namebuilder import fields
 from core.model import WeightedMapping
-from core.model import genericfields as gf
 from core.model.normalize import (
     normalize_full_human_name,
     normalize_full_title
@@ -282,7 +281,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
             ],
-            'generic_field': gf.GenericAuthor,
+            'generic_field': 'author',
             'multivalued': True
         }
 
@@ -305,7 +304,7 @@ class EbookAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.Date, probability=1),
                 WeightedMapping(fields.DateTime, probability=1),
             ],
-            'generic_field': gf.GenericDateCreated
+            'generic_field': 'date_created'
         }
 
     def _filter_publisher(self, raw_string):
@@ -329,7 +328,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            'generic_field': gf.GenericPublisher
+            'generic_field': 'publisher'
         }
 
     def _filter_title(self, raw_string):
@@ -352,7 +351,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
             ],
-            'generic_field': gf.GenericTitle
+            'generic_field': 'title'
         }
 
     def _filter_edition(self, raw_string):
@@ -371,7 +370,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Edition, probability=1),
             ],
-            'generic_field': gf.GenericEdition
+            'generic_field': 'edition'
         }
 
     @classmethod
