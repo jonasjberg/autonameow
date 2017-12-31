@@ -138,8 +138,7 @@ def eval_glob(mime_to_match, glob_list):
     if mime_to_match == types.NULL_AW_MIMETYPE:
         if '*/*' in glob_list:
             return True
-        else:
-            return False
+        return False
 
     if not mime_to_match:
         # Test again after the case above because NullMIMEType evaluates False.

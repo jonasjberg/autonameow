@@ -206,8 +206,7 @@ class ImageAnalyzer(BaseAnalyzer):
         if not results:
             self.log.debug('Found no date/time-information in OCR text.')
             return None
-        else:
-            return results
+        return results
 
     @classmethod
     def check_dependencies(cls):

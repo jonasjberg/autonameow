@@ -85,8 +85,7 @@ class Configuration(object):
         """
         if self._version:
             return 'v' + '.'.join(map(str, self._version))
-        else:
-            return None
+        return None
 
     @property
     def options(self):

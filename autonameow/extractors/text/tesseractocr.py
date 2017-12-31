@@ -176,8 +176,7 @@ def get_errors(error_string):
     error_lines = tuple(line for line in lines if line.find('Error') >= 0)
     if len(error_lines) > 0:
         return '\n'.join(error_lines)
-    else:
-        return error_string.strip()
+    return error_string.strip()
 
 
 def new_temporary_file(prefix=None, suffix=None):

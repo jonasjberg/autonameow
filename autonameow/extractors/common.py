@@ -125,8 +125,7 @@ class BaseExtractor(object):
             # De-pluralize; 'extractors' --> 'extractor', etc.
             if _name.endswith('s'):
                 return _name[:-1]
-            else:
-                return _name
+            return _name
 
         # "The base class for the exceptions that are raised when a key or
         # index used on a mapping or sequence is invalid: IndexError, KeyError.

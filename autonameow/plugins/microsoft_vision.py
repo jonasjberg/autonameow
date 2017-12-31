@@ -122,8 +122,7 @@ def get_tags(json_data, count=None):
     else:
         if count and len(tags) > count:
             return tags[:count]
-        else:
-            return tags
+        return tags
 
 
 def _read_api_key_from_file(file_path):

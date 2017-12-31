@@ -132,10 +132,7 @@ class AbstractTextExtractor(BaseExtractor):
         text = raw_text
         text = normalize_unicode(text)
         text = remove_nonbreaking_spaces(text)
-        if text:
-            return text
-        else:
-            return ''
+        return text if text else ''
 
 
 def decode_raw(raw_text):

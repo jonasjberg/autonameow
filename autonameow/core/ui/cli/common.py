@@ -411,8 +411,7 @@ class ColumnFormatter(object):
             out = []
             out.extend(self._default_align for _ in range(self.number_columns))
             return out
-        else:
-            return self._column_align
+        return self._column_align
 
     @property
     def number_columns(self):

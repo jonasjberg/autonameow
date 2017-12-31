@@ -69,15 +69,14 @@ def read_entire_text_file(file_path):
             )
             contents = _read_entire_text_file_autodetect_encoding(file_path)
 
-    if contents:
-        log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
-                                                                  file_path))
-        text = ''.join(contents)
-        sanity.check_internal_string(text)
-        return text
-    else:
+    if not contents:
         log.debug('Read NOTHING from file "{!s}"'.format(file_path))
         return ''
+
+    log.debug('Read {} bytes from "{!s}"'.format(len(contents), file_path))
+    text = ''.join(contents)
+    sanity.check_internal_string(text)
+    return text
 
 
 def _read_entire_text_file_autodetect_encoding(file_path):

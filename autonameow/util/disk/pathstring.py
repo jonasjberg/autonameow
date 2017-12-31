@@ -59,8 +59,7 @@ def split_basename(file_path):
     ext = ext.lstrip(b'.')
     if ext and ext.strip():
         return base, ext
-    else:
-        return base, None
+    return base, None
 
 
 def basename_suffix(file_path, make_lowercase=True):
@@ -132,11 +131,7 @@ def compare_basenames(basename_one, basename_two):
 
     sanity.check_internal_bytestring(basename_one)
     sanity.check_internal_bytestring(basename_two)
-
-    if basename_one == basename_two:
-        return True
-    else:
-        return False
+    return bool(basename_one == basename_two)
 
 
 def path_ancestry(path):
