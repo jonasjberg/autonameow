@@ -19,13 +19,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
-
 """
 Modifications of the default 'argparse' parser are extracted here to allow
 both the main autonameow program as well as other auxiliary programs like
 the regression test runner to use the modified 'argparse' parser.
 """
+
+import argparse
 
 
 class CapitalisedHelpFormatter(argparse.HelpFormatter):
