@@ -26,11 +26,8 @@ import types
 from datetime import datetime
 from unittest import TestCase
 
-import analyzers
 import unit.utils as uu
 import unit.constants as uuconst
-from analyzers import BaseAnalyzer
-from core.config import rules
 from core.fileobject import FileObject
 from core.model import MeowURI
 
@@ -376,6 +373,7 @@ class TestUnitUtilityGetMockAnalyzer(TestCase):
         self.assertIsInstance(uu.get_mock_analyzer(), types.GeneratorType)
 
     def test_get_mock_analyzer_returns_analyzers(self):
+        import analyzers
         for a in uu.get_mock_analyzer():
             self.assertIn(type(a), analyzers.get_analyzer_classes())
 
@@ -430,6 +428,7 @@ class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
     def test_get_instantiated_analyzers_returns_expected_type(self):
         self.assertEqual(type(self.instances), list)
 
+        from analyzers import BaseAnalyzer
         for analyzer_instance in self.instances:
             self.assertTrue(
                 issubclass(analyzer_instance.__class__, BaseAnalyzer)
@@ -572,6 +571,8 @@ class TestGetDummyValidatedConditions(TestCase):
 
     def test_returns_rule_class_instances(self):
         conditions = uu.get_dummy_rulecondition_instances()
+
+        from core.config import rules
         for condition in conditions:
             self.assertTrue(uu.is_class_instance(condition))
             self.assertIsInstance(condition, rules.RuleCondition)
