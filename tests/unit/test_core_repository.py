@@ -21,14 +21,13 @@
 
 from unittest import TestCase
 
+import unit.utils as uu
+import unit.constants as uuconst
 from core import (
     exceptions,
     repository
 )
 from core.repository import Repository
-
-import unit.utils as uu
-import unit.constants as uuconst
 
 
 class TestRepository(TestCase):
