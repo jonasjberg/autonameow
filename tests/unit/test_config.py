@@ -28,8 +28,12 @@ from unittest.mock import (
 )
 
 import unit.utils as uu
-from core import config
-from core.config import load_config_from_file
+from core.config import (
+    CONFIG_BASENAME,
+    config_dirs,
+    config_file_path,
+    load_config_from_file
+)
 
 
 class TestConfigDirs(TestCase):
@@ -39,7 +43,7 @@ class TestConfigDirs(TestCase):
 
     def test_config_dirs_on_mac(self):
         with patch('platform.system', MagicMock(return_value='Darwin')):
-            dirs = config.config_dirs()
+            dirs = config_dirs()
 
             self.assertIsNotNone(dirs)
             self._assert_unicode_encoding(dirs)
@@ -49,7 +53,7 @@ class TestConfigDirs(TestCase):
     def test_config_dirs_on_windows(self):
         self.skipTest('TODO: Mock expanding "~" to "C:/Users/whatever"')
         with patch('platform.system', MagicMock(return_value='Windows')):
-            dirs = config.config_dirs()
+            dirs = config_dirs()
 
             self.assertIsNotNone(dirs)
             self._assert_unicode_encoding(dirs)
@@ -57,7 +61,7 @@ class TestConfigDirs(TestCase):
 
     def test_config_dirs_on_linux(self):
         with patch('platform.system', MagicMock(return_value='Linux')):
-            dirs = config.config_dirs()
+            dirs = config_dirs()
 
             self.assertIsNotNone(dirs)
             self._assert_unicode_encoding(dirs)
@@ -65,7 +69,7 @@ class TestConfigDirs(TestCase):
 
     def test_config_dirs_on_dummy_system_defaults_to_unix(self):
         with patch('platform.system', MagicMock(return_value='dummy')):
-            dirs = config.config_dirs()
+            dirs = config_dirs()
 
             self.assertIsNotNone(dirs)
             self._assert_unicode_encoding(dirs)
@@ -75,7 +79,7 @@ class TestConfigDirs(TestCase):
 class TestConfigFilePath(TestCase):
     def _assert_expected_basename(self, config_path):
         actual_basename = os.path.basename(config_path)
-        expect_basename = uu.encode(config.CONFIG_BASENAME)
+        expect_basename = uu.encode(CONFIG_BASENAME)
         self.assertEqual(expect_basename, actual_basename)
 
     def _assert_expected_encoding(self, config_path):
@@ -83,7 +87,7 @@ class TestConfigFilePath(TestCase):
 
     def test_config_dirs_on_mac(self):
         with patch('platform.system', MagicMock(return_value='Darwin')):
-            config_path = config.config_file_path()
+            config_path = config_file_path()
 
             self.assertIsNotNone(config_path)
             self._assert_expected_encoding(config_path)
@@ -92,7 +96,7 @@ class TestConfigFilePath(TestCase):
     def test_config_dirs_on_windows(self):
         # TODO: Mock expanding "~" to "C:/Users/whatever" ..
         with patch('platform.system', MagicMock(return_value='Windows')):
-            config_path = config.config_file_path()
+            config_path = config_file_path()
 
             self.assertIsNotNone(config_path)
             self._assert_expected_encoding(config_path)
@@ -100,7 +104,7 @@ class TestConfigFilePath(TestCase):
 
     def test_config_dirs_on_linux(self):
         with patch('platform.system', MagicMock(return_value='Linux')):
-            config_path = config.config_file_path()
+            config_path = config_file_path()
 
             self.assertIsNotNone(config_path)
             self._assert_expected_encoding(config_path)
@@ -108,7 +112,7 @@ class TestConfigFilePath(TestCase):
 
     def test_config_dirs_on_dummy_system_defaults_to_unix(self):
         with patch('platform.system', MagicMock(return_value='dummy')):
-            config_path = config.config_file_path()
+            config_path = config_file_path()
 
             self.assertIsNotNone(config_path)
             self._assert_expected_encoding(config_path)
