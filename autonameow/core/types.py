@@ -79,9 +79,9 @@ class BaseNullValue(object):
     def __eq__(self, other):
         if other is None:
             return False
-        if type(other) == type(self):
+        if isinstance(other, self.__class__):
             return True
-        if self.__class__ == other:
+        if other == self.__class__:
             return True
         if isinstance(other, bool) and other is False:
             return True

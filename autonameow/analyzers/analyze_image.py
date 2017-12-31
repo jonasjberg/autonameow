@@ -177,7 +177,7 @@ class ImageAnalyzer(BaseAnalyzer):
 
         results = []
         text = self.text
-        if type(text) == list:
+        if isinstance(text, list):
             text = ' '.join(text)
 
         dt_regex = dateandtime.regex_search_str(text)

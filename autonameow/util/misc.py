@@ -85,7 +85,7 @@ def dump_to_list(obj, nested_level=0, output=None):
     else:
         out = output
 
-    if type(obj) == dict:
+    if isinstance(obj, dict):
         out.append('{}{{'.format(nested_level * spacing))
         for k, v in list(obj.items()):
             if hasattr(v, '__iter__'):
@@ -94,7 +94,7 @@ def dump_to_list(obj, nested_level=0, output=None):
             else:
                 out.append('{}{}: {}'.format((nested_level + 1) * spacing, k, v))
         out.append('{}}}'.format(nested_level * spacing))
-    elif type(obj) == list:
+    elif isinstance(obj, dict):
         out.append('{}['.format(nested_level * spacing))
         for v in obj:
             if hasattr(v, '__iter__'):
