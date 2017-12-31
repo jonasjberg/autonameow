@@ -136,10 +136,7 @@ class RuleCondition(object):
             )
 
     def _validate_expression(self, raw_expression):
-        if self._parser.validate(raw_expression):
-            return True
-        else:
-            return False
+        return bool(self._parser.validate(raw_expression))
 
     def _get_parser_for(self, meowuri):
         if self._parser:
@@ -175,10 +172,7 @@ class RuleCondition(object):
             return False
 
         result = self._parser.evaluate(self.expression, data)
-        if result:
-            return result
-        else:
-            return False
+        return result if result else False
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -276,8 +270,7 @@ class Rule(object):
     def ranking_bias(self):
         if self._ranking_bias:
             return self._ranking_bias
-        else:
-            return C.DEFAULT_RULE_RANKING_BIAS
+        return C.DEFAULT_RULE_RANKING_BIAS
 
     @ranking_bias.setter
     def ranking_bias(self, raw_ranking_bias):

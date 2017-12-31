@@ -82,8 +82,7 @@ def meowuri_prompt(message):
     response = ui.meowuri_prompt(message)
     if response:
         return response
-    else:
-        return Choice.ABORT
+    return Choice.ABORT
 
 
 def ask_confirm(message=None):

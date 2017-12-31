@@ -170,7 +170,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                 assert isinstance(dt_brute, list)
                 for v in dt_brute:
                     results.append({
-                        'value': data,
+                        'value': v,
                         'coercer': types.AW_TIMEDATE,
                         'mapped_fields': [
                             WeightedMapping(fields.DateTime, probability=0.1),

@@ -70,17 +70,21 @@ class EpubMetadataExtractor(BaseExtractor):
             metadata = self._to_internal_format(_raw_metadata)
             return metadata
 
-    def _to_internal_format(self, raw_metadata):
-        out = dict()
+        return dict()
 
+    def _to_internal_format(self, raw_metadata):
+        coerced_metadata = dict()
+
+        # NOTE: epubzilla returns a class instance.
+        #       Can not use 'providers.ProviderMixin.coerce_field_value()'
         for tag_name in self.FIELD_LOOKUP.keys():
             _data = raw_metadata.get(tag_name)
             if _data is not None:
                 coerced = self.coerce_field_value(tag_name, _data)
                 if coerced is not None:
-                    out[tag_name] = coerced
+                    coerced_metadata[tag_name] = coerced
 
-        return out
+        return coerced_metadata
 
     @classmethod
     def check_dependencies(cls):
@@ -96,4 +100,4 @@ def _get_epub_metadata(source):
         try:
             return epub_file.metadata
         except AttributeError:
-            return {}
+            return dict()

@@ -123,8 +123,7 @@ class FileObject(object):
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
-        else:
-            return self.__check_equality_fast(other)
+        return self.__check_equality_fast(other)
 
     def __ne__(self, other):
         return not (self == other)

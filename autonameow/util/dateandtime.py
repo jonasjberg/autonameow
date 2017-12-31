@@ -48,8 +48,7 @@ def hyphenate_date(date_str):
     match = re.match(r'^(\d\d\d\d)(\d\d)(\d\d)$', date_str)
     if match is not None:
         return '-'.join(match.groups())
-    else:
-        return date_str
+    return date_str
 
 
 def _year_is_probable(int_year):

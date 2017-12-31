@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env bash
 
 #   Copyright(c) 2016-2017 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
@@ -19,20 +19,40 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from .collector import (
-    normpaths_from_opts
-)
-from .io import *
-from .pathstring import (
-    basename_prefix,
-    basename_suffix,
-    compare_basenames,
-    path_ancestry,
-    path_components,
-    split_basename
-)
-from .sanitize import sanitize_filename
-from .yaml import (
-    load_yaml_file,
-    write_yaml_file
+# Runs static analysis on python sources using 'pylint'.
+
+set -o nounset -o pipefail
+
+if ! command -v pylint >/dev/null 2>&1
+then
+    cat >&2 <<EOF
+
+[ERROR] The executable "pylint" is not available on this system.
+        Please install "pylint" before running this script.
+
+
+EOF
+    exit 1
+fi
+
+
+
+# Get absolute path to the autonameow source root.
+if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+then
+	SELF_DIR="$(realpath -e "$(dirname "$0")")"
+	AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIR" && realpath -e -- ".." ) )"
+fi
+
+if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
+then
+	printf '[ERROR] Not a directory: "%s" .. Aborting\n' "$AUTONAMEOW_ROOT_DIR" >&2
+	exit 1
+fi
+
+
+
+(
+    cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests \
+    pylint --rcfile='./devscripts/pylintrc' autonameow bin tests
 )

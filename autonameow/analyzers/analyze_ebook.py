@@ -425,8 +425,7 @@ def find_ebook_isbns_in_text(text):
     if possible_isbns:
         return [isbnlib.get_canonical_isbn(i)
                 for i in possible_isbns if validate_isbn(i)]
-    else:
-        return []
+    return []
 
 
 def extract_isbns_from_text(text):
@@ -436,8 +435,7 @@ def extract_isbns_from_text(text):
     if possible_isbns:
         return [isbnlib.get_canonical_isbn(i)
                 for i in possible_isbns if validate_isbn(i)]
-    else:
-        return []
+    return []
 
 
 def validate_isbn(possible_isbn):
@@ -449,8 +447,7 @@ def validate_isbn(possible_isbn):
     isbn_number = isbnlib.clean(possible_isbn)
     if not isbn_number or isbnlib.notisbn(isbn_number):
         return None
-    else:
-        return isbn_number
+    return isbn_number
 
 
 def filter_isbns(isbn_list, isbn_blacklist):
@@ -560,8 +557,7 @@ class ISBNMetadata(object):
             return self._isbn10
         elif self._isbn13:
             return isbnlib.to_isbn10(self._isbn13)
-        else:
-            return ''
+        return ''
 
     @isbn10.setter
     def isbn10(self, value):
@@ -575,8 +571,7 @@ class ISBNMetadata(object):
             return self._isbn13
         elif self._isbn10:
             return isbnlib.to_isbn13(self._isbn10)
-        else:
-            return ''
+        return ''
 
     @isbn13.setter
     def isbn13(self, value):
@@ -676,8 +671,7 @@ class ISBNMetadata(object):
         else:
             _year_diff = int(abs(self.normalized_year - other.normalized_year))
 
-        if (len(self.normalized_authors) == 0
-                or len(other.normalized_authors) == 0):
+        if not self.normalized_authors or not other.normalized_authors:
             _sim_authors = FIELDS_MISSING_SIMILARITY
         else:
             _sim_authors = float(

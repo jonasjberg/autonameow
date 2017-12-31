@@ -79,9 +79,9 @@ class BaseNullValue(object):
     def __eq__(self, other):
         if other is None:
             return False
-        if type(other) == type(self):
+        if isinstance(other, self.__class__):
             return True
-        if self.__class__ == other:
+        if other == self.__class__:
             return True
         if isinstance(other, bool) and other is False:
             return True
@@ -287,10 +287,7 @@ class Boolean(BaseType):
 
     @staticmethod
     def bool_to_string(bool_value):
-        if bool_value:
-            return 'True'
-        else:
-            return 'False'
+        return 'True' if bool_value else 'False'
 
     def coerce(self, value):
         if value is None:
@@ -407,8 +404,7 @@ class Float(BaseType):
             return low
         elif high is not None and _value >= high:
             return high
-        else:
-            return _value
+        return _value
 
     def format(self, value, **kwargs):
         value = self.__call__(value)

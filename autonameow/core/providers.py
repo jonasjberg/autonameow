@@ -114,25 +114,25 @@ class ProviderRegistry(object):
             return True
         return False
 
-    def provider_for_meowuri(self, meowuri, includes=None):
+    def provider_for_meowuri(self, requested_meowuri, includes=None):
         """
-        Returns a list of classes that could store data using the given "MeowURI".
+        Returns a list of classes that could store data using a given "MeowURI".
 
         Args:
-            meowuri: The "MeowURI" of interest.
+            requested_meowuri: The "MeowURI" of interest.
             includes: Optional list of sources to include. Default: include all
 
         Returns:
-            A list of classes that "could" produce and store data with a MeowURI
-            that matches the given MeowURI.
+            A list of classes that "could" produce and store data under a
+            MeowURI that "matches" (!) the given MeowURI.
         """
-        def _search_source_type(key):
-            for k, v in self.meowuri_sources[key].items():
-                if k in meowuri:
-                    return self.meowuri_sources[key][k]
+        def _search_source_type(root):
+            for _meowuri in self.meowuri_sources[root].keys():
+                if _meowuri in requested_meowuri:
+                    return self.meowuri_sources[root][_meowuri]
             return None
 
-        if not meowuri:
+        if not requested_meowuri:
             log.error('"provider_for_meowuri()" got empty MeowURI!')
             return []
 

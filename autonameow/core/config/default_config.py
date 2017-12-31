@@ -246,12 +246,10 @@ DEFAULT_CONFIG = {
 
 
 if __name__ == '__main__':
-    """
-    Run as stand-alone to write DEFAULT_CONFIG to a YAML-file.
-
-    NOTE: Relative imports require PYTHONPATH to be set ..
-          Workaround wrapper-script at "devscripts/write-default-config.sh"
-    """
+    # Run as stand-alone to write DEFAULT_CONFIG to a YAML-file.
+    #
+    # NOTE: Relative imports require PYTHONPATH to be set ..
+    #       Workaround wrapper-script at "devscripts/write-default-config.sh"
     import os
     import sys
     from datetime import datetime

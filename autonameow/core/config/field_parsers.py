@@ -249,10 +249,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
         # log.debug('expression: "{!s}" ({})"'.format(expression,
         #                                            type(expression)))
         _match = re.match(expression, test_data)
-        if _match:
-            return _match
-        else:
-            return False
+        return _match if _match else False
 
     @classmethod
     def get_validation_function(cls):

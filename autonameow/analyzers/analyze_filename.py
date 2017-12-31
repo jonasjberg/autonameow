@@ -127,17 +127,17 @@ class FilenameAnalyzer(BaseAnalyzer):
             return None
 
         _number = find_edition(self._basename_prefix)
-        if _number:
-            return {
-                'value': _number,
-                'coercer': types.AW_INTEGER,
-                'mapped_fields': [
-                    WeightedMapping(fields.Edition, probability=1),
-                ],
-                'generic_field': 'edition'
-            }
-        else:
+        if not _number:
             return None
+
+        return {
+            'value': _number,
+            'coercer': types.AW_INTEGER,
+            'mapped_fields': [
+                WeightedMapping(fields.Edition, probability=1),
+            ],
+        'generic_field': 'edition'
+        }
 
     def _get_extension(self):
         self.log.debug(
@@ -564,9 +564,9 @@ class FilenameTokenizer(object):
         elif PREFERRED_FILENAME_CHAR_SPACE in candidates:
             # Use hardcoded preferred space separator character.
             return PREFERRED_FILENAME_CHAR_SPACE
-        else:
-            # Last resort uses arbitrary value, sorted for consistency.
-            return sorted(candidates, key=lambda x: x[0])[0]
+
+        # Last resort uses arbitrary value, sorted for consistency.
+        return sorted(candidates, key=lambda x: x[0])[0]
 
     @classmethod
     def _find_separators(cls, string):

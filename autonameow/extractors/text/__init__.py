@@ -23,4 +23,3 @@ from .epub import EpubTextExtractor
 from .tesseractocr import TesseractOCRTextExtractor
 from .pdftotext import PdftotextTextExtractor
 from .plain import PlainTextExtractor
-

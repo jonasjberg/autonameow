@@ -162,5 +162,3 @@ MeowURIClassMap = map_meowuri_to_extractors()
 
 from . import metadata
 from . import text
-
-

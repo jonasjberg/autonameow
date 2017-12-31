@@ -21,4 +21,3 @@
 
 from core.evaluate.resolver import TemplateFieldDataResolver
 from core.evaluate.rulematcher import RuleMatcher
-

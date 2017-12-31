@@ -41,10 +41,7 @@ class RuleMatcher(object):
 
     def request_data(self, fileobject, meowuri):
         response = repository.SessionRepository.query(fileobject, meowuri)
-        if response:
-            return response.get('value')
-        else:
-            return None
+        return response.get('value') if response else None
 
     def match(self, fileobject):
         if not self._rules:

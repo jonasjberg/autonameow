@@ -27,6 +27,19 @@ from core import exceptions
 from util import sanity
 from util import encoding as enc
 
+__all__ = [
+    'delete',
+    'exists',
+    'file_basename',
+    'file_bytesize',
+    'has_permissions',
+    'isdir',
+    'isfile',
+    'makedirs',
+    'rename_file',
+    'tempdir'
+]
+
 
 log = logging.getLogger(__name__)
 

@@ -191,8 +191,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
         """
         if self._timestamp and self._description and self._tags:
             return True
-        else:
-            return False
+        return False
 
     @classmethod
     def can_handle(cls, fileobject):
@@ -259,8 +258,7 @@ def partition_basename(file_path):
     def decode_if_not_none_or_empty(bytestring_maybe):
         if bytestring_maybe:
             return enc.decode_(bytestring_maybe)
-        else:
-            return None
+        return None
 
     timestamp = decode_if_not_none_or_empty(timestamp)
     description = decode_if_not_none_or_empty(description)

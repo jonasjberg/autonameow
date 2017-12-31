@@ -318,7 +318,7 @@ class Autonameow(object):
             ui.msg('Session Repository Data', style='heading',
                    add_info_log=True)
 
-            if len(results_to_list) == 0:
+            if not results_to_list:
                 ui.msg('The session repository does not contain any data ..\n')
             else:
                 ui.msg('\n'.join(results_to_list))
@@ -566,7 +566,7 @@ class Autonameow(object):
             best_match = candidates.pop(0)
             if best_match:
                 # Is the score of the best matched rule high enough?
-                rule, score, weight = best_match
+                rule, score, _ = best_match
                 description = rule.description
                 if score > RULE_SCORE_CONFIRM_THRESHOLD:
                     active_rule = rule

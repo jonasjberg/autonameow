@@ -177,7 +177,7 @@ class ImageAnalyzer(BaseAnalyzer):
 
         results = []
         text = self.text
-        if type(text) == list:
+        if isinstance(text, list):
             text = ' '.join(text)
 
         dt_regex = dateandtime.regex_search_str(text)
@@ -206,8 +206,7 @@ class ImageAnalyzer(BaseAnalyzer):
         if not results:
             self.log.debug('Found no date/time-information in OCR text.')
             return None
-        else:
-            return results
+        return results
 
     @classmethod
     def check_dependencies(cls):

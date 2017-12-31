@@ -74,7 +74,7 @@ class TextAnalyzer(BaseAnalyzer):
             self.log.debug('Unable to extract date/time-information from'
                            ' text file contents using regex search.')
 
-        if type(text) == list:
+        if isinstance(text, list):
             text = ' '.join(text)
 
         matches_brute = 0

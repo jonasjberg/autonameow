@@ -67,10 +67,12 @@ class JpeginfoMetadataExtractor(BaseExtractor):
         return _metadata
 
     def _get_metadata(self, source):
+        out = dict()
+
         jpeginfo_output = _run_jpeginfo(source)
         if not jpeginfo_output:
             self.log.debug('Got empty output from jpeginfo')
-            return
+            return out
 
         if 'not a jpeg file' in jpeginfo_output.lower():
             is_jpeg = False
@@ -78,12 +80,10 @@ class JpeginfoMetadataExtractor(BaseExtractor):
         else:
             is_jpeg = True
             # Regex from 'photosort.py'. Copyright (c) 2013, Mike Greiling.
-            match = re.search("\[([^\]]*)\][^\[]*$", jpeginfo_output)
+            match = re.search(r'\[([^\]]*)\][^\[]*$', jpeginfo_output)
             status = match.group(1) if match else 'UNKNOWN'
             health = self.STATUS_LOOKUP.get(status,
                                             self.STATUS_LOOKUP.get('UNKNOWN'))
-
-        out = dict()
 
         _coerced_health = self.coerce_field_value('health', health)
         if _coerced_health is not None:
@@ -106,7 +106,7 @@ def _run_jpeginfo(source):
             ['jpeginfo', '-c', source],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
-        stdout, stderr = process.communicate()
+        stdout, _ = process.communicate()
     except (OSError, ValueError, TypeError, subprocess.SubprocessError) as e:
         raise ExtractorError(e)
 

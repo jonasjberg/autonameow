@@ -252,8 +252,7 @@ def simplify_unicode(string):
 
     if unidecode:
         return _strip_accents_unidecode(string)
-    else:
-        return _strip_accents_homerolled(string)
+    return _strip_accents_homerolled(string)
 
 
 def _strip_accents_homerolled(string):
