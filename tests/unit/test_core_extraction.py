@@ -28,7 +28,6 @@ from core.extraction import (
     suitable_extractors_for
 )
 import unit.utils as uu
-import unit.constants as uuconst
 
 
 class TestExtractorRunnerWithNoAvailableExtractors(TestCase):
