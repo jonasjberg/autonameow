@@ -120,6 +120,10 @@ class TestConfigFilePath(TestCase):
 
 
 class TestLoadConfigFromFile(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        uu.init_provider_registry()
+
     def test_raises_exception_given_none(self):
         with self.assertRaises(AssertionError):
             _ = load_config_from_file(None)
