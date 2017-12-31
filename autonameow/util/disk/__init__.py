@@ -22,18 +22,7 @@
 from .collector import (
     normpaths_from_opts
 )
-from .io import (
-    delete,
-    exists,
-    file_basename,
-    file_bytesize,
-    has_permissions,
-    isdir,
-    isfile,
-    makedirs,
-    rename_file,
-    tempdir
-)
+from .io import *
 from .pathstring import (
     basename_prefix,
     basename_suffix,
