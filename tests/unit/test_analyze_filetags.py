@@ -169,11 +169,53 @@ class TestPartitionBasename(TestCase):
                     description='filetags-style name',
                     tags=['tag2', 'a', 'tag1'],
                     extension='txt')),
+
+            (b'2017-11-16T001411 Windows 10 VM PowerShell -- dev screenshot skylake .png',
+             Expect(timestamp='2017-11-16T001411',
+                    description='Windows 10 VM PowerShell',
+                    tags=['dev', 'screenshot', 'skylake'],
+                    extension='png')),
+
+            (b'2017-11-16T001411 Windows 10 VM PowerShell -- dev screenshot skylake  .png',
+             Expect(timestamp='2017-11-16T001411',
+                    description='Windows 10 VM PowerShell',
+                    tags=['dev', 'screenshot', 'skylake'],
+                    extension='png')),
+
+            (b'2017-11-16T001411 Windows 10 VM PowerShell --  dev screenshot skylake.png',
+             Expect(timestamp='2017-11-16T001411',
+                    description='Windows 10 VM PowerShell',
+                    tags=['dev', 'screenshot', 'skylake'],
+                    extension='png')),
+
+            (b'2017-11-16T001411 Windows 10 VM PowerShell --  dev screenshot skylake .png',
+             Expect(timestamp='2017-11-16T001411',
+                    description='Windows 10 VM PowerShell',
+                    tags=['dev', 'screenshot', 'skylake'],
+                    extension='png')),
+
+            (b'2017-11-16T001411 Windows 10 VM PowerShell -- dev  screenshot skylake.png',
+             Expect(timestamp='2017-11-16T001411',
+                    description='Windows 10 VM PowerShell',
+                    tags=['dev', 'screenshot', 'skylake'],
+                    extension='png')),
+
+            (b'2017-11-16T001411 Windows 10 VM PowerShell --  dev  screenshot skylake.png',
+             Expect(timestamp='2017-11-16T001411',
+                    description='Windows 10 VM PowerShell',
+                    tags=['dev', 'screenshot', 'skylake'],
+                    extension='png')),
+
+            (b'2017-11-16T001411 Windows 10 VM PowerShell --  dev  screenshot skylake .png',
+             Expect(timestamp='2017-11-16T001411',
+                    description='Windows 10 VM PowerShell',
+                    tags=['dev', 'screenshot', 'skylake'],
+                    extension='png')),
         ]
 
     def test_partitions_basenames(self):
         for test_data, expected in self.testdata_expected:
             actual = analyze_filetags.partition_basename(test_data)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
 
