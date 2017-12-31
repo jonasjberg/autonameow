@@ -47,6 +47,11 @@ from unittest import (
     TestCase
 )
 
+try:
+    import chardet
+except ImportError:
+    chardet = None
+
 import unit.utils as uu
 from util.encoding import (
     arg_encoding,
@@ -56,12 +61,6 @@ from util.encoding import (
     normpath,
     syspath
 )
-
-
-try:
-    import chardet
-except ImportError:
-    chardet = None
 
 
 class UtilTest(TestCase):
