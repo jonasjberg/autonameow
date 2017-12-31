@@ -21,9 +21,9 @@
 
 from unittest import TestCase
 
+import unit.utils as uu
 from core import types
 from core.namebuilder import fields
-import unit.utils as uu
 
 
 class TestFormatStringPlaceholders(TestCase):
