@@ -596,7 +596,7 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
         actual = MeowURI(*test_input)
         self.assertEqual(expected, str(actual))
 
-    def test_extraction_collect_results(self):
+    def test_extraction_store_results(self):
         _prefix = 'extractor.filesystem.xplat'
         _leaf = 'basename.suffix'
         self._check(_prefix, _leaf,

@@ -36,7 +36,7 @@ from extractors import ExtractorError
 log = logging.getLogger(__name__)
 
 
-def collect_results(fileobject, meowuri_prefix, data):
+def store_results(fileobject, meowuri_prefix, data):
     """
     Collects extractor data, passes it the the session repository.
 
@@ -46,7 +46,7 @@ def collect_results(fileobject, meowuri_prefix, data):
         data: Data to add, as a dict containing the data and meta-information.
     """
     assert isinstance(data, dict), (
-        'Expected data of type "dict" in "extraction.collect_results()" '
+        'Expected data of type "dict" in "extraction.store_results()" '
         ':: ({!s}) {!s}'.format(type(data), data)
     )
 
@@ -232,7 +232,7 @@ class ExtractorRunner(object):
             _results = _wrap_extracted_data(_extracted_data, _metainfo,
                                             _extractor_instance)
             _meowuri_prefix = klass.meowuri_prefix()
-            collect_results(fileobject, _meowuri_prefix, _results)
+            store_results(fileobject, _meowuri_prefix, _results)
 
 
 def get_extractor_runner():

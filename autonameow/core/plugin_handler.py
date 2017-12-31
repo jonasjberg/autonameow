@@ -126,7 +126,7 @@ class PluginHandler(object):
 
             _results = _wrap_extracted_data(data, _metainfo, plugin)
             _meowuri_prefix = plugin.meowuri_prefix()
-            collect_results(fileobject, _meowuri_prefix, _results)
+            store_results(fileobject, _meowuri_prefix, _results)
 
 
 def request_data(fileobject, meowuri):
@@ -134,7 +134,7 @@ def request_data(fileobject, meowuri):
     return response.get('value')
 
 
-def collect_results(fileobject, meowuri_prefix, data):
+def store_results(fileobject, meowuri_prefix, data):
     """
     Collects plugin results. Passed to plugins as a callback.
 
