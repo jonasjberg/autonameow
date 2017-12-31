@@ -442,7 +442,7 @@ class Autonameow(object):
                 # Try real hard to figure it out (?)
                 log.debug('Start of try-hard rule matching loop ..')
                 if not candidates:
-                    log.debg('No candidates! Exiting try-hard matching loop')
+                    log.debug('No candidates! Exiting try-hard matching loop')
                     break
 
                 log.debug('Remaining candidates: {}'.format(len(candidates)))
