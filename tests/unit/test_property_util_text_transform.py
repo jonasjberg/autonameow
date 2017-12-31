@@ -24,11 +24,6 @@ from unittest import (
     TestCase
 )
 
-from util.text.transform import (
-    normalize_unicode,
-    simplify_unicode
-)
-
 try:
     from hypothesis import given
     from hypothesis.strategies import (
@@ -40,6 +35,11 @@ try:
     )
 except ImportError:
     raise SkipTest('Unable to import "hypothesis". Skipping ..')
+
+from util.text.transform import (
+    normalize_unicode,
+    simplify_unicode
+)
 
 
 class TestNormalizeUnicode(TestCase):
