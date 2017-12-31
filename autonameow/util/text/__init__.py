@@ -25,7 +25,8 @@ from .distance import (
 )
 from .humannames import (
     format_name,
-    format_name_list
+    format_name_list,
+    strip_edited_by
 )
 from .patternmatching import (
     find_edition,

@@ -42,26 +42,41 @@
 import os
 import sys
 from contextlib import contextmanager
-from unittest import TestCase
+from unittest import (
+    skipIf,
+    TestCase
+)
+
+try:
+    import chardet
+except ImportError:
+    chardet = None
 
 import unit.utils as uu
-from util import encoding as enc
+from util.encoding import (
+    arg_encoding,
+    autodetect_decode,
+    bytestring_path,
+    convert_command_args,
+    normpath,
+    syspath
+)
 
 
 class UtilTest(TestCase):
     def test_convert_command_args_keeps_undecodeable_bytes(self):
         arg = b'\x82'  # non-ascii bytes
-        cmd_args = enc.convert_command_args([arg])
+        cmd_args = convert_command_args([arg])
 
         self.assertEqual(cmd_args[0],
-                         arg.decode(enc.arg_encoding(), 'surrogateescape'))
+                         arg.decode(arg_encoding(), 'surrogateescape'))
 
 
 class PathConversionTest(TestCase):
     def test_syspath_windows_format(self):
         with platform_windows():
             path = os.path.join('a', 'b', 'c')
-            outpath = enc.syspath(path)
+            outpath = syspath(path)
         self.assertTrue(uu.is_internalstring(outpath))
         self.assertTrue(outpath.startswith('\\\\?\\'))
 
@@ -70,22 +85,23 @@ class PathConversionTest(TestCase):
         # (network share) paths.
         path = '\\\\server\\share\\file.mp3'
         with platform_windows():
-            outpath = enc.syspath(path)
+            outpath = syspath(path)
         self.assertTrue(uu.is_internalstring(outpath))
         self.assertEqual(outpath, '\\\\?\\UNC\\server\\share\\file.mp3')
 
     def test_syspath_posix_unchanged(self):
         with platform_posix():
             path = os.path.join('a', 'b', 'c')
-            outpath = enc.syspath(path)
+            outpath = syspath(path)
         self.assertEqual(path, outpath)
 
-    def _windows_bytestring_path(self, path):
+    @staticmethod
+    def _windows_bytestring_path(path):
         old_gfse = sys.getfilesystemencoding
         sys.getfilesystemencoding = lambda: 'mbcs'
         try:
             with platform_windows():
-                return enc.bytestring_path(path)
+                return bytestring_path(path)
         finally:
             sys.getfilesystemencoding = old_gfse
 
@@ -102,18 +118,18 @@ class PathConversionTest(TestCase):
 
 class TestByteStringPathWithInvalidInput(TestCase):
     def test_bytestring_path_returns_expected_for_empty_input(self):
-        self.assertEqual(enc.bytestring_path(''), b'')
+        self.assertEqual(bytestring_path(''), b'')
 
 
 class TestNormPath(TestCase):
     def test_normpath_returns_expected_for_valid_input(self):
-        self.assertNotEqual('/', enc.normpath('/'))
-        self.assertNotEqual('/tmp', enc.normpath('/tmp/'))
+        self.assertNotEqual('/', normpath('/'))
+        self.assertNotEqual('/tmp', normpath('/tmp/'))
 
     def test_normpath_raises_value_error_for_empty_input(self):
         with self.assertRaises(ValueError):
-            enc.normpath('')
-            self.assertNotEqual(b'', enc.normpath(''))
+            normpath('')
+            self.assertNotEqual(b'', normpath(''))
 
 
 # Platform mocking.
@@ -150,3 +166,60 @@ def system_mock(name):
     finally:
         platform.system = old_system
 
+
+@skipIf(chardet is None, 'Unable to import required module "chardet"')
+class TestAutodetectDecode(TestCase):
+    def _assert_encodes(self, encoding, string):
+        _encoded_text = string.encode(encoding)
+        self.assertTrue(uu.is_internalbytestring(_encoded_text))
+
+        actual = autodetect_decode(_encoded_text)
+        self.assertEqual(string, actual)
+        self.assertEqual(type(string), type(actual))
+
+    def test_raises_exception_for_non_strings(self):
+        with self.assertRaises(TypeError):
+            autodetect_decode(object())
+
+        with self.assertRaises(TypeError):
+            autodetect_decode(None)
+
+    def test_returns_expected_given_unicode(self):
+        actual = autodetect_decode('foo bar')
+        self.assertEqual('foo bar', actual)
+
+    def test_returns_expected_given_ascii(self):
+        self._assert_encodes('ascii', '')
+        self._assert_encodes('ascii', ' ')
+        self._assert_encodes('ascii', '\n')
+        self._assert_encodes('ascii', '\n ')
+        self._assert_encodes('ascii', ' \n ')
+        self._assert_encodes('ascii', 'foo bar')
+        self._assert_encodes('ascii', 'foo \n ')
+
+    def test_returns_expected_given_ISO8859(self):
+        self._assert_encodes('iso-8859-1', '')
+        self._assert_encodes('iso-8859-1', ' ')
+        self._assert_encodes('iso-8859-1', '\n')
+        self._assert_encodes('iso-8859-1', '\n ')
+        self._assert_encodes('iso-8859-1', ' \n ')
+        self._assert_encodes('iso-8859-1', 'foo bar')
+        self._assert_encodes('iso-8859-1', 'foo \n ')
+
+    def test_returns_expected_given_cp1252(self):
+        self._assert_encodes('cp1252', '')
+        self._assert_encodes('cp1252', ' ')
+        self._assert_encodes('cp1252', '\n')
+        self._assert_encodes('cp1252', '\n ')
+        self._assert_encodes('cp1252', ' \n ')
+        self._assert_encodes('cp1252', 'foo bar')
+        self._assert_encodes('cp1252', 'foo \n ')
+
+    def test_returns_expected_given_utf8(self):
+        self._assert_encodes('utf-8', '')
+        self._assert_encodes('utf-8', ' ')
+        self._assert_encodes('utf-8', '\n')
+        self._assert_encodes('utf-8', '\n ')
+        self._assert_encodes('utf-8', ' \n ')
+        self._assert_encodes('utf-8', 'foo bar')
+        self._assert_encodes('utf-8', 'foo \n ')

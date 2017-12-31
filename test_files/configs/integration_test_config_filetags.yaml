@@ -26,8 +26,8 @@ RULES:
             extension: extractor.filesystem.xplat.contents.mime_type
             description: analyzer.filetags.description
             tags: analyzer.filetags.tags
-        NAME_FORMAT: '{datetime} {description} -- {tags}.{extension}'
+        NAME_TEMPLATE: '{datetime} {description} -- {tags}.{extension}'
         exact_match: true
         ranking_bias: 1
 COMPATIBILITY:
-    autonameow_version: v0.5.2
+    autonameow_version: v0.5.3

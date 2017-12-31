@@ -21,7 +21,6 @@
 
 set -o nounset
 
-SELF_BASENAME="$(basename "$0")"
 SELF_DIRNAME="$(realpath -e "$(dirname "$0")")"
 
 if ! source "${SELF_DIRNAME}/setup_environment.sh"

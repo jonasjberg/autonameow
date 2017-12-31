@@ -27,8 +27,10 @@ from core import (
     exceptions,
     types,
 )
-from util import sanity
-from util.text import format_name
+from util import (
+    sanity,
+    text
+)
 
 
 log = logging.getLogger(__name__)
@@ -67,6 +69,10 @@ class NameTemplateField(object):
             return type_class in cls.COMPATIBLE_TYPES
 
     def __str__(self):
+        # TODO: [TD0140] str() method not working as intended.
+        # These classes are mostly not instantiated and used as classes.
+        # Calling str() on a class will not call this method, resulting in
+        # for instance 'core.namebuilder.fields.Extension' and not 'Extension'.
         return self.__class__.__name__.lower()
 
 
@@ -85,7 +91,6 @@ class Title(NameTemplateField):
         data = data.strip(',.:;-_ ')
         data = data.replace('&', 'and')
         data = data.replace('&#8211;', '-')
-        # data = data.replace(' - ', '')
         return data
 
     @classmethod
@@ -226,7 +231,7 @@ class Author(NameTemplateField):
                     )
 
                 sanity.check_internal_string(string)
-                _formatted.append(format_name(string))
+                _formatted.append(text.format_name(string))
 
             return ' '.join(sorted(_formatted))
         else:
@@ -246,7 +251,7 @@ class Author(NameTemplateField):
                 )
 
             sanity.check_internal_string(string)
-            return format_name(data.get('value'))
+            return text.format_name(data.get('value'))
 
 
 class Creator(NameTemplateField):

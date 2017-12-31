@@ -30,13 +30,6 @@ class Record(object):
 
         self._weight = None
 
-    # def _calculate_weight(self):
-    #     if not self.fields:
-    #         return 0.0
-    #
-    #     _field_weights = sum(f.weight for f in self.fields)
-    #    return _field_weights / len(self.fields)
-
     def __contains__(self, item):
         if not item:
             return False

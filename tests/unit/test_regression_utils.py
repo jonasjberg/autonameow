@@ -22,6 +22,8 @@
 import os
 from unittest import TestCase
 
+import unit.constants as uuconst
+import unit.utils as uu
 from core import constants as C
 from util import encoding as enc
 from regression.utils import (
@@ -31,13 +33,13 @@ from regression.utils import (
     _commandline_args_for_testcase,
     get_regressiontest_dirs,
     get_regressiontests_rootdir,
+    glob_filter,
     load_regressiontests,
+    regexp_filter,
     RegressionTestError,
     RegressionTestLoader,
     regtest_abspath
 )
-import unit.utils as uu
-import unit.constants as uuconst
 
 
 class TestGetRegressiontestsRootdir(TestCase):
@@ -79,7 +81,7 @@ class TestGetRegressiontestDirs(TestCase):
         self.actual = get_regressiontest_dirs()
 
     def test_returns_list(self):
-        self.assertTrue(isinstance(self.actual, list))
+        self.assertIsInstance(self.actual, list)
 
     def test_returns_at_least_one_test(self):
         self.assertGreaterEqual(len(self.actual), 1)
@@ -165,6 +167,7 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
 
 class TestRegressionTestLoaderSetConfigPath(TestCase):
     def setUp(self):
+        self._default_config_path = uu.normpath(uu.abspath_testconfig())
         self._regressiontest_dir = regtest_abspath(
             uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
         )
@@ -181,9 +184,7 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
         }
         expected = {
             'verbose': True,
-            'config_path': uu.normpath(
-                uu.abspath_testfile('default_config.yaml')
-            ),
+            'config_path': self._default_config_path,
             'mode_batch': True,
         }
         self._check(input_options, expected)
@@ -196,9 +197,7 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
         }
         expected = {
             'verbose': True,
-            'config_path': uu.normpath(
-                uu.abspath_testfile('default_config.yaml')
-            ),
+            'config_path': self._default_config_path,
             'mode_batch': True,
         }
         self._check(input_options, expected)
@@ -206,14 +205,12 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
     def test_replaces_config_path_variable_testfiles(self):
         input_options = {
             'verbose': True,
-            'config_path': '$TESTFILES/default_config.yaml',
+            'config_path': '$TESTFILES/configs/default.yaml',
             'mode_batch': True,
         }
         expected = {
             'verbose': True,
-            'config_path': uu.normpath(
-                uu.abspath_testfile('default_config.yaml')
-            ),
+            'config_path': self._default_config_path,
             'mode_batch': True,
         }
         self._check(input_options, expected)
@@ -227,9 +224,9 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
 
         _expect_path = os.path.join(
             enc.syspath(self._regressiontest_dir),
-            enc.syspath(enc.encode_('config.yaml'))
+            enc.syspath(uu.encode('config.yaml'))
         )
-        self.assertTrue(isinstance(_expect_path, bytes))
+        self.assertIsInstance(_expect_path, bytes)
 
         expected = {
             'verbose': True,
@@ -295,7 +292,7 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
 
     def test_test_abspath(self):
         actual = self.actual.get('test_abspath')
-        self.assertTrue(isinstance(actual, bytes))
+        self.assertIsInstance(actual, bytes)
         self.assertTrue(uu.is_abspath(actual))
 
         expect = uuconst.REGRESSIONTEST_DIR_BASENAMES[1]
@@ -303,7 +300,7 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
 
     def test_test_dirname(self):
         actual = self.actual.get('test_dirname')
-        self.assertTrue(isinstance(actual, bytes))
+        self.assertIsInstance(actual, bytes)
 
         expect = uuconst.REGRESSIONTEST_DIR_BASENAMES[1]
         self.assertEqual(actual, expect)
@@ -313,7 +310,7 @@ class TestLoadRegressiontests(TestCase):
     actual_loaded = load_regressiontests()
 
     def test_returns_list(self):
-        self.assertTrue(isinstance(self.actual_loaded, list))
+        self.assertIsInstance(self.actual_loaded, list)
 
     def test_returns_list_of_dicts(self):
         for a in self.actual_loaded:
@@ -350,9 +347,10 @@ class TestAutonameowWrapper(TestCase):
 
 
 class TestAutonameowWrapperWithDefaultOptions(TestCase):
-    def setUp(self):
-        self.aw = AutonameowWrapper()
-        self.aw()
+    @classmethod
+    def setUpClass(cls):
+        cls.aw = AutonameowWrapper()
+        cls.aw()
 
     def test_exitcode_is_exit_success(self):
         actual = self.aw.captured_exitcode
@@ -368,18 +366,18 @@ class TestAutonameowWrapperWithDefaultOptions(TestCase):
 
 
 class TestRenames(TestCase):
-    def _fail(self, actual_renames, expect_renames):
-        actual = check_renames(actual_renames, expect_renames)
+    def _fail(self, actual, expect):
+        actual = check_renames(actual, expect)
         self.assertFalse(actual)
 
-    def _ok(self, actual_renames, expect_renames):
-        actual = check_renames(actual_renames, expect_renames)
+    def _ok(self, actual, expect):
+        actual = check_renames(actual, expect)
         self.assertTrue(actual)
 
     def test_raises_exception_given_bad_arguments(self):
-        def _fail(actual_renames, expect_renames):
+        def _fail(actual, expect):
             with self.assertRaises(RegressionTestError):
-                _ = check_renames(actual_renames, expect_renames)
+                _ = check_renames(actual, expect)
 
         _fail(None, None)
         _fail('', None)
@@ -388,57 +386,51 @@ class TestRenames(TestCase):
         _fail('', {})
 
     def test_returns_true_given_one_matching_rename(self):
-        self._ok(actual_renames={}, expect_renames={})
-        self._ok(actual_renames={'A': 'A'}, expect_renames={'A': 'A'})
-        self._ok(actual_renames={'A': 'foo'}, expect_renames={'A': 'foo'})
-        self._ok(actual_renames={'A': 'bar'}, expect_renames={'A': 'bar'})
+        self._ok(actual={}, expect={})
+        self._ok(actual={'A': 'A'}, expect={'A': 'A'})
+        self._ok(actual={'A': 'foo'}, expect={'A': 'foo'})
+        self._ok(actual={'A': 'bar'}, expect={'A': 'bar'})
 
     def test_returns_true_given_matching_renames(self):
-        self._ok(actual_renames={'A': 'foo', 'B': 'B'},
-                 expect_renames={'A': 'foo', 'B': 'B'})
-        self._ok(actual_renames={'A': 'foo', 'B': 'bar'},
-                 expect_renames={'A': 'foo', 'B': 'bar'})
+        self._ok(actual={'A': 'foo', 'B': 'B'},
+                 expect={'A': 'foo', 'B': 'B'})
+        self._ok(actual={'A': 'foo', 'B': 'bar'},
+                 expect={'A': 'foo', 'B': 'bar'})
 
     def test_returns_false_given_one_non_matching_rename(self):
-        self._fail(actual_renames={}, expect_renames={'A': 'A'})
-        self._fail(actual_renames={}, expect_renames={'A': 'B'})
-        self._fail(actual_renames={}, expect_renames={'B': 'A'})
-        self._fail(actual_renames={'A': 'A'}, expect_renames={})
-        self._fail(actual_renames={'A': 'B'}, expect_renames={})
-        self._fail(actual_renames={'B': 'A'}, expect_renames={})
-        self._fail(actual_renames={'A': 'A'}, expect_renames={'A': 'B'})
-        self._fail(actual_renames={'A': 'A'}, expect_renames={'B': 'A'})
-        self._fail(actual_renames={'A': 'A'}, expect_renames={'B': 'B'})
-        self._fail(actual_renames={'A': 'B'}, expect_renames={'A': 'A'})
-        self._fail(actual_renames={'A': 'B'}, expect_renames={'B': 'A'})
-        self._fail(actual_renames={'A': 'B'}, expect_renames={'B': 'B'})
-        self._fail(actual_renames={'B': 'A'}, expect_renames={'A': 'A'})
-        self._fail(actual_renames={'B': 'A'}, expect_renames={'A': 'B'})
-        self._fail(actual_renames={'B': 'A'}, expect_renames={'B': 'B'})
-        self._fail(actual_renames={'B': 'B'}, expect_renames={'A': 'A'})
-        self._fail(actual_renames={'B': 'B'}, expect_renames={'A': 'B'})
-        self._fail(actual_renames={'B': 'B'}, expect_renames={'B': 'A'})
+        self._fail(actual={}, expect={'A': 'A'})
+        self._fail(actual={}, expect={'A': 'B'})
+        self._fail(actual={}, expect={'B': 'A'})
+        self._fail(actual={'A': 'A'}, expect={})
+        self._fail(actual={'A': 'B'}, expect={})
+        self._fail(actual={'B': 'A'}, expect={})
+        self._fail(actual={'A': 'A'}, expect={'A': 'B'})
+        self._fail(actual={'A': 'A'}, expect={'B': 'A'})
+        self._fail(actual={'A': 'A'}, expect={'B': 'B'})
+        self._fail(actual={'A': 'B'}, expect={'A': 'A'})
+        self._fail(actual={'A': 'B'}, expect={'B': 'A'})
+        self._fail(actual={'A': 'B'}, expect={'B': 'B'})
+        self._fail(actual={'B': 'A'}, expect={'A': 'A'})
+        self._fail(actual={'B': 'A'}, expect={'A': 'B'})
+        self._fail(actual={'B': 'A'}, expect={'B': 'B'})
+        self._fail(actual={'B': 'B'}, expect={'A': 'A'})
+        self._fail(actual={'B': 'B'}, expect={'A': 'B'})
+        self._fail(actual={'B': 'B'}, expect={'B': 'A'})
 
     def test_returns_false_given_non_matching_renames(self):
-        self._fail(actual_renames={}, expect_renames={'A': 'A', 'B': 'A'})
-        self._fail(actual_renames={}, expect_renames={'A': 'A', 'B': 'B'})
-        self._fail(actual_renames={}, expect_renames={'A': 'B', 'B': 'A'})
-        self._fail(actual_renames={}, expect_renames={'A': 'B', 'B': 'B'})
-        self._fail(actual_renames={'A': 'A', 'B': 'A'}, expect_renames={})
-        self._fail(actual_renames={'A': 'A', 'B': 'B'}, expect_renames={})
-        self._fail(actual_renames={'A': 'B', 'B': 'A'}, expect_renames={})
-        self._fail(actual_renames={'A': 'B', 'B': 'B'}, expect_renames={})
-
-        self._fail(actual_renames={'A': 'A', 'B': 'A'},
-                   expect_renames={'A': 'A', 'B': 'B'})
-        self._fail(actual_renames={'A': 'A', 'B': 'B'},
-                   expect_renames={'A': 'A', 'B': 'A'})
-        self._fail(actual_renames={'A': 'B', 'B': 'B'},
-                   expect_renames={'A': 'A', 'B': 'B'})
-        self._fail(actual_renames={'A': 'A', 'C': 'C'},
-                   expect_renames={'B': 'A', 'C': 'C'})
-        self._fail(actual_renames={'A': 'A', 'C': 'D'},
-                   expect_renames={'B': 'A', 'C': 'C'})
+        self._fail(actual={}, expect={'A': 'A', 'B': 'A'})
+        self._fail(actual={}, expect={'A': 'A', 'B': 'B'})
+        self._fail(actual={}, expect={'A': 'B', 'B': 'A'})
+        self._fail(actual={}, expect={'A': 'B', 'B': 'B'})
+        self._fail(actual={'A': 'A', 'B': 'A'}, expect={})
+        self._fail(actual={'A': 'A', 'B': 'B'}, expect={})
+        self._fail(actual={'A': 'B', 'B': 'A'}, expect={})
+        self._fail(actual={'A': 'B', 'B': 'B'}, expect={})
+        self._fail(actual={'A': 'A', 'B': 'A'}, expect={'A': 'A', 'B': 'B'})
+        self._fail(actual={'A': 'A', 'B': 'B'}, expect={'A': 'A', 'B': 'A'})
+        self._fail(actual={'A': 'B', 'B': 'B'}, expect={'A': 'A', 'B': 'B'})
+        self._fail(actual={'A': 'A', 'C': 'C'}, expect={'B': 'A', 'C': 'C'})
+        self._fail(actual={'A': 'A', 'C': 'D'}, expect={'B': 'A', 'C': 'C'})
 
 
 SAMPLE_TESTCASE_0000 = {
@@ -447,7 +439,7 @@ SAMPLE_TESTCASE_0000 = {
     },
     'description': 'Dummy test used by regression runner and utilities unit tests',
     'options': {
-        'config_path': b'foo/test_files/default_config.yaml',
+        'config_path': b'foo/test_files/configs/default.yaml',
         'debug': False,
         'dry_run': True,
         'dump_config': False,
@@ -472,7 +464,7 @@ SAMPLE_TESTCASE_0006 = {
     },
     'description': 'All *.jpg test files with minimal settings for output and actions',
     'options': {
-        'config_path': b'foo/test_files/default_config.yaml',
+        'config_path': b'foo/test_files/configs/default.yaml',
         'debug': False,
         'dry_run': True,
         'dump_config': False,
@@ -503,7 +495,7 @@ class TestCommandlineArgsForTestcase(TestCase):
             '--dry-run',
             '--automagic',
             '--batch',
-            "--config-path 'foo/test_files/default_config.yaml'"
+            "--config-path 'foo/test_files/configs/default.yaml'"
         ]
         actual = _commandline_args_for_testcase(SAMPLE_TESTCASE_0000)
 
@@ -517,7 +509,7 @@ class TestCommandlineArgsForTestcase(TestCase):
             '--automagic',
             '--batch',
             '--quiet',
-            "--config-path 'foo/test_files/default_config.yaml'",
+            "--config-path 'foo/test_files/configs/default.yaml'",
             '--',
             "'foo/test_files/smulan.jpg'",
             "'foo/test_files/magic_jpg.jpg'"
@@ -537,10 +529,71 @@ class TestCommandlineForTestcase(TestCase):
 
     def test_returns_expected_for_testcase_0000(self):
         actual = commandline_for_testcase(SAMPLE_TESTCASE_0000)
-        expect = "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/default_config.yaml'"
+        expect = "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/configs/default.yaml'"
         self.assertEqual(actual, expect)
 
     def test_returns_expected_for_testcase_0006(self):
         actual = commandline_for_testcase(SAMPLE_TESTCASE_0006)
-        expect = "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/default_config.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'"
+        expect = "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/configs/default.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'"
         self.assertEqual(actual, expect)
+
+
+class TestGlobFilter(TestCase):
+    def _assert_match(self, expected, string, glob):
+        actual = glob_filter(glob, string)
+        self.assertIsInstance(actual, bool)
+        self.assertEqual(expected, actual)
+
+    def test_returns_false_for_non_matches(self):
+        self._assert_match(False, b'foo', glob='bar')
+        self._assert_match(False, b'foo', glob='foobar')
+        self._assert_match(False, b'foo', glob='fooo')
+        self._assert_match(False, b'foo bar', glob='bar foo')
+        self._assert_match(False, b'fooxbar', glob='*xfoo')
+        self._assert_match(False, b'fooxbar', glob='*x*foo')
+        self._assert_match(False, b'foo', glob='!foo')
+        self._assert_match(False, b'foo', glob='!*o')
+        self._assert_match(False, b'foo', glob='!*')
+        self._assert_match(False, b'foo x bar', glob='!foo*')
+        self._assert_match(False, b'bar', glob='foo*')
+        self._assert_match(False, b'9008_LOCAL_dropbox', glob='!*LOCAL*')
+
+    def test_returns_true_for_matches(self):
+        self._assert_match(True, b'foo', glob='foo')
+        self._assert_match(True, b'foo', glob='fo*')
+        self._assert_match(True, b'fooxbar', glob='foo*x*')
+        self._assert_match(True, b'fooxbar', glob='foox*')
+        self._assert_match(True, b'fooxbar', glob='*x*')
+        self._assert_match(True, b'foo x bar', glob='*x*')
+        self._assert_match(True, b'bar', glob='!foo')
+        self._assert_match(True, b'foo bar', glob='foo bar')
+        self._assert_match(True, b'foo bar', glob='foo*')
+        self._assert_match(True, b'0000', glob='!0001')
+        self._assert_match(True, b'9008_LOCAL_dropbox', glob='*LOCAL*')
+
+
+class TestRegexpFilter(TestCase):
+    def _assert_match(self, expected, string, expression):
+        actual = regexp_filter(expression, string)
+        self.assertIsInstance(actual, bool)
+        self.assertEqual(expected, actual)
+
+    def test_raises_exception_given_invalid_regular_expression(self):
+        with self.assertRaises(RegressionTestError):
+            _ = regexp_filter('*a', b'foo')
+
+    def test_returns_false_for_non_matches(self):
+        self._assert_match(False, b'foo', expression='bar')
+        self._assert_match(False, b'foo', expression='foobar')
+        self._assert_match(False, b'foo', expression='fooo')
+        self._assert_match(False, b'foo bar', expression='bar foo')
+        self._assert_match(False, b'fooxbar', expression='.*xfoo')
+        self._assert_match(False, b'fooxbar', expression='.*x.*foo')
+
+    def test_returns_true_for_matches(self):
+        self._assert_match(True, b'foo', expression='foo')
+        self._assert_match(True, b'foo', expression='fo?')
+        self._assert_match(True, b'foo', expression='f.*')
+        self._assert_match(True, b'fooxbar', expression='foo*x.*')
+        self._assert_match(True, b'fooxbar', expression='foox[abr]+')
+        self._assert_match(True, b'Fooxbar', expression='[fF]oox(bar|foo)')

@@ -23,17 +23,26 @@ import logging
 
 from core import constants as C
 from core import (
-    exceptions,
     providers,
     types,
 )
 from core.config import field_parsers
+from core.exceptions import (
+    ConfigError,
+    ConfigurationSyntaxError,
+    InvalidMeowURIError
+)
 from core.model import MeowURI
 from core.namebuilder import fields
 import util
 
 
 log = logging.getLogger(__name__)
+
+
+class InvalidRuleError(ConfigError):
+    """The Rule is in a bad state. The Rule state should only be set
+    with known good data. This error implies data validation has failed."""
 
 
 class RuleCondition(object):
@@ -45,22 +54,22 @@ class RuleCondition(object):
         Validates the arguments and returns a 'RuleCondition' instance if
         the validation is successful. Else an exception is thrown.
 
-        The "meowURI" is a reference to some data.
+        The "MeowURI" is a reference to some data.
         The expression is some expression that will be evaluated on the data
-        contained at the location referenced to by the "meowURI".
+        contained at the location referenced to by the "MeowURI".
 
-        Example: If the "meowURI" is 'contents.mime_type', a valid
+        Example: If the "MeowURI" is 'contents.mime_type', a valid
         expression could be 'image/*'. When this condition is evaluated,
         the data contained at 'contents.mime_type' might be 'image/jpeg'.
         In this case the evaluation would return True.
 
         Args:
-            meowuri: A "meowURI" describing the target of the condition,
-                     as an instance of 'MeowURI'.
+            meowuri: A "MeowURI" describing the target of the condition,
+                     as a previously validated instance of 'MeowURI'.
             raw_expression: A expression to use when evaluating this condition.
         """
         # TODO: Clean up setting the 'parser' attribute.
-        # NOTE(jonas): The "meowURI" determines which parser class is used.
+        # NOTE(jonas): The "MeowURI" determines which parser class is used.
 
         # TODO: [TD0015] Allow conditionals in the configuration rules.
         # Possible a list of functions already "loaded" with the target value.
@@ -68,6 +77,7 @@ class RuleCondition(object):
         self._parser = None
         self._meowuri = None
         self._expression = None
+        # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
 
         self.meowuri = meowuri
         self.expression = raw_expression
@@ -78,14 +88,18 @@ class RuleCondition(object):
 
     @meowuri.setter
     def meowuri(self, meowuri):
-        # The "meowURI" is considered valid if a field parser can handle it.
-        valid_meowuri = self._validate_meowuri(meowuri)
-        if valid_meowuri:
-            self._meowuri = meowuri
-        else:
+        if not isinstance(meowuri, MeowURI):
             raise TypeError(
+                'Expected instance of MeowURI. Got {!s}'.format(type(meowuri))
+            )
+
+        # Consider the "MeowURI" valid if any parser can handle it.
+        if not self._get_parser_for(meowuri):
+            raise ValueError(
                 'No field parser can handle MeowURI: "{!s}"'.format(meowuri)
             )
+        else:
+            self._meowuri = meowuri
 
     @property
     def expression(self):
@@ -93,10 +107,10 @@ class RuleCondition(object):
 
     @expression.setter
     def expression(self, raw_expression):
-        # The "meowURI" is required in order to know how the expression
+        # The "MeowURI" is required in order to know how the expression
         # should be evaluated. Consider the expression invalid.
         if not self.meowuri:
-            raise ValueError('The condition first needs a valid "meowURI" in '
+            raise ValueError('The condition first needs a valid "MeowURI" in '
                              'order to validate an expression')
 
         # TODO: [TD0089] Validate only "generic" metadata fields ..
@@ -106,8 +120,10 @@ class RuleCondition(object):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
 
-        if not self._get_parser(self.meowuri):
-            raise ValueError('Found no suitable parsers for meowURI: '
+        # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
+
+        if not self._get_parser_for(self.meowuri):
+            raise ValueError('Found no suitable parsers for MeowURI: '
                              '"{!s}"'.format(self.meowuri))
 
         valid_expression = self._validate_expression(raw_expression)
@@ -119,34 +135,26 @@ class RuleCondition(object):
                 'Invalid expression: "{!s}"'.format(raw_expression)
             )
 
-    def _validate_meowuri(self, meowuri):
-        # Consider the "meowURI" valid if any parser can handle it.
-        if self._get_parser(meowuri):
-            return True
-        else:
-            return False
-
     def _validate_expression(self, raw_expression):
         if self._parser.validate(raw_expression):
             return True
         else:
             return False
 
-    def _get_parser(self, meowuri):
+    def _get_parser_for(self, meowuri):
         if self._parser:
             return self._parser
 
         parsers = field_parsers.suitable_field_parser_for(meowuri)
         if parsers:
-            # NOTE(jonas): Assume only one parser per "meowURI" for now ..
+            # NOTE(jonas): Assume only one parser per "MeowURI" for now ..
             assert len(parsers) == 1, (
-                   'Unexpectedly got {} parsers for meowURI '
+                   'Unexpectedly got {} parsers for MeowURI '
                    '"{!s}"'.format(len(parsers), meowuri))
 
             self._parser = parsers[0]
-            return self._parser
-        else:
-            return False
+
+        return self._parser
 
     def evaluate(self, data):
         """
@@ -161,7 +169,7 @@ class RuleCondition(object):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
         if not self._parser:
-            log.critical('Unimplemented condition evaluation -- meowURI: '
+            log.critical('Unimplemented condition evaluation -- MeowURI: '
                          '"{!s}" expression: "{!s}"'.format(self.meowuri,
                                                             self.expression))
             return False
@@ -171,6 +179,27 @@ class RuleCondition(object):
             return result
         else:
             return False
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+
+        return (
+            self.expression == other.expression and
+            self.meowuri == other.meowuri
+        )
+
+    def __hash__(self):
+        # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
+        if isinstance(self.expression, list):
+            expressions = self.expression
+        else:
+            expressions = [self.expression]
+
+        hashed_expressions = sum(hash(x) for x in expressions)
+        return hash(
+            (hashed_expressions, self.meowuri)
+        )
 
     def __str__(self):
         return '{!s}: {!s}'.format(self.meowuri, self.expression)
@@ -186,18 +215,21 @@ class Rule(object):
 
     All data validation happens at 'Rule' init or when setting any attribute.
     """
-    def __init__(self, description, exact_match, ranking_bias, name_template,
-                 conditions, data_sources):
+    def __init__(self, conditions, data_sources, name_template,
+                 description=None, exact_match=None, ranking_bias=None):
         """
         Creates a new 'Rule' instance.
 
         Args:
-            description: (OPTIONAL) Human-readable description.
-            exact_match: True if all conditions must be met at evaluation.
-            ranking_bias: (OPTIONAL) Float between 0-1 that influences ranking.
+            conditions: Dict used to create instances of 'RuleCondition'.
+                        NOTE: Rules without conditions always evaluates True.
+            data_sources: Dict of template field names and "MeowURIs".
+                          NOTE: Rules without data sources are allowed.
             name_template: Name template to use for files matching the rule.
-            conditions: Dict used to create instances of 'RuleCondition'
-            data_sources: Dict of template field names and "meowURIs".
+            description: (OPTIONAL) Human-readable description.
+            exact_match: (OPTIONAL) True if all conditions must be met at
+                         evaluation. Defaults to False.
+            ranking_bias: (OPTIONAL) Float between 0-1 that influences ranking.
         """
         self._description = None
         self._exact_match = None
@@ -213,10 +245,9 @@ class Rule(object):
         self.conditions = conditions
         self.data_sources = data_sources
 
-        if not self.conditions:
-            raise exceptions.InvalidRuleError(
-                'Rule does not specify any conditions: "{!s}"'.format(self)
-            )
+        # NOTE(jonas): This assumes instances of 'RuleCondition' are immutable!
+        self.__cached_hash = None
+
 
     @property
     def description(self):
@@ -239,7 +270,7 @@ class Rule(object):
         try:
             self._exact_match = types.AW_BOOLEAN(raw_exact_match)
         except types.AWTypeError as e:
-            raise exceptions.InvalidRuleError(e)
+            raise InvalidRuleError(e)
 
     @property
     def ranking_bias(self):
@@ -252,7 +283,7 @@ class Rule(object):
     def ranking_bias(self, raw_ranking_bias):
         try:
             self._ranking_bias = parse_ranking_bias(raw_ranking_bias)
-        except exceptions.ConfigurationSyntaxError as e:
+        except InvalidRuleError as e:
             log.warning(e)
             self._ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
 
@@ -264,7 +295,7 @@ class Rule(object):
     def name_template(self, raw_name_template):
         # Name template has already been validated in the 'Configuration' class.
         if not raw_name_template:
-            raise exceptions.InvalidRuleError('Got None name template')
+            raise InvalidRuleError('Got None name template')
         self._name_template = raw_name_template
 
     @property
@@ -273,18 +304,14 @@ class Rule(object):
 
     @conditions.setter
     def conditions(self, valid_conditions):
-        def _raise_exception():
-            raise exceptions.InvalidRuleError(
-                'Invalid condition: ({!s}) "{!s}"'.format(type(c), c)
-            )
-
-        if not valid_conditions:
-            _raise_exception()
         if not isinstance(valid_conditions, list):
-            _raise_exception()
+            _msg = 'Expected list. Got {!s}'.format(type(valid_conditions))
+            raise InvalidRuleError(_msg)
+
         for c in valid_conditions:
             if not isinstance(c, RuleCondition):
-                _raise_exception()
+                _msg = 'Invalid condition: ({!s}) "{!s}"'.format(type(c), c)
+                raise InvalidRuleError(_msg)
 
         self._conditions = valid_conditions
 
@@ -304,11 +331,11 @@ class Rule(object):
 
     def referenced_meowuris(self):
         """
-        Get all "meowURIs" referenced by this rule.
+        Get all "MeowURIs" referenced by this rule.
 
-        The "meowURI" can be part of either a condition or a data source.
+        The "MeowURI" can be part of either a condition or a data source.
 
-        Returns: The set of all "meowURIs" referenced by this rule.
+        Returns: The set of all "MeowURIs" referenced by this rule.
         """
         unique_meowuris = set()
 
@@ -321,81 +348,36 @@ class Rule(object):
 
         return unique_meowuris
 
-    def evaluate_exact(self, data_query_function):
-        """
-        Evaluates this rule using data provided by a callback function.
-
-        This tests rules that require exact matches.
-        Returns False at first unmatched condition if the rule requires an
-        exact match. If the rule does not required an exact match, True is
-        returned at once.
-
-        Args:
-            data_query_function: Callback for retrieving the data to evaluate.
-
-        Returns:
-            If the rule requires an exact match:
-                True if all rule conditions evaluates to True.
-                False if any rule condition evaluates to False.
-            If the rule does not require an exact match:
-                True
-        """
-        if self.description:
-            _desc = '{} :: '.format(self.description)
-        else:
-            _desc = ''
-
-        # Pass if exact match isn't required.
-        if not self.exact_match:
-            log.debug('{}Exact match not required'.format(_desc))
-            return True
-
-        for condition in self.conditions:
-            if not self._evaluate_condition(condition, data_query_function):
-                log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
-                log.debug('{}Exact match FAILED!'.format(_desc))
-                return False
-            else:
-                log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
-        log.debug('{}Exact match PASSED!'.format(_desc))
-        return True
-
-    def number_conditions_met(self, data_query_function):
-        """
-        Evaluates rule conditions using data provided by a callback function.
-
-        Args:
-            data_query_function: Callback for retrieving the data to evaluate.
-
-        Returns:
-            The number of met conditions as an integer.
-        """
-        assert self.conditions and len(self.conditions) > 0, (
-               'Rule.conditions is missing or empty')
-
-        if self.description:
-            _desc = '{} :: '.format(self.description)
-        else:
-            _desc = ''
-
-        _count_met_conditions = 0
-        for condition in self.conditions:
-            if self._evaluate_condition(condition, data_query_function):
-                log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
-                _count_met_conditions += 1
-            else:
-                log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
-
-        return _count_met_conditions
-
-    def _evaluate_condition(self, condition, data_query_function):
-        data = data_query_function(condition.meowuri)
-        if data is None:
-            log.warning('Unable to evaluate condition due to missing data:'
-                        ' "{!s}"'.format(condition))
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
             return False
 
-        return condition.evaluate(data)
+        return (
+            self.conditions == other.conditions and
+            self.data_sources == other.data_sources and
+            self.description == other.description and
+            self.exact_match == other.exact_match and
+            self.name_template == other.name_template and
+            self.ranking_bias == other.ranking_bias
+        )
+
+    def __hash__(self):
+        # NOTE(jonas): This assumes instances of 'RuleCondition' are immutable!
+        if not self.__cached_hash:
+            hashed_conditions = sum(hash(c) for c in self.conditions)
+            hashed_data_sources = 0
+            for template_field, meowuri_list in self.data_sources.items():
+                data_source_hash = hash(template_field) + sum(
+                    hash(meowuri) for meowuri in meowuri_list
+                )
+                hashed_data_sources += data_source_hash
+
+            self.__cached_hash = hash(
+                (hashed_conditions, hashed_data_sources, self.description,
+                 self.exact_match, self.name_template, self.ranking_bias)
+            )
+
+        return self.__cached_hash
 
     def __str__(self):
         return util.dump(self.__dict__)
@@ -416,18 +398,22 @@ def get_valid_rule(description, exact_match, ranking_bias, name_template,
 
     Returns:
         An instance of 'Rule' if the given arguments are valid.
+
     Raises:
-        InvalidRuleError: Validation failed or the 'Rule' could not be created.
+        InvalidRuleError: Validation failed or the 'Rule' instantiation failed.
     """
-    try:
-        valid_conditions = parse_conditions(conditions)
-    except exceptions.ConfigurationSyntaxError as e:
-        raise exceptions.InvalidRuleError(e)
+    if not conditions:
+        conditions = dict()
 
     try:
-        _rule = Rule(description, exact_match, ranking_bias, name_template,
-                     valid_conditions, data_sources)
-    except exceptions.InvalidRuleError as e:
+        valid_conditions = parse_conditions(conditions)
+    except ConfigurationSyntaxError as e:
+        raise InvalidRuleError(e)
+
+    try:
+        _rule = Rule(valid_conditions, data_sources, name_template,
+                     description, exact_match, ranking_bias)
+    except InvalidRuleError as e:
         raise e
     else:
         return _rule
@@ -441,7 +427,7 @@ def get_valid_rule_condition(meowuri, raw_expression):
     'RuleCondition' initialization. In case of failure, False is returned.
 
     Args:
-        meowuri: The "meowURI" that provides access to *some data* to be
+        meowuri: The "MeowURI" that provides access to *some data* to be
                  evaluated in the condition, as an instance of 'MeowURI'.
         raw_expression: The expression or value that describes the condition.
 
@@ -458,7 +444,7 @@ def get_valid_rule_condition(meowuri, raw_expression):
     except (TypeError, ValueError) as e:
         # Add information and then pass the exception up the chain so that the
         # error can be displayed with additional contextual information.
-        raise exceptions.InvalidRuleError(
+        raise InvalidRuleError(
             'Invalid rule condition ("{!s}": "{!s}"); {!s}'.format(
                 meowuri, raw_expression, e
             )
@@ -490,47 +476,42 @@ def parse_ranking_bias(value):
     try:
         _value = types.AW_FLOAT(value)
     except types.AWTypeError:
-        raise exceptions.ConfigurationSyntaxError(
+        raise ConfigurationSyntaxError(
             'Expected float but got "{!s}" ({!s})'.format(value, type(value))
         )
     else:
-        if float(0) <= _value <= float(1):
-            return _value
-        else:
-            raise exceptions.ConfigurationSyntaxError(
-                'Expected float within 0.0-1.0 but got {} -- Using default:'
-                ' {}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
+        if not 0.0 <= _value <= 1.0:
+            raise ConfigurationSyntaxError(
+                'Expected float between 0.0 and 1.0. Got {} -- Using default: '
+                '{}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
             )
+        return _value
 
 
 def parse_conditions(raw_conditions):
-    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
-
-    if not raw_conditions:
-        raise exceptions.ConfigurationSyntaxError('Got no conditions')
     if not isinstance(raw_conditions, dict):
-        raise exceptions.ConfigurationSyntaxError(
-            'Expected conditions to be of type dict'
-        )
+        raise ConfigurationSyntaxError('Expected conditions of type "dict". '
+                                       'Got {!s}'.format(type(raw_conditions)))
 
+    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
     passed = []
     try:
         for meowuri_string, expression_string in raw_conditions.items():
             try:
                 _meowuri = MeowURI(meowuri_string)
-            except exceptions.InvalidMeowURIError as e:
-                raise exceptions.ConfigurationSyntaxError(e)
+            except InvalidMeowURIError as e:
+                raise ConfigurationSyntaxError(e)
 
             try:
                 valid_condition = get_valid_rule_condition(_meowuri,
                                                            expression_string)
-            except exceptions.InvalidRuleError as e:
-                raise exceptions.ConfigurationSyntaxError(e)
+            except InvalidRuleError as e:
+                raise ConfigurationSyntaxError(e)
             else:
                 passed.append(valid_condition)
                 log.debug('Validated condition: "{!s}"'.format(valid_condition))
     except ValueError as e:
-        raise exceptions.ConfigurationSyntaxError(
+        raise ConfigurationSyntaxError(
             'contains invalid condition: ' + str(e)
         )
 
@@ -544,19 +525,20 @@ def parse_conditions(raw_conditions):
 def parse_data_sources(raw_sources):
     passed = {}
 
-    log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
-
     if not raw_sources:
-        raise exceptions.ConfigurationSyntaxError('Got no sources')
+        # Allow empty/None data sources.
+        raw_sources = dict()
+
+    log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
     if not isinstance(raw_sources, dict):
-        raise exceptions.ConfigurationSyntaxError(
+        raise ConfigurationSyntaxError(
             'Expected sources to be of type dict'
         )
 
     for raw_templatefield, raw_meowuri_strings in raw_sources.items():
         if not fields.is_valid_template_field(raw_templatefield):
             log.warning('Skipped source with invalid name template field '
-                        '(meowURI: "{!s}")'.format(raw_meowuri_strings))
+                        '(MeowURI: "{!s}")'.format(raw_meowuri_strings))
             continue
 
         tf = fields.nametemplatefield_class_from_string(raw_templatefield)
@@ -567,7 +549,7 @@ def parse_data_sources(raw_sources):
             continue
 
         if not raw_meowuri_strings:
-            log.debug('Skipped source with empty meowURI(s) '
+            log.debug('Skipped source with empty MeowURI(s) '
                       '(template field: "{!s}")'.format(raw_templatefield))
             continue
 
@@ -577,7 +559,7 @@ def parse_data_sources(raw_sources):
         for meowuri_string in raw_meowuri_strings:
             try:
                 _meowuri = MeowURI(meowuri_string)
-            except exceptions.InvalidMeowURIError as e:
+            except InvalidMeowURIError as e:
                 log.warning('Skipped source with invalid MeoWURI: '
                             '"{!s}"; {!s}'.format(meowuri_string, e))
                 continue
@@ -617,7 +599,7 @@ def is_valid_source(meowuri):
         The given source value if it passes the test, otherwise False.
     """
     if not meowuri or not isinstance(meowuri, MeowURI):
-        log.warning('Not meowuri or not instance of "MeowURI"')
+        log.warning('Got None or not an instance of "MeowURI"')
         log.debug('"is_valid_source()" got ({!s}) {!s}'.format(type(meowuri),
                                                                meowuri))
         return False

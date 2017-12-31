@@ -28,11 +28,7 @@ from extractors.text.common import (
     decode_raw
 )
 import util
-from util import (
-    sanity,
-    textutils
-)
-from util.text import remove_nonbreaking_spaces
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -48,18 +44,11 @@ class PdftotextTextExtractor(AbstractTextExtractor):
         self.init_cache()
 
     def extract_text(self, fileobject):
+        self.log.debug('Calling pdftotext; ARGS: "{!s}" FILE: "{!s}"'.format(
+            'TODO', enc.displayable_path(fileobject.abspath)
+        ))
         result = extract_pdf_content_with_pdftotext(fileobject.abspath)
-        if not result:
-            return ''
-
-        sanity.check_internal_string(result)
-        text = result
-        text = textutils.normalize_unicode(text)
-        text = remove_nonbreaking_spaces(text)
-        if text:
-            return text
-        else:
-            return ''
+        return result
 
     @classmethod
     def check_dependencies(cls):

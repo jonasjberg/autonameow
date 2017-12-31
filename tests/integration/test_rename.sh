@@ -21,7 +21,6 @@
 
 set -o noclobber -o nounset -o pipefail
 
-SELF_BASENAME="$(basename "$0")"
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
     cat >&2 <<EOF
@@ -33,6 +32,7 @@ EOF
     exit 1
 fi
 
+# Resets test suite counter variables.
 source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 
 
@@ -47,14 +47,18 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 # 3. The expected basename of the file after having been renamed.
 test_automagic_rename()
 {
-    local _test_name="RENAME ${1}"
-    local _sample_file="$2"
-    local _expected_basename="$3"
+    local -r _test_name="RENAME ${1}"
+    local -r _sample_file="$2"
+    local -r _expected_basename="$3"
+    local _sample_file_basename
+    local _temp_dir
+    local _expected_name
+    local _temp_file
 
-    local _sample_file_basename="$(basename -- "${_sample_file}")"
-    local _temp_dir="$(mktemp -d)"
-    local _expected_name="${_temp_dir}/${_expected_basename}"
-    local _temp_file="${_temp_dir}/${_sample_file_basename}"
+    _sample_file_basename="$(basename -- "${_sample_file}")"
+    _temp_dir="$(mktemp -d)"
+    _expected_name="${_temp_dir}/${_expected_basename}"
+    _temp_file="${_temp_dir}/${_sample_file_basename}"
 
     assert_true 'cp -n -- "${_sample_file}" "${_temp_file}"' \
                 "(${_test_name}) Test setup should succeed in copying the sample file to a temporary directory"
@@ -66,7 +70,7 @@ test_automagic_rename()
     then
         assert_true '[ "1" -eq "0" ]' \
         "(${_test_name}) Test setup FAILED. Unable to continue. Skipping remaining tests .."
-        return -1
+        return 127
     fi
 
     assert_true '"$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic -- "${_temp_file}" && [ -e "$_expected_name" ]' \
@@ -85,15 +89,15 @@ test_automagic_rename()
 # 3. The expected basename of the file after having been renamed.
 test_automagic_dryrun()
 {
-    local _test_name="DRY-RUN ${1}"
-    local _sample_file="$2"
-    local _expected_basename="$3"
+    local -r _test_name="DRY-RUN ${1}"
+    local -r _sample_file="$2"
+    local -r _expected_basename="$3"
 
     if ! [ -f "${_sample_file}" ]
     then
         assert_true '[ "1" -eq "0" ]' \
         "(${_test_name}) Test setup FAILED. Unable to continue. Skipping remaining tests .."
-        return -1
+        return 127
     fi
 
     assert_true '"$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
@@ -123,29 +127,17 @@ test_automagic_dryrun()
 time_start="$(current_unix_time)"
 
 TESTSUITE_NAME='Rename Files'
-logmsg "Started \"${SELF_BASENAME}\""
-logmsg "Running the "$TESTSUITE_NAME" test suite .."
+logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
 assert_true 'command -v python3' \
-            "Python v3.x is available on the system"
+            'Python v3.x is available on the system'
 
-assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
-             'Variable "AUTONAMEOW_RUNNER" should not be unset'
-
-assert_true '[ -e "$AUTONAMEOW_RUNNER" ]' \
-            "The autonameow launcher script \""$(basename -- "$AUTONAMEOW_RUNNER")"\" exists"
-
-assert_true '[ -x "$AUTONAMEOW_RUNNER" ]' \
-            "The autonameow launcher script has executable permission"
+assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
 ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_1.yaml")"
-assert_false '[ -z "$ACTIVE_CONFIG" ]' \
-             'Variable "ACTIVE_CONFIG" should not be unset'
-
-assert_true '[ -e "$ACTIVE_CONFIG" ]' \
-            "The config file \""$(basename -- "$ACTIVE_CONFIG")"\" exists"
+assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 
 # SAMPLE_JPG_FILE="$(abspath_testfile "smulan.jpg")"
@@ -159,8 +151,7 @@ assert_true '[ -e "$ACTIVE_CONFIG" ]' \
 
 SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
 SAMPLE_PDF_FILE_EXPECTED='2016-01-11T124132 gmail.pdf'
-assert_true '[ -e "$SAMPLE_PDF_FILE" ]' \
-            "Sample file \"${SAMPLE_PDF_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+assert_bulk_test "$SAMPLE_PDF_FILE" e f r
 
 test_automagic_rename 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
 test_automagic_dryrun 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
@@ -168,8 +159,7 @@ test_automagic_dryrun 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPL
 
 SAMPLE_SIMPLESTPDF_FILE="$(abspath_testfile "simplest_pdf.md.pdf")"
 SAMPLE_SIMPLESTPDF_FILE_EXPECTED='simplest_pdf.md.pdf'
-assert_true '[ -e "$SAMPLE_SIMPLESTPDF_FILE" ]' \
-            "Sample file \"${SAMPLE_SIMPLESTPDF_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+assert_bulk_test "$SAMPLE_SIMPLESTPDF_FILE" e f r
 
 test_automagic_rename 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
 test_automagic_dryrun 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
@@ -177,16 +167,11 @@ test_automagic_dryrun 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE
 
 # ==============================================================================
 ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_filetags.yaml")"
-assert_false '[ -z "$ACTIVE_CONFIG" ]' \
-             'Variable "ACTIVE_CONFIG" should not be unset'
-
-assert_true '[ -e "$ACTIVE_CONFIG" ]' \
-            "The config file \""$(basename -- "$ACTIVE_CONFIG")"\" exists"
+assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_FILETAGS_FILE="$(abspath_testfile "2017-09-12T224820 filetags-style name -- tag2 a tag1.txt")"
 SAMPLE_FILETAGS_FILE_EXPECTED='2017-09-12T224820 filetags-style name -- a tag1 tag2.txt'
-assert_true '[ -e "$SAMPLE_FILETAGS_FILE" ]' \
-            "Sample file \"${SAMPLE_FILETAGS_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+assert_bulk_test "$SAMPLE_FILETAGS_FILE" e f r
 
 test_automagic_rename 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
 test_automagic_dryrun 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
@@ -194,16 +179,11 @@ test_automagic_dryrun 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SA
 
 # ==============================================================================
 ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext_1.yaml")"
-assert_false '[ -z "$ACTIVE_CONFIG" ]' \
-             'Variable "ACTIVE_CONFIG" should not be unset'
-
-assert_true '[ -e "$ACTIVE_CONFIG" ]' \
-            "The config file \""$(basename -- "$ACTIVE_CONFIG")"\" exists"
+assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_EMPTY_FILE="$(abspath_testfile "empty")"
 SAMPLE_EMPTY_FILE_EXPECTED='empty'
-assert_true '[ -e "$SAMPLE_EMPTY_FILE" ]' \
-            "Sample file \"${SAMPLE_EMPTY_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+assert_bulk_test "$SAMPLE_EMPTY_FILE" e f r
 
 test_automagic_rename 'Fix incorrect extensions Method 1 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
 test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
@@ -211,8 +191,7 @@ test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/empty' "$SAM
 
 SAMPLE_NOEXT_FILE="$(abspath_testfile "simple-lexical-analysis")"
 SAMPLE_NOEXT_FILE_EXPECTED='simple-lexical-analysis.png'
-assert_true '[ -e "$SAMPLE_NOEXT_FILE" ]' \
-            "Sample file \"${SAMPLE_NOEXT_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+assert_bulk_test "$SAMPLE_NOEXT_FILE" e f r
 
 test_automagic_rename 'Fix incorrect extensions Method 1 test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
 test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
@@ -220,11 +199,7 @@ test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/simple-lexic
 
 # ==============================================================================
 ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext_2.yaml")"
-assert_false '[ -z "$ACTIVE_CONFIG" ]' \
-             'Variable "ACTIVE_CONFIG" should not be unset'
-
-assert_true '[ -e "$ACTIVE_CONFIG" ]' \
-            "The config file \""$(basename -- "$ACTIVE_CONFIG")"\" exists"
+assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 test_automagic_rename 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
 test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
@@ -232,8 +207,7 @@ test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/empty' "$SAM
 
 SAMPLE_MAGICTXTMD_FILE="$(abspath_testfile "magic_txt.md")"
 SAMPLE_MAGICTXTMD_FILE_EXPECTED='magic_txt.md'
-assert_true '[ -e "$SAMPLE_NOEXT_FILE" ]' \
-            "Sample file \"${SAMPLE_MAGICTXTMD_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+assert_bulk_test "$SAMPLE_MAGICTXTMD_FILE" e f r
 
 test_automagic_rename 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
 test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
@@ -245,3 +219,4 @@ time_end="$(current_unix_time)"
 total_time="$(calculate_execution_time "$time_start" "$time_end")"
 
 log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+update_global_test_results

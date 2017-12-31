@@ -31,7 +31,8 @@ from datetime import datetime
 
 import unit.constants as uuconst
 from core.config import rules
-from core.config.configuration import Configuration
+from core.config.config_parser import ConfigurationParser
+from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
 from core.model import MeowURI
 from util import encoding as enc
@@ -80,6 +81,42 @@ def abspath_testfile(testfile_basename):
     """
     return os.path.abspath(os.path.join(uuconst.TEST_FILES_DIR,
                                         testfile_basename))
+
+
+def abspath_testconfig(testconfig_basename=None):
+    """
+    Utility function used by tests to construct a full path to individual
+    configuration files in the 'test_files/configs' directory.
+
+    Args:
+        testconfig_basename: The basename of a file in the 'test_files/configs'
+                             directory as a Unicode string.
+
+    Returns:
+        The absolute path to the given configuration file as a Unicode string.
+        Or the default configuration file is no basename is specified.
+    """
+    if testconfig_basename is None:
+        _basename = uuconst.DEFAULT_YAML_CONFIG_BASENAME
+    else:
+        _basename = testconfig_basename
+    assert isinstance(_basename, str), type(_basename)
+
+    return os.path.abspath(
+        os.path.join(uuconst.TEST_FILES_DIR, 'configs', _basename)
+    )
+
+
+def encode(string):
+    return enc.encode_(string)
+
+
+def decode(string):
+    return enc.decode_(string)
+
+
+def bytestring_path(path):
+    return enc.bytestring_path(path)
 
 
 def normpath(path):
@@ -174,7 +211,7 @@ def make_temp_dir():
     Returns:
         The path to a new temporary directory, as an "internal" bytestring.
     """
-    return enc.normpath(tempfile.mkdtemp())
+    return normpath(tempfile.mkdtemp())
 
 
 def make_temporary_file(prefix=None, suffix=None, basename=None):
@@ -209,7 +246,7 @@ def make_temporary_file(prefix=None, suffix=None, basename=None):
         out = os.path.realpath(tempfile.NamedTemporaryFile(delete=False,
                                                            prefix=prefix,
                                                            suffix=suffix).name)
-    return enc.bytestring_path(out)
+    return bytestring_path(out)
 
 
 def get_mock_fileobject(mime_type=None):
@@ -241,14 +278,14 @@ def get_mock_fileobject(mime_type=None):
     else:
         temp_file = make_temporary_file()
 
-    return FileObject(enc.normpath(temp_file))
+    return FileObject(normpath(temp_file))
 
 
 def fileobject_testfile(testfile_basename):
     """
     Like 'abspath_testfile' but wraps the result in a 'FileObject' instance.
     """
-    _f = enc.normpath(abspath_testfile(testfile_basename))
+    _f = normpath(abspath_testfile(testfile_basename))
     return FileObject(_f)
 
 
@@ -259,10 +296,19 @@ def get_mock_empty_extractor_data():
     return {}
 
 
+MOCK_SESSION_DATA_POOLS = dict()
+
+
 def mock_request_data_callback(fileobject, label):
-    data = mock_session_data_pool_with_extractor_and_analysis_data(fileobject)
+    global MOCK_SESSION_DATA_POOLS
+
+    cached_data = MOCK_SESSION_DATA_POOLS.get(fileobject)
+    if not cached_data:
+        d = mock_session_data_pool_with_extractor_and_analysis_data(fileobject)
+        cached_data = MOCK_SESSION_DATA_POOLS[fileobject] = d
+
     try:
-        d = nested_dict_get(data, [fileobject, label])
+        d = nested_dict_get(cached_data, [fileobject, label])
     except KeyError:
         return None
     else:
@@ -475,7 +521,7 @@ def get_named_fileobject(basename):
     Returns: A FileObject based on a temporary file with the given basename.
     """
     _tf = make_temporary_file(basename=basename)
-    _f = enc.normpath(_tf)
+    _f = normpath(_tf)
     return FileObject(_f)
 
 
@@ -547,7 +593,7 @@ def get_instantiated_analyzers():
 
 
 def get_dummy_rules_to_examine():
-    _raw_conditions = get_dummy_raw_conditions()
+    _raw_conditions = get_dummy_parsed_conditions()
     _raw_sources = get_dummy_raw_data_sources()
 
     out = []
@@ -572,16 +618,16 @@ def get_dummy_rules_to_examine():
         exact_match=True,
         ranking_bias=1.0,
         name_template='{datetime} {description} -- {tags}.{extension}',
-        conditions=_raw_conditions[1],
-        data_sources=_raw_sources[1]
+        conditions=_raw_conditions[2],
+        data_sources=_raw_sources[2]
     ))
     out.append(rules.Rule(
         description='Sample Entry for EPUB e-books',
         exact_match=True,
         ranking_bias=1.0,
         name_template='{publisher} {title} {edition} - {author} {date}.{extension}',
-        conditions=_raw_conditions[1],
-        data_sources=_raw_sources[1]
+        conditions=_raw_conditions[3],
+        data_sources=_raw_sources[3]
     ))
 
     return out
@@ -603,14 +649,20 @@ def get_dummy_raw_data_sources():
     return uuconst.DUMMY_RAW_RULE_DATA_SOURCES
 
 
+def get_dummy_parsed_conditions():
+    _raw_conditions = get_dummy_raw_conditions()
+    conditions = [rules.parse_conditions(c) for c in _raw_conditions]
+    return conditions
+
+
 def get_dummy_rule():
-    _valid_conditions = rules.parse_conditions(get_dummy_raw_conditions()[0])
+    _valid_conditions = get_dummy_parsed_conditions()
     return rules.Rule(
         description='dummy',
         exact_match=False,
         ranking_bias=0.5,
         name_template='dummy',
-        conditions=_valid_conditions,
+        conditions=_valid_conditions[0],
         data_sources=get_dummy_raw_data_sources()[0]
     )
 
@@ -709,8 +761,12 @@ def is_internalbytestring(thing):
 
 def get_default_config():
     init_session_repository()
-    _config_path = enc.normpath(abspath_testfile('default_config.yaml'))
-    return Configuration.from_file(_config_path)
+
+    _config_path = normpath(abspath_testconfig())
+    assert isinstance(_config_path, bytes)
+
+    config_parser = ConfigurationParser()
+    return config_parser.from_file(_config_path)
 
 
 def mock_persistence_path():
@@ -722,4 +778,8 @@ def mock_cache_path():
 
 
 def as_meowuri(string):
-    return MeowURI(string)
+    try:
+        meowuri = MeowURI(string)
+    except InvalidMeowURIError as e:
+        raise AssertionError(e)
+    return meowuri

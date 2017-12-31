@@ -70,14 +70,13 @@ fi
 
 
 # Make sure that the resulting path is accessible.
-(cd "$AUTONAMEOW_PATH") 2>/dev/null 
-if [ "$?" -ne "0" ]
+if ! (cd "$AUTONAMEOW_PATH") 2>/dev/null
 then
-    echo "[ERROR] Unable to cd to AUTONAMEOW_PATH: \"${AUTONAMEOW_PATH}\"" >&2
+    printf '[ERROR] Unable to cd to AUTONAMEOW_PATH: "%s"\n' "$AUTONAMEOW_PATH" >&2
     exit 1
 fi
 
 
 # Execute the main module.
-python3 "${AUTONAMEOW_PATH}/autonameow" "$@"
+python3 -OO "${AUTONAMEOW_PATH}/autonameow" "$@"
 

@@ -25,14 +25,6 @@ import string
 from datetime import datetime
 
 try:
-    import dateutil
-    from dateutil import parser
-except ImportError:
-    raise SystemExit(
-        'Missing required module "dateutil". '
-        'Make sure "dateutil" is available before running this program.'
-    )
-try:
     import pytz
 except ImportError:
     raise SystemExit(
@@ -60,51 +52,34 @@ def hyphenate_date(date_str):
         return date_str
 
 
-def _year_is_probable(year):
+def _year_is_probable(int_year):
     """
     Check if year is "probable", meaning greater than 1900 and
     not in the future, I.E. greater than the current year.
     That is, simply: 1900 < year < this year
-    :param year: Year to check, preferably as a datetime-object.
-                 Other types will be converted if possible.
-    :return: True if the year is probable.
-             False if the year is not probable or a conversion to
-             datetime-object failed.
+
+    Args:
+        int_year: The year to test as an integer.
+
+    Returns:
+        True if the year is "probable", else False.
     """
-    if type(year) is not datetime:
-        # Try to convert to integer, then from integer to datetime.
-        try:
-            year = int(year)
-        except ValueError as ex:
-            log.warning('Got unexpected type "{}". '
-                        'Casting failed: {}'.format(type(year), ex))
-            return False
+    # Check if number of digits in "year" is less than three,
+    # I.E. we got something like '86' (1986) or maybe '08' (2008).
+    year = int_year
+    if len(str(year)) <= 2:
+        # Assume 50-99 becomes 1950-1999, and 0-49 becomes 2000-2049.
+        if year < 50:
+            year += 2000
+        else:
+            year += 1900
 
-        # Check if number of digits in "year" is less than three,
-        # I.E. we got something like '86' (1986) or maybe '08' (2008).
-        if year < 999:
-            # Assume 50-99 becomes 1950-1999, and 0-49 becomes 2000-2049.
-            if year < 50:
-                year += 2000
-            else:
-                year += 1900
-
-        if not isinstance(year, int):
-            year = enc.decode_(year)
-        try:
-            year = datetime.strptime(str(year), '%Y')
-        except (ValueError, TypeError):
-            log.debug('Failed converting "{}" '
-                      'to datetime-object.'.format(year))
-            return False
-
-    if year.year > C.YEAR_UPPER_LIMIT.year:
+    try:
+        year = datetime.strptime(str(year), '%Y')
+    except (ValueError, TypeError):
         return False
-    elif year.year < C.YEAR_LOWER_LIMIT.year:
-        return False
-    else:
-        # Year lies within window, assume it is OK.
-        return True
+
+    return date_is_probable(year)
 
 
 def date_is_probable(date):
@@ -112,24 +87,35 @@ def date_is_probable(date):
     Check if date is "probable", meaning greater than 1900 and
     not in the future, I.E. greater than the year of todays date.
     That is, simply: 1900 < date < today
-    :param date: Date to check, preferably as a datetime-object.
-                 Other types will be converted if possible.
-    :return: True if the date is probable.
-             False if the date is not probable or a conversion to
-             datetime-object failed.
-    """
-    if type(date) is not datetime:
-        log.warning('Got unexpected type "{}" '
-                    '(expected datetime)'.format(type(date)))
-        return False
 
+    Args:
+        date: The date to test as an instance of 'datetime'.
+
+    Returns:
+        True if the date is "probable", else False.
+    """
     if date.year > C.YEAR_UPPER_LIMIT.year:
         return False
     elif date.year < C.YEAR_LOWER_LIMIT.year:
         return False
-    else:
-        # Date lies within window, assume it is OK.
-        return True
+    return True
+
+
+DATE_SEP = r'[:\-._ /]?'
+TIME_SEP = r'[T:\-. _]?'
+DATE_REGEX = r'[12]\d{3}' + DATE_SEP + r'[01]\d' + DATE_SEP + r'[0123]\d'
+TIME_REGEX = TIME_SEP + r'[012]\d' + TIME_SEP + r'[012345]\d(.[012345]\d)?'
+DATETIME_REGEX = r'(' + DATE_REGEX + r'(' + TIME_REGEX + r')?)'
+
+DT_PATTERN_1 = re.compile(DATETIME_REGEX)
+
+# Expected date format:         2016:04:07
+DT_PATTERN_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
+DT_STRPTIME_FMT_2 = '%Y-%m-%d'
+
+# Matches '(C) 2014' and similar.
+DT_PATTERN_3 = re.compile(r'\( ?[Cc] ?\) ?([12]\d{3})')
+DT_STRPTIME_FMT_3 = '%Y'
 
 
 def regex_search_str(text):
@@ -142,111 +128,70 @@ def regex_search_str(text):
     :param text: the text to extract information from
     :return: list of any datetime-objects or None if nothing was found
     """
-    MAX_NUMBER_OF_RESULTS = 30
+    MAX_NUMBER_OF_RESULTS = 10
+
+    results = []
+    if not text:
+        return results
 
     if isinstance(text, list):
         text = ' '.join(text)
 
-    results = []
-
     # TODO: [TD0091] This code should be removed and/or rewritten ..
 
-    DATE_SEP = r'[:\-._ /]?'
-    TIME_SEP = r'[T:\-. _]?'
-    DATE_REGEX = r'[12]\d{3}' + DATE_SEP + r'[01]\d' + DATE_SEP + r'[0123]\d'
-    TIME_REGEX = TIME_SEP + r'[012]\d' + TIME_SEP + r'[012345]\d(.[012345]\d)?'
-    DATETIME_REGEX = r'(' + DATE_REGEX + r'(' + TIME_REGEX + r')?)'
+    for m_date, m_time, m_time_ms in re.findall(DT_PATTERN_1, text):
+        # Skip if entries doesn't contain digits.
+        m_date = textutils.extract_digits(m_date)
+        m_time = textutils.extract_digits(m_time)
+        m_time_ms = textutils.extract_digits(m_time_ms)
 
-    try:
-        # TODO: [hack] Fix this!
-        dt_pattern_1 = re.compile(DATETIME_REGEX)
-    except Exception as e:
-        log.error(str(e))
-        dt_pattern_1 = False
+        if not m_date or not m_time:
+            continue
 
-    matches = 0
+        # Check if m_date is actually m_date *AND* m_date.
+        if len(m_date) > 8 and m_date.endswith(m_time):
+            m_date = m_date.replace(m_time, '')
 
-    # TODO: [hack] Fix this!
-    if dt_pattern_1:
-        for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
-            # Skip if entries doesn't contain digits.
-            m_date = textutils.extract_digits(m_date)
-            m_time = textutils.extract_digits(m_time)
-            m_time_ms = textutils.extract_digits(m_time_ms)
+        # Skip matches with unexpected number of digits.
+        if len(m_date) != 8 or len(m_time) != 6:
+            continue
 
-            if not m_date or not m_time:
-                continue
+        dt_fmt_1 = '%Y%m%d_%H%M%S'
+        dt_str = m_date + '_' + m_time
+        try:
+            dt = datetime.strptime(dt_str, dt_fmt_1)
+        except (TypeError, ValueError):
+            pass
+        else:
+            if date_is_probable(dt):
+                log.debug('Extracted datetime from text: "{}"'.format(dt))
+                results.append(dt)
 
-            # Check if m_date is actually m_date *AND* m_date.
-            if len(m_date) > 8 and m_date.endswith(m_time):
-                m_date = m_date.replace(m_time, '')
+            if len(results) >= MAX_NUMBER_OF_RESULTS:
+                log.debug(
+                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
+                )
+                return results
 
-            if len(m_time) < 6:
-                pass
-
-            # Skip matches with unexpected number of digits.
-            if len(m_date) != 8 or len(m_time) != 6:
-                continue
-
-            dt_fmt_1 = '%Y%m%d_%H%M%S'
-            dt_str = (m_date + '_' + m_time).strip()
+    for re_pattern, datetime_format in [(DT_PATTERN_2, DT_PATTERN_3),
+                                        (DT_STRPTIME_FMT_2, DT_STRPTIME_FMT_3)]:
+        for dt_str in re.findall(re_pattern, text):
             try:
-                dt = datetime.strptime(dt_str, dt_fmt_1)
+                dt = datetime.strptime(dt_str, datetime_format)
             except (TypeError, ValueError):
                 pass
             else:
                 if date_is_probable(dt):
                     log.debug('Extracted datetime from text: "{}"'.format(dt))
                     results.append(dt)
-                    matches += 1
 
-                if matches >= MAX_NUMBER_OF_RESULTS:
+                if len(results) >= MAX_NUMBER_OF_RESULTS:
                     log.debug(
                         'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
                     )
                     return results
 
-    # Expected date format:         2016:04:07
-    dt_pattern_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
-    dt_fmt_2 = '%Y-%m-%d'
-    for dt_str in re.findall(dt_pattern_2, text):
-        try:
-            dt = datetime.strptime(dt_str, dt_fmt_2)
-        except (TypeError, ValueError):
-            pass
-        else:
-            if date_is_probable(dt):
-                log.debug('Extracted datetime from text: "{}"'.format(dt))
-                results.append(dt)
-                matches += 1
-
-            if matches >= MAX_NUMBER_OF_RESULTS:
-                log.debug(
-                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
-                )
-                return results
-
-    # Matches '(C) 2014' and similar.
-    dt_pattern_3 = re.compile(r'\( ?[Cc] ?\) ?([12]\d{3})')
-    dt_fmt_3 = '%Y'
-    for dt_str in re.findall(dt_pattern_3, text):
-        try:
-            dt = datetime.strptime(dt_str, dt_fmt_3)
-        except (TypeError, ValueError):
-            pass
-        else:
-            if date_is_probable(dt):
-                log.debug('Extracted datetime from text: "{}"'.format(dt))
-                results.append(dt)
-                matches += 1
-
-            if matches >= MAX_NUMBER_OF_RESULTS:
-                log.debug(
-                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
-                )
-                return results
-
-    log.debug('[DATETIME] Regex matcher found {:^3} matches'.format(matches))
+    log.debug('DATETIME Regex matcher found {:^3} matches'.format(len(results)))
     return results
 
 
@@ -376,7 +321,7 @@ def match_any_unix_timestamp(text):
     return None
 
 
-def bruteforce_str(text, return_first_match=False):
+def bruteforce_str(text):
     """
     Extracts date/time-information from a text string.
 
@@ -596,77 +541,6 @@ def bruteforce_str(text, return_first_match=False):
     return results
 
 
-def fuzzy_datetime(text, prefix):
-    # TODO: [cleanup] Currently not used at all!
-    dt = None
-    try:
-        try:
-            dt = dateutil.parser.parse(text)
-            print(('Sharp {} -> {}'.format(text, dt)))
-        except ValueError:
-            dt = dateutil.parser.parse(text, fuzzy=True)
-            print(('Fuzzy {} -> {}'.format(text, dt)))
-    except Exception as e:
-        print(('Try as I may, I cannot parse {} ({})'.format(text, e)))
-
-    return dt
-
-
-def get_datetime_from_text(text, prefix='NULL'):
-    """
-    Extracts date/time-information from text.
-    This method is used by both the text-analyzer and the pdf-analyzer.
-
-    :param text: try to extract date/time-information from this text
-    :param prefix: prefix this to the resulting dictionary keys
-    :return: dictionary of lists of any datetime-objects found
-             The dictionary is keyed by search method used to extract the
-             datetime-objects.
-    """
-    # TODO: [cleanup][TD0091] Should this even be used at all?
-    if text is None:
-        log.warning('Got NULL argument')
-        return None
-    if prefix == 'NULL':
-        pass
-    # text = enc.decode_(text)
-
-    # TODO: [TD0091] Improve handling of generalized "text" from any source.
-    #       (currently plain text and pdf documents)
-    if type(text) == list:
-        text = ' '.join(text)
-
-    results_brute = []
-    results_regex = []
-
-    matches = 0
-    text_split = text.split('\n')
-    # log.debug('Try getting datetime from text split by newlines')
-    for t in text_split:
-        dt = bruteforce_str(t)
-        if dt and dt is not None:
-            results_brute.append(dt)
-            matches += 1
-
-    if matches == 0:
-        # log.debug('No matches. Trying with text split by whitespace')
-        text_split = text.split()
-        for t in text_split:
-            dt = bruteforce_str(t)
-            if dt and dt is not None:
-                results_brute.append(dt)
-                matches += 1
-
-    # TODO: [cleanup] Fix this here below. Looks completely broken.
-    regex_match = 0
-    dt_regex = regex_search_str(text)
-    if dt_regex and dt_regex is not None:
-        results_regex.append(dt_regex)
-        regex_match += 1
-
-    return results_regex, results_brute
-
-
 def special_datetime_ocr_search(text):
     """
     Very special case. OCR text often mistakes "/" for "7", hence
@@ -706,44 +580,6 @@ def match_screencapture_unixtime(text):
         if dt:
             return dt
     return None
-
-
-def to_datetime(datetime_string):
-    """
-    Convert a string with date/time information to a datetime-object.
-
-    Args:
-        datetime_string: Date/time data as a string.
-
-    Returns:
-        A datetime object representing the given input if successful.
-    Raises:
-        ValueError: An error occurred during the conversion.
-        TypeError: An error occurred during the conversion.
-    """
-    # TODO: Handle timezone offsets properly!
-
-    if datetime_string.endswith('+00:00'):
-        datetime_string = datetime_string.replace('+00:00', '')
-    elif datetime_string.endswith('+02:00'):
-        datetime_string = datetime_string.replace('+02:00', '')
-
-    REGEX_FORMAT_MAP = [(r'^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$',
-                         '%Y:%m:%d %H:%M:%S'),  # '2010:01:31 16:12:51'
-                        ]
-
-    for regex_pattern, datetime_format in REGEX_FORMAT_MAP:
-        if re.match(regex_pattern, datetime_string):
-            return datetime.strptime(datetime_string, datetime_format)
-
-    try:
-        datetime_object = parser.parse(datetime_string)
-    except ValueError:
-        raise ValueError
-    except TypeError:
-        raise TypeError
-    else:
-        return datetime_object
 
 
 def timezone_aware_to_naive(aware_datetime):

@@ -255,7 +255,6 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'PDF:Subject': {
             'coercer': types.AW_STRING,
-            # 'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Tags, probability=0.8),
@@ -598,7 +597,6 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             # Tag: "XMP:Subject" Value: "['ISBN-13:', 9781847197283]"
             #
             'coercer': types.AW_STRING,
-            # 'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Tags, probability=0.8),

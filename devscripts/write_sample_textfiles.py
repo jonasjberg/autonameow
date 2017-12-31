@@ -22,6 +22,10 @@
 
 import os
 
+"""
+Writes sample text to files using different encodings.
+"""
+
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 DEST_PATH = os.path.join(_THIS_DIR, 'sample_textfiles')
 

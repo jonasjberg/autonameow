@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import re
 from collections import Counter
 
@@ -28,11 +29,14 @@ from core import types
 from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
-from util import (
-    dateandtime,
-    textutils
+from util import dateandtime
+from util.text import (
+    find_edition,
+    urldecode
 )
-from util.text.patternmatching import find_edition
+
+
+log = logging.getLogger(__name__)
 
 
 # Use two different types of separators;  "SPACE" and "SEPARATOR".
@@ -64,11 +68,34 @@ class FilenameAnalyzer(BaseAnalyzer):
             fileobject, config, request_data_callback
         )
 
+        self._basename_prefix = None
+        self._basename_suffix = None
+        self._file_mimetype = None
+
     def analyze(self):
+        # TODO: [TD0136] Look into "requesting" already available data.
+        basename_prefix = self.request_data(
+            self.fileobject,
+            'extractor.filesystem.xplat.basename.prefix'
+        )
+        self._basename_prefix = types.force_string(basename_prefix.get('value'))
+
+        basename_suffix = self.request_data(
+            self.fileobject,
+            'extractor.filesystem.xplat.basename.suffix'
+        )
+        self._basename_suffix = types.force_string(basename_suffix.get('value'))
+
+        file_mimetype = self.request_data(
+            self.fileobject,
+            'extractor.filesystem.xplat.contents.mime_type'
+        )
+        self._file_mimetype = file_mimetype.get('value')
+
         self._add_results('datetime', self.get_datetime())
-        self._add_results('edition', self.get_edition())
-        self._add_results('extension', self.get_extension())
-        self._add_results('publisher', self.get_publisher())
+        self._add_results('edition', self._get_edition())
+        self._add_results('extension', self._get_extension())
+        self._add_results('publisher', self._get_publisher())
 
     def get_datetime(self):
         # TODO: [TD0110] Improve finding probable date/time in file names.
@@ -96,15 +123,11 @@ class FilenameAnalyzer(BaseAnalyzer):
         # TODO: Fix inconsistent analyzer results data.
         return None
 
-    def get_edition(self):
-        basename = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.basename.prefix'
-        )
-        if not basename:
+    def _get_edition(self):
+        if not self._basename_prefix:
             return None
 
-        _number = find_edition(types.force_string(basename.get('value')))
+        _number = find_edition(self._basename_prefix)
         if _number:
             return {
                 'value': _number,
@@ -117,28 +140,14 @@ class FilenameAnalyzer(BaseAnalyzer):
         else:
             return None
 
-    def get_extension(self):
-        ed_basename_suffix = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.basename.suffix'
-        )
-        if not ed_basename_suffix:
-            return
-
-        ed_file_mimetype = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.contents.mime_type'
-        )
-        if not ed_file_mimetype:
-            return
-
-        file_basename_suffix = types.force_string(ed_basename_suffix.get('value'))
-        file_mimetype = ed_file_mimetype.get('value')
+    def _get_extension(self):
         self.log.debug(
             'Attempting to get likely extension for MIME-type: "{!s}"  Basename'
-            ' suffix: "{!s}"'.format(file_mimetype, file_basename_suffix))
-        result = likely_extension(file_basename_suffix, file_mimetype)
+            ' suffix: "{!s}"'.format(self._file_mimetype, self._basename_suffix)
+        )
+        result = likely_extension(self._basename_suffix, self._file_mimetype)
         self.log.debug('Likely extension: "{!s}"'.format(result))
+
         return {
             'value': result,
             'coercer': types.AW_PATHCOMPONENT,
@@ -147,22 +156,16 @@ class FilenameAnalyzer(BaseAnalyzer):
             ]
         }
 
-    def get_publisher(self):
-        ed_basename_prefix = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.basename.prefix'
-        )
-        if not ed_basename_prefix:
-            return
+    def _get_publisher(self):
+        if not self._basename_prefix:
+            return None
 
-        file_basename_prefix = types.force_string(ed_basename_prefix.get('value'))
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
-        if _options:
-            _candidates = _options.get('candidates', {})
-        else:
-            _candidates = {}
+        if not _options:
+            return None
 
-        result = find_publisher(file_basename_prefix, _candidates)
+        _candidates = _options.get('candidates', {})
+        result = find_publisher(self._basename_prefix, _candidates)
         if not result:
             return None
 
@@ -289,34 +292,61 @@ class FilenameAnalyzer(BaseAnalyzer):
 MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     'application/octet-stream': {
         # Might be corrupt files.
+        '': {''},
         'azw3': {'azw3'},
+        'bin': {'bin', 'binary'},
         'chm': {'chm'},
+        'gz.sig': {'gz.sig'},
+        'hex': {'hex'},
         'mobi': {'mobi'},
         'pdf': {'pdf'},
-        'prc': {'prc'}
+        'prc': {'prc'},
+        'scpt': {'scpt'},
+        'sig': {'sig'},
+        'sln': {'sln'},  # Visual Studio Solution
+        'tar.gz.sig': {'tar.gz.sig'},
+        'txt': {'txt'}
+    },
+    'application/msword': {
+        'doc': {'doc'}
+    },
+    'application/postscript': {
+        'ps': {'ps'},
+        'eps': {'eps'},
     },
     'application/gzip': {
         'gz': {'gz'},
-        'tar.gz': {'tar.gz'},
+        'tar.gz': {'tar.gz'}
     },
     'application/zip': {
         'zip': {'zip'},
         'epub': {'epub'},
+        'alfredworkflow': {'alfredworkflow'}
     },
     'application/vnd.ms-powerpoint': {
         'ppt': {'ppt'},
     },
+    'application/x-bzip2': {
+        'tar.bz2': {'tar.bz2'},
+    },
     'application/x-gzip': {
-        'tar.gz': {'tar.gz'}
+        'tar.gz': {'tar.gz', 'tgz'},
+        'txt.gz': {'txt.gz'},
+        'w.gz': {'w.gz'}  # CWEB source code
     },
     'application/x-lzma': {
         'tar.lzma': {'tar.lzma'}
     },
+    'audio/mpeg': {
+        'mp3': {'mp3'}
+    },
     'text/html': {
         'html': {'html', 'htm'},
+        'html.gz': {'htm.gz', 'html.gz'},
         'txt': {'txt'},
     },
     'text/plain': {
+        'bibtex': {'bibtex'},
         'c': {'c'},
         'cpp': {'cpp', 'c++'},
         'css': {'css'},
@@ -336,22 +366,33 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'spec': {'spec'},
         'sh': {'bash', 'sh'},
         'txt': {'txt'},
+        'txt.gz': {'txt.gz'},
         'yaml': {'yaml'},
+    },
+    'text/xml': {
+        'cbp': {'cbp'},
+        'workspace': {'workspace'}
     },
     'text/x-c': {
         'c': {'c', 'txt'},
-        'h': {'h'}
+        'h': {'h'},
+        'w': {'w'}  # CWEB source code
     },
     'text/x-c++': {
-        'cpp': {'cpp', 'txt'},
+        'cpp': {'cpp', 'c++', 'txt'},
         'h': {'h'}
     },
     'text/x-makefile': {
+        '': {''},
         'asm': {'asm'}
     },
     'text/x-shellscript': {
         'sh': {'bash', 'sh', 'txt'},
         'py': {'py'},
+    },
+    'text/x-tex': {
+        'log': {'log'},
+        'tex': {'tex'},
     },
     'video/mpeg': {
         'VOB': {'VOB'},
@@ -362,18 +403,27 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
 
 
 def likely_extension(basename_suffix, mime_type):
-    if mime_type and basename_suffix:
+    if mime_type and basename_suffix is not None:
         ext_suffixes_map = MIMETYPE_EXTENSION_SUFFIXES_MAP.get(mime_type, {})
         for ext, suffixes in ext_suffixes_map.items():
             if basename_suffix in suffixes:
                 return ext
 
+    # NOTE(jonas): Calling 'format()' returns a extension as a Unicode string.
     _coerced_mime = types.AW_MIMETYPE(mime_type)
     if _coerced_mime:
+        log.debug('Passing coerced MIME "{!s}" to '
+                  'AW_MIMETYPE.format()'.format(_coerced_mime))
         return types.AW_MIMETYPE.format(_coerced_mime)
+
+    if basename_suffix == '':
+        log.debug('Basename suffix is empty. Giving up..')
+        return ''
 
     _coerced_suffix = types.AW_MIMETYPE(basename_suffix)
     if _coerced_suffix:
+        log.debug('Passing coerced suffix "{!s}" to '
+                  'AW_MIMETYPE.format()'.format(_coerced_suffix))
         return types.AW_MIMETYPE.format(_coerced_suffix)
 
     return None
@@ -415,7 +465,7 @@ class FilenamePreprocessor(object):
             _decoded = None
 
             if '%20' in filename:
-                _decoded = textutils.urldecode(filename)
+                _decoded = urldecode(filename)
             elif '+' in filename:
                 _decoded = filename.replace('+', ' ')
 

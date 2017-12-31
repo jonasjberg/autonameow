@@ -283,6 +283,64 @@ Fine-Grained Records Integration and Linkage Tool
 > of parameter values to enhance linking performance and accuracy.
 
 
+`MALLET`
+--------
+MAchine Learning for LanguagE Toolkit
+
+* Website: <http://mallet.cs.umass.edu/>
+* Sources: <https://github.com/mimno/Mallet>
+* Documentation: <http://mallet.cs.umass.edu/classification.php>
+
+> MALLET is a Java-based package for statistical natural language processing,
+> document classification, clustering, topic modeling, information extraction,
+> and other machine learning applications to text.
+
+
+`parserator`
+------------
+A toolkit for making domain-specific probabilistic parsers
+
+* Website: <http://parserator.datamade.us/>
+* Sources: <https://github.com/datamade/parserator>
+* Documentation: <http://parserator.rtfd.org/>
+
+> Do you have domain-specific text data that would be much more useful if you
+> could derive structure from the strings? This toolkit will help you create a
+> custom NLP model that learns from patterns in real data and then uses that
+> knowledge to process new strings automatically. All you need is some training
+> data to teach your parser about its domain.
+
+
+`Hazel`
+-------
+Automated Organization for Your Mac.
+
+* Website: <https://www.noodlesoft.com/>
+* Sources: *N/A*
+* Documentation: <https://www.noodlesoft.com/manual/hazel>
+
+> Hazel helps you reduce clutter and save time by automatically moving,
+> sorting, renaming, and performing various other actions on the folders that
+> tend to accumulate lots of files (such as your Desktop and Downloads
+> folders).
+
+
+`Archivematica`
+---------------
+Free and open-source digital preservation system designed to maintain
+standards-based, long-term access to collections of digital objects.
+
+* Website: <https://www.archivematica.org/>
+* Sources: <https://github.com/artefactual/archivematica>
+* Documentation: <https://www.archivematica.org/>
+
+> Archivematica is a web- and standards-based, open-source application which
+> allows your institution to preserve long-term access to trustworthy,
+> authentic and reliable digital content. Our target users are archivists,
+> librarians, and anyone working to preserve digital objects.
+
+
+
 
 [1]: http://karl-voit.at
 [2]: http://karl-voit.at/managing-digital-photographs/

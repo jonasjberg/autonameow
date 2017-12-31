@@ -18,7 +18,8 @@ Metadata
   Master Thesis, EPFL, Switzerland. Boyd, J. 2015.
 
 * "Intelligent Big Multimedia Databases"  
-  World Scientific, Wichert, A. 2015.
+  World Scientific.
+  Wichert A. 2015.
 
 * [Evaluation of Header Metadata Extraction Approaches and Tools for Scientific
   PDF Documents][2]  
@@ -34,16 +35,24 @@ Metadata
 * [Classification-Based Approach for Bibliographic Metadata Deduplication][4]  
   Computational Science Center, Federal University of Rio Grande.
   Institute of Informatics, Federal University of Rio Grande do Sul.
-  Borges E.N. Becker K.  Heuser C.A.  Galante R. 2011.
+  Borges E.N. Becker K. Heuser C.A. Galante R. 2011.
 
 * [Estimating the Date of First Publication in a Large-Scale Digital
   Library][5]  
   Digital Libraries (JCDL), 2017 ACM/IEEE Joint Conference.
-  Bamman D.  Carney M.  Gillick J.  Hennesy C.  Sridhar V. 2017.
+  Bamman D. Carney M. Gillick J. Hennesy C. Sridhar V. 2017.
 
 * [Rule-based Deduplication of Article Records from Bibliographic Databases][6]  
   Database: The Journal of Biological Databases and Curation.
   Jiang Y, Lin C, Meng W, Yu C, Cohen AM, Smalheiser NR. 2014.
+
+* [DCC - Automated Metadata Generation][8]  
+  DCC Digital Curation Reference Manual. ISSN 1747-1524.
+  Dobreva M. Kim Y. and Ross S. 2013.
+
+* [DCC - Archival Metadata][9]  
+  DCC Digital Curation Reference Manual. ISSN 1747-1524.
+  Duff W. vanBallegooie M. 2006.
 
 
 Implementing Plugin Systems
@@ -60,6 +69,9 @@ Implementing Plugin Systems
   The Python Standard Library by Example. Pearson, Hellmann D. 2011.
   Chapter 18, page 1178.
 
+* [Fundamental concepts of plugin infrastructures][7]  
+  Eli Bendersky's website, 2012-08-07.
+
 
 
 [1]: https://preprints.cern.ch/record/2039361/files/CERN-THESIS-2015-105.pdf
@@ -68,3 +80,6 @@ Implementing Plugin Systems
 [4]: http://repositorio.furg.br/bitstream/handle/1/1701/A%20CLASSIFICATION-BASED%20APPROACH%20FOR.pdf?sequence=1
 [5]: http://people.ischool.berkeley.edu/~dbamman/pubs/pdf/jcdl2017.pdf
 [6]: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3893659/
+[7]: https://eli.thegreenplace.net/2012/08/07/fundamental-concepts-of-plugin-infrastructures
+[8]: http://www.dcc.ac.uk/sites/default/files/documents/dcc_amg_final.pdf
+[9]: http://www.dcc.ac.uk/sites/default/files/documents/resource/curation-manual/chapters/archival-metadata/archival-metadata.pdf

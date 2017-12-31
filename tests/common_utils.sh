@@ -27,6 +27,10 @@ C_GREEN="$(tput setaf 2)"
 C_RESET="$(tput sgr0)"
 
 
+kill_running_task()
+{
+    kill "$TASK_PID"
+}
 
 # Runs a "task" (evaluates an expression) and prints messages.
 #
@@ -41,34 +45,57 @@ C_RESET="$(tput sgr0)"
 #    any other return code is considered a failure.
 run_task()
 {
-    local _opt_quiet="$1"
-    local _msg="$2"
-    local _cmd="$3"
+    local -r _opt_quiet="$1"
+    local -r _msg="$2"
+    local -r _cmd="$3"
 
     # Print tasks is starting message.
-    local FMT
-    [ "$_opt_quiet" = 'true' ] && local FMT='%s ..' || local FMT='%s ..\n'
-    printf "$FMT" "$_msg"
+    if [ "$_opt_quiet" = 'true' ]
+    then
+        printf '%s ..' "$_msg"
+    else
+        printf '%s ..\n' "$_msg"
+    fi
 
-    # Run task and check exit status.
+    # Catch SIGUP (1) SIGINT (2) and SIGTERM (15)
+    trap kill_running_task SIGHUP SIGINT SIGTERM
+
+    # Run task and check exit code.
     if [ "$_opt_quiet" != 'true' ]
     then
-        eval "${_cmd}"
+        eval "${_cmd}" &
+        TASK_PID="$!"
     else
-        eval "${_cmd}" 2>&1 >/dev/null
+        eval "${_cmd}" >/dev/null 2>&1 &
+        TASK_PID="$!"
     fi
+    wait "$TASK_PID"
+
     local _retcode="$?"
     if [ "$_retcode" -ne '0' ]
     then
         count_fail="$((count_fail + 1))"
     fi
 
-    # Print task has ended message.
-    [ "$_opt_quiet" = 'true' ] || printf "${_msg} .."
+    # Print task has ended message, interpreting exit codes as;
+    #
+    #     0     -- OK
+    #     130   -- ABORTED (Terminated by Control-C)
+    #     other -- ERROR
+    #
+    [ "$_opt_quiet" = 'true' ] || printf '%s ..' "$_msg"
     if [ "$_retcode" -eq '0' ]
     then
-        printf " ${C_GREEN}[FINISHED]${C_RESET}\n"
+        # Success
+        printf ' %s\n' "${C_GREEN}[FINISHED]${C_RESET}"
     else
-        printf " ${C_RED}[FAILED]${C_RESET}\n"
+        # Failure
+        if [ "$_retcode" -eq '130' ]
+        then
+            printf ' %s' "${C_RED}[ABORTED]${C_RESET}"
+        else
+            printf ' %s' "${C_RED}[FAILED]${C_RESET}"
+        fi
+        printf ' (exit code %s)\n' "$_retcode"
     fi
 }

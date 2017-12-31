@@ -24,10 +24,11 @@ import logging
 import sys
 import time
 
+import util
+from core import constants as C
 from core import (
     analysis,
     config,
-    disk,
     exceptions,
     extraction,
     interactive,
@@ -37,18 +38,17 @@ from core import (
     repository,
     ui,
 )
-from core import constants as C
-from core.config.configuration import Configuration
 from core.evaluate import (
     RuleMatcher,
     TemplateFieldDataResolver
 )
 from core.fileobject import FileObject
-from core.model import MeowURI
 from core.plugin_handler import PluginHandler
-import util
-from util import sanity
 from util import encoding as enc
+from util import (
+    disk,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)
@@ -74,6 +74,11 @@ class Autonameow(object):
 
         self.active_config = None
         self.matcher = None
+        self.rename_stats = {
+            'failed': 0,
+            'skipped': 0,
+            'renamed': 0,
+        }
         self._exit_code = C.EXIT_SUCCESS
 
     @staticmethod
@@ -188,25 +193,28 @@ class Autonameow(object):
         # Path name encoding boundary. Returns list of paths in internal format.
         files_to_process = disk.normpaths_from_opts(
             self.opts.get('input_paths'),
-            self.active_config.options['FILESYSTEM_OPTIONS']['ignore'],
+            self.active_config.options['FILESYSTEM']['ignore'],
             self.opts.get('recurse_paths')
         )
         log.info('Got {} files to process'.format(len(files_to_process)))
 
-        if not self.active_config.rules:
-            log.warning('Configuration does not contain any rules to evaluate')
-            rules = []
-        else:
-            rules = self.active_config.rules
+        rules = self.active_config.rules
+        if not rules:
+            log.warning('Configuration does not contain any rules!')
 
-        self.matcher = RuleMatcher(rules)
+        self.matcher = RuleMatcher(rules, self.opts.get('list_rulematch'))
 
         self._handle_files(files_to_process)
+
+        log.info('Processed {} files. Renamed {}  Skipped {}  Failed {}'.format(
+            len(files_to_process), self.rename_stats['renamed'],
+            self.rename_stats['skipped'], self.rename_stats['failed'])
+        )
         self.exit_program(self.exit_code)
 
     def load_config(self, path):
         try:
-            self.active_config = Configuration.from_file(path)
+            self.active_config = config.load_config_from_file(path)
         except exceptions.ConfigError as e:
             log.critical('Unable to load configuration -- {!s}'.format(e))
 
@@ -219,13 +227,8 @@ class Autonameow(object):
     def _dump_registered_meowuris(self):
         ui.msg('Registered MeowURIs', style='heading')
 
-        if not self.opts.get('debug'):
-            _meowuris = sorted(providers.Registry.mapped_meowuris)
-            for _meowuri in _meowuris:
-                ui.msg(str(_meowuri))
-        else:
+        if self.opts.get('debug'):
             cf = ui.ColumnFormatter()
-
             for _type in C.MEOWURI_ROOTS_SOURCES:
                 cf.addemptyrow()
                 sourcemap = providers.Registry.meowuri_sources.get(_type, {})
@@ -235,6 +238,10 @@ class Autonameow(object):
                         for k in _klasses:
                             cf.addrow(None, str(k))
             ui.msg(str(cf))
+        else:
+            _meowuris = sorted(providers.Registry.mapped_meowuris)
+            for _meowuri in _meowuris:
+                ui.msg(str(_meowuri))
 
         ui.msg('\n')
 
@@ -320,6 +327,7 @@ class Autonameow(object):
         should_list_any_results = self.opts.get('list_all')
 
         # Extract data from the file.
+        # TODO: [TD0142] Fetch only explicitly required data.
         required_extractors = providers.get_providers_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['extractor']
@@ -334,9 +342,11 @@ class Autonameow(object):
         )
 
         # Begin analysing the file.
+        # TODO: [TD0142] Fetch only explicitly required data.
         _run_analysis(current_file, self.active_config)
 
         # Run plugins.
+        # TODO: [TD0142] Fetch only explicitly required data.
         required_plugins = providers.get_providers_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['plugin']
@@ -373,9 +383,9 @@ class Autonameow(object):
         if self.opts.get('mode_rulematch'):
             # TODO: Cleanup ..
             candidates = self.matcher.match(current_file)
+            log.debug('Matcher returned {} candidate rules'.format(len(candidates)))
             if candidates:
                 active_rule = self._try_get_rule(candidates)
-                candidates.pop(0)
 
         if active_rule:
             log.info(
@@ -391,7 +401,7 @@ class Autonameow(object):
                 return
 
             # Have the user select a name template.
-            # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+            # TODO: [TD0024][TD0025] Implement Interactive mode.
             # candidates = None
             # choice = interactive.select_template(candidates)
             # if choice != ui.action.ABORT:
@@ -417,14 +427,25 @@ class Autonameow(object):
                 return
 
             # Have the user select data sources.
-            # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+            # TODO: [TD0024][TD0025] Implement Interactive mode.
             pass
 
         field_data_dict = self._try_resolve(current_file, name_template,
                                             data_sources)
         if not field_data_dict:
-            if self.opts.get('mode_automagic'):
+            if not self.opts.get('mode_automagic'):
+                log.warning('(437) Not in automagic mode. Unable to populate name.')
+                self.exit_code = C.EXIT_WARNING
+                return
+
+            while not field_data_dict and candidates:
                 # Try real hard to figure it out (?)
+                log.debug('Start of try-hard rule matching loop ..')
+                if not candidates:
+                    log.debug('No candidates! Exiting try-hard matching loop')
+                    break
+
+                log.debug('Remaining candidates: {}'.format(len(candidates)))
                 active_rule = self._try_get_rule(candidates)
                 if active_rule:
                     log.info(
@@ -435,8 +456,9 @@ class Autonameow(object):
                     field_data_dict = self._try_resolve(current_file,
                                                         name_template,
                                                         data_sources)
+
         if not field_data_dict:
-            log.warning('(439) Unable to populate name.')
+            log.warning('(461) Unable to populate name.')
             self.exit_code = C.EXIT_WARNING
             return
 
@@ -470,8 +492,8 @@ class Autonameow(object):
 
         if not resolver.mapped_all_template_fields():
             if self.opts.get('mode_batch'):
-                log.error('All name template placeholder fields must be '
-                          'given a data source; Check the configuration!')
+                log.error('Unable to resolve all name template fields. '
+                          'Running in batch mode -- Aborting..')
                 self.exit_code = C.EXIT_WARNING
                 return
 
@@ -480,18 +502,19 @@ class Autonameow(object):
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         if not resolver.collected_all():
             if self.opts.get('mode_batch'):
-                log.warning('(483) Unable to populate name.')
+                log.warning('(505) Unable to populate name.')
                 # self.exit_code = C.EXIT_WARNING
                 return
             else:
-                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                # TODO: [TD0024][TD0025] Implement Interactive mode.
                 while not resolver.collected_all():
                     log.info('Resolver has not collected all fields ..')
                     for field in resolver.unresolved:
+                        log.info('Resolver is looking up candidates for field "{!s}"'.format(field))
                         candidates = resolver.lookup_candidates(field)
+                        log.info('Resolver found {} candidates'.format(len(candidates)))
                         choice = None
                         if candidates:
-                            log.info('Resolver found {} candidates'.format(len(candidates)))
                             choice = interactive.select_field(field, candidates)
                         else:
                             log.info('Resolver did not find any candidates ..')
@@ -504,15 +527,7 @@ class Autonameow(object):
                             log.info('Aborting ..')
                             return
 
-                        # TODO: This should not be done here.
-                        try:
-                            choice_uri = MeowURI(choice)
-                        except exceptions.InvalidMeowURIError as e:
-                            log.critical('Failed to convert string choice to '
-                                         'MeowURI :: {!s}'.format(e))
-                            pass
-                        else:
-                            resolver.add_known_source(field, choice_uri)
+                        resolver.add_known_source(field, choice.meowuri)
 
                     resolver.collect()
 
@@ -520,7 +535,7 @@ class Autonameow(object):
         # Add automatically resolving missing sources from possible candidates.
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-            log.warning('(523) Unable to populate name. Missing field data.')
+            log.warning('(545) Unable to populate name. Missing field data.')
             self.exit_code = C.EXIT_WARNING
             return None
 
@@ -536,7 +551,7 @@ class Autonameow(object):
             # candidates = matcher.candidates()
             if candidates:
                 log.warning('TODO: Implement interactive rule selection.')
-                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                # TODO: [TD0024][TD0025] Implement Interactive mode.
                 # choice = interactive.select_rule(candidates)
                 # if choice != ui.action.ABORT:
                 #     active_rule = choice
@@ -548,10 +563,9 @@ class Autonameow(object):
         RULE_SCORE_CONFIRM_THRESHOLD = 0
         if candidates and not active_rule:
             # User rule selection did not happen or failed.
-            # Is there a "best matched" rule?
-            best_match = candidates[0]
+            best_match = candidates.pop(0)
             if best_match:
-                # OK! But is the score of the best matched rule high enough?
+                # Is the score of the best matched rule high enough?
                 rule, score, weight = best_match
                 description = rule.description
                 if score > RULE_SCORE_CONFIRM_THRESHOLD:
@@ -636,6 +650,7 @@ class Autonameow(object):
         from_basename = disk.file_basename(from_path)
 
         if disk.compare_basenames(from_basename, dest_basename):
+            self.rename_stats['skipped'] += 1
             _msg = (
                 'Skipped "{!s}" because the current name is the same as '
                 'the new name'.format(enc.displayable_path(from_basename),
@@ -644,10 +659,12 @@ class Autonameow(object):
             log.debug(_msg)
             ui.msg(_msg)
         else:
+            self.rename_stats['renamed'] += 1
             if dry_run is False:
                 try:
                     disk.rename_file(from_path, dest_basename)
                 except (FileNotFoundError, FileExistsError, OSError) as e:
+                    self.rename_stats['failed'] += 1
                     log.error('Rename FAILED: {!s}'.format(e))
                     raise exceptions.AutonameowException
 

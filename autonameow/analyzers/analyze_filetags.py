@@ -22,14 +22,12 @@
 import re
 
 from analyzers import BaseAnalyzer
-from core import (
-    disk,
-    types,
-)
+from core import types
 from core.model import genericfields as gf
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from util import encoding as enc
+from util import disk
 
 
 # TODO: [TD0037] Allow further customizing of "filetags" options.
@@ -249,12 +247,14 @@ def partition_basename(file_path):
         tags = []
     else:
         # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
-        r = re.split(FILENAME_TAG_SEPARATOR, prefix, 1)
-        description = r[0].strip()
+        prefix_tags_list = re.split(FILENAME_TAG_SEPARATOR, prefix, 1)
+        description = prefix_tags_list[0].strip()
         try:
-            tags = r[1].split(BETWEEN_TAG_SEPARATOR)
+            tags = prefix_tags_list[1].split(BETWEEN_TAG_SEPARATOR)
         except IndexError:
             tags = []
+        else:
+            tags = [t.strip() for t in tags if t]
 
     # Encoding boundary;  Internal filename bytestring --> internal Unicode str
     def decode_if_not_none_or_empty(bytestring_maybe):

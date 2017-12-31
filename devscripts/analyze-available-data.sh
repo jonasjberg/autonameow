@@ -103,7 +103,7 @@ AUTONAMEOW="autonameow"
 
 print_autonameow_matches()
 {
-    while IFS='\n' read -r line
+    while IFS=$'\n' read -r line
     do
         printf '%-13.13s %s\n' "$1" "$line"
     done <<< "$2"
@@ -114,7 +114,16 @@ main()
     # Read each lines comma-separated values.
     while IFS=',' read -r abspath publisher title edition author year
     do
-        [ -z "$abspath" ] && continue
+        if [ -z "$abspath" ]
+        then
+            printf '[WARNING] Skipped -- "abspath" is unset\n\n' >&2
+            continue
+        fi
+        if [ ! -f "$abspath" ]
+        then
+            printf '[WARNING] Skipped -- "abspath" is not a file: "%s"\n\n' "$abspath" >&2
+            continue
+        fi
 
         printf 'Input file path: "%s"\n' "$abspath"
         printf 'EXPECTED VALUES:\n'
@@ -124,7 +133,7 @@ main()
         printf '    Title: "%s"\n'       "$title"
         printf '     Year: "%s"\n\n'     "$year"
 
-        autonameow_output="$(${AUTONAMEOW} --batch --list-all --dry-run -- "$abspath" 2>&1 |
+        autonameow_output="$(${AUTONAMEOW} --batch --list-all --dry-run -- "$abspath" 2>/dev/null |
                              grep -v 'Would have renamed' | # hacky
                              grep -v '    ->  ' |           # hacky
                              grep -v 'because the current name is the' | # hacky

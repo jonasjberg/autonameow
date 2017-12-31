@@ -23,13 +23,16 @@ import logging
 import re
 
 from core import (
-    disk,
     exceptions,
     ui,
 )
 from core.namebuilder.fields import NameTemplateField
-from util import sanity
 from util import encoding as enc
+from util import (
+    disk,
+    sanity,
+    text
+)
 
 
 log = logging.getLogger(__name__)
@@ -37,9 +40,10 @@ log = logging.getLogger(__name__)
 
 class FilenamePostprocessor(object):
     def __init__(self, lowercase_filename=None, uppercase_filename=None,
-                 regex_replacements=None):
+                 regex_replacements=None, simplify_unicode=None):
         self.lowercase_filename = lowercase_filename or False
         self.uppercase_filename = uppercase_filename or False
+        self.simplify_unicode = simplify_unicode or False
 
         # List of tuples containing a compiled regex and a unicode string.
         self.regex_replacements = regex_replacements or []
@@ -47,6 +51,7 @@ class FilenamePostprocessor(object):
     def __call__(self, filename):
         _filename = filename
 
+        # TODO: [TD0137] Add rule-specific replacements.
         # Do replacements first as the regular expressions are case-sensitive.
         if self.regex_replacements:
             _filename = self._do_replacements(_filename,
@@ -57,6 +62,9 @@ class FilenamePostprocessor(object):
             _filename = _filename.lower()
         elif self.uppercase_filename:
             _filename = _filename.upper()
+
+        if self.simplify_unicode:
+            _filename = self._do_simplify_unicode(_filename)
 
         return _filename
 
@@ -71,6 +79,10 @@ class FilenamePostprocessor(object):
 
                 filename = re.sub(regex, replacement, filename)
         return filename
+
+    @staticmethod
+    def _do_simplify_unicode(filename):
+        return text.simplify_unicode(filename)
 
 
 def build(config, name_template, field_data_map):
@@ -108,8 +120,8 @@ def build(config, name_template, field_data_map):
     log.debug('Assembled basename: "{!s}"'.format(new_name))
 
     # Do any file name "sanitation".
-    if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_filename']):
-        if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_strict']):
+    if config.get(['POST_PROCESSING', 'sanitize_filename']):
+        if config.get(['POST_PROCESSING', 'sanitize_strict']):
             log.debug('Sanitizing filename (restricted=True)')
             new_name = disk.sanitize_filename(new_name, restricted=True)
         else:
@@ -124,12 +136,14 @@ def build(config, name_template, field_data_map):
 
     # Do any case-transformations.
     postprocessor = FilenamePostprocessor(
-        lowercase_filename=config.get(['CUSTOM_POST_PROCESSING',
+        lowercase_filename=config.get(['POST_PROCESSING',
                                        'lowercase_filename']),
-        uppercase_filename=config.get(['CUSTOM_POST_PROCESSING',
+        uppercase_filename=config.get(['POST_PROCESSING',
                                        'uppercase_filename']),
-        regex_replacements=config.get(['CUSTOM_POST_PROCESSING',
-                                       'replacements'])
+        regex_replacements=config.get(['POST_PROCESSING',
+                                       'replacements']),
+        simplify_unicode=config.get(['POST_PROCESSING',
+                                     'simplify_unicode'])
     )
     new_name = postprocessor(new_name)
 
@@ -177,13 +191,13 @@ def post_assemble_format(new_name):
 
 def populate_name_template(name_template, **kwargs):
     """
-    Assembles a basename string from a given "name_template" format string
-    that is populated with an arbitrary number of keyword arguments.
+    Assembles a basename string from a given "name_template" filename format
+    string that is populated with an arbitrary number of keyword arguments.
 
     Args:
-        name_template: The format string to populate and return.
+        name_template: The filename format string to populate and return.
         **kwargs: An arbitrary number of keyword arguments used to fill out
-            the format string.
+                  the filename format string.
 
     Returns:
         A string on the form specified by the given name template, populated
@@ -191,7 +205,7 @@ def populate_name_template(name_template, **kwargs):
 
     Raises:
         NameTemplateSyntaxError: Error due to either an invalid "name_template"
-            or insufficient/invalid keyword arguments.
+                                 or insufficient/invalid keyword arguments.
     """
     if not isinstance(name_template, str):
         raise TypeError('"name_template" must be of type "str"')
@@ -204,7 +218,7 @@ def populate_name_template(name_template, **kwargs):
     while '"' in name_template:
         name_template = name_template.replace('"', '')
 
-    # NOTE: Used to validate name formatting strings in the configuration file.
+    # NOTE: Used to validate name template strings in the configuration file.
     try:
         out = name_template.format(**kwargs)
     except (TypeError, KeyError, ValueError) as e:

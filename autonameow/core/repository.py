@@ -21,15 +21,14 @@
 
 import logging
 
-from core import (
-    disk,
-    exceptions,
-)
+import util
+from core import exceptions
 from core.ui.cli import ColumnFormatter
 from core.model import MeowURI
-import util
-from util import textutils
 from util import encoding as enc
+from util import sanity
+from util import textutils
+from util.text import truncate_text
 
 
 log = logging.getLogger(__name__)
@@ -63,7 +62,6 @@ class Repository(object):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
-        # self.log.setLevel(logging.DEBUG)
 
     def shutdown(self):
         # TODO: Any shutdown tasks goes here ..
@@ -88,9 +86,7 @@ class Repository(object):
             data_sample = data[0]
         else:
             data_sample = data
-        assert isinstance(data_sample, dict), (
-            'Expected "data" to be of type dict. Got "{!s}"'.format(type(data))
-        )
+        sanity.check_isinstance(data_sample, dict)
 
         self._store(fileobject, meowuri, data)
         self._store_generic(fileobject, data)
@@ -115,7 +111,7 @@ class Repository(object):
     def _store(self, fileobject, meowuri, data):
         if meowuri.matchglobs(['generic.contents.text', 'extractor.text.*']):
             _debugmsg_data = dict(data)
-            _truncated_value = textutils.truncate_text(_debugmsg_data['value'])
+            _truncated_value = truncate_text(_debugmsg_data['value'])
             _debugmsg_data['value'] = _truncated_value
         else:
             _debugmsg_data = data
@@ -147,9 +143,11 @@ class Repository(object):
             if isinstance(data, list):
                 for d in data:
                     if maps_field(d, field):
+                        d.update(meowuri=meowuri)
                         out.append(d)
             else:
                 if maps_field(data, field):
+                    data.update(meowuri=meowuri)
                     out.append(data)
 
         return out
@@ -207,7 +205,7 @@ class Repository(object):
                     elif meowuri.matchglobs(['generic.contents.text',
                                              'extractor.text.*']):
                         # Often *a lot* of text, trim to arbitrary size..
-                        _truncated = textutils.truncate_text(v)
+                        _truncated = truncate_text(v)
                         temp_list.append(_truncated)
                     else:
                         temp_list.append(str(v))
@@ -222,13 +220,14 @@ class Repository(object):
                 elif meowuri.matchglobs(['generic.contents.text',
                                          'extractor.text.*']):
                     # Often *a lot* of text, trim to arbitrary size..
-                    temp[meowuri] = textutils.truncate_text(v)
+                    temp[meowuri] = truncate_text(v)
                 else:
                     temp[meowuri] = str(v)
 
         cf = ColumnFormatter()
         COLUMN_DELIMITER = '::'
         MAX_VALUE_WIDTH = 80
+
         def _add_row(str_meowuri, value):
             str_value = str(value)
             if len(str_value) > MAX_VALUE_WIDTH:
@@ -244,7 +243,7 @@ class Repository(object):
 
             if meowuri.matchglobs(['generic.contents.text',
                                    'extractor.text.*']):
-                _text = textutils.extract_lines(data, firstline=0, lastline=1)
+                _text = textutils.extract_lines(data, firstline=1, lastline=1)
                 _text = _text.rstrip('\n')
                 data = _text
             _add_row(_meowuri_str, data)
@@ -328,7 +327,12 @@ def shutdown(id_=None):
 
 
 def maps_field(datadict, field):
-    for mapping in datadict.get('field_map', {}):
+    # This might return a None, using a default dict value will not work.
+    mapped_fields = datadict.get('mapped_fields')
+    if not mapped_fields:
+        return False
+
+    for mapping in mapped_fields:
         if field == mapping.field:
             return True
     return False

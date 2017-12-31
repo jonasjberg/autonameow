@@ -52,9 +52,9 @@ class ConfigFieldParser(object):
     The "value" is some kind of expression.
 
     The "meowURI" (key) determines which parser class is to be used by
-    matching the "meowURI" against class variables 'applies_to_meowuri'.
+    matching the "meowURI" against class variables 'APPLIES_TO_MEOWURIS'.
     This is handled with the 'eval_meowuri_glob' function, which supports
-    "globs"/wildcards. Parser classes whose 'applies_to_meowuri' attribute
+    "globs"/wildcards. Parser classes whose 'APPLIES_TO_MEOWURIS' attribute
     evaluates True for a given "meowURI" is used to parse the associated value.
 
     * The 'validate' methods
@@ -79,7 +79,10 @@ class ConfigFieldParser(object):
     # part during comparison.
     #
     # Example:  ['filesystem.basename.*', 'filesystem.*.extension]
-    applies_to_meowuri = []
+    APPLIES_TO_MEOWURIS = []
+
+    # Whether to allow multiple expressions or not.
+    ALLOW_MULTIVALUED_EXPRESSION = None
 
     def __init__(self):
         self.init()
@@ -125,7 +128,20 @@ class ConfigFieldParser(object):
         Returns:
             True if expression is valid, else False.
         """
-        return self.get_validation_function()(expression)
+        validation_func = self.get_validation_function()
+        if self.ALLOW_MULTIVALUED_EXPRESSION is True:
+            if not isinstance(expression, list):
+                expression = [expression]
+
+            # All expressions must pass validation.
+            for expr in expression:
+                if not validation_func(expr):
+                    return False
+            return True
+        else:
+            if isinstance(expression, list):
+                return False
+            return validation_func(expression)
 
     def evaluate(self, expression, data):
         """
@@ -142,14 +158,28 @@ class ConfigFieldParser(object):
         """
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        return self.get_evaluation_function()(expression, data)
+        evaluation_func = self.get_evaluation_function()
+        if self.ALLOW_MULTIVALUED_EXPRESSION is True:
+            if not isinstance(expression, list):
+                expression = [expression]
+
+            # Only one expression need evaluate true.
+            for expr in expression:
+                if evaluation_func(expr, data):
+                    return True
+            return False
+        else:
+            if isinstance(expression, list):
+                return False
+            return evaluation_func(expression, data)
 
     def __str__(self):
         return self.__class__.__name__
 
 
 class BooleanConfigFieldParser(ConfigFieldParser):
-    applies_to_meowuri = ['*.filetags.follows_filetags_convention']
+    APPLIES_TO_MEOWURIS = ['*.filetags.follows_filetags_convention']
+    ALLOW_MULTIVALUED_EXPRESSION = False
 
     @staticmethod
     def is_valid_boolean(expression):
@@ -182,15 +212,16 @@ class BooleanConfigFieldParser(ConfigFieldParser):
 
 class RegexConfigFieldParser(ConfigFieldParser):
     # NOTE: Globs does not include all possible extractor globs.
-    applies_to_meowuri = [
+    APPLIES_TO_MEOWURIS = [
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
         '*.XMP-dc:Title', '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher',
         '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.text.*', '*.text',
     ]
     # Add MeowURIs from "generic" fields.
-    applies_to_meowuri.extend([
+    APPLIES_TO_MEOWURIS.extend([
         field.uri() for field in gf.get_string_fields()
     ])
+    ALLOW_MULTIVALUED_EXPRESSION = True
 
     @staticmethod
     def is_valid_regex(expression):
@@ -261,50 +292,39 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
-    applies_to_meowuri = ['*.mime_type', gf.GenericMimeType.uri()]
+    APPLIES_TO_MEOWURIS = ['*.mime_type', gf.GenericMimeType.uri()]
+    ALLOW_MULTIVALUED_EXPRESSION = True
 
     @staticmethod
     def is_valid_mime_type(expression):
         if not expression:
             return False
 
-        if not isinstance(expression, list):
-            expression = [expression]
+        string_expr = types.force_string(expression)
+        if not string_expr:
+            return False
 
-        for expr in expression:
-            string_expr = types.force_string(expr)
-            if not string_expr:
-                return False
-
-            try:
-                # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
-                if not re.match(r'^([a-z]+|\*)/([a-z0-9\-.+]+|\*)$', expr):
-                    return False
-            except TypeError:
-                return False
-
-        return True
+        try:
+            # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
+            if re.match(r'^([a-z]+|\*)/([a-z0-9\-.+]+|\*)$', string_expr):
+                return True
+        except TypeError:
+            pass
+        return False
 
     @staticmethod
     def evaluate_mime_type_globs(expression, mime_to_match):
         if not expression:
             return False
 
-        if not isinstance(expression, list):
-            expression = [expression]
-
-        # True is returned if any of the given expressions evaluates true.
-        for expr in expression:
-            try:
-                evaluates_true = mimemagic.eval_glob(mime_to_match, expr)
-            except (TypeError, ValueError) as e:
-                log.error(
-                    'Error evaluating expression "{!s}"; {!s}'.format(expr, e)
-                )
-                continue
-            if evaluates_true:
-                return True
-        return False
+        try:
+            evaluates_true = mimemagic.eval_glob(mime_to_match, expression)
+        except (TypeError, ValueError) as e:
+            log.error(
+                'Error evaluating expression "{!s}"; {!s}'.format(expression, e)
+            )
+            return False
+        return evaluates_true
 
     @classmethod
     def get_validation_function(cls):
@@ -320,14 +340,15 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
     # NOTE: Globs does not include all possible extractor globs.
-    applies_to_meowuri = [
+    APPLIES_TO_MEOWURIS = [
         '*.PDF:CreateDate', '*.PDF:ModifyDate', '*.EXIF:DateTimeOriginal',
         '*.EXIF:ModifyDate'
     ]
     # Add MeowURIs from "generic" fields.
-    applies_to_meowuri.extend([
+    APPLIES_TO_MEOWURIS.extend([
         field.uri() for field in gf.get_datetime_fields()
     ])
+    ALLOW_MULTIVALUED_EXPRESSION = True
 
     @staticmethod
     def is_valid_datetime(expression):
@@ -366,8 +387,9 @@ NAMETEMPLATEFIELDS_DUMMYDATA = dict.fromkeys(
 )
 
 
-class NameFormatConfigFieldParser(ConfigFieldParser):
-    applies_to_meowuri = []
+class NameTemplateConfigFieldParser(ConfigFieldParser):
+    APPLIES_TO_MEOWURIS = []
+    ALLOW_MULTIVALUED_EXPRESSION = False
 
     @staticmethod
     def is_valid_nametemplate_string(expression):
@@ -432,44 +454,8 @@ def suitable_field_parser_for(meowuri):
     assert isinstance(meowuri, MeowURI)
 
     return [p for p in FieldParserInstances
-            if meowuri.matchglobs(p.applies_to_meowuri)]
+            if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
 
 
 # Instantiate rule parsers inheriting from the 'Parser' class.
 FieldParserInstances = get_instantiated_field_parsers()
-
-
-RE_VERSION_NUMBER = re.compile(r'v?(\d+)\.(\d+)\.(\d+)')
-
-
-def parse_versioning(semver_string):
-    """
-    Validates a "raw" version number string.
-
-    The version number is expected to be a Unicode string on the form 'v1.2.3',
-    where the initial 'v' is optional;  I.E. '111.222.333' is also valid.
-
-    Args:
-        semver_string: The version number to validate as a Unicode string.
-
-    Returns:
-        A tuple of three integers representing the "major", "minor" and
-        "patch" version numbers.  Or None if the validation fails.
-    """
-    if not semver_string or not isinstance(semver_string, str):
-        return None
-    if not semver_string.strip():
-        return None
-
-    match = RE_VERSION_NUMBER.search(semver_string)
-    if match:
-        try:
-            major = int(match.group(1))
-            minor = int(match.group(2))
-            patch = int(match.group(3))
-        except TypeError:
-            pass
-        else:
-            return major, minor, patch
-
-    return None

@@ -25,7 +25,7 @@ RULES:
             datetime: extractor.metadata.exiftool.PDF:CreateDate
             extension: extractor.filesystem.xplat.basename.extension
             title: extractor.filesystem.xplat.basename.prefix
-        NAME_FORMAT: '{datetime} {title}.{extension}'
+        NAME_TEMPLATE: '{datetime} {title}.{extension}'
         description: 
         exact_match: true
         ranking_bias: null
@@ -37,7 +37,7 @@ RULES:
             datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
             description: plugin.microsoft_vision.caption
             extension: extractor.filesystem.xplat.basename.extension
-        NAME_FORMAT: '{datetime} {description}.{extension}'
+        NAME_TEMPLATE: '{datetime} {description}.{extension}'
         description: 
         exact_match: true
         ranking_bias: 1
@@ -46,8 +46,8 @@ RULES:
             extractor.filesystem.xplat.basename.full: simplest_pdf.md.pdf
         DATA_SOURCES:
             extension: extractor.filesystem.xplat.basename.extension
-        NAME_FORMAT: simplest_pdf.md.{extension}
+        NAME_TEMPLATE: simplest_pdf.md.{extension}
         exact_match: true
         ranking_bias: 1
 COMPATIBILITY:
-    autonameow_version: v0.5.2
+    autonameow_version: v0.5.3

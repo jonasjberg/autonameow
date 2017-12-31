@@ -52,15 +52,6 @@ class TextAnalyzer(BaseAnalyzer):
 
         return results if results else None
 
-    def _is_gmail(self):
-        text = self.text
-        if type(text) is list:
-            text = ' '.join(text)
-
-        if text.lower().find('gmail'):
-            self.log.debug('Text might be a Gmail (contains "gmail")')
-            return
-
     def _get_datetime_from_text(self):
         """
         Extracts date and time information from textual contents.

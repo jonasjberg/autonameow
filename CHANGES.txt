@@ -1,3 +1,320 @@
+2017-12-31  [autonameow v0.5.3]
+            Bug fixes, refactoring, some new features.
+            A lot of improvements to utility scripts used during development
+            as well as various testing tools, runners and actual tests.
+
+            NOTE: This version changes the configuration syntax ---
+                  config files written by previous version will *NOT* work!
+
+            See the git log for all changes and detailed descriptions.
+
+            Additions:
+            - Add new option '--list-rulematch'.
+              Adds a new option to display additional information on rule
+              matching.  References TODO-list item [TD0135].
+
+            - Add new post-processing option 'simplify_unicode'.
+              Adds a new configuration option to strip Unicode
+              accents/diacritics.  This adds a new entry to the
+              'CUSTOM_POST_PROCESSING' section;
+
+                  CUSTOM_POST_PROCESSING:
+                      simplify_unicode: True
+
+              Current default is True if left unspecified, This option enables
+              converting Unicode symbols with accents/diacritics to plain ASCII
+              or other equivalents, if possible.
+
+            - Add 'devscripts/vulture.sh'.
+              Adds wrapper script for running 'vulture'.
+
+            - Add 'devscripts/todo_grep.sh'.
+              Adds a simple grep wrapper for searching the sources for TODOs.
+
+            - Add partial (WIP) still mostly broken interactive field select.
+
+            - Add tests to the "Source Code" test suite.
+              Adds testing that certain files are not added to the git repo.
+
+            - Add various new integration tests.
+            - Add 'devscripts/lint-bash-scripts.sh'.
+              Wrapper for 'shellcheck' for ding static analysis on all bash
+              scripts. Uses different settings for certain kinds of scripts.
+
+            - Add human-readable total integration test execution time.
+              Display time in hours, minutes and seconds in addition to
+              just milliseconds,
+
+            - Add global statistics to the integration runner.
+              Adds showing final combined statistics for all test suites.
+              Writes intermediate test results to a temporary file in order to
+              solve the mess of sharing variables between sourcing/calling
+              scripts in various subshells, etc.
+              This also disables converting the test results to HTML by calling
+              'run_task()' that was removed in a previous commit, leaving this
+              use behind.
+
+            - Include release date in output of '-v --version'.
+              Also adds TODO-item [TD0145] on automating tasks related to
+              releasing new versions, like updating the newly added
+              'version.RELEASE_DATE'.
+
+            - Add logging warning of bad 'NAME_TEMPLATES' type.
+              Previously, if the config parser got non-dict 'NAME_TEMPLATES',
+              they would be silently skipped without notifying the user.
+              The user should be notified of bad syntax in their configuration.
+              Actually, it would probably be better to fail even more
+              explicitly for cases like these.
+
+            - Add (iffy)(WIP) alternative unit test runner.
+              Adds a somewhat incomplete alternative unit test runner.
+              The new 'unit/__main__.py' allows running the unit tests as:
+
+                  PYTHONPATH=autonameow:tests python3 -m unit
+
+              Compared to the current runner script 'unit_runner.sh', this
+              method could include filtering out specific test suites.
+              Note that this is still somewhat incomplete, some tests fail
+              in mysterious ways, possibly related to paths and mocking.
+
+            - Add option '-f' to integration test runner script.
+
+              Adds a new option '-f' to 'integration_runner.sh'.
+
+                -f [EXP]   Execute scripts by filtering basenames.
+                           Argument [EXP] is passed to grep as-is.
+                           Scripts whose basename does not match the
+                           expression are skipped.
+
+            - Add limiting size of cache files.
+              Implements ability to limit the size of cached files.
+              Limits are checked every time data is written to the cache,
+              which probably should be reworked at some future point.
+              When the cache file size exceeds the limit, the n oldest items
+              are removed from both RAM and disk. The number n is currently
+              half the number of items, so if the cache contains 100 items, the
+              50 oldest are removed when the cache file size exceeds the limit.
+              It would probably make more sense to check the cache size at
+              instantiation or possibly when the cache leaves the scope, using
+              the context-manager protocol.
+              This completes TODO-list item [TD0101].
+
+            - Add basic statistics on renamed/skipped/failed.
+            - And a lot more --- refer to the git log for additional details.
+
+            Changes:
+            - Improve and fix the regression runner.
+              Adds various improvements and fixes to the regression test runner.
+              Modifies existing options and adds additional selection options.
+              Command-line use should be simpler and more consistent.
+
+              1. Tests are selected by criteria defined with the "Test Selection"
+                 options. If none are given, all loaded tests are selected.
+
+              2. Actions selected with the "Actions to Perform" options are
+                 performed on the selected tests.
+
+              Adds option '-f'/'--filter' for selecting tests by matching the
+              test name (dirname) with globs, I.E. asterisks matches everything.
+              Adds option '--run' that is enabled by default but only executed
+              if no other actions are enabled.
+              Modifies option '--get-cmd' to no longer accept positional
+              arguments, this is now done with the "Test Selection" options.
+
+            - Add caching path computation in 'BasePersistence'.
+              Adds storing results of '_persistence_dir_abspath()'.
+              Actual speed increase seems to be pretty substantial for repeated
+              lookups. Run-time of tests in 'test_persistence_cache.py' halved.
+
+            - Simplify validating config 'NAME_TEMPLATES'.
+              Joins checking if defined/empty with the type-check and collapses
+              duplicated check for empty strings that raise the same exception.
+
+            - Allow configuration without any rules.
+              Removes failing configuration validation if rules are missing.
+              Also adds additional regression tests for trivial smoke testing
+              configurations containing only the 'COMPATIBILITY' section.
+
+            - 'CUSTOM_POST_PROCESSING' --> 'POST_PROCESSING'
+              Replaces configuration section for "post-processing" options.
+              Renames section 'CUSTOM_POST_PROCESSING' to 'POST_PROCESSING'.
+
+            - Rename key 'FILESYSTEM_OPTIONS' to 'FILESYSTEM'.
+              Renames configuration dict key 'FILESYSTEM_OPTIONS' to
+              'FILESYSTEM'.
+
+            - Replace 'NAME_FORMAT' with 'NAME_TEMPLATE'.
+              Replaces all instance of "name format" with "name template".
+              The configuration name templates was referred to as both
+              "name template" and "name format" in the sources, configuration,
+              documentation, notes, etc.
+              These inconsistencies are now fixed.
+              The name template is used to_format_the file name.  And the
+              format_of the file name is determined by the name_template.
+
+            - Strip whitespace in config 'NAME_TEMPLATES' keys.
+              Fail if the name template key is only whitespace.
+
+            - Print top-level exception tracebacks in the regression runner.
+            - Add ability to negate regression runner glob matching filter.
+              Modifies the regression runner '-f' option.
+              If the glob pattern starts with '!' the matching is negated.
+
+                E.G.  'f*'  matches 'foo' but not 'bar'
+                while '!f*' matches 'bar' but not 'foo'
+
+            - Pass '-OO' to interpreter in runner script.
+              Adds using Python interpreter option '-OO' in 'bin/autonameow.sh'.
+              From 'man python3':
+
+                  -O    Turn on basic optimizations.
+                        Given twice, causes docstrings to be discarded.
+                  -OO   Discard docstrings in addition to the -O optimizations.
+
+              This change is mostly experimental. Basic measurements show that actual
+              performance improvements are marginal at best. While some use-cases run
+              10-20% faster with the optimizations enabled, it is still not clear if
+              this is worth sacrificing assertions and debugging facilities.
+              If one actually was to try to improve the performance, this is not the
+              way to go about it.
+              The main motivation is rather experimenting with conditional execution of
+              (known from profiling) expensive operations in "if __debug__:" conditions.
+
+            - Refactor getting candidates from the resolver.
+              Refactors queries to the resolver for field candidates.
+              Moves converting the candidates (data dicts) to string representations
+              to the resolver class. This also adds returning the values wrapped in a
+              'FieldDataCandidate' class. This is currently only used by functions in
+              the interactive module.
+              This and many related things are **VERY HACKY** and should be reworked.
+              At least for now, this prevents crashing.
+
+            - Add/modify MIME-type to extension mappings.
+            - Remove use of and sourcing 'common_utils.sh' from the
+              integration runner.
+              Inlines a modified 'run_task()' that does not attempt to handle
+              aborting the running task, because it did not work.
+              This also sources the test suite scripts instead of evaluating
+              ('eval x') them. This change is part of adding a global counter
+              and attempting to solve shared state between all integration test
+              scripts in the mess of sourcing/"evaling".
+
+            - Move the 'disk' module to 'util'.
+              Moves 'autonameow/core/disk' to 'autonameow/util/disk'.
+              Might make more sense to keep functionality related to I/O
+              out of the 'core' module.
+
+            - Rename unit test files to reflect package/module hierarchy.
+
+            - Add shared integration test utility function.
+              Adds function 'bulk_assert_test()' for less duplicated code.
+              One line using this function would replace several multi-line
+              statements.
+              For example;
+
+                      'bulk_assert_test "/foo/bar" e f r'
+
+              Is equivalent to three separate assertions with messages, etc.
+              This should help to clean up a lot of duplicate code in the
+              integration tests.
+
+            - Simplify tests by using 'bulk_assert_test()'.
+              Replaces multiple assertions with calls to 'bulk_assert_test()'.
+
+            - Add returning from 'sanity'-functions if optimized.
+              Adds returning early from 'sanity' functions if not '__debug__'.
+              Intended to possibly mitigate the fact that assert statements are
+              skipped in optimized mode, but calls to these home rolled
+              functions that wrap assertions might not be detected and removed
+              properly when running in "optimized" mode.
+
+            - Move test config files to 'test_files/configs'.
+            - Show custom replacements only in verbose mode.
+
+            - Complete rework of the 'Configuration' class.
+              Moves "parsing"/validation to a new 'ConfigurationParser' class.
+              Finishes TODO-list item [TD0014].
+
+            - Refactor field parsers. Add additional unit tests.
+              Modifies how field parsers handle validation/evaluation of lists.
+              Adds class attribute 'ALLOW_MULTIVALUED_EXPRESSION' that controls
+              how validation ('validate()') and evaluation ('evaluate()')
+              handles single or lists of expressions.
+              A field parser class that has 'ALLOW_MULTIVALUED_EXPRESSION' set
+              to False not validate any expression given as lists.
+              If 'ALLOW_MULTIVALUED_EXPRESSION' is True, the field parser will
+              convert any non-list expression to a list before validation.
+              This moves any list checking from the class specific methods
+              returned by 'get_validation_function()' and
+              'get_evaluation_function()' to the base class 'validate()' and
+              'evaluate()' functions, respectively.
+
+            - Rework the 'Rule' class and rule conditions.
+              Adds various Changes to rules, rule parsing and rule conditions.
+              Allow rules with no conditions. These will always "evaluate true"
+              but with zero score (and weight), effectively making them go
+              unused.
+              This is motivated by simpler testing and moving towards hopefully
+              less convoluted code related to parsing and instantiating the
+              configuration, rules, rule conditions, etc.
+              Less assertions randomly strewn about also makes unit testing a
+              bit easier; assuming that a single entity handles validation and
+              parsing, a lot of assertions and '__init__()' type-checking can
+              be removed.
+
+            - And a lot more --- refer to the git log for additional details.
+
+            Fixes:
+            - Add skipping ISBN metadata missing some fields.
+              Adds skipping ISBN metadata missing both authors and publisher.
+              Also fixes bug where empty authors were not detected properly.
+            - Adds various cleanup and fixes to global logging state.
+              Shared logging state is still not handled properly. Mocking some
+              critical tests works but is a workaround rather than a solution.
+            - Add validating boolean configuration fields.
+            - Rework exception handling in 'rules.py'.
+              Fixes inconsistencies and cleans up rule exception handling.
+
+            - Fix wrong key used in 'maps_field()'.
+              Fixes bug in 'maps_field()' due to using the wrong key in dict lookup.
+              This is a leftover from when removing the 'ExtractedData' class that
+              had a property (or function (?)) named 'field_map'.
+              This was simply translated to a dict lookup using a key with the same
+              name, but the key actually used by providers was 'mapped_fields', so
+              accesses would always fail.
+              The function 'maps_field()' would always return False due to this bug.
+
+            - Fix git error messages shown in version info.
+              Fixes bug causing git error messages to be included in output
+              when running with '-v --version'.
+
+            - Various cleanups and fixes to all bash scripts.
+            - Fix 'partition_basename()' returned empty tags.
+              Used by the 'FiletagsAnalyzer' to extract tags from filenames.
+              Whitespace between tags and the end of the string was not
+              stripped correctly which resulted in empty tags being returned.
+              This is fixed by stripping whitespace from extracted tags and
+              filtering out any None or empty tags.
+
+            - Use direct and/or local imports in unit tests.
+            - Remove execute permission from 'autonameow.py'.
+              Changes permissions of 'autonameow.py' from 755 to 644.
+              Fixes likely leftover from way back when this file contained the
+              main entry point to the program.  This file can not be executed
+              stand-alone and should not be marked as executable.
+            - Fix matching bug in 'devscripts/todo_id.py'.
+              Fixes bug where multiple TODO IDs on one line was not found.
+              Only the last ID was returned for lines like;
+
+                  given='# TODO: [TD1337][TD1338] Implement baz.',
+
+              This is fixed and new unit tests that verifies the matching.
+
+            - Fix None publishers added by 'DocumentAnalyzer'.
+            - Fix whitespace in 'msg()' heading width.
+            - And a lot more --- refer to the git log for additional details.
+
+
 2017-12-04  [autonameow v0.5.2]
             Bug fixes, various refactoring and reworked test code.
 

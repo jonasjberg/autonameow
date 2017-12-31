@@ -43,12 +43,11 @@ from util import (
     mimemagic,
     sanity
 )
-from util.textutils import (
-    extractlines_do,
-    extract_lines
-)
+from util.textutils import extract_lines
 from util.text import (
     find_edition,
+    html_unescape,
+    normalize_unicode,
     string_similarity,
     RE_EDITION
 )
@@ -92,7 +91,9 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self._cached_isbn_metadata = {}
         self._isbn_num_blacklist = set(BLACKLISTED_ISBN_NUMBERS)
-        self.cache = persistence.get_cache(str(self))
+
+        # NOTE(jonas): Tweak max cache file size. Now 50MB.
+        self.cache = persistence.get_cache(str(self), max_filesize=50000000)
         if self.cache:
             _cached_isbn_metadata = self.cache.get(CACHE_KEY_ISBNMETA)
             if _cached_isbn_metadata:
@@ -113,7 +114,7 @@ class EbookAnalyzer(BaseAnalyzer):
         if not _maybe_text:
             return
 
-        self.text = _maybe_text
+        self.text = remove_ignored_textlines(_maybe_text)
 
         # TODO: [TD0114] Check metadata for ISBNs.
         # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier', "XMP:Subject"
@@ -125,11 +126,14 @@ class EbookAnalyzer(BaseAnalyzer):
         # First try to find "e-book ISBNs" in the beginning, then at the end.
         # Then try to find _any_ ISBNs in the beginning, then at the end.
 
-        num_text_lines = len(self.text)
+        num_text_lines = len(self.text.splitlines())
 
+        # TODO: [TD0134] Consolidate splitting up text into chunks.
         # Search the text in arbitrarily sized chunks.
-        chunk_size = int(num_text_lines / 100)
-        self.log.debug('Got {} lines of text. Using chunks of {} lines'.format(
+        chunk_size = int(num_text_lines * 0.01)
+        if chunk_size < 1:
+            chunk_size = 1
+        self.log.debug('Got {} lines of text. Using chunk size {}'.format(
             num_text_lines, chunk_size
         ))
 
@@ -140,28 +144,31 @@ class EbookAnalyzer(BaseAnalyzer):
         # Chunk #2: from (END - CHUNK_SIZE) to END
         _chunk2_start = num_text_lines - chunk_size
         _chunk2_end = num_text_lines
-        if _chunk2_end < 0:
-            _chunk2_end = 0
+        if _chunk2_end < 1:
+            _chunk2_end = 1
 
         # Find e-ISBNs in chunk #1
         _text_chunk_1 = extract_lines(self.text, _chunk1_start, _chunk1_end)
-        assert num_text_lines > len(_text_chunk_1), (
-            'extract_lines() is broken'
+        _chunk_1_numlines = len(_text_chunk_1.splitlines())
+        assert num_text_lines > _chunk_1_numlines, (
+            'extract_lines() might be broken -- full text: {} '
+            'chunk 1: {}'.format(num_text_lines, _chunk_1_numlines)
+        )
+        self.log.debug(
+            'Searching for eISBNs in chunk 1 lines {}-{} '
+            '({} lines)'.format(_chunk1_start, _chunk1_end, _chunk_1_numlines)
         )
         isbns = find_ebook_isbns_in_text(_text_chunk_1)
         if not isbns:
             # Find e-ISBNs in chunk #2
             _text_chunk_2 = extract_lines(self.text, _chunk2_start, _chunk2_end)
-            assert num_text_lines > len(_text_chunk_2), (
-                'extract_lines() is broken'
-            )
             isbns = find_ebook_isbns_in_text(_text_chunk_2)
-        if not isbns:
-            # Find any ISBNs in chunk #1
-            isbns = extract_isbns_from_text(_text_chunk_1)
-        if not isbns:
-            # Find for any ISBNs in chunk #2
-            isbns = extract_isbns_from_text(_text_chunk_2)
+            if not isbns:
+                # Find any ISBNs in chunk #1
+                isbns = extract_isbns_from_text(_text_chunk_1)
+                if not isbns:
+                    # Find for any ISBNs in chunk #2
+                    isbns = extract_isbns_from_text(_text_chunk_2)
 
         if isbns:
             isbns = filter_isbns(isbns, self._isbn_num_blacklist)
@@ -214,6 +221,12 @@ class EbookAnalyzer(BaseAnalyzer):
                 len(self._isbn_metadata)
             ))
             for _isbn_metadata in self._isbn_metadata:
+                # NOTE(jonas): Arbitrary removal of metadata records ..
+                if not _isbn_metadata.authors and not _isbn_metadata.publisher:
+                    self.log.debug('Skipped ISBN metadata missing both '
+                                   'authors and publisher')
+                    continue
+
                 maybe_title = self._filter_title(_isbn_metadata.title)
                 if maybe_title:
                     self._add_results('title', self._wrap_title(maybe_title))
@@ -461,10 +474,16 @@ def fetch_isbn_metadata(isbn_number):
     isbn_metadata = None
     try:
         isbn_metadata = isbnlib.meta(isbn_number)
-    except isbnlib.NotValidISBNError:
+    except isbnlib.NotValidISBNError as e:
         log.error(
             'Metadata query FAILED for ISBN: "{}"'.format(isbn_number)
         )
+        log.debug(str(e))
+    except Exception as e:
+        # TODO: [TD0132] Improve blacklisting failed requests..
+        # NOTE: isbnlib does not expose all exceptions.
+        # We should handle 'ISBNLibHTTPError' ("with code 403 [Forbidden]")
+        log.error(e)
 
     logging.disable(logging.NOTSET)
     return isbn_metadata
@@ -511,9 +530,11 @@ class ISBNMetadata(object):
         if value:
             if not isinstance(value, list):
                 value = [value]
-            self._authors = value
+
+            stripped_value = [v for v in value if v.strip()]
+            self._authors = stripped_value
             self._normalized_authors = [
-               normalize_full_human_name(a) for a in value if a
+               normalize_full_human_name(a) for a in stripped_value if a
             ]
 
     @property
@@ -585,8 +606,9 @@ class ISBNMetadata(object):
     @publisher.setter
     def publisher(self, value):
         if value and isinstance(value, str):
-            self._publisher = value
-            self._normalized_publisher = value.lower().strip()
+            str_value = normalize_unicode(html_unescape(value)).strip()
+            self._publisher = str_value
+            self._normalized_publisher = str_value.lower()
 
     @property
     def normalized_publisher(self):

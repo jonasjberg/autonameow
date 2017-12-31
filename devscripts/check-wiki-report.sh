@@ -24,9 +24,31 @@
 
 set -o noclobber -o nounset -o pipefail
 
-AUTOAMEOW_TESTRESULTS_DIR="/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/docs/test_results"
+
+AUTONAMEOW_TESTRESULTS_DIR="/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/docs/test_results"
 TEST_RESULTS_DOCUMENT="/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.wiki.git/Test-Results.md"
 
+if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ]
+then
+    cat >&2 <<EOF
+
+[ERROR] Not a directory: "${AUTONAMEOW_TESTRESULTS_DIR}"
+        Set "AUTONAMEOW_TESTRESULTS_DIR" before running this script.
+
+EOF
+    exit 1
+fi
+
+if [ ! -f "$TEST_RESULTS_DOCUMENT" ]
+then
+    cat >&2 <<EOF
+
+[ERROR] Not a file: "${TEST_RESULTS_DOCUMENT}"
+        Set "TEST_RESULTS_DOCUMENT" before running this script.
+
+EOF
+    exit 1
+fi
 
 
 tracked_files="$( (cd "$AUTONAMEOW_TESTRESULTS_DIR" && git ls-files) )"
@@ -41,35 +63,37 @@ count_untracked="$(wc -l <<< "$untracked_files")"
 # Number of tracked files in the document.
 count_file_in_document()
 {
-    while IFS='\n' read -r _file
+    while IFS=$'\n' read -r _file
     do
         grep -- "${_file}" "$TEST_RESULTS_DOCUMENT"
     done <<< "$1" | wc -l
 }
 
+print_stats_line()
+{
+    printf '%30.30s : %s\n' "$1" "$2"
+}
+
 count_tracked_in_doc="$(count_file_in_document "${tracked_files}")"
 count_untracked_in_doc="$(count_file_in_document "${untracked_files}")"
 
-echo ""
-
-_FMT='%30.30s : %s\n'
-printf "$_FMT" "Tracked logs" "$count_tracked"
-printf "$_FMT" "UNTracked logs" "$count_untracked"
-printf "$_FMT" "Tracked logs in wiki report" "${count_tracked_in_doc}"
-printf "$_FMT" "UNTracked logs in wiki report" "${count_untracked_in_doc}"
-
-echo ""
+printf '\n\n'
+print_stats_line "Tracked logs" "$count_tracked"
+print_stats_line "UNTracked logs" "$count_untracked"
+print_stats_line "Tracked logs in wiki report" "${count_tracked_in_doc}"
+print_stats_line "UNTracked logs in wiki report" "${count_untracked_in_doc}"
+printf '\n\n'
 
 if [ "${count_tracked}" -eq "${count_tracked_in_doc}" ]
 then
-    echo "[PASS] All tracked logs are present in the wiki report"
+    printf '[PASS] All tracked logs are present in the wiki report\n'
 else
-    echo "[FAIL] Number of tracked logs differs from number of logs in the wiki report!"
+    printf '[FAIL] Number of tracked logs differs from number of logs in the wiki report!\n'
 fi
 
 if [ "${count_untracked_in_doc}" -eq "0" ]
 then
-    echo '[PASS] No untracked files in the report'
+    printf '[PASS] No untracked files in the report\n'
 else
-    echo '[FAIL] Report contains untracked files!'
+    printf '[FAIL] Report contains untracked files!\n'
 fi

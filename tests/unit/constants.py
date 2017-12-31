@@ -169,23 +169,18 @@ DUMMY_MAPPED_MEOWURIS = list({
 
 # Constants used to construct dummy/mock test fixtures.
 DUMMY_RAW_RULE_CONDITIONS = [
-    # Part of Rule 1
     (MEOWURI_GEN_CONTENTS_MIMETYPE, 'application/pdf'),
     (MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf'),
     (MEOWURI_FS_XPLAT_BASENAME_FULL, 'gmail.pdf'),
 
-    # Part of Rule 2
-    (MEOWURI_GEN_CONTENTS_MIMETYPE, 'image/jpeg'),
     (MEOWURI_FS_XPLAT_BASENAME_FULL, 'smulan.jpg'),
 
-    # Part of Rule 3
     (MEOWURI_GEN_CONTENTS_MIMETYPE, 'image/jpeg'),
     (MEOWURI_FS_XPLAT_BASENAME_EXT, 'jpg'),
     (MEOWURI_FS_XPLAT_BASENAME_FULL, 'DCIM*'),
     (MEOWURI_FS_XPLAT_PATHNAME_FULL, '~/Pictures/incoming'),
     (MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL, 'Defined'),
 
-    # Part of Rule 4
     (MEOWURI_GEN_CONTENTS_MIMETYPE, 'application/epub+zip'),
     (MEOWURI_FS_XPLAT_BASENAME_EXT, 'epub'),
     (MEOWURI_FS_XPLAT_BASENAME_FULL, '.*'),
@@ -206,7 +201,10 @@ DUMMY_RAW_RULE_DATA_SOURCES = [
      'extension': MEOWURI_FS_XPLAT_BASENAME_EXT},
 
     # Part of Rule 3
-    {'datetime': MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE,
+    {'datetime': [
+        MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE,
+        MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL
+     ],
      'description': MEOWURI_PLU_MSVISION_CAPTION,
      'extension': MEOWURI_FS_XPLAT_BASENAME_EXT},
 
@@ -224,4 +222,4 @@ EXTRACTOR_CLASS_PACKAGES = ['filesystem', 'metadata', 'text']
 EXTRACTOR_CLASS_MODULES = []
 
 # Various test files (hopefully) included with the sources.
-DEFAULT_YAML_CONFIG_BASENAME = 'default_config.yaml'
+DEFAULT_YAML_CONFIG_BASENAME = 'default.yaml'

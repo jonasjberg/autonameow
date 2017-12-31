@@ -57,9 +57,6 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         'basename.prefix': {
             'coercer': types.AW_PATHCOMPONENT,
             'multivalued': False,
-            'mapped_fields': [
-                # fields.WeightedMapping(fields.)
-            ],
         },
         'pathname.full': {'coercer': types.AW_PATH, 'multivalued': False},
         'pathname.parent': {'coercer': types.AW_PATH, 'multivalued': False},

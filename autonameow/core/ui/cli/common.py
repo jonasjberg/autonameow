@@ -52,29 +52,39 @@ def print_version_info(verbose):
         return colorize('-' * length, fore='LIGHTBLACK_EX', style='DIM')
 
     if verbose:
-        print('')
-        print(
-            colorize('  {}  '.format(C.STRING_PROGRAM_NAME),
-                     back='BLUE', fore='BLACK') +
-            colorize('  Automagic File Renamer by Cats for Cats', fore='BLUE')
-        )
-
         _commit_info = util.git_commit_hash()
         if _commit_info:
-            _commit = '(commit {!s})'.format(_commit_info)
+            # NOTE(jonas): git rev-parse --short HEAD returns different length.
+            # Hash string is one extra character on MacOS (git version 2.15.1)
+            # compared to Linux (git version 2.7.4).
+            _commit = '(commit {!s:7.7})'.format(_commit_info)
         else:
             _commit = ''
+
+        _release_date = 'Released {}'.format(version.RELEASE_DATE)
 
         cf = ColumnFormatter()
         cf.addrow(C.STRING_PROGRAM_NAME, version.__copyright__)
         cf.addrow('version {}'.format(C.STRING_PROGRAM_VERSION),
                   version.__email__)
-        cf.addrow(_commit, version.__url__)
-        cf.addrow('', version.__url_repo__)
+        cf.addrow(_release_date, version.__url__)
+        cf.addrow(_commit, version.__url_repo__)
         cf.setalignment('left', 'right')
         columnated_text = str(cf)
         columnated_text_width = cf.max_column_width()
 
+        # TODO: [hardcoded] Uses fixed spaces for alignment.
+        # Passing colored texts with ANSI escape sequences messes
+        # up the text width detected by the the 'ColumnFormatter' .. 
+        program_name = colorize(
+            '  {}  '.format(C.STRING_PROGRAM_NAME), back='BLUE', fore='BLACK'
+        )
+        program_slogan = colorize(
+            '    Automagic File Renamer by Cats for Cats', fore='BLUE'
+        )
+
+        print('')
+        print(program_name + program_slogan)
         print(divider_string(columnated_text_width))
         print(columnated_text)
         print(divider_string(columnated_text_width))
@@ -263,7 +273,7 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
             log.info(message)
 
     elif style == 'heading':
-        _heading_underline = C.CLI_MSG_HEADING_CHAR * len(message)
+        _heading_underline = C.CLI_MSG_HEADING_CHAR * len(message.strip())
         _colored_heading_underline = colorize(_heading_underline, style='DIM')
         _colored_heading_text = colorize(message, style='BRIGHT')
         print('\n')
@@ -324,15 +334,16 @@ def displayable_replacement(original, replacement, regex, color):
 
 
 def msg_replacement(original, replacement, regex):
+    if log.getEffectiveLevel() < logging.INFO:
+        return
+
     _old, _new = displayable_replacement(original, replacement, regex,
                                          C.REPLACEMENT_HIGHLIGHT_COLOR)
-    # log.info('Applied custom replacement: "{}" -> "{}"'.format(_old, _new))
-
     cf = ColumnFormatter(align='right')
     cf.addrow('Applied replacement:', '{!s}')
     cf.addrow('->', '{!s}')
-    _message = str(cf)
-    msg(_message.format(_old, _new), ignore_quiet=False)
+    _message = str(cf).format(_old, _new)
+    log.info(_message)
 
     # TODO: [TD0096] Fix invalid colouring if the replacement is the last character.
     #
@@ -425,7 +436,6 @@ class ColumnFormatter(object):
         self.addrow(' ')
 
     def _update_column_widths(self, strings):
-        # strings = [textutils.normalize_unicode(s) for s in strings]
         new_widths = [len(s) for s in strings]
 
         if not self._column_widths:
@@ -471,9 +481,8 @@ class ColumnFormatter(object):
             if _element is None:
                 out.append('')
             elif not isinstance(_element, str):
-                raise TypeError(
-                    'Expected Unicode str. Got "{!s}"'.format(type(_element))
-                )
+                _msg = 'Expected Unicode str. Got "{!s}"'.format(type(_element))
+                raise TypeError(_msg)
             else:
                 out.append(_element.strip())
 

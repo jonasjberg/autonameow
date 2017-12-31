@@ -27,10 +27,15 @@ from unittest.mock import (
     PropertyMock
 )
 
-import analyzers
-from core import exceptions
-from core import constants as C
 import unit.utils as uu
+from analyzers import (
+    AnalyzerClasses,
+    BaseAnalyzer,
+    find_analyzer_files,
+    get_analyzer_classes,
+    map_meowuri_to_analyzers
+)
+from core import constants as C
 
 
 # TODO: [hardcoded] Likely to break; fixed analyzer names!
@@ -46,7 +51,7 @@ EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
 
 
 def subclasses_base_analyzer(klass):
-    return uu.is_class(klass) and issubclass(klass, analyzers.BaseAnalyzer)
+    return uu.is_class(klass) and issubclass(klass, BaseAnalyzer)
 
 
 class TestBaseAnalyzer(TestCase):
@@ -54,7 +59,7 @@ class TestBaseAnalyzer(TestCase):
         self.maxDiff = None
 
         self.mock_config = Mock()
-        self.a = analyzers.BaseAnalyzer(
+        self.a = BaseAnalyzer(
             uu.get_mock_fileobject(), self.mock_config, None
         )
 
@@ -73,7 +78,7 @@ class TestBaseAnalyzerClassMethods(TestCase):
 
         self.mock_config = Mock()
 
-        self.a = analyzers.BaseAnalyzer(
+        self.a = BaseAnalyzer(
             self.mock_fileobject, self.mock_config, None
         )
 
@@ -84,7 +89,7 @@ class TestBaseAnalyzerClassMethods(TestCase):
     @patch('analyzers.BaseAnalyzer.HANDLES_MIME_TYPES',
            new_callable=PropertyMock, return_value=['text/plain'])
     def test_can_handle_returns_false(self, mock_attribute):
-        a = analyzers.BaseAnalyzer(
+        a = BaseAnalyzer(
             uu.get_mock_fileobject(), self.mock_config, None
         )
         actual = a.can_handle(self.mock_fileobject)
@@ -93,7 +98,7 @@ class TestBaseAnalyzerClassMethods(TestCase):
     @patch('analyzers.BaseAnalyzer.HANDLES_MIME_TYPES',
            new_callable=PropertyMock, return_value=['image/jpeg'])
     def test_can_handle_returns_true(self, mock_attribute):
-        a = analyzers.BaseAnalyzer(
+        a = BaseAnalyzer(
             uu.get_mock_fileobject(), self.mock_config, None
         )
         actual = a.can_handle(self.mock_fileobject)
@@ -102,11 +107,11 @@ class TestBaseAnalyzerClassMethods(TestCase):
 
 class TestFindAnalyzerSourceFiles(TestCase):
     def test_find_analyzer_files_returns_expected_type(self):
-        actual = analyzers.find_analyzer_files()
-        self.assertTrue(isinstance(actual, list))
+        actual = find_analyzer_files()
+        self.assertIsInstance(actual, list)
 
     def test_find_analyzer_files_returns_expected_files(self):
-        actual = analyzers.find_analyzer_files()
+        actual = find_analyzer_files()
 
         # TODO: [hardcoded] Likely to break; requires manual updates.
         self.assertIn('analyze_filename.py', actual)
@@ -119,15 +124,15 @@ class TestFindAnalyzerSourceFiles(TestCase):
 class TestGetAnalyzerClasses(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.klasses = analyzers.get_analyzer_classes()
+        self.klasses = get_analyzer_classes()
 
     def test_get_analyzer_classes_returns_expected_type(self):
-        self.assertTrue(isinstance(self.klasses, list))
+        self.assertIsInstance(self.klasses, list)
         for klass in self.klasses:
-            self.assertTrue(issubclass(klass, analyzers.BaseAnalyzer))
+            self.assertTrue(issubclass(klass, BaseAnalyzer))
 
     def test_get_analyzer_classes_does_not_include_abstract_classes(self):
-        self.assertNotIn(analyzers.BaseAnalyzer, self.klasses)
+        self.assertNotIn(BaseAnalyzer, self.klasses)
 
     def test_get_analyzer_classes_returns_class_objects(self):
         for klass in self.klasses:
@@ -140,7 +145,7 @@ class TestGetAnalyzerClasses(TestCase):
 
 class TestNumberOfAvailableAnalyzerClasses(TestCase):
     def setUp(self):
-        self.actual = analyzers.get_analyzer_classes()
+        self.actual = get_analyzer_classes()
 
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.
     def test_get_analyzer_classes_returns_at_least_one_analyzer(self):
@@ -171,11 +176,11 @@ class TestNumberOfAvailableAnalyzerClasses(TestCase):
 
 class TestMapMeowURIToAnalyzers(TestCase):
     def setUp(self):
-        self.actual = analyzers.map_meowuri_to_analyzers()
+        self.actual = map_meowuri_to_analyzers()
 
     def test_returns_expected_type(self):
         self.assertIsNotNone(self.actual)
-        self.assertTrue(isinstance(self.actual, dict))
+        self.assertIsInstance(self.actual, dict)
 
         for meowuri, klass_list in self.actual.items():
             self.assertTrue(uu.is_internalstring(meowuri))
@@ -192,10 +197,10 @@ class TestMapMeowURIToAnalyzers(TestCase):
 
 
 class TestAnalyzerClassMeowURIs(TestCase):
-    analyzer_class_names = [a.__name__ for a in analyzers.AnalyzerClasses]
+    analyzer_class_names = [a.__name__ for a in AnalyzerClasses]
 
     def setUp(self):
-        self.actual = [a.meowuri_prefix() for a in analyzers.AnalyzerClasses]
+        self.actual = [a.meowuri_prefix() for a in AnalyzerClasses]
 
     def test_returns_expected_type(self):
         for meowuri in self.actual:
@@ -220,4 +225,3 @@ class TestAnalyzerClassMeowURIs(TestCase):
 
         _conditional_assert_in('EbookAnalyzer',
                                'analyzer.ebook')
-

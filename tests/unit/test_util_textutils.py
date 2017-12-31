@@ -19,150 +19,15 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skipIf,
-    TestCase
-)
+from unittest import TestCase
 
-try:
-    import chardet
-except ImportError:
-    chardet = None
-
-from core import types
+import unit.utils as uu
 from core.exceptions import EncodingBoundaryViolation
 from util.textutils import (
-    autodetect_decode,
-    compiled_ordinal_regexes,
     extract_digits,
     extract_lines,
     extractlines_do,
-    indent,
-    normalize_unicode,
-    urldecode
 )
-import unit.utils as uu
-
-
-class TestIndent(TestCase):
-    def test_invalid_arguments_raises_exception(self):
-        def _assert_raises(exception_type, *args, **kwargs):
-            with self.assertRaises(exception_type):
-                indent(*args, **kwargs)
-
-        _assert_raises(ValueError, None)
-        _assert_raises(EncodingBoundaryViolation, b'')
-        _assert_raises(ValueError, 'foo', amount=0)
-        _assert_raises(TypeError, 'foo', amount=object())
-
-        # TODO: Should raise 'TypeError' when given 'ch=1' (expects str)
-        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=1)
-        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=b'')
-        _assert_raises(EncodingBoundaryViolation, 'foo', ch=b'')
-
-    def test_indents_single_line(self):
-        self.assertEqual(indent('foo'), '    foo')
-        self.assertEqual(indent('foo bar'), '    foo bar')
-
-    def test_indents_two_lines(self):
-        self.assertEqual(indent('foo\nbar'), '    foo\n    bar')
-
-    def test_indents_three_lines(self):
-        input_ = ('foo\n'
-                  '  bar\n'
-                  'baz\n')
-        expect = ('    foo\n'
-                  '      bar\n'
-                  '    baz\n')
-        self.assertEqual(indent(input_), expect)
-
-    def test_indents_single_line_specified_amount(self):
-        self.assertEqual(indent('foo', amount=1), ' foo')
-        self.assertEqual(indent('foo', amount=2), '  foo')
-        self.assertEqual(indent('foo', amount=3), '   foo')
-        self.assertEqual(indent('foo', amount=4), '    foo')
-        self.assertEqual(indent('foo bar', amount=2), '  foo bar')
-
-    def test_indents_two_lines_specified_amount(self):
-        self.assertEqual(indent('foo\nbar', amount=2), '  foo\n  bar')
-
-    def test_indents_three_lines_specified_amount(self):
-        input_ = ('foo\n'
-                  '  bar\n'
-                  'baz\n')
-        expect = ('  foo\n'
-                  '    bar\n'
-                  '  baz\n')
-        self.assertEqual(indent(input_, amount=2), expect)
-
-        input_ = ('foo\n'
-                  '  bar\n'
-                  'baz\n')
-        expect = ('   foo\n'
-                  '     bar\n'
-                  '   baz\n')
-        self.assertEqual(indent(input_, amount=3), expect)
-
-    def test_indents_single_line_specified_padding(self):
-        self.assertEqual(indent('foo', ch='X'), 'XXXXfoo')
-        self.assertEqual(indent('foo bar', ch='X'), 'XXXXfoo bar')
-
-    def test_indents_two_lines_specified_padding(self):
-        self.assertEqual(indent('foo\nbar', ch='X'),
-                         'XXXXfoo\nXXXXbar')
-        self.assertEqual(indent('foo\nbar', ch='Xj'),
-                         'XjXjXjXjfoo\nXjXjXjXjbar')
-
-    def test_indents_three_lines_specified_padding(self):
-        input_ = ('foo\n'
-                  '  bar\n'
-                  'baz\n')
-        expect = ('XXXXfoo\n'
-                  'XXXX  bar\n'
-                  'XXXXbaz\n')
-        self.assertEqual(indent(input_, ch='X'), expect)
-
-        input_ = ('foo\n'
-                  '  bar\n'
-                  'baz\n')
-        expect = ('XjXjXjXjfoo\n'
-                  'XjXjXjXj  bar\n'
-                  'XjXjXjXjbaz\n')
-        self.assertEqual(indent(input_, ch='Xj'), expect)
-
-    def test_indents_text_single_line_specified_padding_and_amount(self):
-        self.assertEqual(indent('foo', amount=1, ch='  '), '  foo')
-        self.assertEqual(indent('foo', amount=2, ch='  '), '    foo')
-        self.assertEqual(indent('foo', amount=1, ch=''), 'foo')
-        self.assertEqual(indent('foo', amount=2, ch=''), 'foo')
-        self.assertEqual(indent('foo', amount=3, ch=''), 'foo')
-        self.assertEqual(indent('foo', amount=4, ch=''), 'foo')
-        self.assertEqual(indent('foo', ch='X', amount=2), 'XXfoo')
-        self.assertEqual(indent('foo bar', ch='X', amount=2),
-                         'XXfoo bar')
-
-    def test_indents_two_lines_specified_padding_and_amount(self):
-        self.assertEqual(indent('foo\nbar', ch='X', amount=2),
-                         'XXfoo\nXXbar')
-        self.assertEqual(indent('foo\nbar', ch='X', amount=4),
-                         'XXXXfoo\nXXXXbar')
-
-    def test_indents_three_lines_specified_padding_and_amount(self):
-        input_ = ('foo\n'
-                  '  bar\n'
-                  'baz\n')
-        expect = ('XXfoo\n'
-                  'XX  bar\n'
-                  'XXbaz\n')
-        self.assertEqual(indent(input_, ch='X', amount=2), expect)
-
-        input_ = ('foo\n'
-                  '  bar\n'
-                  'baz\n')
-        expect = ('XXXfoo\n'
-                  'XXX  bar\n'
-                  'XXXbaz\n')
-        self.assertEqual(indent(input_, ch='X', amount=3), expect)
 
 
 class TestExtractDigits(TestCase):
@@ -208,156 +73,92 @@ class TestExtractDigits(TestCase):
         _assert_raises(b'1')
 
 
-@skipIf(chardet is None, 'Unable to import required module "chardet"')
-class TestAutodetectDecode(TestCase):
-    def _assert_encodes(self, encoding, string):
-        _encoded_text = string.encode(encoding)
-        self.assertTrue(uu.is_internalbytestring(_encoded_text))
-
-        actual = autodetect_decode(_encoded_text)
-        self.assertEqual(string, actual)
-        self.assertEqual(type(string), type(actual))
-
-    def test_raises_exception_for_non_strings(self):
-        with self.assertRaises(TypeError):
-            autodetect_decode(object())
-
-        with self.assertRaises(TypeError):
-            autodetect_decode(None)
-
-    def test_returns_expected_given_unicode(self):
-        actual = autodetect_decode('foo bar')
-        self.assertEqual('foo bar', actual)
-
-    def test_returns_expected_given_ascii(self):
-        self._assert_encodes('ascii', '')
-        self._assert_encodes('ascii', ' ')
-        self._assert_encodes('ascii', '\n')
-        self._assert_encodes('ascii', '\n ')
-        self._assert_encodes('ascii', ' \n ')
-        self._assert_encodes('ascii', 'foo bar')
-        self._assert_encodes('ascii', 'foo \n ')
-
-    def test_returns_expected_given_ISO8859(self):
-        self._assert_encodes('iso-8859-1', '')
-        self._assert_encodes('iso-8859-1', ' ')
-        self._assert_encodes('iso-8859-1', '\n')
-        self._assert_encodes('iso-8859-1', '\n ')
-        self._assert_encodes('iso-8859-1', ' \n ')
-        self._assert_encodes('iso-8859-1', 'foo bar')
-        self._assert_encodes('iso-8859-1', 'foo \n ')
-
-    def test_returns_expected_given_cp1252(self):
-        self._assert_encodes('cp1252', '')
-        self._assert_encodes('cp1252', ' ')
-        self._assert_encodes('cp1252', '\n')
-        self._assert_encodes('cp1252', '\n ')
-        self._assert_encodes('cp1252', ' \n ')
-        self._assert_encodes('cp1252', 'foo bar')
-        self._assert_encodes('cp1252', 'foo \n ')
-
-    def test_returns_expected_given_utf8(self):
-        self._assert_encodes('utf-8', '')
-        self._assert_encodes('utf-8', ' ')
-        self._assert_encodes('utf-8', '\n')
-        self._assert_encodes('utf-8', '\n ')
-        self._assert_encodes('utf-8', ' \n ')
-        self._assert_encodes('utf-8', 'foo bar')
-        self._assert_encodes('utf-8', 'foo \n ')
-
-
 class TestExtractLines(TestCase):
+    SAMPLE_TEXT = '''A
+B
+C
+D
+E
+'''
+    SAMPLE_TEXT_NUMLINES = len(SAMPLE_TEXT.split())
+
     def test_returns_none_for_none_input(self):
-        self.assertIsNone(extract_lines(None, 0, 0))
-        self.assertIsNone(extract_lines(None, 0, 1))
         self.assertIsNone(extract_lines(None, 1, 1))
         self.assertIsNone(extract_lines(None, 1, 0))
 
-    def test_extracts_lines_from_zero_to_any_last(self):
-        sample_text = 'A\nB\nC\nD\nE\n'
-
+    def test_extracts_lines_from_first_to_any_last(self):
         def _assert_extracts(first_line, last_line, expected):
             self.assertEqual(
-                extract_lines(sample_text, first_line, last_line),
+                extract_lines(self.SAMPLE_TEXT, first_line, last_line),
                 expected
             )
 
-        _assert_extracts(0, 1, 'A\n')
-        _assert_extracts(0, 2, 'A\nB\n')
-        _assert_extracts(0, 3, 'A\nB\nC\n')
-        _assert_extracts(0, 4, 'A\nB\nC\nD\n')
-        _assert_extracts(0, 5, 'A\nB\nC\nD\nE\n')
-        _assert_extracts(0, 6, 'A\nB\nC\nD\nE\n')
-        _assert_extracts(0, 7, 'A\nB\nC\nD\nE\n')
+        first = 1
+        _assert_extracts(first, 1, 'A\n')
+        _assert_extracts(first, 2, 'A\nB\n')
+        _assert_extracts(first, 3, 'A\nB\nC\n')
+        _assert_extracts(first, 4, 'A\nB\nC\nD\n')
+        _assert_extracts(first, 5, 'A\nB\nC\nD\nE\n')
+        _assert_extracts(first, 6, 'A\nB\nC\nD\nE\n')
+        _assert_extracts(first, 7, 'A\nB\nC\nD\nE\n')
 
     def test_extracts_lines_from_any_first_to_last(self):
-        sample_text = 'A\nB\nC\nD\nE\n'
-
         def _assert_extracts(first_line, last_line, expected):
-            self.assertEqual(
-                extract_lines(sample_text, first_line, last_line),
-                expected
-            )
+            actual = extract_lines(self.SAMPLE_TEXT, first_line, last_line)
+            self.assertEqual(expected, actual)
 
         last = 6
-        _assert_extracts(0, last, 'A\nB\nC\nD\nE\n')
-        _assert_extracts(1, last, 'B\nC\nD\nE\n')
-        _assert_extracts(2, last, 'C\nD\nE\n')
-        _assert_extracts(3, last, 'D\nE\n')
-        _assert_extracts(4, last, 'E\n')
-        _assert_extracts(5, last, '')
+        _assert_extracts(1, last, 'A\nB\nC\nD\nE\n')
+        _assert_extracts(2, last, 'B\nC\nD\nE\n')
+        _assert_extracts(3, last, 'C\nD\nE\n')
+        _assert_extracts(4, last, 'D\nE\n')
+        _assert_extracts(5, last, 'E\n')
         _assert_extracts(6, last, '')
         _assert_extracts(7, last, '')
+        _assert_extracts(8, last, '')
 
     def test_extracts_lines_from_any_first_to_any_last(self):
-        sample_text = 'A\nB\nC\nD\nE\n'
-
         def _assert_extracts(first_line, last_line, expected):
             self.assertEqual(
-                extract_lines(sample_text, first_line, last_line),
+                extract_lines(self.SAMPLE_TEXT, first_line, last_line),
                 expected
             )
 
-        _assert_extracts(0, 0, '')
-        _assert_extracts(0, 1, 'A\n')
-        _assert_extracts(0, 2, 'A\nB\n')
-        _assert_extracts(0, 3, 'A\nB\nC\n')
-        _assert_extracts(0, 4, 'A\nB\nC\nD\n')
-        _assert_extracts(0, 5, 'A\nB\nC\nD\nE\n')
-        _assert_extracts(1, 0, '')
-        _assert_extracts(1, 1, '')
-        _assert_extracts(1, 2, 'B\n')
-        _assert_extracts(1, 3, 'B\nC\n')
-        _assert_extracts(1, 4, 'B\nC\nD\n')
-        _assert_extracts(1, 5, 'B\nC\nD\nE\n')
-        _assert_extracts(2, 0, '')
+        # _assert_extracts(1, 0, '')
+        _assert_extracts(1, 1, 'A\n')
+        _assert_extracts(1, 2, 'A\nB\n')
+        _assert_extracts(1, 3, 'A\nB\nC\n')
+        _assert_extracts(1, 4, 'A\nB\nC\nD\n')
+        _assert_extracts(1, 5, 'A\nB\nC\nD\nE\n')
         _assert_extracts(2, 1, '')
-        _assert_extracts(2, 2, '')
-        _assert_extracts(2, 3, 'C\n')
-        _assert_extracts(2, 4, 'C\nD\n')
-        _assert_extracts(2, 5, 'C\nD\nE\n')
-        _assert_extracts(3, 0, '')
+        _assert_extracts(2, 2, 'B\n')
+        _assert_extracts(2, 3, 'B\nC\n')
+        _assert_extracts(2, 4, 'B\nC\nD\n')
+        _assert_extracts(2, 5, 'B\nC\nD\nE\n')
         _assert_extracts(3, 1, '')
         _assert_extracts(3, 2, '')
-        _assert_extracts(3, 3, '')
-        _assert_extracts(3, 4, 'D\n')
-        _assert_extracts(3, 5, 'D\nE\n')
-        _assert_extracts(4, 0, '')
+        _assert_extracts(3, 3, 'C\n')
+        _assert_extracts(3, 4, 'C\nD\n')
+        _assert_extracts(3, 5, 'C\nD\nE\n')
         _assert_extracts(4, 1, '')
         _assert_extracts(4, 2, '')
         _assert_extracts(4, 3, '')
-        _assert_extracts(4, 4, '')
-        _assert_extracts(4, 5, 'E\n')
-        _assert_extracts(5, 0, '')
+        _assert_extracts(4, 4, 'D\n')
+        _assert_extracts(4, 5, 'D\nE\n')
         _assert_extracts(5, 1, '')
         _assert_extracts(5, 2, '')
         _assert_extracts(5, 3, '')
         _assert_extracts(5, 4, '')
-        _assert_extracts(5, 5, '')
+        _assert_extracts(5, 5, 'E\n')
+        _assert_extracts(6, 1, '')
+        _assert_extracts(6, 2, '')
+        _assert_extracts(6, 3, '')
+        _assert_extracts(6, 4, '')
+        _assert_extracts(6, 5, '')
 
     def test_edge_cases(self):
-        self.assertEqual(extract_lines('', 0, 0), '')
-        self.assertEqual(extract_lines(' ', 0, 0), '')
+        self.assertEqual(extract_lines('', 1, 1), '')
+        self.assertEqual(extract_lines(' ', 1, 1), ' ')
 
     def test_raises_exceptions_given_bad_argument(self):
         with self.assertRaises(EncodingBoundaryViolation):
@@ -372,51 +173,34 @@ class TestExtractLines(TestCase):
         with self.assertRaises(AssertionError):
             extract_lines('foo', 0, -1)
 
+    def test_number_of_extracted_lines(self):
+        sample_text = '''first
+second
+third
 
-class TestNormalizeUnicode(TestCase):
-    def _aE(self, test_input, expected):
-        actual = normalize_unicode(test_input)
-        self.assertEqual(actual, expected)
+fifth
+'''
 
-    def test_raises_exception_given_bad_input(self):
-        def _aR(test_input):
-            with self.assertRaises(TypeError):
-                normalize_unicode(test_input)
+        def _check_number_of_lines(first, last, expect):
+            actual = extract_lines(sample_text, first, last)
+            actual_numlines = len(actual.splitlines())
+            self.assertEqual(expect, actual_numlines)
 
-        _aR(None)
-        _aR([])
-        _aR(['foo'])
-        _aR({})
-        _aR({'foo': 'bar'})
-        _aR(object())
-        _aR(1)
-        _aR(1.0)
-        _aR(b'')
-        _aR(b'foo')
+        sample_lines = len(sample_text.splitlines())
+        _check_number_of_lines(first=1, last=sample_lines, expect=sample_lines)
+        _check_number_of_lines(first=2, last=sample_lines, expect=sample_lines-1)
+        _check_number_of_lines(first=3, last=sample_lines, expect=sample_lines-2)
 
-    def test_returns_expected(self):
-        self._aE('', '')
-        self._aE(' ', ' ')
-        self._aE('foo', 'foo')
-        self._aE('...', '...')
+        _check_number_of_lines(first=1, last=1, expect=1)
+        _check_number_of_lines(first=1, last=2, expect=2)
+        _check_number_of_lines(first=1, last=3, expect=3)
+        _check_number_of_lines(first=1, last=4, expect=4)
+        _check_number_of_lines(first=1, last=5, expect=5)
 
-    def test_simplifies_three_periods(self):
-        self._aE('…', '...')
-        self._aE(' …', ' ...')
-        self._aE(' … ', ' ... ')
-
-    def test_replaces_dashes(self):
-        self._aE('\u2212', '-')
-        self._aE('\u2013', '-')
-        self._aE('\u2014', '-')
-        self._aE('\u05be', '-')
-        self._aE('\u2010', '-')
-        self._aE('\u2015', '-')
-        self._aE('\u30fb', '-')
-
-    def test_replaces_overlines(self):
-        self._aE('\u0305', '-')
-        self._aE('\u203e', '-')
+        _check_number_of_lines(first=5, last=5, expect=1)
+        _check_number_of_lines(first=4, last=5, expect=2)
+        _check_number_of_lines(first=3, last=5, expect=3)
+        _check_number_of_lines(first=2, last=5, expect=4)
 
 
 class TestExtractlinesDo(TestCase):
@@ -427,64 +211,27 @@ class TestExtractlinesDo(TestCase):
 4. foo
 '''
 
+    def __assert_transforms_lines(self, first, last, expect):
+        actual = extractlines_do(
+            lambda t: t.upper(),
+            self.text, fromline=first, toline=last
+        )
+        self.assertEqual(actual, expect)
+
     def test_transforms_all_lines(self):
-        actual = extractlines_do(
-            lambda t: t.upper(),
-            self.text, fromline=0, toline=4
+        self.__assert_transforms_lines(
+            first=1, last=4,
+            expect='FOO\n2. BAR\n3. BAZ\n4. FOO\n'
         )
-        expect = '''FOO
-2. BAR
-3. BAZ
-4. FOO
-'''
-        self.assertEqual(actual, expect)
 
-    def test_transforms_subset_of_lines(self):
-        actual = extractlines_do(
-            lambda t: t.upper(),
-            self.text, fromline=1, toline=3
+    def test_transforms_lines_two_to_three(self):
+        self.__assert_transforms_lines(
+            first=2, last=3,
+            expect='2. BAR\n3. BAZ\n'
         )
-        expect = '''2. BAR
-3. BAZ
-'''
-        self.assertEqual(actual, expect)
 
-
-class TestCompiledOrdinalRegexes(TestCase):
-    def setUp(self):
-        self.actual = compiled_ordinal_regexes()
-
-    def test_returns_expected_type(self):
-        self.assertIsNotNone(self.actual)
-        self.assertTrue(isinstance(self.actual, dict))
-
-    def test_returns_compiled_regular_expressions(self):
-        re_one = self.actual.get(1)
-        self.assertTrue(isinstance(re_one, types.BUILTIN_REGEX_TYPE))
-
-        for _pattern in self.actual.values():
-            self.assertTrue(isinstance(_pattern, types.BUILTIN_REGEX_TYPE))
-
-    def test_returned_regexes_matches_strings(self):
-        def _aM(test_input):
-            match = self.actual.get(2).search(test_input)
-            actual = match.group(0)
-            expected = 2
-            self.assertTrue(actual, expected)
-
-        _aM('2nd')
-        _aM('second')
-        _aM('SECOND')
-        _aM('foo 2nd bar')
-        _aM('foo 2ND bar')
-
-
-class TestUrlDecode(TestCase):
-    def test_returns_expected_given_valid_arguments(self):
-        def _aE(test_input, expected):
-            actual = urldecode(test_input)
-            self.assertEqual(actual, expected)
-
-        _aE('%2C', ',')
-        _aE('%20', ' ')
-        _aE('f.bar?t=%D0%B7%D0%B0%D1%89%D0%B8%D1%82%D0%B0', 'f.bar?t=защита')
+    def test_transforms_lines_three_to_three(self):
+        self.__assert_transforms_lines(
+            first=3, last=3,
+            expect='3. BAZ\n'
+        )

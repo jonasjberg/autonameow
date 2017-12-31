@@ -14,6 +14,9 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0142]` __Rework overall architecture to fetch only explicitly needed data.__  
+  Refer to `notes/architecture.md` for details.
+
 * `[TD0131]` __Limit `Repository` memory usage__  
   Given enough files, it currently eats up all the RAM, which causes other
   parts of the program to fail, especially launching subprocesses.
@@ -42,15 +45,60 @@ High Priority
 
 * `[TD0133]` Fix inconsistent use of MeowURIs; `MeowURI` instances and strings.
 
+* `[TD0138]` __Fix inconsistent type of `RuleCondition.expression`.__  
+  Probably best to always store a list of expressions, even when there is only one.
+  Alternatively, implement separate abstraction of an "expression".
+
 
 Medium Priority
 ---------------
 
+* `[TD0137]` __Add rule-specific replacements.__  
+    Maybe have the current replacements apply globally, as in that they are
+    always used as a final step in preparing the file name.
+    It might be useful to also allow specifying rule-specific replacements
+    that are used only if the containing rule is chosen.
+
+    Example of current configuration replacements;
+
+    ```yaml
+    POST_PROCESSING:
+        replacements:
+            -{3,}: '--'
+            \.{2,}: '.'
+            _{2,}: '_'
+    ```
+
+    Possible rule-specific replacements:
+
+    ```yaml
+    Quicktime Desktop Recording:
+        CONDITIONS:
+            extractor.filesystem.xplat.basename.full: 'Untitled.mov'
+            extractor.filesystem.xplat.contents.mime_type: 'video/quicktime'
+            extractor.filesystem.xplat.pathname.full: '/Users/jonas/Desktop'
+        NAME_TEMPLATE: '{datetime} -- screenshot macbookpro.mov'
+        DATA_SOURCES:
+            datetime: extractor.metadata.exiftool.QuickTime:CreationDate
+        exact_match: false
+        ranking_bias: 0.9
+        POST_PROCESSING:
+            replacements:
+                (bar){2,}: bar
+                foo: Gibson Rules
+    ```
+
+* `[TD0136]` Look into "requesting" already available data.
+
+* `[TD0134]` Consolidate splitting up text into "chunks".
+
 * `[TD0132]` Improve blacklisting data, prevent repeated bad requests to APIs.
 
 * `[TD0112]` __Handle merging "equivalent" data in the `Resolver`.__  
-  Add some sort of system for normalizing entities.
-  Example of problem this is intended to solve:
+    Add some sort of system for normalizing entities.
+
+    Example of problem this is intended to solve:
+
     ```
     [WARNING]  Not sure what data to use for field "<class 'core.namebuilder.fields.Author'>"..
     [WARNING]  Field candidate 000 :: "['G. C. Sjöberg']"
@@ -68,8 +116,9 @@ Medium Priority
 
 * `[TD0092]` Add tracking history and ability to "undo" renames.
 
-* `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time
-  to UTC and convert to local time as a final step before presentation or use.
+* `[TD0054]` __Represent datetime as UTC within autonameow.__  
+  Convert incoming time to UTC and convert to local time as a final step before
+  presentation or use.
 
 * `[TD0008]` Simplify installation.
     * Add support for `pip` or similar package manager.
@@ -85,11 +134,6 @@ Medium Priority
         * Means of executing the plugin.
         * Means of querying for all or a specific field.
 
-* `[TD0014]` Possibly redesign high-level handling of a "configuration".
-    * Decouple the `Configuration` instance from I/O.
-    * Think about separating validation and parsing of incoming
-      configuration data from the `Configuration` class.
-
 * `[TD0015]` Allow conditionals in the configuration rules.
     * Test if a rule is applicable by evaluating conditionals.
         * Textual contents of the file matches a regular expression?
@@ -97,11 +141,13 @@ Medium Priority
 
 * `[TD0019]` Rework the `FilenameAnalyzer`
     * `[TD0020]` Identify data fields in file names.
+
         ```
         screencapture-github-jonasjberg-autonameow-1497964021919.png
         ^___________^ ^__________________________^ ^___________^
              tag            title/description        timestamp
         ```
+
         * Use some kind of iterative evaluation; split into parts at
           separators, assign field types to the parts and find a "best fit".
           Might have to try several times at different separators, re-evaluting
@@ -117,6 +163,7 @@ Medium Priority
         * Look at any surrounding __context__ of files.
 
             For instance, given a directory containing files:
+
             ```
             foo_08.18.17.txt
             bar_11.04.16.txt
@@ -153,15 +200,34 @@ Medium Priority
 Low Priority
 ------------
 
-* `[TD0125]` __Add aliases (generics) for MeowURI leafs__
+* `[TD0145]` Add script for automating release of a new version.
+
+* `[TD0144]` Avoid enforcing/pruning cache file size too frequently.
+
+* `[TD0143]` __Add option to execute "hooks" at certain events.__  
+    Allow specifying executing arbitrary commands when specific events occur.
+    One use-case example is moving successfully renamed files to another
+    directory.
+
+* `[TD0141]` Coerce raw values to known types in the `ConfigurationParser`.
+
+* `[TD0140]` Template field classes `str()` method not working as intended.
+
+* `[TD0139]` Warn if data sources does not match name template placeholders?
+
+* `[TD0125]` __Add aliases (generics) for MeowURI leafs__  
   Should probably provide a consistent internal alternative field name when
   specifying extractor-specific MeowURIs, not only with "generic".
+
   Example of equivalent MeowURIs with the "alias" or "generic":
+
     ```
     extractor.metadata.exiftool.PDF:CreateDate
     extractor.metadata.exiftool.date_created
     ```
+
   Another example:
+
     ```
     extractor.metadata.exiftool.EXIF:DateTimeOriginal
     extractor.metadata.exiftool.date_created
@@ -171,25 +237,28 @@ Low Priority
   them. If these were not based on the subclasses of `GenericField`, they could
   simply be made to map directly with the provider fields, maybe only with a
   slight transformation like converting to lower-case.
+
   Example of alternative using simple transformations:
+
     ```
     extractor.metadata.exiftool.EXIF:DateTimeOriginal
     extractor.metadata.exiftool.exif_datetimeoriginal
     ```
 
 * `[TD0130]` __Implement general-purpose matching/extraction of substrings.__  
-  Primary purpose is to provide matching and also removal of matched parts.
-  For instance, given a full string like `Skill: 1337 Meow - foo`,  searching
-  for "skills" with regex `r'[sS]kill: ?(\d)+'`, the matched part should be
-  returned and also removed from the original string. Alternatively, the match
-  results would contain information on where in the original string that the
-  match was found.
+    Primary purpose is to provide matching and also removal of matched parts.
 
-  This is a non-issue when using only regexes to do the substring searches,
-  but if the search is performed with a function call, removing the matched
-  substring becomes a bit messy.
+    For instance, given a full string like `Skill: 1337 Meow - foo`,  searching
+    for "skills" with regex `r'[sS]kill: ?(\d)+'`, the matched part should be
+    returned and also removed from the original string. Alternatively, the match
+    results would contain information on where in the original string that the
+    match was found.
 
-  Related to `[TD0020]`. This functionality is provided by `guessit`!
+    This is a non-issue when using only regexes to do the substring searches,
+    but if the search is performed with a function call, removing the matched
+    substring becomes a bit messy.
+
+    Related to `[TD0020]`. This functionality is provided by `guessit`!
 
 * `[TD0121]` Create a script for generating regression tests.
 
@@ -201,12 +270,13 @@ Low Priority
 
 * `[TD0109]` __Allow arbitrary name template placeholder fields.__  
     It is currently difficult to use a rule similar to this:
-    ```
+
+    ```yaml
     TV-series:
         CONDITIONS:
             extractor.filesystem.xplat.pathname.full: '/tank/media/tvseries'
             extractor.filesystem.xplat.contents.mime_type: video/*
-        NAME_FORMAT: '{title} S{season}E{episode}.{extension}'
+        NAME_TEMPLATE: '{title} S{season}E{episode}.{extension}'
         DATA_SOURCES:
             title: plugin.guessit.title
             season: plugin.guessit.season
@@ -216,16 +286,14 @@ Low Priority
     ```
 
     This rule gives the following error:
+
     ```
     [ERROR] Bad rule "TV-series"; uses invalid name template format
     ```
+
     This could be solved by either adding `{season}` and `{episode}` as new
     template fields or by allowing arbitrary placeholder fields with some
     simple format like `{a}`, `{b}`, etc.
-
-* `[TD0101]` __Add ability to limit sizes of persistent storage/caches.__  
-  Store timestamps with stored data and remove oldest entries when exceeding
-  the file size limit.
 
 * `[TD0096]` Fix some replacements cause incorrect color highlighting.
 
@@ -281,11 +349,12 @@ Low Priority
 
 * `[TD0010]` Think about how data might need to be processed in multiple
   consecutive runs.
-    * In relation to future weighting and prioritizing of analysis results.
+  In relation to future weighting and prioritizing of analysis results.
 
 * `[TD0094]` __Search text for DOIs and query external services__  
-  Example DOI: `10.1109/TPDS.2010.125`.  Could be used to query external
-  services for publication metadata, as with ISBN-numbers.
+  Similar to ISBN-numbers. Could be used as primary identifier/key in records
+  and to query external services for publication metadata.
+  Example DOI: `10.1109/TPDS.2010.125`.
 
 
 Wishlist
@@ -308,7 +377,7 @@ Wishlist
     A suitable rule that reproduces the expected result should be generated
     and added to the user configuration.
 
-* Add API for developing GUI wrappers and web frontends.
+* Graphical User Interface of some kind, as an alternative to the command-line.
 
 
 Windows-compatibility *(Very Low Priority)*

@@ -21,10 +21,16 @@
 
 from unittest import TestCase
 
+import unit.utils as uu
 from core import types
 from core.exceptions import EncodingBoundaryViolation
-import unit.utils as uu
-from util import mimemagic
+from util.mimemagic import (
+    eval_glob,
+    filetype,
+    get_mimetype,
+    get_extension,
+    MimeExtensionMapper
+)
 
 
 class TestFileTypeMagic(TestCase):
@@ -51,34 +57,34 @@ class TestFileTypeMagic(TestCase):
 
     def test_filetype_magic(self):
         for test_file, expected_mime in self.test_files:
-            actual = mimemagic.filetype(test_file)
+            actual = filetype(test_file)
             self.assertEqual(actual, expected_mime)
 
     def test_filetype_magic_with_invalid_args(self):
-        actual = mimemagic.filetype(None)
+        actual = filetype(None)
         self.assertEqual(actual, types.NULL_AW_MIMETYPE)
         self.assertFalse(actual)
 
 
 class TestEvalMagicGlob(TestCase):
     def _aF(self, mime_to_match, glob_list):
-        actual = mimemagic.eval_glob(mime_to_match, glob_list)
-        self.assertTrue(isinstance(actual, bool))
+        actual = eval_glob(mime_to_match, glob_list)
+        self.assertIsInstance(actual, bool)
         self.assertFalse(actual)
 
     def _aT(self, mime_to_match, glob_list):
-        actual = mimemagic.eval_glob(mime_to_match, glob_list)
-        self.assertTrue(isinstance(actual, bool))
+        actual = eval_glob(mime_to_match, glob_list)
+        self.assertIsInstance(actual, bool)
         self.assertTrue(actual)
 
     def test_eval_magic_blob_returns_false_given_bad_arguments(self):
-        self.assertIsNotNone(mimemagic.eval_glob(None, None))
-        self.assertFalse(mimemagic.eval_glob(None, None))
+        self.assertIsNotNone(eval_glob(None, None))
+        self.assertFalse(eval_glob(None, None))
 
     def test_eval_magic_blob_raises_exception_given_bad_arguments(self):
         def _assert_raises(error, mime_to_match, glob_list):
             with self.assertRaises(error):
-                mimemagic.eval_glob(mime_to_match, glob_list)
+                eval_glob(mime_to_match, glob_list)
 
         _assert_raises(ValueError, 'image/jpeg', ['*/*/jpeg'])
         _assert_raises(ValueError, 'application', ['*/*'])
@@ -152,23 +158,25 @@ class TestEvalMagicGlob(TestCase):
 
 class TestMimeExtensionMapper(TestCase):
     def setUp(self):
-        self.m = mimemagic.MimeExtensionMapper()
+        self.m = MimeExtensionMapper()
 
-    def _assert_returns_mimes(self, extension, expected):
-        _actual_mimes = self.m.get_candidate_mimetypes(extension)
-        self.assertTrue(isinstance(_actual_mimes, list))
-        for expected_mime in expected:
-            self.assertIn(expected_mime, _actual_mimes)
+    def _assert_returns_candidate_mimes(self, given, expect):
+        _actual = self.m.get_candidate_mimetypes(given)
 
-        self.assertEqual(len(_actual_mimes), len(expected))
+        self.assertIsInstance(_actual, list)
+        for expected_mime in expect:
+            self.assertIn(expected_mime, _actual)
 
-    def _assert_returns_exts(self, mimetype, expected):
-        _actual_exts = self.m.get_candidate_extensions(mimetype)
-        self.assertTrue(isinstance(_actual_exts, list))
-        for expected_ext in expected:
-            self.assertIn(expected_ext, _actual_exts)
+        self.assertEqual(len(expect), len(_actual))
 
-        self.assertEqual(len(_actual_exts), len(expected))
+    def _assert_returns_candidate_extensions(self, given, expect):
+        _actual = self.m.get_candidate_extensions(given)
+
+        self.assertIsInstance(_actual, list)
+        for expected_ext in expect:
+            self.assertIn(expected_ext, _actual)
+
+        self.assertEqual(len(expect), len(_actual))
 
     def test_initially_empty(self):
         _mimes = self.m.get_candidate_mimetypes('rtf')
@@ -187,38 +195,72 @@ class TestMimeExtensionMapper(TestCase):
 
     def test_add_mime_for_extension(self):
         self.m.add_mapping('application/rtf', 'rtf')
-        self._assert_returns_mimes('rtf', ['application/rtf'])
-        self._assert_returns_exts('application/rtf', ['rtf'])
+        self._assert_returns_candidate_mimes(
+            given='rtf',
+            expect=['application/rtf']
+        )
+        self._assert_returns_candidate_extensions(
+            given='application/rtf',
+            expect=['rtf']
+        )
 
         self.m.add_mapping('text/rtf', 'rtf')
-        self._assert_returns_mimes('rtf', ['application/rtf', 'text/rtf'])
-        self._assert_returns_exts('application/rtf', ['rtf'])
-        self._assert_returns_exts('text/rtf', ['rtf'])
+        self._assert_returns_candidate_mimes(
+            given='rtf',
+            expect=['application/rtf', 'text/rtf']
+        )
+        self._assert_returns_candidate_extensions(
+            given='application/rtf',
+            expect=['rtf']
+        )
+        self._assert_returns_candidate_extensions(
+            given='text/rtf',
+            expect=['rtf']
+        )
 
     def test_get_candidate_mimetypes(self):
         self.m.add_mapping('text/x-shellscript', 'sh')
         self.m.add_mapping('text/x-sh', 'sh')
         self.m.add_mapping('text/shellscript', 'sh')
+        self._assert_returns_candidate_mimes(
+            given='sh',
+            expect=['text/shellscript', 'text/x-sh', 'text/x-shellscript']
+        )
 
-        self._assert_returns_mimes(
-            'sh',
-            ['text/shellscript', 'text/x-sh', 'text/x-shellscript']
+    def test_get_candidate_mimetypes_for_empty_extension(self):
+        self._assert_returns_candidate_mimes(
+            given='',
+            expect=[]
+        )
+        self.m.add_mapping('inode/x-empty', '')
+        self._assert_returns_candidate_mimes(
+            given='',
+            expect=['inode/x-empty']
         )
 
     def test_get_candidate_extensions(self):
         self.m.add_mapping('application/gzip', 'gz')
         self.m.add_mapping('application/gzip', 'tar.gz')
 
-        self._assert_returns_exts('application/gzip', ['gz', 'tar.gz'])
+        self._assert_returns_candidate_extensions(
+            given='application/gzip',
+            expect=['gz', 'tar.gz']
+        )
 
     def test_get_preferred_extension(self):
         self.m.add_mapping('foo/bar', 'foo')
         self.m.add_mapping('foo/bar', 'foobar')
 
-        self._assert_returns_exts('foo/bar', ['foo', 'foobar'])
+        self._assert_returns_candidate_extensions(
+            given='foo/bar',
+            expect=['foo', 'foobar']
+        )
 
         self.m.add_preferred_extension('foo/bar', 'baz')
-        self._assert_returns_exts('foo/bar', ['baz', 'foo', 'foobar'])
+        self._assert_returns_candidate_extensions(
+            given='foo/bar',
+            expect=['baz', 'foo', 'foobar']
+        )
         _preferred = self.m.get_extension('foo/bar')
         self.assertEqual(_preferred, 'baz')
 
@@ -231,11 +273,40 @@ class TestMimeExtensionMapper(TestCase):
 
 
 class TestMimemagicGetExtension(TestCase):
-    def test_get_image_jpeg(self):
-        self.assertEqual(mimemagic.get_extension('image/jpeg'), 'jpg')
+    def _assert_returns_extension(self, given, expect):
+        _actual = get_extension(given)
+        self.assertEqual(expect, _actual)
+
+    def test_image_jpeg(self):
+        self._assert_returns_extension(given='image/jpeg', expect='jpg')
+
+    def test_image_png(self):
+        self._assert_returns_extension(given='image/png', expect='png')
+
+    def test_text_sh(self):
+        self._assert_returns_extension(given='text/x-shellscript', expect='sh')
+        self._assert_returns_extension(given='text/x-sh', expect='sh')
 
 
 class TestMimemagicGetMimetype(TestCase):
-    def test_get_image_jpeg(self):
-        self.assertEqual(mimemagic.get_mimetype('jpg'), 'image/jpeg')
-        self.assertEqual(mimemagic.get_mimetype('jpeg'), 'image/jpeg')
+    def _assert_returns_mime(self, given, expect):
+        _actual = get_mimetype(given)
+        self.assertEqual(expect, _actual)
+
+    def test_unknown_mime_type(self):
+        self._assert_returns_mime(given=None, expect=types.NULL_AW_MIMETYPE)
+        self._assert_returns_mime(given='  ', expect=types.NULL_AW_MIMETYPE)
+        self._assert_returns_mime(given=' ', expect=types.NULL_AW_MIMETYPE)
+        self._assert_returns_mime(given='', expect=types.NULL_AW_MIMETYPE)
+        self._assert_returns_mime(given='me0ww', expect=types.NULL_AW_MIMETYPE)
+
+    def test_image_jpeg(self):
+        self._assert_returns_mime(given='jpg', expect='image/jpeg')
+        self._assert_returns_mime(given='jpeg', expect='image/jpeg')
+
+    def test_image_png(self):
+        self._assert_returns_mime(given='png', expect='image/png')
+
+    def test_text_sh(self):
+        self._assert_returns_mime(given='sh', expect='text/x-shellscript')
+        self._assert_returns_mime(given='bash', expect='text/x-shellscript')

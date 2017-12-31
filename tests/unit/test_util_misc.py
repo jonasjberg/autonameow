@@ -22,6 +22,10 @@
 
 import os
 from unittest import TestCase
+from unittest.mock import (
+    MagicMock,
+    patch
+)
 
 from util.misc import (
     contains_none,
@@ -145,7 +149,7 @@ class TestFlattenDict(TestCase):
     def test_returns_expected_type(self):
         actual = flatten_dict(self.INPUT)
 
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
     def test_returns_expected_len(self):
         actual = flatten_dict(self.INPUT)
@@ -184,7 +188,7 @@ class TestFlattenDictWithRawMetadata(TestCase):
 
     def test_returns_expected_type(self):
         actual = flatten_dict(self.INPUT)
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
     def test_returns_expected_len(self):
         actual = flatten_dict(self.INPUT)
@@ -265,7 +269,7 @@ class TestExpandMeowURIDataDict(TestCase):
     def test_returns_expected_type(self):
         actual = expand_meowuri_data_dict(self.INPUT)
 
-        self.assertTrue(isinstance(actual, dict))
+        self.assertIsInstance(actual, dict)
 
     def test_returns_expected_len(self):
         actual = len(expand_meowuri_data_dict(self.INPUT))
@@ -460,12 +464,12 @@ class TestContainsNone(TestCase):
     def _assert_false(self, test_data):
         actual = contains_none(test_data)
         self.assertFalse(actual)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
     def _assert_true(self, test_data):
         actual = contains_none(test_data)
         self.assertTrue(actual)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
     def test_returns_true_as_expected(self):
         self._assert_true([])
@@ -500,3 +504,27 @@ class TestGitCommitHash(TestCase):
         curdir_after = os.path.curdir
 
         self.assertEqual(curdir_before, curdir_after)
+
+    def _setup_mock_popen(self, mock_popen, return_code=None, stdout=None, stderr=None):
+        def __communicate():
+            return stdout, stderr
+
+        if return_code is None:
+            return_code = 0
+        if stdout is None:
+            stdout = b''
+
+        mock_popen.return_value = MagicMock(returncode=return_code)
+        mock_popen_instance = mock_popen.return_value
+        mock_popen_instance.communicate = __communicate
+
+    @patch('util.misc.subprocess.Popen')
+    def test_returns_none_if_repository_not_found(self, mock_popen):
+        self._setup_mock_popen(
+            mock_popen,
+            stdout=b'fatal: Not a git repository (or any of the parent directories): .git\n',
+            stderr=None
+        )
+
+        actual = git_commit_hash()
+        self.assertIsNone(actual)

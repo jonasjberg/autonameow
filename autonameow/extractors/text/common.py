@@ -31,9 +31,11 @@ from extractors import (
     BaseExtractor,
     ExtractorError
 )
-from util import (
-    sanity,
-    textutils
+from util import encoding as enc
+from util import sanity
+from util.text import (
+    normalize_unicode,
+    remove_nonbreaking_spaces
 )
 
 
@@ -82,11 +84,13 @@ class AbstractTextExtractor(BaseExtractor):
                            '{!s}'.format(self, e))
             raise ExtractorError
 
-        # Store text to cache
-        if text and self.cache:
-            self.cache.set(fileobject, text)
+        if not text:
+            return ''
 
-        return text
+        clean_text = self.cleanup(text)
+        if self.cache:
+            self.cache.set(fileobject, clean_text)
+        return clean_text
 
     def extract_text(self, fileobject):
         """
@@ -112,11 +116,26 @@ class AbstractTextExtractor(BaseExtractor):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def init_cache(self):
-        _cache = persistence.get_cache(str(self))
+        _max_filesize = 50 * 1024**2  # ~50MB
+        _cache = persistence.get_cache(str(self), max_filesize=_max_filesize)
         if _cache:
             self.cache = _cache
         else:
             self.cache = None
+
+    @staticmethod
+    def cleanup(raw_text):
+        if not raw_text:
+            return ''
+
+        sanity.check_internal_string(raw_text)
+        text = raw_text
+        text = normalize_unicode(text)
+        text = remove_nonbreaking_spaces(text)
+        if text:
+            return text
+        else:
+            return ''
 
 
 def decode_raw(raw_text):
@@ -124,7 +143,7 @@ def decode_raw(raw_text):
         text = types.AW_STRING(raw_text)
     except types.AWTypeError:
         try:
-            text = textutils.autodetect_decode(raw_text)
+            text = enc.autodetect_decode(raw_text)
         except ValueError:
             log.warning('Unable to decode raw text')
             return ''

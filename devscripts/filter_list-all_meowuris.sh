@@ -21,15 +21,14 @@
 
 set -o nounset -o pipefail
 
-SELF="$(basename "$0")"
-SELF_DIR="$(realpath -e "$(dirname "$0")")"
+SELF_BASENAME="$(basename "$0")"
 
 
 if [ "$#" -eq "0" ]
 then
     cat >&2 <<EOF
 
-  USAGE:  ${SELF} [FILE(S)]
+  USAGE:  ${SELF_BASENAME} [FILE(S)]
 
   Runs autonameow with the given file(s) and the "--list-all"
   option and filters the output to display a lexicographically

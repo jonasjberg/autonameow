@@ -21,7 +21,6 @@
 
 set -o noclobber -o nounset -o pipefail
 
-SELF_BASENAME="$(basename "$0")"
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
     cat >&2 <<EOF
@@ -33,6 +32,7 @@ EOF
     exit 1
 fi
 
+# Resets test suite counter variables.
 source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 
 
@@ -44,23 +44,27 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 time_start="$(current_unix_time)"
 
 TESTSUITE_NAME='Documentation'
-logmsg "Started \"${SELF_BASENAME}\""
-logmsg "Running the "$TESTSUITE_NAME" test suite .."
+logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
 DOC_PATH="$( ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e "./docs/" ) )"
+doc_path_basename="$(basename -- "$DOC_PATH")"
 assert_true '[ -d "$DOC_PATH" ]' \
-            "Documentation directory \""$(basename -- "$DOC_PATH")"\" should exist"
+            "Documentation directory \"${doc_path_basename}\" should exist"
 
 _srcroot_readme="${AUTONAMEOW_ROOT_DIR}/README.md"
+assert_bulk_test "$_srcroot_readme" n e f r
+
 assert_true '[ -f "$_srcroot_readme" ]' \
             'The root source directory should contain a "README.md"'
 
 assert_false 'grep_todos "$_srcroot_readme"' \
-             "Main README.md does not contain TODOs"
+             'Main README.md does not contain TODOs'
 
 _wiki_report_results="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
+assert_bulk_test "$_wiki_report_results" n e f r
+
 assert_true '[ -f "$_wiki_report_results" ]' \
             'The project Wiki should contain "Test-Results.md"'
 
@@ -76,7 +80,7 @@ count_file_in_document()
     [ -z "${1:-}" ] && { echo "0" ; return ; }
 
     local _file
-    while IFS='\n' read -r _file
+    while IFS=$'\n' read -r _file
     do
         grep -- "${_file}" "${_wiki_report_results}"
     done <<< "$1" | wc -l
@@ -104,3 +108,4 @@ time_end="$(current_unix_time)"
 total_time="$(calculate_execution_time "$time_start" "$time_end")"
 
 log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+update_global_test_results

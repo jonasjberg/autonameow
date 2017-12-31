@@ -29,6 +29,7 @@ from core import (
 )
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -48,7 +49,7 @@ class PluginHandler(object):
 
         # Get instantiated and validated plugins.
         self.available_plugins = plugins.UsablePlugins
-        assert isinstance(self.available_plugins, list)
+        sanity.check_isinstance(self.available_plugins, list)
 
         if self.available_plugins:
             _p = ' '.join(
@@ -61,10 +62,7 @@ class PluginHandler(object):
         if run_all_plugins:
             self.use_all_plugins()
         elif require_plugins:
-            assert isinstance(require_plugins, list), (
-                'Expected "require_plugins" to be a list. Got {!s}'.format(
-                    type(require_plugins))
-            )
+            sanity.check_isinstance(require_plugins, list)
             self.use_plugins(list(require_plugins))
 
         with logs.log_runtime(log, 'Plugins'):

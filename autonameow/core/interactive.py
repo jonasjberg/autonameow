@@ -34,34 +34,45 @@ class Choice(object):
 
 
 def select_field(templatefield, candidates):
-    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+    # TODO: [TD0024][TD0025] Implement Interactive mode.
 
     ui.msg('Unresolved Field: {!s}'.format(templatefield.as_placeholder()))
     ui.msg('Candidates:')
-    for c in candidates:
-        _probs = []
-        for fm in c.field_map:
-            if fm.field == templatefield:
-                _probs.append(fm.probability)
 
-        _prob = ['probability: {}'.format(p) for p in _probs]
-        ui.msg(
-            '- "{!s}" ({})'.format(c.coercer.format(c.value), ' '.join(_prob))
-        )
+    cf = ui.ColumnFormatter()
+    cf.addemptyrow()
+    cf.addrow('#', 'SOURCE', 'PROBABILITY', 'FORMATTED VALUE')
+    cf.addrow('=', '======', '===========', '===============')
+    prioritized_candidates = sorted(
+        candidates, key=lambda x: (x.probability, x.value), reverse=True
+    )
+    numbered_candidates = dict()
+    for n, c in enumerate(prioritized_candidates):
+        _value = '"{!s}"'.format(c.value)
+        _source = str(c.source)
+        _prob = str(c.probability)
+
+        num = str(n)
+        cf.addrow(num, _source, _prob, _value)
+        numbered_candidates[num] = c
+
+    ui.msg(str(cf))
 
     log.warning('TODO: Implement interactive field selection')
-    return None
+    response = ui.field_selection_prompt(numbered_candidates)
+    assert response in numbered_candidates
+    return numbered_candidates.get(response)
 
 
 def select_template(candidates):
-    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+    # TODO: [TD0024][TD0025] Implement Interactive mode.
     log.warning('TODO: Implement user name template selection')
 
     return None
 
 
 def meowuri_prompt(message):
-    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+    # TODO: [TD0024][TD0025] Implement Interactive mode.
     if not sys.__stdout__.isatty():
         # TODO: [TD0111] Separate abstract user interaction from CLI specifics.
         log.warning('Standard input is not a TTY --- would have triggered an '

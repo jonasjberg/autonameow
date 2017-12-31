@@ -29,13 +29,15 @@ except ImportError:
 
 from core import (
     config,
-    disk,
     exceptions,
     types,
 )
 from core import constants as C
-from util import sanity
 from util import encoding as enc
+from util import (
+    disk,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)
@@ -87,14 +89,17 @@ class BasePersistence(object):
     PERSISTENCE_FILE_PREFIX_SEPARATOR = '_'
 
     def __init__(self, file_prefix, persistence_dir_abspath=None):
-        self._data = {}
+        self._data = dict()
+
+        # Cache for computed paths.
+        self._persistence_file_abspath_cache = dict()
 
         if not persistence_dir_abspath:
-            self.persistence_dir_abspath = get_config_persistence_path()
+            self._persistence_dir_abspath = get_config_persistence_path()
         else:
-            self.persistence_dir_abspath = persistence_dir_abspath
-        sanity.check_internal_bytestring(self.persistence_dir_abspath)
-        assert os.path.isabs(enc.syspath(self.persistence_dir_abspath))
+            self._persistence_dir_abspath = persistence_dir_abspath
+        sanity.check_internal_bytestring(self._persistence_dir_abspath)
+        assert os.path.isabs(enc.syspath(self._persistence_dir_abspath))
 
         _prefix = types.force_string(file_prefix)
         if not _prefix.strip():
@@ -103,13 +108,13 @@ class BasePersistence(object):
             )
         self.persistencefile_prefix = _prefix
 
-        self._dp = enc.displayable_path(self.persistence_dir_abspath)
+        self._dp = enc.displayable_path(self._persistence_dir_abspath)
         if not self.has_persistencedir():
             log.debug('Directory for persistent storage does not exist:'
                       ' "{!s}"'.format(self._dp))
 
             try:
-                disk.makedirs(self.persistence_dir_abspath)
+                disk.makedirs(self._persistence_dir_abspath)
             except exceptions.FilesystemError as e:
                 raise PersistenceError('Unable to create persistence directory'
                                        ' "{!s}": {!s}'.format(self._dp, e))
@@ -126,20 +131,27 @@ class BasePersistence(object):
             '{!s} using persistence directory "{!s}"'.format(self, self._dp)
         )
 
+    @property
+    def persistence_dir_abspath(self):
+        return self._persistence_dir_abspath
+
     def has_persistencedir_permissions(self):
         try:
-            return disk.has_permissions(self.persistence_dir_abspath, 'rwx')
+            return disk.has_permissions(self._persistence_dir_abspath, 'rwx')
         except (TypeError, ValueError):
             return False
 
     def has_persistencedir(self):
-        _path = enc.syspath(self.persistence_dir_abspath)
+        _path = enc.syspath(self._persistence_dir_abspath)
         try:
             return bool(os.path.exists(_path) and os.path.isdir(_path))
         except (OSError, ValueError, TypeError):
             return False
 
     def _persistence_file_abspath(self, key):
+        if key in self._persistence_file_abspath_cache:
+            return self._persistence_file_abspath_cache[key]
+
         string_key = types.force_string(key)
         if not string_key.strip():
             raise KeyError('Invalid key: "{!s}" ({!s})'.format(key, type(key)))
@@ -150,9 +162,10 @@ class BasePersistence(object):
             key=key
         )
         _p = enc.normpath(
-            os.path.join(enc.syspath(self.persistence_dir_abspath),
+            os.path.join(enc.syspath(self._persistence_dir_abspath),
                          enc.syspath(enc.encode_(_basename)))
         )
+        self._persistence_file_abspath_cache[key] = _p
         return _p
 
     def get(self, key):
@@ -256,8 +269,10 @@ class BasePersistence(object):
             return True
 
     def keys(self):
+        # TODO: This is a major security vulnerability (!)
         out = []
-        for bytestring_file in os.listdir(self.persistence_dir_abspath):
+        _file_path = enc.syspath(self._persistence_dir_abspath)
+        for bytestring_file in os.listdir(_file_path):
             string_file = types.force_string(bytestring_file)
             if not string_file:
                 continue
@@ -276,6 +291,28 @@ class BasePersistence(object):
                 self.delete(key)
             except PersistenceError:
                 pass
+
+    def filesize(self, key):
+        """
+        Get the file size in bytes of the stored data under the given key.
+        """
+        if not key:
+            raise KeyError
+
+        _file_path = self._persistence_file_abspath(key)
+        if not os.path.exists(enc.syspath(_file_path)):
+            return 0
+
+        try:
+            size = disk.file_bytesize(_file_path)
+            return size
+        except exceptions.FilesystemError as e:
+            _dp = enc.displayable_path(_file_path)
+            log.error(
+                'Error when getting file size for persistence file "{!s}"'
+                ' from key "{!s}"; {!s}'.format(_dp, key, e)
+            )
+            raise PersistenceError(e)
 
     def _load(self, file_path):
         raise NotImplementedError('Must be implemented by inheriting classes.')

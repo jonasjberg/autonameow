@@ -252,9 +252,6 @@ class MeowURI(object):
         else:
             return False
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __lt__(self, other):
         if isinstance(other, self.__class__):
             sp = len(self.parts)
@@ -282,6 +279,9 @@ class MeowURI(object):
             self.__cached_str = C.MEOWURI_SEPARATOR.join(str(p)
                                                          for p in self._parts)
         return self.__cached_str
+
+    def __repr__(self):
+        return str(self)
 
 
 class MeowURIChild(object):

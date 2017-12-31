@@ -15,8 +15,8 @@ RULES:
         DATA_SOURCES:
             extension: analyzer.filename.extension
             title: extractor.filesystem.xplat.basename.prefix
-        NAME_FORMAT: '{title}.{extension}'
+        NAME_TEMPLATE: '{title}.{extension}'
         exact_match: false
         ranking_bias: 0.01
 COMPATIBILITY:
-    autonameow_version: v0.5.2
+    autonameow_version: v0.5.3

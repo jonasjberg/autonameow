@@ -1,5 +1,5 @@
 COMPATIBILITY:
-    autonameow_version: v0.5.2
+    autonameow_version: v0.5.3
 DATETIME_FORMAT:
     date: '%Y-%m-%d'
     datetime: '%Y-%m-%dT%H%M%S'
@@ -14,6 +14,6 @@ RULES:
             date: extractor.metadata.exiftool.PDF:CreateDate
             extension: extractor.filesystem.xplat.basename.extension
             title: extractor.filesystem.xplat.basename.prefix
-        NAME_FORMAT: '{date} {title}.{extension}'
+        NAME_TEMPLATE: '{date} {title}.{extension}'
         exact_match: true
         ranking_bias: null

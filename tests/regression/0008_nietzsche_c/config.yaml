@@ -1,9 +1,9 @@
-CUSTOM_POST_PROCESSING:
+POST_PROCESSING:
     replacements:
         ',': ''
         ' - ': ' '
 COMPATIBILITY:
-    autonameow_version: v0.5.2
+    autonameow_version: v0.5.3
 DATETIME_FORMAT:
     date: '%Y-%m-%d'
     datetime: '%Y-%m-%dT%H%M%S'
@@ -17,6 +17,6 @@ RULES:
             author: generic.metadata.author
             extension: extractor.filesystem.xplat.contents.mime_type
             title: generic.metadata.title
-        NAME_FORMAT: '{author} {title}.{extension}'
+        NAME_TEMPLATE: '{author} {title}.{extension}'
         exact_match: true
         ranking_bias: null

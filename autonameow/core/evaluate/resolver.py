@@ -41,6 +41,17 @@ log = logging.getLogger(__name__)
 # "pipeline" --- from "raw" data to the final new file name.
 
 
+class FieldDataCandidate(object):
+    """
+    Simple "struct"-like container used by 'lookup_candidates()'.
+    """
+    def __init__(self, value, source, probability, meowuri):
+        self.value = value
+        self.source = source
+        self.probability = probability
+        self.meowuri = meowuri
+
+
 class TemplateFieldDataResolver(object):
     def __init__(self, fileobject, name_template):
         self.file = fileobject
@@ -91,11 +102,45 @@ class TemplateFieldDataResolver(object):
         return self._has_data_for_placeholder_fields()
 
     def lookup_candidates(self, field):
-        # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+        # TODO: [TD0024][TD0025] Implement Interactive mode.
         candidates = repository.SessionRepository.query_mapped(self.file, field)
 
+        out = []
+        for candidate in candidates:
+            if not candidate:
+                # TODO: Fix None candidates getting here.
+                continue
+
+            mapped_fields = candidate.get('mapped_fields')
+            if not mapped_fields:
+                continue
+
+            _prob = 0.0
+            for fm in mapped_fields:
+                if fm.field == field:
+                    _prob = fm.probability
+                    break
+            else:
+                assert False, (
+                    'Duplicated field mapped in "{!s}"'.format(candidate)
+                )
+
+            _coercer = candidate.get('coercer')
+            _value = candidate.get('value')
+            _formatted_value = ''
+            if _value and _coercer:
+                _formatted_value = _coercer.format(_value)
+
+            _source = candidate.get('source', '(unknown source)')
+            _meowuri = candidate.get('meowuri', '')
+
+            out.append(
+                FieldDataCandidate(value=_formatted_value, source=_source,
+                                   probability=str(_prob), meowuri=_meowuri)
+            )
+
         # TODO: [TD0104] Merge candidates and re-normalize probabilities.
-        return candidates if candidates else []
+        return out
 
     def _has_data_for_placeholder_fields(self):
         for field in self._fields:
@@ -247,9 +292,7 @@ def dedupe_list_of_datadicts(datadict_list):
     for datadict in list_of_datadicts:
         value = datadict.get('value')
         # Assume that the data is free from None values at this point.
-        assert value is not None
-        # if value is None:
-        #     continue
+        assert value is not None, 'None value in datadict: ' + str(datadict)
 
         if isinstance(value, list):
             sorted_list_value = sorted(list(value))

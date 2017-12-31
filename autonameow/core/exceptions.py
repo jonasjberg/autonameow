@@ -45,16 +45,8 @@ class AutonameowPluginError(AutonameowException):
     """A plugin encountered an unrecoverable error."""
 
 
-class AnalysisResultsFieldError(AutonameowException):
-    """Attempt to query/access an invalid analyzer data field."""
-
-
 class NameBuilderError(AutonameowException):
     """An error occurred while constructing a name. Unable to proceed."""
-
-
-class RuleMatcherError(AutonameowException):
-    """An error occurred while matching rules. Unable to proceed."""
 
 
 class FilesystemError(AutonameowException):
@@ -66,10 +58,6 @@ class InvalidMeowURIError(ConfigError):
     """An error caused by an invalid "meowURI"."""
 
 
-class RulePriorityError(ConfigError):
-    """Failed to prioritize rules. Rule comparison failed."""
-
-
 class NameTemplateSyntaxError(ConfigError):
     """The name format template is invalid."""
     pass
@@ -78,8 +66,3 @@ class NameTemplateSyntaxError(ConfigError):
 class ConfigurationSyntaxError(ConfigError):
     """The configuration contains invalid entries."""
     pass
-
-
-class InvalidRuleError(ConfigError):
-    """The Rule is in a bad state. The Rule state should only be set
-    with known good data. This error implies data validation has failed."""

@@ -21,11 +21,19 @@
 
 from unittest import TestCase
 
-from util import encoding as enc
+import unit.utils as uu
+from core.exceptions import EncodingBoundaryViolation
 from util.text.transform import (
     collapse_whitespace,
+    html_unescape,
+    indent,
+    normalize_unicode,
     remove_nonbreaking_spaces,
-    strip_ansiescape
+    simplify_unicode,
+    _strip_accents_homerolled,
+    _strip_accents_unidecode,
+    strip_ansiescape,
+    urldecode,
 )
 
 
@@ -42,10 +50,10 @@ class TestCollapseWhitespace(TestCase):
         self._check([], [])
 
     def test_raises_exception_given_non_string_types(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             _ = collapse_whitespace(['foo'])
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             _ = collapse_whitespace(object())
 
     def test_returns_string_without_whitespace_as_is(self):
@@ -164,13 +172,180 @@ class TestCollapseWhitespace(TestCase):
         self._check('\t\t\tfoo bar', ' foo bar')
 
 
+class TestIndent(TestCase):
+    def test_invalid_arguments_raises_exception(self):
+        def _assert_raises(exception_type, *args, **kwargs):
+            with self.assertRaises(exception_type):
+                indent(*args, **kwargs)
+
+        _assert_raises(ValueError, None)
+        _assert_raises(EncodingBoundaryViolation, b'')
+        _assert_raises(ValueError, 'foo', amount=0)
+        _assert_raises(TypeError, 'foo', amount=object())
+
+        # TODO: Should raise 'TypeError' when given 'ch=1' (expects str)
+        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=1)
+        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=b'')
+        _assert_raises(EncodingBoundaryViolation, 'foo', ch=b'')
+
+    def test_indents_single_line(self):
+        self.assertEqual(indent('foo'), '    foo')
+        self.assertEqual(indent('foo bar'), '    foo bar')
+
+    def test_indents_two_lines(self):
+        self.assertEqual(indent('foo\nbar'), '    foo\n    bar')
+
+    def test_indents_three_lines(self):
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('    foo\n'
+                  '      bar\n'
+                  '    baz\n')
+        self.assertEqual(indent(input_), expect)
+
+    def test_indents_single_line_specified_amount(self):
+        self.assertEqual(indent('foo', amount=1), ' foo')
+        self.assertEqual(indent('foo', amount=2), '  foo')
+        self.assertEqual(indent('foo', amount=3), '   foo')
+        self.assertEqual(indent('foo', amount=4), '    foo')
+        self.assertEqual(indent('foo bar', amount=2), '  foo bar')
+
+    def test_indents_two_lines_specified_amount(self):
+        self.assertEqual(indent('foo\nbar', amount=2), '  foo\n  bar')
+
+    def test_indents_three_lines_specified_amount(self):
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('  foo\n'
+                  '    bar\n'
+                  '  baz\n')
+        self.assertEqual(indent(input_, amount=2), expect)
+
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('   foo\n'
+                  '     bar\n'
+                  '   baz\n')
+        self.assertEqual(indent(input_, amount=3), expect)
+
+    def test_indents_single_line_specified_padding(self):
+        self.assertEqual(indent('foo', ch='X'), 'XXXXfoo')
+        self.assertEqual(indent('foo bar', ch='X'), 'XXXXfoo bar')
+
+    def test_indents_two_lines_specified_padding(self):
+        self.assertEqual(indent('foo\nbar', ch='X'),
+                         'XXXXfoo\nXXXXbar')
+        self.assertEqual(indent('foo\nbar', ch='Xj'),
+                         'XjXjXjXjfoo\nXjXjXjXjbar')
+
+    def test_indents_three_lines_specified_padding(self):
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XXXXfoo\n'
+                  'XXXX  bar\n'
+                  'XXXXbaz\n')
+        self.assertEqual(indent(input_, ch='X'), expect)
+
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XjXjXjXjfoo\n'
+                  'XjXjXjXj  bar\n'
+                  'XjXjXjXjbaz\n')
+        self.assertEqual(indent(input_, ch='Xj'), expect)
+
+    def test_indents_text_single_line_specified_padding_and_amount(self):
+        self.assertEqual(indent('foo', amount=1, ch='  '), '  foo')
+        self.assertEqual(indent('foo', amount=2, ch='  '), '    foo')
+        self.assertEqual(indent('foo', amount=1, ch=''), 'foo')
+        self.assertEqual(indent('foo', amount=2, ch=''), 'foo')
+        self.assertEqual(indent('foo', amount=3, ch=''), 'foo')
+        self.assertEqual(indent('foo', amount=4, ch=''), 'foo')
+        self.assertEqual(indent('foo', ch='X', amount=2), 'XXfoo')
+        self.assertEqual(indent('foo bar', ch='X', amount=2),
+                         'XXfoo bar')
+
+    def test_indents_two_lines_specified_padding_and_amount(self):
+        self.assertEqual(indent('foo\nbar', ch='X', amount=2),
+                         'XXfoo\nXXbar')
+        self.assertEqual(indent('foo\nbar', ch='X', amount=4),
+                         'XXXXfoo\nXXXXbar')
+
+    def test_indents_three_lines_specified_padding_and_amount(self):
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XXfoo\n'
+                  'XX  bar\n'
+                  'XXbaz\n')
+        self.assertEqual(indent(input_, ch='X', amount=2), expect)
+
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XXXfoo\n'
+                  'XXX  bar\n'
+                  'XXXbaz\n')
+        self.assertEqual(indent(input_, ch='X', amount=3), expect)
+
+
+class TestNormalizeUnicode(TestCase):
+    def _aE(self, test_input, expected):
+        actual = normalize_unicode(test_input)
+        self.assertEqual(actual, expected)
+
+    def test_raises_exception_given_bad_input(self):
+        def _aR(test_input):
+            with self.assertRaises(TypeError):
+                normalize_unicode(test_input)
+
+        _aR(None)
+        _aR([])
+        _aR(['foo'])
+        _aR({})
+        _aR({'foo': 'bar'})
+        _aR(object())
+        _aR(1)
+        _aR(1.0)
+        _aR(b'')
+        _aR(b'foo')
+
+    def test_returns_expected(self):
+        self._aE('', '')
+        self._aE(' ', ' ')
+        self._aE('foo', 'foo')
+        self._aE('...', '...')
+
+    def test_simplifies_three_periods(self):
+        self._aE('…', '...')
+        self._aE(' …', ' ...')
+        self._aE(' … ', ' ... ')
+
+    def test_replaces_dashes(self):
+        self._aE('\u2212', '-')
+        self._aE('\u2013', '-')
+        self._aE('\u2014', '-')
+        self._aE('\u05be', '-')
+        self._aE('\u2010', '-')
+        self._aE('\u2015', '-')
+        self._aE('\u30fb', '-')
+
+    def test_replaces_overlines(self):
+        self._aE('\u0305', '-')
+        self._aE('\u203e', '-')
+
+
 class TestRemoveNonBreakingSpaces(TestCase):
     def test_remove_non_breaking_spaces_removes_expected(self):
         expected = 'foo bar'
 
         non_breaking_space = '\xa0'
         actual = remove_nonbreaking_spaces(
-            'foo' + enc.decode_(non_breaking_space) + 'bar'
+            'foo' + uu.decode(non_breaking_space) + 'bar'
         )
         self.assertEqual(actual, expected)
 
@@ -194,3 +369,103 @@ class TestStripAnsiEscape(TestCase):
         self._aE('', '')
         self._aE('a', 'a')
         self._aE('[30m[44mautonameow[49m[39m', 'autonameow')
+
+
+class TestUrlDecode(TestCase):
+    def test_returns_expected_given_valid_arguments(self):
+        def _aE(test_input, expected):
+            actual = urldecode(test_input)
+            self.assertEqual(expected, actual)
+
+        _aE('%2C', ',')
+        _aE('%20', ' ')
+        _aE('f.bar?t=%D0%B7%D0%B0%D1%89%D0%B8%D1%82%D0%B0', 'f.bar?t=защита')
+
+
+class TestHtmlUnescape(TestCase):
+    def test_pass_through(self):
+        actual = html_unescape('foo')
+        self.assertEqual('foo', actual)
+
+    def test_returns_expected_given_valid_arguments(self):
+        def _aE(test_input, expected):
+            actual = html_unescape(test_input)
+            self.assertEqual(expected, actual)
+
+        _aE('&amp;', '&')
+        _aE('Gibson &amp; Associates', 'Gibson & Associates')
+
+
+class TestSimplifyUnicode(TestCase):
+    def _assert_strips(self, given, expect):
+        actual = simplify_unicode(given)
+        self.assertEqual(expect, actual)
+
+    def test_returns_none_as_is(self):
+        self._assert_strips(None, None)
+
+    def test_pass_through(self):
+        self._assert_strips(given='', expect='')
+        self._assert_strips(given=' ', expect=' ')
+        self._assert_strips(given='foo', expect='foo')
+
+    def test_strips_accent(self):
+        self._assert_strips(given='ç', expect='c')
+        self._assert_strips(given='Fooçalbar', expect='Foocalbar')
+        self._assert_strips(given='Montréal', expect='Montreal')
+        self._assert_strips(given=' über, 12.89', expect=' uber, 12.89')
+
+        # TODO: Handle "strokes" like 'ø'.
+        # self._assert_strips(given='ø', expect='o')
+
+    def test_strips_accents(self):
+        self._assert_strips(given='Mère, Françoise, noël, 889',
+                            expect='Mere, Francoise, noel, 889')
+
+
+class TestStripAccentsHomeRolled(TestCase):
+    def _assert_strips(self, given, expect):
+        actual = _strip_accents_homerolled(given)
+        self.assertEqual(expect, actual)
+
+    def test_pass_through(self):
+        self._assert_strips(given='', expect='')
+        self._assert_strips(given=' ', expect=' ')
+        self._assert_strips(given='foo', expect='foo')
+
+    def test_strips_accent(self):
+        self._assert_strips(given='ç', expect='c')
+        self._assert_strips(given='Fooçalbar', expect='Foocalbar')
+        self._assert_strips(given='Montréal', expect='Montreal')
+        self._assert_strips(given=' über, 12.89', expect=' uber, 12.89')
+
+        # TODO: Handle "strokes" like 'ø'.
+        # self._assert_strips(given='ø', expect='o')
+
+    def test_strips_accents(self):
+        self._assert_strips(given='Mère, Françoise, noël, 889',
+                            expect='Mere, Francoise, noel, 889')
+
+
+class TestStripAccentsUnidecode(TestCase):
+    def _assert_strips(self, given, expect):
+        actual = _strip_accents_unidecode(given)
+        self.assertEqual(expect, actual)
+
+    def test_pass_through(self):
+        self._assert_strips(given='', expect='')
+        self._assert_strips(given=' ', expect=' ')
+        self._assert_strips(given='foo', expect='foo')
+
+    def test_strips_accent(self):
+        self._assert_strips(given='ç', expect='c')
+        self._assert_strips(given='Fooçalbar', expect='Foocalbar')
+        self._assert_strips(given='Montréal', expect='Montreal')
+        self._assert_strips(given=' über, 12.89', expect=' uber, 12.89')
+
+        # TODO: Handle "strokes" like 'ø'.
+        # self._assert_strips(given='ø', expect='o')
+
+    def test_strips_accents(self):
+        self._assert_strips(given='Mère, Françoise, noël, 889',
+                            expect='Mere, Francoise, noel, 889')

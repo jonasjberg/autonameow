@@ -28,6 +28,9 @@ from util import sanity
 RE_AUTHOR_ET_AL = re.compile(
     r'[\[\(\{]?et.al\.?[\]\)\}]?', re.IGNORECASE
 )
+RE_EDITED_BY = re.compile(
+    r'ed(\.|ited) by', re.IGNORECASE
+)
 
 
 def strip_author_et_al(string):
@@ -36,6 +39,11 @@ def strip_author_et_al(string):
     """
     _subbed = RE_AUTHOR_ET_AL.sub('', string).replace('...', '')
     return _subbed.strip().rstrip(',').lstrip('.')
+
+
+def strip_edited_by(string):
+    _subbed = RE_EDITED_BY.sub('', string)
+    return _subbed.strip()
 
 
 def _parse_name(human_name):

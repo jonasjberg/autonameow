@@ -57,10 +57,16 @@ class DocumentAnalyzer(BaseAnalyzer):
             return
 
         self.text = _maybe_text
-        self.text_lines = len(self.text)
+        self.text_lines = len(self.text.splitlines())
 
         # Arbitrarily search the text in chunks of 10%
+        # TODO: [TD0134] Consolidate splitting up text into chunks.
         text_chunk_1 = self._extract_leading_text_chunk(chunk_ratio=0.1)
+
+        self._add_results('datetime',
+                          self._get_datetime_from_text(text_chunk_1))
+
+        self._add_title_from_text_to_results(text_chunk_1)
 
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
         if _options:
@@ -68,22 +74,10 @@ class DocumentAnalyzer(BaseAnalyzer):
             if _candidates:
                 self.candidate_publishers = _candidates
 
-        self._add_results('datetime',
-                          self._get_datetime_from_text(text_chunk_1))
-
-        self._add_title_from_text_to_results(text_chunk_1)
-
         # TODO: [cleanup] ..
         if self.candidate_publishers:
             self._search_text_for_candidate_publisher(text_chunk_1)
             self._search_text_for_copyright_publisher(text_chunk_1)
-
-    def __collect_results(self, meowuri, weight):
-        value = self.request_data(self.fileobject, meowuri)
-        if value:
-            return result_list_add(value, meowuri, weight)
-        else:
-            return []
 
     def _add_title_from_text_to_results(self, text):
         # Add all lines that aren't all whitespace or all dashes, from the
@@ -118,10 +112,12 @@ class DocumentAnalyzer(BaseAnalyzer):
         if self.candidate_publishers:
             # TODO: [cleanup] ..
             result = find_publisher(result, self.candidate_publishers)
+            if not result:
+                return
 
-        self._add_results(
-            'publisher', self._wrap_publisher(result)
-        )
+            self._add_results(
+                'publisher', self._wrap_publisher(result)
+            )
 
     def _wrap_publisher(self, data):
         return {
@@ -211,6 +207,8 @@ class DocumentAnalyzer(BaseAnalyzer):
         # Chunk #1: from BEGINNING to (BEGINNING + CHUNK_SIZE)
         _chunk1_start = 1
         _chunk1_end = int(self.text_lines * chunk_ratio)
+        if _chunk1_end < 1:
+            _chunk1_end = 1
         text = textutils.extract_lines(self.text, firstline=_chunk1_start,
                                        lastline=_chunk1_end)
         return text
@@ -218,12 +216,6 @@ class DocumentAnalyzer(BaseAnalyzer):
     @classmethod
     def check_dependencies(cls):
         return True
-
-
-def result_list_add(value, source, weight):
-    return [{'value': value,
-             'source': source,
-             'weight': weight}]
 
 
 def find_publisher(text, candidates):

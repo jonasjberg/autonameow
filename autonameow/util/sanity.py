@@ -33,6 +33,8 @@ def check_internal_bytestring(value):
     Raises:
         EncodingBoundaryViolation: The given value is not a bytestring.
     """
+    if not __debug__:
+        return
     if not isinstance(value, bytes):
         _msg = ('Assertion Failed - Expected an "internal" bytestring.'
                 '  Got "{!s}" ("{!s}")'.format(type(value), value))
@@ -50,7 +52,28 @@ def check_internal_string(value):
     Raises:
         EncodingBoundaryViolation: The given value is not a Unicode str.
     """
+    if not __debug__:
+        return
     if not isinstance(value, str):
         _msg = ('Assertion Failed - Expected a Unicode string.'
                 '  Got "{!s}" ("{!s}")'.format(type(value), value))
         raise exceptions.EncodingBoundaryViolation(_msg)
+
+
+def check_isinstance(thing, expected_type):
+    """
+    Checks that a given "thing" is an instance of "expected_type".
+
+    Args:
+        thing: The object to test.
+        expected_type: Expected type of the passed in "thing".
+
+    Raises:
+        AssertionError: Given "thing" is not an instance of "expected_type".
+    """
+    if not __debug__:
+        return
+    assert isinstance(thing, expected_type), (
+        'Expected type {!s}.  Got {!s} ({!s})'.format(expected_type,
+                                                      type(thing), thing)
+    )

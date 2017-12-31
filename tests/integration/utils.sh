@@ -26,24 +26,12 @@ C_GREEN="$(tput setaf 2)"
 C_RESET="$(tput sgr0)"
 # C_RESET='\E[0m'
 
-# Get the full absolute path to this file.
-# Also handles case where the script being sourced.
-_self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
-SELF_DIR="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
-TEST_DIR="$(dirname -- "$SELF_DIR")"
-
-# if ! source "${TEST_DIR}/common_utils.sh"
-# then
-#     echo "Shared test utility library is missing. Aborting .." 1>&2
-#     exit 1
-# fi
-
 
 # Initialize counter variables every time this script is sourced
 # by each of the test suites. Used in 'log_test_suite_results_summary'.
-tests_total=0
-tests_passed=0
-tests_failed=0
+suite_tests_count=0
+suite_tests_passed=0
+suite_tests_failed=0
 
 
 # Should be called once at the start of a test run. Creates a timestamped log
@@ -57,37 +45,60 @@ initialize_logging()
     fi
 
     # Export variables to be used by all sourcing scripts during this test run.
-    AUTONAMEOW_TEST_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
-    export AUTONAMEOW_TEST_TIMESTAMP
+    AUTONAMEOW_INTEGRATION_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
+    export AUTONAMEOW_INTEGRATION_TIMESTAMP
 
-    AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/integration_log_${AUTONAMEOW_TEST_TIMESTAMP}.raw"
+    AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/integration_log_${AUTONAMEOW_INTEGRATION_TIMESTAMP}.raw"
     export AUTONAMEOW_INTEGRATION_LOG
 
     logmsg "Logging to file: \"${AUTONAMEOW_INTEGRATION_LOG}\""
 }
 
+initialize_global_stats()
+{
+    if ! AUTONAMEOW_INTEGRATION_STATS="$(realpath -e -- "$(mktemp)")"
+    then
+        echo "Unable to create temporary global statistics file .. Aborting" >&2
+        exit 1
+    fi
+
+    logmsg "Writing global statistics to file: \"${AUTONAMEOW_INTEGRATION_STATS}\""
+    export AUTONAMEOW_INTEGRATION_STATS
+
+    # Set total, passed and failed to 0
+    set +o noclobber
+    echo '0 0 0' > "$AUTONAMEOW_INTEGRATION_STATS"
+    set -o noclobber
+}
+
 # Print message to stdout and append message to AUTONAMEOW_INTEGRATION_LOG.
 # ANSI escape codes are allowed and included in the log file.
-
+#
 # Conditional piping inside the subshell allows executing only this file, in
 # which case AUTONAMEOW_INTEGRATION_LOG will be undefined and the 'tee' call is
 # skipped. In this case no log file is written do disk.
+#
+# shellcheck disable=SC2015
 logmsg()
 {
-    local _timestamp="$(date "+%Y-%m-%d %H:%M:%S")"
-    printf "%s %s\n" "$_timestamp" "$*" |
+    local _timestamp
+    _timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+    printf '%s %s\n' "$_timestamp" "$*" |
+
     ( [ ! -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] && tee -a "$AUTONAMEOW_INTEGRATION_LOG" || cat )
 }
 
 # Prints out a summary of test results for the currently sourcing script.
 log_test_suite_results_summary()
 {
-    local _name="$1"
-    local _execution_time="$2"
-    local _highlight_red=''
+    local -r _name="$1"
+    local -r _execution_time="$2"
+    local _highlight_red
 
     logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    if [ "$tests_failed" -eq "0" ]
+
+    _highlight_red=''
+    if [ "$suite_tests_failed" -eq "0" ]
     then
         logmsg "${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
     else
@@ -96,8 +107,43 @@ log_test_suite_results_summary()
     fi
 
     logmsg "$(printf "Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
-              "$tests_total" "$tests_passed" "$tests_failed")"
-    logmsg "Completed the "$_name" test suite tests in ${_execution_time} ms"
+              "$suite_tests_count" "$suite_tests_passed" "$suite_tests_failed")"
+    logmsg "Completed the ${_name} test suite tests in ${_execution_time} ms"
+    logmsg "======================================================================"
+}
+
+# Prints out a total test results ummary for all tests.
+log_total_results_summary()
+{
+    local -r _execution_time="$1"
+    local -r _tests_count="$2"
+    local -r _tests_passed="$3"
+    local -r _tests_failed="$4"
+    local _highlight_red
+
+    logmsg "Reading global statistics from file: \"${AUTONAMEOW_INTEGRATION_STATS}\""
+    logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+    _highlight_red=''
+    if [ "$_tests_failed" -eq "0" ]
+    then
+        logmsg "${C_GREEN}[ ALL TEST SUITE(S) TESTS PASSED ]${C_RESET}"
+    else
+        logmsg "${C_RED}[ SOME TEST SUITE(S) TESTS FAILED ]${C_RESET}"
+        _highlight_red="${C_RED}"
+    fi
+
+    local _duration
+    local _seconds
+    _seconds="$((_execution_time / 1000))"
+    _duration="$(printf '%02dh:%02dm:%02ds\n' \
+               $((_seconds % 86400 / 3600))   \
+               $((_seconds % 3600 / 60))      \
+               $((_seconds % 60)))"
+
+    logmsg "$(printf "Total Test Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
+              "$_tests_count" "$_tests_passed" "$_tests_failed")"
+    logmsg "Completed all tests in ${_duration}  (${_execution_time} ms)"
     logmsg "======================================================================"
 }
 
@@ -105,24 +151,39 @@ log_test_suite_results_summary()
 test_fail()
 {
     logmsg "${C_RED}[FAILED]${C_RESET} " "$*"
-    tests_failed="$((tests_failed + 1))"
-    tests_total="$((tests_total + 1))"
+    suite_tests_failed="$((suite_tests_failed + 1))"
+    suite_tests_count="$((suite_tests_count + 1))"
 }
 
 # Logs a test success message and increments counters.
 test_pass()
 {
     logmsg "${C_GREEN}[PASSED]${C_RESET} " "$*"
-    tests_passed="$((tests_passed + 1))"
-    tests_total="$((tests_total + 1))"
+    suite_tests_passed="$((suite_tests_passed + 1))"
+    suite_tests_count="$((suite_tests_count + 1))"
 }
+
+update_global_test_results()
+{
+    while IFS=' ' read -r _count _pass _fail
+    do
+        _total_count="$((_count + suite_tests_count))"
+        _total_passed="$((_pass + suite_tests_passed))"
+        _total_failed="$((_fail + suite_tests_failed))"
+    done < "$AUTONAMEOW_INTEGRATION_STATS"
+
+    set +o noclobber
+    echo "${_total_count} ${_total_passed} ${_total_failed}" > "$AUTONAMEOW_INTEGRATION_STATS"
+    set -o noclobber
+}
+
 
 # Evaluates an expression, given as the first argument.
 # Calls 'test_fail' if the expression returns NON-zero.
 # Calls 'test_pass' if the expression returns zero.
 assert_true()
 {
-    ( eval "${1}" 2>&1 >/dev/null ) >/dev/null
+    ( eval "${1}" >/dev/null 2>&1 ) >/dev/null
     if [ "$?" -ne "0" ]
     then
         shift ; test_fail "$*"
@@ -136,7 +197,7 @@ assert_true()
 # Calls 'test_fail' if the expression returns zero.
 assert_false()
 {
-    ( eval "${1}" 2>&1 >/dev/null ) >/dev/null
+    ( eval "${1}" >/dev/null 2>&1 ) >/dev/null
     if [ "$?" -ne "0" ]
     then
         shift ; test_pass "$*"
@@ -148,18 +209,21 @@ assert_false()
 # TODO: Finish this function ..
 log_system_info()
 {
-    local _os_name="$(uname -s)"
-    local _os_vers="$(uname -r)"
+    local _os_name
+    local _os_vers
     local _cpu_info
+
+    _os_name="$(uname -s)"
+    _os_vers="$(uname -r)"
 
     case "$OSTYPE" in
         darwin*)
             _cpu_info="$(sysctl -n machdep.cpu.brand_string)" ;;
 
         linux*|msys)
-            if [ -e "/proc/cpuinfo" ]
+            if [ -e '/proc/cpuinfo' ]
             then
-                _cpu_info="$(cat /proc/cpuinfo | grep -m1 'model name')"
+                _cpu_info="$(grep -m1 'model name' '/proc/cpuinfo')"
                 _cpu_info="${_cpu_info#*:}"
             fi ;;
 
@@ -189,7 +253,7 @@ convert_raw_log_to_html()
     fi
 
     _html_integration_log="${AUTONAMEOW_INTEGRATION_LOG%.*}.html"
-    _html_title="autonameow Integration Test Log ${AUTONAMEOW_TEST_TIMESTAMP}"
+    _html_title="autonameow Integration Test Log ${AUTONAMEOW_INTEGRATION_TIMESTAMP}"
 
     if aha --title "$_html_title" \
         < "$AUTONAMEOW_INTEGRATION_LOG" | sed 's///g' > "$_html_integration_log"
@@ -240,9 +304,9 @@ current_unix_time()
 # Returns the time delta in milliseconds.
 calculate_execution_time()
 {
-    local _time_start="$1"
-    local _time_end="$2"
-    echo "$(((${_time_end} - ${_time_start}) / 1000000))"
+    local -r _time_start="$1"
+    local -r _time_end="$2"
+    echo "$(((_time_end - _time_start) / 1000000))"
 }
 
 # Get the absolute path to a file in the "$SRCROOT/test_files" directory.
@@ -256,8 +320,39 @@ abspath_testfile()
 # Any dates matching 'YYYY-MM-DDTHHMMSS' are returned as 'YYYY-MM-DD HH:MM:SS'.
 get_timestamp_from_basename()
 {
-    local ts="$(grep -Eo -- "20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{6}" <<< "$1")"
-    sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)T\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3 \4:\5:\6/' <<< "$ts"
+    local _ts
+    _ts="$(grep -Eo -- "20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{6}" <<< "$1")"
+    sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)T\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3 \4:\5:\6/' <<< "$_ts"
+}
+
+# Test a bunch of '[ -d "foo" ]'-style assertions at once.
+# For instance;  'assert_bulk_test "/foo/bar" e f r'
+# is equivalent to three separate assertions with messages, etc.
+#
+# shellcheck disable=SC2016
+assert_bulk_test()
+{
+    local -r _file="$1"
+    shift
+
+    while [ "$#" -gt "0" ]
+    do
+        case "$1" in
+            d) _exp='-d' ; _msg='exists and is a directory'                ;;
+            r) _exp='-r' ; _msg='exists and read permission is granted'    ;;
+            w) _exp='-w' ; _msg='exists and write permission is granted'   ;;
+            x) _exp='-x' ; _msg='exists and execute permission is granted' ;;
+            f) _exp='-f' ; _msg='exists and is a regular file'             ;;
+            z) _exp='-z' ; _msg='is a zero length string ("undefined")'    ;;
+            n) _exp='-n' ; _msg='is a non-zero length string ("defined")'  ;;
+            *) _exp='-e' ; _msg='exists'                                   ;;
+        esac
+        shift
+
+        [ -n "$_exp" ] || { printf '\nINTERNAL ERROR! Aborting..\n' ; exit 1 ; }
+        [ -n "$_msg" ] || { printf '\nINTERNAL ERROR! Aborting..\n' ; exit 1 ; }
+        assert_true '[ "$_exp" "$_file" ]' "Path \"${_file}\" ${_msg}"
+    done
 }
 
 
@@ -270,16 +365,16 @@ get_timestamp_from_basename()
 # Source:  http://stackoverflow.com/a/2684300/7802196
 
 [[ ${BASH_VERSINFO[0]} -le 2 ]] && { echo 'No BASH_SOURCE array variable' 1>&2 ; exit 1 ; }
-[[ "${BASH_SOURCE[0]}" != "${0}" ]] # && echo "script ${BASH_SOURCE[0]} is being sourced ..."
+[[ ${BASH_SOURCE[0]} != ${0} ]] # && echo "script ${BASH_SOURCE[0]} is being sourced ..."
 
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
 then
     logmsg "Starting self-tests .."
-    assert_true  "[ "0" -eq "0" ]" '(Internal Test) Expect success ..'
-    assert_true  "[ "1" -eq "0" ]" '(Internal Test) Expect failure ..'
-    assert_false "[ "1" -eq "0" ]" '(Internal Test) Expect success ..'
-    assert_false "[ "1" -ne "0" ]" '(Internal Test) Expect failure ..'
+    assert_true  '[ "0" -eq "0" ]' '(Internal Test) Expect success ..'
+    assert_true  '[ "1" -eq "0" ]' '(Internal Test) Expect failure ..'
+    assert_false '[ "1" -eq "0" ]' '(Internal Test) Expect success ..'
+    assert_false '[ "1" -ne "0" ]' '(Internal Test) Expect failure ..'
     logmsg "Finished self-tests!"
 fi
 

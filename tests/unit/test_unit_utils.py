@@ -26,16 +26,10 @@ import types
 from datetime import datetime
 from unittest import TestCase
 
-import analyzers
-from analyzers import BaseAnalyzer
-from core.config import rules
-from core.config.configuration import Configuration
-from core.fileobject import FileObject
-from core.model import MeowURI
-from util import encoding as enc
-
 import unit.utils as uu
 import unit.constants as uuconst
+from core.fileobject import FileObject
+from core.model import MeowURI
 
 
 class TestUnitUtilityConstants(TestCase):
@@ -88,25 +82,64 @@ class TestUnitUtilityConstants(TestCase):
 class TestUnitUtilityAbsPathTestFile(TestCase):
     def test_returns_expected_encoding(self):
         actual = uu.abspath_testfile('empty')
-        self.assertTrue(isinstance(actual, str))
+        self.assertIsInstance(actual, str)
 
     def test_returns_absolute_paths(self):
         actual = uu.abspath_testfile('empty')
         self.assertTrue(os.path.isabs(actual))
 
 
+class TestUnitUtilityAbsPathTestConfig(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.actual_specified = uu.abspath_testconfig(
+            uuconst.DEFAULT_YAML_CONFIG_BASENAME
+        )
+        cls.actual_default = uu.abspath_testconfig()
+
+    def test_returns_expected_encoding(self):
+        self.assertIsInstance(self.actual_specified, str)
+
+    def test_returns_absolute_path(self):
+        self.assertTrue(os.path.isabs(self.actual_specified))
+
+    def test_returns_existing_path(self):
+        self.assertTrue(os.path.exists(self.actual_specified))
+
+    def test_returns_path_to_existing_file(self):
+        self.assertTrue(os.path.isfile(self.actual_specified))
+
+    def test_returns_default_config_if_basename_is_unspecified(self):
+        self.assertTrue(
+            self.actual_default.endswith(uuconst.DEFAULT_YAML_CONFIG_BASENAME)
+        )
+
+    def test_basename_unspecified_returns_expected_encoding(self):
+        self.assertIsInstance(self.actual_default, str)
+
+    def test_basename_unspecified_returns_absolute_path(self):
+        self.assertTrue(os.path.isabs(self.actual_default))
+
+    def test_basename_unspecified_returns_existing_path(self):
+        self.assertTrue(os.path.exists(self.actual_default))
+
+    def test_basename_unspecified_returns_path_to_existing_file(self):
+        self.assertTrue(os.path.isfile(self.actual_default))
+
+
 class TestUnitUtilityFileObjectTestFile(TestCase):
     def test_returns_expected_type(self):
         actual = uu.fileobject_testfile('empty')
-        self.assertTrue(isinstance(actual, FileObject))
+        self.assertIsInstance(actual, FileObject)
         self.assertTrue(os.path.isabs(actual.abspath))
 
 
 class TestUnitUtilityAllTestFiles(TestCase):
     def test_returns_expected_encoding(self):
         actual = uu.all_testfiles()
-        self.assertTrue(isinstance(actual, list))
-        self.assertTrue(isinstance(a, str) for a in actual)
+        self.assertIsInstance(actual, list)
+        for a in actual:
+            self.assertIsInstance(a, str)
 
     def test_returns_existing_absolute_paths(self):
         actual = uu.all_testfiles()
@@ -124,7 +157,7 @@ class TestUnitUtilityAllTestFiles(TestCase):
 class TestUnitUtilityFileExists(TestCase):
     def _check_return(self, file_to_test):
         actual = uu.file_exists(file_to_test)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
         if not file_to_test:
             expected = False
@@ -164,7 +197,7 @@ class TestUnitUtilityFileExists(TestCase):
 class TestUnitUtilityDirExists(TestCase):
     def _check_return(self, path_to_test):
         actual = uu.dir_exists(path_to_test)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
         if not path_to_test:
             expected = False
@@ -201,8 +234,8 @@ class TestUnitUtilityDirExists(TestCase):
             uuconst.AUTONAMEOW_SRCROOT_DIR,
             '/',
             b'/',
-            enc.bytestring_path(os.path.dirname(__file__)),
-            enc.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
+            uu.bytestring_path(os.path.dirname(__file__)),
+            uu.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
         ]
         for df in _files:
             self._check_return(df)
@@ -211,7 +244,7 @@ class TestUnitUtilityDirExists(TestCase):
 class TestUnitUtilityPathIsReadable(TestCase):
     def _check_return(self, path_to_test):
         actual = uu.path_is_readable(path_to_test)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
         if not path_to_test:
             expected = False
@@ -247,8 +280,8 @@ class TestUnitUtilityPathIsReadable(TestCase):
         _paths = [
             __file__,
             os.path.dirname(__file__),
-            enc.bytestring_path(__file__),
-            enc.bytestring_path(os.path.dirname(__file__)),
+            uu.bytestring_path(__file__),
+            uu.bytestring_path(os.path.dirname(__file__)),
         ]
         for df in _paths:
             self._check_return(df)
@@ -298,7 +331,7 @@ class TestUnitUtilityMakeTemporaryFile(TestCase):
         self.assertIsNotNone(uu.make_temporary_file)
         self.assertTrue(os.path.exists(uu.make_temporary_file()))
         self.assertTrue(os.path.isfile(uu.make_temporary_file()))
-        self.assertTrue(isinstance(uu.make_temporary_file(), bytes))
+        self.assertIsInstance(uu.make_temporary_file(), bytes)
 
     def test_make_temporary_file_with_prefix(self):
         actual = uu.make_temporary_file(prefix='prefix_')
@@ -337,9 +370,10 @@ class TestUnitUtilityGetMockAnalyzer(TestCase):
         self.assertIsNotNone(uu.get_mock_analyzer())
 
     def test_get_mock_analyzer_is_generator(self):
-        self.assertTrue(isinstance(uu.get_mock_analyzer(), types.GeneratorType))
+        self.assertIsInstance(uu.get_mock_analyzer(), types.GeneratorType)
 
     def test_get_mock_analyzer_returns_analyzers(self):
+        import analyzers
         for a in uu.get_mock_analyzer():
             self.assertIn(type(a), analyzers.get_analyzer_classes())
 
@@ -349,7 +383,7 @@ class TestUnitUtilityGetMockFileObject(TestCase):
         self.assertIsNotNone(uu.get_mock_fileobject())
 
     def test_get_mock_fileobject_returns_expected_type(self):
-        self.assertTrue(isinstance(uu.get_mock_fileobject(), FileObject))
+        self.assertIsInstance(uu.get_mock_fileobject(), FileObject)
 
     def test_get_mock_fileobject_with_mime_type_video_mp4(self):
         actual = uu.get_mock_fileobject(mime_type='video/mp4')
@@ -394,6 +428,7 @@ class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
     def test_get_instantiated_analyzers_returns_expected_type(self):
         self.assertEqual(type(self.instances), list)
 
+        from analyzers import BaseAnalyzer
         for analyzer_instance in self.instances:
             self.assertTrue(
                 issubclass(analyzer_instance.__class__, BaseAnalyzer)
@@ -420,12 +455,12 @@ class TestIsClass(TestCase):
     def _assert_not_class(self, thing):
         actual = uu.is_class(thing)
         self.assertFalse(actual)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
     def _assert_is_class(self, thing):
         actual = uu.is_class(thing)
         self.assertTrue(actual)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
     def test_returns_true_for_classes(self):
         self._assert_is_class(_DummyClass)
@@ -456,12 +491,12 @@ class TestIsClassInstance(TestCase):
     def _assert_not_class_instance(self, klass):
         actual = uu.is_class_instance(klass)
         self.assertFalse(actual)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
     def _assert_is_class_instance(self, thing):
         actual = uu.is_class_instance(thing)
         self.assertTrue(actual)
-        self.assertTrue(isinstance(actual, bool))
+        self.assertIsInstance(actual, bool)
 
     def test_returns_false_for_classes(self):
         self._assert_not_class_instance(_DummyClass)
@@ -492,11 +527,11 @@ class TestIsClassInstance(TestCase):
 class TestStrToDatetime(TestCase):
     def test_returns_expected_type(self):
         actual = uu.str_to_datetime('2017-08-09 001225')
-        self.assertTrue(isinstance(actual, datetime))
+        self.assertIsInstance(actual, datetime)
 
     def test_returns_expected_type_with_timezone(self):
         actual = uu.str_to_datetime('2017-08-09 001225', tz='+0000')
-        self.assertTrue(isinstance(actual, datetime))
+        self.assertIsInstance(actual, datetime)
 
     def test_raises_exception_if_given_invalid_argument(self):
         def _assert_raises(test_data):
@@ -514,10 +549,10 @@ class TestStrToDatetime(TestCase):
 class TestIsImportable(TestCase):
     def test_is_importable_returns_booleans(self):
         expect_false = uu.is_importable(None)
-        self.assertTrue(isinstance(expect_false, bool))
+        self.assertIsInstance(expect_false, bool)
 
         expect_true = uu.is_importable('datetime')
-        self.assertTrue(isinstance(expect_true, bool))
+        self.assertIsInstance(expect_true, bool)
 
     def test_is_importable_returns_false_as_expected(self):
         self.assertFalse(uu.is_importable(None))
@@ -532,13 +567,15 @@ class TestIsImportable(TestCase):
 class TestGetDummyValidatedConditions(TestCase):
     def test_returns_expected_type(self):
         actual = uu.get_dummy_rulecondition_instances()
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
 
     def test_returns_rule_class_instances(self):
         conditions = uu.get_dummy_rulecondition_instances()
+
+        from core.config import rules
         for condition in conditions:
             self.assertTrue(uu.is_class_instance(condition))
-            self.assertTrue(isinstance(condition, rules.RuleCondition))
+            self.assertIsInstance(condition, rules.RuleCondition)
 
     def test_returns_all_rule_conditions_defined_in_unit_utils_constants(self):
         expected = len(uuconst.DUMMY_RAW_RULE_CONDITIONS)
@@ -549,12 +586,12 @@ class TestGetDummyValidatedConditions(TestCase):
 class TestGetDummyRawConditions(TestCase):
     def test_returns_expected_type(self):
         actual = uu.get_dummy_raw_conditions()
-        self.assertTrue(isinstance(actual, list))
+        self.assertIsInstance(actual, list)
 
     def test_returns_equivalent_structure_as_yaml_config(self):
         conditions = uu.get_dummy_raw_conditions()
         for condition in conditions:
-            self.assertTrue(isinstance(condition, dict))
+            self.assertIsInstance(condition, dict)
 
     def test_returns_all_rule_conditions_defined_in_unit_utils_constants(self):
         expected = len(uuconst.DUMMY_RAW_RULE_CONDITIONS)
@@ -567,7 +604,7 @@ class TestIsInternalString(TestCase):
         def _aF(test_input):
             actual = uu.is_internalstring(test_input)
             self.assertFalse(actual)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
 
         _aF(None)
         _aF(object())
@@ -577,7 +614,7 @@ class TestIsInternalString(TestCase):
         def _aT(test_input):
             actual = uu.is_internalstring(test_input)
             self.assertTrue(actual)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
 
         _aT('')
         _aT('foo')
@@ -588,7 +625,7 @@ class TestIsInternalByteString(TestCase):
         def _aF(test_input):
             actual = uu.is_internalbytestring(test_input)
             self.assertFalse(actual)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
 
         _aF(None)
         _aF(object())
@@ -599,25 +636,41 @@ class TestIsInternalByteString(TestCase):
         def _aT(test_input):
             actual = uu.is_internalbytestring(test_input)
             self.assertTrue(actual)
-            self.assertTrue(isinstance(actual, bool))
+            self.assertIsInstance(actual, bool)
 
         _aT(b'')
         _aT(b'foo')
 
 
 class TestGetDefaultConfig(TestCase):
-    def test_returns_expected_type(self):
+    @classmethod
+    def setUpClass(cls):
         uu.init_session_repository()
         uu.init_provider_registry()
+        cls.actual = uu.get_default_config()
 
-        actual = uu.get_default_config()
-        self.assertTrue(isinstance(actual, Configuration))
+    def test_does_not_return_none(self):
+        self.assertIsNotNone(self.actual)
+
+    def test_returns_an_instance_of_the_configuration_class(self):
+        from core.config.configuration import Configuration
+        self.assertIsInstance(self.actual, Configuration)
 
 
 class TestAsMeowURI(TestCase):
-    def test_returns_meowuri_instance_from_unit_utils_constants_strings(self):
+    def test_returns_meowuri_instance_from_unit_utils_constants_string(self):
         expect = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         actual = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
         self.assertEqual(actual, expect)
-        self.assertTrue(isinstance(actual, MeowURI))
+        self.assertIsInstance(actual, MeowURI)
+
+    def test_returns_meowuri_instance_from_unit_utils_constants_strings(self):
+        for given in uuconst.ALL_FULL_MEOWURIS:
+            actual = uu.as_meowuri(given)
+            self.assertIsInstance(actual, MeowURI)
+
+    def test_raises_assertion_error_given_invalid_argument(self):
+        for given in [None, '', ' ', {}, []]:
+            with self.assertRaises(AssertionError):
+                _ = uu.as_meowuri(given)

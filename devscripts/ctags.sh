@@ -23,9 +23,6 @@
 
 set -o nounset
 
-IGNORE_DIRS='test_files,thirdparty,license,docs,notes,.idea,.cache'
-
-
 
 if ! command -v ctags >/dev/null 2>&1
 then
@@ -38,7 +35,6 @@ then
 EOF
     exit 1
 fi
-
 
 
 # Get absolute path to the autonameow source root.

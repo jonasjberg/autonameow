@@ -39,16 +39,6 @@ EOF
     exit 1
 fi
 
-if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
-then
-    cat >&2 <<EOF
-
-[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
-        Shared test utility library is missing. Aborting ..
-
-EOF
-fi
-
 if ! source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 then
     cat >&2 <<EOF
@@ -63,6 +53,7 @@ fi
 # Default configuration.
 option_write_report='false'
 option_quiet='false'
+optionarg_filter=''
 
 
 print_usage_info()
@@ -73,10 +64,14 @@ print_usage_info()
 
   USAGE:  ${SELF_BASENAME} ([OPTIONS])
 
-  OPTIONS:  -h   Display usage information and exit.
-            -q   Suppress output from test suites.
-            -w   Write HTML test reports to disk.
-                 Note: The "raw" log file is always written.
+  OPTIONS:  -f [EXP]   Execute scripts by filtering basenames.
+                       Argument [EXP] is passed to grep as-is.
+                       Scripts whose basename does not match the
+                       expression are skipped.
+            -h         Display usage information and exit.
+            -q         Suppress output from test suites.
+            -w         Write HTML test reports to disk.
+                       Note: The "raw" log file is always written.
 
   All options are optional. Default behaviour is to export test result
   reports and print the test results to stdout/stderr in real-time.
@@ -89,35 +84,40 @@ EOF
 # caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
-    printf "(USING DEFAULTS -- "${SELF_BASENAME} -h" for usage information)\n\n"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "${SELF_BASENAME}"
 else
-    while getopts hwq opt
+    while getopts f:hwq opt
     do
         case "$opt" in
+            f) optionarg_filter="${OPTARG:-}"
+               if [ -z "$optionarg_filter" ]
+               then
+                   printf '[ERROR] Expected non-empty argument for option "-f"\n' >&2
+                   exit 1
+               fi ;;
             h) print_usage_info ; exit 0 ;;
             w) option_write_report='true' ;;
             q) option_quiet='true' ;;
         esac
     done
 
-    shift $(( $OPTIND - 1 ))
+
+    shift $(( OPTIND - 1 ))
 fi
 
-
-
-count_fail=0
 
 # Store current time for later calculation of total execution time.
 time_start="$(current_unix_time)"
 
 initialize_logging
+initialize_global_stats
 search_dir="${SELF_DIRNAME}/integration"
 logmsg "Started integration test runner \"${SELF_BASENAME}\""
-logmsg "Executing all files in \"${search_dir}\" matching \"test_*.sh\".."
+logmsg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
 find "$search_dir" -mindepth 1 -maxdepth 1 -type f -name "test_*.sh" \
-| while IFS='\n' read -r testscript
+| sort -r | while IFS=$'\n' read -r testscript
 do
     if [ ! -x "$testscript" ]
     then
@@ -125,18 +125,61 @@ do
         continue
     fi
 
+    # Skip scripts not matching filtering expression, if any.
     _testscript_base="$(basename -- "$testscript")"
-    run_task "$option_quiet" "Running \"${_testscript_base}\"" "$testscript"
+    if [ -n "$optionarg_filter" ]
+    then
+        if ! grep -q -- "$optionarg_filter" <<< "${_testscript_base}"
+        then
+            logmsg "Skipped \"${_testscript_base}\" (filter expression \"${optionarg_filter}\")"
+            continue
+        fi
+    fi
+
+    # !! # TODO: Fix all descendant processes not killed.
+    # !! # Catch SIGUP (1) SIGINT (2) and SIGTERM (15)
+    # !! trap kill_running_task SIGHUP SIGINT SIGTERM
+    # !!
+    # !! # Run task and check exit code.
+    # !! if [ "$option_quiet" != 'true' ]
+    # !! then
+    # !!     eval "${testscript}" &
+    # !!     TASK_PID="$!"
+    # !! else
+    # !!     eval "${testscript}" 2>&1 >/dev/null &
+    # !!     TASK_PID="$!"
+    # !! fi
+    # !! wait "$TASK_PID"
+
+    logmsg "Starting \"${_testscript_base}\" .."
+    if [ "$option_quiet" != 'true' ]
+    then
+        source "${testscript}"
+    else
+        source "${testscript}" >/dev/null 2>&1
+    fi
+    logmsg "Finished \"${_testscript_base}\""
 done
 
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
-total_time="$((($time_end - $time_start) / 1000000))"
+total_time="$(((time_end - time_start) / 1000000))"
 logmsg "Total execution time: ${total_time} ms"
 
-if [ ! "$option_write_report" != 'true' ]
-then
-    run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
-fi
+
+while read -r _count _pass _fail
+do
+    _total_count="$_count"
+    _total_passed="$_pass"
+    _total_failed="$_fail"
+done < "$AUTONAMEOW_INTEGRATION_STATS"
+
+log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_total_failed"
+
+
+# if [ ! "$option_write_report" != 'true' ]
+# then
+#     run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
+# fi
 

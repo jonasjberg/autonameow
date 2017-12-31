@@ -32,11 +32,10 @@ except ImportError:
     )
 
 from core import constants as C
+from core import exceptions
+from core.config.config_parser import ConfigurationParser
 from core.config.default_config import DEFAULT_CONFIG
-from core import (
-    disk,
-    exceptions,
-)
+from util import disk
 from util import encoding as enc
 
 
@@ -65,7 +64,7 @@ class ConfigReadError(exceptions.ConfigError):
             message += ': found tab character at line {}, column {}'.format(
                 reason.problem_mark.line + 1,
                 reason.problem_mark.column + 1,
-                )
+            )
         elif reason:
             # Generic error message uses exception's message.
             message += ': {}'.format(reason)
@@ -193,6 +192,12 @@ def set_active(config):
     global ActiveConfig
     log.debug('Updated active global config ..')
     ActiveConfig = config
+
+
+def load_config_from_file(file_path):
+    parser = ConfigurationParser()
+    loaded_config = parser.from_file(file_path)
+    return loaded_config
 
 
 # Variables listed here are intended for public, global use.

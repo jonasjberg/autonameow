@@ -21,7 +21,6 @@
 
 set -o noclobber -o nounset -o pipefail
 
-SELF_BASENAME="$(basename "$0")"
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
     cat >&2 <<EOF
@@ -33,7 +32,16 @@ EOF
     exit 1
 fi
 
+# Resets test suite counter variables.
 source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
+
+
+check_git_ls_files_does_not_match()
+{
+    local -r _pattern="$1"
+    assert_false 'cd "$AUTONAMEOW_ROOT_DIR" && git ls-files | grep --fixed-strings -- "$_pattern"' \
+                 "git repository does not contain files matching \"${_pattern}\""
+}
 
 
 
@@ -44,12 +52,19 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 time_start="$(current_unix_time)"
 
 TESTSUITE_NAME='Source Code'
-logmsg "Started \"${SELF_BASENAME}\""
-logmsg "Running the "$TESTSUITE_NAME" test suite .."
+logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-# (tests go here)
+check_git_ls_files_does_not_match '.cache'
+check_git_ls_files_does_not_match '.DS_Store'
+check_git_ls_files_does_not_match '.hypothesis'
+check_git_ls_files_does_not_match '.idea'
+check_git_ls_files_does_not_match '.orig'
+check_git_ls_files_does_not_match '.pyc'
+check_git_ls_files_does_not_match 'junk/'
+check_git_ls_files_does_not_match 'local/'
+check_git_ls_files_does_not_match '__pycache__'
 
 
 
@@ -58,3 +73,4 @@ time_end="$(current_unix_time)"
 total_time="$(calculate_execution_time "$time_start" "$time_end")"
 
 log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+update_global_test_results

@@ -1,0 +1,13 @@
+DATETIME_FORMAT:
+    date: '%Y-%m-%d'
+    datetime: '%Y-%m-%dT%H%M%S'
+    time: '%H-%M-%S'
+FILETAGS_OPTIONS:
+    between_tag_separator: ' '
+    filename_tag_separator: ' -- '
+RULES:
+NAME_TEMPLATES:
+    default_book: '{publisher} {title} {edition} - {author} {date}.{extension}'
+    default_document: '{title} - {author} {datetime}.{extension}'
+    default_photo: '{datetime} {description} -- {tags}.{extension}'
+autonameow_version: 0.5.3

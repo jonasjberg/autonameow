@@ -21,7 +21,6 @@
 
 set -o noclobber -o nounset -o pipefail
 
-SELF_BASENAME="$(basename "$0")"
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
     cat >&2 <<EOF
@@ -33,6 +32,7 @@ EOF
     exit 1
 fi
 
+# Resets test suite counter variables.
 source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 
 
@@ -44,13 +44,12 @@ source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 time_start="$(current_unix_time)"
 
 TESTSUITE_NAME='Plugins'
-logmsg "Started \"${SELF_BASENAME}\""
-logmsg "Running the "$TESTSUITE_NAME" test suite .."
+logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
 assert_true 'command -v guessit' \
-            "guessit is available on the system"
+            'guessit is available on the system'
 
 assert_true 'guessit -h ; [ "$?" -eq "0" ]' \
             'Executing "guessit -h" returns success'
@@ -62,3 +61,4 @@ time_end="$(current_unix_time)"
 total_time="$(calculate_execution_time "$time_start" "$time_end")"
 
 log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+update_global_test_results

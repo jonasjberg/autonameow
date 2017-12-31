@@ -81,7 +81,7 @@ EOF
 # caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
-    printf "(USING DEFAULTS -- "${SELF_BASENAME} -h" for usage information)\n\n"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
 else
     while getopts chwq opt
     do
@@ -93,7 +93,7 @@ else
         esac
     done
 
-    shift $(( $OPTIND - 1 ))
+    shift $(( OPTIND - 1 ))
 fi
 
 
@@ -165,7 +165,7 @@ run_unittest()
 run_pytest()
 {
     _pytest_report_opts=''
-    [ "$option_write_report" != 'true' ] || _pytest_report_opts="--self-contained-html --html="${_unittest_log}""
+    [ "$option_write_report" != 'true' ] || _pytest_report_opts="--self-contained-html --html=\"${_unittest_log}\""
 
     _pytest_coverage_opts=''
     [ "$option_enable_coverage" != 'true' ] || _pytest_coverage_opts="--cov=autonameow --cov-report=term"

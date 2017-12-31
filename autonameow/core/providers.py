@@ -85,12 +85,12 @@ class ProviderMixin(object):
 
 
 class ProviderRegistry(object):
-    def __init__(self):
+    def __init__(self, meowuri_source_map):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        self.meowuri_sources = _get_meowuri_source_map()
+        self.meowuri_sources = meowuri_source_map
         assert isinstance(self.meowuri_sources, dict)
 
         # Debug logging
@@ -168,9 +168,6 @@ class ProviderRegistry(object):
         return out
 
 
-MEOWURI_SOURCE_MAP_DICT = {}
-
-
 def _get_meowuri_source_map():
     """
     The 'MeowURIClassMap' attributes in non-core modules keep
@@ -181,20 +178,14 @@ def _get_meowuri_source_map():
 
     Returns: Dictionary keyed by "MeowURIs", storing lists of "source" classes.
     """
-    def _get_meowuri_class_maps():
-        import analyzers
-        import extractors
-        import plugins
-        return {
-            'extractor': extractors.MeowURIClassMap,
-            'analyzer': analyzers.MeowURIClassMap,
-            'plugin': plugins.MeowURIClassMap
-        }
-
-    global MEOWURI_SOURCE_MAP_DICT
-    if not MEOWURI_SOURCE_MAP_DICT:
-        MEOWURI_SOURCE_MAP_DICT = _get_meowuri_class_maps()
-    return MEOWURI_SOURCE_MAP_DICT
+    import analyzers
+    import extractors
+    import plugins
+    return {
+        'extractor': extractors.MeowURIClassMap,
+        'analyzer': analyzers.MeowURIClassMap,
+        'plugin': plugins.MeowURIClassMap
+    }
 
 
 def get_providers_for_meowuris(meowuri_list, include_roots=None):
@@ -221,4 +212,6 @@ def initialize():
     # Keep one global 'ProviderRegistry' singleton per 'Autonameow' instance.
     global Registry
     if not Registry:
-        Registry = ProviderRegistry()
+        Registry = ProviderRegistry(
+            meowuri_source_map=_get_meowuri_source_map()
+        )

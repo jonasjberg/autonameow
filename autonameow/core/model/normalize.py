@@ -21,7 +21,11 @@
 
 import re
 
-from util.textutils import normalize_unicode
+from util.text import (
+    html_unescape,
+    normalize_unicode,
+    strip_edited_by
+)
 
 
 RE_NOT_LETTER_NUMBER_WHITESPACE = re.compile(r'[^\w\d\s]')
@@ -42,6 +46,7 @@ def normalize_full_title(string):
         return ''
 
     title = normalize_unicode(string)
+    title = html_unescape(title)
     title = title.lower()
 
     # Replace potentially valuable characters before the next step.
@@ -62,6 +67,7 @@ def normalize_full_human_name(string):
     name = name.lower()
     name = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', name)
     name = _collapse_whitespace(name)
+    name = strip_edited_by(name)
     name = name.strip()
 
     return name

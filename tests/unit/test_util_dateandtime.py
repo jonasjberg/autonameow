@@ -24,27 +24,83 @@ from unittest import TestCase
 
 import unit.utils as uu
 from util.dateandtime import (
+    date_is_probable,
     find_isodate_like,
     hyphenate_date,
     match_any_unix_timestamp,
     match_special_case,
     naive_to_timezone_aware,
     timezone_aware_to_naive,
-    to_datetime
+    _year_is_probable
 )
+
+
+class TestDateIsProbable(TestCase):
+    def _assert_probable(self, expect, given):
+        given_datetime = uu.str_to_datetime(given)
+        actual = date_is_probable(given_datetime)
+        self.assertEqual(expect, actual)
+
+    def test_returns_false_given_improbable_dates(self):
+        self._assert_probable(False, '0001-01-01 000000')
+        self._assert_probable(False, '0020-01-01 000000')
+        self._assert_probable(False, '0030-01-01 000000')
+        self._assert_probable(False, '0111-01-01 000000')
+        self._assert_probable(False, '1000-01-01 120000')
+        self._assert_probable(False, '1100-01-01 135959')
+        self._assert_probable(False, '2200-01-02 000000')
+        self._assert_probable(False, '4875-01-01 000000')
+
+    def test_returns_true_given_probable_dates(self):
+        self._assert_probable(True, '1975-02-13 123456')
+        self._assert_probable(True, '2001-01-01 000000')
+        self._assert_probable(True, '2017-01-01 000000')
+        self._assert_probable(True, '2001-01-01 120000')
+        self._assert_probable(True, '2017-01-01 135959')
+        self._assert_probable(True, '2018-01-01 000000')
+        self._assert_probable(True, '2018-01-01 135959')
+
+
+class TestYearIsProbable(TestCase):
+    def _assert_probable(self, expect, given):
+        actual = _year_is_probable(given)
+        self.assertEqual(expect, actual)
+
+    def test_returns_false_given_improbable_dates(self):
+        self._assert_probable(False, 20)  # 1920 or 2020
+        self._assert_probable(False, 30)  # 1930 or 2030
+        self._assert_probable(False, 40)  # 1940 or 2040
+        self._assert_probable(False, 100)  # Below lower or above upper limit
+        self._assert_probable(False, 455)  # Below lower or above upper limit
+        self._assert_probable(False, 1890)  # Below lower limit
+        self._assert_probable(False, 2200)  # Above upper limit
+        self._assert_probable(False, 4875)  # Above upper limit
+        self._assert_probable(False, 9999)  # Above upper limit
+
+    def test_returns_true_given_probable_dates(self):
+        self._assert_probable(True, 0)  # might be 2000
+        self._assert_probable(True, 1)  # might be 2001
+        self._assert_probable(True, 10)  # might be 2010
+        self._assert_probable(True, 50)  # might be 1950 or 2050
+        self._assert_probable(True, 90)  # might be 1990
+        self._assert_probable(True, 1975)
+        self._assert_probable(True, 1900)
+        self._assert_probable(True, 2001)
+        self._assert_probable(True, 2017)
+        self._assert_probable(True, 2018)
 
 
 class TestDateAndTime(TestCase):
     def test_hyphenate_date(self):
-        self.assertEqual(hyphenate_date('20161224'), '2016-12-24')
-        self.assertEqual(hyphenate_date('20161224T121314'), '20161224T121314')
-        self.assertEqual(hyphenate_date('return as-is'), 'return as-is')
+        self.assertEqual('2016-12-24', hyphenate_date('20161224'))
+        self.assertEqual('20161224T121314', hyphenate_date('20161224T121314'))
+        self.assertEqual('return as-is', hyphenate_date('return as-is'))
 
 
 class TestMatchUnixTimestamp(TestCase):
     def _assert_match(self, given, expect):
         actual = match_any_unix_timestamp(given)
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_matches_strings_a(self):
         dt_a = datetime.strptime('20160528 201245', '%Y%m%d %H%M%S')
@@ -103,22 +159,6 @@ class TestMatchSpecialCase(TestCase):
         self.assertIsNone(match_special_case('abc'))
 
 
-class TestToDatetime(TestCase):
-    # TODO: Handle time zone offsets properly!
-
-    def setUp(self):
-        self.TEST_DATA = [('2010:01:31 16:12:51', '2010-01-31 16:12:51'),
-                          ('2016:01:11 12:41:32+00:00', '2016-01-11 12:41:32')]
-
-    def test_does_not_return_none_given_valid_data(self):
-        for given, expected in self.TEST_DATA:
-            self.assertIsNotNone(to_datetime(given))
-
-    def test_returns_expected_given_valid_data(self):
-        for given, expected in self.TEST_DATA:
-            self.assertEqual(str(to_datetime(given)), expected)
-
-
 class TestNaiveToTimezoneAware(TestCase):
     def setUp(self):
         self.unaware = datetime.strptime('2016-01-11T12:41:32',
@@ -131,7 +171,7 @@ class TestNaiveToTimezoneAware(TestCase):
         self.assertIsNotNone(self.aware)
 
     def test_naive_dt_should_equal_aware_dt(self):
-        self.assertEqual(naive_to_timezone_aware(self.unaware), self.aware)
+        self.assertEqual(self.aware, naive_to_timezone_aware(self.unaware))
 
 
 class TestTimezoneAwareToNaive(TestCase):
@@ -146,7 +186,7 @@ class TestTimezoneAwareToNaive(TestCase):
         self.assertIsNotNone(self.aware)
 
     def test_aware_dt_should_forget_timezone_and_equal_unaware_dt(self):
-        self.assertEqual(timezone_aware_to_naive(self.aware), self.unaware)
+        self.assertEqual(self.unaware, timezone_aware_to_naive(self.aware))
 
 
 class FindIsoDateLike(TestCase):
@@ -168,9 +208,6 @@ class FindIsoDateLike(TestCase):
         self.assertIsNone(find_isodate_like(test_data))
 
     def test_returns_none_for_no_possible_matches(self):
-        def _assert_none(test_data):
-            self.assertIsNone(find_isodate_like(test_data))
-
         self._assert_none('abc')
         self._assert_none(' a ')
         self._assert_none(' 1 ')

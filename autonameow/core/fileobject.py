@@ -22,17 +22,15 @@
 import filecmp
 import os
 
-from core import constants as C
-from core import (
-    disk,
-    exceptions,
-)
 import util
+from core import constants as C
+from core import exceptions
+from util import encoding as enc
 from util import (
+    disk,
     mimemagic,
     sanity
 )
-from util import encoding as enc
 
 
 class FileObject(object):

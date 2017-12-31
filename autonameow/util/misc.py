@@ -371,8 +371,8 @@ def git_commit_hash():
         return None
 
     _old_pwd = os.path.curdir
-    os.chdir(C.AUTONAMEOW_SRCROOT_DIR)
     try:
+        os.chdir(C.AUTONAMEOW_SRCROOT_DIR)
         process = subprocess.Popen(
             ['git', 'rev-parse', '--short', 'HEAD'],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
@@ -381,7 +381,12 @@ def git_commit_hash():
     except (OSError, ValueError, TypeError, subprocess.SubprocessError):
         return None
     else:
-        string = types.force_string(stdout).strip()
-        return string if string else None
+        # NOTE(jonas): git returns 128 for the "fatal: Not a git repository.."
+        # error. Substring matching is redundant but probably won't hurt either.
+        if process.returncode == 0:
+            string = types.force_string(stdout).strip()
+            if string and 'fatal: Not a git repository' not in string:
+                return string
+        return None
     finally:
         os.chdir(_old_pwd)

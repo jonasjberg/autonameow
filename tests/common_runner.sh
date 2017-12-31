@@ -82,7 +82,7 @@ EOF
 # Append arguments to the wiki project report and print to stdout.
 wiki_report_append()
 {
-    printf "Appending to report:\n"
+    printf '%s\n' 'Appending to report:'
     printf "$*" | tee -a "$WIKI_REPORT_RESULTS"
 }
 
@@ -90,7 +90,8 @@ wiki_report_append()
 wiki_check_add_header()
 {
     # Insert heading with todays date if not already present.
-    local _date="$(date "+%Y-%m-%d")"
+    local _date
+    _date="$(date "+%Y-%m-%d")"
     if ! grep -q "^### ${_date}$" "$WIKI_REPORT_RESULTS"
     then
         wiki_report_append "\n### ${_date}\n\n"
@@ -142,7 +143,7 @@ wiki_add_unit_link()
 # caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
-    printf "(USING DEFAULTS -- "${SELF_BASENAME} -h" for usage information)\n\n"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
 else
     while getopts huvw opt
     do
@@ -154,7 +155,7 @@ else
         esac
     done
 
-    shift $(( $OPTIND - 1 ))
+    shift $(( OPTIND - 1 ))
 fi
 
 [ "$option_verbose" != 'true' ] && option_quiet='true' || option_quiet='false'
@@ -167,21 +168,21 @@ run_task "$option_quiet" 'Running unit test runner'        "${SELF_DIRNAME}/unit
 run_task "$option_quiet" 'Running regression test runner'  "${SELF_DIRNAME}/regression_runner.sh"
 run_task "$option_quiet" 'Running integration test runner' "${SELF_DIRNAME}/integration_runner.sh ${runner_opts}"
 
-# Do not proceed if a runner failed.
-if [ "$count_fail" -ne "0" ]
-then
-    printf '\nAn error occurred; Aborting ..\n' 1>&2
-    exit 1
-fi
+printf '\n%s' "Completed in $SECONDS seconds"
 
 
 if [ ! "$option_update_wiki" != 'true' ]
 then
+    # Do not proceed if a runner failed.
+    if [ "$count_fail" -ne "0" ]
+    then
+        printf '\n%s tasks failed. Aborting ..\n' "$count_fail" 1>&2
+        exit 1
+    fi
+
     run_task "$option_quiet" 'Adding heading with current date to report if needed' wiki_check_add_header
     run_task "$option_quiet" 'Adding integration test log to Test Results wiki page' wiki_add_integration_link
     run_task "$option_quiet" 'Adding unit test log to Test Results wiki page' wiki_add_unit_link
 
     # TODO: Commit reports to version control.
 fi
-
-printf "\nCompleted in $SECONDS seconds\n"

@@ -29,11 +29,7 @@ except ImportError:
 from core import constants as C
 from extractors import ExtractorError
 from extractors.text.common import AbstractTextExtractor
-from util import (
-    sanity,
-    textutils
-)
-from util.text import remove_nonbreaking_spaces
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -50,17 +46,7 @@ class PlainTextExtractor(AbstractTextExtractor):
         self.log.debug('Extracting raw text from plain text file ..')
         source = fileobject.abspath
         result = read_entire_text_file(source)
-        if not result:
-            return ''
-
-        sanity.check_internal_string(result)
-        text = result
-        text = textutils.normalize_unicode(text)
-        text = remove_nonbreaking_spaces(text)
-        if text:
-            return text
-        else:
-            return ''
+        return result
 
     @classmethod
     def check_dependencies(cls):

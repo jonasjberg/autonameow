@@ -32,8 +32,10 @@ used in the autonameow project.
 TODO_BASENAME = 'TODO.md'
 DONE_BASENAME = 'done.md'
 TODO_IDENTIFIER_FORMAT = '[TD{:04d}]'
-RE_TODO_IDENTIFIER = re.compile(r'(?![Rr]e(lated|fers?)).*\[TD(\d{4})\]')
+RE_TODO_IDENTIFIER = re.compile(r'\[TD(\d{4})\]')
+RE_TODO_IGNORED = re.compile(r'[Rr]e(lated|fers?)')
 SOURCEFILE_EXTENSIONS = ['.py', '.sh']
+SOURCEFILE_IGNORED = ['test_todo_id.py']
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
@@ -50,16 +52,14 @@ def is_readable_file(file_path):
     return os.path.isfile(file_path) and os.access(file_path, os.R_OK)
 
 
-for _path in (todo_path, done_path):
-    if not is_readable_file(_path):
-        sys.exit('File does not exist or is not readable: "{!s}"'.format(_path))
-
-
 def get_source_files(paths):
     def _recurse(path):
         matches = []
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
+                if filename in SOURCEFILE_IGNORED:
+                    continue
+
                 try:
                     extension = os.path.splitext(filename)[1]
                 except (IndexError, OSError):
@@ -79,11 +79,22 @@ def get_source_files(paths):
     return files
 
 
+def find_todo_ids_in_line(string):
+    matches = set()
+
+    if re.search(RE_TODO_IGNORED, string):
+        return matches
+
+    for match in re.finditer(RE_TODO_IDENTIFIER, string):
+        matches.add(match.group(1))
+
+    return matches
+
+
 def find_todo_ids_in_file(file_path):
     found_ids = set()
     for line in open(file_path, 'r', encoding='utf8'):
-        for match in re.finditer(RE_TODO_IDENTIFIER, line):
-            found_ids.add(match.group(2))
+            found_ids.update(find_todo_ids_in_line(line))
     return found_ids
 
 
@@ -107,15 +118,13 @@ def get_next_todo_id():
     return TODO_IDENTIFIER_FORMAT.format(last_id + 1)
 
 
-def check_todo_done_does_not_contain_same_id():
-    ids_todolist = find_todo_ids_in_file(todo_path)
-    ids_done = find_todo_ids_in_file(done_path)
+def do_all_checks():
+    def check_todo_done_does_not_contain_same_id():
+        ids_in_both_todolist_and_done = ids_todolist & ids_done
+        if not ids_in_both_todolist_and_done:
+            return True
 
-    ids_in_both_todolist_and_done = ids_todolist & ids_done
-    if not ids_in_both_todolist_and_done:
-        return True
-
-    print('''
+        print('''
 FAILED Check #1
 ===============
 Expected the TODO-list and the list of completed items
@@ -124,14 +133,11 @@ Found {} IDs used in both the TODO-list and DONE-list:
 
 {}
 '''.format(len(ids_in_both_todolist_and_done),
-           '\n'.join([TODO_IDENTIFIER_FORMAT.format(int(i))
-                      for i in ids_in_both_todolist_and_done])))
-    return False
+               '\n'.join([TODO_IDENTIFIER_FORMAT.format(int(i))
+                          for i in ids_in_both_todolist_and_done])))
+        return False
 
-
-def do_check():
     def check_sources_does_not_contain_ids_not_in_todo():
-        ids_todolist = find_todo_ids_in_file(todo_path)
         if ids_in_sources.issubset(ids_todolist):
             # All IDs in the sources are also in the TODO-list.
             return True
@@ -153,7 +159,6 @@ Found {} IDs in the sources that are not in the TODO-list:
         return False
 
     def check_sources_does_not_contain_ids_in_done():
-        ids_done = find_todo_ids_in_file(done_path)
         if not ids_in_sources.intersection(ids_done):
             # None of the IDs in the sources are in the DONE-list.
             return True
@@ -174,11 +179,12 @@ Found {} IDs used in both the sources and the DONE-list:
                       for i in ids_in_sources_and_done])))
         return False
 
-    _source_files = get_source_files([AUTONAMEOW_SRC_ROOT])
     ids_in_sources = find_todo_ids_in_source_files()
     if not ids_in_sources:
         print('[WARNING] Unable to find any IDs (!)')
-        return False
+
+    ids_todolist = find_todo_ids_in_file(todo_path)
+    ids_done = find_todo_ids_in_file(done_path)
 
     ok = True
     ok &= check_todo_done_does_not_contain_same_id()
@@ -188,7 +194,6 @@ Found {} IDs used in both the sources and the DONE-list:
 
 
 def list_orphaned():
-    _source_files = get_source_files([AUTONAMEOW_SRC_ROOT])
     ids_in_sources = find_todo_ids_in_source_files()
     if not ids_in_sources:
         return
@@ -240,14 +245,20 @@ if __name__ == '__main__':
         default=False,
         help='Print entries that are in the TODO-list but not in the sources.'
     )
+    opts = parser.parse_args(sys.argv[1:])
+
+    # Make sure that both the TODO-list and DONE-list exist.
+    for _path in (todo_path, done_path):
+        if not is_readable_file(_path):
+            print('File does not exist or is not readable: "{!s}"'.format(_path),
+                  file=sys.stderr)
+            sys.exit(EXIT_FAILURE)
 
     exit_status = EXIT_SUCCESS
-
-    opts = parser.parse_args(sys.argv[1:])
     if opts.do_check:
-        _checks_pass = do_check()
+        _checks_pass = do_all_checks()
         if not _checks_pass:
-            exit_status &= EXIT_FAILURE
+            exit_status |= EXIT_FAILURE
 
     elif opts.do_list_orphaned:
         list_orphaned()
@@ -257,6 +268,6 @@ if __name__ == '__main__':
         if _next_id:
             print(_next_id)
         else:
-            exit_status &= EXIT_FAILURE
+            exit_status |= EXIT_FAILURE
 
     sys.exit(exit_status)

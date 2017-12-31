@@ -26,16 +26,19 @@ import shutil
 import sys
 import traceback
 
+import unit.constants as uuconst
+import unit.utils as uu
 from core import constants as C
 from core import (
-    disk,
     exceptions,
     types,
     ui
 )
-import unit.utils as uu
-import unit.constants as uuconst
 from util import encoding as enc
+from util import (
+    disk,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)
@@ -92,11 +95,15 @@ class TerminalReporter(object):
 
     def msg_overall_success(self):
         print(ui.colorize(self._center_with_fill('ALL TESTS PASSED!'),
-                          fore='GREEN'))
+                          fore='GREEN', style='BRIGHT'))
 
     def msg_overall_failure(self):
         print(ui.colorize(self._center_with_fill('SOME TESTS FAILED'),
-                          fore='RED'))
+                          fore='RED', style='BRIGHT'))
+
+    def msg_overall_noop(self):
+        print(ui.colorize(self._center_with_fill('DID NOT RUN ANY TESTS'),
+                          fore='YELLOW', style='BRIGHT'))
 
     def msg_overall_stats(self, count_total, count_skipped, count_success,
                           count_failure, elapsed_time):
@@ -108,7 +115,10 @@ class TerminalReporter(object):
 
         _failure = '{} failed'.format(count_failure)
         if count_failure == 0:
-            self.msg_overall_success()
+            if count_total == 0:
+                self.msg_overall_noop()
+            else:
+                self.msg_overall_success()
         else:
             self.msg_overall_failure()
             # Make the failed count red if any test failed.
@@ -118,7 +128,7 @@ class TerminalReporter(object):
 
         _stats = 'Regression Test Summary:  {} total, {}, {} passed, {}  ' \
                  'in {} seconds'.format(count_total, _skipped,
-                                           count_success, _failure, _runtime)
+                                        count_success, _failure, _runtime)
 
         print()
         print(_stats)
@@ -194,7 +204,6 @@ class TerminalReporter(object):
 class RegressionTestLoader(object):
     BASENAME_DESCRIPTION = b'description'
     BASENAME_SKIP = b'skip'
-    BASENAME_YAML_CONFIG = b'config.yaml'
     BASENAME_YAML_OPTIONS = b'options.yaml'
     BASENAME_YAML_ASSERTS = b'asserts.yaml'
 
@@ -315,9 +324,7 @@ class RegressionTestLoader(object):
         _path = types.force_string(_options.get('config_path'))
         if not _path:
             # Use default config.
-            _abspath = uu.abspath_testfile(
-                uuconst.DEFAULT_YAML_CONFIG_BASENAME
-            )
+            _abspath = uu.abspath_testconfig()
         elif _path.startswith('$TESTFILES/'):
             # Substitute "variable".
             _basename = _path.replace('$TESTFILES/', '').strip()
@@ -496,6 +503,44 @@ def check_renames(actual, expected):
     return bool(expected == actual)
 
 
+def check_stdout_asserts(test, captured_stdout):
+    failures = 0
+    if 'asserts' not in test:
+        return failures
+    if 'stdout' not in test['asserts']:
+        return failures
+
+    stdout_match_asserts = []
+    stdout_matches = test['asserts']['stdout'].get('matches', [])
+    for regexp in stdout_matches:
+        try:
+            stdout_match_asserts.append(re.compile(regexp, re.MULTILINE))
+        except (ValueError, TypeError) as e:
+            print('Bad stdout match regexp "{!s}" :: {!s}'.format(regexp, e))
+            continue
+
+    for regexp in stdout_match_asserts:
+        if not regexp.match(captured_stdout):
+            print('Match assertion failed for "{!s}"'.format(regexp))
+            failures += 1
+
+    stdout_not_match_asserts = []
+    stdout_not_matches = test['asserts']['stdout'].get('does_not_match', [])
+    for regexp in stdout_not_matches:
+        try:
+            stdout_not_match_asserts.append(re.compile(regexp, re.MULTILINE))
+        except (ValueError, TypeError) as e:
+            print(str(e))
+            continue
+
+    for regexp in stdout_not_match_asserts:
+        if regexp.match(captured_stdout):
+            print('Non-match assertion failed for "{!s}"'.format(regexp))
+            failures += 1
+
+    return failures
+
+
 def _commandline_args_for_testcase(loaded_test):
     """
     Converts a regression test to a list of command-line arguments.
@@ -571,11 +616,66 @@ def commandline_for_testcase(loaded_test):
     Returns:
         Full equivalent command-line as a Unicode string.
     """
-    assert isinstance(loaded_test, dict), (
-        'Expected dict, NOT {!s}.  Value: {!s}'.format(type(loaded_test),
-                                                       loaded_test)
-    )
+    sanity.check_isinstance(loaded_test, dict)
     arguments = _commandline_args_for_testcase(loaded_test)
     argument_string = ' '.join(arguments)
     commandline = 'autonameow ' + argument_string
     return commandline.strip()
+
+
+def glob_filter(glob, bytestring):
+    """
+    Evaluates if a string (test basename) matches a given "glob".
+
+    Matching is case-sensitive. The asterisk matches anything.
+    If the glob starts with '!', the matching is negated.
+    Examples:
+                    string          glob            Returns
+                    ---------------------------------------
+                    'foo bar'       'foo bar'       True
+                    'foo bar'       'foo*'          True
+                    'foo x bar'     '*x*'           True
+                    'bar'           'foo*'          False
+                    'bar'           '!foo'          True
+                    'foo x bar'     '!foo*'         False
+    """
+    if not isinstance(bytestring, bytes):
+        raise RegressionTestError(
+            'Expected type bytes for argument "bytestring". '
+            'Got {} ({!s})'.format(type(bytestring), bytestring)
+        )
+    try:
+        # Coercing to "AW_PATHCOMPONENT" because there is no "AW_BYTES".
+        bytes_glob = types.AW_PATHCOMPONENT(glob)
+    except types.AWTypeError as e:
+        raise RegressionTestError(e)
+
+    regexp = bytes_glob.replace(b'*', b'.*')
+    if regexp.startswith(b'!'):
+        regexp = regexp[1:]
+        return not bool(re.match(regexp, bytestring))
+
+    return bool(re.match(regexp, bytestring))
+
+
+def regexp_filter(expression, bytestring):
+    """
+    Evaluates if a string (test basename) matches a given regular expression.
+    """
+    if not isinstance(bytestring, bytes):
+        raise RegressionTestError(
+            'Expected type bytes for argument "bytestring". '
+            'Got {} ({!s})'.format(type(bytestring), bytestring)
+        )
+    try:
+        # Coercing to "AW_PATHCOMPONENT" because there is no "AW_BYTES".
+        bytes_expr = types.AW_PATHCOMPONENT(expression)
+    except types.AWTypeError as e:
+        raise RegressionTestError(e)
+
+    try:
+        regexp = re.compile(bytes_expr)
+    except (TypeError, ValueError, re.error) as e:
+        raise RegressionTestError(e)
+
+    return bool(regexp.match(bytestring))

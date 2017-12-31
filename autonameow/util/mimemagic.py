@@ -224,15 +224,18 @@ class MimeExtensionMapper(object):
         Returns:
             All MIME-types mapped to the given extension, as a list of strings.
         """
-        _mimes = self._ext_to_mime.get(extension)
-        if not _mimes:
+        _candidates = self._ext_to_mime.get(extension)
+        if not _candidates:
             return []
 
-        _sorted_mimes = sorted(
-            list(_mimes),
-            key=lambda x: ('x-' in x, 'text' not in x)
+        # NOTE(jonas): Sorting criteria pretty much arbitrarily chosen.
+        #              Gives more consistent results, which helps with testing.
+        _sorted_candidates = sorted(
+            list(_candidates),
+            key=lambda x: ('x-' not in x, 'text' in x, len(x)),
+            reverse=True
         )
-        return _sorted_mimes
+        return _sorted_candidates
 
     def get_mimetype(self, extension):
         """
@@ -246,9 +249,10 @@ class MimeExtensionMapper(object):
             string. See the "get_candidates"-method for info on prioritization.
             An instance of 'NullMIMEType' is returned if no MIME-type is found.
         """
-        _candidates = self.get_candidate_mimetypes(extension)
-        if _candidates:
-            return _candidates[0]
+        if extension and extension.strip():
+            _candidates = self.get_candidate_mimetypes(extension)
+            if _candidates:
+                return _candidates[0]
 
         return types.NullMIMEType()
 
@@ -256,7 +260,17 @@ class MimeExtensionMapper(object):
         """
         Returns a list of all extensions mapped to a given MIME-type.
         """
-        return list(self._mime_to_ext.get(mimetype, []))
+        _candidates = self._mime_to_ext.get(mimetype, [])
+        if not _candidates:
+            return []
+
+        # De-prioritize any composite extensions like "tar.gz".
+        _sorted_candidates = sorted(
+            list(_candidates),
+            key=lambda x: '.' not in x,
+            reverse=True
+        )
+        return _sorted_candidates
 
     def get_extension(self, mimetype):
         """
@@ -268,11 +282,7 @@ class MimeExtensionMapper(object):
 
         _candidates = self.get_candidate_extensions(mimetype)
         if _candidates:
-            # De-prioritize any composite extensions like "tar.gz".
-            _sorted_candidates = sorted(list(_candidates),
-                                        key=lambda x: '.' not in x,
-                                        reverse=True)
-            return _sorted_candidates[0]
+            return _candidates[0]
 
         return None
 
@@ -297,15 +307,22 @@ else:
 MAPPER.add_mapping('application/epub+zip', 'epub')
 MAPPER.add_mapping('application/gzip', 'gz')
 MAPPER.add_mapping('application/gzip', 'tar.gz')
+MAPPER.add_mapping('application/octet-stream', 'bin')
 MAPPER.add_mapping('application/rar', 'rar')
 MAPPER.add_mapping('application/rtf', 'rtf')
 MAPPER.add_mapping('application/vnd.oasis.opendocument.presentation', 'odp')
+MAPPER.add_mapping('application/vnd.oasis.opendocument.text', 'odt')
 MAPPER.add_mapping('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx')
+MAPPER.add_mapping('application/x-7z-compressed', '7z')
+MAPPER.add_mapping('application/x-bzip2', 'bz2')
 MAPPER.add_mapping('application/x-gzip', 'gz')
+MAPPER.add_mapping('application/x-gzip', 'tgz')
 MAPPER.add_mapping('application/x-gzip', 'tar.gz')
 MAPPER.add_mapping('application/x-lzma', 'lzma')
 MAPPER.add_mapping('application/x-lzma', 'tar.lzma')
 MAPPER.add_mapping('application/x-rar', 'rar')
+MAPPER.add_mapping('application/x-tex', 'tex')
+MAPPER.add_mapping('audio/midi', 'mid')
 MAPPER.add_mapping('audio/x-flac', 'flac')
 MAPPER.add_mapping('image/vnd.djvu', 'djvu')
 MAPPER.add_mapping('inode/x-empty', '')
@@ -313,7 +330,10 @@ MAPPER.add_mapping('text/rtf', 'rtf')
 MAPPER.add_mapping('text/x-asm', 'asm')
 MAPPER.add_mapping('text/x-c', 'c')
 MAPPER.add_mapping('text/x-c++', 'cpp')
+MAPPER.add_mapping('text/x-sh', 'sh')
 MAPPER.add_mapping('text/x-shellscript', 'sh')
+MAPPER.add_mapping('text/x-shellscript', 'bash')
+MAPPER.add_mapping('text/x-tex', 'tex')
 MAPPER.add_mapping('video/x-matroska', 'mkv')
 
 # Any custom overrides of the "extension to MIME-type"-mapping goes here.
@@ -323,6 +343,8 @@ MAPPER.add_preferred_extension('video/quicktime', 'mov')
 MAPPER.add_preferred_extension('video/mp4', 'mp4')
 MAPPER.add_preferred_extension('text/plain', 'txt')
 MAPPER.add_preferred_extension('text/rtf', 'rtf')
+MAPPER.add_preferred_extension('text/x-sh', 'sh')
+MAPPER.add_preferred_extension('text/x-shellscript', 'sh')
 MAPPER.add_preferred_extension('inode/x-empty', '')
 
 
