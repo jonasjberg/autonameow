@@ -196,6 +196,8 @@ class TestLikelyExtension(TestCase):
             (Expect('w'), Given(suffix='w', mime='text/x-c')),
             (Expect('workspace'), Given(suffix='workspace', mime='text/xml')),
             (Expect('yaml'), Given(suffix='yaml', mime='text/plain')),
+            (Expect('zip'), Given(suffix='zip', mime='application/zip')),
+            (Expect('zip'), Given(suffix='zip', mime='application/x-zip')),
         ]
 
     def test_returns_expected(self):
