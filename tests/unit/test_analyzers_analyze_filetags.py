@@ -23,8 +23,11 @@ from collections import namedtuple
 from unittest import TestCase
 from unittest.mock import Mock
 
-from analyzers import analyze_filetags
 import unit.utils as uu
+from analyzers.analyze_filetags import (
+    FiletagsAnalyzer,
+    partition_basename
+)
 
 
 uu.init_provider_registry()
@@ -33,7 +36,7 @@ uu.init_provider_registry()
 def get_filetags_analyzer(fileobject):
     mock_config = Mock()
 
-    return analyze_filetags.FiletagsAnalyzer(
+    return FiletagsAnalyzer(
         fileobject,
         mock_config,
         request_data_callback=uu.mock_request_data_callback
@@ -215,7 +218,7 @@ class TestPartitionBasename(TestCase):
 
     def test_partitions_basenames(self):
         for test_data, expected in self.testdata_expected:
-            actual = analyze_filetags.partition_basename(test_data)
+            actual = partition_basename(test_data)
             self.assertEqual(expected, actual)
 
 
