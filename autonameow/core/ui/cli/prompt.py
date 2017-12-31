@@ -48,13 +48,13 @@ except ImportError:
 from core import constants as C
 from core import (
     config,
-    disk,
     providers,
 )
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from core.ui import cli
 from util import encoding as enc
+from util import disk
 
 
 log = logging.getLogger(__name__)

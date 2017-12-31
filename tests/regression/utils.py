@@ -30,13 +30,15 @@ import unit.constants as uuconst
 import unit.utils as uu
 from core import constants as C
 from core import (
-    disk,
     exceptions,
     types,
     ui
 )
 from util import encoding as enc
-from util import sanity
+from util import (
+    disk,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)

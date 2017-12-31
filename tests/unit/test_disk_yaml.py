@@ -22,7 +22,7 @@
 from unittest import TestCase
 
 from core.exceptions import FilesystemError
-from core.disk import (
+from util.disk import (
     load_yaml_file,
     write_yaml_file
 )

@@ -252,10 +252,11 @@ if __name__ == '__main__':
     NOTE: Relative imports require PYTHONPATH to be set ..
           Workaround wrapper-script at "devscripts/write-default-config.sh"
     """
-    from datetime import datetime
     import os
     import sys
-    from core import disk
+    from datetime import datetime
+
+    from util import disk
 
 
     def default_destpath():

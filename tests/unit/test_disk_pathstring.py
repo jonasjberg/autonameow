@@ -22,7 +22,7 @@
 from unittest import TestCase
 
 from core import constants as C
-from core.disk import (
+from util.disk import (
     basename_prefix,
     basename_suffix,
     compare_basenames,

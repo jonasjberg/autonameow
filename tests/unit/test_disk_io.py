@@ -25,7 +25,7 @@ from unittest import TestCase
 
 import unit.constants as uuconst
 import unit.utils as uu
-from core.disk import (
+from util.disk import (
     delete,
     exists,
     file_basename,

@@ -26,7 +26,6 @@ import sys
 
 from core import constants as C
 from core import (
-    disk,
     exceptions,
     extraction,
     logs,
@@ -34,6 +33,7 @@ from core import (
 from core.fileobject import FileObject
 from extractors import ExtractorError
 from util import encoding as enc
+from util import disk
 
 
 log = logging.getLogger(__name__)

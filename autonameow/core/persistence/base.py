@@ -29,13 +29,15 @@ except ImportError:
 
 from core import (
     config,
-    disk,
     exceptions,
     types,
 )
 from core import constants as C
-from util import sanity
 from util import encoding as enc
+from util import (
+    disk,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)

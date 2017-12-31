@@ -29,7 +29,6 @@ from core import constants as C
 from core import (
     analysis,
     config,
-    disk,
     exceptions,
     extraction,
     interactive,
@@ -44,10 +43,12 @@ from core.evaluate import (
     TemplateFieldDataResolver
 )
 from core.fileobject import FileObject
-from core.model import MeowURI
 from core.plugin_handler import PluginHandler
 from util import encoding as enc
-from util import sanity
+from util import (
+    disk,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)

@@ -35,7 +35,6 @@ from core.config.field_parsers import (
     DateTimeConfigFieldParser,
     NameTemplateConfigFieldParser,
 )
-from core.disk import load_yaml_file
 from core.exceptions import (
     ConfigurationSyntaxError,
     ConfigError,
@@ -44,6 +43,7 @@ from core.exceptions import (
 from core.namebuilder.fields import is_valid_template_field
 from util import encoding as enc
 from util import (
+    disk,
     sanity,
     text
 )
@@ -380,7 +380,7 @@ class ConfigurationParser(object):
         sanity.check_internal_bytestring(path)
 
         try:
-            _loaded_data = load_yaml_file(path)
+            _loaded_data = disk.load_yaml_file(path)
         except FilesystemError as e:
             raise ConfigError(e)
 

@@ -32,12 +32,10 @@ except ImportError:
     )
 
 from core import constants as C
-from core import (
-    disk,
-    exceptions,
-)
+from core import exceptions
 from core.config.config_parser import ConfigurationParser
 from core.config.default_config import DEFAULT_CONFIG
+from util import disk
 from util import encoding as enc
 
 

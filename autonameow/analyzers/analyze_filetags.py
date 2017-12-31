@@ -22,14 +22,12 @@
 import re
 
 from analyzers import BaseAnalyzer
-from core import (
-    disk,
-    types,
-)
+from core import types
 from core.model import genericfields as gf
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from util import encoding as enc
+from util import disk
 
 
 # TODO: [TD0037] Allow further customizing of "filetags" options.

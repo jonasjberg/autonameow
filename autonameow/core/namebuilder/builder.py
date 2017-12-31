@@ -23,16 +23,16 @@ import logging
 import re
 
 from core import (
-    disk,
     exceptions,
     ui,
 )
 from core.namebuilder.fields import NameTemplateField
+from util import encoding as enc
 from util import (
+    disk,
     sanity,
     text
 )
-from util import encoding as enc
 
 
 log = logging.getLogger(__name__)

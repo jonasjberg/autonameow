@@ -21,7 +21,7 @@
 
 from unittest import TestCase
 
-from core.disk import sanitize_filename
+from util.disk import sanitize_filename
 
 
 class TestSanitizeFilename(TestCase):
