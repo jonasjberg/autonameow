@@ -134,7 +134,7 @@ def map_meowuri_to_extractors():
     Returns: A dictionary where the keys are Unicode string "meowURIs",
              with values beings lists of extractor classes.
     """
-    out = {}
+    out = dict()
 
     for klass in ExtractorClasses:
         _meowuri = klass.meowuri_prefix()

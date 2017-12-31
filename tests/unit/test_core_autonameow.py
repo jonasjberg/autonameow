@@ -49,7 +49,7 @@ def prompt_toolkit_unavailable():
     return prompt_toolkit is None, 'Failed to import "prompt_toolkit"'
 
 
-AUTONAMEOW_OPTIONS_EMPTY = {}
+AUTONAMEOW_OPTIONS_EMPTY = dict()
 
 
 @skipIf(*prompt_toolkit_unavailable())

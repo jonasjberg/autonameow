@@ -202,7 +202,7 @@ class MicrosoftVisionPlugin(BasePlugin):
 
         # TODO: Improve error handling!
 
-        results = {}
+        results = dict()
         _caption = get_caption_text(response)
         if _caption:
             _coerced_caption = self.coerce_field_value('caption', _caption)

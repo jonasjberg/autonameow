@@ -57,7 +57,7 @@ class BaseAnalyzer(object):
 
     # Dictionary with analyzer-specific information, keyed by the fields that
     # the analyzer produces. Stores information on types, etc..
-    FIELD_LOOKUP = {}
+    FIELD_LOOKUP = dict()
 
     # TODO: Hack ..
     coerce_field_value = providers.ProviderMixin.coerce_field_value
@@ -71,7 +71,7 @@ class BaseAnalyzer(object):
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        self.results = {}
+        self.results = dict()
 
     def run(self):
         """

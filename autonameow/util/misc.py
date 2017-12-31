@@ -138,7 +138,7 @@ def multiset_count(list_data):
     elif not list_data:
         return {}
 
-    out = {}
+    out = dict()
 
     for entry in list_data:
         if entry in out:
@@ -247,7 +247,7 @@ def expand_meowuri_data_dict(meowuri_dict):
     if not meowuri_dict or not isinstance(meowuri_dict, dict):
         raise TypeError
 
-    out = {}
+    out = dict()
     for key, value in meowuri_dict.items():
         key_parts = key.split('.')
         try:

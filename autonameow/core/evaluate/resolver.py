@@ -59,8 +59,8 @@ class TemplateFieldDataResolver(object):
 
         self._fields = nametemplatefield_classes_in_formatstring(name_template)
 
-        self.data_sources = {}
-        self.fields_data = {}
+        self.data_sources = dict()
+        self.fields_data = dict()
 
     def mapped_all_template_fields(self):
         return all(field in self.data_sources for field in self._fields)

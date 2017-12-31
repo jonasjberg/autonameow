@@ -99,7 +99,7 @@ class BaseCache(object):
         except PersistenceError as e:
             raise CacheError(e)
         except KeyError:
-            self._data = {}
+            self._data = dict()
 
     @property
     def owner(self):
@@ -169,7 +169,7 @@ class BaseCache(object):
         return list(self._data.keys())
 
     def flush(self):
-        self._data = {}
+        self._data = dict()
         try:
             self._persistence.delete(self.owner)
         except PersistenceError as e:

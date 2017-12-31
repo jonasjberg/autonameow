@@ -119,7 +119,7 @@ class GuessitPlugin(BasePlugin):
         if not data:
             raise exceptions.AutonameowPluginError('Got no data from "guessit"')
 
-        _results = {}
+        _results = dict()
         for field, value in data.items():
             _coerced = self.coerce_field_value(field, value)
             if _coerced is not None:

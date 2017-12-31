@@ -72,7 +72,7 @@ class EpubMetadataExtractor(BaseExtractor):
             return metadata
 
     def _to_internal_format(self, raw_metadata):
-        out = {}
+        out = dict()
 
         for tag_name in self.FIELD_LOOKUP.keys():
             _data = raw_metadata.get(tag_name)

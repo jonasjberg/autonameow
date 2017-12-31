@@ -54,7 +54,7 @@ log = logging.getLogger(__name__)
 
 class ConfigurationParser(object):
     def __init__(self):
-        self._options = {}
+        self._options = dict()
 
     def parse(self, config_dict):
         # TODO: Make sure that resetting instance attributes is not needed..
@@ -93,7 +93,7 @@ class ConfigurationParser(object):
 
     @staticmethod
     def _load_reusable_nametemplates(config_dict):
-        validated = {}
+        validated = dict()
 
         raw_templates = config_dict.get('NAME_TEMPLATES', {})
         if not isinstance(raw_templates, dict):
@@ -124,7 +124,7 @@ class ConfigurationParser(object):
     @staticmethod
     def _load_template_fields(config_dict):
         # TODO: [TD0036] Allow per-field replacements and customization.
-        validated = {}
+        validated = dict()
 
         raw_templatefields = config_dict.get('NAME_TEMPLATE_FIELDS')
         if not raw_templatefields:

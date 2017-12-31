@@ -226,7 +226,7 @@ class RegressionTestLoader(object):
             log.warning(
                 'Read empty options from file: "{!s}"'.format(_abspath_opts)
             )
-            _options = {}
+            _options = dict()
         _options = self._set_testfile_path(_options)
         _options = self._set_config_path(_options)
 
@@ -377,7 +377,7 @@ class AutonameowWrapper(object):
             assert isinstance(opts, dict)
             self.opts = opts
         else:
-            self.opts = {}
+            self.opts = dict()
 
         self.captured_exitcode = None
         self.captured_stderr = None

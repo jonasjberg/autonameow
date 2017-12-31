@@ -152,7 +152,7 @@ def build(config, name_template, field_data_map):
 
 
 def pre_assemble_format(field_data_dict, config):
-    out = {}
+    out = dict()
 
     for field, data in field_data_dict.items():
         log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))

@@ -62,7 +62,7 @@ class TestNameBuilder(TestCase):
 
     def test_populate_name_template_using_template_2_all_fields_missing(self):
         template = '{publisher} {title} {edition} - {author} {date}.{extension}'
-        data = {}
+        data = dict()
         expect = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
 
         with self.assertRaises(exceptions.NameTemplateSyntaxError):

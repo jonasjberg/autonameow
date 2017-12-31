@@ -353,7 +353,7 @@ def mock_session_data_pool(fileobject):
     """
     Returns: Mock session data pool with typical extractor data.
     """
-    data = {}
+    data = dict()
     nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL],
@@ -394,7 +394,7 @@ def mock_session_data_pool(fileobject):
 
 
 def mock_session_data_pool_empty_analysis_data(fileobject):
-    data = {}
+    data = dict()
     nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_DATETIME],
@@ -414,7 +414,7 @@ def mock_session_data_pool_empty_analysis_data(fileobject):
 
 
 def mock_session_data_pool_with_analysis_data(fileobject):
-    data = {}
+    data = dict()
     nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
@@ -433,7 +433,7 @@ def mock_session_data_pool_with_analysis_data(fileobject):
 
 
 def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
-    data = {}
+    data = dict()
     nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL],

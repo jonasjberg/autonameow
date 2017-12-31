@@ -287,7 +287,7 @@ class TestProviderRegistryMethodResolvable(TestCase):
         p = ProviderRegistry(meowuri_source_map=dict())
 
         # Patch the instance attribute.
-        # p.mapped_meowuris = {}
+        # p.mapped_meowuris = dict()
 
         meowuri = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE)
         self.assertFalse(p.resolvable(meowuri))

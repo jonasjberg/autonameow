@@ -58,7 +58,7 @@ class Repository(object):
     keys into containing structures that use "MeowURIs" (Unicode strings) keys.
     """
     def __init__(self):
-        self.data = {}
+        self.data = dict()
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
@@ -193,7 +193,7 @@ class Repository(object):
     @staticmethod
     def _machine_readable_contents(data):
         # First pass -- handle encoding and truncating extracted text.
-        temp = {}
+        temp = dict()
         for meowuri, data in sorted(data.items()):
             if isinstance(data, list):
                 log.debug('TODO: Improve robustness of handling this case')
@@ -272,7 +272,7 @@ class RepositoryPool(object):
     DEFAULT_SESSION_ID = 'SINGLETON_SESSION'
 
     def __init__(self):
-        self._repositories = {}
+        self._repositories = dict()
 
     def get(self, id_=None):
         if id_ is None:

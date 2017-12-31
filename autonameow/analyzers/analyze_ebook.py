@@ -89,7 +89,7 @@ class EbookAnalyzer(BaseAnalyzer):
         self.text = None
         self._isbn_metadata = []
 
-        self._cached_isbn_metadata = {}
+        self._cached_isbn_metadata = dict()
         self._isbn_num_blacklist = set(BLACKLISTED_ISBN_NUMBERS)
 
         # NOTE(jonas): Tweak max cache file size. Now 50MB.

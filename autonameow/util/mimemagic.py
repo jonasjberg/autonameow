@@ -185,11 +185,11 @@ def eval_glob(mime_to_match, glob_list):
 class MimeExtensionMapper(object):
     def __init__(self):
         # Stores sets.
-        self._mime_to_ext = {}
-        self._ext_to_mime = {}
+        self._mime_to_ext = dict()
+        self._ext_to_mime = dict()
 
         # Stores single strings.
-        self._mime_to_preferred_ext = {}
+        self._mime_to_preferred_ext = dict()
 
     def add_mapping(self, mimetype, extension):
         if extension not in self._ext_to_mime:

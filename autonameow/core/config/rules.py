@@ -523,7 +523,7 @@ def parse_conditions(raw_conditions):
 
 
 def parse_data_sources(raw_sources):
-    passed = {}
+    passed = dict()
 
     if not raw_sources:
         # Allow empty/None data sources.

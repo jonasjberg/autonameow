@@ -85,7 +85,7 @@ class JpeginfoMetadataExtractor(BaseExtractor):
             health = self.STATUS_LOOKUP.get(status,
                                             self.STATUS_LOOKUP.get('UNKNOWN'))
 
-        out = {}
+        out = dict()
 
         _coerced_health = self.coerce_field_value('health', health)
         if _coerced_health is not None:

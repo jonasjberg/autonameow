@@ -99,7 +99,7 @@ def map_meowuri_to_plugins():
     Returns: A dictionary where the keys are "meowURIs" and the values
         are lists of analyzer classes.
     """
-    out = {}
+    out = dict()
 
     for klass in UsablePlugins:
         _meowuri = klass.meowuri_prefix()

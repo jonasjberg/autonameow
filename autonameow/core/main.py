@@ -75,7 +75,7 @@ def real_main(options=None):
         options: Per-instance program options, as type dict.
     """
     if options is None:
-        options = {}
+        options = dict()
 
     # Passed in 'options' always take precedence and overrides the defaults.
     opts = dict(DEFAULT_OPTIONS)

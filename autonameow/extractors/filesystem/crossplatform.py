@@ -111,7 +111,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             ('contents.mime_type', fileobject.mime_type)
         ]
 
-        out = {}
+        out = dict()
         for _uri, _source in _datasources:
             _coerced_data = self.coerce_field_value(_uri, _source)
             if _coerced_data is not None:

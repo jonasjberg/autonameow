@@ -104,7 +104,7 @@ def suitable_extractors_for(fileobject):
 
 
 def _wrap_extracted_data(extracteddata, metainfo, source_klass):
-    out = {}
+    out = dict()
 
     for field, value in extracteddata.items():
         field_metainfo = dict(metainfo.get(field, {}))

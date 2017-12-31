@@ -86,7 +86,7 @@ class RuleMatcher(object):
         # new local dict keyed by the 'Rule' class instances.
         max_condition_count = max(rule.number_conditions
                                   for rule in remaining_rules)
-        scored_rules = {}
+        scored_rules = dict()
         for rule in remaining_rules:
             met_conditions = len(condition_evaluator.passed(rule))
             num_conditions = rule.number_conditions

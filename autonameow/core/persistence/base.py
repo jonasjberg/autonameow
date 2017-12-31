@@ -284,7 +284,7 @@ class BasePersistence(object):
         """
         Delete all data in RAM and in the persistent storage.
         """
-        self._data = {}
+        self._data = dict()
 
         for key in self.keys():
             try:

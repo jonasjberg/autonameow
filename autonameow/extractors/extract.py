@@ -146,7 +146,7 @@ def do_extract_metadata(fileobject):
 
 def main(options=None):
     if options is None:
-        options = {}
+        options = dict()
 
     # Default options are defined here.
     # Passed in 'options' always take precedence and overrides the defaults.

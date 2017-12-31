@@ -658,7 +658,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 and not is_bad_metadata(tag, value)}
 
     def _to_internal_format(self, raw_metadata):
-        out = {}
+        out = dict()
 
         for tag_name, value in raw_metadata.items():
             coerced = self.coerce_field_value(tag_name, value)

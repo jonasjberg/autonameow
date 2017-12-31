@@ -105,7 +105,7 @@ def map_meowuri_to_analyzers():
     Returns: A dictionary where the keys are "meowURIs" and the values
         are lists of analyzer classes.
     """
-    out = {}
+    out = dict()
 
     for klass in AnalyzerClasses:
         _meowuri = klass.meowuri_prefix()

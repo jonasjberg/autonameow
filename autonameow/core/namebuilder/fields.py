@@ -346,7 +346,7 @@ class Publisher(NameTemplateField):
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
 
-        _candidates = {}
+        _candidates = dict()
 
         c = kwargs.get('config')
         if c:

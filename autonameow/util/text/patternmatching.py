@@ -81,7 +81,7 @@ __ordinal_number_patterns = [
 ]
 
 
-RE_ORDINALS = {}
+RE_ORDINALS = dict()
 
 
 def compiled_ordinal_regexes():
