@@ -41,107 +41,108 @@ log = logging.getLogger(__name__)
 
 def do_extract_text(fileobject):
     klasses = extraction.suitable_extractors_for(fileobject)
-    if klasses:
-        log.debug('Got {} extractors for "{!s}"'.format(len(klasses),
-                                                        fileobject))
-        for k in klasses:
-            log.debug(str(k))
+    if not klasses:
+        log.debug('No extractors suitable for "{!s}"'.format(fileobject))
+        return
 
-        text_extractors = [
-            k for k in klasses
-            if k.meowuri_prefix().startswith('extractor.text')
-        ]
-        if not text_extractors:
-            log.warning(
-                'No text extractors are suited for "{!s}"'.format(fileobject)
+    log.debug('Got {} extractors for "{!s}"'.format(len(klasses), fileobject))
+    for k in klasses:
+        log.debug(str(k))
+
+    text_extractors = [
+        k for k in klasses
+        if k.meowuri_prefix().startswith('extractor.text')
+    ]
+    if not text_extractors:
+        log.warning(
+            'No text extractors are suited for "{!s}"'.format(fileobject)
+        )
+        return
+
+    log.debug('Got {} text extractors for "{!s}"'.format(len(text_extractors),
+                                                         fileobject))
+    for te in text_extractors:
+        log.debug(str(te))
+
+    for te in text_extractors:
+        _extractor_instance = te()
+        try:
+            _text = _extractor_instance.extract(fileobject)
+        except ExtractorError as e:
+            log.error(
+                'Halted extractor "{!s}": {!s}'.format(_extractor_instance, e)
             )
-            return None
+            continue
 
-        log.debug('Got {} text extractors for "{!s}"'.format(
-            len(text_extractors), fileobject
-        ))
-        for te in text_extractors:
-            log.debug(str(te))
+        assert isinstance(_text, dict)
+        _full_text = _text.get('full')
+        if not _full_text:
+            log.error('Unable to extract text from "{!s}"'.format(fileobject))
+            return
 
-        for te in text_extractors:
-            _extractor_instance = te()
-            try:
-                _text = _extractor_instance.extract(fileobject)
-            except ExtractorError as e:
-                log.error('Halted extractor "{!s}": {!s}'.format(
-                    _extractor_instance, e
-                ))
-                continue
-
-            assert isinstance(_text, dict)
-            _full_text = _text.get('full')
-            if not _full_text:
-                log.error('Unable to extract text from "{!s}"'.format(
-                    fileobject
-                ))
-                return None
-
-            assert isinstance(_full_text, str)
-            # TODO: Factor out method of presenting the extracted text.
-            log.info('{!s} Extracted Text:'.format(_extractor_instance))
-            print(_full_text)
+        assert isinstance(_full_text, str)
+        # TODO: Factor out method of presenting the extracted text.
+        log.info('{!s} Extracted Text:'.format(_extractor_instance))
+        print(_full_text)
 
 
 def do_extract_metadata(fileobject):
     klasses = extraction.suitable_extractors_for(fileobject)
-    if klasses:
-        log.debug('Got {} extractors for "{!s}"'.format(len(klasses),
-                                                        fileobject))
-        for k in klasses:
-            log.debug(str(k))
+    if not klasses:
+        log.debug('No extractors suitable for "{!s}"'.format(fileobject))
+        return
 
-        metadata_extractors = [
-            k for k in klasses
-            if k.meowuri_prefix().startswith('extractor.metadata')
-        ]
-        if not metadata_extractors:
-            log.warning(
-                'No metadata extractors are suited for "{!s}"'.format(fileobject)
-            )
-            return None
+    log.debug('Got {} extractors for "{!s}"'.format(len(klasses), fileobject))
+    for k in klasses:
+        log.debug(str(k))
 
-        log.debug('Got {} metadata extractors for "{!s}"'.format(
-            len(metadata_extractors), fileobject
-        ))
-        for me in metadata_extractors:
-            log.debug(str(me))
+    metadata_extractors = [
+        k for k in klasses
+        if k.meowuri_prefix().startswith('extractor.metadata')
+    ]
+    if not metadata_extractors:
+        log.warning(
+            'No metadata extractors are suited for "{!s}"'.format(fileobject)
+        )
+        return
 
-        for me in metadata_extractors:
-            _extractor_instance = me()
-            try:
-                _metadata = _extractor_instance.extract(fileobject)
-            except ExtractorError as e:
-                log.error('Halted extractor "{!s}": {!s}'.format(
-                    _extractor_instance, e
-                ))
+    log.debug('Got {} metadata extractors for "{!s}"'.format(
+        len(metadata_extractors), fileobject
+    ))
+    for me in metadata_extractors:
+        log.debug(str(me))
+
+    for me in metadata_extractors:
+        _extractor_instance = me()
+        try:
+            _metadata = _extractor_instance.extract(fileobject)
+        except ExtractorError as e:
+            log.error('Halted extractor "{!s}": {!s}'.format(
+                _extractor_instance, e
+            ))
+            continue
+
+        try:
+            _metainfo = _extractor_instance.metainfo(fileobject)
+        except ExtractorError as e:
+            log.error('Halted extractor "{!s}": {!s}'.format(
+                _extractor_instance, e
+            ))
+            continue
+
+        assert isinstance(_metadata, dict)
+        assert isinstance(_metainfo, dict)
+
+        print('\n\nResults for {!s}'.format(_extractor_instance))
+        print('_metadata contents:')
+        for k, v in _metadata.items():
+            print('{!s}: {!s}'.format(k, v))
+
+        print('\n_metainfo filtered for keys also in _metadata ({!s} entries unfiltered):'.format(len(_metainfo)))
+        for k, v in _metainfo.items():
+            if k not in _metadata:
                 continue
-
-            try:
-                _metainfo = _extractor_instance.metainfo(fileobject)
-            except ExtractorError as e:
-                log.error('Halted extractor "{!s}": {!s}'.format(
-                    _extractor_instance, e
-                ))
-                continue
-
-            assert isinstance(_metadata, dict)
-            assert isinstance(_metainfo, dict)
-
-            print('\n\nResults for {!s}'.format(_extractor_instance))
-            print('_metadata contents:')
-            for k, v in _metadata.items():
-                print('{!s}: {!s}'.format(k, v))
-
-            print('\n_metainfo filtered for keys also in _metadata ({!s} entries unfiltered):'.format(len(_metainfo)))
-            for k, v in _metainfo.items():
-                if k not in _metadata:
-                    continue
-                print('{!s}: {!s}'.format(k, v))
+            print('{!s}: {!s}'.format(k, v))
 
 
 def main(options=None):
