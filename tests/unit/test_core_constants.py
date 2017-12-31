@@ -21,8 +21,8 @@
 
 from unittest import TestCase
 
-from core import constants as C
 import unit.utils as uu
+from core import constants as C
 
 
 class TestConstants(TestCase):
