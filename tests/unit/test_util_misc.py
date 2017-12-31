@@ -518,7 +518,7 @@ class TestGitCommitHash(TestCase):
         mock_popen_instance = mock_popen.return_value
         mock_popen_instance.communicate = __communicate
 
-    @patch('autonameow.util.misc.subprocess.Popen')
+    @patch('util.misc.subprocess.Popen')
     def test_returns_none_if_repository_not_found(self, mock_popen):
         self._setup_mock_popen(
             mock_popen,
