@@ -80,7 +80,7 @@ class JpeginfoMetadataExtractor(BaseExtractor):
         else:
             is_jpeg = True
             # Regex from 'photosort.py'. Copyright (c) 2013, Mike Greiling.
-            match = re.search("\[([^\]]*)\][^\[]*$", jpeginfo_output)
+            match = re.search(r'\[([^\]]*)\][^\[]*$', jpeginfo_output)
             status = match.group(1) if match else 'UNKNOWN'
             health = self.STATUS_LOOKUP.get(status,
                                             self.STATUS_LOOKUP.get('UNKNOWN'))
