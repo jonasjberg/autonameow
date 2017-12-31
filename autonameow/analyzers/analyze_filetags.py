@@ -23,7 +23,6 @@ import re
 
 from analyzers import BaseAnalyzer
 from core import types
-from core.model import genericfields as gf
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from util import encoding as enc
@@ -65,7 +64,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=0.75),
             ],
-            'generic_field': gf.GenericDateCreated
+            'generic_field': 'date_created'
         },
         'description': {
             'coercer': types.AW_STRING,
@@ -73,7 +72,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Title, probability=0.5),
             ],
-            'generic_field': gf.GenericDescription
+            'generic_field': 'description'
         },
         'tags': {
             'coercer': types.AW_STRING,
@@ -81,14 +80,14 @@ class FiletagsAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
             ],
-            'generic_field': gf.GenericTags
+            'generic_field': 'tags'
         },
         'extension': {
             'coercer': types.AW_MIMETYPE,
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ],
-            'generic_field': gf.GenericMimeType
+            'generic_field': 'mime_type'
         },
         'follows_filetags_convention': {
             'coercer': types.AW_BOOLEAN,
@@ -137,7 +136,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                     WeightedMapping(fields.DateTime, probability=1),
                     WeightedMapping(fields.Date, probability=1),
                 ],
-                'generic_field': gf.GenericDateCreated
+                'generic_field': 'date_created'
             })
         if self._description:
             self._add_results('description', {
@@ -146,7 +145,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 'mapped_fields': [
                     WeightedMapping(fields.Description, probability=1),
                 ],
-                'generic_field': gf.GenericDescription
+                'generic_field': 'description'
             })
         if self._tags:
             self._add_results('tags', {
@@ -155,7 +154,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 'mapped_fields': [
                     WeightedMapping(fields.Tags, probability=1),
                 ],
-                'generic_field': gf.GenericTags
+                'generic_field': 'tags'
 
             })
         if self._extension:
@@ -165,7 +164,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 'mapped_fields': [
                     WeightedMapping(fields.Extension, probability=1),
                 ],
-                'generic_field': gf.GenericMimeType
+                'generic_field': 'mime_type'
             })
         self._add_results('follows_filetags_convention', {
             'value': self._follows_filetags_convention,

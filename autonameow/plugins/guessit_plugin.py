@@ -30,7 +30,6 @@ from core import (
     exceptions,
     types,
 )
-from core.model import genericfields as gf
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from plugins import BasePlugin
@@ -53,7 +52,7 @@ class GuessitPlugin(BasePlugin):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            'generic_field': gf.GenericDateCreated
+            'generic_field': 'date_created'
         },
         'episode': {
             'coercer': types.AW_INTEGER,

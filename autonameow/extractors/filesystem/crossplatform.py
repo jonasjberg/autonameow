@@ -24,7 +24,6 @@ from datetime import datetime
 
 from core import types
 from core.model import WeightedMapping
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from extractors import BaseExtractor
 
@@ -66,7 +65,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ],
-            'generic_field': gf.GenericMimeType
+            'generic_field': 'mime_type'
         },
         'date_accessed': {
             'coercer': types.AW_TIMEDATE,
@@ -83,7 +82,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
                 WeightedMapping(fields.Date, probability=1),
                 WeightedMapping(fields.DateTime, probability=1),
             ],
-            'generic_field': gf.GenericDateCreated
+            'generic_field': 'date_created'
         },
         'date_modified': {
             'coercer': types.AW_TIMEDATE,
@@ -92,7 +91,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
                 WeightedMapping(fields.Date, probability=0.25),
                 WeightedMapping(fields.DateTime, probability=0.25),
             ],
-            'generic_field': gf.GenericDateModified
+            'generic_field': 'date_modified'
         }
     }
 

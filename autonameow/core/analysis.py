@@ -62,7 +62,7 @@ def _execute_run_queue(analyzer_queue):
 
         fileobject = a.fileobject
         for _uri, _data in results.items():
-            collect_results(fileobject, _uri, _data)
+            store_results(fileobject, _uri, _data)
 
         log.debug('Finished running "{!s}"'.format(a))
 
@@ -72,7 +72,7 @@ def request_global_data(fileobject, meowuri):
     return response
 
 
-def collect_results(fileobject, meowuri_prefix, data):
+def store_results(fileobject, meowuri_prefix, data):
     """
     Collects analyzer results to store in the session repository.
 
@@ -95,7 +95,7 @@ def collect_results(fileobject, meowuri_prefix, data):
     if isinstance(data, list):
         for d in data:
             assert isinstance(d, dict), (
-                '[TD0102] Expected list elements passed to "collect_results()"'
+                '[TD0102] Expected list elements passed to "store_results()"'
                 ' to be type dict. Got: ({!s}) "{!s}"'.format(type(d), d)
             )
             try:
@@ -108,7 +108,7 @@ def collect_results(fileobject, meowuri_prefix, data):
             repository.SessionRepository.store(fileobject, _meowuri, d)
     else:
         assert isinstance(data, dict), (
-            '[TD0102] Got non-dict data in "analysis.collect_results()" :: '
+            '[TD0102] Got non-dict data in "analysis.store_results()" :: '
             '({!s}) "{!s}"'.format(type(data), data)
         )
 

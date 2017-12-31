@@ -92,15 +92,13 @@ class Repository(object):
         self._store_generic(fileobject, data)
 
     def _store_generic(self, fileobject, data):
+        # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
         def __store(data):
-            if data.get('generic_field') is not None:
-                try:
-                    _gen_uri = data['generic_field'].uri()
-                except AttributeError:
-                    self.log.critical('TODO: Fix missing "field.uri()" for some'
-                                      ' GenericField classes!')
-                else:
-                    self._store(fileobject, _gen_uri, data)
+            _generic_field = data.get('generic_field')
+            if _generic_field:
+                assert not isinstance(_generic_field, str), str(data)
+                _gen_uri = data['generic_field'].uri()
+                self._store(fileobject, _gen_uri, data)
 
         if isinstance(data, list):
             for d in data:

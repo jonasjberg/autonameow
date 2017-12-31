@@ -26,7 +26,6 @@ from core import (
     persistence,
     types,
 )
-from core.model import genericfields as gf
 from extractors import (
     BaseExtractor,
     ExtractorError
@@ -48,7 +47,7 @@ class AbstractTextExtractor(BaseExtractor):
             'coercer': types.AW_STRING,
             'multivalued': False,
             'mapped_fields': None,
-            'generic_field': gf.GenericText
+            'generic_field': 'text'
         }
     }
 

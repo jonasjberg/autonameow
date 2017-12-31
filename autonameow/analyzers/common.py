@@ -24,6 +24,7 @@ import logging
 from core import constants as C
 from core import providers
 from core.exceptions import AutonameowException
+from core.model.genericfields import get_field_class
 from util import mimemagic
 
 
@@ -123,6 +124,16 @@ class BaseAnalyzer(object):
         """
         if data is None:
             return
+
+        # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
+        # Map strings to generic field classes.
+        _generic_field_string = data.get('generic_field')
+        if _generic_field_string:
+            _generic_field_klass = get_field_class(_generic_field_string)
+            if _generic_field_klass:
+                data['generic_field'] = _generic_field_klass
+            else:
+                data.pop('generic_field')
 
         # TODO: [TD0133] Fix inconsistent use of MeowURIs
         #       Stick to using either instances of 'MeowURI' _OR_ strings.

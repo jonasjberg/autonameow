@@ -29,13 +29,14 @@ from core import (
 from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
 from core.model import MeowURI
+from core.model.genericfields import get_field_class
 from extractors import ExtractorError
 
 
 log = logging.getLogger(__name__)
 
 
-def collect_results(fileobject, meowuri_prefix, data):
+def store_results(fileobject, meowuri_prefix, data):
     """
     Collects extractor data, passes it the the session repository.
 
@@ -45,7 +46,7 @@ def collect_results(fileobject, meowuri_prefix, data):
         data: Data to add, as a dict containing the data and meta-information.
     """
     assert isinstance(data, dict), (
-        'Expected data of type "dict" in "extraction.collect_results()" '
+        'Expected data of type "dict" in "extraction.store_results()" '
         ':: ({!s}) {!s}'.format(type(data), data)
     )
 
@@ -114,6 +115,17 @@ def _wrap_extracted_data(extracteddata, metainfo, source_klass):
         field_metainfo['value'] = value
         # Do not store a reference to the class itself before actually needed..
         field_metainfo['source'] = str(source_klass)
+
+        # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
+        # Map strings to generic field classes.
+        _generic_field_string = field_metainfo.get('generic_field')
+        if _generic_field_string:
+            _generic_field_klass = get_field_class(_generic_field_string)
+            if _generic_field_klass:
+                field_metainfo['generic_field'] = _generic_field_klass
+            else:
+                field_metainfo.pop('generic_field')
+
         out[field] = field_metainfo
 
     return out
@@ -223,7 +235,7 @@ class ExtractorRunner(object):
             _results = _wrap_extracted_data(_extracted_data, _metainfo,
                                             _extractor_instance)
             _meowuri_prefix = klass.meowuri_prefix()
-            collect_results(fileobject, _meowuri_prefix, _results)
+            store_results(fileobject, _meowuri_prefix, _results)
 
 
 def get_extractor_runner():

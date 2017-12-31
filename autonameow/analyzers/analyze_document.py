@@ -24,7 +24,6 @@ import re
 from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from util import (
     dateandtime,
@@ -126,7 +125,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            'generic_field': gf.GenericPublisher
+            'generic_field': 'publisher'
         }
 
     def _wrap_generic_title(self, data, probability):
@@ -136,7 +135,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=probability),
             ],
-            'generic_field': gf.GenericTitle
+            'generic_field': 'title'
         }
 
     def _get_datetime_from_text(self, text):
@@ -154,7 +153,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                     WeightedMapping(fields.DateTime, probability=0.25),
                     WeightedMapping(fields.Date, probability=0.25)
                 ],
-                'generic_field': gf.GenericDateCreated,
+                'generic_field': 'date_created',
                 'source': str(self)
                 })
 
@@ -177,7 +176,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                             WeightedMapping(fields.DateTime, probability=0.1),
                             WeightedMapping(fields.Date, probability=0.1)
                         ],
-                        'generic_field': gf.GenericDateCreated
+                        'generic_field': 'date_created'
                     })
 
         if matches == 0:
@@ -196,7 +195,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                                 WeightedMapping(fields.DateTime, probability=0.1),
                                 WeightedMapping(fields.Date, probability=0.1)
                             ],
-                            'generic_field': gf.GenericDateCreated
+                            'generic_field': 'date_created'
                         })
 
         return results

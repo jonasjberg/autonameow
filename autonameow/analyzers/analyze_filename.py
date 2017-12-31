@@ -27,7 +27,6 @@ from collections import Counter
 from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from util import dateandtime
 from util.text import (
@@ -116,7 +115,7 @@ class FilenameAnalyzer(BaseAnalyzer):
                             WeightedMapping(fields.DateTime, probability=_prob),
                             WeightedMapping(fields.Date, probability=_prob),
                         ],
-                        'generic_field': gf.GenericDateCreated
+                        'generic_field': 'date_created'
                     }
 
         # return fn_timestamps or None
@@ -137,7 +136,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Edition, probability=1),
             ],
-            'generic_field': gf.GenericEdition
+        'generic_field': 'edition'
         }
 
     def _get_extension(self):
@@ -175,7 +174,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            'generic_field': gf.GenericPublisher
+            'generic_field': 'publisher'
         }
 
     def _get_datetime_from_name(self):

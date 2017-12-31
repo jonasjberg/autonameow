@@ -209,3 +209,22 @@ def get_string_fields():
         GenericSubject, GenericText, GenericProducer, GenericDescription,
         GenericCreator, GenericAuthor, GenericPublisher, GenericTitle
     ]
+
+
+def get_field_class(string):
+    KLASSES = {
+        'author': GenericAuthor,
+        'creator': GenericCreator,
+        'date_created': GenericDateModified,
+        'date_modified': GenericDateModified,
+        'description': GenericDescription,
+        'edition': GenericEdition,
+        'mime_type': GenericMimeType,
+        'producer': GenericProducer,
+        'publisher': GenericPublisher,
+        'subject': GenericSubject,
+        'tags': GenericTags,
+        'text': GenericText,
+        'title': GenericTitle,
+    }
+    return KLASSES.get(string)
