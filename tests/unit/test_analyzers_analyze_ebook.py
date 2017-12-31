@@ -31,21 +31,21 @@ except ImportError:
     isbnlib = None
 
 import unit.utils as uu
-from analyzers import analyze_ebook
 from analyzers.analyze_ebook import (
+    EbookAnalyzer,
     extract_isbns_from_text,
-    find_ebook_isbns_in_text,
-    validate_isbn,
     filter_isbns,
+    find_ebook_isbns_in_text,
     ISBNMetadata,
-    remove_ignored_textlines
+    remove_ignored_textlines,
+    validate_isbn
 )
 
 
 def get_ebook_analyzer(fileobject):
     mock_config = Mock()
 
-    return analyze_ebook.EbookAnalyzer(
+    return EbookAnalyzer(
         fileobject,
         mock_config,
         request_data_callback=uu.mock_request_data_callback
