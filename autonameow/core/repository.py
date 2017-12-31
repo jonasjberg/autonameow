@@ -93,12 +93,12 @@ class Repository(object):
 
     def _store_generic(self, fileobject, data):
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
-        def __store(data):
-            _generic_field = data.get('generic_field')
+        def __store(_data):
+            _generic_field = _data.get('generic_field')
             if _generic_field:
-                assert not isinstance(_generic_field, str), str(data)
-                _gen_uri = data['generic_field'].uri()
-                self._store(fileobject, _gen_uri, data)
+                assert not isinstance(_generic_field, str), str(_data)
+                _gen_uri = _data['generic_field'].uri()
+                self._store(fileobject, _gen_uri, _data)
 
         if isinstance(data, list):
             for d in data:
