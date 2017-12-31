@@ -21,12 +21,12 @@
 
 from unittest import TestCase
 
+import unit.utils as uu
 from core.exceptions import FilesystemError
-from util.disk import (
+from util.disk.yaml import (
     load_yaml_file,
     write_yaml_file
 )
-import unit.utils as uu
 
 
 class TestLoadYAML(TestCase):
