@@ -30,9 +30,6 @@ from analyzers.analyze_filetags import (
 )
 
 
-uu.init_provider_registry()
-
-
 def get_filetags_analyzer(fileobject):
     mock_config = Mock()
 
