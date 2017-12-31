@@ -116,12 +116,15 @@ def _wrap_extracted_data(extracteddata, metainfo, source_klass):
         # Do not store a reference to the class itself before actually needed..
         field_metainfo['source'] = str(source_klass)
 
+        # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
         # Map strings to generic field classes.
         _generic_field_string = field_metainfo.get('generic_field')
         if _generic_field_string:
             _generic_field_klass = get_field_class(_generic_field_string)
             if _generic_field_klass:
                 field_metainfo['generic_field'] = _generic_field_klass
+            else:
+                field_metainfo.pop('generic_field')
 
         out[field] = field_metainfo
 
