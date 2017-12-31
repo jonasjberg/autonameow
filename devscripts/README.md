@@ -38,6 +38,9 @@ the output to display a lexicographically sorted list of unique MeowURIs.
 ### `lint_bash.sh`
 Perform static analysis on all bash scripts using `shellcheck`.
 
+### `lint_python.sh`
+Perform static analysis on all Python scripts using `pylint`.
+
 ### `list-imported-modules.sh`
 List modules imported by the specified Python program.
 

@@ -164,6 +164,9 @@ _pytesthelp="$(pytest --help 2>&1)"
 assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
             'Module "pytest-html" is available on the system'
 
+assert_true 'command -v pylint' \
+            'The executable "pylint" is available on the system'
+
 assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
 
