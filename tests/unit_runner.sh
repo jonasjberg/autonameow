@@ -177,7 +177,7 @@ run_pytest()
 }
 
 
-count_fail=0
+declare -i COUNT_FAIL=0
 if [ "$HAS_PYTEST" != 'true' ]
 then
     run_task "$option_quiet" "Running \"unittest\"" run_unittest

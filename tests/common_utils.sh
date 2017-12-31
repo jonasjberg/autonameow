@@ -74,7 +74,7 @@ run_task()
     local _retcode="$?"
     if [ "$_retcode" -ne '0' ]
     then
-        count_fail="$((count_fail + 1))"
+        COUNT_FAIL="$((COUNT_FAIL + 1))"
     fi
 
     # Print task has ended message, interpreting exit codes as;
