@@ -61,20 +61,8 @@ class Author(BaseField):
         super().__init__(value)
         self.normalize = normalize_full_human_name
 
-    def _calculate_weight(self):
-        if not self.value:
-            return 0.0
-
-        return 1.0
-
 
 class Title(BaseField):
     def __init__(self, value):
         super().__init__(value)
         self.normalize = normalize_full_title
-
-    def _calculate_weight(self):
-        if not self.value:
-            return 0.0
-
-        return 1.0
