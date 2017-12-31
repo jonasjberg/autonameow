@@ -135,18 +135,18 @@ def multiset_count(list_data):
     """
     if list_data is None:
         return None
-    elif not list_data:
-        return {}
 
-    out = dict()
+    entry_counter = dict()
+    if not list_data:
+        return entry_counter
 
     for entry in list_data:
-        if entry in out:
-            out[entry] += 1
+        if entry in entry_counter:
+            entry_counter[entry] += 1
         else:
-            out[entry] = 1
+            entry_counter[entry] = 1
 
-    return out
+    return entry_counter
 
 
 def flatten_dict(d, parent_key='', sep='.'):
