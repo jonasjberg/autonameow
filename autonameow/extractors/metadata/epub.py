@@ -71,6 +71,8 @@ class EpubMetadataExtractor(BaseExtractor):
             metadata = self._to_internal_format(_raw_metadata)
             return metadata
 
+        return dict()
+
     def _to_internal_format(self, raw_metadata):
         out = dict()
 
@@ -97,4 +99,4 @@ def _get_epub_metadata(source):
         try:
             return epub_file.metadata
         except AttributeError:
-            return {}
+            return dict()

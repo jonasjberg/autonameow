@@ -650,6 +650,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             metadata = self._to_internal_format(_filtered_metadata)
             return metadata
 
+        return dict()
+
     def _filter_raw_data(self, raw_metadata):
         return {tag: value for tag, value in raw_metadata.items()
                 if value is not None
