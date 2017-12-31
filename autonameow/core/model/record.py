@@ -28,8 +28,6 @@ class Record(object):
     def __init__(self, *fields):
         self.fields = list(fields)
 
-        self._weight = None
-
     def __contains__(self, item):
         if not item:
             return False
