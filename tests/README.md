@@ -56,14 +56,21 @@ This script accepts optional argument flags, described in the usage text;
 
   USAGE:  unit_runner.sh ([OPTIONS])
 
-  OPTIONS:  -h   Display usage information and exit.
-            -c   Enable checking unit test coverage.
-            -w   Write HTML test reports to disk.
-                 Note: the "raw" log file is always written.
-            -q   Suppress output from test suites.
+  OPTIONS:     -h   Display usage information and exit.
+               -c   Enable checking unit test coverage.
+               -w   Write HTML test reports to disk.
+                    Note: the "raw" log file is always written.
+               -q   Suppress output from test suites.
 
   All options are optional. Default behaviour is to not write any
   reports and print the test results to stdout/stderr in real-time.
+
+  EXIT CODES:   0   All tests/assertions passed.
+                1   Any tests/assertions FAILED.
+                2   Runner itself failed or aborted.
+
+
+Project website: www.github.com/jonasjberg/autonameow
 ```
 
 
@@ -84,17 +91,23 @@ This script accepts optional argument flags, as described in the usage text;
 
   USAGE:  integration_runner.sh ([OPTIONS])
 
-  OPTIONS:  -f [EXP]   Execute scripts by filtering basenames.
-                       Argument [EXP] is passed to grep as-is.
-                       Scripts whose basename does not match the
-                       expression are skipped.
-            -h         Display usage information and exit.
-            -q         Suppress output from test suites.
-            -w         Write HTML test reports to disk.
-                       Note: The "raw" log file is always written.
+  OPTIONS:     -f [EXP]   Execute scripts by filtering basenames.
+                          Argument [EXP] is passed to grep as-is.
+                          Scripts whose basename does not match the
+                          expression are skipped.
+               -h         Display usage information and exit.
+               -q         Suppress output from test suites.
+               -w         Write HTML test reports to disk.
+                          Note: The "raw" log file is always written.
 
   All options are optional. Default behaviour is to export test result
   reports and print the test results to stdout/stderr in real-time.
+
+  EXIT CODES:   0         All tests/assertions passed.
+                1         Any tests/assertions FAILED.
+                2         Runner itself failed or aborted.
+
+  Project website: www.github.com/jonasjberg/autonameow
 ```
 
 
@@ -239,7 +252,7 @@ This script accepts optional argument flags, as described in the usage text;
 Usage: regression_runner.py [-h] [-v] [--stderr] [--stdout] [-f GLOB]
                             [--last-failed] [--list] [--get-cmd] [--run]
 
-autonameow v0.5.2 -- regression test suite runner
+autonameow v0.5.3 -- regression test suite runner
 
 Optional arguments:
   -h, --help            Show this help message and exit.
@@ -249,10 +262,13 @@ Optional arguments:
 
 Test Selection:
   Selection is performed in the order in which the options are listed here.
+  I.E. first any glob filtering, then selecting last failed, etc.
 
   -f GLOB, --filter GLOB
                         Select tests whose "TEST_NAME" (dirname) matches
-                        "GLOB".
+                        "GLOB". Matching is case-sensitive. An asterisk
+                        matches anything and if "GLOB" begins with "!", the
+                        matching is inverted.
   --last-failed         Select only the test cases that failed during the last
                         completed run. Selects all if none failed.
 
@@ -262,14 +278,14 @@ Actions to Perform:
   --list                Print the "short name" (directory basename) of the
                         selected test case(s) and exit.
   --get-cmd             Print equivalent command-line invocations for the
-                        selected test case(s) and exit.If executed "manually",
-                        these would produce the same behaviour and results as
-                        the corresponding regression test. Each result is
-                        printed as two lines; first being "# TEST_NAME", where
-                        "TEST_NAME" is the directory basename of the test
-                        case. The second line is the equivalent command-line.
-                        Use "test selection" options to narrow down the
-                        results.
+                        selected test case(s) and exit. If executed
+                        "manually", these would produce the same behaviour and
+                        results as the corresponding regression test. Each
+                        result is printed as two lines; first being "#
+                        TEST_NAME", where "TEST_NAME" is the directory
+                        basename of the test case. The second line is the
+                        equivalent command-line. Use "test selection" options
+                        to narrow down the results.
   --run                 Run the selected test case(s). (DEFAULT: True)
 
 Project website: www.github.com/jonasjberg/autonameow

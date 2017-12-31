@@ -21,6 +21,11 @@
 
 set -o noclobber -o nounset -o pipefail
 
+
+declare -r EXIT_SUCCESS=0
+declare -r EXIT_FAILURE=1
+declare -r EXIT_CRITICAL=2
+
 SELF_BASENAME="$(basename "$0")"
 SELF_DIRNAME="$(realpath -e "$(dirname "$0")")"
 
@@ -32,7 +37,7 @@ then
         Environment variable setup script is missing. Aborting ..
 
 EOF
-    exit 1
+    exit "$EXIT_CRITICAL"
 fi
 
 if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
@@ -43,6 +48,7 @@ then
         Shared test utility library is missing. Aborting ..
 
 EOF
+    exit "$EXIT_CRITICAL"
 fi
 
 
@@ -66,11 +72,11 @@ print_usage_info()
 
   USAGE:  ${SELF_BASENAME} ([OPTIONS])
 
-  OPTIONS:  -h   Display usage information and exit.
-            -u   Add test reports to the project wiki.
-            -v   Enable all output from the unit/integration-runners.
-                 This also increases the verbosity of this script.
-            -w   Write result reports in HTML and PDF format.
+  OPTIONS:     -h   Display usage information and exit.
+               -u   Add test reports to the project wiki.
+               -v   Enable all output from the unit/integration-runners.
+                    This also increases the verbosity of this script.
+               -w   Write result reports in HTML and PDF format.
 
   All flags are optional. Default behaviour is to suppress all output
   from the unit/integration/regression-runners and not write logs to disk.
@@ -84,6 +90,9 @@ print_usage_info()
 
   Refer to the individual test runners for up-to-date information on
   any special exit codes.
+
+
+Project website: www.github.com/jonasjberg/autonameow
 
 EOF
 }
@@ -158,7 +167,7 @@ else
     while getopts huvw opt
     do
         case "$opt" in
-            h) print_usage_info ; exit 0 ;;
+            h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
             u) option_update_wiki='true' ;;
             v) option_verbose='true' ;;
             w) option_write_reports='true' ;;
@@ -187,7 +196,7 @@ then
     if [ "$COUNT_FAIL" -ne "0" ]
     then
         printf '\n%s tasks failed. Aborting ..\n' "$COUNT_FAIL" 1>&2
-        exit 1
+        exit "$EXIT_CRITICAL"
     fi
 
     run_task "$option_quiet" 'Adding heading with current date to report if needed' wiki_check_add_header
@@ -198,5 +207,9 @@ then
 fi
 
 
-# NOTE(jonas): Exit status wraps at 255 --- 0 is returned if 256 tests fail!
-exit "$COUNT_FAIL"
+if [ "$COUNT_FAIL" -eq "0" ]
+then
+    exit "$EXIT_SUCCESS"
+else
+    exit "$EXIT_FAILURE"
+fi

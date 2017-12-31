@@ -22,6 +22,10 @@
 set -o noclobber -o nounset -o pipefail
 
 
+declare -r EXIT_SUCCESS=0
+declare -r EXIT_FAILURE=1
+declare -r EXIT_CRITICAL=2
+
 SELF_BASENAME="$(basename "$0")"
 SELF_DIRNAME="$(dirname "$0")"
 
@@ -33,7 +37,7 @@ then
         Environment variable setup script is missing. Aborting ..
 
 EOF
-    exit 1
+    exit "$EXIT_CRITICAL"
 fi
 
 if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
@@ -44,7 +48,7 @@ then
         Shared test utility library is missing. Aborting ..
 
 EOF
-    exit 1
+    exit "$EXIT_CRITICAL"
 fi
 
 # Default configuration.
@@ -61,16 +65,22 @@ print_usage_info()
 
   USAGE:  ${SELF_BASENAME} ([OPTIONS])
 
-  OPTIONS:  -h   Display usage information and exit.
-            -c   Enable checking unit test coverage.
-            -w   Write HTML test reports to disk.
-                 Note: the "raw" log file is always written.
-            -q   Suppress output from test suites.
+  OPTIONS:     -h   Display usage information and exit.
+               -c   Enable checking unit test coverage.
+               -w   Write HTML test reports to disk.
+                    Note: the "raw" log file is always written.
+               -q   Suppress output from test suites.
 
   All options are optional. Default behaviour is to not write any
   reports and print the test results to stdout/stderr in real-time.
 
-  Project website: www.github.com/jonasjberg/autonameow
+  EXIT CODES:   ${EXIT_SUCCESS}   All tests/assertions passed.
+                ${EXIT_FAILURE}   Any tests/assertions FAILED.
+                ${EXIT_CRITICAL}   Runner itself failed or aborted.
+
+
+Project website: www.github.com/jonasjberg/autonameow
+
 EOF
 }
 
@@ -87,7 +97,7 @@ else
     do
         case "$opt" in
             c) option_enable_coverage='true' ;;
-            h) print_usage_info ; exit 0 ;;
+            h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
             w) option_write_report='true' ;;
             q) option_quiet='true' ;;
         esac
@@ -113,14 +123,14 @@ then
     then
         echo "This script requires \"pytest\" to generate HTML reports." 1>&2
         echo "Install using pip by executing:  pip3 install pytest"
-        exit 1
+        exit "$EXIT_CRITICAL"
     fi
 
     if ! grep -q -- '--html' <<< "$captured_pytest_help"
     then
         echo "This script requires \"pytest-html\" to generate HTML reports." 1>&2
         echo "Install using pip by executing:  pip3 install pytest-html"
-        exit 1
+        exit "$EXIT_CRITICAL"
     fi
 fi
 
@@ -131,14 +141,14 @@ then
     then
         echo "This script requires \"pytest\" to check test coverage." 1>&2
         echo "Install using pip by executing:  pip3 install pytest"
-        exit 1
+        exit "$EXIT_CRITICAL"
     fi
 
     if ! grep -q -- '--cov' <<< "$captured_pytest_help"
     then
         echo "This script requires \"pytest-cov\" to check test coverage." 1>&2
         echo "Install using pip by executing:  pip3 install pytest-cov"
-        exit 1
+        exit "$EXIT_CRITICAL"
     fi
 fi
 
@@ -150,7 +160,7 @@ _unittest_log="${AUTONAMEOW_TESTRESULTS_DIR}/unittest_log_${_timestamp}.html"
 if [ -e "$_unittest_log" ]
 then
     echo "File exists: \"${_unittest_log}\" .. Aborting" >&2
-    exit 1
+    exit "$EXIT_CRITICAL"
 fi
 
 
@@ -197,5 +207,9 @@ then
 fi
 
 
-# NOTE(jonas): Exit status wraps at 255 --- 0 is returned if 256 tests fail!
-exit "$COUNT_FAIL"
+if [ "$COUNT_FAIL" -eq "0" ]
+then
+    exit "$EXIT_SUCCESS"
+else
+    exit "$EXIT_FAILURE"
+fi
