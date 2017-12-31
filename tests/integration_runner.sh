@@ -76,6 +76,8 @@ print_usage_info()
   All options are optional. Default behaviour is to export test result
   reports and print the test results to stdout/stderr in real-time.
 
+  Exit status is the number of failed tests --- 0 if all tests passed.
+
 EOF
 }
 
@@ -182,4 +184,8 @@ log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_tota
 # then
 #     run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
 # fi
+
+
+# NOTE(jonas): Exit status wraps at 255 --- 0 is returned if 256 tests fail!
+exit "$_total_failed"
 

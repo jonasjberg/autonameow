@@ -196,4 +196,6 @@ then
     set -o noclobber
 fi
 
-exit "$count_fail"
+
+# NOTE(jonas): Exit status wraps at 255 --- 0 is returned if 256 tests fail!
+exit "$COUNT_FAIL"

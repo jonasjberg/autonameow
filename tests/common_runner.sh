@@ -72,8 +72,18 @@ print_usage_info()
                  This also increases the verbosity of this script.
             -w   Write result reports in HTML and PDF format.
 
-  All options are optional. Default behaviour is to suppress output from
-  the unit/integration/regression-runners and not write logs to disk.
+  All flags are optional. Default behaviour is to suppress all output
+  from the unit/integration/regression-runners and not write logs to disk.
+  Note that temporary ("*.raw") logs might still be written --- refer to
+  the individual test runners for up-to-date specifics.
+
+  When not using "-v" (default), the individual test runners are marked
+  [FAILED] if the exit status is non-zero. This *probably* means that not
+  all tests/assertions passed or that the test runner itself failed.
+  Conversely, if the test runner returns zero, it is marked [FINISHED].
+
+  Refer to the individual test runners for up-to-date information on
+  any special exit codes.
 
 EOF
 }
@@ -186,3 +196,7 @@ then
 
     # TODO: Commit reports to version control.
 fi
+
+
+# NOTE(jonas): Exit status wraps at 255 --- 0 is returned if 256 tests fail!
+exit "$COUNT_FAIL"
