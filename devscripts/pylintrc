@@ -42,7 +42,7 @@ ignore-patterns=
 #init-hook=
 
 # Use multiple processes to speed up Pylint.
-jobs=1
+jobs=4
 
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
@@ -106,6 +106,7 @@ disable=apply-builtin,
         input-builtin,
         intern-builtin,
         invalid-str-codec,
+        invalid-name,
         locally-disabled,
         locally-enabled,
 		logging-format-interpolation,
@@ -148,12 +149,15 @@ disable=apply-builtin,
         too-few-public-methods,
         unichr-builtin,
         unicode-builtin,
+        W0511,
         unpacking-in-except,
+        unused-wildcard-import,
         useless-suppression,
         using-cmp-argument,
+        wildcard-import,
+        wrong-import-position,
         xrange-builtin,
-        zip-builtin-not-iterating,
-        W0511
+        zip-builtin-not-iterating
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -293,7 +297,7 @@ dummy-variables-rgx=_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_
 ignored-argument-names=_.*|^ignored_|^unused_
 
 # Tells whether we should check for unused import in __init__ files.
-init-import=yes
+init-import=no
 
 # List of qualified module names which can have objects that can redefine
 # builtins.
@@ -366,7 +370,7 @@ attr-name-hint=(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$
 attr-rgx=(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$
 
 # Bad variable names which should always be refused, separated by a comma
-bad-names=foo,bar,baz,toto,tutu,tata
+bad-names=foo,bar,baz,foobar,bazbar,foobaz,barbaz,deleteme,bla
 
 # Naming hint for class attribute names
 class-attribute-name-hint=([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$
@@ -397,7 +401,7 @@ function-naming-style=snake_case
 function-rgx=(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=i,j,k,ex,Run,_,C,uu,uuconst
+good-names=i,j,k,ex,Run,_,C,uu,uuconst,e,klass
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no
@@ -442,7 +446,7 @@ variable-rgx=(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$
 [IMPORTS]
 
 # Allow wildcard imports from modules that define __all__.
-allow-wildcard-with-all=no
+allow-wildcard-with-all=yes
 
 # Analyse import fallback blocks. This can be used to support both Python 2 and
 # 3 compatible code, which means that the block might have code that exists
@@ -469,7 +473,7 @@ int-import-graph=
 known-standard-library=
 
 # Force import order to recognize a module as part of a third party library.
-known-third-party=enchant,epubzilla,nameparser,pyexiftool
+known-third-party=chardet,colorama,epubzilla,nameparser,pyexiftool,python-magic,pyyaml,unidecode
 
 
 [CLASSES]
