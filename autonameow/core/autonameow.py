@@ -318,7 +318,7 @@ class Autonameow(object):
             ui.msg('Session Repository Data', style='heading',
                    add_info_log=True)
 
-            if len(results_to_list) == 0:
+            if not results_to_list:
                 ui.msg('The session repository does not contain any data ..\n')
             else:
                 ui.msg('\n'.join(results_to_list))

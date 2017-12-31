@@ -287,7 +287,7 @@ def prettyprint_options(opts, extra_opts):
         strkey = str(key)
 
         if isinstance(value, list):
-            if len(value) == 0:
+            if not value:
                 cf.addrow(strkey, COLSEP, str(value))
             else:
                 cf.addrow(strkey, COLSEP, str(value[0]))

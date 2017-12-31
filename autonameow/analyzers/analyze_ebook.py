@@ -672,8 +672,7 @@ class ISBNMetadata(object):
         else:
             _year_diff = int(abs(self.normalized_year - other.normalized_year))
 
-        if (len(self.normalized_authors) == 0
-                or len(other.normalized_authors) == 0):
+        if not self.normalized_authors or not other.normalized_authors:
             _sim_authors = FIELDS_MISSING_SIMILARITY
         else:
             _sim_authors = float(

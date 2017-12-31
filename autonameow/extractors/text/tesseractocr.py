@@ -174,7 +174,7 @@ def get_errors(error_string):
     lines = error_string.splitlines()
     lines = [enc.decode_(line) for line in lines]
     error_lines = tuple(line for line in lines if line.find('Error') >= 0)
-    if len(error_lines) > 0:
+    if error_lines:
         return '\n'.join(error_lines)
     return error_string.strip()
 

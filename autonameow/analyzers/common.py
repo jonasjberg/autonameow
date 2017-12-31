@@ -149,7 +149,7 @@ class BaseAnalyzer(object):
                     ' be type dict. Got "{!s}"'.format(type(_r))
                 )
                 v = _r.get('value')
-                if isinstance(v, str) and len(v) > 0:
+                if isinstance(v, str) and v:
                     text = v
                     break
         else:
@@ -158,7 +158,7 @@ class BaseAnalyzer(object):
                 'type dict. Got "{!s}"'.format(type(_response))
             )
             v = _response.get('value')
-            if isinstance(v, str) and len(v) > 0:
+            if isinstance(v, str) and v:
                 text = v
 
         if text is not None:
