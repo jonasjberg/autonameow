@@ -30,12 +30,38 @@ from core import constants as C
 from extractors import extract
 
 
+# NOTE(jonas): Without patching 'extractors.extract.logs', unit tests in other
+#              files might fail due to some shared global state not being reset
+#              after THESE tests have completed. This is related to mocking the
+#              logging and is obviously a symptom of some bad design choices,
+#              that might lead to even worse troubles later on..
+
+
 class TestStandaloneExtract(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.input_paths = [uu.abspath_testfile('magic_txt.txt')]
         cls.input_fileobject = uu.fileobject_testfile('magic_txt.txt')
 
+    # NOTE(jonas): Without this patch, other unit tests will fail!
+    #
+    # 'test_stderr_contains_no_input_files_specified' in 'test_regression_utils.py'
+    #
+    # Failure
+    # Traceback (most recent call last):
+    #   File "/usr/lib/python3.5/unittest/case.py", line 58, in testPartExecutor
+    #     yield
+    #   File "/usr/lib/python3.5/unittest/case.py", line 600, in run
+    #     testMethod()
+    #   File "/home/jonas/dev/projects/autonameow.git/tests/unit/test_regression_utils.py", line 361, in test_stderr_contains_no_input_files_specified
+    #     self.assertIn('No input files specified', actual)
+    #   File "/usr/lib/python3.5/unittest/case.py", line 1079, in assertIn
+    #     self.fail(self._formatMessage(msg, standardMsg))
+    #   File "/usr/lib/python3.5/unittest/case.py", line 665, in fail
+    #     raise self.failureException(msg)
+    # AssertionError: 'No input files specified' not found in ''
+
+    @patch('extractors.extract.logs', MagicMock())
     def test_exits_with_exit_success_if_not_given_any_input_paths(self):
         with self.assertRaises(SystemExit) as e:
             extract.main()
