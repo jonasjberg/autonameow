@@ -377,7 +377,7 @@ def git_commit_hash():
             ['git', 'rev-parse', '--short', 'HEAD'],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
-        stdout, stderr = process.communicate()
+        stdout, _ = process.communicate()
     except (OSError, ValueError, TypeError, subprocess.SubprocessError):
         return None
     else:

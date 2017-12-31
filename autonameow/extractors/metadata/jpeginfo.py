@@ -108,7 +108,7 @@ def _run_jpeginfo(source):
             ['jpeginfo', '-c', source],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
-        stdout, stderr = process.communicate()
+        stdout, _ = process.communicate()
     except (OSError, ValueError, TypeError, subprocess.SubprocessError) as e:
         raise ExtractorError(e)
 

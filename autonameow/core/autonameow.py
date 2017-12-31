@@ -566,7 +566,7 @@ class Autonameow(object):
             best_match = candidates.pop(0)
             if best_match:
                 # Is the score of the best matched rule high enough?
-                rule, score, weight = best_match
+                rule, score, _ = best_match
                 description = rule.description
                 if score > RULE_SCORE_CONFIRM_THRESHOLD:
                     active_rule = rule

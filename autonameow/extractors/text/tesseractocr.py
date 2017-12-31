@@ -211,7 +211,7 @@ def image_to_string(image, lang=None, boxes=False, config=None):
     else:
         if _number_image_channels == 4:
             # Discard the Alpha.
-            r, g, b, a = image.split()
+            r, g, b, _ = image.split()
             image = Image.merge('RGB', (r, g, b))
 
     input_file_name = new_temporary_file(suffix='.bmp')
