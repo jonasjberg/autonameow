@@ -36,6 +36,14 @@ fi
 source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 
 
+check_git_ls_files_does_not_match()
+{
+    local -r _pattern="$1"
+    assert_false 'cd "$AUTONAMEOW_ROOT_DIR" && git ls-files | grep --fixed-strings -- "$_pattern"' \
+                 "git repository does not contain files matching \"${_pattern}\""
+}
+
+
 
 # Test Cases
 # ____________________________________________________________________________
@@ -48,7 +56,15 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-# (tests go here)
+check_git_ls_files_does_not_match '.cache'
+check_git_ls_files_does_not_match '.DS_Store'
+check_git_ls_files_does_not_match '.hypothesis'
+check_git_ls_files_does_not_match '.idea'
+check_git_ls_files_does_not_match '.orig'
+check_git_ls_files_does_not_match '.pyc'
+check_git_ls_files_does_not_match 'junk/'
+check_git_ls_files_does_not_match 'local/'
+check_git_ls_files_does_not_match '__pycache__'
 
 
 
