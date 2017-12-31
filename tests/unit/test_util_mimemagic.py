@@ -21,10 +21,16 @@
 
 from unittest import TestCase
 
+import unit.utils as uu
 from core import types
 from core.exceptions import EncodingBoundaryViolation
-import unit.utils as uu
-from util import mimemagic
+from util.mimemagic import (
+    eval_glob,
+    filetype,
+    get_mimetype,
+    get_extension,
+    MimeExtensionMapper
+)
 
 
 class TestFileTypeMagic(TestCase):
@@ -51,34 +57,34 @@ class TestFileTypeMagic(TestCase):
 
     def test_filetype_magic(self):
         for test_file, expected_mime in self.test_files:
-            actual = mimemagic.filetype(test_file)
+            actual = filetype(test_file)
             self.assertEqual(actual, expected_mime)
 
     def test_filetype_magic_with_invalid_args(self):
-        actual = mimemagic.filetype(None)
+        actual = filetype(None)
         self.assertEqual(actual, types.NULL_AW_MIMETYPE)
         self.assertFalse(actual)
 
 
 class TestEvalMagicGlob(TestCase):
     def _aF(self, mime_to_match, glob_list):
-        actual = mimemagic.eval_glob(mime_to_match, glob_list)
+        actual = eval_glob(mime_to_match, glob_list)
         self.assertIsInstance(actual, bool)
         self.assertFalse(actual)
 
     def _aT(self, mime_to_match, glob_list):
-        actual = mimemagic.eval_glob(mime_to_match, glob_list)
+        actual = eval_glob(mime_to_match, glob_list)
         self.assertIsInstance(actual, bool)
         self.assertTrue(actual)
 
     def test_eval_magic_blob_returns_false_given_bad_arguments(self):
-        self.assertIsNotNone(mimemagic.eval_glob(None, None))
-        self.assertFalse(mimemagic.eval_glob(None, None))
+        self.assertIsNotNone(eval_glob(None, None))
+        self.assertFalse(eval_glob(None, None))
 
     def test_eval_magic_blob_raises_exception_given_bad_arguments(self):
         def _assert_raises(error, mime_to_match, glob_list):
             with self.assertRaises(error):
-                mimemagic.eval_glob(mime_to_match, glob_list)
+                eval_glob(mime_to_match, glob_list)
 
         _assert_raises(ValueError, 'image/jpeg', ['*/*/jpeg'])
         _assert_raises(ValueError, 'application', ['*/*'])
@@ -152,7 +158,7 @@ class TestEvalMagicGlob(TestCase):
 
 class TestMimeExtensionMapper(TestCase):
     def setUp(self):
-        self.m = mimemagic.MimeExtensionMapper()
+        self.m = MimeExtensionMapper()
 
     def _assert_returns_candidate_mimes(self, given, expect):
         _actual = self.m.get_candidate_mimetypes(given)
@@ -268,7 +274,7 @@ class TestMimeExtensionMapper(TestCase):
 
 class TestMimemagicGetExtension(TestCase):
     def _assert_returns_extension(self, given, expect):
-        _actual = mimemagic.get_extension(given)
+        _actual = get_extension(given)
         self.assertEqual(expect, _actual)
 
     def test_image_jpeg(self):
@@ -284,7 +290,7 @@ class TestMimemagicGetExtension(TestCase):
 
 class TestMimemagicGetMimetype(TestCase):
     def _assert_returns_mime(self, given, expect):
-        _actual = mimemagic.get_mimetype(given)
+        _actual = get_mimetype(given)
         self.assertEqual(expect, _actual)
 
     def test_unknown_mime_type(self):
