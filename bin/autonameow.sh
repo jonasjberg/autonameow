@@ -78,5 +78,5 @@ fi
 
 
 # Execute the main module.
-python3 -OO "${AUTONAMEOW_PATH}/autonameow" "$@"
+python3 "${AUTONAMEOW_PATH}/autonameow" "$@"
 
