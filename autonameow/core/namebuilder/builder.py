@@ -225,4 +225,3 @@ def populate_name_template(name_template, **kwargs):
         raise exceptions.NameTemplateSyntaxError(e)
     else:
         return out
-

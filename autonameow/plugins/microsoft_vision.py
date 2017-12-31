@@ -224,4 +224,3 @@ class MicrosoftVisionPlugin(BasePlugin):
     @classmethod
     def test_init(cls):
         return cls.API_KEY is not None
-

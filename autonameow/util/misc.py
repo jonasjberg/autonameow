@@ -216,7 +216,7 @@ def count_dict_recursive(dictionary, count=0):
     if not isinstance(dictionary, dict):
         raise TypeError('Argument "dictionary" must be of type dict')
 
-    for key, value in dictionary.items():
+    for value in dictionary.values():
         if isinstance(value, dict):
             count += count_dict_recursive(value, count)
         elif value:
