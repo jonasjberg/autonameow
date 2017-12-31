@@ -23,11 +23,11 @@ from unittest import TestCase
 
 import unit.utils as uu
 import unit.constants as uuconst
-from core import (
-    exceptions,
-    repository
+from core import exceptions
+from core.repository import (
+    Repository,
+    RepositoryPool
 )
-from core.repository import Repository
 
 
 class TestRepository(TestCase):
@@ -166,18 +166,18 @@ class TestRepositoryPool(TestCase):
     DUMMY_ID_2 = 'IDTwo'
 
     def test_initially_empty(self):
-        p = repository.RepositoryPool()
+        p = RepositoryPool()
         self.assertEqual(len(p), 0)
 
     def test_get_on_empty_pool_raises_keyerror(self):
-        p = repository.RepositoryPool()
+        p = RepositoryPool()
 
         for _id in [None, 'foo', 1, object()]:
             with self.assertRaises(KeyError):
                 p.get(_id)
 
     def test_add_repository(self):
-        p = repository.RepositoryPool()
+        p = RepositoryPool()
         p.add(repository=self.DUMMY_REPOSITORY, id_=self.DUMMY_ID_1)
 
         self.assertEqual(len(p), 1)
@@ -186,7 +186,7 @@ class TestRepositoryPool(TestCase):
         self.assertEqual(actual, self.DUMMY_REPOSITORY)
 
     def test_uses_default_id_if_unspecified(self):
-        p = repository.RepositoryPool()
+        p = RepositoryPool()
         p.add(repository=self.DUMMY_REPOSITORY)
 
         self.assertEqual(len(p), 1)
@@ -198,7 +198,7 @@ class TestRepositoryPool(TestCase):
         self.assertEqual(actual, self.DUMMY_REPOSITORY)
 
     def test_get_with_bad_id_raises_keyerror(self):
-        p = repository.RepositoryPool()
+        p = RepositoryPool()
         p.add(repository=self.DUMMY_REPOSITORY, id_=self.DUMMY_ID_1)
 
         self.assertEqual(len(p), 1)
