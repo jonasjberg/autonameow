@@ -123,7 +123,7 @@ overall execution time.
 
 Update 2018-01-01
 -----------------
-Starting with a configuration file, with conditions;
+Starting with a configuration file rule, with conditions;
 
 ```
 CONDTIONS:
@@ -136,7 +136,21 @@ In order to test if this condition is true for the given file;
     * Parse `data.identifier.string.A`, find out which provider it maps to.
         * Check if this data has already been collected.
         * If not, run the provider and store all collected data.
+
 2. Check condition by evaluating `expression_A(data_A)`
+    * ...
+
+3. Assuming the rule should be applied to the file;
+    * Get name template placeholder fields from the name template.
+    * For each name template field;
+        * Check if the rule specifies a source for this field
+            * Parse the source, `data.identifier.string.B`.
+              Find out which provider it maps to.
+                * Check if this data has already been collected.
+                * If not, run the provider and store all collected data.
+            * Validate the data, make sure it can be used to populate the field.
+                * If not, mark it as unresolved.
+                * If it is, mark it as resolved.
 
 
 
