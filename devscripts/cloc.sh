@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
