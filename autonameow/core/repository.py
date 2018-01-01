@@ -114,10 +114,13 @@ class Repository(object):
         else:
             _debugmsg_data = data
 
-        log.debug('{} storing: [{:8.8}]->[{!s}] :: "{!s}"'.format(
-            self.__class__.__name__, fileobject.hash_partial, meowuri,
-            _debugmsg_data.get('value')
-        ))
+        if __debug__:
+            log.debug('{} storing: [{:8.8}]->[{!s}] :: "{!s}"'.format(
+                self.__class__.__name__,
+                fileobject.hash_partial,
+                meowuri,
+                _debugmsg_data.get('value')
+            ))
         try:
             any_existing = self.__get_data(fileobject, meowuri)
         except KeyError:
@@ -156,9 +159,10 @@ class Repository(object):
                 'Unable to resolve empty meowURI'
             )
 
-        log.debug('Got request [{:8.8}]->[{!s}]'.format(
-            fileobject.hash_partial, meowuri))
-
+        if __debug__:
+            log.debug('Got request [{:8.8}]->[{!s}]'.format(
+                fileobject.hash_partial, meowuri
+            ))
         try:
             data = self.__get_data(fileobject, meowuri)
         except KeyError as e:
