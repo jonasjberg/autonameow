@@ -21,6 +21,7 @@
 
 import logging
 
+from core import constants as C
 from core import types
 
 
@@ -120,39 +121,45 @@ class ProviderRegistry(object):
 
         Args:
             requested_meowuri: The "MeowURI" of interest.
-            includes: Optional list of sources to include. Default: include all
+            includes: Optional list of provider roots to include.
+                      Must be one of 'C.MEOWURI_ROOTS_SOURCES'.
+                      Default is to include all.
 
         Returns:
             A list of classes that "could" produce and store data under a
             MeowURI that "matches" (!) the given MeowURI.
         """
-        def _search_source_type(root):
+        NO_PROVIDERS = list()
+        if not requested_meowuri:
+            log.error('"provider_for_meowuri()" got empty MeowURI!')
+            return NO_PROVIDERS
+
+        def _search_providers_with_root(root):
+            # '_meowuri' is shorter "root";
+            #            'extractor.metadata.epub'
+            # 'requested_meowuri' is full "source-specific";
+            #                     'extractor.metadata.exiftool.EXIF:CreateDate'
             for _meowuri in self.meowuri_sources[root].keys():
                 if _meowuri in requested_meowuri:
                     return self.meowuri_sources[root][_meowuri]
             return None
 
-        if not requested_meowuri:
-            log.error('"provider_for_meowuri()" got empty MeowURI!')
-            return []
+        if not includes:
+            return (
+                _search_providers_with_root('extractor') or
+                _search_providers_with_root('analyzer') or
+                _search_providers_with_root('plugin') or
+                NO_PROVIDERS
+            )
 
-        if includes is None:
-            return (_search_source_type('extractor')
-                    or _search_source_type('analyzer')
-                    or _search_source_type('plugin')
-                    or [])
-        else:
-            if not isinstance(includes, list):
-                includes = [includes]
-            for include in includes:
-                if include not in ('analyzer', 'extractor', 'plugin'):
-                    continue
+        for include in includes:
+            assert include in C.MEOWURI_ROOTS_SOURCES, str(include)
 
-                result = _search_source_type(include)
-                if result is not None:
-                    return result
+            result = _search_providers_with_root(include)
+            if result is not None:
+                return result
 
-            return []
+        return NO_PROVIDERS
 
     @staticmethod
     def unique_map_meowuris(meowuri_class_map):

@@ -191,7 +191,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
             for uri in meowuris:
                 actual = self.registry.provider_for_meowuri(
-                    uri, includes='analyzer'
+                    uri, includes=['analyzer']
                 )
                 self.assertEqual(1, len(actual))
 
@@ -202,7 +202,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         for meowuris, expected_source in self._extractor_meowURI_sourcemap:
             for uri in meowuris:
                 actual = self.registry.provider_for_meowuri(
-                    uri, includes='analyzer'
+                    uri, includes=['analyzer']
                 )
                 self.assertEqual(0, len(actual))
 
@@ -210,7 +210,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         for meowuris, expected_source in self._extractor_meowURI_sourcemap:
             for uri in meowuris:
                 actual = self.registry.provider_for_meowuri(
-                    uri, includes='extractor'
+                    uri, includes=['extractor']
                 )
                 self.assertEqual(1, len(actual))
 
@@ -221,7 +221,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
             for uri in meowuris:
                 actual = self.registry.provider_for_meowuri(
-                    uri, includes='extractors'
+                    uri, includes=['extractor']
                 )
                 self.assertEqual(0, len(actual))
 
@@ -229,14 +229,14 @@ class TestMapMeowURItoSourceClass(TestCase):
         for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
             for uri in meowuris:
                 actual = self.registry.provider_for_meowuri(
-                    uri, includes='plugins'
+                    uri, includes=['plugin']
                 )
                 self.assertEqual(0, len(actual))
 
         for meowuris, expected_source in self._extractor_meowURI_sourcemap:
             for uri in meowuris:
                 actual = self.registry.provider_for_meowuri(
-                    uri, includes='plugins'
+                    uri, includes=['plugin']
                 )
                 self.assertEqual(0, len(actual))
 
