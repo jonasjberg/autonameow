@@ -41,6 +41,7 @@ class TextAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
+        # TODO: [TD0102] Fix inconsistent results passed back by analyzers.
         # self._add_results('datetime', self.get_datetime())
 
     def get_datetime(self):

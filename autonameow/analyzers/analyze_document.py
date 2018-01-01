@@ -62,8 +62,9 @@ class DocumentAnalyzer(BaseAnalyzer):
         # TODO: [TD0134] Consolidate splitting up text into chunks.
         text_chunk_1 = self._extract_leading_text_chunk(chunk_ratio=0.1)
 
-        self._add_results('datetime',
-                          self._get_datetime_from_text(text_chunk_1))
+        # TODO: [TD0102] Fix inconsistent results passed back by analyzers.
+        # Self._add_results('datetime',
+        #                   self._get_datetime_from_text(text_chunk_1))
 
         self._add_title_from_text_to_results(text_chunk_1)
 
