@@ -144,6 +144,7 @@ class ProviderRegistry(object):
                     return self.meowuri_sources[root][_meowuri]
             return None
 
+        # TODO: [TD0147] This currently only uses the first found provider!
         if not includes:
             return (
                 _search_providers_with_root('extractor') or
