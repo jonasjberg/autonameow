@@ -122,11 +122,14 @@ class BaseAnalyzer(object):
                 as a Unicode str.
             data: ?
         """
-        if data is None:
+        if not data:
             return
 
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
         # Map strings to generic field classes.
+        assert isinstance(data, dict), (
+            'Expected dict. Got {!s} ({!s})'.format(type(data), data)
+        )
         _generic_field_string = data.get('generic_field')
         if _generic_field_string:
             _generic_field_klass = get_field_class(_generic_field_string)
