@@ -98,7 +98,7 @@ class ProviderRegistry(object):
         for key in self.meowuri_sources.keys():
             for meowuri, klass in self.meowuri_sources[key].items():
                 self.log.debug(
-                    'Mapped meowURI "{!s}" to "{!s}" ({!s})'.format(meowuri,
+                    'Mapped MeowURI "{!s}" to "{!s}" ({!s})'.format(meowuri,
                                                                     klass, key)
                 )
 
@@ -115,9 +115,12 @@ class ProviderRegistry(object):
             return True
         return False
 
-    def provider_for_meowuri(self, requested_meowuri, includes=None):
+    def providers_for_meowuri(self, requested_meowuri, includes=None):
         """
-        Returns a list of classes that could store data using a given "MeowURI".
+        Returns a set of classes that might store data under a given "MeowURI".
+
+        Note that the provider "MeowURI" is matched as a substring of the
+        requested "MeowURI".
 
         Args:
             requested_meowuri: The "MeowURI" of interest.
@@ -126,13 +129,13 @@ class ProviderRegistry(object):
                       Default is to include all.
 
         Returns:
-            A list of classes that "could" produce and store data under a
-            MeowURI that "matches" (!) the given MeowURI.
+            A set of classes that "could" produce and store data under a
+            "MeowURI" that is a substring of the given "MeowURI".
         """
-        NO_PROVIDERS = list()
+        found = set()
         if not requested_meowuri:
-            log.error('"provider_for_meowuri()" got empty MeowURI!')
-            return NO_PROVIDERS
+            log.error('"providers_for_meowuri()" got empty MeowURI!')
+            return found
 
         def _search_providers_with_root(root):
             # '_meowuri' is shorter "root";
@@ -146,21 +149,25 @@ class ProviderRegistry(object):
 
         # TODO: [TD0147] This currently only uses the first found provider!
         if not includes:
-            return (
-                _search_providers_with_root('extractor') or
-                _search_providers_with_root('analyzer') or
-                _search_providers_with_root('plugin') or
-                NO_PROVIDERS
-            )
+            # TODO: Simplify by matching substrings here.
+            # NOTE(jonas): Sort for more consistent behaviour.
+            for root in sorted(C.MEOWURI_ROOTS_SOURCES):
+                _found_provider = _search_providers_with_root(root)
+                if _found_provider:
+                    found.add(_found_provider)
+            return found
 
+        VALID_INCLUDES = C.MEOWURI_ROOTS_SOURCES
         for include in includes:
-            assert include in C.MEOWURI_ROOTS_SOURCES, str(include)
+            assert include in VALID_INCLUDES, (
+                '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
+            )
 
             result = _search_providers_with_root(include)
             if result is not None:
-                return result
+                found.add(result)
 
-        return NO_PROVIDERS
+        return found
 
     @staticmethod
     def unique_map_meowuris(meowuri_class_map):
@@ -177,40 +184,56 @@ class ProviderRegistry(object):
 
 
 def _get_meowuri_source_map():
-    """
-    The 'MeowURIClassMap' attributes in non-core modules keep
-    references to the available component classes.
-    These are dicts with keys being the "meowURIs" that the respective
-    component uses when storing data and the contained values are lists of
-    classes mapped to the "meowURI".
+    def __root_meowuris_for_providers(module_name):
+        """
+        Returns a dict mapping "MeowURIs" to extractor classes.
 
-    Returns: Dictionary keyed by "MeowURIs", storing lists of "source" classes.
-    """
+        Example return value: {
+            'extractor.filesystem.xplat': CrossPlatformFilesystemExtractor,
+            'extractor.metadata.exiftool': ExiftoolMetadataExtractor,
+            'extractor.text.pdftotext': PdftotextTextExtractor
+        }
+
+        Returns: Dictionary keyed by Unicode string "MeowURIs",
+                 storing extractor classes.
+        """
+        _klass_list = getattr(module_name, 'ProviderClasses')
+        assert isinstance(_klass_list, list), type(_klass_list)
+
+        mapping = dict()
+        for klass in _klass_list:
+            _meowuri = klass.meowuri_prefix()
+            if not _meowuri:
+                log.critical('Got empty from '
+                             '"{!s}.meowuri_prefix()"'.format(klass.__name__))
+                continue
+
+            assert _meowuri not in mapping, (
+                'Provider MeowURI "{!s}" is already mapped'.format(_meowuri)
+            )
+            mapping[_meowuri] = klass
+
+        return mapping
+
     import analyzers
     import extractors
     import plugins
     return {
-        'extractor': extractors.MeowURIClassMap,
-        'analyzer': analyzers.MeowURIClassMap,
-        'plugin': plugins.MeowURIClassMap
+        'extractor': __root_meowuris_for_providers(extractors),
+        'analyzer': __root_meowuris_for_providers(analyzers),
+        'plugin': __root_meowuris_for_providers(plugins)
     }
 
 
 def get_providers_for_meowuris(meowuri_list, include_roots=None):
+    providers = set()
     if not meowuri_list:
-        return []
+        return providers
 
-    out = set()
     for uri in meowuri_list:
-        source_classes = Registry.provider_for_meowuri(uri, include_roots)
-
-        # TODO: Improve robustness of linking "MeowURIs" to data source classes.
-        if source_classes:
-            assert isinstance(source_classes, list)
-            for source in source_classes:
-                out.add(source)
-
-    return list(out)
+        source_classes = Registry.providers_for_meowuri(uri, include_roots)
+        providers.update(source_classes)
+    return providers
 
 
 Registry = None

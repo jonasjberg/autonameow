@@ -101,7 +101,7 @@ def suitable_extractors_for(fileobject):
     Returns:
         A list of extractor classes that can extract data from the given file.
     """
-    return [e for e in extractors.ExtractorClasses if e.can_handle(fileobject)]
+    return [e for e in extractors.ProviderClasses if e.can_handle(fileobject)]
 
 
 def _wrap_extracted_data(extracteddata, metainfo, source_klass):
@@ -239,4 +239,4 @@ class ExtractorRunner(object):
 
 
 def get_extractor_runner():
-    return ExtractorRunner(available_extractors=extractors.ExtractorClasses)
+    return ExtractorRunner(available_extractors=extractors.ProviderClasses)

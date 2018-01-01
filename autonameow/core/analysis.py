@@ -151,7 +151,7 @@ def suitable_analyzers_for(fileobject):
     Returns:
         A list of analyzer classes that can analyze the given file.
     """
-    return [a for a in analyzers.AnalyzerClasses if a.can_handle(fileobject)]
+    return [a for a in analyzers.ProviderClasses if a.can_handle(fileobject)]
 
 
 def start(fileobject, config):

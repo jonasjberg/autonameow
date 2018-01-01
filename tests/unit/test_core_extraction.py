@@ -135,7 +135,7 @@ class TestKeepSlowExtractorsIfRequired(TestCase):
 
 
 class TestSuitableExtractorsForFile(TestCase):
-    extractor_class_names = [e.__name__ for e in extractors.ExtractorClasses]
+    extractor_class_names = [e.__name__ for e in extractors.ProviderClasses]
 
     def _assert_in_if_available(self, member, container):
         """

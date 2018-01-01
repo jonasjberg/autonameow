@@ -49,7 +49,7 @@ class PluginHandler(object):
         self.log.debug(' Plugin Handler Started '.center(120, '='))
 
         # Get instantiated and validated plugins.
-        self.available_plugins = plugins.UsablePlugins
+        self.available_plugins = plugins.ProviderClasses
         sanity.check_isinstance(self.available_plugins, list)
 
         if self.available_plugins:

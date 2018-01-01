@@ -95,33 +95,4 @@ def get_analyzer_classes():
     return out
 
 
-def map_meowuri_to_analyzers():
-    """
-    Returns a mapping of the analyzer classes "meowURIs" and classes.
-
-    Each analyzer class defines 'MEOWURI_ROOT' which is used as the
-    first part of all data returned by the analyzer.
-
-    Returns: A dictionary where the keys are "meowURIs" and the values
-        are lists of analyzer classes.
-    """
-    out = dict()
-
-    for klass in AnalyzerClasses:
-        _meowuri = klass.meowuri_prefix()
-        if not _meowuri:
-            log.error(
-                'Got None from "{!s}.meowuri_prefix()"'.format(klass.__name__)
-            )
-            continue
-
-        assert _meowuri not in out, (
-            'Already mapped MeowURI "{!s}" .. Name collision?'.format(_meowuri)
-        )
-        out[_meowuri] = [klass]
-
-    return out
-
-
-AnalyzerClasses = get_analyzer_classes()
-MeowURIClassMap = map_meowuri_to_analyzers()
+ProviderClasses = get_analyzer_classes()

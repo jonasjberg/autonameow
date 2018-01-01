@@ -14,7 +14,7 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0147]` Fix `provider_for_meowuri()` stops searching after first match.
+* `[TD0147]` Fix `providers_for_meowuri()` stops searching after first match.
 
 * `[TD0146]` Rework "generic fields", possibly collecting fields in "records".
 

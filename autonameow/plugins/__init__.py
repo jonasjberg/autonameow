@@ -92,30 +92,4 @@ def get_usable_plugin_classes():
 #     return [p for p in UsablePlugins if p.can_handle(fileobject)]
 
 
-def map_meowuri_to_plugins():
-    """
-    Returns a mapping of the plugin classes "meowURIs" and actual classes.
-
-    Returns: A dictionary where the keys are "meowURIs" and the values
-        are lists of analyzer classes.
-    """
-    out = dict()
-
-    for klass in UsablePlugins:
-        _meowuri = klass.meowuri_prefix()
-        if not _meowuri:
-            log.error(
-                'Got None from "{!s}.meowuri_prefix()"'.format(klass.__name__)
-            )
-            continue
-
-        assert _meowuri not in out, (
-            'Already mapped MeowURI "{!s}" .. Name collision?'.format(_meowuri)
-        )
-        out[_meowuri] = [klass]
-
-    return out
-
-
-UsablePlugins = get_usable_plugin_classes()
-MeowURIClassMap = map_meowuri_to_plugins()
+ProviderClasses = get_usable_plugin_classes()
