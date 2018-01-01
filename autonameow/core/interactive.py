@@ -60,6 +60,9 @@ def select_field(templatefield, candidates):
 
     log.warning('TODO: Implement interactive field selection')
     response = ui.field_selection_prompt(numbered_candidates)
+    if not response:
+        return Choice.ABORT
+
     assert response in numbered_candidates
     return numbered_candidates.get(response)
 

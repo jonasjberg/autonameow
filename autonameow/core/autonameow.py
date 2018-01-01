@@ -520,11 +520,11 @@ class Autonameow(object):
                         else:
                             log.info('Resolver did not find any candidates ..')
 
-                        if choice is None:
+                        if choice is interactive.Choice.ABORT:
                             _m = 'Specify source for field {!s}'.format(field)
                             choice = interactive.meowuri_prompt(_m)
 
-                        if not choice or choice == interactive.Choice.ABORT:
+                        if choice is interactive.Choice.ABORT:
                             log.info('Aborting ..')
                             return
 
