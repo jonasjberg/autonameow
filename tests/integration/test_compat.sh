@@ -47,6 +47,8 @@ TESTSUITE_NAME='Compatibility'
 logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
+assert_false '[ -z "$TERM" ]' \
+             'Environment variable "$TERM" should be set'
 
 assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
