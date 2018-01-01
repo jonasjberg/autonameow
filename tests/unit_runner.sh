@@ -55,6 +55,7 @@ fi
 option_write_report='false'
 option_quiet='false'
 option_enable_coverage='false'
+option_run_last_failed='false'
 
 
 print_usage_info()
@@ -67,6 +68,8 @@ print_usage_info()
 
   OPTIONS:     -h   Display usage information and exit.
                -c   Enable checking unit test coverage.
+               -l   Run tests that failed during the last run.
+                    Note: Only supported by "pytest"!
                -w   Write HTML test reports to disk.
                     Note: the "raw" log file is always written.
                -q   Suppress output from test suites.
@@ -93,11 +96,12 @@ if [ "$#" -eq "0" ]
 then
     printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
 else
-    while getopts chwq opt
+    while getopts chlwq opt
     do
         case "$opt" in
             c) option_enable_coverage='true' ;;
             h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
+            l) option_run_last_failed='true' ;;
             w) option_write_report='true' ;;
             q) option_quiet='true' ;;
         esac
@@ -152,6 +156,16 @@ then
     fi
 fi
 
+if [ "$option_run_last_failed" == 'true' ]
+then
+    # Make sure required executables are available.
+    if [ "$HAS_PYTEST" != 'true' ]
+    then
+        echo "This script requires \"pytest\" to run last failed." 1>&2
+        echo "Install using pip by executing:  pip3 install pytest"
+        exit "$EXIT_CRITICAL"
+    fi
+fi
 
 
 
@@ -180,9 +194,15 @@ run_pytest()
     _pytest_coverage_opts=''
     [ "$option_enable_coverage" != 'true' ] || _pytest_coverage_opts="--cov=autonameow --cov-report=term"
 
+    _pytest_misc_opts=''
+    [ "$option_run_last_failed" != 'true' ] || _pytest_misc_opts='--last-failed'
+
+
     (
       cd "$AUTONAMEOW_ROOT_DIR" || return 1
-      PYTHONPATH=autonameow:tests pytest ${_pytest_report_opts} ${_pytest_coverage_opts} tests/unit/test_*.py
+      PYTHONPATH=autonameow:tests \
+      pytest ${_pytest_report_opts} ${_pytest_coverage_opts} ${_pytest_misc_opts} \
+      tests/unit/test_*.py
     )
 }
 

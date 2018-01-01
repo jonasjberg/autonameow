@@ -58,6 +58,8 @@ This script accepts optional argument flags, described in the usage text;
 
   OPTIONS:     -h   Display usage information and exit.
                -c   Enable checking unit test coverage.
+               -l   Run tests that failed during the last run.
+                    Note: Only supported by "pytest"!
                -w   Write HTML test reports to disk.
                     Note: the "raw" log file is always written.
                -q   Suppress output from test suites.
