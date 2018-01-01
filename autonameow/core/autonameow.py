@@ -180,6 +180,7 @@ class Autonameow(object):
             ui.options.prettyprint_options(self.opts, include_opts)
 
         if self.opts.get('dump_config'):
+            # TODO: [TD0148] Fix '!!python/object' in '--dump-config' output.
             self._dump_active_config_and_exit()
 
         if self.opts.get('dump_meowuris'):

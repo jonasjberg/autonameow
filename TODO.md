@@ -204,6 +204,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0148]` Fix `!!python/object` in `--dump-config` output.
+
 * `[TD0145]` Add script for automating release of a new version.
 
 * `[TD0144]` Avoid enforcing/pruning cache file size too frequently.
