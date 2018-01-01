@@ -107,9 +107,9 @@ class TemplateFieldDataResolver(object):
 
         out = []
         for candidate in candidates:
-            if not candidate:
-                # TODO: Fix None candidates getting here.
-                continue
+            assert isinstance(candidate, dict), (
+                'Expected dict. Got {!s}'.format(type(candidate))
+            )
 
             mapped_fields = candidate.get('mapped_fields')
             if not mapped_fields:
