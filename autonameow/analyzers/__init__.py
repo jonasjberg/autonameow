@@ -115,10 +115,10 @@ def map_meowuri_to_analyzers():
             )
             continue
 
-        if _meowuri in out:
-            out[_meowuri].append(klass)
-        else:
-            out[_meowuri] = [klass]
+        assert _meowuri not in out, (
+            'Already mapped MeowURI "{!s}" .. Name collision?'.format(_meowuri)
+        )
+        out[_meowuri] = [klass]
 
     return out
 
