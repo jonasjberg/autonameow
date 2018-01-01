@@ -21,6 +21,7 @@
 
 set -o noclobber -o nounset -o pipefail
 
+
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
     cat >&2 <<EOF

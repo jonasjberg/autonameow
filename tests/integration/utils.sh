@@ -21,10 +21,10 @@
 
 set -o noclobber -o nounset -o pipefail
 
+
 C_RED="$(tput setaf 1)"
 C_GREEN="$(tput setaf 2)"
 C_RESET="$(tput sgr0)"
-# C_RESET='\E[0m'
 
 
 # Initialize counter variables every time this script is sourced

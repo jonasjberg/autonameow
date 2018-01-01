@@ -19,10 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
-# NOTE: Requires "aha" to be installed in order to convert the "raw"
-#       (containing ANSI escape codes) log files to HTML.
-
 set -o noclobber -o nounset -o pipefail
 
 
@@ -189,6 +185,8 @@ done < "$AUTONAMEOW_INTEGRATION_STATS"
 log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_total_failed"
 
 
+# NOTE: Requires "aha" to be installed in order to convert the "raw"
+#       (containing ANSI escape codes) log files to HTML.
 # if [ ! "$option_write_report" != 'true' ]
 # then
 #     run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
