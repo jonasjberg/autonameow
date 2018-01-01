@@ -41,7 +41,7 @@ class TextAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
-        self._add_results('datetime', self.get_datetime())
+        # self._add_results('datetime', self.get_datetime())
 
     def get_datetime(self):
         results = []
