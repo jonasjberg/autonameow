@@ -95,3 +95,16 @@ class TestConstants(TestCase):
         from datetime import datetime
         self._is_defined_type(datetime, C.YEAR_UPPER_LIMIT)
         self._is_defined_type(datetime, C.YEAR_LOWER_LIMIT)
+
+    def test_meowuri_constants(self):
+        self._is_defined_internal_string(C.MEOWURI_NODE_GENERIC )
+        self._is_defined_internal_string(C.UNDEFINED_MEOWURI_PART)
+        self._is_defined_internal_string(C.MEOWURI_SEPARATOR)
+        self._is_defined_internal_string(C.RE_ALLOWED_MEOWURI_PART_CHARS)
+        self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_ANALYZERS)
+        self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_EXTRACTORS)
+        self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_PLUGINS)
+        self._is_defined_internal_string(C.MEOWURI_ROOT_GENERIC)
+
+        self._is_defined_type(frozenset, C.MEOWURI_ROOTS_SOURCES)
+        self._is_defined_type(frozenset, C.MEOWURI_ROOTS)
