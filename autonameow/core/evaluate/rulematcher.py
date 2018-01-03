@@ -98,8 +98,8 @@ class RuleMatcher(object):
 
             scored_rules[rule] = {'score': score, 'weight': weight}
 
-        log.debug('Prioritizing the remaining {} candidates ..'.format(
-            num_rules_remain)
+        log.debug(
+            'Prioritizing remaining {} candidates ..'.format(num_rules_remain)
         )
         prioritized_rules = prioritize_rules(scored_rules)
 

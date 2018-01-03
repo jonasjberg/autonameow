@@ -50,7 +50,8 @@ class ProviderMixin(object):
             return None
 
         assert _coercer and isinstance(_coercer, types.BaseType), (
-               'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
+            'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer)
+        )
         wrapper = _coercer
 
         if isinstance(value, list):

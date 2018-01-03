@@ -146,8 +146,9 @@ class RuleCondition(object):
         if parsers:
             # NOTE(jonas): Assume only one parser per "MeowURI" for now ..
             assert len(parsers) == 1, (
-                   'Unexpectedly got {} parsers for MeowURI '
-                   '"{!s}"'.format(len(parsers), meowuri))
+                'Unexpectedly got {} parsers for MeowURI '
+                '"{!s}"'.format(len(parsers), meowuri)
+            )
 
             self._parser = parsers[0]
 

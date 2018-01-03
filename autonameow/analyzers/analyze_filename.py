@@ -136,7 +136,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Edition, probability=1),
             ],
-        'generic_field': 'edition'
+            'generic_field': 'edition'
         }
 
     def _get_extension(self):

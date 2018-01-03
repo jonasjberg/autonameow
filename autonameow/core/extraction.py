@@ -228,8 +228,7 @@ class ExtractorRunner(object):
 
             if not _extracted_data:
                 log.warning('Got empty data from extractor "{!s}"'.format(
-                    _extractor_instance)
-                )
+                    _extractor_instance))
                 continue
 
             _results = _wrap_extracted_data(_extracted_data, _metainfo,

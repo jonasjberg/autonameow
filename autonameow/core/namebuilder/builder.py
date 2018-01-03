@@ -128,9 +128,8 @@ def build(config, name_template, field_data_map):
             log.debug('Sanitizing filename')
             new_name = disk.sanitize_filename(new_name)
 
-        log.debug('Sanitized basename (unicode): "{!s}"'.format(
-            enc.displayable_path(new_name))
-        )
+        log.debug('Sanitized basename (unicode): '
+                  '"{!s}"'.format(enc.displayable_path(new_name)))
     else:
         log.debug('Skipped sanitizing filename')
 

@@ -77,7 +77,7 @@ def init_argparser():
         description='{} {}'.format(C.STRING_PROGRAM_NAME,
                                    C.STRING_PROGRAM_VERSION),
         epilog='Automatic renaming of files from analysis of '
-               'several sources of information.' +
+               'several sources of information.'
                '\n Project website:  {}'.format(C.STRING_REPO_URL),
     )
 

@@ -67,8 +67,9 @@ class TemplateFieldDataResolver(object):
 
     def add_known_source(self, field, meowuri):
         assert meowuri and isinstance(meowuri, MeowURI), (
-               'TODO: Fix collecting/verifying data from sources. '
-               'Expected MeowURI, not "{!s}"'.format(type(meowuri)))
+            'TODO: Fix collecting/verifying data from sources. '
+            'Expected MeowURI, not "{!s}"'.format(type(meowuri))
+        )
 
         if field in self._fields:
             if not self.data_sources.get(field):
@@ -178,8 +179,7 @@ class TemplateFieldDataResolver(object):
                 _data = self._request_data(self.file, _meowuri)
                 if _data is None:
                     log.debug('Got NONE data from [{:8.8}]->[{!s}]'.format(
-                        self.file.hash_partial, _meowuri)
-                    )
+                        self.file.hash_partial, _meowuri))
                     continue
 
                 # TODO: [TD0112] FIX THIS HORRIBLE MESS!
@@ -208,13 +208,11 @@ class TemplateFieldDataResolver(object):
                     if len(seen_data) == 1:
                         # TODO: [TD0112] FIX THIS!
                         log.debug('Merged {} equivalent entries'.format(
-                            len(_data.get('value')))
-                        )
+                            len(_data.get('value'))))
                         _data['value'] = list(seen_data)[0]
 
                 log.debug('Updated data for field {{{}}} :: "{!s}"'.format(
-                    _str_field, _data.get('value')
-                ))
+                    _str_field, _data.get('value')))
                 self.fields_data[_field] = _data
                 break
 
@@ -225,12 +223,9 @@ class TemplateFieldDataResolver(object):
                 if not field.MULTIVALUED:
                     self.fields_data[field] = None
                     log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
-                    log.debug(
-                        'Template field {{{!s}}} expects a single value. '
-                        'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
-                                                   type(data), data)
-                    )
-
+                    log.debug('Template field {{{!s}}} expects a single value. '
+                              'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
+                                                         type(data), data))
                 for d in data:
                     self._verify_type(field, d)
             else:
@@ -245,7 +240,8 @@ class TemplateFieldDataResolver(object):
     def _verify_type(self, field, data):
         _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
         assert not isinstance(data, list), (
-               'Expected "data" not to be a list. Got {}'.format(_data_info))
+            'Expected "data" not to be a list. Got {}'.format(_data_info)
+        )
 
         log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
         _coercer = data.get('coercer')
@@ -258,8 +254,7 @@ class TemplateFieldDataResolver(object):
 
     def _request_data(self, file, meowuri):
         log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
-            self, file.hash_partial, meowuri)
-        )
+            self, file.hash_partial, meowuri))
         return repository.SessionRepository.query(file, meowuri)
 
     def __str__(self):

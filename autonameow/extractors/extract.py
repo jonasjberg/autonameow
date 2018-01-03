@@ -197,13 +197,11 @@ def main(options=None):
         except (exceptions.InvalidFileArgumentError,
                 exceptions.FilesystemError) as e:
             log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                e, enc.displayable_path(_file))
-            )
+                e, enc.displayable_path(_file)))
             continue
 
         log.info('Processing ({}/{}) "{!s}" ..'.format(
-            _num, _num_files, current_file
-        ))
+            _num, _num_files, current_file))
 
         if opts.get('extract_text'):
             do_extract_text(current_file)
@@ -219,7 +217,7 @@ def parse_args(raw_args):
             C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION
         ),
         epilog='Run autonameow extractors stand-alone.' +
-               '\n Project website:  {}'.format(C.STRING_REPO_URL),
+        '\n Project website:  {}'.format(C.STRING_REPO_URL),
     )
 
     parser.add_argument(

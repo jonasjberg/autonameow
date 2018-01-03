@@ -207,10 +207,13 @@ class Autonameow(object):
 
         self._handle_files(files_to_process)
 
-        log.info('Processed {} files. Renamed {}  Skipped {}  Failed {}'.format(
-            len(files_to_process), self.rename_stats['renamed'],
-            self.rename_stats['skipped'], self.rename_stats['failed'])
-        )
+        _rename_stats = 'Processed {t} files. Renamed {r}  Skipped {s}  ' \
+                        'Failed {f}'.format(t=len(files_to_process),
+                                            r=self.rename_stats['renamed'],
+                                            s=self.rename_stats['skipped'],
+                                            f=self.rename_stats['failed'])
+        log.info(_rename_stats)
+
         self.exit_program(self.exit_code)
 
     def load_config(self, path):
@@ -285,8 +288,7 @@ class Autonameow(object):
 
         for file_path in file_paths:
             log.info('Processing: "{!s}"'.format(
-                enc.displayable_path(file_path))
-            )
+                enc.displayable_path(file_path)))
 
             # Sanity checking the "file_path" is part of 'FileObject' init.
             try:
@@ -294,16 +296,14 @@ class Autonameow(object):
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                    e, enc.displayable_path(file_path))
-                )
+                    e, enc.displayable_path(file_path)))
                 continue
 
             try:
                 self._handle_file(current_file)
             except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
-                    enc.displayable_path(file_path))
-                )
+                    enc.displayable_path(file_path)))
                 self.exit_code = C.EXIT_WARNING
                 continue
 
@@ -473,9 +473,7 @@ class Autonameow(object):
             log.critical('Name assembly FAILED: {!s}'.format(e))
             raise exceptions.AutonameowException
 
-        log.info('New name: "{}"'.format(
-            enc.displayable_path(new_name))
-        )
+        log.info('New name: "{}"'.format(enc.displayable_path(new_name)))
         self.do_rename(
             from_path=current_file.abspath,
             new_basename=new_name,
@@ -645,8 +643,7 @@ class Autonameow(object):
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = enc.bytestring_path(new_basename)
         log.debug('Destination basename (bytestring): "{!s}"'.format(
-            enc.displayable_path(dest_basename))
-        )
+            enc.displayable_path(dest_basename)))
         sanity.check_internal_bytestring(dest_basename)
 
         from_basename = disk.file_basename(from_path)

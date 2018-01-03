@@ -530,7 +530,7 @@ class ISBNMetadata(object):
             stripped_value = [v for v in value if v.strip()]
             self._authors = stripped_value
             self._normalized_authors = [
-               normalize_full_human_name(a) for a in stripped_value if a
+                normalize_full_human_name(a) for a in stripped_value if a
             ]
 
     @property
@@ -675,10 +675,11 @@ class ISBNMetadata(object):
             _sim_authors = FIELDS_MISSING_SIMILARITY
         else:
             _sim_authors = float(
-                sum(string_similarity(a, b)
+                sum(
+                    string_similarity(a, b)
                     for a, b in zip(self.normalized_authors,
                                     other.normalized_authors)
-                    ) / len(self.normalized_authors)
+                ) / len(self.normalized_authors)
             )
 
         if self.normalized_publisher and other.normalized_publisher:

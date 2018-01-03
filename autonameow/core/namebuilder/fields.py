@@ -121,17 +121,26 @@ class Edition(NameTemplateField):
 
     # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
     REPLACE_ORDINALS = []
-    for _find, _replace in (
-            ('1st', 'first'),        ('2nd', 'second'),
-            ('3rd', 'third'),        ('4th', 'fourth'),
-            ('5th', 'fifth'),        ('6th', 'sixth'),
-            ('7th', 'seventh'),      ('8th', 'eighth'),
-            ('9th', 'ninth'),        ('10th', 'tenth'),
-            ('11th', 'eleventh'),    ('12th', 'twelfth'),
-            ('13th', 'thirteenth'),  ('14th', 'fourteenth'),
-            ('15th', 'fifteenth'),   ('16th', 'sixteenth'),
-            ('17th', 'seventeenth'), ('18th', 'eighteenth'),
-            ('19th', 'nineteenth'),  ('20th', 'twentieth')):
+    for _find, _replace in (('1st', 'first'),
+                            ('2nd', 'second'),
+                            ('3rd', 'third'),
+                            ('4th', 'fourth'),
+                            ('5th', 'fifth'),
+                            ('6th', 'sixth'),
+                            ('7th', 'seventh'),
+                            ('8th', 'eighth'),
+                            ('9th', 'ninth'),
+                            ('10th', 'tenth'),
+                            ('11th', 'eleventh'),
+                            ('12th', 'twelfth'),
+                            ('13th', 'thirteenth'),
+                            ('14th', 'fourteenth'),
+                            ('15th', 'fifteenth'),
+                            ('16th', 'sixteenth'),
+                            ('17th', 'seventeenth'),
+                            ('18th', 'eighteenth'),
+                            ('19th', 'nineteenth'),
+                            ('20th', 'twentieth')):
         REPLACE_ORDINALS.append((re.compile(_find, re.IGNORECASE), _replace))
 
     def __init__(self):

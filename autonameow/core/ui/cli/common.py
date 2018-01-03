@@ -75,7 +75,7 @@ def print_version_info(verbose):
 
         # TODO: [hardcoded] Uses fixed spaces for alignment.
         # Passing colored texts with ANSI escape sequences messes
-        # up the text width detected by the the 'ColumnFormatter' .. 
+        # up the text width detected by the the 'ColumnFormatter' ..
         program_name = colorize(
             '  {}  '.format(C.STRING_PROGRAM_NAME), back='BLUE', fore='BLACK'
         )
@@ -186,7 +186,8 @@ def colorize(text, fore=None, back=None, style=None):
 def colorize_re_match(text, regex, color=None):
     _re_type = types.BUILTIN_REGEX_TYPE
     assert regex and isinstance(regex, _re_type), (
-           'Expected type {!s}. Got {!s}'.format(type(_re_type), type(regex)))
+        'Expected type {!s}. Got {!s}'.format(type(_re_type), type(regex))
+    )
 
     if color is not None:
         _color = color
