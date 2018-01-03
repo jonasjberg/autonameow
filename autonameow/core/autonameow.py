@@ -287,8 +287,8 @@ class Autonameow(object):
         results_to_list = []
 
         for file_path in file_paths:
-            log.info('Processing: "{!s}"'.format(
-                enc.displayable_path(file_path)))
+            _displayable_file_path = enc.displayable_path(file_path)
+            log.info('Processing: "{!s}"'.format(_displayable_file_path))
 
             # Sanity checking the "file_path" is part of 'FileObject' init.
             try:
@@ -296,14 +296,14 @@ class Autonameow(object):
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                    e, enc.displayable_path(file_path)))
+                    e, _displayable_file_path))
                 continue
 
             try:
                 self._handle_file(current_file)
             except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
-                    enc.displayable_path(file_path)))
+                    _displayable_file_path))
                 self.exit_code = C.EXIT_WARNING
                 continue
 
