@@ -295,15 +295,17 @@ class Autonameow(object):
                 current_file = FileObject(file_path)
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
-                log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                    e, _displayable_file_path))
+                log.warning(
+                    '{!s} - SKIPPING: "{!s}"'.format(e, _displayable_file_path)
+                )
                 continue
 
             try:
                 self._handle_file(current_file)
-            except exceptions.AutonameowException:
-                log.critical('Skipping file "{}" ..'.format(
-                    _displayable_file_path))
+            except exceptions.AutonameowException as e:
+                log.critical(
+                    '{!s} - SKIPPING: "{!s}"'.format(e, _displayable_file_path)
+                )
                 self.exit_code = C.EXIT_WARNING
                 continue
 
