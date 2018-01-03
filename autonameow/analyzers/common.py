@@ -175,12 +175,9 @@ class BaseAnalyzer(object):
             if isinstance(v, str) and v:
                 text = v
 
-        if text is not None:
-            return text
-        else:
-            self.log.info(
-                'Required data unavailable ("generic.contents.text")'
-            )
+        if text is None:
+            self.log.info('Requested data unavailable: "generic.contents.text"')
+        return text
 
     def metainfo(self, *args, **kwargs):
         return self.FIELD_LOOKUP
