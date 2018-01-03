@@ -50,7 +50,7 @@ class BaseField(object):
         return False
 
     def __bool__(self):
-        return self.normvalue is not ''
+        return bool(self.normvalue)
 
     def __len__(self):
         return len(self.normvalue) or 0
