@@ -54,5 +54,5 @@ fi
 
 (
     cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests \
-    pylint --rcfile='./devscripts/pylintrc' autonameow bin tests
+    pylint --rcfile='./devscripts/pylintrc' autonameow bin tests/regression tests/devscripts
 )
