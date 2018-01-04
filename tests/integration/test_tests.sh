@@ -36,6 +36,14 @@ fi
 source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 
 
+assert_has_command()
+{
+    local -r _cmd_name="$1"
+    assert_true 'command -v "$_cmd_name"' \
+                "System provides executable command \"${_cmd_name}\""
+}
+
+
 
 # Test Cases
 # ____________________________________________________________________________
@@ -151,44 +159,30 @@ assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
 assert_false '[ -z "$TERM" ]' \
              'Environment variable "$TERM" should be set'
 
-assert_true 'command -v python3' \
-            'Python v3.x is available on the system'
-
+assert_has_command 'python3'
 assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
-            'Python v3.5.0 or newer is available on the system'
+            'System python3 is version v3.5.0 or newer'
 
-assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+assert_has_command 'exiftool'
+assert_has_command 'tesseract'
+assert_has_command 'pylint'
+# assert_has_command 'vulture'
+assert_has_command 'aha'
 
-assert_true 'command -v exiftool' \
-            'exiftool is available on the system'
-
-assert_true 'command -v tesseract' \
-            'tesseract is available on the system'
-
-assert_true 'command -v sed' \
-            'sed is available on the system'
-
+assert_has_command 'sed'
 assert_true 'man sed | grep -- "^ \+.*-i\b"' \
-            'sed supports the "-i" option, required by some integration tests'
+            'System sed supports the "-i" option, required by some integration tests'
 
-assert_true 'command -v git' \
-            'git is available on the system'
+assert_has_command 'git'
+assert_true 'git --version | grep "git version 2\..*"' \
+            'System git version is newer than v2.x.x'
 
-assert_true 'command -v aha' \
-            'The executable "aha" is available on the system'
-
-assert_true 'command -v pytest' \
-            'The executable "pytest" is available on the system'
-
+assert_has_command 'pytest'
 _pytesthelp="$(pytest --help 2>&1)"
 assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
             'Module "pytest-html" is available on the system'
 
-assert_true 'command -v pylint' \
-            'The executable "pylint" is available on the system'
-
-assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
-            'Should be running a target operating system'
+assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
 
 # ______________________________________________________________________________
