@@ -126,7 +126,3 @@ ProviderClasses = get_extractor_classes(
     packages=['filesystem', 'metadata', 'text'],
     modules=_extractor_module_files
 )
-
-
-from . import metadata
-from . import text
