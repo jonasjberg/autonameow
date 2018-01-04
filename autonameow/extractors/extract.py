@@ -217,7 +217,7 @@ def parse_args(raw_args):
             C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION
         ),
         epilog='Run autonameow extractors stand-alone.' +
-        '\n Project website:  {}'.format(C.STRING_REPO_URL),
+        '\n Project website:  {}'.format(C.STRING_URL_REPO),
     )
 
     parser.add_argument(
