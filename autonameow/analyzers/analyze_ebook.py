@@ -625,10 +625,6 @@ class ISBNMetadata(object):
         return self._normalized_year or self.NORMALIZED_YEAR_UNKNOWN
 
     @property
-    def normalized_language(self):
-        return self._normalized_language or ''
-
-    @property
     def title(self):
         return self._title or ''
 
