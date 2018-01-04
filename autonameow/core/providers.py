@@ -138,14 +138,14 @@ class ProviderRegistry(object):
             log.error('"providers_for_meowuri()" got empty MeowURI!')
             return found
 
-        def _search_providers_with_root(root):
+        def _search_providers_with_root(_root):
             # '_meowuri' is shorter "root";
             #            'extractor.metadata.epub'
             # 'requested_meowuri' is full "source-specific";
             #                     'extractor.metadata.exiftool.EXIF:CreateDate'
-            for _meowuri in self.meowuri_sources[root].keys():
+            for _meowuri in self.meowuri_sources[_root].keys():
                 if _meowuri in requested_meowuri:
-                    return self.meowuri_sources[root][_meowuri]
+                    return self.meowuri_sources[_root][_meowuri]
             return None
 
         # TODO: [TD0147] This currently only uses the first found provider!
