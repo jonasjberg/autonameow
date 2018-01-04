@@ -541,6 +541,8 @@ def parse_data_sources(raw_sources):
             log.warning('Template Field: ”{!s}"'.format(raw_templatefield))
             continue
 
+        assert isinstance(tf, fields.NameTemplateField)
+
         if not raw_meowuri_strings:
             log.debug('Skipped source with empty MeowURI(s) '
                       '(template field: "{!s}")'.format(raw_templatefield))
