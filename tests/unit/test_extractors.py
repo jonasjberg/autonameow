@@ -71,17 +71,17 @@ class TestBaseExtractor(TestCase):
             self.e.extract(self.test_file)
 
     def test_metainfo_returns_expected_type(self):
-        actual = self.e.metainfo(self.test_file)
+        actual = self.e.metainfo()
         self.assertIsInstance(actual, dict)
 
     def test_abstract_class_does_not_specify_metainfo(self):
-        actual = self.e.metainfo(self.test_file)
+        actual = self.e.metainfo()
         self.assertEqual(len(actual), 0)
 
     def test_metainfo_is_not_mutable(self):
-        first = self.e.metainfo(self.test_file)
+        first = self.e.metainfo()
         first['foo'] = 'bar'
-        second = self.e.metainfo(self.test_file)
+        second = self.e.metainfo()
         self.assertNotEqual(first, second)
         self.assertNotIn('foo', second)
 
