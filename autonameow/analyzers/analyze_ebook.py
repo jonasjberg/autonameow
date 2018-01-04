@@ -522,32 +522,43 @@ class ISBNMetadata(object):
 
     @authors.setter
     def authors(self, value):
-        if value:
-            if not isinstance(value, list):
-                value = [value]
+        if not value:
+            return
 
-            # Fix any malformed entries.
-            _author_list = []
-            for element in value:
-                # Handle strings like 'Foo Bar [and Gibson Meow]'
-                if re.match(r'.*\[.*\].*', element):
-                    _splits = element.split('[')
-                    _cleaned_splits = [
-                        re.sub(r'[\[\]]', '', s) for s in _splits
-                    ]
-                    _cleaned_splits = [
-                        re.sub(r'^and ', '', s) for s in _cleaned_splits
-                    ]
-                    _author_list.extend(_cleaned_splits)
-                else:
-                    _author_list.append(element)
+        if not isinstance(value, list):
+            value = [value]
 
-            stripped_author_list = [a.strip() for a in _author_list if a]
+        # TODO: [TD0112] Add some sort of system for normalizing entities.
+        # Fix any malformed entries.
+        _author_list = []
+        for element in value:
+            sanity.check_internal_string(element)
 
-            self._authors = stripped_author_list
-            self._normalized_authors = [
-                normalize_full_human_name(a) for a in stripped_author_list if a
-            ]
+            # Handle strings like 'Foo Bar [and Gibson Meow]'
+            if re.match(r'.*\[.*\].*', element):
+                _splits = element.split('[')
+                _cleaned_splits = [
+                    re.sub(r'[\[\]]', '', s)
+                    for s in _splits
+                ]
+                _cleaned_splits = [
+                    re.sub(r'^and ', '', s)
+                    for s in _cleaned_splits
+                ]
+                _cleaned_splits = [
+                    re.sub(r'^[Ww]ritten by ', '', s)
+                    for s in _cleaned_splits
+                ]
+                _author_list.extend(_cleaned_splits)
+            else:
+                _author_list.append(element)
+
+        stripped_author_list = [a.strip() for a in _author_list if a]
+
+        self._authors = stripped_author_list
+        self._normalized_authors = [
+            normalize_full_human_name(a) for a in stripped_author_list if a
+        ]
 
     @property
     def normalized_authors(self):
