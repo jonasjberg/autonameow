@@ -526,10 +526,27 @@ class ISBNMetadata(object):
             if not isinstance(value, list):
                 value = [value]
 
-            stripped_value = [v for v in value if v.strip()]
-            self._authors = stripped_value
+            # Fix any malformed entries.
+            _author_list = []
+            for element in value:
+                # Handle strings like 'Foo Bar [and Gibson Meow]'
+                if re.match(r'.*\[.*\].*', element):
+                    _splits = element.split('[')
+                    _cleaned_splits = [
+                        re.sub(r'[\[\]]', '', s) for s in _splits
+                    ]
+                    _cleaned_splits = [
+                        re.sub(r'^and ', '', s) for s in _cleaned_splits
+                    ]
+                    _author_list.extend(_cleaned_splits)
+                else:
+                    _author_list.append(element)
+
+            stripped_author_list = [a.strip() for a in _author_list if a]
+
+            self._authors = stripped_author_list
             self._normalized_authors = [
-                normalize_full_human_name(a) for a in stripped_value if a
+                normalize_full_human_name(a) for a in stripped_author_list if a
             ]
 
     @property

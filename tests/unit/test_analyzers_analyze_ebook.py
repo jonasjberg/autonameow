@@ -501,3 +501,48 @@ c by Wydawnictwo Naukowe PWN SA, Warszawa 2005
         actual = find_ebook_isbns_in_text(text)
         self.assertIn('9783540762881', actual)
 
+
+class TestMalformedISBNMetadata(TestCase):
+    def test_malformed_author_field_list_of_lists(self):
+        actual = ISBNMetadata(
+            authors=['Stephen Wynkoop [Chris Lester]'],
+            language='eng',
+            publisher='Que',
+            title='Special Edition Using Microsoft SQL Server 6.5',
+            year='1997',
+            isbn13='9780789711175'
+        )
+
+        _expected_authors = ['Stephen Wynkoop', 'Chris Lester']
+        expect = ISBNMetadata(
+            authors=_expected_authors,
+            language='eng',
+            publisher='Que',
+            title='Special Edition Using Microsoft SQL Server 6.5',
+            year='1997',
+            isbn13='9780789711175'
+        )
+        self.assertEqual(expect, actual)
+        self.assertEqual(_expected_authors, actual.authors)
+
+    def test_malformed_author_field_list_of_lists_with_and(self):
+        actual = ISBNMetadata(
+            authors=['Stephen Wynkoop [and Chris Lester]'],
+            language='eng',
+            publisher='Que',
+            title='Special Edition Using Microsoft SQL Server 6.5',
+            year='1997',
+            isbn13='9780789711175'
+        )
+
+        _expected_authors = ['Stephen Wynkoop', 'Chris Lester']
+        expect = ISBNMetadata(
+            authors=_expected_authors,
+            language='eng',
+            publisher='Que',
+            title='Special Edition Using Microsoft SQL Server 6.5',
+            year='1997',
+            isbn13='9780789711175'
+        )
+        self.assertEqual(expect, actual)
+        self.assertEqual(_expected_authors, actual.authors)
