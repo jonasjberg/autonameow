@@ -138,11 +138,10 @@ def regex_search_str(text):
 
     # TODO: [TD0091] This code should be removed and/or rewritten ..
 
-    for m_date, m_time, m_time_ms in re.findall(DT_PATTERN_1, text):
+    for m_date, m_time, _ in re.findall(DT_PATTERN_1, text):
         # Skip if entries doesn't contain digits.
         m_date = textutils.extract_digits(m_date)
         m_time = textutils.extract_digits(m_time)
-        m_time_ms = textutils.extract_digits(m_time_ms)
 
         if not m_date or not m_time:
             continue
