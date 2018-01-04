@@ -208,7 +208,7 @@ class RegressionTestLoader(object):
     BASENAME_YAML_ASSERTS = b'asserts.yaml'
 
     def __init__(self, abspath):
-        assert type(abspath) == bytes
+        assert isinstance(abspath, bytes)
         self.abspath = abspath
         self.skiptest = False
 
@@ -351,7 +351,7 @@ class RegressionTestLoader(object):
         return _options
 
     def _joinpath(self, leaf):
-        assert type(leaf) == bytes
+        assert isinstance(leaf, bytes)
         return os.path.join(
             enc.syspath(self.abspath), enc.syspath(leaf)
         )
