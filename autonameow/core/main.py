@@ -83,7 +83,6 @@ def real_main(options=None):
 
     # Initialize global logging.
     logs.init_logging(opts)
-    log = logging.getLogger(__name__)  # TODO: Does this accomplish anything?
     if opts.get('quiet'):
         logs.silence()
 
