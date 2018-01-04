@@ -922,7 +922,7 @@ class TestTypePath(TestCase):
                                 'BaseType default "null" must be overridden')
 
     def test_normalize_expands_tilde_to_user_home(self):
-        self.assertEqual(uu.encode(USER_HOME),types.AW_PATH.normalize('~'))
+        self.assertEqual(uu.encode(USER_HOME), types.AW_PATH.normalize('~'))
         self.assertEqual(uu.encode(USER_HOME), types.AW_PATH.normalize('~/'))
 
         expected = os.path.normpath(os.path.join(USER_HOME, 'foo'))

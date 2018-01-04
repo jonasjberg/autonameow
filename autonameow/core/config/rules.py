@@ -243,7 +243,6 @@ class Rule(object):
         # NOTE(jonas): This assumes instances of 'RuleCondition' are immutable!
         self.__cached_hash = None
 
-
     @property
     def description(self):
         return self._description

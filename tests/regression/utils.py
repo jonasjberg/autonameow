@@ -44,7 +44,7 @@ from util import (
 log = logging.getLogger(__name__)
 
 
-TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120,48))
+TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120, 48))
 
 
 # TODO: [TD0121] Generate regression tests from manual invocations.

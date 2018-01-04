@@ -516,7 +516,6 @@ class ISBNMetadata(object):
         self.year = year
         self.edition = edition
 
-
     @property
     def authors(self):
         return self._authors or []
