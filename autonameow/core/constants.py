@@ -31,11 +31,13 @@ STRING_PYTHON_VERSION = sys.version.replace('\n', '')
 STRING_PROGRAM_VERSION_PREFIX = 'v'
 STRING_PROGRAM_VERSION = '{}{}'.format(STRING_PROGRAM_VERSION_PREFIX,
                                        core.version.__version__)
+STRING_PROGRAM_RELEASE_DATE = str(core.version.RELEASE_DATE)
 
 STRING_PROGRAM_NAME = core.version.__title__.lower()
-
+STRING_AUTHOR_EMAIL = str(core.version.__email__)
 STRING_COPYRIGHT_NOTICE = str(core.version.__copyright__)
-STRING_REPO_URL = str(core.version.__url_repo__)
+STRING_URL_MAIN = str(core.version.__url__)
+STRING_URL_REPO = str(core.version.__url_repo__)
 
 
 _this_dir = os.path.abspath(os.path.dirname(__file__))

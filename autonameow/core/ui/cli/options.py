@@ -78,7 +78,7 @@ def init_argparser():
                                    C.STRING_PROGRAM_VERSION),
         epilog='Automatic renaming of files from analysis of '
                'several sources of information.'
-               '\n Project website:  {}'.format(C.STRING_REPO_URL),
+               '\n Project website:  {}'.format(C.STRING_URL_REPO),
     )
 
     optgrp_output = parser.add_mutually_exclusive_group()

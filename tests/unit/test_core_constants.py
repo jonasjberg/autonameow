@@ -108,3 +108,12 @@ class TestConstants(TestCase):
 
         self._is_defined_type(frozenset, C.MEOWURI_ROOTS_SOURCES)
         self._is_defined_type(frozenset, C.MEOWURI_ROOTS)
+
+    def test_string_constants(self):
+        self._is_defined_internal_string(C.STRING_PROGRAM_VERSION)
+        self._is_defined_internal_string(C.STRING_PROGRAM_RELEASE_DATE)
+        self._is_defined_internal_string(C.STRING_PROGRAM_NAME)
+        self._is_defined_internal_string(C.STRING_AUTHOR_EMAIL)
+        self._is_defined_internal_string(C.STRING_COPYRIGHT_NOTICE)
+        self._is_defined_internal_string(C.STRING_URL_MAIN)
+        self._is_defined_internal_string(C.STRING_URL_REPO)

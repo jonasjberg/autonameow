@@ -291,7 +291,7 @@ def filter_tests(tests, filter_func, expr):
 def main(args):
     _description = '{} {} -- regression test suite runner'.format(
         C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION)
-    _epilog = 'Project website:  {}'.format(C.STRING_REPO_URL)
+    _epilog = 'Project website:  {}'.format(C.STRING_URL_REPO)
 
     parser = ui.cli.get_argparser(description=_description, epilog=_epilog)
     parser.add_argument(
