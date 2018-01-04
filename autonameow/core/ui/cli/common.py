@@ -243,6 +243,7 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
         message: The raw text message to print as a string.
         style: Optional message type.
         add_info_log: Displays and logs the message if True. Defaults to False.
+        ignore_quiet: Whether to ignore the global quiet ('--quiet') option.
     """
     if not ignore_quiet:
         global BE_QUIET
