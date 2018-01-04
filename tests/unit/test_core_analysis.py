@@ -35,15 +35,15 @@ class TestAnalysis(TestCase):
         mock_config = Mock()
         self.config = mock_config
 
-    def test_analysis_start_requires_fileobject_argument(self):
+    def test_analysis__start_requires_fileobject_argument(self):
         for _bad_arg in [None, 'foo', object()]:
             with self.assertRaises(AssertionError):
-                analysis.start(_bad_arg, self.config)
+                analysis._start(_bad_arg, self.config)
 
-    def test_analysis_start_requires_config_argument(self):
+    def test_analysis__start_requires_config_argument(self):
         for _bad_arg in [None, 'foo', object()]:
             with self.assertRaises(AssertionError):
-                analysis.start(self.fo, _bad_arg)
+                analysis._start(self.fo, _bad_arg)
 
     def test__instantiate_analyzers_returns_expected_type(self):
         analyzer_classes = analyzers.get_analyzer_classes()

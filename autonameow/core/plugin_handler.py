@@ -23,11 +23,14 @@ import logging
 
 import plugins
 from core import (
-    exceptions,
     logs,
     repository
 )
-from core.exceptions import InvalidMeowURIError
+from core.exceptions import (
+    AutonameowException,
+    AutonameowPluginError,
+    InvalidMeowURIError
+)
 from core.model import MeowURI
 from core.model.genericfields import get_field_class
 from util import sanity
@@ -115,7 +118,7 @@ class PluginHandler(object):
                 continue
             try:
                 data = plugin(fileobject)
-            except exceptions.AutonameowPluginError:
+            except AutonameowPluginError:
                 log.critical('Plugin instance "{!s}" execution '
                              'FAILED'.format(plugin))
                 continue
@@ -182,3 +185,28 @@ def _wrap_extracted_data(extracteddata, metainfo, source_klass):
         out[field] = field_metainfo
 
     return out
+
+
+def run_plugins(fileobject, require_plugins=None, run_all_plugins=False):
+    """
+    Instantiates, executes and returns a 'PluginHandler' instance.
+
+    Args:
+        fileobject: The current file object to pass to plugins.
+        require_plugins: List of plugin classes that should be included.
+        run_all_plugins: Whether all plugins should be included.
+
+    Returns:
+        An instance of the 'PluginHandler' class that has executed successfully.
+
+    Raises:
+        AutonameowException: An unrecoverable error occurred during analysis.
+    """
+    plugin_handler = PluginHandler()
+    try:
+        plugin_handler.start(fileobject,
+                             require_plugins=require_plugins,
+                             run_all_plugins=run_all_plugins is True)
+    except AutonameowPluginError as e:
+        log.critical('Plugins FAILED: {!s}'.format(e))
+        raise AutonameowException(e)

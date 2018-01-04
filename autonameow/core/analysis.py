@@ -154,7 +154,7 @@ def suitable_analyzers_for(fileobject):
     return [a for a in analyzers.ProviderClasses if a.can_handle(fileobject)]
 
 
-def start(fileobject, config):
+def _start(fileobject, config):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
@@ -194,3 +194,21 @@ def start(fileobject, config):
     # Run all analyzers in the queue.
     with logs.log_runtime(log, 'Analysis'):
         _execute_run_queue(analyzer_queue)
+
+
+def run_analysis(fileobject, active_config):
+    """
+    Sets up and executes "analysis" of the given file.
+
+    Args:
+        fileobject: The file object to analyze.
+        active_config: An instance of the 'Configuration' class.
+
+    Raises:
+        AutonameowException: An unrecoverable error occurred during analysis.
+    """
+    try:
+        _start(fileobject, active_config)
+    except exceptions.AutonameowException as e:
+        log.critical('Analysis FAILED: {!s}'.format(e))
+        raise

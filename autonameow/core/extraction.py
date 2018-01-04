@@ -26,7 +26,10 @@ from core import (
     logs,
     repository
 )
-from core.exceptions import InvalidMeowURIError
+from core.exceptions import (
+    AutonameowException,
+    InvalidMeowURIError
+)
 from core.fileobject import FileObject
 from core.model import MeowURI
 from core.model.genericfields import get_field_class
@@ -239,3 +242,25 @@ class ExtractorRunner(object):
 
 def get_extractor_runner():
     return ExtractorRunner(available_extractors=extractors.ProviderClasses)
+
+
+def run_extraction(fileobject, require_extractors, run_all_extractors=False):
+    """
+    Sets up and executes data extraction for the given file.
+
+    Args:
+        fileobject: The file object to extract data from.
+        require_extractors: List of extractor classes that should be included.
+        run_all_extractors: Whether all data extractors should be included.
+
+    Raises:
+        AutonameowException: An unrecoverable error occurred during extraction.
+    """
+    runner = get_extractor_runner()
+    try:
+        runner.start(fileobject,
+                     request_extractors=require_extractors,
+                     request_all=run_all_extractors)
+    except AutonameowException as e:
+        log.critical('Extraction FAILED: {!s}'.format(e))
+        raise
