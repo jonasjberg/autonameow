@@ -207,7 +207,7 @@ class BaseExtractor(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def metainfo(self, *args, **kwargs):
+    def metainfo(self):
         return dict(self.FIELD_LOOKUP)
 
     @classmethod

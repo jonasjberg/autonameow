@@ -93,7 +93,7 @@ class BasePlugin(object):
     def test_init(cls):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def metainfo(self, *args, **kwargs):
+    def metainfo(self):
         return dict(self.FIELD_LOOKUP)
 
     def __str__(self):

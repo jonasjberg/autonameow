@@ -179,7 +179,7 @@ class BaseAnalyzer(object):
             self.log.info('Requested data unavailable: "generic.contents.text"')
         return text
 
-    def metainfo(self, *args, **kwargs):
+    def metainfo(self):
         return self.FIELD_LOOKUP
 
     @classmethod
