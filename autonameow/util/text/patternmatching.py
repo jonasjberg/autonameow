@@ -22,7 +22,6 @@
 import re
 
 from core import types
-from util import textutils
 from util.text.transform import collapse_whitespace
 
 

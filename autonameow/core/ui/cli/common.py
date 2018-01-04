@@ -32,10 +32,7 @@ except ImportError:
     colorama = None
 
 from core import constants as C
-from core import (
-    types,
-    version
-)
+from core import types
 import util
 from util import encoding as enc
 
