@@ -145,6 +145,26 @@ assert_bulk_test "$_regression_runner_path" n e r x
 #
 # Verify that required (or preferred) commands are available.
 
+assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
+            'Should be running a target operating system'
+
+assert_false '[ -z "$TERM" ]' \
+             'Environment variable "$TERM" should be set'
+
+assert_true 'command -v python3' \
+            'Python v3.x is available on the system'
+
+assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
+            'Python v3.5.0 or newer is available on the system'
+
+assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+
+assert_true 'command -v exiftool' \
+            'exiftool is available on the system'
+
+assert_true 'command -v tesseract' \
+            'tesseract is available on the system'
+
 assert_true 'command -v sed' \
             'sed is available on the system'
 

@@ -48,28 +48,11 @@ TESTSUITE_NAME='Compatibility'
 logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
-assert_false '[ -z "$TERM" ]' \
-             'Environment variable "$TERM" should be set'
-
-assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
-            'Should be running a target operating system'
+assert_true '"$AUTONAMEOW_RUNNER"' \
+            'The autonameow launcher script can be started with no arguments'
 
 assert_true 'command -v python3' \
             'Python v3.x is available on the system'
-
-assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
-            'Python v3.5.0 or newer is available on the system'
-
-assert_true 'command -v exiftool' \
-            'exiftool is available on the system'
-
-assert_true 'command -v tesseract' \
-            'tesseract is available on the system'
-
-assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
-
-assert_true '"$AUTONAMEOW_RUNNER"' \
-            'The autonameow launcher script can be started with no arguments'
 
 
 # ______________________________________________________________________________
