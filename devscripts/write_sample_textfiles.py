@@ -114,22 +114,21 @@ if not os.path.isdir(DEST_PATH):
         exit(1)
 
 
-def write_alphanumeric_characters(out, codec, num_chars=512):
+def write_alphanumeric_characters(out, encoding, num_chars=512):
     for i in range(num_chars):
         try:
             uni_char = str(i)
             if uni_char.isalnum():
-                bytes_ = uni_char.encode(codec)
+                bytes_ = uni_char.encode(encoding)
                 out.write(bytes_)
         except Exception as e:
             print('ERROR: {!s}'.format(e))
-            pass
     out.write(b'\n')
 
 
-def write_sample_text(out, codec):
+def write_sample_text(out, encoding):
     try:
-        bytes_ = SAMPLE_TEXT.encode(codec, errors='ignore')
+        bytes_ = SAMPLE_TEXT.encode(encoding, errors='ignore')
         out.write(bytes_)
     except Exception as e:
         print('ERROR: {!s}'.format(e))

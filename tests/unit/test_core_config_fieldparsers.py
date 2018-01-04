@@ -110,8 +110,8 @@ class TestFieldParserSubclasses(TestCase):
             self.assertTrue(hasattr(p.get_validation_function(), '__call__'))
 
     def test_validation_function_should_return_booleans(self):
-        def __assert_returns_bool(valfunc, given):
-            actual = valfunc(given)
+        def __assert_returns_bool(_valfunc, given):
+            actual = _valfunc(given)
             self.assertIsInstance(
                 actual, bool, 'Validation function should always return boolean'
             )
