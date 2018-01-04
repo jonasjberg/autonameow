@@ -94,7 +94,7 @@ def find_todo_ids_in_line(string):
 def find_todo_ids_in_file(file_path):
     found_ids = set()
     for line in open(file_path, 'r', encoding='utf8'):
-            found_ids.update(find_todo_ids_in_line(line))
+        found_ids.update(find_todo_ids_in_line(line))
     return found_ids
 
 
@@ -133,8 +133,8 @@ Found {} IDs used in both the TODO-list and DONE-list:
 
 {}
 '''.format(len(ids_in_both_todolist_and_done),
-               '\n'.join([TODO_IDENTIFIER_FORMAT.format(int(i))
-                          for i in ids_in_both_todolist_and_done])))
+           '\n'.join([TODO_IDENTIFIER_FORMAT.format(int(i))
+                      for i in ids_in_both_todolist_and_done])))
         return False
 
     def check_sources_does_not_contain_ids_not_in_todo():
@@ -250,8 +250,8 @@ if __name__ == '__main__':
     # Make sure that both the TODO-list and DONE-list exist.
     for _path in (todo_path, done_path):
         if not is_readable_file(_path):
-            print('File does not exist or is not readable: "{!s}"'.format(_path),
-                  file=sys.stderr)
+            m = 'File does not exist or is not readable: "{!s}"'.format(_path)
+            print(m, file=sys.stderr)
             sys.exit(EXIT_FAILURE)
 
     exit_status = EXIT_SUCCESS

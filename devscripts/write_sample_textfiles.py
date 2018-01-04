@@ -148,4 +148,3 @@ for codec in CODECS:
                                          'text_sample_{}.txt'.format(codec))
     with open(_sampletext_dest_path, 'wb') as fh:
         write_sample_text(fh, codec)
-
