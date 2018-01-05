@@ -1,0 +1,16 @@
+config_path: $THISTEST/config.yaml
+debug: false
+dry_run: true
+dump_config: false
+dump_meowuris: false
+dump_options: false
+input_paths:
+- $TESTFILES/pg38145-images.epub
+list_all: false
+mode_automagic: true
+mode_batch: true
+mode_interactive: false
+quiet: false
+recurse_paths: false
+show_version: false
+verbose: true
