@@ -425,7 +425,7 @@ def main(args):
         return C.EXIT_SUCCESS
 
     if opts.get_cmd:
-        print_test_commandlines(loaded_tests)
+        print_test_commandlines(selected_tests)
         return C.EXIT_SUCCESS
 
     if opts.run_tests:
