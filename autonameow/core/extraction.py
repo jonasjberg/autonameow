@@ -168,9 +168,7 @@ class ExtractorRunner(object):
         if request_extractors:
             _requested_extractors = set(request_extractors)
 
-        _request_all = False
-        if request_all is not None:
-            _request_all = bool(request_all)
+        _request_all = bool(request_all)
 
         klasses = set(self._available_extractors)
         log.debug('Available extractors: {}'.format(len(klasses)))
