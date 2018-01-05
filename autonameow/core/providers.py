@@ -226,6 +226,16 @@ def _get_meowuri_source_map():
     }
 
 
+def get_providers_for_meowuri(meowuri, include_roots=None):
+    providers = set()
+    if not meowuri:
+        return providers
+
+    source_classes = Registry.providers_for_meowuri(meowuri, include_roots)
+    providers.update(source_classes)
+    return providers
+
+
 def get_providers_for_meowuris(meowuri_list, include_roots=None):
     providers = set()
     if not meowuri_list:

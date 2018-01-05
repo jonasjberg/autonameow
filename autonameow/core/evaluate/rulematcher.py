@@ -23,6 +23,7 @@ import logging
 from collections import namedtuple
 
 from core import (
+    provider,
     repository,
     ui
 )
@@ -40,7 +41,7 @@ class RuleMatcher(object):
         self._list_rulematch = bool(list_rulematch)
 
     def request_data(self, fileobject, meowuri):
-        response = repository.SessionRepository.query(fileobject, meowuri)
+        response = provider.query(fileobject, meowuri)
         return response.get('value') if response else None
 
     def match(self, fileobject):
