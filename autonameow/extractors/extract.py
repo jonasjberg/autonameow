@@ -29,6 +29,8 @@ from core import (
     exceptions,
     extraction,
     logs,
+    types,
+    ui
 )
 from core.fileobject import FileObject
 from extractors import ExtractorError
@@ -82,8 +84,9 @@ def do_extract_text(fileobject):
 
         assert isinstance(_full_text, str)
         # TODO: Factor out method of presenting the extracted text.
-        log.info('{!s} Extracted Text:'.format(_extractor_instance))
-        print(_full_text)
+        ui.msg('Text Extracted by {!s}:'.format(_extractor_instance),
+               style='heading')
+        ui.msg(_full_text)
 
 
 def do_extract_metadata(fileobject):
@@ -133,16 +136,13 @@ def do_extract_metadata(fileobject):
         assert isinstance(_metadata, dict)
         assert isinstance(_metainfo, dict)
 
-        print('\n\nResults for {!s}'.format(_extractor_instance))
-        print('_metadata contents:')
-        for k, v in _metadata.items():
-            print('{!s}: {!s}'.format(k, v))
-
-        print('\n_metainfo filtered for keys also in _metadata ({!s} entries unfiltered):'.format(len(_metainfo)))
-        for k, v in _metainfo.items():
-            if k not in _metadata:
-                continue
-            print('{!s}: {!s}'.format(k, v))
+        ui.msg('Metadata Extracted by {!s}'.format(_extractor_instance),
+               style='heading')
+        cf = ui.ColumnFormatter()
+        for k, v in sorted(_metadata.items()):
+            cf.addrow(str(k), str(v))
+        cf.addemptyrow()
+        ui.msg(cf)
 
 
 def main(options=None):
