@@ -123,7 +123,7 @@ def do_extract_metadata(fileobject):
             continue
 
         try:
-            _metainfo = _extractor_instance.metainfo(fileobject)
+            _metainfo = _extractor_instance.metainfo()
         except ExtractorError as e:
             log.error('Halted extractor "{!s}": {!s}'.format(
                 _extractor_instance, e
