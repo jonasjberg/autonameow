@@ -186,9 +186,19 @@ def load_failed_tests():
     return []
 
 
-def print_test_dirnames(tests):
-    _test_dirnames = [types.force_string(t.get('test_dirname')) for t in tests]
-    print('\n'.join(_test_dirnames))
+def print_test_info(tests):
+    if VERBOSE:
+        cf = ui.ColumnFormatter()
+        for t in tests:
+            _test_dirname = types.force_string(t.get('test_dirname'))
+            _test_description = types.force_string(t.get('description'))
+            cf.addrow(_test_dirname, _test_description)
+        print(cf)
+    else:
+        _test_dirnames = [
+            types.force_string(t.get('test_dirname')) for t in tests
+        ]
+        print('\n'.join(_test_dirnames))
 
 
 def print_test_commandlines(tests):
@@ -349,7 +359,8 @@ def main(args):
         action='store_true',
         default=False,
         help='Print the "short name" (directory basename) of the selected '
-             'test case(s) and exit.'
+             'test case(s) and exit. '
+             'Enable verbose mode for additional information.'
     )
     optgrp_action.add_argument(
         '--get-cmd',
@@ -421,7 +432,7 @@ def main(args):
 
     # Perform actions on the selected tests.
     if opts.list_tests:
-        print_test_dirnames(selected_tests)
+        print_test_info(selected_tests)
         return C.EXIT_SUCCESS
 
     if opts.get_cmd:
