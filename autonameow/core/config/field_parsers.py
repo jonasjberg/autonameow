@@ -196,7 +196,7 @@ class BooleanConfigFieldParser(ConfigFieldParser):
             a = types.AW_BOOLEAN(expression)
             b = types.AW_BOOLEAN(test_data)
         except types.AWTypeError:
-            # TODO: Handle this case
+            # TODO: [TD0149] Make sure this case is handled properly.
             raise
         else:
             return a == b

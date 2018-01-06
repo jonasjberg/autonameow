@@ -204,6 +204,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0149]` Handle exceptions raised in `evaluate_boolean_operation()`.
+
 * `[TD0148]` Fix `!!python/object` in `--dump-config` output.
 
 * `[TD0145]` Add script for automating release of a new version.
