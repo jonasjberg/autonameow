@@ -283,9 +283,10 @@ class FilesContext(object):
                         else:
                             log.info('Resolver did not find any candidates ..')
 
-                        if choice is interactive.Choice.ABORT:
-                            _m = 'Specify source for field {!s}'.format(field)
-                            choice = interactive.meowuri_prompt(_m)
+                        # TODO: [TD0024] Use MeowURI prompt in interactive mode?
+                        # if choice is interactive.Choice.ABORT:
+                        #     _m = 'Specify source for field {!s}'.format(field)
+                        #     choice = interactive.meowuri_prompt(_m)
 
                         if choice is interactive.Choice.ABORT:
                             log.info('Aborting ..')

@@ -64,6 +64,7 @@ def select_field(templatefield, candidates):
         return Choice.ABORT
 
     assert response in numbered_candidates
+    # Returns an instance of the 'FieldDataCandidate' class.
     return numbered_candidates.get(response)
 
 
