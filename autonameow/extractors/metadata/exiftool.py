@@ -631,9 +631,6 @@ class ExiftoolMetadataExtractor(BaseExtractor):
 
         try:
             _metadata = self._get_metadata(source)
-        except NotImplementedError as e:
-            raise ExtractorError('Called unimplemented code in {!s}: '
-                                 '{!s}'.format(self, e))
         except ValueError as e:
             raise ExtractorError('Possible bug in "pyexiftool": {!s}'.format(e))
 
