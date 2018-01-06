@@ -68,7 +68,7 @@ class TestAbstractTextExtractor(TestCase):
             self.e.extract_text(self.test_file)
 
     def test_extract_raises_exception_with_extract_text_unimplemented(self):
-        with self.assertRaises(ExtractorError):
+        with self.assertRaises(NotImplementedError):
             _ = self.e.extract(self.test_file)
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):

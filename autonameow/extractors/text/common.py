@@ -72,17 +72,7 @@ class AbstractTextExtractor(BaseExtractor):
                 self.log.info('Using cached text for: {!r}'.format(fileobject))
                 return _cached
 
-        try:
-            self.log.debug('{!s} starting initial extraction'.format(self))
-            text = self.extract_text(fileobject)
-        except ExtractorError as e:
-            self.log.warning('{!s}: {!s}'.format(self, e))
-            raise
-        except NotImplementedError as e:
-            self.log.debug('[WARNING] Called unimplemented code in {!s}: '
-                           '{!s}'.format(self, e))
-            raise ExtractorError
-
+        text = self.extract_text(fileobject)
         if not text:
             return ''
 
