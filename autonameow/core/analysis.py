@@ -25,12 +25,14 @@ import analyzers
 from core import (
     exceptions,
     logs,
+    provider,
     repository
 )
 from core.config.configuration import Configuration
 from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
 from core.model import MeowURI
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -68,8 +70,11 @@ def _execute_run_queue(analyzer_queue):
 
 
 def request_global_data(fileobject, meowuri):
-    response = repository.SessionRepository.query(fileobject, meowuri)
-    return response
+    response = provider.query(fileobject, meowuri)
+    if response:
+        sanity.check_isinstance(response, dict)
+        return response.get('value')
+    return None
 
 
 def store_results(fileobject, meowuri_prefix, data):

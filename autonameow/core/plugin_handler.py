@@ -24,6 +24,7 @@ import logging
 import plugins
 from core import (
     logs,
+    provider,
     repository
 )
 from core.exceptions import (
@@ -133,8 +134,11 @@ class PluginHandler(object):
 
 
 def request_data(fileobject, meowuri):
-    response = repository.SessionRepository.query(fileobject, meowuri)
-    return response.get('value')
+    response = provider.query(fileobject, meowuri)
+    if response:
+        sanity.check_isinstance(response, dict)
+        return response.get('value')
+    return None
 
 
 def store_results(fileobject, meowuri_prefix, data):

@@ -21,10 +21,14 @@
 
 import logging
 
-from core import repository
+from core import (
+    provider,
+    repository
+)
 from core.model import MeowURI
 from core.model import genericfields as gf
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
+from util import sanity
 from util.text import format_name
 
 
@@ -255,7 +259,11 @@ class TemplateFieldDataResolver(object):
     def _request_data(self, file, meowuri):
         log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
             self, file.hash_partial, meowuri))
-        return repository.SessionRepository.query(file, meowuri)
+        response = provider.query(fileobject, meowuri)
+        if response:
+            sanity.check_isinstance(response, dict)
+            return response.get('value')
+        return None
 
     def __str__(self):
         return self.__class__.__name__

@@ -43,8 +43,8 @@ class MasterDataProvider(object):
             self.seen_fileobject_meowuris[fileobject][meowuri] = _data_maybe
             return _data_maybe
 
-        _possible_providers = providers.get_providers_for_meowuri(meowuri)
         # TODO: [TD0142] Rework overall architecture to fetch data when needed.
+        _possible_providers = providers.get_providers_for_meowuri(meowuri)
         print(_possible_providers)
 
 

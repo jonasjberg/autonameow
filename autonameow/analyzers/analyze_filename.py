@@ -77,19 +77,19 @@ class FilenameAnalyzer(BaseAnalyzer):
             self.fileobject,
             'extractor.filesystem.xplat.basename.prefix'
         )
-        self._basename_prefix = types.force_string(basename_prefix.get('value'))
+        self._basename_prefix = types.force_string(basename_prefix)
 
         basename_suffix = self.request_data(
             self.fileobject,
             'extractor.filesystem.xplat.basename.suffix'
         )
-        self._basename_suffix = types.force_string(basename_suffix.get('value'))
+        self._basename_suffix = types.force_string(basename_suffix)
 
         file_mimetype = self.request_data(
             self.fileobject,
             'extractor.filesystem.xplat.contents.mime_type'
         )
-        self._file_mimetype = file_mimetype.get('value')
+        self._file_mimetype = file_mimetype or types.NULL_AW_MIMETYPE
 
         self._add_results('datetime', self.get_datetime())
         self._add_results('edition', self._get_edition())

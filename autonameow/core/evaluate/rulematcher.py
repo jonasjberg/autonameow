@@ -24,9 +24,9 @@ from collections import namedtuple
 
 from core import (
     provider,
-    repository,
     ui
 )
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -42,7 +42,10 @@ class RuleMatcher(object):
 
     def request_data(self, fileobject, meowuri):
         response = provider.query(fileobject, meowuri)
-        return response.get('value') if response else None
+        if response:
+            sanity.check_isinstance(response, dict)
+            return response.get('value')
+        return None
 
     def match(self, fileobject):
         if not self._rules:
