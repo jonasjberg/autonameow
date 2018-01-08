@@ -54,37 +54,37 @@ class FilesContext(object):
 
         # Extract data from the file.
         # TODO: [TD0142] Fetch only explicitly required data.
-        required_extractors = providers.get_providers_for_meowuris(
-            self.active_config.referenced_meowuris,
-            include_roots=['extractor']
-        )
-        extraction.run_extraction(
-            current_file,
-            require_extractors=required_extractors,
-
-            # Run all extractors so that all possible data is included
-            # when listing any (all) results later on.
-            run_all_extractors=should_list_any_results
-        )
+        # required_extractors = providers.get_providers_for_meowuris(
+        #     self.active_config.referenced_meowuris,
+        #     include_roots=['extractor']
+        # )
+        # extraction.run_extraction(
+        #     current_file,
+        #     require_extractors=required_extractors,
+        #
+        #     # Run all extractors so that all possible data is included
+        #     # when listing any (all) results later on.
+        #     run_all_extractors=should_list_any_results
+        # )
 
         # Begin analysing the file.
         # TODO: [TD0142] Fetch only explicitly required data.
-        analysis.run_analysis(current_file, self.active_config)
+        # analysis.run_analysis(current_file, self.active_config)
 
         # Run plugins.
         # TODO: [TD0142] Fetch only explicitly required data.
-        required_plugins = providers.get_providers_for_meowuris(
-            self.active_config.referenced_meowuris,
-            include_roots=['plugin']
-        )
-        plugin_handler.run_plugins(
-            current_file,
-            require_plugins=required_plugins,
-
-            # Run all plugins so that all possible data is included
-            # when listing any (all) results later on.
-            run_all_plugins=should_list_any_results
-        )
+        # required_plugins = providers.get_providers_for_meowuris(
+        #     self.active_config.referenced_meowuris,
+        #     include_roots=['plugin']
+        # )
+        # plugin_handler.run_plugins(
+        #     current_file,
+        #     require_plugins=required_plugins,
+        #
+        #     # Run all plugins so that all possible data is included
+        #     # when listing any (all) results later on.
+        #     run_all_plugins=should_list_any_results
+        # )
 
         #  Things to find:
         #

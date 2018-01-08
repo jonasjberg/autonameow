@@ -24,6 +24,7 @@ from collections import namedtuple
 
 from core import (
     provider,
+    repository,
     ui
 )
 from util import sanity
@@ -43,7 +44,7 @@ class RuleMatcher(object):
     def request_data(self, fileobject, meowuri):
         response = provider.query(fileobject, meowuri)
         if response:
-            sanity.check_isinstance(response, dict)
+            sanity.check_isinstance(response, dict, msg='FileObject [{!s}] MeowURI {!s}'.format(fileobject.hash_partial, meowuri))
             return response.get('value')
         return None
 

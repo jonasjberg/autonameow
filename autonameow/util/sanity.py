@@ -60,20 +60,26 @@ def check_internal_string(value):
         raise exceptions.EncodingBoundaryViolation(_msg)
 
 
-def check_isinstance(thing, expected_type):
+def check_isinstance(thing, expected_type, msg=None):
     """
     Checks that a given "thing" is an instance of "expected_type".
 
     Args:
         thing: The object to test.
         expected_type: Expected type of the passed in "thing".
+        msg: Optional message to include in the assertion error.
 
     Raises:
         AssertionError: Given "thing" is not an instance of "expected_type".
     """
     if not __debug__:
         return
+
+    _msg = ''
+    if msg:
+        _msg = '\n{!s}'.format(msg)
+
     assert isinstance(thing, expected_type), (
-        'Expected type {!s}.  Got {!s} ({!s})'.format(expected_type,
-                                                      type(thing), thing)
+        'Expected type {!s}. Got {!s} ({!s}){}'.format(expected_type,
+                                                       type(thing), thing, _msg)
     )

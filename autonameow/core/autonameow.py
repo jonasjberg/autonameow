@@ -31,6 +31,7 @@ from core import (
     exceptions,
     logs,
     persistence,
+    provider,
     providers,
     repository,
     ui,
@@ -198,6 +199,8 @@ class Autonameow(object):
             log.warning('Configuration does not contain any rules!')
 
         self.matcher = RuleMatcher(rules, self.opts.get('list_rulematch'))
+
+        provider.initialize(self.active_config)
 
         self._handle_files(files_to_process)
 
