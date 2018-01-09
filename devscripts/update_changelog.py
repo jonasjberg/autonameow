@@ -103,6 +103,24 @@ def get_commit_for_tag(tag_name):
     return types.force_string(stdout.strip())
 
 
+def transform_fixes_to_fix(string):
+    """
+    Returns "fix the thing" given "fixes the thing".
+    """
+    first_word = string.split()[0]
+    if not first_word.endswith('es'):
+        return string
+
+    present_first_word = first_word[:-2]
+    return ' '.join([present_first_word] + string.split()[1:])
+
+
+def consolidate_almost_equal(_subject, _body):
+    _fixes_to_fix_body = transform_fixes_to_fix(_body)
+    if _fixes_to_fix_body == _subject:
+        # Body test is too similar to the subject; remove it.
+        return ''
+
 
 def is_readable_file(file_path):
     return os.path.isfile(file_path) and os.access(file_path, os.R_OK)
@@ -144,11 +162,14 @@ if __name__ == '__main__':
     parsed_git_log = parse_git_log(_git_log)
     log_entries = list()
     for commit in parsed_git_log:
-        _subject = commit.get('subject')
-        _body = commit.get('body')
+        _subject = commit.get('subject', '').strip()
+        _body = commit.get('body', '').strip()
 
         if not _subject:
             continue
+
+        if _body:
+            _body = consolidate_almost_equal(_subject, _body)
 
         cle = ChangelogEntry(_subject, _body)
         if not cle in log_entries:
