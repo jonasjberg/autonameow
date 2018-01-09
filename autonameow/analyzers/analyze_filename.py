@@ -28,7 +28,10 @@ from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
 from core.namebuilder import fields
-from util import dateandtime
+from util import (
+    dateandtime,
+    sanity
+)
 from util.text import (
     find_edition,
     urldecode
@@ -77,13 +80,15 @@ class FilenameAnalyzer(BaseAnalyzer):
             self.fileobject,
             'extractor.filesystem.xplat.basename.prefix'
         )
-        self._basename_prefix = types.force_string(basename_prefix)
+        if basename_prefix is not None:
+            self._basename_prefix = types.force_string(basename_prefix)
 
         basename_suffix = self.request_data(
             self.fileobject,
             'extractor.filesystem.xplat.basename.suffix'
         )
-        self._basename_suffix = types.force_string(basename_suffix)
+        if basename_suffix is not None:
+            self._basename_suffix = types.force_string(basename_suffix)
 
         file_mimetype = self.request_data(
             self.fileobject,
@@ -403,6 +408,8 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
 
 def likely_extension(basename_suffix, mime_type):
     if mime_type and basename_suffix is not None:
+        sanity.check_internal_string(mime_type)
+
         ext_suffixes_map = MIMETYPE_EXTENSION_SUFFIXES_MAP.get(mime_type, {})
         for ext, suffixes in ext_suffixes_map.items():
             if basename_suffix in suffixes:
@@ -415,7 +422,7 @@ def likely_extension(basename_suffix, mime_type):
                   'AW_MIMETYPE.format()'.format(_coerced_mime))
         return types.AW_MIMETYPE.format(_coerced_mime)
 
-    if basename_suffix == '':
+    if basename_suffix in ('', None):
         log.debug('Basename suffix is empty. Giving up..')
         return ''
 
