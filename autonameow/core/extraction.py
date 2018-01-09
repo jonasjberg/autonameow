@@ -41,7 +41,7 @@ log = logging.getLogger(__name__)
 
 def store_results(fileobject, meowuri_prefix, data):
     """
-    Collects extractor data, passes it the the session repository.
+    Collects extractor data, passes it the session repository.
 
     Args:
         fileobject: Instance of 'FileObject' that produced the data to add.
@@ -170,44 +170,54 @@ class ExtractorRunner(object):
 
         _request_all = bool(request_all)
 
-        klasses = set(self._available_extractors)
-        log.debug('Available extractors: {}'.format(len(klasses)))
-        for k in klasses:
+        all_klasses = set(self._available_extractors)
+        log.debug('Available extractors: {}'.format(len(all_klasses)))
+        for k in all_klasses:
             log.debug('Available: {!s}'.format(str(k.__name__)))
 
-        if not _request_all:
-            if self.exclude_slow:
-                klasses = filter_not_slow(klasses)
-                log.debug('Removed slow extractors. Remaining: {}'.format(
-                    len(klasses)
-                ))
-
-            # Add back requested slow extractors.
+        selected_klasses = set()
+        if _request_all:
+            # Add all available extractors.
+            log.debug('Requested all available extractors')
+            selected_klasses = all_klasses
+        else:
+            # Add requested extractors.
             if _requested_extractors:
-                log.debug('Requested {} extractors'.format(
-                    len(_requested_extractors)
-                ))
-                for k in _requested_extractors:
-                    log.debug('Requested:  {!s}'.format(str(k.__name__)))
-                klasses.union(_requested_extractors)
+                selected_klasses = selected_klasses.union(_requested_extractors)
 
-        log.debug('Available extractors: {}'.format(len(klasses)))
+                if __debug__:
+                    log.debug('Requested {} extractors'.format(
+                        len(_requested_extractors)
+                    ))
+                    for k in _requested_extractors:
+                        log.debug('Requested:  {!s}'.format(str(k.__name__)))
+
+        log.debug('Selected {} extractors'.format(len(selected_klasses)))
+
         # Get only extractors suitable for the given file.
-        klasses = filter_able_to_handle(klasses, fileobject)
+        selected_klasses = filter_able_to_handle(selected_klasses, fileobject)
+        log.debug('Removed extractors that can not handle the current file. '
+                  'Remaining: {}'.format(len(selected_klasses)))
+
+        if self.exclude_slow:
+            selected_klasses = filter_not_slow(selected_klasses)
+            log.debug('Removed slow extractors. Remaining: {}'.format(
+                len(selected_klasses)
+            ))
 
         log.debug('Prepared {} extractors that can handle "{!s}"'.format(
-            len(klasses), fileobject
+            len(selected_klasses), fileobject
         ))
-        for k in klasses:
+        for k in selected_klasses:
             log.debug('Prepared:  {!s}'.format(str(k.__name__)))
 
         # Run all prepared extractors.
         with logs.log_runtime(log, 'Extraction'):
-            self._run_extractors(fileobject, klasses)
+            self._run_extractors(fileobject, selected_klasses)
 
     @staticmethod
-    def _run_extractors(fileobject, klasses):
-        for klass in klasses:
+    def _run_extractors(fileobject, all_klasses):
+        for klass in all_klasses:
             _extractor_instance = klass()
             if not _extractor_instance:
                 log.critical('Error instantiating "{!s}" (!!)'.format(klass))

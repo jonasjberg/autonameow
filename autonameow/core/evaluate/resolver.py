@@ -256,14 +256,11 @@ class TemplateFieldDataResolver(object):
             self.fields_data[field] = None
             log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
 
-    def _request_data(self, file, meowuri):
+    def _request_data(self, fileobject, meowuri):
         log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
-            self, file.hash_partial, meowuri))
-        response = provider.query(fileobject, meowuri)
-        if response:
-            sanity.check_isinstance(response, dict)
-            return response.get('value')
-        return None
+            self, fileobject.hash_partial, meowuri))
+
+        return provider.query(fileobject, meowuri)
 
     def __str__(self):
         return self.__class__.__name__

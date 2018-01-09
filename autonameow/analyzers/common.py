@@ -158,22 +158,20 @@ class BaseAnalyzer(object):
         text = None
         if isinstance(_response, list):
             for _r in _response:
-                assert isinstance(_r, dict), (
+                assert isinstance(_r, str), (
                     'Expected MeowURI "generic.contents.text" list entries to'
-                    ' be type dict. Got "{!s}"'.format(type(_r))
+                    ' be type str. Got "{!s}"'.format(type(_r))
                 )
-                v = _r.get('value')
-                if isinstance(v, str) and v:
-                    text = v
+                if _r:
+                    text = _r
                     break
         else:
-            assert isinstance(_response, dict), (
+            assert isinstance(_response, str), (
                 'Expected MeowURI "generic.contents.text" to return '
-                'type dict. Got "{!s}"'.format(type(_response))
+                'type str. Got "{!s}"'.format(type(_response))
             )
-            v = _response.get('value')
-            if isinstance(v, str) and v:
-                text = v
+            if _response:
+                text = _response
 
         if text is None:
             self.log.info('Requested data unavailable: "generic.contents.text"')

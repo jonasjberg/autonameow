@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+import pprint
 from collections import defaultdict
 
 from analyzers import BaseAnalyzer
@@ -31,6 +33,9 @@ from core import (
 )
 from extractors import BaseExtractor
 from plugins import BasePlugin
+
+
+log = logging.getLogger(__name__)
 
 
 # TODO: [TD0142] Rework overall architecture to fetch data when needed.
@@ -59,7 +64,7 @@ class MasterDataProvider(object):
             self.debug_stats[fileobject][meowuri]['seen'] += 1
 
         if meowuri == 'extractor.filesystem.xplat.basename.full':
-            print('meowuri == "extractor.filesystem.xplat.basename.full"')
+            log.debug('meowuri == "extractor.filesystem.xplat.basename.full"')
             self._print_debug_stats()
 
         _data = self._query_repository(fileobject, meowuri)
@@ -74,7 +79,7 @@ class MasterDataProvider(object):
             return _data
 
         # TODO: Handle this properly ..
-        print('Failed query, then delegation, then another query and returning None')
+        log.debug('Failed query, then delegation, then another query and returning None')
         self._print_debug_stats()
         return None
 
@@ -98,10 +103,8 @@ class MasterDataProvider(object):
 
         _possible_providers = providers.get_providers_for_meowuri(meowuri)
         # TODO: [TD0142] Rework overall architecture to fetch data when needed.
-        print('-' * 80)
-        print('FileObject: {} MeowURI: {}'.format(fileobject.hash_partial, meowuri))
-        print('Possible Providers:')
-        print(_possible_providers)
+        log.debug('FileObject: {} MeowURI: {}'.format(fileobject.hash_partial, meowuri))
+        log.debug('Possible Providers: {!s}'.format(_possible_providers))
 
         # TODO: Handle this properly ..
         if _possible_providers:
@@ -117,8 +120,7 @@ class MasterDataProvider(object):
                     )
 
     def _print_debug_stats(self):
-        import pprint
-        pprint.pprint(self.debug_stats)
+        log.debug(pprint.pformat(self.debug_stats))
 
 
 _master_data_provider = None
