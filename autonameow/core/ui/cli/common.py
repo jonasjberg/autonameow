@@ -498,8 +498,7 @@ class ColumnFormatter(object):
                 padding.join(
                     getattr(word, align)(width)
                     for word, width, align in zip(
-                        row, self._column_widths,
-                        self.alignment
+                        row, self._column_widths, self.alignment
                     )
                 )
             )
