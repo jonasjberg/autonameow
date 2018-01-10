@@ -64,22 +64,18 @@ class MasterDataProvider(object):
         else:
             self.debug_stats[fileobject][meowuri]['seen'] += 1
 
-        if meowuri == 'extractor.filesystem.xplat.basename.full':
-            log.debug('meowuri == "extractor.filesystem.xplat.basename.full"')
-            self._print_debug_stats()
-
         _data = self._query_repository(fileobject, meowuri)
         if _data:
             return _data
 
         self._delegate_to_providers(fileobject, meowuri)
 
-        # TODO: Handle this properly ..
+        # TODO: [TD0142] Handle this properly ..
         _data = self._query_repository(fileobject, meowuri)
         if _data:
             return _data
 
-        # TODO: Handle this properly ..
+        # TODO: [TD0142] Handle this properly ..
         log.debug('Failed query, then delegation, then another query and returning None')
         self._print_debug_stats()
         return None
@@ -107,7 +103,7 @@ class MasterDataProvider(object):
         log.debug('Delegating request to providers: [{:8.8}]->[{!s}]'.format(fileobject.hash_partial, meowuri))
         log.debug('Possible Providers: {!s}'.format(_possible_providers))
 
-        # TODO: Handle this properly ..
+        # TODO: [TD0142] Handle this properly ..
         if _possible_providers:
             for _provider in _possible_providers:
                 if issubclass(_provider, BaseExtractor):
@@ -134,7 +130,6 @@ def initialize(active_config):
 
 def query(fileobject, meowuri):
     sanity.check_isinstance_meowuri(
-        meowuri,
-        msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
+        meowuri, msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
     )
     return _master_data_provider.query(fileobject, meowuri)

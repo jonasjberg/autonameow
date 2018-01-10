@@ -178,6 +178,7 @@ class BaseAnalyzer(object):
         return text
 
     def metainfo(self):
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
         return self.FIELD_LOOKUP
 
     @classmethod

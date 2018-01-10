@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0150]` Map "generic" MeowURIs to (possible) provider classes.
+
 * `[TD0147]` Fix `providers_for_meowuri()` stops searching after first match.
 
 * `[TD0146]` Rework "generic fields", possibly collecting fields in "records".
@@ -56,6 +58,11 @@ High Priority
 
 Medium Priority
 ---------------
+
+* `[TD0151]` __Fix inconsistent use of classes vs. class instances.__  
+    Attributes of the provider classes are accessed both from uninstantiated
+    classes and class instances. The `metainfo()` method should be accessible
+    without first having to instantiate the class.
 
 * `[TD0137]` __Add rule-specific replacements.__  
     Maybe have the current replacements apply globally, as in that they are

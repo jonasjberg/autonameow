@@ -34,34 +34,33 @@ import unit.constants as uuconst
 class TestGetProvidersForMeowURIs(TestCase):
     @classmethod
     def setUpClass(cls):
-        from core.model import MeowURI
 
         cls._meowuris_filetags = [
-            MeowURI(uuconst.MEOWURI_AZR_FILETAGS_DATETIME),
-            MeowURI(uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION),
-            MeowURI(uuconst.MEOWURI_AZR_FILETAGS_FOLLOWS),
-            MeowURI(uuconst.MEOWURI_AZR_FILETAGS_TAGS),
+            uu.as_meowuri(uuconst.MEOWURI_AZR_FILETAGS_DATETIME),
+            uu.as_meowuri(uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION),
+            uu.as_meowuri(uuconst.MEOWURI_AZR_FILETAGS_FOLLOWS),
+            uu.as_meowuri(uuconst.MEOWURI_AZR_FILETAGS_TAGS),
         ]
         cls._meowuris_filesystem = [
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT),
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL),
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX),
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL),
+            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT),
+            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL),
+            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX),
+            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
+            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL),
         ]
         cls._meowuris_exiftool = [
-            MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE),
-            MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL),
-            MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE),
-            MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE),
-            MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR),
-            MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE),
-            MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER),
-            MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE),
         ]
         cls._meowuris_guessit = [
-            MeowURI('plugin.guessit.date'),
-            MeowURI('plugin.guessit.title'),
+            uu.as_meowuri('plugin.guessit.date'),
+            uu.as_meowuri('plugin.guessit.title'),
         ]
         cls._extractor_meowuris = (cls._meowuris_filesystem
                                    + cls._meowuris_exiftool)
@@ -72,11 +71,21 @@ class TestGetProvidersForMeowURIs(TestCase):
 
         uu.init_provider_registry()
 
-    def _assert_maps(self, actual_sources, expected_source):
-        self.assertEqual(len(actual_sources), len(expected_source))
+    def _assert_maps(self, actual_sources, expected_sources):
+        self.assertEqual(len(actual_sources), len(expected_sources))
         for s in actual_sources:
             self.assertTrue(uu.is_class(s))
-            self.assertIn(s.__name__, expected_source)
+            self.assertIn(s.__name__, expected_sources)
+
+    def test_raises_exception_for_invalid_meowuris(self):
+        def _assert_raises(meowuri_list):
+            with self.assertRaises(AssertionError):
+                _ = get_providers_for_meowuris(meowuri_list)
+
+        _assert_raises([None])
+        _assert_raises([None, None])
+        _assert_raises(['xxxyyyzzz'])
+        _assert_raises([None, 'xxxyyyzzz'])
 
     def test_returns_no_sources_for_invalid_meowuris(self):
         def _assert_empty_mapping(meowuri_list):
@@ -85,10 +94,6 @@ class TestGetProvidersForMeowURIs(TestCase):
 
         _assert_empty_mapping(None)
         _assert_empty_mapping([])
-        _assert_empty_mapping([None])
-        _assert_empty_mapping([None, None])
-        _assert_empty_mapping(['xxxyyyzzz'])
-        _assert_empty_mapping([None, 'xxxyyyzzz'])
 
     def test_returns_expected_source_filetags(self):
         actual = get_providers_for_meowuris(self._meowuris_filetags)
@@ -137,39 +142,41 @@ class TestGetProvidersForMeowURIs(TestCase):
 class TestMapMeowURItoSourceClass(TestCase):
     @classmethod
     def setUpClass(cls):
-        from core.model import MeowURI
-
         ExpectedMapping = collections.namedtuple('ExpectedMapping',
                                                  ['MeowURIs', 'Extractors'])
 
         cls._analyzer_meowuris_sourcemap = [
             ExpectedMapping(
-                MeowURIs=[MeowURI(uuconst.MEOWURI_AZR_FILETAGS_DATETIME),
-                          MeowURI(uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION),
-                          MeowURI(uuconst.MEOWURI_AZR_FILETAGS_FOLLOWS),
-                          MeowURI(uuconst.MEOWURI_AZR_FILETAGS_TAGS)],
+                MeowURIs=[
+                    uu.as_meowuri(uuconst.MEOWURI_AZR_FILETAGS_DATETIME),
+                    uu.as_meowuri(uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION),
+                    uu.as_meowuri(uuconst.MEOWURI_AZR_FILETAGS_FOLLOWS),
+                    uu.as_meowuri(uuconst.MEOWURI_AZR_FILETAGS_TAGS)
+                ],
                 Extractors=['FiletagsAnalyzer']
             ),
         ]
         cls._extractor_meowuris_sourcemap = [
             ExpectedMapping(
-                MeowURIs=[MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT),
-                          MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL),
-                          MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX),
-                          MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
-                          MeowURI(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL)],
+                MeowURIs=[
+                    uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT),
+                    uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL),
+                    uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX),
+                    uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
+                    uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL)
+                ],
                 Extractors=['CrossPlatformFileSystemExtractor']
             ),
             ExpectedMapping(
                 MeowURIs=[
-                    MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE),
-                    MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL),
-                    MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE),
-                    MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR),
-                    MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATORFILEAS),
-                    MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE),
-                    MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER),
-                    MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE)
+                    uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE),
+                    uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL),
+                    uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE),
+                    uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR),
+                    uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATORFILEAS),
+                    uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE),
+                    uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER),
+                    uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE)
                 ],
                 Extractors=['ExiftoolMetadataExtractor']
             )
@@ -195,7 +202,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         self.assertEqual(expect_count, len(expected_provider_names), '???')
 
         actual_provider_names = [k.__name__ for k in actual_providers]
-        self.assertEqual(len(expected_provider_names), len(actual_providers))
+        self.assertEqual(len(expected_provider_names), actual_count)
         self.assertEqual(expected_provider_names, actual_provider_names)
 
     def test_maps_meowuris_to_expected_source(self):
@@ -254,6 +261,21 @@ class TestMapMeowURItoSourceClass(TestCase):
                     uri, includes=['plugin']
                 )
                 self.assertEqual(0, len(actual))
+
+    def test_maps_generic_meowuri_mimetype_to_filesystem_extractor(self):
+        # self.skipTest('[TD0150] Map "generic" MeowURIs to provider classes')
+
+        # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
+        meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
+
+        actual = self.registry.providers_for_meowuri(
+            meowuri, includes=['extractor']
+        )
+        self._check_returned_providers(
+            meowuri, actual,
+            expected_provider_names=['CrossPlatformFileSystemExtractor'],
+            expect_count=1
+        )
 
 
 class TestProviderRegistryMethodResolvable(TestCase):

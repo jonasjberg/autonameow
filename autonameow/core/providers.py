@@ -23,6 +23,7 @@ import logging
 
 from core import constants as C
 from core import types
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -106,6 +107,11 @@ class ProviderRegistry(object):
         # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
         self.mapped_meowuris = self.unique_map_meowuris(self.meowuri_sources)
 
+        # Providers declaring generic MeowURIs through 'metainfo()'.
+        self.generic_meowuri_sources = self._get_generic_sources(
+            self.meowuri_sources
+        )
+
     def resolvable(self, meowuri):
         if not meowuri:
             return False
@@ -138,6 +144,22 @@ class ProviderRegistry(object):
             log.error('"providers_for_meowuri()" got empty MeowURI!')
             return found
 
+        if requested_meowuri.is_generic:
+            found = self._providers_for_generic_meowuri(requested_meowuri)
+        else:
+            found = self._source_providers_for_meowuri(requested_meowuri,
+                                                       includes)
+
+        log.debug('{} returning {} providers for MeowURI {!s}'.format(
+            self.__class__.__name__, len(found), requested_meowuri))
+        return found
+
+    def _providers_for_generic_meowuri(self, requested_meowuri):
+        # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
+        print('TODO: [TD0150] Map "generic" MeowURIs to provider classes.')
+        return set()
+
+    def _source_providers_for_meowuri(self, requested_meowuri, includes=None):
         def _search_providers_with_root(_root):
             # '_meowuri' is shorter "root";
             #            'extractor.metadata.epub'
@@ -148,7 +170,9 @@ class ProviderRegistry(object):
                     return self.meowuri_sources[_root][_meowuri]
             return None
 
-        # TODO: [TD0147] This currently only uses the first found provider!
+        # TODO: [TD0147] This currently only uses the first found provider (?)
+        found = set()
+        # No includes specified -- search all providers.
         if not includes:
             # TODO: Simplify by matching substrings here.
             # NOTE(jonas): Sort for more consistent behaviour.
@@ -158,17 +182,40 @@ class ProviderRegistry(object):
                     found.add(_found_provider)
             return found
 
-        VALID_INCLUDES = C.MEOWURI_ROOTS_SOURCES
-        for include in includes:
-            assert include in VALID_INCLUDES, (
-                '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
-            )
+        # Sanity-check 'includes' argument.
+        if __debug__:
+            VALID_INCLUDES = C.MEOWURI_ROOTS_SOURCES
+            for include in includes:
+                assert include in VALID_INCLUDES, (
+                    '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
+                )
 
-            result = _search_providers_with_root(include)
-            if result is not None:
-                found.add(result)
+        # Search only the specified providers.
+        for include in includes:
+            _found_provider = _search_providers_with_root(include)
+            if _found_provider:
+                found.add(_found_provider)
 
         return found
+
+    def _get_generic_sources(self, meowuri_class_map):
+        out = dict()
+
+        # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
+        # for key in ['extractors', 'analyzer', 'plugin'] ..
+        for key in meowuri_class_map.keys():
+            for _, klass in meowuri_class_map[key].items():
+                out[klass] = set()
+                # TODO: [TD0151] Fix inconsistent use of classes/instances.
+                metainfo_dict = dict(klass.FIELD_LOOKUP)
+                for _, field_metainfo in metainfo_dict.items():
+                    generic_field = field_metainfo.get('generic_field')
+                    if not generic_field:
+                        continue
+
+                    assert isinstance(generic_field, str)
+                    out[klass].add(generic_field)
+        return out
 
     @staticmethod
     def unique_map_meowuris(meowuri_class_map):
@@ -231,6 +278,10 @@ def get_providers_for_meowuri(meowuri, include_roots=None):
     if not meowuri:
         return providers
 
+    sanity.check_isinstance_meowuri(
+        meowuri, msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
+    )
+
     source_classes = Registry.providers_for_meowuri(meowuri, include_roots)
     providers.update(source_classes)
     return providers
@@ -242,6 +293,9 @@ def get_providers_for_meowuris(meowuri_list, include_roots=None):
         return providers
 
     for uri in meowuri_list:
+        sanity.check_isinstance_meowuri(
+            uri, msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
+        )
         source_classes = Registry.providers_for_meowuri(uri, include_roots)
         providers.update(source_classes)
     return providers

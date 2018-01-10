@@ -94,6 +94,7 @@ class BasePlugin(object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def metainfo(self):
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
         return dict(self.FIELD_LOOKUP)
 
     def __str__(self):
