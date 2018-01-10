@@ -23,6 +23,7 @@ import logging
 import pprint
 from collections import defaultdict
 
+import plugins
 from analyzers import BaseAnalyzer
 from core import (
     analysis,
@@ -32,7 +33,6 @@ from core import (
     repository,
 )
 from extractors import BaseExtractor
-from plugins import BasePlugin
 
 
 log = logging.getLogger(__name__)
@@ -113,7 +113,7 @@ class MasterDataProvider(object):
                     extraction.run_extraction(fileobject, [_provider])
                 elif issubclass(_provider, BaseAnalyzer):
                     analysis.run_analysis(fileobject, self.config)
-                elif issubclass(_provider, BasePlugin):
+                elif issubclass(_provider, plugins.BasePlugin):
                     plugin_handler.run_plugins(
                         fileobject,
                         require_plugins=_provider,

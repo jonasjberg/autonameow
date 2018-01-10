@@ -38,7 +38,6 @@ from core.types import NullMIMEType
 
 
 uu.init_session_repository()
-uu.init_provider_registry()
 
 
 class TestFieldGetterMethods(TestCase):
