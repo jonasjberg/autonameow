@@ -24,7 +24,6 @@ import logging
 import util
 from core import exceptions
 from core.ui.cli import ColumnFormatter
-from core.model import MeowURI
 from util import encoding as enc
 from util import sanity
 from util import textutils
@@ -74,8 +73,7 @@ class Repository(object):
         Adds data related to a given 'fileobject', at a storage location
         defined by the given 'meowuri'.
         """
-        if not meowuri or not isinstance(meowuri, MeowURI):
-            raise exceptions.InvalidMeowURIError
+        sanity.check_isinstance_meowuri(meowuri)
 
         if not data:
             log.warning('Attempted to add empty data with meowURI'
