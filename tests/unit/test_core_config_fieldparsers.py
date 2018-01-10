@@ -474,6 +474,14 @@ class TestSuitableFieldParserFor(TestCase):
         self.__expect_parser_for('MimeTypeConfigFieldParser',
                                  uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
+    def test_raises_exception_given_none_meowuri(self):
+        with self.assertRaises(AssertionError):
+            suitable_field_parser_for(None)
+
+    def test_raises_exception_given_string_meowuri(self):
+        with self.assertRaises(AssertionError):
+            suitable_field_parser_for(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+
 
 class TestFieldParserConstants(TestCase):
     def test_has_dummy_data_fields_constant(self):

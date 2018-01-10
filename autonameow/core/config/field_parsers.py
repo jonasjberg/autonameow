@@ -30,9 +30,11 @@ from core import (
     types,
 )
 from core.model import genericfields as gf
-from core.model import MeowURI
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
-from util import mimemagic
+from util import (
+    mimemagic,
+    sanity
+)
 from util import encoding as enc
 
 
@@ -448,7 +450,7 @@ def suitable_field_parser_for(meowuri):
         A list of instantiated field parsers suited for the given "meowURI".
     """
     log.debug('suitable_field_parser_for("{!s}")'.format(meowuri))
-    assert isinstance(meowuri, MeowURI)
+    sanity.check_isinstance_meowuri(meowuri)
 
     return [p for p in FieldParserInstances
             if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
