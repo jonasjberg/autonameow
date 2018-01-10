@@ -422,7 +422,7 @@ def likely_extension(basename_suffix, mime_type):
                   'AW_MIMETYPE.format()'.format(_coerced_mime))
         return types.AW_MIMETYPE.format(_coerced_mime)
 
-    if basename_suffix in ('', None):
+    if basename_suffix == '':
         log.debug('Basename suffix is empty. Giving up..')
         return ''
 
