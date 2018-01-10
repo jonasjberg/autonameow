@@ -149,7 +149,8 @@ class ProviderRegistry(object):
             return found
 
         if requested_meowuri.is_generic:
-            found = self._providers_for_generic_meowuri(requested_meowuri)
+            found = self._providers_for_generic_meowuri(requested_meowuri,
+                                                        includes)
         else:
             found = self._source_providers_for_meowuri(requested_meowuri,
                                                        includes)
@@ -158,12 +159,27 @@ class ProviderRegistry(object):
             self.__class__.__name__, len(found), requested_meowuri))
         return found
 
-    def _providers_for_generic_meowuri(self, requested_meowuri):
+    def _providers_for_generic_meowuri(self, requested_meowuri, includes=None):
         # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
+
+        VALID_INCLUDES = C.MEOWURI_ROOTS_SOURCES
+        if includes:
+            # Search only specified providers.
+            # Sanity-check 'includes' argument.
+            if __debug__:
+                for include in includes:
+                    assert include in VALID_INCLUDES, (
+                        '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
+                    )
+        else:
+            # No includes specified -- search all ("valid includes") providers.
+            includes = set(VALID_INCLUDES)
+
         found = set()
-        for klass, meowuris in self.generic_meowuri_sources.items():
-            if requested_meowuri in meowuris:
-                found.add(klass)
+        for root in includes:
+            for klass, meowuris in self.generic_meowuri_sources[root].items():
+                if requested_meowuri in meowuris:
+                    found.add(klass)
         return found
 
     def _source_providers_for_meowuri(self, requested_meowuri, includes=None):
@@ -213,10 +229,15 @@ class ProviderRegistry(object):
         out = dict()
 
         # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
-        # for key in ['extractors', 'analyzer', 'plugin'] ..
-        for key in meowuri_class_map.keys():
-            for _, klass in meowuri_class_map[key].items():
-                out[klass] = set()
+        # for root in ['extractors', 'analyzer', 'plugin'] ..
+        for root in sorted(C.MEOWURI_ROOTS_SOURCES):
+            if root not in meowuri_class_map:
+                continue
+
+            out[root] = dict()
+            for _, klass in meowuri_class_map[root].items():
+                out[root][klass] = set()
+
                 # TODO: [TD0151] Fix inconsistent use of classes/instances.
                 metainfo_dict = dict(klass.FIELD_LOOKUP)
                 for _, field_metainfo in metainfo_dict.items():
@@ -231,14 +252,13 @@ class ProviderRegistry(object):
                     if not _generic_field_klass:
                         continue
 
-                    assert issubclass(
-                        _generic_field_klass, genericfields.GenericField
-                    ), type(_generic_field_klass)
+                    assert issubclass(_generic_field_klass,
+                                      genericfields.GenericField)
                     _generic_meowuri = _generic_field_klass.uri()
                     if not _generic_meowuri:
                         continue
 
-                    out[klass].add(_generic_meowuri)
+                    out[root][klass].add(_generic_meowuri)
         return out
 
     @staticmethod
