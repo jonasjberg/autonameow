@@ -78,14 +78,13 @@ def check_isinstance(thing, expected_type, msg=None):
     if not __debug__:
         return
 
-    _msg = ''
-    if msg:
-        _msg = '\n{!s}'.format(msg)
+    if not isinstance(thing, expected_type):
+        error_msg = 'Expected instance of {!s}. Got {!s}\n({!s})'.format(
+            expected_type, type(thing), pprint.pformat(thing))
+        if msg:
+            error_msg += '\n\n{!s}'.format(msg)
 
-    assert isinstance(thing, expected_type), (
-        'Expected type {!s}. Got {!s} ({!s}){}'.format(expected_type,
-                                                       type(thing), thing, _msg)
-    )
+        raise AssertionError(error_msg)
 
 
 def check_isinstance_meowuri(thing, msg=None):
@@ -102,10 +101,4 @@ def check_isinstance_meowuri(thing, msg=None):
     if not __debug__:
         return
 
-    if not isinstance(thing, MeowURI):
-        error_msg = 'Expected instance of MeowURI. Got {!s}\n({!s})'.format(
-            type(thing), pprint.pformat(thing))
-        if msg:
-            error_msg += '\n\n{!s}'.format(msg)
-
-        raise AssertionError(error_msg)
+    check_isinstance(thing, MeowURI, msg)
