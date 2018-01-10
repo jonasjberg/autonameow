@@ -215,7 +215,7 @@ def get_field_class(string):
     KLASSES = {
         'author': GenericAuthor,
         'creator': GenericCreator,
-        'date_created': GenericDateModified,
+        'date_created': GenericDateCreated,
         'date_modified': GenericDateModified,
         'description': GenericDescription,
         'edition': GenericEdition,
