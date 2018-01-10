@@ -23,6 +23,10 @@ import logging
 
 from core import constants as C
 from core import types
+from core.model import (
+    genericfields,
+    MeowURI
+)
 from util import sanity
 
 
@@ -156,8 +160,11 @@ class ProviderRegistry(object):
 
     def _providers_for_generic_meowuri(self, requested_meowuri):
         # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
-        print('TODO: [TD0150] Map "generic" MeowURIs to provider classes.')
-        return set()
+        found = set()
+        for klass, meowuris in self.generic_meowuri_sources.items():
+            if requested_meowuri in meowuris:
+                found.add(klass)
+        return found
 
     def _source_providers_for_meowuri(self, requested_meowuri, includes=None):
         def _search_providers_with_root(_root):
@@ -199,6 +206,10 @@ class ProviderRegistry(object):
         return found
 
     def _get_generic_sources(self, meowuri_class_map):
+        """
+        Returns a dict keyed by provider classes storing sets of "generic"
+        fields as Unicode strings.
+        """
         out = dict()
 
         # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
@@ -209,12 +220,25 @@ class ProviderRegistry(object):
                 # TODO: [TD0151] Fix inconsistent use of classes/instances.
                 metainfo_dict = dict(klass.FIELD_LOOKUP)
                 for _, field_metainfo in metainfo_dict.items():
-                    generic_field = field_metainfo.get('generic_field')
-                    if not generic_field:
+                    _generic_field_string = field_metainfo.get('generic_field')
+                    if not _generic_field_string:
                         continue
 
-                    assert isinstance(generic_field, str)
-                    out[klass].add(generic_field)
+                    assert isinstance(_generic_field_string, str)
+                    _generic_field_klass = genericfields.get_field_class(
+                        _generic_field_string
+                    )
+                    if not _generic_field_klass:
+                        continue
+
+                    assert issubclass(
+                        _generic_field_klass, genericfields.GenericField
+                    ), type(_generic_field_klass)
+                    _generic_meowuri = _generic_field_klass.uri()
+                    if not _generic_meowuri:
+                        continue
+
+                    out[klass].add(_generic_meowuri)
         return out
 
     @staticmethod

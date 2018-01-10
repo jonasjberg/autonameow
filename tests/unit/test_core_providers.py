@@ -281,16 +281,18 @@ class TestMapMeowURItoSourceClass(TestCase):
 class TestProviderRegistryMethodResolvable(TestCase):
     @classmethod
     def setUpClass(cls):
+        mock_provider = Mock()
+        mock_provider.FIELD_LOOKUP = dict()
         dummy_source_map = {
             'analyzer': {
-                'analyzer.filename': Mock()
+                'analyzer.filename': mock_provider
             },
             'plugin': {
-                'plugin.guessit': Mock()
+                'plugin.guessit': mock_provider
             },
             'extractor': {
-                'extractor.metadata.exiftool': Mock(),
-                'extractor.filesystem.xplat': Mock(),
+                'extractor.metadata.exiftool': mock_provider,
+                'extractor.filesystem.xplat': mock_provider
             }
         }
         cls.p = ProviderRegistry(meowuri_source_map=dummy_source_map)
@@ -330,9 +332,11 @@ class TestProviderRegistryMethodResolvable(TestCase):
         self.assertFalse(p.resolvable(meowuri))
 
     def test_with_meowuri_and_single_mapped_meowuri(self):
+        mock_provider = Mock()
+        mock_provider.FIELD_LOOKUP = dict()
         dummy_source_map = {
             'plugin': {
-                'plugin.guessit': Mock()
+                'plugin.guessit': mock_provider
             }
         }
         p = ProviderRegistry(meowuri_source_map=dummy_source_map)
