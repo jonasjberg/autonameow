@@ -104,7 +104,7 @@ class MasterDataProvider(object):
 
         _possible_providers = providers.get_providers_for_meowuri(meowuri)
         # TODO: [TD0142] Rework overall architecture to fetch data when needed.
-        log.debug('FileObject: {} MeowURI: {}'.format(fileobject.hash_partial, meowuri))
+        log.debug('Delegating request to providers: [{:8.8}]->[{!s}]'.format(fileobject.hash_partial, meowuri))
         log.debug('Possible Providers: {!s}'.format(_possible_providers))
 
         # TODO: Handle this properly ..
