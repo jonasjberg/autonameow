@@ -33,6 +33,7 @@ from core import (
     repository,
 )
 from extractors import BaseExtractor
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -132,4 +133,8 @@ def initialize(active_config):
 
 
 def query(fileobject, meowuri):
+    sanity.check_isinstance_meowuri(
+        meowuri,
+        msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
+    )
     return _master_data_provider.query(fileobject, meowuri)
