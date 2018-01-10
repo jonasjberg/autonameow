@@ -248,17 +248,24 @@ class TestRuleInit(TestCase):
 
 
 class TestRuleConditionComparison(TestCase):
-    def setUp(self):
-        _meowuri = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        _expression = 'text/plain'
-        self.a = RuleCondition(_meowuri, _expression)
+    @staticmethod
+    def _get_rule_condition(meowuri, expression):
+        return RuleCondition(MeowURI(meowuri), expression)
 
     def test_not_equal_to_objects_of_another_type(self):
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='text/plain'
+        )
         for b in [None, {}, [], 'foo', object()]:
-            self.assertNotEqual(self.a, b)
+            self.assertNotEqual(a, b)
 
     def test_is_equal_to_itself(self):
-        self.assertEqual(self.a, self.a)
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='text/plain'
+        )
+        self.assertEqual(a, a)
 
     def test_hashable_for_set_membership(self):
         # NOTE(jonas): Assumes dummy rule conditions are unique.
@@ -267,38 +274,46 @@ class TestRuleConditionComparison(TestCase):
         self.assertEqual(len(all_ruleconditions), len(container))
 
     def test_equal_for_same_meowuri_identical_expression(self):
-        a = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'text/plain'
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='text/plain'
         )
-        b = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'text/plain'
+        b = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='text/plain'
         )
         self.assertEqual(a, b)
 
     def test_not_equal_for_same_meowuri_different_expressions(self):
-        a = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'text/plain'
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='text/plain'
         )
-        b = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'application/pdf'
+        b = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='application/pdf'
         )
         self.assertNotEqual(a, b)
 
     def test_not_equal_for_different_meowuris_identical_expression(self):
-        a = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL), '.*'
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
+            expression='.*'
         )
-        b = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX), '.*'
+        b = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX,
+            expression='.*'
         )
         self.assertNotEqual(a, b)
 
     def test_not_equal_for_different_meowuris_different_expressions(self):
-        a = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL), 'foo'
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
+            expression='foo'
         )
-        b = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX), 'bar'
+        b = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX,
+            expression='bar'
         )
         self.assertNotEqual(a, b)
 
