@@ -20,8 +20,14 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+from unittest.mock import Mock
 
-from core.evaluate.resolver import dedupe_list_of_datadicts
+import unit.constants as uuconst
+import unit.utils as uu
+from core.evaluate.resolver import (
+    dedupe_list_of_datadicts,
+    TemplateFieldDataResolver
+)
 
 
 class TestDedupeListOfDatadicts(TestCase):
@@ -132,3 +138,23 @@ class TestDedupeListOfDatadictsContainingMultipleValues(TestCase):
             given=[{'value': ['A', 'B']}, {'value': ['A']}],
             expect=[{'value': ['A', 'B']}, {'value': ['A']}]
         )
+
+
+class TestTemplateFieldDataResolverTypeAssertions(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        fo = uu.get_mock_fileobject()
+        name_template = '{datetime} {title}.{extension}',
+        cls.tfdr = TemplateFieldDataResolver(fo, name_template)
+
+    def test_add_known_source_not_given_instance_of_meowuri(self):
+        mock_field = Mock()
+        invalid_meowuri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        with self.assertRaises(AssertionError):
+            self.tfdr.add_known_source(mock_field, invalid_meowuri)
+
+    def test_add_known_source_not_given_none_meowuri(self):
+        mock_field = Mock()
+        invalid_meowuri = None
+        with self.assertRaises(AssertionError):
+            self.tfdr.add_known_source(mock_field, invalid_meowuri)

@@ -25,7 +25,6 @@ from core import (
     provider,
     repository
 )
-from core.model import MeowURI
 from core.model import genericfields as gf
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
 from util import sanity
@@ -70,11 +69,10 @@ class TemplateFieldDataResolver(object):
         return all(field in self.data_sources for field in self._fields)
 
     def add_known_source(self, field, meowuri):
-        assert meowuri and isinstance(meowuri, MeowURI), (
-            'TODO: Fix collecting/verifying data from sources. '
-            'Expected MeowURI, not "{!s}"'.format(type(meowuri))
+        sanity.check_isinstance_meowuri(
+            meowuri,
+            msg='TODO: Fix collecting/verifying data from sources.'
         )
-
         if field in self._fields:
             if not self.data_sources.get(field):
                 self.data_sources[field] = [meowuri]
