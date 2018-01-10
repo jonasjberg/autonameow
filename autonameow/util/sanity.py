@@ -19,7 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import pprint
+
 from core import exceptions
+from core.model import MeowURI
 
 
 def check_internal_bytestring(value):
@@ -83,3 +86,26 @@ def check_isinstance(thing, expected_type, msg=None):
         'Expected type {!s}. Got {!s} ({!s}){}'.format(expected_type,
                                                        type(thing), thing, _msg)
     )
+
+
+def check_isinstance_meowuri(thing, msg=None):
+    """
+    Checks that a given "thing" is an instance of class "MeowURI".
+
+    Args:
+        thing: The object to test.
+        msg: Optional message to include in with a failed assertion error.
+
+    Raises:
+        AssertionError: Given object is not an instance of the "MeowURI" class.
+    """
+    if not __debug__:
+        return
+
+    if not isinstance(thing, MeowURI):
+        error_msg = 'Expected instance of MeowURI. Got {!s}\n({!s})'.format(
+            type(thing), pprint.pformat(thing))
+        if msg:
+            error_msg += '\n\n{!s}'.format(msg)
+
+        raise AssertionError(error_msg)
