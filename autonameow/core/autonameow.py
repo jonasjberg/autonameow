@@ -29,6 +29,7 @@ from core import constants as C
 from core import (
     config,
     exceptions,
+    logs,
     persistence,
     providers,
     repository,
@@ -209,6 +210,7 @@ class Autonameow(object):
 
         self.exit_program(self.exit_code)
 
+    @logs.log_func_runtime(log)
     def load_config(self, path):
         try:
             self.active_config = config.load_config_from_file(path)
