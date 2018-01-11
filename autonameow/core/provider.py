@@ -44,10 +44,18 @@ log = logging.getLogger(__name__)
 
 class MasterDataProvider(object):
     """
-    Handles top-level data retrieval and data extraction delegation.
+    Handles top-level _DYNAMIC_ data retrieval and data extraction delegation.
 
-    Part of restructuring the overall architecture to fetch data lazily while
-    evaluating rule conditions, etc.
+    This is one of two main means of querying for data related to a file.
+    Compared to the repository, which is a static storage that either contain
+    the requested data or not, this is a "reactive" interface to the repository.
+
+    If the requested data is in the repository, is it retrieved and returned.
+    Otherwise, data providers (extractors/analyzers/plugins) that might be able
+    to provide the requested data is executed. If the execution turns up the
+    requested data, it is returned.
+    This is intended to be a "dynamic" or "reactive" data retrieval interface
+    for use by any part of the application.
     """
     def __init__(self, config):
         self.seen_fileobject_meowuris = defaultdict(dict)
@@ -104,6 +112,12 @@ class MasterDataProvider(object):
         log.debug('Possible Providers: {!s}'.format(_possible_providers))
 
         # TODO: [TD0142] Handle this properly ..
+        # TODO: [TD0142] Check here if the provider can handle the file.
+        # Run only what is suitable and necessary.
+        # Currently, when requesting 'generic.contents.text' from a PDF
+        # document, the extractor runner is started 4 times.
+        # Only one of these are really appropriate; when requesting the
+        # 'PdftotextTextExtractor'. Other extractor requests should be skipped.
         if _possible_providers:
             for _provider in _possible_providers:
                 if issubclass(_provider, BaseExtractor):
