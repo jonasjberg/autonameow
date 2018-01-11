@@ -23,13 +23,15 @@ import logging
 
 import analyzers
 from core import (
-    exceptions,
     logs,
     provider,
     repository
 )
 from core.config.configuration import Configuration
-from core.exceptions import InvalidMeowURIError
+from core.exceptions import (
+    AutonameowException,
+    InvalidMeowURIError
+)
 from core.fileobject import FileObject
 from core.model import MeowURI
 from util import sanity
@@ -69,7 +71,18 @@ def _execute_run_queue(analyzer_queue):
         log.debug('Finished running "{!s}"'.format(a))
 
 
-def request_global_data(fileobject, meowuri):
+def request_global_data(fileobject, meowuri_string):
+    # TODO: [TD0133] Fix inconsistent use of MeowURIs
+    #       Stick to using either instances of 'MeowURI' _OR_ strings.
+    sanity.check_internal_string(meowuri_string)
+
+    try:
+        meowuri = MeowURI(meowuri_string)
+    except InvalidMeowURIError as e:
+        log.critical('Analyzer request used bad MeowURI "{!s}" :: '
+                     '{!s}'.format(meowuri_string, e))
+        return None
+
     response = provider.query(fileobject, meowuri)
     if response:
         sanity.check_isinstance(response, dict)
@@ -175,7 +188,7 @@ def _start(fileobject, config):
 
     klasses = suitable_analyzers_for(fileobject)
     if not klasses:
-        raise exceptions.AutonameowException(
+        raise AutonameowException(
             'None of the analyzers applies (!)'
         )
 
@@ -214,6 +227,6 @@ def run_analysis(fileobject, active_config):
     """
     try:
         _start(fileobject, active_config)
-    except exceptions.AutonameowException as e:
+    except AutonameowException as e:
         log.critical('Analysis FAILED: {!s}'.format(e))
         raise

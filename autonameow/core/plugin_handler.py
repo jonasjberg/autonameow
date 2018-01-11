@@ -133,7 +133,18 @@ class PluginHandler(object):
             store_results(fileobject, _meowuri_prefix, _results)
 
 
-def request_data(fileobject, meowuri):
+def request_data(fileobject, meowuri_string):
+    # TODO: [TD0133] Fix inconsistent use of MeowURIs
+    #       Stick to using either instances of 'MeowURI' _OR_ strings.
+    sanity.check_internal_string(meowuri_string)
+
+    try:
+        meowuri = MeowURI(meowuri_string)
+    except InvalidMeowURIError as e:
+        log.critical('Plugin request used bad MeowURI "{!s}" :: '
+                     '{!s}'.format(meowuri_string, e))
+        return None
+
     response = provider.query(fileobject, meowuri)
     if response:
         sanity.check_isinstance(response, dict)
