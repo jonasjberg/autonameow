@@ -171,7 +171,6 @@ class ExtractorRunner(object):
         _request_all = bool(request_all)
 
         all_klasses = set(self._available_extractors)
-        log.debug('Available extractors: {}'.format(len(all_klasses)))
         for k in all_klasses:
             log.debug('Available: {!s}'.format(str(k.__name__)))
 
@@ -192,7 +191,7 @@ class ExtractorRunner(object):
                     for k in _requested_extractors:
                         log.debug('Requested:  {!s}'.format(str(k.__name__)))
 
-        log.debug('Selected {} extractors'.format(len(selected_klasses)))
+        log.debug('Selected {} of {} available extractors'.format(len(selected_klasses), len(all_klasses)))
 
         # Get only extractors suitable for the given file.
         selected_klasses = filter_able_to_handle(selected_klasses, fileobject)
@@ -211,9 +210,10 @@ class ExtractorRunner(object):
         for k in selected_klasses:
             log.debug('Prepared:  {!s}'.format(str(k.__name__)))
 
-        # Run all prepared extractors.
-        with logs.log_runtime(log, 'Extraction'):
-            self._run_extractors(fileobject, selected_klasses)
+        if selected_klasses:
+            # Run all prepared extractors.
+            with logs.log_runtime(log, 'Extraction'):
+                self._run_extractors(fileobject, selected_klasses)
 
     @staticmethod
     def _run_extractors(fileobject, all_klasses):

@@ -21,11 +21,12 @@
 
 import logging
 
+
 from core import constants as C
 from core import (
-    analysis,
     extraction,
     interactive,
+    logs,
     namebuilder,
     plugin_handler,
     providers,
@@ -108,7 +109,8 @@ class FilesContext(object):
         name_template = None
         if self.opts.get('mode_rulematch'):
             # TODO: Cleanup ..
-            candidates = self.matcher.match(current_file)
+            with logs.log_runtime(log, 'Rule-Matching'):
+                candidates = self.matcher.match(current_file)
             log.debug('Matcher returned {} candidate rules'.format(len(candidates)))
             if candidates:
                 active_rule = self._try_get_rule(candidates)
