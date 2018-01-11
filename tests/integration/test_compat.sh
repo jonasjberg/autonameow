@@ -48,6 +48,7 @@ TESTSUITE_NAME='Compatibility'
 logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
+
 assert_true '"$AUTONAMEOW_RUNNER"' \
             'The autonameow launcher script can be started with no arguments'
 
