@@ -258,7 +258,14 @@ class TemplateFieldDataResolver(object):
         log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
             self, fileobject.hash_partial, meowuri))
 
-        return provider.query(fileobject, meowuri)
+        # NOTE(jonas): We do NOT want to use the "reactive" data retrieval
+        #              interface, which might trigger additional attempts to
+        #              provide the requests data, if not in the repository.
+        #
+        #              We only want to use data that either has already been
+        #              extracted and stored in the repository OR doesn't exist;
+        #              in which case this SHOULD fail.
+        return repository.SessionRepository.query(fileobject, meowuri)
 
     def __str__(self):
         return self.__class__.__name__
