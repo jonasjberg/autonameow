@@ -189,20 +189,13 @@ class TestMapMeowURItoSourceClass(TestCase):
         providers.initialize()
         cls.registry = providers.Registry
 
-    def _check_returned_providers(self, meowuri, actual_providers,
-                                  expected_provider_names, expected_count):
+    def _check_returned_providers(self, actual_providers,
+                                  expected_provider_names):
         # TODO: Not sure why this is assumed. Likely erroneous (?)
         actual_count = len(actual_providers)
-        self.assertEqual(
-            expected_count, actual_count,
-            'Got {} sources but expected {} for MeowURI {!s} (???)'.format(
-                actual_count, expected_count, meowuri
-            )
-        )
-        self.assertEqual(expected_count, len(expected_provider_names), '???')
-
         actual_provider_names = [k.__name__ for k in actual_providers]
-        self.assertEqual(len(expected_provider_names), actual_count)
+        expect_count = len(expected_provider_names)
+        self.assertEqual(expect_count, actual_count)
         self.assertEqual(sorted(expected_provider_names),
                          sorted(actual_provider_names))
 
@@ -210,8 +203,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         for meowuris, expected_sources in self._all_meowuris_sourcemap:
             for uri in meowuris:
                 actual = self.registry.providers_for_meowuri(uri)
-                self._check_returned_providers(uri, actual, expected_sources,
-                                               expected_count=1)
+                self._check_returned_providers(actual, expected_sources)
 
     def test_maps_meowuris_to_expected_source_include_analyzers(self):
         for meowuris, expected_sources in self._analyzer_meowuris_sourcemap:
@@ -219,8 +211,7 @@ class TestMapMeowURItoSourceClass(TestCase):
                 actual = self.registry.providers_for_meowuri(
                     uri, includes=['analyzer']
                 )
-                self._check_returned_providers(uri, actual, expected_sources,
-                                               expected_count=1)
+                self._check_returned_providers(actual, expected_sources)
 
     def test_maps_none_given_extractor_meowuris_but_includes_analyzers(self):
         for meowuris, _ in self._extractor_meowuris_sourcemap:
@@ -236,8 +227,7 @@ class TestMapMeowURItoSourceClass(TestCase):
                 actual = self.registry.providers_for_meowuri(
                     uri, includes=['extractor']
                 )
-                self._check_returned_providers(uri, actual, expected_sources,
-                                               expected_count=1)
+                self._check_returned_providers(actual, expected_sources)
 
     def test_maps_none_given_analyzer_meowuris_but_includes_extractors(self):
         for meowuris, _ in self._analyzer_meowuris_sourcemap:
@@ -269,12 +259,11 @@ class TestMapMeowURItoSourceClass(TestCase):
             meowuri, includes=['extractor']
         )
         self._check_returned_providers(
-            meowuri, actual,
+            actual,
             expected_provider_names=[
                 'CrossPlatformFileSystemExtractor',
                 'ExiftoolMetadataExtractor'
-            ],
-            expected_count=2
+            ]
         )
 
     def test_maps_generic_meowuri_mimetype_to_extractors_analyzers(self):
@@ -282,49 +271,62 @@ class TestMapMeowURItoSourceClass(TestCase):
         actual = self.registry.providers_for_meowuri(
             meowuri, includes=['extractor', 'analyzer']
         )
-        self._check_returned_providers(
-            meowuri, actual,
-            expected_provider_names=[
-                'CrossPlatformFileSystemExtractor',
-                'FiletagsAnalyzer',
-                'ExiftoolMetadataExtractor'
-            ],
-            expected_count=3
-        )
+        expected = ['CrossPlatformFileSystemExtractor',
+                    'FiletagsAnalyzer',
+                    'ExiftoolMetadataExtractor']
+        self._check_returned_providers(actual, expected)
 
     def test_maps_generic_meowuri_mimetype_to_expected_providers(self):
         meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         actual = self.registry.providers_for_meowuri(
             meowuri,
         )
-        self._check_returned_providers(
-            meowuri, actual,
-            expected_provider_names=[
-                'CrossPlatformFileSystemExtractor',
-                'FiletagsAnalyzer',
-                'ExiftoolMetadataExtractor'
-            ],
-            expected_count=3
-        )
+        expected = ['CrossPlatformFileSystemExtractor',
+                    'FiletagsAnalyzer',
+                    'ExiftoolMetadataExtractor']
+        self._check_returned_providers(actual, expected)
 
     def test_maps_generic_meowuri_datecreated_to_expected_extractors(self):
         meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_DATECREATED)
         actual = self.registry.providers_for_meowuri(
             meowuri, includes=['extractor']
         )
-        self._check_returned_providers(
-            meowuri, actual,
-            expected_provider_names=[
-                'CrossPlatformFileSystemExtractor',
-                # 'DocumentAnalyzer',
-                # 'EbookAnalyzer',
-                # 'FilenameAnalyzer',
-                # 'FiletagsAnalyzer',
-                'ExiftoolMetadataExtractor',
-                # 'GuessitPlugin'
-            ],
-            expected_count=2
+        expected = ['CrossPlatformFileSystemExtractor',
+                    'ExiftoolMetadataExtractor']
+        self._check_returned_providers(actual, expected)
+
+    def test_maps_generic_meowuri_datecreated_to_expected_analyzers(self):
+        meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_DATECREATED)
+        actual = self.registry.providers_for_meowuri(
+            meowuri, includes=['analyzer']
         )
+        expected = ['DocumentAnalyzer',
+                    'EbookAnalyzer',
+                    'FilenameAnalyzer',
+                    'FiletagsAnalyzer']
+        self._check_returned_providers(actual, expected)
+
+    def test_maps_generic_meowuri_datecreated_to_expected_plugins(self):
+        meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_DATECREATED)
+        actual = self.registry.providers_for_meowuri(
+            meowuri, includes=['plugin']
+        )
+        expected = ['GuessitPlugin']
+        self._check_returned_providers(actual, expected)
+
+    def test_maps_generic_meowuri_datecreated_to_expected_providers(self):
+        meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_DATECREATED)
+        actual = self.registry.providers_for_meowuri(
+            meowuri
+        )
+        expected = ['CrossPlatformFileSystemExtractor',
+                    'DocumentAnalyzer',
+                    'ExiftoolMetadataExtractor',
+                    'EbookAnalyzer',
+                    'FilenameAnalyzer',
+                    'FiletagsAnalyzer',
+                    'GuessitPlugin']
+        self._check_returned_providers(actual, expected)
 
 
 class TestProviderRegistryMethodResolvable(TestCase):
