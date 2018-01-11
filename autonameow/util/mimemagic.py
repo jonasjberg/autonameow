@@ -338,6 +338,7 @@ MAPPER.add_mapping('video/x-matroska', 'mkv')
 # Any custom overrides of the "extension to MIME-type"-mapping goes here.
 MAPPER.add_preferred_extension('image/jpeg', 'jpg')
 MAPPER.add_preferred_extension('application/gzip', 'gz')
+MAPPER.add_preferred_extension('audio/midi', 'mid')
 MAPPER.add_preferred_extension('video/quicktime', 'mov')
 MAPPER.add_preferred_extension('video/mp4', 'mp4')
 MAPPER.add_preferred_extension('text/plain', 'txt')
