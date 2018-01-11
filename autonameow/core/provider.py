@@ -64,6 +64,11 @@ class MasterDataProvider(object):
         self.debug_stats = defaultdict(dict)
 
     def query(self, fileobject, meowuri):
+        """
+        First attempt to get the data from the repository.
+        If that fails, delegate the task of extracting the data to the
+        "relevant" providers. Then try querying the repository again.
+        """
         if meowuri not in self.debug_stats[fileobject]:
             self.debug_stats[fileobject][meowuri] = dict()
             self.debug_stats[fileobject][meowuri]['seen'] = 1
@@ -104,12 +109,16 @@ class MasterDataProvider(object):
         return None
 
     def _delegate_to_providers(self, fileobject, meowuri):
-        self.debug_stats[fileobject][meowuri]['delegated'] += 1
-
-        _possible_providers = providers.get_providers_for_meowuri(meowuri)
-        # TODO: [TD0142] Rework overall architecture to fetch data when needed.
         log.debug('Delegating request to providers: [{:8.8}]->[{!s}]'.format(fileobject.hash_partial, meowuri))
-        log.debug('Possible Providers: {!s}'.format(_possible_providers))
+
+        self.debug_stats[fileobject][meowuri]['delegated'] += 1
+        _delegation_count = self.debug_stats[fileobject][meowuri]['delegated']
+        if _delegation_count > 1:
+            log.warning('Delegated {} times:  [{:8.8}]->[{!s}]'.format(_delegation_count, fileobject.hash_partial, meowuri))
+
+        # TODO: [TD0142] Rework overall architecture to fetch data when needed.
+        _possible_providers = providers.get_providers_for_meowuri(meowuri)
+        log.debug('Got {} possible providers'.format(len(_possible_providers)))
 
         # TODO: [TD0142] Handle this properly ..
         # TODO: [TD0142] Check here if the provider can handle the file.
@@ -120,6 +129,7 @@ class MasterDataProvider(object):
         # 'PdftotextTextExtractor'. Other extractor requests should be skipped.
         if _possible_providers:
             for _provider in _possible_providers:
+                log.debug('Delegation running possible provider: {!s}'.format(_provider))
                 if issubclass(_provider, BaseExtractor):
                     extraction.run_extraction(fileobject, [_provider])
                 elif issubclass(_provider, BaseAnalyzer):
