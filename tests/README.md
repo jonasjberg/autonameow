@@ -9,13 +9,12 @@
 
 Testing TL;DR
 =============
+Use these runner scripts;
 
-| File Name                  | Execute this to run ..  |
-| -------------------------- | ----------------------- |
-| `run_all_tests.sh`         | __All tests__           |
-| `run_integration_tests.sh` | Integration Tests       |
-| `run_regression_tests.sh`  | Regression Tests        |
-| `run_unit_tests.sh`        | Unit Tests              |
+* `run_all_tests.sh` (__ALL__ tests)
+* `run_integration_tests.sh` (integration tests)
+* `run_regression_tests.sh` (regression tests)
+* `run_unit_tests.sh` (unit tests)
 
 All runner scripts will print usage information if started with `-h`.
 
