@@ -233,6 +233,10 @@ class TestLikelyExtension(TestCase):
              Given(suffix='zip', mime='application/zip')),
             (Expect('zip'),
              Given(suffix='zip', mime='application/x-zip')),
+
+            # Chrome Save as "Webpage, Single File"
+            (Expect('mhtml'),
+             Given(suffix='mhtml', mime='message/rfc822')),
         ]
 
     def test_returns_expected(self):

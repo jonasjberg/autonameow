@@ -344,9 +344,13 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     'audio/mpeg': {
         'mp3': {'mp3'}
     },
+    'message/rfc822': {
+        'mhtml': {'mhtml'}  # Chrome Save as "Webpage, Single File"
+    },
     'text/html': {
         'html': {'html', 'htm'},
         'html.gz': {'htm.gz', 'html.gz'},
+        'mhtml': {'mhtml'},
         'txt': {'txt'},
     },
     'text/plain': {
