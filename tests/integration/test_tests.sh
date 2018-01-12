@@ -187,6 +187,23 @@ assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
 # ______________________________________________________________________________
 #
+# Check developer scripts and utilities in 'devscripts'.
+
+_devscripts_path="${AUTONAMEOW_ROOT_DIR}/devscripts"
+assert_bulk_test "$_devscripts_path" n e d r w x
+
+_todo_helper_script_path="${_devscripts_path}/todo_id.py"
+assert_bulk_test "$_todo_helper_script_path" n e f r x
+
+assert_true '"${_todo_helper_script_path}"' \
+            'TODO-list utility script returns exit code 0 when started without arguments'
+
+assert_true '"${_todo_helper_script_path}" --help' \
+            'TODO-list utility script returns exit code 0 when started with argument "--help"'
+
+
+# ______________________________________________________________________________
+#
 # Shared bash script (integration test) functionality.
 
 assert_true 'type -t get_timestamp_from_basename' \

@@ -56,6 +56,14 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
+assert_true 'command -v python3' \
+            'Python v3.x is available on the system'
+
+
+# ______________________________________________________________________________
+#
+# Make sure that certain files have not been added to version control.
+
 check_git_ls_files_does_not_match '.cache'
 check_git_ls_files_does_not_match '.DS_Store'
 check_git_ls_files_does_not_match '.hypothesis'
@@ -65,6 +73,17 @@ check_git_ls_files_does_not_match '.pyc'
 check_git_ls_files_does_not_match 'junk/'
 check_git_ls_files_does_not_match 'local/'
 check_git_ls_files_does_not_match '__pycache__'
+check_git_ls_files_does_not_match 'docs/test_results'
+
+
+# ______________________________________________________________________________
+#
+# Check TODO-list identifiers with stand-alone TODO-list utility script.
+
+_todo_helper_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/todo_id.py"
+
+assert_true '"${_todo_helper_script_path}"' \
+            'TODO-list utility script checks pass ("todo_id.py --check" returns 0)'
 
 
 
