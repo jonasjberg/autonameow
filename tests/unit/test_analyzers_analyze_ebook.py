@@ -117,7 +117,7 @@ class TestValidateISBN(TestCase):
         sample_isbn = '1565923065'
         self.assertEqual(validate_isbn(sample_isbn), sample_isbn)
 
-    def test_returns_non_for_invalid_isbn_numbers(self):
+    def test_returns_none_for_invalid_isbn_numbers(self):
         sample_invalid_isbns = [
             None,
             '',
@@ -140,7 +140,7 @@ class TestFilterISBN(TestCase):
         actual = filter_isbns(sample_isbn, self.BLACKLISTED_ISBN_NUMBERS)
         self.assertEqual(actual, sample_isbn)
 
-    def test_returns_non_for_invalid_isbn_numbers(self):
+    def test_returns_none_for_invalid_isbn_numbers(self):
         sample_invalid_isbns = [
             None,
             [None],
