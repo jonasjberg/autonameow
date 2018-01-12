@@ -49,7 +49,7 @@ read -rsp $'Continue? (ctrl-c aborts)\n' -n 1 key
 (
 current_date="$(date "+%Y-%m-%d")"
 cd "$SOURCE_ROOT" && \
-tests/common_runner.sh && \
+tests/run_all_tests.sh && \
 devscripts/convert-html-to.pdf.sh && \
 git add --all docs/test_results/*${current_date}*.{html,pdf} && \
 git commit -m 'Add HTML and PDF unit/integration test reports.' && \

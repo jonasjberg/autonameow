@@ -12,7 +12,7 @@ Testing TL;DR
 
 | File Name                  | Execute this to run ..  |
 | -------------------------- | ----------------------- |
-| `common_runner.sh`         | __All tests__           |
+| `run_all_tests.sh`         | __All tests__           |
 | `run_integration_tests.sh` | Integration Tests       |
 | `run_regression_tests.sh`  | Regression Tests        |
 | `run_unit_tests.sh`        | Unit Tests              |
@@ -290,6 +290,41 @@ Actions to Perform:
                         equivalent command-line. Use "test selection" options
                         to narrow down the results.
   --run                 Run the selected test case(s). (DEFAULT: True)
+
+Project website: www.github.com/jonasjberg/autonameow
+```
+
+
+Top-level Test Runner
+---------------------
+To run all test runners, execute the script `tests/run_all_tests.sh`.
+
+This script accepts optional argument flags, as described in the usage text;
+
+```
+"run_all_tests.sh"  --  autonameow test suite helper script
+
+  USAGE:  run_all_tests.sh ([OPTIONS])
+
+  OPTIONS:     -h   Display usage information and exit.
+               -u   Add test reports to the project wiki.
+               -v   Enable all output from the unit/integration-runners.
+                    This also increases the verbosity of this script.
+               -w   Write result reports in HTML and PDF format.
+
+  All flags are optional. Default behaviour is to suppress all output
+  from the unit/integration/regression-runners and not write logs to disk.
+  Note that temporary ("*.raw") logs might still be written --- refer to
+  the individual test runners for up-to-date specifics.
+
+  When not using "-v" (default), the individual test runners are marked
+  [FAILED] if the exit status is non-zero. This *probably* means that not
+  all tests/assertions passed or that the test runner itself failed.
+  Conversely, if the test runner returns zero, it is marked [FINISHED].
+
+  Refer to the individual test runners for up-to-date information on
+  any special exit codes.
+
 
 Project website: www.github.com/jonasjberg/autonameow
 ```
