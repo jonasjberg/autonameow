@@ -1,0 +1,578 @@
+From: <Saved by Blink>
+Snapshot-Content-Location: file:///home/jonas/dev/projects/autonameow.git/test_files/foo.html
+Subject: 
+Date: Sat, 12 Jan 2018 00:13:32 -0000
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----MultipartBoundary--FOiWi7gxDSyxbN1QglMHOuTYHBARwRLY1ReKPfeoJB----"
+
+------MultipartBoundary--FOiWi7gxDSyxbN1QglMHOuTYHBARwRLY1ReKPfeoJB----
+Content-Type: text/html
+Content-ID: <frame-1911-729ad312-ed1c-497e-a02d-33513cc485d5@mhtml.blink>
+Content-Transfer-Encoding: quoted-printable
+Content-Location: file:///home/jonas/dev/projects/autonameow.git/test_files/foo.html
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.=
+w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns=3D"http://www.w3.=
+org/1999/xhtml"><head><meta http-equiv=3D"Content-Type" content=3D"text/htm=
+l; charset=3DUTF-8">
+ =20
+  <meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
+  <meta name=3D"generator" content=3D"pandoc">
+  <title></title>
+  <style type=3D"text/css">code{white-space: pre;}</style>
+<style>#cVim-command-bar, #cVim-command-bar-mode, #cVim-command-bar-input, =
+#cVim-command-bar-search-results,
+.cVim-completion-item, .cVim-completion-item .cVim-full, .cVim-completion-i=
+tem .cVim-left,
+.cVim-completion-item .cVim-right {
+  font-family: Helvetica, Helvetica Neue, Neue, sans-serif, monospace, Aria=
+l;
+  font-size: 10pt !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+#cVim-command-bar {
+  position: fixed;
+  z-index: 2147483646;
+  background-color: #1b1d1e;
+  color: #bbb;
+  display: none;
+  box-sizing: content-box;
+  box-shadow: 0 3px 3px rgba(0,0,0,0.4);
+  left: 0;
+  width: 100%;
+  height: 20px;
+}
+
+#cVim-command-bar-mode {
+  display: inline-block;
+  vertical-align: middle;
+  box-sizing: border-box;
+  padding-left: 2px;
+  height: 100%;
+  width: 10px;
+  padding-top: 2px;
+  color: #888;
+}
+
+#cVim-command-bar-input {
+  background-color: #1b1d1e;
+  color: #bbb;
+  height: 100%;
+  right: 0;
+  top: 0;
+  width: calc(100% - 10px);
+  position: absolute;
+}
+
+#cVim-command-bar-search-results {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+  z-index: 2147483647;
+  left: 0;
+  box-shadow: 0 3px 3px rgba(0,0,0,0.4);
+  background-color: #1c1c1c;
+}
+
+.cVim-completion-item, .cVim-completion-item .cVim-full, .cVim-completion-i=
+tem .cVim-left, .cVim-completion-item .cVim-right {
+  text-overflow: ellipsis;
+  padding: 1px;
+  display: inline-block;
+  box-sizing: border-box;
+  vertical-align: middle;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.cVim-completion-item:nth-child(even) {
+  background-color: #1f1f1f;
+}
+
+.cVim-completion-item {
+  width: 100%; left: 0;
+  color: #bcbcbc;
+}
+
+.cVim-completion-item[active] {
+  width: 100%; left: 0;
+  color: #1b1d1e;
+  background-color: #f1f1f1;
+}
+
+.cVim-completion-item[active] span {
+  color: #1b1d1e;
+}
+
+.cVim-completion-item .cVim-left {
+  color: #fff;
+  width: 37%;
+}
+
+.cVim-completion-item .cVim-right {
+  font-style: italic;
+  color: #888;
+  width: 57%;
+}
+
+
+#cVim-link-container, .cVim-link-hint,
+#cVim-hud, #cVim-status-bar {
+  font-family: Helvetica, Helvetica Neue, Neue, sans-serif, monospace, Aria=
+l;
+  font-size: 10pt !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+#cVim-link-container {
+  position: absolute;
+  pointer-events: none;
+  width: 100%; left: 0;
+  height: 100%; top: 0;
+  z-index: 2147483647;
+}
+
+.cVim-link-hint {
+  position: absolute;
+  color: #302505 !important;
+  background-color: #ffd76e !important;
+  border-radius: 2px !important;
+  padding: 2px !important;
+  font-size: 8pt !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  border: 1px solid #ad810c;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  box-shadow: 2px 2px 1px rgba(0,0,0,0.25) !important;
+}
+
+.cVim-link-hint_match {
+  color: #777;
+  text-transform: uppercase !important;
+}
+
+
+#cVim-hud {
+  background-color: rgba(28,28,28,0.9);
+  position: fixed !important;
+  transition: right 0.2s ease-out;
+  z-index: 24724289;
+}
+
+#cVim-hud span {
+  padding: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+  color: #8f8f8f;
+  font-size: 10pt;
+}
+
+#cVim-frames-outline {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  right: 0;
+  z-index: 9999999999;
+  box-sizing: border-box;
+  border: 3px solid yellow;
+}
+</style></head>
+<body>
+<h1 id=3D"gibsons-homepage">Gibsons Homepage</h1>
+<h2 id=3D"foo">foo</h2>
+<p>bar</p>
+
+
+</body><div id=3D"cVim-status-bar" style=3D"top: 0px;"></div><iframe src=3D=
+"cid:frame-1919-17bd238e-dfc3-4ff3-9716-4093a75e603a@mhtml.blink" id=3D"cVi=
+m-command-frame"></iframe></html>
+------MultipartBoundary--FOiWi7gxDSyxbN1QglMHOuTYHBARwRLY1ReKPfeoJB----
+Content-Type: text/html
+Content-ID: <frame-1919-17bd238e-dfc3-4ff3-9716-4093a75e603a@mhtml.blink>
+Content-Transfer-Encoding: quoted-printable
+Content-Location: chrome-extension://ihlenndgcmojhcghmfjfneahoeklbjjh/cmdline_frame.html
+
+<!DOCTYPE html><html><head><meta http-equiv=3D"Content-Type" content=3D"tex=
+t/html; charset=3Dwindows-1252">
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+       =20
+        <link rel=3D"stylesheet" href=3D"chrome-extension://ihlenndgcmojhcg=
+hmfjfneahoeklbjjh/content_scripts/main.css">
+    <style>#cVim-command-bar, #cVim-command-bar-mode, #cVim-command-bar-inp=
+ut, #cVim-command-bar-search-results,
+.cVim-completion-item, .cVim-completion-item .cVim-full, .cVim-completion-i=
+tem .cVim-left,
+.cVim-completion-item .cVim-right {
+  font-family: Helvetica, Helvetica Neue, Neue, sans-serif, monospace, Aria=
+l;
+  font-size: 10pt !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+#cVim-command-bar {
+  position: fixed;
+  z-index: 2147483646;
+  background-color: #1b1d1e;
+  color: #bbb;
+  display: none;
+  box-sizing: content-box;
+  box-shadow: 0 3px 3px rgba(0,0,0,0.4);
+  left: 0;
+  width: 100%;
+  height: 20px;
+}
+
+#cVim-command-bar-mode {
+  display: inline-block;
+  vertical-align: middle;
+  box-sizing: border-box;
+  padding-left: 2px;
+  height: 100%;
+  width: 10px;
+  padding-top: 2px;
+  color: #888;
+}
+
+#cVim-command-bar-input {
+  background-color: #1b1d1e;
+  color: #bbb;
+  height: 100%;
+  right: 0;
+  top: 0;
+  width: calc(100% - 10px);
+  position: absolute;
+}
+
+#cVim-command-bar-search-results {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+  z-index: 2147483647;
+  left: 0;
+  box-shadow: 0 3px 3px rgba(0,0,0,0.4);
+  background-color: #1c1c1c;
+}
+
+.cVim-completion-item, .cVim-completion-item .cVim-full, .cVim-completion-i=
+tem .cVim-left, .cVim-completion-item .cVim-right {
+  text-overflow: ellipsis;
+  padding: 1px;
+  display: inline-block;
+  box-sizing: border-box;
+  vertical-align: middle;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.cVim-completion-item:nth-child(even) {
+  background-color: #1f1f1f;
+}
+
+.cVim-completion-item {
+  width: 100%; left: 0;
+  color: #bcbcbc;
+}
+
+.cVim-completion-item[active] {
+  width: 100%; left: 0;
+  color: #1b1d1e;
+  background-color: #f1f1f1;
+}
+
+.cVim-completion-item[active] span {
+  color: #1b1d1e;
+}
+
+.cVim-completion-item .cVim-left {
+  color: #fff;
+  width: 37%;
+}
+
+.cVim-completion-item .cVim-right {
+  font-style: italic;
+  color: #888;
+  width: 57%;
+}
+
+
+#cVim-link-container, .cVim-link-hint,
+#cVim-hud, #cVim-status-bar {
+  font-family: Helvetica, Helvetica Neue, Neue, sans-serif, monospace, Aria=
+l;
+  font-size: 10pt !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+#cVim-link-container {
+  position: absolute;
+  pointer-events: none;
+  width: 100%; left: 0;
+  height: 100%; top: 0;
+  z-index: 2147483647;
+}
+
+.cVim-link-hint {
+  position: absolute;
+  color: #302505 !important;
+  background-color: #ffd76e !important;
+  border-radius: 2px !important;
+  padding: 2px !important;
+  font-size: 8pt !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  border: 1px solid #ad810c;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  box-shadow: 2px 2px 1px rgba(0,0,0,0.25) !important;
+}
+
+.cVim-link-hint_match {
+  color: #777;
+  text-transform: uppercase !important;
+}
+
+
+#cVim-hud {
+  background-color: rgba(28,28,28,0.9);
+  position: fixed !important;
+  transition: right 0.2s ease-out;
+  z-index: 24724289;
+}
+
+#cVim-hud span {
+  padding: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+  color: #8f8f8f;
+  font-size: 10pt;
+}
+
+#cVim-frames-outline {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  right: 0;
+  z-index: 9999999999;
+  box-sizing: border-box;
+  border: 3px solid yellow;
+}
+</style></head>
+    <body>
+   =20
+
+</body><div id=3D"cVim-status-bar" style=3D"top: 0px;"></div><div id=3D"cVi=
+m-command-bar" spellcheck=3D"false" style=3D"top: 0px;"><span id=3D"cVim-co=
+mmand-bar-mode"></span><input type=3D"text" id=3D"cVim-command-bar-input"><=
+/div><div id=3D"cVim-command-bar-search-results" style=3D"top: 20px;"></div=
+></html>
+------MultipartBoundary--FOiWi7gxDSyxbN1QglMHOuTYHBARwRLY1ReKPfeoJB----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: chrome-extension://ihlenndgcmojhcghmfjfneahoeklbjjh/content_scripts/main.css
+
+@charset "windows-1252";
+
+#cVim-command-frame { display: none; border: 0px; position: fixed; margin: =
+0px; padding: 0px; left: 0px; width: 100%; top: 0px; height: 100%; z-index:=
+ 2147483647 !important; }
+
+#cVim-link-container { transition: opacity 0.1s ease; opacity: 0; }
+
+.cVim-hint-scale { animation: scale 0.25s; }
+
+@keyframes scale {=20
+  0% { transform: scale(0) perspective(1px); }
+  60% { transform: scale(1.15) perspective(1px); }
+  100% { transform: scale(1) perspective(0px); }
+}
+
+.cVim-link-hint_match { opacity: 0.6; }
+
+.cVim-link-hint_match_hidden { display: none; }
+
+.cVim-link-hint { line-height: 1; }
+
+#cVim-command-bar { }
+
+#cVim-command-bar-mode { }
+
+#cVim-command-bar-input { box-sizing: border-box; outline-style: none; bord=
+er: 0px; }
+
+#cVim-command-bar-search-results { }
+
+.cVim-completion-item { }
+
+.cVim-completion-item .cVim-full { }
+
+.cVim-completion-item .cVim-left { }
+
+.cVim-completion-item .cVim-right { }
+
+.cVim-highlight { background-color: yellow; min-height: 0px !important; bor=
+der-radius: 0px !important; border: 0px !important; text-shadow: none !impo=
+rtant; outline: none 0px !important; padding: 0px !important; margin: 0px !=
+important; }
+
+#cVim-hud { bottom: 0px; min-height: 0px !important; border-radius: 0px !im=
+portant; box-sizing: border-box !important; box-shadow: none !important; ma=
+rgin: 0px !important; -webkit-appearance: none !important; letter-spacing: =
+normal !important; word-spacing: normal !important; text-transform: none !i=
+mportant; text-indent: 0px !important; text-shadow: none !important; text-a=
+lign: start !important; outline: none 0px !important; border: 0px !importan=
+t; line-height: 1 !important; font-style: normal !important; display: inlin=
+e-block !important; vertical-align: middle !important; position: fixed !imp=
+ortant; z-index: 24724289 !important; }
+
+#cVim-hud span { display: inline-block !important; box-sizing: border-box !=
+important; vertical-align: middle !important; }
+
+#cVim-status-bar { display: none; vertical-align: middle; padding-left: 2px=
+; padding-top: 2px; box-shadow: rgba(0, 0, 0, 0.4) 0px 3px 3px; min-height:=
+ 0px !important; border-radius: 0px !important; border: 0px !important; -we=
+bkit-appearance: none !important; letter-spacing: normal !important; word-s=
+pacing: normal !important; text-transform: none !important; text-indent: 0p=
+x !important; text-shadow: none !important; text-align: start !important; o=
+utline: none 0px !important; margin: 0px !important; font-style: normal !im=
+portant; position: fixed !important; z-index: 2147483647 !important; backgr=
+ound-color: rgb(27, 29, 30) !important; color: rgb(187, 187, 187) !importan=
+t; box-sizing: border-box !important; left: 0px !important; width: 100% !im=
+portant; height: 20px !important; }
+
+.cVim-error { min-height: 0px !important; border-radius: 0px !important; bo=
+x-sizing: content-box !important; box-shadow: none !important; margin: 0px =
+!important; -webkit-appearance: none !important; letter-spacing: normal !im=
+portant; word-spacing: normal !important; text-transform: none !important; =
+text-indent: 0px !important; text-shadow: none !important; text-align: star=
+t !important; outline: none 0px !important; border: 0px !important; line-he=
+ight: 1 !important; font-style: normal !important; }
+
+#cVim-cursor { display: none; min-height: 0px !important; border-radius: 0p=
+x !important; box-sizing: content-box !important; box-shadow: none !importa=
+nt; margin: 0px !important; -webkit-appearance: none !important; letter-spa=
+cing: normal !important; word-spacing: normal !important; text-transform: n=
+one !important; text-indent: 0px !important; text-shadow: none !important; =
+text-align: start !important; outline: none 0px !important; border: 0px !im=
+portant; line-height: 1 !important; font-style: normal !important; position=
+: fixed !important; background: none !important; left: 0px !important; widt=
+h: 100% !important; top: 0px !important; height: 100% !important; z-index: =
+2147483647 !important; cursor: none !important; transform: translateZ(0px) =
+!important; }
+
+.cVim-find-mark { animation: unset; transition: unset; color: rgb(17, 17, 1=
+7); font-family: unset; font-feature-settings: unset; font-kerning: unset; =
+font-size: unset; font-stretch: unset; font-style: unset; font-variant: uns=
+et; font-variation-settings: unset; font-weight: unset; text-orientation: u=
+nset; text-rendering: unset; -webkit-font-smoothing: unset; -webkit-locale:=
+ unset; -webkit-text-orientation: unset; -webkit-writing-mode: unset; writi=
+ng-mode: unset; zoom: unset; place-content: unset; place-items: unset; plac=
+e-self: unset; alignment-baseline: unset; backface-visibility: unset; backg=
+round-attachment: unset; background-blend-mode: unset; background-clip: uns=
+et; background-color: rgb(255, 255, 0); background-image: unset; background=
+-origin: unset; background-position: unset; background-repeat: unset; backg=
+round-size: unset; baseline-shift: unset; block-size: unset; border: unset;=
+ border-radius: unset; border-collapse: unset; bottom: unset; box-shadow: u=
+nset; box-sizing: unset; break-after: unset; break-before: unset; break-ins=
+ide: unset; buffered-rendering: unset; caption-side: unset; caret-color: un=
+set; clear: unset; clip: unset; clip-path: unset; clip-rule: unset; color-i=
+nterpolation: unset; color-interpolation-filters: unset; color-rendering: u=
+nset; columns: unset; column-fill: unset; column-gap: unset; column-rule: u=
+nset; column-span: unset; contain: unset; content: unset; counter-increment=
+: unset; counter-reset: unset; cursor: unset; cx: unset; cy: unset; d: unse=
+t; display: unset; dominant-baseline: unset; empty-cells: unset; fill: unse=
+t; fill-opacity: unset; fill-rule: unset; filter: unset; flex: unset; flex-=
+flow: unset; float: unset; flood-color: unset; flood-opacity: unset; grid: =
+unset; grid-area: unset; grid-gap: unset; height: unset; hyphens: unset; im=
+age-rendering: unset; inline-size: unset; isolation: unset; left: unset; le=
+tter-spacing: unset; lighting-color: unset; line-break: unset; line-height:=
+ unset; list-style: unset; margin: unset; marker: unset; mask: unset; mask-=
+type: unset; max-block-size: unset; max-height: unset; max-inline-size: uns=
+et; max-width: unset; min-block-size: unset; min-height: unset; min-inline-=
+size: unset; min-width: unset; mix-blend-mode: unset; object-fit: unset; ob=
+ject-position: unset; offset: unset; opacity: unset; order: unset; orphans:=
+ unset; outline: unset; outline-offset: unset; overflow-anchor: unset; over=
+flow-wrap: unset; overflow: unset; overscroll-behavior: unset; padding: uns=
+et; page: unset; paint-order: unset; perspective: unset; perspective-origin=
+: unset; pointer-events: unset; position: unset; quotes: unset; r: unset; r=
+esize: unset; right: unset; rx: unset; ry: unset; scroll-behavior: unset; s=
+hape-image-threshold: unset; shape-margin: unset; shape-outside: unset; sha=
+pe-rendering: unset; size: unset; speak: unset; stop-color: unset; stop-opa=
+city: unset; stroke: unset; stroke-dasharray: unset; stroke-dashoffset: uns=
+et; stroke-linecap: unset; stroke-linejoin: unset; stroke-miterlimit: unset=
+; stroke-opacity: unset; stroke-width: unset; tab-size: unset; table-layout=
+: unset; text-align: unset; text-align-last: unset; text-anchor: unset; tex=
+t-combine-upright: unset; text-decoration: unset; text-decoration-skip: uns=
+et; text-indent: unset; text-overflow: unset; text-shadow: unset; text-size=
+-adjust: unset; text-transform: unset; text-underline-position: unset; top:=
+ unset; touch-action: unset; transform: unset; transform-origin: unset; tra=
+nsform-style: unset; user-select: unset; vector-effect: unset; vertical-ali=
+gn: unset; visibility: unset; -webkit-app-region: unset; -webkit-appearance=
+: unset; -webkit-background-clip: unset; -webkit-background-origin: unset; =
+-webkit-border-after: unset; -webkit-border-before: unset; -webkit-border-e=
+nd: unset; border-spacing: unset; -webkit-border-image: unset; -webkit-bord=
+er-start: unset; -webkit-box-align: unset; -webkit-box-decoration-break: un=
+set; -webkit-box-direction: unset; -webkit-box-flex: unset; -webkit-box-fle=
+x-group: unset; -webkit-box-lines: unset; -webkit-box-ordinal-group: unset;=
+ -webkit-box-orient: unset; -webkit-box-pack: unset; -webkit-box-reflect: u=
+nset; -webkit-font-size-delta: unset; -webkit-highlight: unset; -webkit-hyp=
+henate-character: unset; -webkit-line-break: unset; -webkit-line-clamp: uns=
+et; -webkit-logical-height: unset; -webkit-logical-width: unset; -webkit-ma=
+rgin-after: unset; -webkit-margin-collapse: unset; -webkit-margin-before: u=
+nset; -webkit-margin-bottom-collapse: unset; -webkit-margin-end: unset; -we=
+bkit-margin-start: unset; -webkit-margin-top-collapse: unset; -webkit-mask-=
+box-image: unset; -webkit-mask: unset; -webkit-mask-composite: unset; -webk=
+it-max-logical-height: unset; -webkit-max-logical-width: unset; -webkit-min=
+-logical-height: unset; -webkit-min-logical-width: unset; -webkit-padding-a=
+fter: unset; -webkit-padding-before: unset; -webkit-padding-end: unset; -we=
+bkit-padding-start: unset; -webkit-perspective-origin-x: unset; -webkit-per=
+spective-origin-y: unset; -webkit-print-color-adjust: unset; -webkit-rtl-or=
+dering: unset; -webkit-ruby-position: unset; -webkit-tap-highlight-color: u=
+nset; -webkit-text-combine: unset; -webkit-text-decorations-in-effect: unse=
+t; -webkit-text-emphasis: unset; -webkit-text-emphasis-position: unset; -we=
+bkit-text-fill-color: unset; -webkit-text-security: unset; -webkit-text-str=
+oke: unset; -webkit-transform-origin-x: unset; -webkit-transform-origin-y: =
+unset; -webkit-transform-origin-z: unset; -webkit-user-drag: unset; -webkit=
+-user-modify: unset; white-space: unset; widows: unset; width: unset; will-=
+change: unset; word-break: unset; word-spacing: unset; word-wrap: unset; x:=
+ unset; y: unset; z-index: unset; }
+
+.cVim-find-mark[active] { background-color: rgb(255, 150, 50); }
+
+#cVim-frames-outline { position: fixed; width: 100%; height: 100%; left: 0p=
+x; top: 0px; right: 0px; z-index: 2147483647; box-sizing: border-box; borde=
+r: 3px solid yellow; }
+
+.cVim-completion-item[active] { width: 100%; left: 0px; color: rgb(27, 29, =
+30); background-color: rgb(241, 241, 241); }
+
+.cVim-completion-item[active] span { color: rgb(27, 29, 30); }
+------MultipartBoundary--FOiWi7gxDSyxbN1QglMHOuTYHBARwRLY1ReKPfeoJB------
