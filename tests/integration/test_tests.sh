@@ -142,7 +142,7 @@ assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
 _integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh"
 assert_bulk_test "$_integration_runner_path" n e r x
 
-_unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/unit_runner.sh"
+_unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_unit_tests.sh"
 assert_bulk_test "$_unit_runner_path" n e r x
 
 _regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_regression_tests.sh"

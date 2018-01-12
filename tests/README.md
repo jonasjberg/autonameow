@@ -15,7 +15,7 @@ Testing TL;DR
 | `common_runner.sh`        | __All tests__           |
 | `integration_runner.sh`   | Integration Tests       |
 | `run_regression_tests.sh` | Regression Tests        |
-| `unit_runner.sh`          | Unit Tests              |
+| `run_unit_tests.sh`       | Unit Tests              |
 
 All runner scripts will print usage information if started with `-h`.
 
@@ -46,15 +46,15 @@ These are skipped if `hypothesis` is unavailable.
 
 
 ### Running the Unit Tests
-All unit tests can be executed with the bash script `tests/unit_runner.sh`.
+All unit tests can be executed with the bash script `tests/run_unit_tests.sh`.
 
 
 This script accepts optional argument flags, described in the usage text;
 
 ```
-"unit_runner.sh"  --  autonameow unit tests runner
+"run_unit_tests.sh"  --  autonameow unit tests runner
 
-  USAGE:  unit_runner.sh ([OPTIONS])
+  USAGE:  run_unit_tests.sh ([OPTIONS])
 
   OPTIONS:     -h   Display usage information and exit.
                -c   Enable checking unit test coverage.
