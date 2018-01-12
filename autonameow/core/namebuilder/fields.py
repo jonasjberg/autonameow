@@ -363,6 +363,7 @@ class Publisher(NameTemplateField):
             if _options:
                 _candidates = _options.get('candidates', {})
 
+        # TODO: [TD0152] Fix too many replacements applied? Stop after first?
         _formatted = data.get('value')
         for repl, patterns in _candidates.items():
             for pattern in patterns:
