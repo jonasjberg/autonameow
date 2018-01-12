@@ -10,12 +10,12 @@
 Testing TL;DR
 =============
 
-| File Name                 | Execute this to run ..  |
-| ------------------------- | ----------------------- |
-| `common_runner.sh`        | __All tests__           |
-| `integration_runner.sh`   | Integration Tests       |
-| `run_regression_tests.sh` | Regression Tests        |
-| `run_unit_tests.sh`       | Unit Tests              |
+| File Name                  | Execute this to run ..  |
+| -------------------------- | ----------------------- |
+| `common_runner.sh`         | __All tests__           |
+| `run_integration_tests.sh` | Integration Tests       |
+| `run_regression_tests.sh`  | Regression Tests        |
+| `run_unit_tests.sh`        | Unit Tests              |
 
 All runner scripts will print usage information if started with `-h`.
 
@@ -84,14 +84,14 @@ Integration test source files are located in the `tests/integration` directory.
 
 
 ### Running the Integration Tests
-In order to run all tests, execute the script `tests/integration_runner.sh`.
+In order to run all tests, execute the script `tests/run_integration_tests.sh`.
 
 This script accepts optional argument flags, as described in the usage text;
 
 ```
-"integration_runner.sh"  --  autonameow integration test suite runner
+"run_integration_tests.sh"  --  autonameow integration test suite runner
 
-  USAGE:  integration_runner.sh ([OPTIONS])
+  USAGE:  run_integration_tests.sh ([OPTIONS])
 
   OPTIONS:     -f [EXP]   Execute scripts by filtering basenames.
                           Argument [EXP] is passed to grep as-is.

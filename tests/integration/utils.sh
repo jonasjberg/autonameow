@@ -235,7 +235,7 @@ log_system_info()
 }
 
 # Converts the integration test log file to HTML using executable 'aha' if
-# available.  Executed at the end of a test run by 'integration_runner.sh'.
+# available.  Executed at the end of a test run by 'run_integration_tests.sh'.
 convert_raw_log_to_html()
 {
     if ! command -v "aha" >/dev/null 2>&1
