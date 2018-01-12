@@ -184,7 +184,7 @@ runner_opts='-w'
 
 declare -i COUNT_FAIL=0
 run_task "$option_quiet" 'Running unit test runner'        "${SELF_DIRNAME}/unit_runner.sh ${runner_opts}"
-run_task "$option_quiet" 'Running regression test runner'  "${SELF_DIRNAME}/regression_runner.sh"
+run_task "$option_quiet" 'Running regression test runner'  "${SELF_DIRNAME}/run_regression_tests.sh"
 run_task "$option_quiet" 'Running integration test runner' "${SELF_DIRNAME}/integration_runner.sh ${runner_opts}"
 
 printf '\n%s' "Completed in $SECONDS seconds"

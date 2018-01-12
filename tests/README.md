@@ -10,12 +10,12 @@
 Testing TL;DR
 =============
 
-| File Name               | Execute this to run .. |
-| ----------------------- | -----------------------|
-| `common_runner.sh`      | __All tests__          |
-| `integration_runner.sh` | Integration Tests      |
-| `regression_runner.sh`  | Regression Tests       |
-| `unit_runner.sh`        | Unit Tests             |
+| File Name                 | Execute this to run ..  |
+| ------------------------- | ----------------------- |
+| `common_runner.sh`        | __All tests__           |
+| `integration_runner.sh`   | Integration Tests       |
+| `run_regression_tests.sh` | Regression Tests        |
+| `unit_runner.sh`          | Unit Tests              |
 
 All runner scripts will print usage information if started with `-h`.
 
@@ -246,7 +246,7 @@ where `$SRCROOT` is the full absolute path to the autonameow sources.
 
 
 ### Running the Regression Tests
-In order to run all tests, execute the script `tests/regression_runner.sh`.
+In order to run all tests, execute the script `tests/run_regression_tests.sh`.
 
 This script accepts optional argument flags, as described in the usage text;
 
@@ -278,7 +278,8 @@ Actions to Perform:
   Only the first active option is used, ordered as per this listing.
 
   --list                Print the "short name" (directory basename) of the
-                        selected test case(s) and exit.
+                        selected test case(s) and exit. Enable verbose mode
+                        for additional information.
   --get-cmd             Print equivalent command-line invocations for the
                         selected test case(s) and exit. If executed
                         "manually", these would produce the same behaviour and
