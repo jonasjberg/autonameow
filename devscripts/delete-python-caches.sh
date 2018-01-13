@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 # Delete all '*.pyc' files and '__pycache__' directories.
+# Requires user to confirm before files are deleted. Use '--force' to skip.
 
 set -o nounset
 
@@ -38,7 +39,13 @@ then
 fi
 
 
-cat >&2 <<EOF
+# User must confirm before deleting files unless started with '--force'.
+require_user_confirmation='true'
+[ "$#" -eq "1" ] && [ "$1" == '--force' ] && require_user_confirmation='false'
+
+if [ "${require_user_confirmation}" == 'true' ]
+then
+    cat >&2 <<EOF
 
   CAUTION:  Do NOT run this script haphazaradly! ABORT NOW!
 
@@ -49,7 +56,8 @@ cat >&2 <<EOF
 
 EOF
 
-read -rsp $'Press ANY key to continue or ctrl-c to abort\n' -n 1 key
+    read -rsp $'  Press ANY key to continue or ctrl-c to abort\n' -n 1 key
+fi
 
 
 find "$AUTONAMEOW_ROOT_DIR" -xdev -type f -name "*.pyc" -delete
