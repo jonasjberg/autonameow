@@ -162,21 +162,22 @@ class ProviderRegistry(object):
     def _providers_for_generic_meowuri(self, requested_meowuri, includes=None):
         # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
 
-        VALID_INCLUDES = C.MEOWURI_ROOTS_SOURCES
-        if includes:
+        VALID_INCLUDES = set(C.MEOWURI_ROOTS_SOURCES)
+        if not includes:
+            # No includes specified -- search all ("valid includes") providers.
+            includes = VALID_INCLUDES
+        else:
             # Search only specified providers.
-            # Sanity-check 'includes' argument.
             if __debug__:
+                # Sanity-check 'includes' argument.
                 for include in includes:
                     assert include in VALID_INCLUDES, (
                         '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
                     )
-        else:
-            # No includes specified -- search all ("valid includes") providers.
-            includes = set(VALID_INCLUDES)
 
         found = set()
-        for root in includes:
+        # NOTE(jonas): Sort for more consistent behaviour.
+        for root in sorted(list(includes)):
             for klass, meowuris in self.generic_meowuri_sources[root].items():
                 if requested_meowuri in meowuris:
                     found.add(klass)
@@ -193,29 +194,26 @@ class ProviderRegistry(object):
                     return self.meowuri_sources[_root][_meowuri]
             return None
 
-        # TODO: [TD0147] This currently only uses the first found provider (?)
-        found = set()
-        # No includes specified -- search all providers.
+        VALID_INCLUDES = set(C.MEOWURI_ROOTS_SOURCES)
         if not includes:
+            # No includes specified -- search all ("valid includes") providers.
+
             # TODO: Simplify by matching substrings here.
-            # NOTE(jonas): Sort for more consistent behaviour.
-            for root in sorted(C.MEOWURI_ROOTS_SOURCES):
-                _found_provider = _search_providers_with_root(root)
-                if _found_provider:
-                    found.add(_found_provider)
-            return found
+            includes = VALID_INCLUDES
+        else:
+            # Search only specified providers.
+            if __debug__:
+                # Sanity-check 'includes' argument.
+                VALID_INCLUDES = C.MEOWURI_ROOTS_SOURCES
+                for include in includes:
+                    assert include in VALID_INCLUDES, (
+                        '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
+                    )
 
-        # Sanity-check 'includes' argument.
-        if __debug__:
-            VALID_INCLUDES = C.MEOWURI_ROOTS_SOURCES
-            for include in includes:
-                assert include in VALID_INCLUDES, (
-                    '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
-                )
-
-        # Search only the specified providers.
-        for include in includes:
-            _found_provider = _search_providers_with_root(include)
+        found = set()
+        # NOTE(jonas): Sort for more consistent behaviour.
+        for root in sorted(list(includes)):
+            _found_provider = _search_providers_with_root(root)
             if _found_provider:
                 found.add(_found_provider)
 
