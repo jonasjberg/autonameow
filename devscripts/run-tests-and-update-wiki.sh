@@ -32,7 +32,7 @@ cat >&2 <<EOF
 
   PRE-FLIGHT CHECKLIST:
 
-    * Set the variables "SOURCE_ROOT" and "WIKI_ROOT" in this script to 
+    * Set the variables "SOURCE_ROOT" and "WIKI_ROOT" in this script to
       the proper paths on the running system.
     * Make sure ALL repositories are clean.
     * Do manual run first to make sure nothing fails unexpectedly.

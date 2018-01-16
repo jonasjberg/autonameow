@@ -28,14 +28,14 @@ set -o nounset
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
     # Try to get the absolute path to the autonameow source root ..
-	SELF_DIR="$(realpath -e "$(dirname "$0")")"
-	AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIR" && realpath -e -- ".." ) )"
+    SELF_DIR="$(realpath -e "$(dirname "$0")")"
+    AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIR" && realpath -e -- ".." ) )"
 fi
 
 if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
 then
-	echo "[ERROR] Not a directory: \"${AUTONAMEOW_ROOT_DIR}\" .. Aborting" >&2
-	exit 1
+    echo "[ERROR] Not a directory: \"${AUTONAMEOW_ROOT_DIR}\" .. Aborting" >&2
+    exit 1
 fi
 
 

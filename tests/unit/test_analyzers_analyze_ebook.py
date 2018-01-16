@@ -82,10 +82,10 @@ class TestExtractIsbnsFromText(TestCase):
 
     def test_returns_expected_given_text_with_isbn(self):
         text = '''
-Practical C Programming, 3rd Edition  
-By Steve Oualline 
-3rd Edition August 1997 
-ISBN: 1-56592-306-5 
+Practical C Programming, 3rd Edition
+By Steve Oualline
+3rd Edition August 1997
+ISBN: 1-56592-306-5
 This new edition of "Practical C Programming" teaches users not only the mechanics or
 programming, but also how to create programs that are easy to read, maintain, and
 debug. It features more extensive examples and an introduction to graphical

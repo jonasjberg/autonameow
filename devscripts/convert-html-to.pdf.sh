@@ -57,15 +57,15 @@ fi
 
 
 
-( 
+(
     cd "$AUTONAMEOW_TESTRESULTS_DIR"
     for html_file in integration_log_*.html unittest_log_*.html
     do
         [ -f "${html_file}" ] || continue
-    
+
         dest_file="${html_file%.*}.pdf"
         [ -e "$dest_file" ] && continue
-    
+
         wkhtmltopdf "$html_file" "${dest_file}"
     done
 )
