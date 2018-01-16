@@ -86,6 +86,36 @@ assert_true '"${_todo_helper_script_path}"' \
             'TODO-list utility script checks pass ("todo_id.py --check" returns 0)'
 
 
+# ______________________________________________________________________________
+#
+# Check text file style violations, whitespace, line separators, etc.
+
+assert_true '[ "$(git grep -l -I $'\r''$' | grep -v 'test_files' | grep -v 'local' | grep -v 'junk' | wc -l)" -eq "0" ]' \
+            'Text files should use UNIX line terminators ("\n")'
+
+text_files=(
+    $(git ls-files | xargs file --mime-type -- | grep 'text/' | cut -d':' -f1 | grep -v -- 'tests.*\.yaml$\|.md$\|test_results\|local\|junk\|test_files\|notes\|thirdparty\|write_sample_textfiles.py')
+)
+
+_check_committed_textfiles_exist_and_readable()
+{
+    for tf in "${text_files[@]}"
+    do
+        [ -r "$tf" ] || return 1
+    done
+	return 0
+}
+
+assert_true '_check_committed_textfiles_exist_and_readable' \
+            'All committed files with MIME-type matching "text/*" exist and are readable'
+
+assert_false 'grep  -l "[[:space:]]\+$" -- "${text_files[@]}"' \
+             'Committed text files does not contain trailing whitespace'
+
+assert_false '$(find "${text_files[@]}" -type f -exec grep -l '^[[:space:]]*'$'\t' "{}" +)' \
+             'Committed text files uses spaces, __NOT__ tabs!'
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
