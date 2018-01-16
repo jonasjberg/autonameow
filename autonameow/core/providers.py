@@ -159,9 +159,7 @@ class ProviderRegistry(object):
             self.__class__.__name__, len(found), requested_meowuri))
         return found
 
-    def _providers_for_generic_meowuri(self, requested_meowuri, includes=None):
-        # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
-
+    def _yield_included_roots(self, includes=None):
         VALID_INCLUDES = set(C.MEOWURI_ROOTS_SOURCES)
         if not includes:
             # No includes specified -- search all ("valid includes") providers.
@@ -175,48 +173,30 @@ class ProviderRegistry(object):
                         '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
                     )
 
-        found = set()
-        # NOTE(jonas): Sort for more consistent behaviour.
+        # Sort for more consistent behaviour.
         for root in sorted(list(includes)):
+            yield root
+
+
+    def _providers_for_generic_meowuri(self, requested_meowuri, includes=None):
+        # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
+        found = set()
+        for root in self._yield_included_roots(includes):
             for klass, meowuris in self.generic_meowuri_sources[root].items():
                 if requested_meowuri in meowuris:
                     found.add(klass)
         return found
 
     def _source_providers_for_meowuri(self, requested_meowuri, includes=None):
-        def _search_providers_with_root(_root):
-            # '_meowuri' is shorter "root";
-            #            'extractor.metadata.epub'
-            # 'requested_meowuri' is full "source-specific";
-            #                     'extractor.metadata.exiftool.EXIF:CreateDate'
-            for _meowuri in self.meowuri_sources[_root].keys():
-                if _meowuri in requested_meowuri:
-                    return self.meowuri_sources[_root][_meowuri]
-            return None
-
-        VALID_INCLUDES = set(C.MEOWURI_ROOTS_SOURCES)
-        if not includes:
-            # No includes specified -- search all ("valid includes") providers.
-
-            # TODO: Simplify by matching substrings here.
-            includes = VALID_INCLUDES
-        else:
-            # Search only specified providers.
-            if __debug__:
-                # Sanity-check 'includes' argument.
-                VALID_INCLUDES = C.MEOWURI_ROOTS_SOURCES
-                for include in includes:
-                    assert include in VALID_INCLUDES, (
-                        '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
-                    )
-
+        # '_meowuri' is shorter "root";
+        #            'extractor.metadata.epub'
+        # 'requested_meowuri' is full "source-specific";
+        #                     'extractor.metadata.exiftool.EXIF:CreateDate'
         found = set()
-        # NOTE(jonas): Sort for more consistent behaviour.
-        for root in sorted(list(includes)):
-            _found_provider = _search_providers_with_root(root)
-            if _found_provider:
-                found.add(_found_provider)
-
+        for root in self._yield_included_roots(includes):
+            for _meowuri in self.meowuri_sources[root].keys():
+                if _meowuri in requested_meowuri:
+                    found.add(self.meowuri_sources[root][_meowuri])
         return found
 
     def _get_generic_sources(self, meowuri_class_map):
@@ -228,7 +208,7 @@ class ProviderRegistry(object):
 
         # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
         # for root in ['extractors', 'analyzer', 'plugin'] ..
-        for root in sorted(C.MEOWURI_ROOTS_SOURCES):
+        for root in sorted(list(C.MEOWURI_ROOTS_SOURCES)):
             if root not in meowuri_class_map:
                 continue
 

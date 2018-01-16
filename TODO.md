@@ -16,8 +16,6 @@ High Priority
 
 * `[TD0150]` Map "generic" MeowURIs to (possible) provider classes.
 
-* `[TD0147]` Fix `providers_for_meowuri()` stops searching after first match.
-
 * `[TD0146]` Rework "generic fields", possibly collecting fields in "records".
 
 * `[TD0142]` __Rework overall architecture to fetch only explicitly needed data.__  
