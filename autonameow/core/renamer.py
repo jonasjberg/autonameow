@@ -34,14 +34,24 @@ log = logging.getLogger(__name__)
 
 
 class FileRenamer(object):
-    def __init__(self):
+    def __init__(self, dry_run, mode_timid):
+        """
+        Creates a new renamer instance for use during by one program instance.
+
+        Args:
+            dry_run: Controls whether the renaming is actually performed.
+            mode_timid: Require user confirmation before every rename.
+        """
+        self.dry_run = bool(dry_run)
+        self.mode_timid = bool(mode_timid)
+
         self.stats = {
             'failed': 0,
             'skipped': 0,
             'renamed': 0,
         }
 
-    def do_rename(self, from_path, new_basename, dry_run=True, timid=False):
+    def do_rename(self, from_path, new_basename):
         """
         Renames a file at the given path to the specified basename.
 
@@ -51,8 +61,6 @@ class FileRenamer(object):
         Args:
             from_path: Path to the file to rename as an "internal" byte string.
             new_basename: The new basename for the file as a Unicode string.
-            dry_run: Controls whether the renaming is actually performed.
-            timid: Require user confirmation before every rename.
 
         Returns:
             True if the rename succeeded or would be a NO-OP, otherwise False.
@@ -81,7 +89,7 @@ class FileRenamer(object):
             ui.msg(_msg)
         else:
             self.stats['renamed'] += 1
-            if dry_run is False:
+            if not self.dry_run:
                 # TODO: [TD0155] Implement "timid mode".
                 try:
                     disk.rename_file(from_path, dest_basename)
@@ -90,4 +98,4 @@ class FileRenamer(object):
                     log.error('Rename FAILED: {!s}'.format(e))
                     raise AutonameowException
 
-            ui.msg_rename(from_basename, dest_basename, dry_run=dry_run)
+            ui.msg_rename(from_basename, dest_basename, dry_run=self.dry_run)

@@ -41,10 +41,7 @@ from core.context import FilesContext
 from core.fileobject import FileObject
 from core.renamer import FileRenamer
 from util import encoding as enc
-from util import (
-    disk,
-    sanity
-)
+from util import disk
 
 
 log = logging.getLogger(__name__)
@@ -70,7 +67,12 @@ class Autonameow(object):
 
         self.active_config = None
         self.matcher = None
-        self.renamer = FileRenamer()
+
+        self.renamer = FileRenamer(
+            dry_run=self.opts.get('dry_run'),
+            mode_timid=self.opts.get('mode_timid')
+        )
+
         self._exit_code = C.EXIT_SUCCESS
 
     @staticmethod
@@ -313,7 +315,6 @@ class Autonameow(object):
                 self.renamer.do_rename(
                     from_path=current_file.abspath,
                     new_basename=new_name,
-                    dry_run=self.opts.get('dry_run')
                 )
 
             # TODO: [TD0131] Hack!

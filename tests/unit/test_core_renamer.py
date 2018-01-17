@@ -46,29 +46,28 @@ def prompt_toolkit_unavailable():
 
 @skipIf(*prompt_toolkit_unavailable())
 class TestDoRename(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.fr = FileRenamer()
-
-    def test_setup_class(self):
-        self.assertIsNotNone(self.fr)
+    # TODO: Add tests for 'mode_timid'.
 
     @patch('core.autonameow.disk.rename_file')
     def test_dry_run_true_will_not_call_diskutils_rename_file(self, mockrename):
-        self.fr.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=True)
+        fr = FileRenamer(dry_run=True, mode_timid=False)
+        fr.do_rename(b'/tmp/dummy/path', 'mjaopath')
         mockrename.assert_not_called()
 
     @patch('core.autonameow.disk.rename_file')
     def test_dry_run_false_calls_diskutils_rename_file(self, mockrename):
-        self.fr.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=False)
+        fr = FileRenamer(dry_run=False, mode_timid=False)
+        fr.do_rename(b'/tmp/dummy/path', 'mjaopath')
         mockrename.assert_called_with(b'/tmp/dummy/path', b'mjaopath')
 
     @patch('core.autonameow.disk.rename_file')
     def test_skip_rename_if_new_name_equals_old_name(self, mockrename):
-        self.fr.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=False)
+        fr = FileRenamer(dry_run=False, mode_timid=False)
+        fr.do_rename(b'/tmp/dummy/foo', 'foo')
         mockrename.assert_not_called()
 
     @patch('core.autonameow.disk.rename_file')
     def test_skip_rename_if_new_name_equals_old_name_dry_run(self, mockrename):
-        self.fr.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=True)
+        fr = FileRenamer(dry_run=True, mode_timid=False)
+        fr.do_rename(b'/tmp/dummy/foo', 'foo')
         mockrename.assert_not_called()
