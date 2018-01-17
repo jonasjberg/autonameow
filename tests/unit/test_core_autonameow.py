@@ -29,7 +29,6 @@ from unittest.mock import (
     patch
 )
 
-
 try:
     import prompt_toolkit
 except ImportError:
@@ -40,7 +39,6 @@ except ImportError:
         file=sys.stderr
     )
 
-import unit.utils as uu
 from core import constants as C
 from core.autonameow import Autonameow
 
@@ -248,36 +246,3 @@ class TestSetAutonameowExitCode(TestCase):
         self.assertEqual(self.amw.exit_code, self.expected_initial)
         self.amw.exit_code = 'mjao'
         self.assertEqual(self.amw.exit_code, self.expected_initial)
-
-
-@skipIf(*prompt_toolkit_unavailable())
-class TestDoRename(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.amw = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
-
-        _config = uu.get_default_config()
-        cls.amw.active_config = _config
-
-    def test_setup_class(self):
-        self.assertIsNotNone(self.amw)
-
-    @patch('core.autonameow.disk.rename_file')
-    def test_dry_run_true_will_not_call_diskutils_rename_file(self, mockrename):
-        self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=True)
-        mockrename.assert_not_called()
-
-    @patch('core.autonameow.disk.rename_file')
-    def test_dry_run_false_calls_diskutils_rename_file(self, mockrename):
-        self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=False)
-        mockrename.assert_called_with(b'/tmp/dummy/path', b'mjaopath')
-
-    @patch('core.autonameow.disk.rename_file')
-    def test_skip_rename_if_new_name_equals_old_name(self, mockrename):
-        self.amw.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=False)
-        mockrename.assert_not_called()
-
-    @patch('core.autonameow.disk.rename_file')
-    def test_skip_rename_if_new_name_equals_old_name_dry_run(self, mockrename):
-        self.amw.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=True)
-        mockrename.assert_not_called()

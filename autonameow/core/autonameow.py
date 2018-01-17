@@ -39,6 +39,7 @@ from core import (
 from core.evaluate import RuleMatcher
 from core.context import FilesContext
 from core.fileobject import FileObject
+from core.renamer import FileRenamer
 from util import encoding as enc
 from util import (
     disk,
@@ -69,11 +70,7 @@ class Autonameow(object):
 
         self.active_config = None
         self.matcher = None
-        self.rename_stats = {
-            'failed': 0,
-            'skipped': 0,
-            'renamed': 0,
-        }
+        self.renamer = FileRenamer()
         self._exit_code = C.EXIT_SUCCESS
 
     @staticmethod
@@ -204,12 +201,12 @@ class Autonameow(object):
 
         self._handle_files(files_to_process)
 
-        _rename_stats = 'Processed {t} files. Renamed {r}  Skipped {s}  ' \
-                        'Failed {f}'.format(t=len(files_to_process),
-                                            r=self.rename_stats['renamed'],
-                                            s=self.rename_stats['skipped'],
-                                            f=self.rename_stats['failed'])
-        log.info(_rename_stats)
+        _stats = 'Processed {t} files. Renamed {r}  Skipped {s}  ' \
+                 'Failed {f}'.format(t=len(files_to_process),
+                                     r=self.renamer.stats['renamed'],
+                                     s=self.renamer.stats['skipped'],
+                                     f=self.renamer.stats['failed'])
+        log.info(_stats)
 
         self.exit_program(self.exit_code)
 
@@ -313,7 +310,7 @@ class Autonameow(object):
                 continue
 
             if new_name:
-                self.do_rename(
+                self.renamer.do_rename(
                     from_path=current_file.abspath,
                     new_basename=new_name,
                     dry_run=self.opts.get('dry_run')
@@ -358,56 +355,6 @@ class Autonameow(object):
         log.debug('Total execution time: {:.6f} seconds'.format(_elapsed_time))
 
         sys.exit(self.exit_code)
-
-    def do_rename(self, from_path, new_basename, dry_run=True):
-        """
-        Renames a file at the given path to the specified basename.
-
-        If the basenames of the file at "from_path" and "new_basename" are
-        equal, the renaming operation is skipped and True is returned.
-
-        Args:
-            from_path: Path to the file to rename as an "internal" byte string.
-            new_basename: The new basename for the file as a Unicode string.
-            dry_run: Controls whether the renaming is actually performed.
-
-        Returns:
-            True if the rename succeeded or would be a NO-OP, otherwise False.
-        """
-        # TODO: [TD0143] Add option to execute "hooks" at certain events.
-        # TODO: [TD0092] Add storing history and ability to "undo" renames.
-        sanity.check_internal_bytestring(from_path)
-        sanity.check_internal_string(new_basename)
-
-        # Encoding boundary.  Internal str --> internal filename bytestring
-        dest_basename = enc.bytestring_path(new_basename)
-        log.debug('Destination basename (bytestring): "{!s}"'.format(
-            enc.displayable_path(dest_basename)))
-        sanity.check_internal_bytestring(dest_basename)
-
-        from_basename = disk.file_basename(from_path)
-
-        if disk.compare_basenames(from_basename, dest_basename):
-            self.rename_stats['skipped'] += 1
-            _msg = (
-                'Skipped "{!s}" because the current name is the same as '
-                'the new name'.format(enc.displayable_path(from_basename),
-                                      enc.displayable_path(dest_basename))
-            )
-            log.debug(_msg)
-            ui.msg(_msg)
-        else:
-            self.rename_stats['renamed'] += 1
-            if dry_run is False:
-                # TODO: [TD0155] Implement "timid mode".
-                try:
-                    disk.rename_file(from_path, dest_basename)
-                except (FileNotFoundError, FileExistsError, OSError) as e:
-                    self.rename_stats['failed'] += 1
-                    log.error('Rename FAILED: {!s}'.format(e))
-                    raise exceptions.AutonameowException
-
-            ui.msg_rename(from_basename, dest_basename, dry_run=dry_run)
 
     @property
     def exit_code(self):

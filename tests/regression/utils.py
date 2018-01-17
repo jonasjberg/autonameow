@@ -406,13 +406,20 @@ class AutonameowWrapper(object):
 
     def __call__(self):
         from core.autonameow import Autonameow
+
+        # Monkey-patch method of 'Autonameow' *class*
         Autonameow.exit_program = self.mock_exit_program
-        Autonameow.do_rename = self.mock_do_rename
 
         with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
             try:
                 with Autonameow(self.opts) as ameow:
+                    # TODO: Mock 'FileRenamer' class instead of single method
+                    assert hasattr(ameow, 'renamer')
+                    # Monkey-patch method of 'FileRenamer' *instance*
+                    ameow.renamer.do_rename = self.mock_do_rename
+
                     ameow.run()
+
                     self.captured_runtime_secs = ameow.runtime_seconds
             except Exception as e:
                 typ, val, tb = sys.exc_info()
