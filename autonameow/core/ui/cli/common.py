@@ -297,6 +297,7 @@ def msg_rename(from_basename, dest_basename, dry_run):
         dest_basename: The new basename of the file to be renamed.
         dry_run: True if the operation was a "dry run"/simulation.
     """
+    # TODO: [TD0156] Pass only Unicode strings to the UI.
     _name_old = colorize_quoted(
         '"{!s}"'.format(enc.displayable_path(from_basename)),
         color='WHITE'
