@@ -49,6 +49,7 @@ DEFAULT_OPTIONS = {
     'mode_batch': False,
     'mode_interactive': True,
     'mode_rulematch': True,
+    'mode_timid': False,
 
     'config_path': None,
 
@@ -163,6 +164,7 @@ def cli_main(argv=None):
         'mode_batch': opts.mode_batch,
         'mode_interactive': opts.mode_interactive,
         'mode_rulematch': opts.mode_rulematch,
+        'mode_timid': opts.mode_timid,
 
         'config_path': opts.config_path,
 

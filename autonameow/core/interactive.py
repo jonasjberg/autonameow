@@ -24,6 +24,7 @@ import logging
 import sys
 
 from core import ui
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -90,17 +91,22 @@ def meowuri_prompt(message):
 
 
 def ask_confirm(message=None):
-    if not sys.__stdout__.isatty():
-        # TODO: [TD0111] Separate abstract user interaction from CLI specifics.
-        log.warning('Standard input is not a TTY --- would have triggered an '
-                    'AssertionError in "prompt_toolkit". ABORTING!')
-        return False
-
     if message is None:
         msg = 'Please Confirm (unspecified action)? [y/n]'
     else:
-        msg = '\n{}  [y/n]'.format(message)
+        sanity.check_internal_string(message)
+        msg = '\n{!s}  [y/n]'.format(message)
 
     response = ui.ask_confirm(msg)
+    assert isinstance(response, bool)
+    return response
+
+
+def ask_confirm_rename(from_basename, dest_basename):
+    sanity.check_internal_string(from_basename)
+    sanity.check_internal_string(dest_basename)
+
+    ui.msg_possible_rename(from_basename, dest_basename)
+    response = ui.ask_confirm('Proceed with rename? [y/n]')
     assert isinstance(response, bool)
     return response

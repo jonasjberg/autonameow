@@ -319,4 +319,4 @@ class FilesContext(object):
             '\nProceed with this rule?'.format(rule.description)
         )
         log.debug('User response: "{!s}"'.format(user_response))
-        return bool(user_response)
+        return user_response

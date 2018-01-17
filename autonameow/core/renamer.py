@@ -21,7 +21,10 @@
 
 import logging
 
-from core import ui
+from core import (
+    interactive,
+    ui
+)
 from core.exceptions import AutonameowException
 from util import encoding as enc
 from util import (
@@ -78,7 +81,7 @@ class FileRenamer(object):
 
         from_basename = disk.file_basename(from_path)
 
-        if disk.compare_basenames(from_basename, dest_basename):
+        if self._basenames_are_equivalent(from_basename, dest_basename):
             self.stats['skipped'] += 1
             _msg = (
                 'Skipped "{!s}" because the current name is the same as '
@@ -87,15 +90,39 @@ class FileRenamer(object):
             )
             log.debug(_msg)
             ui.msg(_msg)
+            return
+
+        if self.mode_timid:
+            # TODO: [TD0155] Implement "timid mode".
+            log.debug('Timid mode enabled. Asking user to confirm ..')
+            if not interactive.ask_confirm_rename(
+                    enc.displayable_path(from_basename),
+                    enc.displayable_path(dest_basename)):
+                log.debug('Skipping rename following user response')
+                return
+
+        if self.dry_run:
+            ui.msg_rename(from_basename, dest_basename, dry_run=self.dry_run)
+            # TODO: Store number of dry-runs separately?
+
+        self._rename_file(from_path, dest_basename)
+
+    def _rename_file(self, from_path, dest_basename):
+        # NOTE(jonas): Regression test runner monkey-patches this method.
+        if self.dry_run:
+            # TODO: [hack] Remove duplicated 'self.dry_run' test!
+            log.debug('dry-run is enabled, skipping actual rename ..')
+            return
+
+        try:
+            disk.rename_file(from_path, dest_basename)
+        except (FileNotFoundError, FileExistsError, OSError) as e:
+            # TODO: Failure count not handled by the regression test mock!
+            self.stats['failed'] += 1
+            log.error('Rename FAILED: {!s}'.format(e))
+            raise AutonameowException
         else:
             self.stats['renamed'] += 1
-            if not self.dry_run:
-                # TODO: [TD0155] Implement "timid mode".
-                try:
-                    disk.rename_file(from_path, dest_basename)
-                except (FileNotFoundError, FileExistsError, OSError) as e:
-                    self.stats['failed'] += 1
-                    log.error('Rename FAILED: {!s}'.format(e))
-                    raise AutonameowException
 
-            ui.msg_rename(from_basename, dest_basename, dry_run=self.dry_run)
+    def _basenames_are_equivalent(self, from_basename, dest_basename):
+        return disk.compare_basenames(from_basename, dest_basename)

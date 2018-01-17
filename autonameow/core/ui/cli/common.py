@@ -318,6 +318,31 @@ def msg_rename(from_basename, dest_basename, dry_run):
     msg(_message.format(_name_old, _name_new), ignore_quiet=True)
 
 
+def msg_possible_rename(from_basename, dest_basename):
+    """
+    Displays a message about a "possible" rename operation to the user.
+
+    Args:
+        from_basename: The original basename of the file to be renamed.
+        dest_basename: The new basename of the file to be renamed.
+    """
+    # TODO: [TD0156] Pass only Unicode strings to the UI.
+    _name_old = colorize_quoted(
+        '"{!s}"'.format(enc.displayable_path(from_basename)),
+        color='WHITE'
+    )
+    _name_new = colorize_quoted(
+        '"{!s}"'.format(enc.displayable_path(dest_basename)),
+        color='LIGHTGREEN_EX'
+    )
+
+    cf = ColumnFormatter(align='right')
+    cf.addrow('', '{!s}')
+    cf.addrow('->', '{!s}')
+    _message = str(cf)
+    msg(_message.format(_name_old, _name_new), ignore_quiet=True)
+
+
 def _colorize_replacement(original, replacement, regex, color):
     _colored_replacement = colorize(replacement, fore=color)
     return re.sub(regex, _colored_replacement, original)

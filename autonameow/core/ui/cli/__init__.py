@@ -27,6 +27,7 @@ from .common import (
     colorize_re_match,
     colorize_quoted,
     msg,
+    msg_possible_rename,
     msg_rename,
     msg_replacement,
     print_exit_info,
