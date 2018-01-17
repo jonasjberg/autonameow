@@ -67,11 +67,7 @@ class Autonameow(object):
 
         self.active_config = None
         self.matcher = None
-
-        self.renamer = FileRenamer(
-            dry_run=self.opts.get('dry_run'),
-            mode_timid=self.opts.get('mode_timid')
-        )
+        self.renamer = None
 
         self._exit_code = C.EXIT_SUCCESS
 
@@ -123,6 +119,11 @@ class Autonameow(object):
         # Set up singletons for this process.
         repository.initialize(self)
         providers.initialize()
+
+        self.renamer = FileRenamer(
+            dry_run=self.opts.get('dry_run'),
+            mode_timid=self.opts.get('mode_timid')
+        )
 
         return self
 

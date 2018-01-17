@@ -390,19 +390,21 @@ class AutonameowWrapper(object):
     def mock_exit_program(self, exitcode):
         self.captured_exitcode = exitcode
 
-    def mock_do_rename(self, from_path, new_basename, dry_run=True):
+    def mock_rename_file(self, from_path, new_basename):
+        # TODO: [hack] Mocking is too messy to be reliable ..
         # NOTE(jonas): Iffy ad-hoc string coercion..
         _from_basename = types.force_string(disk.file_basename(from_path))
+        _new_basename = types.force_string(new_basename)
 
         # Check for collisions that might cause erroneous test results.
         if _from_basename in self.captured_renames:
             _existing_new_basename = self.captured_renames[_from_basename]
             raise RegressionTestError(
                 'Already captured rename: "{!s}" -> "{!s}" (Now "{!s}")'.format(
-                    _from_basename, _existing_new_basename, new_basename
+                    _from_basename, _existing_new_basename, _new_basename
                 )
             )
-        self.captured_renames[_from_basename] = new_basename
+        self.captured_renames[_from_basename] = _new_basename
 
     def __call__(self):
         from core.autonameow import Autonameow
@@ -415,8 +417,9 @@ class AutonameowWrapper(object):
                 with Autonameow(self.opts) as ameow:
                     # TODO: Mock 'FileRenamer' class instead of single method
                     assert hasattr(ameow, 'renamer')
+                    assert hasattr(ameow.renamer, '_rename_file')
                     # Monkey-patch method of 'FileRenamer' *instance*
-                    ameow.renamer.do_rename = self.mock_do_rename
+                    ameow.renamer._rename_file = self.mock_rename_file
 
                     ameow.run()
 
