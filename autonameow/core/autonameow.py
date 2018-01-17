@@ -399,6 +399,7 @@ class Autonameow(object):
         else:
             self.rename_stats['renamed'] += 1
             if dry_run is False:
+                # TODO: [TD0155] Implement "timid mode".
                 try:
                     disk.rename_file(from_path, dest_basename)
                 except (FileNotFoundError, FileExistsError, OSError) as e:

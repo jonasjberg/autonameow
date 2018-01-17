@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0155]` Implement `--timid` mode.
+
 * `[TD0150]` Map "generic" MeowURIs to (possible) provider classes.
 
 * `[TD0146]` Rework "generic fields", possibly collecting fields in "records".
