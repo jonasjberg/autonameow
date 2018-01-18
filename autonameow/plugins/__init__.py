@@ -78,18 +78,4 @@ def get_usable_plugin_classes():
     return [k for k in get_plugin_classes() if k.test_init()]
 
 
-# TODO: Use or remove function 'suitable_plugins_for'.
-# def suitable_plugins_for(fileobject):
-#     """
-#     Returns plugin classes that can handle the given file object.
-#
-#     Args:
-#         fileobject: File to get plugins for as an instance of 'FileObject'.
-#
-#     Returns:
-#         A list of plugin classes that can handle the given file.
-#     """
-#     return [p for p in UsablePlugins if p.can_handle(fileobject)]
-
-
 ProviderClasses = get_usable_plugin_classes()
