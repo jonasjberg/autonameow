@@ -100,11 +100,23 @@ class TestAutonameowOptionCombinations(TestCase):
         )
 
     def test_illegal_user_interaction_combination(self):
-        # Expect the "safer" option to take precedence.
+        # Expect "batch" to disable all requirements of user interaction.
         self._check_options(
             given={'mode_batch': True, 'mode_interactive': True,
                    'mode_timid': False},
-            expect={'mode_batch': False, 'mode_interactive': True,
+            expect={'mode_batch': True, 'mode_interactive': False,
+                    'mode_timid': False}
+        )
+        self._check_options(
+            given={'mode_batch': True, 'mode_interactive': False,
+                   'mode_timid': True},
+            expect={'mode_batch': True, 'mode_interactive': False,
+                    'mode_timid': False}
+        )
+        self._check_options(
+            given={'mode_batch': True, 'mode_interactive': True,
+                   'mode_timid': True},
+            expect={'mode_batch': True, 'mode_interactive': False,
                     'mode_timid': False}
         )
 

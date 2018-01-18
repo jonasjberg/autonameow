@@ -95,14 +95,14 @@ class Autonameow(object):
 
         if opts.get('mode_batch'):
             if opts.get('mode_interactive'):
-                log.warning('Operating mode must be either one of "batch" or '
-                            '"interactive", not both.  Disabling "batch"..')
-                opts['mode_batch'] = False
+                log.warning('Operating mode "batch" can not be used with '
+                            '"interactive".  Disabling "interactive"..')
+                opts['mode_interactive'] = False
 
             if opts.get('mode_timid'):
                 log.warning('Operating mode must be either one of "batch" or '
-                            '"timid", not both. Disabling "batch"..')
-                opts['mode_batch'] = False
+                            '"timid", not both. Disabling "timid"..')
+                opts['mode_timid'] = False
 
         if opts.get('mode_interactive'):
             if opts.get('mode_timid'):
