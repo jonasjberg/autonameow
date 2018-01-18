@@ -66,12 +66,6 @@ class TestAutonameowWithoutOptions(TestCase):
         exit_program_mock.assert_not_called()
 
     @patch('core.autonameow.Autonameow.exit_program')
-    def test_exit_program_called_after_running(self, exit_program_mock):
-        a = self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY)
-        a.run()
-        exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
-
-    @patch('core.autonameow.Autonameow.exit_program')
     def test_exit_program_called_after_running_context(self, exit_program_mock):
         with self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY) as a:
             a.run()
