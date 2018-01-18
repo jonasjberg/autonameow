@@ -221,6 +221,45 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0154]` __Add "incrementing counter" placeholder field__  
+    Add name template placeholder field for different kinds of numbering, I.E.
+    a name template like `foo_{counter}.{ext}` gives `foo_001.c`, `foo_002.c`.
+
+    * Only used in case of conflicts?
+    * Used all the time? Used only if `conditions`?
+    * Options for formatting? Fixed widths, zero-padding, etc.
+    * Global options? Per-instance (config rule?) options?
+
+* `[TD0153]` __Detect and clean up incrementally numbered files__  
+    Add features for cleaning up inconsistent numbering.
+
+    * Change existing numbers *("renumbering"?)*
+
+        ```
+        booklet.jpg   ->  booklet1.jpg
+        booklet1.jpg  ->  booklet2.jpg
+        booklet2.jpg  ->  booklet3.jpg
+        ```
+
+    * __Fix inconsistent padding__
+
+        ```
+        1.c    ->  01.c
+        002.c  ->  02.c
+        3.c    ->  03.c
+        10.c   ->  10.c
+        ```
+        Globally defined width applies everywhere or adjust dynamically to fit?
+
+    * __Fix somewhat common case of Windows Explorer batch__
+
+        ```
+        foo (10).TXT  ->  foo (10).TXT
+        foo (1).TXT   ->  foo (01).TXT
+        foo (2).TXT   ->  foo (02).TXT
+        foo.TXT       ->  foo.TXT
+        ```
+
 * `[TD0152]` __Fix invalid name template field replacements.__  
     Replacements in the `Publisher` class in `fields.py` are always applied if
     any substring matches, which might cause undesired results.  Might be
