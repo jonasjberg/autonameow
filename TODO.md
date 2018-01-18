@@ -395,6 +395,26 @@ Low Priority
     * `[TD0035]` Rewrite the `ResultFilter` class or substitute with something
       else.
 
+    Prevent this from happening;
+    ```
+    Candidates for unresolved field: title
+
+    #   SOURCE                     PROBABILITY  FORMATTED VALUE
+    =   ======                     ===========  ===============
+    0   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    1   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    2   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    3   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    4   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    5   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    6   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    7   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    8   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    9   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    10  (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    11  (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    ```
+
 * `[TD0036]` Allow specifying known good candidates for fields.
     * For instance, a list of known book publishers. Possibly a dictionary
       where keys are preferred book publishers, and each key stores a
