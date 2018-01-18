@@ -30,6 +30,7 @@ from core import (
     namebuilder,
     plugin_handler,
     providers,
+    ui
 )
 from core.evaluate import TemplateFieldDataResolver
 from core.exceptions import (
@@ -280,6 +281,7 @@ class FilesContext(object):
                     log.info('Resolver found {} candidates'.format(len(candidates)))
                     choice = None
                     if candidates:
+                        ui.msg('\n' + enc.displayable_path(current_file))
                         choice = interactive.select_field(field, candidates)
                     else:
                         log.info('Resolver did not find any candidates ..')

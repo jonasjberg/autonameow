@@ -37,8 +37,8 @@ class Choice(object):
 def select_field(templatefield, candidates):
     # TODO: [TD0024][TD0025] Implement Interactive mode.
 
-    ui.msg('Unresolved Field: {!s}'.format(templatefield.as_placeholder()))
-    ui.msg('Candidates:')
+    ui.msg('Candidates for unresolved field: {!s}'.format(
+        templatefield.as_placeholder()))
 
     cf = ui.ColumnFormatter()
     cf.addemptyrow()
