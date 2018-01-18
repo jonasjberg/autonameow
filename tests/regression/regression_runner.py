@@ -158,6 +158,8 @@ def run_test(test):
                 # All good
                 pass
 
+    # TODO: [TD0158] Evaluate assertions of "skipped renames".
+
     captured_stdout = aw.captured_stdout
     captured_stderr = aw.captured_stderr
     failures += check_stdout_asserts(test, captured_stdout)

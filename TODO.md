@@ -67,6 +67,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0158]` Evaluate regression test assertions of "skipped renames".
+
 * `[TD0151]` __Fix inconsistent use of classes vs. class instances.__  
     Attributes of the provider classes are accessed both from uninstantiated
     classes and class instances. The `metainfo()` method should be accessible

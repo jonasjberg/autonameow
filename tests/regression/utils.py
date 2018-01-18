@@ -407,6 +407,7 @@ class AutonameowWrapper(object):
         self.captured_renames[_from_basename] = _new_basename
 
     def __call__(self):
+        # TODO: [TD0158] Evaluate assertions of "skipped renames".
         from core.autonameow import Autonameow
 
         # Monkey-patch method of 'Autonameow' *class*
@@ -418,11 +419,13 @@ class AutonameowWrapper(object):
                     # TODO: Mock 'FileRenamer' class instead of single method
                     assert hasattr(ameow, 'renamer')
                     assert hasattr(ameow.renamer, '_rename_file')
+
                     # Monkey-patch method of 'FileRenamer' *instance*
                     ameow.renamer._rename_file = self.mock_rename_file
 
                     ameow.run()
 
+                    # Store runtime recorded by the 'Autonameow' class.
                     self.captured_runtime_secs = ameow.runtime_seconds
             except Exception as e:
                 typ, val, tb = sys.exc_info()
