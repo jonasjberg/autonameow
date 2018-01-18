@@ -288,6 +288,8 @@ class EbookAnalyzer(BaseAnalyzer):
         }
 
     def _filter_date(self, raw_string):
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         # TODO: Cleanup and filter date/year
         try:
             return types.AW_DATE(raw_string)
@@ -310,6 +312,8 @@ class EbookAnalyzer(BaseAnalyzer):
         }
 
     def _filter_publisher(self, raw_string):
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         try:
             string_ = types.AW_STRING(raw_string)
         except types.AWTypeError:
@@ -334,6 +338,8 @@ class EbookAnalyzer(BaseAnalyzer):
         }
 
     def _filter_title(self, raw_string):
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         try:
             string_ = types.AW_STRING(raw_string)
         except types.AWTypeError:
@@ -357,6 +363,8 @@ class EbookAnalyzer(BaseAnalyzer):
         }
 
     def _filter_edition(self, raw_string):
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         try:
             int_ = types.AW_INTEGER(raw_string)
         except types.AWTypeError:
@@ -453,6 +461,8 @@ def validate_isbn(possible_isbn):
 
 
 def filter_isbns(isbn_list, isbn_blacklist):
+    # TODO: [TD0034] Filter out known bad data.
+    # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
     if not isbn_list:
         return []
 

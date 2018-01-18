@@ -649,6 +649,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         return dict()
 
     def _filter_raw_data(self, raw_metadata):
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         return {tag: value for tag, value in raw_metadata.items()
                 if value is not None
                 and not is_ignored_tagname(tag)
