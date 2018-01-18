@@ -128,7 +128,8 @@ class DocumentAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            'generic_field': 'publisher'
+            'generic_field': 'publisher',
+            'source': str(self)
         }
 
     def _wrap_generic_title(self, data, probability):
@@ -138,7 +139,8 @@ class DocumentAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=probability),
             ],
-            'generic_field': 'title'
+            'generic_field': 'title',
+            'source': str(self)
         }
 
     def _get_datetime_from_text(self, text):
@@ -179,7 +181,8 @@ class DocumentAnalyzer(BaseAnalyzer):
                             WeightedMapping(fields.DateTime, probability=0.1),
                             WeightedMapping(fields.Date, probability=0.1)
                         ],
-                        'generic_field': 'date_created'
+                        'generic_field': 'date_created',
+                        'source': str(self)
                     })
 
         if matches == 0:
@@ -198,7 +201,8 @@ class DocumentAnalyzer(BaseAnalyzer):
                                 WeightedMapping(fields.DateTime, probability=0.1),
                                 WeightedMapping(fields.Date, probability=0.1)
                             ],
-                            'generic_field': 'date_created'
+                            'generic_field': 'date_created',
+                            'source': str(self)
                         })
 
         return results

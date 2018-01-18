@@ -134,6 +134,8 @@ class TemplateFieldDataResolver(object):
             if _value and _coercer:
                 _formatted_value = _coercer.format(_value)
 
+            if not 'source' in candidate:
+                log.warning('Unknown source: {!s}'.format(candidate))
             _source = candidate.get('source', '(unknown source)')
             _meowuri = candidate.get('meowuri', '')
 
