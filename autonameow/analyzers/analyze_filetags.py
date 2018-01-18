@@ -57,6 +57,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['*/*']
 
+    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
     FIELD_LOOKUP = {
         'datetime': {
             'coercer': types.AW_TIMEDATE,

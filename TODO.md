@@ -14,6 +14,11 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0157]` __Look into the analyzers `FIELD_LOOKUP` attribute.__  
+    Does it make sense to keep this? Differences between "analyzers" and
+    "extractor" enough to motivate them continue being separate concepts?
+    Only the `FilenameAnalyzer` currently has a `FIELD_LOOKUP` (!)
+
 * `[TD0156]` __Set up Unicode string encoding boundary in `ui`.__  
     Enforce passing only Unicode strings to the `ui` module.
 

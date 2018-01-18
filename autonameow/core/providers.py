@@ -38,10 +38,13 @@ class ProviderMixin(object):
         pass
 
     def coerce_field_value(self, field, value):
-        _field_lookup_entry = self.FIELD_LOOKUP.get(field)
+        # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+        _field_lookup_entry = self.metainfo().get(field)
         if not _field_lookup_entry:
-            self.log.debug('Field not in "FIELD_LOOKUP"; "{!s}" with value:'
-                           ' "{!s}" ({!s})'.format(field, value, type(value)))
+            self.log.debug(
+                'Field not in "FIELD_LOOKUP" (through "metainfo()" method); '
+                '"{!s}" with value: "{!s}" ({!s})'.format(field, value,
+                                                          type(value)))
             return None
 
         try:
@@ -217,6 +220,7 @@ class ProviderRegistry(object):
                 out[root][klass] = set()
 
                 # TODO: [TD0151] Fix inconsistent use of classes/instances.
+                # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
                 metainfo_dict = dict(klass.FIELD_LOOKUP)
                 for _, field_metainfo in metainfo_dict.items():
                     _generic_field_string = field_metainfo.get('generic_field')

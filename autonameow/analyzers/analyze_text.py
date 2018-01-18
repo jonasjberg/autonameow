@@ -27,6 +27,8 @@ class TextAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['text/plain']
 
+    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+
     def __init__(self, fileobject, config, request_data_callback):
         super(TextAnalyzer, self).__init__(
             fileobject, config, request_data_callback

@@ -61,6 +61,7 @@ class BaseAnalyzer(object):
     FIELD_LOOKUP = dict()
 
     # TODO: Hack ..
+    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
     coerce_field_value = providers.ProviderMixin.coerce_field_value
 
     def __init__(self, fileobject, config, request_data_callback):
