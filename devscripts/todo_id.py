@@ -24,6 +24,16 @@ import os
 import re
 import sys
 
+# TODO: Ugly path hacks ..
+SELF_ABSPATH = os.path.realpath(os.path.abspath(__file__))
+PARENT_PATH = os.path.normpath(
+    os.path.join(SELF_ABSPATH, os.path.pardir, os.path.pardir, 'autonameow')
+)
+sys.path.insert(0, PARENT_PATH)
+
+from core.ui import ColumnFormatter
+
+
 '''
 Helper utility for listing and verifying TODO-list item identifiers
 used in the autonameow project.
@@ -107,6 +117,16 @@ def find_todo_ids_in_source_files():
         for todo in todos:
             ids_in_sources.add(todo['id'])
     return ids_in_sources
+
+
+def find_todos_in_source_files():
+    _source_files = get_source_files([AUTONAMEOW_SRC_ROOT])
+    file_todos = dict()
+    for _file in _source_files:
+        todos = find_todo_ids_in_file(_file)
+        if todos:
+            file_todos[_file] = todos
+    return file_todos
 
 
 def find_todo_ids_in_todo_file():
@@ -224,6 +244,31 @@ Found {} IDs in the TODO-list that are not in the sources:
                       for i in ids_in_todo_but_not_sources])))
 
 
+def list_todos_in_sources():
+    """
+    Prints TODOs in the source files, along with any text and the file path,
+    sorted by the id.
+    """
+    files_todos = find_todos_in_source_files()
+    if not files_todos:
+        return
+
+    result_lines = list()
+    for _filepath, _todos in files_todos.items():
+        for t in _todos:
+            result_lines.append((_filepath, t['id'], t['text']))
+
+    _common_path_prefix = os.path.commonprefix([p for p, _, _ in result_lines])
+
+    cf = ColumnFormatter()
+    for line in sorted(result_lines, key=lambda x: x[1]):
+        _filepath, _id, _text = line
+        _short_filepath = _filepath.split(_common_path_prefix)[1]
+        cf.addrow(_id, _short_filepath, _text)
+
+    print(str(cf))
+
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(
@@ -258,6 +303,14 @@ if __name__ == '__main__':
         default=False,
         help='Print entries that are in the TODO-list but not in the sources.'
     )
+    argument_group_actions.add_argument(
+        '--list-in-sources',
+        dest='do_list_todos_in_sources',
+        action='store_true',
+        default=False,
+        help='Print TODOs in the sources along in columns with the id, '
+             'file path and any TODO text, sorted by id.'
+    )
     opts = parser.parse_args(sys.argv[1:])
 
     # Make sure that both the TODO-list and DONE-list exist.
@@ -275,6 +328,9 @@ if __name__ == '__main__':
 
     elif opts.do_list_orphaned:
         list_orphaned()
+
+    elif opts.do_list_todos_in_sources:
+        list_todos_in_sources()
 
     elif opts.do_get_next_todo_id:
         _next_id = get_next_todo_id()
