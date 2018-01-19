@@ -98,6 +98,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                 )
 
     def _search_text_for_candidate_publisher(self, text):
+        # TODO: [TD0130] Implement general-purpose substring matching/extraction.
         result = find_publisher(text, self.candidate_publishers)
         if not result:
             return
@@ -107,6 +108,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         )
 
     def _search_text_for_copyright_publisher(self, text):
+        # TODO: [TD0130] Implement general-purpose substring matching/extraction.
         result = find_publisher_in_copyright_notice(text)
         if not result:
             return
@@ -144,6 +146,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         }
 
     def _get_datetime_from_text(self, text):
+        # TODO: [TD0130] Implement general-purpose substring matching/extraction.
         dt_regex = dateandtime.regex_search_str(text)
         if not dt_regex:
             return None
@@ -225,6 +228,7 @@ class DocumentAnalyzer(BaseAnalyzer):
 
 
 def find_publisher(text, candidates):
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     text = text.lower()
     for repl, patterns in candidates.items():
         for pattern in patterns:

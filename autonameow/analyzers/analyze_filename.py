@@ -454,6 +454,7 @@ class SubstringFinder(object):
         return list(filter(None, s))
 
 
+# TODO: [TD0130] Implement general-purpose substring matching/extraction.
 class FilenamePreprocessor(object):
     def __init__(self):
         pass
@@ -487,6 +488,7 @@ class FilenamePreprocessor(object):
         return filename
 
 
+# TODO: [TD0130] Implement general-purpose substring matching/extraction.
 class FilenameTokenizer(object):
     RE_UNICODE_WORDS = re.compile(r'[^\W_]')
 
@@ -602,6 +604,7 @@ class FilenameTokenizer(object):
 
 
 def find_publisher(text, candidates):
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     for repl, patterns in candidates.items():
         for pattern in patterns:
             if re.search(pattern, text):

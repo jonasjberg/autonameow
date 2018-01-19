@@ -427,6 +427,8 @@ def remove_ignored_textlines(text):
 def find_ebook_isbns_in_text(text):
     sanity.check_internal_string(text)
 
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
+
     match = RE_E_ISBN.search(text)
     if not match:
         return []
@@ -674,7 +676,8 @@ class ISBNMetadata(object):
             match = find_edition(value)
             if match:
                 self.edition = match
-                # TODO: This is WRONG!
+                # TODO: [TD0130] Implement general-purpose substring matching.
+                # TODO: [TD0130] This is WRONG!
                 # Result of 'find_edition()' might not come from the part of
                 # the string that matched 'RE_EDITION'. Need a better way to
                 # identify and extract substrings ("fields") from strings.

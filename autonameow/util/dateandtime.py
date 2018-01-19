@@ -137,6 +137,7 @@ def regex_search_str(text):
         text = ' '.join(text)
 
     # TODO: [TD0091] This code should be removed and/or rewritten ..
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
 
     for m_date, m_time, _ in re.findall(DT_PATTERN_1, text):
         # Skip if entries doesn't contain digits.
@@ -201,6 +202,7 @@ def match_special_case(text):
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     # TODO: [TD0043] Allow the user to tweak hardcoded settings.
     if text is None or text.strip() is None:
         return None
@@ -230,6 +232,7 @@ def match_special_case_no_date(text):
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     # TODO: [TD0043] Allow the user to tweak hardcoded settings.
     text = enc.decode_(text)
     try:
@@ -251,6 +254,7 @@ def match_android_messenger_filename(text):
     :param text: text (file name) to test
     :return: list of datetime-objects if matches were found, otherwise None
     """
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
 
     # TODO: [cleanup] Fix this! It currently does not seem to work, at all.
     # Some hints are in the Android Messenger source code:
@@ -286,6 +290,7 @@ def match_any_unix_timestamp(text):
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     if text is None or text.strip() is None:
         return None
 
@@ -334,6 +339,7 @@ def bruteforce_str(text):
     :param text: the text to extract information from
     :return: list of any datetime-objects or None if nothing was found
     """
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     MAX_NUMBER_OF_RESULTS = 30
 
     if text is None:
@@ -548,6 +554,7 @@ def special_datetime_ocr_search(text):
     :return:
     """
     # TODO: [TD0091] Take a look at old, untested code ..
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
 
     pattern = re.compile(r'(\d{4}7[01]\d7[0123]\d)')
     dt_fmt = '%Y7%m7%d'
@@ -570,6 +577,7 @@ def match_screencapture_unixtime(text):
     :param text: text to search for UNIX timestamp
     :return: datetime-object if a match is found, else None
     """
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     text = enc.decode_(text)
 
     pattern = re.compile(r'.*(\d{13}).*')
@@ -608,6 +616,7 @@ def naive_to_timezone_aware(naive_datetime):
 
 
 def find_isodate_like(unicode_text):
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     if not unicode_text:
         raise ValueError('Got None/empty argument')
 
