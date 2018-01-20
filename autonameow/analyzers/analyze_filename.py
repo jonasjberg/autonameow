@@ -338,7 +338,8 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     'application/x-gzip': {
         'html.gz': {'html', 'htm', 'htm.gz', 'html.gz'},
         'tar.gz': {'tar.gz', 'tgz'},
-        'txt.gz': {'txt.gz'},
+        'txt.gz': {'txt.gz', 'txt'},
+        'txt.tar.gz': {'txt.tgz', 'txt.tar.gz'},
         'w.gz': {'w.gz'}  # CWEB source code
     },
     'application/x-lzma': {
@@ -375,8 +376,7 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'rake': {'rake'},
         'spec': {'spec'},
         'sh': {'bash', 'sh'},
-        'txt': {'txt'},
-        'txt.gz': {'txt.gz'},
+        'txt': {'txt', 'txt.gz'},
         'yaml': {'yaml'},
     },
     'text/xml': {

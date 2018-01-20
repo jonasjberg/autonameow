@@ -223,16 +223,28 @@ class TestLikelyExtension(TestCase):
              Given(suffix='tar.gz', mime='application/x-gzip')),
             (Expect('tar.gz.sig'),
              Given(suffix='tar.gz.sig', mime='application/octet-stream')),
+
             (Expect('tex'),
              Given(suffix='tex', mime='text/x-tex')),
             (Expect('tex'),
              Given(suffix='tex', mime='application/x-tex')),
+
             (Expect('txt'),
              Given(suffix='txt', mime='text/plain')),
             (Expect('txt'),
+             Given(suffix='txt.gz', mime='text/plain')),
+            (Expect('txt'),
              Given(suffix='txt', mime='application/octet-stream')),
+
             (Expect('txt.gz'),
              Given(suffix='txt.gz', mime='application/x-gzip')),
+            (Expect('txt.gz'),
+             Given(suffix='txt', mime='application/x-gzip')),
+            (Expect('txt.tar.gz'),
+             Given(suffix='txt.tar.gz', mime='application/x-gzip')),
+            (Expect('txt.tar.gz'),
+             Given(suffix='txt.tgz', mime='application/x-gzip')),
+
             (Expect('w'),
              Given(suffix='w', mime='text/x-c')),
             (Expect('workspace'),
