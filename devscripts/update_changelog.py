@@ -20,13 +20,17 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
 import os
 import re
 import subprocess
 import sys
 
 import util
-from core import types
+from core import (
+    types,
+    version
+)
 from util import text
 
 '''
@@ -62,16 +66,57 @@ class ChangelogEntry(object):
         assert self.subject
 
     def __eq__(self, other):
-        if self.subject == other.subject:
-            if self.body == other.body:
+        if self.subject.lower().strip() == other.subject.lower().strip():
+            if self.body.lower().strip() == other.body.lower().strip():
                 return True
-
         return False
 
     def __str__(self):
         if self.body:
             return self.subject + '\n' + self.body
         return self.subject
+
+
+class ChangelogEntryClassifier(object):
+    @classmethod
+    def is_addition(cls, entry):
+        SUBJECT_WORDS = ['Add', 'Implement']
+        if cls._subject_matches_any(entry, SUBJECT_WORDS):
+            return True
+
+        BODY_WORDS = ['Implements']
+        if cls._body_matches_any(entry, BODY_WORDS):
+            return True
+
+    @classmethod
+    def is_change(cls, entry):
+        SUBJECT_WORDS = ['Change', 'Modify', 'Remove', 'Rework']
+        if cls._subject_matches_any(entry, SUBJECT_WORDS):
+            return True
+
+        BODY_WORDS = ['Changes', 'Modifies', 'Removes', 'Reworks']
+        if cls._body_matches_any(entry, BODY_WORDS):
+            return True
+
+    @classmethod
+    def is_fix(cls, entry):
+        SUBJECT_WORDS = ['Fix', 'fixes', 'Remove redundant']
+        if cls._subject_matches_any(entry, SUBJECT_WORDS):
+            return True
+
+        BODY_WORDS = ['Fixes', 'redundant', 'incomplete', 'superfluous']
+        if cls._body_matches_any(entry, BODY_WORDS):
+            return True
+
+        return False
+
+    @classmethod
+    def _subject_matches_any(cls, entry, string_list):
+        return any(s in entry.subject for s in string_list)
+
+    @classmethod
+    def _body_matches_any(cls, entry, string_list):
+        return any(s in entry.body for s in string_list)
 
 
 def parse_git_log(git_log_string):
@@ -109,6 +154,7 @@ def transform_fixes_to_fix(string):
     """
     Returns "fix the thing" given "fixes the thing".
     """
+    # TODO: Implement properly or remove.
     first_word = string.split()[0]
     if not first_word.endswith('es'):
         return string
@@ -118,6 +164,7 @@ def transform_fixes_to_fix(string):
 
 
 def consolidate_almost_equal(_subject, _body):
+    # TODO: Implement properly or remove.
     _fixes_to_fix_body = transform_fixes_to_fix(_body)
     if _fixes_to_fix_body == _subject:
         # Body test is too similar to the subject; remove it.
@@ -126,6 +173,16 @@ def consolidate_almost_equal(_subject, _body):
 
 def is_readable_file(file_path):
     return os.path.isfile(file_path) and os.access(file_path, os.R_OK)
+
+
+def get_changelog_header_line():
+    _current_version_string = '.'.join(map(str, version.__version_info__))
+
+    now = datetime.datetime.utcnow()
+    _current_date = max([
+        d.strftime('%Y-%m-%d') for d in (now, now + datetime.timedelta(hours=1))
+    ])
+    return '{}  [autonameow v{}]'.format(_current_date, _current_version_string)
 
 
 if __name__ == '__main__':
@@ -152,6 +209,9 @@ if __name__ == '__main__':
 
     exit_status = EXIT_SUCCESS
 
+    header = get_changelog_header_line()
+    print(header)
+
     _prev_tag = get_previous_version_tag()
     _prev_tag_hash = get_commit_for_tag(_prev_tag)
     _current_hash = util.git_commit_hash()
@@ -170,19 +230,44 @@ if __name__ == '__main__':
         if not _subject:
             continue
 
-        if _body:
-            _body = consolidate_almost_equal(_subject, _body)
+        # TODO: Implement properly or remove.
+        # if _body:
+        #     _body = consolidate_almost_equal(_subject, _body)
 
         cle = ChangelogEntry(_subject, _body)
         if not cle in log_entries:
             log_entries.append(cle)
 
-    INDENT = ' ' * 7
-    for _le in log_entries:
-        print(text.indent('- ' + _le.subject, amount=7))
-        print(text.indent(_le.body, amount=9))
-        if _le.body:
-            print()
-    print('=' * 80)
+    section_entries = {
+        'Additions': list(),
+        'Changes': list(),
+        'Fixes': list()
+    }
+
+    for entry in log_entries:
+        if ChangelogEntryClassifier.is_change(entry):
+            section_entries['Changes'].append(entry)
+        elif ChangelogEntryClassifier.is_addition(entry):
+            section_entries['Additions'].append(entry)
+        elif ChangelogEntryClassifier.is_fix(entry):
+            section_entries['Fixes'].append(entry)
+        else:
+            # TODO: Handle undetermined entry better?
+            section_entries['Changes'].append(entry)
+
+    for section, entries in sorted(section_entries.items()):
+        print('\n' + text.indent(section, amount=12))
+
+        for entry in entries:
+            print(text.indent('- ' + entry.subject, amount=12))
+            print(text.indent(entry.body, amount=14))
+            if entry.body:
+                print()
+
+    # for _le in log_entries:
+    #     print(text.indent('- ' + _le.subject, amount=12))
+    #     print(text.indent(_le.body, amount=14))
+    #     if _le.body:
+    #         print()
 
     sys.exit(exit_status)
