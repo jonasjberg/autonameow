@@ -336,6 +336,7 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'tar.bz2': {'tar.bz2'},
     },
     'application/x-gzip': {
+        'html.gz': {'html', 'htm', 'htm.gz', 'html.gz'},
         'tar.gz': {'tar.gz', 'tgz'},
         'txt.gz': {'txt.gz'},
         'w.gz': {'w.gz'}  # CWEB source code
@@ -350,8 +351,7 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'mhtml': {'mhtml'}  # Chrome Save as "Webpage, Single File"
     },
     'text/html': {
-        'html': {'html', 'htm'},
-        'html.gz': {'htm.gz', 'html.gz'},
+        'html': {'html', 'htm', 'htm.gz', 'html.gz'},  # Not actually gzipped HTML
         'mhtml': {'mhtml'},
         'txt': {'txt'},
     },
