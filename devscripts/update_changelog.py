@@ -45,6 +45,8 @@ AUTONAMEOW_SRC_ROOT = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
 changelog_path = os.path.join(AUTONAMEOW_SRC_ROOT, CHANGELOG_BASENAME)
 
 
+GIT_LOG_SEP_FIELD = '\x1f'
+GIT_LOG_SEP_RECORD = '\x1e'
 GIT_LOG_FORMAT_SEP_FIELD = '%x1f'
 GIT_LOG_FORMAT_SEP_RECORD = '%x1e'
 GIT_COMMIT_FIELDS = ['id', 'lauthor_name', 'author_email', 'date', 'subject', 'body']
@@ -74,8 +76,8 @@ class ChangelogEntry(object):
 
 def parse_git_log(git_log_string):
     log = str(git_log_string)
-    log = log.strip('\n\x1e').split('\x1e')
-    log = [row.strip().split('\x1f') for row in log]
+    log = log.strip('\n' + GIT_LOG_SEP_RECORD).split(GIT_LOG_SEP_RECORD)
+    log = [row.strip().split(GIT_LOG_SEP_FIELD) for row in log]
     log = [dict(zip(GIT_COMMIT_FIELDS, row)) for row in log]
     return log
 
