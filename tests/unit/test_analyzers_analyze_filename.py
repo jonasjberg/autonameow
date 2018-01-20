@@ -144,6 +144,7 @@ class TestLikelyExtension(TestCase):
              Given(suffix='bz2', mime='application/x-bzip2')),
             (Expect('chm'),
              Given(suffix='chm', mime='application/octet-stream')),
+
             (Expect('c'),
              Given(suffix='c', mime='text/x-c')),
             (Expect('c'),
@@ -158,6 +159,7 @@ class TestLikelyExtension(TestCase):
              Given(suffix='c++', mime='text/x-c++')),
             (Expect('cpp'),
              Given(suffix='c++', mime='text/plain')),
+
             (Expect('doc'),
              Given(suffix='doc', mime='application/msword')),
             (Expect('eps'),
@@ -180,6 +182,9 @@ class TestLikelyExtension(TestCase):
 
             (Expect('log'),
              Given(suffix='log', mime='text/x-tex')),
+            (Expect('log'),
+             Given(suffix='log', mime='text/plain')),
+
             (Expect('mid'),
              Given(suffix='mid', mime='audio/midi')),
             (Expect('md'),
@@ -251,6 +256,7 @@ class TestLikelyExtension(TestCase):
              Given(suffix='workspace', mime='text/xml')),
             (Expect('yaml'),
              Given(suffix='yaml', mime='text/plain')),
+
             (Expect('zip'),
              Given(suffix='zip', mime='application/zip')),
             (Expect('zip'),
