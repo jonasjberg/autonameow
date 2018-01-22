@@ -197,15 +197,6 @@ assert_true '"${_todo_helper_script_path}" --help' \
 #
 # Shared bash script (integration test) functionality.
 
-assert_true 'type -t get_timestamp_from_basename' \
-            'get_timestamp_from_basename is a function'
-
-assert_false '[ -n "$(get_timestamp_from_basename "abc")" ]' \
-             'get_timestamp_from_basename returns empty string given "abc"'
-
-assert_true 'get_timestamp_from_basename "unittest_log_2017-05-15T134801.html" | grep -qE -- "^2017-05-15 13:48:01$"' \
-            'get_timestamp_from_basename returns "2017-05-15 13:48:01" given "unittest_log_2017-05-15T134801.html"'
-
 _abspath_testfile_empty="$(abspath_testfile "empty")"
 assert_false '[ -z "${_abspath_testfile_empty}" ]' \
              'abspath_testfile "empty" should return something'

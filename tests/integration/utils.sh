@@ -316,15 +316,6 @@ abspath_testfile()
     ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e "test_files/${1}" )
 }
 
-# Takes the basename of a logfile as the first and only argument.
-# Any dates matching 'YYYY-MM-DDTHHMMSS' are returned as 'YYYY-MM-DD HH:MM:SS'.
-get_timestamp_from_basename()
-{
-    local _ts
-    _ts="$(grep -Eo -- "20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{6}" <<< "$1")"
-    sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)T\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3 \4:\5:\6/' <<< "$_ts"
-}
-
 # Test a bunch of '[ -d "foo" ]'-style assertions at once.
 # For instance;  'assert_bulk_test "/foo/bar" e f r'
 # is equivalent to three separate assertions with messages, etc.
