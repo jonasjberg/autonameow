@@ -103,15 +103,6 @@ assert_true '[ -d "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
             'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should be a directory'
 
 
-assert_bulk_test "$AUTONAMEOW_WIKI_ROOT_DIR" n e d
-
-assert_false '[ -z "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
-             'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should not be unset'
-
-assert_true '[ -d "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
-            'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should be a directory'
-
-
 # ______________________________________________________________________________
 #
 # Check environment variables used by specific types of tests.
