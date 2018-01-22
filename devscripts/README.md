@@ -41,9 +41,6 @@ Perform static analysis on all Python scripts using `pylint`.
 ### `list-imported-modules.sh`
 List modules imported by the specified Python program.
 
-### `run-tests-and-update-wiki.sh`
-Used to automate documentation for the `1dv430` course.
-
 ### `todo_grep.sh`
 Simple `grep` wrapper for searching the sources for TODOs.
 
