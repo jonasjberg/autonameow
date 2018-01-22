@@ -16,9 +16,6 @@ Various utility scripts related to `autonameow` development.
 Experimental script for finding expected field values in the output of
 `autonameow --list-all`.
 
-### `check-wiki-report.sh`
-Used to automate documentation for the `1dv430` course.
-
 ### `cloc.sh`
 Generate statistics on the project source code using `cloc`.
 
