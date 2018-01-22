@@ -306,7 +306,6 @@ This script accepts optional argument flags, as described in the usage text;
   USAGE:  run_all_tests.sh ([OPTIONS])
 
   OPTIONS:     -h   Display usage information and exit.
-               -u   Add test reports to the project wiki.
                -v   Enable all output from the unit/integration-runners.
                     This also increases the verbosity of this script.
                -w   Write result reports in HTML and PDF format.

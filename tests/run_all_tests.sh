@@ -52,15 +52,8 @@ EOF
 fi
 
 
-# Root path used in the links that are added to the report.
-REMOTE_TEST_RESULTS="https://github.com/1dv430/js224eh-project/blob/master/docs/test_results"
-
-# Path to the local wiki page to which links are added.
-WIKI_REPORT_RESULTS="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
-
 # Default configuration.
 option_write_reports='false'
-option_update_wiki='false'
 option_verbose='false'
 
 
@@ -73,7 +66,6 @@ print_usage_info()
   USAGE:  ${SELF_BASENAME} ([OPTIONS])
 
   OPTIONS:     -h   Display usage information and exit.
-               -u   Add test reports to the project wiki.
                -v   Enable all output from the unit/integration-runners.
                     This also increases the verbosity of this script.
                -w   Write result reports in HTML and PDF format.
@@ -98,64 +90,6 @@ EOF
 }
 
 
-# Append arguments to the wiki project report and print to stdout.
-wiki_report_append()
-{
-    printf '%s\n' 'Appending to report:'
-    printf "$*" | tee -a "$WIKI_REPORT_RESULTS"
-}
-
-# Add a header with todays date to the project wiki if not already present.
-wiki_check_add_header()
-{
-    # Insert heading with todays date if not already present.
-    local _date
-    _date="$(date "+%Y-%m-%d")"
-    if ! grep -q "^### ${_date}$" "$WIKI_REPORT_RESULTS"
-    then
-        wiki_report_append "\n### ${_date}\n\n"
-    fi
-}
-
-# Add link to the newest integration test report to the project wiki.
-wiki_add_integration_link()
-{
-    [ ! -f "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport" ] && return 1
-
-    # Read file contents; the path to the most recent integration test log.
-    _int_log_path="$( < "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport" )"
-    [ ! -f "$_int_log_path" ] && return 1
-
-    _int_log_basename="$(basename -- "${_int_log_path}")"
-    _int_log_timestamp="$(get_timestamp_from_basename "${_int_log_basename}")"
-    _int_log_link_html="${REMOTE_TEST_RESULTS}/${_int_log_basename}"
-    _int_log_link_pdf="${_int_log_link_html/.html/.pdf}"
-    wiki_report_append "* \`${_int_log_timestamp}\` Integration Test Report ([pdf](${_int_log_link_pdf}), [html](${_int_log_link_html}))\n"
-
-    rm -v -- "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport"
-    return 0
-}
-
-# Add link to the newest unit test report to the project wiki.
-wiki_add_unit_link()
-{
-    [ ! -f "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport" ] && return 1
-
-    # Read file contents; the path to the most recent unit test log.
-    _unit_log_path="$( < "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport" )"
-    [ ! -f "$_unit_log_path" ] && return 1
-
-    _unit_log_basename="$(basename -- "${_unit_log_path}")"
-    _unit_log_timestamp="$(get_timestamp_from_basename "${_unit_log_basename}")"
-    _unit_log_link_html="${REMOTE_TEST_RESULTS}/${_unit_log_basename}"
-    _unit_log_link_pdf="${_unit_log_link_html/.html/.pdf}"
-    wiki_report_append "* \`${_unit_log_timestamp}\` Unit Test Report ([pdf](${_unit_log_link_pdf}), [html](${_unit_log_link_html}))\n"
-
-    rm -v -- "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
-    return 0
-}
-
-
 
 # Set options to 'true' here and invert logic as necessary when testing (use
 # "if not true"). Motivated by hopefully reducing bugs and weird behaviour
@@ -164,11 +98,10 @@ if [ "$#" -eq "0" ]
 then
     printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
 else
-    while getopts huvw opt
+    while getopts hvw opt
     do
         case "$opt" in
             h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
-            u) option_update_wiki='true' ;;
             v) option_verbose='true' ;;
             w) option_write_reports='true' ;;
         esac
@@ -188,23 +121,6 @@ run_task "$option_quiet" 'Running regression test runner'  "${SELF_DIRNAME}/run_
 run_task "$option_quiet" 'Running integration test runner' "${SELF_DIRNAME}/run_integration_tests.sh ${runner_opts}"
 
 printf '\n%s' "Completed in $SECONDS seconds"
-
-
-if [ ! "$option_update_wiki" != 'true' ]
-then
-    # Do not proceed if a runner failed.
-    if [ "$COUNT_FAIL" -ne "0" ]
-    then
-        printf '\n%s tasks failed. Aborting ..\n' "$COUNT_FAIL" 1>&2
-        exit "$EXIT_CRITICAL"
-    fi
-
-    run_task "$option_quiet" 'Adding heading with current date to report if needed' wiki_check_add_header
-    run_task "$option_quiet" 'Adding integration test log to Test Results wiki page' wiki_add_integration_link
-    run_task "$option_quiet" 'Adding unit test log to Test Results wiki page' wiki_add_unit_link
-
-    # TODO: Commit reports to version control.
-fi
 
 
 if [ "$COUNT_FAIL" -eq "0" ]
