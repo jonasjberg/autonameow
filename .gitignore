@@ -253,6 +253,7 @@ Session.vim
 .netrwhist
 # auto-generated tag files
 tags
+.tags
 
 # Test files
 test_files/
