@@ -85,7 +85,7 @@ def do_extract_text(fileobject):
         assert isinstance(_full_text, str)
         # TODO: Factor out method of presenting the extracted text.
         ui.msg('Text Extracted by {!s}:'.format(_extractor_instance),
-               style='heading')
+               style='section')
         ui.msg(_full_text)
 
 
@@ -137,7 +137,7 @@ def do_extract_metadata(fileobject):
         assert isinstance(_metainfo, dict)
 
         ui.msg('Metadata Extracted by {!s}'.format(_extractor_instance),
-               style='heading')
+               style='section')
         cf = ui.ColumnFormatter()
         for k, v in sorted(_metadata.items()):
             cf.addrow(str(k), str(v))
@@ -155,8 +155,6 @@ def main(options=None):
         'debug': False,
         'verbose': False,
         'quiet': False,
-
-        'show_version': False,
 
         'extract_text': False,
         'extract_metadata': False,
@@ -200,6 +198,7 @@ def main(options=None):
                 e, enc.displayable_path(_file)))
             continue
 
+        ui.msg('{!s}'.format(current_file), style='heading')
         log.info('Processing ({}/{}) "{!s}" ..'.format(
             _num, _num_files, current_file))
 
