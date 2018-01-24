@@ -52,27 +52,24 @@ from util import (
 log = logging.getLogger(__name__)
 
 
-INITIAL_CONFIGURATION_OPTIONS = {
-    'DATETIME_FORMAT': dict(),
-
-    # Default ignores to be combined with any user-specified patterns.
-    'FILESYSTEM': {
-        'ignore': C.DEFAULT_FILESYSTEM_IGNORE
-    },
-
-    'FILETAGS_OPTIONS': dict(),
-    'PERSISTENCE': dict(),
-    'POST_PROCESSING': dict()
-}
-
-
 class ConfigurationParser(object):
     def __init__(self):
         self._options = dict()
 
     def parse(self, config_dict):
         # TODO: Make sure that resetting instance attributes is not needed..
-        self._options = dict(INITIAL_CONFIGURATION_OPTIONS)
+        self._options = {
+            'DATETIME_FORMAT': dict(),
+
+            # Default ignores to be combined with any user-specified patterns.
+            'FILESYSTEM': {
+                'ignore': C.DEFAULT_FILESYSTEM_IGNORE
+            },
+
+            'FILETAGS_OPTIONS': dict(),
+            'PERSISTENCE': dict(),
+            'POST_PROCESSING': dict()
+        }
 
         _reusable_nametemplates = self._load_reusable_nametemplates(config_dict)
         self._options.update(
