@@ -102,6 +102,46 @@ assert_false '"$EXTRACT_RUNNER" --debug 2>&1 | grep -- ":root:"' \
              'Output should not contain ":root:" when starting with "--debug"'
 
 
+# ______________________________________________________________________________
+#
+# Smoke-test metadata extraction.
+
+SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
+assert_bulk_test "$SAMPLE_PDF_FILE" e r
+
+sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
+
+assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --metadata --verbose -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata --verbose\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --metadata --debug -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata --debug\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --metadata --quiet -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata --quiet\" given the file \"${sample_pdf_file_basename}\""
+
+
+# ______________________________________________________________________________
+#
+# Smoke-test text extraction.
+
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--text\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --text --verbose -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--text --verbose\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --text --debug -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--text --debug\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --text --quiet -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--text --quiet\" given the file \"${sample_pdf_file_basename}\""
+
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
