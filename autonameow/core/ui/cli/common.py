@@ -279,10 +279,15 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
         print(_colored_heading_text)
         print(_colored_heading_underline)
 
+    elif style == 'section':
+        _colored_section_text = colorize(message, style='BRIGHT')
+        print('\n' + _colored_section_text)
+
     elif style == 'color_quoted':
         print(colorize_quoted(message, color='LIGHTGREEN_EX'))
 
     else:
+        log.warning('Unknown message style "{!s}"'.format(style))
         print_default_msg(message)
         if add_info_log:
             log.info(message)

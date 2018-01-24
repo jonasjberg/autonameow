@@ -117,6 +117,20 @@ class TestMsg(TestCase):
             expect='A "{COL}b 123{RES}" -> A "{COL}b 123{RES}"'
         )
 
+    def test_msg_style_heading(self):
+        with uu.capture_stdout() as out:
+            msg('text printed by msg() with style="heading"', style='heading')
+
+        self.assertIn('text printed by msg() with style="heading"',
+                      out.getvalue().strip())
+
+    def test_msg_style_section(self):
+        with uu.capture_stdout() as out:
+            msg('text printed by msg() with style="section"', style='section')
+
+        self.assertIn('text printed by msg() with style="section"',
+                      out.getvalue().strip())
+
 
 # NOTE(jonas): This will likely fail on some platforms!
 class TestColorize(TestCase):
