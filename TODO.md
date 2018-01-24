@@ -221,6 +221,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0160]` Consolidate setting up working directories that might not exist.
+
 * `[TD0159]` Fix stand-alone extractor not respecting the `--quiet` option.
 
 * `[TD0154]` __Add "incrementing counter" placeholder field__  

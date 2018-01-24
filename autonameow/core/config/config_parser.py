@@ -204,32 +204,6 @@ class ConfigurationParser(object):
 
                 self._options['POST_PROCESSING']['replacements'] = match_replace_pairs
 
-        def _try_load_persistence_option(option, default):
-            # TODO: [TD0141] Coerce raw values to a known type.
-            if 'PERSISTENCE' in config_dict:
-                _value = config_dict['PERSISTENCE'].get(option)
-                try:
-                    _bytes_path = types.AW_PATH.normalize(_value)
-                except types.AWTypeError as e:
-                    _dp = enc.displayable_path(_value)
-                    log.error('Bad value for option {}: "{!s}"'.format(option,
-                                                                       _dp))
-                    log.debug(str(e))
-                else:
-                    log.debug('Added persistence option :: {!s}: {!s}'.format(
-                        option, enc.displayable_path(_bytes_path)
-                    ))
-                    self._options['PERSISTENCE'][option] = _bytes_path
-                    return
-
-            _bytes_path = types.AW_PATH.normalize(default)
-            log.debug(
-                'Using default persistence option :: {!s}: {!s}'.format(
-                    option, enc.displayable_path(_bytes_path)
-                )
-            )
-            self._options['PERSISTENCE'][option] = _bytes_path
-
         options_parser = ConfigurationOptionsParser(raw_options=config_dict,
                                                     initial_options=self._options)
         options_parser.try_load_option(
@@ -297,6 +271,15 @@ class ConfigurationParser(object):
             default=C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE
         )
 
+        options_parser.try_load_persistence_option(
+            'cache_directory',
+            C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+        )
+        options_parser.try_load_persistence_option(
+            'history_file_path',
+            C.DEFAULT_HISTORY_FILE_ABSPATH
+        )
+
         self._options.update(options_parser.parsed)
 
         # Handle conflicting upper-case and lower-case options.
@@ -327,15 +310,6 @@ class ConfigurationParser(object):
                           '{} user)'.format(len(_combined), len(_defaults),
                                             len(_user_ignores)))
                 self._options['FILESYSTEM']['ignore'] = _combined
-
-        _try_load_persistence_option(
-            'cache_directory',
-            C.DEFAULT_PERSISTENCE_DIR_ABSPATH
-        )
-        _try_load_persistence_option(
-            'history_file_path',
-            C.DEFAULT_HISTORY_FILE_ABSPATH
-        )
 
     @staticmethod
     def _load_version(config_dict):
@@ -521,6 +495,37 @@ class ConfigurationOptionsParser(object):
             key, section, default
         ))
         self.parsed[section][key] = default
+
+    def try_load_persistence_option(self, option, default):
+        # TODO: [TD0160] Improve handling of setting up working directories.
+        #       This current accepts just about anything that can be coerced
+        #       into a path. Probably should solve this better; "validate" the
+        #       path but make sure to accept non-existing paths to be created
+        #       later on. Should add a global system for setting up directories.
+        if 'PERSISTENCE' in self.raw_options:
+            raw_value = self.raw_options['PERSISTENCE'].get(option)
+            if isinstance(raw_value, (str, bytes)) and raw_value.strip():
+                try:
+                    _bytes_path = types.AW_PATH.normalize(raw_value)
+                except types.AWTypeError as e:
+                    _dp = enc.displayable_path(raw_value)
+                    log.error('Bad value for option {}: "{!s}"'.format(option,
+                                                                       _dp))
+                    log.debug(str(e))
+                else:
+                    log.debug('Added persistence option :: {!s}: {!s}'.format(
+                        option, enc.displayable_path(_bytes_path)
+                    ))
+                    self.parsed['PERSISTENCE'][option] = _bytes_path
+                    return
+
+        _bytes_path = types.AW_PATH.normalize(default)
+        log.debug(
+            'Using default persistence option :: {!s}: {!s}'.format(
+                option, enc.displayable_path(_bytes_path)
+            )
+        )
+        self.parsed['PERSISTENCE'][option] = _bytes_path
 
 
 def parse_versioning(semver_string):

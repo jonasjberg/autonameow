@@ -353,8 +353,62 @@ class TestConfigurationOptionsParserTryLoadOption(TestCase):
             validation_func=self.datetime_configfield_parser.is_valid_datetime,
             default=C.DEFAULT_DATETIME_FORMAT_DATE
         )
+        self.assertIn('DATETIME_FORMAT', op.parsed)
         actual = op.parsed['DATETIME_FORMAT'].get('date')
         self.assertEqual(C.DEFAULT_DATETIME_FORMAT_DATE, actual)
+
+
+class TestConfigurationOptionsParserTryLoadPersistenceOption(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.INITIAL_OPTIONS = dict(INITIAL_CONFIGURATION_OPTIONS)
+
+    def test_valid_persistence_cache_directory(self):
+        raw_options = {
+            'PERSISTENCE': {
+                'cache_directory': b'/tmp/foo/bar'
+            }
+        }
+        op = ConfigurationOptionsParser(raw_options,
+                                        initial_options=self.INITIAL_OPTIONS)
+        op.try_load_persistence_option(
+            'cache_directory',
+            C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+        )
+        self.assertIn('PERSISTENCE', op.parsed)
+        actual = op.parsed['PERSISTENCE'].get('cache_directory')
+        self.assertEqual(b'/tmp/foo/bar', actual)
+
+    def test_uses_default_when_given_invalid_persistence_cache_directory(self):
+        def _check(raw_options, expect):
+            op = ConfigurationOptionsParser(raw_options, self.INITIAL_OPTIONS)
+            op.try_load_persistence_option(
+                'cache_directory',
+                C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+            )
+            self.assertIn('PERSISTENCE', op.parsed)
+            actual = op.parsed['PERSISTENCE'].get('cache_directory')
+            self.assertEqual(expect, actual)
+
+        # TODO: [TD0160] Improve handling of setting up working directories.
+        # TODO: [TD0160] This should probably fail for values like  '^' ..
+
+        _check(raw_options={'PERSISTENCE': {'cache_directory': None}},
+               expect=C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
+        _check(raw_options={'PERSISTENCE': {'cache_directory': ''}},
+               expect=C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
+        _check(raw_options={'PERSISTENCE': {'cache_directory': ' '}},
+               expect=C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
+        _check(raw_options={'PERSISTENCE': {'cache_directory': '  '}},
+               expect=C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
+        _check(raw_options={'PERSISTENCE': {'cache_directory': b''}},
+               expect=C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
+        _check(raw_options={'PERSISTENCE': {'cache_directory': b' '}},
+               expect=C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
+        _check(raw_options={'PERSISTENCE': {'cache_directory': b'  '}},
+               expect=C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
+        _check(raw_options={'PERSISTENCE': {'cache_directory': 1324}},
+               expect=C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
 
 
 class TestValidateVersionNumber(TestCase):
