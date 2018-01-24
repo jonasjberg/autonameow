@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import copy
 import logging
 import re
 
@@ -52,25 +53,28 @@ from util import (
 log = logging.getLogger(__name__)
 
 
+INITIAL_CONFIGURATION_OPTIONS = {
+    'DATETIME_FORMAT': dict(),
+
+    # Default ignores to be combined with any user-specified patterns.
+    'FILESYSTEM': {
+        'ignore': C.DEFAULT_FILESYSTEM_IGNORE
+    },
+
+    'FILETAGS_OPTIONS': dict(),
+    'PERSISTENCE': dict(),
+    'POST_PROCESSING': dict()
+}
+
+
 class ConfigurationParser(object):
     def __init__(self):
-        self._options = dict()
+        # NOTE(jonas): Make sure that defaults are not modified.
+        #              Seems to solve problem of state not fully reset between
+        #              regression test cases caused by various design flaws..
+        self._options = copy.deepcopy(INITIAL_CONFIGURATION_OPTIONS)
 
     def parse(self, config_dict):
-        # TODO: Make sure that resetting instance attributes is not needed..
-        self._options = {
-            'DATETIME_FORMAT': dict(),
-
-            # Default ignores to be combined with any user-specified patterns.
-            'FILESYSTEM': {
-                'ignore': C.DEFAULT_FILESYSTEM_IGNORE
-            },
-
-            'FILETAGS_OPTIONS': dict(),
-            'PERSISTENCE': dict(),
-            'POST_PROCESSING': dict()
-        }
-
         _reusable_nametemplates = self._load_reusable_nametemplates(config_dict)
         self._options.update(
             self._load_template_fields(config_dict)
