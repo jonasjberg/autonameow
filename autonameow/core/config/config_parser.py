@@ -173,26 +173,6 @@ class ConfigurationParser(object):
         return validated
 
     def _load_options(self, config_dict):
-        def _try_load_option(section, key, validation_func, default):
-            if section in config_dict:
-                _value = config_dict[section].get(key, None)
-                if _value is not None and validation_func(_value):
-                    log.debug('Added {} option :: '
-                              '{!s}: "{!s}"'.format(section, key, _value))
-                    self._options[section][key] = _value
-                    return  # OK!
-
-            # Use the default value.
-            if __debug__:
-                if not validation_func(default):
-                    raise AssertionError(
-                        'Bad default value "{!s}: {!s}"'.format(key, default)
-                    )
-            log.debug('Using default for {} option {!s}: "{!s}"'.format(
-                key, section, default
-            ))
-            self._options[section][key] = default
-
         def _try_load_postprocessing_replacements():
             # TODO: [TD0141] Coerce raw values to a known type.
             if 'POST_PROCESSING' in config_dict:
@@ -249,64 +229,75 @@ class ConfigurationParser(object):
             )
             self._options['PERSISTENCE'][option] = _bytes_path
 
-        _try_load_option(
+        options_parser = ConfigurationOptionsParser(raw_options=config_dict,
+                                                    initial_options=self._options)
+        options_parser.try_load_option(
             section='DATETIME_FORMAT',
             key='date',
             validation_func=DateTimeConfigFieldParser.is_valid_datetime,
             default=C.DEFAULT_DATETIME_FORMAT_DATE
         )
-        _try_load_option(
+        options_parser.try_load_option(
             section='DATETIME_FORMAT',
             key='time',
             validation_func=DateTimeConfigFieldParser.is_valid_datetime,
             default=C.DEFAULT_DATETIME_FORMAT_TIME
         )
-        _try_load_option(
+        options_parser.try_load_option(
             section='DATETIME_FORMAT',
             key='datetime',
             validation_func=DateTimeConfigFieldParser.is_valid_datetime,
             default=C.DEFAULT_DATETIME_FORMAT_DATETIME
         )
 
-        # TODO: [TD0141] Coerce raw values to a known type.
-        _try_load_option(
+        options_parser.try_load_option(
             section='FILETAGS_OPTIONS',
             key='filename_tag_separator',
+            # TODO: [TD0141] Coerce raw values to a known type.
             validation_func=lambda x: True,
             default=C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR
         )
-        _try_load_option(
+        options_parser.try_load_option(
             section='FILETAGS_OPTIONS',
             key='between_tag_separator',
+            # TODO: [TD0141] Coerce raw values to a known type.
             validation_func=lambda x: True,
             default=C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
         )
 
-        _try_load_option(
+        options_parser.try_load_option(
             section='POST_PROCESSING',
             key='sanitize_filename',
             validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_SANITIZE_FILENAME
         )
-        _try_load_option(
+        options_parser.try_load_option(
             section='POST_PROCESSING',
             key='sanitize_strict',
             validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_SANITIZE_STRICT
         )
-
-        _try_load_option(
+        options_parser.try_load_option(
             section='POST_PROCESSING',
             key='lowercase_filename',
             validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_LOWERCASE_FILENAME
         )
-        _try_load_option(
+        options_parser.try_load_option(
             section='POST_PROCESSING',
             key='uppercase_filename',
             validation_func=BooleanConfigFieldParser.is_valid_boolean,
             default=C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME
         )
+        options_parser.try_load_option(
+            section='POST_PROCESSING',
+            key='simplify_unicode',
+            validation_func=BooleanConfigFieldParser.is_valid_boolean,
+            default=C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE
+        )
+
+        self._options.update(options_parser.parsed)
+
         # Handle conflicting upper-case and lower-case options.
         if (self._options['POST_PROCESSING']['lowercase_filename']
                 and self._options['POST_PROCESSING']['uppercase_filename']):
@@ -314,13 +305,6 @@ class ConfigurationParser(object):
             log.warning('Conflicting options: "lowercase_filename" and '
                         '"uppercase_filename". Ignoring "uppercase_filename".')
             self._options['POST_PROCESSING']['uppercase_filename'] = False
-
-        _try_load_option(
-            section='POST_PROCESSING',
-            key='simplify_unicode',
-            validation_func=BooleanConfigFieldParser.is_valid_boolean,
-            default=C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE
-        )
 
         # TODO: [TD0137] Add rule-specific replacements.
         _try_load_postprocessing_replacements()
@@ -497,6 +481,45 @@ class ConfigurationRuleParser(object):
                 validated.append(valid_rule)
 
         return validated
+
+
+class ConfigurationOptionsParser(object):
+    def __init__(self, raw_options, initial_options):
+        if not isinstance(raw_options, dict):
+            raise ConfigurationSyntaxError(
+                'Expected options to be type "dict". Got {!s}'.format(
+                    type(raw_options)))
+
+        self.raw_options = raw_options
+
+        # Add parsed options to initial options, which set up nested dicts.
+        self.parsed = dict(initial_options)
+
+    def try_load_option(self, section, key, validation_func, default):
+        assert section in self.parsed, (
+            'Invalid (not "default") options section: "{!s}"'.format(section)
+        )
+        assert callable(validation_func)
+
+        if section in self.raw_options:
+            raw_value = self.raw_options[section].get(key, None)
+            if raw_value is not None and validation_func(raw_value):
+                # TODO: [TD0141] Coerce raw values to a known type.
+                log.debug('Added {} option :: '
+                          '{!s}: "{!s}"'.format(section, key, raw_value))
+                self.parsed[section][key] = raw_value
+                return  # OK!
+
+        # Use the default value.
+        if __debug__:
+            if not validation_func(default):
+                raise AssertionError(
+                    'Bad default "{!s}" value: "{!s}"'.format(key, default)
+                )
+        log.debug('Using default for {} option {!s}: "{!s}"'.format(
+            key, section, default
+        ))
+        self.parsed[section][key] = default
 
 
 def parse_versioning(semver_string):
