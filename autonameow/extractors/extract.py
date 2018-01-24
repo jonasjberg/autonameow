@@ -41,6 +41,9 @@ from util import disk
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0159] Fix stand-alone extractor not respecting the `--quiet` option.
+
+
 def do_extract_text(fileobject):
     klasses = extraction.suitable_extractors_for(fileobject)
     if not klasses:
