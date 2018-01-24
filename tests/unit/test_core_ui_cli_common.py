@@ -50,35 +50,35 @@ class TestMsg(TestCase):
 
         self.assertIn('text printed by msg()', out.getvalue().strip())
 
-    def test_msg_type_info(self):
+    def test_msg_style_info(self):
         with uu.capture_stdout() as out:
-            msg('text printed by msg() with type="info"', style='info')
+            msg('text printed by msg() with style="info"', style='info')
 
-        self.assertIn('text printed by msg() with type="info"',
+        self.assertIn('text printed by msg() with style="info"',
                       out.getvalue().strip())
 
-    def test_msg_type_info_log_true(self):
+    def test_msg_style_info_log_true(self):
         with uu.capture_stdout() as out:
-            msg('text printed by msg() with type="info", add_info_log=True',
+            msg('text printed by msg() with style="info", add_info_log=True',
                 style='info', add_info_log=True)
 
         self.assertIn(
-            'text printed by msg() with type="info", add_info_log=True',
+            'text printed by msg() with style="info", add_info_log=True',
             out.getvalue().strip()
         )
 
-    def test_msg_type_color_quoted(self):
+    def test_msg_style_color_quoted(self):
         with uu.capture_stdout() as out:
-            msg('msg() text with type="color_quoted" no "yes" no',
+            msg('msg() text with style="color_quoted" no "yes" no',
                 style='color_quoted')
 
-        self.assertIn('msg() text with type=', out.getvalue().strip())
+        self.assertIn('msg() text with style=', out.getvalue().strip())
         self.assertIn('color_quoted', out.getvalue().strip())
         self.assertIn('no', out.getvalue().strip())
         self.assertIn('yes', out.getvalue().strip())
 
     # NOTE(jonas): This will likely fail on some platforms!
-    def test_msg_type_color_quoted_including_escape_sequences(self):
+    def test_msg_style_color_quoted_including_escape_sequences(self):
         # ANSI_COLOR must match actual color. Currently 'LIGHTGREEN_EX'
         ANSI_COLOR = '\x1b[92m'
 
@@ -93,8 +93,8 @@ class TestMsg(TestCase):
                 )
 
         __check_color_quoted_msg(
-            given='msg() text with type="color_quoted" no "yes" no',
-            expect='msg() text with type="{COL}color_quoted{RES}" no "{COL}yes{RES}" no'
+            given='msg() text with style="color_quoted" no "yes" no',
+            expect='msg() text with style="{COL}color_quoted{RES}" no "{COL}yes{RES}" no'
         )
         __check_color_quoted_msg(
             given='no "yes" no',
