@@ -122,20 +122,16 @@ class TemplateFieldDataResolver(object):
         for candidate in candidates:
             sanity.check_isinstance(candidate, dict)
 
-            mapped_fields = candidate.get('mapped_fields')
-            if not mapped_fields:
+            candidate_mapped_fields = candidate.get('mapped_fields')
+            if not candidate_mapped_fields:
                 continue
 
             # TODO: How does this behave if the same generic field is mapped more than once with different probabilities?
             _candidate_probability = str(0.0)
-            for fm in mapped_fields:
-                if fm.field == field:
-                    _candidate_probability = str(fm.probability)
+            for mapping in candidate_mapped_fields:
+                if mapping.field == field:
+                    _candidate_probability = str(mapping.probability)
                     break
-            else:
-                assert False, (
-                    'Duplicated field mapped in "{!s}"'.format(candidate)
-                )
 
             _candidate_coercer = candidate.get('coercer')
             _candidate_value = candidate.get('value')
