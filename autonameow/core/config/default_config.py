@@ -110,8 +110,6 @@ DEFAULT_CONFIG = {
                 'extractor.filesystem.xplat.basename.full': 'DCIM*',
                 'extractor.filesystem.xplat.basename.extension': 'jpg',
                 'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
-                # TODO: [TD0015] Ensure proper validation of entry below.
-                'extractor.metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
             },
             'DATA_SOURCES': {
                 'datetime': [
