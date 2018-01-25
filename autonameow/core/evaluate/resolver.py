@@ -116,31 +116,31 @@ class TemplateFieldDataResolver(object):
             if not mapped_fields:
                 continue
 
-            _prob = 0.0
+            _candidate_probability = str(0.0)
             for fm in mapped_fields:
                 if fm.field == field:
-                    _prob = fm.probability
+                    _candidate_probability = str(fm.probability)
                     break
             else:
                 assert False, (
                     'Duplicated field mapped in "{!s}"'.format(candidate)
                 )
 
-            _coercer = candidate.get('coercer')
-            _value = candidate.get('value')
+            _candidate_coercer = candidate.get('coercer')
+            _candidate_value = candidate.get('value')
             _formatted_value = ''
-            if _value and _coercer:
-                _formatted_value = _coercer.format(_value)
+            if _candidate_value and _candidate_coercer:
+                _formatted_value = _candidate_coercer.format(_candidate_value)
 
-            if not 'source' in candidate:
+            if 'source' not in candidate:
                 log.warning('Unknown source: {!s}'.format(candidate))
-            _source = candidate.get('source', '(unknown source)')
-            _meowuri = candidate.get('meowuri', '')
+            _candidate_source = candidate.get('source', '(unknown source)')
+            _candidate_meowuri = candidate.get('meowuri', '')
 
-            out.append(
-                FieldDataCandidate(value=_formatted_value, source=_source,
-                                   probability=str(_prob), meowuri=_meowuri)
-            )
+            out.append(FieldDataCandidate(value=_formatted_value,
+                                          source=_candidate_source,
+                                          probability=_candidate_probability,
+                                          meowuri=_candidate_meowuri))
 
         # TODO: [TD0104] Merge candidates and re-normalize probabilities.
         return out
