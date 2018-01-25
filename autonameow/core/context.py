@@ -126,7 +126,7 @@ class FilesContext(object):
                                             data_sources)
         if not field_data_dict:
             if not self.opts.get('mode_automagic'):
-                log.warning('(437) Not in automagic mode. Unable to populate name.')
+                log.warning('Not in automagic mode. Unable to populate name.')
                 self.ameow.exit_code = C.EXIT_WARNING
                 return
 
@@ -150,7 +150,7 @@ class FilesContext(object):
                                                         data_sources)
 
         if not field_data_dict:
-            log.warning('(461) Unable to populate name.')
+            log.warning('Unable to populate name.')
             self.ameow.exit_code = C.EXIT_WARNING
             return
 
@@ -233,7 +233,7 @@ class FilesContext(object):
         if not resolver.collected_all():
             log.info('Resolver has not collected all fields ..')
             if self.opts.get('mode_batch'):
-                log.warning('(505) Unable to populate name.')
+                log.warning('Unable to populate name.')
                 # self.ameow.exit_code = C.EXIT_WARNING
                 return
 
@@ -266,7 +266,7 @@ class FilesContext(object):
         # Add automatically resolving missing sources from possible candidates.
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-            log.warning('(545) Unable to populate name. Missing field data.')
+            log.warning('Unable to populate name. Missing field data.')
             self.ameow.exit_code = C.EXIT_WARNING
             return None
 
