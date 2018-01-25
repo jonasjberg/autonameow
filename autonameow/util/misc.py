@@ -45,7 +45,6 @@ __all__ = [
     'dump',
     'contains_none',
     'count_dict_recursive',
-    'dump_to_list',
     'expand_meowuri_data_dict',
     'flatten_dict',
     'git_commit_hash',
@@ -76,36 +75,6 @@ def dump(obj):
     except TypeError as e:
         log.critical('Dump FAILED: ' + str(e))
         raise
-
-
-def dump_to_list(obj, nested_level=0, output=None):
-    spacing = '   '
-    if not output:
-        out = []
-    else:
-        out = output
-
-    if isinstance(obj, dict):
-        out.append('{}{{'.format(nested_level * spacing))
-        for k, v in list(obj.items()):
-            if hasattr(v, '__iter__'):
-                out.append('{}{}:'.format((nested_level + 1) * spacing, k))
-                dump_to_list(v, nested_level + 1, out)
-            else:
-                out.append('{}{}: {}'.format((nested_level + 1) * spacing, k, v))
-        out.append('{}}}'.format(nested_level * spacing))
-    elif isinstance(obj, dict):
-        out.append('{}['.format(nested_level * spacing))
-        for v in obj:
-            if hasattr(v, '__iter__'):
-                dump_to_list(v, nested_level + 1, out)
-            else:
-                out.append('{}{}'.format((nested_level + 1) * spacing, v))
-        out.append('{}]'.format(nested_level * spacing))
-    else:
-        out.append('{}{}'.format(nested_level * spacing, obj))
-
-    return out
 
 
 __counter_generator_function = itertools.count(0)
