@@ -25,6 +25,7 @@ import sys
 
 from core import ui
 from util import sanity
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -34,32 +35,37 @@ class Choice(object):
     ABORT = 0
 
 
-def select_field(templatefield, candidates):
+def select_field(fileobject, templatefield, candidates):
     # TODO: [TD0024][TD0025] Implement Interactive mode.
 
+    ui.msg(enc.displayable_path(fileobject), style='section')
     ui.msg('Candidates for unresolved field: {!s}'.format(
         templatefield.as_placeholder()))
+
+    prioritized_candidates = sorted(candidates,
+                                    key=lambda x: (x.probability, x.value),
+                                    reverse=True)
+    numbered_candidates = dict()
+    rows_to_display = list()
+    for n, c in enumerate(prioritized_candidates):
+        _candidate_number = str(n)
+        numbered_candidates[_candidate_number] = c
+
+        _candidate_value = '"{!s}"'.format(c.value)
+        _candidate_source = str(c.source)
+        _candidate_probability = str(c.probability)
+        rows_to_display.append(
+            (_candidate_number, _candidate_source, _candidate_probability, _candidate_value)
+        )
 
     cf = ui.ColumnFormatter()
     cf.addemptyrow()
     cf.addrow('#', 'SOURCE', 'PROBABILITY', 'FORMATTED VALUE')
     cf.addrow('=', '======', '===========', '===============')
-    prioritized_candidates = sorted(
-        candidates, key=lambda x: (x.probability, x.value), reverse=True
-    )
-    numbered_candidates = dict()
-    for n, c in enumerate(prioritized_candidates):
-        _value = '"{!s}"'.format(c.value)
-        _source = str(c.source)
-        _prob = str(c.probability)
-
-        num = str(n)
-        cf.addrow(num, _source, _prob, _value)
-        numbered_candidates[num] = c
-
+    for row_to_display in rows_to_display:
+        cf.addrow(*row_to_display)
     ui.msg(str(cf))
 
-    log.warning('TODO: Implement interactive field selection')
     response = ui.field_selection_prompt(numbered_candidates)
     if not response:
         return Choice.ABORT
@@ -90,12 +96,21 @@ def meowuri_prompt(message):
     return Choice.ABORT
 
 
+def ask_confirm_use_rule(fileobject, rule):
+    ui.msg(enc.displayable_path(fileobject), style='section')
+    user_response = ask_confirm(
+        'Best matched rule "{!s}"'
+        '\nProceed with this rule?'.format(rule.description)
+    )
+    return user_response
+
+
 def ask_confirm(message=None):
     if message is None:
         msg = 'Please Confirm (unspecified action)? [y/n]'
     else:
         sanity.check_internal_string(message)
-        msg = '\n{!s}  [y/n]'.format(message)
+        msg = '{!s}  [y/n]'.format(message)
 
     response = ui.ask_confirm(msg)
     assert isinstance(response, bool)

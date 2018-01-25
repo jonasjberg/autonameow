@@ -24,13 +24,9 @@ import logging
 
 from core import constants as C
 from core import (
-    extraction,
     interactive,
     logs,
     namebuilder,
-    plugin_handler,
-    providers,
-    ui
 )
 from core.evaluate import TemplateFieldDataResolver
 from core.exceptions import (
@@ -81,7 +77,7 @@ class FilesContext(object):
                 candidates = self.matcher.match(current_file)
             log.debug('Matcher returned {} candidate rules'.format(len(candidates)))
             if candidates:
-                active_rule = self._try_get_rule(candidates)
+                active_rule = self._try_get_rule(current_file, candidates)
 
         if active_rule:
             log.info(
@@ -142,7 +138,7 @@ class FilesContext(object):
                     break
 
                 log.debug('Remaining candidates: {}'.format(len(candidates)))
-                active_rule = self._try_get_rule(candidates)
+                active_rule = self._try_get_rule(current_file, candidates)
                 if active_rule:
                     log.info(
                         'Using rule: "{!s}"'.format(active_rule.description)
@@ -171,7 +167,7 @@ class FilesContext(object):
         log.info('New name: "{}"'.format(enc.displayable_path(new_name)))
         return new_name
 
-    def _try_get_rule(self, candidates):
+    def _try_get_rule(self, current_file, candidates):
         active_rule = None
 
         if self.opts.get('mode_interactive'):
@@ -204,7 +200,7 @@ class FilesContext(object):
                     # Best matched rule might be a bad fit.
                     log.debug('Score {} is below threshold {} for rule "{!s}"'.format(score, RULE_SCORE_CONFIRM_THRESHOLD, description))
                     log.debug('Need confirmation before using this rule..')
-                    ok_to_use_rule = self._confirm_apply_rule(rule)
+                    ok_to_use_rule = self._confirm_apply_rule(current_file, rule)
                     if ok_to_use_rule:
                         log.debug('Positive response. Using rule "{!s}"'.format(description))
                         active_rule = rule
@@ -248,8 +244,7 @@ class FilesContext(object):
                 log.info('Resolver found {} candidates'.format(len(candidates)))
                 choice = None
                 if candidates:
-                    ui.msg('\n' + enc.displayable_path(current_file))
-                    choice = interactive.select_field(field, candidates)
+                    choice = interactive.select_field(current_file, field, candidates)
                 else:
                     log.info('Resolver did not find any candidates ..')
 
@@ -277,15 +272,12 @@ class FilesContext(object):
 
         return resolver.fields_data
 
-    def _confirm_apply_rule(self, rule):
+    def _confirm_apply_rule(self, current_file, rule):
         if self.opts.get('mode_batch'):
             log.info('Rule required confirmation but in batch mode -- '
                      'Skipping file ..')
             return False
 
-        user_response = interactive.ask_confirm(
-            'Best matched rule "{!s}"'
-            '\nProceed with this rule?'.format(rule.description)
-        )
+        user_response = interactive.ask_confirm_use_rule(current_file, rule)
         log.debug('User response: "{!s}"'.format(user_response))
         return user_response

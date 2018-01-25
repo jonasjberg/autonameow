@@ -342,7 +342,7 @@ def msg_possible_rename(from_basename, dest_basename):
     )
 
     cf = ColumnFormatter(align='right')
-    cf.addrow('', '{!s}')
+    cf.addrow('About to rename', '{!s}')
     cf.addrow('->', '{!s}')
     _message = str(cf)
     msg(_message.format(_name_old, _name_new), ignore_quiet=True)
