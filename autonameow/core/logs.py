@@ -88,7 +88,7 @@ def init_logging(opts):
         logging.basicConfig(level=logging.CRITICAL, format=fmt)
     else:
         fmt = '%(levelname)s %(message)s'
-        logging.basicConfig(level=logging.ERROR, format=fmt)
+        logging.basicConfig(level=logging.WARNING, format=fmt)
 
     _logging_initialized = True
 
