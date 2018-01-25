@@ -110,9 +110,7 @@ class TemplateFieldDataResolver(object):
 
         out = []
         for candidate in candidates:
-            assert isinstance(candidate, dict), (
-                'Expected dict. Got {!s}'.format(type(candidate))
-            )
+            sanity.check_isinstance(candidate, dict)
 
             mapped_fields = candidate.get('mapped_fields')
             if not mapped_fields:
