@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import pprint
 from collections import defaultdict
 
 import plugins
@@ -71,11 +70,14 @@ class MasterDataProvider(object):
         """
         if meowuri not in self.debug_stats[fileobject]:
             self.debug_stats[fileobject][meowuri] = dict()
-            self.debug_stats[fileobject][meowuri]['seen'] = 1
-            self.debug_stats[fileobject][meowuri]['queries'] = 0
+            self.debug_stats[fileobject][meowuri]['queries'] = 1
+            self.debug_stats[fileobject][meowuri]['repository_queries'] = 0
             self.debug_stats[fileobject][meowuri]['delegated'] = 0
         else:
-            self.debug_stats[fileobject][meowuri]['seen'] += 1
+            self.debug_stats[fileobject][meowuri]['queries'] += 1
+
+        if __debug__:
+            self._print_debug_stats()
 
         _data = self._query_repository(fileobject, meowuri)
         if _data:
@@ -90,11 +92,10 @@ class MasterDataProvider(object):
 
         # TODO: [TD0142] Handle this properly ..
         log.debug('Failed query, then delegation, then another query and returning None')
-        self._print_debug_stats()
         return None
 
     def _query_repository(self, fileobject, meowuri):
-        self.debug_stats[fileobject][meowuri]['queries'] += 1
+        self.debug_stats[fileobject][meowuri]['repository_queries'] += 1
 
         if fileobject in self.seen_fileobject_meowuris:
             _cached_data = self.seen_fileobject_meowuris[fileobject].get(meowuri)
@@ -146,7 +147,14 @@ class MasterDataProvider(object):
                     )
 
     def _print_debug_stats(self):
-        log.debug(pprint.pformat(self.debug_stats))
+        log.debug('{!s} debug stats:'.format(self.__class__.__name__))
+        for _fileobject, _meowuris in sorted(self.debug_stats.items()):
+            for _meowuri, _counters in _meowuris.items():
+                _meowuri_stats = ['{}: {}'.format(stat, count)
+                                  for stat, count in _counters.items()]
+                log.debug('[{:8.8}]->{!s:60.60} {!s}'.format(
+                    _fileobject.hash_partial, _meowuri,
+                    ' '.join(_meowuri_stats)))
 
 
 _master_data_provider = None
