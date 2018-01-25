@@ -120,7 +120,7 @@ run_task "$option_quiet" 'Running unit test runner'        "${SELF_DIRNAME}/run_
 run_task "$option_quiet" 'Running regression test runner'  "${SELF_DIRNAME}/run_regression_tests.sh"
 run_task "$option_quiet" 'Running integration test runner' "${SELF_DIRNAME}/run_integration_tests.sh ${runner_opts}"
 
-printf '\n%s' "Completed in $SECONDS seconds"
+printf '\n%s\n' "Completed in $SECONDS seconds"
 
 
 if [ "$COUNT_FAIL" -eq "0" ]
