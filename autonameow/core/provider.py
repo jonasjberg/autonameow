@@ -127,6 +127,11 @@ class MasterDataProvider(object):
         # document, the extractor runner is started 4 times.
         # Only one of these are really appropriate; when requesting the
         # 'PdftotextTextExtractor'. Other extractor requests should be skipped.
+
+        # TODO: [TD0161] Translate from specific to "generic" MeowURI?
+        # Might be useful to be able to translate a specific MeowURI like
+        # 'analyzer.ebook.title' to a "generic" like 'generic.metadata.title'.
+        # Otherwise, user is almost never prompted with any possible candidates.
         if _possible_providers:
             for _provider in _possible_providers:
                 log.debug('Delegation running possible provider: {!s}'.format(_provider))

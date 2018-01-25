@@ -67,6 +67,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0161]` Handle mapping/translation between "generic"/specific MeowURIs.
+
 * `[TD0158]` Evaluate regression test assertions of "skipped renames".
 
 * `[TD0151]` __Fix inconsistent use of classes vs. class instances.__  
