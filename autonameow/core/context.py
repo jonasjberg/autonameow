@@ -239,14 +239,12 @@ class FilesContext(object):
 
             # TODO: [TD0024][TD0025] Implement Interactive mode.
             for field in resolver.unresolved:
-                log.info('Resolver is looking up candidates for field "{!s}"'.format(field))
                 candidates = resolver.lookup_candidates(field)
-                log.info('Resolver found {} candidates'.format(len(candidates)))
+                log.info('Found {} candidates for field {!s}'.format(len(candidates), field.as_placeholder()))
                 choice = None
                 if candidates:
+                    # Returns instance of 'FieldDataCandidate' or 'Choice.ABORT'
                     choice = interactive.select_field(current_file, field, candidates)
-                else:
-                    log.info('Resolver did not find any candidates ..')
 
                 # TODO: [TD0024] Use MeowURI prompt in interactive mode?
                 # if choice is interactive.Choice.ABORT:
@@ -258,6 +256,8 @@ class FilesContext(object):
                     return
 
                 if choice:
+                    log.debug('User selected {!r}'.format(choice))
+                    # TODO: Translate generic 'choice.meowuri' to not generic..
                     resolver.add_known_source(field, choice.meowuri)
 
             resolver.collect()

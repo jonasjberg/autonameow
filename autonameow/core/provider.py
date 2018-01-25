@@ -135,7 +135,7 @@ class MasterDataProvider(object):
         # Otherwise, user is almost never prompted with any possible candidates.
         if _possible_providers:
             for _provider in _possible_providers:
-                log.debug('Delegation running possible provider: {!s}'.format(_provider))
+                log.debug('Delegating possible provider: {!s}'.format(_provider))
                 if issubclass(_provider, BaseExtractor):
                     extraction.run_extraction(fileobject, [_provider])
                 elif issubclass(_provider, BaseAnalyzer):

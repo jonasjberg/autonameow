@@ -81,8 +81,10 @@ class TemplateFieldDataResolver(object):
         )
         if field in self._fields:
             if not self.data_sources.get(field):
+                log.debug('Added (first) known source for field {!s} :: {!s}'.format(field.as_placeholder(), meowuri))
                 self.data_sources[field] = [meowuri]
             else:
+                log.debug('Added (additional) known source for field {!s} :: {!s}'.format(field.as_placeholder(), meowuri))
                 self.data_sources[field] += [meowuri]
         else:
             log.debug('Attempted to add source for unused name template field '
@@ -112,7 +114,9 @@ class TemplateFieldDataResolver(object):
 
     def lookup_candidates(self, field):
         # TODO: [TD0024][TD0025] Implement Interactive mode.
+        log.debug('Resolver is looking up candidates for field {!s} ..'.format(field.as_placeholder()))
         candidates = repository.SessionRepository.query_mapped(self.file, field)
+        log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field.as_placeholder()))
 
         out = []
         for candidate in candidates:
@@ -122,6 +126,7 @@ class TemplateFieldDataResolver(object):
             if not mapped_fields:
                 continue
 
+            # TODO: How does this behave if the same generic field is mapped more than once with different probabilities?
             _candidate_probability = str(0.0)
             for fm in mapped_fields:
                 if fm.field == field:
