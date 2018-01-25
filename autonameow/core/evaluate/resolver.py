@@ -54,6 +54,12 @@ class FieldDataCandidate(object):
         self.probability = probability
         self.meowuri = meowuri
 
+    def __repr__(self):
+        return '<{!s}(value={!s}, source={!s}, probability={!s}, ' \
+               'meowuri={!s})>'.format(self.__class__.__name__, self.value,
+                                       self.source, self.probability,
+                                       self.meowuri)
+
 
 class TemplateFieldDataResolver(object):
     def __init__(self, fileobject, name_template):
