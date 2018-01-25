@@ -240,32 +240,32 @@ class FilesContext(object):
                 log.warning('(505) Unable to populate name.')
                 # self.ameow.exit_code = C.EXIT_WARNING
                 return
-            else:
-                # TODO: [TD0024][TD0025] Implement Interactive mode.
-                for field in resolver.unresolved:
-                    log.info('Resolver is looking up candidates for field "{!s}"'.format(field))
-                    candidates = resolver.lookup_candidates(field)
-                    log.info('Resolver found {} candidates'.format(len(candidates)))
-                    choice = None
-                    if candidates:
-                        ui.msg('\n' + enc.displayable_path(current_file))
-                        choice = interactive.select_field(field, candidates)
-                    else:
-                        log.info('Resolver did not find any candidates ..')
 
-                    # TODO: [TD0024] Use MeowURI prompt in interactive mode?
-                    # if choice is interactive.Choice.ABORT:
-                    #     _m = 'Specify source for field {!s}'.format(field)
-                    #     choice = interactive.meowuri_prompt(_m)
+            # TODO: [TD0024][TD0025] Implement Interactive mode.
+            for field in resolver.unresolved:
+                log.info('Resolver is looking up candidates for field "{!s}"'.format(field))
+                candidates = resolver.lookup_candidates(field)
+                log.info('Resolver found {} candidates'.format(len(candidates)))
+                choice = None
+                if candidates:
+                    ui.msg('\n' + enc.displayable_path(current_file))
+                    choice = interactive.select_field(field, candidates)
+                else:
+                    log.info('Resolver did not find any candidates ..')
 
-                    if choice is interactive.Choice.ABORT:
-                        log.info('Aborting ..')
-                        return
+                # TODO: [TD0024] Use MeowURI prompt in interactive mode?
+                # if choice is interactive.Choice.ABORT:
+                #     _m = 'Specify source for field {!s}'.format(field)
+                #     choice = interactive.meowuri_prompt(_m)
 
-                    if choice:
-                        resolver.add_known_source(field, choice.meowuri)
+                if choice is interactive.Choice.ABORT:
+                    log.info('Aborting ..')
+                    return
 
-                resolver.collect()
+                if choice:
+                    resolver.add_known_source(field, choice.meowuri)
+
+            resolver.collect()
 
         # TODO: [TD0024] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
