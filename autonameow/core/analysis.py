@@ -159,34 +159,30 @@ def _instantiate_analyzers(fileobject, klass_list, config):
     ]
 
 
-def suitable_analyzers_for(fileobject):
-    """
-    Returns analyzer classes that can handle the given file object.
-
-    Args:
-        fileobject: File to get analyzers for as an instance of 'FileObject'.
-
-    Returns:
-        A list of analyzer classes that can analyze the given file.
-    """
-    return [a for a in analyzers.ProviderClasses if a.can_handle(fileobject)]
+def filter_able_to_handle(analyzer_klasses, fileobject):
+    return {a for a in analyzer_klasses if a.can_handle(fileobject)}
 
 
-def _start(fileobject, config):
+def _start(fileobject, config, analyzers_to_run=None):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
     log.debug(' Analysis Preparation Started '.center(120, '='))
 
     # TODO: [TD0126] Remove assertions once "boundaries" are cleaned up.
-    assert isinstance(fileobject, FileObject), (
-        'Expected type "FileObject". Got {!s}'
-    )
-    assert isinstance(config, Configuration), (
-        'Expected type "Configuration". Got {!s}'.format(type(config))
-    )
+    sanity.check_isinstance(fileobject, FileObject)
+    sanity.check_isinstance(config, Configuration)
 
-    klasses = suitable_analyzers_for(fileobject)
+    all_available_analyzers = set(analyzers.ProviderClasses)
+
+    if analyzers_to_run:
+        assert isinstance(analyzers_to_run, (list, set))
+        chosen_analyzers = [a for a in all_available_analyzers
+                            if a in analyzers_to_run]
+    else:
+        chosen_analyzers = all_available_analyzers
+
+    klasses = filter_able_to_handle(chosen_analyzers, fileobject)
     if not klasses:
         raise AutonameowException(
             'None of the analyzers applies (!)'
@@ -214,19 +210,20 @@ def _start(fileobject, config):
         _execute_run_queue(analyzer_queue)
 
 
-def run_analysis(fileobject, active_config):
+def run_analysis(fileobject, active_config, analyzers_to_run=None):
     """
     Sets up and executes "analysis" of the given file.
 
     Args:
         fileobject: The file object to analyze.
         active_config: An instance of the 'Configuration' class.
+        analyzers_to_run: Optional list of analyzers to run. All if omitted.
 
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
     try:
-        _start(fileobject, active_config)
+        _start(fileobject, active_config, analyzers_to_run)
     except AutonameowException as e:
         log.critical('Analysis FAILED: {!s}'.format(e))
         raise

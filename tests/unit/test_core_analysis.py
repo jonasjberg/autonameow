@@ -25,7 +25,7 @@ from unittest.mock import Mock
 import analyzers
 import unit.utils as uu
 from core import analysis
-from core.analysis import suitable_analyzers_for
+from core.analysis import filter_able_to_handle
 
 
 class TestAnalysis(TestCase):
@@ -57,9 +57,16 @@ class TestAnalysis(TestCase):
             self.assertTrue(issubclass(ac.__class__, analyzers.BaseAnalyzer))
 
 
-class TestSuitableAnalyzersFor(TestCase):
+class TestFilterAbleToHandle(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.ALL_AVAILABLE_ANALYZERS = analyzers.ProviderClasses
+
     def _assert_suitable(self, fileobject, expect_analyzers):
-        actual = [c.__name__ for c in suitable_analyzers_for(fileobject)]
+        actual = [
+            c.__name__ for c in
+            filter_able_to_handle(self.ALL_AVAILABLE_ANALYZERS, fileobject)
+        ]
         for analyzer in expect_analyzers:
             self.assertIn(analyzer, actual)
 
