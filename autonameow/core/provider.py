@@ -139,7 +139,12 @@ class MasterDataProvider(object):
                 if issubclass(_provider, BaseExtractor):
                     extraction.run_extraction(fileobject, [_provider])
                 elif issubclass(_provider, BaseAnalyzer):
-                    analysis.run_analysis(fileobject, self.config)
+                    analysis.run_analysis(
+                        fileobject,
+                        self.config,
+                        analyzers_to_run=None
+                        #analyzers_to_run=[_provider]
+                    )
                 elif issubclass(_provider, plugins.BasePlugin):
                     plugin_handler.run_plugins(
                         fileobject,
