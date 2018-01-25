@@ -54,14 +54,16 @@ def select_field(fileobject, templatefield, candidates):
         _candidate_value = '"{!s}"'.format(c.value)
         _candidate_source = str(c.source)
         _candidate_probability = str(c.probability)
+        _candidate_meowuri = str(c.meowuri)
         rows_to_display.append(
-            (_candidate_number, _candidate_source, _candidate_probability, _candidate_value)
+            (_candidate_number, _candidate_source, _candidate_probability,
+             _candidate_value, _candidate_meowuri)
         )
 
     cf = ui.ColumnFormatter()
     cf.addemptyrow()
-    cf.addrow('#', 'SOURCE', 'PROBABILITY', 'FORMATTED VALUE')
-    cf.addrow('=', '======', '===========', '===============')
+    cf.addrow('#', 'SOURCE', 'PROBABILITY', 'FORMATTED VALUE', 'MEOWURI')
+    cf.addrow('=', '======', '===========', '===============', '=======')
     for row_to_display in rows_to_display:
         cf.addrow(*row_to_display)
     ui.msg(str(cf))

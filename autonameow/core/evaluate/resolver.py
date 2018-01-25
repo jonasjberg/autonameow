@@ -48,17 +48,21 @@ class FieldDataCandidate(object):
     """
     Simple "struct"-like container used by 'lookup_candidates()'.
     """
-    def __init__(self, value, source, probability, meowuri):
-        self.value = value
+    def __init__(self, string_value, source, probability, meowuri, coercer,
+                 generic_field):
+        self.value = string_value
         self.source = source
         self.probability = probability
         self.meowuri = meowuri
+        self.coercer = coercer
+        self.generic_field = generic_field
 
     def __repr__(self):
-        return '<{!s}(value={!s}, source={!s}, probability={!s}, ' \
-               'meowuri={!s})>'.format(self.__class__.__name__, self.value,
-                                       self.source, self.probability,
-                                       self.meowuri)
+        return ('<{!s}(string_value={!s}, source={!s}, probability={!s}, '
+                'meowuri={!s}, coercer={!s}, generic_field={!s})>'.format(
+                    self.__class__.__name__, self.value, self.source,
+                    self.probability, self.meowuri, self.coercer,
+                    self.generic_field))
 
 
 class TemplateFieldDataResolver(object):
@@ -143,11 +147,20 @@ class TemplateFieldDataResolver(object):
                 log.warning('Unknown source: {!s}'.format(candidate))
             _candidate_source = candidate.get('source', '(unknown source)')
             _candidate_meowuri = candidate.get('meowuri', '')
+            _candidate_generic_field = candidate.get('generic_field')
 
-            out.append(FieldDataCandidate(value=_formatted_value,
-                                          source=_candidate_source,
-                                          probability=_candidate_probability,
-                                          meowuri=_candidate_meowuri))
+            # TODO: Translate generic 'choice.meowuri' to not generic..
+            if _candidate_meowuri.is_generic:
+                log.error('Added generic candidate MeowURI {!s}'.format(_candidate_meowuri))
+
+            out.append(
+                FieldDataCandidate(string_value=_formatted_value,
+                                   source=_candidate_source,
+                                   probability=_candidate_probability,
+                                   meowuri=_candidate_meowuri,
+                                   coercer=_candidate_coercer,
+                                   generic_field=_candidate_generic_field)
+            )
 
         # TODO: [TD0104] Merge candidates and re-normalize probabilities.
         return out
