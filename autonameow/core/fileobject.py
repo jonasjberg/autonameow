@@ -128,6 +128,16 @@ class FileObject(object):
     def __ne__(self, other):
         return not (self == other)
 
+    def __lt__(self, other):
+        if isinstance(other, self.__class__):
+            return self.abspath < other.abspath
+
+        # NOTE(jonas): Objects of other types are always "less".
+        return False
+
+    def __gt__(self, other):
+        return not self < other
+
 
 def validate_path_argument(path):
     """

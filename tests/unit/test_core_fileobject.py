@@ -253,6 +253,54 @@ class TestFileObjectDoesNotHandleSymlinks(TestCase):
             _ = uu.fileobject_testfile('empty.symlink')
 
 
+class TestFileObjectOrdering(TestCase):
+    def setUp(self):
+        self.fo_1 = uu.fileobject_testfile('magic_pdf.pdf')
+        self.fo_2 = uu.fileobject_testfile('magic_png.png')
+        self.some_object = 'foo'
+
+    def test_setup(self):
+        self.assertTrue(uu.file_exists(self.fo_1.abspath))
+        self.assertTrue(uu.file_exists(self.fo_2.abspath))
+
+    def test_less_than_comparison(self):
+        self.assertLess(self.fo_1, self.fo_2)
+        # Objects of other types are always treated the same in comparisons.
+        self.assertLess(self.some_object, self.fo_1)
+        self.assertLess(self.some_object, self.fo_2)
+
+    def test_greater_than_comparison(self):
+        self.assertGreater(self.fo_2, self.fo_1)
+        # Objects of other types are always treated the same in comparisons.
+        self.assertGreater(self.fo_1, self.some_object)
+        self.assertGreater(self.fo_2, self.some_object)
+
+    def test_sorting(self):
+        sorted_list = sorted([self.fo_1, self.fo_2])
+        self.assertEqual(self.fo_1, sorted_list[0])
+        self.assertEqual(self.fo_2, sorted_list[1])
+
+        # Objects of other types are always treated the same in comparisons.
+        sorted_list_with_another_object = sorted([self.fo_1, self.fo_2,
+                                                  self.some_object])
+        self.assertEqual(self.some_object, sorted_list_with_another_object[0])
+        self.assertEqual(self.fo_1, sorted_list_with_another_object[1])
+        self.assertEqual(self.fo_2, sorted_list_with_another_object[2])
+
+    def test_sorting_reverse(self):
+        sorted_list = sorted([self.fo_1, self.fo_2], reverse=True)
+        self.assertEqual(self.fo_2, sorted_list[0])
+        self.assertEqual(self.fo_1, sorted_list[1])
+
+        # Objects of other types are always treated the same in comparisons.
+        sorted_list_with_another_object = sorted(
+            [self.fo_1, self.fo_2, self.some_object], reverse=True
+        )
+        self.assertEqual(self.fo_2, sorted_list_with_another_object[0])
+        self.assertEqual(self.fo_1, sorted_list_with_another_object[1])
+        self.assertEqual(self.some_object, sorted_list_with_another_object[2])
+
+
 class TestValidatePathArgument(TestCase):
     def setUp(self):
         _num_files = min(len(uu.all_testfiles()), 5)
