@@ -100,16 +100,8 @@ class ProviderRegistry(object):
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        self.meowuri_sources = meowuri_source_map
-        assert isinstance(self.meowuri_sources, dict)
-
-        # Debug logging
-        for key in self.meowuri_sources.keys():
-            for meowuri, klass in self.meowuri_sources[key].items():
-                self.log.debug(
-                    'Mapped MeowURI "{!s}" to "{!s}" ({!s})'.format(meowuri,
-                                                                    klass, key)
-                )
+        self.meowuri_sources = dict(meowuri_source_map)
+        self._debug_log_mapped_meowuri_sources()
 
         # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
         self.mapped_meowuris = self.unique_map_meowuris(self.meowuri_sources)
@@ -118,6 +110,15 @@ class ProviderRegistry(object):
         self.generic_meowuri_sources = self._get_generic_sources(
             self.meowuri_sources
         )
+
+    def _debug_log_mapped_meowuri_sources(self):
+        if not __debug__:
+            return
+
+        for key in self.meowuri_sources.keys():
+            for meowuri, klass in self.meowuri_sources[key].items():
+                self.log.debug('Mapped MeowURI "{!s}" to "{!s}" ({!s})'.format(
+                    meowuri, klass, key))
 
     def resolvable(self, meowuri):
         if not meowuri:
