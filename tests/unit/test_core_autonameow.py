@@ -81,9 +81,12 @@ class TestAutonameowOptionCombinations(TestCase):
         self.assertIsNotNone(self.amw)
 
     def _check_options(self, given, expect):
-        actual = self.amw.check_option_combinations(given)
-        for k, v in expect.items():
-            self.assertEqual(actual.get(k), v)
+        actual_options = self.amw.check_option_combinations(given)
+        for option, expected_value in expect.items():
+            actual_value = actual_options.get(option)
+            self.assertEqual(actual_value, expected_value,
+                             'Expected {} to be {} but got {}'.format(
+                                 option, expected_value, actual_value))
 
     def test_valid_user_interaction_combination(self):
         self._check_options(
