@@ -76,8 +76,7 @@ class MasterDataProvider(object):
         else:
             self.debug_stats[fileobject][meowuri]['queries'] += 1
 
-        if __debug__:
-            self._print_debug_stats()
+        self._print_debug_stats()
 
         _data = self._query_repository(fileobject, meowuri)
         if _data:
@@ -152,14 +151,23 @@ class MasterDataProvider(object):
                     )
 
     def _print_debug_stats(self):
-        log.debug('{!s} debug stats:'.format(self.__class__.__name__))
-        for _fileobject, _meowuris in sorted(self.debug_stats.items()):
+        if not __debug__:
+            return
+
+        stats_strings = list()
+        for _fileobject, _meowuris in self.debug_stats.items():
             for _meowuri, _counters in _meowuris.items():
                 _meowuri_stats = ['{}: {}'.format(stat, count)
                                   for stat, count in _counters.items()]
-                log.debug('[{:8.8}]->{!s:60.60} {!s}'.format(
-                    _fileobject.hash_partial, _meowuri,
-                    ' '.join(_meowuri_stats)))
+                stats_strings.append(
+                    '[{:8.8}]->{!s:60.60} {!s}'.format(_fileobject.hash_partial,
+                                                       _meowuri,
+                                                       ' '.join(_meowuri_stats))
+                )
+
+        log.debug('{!s} debug stats:'.format(self.__class__.__name__))
+        for stat_string in sorted(stats_strings):
+            log.debug(stat_string)
 
 
 _master_data_provider = None
