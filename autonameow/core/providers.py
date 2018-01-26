@@ -23,10 +23,7 @@ import logging
 
 from core import constants as C
 from core import types
-from core.model import (
-    genericfields,
-    MeowURI
-)
+from core.model import genericfields
 from util import sanity
 
 
@@ -180,7 +177,6 @@ class ProviderRegistry(object):
         # Sort for more consistent behaviour.
         for root in sorted(list(includes)):
             yield root
-
 
     def _providers_for_generic_meowuri(self, requested_meowuri, includes=None):
         # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
