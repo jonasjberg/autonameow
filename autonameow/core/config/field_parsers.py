@@ -172,6 +172,8 @@ class ConfigFieldParser(object):
             return False
         else:
             if isinstance(expression, list):
+                log.error('Unexpectedly got "multi-valued" expression; '
+                          '"{!s}"'.format(expression))
                 return False
             return evaluation_func(expression, data)
 
