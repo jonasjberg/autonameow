@@ -172,6 +172,8 @@ class ConfigFieldParser(object):
             return False
         else:
             if isinstance(expression, list):
+                log.error('Unexpectedly got "multi-valued" expression; '
+                          '"{!s}"'.format(expression))
                 return False
             return evaluation_func(expression, data)
 
@@ -372,7 +374,7 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        return lambda *_: True
+        return lambda *_: False
 
 
 # Used for validating name templates. Populated like so;
@@ -452,8 +454,17 @@ def suitable_field_parser_for(meowuri):
     log.debug('suitable_field_parser_for("{!s}")'.format(meowuri))
     sanity.check_isinstance_meowuri(meowuri)
 
-    return [p for p in FieldParserInstances
-            if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
+    candidates= [p for p in FieldParserInstances
+                 if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
+    if not candidates:
+        return None
+
+    # NOTE(jonas): Assume only one parser per "MeowURI" for now ..
+    assert len(candidates) == 1, (
+        'Unexpectedly got {} parsers for MeowURI '
+        '"{!s}"'.format(len(candidates), meowuri)
+    )
+    return candidates[0]
 
 
 # Instantiate rule parsers inheriting from the 'Parser' class.

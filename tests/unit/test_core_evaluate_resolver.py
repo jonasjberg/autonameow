@@ -26,6 +26,7 @@ import unit.constants as uuconst
 import unit.utils as uu
 from core.evaluate.resolver import (
     dedupe_list_of_datadicts,
+    FieldDataCandidate,
     TemplateFieldDataResolver
 )
 
@@ -158,3 +159,17 @@ class TestTemplateFieldDataResolverTypeAssertions(TestCase):
         invalid_meowuri = None
         with self.assertRaises(AssertionError):
             self.tfdr.add_known_source(mock_field, invalid_meowuri)
+
+
+class TestFieldDataCandidate(TestCase):
+    def test___repr__(self):
+        fdc = FieldDataCandidate(
+            string_value='foo',
+            source='klass',
+            probability=0.01,
+            meowuri='meowuri',
+            coercer='coercer',
+            generic_field='generic_field_klass'
+        )
+        actual = repr(fdc)
+        self.assertIn('foo', actual)

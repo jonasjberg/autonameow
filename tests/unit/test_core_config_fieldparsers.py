@@ -51,7 +51,7 @@ class TestFieldParserFunctions(TestCase):
     def test_get_instantiated_parsers_returns_class_objects(self):
         parsers = get_instantiated_field_parsers()
         for p in parsers:
-            self.assertTrue(hasattr(p, '__class__'))
+            self.assertTrue(uu.is_class_instance(p))
 
     def test_get_available_parsers(self):
         self.assertIsNotNone(available_field_parsers())
@@ -91,6 +91,9 @@ class TestFieldParser(TestCase):
 
     def test_str_returns_expected_expected_type(self):
         self.assertTrue(uu.is_internalstring(str(self.p)))
+
+    def test_allow_multivalued_expression_is_none_in_base_class(self):
+        self.assertIsNone(self.p.ALLOW_MULTIVALUED_EXPRESSION)
 
 
 class TestFieldParserSubclasses(TestCase):
@@ -132,6 +135,14 @@ class TestFieldParserSubclasses(TestCase):
             self.assertTrue(hasattr(p.get_evaluation_function(), '__call__'))
 
 
+class TestRegexFieldParser(TestCase):
+    def setUp(self):
+        self.p = RegexConfigFieldParser()
+
+    def test_allow_multivalued_expression(self):
+        self.assertTrue(self.p.ALLOW_MULTIVALUED_EXPRESSION)
+
+
 class TestRegexFieldParserValidation(TestCase):
     def setUp(self):
         self.maxDiff = None
@@ -143,12 +154,12 @@ class TestRegexFieldParserValidation(TestCase):
     def aT(self, test_input):
         self.assertTrue(self.p.validate(test_input))
 
-    def test_validation_function_expect_fail(self):
+    def test_expect_fail_for_single_invalid_expression(self):
         self.aF('[[[')
         self.aF('"  |[2')
         self.aF(None)
 
-        # Expect validation to fail if one expression is invalid.
+    def test_expect_fail_if_one_expression_in_list_is_invalid(self):
         self.aF(['[A-Za-z]+', '[[['])
         self.aF(['.*', '"  |[2'])
         self.aF(['4123', None])
@@ -156,18 +167,17 @@ class TestRegexFieldParserValidation(TestCase):
         self.aF(['.*', ''])
         self.aF(['4123', ''])
 
-    def test_validation_function_expect_pass(self):
-        # Single valid expression.
+    def test_expect_pass_for_single_valid_expression(self):
         self.aT('[A-Za-z]+')
         self.aT('.*')
         self.aT('4123')
 
-        # List of one valid expression.
+    def test_expect_pass_for_list_with_one_valid_expression(self):
         self.aT(['[A-Za-z]+'])
         self.aT(['.*'])
         self.aT(['4123'])
 
-        # List of two valid expressions.
+    def test_expect_pass_for_list_with_two_valid_expressions(self):
         self.aT(['[A-Za-z]+', '.*'])
         self.aT(['[A-Za-z]+', '.*'])
         self.aT(['4123', '1337'])
@@ -178,42 +188,56 @@ class TestRegexFieldParserEvaluation(TestCase):
         self.maxDiff = None
         self.p = RegexConfigFieldParser()
 
-    def aF(self, expression, data):
-        self.assertFalse(self.p.evaluate(expression, data))
-
     def aT(self, expression, data):
         self.assertTrue(self.p.evaluate(expression, data))
 
-    def test_expect_evaluates_true(self):
-        # One expression.
+    def aF(self, expression, data):
+        self.assertFalse(self.p.evaluate(expression, data))
+
+    def test_evaluates_true_for_single_expression(self):
         self.aT('[A-Za-z]+', 'foo')
         self.aT('.*', 'foo')
         self.aT('.*', '1337')
         self.aT('4123', '4123')
 
+    def test_evaluates_true_for_list_of_one_expression(self):
         self.aT(['[A-Za-z]+'], 'foo')
         self.aT(['.*'], 'foo')
         self.aT(['.*'], '1337')
         self.aT(['4123'], '4123')
 
-        # Two expressions.
+    def test_evaluates_true_for_list_of_two_expressions(self):
         self.aT(['[A-Za-z]+', '.*'], 'foo')
         self.aT(['[A-Za-z]+', '.*'], '1337')
         self.aT(['4123', '1337'], '4123')
         self.aT(['4123', '1337'], '1337')
 
-    def test_expect_evaluates_false(self):
-        # One expression.
+    def test_evaluates_false_for_single_expression(self):
         self.aF('[A-Za-z]+', '')
         self.aF('[A-Za-z]+', '1337')
         self.aF('.*', '')
         self.aF('4123', '1337')
         self.aF('4123', 'foo')
 
-        # Two expressions.
+    def test_evaluates_false_for_list_of_one_expression(self):
+        self.aF(['[A-Za-z]+'], '')
+        self.aF(['[A-Za-z]+'], '1337')
+        self.aF(['.*'], '')
+        self.aF(['4123'], '1337')
+        self.aF(['4123'], 'foo')
+
+    def test_evaluates_false_for_list_of_two_expressions(self):
         self.aF(['[A-Za-z]+', 'foo'], '')
         self.aF(['[A-Za-z]+', 'foo'], '1337')
         self.aF(['4123', '1337'], 'foo')
+
+
+class TestMimeTypeFieldParser(TestCase):
+    def setUp(self):
+        self.p = MimeTypeConfigFieldParser()
+
+    def test_allow_multivalued_expression(self):
+        self.assertTrue(self.p.ALLOW_MULTIVALUED_EXPRESSION)
 
 
 class TestMimeTypeFieldParserValidation(TestCase):
@@ -324,30 +348,40 @@ class TestMimeTypeFieldParserEvaluation(TestCase):
         self.maxDiff = None
         self.p = MimeTypeConfigFieldParser()
 
-    def aF(self, expression, data):
-        actual = self.p.evaluate(expression, data)
-        self.assertIsInstance(actual, bool)
-        self.assertFalse(actual)
-
     def aT(self, expression, data):
-        actual = self.p.evaluate(expression, data)
-        self.assertIsInstance(actual, bool)
-        self.assertTrue(actual)
+        self.assertTrue(self.p.evaluate(expression, data))
 
-    def test_expect_evaluates_true(self):
+    def aF(self, expression, data):
+        self.assertFalse(self.p.evaluate(expression, data))
+
+    def test_evaluates_true_for_single_expression(self):
         self.aT('image/jpeg', 'image/jpeg')
         self.aT('image/*', 'image/jpeg')
         self.aT('*/jpeg', 'image/jpeg')
+
+    def test_evaluates_true_for_list_of_one_expression(self):
+        self.aT(['image/jpeg'], 'image/jpeg')
+        self.aT(['image/*'], 'image/jpeg')
+        self.aT(['*/jpeg'], 'image/jpeg')
+
+    def test_evaluates_true_for_list_of_two_expressions(self):
         self.aT(['*/jpeg', 'application/pdf'], 'image/jpeg')
         self.aT(['image/*', 'application/pdf'], 'image/jpeg')
         self.aT(['image/*', 'application/pdf'], 'application/pdf')
         self.aT(['image/jpeg', 'application/pdf'], 'application/pdf')
         self.aT(['image/jpeg', '*/pdf'], 'application/pdf')
 
-    def test_expect_evaluates_false(self):
+    def test_evaluates_false_for_single_expression(self):
         self.aF('image/png', 'image/jpeg')
         self.aF('application/*', 'image/jpeg')
         self.aF('*/png', 'image/jpeg')
+
+    def test_evaluates_false_for_list_of_one_expressions(self):
+        self.aF(['image/png'], 'image/jpeg')
+        self.aF(['application/*'], 'image/jpeg')
+        self.aF(['*/png'], 'image/jpeg')
+
+    def test_evaluates_false_for_list_of_two_expressions(self):
         self.aF(['*/png', 'application/pdf'], 'image/jpeg')
         self.aF(['application/*', 'video/quicktime'], 'image/png')
         self.aF(['image/*', 'application/pdf'], 'text/p,ain')
@@ -356,7 +390,14 @@ class TestMimeTypeFieldParserEvaluation(TestCase):
 
 class TestDateTimeFieldParser(TestCase):
     def setUp(self):
-        self.maxDiff = None
+        self.p = DateTimeConfigFieldParser()
+
+    def test_allow_multivalued_expression(self):
+        self.assertTrue(self.p.ALLOW_MULTIVALUED_EXPRESSION)
+
+
+class TestDateTimeFieldParserValidation(TestCase):
+    def setUp(self):
         self.p = DateTimeConfigFieldParser()
 
     def test_validation_function_expect_fail(self):
@@ -378,9 +419,39 @@ class TestDateTimeFieldParser(TestCase):
         _aT('foo')
 
 
+class TestDateTimeFieldParserEvaluation(TestCase):
+    def setUp(self):
+        self.p = DateTimeConfigFieldParser()
+
+    def test_evaluates_true_for_single_expression(self):
+        self.skipTest('TODO: [TD0015] Handle expression in "condition_value"')
+
+    def test_evaluates_true_for_list_of_one_expression(self):
+        self.skipTest('TODO: [TD0015] Handle expression in "condition_value"')
+
+    def test_evaluates_true_for_list_of_two_expressions(self):
+        self.skipTest('TODO: [TD0015] Handle expression in "condition_value"')
+
+    def test_evaluates_false_for_single_expression(self):
+        self.skipTest('TODO: [TD0015] Handle expression in "condition_value"')
+
+    def test_evaluates_false_for_list_of_one_expressions(self):
+        self.skipTest('TODO: [TD0015] Handle expression in "condition_value"')
+
+    def test_evaluates_false_for_list_of_two_expressions(self):
+        self.skipTest('TODO: [TD0015] Handle expression in "condition_value"')
+
+
 class TestNameTemplateFieldParser(TestCase):
     def setUp(self):
-        self.maxDiff = None
+        self.p = NameTemplateConfigFieldParser()
+
+    def test_allow_multivalued_expression(self):
+        self.assertFalse(self.p.ALLOW_MULTIVALUED_EXPRESSION)
+
+
+class TestNameTemplateFieldParserValidation(TestCase):
+    def setUp(self):
         self.p = NameTemplateConfigFieldParser()
 
     def test_validation_function_expect_fail(self):
@@ -402,6 +473,17 @@ class TestNameTemplateFieldParser(TestCase):
         _aT('{datetime} {title} -- {tags}.{extension}')
 
 
+class TestNameTemplateFieldParserEvaluation(TestCase):
+    def setUp(self):
+        self.p = NameTemplateConfigFieldParser()
+
+    def test_evaluates_true_for_single_expression(self):
+        self.skipTest('TODO: [TD0015] Handle expression in "condition_value"')
+
+    def test_evaluates_false_for_single_expression(self):
+        self.skipTest('TODO: [TD0015] Handle expression in "condition_value"')
+
+
 class TestInstantiatedFieldParsers(TestCase):
     def test_field_parsers_in_not_none(self):
         self.assertIsNotNone(field_parsers.FieldParserInstances)
@@ -421,24 +503,21 @@ class TestSuitableFieldParserFor(TestCase):
     def __expect_parser_for(self, expected_parser, arg):
         _meowuri = MeowURI(arg)
         actual = suitable_field_parser_for(_meowuri)
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), expected_parser)
+        self.assertEqual(str(actual), expected_parser)
 
-    def test_returns_expected_type_list(self):
+    def test_returns_expected_type(self):
         _meowuri = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         actual = suitable_field_parser_for(_meowuri)
-        self.assertIsInstance(actual, list)
+        self.assertNotIsInstance(actual, list)
+        self.assertIsInstance(actual, field_parsers.ConfigFieldParser)
+        self.assertTrue(issubclass(actual.__class__,
+                                   field_parsers.ConfigFieldParser))
 
     def test_returns_expected_given_invalid_mime_type_field(self):
         actual = suitable_field_parser_for(
             MeowURI('generic.contents.miiime_type')
         )
-        self.assertEqual(len(actual), 0)
-
-        actual = suitable_field_parser_for(
-            MeowURI('generic.contents.miiime_type')
-        )
-        self.assertEqual(len(actual), 0)
+        self.assertIsNone(actual)
 
     def test_expect_datetime_field_parser(self):
         # TODO: [cleanup] Is this still relevant?

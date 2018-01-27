@@ -142,15 +142,9 @@ class RuleCondition(object):
         if self._parser:
             return self._parser
 
-        parsers = field_parsers.suitable_field_parser_for(meowuri)
-        if parsers:
-            # NOTE(jonas): Assume only one parser per "MeowURI" for now ..
-            assert len(parsers) == 1, (
-                'Unexpectedly got {} parsers for MeowURI '
-                '"{!s}"'.format(len(parsers), meowuri)
-            )
-
-            self._parser = parsers[0]
+        parser = field_parsers.suitable_field_parser_for(meowuri)
+        if parser:
+            self._parser = parser
 
         return self._parser
 
@@ -200,8 +194,7 @@ class RuleCondition(object):
         return '{!s}: {!s}'.format(self.meowuri, self.expression)
 
     def __repr__(self):
-        return 'RuleCondition("{}", "{}")'.format(self.meowuri,
-                                                  self.expression)
+        return 'RuleCondition({_meowuri}, {_expression})'.format(**self.__dict__)
 
 
 class Rule(object):

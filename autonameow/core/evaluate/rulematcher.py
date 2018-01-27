@@ -66,20 +66,20 @@ class RuleMatcher(object):
         def _data_request_callback(meowuri):
             return self.request_data(fileobject, meowuri)
 
-        log.debug('Examining {} rules ..'.format(len(all_rules)))
+        num_all_rules = len(all_rules)
+        log.debug('Examining {} rules ..'.format(num_all_rules))
         condition_evaluator = RuleConditionEvaluator(_data_request_callback)
-        for rule in all_rules:
+        for i, rule in enumerate(all_rules, start=1):
+            log.debug('Evaluating rule {}/{}: {!r}'.format(i, num_all_rules, rule))
             condition_evaluator.evaluate(rule)
 
         # Remove rules that require an exact match and contains a condition
         # that failed evaluation.
-        remaining_rules = []
-        for rule in all_rules:
-            if rule.exact_match:
-                if condition_evaluator.failed(rule):
-                    # List of failed conditions for this rule is not empty.
-                    continue
-            remaining_rules.append(rule)
+        remaining_rules = [
+            rule for rule in all_rules
+            if not rule.exact_match
+            or rule.exact_match and not condition_evaluator.failed(rule)
+        ]
 
         num_rules_remain = len(remaining_rules)
         if num_rules_remain == 0:
