@@ -458,7 +458,7 @@ class TestRuleConditionMethods(TestCase):
         self.a = RuleCondition(_meowuri, 'application/pdf')
 
     def test_rule___repr__(self):
-        expected = 'RuleCondition("{}", "application/pdf")'.format(
+        expected = 'RuleCondition({}, application/pdf)'.format(
             uuconst.MEOWURI_FS_XPLAT_MIMETYPE
         )
         self.assertEqual(repr(self.a), expected)
@@ -469,7 +469,7 @@ class TestRuleConditionMethods(TestCase):
         for raw_condition in uu.get_dummy_raw_conditions():
             for meowuri, expression in raw_condition.items():
                 expected_reprs.append(
-                    'RuleCondition("{}", "{}")'.format(meowuri, expression)
+                    'RuleCondition({}, {})'.format(meowuri, expression)
                 )
 
         for condition, expect in zip(uu.get_dummy_rulecondition_instances(),

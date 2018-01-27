@@ -200,8 +200,7 @@ class RuleCondition(object):
         return '{!s}: {!s}'.format(self.meowuri, self.expression)
 
     def __repr__(self):
-        return 'RuleCondition("{}", "{}")'.format(self.meowuri,
-                                                  self.expression)
+        return 'RuleCondition({_meowuri}, {_expression})'.format(**self.__dict__)
 
 
 class Rule(object):
