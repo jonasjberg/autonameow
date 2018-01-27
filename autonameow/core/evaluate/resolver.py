@@ -58,11 +58,8 @@ class FieldDataCandidate(object):
         self.generic_field = generic_field
 
     def __repr__(self):
-        return ('<{!s}(string_value={!s}, source={!s}, probability={!s}, '
-                'meowuri={!s}, coercer={!s}, generic_field={!s})>'.format(
-                    self.__class__.__name__, self.value, self.source,
-                    self.probability, self.meowuri, self.coercer,
-                    self.generic_field))
+        a = ', '.join('{}={}'.format(k, v) for k, v in self.__dict__.items())
+        return '<FieldDataCandidate({})>'.format(a)
 
 
 class TemplateFieldDataResolver(object):
