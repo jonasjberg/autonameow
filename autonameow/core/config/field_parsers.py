@@ -374,7 +374,7 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        return lambda *_: True
+        return lambda *_: False
 
 
 # Used for validating name templates. Populated like so;
