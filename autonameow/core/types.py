@@ -854,6 +854,28 @@ class MultipleTypes(object):
 
         return out
 
+    def format(self, value):
+        """
+        Do not call directly! Use the 'listof()' function like this:
+
+            formatted_list = types.listof(types.AW_STRING).format(raw_list)
+        """
+        if value is None:
+            return [self.coercer.null()]
+
+        if not isinstance(value, list):
+            value = [value]
+
+        out = []
+        for v in value:
+            _formatted = self.coercer.format(v)
+            if _formatted is None:
+                continue
+
+            out.append(_formatted)
+
+        return out
+
 
 def listof(coercer):
     return MultipleTypes(coercer)

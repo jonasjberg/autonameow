@@ -1982,6 +1982,53 @@ class TestListofStrings(TestCase):
         self.assertEqual(expect, actual)
 
 
+class TestListofStringsFormat(TestCase):
+    def test_format_coercible_data(self):
+        def _assert_formats(test_data, expected):
+            actual = types.listof(types.AW_STRING).format(test_data)
+            self.assertEqual(expected, actual)
+
+        _assert_formats([''], [''])
+        _assert_formats([' '], [' '])
+        _assert_formats([b''], [''])
+        _assert_formats([b' '], [' '])
+        _assert_formats([-1], ['-1'])
+        _assert_formats([0], ['0'])
+        _assert_formats([1], ['1'])
+        _assert_formats([-1.5], ['-1.5'])
+        _assert_formats([-1.0], ['-1.0'])
+        _assert_formats([1.0], ['1.0'])
+        _assert_formats([1.5], ['1.5'])
+        _assert_formats(['-1'], ['-1'])
+        _assert_formats(['-1.0'], ['-1.0'])
+        _assert_formats(['0'], ['0'])
+        _assert_formats(['1'], ['1'])
+        _assert_formats(['foo'], ['foo'])
+        _assert_formats([None], [''])
+        _assert_formats([False], ['False'])
+        _assert_formats([True], ['True'])
+
+        _assert_formats('', [''])
+        _assert_formats(' ', [' '])
+        _assert_formats(b'', [''])
+        _assert_formats(b' ', [' '])
+        _assert_formats(-1, ['-1'])
+        _assert_formats(0, ['0'])
+        _assert_formats(1, ['1'])
+        _assert_formats(-1.5, ['-1.5'])
+        _assert_formats(-1.0, ['-1.0'])
+        _assert_formats(1.0, ['1.0'])
+        _assert_formats(1.5, ['1.5'])
+        _assert_formats('-1', ['-1'])
+        _assert_formats('-1.0', ['-1.0'])
+        _assert_formats('0', ['0'])
+        _assert_formats('1', ['1'])
+        _assert_formats('foo', ['foo'])
+        _assert_formats(None, [''])
+        _assert_formats(False, ['False'])
+        _assert_formats(True, ['True'])
+
+
 class TestListofIntegers(TestCase):
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
