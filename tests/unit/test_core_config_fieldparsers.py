@@ -51,7 +51,7 @@ class TestFieldParserFunctions(TestCase):
     def test_get_instantiated_parsers_returns_class_objects(self):
         parsers = get_instantiated_field_parsers()
         for p in parsers:
-            self.assertTrue(hasattr(p, '__class__'))
+            self.assertTrue(uu.is_class_instance(p))
 
     def test_get_available_parsers(self):
         self.assertIsNotNone(available_field_parsers())
