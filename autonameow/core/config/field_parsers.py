@@ -454,8 +454,17 @@ def suitable_field_parser_for(meowuri):
     log.debug('suitable_field_parser_for("{!s}")'.format(meowuri))
     sanity.check_isinstance_meowuri(meowuri)
 
-    return [p for p in FieldParserInstances
-            if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
+    candidates= [p for p in FieldParserInstances
+                 if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
+    if not candidates:
+        return None
+
+    # NOTE(jonas): Assume only one parser per "MeowURI" for now ..
+    assert len(candidates) == 1, (
+        'Unexpectedly got {} parsers for MeowURI '
+        '"{!s}"'.format(len(candidates), meowuri)
+    )
+    return candidates[0]
 
 
 # Instantiate rule parsers inheriting from the 'Parser' class.

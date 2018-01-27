@@ -421,24 +421,21 @@ class TestSuitableFieldParserFor(TestCase):
     def __expect_parser_for(self, expected_parser, arg):
         _meowuri = MeowURI(arg)
         actual = suitable_field_parser_for(_meowuri)
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), expected_parser)
+        self.assertEqual(str(actual), expected_parser)
 
-    def test_returns_expected_type_list(self):
+    def test_returns_expected_type(self):
         _meowuri = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         actual = suitable_field_parser_for(_meowuri)
-        self.assertIsInstance(actual, list)
+        self.assertNotIsInstance(actual, list)
+        self.assertIsInstance(actual, field_parsers.ConfigFieldParser)
+        self.assertTrue(issubclass(actual.__class__,
+                                   field_parsers.ConfigFieldParser))
 
     def test_returns_expected_given_invalid_mime_type_field(self):
         actual = suitable_field_parser_for(
             MeowURI('generic.contents.miiime_type')
         )
-        self.assertEqual(len(actual), 0)
-
-        actual = suitable_field_parser_for(
-            MeowURI('generic.contents.miiime_type')
-        )
-        self.assertEqual(len(actual), 0)
+        self.assertIsNone(actual)
 
     def test_expect_datetime_field_parser(self):
         # TODO: [cleanup] Is this still relevant?
