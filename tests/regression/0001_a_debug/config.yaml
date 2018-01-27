@@ -1,0 +1,19 @@
+COMPATIBILITY:
+    autonameow_version: v0.5.3
+DATETIME_FORMAT:
+    date: '%Y-%m-%d'
+    datetime: '%Y-%m-%dT%H%M%S'
+    time: '%H-%M-%S'
+RULES:
+    test_files Gmail print-to-pdf:
+        CONDITIONS:
+            extractor.filesystem.xplat.basename.extension: pdf
+            extractor.filesystem.xplat.basename.full: gmail.pdf
+            extractor.filesystem.xplat.contents.mime_type: application/pdf
+        DATA_SOURCES:
+            datetime: extractor.metadata.exiftool.PDF:CreateDate
+            extension: extractor.filesystem.xplat.basename.extension
+            title: extractor.filesystem.xplat.basename.prefix
+        NAME_TEMPLATE: '{datetime} {title}.{extension}'
+        exact_match: true
+        ranking_bias: null
