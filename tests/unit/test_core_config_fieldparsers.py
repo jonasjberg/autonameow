@@ -92,6 +92,9 @@ class TestFieldParser(TestCase):
     def test_str_returns_expected_expected_type(self):
         self.assertTrue(uu.is_internalstring(str(self.p)))
 
+    def test_allow_multivalued_expression_is_none_in_base_class(self):
+        self.assertIsNone(self.p.ALLOW_MULTIVALUED_EXPRESSION)
+
 
 class TestFieldParserSubclasses(TestCase):
     def setUp(self):
@@ -130,6 +133,14 @@ class TestFieldParserSubclasses(TestCase):
     def test_get_evaluation_function_should_return_function(self):
         for p in self.parsers:
             self.assertTrue(hasattr(p.get_evaluation_function(), '__call__'))
+
+
+class TestRegexFieldParser(TestCase):
+    def setUp(self):
+        self.p = RegexConfigFieldParser()
+
+    def test_allow_multivalued_expression(self):
+        self.assertTrue(self.p.ALLOW_MULTIVALUED_EXPRESSION)
 
 
 class TestRegexFieldParserValidation(TestCase):
@@ -214,6 +225,14 @@ class TestRegexFieldParserEvaluation(TestCase):
         self.aF(['[A-Za-z]+', 'foo'], '')
         self.aF(['[A-Za-z]+', 'foo'], '1337')
         self.aF(['4123', '1337'], 'foo')
+
+
+class TestMimeTypeFieldParser(TestCase):
+    def setUp(self):
+        self.p = MimeTypeConfigFieldParser()
+
+    def test_allow_multivalued_expression(self):
+        self.assertTrue(self.p.ALLOW_MULTIVALUED_EXPRESSION)
 
 
 class TestMimeTypeFieldParserValidation(TestCase):
@@ -359,6 +378,9 @@ class TestDateTimeFieldParser(TestCase):
         self.maxDiff = None
         self.p = DateTimeConfigFieldParser()
 
+    def test_allow_multivalued_expression(self):
+        self.assertTrue(self.p.ALLOW_MULTIVALUED_EXPRESSION)
+
     def test_validation_function_expect_fail(self):
         def _aF(test_input):
             self.assertFalse(self.p.validate(test_input))
@@ -382,6 +404,9 @@ class TestNameTemplateFieldParser(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = NameTemplateConfigFieldParser()
+
+    def test_allow_multivalued_expression(self):
+        self.assertFalse(self.p.ALLOW_MULTIVALUED_EXPRESSION)
 
     def test_validation_function_expect_fail(self):
         def _aF(test_input):
