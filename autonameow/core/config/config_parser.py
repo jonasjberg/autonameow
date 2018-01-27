@@ -175,34 +175,40 @@ class ConfigurationParser(object):
 
     def _load_options(self, config_dict):
         def _try_load_postprocessing_replacements():
+            log.debug('Trying to load post-processing replacements')
+
             # TODO: [TD0141] Coerce raw values to a known type.
-            if 'POST_PROCESSING' in config_dict:
-                _reps = config_dict['POST_PROCESSING'].get('replacements')
-                if not _reps or not isinstance(_reps, dict):
-                    return
+            if not 'POST_PROCESSING' in config_dict:
+                log.debug('Did not find any post-processing options ..')
+                return
 
-                match_replace_pairs = []
-                for regex, replacement in _reps.items():
-                    _match = types.force_string(regex)
-                    _replace = types.force_string(replacement)
-                    if None in (_match, _replace):
-                        log.warning('Skipped bad replacement: "{!s}": '
-                                    '"{!s}"'.format(regex, replacement))
-                        continue
+            _reps = config_dict['POST_PROCESSING'].get('replacements')
+            if not _reps or not isinstance(_reps, dict):
+                log.warning('Unable to load post-processing replacements')
+                return
 
-                    try:
-                        compiled_pat = re.compile(_match)
-                    except re.error:
-                        log.warning('Malformed regular expression: '
-                                    '"{!s}"'.format(_match))
-                    else:
-                        log.debug(
-                            'Added post-processing replacement :: Match: "{!s}"'
-                            ' Replace: "{!s}"'.format(regex, replacement)
-                        )
-                        match_replace_pairs.append((compiled_pat, _replace))
+            match_replace_pairs = []
+            for regex, replacement in _reps.items():
+                _match = types.force_string(regex)
+                _replace = types.force_string(replacement)
+                if None in (_match, _replace):
+                    log.warning('Skipped bad replacement: "{!s}": '
+                                '"{!s}"'.format(regex, replacement))
+                    continue
 
-                self._options['POST_PROCESSING']['replacements'] = match_replace_pairs
+                try:
+                    compiled_pat = re.compile(_match)
+                except re.error:
+                    log.warning('Malformed regular expression: '
+                                '"{!s}"'.format(_match))
+                else:
+                    log.debug(
+                        'Added post-processing replacement :: Match: "{!s}"'
+                        ' Replace: "{!s}"'.format(regex, replacement)
+                    )
+                    match_replace_pairs.append((compiled_pat, _replace))
+
+            self._options['POST_PROCESSING']['replacements'] = match_replace_pairs
 
         options_parser = ConfigurationOptionsParser(raw_options=config_dict,
                                                     initial_options=self._options)
