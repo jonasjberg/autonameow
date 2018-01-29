@@ -51,7 +51,12 @@ def select_field(fileobject, templatefield, candidates):
         _candidate_number = str(n)
         numbered_candidates[_candidate_number] = c
 
-        _candidate_value = '"{!s}"'.format(c.value)
+        if isinstance(c.value, list):
+            c_value = ', '.join(c.value)
+        else:
+            c_value = c.value
+
+        _candidate_value = '"{!s}"'.format(c_value)
         _candidate_source = str(c.source)
         _candidate_probability = str(c.probability)
         _candidate_meowuri = str(c.meowuri)
