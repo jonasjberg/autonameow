@@ -49,8 +49,8 @@ PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 
 
 log = logging.getLogger('regression_runner')
-msg_label_pass = ui.colorize('P', fore='GREEN')
-msg_label_fail = ui.colorize('F', fore='RED')
+msg_label_pass = ui.colorize('PASS', fore='GREEN')
+msg_label_fail = ui.colorize('FAIL', fore='RED')
 
 
 class TestResults(object):
