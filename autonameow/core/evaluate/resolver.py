@@ -206,12 +206,9 @@ class TemplateFieldDataResolver(object):
                                   'entries'.format(len(_data)))
                         _data = _data[0]
                     else:
-                        log.warning('Not sure what data to use for field '
-                                    '{{{}}}..'.format(_str_field))
+                        log.warning('[TD0112] Not sure what data to use for field {{{}}}..'.format(_str_field))
                         for i, d in enumerate(_data):
-                            log.warning('Field {{{}}} candidate {:03d} :: '
-                                        '"{!s}"'.format(_str_field, i,
-                                                        d.get('value')))
+                            log.debug('[TD0112] Field {{{}}} candidate {:03d} :: "{!s}"'.format(_str_field, i, d.get('value')))
                         continue
 
                 # # TODO: [TD0112] Clean up merging data.
