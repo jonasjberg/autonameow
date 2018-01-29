@@ -850,7 +850,7 @@ class MultipleTypes(object):
         sanity.check_isinstance(coercer, BaseType)
         self.coercer = coercer
 
-    def __call__(self, value=None):
+    def __call__(self, value):
         if value is None:
             return [self.coercer.null()]
 

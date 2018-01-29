@@ -1951,24 +1951,6 @@ class TestMultipleTypes(TestCase):
             self.assertIsNotNone(mt)
             self.assertTrue(uu.is_class_instance(mt))
 
-    def test_call_without_args(self):
-        for coercer in self.coercer_singletons:
-            mt = types.MultipleTypes(coercer)
-
-            if isinstance(coercer, (types.Date, types.TimeDate)):
-                # Skip coercers that do not allow failures and raises
-                # AWTypeError instead of returning the type-specific "null".
-                # TODO: Using coercers "correctly" is becoming too difficult!
-                with self.assertRaises(types.AWTypeError):
-                    _ = mt()
-            else:
-                actual = mt()
-                expect = [coercer.null()]
-                self.assertEqual(
-                    expect, actual,
-                    'Expect call without arg to return the "type-specific null"'
-                )
-
     def test_call_with_none(self):
         for coercer in self.coercer_singletons:
             mt = types.MultipleTypes(coercer)
