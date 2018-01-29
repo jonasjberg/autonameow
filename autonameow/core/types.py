@@ -834,7 +834,20 @@ def force_stringlist(raw_values):
 
 
 class MultipleTypes(object):
+    """
+    For defining coercion of lists of a specific type.
+
+    Do not call directly! Use the 'listof()' function.
+    Coercing a list of values:
+
+        coerced_list = types.listof(types.AW_STRING)(raw_list)
+
+    Formatting a list of values:
+
+        formatted_list = types.listof(types.AW_STRING).format(raw_list)
+    """
     def __init__(self, coercer):
+        sanity.check_isinstance(coercer, BaseType)
         self.coercer = coercer
 
     def __call__(self, value=None):
@@ -855,11 +868,6 @@ class MultipleTypes(object):
         return out
 
     def format(self, value):
-        """
-        Do not call directly! Use the 'listof()' function like this:
-
-            formatted_list = types.listof(types.AW_STRING).format(raw_list)
-        """
         if value is None:
             return [self.coercer.null()]
 

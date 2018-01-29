@@ -1922,6 +1922,88 @@ class TestNormalizeDatetimeWithMicroseconds(TestCase):
         # _assert_match('12_7_2017_20_50_15_641659')
 
 
+class TestMultipleTypes(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.coercer_klasses = types.BaseType.__subclasses__()
+
+        # Instantiate to simulate passing the "AW_*" singletons.
+        cls.coercer_singletons = [k() for k in cls.coercer_klasses]
+
+    def test_setup(self):
+        # Sanity checking ..
+        self.assertTrue(all(issubclass(k, types.BaseType)
+                        for k in self.coercer_klasses))
+        self.assertTrue(all(uu.is_class_instance(k)
+                            for k in self.coercer_singletons))
+
+    def test_raises_exception_if_not_instantiated_with_basetype_subclass(self):
+        with self.assertRaises(AssertionError):
+            _ = types.MultipleTypes(object())
+
+    def test_raises_exception_if_instantiated_with_none(self):
+        with self.assertRaises(AssertionError):
+            _ = types.MultipleTypes(None)
+
+    def test_instantiate_with_basetype_subclasses(self):
+        for coercer in self.coercer_singletons:
+            mt = types.MultipleTypes(coercer)
+            self.assertIsNotNone(mt)
+            self.assertTrue(uu.is_class_instance(mt))
+
+    def test_call_without_args(self):
+        for coercer in self.coercer_singletons:
+            mt = types.MultipleTypes(coercer)
+
+            if isinstance(coercer, (types.Date, types.TimeDate)):
+                # Skip coercers that do not allow failures and raises
+                # AWTypeError instead of returning the type-specific "null".
+                # TODO: Using coercers "correctly" is becoming too difficult!
+                with self.assertRaises(types.AWTypeError):
+                    _ = mt()
+            else:
+                actual = mt()
+                expect = [coercer.null()]
+                self.assertEqual(
+                    expect, actual,
+                    'Expect call without arg to return the "type-specific null"'
+                )
+
+    def test_call_with_none(self):
+        for coercer in self.coercer_singletons:
+            mt = types.MultipleTypes(coercer)
+
+            if isinstance(coercer, (types.Date, types.TimeDate)):
+                # Skip coercers that do not allow failures and raises
+                # AWTypeError instead of returning the type-specific "null".
+                # TODO: Using coercers "correctly" is becoming too difficult!
+                with self.assertRaises(types.AWTypeError):
+                    _ = mt(None)
+            else:
+                actual = mt(None)
+                expect = [coercer.null()]
+                self.assertEqual(
+                    expect, actual,
+                    'Expect coercion of None to return the "type-specific null"'
+                )
+
+    def test_call_with_string_value_coercable_by_all_but_timedate(self):
+        for coercer in self.coercer_singletons:
+            mt = types.MultipleTypes(coercer)
+
+            if isinstance(coercer, types.TimeDate):
+                # Skip coercers that do not allow failures.
+                # TODO: Using coercers "correctly" is becoming too difficult!
+                with self.assertRaises(types.AWTypeError):
+                    _ = mt('2018')
+            else:
+                actual = mt('2018')
+                self.assertIsNotNone(actual)
+                self.assertIsInstance(actual, list)
+                self.assertIsNotNone(actual[0])
+                self.assertEqual(1, len(actual))
+
+
 class TestListofStrings(TestCase):
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
