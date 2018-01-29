@@ -182,12 +182,9 @@ class TemplateFieldDataResolver(object):
                           '{{{}}}"'.format(_str_field))
                 continue
 
-            if not _meowuris:
-                log.debug(
-                    'Resolver attempted to gather data with empty MeowURI!'
-                )
-                continue
-
+            assert _meowuris, (
+                'Resolver attempted to gather data with empty MeowURI!'
+            )
             for _meowuri in _meowuris:
                 log.debug(
                     'Gathering data for template field {{{}}} from [{:8.8}]->'
