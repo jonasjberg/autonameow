@@ -17,6 +17,7 @@ Various ideas on possible upcoming features and changes to `autonameow`.
 * 2017-10-14 --- `jonasjberg` Add thoughts on a reasoning/probability system.
 * 2017-10-28 --- `jonasjberg` Using a proper Metadata Repository.
 * 2018-01-18 --- `jonasjberg` Move section to other file.
+* 2018-01-30 --- `jonasjberg` Add "Decision Rules for Attribute-Based Choices".
 
 
 Field Candidates
@@ -682,6 +683,46 @@ related to file extension, would probably be weighted a bit lower.
 
 Everything would be combined and returned as an answer to the question
 originally posed by the `FilenameTokenizer` component.
+
+
+--------------------------------------------------------------------------------
+
+
+Decision Rules for Attribute-Based Choices
+------------------------------------------
+Possible methods of weighting when prioritizing candidate data.
+
+
+* __Conjunctive Rule__  
+    Establishes minimum required performance for each evaluative criterion.
+
+    Selects the first (or all) item(s) that meet or exceed these minimum
+    standards.
+
+* __Disjunctive Rule__  
+    Establishes a minimum required performance for each important attribute.
+    All items that meet or exceed the performance level for __any__ key
+    attribute are acceptable.
+
+* __Elimination-by-Aspects Rule__  
+    First, evaluative criteria ranked in terms of importance.
+    Second, cutoff point for each criterion is established.
+    Finally (in order of attribute importance) brands are eliminated if they
+    fail to meet or exceed the cutoff.
+
+* __Lexicographic Decision Rule__  
+    User ranks the criteria in order of importance.
+    Then selects item that best on the most important attribute.
+
+    If two or more items tie, they are evaluated on the second most important
+    attribute. This continues through the attributes until on brand outperforms
+    the others.
+
+* __Compensatory Decision Rule__  
+    States that the brand that rates highest on the sum of the users judgements
+    of the relevant evaluative criteria will be chosen.
+
+*Very much inspired by `Marketing 334 Consumer Behavior Chap016TR.ppt`*
 
 
 --------------------------------------------------------------------------------
