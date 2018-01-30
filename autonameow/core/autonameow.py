@@ -110,8 +110,19 @@ class Autonameow(object):
                             'Disabling "timid"..')
                 opts['mode_timid'] = False
 
-        if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
-            log.info('No operating-mode selected!')
+        if opts.get('mode_postprocess_only'):
+            # Do not figure out a new name; do "post-processing" on existing.
+            if opts.get('mode_automagic'):
+                log.warning('Operating mode "automagic" can not be used with '
+                            '"post-process only". Disabling "automagic".')
+                opts['mode_automagic'] = False
+            if opts.get('mode_interactive'):
+                log.warning('Operating mode "interactive" can not be used with '
+                            '"post-process only". Disabling "interactive".')
+                opts['mode_interactive'] = False
+        else:
+            if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
+                log.info('No operating-mode selected!')
 
         return opts
 

@@ -183,6 +183,74 @@ class TestAutonameowOptionCombinations(TestCase):
                     'mode_batch': True}
         )
 
+    def test_postprocess_only(self):
+        self._check_options(
+            given={
+                'mode_automagic': False,
+                'mode_rulematch': False,
+                'mode_batch': False,
+                'mode_postprocess_only': True
+            },
+            expect={
+                'mode_automagic': False,
+                # Always enable rule-matching for now.
+                'mode_rulematch': True,
+                'mode_batch': False,
+                'mode_postprocess_only': True
+            }
+        )
+
+    def test_postprocess_only_combined_with_batch_is_valid(self):
+        self._check_options(
+            given={
+                'mode_automagic': False,
+                'mode_rulematch': False,
+                'mode_batch': True,
+                'mode_postprocess_only': True
+            },
+            expect={
+                'mode_automagic': False,
+                # Always enable rule-matching for now.
+                'mode_rulematch': True,
+                'mode_batch': True,
+                'mode_postprocess_only': True
+            }
+        )
+
+    def test_illegal_postprocess_only_and_automagic_combination(self):
+        self._check_options(
+            given={
+                'mode_automagic': True,
+                'mode_rulematch': False,
+                'mode_batch': False,
+                'mode_postprocess_only': True
+            },
+            expect={
+                'mode_automagic': False,
+                # Always enable rule-matching for now.
+                'mode_rulematch': True,
+                'mode_batch': False,
+                'mode_postprocess_only': True
+            }
+        )
+
+    def test_illegal_batch_postprocess_only_and_automagic_combination(self):
+        self._check_options(
+            given={
+                'mode_automagic': True,
+                'mode_rulematch': False,
+                'mode_batch': True,
+                'mode_postprocess_only': True
+            },
+            expect={
+                'mode_automagic': False,
+                # Always enable rule-matching for now.
+                'mode_rulematch': True,
+                'mode_batch': True,
+                'mode_postprocess_only': True
+            }
+        )
+
 
 class TestAutonameowContextManagementProtocol(TestCase):
     def test_with_statement(self):

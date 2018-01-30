@@ -583,6 +583,7 @@ def _commandline_args_for_testcase(loaded_test):
         'mode_batch': '--batch',
         'mode_interactive': '--interactive',
         'mode_timid': '--timid',
+        'mode_postprocess_only': '--postprocess-only',
         'quiet': '--quiet',
         'recurse_paths': '--recurse',
         'show_version': '--version',

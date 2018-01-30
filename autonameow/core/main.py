@@ -50,6 +50,7 @@ DEFAULT_OPTIONS = {
     'mode_interactive': True,
     'mode_rulematch': True,
     'mode_timid': False,
+    'mode_postprocess_only': False,
 
     'config_path': None,
 
@@ -165,6 +166,7 @@ def cli_main(argv=None):
         'mode_interactive': opts.mode_interactive,
         'mode_rulematch': opts.mode_rulematch,
         'mode_timid': opts.mode_timid,
+        'mode_postprocess_only': opts.mode_postprocess_only,
 
         'config_path': opts.config_path,
 
