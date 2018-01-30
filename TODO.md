@@ -223,6 +223,9 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0162]` __Split up `autonameow.yaml` into separate files.__  
+    Use separate configuration files for options, rules, etc.
+
 * `[TD0160]` Consolidate setting up working directories that might not exist.
 
 * `[TD0159]` Fix stand-alone extractor not respecting the `--quiet` option.
