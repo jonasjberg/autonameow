@@ -108,10 +108,12 @@ class TestGetProvidersForMeowURIs(TestCase):
         self._assert_maps(actual, ['ExiftoolMetadataExtractor'])
 
     def test_returns_expected_source_guessit(self):
+        # TODO: This should not depend on actually having the (OPTIONAL) 'guessit' dependency installed!
         actual = get_providers_for_meowuris(self._meowuris_guessit)
         self._assert_maps(actual, ['GuessitPlugin'])
 
     def test_returns_expected_sources(self):
+        # TODO: This should not depend on actually having the (OPTIONAL) 'guessit' dependency installed!
         actual = get_providers_for_meowuris(self._all_meowuris)
         self.assertEqual(4, len(actual))
         self._assert_maps(actual, ['CrossPlatformFileSystemExtractor',
@@ -133,6 +135,7 @@ class TestGetProvidersForMeowURIs(TestCase):
                                    'ExiftoolMetadataExtractor'])
 
     def test_returns_included_sources_plugins(self):
+        # TODO: This should not depend on actually having the (OPTIONAL) 'guessit' dependency installed!
         actual = get_providers_for_meowuris(
             self._all_meowuris, include_roots=['plugin']
         )
