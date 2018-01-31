@@ -59,8 +59,9 @@ then
 fi
 export AUTONAMEOW_TESTFILES_DIR
 
-# Absolute path to the test results directory and make sure it is valid.
-AUTONAMEOW_TESTRESULTS_DIR="$( ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e -- "./docs/test_results/" ) )"
+# Create the test results directory if missing and export the absolute path.
+AUTONAMEOW_TESTRESULTS_DIR="${AUTONAMEOW_ROOT_DIR}/docs/test_results/"
+[ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ] && mkdir -p "$AUTONAMEOW_TESTRESULTS_DIR"
 if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ]
 then
     error_msg_exit 'Not a directory' "$AUTONAMEOW_TESTRESULTS_DIR"
