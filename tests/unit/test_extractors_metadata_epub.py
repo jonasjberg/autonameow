@@ -57,7 +57,6 @@ class TestEpubMetadataExtractorOutputTestFileA(CaseExtractorOutput):
     __test__ = True
     EXTRACTOR_CLASS = EpubMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
-    _dt = uu.str_to_datetime
     EXPECTED_FIELD_TYPE_VALUE = [
         ('title', str, 'Human, All Too Human: A Book for Free Spirits'),
     ]

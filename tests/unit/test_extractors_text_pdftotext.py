@@ -217,7 +217,6 @@ class TestPdftotextTextExtractorOutputTestFileA(CaseExtractorOutput):
     __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
-    _dt = uu.str_to_datetime
     EXPECTED_FIELD_TYPE_VALUE = [
         ('full', str, TESTFILE_A_EXPECTED),
     ]
@@ -228,7 +227,6 @@ class TestPdftotextTextExtractorOutputTestFileB(CaseExtractorOutput):
     __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_B)
-    _dt = uu.str_to_datetime
     EXPECTED_FIELD_TYPE_VALUE = [
         ('full', str, TESTFILE_B_EXPECTED),
     ]
