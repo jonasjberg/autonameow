@@ -138,8 +138,7 @@ class GuessitPlugin(BasePlugin):
 
 
 def run_guessit(input_data, options=None):
-    if not guessit:
-        return
+    assert guessit, 'Missing required module "guessit"'
 
     if options:
         guessit_options = options
