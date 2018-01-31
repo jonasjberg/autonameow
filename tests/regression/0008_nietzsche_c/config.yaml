@@ -2,8 +2,6 @@ POST_PROCESSING:
     replacements:
         ',': ''
         ' - ': ' '
-COMPATIBILITY:
-    autonameow_version: v0.5.3
 DATETIME_FORMAT:
     date: '%Y-%m-%d'
     datetime: '%Y-%m-%dT%H%M%S'
