@@ -93,6 +93,7 @@ def _read_entire_text_file_autodetect_encoding(file_path):
 
 
 def autodetect_encoding(file_path):
+    assert chardet, 'Missing required module "chardet"'
     try:
         with open(file_path, 'rb') as fh:
             detected_encoding = chardet.detect(fh.read())
