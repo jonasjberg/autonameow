@@ -21,7 +21,16 @@
 
 import re
 import unittest
-from unittest import TestCase
+from unittest import TestCase, skipIf
+
+# TODO: Test behaviour when colorama is missing!
+#       (program still runs but output is not colored)
+try:
+    import colorama
+except ImportError:
+    COLORAMA_IS_NOT_AVAILABLE = True, 'Missing required module "colorama"'
+else:
+    COLORAMA_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
 from core.types import BUILTIN_REGEX_TYPE
@@ -39,6 +48,7 @@ ANSI_RESET_FG = '\x1b[39m'
 ANSI_RESET_BG = '\x1b[49m'
 
 
+@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestMsg(TestCase):
     def setUp(self):
         self.maxDiff = None
@@ -133,6 +143,7 @@ class TestMsg(TestCase):
 
 
 # NOTE(jonas): This will likely fail on some platforms!
+@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestColorize(TestCase):
 
     COLORIZE_FOREGROUND_ANSI_LOOKUP = {
@@ -252,6 +263,7 @@ class TestColorize(TestCase):
 
 
 # NOTE(jonas): This will likely fail on some platforms!
+@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestMsgRename(TestCase):
     ANSI_COL_FROM = '\x1b[37m'
     ANSI_COL_DEST = '\x1b[92m'
@@ -539,6 +551,7 @@ OOOOOOOOOOAAAAJM{p}B
 
 
 # NOTE(jonas): This will likely fail on some platforms!
+@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestColorizeQuoted(TestCase):
     def test_colorize_quoted(self):
         # ANSI_COLOR must match actual color. Currently 'LIGHTGREEN_EX'
@@ -595,6 +608,7 @@ class TestColorizeQuoted(TestCase):
         __check(' "a"" ""b"', ' "{COL}a{RES}""{COL} {RES}""{COL}b{RES}"')
 
 
+@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestDisplayableReplacement(TestCase):
     def __check_replacement(self, original, regex, replacement,
                             expect_old, expect_new):
