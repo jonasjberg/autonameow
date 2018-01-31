@@ -262,6 +262,7 @@ def _strip_accents_homerolled(string):
 
 
 def _strip_accents_unidecode(string):
+    assert unidecode, 'Missing required module "unidecode"'
     return unidecode(string)
 
 
