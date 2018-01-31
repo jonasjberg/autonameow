@@ -223,6 +223,13 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0163]` __Fix premature importing of providers.__  
+    Running `autonameow --help` if some provider dependency is missing should
+    not print `Excluding analyzer "<class 'analyze_ebook.EbookAnalyzer'>" due
+    to unmet dependencies` as the first thing, above the actual help text.
+    Instead "load" providers and check these dependencies just prior to
+    actually using them.
+
 * `[TD0162]` __Split up `autonameow.yaml` into separate files.__  
     Use separate configuration files for options, rules, etc.
 

@@ -95,4 +95,5 @@ def get_analyzer_classes():
     return out
 
 
+# TODO: [TD0163] Fix premature importing of providers.
 ProviderClasses = get_analyzer_classes()
