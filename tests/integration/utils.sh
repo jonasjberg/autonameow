@@ -56,9 +56,9 @@ initialize_logging()
 
 initialize_global_stats()
 {
-    if ! AUTONAMEOW_INTEGRATION_STATS="$(realpath -e -- "$(mktemp)")"
+    if ! AUTONAMEOW_INTEGRATION_STATS="$(realpath -e -- "$(mktemp -t aw_test_stats)")"
     then
-        echo "Unable to create temporary global statistics file .. Aborting" >&2
+        echo 'Unable to create temporary global statistics file .. Aborting' >&2
         exit 1
     fi
 

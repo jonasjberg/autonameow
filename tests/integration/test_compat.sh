@@ -247,7 +247,7 @@ done < <(find "${AUTONAMEOW_TESTFILES_DIR}/configs" -maxdepth 1 -xdev -type f -n
 TEMPLATED_DEFAULT_CONFIG="$(abspath_testfile "configs/integration_default_templated.yaml")"
 assert_bulk_test "$TEMPLATED_DEFAULT_CONFIG" f r w
 
-TEMP_PERSISTENCE_DIR="$(realpath -e -- "$(mktemp -d)")"
+TEMP_PERSISTENCE_DIR="$(realpath -e -- "$(mktemp -d -t aw_test_persistence)")"
 assert_bulk_test "$TEMP_PERSISTENCE_DIR" d r w x
 
 _sed_backup_suffix='.orig'
