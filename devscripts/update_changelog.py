@@ -62,8 +62,8 @@ class ChangelogEntry(object):
     def __init__(self, subject, body):
         self.subject = subject
         self.body = body or ''
-
-        assert self.subject
+        assert isinstance(self.subject, str)
+        assert isinstance(self.body, str)
 
     def __eq__(self, other):
         if self.subject.lower().strip() == other.subject.lower().strip():
