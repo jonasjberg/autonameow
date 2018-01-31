@@ -257,7 +257,7 @@ class TestCachingRuntime(TestCase):
         start_time = time.time()
         _ = e_no_cache.extract(source_a)
         _ = e_no_cache.extract(source_b)
-        runtime_cache_disabled = time.time() - start_time
+        cls.runtime_cache_disabled = time.time() - start_time
 
         # Enable caching.
         e_cached = PdftotextTextExtractor()
@@ -266,7 +266,7 @@ class TestCachingRuntime(TestCase):
         start_time = time.time()
         _ = e_cached.extract(source_a)
         _ = e_cached.extract(source_b)
-        runtime_cache_enabled = time.time() - start_time
+        cls.runtime_cache_enabled = time.time() - start_time
 
     def test_sanity_check_runtime_cache_disabled(self):
         self.assertGreater(self.runtime_cache_disabled, 0.0)
