@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -30,7 +30,6 @@ from core import (
     exceptions,
     types,
 )
-from core.model import genericfields as gf
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from plugins import BasePlugin
@@ -53,7 +52,7 @@ class GuessitPlugin(BasePlugin):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            'generic_field': gf.GenericDateCreated
+            'generic_field': 'date_created'
         },
         'episode': {
             'coercer': types.AW_INTEGER,
@@ -119,7 +118,7 @@ class GuessitPlugin(BasePlugin):
         if not data:
             raise exceptions.AutonameowPluginError('Got no data from "guessit"')
 
-        _results = {}
+        _results = dict()
         for field, value in data.items():
             _coerced = self.coerce_field_value(field, value)
             if _coerced is not None:
@@ -139,8 +138,7 @@ class GuessitPlugin(BasePlugin):
 
 
 def run_guessit(input_data, options=None):
-    if not guessit:
-        return
+    assert guessit, 'Missing required module "guessit"'
 
     if options:
         guessit_options = options

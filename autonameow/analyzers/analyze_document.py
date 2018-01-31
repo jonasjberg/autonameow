@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -24,7 +24,6 @@ import re
 from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from util import (
     dateandtime,
@@ -41,6 +40,8 @@ from util.text.patternmatching import find_publisher_in_copyright_notice
 class DocumentAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['application/pdf', 'text/*']
+
+    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
     def __init__(self, fileobject, config, request_data_callback):
         super(DocumentAnalyzer, self).__init__(
@@ -63,8 +64,9 @@ class DocumentAnalyzer(BaseAnalyzer):
         # TODO: [TD0134] Consolidate splitting up text into chunks.
         text_chunk_1 = self._extract_leading_text_chunk(chunk_ratio=0.1)
 
-        self._add_results('datetime',
-                          self._get_datetime_from_text(text_chunk_1))
+        # TODO: [TD0102] Fix inconsistent results passed back by analyzers.
+        # Self._add_results('datetime',
+        #                   self._get_datetime_from_text(text_chunk_1))
 
         self._add_title_from_text_to_results(text_chunk_1)
 
@@ -96,6 +98,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                 )
 
     def _search_text_for_candidate_publisher(self, text):
+        # TODO: [TD0130] Implement general-purpose substring matching/extraction.
         result = find_publisher(text, self.candidate_publishers)
         if not result:
             return
@@ -105,6 +108,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         )
 
     def _search_text_for_copyright_publisher(self, text):
+        # TODO: [TD0130] Implement general-purpose substring matching/extraction.
         result = find_publisher_in_copyright_notice(text)
         if not result:
             return
@@ -126,7 +130,8 @@ class DocumentAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            'generic_field': gf.GenericPublisher
+            'generic_field': 'publisher',
+            'source': str(self)
         }
 
     def _wrap_generic_title(self, data, probability):
@@ -136,10 +141,12 @@ class DocumentAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=probability),
             ],
-            'generic_field': gf.GenericTitle
+            'generic_field': 'title',
+            'source': str(self)
         }
 
     def _get_datetime_from_text(self, text):
+        # TODO: [TD0130] Implement general-purpose substring matching/extraction.
         dt_regex = dateandtime.regex_search_str(text)
         if not dt_regex:
             return None
@@ -154,7 +161,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                     WeightedMapping(fields.DateTime, probability=0.25),
                     WeightedMapping(fields.Date, probability=0.25)
                 ],
-                'generic_field': gf.GenericDateCreated,
+                'generic_field': 'date_created',
                 'source': str(self)
                 })
 
@@ -171,13 +178,14 @@ class DocumentAnalyzer(BaseAnalyzer):
                 assert isinstance(dt_brute, list)
                 for v in dt_brute:
                     results.append({
-                        'value': data,
+                        'value': v,
                         'coercer': types.AW_TIMEDATE,
                         'mapped_fields': [
                             WeightedMapping(fields.DateTime, probability=0.1),
                             WeightedMapping(fields.Date, probability=0.1)
                         ],
-                        'generic_field': gf.GenericDateCreated
+                        'generic_field': 'date_created',
+                        'source': str(self)
                     })
 
         if matches == 0:
@@ -190,13 +198,14 @@ class DocumentAnalyzer(BaseAnalyzer):
                     assert isinstance(dt_brute, list)
                     for v in dt_brute:
                         results.append({
-                            'value': data,
+                            'value': v,
                             'coercer': types.AW_TIMEDATE,
                             'mapped_fields': [
                                 WeightedMapping(fields.DateTime, probability=0.1),
                                 WeightedMapping(fields.Date, probability=0.1)
                             ],
-                            'generic_field': gf.GenericDateCreated
+                            'generic_field': 'date_created',
+                            'source': str(self)
                         })
 
         return results
@@ -219,6 +228,7 @@ class DocumentAnalyzer(BaseAnalyzer):
 
 
 def find_publisher(text, candidates):
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     text = text.lower()
     for repl, patterns in candidates.items():
         for pattern in patterns:

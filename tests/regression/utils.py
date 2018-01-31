@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -44,7 +44,7 @@ from util import (
 log = logging.getLogger(__name__)
 
 
-TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120,48))
+TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120, 48))
 
 
 # TODO: [TD0121] Generate regression tests from manual invocations.
@@ -208,7 +208,7 @@ class RegressionTestLoader(object):
     BASENAME_YAML_ASSERTS = b'asserts.yaml'
 
     def __init__(self, abspath):
-        assert type(abspath) == bytes
+        assert isinstance(abspath, bytes)
         self.abspath = abspath
         self.skiptest = False
 
@@ -226,7 +226,7 @@ class RegressionTestLoader(object):
             log.warning(
                 'Read empty options from file: "{!s}"'.format(_abspath_opts)
             )
-            _options = {}
+            _options = dict()
         _options = self._set_testfile_path(_options)
         _options = self._set_config_path(_options)
 
@@ -351,7 +351,7 @@ class RegressionTestLoader(object):
         return _options
 
     def _joinpath(self, leaf):
-        assert type(leaf) == bytes
+        assert isinstance(leaf, bytes)
         return os.path.join(
             enc.syspath(self.abspath), enc.syspath(leaf)
         )
@@ -377,7 +377,7 @@ class AutonameowWrapper(object):
             assert isinstance(opts, dict)
             self.opts = opts
         else:
-            self.opts = {}
+            self.opts = dict()
 
         self.captured_exitcode = None
         self.captured_stderr = None
@@ -390,29 +390,42 @@ class AutonameowWrapper(object):
     def mock_exit_program(self, exitcode):
         self.captured_exitcode = exitcode
 
-    def mock_do_rename(self, from_path, new_basename, dry_run=True):
+    def mock_rename_file(self, from_path, new_basename):
+        # TODO: [hack] Mocking is too messy to be reliable ..
         # NOTE(jonas): Iffy ad-hoc string coercion..
         _from_basename = types.force_string(disk.file_basename(from_path))
+        _new_basename = types.force_string(new_basename)
 
         # Check for collisions that might cause erroneous test results.
         if _from_basename in self.captured_renames:
             _existing_new_basename = self.captured_renames[_from_basename]
             raise RegressionTestError(
                 'Already captured rename: "{!s}" -> "{!s}" (Now "{!s}")'.format(
-                    _from_basename, _existing_new_basename, new_basename
+                    _from_basename, _existing_new_basename, _new_basename
                 )
             )
-        self.captured_renames[_from_basename] = new_basename
+        self.captured_renames[_from_basename] = _new_basename
 
     def __call__(self):
+        # TODO: [TD0158] Evaluate assertions of "skipped renames".
         from core.autonameow import Autonameow
+
+        # Monkey-patch method of 'Autonameow' *class*
         Autonameow.exit_program = self.mock_exit_program
-        Autonameow.do_rename = self.mock_do_rename
 
         with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
             try:
                 with Autonameow(self.opts) as ameow:
+                    # TODO: Mock 'FileRenamer' class instead of single method
+                    assert hasattr(ameow, 'renamer')
+                    assert hasattr(ameow.renamer, '_rename_file')
+
+                    # Monkey-patch method of 'FileRenamer' *instance*
+                    ameow.renamer._rename_file = self.mock_rename_file
+
                     ameow.run()
+
+                    # Store runtime recorded by the 'Autonameow' class.
                     self.captured_runtime_secs = ameow.runtime_seconds
             except Exception as e:
                 typ, val, tb = sys.exc_info()
@@ -558,6 +571,7 @@ def _commandline_args_for_testcase(loaded_test):
         Command-line arguments as a list of Unicode strings.
     """
     # TODO: [hardcoded] Generate from 'autonameow/core/ui/cli/options.py'.
+    # TODO: Add '--list_rulematch'
     TESTOPTION_CMDARG_MAP = {
         'debug': '--debug',
         'dry_run': '--dry-run',
@@ -568,6 +582,7 @@ def _commandline_args_for_testcase(loaded_test):
         'mode_automagic': '--automagic',
         'mode_batch': '--batch',
         'mode_interactive': '--interactive',
+        'mode_timid': '--timid',
         'quiet': '--quiet',
         'recurse_paths': '--recurse',
         'show_version': '--version',

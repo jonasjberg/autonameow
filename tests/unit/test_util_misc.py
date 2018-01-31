@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -434,19 +434,19 @@ class TestNestedDictSet(TestCase):
 
 class TestNestedDictSetRetrieveLists(TestCase):
     def test_stores_empty_list(self):
-        d = {}
+        d = dict()
         nested_dict_set(d, ['a', 'b'], [])
         actual = nested_dict_get(d, ['a', 'b'])
         self.assertEqual(actual, [])
 
     def test_stores_list_one_element(self):
-        d = {}
+        d = dict()
         nested_dict_set(d, ['a', 'b'], [1])
         actual = nested_dict_get(d, ['a', 'b'])
         self.assertEqual(actual, [1])
 
     def test_stores_list_two_elements(self):
-        d = {}
+        d = dict()
         nested_dict_set(d, ['a', 'b'], [1, 2])
         actual = nested_dict_get(d, ['a', 'b'])
         self.assertEqual(actual, [1, 2])

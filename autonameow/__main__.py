@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -35,11 +35,12 @@ Or, as a module;
 
 import sys
 
+
 if __package__ is None and not hasattr(sys, 'frozen'):
-    # It is a direct call to __main__.py
+    # It is a direct call to this file ('__main__.py')
     import os.path
-    path = os.path.realpath(os.path.abspath(__file__))
-    sys.path.insert(0, os.path.dirname(os.path.dirname(path)))
+    SELF_ABSPATH = os.path.realpath(os.path.abspath(__file__))
+    sys.path.insert(0, os.path.dirname(os.path.dirname(SELF_ABSPATH)))
 
 
 if __name__ == '__main__':

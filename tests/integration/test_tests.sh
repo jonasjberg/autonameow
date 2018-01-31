@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -34,6 +34,14 @@ fi
 
 # Resets test suite counter variables.
 source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
+
+
+assert_has_command()
+{
+    local -r _cmd_name="$1"
+    assert_true 'command -v "$_cmd_name"' \
+                "System provides executable command \"${_cmd_name}\""
+}
 
 
 
@@ -95,15 +103,6 @@ assert_true '[ -d "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
             'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should be a directory'
 
 
-assert_bulk_test "$AUTONAMEOW_WIKI_ROOT_DIR" n e d
-
-assert_false '[ -z "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
-             'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should not be unset'
-
-assert_true '[ -d "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
-            'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should be a directory'
-
-
 # ______________________________________________________________________________
 #
 # Check environment variables used by specific types of tests.
@@ -131,13 +130,13 @@ assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
 #
 # Check the test runner scripts.
 
-_integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/integration_runner.sh"
+_integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_integration_tests.sh"
 assert_bulk_test "$_integration_runner_path" n e r x
 
-_unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/unit_runner.sh"
+_unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_unit_tests.sh"
 assert_bulk_test "$_unit_runner_path" n e r x
 
-_regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/regression_runner.sh"
+_regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_regression_tests.sh"
 assert_bulk_test "$_regression_runner_path" n e r x
 
 
@@ -145,41 +144,58 @@ assert_bulk_test "$_regression_runner_path" n e r x
 #
 # Verify that required (or preferred) commands are available.
 
-assert_true 'command -v sed' \
-            'sed is available on the system'
+assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
+            'Should be running a target operating system'
 
+assert_false '[ -z "$TERM" ]' \
+             'Environment variable "$TERM" should be set'
+
+assert_has_command 'python3'
+assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
+            'System python3 is version v3.5.0 or newer'
+
+assert_has_command 'exiftool'
+assert_has_command 'tesseract'
+assert_has_command 'pylint'
+# assert_has_command 'vulture'
+assert_has_command 'aha'
+
+assert_has_command 'sed'
 assert_true 'man sed | grep -- "^ \+.*-i\b"' \
-            'sed supports the "-i" option, required by some integration tests'
+            'System sed supports the "-i" option, required by some integration tests'
 
-assert_true 'command -v git' \
-            'git is available on the system'
+assert_has_command 'git'
+assert_true 'git --version | grep "git version 2\..*"' \
+            'System git version is newer than v2.x.x'
 
-assert_true 'command -v aha' \
-            'The executable "aha" is available on the system'
-
-assert_true 'command -v pytest' \
-            'The executable "pytest" is available on the system'
-
+assert_has_command 'pytest'
 _pytesthelp="$(pytest --help 2>&1)"
 assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
             'Module "pytest-html" is available on the system'
 
-assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
-            'Should be running a target operating system'
+assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+
+
+# ______________________________________________________________________________
+#
+# Check developer scripts and utilities in 'devscripts'.
+
+_devscripts_path="${AUTONAMEOW_ROOT_DIR}/devscripts"
+assert_bulk_test "$_devscripts_path" n e d r w x
+
+_todo_helper_script_path="${_devscripts_path}/todo_id.py"
+assert_bulk_test "$_todo_helper_script_path" n e f r x
+
+assert_true '"${_todo_helper_script_path}"' \
+            'TODO-list utility script returns exit code 0 when started without arguments'
+
+assert_true '"${_todo_helper_script_path}" --help' \
+            'TODO-list utility script returns exit code 0 when started with argument "--help"'
 
 
 # ______________________________________________________________________________
 #
 # Shared bash script (integration test) functionality.
-
-assert_true 'type -t get_timestamp_from_basename' \
-            'get_timestamp_from_basename is a function'
-
-assert_false '[ -n "$(get_timestamp_from_basename "abc")" ]' \
-             'get_timestamp_from_basename returns empty string given "abc"'
-
-assert_true 'get_timestamp_from_basename "unittest_log_2017-05-15T134801.html" | grep -qE -- "^2017-05-15 13:48:01$"' \
-            'get_timestamp_from_basename returns "2017-05-15 13:48:01" given "unittest_log_2017-05-15T134801.html"'
 
 _abspath_testfile_empty="$(abspath_testfile "empty")"
 assert_false '[ -z "${_abspath_testfile_empty}" ]' \

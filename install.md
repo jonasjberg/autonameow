@@ -1,6 +1,6 @@
 `autonameow`
 ------------
-*Copyright(c) 2016-2017 Jonas Sjöberg*  
+*Copyright(c) 2016-2018 Jonas Sjöberg*  
 <https://github.com/jonasjberg>  
 <http://www.jonasjberg.com>  
 University mail: `js224eh[a]student.lnu.se`  
@@ -24,6 +24,7 @@ critical `TODO`-list item.
 >     * `libmagic`
 >     * `exiftool`
 >     * `tesseract`
+>     * `pdftotext`
 >
 > 2. Install these Python modules:
 >
@@ -31,7 +32,7 @@ critical `TODO`-list item.
 >     * `colorama`
 >     * `unidecode`
 >     * `prompt_toolkit`
->     * `python-magic`
+>     * `file-magic`
 >     * `pytz`
 >     * `pyyaml`
 >
@@ -109,7 +110,8 @@ install the non-Python dependencies.
 Install the dependencies by running the following commands in a terminal:
 ```bash
 brew install libmagic exiftool tesseract
-pip3 install chardet colorama unidecode prompt_toolkit python-magic pytz pyyaml
+brew install poppler # pdftotext
+pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml
 ```
 
 You might also want to install additional __optional__ third-party components:
@@ -121,8 +123,8 @@ pip3 install guessit
 Install the dependencies by running the following commands in a terminal:
 
 ```bash
-sudo apt install exiftool tesseract-ocr
-pip3 install chardet colorama unidecode prompt_toolkit python-magic pytz pyyaml
+sudo apt install exiftool tesseract-ocr pdftotext
+pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml
 ```
 
 Alternatively, search the repositories for the packages with `apt-search`.

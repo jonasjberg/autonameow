@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -92,11 +92,10 @@ class MeowURIParser(object):
         # TODO: Data has already passed through functions requiring Unicode str
         #       .. this makes no sense here.  Remove or relocate.
         string = types.force_string(raw_string)
-        if not string:
-            return []
-        else:
+        if string:
             # Split the "meowURI" by periods to a list of strings.
             return meowuri_list(string)
+        return []
 
 
 class MeowURI(object):
@@ -127,22 +126,19 @@ class MeowURI(object):
     def root(self):
         if self._root:
             return str(self._root)
-        else:
-            return C.UNDEFINED_MEOWURI_PART
+        return C.UNDEFINED_MEOWURI_PART
 
     @property
     def children(self):
         if self._children:
             return [str(n) for n in self._children]
-        else:
-            return C.UNDEFINED_MEOWURI_PART
+        return C.UNDEFINED_MEOWURI_PART
 
     @property
     def leaf(self):
         if self._leaf:
             return str(self._leaf)
-        else:
-            return C.UNDEFINED_MEOWURI_PART
+        return C.UNDEFINED_MEOWURI_PART
 
     @property
     def parts(self):
@@ -249,8 +245,7 @@ class MeowURI(object):
             return str(self) == other
         elif isinstance(other, self.__class__):
             return str(self) == str(other)
-        else:
-            return False
+        return False
 
     def __lt__(self, other):
         if isinstance(other, self.__class__):

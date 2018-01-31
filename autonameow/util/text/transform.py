@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -252,8 +252,7 @@ def simplify_unicode(string):
 
     if unidecode:
         return _strip_accents_unidecode(string)
-    else:
-        return _strip_accents_homerolled(string)
+    return _strip_accents_homerolled(string)
 
 
 def _strip_accents_homerolled(string):
@@ -263,6 +262,7 @@ def _strip_accents_homerolled(string):
 
 
 def _strip_accents_unidecode(string):
+    assert unidecode, 'Missing required module "unidecode"'
     return unidecode(string)
 
 

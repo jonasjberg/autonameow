@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -95,33 +95,5 @@ def get_analyzer_classes():
     return out
 
 
-def map_meowuri_to_analyzers():
-    """
-    Returns a mapping of the analyzer classes "meowURIs" and classes.
-
-    Each analyzer class defines 'MEOWURI_ROOT' which is used as the
-    first part of all data returned by the analyzer.
-
-    Returns: A dictionary where the keys are "meowURIs" and the values
-        are lists of analyzer classes.
-    """
-    out = {}
-
-    for klass in AnalyzerClasses:
-        _meowuri = klass.meowuri_prefix()
-        if not _meowuri:
-            log.error(
-                'Got None from "{!s}.meowuri_prefix()"'.format(klass.__name__)
-            )
-            continue
-
-        if _meowuri in out:
-            out[_meowuri].append(klass)
-        else:
-            out[_meowuri] = [klass]
-
-    return out
-
-
-AnalyzerClasses = get_analyzer_classes()
-MeowURIClassMap = map_meowuri_to_analyzers()
+# TODO: [TD0163] Fix premature importing of providers.
+ProviderClasses = get_analyzer_classes()

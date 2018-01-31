@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -27,9 +27,11 @@ from collections import Counter
 from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
-from core.model import genericfields as gf
 from core.namebuilder import fields
-from util import dateandtime
+from util import (
+    dateandtime,
+    sanity
+)
 from util.text import (
     find_edition,
     urldecode
@@ -63,6 +65,8 @@ class FilenameAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 1
     HANDLES_MIME_TYPES = ['*/*']
 
+    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+
     def __init__(self, fileobject, config, request_data_callback):
         super(FilenameAnalyzer, self).__init__(
             fileobject, config, request_data_callback
@@ -78,19 +82,21 @@ class FilenameAnalyzer(BaseAnalyzer):
             self.fileobject,
             'extractor.filesystem.xplat.basename.prefix'
         )
-        self._basename_prefix = types.force_string(basename_prefix.get('value'))
+        if basename_prefix is not None:
+            self._basename_prefix = types.force_string(basename_prefix)
 
         basename_suffix = self.request_data(
             self.fileobject,
             'extractor.filesystem.xplat.basename.suffix'
         )
-        self._basename_suffix = types.force_string(basename_suffix.get('value'))
+        if basename_suffix is not None:
+            self._basename_suffix = types.force_string(basename_suffix)
 
         file_mimetype = self.request_data(
             self.fileobject,
             'extractor.filesystem.xplat.contents.mime_type'
         )
-        self._file_mimetype = file_mimetype.get('value')
+        self._file_mimetype = file_mimetype or types.NULL_AW_MIMETYPE
 
         self._add_results('datetime', self.get_datetime())
         self._add_results('edition', self._get_edition())
@@ -116,7 +122,7 @@ class FilenameAnalyzer(BaseAnalyzer):
                             WeightedMapping(fields.DateTime, probability=_prob),
                             WeightedMapping(fields.Date, probability=_prob),
                         ],
-                        'generic_field': gf.GenericDateCreated
+                        'generic_field': 'date_created'
                     }
 
         # return fn_timestamps or None
@@ -128,17 +134,17 @@ class FilenameAnalyzer(BaseAnalyzer):
             return None
 
         _number = find_edition(self._basename_prefix)
-        if _number:
-            return {
-                'value': _number,
-                'coercer': types.AW_INTEGER,
-                'mapped_fields': [
-                    WeightedMapping(fields.Edition, probability=1),
-                ],
-                'generic_field': gf.GenericEdition
-            }
-        else:
+        if not _number:
             return None
+
+        return {
+            'value': _number,
+            'coercer': types.AW_INTEGER,
+            'mapped_fields': [
+                WeightedMapping(fields.Edition, probability=1),
+            ],
+            'generic_field': 'edition'
+        }
 
     def _get_extension(self):
         self.log.debug(
@@ -175,7 +181,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            'generic_field': gf.GenericPublisher
+            'generic_field': 'publisher'
         }
 
     def _get_datetime_from_name(self):
@@ -330,8 +336,10 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'tar.bz2': {'tar.bz2'},
     },
     'application/x-gzip': {
+        'html.gz': {'html', 'htm', 'htm.gz', 'html.gz'},
         'tar.gz': {'tar.gz', 'tgz'},
-        'txt.gz': {'txt.gz'},
+        'txt.gz': {'txt.gz', 'txt'},
+        'txt.tar.gz': {'txt.tgz', 'txt.tar.gz'},
         'w.gz': {'w.gz'}  # CWEB source code
     },
     'application/x-lzma': {
@@ -340,9 +348,12 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     'audio/mpeg': {
         'mp3': {'mp3'}
     },
+    'message/rfc822': {
+        'mhtml': {'mhtml'}  # Chrome Save as "Webpage, Single File"
+    },
     'text/html': {
-        'html': {'html', 'htm'},
-        'html.gz': {'htm.gz', 'html.gz'},
+        'html': {'html', 'htm', 'htm.gz', 'html.gz'},  # Not actually gzipped HTML
+        'mhtml': {'mhtml'},
         'txt': {'txt'},
     },
     'text/plain': {
@@ -365,8 +376,7 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'rake': {'rake'},
         'spec': {'spec'},
         'sh': {'bash', 'sh'},
-        'txt': {'txt'},
-        'txt.gz': {'txt.gz'},
+        'txt': {'txt', 'txt.gz'},
         'yaml': {'yaml'},
     },
     'text/xml': {
@@ -404,6 +414,8 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
 
 def likely_extension(basename_suffix, mime_type):
     if mime_type and basename_suffix is not None:
+        sanity.check_internal_string(mime_type)
+
         ext_suffixes_map = MIMETYPE_EXTENSION_SUFFIXES_MAP.get(mime_type, {})
         for ext, suffixes in ext_suffixes_map.items():
             if basename_suffix in suffixes:
@@ -442,6 +454,7 @@ class SubstringFinder(object):
         return list(filter(None, s))
 
 
+# TODO: [TD0130] Implement general-purpose substring matching/extraction.
 class FilenamePreprocessor(object):
     def __init__(self):
         pass
@@ -475,6 +488,7 @@ class FilenamePreprocessor(object):
         return filename
 
 
+# TODO: [TD0130] Implement general-purpose substring matching/extraction.
 class FilenameTokenizer(object):
     RE_UNICODE_WORDS = re.compile(r'[^\W_]')
 
@@ -565,9 +579,9 @@ class FilenameTokenizer(object):
         elif PREFERRED_FILENAME_CHAR_SPACE in candidates:
             # Use hardcoded preferred space separator character.
             return PREFERRED_FILENAME_CHAR_SPACE
-        else:
-            # Last resort uses arbitrary value, sorted for consistency.
-            return sorted(candidates, key=lambda x: x[0])[0]
+
+        # Last resort uses arbitrary value, sorted for consistency.
+        return sorted(candidates, key=lambda x: x[0])[0]
 
     @classmethod
     def _find_separators(cls, string):
@@ -590,6 +604,7 @@ class FilenameTokenizer(object):
 
 
 def find_publisher(text, candidates):
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     for repl, patterns in candidates.items():
         for pattern in patterns:
             if re.search(pattern, text):

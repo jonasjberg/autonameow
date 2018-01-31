@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -24,6 +24,7 @@ import logging
 from core import constants as C
 from core import providers
 from core.exceptions import AutonameowException
+from core.model.genericfields import get_field_class
 from util import mimemagic
 
 
@@ -57,9 +58,10 @@ class BaseAnalyzer(object):
 
     # Dictionary with analyzer-specific information, keyed by the fields that
     # the analyzer produces. Stores information on types, etc..
-    FIELD_LOOKUP = {}
+    FIELD_LOOKUP = dict()
 
     # TODO: Hack ..
+    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
     coerce_field_value = providers.ProviderMixin.coerce_field_value
 
     def __init__(self, fileobject, config, request_data_callback):
@@ -71,7 +73,7 @@ class BaseAnalyzer(object):
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        self.results = {}
+        self.results = dict()
 
     def run(self):
         """
@@ -121,8 +123,21 @@ class BaseAnalyzer(object):
                 as a Unicode str.
             data: ?
         """
-        if data is None:
+        if not data:
             return
+
+        # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
+        # Map strings to generic field classes.
+        assert isinstance(data, dict), (
+            'Expected dict. Got {!s} ({!s})'.format(type(data), data)
+        )
+        _generic_field_string = data.get('generic_field')
+        if _generic_field_string:
+            _generic_field_klass = get_field_class(_generic_field_string)
+            if _generic_field_klass:
+                data['generic_field'] = _generic_field_klass
+            else:
+                data.pop('generic_field')
 
         # TODO: [TD0133] Fix inconsistent use of MeowURIs
         #       Stick to using either instances of 'MeowURI' _OR_ strings.
@@ -144,31 +159,27 @@ class BaseAnalyzer(object):
         text = None
         if isinstance(_response, list):
             for _r in _response:
-                assert isinstance(_r, dict), (
+                assert isinstance(_r, str), (
                     'Expected MeowURI "generic.contents.text" list entries to'
-                    ' be type dict. Got "{!s}"'.format(type(_r))
+                    ' be type str. Got "{!s}"'.format(type(_r))
                 )
-                v = _r.get('value')
-                if isinstance(v, str) and len(v) > 0:
-                    text = v
+                if _r:
+                    text = _r
                     break
         else:
-            assert isinstance(_response, dict), (
+            assert isinstance(_response, str), (
                 'Expected MeowURI "generic.contents.text" to return '
-                'type dict. Got "{!s}"'.format(type(_response))
+                'type str. Got "{!s}"'.format(type(_response))
             )
-            v = _response.get('value')
-            if isinstance(v, str) and len(v) > 0:
-                text = v
+            if _response:
+                text = _response
 
-        if text is not None:
-            return text
-        else:
-            self.log.info(
-                'Required data unavailable ("generic.contents.text")'
-            )
+        if text is None:
+            self.log.info('Requested data unavailable: "generic.contents.text"')
+        return text
 
-    def metainfo(self, *args, **kwargs):
+    def metainfo(self):
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
         return self.FIELD_LOOKUP
 
     @classmethod
@@ -237,7 +248,3 @@ class BaseAnalyzer(object):
 
     def __str__(self):
         return self.__class__.__name__
-
-    @classmethod
-    def __str__(cls):
-        return cls.__name__

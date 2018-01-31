@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -83,7 +83,7 @@ class BaseExtractor(object):
 
     # Dictionary with extractor-specific information, keyed by the fields that
     # the raw source produces. Stores information on types, etc..
-    FIELD_LOOKUP = {}
+    FIELD_LOOKUP = dict()
 
     # TODO: Hack ..
     coerce_field_value = providers.ProviderMixin.coerce_field_value
@@ -125,8 +125,7 @@ class BaseExtractor(object):
             # De-pluralize; 'extractors' --> 'extractor', etc.
             if _name.endswith('s'):
                 return _name[:-1]
-            else:
-                return _name
+            return _name
 
         # "The base class for the exceptions that are raised when a key or
         # index used on a mapping or sequence is invalid: IndexError, KeyError.
@@ -208,7 +207,8 @@ class BaseExtractor(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def metainfo(self, *args, **kwargs):
+    def metainfo(self):
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
         return dict(self.FIELD_LOOKUP)
 
     @classmethod

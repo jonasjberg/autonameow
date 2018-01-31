@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -24,6 +24,16 @@ import os
 import re
 import sys
 
+# TODO: Ugly path hacks ..
+SELF_ABSPATH = os.path.realpath(os.path.abspath(__file__))
+PARENT_PATH = os.path.normpath(
+    os.path.join(SELF_ABSPATH, os.path.pardir, os.path.pardir, 'autonameow')
+)
+sys.path.insert(0, PARENT_PATH)
+
+from core.ui import ColumnFormatter
+
+
 '''
 Helper utility for listing and verifying TODO-list item identifiers
 used in the autonameow project.
@@ -44,8 +54,8 @@ SELFNAME = str(os.path.basename(__file__))
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 AUTONAMEOW_SRC_ROOT = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
 
-todo_path = os.path.join(AUTONAMEOW_SRC_ROOT, TODO_BASENAME)
-done_path = os.path.join(AUTONAMEOW_SRC_ROOT, DONE_BASENAME)
+TODO_PATH = os.path.join(AUTONAMEOW_SRC_ROOT, TODO_BASENAME)
+DONE_PATH = os.path.join(AUTONAMEOW_SRC_ROOT, DONE_BASENAME)
 
 
 def is_readable_file(file_path):
@@ -80,21 +90,22 @@ def get_source_files(paths):
 
 
 def find_todo_ids_in_line(string):
-    matches = set()
+    matches = list()
 
     if re.search(RE_TODO_IGNORED, string):
         return matches
 
     for match in re.finditer(RE_TODO_IDENTIFIER, string):
-        matches.add(match.group(1))
-
+        todo_text = re.split(RE_TODO_IDENTIFIER, string)[-1:][0]
+        matches.append({'id': match.group(1),
+                        'text': todo_text.strip()})
     return matches
 
 
 def find_todo_ids_in_file(file_path):
-    found_ids = set()
+    found_ids = list()
     for line in open(file_path, 'r', encoding='utf8'):
-            found_ids.update(find_todo_ids_in_line(line))
+        found_ids.extend(find_todo_ids_in_line(line))
     return found_ids
 
 
@@ -102,14 +113,36 @@ def find_todo_ids_in_source_files():
     _source_files = get_source_files([AUTONAMEOW_SRC_ROOT])
     ids_in_sources = set()
     for _file in _source_files:
-        ids_in_sources.update(find_todo_ids_in_file(_file))
+        todos = find_todo_ids_in_file(_file)
+        for todo in todos:
+            ids_in_sources.add(todo['id'])
     return ids_in_sources
+
+
+def find_todos_in_source_files():
+    _source_files = get_source_files([AUTONAMEOW_SRC_ROOT])
+    file_todos = dict()
+    for _file in _source_files:
+        todos = find_todo_ids_in_file(_file)
+        if todos:
+            file_todos[_file] = todos
+    return file_todos
+
+
+def find_todo_ids_in_todo_file():
+    todos = find_todo_ids_in_file(TODO_PATH)
+    return {todo['id'] for todo in todos}
+
+
+def find_todo_ids_in_done_file():
+    todos = find_todo_ids_in_file(DONE_PATH)
+    return {todo['id'] for todo in todos}
 
 
 def get_next_todo_id():
     used_ids = set()
-    used_ids.update(find_todo_ids_in_file(todo_path))
-    used_ids.update(find_todo_ids_in_file(done_path))
+    used_ids.update(find_todo_ids_in_todo_file())
+    used_ids.update(find_todo_ids_in_done_file())
 
     last_id = 0
     if used_ids:
@@ -133,8 +166,8 @@ Found {} IDs used in both the TODO-list and DONE-list:
 
 {}
 '''.format(len(ids_in_both_todolist_and_done),
-               '\n'.join([TODO_IDENTIFIER_FORMAT.format(int(i))
-                          for i in ids_in_both_todolist_and_done])))
+           '\n'.join([TODO_IDENTIFIER_FORMAT.format(int(i))
+                      for i in ids_in_both_todolist_and_done])))
         return False
 
     def check_sources_does_not_contain_ids_not_in_todo():
@@ -183,8 +216,8 @@ Found {} IDs used in both the sources and the DONE-list:
     if not ids_in_sources:
         print('[WARNING] Unable to find any IDs (!)')
 
-    ids_todolist = find_todo_ids_in_file(todo_path)
-    ids_done = find_todo_ids_in_file(done_path)
+    ids_todolist = find_todo_ids_in_todo_file()
+    ids_done = find_todo_ids_in_done_file()
 
     ok = True
     ok &= check_todo_done_does_not_contain_same_id()
@@ -198,7 +231,7 @@ def list_orphaned():
     if not ids_in_sources:
         return
 
-    ids_todolist = find_todo_ids_in_file(todo_path)
+    ids_todolist = find_todo_ids_in_todo_file()
     ids_in_todo_but_not_sources = sorted(
         [i for i in ids_todolist if i not in ids_in_sources]
     )
@@ -209,6 +242,31 @@ Found {} IDs in the TODO-list that are not in the sources:
 '''.format(len(ids_in_todo_but_not_sources),
            '\n'.join([TODO_IDENTIFIER_FORMAT.format(int(i))
                       for i in ids_in_todo_but_not_sources])))
+
+
+def list_todos_in_sources():
+    """
+    Prints TODOs in the source files, along with any text and the file path,
+    sorted by the id.
+    """
+    files_todos = find_todos_in_source_files()
+    if not files_todos:
+        return
+
+    result_lines = list()
+    for _filepath, _todos in files_todos.items():
+        for t in _todos:
+            result_lines.append((_filepath, t['id'], t['text']))
+
+    _common_path_prefix = os.path.commonprefix([p for p, _, _ in result_lines])
+
+    cf = ColumnFormatter()
+    for line in sorted(result_lines, key=lambda x: x[1]):
+        _filepath, _id, _text = line
+        _short_filepath = _filepath.split(_common_path_prefix)[1]
+        cf.addrow(_id, _short_filepath, _text)
+
+    print(str(cf))
 
 
 if __name__ == '__main__':
@@ -245,13 +303,21 @@ if __name__ == '__main__':
         default=False,
         help='Print entries that are in the TODO-list but not in the sources.'
     )
+    argument_group_actions.add_argument(
+        '--list-in-sources',
+        dest='do_list_todos_in_sources',
+        action='store_true',
+        default=False,
+        help='Print TODOs in the sources along in columns with the id, '
+             'file path and any TODO text, sorted by id.'
+    )
     opts = parser.parse_args(sys.argv[1:])
 
     # Make sure that both the TODO-list and DONE-list exist.
-    for _path in (todo_path, done_path):
+    for _path in (TODO_PATH, DONE_PATH):
         if not is_readable_file(_path):
-            print('File does not exist or is not readable: "{!s}"'.format(_path),
-                  file=sys.stderr)
+            m = 'File does not exist or is not readable: "{!s}"'.format(_path)
+            print(m, file=sys.stderr)
             sys.exit(EXIT_FAILURE)
 
     exit_status = EXIT_SUCCESS
@@ -262,6 +328,9 @@ if __name__ == '__main__':
 
     elif opts.do_list_orphaned:
         list_orphaned()
+
+    elif opts.do_list_todos_in_sources:
+        list_todos_in_sources()
 
     elif opts.do_get_next_todo_id:
         _next_id = get_next_todo_id()

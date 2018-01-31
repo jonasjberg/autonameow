@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -239,7 +239,7 @@ class CaseExtractorOutput(TestCase):
         for expect_field, expect_type, expect_value in self.EXPECTED_FIELD_TYPE_VALUE:
             actual_value = self.actual_extracted.get(expect_field)
             self.assertEqual(
-                actual_value, expect_value,
+                expect_value, actual_value,
                 '[{!s}] :: Expected "{!s}" ({!s}) NOT "{!s}" ({!s})'.format(
                     expect_field, expect_value, expect_type, actual_value,
                     type(actual_value)

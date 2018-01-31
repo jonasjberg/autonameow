@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -123,11 +123,20 @@ class FileObject(object):
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
-        else:
-            return self.__check_equality_fast(other)
+        return self.__check_equality_fast(other)
 
     def __ne__(self, other):
         return not (self == other)
+
+    def __lt__(self, other):
+        if isinstance(other, self.__class__):
+            return self.abspath < other.abspath
+
+        # NOTE(jonas): Objects of other types are always "less".
+        return False
+
+    def __gt__(self, other):
+        return not self < other
 
 
 def validate_path_argument(path):

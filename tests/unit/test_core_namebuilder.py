@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -62,7 +62,7 @@ class TestNameBuilder(TestCase):
 
     def test_populate_name_template_using_template_2_all_fields_missing(self):
         template = '{publisher} {title} {edition} - {author} {date}.{extension}'
-        data = {}
+        data = dict()
         expect = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
 
         with self.assertRaises(exceptions.NameTemplateSyntaxError):

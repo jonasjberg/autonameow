@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -22,6 +22,10 @@
 set -o noclobber -o nounset -o pipefail
 
 
+declare -r EXIT_SUCCESS=0
+declare -r EXIT_FAILURE=1
+declare -r EXIT_CRITICAL=2
+
 SELF_BASENAME="$(basename "$0")"
 SELF_DIRNAME="$(dirname "$0")"
 
@@ -33,7 +37,7 @@ then
         Environment variable setup script is missing. Aborting ..
 
 EOF
-    exit 1
+    exit "$EXIT_CRITICAL"
 fi
 
 if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
@@ -44,13 +48,14 @@ then
         Shared test utility library is missing. Aborting ..
 
 EOF
-    exit 1
+    exit "$EXIT_CRITICAL"
 fi
 
 # Default configuration.
 option_write_report='false'
 option_quiet='false'
 option_enable_coverage='false'
+option_run_last_failed='false'
 
 
 print_usage_info()
@@ -61,16 +66,24 @@ print_usage_info()
 
   USAGE:  ${SELF_BASENAME} ([OPTIONS])
 
-  OPTIONS:  -h   Display usage information and exit.
-            -c   Enable checking unit test coverage.
-            -w   Write HTML test reports to disk.
-                 Note: the "raw" log file is always written.
-            -q   Suppress output from test suites.
+  OPTIONS:     -h   Display usage information and exit.
+               -c   Enable checking unit test coverage.
+               -l   Run tests that failed during the last run.
+                    Note: Only supported by "pytest"!
+               -w   Write HTML test reports to disk.
+                    Note: the "raw" log file is always written.
+               -q   Suppress output from test suites.
 
   All options are optional. Default behaviour is to not write any
   reports and print the test results to stdout/stderr in real-time.
 
-  Project website: www.github.com/jonasjberg/autonameow
+  EXIT CODES:   ${EXIT_SUCCESS}   All tests/assertions passed.
+                ${EXIT_FAILURE}   Any tests/assertions FAILED.
+                ${EXIT_CRITICAL}   Runner itself failed or aborted.
+
+
+Project website: www.github.com/jonasjberg/autonameow
+
 EOF
 }
 
@@ -83,11 +96,12 @@ if [ "$#" -eq "0" ]
 then
     printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
 else
-    while getopts chwq opt
+    while getopts chlwq opt
     do
         case "$opt" in
             c) option_enable_coverage='true' ;;
-            h) print_usage_info ; exit 0 ;;
+            h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
+            l) option_run_last_failed='true' ;;
             w) option_write_report='true' ;;
             q) option_quiet='true' ;;
         esac
@@ -113,14 +127,14 @@ then
     then
         echo "This script requires \"pytest\" to generate HTML reports." 1>&2
         echo "Install using pip by executing:  pip3 install pytest"
-        exit 1
+        exit "$EXIT_CRITICAL"
     fi
 
     if ! grep -q -- '--html' <<< "$captured_pytest_help"
     then
         echo "This script requires \"pytest-html\" to generate HTML reports." 1>&2
         echo "Install using pip by executing:  pip3 install pytest-html"
-        exit 1
+        exit "$EXIT_CRITICAL"
     fi
 fi
 
@@ -131,17 +145,27 @@ then
     then
         echo "This script requires \"pytest\" to check test coverage." 1>&2
         echo "Install using pip by executing:  pip3 install pytest"
-        exit 1
+        exit "$EXIT_CRITICAL"
     fi
 
     if ! grep -q -- '--cov' <<< "$captured_pytest_help"
     then
         echo "This script requires \"pytest-cov\" to check test coverage." 1>&2
         echo "Install using pip by executing:  pip3 install pytest-cov"
-        exit 1
+        exit "$EXIT_CRITICAL"
     fi
 fi
 
+if [ "$option_run_last_failed" == 'true' ]
+then
+    # Make sure required executables are available.
+    if [ "$HAS_PYTEST" != 'true' ]
+    then
+        echo "This script requires \"pytest\" to run last failed." 1>&2
+        echo "Install using pip by executing:  pip3 install pytest"
+        exit "$EXIT_CRITICAL"
+    fi
+fi
 
 
 
@@ -150,7 +174,7 @@ _unittest_log="${AUTONAMEOW_TESTRESULTS_DIR}/unittest_log_${_timestamp}.html"
 if [ -e "$_unittest_log" ]
 then
     echo "File exists: \"${_unittest_log}\" .. Aborting" >&2
-    exit 1
+    exit "$EXIT_CRITICAL"
 fi
 
 
@@ -170,14 +194,20 @@ run_pytest()
     _pytest_coverage_opts=''
     [ "$option_enable_coverage" != 'true' ] || _pytest_coverage_opts="--cov=autonameow --cov-report=term"
 
+    _pytest_misc_opts=''
+    [ "$option_run_last_failed" != 'true' ] || _pytest_misc_opts='--last-failed'
+
+
     (
       cd "$AUTONAMEOW_ROOT_DIR" || return 1
-      PYTHONPATH=autonameow:tests pytest ${_pytest_report_opts} ${_pytest_coverage_opts} tests/unit/test_*.py
+      PYTHONPATH=autonameow:tests \
+      pytest ${_pytest_report_opts} ${_pytest_coverage_opts} ${_pytest_misc_opts} \
+      tests/unit/test_*.py
     )
 }
 
 
-count_fail=0
+declare -i COUNT_FAIL=0
 if [ "$HAS_PYTEST" != 'true' ]
 then
     run_task "$option_quiet" "Running \"unittest\"" run_unittest
@@ -196,4 +226,10 @@ then
     set -o noclobber
 fi
 
-exit "$count_fail"
+
+if [ "$COUNT_FAIL" -eq "0" ]
+then
+    exit "$EXIT_SUCCESS"
+else
+    exit "$EXIT_FAILURE"
+fi

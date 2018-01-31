@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -20,7 +20,14 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from unittest import TestCase
+from unittest import TestCase, skipIf
+
+try:
+    import guessit
+except ImportError:
+    GUESSIT_IS_NOT_AVAILABLE = True, 'Missing (optional..) required module "guessit"'
+else:
+    GUESSIT_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
 from plugins.guessit_plugin import (
@@ -44,6 +51,7 @@ class TestGuessitPlugin(TestCase):
             self.assertFalse(plugin_instance.test_init())
 
 
+@skipIf(*GUESSIT_IS_NOT_AVAILABLE)
 class TestRunGuessit(TestCase):
     def test_run_guessit_no_options_returns_expected_type(self):
         actual = run_guessit('foo', options=None)
@@ -54,6 +62,7 @@ class TestRunGuessit(TestCase):
         self.assertIsInstance(actual, dict)
 
 
+@skipIf(*GUESSIT_IS_NOT_AVAILABLE)
 class TestRunGuessitWithDummyData(TestCase):
     def setUp(self):
         # NOTE: Below file name was copied from the guessit tests.

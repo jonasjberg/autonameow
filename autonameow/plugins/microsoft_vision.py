@@ -33,7 +33,6 @@ from core import types
 from core import constants as C
 from core.exceptions import AutonameowPluginError
 from core.model import WeightedMapping
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from plugins import BasePlugin
 from util import mimemagic
@@ -122,8 +121,7 @@ def get_tags(json_data, count=None):
     else:
         if count and len(tags) > count:
             return tags[:count]
-        else:
-            return tags
+        return tags
 
 
 def _read_api_key_from_file(file_path):
@@ -168,7 +166,7 @@ class MicrosoftVisionPlugin(BasePlugin):
                 WeightedMapping(fields.Title, probability=0.5),
                 WeightedMapping(fields.Description, probability=0.8)
             ],
-            'generic_field': gf.GenericTags
+            'generic_field': 'tags'
         }
     }
 
@@ -202,7 +200,7 @@ class MicrosoftVisionPlugin(BasePlugin):
 
         # TODO: Improve error handling!
 
-        results = {}
+        results = dict()
         _caption = get_caption_text(response)
         if _caption:
             _coerced_caption = self.coerce_field_value('caption', _caption)
@@ -225,4 +223,3 @@ class MicrosoftVisionPlugin(BasePlugin):
     @classmethod
     def test_init(cls):
         return cls.API_KEY is not None
-

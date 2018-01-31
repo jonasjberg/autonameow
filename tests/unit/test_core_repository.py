@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -111,9 +111,10 @@ class TestRepositoryMethodStore(TestCase):
         self.assertEqual(len(self.r), 0)
 
     def test_store_data_with_invalid_label_raises_error(self):
-        with self.assertRaises(exceptions.InvalidMeowURIError):
+        with self.assertRaises(AssertionError):
             self.r.store(self.fileobject, None, {'value': 'foo'})
-        with self.assertRaises(exceptions.InvalidMeowURIError):
+
+        with self.assertRaises(AssertionError):
             self.r.store(self.fileobject, '', {'value': 'foo'})
 
     def test_stores_data_with_valid_label(self):

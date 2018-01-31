@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -596,7 +596,7 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
         actual = MeowURI(*test_input)
         self.assertEqual(expected, str(actual))
 
-    def test_extraction_collect_results(self):
+    def test_extraction_store_results(self):
         _prefix = 'extractor.filesystem.xplat'
         _leaf = 'basename.suffix'
         self._check(_prefix, _leaf,

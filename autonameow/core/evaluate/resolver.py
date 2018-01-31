@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -21,10 +21,13 @@
 
 import logging
 
-from core import repository
-from core.model import MeowURI
+from core import (
+    provider,
+    repository
+)
 from core.model import genericfields as gf
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
+from util import sanity
 from util.text import format_name
 
 
@@ -45,11 +48,18 @@ class FieldDataCandidate(object):
     """
     Simple "struct"-like container used by 'lookup_candidates()'.
     """
-    def __init__(self, value, source, probability, meowuri):
-        self.value = value
+    def __init__(self, string_value, source, probability, meowuri, coercer,
+                 generic_field):
+        self.value = string_value
         self.source = source
         self.probability = probability
         self.meowuri = meowuri
+        self.coercer = coercer
+        self.generic_field = generic_field
+
+    def __repr__(self):
+        a = ', '.join('{}={}'.format(k, v) for k, v in self.__dict__.items())
+        return '<FieldDataCandidate({})>'.format(a)
 
 
 class TemplateFieldDataResolver(object):
@@ -59,21 +69,23 @@ class TemplateFieldDataResolver(object):
 
         self._fields = nametemplatefield_classes_in_formatstring(name_template)
 
-        self.data_sources = {}
-        self.fields_data = {}
+        self.data_sources = dict()
+        self.fields_data = dict()
 
     def mapped_all_template_fields(self):
         return all(field in self.data_sources for field in self._fields)
 
     def add_known_source(self, field, meowuri):
-        assert meowuri and isinstance(meowuri, MeowURI), (
-               'TODO: Fix collecting/verifying data from sources. '
-               'Expected MeowURI, not "{!s}"'.format(type(meowuri)))
-
+        sanity.check_isinstance_meowuri(
+            meowuri,
+            msg='TODO: Fix collecting/verifying data from sources.'
+        )
         if field in self._fields:
             if not self.data_sources.get(field):
+                log.debug('Added (first) known source for field {!s} :: {!s}'.format(field.as_placeholder(), meowuri))
                 self.data_sources[field] = [meowuri]
             else:
+                log.debug('Added (additional) known source for field {!s} :: {!s}'.format(field.as_placeholder(), meowuri))
                 self.data_sources[field] += [meowuri]
         else:
             log.debug('Attempted to add source for unused name template field '
@@ -103,40 +115,48 @@ class TemplateFieldDataResolver(object):
 
     def lookup_candidates(self, field):
         # TODO: [TD0024][TD0025] Implement Interactive mode.
+        log.debug('Resolver is looking up candidates for field {!s} ..'.format(field.as_placeholder()))
         candidates = repository.SessionRepository.query_mapped(self.file, field)
+        log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field.as_placeholder()))
 
         out = []
         for candidate in candidates:
-            if not candidate:
-                # TODO: Fix None candidates getting here.
+            sanity.check_isinstance(candidate, dict)
+
+            candidate_mapped_fields = candidate.get('mapped_fields')
+            if not candidate_mapped_fields:
                 continue
 
-            mapped_fields = candidate.get('mapped_fields')
-            if not mapped_fields:
-                continue
-
-            _prob = 0.0
-            for fm in mapped_fields:
-                if fm.field == field:
-                    _prob = fm.probability
+            # TODO: How does this behave if the same generic field is mapped more than once with different probabilities?
+            _candidate_probability = str(0.0)
+            for mapping in candidate_mapped_fields:
+                if mapping.field == field:
+                    _candidate_probability = str(mapping.probability)
                     break
-            else:
-                assert False, (
-                    'Duplicated field mapped in "{!s}"'.format(candidate)
-                )
 
-            _coercer = candidate.get('coercer')
-            _value = candidate.get('value')
+            _candidate_coercer = candidate.get('coercer')
+            _candidate_value = candidate.get('value')
             _formatted_value = ''
-            if _value and _coercer:
-                _formatted_value = _coercer.format(_value)
+            if _candidate_value and _candidate_coercer:
+                _formatted_value = _candidate_coercer.format(_candidate_value)
 
-            _source = candidate.get('source', '(unknown source)')
-            _meowuri = candidate.get('meowuri', '')
+            if 'source' not in candidate:
+                log.warning('Unknown source: {!s}'.format(candidate))
+            _candidate_source = candidate.get('source', '(unknown source)')
+            _candidate_meowuri = candidate.get('meowuri', '')
+            _candidate_generic_field = candidate.get('generic_field')
+
+            # TODO: Translate generic 'choice.meowuri' to not generic..
+            if _candidate_meowuri.is_generic:
+                log.error('Added generic candidate MeowURI {!s}'.format(_candidate_meowuri))
 
             out.append(
-                FieldDataCandidate(value=_formatted_value, source=_source,
-                                   probability=str(_prob), meowuri=_meowuri)
+                FieldDataCandidate(string_value=_formatted_value,
+                                   source=_candidate_source,
+                                   probability=_candidate_probability,
+                                   meowuri=_candidate_meowuri,
+                                   coercer=_candidate_coercer,
+                                   generic_field=_candidate_generic_field)
             )
 
         # TODO: [TD0104] Merge candidates and re-normalize probabilities.
@@ -162,12 +182,9 @@ class TemplateFieldDataResolver(object):
                           '{{{}}}"'.format(_str_field))
                 continue
 
-            if not _meowuris:
-                log.debug(
-                    'Resolver attempted to gather data with empty MeowURI!'
-                )
-                continue
-
+            assert _meowuris, (
+                'Resolver attempted to gather data with empty MeowURI!'
+            )
             for _meowuri in _meowuris:
                 log.debug(
                     'Gathering data for template field {{{}}} from [{:8.8}]->'
@@ -178,8 +195,7 @@ class TemplateFieldDataResolver(object):
                 _data = self._request_data(self.file, _meowuri)
                 if _data is None:
                     log.debug('Got NONE data from [{:8.8}]->[{!s}]'.format(
-                        self.file.hash_partial, _meowuri)
-                    )
+                        self.file.hash_partial, _meowuri))
                     continue
 
                 # TODO: [TD0112] FIX THIS HORRIBLE MESS!
@@ -190,12 +206,9 @@ class TemplateFieldDataResolver(object):
                                   'entries'.format(len(_data)))
                         _data = _data[0]
                     else:
-                        log.warning('Not sure what data to use for field '
-                                    '{{{}}}..'.format(_str_field))
+                        log.warning('[TD0112] Not sure what data to use for field {{{}}}..'.format(_str_field))
                         for i, d in enumerate(_data):
-                            log.warning('Field {{{}}} candidate {:03d} :: '
-                                        '"{!s}"'.format(_str_field, i,
-                                                        d.get('value')))
+                            log.debug('[TD0112] Field {{{}}} candidate {:03d} :: "{!s}"'.format(_str_field, i, d.get('value')))
                         continue
 
                 # # TODO: [TD0112] Clean up merging data.
@@ -208,13 +221,11 @@ class TemplateFieldDataResolver(object):
                     if len(seen_data) == 1:
                         # TODO: [TD0112] FIX THIS!
                         log.debug('Merged {} equivalent entries'.format(
-                            len(_data.get('value')))
-                        )
+                            len(_data.get('value'))))
                         _data['value'] = list(seen_data)[0]
 
                 log.debug('Updated data for field {{{}}} :: "{!s}"'.format(
-                    _str_field, _data.get('value')
-                ))
+                    _str_field, _data.get('value')))
                 self.fields_data[_field] = _data
                 break
 
@@ -225,12 +236,9 @@ class TemplateFieldDataResolver(object):
                 if not field.MULTIVALUED:
                     self.fields_data[field] = None
                     log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
-                    log.debug(
-                        'Template field {{{!s}}} expects a single value. '
-                        'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
-                                                   type(data), data)
-                    )
-
+                    log.debug('Template field {{{!s}}} expects a single value. '
+                              'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
+                                                         type(data), data))
                 for d in data:
                     self._verify_type(field, d)
             else:
@@ -245,7 +253,8 @@ class TemplateFieldDataResolver(object):
     def _verify_type(self, field, data):
         _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
         assert not isinstance(data, list), (
-               'Expected "data" not to be a list. Got {}'.format(_data_info))
+            'Expected "data" not to be a list. Got {}'.format(_data_info)
+        )
 
         log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
         _coercer = data.get('coercer')
@@ -256,11 +265,11 @@ class TemplateFieldDataResolver(object):
             self.fields_data[field] = None
             log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
 
-    def _request_data(self, file, meowuri):
+    def _request_data(self, fileobject, meowuri):
         log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
-            self, file.hash_partial, meowuri)
-        )
-        return repository.SessionRepository.query(file, meowuri)
+            self, fileobject.hash_partial, meowuri))
+
+        return provider.query(fileobject, meowuri)
 
     def __str__(self):
         return self.__class__.__name__

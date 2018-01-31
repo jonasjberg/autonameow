@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -24,7 +24,6 @@ import logging
 import util
 from core import exceptions
 from core.ui.cli import ColumnFormatter
-from core.model import MeowURI
 from util import encoding as enc
 from util import sanity
 from util import textutils
@@ -58,7 +57,7 @@ class Repository(object):
     keys into containing structures that use "MeowURIs" (Unicode strings) keys.
     """
     def __init__(self):
-        self.data = {}
+        self.data = dict()
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
@@ -74,13 +73,15 @@ class Repository(object):
         Adds data related to a given 'fileobject', at a storage location
         defined by the given 'meowuri'.
         """
-        if not meowuri or not isinstance(meowuri, MeowURI):
-            raise exceptions.InvalidMeowURIError
+        sanity.check_isinstance_meowuri(meowuri)
 
         if not data:
             log.warning('Attempted to add empty data with meowURI'
                         ' "{!s}"'.format(meowuri))
             return
+
+        # if meowuri == 'extractor.filesystem.xplat.basename.full':
+        #     assert 'extractor.filesystem.xplat.basename.full' not in self.data[fileobject]
 
         if isinstance(data, list):
             data_sample = data[0]
@@ -92,15 +93,13 @@ class Repository(object):
         self._store_generic(fileobject, data)
 
     def _store_generic(self, fileobject, data):
-        def __store(data):
-            if data.get('generic_field') is not None:
-                try:
-                    _gen_uri = data['generic_field'].uri()
-                except AttributeError:
-                    self.log.critical('TODO: Fix missing "field.uri()" for some'
-                                      ' GenericField classes!')
-                else:
-                    self._store(fileobject, _gen_uri, data)
+        # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
+        def __store(_data):
+            _generic_field = _data.get('generic_field')
+            if _generic_field:
+                assert not isinstance(_generic_field, str), str(_data)
+                _gen_uri = _data['generic_field'].uri()
+                self._store(fileobject, _gen_uri, _data)
 
         if isinstance(data, list):
             for d in data:
@@ -116,10 +115,13 @@ class Repository(object):
         else:
             _debugmsg_data = data
 
-        log.debug('{} storing: [{:8.8}]->[{!s}] :: "{!s}"'.format(
-            self.__class__.__name__, fileobject.hash_partial, meowuri,
-            _debugmsg_data.get('value')
-        ))
+        if __debug__:
+            log.debug('{} storing: [{:8.8}]->[{!s}] :: "{!s}"'.format(
+                self.__class__.__name__,
+                fileobject.hash_partial,
+                meowuri,
+                _debugmsg_data.get('value')
+            ))
         try:
             any_existing = self.__get_data(fileobject, meowuri)
         except KeyError:
@@ -158,9 +160,10 @@ class Repository(object):
                 'Unable to resolve empty meowURI'
             )
 
-        log.debug('Got request [{:8.8}]->[{!s}]'.format(
-            fileobject.hash_partial, meowuri))
-
+        if __debug__:
+            log.debug('Got request [{:8.8}]->[{!s}]'.format(
+                fileobject.hash_partial, meowuri
+            ))
         try:
             data = self.__get_data(fileobject, meowuri)
         except KeyError as e:
@@ -193,7 +196,7 @@ class Repository(object):
     @staticmethod
     def _machine_readable_contents(data):
         # First pass -- handle encoding and truncating extracted text.
-        temp = {}
+        temp = dict()
         for meowuri, data in sorted(data.items()):
             if isinstance(data, list):
                 log.debug('TODO: Improve robustness of handling this case')
@@ -272,7 +275,7 @@ class RepositoryPool(object):
     DEFAULT_SESSION_ID = 'SINGLETON_SESSION'
 
     def __init__(self):
-        self._repositories = {}
+        self._repositories = dict()
 
     def get(self, id_=None):
         if id_ is None:

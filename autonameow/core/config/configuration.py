@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -85,8 +85,7 @@ class Configuration(object):
         """
         if self._version:
             return 'v' + '.'.join(map(str, self._version))
-        else:
-            return None
+        return None
 
     @property
     def options(self):

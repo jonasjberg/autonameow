@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -29,6 +29,8 @@ from core import (
     exceptions,
     extraction,
     logs,
+    types,
+    ui
 )
 from core.fileobject import FileObject
 from extractors import ExtractorError
@@ -39,114 +41,116 @@ from util import disk
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0159] Fix stand-alone extractor not respecting the `--quiet` option.
+
+
 def do_extract_text(fileobject):
     klasses = extraction.suitable_extractors_for(fileobject)
-    if klasses:
-        log.debug('Got {} extractors for "{!s}"'.format(len(klasses),
-                                                        fileobject))
-        for k in klasses:
-            log.debug(str(k))
+    if not klasses:
+        log.debug('No extractors suitable for "{!s}"'.format(fileobject))
+        return
 
-        text_extractors = [
-            k for k in klasses
-            if k.meowuri_prefix().startswith('extractor.text')
-        ]
-        if not text_extractors:
-            log.warning(
-                'No text extractors are suited for "{!s}"'.format(fileobject)
+    log.debug('Got {} extractors for "{!s}"'.format(len(klasses), fileobject))
+    for k in klasses:
+        log.debug(str(k))
+
+    text_extractors = [
+        k for k in klasses
+        if k.meowuri_prefix().startswith('extractor.text')
+    ]
+    if not text_extractors:
+        log.warning(
+            'No text extractors are suited for "{!s}"'.format(fileobject)
+        )
+        return
+
+    log.debug('Got {} text extractors for "{!s}"'.format(len(text_extractors),
+                                                         fileobject))
+    for te in text_extractors:
+        log.debug(str(te))
+
+    for te in text_extractors:
+        _extractor_instance = te()
+        try:
+            _text = _extractor_instance.extract(fileobject)
+        except ExtractorError as e:
+            log.error(
+                'Halted extractor "{!s}": {!s}'.format(_extractor_instance, e)
             )
-            return None
+            continue
 
-        log.debug('Got {} text extractors for "{!s}"'.format(
-            len(text_extractors), fileobject
-        ))
-        for te in text_extractors:
-            log.debug(str(te))
+        assert isinstance(_text, dict)
+        _full_text = _text.get('full')
+        if not _full_text:
+            log.error('Unable to extract text from "{!s}"'.format(fileobject))
+            return
 
-        for te in text_extractors:
-            _extractor_instance = te()
-            try:
-                _text = _extractor_instance.extract(fileobject)
-            except ExtractorError as e:
-                log.error('Halted extractor "{!s}": {!s}'.format(
-                    _extractor_instance, e
-                ))
-                continue
-
-            assert isinstance(_text, dict)
-            _full_text = _text.get('full')
-            if not _full_text:
-                log.error('Unable to extract text from "{!s}"'.format(
-                    fileobject
-                ))
-                return None
-
-            assert isinstance(_full_text, str)
-            # TODO: Factor out method of presenting the extracted text.
-            log.info('{!s} Extracted Text:'.format(_extractor_instance))
-            print(_full_text)
+        assert isinstance(_full_text, str)
+        # TODO: Factor out method of presenting the extracted text.
+        ui.msg('Text Extracted by {!s}:'.format(_extractor_instance),
+               style='section')
+        ui.msg(_full_text)
 
 
 def do_extract_metadata(fileobject):
     klasses = extraction.suitable_extractors_for(fileobject)
-    if klasses:
-        log.debug('Got {} extractors for "{!s}"'.format(len(klasses),
-                                                        fileobject))
-        for k in klasses:
-            log.debug(str(k))
+    if not klasses:
+        log.debug('No extractors suitable for "{!s}"'.format(fileobject))
+        return
 
-        metadata_extractors = [
-            k for k in klasses
-            if k.meowuri_prefix().startswith('extractor.metadata')
-        ]
-        if not metadata_extractors:
-            log.warning(
-                'No metadata extractors are suited for "{!s}"'.format(fileobject)
-            )
-            return None
+    log.debug('Got {} extractors for "{!s}"'.format(len(klasses), fileobject))
+    for k in klasses:
+        log.debug(str(k))
 
-        log.debug('Got {} metadata extractors for "{!s}"'.format(
-            len(metadata_extractors), fileobject
-        ))
-        for me in metadata_extractors:
-            log.debug(str(me))
+    metadata_extractors = [
+        k for k in klasses
+        if k.meowuri_prefix().startswith('extractor.metadata')
+    ]
+    if not metadata_extractors:
+        log.warning(
+            'No metadata extractors are suited for "{!s}"'.format(fileobject)
+        )
+        return
 
-        for me in metadata_extractors:
-            _extractor_instance = me()
-            try:
-                _metadata = _extractor_instance.extract(fileobject)
-            except ExtractorError as e:
-                log.error('Halted extractor "{!s}": {!s}'.format(
-                    _extractor_instance, e
-                ))
-                continue
+    log.debug('Got {} metadata extractors for "{!s}"'.format(
+        len(metadata_extractors), fileobject
+    ))
+    for me in metadata_extractors:
+        log.debug(str(me))
 
-            try:
-                _metainfo = _extractor_instance.metainfo(fileobject)
-            except ExtractorError as e:
-                log.error('Halted extractor "{!s}": {!s}'.format(
-                    _extractor_instance, e
-                ))
-                continue
+    for me in metadata_extractors:
+        _extractor_instance = me()
+        try:
+            _metadata = _extractor_instance.extract(fileobject)
+        except ExtractorError as e:
+            log.error('Halted extractor "{!s}": {!s}'.format(
+                _extractor_instance, e
+            ))
+            continue
 
-            assert isinstance(_metadata, dict)
-            assert isinstance(_metainfo, dict)
+        try:
+            _metainfo = _extractor_instance.metainfo()
+        except ExtractorError as e:
+            log.error('Halted extractor "{!s}": {!s}'.format(
+                _extractor_instance, e
+            ))
+            continue
 
-            print('\n\nResults for {!s}'.format(_extractor_instance))
-            print('_metadata contents:')
-            for k, v in _metadata.items():
-                print('{!s}: {!s}'.format(k, v))
+        assert isinstance(_metadata, dict)
+        assert isinstance(_metainfo, dict)
 
-            print('\n_metainfo filtered for keys also in _metadata ({!s} entries unfiltered):'.format(len(_metainfo)))
-            for k, v in _metainfo.items():
-                if k not in _metadata:
-                    continue
-                print('{!s}: {!s}'.format(k, v))
+        ui.msg('Metadata Extracted by {!s}'.format(_extractor_instance),
+               style='section')
+        cf = ui.ColumnFormatter()
+        for k, v in sorted(_metadata.items()):
+            cf.addrow(str(k), str(v))
+        cf.addemptyrow()
+        ui.msg(cf)
 
 
 def main(options=None):
     if options is None:
-        options = {}
+        options = dict()
 
     # Default options are defined here.
     # Passed in 'options' always take precedence and overrides the defaults.
@@ -154,8 +158,6 @@ def main(options=None):
         'debug': False,
         'verbose': False,
         'quiet': False,
-
-        'show_version': False,
 
         'extract_text': False,
         'extract_metadata': False,
@@ -196,13 +198,12 @@ def main(options=None):
         except (exceptions.InvalidFileArgumentError,
                 exceptions.FilesystemError) as e:
             log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                e, enc.displayable_path(_file))
-            )
+                e, enc.displayable_path(_file)))
             continue
 
+        ui.msg('{!s}'.format(current_file), style='heading')
         log.info('Processing ({}/{}) "{!s}" ..'.format(
-            _num, _num_files, current_file
-        ))
+            _num, _num_files, current_file))
 
         if opts.get('extract_text'):
             do_extract_text(current_file)
@@ -218,7 +219,7 @@ def parse_args(raw_args):
             C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION
         ),
         epilog='Run autonameow extractors stand-alone.' +
-               '\n Project website:  {}'.format(C.STRING_REPO_URL),
+        '\n Project website:  {}'.format(C.STRING_URL_REPO),
     )
 
     parser.add_argument(

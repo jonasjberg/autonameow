@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -21,6 +21,7 @@
 
 import logging
 import os
+import sys
 
 try:
     from prompt_toolkit import prompt
@@ -54,7 +55,10 @@ from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from core.ui import cli
 from util import encoding as enc
-from util import disk
+from util import (
+    disk,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)
@@ -177,6 +181,14 @@ def field_selection_prompt(candidates):
 
 
 def ask_confirm(message):
+    if not sys.__stdout__.isatty():
+        # TODO: [TD0111] Separate abstract user interaction from CLI specifics.
+        log.critical('Standard input is not a TTY --- would have triggered an '
+                     'AssertionError in "prompt_toolkit". ABORTING!')
+        return False
+
+    sanity.check_internal_string(message)
+
     # TODO: Test this!
     answer = confirm(message + ' ')
     return answer

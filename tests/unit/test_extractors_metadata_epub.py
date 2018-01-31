@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -57,7 +57,6 @@ class TestEpubMetadataExtractorOutputTestFileA(CaseExtractorOutput):
     __test__ = True
     EXTRACTOR_CLASS = EpubMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
-    _dt = uu.str_to_datetime
     EXPECTED_FIELD_TYPE_VALUE = [
         ('title', str, 'Human, All Too Human: A Book for Free Spirits'),
     ]

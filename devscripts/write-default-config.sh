@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -37,7 +37,7 @@ dest_path="${AUTONAMEOW_ROOT_DIR}/test_files/configs/default.yaml"
 if [ -e "$dest_path" ]
 then
     echo "Destination exists: \"${dest_path}\""
-    
+
     _ts="$(date "+%Y-%m-%dT%H%M%S")"
     _move_dest="${AUTONAMEOW_ROOT_DIR}/notes/test_files_default_config_${_ts}.yaml"
     mv -nvi -- "$dest_path" "$_move_dest" || exit 1

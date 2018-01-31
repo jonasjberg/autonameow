@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -110,8 +110,6 @@ DEFAULT_CONFIG = {
                 'extractor.filesystem.xplat.basename.full': 'DCIM*',
                 'extractor.filesystem.xplat.basename.extension': 'jpg',
                 'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
-                # TODO: [TD0015] Ensure proper validation of entry below.
-                'extractor.metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
             },
             'DATA_SOURCES': {
                 'datetime': [
@@ -246,12 +244,10 @@ DEFAULT_CONFIG = {
 
 
 if __name__ == '__main__':
-    """
-    Run as stand-alone to write DEFAULT_CONFIG to a YAML-file.
-
-    NOTE: Relative imports require PYTHONPATH to be set ..
-          Workaround wrapper-script at "devscripts/write-default-config.sh"
-    """
+    # Run as stand-alone to write DEFAULT_CONFIG to a YAML-file.
+    #
+    # NOTE: Relative imports require PYTHONPATH to be set ..
+    #       Workaround wrapper-script at "devscripts/write-default-config.sh"
     import os
     import sys
     from datetime import datetime

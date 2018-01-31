@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -136,23 +136,15 @@ class RuleCondition(object):
             )
 
     def _validate_expression(self, raw_expression):
-        if self._parser.validate(raw_expression):
-            return True
-        else:
-            return False
+        return bool(self._parser.validate(raw_expression))
 
     def _get_parser_for(self, meowuri):
         if self._parser:
             return self._parser
 
-        parsers = field_parsers.suitable_field_parser_for(meowuri)
-        if parsers:
-            # NOTE(jonas): Assume only one parser per "MeowURI" for now ..
-            assert len(parsers) == 1, (
-                   'Unexpectedly got {} parsers for MeowURI '
-                   '"{!s}"'.format(len(parsers), meowuri))
-
-            self._parser = parsers[0]
+        parser = field_parsers.suitable_field_parser_for(meowuri)
+        if parser:
+            self._parser = parser
 
         return self._parser
 
@@ -175,10 +167,7 @@ class RuleCondition(object):
             return False
 
         result = self._parser.evaluate(self.expression, data)
-        if result:
-            return result
-        else:
-            return False
+        return result if result else False
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -205,8 +194,7 @@ class RuleCondition(object):
         return '{!s}: {!s}'.format(self.meowuri, self.expression)
 
     def __repr__(self):
-        return 'RuleCondition("{}", "{}")'.format(self.meowuri,
-                                                  self.expression)
+        return 'RuleCondition({_meowuri}, {_expression})'.format(**self.__dict__)
 
 
 class Rule(object):
@@ -248,7 +236,6 @@ class Rule(object):
         # NOTE(jonas): This assumes instances of 'RuleCondition' are immutable!
         self.__cached_hash = None
 
-
     @property
     def description(self):
         return self._description
@@ -276,8 +263,7 @@ class Rule(object):
     def ranking_bias(self):
         if self._ranking_bias:
             return self._ranking_bias
-        else:
-            return C.DEFAULT_RULE_RANKING_BIAS
+        return C.DEFAULT_RULE_RANKING_BIAS
 
     @ranking_bias.setter
     def ranking_bias(self, raw_ranking_bias):
@@ -523,7 +509,7 @@ def parse_conditions(raw_conditions):
 
 
 def parse_data_sources(raw_sources):
-    passed = {}
+    passed = dict()
 
     if not raw_sources:
         # Allow empty/None data sources.
@@ -547,6 +533,8 @@ def parse_data_sources(raw_sources):
                         'instance. This should not happen!')
             log.warning('Template Field: ”{!s}"'.format(raw_templatefield))
             continue
+
+        assert issubclass(tf, fields.NameTemplateField), type(tf)
 
         if not raw_meowuri_strings:
             log.debug('Skipped source with empty MeowURI(s) '

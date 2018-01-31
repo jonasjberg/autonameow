@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -32,10 +32,7 @@ except ImportError:
     colorama = None
 
 from core import constants as C
-from core import (
-    types,
-    version
-)
+from core import types
 import util
 from util import encoding as enc
 
@@ -61,21 +58,21 @@ def print_version_info(verbose):
         else:
             _commit = ''
 
-        _release_date = 'Released {}'.format(version.RELEASE_DATE)
+        _release_date = 'Released {}'.format(C.STRING_PROGRAM_RELEASE_DATE)
 
         cf = ColumnFormatter()
-        cf.addrow(C.STRING_PROGRAM_NAME, version.__copyright__)
+        cf.addrow(C.STRING_PROGRAM_NAME, C.STRING_COPYRIGHT_NOTICE)
         cf.addrow('version {}'.format(C.STRING_PROGRAM_VERSION),
-                  version.__email__)
-        cf.addrow(_release_date, version.__url__)
-        cf.addrow(_commit, version.__url_repo__)
+                  C.STRING_AUTHOR_EMAIL)
+        cf.addrow(_release_date, C.STRING_URL_MAIN)
+        cf.addrow(_commit, C.STRING_URL_REPO)
         cf.setalignment('left', 'right')
         columnated_text = str(cf)
         columnated_text_width = cf.max_column_width()
 
         # TODO: [hardcoded] Uses fixed spaces for alignment.
         # Passing colored texts with ANSI escape sequences messes
-        # up the text width detected by the the 'ColumnFormatter' .. 
+        # up the text width detected by the the 'ColumnFormatter' ..
         program_name = colorize(
             '  {}  '.format(C.STRING_PROGRAM_NAME), back='BLUE', fore='BLACK'
         )
@@ -186,7 +183,8 @@ def colorize(text, fore=None, back=None, style=None):
 def colorize_re_match(text, regex, color=None):
     _re_type = types.BUILTIN_REGEX_TYPE
     assert regex and isinstance(regex, _re_type), (
-           'Expected type {!s}. Got {!s}'.format(type(_re_type), type(regex)))
+        'Expected type {!s}. Got {!s}'.format(type(_re_type), type(regex))
+    )
 
     if color is not None:
         _color = color
@@ -245,6 +243,7 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
         message: The raw text message to print as a string.
         style: Optional message type.
         add_info_log: Displays and logs the message if True. Defaults to False.
+        ignore_quiet: Whether to ignore the global quiet ('--quiet') option.
     """
     if not ignore_quiet:
         global BE_QUIET
@@ -280,10 +279,15 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
         print(_colored_heading_text)
         print(_colored_heading_underline)
 
+    elif style == 'section':
+        _colored_section_text = colorize(message, style='BRIGHT')
+        print('\n' + _colored_section_text)
+
     elif style == 'color_quoted':
         print(colorize_quoted(message, color='LIGHTGREEN_EX'))
 
     else:
+        log.warning('Unknown message style "{!s}"'.format(style))
         print_default_msg(message)
         if add_info_log:
             log.info(message)
@@ -298,6 +302,7 @@ def msg_rename(from_basename, dest_basename, dry_run):
         dest_basename: The new basename of the file to be renamed.
         dry_run: True if the operation was a "dry run"/simulation.
     """
+    # TODO: [TD0156] Pass only Unicode strings to the UI.
     _name_old = colorize_quoted(
         '"{!s}"'.format(enc.displayable_path(from_basename)),
         color='WHITE'
@@ -313,6 +318,31 @@ def msg_rename(from_basename, dest_basename, dry_run):
     else:
         cf.addrow('Renamed', '{!s}')
 
+    cf.addrow('->', '{!s}')
+    _message = str(cf)
+    msg(_message.format(_name_old, _name_new), ignore_quiet=True)
+
+
+def msg_possible_rename(from_basename, dest_basename):
+    """
+    Displays a message about a "possible" rename operation to the user.
+
+    Args:
+        from_basename: The original basename of the file to be renamed.
+        dest_basename: The new basename of the file to be renamed.
+    """
+    # TODO: [TD0156] Pass only Unicode strings to the UI.
+    _name_old = colorize_quoted(
+        '"{!s}"'.format(enc.displayable_path(from_basename)),
+        color='WHITE'
+    )
+    _name_new = colorize_quoted(
+        '"{!s}"'.format(enc.displayable_path(dest_basename)),
+        color='LIGHTGREEN_EX'
+    )
+
+    cf = ColumnFormatter(align='right')
+    cf.addrow('About to rename', '{!s}')
     cf.addrow('->', '{!s}')
     _message = str(cf)
     msg(_message.format(_name_old, _name_new), ignore_quiet=True)
@@ -411,8 +441,7 @@ class ColumnFormatter(object):
             out = []
             out.extend(self._default_align for _ in range(self.number_columns))
             return out
-        else:
-            return self._column_align
+        return self._column_align
 
     @property
     def number_columns(self):
@@ -500,8 +529,7 @@ class ColumnFormatter(object):
                 padding.join(
                     getattr(word, align)(width)
                     for word, width, align in zip(
-                        row, self._column_widths,
-                        self.alignment
+                        row, self._column_widths, self.alignment
                     )
                 )
             )

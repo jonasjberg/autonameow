@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -128,9 +128,8 @@ def build(config, name_template, field_data_map):
             log.debug('Sanitizing filename')
             new_name = disk.sanitize_filename(new_name)
 
-        log.debug('Sanitized basename (unicode): "{!s}"'.format(
-            enc.displayable_path(new_name))
-        )
+        log.debug('Sanitized basename (unicode): '
+                  '"{!s}"'.format(enc.displayable_path(new_name)))
     else:
         log.debug('Skipped sanitizing filename')
 
@@ -152,7 +151,7 @@ def build(config, name_template, field_data_map):
 
 
 def pre_assemble_format(field_data_dict, config):
-    out = {}
+    out = dict()
 
     for field, data in field_data_dict.items():
         log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))
@@ -225,4 +224,3 @@ def populate_name_template(name_template, **kwargs):
         raise exceptions.NameTemplateSyntaxError(e)
     else:
         return out
-

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -25,7 +25,7 @@ from unittest.mock import Mock
 import analyzers
 import unit.utils as uu
 from core import analysis
-from core.analysis import suitable_analyzers_for
+from core.analysis import filter_able_to_handle
 
 
 class TestAnalysis(TestCase):
@@ -35,15 +35,15 @@ class TestAnalysis(TestCase):
         mock_config = Mock()
         self.config = mock_config
 
-    def test_analysis_start_requires_fileobject_argument(self):
+    def test_analysis__start_requires_fileobject_argument(self):
         for _bad_arg in [None, 'foo', object()]:
             with self.assertRaises(AssertionError):
-                analysis.start(_bad_arg, self.config)
+                analysis._start(_bad_arg, self.config)
 
-    def test_analysis_start_requires_config_argument(self):
+    def test_analysis__start_requires_config_argument(self):
         for _bad_arg in [None, 'foo', object()]:
             with self.assertRaises(AssertionError):
-                analysis.start(self.fo, _bad_arg)
+                analysis._start(self.fo, _bad_arg)
 
     def test__instantiate_analyzers_returns_expected_type(self):
         analyzer_classes = analyzers.get_analyzer_classes()
@@ -57,9 +57,16 @@ class TestAnalysis(TestCase):
             self.assertTrue(issubclass(ac.__class__, analyzers.BaseAnalyzer))
 
 
-class TestSuitableAnalyzersFor(TestCase):
+class TestFilterAbleToHandle(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.ALL_AVAILABLE_ANALYZERS = analyzers.ProviderClasses
+
     def _assert_suitable(self, fileobject, expect_analyzers):
-        actual = [c.__name__ for c in suitable_analyzers_for(fileobject)]
+        actual = [
+            c.__name__ for c in
+            filter_able_to_handle(self.ALL_AVAILABLE_ANALYZERS, fileobject)
+        ]
         for analyzer in expect_analyzers:
             self.assertIn(analyzer, actual)
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -83,8 +83,4 @@ def extract_pdf_content_with_pdftotext(file_path):
         )
 
     result = decode_raw(stdout)
-    if not result:
-        return ''
-    else:
-        return result.strip()
-
+    return result.strip() if result else ''

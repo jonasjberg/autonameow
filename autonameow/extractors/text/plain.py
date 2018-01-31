@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -69,15 +69,14 @@ def read_entire_text_file(file_path):
             )
             contents = _read_entire_text_file_autodetect_encoding(file_path)
 
-    if contents:
-        log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
-                                                                  file_path))
-        text = ''.join(contents)
-        sanity.check_internal_string(text)
-        return text
-    else:
+    if not contents:
         log.debug('Read NOTHING from file "{!s}"'.format(file_path))
         return ''
+
+    log.debug('Read {} bytes from "{!s}"'.format(len(contents), file_path))
+    text = ''.join(contents)
+    sanity.check_internal_string(text)
+    return text
 
 
 def _read_entire_text_file_autodetect_encoding(file_path):
@@ -94,6 +93,7 @@ def _read_entire_text_file_autodetect_encoding(file_path):
 
 
 def autodetect_encoding(file_path):
+    assert chardet, 'Missing required module "chardet"'
     try:
         with open(file_path, 'rb') as fh:
             detected_encoding = chardet.detect(fh.read())

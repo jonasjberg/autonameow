@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -68,33 +68,11 @@ def subclasses_base_plugin(klass):
     return uu.is_class(klass) and issubclass(klass, plugins.BasePlugin)
 
 
-class TestMapMeowURIToPlugins(TestCase):
-    def setUp(self):
-        self.actual = plugins.map_meowuri_to_plugins()
-
-    def test_returns_expected_type(self):
-        self.assertIsNotNone(self.actual)
-        self.assertIsInstance(self.actual, dict)
-
-        for meowuri, klass_list in self.actual.items():
-            self.assertTrue(uu.is_internalstring(meowuri))
-            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
-
-            for klass in klass_list:
-                self.assertTrue(subclasses_base_plugin(klass))
-                self.assertTrue(uu.is_class(klass))
-
-    def test_returns_one_plugin_per_meowuri(self):
-        # This assumption is likely bound to change some time soon.
-        for meowuri, klass_list in self.actual.items():
-            self.assertEqual(len(klass_list), 1)
-
-
 class TestPluginClassMeowURIs(TestCase):
-    plugin_class_names = [p.__name__ for p in plugins.UsablePlugins]
+    plugin_class_names = [p.__name__ for p in plugins.ProviderClasses]
 
     def setUp(self):
-        self.actual = [k.meowuri_prefix() for k in plugins.UsablePlugins]
+        self.actual = [k.meowuri_prefix() for k in plugins.ProviderClasses]
 
     def test_returns_expected_type(self):
         for meowuri in self.actual:

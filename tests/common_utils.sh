@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -74,7 +74,7 @@ run_task()
     local _retcode="$?"
     if [ "$_retcode" -ne '0' ]
     then
-        count_fail="$((count_fail + 1))"
+        COUNT_FAIL="$((COUNT_FAIL + 1))"
     fi
 
     # Print task has ended message, interpreting exit codes as;

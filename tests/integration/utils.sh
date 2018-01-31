@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -21,10 +21,10 @@
 
 set -o noclobber -o nounset -o pipefail
 
+
 C_RED="$(tput setaf 1)"
 C_GREEN="$(tput setaf 2)"
 C_RESET="$(tput sgr0)"
-# C_RESET='\E[0m'
 
 
 # Initialize counter variables every time this script is sourced
@@ -56,9 +56,9 @@ initialize_logging()
 
 initialize_global_stats()
 {
-    if ! AUTONAMEOW_INTEGRATION_STATS="$(realpath -e -- "$(mktemp)")"
+    if ! AUTONAMEOW_INTEGRATION_STATS="$(realpath -e -- "$(mktemp -t aw_test_stats.XXXXXX)")"
     then
-        echo "Unable to create temporary global statistics file .. Aborting" >&2
+        echo 'Unable to create temporary global statistics file .. Aborting' >&2
         exit 1
     fi
 
@@ -235,7 +235,7 @@ log_system_info()
 }
 
 # Converts the integration test log file to HTML using executable 'aha' if
-# available.  Executed at the end of a test run by 'integration_runner.sh'.
+# available.  Executed at the end of a test run by 'run_integration_tests.sh'.
 convert_raw_log_to_html()
 {
     if ! command -v "aha" >/dev/null 2>&1
@@ -314,15 +314,6 @@ calculate_execution_time()
 abspath_testfile()
 {
     ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e "test_files/${1}" )
-}
-
-# Takes the basename of a logfile as the first and only argument.
-# Any dates matching 'YYYY-MM-DDTHHMMSS' are returned as 'YYYY-MM-DD HH:MM:SS'.
-get_timestamp_from_basename()
-{
-    local _ts
-    _ts="$(grep -Eo -- "20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{6}" <<< "$1")"
-    sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)T\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3 \4:\5:\6/' <<< "$_ts"
 }
 
 # Test a bunch of '[ -d "foo" ]'-style assertions at once.

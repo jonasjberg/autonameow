@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -78,44 +78,4 @@ def get_usable_plugin_classes():
     return [k for k in get_plugin_classes() if k.test_init()]
 
 
-# TODO: Use or remove function 'suitable_plugins_for'.
-# def suitable_plugins_for(fileobject):
-#     """
-#     Returns plugin classes that can handle the given file object.
-#
-#     Args:
-#         fileobject: File to get plugins for as an instance of 'FileObject'.
-#
-#     Returns:
-#         A list of plugin classes that can handle the given file.
-#     """
-#     return [p for p in UsablePlugins if p.can_handle(fileobject)]
-
-
-def map_meowuri_to_plugins():
-    """
-    Returns a mapping of the plugin classes "meowURIs" and actual classes.
-
-    Returns: A dictionary where the keys are "meowURIs" and the values
-        are lists of analyzer classes.
-    """
-    out = {}
-
-    for klass in UsablePlugins:
-        _meowuri = klass.meowuri_prefix()
-        if not _meowuri:
-            log.error(
-                'Got None from "{!s}.meowuri_prefix()"'.format(klass.__name__)
-            )
-            continue
-
-        if _meowuri in out:
-            out[_meowuri].append(klass)
-        else:
-            out[_meowuri] = [klass]
-
-    return out
-
-
-UsablePlugins = get_usable_plugin_classes()
-MeowURIClassMap = map_meowuri_to_plugins()
+ProviderClasses = get_usable_plugin_classes()

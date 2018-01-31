@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -26,7 +26,7 @@ try:
     import magic
 except ImportError:
     raise SystemExit(
-        'Missing required module "magic".  Make sure "magic" (python-magic) '
+        'Missing required module "magic".  Make sure "magic" (file-magic) '
         'is available before running this program.'
     )
 
@@ -50,6 +50,14 @@ def _build_magic():
     http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
       "The following code allows the rest of the script to work the same
        way with either version of 'magic'"
+
+    TODO: Seems like this is the version currently in use? (on MacOS)
+          https://pypi.python.org/pypi/file-magic/0.3.0
+          https://github.com/file/file
+
+          Requires 'libmagic'! Install by running;
+          $ brew install libmagic
+          $ pip3 install file-magic
 
     Returns:
         An instance of 'magic' as type 'Magic'.
@@ -138,8 +146,7 @@ def eval_glob(mime_to_match, glob_list):
     if mime_to_match == types.NULL_AW_MIMETYPE:
         if '*/*' in glob_list:
             return True
-        else:
-            return False
+        return False
 
     if not mime_to_match:
         # Test again after the case above because NullMIMEType evaluates False.
@@ -185,11 +192,11 @@ def eval_glob(mime_to_match, glob_list):
 class MimeExtensionMapper(object):
     def __init__(self):
         # Stores sets.
-        self._mime_to_ext = {}
-        self._ext_to_mime = {}
+        self._mime_to_ext = dict()
+        self._ext_to_mime = dict()
 
         # Stores single strings.
-        self._mime_to_preferred_ext = {}
+        self._mime_to_preferred_ext = dict()
 
     def add_mapping(self, mimetype, extension):
         if extension not in self._ext_to_mime:
@@ -339,6 +346,7 @@ MAPPER.add_mapping('video/x-matroska', 'mkv')
 # Any custom overrides of the "extension to MIME-type"-mapping goes here.
 MAPPER.add_preferred_extension('image/jpeg', 'jpg')
 MAPPER.add_preferred_extension('application/gzip', 'gz')
+MAPPER.add_preferred_extension('audio/midi', 'mid')
 MAPPER.add_preferred_extension('video/quicktime', 'mov')
 MAPPER.add_preferred_extension('video/mp4', 'mp4')
 MAPPER.add_preferred_extension('text/plain', 'txt')

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -19,13 +19,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
-
 """
 Modifications of the default 'argparse' parser are extracted here to allow
 both the main autonameow program as well as other auxiliary programs like
 the regression test runner to use the modified 'argparse' parser.
 """
+
+import argparse
 
 
 class CapitalisedHelpFormatter(argparse.HelpFormatter):

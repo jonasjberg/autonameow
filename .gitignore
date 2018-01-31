@@ -193,6 +193,7 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
+.pytest_cache
 
 # Translations
 *.mo
@@ -253,6 +254,7 @@ Session.vim
 .netrwhist
 # auto-generated tag files
 tags
+.tags
 
 # Test files
 test_files/

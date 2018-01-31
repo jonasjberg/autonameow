@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -95,3 +95,25 @@ class TestConstants(TestCase):
         from datetime import datetime
         self._is_defined_type(datetime, C.YEAR_UPPER_LIMIT)
         self._is_defined_type(datetime, C.YEAR_LOWER_LIMIT)
+
+    def test_meowuri_constants(self):
+        self._is_defined_internal_string(C.MEOWURI_NODE_GENERIC)
+        self._is_defined_internal_string(C.UNDEFINED_MEOWURI_PART)
+        self._is_defined_internal_string(C.MEOWURI_SEPARATOR)
+        self._is_defined_internal_string(C.RE_ALLOWED_MEOWURI_PART_CHARS)
+        self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_ANALYZERS)
+        self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_EXTRACTORS)
+        self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_PLUGINS)
+        self._is_defined_internal_string(C.MEOWURI_ROOT_GENERIC)
+
+        self._is_defined_type(frozenset, C.MEOWURI_ROOTS_SOURCES)
+        self._is_defined_type(frozenset, C.MEOWURI_ROOTS)
+
+    def test_string_constants(self):
+        self._is_defined_internal_string(C.STRING_PROGRAM_VERSION)
+        self._is_defined_internal_string(C.STRING_PROGRAM_RELEASE_DATE)
+        self._is_defined_internal_string(C.STRING_PROGRAM_NAME)
+        self._is_defined_internal_string(C.STRING_AUTHOR_EMAIL)
+        self._is_defined_internal_string(C.STRING_COPYRIGHT_NOTICE)
+        self._is_defined_internal_string(C.STRING_URL_MAIN)
+        self._is_defined_internal_string(C.STRING_URL_REPO)

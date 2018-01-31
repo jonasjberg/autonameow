@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -50,7 +50,7 @@ class BaseField(object):
         return False
 
     def __bool__(self):
-        return self.normvalue is not ''
+        return bool(self.normvalue)
 
     def __len__(self):
         return len(self.normvalue) or 0
@@ -61,20 +61,8 @@ class Author(BaseField):
         super().__init__(value)
         self.normalize = normalize_full_human_name
 
-    def _calculate_weight(self):
-        if not self.value:
-            return 0.0
-
-        return 1.0
-
 
 class Title(BaseField):
     def __init__(self, value):
         super().__init__(value)
         self.normalize = normalize_full_title
-
-    def _calculate_weight(self):
-        if not self.value:
-            return 0.0
-
-        return 1.0

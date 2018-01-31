@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -28,7 +28,9 @@ from unittest.mock import Mock
 try:
     import isbnlib
 except ImportError:
-    isbnlib = None
+    ISBNLIB_IS_NOT_AVAILABLE = True, 'Missing (failed to import) required module "isbnlib"'
+else:
+    ISBNLIB_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
 from analyzers.analyze_ebook import (
@@ -52,7 +54,7 @@ def get_ebook_analyzer(fileobject):
     )
 
 
-@skipIf(isbnlib is None, 'Failed to import required module "isbnlib"')
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestEbookAnalyzer(TestCase):
     def setUp(self):
         self.fileobject = uu.get_named_fileobject('2010-01-31_161251.jpg')
@@ -63,6 +65,7 @@ class TestEbookAnalyzer(TestCase):
         self.assertIsNotNone(self.analyzer)
 
 
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestExtractIsbnsFromText(TestCase):
     def test_returns_expected_type(self):
         text = 'fooo1-56592-306-5baar'
@@ -82,10 +85,10 @@ class TestExtractIsbnsFromText(TestCase):
 
     def test_returns_expected_given_text_with_isbn(self):
         text = '''
-Practical C Programming, 3rd Edition  
-By Steve Oualline 
-3rd Edition August 1997 
-ISBN: 1-56592-306-5 
+Practical C Programming, 3rd Edition
+By Steve Oualline
+3rd Edition August 1997
+ISBN: 1-56592-306-5
 This new edition of "Practical C Programming" teaches users not only the mechanics or
 programming, but also how to create programs that are easy to read, maintain, and
 debug. It features more extensive examples and an introduction to graphical
@@ -112,12 +115,13 @@ ISBN: 1-56592-306-5
         self.assertIn('1565923065', actual)
 
 
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestValidateISBN(TestCase):
     def test_returns_valid_isbn_numbers(self):
         sample_isbn = '1565923065'
         self.assertEqual(validate_isbn(sample_isbn), sample_isbn)
 
-    def test_returns_non_for_invalid_isbn_numbers(self):
+    def test_returns_none_for_invalid_isbn_numbers(self):
         sample_invalid_isbns = [
             None,
             '',
@@ -140,7 +144,7 @@ class TestFilterISBN(TestCase):
         actual = filter_isbns(sample_isbn, self.BLACKLISTED_ISBN_NUMBERS)
         self.assertEqual(actual, sample_isbn)
 
-    def test_returns_non_for_invalid_isbn_numbers(self):
+    def test_returns_none_for_invalid_isbn_numbers(self):
         sample_invalid_isbns = [
             None,
             [None],
@@ -165,6 +169,7 @@ Foo Bar'''
         self.assertEqual(actual, expect_text)
 
 
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestISBNMetadata(TestCase):
     ISBN13_A = '9780136070474'
     ISBN10_A = '0136070477'
@@ -294,6 +299,7 @@ class TestISBNMetadata(TestCase):
         self.assertEqual(m.edition, '2')
 
 
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestISBNMetadataEquality(TestCase):
     ISBN10_A = '3540762884'
     ISBN10_B = '3540762876'
@@ -470,6 +476,7 @@ class TestISBNMetadataEquality(TestCase):
         self.assertNotEqual(m1, m2)
 
 
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestFindEbookISBNsInText(TestCase):
     def test_finds_expected(self):
         text = '''Computational Intelligence
@@ -501,3 +508,49 @@ c by Wydawnictwo Naukowe PWN SA, Warszawa 2005
         actual = find_ebook_isbns_in_text(text)
         self.assertIn('9783540762881', actual)
 
+
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
+class TestMalformedISBNMetadata(TestCase):
+    def test_malformed_author_field_list_of_lists(self):
+        actual = ISBNMetadata(
+            authors=['Stephen Wynkoop [Chris Lester]'],
+            language='eng',
+            publisher='Que',
+            title='Special Edition Using Microsoft SQL Server 6.5',
+            year='1997',
+            isbn13='9780789711175'
+        )
+
+        _expected_authors = ['Stephen Wynkoop', 'Chris Lester']
+        expect = ISBNMetadata(
+            authors=_expected_authors,
+            language='eng',
+            publisher='Que',
+            title='Special Edition Using Microsoft SQL Server 6.5',
+            year='1997',
+            isbn13='9780789711175'
+        )
+        self.assertEqual(expect, actual)
+        self.assertEqual(_expected_authors, actual.authors)
+
+    def test_malformed_author_field_list_of_lists_with_and(self):
+        actual = ISBNMetadata(
+            authors=['Stephen Wynkoop [and Chris Lester]'],
+            language='eng',
+            publisher='Que',
+            title='Special Edition Using Microsoft SQL Server 6.5',
+            year='1997',
+            isbn13='9780789711175'
+        )
+
+        _expected_authors = ['Stephen Wynkoop', 'Chris Lester']
+        expect = ISBNMetadata(
+            authors=_expected_authors,
+            language='eng',
+            publisher='Que',
+            title='Special Edition Using Microsoft SQL Server 6.5',
+            year='1997',
+            isbn13='9780789711175'
+        )
+        self.assertEqual(expect, actual)
+        self.assertEqual(_expected_authors, actual.authors)

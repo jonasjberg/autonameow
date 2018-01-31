@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -22,11 +22,11 @@
 from core.ui.cli.common import ColumnFormatter
 
 
-def levenshtein(a, b):
-    n, m = len(a), len(b)
+def levenshtein(string_a, string_b):
+    n, m = len(string_a), len(string_b)
     if n > m:
         # Make sure n <= m, to use O(min(n,m)) space
-        a, b = b, a
+        string_a, string_b = string_b, string_a
         n, m = m, n
 
     current = range(n + 1)
@@ -35,26 +35,26 @@ def levenshtein(a, b):
         for j in range(1, n + 1):
             add, delete = previous[j] + 1, current[j - 1] + 1
             change = previous[j - 1]
-            if a[j - 1] != b[i - 1]:
+            if string_a[j - 1] != string_b[i - 1]:
                 change = change + 1
             current[j] = min(add, delete, change)
 
     return current[n]
 
 
-def normalized_levenshtein(a, b):
-    _diff = levenshtein(a, b)
-    _normdiff = _diff / max(1, max(len(a), len(b)))
+def normalized_levenshtein(string_a, string_b):
+    _diff = levenshtein(string_a, string_b)
+    _normdiff = _diff / max(1, max(len(string_a), len(string_b)))
     return _normdiff
 
 
-def string_difference(a, b):
-    return normalized_levenshtein(a, b)
+def string_difference(string_a, string_b):
+    return normalized_levenshtein(string_a, string_b)
 
 
-def string_similarity(a, b):
-    _diff = levenshtein(a, b)
-    _normdiff = _diff / max(1, max(len(a), len(b)))
+def string_similarity(string_a, string_b):
+    _diff = levenshtein(string_a, string_b)
+    _normdiff = _diff / max(1, max(len(string_a), len(string_b)))
     _normalized_similarity = 1 - _normdiff
     return _normalized_similarity
 

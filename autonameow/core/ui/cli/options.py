@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -77,8 +77,8 @@ def init_argparser():
         description='{} {}'.format(C.STRING_PROGRAM_NAME,
                                    C.STRING_PROGRAM_VERSION),
         epilog='Automatic renaming of files from analysis of '
-               'several sources of information.' +
-               '\n Project website:  {}'.format(C.STRING_REPO_URL),
+               'several sources of information.'
+               '\n Project website:  {}'.format(C.STRING_URL_REPO),
     )
 
     optgrp_output = parser.add_mutually_exclusive_group()
@@ -287,7 +287,7 @@ def prettyprint_options(opts, extra_opts):
         strkey = str(key)
 
         if isinstance(value, list):
-            if len(value) == 0:
+            if not value:
                 cf.addrow(strkey, COLSEP, str(value))
             else:
                 cf.addrow(strkey, COLSEP, str(value[0]))

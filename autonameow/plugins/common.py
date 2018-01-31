@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -40,7 +40,7 @@ class BasePlugin(object):
 
     # Dictionary with plugin-specific information, keyed by the fields that
     # the raw source produces. Stores information on types, etc..
-    FIELD_LOOKUP = {}
+    FIELD_LOOKUP = dict()
 
     # TODO: Hack ..
     coerce_field_value = providers.ProviderMixin.coerce_field_value
@@ -93,7 +93,8 @@ class BasePlugin(object):
     def test_init(cls):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def metainfo(self, *args, **kwargs):
+    def metainfo(self):
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
         return dict(self.FIELD_LOOKUP)
 
     def __str__(self):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -32,6 +32,8 @@ from util import dateandtime
 class ImageAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.1
     HANDLES_MIME_TYPES = ['image/*']
+
+    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
     def __init__(self, fileobject, config, request_data_callback):
         super(ImageAnalyzer, self).__init__(
@@ -177,7 +179,7 @@ class ImageAnalyzer(BaseAnalyzer):
 
         results = []
         text = self.text
-        if type(text) == list:
+        if isinstance(text, list):
             text = ' '.join(text)
 
         dt_regex = dateandtime.regex_search_str(text)
@@ -206,8 +208,7 @@ class ImageAnalyzer(BaseAnalyzer):
         if not results:
             self.log.debug('Found no date/time-information in OCR text.')
             return None
-        else:
-            return results
+        return results
 
     @classmethod
     def check_dependencies(cls):

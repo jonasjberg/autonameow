@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -34,7 +34,6 @@ from core import (
 )
 from core.namebuilder import fields
 from core.model import WeightedMapping
-from core.model import genericfields as gf
 from core.model.normalize import (
     normalize_full_human_name,
     normalize_full_title
@@ -81,6 +80,8 @@ class EbookAnalyzer(BaseAnalyzer):
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
                           'image/vnd.djvu']
 
+    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+
     def __init__(self, fileobject, config, request_data_callback):
         super(EbookAnalyzer, self).__init__(
             fileobject, config, request_data_callback
@@ -89,7 +90,7 @@ class EbookAnalyzer(BaseAnalyzer):
         self.text = None
         self._isbn_metadata = []
 
-        self._cached_isbn_metadata = {}
+        self._cached_isbn_metadata = dict()
         self._isbn_num_blacklist = set(BLACKLISTED_ISBN_NUMBERS)
 
         # NOTE(jonas): Tweak max cache file size. Now 50MB.
@@ -282,11 +283,13 @@ class EbookAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
             ],
-            'generic_field': gf.GenericAuthor,
+            'generic_field': 'author',
             'multivalued': True
         }
 
     def _filter_date(self, raw_string):
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         # TODO: Cleanup and filter date/year
         try:
             return types.AW_DATE(raw_string)
@@ -305,10 +308,12 @@ class EbookAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.Date, probability=1),
                 WeightedMapping(fields.DateTime, probability=1),
             ],
-            'generic_field': gf.GenericDateCreated
+            'generic_field': 'date_created'
         }
 
     def _filter_publisher(self, raw_string):
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         try:
             string_ = types.AW_STRING(raw_string)
         except types.AWTypeError:
@@ -329,10 +334,12 @@ class EbookAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            'generic_field': gf.GenericPublisher
+            'generic_field': 'publisher'
         }
 
     def _filter_title(self, raw_string):
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         try:
             string_ = types.AW_STRING(raw_string)
         except types.AWTypeError:
@@ -352,10 +359,12 @@ class EbookAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
             ],
-            'generic_field': gf.GenericTitle
+            'generic_field': 'title'
         }
 
     def _filter_edition(self, raw_string):
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         try:
             int_ = types.AW_INTEGER(raw_string)
         except types.AWTypeError:
@@ -371,7 +380,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Edition, probability=1),
             ],
-            'generic_field': gf.GenericEdition
+            'generic_field': 'edition'
         }
 
     @classmethod
@@ -418,6 +427,8 @@ def remove_ignored_textlines(text):
 def find_ebook_isbns_in_text(text):
     sanity.check_internal_string(text)
 
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
+
     match = RE_E_ISBN.search(text)
     if not match:
         return []
@@ -426,8 +437,7 @@ def find_ebook_isbns_in_text(text):
     if possible_isbns:
         return [isbnlib.get_canonical_isbn(i)
                 for i in possible_isbns if validate_isbn(i)]
-    else:
-        return []
+    return []
 
 
 def extract_isbns_from_text(text):
@@ -437,8 +447,7 @@ def extract_isbns_from_text(text):
     if possible_isbns:
         return [isbnlib.get_canonical_isbn(i)
                 for i in possible_isbns if validate_isbn(i)]
-    else:
-        return []
+    return []
 
 
 def validate_isbn(possible_isbn):
@@ -450,11 +459,12 @@ def validate_isbn(possible_isbn):
     isbn_number = isbnlib.clean(possible_isbn)
     if not isbn_number or isbnlib.notisbn(isbn_number):
         return None
-    else:
-        return isbn_number
+    return isbn_number
 
 
 def filter_isbns(isbn_list, isbn_blacklist):
+    # TODO: [TD0034] Filter out known bad data.
+    # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
     if not isbn_list:
         return []
 
@@ -520,22 +530,49 @@ class ISBNMetadata(object):
         self.year = year
         self.edition = edition
 
-
     @property
     def authors(self):
         return self._authors or []
 
     @authors.setter
     def authors(self, value):
-        if value:
-            if not isinstance(value, list):
-                value = [value]
+        if not value:
+            return
 
-            stripped_value = [v for v in value if v.strip()]
-            self._authors = stripped_value
-            self._normalized_authors = [
-               normalize_full_human_name(a) for a in stripped_value if a
-            ]
+        if not isinstance(value, list):
+            value = [value]
+
+        # TODO: [TD0112] Add some sort of system for normalizing entities.
+        # Fix any malformed entries.
+        _author_list = []
+        for element in value:
+            sanity.check_internal_string(element)
+
+            # Handle strings like 'Foo Bar [and Gibson Meow]'
+            if re.match(r'.*\[.*\].*', element):
+                _splits = element.split('[')
+                _cleaned_splits = [
+                    re.sub(r'[\[\]]', '', s)
+                    for s in _splits
+                ]
+                _cleaned_splits = [
+                    re.sub(r'^and ', '', s)
+                    for s in _cleaned_splits
+                ]
+                _cleaned_splits = [
+                    re.sub(r'^[Ww]ritten by ', '', s)
+                    for s in _cleaned_splits
+                ]
+                _author_list.extend(_cleaned_splits)
+            else:
+                _author_list.append(element)
+
+        stripped_author_list = [a.strip() for a in _author_list if a]
+
+        self._authors = stripped_author_list
+        self._normalized_authors = [
+            normalize_full_human_name(a) for a in stripped_author_list if a
+        ]
 
     @property
     def normalized_authors(self):
@@ -561,8 +598,7 @@ class ISBNMetadata(object):
             return self._isbn10
         elif self._isbn13:
             return isbnlib.to_isbn10(self._isbn13)
-        else:
-            return ''
+        return ''
 
     @isbn10.setter
     def isbn10(self, value):
@@ -576,8 +612,7 @@ class ISBNMetadata(object):
             return self._isbn13
         elif self._isbn10:
             return isbnlib.to_isbn13(self._isbn10)
-        else:
-            return ''
+        return ''
 
     @isbn13.setter
     def isbn13(self, value):
@@ -632,10 +667,6 @@ class ISBNMetadata(object):
         return self._normalized_year or self.NORMALIZED_YEAR_UNKNOWN
 
     @property
-    def normalized_language(self):
-        return self._normalized_language or ''
-
-    @property
     def title(self):
         return self._title or ''
 
@@ -645,7 +676,8 @@ class ISBNMetadata(object):
             match = find_edition(value)
             if match:
                 self.edition = match
-                # TODO: This is WRONG!
+                # TODO: [TD0130] Implement general-purpose substring matching.
+                # TODO: [TD0130] This is WRONG!
                 # Result of 'find_edition()' might not come from the part of
                 # the string that matched 'RE_EDITION'. Need a better way to
                 # identify and extract substrings ("fields") from strings.
@@ -677,15 +709,15 @@ class ISBNMetadata(object):
         else:
             _year_diff = int(abs(self.normalized_year - other.normalized_year))
 
-        if (len(self.normalized_authors) == 0
-                or len(other.normalized_authors) == 0):
+        if not self.normalized_authors or not other.normalized_authors:
             _sim_authors = FIELDS_MISSING_SIMILARITY
         else:
             _sim_authors = float(
-                sum(string_similarity(a, b)
+                sum(
+                    string_similarity(a, b)
                     for a, b in zip(self.normalized_authors,
                                     other.normalized_authors)
-                    ) / len(self.normalized_authors)
+                ) / len(self.normalized_authors)
             )
 
         if self.normalized_publisher and other.normalized_publisher:

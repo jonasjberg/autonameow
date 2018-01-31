@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -27,6 +27,19 @@ from core import exceptions
 from util import sanity
 from util import encoding as enc
 
+__all__ = [
+    'delete',
+    'exists',
+    'file_basename',
+    'file_bytesize',
+    'has_permissions',
+    'isdir',
+    'isfile',
+    'makedirs',
+    'rename_file',
+    'tempdir'
+]
+
 
 log = logging.getLogger(__name__)
 
@@ -36,23 +49,22 @@ def rename_file(source_path, new_basename):
     source = enc.syspath(source_path)
 
     source = os.path.realpath(os.path.normpath(source))
+    _dp_source = enc.displayable_path(source)
     if not os.path.exists(source):
-        raise FileNotFoundError('Source does not exist: "{!s}"'.format(
-            enc.displayable_path(source)
-        ))
+        raise FileNotFoundError(
+            'Source does not exist: "{!s}"'.format(_dp_source)
+        )
 
     dest_abspath = os.path.normpath(
         os.path.join(os.path.dirname(source), dest_base)
     )
+    _dp_dest = enc.displayable_path(dest_abspath)
     if os.path.exists(dest_abspath):
-        raise FileExistsError('Destination exists: "{!s}"'.format(
-            enc.displayable_path(dest_abspath)
-        ))
+        raise FileExistsError(
+            'Destination exists: "{!s}"'.format(_dp_dest)
+        )
 
-    log.debug('Renaming "{!s}" to "{!s}"'.format(
-        enc.displayable_path(source),
-        enc.displayable_path(dest_abspath))
-    )
+    log.debug('Renaming "{!s}" to "{!s}"'.format(_dp_source, _dp_dest))
     try:
         os.rename(source, dest_abspath)
     except OSError:

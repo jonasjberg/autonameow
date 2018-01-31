@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -28,6 +28,7 @@ from unittest.mock import (
 from core.logs import (
     deinit_logging,
     init_logging,
+    log_func_runtime,
     log_runtime,
 )
 
@@ -54,6 +55,46 @@ class TestLogRunTime(TestCase):
         with log_runtime(self.mock_logger, 'Foo'):
             pass
         self.assertIn('Foo Completed in 1.000000000 seconds',
+                      self.mock_logger.debug.call_args[0][0])
+
+
+class TestLogFuncRuntime(TestCase):
+    def setUp(self):
+        self.mock_logger = Mock()
+
+    def test_assume_running_with___debug__(self):
+        # The function under test is a no-op when running in optimized mode,
+        # I.E. when __debug__ == False
+        self.assertTrue(__debug__)
+
+    def test_logger_called_at_enter_and_exit(self):
+        @log_func_runtime(self.mock_logger)
+        def dummy_func():
+            pass
+
+        dummy_func()
+        self.assertEqual(self.mock_logger.debug.call_count, 1)
+
+    def test_logged_messages(self):
+        @log_func_runtime(self.mock_logger)
+        def dummy_func():
+            pass
+
+        dummy_func()
+        self.assertIn('dummy_func Completed',
+                      self.mock_logger.debug.call_args[0][0])
+
+    @patch('time.time')
+    def test_timing_measurement(self, mock_time):
+        mock_time.side_effect = [1511626070.045472, 1511626071.045472]
+
+        @log_func_runtime(self.mock_logger)
+        def dummy_func():
+            pass
+
+        dummy_func()
+
+        self.assertIn('dummy_func Completed in 1.000000000 seconds',
                       self.mock_logger.debug.call_args[0][0])
 
 

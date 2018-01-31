@@ -1,6 +1,6 @@
 `autonameow`
 ============
-*Copyright(c) 2016-2017 Jonas Sjöberg*  
+*Copyright(c) 2016-2018 Jonas Sjöberg*  
 <https://github.com/jonasjberg>  
 <http://www.jonasjberg.com>  
 University mail: `js224eh[a]student.lnu.se`  
@@ -9,6 +9,13 @@ University mail: `js224eh[a]student.lnu.se`
 
 `autonameow` Completed TODO-list entries
 ========================================
+
+### 2018-01-16
+
+> High Priority
+> -------------
+>
+> * `[TD0147]` Fix `providers_for_meowuri()` stops searching after first match.
 
 ### 2017-12-16
 

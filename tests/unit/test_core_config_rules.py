@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -248,17 +248,24 @@ class TestRuleInit(TestCase):
 
 
 class TestRuleConditionComparison(TestCase):
-    def setUp(self):
-        _meowuri = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        _expression = 'text/plain'
-        self.a = RuleCondition(_meowuri, _expression)
+    @staticmethod
+    def _get_rule_condition(meowuri, expression):
+        return RuleCondition(MeowURI(meowuri), expression)
 
     def test_not_equal_to_objects_of_another_type(self):
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='text/plain'
+        )
         for b in [None, {}, [], 'foo', object()]:
-            self.assertNotEqual(self.a, b)
+            self.assertNotEqual(a, b)
 
     def test_is_equal_to_itself(self):
-        self.assertEqual(self.a, self.a)
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='text/plain'
+        )
+        self.assertEqual(a, a)
 
     def test_hashable_for_set_membership(self):
         # NOTE(jonas): Assumes dummy rule conditions are unique.
@@ -267,38 +274,46 @@ class TestRuleConditionComparison(TestCase):
         self.assertEqual(len(all_ruleconditions), len(container))
 
     def test_equal_for_same_meowuri_identical_expression(self):
-        a = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'text/plain'
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='text/plain'
         )
-        b = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'text/plain'
+        b = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='text/plain'
         )
         self.assertEqual(a, b)
 
     def test_not_equal_for_same_meowuri_different_expressions(self):
-        a = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'text/plain'
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='text/plain'
         )
-        b = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE), 'application/pdf'
+        b = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expression='application/pdf'
         )
         self.assertNotEqual(a, b)
 
     def test_not_equal_for_different_meowuris_identical_expression(self):
-        a = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL), '.*'
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
+            expression='.*'
         )
-        b = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX), '.*'
+        b = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX,
+            expression='.*'
         )
         self.assertNotEqual(a, b)
 
     def test_not_equal_for_different_meowuris_different_expressions(self):
-        a = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL), 'foo'
+        a = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
+            expression='foo'
         )
-        b = RuleCondition(
-            MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX), 'bar'
+        b = self._get_rule_condition(
+            meowuri=uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX,
+            expression='bar'
         )
         self.assertNotEqual(a, b)
 
@@ -443,7 +458,7 @@ class TestRuleConditionMethods(TestCase):
         self.a = RuleCondition(_meowuri, 'application/pdf')
 
     def test_rule___repr__(self):
-        expected = 'RuleCondition("{}", "application/pdf")'.format(
+        expected = 'RuleCondition({}, application/pdf)'.format(
             uuconst.MEOWURI_FS_XPLAT_MIMETYPE
         )
         self.assertEqual(repr(self.a), expected)
@@ -454,7 +469,7 @@ class TestRuleConditionMethods(TestCase):
         for raw_condition in uu.get_dummy_raw_conditions():
             for meowuri, expression in raw_condition.items():
                 expected_reprs.append(
-                    'RuleCondition("{}", "{}")'.format(meowuri, expression)
+                    'RuleCondition({}, {})'.format(meowuri, expression)
                 )
 
         for condition, expect in zip(uu.get_dummy_rulecondition_instances(),

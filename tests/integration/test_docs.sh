@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -61,45 +61,6 @@ assert_true '[ -f "$_srcroot_readme" ]' \
 
 assert_false 'grep_todos "$_srcroot_readme"' \
              'Main README.md does not contain TODOs'
-
-_wiki_report_results="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
-assert_bulk_test "$_wiki_report_results" n e f r
-
-assert_true '[ -f "$_wiki_report_results" ]' \
-            'The project Wiki should contain "Test-Results.md"'
-
-
-
-_tracked_files="$( (cd "$AUTONAMEOW_TESTRESULTS_DIR" && git ls-files | grep -- '.*\.pdf$') )"
-_untracked_files="$( (cd "$AUTONAMEOW_TESTRESULTS_DIR" && git ls-files --others --exclude-standard) )"
-_count_tracked="$(wc -l <<< "$_tracked_files")"
-_count_untracked="$(wc -l <<< "$_untracked_files")"
-
-count_file_in_document()
-{
-    [ -z "${1:-}" ] && { echo "0" ; return ; }
-
-    local _file
-    while IFS=$'\n' read -r _file
-    do
-        grep -- "${_file}" "${_wiki_report_results}"
-    done <<< "$1" | wc -l
-}
-
-_count_tracked_in_doc="$(count_file_in_document "${_tracked_files}")"
-_count_untracked_in_doc="$(count_file_in_document "${_untracked_files}")"
-
-assert_false '[ -z "${_count_tracked}" ]' \
-             'Varible for number of tracked files should not be unset'
-
-assert_false '[ -z "${_count_untracked}" ]' \
-             'Varible for number of untracked files should not be unset'
-
-# assert_true '[ "${_count_tracked}" -eq "${_count_tracked_in_doc}" ]' \
-#             'All tracked logs should be included in the wiki "Test Results" page'
-
-assert_true '[ "${_count_untracked_in_doc}" -eq "0" ]' \
-            'The wiki "Test Results" page should not contain untracked files'
 
 
 

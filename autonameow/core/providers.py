@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -21,7 +21,10 @@
 
 import logging
 
+from core import constants as C
 from core import types
+from core.model import genericfields
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -32,10 +35,13 @@ class ProviderMixin(object):
         pass
 
     def coerce_field_value(self, field, value):
-        _field_lookup_entry = self.FIELD_LOOKUP.get(field)
+        # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+        _field_lookup_entry = self.metainfo().get(field)
         if not _field_lookup_entry:
-            self.log.debug('Field not in "FIELD_LOOKUP"; "{!s}" with value:'
-                           ' "{!s}" ({!s})'.format(field, value, type(value)))
+            self.log.debug(
+                'Field not in "FIELD_LOOKUP" (through "metainfo()" method); '
+                '"{!s}" with value: "{!s}" ({!s})'.format(field, value,
+                                                          type(value)))
             return None
 
         try:
@@ -49,7 +55,8 @@ class ProviderMixin(object):
             return None
 
         assert _coercer and isinstance(_coercer, types.BaseType), (
-               'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
+            'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer)
+        )
         wrapper = _coercer
 
         if isinstance(value, list):
@@ -90,19 +97,25 @@ class ProviderRegistry(object):
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        self.meowuri_sources = meowuri_source_map
-        assert isinstance(self.meowuri_sources, dict)
-
-        # Debug logging
-        for key in self.meowuri_sources.keys():
-            for meowuri, klass in self.meowuri_sources[key].items():
-                self.log.debug(
-                    'Mapped meowURI "{!s}" to "{!s}" ({!s})'.format(meowuri,
-                                                                    klass, key)
-                )
+        self.meowuri_sources = dict(meowuri_source_map)
+        self._debug_log_mapped_meowuri_sources()
 
         # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
         self.mapped_meowuris = self.unique_map_meowuris(self.meowuri_sources)
+
+        # Providers declaring generic MeowURIs through 'metainfo()'.
+        self.generic_meowuri_sources = self._get_generic_sources(
+            self.meowuri_sources
+        )
+
+    def _debug_log_mapped_meowuri_sources(self):
+        if not __debug__:
+            return
+
+        for key in self.meowuri_sources.keys():
+            for meowuri, klass in self.meowuri_sources[key].items():
+                self.log.debug('Mapped MeowURI "{!s}" to "{!s}" ({!s})'.format(
+                    meowuri, klass, key))
 
     def resolvable(self, meowuri):
         if not meowuri:
@@ -114,95 +127,197 @@ class ProviderRegistry(object):
             return True
         return False
 
-    def provider_for_meowuri(self, meowuri, includes=None):
+    def providers_for_meowuri(self, requested_meowuri, includes=None):
         """
-        Returns a list of classes that could store data using the given "MeowURI".
+        Returns a set of classes that might store data under a given "MeowURI".
+
+        Note that the provider "MeowURI" is matched as a substring of the
+        requested "MeowURI".
 
         Args:
-            meowuri: The "MeowURI" of interest.
-            includes: Optional list of sources to include. Default: include all
+            requested_meowuri: The "MeowURI" of interest.
+            includes: Optional list of provider roots to include.
+                      Must be one of 'C.MEOWURI_ROOTS_SOURCES'.
+                      Default is to include all.
 
         Returns:
-            A list of classes that "could" produce and store data with a MeowURI
-            that matches the given MeowURI.
+            A set of classes that "could" produce and store data under a
+            "MeowURI" that is a substring of the given "MeowURI".
         """
-        def _search_source_type(key):
-            for k, v in self.meowuri_sources[key].items():
-                if k in meowuri:
-                    return self.meowuri_sources[key][k]
-            return None
+        found = set()
+        if not requested_meowuri:
+            log.error('"providers_for_meowuri()" got empty MeowURI!')
+            return found
 
-        if not meowuri:
-            log.error('"provider_for_meowuri()" got empty MeowURI!')
-            return []
-
-        if includes is None:
-            return (_search_source_type('extractor')
-                    or _search_source_type('analyzer')
-                    or _search_source_type('plugin')
-                    or [])
+        if requested_meowuri.is_generic:
+            found = self._providers_for_generic_meowuri(requested_meowuri,
+                                                        includes)
         else:
-            if not isinstance(includes, list):
-                includes = [includes]
-            for include in includes:
-                if include not in ('analyzer', 'extractor', 'plugin'):
-                    continue
+            found = self._source_providers_for_meowuri(requested_meowuri,
+                                                       includes)
 
-                result = _search_source_type(include)
-                if result is not None:
-                    return result
+        log.debug('{} returning {} providers for MeowURI {!s}'.format(
+            self.__class__.__name__, len(found), requested_meowuri))
+        return found
 
-            return []
+    def _yield_included_roots(self, includes=None):
+        VALID_INCLUDES = set(C.MEOWURI_ROOTS_SOURCES)
+        if not includes:
+            # No includes specified -- search all ("valid includes") providers.
+            includes = VALID_INCLUDES
+        else:
+            # Search only specified providers.
+            if __debug__:
+                # Sanity-check 'includes' argument.
+                for include in includes:
+                    assert include in VALID_INCLUDES, (
+                        '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
+                    )
+
+        # Sort for more consistent behaviour.
+        for root in sorted(list(includes)):
+            yield root
+
+    def _providers_for_generic_meowuri(self, requested_meowuri, includes=None):
+        # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
+        found = set()
+        for root in self._yield_included_roots(includes):
+            for klass, meowuris in self.generic_meowuri_sources[root].items():
+                if requested_meowuri in meowuris:
+                    found.add(klass)
+        return found
+
+    def _source_providers_for_meowuri(self, requested_meowuri, includes=None):
+        # '_meowuri' is shorter "root";
+        #            'extractor.metadata.epub'
+        # 'requested_meowuri' is full "source-specific";
+        #                     'extractor.metadata.exiftool.EXIF:CreateDate'
+        found = set()
+        for root in self._yield_included_roots(includes):
+            for _meowuri in self.meowuri_sources[root].keys():
+                if _meowuri in requested_meowuri:
+                    found.add(self.meowuri_sources[root][_meowuri])
+        return found
+
+    def _get_generic_sources(self, meowuri_class_map):
+        """
+        Returns a dict keyed by provider classes storing sets of "generic"
+        fields as Unicode strings.
+        """
+        out = dict()
+
+        # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
+        # for root in ['extractors', 'analyzer', 'plugin'] ..
+        for root in sorted(list(C.MEOWURI_ROOTS_SOURCES)):
+            if root not in meowuri_class_map:
+                continue
+
+            out[root] = dict()
+            for _, klass in meowuri_class_map[root].items():
+                out[root][klass] = set()
+
+                # TODO: [TD0151] Fix inconsistent use of classes/instances.
+                # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+                metainfo_dict = dict(klass.FIELD_LOOKUP)
+                for _, field_metainfo in metainfo_dict.items():
+                    _generic_field_string = field_metainfo.get('generic_field')
+                    if not _generic_field_string:
+                        continue
+
+                    assert isinstance(_generic_field_string, str)
+                    _generic_field_klass = genericfields.get_field_class(
+                        _generic_field_string
+                    )
+                    if not _generic_field_klass:
+                        continue
+
+                    assert issubclass(_generic_field_klass,
+                                      genericfields.GenericField)
+                    _generic_meowuri = _generic_field_klass.uri()
+                    if not _generic_meowuri:
+                        continue
+
+                    out[root][klass].add(_generic_meowuri)
+        return out
 
     @staticmethod
     def unique_map_meowuris(meowuri_class_map):
         out = set()
-
-        # for key in ['extractors', 'analyzer', 'plugin'] ..
-        for key in meowuri_class_map.keys():
-            for _meowuri in meowuri_class_map[key].keys():
-                assert not isinstance(_meowuri, list), (
-                    'Unexpectedly got "meowuri" of type list')
+        # for root in ['extractors', 'analyzer', 'plugin'] ..
+        for root in meowuri_class_map.keys():
+            for _meowuri in meowuri_class_map[root].keys():
                 out.add(_meowuri)
-
         return out
 
 
 def _get_meowuri_source_map():
-    """
-    The 'MeowURIClassMap' attributes in non-core modules keep
-    references to the available component classes.
-    These are dicts with keys being the "meowURIs" that the respective
-    component uses when storing data and the contained values are lists of
-    classes mapped to the "meowURI".
+    def __root_meowuris_for_providers(module_name):
+        """
+        Returns a dict mapping "MeowURIs" to extractor classes.
 
-    Returns: Dictionary keyed by "MeowURIs", storing lists of "source" classes.
-    """
+        Example return value: {
+            'extractor.filesystem.xplat': CrossPlatformFilesystemExtractor,
+            'extractor.metadata.exiftool': ExiftoolMetadataExtractor,
+            'extractor.text.pdftotext': PdftotextTextExtractor
+        }
+
+        Returns: Dictionary keyed by Unicode string "MeowURIs",
+                 storing extractor classes.
+        """
+        _klass_list = getattr(module_name, 'ProviderClasses')
+        assert isinstance(_klass_list, list), type(_klass_list)
+
+        mapping = dict()
+        for klass in _klass_list:
+            _meowuri = klass.meowuri_prefix()
+            if not _meowuri:
+                log.critical('Got empty from '
+                             '"{!s}.meowuri_prefix()"'.format(klass.__name__))
+                continue
+
+            assert _meowuri not in mapping, (
+                'Provider MeowURI "{!s}" is already mapped'.format(_meowuri)
+            )
+            mapping[_meowuri] = klass
+
+        return mapping
+
     import analyzers
     import extractors
     import plugins
     return {
-        'extractor': extractors.MeowURIClassMap,
-        'analyzer': analyzers.MeowURIClassMap,
-        'plugin': plugins.MeowURIClassMap
+        'extractor': __root_meowuris_for_providers(extractors),
+        'analyzer': __root_meowuris_for_providers(analyzers),
+        'plugin': __root_meowuris_for_providers(plugins)
     }
 
 
+def get_providers_for_meowuri(meowuri, include_roots=None):
+    providers = set()
+    if not meowuri:
+        return providers
+
+    sanity.check_isinstance_meowuri(
+        meowuri, msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
+    )
+
+    source_classes = Registry.providers_for_meowuri(meowuri, include_roots)
+    providers.update(source_classes)
+    return providers
+
+
 def get_providers_for_meowuris(meowuri_list, include_roots=None):
+    providers = set()
     if not meowuri_list:
-        return []
+        return providers
 
-    out = set()
     for uri in meowuri_list:
-        source_classes = Registry.provider_for_meowuri(uri, include_roots)
-
-        # TODO: Improve robustness of linking "MeowURIs" to data source classes.
-        if source_classes:
-            assert isinstance(source_classes, list)
-            for source in source_classes:
-                out.add(source)
-
-    return list(out)
+        sanity.check_isinstance_meowuri(
+            uri, msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
+        )
+        source_classes = Registry.providers_for_meowuri(uri, include_roots)
+        providers.update(source_classes)
+    return providers
 
 
 Registry = None

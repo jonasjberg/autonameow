@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -31,11 +31,13 @@ STRING_PYTHON_VERSION = sys.version.replace('\n', '')
 STRING_PROGRAM_VERSION_PREFIX = 'v'
 STRING_PROGRAM_VERSION = '{}{}'.format(STRING_PROGRAM_VERSION_PREFIX,
                                        core.version.__version__)
+STRING_PROGRAM_RELEASE_DATE = str(core.version.RELEASE_DATE)
 
 STRING_PROGRAM_NAME = core.version.__title__.lower()
-
+STRING_AUTHOR_EMAIL = str(core.version.__email__)
 STRING_COPYRIGHT_NOTICE = str(core.version.__copyright__)
-STRING_REPO_URL = str(core.version.__url_repo__)
+STRING_URL_MAIN = str(core.version.__url__)
+STRING_URL_REPO = str(core.version.__url_repo__)
 
 
 _this_dir = os.path.abspath(os.path.dirname(__file__))
@@ -169,8 +171,8 @@ DEFAULT_FILESYSTEM_IGNORE_VCS = frozenset([
 
 DEFAULT_FILESYSTEM_IGNORE = DEFAULT_FILESYSTEM_IGNORE_DARWIN.union(
     DEFAULT_FILESYSTEM_IGNORE_LINUX).union(
-    DEFAULT_FILESYSTEM_IGNORE_WINDOWS).union(
-    DEFAULT_FILESYSTEM_IGNORE_VCS)
+        DEFAULT_FILESYSTEM_IGNORE_WINDOWS).union(
+            DEFAULT_FILESYSTEM_IGNORE_VCS)
 
 
 def next_year():

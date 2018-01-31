@@ -1,6 +1,6 @@
 `autonameow`
 ============
-*Copyright(c) 2016-2017 Jonas Sjöberg*  
+*Copyright(c) 2016-2018 Jonas Sjöberg*  
 <https://github.com/jonasjberg>  
 <http://www.jonasjberg.com>  
 University mail: `js224eh[a]student.lnu.se`  
@@ -13,6 +13,20 @@ University mail: `js224eh[a]student.lnu.se`
 
 High Priority
 -------------
+
+* `[TD0157]` __Look into the analyzers `FIELD_LOOKUP` attribute.__  
+    Does it make sense to keep this? Differences between "analyzers" and
+    "extractor" enough to motivate them continue being separate concepts?
+    Only the `FilenameAnalyzer` currently has a `FIELD_LOOKUP` (!)
+
+* `[TD0156]` __Set up Unicode string encoding boundary in `ui`.__  
+    Enforce passing only Unicode strings to the `ui` module.
+
+* `[TD0155]` Implement `--timid` mode.
+
+* `[TD0150]` Map "generic" MeowURIs to (possible) provider classes.
+
+* `[TD0146]` Rework "generic fields", possibly collecting fields in "records".
 
 * `[TD0142]` __Rework overall architecture to fetch only explicitly needed data.__  
   Refer to `notes/architecture.md` for details.
@@ -52,6 +66,15 @@ High Priority
 
 Medium Priority
 ---------------
+
+* `[TD0161]` Handle mapping/translation between "generic"/specific MeowURIs.
+
+* `[TD0158]` Evaluate regression test assertions of "skipped renames".
+
+* `[TD0151]` __Fix inconsistent use of classes vs. class instances.__  
+    Attributes of the provider classes are accessed both from uninstantiated
+    classes and class instances. The `metainfo()` method should be accessible
+    without first having to instantiate the class.
 
 * `[TD0137]` __Add rule-specific replacements.__  
     Maybe have the current replacements apply globally, as in that they are
@@ -200,6 +223,69 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0163]` __Fix premature importing of providers.__  
+    Running `autonameow --help` if some provider dependency is missing should
+    not print `Excluding analyzer "<class 'analyze_ebook.EbookAnalyzer'>" due
+    to unmet dependencies` as the first thing, above the actual help text.
+    Instead "load" providers and check these dependencies just prior to
+    actually using them.
+
+* `[TD0162]` __Split up `autonameow.yaml` into separate files.__  
+    Use separate configuration files for options, rules, etc.
+
+* `[TD0160]` Consolidate setting up working directories that might not exist.
+
+* `[TD0159]` Fix stand-alone extractor not respecting the `--quiet` option.
+
+* `[TD0154]` __Add "incrementing counter" placeholder field__  
+    Add name template placeholder field for different kinds of numbering, I.E.
+    a name template like `foo_{counter}.{ext}` gives `foo_001.c`, `foo_002.c`.
+
+    * Only used in case of conflicts?
+    * Used all the time? Used only if `conditions`?
+    * Options for formatting? Fixed widths, zero-padding, etc.
+    * Global options? Per-instance (config rule?) options?
+
+* `[TD0153]` __Detect and clean up incrementally numbered files__  
+    Add features for cleaning up inconsistent numbering.
+
+    * Change existing numbers *("renumbering"?)*
+
+        ```
+        booklet.jpg   ->  booklet1.jpg
+        booklet1.jpg  ->  booklet2.jpg
+        booklet2.jpg  ->  booklet3.jpg
+        ```
+
+    * __Fix inconsistent padding__
+
+        ```
+        1.c    ->  01.c
+        002.c  ->  02.c
+        3.c    ->  03.c
+        10.c   ->  10.c
+        ```
+        Globally defined width applies everywhere or adjust dynamically to fit?
+
+    * __Fix somewhat common case of Windows Explorer batch__
+
+        ```
+        foo (10).TXT  ->  foo (10).TXT
+        foo (1).TXT   ->  foo (01).TXT
+        foo (2).TXT   ->  foo (02).TXT
+        foo.TXT       ->  foo.TXT
+        ```
+
+* `[TD0152]` __Fix invalid name template field replacements.__  
+    Replacements in the `Publisher` class in `fields.py` are always applied if
+    any substring matches, which might cause undesired results.  Might be
+    better to stop after the first replacement has been applied, or do the
+    replacements ordered by the number of matched characters to be replaced.
+
+* `[TD0149]` Handle exceptions raised in `evaluate_boolean_operation()`.
+
+* `[TD0148]` Fix `!!python/object` in `--dump-config` output.
+
 * `[TD0145]` Add script for automating release of a new version.
 
 * `[TD0144]` Avoid enforcing/pruning cache file size too frequently.
@@ -324,6 +410,26 @@ Low Priority
     * `[TD0034]` Redesign overall filtering.
     * `[TD0035]` Rewrite the `ResultFilter` class or substitute with something
       else.
+
+    Prevent this from happening;
+    ```
+    Candidates for unresolved field: title
+
+    #   SOURCE                     PROBABILITY  FORMATTED VALUE
+    =   ======                     ===========  ===============
+    0   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    1   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    2   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    3   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    4   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    5   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    6   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    7   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    8   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    9   (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    10  (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    11  (unknown source)           1.0          "Syntax Warning: Invalid Font Weight"
+    ```
 
 * `[TD0036]` Allow specifying known good candidates for fields.
     * For instance, a list of known book publishers. Possibly a dictionary

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -284,7 +284,7 @@ class BasePersistence(object):
         """
         Delete all data in RAM and in the persistent storage.
         """
-        self._data = {}
+        self._data = dict()
 
         for key in self.keys():
             try:

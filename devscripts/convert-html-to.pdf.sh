@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -57,15 +57,15 @@ fi
 
 
 
-( 
+(
     cd "$AUTONAMEOW_TESTRESULTS_DIR"
     for html_file in integration_log_*.html unittest_log_*.html
     do
         [ -f "${html_file}" ] || continue
-    
+
         dest_file="${html_file%.*}.pdf"
         [ -e "$dest_file" ] && continue
-    
+
         wkhtmltopdf "$html_file" "${dest_file}"
     done
 )

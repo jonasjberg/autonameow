@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -59,31 +59,11 @@ then
 fi
 export AUTONAMEOW_TESTFILES_DIR
 
-# Absolute path to the test results directory and make sure it is valid.
-AUTONAMEOW_TESTRESULTS_DIR="$( ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e -- "./docs/test_results/" ) )"
+# Create the test results directory if missing and export the absolute path.
+AUTONAMEOW_TESTRESULTS_DIR="${AUTONAMEOW_ROOT_DIR}/docs/test_results/"
+[ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ] && mkdir -p "$AUTONAMEOW_TESTRESULTS_DIR"
 if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ]
 then
     error_msg_exit 'Not a directory' "$AUTONAMEOW_TESTRESULTS_DIR"
 fi
 export AUTONAMEOW_TESTRESULTS_DIR
-
-# Absolute path to the project wiki source root.
-#
-# NOTE: Hardcoded path! "AUTONAMEOW_WIKI_ROOT_DIR" must be changed
-#       to the correct path to the wiki repository on your system.
-#
-AUTONAMEOW_WIKI_ROOT_DIR="${HOME}/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.wiki.git"
-if [ ! -d "$AUTONAMEOW_WIKI_ROOT_DIR" ]
-then
-    cat >&2 <<EOF
-
-[ERROR] Not a directory: "${AUTONAMEOW_WIKI_ROOT_DIR}" ..
-
-  NOTE: You must set the variable "AUTONAMEOW_WIKI_ROOT_DIR" in
-        "common_utils.sh" to the full path of the autonameow wiki
-        repository root on this system.
-EOF
-
-    exit 1
-fi
-export AUTONAMEOW_WIKI_ROOT_DIR

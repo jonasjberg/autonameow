@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -79,9 +79,9 @@ class BaseNullValue(object):
     def __eq__(self, other):
         if other is None:
             return False
-        if type(other) == type(self):
+        if isinstance(other, self.__class__):
             return True
-        if self.__class__ == other:
+        if other == self.__class__:
             return True
         if isinstance(other, bool) and other is False:
             return True
@@ -122,7 +122,7 @@ class BaseType(object):
             if self.equivalent(value):
                 return value
 
-        self._fail_coercion(value)
+        return self._fail_coercion(value)
 
     def null(self):
         return self.NULL
@@ -218,7 +218,7 @@ class Path(BaseType):
                 value = self.coerce(value)
                 return value
 
-        self._fail_coercion(value)
+        return self._fail_coercion(value)
 
     def coerce(self, value):
         if value:
@@ -227,14 +227,14 @@ class Path(BaseType):
             except (ValueError, TypeError):
                 pass
 
-        self._fail_coercion(value)
+        return self._fail_coercion(value)
 
     def normalize(self, value):
         value = self.__call__(value)
         if value:
             return enc.normpath(value)
 
-        self._fail_normalization(value)
+        return self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         _normalized = self.normalize(value)
@@ -250,7 +250,7 @@ class PathComponent(BaseType):
         try:
             return enc.bytestring_path(value)
         except (ValueError, TypeError):
-            self._fail_coercion(value)
+            return self._fail_coercion(value)
 
     def normalize(self, value):
         value = self.__call__(value)
@@ -260,7 +260,7 @@ class PathComponent(BaseType):
                 os.path.expanduser(enc.syspath(value))
             )
 
-        self._fail_normalization(value)
+        return self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         _coerced = self.__call__(value)
@@ -287,10 +287,7 @@ class Boolean(BaseType):
 
     @staticmethod
     def bool_to_string(bool_value):
-        if bool_value:
-            return 'True'
-        else:
-            return 'False'
+        return 'True' if bool_value else 'False'
 
     def coerce(self, value):
         if value is None:
@@ -317,7 +314,7 @@ class Boolean(BaseType):
                 return bool(value)
             except (AttributeError, LookupError, NotImplementedError,
                     TypeError, ValueError):
-                self._fail_coercion(value)
+                return self._fail_coercion(value)
 
         return self.null()
 
@@ -351,7 +348,7 @@ class Integer(BaseType):
                 except (ValueError, TypeError):
                     pass
 
-        self._fail_coercion(value)
+        return self._fail_coercion(value)
 
     def normalize(self, value):
         return self.__call__(value)
@@ -386,7 +383,7 @@ class Float(BaseType):
         try:
             return float(value)
         except (ValueError, TypeError):
-            self._fail_coercion(value)
+            return self._fail_coercion(value)
 
     def normalize(self, value):
         return self.__call__(value)
@@ -407,8 +404,7 @@ class Float(BaseType):
             return low
         elif high is not None and _value >= high:
             return high
-        else:
-            return _value
+        return _value
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -450,7 +446,9 @@ class String(BaseType):
             try:
                 return str(value)
             except (ValueError, TypeError):
-                self._fail_coercion(value)
+                pass
+
+        return self._fail_coercion(value)
 
     def normalize(self, value):
         return self.__call__(value).strip()
@@ -526,7 +524,7 @@ class Date(BaseType):
         try:
             string_value = AW_STRING(value)
         except AWTypeError as e:
-            self._fail_coercion(value, msg=e)
+            return self._fail_coercion(value, msg=e)
         else:
             try:
                 return try_parse_date(string_value)
@@ -538,7 +536,7 @@ class Date(BaseType):
         if isinstance(value, datetime):
             return value.replace(microsecond=0)
 
-        self._fail_normalization(value)
+        return self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -579,19 +577,19 @@ class TimeDate(BaseType):
         try:
             string_value = AW_STRING(value)
         except AWTypeError as e:
-            self._fail_coercion(value, msg=e)
+            return self._fail_coercion(value, msg=e)
 
         try:
             return try_parse_datetime(string_value)
         except (TypeError, ValueError) as e:
-            self._fail_coercion(value, msg=e)
+            return self._fail_coercion(value, msg=e)
 
     def normalize(self, value):
         value = self.__call__(value)
         if isinstance(value, datetime):
             return value.replace(microsecond=0)
 
-        self._fail_normalization(value)
+        return self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -616,9 +614,9 @@ class ExifToolTimeDate(TimeDate):
     def coerce(self, value):
         try:
             if re.match(r'.*0000:00:00 00:00:00.*', value):
-                self._fail_coercion(value)
+                return self._fail_coercion(value)
         except TypeError:
-            self._fail_coercion(value)
+            return self._fail_coercion(value)
 
         try:
             return try_parse_datetime(value)
@@ -629,7 +627,7 @@ class ExifToolTimeDate(TimeDate):
         except ValueError:
             pass
 
-        self._fail_coercion(value)
+        return self._fail_coercion(value)
 
 
 _pat_loose_date = '{year}{sep}{month}{sep}{day}'.format(
@@ -836,10 +834,23 @@ def force_stringlist(raw_values):
 
 
 class MultipleTypes(object):
+    """
+    For defining coercion of lists of a specific type.
+
+    Do not call directly! Use the 'listof()' function.
+    Coercing a list of values:
+
+        coerced_list = types.listof(types.AW_STRING)(raw_list)
+
+    Formatting a list of values:
+
+        formatted_list = types.listof(types.AW_STRING).format(raw_list)
+    """
     def __init__(self, coercer):
+        sanity.check_isinstance(coercer, BaseType)
         self.coercer = coercer
 
-    def __call__(self, value=None):
+    def __call__(self, value):
         if value is None:
             return [self.coercer.null()]
 
@@ -853,6 +864,23 @@ class MultipleTypes(object):
                 continue
 
             out.append(_coerced)
+
+        return out
+
+    def format(self, value):
+        if value is None:
+            return [self.coercer.null()]
+
+        if not isinstance(value, list):
+            value = [value]
+
+        out = []
+        for v in value:
+            _formatted = self.coercer.format(v)
+            if _formatted is None:
+                continue
+
+            out.append(_formatted)
 
         return out
 

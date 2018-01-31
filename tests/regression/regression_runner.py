@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -49,8 +49,8 @@ PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 
 
 log = logging.getLogger('regression_runner')
-msg_label_pass = ui.colorize('P', fore='GREEN')
-msg_label_fail = ui.colorize('F', fore='RED')
+msg_label_pass = ui.colorize('PASS', fore='GREEN')
+msg_label_fail = ui.colorize('FAIL', fore='RED')
 
 
 class TestResults(object):
@@ -158,6 +158,8 @@ def run_test(test):
                 # All good
                 pass
 
+    # TODO: [TD0158] Evaluate assertions of "skipped renames".
+
     captured_stdout = aw.captured_stdout
     captured_stderr = aw.captured_stderr
     failures += check_stdout_asserts(test, captured_stdout)
@@ -186,9 +188,19 @@ def load_failed_tests():
     return []
 
 
-def print_test_dirnames(tests):
-    _test_dirnames = [types.force_string(t.get('test_dirname')) for t in tests]
-    print('\n'.join(_test_dirnames))
+def print_test_info(tests):
+    if VERBOSE:
+        cf = ui.ColumnFormatter()
+        for t in tests:
+            _test_dirname = types.force_string(t.get('test_dirname'))
+            _test_description = types.force_string(t.get('description'))
+            cf.addrow(_test_dirname, _test_description)
+        print(cf)
+    else:
+        _test_dirnames = [
+            types.force_string(t.get('test_dirname')) for t in tests
+        ]
+        print('\n'.join(_test_dirnames))
 
 
 def print_test_commandlines(tests):
@@ -291,7 +303,7 @@ def filter_tests(tests, filter_func, expr):
 def main(args):
     _description = '{} {} -- regression test suite runner'.format(
         C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION)
-    _epilog = 'Project website:  {}'.format(C.STRING_REPO_URL)
+    _epilog = 'Project website:  {}'.format(C.STRING_URL_REPO)
 
     parser = ui.cli.get_argparser(description=_description, epilog=_epilog)
     parser.add_argument(
@@ -349,7 +361,8 @@ def main(args):
         action='store_true',
         default=False,
         help='Print the "short name" (directory basename) of the selected '
-             'test case(s) and exit.'
+             'test case(s) and exit. '
+             'Enable verbose mode for additional information.'
     )
     optgrp_action.add_argument(
         '--get-cmd',
@@ -421,11 +434,11 @@ def main(args):
 
     # Perform actions on the selected tests.
     if opts.list_tests:
-        print_test_dirnames(selected_tests)
+        print_test_info(selected_tests)
         return C.EXIT_SUCCESS
 
     if opts.get_cmd:
-        print_test_commandlines(loaded_tests)
+        print_test_commandlines(selected_tests)
         return C.EXIT_SUCCESS
 
     if opts.run_tests:

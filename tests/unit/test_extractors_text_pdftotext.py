@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -217,7 +217,6 @@ class TestPdftotextTextExtractorOutputTestFileA(CaseExtractorOutput):
     __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
-    _dt = uu.str_to_datetime
     EXPECTED_FIELD_TYPE_VALUE = [
         ('full', str, TESTFILE_A_EXPECTED),
     ]
@@ -228,34 +227,9 @@ class TestPdftotextTextExtractorOutputTestFileB(CaseExtractorOutput):
     __test__ = True
     EXTRACTOR_CLASS = PdftotextTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_B)
-    _dt = uu.str_to_datetime
     EXPECTED_FIELD_TYPE_VALUE = [
         ('full', str, TESTFILE_B_EXPECTED),
     ]
-
-
-# TODO: Run extraction once while keeping the runtime tests in separate methods.
-source_a = uu.fileobject_testfile(TESTFILE_A)
-source_b = uu.fileobject_testfile(TESTFILE_B)
-
-# Patch to disable caching.
-# "Should" be equivalent to not calling 'init_cache()' in '__init__()'.
-e_no_cache = PdftotextTextExtractor()
-e_no_cache.cache = None
-
-start_time = time.time()
-_ = e_no_cache.extract(source_a)
-_ = e_no_cache.extract(source_b)
-runtime_cache_disabled = time.time() - start_time
-
-# Enable caching.
-e_cached = PdftotextTextExtractor()
-e_cached.init_cache()
-
-start_time = time.time()
-_ = e_cached.extract(source_a)
-_ = e_cached.extract(source_b)
-runtime_cache_enabled = time.time() - start_time
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
@@ -268,17 +242,41 @@ class TestCachingRuntime(TestCase):
 
     Just make sure that the caching does not make the extraction SLOWER!
     """
+    @classmethod
+    def setUpClass(cls):
+        source_a = uu.fileobject_testfile(TESTFILE_A)
+        source_b = uu.fileobject_testfile(TESTFILE_B)
+
+        # Patch to disable caching.
+        # "Should" be equivalent to not calling 'init_cache()' in '__init__()'.
+        e_no_cache = PdftotextTextExtractor()
+        e_no_cache.cache = None
+
+        start_time = time.time()
+        _ = e_no_cache.extract(source_a)
+        _ = e_no_cache.extract(source_b)
+        cls.runtime_cache_disabled = time.time() - start_time
+
+        # Enable caching.
+        e_cached = PdftotextTextExtractor()
+        e_cached.init_cache()
+
+        start_time = time.time()
+        _ = e_cached.extract(source_a)
+        _ = e_cached.extract(source_b)
+        cls.runtime_cache_enabled = time.time() - start_time
+
     def test_sanity_check_runtime_cache_disabled(self):
-        self.assertGreater(runtime_cache_disabled, 0.0)
+        self.assertGreater(self.runtime_cache_disabled, 0.0)
 
     def test_sanity_check_runtime_cache_enabled(self):
-        self.assertGreater(runtime_cache_enabled, 0.0)
+        self.assertGreater(self.runtime_cache_enabled, 0.0)
 
     def test_caching_decreases_total_runtime(self):
-        self.assertLess(runtime_cache_enabled, runtime_cache_disabled)
+        self.assertLess(self.runtime_cache_enabled, self.runtime_cache_disabled)
 
     def __assert_runtime_improvement(self, seconds):
-        delta = runtime_cache_disabled - runtime_cache_enabled
+        delta = self.runtime_cache_disabled - self.runtime_cache_enabled
         self.assertGreaterEqual(delta, seconds)
 
     def test_caching_improves_runtime_by_at_least_one_nanosecond(self):

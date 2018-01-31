@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -68,7 +68,7 @@ class TestAbstractTextExtractor(TestCase):
             self.e.extract_text(self.test_file)
 
     def test_extract_raises_exception_with_extract_text_unimplemented(self):
-        with self.assertRaises(ExtractorError):
+        with self.assertRaises(NotImplementedError):
             _ = self.e.extract(self.test_file)
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):

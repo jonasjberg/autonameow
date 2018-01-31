@@ -2,7 +2,7 @@
 
 # 'autonameow.sh' -- autonameow launcher script
 # =============================================
-# Copyright(c) 2016-2017 Jonas Sjöberg
+# Copyright(c) 2016-2018 Jonas Sjöberg
 # https://github.com/jonasjberg
 # http://www.jonasjberg.com
 # University mail: js224eh[a]student.lnu.se
@@ -78,5 +78,5 @@ fi
 
 
 # Execute the main module.
-python3 -OO "${AUTONAMEOW_PATH}/autonameow" "$@"
+python3 "${AUTONAMEOW_PATH}/autonameow" "$@"
 

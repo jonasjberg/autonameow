@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -29,11 +29,10 @@ from unittest.mock import (
 
 import unit.utils as uu
 from analyzers import (
-    AnalyzerClasses,
     BaseAnalyzer,
     find_analyzer_files,
     get_analyzer_classes,
-    map_meowuri_to_analyzers
+    ProviderClasses
 )
 from core import constants as C
 
@@ -174,33 +173,11 @@ class TestNumberOfAvailableAnalyzerClasses(TestCase):
         self.assertEqual(len(self.actual), len(EXPECT_ANALYZER_CLASSES))
 
 
-class TestMapMeowURIToAnalyzers(TestCase):
-    def setUp(self):
-        self.actual = map_meowuri_to_analyzers()
-
-    def test_returns_expected_type(self):
-        self.assertIsNotNone(self.actual)
-        self.assertIsInstance(self.actual, dict)
-
-        for meowuri, klass_list in self.actual.items():
-            self.assertTrue(uu.is_internalstring(meowuri))
-            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
-
-            for klass in klass_list:
-                self.assertTrue(subclasses_base_analyzer(klass))
-                self.assertTrue(uu.is_class(klass))
-
-    def test_returns_one_analyzer_per_meowuri(self):
-        # This assumption is likely bound to change some time soon.
-        for meowuri, klass_list in self.actual.items():
-            self.assertEqual(len(klass_list), 1)
-
-
 class TestAnalyzerClassMeowURIs(TestCase):
-    analyzer_class_names = [a.__name__ for a in AnalyzerClasses]
+    analyzer_class_names = [a.__name__ for a in ProviderClasses]
 
     def setUp(self):
-        self.actual = [a.meowuri_prefix() for a in AnalyzerClasses]
+        self.actual = [a.meowuri_prefix() for a in ProviderClasses]
 
     def test_returns_expected_type(self):
         for meowuri in self.actual:

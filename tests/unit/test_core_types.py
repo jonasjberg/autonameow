@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -922,7 +922,7 @@ class TestTypePath(TestCase):
                                 'BaseType default "null" must be overridden')
 
     def test_normalize_expands_tilde_to_user_home(self):
-        self.assertEqual(uu.encode(USER_HOME),types.AW_PATH.normalize('~'))
+        self.assertEqual(uu.encode(USER_HOME), types.AW_PATH.normalize('~'))
         self.assertEqual(uu.encode(USER_HOME), types.AW_PATH.normalize('~/'))
 
         expected = os.path.normpath(os.path.join(USER_HOME, 'foo'))
@@ -1922,6 +1922,70 @@ class TestNormalizeDatetimeWithMicroseconds(TestCase):
         # _assert_match('12_7_2017_20_50_15_641659')
 
 
+class TestMultipleTypes(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.coercer_klasses = types.BaseType.__subclasses__()
+
+        # Instantiate to simulate passing the "AW_*" singletons.
+        cls.coercer_singletons = [k() for k in cls.coercer_klasses]
+
+    def test_setup(self):
+        # Sanity checking ..
+        self.assertTrue(all(issubclass(k, types.BaseType)
+                        for k in self.coercer_klasses))
+        self.assertTrue(all(uu.is_class_instance(k)
+                            for k in self.coercer_singletons))
+
+    def test_raises_exception_if_not_instantiated_with_basetype_subclass(self):
+        with self.assertRaises(AssertionError):
+            _ = types.MultipleTypes(object())
+
+    def test_raises_exception_if_instantiated_with_none(self):
+        with self.assertRaises(AssertionError):
+            _ = types.MultipleTypes(None)
+
+    def test_instantiate_with_basetype_subclasses(self):
+        for coercer in self.coercer_singletons:
+            mt = types.MultipleTypes(coercer)
+            self.assertIsNotNone(mt)
+            self.assertTrue(uu.is_class_instance(mt))
+
+    def test_call_with_none(self):
+        for coercer in self.coercer_singletons:
+            mt = types.MultipleTypes(coercer)
+
+            if isinstance(coercer, (types.Date, types.TimeDate)):
+                # Skip coercers that do not allow failures and raises
+                # AWTypeError instead of returning the type-specific "null".
+                # TODO: Using coercers "correctly" is becoming too difficult!
+                with self.assertRaises(types.AWTypeError):
+                    _ = mt(None)
+            else:
+                actual = mt(None)
+                expect = [coercer.null()]
+                self.assertEqual(
+                    expect, actual,
+                    'Expect coercion of None to return the "type-specific null"'
+                )
+
+    def test_call_with_string_value_coercable_by_all_but_timedate(self):
+        for coercer in self.coercer_singletons:
+            mt = types.MultipleTypes(coercer)
+
+            if isinstance(coercer, types.TimeDate):
+                # Skip coercers that do not allow failures.
+                # TODO: Using coercers "correctly" is becoming too difficult!
+                with self.assertRaises(types.AWTypeError):
+                    _ = mt('2018')
+            else:
+                actual = mt('2018')
+                self.assertIsNotNone(actual)
+                self.assertIsInstance(actual, list)
+                self.assertIsNotNone(actual[0])
+                self.assertEqual(1, len(actual))
+
+
 class TestListofStrings(TestCase):
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
@@ -1980,6 +2044,53 @@ class TestListofStrings(TestCase):
         actual = types.listof(types.AW_STRING)([b'a', b'b'])
         expect = ['a', 'b']
         self.assertEqual(expect, actual)
+
+
+class TestListofStringsFormat(TestCase):
+    def test_format_coercible_data(self):
+        def _assert_formats(test_data, expected):
+            actual = types.listof(types.AW_STRING).format(test_data)
+            self.assertEqual(expected, actual)
+
+        _assert_formats([''], [''])
+        _assert_formats([' '], [' '])
+        _assert_formats([b''], [''])
+        _assert_formats([b' '], [' '])
+        _assert_formats([-1], ['-1'])
+        _assert_formats([0], ['0'])
+        _assert_formats([1], ['1'])
+        _assert_formats([-1.5], ['-1.5'])
+        _assert_formats([-1.0], ['-1.0'])
+        _assert_formats([1.0], ['1.0'])
+        _assert_formats([1.5], ['1.5'])
+        _assert_formats(['-1'], ['-1'])
+        _assert_formats(['-1.0'], ['-1.0'])
+        _assert_formats(['0'], ['0'])
+        _assert_formats(['1'], ['1'])
+        _assert_formats(['foo'], ['foo'])
+        _assert_formats([None], [''])
+        _assert_formats([False], ['False'])
+        _assert_formats([True], ['True'])
+
+        _assert_formats('', [''])
+        _assert_formats(' ', [' '])
+        _assert_formats(b'', [''])
+        _assert_formats(b' ', [' '])
+        _assert_formats(-1, ['-1'])
+        _assert_formats(0, ['0'])
+        _assert_formats(1, ['1'])
+        _assert_formats(-1.5, ['-1.5'])
+        _assert_formats(-1.0, ['-1.0'])
+        _assert_formats(1.0, ['1.0'])
+        _assert_formats(1.5, ['1.5'])
+        _assert_formats('-1', ['-1'])
+        _assert_formats('-1.0', ['-1.0'])
+        _assert_formats('0', ['0'])
+        _assert_formats('1', ['1'])
+        _assert_formats('foo', ['foo'])
+        _assert_formats(None, [''])
+        _assert_formats(False, ['False'])
+        _assert_formats(True, ['True'])
 
 
 class TestListofIntegers(TestCase):

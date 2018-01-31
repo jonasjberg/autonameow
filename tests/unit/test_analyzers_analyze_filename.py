@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -38,7 +38,6 @@ from core.types import NullMIMEType
 
 
 uu.init_session_repository()
-uu.init_provider_registry()
 
 
 class TestFieldGetterMethods(TestCase):
@@ -145,6 +144,7 @@ class TestLikelyExtension(TestCase):
              Given(suffix='bz2', mime='application/x-bzip2')),
             (Expect('chm'),
              Given(suffix='chm', mime='application/octet-stream')),
+
             (Expect('c'),
              Given(suffix='c', mime='text/x-c')),
             (Expect('c'),
@@ -159,18 +159,32 @@ class TestLikelyExtension(TestCase):
              Given(suffix='c++', mime='text/x-c++')),
             (Expect('cpp'),
              Given(suffix='c++', mime='text/plain')),
+
             (Expect('doc'),
              Given(suffix='doc', mime='application/msword')),
             (Expect('eps'),
              Given(suffix='eps', mime='application/postscript')),
             (Expect('hex'),
              Given(suffix='hex', mime='application/octet-stream')),
-            (Expect('html.gz'),
+
+            (Expect('html'),
              Given(suffix='htm.gz', mime='text/html')),
-            (Expect('html.gz'),
+            (Expect('html'),
              Given(suffix='html.gz', mime='text/html')),
+            (Expect('html.gz'),
+             Given(suffix='htm.gz', mime='application/x-gzip')),
+            (Expect('html.gz'),
+             Given(suffix='html.gz', mime='application/x-gzip')),
+            (Expect('html.gz'),
+             Given(suffix='htm', mime='application/x-gzip')),
+            (Expect('html.gz'),
+             Given(suffix='html', mime='application/x-gzip')),
+
             (Expect('log'),
              Given(suffix='log', mime='text/x-tex')),
+            (Expect('log'),
+             Given(suffix='log', mime='text/plain')),
+
             (Expect('mid'),
              Given(suffix='mid', mime='audio/midi')),
             (Expect('md'),
@@ -214,26 +228,43 @@ class TestLikelyExtension(TestCase):
              Given(suffix='tar.gz', mime='application/x-gzip')),
             (Expect('tar.gz.sig'),
              Given(suffix='tar.gz.sig', mime='application/octet-stream')),
+
             (Expect('tex'),
              Given(suffix='tex', mime='text/x-tex')),
             (Expect('tex'),
              Given(suffix='tex', mime='application/x-tex')),
+
             (Expect('txt'),
              Given(suffix='txt', mime='text/plain')),
             (Expect('txt'),
+             Given(suffix='txt.gz', mime='text/plain')),
+            (Expect('txt'),
              Given(suffix='txt', mime='application/octet-stream')),
+
             (Expect('txt.gz'),
              Given(suffix='txt.gz', mime='application/x-gzip')),
+            (Expect('txt.gz'),
+             Given(suffix='txt', mime='application/x-gzip')),
+            (Expect('txt.tar.gz'),
+             Given(suffix='txt.tar.gz', mime='application/x-gzip')),
+            (Expect('txt.tar.gz'),
+             Given(suffix='txt.tgz', mime='application/x-gzip')),
+
             (Expect('w'),
              Given(suffix='w', mime='text/x-c')),
             (Expect('workspace'),
              Given(suffix='workspace', mime='text/xml')),
             (Expect('yaml'),
              Given(suffix='yaml', mime='text/plain')),
+
             (Expect('zip'),
              Given(suffix='zip', mime='application/zip')),
             (Expect('zip'),
              Given(suffix='zip', mime='application/x-zip')),
+
+            # Chrome Save as "Webpage, Single File"
+            (Expect('mhtml'),
+             Given(suffix='mhtml', mime='message/rfc822')),
         ]
 
     def test_returns_expected(self):

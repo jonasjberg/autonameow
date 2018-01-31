@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -124,8 +124,7 @@ class PathCollector(object):
                 _files = get_files_gen(path, self.recurse)
             except FileNotFoundError:
                 log.error('File(s) not found: "{}"'.format(
-                    enc.displayable_path(path))
-                )
+                    enc.displayable_path(path)))
             else:
                 for f in self.filter_paths(_files):
                     file_list.add(f)
@@ -140,8 +139,7 @@ class PathCollector(object):
             for pattern in globs:
                 if fnmatch.fnmatch(path, pattern):
                     log.info('Ignored path: "{!s}" (Glob: "{!s}")'.format(
-                        enc.displayable_path(path), pattern)
-                    )
+                        enc.displayable_path(path), pattern))
                     return None
             return path
 

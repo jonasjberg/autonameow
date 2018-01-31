@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -21,7 +21,16 @@
 
 import re
 import unittest
-from unittest import TestCase
+from unittest import TestCase, skipIf
+
+# TODO: Test behaviour when colorama is missing!
+#       (program still runs but output is not colored)
+try:
+    import colorama
+except ImportError:
+    COLORAMA_IS_NOT_AVAILABLE = True, 'Missing required module "colorama"'
+else:
+    COLORAMA_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
 from core.types import BUILTIN_REGEX_TYPE
@@ -39,6 +48,7 @@ ANSI_RESET_FG = '\x1b[39m'
 ANSI_RESET_BG = '\x1b[49m'
 
 
+@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestMsg(TestCase):
     def setUp(self):
         self.maxDiff = None
@@ -50,35 +60,35 @@ class TestMsg(TestCase):
 
         self.assertIn('text printed by msg()', out.getvalue().strip())
 
-    def test_msg_type_info(self):
+    def test_msg_style_info(self):
         with uu.capture_stdout() as out:
-            msg('text printed by msg() with type="info"', style='info')
+            msg('text printed by msg() with style="info"', style='info')
 
-        self.assertIn('text printed by msg() with type="info"',
+        self.assertIn('text printed by msg() with style="info"',
                       out.getvalue().strip())
 
-    def test_msg_type_info_log_true(self):
+    def test_msg_style_info_log_true(self):
         with uu.capture_stdout() as out:
-            msg('text printed by msg() with type="info", add_info_log=True',
+            msg('text printed by msg() with style="info", add_info_log=True',
                 style='info', add_info_log=True)
 
         self.assertIn(
-            'text printed by msg() with type="info", add_info_log=True',
+            'text printed by msg() with style="info", add_info_log=True',
             out.getvalue().strip()
         )
 
-    def test_msg_type_color_quoted(self):
+    def test_msg_style_color_quoted(self):
         with uu.capture_stdout() as out:
-            msg('msg() text with type="color_quoted" no "yes" no',
+            msg('msg() text with style="color_quoted" no "yes" no',
                 style='color_quoted')
 
-        self.assertIn('msg() text with type=', out.getvalue().strip())
+        self.assertIn('msg() text with style=', out.getvalue().strip())
         self.assertIn('color_quoted', out.getvalue().strip())
         self.assertIn('no', out.getvalue().strip())
         self.assertIn('yes', out.getvalue().strip())
 
     # NOTE(jonas): This will likely fail on some platforms!
-    def test_msg_type_color_quoted_including_escape_sequences(self):
+    def test_msg_style_color_quoted_including_escape_sequences(self):
         # ANSI_COLOR must match actual color. Currently 'LIGHTGREEN_EX'
         ANSI_COLOR = '\x1b[92m'
 
@@ -93,8 +103,8 @@ class TestMsg(TestCase):
                 )
 
         __check_color_quoted_msg(
-            given='msg() text with type="color_quoted" no "yes" no',
-            expect='msg() text with type="{COL}color_quoted{RES}" no "{COL}yes{RES}" no'
+            given='msg() text with style="color_quoted" no "yes" no',
+            expect='msg() text with style="{COL}color_quoted{RES}" no "{COL}yes{RES}" no'
         )
         __check_color_quoted_msg(
             given='no "yes" no',
@@ -117,8 +127,23 @@ class TestMsg(TestCase):
             expect='A "{COL}b 123{RES}" -> A "{COL}b 123{RES}"'
         )
 
+    def test_msg_style_heading(self):
+        with uu.capture_stdout() as out:
+            msg('text printed by msg() with style="heading"', style='heading')
+
+        self.assertIn('text printed by msg() with style="heading"',
+                      out.getvalue().strip())
+
+    def test_msg_style_section(self):
+        with uu.capture_stdout() as out:
+            msg('text printed by msg() with style="section"', style='section')
+
+        self.assertIn('text printed by msg() with style="section"',
+                      out.getvalue().strip())
+
 
 # NOTE(jonas): This will likely fail on some platforms!
+@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestColorize(TestCase):
 
     COLORIZE_FOREGROUND_ANSI_LOOKUP = {
@@ -238,6 +263,7 @@ class TestColorize(TestCase):
 
 
 # NOTE(jonas): This will likely fail on some platforms!
+@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestMsgRename(TestCase):
     ANSI_COL_FROM = '\x1b[37m'
     ANSI_COL_DEST = '\x1b[92m'
@@ -525,6 +551,7 @@ OOOOOOOOOOAAAAJM{p}B
 
 
 # NOTE(jonas): This will likely fail on some platforms!
+@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestColorizeQuoted(TestCase):
     def test_colorize_quoted(self):
         # ANSI_COLOR must match actual color. Currently 'LIGHTGREEN_EX'
@@ -581,6 +608,7 @@ class TestColorizeQuoted(TestCase):
         __check(' "a"" ""b"', ' "{COL}a{RES}""{COL} {RES}""{COL}b{RES}"')
 
 
+@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestDisplayableReplacement(TestCase):
     def __check_replacement(self, original, regex, replacement,
                             expect_old, expect_new):

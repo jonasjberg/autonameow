@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -41,6 +41,21 @@ except ImportError:
 from core import constants as C
 from core import types
 
+__all__ = [
+    'dump',
+    'contains_none',
+    'count_dict_recursive',
+    'expand_meowuri_data_dict',
+    'flatten_dict',
+    'git_commit_hash',
+    'is_executable',
+    'multiset_count',
+    'nested_dict_get',
+    'nested_dict_set',
+    'process_id',
+    'unique_identifier',
+]
+
 
 log = logging.getLogger(__name__)
 
@@ -60,36 +75,6 @@ def dump(obj):
     except TypeError as e:
         log.critical('Dump FAILED: ' + str(e))
         raise
-
-
-def dump_to_list(obj, nested_level=0, output=None):
-    spacing = '   '
-    if not output:
-        out = []
-    else:
-        out = output
-
-    if type(obj) == dict:
-        out.append('{}{{'.format(nested_level * spacing))
-        for k, v in list(obj.items()):
-            if hasattr(v, '__iter__'):
-                out.append('{}{}:'.format((nested_level + 1) * spacing, k))
-                dump_to_list(v, nested_level + 1, out)
-            else:
-                out.append('{}{}: {}'.format((nested_level + 1) * spacing, k, v))
-        out.append('{}}}'.format(nested_level * spacing))
-    elif type(obj) == list:
-        out.append('{}['.format(nested_level * spacing))
-        for v in obj:
-            if hasattr(v, '__iter__'):
-                dump_to_list(v, nested_level + 1, out)
-            else:
-                out.append('{}{}'.format((nested_level + 1) * spacing, v))
-        out.append('{}]'.format(nested_level * spacing))
-    else:
-        out.append('{}{}'.format(nested_level * spacing, obj))
-
-    return out
 
 
 __counter_generator_function = itertools.count(0)
@@ -135,18 +120,18 @@ def multiset_count(list_data):
     """
     if list_data is None:
         return None
-    elif not list_data:
-        return {}
 
-    out = {}
+    entry_counter = dict()
+    if not list_data:
+        return entry_counter
 
     for entry in list_data:
-        if entry in out:
-            out[entry] += 1
+        if entry in entry_counter:
+            entry_counter[entry] += 1
         else:
-            out[entry] = 1
+            entry_counter[entry] = 1
 
-    return out
+    return entry_counter
 
 
 def flatten_dict(d, parent_key='', sep='.'):
@@ -216,7 +201,7 @@ def count_dict_recursive(dictionary, count=0):
     if not isinstance(dictionary, dict):
         raise TypeError('Argument "dictionary" must be of type dict')
 
-    for key, value in dictionary.items():
+    for value in dictionary.values():
         if isinstance(value, dict):
             count += count_dict_recursive(value, count)
         elif value:
@@ -247,7 +232,7 @@ def expand_meowuri_data_dict(meowuri_dict):
     if not meowuri_dict or not isinstance(meowuri_dict, dict):
         raise TypeError
 
-    out = {}
+    out = dict()
     for key, value in meowuri_dict.items():
         key_parts = key.split('.')
         try:
@@ -377,7 +362,7 @@ def git_commit_hash():
             ['git', 'rev-parse', '--short', 'HEAD'],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
-        stdout, stderr = process.communicate()
+        stdout, _ = process.communicate()
     except (OSError, ValueError, TypeError, subprocess.SubprocessError):
         return None
     else:

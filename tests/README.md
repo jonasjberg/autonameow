@@ -1,6 +1,6 @@
 `autonameow`
 ============
-*Copyright(c) 2016-2017 Jonas Sjöberg*  
+*Copyright(c) 2016-2018 Jonas Sjöberg*  
 <https://github.com/jonasjberg>  
 <http://www.jonasjberg.com>  
 
@@ -9,13 +9,12 @@
 
 Testing TL;DR
 =============
+Use these runner scripts;
 
-| File Name               | Execute this to run .. |
-| ----------------------- | -----------------------|
-| `common_runner.sh`      | __All tests__          |
-| `integration_runner.sh` | Integration Tests      |
-| `regression_runner.sh`  | Regression Tests       |
-| `unit_runner.sh`        | Unit Tests             |
+* `run_all_tests.sh` (__ALL__ tests)
+* `run_integration_tests.sh` (integration tests)
+* `run_regression_tests.sh` (regression tests)
+* `run_unit_tests.sh` (unit tests)
 
 All runner scripts will print usage information if started with `-h`.
 
@@ -46,24 +45,33 @@ These are skipped if `hypothesis` is unavailable.
 
 
 ### Running the Unit Tests
-All unit tests can be executed with the bash script `tests/unit_runner.sh`.
+All unit tests can be executed with the bash script `tests/run_unit_tests.sh`.
 
 
 This script accepts optional argument flags, described in the usage text;
 
 ```
-"unit_runner.sh"  --  autonameow unit tests runner
+"run_unit_tests.sh"  --  autonameow unit tests runner
 
-  USAGE:  unit_runner.sh ([OPTIONS])
+  USAGE:  run_unit_tests.sh ([OPTIONS])
 
-  OPTIONS:  -h   Display usage information and exit.
-            -c   Enable checking unit test coverage.
-            -w   Write HTML test reports to disk.
-                 Note: the "raw" log file is always written.
-            -q   Suppress output from test suites.
+  OPTIONS:     -h   Display usage information and exit.
+               -c   Enable checking unit test coverage.
+               -l   Run tests that failed during the last run.
+                    Note: Only supported by "pytest"!
+               -w   Write HTML test reports to disk.
+                    Note: the "raw" log file is always written.
+               -q   Suppress output from test suites.
 
   All options are optional. Default behaviour is to not write any
   reports and print the test results to stdout/stderr in real-time.
+
+  EXIT CODES:   0   All tests/assertions passed.
+                1   Any tests/assertions FAILED.
+                2   Runner itself failed or aborted.
+
+
+Project website: www.github.com/jonasjberg/autonameow
 ```
 
 
@@ -75,26 +83,32 @@ Integration test source files are located in the `tests/integration` directory.
 
 
 ### Running the Integration Tests
-In order to run all tests, execute the script `tests/integration_runner.sh`.
+In order to run all tests, execute the script `tests/run_integration_tests.sh`.
 
 This script accepts optional argument flags, as described in the usage text;
 
 ```
-"integration_runner.sh"  --  autonameow integration test suite runner
+"run_integration_tests.sh"  --  autonameow integration test suite runner
 
-  USAGE:  integration_runner.sh ([OPTIONS])
+  USAGE:  run_integration_tests.sh ([OPTIONS])
 
-  OPTIONS:  -f [EXP]   Execute scripts by filtering basenames.
-                       Argument [EXP] is passed to grep as-is.
-                       Scripts whose basename does not match the
-                       expression are skipped.
-            -h         Display usage information and exit.
-            -q         Suppress output from test suites.
-            -w         Write HTML test reports to disk.
-                       Note: The "raw" log file is always written.
+  OPTIONS:     -f [EXP]   Execute scripts by filtering basenames.
+                          Argument [EXP] is passed to grep as-is.
+                          Scripts whose basename does not match the
+                          expression are skipped.
+               -h         Display usage information and exit.
+               -q         Suppress output from test suites.
+               -w         Write HTML test reports to disk.
+                          Note: The "raw" log file is always written.
 
   All options are optional. Default behaviour is to export test result
   reports and print the test results to stdout/stderr in real-time.
+
+  EXIT CODES:   0         All tests/assertions passed.
+                1         Any tests/assertions FAILED.
+                2         Runner itself failed or aborted.
+
+  Project website: www.github.com/jonasjberg/autonameow
 ```
 
 
@@ -231,7 +245,7 @@ where `$SRCROOT` is the full absolute path to the autonameow sources.
 
 
 ### Running the Regression Tests
-In order to run all tests, execute the script `tests/regression_runner.sh`.
+In order to run all tests, execute the script `tests/run_regression_tests.sh`.
 
 This script accepts optional argument flags, as described in the usage text;
 
@@ -239,7 +253,7 @@ This script accepts optional argument flags, as described in the usage text;
 Usage: regression_runner.py [-h] [-v] [--stderr] [--stdout] [-f GLOB]
                             [--last-failed] [--list] [--get-cmd] [--run]
 
-autonameow v0.5.2 -- regression test suite runner
+autonameow v0.5.3 -- regression test suite runner
 
 Optional arguments:
   -h, --help            Show this help message and exit.
@@ -249,10 +263,13 @@ Optional arguments:
 
 Test Selection:
   Selection is performed in the order in which the options are listed here.
+  I.E. first any glob filtering, then selecting last failed, etc.
 
   -f GLOB, --filter GLOB
                         Select tests whose "TEST_NAME" (dirname) matches
-                        "GLOB".
+                        "GLOB". Matching is case-sensitive. An asterisk
+                        matches anything and if "GLOB" begins with "!", the
+                        matching is inverted.
   --last-failed         Select only the test cases that failed during the last
                         completed run. Selects all if none failed.
 
@@ -260,17 +277,52 @@ Actions to Perform:
   Only the first active option is used, ordered as per this listing.
 
   --list                Print the "short name" (directory basename) of the
-                        selected test case(s) and exit.
+                        selected test case(s) and exit. Enable verbose mode
+                        for additional information.
   --get-cmd             Print equivalent command-line invocations for the
-                        selected test case(s) and exit.If executed "manually",
-                        these would produce the same behaviour and results as
-                        the corresponding regression test. Each result is
-                        printed as two lines; first being "# TEST_NAME", where
-                        "TEST_NAME" is the directory basename of the test
-                        case. The second line is the equivalent command-line.
-                        Use "test selection" options to narrow down the
-                        results.
+                        selected test case(s) and exit. If executed
+                        "manually", these would produce the same behaviour and
+                        results as the corresponding regression test. Each
+                        result is printed as two lines; first being "#
+                        TEST_NAME", where "TEST_NAME" is the directory
+                        basename of the test case. The second line is the
+                        equivalent command-line. Use "test selection" options
+                        to narrow down the results.
   --run                 Run the selected test case(s). (DEFAULT: True)
+
+Project website: www.github.com/jonasjberg/autonameow
+```
+
+
+Top-level Test Runner
+---------------------
+To run all test runners, execute the script `tests/run_all_tests.sh`.
+
+This script accepts optional argument flags, as described in the usage text;
+
+```
+"run_all_tests.sh"  --  autonameow test suite helper script
+
+  USAGE:  run_all_tests.sh ([OPTIONS])
+
+  OPTIONS:     -h   Display usage information and exit.
+               -v   Enable all output from the unit/integration-runners.
+                    This also increases the verbosity of this script.
+               -w   Write result reports in HTML and PDF format.
+
+  All flags are optional. Default behaviour is to suppress all output
+  from the unit/integration/regression-runners and not write logs to disk.
+  Note that temporary ("*.raw") logs might still be written --- refer to
+  the individual test runners for up-to-date specifics.
+
+  When not using "-v" (default), the individual test runners are marked
+  [FAILED] if the exit status is non-zero. This *probably* means that not
+  all tests/assertions passed or that the test runner itself failed.
+  Conversely, if the test runner returns zero, it is marked [FINISHED].
+
+  Refer to the individual test runners for up-to-date information on
+  any special exit codes.
+
 
 Project website: www.github.com/jonasjberg/autonameow
 ```

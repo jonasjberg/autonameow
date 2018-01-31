@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -23,6 +23,13 @@ from unittest import (
     skipIf,
     TestCase,
 )
+
+try:
+    import PIL
+except ImportError:
+    PIL_IS_NOT_AVAILABLE = True, 'Missing required module "PIL"'
+else:
+    PIL_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
 from extractors import ExtractorError
@@ -104,12 +111,11 @@ class TestTesseractOCRTextExtractorWithImageFile(TestCase):
         self.assertEqual(actual['full'], TEST_IMAGE_FILE_TEXT)
 
 
+@skipIf(*PIL_IS_NOT_AVAILABLE)
 class TestTesseractWrapper(TestCase):
     TEST_FILE = uu.abspath_testfile('2007-04-23_12-comments.png')
 
     def test_pil_read_image_returns_pil_image_for_valid_images(self):
-        import PIL
-
         # Tests both Unicode or bytestring file names, even though the
         # intended primary caller 'TesseractOCRTextExtractor' uses bytestrings.
         for _image_file in [self.TEST_FILE,

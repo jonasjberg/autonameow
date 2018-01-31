@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -121,17 +121,26 @@ class Edition(NameTemplateField):
 
     # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
     REPLACE_ORDINALS = []
-    for _find, _replace in (
-            ('1st', 'first'),        ('2nd', 'second'),
-            ('3rd', 'third'),        ('4th', 'fourth'),
-            ('5th', 'fifth'),        ('6th', 'sixth'),
-            ('7th', 'seventh'),      ('8th', 'eighth'),
-            ('9th', 'ninth'),        ('10th', 'tenth'),
-            ('11th', 'eleventh'),    ('12th', 'twelfth'),
-            ('13th', 'thirteenth'),  ('14th', 'fourteenth'),
-            ('15th', 'fifteenth'),   ('16th', 'sixteenth'),
-            ('17th', 'seventeenth'), ('18th', 'eighteenth'),
-            ('19th', 'nineteenth'),  ('20th', 'twentieth')):
+    for _find, _replace in (('1st', 'first'),
+                            ('2nd', 'second'),
+                            ('3rd', 'third'),
+                            ('4th', 'fourth'),
+                            ('5th', 'fifth'),
+                            ('6th', 'sixth'),
+                            ('7th', 'seventh'),
+                            ('8th', 'eighth'),
+                            ('9th', 'ninth'),
+                            ('10th', 'tenth'),
+                            ('11th', 'eleventh'),
+                            ('12th', 'twelfth'),
+                            ('13th', 'thirteenth'),
+                            ('14th', 'fourteenth'),
+                            ('15th', 'fifteenth'),
+                            ('16th', 'sixteenth'),
+                            ('17th', 'seventeenth'),
+                            ('18th', 'eighteenth'),
+                            ('19th', 'nineteenth'),
+                            ('20th', 'twentieth')):
         REPLACE_ORDINALS.append((re.compile(_find, re.IGNORECASE), _replace))
 
     def __init__(self):
@@ -346,7 +355,7 @@ class Publisher(NameTemplateField):
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
 
-        _candidates = {}
+        _candidates = dict()
 
         c = kwargs.get('config')
         if c:
@@ -354,6 +363,7 @@ class Publisher(NameTemplateField):
             if _options:
                 _candidates = _options.get('candidates', {})
 
+        # TODO: [TD0152] Fix too many replacements applied? Stop after first?
         _formatted = data.get('value')
         for repl, patterns in _candidates.items():
             for pattern in patterns:

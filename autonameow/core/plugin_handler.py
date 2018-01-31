@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -21,14 +21,18 @@
 
 import logging
 
-import plugins
 from core import (
-    exceptions,
     logs,
+    provider,
     repository
 )
-from core.exceptions import InvalidMeowURIError
+from core.exceptions import (
+    AutonameowException,
+    AutonameowPluginError,
+    InvalidMeowURIError
+)
 from core.model import MeowURI
+from core.model.genericfields import get_field_class
 from util import sanity
 
 
@@ -48,7 +52,8 @@ class PluginHandler(object):
         self.log.debug(' Plugin Handler Started '.center(120, '='))
 
         # Get instantiated and validated plugins.
-        self.available_plugins = plugins.UsablePlugins
+        import plugins
+        self.available_plugins = plugins.ProviderClasses
         sanity.check_isinstance(self.available_plugins, list)
 
         if self.available_plugins:
@@ -114,7 +119,7 @@ class PluginHandler(object):
                 continue
             try:
                 data = plugin(fileobject)
-            except exceptions.AutonameowPluginError:
+            except AutonameowPluginError:
                 log.critical('Plugin instance "{!s}" execution '
                              'FAILED'.format(plugin))
                 continue
@@ -125,15 +130,29 @@ class PluginHandler(object):
 
             _results = _wrap_extracted_data(data, _metainfo, plugin)
             _meowuri_prefix = plugin.meowuri_prefix()
-            collect_results(fileobject, _meowuri_prefix, _results)
+            store_results(fileobject, _meowuri_prefix, _results)
 
 
-def request_data(fileobject, meowuri):
-    response = repository.SessionRepository.query(fileobject, meowuri)
-    return response.get('value')
+def request_data(fileobject, meowuri_string):
+    # TODO: [TD0133] Fix inconsistent use of MeowURIs
+    #       Stick to using either instances of 'MeowURI' _OR_ strings.
+    sanity.check_internal_string(meowuri_string)
+
+    try:
+        meowuri = MeowURI(meowuri_string)
+    except InvalidMeowURIError as e:
+        log.critical('Plugin request used bad MeowURI "{!s}" :: '
+                     '{!s}'.format(meowuri_string, e))
+        return None
+
+    response = provider.query(fileobject, meowuri)
+    if response:
+        sanity.check_isinstance(response, dict)
+        return response.get('value')
+    return None
 
 
-def collect_results(fileobject, meowuri_prefix, data):
+def store_results(fileobject, meowuri_prefix, data):
     """
     Collects plugin results. Passed to plugins as a callback.
 
@@ -157,7 +176,7 @@ def collect_results(fileobject, meowuri_prefix, data):
 
 
 def _wrap_extracted_data(extracteddata, metainfo, source_klass):
-    out = {}
+    out = dict()
 
     for field, value in extracteddata.items():
         field_metainfo = dict(metainfo.get(field, {}))
@@ -167,6 +186,42 @@ def _wrap_extracted_data(extracteddata, metainfo, source_klass):
         field_metainfo['value'] = value
         # Do not store a reference to the class itself before actually needed..
         field_metainfo['source'] = str(source_klass)
+
+        # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
+        # Map strings to generic field classes.
+        _generic_field_string = field_metainfo.get('generic_field')
+        if _generic_field_string:
+            _generic_field_klass = get_field_class(_generic_field_string)
+            if _generic_field_klass:
+                field_metainfo['generic_field'] = _generic_field_klass
+            else:
+                field_metainfo.pop('generic_field')
+
         out[field] = field_metainfo
 
     return out
+
+
+def run_plugins(fileobject, require_plugins=None, run_all_plugins=False):
+    """
+    Instantiates, executes and returns a 'PluginHandler' instance.
+
+    Args:
+        fileobject: The current file object to pass to plugins.
+        require_plugins: List of plugin classes that should be included.
+        run_all_plugins: Whether all plugins should be included.
+
+    Returns:
+        An instance of the 'PluginHandler' class that has executed successfully.
+
+    Raises:
+        AutonameowException: An unrecoverable error occurred during analysis.
+    """
+    plugin_handler = PluginHandler()
+    try:
+        plugin_handler.start(fileobject,
+                             require_plugins=require_plugins,
+                             run_all_plugins=run_all_plugins is True)
+    except AutonameowPluginError as e:
+        log.critical('Plugins FAILED: {!s}'.format(e))
+        raise AutonameowException(e)

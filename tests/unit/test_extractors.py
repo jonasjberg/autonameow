@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -32,11 +32,10 @@ from core import constants as C
 from extractors import (
     AUTONAMEOW_EXTRACTOR_PATH,
     BaseExtractor,
-    ExtractorClasses,
     find_extractor_module_files,
     _get_package_classes,
     get_extractor_classes,
-    map_meowuri_to_extractors
+    ProviderClasses
 )
 
 
@@ -72,17 +71,17 @@ class TestBaseExtractor(TestCase):
             self.e.extract(self.test_file)
 
     def test_metainfo_returns_expected_type(self):
-        actual = self.e.metainfo(self.test_file)
+        actual = self.e.metainfo()
         self.assertIsInstance(actual, dict)
 
     def test_abstract_class_does_not_specify_metainfo(self):
-        actual = self.e.metainfo(self.test_file)
+        actual = self.e.metainfo()
         self.assertEqual(len(actual), 0)
 
     def test_metainfo_is_not_mutable(self):
-        first = self.e.metainfo(self.test_file)
+        first = self.e.metainfo()
         first['foo'] = 'bar'
-        second = self.e.metainfo(self.test_file)
+        second = self.e.metainfo()
         self.assertNotEqual(first, second)
         self.assertNotIn('foo', second)
 
@@ -235,33 +234,11 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
         self.assertGreaterEqual(len(self.actual), 3)
 
 
-class TestMapMeowURIToExtractors(TestCase):
-    def setUp(self):
-        self.actual = map_meowuri_to_extractors()
-
-    def test_returns_expected_type(self):
-        self.assertIsNotNone(self.actual)
-        self.assertIsInstance(self.actual, dict)
-
-        for meowuri, klass_list in self.actual.items():
-            self.assertTrue(uu.is_internalstring(meowuri))
-            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
-
-            for klass in klass_list:
-                self.assertTrue(subclasses_base_extractor(klass))
-                self.assertTrue(uu.is_class(klass))
-
-    def test_returns_one_extractor_per_meowuri(self):
-        # This assumption is likely bound to change some time soon.
-        for meowuri, klass_list in self.actual.items():
-            self.assertEqual(len(klass_list), 1)
-
-
 class TestExtractorClassMeowURIs(TestCase):
-    extractor_class_names = [e.__name__ for e in ExtractorClasses]
+    extractor_class_names = [e.__name__ for e in ProviderClasses]
 
     def setUp(self):
-        self.actual = [k.meowuri_prefix() for k in ExtractorClasses]
+        self.actual = [k.meowuri_prefix() for k in ProviderClasses]
 
     def test_returns_expected_type(self):
         for meowuri in self.actual:

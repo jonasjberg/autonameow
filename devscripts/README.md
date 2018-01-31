@@ -1,6 +1,6 @@
 `autonameow`
 ============
-*Copyright(c) 2016-2017 Jonas Sjöberg*  
+*Copyright(c) 2016-2018 Jonas Sjöberg*  
 <https://github.com/jonasjberg>  
 <http://www.jonasjberg.com>  
 
@@ -15,9 +15,6 @@ Various utility scripts related to `autonameow` development.
 ### `analyze-available-data.sh`
 Experimental script for finding expected field values in the output of
 `autonameow --list-all`.
-
-### `check-wiki-report.sh`
-Used to automate documentation for the `1dv430` course.
 
 ### `cloc.sh`
 Generate statistics on the project source code using `cloc`.
@@ -35,14 +32,14 @@ Delete all `*.pyc` files and `__pycache__` directories.
 Run autonameow with the given file(s) and the `--list-all` option and filters
 the output to display a lexicographically sorted list of unique MeowURIs.
 
-### `lint-bash-scripts.sh`
+### `lint_bash.sh`
 Perform static analysis on all bash scripts using `shellcheck`.
+
+### `lint_python.sh`
+Perform static analysis on all Python scripts using `pylint`.
 
 ### `list-imported-modules.sh`
 List modules imported by the specified Python program.
-
-### `run-tests-and-update-wiki.sh`
-Used to automate documentation for the `1dv430` course.
 
 ### `todo_grep.sh`
 Simple `grep` wrapper for searching the sources for TODOs.

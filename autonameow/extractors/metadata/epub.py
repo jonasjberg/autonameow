@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -23,7 +23,6 @@ import zipfile
 
 from core import types
 from core.model import WeightedMapping
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
@@ -42,21 +41,21 @@ class EpubMetadataExtractor(BaseExtractor):
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
             ],
-            'generic_field': gf.GenericAuthor
+            'generic_field': 'author'
         },
         'title': {
             'coercer': types.AW_STRING,
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
             ],
-            'generic_field': gf.GenericTitle
+            'generic_field': 'title'
         },
         'producer': {
             'coercer': types.AW_STRING,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=0.1),
             ],
-            'generic_field': gf.GenericProducer
+            'generic_field': 'producer'
         }
     }
 
@@ -71,17 +70,21 @@ class EpubMetadataExtractor(BaseExtractor):
             metadata = self._to_internal_format(_raw_metadata)
             return metadata
 
-    def _to_internal_format(self, raw_metadata):
-        out = {}
+        return dict()
 
+    def _to_internal_format(self, raw_metadata):
+        coerced_metadata = dict()
+
+        # NOTE: epubzilla returns a class instance.
+        #       Can not use 'providers.ProviderMixin.coerce_field_value()'
         for tag_name in self.FIELD_LOOKUP.keys():
             _data = raw_metadata.get(tag_name)
             if _data is not None:
                 coerced = self.coerce_field_value(tag_name, _data)
                 if coerced is not None:
-                    out[tag_name] = coerced
+                    coerced_metadata[tag_name] = coerced
 
-        return out
+        return coerced_metadata
 
     @classmethod
     def check_dependencies(cls):
@@ -97,4 +100,4 @@ def _get_epub_metadata(source):
         try:
             return epub_file.metadata
         except AttributeError:
-            return {}
+            return dict()

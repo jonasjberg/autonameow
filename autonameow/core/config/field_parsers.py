@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -30,9 +30,11 @@ from core import (
     types,
 )
 from core.model import genericfields as gf
-from core.model import MeowURI
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
-from util import mimemagic
+from util import (
+    mimemagic,
+    sanity
+)
 from util import encoding as enc
 
 
@@ -170,6 +172,8 @@ class ConfigFieldParser(object):
             return False
         else:
             if isinstance(expression, list):
+                log.error('Unexpectedly got "multi-valued" expression; '
+                          '"{!s}"'.format(expression))
                 return False
             return evaluation_func(expression, data)
 
@@ -196,7 +200,7 @@ class BooleanConfigFieldParser(ConfigFieldParser):
             a = types.AW_BOOLEAN(expression)
             b = types.AW_BOOLEAN(test_data)
         except types.AWTypeError:
-            # TODO: Handle this case
+            # TODO: [TD0149] Make sure this case is handled properly.
             raise
         else:
             return a == b
@@ -249,10 +253,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
         # log.debug('expression: "{!s}" ({})"'.format(expression,
         #                                            type(expression)))
         _match = re.match(expression, test_data)
-        if _match:
-            return _match
-        else:
-            return False
+        return _match if _match else False
 
     @classmethod
     def get_validation_function(cls):
@@ -373,7 +374,7 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        return lambda *_: True
+        return lambda *_: False
 
 
 # Used for validating name templates. Populated like so;
@@ -451,10 +452,19 @@ def suitable_field_parser_for(meowuri):
         A list of instantiated field parsers suited for the given "meowURI".
     """
     log.debug('suitable_field_parser_for("{!s}")'.format(meowuri))
-    assert isinstance(meowuri, MeowURI)
+    sanity.check_isinstance_meowuri(meowuri)
 
-    return [p for p in FieldParserInstances
-            if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
+    candidates= [p for p in FieldParserInstances
+                 if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
+    if not candidates:
+        return None
+
+    # NOTE(jonas): Assume only one parser per "MeowURI" for now ..
+    assert len(candidates) == 1, (
+        'Unexpectedly got {} parsers for MeowURI '
+        '"{!s}"'.format(len(candidates), meowuri)
+    )
+    return candidates[0]
 
 
 # Instantiate rule parsers inheriting from the 'Parser' class.

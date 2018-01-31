@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -174,10 +174,9 @@ def get_errors(error_string):
     lines = error_string.splitlines()
     lines = [enc.decode_(line) for line in lines]
     error_lines = tuple(line for line in lines if line.find('Error') >= 0)
-    if len(error_lines) > 0:
+    if error_lines:
         return '\n'.join(error_lines)
-    else:
-        return error_string.strip()
+    return error_string.strip()
 
 
 def new_temporary_file(prefix=None, suffix=None):
@@ -212,7 +211,7 @@ def image_to_string(image, lang=None, boxes=False, config=None):
     else:
         if _number_image_channels == 4:
             # Discard the Alpha.
-            r, g, b, a = image.split()
+            r, g, b, _ = image.split()
             image = Image.merge('RGB', (r, g, b))
 
     input_file_name = new_temporary_file(suffix='.bmp')

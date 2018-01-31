@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -23,14 +23,18 @@ import logging
 
 import analyzers
 from core import (
-    exceptions,
     logs,
+    provider,
     repository
 )
 from core.config.configuration import Configuration
-from core.exceptions import InvalidMeowURIError
+from core.exceptions import (
+    AutonameowException,
+    InvalidMeowURIError
+)
 from core.fileobject import FileObject
 from core.model import MeowURI
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -62,17 +66,31 @@ def _execute_run_queue(analyzer_queue):
 
         fileobject = a.fileobject
         for _uri, _data in results.items():
-            collect_results(fileobject, _uri, _data)
+            store_results(fileobject, _uri, _data)
 
         log.debug('Finished running "{!s}"'.format(a))
 
 
-def request_global_data(fileobject, meowuri):
-    response = repository.SessionRepository.query(fileobject, meowuri)
-    return response
+def request_global_data(fileobject, meowuri_string):
+    # TODO: [TD0133] Fix inconsistent use of MeowURIs
+    #       Stick to using either instances of 'MeowURI' _OR_ strings.
+    sanity.check_internal_string(meowuri_string)
+
+    try:
+        meowuri = MeowURI(meowuri_string)
+    except InvalidMeowURIError as e:
+        log.critical('Analyzer request used bad MeowURI "{!s}" :: '
+                     '{!s}'.format(meowuri_string, e))
+        return None
+
+    response = provider.query(fileobject, meowuri)
+    if response:
+        sanity.check_isinstance(response, dict)
+        return response.get('value')
+    return None
 
 
-def collect_results(fileobject, meowuri_prefix, data):
+def store_results(fileobject, meowuri_prefix, data):
     """
     Collects analyzer results to store in the session repository.
 
@@ -95,7 +113,7 @@ def collect_results(fileobject, meowuri_prefix, data):
     if isinstance(data, list):
         for d in data:
             assert isinstance(d, dict), (
-                '[TD0102] Expected list elements passed to "collect_results()"'
+                '[TD0102] Expected list elements passed to "store_results()"'
                 ' to be type dict. Got: ({!s}) "{!s}"'.format(type(d), d)
             )
             try:
@@ -108,7 +126,7 @@ def collect_results(fileobject, meowuri_prefix, data):
             repository.SessionRepository.store(fileobject, _meowuri, d)
     else:
         assert isinstance(data, dict), (
-            '[TD0102] Got non-dict data in "analysis.collect_results()" :: '
+            '[TD0102] Got non-dict data in "analysis.store_results()" :: '
             '({!s}) "{!s}"'.format(type(data), data)
         )
 
@@ -141,34 +159,32 @@ def _instantiate_analyzers(fileobject, klass_list, config):
     ]
 
 
-def suitable_analyzers_for(fileobject):
-    """
-    Returns analyzer classes that can handle the given file object.
-
-    Args:
-        fileobject: File to get analyzers for as an instance of 'FileObject'.
-
-    Returns:
-        A list of analyzer classes that can analyze the given file.
-    """
-    return [a for a in analyzers.AnalyzerClasses if a.can_handle(fileobject)]
+def filter_able_to_handle(analyzer_klasses, fileobject):
+    return {a for a in analyzer_klasses if a.can_handle(fileobject)}
 
 
-def start(fileobject, config):
+def _start(fileobject, config, analyzers_to_run=None):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
     log.debug(' Analysis Preparation Started '.center(120, '='))
 
     # TODO: [TD0126] Remove assertions once "boundaries" are cleaned up.
-    assert isinstance(fileobject, FileObject), (
-           'Expected type "FileObject". Got {!s}')
-    assert isinstance(config, Configuration), (
-           'Expected type "Configuration". Got {!s}'.format(type(config)))
+    sanity.check_isinstance(fileobject, FileObject)
+    sanity.check_isinstance(config, Configuration)
 
-    klasses = suitable_analyzers_for(fileobject)
+    all_available_analyzers = set(analyzers.ProviderClasses)
+
+    if analyzers_to_run:
+        assert isinstance(analyzers_to_run, (list, set))
+        chosen_analyzers = [a for a in all_available_analyzers
+                            if a in analyzers_to_run]
+    else:
+        chosen_analyzers = all_available_analyzers
+
+    klasses = filter_able_to_handle(chosen_analyzers, fileobject)
     if not klasses:
-        raise exceptions.AutonameowException(
+        raise AutonameowException(
             'None of the analyzers applies (!)'
         )
 
@@ -192,3 +208,22 @@ def start(fileobject, config):
     # Run all analyzers in the queue.
     with logs.log_runtime(log, 'Analysis'):
         _execute_run_queue(analyzer_queue)
+
+
+def run_analysis(fileobject, active_config, analyzers_to_run=None):
+    """
+    Sets up and executes "analysis" of the given file.
+
+    Args:
+        fileobject: The file object to analyze.
+        active_config: An instance of the 'Configuration' class.
+        analyzers_to_run: Optional list of analyzers to run. All if omitted.
+
+    Raises:
+        AutonameowException: An unrecoverable error occurred during analysis.
+    """
+    try:
+        _start(fileobject, active_config, analyzers_to_run)
+    except AutonameowException as e:
+        log.critical('Analysis FAILED: {!s}'.format(e))
+        raise

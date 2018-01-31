@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -22,7 +22,6 @@
 from unittest import TestCase
 
 from core import constants as C
-from core.model import MeowURI
 from core.model.genericfields import (
     GenericAuthor,
     GenericCreator,
@@ -84,6 +83,7 @@ class TestGenericMeowURIs(TestCase):
         actual = meowuri_genericfield_map()
         self.assertIsInstance(actual, dict)
 
+        from core.model import MeowURI
         for meowuri, field_klass in actual.items():
             self.assertTrue(uu.is_class_instance(meowuri))
             self.assertIsInstance(meowuri, MeowURI)

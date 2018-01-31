@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -26,7 +26,6 @@ from core import (
     persistence,
     types,
 )
-from core.model import genericfields as gf
 from extractors import (
     BaseExtractor,
     ExtractorError
@@ -48,7 +47,7 @@ class AbstractTextExtractor(BaseExtractor):
             'coercer': types.AW_STRING,
             'multivalued': False,
             'mapped_fields': None,
-            'generic_field': gf.GenericText
+            'generic_field': 'text'
         }
     }
 
@@ -73,17 +72,7 @@ class AbstractTextExtractor(BaseExtractor):
                 self.log.info('Using cached text for: {!r}'.format(fileobject))
                 return _cached
 
-        try:
-            self.log.debug('{!s} starting initial extraction'.format(self))
-            text = self.extract_text(fileobject)
-        except ExtractorError as e:
-            self.log.warning('{!s}: {!s}'.format(self, e))
-            raise
-        except NotImplementedError as e:
-            self.log.debug('[WARNING] Called unimplemented code in {!s}: '
-                           '{!s}'.format(self, e))
-            raise ExtractorError
-
+        text = self.extract_text(fileobject)
         if not text:
             return ''
 
@@ -132,10 +121,7 @@ class AbstractTextExtractor(BaseExtractor):
         text = raw_text
         text = normalize_unicode(text)
         text = remove_nonbreaking_spaces(text)
-        if text:
-            return text
-        else:
-            return ''
+        return text if text else ''
 
 
 def decode_raw(raw_text):

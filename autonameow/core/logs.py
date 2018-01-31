@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -22,6 +22,7 @@
 import logging
 import time
 from contextlib import contextmanager
+from functools import wraps
 
 from core import ui
 
@@ -87,7 +88,7 @@ def init_logging(opts):
         logging.basicConfig(level=logging.CRITICAL, format=fmt)
     else:
         fmt = '%(levelname)s %(message)s'
-        logging.basicConfig(level=logging.ERROR, format=fmt)
+        logging.basicConfig(level=logging.WARNING, format=fmt)
 
     _logging_initialized = True
 
@@ -136,3 +137,32 @@ def log_runtime(logger, name):
     finally:
         elapsed_time = time.time() - start_time
         _log('{} Completed in {:.9f} seconds'.format(name, elapsed_time))
+
+
+def log_func_runtime(logger):
+    """
+    Logs execution time of a method or function to the given logger.
+
+    Example usage:
+
+        my_log = logging.getLogger(__name__)
+
+        @log_func_runtime(my_log)
+        def foo():
+            pass
+
+    """
+    def decorator(func):
+        if not __debug__:
+            return func
+
+        @wraps(func)
+        def log_runtime_wrapper(*args, **kwds):
+            _start_time = time.time()
+            func_returnval = func(*args, **kwds)
+            _elapsed_time = time.time() - _start_time
+            logger.debug('{}.{} Completed in {:.9f} seconds'.format(
+                func.__module__, func.__name__, _elapsed_time))
+            return func_returnval
+        return log_runtime_wrapper
+    return decorator

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -23,7 +23,6 @@ import re
 
 from analyzers import BaseAnalyzer
 from core import types
-from core.model import genericfields as gf
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from util import encoding as enc
@@ -58,6 +57,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['*/*']
 
+    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
     FIELD_LOOKUP = {
         'datetime': {
             'coercer': types.AW_TIMEDATE,
@@ -65,7 +65,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=0.75),
             ],
-            'generic_field': gf.GenericDateCreated
+            'generic_field': 'date_created'
         },
         'description': {
             'coercer': types.AW_STRING,
@@ -73,7 +73,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Title, probability=0.5),
             ],
-            'generic_field': gf.GenericDescription
+            'generic_field': 'description'
         },
         'tags': {
             'coercer': types.AW_STRING,
@@ -81,14 +81,14 @@ class FiletagsAnalyzer(BaseAnalyzer):
             'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
             ],
-            'generic_field': gf.GenericTags
+            'generic_field': 'tags'
         },
         'extension': {
             'coercer': types.AW_MIMETYPE,
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ],
-            'generic_field': gf.GenericMimeType
+            'generic_field': 'mime_type'
         },
         'follows_filetags_convention': {
             'coercer': types.AW_BOOLEAN,
@@ -137,7 +137,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                     WeightedMapping(fields.DateTime, probability=1),
                     WeightedMapping(fields.Date, probability=1),
                 ],
-                'generic_field': gf.GenericDateCreated
+                'generic_field': 'date_created'
             })
         if self._description:
             self._add_results('description', {
@@ -146,7 +146,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 'mapped_fields': [
                     WeightedMapping(fields.Description, probability=1),
                 ],
-                'generic_field': gf.GenericDescription
+                'generic_field': 'description'
             })
         if self._tags:
             self._add_results('tags', {
@@ -155,7 +155,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 'mapped_fields': [
                     WeightedMapping(fields.Tags, probability=1),
                 ],
-                'generic_field': gf.GenericTags
+                'generic_field': 'tags'
 
             })
         if self._extension:
@@ -165,7 +165,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 'mapped_fields': [
                     WeightedMapping(fields.Extension, probability=1),
                 ],
-                'generic_field': gf.GenericMimeType
+                'generic_field': 'mime_type'
             })
         self._add_results('follows_filetags_convention', {
             'value': self._follows_filetags_convention,
@@ -192,8 +192,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
         """
         if self._timestamp and self._description and self._tags:
             return True
-        else:
-            return False
+        return False
 
     @classmethod
     def can_handle(cls, fileobject):
@@ -260,8 +259,7 @@ def partition_basename(file_path):
     def decode_if_not_none_or_empty(bytestring_maybe):
         if bytestring_maybe:
             return enc.decode_(bytestring_maybe)
-        else:
-            return None
+        return None
 
     timestamp = decode_if_not_none_or_empty(timestamp)
     description = decode_if_not_none_or_empty(description)

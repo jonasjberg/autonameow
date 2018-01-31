@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 set -o noclobber -o nounset -o pipefail
+
 
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
@@ -48,25 +49,11 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
-            'Should be running a target operating system'
+assert_true '"$AUTONAMEOW_RUNNER"' \
+            'The autonameow launcher script can be started with no arguments'
 
 assert_true 'command -v python3' \
             'Python v3.x is available on the system'
-
-assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
-            'Python v3.5.0 or newer is available on the system'
-
-assert_true 'command -v exiftool' \
-            'exiftool is available on the system'
-
-assert_true 'command -v tesseract' \
-            'tesseract is available on the system'
-
-assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
-
-assert_true '"$AUTONAMEOW_RUNNER"' \
-            'The autonameow launcher script can be started with no arguments'
 
 
 # ______________________________________________________________________________
@@ -259,8 +246,8 @@ done < <(find "${AUTONAMEOW_TESTFILES_DIR}/configs" -maxdepth 1 -xdev -type f -n
 
 TEMPLATED_DEFAULT_CONFIG="$(abspath_testfile "configs/integration_default_templated.yaml")"
 assert_bulk_test "$TEMPLATED_DEFAULT_CONFIG" f r w
- 
-TEMP_PERSISTENCE_DIR="$(realpath -e -- "$(mktemp -d)")"
+
+TEMP_PERSISTENCE_DIR="$(realpath -e -- "$(mktemp -d -t aw_test_persistence.XXXXXX)")"
 assert_bulk_test "$TEMP_PERSISTENCE_DIR" d r w x
 
 _sed_backup_suffix='.orig'

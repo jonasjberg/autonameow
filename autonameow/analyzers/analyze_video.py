@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -26,6 +26,8 @@ from analyzers import BaseAnalyzer
 class VideoAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.1
     HANDLES_MIME_TYPES = ['video/*']
+
+    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
     def __init__(self, fileobject, config, request_data_callback):
         super(VideoAnalyzer, self).__init__(

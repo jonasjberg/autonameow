@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -27,6 +27,8 @@ class TextAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['text/plain']
 
+    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+
     def __init__(self, fileobject, config, request_data_callback):
         super(TextAnalyzer, self).__init__(
             fileobject, config, request_data_callback
@@ -41,7 +43,8 @@ class TextAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
-        self._add_results('datetime', self.get_datetime())
+        # TODO: [TD0102] Fix inconsistent results passed back by analyzers.
+        # self._add_results('datetime', self.get_datetime())
 
     def get_datetime(self):
         results = []
@@ -74,7 +77,7 @@ class TextAnalyzer(BaseAnalyzer):
             self.log.debug('Unable to extract date/time-information from'
                            ' text file contents using regex search.')
 
-        if type(text) == list:
+        if isinstance(text, list):
             text = ' '.join(text)
 
         matches_brute = 0

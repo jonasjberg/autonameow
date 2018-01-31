@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -121,46 +121,8 @@ def get_extractor_classes(packages, modules):
     return out
 
 
-def map_meowuri_to_extractors():
-    """
-    Returns a mapping of the extractor "meowURIs" and extractor classes.
-
-    Example return value: {
-        'extractor.filesystem.xplat': [CrossPlatformFilesystemExtractor],
-        'extractor.metadata.exiftool': [ExiftoolMetadataExtractor],
-        'extractor.text.pdftotext': PdftotextTextExtractor
-    }
-
-    Returns: A dictionary where the keys are Unicode string "meowURIs",
-             with values beings lists of extractor classes.
-    """
-    out = {}
-
-    for klass in ExtractorClasses:
-        _meowuri = klass.meowuri_prefix()
-        if not _meowuri:
-            log.error(
-                'Got None from "{!s}.meowuri_prefix()"'.format(klass.__name__)
-            )
-            continue
-
-        if _meowuri in out:
-            out[_meowuri].append(klass)
-        else:
-            out[_meowuri] = [klass]
-
-    return out
-
-
 _extractor_module_files = find_extractor_module_files()
-ExtractorClasses = get_extractor_classes(
+ProviderClasses = get_extractor_classes(
     packages=['filesystem', 'metadata', 'text'],
     modules=_extractor_module_files
 )
-MeowURIClassMap = map_meowuri_to_extractors()
-
-
-from . import metadata
-from . import text
-
-

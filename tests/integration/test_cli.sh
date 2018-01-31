@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -62,6 +62,7 @@ assert_true '"$AUTONAMEOW_RUNNER"' \
 assert_true '"$AUTONAMEOW_RUNNER" 2>&1 | grep -- "--help"' \
             '[TC005] autonameow should print how to get help when started with no arguments'
 
+
 assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | head -n 1 | grep -- "Usage"' \
             '[TC005] autonameow should display usage information when started with "--help"'
 
@@ -70,6 +71,11 @@ assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -- "dry-run"' \
 
 assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -- "--interactive"' \
             '[TC013] autonameow should provide a "--interactive" option'
+
+
+# ______________________________________________________________________________
+#
+# Check exit codes for trivival use-cases.
 
 assert_true '"$AUTONAMEOW_RUNNER" --interactive -- ' \
             '[TC013] autonameow should return 0 when started with "--interactive" without specifying files'
@@ -98,18 +104,6 @@ assert_false '"$AUTONAMEOW_RUNNER" --verbose --quiet -- ' \
 assert_false '"$AUTONAMEOW_RUNNER" --debug --quiet -- ' \
              'Starting with mutually exclusive options "--debug" and "--quiet" should generate an error'
 
-assert_false '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- " :root:"' \
-             'Output should not contain " :root:" when starting with "--verbose"'
-
-assert_false '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- ":root:"' \
-             'Output should not contain ":root:" when starting with "--verbose"'
-
-assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- " :root:"' \
-             'Output should not contain " :root:" when starting with "--debug"'
-
-assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- ":root:"' \
-             'Output should not contain ":root:" when starting with "--debug"'
-
 
 SAMPLE_EMPTY_FILE="$(abspath_testfile "empty")"
 assert_bulk_test "$SAMPLE_EMPTY_FILE" e f r
@@ -137,6 +131,38 @@ assert_true '"$AUTONAMEOW_RUNNER" --version --quiet' \
             'autonameow should return 0 when started with "--version" and "--quiet"'
 
 
+# ______________________________________________________________________________
+#
+# Check that the log format is not garbled due to multiple logger roots (?)
+
+assert_false '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- " :root:"' \
+             'Output should not contain " :root:" when starting with "--verbose"'
+
+assert_false '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- ":root:"' \
+             'Output should not contain ":root:" when starting with "--verbose"'
+
+assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- " :root:"' \
+             'Output should not contain " :root:" when starting with "--debug"'
+
+assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- ":root:"' \
+             'Output should not contain ":root:" when starting with "--debug"'
+
+assert_true '"$AUTONAMEOW_RUNNER" -v | grep -- "^Started at 201.*"' \
+            'When started with "-v" the output should match "^Started at 201.*"'
+
+assert_true '"$AUTONAMEOW_RUNNER" -v | grep -- "^Finished at 201.*"' \
+            'When started with "-v" the output should match "^Finished at 201.*"'
+
+assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*Using configuration: .*"' \
+            'When started with "-v" the output should match ".*Using configuration.*"'
+
+assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*No input files specified.*"' \
+            'When started with "-v" the output should match ".*No input files specified.*"'
+
+assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*No input files specified.*"' \
+            'When started without options the output should match ".*No input files specified.*"'
+
+
 SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
 assert_bulk_test "$SAMPLE_PDF_FILE" e f r
 
@@ -150,9 +176,13 @@ assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --list-all --dr
 assert_false '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -- " !!binary "' \
              "Output should not contain \" !!binary \" when running with \"--list-all\" given the file \"${sample_pdf_file_basename}\""
 
-assert_false '"$AUTONAMEOW_RUNNER" --dump-config 2>&1 | grep -- " \!\!python/object:"' \
-             'Output should not contain " !!python/object:" when running with "--dump-config"'
+# assert_false '"$AUTONAMEOW_RUNNER" --dump-config 2>&1 | grep -- " \!\!python/object:"' \
+#              '[TD0148] Output should not contain " !!python/object:" when running with "--dump-config"'
 
+
+# ______________________________________________________________________________
+#
+# Tests the recursive option.
 
 TEST_FILES_SUBDIR="$(abspath_testfile "subdir")"
 assert_bulk_test "$TEST_FILES_SUBDIR" d r w x

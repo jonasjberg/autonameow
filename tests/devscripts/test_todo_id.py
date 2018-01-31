@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -28,43 +28,68 @@ class TestFindTodoIdsInLine(TestCase):
     def __assert_matches(self, given, expect):
         actual = find_todo_ids_in_line(given)
         self.assertEqual(len(expect), len(actual))
-        for elem in expect:
-            self.assertIn(elem, actual)
+        for element in expect:
+            self.assertIn(element, actual)
 
     def test_finds_single_id(self):
         self.__assert_matches(
+            given='# TODO: [TD0666]',
+            expect=[{'id': '0666', 'text': ''}]
+        )
+
+    def test_finds_single_id_with_text(self):
+        self.__assert_matches(
             given='# TODO: [TD0666] Foo bar.',
-            expect=['0666']
+            expect=[{'id': '0666', 'text': 'Foo bar.'}]
         )
 
     def test_finds_single_id_on_indented_line(self):
         self.__assert_matches(
+            given='    # TODO: [TD0666]',
+            expect=[{'id': '0666', 'text': ''}]
+        )
+
+    def test_finds_single_id_with_text_on_indented_line(self):
+        self.__assert_matches(
             given='    # TODO: [TD0666] Foo bar.',
-            expect=['0666']
+            expect=[{'id': '0666', 'text': 'Foo bar.'}]
         )
 
     def test_finds_two_ids_in_single_todo(self):
         self.__assert_matches(
-            given='# TODO: [TD1337][TD1338] Implement baz.',
-            expect=['1337', '1338']
+            given='# TODO: [TD1337][TD1338]',
+            expect=[{'id': '1337', 'text': ''},
+                    {'id': '1338', 'text': ''}]
         )
 
-    def test_finds_two_ids_in_single_todo_on_indented_line(self):
+    def test_finds_two_ids_with_text_in_single_todo(self):
+        self.__assert_matches(
+            given='# TODO: [TD1337][TD1338] Implement baz.',
+            expect=[{'id': '1337', 'text': 'Implement baz.'},
+                    {'id': '1338', 'text': 'Implement baz.'}]
+        )
+
+    def test_finds_two_ids_with_text_in_single_todo_on_indented_line(self):
         self.__assert_matches(
             given='    # TODO: [TD1337][TD1338] Implement baz.',
-            expect=['1337', '1338']
+            expect=[{'id': '1337', 'text': 'Implement baz.'},
+                    {'id': '1338', 'text': 'Implement baz.'}]
         )
 
-    def test_finds_three_ids_in_single_todo(self):
+    def test_finds_three_ids_with_text_in_single_todo(self):
         self.__assert_matches(
             given='# TODO: [TD1337][TD1338][TD1339] Implement baz.',
-            expect=['1337', '1338', '1339']
+            expect=[{'id': '1337', 'text': 'Implement baz.'},
+                    {'id': '1338', 'text': 'Implement baz.'},
+                    {'id': '1339', 'text': 'Implement baz.'}]
         )
 
-    def test_finds_three_ids_in_single_todo_on_indented_line(self):
+    def test_finds_three_ids_with_text_in_single_todo_on_indented_line(self):
         self.__assert_matches(
             given='    # TODO: [TD1337][TD1338][TD1339] Implement baz.',
-            expect=['1337', '1338', '1339']
+            expect=[{'id': '1337', 'text': 'Implement baz.'},
+                    {'id': '1338', 'text': 'Implement baz.'},
+                    {'id': '1339', 'text': 'Implement baz.'}]
         )
 
     def test_ignores_related_ids(self):

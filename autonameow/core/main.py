@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import sys
 import traceback
 
@@ -50,6 +49,7 @@ DEFAULT_OPTIONS = {
     'mode_batch': False,
     'mode_interactive': True,
     'mode_rulematch': True,
+    'mode_timid': False,
 
     'config_path': None,
 
@@ -75,7 +75,7 @@ def real_main(options=None):
         options: Per-instance program options, as type dict.
     """
     if options is None:
-        options = {}
+        options = dict()
 
     # Passed in 'options' always take precedence and overrides the defaults.
     opts = dict(DEFAULT_OPTIONS)
@@ -83,7 +83,6 @@ def real_main(options=None):
 
     # Initialize global logging.
     logs.init_logging(opts)
-    log = logging.getLogger(__name__)
     if opts.get('quiet'):
         logs.silence()
 
@@ -165,6 +164,7 @@ def cli_main(argv=None):
         'mode_batch': opts.mode_batch,
         'mode_interactive': opts.mode_interactive,
         'mode_rulematch': opts.mode_rulematch,
+        'mode_timid': opts.mode_timid,
 
         'config_path': opts.config_path,
 

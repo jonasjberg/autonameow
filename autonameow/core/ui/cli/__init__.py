@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -27,6 +27,7 @@ from .common import (
     colorize_re_match,
     colorize_quoted,
     msg,
+    msg_possible_rename,
     msg_rename,
     msg_replacement,
     print_exit_info,

@@ -1,0 +1,18 @@
+DATETIME_FORMAT:
+    date: '%Y-%m-%d'
+    datetime: '%Y-%m-%dT%H%M%S'
+    time: '%H-%M-%S'
+RULES:
+    test_files Gmail print-to-pdf:
+        CONDITIONS:
+            extractor.filesystem.xplat.basename.extension: pdf
+            extractor.filesystem.xplat.basename.full: gmail.pdf
+            extractor.filesystem.xplat.contents.mime_type: application/pdf
+        DATA_SOURCES:
+            date: extractor.metadata.exiftool.PDF:CreateDate
+            extension: extractor.filesystem.xplat.basename.extension
+            time: extractor.metadata.exiftool.PDF:CreateDate
+            title: extractor.filesystem.xplat.basename.prefix
+        NAME_TEMPLATE: 'date_{date} time_{time} date_again_{date} {title}.{extension}'
+        exact_match: true
+        ranking_bias: null

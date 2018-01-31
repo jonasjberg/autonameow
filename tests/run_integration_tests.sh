@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Copyright(c) 2016-2018 Jonas Sjöberg
 #   Personal site:   http://www.jonasjberg.com
 #   GitHub:          https://github.com/jonasjberg
 #   University mail: js224eh[a]student.lnu.se
@@ -19,11 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
-# NOTE: Requires "aha" to be installed in order to convert the "raw"
-#       (containing ANSI escape codes) log files to HTML.
-
 set -o noclobber -o nounset -o pipefail
+
+
+declare -r EXIT_SUCCESS=0
+declare -r EXIT_FAILURE=1
+declare -r EXIT_CRITICAL=2
 
 SELF_BASENAME="$(basename "$0")"
 SELF_DIRNAME="$(realpath -e "$(dirname "$0")")"
@@ -36,7 +37,7 @@ then
         Environment variable setup script is missing. Aborting ..
 
 EOF
-    exit 1
+    exit "$EXIT_CRITICAL"
 fi
 
 if ! source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
@@ -47,7 +48,7 @@ then
         Integration test utility library is missing. Aborting ..
 
 EOF
-    exit 1
+    exit "$EXIT_CRITICAL"
 fi
 
 # Default configuration.
@@ -64,17 +65,23 @@ print_usage_info()
 
   USAGE:  ${SELF_BASENAME} ([OPTIONS])
 
-  OPTIONS:  -f [EXP]   Execute scripts by filtering basenames.
-                       Argument [EXP] is passed to grep as-is.
-                       Scripts whose basename does not match the
-                       expression are skipped.
-            -h         Display usage information and exit.
-            -q         Suppress output from test suites.
-            -w         Write HTML test reports to disk.
-                       Note: The "raw" log file is always written.
+  OPTIONS:     -f [EXP]   Execute scripts by filtering basenames.
+                          Argument [EXP] is passed to grep as-is.
+                          Scripts whose basename does not match the
+                          expression are skipped.
+               -h         Display usage information and exit.
+               -q         Suppress output from test suites.
+               -w         Write HTML test reports to disk.
+                          Note: The "raw" log file is always written.
 
   All options are optional. Default behaviour is to export test result
   reports and print the test results to stdout/stderr in real-time.
+
+  EXIT CODES:   ${EXIT_SUCCESS}         All tests/assertions passed.
+                ${EXIT_FAILURE}         Any tests/assertions FAILED.
+                ${EXIT_CRITICAL}         Runner itself failed or aborted.
+
+  Project website: www.github.com/jonasjberg/autonameow
 
 EOF
 }
@@ -93,9 +100,9 @@ else
                if [ -z "$optionarg_filter" ]
                then
                    printf '[ERROR] Expected non-empty argument for option "-f"\n' >&2
-                   exit 1
+                   exit "$EXIT_CRITICAL"
                fi ;;
-            h) print_usage_info ; exit 0 ;;
+            h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
             w) option_write_report='true' ;;
             q) option_quiet='true' ;;
         esac
@@ -178,8 +185,18 @@ done < "$AUTONAMEOW_INTEGRATION_STATS"
 log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_total_failed"
 
 
+# NOTE: Requires "aha" to be installed in order to convert the "raw"
+#       (containing ANSI escape codes) log files to HTML.
 # if [ ! "$option_write_report" != 'true' ]
 # then
 #     run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
 # fi
+
+
+if [ "$_total_failed" -eq "0" ]
+then
+    exit "$EXIT_SUCCESS"
+else
+    exit "$EXIT_FAILURE"
+fi
 
