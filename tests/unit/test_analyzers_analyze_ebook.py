@@ -28,7 +28,9 @@ from unittest.mock import Mock
 try:
     import isbnlib
 except ImportError:
-    isbnlib = None
+    ISBNLIB_IS_NOT_AVAILABLE = True, 'Missing (failed to import) required module "isbnlib"'
+else:
+    ISBNLIB_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
 from analyzers.analyze_ebook import (
@@ -52,7 +54,7 @@ def get_ebook_analyzer(fileobject):
     )
 
 
-@skipIf(isbnlib is None, 'Failed to import required module "isbnlib"')
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestEbookAnalyzer(TestCase):
     def setUp(self):
         self.fileobject = uu.get_named_fileobject('2010-01-31_161251.jpg')
@@ -63,6 +65,7 @@ class TestEbookAnalyzer(TestCase):
         self.assertIsNotNone(self.analyzer)
 
 
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestExtractIsbnsFromText(TestCase):
     def test_returns_expected_type(self):
         text = 'fooo1-56592-306-5baar'
@@ -112,6 +115,7 @@ ISBN: 1-56592-306-5
         self.assertIn('1565923065', actual)
 
 
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestValidateISBN(TestCase):
     def test_returns_valid_isbn_numbers(self):
         sample_isbn = '1565923065'
@@ -165,6 +169,7 @@ Foo Bar'''
         self.assertEqual(actual, expect_text)
 
 
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestISBNMetadata(TestCase):
     ISBN13_A = '9780136070474'
     ISBN10_A = '0136070477'
@@ -294,6 +299,7 @@ class TestISBNMetadata(TestCase):
         self.assertEqual(m.edition, '2')
 
 
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestISBNMetadataEquality(TestCase):
     ISBN10_A = '3540762884'
     ISBN10_B = '3540762876'
@@ -470,6 +476,7 @@ class TestISBNMetadataEquality(TestCase):
         self.assertNotEqual(m1, m2)
 
 
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestFindEbookISBNsInText(TestCase):
     def test_finds_expected(self):
         text = '''Computational Intelligence
@@ -502,6 +509,7 @@ c by Wydawnictwo Naukowe PWN SA, Warszawa 2005
         self.assertIn('9783540762881', actual)
 
 
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestMalformedISBNMetadata(TestCase):
     def test_malformed_author_field_list_of_lists(self):
         actual = ISBNMetadata(
