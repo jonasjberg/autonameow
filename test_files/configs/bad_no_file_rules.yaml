@@ -10,4 +10,4 @@ NAME_TEMPLATES:
     default_book: '{publisher} {title} {edition} - {author} {date}.{extension}'
     default_document: '{title} - {author} {datetime}.{extension}'
     default_photo: '{datetime} {description} -- {tags}.{extension}'
-autonameow_version: 0.5.3
+autonameow_version: 0.5.4
