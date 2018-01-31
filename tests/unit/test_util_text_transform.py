@@ -19,7 +19,14 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
+from unittest import TestCase, skipIf
+
+try:
+    import guessit
+except ImportError:
+    UNIDECODE_IS_NOT_AVAILABLE = True, 'Missing required module "unidecode"'
+else:
+    UNIDECODE_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
 from core.exceptions import EncodingBoundaryViolation
@@ -447,6 +454,7 @@ class TestStripAccentsHomeRolled(TestCase):
                             expect='Mere, Francoise, noel, 889')
 
 
+@skipIf(*UNIDECODE_IS_NOT_AVAILABLE)
 class TestStripAccentsUnidecode(TestCase):
     def _assert_strips(self, given, expect):
         actual = _strip_accents_unidecode(given)
