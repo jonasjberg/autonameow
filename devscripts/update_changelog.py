@@ -119,6 +119,19 @@ class ChangelogEntryClassifier(object):
         return any(s in entry.body for s in string_list)
 
 
+def is_blacklisted(entry):
+    # Blacklist merge commits
+    if not entry.body and re.match(r'^Merge .* into \w+', entry.subject):
+        return True
+
+    # Blacklist reverted commits
+    if (entry.subject.startswith('Revert ')
+            and entry.body.startswith('This reverts commit')):
+        return True
+
+    return False
+
+
 def parse_git_log(git_log_string):
     log = str(git_log_string)
     log = log.strip('\n' + GIT_LOG_SEP_RECORD).split(GIT_LOG_SEP_RECORD)
@@ -235,7 +248,7 @@ if __name__ == '__main__':
         #     _body = consolidate_almost_equal(_subject, _body)
 
         cle = ChangelogEntry(_subject, _body)
-        if not cle in log_entries:
+        if not cle in log_entries and not is_blacklisted(cle):
             log_entries.append(cle)
 
     section_entries = {
