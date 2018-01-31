@@ -31,7 +31,7 @@ critical `TODO`-list item.
 >     * `colorama`
 >     * `unidecode`
 >     * `prompt_toolkit`
->     * `python-magic`
+>     * `file-magic`
 >     * `pytz`
 >     * `pyyaml`
 >
@@ -109,7 +109,7 @@ install the non-Python dependencies.
 Install the dependencies by running the following commands in a terminal:
 ```bash
 brew install libmagic exiftool tesseract
-pip3 install chardet colorama unidecode prompt_toolkit python-magic pytz pyyaml
+pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml
 ```
 
 You might also want to install additional __optional__ third-party components:
@@ -122,7 +122,7 @@ Install the dependencies by running the following commands in a terminal:
 
 ```bash
 sudo apt install exiftool tesseract-ocr
-pip3 install chardet colorama unidecode prompt_toolkit python-magic pytz pyyaml
+pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml
 ```
 
 Alternatively, search the repositories for the packages with `apt-search`.

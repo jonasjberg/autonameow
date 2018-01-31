@@ -475,7 +475,7 @@ int-import-graph=
 known-standard-library=
 
 # Force import order to recognize a module as part of a third party library.
-known-third-party=chardet,colorama,epubzilla,nameparser,pyexiftool,python-magic,pyyaml,unidecode
+known-third-party=chardet,colorama,epubzilla,nameparser,pyexiftool,file-magic,pyyaml,unidecode
 
 
 [CLASSES]

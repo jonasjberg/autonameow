@@ -26,7 +26,7 @@ try:
     import magic
 except ImportError:
     raise SystemExit(
-        'Missing required module "magic".  Make sure "magic" (python-magic) '
+        'Missing required module "magic".  Make sure "magic" (file-magic) '
         'is available before running this program.'
     )
 
@@ -50,6 +50,14 @@ def _build_magic():
     http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
       "The following code allows the rest of the script to work the same
        way with either version of 'magic'"
+
+    TODO: Seems like this is the version currently in use? (on MacOS)
+          https://pypi.python.org/pypi/file-magic/0.3.0
+          https://github.com/file/file
+
+          Requires 'libmagic'! Install by running;
+          $ brew install libmagic
+          $ pip3 install file-magic
 
     Returns:
         An instance of 'magic' as type 'Magic'.
