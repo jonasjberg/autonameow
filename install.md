@@ -110,7 +110,7 @@ install the non-Python dependencies.
 Install the dependencies by running the following commands in a terminal:
 ```bash
 brew install libmagic exiftool tesseract
-brew cask install pdftotext
+brew install poppler # pdftotext
 pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml
 ```
 
