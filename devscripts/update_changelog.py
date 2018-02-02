@@ -120,13 +120,50 @@ class ChangelogEntryClassifier(object):
 
 
 def is_blacklisted(entry):
-    # Blacklist merge commits
-    if not entry.body and re.match(r'^Merge .* into \w+', entry.subject):
+    body = str(entry.body).strip('.')
+    subject = str(entry.subject).strip('.')
+
+    def _subject_match(pattern):
+        return re.match(pattern, subject)
+
+    def _body_match(pattern):
+        return re.match(pattern, body)
+
+    # Merge commits
+    if _subject_match(r'^Merge .* into \w+') and not body:
         return True
 
-    # Blacklist reverted commits
-    if (entry.subject.startswith('Revert ')
-            and entry.body.startswith('This reverts commit')):
+    # Reverted commits
+    if _subject_match(r'^Revert .*') and _body_match(r'^This reverts commit.*'):
+        return True
+
+    # Simple additions of new TODOs
+    if _subject_match(r'^Add TODO.*') and not body:
+        return True
+
+    if _subject_match(r'^Add TODO.*') and _body_match(r'^Adds TODO.*'):
+        return True
+
+    # Cleaned up imports
+    if _subject_match(r'^Remove unused imports?') and not body:
+        return True
+
+    # Trivial/uninformative commits
+    if _subject_match(r'^Fix unit tests$') and not body:
+        return True
+
+    if _subject_match(r'^Trivial fix .*') and not body:
+        return True
+
+    # Added comments
+    if _subject_match(r'^Add comment.*') and not body:
+        return True
+
+    if _subject_match(r'^Add comment.*') and _body_match(r'^Adds comment.*'):
+        return True
+
+    # Fixed typos
+    if not body and _subject_match(r'^Fix typo.*') and not 'and' in subject:
         return True
 
     return False
@@ -276,11 +313,5 @@ if __name__ == '__main__':
             print(text.indent(entry.body, amount=14))
             if entry.body:
                 print()
-
-    # for _le in log_entries:
-    #     print(text.indent('- ' + _le.subject, amount=12))
-    #     print(text.indent(_le.body, amount=14))
-    #     if _le.body:
-    #         print()
 
     sys.exit(exit_status)
