@@ -23,14 +23,6 @@ import logging
 import os
 import platform
 
-try:
-    import yaml
-except ImportError:
-    raise SystemExit(
-        'Missing required module "yaml". '
-        'Make sure "pyyaml" is available before running this program.'
-    )
-
 from core import constants as C
 from core import exceptions
 from core.config.config_parser import ConfigurationParser
@@ -48,7 +40,6 @@ CONFDIR_UNIX_FALLBACK = '~/.config'
 CONFDIR_WINDOWS_VAR = 'APPDATA'
 CONFDIR_WINDOWS_FALLBACK = '~\\AppData\\Roaming'
 CONFIG_BASENAME = 'autonameow.yaml'
-YAML_TAB_PROBLEM = "found character '\\t' that cannot start any token"
 
 
 class ConfigWriteError(exceptions.ConfigError):
