@@ -51,27 +51,6 @@ CONFIG_BASENAME = 'autonameow.yaml'
 YAML_TAB_PROBLEM = "found character '\\t' that cannot start any token"
 
 
-class ConfigReadError(exceptions.ConfigError):
-    """A configuration file could not be read."""
-    def __init__(self, filename, reason=None):
-        self.filename = filename
-        self.reason = reason
-
-        message = 'file {} could not be read'.format(filename)
-        if (isinstance(reason, yaml.scanner.ScannerError)
-                and reason.problem == YAML_TAB_PROBLEM):
-            # Special-case error message for tab indentation in YAML markup.
-            message += ': found tab character at line {}, column {}'.format(
-                reason.problem_mark.line + 1,
-                reason.problem_mark.column + 1,
-            )
-        elif reason:
-            # Generic error message uses exception's message.
-            message += ': {}'.format(reason)
-
-        super(ConfigReadError, self).__init__(message)
-
-
 class ConfigWriteError(exceptions.ConfigError):
     """A configuration file could not be written."""
 

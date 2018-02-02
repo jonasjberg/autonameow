@@ -342,7 +342,6 @@ class ConfigurationParser(object):
 
         Raises:
             EncodingBoundaryViolation: Argument "path" is not a bytestring.
-            ConfigReadError: The configuration file could not be read.
             ConfigError: The configuration file is empty.
         """
         sanity.check_internal_bytestring(path)
