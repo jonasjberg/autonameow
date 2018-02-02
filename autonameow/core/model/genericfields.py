@@ -56,63 +56,35 @@ class GenericField(object):
                                  cls.meowuri_leaf.lower())
         return MeowURI(_uri)
 
-    @classmethod
-    def evaluation_function(cls):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
 
 class GenericAuthor(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Author'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericCreator(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Creator'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericDescription(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Description'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericDateCreated(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Date_Created'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericDateModified(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Date_Modified'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericEdition(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Edition'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericHealth(GenericField):
@@ -123,72 +95,40 @@ class GenericHealth(GenericField):
     meowuri_child = 'contents'
     meowuri_leaf = 'health'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericMimeType(GenericField):
     meowuri_child = 'contents'
     meowuri_leaf = 'Mime_Type'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericProducer(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Producer'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericPublisher(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Publisher'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericSubject(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Subject'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericTags(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Tags'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericText(GenericField):
     meowuri_child = 'contents'
     meowuri_leaf = 'text'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericTitle(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Title'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 def meowuri_genericfield_map():
