@@ -164,50 +164,6 @@ class DocumentAnalyzer(BaseAnalyzer):
                 'generic_field': 'date_created',
                 'source': str(self)
                 })
-
-        # TODO: Temporary premature return skips brute force search ..
-        return results
-
-        matches = 0
-        text_split = text.split('\n')
-        self.log.debug('Try getting datetime from text split by newlines')
-        for t in text_split:
-            dt_brute = dateandtime.bruteforce_str(t)
-            if dt_brute:
-                matches += 1
-                assert isinstance(dt_brute, list)
-                for v in dt_brute:
-                    results.append({
-                        'value': v,
-                        'coercer': types.AW_TIMEDATE,
-                        'mapped_fields': [
-                            WeightedMapping(fields.DateTime, probability=0.1),
-                            WeightedMapping(fields.Date, probability=0.1)
-                        ],
-                        'generic_field': 'date_created',
-                        'source': str(self)
-                    })
-
-        if matches == 0:
-            self.log.debug('No matches. Trying with text split by whitespace')
-            text_split = text.split()
-            for t in text_split:
-                dt_brute = dateandtime.bruteforce_str(t)
-                if dt_brute:
-                    matches += 1
-                    assert isinstance(dt_brute, list)
-                    for v in dt_brute:
-                        results.append({
-                            'value': v,
-                            'coercer': types.AW_TIMEDATE,
-                            'mapped_fields': [
-                                WeightedMapping(fields.DateTime, probability=0.1),
-                                WeightedMapping(fields.Date, probability=0.1)
-                            ],
-                            'generic_field': 'date_created',
-                            'source': str(self)
-                        })
-
         return results
 
     def _extract_leading_text_chunk(self, chunk_ratio):
