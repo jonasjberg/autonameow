@@ -251,9 +251,9 @@ class ProviderRegistry(object):
 
 
 def _get_meowuri_source_map():
-    def __root_meowuris_for_providers(module_name):
+    def __get_meowuri_roots_for_providers(module_name):
         """
-        Returns a dict mapping "MeowURIs" to extractor classes.
+        Returns a dict mapping "MeowURIs" to provider classes.
 
         Example return value: {
             'extractor.filesystem.xplat': CrossPlatformFilesystemExtractor,
@@ -261,8 +261,8 @@ def _get_meowuri_source_map():
             'extractor.text.pdftotext': PdftotextTextExtractor
         }
 
-        Returns: Dictionary keyed by Unicode string "MeowURIs",
-                 storing extractor classes.
+        Returns: Dictionary keyed by instances of the 'MeowURI' class,
+                 storing provider classes.
         """
         _klass_list = getattr(module_name, 'ProviderClasses')
         sanity.check_isinstance(_klass_list, list)
@@ -286,9 +286,9 @@ def _get_meowuri_source_map():
     import extractors
     import plugins
     return {
-        'extractor': __root_meowuris_for_providers(extractors),
-        'analyzer': __root_meowuris_for_providers(analyzers),
-        'plugin': __root_meowuris_for_providers(plugins)
+        'extractor': __get_meowuri_roots_for_providers(extractors),
+        'analyzer': __get_meowuri_roots_for_providers(analyzers),
+        'plugin': __get_meowuri_roots_for_providers(plugins)
     }
 
 
