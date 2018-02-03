@@ -297,9 +297,7 @@ def get_providers_for_meowuri(meowuri, include_roots=None):
     if not meowuri:
         return providers
 
-    sanity.check_isinstance_meowuri(
-        meowuri, msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
-    )
+    sanity.check_isinstance_meowuri(meowuri)
 
     source_classes = Registry.providers_for_meowuri(meowuri, include_roots)
     providers.update(source_classes)
@@ -312,9 +310,7 @@ def get_providers_for_meowuris(meowuri_list, include_roots=None):
         return providers
 
     for uri in meowuri_list:
-        sanity.check_isinstance_meowuri(
-            uri, msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
-        )
+        sanity.check_isinstance_meowuri(uri)
         source_classes = Registry.providers_for_meowuri(uri, include_roots)
         providers.update(source_classes)
     return providers

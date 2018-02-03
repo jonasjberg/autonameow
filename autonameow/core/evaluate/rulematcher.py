@@ -41,11 +41,7 @@ class RuleMatcher(object):
         self._list_rulematch = bool(list_rulematch)
 
     def request_data(self, fileobject, meowuri):
-        # TODO: [TD0133] Fix inconsistent use of MeowURIs
-        #       Stick to using either instances of 'MeowURI' _OR_ strings.
-        sanity.check_isinstance_meowuri(
-            meowuri, msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
-        )
+        sanity.check_isinstance_meowuri(meowuri)
 
         response = provider.query(fileobject, meowuri)
         if response:

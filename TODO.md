@@ -55,8 +55,6 @@ High Priority
 
 * `[TD0129]` Enforce passing validated data to `NameTemplateField.format()`.
 
-* `[TD0133]` Fix inconsistent use of MeowURIs; `MeowURI` instances and strings.
-
 * `[TD0138]` __Fix inconsistent type of `RuleCondition.expression`.__  
   Probably best to always store a list of expressions, even when there is only one.
   Alternatively, implement separate abstraction of an "expression".

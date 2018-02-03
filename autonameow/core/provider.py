@@ -179,7 +179,5 @@ def initialize(active_config):
 
 
 def query(fileobject, meowuri):
-    sanity.check_isinstance_meowuri(
-        meowuri, msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
-    )
+    sanity.check_isinstance_meowuri(meowuri)
     return _master_data_provider.query(fileobject, meowuri)

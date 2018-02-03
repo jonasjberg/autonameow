@@ -16,6 +16,8 @@ University mail: `js224eh[a]student.lnu.se`
 > -------------
 >
 > * `[TD0127]` Clean up boundaries/interface to the `extractors` package.
+>
+> * `[TD0133]` Fix inconsistent use of MeowURIs; `MeowURI` instances and strings.
 
 ### 2018-01-16
 
