@@ -43,7 +43,7 @@ class FileObject(object):
                   "internal filename bytestring", I.E. bytes.
         """
         sanity.check_internal_bytestring(path)
-        validate_path_argument(path)
+        _validate_path_argument(path)
         self.abspath = path
 
         self.filename = enc.bytestring_path(
@@ -139,7 +139,7 @@ class FileObject(object):
         return not self < other
 
 
-def validate_path_argument(path):
+def _validate_path_argument(path):
     """
     Checks that a "raw" argument from an unknown/untrusted source is a
     valid path appropriate for instantiating a new 'FileObject' object.

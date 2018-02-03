@@ -25,9 +25,26 @@ from unittest import TestCase
 
 import unit.constants as uuconst
 import unit.utils as uu
-from core import fileobject
 from core.exceptions import InvalidFileArgumentError
+from core.fileobject import (
+    _validate_path_argument,
+    FileObject
+)
 from util import encoding as enc
+
+
+class TestFileObject(TestCase):
+    def test_raises_assertion_error_given_none_path(self):
+        with self.assertRaises(AssertionError):
+            _ = FileObject(None)
+
+    def test_raises_assertion_error_given_unicode_string_path(self):
+        with self.assertRaises(AssertionError):
+            _ = FileObject('foo')
+
+    def test_raises_exception_given_path_to_non_existent_file(self):
+        with self.assertRaises(InvalidFileArgumentError):
+            _ = FileObject(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
 
 class TestFileObjectTypes(TestCase):
@@ -321,16 +338,16 @@ class TestValidatePathArgument(TestCase):
 
     def test_valid_unicode_paths(self):
         for upath in self.unicode_paths:
-            fileobject.validate_path_argument(upath)
+            _validate_path_argument(upath)
 
     def test_valid_bytes_paths(self):
         for bpath in self.bytestr_paths:
-            fileobject.validate_path_argument(bpath)
+            _validate_path_argument(bpath)
 
     def test_invalid_paths(self):
         def _assert_raises(test_data):
             with self.assertRaises(InvalidFileArgumentError):
-                fileobject.validate_path_argument(test_data)
+                _validate_path_argument(test_data)
 
         _assert_raises(None)
         _assert_raises('')
