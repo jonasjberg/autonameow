@@ -22,9 +22,9 @@
 from unittest import TestCase
 
 import extractors
-from core import extraction
 from core.extraction import (
     ExtractorRunner,
+    keep_slow_extractors_if_required,
     suitable_extractors_for
 )
 import unit.utils as uu
@@ -92,8 +92,7 @@ class TestKeepSlowExtractorsIfRequiredWithSlowExtractor(TestCase):
         self.input = [self.fast, self.fast, self.slow]
 
     def test_slow_extractors_are_excluded_if_not_required(self):
-        actual = extraction.keep_slow_extractors_if_required(self.input, [])
-
+        actual = keep_slow_extractors_if_required(self.input, [])
         self.assertNotIn(self.slow, actual,
                          'Slow extractor class should be excluded')
         self.assertNotEqual(len(actual), len(self.input),
@@ -101,8 +100,7 @@ class TestKeepSlowExtractorsIfRequiredWithSlowExtractor(TestCase):
 
     def test_slow_extractors_are_included_if_required(self):
         required = [self.slow]
-        actual = extraction.keep_slow_extractors_if_required(self.input,
-                                                             required)
+        actual = keep_slow_extractors_if_required(self.input, required)
         self.assertIn(self.slow, actual,
                       'Slow extractor class is kept when required')
         self.assertEqual(len(self.input), len(actual),
@@ -113,12 +111,10 @@ class TestKeepSlowExtractorsIfRequired(TestCase):
     def setUp(self):
         self.fast = MockExtractor
         self.slow = MockSlowExtractor
-
         self.input = [self.fast, self.fast, self.fast]
 
     def test_slow_extractor_are_excluded_if_not_required(self):
-        actual = extraction.keep_slow_extractors_if_required(self.input, [])
-
+        actual = keep_slow_extractors_if_required(self.input, [])
         self.assertNotIn(self.slow, actual,
                          'Slow extractor class should be excluded')
         self.assertEqual(len(self.input), len(actual),
@@ -126,8 +122,7 @@ class TestKeepSlowExtractorsIfRequired(TestCase):
 
     def test_slow_extractor_are_included_if_required(self):
         required = [self.slow]
-        actual = extraction.keep_slow_extractors_if_required(self.input,
-                                                             required)
+        actual = keep_slow_extractors_if_required(self.input, required)
         self.assertNotIn(self.slow, actual,
                          'There was no slow extractor class to start with')
         self.assertEqual(len(self.input), len(actual),
