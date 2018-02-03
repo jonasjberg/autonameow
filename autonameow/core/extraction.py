@@ -124,21 +124,30 @@ def filter_not_slow(extractor_klasses):
 
 
 class ExtractorRunner(object):
-    def __init__(self, available_extractors=None, add_results_callback=None):
-        if not available_extractors:
-            self._available_extractors = set()
-        else:
-            self._available_extractors = set(available_extractors)
+    def __init__(self, add_results_callback=None):
+        """
+        Instantiates a new extractor runner. Results are passed to the callback.
 
-        if __debug__:
-            for k in self._available_extractors:
-                log.debug('Available: {!s}'.format(str(k.__name__)))
+        The callback should accept three arguments;
 
+            fileobject (FileObject), meowuri (MeowURI), data (dict)
+
+        It will be called for each extracted "item" returned by each of the
+        selected extractors. Results are discarded if left unspecified.
+
+        Args:
+            add_results_callback: Callable that accepts three arguments.
+        """
         if add_results_callback:
             assert callable(add_results_callback)
             self._add_results_callback = add_results_callback
         else:
             self._add_results_callback = lambda *_: None
+
+        self._available_extractors = set(extractors.ProviderClasses)
+        if __debug__:
+            for k in self._available_extractors:
+                log.debug('Available: {!s}'.format(str(k.__name__)))
 
         self.exclude_slow = True
 
@@ -262,7 +271,6 @@ def run_extraction(fileobject, require_extractors, run_all_extractors=False):
         AutonameowException: An unrecoverable error occurred during extraction.
     """
     runner = ExtractorRunner(
-        available_extractors=extractors.ProviderClasses,
         add_results_callback=repository.SessionRepository.store
     )
     try:

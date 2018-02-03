@@ -23,20 +23,10 @@ from unittest import TestCase
 
 import extractors
 from core.extraction import (
-    ExtractorRunner,
     keep_slow_extractors_if_required,
     suitable_extractors_for
 )
 import unit.utils as uu
-
-
-class TestExtractorRunnerWithNoAvailableExtractors(TestCase):
-    def setUp(self):
-        self.er = ExtractorRunner()
-
-    # def test_available_extractors_returns_empty_list(self):
-    #     actual = self.er.available_extractors
-    #     self.assertEqual(actual, [])
 
 
 class MockExtractor(object):
@@ -57,31 +47,6 @@ class MockExtractor(object):
 
 class MockSlowExtractor(MockExtractor):
     is_slow = True
-
-
-class TestExtractorRunnerWithOneAvailableExtractor(TestCase):
-    def setUp(self):
-        self.er = ExtractorRunner(available_extractors=[MockExtractor])
-
-    # def test_available_extractors_returns_one_extractor(self):
-    #     actual = self.er.available_extractors
-    #     self.assertEqual(actual, [MockExtractor])
-
-    # def test_suitable_extractors_for_returns_mock_extractor(self):
-    #     fo = uu.get_mock_fileobject(mime_type='text/plain')
-    #     actual = self.er.suitable_extractors_for(fo)
-    #     self.assertEqual(actual, [MockExtractor])
-
-
-class TestExtractorRunnerUsageA(TestCase):
-    def setUp(self):
-        self.er = ExtractorRunner(available_extractors=[MockExtractor])
-
-    # def test_foo(self):
-    #     er = ExtractorRunner(available_extractors=[MockExtractor])
-    #     er.skip_slow = False
-    #     er.filter = None
-    #     er.extractfrom(fo)
 
 
 class TestKeepSlowExtractorsIfRequiredWithSlowExtractor(TestCase):

@@ -323,7 +323,8 @@ class Autonameow(object):
             results_to_list.append(str(repository.SessionRepository))
 
             # TODO: [TD0131] Limit repository size!
-            repository.SessionRepository.data.pop(current_file)
+            if current_file in repository.SessionRepository.data:
+                repository.SessionRepository.data.pop(current_file)
 
         if self.opts.get('list_all'):
             log.info('Listing session repository contents ..')
