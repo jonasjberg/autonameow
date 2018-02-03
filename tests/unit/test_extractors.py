@@ -32,6 +32,7 @@ from extractors import (
     AUTONAMEOW_EXTRACTOR_PATH,
     BaseExtractor,
     EXTRACTOR_CLASS_PACKAGES,
+    EXTRACTOR_CLASS_PACKAGES_METADATA,
     EXTRACTOR_CLASS_PACKAGES_TEXT,
     _find_extractor_classes_in_packages,
     get_extractor_classes,
@@ -62,6 +63,9 @@ class TestExtractorsConstants(TestCase):
 
     def test_extractor_class_packages_text(self):
         self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_TEXT)
+
+    def test_extractor_class_packages_metadata(self):
+        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_METADATA)
 
 
 class TestBaseExtractor(TestCase):
@@ -227,6 +231,39 @@ class TestGetTextExtractorClasses(TestCase):
         from extractors.text.common import AbstractTextExtractor
         for klass in self.actual:
             self.assertTrue(issubclass(klass, AbstractTextExtractor))
+
+
+class TestGetMetadataExtractorClasses(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.actual = get_extractor_classes(
+            packages=EXTRACTOR_CLASS_PACKAGES_METADATA,
+        )
+
+    def test_get_extractor_classes_returns_expected_type(self):
+        self.assertIsInstance(self.actual, list)
+
+    def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
+        for klass in self.actual:
+            self.assertTrue(uu.is_class(klass))
+            self.assertTrue(issubclass(klass, BaseExtractor))
+
+    def test_get_extractor_classes_does_not_include_base_extractor(self):
+        self.assertNotIn(BaseExtractor, self.actual)
+
+    def test_get_extractor_classes_does_not_include_abstract_extractors(self):
+        from extractors.text.common import AbstractTextExtractor
+        self.assertNotIn(AbstractTextExtractor, self.actual)
+
+    def test_returns_metadata_extractors_verified_by_name(self):
+        for klass in self.actual:
+            _klass_name = klass.__name__
+            self.assertIn('Metadata', _klass_name)
+
+    def test_returns_metadata_extractors_verified_by_meowuri_prefix(self):
+        for klass in self.actual:
+            _meowuri_prefix = klass.meowuri_prefix()
+            self.assertTrue(_meowuri_prefix.startswith('extractor.metadata'))
 
 
 class TestNumberOfAvailableExtractorClasses(TestCase):

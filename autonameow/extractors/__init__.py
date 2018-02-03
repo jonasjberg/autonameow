@@ -39,6 +39,7 @@ sys.path.insert(0, AUTONAMEOW_EXTRACTOR_PATH)
 
 EXTRACTOR_CLASS_PACKAGES = ['filesystem', 'metadata', 'text']
 EXTRACTOR_CLASS_PACKAGES_TEXT = ['text']
+EXTRACTOR_CLASS_PACKAGES_METADATA = ['metadata']
 
 
 def _find_extractor_classes_in_packages(packages):
@@ -72,3 +73,4 @@ def get_extractor_classes(packages):
 
 ProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES)
 TextProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_TEXT)
+MetadataProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_METADATA)
