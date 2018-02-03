@@ -841,3 +841,13 @@ class TestRoundtripsFromMeowURIToStringToMeowURI(TestCase):
 
     def test_pdftotext_text_extractor_prefix(self):
         self._assert_roundtrips('extractor.text.pdftotext')
+
+
+class TestHandlesDumpedMeowURIs(TestCase):
+    def test_handles_dumped_meowuris(self):
+        # self.assertTrue(False)
+        for dumped_meowuri_str in uuconst.DUMPED_MEOWURIS:
+            with self.subTest(given_string=dumped_meowuri_str):
+                actual = MeowURI(dumped_meowuri_str)
+                self.assertIsInstance(actual, MeowURI)
+                self.assertEqual(dumped_meowuri_str, str(actual))
