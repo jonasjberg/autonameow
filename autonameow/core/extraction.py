@@ -83,8 +83,8 @@ def filter_able_to_handle(extractor_klasses, fileobject):
     return {k for k in extractor_klasses if k.can_handle(fileobject)}
 
 
-def filter_not_slow(extractor_klasses):
-    return {k for k in extractor_klasses if not k.is_slow}
+def filter_not_slow(extractor_klasses, required):
+    return {k for k in extractor_klasses if not k.is_slow or k in required}
 
 
 class ExtractorRunner(object):
@@ -98,6 +98,9 @@ class ExtractorRunner(object):
 
         It will be called for each extracted "item" returned by each of the
         selected extractors. Results are discarded if left unspecified.
+
+        If 'exclude_slow' is true, "slow" extractors that are not explicitly
+        requested are excluded.
 
         Args:
             add_results_callback: Callable that accepts three arguments.
@@ -121,51 +124,62 @@ class ExtractorRunner(object):
 
         _request_all = bool(request_all)
 
-        selected_klasses = set()
+        # Get only extractors suitable for the given file.
+        available = filter_able_to_handle(self._available_extractors,
+                                          fileobject)
+        log.debug('Removed extractors that can not handle the current file. '
+                  'Remaining: {}'.format(len(available)))
+
+        selected = set()
         if _request_all:
             # Add all available extractors.
             log.debug('Requested all available extractors')
-            selected_klasses = self._available_extractors
-        else:
+            selected = available
+        elif request_extractors:
             # Add requested extractors.
-            if request_extractors:
-                selected_klasses = set(request_extractors)
-
-                if __debug__:
-                    log.debug('Selected {} requested extractors'.format(
-                        len(selected_klasses)
-                    ))
-                    for k in selected_klasses:
-                        log.debug('Selected:  {!s}'.format(str(k.__name__)))
+            requested_klasses = set(request_extractors)
+            selected = self._select_from_available(available, requested_klasses)
 
         log.debug('Selected {} of {} available extractors'.format(
-            len(selected_klasses), len(self._available_extractors)))
-
-        # Get only extractors suitable for the given file.
-        selected_klasses = filter_able_to_handle(selected_klasses, fileobject)
-        log.debug('Removed extractors that can not handle the current file. '
-                  'Remaining: {}'.format(len(selected_klasses)))
-
-        if self.exclude_slow:
-            selected_klasses = filter_not_slow(selected_klasses)
-            log.debug('Removed slow extractors. Remaining: {}'.format(
-                len(selected_klasses)
-            ))
+            len(selected), len(self._available_extractors)))
 
         if __debug__:
             log.debug('Prepared {} extractors that can handle "{!s}"'.format(
-                len(selected_klasses), fileobject
+                len(selected), fileobject
             ))
-            for k in selected_klasses:
+            for k in selected:
                 log.debug('Prepared:  {!s}'.format(str(k.__name__)))
 
-        if selected_klasses:
+        if selected:
             # Run all prepared extractors.
             with logs.log_runtime(log, 'Extraction'):
-                self._run_extractors(fileobject, selected_klasses)
+                self._run_extractors(fileobject, selected)
 
-    def _run_extractors(self, fileobject, all_klasses):
-        for klass in all_klasses:
+    def _select_from_available(self, available, requested_klasses):
+        selected = {
+            k for k in requested_klasses if k in available
+        }
+        if __debug__:
+            log.debug('Selected {} requested extractors'.format(len(selected)))
+            for k in selected:
+                log.debug('Selected:  {!s}'.format(str(k.__name__)))
+
+            if not requested_klasses.issubset(available):
+                _not_available = requested_klasses.difference(available)
+                log.warning('Requested {} unavailable extractors'.format(len(_not_available)))
+                for k in _not_available:
+                    log.warning('Unavailable:  {!s}'.format(str(k.__name__)))
+
+        if self.exclude_slow:
+            selected = filter_not_slow(selected, requested_klasses)
+            log.debug('Removed slow extractors. Remaining: {}'.format(
+                len(selected)
+            ))
+
+        return selected
+
+    def _run_extractors(self, fileobject, extractors_to_run):
+        for klass in extractors_to_run:
             _extractor_instance = klass()
             if not _extractor_instance:
                 log.critical('Error instantiating "{!s}" (!!)'.format(klass))
