@@ -79,6 +79,14 @@ def _wrap_extracted_data(extracteddata, metainfo, source_klass):
     return out
 
 
+def construct_full_meowuri(meowuri_prefix, meowuri_leaf):
+    try:
+        return MeowURI(meowuri_prefix, meowuri_leaf)
+    except InvalidMeowURIError as e:
+        log.error(e)
+        return None
+
+
 def filter_able_to_handle(extractor_klasses, fileobject):
     return {k for k in extractor_klasses if k.can_handle(fileobject)}
 
@@ -222,13 +230,12 @@ class ExtractorRunner(object):
         """
         sanity.check_isinstance(data, dict)
         for _uri_leaf, _data in data.items():
-            try:
-                _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
-            except InvalidMeowURIError as e:
-                log.critical(
-                    'Got invalid MeowURI from extractor -- !{!s}"'.format(e)
-                )
+            _meowuri = construct_full_meowuri(meowuri_prefix, _uri_leaf)
+            if not _meowuri:
+                log.debug('Unable to construct full MeowURI from prefix "{!s}" '
+                          'and leaf "{!s}"'.format(meowuri_prefix, _uri_leaf))
                 continue
+
             self._add_results_callback(fileobject, _meowuri, _data)
 
 
