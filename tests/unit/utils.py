@@ -30,10 +30,10 @@ from contextlib import contextmanager
 from datetime import datetime
 
 import unit.constants as uuconst
+from core import FileObject
 from core.config import rules
 from core.config.config_parser import ConfigurationParser
 from core.exceptions import InvalidMeowURIError
-from core.fileobject import FileObject
 from core.model import MeowURI
 from util import encoding as enc
 from util import (

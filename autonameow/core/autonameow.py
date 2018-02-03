@@ -29,6 +29,7 @@ from core import constants as C
 from core import (
     config,
     exceptions,
+    FileObject,
     logs,
     persistence,
     provider,
@@ -38,7 +39,6 @@ from core import (
 )
 from core.evaluate import RuleMatcher
 from core.context import FilesContext
-from core.fileobject import FileObject
 from core.renamer import FileRenamer
 from util import encoding as enc
 from util import disk

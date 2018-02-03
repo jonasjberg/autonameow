@@ -28,7 +28,7 @@ from unittest import TestCase
 
 import unit.utils as uu
 import unit.constants as uuconst
-from core.fileobject import FileObject
+from core import FileObject
 from core.model import MeowURI
 
 

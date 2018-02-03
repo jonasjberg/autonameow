@@ -23,6 +23,7 @@ import logging
 
 import extractors
 from core import (
+    FileObject,
     logs,
     repository
 )
@@ -30,7 +31,6 @@ from core.exceptions import (
     AutonameowException,
     InvalidMeowURIError
 )
-from core.fileobject import FileObject
 from core.model import MeowURI
 from core.model.genericfields import get_field_class
 from extractors import ExtractorError

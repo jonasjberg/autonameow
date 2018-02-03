@@ -23,6 +23,7 @@ import logging
 
 import analyzers
 from core import (
+    FileObject,
     logs,
     provider,
     repository
@@ -32,7 +33,6 @@ from core.exceptions import (
     AutonameowException,
     InvalidMeowURIError
 )
-from core.fileobject import FileObject
 from core.model import MeowURI
 from util import sanity
 

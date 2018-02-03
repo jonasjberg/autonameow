@@ -28,11 +28,11 @@ from core import constants as C
 from core import (
     exceptions,
     extraction,
+    FileObject,
     logs,
     ui
 )
 from core.exceptions import AutonameowException
-from core.fileobject import FileObject
 from util import encoding as enc
 from util import disk
 
