@@ -26,6 +26,7 @@ from core import constants as C
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from core.model.meowuri import (
+    evaluate_meowuri_globs,
     is_meowuri_part,
     is_meowuri_parts,
     meowuri_list,
@@ -173,7 +174,7 @@ class TestMeowURIMutability(TestCase):
         self.assertEqual(before, after)
 
 
-class TestEvalMeowURIGlob(TestCase):
+class TestEvaluateMeowURIGlob(TestCase):
     def test_eval_meowuri_blob_returns_false_given_bad_arguments(self):
         m = MeowURI('generic.metadata.foo')
         actual = m.matchglobs(None)
@@ -259,13 +260,15 @@ class TestMeowURIComparison(TestCase):
         self.assertTrue(a > b)
 
 
-class TestEvalMeowURIGlobA(TestCase):
-    def setUp(self):
-        self.g = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+class TestEvaluateMeowURIGlobA(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.meowuri_string = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertFalse(actual)
 
         _f(['extractor.filesystem.xplat.pathname.*'])
         _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
@@ -277,7 +280,8 @@ class TestEvalMeowURIGlobA(TestCase):
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertTrue(actual)
 
         _t(['extractor.*'])
         _t(['extractor.filesystem.*'])
@@ -286,13 +290,15 @@ class TestEvalMeowURIGlobA(TestCase):
             uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
 
 
-class TestEvalMeowURIGlobB(TestCase):
-    def setUp(self):
-        self.g = MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
+class TestEvaluateMeowURIGlobB(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.meowuri_string = uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertFalse(actual)
 
         _f(['*.pathname.*'])
         _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
@@ -307,18 +313,20 @@ class TestEvalMeowURIGlobB(TestCase):
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertTrue(actual)
 
         _t(['*.pathname.*', '*.basename.*', '*.full'])
 
 
-class TestEvalMeowURIGlobC(TestCase):
+class TestEvaluateMeowURIGlobC(TestCase):
     def setUp(self):
-        self.g = MeowURI('generic.contents.textual.raw_text')
+        self.meowuri_string = 'generic.contents.textual.raw_text'
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertFalse(actual)
 
         _f(['contents.text.*'])
         _f(['*.text.*'])
@@ -327,7 +335,8 @@ class TestEvalMeowURIGlobC(TestCase):
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertTrue(actual)
 
         _t(['generic.*'])
         _t(['*.contents.*'])
@@ -336,13 +345,15 @@ class TestEvalMeowURIGlobC(TestCase):
         _t(['*.pathname.*', '*.textual.*', '*.foo'])
 
 
-class TestEvalMeowURIGlobD(TestCase):
-    def setUp(self):
-        self.g = MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
+class TestEvaluateMeowURIGlobD(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.meowuri_string = uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertFalse(actual)
 
         _f(['generic.*'])
         _f(['generic.contents.*'])
@@ -356,7 +367,8 @@ class TestEvalMeowURIGlobD(TestCase):
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertTrue(actual)
 
         _t(['*'])
         _t(['*.basename.*', '*.basename.extension',
@@ -368,13 +380,15 @@ class TestEvalMeowURIGlobD(TestCase):
         _t(['*', '*.extension'])
 
 
-class TestEvalMeowURIGlobE(TestCase):
-    def setUp(self):
-        self.g = MeowURI(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL)
+class TestEvaluateMeowURIGlobE(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.meowuri_string = uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertFalse(actual)
 
         _f(['generic.*'])
         _f(['generic.contents.*'])
@@ -384,7 +398,8 @@ class TestEvalMeowURIGlobE(TestCase):
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertTrue(actual)
 
         _t(['*'])
         _t(['extractor.*'])
@@ -398,13 +413,15 @@ class TestEvalMeowURIGlobE(TestCase):
         _t(['*.pathname.*'])
 
 
-class TestEvalMeowURIGlobF(TestCase):
-    def setUp(self):
-        self.g = MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR)
+class TestEvaluateMeowURIGlobF(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.meowuri_string = uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertFalse(actual)
 
         _f(['datetime', 'date_accessed', 'date_created', 'date_modified',
             '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
@@ -421,7 +438,8 @@ class TestEvalMeowURIGlobF(TestCase):
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.matchglobs(test_input))
+            actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
+            self.assertTrue(actual)
 
         _t(['*'])
         _t(['extractor.*'])
