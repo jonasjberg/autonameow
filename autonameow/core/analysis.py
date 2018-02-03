@@ -28,11 +28,8 @@ from core import (
     repository
 )
 from core.config.configuration import Configuration
-from core.exceptions import (
-    AutonameowException,
-    InvalidMeowURIError
-)
-from core.model import MeowURI
+from core.exceptions import AutonameowException
+from core.model import force_meowuri
 from util import sanity
 
 
@@ -70,18 +67,16 @@ def _execute_run_queue(analyzer_queue):
         log.debug('Finished running "{!s}"'.format(a))
 
 
-def request_global_data(fileobject, meowuri_string):
+def request_global_data(fileobject, uri_string):
     # NOTE(jonas): String to MeowURI conversion boundary.
-    sanity.check_internal_string(meowuri_string)
+    sanity.check_internal_string(uri_string)
 
-    try:
-        meowuri = MeowURI(meowuri_string)
-    except InvalidMeowURIError as e:
-        log.critical('Analyzer request used bad MeowURI "{!s}" :: '
-                     '{!s}'.format(meowuri_string, e))
+    uri = force_meowuri(uri_string)
+    if not uri:
+        log.error('Bad MeowURI in analyzer request: "{!s}"'.format(uri_string))
         return None
 
-    response = provider.query(fileobject, meowuri)
+    response = provider.query(fileobject, uri)
     if response:
         sanity.check_isinstance(response, dict)
         return response.get('value')
@@ -107,6 +102,12 @@ def store_results(fileobject, meowuri_prefix, data):
         meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
         data: The data to add, as any type or container.
     """
+    uri = force_meowuri(meowuri_prefix)
+    if not uri:
+        log.error('Unable to create MeowURI from analyzer prefix string '
+                  '"{!s}"'.format(meowuri_prefix))
+        return
+
     # TODO: [TD0102] Fix inconsistencies in results passed back by analyzers.
     if isinstance(data, list):
         for d in data:
@@ -114,28 +115,13 @@ def store_results(fileobject, meowuri_prefix, data):
                 '[TD0102] Expected list elements passed to "store_results()"'
                 ' to be type dict. Got: ({!s}) "{!s}"'.format(type(d), d)
             )
-            try:
-                _meowuri = MeowURI(meowuri_prefix)
-            except InvalidMeowURIError as e:
-                log.critical(
-                    'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-                )
-                return
-            repository.SessionRepository.store(fileobject, _meowuri, d)
+            repository.SessionRepository.store(fileobject, uri, d)
     else:
         assert isinstance(data, dict), (
             '[TD0102] Got non-dict data in "analysis.store_results()" :: '
             '({!s}) "{!s}"'.format(type(data), data)
         )
-
-        try:
-            _meowuri = MeowURI(meowuri_prefix)
-        except InvalidMeowURIError as e:
-            log.critical(
-                'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-            )
-            return
-        repository.SessionRepository.store(fileobject, _meowuri, data)
+        repository.SessionRepository.store(fileobject, uri, data)
 
 
 def _instantiate_analyzers(fileobject, klass_list, config):

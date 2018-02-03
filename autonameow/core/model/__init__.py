@@ -21,4 +21,7 @@
 
 
 from .mapping import WeightedMapping
-from .meowuri import MeowURI
+from .meowuri import (
+    force_meowuri,
+    MeowURI
+)

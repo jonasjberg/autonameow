@@ -22,15 +22,8 @@
 import logging
 
 import extractors
-from core import (
-    logs,
-    repository
-)
-from core.exceptions import (
-    AutonameowException,
-    InvalidMeowURIError
-)
-from core.model import MeowURI
+from core import logs
+from core.model import force_meowuri
 from core.model.genericfields import get_field_class
 from extractors import ExtractorError
 from util import sanity
@@ -64,14 +57,6 @@ def _wrap_extracted_data(extracteddata, metainfo, source_klass):
         out[field] = field_metainfo
 
     return out
-
-
-def construct_full_meowuri(meowuri_prefix, meowuri_leaf):
-    try:
-        return MeowURI(meowuri_prefix, meowuri_leaf)
-    except InvalidMeowURIError as e:
-        log.error(e)
-        return None
 
 
 def filter_able_to_handle(extractor_klasses, fileobject):
@@ -249,10 +234,11 @@ class ExtractorRunner(object):
         """
         sanity.check_isinstance(data, dict)
         for _uri_leaf, _data in data.items():
-            _meowuri = construct_full_meowuri(meowuri_prefix, _uri_leaf)
-            if not _meowuri:
-                log.debug('Unable to construct full MeowURI from prefix "{!s}" '
-                          'and leaf "{!s}"'.format(meowuri_prefix, _uri_leaf))
+            uri = force_meowuri(meowuri_prefix, _uri_leaf)
+            if not uri:
+                log.error('Unable to construct full extractor result MeowURI'
+                          'from prefix "{!s}" and leaf "{!s}"'.format(
+                            meowuri_prefix, _uri_leaf))
                 continue
 
-            self._add_results_callback(fileobject, _meowuri, _data)
+            self._add_results_callback(fileobject, uri, _data)

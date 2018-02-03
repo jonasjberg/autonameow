@@ -23,12 +23,12 @@ import logging
 
 from core import constants as C
 from core import providers
-from core.exceptions import (
-    AutonameowException,
-    InvalidMeowURIError
-)
+from core.exceptions import AutonameowException
 from core.model.genericfields import get_field_class
-from core.model import MeowURI
+from core.model import (
+    force_meowuri,
+    MeowURI
+)
 from util import (
     mimemagic,
     sanity
@@ -148,21 +148,21 @@ class BaseAnalyzer(object):
                 data.pop('generic_field')
 
         meowuri_prefix = self.meowuri_prefix()
-        _meowuri = construct_full_meowuri(meowuri_prefix, meowuri_leaf)
-        if not _meowuri:
-            self.log.debug(
+        uri = force_meowuri(meowuri_prefix, meowuri_leaf)
+        if not uri:
+            self.log.error(
                 'Unable to construct full MeowURI from prefix "{!s}" '
                 'and leaf "{!s}"'.format(meowuri_prefix, meowuri_leaf)
             )
             return
 
-        _existing_data = self.results.get(_meowuri)
+        _existing_data = self.results.get(uri)
         if _existing_data:
             if not isinstance(_existing_data, list):
                 _existing_data = [_existing_data]
-            self.results[_meowuri] = _existing_data + [data]
+            self.results[uri] = _existing_data + [data]
         else:
-            self.results[_meowuri] = data
+            self.results[uri] = data
 
     def request_any_textual_content(self):
         _response = self.request_data(self.fileobject,
@@ -252,11 +252,3 @@ class BaseAnalyzer(object):
 
     def __str__(self):
         return self.__class__.__name__
-
-
-def construct_full_meowuri(meowuri_prefix, meowuri_leaf):
-    try:
-        return MeowURI(meowuri_prefix, meowuri_leaf)
-    except InvalidMeowURIError as e:
-        log.error(e)
-        return None
