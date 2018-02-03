@@ -32,7 +32,6 @@ from core import (
     logs,
     ui
 )
-from core.exceptions import AutonameowException
 from util import encoding as enc
 from util import disk
 
@@ -63,7 +62,7 @@ def do_extract_text(fileobject):
     )
     try:
         runner.start(fileobject, request_extractors=TextProviderClasses)
-    except AutonameowException as e:
+    except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
 
 
@@ -82,7 +81,7 @@ def do_extract_metadata(fileobject):
     )
     try:
         runner.start(fileobject, request_extractors=MetadataProviderClasses)
-    except AutonameowException as e:
+    except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
     else:
         ui.msg('Extracted Metadata', style='section')
