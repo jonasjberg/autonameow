@@ -366,9 +366,9 @@ class Tags(NameTemplateField):
         _tag_list = types.listof(types.AW_STRING)(_value)
 
         # TODO: [TD0129] Is this kind of double-double-check really necessary..?
-        assert isinstance(_tag_list, list)
+        sanity.check_isinstance(_tag_list, list)
         for t in _tag_list:
-            assert isinstance(t, str)
+            sanity.check_isinstance(t, str)
 
         if len(_tag_list) == 1:
             # Single tag doesn't need to be joined.
@@ -501,5 +501,5 @@ def nametemplatefield_classes_in_formatstring(format_string):
 
 
 def formatted_datetime(datetime_object, format_string):
-    assert isinstance(datetime_object, datetime.datetime)
+    sanity.check_isinstance(datetime_object, datetime.datetime)
     return datetime_object.strftime(format_string)

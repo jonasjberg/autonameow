@@ -256,7 +256,7 @@ def simplify_unicode(string):
 
 
 def _strip_accents_homerolled(string):
-    assert isinstance(string, str)
+    sanity.check_internal_string(string)
     nkfd_form = unicodedata.normalize('NFKD', string)
     return ''.join([c for c in nkfd_form if not unicodedata.combining(c)])
 

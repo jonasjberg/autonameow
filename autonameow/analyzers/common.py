@@ -25,7 +25,10 @@ from core import constants as C
 from core import providers
 from core.exceptions import AutonameowException
 from core.model.genericfields import get_field_class
-from util import mimemagic
+from util import (
+    mimemagic,
+    sanity
+)
 
 
 class AnalyzerError(AutonameowException):
@@ -128,9 +131,7 @@ class BaseAnalyzer(object):
 
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
         # Map strings to generic field classes.
-        assert isinstance(data, dict), (
-            'Expected dict. Got {!s} ({!s})'.format(type(data), data)
-        )
+        sanity.check_isinstance(data, dict)
         _generic_field_string = data.get('generic_field')
         if _generic_field_string:
             _generic_field_klass = get_field_class(_generic_field_string)
@@ -159,18 +160,12 @@ class BaseAnalyzer(object):
         text = None
         if isinstance(_response, list):
             for _r in _response:
-                assert isinstance(_r, str), (
-                    'Expected MeowURI "generic.contents.text" list entries to'
-                    ' be type str. Got "{!s}"'.format(type(_r))
-                )
+                sanity.check_isinstance(_r, str)
                 if _r:
                     text = _r
                     break
         else:
-            assert isinstance(_response, str), (
-                'Expected MeowURI "generic.contents.text" to return '
-                'type str. Got "{!s}"'.format(type(_response))
-            )
+            sanity.check_isinstance(_response, str)
             if _response:
                 text = _response
 
@@ -223,7 +218,7 @@ class BaseAnalyzer(object):
                 'Classes without class attribute "HANDLES_MIME_TYPES" must '
                 'implement (override) class method "can_handle"!'
             )
-        assert isinstance(cls.HANDLES_MIME_TYPES, list)
+        sanity.check_isinstance(cls.HANDLES_MIME_TYPES, list)
 
         try:
             return mimemagic.eval_glob(fileobject.mime_type,

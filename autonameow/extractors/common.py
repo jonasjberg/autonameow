@@ -24,7 +24,10 @@ import logging
 from core import constants as C
 from core import providers
 from core.exceptions import AutonameowException
-from util import mimemagic
+from util import (
+    mimemagic,
+    sanity
+)
 
 
 class ExtractorError(AutonameowException):
@@ -166,7 +169,7 @@ class BaseExtractor(object):
                 'Classes without class attribute "HANDLES_MIME_TYPES" must '
                 'implement (override) class method "can_handle"!'
             )
-        assert isinstance(cls.HANDLES_MIME_TYPES, list)
+        sanity.check_isinstance(cls.HANDLES_MIME_TYPES, list)
 
         try:
             return mimemagic.eval_glob(fileobject.mime_type,

@@ -468,7 +468,7 @@ def filter_isbns(isbn_list, isbn_blacklist):
     if not isbn_list:
         return []
 
-    assert isinstance(isbn_list, list)
+    sanity.check_isinstance(isbn_list, list)
 
     # Remove any duplicates.
     isbn_list = list(set(isbn_list))

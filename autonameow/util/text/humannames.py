@@ -138,7 +138,7 @@ class HumanNameFormatter(object):
     RE_FORMATTED_NAME = None
 
     def __call__(self, parsed_name):
-        assert isinstance(parsed_name, dict)
+        sanity.check_isinstance(parsed_name, dict)
         if not self.RE_FORMATTED_NAME:
             raise NotImplementedError(
                 'Inheriting classes must define "RE_FORMATTED_NAME"'

@@ -224,7 +224,7 @@ class ProviderRegistry(object):
                     if not _generic_field_string:
                         continue
 
-                    assert isinstance(_generic_field_string, str)
+                    sanity.check_internal_string(_generic_field_string)
                     _generic_field_klass = genericfields.get_field_class(
                         _generic_field_string
                     )
@@ -265,7 +265,7 @@ def _get_meowuri_source_map():
                  storing extractor classes.
         """
         _klass_list = getattr(module_name, 'ProviderClasses')
-        assert isinstance(_klass_list, list), type(_klass_list)
+        sanity.check_isinstance(_klass_list, list)
 
         mapping = dict()
         for klass in _klass_list:

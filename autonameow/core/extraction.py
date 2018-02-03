@@ -34,6 +34,7 @@ from core.exceptions import (
 from core.model import MeowURI
 from core.model.genericfields import get_field_class
 from extractors import ExtractorError
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -114,7 +115,7 @@ def filter_able_to_handle(extractor_klasses, fileobject):
 
 
 def filter_meowuri_prefix(extractor_klasses, match_string):
-    assert isinstance(match_string, str)
+    sanity.check_internal_string(match_string)
     return {k for k in extractor_klasses
             if k.meowuri_prefix().startswith(match_string)}
 
@@ -243,10 +244,7 @@ class ExtractorRunner(object):
             meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
             data: Data to add, as a dict containing the data and meta-information.
         """
-        assert isinstance(data, dict), (
-            'Expected data of type "dict" in "extraction.store_results()" '
-            ':: ({!s}) {!s}'.format(type(data), data)
-        )
+        sanity.check_isinstance(data, dict)
         for _uri_leaf, _data in data.items():
             try:
                 _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
