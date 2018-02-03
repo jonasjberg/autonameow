@@ -41,7 +41,7 @@ EXTRACTOR_CLASS_PACKAGES = ['filesystem', 'metadata', 'text']
 EXTRACTOR_CLASS_PACKAGES_TEXT = ['text']
 
 
-def _get_package_classes(packages):
+def _find_extractor_classes_in_packages(packages):
     klasses = []
     for package in packages:
         __import__(package, None, None)
@@ -58,7 +58,7 @@ def _get_package_classes(packages):
 
 
 def get_extractor_classes(packages):
-    klasses = _get_package_classes(packages)
+    klasses = _find_extractor_classes_in_packages(packages)
 
     out = []
     for klass in klasses:

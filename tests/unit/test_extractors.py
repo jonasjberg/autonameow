@@ -33,7 +33,7 @@ from extractors import (
     BaseExtractor,
     EXTRACTOR_CLASS_PACKAGES,
     EXTRACTOR_CLASS_PACKAGES_TEXT,
-    _get_package_classes,
+    _find_extractor_classes_in_packages,
     get_extractor_classes,
     ProviderClasses
 )
@@ -149,9 +149,10 @@ class TestBaseExtractorClassMethods(TestCase):
         self.assertTrue(actual)
 
 
-class TestGetAllExtractorClasses(TestCase):
-    def setUp(self):
-        self.actual = _get_package_classes(EXTRACTOR_CLASS_PACKAGES)
+class TestFindExtractorClassesInPackages(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.actual = _find_extractor_classes_in_packages(EXTRACTOR_CLASS_PACKAGES)
 
     def test_returns_expected_type(self):
         self.assertIsInstance(self.actual, list)
