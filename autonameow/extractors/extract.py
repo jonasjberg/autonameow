@@ -49,8 +49,9 @@ def do_extract_text(fileobject):
 
         assert isinstance(data, dict)
         _text = data.get('value')
+        assert isinstance(_text, str)
         if not _text:
-            log.error('Unable to extract text from "{!s}"'.format(fileobject))
+            log.warning('Unable to extract text from "{!s}"'.format(fileobject))
             return
 
         ui.msg('Extracted Text', style='section')
