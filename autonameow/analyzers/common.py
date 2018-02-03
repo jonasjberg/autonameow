@@ -25,6 +25,7 @@ from core import constants as C
 from core import providers
 from core.exceptions import AutonameowException
 from core.model.genericfields import get_field_class
+from core.model import MeowURI
 from util import (
     mimemagic,
     sanity
@@ -182,14 +183,10 @@ class BaseAnalyzer(object):
         """
         Returns: Analyzer-specific "MeowURI" root/prefix as a Unicode string.
         """
-        # TODO: [TD0133] Fix inconsistent use of MeowURIs
-        #       Stick to using either instances of 'MeowURI' _OR_ strings.
         if not cls._meowuri_prefix:
             _leaf = cls.__module__.split('_')[-1] or cls.MEOWURI_LEAF
-
-            cls._meowuri_prefix = '{root}{sep}{leaf}'.format(
-                root=C.MEOWURI_ROOT_SOURCE_ANALYZERS, sep=C.MEOWURI_SEPARATOR,
-                leaf=_leaf
+            cls._meowuri_prefix = MeowURI(
+                C.MEOWURI_ROOT_SOURCE_ANALYZERS, _leaf
             )
         return cls._meowuri_prefix
 
