@@ -71,59 +71,30 @@ def do_extract_text(fileobject):
 
 
 def do_extract_metadata(fileobject):
-    klasses = extraction.suitable_extractors_for(fileobject)
-    if not klasses:
-        log.debug('No extractors suitable for "{!s}"'.format(fileobject))
-        return
+    results = dict()
 
-    log.debug('Got {} extractors for "{!s}"'.format(len(klasses), fileobject))
-    for k in klasses:
-        log.debug(str(k))
+    def _collect_results_callback(_, meowuri, data):
+        _value = data.get('value')
+        _coercer = data.get('coercer')
+        if _value and _coercer:
+            results[meowuri] = _coercer.format(_value)
 
-    metadata_extractors = [
-        k for k in klasses
-        if k.meowuri_prefix().startswith('extractor.metadata')
-    ]
-    if not metadata_extractors:
-        log.warning(
-            'No metadata extractors are suited for "{!s}"'.format(fileobject)
-        )
-        return
+    from extractors import MetadataProviderClasses
+    runner = extraction.ExtractorRunner(
+        add_results_callback=_collect_results_callback
+    )
+    try:
+        runner.start(fileobject, request_extractors=MetadataProviderClasses)
+    except AutonameowException as e:
+        log.critical('Extraction FAILED: {!s}'.format(e))
+        raise
 
-    log.debug('Got {} metadata extractors for "{!s}"'.format(
-        len(metadata_extractors), fileobject
-    ))
-    for me in metadata_extractors:
-        log.debug(str(me))
-
-    for me in metadata_extractors:
-        _extractor_instance = me()
-        try:
-            _metadata = _extractor_instance.extract(fileobject)
-        except ExtractorError as e:
-            log.error('Halted extractor "{!s}": {!s}'.format(
-                _extractor_instance, e
-            ))
-            continue
-
-        try:
-            _metainfo = _extractor_instance.metainfo()
-        except ExtractorError as e:
-            log.error('Halted extractor "{!s}": {!s}'.format(
-                _extractor_instance, e
-            ))
-            continue
-
-        assert isinstance(_metadata, dict)
-        assert isinstance(_metainfo, dict)
-
-        ui.msg('Metadata Extracted by {!s}'.format(_extractor_instance),
-               style='section')
-        cf = ui.ColumnFormatter()
-        for k, v in sorted(_metadata.items()):
-            cf.addrow(str(k), str(v))
-        cf.addemptyrow()
-        ui.msg(cf)
+    ui.msg('Extracted Metadata', style='section')
+    cf = ui.ColumnFormatter()
+    for k, v in sorted(results.items()):
+        cf.addrow(str(k), str(v))
+    cf.addemptyrow()
+    ui.msg(cf)
 
 
 def main(options=None):
