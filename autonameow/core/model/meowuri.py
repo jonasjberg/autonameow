@@ -53,12 +53,18 @@ class MeowURIParser(object):
         # Normalize into a list of period-separated (Unicode(!)) words ..
         _raw_parts = []
         for arg in _args_list:
+            # TODO: This is probably extremely inefficient ..
+            if isinstance(arg, MeowURI):
+                arg = str(arg)
+
             if is_meowuri_parts(arg):
                 _raw_parts.extend(self._split(arg))
             elif is_meowuri_part(arg):
                 _raw_parts.append(arg)
             else:
-                raise InvalidMeowURIError('Invalid arg: "{!s}"'.format(arg))
+                raise InvalidMeowURIError(
+                    'Invalid MeowURI part: "{!s}" ({})'.format(arg, type(arg))
+                )
 
         if not _raw_parts:
             raise InvalidMeowURIError('Insufficient and/or invalid arguments')
