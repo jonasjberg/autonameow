@@ -29,12 +29,10 @@ from core import (
     exceptions,
     extraction,
     logs,
-    types,
     ui
 )
 from core.exceptions import AutonameowException
 from core.fileobject import FileObject
-from extractors import ExtractorError
 from util import encoding as enc
 from util import disk
 
@@ -67,7 +65,6 @@ def do_extract_text(fileobject):
         runner.start(fileobject, request_extractors=TextProviderClasses)
     except AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
-        raise
 
 
 def do_extract_metadata(fileobject):
@@ -87,14 +84,13 @@ def do_extract_metadata(fileobject):
         runner.start(fileobject, request_extractors=MetadataProviderClasses)
     except AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
-        raise
-
-    ui.msg('Extracted Metadata', style='section')
-    cf = ui.ColumnFormatter()
-    for k, v in sorted(results.items()):
-        cf.addrow(str(k), str(v))
-    cf.addemptyrow()
-    ui.msg(cf)
+    else:
+        ui.msg('Extracted Metadata', style='section')
+        cf = ui.ColumnFormatter()
+        for k, v in sorted(results.items()):
+            cf.addrow(str(k), str(v))
+        cf.addemptyrow()
+        ui.msg(cf)
 
 
 def main(options=None):
