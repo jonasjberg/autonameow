@@ -102,3 +102,22 @@ def check_isinstance_meowuri(thing, msg=None):
         return
 
     check_isinstance(thing, MeowURI, msg)
+
+
+def check_isinstance_fileobject(thing, msg=None):
+    """
+    Checks that a given "thing" is an instance of class "FileObject".
+
+    Args:
+        thing: The object to test.
+        msg: Optional message to include in with a failed assertion error.
+
+    Raises:
+        AssertionError: Given object is not an instance of "FileObject".
+    """
+    if not __debug__:
+        return
+
+    # NOTE(jonas): Prevent circular imports.
+    from core.fileobject import FileObject
+    check_isinstance(thing, FileObject, msg)

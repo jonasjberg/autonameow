@@ -154,8 +154,7 @@ class ExtractorRunner(object):
 
     def start(self, fileobject, request_extractors=None, request_all=None):
         log.debug(' Extractor Runner Started '.center(120, '='))
-        assert isinstance(fileobject, FileObject), (
-            'Expected type "FileObject". Got {!s}'.format(type(fileobject)))
+        sanity.check_isinstance_fileobject(fileobject)
 
         _request_all = bool(request_all)
 

@@ -23,7 +23,6 @@ import logging
 
 import analyzers
 from core import (
-    FileObject,
     logs,
     provider,
     repository
@@ -170,7 +169,7 @@ def _start(fileobject, config, analyzers_to_run=None):
     log.debug(' Analysis Preparation Started '.center(120, '='))
 
     # TODO: [TD0126] Remove assertions once "boundaries" are cleaned up.
-    sanity.check_isinstance(fileobject, FileObject)
+    sanity.check_isinstance_fileobject(fileobject)
     sanity.check_isinstance(config, Configuration)
 
     all_available_analyzers = set(analyzers.ProviderClasses)
