@@ -32,6 +32,7 @@ from core import (
     types,
     ui
 )
+from core.exceptions import AutonameowException
 from core.fileobject import FileObject
 from extractors import ExtractorError
 from util import encoding as enc
@@ -45,51 +46,28 @@ log = logging.getLogger(__name__)
 
 
 def do_extract_text(fileobject):
-    klasses = extraction.suitable_extractors_for(fileobject)
-    if not klasses:
-        log.debug('No extractors suitable for "{!s}"'.format(fileobject))
-        return
+    def _collect_results_callback(fileobject, meowuri, data):
+        log.debug('_collect_results_callback({!s}, {!s}, {!s})'.format(
+            fileobject, meowuri, data))
 
-    log.debug('Got {} extractors for "{!s}"'.format(len(klasses), fileobject))
-    for k in klasses:
-        log.debug(str(k))
-
-    text_extractors = [
-        k for k in klasses
-        if k.meowuri_prefix().startswith('extractor.text')
-    ]
-    if not text_extractors:
-        log.warning(
-            'No text extractors are suited for "{!s}"'.format(fileobject)
-        )
-        return
-
-    log.debug('Got {} text extractors for "{!s}"'.format(len(text_extractors),
-                                                         fileobject))
-    for te in text_extractors:
-        log.debug(str(te))
-
-    for te in text_extractors:
-        _extractor_instance = te()
-        try:
-            _text = _extractor_instance.extract(fileobject)
-        except ExtractorError as e:
-            log.error(
-                'Halted extractor "{!s}": {!s}'.format(_extractor_instance, e)
-            )
-            continue
-
-        assert isinstance(_text, dict)
-        _full_text = _text.get('full')
-        if not _full_text:
+        assert isinstance(data, dict)
+        _text = data.get('value')
+        if not _text:
             log.error('Unable to extract text from "{!s}"'.format(fileobject))
             return
 
-        assert isinstance(_full_text, str)
-        # TODO: Factor out method of presenting the extracted text.
-        ui.msg('Text Extracted by {!s}:'.format(_extractor_instance),
-               style='section')
-        ui.msg(_full_text)
+        ui.msg('Extracted Text', style='section')
+        ui.msg(_text)
+
+    from extractors import TextProviderClasses
+    runner = extraction.ExtractorRunner(
+        add_results_callback=_collect_results_callback
+    )
+    try:
+        runner.start(fileobject, request_extractors=TextProviderClasses)
+    except AutonameowException as e:
+        log.critical('Extraction FAILED: {!s}'.format(e))
+        raise
 
 
 def do_extract_metadata(fileobject):
