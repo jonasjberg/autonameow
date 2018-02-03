@@ -46,10 +46,6 @@ class NameTemplateField(object):
             Edition: None,  # TODO: Function?
         }
 
-    def transform(self, target_field):
-        # TODO: Implement transforming data between field types, if possible.
-        pass
-
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: Implement in inheriting classes ..
