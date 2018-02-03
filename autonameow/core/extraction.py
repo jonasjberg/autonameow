@@ -98,17 +98,20 @@ def filter_not_slow(extractor_klasses, required):
 class ExtractorRunner(object):
     def __init__(self, add_results_callback=None):
         """
-        Instantiates a new extractor runner. Results are passed to the callback.
+        Instantiates a new extractor runner.
 
+        Results are passed to the callback when running the extractors.
         The callback should accept three arguments;
 
             fileobject (FileObject), meowuri (MeowURI), data (dict)
 
         It will be called for each extracted "item" returned by each of the
-        selected extractors. Results are discarded if left unspecified.
+        selected extractors. Results are simply discarded if the callback is
+        left unspecified, rendering the run basically a expensive "no-op".
 
         If 'exclude_slow' is true, "slow" extractors that are not explicitly
-        requested are excluded.
+        requested are excluded. Alternatively, if all extractors are requested
+        slow extractors will be included as well.
 
         Args:
             add_results_callback: Callable that accepts three arguments.
@@ -127,6 +130,25 @@ class ExtractorRunner(object):
         self.exclude_slow = True
 
     def start(self, fileobject, request_extractors=None, request_all=None):
+        """
+        Starts extraction data from the given file using specified extractors.
+
+        Which extractors that are included is controlled by either passing a
+        list of extractor classes to 'request_extractors' or setting
+        'request_all' to True.
+        If 'exclude_slow' is true, "slow" extractors that are not explicitly
+        requested are excluded.
+        Note that extractors that are unable to handle the given 'fileobject'
+        are always excluded.
+
+        Args:
+            fileobject: The file object to extract data from.
+            request_extractors: List of extractor classes that must be included.
+            request_all: Whether all data extractors should be included.
+
+        Raises:
+            AssertionError: A sanity check failed.
+        """
         log.debug(' Extractor Runner Started '.center(120, '='))
         sanity.check_isinstance_fileobject(fileobject)
 
