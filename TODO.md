@@ -22,8 +22,6 @@ High Priority
 * `[TD0156]` __Set up Unicode string encoding boundary in `ui`.__  
     Enforce passing only Unicode strings to the `ui` module.
 
-* `[TD0155]` Implement `--timid` mode.
-
 * `[TD0150]` Map "generic" MeowURIs to (possible) provider classes.
 
 * `[TD0146]` Rework "generic fields", possibly collecting fields in "records".

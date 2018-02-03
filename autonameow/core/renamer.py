@@ -93,7 +93,6 @@ class FileRenamer(object):
             return
 
         if self.mode_timid:
-            # TODO: [TD0155] Implement "timid mode".
             log.debug('Timid mode enabled. Asking user to confirm ..')
             if not interactive.ask_confirm_rename(
                     enc.displayable_path(from_basename),

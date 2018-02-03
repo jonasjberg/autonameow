@@ -19,6 +19,13 @@ University mail: `js224eh[a]student.lnu.se`
 >
 > * `[TD0133]` Fix inconsistent use of MeowURIs; `MeowURI` instances and strings.
 
+### 2018-01-18
+
+> High Priority
+> -------------
+>
+> * `[TD0155]` Implement `--timid` mode.
+
 ### 2018-01-16
 
 > High Priority
