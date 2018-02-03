@@ -215,6 +215,34 @@ class TestGetImplementedExtractorClasses(TestCase):
         self.assertNotIn(AbstractTextExtractor, self.actual)
 
 
+class TestGetTextExtractorClasses(TestCase):
+    def setUp(self):
+        self.actual = get_extractor_classes(
+            packages=uuconst.EXTRACTOR_CLASS_PACKAGES_TEXT,
+            modules=uuconst.EXTRACTOR_CLASS_MODULES
+        )
+
+    def test_get_extractor_classes_returns_expected_type(self):
+        self.assertIsInstance(self.actual, list)
+
+    def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
+        for klass in self.actual:
+            self.assertTrue(uu.is_class(klass))
+            self.assertTrue(issubclass(klass, BaseExtractor))
+
+    def test_get_extractor_classes_does_not_include_base_extractor(self):
+        self.assertNotIn(BaseExtractor, self.actual)
+
+    def test_get_extractor_classes_does_not_include_abstract_extractors(self):
+        from extractors.text.common import AbstractTextExtractor
+        self.assertNotIn(AbstractTextExtractor, self.actual)
+
+    def test_returns_text_extractors(self):
+        from extractors.text.common import AbstractTextExtractor
+        for klass in self.actual:
+            self.assertTrue(issubclass(klass, AbstractTextExtractor))
+
+
 class TestNumberOfAvailableExtractorClasses(TestCase):
     def setUp(self):
         self.actual = get_extractor_classes(

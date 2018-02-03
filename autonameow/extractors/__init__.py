@@ -126,3 +126,7 @@ ProviderClasses = get_extractor_classes(
     packages=['filesystem', 'metadata', 'text'],
     modules=_extractor_module_files
 )
+TextProviderClasses = get_extractor_classes(
+    packages=['text'],
+    modules=_extractor_module_files
+)
