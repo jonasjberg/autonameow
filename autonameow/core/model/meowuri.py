@@ -421,3 +421,13 @@ def evaluate_meowuri_globs(meowuri_string, glob_list):
                 return True
 
     return False
+
+
+def force_meowuri(*args):
+    """
+    Returns a valid MeowURI or None, ignoring any and all exceptions.
+    """
+    try:
+        return MeowURI(args)
+    except InvalidMeowURIError:
+        return None

@@ -40,6 +40,7 @@ except ImportError:
 import unit.constants as uuconst
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
+from core.model.meowuri import force_meowuri
 
 
 class TestMeowURIRaisesOnlyExpectedException(TestCase):
@@ -88,6 +89,61 @@ class TestMeowURIRaisesOnlyExpectedException(TestCase):
     @given(tuples(binary()))
     def test_tuples_of_binary_input(self, s):
         self._assert_raises_only_expected_exception(s)
+
+
+class TestForceMeowURIRaisesOnlyExpectedException(TestCase):
+    def _assert_returns_meowuri_or_none(self, sample):
+        actual = force_meowuri(sample)
+        if actual is not None:
+            self.assertIsInstance(actual, MeowURI)
+
+    @given(text())
+    def test_text_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
+
+    @given(characters())
+    def test_character_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
+
+    @given(binary())
+    def test_binary_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
+
+    @given(lists(text()))
+    def test_lists_of_text_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
+
+    @given(lists(characters()))
+    def test_lists_of_character_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
+
+    @given(lists(binary()))
+    def test_lists_of_binary_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
+
+    @given(tuples(text()))
+    def test_tuples_of_text_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
+
+    @given(tuples(characters()))
+    def test_tuples_of_character_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
+
+    @given(tuples(binary()))
+    def test_tuples_of_binary_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
+
+    @given(lists(tuples(text())))
+    def test_lists_of_tuples_of_text_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
+
+    @given(lists(tuples(characters())))
+    def test_lists_of_tuples_of_character_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
+
+    @given(lists(tuples(binary())))
+    def test_lists_of_tuples_of_binary_input(self, s):
+        self._assert_returns_meowuri_or_none(s)
 
 
 class TestMeowURIParsesValidMeowURIs(TestCase):

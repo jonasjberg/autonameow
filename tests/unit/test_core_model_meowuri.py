@@ -27,6 +27,7 @@ from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from core.model.meowuri import (
     evaluate_meowuri_globs,
+    force_meowuri,
     is_meowuri_part,
     is_meowuri_parts,
     meowuri_list,
@@ -841,3 +842,41 @@ class TestRoundtripsFromMeowURIToStringToMeowURI(TestCase):
 
     def test_pdftotext_text_extractor_prefix(self):
         self._assert_roundtrips('extractor.text.pdftotext')
+
+
+class TestForceMeowURI(TestCase):
+    def _assert_valid(self, *given):
+        actual = force_meowuri(given)
+        self.assertIsInstance(actual, MeowURI)
+
+    def _assert_invalid(self, *given):
+        actual = force_meowuri(given)
+        self.assertIsNone(actual)
+
+    def test_returns_meowuri_given_valid_string(self):
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+
+    def test_returns_meowuri_given_valid_string_and_meowuri(self):
+        self._assert_valid(uu.as_meowuri('extractor.text.plain'), 'full')
+
+    def test_returns_meowuri_given_meowuri(self):
+        self._assert_valid(uu.as_meowuri('extractor.text.plain.full'))
+
+    def test_returns_none_given_none(self):
+        self._assert_invalid(None)
+        self._assert_invalid(None, None)
+
+    def test_returns_none_given_invalid_string(self):
+        self._assert_invalid('')
+        self._assert_invalid('', '')
+        self._assert_invalid('foo', 'bar')
+        self._assert_invalid('foo', '')
+
+    def test_returns_none_given_non_string_arguments(self):
+        self._assert_invalid(1)
+        self._assert_invalid(1, 2)
+        self._assert_invalid(object())
+        self._assert_invalid(object(), object())
+        self._assert_invalid({'a': 1})
+        self._assert_invalid({}, {'a': 1})
+        self._assert_invalid({'a': 1}, {'b': 2})
