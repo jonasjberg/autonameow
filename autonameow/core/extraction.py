@@ -39,36 +39,6 @@ from util import sanity
 log = logging.getLogger(__name__)
 
 
-def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
-    """
-    Filters out "slow" extractor classes if they are not explicitly required.
-
-    If the extractor class variable 'is_slow' is True, the extractor is
-    excluded if the same class is not specified in 'required_extractors'.
-
-    Args:
-        extractor_klasses: List of extractor classes to filter.
-        required_extractors: List of required extractor classes.
-
-    Returns:
-        A list of extractor classes, including "slow" classes only if required.
-    """
-    out = []
-
-    for klass in extractor_klasses:
-        if not klass.is_slow:
-            out.append(klass)
-        elif klass.is_slow:
-            if klass in required_extractors:
-                log.debug('Extractor "{!s}" is required ..'.format(klass))
-                out.append(klass)
-                log.debug('Included slow extractor "{!s}"'.format(klass))
-            else:
-                log.debug('Excluded slow extractor "{!s}"'.format(klass))
-
-    return out
-
-
 def suitable_extractors_for(fileobject):
     """
     Returns extractor classes that can handle the given file object.

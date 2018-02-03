@@ -23,75 +23,9 @@ from unittest import TestCase
 
 import extractors
 from core.extraction import (
-    keep_slow_extractors_if_required,
     suitable_extractors_for
 )
 import unit.utils as uu
-
-
-class MockExtractor(object):
-    is_slow = False
-
-    def __init__(self):
-        pass
-
-    @classmethod
-    def can_handle(cls, fileobject):
-        return True
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return True
-        return False
-
-
-class MockSlowExtractor(MockExtractor):
-    is_slow = True
-
-
-class TestKeepSlowExtractorsIfRequiredWithSlowExtractor(TestCase):
-    def setUp(self):
-        self.fast = MockExtractor
-        self.slow = MockSlowExtractor
-
-        self.input = [self.fast, self.fast, self.slow]
-
-    def test_slow_extractors_are_excluded_if_not_required(self):
-        actual = keep_slow_extractors_if_required(self.input, [])
-        self.assertNotIn(self.slow, actual,
-                         'Slow extractor class should be excluded')
-        self.assertNotEqual(len(actual), len(self.input),
-                            'Expect one less extractor class in the output')
-
-    def test_slow_extractors_are_included_if_required(self):
-        required = [self.slow]
-        actual = keep_slow_extractors_if_required(self.input, required)
-        self.assertIn(self.slow, actual,
-                      'Slow extractor class is kept when required')
-        self.assertEqual(len(self.input), len(actual),
-                         'Expect the same number of extractor classes')
-
-
-class TestKeepSlowExtractorsIfRequired(TestCase):
-    def setUp(self):
-        self.fast = MockExtractor
-        self.slow = MockSlowExtractor
-        self.input = [self.fast, self.fast, self.fast]
-
-    def test_slow_extractor_are_excluded_if_not_required(self):
-        actual = keep_slow_extractors_if_required(self.input, [])
-        self.assertNotIn(self.slow, actual,
-                         'Slow extractor class should be excluded')
-        self.assertEqual(len(self.input), len(actual),
-                         'Expect the same number of extractor classes')
-
-    def test_slow_extractor_are_included_if_required(self):
-        required = [self.slow]
-        actual = keep_slow_extractors_if_required(self.input, required)
-        self.assertNotIn(self.slow, actual,
-                         'There was no slow extractor class to start with')
-        self.assertEqual(len(self.input), len(actual),
-                         'Expect the same number of extractor classes')
 
 
 class TestSuitableExtractorsForFile(TestCase):
