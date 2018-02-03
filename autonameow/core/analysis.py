@@ -71,8 +71,7 @@ def _execute_run_queue(analyzer_queue):
 
 
 def request_global_data(fileobject, meowuri_string):
-    # TODO: [TD0133] Fix inconsistent use of MeowURIs
-    #       Stick to using either instances of 'MeowURI' _OR_ strings.
+    # NOTE(jonas): String to MeowURI conversion boundary.
     sanity.check_internal_string(meowuri_string)
 
     try:

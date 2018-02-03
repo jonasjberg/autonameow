@@ -23,13 +23,19 @@ import logging
 
 from core import constants as C
 from core import providers
-from core.exceptions import AutonameowException
+from core.exceptions import (
+    AutonameowException,
+    InvalidMeowURIError
+)
 from core.model.genericfields import get_field_class
 from core.model import MeowURI
 from util import (
     mimemagic,
     sanity
 )
+
+
+log = logging.getLogger(__name__)
 
 
 class AnalyzerError(AutonameowException):
@@ -141,9 +147,15 @@ class BaseAnalyzer(object):
             else:
                 data.pop('generic_field')
 
-        # TODO: [TD0133] Fix inconsistent use of MeowURIs
-        #       Stick to using either instances of 'MeowURI' _OR_ strings.
-        _meowuri = '{}.{}'.format(self.meowuri_prefix(), meowuri_leaf)
+        meowuri_prefix = self.meowuri_prefix()
+        _meowuri = construct_full_meowuri(meowuri_prefix, meowuri_leaf)
+        if not _meowuri:
+            self.log.debug(
+                'Unable to construct full MeowURI from prefix "{!s}" '
+                'and leaf "{!s}"'.format(meowuri_prefix, meowuri_leaf)
+            )
+            return
+
         _existing_data = self.results.get(_meowuri)
         if _existing_data:
             if not isinstance(_existing_data, list):
@@ -240,3 +252,11 @@ class BaseAnalyzer(object):
 
     def __str__(self):
         return self.__class__.__name__
+
+
+def construct_full_meowuri(meowuri_prefix, meowuri_leaf):
+    try:
+        return MeowURI(meowuri_prefix, meowuri_leaf)
+    except InvalidMeowURIError as e:
+        log.error(e)
+        return None
