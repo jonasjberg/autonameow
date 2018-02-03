@@ -170,14 +170,14 @@ class MasterDataProvider(object):
             log.debug(stat_string)
 
 
-_master_data_provider = None
+_MASTER_DATA_PROVIDER = None
 
 
 def initialize(active_config):
-    global _master_data_provider
-    _master_data_provider = MasterDataProvider(active_config)
+    global _MASTER_DATA_PROVIDER
+    _MASTER_DATA_PROVIDER = MasterDataProvider(active_config)
 
 
 def query(fileobject, meowuri):
     sanity.check_isinstance_meowuri(meowuri)
-    return _master_data_provider.query(fileobject, meowuri)
+    return _MASTER_DATA_PROVIDER.query(fileobject, meowuri)
