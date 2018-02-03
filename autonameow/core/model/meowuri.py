@@ -26,6 +26,7 @@ from core import types
 from core import constants as C
 from core.exceptions import InvalidMeowURIError
 from util import sanity
+from util.misc import flatten_sequence_type
 
 
 log = logging.getLogger(__name__)
@@ -36,41 +37,31 @@ log = logging.getLogger(__name__)
 
 class MeowURIParser(object):
     def parse(self, *args):
-        def _ensure_list(list_or_tuple):
-            # This mess allows using either 'parse(*args)' or 'parseMeowURI(args)'.
-            _list = []
-            for _element in list_or_tuple:
-                if isinstance(_element, tuple):
-                    _list.extend([a for a in _element])
-                elif isinstance(_element, list):
-                    _list.extend(_element)
-                else:
-                    _list.append(_element)
-            return _list
-
-        _args_list = _ensure_list(args)
+        # Handle all kinds of combinations of arguments, lists and tuples.
+        flattened = flatten_sequence_type(args)
+        args_list = list(flattened)
 
         # Normalize into a list of period-separated (Unicode(!)) words ..
-        _raw_parts = []
-        for arg in _args_list:
-            # TODO: This is probably extremely inefficient ..
+        raw_parts = []
+        for arg in args_list:
             if isinstance(arg, MeowURI):
+                # TODO: This is probably extremely inefficient ..
                 arg = str(arg)
 
             if is_meowuri_parts(arg):
-                _raw_parts.extend(self._split(arg))
+                raw_parts.extend(self._split(arg))
             elif is_meowuri_part(arg):
-                _raw_parts.append(arg)
+                raw_parts.append(arg)
             else:
                 raise InvalidMeowURIError(
                     'Invalid MeowURI part: "{!s}" ({})'.format(arg, type(arg))
                 )
 
-        if not _raw_parts:
+        if not raw_parts:
             raise InvalidMeowURIError('Insufficient and/or invalid arguments')
 
         # Get and remove the first element ("root")
-        _first_part = _raw_parts.pop(0)
+        _first_part = raw_parts.pop(0)
         try:
             _root = MeowURIRoot(_first_part)
         except InvalidMeowURIError:
@@ -79,7 +70,7 @@ class MeowURIParser(object):
         # Get and remove the last element ("leaf")
         _last_part = None
         try:
-            _last_part = _raw_parts.pop()
+            _last_part = raw_parts.pop()
         except IndexError:
             raise InvalidMeowURIError('MeowURI is incomplete')
         try:
@@ -89,8 +80,8 @@ class MeowURIParser(object):
 
         # Remaining elements are children
         _children = []
-        if _raw_parts:
-            _children = [MeowURIChild(n) for n in _raw_parts]
+        if raw_parts:
+            _children = [MeowURIChild(n) for n in raw_parts]
 
         return _root, _children, _leaf
 
