@@ -256,27 +256,3 @@ class ExtractorRunner(object):
                 continue
 
             self._add_results_callback(fileobject, _meowuri, _data)
-
-
-def run_extraction(fileobject, require_extractors, run_all_extractors=False):
-    """
-    Sets up and executes data extraction for the given file.
-
-    Args:
-        fileobject: The file object to extract data from.
-        require_extractors: List of extractor classes that should be included.
-        run_all_extractors: Whether all data extractors should be included.
-
-    Raises:
-        AutonameowException: An unrecoverable error occurred during extraction.
-    """
-    runner = ExtractorRunner(
-        add_results_callback=repository.SessionRepository.store
-    )
-    try:
-        runner.start(fileobject,
-                     request_extractors=require_extractors,
-                     request_all=run_all_extractors)
-    except AutonameowException as e:
-        log.critical('Extraction FAILED: {!s}'.format(e))
-        raise

@@ -31,6 +31,8 @@ from core import (
     providers,
     repository,
 )
+from core.exceptions import AutonameowException
+from core.extraction import ExtractorRunner
 from extractors import BaseExtractor
 from util import sanity
 
@@ -61,6 +63,9 @@ class MasterDataProvider(object):
         self.config = config
 
         self.debug_stats = defaultdict(dict)
+        self.extractor_runner = ExtractorRunner(
+            add_results_callback=repository.SessionRepository.store
+        )
 
     def query(self, fileobject, meowuri):
         """
@@ -136,7 +141,7 @@ class MasterDataProvider(object):
             for _provider in _possible_providers:
                 log.debug('Delegating possible provider: {!s}'.format(_provider))
                 if issubclass(_provider, BaseExtractor):
-                    extraction.run_extraction(fileobject, [_provider])
+                    self._delegate_to_extractors(fileobject, [_provider])
                 elif issubclass(_provider, BaseAnalyzer):
                     analysis.run_analysis(
                         fileobject,
@@ -149,6 +154,13 @@ class MasterDataProvider(object):
                         fileobject,
                         require_plugins=_provider,
                     )
+
+    def _delegate_to_extractors(self, fileobject, extractors_to_run):
+        try:
+            self.extractor_runner.start(fileobject, extractors_to_run)
+        except AutonameowException as e:
+            log.critical('Extraction FAILED: {!s}'.format(e))
+            raise
 
     def _print_debug_stats(self):
         if not __debug__:
