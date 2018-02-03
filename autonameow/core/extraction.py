@@ -23,7 +23,6 @@ import logging
 
 import extractors
 from core import (
-    FileObject,
     logs,
     repository
 )
