@@ -155,6 +155,10 @@ class ExtractorRunner(object):
         else:
             self._available_extractors = set(available_extractors)
 
+        if __debug__:
+            for k in self._available_extractors:
+                log.debug('Available: {!s}'.format(str(k.__name__)))
+
         # TODO: Separate repository from the runner ('extract.py' use-case)
         self.add_results_callback = add_results_callback
         self.exclude_slow = True
@@ -164,34 +168,27 @@ class ExtractorRunner(object):
         assert isinstance(fileobject, FileObject), (
             'Expected type "FileObject". Got {!s}'.format(type(fileobject)))
 
-        _requested_extractors = set()
-        if request_extractors:
-            _requested_extractors = set(request_extractors)
-
         _request_all = bool(request_all)
-
-        all_klasses = set(self._available_extractors)
-        for k in all_klasses:
-            log.debug('Available: {!s}'.format(str(k.__name__)))
 
         selected_klasses = set()
         if _request_all:
             # Add all available extractors.
             log.debug('Requested all available extractors')
-            selected_klasses = all_klasses
+            selected_klasses = self._available_extractors
         else:
             # Add requested extractors.
-            if _requested_extractors:
-                selected_klasses = selected_klasses.union(_requested_extractors)
+            if request_extractors:
+                selected_klasses = set(request_extractors)
 
                 if __debug__:
-                    log.debug('Requested {} extractors'.format(
-                        len(_requested_extractors)
+                    log.debug('Selected {} requested extractors'.format(
+                        len(selected_klasses)
                     ))
-                    for k in _requested_extractors:
-                        log.debug('Requested:  {!s}'.format(str(k.__name__)))
+                    for k in selected_klasses:
+                        log.debug('Selected:  {!s}'.format(str(k.__name__)))
 
-        log.debug('Selected {} of {} available extractors'.format(len(selected_klasses), len(all_klasses)))
+        log.debug('Selected {} of {} available extractors'.format(
+            len(selected_klasses), len(self._available_extractors)))
 
         # Get only extractors suitable for the given file.
         selected_klasses = filter_able_to_handle(selected_klasses, fileobject)
@@ -204,11 +201,12 @@ class ExtractorRunner(object):
                 len(selected_klasses)
             ))
 
-        log.debug('Prepared {} extractors that can handle "{!s}"'.format(
-            len(selected_klasses), fileobject
-        ))
-        for k in selected_klasses:
-            log.debug('Prepared:  {!s}'.format(str(k.__name__)))
+        if __debug__:
+            log.debug('Prepared {} extractors that can handle "{!s}"'.format(
+                len(selected_klasses), fileobject
+            ))
+            for k in selected_klasses:
+                log.debug('Prepared:  {!s}'.format(str(k.__name__)))
 
         if selected_klasses:
             # Run all prepared extractors.
