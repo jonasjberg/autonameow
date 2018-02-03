@@ -32,6 +32,7 @@ from util.misc import (
     count_dict_recursive,
     expand_meowuri_data_dict,
     flatten_dict,
+    flatten_sequence_type,
     git_commit_hash,
     is_executable,
     multiset_count,
@@ -132,6 +133,45 @@ class TestMultisetCount(TestCase):
     def test_list_duplicate_count_returns_expected_no_duplicate_two_none(self):
         self.assertEqual(multiset_count(['a', None, 'b', None]),
                          {None: 2, 'a': 1, 'b': 1})
+
+
+class TestFlattenSequenceType(TestCase):
+    def test_returns_values_that_are_not_lists_or_tuples_as_is(self):
+        self.assertEqual(None, flatten_sequence_type(None))
+        self.assertEqual('foo', flatten_sequence_type('foo'))
+        self.assertEqual(1, flatten_sequence_type(1))
+
+    def test_returns_flat_list_as_is(self):
+        actual = flatten_sequence_type(['foo', 1])
+        self.assertEqual(['foo', 1], actual)
+
+    def test_returns_flat_tuple_as_is(self):
+        actual = flatten_sequence_type(('foo', 1))
+        self.assertEqual(('foo', 1), actual)
+
+    def test_flattens_nested_list(self):
+        actual = flatten_sequence_type(['foo', 1, [2, 3]])
+        self.assertEqual(['foo', 1, 2, 3], actual)
+
+    def test_flattens_nested_tuple(self):
+        actual = flatten_sequence_type(('foo', 1, (2, 3)))
+        self.assertEqual(('foo', 1, 2, 3), actual)
+
+    def test_flattens_list_nested_in_tuple(self):
+        actual = flatten_sequence_type(('foo', 1, [2, 3]))
+        self.assertEqual(('foo', 1, 2, 3), actual)
+
+    def test_flattens_tuple_nested_in_list(self):
+        actual = flatten_sequence_type(['foo', 1, (2, 3)])
+        self.assertEqual(['foo', 1, 2, 3], actual)
+
+    def test_flattens_multiple_nested_tuples(self):
+        actual = flatten_sequence_type(('foo', 1, (2, 3), (4, (5, 6, (7, 8)))))
+        self.assertEqual(('foo', 1, 2, 3, 4, 5, 6, 7, 8), actual)
+
+    def test_flattens_multiple_nested_tuples_and_lists(self):
+        actual = flatten_sequence_type(('foo', 1, [2, 3], (4, [5, 6, (7, 8)])))
+        self.assertEqual(('foo', 1, 2, 3, 4, 5, 6, 7, 8), actual)
 
 
 class TestFlattenDict(TestCase):
