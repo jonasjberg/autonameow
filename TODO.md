@@ -217,6 +217,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0164]` Mitigate mismatched throwing/catching of exceptions.
+
 * `[TD0163]` __Fix premature importing of providers.__  
     Running `autonameow --help` if some provider dependency is missing should
     not print `Excluding analyzer "<class 'analyze_ebook.EbookAnalyzer'>" due

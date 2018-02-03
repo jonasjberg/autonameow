@@ -159,6 +159,7 @@ class MasterDataProvider(object):
         try:
             self.extractor_runner.start(fileobject, extractors_to_run)
         except AutonameowException as e:
+            # TODO: [TD0164] Tidy up throwing/catching of exceptions.
             log.critical('Extraction FAILED: {!s}'.format(e))
             raise
 
