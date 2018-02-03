@@ -167,16 +167,16 @@ class ExtractorRunner(object):
         selected = {
             k for k in requested_klasses if k in available
         }
+        if not requested_klasses.issubset(available):
+            na = requested_klasses.difference(available)
+            log.warning('Requested {} unavailable extractors'.format(len(na)))
+            for k in na:
+                log.warning('Unavailable:  {!s}'.format(str(k.__name__)))
+
         if __debug__:
             log.debug('Selected {} requested extractors'.format(len(selected)))
             for k in selected:
                 log.debug('Selected:  {!s}'.format(str(k.__name__)))
-
-            if not requested_klasses.issubset(available):
-                _not_available = requested_klasses.difference(available)
-                log.warning('Requested {} unavailable extractors'.format(len(_not_available)))
-                for k in _not_available:
-                    log.warning('Unavailable:  {!s}'.format(str(k.__name__)))
 
         if self.exclude_slow:
             selected = filter_not_slow(selected, requested_klasses)
