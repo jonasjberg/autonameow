@@ -83,12 +83,6 @@ def filter_able_to_handle(extractor_klasses, fileobject):
     return {k for k in extractor_klasses if k.can_handle(fileobject)}
 
 
-def filter_meowuri_prefix(extractor_klasses, match_string):
-    sanity.check_internal_string(match_string)
-    return {k for k in extractor_klasses
-            if k.meowuri_prefix().startswith(match_string)}
-
-
 def filter_not_slow(extractor_klasses):
     return {k for k in extractor_klasses if not k.is_slow}
 
