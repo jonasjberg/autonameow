@@ -880,3 +880,13 @@ class TestForceMeowURI(TestCase):
         self._assert_invalid({'a': 1})
         self._assert_invalid({}, {'a': 1})
         self._assert_invalid({'a': 1}, {'b': 2})
+
+
+class TestHandlesDumpedMeowURIs(TestCase):
+    def test_handles_dumped_meowuris(self):
+        # self.assertTrue(False)
+        for dumped_meowuri_str in uuconst.DUMPED_MEOWURIS:
+            with self.subTest(given_string=dumped_meowuri_str):
+                actual = MeowURI(dumped_meowuri_str)
+                self.assertIsInstance(actual, MeowURI)
+                self.assertEqual(dumped_meowuri_str, str(actual))
