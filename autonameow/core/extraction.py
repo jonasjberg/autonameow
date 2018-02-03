@@ -75,6 +75,16 @@ def construct_full_meowuri(meowuri_prefix, meowuri_leaf):
 
 
 def filter_able_to_handle(extractor_klasses, fileobject):
+    """
+    Returns extractor classes that can handle the given file object.
+
+    Args:
+        extractor_klasses: List or set of extractor classes to filter.
+        fileobject: The 'FileObject' that extractors should be able to handle.
+
+    Returns:
+        The set of extractor classes that can extract data from the given file.
+    """
     return {k for k in extractor_klasses if k.can_handle(fileobject)}
 
 
