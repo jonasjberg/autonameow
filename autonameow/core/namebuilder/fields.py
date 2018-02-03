@@ -40,12 +40,6 @@ class NameTemplateField(object):
     COMPATIBLE_TYPES = (None, )
     MULTIVALUED = None
 
-    def __init__(self):
-        self._transforms = {
-            Title: None,  # TODO: Function?
-            Edition: None,  # TODO: Function?
-        }
-
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: Implement in inheriting classes ..
@@ -78,9 +72,6 @@ class Title(NameTemplateField):
                         types.AW_STRING,
                         types.AW_INTEGER)
     MULTIVALUED = False
-
-    def __init__(self):
-        super(Title).__init__()
 
     @classmethod
     def normalize(cls, data):
@@ -139,9 +130,6 @@ class Edition(NameTemplateField):
                             ('20th', 'twentieth')):
         REPLACE_ORDINALS.append((re.compile(_find, re.IGNORECASE), _replace))
 
-    def __init__(self):
-        super(Edition).__init__()
-
     @classmethod
     def normalize(cls, edition):
         # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
@@ -179,9 +167,6 @@ class Extension(NameTemplateField):
                         types.AW_STRING,
                         types.AW_MIMETYPE)
     MULTIVALUED = False
-
-    def __init__(self):
-        super(Extension).__init__()
 
     @classmethod
     def normalize(cls, data):
