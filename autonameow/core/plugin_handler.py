@@ -133,9 +133,8 @@ class PluginHandler(object):
             store_results(fileobject, _meowuri_prefix, _results)
 
 
-def request_data(fileobject, meowuri_string):
-    # TODO: [TD0133] Fix inconsistent use of MeowURIs
-    #       Stick to using either instances of 'MeowURI' _OR_ strings.
+def request_global_data(fileobject, meowuri_string):
+    # NOTE(jonas): String to MeowURI conversion boundary.
     sanity.check_internal_string(meowuri_string)
 
     try:

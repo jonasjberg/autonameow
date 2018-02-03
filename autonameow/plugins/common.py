@@ -26,6 +26,7 @@ from core import (
     plugin_handler,
     providers
 )
+from core.model import MeowURI
 
 
 log = logging.getLogger(__name__)
@@ -55,23 +56,18 @@ class BasePlugin(object):
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        self.request_data = plugin_handler.request_data
+        self.request_data = plugin_handler.request_global_data
 
     def __call__(self, source, *args, **kwargs):
         return self.execute(source)
 
     @classmethod
     def meowuri_prefix(cls):
-        # TODO: [TD0133] Fix inconsistent use of MeowURIs
-        #       Stick to using either instances of 'MeowURI' _OR_ strings.
         if not cls._meowuri_prefix:
             _leaf = cls.__module__.split('_')[0] or cls.MEOWURI_LEAF
-
-            cls._meowuri_prefix = '{root}{sep}{leaf}'.format(
-                root=C.MEOWURI_ROOT_SOURCE_PLUGINS, sep=C.MEOWURI_SEPARATOR,
-                leaf=_leaf
+            cls._meowuri_prefix = MeowURI(
+                C.MEOWURI_ROOT_SOURCE_PLUGINS, _leaf
             )
-
         return cls._meowuri_prefix
 
     def can_handle(self, fileobject):
