@@ -51,8 +51,6 @@ High Priority
 
 * `[TD0126]` Clean up boundaries/interface to the `analyzers` package.
 
-* `[TD0127]` Clean up boundaries/interface to the `extractors` package.
-
 * `[TD0128]` Clean up boundaries/interface to the `plugins` package.
 
 * `[TD0129]` Enforce passing validated data to `NameTemplateField.format()`.

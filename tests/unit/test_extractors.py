@@ -26,13 +26,13 @@ from unittest.mock import (
     patch
 )
 
-import unit.constants as uuconst
 import unit.utils as uu
 from core import constants as C
 from extractors import (
     AUTONAMEOW_EXTRACTOR_PATH,
     BaseExtractor,
-    find_extractor_module_files,
+    EXTRACTOR_CLASS_PACKAGES,
+    EXTRACTOR_CLASS_PACKAGES_TEXT,
     _get_package_classes,
     get_extractor_classes,
     ProviderClasses
@@ -149,54 +149,27 @@ class TestBaseExtractorClassMethods(TestCase):
         self.assertTrue(actual)
 
 
-class TestFindExtractorModuleSourceFiles(TestCase):
-    def test_returns_expected_type(self):
-        actual = find_extractor_module_files()
-        self.assertIsInstance(actual, list)
-
-    def test_returns_expected_files(self):
-        actual = find_extractor_module_files()
-
-        self.assertNotIn('__init__.py', actual)
-        self.assertNotIn('__pycache__', actual)
-        self.assertNotIn('common.py', actual)
-
-
-def subclasses_base_extractor(klass):
-    return uu.is_class(klass) and issubclass(klass, BaseExtractor)
-
-
 class TestGetAllExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['text', 'metadata']
-        self.actual = _get_package_classes(self.sources)
+        self.actual = _get_package_classes(EXTRACTOR_CLASS_PACKAGES)
 
     def test_returns_expected_type(self):
-        self.assertIsInstance(self.actual, tuple)
+        self.assertIsInstance(self.actual, list)
 
-    def test_returns_abstract_subclasses_of_base_extractor(self):
-        actual_abstract, _ = self.actual
-        for _abstract in actual_abstract:
-            with self.subTest(klass=_abstract):
-                self.assertTrue(subclasses_base_extractor(_abstract))
-
-    def test_returns_implemented_subclasses_of_base_extractor(self):
-        _, actual_implemented = self.actual
-        for _implemented in actual_implemented:
-            with self.subTest(_implemented):
-                self.assertTrue(subclasses_base_extractor(_implemented))
+    def test_returns_subclasses_of_base_extractor(self):
+        for klass in self.actual:
+            with self.subTest(klass):
+                self.assertTrue(uu.is_class(klass))
+                self.assertTrue(issubclass(klass, BaseExtractor))
 
     def test_does_not_include_base_extractor(self):
-        abstract, implemented = self.actual
-        self.assertNotIn(BaseExtractor, abstract)
-        self.assertNotIn(BaseExtractor, implemented)
+        self.assertNotIn(BaseExtractor, self.actual)
 
 
 class TestGetImplementedExtractorClasses(TestCase):
     def setUp(self):
         self.actual = get_extractor_classes(
-            packages=uuconst.EXTRACTOR_CLASS_PACKAGES,
-            modules=uuconst.EXTRACTOR_CLASS_MODULES
+            packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
     def test_get_extractor_classes_returns_expected_type(self):
@@ -218,8 +191,7 @@ class TestGetImplementedExtractorClasses(TestCase):
 class TestGetTextExtractorClasses(TestCase):
     def setUp(self):
         self.actual = get_extractor_classes(
-            packages=uuconst.EXTRACTOR_CLASS_PACKAGES_TEXT,
-            modules=uuconst.EXTRACTOR_CLASS_MODULES
+            packages=EXTRACTOR_CLASS_PACKAGES_TEXT,
         )
 
     def test_get_extractor_classes_returns_expected_type(self):
@@ -246,8 +218,7 @@ class TestGetTextExtractorClasses(TestCase):
 class TestNumberOfAvailableExtractorClasses(TestCase):
     def setUp(self):
         self.actual = get_extractor_classes(
-            packages=uuconst.EXTRACTOR_CLASS_PACKAGES,
-            modules=uuconst.EXTRACTOR_CLASS_MODULES
+            packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
     # This tests up to the current number of extractors without dependencies.

@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+### 2018-02-03
+
+> High Priority
+> -------------
+>
+> * `[TD0127]` Clean up boundaries/interface to the `extractors` package.
+
 ### 2018-01-16
 
 > High Priority

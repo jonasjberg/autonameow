@@ -217,10 +217,5 @@ DUMMY_RAW_RULE_DATA_SOURCES = [
 ]
 
 
-# Sources to search for extractor classes.
-EXTRACTOR_CLASS_PACKAGES = ['filesystem', 'metadata', 'text']
-EXTRACTOR_CLASS_PACKAGES_TEXT = ['text']
-EXTRACTOR_CLASS_MODULES = []
-
 # Various test files (hopefully) included with the sources.
 DEFAULT_YAML_CONFIG_BASENAME = 'default.yaml'
