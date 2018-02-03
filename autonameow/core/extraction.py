@@ -248,10 +248,6 @@ class ExtractorRunner(object):
             store_results(fileobject, _meowuri_prefix, _results)
 
 
-def get_extractor_runner():
-    return ExtractorRunner(available_extractors=extractors.ProviderClasses)
-
-
 def run_extraction(fileobject, require_extractors, run_all_extractors=False):
     """
     Sets up and executes data extraction for the given file.
@@ -264,7 +260,7 @@ def run_extraction(fileobject, require_extractors, run_all_extractors=False):
     Raises:
         AutonameowException: An unrecoverable error occurred during extraction.
     """
-    runner = get_extractor_runner()
+    runner = ExtractorRunner(available_extractors=extractors.ProviderClasses)
     try:
         runner.start(fileobject,
                      request_extractors=require_extractors,
