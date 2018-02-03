@@ -52,6 +52,17 @@ class TestExtractorsConstants(TestCase):
         _top = 'extractors'
         self.assertTrue(AUTONAMEOW_EXTRACTOR_PATH.endswith(_top))
 
+    def _assert_list_of_strings(self, given):
+        self.assertIsInstance(given, list)
+        for element in given:
+            self.assertIsInstance(element, str)
+
+    def test_extractor_class_packages(self):
+        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES)
+
+    def test_extractor_class_packages_text(self):
+        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_TEXT)
+
 
 class TestBaseExtractor(TestCase):
     def setUp(self):
@@ -168,8 +179,9 @@ class TestFindExtractorClassesInPackages(TestCase):
 
 
 class TestGetImplementedExtractorClasses(TestCase):
-    def setUp(self):
-        self.actual = get_extractor_classes(
+    @classmethod
+    def setUpClass(cls):
+        cls.actual = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
@@ -190,8 +202,9 @@ class TestGetImplementedExtractorClasses(TestCase):
 
 
 class TestGetTextExtractorClasses(TestCase):
-    def setUp(self):
-        self.actual = get_extractor_classes(
+    @classmethod
+    def setUpClass(cls):
+        cls.actual = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES_TEXT,
         )
 
@@ -217,8 +230,9 @@ class TestGetTextExtractorClasses(TestCase):
 
 
 class TestNumberOfAvailableExtractorClasses(TestCase):
-    def setUp(self):
-        self.actual = get_extractor_classes(
+    @classmethod
+    def setUpClass(cls):
+        cls.actual = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
@@ -235,10 +249,10 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
 
 
 class TestExtractorClassMeowURIs(TestCase):
-    extractor_class_names = [e.__name__ for e in ProviderClasses]
-
-    def setUp(self):
-        self.actual = [k.meowuri_prefix() for k in ProviderClasses]
+    @classmethod
+    def setUpClass(cls):
+        cls.extractor_class_names = [e.__name__ for e in ProviderClasses]
+        cls.actual = [k.meowuri_prefix() for k in ProviderClasses]
 
     def test_returns_expected_type(self):
         for meowuri in self.actual:
