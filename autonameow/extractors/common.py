@@ -24,6 +24,7 @@ import logging
 from core import constants as C
 from core import providers
 from core.exceptions import AutonameowException
+from core.model import MeowURI
 from util import (
     mimemagic,
     sanity
@@ -99,8 +100,6 @@ class BaseExtractor(object):
 
     @classmethod
     def meowuri_prefix(cls):
-        # TODO: [TD0133] Fix inconsistent use of MeowURIs
-        #       Stick to using either instances of 'MeowURI' _OR_ strings.
         if not cls._meowuri_prefix:
             def _undefined(attribute):
                 return attribute == C.UNDEFINED_MEOWURI_PART
@@ -113,9 +112,8 @@ class BaseExtractor(object):
             if _undefined(_leaf):
                 _leaf = cls._meowuri_leaf_from_module_name()
 
-            cls._meowuri_prefix = '{root}{sep}{node}{sep}{leaf}'.format(
-                root=C.MEOWURI_ROOT_SOURCE_EXTRACTORS, sep=C.MEOWURI_SEPARATOR,
-                node=_node, leaf=_leaf
+            cls._meowuri_prefix = MeowURI(
+                C.MEOWURI_ROOT_SOURCE_EXTRACTORS, _node, _leaf
             )
 
         return cls._meowuri_prefix

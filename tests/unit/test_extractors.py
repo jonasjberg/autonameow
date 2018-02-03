@@ -262,7 +262,7 @@ class TestGetMetadataExtractorClasses(TestCase):
 
     def test_returns_metadata_extractors_verified_by_meowuri_prefix(self):
         for klass in self.actual:
-            _meowuri_prefix = klass.meowuri_prefix()
+            _meowuri_prefix = str(klass.meowuri_prefix())
             self.assertTrue(_meowuri_prefix.startswith('extractor.metadata'))
 
 
@@ -292,8 +292,9 @@ class TestExtractorClassMeowURIs(TestCase):
         cls.actual = [k.meowuri_prefix() for k in ProviderClasses]
 
     def test_returns_expected_type(self):
+        from core.model import MeowURI
         for meowuri in self.actual:
-            self.assertTrue(uu.is_internalstring(meowuri))
+            self.assertIsInstance(meowuri, MeowURI)
             self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
 
     def test_returns_meowuris_for_extractors_assumed_always_available(self):

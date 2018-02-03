@@ -23,6 +23,7 @@ from unittest import TestCase
 
 import unit.utils as uu
 from core import constants as C
+from core.model import MeowURI
 from extractors import BaseExtractor
 
 """
@@ -173,15 +174,12 @@ class CaseExtractorBasics(TestCase):
             actual, 'expected "meowuri_prefix()" to not return none'
         )
 
-    def test_method_meowuri_prefix_returns_type_unicode_string(self):
+    def test_method_meowuri_prefix_returns_instance_of_meowuri(self):
         actual = self.extractor.meowuri_prefix()
-        self.assertIsInstance(
-            actual, str,
-            'Expected "str". Got "{!s}"'.format(type(actual))
-        )
+        self.assertIsInstance(actual, MeowURI)
 
     def test_method_meowuri_prefix_return_starts_with_extractor_root(self):
-        actual = self.extractor.meowuri_prefix()
+        actual = str(self.extractor.meowuri_prefix())
         expect_starts_with = C.MEOWURI_ROOT_SOURCE_EXTRACTORS
         self.assertTrue(
             actual.startswith(expect_starts_with),
