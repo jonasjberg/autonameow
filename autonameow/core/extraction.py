@@ -39,31 +39,6 @@ from extractors import ExtractorError
 log = logging.getLogger(__name__)
 
 
-def store_results(fileobject, meowuri_prefix, data):
-    """
-    Collects extractor data, passes it the session repository.
-
-    Args:
-        fileobject: Instance of 'FileObject' that produced the data to add.
-        meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
-        data: Data to add, as a dict containing the data and meta-information.
-    """
-    assert isinstance(data, dict), (
-        'Expected data of type "dict" in "extraction.store_results()" '
-        ':: ({!s}) {!s}'.format(type(data), data)
-    )
-
-    for _uri_leaf, _data in data.items():
-        try:
-            _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
-        except InvalidMeowURIError as e:
-            log.critical(
-                'Got invalid MeowURI from extractor -- !{!s}"'.format(e)
-            )
-            continue
-        repository.SessionRepository.store(fileobject, _meowuri, _data)
-
-
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
     """
     Filters out "slow" extractor classes if they are not explicitly required.
@@ -159,8 +134,12 @@ class ExtractorRunner(object):
             for k in self._available_extractors:
                 log.debug('Available: {!s}'.format(str(k.__name__)))
 
-        # TODO: Separate repository from the runner ('extract.py' use-case)
-        self.add_results_callback = add_results_callback
+        if add_results_callback:
+            assert callable(add_results_callback)
+            self._add_results_callback = add_results_callback
+        else:
+            self._add_results_callback = lambda *_: None
+
         self.exclude_slow = True
 
     def start(self, fileobject, request_extractors=None, request_all=None):
@@ -213,8 +192,7 @@ class ExtractorRunner(object):
             with logs.log_runtime(log, 'Extraction'):
                 self._run_extractors(fileobject, selected_klasses)
 
-    @staticmethod
-    def _run_extractors(fileobject, all_klasses):
+    def _run_extractors(self, fileobject, all_klasses):
         for klass in all_klasses:
             _extractor_instance = klass()
             if not _extractor_instance:
@@ -245,7 +223,30 @@ class ExtractorRunner(object):
             _results = _wrap_extracted_data(_extracted_data, _metainfo,
                                             _extractor_instance)
             _meowuri_prefix = klass.meowuri_prefix()
-            store_results(fileobject, _meowuri_prefix, _results)
+            self.store_results(fileobject, _meowuri_prefix, _results)
+
+    def store_results(self, fileobject, meowuri_prefix, data):
+        """
+        Constructs a full MeowURI and calls the callback with the results.
+
+        Args:
+            fileobject: Instance of 'FileObject' that produced the data to add.
+            meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
+            data: Data to add, as a dict containing the data and meta-information.
+        """
+        assert isinstance(data, dict), (
+            'Expected data of type "dict" in "extraction.store_results()" '
+            ':: ({!s}) {!s}'.format(type(data), data)
+        )
+        for _uri_leaf, _data in data.items():
+            try:
+                _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
+            except InvalidMeowURIError as e:
+                log.critical(
+                    'Got invalid MeowURI from extractor -- !{!s}"'.format(e)
+                )
+                continue
+            self._add_results_callback(fileobject, _meowuri, _data)
 
 
 def run_extraction(fileobject, require_extractors, run_all_extractors=False):
@@ -260,7 +261,10 @@ def run_extraction(fileobject, require_extractors, run_all_extractors=False):
     Raises:
         AutonameowException: An unrecoverable error occurred during extraction.
     """
-    runner = ExtractorRunner(available_extractors=extractors.ProviderClasses)
+    runner = ExtractorRunner(
+        available_extractors=extractors.ProviderClasses,
+        add_results_callback=repository.SessionRepository.store
+    )
     try:
         runner.start(fileobject,
                      request_extractors=require_extractors,
