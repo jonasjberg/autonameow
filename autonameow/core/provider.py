@@ -143,17 +143,9 @@ class MasterDataProvider(object):
                 if issubclass(_provider, BaseExtractor):
                     self._delegate_to_extractors(fileobject, [_provider])
                 elif issubclass(_provider, BaseAnalyzer):
-                    analysis.run_analysis(
-                        fileobject,
-                        self.config,
-                        analyzers_to_run=None
-                        #analyzers_to_run=[_provider]
-                    )
+                    self._delegate_to_analyzers(fileobject, [_provider])
                 elif issubclass(_provider, plugins.BasePlugin):
-                    plugin_handler.run_plugins(
-                        fileobject,
-                        require_plugins=_provider,
-                    )
+                    self._delegate_to_plugins(fileobject, [_provider])
 
     def _delegate_to_extractors(self, fileobject, extractors_to_run):
         try:
@@ -162,6 +154,20 @@ class MasterDataProvider(object):
             # TODO: [TD0164] Tidy up throwing/catching of exceptions.
             log.critical('Extraction FAILED: {!s}'.format(e))
             raise
+
+    def _delegate_to_analyzers(self, fileobject, analyzers_to_run):
+        analysis.run_analysis(
+            fileobject,
+            self.config,
+            analyzers_to_run=None
+            #analyzers_to_run=analyzers_to_run
+        )
+
+    def _delegate_to_plugins(self, fileobject, plugins_to_run):
+        plugin_handler.run_plugins(
+            fileobject,
+            require_plugins=plugins_to_run,
+        )
 
     def _print_debug_stats(self):
         if not __debug__:
