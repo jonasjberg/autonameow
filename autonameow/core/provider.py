@@ -159,8 +159,7 @@ class MasterDataProvider(object):
         analysis.run_analysis(
             fileobject,
             self.config,
-            analyzers_to_run=None
-            #analyzers_to_run=analyzers_to_run
+            analyzers_to_run=analyzers_to_run
         )
 
     def _delegate_to_plugins(self, fileobject, plugins_to_run):
