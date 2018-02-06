@@ -145,10 +145,12 @@ class Repository(object):
             if isinstance(data, list):
                 for d in data:
                     if maps_field(d, field):
+                        # TODO: Why is this update here?
                         d.update(meowuri=meowuri)
                         out.append(d)
             else:
                 if maps_field(data, field):
+                    # TODO: Why is this update here?
                     data.update(meowuri=meowuri)
                     out.append(data)
 
@@ -157,17 +159,17 @@ class Repository(object):
     def query(self, fileobject, meowuri):
         if not meowuri:
             raise exceptions.InvalidMeowURIError(
-                'Unable to resolve empty meowURI'
+                'Got query with "empty" or missing MeowURI'
             )
 
         if __debug__:
-            log.debug('Got request [{:8.8}]->[{!s}]'.format(
+            log.debug('Got query [{:8.8}]->[{!s}]'.format(
                 fileobject.hash_partial, meowuri
             ))
         try:
             data = self.__get_data(fileobject, meowuri)
         except KeyError as e:
-            log.debug('Repository request raised KeyError: {!s}'.format(e))
+            log.debug('Query raised KeyError: {!s}'.format(e))
             return None
         else:
             return data
