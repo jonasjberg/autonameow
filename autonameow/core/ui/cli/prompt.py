@@ -135,9 +135,9 @@ class MeowURICompleter(Completer):
                 yield Completion(match, start_position=-len(text))
 
     def _match_start(self, string):
-        for _meowuri in self.all_meowuris:
-            if _meowuri.startswith(string):
-                yield _meowuri
+        for uri in self.all_meowuris:
+            if uri.startswith(string):
+                yield uri
 
 
 def meowuri_prompt(message=None):

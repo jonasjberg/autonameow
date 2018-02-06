@@ -484,12 +484,12 @@ def parse_conditions(raw_conditions):
     try:
         for meowuri_string, expression_string in raw_conditions.items():
             try:
-                _meowuri = MeowURI(meowuri_string)
+                uri = MeowURI(meowuri_string)
             except InvalidMeowURIError as e:
                 raise ConfigurationSyntaxError(e)
 
             try:
-                valid_condition = get_valid_rule_condition(_meowuri,
+                valid_condition = get_valid_rule_condition(uri,
                                                            expression_string)
             except InvalidRuleError as e:
                 raise ConfigurationSyntaxError(e)
@@ -546,23 +546,23 @@ def parse_data_sources(raw_sources):
 
         for meowuri_string in raw_meowuri_strings:
             try:
-                _meowuri = MeowURI(meowuri_string)
+                uri = MeowURI(meowuri_string)
             except InvalidMeowURIError as e:
                 log.warning('Skipped source with invalid MeoWURI: '
                             '"{!s}"; {!s}'.format(meowuri_string, e))
                 continue
 
-            if is_valid_source(_meowuri):
+            if is_valid_source(uri):
                 log.debug('Validated source: [{!s}]: {!s}'.format(
-                    tf.as_placeholder(), _meowuri
+                    tf.as_placeholder(), uri
                 ))
                 if not passed.get(tf):
-                    passed[tf] = [_meowuri]
+                    passed[tf] = [uri]
                 else:
-                    passed[tf] += [_meowuri]
+                    passed[tf] += [uri]
             else:
                 log.debug('Invalid source: [{!s}]: {!s}'.format(
-                    tf.as_placeholder(), _meowuri
+                    tf.as_placeholder(), uri
                 ))
 
     log.debug(

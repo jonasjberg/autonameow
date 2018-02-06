@@ -320,65 +320,65 @@ class TestRuleConditionComparison(TestCase):
 
 class TestRuleConditionFromValidInput(TestCase):
     def _is_valid(self, query, expression):
-        _meowuri = MeowURI(query)
-        self.assertIsInstance(_meowuri, MeowURI, 'Dependency init failed')
+        uri = MeowURI(query)
+        self.assertIsInstance(uri, MeowURI, 'Dependency init failed')
 
-        actual = RuleCondition(_meowuri, expression)
+        actual = RuleCondition(uri, expression)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, RuleCondition)
 
     def test_condition_contents_mime_type(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
-        self._is_valid(_meowuri, 'text/rtf')
-        self._is_valid(_meowuri, 'text/*')
-        self._is_valid(_meowuri, '*/application')
-        self._is_valid(_meowuri, '*/*')
+        uri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        self._is_valid(uri, 'text/rtf')
+        self._is_valid(uri, 'text/*')
+        self._is_valid(uri, '*/application')
+        self._is_valid(uri, '*/*')
 
     def test_condition_contents_mime_type_with_expression_list(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
-        self._is_valid(_meowuri, ['text/rtf'])
-        self._is_valid(_meowuri, ['text/*'])
-        self._is_valid(_meowuri, ['*/application'])
-        self._is_valid(_meowuri, ['*/*'])
+        uri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        self._is_valid(uri, ['text/rtf'])
+        self._is_valid(uri, ['text/*'])
+        self._is_valid(uri, ['*/application'])
+        self._is_valid(uri, ['*/*'])
 
-        self._is_valid(_meowuri, ['text/rtf', 'text/rtf'])
-        self._is_valid(_meowuri, ['text/rtf', 'text/*'])
-        self._is_valid(_meowuri, ['text/*', '*/rtf'])
-        self._is_valid(_meowuri, ['*/application', 'pdf/application'])
-        self._is_valid(_meowuri, ['*/*', '*/*'])
+        self._is_valid(uri, ['text/rtf', 'text/rtf'])
+        self._is_valid(uri, ['text/rtf', 'text/*'])
+        self._is_valid(uri, ['text/*', '*/rtf'])
+        self._is_valid(uri, ['*/application', 'pdf/application'])
+        self._is_valid(uri, ['*/*', '*/*'])
 
     def test_condition_filesystem_basename_full(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL
-        self._is_valid(_meowuri, 'foo.tar.gz')
-        self._is_valid(_meowuri, 'foo.*')
-        self._is_valid(_meowuri, '.*foo.*')
-        self._is_valid(_meowuri, '.*')
+        uri = uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL
+        self._is_valid(uri, 'foo.tar.gz')
+        self._is_valid(uri, 'foo.*')
+        self._is_valid(uri, '.*foo.*')
+        self._is_valid(uri, '.*')
 
     def test_condition_filesystem_basename_full_with_expression_list(self):
         self.skipTest('TODO: ..')
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL
-        self._is_valid(_meowuri, ['foo.tar.gz'])
-        self._is_valid(_meowuri, ['foo.*'])
-        self._is_valid(_meowuri, ['.*foo.*'])
-        self._is_valid(_meowuri, ['.*'])
+        uri = uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL
+        self._is_valid(uri, ['foo.tar.gz'])
+        self._is_valid(uri, ['foo.*'])
+        self._is_valid(uri, ['.*foo.*'])
+        self._is_valid(uri, ['.*'])
 
     def test_condition_filesystem_basename_prefix(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX
-        self._is_valid(_meowuri, 'foo')
-        self._is_valid(_meowuri, '.*')
-        self._is_valid(_meowuri, 'foo(bar)?')
+        uri = uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX
+        self._is_valid(uri, 'foo')
+        self._is_valid(uri, '.*')
+        self._is_valid(uri, 'foo(bar)?')
 
     def test_condition_filesystem_basename_suffix(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX
-        self._is_valid(_meowuri, 'tar.gz')
-        self._is_valid(_meowuri, 'tar.*')
+        uri = uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX
+        self._is_valid(uri, 'tar.gz')
+        self._is_valid(uri, 'tar.*')
 
     def test_condition_filesystem_extension(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT
-        self._is_valid(_meowuri, 'pdf')
-        self._is_valid(_meowuri, '.*')
-        self._is_valid(_meowuri, '.?')
-        self._is_valid(_meowuri, 'pdf?')
+        uri = uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT
+        self._is_valid(uri, 'pdf')
+        self._is_valid(uri, '.*')
+        self._is_valid(uri, '.?')
+        self._is_valid(uri, 'pdf?')
 
     def test_condition_metadata_exiftool(self):
         self._is_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE, '1996')
@@ -393,17 +393,17 @@ class TestRuleConditionFromValidInput(TestCase):
 class TestRuleConditionGivenInvalidExpression(TestCase):
     def _assert_raises(self, query, expression):
         with self.assertRaises(InvalidRuleError):
-            _meowuri = MeowURI(query)
-            _ = get_valid_rule_condition(_meowuri, expression)
+            uri = MeowURI(query)
+            _ = get_valid_rule_condition(uri, expression)
 
     def test_invalid_condition_contents_mime_type(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
-        self._assert_raises(_meowuri, None)
-        self._assert_raises(_meowuri, '')
-        self._assert_raises(_meowuri, '/')
-        self._assert_raises(_meowuri, 'application/*//pdf')
-        self._assert_raises(_meowuri, 'application///pdf')
-        self._assert_raises(_meowuri, 'text/')
+        uri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        self._assert_raises(uri, None)
+        self._assert_raises(uri, '')
+        self._assert_raises(uri, '/')
+        self._assert_raises(uri, 'application/*//pdf')
+        self._assert_raises(uri, 'application///pdf')
+        self._assert_raises(uri, 'text/')
 
     def test_invalid_condition_filesystem_basename_full(self):
         self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, None)
@@ -454,8 +454,8 @@ class TestRuleConditionGivenInvalidMeowURI(TestCase):
 class TestRuleConditionMethods(TestCase):
     def setUp(self):
         self.maxDiff = None
-        _meowuri = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        self.a = RuleCondition(_meowuri, 'application/pdf')
+        uri = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        self.a = RuleCondition(uri, 'application/pdf')
 
     def test_rule___repr__(self):
         expected = 'RuleCondition({}, application/pdf)'.format(
@@ -479,15 +479,15 @@ class TestRuleConditionMethods(TestCase):
 
 class TestGetValidRuleCondition(TestCase):
     def _aV(self, query, expression):
-        _meowuri = MeowURI(query)
-        actual = get_valid_rule_condition(_meowuri, expression)
+        uri = MeowURI(query)
+        actual = get_valid_rule_condition(uri, expression)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, RuleCondition)
 
     def _aR(self, query, expression):
-        _meowuri = MeowURI(query)
+        uri = MeowURI(query)
         with self.assertRaises(InvalidRuleError):
-            _ = get_valid_rule_condition(_meowuri, expression)
+            _ = get_valid_rule_condition(uri, expression)
 
     def test_returns_valid_rule_condition_for_valid_query_valid_data(self):
         self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application/pdf')

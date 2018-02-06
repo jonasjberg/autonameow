@@ -92,12 +92,12 @@ class TemplateFieldDataResolver(object):
                       '"{!s}": {!s}'.format(field, meowuri))
 
     def add_known_sources(self, source_dict):
-        for _field, _meowuri in source_dict.items():
-            if isinstance(_meowuri, list):
-                for m in _meowuri:
+        for _field, uri in source_dict.items():
+            if isinstance(uri, list):
+                for m in uri:
                     self.add_known_source(_field, m)
             else:
-                self.add_known_source(_field, _meowuri)
+                self.add_known_source(_field, uri)
 
     @property
     def unresolved(self):
@@ -185,17 +185,16 @@ class TemplateFieldDataResolver(object):
             assert _meowuris, (
                 'Resolver attempted to gather data with empty MeowURI!'
             )
-            for _meowuri in _meowuris:
+            for uri in _meowuris:
                 log.debug(
                     'Gathering data for template field {{{}}} from [{:8.8}]->'
-                    '[{!s}]'.format(_str_field, self.file.hash_partial,
-                                    _meowuri)
+                    '[{!s}]'.format(_str_field, self.file.hash_partial, uri)
                 )
 
-                _data = self._request_data(self.file, _meowuri)
+                _data = self._request_data(self.file, uri)
                 if _data is None:
                     log.debug('Got NONE data from [{:8.8}]->[{!s}]'.format(
-                        self.file.hash_partial, _meowuri))
+                        self.file.hash_partial, uri))
                     continue
 
                 # TODO: [TD0112] FIX THIS HORRIBLE MESS!

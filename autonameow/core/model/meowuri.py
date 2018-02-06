@@ -320,27 +320,27 @@ def meowuri_list(meowuri):
     if not isinstance(meowuri, str):
         raise InvalidMeowURIError('meowURI must be of type "str"')
     else:
-        _meowuri = meowuri.strip()
-    if not _meowuri:
+        uri = meowuri.strip()
+    if not uri:
         raise InvalidMeowURIError('Got empty meowURI')
 
-    if '.' in _meowuri:
+    if '.' in uri:
         # Remove any leading/trailing periods.
-        if _meowuri.startswith('.'):
-            _meowuri = _meowuri.lstrip('.')
-        if _meowuri.endswith('.'):
-            _meowuri = _meowuri.rstrip('.')
+        if uri.startswith('.'):
+            uri = uri.lstrip('.')
+        if uri.endswith('.'):
+            uri = uri.rstrip('.')
 
         # Collapse any repeating periods.
-        while '..' in _meowuri:
-            _meowuri = _meowuri.replace('..', '.')
+        while '..' in uri:
+            uri = uri.replace('..', '.')
 
         # Check if input is all periods.
-        stripped_period = str(_meowuri).replace('.', '')
+        stripped_period = str(uri).replace('.', '')
         if not stripped_period.strip():
             raise InvalidMeowURIError('Invalid meowURI')
 
-    parts = _meowuri.split('.')
+    parts = uri.split('.')
     return [p for p in parts if p is not None]
 
 

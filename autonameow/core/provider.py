@@ -169,14 +169,11 @@ class MasterDataProvider(object):
 
         stats_strings = list()
         for _fileobject, _meowuris in self.debug_stats.items():
-            for _meowuri, _counters in _meowuris.items():
+            for uri, _counters in _meowuris.items():
                 _meowuri_stats = ['{}: {}'.format(stat, count)
                                   for stat, count in _counters.items()]
-                stats_strings.append(
-                    '[{:8.8}]->{!s:60.60} {!s}'.format(_fileobject.hash_partial,
-                                                       _meowuri,
-                                                       ' '.join(_meowuri_stats))
-                )
+                stats_strings.append('[{:8.8}]->{!s:60.60} {!s}'.format(
+                    _fileobject.hash_partial, uri, ' '.join(_meowuri_stats)))
 
         log.debug('{!s} debug stats:'.format(self.__class__.__name__))
         for stat_string in sorted(stats_strings):

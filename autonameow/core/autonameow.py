@@ -234,16 +234,16 @@ class Autonameow(object):
             for _type in C.MEOWURI_ROOTS_SOURCES:
                 cf.addemptyrow()
                 sourcemap = providers.Registry.meowuri_sources.get(_type, {})
-                for _meowuri, _klasses in sourcemap.items():
-                    cf.addrow(_meowuri, str(_klasses.pop()))
+                for uri, _klasses in sourcemap.items():
+                    cf.addrow(uri, str(_klasses.pop()))
                     if _klasses:
                         for k in _klasses:
                             cf.addrow(None, str(k))
             ui.msg(str(cf))
         else:
             _meowuris = sorted(providers.Registry.mapped_meowuris)
-            for _meowuri in _meowuris:
-                ui.msg(str(_meowuri))
+            for uri in _meowuris:
+                ui.msg(str(uri))
 
         ui.msg('\n')
 

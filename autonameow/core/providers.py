@@ -188,15 +188,15 @@ class ProviderRegistry(object):
         return found
 
     def _source_providers_for_meowuri(self, requested_meowuri, includes=None):
-        # '_meowuri' is shorter "root";
-        #            'extractor.metadata.epub'
+        # 'uri' is shorter "root";
+        #     'extractor.metadata.epub'
         # 'requested_meowuri' is full "source-specific";
-        #                     'extractor.metadata.exiftool.EXIF:CreateDate'
+        #     'extractor.metadata.exiftool.EXIF:CreateDate'
         found = set()
         for root in self._yield_included_roots(includes):
-            for _meowuri in self.meowuri_sources[root].keys():
-                if _meowuri in requested_meowuri:
-                    found.add(self.meowuri_sources[root][_meowuri])
+            for uri in self.meowuri_sources[root].keys():
+                if uri in requested_meowuri:
+                    found.add(self.meowuri_sources[root][uri])
         return found
 
     def _get_generic_sources(self, meowuri_class_map):
@@ -245,8 +245,8 @@ class ProviderRegistry(object):
         out = set()
         # for root in ['extractors', 'analyzer', 'plugin'] ..
         for root in meowuri_class_map.keys():
-            for _meowuri in meowuri_class_map[root].keys():
-                out.add(_meowuri)
+            for uri in meowuri_class_map[root].keys():
+                out.add(uri)
         return out
 
 
@@ -269,16 +269,16 @@ def _get_meowuri_source_map():
 
         mapping = dict()
         for klass in _klass_list:
-            _meowuri = klass.meowuri_prefix()
-            if not _meowuri:
+            uri = klass.meowuri_prefix()
+            if not uri:
                 log.critical('Got empty from '
                              '"{!s}.meowuri_prefix()"'.format(klass.__name__))
                 continue
 
-            assert _meowuri not in mapping, (
-                'Provider MeowURI "{!s}" is already mapped'.format(_meowuri)
+            assert uri not in mapping, (
+                'Provider MeowURI "{!s}" is already mapped'.format(uri)
             )
-            mapping[_meowuri] = klass
+            mapping[uri] = klass
 
         return mapping
 
