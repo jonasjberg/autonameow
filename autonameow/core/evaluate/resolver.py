@@ -203,6 +203,7 @@ class TemplateFieldDataResolver(object):
                     if len(_deduped_list) == 1:
                         log.debug('Using one of {} equivalent '
                                   'entries'.format(len(_data)))
+                        log.debug('Using "{!s}" from equivalent: {!s}'.format(_data[0]['value'], ', '.join('"{}"'.format(_d['value']) for _d in _data)))
                         _data = _data[0]
                     else:
                         log.warning('[TD0112] Not sure what data to use for field {{{}}}..'.format(_str_field))
@@ -210,19 +211,20 @@ class TemplateFieldDataResolver(object):
                             log.debug('[TD0112] Field {{{}}} candidate {:03d} :: "{!s}"'.format(_str_field, i, d.get('value')))
                         continue
 
-                # # TODO: [TD0112] Clean up merging data.
                 elif isinstance(_data.get('value'), list):
+                    # TODO: [TD0112] Clean up merging data.
+                    list_value = _data.get('value')
+                    if len(list_value) > 1:
+                        seen_data = set()
+                        for d in list_value:
+                            seen_data.add(d)
 
-                    seen_data = set()
-                    for d in _data.get('value'):
-                        seen_data.add(d)
+                        if len(seen_data) == 1:
+                            log.debug('Merged {} equivalent entries ({!s} is now {!s})'.format(
+                                len(list_value), list_value, list(list(seen_data)[0])))
+                            _data['value'] = list(list(seen_data)[0])
 
-                    if len(seen_data) == 1:
-                        # TODO: [TD0112] FIX THIS!
-                        log.debug('Merged {} equivalent entries'.format(
-                            len(_data.get('value'))))
-                        _data['value'] = list(seen_data)[0]
-
+                # TODO: [TD0112] FIX THIS HORRIBLE MESS!
                 log.debug('Updated data for field {{{}}} :: "{!s}"'.format(
                     _str_field, _data.get('value')))
                 self.fields_data[_field] = _data
