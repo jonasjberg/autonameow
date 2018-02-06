@@ -884,6 +884,10 @@ class MultipleTypes(object):
 
         return out
 
+    def __contains__(self, item):
+        if isinstance(item, BaseType):
+            return item == self.coercer
+
 
 def listof(coercer):
     return MultipleTypes(coercer)

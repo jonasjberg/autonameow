@@ -1986,6 +1986,22 @@ class TestMultipleTypes(TestCase):
                 self.assertEqual(1, len(actual))
 
 
+class TestListofComparison(TestCase):
+    def test_expect_coercer_klass_in_multipletypes(self):
+        list_of_string_coercer = types.listof(types.AW_STRING)
+        self.assertIn(types.AW_STRING, list_of_string_coercer)
+
+        list_of_int_coercer = types.listof(types.AW_INTEGER)
+        self.assertIn(types.AW_INTEGER, list_of_int_coercer)
+
+    def test_expect_coercer_klass_not_in_multipletypes(self):
+        list_of_string_coercer = types.listof(types.AW_STRING)
+        self.assertNotIn(types.AW_INTEGER, list_of_string_coercer)
+
+        list_of_int_coercer = types.listof(types.AW_INTEGER)
+        self.assertNotIn(types.AW_STRING, list_of_int_coercer)
+
+
 class TestListofStrings(TestCase):
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
