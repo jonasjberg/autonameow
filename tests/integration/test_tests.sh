@@ -128,16 +128,27 @@ assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
 
 # ______________________________________________________________________________
 #
-# Check the test runner scripts.
+# Basic checks of the test runner scripts.
 
 _integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_integration_tests.sh"
 assert_bulk_test "$_integration_runner_path" n e r x
 
+assert_true '"$_integration_runner_path" -h' \
+            "Expect exit code 0 when running \"${_integration_runner_path} -h\""
+
+
 _unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_unit_tests.sh"
 assert_bulk_test "$_unit_runner_path" n e r x
 
+assert_true '"$_unit_runner_path" -h' \
+            "Expect exit code 0 when running \"${_unit_runner_path} -h\""
+
+
 _regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_regression_tests.sh"
 assert_bulk_test "$_regression_runner_path" n e r x
+
+assert_true '"$_regression_runner_path" -h' \
+            "Expect exit code 0 when running \"${_regression_runner_path} -h\""
 
 
 # ______________________________________________________________________________
