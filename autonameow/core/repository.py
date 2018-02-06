@@ -172,11 +172,11 @@ class Repository(object):
         else:
             return data
 
-    def __get_data(self, file, meowuri):
-        return util.nested_dict_get(self.data, [file, meowuri])
+    def __get_data(self, fileobject, meowuri):
+        return util.nested_dict_get(self.data, [fileobject, meowuri])
 
-    def __store_data(self, file, meowuri, data):
-        util.nested_dict_set(self.data, [file, meowuri], data)
+    def __store_data(self, fileobject, meowuri, data):
+        util.nested_dict_set(self.data, [fileobject, meowuri], data)
 
     def human_readable_contents(self):
         out = []
