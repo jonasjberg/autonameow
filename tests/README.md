@@ -253,7 +253,7 @@ This script accepts optional argument flags, as described in the usage text;
 Usage: regression_runner.py [-h] [-v] [--stderr] [--stdout] [-f GLOB]
                             [--last-failed] [--list] [--get-cmd] [--run]
 
-autonameow v0.5.3 -- regression test suite runner
+autonameow v0.5.4 -- regression test suite runner
 
 Optional arguments:
   -h, --help            Show this help message and exit.
@@ -269,7 +269,8 @@ Test Selection:
                         Select tests whose "TEST_NAME" (dirname) matches
                         "GLOB". Matching is case-sensitive. An asterisk
                         matches anything and if "GLOB" begins with "!", the
-                        matching is inverted.
+                        matching is inverted. This option can be given more
+                        than once, which ORs the filters.
   --last-failed         Select only the test cases that failed during the last
                         completed run. Selects all if none failed.
 

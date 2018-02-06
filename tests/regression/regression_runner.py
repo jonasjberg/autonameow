@@ -297,6 +297,7 @@ def run_regressiontests(tests, print_stderr, print_stdout):
 
 
 def filter_tests(tests, filter_func, expr):
+    assert callable(filter_func)
     return [t for t in tests if filter_func(expr, t.get('test_dirname', b''))]
 
 
@@ -336,11 +337,12 @@ def main(args):
     optgrp_select.add_argument(
         '-f', '--filter',
         dest='filter_glob',
-        nargs=1,
         metavar='GLOB',
+        action='append',
         help='Select tests whose "TEST_NAME" (dirname) matches "GLOB". '
              'Matching is case-sensitive. An asterisk matches anything '
-             'and if "GLOB" begins with "!", the matching is inverted.'
+             'and if "GLOB" begins with "!", the matching is inverted. '
+             'This option can be given more than once, which ORs the filters.'
     )
     optgrp_select.add_argument(
         '--last-failed',
@@ -406,19 +408,25 @@ def main(args):
         return
 
     # Start test selection based on any criteria given with the options.
-    filtered = list(loaded_tests)
     if opts.filter_glob:
-        filtered = filter_tests(loaded_tests, glob_filter,
-                                expr=opts.filter_glob[0])
-        log.info('Filter selected {} test case(s) ..'.format(len(filtered)))
+        all_filtered = list()
+        for filter_expression in opts.filter_glob:
+            filtered = filter_tests(loaded_tests, glob_filter,
+                                    expr=filter_expression)
+            log.info('Filter expression "{!s}" matched {} test case(s)'.format(
+                filter_expression, len(filtered)))
+            all_filtered.extend(filtered)
+        log.info('Filtering selected {} test case(s)'.format(len(all_filtered)))
+        selected_tests = all_filtered
+    else:
+        selected_tests = loaded_tests
 
-    selected_tests = filtered
     if opts.filter_lastfailed:
         _failed_lastrun = load_failed_tests()
         if _failed_lastrun:
             # TODO: Improve comparing regression test cases.
             # Fails if any option is modified. Compare only directory basenames?
-            selected_tests = [t for t in filtered if t in _failed_lastrun]
+            selected_tests = [t for t in selected_tests if t in _failed_lastrun]
             log.info('Selected {} of {} test case(s) that failed during the '
                      'last completed run ..'.format(len(selected_tests),
                                                     len(_failed_lastrun)))
