@@ -106,6 +106,8 @@ class ExtractorRunner(object):
 
         self._available_extractors = set(extractors.ProviderClasses)
         if __debug__:
+            log.debug('Initialized {!s} with {} available extractors'.format(
+                self.__class__.__name__, len(self._available_extractors)))
             for k in self._available_extractors:
                 log.debug('Available: {!s}'.format(str(k.__name__)))
 
