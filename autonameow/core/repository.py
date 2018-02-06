@@ -116,10 +116,10 @@ class Repository(object):
             _debugmsg_data = data
 
         if __debug__:
-            log.debug('{} storing: [{:8.8}]->[{!s}] :: "{!s}"'.format(
-                self.__class__.__name__,
+            log.debug('Storing [{:8.8}]->[{!s}] :: ({}) {!s}'.format(
                 fileobject.hash_partial,
                 meowuri,
+                type(_debugmsg_data.get('value')),
                 _debugmsg_data.get('value')
             ))
         try:

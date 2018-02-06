@@ -279,7 +279,7 @@ class EbookAnalyzer(BaseAnalyzer):
         return {
             'source': str(self),
             'value': list_of_authors,
-            'coercer': types.AW_STRING,
+            'coercer': types.listof(types.AW_STRING),
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
             ],

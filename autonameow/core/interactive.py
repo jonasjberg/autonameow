@@ -42,9 +42,16 @@ def select_field(fileobject, templatefield, candidates):
     ui.msg('Candidates for unresolved field: {!s}'.format(
         templatefield.as_placeholder()))
 
-    prioritized_candidates = sorted(candidates,
-                                    key=lambda x: (x.probability, x.value),
-                                    reverse=True)
+    try:
+        prioritized_candidates = sorted(candidates,
+                                        key=lambda x: (x.probability, x.value),
+                                        reverse=True)
+    except TypeError as e:
+        # TODO: FIX THIS! Must separate "real" value from displayable value!
+        log.critical('Error while sorting candidates in "select_field()"')
+        log.critical(str(e))
+        return Choice.ABORT
+
     numbered_candidates = dict()
     rows_to_display = list()
     for n, c in enumerate(prioritized_candidates):

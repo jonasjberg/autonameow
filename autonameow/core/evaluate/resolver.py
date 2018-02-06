@@ -138,7 +138,16 @@ class TemplateFieldDataResolver(object):
             _candidate_value = candidate.get('value')
             _formatted_value = ''
             if _candidate_value and _candidate_coercer:
-                _formatted_value = _candidate_coercer.format(_candidate_value)
+                try:
+                    _formatted_value = _candidate_coercer.format(_candidate_value)
+                except types.AWTypeError as e:
+                    # TODO: FIX THIS! Should use "list of string"-coercer for authors and other "multi-valued" template fields.
+                    log.critical(
+                        'Error while formatting (coercing) candidate value in '
+                        '"TemplateFieldDataResolver.lookup_candidates()"'
+                    )
+                    log.critical(str(e))
+                    continue
 
             if 'source' not in candidate:
                 log.warning('Unknown source: {!s}'.format(candidate))
@@ -199,18 +208,22 @@ class TemplateFieldDataResolver(object):
 
                 # TODO: [TD0112] FIX THIS HORRIBLE MESS!
                 if isinstance(_data, list):
+                    log.debug('Got list of data. Attempting to deduplicate list of datadicts')
                     _deduped_list = dedupe_list_of_datadicts(_data)
                     if len(_deduped_list) == 1:
+                        log.debug('Deduplicated list of datadicts has a single element')
                         log.debug('Using one of {} equivalent '
                                   'entries'.format(len(_data)))
                         log.debug('Using "{!s}" from equivalent: {!s}'.format(_data[0]['value'], ', '.join('"{}"'.format(_d['value']) for _d in _data)))
                         _data = _data[0]
                     else:
+                        log.debug('Deduplicated list of datadicts still has multiple elements')
                         log.warning('[TD0112] Not sure what data to use for field {{{}}}..'.format(_str_field))
                         for i, d in enumerate(_data):
                             log.debug('[TD0112] Field {{{}}} candidate {:03d} :: "{!s}"'.format(_str_field, i, d.get('value')))
                         continue
 
+                # # TODO: [TD0112] Clean up merging data.
                 elif isinstance(_data.get('value'), list):
                     # TODO: [TD0112] Clean up merging data.
                     list_value = _data.get('value')
@@ -220,8 +233,10 @@ class TemplateFieldDataResolver(object):
                             seen_data.add(d)
 
                         if len(seen_data) == 1:
+                            # TODO: [TD0112] FIX THIS!
                             log.debug('Merged {} equivalent entries ({!s} is now {!s})'.format(
                                 len(list_value), list_value, list(list(seen_data)[0])))
+                            # TODO: [TD0112] FIX THIS!
                             _data['value'] = list(list(seen_data)[0])
 
                 # TODO: [TD0112] FIX THIS HORRIBLE MESS!
@@ -233,6 +248,10 @@ class TemplateFieldDataResolver(object):
     def _verify_types(self):
         # TODO: [TD0115] Clear up uncertainties about data multiplicities.
         for field, data in self.fields_data.items():
+            log.debug('Verifying data for field {{{!s}}}'.format(field.as_placeholder()))
+            log.debug('field = {!s}'.format(field))
+            log.debug('data = {!s}'.format(data))
+
             if isinstance(data, list):
                 if not field.MULTIVALUED:
                     self.fields_data[field] = None
@@ -243,6 +262,12 @@ class TemplateFieldDataResolver(object):
                 for d in data:
                     self._verify_type(field, d)
             else:
+                # if field.MULTIVALUED:
+                #     self.fields_data[field] = None
+                #     log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
+                #     log.debug('Template field {{{!s}}} expects multiple values. '
+                #               'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
+                #                                          type(data), data))
                 self._verify_type(field, data)
 
         # Remove data type is incompatible with associated field.

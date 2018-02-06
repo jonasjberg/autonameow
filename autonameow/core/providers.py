@@ -54,7 +54,7 @@ class ProviderMixin(object):
                            ' "{!s}" ({!s})'.format(field, value, type(value)))
             return None
 
-        assert _coercer and isinstance(_coercer, types.BaseType), (
+        assert isinstance(_coercer, (types.BaseType, types.MultipleTypes)), (
             'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer)
         )
         wrapper = _coercer

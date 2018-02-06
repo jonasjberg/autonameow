@@ -200,48 +200,35 @@ class Author(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
+
+        _d_coercer = data.get('coercer')
+        # sanity.check_isinstance(_d_coercer, types.BaseType)
+
+        _authors = data.get('value')
+        sanity.check_isinstance(_authors, list,
+                                msg='Authors should be multivalued (type list)')
+
         # TODO: [TD0129] Data validation at this point should be made redundant
-        if isinstance(data.get('value'), list):
-            # Multiple authors
-            _formatted = []
-            for d in data.get('value'):
-                if data.get('coercer') in (types.AW_PATHCOMPONENT,
-                                           types.AW_PATH):
-                    string = types.force_string(d)
-                    if not string:
-                        raise exceptions.NameBuilderError(
-                            'Unicode string conversion failed for '
-                            '"{!r}"'.format(data)
-                        )
-                elif data.get('coercer') == types.AW_STRING:
-                    string = d
-                else:
-                    raise exceptions.NameBuilderError(
-                        'Got incompatible data: {!r}'.format(d)
-                    )
-
-                sanity.check_internal_string(string)
-                _formatted.append(text.format_name(string))
-
-            return ' '.join(sorted(_formatted))
-        else:
-            # One author
-            if data.get('coercer') in (types.AW_PATHCOMPONENT, types.AW_PATH):
-                string = types.force_string(data.get('value'))
-                if not string:
-                    raise exceptions.NameBuilderError(
-                        'Unicode string conversion failed for '
-                        '"{!r}"'.format(data)
-                    )
-            elif data.get('coercer') == types.AW_STRING:
-                string = data.get('value')
-            else:
+        if _d_coercer != types.AW_STRING:
+            # Might be instance of MultipleTypes of AW_STRING
+            if types.AW_STRING not in _d_coercer:
                 raise exceptions.NameBuilderError(
-                    'Got incompatible data: {!r}'.format(data)
+                    'Data incompatible with coercer {!s} :: {!r}'.format(
+                        _d_coercer, _authors)
                 )
 
-            sanity.check_internal_string(string)
-            return text.format_name(data.get('value'))
+        list_of_str_authors = _d_coercer(_authors)
+        if any(not s.strip() for s in list_of_str_authors):
+            raise exceptions.NameBuilderError(
+                'Unicode string coercion resulted in empty (or whitespace) '
+                'string for data "{!r}"'.format(data)
+            )
+        _formatted = []
+        for author in list_of_str_authors:
+            sanity.check_internal_string(author)
+            _formatted.append(text.format_name(author))
+
+        return ' '.join(sorted(_formatted))
 
 
 class Creator(NameTemplateField):
