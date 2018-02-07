@@ -57,7 +57,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'video/*', 'application/pdf', 'image/*', 'application/epub+zip',
         'text/*', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ]
-    is_slow = False
+    IS_SLOW = False
 
     FIELD_LOOKUP = {
         'ASF:CreationDate': {

@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 
 class PdftotextTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
-    is_slow = False
+    IS_SLOW = False
 
     def __init__(self):
         super(PdftotextTextExtractor, self).__init__()

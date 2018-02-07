@@ -83,7 +83,7 @@ class BaseExtractor(object):
     # Used to exclude slow running extractors from always being executed.
     # If the extractor is not enabled by the default, it must be explicitly
     # specified in order to be enqueued in the extractor run queue.
-    is_slow = False
+    IS_SLOW = False
 
     # Dictionary with extractor-specific information, keyed by the fields that
     # the raw source produces. Stores information on types, etc..

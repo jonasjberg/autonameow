@@ -31,7 +31,7 @@ from extractors import BaseExtractor
 class CrossPlatformFileSystemExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['*/*']
     MEOWURI_LEAF = 'xplat'
-    is_slow = False
+    IS_SLOW = False
 
     FIELD_LOOKUP = {
         'abspath.full': {'coercer': types.AW_PATH, 'multivalued': False},

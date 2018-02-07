@@ -74,7 +74,7 @@ def filter_able_to_handle(extractor_klasses, fileobject):
 
 
 def filter_not_slow(extractor_klasses, required):
-    return {k for k in extractor_klasses if not k.is_slow or k in required}
+    return {k for k in extractor_klasses if not k.IS_SLOW or k in required}
 
 
 class ExtractorRunner(object):

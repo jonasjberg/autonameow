@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 
 class PlainTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['text/plain']
-    is_slow = False
+    IS_SLOW = False
 
     def __init__(self):
         super(PlainTextExtractor, self).__init__()

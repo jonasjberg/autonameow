@@ -35,7 +35,7 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     Extracts jpeg/jfif image metadata using "jpeginfo".
     """
     HANDLES_MIME_TYPES = ['image/jpeg', 'image/jfif']
-    is_slow = False
+    IS_SLOW = False
 
     STATUS_LOOKUP = {
         'OK': 1.0,

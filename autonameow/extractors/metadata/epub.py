@@ -34,7 +34,7 @@ from thirdparty import epubzilla
 
 class EpubMetadataExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
-    is_slow = False
+    IS_SLOW = False
     FIELD_LOOKUP = {
         'author': {
             'coercer': types.AW_STRING,
