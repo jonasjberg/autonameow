@@ -219,5 +219,6 @@ def run_plugins(fileobject, require_plugins=None, run_all_plugins=False):
                              require_plugins=require_plugins,
                              run_all_plugins=run_all_plugins is True)
     except AutonameowPluginError as e:
+        # TODO: [TD0164] Tidy up throwing/catching of exceptions.
         log.critical('Plugins FAILED: {!s}'.format(e))
         raise AutonameowException(e)

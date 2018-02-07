@@ -209,5 +209,6 @@ def run_analysis(fileobject, active_config, analyzers_to_run=None):
     try:
         _start(fileobject, active_config, analyzers_to_run)
     except AutonameowException as e:
+        # TODO: [TD0164] Tidy up throwing/catching of exceptions.
         log.critical('Analysis FAILED: {!s}'.format(e))
         raise
