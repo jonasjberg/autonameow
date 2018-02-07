@@ -98,16 +98,10 @@ def select_template(candidates):
 
 def meowuri_prompt(message):
     # TODO: [TD0024][TD0025] Implement Interactive mode.
-    if not sys.__stdout__.isatty():
-        # TODO: [TD0111] Separate abstract user interaction from CLI specifics.
-        log.warning('Standard input is not a TTY --- would have triggered an '
-                    'AssertionError in "prompt_toolkit". ABORTING!')
-        return Choice.ABORT
-
     response = ui.meowuri_prompt(message)
-    if response:
-        return response
-    return Choice.ABORT
+    if not response:
+        return Choice.ABORT
+    return response
 
 
 def ask_confirm_use_rule(fileobject, rule):

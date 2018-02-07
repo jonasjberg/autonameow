@@ -141,6 +141,12 @@ class MeowURICompleter(Completer):
 
 
 def meowuri_prompt(message=None):
+    if not sys.__stdin__.isatty():
+        # TODO: [TD0111] Separate abstract user interaction from CLI specifics.
+        log.critical('Standard input is not a TTY --- would have triggered an '
+                     'AssertionError in "prompt_toolkit". ABORTING!')
+        return None
+
     _history_file_path = get_config_history_path()
     log.debug('Using prompt history file: "{!s}"'.format(
         enc.displayable_path(_history_file_path)
@@ -171,6 +177,12 @@ def meowuri_prompt(message=None):
 
 
 def field_selection_prompt(candidates):
+    if not sys.__stdin__.isatty():
+        # TODO: [TD0111] Separate abstract user interaction from CLI specifics.
+        log.critical('Standard input is not a TTY --- would have triggered an '
+                     'AssertionError in "prompt_toolkit". ABORTING!')
+        return None
+
     _candidate_numbers = list(candidates.keys())
     text = prompt(
         'Enter #: ',
@@ -181,7 +193,7 @@ def field_selection_prompt(candidates):
 
 
 def ask_confirm(message):
-    if not sys.__stdout__.isatty():
+    if not sys.__stdin__.isatty():
         # TODO: [TD0111] Separate abstract user interaction from CLI specifics.
         log.critical('Standard input is not a TTY --- would have triggered an '
                      'AssertionError in "prompt_toolkit". ABORTING!')
