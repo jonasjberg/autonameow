@@ -283,6 +283,13 @@ assert_false '[ -e "${_temporary_file}" ]' \
              'Reference dummy temporary file was deleted'
 
 
+# ______________________________________________________________________________
+#
+# Verify sample test files used by other tests.
+
+assert_bulk_test "$(abspath_testfile 'ObjectCalisthenics.rtf')" f r
+
+
 
 
 # Calculate total execution time.

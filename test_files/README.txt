@@ -1,7 +1,6 @@
 * '2007-04-23_12-comments.png'
 * 'empty'
 * 'gmail.pdf'
-* 'gmail.txt'
 * 'magic_bmp.bmp'
 * 'magic_gif.gif'
 * 'magic_jpg.jpg'
@@ -11,7 +10,15 @@
 * 'magic_txt'
 * 'magic_txt.md'
 * 'magic_txt.txt'
+
 * 'ObjectCalisthenics.rtf'
+
+    "Object Calisthenics"
+    Source    : http://www.xpteam.com/jeff/writings/objectcalisthenics.rtf
+    Author    : Jeff Bay
+    Title     : Object Calisthenics
+    Copyright : ?
+    Published : 2006
 
 * '4123.epub'
 
