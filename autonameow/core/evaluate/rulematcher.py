@@ -269,6 +269,12 @@ class RuleConditionEvaluator(object):
         self._evaluated = dict()
 
     def evaluate(self, rule_to_evaluate):
+        """
+        Evaluates a rule and stores results in instance attributes.
+
+        Args:
+            rule_to_evaluate: Rule to evaluate as instance of the 'Rule' class.
+        """
         assert rule_to_evaluate not in (self._failed, self._passed), (
             'Rule has already been evaluated; {!r}'.format(rule_to_evaluate)
         )
@@ -290,19 +296,16 @@ class RuleConditionEvaluator(object):
         return self._evaluated[rule].get(condition)
 
     def evaluate_rule_conditions(self, rule):
-        if rule.description:
-            _desc = '{} :: '.format(rule.description)
-        else:
-            _desc = ''
+        log_strprefix = '{} :: Condition '.format(rule.description)
 
         for condition in rule.conditions:
-            _data_meowuri = condition.meowuri
-            data = self.data_query_function(_data_meowuri)
+            condition_data_uri = condition.meowuri
+            data = self.data_query_function(condition_data_uri)
             if self._evaluate_condition(condition, data):
-                log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
+                log.debug('{}PASSED: "{!s}"'.format(log_strprefix, condition))
                 self._passed[rule].append(condition)
             else:
-                log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
+                log.debug('{}FAILED: "{!s}"'.format(log_strprefix, condition))
                 self._failed[rule].append(condition)
 
             assert condition not in self._evaluated.get(rule, {})
