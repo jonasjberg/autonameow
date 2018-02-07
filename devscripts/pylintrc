@@ -39,7 +39,11 @@ ignore-patterns=
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-#init-hook=
+#
+# NOTE(jonas): Environment variable 'AUTONAMEOW_SYSPATH' is exported by the
+#              wrapper script 'lint_python.sh'. This fixes false import errors.
+init-hook='import sys,os; sys.path.insert(0, os.environ["AUTONAMEOW_SYSPATH"]);'
+
 
 # Use multiple processes to speed up Pylint.
 jobs=4
