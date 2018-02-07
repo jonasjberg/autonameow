@@ -103,7 +103,7 @@ class ImageAnalyzer(BaseAnalyzer):
             dt = None
             # Expected date format:         2016:04:07 18:47:30
             date_pattern = re.compile(
-                '.*(\d{4}:[01]\d:[0123]\d [012]\d:[012345]\d:[012345]\d).*')
+                r'.*(\d{4}:[01]\d:[0123]\d [012]\d:[012345]\d:[012345]\d).*')
             try:
                 re_match = date_pattern.search(dtstr)
             except TypeError:
