@@ -99,6 +99,12 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         super(CrossPlatformFileSystemExtractor, self).__init__()
 
     def extract(self, fileobject, **kwargs):
+        out = dict()
+        out.update(self._collect_from_fileobject(fileobject))
+        out.update(self._collect_filesystem_timestamps(fileobject))
+        return out
+
+    def _collect_from_fileobject(self, fileobject):
         _datasources = [
             ('abspath.full', fileobject.abspath),
             ('basename.full', fileobject.filename),
@@ -110,36 +116,38 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             ('contents.mime_type', fileobject.mime_type)
         ]
 
-        out = dict()
+        result = dict()
         for _uri, _source in _datasources:
             _coerced_data = self.coerce_field_value(_uri, _source)
             if _coerced_data is not None:
-                out[_uri] = _coerced_data
+                result[_uri] = _coerced_data
+        return result
 
+    def _collect_filesystem_timestamps(self, fileobject):
+        result = dict()
         try:
             access_time = _get_access_time(fileobject.abspath)
             create_time = _get_create_time(fileobject.abspath)
             modify_time = _get_modify_time(fileobject.abspath)
         except OSError as e:
-            self.log.error('Unable to get timestamps from filesystem:'
-                           ' {!s}'.format(e))
-        else:
-            _coerced_access_time = self.coerce_field_value('date_accessed',
-                                                           access_time)
-            if _coerced_access_time:
-                out['date_accessed'] = _coerced_access_time
+            self.log.error(
+                'Unable to get filesystem timestamps: {!s}'.format(e)
+            )
+            return result
 
-            _coerced_create_time = self.coerce_field_value('date_created',
-                                                           create_time)
-            if _coerced_create_time:
-                out['date_created'] = _coerced_create_time
+        coerced_t_access = self.coerce_field_value('date_accessed', access_time)
+        if coerced_t_access:
+            result['date_accessed'] = coerced_t_access
 
-            _coerced_modify_time = self.coerce_field_value('date_modified',
-                                                           modify_time)
-            if _coerced_modify_time:
-                out['date_modified'] = _coerced_modify_time
+        coerced_t_create = self.coerce_field_value('date_created', create_time)
+        if coerced_t_create:
+            result['date_created'] = coerced_t_create
 
-        return out
+        coerced_t_modify = self.coerce_field_value('date_modified', modify_time)
+        if coerced_t_modify:
+            result['date_modified'] = coerced_t_modify
+
+        return result
 
     @classmethod
     def check_dependencies(cls):
