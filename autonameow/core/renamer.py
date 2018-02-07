@@ -85,8 +85,7 @@ class FileRenamer(object):
             self.stats['skipped'] += 1
             _msg = (
                 'Skipped "{!s}" because the current name is the same as '
-                'the new name'.format(enc.displayable_path(from_basename),
-                                      enc.displayable_path(dest_basename))
+                'the new name'.format(enc.displayable_path(from_basename))
             )
             log.debug(_msg)
             ui.msg(_msg)
