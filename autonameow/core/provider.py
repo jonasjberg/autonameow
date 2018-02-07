@@ -40,9 +40,6 @@ from util import sanity
 log = logging.getLogger(__name__)
 
 
-# TODO: [TD0142] Rework overall architecture to fetch data when needed.
-
-
 class MasterDataProvider(object):
     """
     Handles top-level _DYNAMIC_ data retrieval and data extraction delegation.
@@ -69,9 +66,16 @@ class MasterDataProvider(object):
 
     def query(self, fileobject, meowuri):
         """
-        First attempt to get the data from the repository.
-        If that fails, delegate the task of extracting the data to the
-        "relevant" providers. Then try querying the repository again.
+        Highest-level retrieval mechanism for data related to a file.
+
+        First the repository is queried with the MeowURI and if the query
+        returns data, it is returned. If the data is not in the repository,
+        the task of gathering the data is delegated to the "relevant" providers.
+        Then the repository is queried again.
+        If the delegation "succeeded" and the sought after data could be
+        gathered, it would now be stored in the repository and passed back
+        as the return value.
+        None is returned if nothing turns up.
         """
         if meowuri not in self.debug_stats[fileobject]:
             self.debug_stats[fileobject][meowuri] = dict()
@@ -114,18 +118,18 @@ class MasterDataProvider(object):
         return None
 
     def _delegate_to_providers(self, fileobject, meowuri):
-        log.debug('Delegating request to providers: [{:8.8}]->[{!s}]'.format(fileobject.hash_partial, meowuri))
+        log.debug('Delegating request to providers: [{:8.8}]->[{!s}]'.format(
+            fileobject.hash_partial, meowuri))
 
         self.debug_stats[fileobject][meowuri]['delegated'] += 1
-        _delegation_count = self.debug_stats[fileobject][meowuri]['delegated']
-        if _delegation_count > 1:
-            log.warning('Delegated {} times:  [{:8.8}]->[{!s}]'.format(_delegation_count, fileobject.hash_partial, meowuri))
+        delegation_count = self.debug_stats[fileobject][meowuri]['delegated']
+        if delegation_count > 1:
+            log.warning('Delegated {} times:  [{:8.8}]->[{!s}]'.format(
+                delegation_count, fileobject.hash_partial, meowuri))
 
-        # TODO: [TD0142] Rework overall architecture to fetch data when needed.
-        _possible_providers = providers.get_providers_for_meowuri(meowuri)
-        log.debug('Got {} possible providers'.format(len(_possible_providers)))
+        possible_providers = providers.get_providers_for_meowuri(meowuri)
+        log.debug('Got {} possible providers'.format(len(possible_providers)))
 
-        # TODO: [TD0142] Handle this properly ..
         # TODO: [TD0142] Check here if the provider can handle the file.
         # Run only what is suitable and necessary.
         # Currently, when requesting 'generic.contents.text' from a PDF
@@ -137,15 +141,15 @@ class MasterDataProvider(object):
         # Might be useful to be able to translate a specific MeowURI like
         # 'analyzer.ebook.title' to a "generic" like 'generic.metadata.title'.
         # Otherwise, user is almost never prompted with any possible candidates.
-        if _possible_providers:
-            for _provider in _possible_providers:
-                log.debug('Delegating possible provider: {!s}'.format(_provider))
-                if issubclass(_provider, BaseExtractor):
-                    self._delegate_to_extractors(fileobject, [_provider])
-                elif issubclass(_provider, BaseAnalyzer):
-                    self._delegate_to_analyzers(fileobject, [_provider])
-                elif issubclass(_provider, plugins.BasePlugin):
-                    self._delegate_to_plugins(fileobject, [_provider])
+        if possible_providers:
+            for provider in possible_providers:
+                log.debug('Delegating possible provider: {!s}'.format(provider))
+                if issubclass(provider, BaseExtractor):
+                    self._delegate_to_extractors(fileobject, [provider])
+                elif issubclass(provider, BaseAnalyzer):
+                    self._delegate_to_analyzers(fileobject, [provider])
+                elif issubclass(provider, plugins.BasePlugin):
+                    self._delegate_to_plugins(fileobject, [provider])
 
     def _delegate_to_extractors(self, fileobject, extractors_to_run):
         try:
