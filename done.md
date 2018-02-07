@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+### 2018-02-07
+
+> High Priority
+> -------------
+>
+> * `[TD0150]` Map "generic" MeowURIs to (possible) provider classes.
+
 ### 2018-02-03
 
 > High Priority

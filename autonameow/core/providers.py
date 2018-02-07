@@ -183,7 +183,6 @@ class ProviderRegistry(object):
             yield root
 
     def _providers_for_generic_meowuri(self, requested_meowuri, includes=None):
-        # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
         found = set()
         for root in self._yield_included_roots(includes):
             for klass, meowuris in self.generic_meowuri_sources[root].items():
@@ -262,7 +261,6 @@ def _map_generic_sources(meowuri_class_map):
     """
     out = dict()
 
-    # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
     # for root in ['extractors', 'analyzer', 'plugin'] ..
     for root in sorted(list(C.MEOWURI_ROOTS_SOURCES)):
         if root not in meowuri_class_map:
