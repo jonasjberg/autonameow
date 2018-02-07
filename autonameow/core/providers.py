@@ -104,9 +104,13 @@ class ProviderRegistry(object):
         self.mapped_meowuris = self.unique_map_meowuris(self.meowuri_sources)
 
         # Providers declaring generic MeowURIs through 'metainfo()'.
-        self.generic_meowuri_sources = self._get_generic_sources(
+        self.generic_meowuri_sources = _map_generic_sources(
             self.meowuri_sources
         )
+
+        # VALID_SOURCE_ROOTS = set(C.MEOWURI_ROOTS_SOURCES)
+        # assert all(r in self.generic_meowuri_sources
+        #            for r in VALID_SOURCE_ROOTS)
 
     def _debug_log_mapped_meowuri_sources(self):
         if not __debug__:
@@ -199,47 +203,6 @@ class ProviderRegistry(object):
                     found.add(self.meowuri_sources[root][uri])
         return found
 
-    def _get_generic_sources(self, meowuri_class_map):
-        """
-        Returns a dict keyed by provider classes storing sets of "generic"
-        fields as Unicode strings.
-        """
-        out = dict()
-
-        # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
-        # for root in ['extractors', 'analyzer', 'plugin'] ..
-        for root in sorted(list(C.MEOWURI_ROOTS_SOURCES)):
-            if root not in meowuri_class_map:
-                continue
-
-            out[root] = dict()
-            for _, klass in meowuri_class_map[root].items():
-                out[root][klass] = set()
-
-                # TODO: [TD0151] Fix inconsistent use of classes/instances.
-                # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
-                metainfo_dict = dict(klass.FIELD_LOOKUP)
-                for _, field_metainfo in metainfo_dict.items():
-                    _generic_field_string = field_metainfo.get('generic_field')
-                    if not _generic_field_string:
-                        continue
-
-                    sanity.check_internal_string(_generic_field_string)
-                    _generic_field_klass = genericfields.get_field_class(
-                        _generic_field_string
-                    )
-                    if not _generic_field_klass:
-                        continue
-
-                    assert issubclass(_generic_field_klass,
-                                      genericfields.GenericField)
-                    _generic_meowuri = _generic_field_klass.uri()
-                    if not _generic_meowuri:
-                        continue
-
-                    out[root][klass].add(_generic_meowuri)
-        return out
-
     @staticmethod
     def unique_map_meowuris(meowuri_class_map):
         out = set()
@@ -290,6 +253,48 @@ def _get_meowuri_source_map():
         'analyzer': __get_meowuri_roots_for_providers(analyzers),
         'plugin': __get_meowuri_roots_for_providers(plugins)
     }
+
+
+def _map_generic_sources(meowuri_class_map):
+    """
+    Returns a dict keyed by provider classes storing sets of "generic"
+    fields as Unicode strings.
+    """
+    out = dict()
+
+    # TODO: [TD0150] Map "generic" MeowURIs to (possible) provider classes.
+    # for root in ['extractors', 'analyzer', 'plugin'] ..
+    for root in sorted(list(C.MEOWURI_ROOTS_SOURCES)):
+        if root not in meowuri_class_map:
+            continue
+
+        out[root] = dict()
+        for _, klass in meowuri_class_map[root].items():
+            out[root][klass] = set()
+
+            # TODO: [TD0151] Fix inconsistent use of classes/instances.
+            # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+            metainfo_dict = dict(klass.FIELD_LOOKUP)
+            for _, field_metainfo in metainfo_dict.items():
+                _generic_field_string = field_metainfo.get('generic_field')
+                if not _generic_field_string:
+                    continue
+
+                sanity.check_internal_string(_generic_field_string)
+                _generic_field_klass = genericfields.get_field_class(
+                    _generic_field_string
+                )
+                if not _generic_field_klass:
+                    continue
+
+                assert issubclass(_generic_field_klass,
+                                  genericfields.GenericField)
+                _generic_meowuri = _generic_field_klass.uri()
+                if not _generic_meowuri:
+                    continue
+
+                out[root][klass].add(_generic_meowuri)
+    return out
 
 
 def get_providers_for_meowuri(meowuri, include_roots=None):

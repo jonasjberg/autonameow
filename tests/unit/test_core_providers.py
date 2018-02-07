@@ -400,11 +400,14 @@ class TestProviderRegistryMethodResolvable(TestCase):
         # Patch the instance attribute.
         # p.mapped_meowuris = {'plugin.guessit'}
 
-        meowuri_guessit = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_DATE)
-        self.assertTrue(p.resolvable(meowuri_guessit))
+        uri_guessit = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_DATE)
+        self.assertTrue(p.resolvable(uri_guessit))
 
-        meowuri_exiftool = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE)
-        self.assertFalse(p.resolvable(meowuri_exiftool))
+        uri_exiftool = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE)
+        self.assertFalse(p.resolvable(uri_exiftool))
+
+        uri_filesystem = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        self.assertFalse(p.resolvable(uri_filesystem))
 
     def test_with_meowuri_and_three_mapped_meowuris(self):
         meowuri_guessit_a = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_DATE)
