@@ -100,7 +100,6 @@ class FilesContext(object):
             #     name_template = choice
             # if not name_template:
             #     log.warning('No valid name template chosen. Aborting ..')
-            pass
 
         if not name_template:
             # User name template selection did not happen or failed.
@@ -120,7 +119,6 @@ class FilesContext(object):
 
             # Have the user select data sources.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
-            pass
 
         field_data_dict = self._try_resolve(current_file, name_template,
                                             data_sources)
@@ -181,7 +179,6 @@ class FilesContext(object):
                 # choice = interactive.select_rule(candidates)
                 # if choice != ui.action.ABORT:
                 #     active_rule = choice
-                pass
             else:
                 log.debug('There are no rules available for the user to '
                           'choose from..')

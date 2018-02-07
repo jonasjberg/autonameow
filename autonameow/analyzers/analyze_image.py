@@ -155,7 +155,6 @@ class ImageAnalyzer(BaseAnalyzer):
                 # http://stackoverflow.com/a/1235631
                 # TODO: FIX THIS! Currently does not pass anything if the bad
                 #                 exif date is in the dict.
-                pass
                 results[:] = [d for d in results if
                               (d.get('source') == 'DateTimeDigitized' and
                                d.get('value') != bad_exif_date)]

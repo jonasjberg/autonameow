@@ -304,7 +304,6 @@ try:
     }
 except AttributeError:
     log.error('Unable to get MIME-type map from the "mimetypes" module.')
-    pass
 else:
     for _ext, _mime in _mimetypes_map.items():
         MAPPER.add_mapping(_mime, _ext)

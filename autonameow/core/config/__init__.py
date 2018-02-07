@@ -75,7 +75,6 @@ def config_dirs():
         paths.append(CONFDIR_WINDOWS_FALLBACK)
         if CONFDIR_WINDOWS_VAR in os.environ:
             paths.append(os.environ[CONFDIR_WINDOWS_VAR])
-        pass
 
     else:
         # Assume Unix.
