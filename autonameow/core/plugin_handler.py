@@ -165,7 +165,7 @@ def store_results(fileobject, meowuri_prefix, data):
         if not uri:
             log.error('Unable to construct full plugin result MeowURI'
                       'from prefix "{!s}" and leaf "{!s}"'.format(
-                        meowuri_prefix, _uri_leaf))
+                          meowuri_prefix, _uri_leaf))
             continue
 
         repository.SessionRepository.store(fileobject, uri, _data)

@@ -454,8 +454,8 @@ def suitable_field_parser_for(meowuri):
     log.debug('suitable_field_parser_for("{!s}")'.format(meowuri))
     sanity.check_isinstance_meowuri(meowuri)
 
-    candidates= [p for p in FieldParserInstances
-                 if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
+    candidates = [p for p in FieldParserInstances
+                  if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
     if not candidates:
         return None
 

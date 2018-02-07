@@ -240,7 +240,7 @@ class ExtractorRunner(object):
             if not uri:
                 log.error('Unable to construct full extractor result MeowURI'
                           'from prefix "{!s}" and leaf "{!s}"'.format(
-                            meowuri_prefix, _uri_leaf))
+                              meowuri_prefix, _uri_leaf))
                 continue
 
             self._add_results_callback(fileobject, uri, _data)
