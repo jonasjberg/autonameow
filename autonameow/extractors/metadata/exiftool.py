@@ -338,6 +338,60 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'date_modified'
         },
+        'RTF:Author': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=1.0),
+                WeightedMapping(fields.Publisher, probability=0.1)
+            ],
+            'generic_field': 'author'
+        },
+        'RTF:Company': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=0.6),
+                WeightedMapping(fields.Publisher, probability=0.5),
+                WeightedMapping(fields.Creator, probability=0.1)
+            ]
+        },
+        'RTF:CreateDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=1.0),
+                WeightedMapping(fields.Date, probability=1.0)
+            ],
+            'generic_field': 'date_created'
+        },
+        'RTF:LastModifiedBy': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=0.8),
+                WeightedMapping(fields.Publisher, probability=0.1)
+            ],
+            'generic_field': 'author'
+        },
+        'RTF:LastPrinted': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=0.01),
+                WeightedMapping(fields.Date, probability=0.01)
+            ]
+        },
+        'RTF:ModifyDate': {
+            'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25)
+            ],
+            'generic_field': 'date_modified'
+        },
+        'RTF:Title': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Title, probability=1)
+            ],
+            'generic_field': 'title'
+        },
         'XML:Application': {
             'coercer': types.AW_STRING,
             'mapped_fields': [
@@ -351,8 +405,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'XML:Company': {
             'coercer': types.listof(types.AW_STRING),
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=0.9),
-                WeightedMapping(fields.Publisher, probability=0.7),
+                WeightedMapping(fields.Author, probability=0.6),
+                WeightedMapping(fields.Publisher, probability=0.5),
                 WeightedMapping(fields.Creator, probability=0.1)
             ],
             'generic_field': 'author'
