@@ -64,6 +64,23 @@ class MasterDataProvider(object):
             add_results_callback=repository.SessionRepository.store
         )
 
+    def delegate_every_possible_meowuri(self, fileobject):
+        log.debug('Running all available providers for file: [{:8.8}]'.format(
+            fileobject.hash_partial))
+        # Run all extractors
+        try:
+            self.extractor_runner.start(fileobject, request_all=True)
+        except AutonameowException as e:
+            # TODO: [TD0164] Tidy up throwing/catching of exceptions.
+            log.critical('Extraction FAILED: {!s}'.format(e))
+            raise
+
+        # Run all analyzers
+        analysis.run_analysis(fileobject, self.config)
+
+        # Run all plugins
+        plugin_handler.run_plugins(fileobject, run_all_plugins=True)
+
     def query(self, fileobject, meowuri):
         """
         Highest-level retrieval mechanism for data related to a file.
@@ -200,3 +217,7 @@ def initialize(active_config):
 def query(fileobject, meowuri):
     sanity.check_isinstance_meowuri(meowuri)
     return _MASTER_DATA_PROVIDER.query(fileobject, meowuri)
+
+
+def delegate_every_possible_meowuri(fileobject):
+    _MASTER_DATA_PROVIDER.delegate_every_possible_meowuri(fileobject)

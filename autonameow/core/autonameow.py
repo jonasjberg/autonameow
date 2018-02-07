@@ -303,6 +303,10 @@ class Autonameow(object):
                 )
                 continue
 
+            if self.opts.get('list_all'):
+                log.debug('Calling provider.delegate_every_possible_meowuri()')
+                provider.delegate_every_possible_meowuri(current_file)
+
             try:
                 new_name = context.handle_file(current_file)
             except exceptions.AutonameowException as e:

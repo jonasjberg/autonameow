@@ -48,9 +48,6 @@ class FilesContext(object):
         self.matcher = rule_matcher
 
     def handle_file(self, current_file):
-        # TODO: [TD0142] Fetch all possible data when using '--list-all'.
-        should_list_any_results = self.opts.get('list_all')
-
         #  Things to find:
         #
         #    * NAME TEMPLATE
