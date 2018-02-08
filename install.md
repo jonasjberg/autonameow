@@ -25,6 +25,7 @@ critical `TODO`-list item.
 >     * `exiftool`
 >     * `tesseract`
 >     * `pdftotext`
+>     * `unrtf`
 >
 > 2. Install these Python modules:
 >
@@ -109,7 +110,7 @@ install the non-Python dependencies.
 
 Install the dependencies by running the following commands in a terminal:
 ```bash
-brew install libmagic exiftool tesseract
+brew install libmagic exiftool tesseract unrtf
 brew install poppler # pdftotext
 pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml
 ```
@@ -123,7 +124,7 @@ pip3 install guessit
 Install the dependencies by running the following commands in a terminal:
 
 ```bash
-sudo apt install exiftool tesseract-ocr pdftotext
+sudo apt install exiftool tesseract-ocr pdftotext unrtf
 pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml
 ```
 
