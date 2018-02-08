@@ -317,3 +317,5 @@ class TestExtractorClassMeowURIs(TestCase):
                                'extractor.text.pdftotext')
         _conditional_assert_in('TesseractOCRTextExtractor',
                                'extractor.text.tesseractocr')
+        _conditional_assert_in('RichTextFormatTextExtractor',
+                               'extractor.text.rtf')

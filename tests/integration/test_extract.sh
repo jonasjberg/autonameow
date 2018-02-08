@@ -171,6 +171,17 @@ assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_PDF_FILE" | grep -- "Fri, Jan 
             "Expect text extracted from \"${sample_pdf_file_basename}\" to contain \"Fri, Jan 8, 2016 at 3:50 PM\""
 
 
+# Test file to extract from.
+SAMPLE_RTF_FILE="$(abspath_testfile "sample.rtf")"
+assert_bulk_test "$SAMPLE_RTF_FILE" e r
+
+sample_rtf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
+
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_RTF_FILE" | grep -- "baz last line"' \
+            "Expect text extracted from \"${sample_rtf_file_basename}\" to contain \"baz last line\""
+
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"

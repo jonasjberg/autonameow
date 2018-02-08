@@ -100,3 +100,11 @@ class TestFilterAbleToHandle(TestCase):
             expected=['CrossPlatformFileSystemExtractor'],
             if_available=[]
         )
+
+    def test_returns_expected_extractors_for_rtf_file(self):
+        self._check_returned_extractors_for(
+            fileobject=uu.get_mock_fileobject(mime_type='text/rtf'),
+            expected=['CrossPlatformFileSystemExtractor'],
+            if_available=['RichTextFormatTextExtractor',
+                          'ExiftoolMetadataExtractor']
+        )

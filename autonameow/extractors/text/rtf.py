@@ -30,17 +30,29 @@ from extractors.text.common import (
 
 
 class RichTextFormatTextExtractor(AbstractTextExtractor):
+    HANDLES_MIME_TYPES = ['text/rtf']
+    IS_SLOW = False
+
     def extract_text(self, fileobject):
-        pass
+        self.log.debug('Calling unrtf')
+        result = extract_text_with_unrtf(fileobject.abspath)
+        return result
 
     @classmethod
     def check_dependencies(cls):
         return util.is_executable('unrtf')
 
 
+def decode_ascii(string):
+    try:
+        return string.decode('ascii')
+    except UnicodeError:
+        return decode_raw(string)
+
+
 def extract_text_with_unrtf(file_path):
     """
-    Extract the plain text contents of a RTF document using "unrtf".
+    Extract the plain text contents of a RTF document using "UnRTF".
 
     Args:
         file_path: The path to the RTF file to extract text from.
@@ -61,6 +73,14 @@ def extract_text_with_unrtf(file_path):
     except (OSError, ValueError, subprocess.SubprocessError) as e:
         raise ExtractorError(e)
 
-    decoded_output = decode_raw(stdout)
+    decoded_output = decode_ascii(stdout)
+
+    # First part is a header with UnRTF version and any metadata.
+    # TODO: A rtf metadata extractor would duplicate this call!
+    # Tells of underlying problem with arranging extractors by text, metadata?
+
     HEADER = '-' * 17 + '\n'
-    return decoded_output.split(HEADER, 1)[-1]
+    # TODO: Do something with this metadata?
+    meta = decoded_output.split(HEADER, 1)[0]
+    text = decoded_output.split(HEADER, 1)[-1]
+    return text

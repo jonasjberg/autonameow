@@ -268,6 +268,7 @@ def get_mock_fileobject(mime_type=None):
         'image/png': 'magic_png.png',
         'image/x-ms-bmp': 'magic_bmp.bmp',
         'text/plain': 'magic_txt.txt',
+        'text/rtf': 'sample.rtf',
         'video/mp4': 'magic_mp4.mp4',
         'inode/x-empty': 'empty',
     }
