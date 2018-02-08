@@ -148,10 +148,15 @@ def meowuri_prompt(message=None):
         return None
 
     _history_file_path = get_config_history_path()
-    log.debug('Using prompt history file: "{!s}"'.format(
-        enc.displayable_path(_history_file_path)
-    ))
-    history = FileHistory(_history_file_path)
+    if _history_file_path:
+        history = FileHistory(_history_file_path)
+        log.debug('Prompt history file: "{!s}"'.format(
+            enc.displayable_path(_history_file_path)
+        ))
+    else:
+        log.debug('Prompt history file: in-memory (volatile)')
+        history = InMemoryHistory()
+
     meowuri_completer = MeowURICompleter()
 
     cli.msg('\n', ignore_quiet=True)
