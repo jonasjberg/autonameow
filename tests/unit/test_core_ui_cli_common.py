@@ -99,47 +99,55 @@ class TestMsg(TestCase):
                 msg(given, style='color_quoted')
                 self.assertEqual(
                     expect.format(COL=ANSI_COLOR, RES=ANSI_RESET_FG),
-                    _stdout.getvalue().strip()
+                    _stdout.getvalue()
                 )
 
         __check_color_quoted_msg(
             given='msg() text with style="color_quoted" no "yes" no',
-            expect='msg() text with style="{COL}color_quoted{RES}" no "{COL}yes{RES}" no'
+            expect='msg() text with style="{COL}color_quoted{RES}" no "{COL}yes{RES}" no\n'
         )
         __check_color_quoted_msg(
             given='no "yes" no',
-            expect='no "{COL}yes{RES}" no'
+            expect='no "{COL}yes{RES}" no\n'
         )
         __check_color_quoted_msg(
             given='no "yes yes" no',
-            expect='no "{COL}yes yes{RES}" no'
+            expect='no "{COL}yes yes{RES}" no\n'
         )
         __check_color_quoted_msg(
             given='Word "1234-56 word" -> "1234-56 word"',
-            expect='Word "{COL}1234-56 word{RES}" -> "{COL}1234-56 word{RES}"'
+            expect='Word "{COL}1234-56 word{RES}" -> "{COL}1234-56 word{RES}"\n'
         )
         __check_color_quoted_msg(
             given='Word "word 1234-56" -> "1234-56 word"',
-            expect='Word "{COL}word 1234-56{RES}" -> "{COL}1234-56 word{RES}"'
+            expect='Word "{COL}word 1234-56{RES}" -> "{COL}1234-56 word{RES}"\n'
         )
         __check_color_quoted_msg(
             given='A "b 123" -> A "b 123"',
-            expect='A "{COL}b 123{RES}" -> A "{COL}b 123{RES}"'
+            expect='A "{COL}b 123{RES}" -> A "{COL}b 123{RES}"\n'
         )
 
     def test_msg_style_heading(self):
         with uu.capture_stdout() as out:
             msg('text printed by msg() with style="heading"', style='heading')
 
-        self.assertIn('text printed by msg() with style="heading"',
-                      out.getvalue().strip())
+        expect = '''
+
+[1mtext printed by msg() with style="heading"[0m
+[2m==========================================[0m
+'''
+        actual = out.getvalue()
+        self.assertEqual(expect, actual)
 
     def test_msg_style_section(self):
         with uu.capture_stdout() as out:
             msg('text printed by msg() with style="section"', style='section')
 
-        self.assertIn('text printed by msg() with style="section"',
-                      out.getvalue().strip())
+        expect = '''
+[1mtext printed by msg() with style="section"[0m
+'''
+        actual = out.getvalue()
+        self.assertEqual(expect, actual)
 
 
 # NOTE(jonas): This will likely fail on some platforms!

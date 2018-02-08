@@ -116,11 +116,8 @@ def print_exit_info(exit_code, elapsed_time):
         exit_code: Program exit status, for display only.
         elapsed_time: Program execution time in seconds.
     """
-
+    # TODO: Show execution time in hours, minutes and seconds if > 60 seconds
     date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-    # TODO: Format the execution time to minutes and seconds if it exceeds
-    #       60 seconds, hours, minutes and seconds if it exceeds 60 minutes ..
-
     i = colorize('Finished at {d} after {t:.6f} seconds with exit code '
                  '{c}'.format(d=date, t=elapsed_time, c=exit_code),
                  style='DIM')
@@ -162,11 +159,20 @@ def colorize(text, fore=None, back=None, style=None):
     buffer = []
 
     if fore:
-        buffer.append(getattr(colorama.Fore, fore.upper(), None))
+        fore = fore.upper()
+        # assert fore in ('BLACK', 'RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA',
+        #                 'CYAN', 'WHITE', 'LIGHTBLACK_EX', 'LIGHTRED_EX',
+        #                 'LIGHTGREEN_EX', 'LIGHTYELLOW_EX' 'LIGHTBLUE_EX',
+        #                 'LIGHTMAGENTA_EX', 'LIGHTCYAN_EX', 'LIGHTWHITE_EX'), (
+        #     'Invalid foreground color'
+        # )
+        buffer.append(getattr(colorama.Fore, fore, None))
     if back:
-        buffer.append(getattr(colorama.Back, back.upper(), None))
+        back = back.upper()
+        buffer.append(getattr(colorama.Back, back, None))
     if style:
-        buffer.append(getattr(colorama.Style, style.upper(), None))
+        style = style.upper()
+        buffer.append(getattr(colorama.Style, style, None))
 
     buffer.append(text)
 
@@ -237,7 +243,7 @@ def colorize_quoted(text, color=None):
 
 def msg(message, style=None, add_info_log=False, ignore_quiet=False):
     """
-    Displays a message to the user using preset formatting options.
+    Displays a message to the user optionally using preset formatting options.
 
     Args:
         message: The raw text message to print as a string.
@@ -250,10 +256,10 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
         if BE_QUIET:
             return
 
-    def print_default_msg(text):
+    def _print_default_msg(text):
         print(colorize(text))
 
-    def print_info_msg(text):
+    def _print_info_msg(text):
         prefix = colorize('[info]', fore='LIGHTBLACK_EX')
         colored_text = colorize(text)
         print(prefix + ' ' + colored_text)
@@ -262,33 +268,31 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
         return
 
     if not style:
-        print_default_msg(message)
+        _print_default_msg(message)
         if add_info_log:
             log.info(message)
 
     elif style == 'info':
-        print_info_msg(message)
+        _print_info_msg(message)
         if add_info_log:
             log.info(message)
 
     elif style == 'heading':
-        _heading_underline = C.CLI_MSG_HEADING_CHAR * len(message.strip())
-        _colored_heading_underline = colorize(_heading_underline, style='DIM')
-        _colored_heading_text = colorize(message, style='BRIGHT')
-        print('\n')
-        print(_colored_heading_text)
-        print(_colored_heading_underline)
+        heading_underline = C.CLI_MSG_HEADING_CHAR * len(message.strip())
+        colored_heading_underline = colorize(heading_underline, style='DIM')
+        colored_heading_text = colorize(message, style='BRIGHT')
+        print('\n\n' + colored_heading_text + '\n' + colored_heading_underline)
 
     elif style == 'section':
-        _colored_section_text = colorize(message, style='BRIGHT')
-        print('\n' + _colored_section_text)
+        colored_section_text = colorize(message, style='BRIGHT')
+        print('\n' + colored_section_text)
 
     elif style == 'color_quoted':
         print(colorize_quoted(message, color='LIGHTGREEN_EX'))
 
     else:
         log.warning('Unknown message style "{!s}"'.format(style))
-        print_default_msg(message)
+        _print_default_msg(message)
         if add_info_log:
             log.info(message)
 
@@ -319,8 +323,8 @@ def msg_rename(from_basename, dest_basename, dry_run):
         cf.addrow('Renamed', '{!s}')
 
     cf.addrow('->', '{!s}')
-    _message = str(cf)
-    msg(_message.format(_name_old, _name_new), ignore_quiet=True)
+    column_template = str(cf)
+    msg(column_template.format(_name_old, _name_new), ignore_quiet=True)
 
 
 def msg_possible_rename(from_basename, dest_basename):
@@ -344,8 +348,8 @@ def msg_possible_rename(from_basename, dest_basename):
     cf = ColumnFormatter(align='right')
     cf.addrow('About to rename', '{!s}')
     cf.addrow('->', '{!s}')
-    _message = str(cf)
-    msg(_message.format(_name_old, _name_new), ignore_quiet=True)
+    column_template = str(cf)
+    msg(column_template.format(_name_old, _name_new), ignore_quiet=True)
 
 
 def _colorize_replacement(original, replacement, regex, color):
