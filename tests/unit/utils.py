@@ -290,13 +290,6 @@ def fileobject_testfile(testfile_basename):
     return FileObject(_f)
 
 
-def get_mock_empty_extractor_data():
-    """
-    Returns: Mock extracted (empty) data from an 'Extraction' instance.
-    """
-    return {}
-
-
 MOCK_SESSION_DATA_POOLS = dict()
 
 
@@ -314,16 +307,6 @@ def mock_request_data_callback(fileobject, label):
         return None
     else:
         return d
-
-
-def mock_analyzer_collect_data(fileobject, meowuri_prefix, data):
-    pass
-
-
-def mock_analyzer_request_global_data(fileobject, meowuri):
-    from core import repository
-    response = repository.SessionRepository.query(fileobject, meowuri)
-    return response
 
 
 def load_repository_dump(file_path):
