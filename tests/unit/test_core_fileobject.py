@@ -33,7 +33,7 @@ from core.fileobject import (
 from util import encoding as enc
 
 
-class TestFileObject(TestCase):
+class TestFileObjectExceptions(TestCase):
     def test_raises_assertion_error_given_none_path(self):
         with self.assertRaises(AssertionError):
             _ = FileObject(None)
