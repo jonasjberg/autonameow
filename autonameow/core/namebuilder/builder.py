@@ -158,7 +158,7 @@ def pre_assemble_format(field_data_dict, config):
         assert field and issubclass(field, NameTemplateField)
 
         # TODO: [TD0115] Clear up uncertainties about data multiplicities
-        if data.get('multivalued'):
+        if data.multivalued:
             if not field.MULTIVALUED:
                 log.critical(
                     'Template field "{!s}" expects a single value. Got '

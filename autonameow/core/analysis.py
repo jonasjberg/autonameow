@@ -78,8 +78,7 @@ def request_global_data(fileobject, uri_string):
 
     response = provider.query(fileobject, uri)
     if response:
-        sanity.check_isinstance(response, dict)
-        return response.get('value')
+        return response.value
     return None
 
 

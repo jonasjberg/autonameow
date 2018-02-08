@@ -27,6 +27,7 @@ from core import (
 )
 from core.model import genericfields as gf
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
+from core.repository import DataBundle
 from util import sanity
 from util.text import format_name
 
@@ -200,33 +201,33 @@ class TemplateFieldDataResolver(object):
                     '[{!s}]'.format(_str_field, self.file.hash_partial, uri)
                 )
 
-                _data = self._request_data(self.file, uri)
-                if _data is None:
-                    log.debug('Got NONE data from [{:8.8}]->[{!s}]'.format(
-                        self.file.hash_partial, uri))
+                response = self._request_data(self.file, uri)
+                if not response:
                     continue
 
+                assert isinstance(response, DataBundle), 'IT BROKEN :: ({}) {!s}'.format(type(response), response)
+
                 # TODO: [TD0112] FIX THIS HORRIBLE MESS!
-                if isinstance(_data, list):
+                if isinstance(response, list):
                     log.debug('Got list of data. Attempting to deduplicate list of datadicts')
-                    _deduped_list = dedupe_list_of_datadicts(_data)
+                    _deduped_list = dedupe_list_of_databundles(response)
                     if len(_deduped_list) == 1:
                         log.debug('Deduplicated list of datadicts has a single element')
                         log.debug('Using one of {} equivalent '
-                                  'entries'.format(len(_data)))
-                        log.debug('Using "{!s}" from equivalent: {!s}'.format(_data[0]['value'], ', '.join('"{}"'.format(_d['value']) for _d in _data)))
-                        _data = _data[0]
+                                  'entries'.format(len(response)))
+                        log.debug('Using "{!s}" from equivalent: {!s}'.format(response[0].value, ', '.join('"{}"'.format(_d.value) for _d in response)))
+                        response = response[0]
                     else:
                         log.debug('Deduplicated list of datadicts still has multiple elements')
                         log.warning('[TD0112] Not sure what data to use for field {{{}}}..'.format(_str_field))
-                        for i, d in enumerate(_data):
-                            log.debug('[TD0112] Field {{{}}} candidate {:03d} :: "{!s}"'.format(_str_field, i, d.get('value')))
+                        for i, d in enumerate(response):
+                            log.debug('[TD0112] Field {{{}}} candidate {:03d} :: "{!s}"'.format(_str_field, i, d.value))
                         continue
 
                 # # TODO: [TD0112] Clean up merging data.
-                elif isinstance(_data.get('value'), list):
+                elif isinstance(response.value, list):
                     # TODO: [TD0112] Clean up merging data.
-                    list_value = _data.get('value')
+                    list_value = response.value
                     if len(list_value) > 1:
                         seen_data = set()
                         for d in list_value:
@@ -237,12 +238,12 @@ class TemplateFieldDataResolver(object):
                             log.debug('Merged {} equivalent entries ({!s} is now {!s})'.format(
                                 len(list_value), list_value, list(list(seen_data)[0])))
                             # TODO: [TD0112] FIX THIS!
-                            _data['value'] = list(list(seen_data)[0])
+                            response.value = list(list(seen_data)[0])
 
                 # TODO: [TD0112] FIX THIS HORRIBLE MESS!
                 log.debug('Updated data for field {{{}}} :: "{!s}"'.format(
-                    _str_field, _data.get('value')))
-                self.fields_data[_field] = _data
+                    _str_field, response.value))
+                self.fields_data[_field] = response
                 break
 
     def _verify_types(self):
@@ -283,7 +284,7 @@ class TemplateFieldDataResolver(object):
         )
 
         log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
-        _coercer = data.get('coercer')
+        _coercer = data.coercer
         _compatible = field.type_compatible(_coercer)
         if _compatible:
             log.debug('Verified Field-Data Compatibility  OK!')
@@ -295,13 +296,18 @@ class TemplateFieldDataResolver(object):
         log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
             self, fileobject.hash_partial, meowuri))
 
-        return provider.query(fileobject, meowuri)
+        response = provider.query(fileobject, meowuri)
+        if response:
+            return response
+        else:
+            log.debug('Resolver got no data.. {!s}'.format(response))
+            return None
 
     def __str__(self):
         return self.__class__.__name__
 
 
-def dedupe_list_of_datadicts(datadict_list):
+def dedupe_list_of_databundles(databundle_list):
     """
     Given a list of provider result data dicts, deduplicate identical data.
 
@@ -310,34 +316,34 @@ def dedupe_list_of_datadicts(datadict_list):
     Note that this means that some possibly useful meta-information is lost.
 
     Args:
-        datadict_list: List of dictionaries with extracted/"provider" data.
+        databundle_list: List of instances of 'DataBundle' with "provider" data.
 
     Returns:
-        A list of dictionaries where dictionaries containing equivalent values
-        have been removed, leaving only one arbitrarily chosen dict per group
-        of duplicates.
+        A list of instances of 'DataBundle' where bundles containing equivalent
+        values have been removed, leaving only one arbitrarily chosen bundle
+        per group of bundles.
     """
-    list_of_datadicts = list(datadict_list)
-    if len(list_of_datadicts) == 1:
-        return list_of_datadicts
+    list_of_databundles = list(databundle_list)
+    if len(list_of_databundles) == 1:
+        return list_of_databundles
 
     deduped = []
     seen_values = set()
     seen_lists = []
-    for datadict in list_of_datadicts:
-        value = datadict.get('value')
+    for databundle in list_of_databundles:
+        value = databundle.value
         # Assume that the data is free from None values at this point.
-        assert value is not None, 'None value in datadict: ' + str(datadict)
+        assert value is not None, 'None value in databundle: ' + str(databundle)
 
         if isinstance(value, list):
             sorted_list_value = sorted(list(value))
             if sorted_list_value in seen_lists:
                 continue
             seen_lists.append(sorted_list_value)
-            deduped.append(datadict)
+            deduped.append(databundle)
         else:
             # TODO: [TD0112] Hack! Do this in a separate system.
-            if datadict.get('generic_field') is gf.GenericAuthor:
+            if databundle.generic_field is gf.GenericAuthor:
                 _normalized_author = format_name(value)
                 if _normalized_author in seen_values:
                     continue
@@ -347,6 +353,6 @@ def dedupe_list_of_datadicts(datadict_list):
                     continue
                 seen_values.add(value)
 
-            deduped.append(datadict)
+            deduped.append(databundle)
 
     return deduped

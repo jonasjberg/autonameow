@@ -20,22 +20,37 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+from unittest.mock import Mock
 
 import unit.utils as uu
 import unit.constants as uuconst
 from core import exceptions
 from core.repository import (
+    FailedQueryResponse,
     Repository,
-    RepositoryPool
+    RepositoryPool,
+    SuccessfulQueryResponse
 )
 
 
-class TestRepository(TestCase):
+class TestRepositoryRetrieval(TestCase):
     def setUp(self):
         self.r = Repository()
+        mock_fileobject = Mock()
+        mock_fileobject.hash_partial = '123456789'
+        self.fo = mock_fileobject
+
+    def test_query_with_none_meowuri_raises_exception(self):
+        with self.assertRaises(exceptions.InvalidMeowURIError):
+            self.r.query(self.fo, None)
+
+    def test_query_non_existent_data(self):
+        actual = self.r.query(self.fo,
+                              uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE))
+        self.assertFalse(actual)
 
 
-class TestRepositoryMethodStore(TestCase):
+class TestRepositoryStorage(TestCase):
     def setUp(self):
         self.r = Repository()
         self.fileobject = uu.get_mock_fileobject(mime_type='text/plain')
@@ -45,32 +60,31 @@ class TestRepositoryMethodStore(TestCase):
         self.assertEqual(len(self.r), 0)
 
     def test_storing_data_increments_len(self):
-        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, valid_label, {'value': 'foo'})
+        valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        self.r.store(self.fileobject, valid_uri, {'value': 'foo'})
         self.assertEqual(len(self.r), 1)
 
-    def test_storing_data_with_different_labels_increments_len(self):
-        first_valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, first_valid_label, {'value': 'foo'})
+    def test_storing_data_with_different_meowuris_increments_len(self):
+        first_valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        self.r.store(self.fileobject, first_valid_uri, {'value': 'foo'})
         self.assertEqual(len(self.r), 1)
 
-        second_valid_label = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        self.r.store(self.fileobject, second_valid_label, {'value': 'foo'})
+        second_valid_uri = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        self.r.store(self.fileobject, second_valid_uri, {'value': 'foo'})
         self.assertEqual(len(self.r), 2)
 
-    def test_adding_data_with_same_label_increments_len(self):
-        first_valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, first_valid_label, {'value': 'foo'})
+    def test_adding_data_with_same_meowuri_increments_len(self):
+        first_valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        self.r.store(self.fileobject, first_valid_uri, {'value': 'foo'})
         self.assertEqual(len(self.r), 1)
 
-        second_valid_label = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        self.r.store(self.fileobject, second_valid_label, {'value': 'foo'})
+        second_valid_uri = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        self.r.store(self.fileobject, second_valid_uri, {'value': 'foo'})
         self.assertEqual(len(self.r), 2)
 
     def test_adding_one_result_increments_len_once(self):
-        self.skipTest('TODO: Reimplement "Repository.__len__()"')
         _field = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        _results = ['foo']
+        _results = {'value': 'foo'}
         self.r.store(self.fileobject, _field, _results)
 
         self.assertEqual(len(self.r), 1)
@@ -110,45 +124,45 @@ class TestRepositoryMethodStore(TestCase):
 
         self.assertEqual(len(self.r), 0)
 
-    def test_store_data_with_invalid_label_raises_error(self):
+    def test_store_data_with_invalid_meowuri_raises_error(self):
         with self.assertRaises(AssertionError):
             self.r.store(self.fileobject, None, {'value': 'foo'})
 
         with self.assertRaises(AssertionError):
             self.r.store(self.fileobject, '', {'value': 'foo'})
 
-    def test_stores_data_with_valid_label(self):
-        labels = [
+    def test_stores_data_with_valid_meowuri(self):
+        meowuris = [
             uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME),
             uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
             uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
         ]
-        for valid_label in labels:
-            self.r.store(self.fileobject, valid_label, {'value': 'foo'})
+        for valid_uri in meowuris:
+            self.r.store(self.fileobject, valid_uri, {'value': 'foo'})
 
-    def test_valid_label_returns_expected_data(self):
+    def test_valid_meowuri_returns_expected_data(self):
         self.skipTest('TODO: Reimplement "Repository.__len__()"')
-        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, valid_label, 'expected_data')
+        valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        self.r.store(self.fileobject, valid_uri, 'expected_data')
 
-        response = self.r.query(self.fileobject, valid_label)
+        response = self.r.query(self.fileobject, valid_uri)
         self.assertEqual(response, 'expected_data')
 
-    def test_none_label_raises_exception(self):
+    def test_none_meowuri_raises_exception(self):
         self.skipTest('TODO: Reimplement "Repository.__len__()"')
-        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, valid_label, 'expected_data')
+        valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        self.r.store(self.fileobject, valid_uri, 'expected_data')
 
         with self.assertRaises(exceptions.InvalidMeowURIError):
             self.r.query(self.fileobject, None)
 
-    def test_valid_label_returns_expected_data_multiple_entries(self):
+    def test_valid_meowuri_returns_expected_data_multiple_entries(self):
         self.skipTest('TODO: Reimplement "Repository.__len__()"')
-        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, valid_label, 'expected_data_a')
-        self.r.store(self.fileobject, valid_label, 'expected_data_b')
+        valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        self.r.store(self.fileobject, valid_uri, 'expected_data_a')
+        self.r.store(self.fileobject, valid_uri, 'expected_data_b')
 
-        response = self.r.query(self.fileobject, valid_label)
+        response = self.r.query(self.fileobject, valid_uri)
         self.assertIn('expected_data_a', response)
         self.assertIn('expected_data_b', response)
 
@@ -210,3 +224,15 @@ class TestRepositoryPool(TestCase):
         for _id in [None, 'foo', 1, object()]:
             with self.assertRaises(KeyError):
                 p.get(_id)
+
+
+class TestFailedQueryResponse(TestCase):
+    def test_evaluates_false(self):
+        response = FailedQueryResponse()
+        self.assertFalse(response)
+
+
+class TestSuccessfulQueryResponse(TestCase):
+    def test_evaluates_true(self):
+        response = SuccessfulQueryResponse(value='foo')
+        self.assertTrue(response)

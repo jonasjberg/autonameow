@@ -84,16 +84,16 @@ class Title(NameTemplateField):
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
         # TODO: [TD0129] Data validation at this point should be made redundant
-        if data.get('coercer') in (types.AW_PATHCOMPONENT, types.AW_PATH):
-            string = types.force_string(data.get('value'))
+        if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+            string = types.force_string(data.value)
             if not string:
                 raise exceptions.NameBuilderError(
                     'Unicode string conversion failed for "{!r}"'.format(data)
                 )
-        elif data.get('coercer') == types.AW_STRING:
-            string = data.get('value')
+        elif data.coercer == types.AW_STRING:
+            string = data.value
         else:
-            string = data.get('value')
+            string = data.value
 
         sanity.check_internal_string(string)
         return cls.normalize(string)
@@ -144,14 +144,14 @@ class Edition(NameTemplateField):
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
         # TODO: [TD0129] Data validation at this point should be made redundant
-        if data.get('coercer') in (types.AW_PATHCOMPONENT, types.AW_PATH):
-            string = types.force_string(data.get('value'))
+        if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+            string = types.force_string(data.value)
             if not string:
                 raise exceptions.NameBuilderError(
                     'Unicode string conversion failed for "{!r}"'.format(data)
                 )
-        elif data.get('coercer') in (types.AW_STRING, types.AW_INTEGER):
-            string = types.force_string(data.get('value'))
+        elif data.coercer in (types.AW_STRING, types.AW_INTEGER):
+            string = types.force_string(data.value)
         else:
             raise exceptions.NameBuilderError(
                 'Got incompatible data: {!r}'.format(data)
@@ -175,8 +175,8 @@ class Extension(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
-        value = data.get('value')
-        coercer = data.get('coercer')
+        value = data.value
+        coercer = data.coercer
         if coercer:
             string = coercer.format(value)
         else:
@@ -201,10 +201,10 @@ class Author(NameTemplateField):
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
 
-        _d_coercer = data.get('coercer')
+        _d_coercer = data.coercer
         # sanity.check_isinstance(_d_coercer, types.BaseType)
 
-        _authors = data.get('value')
+        _authors = data.value
         sanity.check_isinstance(_authors, list,
                                 msg='Authors should be multivalued (type list)')
 
@@ -249,7 +249,7 @@ class DateTime(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
-        _value = data.get('value')
+        _value = data.value
         if not _value:
             raise exceptions.NameBuilderError(
                 '{!s}.format() got empty data'.format(cls)
@@ -278,7 +278,7 @@ class Date(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
-        _value = data.get('value')
+        _value = data.value
         if not _value:
             raise exceptions.NameBuilderError(
                 '{!s}.format() got empty data'.format(cls)
@@ -308,7 +308,7 @@ class Description(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        value = data.get('value')
+        value = data.value
         return types.force_string(value)
 
 
@@ -332,7 +332,7 @@ class Publisher(NameTemplateField):
                 _candidates = _options.get('candidates', {})
 
         # TODO: [TD0152] Fix too many replacements applied? Stop after first?
-        _formatted = data.get('value')
+        _formatted = data.value
         for repl, patterns in _candidates.items():
             for pattern in patterns:
                 _formatted = pattern.sub(repl, _formatted)
@@ -349,7 +349,7 @@ class Tags(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        _value = data.get('value')
+        _value = data.value
         _tag_list = types.listof(types.AW_STRING)(_value)
 
         # TODO: [TD0129] Is this kind of double-double-check really necessary..?
@@ -377,7 +377,7 @@ class Time(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        _value = data.get('value')
+        _value = data.value
         c = kwargs.get('config')
         if c:
             datetime_format = c.options['DATETIME_FORMAT']['time']
@@ -395,7 +395,7 @@ class Year(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         datetime_format = '%Y'
-        return formatted_datetime(data.get('value'), datetime_format)
+        return formatted_datetime(data.value, datetime_format)
 
 
 def format_string_placeholders(format_string):
