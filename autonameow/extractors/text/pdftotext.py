@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import subprocess
 
 from extractors import ExtractorError
@@ -28,10 +27,6 @@ from extractors.text.common import (
     decode_raw
 )
 import util
-from util import encoding as enc
-
-
-log = logging.getLogger(__name__)
 
 
 class PdftotextTextExtractor(AbstractTextExtractor):
@@ -44,9 +39,7 @@ class PdftotextTextExtractor(AbstractTextExtractor):
         self.init_cache()
 
     def extract_text(self, fileobject):
-        self.log.debug('Calling pdftotext; ARGS: "{!s}" FILE: "{!s}"'.format(
-            'TODO', enc.displayable_path(fileobject.abspath)
-        ))
+        self.log.debug('Calling pdftotext')
         result = extract_pdf_content_with_pdftotext(fileobject.abspath)
         return result
 
