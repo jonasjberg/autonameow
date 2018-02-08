@@ -94,7 +94,7 @@ assert_true '[ "$(git grep -l -I $'\r''$' | grep -v 'test_files' | grep -v 'loca
             'Text files should use UNIX line terminators ("\n")'
 
 text_files=(
-    $(git ls-files | xargs file --mime-type -- | grep 'text/' | cut -d':' -f1 | grep -v -- 'tests.*\.yaml$\|.md$\|test_results\|local\|junk\|test_files\|notes\|thirdparty\|write_sample_textfiles.py')
+    $(git ls-files | xargs file --mime-type -- | grep 'text/' | cut -d':' -f1 | grep -v -- 'tests.*\.yaml$\|.md$\|test_results\|local\|junk\|test_files\|notes\|thirdparty\|write_sample_textfiles.py\|test_extractors_text_rtf.py')
 )
 
 _check_committed_textfiles_exist_and_readable()
