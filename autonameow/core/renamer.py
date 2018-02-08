@@ -25,7 +25,7 @@ from core import (
     interactive,
     ui
 )
-from core.exceptions import AutonameowException
+from core.exceptions import FilesystemError
 from util import encoding as enc
 from util import (
     disk,
@@ -75,9 +75,9 @@ class FileRenamer(object):
 
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = enc.bytestring_path(new_basename)
+        sanity.check_internal_bytestring(dest_basename)
         log.debug('Destination basename (bytestring): "{!s}"'.format(
             enc.displayable_path(dest_basename)))
-        sanity.check_internal_bytestring(dest_basename)
 
         from_basename = disk.file_basename(from_path)
 
@@ -117,8 +117,7 @@ class FileRenamer(object):
         except (FileNotFoundError, FileExistsError, OSError) as e:
             # TODO: Failure count not handled by the regression test mock!
             self.stats['failed'] += 1
-            log.error('Rename FAILED: {!s}'.format(e))
-            raise AutonameowException
+            raise FilesystemError(e)
         else:
             self.stats['renamed'] += 1
 

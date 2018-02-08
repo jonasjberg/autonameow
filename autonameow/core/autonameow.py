@@ -317,10 +317,13 @@ class Autonameow(object):
                 continue
 
             if new_name:
-                self.renamer.do_rename(
-                    from_path=current_file.abspath,
-                    new_basename=new_name,
-                )
+                try:
+                    self.renamer.do_rename(
+                        from_path=current_file.abspath,
+                        new_basename=new_name,
+                    )
+                except exceptions.FilesystemError as e:
+                    log.error('Rename FAILED: {!s}'.format(e))
 
             # TODO: [TD0131] Hack!
             # _repositorysize = sys.getsizeof(repository.SessionRepository)
