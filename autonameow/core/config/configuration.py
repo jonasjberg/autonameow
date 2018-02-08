@@ -75,6 +75,7 @@ class Configuration(object):
         try:
             return nested_dict_get(self._options, key_list)
         except KeyError:
+            log.debug('Get raised KeyError: ' + '.'.join(key_list))
             return None
 
     @property
