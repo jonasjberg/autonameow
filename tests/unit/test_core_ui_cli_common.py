@@ -40,6 +40,7 @@ from core.ui.cli.common import (
     ColumnFormatter,
     displayable_replacement,
     msg,
+    msg_possible_rename,
     msg_rename,
 )
 
@@ -53,6 +54,10 @@ class TestMsg(TestCase):
     def setUp(self):
         self.maxDiff = None
         unittest.util._MAX_LENGTH = 2000
+
+    def test_raises_exception_given_byte_string_message(self):
+        with self.assertRaises(AssertionError):
+            msg(b'foo')
 
     def test_msg_no_keyword_arguments(self):
         with uu.capture_stdout() as out:
@@ -283,17 +288,23 @@ class TestMsgRename(TestCase):
         for _dry_run_enabled in (True, False):
             with self.subTest(dry_run=_dry_run_enabled):
                 with uu.capture_stdout() as _:
-                    msg_rename('smulan.jpg',
-                               '2010-0131T161251 a cat lying on a rug.jpg',
-                               dry_run=_dry_run_enabled)
+                    msg_rename('foo', 'bar', _dry_run_enabled)
 
-    def test_can_be_called_with_valid_bytestring_strings(self):
+    def __check_raises_exception(self, given_from, given_dest):
         for _dry_run_enabled in (True, False):
             with self.subTest(dry_run=_dry_run_enabled):
                 with uu.capture_stdout() as _:
-                    msg_rename(b'smulan.jpg',
-                               b'2010-0131T161251 a cat lying on a rug.jpg',
-                               dry_run=_dry_run_enabled)
+                    with self.assertRaises(AssertionError):
+                        msg_rename(given_from, given_dest, _dry_run_enabled)
+
+    def test_raises_exception_if_called_with_bytes_string_dest(self):
+        self.__check_raises_exception('foo', b'bar')
+
+    def test_raises_exception_if_called_with_bytes_string_from(self):
+        self.__check_raises_exception(b'foo', 'bar')
+
+    def test_raises_exception_if_called_with_bytes_strings_dest_and_from(self):
+        self.__check_raises_exception(b'foo', b'bar')
 
     def __check_msg_rename(self, given_from, given_dest, dry_run, expect):
         with uu.capture_stdout() as out:
@@ -321,23 +332,25 @@ class TestMsgRename(TestCase):
      ->  "{CD}2010-0131T161251 a cat lying on a rug.jpg{R}"''',
         )
 
-    def test_valid_bytestring_args_dry_run_true_gives_expected_output(self):
-        self.__check_msg_rename(
-            given_from=b'smulan.jpg',
-            given_dest=b'2010-0131T161251 a cat lying on a rug.jpg',
-            dry_run=True,
-            expect='''Would have renamed  "{CF}smulan.jpg{R}"
-                ->  "{CD}2010-0131T161251 a cat lying on a rug.jpg{R}"''',
-        )
 
-    def test_valid_bytestring_args_dry_run_false_gives_expected_output(self):
-        self.__check_msg_rename(
-            given_from=b'smulan.jpg',
-            given_dest=b'2010-0131T161251 a cat lying on a rug.jpg',
-            dry_run=False,
-            expect='''Renamed  "{CF}smulan.jpg{R}"
-     ->  "{CD}2010-0131T161251 a cat lying on a rug.jpg{R}"''',
-        )
+class TestMsgPossibleRename(TestCase):
+    def test_can_be_called_with_valid_unicode_strings(self):
+        with uu.capture_stdout() as _:
+            msg_possible_rename('foo', 'bar')
+
+    def __check_raises_exception(self, given_from, given_dest):
+        with uu.capture_stdout() as _:
+            with self.assertRaises(AssertionError):
+                msg_possible_rename(given_from, given_dest)
+
+    def test_raises_exception_if_called_with_bytes_string_dest(self):
+        self.__check_raises_exception('foo', b'bar')
+
+    def test_raises_exception_if_called_with_bytes_string_from(self):
+        self.__check_raises_exception(b'foo', 'bar')
+
+    def test_raises_exception_if_called_with_bytes_strings_dest_and_from(self):
+        self.__check_raises_exception(b'foo', b'bar')
 
 
 class TestColumnFormatter(TestCase):

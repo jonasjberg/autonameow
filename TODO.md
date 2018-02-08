@@ -19,9 +19,6 @@ High Priority
     "extractor" enough to motivate them continue being separate concepts?
     Only the `FilenameAnalyzer` currently has a `FIELD_LOOKUP` (!)
 
-* `[TD0156]` __Set up Unicode string encoding boundary in `ui`.__  
-    Enforce passing only Unicode strings to the `ui` module.
-
 * `[TD0146]` Rework "generic fields", possibly collecting fields in "records".
 
 * `[TD0142]` __Rework overall architecture to fetch only explicitly needed data.__  

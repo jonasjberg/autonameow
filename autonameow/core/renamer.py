@@ -100,7 +100,11 @@ class FileRenamer(object):
                 return
 
         if self.dry_run:
-            ui.msg_rename(from_basename, dest_basename, dry_run=self.dry_run)
+            ui.msg_rename(
+                enc.displayable_path(from_basename),
+                enc.displayable_path(dest_basename),
+                dry_run=self.dry_run
+            )
             # TODO: Store number of dry-runs separately?
 
         self._rename_file(from_path, dest_basename)

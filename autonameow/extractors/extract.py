@@ -102,7 +102,7 @@ def do_extract_metadata(fileobject):
         for k, v in sorted(results.items()):
             cf.addrow(str(k), str(v))
         cf.addemptyrow()
-        ui.msg(cf)
+        ui.msg(str(cf))
 
 
 def main(options=None):

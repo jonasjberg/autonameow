@@ -33,7 +33,10 @@ except ImportError:
 
 from core import constants as C
 from core import types
-import util
+from util import (
+    git_commit_hash,
+    sanity
+)
 from util import encoding as enc
 
 
@@ -49,7 +52,7 @@ def print_version_info(verbose):
         return colorize('-' * length, fore='LIGHTBLACK_EX', style='DIM')
 
     if verbose:
-        _commit_info = util.git_commit_hash()
+        _commit_info = git_commit_hash()
         if _commit_info:
             # NOTE(jonas): git rev-parse --short HEAD returns different length.
             # Hash string is one extra character on MacOS (git version 2.15.1)
@@ -246,10 +249,14 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
     Displays a message to the user optionally using preset formatting options.
 
     Args:
-        message: The raw text message to print as a string.
-        style: Optional message type.
+        message: The raw text message to print as a Unicode string.
+        style: Optional message type as a Unicode string.
+               Should be one of 'info', 'heading', 'section' or 'color_quoted'.
         add_info_log: Displays and logs the message if True. Defaults to False.
         ignore_quiet: Whether to ignore the global quiet ('--quiet') option.
+
+    Raises:
+        EncodingBoundaryViolation: Given message is not a Unicode string.
     """
     if not ignore_quiet:
         global BE_QUIET
@@ -264,6 +271,7 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
         colored_text = colorize(text)
         print(prefix + ' ' + colored_text)
 
+    sanity.check_internal_string(message)
     if not message:
         return
 
@@ -302,19 +310,22 @@ def msg_rename(from_basename, dest_basename, dry_run):
     Displays a message about a rename operation to the user.
 
     Args:
-        from_basename: The original basename of the file to be renamed.
-        dest_basename: The new basename of the file to be renamed.
+        from_basename: Original basename of the file to be renamed,
+                       as a Unicode string.
+        dest_basename: New basename of the file to be renamed, as a Unicode
+                       string.
         dry_run: True if the operation was a "dry run"/simulation.
+
+    Raises:
+        EncodingBoundaryViolation: Given message is not a Unicode string.
     """
-    # TODO: [TD0156] Pass only Unicode strings to the UI.
-    _name_old = colorize_quoted(
-        '"{!s}"'.format(enc.displayable_path(from_basename)),
-        color='WHITE'
-    )
-    _name_new = colorize_quoted(
-        '"{!s}"'.format(enc.displayable_path(dest_basename)),
-        color='LIGHTGREEN_EX'
-    )
+    sanity.check_internal_string(from_basename)
+    sanity.check_internal_string(dest_basename)
+
+    _name_old = colorize_quoted('"{!s}"'.format(from_basename),
+                                color='WHITE')
+    _name_new = colorize_quoted('"{!s}"'.format(dest_basename),
+                                color='LIGHTGREEN_EX')
 
     cf = ColumnFormatter(align='right')
     if dry_run:
@@ -332,18 +343,21 @@ def msg_possible_rename(from_basename, dest_basename):
     Displays a message about a "possible" rename operation to the user.
 
     Args:
-        from_basename: The original basename of the file to be renamed.
-        dest_basename: The new basename of the file to be renamed.
+        from_basename: Original basename of the file that might be renamed,
+                       as a Unicode string.
+        dest_basename: New basename of the file that might renamed, as a
+                       Unicode string.
+
+    Raises:
+        EncodingBoundaryViolation: Given message is not a Unicode string.
     """
-    # TODO: [TD0156] Pass only Unicode strings to the UI.
-    _name_old = colorize_quoted(
-        '"{!s}"'.format(enc.displayable_path(from_basename)),
-        color='WHITE'
-    )
-    _name_new = colorize_quoted(
-        '"{!s}"'.format(enc.displayable_path(dest_basename)),
-        color='LIGHTGREEN_EX'
-    )
+    sanity.check_internal_string(from_basename)
+    sanity.check_internal_string(dest_basename)
+
+    _name_old = colorize_quoted('"{!s}"'.format(from_basename),
+                                color='WHITE')
+    _name_new = colorize_quoted('"{!s}"'.format(dest_basename),
+                                color='LIGHTGREEN_EX')
 
     cf = ColumnFormatter(align='right')
     cf.addrow('About to rename', '{!s}')

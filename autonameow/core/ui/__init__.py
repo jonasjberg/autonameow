@@ -22,6 +22,9 @@
 from .cli import *
 
 
+# NOTE(jonas): Pass only Unicode strings to the UI.
+
+
 # This package is intended to be the interface to multiple containing
 # subpackages that each implement different UIs.
 #

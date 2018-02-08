@@ -10,6 +10,14 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+### 2018-02-08
+
+> High Priority
+> -------------
+>
+> * `[TD0156]` __Set up Unicode string encoding boundary in `ui`.__  
+>     Enforce passing only Unicode strings to the `ui` module.
+
 ### 2018-02-07
 
 > High Priority
