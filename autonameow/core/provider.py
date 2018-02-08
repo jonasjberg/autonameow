@@ -26,7 +26,6 @@ import plugins
 from analyzers import BaseAnalyzer
 from core import (
     analysis,
-    extraction,
     plugin_handler,
     providers,
     repository,

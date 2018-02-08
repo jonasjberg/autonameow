@@ -23,7 +23,6 @@ from unittest import TestCase
 
 import unit.utils as uu
 from core import constants as C
-from extractors import ExtractorError
 from extractors.text.common import AbstractTextExtractor
 
 

@@ -26,10 +26,7 @@ from core import (
     persistence,
     types,
 )
-from extractors import (
-    BaseExtractor,
-    ExtractorError
-)
+from extractors import BaseExtractor
 from util import encoding as enc
 from util import sanity
 from util.text import (
