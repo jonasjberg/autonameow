@@ -186,6 +186,9 @@ assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
 
 assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
+assert_has_command 'pdftotext'
+assert_has_command 'unrtf'
+
 
 # ______________________________________________________________________________
 #
