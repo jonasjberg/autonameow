@@ -147,7 +147,7 @@ assert_true '"$EXTRACT_RUNNER" --text --quiet -- "$SAMPLE_PDF_FILE"' \
 #
 # Verify output of metadata extraction. Focus on values that are changed by coercers.
 
-assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.File:MIMEType\ \+pdf"' \
+assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.File:MIMEType\ \+application/pdf"' \
             "Expect metadata extracted from \"${sample_pdf_file_basename}\" to contain expected exiftool.File:MIMEType"
 
 assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.File:FileType\ \+PDF"' \
@@ -156,10 +156,10 @@ assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extra
 assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.File:FileName\ .*gmail.pdf"' \
             "Expect metadata extracted from \"${sample_pdf_file_basename}\" to contain expected exiftool.File:FileName"
 
-assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.PDF:CreateDate\ \+2016-01-11T124132"' \
+assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.PDF:CreateDate\ \+2016-01-11 12:41:32+00:00"' \
             "Expect metadata extracted from \"${sample_pdf_file_basename}\" to contain expected exiftool.PDF:CreateDate"
 
-assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.PDF:ModifyDate\ \+2016-01-11T124132"' \
+assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.PDF:ModifyDate\ \+2016-01-11 12:41:32+00:00"' \
             "Expect metadata extracted from \"${sample_pdf_file_basename}\" to contain expected exiftool.PDF:ModifyDate"
 
 

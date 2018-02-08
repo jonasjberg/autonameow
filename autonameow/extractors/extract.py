@@ -30,6 +30,7 @@ from core import (
     extraction,
     FileObject,
     logs,
+    types,
     ui
 )
 from util import encoding as enc
@@ -72,9 +73,21 @@ def do_extract_metadata(fileobject):
 
     def _collect_results_callback(_, meowuri, data):
         _value = data.get('value')
-        _coercer = data.get('coercer')
-        if _value and _coercer:
-            results[meowuri] = _coercer.format(_value)
+        if not _value:
+            return
+
+        if isinstance(_value, bytes):
+            _str_value = enc.displayable_path(_value)
+        else:
+            try:
+                _str_value = str(_value)
+            except (TypeError, ValueError) as e:
+                log.warning('Unable to convert value to Unicode string :: {!s} '
+                            ': ({}) {!s}'.format(meowuri, type(_value), _value))
+                log.warning(str(e))
+                return
+
+        results[meowuri] = _str_value
 
     from extractors import MetadataProviderClasses
     runner = extraction.ExtractorRunner(

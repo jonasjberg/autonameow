@@ -220,6 +220,7 @@ class Repository(object):
             else:
                 v = data.get('value')
                 if isinstance(v, bytes):
+                    # TODO: Clean up converting ANY value to Unicode strings ..
                     temp[meowuri] = enc.displayable_path(v)
 
                 elif meowuri.matchglobs(['generic.contents.text',
@@ -227,6 +228,7 @@ class Repository(object):
                     # Often *a lot* of text, trim to arbitrary size..
                     temp[meowuri] = truncate_text(v)
                 else:
+                    # TODO: Clean up converting ANY value to Unicode strings ..
                     temp[meowuri] = str(v)
 
         cf = ColumnFormatter()
