@@ -73,7 +73,7 @@ fi
 # Get committed text files to check for whitespace issues, then remove quite a few exceptions.
 textfiles_to_check=(
     $(git ls-files | xargs file --mime-type -- | grep 'text/' | cut -d':' -f1 \
-        | grep -v -- 'tests.*\.yaml\|\.md\|test_results\|local\|junk\|test_files\|notes\|thirdparty' \
+        | grep -v -- 'tests.*\.yaml\|\.md\|test_results\|local\|junk\|test_files\|notes\|thirdparty\|.gitmodules' \
         | grep -v -- 'write_sample_textfiles.py\|test_extractors_text_rtf.py')
 )
 
