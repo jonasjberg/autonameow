@@ -110,7 +110,7 @@ _whitespace_check_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check_whitespac
 assert_bulk_test "$_whitespace_check_script_path" e x
 
 assert_true '$_whitespace_check_script_path' \
-            'Expect the whitespace checker script to pass all tests and return 0'
+            'Whitespace conformance script checks pass ("check_whitespace.sh" returns 0)'
 
 
 
