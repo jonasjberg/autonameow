@@ -99,7 +99,7 @@ _check_committed_textfiles_exist_and_readable()
     do
         [ -r "$tf" ] || return 1
     done
-	return 0
+    return 0
 }
 
 assert_true '_check_committed_textfiles_exist_and_readable' \
