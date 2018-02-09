@@ -206,6 +206,9 @@ assert_true '"${_todo_helper_script_path}"' \
 assert_true '"${_todo_helper_script_path}" --help' \
             'TODO-list utility script returns exit code 0 when started with argument "--help"'
 
+_whitespace_check_script_path="${_devscripts_path}/check_whitespace.sh"
+assert_bulk_test "$_whitespace_check_script_path" n e f r x
+
 
 # ______________________________________________________________________________
 #
