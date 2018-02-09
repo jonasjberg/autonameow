@@ -56,16 +56,16 @@ msg_success()
 }
 
 
-# Check that committed files (with some exceptions) use UNIX newlines (\n)
-find_files_not_using_unix_newlines()
+# Check that (most) committed files do not contain carriage returns (\r) (0x0D)
+find_files_with_carriage_returns()
 {
-    files_not_using_unix_newlines="$(git grep -l -I $'\r''$' | grep -v 'test_files\|local\|junk')"
+    git grep -l -I $'\r''$' | grep -v 'test_files\|local\|junk'
 }
 
-if [ "$(find_files_not_using_unix_newlines | wc -l)" -ne "0" ]
+if [ "$(find_files_with_carriage_returns | wc -l)" -ne "0" ]
 then
-    msg_failure 'Files not using UNIX newlines has been committed to git:'
-    printf '%s\n' "$files_not_using_unix_newlines"
+    msg_failure 'Files using carriage returns has been committed to git:'
+    printf '%s\n' "$(find_files_with_carriage_returns)"
     exit 1
 fi
 
