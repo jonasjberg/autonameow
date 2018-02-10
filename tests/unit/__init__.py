@@ -22,23 +22,28 @@
 import glob
 import importlib
 import os
+import re
 import unittest
 
+import unit.constants as uuconst
 
-UNIT_TEST_BASENAME_GLOB = "test_*.py"
+
+GLOB_UNIT_TEST_BASENAME = "test_*.py"
 
 
 def build_testsuite(filename_filter=None):
-    test_directory = os.path.dirname(__file__)
+    unit_test_directory = uuconst.PATH_TESTS_UNIT
     current_dir = os.getcwd()
-    os.chdir(test_directory)
+    os.chdir(unit_test_directory)
 
-    test_files = glob.glob(UNIT_TEST_BASENAME_GLOB)
+    test_files = glob.glob(GLOB_UNIT_TEST_BASENAME)
     if filename_filter:
         assert callable(filename_filter)
         test_files = [f for f in test_files if filename_filter(f)]
 
-    test_modules = [name for name, _ in map(os.path.splitext, test_files)]
+    test_modules = [
+        name for name, _ in [os.path.splitext(f) for f in test_files]
+    ]
 
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
@@ -50,3 +55,30 @@ def build_testsuite(filename_filter=None):
 
     os.chdir(current_dir)
     return suite
+
+
+def unit_test_glob(expression, filename):
+    """
+    Evaluates if a string (test basename) matches a given "glob" expression.
+
+    Matching is case-sensitive. The asterisk matches anything.
+    If the glob starts with '!', the matching is negated.
+    Examples:
+                    string          glob            Returns
+                    ---------------------------------------
+                    'foo bar'       'foo bar'       True
+                    'foo bar'       'foo*'          True
+                    'foo x bar'     '*x*'           True
+                    'bar'           'foo*'          False
+                    'bar'           '!foo'          True
+                    'foo x bar'     '!foo*'         False
+    """
+    assert isinstance(filename, str)
+    assert isinstance(expression, str)
+
+    regexp = expression.replace('*', '.*')
+    if regexp.startswith('!'):
+        regexp = regexp[1:]
+        return not bool(re.match(regexp, filename))
+
+    return bool(re.match(regexp, filename))
