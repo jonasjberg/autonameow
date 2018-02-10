@@ -33,11 +33,11 @@ from core.model import MeowURI
 
 
 class TestJoinPathFromSrcroot(TestCase):
-    def test_creates_absolute_path_from_unicode_string(self):
+    def test_returns_absolute_path_from_unicode_string(self):
         actual = uuconst.join_path_from_srcroot('autonameow')
         self.assertTrue(os.path.isabs(actual))
 
-    def test_creates_absolute_path_from_two_unicode_strings(self):
+    def test_returns_absolute_path_from_two_unicode_strings(self):
         actual = uuconst.join_path_from_srcroot('autonameow', 'core')
         self.assertTrue(os.path.isabs(actual))
 
@@ -58,6 +58,9 @@ class TestUnitUtilityConstants(TestCase):
 
     def test_constant_path_tests_regression(self):
         self._check_directory_path(uuconst.PATH_TESTS_REGRESSION)
+
+    def test_constant_path_tests_unit(self):
+        self._check_directory_path(uuconst.PATH_TESTS_UNIT)
 
 
 class TestUnitUtilityAbsPathTestFile(TestCase):

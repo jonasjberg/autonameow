@@ -37,6 +37,7 @@ def join_path_from_srcroot(*components):
 
 PATH_TEST_FILES = join_path_from_srcroot('test_files')
 PATH_TESTS_REGRESSION = join_path_from_srcroot('tests', 'regression')
+PATH_TESTS_UNIT = join_path_from_srcroot('tests', 'unit')
 PATH_AUTONAMEOW_SRCROOT = join_path_from_srcroot('autonameow')
 
 
