@@ -22,21 +22,22 @@
 
 import os
 
-from util import encoding as enc
 
 _PATH_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 _PATH_THIS_DIR_PARENT_PARENT = os.path.normpath(os.path.join(
     _PATH_THIS_DIR, os.pardir, os.pardir
 ))
-PATH_TEST_FILES = os.path.normpath(os.path.join(
-    _PATH_THIS_DIR_PARENT_PARENT, 'test_files'
-))
-PATH_TESTS_REGRESSION = os.path.normpath(os.path.join(
-    _PATH_THIS_DIR_PARENT_PARENT, 'tests', 'regression'
-))
-PATH_AUTONAMEOW_SRCROOT = os.path.normpath(os.path.join(
-    _PATH_THIS_DIR_PARENT_PARENT, enc.syspath('autonameow')
-))
+
+
+def join_path_from_srcroot(*components):
+    return os.path.normpath(os.path.join(
+        _PATH_THIS_DIR_PARENT_PARENT, *components
+    ))
+
+
+PATH_TEST_FILES = join_path_from_srcroot('test_files')
+PATH_TESTS_REGRESSION = join_path_from_srcroot('tests', 'regression')
+PATH_AUTONAMEOW_SRCROOT = join_path_from_srcroot('autonameow')
 
 
 REGRESSIONTEST_DIR_BASENAMES = [

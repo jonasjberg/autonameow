@@ -26,10 +26,20 @@ import types
 from datetime import datetime
 from unittest import TestCase
 
-import unit.utils as uu
 import unit.constants as uuconst
+import unit.utils as uu
 from core import FileObject
 from core.model import MeowURI
+
+
+class TestJoinPathFromSrcroot(TestCase):
+    def test_creates_absolute_path_from_unicode_string(self):
+        actual = uuconst.join_path_from_srcroot('autonameow')
+        self.assertTrue(os.path.isabs(actual))
+
+    def test_creates_absolute_path_from_two_unicode_strings(self):
+        actual = uuconst.join_path_from_srcroot('autonameow', 'core')
+        self.assertTrue(os.path.isabs(actual))
 
 
 class TestUnitUtilityConstants(TestCase):
