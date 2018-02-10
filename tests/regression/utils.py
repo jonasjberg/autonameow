@@ -271,7 +271,7 @@ class RegressionTestLoader(object):
         for path in options['input_paths']:
             if path == '$TESTFILES':
                 # Substitute "variable".
-                _abspath = uuconst.TEST_FILES_DIR
+                _abspath = uuconst.PATH_TEST_FILES
             elif path.startswith('$TESTFILES/'):
                 # Substitute "variable".
                 _basename = path.replace('$TESTFILES/', '')

@@ -146,7 +146,7 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
             'input_paths': ['$TESTFILES'],
         }
         expected = {
-            'input_paths': [uuconst.TEST_FILES_DIR],
+            'input_paths': [uuconst.PATH_TEST_FILES],
         }
         actual = RegressionTestLoader._set_testfile_path(input_options)
         self.assertEqual(actual, expected)

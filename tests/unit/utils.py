@@ -79,7 +79,7 @@ def abspath_testfile(testfile_basename):
     Returns:
         The full absolute path to the given file.
     """
-    return os.path.abspath(os.path.join(uuconst.TEST_FILES_DIR,
+    return os.path.abspath(os.path.join(uuconst.PATH_TEST_FILES,
                                         testfile_basename))
 
 
@@ -103,7 +103,7 @@ def abspath_testconfig(testconfig_basename=None):
     assert isinstance(_basename, str), type(_basename)
 
     return os.path.abspath(
-        os.path.join(uuconst.TEST_FILES_DIR, 'configs', _basename)
+        os.path.join(uuconst.PATH_TEST_FILES, 'configs', _basename)
     )
 
 
@@ -129,8 +129,8 @@ def all_testfiles():
         as a list of Unicode strings.
     """
     _abs_paths = [
-        os.path.abspath(os.path.join(uuconst.TEST_FILES_DIR, f))
-        for f in os.listdir(uuconst.TEST_FILES_DIR)
+        os.path.abspath(os.path.join(uuconst.PATH_TEST_FILES, f))
+        for f in os.listdir(uuconst.PATH_TEST_FILES)
     ]
     return [
         f for f in _abs_paths if os.path.isfile(f) and not os.path.islink(f)

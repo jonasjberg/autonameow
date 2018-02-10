@@ -129,11 +129,11 @@ class TestIsdir(TestCase):
     def test_returns_true_for_likely_directory_paths(self):
         _files = [
             os.path.dirname(__file__),
-            uuconst.AUTONAMEOW_SRCROOT_DIR,
+            uuconst.PATH_AUTONAMEOW_SRCROOT,
             '/',
             b'/',
             uu.bytestring_path(os.path.dirname(__file__)),
-            uu.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
+            uu.bytestring_path(uuconst.PATH_AUTONAMEOW_SRCROOT)
         ]
         for df in _files:
             self._check_return(df)

@@ -24,18 +24,18 @@ import os
 
 from util import encoding as enc
 
-_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-_PARENT_PARENT_DIR = os.path.normpath(os.path.join(
-    _THIS_DIR, os.pardir, os.pardir
+_PATH_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+_PATH_THIS_DIR_PARENT_PARENT = os.path.normpath(os.path.join(
+    _PATH_THIS_DIR, os.pardir, os.pardir
 ))
-TEST_FILES_DIR = os.path.normpath(os.path.join(
-    _PARENT_PARENT_DIR, 'test_files'
+PATH_TEST_FILES = os.path.normpath(os.path.join(
+    _PATH_THIS_DIR_PARENT_PARENT, 'test_files'
 ))
-REGRESSIONTEST_DIR = os.path.normpath(os.path.join(
-    _PARENT_PARENT_DIR, 'tests', 'regression'
+PATH_TESTS_REGRESSION = os.path.normpath(os.path.join(
+    _PATH_THIS_DIR_PARENT_PARENT, 'tests', 'regression'
 ))
-AUTONAMEOW_SRCROOT_DIR = os.path.normpath(os.path.join(
-    _PARENT_PARENT_DIR, enc.syspath('autonameow')
+PATH_AUTONAMEOW_SRCROOT = os.path.normpath(os.path.join(
+    _PATH_THIS_DIR_PARENT_PARENT, enc.syspath('autonameow')
 ))
 
 

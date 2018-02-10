@@ -33,50 +33,21 @@ from core.model import MeowURI
 
 
 class TestUnitUtilityConstants(TestCase):
-    def test_tests_dir_is_defined(self):
-        self.assertIsNotNone(uuconst.TEST_FILES_DIR)
+    def _check_directory_path(self, given_path):
+        self.assertIsNotNone(given_path)
+        self.assertTrue(os.path.exists(given_path))
+        self.assertTrue(os.path.isdir(given_path))
+        self.assertTrue(os.access(given_path, os.R_OK))
+        self.assertTrue(os.access(given_path, os.X_OK))
 
-    def test_tests_dir_exists(self):
-        self.assertTrue(os.path.exists(uuconst.TEST_FILES_DIR))
+    def test_constant_path_test_files(self):
+        self._check_directory_path(uuconst.PATH_TEST_FILES)
 
-    def test_tests_dir_is_a_directory(self):
-        self.assertTrue(os.path.isdir(uuconst.TEST_FILES_DIR))
+    def test_constant_path_autonameow_srcroot(self):
+        self._check_directory_path(uuconst.PATH_AUTONAMEOW_SRCROOT)
 
-    def test_tests_dir_is_readable(self):
-        self.assertTrue(os.access(uuconst.TEST_FILES_DIR, os.R_OK))
-
-    def test_tests_dir_is_executable(self):
-        self.assertTrue(os.access(uuconst.TEST_FILES_DIR, os.X_OK))
-
-    def test_autonameow_srcroot_dir_is_defined(self):
-        self.assertIsNotNone(uuconst.AUTONAMEOW_SRCROOT_DIR)
-
-    def test_autonameow_srcroot_dir_exists(self):
-        self.assertTrue(os.path.exists(uuconst.AUTONAMEOW_SRCROOT_DIR))
-
-    def test_autonameow_srcroot_dir_is_a_directory(self):
-        self.assertTrue(os.path.isdir(uuconst.AUTONAMEOW_SRCROOT_DIR))
-
-    def test_autonameow_srcroot_dir_is_readable(self):
-        self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.R_OK))
-
-    def test_autonameow_srcroot_dir_is_executable(self):
-        self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.X_OK))
-
-    def test_regressiontest_dir_is_defined(self):
-        self.assertIsNotNone(uuconst.REGRESSIONTEST_DIR)
-
-    def test_regressiontest_dir_exists(self):
-        self.assertTrue(os.path.exists(uuconst.REGRESSIONTEST_DIR))
-
-    def test_regressiontest_dir_is_a_directory(self):
-        self.assertTrue(os.path.isdir(uuconst.REGRESSIONTEST_DIR))
-
-    def test_regressiontest_dir_is_readable(self):
-        self.assertTrue(os.access(uuconst.REGRESSIONTEST_DIR, os.R_OK))
-
-    def test_regressiontest_dir_is_executable(self):
-        self.assertTrue(os.access(uuconst.REGRESSIONTEST_DIR, os.X_OK))
+    def test_constant_path_tests_regression(self):
+        self._check_directory_path(uuconst.PATH_TESTS_REGRESSION)
 
 
 class TestUnitUtilityAbsPathTestFile(TestCase):
@@ -231,11 +202,11 @@ class TestUnitUtilityDirExists(TestCase):
     def test_returns_true_for_likely_directory_paths(self):
         _files = [
             os.path.dirname(__file__),
-            uuconst.AUTONAMEOW_SRCROOT_DIR,
+            uuconst.PATH_AUTONAMEOW_SRCROOT,
             '/',
             b'/',
             uu.bytestring_path(os.path.dirname(__file__)),
-            uu.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
+            uu.bytestring_path(uuconst.PATH_AUTONAMEOW_SRCROOT)
         ]
         for df in _files:
             self._check_return(df)
