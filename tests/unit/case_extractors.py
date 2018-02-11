@@ -204,6 +204,8 @@ class CaseExtractorOutput(TestCase):
     ]
 
     def setUp(self):
+        self.maxDiff = None
+
         if self.EXTRACTOR_CLASS is None:
             self.skipTest('Base class attribute "EXTRACTOR_CLASS" is None')
 
