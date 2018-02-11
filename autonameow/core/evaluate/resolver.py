@@ -23,17 +23,16 @@ import logging
 
 from core import (
     provider,
-    repository
+    repository,
+    types
 )
 from core.model import genericfields as gf
+from core.namebuilder import fields
 from core.namebuilder.fields import (
     NameTemplateField,
     nametemplatefield_classes_in_formatstring
 )
-from core.repository import (
-    DataBundle,
-    maps_field
-)
+from core.repository import DataBundle
 from util import sanity
 from util.text import format_name
 
@@ -190,6 +189,68 @@ class TemplateFieldDataResolver(object):
                 return False
         return True
 
+    def _gather_data_for_template_field(self, _field, uri):
+        _str_field = str(_field.as_placeholder())
+        log.debug(
+            'Gathering data for template field {{{}}} from [{:8.8}]->'
+            '[{!s}]'.format(_str_field, self.file.hash_partial, uri)
+        )
+        response = self._request_data(self.file, uri)
+        if not response:
+            return False
+
+        # Response is either a DataBundle or a list of DataBundles
+        if not isinstance(response, DataBundle):
+            assert isinstance(response, list)
+            assert all(isinstance(d, DataBundle) for d in response)
+
+        # TODO: [TD0112] FIX THIS HORRIBLE MESS!
+        if isinstance(response, list):
+            log.debug('Got list of data. Attempting to deduplicate list of datadicts')
+            _deduped_list = dedupe_list_of_databundles(response)
+            if len(_deduped_list) == 1:
+                log.debug('Deduplicated list of datadicts has a single element')
+                log.debug('Using one of {} equivalent '
+                          'entries'.format(len(response)))
+                log.debug('Using "{!s}" from equivalent: {!s}'.format(response[0].value, ', '.join('"{}"'.format(_d.value) for _d in response)))
+                response = response[0]
+            else:
+                log.debug('Deduplicated list of datadicts still has multiple elements')
+
+                # TODO: [TD0112] Handle this properly!
+                if uri.is_generic:
+                    maybe_one = get_one_from_many_generic_values(response, uri)
+                    if not maybe_one:
+                        log.warning('[TD0112] Not sure what data to use for field {{{}}}..'.format(_str_field))
+                        for i, d in enumerate(response):
+                            log.debug('[TD0112] Field {{{}}} candidate {:03d} :: "{!s}"'.format(_str_field, i, d.value))
+                        return False
+                    else:
+                        assert isinstance(maybe_one, DataBundle)
+                        response = maybe_one
+
+        # # TODO: [TD0112] Clean up merging data.
+        elif isinstance(response.value, list):
+            # TODO: [TD0112] Clean up merging data.
+            list_value = response.value
+            if len(list_value) > 1:
+                seen_data = set()
+                for d in list_value:
+                    seen_data.add(d)
+
+                if len(seen_data) == 1:
+                    # TODO: [TD0112] FIX THIS!
+                    log.debug('Merged {} equivalent entries ({!s} is now {!s})'.format(
+                        len(list_value), list_value, list(list(seen_data)[0])))
+                    # TODO: [TD0112] FIX THIS!
+                    response.value = list(list(seen_data)[0])
+
+        # TODO: [TD0112] FIX THIS HORRIBLE MESS!
+        log.debug('Updated data for field {{{}}} :: "{!s}"'.format(
+            _str_field, response.value))
+        self.fields_data[_field] = response
+        return True
+
     def _gather_data(self):
         for _field, _meowuris in self.data_sources.items():
             _str_field = str(_field.as_placeholder())
@@ -204,58 +265,8 @@ class TemplateFieldDataResolver(object):
                 'Resolver attempted to gather data with empty MeowURI!'
             )
             for uri in _meowuris:
-                log.debug(
-                    'Gathering data for template field {{{}}} from [{:8.8}]->'
-                    '[{!s}]'.format(_str_field, self.file.hash_partial, uri)
-                )
-
-                response = self._request_data(self.file, uri)
-                if not response:
-                    continue
-
-                # Response is either a DataBundle or a list of DataBundles
-                if not isinstance(response, DataBundle):
-                    assert isinstance(response, list)
-                    assert all(isinstance(d, DataBundle) for d in response)
-
-                # TODO: [TD0112] FIX THIS HORRIBLE MESS!
-                if isinstance(response, list):
-                    log.debug('Got list of data. Attempting to deduplicate list of datadicts')
-                    _deduped_list = dedupe_list_of_databundles(response)
-                    if len(_deduped_list) == 1:
-                        log.debug('Deduplicated list of datadicts has a single element')
-                        log.debug('Using one of {} equivalent '
-                                  'entries'.format(len(response)))
-                        log.debug('Using "{!s}" from equivalent: {!s}'.format(response[0].value, ', '.join('"{}"'.format(_d.value) for _d in response)))
-                        response = response[0]
-                    else:
-                        log.debug('Deduplicated list of datadicts still has multiple elements')
-                        log.warning('[TD0112] Not sure what data to use for field {{{}}}..'.format(_str_field))
-                        for i, d in enumerate(response):
-                            log.debug('[TD0112] Field {{{}}} candidate {:03d} :: "{!s}"'.format(_str_field, i, d.value))
-                        continue
-
-                # # TODO: [TD0112] Clean up merging data.
-                elif isinstance(response.value, list):
-                    # TODO: [TD0112] Clean up merging data.
-                    list_value = response.value
-                    if len(list_value) > 1:
-                        seen_data = set()
-                        for d in list_value:
-                            seen_data.add(d)
-
-                        if len(seen_data) == 1:
-                            # TODO: [TD0112] FIX THIS!
-                            log.debug('Merged {} equivalent entries ({!s} is now {!s})'.format(
-                                len(list_value), list_value, list(list(seen_data)[0])))
-                            # TODO: [TD0112] FIX THIS!
-                            response.value = list(list(seen_data)[0])
-
-                # TODO: [TD0112] FIX THIS HORRIBLE MESS!
-                log.debug('Updated data for field {{{}}} :: "{!s}"'.format(
-                    _str_field, response.value))
-                self.fields_data[_field] = response
-                break
+                if self._gather_data_for_template_field(_field, uri):
+                    break
 
     def _verify_types(self):
         # TODO: [TD0115] Clear up uncertainties about data multiplicities.
@@ -383,3 +394,32 @@ def sort_by_mapped_weights(databundles, primary_field, secondary_field=None):
         reverse=True
     )
     return databundles
+
+
+def get_one_from_many_generic_values(databundle_list, uri):
+    """
+    Use weighted mapping probabilities to return a single bundle.
+
+    This is a pretty messy attempt at finding "best suited" candidates based
+    on 'WeightedMapping' probabilities assigned by providers.
+
+    Args:
+        databundle_list: List of instances of 'DataBundle'.
+                         Presumably related to the given MeowURI. (?)
+        uri: The MeowURI that should be resolved into a single data bundle.
+
+    Returns:
+        The "best suited" bundle, based on weighted mapping probabilities
+        for the name template field related to the MeowURI "leaf".
+    """
+    if uri.leaf == 'author':
+        prioritized = sort_by_mapped_weights(databundle_list,
+                                             primary_field=fields.Author)
+        return prioritized[0]
+    elif uri.leaf == 'title':
+        prioritized = sort_by_mapped_weights(databundle_list,
+                                             primary_field=fields.Title)
+        return prioritized[0]
+    else:
+        # TODO: [TD0112] Handle ranking candidates.
+        return databundle_list

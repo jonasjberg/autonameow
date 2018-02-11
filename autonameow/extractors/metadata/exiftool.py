@@ -449,7 +449,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': types.listof(types.AW_STRING),
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=0.75),
+                WeightedMapping(fields.Author, probability=0.5),
                 WeightedMapping(fields.Creator, probability=0.5),
                 WeightedMapping(fields.Publisher, probability=0.02),
             ],
@@ -468,7 +468,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Creator, probability=1),
-                WeightedMapping(fields.Author, probability=0.5),
+                WeightedMapping(fields.Author, probability=0.75),
                 WeightedMapping(fields.Publisher, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
@@ -478,7 +478,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': types.listof(types.AW_STRING),
             'mapped_fields': [
                 WeightedMapping(fields.Creator, probability=1),
-                WeightedMapping(fields.Author, probability=0.5),
+                WeightedMapping(fields.Author, probability=0.75),
                 WeightedMapping(fields.Publisher, probability=0.03),
                 WeightedMapping(fields.Title, probability=0.02)
             ],
