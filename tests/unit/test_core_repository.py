@@ -26,6 +26,7 @@ import unit.utils as uu
 import unit.constants as uuconst
 from core import exceptions
 from core.repository import (
+    DataBundle,
     QueryResponseFailure,
     Repository,
     RepositoryPool,
@@ -282,3 +283,39 @@ class TestQueryResponseFailure(TestCase):
         self._check_str(response,
                         expect_start='Failed query [',
                         expect_end=']->[{!s}] :: foo Bar'.format(uri))
+
+
+class TestDataBundle(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from core.model import WeightedMapping
+        from core.namebuilder import fields
+
+        cls.fields_Author = fields.Author
+        cls.fields_Creator = fields.Creator
+        cls.fields_Publisher = fields.Publisher
+        cls.fields_Title = fields.Title
+
+        # analyzer.filename.publisher
+        cls.d1 = DataBundle.from_dict({
+            'mapped_fields': [
+                WeightedMapping(cls.fields_Publisher, probability=1),
+            ]
+        })
+        # extractor.metadata.exiftool.XMP:Creator
+        cls.d2 = DataBundle.from_dict({
+            'mapped_fields': [
+                WeightedMapping(cls.fields_Author, probability=0.5),
+                WeightedMapping(cls.fields_Creator, probability=1),
+                WeightedMapping(cls.fields_Publisher, probability=0.02),
+                WeightedMapping(cls.fields_Title, probability=0.01)
+            ]
+        })
+
+    def test_maps_field(self):
+        self.assertTrue(self.d1.maps_field(self.fields_Publisher))
+        self.assertFalse(self.d1.maps_field(self.fields_Author))
+        self.assertFalse(self.d1.maps_field(self.fields_Creator))
+        self.assertFalse(self.d1.maps_field(self.fields_Title))
+
+        self.assertTrue(self.d2.maps_field(self.fields_Publisher))

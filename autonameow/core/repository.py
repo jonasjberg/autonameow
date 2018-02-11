@@ -78,6 +78,17 @@ class DataBundle(object):
             multivalued=data.get('multivalued')
         )
 
+    def maps_field(self, field):
+        # TODO: Duplicates functionality of function with the same name!
+        # This might return a None, using a default dict value will not work.
+        if not self.mapped_fields or not field:
+            return False
+
+        for mapping in self.mapped_fields:
+            if field == mapping.field:
+                return True
+        return False
+
 
 class Repository(object):
     """
