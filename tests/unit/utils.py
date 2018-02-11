@@ -282,6 +282,16 @@ def get_mock_fileobject(mime_type=None):
     return FileObject(normpath(temp_file))
 
 
+def get_meowuri():
+    """
+    Returns 'MeowURI' instances for use by unit tests.
+
+    Returns:
+        A valid MeowURI instance with any kind of valid value.
+    """
+    return as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+
+
 def fileobject_testfile(testfile_basename):
     """
     Like 'abspath_testfile' but wraps the result in a 'FileObject' instance.

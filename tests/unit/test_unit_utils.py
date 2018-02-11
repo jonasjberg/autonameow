@@ -382,6 +382,14 @@ class TestUnitUtilityGetMockFileObject(TestCase):
             self.assertEqual(actual.mime_type, mt)
 
 
+class TestUnitUtilityGetMeowURI(TestCase):
+    def test_returns_something(self):
+        self.assertIsNotNone(uu.get_meowuri())
+
+    def test_returns_expected_type(self):
+        self.assertIsInstance(uu.get_meowuri(), MeowURI)
+
+
 class TestCaptureStdout(TestCase):
     def test_capture_stdout(self):
         with uu.capture_stdout() as out:
