@@ -268,7 +268,7 @@ def _strip_accents_unidecode(string):
 
 
 def remove_nonbreaking_spaces(text):
-    return text.replace('\xa0', ' ')
+    return text.replace('\u00A0', ' ')
 
 
 def remove_zerowidth_spaces(text):

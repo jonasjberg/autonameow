@@ -349,13 +349,16 @@ class TestNormalizeUnicode(TestCase):
 
 class TestRemoveNonBreakingSpaces(TestCase):
     def test_remove_non_breaking_spaces_removes_expected(self):
-        expected = 'foo bar'
-
         non_breaking_space = '\xa0'
         actual = remove_nonbreaking_spaces(
             'foo' + uu.decode(non_breaking_space) + 'bar'
         )
-        self.assertEqual(actual, expected)
+        expected = 'foo bar'
+        self.assertEqual(expected, actual)
+
+    def test_remove_non_breaking_spaces_removes_expected_2(self):
+        actual = remove_nonbreaking_spaces('foo\u00A0bar')
+        self.assertEqual('foo bar', actual)
 
     def test_remove_non_breaking_spaces_returns_expected(self):
         expected = 'foo bar'
