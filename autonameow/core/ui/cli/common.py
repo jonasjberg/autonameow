@@ -83,14 +83,14 @@ def print_version_info(verbose):
             '    Automagic File Renamer by Cats for Cats', fore='BLUE'
         )
 
-        print('')
-        print(program_name + program_slogan)
-        print(divider_string(columnated_text_width))
-        print(columnated_text)
-        print(divider_string(columnated_text_width))
-        print('')
+        print_stdout('')
+        print_stdout(program_name + program_slogan)
+        print_stdout(divider_string(columnated_text_width))
+        print_stdout(columnated_text)
+        print_stdout(divider_string(columnated_text_width))
+        print_stdout('')
     else:
-        print('{}'.format(C.STRING_PROGRAM_VERSION))
+        print_stdout('{}'.format(C.STRING_PROGRAM_VERSION))
 
 
 def print_start_info():
@@ -102,7 +102,7 @@ def print_start_info():
     plat = ' '.join(platform.uname()[:3])
     i = colorize('Started at {d} by {u} on {p}'.format(d=date, u=user, p=plat),
                  style='DIM')
-    print(i)
+    print_stdout(i)
 
     log.debug('Started {} version {}'.format(C.STRING_PROGRAM_NAME,
                                              C.STRING_PROGRAM_VERSION))
@@ -124,7 +124,7 @@ def print_exit_info(exit_code, elapsed_time):
     i = colorize('Finished at {d} after {t:.6f} seconds with exit code '
                  '{c}'.format(d=date, t=elapsed_time, c=exit_code),
                  style='DIM')
-    print(i)
+    print_stdout(i)
 
 
 def colorize(text, fore=None, back=None, style=None):
@@ -244,6 +244,14 @@ def colorize_quoted(text, color=None):
     return colorize_re_match(text, RE_ANYTHING_QUOTED, color)
 
 
+def print_stdout(string):
+    # NOTE(jonas): colorama has problems with piping to pager ..
+    try:
+        print(string)
+    except BrokenPipeError:
+        pass
+
+
 def msg(message, style=None, add_info_log=False, ignore_quiet=False):
     """
     Displays a message to the user optionally using preset formatting options.
@@ -264,12 +272,13 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
             return
 
     def _print_default_msg(text):
-        print(colorize(text))
+        colored_text = colorize(text)
+        print_stdout(colored_text)
 
     def _print_info_msg(text):
         prefix = colorize('[info]', fore='LIGHTBLACK_EX')
         colored_text = colorize(text)
-        print(prefix + ' ' + colored_text)
+        print_stdout(prefix + ' ' + colored_text)
 
     sanity.check_internal_string(message)
     if not message:
@@ -289,14 +298,14 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
         heading_underline = C.CLI_MSG_HEADING_CHAR * len(message.strip())
         colored_heading_underline = colorize(heading_underline, style='DIM')
         colored_heading_text = colorize(message, style='BRIGHT')
-        print('\n\n' + colored_heading_text + '\n' + colored_heading_underline)
+        print_stdout('\n\n' + colored_heading_text + '\n' + colored_heading_underline)
 
     elif style == 'section':
         colored_section_text = colorize(message, style='BRIGHT')
-        print('\n' + colored_section_text)
+        print_stdout('\n' + colored_section_text)
 
     elif style == 'color_quoted':
-        print(colorize_quoted(message, color='LIGHTGREEN_EX'))
+        print_stdout(colorize_quoted(message, color='LIGHTGREEN_EX'))
 
     else:
         log.warning('Unknown message style "{!s}"'.format(style))
