@@ -13,6 +13,7 @@ Notes on "analyzers" --- content-specific data providers.
 #### Revisions
 * 2017-10-15 --- `jonasjberg` Initial.
 * 2018-01-18 --- `jonasjberg` Add section from `ideas.md`
+* 2018-02-11 --- `jonasjberg` Move analyzer functionality to extractors?
 
 
 Requirements
@@ -96,3 +97,39 @@ Is it really what it says it is?
 
 The analyzers should probably take this contextual information in consideration
 when prioritizing candidates, etc.
+
+
+--------------------------------------------------------------------------------
+
+
+Analyzers vs. Extractors
+------------------------
+> Jonas Sjöberg, 2018-02-11.
+
+As mentioned somewhere, elsewhere, the differences between the analyzers and
+Extractors might not be enough to motivate keeping this separation of
+abstraction.
+
+The filename analyzer might just as well be an extractor that finds possible
+field data in filenames. But then again, maybe some "contextual information" is
+required to avoid producing poor results, false positives.  If the filename
+analyzer was to be executed like the extractors, I.E. very simple interface
+like;
+
+```python
+a = FilenameAnalyzer()
+results = a.analyze(file)
+```
+
+What means would really be available in order to make sense of the available
+data and produce quality results? The only thing that comes to mind right now
+is plain pattern matching. This could be made somewhat sophisticated with
+dynamic white/black-lists, etc. But in this case, some other kind of entity
+will likely need to go through the resulting data again in order to weed out
+bad results and find the data that is most relevant for that current execution
+context, requirements, etc.
+
+Irregardless, there is a major problem of code duplication to be solved.  A lot
+of code is practically equivalent in the systems that interface to and
+orchestrate execution of extractors, analyzers and plugins. Similarly when
+passing results around, etc.
