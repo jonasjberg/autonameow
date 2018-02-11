@@ -33,6 +33,47 @@ from util.text import truncate_text
 log = logging.getLogger(__name__)
 
 
+class QueryResponseFailure(object):
+    def __init__(self, fileobject=None, uri=None, msg=None):
+        self.fileobject = fileobject
+        self.uri = uri or 'unspecified MeowURI'
+        self.msg = msg or ''
+
+    def __str__(self):
+        if self.fileobject:
+            fileobject_str = self.fileobject.hash_partial
+        else:
+            fileobject_str = 'unknown FileObject'
+
+        return 'Failed query [{:8.8}]->[{!s}] :: {!s}'.format(
+            fileobject_str, self.uri, self.msg)
+
+    def __bool__(self):
+        return False
+
+
+class DataBundle(object):
+    def __init__(self, value, coercer, source, generic_field, mapped_fields,
+                 multivalued):
+        self.value = value
+        self.coercer = coercer
+        self.source = source
+        self.generic_field = generic_field
+        self.mapped_fields = mapped_fields
+        self.multivalued = multivalued
+
+    @classmethod
+    def from_dict(cls, data):
+        return DataBundle(
+            value=data.get('value'),
+            coercer=data.get('coercer'),
+            source=data.get('source'),
+            generic_field=data.get('generic_field'),
+            mapped_fields=data.get('mapped_fields'),
+            multivalued=data.get('multivalued')
+        )
+
+
 class Repository(object):
     """
     The repository class is the central internal storage used by all parts
@@ -170,9 +211,14 @@ class Repository(object):
             data = self.__get_data(fileobject, meowuri)
         except KeyError as e:
             log.debug('Query raised KeyError: {!s}'.format(e))
-            return None
+            return QueryResponseFailure()
         else:
-            return data
+            # TODO: Store and query "generic" data separately?
+            #       Alternatively store "generic" only as "references"?
+            if isinstance(data, list):
+                return [DataBundle.from_dict(d) for d in data]
+            else:
+                return DataBundle.from_dict(data)
 
     def __get_data(self, fileobject, meowuri):
         return util.nested_dict_get(self.data, [fileobject, meowuri])

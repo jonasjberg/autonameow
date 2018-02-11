@@ -45,9 +45,8 @@ class RuleMatcher(object):
 
         response = provider.query(fileobject, meowuri)
         if response:
-            sanity.check_isinstance(response, dict,
-                                    msg='FileObject [{!s}] MeowURI {!s}'.format(fileobject.hash_partial, meowuri))
-            return response.get('value')
+            # TODO: Integrate successful/failed query response objecst.
+            return response.value
         return None
 
     def match(self, fileobject):

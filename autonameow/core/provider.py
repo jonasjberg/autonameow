@@ -32,6 +32,7 @@ from core import (
 )
 from core.exceptions import AutonameowException
 from core.extraction import ExtractorRunner
+from core.repository import QueryResponseFailure
 from extractors import BaseExtractor
 from util import sanity
 
@@ -103,20 +104,20 @@ class MasterDataProvider(object):
 
         self._print_debug_stats()
 
-        _data = self._query_repository(fileobject, meowuri)
-        if _data:
-            return _data
+        response = self._query_repository(fileobject, meowuri)
+        if response:
+            return response
 
         self._delegate_to_providers(fileobject, meowuri)
 
         # TODO: [TD0142] Handle this properly ..
-        _data = self._query_repository(fileobject, meowuri)
-        if _data:
-            return _data
+        response = self._query_repository(fileobject, meowuri)
+        if response:
+            return response
 
         # TODO: [TD0142] Handle this properly ..
         log.debug('Failed query, then delegation, then another query and returning None')
-        return None
+        return QueryResponseFailure()
 
     def _query_repository(self, fileobject, meowuri):
         self.debug_stats[fileobject][meowuri]['repository_queries'] += 1
