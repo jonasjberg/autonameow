@@ -215,8 +215,10 @@ class Repository(object):
         else:
             # TODO: Store and query "generic" data separately?
             #       Alternatively store "generic" only as "references"?
-            assert not isinstance(data, list), '({}) {!s}'.format(type(data), data)
-            return DataBundle.from_dict(data)
+            if isinstance(data, list):
+                return [DataBundle.from_dict(d) for d in data]
+            else:
+                return DataBundle.from_dict(data)
 
     def __get_data(self, fileobject, meowuri):
         return util.nested_dict_get(self.data, [fileobject, meowuri])

@@ -205,7 +205,10 @@ class TemplateFieldDataResolver(object):
                 if not response:
                     continue
 
-                assert isinstance(response, DataBundle), 'IT BROKEN :: ({}) {!s}'.format(type(response), response)
+                # Response is either a DataBundle or a list of DataBundles
+                if not isinstance(response, DataBundle):
+                    assert isinstance(response, list)
+                    assert all(isinstance(d, DataBundle) for d in response)
 
                 # TODO: [TD0112] FIX THIS HORRIBLE MESS!
                 if isinstance(response, list):
