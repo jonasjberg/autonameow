@@ -40,7 +40,7 @@ assert not UNMET_DEPENDENCIES
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPlainTextExtractor(CaseExtractorBasics):
+class TestCrossPlatformFileSystemExtractor(CaseExtractorBasics):
     __test__ = True
     EXTRACTOR_CLASS = CrossPlatformFileSystemExtractor
 
