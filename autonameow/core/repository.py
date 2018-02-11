@@ -108,14 +108,14 @@ class Repository(object):
             __store(data)
 
     def _store(self, fileobject, meowuri, data):
-        if meowuri.matchglobs(['generic.contents.text', 'extractor.text.*']):
-            _debugmsg_data = dict(data)
-            _truncated_value = truncate_text(_debugmsg_data['value'])
-            _debugmsg_data['value'] = _truncated_value
-        else:
-            _debugmsg_data = data
-
         if __debug__:
+            if meowuri.matchglobs(['generic.contents.text', 'extractor.text.*']):
+                _debugmsg_data = dict(data)
+                _truncated_value = truncate_text(_debugmsg_data['value'])
+                _debugmsg_data['value'] = _truncated_value
+            else:
+                _debugmsg_data = data
+
             log.debug('Storing [{:8.8}]->[{!s}] :: ({}) {!s}'.format(
                 fileobject.hash_partial,
                 meowuri,
