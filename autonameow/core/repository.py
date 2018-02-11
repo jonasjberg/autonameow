@@ -33,7 +33,7 @@ from util.text import truncate_text
 log = logging.getLogger(__name__)
 
 
-class FailedQueryResponse(object):
+class QueryResponseFailure(object):
     def __init__(self, fileobject=None, uri=None, msg=None):
         self.fileobject = fileobject
         self.uri = uri or 'unspecified MeowURI'
@@ -52,12 +52,7 @@ class FailedQueryResponse(object):
         return False
 
 
-class SuccessfulQueryResponse(object):
-    def __bool__(self):
-        return True
-
-
-class DataBundle(SuccessfulQueryResponse):
+class DataBundle(object):
     def __init__(self, value, coercer, source, generic_field, mapped_fields,
                  multivalued):
         self.value = value
@@ -66,6 +61,17 @@ class DataBundle(SuccessfulQueryResponse):
         self.generic_field = generic_field
         self.mapped_fields = mapped_fields
         self.multivalued = multivalued
+
+    @classmethod
+    def from_dict(cls, data):
+        return DataBundle(
+            value=data.get('value'),
+            coercer=data.get('coercer'),
+            source=data.get('source'),
+            generic_field=data.get('generic_field'),
+            mapped_fields=data.get('mapped_fields'),
+            multivalued=data.get('multivalued')
+        )
 
 
 class Repository(object):
@@ -143,14 +149,14 @@ class Repository(object):
             __store(data)
 
     def _store(self, fileobject, meowuri, data):
-        if meowuri.matchglobs(['generic.contents.text', 'extractor.text.*']):
-            _debugmsg_data = dict(data)
-            _truncated_value = truncate_text(_debugmsg_data['value'])
-            _debugmsg_data['value'] = _truncated_value
-        else:
-            _debugmsg_data = data
-
         if __debug__:
+            if meowuri.matchglobs(['generic.contents.text', 'extractor.text.*']):
+                _debugmsg_data = dict(data)
+                _truncated_value = truncate_text(_debugmsg_data['value'])
+                _debugmsg_data['value'] = _truncated_value
+            else:
+                _debugmsg_data = data
+
             log.debug('Storing [{:8.8}]->[{!s}] :: ({}) {!s}'.format(
                 fileobject.hash_partial,
                 meowuri,
@@ -205,19 +211,12 @@ class Repository(object):
             data = self.__get_data(fileobject, meowuri)
         except KeyError as e:
             log.debug('Query raised KeyError: {!s}'.format(e))
-            return FailedQueryResponse()
+            return QueryResponseFailure()
         else:
             # TODO: Store and query "generic" data separately?
             #       Alternatively store "generic" only as "references"?
             assert not isinstance(data, list), '({}) {!s}'.format(type(data), data)
-            return DataBundle(
-                value=data.get('value'),
-                coercer=data.get('coercer'),
-                source=data.get('source'),
-                generic_field=data.get('generic_field'),
-                mapped_fields=data.get('mapped_fields'),
-                multivalued=data.get('multivalued')
-            )
+            return DataBundle.from_dict(data)
 
     def __get_data(self, fileobject, meowuri):
         return util.nested_dict_get(self.data, [fileobject, meowuri])

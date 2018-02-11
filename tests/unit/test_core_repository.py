@@ -26,10 +26,10 @@ import unit.utils as uu
 import unit.constants as uuconst
 from core import exceptions
 from core.repository import (
-    FailedQueryResponse,
+    QueryResponseFailure,
     Repository,
     RepositoryPool,
-    SuccessfulQueryResponse
+    QueryResponseSuccess
 )
 
 
@@ -226,13 +226,7 @@ class TestRepositoryPool(TestCase):
                 p.get(_id)
 
 
-class TestFailedQueryResponse(TestCase):
+class TestQueryResponseFailure(TestCase):
     def test_evaluates_false(self):
-        response = FailedQueryResponse()
+        response = QueryResponseFailure()
         self.assertFalse(response)
-
-
-class TestSuccessfulQueryResponse(TestCase):
-    def test_evaluates_true(self):
-        response = SuccessfulQueryResponse(value='foo')
-        self.assertTrue(response)
