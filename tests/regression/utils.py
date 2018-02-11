@@ -517,7 +517,7 @@ def check_renames(actual, expected):
 
 
 def check_stdout_asserts(test, captured_stdout):
-    failures = 0
+    failures = list()
     if 'asserts' not in test:
         return failures
     if 'stdout' not in test['asserts']:
@@ -533,9 +533,8 @@ def check_stdout_asserts(test, captured_stdout):
             continue
 
     for regexp in stdout_match_asserts:
-        if not regexp.match(captured_stdout):
-            print('Match assertion failed for "{!s}"'.format(regexp))
-            failures += 1
+        if not regexp.search(captured_stdout):
+            failures.append(('matches', regexp))
 
     stdout_not_match_asserts = []
     stdout_not_matches = test['asserts']['stdout'].get('does_not_match', [])
@@ -549,7 +548,7 @@ def check_stdout_asserts(test, captured_stdout):
     for regexp in stdout_not_match_asserts:
         if regexp.match(captured_stdout):
             print('Non-match assertion failed for "{!s}"'.format(regexp))
-            failures += 1
+            failures.append(('does_not_match', regexp))
 
     return failures
 

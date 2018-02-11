@@ -160,11 +160,27 @@ def run_test(test):
 
     # TODO: [TD0158] Evaluate assertions of "skipped renames".
 
-    captured_stdout = aw.captured_stdout
-    captured_stderr = aw.captured_stderr
-    failures += check_stdout_asserts(test, captured_stdout)
+    captured_stdout = str(aw.captured_stdout)
+    captured_stderr = str(aw.captured_stderr)
 
-    return TestResults(failures, captured_runtime, captured_stdout, captured_stderr)
+    stdout_assert_failures = check_stdout_asserts(test, captured_stdout)
+    if stdout_assert_failures:
+        assert isinstance(stdout_assert_failures, list)
+
+        failures += len(stdout_assert_failures)
+
+        for match_type, regexp in stdout_assert_failures:
+            assert match_type in ('matches', 'does_not_match')
+            if match_type == 'matches':
+                _msg_run_test_failure(
+                    'Expected stdout to match {!s}'.format(regexp)
+                )
+            elif match_type == 'does_not_match':
+                _msg_run_test_failure(
+                    'Expected stdout to NOT match {!s}'.format(regexp)
+                )
+
+    return TestResults(failures, captured_runtime,captured_stdout, captured_stderr)
 
 
 def write_failed_tests(tests):
