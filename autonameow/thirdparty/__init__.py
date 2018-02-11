@@ -34,11 +34,6 @@ THIRDPARTY_ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 try:
-    from .epubzilla.epubzilla import epubzilla
-except ImportError:
-    epubzilla = None
-
-try:
     from .pyexiftool import exiftool as pyexiftool
 except ImportError:
     pyexiftool = None

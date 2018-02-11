@@ -20,10 +20,18 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import zipfile
 
-from thirdparty import epubzilla
+from bs4 import BeautifulSoup
+
+try:
+    from ebooklib import epub
+except ImportError:
+    epub = None
+
+from extractors import ExtractorError
 from extractors.text.common import AbstractTextExtractor
+from util import encoding as enc
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -40,20 +48,28 @@ class EpubTextExtractor(AbstractTextExtractor):
 
     def extract_text(self, fileobject):
         self.log.debug('Extracting raw text from EPUB file ..')
-        result = extract_text_with_epubzilla(fileobject.abspath)
+        result = extract_text_with_ebooklib(fileobject.abspath)
         return result
 
     @classmethod
     def check_dependencies(cls):
-        return epubzilla is not None
+        return epub is not None
 
 
-def extract_text_with_epubzilla(file_path):
+def extract_text_with_ebooklib(file_path):
+    unicode_file_path = enc.decode_(file_path)
+    sanity.check_internal_string(unicode_file_path)
+
     try:
-        epub_file = epubzilla.Epub.from_file(file_path)
-    except zipfile.BadZipFile:
-        pass
+        book = epub.read_epub(unicode_file_path)
+    except epub.EpubException as e:
+        raise ExtractorError(e)
 
-    # TODO: [TD0028] FIX THIS!
-    log.critical('The epub text extractor is still UNIMPLEMENTED! See [TD0028]')
-    return ''
+    result = ''
+    for id_, _ in book.spine:
+        item = book.get_item_with_id(id_)
+        soup = BeautifulSoup(item.content, 'lxml')
+        for child in soup.find_all(['title', 'p', 'div', 'h1', 'h2', 'h3',
+                                    'h4']):
+            result = result + child.text + '\n'
+    return result

@@ -24,9 +24,15 @@ from unittest import (
     TestCase,
 )
 
+try:
+    from ebooklib import epub
+except ImportError:
+    epub = None
+
 import unit.utils as uu
+from extractors import ExtractorError
 from extractors.text import EpubTextExtractor
-from thirdparty import epubzilla
+from extractors.text.epub import extract_text_with_ebooklib
 from unit.case_extractors import (
     CaseExtractorBasics,
     CaseExtractorOutputTypes
@@ -64,8 +70,8 @@ class TestEpubTextExtractorOutputTypes(CaseExtractorOutputTypes):
 #     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
-@skipIf(epubzilla is None, 'Failed to import "thirdparty.epubzilla"')
-class TestExtractTextWithEpubzilla(TestCase):
+@skipIf(epub is None, 'Failed to import "ebooklib.epub"')
+class TestExtractTextWithEbooklib(TestCase):
     def setUp(self):
         self.sample_file = uu.abspath_testfile('pg38145-images.epub')
         self.assertTrue(uu.file_exists(self.sample_file))
@@ -74,18 +80,9 @@ class TestExtractTextWithEpubzilla(TestCase):
         not_epub_file = uu.abspath_testfile('gmail.pdf')
         self.assertTrue(uu.file_exists(not_epub_file))
 
-        with self.assertRaises(Exception):
-            _ = epubzilla.Epub.from_file(not_epub_file)
+        with self.assertRaises(ExtractorError):
+            _ = extract_text_with_ebooklib(not_epub_file)
 
     def test_opens_sample_epub_file(self):
-        actual = epubzilla.Epub.from_file(self.sample_file)
+        actual = extract_text_with_ebooklib(self.sample_file)
         self.assertIsNotNone(actual)
-
-    def test_reads_sample_file_metadata(self):
-        def _assert_metadata(key, expected):
-            self.assertEqual(getattr(actual, key), expected)
-
-        actual = epubzilla.Epub.from_file(self.sample_file)
-        _assert_metadata('author', 'Friedrich Wilhelm Nietzsche')
-        _assert_metadata('title',
-                         'Human, All Too Human: A Book for Free Spirits')

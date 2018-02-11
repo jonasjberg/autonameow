@@ -29,8 +29,6 @@ from extractors import (
     ExtractorError
 )
 
-from thirdparty import epubzilla
-
 
 class EpubMetadataExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
@@ -63,7 +61,6 @@ class EpubMetadataExtractor(BaseExtractor):
         super(EpubMetadataExtractor, self).__init__()
 
     def extract(self, fileobject, **kwargs):
-        # NOTE: epubzilla returns a class instance.
         _raw_metadata = _get_epub_metadata(fileobject.abspath)
         if _raw_metadata:
             # Internal data format boundary.  Wrap "raw" data with type classes.
@@ -73,31 +70,17 @@ class EpubMetadataExtractor(BaseExtractor):
         return dict()
 
     def _to_internal_format(self, raw_metadata):
-        coerced_metadata = dict()
-
-        # NOTE: epubzilla returns a class instance.
-        #       Can not use 'providers.ProviderMixin.coerce_field_value()'
-        for tag_name in self.FIELD_LOOKUP.keys():
-            _data = raw_metadata.get(tag_name)
-            if _data is not None:
-                coerced = self.coerce_field_value(tag_name, _data)
-                if coerced is not None:
-                    coerced_metadata[tag_name] = coerced
-
-        return coerced_metadata
+        # TODO: Re-implement epub metadata extractor
+        return raw_metadata
 
     @classmethod
     def check_dependencies(cls):
-        return epubzilla is not None
+        return False
 
 
 def _get_epub_metadata(source):
     try:
-        epub_file = epubzilla.Epub.from_file(source)
+        # TODO: Re-implement epub metadata extractor
+        raise ExtractorError('TODO: Reimplement epub metadata extraction')
     except (zipfile.BadZipFile, OSError) as e:
         raise ExtractorError('Unable to open epub file; "{!s}"'.format(e))
-    else:
-        try:
-            return epub_file.metadata
-        except AttributeError:
-            return dict()
