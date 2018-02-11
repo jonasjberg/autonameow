@@ -45,8 +45,13 @@ class QueryResponseFailure(object):
         else:
             fileobject_str = 'unknown FileObject'
 
-        return 'Failed query [{:8.8}]->[{!s}] :: {!s}'.format(
-            fileobject_str, self.uri, self.msg)
+        if self.msg:
+            _msg = ' :: {!s}'.format(self.msg)
+        else:
+            _msg = ''
+
+        return 'Failed query [{:8.8}]->[{!s}]{!s}'.format(
+            fileobject_str, self.uri, _msg)
 
     def __bool__(self):
         return False
