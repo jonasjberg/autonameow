@@ -89,6 +89,16 @@ class DataBundle(object):
                 return True
         return False
 
+    def field_mapping_probability(self, field):
+        if not self.maps_field(field):
+            return 0.0
+
+        for mapping in self.mapped_fields:
+            if field == mapping.field:
+                return float(mapping.probability)
+
+        return 0.0
+
 
 class Repository(object):
     """

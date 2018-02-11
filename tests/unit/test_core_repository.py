@@ -319,3 +319,33 @@ class TestDataBundle(TestCase):
         self.assertFalse(self.d1.maps_field(self.fields_Title))
 
         self.assertTrue(self.d2.maps_field(self.fields_Publisher))
+
+    def test_field_mapping_probability_returns_default_value(self):
+        self.assertEqual(0.0, self.d1.field_mapping_probability(None))
+        self.assertEqual(0.0, self.d1.field_mapping_probability(False))
+        self.assertEqual(0.0, self.d1.field_mapping_probability(list()))
+
+    def test_field_mapping_probability_d1(self):
+        for field in (self.fields_Author, self.fields_Creator,
+                      self.fields_Title):
+            with self.subTest(field=str(field)):
+                actual = self.d1.field_mapping_probability(field)
+                self.assertEqual(0.0, actual)
+
+        self.assertEqual(
+            1.0, self.d1.field_mapping_probability(self.fields_Publisher)
+        )
+
+    def test_field_mapping_probability_d2(self):
+        self.assertEqual(
+            0.5, self.d2.field_mapping_probability(self.fields_Author)
+        )
+        self.assertEqual(
+            1, self.d2.field_mapping_probability(self.fields_Creator)
+        )
+        self.assertEqual(
+            0.02, self.d2.field_mapping_probability(self.fields_Publisher)
+        )
+        self.assertEqual(
+            0.01, self.d2.field_mapping_probability(self.fields_Title)
+        )
