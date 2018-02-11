@@ -449,10 +449,9 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': types.listof(types.AW_STRING),
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
+                WeightedMapping(fields.Author, probability=0.75),
                 WeightedMapping(fields.Creator, probability=0.5),
                 WeightedMapping(fields.Publisher, probability=0.02),
-                WeightedMapping(fields.Title, probability=0.01)
             ],
             'generic_field': 'author'
         },
@@ -478,10 +477,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'XMP:CreatorFile-as': {
             'coercer': types.listof(types.AW_STRING),
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
-                WeightedMapping(fields.Creator, probability=0.5),
-                WeightedMapping(fields.Publisher, probability=0.02),
-                WeightedMapping(fields.Title, probability=0.01)
+                WeightedMapping(fields.Creator, probability=1),
+                WeightedMapping(fields.Author, probability=0.5),
+                WeightedMapping(fields.Publisher, probability=0.03),
+                WeightedMapping(fields.Title, probability=0.02)
             ],
             'generic_field': 'author'
         },
