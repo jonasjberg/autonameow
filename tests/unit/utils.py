@@ -767,3 +767,31 @@ def as_meowuri(string):
     except InvalidMeowURIError as e:
         raise AssertionError(e)
     return meowuri
+
+
+def get_expected_text_for_testfile(testfile_basename):
+    """
+    Returns any text that should be extracted from a given test file.
+
+    If the given basename is found in the 'test_files' directory and
+    a accompanying file containing reference text is found, it is returned.
+
+    Args:
+        testfile_basename: The basename of a file in the 'test_files' directory
+            as a Unicode string (internal string format)
+
+    Returns:
+        Reference, expected text contained in file as a Unicode string or None
+        if there is no file with expected text.
+    """
+    assert isinstance(testfile_basename, str)
+
+    expected_text_basename = testfile_basename + '_expected.txt'
+    p = abspath_testfile(expected_text_basename)
+    try:
+        with open(p, 'r', encoding='utf8') as fh:
+            return fh.read()
+    except FileNotFoundError:
+        return None
+    except (OSError, UnicodeDecodeError):
+        raise

@@ -658,3 +658,23 @@ class TestAsMeowURI(TestCase):
         for given in [None, '', ' ', {}, []]:
             with self.assertRaises(AssertionError):
                 _ = uu.as_meowuri(given)
+
+
+class GetExpectedTextForTestfile(TestCase):
+    def test_returns_none_when_expected_text_file_does_not_exist(self):
+        actual = uu.get_expected_text_for_testfile('magic_png.png')
+        self.assertIsNone(actual)
+
+    def test_returns_expected_text_when_expected_text_file_exists(self):
+        actual = uu.get_expected_text_for_testfile('sample.rtf')
+        expect = '''Foo title
+bar text
+
+
+meow list
+
+cat list
+
+baz last line
+'''
+        self.assertEqual(expect, actual)
