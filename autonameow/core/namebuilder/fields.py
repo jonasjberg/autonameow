@@ -65,6 +65,10 @@ class NameTemplateField(object):
         # for instance 'core.namebuilder.fields.Extension' and not 'Extension'.
         return self.__class__.__name__.lower()
 
+    # @classmethod
+    # def __eq__(cls, other):
+    #     return cls.__class__ == other.__class__
+
 
 class Title(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
