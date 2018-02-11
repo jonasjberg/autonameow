@@ -31,7 +31,8 @@ from util import encoding as enc
 from util import sanity
 from util.text import (
     normalize_unicode,
-    remove_nonbreaking_spaces
+    remove_nonbreaking_spaces,
+    remove_zerowidth_spaces
 )
 
 
@@ -118,6 +119,7 @@ class AbstractTextExtractor(BaseExtractor):
         text = raw_text
         text = normalize_unicode(text)
         text = remove_nonbreaking_spaces(text)
+        text = remove_zerowidth_spaces(text)
         return text if text else ''
 
 
