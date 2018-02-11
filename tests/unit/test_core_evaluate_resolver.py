@@ -27,6 +27,7 @@ import unit.utils as uu
 from core.evaluate.resolver import (
     dedupe_list_of_databundles,
     FieldDataCandidate,
+    sort_by_mapped_weights,
     TemplateFieldDataResolver
 )
 
@@ -164,3 +165,118 @@ class TestFieldDataCandidate(TestCase):
         )
         actual = repr(fdc)
         self.assertIn('foo', actual)
+
+
+class TestSortDatadictsByMappingWeights(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from core.model import WeightedMapping
+        from core.namebuilder import fields
+        from core.repository import DataBundle
+
+        cls.fields_Author = fields.Author
+        cls.fields_Creator = fields.Creator
+        cls.fields_Publisher = fields.Publisher
+        cls.fields_Title = fields.Title
+
+        # extractor.metadata.exiftool.XMP:Creator
+        cls.d1 = DataBundle.from_dict({
+            'mapped_fields': [
+                WeightedMapping(cls.fields_Author, probability=0.5),
+                WeightedMapping(cls.fields_Creator, probability=1),
+                WeightedMapping(cls.fields_Publisher, probability=0.02),
+                WeightedMapping(cls.fields_Title, probability=0.01)
+            ]
+        })
+        # extractor.metadata.exiftool.XMP:CreatorFile-as
+        cls.d2 = DataBundle.from_dict({
+            'mapped_fields': [
+                WeightedMapping(cls.fields_Author, probability=0.5),
+                WeightedMapping(cls.fields_Creator, probability=1),
+                WeightedMapping(cls.fields_Publisher, probability=0.03),
+                WeightedMapping(cls.fields_Title, probability=0.02)
+            ]
+        })
+        # extractor.metadata.exiftool.XMP:Contributor
+        cls.d3 = DataBundle.from_dict({
+            'mapped_fields': [
+                WeightedMapping(cls.fields_Author, probability=0.75),
+                WeightedMapping(cls.fields_Creator, probability=0.5),
+                WeightedMapping(cls.fields_Publisher, probability=0.02),
+            ]
+        })
+        # analyzer.filename.publisher
+        cls.d4 = DataBundle.from_dict({
+            'mapped_fields': [
+                WeightedMapping(cls.fields_Publisher, probability=1),
+            ]
+        })
+
+    def _check_sorting(self, given, primary_field, secondary_field, expect):
+        actual_a = sort_by_mapped_weights(given, primary_field, secondary_field)
+        self.assertEqual(expect, actual_a)
+
+        actual_b = sort_by_mapped_weights(list(reversed(given)), primary_field, secondary_field)
+        self.assertEqual(expect, actual_b)
+
+    def test_sorting_field_not_in_given_element(self):
+        self._check_sorting(
+            given=[self.d4],
+            primary_field=self.fields_Author,
+            secondary_field=None,
+            expect=[self.d4]
+        )
+
+    def test_one_element_by_mapped_author(self):
+        self._check_sorting(
+            given=[self.d1],
+            primary_field=self.fields_Author,
+            secondary_field=None,
+            expect=[self.d1]
+        )
+
+    def test_two_elements_by_mapped_author_equal_secondary_different(self):
+        self._check_sorting(
+            given=[self.d1, self.d2],
+            primary_field=self.fields_Author,
+            secondary_field=self.fields_Title,
+            expect=[self.d2, self.d1]
+        )
+
+    def test_two_elements_by_mapped_author_one_not_mapped_to_primary(self):
+        self._check_sorting(
+            given=[self.d1, self.d4],
+            primary_field=self.fields_Author,
+            secondary_field=None,
+            expect=[self.d1, self.d4]
+        )
+        self._check_sorting(
+            given=[self.d1, self.d4],
+            primary_field=self.fields_Author,
+            secondary_field=self.fields_Creator,  # This should not matter
+            expect=[self.d1, self.d4]
+        )
+
+    def test_one_element_by_mapped_title(self):
+        self._check_sorting(
+            given=[self.d1],
+            primary_field=self.fields_Title,
+            secondary_field=None,
+            expect=[self.d1]
+        )
+
+    def test_two_elements_by_mapped_title(self):
+        self._check_sorting(
+            given=[self.d1, self.d2],
+            primary_field=self.fields_Title,
+            secondary_field=None,
+            expect=[self.d2, self.d1]
+        )
+
+    def test_two_elements_by_mapped_title_secondary_author_equal(self):
+        self._check_sorting(
+            given=[self.d1, self.d2],
+            primary_field=self.fields_Title,
+            secondary_field=self.fields_Author,
+            expect=[self.d2, self.d1]
+        )

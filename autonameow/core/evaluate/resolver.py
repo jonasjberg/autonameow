@@ -26,8 +26,14 @@ from core import (
     repository
 )
 from core.model import genericfields as gf
-from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
-from core.repository import DataBundle
+from core.namebuilder.fields import (
+    NameTemplateField,
+    nametemplatefield_classes_in_formatstring
+)
+from core.repository import (
+    DataBundle,
+    maps_field
+)
 from util import sanity
 from util.text import format_name
 
@@ -361,3 +367,19 @@ def dedupe_list_of_databundles(databundle_list):
             deduped.append(databundle)
 
     return deduped
+
+
+def sort_by_mapped_weights(databundles, primary_field, secondary_field=None):
+    """
+    Sorts bundles by their "weighted mapping" probabilities for given fields.
+    """
+    assert issubclass(primary_field, NameTemplateField)
+    if secondary_field is not None:
+        assert issubclass(secondary_field, NameTemplateField)
+
+    databundles.sort(
+        key=lambda b: (b.field_mapping_probability(primary_field),
+                       b.field_mapping_probability(secondary_field)),
+        reverse=True
+    )
+    return databundles
