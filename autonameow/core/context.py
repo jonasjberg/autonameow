@@ -86,7 +86,6 @@ class FilesContext(object):
         if not name_template:
             if self.opts.get('mode_batch'):
                 log.warning('Name template unknown! Aborting ..')
-                self.ameow.exit_code = C.EXIT_WARNING
                 return
 
             # Have the user select a name template.
@@ -101,7 +100,6 @@ class FilesContext(object):
         if not name_template:
             # User name template selection did not happen or failed.
             log.warning('Name template unknown! Aborting ..')
-            self.ameow.exit_code = C.EXIT_WARNING
             return
 
         if not data_sources:
