@@ -20,25 +20,16 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+from collections import namedtuple
 
-from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
 from core.namebuilder import fields
+from extractors import BaseExtractor
 from util import encoding as enc
-from util import disk
-
-
-# TODO: [TD0037] Allow further customizing of "filetags" options.
-# TODO: [TD0043] Allow further customizing of "filetags" options.
-
-DATE_SEP = rb'[:\-._ ]?'
-TIME_SEP = rb'[:\-._ T]?'
-DATE_REGEX = rb'[12]\d{3}' + DATE_SEP + rb'[01]\d' + DATE_SEP + rb'[0123]\d'
-TIME_REGEX = (rb'[012]\d' + TIME_SEP + rb'[012345]\d' + TIME_SEP
-              + rb'[012345]\d(.[012345]\d)?')
-FILENAMEPART_TS_REGEX = re.compile(
-    DATE_REGEX + rb'([T_ -]?' + TIME_REGEX + rb')?'
+from util import (
+    disk,
+    sanity
 )
 
 
@@ -53,22 +44,26 @@ BETWEEN_TAG_SEPARATOR = enc.bytestring_path(' ')
 FILENAME_TAG_SEPARATOR = enc.bytestring_path(' -- ')
 
 
-class FiletagsAnalyzer(BaseAnalyzer):
-    RUN_QUEUE_PRIORITY = 0.5
-    HANDLES_MIME_TYPES = ['*/*']
+FiletagsParts = namedtuple('FiletagsParts',
+                           'datetime description tags extension')
 
-    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+
+class FiletagsExtractor(BaseExtractor):
+    HANDLES_MIME_TYPES = ['*/*']
+    IS_SLOW = False
     FIELD_LOOKUP = {
         'datetime': {
             'coercer': types.AW_TIMEDATE,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=0.75),
+                WeightedMapping(fields.Date, probability=1),
             ],
             'generic_field': 'date_created'
         },
         'description': {
             'coercer': types.AW_STRING,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Title, probability=0.5),
@@ -84,22 +79,20 @@ class FiletagsAnalyzer(BaseAnalyzer):
             'generic_field': 'tags'
         },
         'extension': {
-            'coercer': types.AW_MIMETYPE,
+            'coercer': types.AW_STRING,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ],
-            'generic_field': 'mime_type'
         },
         'follows_filetags_convention': {
             'coercer': types.AW_BOOLEAN,
             'multivalued': False,
-            'mapped_fields': None,
-            'generic_field': None
         }
     }
 
-    def __init__(self, fileobject, config, request_data_callback):
-        super().__init__(fileobject, config, request_data_callback)
+    def __init__(self):
+        super().__init__()
 
         self._timestamp = None
         self._description = None
@@ -107,99 +100,56 @@ class FiletagsAnalyzer(BaseAnalyzer):
         self._extension = None
         self._follows_filetags_convention = None
 
-    def analyze(self):
-        (_raw_timestamp, _raw_description, _raw_tags,
-         _raw_extension) = partition_basename(self.fileobject.abspath)
+    def extract(self, fileobject, **kwargs):
+        result = self._partition_filename(fileobject.filename)
 
-        self._timestamp = self.coerce_field_value('datetime', _raw_timestamp)
-        self._description = self.coerce_field_value('description', _raw_description)
+        if 'tags' in result:
+            # NOTE(jonas): Assume that consistent output by sorting outweigh
+            #              users that would like to keep the order unchanged ..
+            result['tags'].sort()
 
-        self._tags = []
-        if _raw_tags:
-            _coerced_tags = self.coerce_field_value('tags', _raw_tags)
-            if _coerced_tags:
-                self._tags = sorted(_coerced_tags)
+        return result
 
-        self._extension = self.coerce_field_value('extension', _raw_extension)
+    def _partition_filename(self, filename):
+        parts = partition_basename(filename)
+        follows_convention = follows_filetags_convention(parts)
 
-        _raw_follows_convention = self.follows_filetags_convention()
-        self._follows_filetags_convention = self.coerce_field_value(
-            'follows_filetags_convention', _raw_follows_convention
-        )
+        parts_dict = dict(parts._asdict())
+        parts_dict['follows_filetags_convention'] = follows_convention
+        result = self._to_internal_format(parts_dict)
+        return result
 
-        if self._timestamp:
-            self._add_results('datetime', {
-                'value': self._timestamp,
-                'coercer': types.AW_TIMEDATE,
-                'mapped_fields': [
-                    WeightedMapping(fields.DateTime, probability=1),
-                    WeightedMapping(fields.Date, probability=1),
-                ],
-                'generic_field': 'date_created'
-            })
-        if self._description:
-            self._add_results('description', {
-                'value': self._description,
-                'coercer': types.AW_STRING,
-                'mapped_fields': [
-                    WeightedMapping(fields.Description, probability=1),
-                ],
-                'generic_field': 'description'
-            })
-        if self._tags:
-            self._add_results('tags', {
-                'value': self._tags,
-                'coercer': types.listof(types.AW_STRING),
-                'mapped_fields': [
-                    WeightedMapping(fields.Tags, probability=1),
-                ],
-                'generic_field': 'tags'
+    def _to_internal_format(self, raw_metadata):
+        coerced_metadata = dict()
 
-            })
-        if self._extension:
-            self._add_results('extension', {
-                'value': self._extension,
-                'coercer': types.AW_MIMETYPE,
-                'mapped_fields': [
-                    WeightedMapping(fields.Extension, probability=1),
-                ],
-                'generic_field': 'mime_type'
-            })
-        self._add_results('follows_filetags_convention', {
-            'value': self._follows_filetags_convention,
-            'multivalued': False,
-            'coercer': types.AW_BOOLEAN
-        })
+        for tag_name, value in raw_metadata.items():
+            coerced = self.coerce_field_value(tag_name, value)
+            if coerced is not None:
+                coerced_metadata[tag_name] = coerced
 
-    def follows_filetags_convention(self):
-        """
-        Returns whether the file name is in the "filetags" format.
-
-                                     .------------ FILENAME_TAG_SEPARATOR
-                                    ||         .-- BETWEEN_TAG_SEPARATOR
-                                    VV         V
-          20160722 Descriptive name -- firsttag tagtwo.txt
-          |______| |______________|    |_____________| |_|
-             ts          base               tags       ext
-
-        All filename parts; 'ts', 'base' and 'tags' must be present.
-
-        Returns:
-            True if the filename is in the "filetags" format.
-            Otherwise False.
-        """
-        if self._timestamp and self._description and self._tags:
-            return True
-        return False
+        return coerced_metadata
 
     @classmethod
     def can_handle(cls, fileobject):
-        # Assume 'FileObject' has a path and a basename.
+        # Assume 'FileObject' has a basename.
         return True
 
     @classmethod
     def check_dependencies(cls):
         return True
+
+
+# TODO: [TD0037] Allow further customizing of "filetags" options.
+# TODO: [TD0043] Allow further customizing of "filetags" options.
+
+DATE_SEP = rb'[:\-._ ]?'
+TIME_SEP = rb'[:\-._ T]?'
+DATE_REGEX = rb'[12]\d{3}' + DATE_SEP + rb'[01]\d' + DATE_SEP + rb'[0123]\d'
+TIME_REGEX = (rb'[012]\d' + TIME_SEP + rb'[012345]\d' + TIME_SEP
+              + rb'[012345]\d(.[012345]\d)?')
+FILENAMEPART_TS_REGEX = re.compile(
+    DATE_REGEX + rb'([T_ -]?' + TIME_REGEX + rb')?'
+)
 
 
 def partition_basename(file_path):
@@ -229,6 +179,8 @@ def partition_basename(file_path):
             'timestamp', 'description', 'tags', 'extension', where 'tags' is a
             list of Unicode strings, and the others are plain Unicode strings.
     """
+    sanity.check_internal_bytestring(FILENAME_TAG_SEPARATOR)
+
     prefix, suffix = disk.split_basename(file_path)
 
     timestamp = FILENAMEPART_TS_REGEX.match(prefix)
@@ -264,4 +216,29 @@ def partition_basename(file_path):
     tags = [decode_if_not_none_or_empty(t) for t in tags]
     suffix = decode_if_not_none_or_empty(suffix)
 
-    return timestamp, description, tags or [], suffix
+    # return timestamp, description, tags or [], suffix
+    return FiletagsParts(timestamp, description, tags, suffix)
+
+
+def follows_filetags_convention(filetags_parts):
+    """
+    Check if given parts indicate that a filename is in "filetags format".
+
+                                 .------------ FILENAME_TAG_SEPARATOR
+                                ||         .-- BETWEEN_TAG_SEPARATOR
+                                VV         V
+      20160722 Descriptive name -- firsttag tagtwo.txt
+      |______| |______________|    |_____________| |_|
+        date     description            tags       ext
+
+    Filename parts 'date', 'description' and 'tags' must be present.
+
+    Returns:
+        True if the parts probably came from a file name in the "filetags"
+        format. Otherwise False.
+    """
+    return bool(
+        filetags_parts.datetime and filetags_parts.description
+        and filetags_parts.tags
+    )
+

@@ -472,22 +472,22 @@ def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_TAGS],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_TAGS],
         []
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_DESCRIPTION],
         'gmail'
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_EXTENSION],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_EXTENSION],
         'pdf'
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_DATETIME],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_DATETIME],
         None
     )
     nested_dict_set(

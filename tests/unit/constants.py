@@ -61,11 +61,11 @@ MEOWURI_AZR_FILENAME_PUBLISHER = 'analyzer.filename.publisher'
 MEOWURI_AZR_FILENAME_TAGS = 'analyzer.filename.tags'
 MEOWURI_AZR_FILENAME_TITLE = 'analyzer.filename.title'
 
-MEOWURI_AZR_FILETAGS_DATETIME = 'analyzer.filetags.datetime'
-MEOWURI_AZR_FILETAGS_DESCRIPTION = 'analyzer.filetags.description'
-MEOWURI_AZR_FILETAGS_EXTENSION = 'analyzer.filetags.extension'
-MEOWURI_AZR_FILETAGS_FOLLOWS = 'analyzer.filetags.follows_filetags_convention'
-MEOWURI_AZR_FILETAGS_TAGS = 'analyzer.filetags.tags'
+MEOWURI_FS_FILETAGS_DATETIME = 'extractor.filesystem.filetags.datetime'
+MEOWURI_FS_FILETAGS_DESCRIPTION = 'extractor.filesystem.filetags.description'
+MEOWURI_FS_FILETAGS_EXTENSION = 'extractor.filesystem.filetags.extension'
+MEOWURI_FS_FILETAGS_FOLLOWS = 'extractor.filesystem.filetags.follows_filetags_convention'
+MEOWURI_FS_FILETAGS_TAGS = 'extractor.filesystem.filetags.tags'
 
 MEOWURI_FS_XPLAT_MIMETYPE = 'extractor.filesystem.xplat.contents.mime_type'
 MEOWURI_FS_XPLAT_ABSPATH_FULL = 'extractor.filesystem.xplat.abspath.full'
@@ -110,11 +110,11 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_AZR_FILENAME_PUBLISHER,
     MEOWURI_AZR_FILENAME_TAGS,
     MEOWURI_AZR_FILENAME_TITLE,
-    MEOWURI_AZR_FILETAGS_DATETIME,
-    MEOWURI_AZR_FILETAGS_DESCRIPTION,
-    MEOWURI_AZR_FILETAGS_EXTENSION,
-    MEOWURI_AZR_FILETAGS_FOLLOWS,
-    MEOWURI_AZR_FILETAGS_TAGS,
+    MEOWURI_FS_FILETAGS_DATETIME,
+    MEOWURI_FS_FILETAGS_DESCRIPTION,
+    MEOWURI_FS_FILETAGS_EXTENSION,
+    MEOWURI_FS_FILETAGS_FOLLOWS,
+    MEOWURI_FS_FILETAGS_TAGS,
     MEOWURI_FS_XPLAT_MIMETYPE,
     MEOWURI_FS_XPLAT_ABSPATH_FULL,
     MEOWURI_FS_XPLAT_BASENAME_EXT,
@@ -163,10 +163,10 @@ DUMPED_MEOWURIS = frozenset([
     'analyzer.filename.edition',
     'analyzer.filename.extension',
     'analyzer.filename.publisher',
-    'analyzer.filetags.datetime',
-    'analyzer.filetags.description',
-    'analyzer.filetags.extension',
-    'analyzer.filetags.follows_filetags_convention',
+    # 'analyzer.filetags.datetime',  This is an extractor now
+    # 'analyzer.filetags.description',  This is an extractor now
+    # 'analyzer.filetags.extension',  This is an extractor now
+    # 'analyzer.filetags.follows_filetags_convention',  This is an extractor now
     'extractor.filesystem.xplat.abspath.full',
     'extractor.filesystem.xplat.basename.extension',
     'extractor.filesystem.xplat.basename.full',
@@ -223,7 +223,7 @@ DUMMY_MAPPED_MEOWURIS = list({
     'analyzer.document',
     'analyzer.ebook',
     'analyzer.filename',
-    'analyzer.filetags',
+    # 'analyzer.filetags',  This is an extractor now
     'analyzer.image',
     'analyzer.text',
     'analyzer.video',

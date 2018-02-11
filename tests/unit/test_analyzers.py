@@ -40,7 +40,6 @@ from core import constants as C
 # TODO: [hardcoded] Likely to break; fixed analyzer names!
 EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
                            'analyzers.analyze_filename.FilenameAnalyzer',
-                           'analyzers.analyze_filetags.FiletagsAnalyzer',
                            'analyzers.analyze_video.VideoAnalyzer',
                            'analyzers.analyze_document.DocumentAnalyzer',
                            'analyzers.analyze_text.TextAnalyzer',
@@ -147,26 +146,10 @@ class TestNumberOfAvailableAnalyzerClasses(TestCase):
         self.actual = get_analyzer_classes()
 
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.
-    def test_get_analyzer_classes_returns_at_least_one_analyzer(self):
-        self.assertGreaterEqual(len(self.actual), 1)
-
-    def test_get_analyzer_classes_returns_at_least_two_analyzers(self):
-        self.assertGreaterEqual(len(self.actual), 2)
-
-    def test_get_analyzer_classes_returns_at_least_three_analyzers(self):
-        self.assertGreaterEqual(len(self.actual), 3)
-
-    def test_get_analyzer_classes_returns_at_least_four_analyzers(self):
-        self.assertGreaterEqual(len(self.actual), 4)
-
-    def test_get_analyzer_classes_returns_at_least_five_analyzers(self):
-        self.assertGreaterEqual(len(self.actual), 5)
-
-    def test_get_analyzer_classes_returns_at_least_six_analyzers(self):
-        self.assertGreaterEqual(len(self.actual), 6)
-
-    def test_get_analyzer_classes_returns_at_least_seven(self):
-        self.assertGreaterEqual(len(self.actual), 7)
+    def test_get_analyzer_classes_returns_expected_number_of_analyzers(self):
+        for expect in range(1, 6):
+            with self.subTest(expected_number=expect):
+                self.assertGreaterEqual(len(self.actual), expect)
 
     # TODO: [hardcoded] Likely to break; fixed analyzer names!
     def test_get_analyzer_classes_returns_expected_count(self):
@@ -191,7 +174,6 @@ class TestAnalyzerClassMeowURIs(TestCase):
 
         _assert_in('analyzer.document')
         _assert_in('analyzer.filename')
-        _assert_in('analyzer.filetags')
         _assert_in('analyzer.image')
         _assert_in('analyzer.text')
         _assert_in('analyzer.video')

@@ -66,14 +66,14 @@ class TestFilterAbleToHandle(TestCase):
     def test_returns_expected_extractors_for_mp4_video_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='video/mp4'),
-            expected=['CrossPlatformFileSystemExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
             if_available=['ExiftoolMetadataExtractor']
         )
 
     def test_returns_expected_extractors_for_png_image_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='image/png'),
-            expected=['CrossPlatformFileSystemExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
             if_available=['ExiftoolMetadataExtractor',
                           'TesseractOCRTextExtractor']
         )
@@ -81,7 +81,7 @@ class TestFilterAbleToHandle(TestCase):
     def test_returns_expected_extractors_for_pdf_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='application/pdf'),
-            expected=['CrossPlatformFileSystemExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
             if_available=['ExiftoolMetadataExtractor',
                           'PdftotextTextExtractor']
         )
@@ -89,7 +89,7 @@ class TestFilterAbleToHandle(TestCase):
     def test_returns_expected_extractors_for_text_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='text/plain'),
-            expected=['CrossPlatformFileSystemExtractor',
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor',
                       'PlainTextExtractor'],
             if_available=['ExiftoolMetadataExtractor']
         )
@@ -97,14 +97,14 @@ class TestFilterAbleToHandle(TestCase):
     def test_returns_expected_extractors_for_empty_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='inode/x-empty'),
-            expected=['CrossPlatformFileSystemExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
             if_available=[]
         )
 
     def test_returns_expected_extractors_for_rtf_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='text/rtf'),
-            expected=['CrossPlatformFileSystemExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
             if_available=['RichTextFormatTextExtractor',
                           'ExiftoolMetadataExtractor']
         )

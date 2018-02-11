@@ -60,7 +60,7 @@ class BaseAnalyzer(object):
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
     HANDLES_MIME_TYPES = None
 
-    # Last part of the full MeowURI ('filetags', 'filename', ..)
+    # Last part of the full MeowURI ('ebook', 'filename', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
     # Set at first call to 'meowuri_prefix()'.

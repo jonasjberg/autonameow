@@ -20,34 +20,67 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import namedtuple
-from unittest import TestCase
-from unittest.mock import Mock
+from datetime import datetime
+from unittest import (
+    skipIf,
+    TestCase,
+)
 
 import unit.utils as uu
-from analyzers.analyze_filetags import (
-    FiletagsAnalyzer,
+from extractors.filesystem.filetags import (
+    FiletagsExtractor,
+    FiletagsParts,
+    follows_filetags_convention,
     partition_basename
+)
+from unit.case_extractors import (
+    CaseExtractorBasics,
+    CaseExtractorOutput
 )
 
 
-def get_filetags_analyzer(fileobject):
-    mock_config = Mock()
-
-    return FiletagsAnalyzer(
-        fileobject,
-        mock_config,
-        request_data_callback=uu.mock_request_data_callback
-    )
+# This really shouldn't happen. Probably caused by an error if it does.
+DEPENDENCY_ERROR = 'Extractor dependencies not satisfied (!)'
+UNMET_DEPENDENCIES = FiletagsExtractor.check_dependencies() is False
+assert not UNMET_DEPENDENCIES
 
 
-class TestFiletagsAnalyzer(TestCase):
-    def setUp(self):
-        self.fileobject = uu.get_named_fileobject('2010-01-31_161251.jpg')
-        self.analyzer = get_filetags_analyzer(self.fileobject)
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestFiletagsExtractor(CaseExtractorBasics):
+    __test__ = True
+    EXTRACTOR_CLASS = FiletagsExtractor
 
-    def test_setup(self):
-        self.assertIsNotNone(self.fileobject)
-        self.assertIsNotNone(self.analyzer)
+    def test_method_str_returns_expected(self):
+        actual = str(self.extractor)
+        expect = 'FiletagsExtractor'
+        self.assertEqual(actual, expect)
+
+
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestFiletagsExtractorOutputTestFileA(CaseExtractorOutput):
+    __test__ = True
+    EXTRACTOR_CLASS = FiletagsExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('2017-09-12T224820 filetags-style name -- tag2 a tag1.txt')
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('datetime', datetime, uu.str_to_datetime('2017-09-12 224820')),
+        ('description', str, 'filetags-style name'),
+        ('tags', list, ['a', 'tag1', 'tag2']),
+        ('extension', str, 'txt'),
+        ('follows_filetags_convention', bool, True)
+    ]
+
+
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestFiletagsExtractorOutputTestFileB(CaseExtractorOutput):
+    __test__ = True
+    EXTRACTOR_CLASS = FiletagsExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('empty')
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('description', str, 'empty'),
+        ('tags', list, []),
+        ('extension', str, ''),
+        ('follows_filetags_convention', bool, False)
+    ]
 
 
 class TestPartitionBasename(TestCase):
@@ -170,42 +203,49 @@ class TestPartitionBasename(TestCase):
                     tags=['tag2', 'a', 'tag1'],
                     extension='txt')),
 
+            # Extra spaces after the last tag
             (b'2017-11-16T001411 Windows 10 VM PowerShell -- dev screenshot skylake .png',
              Expect(timestamp='2017-11-16T001411',
                     description='Windows 10 VM PowerShell',
                     tags=['dev', 'screenshot', 'skylake'],
                     extension='png')),
 
+            # Extra spaces after the last tag
             (b'2017-11-16T001411 Windows 10 VM PowerShell -- dev screenshot skylake  .png',
              Expect(timestamp='2017-11-16T001411',
                     description='Windows 10 VM PowerShell',
                     tags=['dev', 'screenshot', 'skylake'],
                     extension='png')),
 
+            # Extra spaces between tag separator and first tag
             (b'2017-11-16T001411 Windows 10 VM PowerShell --  dev screenshot skylake.png',
              Expect(timestamp='2017-11-16T001411',
                     description='Windows 10 VM PowerShell',
                     tags=['dev', 'screenshot', 'skylake'],
                     extension='png')),
 
+            # Extra spaces between tag separator and first tag and after last tag
             (b'2017-11-16T001411 Windows 10 VM PowerShell --  dev screenshot skylake .png',
              Expect(timestamp='2017-11-16T001411',
                     description='Windows 10 VM PowerShell',
                     tags=['dev', 'screenshot', 'skylake'],
                     extension='png')),
 
+            # Extra spaces between tags
             (b'2017-11-16T001411 Windows 10 VM PowerShell -- dev  screenshot skylake.png',
              Expect(timestamp='2017-11-16T001411',
                     description='Windows 10 VM PowerShell',
                     tags=['dev', 'screenshot', 'skylake'],
                     extension='png')),
 
+            # Extra spaces between tag separator and first tag and between tags
             (b'2017-11-16T001411 Windows 10 VM PowerShell --  dev  screenshot skylake.png',
              Expect(timestamp='2017-11-16T001411',
                     description='Windows 10 VM PowerShell',
                     tags=['dev', 'screenshot', 'skylake'],
                     extension='png')),
 
+            # Extra spaces between tag separator tag and after last tag
             (b'2017-11-16T001411 Windows 10 VM PowerShell --  dev  screenshot skylake .png',
              Expect(timestamp='2017-11-16T001411',
                     description='Windows 10 VM PowerShell',
@@ -219,3 +259,38 @@ class TestPartitionBasename(TestCase):
             self.assertEqual(expected, actual)
 
 
+class TestFollowsFiletagsConvention(TestCase):
+    # TODO: Clean up this mess!
+    def _assert(self, expect, given):
+        assert isinstance(expect, bool)
+        empty = {'datetime': '',
+                 'description': '',
+                 'tags': [],
+                 'extension': ''}
+        empty.update(given)
+        parts = FiletagsParts(empty['datetime'], empty['description'], empty['tags'], empty['extension'])
+        actual = follows_filetags_convention(parts)
+        self.assertEqual(expect, actual)
+
+    def test_filetags_name_with_all_parts(self):
+        self._assert(True, given={'datetime': '2018-02-11',
+                                  'description': 'foo',
+                                  'tags': ['a', 'b'],
+                                  'extension': 'txt'})
+
+    def test_filetags_name_with_datetime_description_tags(self):
+        self._assert(True, given={'datetime': '2018-02-11',
+                                  'description': 'foo',
+                                  'tags': ['a', 'b']})
+
+    def test_filetags_name_with_datetime_description_extension(self):
+        self._assert(False, given={'datetime': '2018-02-11',
+                                   'description': 'foo',
+                                   'extension': 'txt'})
+
+    def test_filetags_name_with_datetime_description(self):
+        self._assert(False, given={'datetime': '2018-02-11',
+                                   'description': 'foo'})
+
+    def test_filetags_name_with_datetime(self):
+        self._assert(False, given={'datetime': '2018-02-11'})
