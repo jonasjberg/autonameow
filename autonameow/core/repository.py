@@ -184,6 +184,7 @@ class Repository(object):
         self.__store_data(fileobject, meowuri, data)
 
     def query_mapped(self, fileobject, field):
+        # TODO: [TD0165] Should also return 'DataBundle' for consistency.
         out = []
 
         _data = self.data.get(fileobject)

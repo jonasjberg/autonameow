@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0165]` Integrate the `DataBundle` class completely.
+
 * `[TD0157]` __Look into the analyzers `FIELD_LOOKUP` attribute.__  
     Does it make sense to keep this? Differences between "analyzers" and
     "extractor" enough to motivate them continue being separate concepts?

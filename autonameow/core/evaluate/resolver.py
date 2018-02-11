@@ -117,6 +117,8 @@ class TemplateFieldDataResolver(object):
     def lookup_candidates(self, field):
         # TODO: [TD0024][TD0025] Implement Interactive mode.
         log.debug('Resolver is looking up candidates for field {!s} ..'.format(field.as_placeholder()))
+
+        # TODO: [TD0165] Expect the 'DataBundle' class to be returned here.
         candidates = repository.SessionRepository.query_mapped(self.file, field)
         log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field.as_placeholder()))
 
