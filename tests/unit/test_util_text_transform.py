@@ -36,6 +36,7 @@ from util.text.transform import (
     indent,
     normalize_unicode,
     remove_nonbreaking_spaces,
+    remove_zerowidth_spaces,
     simplify_unicode,
     _strip_accents_homerolled,
     _strip_accents_unidecode,
@@ -365,6 +366,21 @@ class TestRemoveNonBreakingSpaces(TestCase):
         expected = ''
         actual = remove_nonbreaking_spaces('')
         self.assertEqual(actual, expected)
+
+
+class TestZeroWidthSpaces(TestCase):
+    def test_removes_expected(self):
+        actual = remove_zerowidth_spaces('foo\u200Bbar')
+        self.assertEqual('foobar', actual)
+
+    def test_passthrough(self):
+        expected = 'foo bar'
+        actual = remove_zerowidth_spaces('foo bar')
+        self.assertEqual(expected, actual)
+
+    def test_handles_empty_string(self):
+        actual = remove_zerowidth_spaces('')
+        self.assertEqual('', actual)
 
 
 class TestStripAnsiEscape(TestCase):

@@ -39,6 +39,7 @@ __all__ = [
     'normalize_unicode',
     'simplify_unicode',
     'remove_nonbreaking_spaces',
+    'remove_zerowidth_spaces',
     'strip_ansiescape',
     'truncate_text',
     'urldecode'
@@ -268,6 +269,10 @@ def _strip_accents_unidecode(string):
 
 def remove_nonbreaking_spaces(text):
     return text.replace('\xa0', ' ')
+
+
+def remove_zerowidth_spaces(text):
+    return text.replace('\u200B', '')
 
 
 def strip_ansiescape(string):
