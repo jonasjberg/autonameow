@@ -39,6 +39,7 @@ critical `TODO`-list item.
 >
 > 3. Optionally, install additional 3rd party software ("plugins"):
 >
+>     * `ebooklib`
 >     * `guessit`
 >
 > 4. Make sure to fetch all Git submodules:
@@ -117,7 +118,7 @@ pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml
 
 You might also want to install additional __optional__ third-party components:
 ```bash
-pip3 install guessit
+pip3 install guessit ebooklib
 ```
 
 ### Instructions for Linux
@@ -134,7 +135,7 @@ available as separate `python2` and `python3` versions.
 
 You might want to install additional __optional__ third-party components:
 ```bash
-pip3 install guessit
+pip3 install guessit ebooklib
 ```
 
 

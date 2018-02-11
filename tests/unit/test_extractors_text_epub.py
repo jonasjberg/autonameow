@@ -35,12 +35,16 @@ from extractors.text import EpubTextExtractor
 from extractors.text.epub import extract_text_with_ebooklib
 from unit.case_extractors import (
     CaseExtractorBasics,
+    CaseExtractorOutput,
     CaseExtractorOutputTypes
 )
 
 
 UNMET_DEPENDENCIES = not EpubTextExtractor.check_dependencies()
 DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
+
+TESTFILE_A = uu.fileobject_testfile('pg38145-images.epub')
+TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('pg38145-images.epub')
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
@@ -58,7 +62,17 @@ class TestEpubTextExtractor(CaseExtractorBasics):
 class TestEpubTextExtractorOutputTypes(CaseExtractorOutputTypes):
     __test__ = True
     EXTRACTOR_CLASS = EpubTextExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
+    SOURCE_FILEOBJECT = TESTFILE_A
+
+
+@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestEpubTextExtractorOutputTestFileA(CaseExtractorOutput):
+    __test__ = True
+    EXTRACTOR_CLASS = EpubTextExtractor
+    SOURCE_FILEOBJECT = TESTFILE_A
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('full', str, TESTFILE_A_EXPECTED),
+    ]
 
 
 # TODO:  Rework the tests or the extractors.. ?
@@ -83,6 +97,6 @@ class TestExtractTextWithEbooklib(TestCase):
         with self.assertRaises(ExtractorError):
             _ = extract_text_with_ebooklib(not_epub_file)
 
-    def test_opens_sample_epub_file(self):
+    def test_returns_expected_type(self):
         actual = extract_text_with_ebooklib(self.sample_file)
-        self.assertIsNotNone(actual)
+        self.assertIsInstance(actual, str)
