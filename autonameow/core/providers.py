@@ -77,12 +77,10 @@ class ProviderMixin(object):
         else:
             # Check "FIELD_LOOKUP" assumptions.
             if _field_lookup_entry.get('multivalued'):
-                self.log.warning(
+                self.log.debug(
                     'Got single value but "FIELD_LOOKUP" specifies multiple.'
                     ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
                 )
-                return None
-
             try:
                 return wrapper(value)
             except types.AWTypeError as e:
