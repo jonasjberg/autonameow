@@ -64,7 +64,7 @@ class TestPdftotextTextExtractor(CaseExtractorBasics):
     def test_method_str_returns_expected(self):
         actual = str(self.extractor)
         expect = 'PdftotextTextExtractor'
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
@@ -164,7 +164,7 @@ class TestExtractPdfContentWithPdftotext(TestCase):
         self.assertTrue(uu.is_internalstring(self.actual))
 
     def test_returns_expected_text(self):
-        self.assertEqual(self.actual, TESTFILE_A_EXPECTED)
+        self.assertEqual(TESTFILE_A_EXPECTED, self.actual)
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
@@ -179,7 +179,7 @@ class TestPdftotextTextExtractorInternals(TestCase):
 
     def test__get_text_returns_expected_type(self):
         actual = self.e.extract_text(self.test_fileobject)
-        self.assertEqual(type(actual), str)
+        self.assertIsInstance(actual, str)
 
     def test_method_extract_returns_something(self):
         self.assertIsNotNone(self.e.extract(self.test_fileobject))

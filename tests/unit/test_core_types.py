@@ -180,6 +180,7 @@ class TestNullMIMEType(TestCase):
 class TestTypeBoolean(TestCase):
     def test_coerces_expected_primitive(self):
         self.assertEqual(bool, type(types.AW_BOOLEAN(None)))
+        self.assertIsInstance(types.AW_BOOLEAN(None), bool)
 
     def test_null(self):
         self.assertEqual(types.AW_BOOLEAN.NULL, types.AW_BOOLEAN(None))
@@ -331,6 +332,7 @@ class TestTypeBoolean(TestCase):
 class TestTypeInteger(TestCase):
     def test_coerces_expected_primitive(self):
         self.assertEqual(int, type(types.AW_INTEGER(None)))
+        self.assertIsInstance(types.AW_INTEGER(None), int)
 
     def test_null(self):
         self.assertEqual(types.AW_INTEGER.NULL, types.AW_INTEGER(None))
@@ -419,6 +421,7 @@ class TestTypeInteger(TestCase):
 class TestTypeFloat(TestCase):
     def test_coerces_expected_primitive(self):
         self.assertEqual(float, type(types.AW_FLOAT(None)))
+        self.assertIsInstance(types.AW_FLOAT(None), float)
 
     def test_null(self):
         self.assertEqual(types.AW_FLOAT.NULL, types.AW_FLOAT(None))
@@ -621,6 +624,9 @@ class TestTypeTimeDate(TestCase):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(str, type(types.AW_TIMEDATE(None)))
 
+        with self.assertRaises(types.AWTypeError):
+            self.assertIsInstance(types.AW_TIMEDATE(None), str)
+
     def test_null(self):
         self.assertEqual('INVALID DATE', types.AW_TIMEDATE.NULL)
         with self.assertRaises(types.AWTypeError):
@@ -710,6 +716,9 @@ class TestTypeDate(TestCase):
     def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(datetime, type(types.AW_DATE(None)))
+
+        with self.assertRaises(types.AWTypeError):
+            self.assertIsInstance(types.AW_DATE(None), datetime)
 
     def test_null(self):
         self.assertEqual('INVALID DATE', types.AW_DATE.NULL)
@@ -819,7 +828,10 @@ class TestTypeDate(TestCase):
 class TestTypeExiftoolTimeDate(TestCase):
     def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
-            self.assertEqual(type(types.AW_EXIFTOOLTIMEDATE(None)), str)
+            self.assertEqual(str, type(types.AW_EXIFTOOLTIMEDATE(None)))
+
+        with self.assertRaises(types.AWTypeError):
+            self.assertIsInstance(types.AW_EXIFTOOLTIMEDATE(None), str)
 
     def test_null(self):
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE.NULL, 'INVALID DATE')
@@ -999,7 +1011,8 @@ class TestTypePath(TestCase):
 
 class TestTypePathComponent(TestCase):
     def test_coerces_expected_primitive(self):
-        self.assertEqual(type(types.AW_PATHCOMPONENT(None)), bytes)
+        self.assertEqual(bytes, type(types.AW_PATHCOMPONENT(None)))
+        self.assertIsInstance(types.AW_PATHCOMPONENT(None), bytes)
 
     def test_null(self):
         self.assertEqual(types.AW_PATHCOMPONENT(None), b'')
@@ -1089,6 +1102,7 @@ class TestTypePathComponent(TestCase):
 class TestTypeString(TestCase):
     def test_coerces_expected_primitive(self):
         self.assertEqual(str, type(types.AW_STRING(None)))
+        self.assertIsInstance(types.AW_STRING(None), str)
 
     def test_null(self):
         self.assertEqual('', types.AW_STRING.NULL)
