@@ -676,7 +676,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     }
 
     def __init__(self):
-        super(ExiftoolMetadataExtractor, self).__init__()
+        super().__init__()
 
     def extract(self, fileobject, **kwargs):
         self.log.debug('{!s}: Starting extraction'.format(self))

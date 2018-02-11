@@ -48,7 +48,7 @@ def without_endline(f):
 
 class TestResult(unittest.TextTestResult):
     def __init__(self, *args, **kwargs):
-        super(TestResult, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.NUMBER_SLOW_TESTS_TO_DISPLAY = 5
         self.start_times = {}

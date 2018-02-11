@@ -107,7 +107,7 @@ class GuessitPlugin(BasePlugin):
     }
 
     def __init__(self):
-        super(GuessitPlugin, self).__init__(self.DISPLAY_NAME)
+        super().__init__(self.DISPLAY_NAME)
 
     def execute(self, fileobject):
         _file_basename = fileobject.filename

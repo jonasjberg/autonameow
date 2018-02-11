@@ -83,9 +83,7 @@ class EbookAnalyzer(BaseAnalyzer):
     # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
     def __init__(self, fileobject, config, request_data_callback):
-        super(EbookAnalyzer, self).__init__(
-            fileobject, config, request_data_callback
-        )
+        super().__init__(fileobject, config, request_data_callback)
 
         self.text = None
         self._isbn_metadata = []

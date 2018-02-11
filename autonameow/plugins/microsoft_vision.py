@@ -176,9 +176,7 @@ class MicrosoftVisionPlugin(BasePlugin):
     API_KEY = _read_api_key_from_file(api_key_path)
 
     def __init__(self):
-        super(MicrosoftVisionPlugin, self).__init__(
-            display_name=self.DISPLAY_NAME
-        )
+        super().__init__(display_name=self.DISPLAY_NAME)
 
     def execute(self, fileobject):
         _source_path = self.request_data(fileobject, 'filesystem.abspath.full')

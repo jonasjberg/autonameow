@@ -30,9 +30,7 @@ class VideoAnalyzer(BaseAnalyzer):
     # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
     def __init__(self, fileobject, config, request_data_callback):
-        super(VideoAnalyzer, self).__init__(
-            fileobject, config, request_data_callback
-        )
+        super().__init__(fileobject, config, request_data_callback)
 
     def analyze(self):
         # TODO: [TD0055] Implement the video analyzer.

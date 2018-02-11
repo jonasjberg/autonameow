@@ -40,7 +40,7 @@ class PlainTextExtractor(AbstractTextExtractor):
     IS_SLOW = False
 
     def __init__(self):
-        super(PlainTextExtractor, self).__init__()
+        super().__init__()
 
     def extract_text(self, fileobject):
         self.log.debug('Extracting raw text from plain text file ..')

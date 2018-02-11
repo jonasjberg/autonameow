@@ -50,7 +50,7 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
     IS_SLOW = True
 
     def __init__(self):
-        super(TesseractOCRTextExtractor, self).__init__()
+        super().__init__()
 
         self.init_cache()
 

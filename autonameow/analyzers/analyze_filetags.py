@@ -99,9 +99,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
     }
 
     def __init__(self, fileobject, config, request_data_callback):
-        super(FiletagsAnalyzer, self).__init__(
-            fileobject, config, request_data_callback
-        )
+        super().__init__(fileobject, config, request_data_callback)
 
         self._timestamp = None
         self._description = None

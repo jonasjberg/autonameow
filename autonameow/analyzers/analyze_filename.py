@@ -68,9 +68,7 @@ class FilenameAnalyzer(BaseAnalyzer):
     # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
     def __init__(self, fileobject, config, request_data_callback):
-        super(FilenameAnalyzer, self).__init__(
-            fileobject, config, request_data_callback
-        )
+        super().__init__(fileobject, config, request_data_callback)
 
         self._basename_prefix = None
         self._basename_suffix = None

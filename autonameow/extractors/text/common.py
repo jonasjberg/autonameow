@@ -50,7 +50,7 @@ class AbstractTextExtractor(BaseExtractor):
     }
 
     def __init__(self):
-        super(AbstractTextExtractor, self).__init__()
+        super().__init__()
 
         self.cache = None
         # NOTE(jonas): Call 'self.init_cache()' in subclass init to use caching.

@@ -34,7 +34,7 @@ class PdftotextTextExtractor(AbstractTextExtractor):
     IS_SLOW = False
 
     def __init__(self):
-        super(PdftotextTextExtractor, self).__init__()
+        super().__init__()
 
         self.init_cache()
 
