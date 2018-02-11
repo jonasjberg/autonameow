@@ -29,7 +29,6 @@ from core.repository import (
     QueryResponseFailure,
     Repository,
     RepositoryPool,
-    QueryResponseSuccess
 )
 
 
@@ -230,3 +229,18 @@ class TestQueryResponseFailure(TestCase):
     def test_evaluates_false(self):
         response = QueryResponseFailure()
         self.assertFalse(response)
+
+    def test___str__without_any_args(self):
+        response = QueryResponseFailure()
+        actual = str(response)
+        self.assertIsInstance(actual, str)
+
+    def test___str__with_arg_fileobject(self):
+        response = QueryResponseFailure(fileobject=uu.get_mock_fileobject())
+        actual = str(response)
+        self.assertIsInstance(actual, str)
+
+    def test___str__with_arg_fileobject(self):
+        response = QueryResponseFailure(uri=uu.get_meowuri())
+        actual = str(response)
+        self.assertIsInstance(actual, str)
