@@ -45,7 +45,7 @@ EXTRACTOR_CLASS_PACKAGES_METADATA = ['metadata']
 def _find_extractor_classes_in_packages(packages):
     klasses = []
     for package in packages:
-        __import__(package, None, None)
+        __import__(package)
         namespace = inspect.getmembers(sys.modules[package], inspect.isclass)
         for _obj_name, _obj_type in namespace:
             if not issubclass(_obj_type, BaseExtractor):

@@ -59,7 +59,7 @@ def get_plugin_classes():
 
     _plugin_classes = []
     for plugin_file in _to_import:
-        __import__(plugin_file, None, None)
+        __import__(plugin_file)
         namespace = inspect.getmembers(sys.modules[plugin_file],
                                        inspect.isclass)
         for _obj_name, _obj_type in namespace:
