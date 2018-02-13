@@ -194,6 +194,36 @@ def regex_search_str(text):
     return results
 
 
+def _parse_datetime_from_start_to_char_n_patterns(text, match_patterns):
+    """
+    Try to parse string into a datetime object using multiple patterns.
+
+    Patterns are tuples with a date format and a number of characters to
+    include when parsing that format, from the first character to N.
+
+    Args:
+        text: String to parse. Should be single line of text.
+        match_patterns: List of tuples containing a date format and number of
+                        characters in the text string to include, from 0 to N.
+
+    Returns:
+        The first successful datetime-conversion that is also "probable".
+    """
+    if not text or text.strip() is None:
+        return None
+
+    for date_format, num_chars in match_patterns:
+        try:
+            dt = datetime.strptime(text[:num_chars], date_format)
+        except (TypeError, ValueError):
+            pass
+        else:
+            if date_is_probable(dt):
+                return dt
+
+    return None
+
+
 def match_special_case(text):
     """
     Matches strings with a ISO-like date on the form YYYY-mm-dd HH:MM:SS.
@@ -204,28 +234,17 @@ def match_special_case(text):
                  or possibly "learned" patterns ..
 
     Args:
-        text: Text to extract datetime object from as a Unicode string.
+        text: Text line to extract datetime object from as a Unicode text.
 
     Returns: A date and time as an instance of 'datetime' or None.
     """
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-    if not text or text.strip() is None:
-        return None
-
     # TODO: [TD0043] Allow specifying custom matching patterns in the config.
-    match_patterns = [('%Y-%m-%d_%H%M%S', 17),
+    MATCH_PATTERNS = [('%Y-%m-%d_%H%M%S', 17),
                       ('%Y-%m-%dT%H%M%S', 17),
                       ('%Y%m%d_%H%M%S', 15),
                       ('%Y%m%dT%H%M%S', 15)]
-    for date_format, num_chars in match_patterns:
-        try:
-            dt = datetime.strptime(text[:num_chars], date_format)
-        except (TypeError, ValueError):
-            pass
-        else:
-            if date_is_probable(dt):
-                return dt
-    return None
+    return _parse_datetime_from_start_to_char_n_patterns(text, MATCH_PATTERNS)
 
 
 def match_special_case_no_date(text):
@@ -243,21 +262,10 @@ def match_special_case_no_date(text):
     Returns: A date as an instance of 'datetime' or None.
     """
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-    if not text or text.strip() is None:
-        return None
-
     # TODO: [TD0043] Allow the user to tweak hardcoded settings.
-    match_patterns = [('%Y-%m-%d', 10),
+    MATCH_PATTERNS = [('%Y-%m-%d', 10),
                       ('%Y%m%d', 8)]
-    for date_format, num_chars in match_patterns:
-        try:
-            dt = datetime.strptime(text[:num_chars], date_format)
-        except (TypeError, ValueError):
-            pass
-        else:
-            if date_is_probable(dt):
-                return dt
-    return None
+    return _parse_datetime_from_start_to_char_n_patterns(text, MATCH_PATTERNS)
 
 
 def match_android_messenger_filename(text):
