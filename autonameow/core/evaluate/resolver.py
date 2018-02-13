@@ -329,9 +329,8 @@ class TemplateFieldDataResolver(object):
         response = provider.query(fileobject, meowuri)
         if response:
             return response
-        else:
-            log.debug('Resolver got no data.. {!s}'.format(response))
-            return None
+        log.debug('Resolver got no data.. {!s}'.format(response))
+        return None
 
     def __str__(self):
         return self.__class__.__name__
@@ -428,6 +427,5 @@ def get_one_from_many_generic_values(databundle_list, uri):
         prioritized = sort_by_mapped_weights(databundle_list,
                                              primary_field=fields.Title)
         return prioritized[0]
-    else:
-        # TODO: [TD0112] Handle ranking candidates.
-        return None
+    # TODO: [TD0112] Handle ranking candidates.
+    return None

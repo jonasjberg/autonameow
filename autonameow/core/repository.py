@@ -243,8 +243,7 @@ class Repository(object):
             #       Alternatively store "generic" only as "references"?
             if isinstance(data, list):
                 return [DataBundle.from_dict(d) for d in data]
-            else:
-                return DataBundle.from_dict(data)
+            return DataBundle.from_dict(data)
 
     def __get_data(self, fileobject, meowuri):
         # TODO: [TD0167] Is it necessary to be able to handle nested keys?
