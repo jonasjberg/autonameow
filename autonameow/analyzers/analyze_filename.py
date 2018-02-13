@@ -64,6 +64,41 @@ PREFERRED_FILENAME_CHAR_SEPARATOR = '_'
 class FilenameAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 1
     HANDLES_MIME_TYPES = ['*/*']
+    FIELD_LOOKUP = {
+        'datetime': {
+            'coercer': types.AW_TIMEDATE,
+            'multivalued': False,
+            # TODO: [TD0166] No longer able to set probabilities dynamically ..
+            # 'mapped_fields': [
+            #     WeightedMapping(fields.DateTime, probability=_prob),
+            #     WeightedMapping(fields.Date, probability=_prob),
+            # ],
+            'generic_field': 'date_created'
+        },
+        'edition': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Edition, probability=1),
+            ],
+            'generic_field': 'edition'
+        },
+        'extension': {
+            'coercer': types.AW_PATHCOMPONENT,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Extension, probability=1),
+            ]
+        },
+        'publisher': {
+            'coercer': types.AW_STRING,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Publisher, probability=1),
+            ],
+            'generic_field': 'publisher'
+        }
+    }
 
     # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
@@ -95,11 +130,11 @@ class FilenameAnalyzer(BaseAnalyzer):
             'extractor.filesystem.xplat.contents.mime_type'
         )
         self._file_mimetype = file_mimetype or types.NULL_AW_MIMETYPE
-
-        self._add_results('datetime', self.get_datetime())
-        self._add_results('edition', self._get_edition())
-        self._add_results('extension', self._get_extension())
-        self._add_results('publisher', self._get_publisher())
+        _datetime, _ = self.get_datetime()
+        self._add_intermediate_results('datetime', _datetime)
+        self._add_intermediate_results('edition', self._get_edition())
+        self._add_intermediate_results('extension', self._get_extension())
+        self._add_intermediate_results('publisher', self._get_publisher())
 
     def get_datetime(self):
         # TODO: [TD0110] Improve finding probable date/time in file names.
@@ -113,36 +148,19 @@ class FilenameAnalyzer(BaseAnalyzer):
                     pass
                 else:
                     _prob = _timestamp.get('weight', 0.001)
-                    return {
-                        'value': _coerced_value,
-                        'coercer': types.AW_TIMEDATE,
-                        'mapped_fields': [
-                            WeightedMapping(fields.DateTime, probability=_prob),
-                            WeightedMapping(fields.Date, probability=_prob),
-                        ],
-                        'generic_field': 'date_created'
-                    }
+                    # TODO: [TD0166] Pass along probabilities ..
+                    return _coerced_value, _prob
 
         # return fn_timestamps or None
         # TODO: Fix inconsistent analyzer results data.
-        return None
+        return None, None
 
     def _get_edition(self):
         if not self._basename_prefix:
             return None
 
-        _number = find_edition(self._basename_prefix)
-        if not _number:
-            return None
-
-        return {
-            'value': _number,
-            'coercer': types.AW_INTEGER,
-            'mapped_fields': [
-                WeightedMapping(fields.Edition, probability=1),
-            ],
-            'generic_field': 'edition'
-        }
+        number = find_edition(self._basename_prefix)
+        return number
 
     def _get_extension(self):
         self.log.debug(
@@ -151,14 +169,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         )
         result = likely_extension(self._basename_suffix, self._file_mimetype)
         self.log.debug('Likely extension: "{!s}"'.format(result))
-
-        return {
-            'value': result,
-            'coercer': types.AW_PATHCOMPONENT,
-            'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
-            ]
-        }
+        return result
 
     def _get_publisher(self):
         if not self._basename_prefix:
@@ -170,17 +181,7 @@ class FilenameAnalyzer(BaseAnalyzer):
 
         _candidates = _options.get('candidates', {})
         result = find_publisher(self._basename_prefix, _candidates)
-        if not result:
-            return None
-
-        return {
-            'value': result,
-            'coercer': types.AW_STRING,
-            'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=1),
-            ],
-            'generic_field': 'publisher'
-        }
+        return result
 
     def _get_datetime_from_name(self):
         """

@@ -200,7 +200,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'generic_field': 'mime_type'
         },
         'PDF:Author': {
-            'coercer': types.listof(types.AW_STRING),
+            'coercer': types.AW_STRING,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
             ],
@@ -340,6 +341,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'RTF:Author': {
             'coercer': types.AW_STRING,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1.0),
                 WeightedMapping(fields.Publisher, probability=0.1)
@@ -364,6 +366,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'RTF:LastModifiedBy': {
             'coercer': types.AW_STRING,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=0.8),
                 WeightedMapping(fields.Publisher, probability=0.1)
@@ -403,7 +406,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'generic_field': 'creator'
         },
         'XML:Company': {
-            'coercer': types.listof(types.AW_STRING),
+            'coercer': types.AW_STRING,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=0.6),
                 WeightedMapping(fields.Publisher, probability=0.5),
@@ -421,7 +425,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         # Typically a username.
         'XML:LastModifiedBy': {
-            'coercer': types.listof(types.AW_STRING),
+            'coercer': types.AW_STRING,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=0.9),
                 WeightedMapping(fields.Publisher, probability=0.5),
@@ -446,7 +451,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'XMP:About': {'coercer': types.AW_STRING},
         'XMP:Contributor': {
-            'coercer': types.listof(types.AW_STRING),
+            'coercer': types.AW_STRING,
             'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=0.5),
@@ -464,7 +469,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'generic_field': 'date_created'
         },
         'XMP:Creator': {
-            'coercer': types.listof(types.AW_STRING),
+            'coercer': types.AW_STRING,
             'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Creator, probability=1),
@@ -475,7 +480,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'generic_field': 'author'
         },
         'XMP:CreatorFile-as': {
-            'coercer': types.listof(types.AW_STRING),
+            'coercer': types.AW_STRING,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Creator, probability=1),
                 WeightedMapping(fields.Author, probability=0.75),
@@ -513,7 +519,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'XMP:DocumentID': {'coercer': types.AW_STRING},
         'XMP:EntryAuthorName': {
-            'coercer': types.listof(types.AW_STRING),
+            'coercer': types.AW_STRING,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
                 WeightedMapping(fields.Creator, probability=0.5),

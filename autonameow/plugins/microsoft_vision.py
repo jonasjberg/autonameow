@@ -159,7 +159,7 @@ class MicrosoftVisionPlugin(BasePlugin):
             'generic_field': None
         },
         'tags': {
-            'coercer': types.listof(types.AW_STRING),
+            'coercer': types.AW_STRING,
             'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),

@@ -39,7 +39,6 @@ from util import mimemagic
 class GuessitPlugin(BasePlugin):
     DISPLAY_NAME = 'Guessit'
     MEOWURI_LEAF = DISPLAY_NAME.lower()
-
     FIELD_LOOKUP = {
         'audio_codec': {
             'coercer': types.AW_STRING,

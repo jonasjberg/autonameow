@@ -23,7 +23,10 @@ import logging
 
 from core import constants as C
 from core import types
-from core.model import genericfields
+from core.model.genericfields import (
+    GenericField,
+    get_field_class
+)
 from util import sanity
 
 
@@ -45,19 +48,25 @@ class ProviderMixin(object):
             return None
 
         try:
-            _coercer = _field_lookup_entry.get('coercer')
+            coercer = _field_lookup_entry.get('coercer')
         except AttributeError:
             # Might be case of malformed 'FIELD_LOOKUP'.
-            _coercer = None
-        if not _coercer:
-            self.log.debug('Coercer unspecified for field; "{!s}" with value:'
-                           ' "{!s}" ({!s})'.format(field, value, type(value)))
+            coercer = None
+
+        if not coercer:
+            self.log.warning('Coercer unspecified for field; "{!s}" with value:'
+                             ' "{!s}" ({!s})'.format(field, value, type(value)))
             return None
 
-        assert isinstance(_coercer, (types.BaseType, types.MultipleTypes)), (
-            'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer)
+        assert isinstance(coercer, (types.BaseType, types.MultipleTypes)), (
+            'Got ({!s}) "{!s}"'.format(type(coercer), coercer)
         )
-        wrapper = _coercer
+
+        if 'multivalued' not in _field_lookup_entry:
+            self.log.debug(
+                'Multivalued unspecified for field; "{!s}" with value:'
+                ' "{!s}" ({!s})'.format(field, value, type(value))
+            )
 
         if isinstance(value, list):
             # Check "FIELD_LOOKUP" assumptions.
@@ -69,7 +78,7 @@ class ProviderMixin(object):
                 return None
 
             try:
-                return types.listof(wrapper)(value)
+                return types.listof(coercer)(value)
             except types.AWTypeError as e:
                 self.log.debug('Coercing "{!s}" with value "{!s}" raised '
                                'AWTypeError: {!s}'.format(field, value, e))
@@ -78,15 +87,61 @@ class ProviderMixin(object):
             # Check "FIELD_LOOKUP" assumptions.
             if _field_lookup_entry.get('multivalued'):
                 self.log.debug(
-                    'Got single value but "FIELD_LOOKUP" specifies multiple.'
-                    ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
+                    'Got single value but "FIELD_LOOKUP" specifies multiple. '
+                    'Coercing to list. Tag: "{!s}" Value: "{!s}"'.format(field,
+                                                                         value)
                 )
             try:
-                return wrapper(value)
+                return coercer(value)
             except types.AWTypeError as e:
                 self.log.debug('Coercing "{!s}" with value "{!s}" raised '
                                'AWTypeError: {!s}'.format(field, value, e))
                 return None
+
+
+def wrap_provider_results(datadict, metainfo, source_klass):
+    """
+    Joins the plain data dict with metainfo from 'FIELD_LOOKUP'.
+
+    Args:
+        datadict: Provider results data, keys are provider-specific fields
+                  storing coerced data as primitive types.
+        metainfo: Additional information keyed by provider-specific fields.
+        source_klass: The provider class that produced this data.
+
+    Returns:
+        A dict with various information bundled with the actual data.
+    """
+    assert metainfo, 'Provider {} did not pass metainfo'.format(source_klass)
+
+    log.debug('Wrapping provider {!s} results (datadict len: {}) (metainfo len: {})'.format(source_klass, len(datadict), len(metainfo)))
+
+    out = dict()
+
+    for field, value in datadict.items():
+        field_metainfo = dict(metainfo.get(field, {}))
+        if not field_metainfo:
+            log.warning('Missing metainfo for field "{!s}"'.format(field))
+            log.debug('Field {} not in {!s}'.format(field, metainfo))
+            continue
+
+        field_metainfo['value'] = value
+        # Do not store a reference to the class itself before actually needed..
+        field_metainfo['source'] = str(source_klass)
+
+        # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
+        # Map strings to generic field classes.
+        _generic_field_string = field_metainfo.get('generic_field')
+        if _generic_field_string:
+            _generic_field_klass = get_field_class(_generic_field_string)
+            if _generic_field_klass:
+                field_metainfo['generic_field'] = _generic_field_klass
+            else:
+                field_metainfo.pop('generic_field')
+
+        out[field] = field_metainfo
+
+    return out
 
 
 class ProviderRegistry(object):
@@ -277,14 +332,11 @@ def _map_generic_sources(meowuri_class_map):
                     continue
 
                 sanity.check_internal_string(_generic_field_string)
-                _generic_field_klass = genericfields.get_field_class(
-                    _generic_field_string
-                )
+                _generic_field_klass = get_field_class(_generic_field_string)
                 if not _generic_field_klass:
                     continue
 
-                assert issubclass(_generic_field_klass,
-                                  genericfields.GenericField)
+                assert issubclass(_generic_field_klass, GenericField)
                 _generic_meowuri = _generic_field_klass.uri()
                 if not _generic_meowuri:
                     continue

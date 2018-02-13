@@ -58,8 +58,7 @@ class TestFieldGetterMethods(TestCase):
     def test__get_edition_returns_expected_given_basename_with_edition(self):
         self.fna._basename_prefix = 'foo 2nd Edition bar'
         actual = self.fna._get_edition()
-        self.assertIn('value', actual)
-        self.assertEqual(2, actual['value'])
+        self.assertEqual(2, actual)
 
     def test__get_edition_returns_expected_given_basename_without_edition(self):
         self.fna._basename_prefix = 'foo'
@@ -73,8 +72,7 @@ class TestFieldGetterMethods(TestCase):
         mock_find_publisher.return_value = 'Foo Pub'
         self.fna._basename_prefix = 'x'
         actual = self.fna._get_publisher()
-        self.assertIn('value', actual)
-        self.assertEqual('Foo Pub', actual['value'])
+        self.assertEqual('Foo Pub', actual)
 
     @patch('analyzers.analyze_filename.find_publisher')
     def test__get_publisher_returns_expected_given_basename_without_publisher(
@@ -87,8 +85,7 @@ class TestFieldGetterMethods(TestCase):
 
     def __assert_extension(self, expected):
         actual = self.fna._get_extension()
-        self.assertIn('value', actual)
-        self.assertEqual(expected, actual['value'])
+        self.assertEqual(expected, actual)
 
     def test__get_extension_returns_expected_given_mime_type_and_suffix(self):
         self.fna._file_mimetype = 'image/jpeg'

@@ -123,15 +123,15 @@ class TemplateFieldDataResolver(object):
         # TODO: [TD0024][TD0025] Implement Interactive mode.
         log.debug('Resolver is looking up candidates for field {!s} ..'.format(field.as_placeholder()))
 
-        # TODO: [TD0165] Expect the 'DataBundle' class to be returned here.
         candidates = repository.SessionRepository.query_mapped(self.file, field)
         log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field.as_placeholder()))
 
         out = []
-        for candidate in candidates:
-            sanity.check_isinstance(candidate, dict)
+        for uri, candidate in candidates:
+            sanity.check_isinstance_meowuri(uri)
+            sanity.check_isinstance(candidate, DataBundle)
 
-            candidate_mapped_fields = candidate.get('mapped_fields')
+            candidate_mapped_fields = candidate.mapped_fields
             if not candidate_mapped_fields:
                 continue
 
@@ -142,8 +142,8 @@ class TemplateFieldDataResolver(object):
                     _candidate_probability = str(mapping.probability)
                     break
 
-            _candidate_coercer = candidate.get('coercer')
-            _candidate_value = candidate.get('value')
+            _candidate_coercer = candidate.coercer
+            _candidate_value = candidate.value
             _formatted_value = ''
             if _candidate_value and _candidate_coercer:
                 try:
@@ -157,21 +157,22 @@ class TemplateFieldDataResolver(object):
                     log.critical(str(e))
                     continue
 
-            if 'source' not in candidate:
+            _candidate_source = candidate.source
+            if not _candidate_source:
                 log.warning('Unknown source: {!s}'.format(candidate))
-            _candidate_source = candidate.get('source', '(unknown source)')
-            _candidate_meowuri = candidate.get('meowuri', '')
-            _candidate_generic_field = candidate.get('generic_field')
+                _candidate_source = '(unknown source)'
+
+            _candidate_generic_field = candidate.generic_field
 
             # TODO: Translate generic 'choice.meowuri' to not generic..
-            if _candidate_meowuri.is_generic:
-                log.error('Added generic candidate MeowURI {!s}'.format(_candidate_meowuri))
+            if uri.is_generic:
+                log.error('Added generic candidate MeowURI {!s}'.format(uri))
 
             out.append(
                 FieldDataCandidate(string_value=_formatted_value,
                                    source=_candidate_source,
                                    probability=_candidate_probability,
-                                   meowuri=_candidate_meowuri,
+                                   meowuri=uri,
                                    coercer=_candidate_coercer,
                                    generic_field=_candidate_generic_field)
             )
@@ -208,6 +209,11 @@ class TemplateFieldDataResolver(object):
         if isinstance(response, list):
             log.debug('Got list of data. Attempting to deduplicate list of datadicts')
             _deduped_list = dedupe_list_of_databundles(response)
+            if len(_deduped_list) < len(response):
+                # TODO: [TD0112] FIX THIS HORRIBLE MESS!
+                # Use the deduplicated list
+                response = _deduped_list
+
             if len(_deduped_list) == 1:
                 log.debug('Deduplicated list of datadicts has a single element')
                 log.debug('Using one of {} equivalent '
@@ -229,7 +235,6 @@ class TemplateFieldDataResolver(object):
                         assert isinstance(maybe_one, DataBundle)
                         response = maybe_one
 
-        # # TODO: [TD0112] Clean up merging data.
         elif isinstance(response.value, list):
             # TODO: [TD0112] Clean up merging data.
             list_value = response.value
@@ -242,11 +247,12 @@ class TemplateFieldDataResolver(object):
                     # TODO: [TD0112] FIX THIS!
                     log.debug('Merged {} equivalent entries ({!s} is now {!s})'.format(
                         len(list_value), list_value, list(list(seen_data)[0])))
-                    # TODO: [TD0112] FIX THIS!
                     response.value = list(list(seen_data)[0])
 
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
-        log.debug('Updated data for field {{{}}} :: "{!s}"'.format(
+        sanity.check_isinstance(response, DataBundle)
+
+        log.debug('Updated data for field {{{}}} :: {!s}'.format(
             _str_field, response.value))
         self.fields_data[_field] = response
         return True
@@ -282,6 +288,7 @@ class TemplateFieldDataResolver(object):
                     log.debug('Template field {{{!s}}} expects a single value. '
                               'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
                                                          type(data), data))
+                    continue
                 for d in data:
                     self._verify_type(field, d)
             else:
@@ -294,6 +301,7 @@ class TemplateFieldDataResolver(object):
                 self._verify_type(field, data)
 
         # Remove data type is incompatible with associated field.
+        # TODO: ?????
         _fields_data = self.fields_data.copy()
         for field, data in _fields_data.items():
             if data is None:
@@ -422,4 +430,4 @@ def get_one_from_many_generic_values(databundle_list, uri):
         return prioritized[0]
     else:
         # TODO: [TD0112] Handle ranking candidates.
-        return databundle_list
+        return None

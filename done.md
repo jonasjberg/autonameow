@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+### 2018-02-13
+
+> High Priority
+> -------------
+>
+> * `[TD0165]` Integrate the `DataBundle` class completely.
+
 ### 2018-02-08
 
 > High Priority

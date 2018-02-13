@@ -85,19 +85,19 @@ class FilenamePostprocessor(object):
         return text.simplify_unicode(filename)
 
 
-def build(config, name_template, field_data_map):
+def build(config, name_template, field_databundle_dict):
     """
     Constructs a new filename given a name template and a dict mapping
     name template fields to data to be populated in each field.
     """
     log.debug('Using name template: "{}"'.format(name_template))
 
-    if not field_data_map:
+    if not field_databundle_dict:
         log.error('Name builder got empty data map! This should not happen ..')
         raise exceptions.NameBuilderError('Unable to assemble basename')
 
     # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
-    formatted_fields = pre_assemble_format(field_data_map, config)
+    formatted_fields = pre_assemble_format(field_databundle_dict, config)
 
     # TODO: Move to use name template field classes as keys.
     data = _with_simple_string_keys(formatted_fields)
@@ -150,12 +150,14 @@ def build(config, name_template, field_data_map):
     return new_name
 
 
-def pre_assemble_format(field_data_dict, config):
+def pre_assemble_format(field_databundle_dict, config):
     out = dict()
 
-    for field, data in field_data_dict.items():
+    for field, data in field_databundle_dict.items():
         log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))
         assert field and issubclass(field, NameTemplateField)
+        from core.repository import DataBundle
+        assert data and isinstance(data, DataBundle)
 
         # TODO: [TD0115] Clear up uncertainties about data multiplicities
         if data.multivalued:

@@ -205,7 +205,6 @@ class Repository(object):
         self.__store_data(fileobject, meowuri, data)
 
     def query_mapped(self, fileobject, field):
-        # TODO: [TD0165] Should also return 'DataBundle' for consistency.
         out = []
 
         _data = self.data.get(fileobject)
@@ -213,14 +212,16 @@ class Repository(object):
             if isinstance(data, list):
                 for d in data:
                     if maps_field(d, field):
-                        # TODO: [TD0167] Why is this update here?
-                        d.update(meowuri=meowuri)
-                        out.append(d)
+                        # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
+                        out.append(
+                            (meowuri, DataBundle.from_dict(d))
+                        )
             else:
                 if maps_field(data, field):
-                    # TODO: [TD0167] Why is this update here?
-                    data.update(meowuri=meowuri)
-                    out.append(data)
+                    # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
+                    out.append(
+                        (meowuri, DataBundle.from_dict(data))
+                    )
 
         return out
 

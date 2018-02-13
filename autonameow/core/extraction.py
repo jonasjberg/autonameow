@@ -24,39 +24,12 @@ import logging
 import extractors
 from core import logs
 from core.model import force_meowuri
-from core.model.genericfields import get_field_class
+from core.providers import wrap_provider_results
 from extractors import ExtractorError
 from util import sanity
 
 
 log = logging.getLogger(__name__)
-
-
-def _wrap_extracted_data(extracteddata, metainfo, source_klass):
-    out = dict()
-
-    for field, value in extracteddata.items():
-        field_metainfo = dict(metainfo.get(field, {}))
-        if not field_metainfo:
-            log.warning('Missing metainfo for field "{!s}"'.format(field))
-
-        field_metainfo['value'] = value
-        # Do not store a reference to the class itself before actually needed..
-        field_metainfo['source'] = str(source_klass)
-
-        # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
-        # Map strings to generic field classes.
-        _generic_field_string = field_metainfo.get('generic_field')
-        if _generic_field_string:
-            _generic_field_klass = get_field_class(_generic_field_string)
-            if _generic_field_klass:
-                field_metainfo['generic_field'] = _generic_field_klass
-            else:
-                field_metainfo.pop('generic_field')
-
-        out[field] = field_metainfo
-
-    return out
 
 
 def filter_able_to_handle(extractor_klasses, fileobject):
@@ -223,8 +196,8 @@ class ExtractorRunner(object):
 
             # TODO: [TD0034] Filter out known bad data.
             # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-            _results = _wrap_extracted_data(_extracted_data, _metainfo,
-                                            _extractor_instance)
+            _results = wrap_provider_results(_extracted_data, _metainfo,
+                                             _extractor_instance)
             _meowuri_prefix = klass.meowuri_prefix()
             self.store_results(fileobject, _meowuri_prefix, _results)
 

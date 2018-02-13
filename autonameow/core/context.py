@@ -115,15 +115,15 @@ class FilesContext(object):
             # Have the user select data sources.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
 
-        field_data_dict = self._try_resolve(current_file, name_template,
-                                            data_sources)
-        if not field_data_dict:
+        field_databundle_dict = self._try_resolve(current_file, name_template,
+                                                  data_sources)
+        if not field_databundle_dict:
             if not self.opts.get('mode_automagic'):
                 log.warning('Not in automagic mode. Unable to populate name.')
                 self.ameow.exit_code = C.EXIT_WARNING
                 return
 
-            while not field_data_dict and candidates:
+            while not field_databundle_dict and candidates:
                 # Try real hard to figure it out (?)
                 log.debug('Start of try-hard rule matching loop ..')
                 if not candidates:
@@ -138,11 +138,11 @@ class FilesContext(object):
                     )
                     data_sources = active_rule.data_sources
                     name_template = active_rule.name_template
-                    field_data_dict = self._try_resolve(current_file,
-                                                        name_template,
-                                                        data_sources)
+                    field_databundle_dict = self._try_resolve(current_file,
+                                                              name_template,
+                                                              data_sources)
 
-        if not field_data_dict:
+        if not field_databundle_dict:
             log.warning('Unable to populate name.')
             self.ameow.exit_code = C.EXIT_WARNING
             return
@@ -151,7 +151,7 @@ class FilesContext(object):
             new_name = namebuilder.build(
                 config=self.active_config,
                 name_template=name_template,
-                field_data_map=field_data_dict
+                field_databundle_dict=field_databundle_dict
             )
         except NameBuilderError as e:
             log.critical('Name assembly FAILED: {!s}'.format(e))

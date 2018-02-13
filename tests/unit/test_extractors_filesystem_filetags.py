@@ -251,6 +251,12 @@ class TestPartitionBasename(TestCase):
                     description='Windows 10 VM PowerShell',
                     tags=['dev', 'screenshot', 'skylake'],
                     extension='png')),
+
+            (b'Advanced Data Science and Machine Learning for Cats - Paws-on Machine Learning.djvu',
+             Expect(timestamp=None,
+                    description='Advanced Data Science and Machine Learning for Cats - Paws-on Machine Learning',
+                    tags=[],
+                    extension='djvu')),
         ]
 
     def test_partitions_basenames(self):

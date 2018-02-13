@@ -24,11 +24,11 @@ import logging
 from core import constants as C
 from core import providers
 from core.exceptions import AutonameowException
-from core.model.genericfields import get_field_class
 from core.model import (
     force_meowuri,
     MeowURI
 )
+from core.providers import wrap_provider_results
 from util import (
     mimemagic,
     sanity
@@ -83,7 +83,8 @@ class BaseAnalyzer(object):
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        self.results = dict()
+        # self._intermediate_results = list()
+        self._intermediate_results = dict()
 
     def run(self):
         """
@@ -101,7 +102,8 @@ class BaseAnalyzer(object):
             AnalyzerError: The extraction could not be completed successfully.
         """
         self.analyze()
-        return self.results
+        results = self._wrap_results()
+        return results
 
     def analyze(self):
         """
@@ -121,48 +123,47 @@ class BaseAnalyzer(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def _add_results(self, meowuri_leaf, data):
-        """
-        Stores results in an instance variable dict under a full MeowURI.
-
-        Constructs a full "MeowURI" from the given 'meowuri_leaf' and the
-        analyzer-specific MeowURI.
-
-        Args:
-            meowuri_leaf: Last part of the "MeowURI"; for example 'author',
-                as a Unicode str.
-            data: ?
-        """
-        if not data:
+    def _add_intermediate_results(self, meowuri_leaf, data):
+        if data is None:
             return
 
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
-        # Map strings to generic field classes.
-        sanity.check_isinstance(data, dict)
-        _generic_field_string = data.get('generic_field')
-        if _generic_field_string:
-            _generic_field_klass = get_field_class(_generic_field_string)
-            if _generic_field_klass:
-                data['generic_field'] = _generic_field_klass
-            else:
-                data.pop('generic_field')
+        assert meowuri_leaf not in self._intermediate_results
+        self._intermediate_results[meowuri_leaf] = data
+
+    def _wrap_results(self):
+        try:
+            _metainfo = self.metainfo()
+        except NotImplementedError as e:
+            log.critical('Unable to get meta info! Aborting analyzer "{!s}":'
+                         ' {!s}'.format(self, e))
+            raise AnalyzerError(e)
+
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
+        wrapped = wrap_provider_results(self._intermediate_results, _metainfo, self)
 
         meowuri_prefix = self.meowuri_prefix()
-        uri = force_meowuri(meowuri_prefix, meowuri_leaf)
-        if not uri:
-            self.log.error(
-                'Unable to construct full MeowURI from prefix "{!s}" '
-                'and leaf "{!s}"'.format(meowuri_prefix, meowuri_leaf)
-            )
-            return
 
-        _existing_data = self.results.get(uri)
-        if _existing_data:
-            if not isinstance(_existing_data, list):
-                _existing_data = [_existing_data]
-            self.results[uri] = _existing_data + [data]
-        else:
-            self.results[uri] = data
+        data_full_meowuris = dict()
+        for meowuri_leaf, data in wrapped.items():
+            uri = force_meowuri(meowuri_prefix, meowuri_leaf)
+            if not uri:
+                self.log.error(
+                    'Unable to construct full MeowURI from prefix "{!s}" '
+                    'and leaf "{!s}"'.format(meowuri_prefix, meowuri_leaf)
+                )
+                continue
+
+            assert uri not in data_full_meowuris, (
+                'Already wrapped MeowURI {!s} ({!s})'.format(uri, data)
+            )
+            data_full_meowuris[uri] = data
+
+        if not data_full_meowuris:
+            return dict()
+
+        return data_full_meowuris
 
     def request_any_textual_content(self):
         _response = self.request_data(self.fileobject,

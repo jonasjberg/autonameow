@@ -18,8 +18,6 @@ High Priority
 
 * `[TD0166]` The analyzers should be able to set probabilities on the fly.
 
-* `[TD0165]` Integrate the `DataBundle` class completely.
-
 * `[TD0157]` __Look into the analyzers `FIELD_LOOKUP` attribute.__  
     Does it make sense to keep this? Differences between "analyzers" and
     "extractor" enough to motivate them continue being separate concepts?

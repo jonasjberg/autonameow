@@ -204,24 +204,17 @@ class Author(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
-
         _d_coercer = data.coercer
-        # sanity.check_isinstance(_d_coercer, types.BaseType)
+        sanity.check_isinstance(_d_coercer, types.BaseType)
 
-        _authors = data.value
-        sanity.check_isinstance(_authors, list,
-                                msg='Authors should be multivalued (type list)')
+        _d_value = data.value
+        # TODO: Coercer references that are passed around are class INSTANCES!
+        # TODO: [hack] Fix 'types.listof()' expects classes!
+        coercer = types.listof(_d_coercer)
+        list_of_str_authors = coercer(_d_value)
+        sanity.check_isinstance(list_of_str_authors, list)
 
         # TODO: [TD0129] Data validation at this point should be made redundant
-        if _d_coercer != types.AW_STRING:
-            # Might be instance of MultipleTypes of AW_STRING
-            if types.AW_STRING not in _d_coercer:
-                raise exceptions.NameBuilderError(
-                    'Data incompatible with coercer {!s} :: {!r}'.format(
-                        _d_coercer, _authors)
-                )
-
-        list_of_str_authors = _d_coercer(_authors)
         if any(not s.strip() for s in list_of_str_authors):
             raise exceptions.NameBuilderError(
                 'Unicode string coercion resulted in empty (or whitespace) '
@@ -337,6 +330,7 @@ class Publisher(NameTemplateField):
 
         # TODO: [TD0152] Fix too many replacements applied? Stop after first?
         _formatted = data.value
+        sanity.check_internal_string(_formatted)
         for repl, patterns in _candidates.items():
             for pattern in patterns:
                 _formatted = pattern.sub(repl, _formatted)

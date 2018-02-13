@@ -79,6 +79,50 @@ class EbookAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
                           'image/vnd.djvu']
+    FIELD_LOOKUP = {
+        'author': {
+            'coercer': types.AW_STRING,
+            'multivalued': True,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=1),
+            ],
+            'generic_field': 'author'
+        },
+        'date': {
+            'coercer': types.AW_DATE,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Date, probability=1),
+                WeightedMapping(fields.DateTime, probability=1),
+            ],
+            'generic_field': 'date_created'
+        },
+        'edition': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Edition, probability=1),
+            ],
+            'generic_field': 'edition'
+        },
+        'publisher': {
+            'coercer': types.AW_STRING,
+            'multivalued': False,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Publisher, probability=1),
+            ],
+            'generic_field': 'publisher'
+        },
+        'title': {
+            'coercer': types.AW_STRING,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Title, probability=1),
+            ],
+            'generic_field': 'title'
+        },
+    }
 
     # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
@@ -227,28 +271,19 @@ class EbookAnalyzer(BaseAnalyzer):
                     continue
 
                 maybe_title = self._filter_title(_isbn_metadata.title)
-                if maybe_title:
-                    self._add_results('title', self._wrap_title(maybe_title))
+                self._add_intermediate_results('title', maybe_title)
 
                 maybe_authors = _isbn_metadata.authors
-                if maybe_authors:
-                    self._add_results('author',
-                                      self._wrap_authors(maybe_authors))
+                self._add_intermediate_results('author', maybe_authors)
 
-                maybe_publisher = self._filter_publisher(
-                    _isbn_metadata.publisher
-                )
-                if maybe_publisher:
-                    self._add_results('publisher',
-                                      self._wrap_publisher(maybe_publisher))
+                maybe_publisher = self._filter_publisher(_isbn_metadata.publisher)
+                self._add_intermediate_results('publisher', maybe_publisher)
 
                 maybe_date = self._filter_date(_isbn_metadata.year)
-                if maybe_date:
-                    self._add_results('date', self._wrap_date(maybe_date))
+                self._add_intermediate_results('date', maybe_date)
 
                 maybe_edition = self._filter_edition(_isbn_metadata.edition)
-                if maybe_edition:
-                    self._add_results('edition', self._wrap_edition(maybe_edition))
+                self._add_intermediate_results('edition', maybe_edition)
 
     def _get_isbn_metadata(self, isbn):
         if isbn in self._cached_isbn_metadata:
@@ -270,21 +305,6 @@ class EbookAnalyzer(BaseAnalyzer):
 
         return metadata
 
-    def _wrap_authors(self, list_of_authors):
-        if not list_of_authors:
-            return
-
-        return {
-            'source': str(self),
-            'value': list_of_authors,
-            'coercer': types.listof(types.AW_STRING),
-            'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
-            ],
-            'generic_field': 'author',
-            'multivalued': True
-        }
-
     def _filter_date(self, raw_string):
         # TODO: [TD0034] Filter out known bad data.
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
@@ -293,21 +313,6 @@ class EbookAnalyzer(BaseAnalyzer):
             return types.AW_DATE(raw_string)
         except types.AWTypeError:
             return None
-
-    def _wrap_date(self, date_string):
-        if not date_string:
-            return
-
-        return {
-            'source': str(self),
-            'value': date_string,
-            'coercer': types.AW_DATE,
-            'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
-                WeightedMapping(fields.DateTime, probability=1),
-            ],
-            'generic_field': 'date_created'
-        }
 
     def _filter_publisher(self, raw_string):
         # TODO: [TD0034] Filter out known bad data.
@@ -323,18 +328,6 @@ class EbookAnalyzer(BaseAnalyzer):
             # TODO: Cleanup and filter publisher(s)
             return string_
 
-    def _wrap_publisher(self, publisher_string):
-        return {
-            'source': str(self),
-            'value': publisher_string,
-            'coercer': types.AW_STRING,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=1),
-            ],
-            'generic_field': 'publisher'
-        }
-
     def _filter_title(self, raw_string):
         # TODO: [TD0034] Filter out known bad data.
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
@@ -349,17 +342,6 @@ class EbookAnalyzer(BaseAnalyzer):
             # TODO: Cleanup and filter title.
             return string_
 
-    def _wrap_title(self, title_string):
-        return {
-            'source': str(self),
-            'value': title_string,
-            'coercer': types.AW_STRING,
-            'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1),
-            ],
-            'generic_field': 'title'
-        }
-
     def _filter_edition(self, raw_string):
         # TODO: [TD0034] Filter out known bad data.
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
@@ -369,17 +351,6 @@ class EbookAnalyzer(BaseAnalyzer):
             return None
         else:
             return int_ if int_ != 0 else None
-
-    def _wrap_edition(self, edition_integer):
-        return {
-            'source': str(self),
-            'value': edition_integer,
-            'coercer': types.AW_INTEGER,
-            'mapped_fields': [
-                WeightedMapping(fields.Edition, probability=1),
-            ],
-            'generic_field': 'edition'
-        }
 
     @classmethod
     def can_handle(cls, fileobject):
