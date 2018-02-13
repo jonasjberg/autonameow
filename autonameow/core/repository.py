@@ -121,7 +121,11 @@ class Repository(object):
             }
 
     The first level of the nested structure uses instances of 'fileobject' as
-    keys into containing structures that use "MeowURIs" (Unicode strings) keys.
+    keys into containing structures that use instances of 'MeowURI' as keys.
+    Data is stored as dictionaries, with the actual data value along with
+    additional "metainfo".
+
+    NOTE: Data is passed in as dicts but returned as instances of 'DataBundle'!
     """
     def __init__(self):
         self.data = dict()
