@@ -87,7 +87,7 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         # TODO: Search text for datetime information.
 
-        text_titles = [t for t, _ in self._get_title_from_text(text_chunk_1)]
+        text_titles = [t for t, _ in find_titles_in_text(text_chunk_1)]
         if text_titles:
             # TODO: Pass multiple possible titles with probabilities.
             #       (title is not "multivalued")
@@ -109,28 +109,6 @@ class DocumentAnalyzer(BaseAnalyzer):
                 'publisher',
                 self._search_text_for_copyright_publisher(text_chunk_1)
             )
-
-    def _get_title_from_text(self, text):
-        # Add all lines that aren't all whitespace or all dashes, from the
-        # first to line number "MAX_LINES".
-        # The first line is assigned probability 1, probabilities decrease
-        # for each line until line number "MAX_LINES" with probability 0.
-        MAX_LINES = 1
-
-        titles = list()
-        for num, line in enumerate(text.splitlines()):
-            if num > MAX_LINES:
-                break
-
-            if line.strip() and line.replace('-', ''):
-                _prob = (MAX_LINES - num) / MAX_LINES
-                # TODO: Set probabilty dynamically ..
-                # self._add_intermediate_results(
-                #     'title', self._wrap_generic_title(line, _prob)
-                # )
-                titles.append((line, _prob))
-
-        return titles
 
     def _search_text_for_candidate_publisher(self, text):
         # TODO: [TD0130] Implement general-purpose substring matching/extraction.
@@ -162,6 +140,29 @@ class DocumentAnalyzer(BaseAnalyzer):
     @classmethod
     def check_dependencies(cls):
         return True
+
+
+def find_titles_in_text(text):
+    # Add all lines that aren't all whitespace or all dashes, from the
+    # first to line number "MAX_LINES".
+    # The first line is assigned probability 1, probabilities decrease
+    # for each line until line number "MAX_LINES" with probability 0.
+    MAX_LINES = 1
+
+    titles = list()
+    for num, line in enumerate(text.splitlines()):
+        if num > MAX_LINES:
+            break
+
+        if line.strip() and line.replace('-', ''):
+            _prob = (MAX_LINES - num) / MAX_LINES
+            # TODO: Set probabilty dynamically ..
+            # self._add_intermediate_results(
+            #     'title', self._wrap_generic_title(line, _prob)
+            # )
+            titles.append((line, _prob))
+
+    return titles
 
 
 def find_publisher(text, candidates):
