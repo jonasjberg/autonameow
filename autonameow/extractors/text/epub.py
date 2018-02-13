@@ -21,7 +21,10 @@
 
 import logging
 
-from bs4 import BeautifulSoup
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
 
 try:
     from ebooklib import epub
@@ -53,10 +56,13 @@ class EpubTextExtractor(AbstractTextExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        return epub is not None
+        return all(m is not None for m in (epub, BeautifulSoup))
 
 
 def extract_text_with_ebooklib(file_path):
+    assert epub, 'Missing required module "epub"'
+    assert BeautifulSoup, 'Missing required module "BeautifulSoup"'
+
     unicode_file_path = enc.decode_(file_path)
     sanity.check_internal_string(unicode_file_path)
 

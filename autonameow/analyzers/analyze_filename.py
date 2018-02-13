@@ -390,6 +390,10 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'cpp': {'cpp', 'c++', 'txt'},
         'h': {'h'}
     },
+    'text/x-env': {
+        '': {''},
+        'sh': {'sh'}
+    },
     'text/x-makefile': {
         '': {''},
         'asm': {'asm'}

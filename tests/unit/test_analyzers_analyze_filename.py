@@ -215,6 +215,8 @@ class TestLikelyExtension(TestCase):
              Given(suffix='sh', mime='text/x-shellscript')),
             (Expect('sh'),
              Given(suffix='txt', mime='text/x-shellscript')),
+            (Expect('sh'),
+             Given(suffix='sh', mime='text/x-env')),
 
             # Visual Studio Solution
             (Expect('sln'),
