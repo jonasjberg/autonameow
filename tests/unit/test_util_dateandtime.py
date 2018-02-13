@@ -29,6 +29,7 @@ from util.dateandtime import (
     hyphenate_date,
     match_any_unix_timestamp,
     match_special_case,
+    match_special_case_no_date,
     naive_to_timezone_aware,
     timezone_aware_to_naive,
     _year_is_probable
@@ -157,6 +158,57 @@ class TestMatchSpecialCase(TestCase):
         self.assertIsNone(match_special_case(''))
         self.assertIsNone(match_special_case(' '))
         self.assertIsNone(match_special_case('abc'))
+
+
+class TestMatchSpecialCaseNoDate(TestCase):
+    def _assert_match(self, given):
+        actual = match_special_case_no_date(given)
+        self.assertIsInstance(actual, datetime,
+                              'Given string: {!s}'.format(given))
+
+    def _assert_no_match(self, given):
+        actual = match_special_case_no_date(given)
+        self.assertIsNone(actual)
+
+    def test_returns_datetime_instances_for_iso_like_strings(self):
+        self._assert_match('2018-02-13')
+        self._assert_match('2018-02-13          ')
+        self._assert_match('2018-02-13foo')
+        self._assert_match('2018-02-13        foo')
+        self._assert_match('1986-01-02')
+
+        self._assert_match('20180213')
+        self._assert_match('20180213          ')
+        self._assert_match('20180213foo')
+        self._assert_match('20180213        foo')
+        self._assert_match('19860102')
+
+    def test_returns_datetime_instance_with_expected_date(self):
+        expect = datetime.strptime('20180213', '%Y%m%d')
+        actual = match_special_case_no_date('2018-02-13')
+        self.assertEqual(expect, actual)
+
+    def test_does_not_match_strings_without_iso_like_dates(self):
+        self._assert_no_match('')
+        self._assert_no_match(' ')
+        self._assert_no_match('foo')
+        self._assert_no_match('2018')
+
+    def test_does_not_match_improbable_dates(self):
+        self._assert_no_match('0000-00-00')
+        self._assert_no_match('1111-22-33')
+        self._assert_no_match('9999-99-99')
+        self._assert_no_match('1234-56-78')
+        self._assert_no_match('8765-43-21')
+
+        self._assert_no_match('00000000')
+        self._assert_no_match('11112233')
+        self._assert_no_match('99999999')
+        self._assert_no_match('12345678')
+        self._assert_no_match('87654321')
+
+    def test_returns_none_for_non_strings(self):
+        self._assert_no_match(None)
 
 
 class TestNaiveToTimezoneAware(TestCase):
