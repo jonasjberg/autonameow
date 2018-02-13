@@ -227,9 +227,7 @@ class Repository(object):
 
     def query(self, fileobject, meowuri):
         if not meowuri:
-            raise exceptions.InvalidMeowURIError(
-                'Got query with "empty" or missing MeowURI'
-            )
+            return QueryResponseFailure(msg='did not include a MeowURI')
 
         if __debug__:
             log.debug('Got query [{:8.8}]->[{!s}]'.format(

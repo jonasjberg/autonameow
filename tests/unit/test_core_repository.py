@@ -40,14 +40,16 @@ class TestRepositoryRetrieval(TestCase):
         mock_fileobject.hash_partial = '123456789'
         self.fo = mock_fileobject
 
-    def test_query_with_none_meowuri_raises_exception(self):
-        with self.assertRaises(exceptions.InvalidMeowURIError):
-            self.r.query(self.fo, None)
+    def test_query_with_none_meowuri_returns_query_response_failure(self):
+        actual = self.r.query(self.fo, None)
+        self.assertFalse(actual)
+        self.assertIsInstance(actual, QueryResponseFailure)
 
-    def test_query_non_existent_data(self):
+    def test_query_for_non_existent_data_returns_query_response_failure(self):
         actual = self.r.query(self.fo,
                               uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE))
         self.assertFalse(actual)
+        self.assertIsInstance(actual, QueryResponseFailure)
 
 
 class TestRepositoryStorage(TestCase):
