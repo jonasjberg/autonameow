@@ -25,10 +25,7 @@ from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
 from core.namebuilder import fields
-from util import (
-    dateandtime,
-    textutils
-)
+from util import textutils
 from util.text.patternmatching import find_publisher_in_copyright_notice
 
 
