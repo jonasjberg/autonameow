@@ -741,6 +741,11 @@ def init_provider_registry():
     providers.initialize()
 
 
+def init_master_data_provider(active_config):
+    from core import provider
+    provider.initialize(active_config)
+
+
 def is_internalstring(thing):
     if thing is None:
         return False
