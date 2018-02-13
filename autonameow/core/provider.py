@@ -56,7 +56,6 @@ class MasterDataProvider(object):
     for use by any part of the application.
     """
     def __init__(self, config):
-        self.seen_fileobject_meowuris = defaultdict(dict)
         self.config = config
 
         self.debug_stats = defaultdict(dict)
@@ -121,15 +120,8 @@ class MasterDataProvider(object):
 
     def _query_repository(self, fileobject, meowuri):
         self.debug_stats[fileobject][meowuri]['repository_queries'] += 1
-
-        if fileobject in self.seen_fileobject_meowuris:
-            _cached_data = self.seen_fileobject_meowuris[fileobject].get(meowuri)
-            if _cached_data:
-                return _cached_data
-
         _repo_data = repository.SessionRepository.query(fileobject, meowuri)
         if _repo_data:
-            self.seen_fileobject_meowuris[fileobject][meowuri] = _repo_data
             return _repo_data
 
         return None
