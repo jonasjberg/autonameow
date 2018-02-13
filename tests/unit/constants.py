@@ -226,7 +226,6 @@ DUMMY_MAPPED_MEOWURIS = list({
     # 'analyzer.filetags',  This is an extractor now
     'analyzer.image',
     'analyzer.text',
-    'analyzer.video',
     'extractor.filesystem.xplat',
     'extractor.metadata.exiftool',
     'extractor.metadata.jpeginfo',
