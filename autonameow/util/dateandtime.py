@@ -196,15 +196,20 @@ def regex_search_str(text):
 
 def match_special_case(text):
     """
-    Very special case that is almost guaranteed to be correct.
-    That is my personal favorite naming scheme; 1992-12-24_121314
-                                                1992-12-24T121314
-    :param text: text to extract date/time from
-    :return: datetime if found otherwise None
+    Matches strings with a ISO-like date on the form YYYY-mm-dd HH:MM:SS.
+
+    NOTE(jonas): These are patterns I have personally used over the years
+                 that I know are highly likely to be correct if in a filename.
+                 This should be made much more flexible, using user-specified
+                 or possibly "learned" patterns ..
+
+    Args:
+        text: Text to extract datetime object from as a Unicode string.
+
+    Returns: A date and time as an instance of 'datetime' or None.
     """
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-    # TODO: [TD0043] Allow the user to tweak hardcoded settings.
-    if text is None or text.strip() is None:
+    if not text or text.strip() is None:
         return None
 
     # TODO: [TD0043] Allow specifying custom matching patterns in the config.
@@ -212,15 +217,13 @@ def match_special_case(text):
                       ('%Y-%m-%dT%H%M%S', 17),
                       ('%Y%m%d_%H%M%S', 15),
                       ('%Y%m%dT%H%M%S', 15)]
-    for mp, chars in match_patterns:
+    for date_format, num_chars in match_patterns:
         try:
-            dt = datetime.strptime(text[:chars], mp)
+            dt = datetime.strptime(text[:num_chars], date_format)
         except (TypeError, ValueError):
-            log.debug('Failed matching very special case.')
+            pass
         else:
             if date_is_probable(dt):
-                log.debug('[DATETIME] Found very special case: '
-                          '"{}"'.format(dt))
                 return dt
     return None
 

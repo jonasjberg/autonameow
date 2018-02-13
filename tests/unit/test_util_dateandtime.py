@@ -133,31 +133,51 @@ class TestMatchUnixTimestamp(TestCase):
 
 
 class TestMatchSpecialCase(TestCase):
-    def setUp(self):
-        self.expect = datetime.strptime('20160722 131730', '%Y%m%d %H%M%S')
-        self.assertIsInstance(self.expect, datetime)
+    @classmethod
+    def setUpClass(cls):
+        cls.expect = datetime.strptime('20160722 131730', '%Y%m%d %H%M%S')
+
+    def _assert_match(self, given):
+        actual = match_special_case(given)
+        self.assertIsNotNone(actual)
+        self.assertEqual(self.expect, actual)
+
+    def _assert_no_match(self, given):
+        self.assertIsNone(match_special_case(given))
 
     def test_match_special_case_1st_variation(self):
-        self.assertIsNotNone(match_special_case('2016-07-22_131730'))
-        self.assertEqual(self.expect, match_special_case('2016-07-22_131730'))
+        self._assert_match('2016-07-22_131730')
 
     def test_match_special_case_2nd_variation(self):
-        self.assertIsNotNone(match_special_case('2016-07-22T131730'))
-        self.assertEqual(self.expect, match_special_case('2016-07-22T131730'))
+        self._assert_match('2016-07-22T131730')
 
     def test_match_special_case_3rd_variation(self):
-        self.assertIsNotNone(match_special_case('20160722_131730'))
-        self.assertEqual(self.expect, match_special_case('20160722_131730'))
+        self._assert_match('20160722_131730')
 
     def test_match_special_case_4th_variation(self):
-        self.assertIsNotNone(match_special_case('20160722T131730'))
-        self.assertEqual(self.expect, match_special_case('20160722T131730'))
+        self._assert_match('20160722T131730')
 
-    def test_match_special_case_with_invalid_argument(self):
-        self.assertIsNone(match_special_case(None))
-        self.assertIsNone(match_special_case(''))
-        self.assertIsNone(match_special_case(' '))
-        self.assertIsNone(match_special_case('abc'))
+    def test_does_not_match_strings_without_iso_like_dates(self):
+        self._assert_no_match('')
+        self._assert_no_match(' ')
+        self._assert_no_match('foo')
+        self._assert_no_match('2018')
+
+    def test_does_not_match_improbable_dates_and_or_times(self):
+        self._assert_no_match('0000-00-00T000000')
+        self._assert_no_match('1111-22-33T445566')
+        self._assert_no_match('9999-99-99T999999')
+        self._assert_no_match('1234-56-78T890123')
+        self._assert_no_match('8765-43-21T132456')
+
+        self._assert_no_match('00000000T000000')
+        self._assert_no_match('11112233T445566')
+        self._assert_no_match('99999999T999999')
+        self._assert_no_match('12345678T890123')
+        self._assert_no_match('87654321T132456')
+
+    def test_returns_none_for_non_strings(self):
+        self._assert_no_match(None)
 
 
 class TestMatchSpecialCaseNoDate(TestCase):
