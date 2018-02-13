@@ -167,9 +167,8 @@ def _start(fileobject, config, analyzers_to_run=None):
 
     klasses = filter_able_to_handle(chosen_analyzers, fileobject)
     if not klasses:
-        raise AutonameowException(
-            'None of the analyzers applies (!)'
-        )
+        log.debug('None of the analyzers can handle the current file')
+        return
 
     analyzer_queue = []
     for a in _instantiate_analyzers(fileobject, klasses, config):
