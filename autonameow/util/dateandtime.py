@@ -40,6 +40,10 @@ from util import textutils
 log = logging.getLogger(__name__)
 
 
+def is_datetime_instance(thing):
+    return bool(isinstance(thing, datetime))
+
+
 def hyphenate_date(date_str):
     """
     Convert a date in 'YYYYMMDD' format to 'YYYY-MM-DD' format.

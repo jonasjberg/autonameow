@@ -27,6 +27,7 @@ from util.dateandtime import (
     date_is_probable,
     find_isodate_like,
     hyphenate_date,
+    is_datetime_instance,
     match_any_unix_timestamp,
     match_special_case,
     match_special_case_no_date,
@@ -34,6 +35,27 @@ from util.dateandtime import (
     timezone_aware_to_naive,
     _year_is_probable
 )
+
+
+class TestIsDatetimeInstance(TestCase):
+    def test_returns_false_given_something_else_than_datetime_instance(self):
+        for given in (
+                False, None, [], {}, object(), 'foo', 1, lambda x: True
+        ):
+            with self.subTest(given=given):
+                actual = is_datetime_instance(given)
+                self.assertIsInstance(actual, bool)
+                self.assertFalse(actual)
+
+    def test_returns_true_given_datetime_instance(self):
+        for given in (
+            uu.str_to_datetime('2016-07-22 131730'),
+            datetime.now()
+        ):
+            with self.subTest(given=given):
+                actual = is_datetime_instance(given)
+                self.assertIsInstance(actual, bool)
+                self.assertTrue(actual)
 
 
 class TestDateIsProbable(TestCase):
