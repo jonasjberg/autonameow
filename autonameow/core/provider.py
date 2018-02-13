@@ -22,7 +22,6 @@
 import logging
 from collections import defaultdict
 
-import plugins
 from analyzers import BaseAnalyzer
 from core import (
     analysis,
@@ -38,6 +37,102 @@ from util import sanity
 
 
 log = logging.getLogger(__name__)
+
+
+class ProviderRunner(object):
+    def __init__(self, config):
+        self.config = config
+
+        self.extractor_runner = ExtractorRunner(
+            add_results_callback=repository.SessionRepository.store
+        )
+        self.debug_stats = defaultdict(dict)
+        self._previous_runs = dict()
+
+    def delegate_to_providers(self, fileobject, meowuri):
+        possible_providers = providers.get_providers_for_meowuri(meowuri)
+        log.debug('Got {} possible providers'.format(len(possible_providers)))
+        if not possible_providers:
+            return
+
+        # TODO: [TD0142] Check here if the provider can handle the file.
+        # Run only what is suitable and necessary.
+        # Currently, when requesting 'generic.contents.text' from a PDF
+        # document, the extractor runner is started 4 times.
+        # Only one of these are really appropriate; when requesting the
+        # 'PdftotextTextExtractor'. Other extractor requests should be skipped.
+
+        # TODO: [TD0161] Translate from specific to "generic" MeowURI?
+        # Might be useful to be able to translate a specific MeowURI like
+        # 'analyzer.ebook.title' to a "generic" like 'generic.metadata.title'.
+        # Otherwise, user is almost never prompted with any possible candidates.
+
+        analyzers = set()
+        extractors = set()
+        plugins = set()
+        for provider in possible_providers:
+            log.debug('Delegating possible provider: {!s}'.format(provider))
+            if meowuri in self._previous_runs:
+                if provider in self._previous_runs[meowuri]:
+                    log.debug('Skipping previously delegated {!s} to {!s}'.format(meowuri, provider))
+                    continue
+            else:
+                self._previous_runs[meowuri] = set()
+
+            self._previous_runs[meowuri].add(provider)
+
+            if issubclass(provider, BaseExtractor):
+                # self._delegate_to_extractors(fileobject, [provider])
+                extractors.add(provider)
+            elif issubclass(provider, BaseAnalyzer):
+                # self._delegate_to_analyzers(fileobject, [provider])
+                analyzers.add(provider)
+            elif issubclass(provider, plugins.BasePlugin):
+                # self._delegate_to_plugins(fileobject, [provider])
+                plugins.add(provider)
+
+        if extractors:
+            self._delegate_to_extractors(fileobject, extractors)
+        if analyzers:
+            self._delegate_to_analyzers(fileobject, analyzers)
+        if plugins:
+            self._delegate_to_plugins(fileobject, plugins)
+
+    def _delegate_to_extractors(self, fileobject, extractors_to_run):
+        try:
+            self.extractor_runner.start(fileobject, extractors_to_run)
+        except AutonameowException as e:
+            # TODO: [TD0164] Tidy up throwing/catching of exceptions.
+            log.critical('Extraction FAILED: {!s}'.format(e))
+            raise
+
+    def _delegate_to_analyzers(self, fileobject, analyzers_to_run):
+        analysis.run_analysis(
+            fileobject,
+            self.config,
+            analyzers_to_run=analyzers_to_run
+        )
+
+    def _delegate_to_plugins(self, fileobject, plugins_to_run):
+        plugin_handler.run_plugins(
+            fileobject,
+            require_plugins=plugins_to_run,
+        )
+
+    def delegate_every_possible_meowuri(self, fileobject):
+        # Run all extractors
+        try:
+            self.extractor_runner.start(fileobject, request_all=True)
+        except AutonameowException as e:
+            # TODO: [TD0164] Tidy up throwing/catching of exceptions.
+            log.critical('Extraction FAILED: {!s}'.format(e))
+            raise
+
+        # Run all analyzers
+        analysis.run_analysis(fileobject, self.config)
+
+        # Run all plugins
+        plugin_handler.run_plugins(fileobject, run_all_plugins=True)
 
 
 class MasterDataProvider(object):
@@ -59,26 +154,12 @@ class MasterDataProvider(object):
         self.config = config
 
         self.debug_stats = defaultdict(dict)
-        self.extractor_runner = ExtractorRunner(
-            add_results_callback=repository.SessionRepository.store
-        )
+        self.provider_runner = ProviderRunner(self.config)
 
     def delegate_every_possible_meowuri(self, fileobject):
         log.debug('Running all available providers for file: [{:8.8}]'.format(
             fileobject.hash_partial))
-        # Run all extractors
-        try:
-            self.extractor_runner.start(fileobject, request_all=True)
-        except AutonameowException as e:
-            # TODO: [TD0164] Tidy up throwing/catching of exceptions.
-            log.critical('Extraction FAILED: {!s}'.format(e))
-            raise
-
-        # Run all analyzers
-        analysis.run_analysis(fileobject, self.config)
-
-        # Run all plugins
-        plugin_handler.run_plugins(fileobject, run_all_plugins=True)
+        self.provider_runner.delegate_every_possible_meowuri(fileobject)
 
     def query(self, fileobject, meowuri):
         """
@@ -118,14 +199,6 @@ class MasterDataProvider(object):
         log.debug('Failed query, then delegation, then another query and returning None')
         return QueryResponseFailure()
 
-    def _query_repository(self, fileobject, meowuri):
-        self.debug_stats[fileobject][meowuri]['repository_queries'] += 1
-        _repo_data = repository.SessionRepository.query(fileobject, meowuri)
-        if _repo_data:
-            return _repo_data
-
-        return None
-
     def _delegate_to_providers(self, fileobject, meowuri):
         log.debug('Delegating request to providers: [{:8.8}]->[{!s}]'.format(
             fileobject.hash_partial, meowuri))
@@ -136,50 +209,15 @@ class MasterDataProvider(object):
             log.warning('Delegated {} times:  [{:8.8}]->[{!s}]'.format(
                 delegation_count, fileobject.hash_partial, meowuri))
 
-        possible_providers = providers.get_providers_for_meowuri(meowuri)
-        log.debug('Got {} possible providers'.format(len(possible_providers)))
+        self.provider_runner.delegate_to_providers(fileobject, meowuri)
 
-        # TODO: [TD0142] Check here if the provider can handle the file.
-        # Run only what is suitable and necessary.
-        # Currently, when requesting 'generic.contents.text' from a PDF
-        # document, the extractor runner is started 4 times.
-        # Only one of these are really appropriate; when requesting the
-        # 'PdftotextTextExtractor'. Other extractor requests should be skipped.
+    def _query_repository(self, fileobject, meowuri):
+        self.debug_stats[fileobject][meowuri]['repository_queries'] += 1
+        _repo_data = repository.SessionRepository.query(fileobject, meowuri)
+        if _repo_data:
+            return _repo_data
 
-        # TODO: [TD0161] Translate from specific to "generic" MeowURI?
-        # Might be useful to be able to translate a specific MeowURI like
-        # 'analyzer.ebook.title' to a "generic" like 'generic.metadata.title'.
-        # Otherwise, user is almost never prompted with any possible candidates.
-        if possible_providers:
-            for provider in possible_providers:
-                log.debug('Delegating possible provider: {!s}'.format(provider))
-                if issubclass(provider, BaseExtractor):
-                    self._delegate_to_extractors(fileobject, [provider])
-                elif issubclass(provider, BaseAnalyzer):
-                    self._delegate_to_analyzers(fileobject, [provider])
-                elif issubclass(provider, plugins.BasePlugin):
-                    self._delegate_to_plugins(fileobject, [provider])
-
-    def _delegate_to_extractors(self, fileobject, extractors_to_run):
-        try:
-            self.extractor_runner.start(fileobject, extractors_to_run)
-        except AutonameowException as e:
-            # TODO: [TD0164] Tidy up throwing/catching of exceptions.
-            log.critical('Extraction FAILED: {!s}'.format(e))
-            raise
-
-    def _delegate_to_analyzers(self, fileobject, analyzers_to_run):
-        analysis.run_analysis(
-            fileobject,
-            self.config,
-            analyzers_to_run=analyzers_to_run
-        )
-
-    def _delegate_to_plugins(self, fileobject, plugins_to_run):
-        plugin_handler.run_plugins(
-            fileobject,
-            require_plugins=plugins_to_run,
-        )
+        return None
 
     def _print_debug_stats(self):
         if not __debug__:
