@@ -213,12 +213,12 @@ class Repository(object):
             if isinstance(data, list):
                 for d in data:
                     if maps_field(d, field):
-                        # TODO: Why is this update here?
+                        # TODO: [TD0167] Why is this update here?
                         d.update(meowuri=meowuri)
                         out.append(d)
             else:
                 if maps_field(data, field):
-                    # TODO: Why is this update here?
+                    # TODO: [TD0167] Why is this update here?
                     data.update(meowuri=meowuri)
                     out.append(data)
 
@@ -248,9 +248,11 @@ class Repository(object):
                 return DataBundle.from_dict(data)
 
     def __get_data(self, fileobject, meowuri):
+        # TODO: [TD0167] Is it necessary to be able to handle nested keys?
         return util.nested_dict_get(self.data, [fileobject, meowuri])
 
     def __store_data(self, fileobject, meowuri, data):
+        # TODO: [TD0167] Is it necessary to be able to handle nested keys?
         util.nested_dict_set(self.data, [fileobject, meowuri], data)
 
     def human_readable_contents(self):
