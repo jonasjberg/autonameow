@@ -95,10 +95,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         # TODO: [TD0134] Consolidate splitting up text into chunks.
         text_chunk_1 = self._extract_leading_text_chunk(chunk_ratio=0.1)
 
-        # TODO: [TD0102] Fix inconsistent results passed back by analyzers.
-        self._add_intermediate_results(
-            'datetime', self._get_datetime_from_text(text_chunk_1)
-        )
+        # TODO: Search text for datetime information.
 
         text_titles = [t for t, _ in self._get_title_from_text(text_chunk_1)]
         self._add_intermediate_results('title', text_titles)
@@ -156,27 +153,6 @@ class DocumentAnalyzer(BaseAnalyzer):
         # TODO: [cleanup] ..
         result = find_publisher(possible_publishers, self.candidate_publishers)
         return result
-
-    def _get_datetime_from_text(self, text):
-        # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-        dt_regex = dateandtime.regex_search_str(text)
-        if not dt_regex:
-            return None
-
-        assert isinstance(dt_regex, list)
-        results = []
-        for data in dt_regex:
-            results.append({
-                'value': data,
-                'coercer': types.AW_TIMEDATE,
-                'mapped_fields': [
-                    WeightedMapping(fields.DateTime, probability=0.25),
-                    WeightedMapping(fields.Date, probability=0.25)
-                ],
-                'generic_field': 'date_created',
-                'source': str(self)
-                })
-        return results
 
     def _extract_leading_text_chunk(self, chunk_ratio):
         assert chunk_ratio >= 0, 'Argument chunk_ratio is negative'
