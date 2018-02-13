@@ -59,13 +59,6 @@ class ProviderRunner(object):
         if not possible_providers:
             return
 
-        # TODO: [TD0142] Check here if the provider can handle the file.
-        # Run only what is suitable and necessary.
-        # Currently, when requesting 'generic.contents.text' from a PDF
-        # document, the extractor runner is started 4 times.
-        # Only one of these are really appropriate; when requesting the
-        # 'PdftotextTextExtractor'. Other extractor requests should be skipped.
-
         # TODO: [TD0161] Translate from specific to "generic" MeowURI?
         # Might be useful to be able to translate a specific MeowURI like
         # 'analyzer.ebook.title' to a "generic" like 'generic.metadata.title'.
@@ -188,18 +181,19 @@ class MasterDataProvider(object):
 
         self._print_debug_stats()
 
+        # First try the repository for previously gathered data
         response = self._query_repository(fileobject, meowuri)
         if response:
             return response
 
+        # Have relevant providers gather the data
         self._delegate_to_providers(fileobject, meowuri)
 
-        # TODO: [TD0142] Handle this properly ..
+        # Try the repository again
         response = self._query_repository(fileobject, meowuri)
         if response:
             return response
 
-        # TODO: [TD0142] Handle this properly ..
         log.debug('Failed query, then delegation, then another query and returning None')
         return QueryResponseFailure()
 
