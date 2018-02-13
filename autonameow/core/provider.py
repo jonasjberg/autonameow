@@ -50,6 +50,9 @@ class ProviderRunner(object):
         self._previous_runs = dict()
 
     def delegate_to_providers(self, fileobject, meowuri):
+        if fileobject not in self._previous_runs:
+            self._previous_runs[fileobject] = dict()
+
         possible_providers = providers.get_providers_for_meowuri(meowuri)
         log.debug('Got {} possible providers'.format(len(possible_providers)))
         if not possible_providers:
@@ -72,14 +75,14 @@ class ProviderRunner(object):
         plugins = set()
         for provider in possible_providers:
             log.debug('Delegating possible provider: {!s}'.format(provider))
-            if meowuri in self._previous_runs:
-                if provider in self._previous_runs[meowuri]:
+            if meowuri in self._previous_runs[fileobject]:
+                if provider in self._previous_runs[fileobject][meowuri]:
                     log.debug('Skipping previously delegated {!s} to {!s}'.format(meowuri, provider))
                     continue
             else:
-                self._previous_runs[meowuri] = set()
+                self._previous_runs[fileobject][meowuri] = set()
 
-            self._previous_runs[meowuri].add(provider)
+            self._previous_runs[fileobject][meowuri].add(provider)
 
             if issubclass(provider, BaseExtractor):
                 # self._delegate_to_extractors(fileobject, [provider])
