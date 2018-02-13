@@ -37,7 +37,6 @@ from util import (
     git_commit_hash,
     sanity
 )
-from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
