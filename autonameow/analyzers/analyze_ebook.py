@@ -108,7 +108,6 @@ class EbookAnalyzer(BaseAnalyzer):
         'publisher': {
             'coercer': types.AW_STRING,
             'multivalued': False,
-            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
