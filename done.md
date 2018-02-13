@@ -16,6 +16,9 @@ University mail: `js224eh[a]student.lnu.se`
 > -------------
 >
 > * `[TD0165]` Integrate the `DataBundle` class completely.
+>
+> * `[TD0142]` __Rework overall architecture to fetch only explicitly needed data.__  
+>   Refer to `notes/architecture.md` for details.
 
 ### 2018-02-08
 
