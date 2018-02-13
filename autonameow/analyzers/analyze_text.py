@@ -20,14 +20,26 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from analyzers import BaseAnalyzer
+from core import types
+from core.model import WeightedMapping
+from core.namebuilder import fields
 from util import dateandtime
 
 
 class TextAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['text/plain']
-
-    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+    # TODO: [TD0168] This is currently unused!
+    FIELD_LOOKUP = {
+        'datetime': {
+            'coercer': types.AW_TIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25)
+            ],
+            'generic_field': 'date_created',
+        },
+    }
 
     def __init__(self, fileobject, config, request_data_callback):
         super().__init__(fileobject, config, request_data_callback)
@@ -35,14 +47,16 @@ class TextAnalyzer(BaseAnalyzer):
         self.text = None
 
     def analyze(self):
-        _maybe_text = self.request_any_textual_content()
-        if not _maybe_text:
-            return
-
-        self.text = _maybe_text
-
+        # TODO: [TD0168] Remove or re-implement the TextAnalyzer ..
+        # _maybe_text = self.request_any_textual_content()
+        # if not _maybe_text:
+        #     return
+        #
+        # self.text = _maybe_text
+        #
         # TODO: [TD0102] Fix inconsistent results passed back by analyzers.
-        # self._add_results('datetime', self.get_datetime())
+        # self._add_intermediate_results('datetime', self.get_datetime())
+        pass
 
     def get_datetime(self):
         results = []
@@ -95,6 +109,7 @@ class TextAnalyzer(BaseAnalyzer):
             self.log.debug('Brute force search for date/time-information'
                            ' returned {} results.'.format(matches_brute))
 
+        # TODO: [TD0102] Fix inconsistent results passed back by analyzers.
         return results
 
     @classmethod

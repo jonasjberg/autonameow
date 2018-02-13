@@ -62,6 +62,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0168]` Remove or re-implement the `TextAnalyzer`.
+
 * `[TD0161]` Handle mapping/translation between "generic"/specific MeowURIs.
 
 * `[TD0158]` Evaluate regression test assertions of "skipped renames".
