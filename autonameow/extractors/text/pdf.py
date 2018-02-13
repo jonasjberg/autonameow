@@ -29,7 +29,7 @@ from extractors.text.common import (
 import util
 
 
-class PdftotextTextExtractor(AbstractTextExtractor):
+class PdfTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
     IS_SLOW = False
 

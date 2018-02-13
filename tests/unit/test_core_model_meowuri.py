@@ -636,10 +636,10 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
                      'File:FileAccessDate', 'File:MIMEType', 'PDF:Creator']:
             self._check(_prefix, _key, expected='{}.{}'.format(_prefix, _key))
 
-    def test_extraction_collect_extractor_text_pdftotext(self):
-        _prefix = 'extractor.text.pdftotext'
+    def test_extraction_collect_extractor_text_pdf(self):
+        _prefix = 'extractor.text.pdf'
         _key = 'full'
-        self._check(_prefix, _key, expected='extractor.text.pdftotext.full')
+        self._check(_prefix, _key, expected='extractor.text.pdf.full')
 
     def test_extraction_collect_extractor_metadata_jpeginfo(self):
         _prefix = 'extractor.metadata.jpeginfo'
@@ -814,8 +814,8 @@ class TestRoundtripsFromStringToMeowURIToString(TestCase):
     def test_epub_text_extractor_prefix(self):
         self._assert_roundtrips('extractor.text.epub')
 
-    def test_pdftotext_text_extractor_prefix(self):
-        self._assert_roundtrips('extractor.text.pdftotext')
+    def test_pdf_text_extractor_prefix(self):
+        self._assert_roundtrips('extractor.text.pdf')
 
 
 class TestRoundtripsFromMeowURIToStringToMeowURI(TestCase):
@@ -840,8 +840,8 @@ class TestRoundtripsFromMeowURIToStringToMeowURI(TestCase):
     def test_epub_text_extractor_prefix(self):
         self._assert_roundtrips('extractor.text.epub')
 
-    def test_pdftotext_text_extractor_prefix(self):
-        self._assert_roundtrips('extractor.text.pdftotext')
+    def test_pdf_text_extractor_prefix(self):
+        self._assert_roundtrips('extractor.text.pdf')
 
 
 class TestForceMeowURI(TestCase):

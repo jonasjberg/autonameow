@@ -26,8 +26,8 @@ from unittest import (
 )
 
 import unit.utils as uu
-from extractors.text import PdftotextTextExtractor
-from extractors.text.pdftotext import extract_pdf_content_with_pdftotext
+from extractors.text import PdfTextExtractor
+from extractors.text.pdf import extract_pdf_content_with_pdftotext
 from unit.case_extractors import (
     CaseExtractorBasics,
     CaseExtractorOutput,
@@ -35,7 +35,7 @@ from unit.case_extractors import (
 )
 
 
-UNMET_DEPENDENCIES = PdftotextTextExtractor.check_dependencies() is False
+UNMET_DEPENDENCIES = PdfTextExtractor.check_dependencies() is False
 DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
 
 # NOTE: It seems that pdftotext strips trailing whitespace on MacOS (v0.57.0)
@@ -57,27 +57,27 @@ class TestPrerequisites(TestCase):
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPdftotextTextExtractor(CaseExtractorBasics):
+class TestPdfTextExtractor(CaseExtractorBasics):
     __test__ = True
-    EXTRACTOR_CLASS = PdftotextTextExtractor
+    EXTRACTOR_CLASS = PdfTextExtractor
 
     def test_method_str_returns_expected(self):
         actual = str(self.extractor)
-        expect = 'PdftotextTextExtractor'
+        expect = 'PdfTextExtractor'
         self.assertEqual(expect, actual)
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPdftotextTextExtractorOutputTypes(CaseExtractorOutputTypes):
+class TestPdfTextExtractorOutputTypes(CaseExtractorOutputTypes):
     __test__ = True
-    EXTRACTOR_CLASS = PdftotextTextExtractor
+    EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPdftotextTextExtractorOutputTestFileA(CaseExtractorOutput):
+class TestPdfTextExtractorOutputTestFileA(CaseExtractorOutput):
     __test__ = True
-    EXTRACTOR_CLASS = PdftotextTextExtractor
+    EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
     EXPECTED_FIELD_TYPE_VALUE = [
         ('full', str, TESTFILE_A_EXPECTED),
@@ -85,9 +85,9 @@ class TestPdftotextTextExtractorOutputTestFileA(CaseExtractorOutput):
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPdftotextTextExtractorOutputTestFileB(CaseExtractorOutput):
+class TestPdfTextExtractorOutputTestFileB(CaseExtractorOutput):
     __test__ = True
-    EXTRACTOR_CLASS = PdftotextTextExtractor
+    EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_B)
     EXPECTED_FIELD_TYPE_VALUE = [
         ('full', str, TESTFILE_B_EXPECTED),
@@ -111,7 +111,7 @@ class TestCachingRuntime(TestCase):
 
         # Patch to disable caching.
         # "Should" be equivalent to not calling 'init_cache()' in '__init__()'.
-        e_no_cache = PdftotextTextExtractor()
+        e_no_cache = PdfTextExtractor()
         e_no_cache.cache = None
 
         start_time = time.time()
@@ -120,7 +120,7 @@ class TestCachingRuntime(TestCase):
         cls.runtime_cache_disabled = time.time() - start_time
 
         # Enable caching.
-        e_cached = PdftotextTextExtractor()
+        e_cached = PdfTextExtractor()
         e_cached.init_cache()
 
         start_time = time.time()
@@ -168,10 +168,10 @@ class TestExtractPdfContentWithPdftotext(TestCase):
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPdftotextTextExtractorInternals(TestCase):
+class TestPdfTextExtractorInternals(TestCase):
     def setUp(self):
         self.test_fileobject = uu.fileobject_testfile('gmail.pdf')
-        self.e = PdftotextTextExtractor()
+        self.e = PdfTextExtractor()
 
     def test__get_text_returns_something(self):
         actual = self.e.extract_text(self.test_fileobject)
@@ -189,11 +189,11 @@ class TestPdftotextTextExtractorInternals(TestCase):
         self.assertIsInstance(actual, dict)
 
 
-class TestPdftotextTextExtractorCanHandle(TestCase):
+class TestPdfTextExtractorCanHandle(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.e = PdftotextTextExtractor()
+        self.e = PdfTextExtractor()
 
         class DummyFileObject(object):
             def __init__(self, mime):

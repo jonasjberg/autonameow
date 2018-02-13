@@ -83,7 +83,7 @@ class TestFilterAbleToHandle(TestCase):
             fileobject=uu.get_mock_fileobject(mime_type='application/pdf'),
             expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
             if_available=['ExiftoolMetadataExtractor',
-                          'PdftotextTextExtractor']
+                          'PdfTextExtractor']
         )
 
     def test_returns_expected_extractors_for_text_file(self):

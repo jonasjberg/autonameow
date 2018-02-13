@@ -313,8 +313,8 @@ class TestExtractorClassMeowURIs(TestCase):
                                'extractor.filesystem.xplat')
         _conditional_assert_in('ExiftoolMetadataExtractor',
                                'extractor.metadata.exiftool')
-        _conditional_assert_in('PdftotextTextExtractor',
-                               'extractor.text.pdftotext')
+        _conditional_assert_in('PdfTextExtractor',
+                               'extractor.text.pdf')
         _conditional_assert_in('TesseractOCRTextExtractor',
                                'extractor.text.tesseractocr')
         _conditional_assert_in('RichTextFormatTextExtractor',

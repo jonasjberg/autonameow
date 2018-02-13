@@ -273,7 +273,7 @@ def _get_meowuri_source_map():
         Example return value: {
             'extractor.filesystem.xplat': CrossPlatformFilesystemExtractor,
             'extractor.metadata.exiftool': ExiftoolMetadataExtractor,
-            'extractor.text.pdftotext': PdftotextTextExtractor
+            'extractor.text.pdf': PdfTextExtractor
         }
 
         Returns: Dictionary keyed by instances of the 'MeowURI' class,
