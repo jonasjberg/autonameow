@@ -44,18 +44,11 @@ class DocumentAnalyzer(BaseAnalyzer):
         'title': {
             'coercer': types.AW_STRING,
             'mapped_fields': [
+                # TODO: [TD0166] Set probabilities dynamically
                 WeightedMapping(fields.Title, probability=1),
             ],
             'generic_field': 'title'
         },
-        # TODO: [TD0166] No longer able to set probabilities dynamically ..
-        # 'title': {
-        #     'coercer': types.AW_STRING,
-        #     'mapped_fields': [
-        #         WeightedMapping(fields.Title, probability=probability),
-        #     ],
-        #     'generic_field': 'title',
-        # },
         'datetime': {
             'coercer': types.AW_TIMEDATE,
             'mapped_fields': [
@@ -71,10 +64,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             ],
             'generic_field': 'publisher',
         }
-
     }
-
-    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
     def __init__(self, fileobject, config, request_data_callback):
         super().__init__(fileobject, config, request_data_callback)
@@ -98,16 +88,19 @@ class DocumentAnalyzer(BaseAnalyzer):
         # TODO: Search text for datetime information.
 
         text_titles = [t for t, _ in self._get_title_from_text(text_chunk_1)]
-        self._add_intermediate_results('title', text_titles)
+        if text_titles:
+            # TODO: Pass multiple possible titles with probabilities.
+            #       (title is not "multivalued")
+            maybe_text_title = text_titles[0]
+            self._add_intermediate_results('title', maybe_text_title)
 
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
         if _options:
-            _candidates = _options.get('candidates', {})
-            if _candidates:
-                self.candidate_publishers = _candidates
+            self.candidate_publishers = _options.get('candidates', {})
 
-        # TODO: [cleanup] ..
         if self.candidate_publishers:
+            # TODO: Pass multiple possible publishers with probabilities.
+            #       (publisher is not "multivalued")
             self._add_intermediate_results(
                 'publisher',
                 self._search_text_for_candidate_publisher(text_chunk_1)
