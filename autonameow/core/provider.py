@@ -33,6 +33,7 @@ from core.exceptions import AutonameowException
 from core.extraction import ExtractorRunner
 from core.repository import QueryResponseFailure
 from extractors import BaseExtractor
+from plugins import BasePlugin
 from util import sanity
 
 
@@ -70,11 +71,11 @@ class ProviderRunner(object):
         # 'analyzer.ebook.title' to a "generic" like 'generic.metadata.title'.
         # Otherwise, user is almost never prompted with any possible candidates.
 
-        analyzers = set()
-        extractors = set()
-        plugins = set()
+        prepared_analyzers = set()
+        prepared_extractors = set()
+        prepared_plugins = set()
         for provider in possible_providers:
-            log.debug('Delegating possible provider: {!s}'.format(provider))
+            log.debug('Looking at possible provider: {!s}'.format(provider))
             if meowuri in self._previous_runs[fileobject]:
                 if provider in self._previous_runs[fileobject][meowuri]:
                     log.debug('Skipping previously delegated {!s} to {!s}'.format(meowuri, provider))
@@ -85,21 +86,21 @@ class ProviderRunner(object):
             self._previous_runs[fileobject][meowuri].add(provider)
 
             if issubclass(provider, BaseExtractor):
-                # self._delegate_to_extractors(fileobject, [provider])
-                extractors.add(provider)
+                prepared_extractors.add(provider)
             elif issubclass(provider, BaseAnalyzer):
-                # self._delegate_to_analyzers(fileobject, [provider])
-                analyzers.add(provider)
-            elif issubclass(provider, plugins.BasePlugin):
-                # self._delegate_to_plugins(fileobject, [provider])
-                plugins.add(provider)
+                prepared_analyzers.add(provider)
+            elif issubclass(provider, BasePlugin):
+                prepared_plugins.add(provider)
 
-        if extractors:
-            self._delegate_to_extractors(fileobject, extractors)
-        if analyzers:
-            self._delegate_to_analyzers(fileobject, analyzers)
-        if plugins:
-            self._delegate_to_plugins(fileobject, plugins)
+        if prepared_extractors:
+            log.debug('Delegating {!s} to extractors: {!s}'.format(meowuri, prepared_extractors))
+            self._delegate_to_extractors(fileobject, prepared_extractors)
+        if prepared_analyzers:
+            log.debug('Delegating {!s} to analyzers: {!s}'.format(meowuri, prepared_analyzers))
+            self._delegate_to_analyzers(fileobject, prepared_analyzers)
+        if prepared_plugins:
+            log.debug('Delegating {!s} to plugins: {!s}'.format(meowuri, prepared_plugins))
+            self._delegate_to_plugins(fileobject, prepared_plugins)
 
     def _delegate_to_extractors(self, fileobject, extractors_to_run):
         try:
