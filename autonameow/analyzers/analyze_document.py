@@ -41,6 +41,40 @@ class DocumentAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['application/pdf', 'text/*']
 
+    FIELD_LOOKUP = {
+        'title': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Title, probability=1),
+            ],
+            'generic_field': 'title'
+        },
+        # TODO: [TD0166] No longer able to set probabilities dynamically ..
+        # 'title': {
+        #     'coercer': types.AW_STRING,
+        #     'mapped_fields': [
+        #         WeightedMapping(fields.Title, probability=probability),
+        #     ],
+        #     'generic_field': 'title',
+        # },
+        'datetime': {
+            'coercer': types.AW_TIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25)
+            ],
+            'generic_field': 'date_created',
+        },
+        'publisher': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Publisher, probability=1),
+            ],
+            'generic_field': 'publisher',
+        }
+
+    }
+
     # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
     def __init__(self, fileobject, config, request_data_callback):
