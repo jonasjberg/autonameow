@@ -51,13 +51,14 @@ def do_extract_text(fileobject):
         _text = data.get('value')
         assert isinstance(_text, str)
         if not _text:
-            log.warning('Unable to extract text from "{!s}"'.format(fileobject))
+            log.info('Unable to extract text from "{!s}"'.format(fileobject))
             return
 
         ui.msg('Extracted Text', style='section')
         ui.msg(_text)
 
     from extractors import TextProviderClasses
+    assert TextProviderClasses
     runner = extraction.ExtractorRunner(
         add_results_callback=_collect_results_callback
     )
@@ -89,6 +90,7 @@ def do_extract_metadata(fileobject):
         results[meowuri] = _str_value
 
     from extractors import MetadataProviderClasses
+    assert MetadataProviderClasses
     runner = extraction.ExtractorRunner(
         add_results_callback=_collect_results_callback
     )
