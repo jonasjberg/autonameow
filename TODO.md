@@ -156,44 +156,43 @@ Medium Priority
         * Textual contents of the file matches a regular expression?
         * Some date/time-information lies within some specific range.
 
-* `[TD0019]` Rework the `FilenameAnalyzer`
-    * `[TD0020]` Identify data fields in file names.
+* `[TD0020]` Identify data fields in file names.
+
+    ```
+    screencapture-github-jonasjberg-autonameow-1497964021919.png
+    ^___________^ ^__________________________^ ^___________^
+         tag            title/description        timestamp
+    ```
+
+    * Use some kind of iterative evaluation; split into parts at
+      separators, assign field types to the parts and find a "best fit".
+      Might have to try several times at different separators, re-evaluting
+      partials after assuming that some part is a given type, etc.
+    * __This is a non-trivial problem__, I would rather not re-implment
+      existing solutions poorly.
+    * Look into how `guessit` does it or possibility of modifying
+      `guessit` to identify custom fields.
+
+* `[TD0110]` Improve finding probable date/time in file names.
+    * Provide a single most probable result.
+    * Rank formats: `YMD` (EU), `MDY` (US), `DMY` (parts of EU, Asia), etc.
+    * Look at any surrounding __context__ of files.
+
+        For instance, given a directory containing files:
 
         ```
-        screencapture-github-jonasjberg-autonameow-1497964021919.png
-        ^___________^ ^__________________________^ ^___________^
-             tag            title/description        timestamp
+        foo_08.18.17.txt
+        bar_11.04.16.txt
         ```
+        The date components of `bar_11.04.16.txt` can not be clearly
+        determined. Many possible date formats could work.
 
-        * Use some kind of iterative evaluation; split into parts at
-          separators, assign field types to the parts and find a "best fit".
-          Might have to try several times at different separators, re-evaluting
-          partials after assuming that some part is a given type, etc.
-        * __This is a non-trivial problem__, I would rather not re-implment
-          existing solutions poorly.
-        * Look into how `guessit` does it or possibility of modifying
-          `guessit` to identify custom fields.
+        But `foo_08.18.17.txt` can only be successfully parsed with the
+        date format `foo_MM.DD.YY`.
+        *(18 is probably not the future year 2018, but 08 might be 2008..)*
 
-    * `[TD0110]` Improve finding probable date/time in file names.
-        * Provide a single most probable result.
-        * Rank formats: `YMD` (EU), `MDY` (US), `DMY` (parts of EU, Asia), etc.
-        * Look at any surrounding __context__ of files.
-
-            For instance, given a directory containing files:
-
-            ```
-            foo_08.18.17.txt
-            bar_11.04.16.txt
-            ```
-            The date components of `bar_11.04.16.txt` can not be clearly
-            determined. Many possible date formats could work.
-
-            But `foo_08.18.17.txt` can only be successfully parsed with the
-            date format `foo_MM.DD.YY`.
-            *(18 is probably not the future year 2018, but 08 might be 2008..)*
-
-            This information could be used to weight this format higher to
-            help improve the results of parsing `foo_08.18.17.txt`.
+        This information could be used to weight this format higher to
+        help improve the results of parsing `foo_08.18.17.txt`.
 
 * `[TD0024]` Rework handling of unresolved operations
     * Instead of aborting if a rule data source is unavailable, use an

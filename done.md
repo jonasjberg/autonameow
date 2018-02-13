@@ -19,6 +19,11 @@ University mail: `js224eh[a]student.lnu.se`
 >
 > * `[TD0142]` __Rework overall architecture to fetch only explicitly needed data.__  
 >   Refer to `notes/architecture.md` for details.
+>
+> Medium Priority
+> ---------------
+>
+> * `[TD0019]` Rework the `FilenameAnalyzer`
 
 ### 2018-02-08
 
