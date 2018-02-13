@@ -23,7 +23,6 @@ import logging
 import re
 from collections import Counter
 
-
 from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
@@ -69,17 +68,17 @@ class FilenameAnalyzer(BaseAnalyzer):
             'coercer': types.AW_TIMEDATE,
             'multivalued': False,
             # TODO: [TD0166] No longer able to set probabilities dynamically ..
-            # 'mapped_fields': [
-            #     WeightedMapping(fields.DateTime, probability=_prob),
-            #     WeightedMapping(fields.Date, probability=_prob),
-            # ],
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=1.0),
+                WeightedMapping(fields.Date, probability=1.0),
+            ],
             'generic_field': 'date_created'
         },
         'edition': {
             'coercer': types.AW_INTEGER,
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Edition, probability=1),
+                WeightedMapping(fields.Edition, probability=1.0),
             ],
             'generic_field': 'edition'
         },
@@ -87,14 +86,14 @@ class FilenameAnalyzer(BaseAnalyzer):
             'coercer': types.AW_PATHCOMPONENT,
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
+                WeightedMapping(fields.Extension, probability=1.0),
             ]
         },
         'publisher': {
             'coercer': types.AW_STRING,
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=1),
+                WeightedMapping(fields.Publisher, probability=1.0),
             ],
             'generic_field': 'publisher'
         }
