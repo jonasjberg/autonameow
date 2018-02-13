@@ -603,13 +603,12 @@ def match_screencapture_unixtime(text):
     :return: datetime-object if a match is found, else None
     """
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-    text = enc.decode_(text)
-
-    pattern = re.compile(r'.*(\d{13}).*')
-    for t in re.findall(pattern, text):
-        dt = match_any_unix_timestamp(t)
-        if dt:
-            return dt
+    if text:
+        pattern = re.compile(r'.*(\d{13}).*')
+        for t in re.findall(pattern, text):
+            dt = match_any_unix_timestamp(t)
+            if dt:
+                return dt
     return None
 
 
