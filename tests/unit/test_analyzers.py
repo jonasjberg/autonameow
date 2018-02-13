@@ -40,7 +40,6 @@ from core import constants as C
 # TODO: [hardcoded] Likely to break; fixed analyzer names!
 EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
                            'analyzers.analyze_filename.FilenameAnalyzer',
-                           'analyzers.analyze_video.VideoAnalyzer',
                            'analyzers.analyze_document.DocumentAnalyzer',
                            'analyzers.analyze_text.TextAnalyzer',
                            'analyzers.analyze_ebook.EbookAnalyzer']
@@ -116,7 +115,6 @@ class TestFindAnalyzerSourceFiles(TestCase):
         self.assertIn('analyze_image.py', actual)
         self.assertIn('analyze_document.py', actual)
         self.assertIn('analyze_text.py', actual)
-        self.assertIn('analyze_video.py', actual)
 
 
 class TestGetAnalyzerClasses(TestCase):
@@ -176,7 +174,6 @@ class TestAnalyzerClassMeowURIs(TestCase):
         _assert_in('analyzer.filename')
         _assert_in('analyzer.image')
         _assert_in('analyzer.text')
-        _assert_in('analyzer.video')
 
     def test_returns_meowuris_for_available_analyzers(self):
         def _conditional_assert_in(klass, member):
