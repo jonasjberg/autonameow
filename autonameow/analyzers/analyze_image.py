@@ -23,6 +23,9 @@ import re
 from datetime import datetime
 
 from analyzers import BaseAnalyzer
+from core import types
+from core.model import WeightedMapping
+from core.namebuilder import fields
 from util import dateandtime
 
 
@@ -32,8 +35,17 @@ from util import dateandtime
 class ImageAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.1
     HANDLES_MIME_TYPES = ['image/*']
-
-    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+    # TODO: [TD0169] This is currently unused!
+    FIELD_LOOKUP = {
+        'datetime': {
+            'coercer': types.AW_TIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25)
+            ],
+            'generic_field': 'date_created',
+        }
+    }
 
     def __init__(self, fileobject, config, request_data_callback):
         super().__init__(fileobject, config, request_data_callback)
@@ -41,19 +53,21 @@ class ImageAnalyzer(BaseAnalyzer):
         self.text = None
 
     def analyze(self):
+        # TODO: [TD0169] Remove or re-implement the ImageAnalyzer ..
         # self.text = self.request_data(self.fileobject,
         #                               'extractor.text.ocr.full')
 
-        _maybe_text = self.request_any_textual_content()
-        if not _maybe_text:
-            return
-
-        self.text = _maybe_text
+        # _maybe_text = self.request_any_textual_content()
+        # if not _maybe_text:
+        #     return
+        #
+        # self.text = _maybe_text
 
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
 
-        self._add_results('datetime', self.get_datetime())
+        # self._add_intermediate_results('datetime', self.get_datetime())
+        pass
 
     def get_datetime(self):
         results = []
