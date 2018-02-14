@@ -269,8 +269,8 @@ Test Selection:
                         Select tests whose "TEST_NAME" (dirname) matches
                         "GLOB". Matching is case-sensitive. An asterisk
                         matches anything and if "GLOB" begins with "!", the
-                        matching is inverted. This option can be given more
-                        than once, which ORs the filters.
+                        matching is inverted. Give this option more than once
+                        to chain the filters.
   --last-failed         Select only the test cases that failed during the last
                         completed run. Selects all if none failed.
 

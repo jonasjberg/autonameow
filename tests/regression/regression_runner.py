@@ -358,7 +358,7 @@ def main(args):
         help='Select tests whose "TEST_NAME" (dirname) matches "GLOB". '
              'Matching is case-sensitive. An asterisk matches anything '
              'and if "GLOB" begins with "!", the matching is inverted. '
-             'This option can be given more than once, which ORs the filters.'
+             'Give this option more than once to chain the filters.'
     )
     optgrp_select.add_argument(
         '--last-failed',
@@ -426,12 +426,14 @@ def main(args):
     # Start test selection based on any criteria given with the options.
     if opts.filter_glob:
         all_filtered = list()
+        tests_to_filter = list(loaded_tests)
         for filter_expression in opts.filter_glob:
-            filtered = filter_tests(loaded_tests, glob_filter,
+            filtered = filter_tests(tests_to_filter, glob_filter,
                                     expr=filter_expression)
             log.info('Filter expression "{!s}" matched {} test case(s)'.format(
                 filter_expression, len(filtered)))
-            all_filtered.extend(filtered)
+            tests_to_filter = filtered
+            all_filtered = filtered
         log.info('Filtering selected {} test case(s)'.format(len(all_filtered)))
         selected_tests = all_filtered
     else:
