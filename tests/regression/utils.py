@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import functools
 import logging
 import os
 import re
@@ -67,6 +68,11 @@ def read_plaintext_file(file_path, ignore_errors=None):
         return contents
 
 
+# Redefined print functions with disabled buffering.
+_println = functools.partial(print, flush=True)
+_print = functools.partial(print, flush=True, end='')
+
+
 class TerminalReporter(object):
     def __init__(self, verbose=False):
         self.verbose = verbose
@@ -77,16 +83,16 @@ class TerminalReporter(object):
     def msg_test_success(self):
         _label = ui.colorize('[SUCCESS]', fore='GREEN')
         if self.verbose:
-            print('{} All assertions passed!'.format(_label))
+            _println('{} All assertions passed!'.format(_label))
         else:
-            print(' ' + _label + ' ', end='')
+            _print(' ' + _label + ' ')
 
     def msg_test_failure(self):
         _label = ui.colorize('[FAILURE]', fore='RED')
         if self.verbose:
-            print('{} One or more assertions FAILED!'.format(_label))
+            _println('{} One or more assertions FAILED!'.format(_label))
         else:
-            print(' ' + _label + ' ', end='')
+            _print(' ' + _label + ' ')
 
     @staticmethod
     def _center_with_fill(text):
@@ -94,20 +100,20 @@ class TerminalReporter(object):
         return padded_text.center(TERMINAL_WIDTH, '=')
 
     def msg_overall_success(self):
-        print(ui.colorize(self._center_with_fill('ALL TESTS PASSED!'),
-                          fore='GREEN', style='BRIGHT'))
+        _println(ui.colorize(self._center_with_fill('ALL TESTS PASSED!'),
+                             fore='GREEN', style='BRIGHT'))
 
     def msg_overall_failure(self):
-        print(ui.colorize(self._center_with_fill('SOME TESTS FAILED'),
-                          fore='RED', style='BRIGHT'))
+        _println(ui.colorize(self._center_with_fill('SOME TESTS FAILED'),
+                             fore='RED', style='BRIGHT'))
 
     def msg_overall_noop(self):
-        print(ui.colorize(self._center_with_fill('DID NOT RUN ANY TESTS'),
-                          fore='YELLOW', style='BRIGHT'))
+        _println(ui.colorize(self._center_with_fill('DID NOT RUN ANY TESTS'),
+                             fore='YELLOW', style='BRIGHT'))
 
     def msg_overall_stats(self, count_total, count_skipped, count_success,
                           count_failure, elapsed_time):
-        print('\n')
+        _println('\n')
 
         _skipped = '{} skipped'.format(count_skipped)
         if count_skipped > 0:
@@ -130,16 +136,16 @@ class TerminalReporter(object):
                  'in {} seconds'.format(count_total, _skipped,
                                         count_success, _failure, _runtime)
 
-        print()
-        print(_stats)
-        print('_' * TERMINAL_WIDTH)
+        _println()
+        _println(_stats)
+        _println('_' * TERMINAL_WIDTH)
 
     def msg_test_start(self, shortname, description):
         if self.verbose:
             _desc = ui.colorize(description, style='DIM')
             print()
-            print('Running "{}"'.format(shortname))
-            print(_desc)
+            _println('Running "{}"'.format(shortname))
+            _println(_desc)
         else:
             maxlen = self.MAX_DESCRIPTION_LENGTH
             _desc_len = len(description)
@@ -149,15 +155,15 @@ class TerminalReporter(object):
                 _desc = description + ' '*(2 + maxlen - _desc_len)
 
             _colordesc = ui.colorize(_desc, style='DIM')
-            print('{:30.30s} {!s} '.format(shortname, _colordesc), end='')
+            _print('{:30.30s} {!s} '.format(shortname, _colordesc))
 
     def msg_test_skipped(self, shortname, description):
         if self.verbose:
-            print()
+            _println()
             _label = ui.colorize('[SKIPPED]', fore='YELLOW')
             _desc = ui.colorize(description, style='DIM')
-            print('{} "{!s}"'.format(_label, shortname))
-            print(_desc)
+            _println('{} "{!s}"'.format(_label, shortname))
+            _println(_desc)
         else:
             maxlen = self.MAX_DESCRIPTION_LENGTH
             _desc_len = len(description)
@@ -168,7 +174,7 @@ class TerminalReporter(object):
 
             _colordesc = ui.colorize(_desc, style='DIM')
             _label = ui.colorize('[SKIPPED]', fore='YELLOW')
-            print('{:30.30s} {!s}  {} '.format(shortname, _colordesc, _label), end='')
+            _print('{:30.30s} {!s}  {} '.format(shortname, _colordesc, _label))
 
     def msg_test_runtime(self, elapsed_time, captured_time):
         if captured_time:
@@ -184,21 +190,21 @@ class TerminalReporter(object):
         _time_1 = '{:10.10s}'.format(_elapsed)
         _time_2 = '{:10.10s}'.format(_captured)
         if self.verbose:
-            print(' '*10 + 'Runtime: {} (captured {}'.format(_time_1, _time_2))
+            _println(' ' * 10 + 'Runtime: {} (captured {}'.format(_time_1, _time_2))
         else:
-            print('  {} ({}'.format(_time_1, _time_2))
+            _println('  {} ({}'.format(_time_1, _time_2))
 
     @staticmethod
     def msg_captured_stderr(stderr):
         _header = ui.colorize('Captured stderr:', fore='RED')
         _stderr = ui.colorize(stderr, fore='RED')
-        print('\n' + _header)
-        print(_stderr)
+        _println('\n' + _header)
+        _println(_stderr)
 
     @staticmethod
     def msg_captured_stdout(stdout):
-        print('\nCaptured stdout:')
-        print(stdout)
+        _println('\nCaptured stdout:')
+        _println(stdout)
 
 
 class RegressionTestLoader(object):

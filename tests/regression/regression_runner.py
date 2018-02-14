@@ -260,7 +260,8 @@ def run_regressiontests(tests, print_stderr, print_stdout):
         try:
             results = run_test(test)
         except KeyboardInterrupt:
-            print('\n')
+            # Move cursor two characters back and print spaces over "^C".
+            print('\b\b  \n')
             log.critical('Received keyboard interrupt. Skipping remaining ..')
             should_abort = True
         elapsed_time = time.time() - start_time
