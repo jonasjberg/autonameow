@@ -765,10 +765,16 @@ def _get_exiftool_data(source):
             except (AttributeError, ValueError, TypeError) as e:
                 # Raises ValueError if an ExifTool instance isn't running.
                 raise ExtractorError(e)
-    except OSError as e:
+    except (OSError, ValueError) as e:
         # 'OSError: [Errno 12] Cannot allocate memory'
         # This apparently happens, not sure if it is a bug in 'pyexiftool' or
         # if the repository or something else grows way too large when running
         # with a lot of files ..
         # TODO: [TD0131] Limit repository size!
+        #
+        # ValueError can be raised by 'pyexiftool' when aborting with CTRL-C.
+        #
+        #     self._process.stdin.write(b"-stay_open\nFalse\n")
+        #     ValueError: write to closed file
+        #
         raise ExtractorError(e)
