@@ -23,7 +23,7 @@ import argparse
 from unittest import TestCase
 
 import unit.utils as uu
-from core.ui.cli.options import (
+from core.view.cli.options import (
     arg_is_year,
     arg_is_readable_file,
     init_argparser,

@@ -25,7 +25,7 @@ import traceback
 from core import constants as C
 from core import (
     logs,
-    ui
+    view
 )
 from core.autonameow import Autonameow
 from core.exceptions import AWAssertionError
@@ -140,11 +140,11 @@ def cli_main(argv=None):
     """
     args = argv
     if not args:
-        ui.cli.msg('Add "--help" to display usage information.')
+        view.cli.msg('Add "--help" to display usage information.')
         sys.exit(C.EXIT_SUCCESS)
 
     # Handle the command line arguments with argparse.
-    opts = ui.options.cli_parse_args(args)
+    opts = view.options.cli_parse_args(args)
 
     # Translate from 'argparse'-specific format to internal options dict.
     options = {

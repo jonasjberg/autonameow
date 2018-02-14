@@ -23,7 +23,7 @@ import logging
 
 import util
 from core import exceptions
-from core.ui.cli import ColumnFormatter
+from core.view.cli import ColumnFormatter
 from util import encoding as enc
 from util import sanity
 from util import textutils

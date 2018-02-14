@@ -23,7 +23,7 @@ import argparse
 import os
 
 from core import constants as C
-from core.ui import cli
+from core.view import cli
 from util import encoding as enc
 
 

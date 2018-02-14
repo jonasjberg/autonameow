@@ -32,8 +32,8 @@ from .cli import *
 # does not exist. BUT it might be good to implement the interface only once
 # another UI is added and the real use and requirements are clearer anyway.
 #
-# For now, most of the core code should strive to call 'ui.msg()' instead of
-# using 'ui.cli.msg()' directly, even if future addition of an alternative
+# For now, most of the core code should strive to call 'view.msg()' instead of
+# using 'view.cli.msg()' directly, even if future addition of an alternative
 # 'msg()' implementation will require massive rework..
 
 # TODO: [TD0111] Separate abstract user interaction from UI specifics.

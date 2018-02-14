@@ -32,7 +32,7 @@ from core.namebuilder.builder import (
 
 
 class TestFilenamePostprocessor(TestCase):
-    @patch('core.namebuilder.builder.ui', MagicMock())
+    @patch('core.namebuilder.builder.view', MagicMock())
     def __check_call(self, **kwargs):
         given = kwargs.pop('given')
         expect = kwargs.pop('expect')

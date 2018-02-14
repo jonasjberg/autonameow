@@ -31,7 +31,7 @@ PARENT_PATH = os.path.normpath(
 )
 sys.path.insert(0, PARENT_PATH)
 
-from core.ui import ColumnFormatter
+from core.view import ColumnFormatter
 
 
 '''

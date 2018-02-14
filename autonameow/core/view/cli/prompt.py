@@ -53,7 +53,7 @@ from core import (
 )
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
-from core.ui import cli
+from core.view import cli
 from util import encoding as enc
 from util import (
     disk,

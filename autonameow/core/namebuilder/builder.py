@@ -24,7 +24,7 @@ import re
 
 from core import (
     exceptions,
-    ui,
+    view,
 )
 from core.namebuilder.fields import NameTemplateField
 from util import encoding as enc
@@ -75,7 +75,7 @@ class FilenamePostprocessor(object):
             if _match:
                 log.debug('Applying custom replacement. Regex: "{!s}" '
                           'Replacement: "{!s}"'.format(regex, replacement))
-                ui.msg_replacement(filename, replacement, regex)
+                view.msg_replacement(filename, replacement, regex)
 
                 filename = re.sub(regex, replacement, filename)
         return filename

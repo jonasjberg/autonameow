@@ -30,7 +30,7 @@ from core import (
     extraction,
     FileObject,
     logs,
-    ui
+    view
 )
 from util import encoding as enc
 from util import disk
@@ -54,8 +54,8 @@ def do_extract_text(fileobject):
             log.info('Unable to extract text from "{!s}"'.format(fileobject))
             return
 
-        ui.msg('Extracted Text', style='section')
-        ui.msg(_text)
+        view.msg('Extracted Text', style='section')
+        view.msg(_text)
 
     from extractors import TextProviderClasses
     assert TextProviderClasses
@@ -99,12 +99,12 @@ def do_extract_metadata(fileobject):
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
     else:
-        ui.msg('Extracted Metadata', style='section')
-        cf = ui.ColumnFormatter()
+        view.msg('Extracted Metadata', style='section')
+        cf = view.ColumnFormatter()
         for k, v in sorted(results.items()):
             cf.addrow(str(k), str(v))
         cf.addemptyrow()
-        ui.msg(str(cf))
+        view.msg(str(cf))
 
 
 def main(options=None):
@@ -160,7 +160,7 @@ def main(options=None):
                 e, enc.displayable_path(_file)))
             continue
 
-        ui.msg('{!s}'.format(current_file), style='heading')
+        view.msg('{!s}'.format(current_file), style='heading')
         log.info('Processing ({}/{}) "{!s}" ..'.format(
             _num, _num_files, current_file))
 

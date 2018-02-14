@@ -34,7 +34,7 @@ else:
 
 import unit.utils as uu
 from core.types import BUILTIN_REGEX_TYPE
-from core.ui.cli.common import (
+from core.view.cli.common import (
     colorize,
     colorize_quoted,
     ColumnFormatter,

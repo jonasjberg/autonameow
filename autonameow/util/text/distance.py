@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core.ui.cli.common import ColumnFormatter
+from core.view.cli.common import ColumnFormatter
 
 
 def levenshtein(string_a, string_b):

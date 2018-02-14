@@ -33,7 +33,7 @@ from core import constants as C
 from core import (
     exceptions,
     types,
-    ui
+    view
 )
 from util import encoding as enc
 from util import (
@@ -81,14 +81,14 @@ class TerminalReporter(object):
         assert self.MAX_DESCRIPTION_LENGTH > 0, 'Terminal is not wide enough ..'
 
     def msg_test_success(self):
-        _label = ui.colorize('[SUCCESS]', fore='GREEN')
+        _label = view.colorize('[SUCCESS]', fore='GREEN')
         if self.verbose:
             _println('{} All assertions passed!'.format(_label))
         else:
             _print(' ' + _label + ' ')
 
     def msg_test_failure(self):
-        _label = ui.colorize('[FAILURE]', fore='RED')
+        _label = view.colorize('[FAILURE]', fore='RED')
         if self.verbose:
             _println('{} One or more assertions FAILED!'.format(_label))
         else:
@@ -100,16 +100,16 @@ class TerminalReporter(object):
         return padded_text.center(TERMINAL_WIDTH, '=')
 
     def msg_overall_success(self):
-        _println(ui.colorize(self._center_with_fill('ALL TESTS PASSED!'),
-                             fore='GREEN', style='BRIGHT'))
+        _println(view.colorize(self._center_with_fill('ALL TESTS PASSED!'),
+                               fore='GREEN', style='BRIGHT'))
 
     def msg_overall_failure(self):
-        _println(ui.colorize(self._center_with_fill('SOME TESTS FAILED'),
-                             fore='RED', style='BRIGHT'))
+        _println(view.colorize(self._center_with_fill('SOME TESTS FAILED'),
+                               fore='RED', style='BRIGHT'))
 
     def msg_overall_noop(self):
-        _println(ui.colorize(self._center_with_fill('DID NOT RUN ANY TESTS'),
-                             fore='YELLOW', style='BRIGHT'))
+        _println(view.colorize(self._center_with_fill('DID NOT RUN ANY TESTS'),
+                               fore='YELLOW', style='BRIGHT'))
 
     def msg_overall_stats(self, count_total, count_skipped, count_success,
                           count_failure, elapsed_time):
@@ -117,7 +117,7 @@ class TerminalReporter(object):
 
         _skipped = '{} skipped'.format(count_skipped)
         if count_skipped > 0:
-            _skipped = ui.colorize(_skipped, fore='YELLOW')
+            _skipped = view.colorize(_skipped, fore='YELLOW')
 
         _failure = '{} failed'.format(count_failure)
         if count_failure == 0:
@@ -128,7 +128,7 @@ class TerminalReporter(object):
         else:
             self.msg_overall_failure()
             # Make the failed count red if any test failed.
-            _failure = ui.colorize(_failure, fore='RED')
+            _failure = view.colorize(_failure, fore='RED')
 
         _runtime = '{:.6f}s'.format(elapsed_time)
 
@@ -142,7 +142,7 @@ class TerminalReporter(object):
 
     def msg_test_start(self, shortname, description):
         if self.verbose:
-            _desc = ui.colorize(description, style='DIM')
+            _desc = view.colorize(description, style='DIM')
             print()
             _println('Running "{}"'.format(shortname))
             _println(_desc)
@@ -154,14 +154,14 @@ class TerminalReporter(object):
             else:
                 _desc = description + ' '*(2 + maxlen - _desc_len)
 
-            _colordesc = ui.colorize(_desc, style='DIM')
+            _colordesc = view.colorize(_desc, style='DIM')
             _print('{:30.30s} {!s} '.format(shortname, _colordesc))
 
     def msg_test_skipped(self, shortname, description):
         if self.verbose:
             _println()
-            _label = ui.colorize('[SKIPPED]', fore='YELLOW')
-            _desc = ui.colorize(description, style='DIM')
+            _label = view.colorize('[SKIPPED]', fore='YELLOW')
+            _desc = view.colorize(description, style='DIM')
             _println('{} "{!s}"'.format(_label, shortname))
             _println(_desc)
         else:
@@ -172,8 +172,8 @@ class TerminalReporter(object):
             else:
                 _desc = description + ' '*(2 + maxlen - _desc_len)
 
-            _colordesc = ui.colorize(_desc, style='DIM')
-            _label = ui.colorize('[SKIPPED]', fore='YELLOW')
+            _colordesc = view.colorize(_desc, style='DIM')
+            _label = view.colorize('[SKIPPED]', fore='YELLOW')
             _print('{:30.30s} {!s}  {} '.format(shortname, _colordesc, _label))
 
     def msg_test_runtime(self, elapsed_time, captured_time):
@@ -200,18 +200,18 @@ class TerminalReporter(object):
             exception_str = exception_info.get('exception', '(N/A)')
             traceback_str = exception_info.get('traceback', '(N/A)')
             _println(
-                ui.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ', back='RED')
-                + '  ' + ui.colorize(exception_str, fore='RED')
+                view.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ', back='RED')
+                + '  ' + view.colorize(exception_str, fore='RED')
             )
             _println('Captured traceback:\n' + traceback_str)
         else:
-            _println(' ' + ui.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ',
-                                       back='RED'))
+            _println(' ' + view.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ',
+                                         back='RED'))
 
     @staticmethod
     def msg_captured_stderr(stderr):
-        _header = ui.colorize('Captured stderr:', fore='RED')
-        _stderr = ui.colorize(stderr, fore='RED')
+        _header = view.colorize('Captured stderr:', fore='RED')
+        _stderr = view.colorize(stderr, fore='RED')
         _println('\n' + _header)
         _println(_stderr)
 
@@ -616,7 +616,7 @@ def _commandline_args_for_testcase(loaded_test):
     Returns:
         Command-line arguments as a list of Unicode strings.
     """
-    # TODO: [hardcoded] Generate from 'autonameow/core/ui/cli/options.py'.
+    # TODO: [hardcoded] Generate from 'autonameow/core/view/cli/options.py'.
     # TODO: Add '--list_rulematch'
     TESTOPTION_CMDARG_MAP = {
         'debug': '--debug',

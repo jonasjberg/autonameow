@@ -35,7 +35,7 @@ from core import (
     provider,
     providers,
     repository,
-    ui,
+    view,
 )
 from core.evaluate import RuleMatcher
 from core.context import FilesContext
@@ -132,15 +132,15 @@ class Autonameow(object):
 
     def run(self):
         if self.opts.get('quiet'):
-            ui.silence()
+            view.silence()
 
         # Display various information depending on verbosity level.
         if self.opts.get('verbose') or self.opts.get('debug'):
-            ui.print_start_info()
+            view.print_start_info()
 
         # Display startup banner with program version and exit.
         if self.opts.get('show_version'):
-            ui.print_version_info(verbose=self.opts.get('verbose'))
+            view.print_version_info(verbose=self.opts.get('verbose'))
             self.exit_program(C.EXIT_SUCCESS)
 
         # Check configuration file. If no alternate config file path is
@@ -172,7 +172,7 @@ class Autonameow(object):
                     enc.displayable_path(_config_path)
                 )
             }
-            ui.options.prettyprint_options(self.opts, include_opts)
+            view.options.prettyprint_options(self.opts, include_opts)
 
         if self.opts.get('dump_config'):
             # TODO: [TD0148] Fix '!!python/object' in '--dump-config' output.
@@ -222,15 +222,15 @@ class Autonameow(object):
 
     def _dump_active_config_and_exit(self):
         log.info('Dumping active configuration ..')
-        ui.msg('Active Configuration:', style='heading')
-        ui.msg(str(self.active_config))
+        view.msg('Active Configuration:', style='heading')
+        view.msg(str(self.active_config))
         self.exit_program(C.EXIT_SUCCESS)
 
     def _dump_registered_meowuris(self):
-        ui.msg('Registered MeowURIs', style='heading')
+        view.msg('Registered MeowURIs', style='heading')
 
         if self.opts.get('debug'):
-            cf = ui.ColumnFormatter()
+            cf = view.ColumnFormatter()
             for _type in C.MEOWURI_ROOTS_SOURCES:
                 cf.addemptyrow()
                 sourcemap = providers.Registry.meowuri_sources.get(_type, {})
@@ -239,13 +239,13 @@ class Autonameow(object):
                     if _klasses:
                         for k in _klasses:
                             cf.addrow(None, str(k))
-            ui.msg(str(cf))
+            view.msg(str(cf))
         else:
             _meowuris = sorted(providers.Registry.mapped_meowuris)
             for uri in _meowuris:
-                ui.msg(str(uri))
+                view.msg(str(uri))
 
-        ui.msg('\n')
+        view.msg('\n')
 
     def _load_config_from_default_path(self):
         _dp = enc.displayable_path(config.DefaultConfigFilePath)
@@ -262,12 +262,15 @@ class Autonameow(object):
                          '"{!s}"'.format(_dp))
             self.exit_program(C.EXIT_ERROR)
         else:
-            ui.msg('A template configuration file was written to '
-                   '"{!s}"'.format(_dp), style='info')
-            ui.msg('Use this file to configure {}. '
-                   'Refer to the documentation for additional '
-                   'information.'.format(C.STRING_PROGRAM_NAME),
-                   style='info')
+            view.msg(
+                'A template configuration file was written to '
+                '"{!s}"'.format(_dp), style='info'
+            )
+            view.msg(
+                'Use this file to configure {}. Refer to the documentation for '
+                'additional information.'.format(C.STRING_PROGRAM_NAME),
+                style='info'
+            )
             self.exit_program(C.EXIT_SUCCESS)
 
     def _load_config_from_alternate_path(self):
@@ -335,13 +338,13 @@ class Autonameow(object):
 
         if self.opts.get('list_all'):
             log.info('Listing session repository contents ..')
-            ui.msg('Session Repository Data', style='heading',
-                   add_info_log=True)
+            view.msg('Session Repository Data', style='heading',
+                     add_info_log=True)
 
             if not results_to_list:
-                ui.msg('The session repository does not contain any data ..\n')
+                view.msg('The session repository does not contain any data ..\n')
             else:
-                ui.msg('\n'.join(results_to_list))
+                view.msg('\n'.join(results_to_list))
 
     @property
     def runtime_seconds(self):
@@ -359,7 +362,7 @@ class Autonameow(object):
 
         _elapsed_time = self.runtime_seconds
         if self.opts and self.opts.get('verbose'):
-            ui.print_exit_info(self.exit_code, _elapsed_time)
+            view.print_exit_info(self.exit_code, _elapsed_time)
 
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(_elapsed_time))

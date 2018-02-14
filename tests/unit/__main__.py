@@ -26,7 +26,7 @@ import time
 import unittest
 
 from core import constants as C
-from core import ui
+from core import view
 from unit import (
     build_testsuite,
     unit_test_glob
@@ -96,7 +96,7 @@ def parse_options(args):
         C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION)
     _epilog = 'Project website:  {}'.format(C.STRING_URL_REPO)
 
-    parser = ui.cli.get_argparser(description=_description, epilog=_epilog)
+    parser = view.cli.get_argparser(description=_description, epilog=_epilog)
     parser.add_argument(
         '-v', '--verbose',
         dest='verbose',

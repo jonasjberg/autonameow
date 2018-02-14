@@ -21,7 +21,7 @@
 
 from unittest import TestCase
 
-from core.ui.cli import get_argparser
+from core.view.cli import get_argparser
 
 
 class TestGetArgparser(TestCase):

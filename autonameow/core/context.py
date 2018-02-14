@@ -92,7 +92,7 @@ class FilesContext(object):
             # TODO: [TD0024][TD0025] Implement Interactive mode.
             # candidates = None
             # choice = interactive.select_template(candidates)
-            # if choice != ui.action.ABORT:
+            # if choice != interactive.Choice.ABORT:
             #     name_template = choice
             # if not name_template:
             #     log.warning('No valid name template chosen. Aborting ..')
@@ -172,7 +172,7 @@ class FilesContext(object):
                 log.warning('TODO: Implement interactive rule selection.')
                 # TODO: [TD0024][TD0025] Implement Interactive mode.
                 # choice = interactive.select_rule(candidates)
-                # if choice != ui.action.ABORT:
+                # if choice != interactive.Choice.ABORT:
                 #     active_rule = choice
             else:
                 log.debug('There are no rules available for the user to '

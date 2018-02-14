@@ -27,7 +27,7 @@ import time
 from core import constants as C
 from core import (
     types,
-    ui
+    view
 )
 from core.persistence import get_persistence
 from regression.utils import (
@@ -49,8 +49,8 @@ PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 
 
 log = logging.getLogger('regression_runner')
-msg_label_pass = ui.colorize('PASS', fore='GREEN')
-msg_label_fail = ui.colorize('FAIL', fore='RED')
+msg_label_pass = view.colorize('PASS', fore='GREEN')
+msg_label_fail = view.colorize('FAIL', fore='RED')
 
 
 class TestResults(object):
@@ -210,7 +210,7 @@ def load_failed_tests():
 
 def print_test_info(tests):
     if VERBOSE:
-        cf = ui.ColumnFormatter()
+        cf = view.ColumnFormatter()
         for t in tests:
             _test_dirname = types.force_string(t.get('test_dirname'))
             _test_description = types.force_string(t.get('description'))
@@ -324,7 +324,7 @@ def main(args):
         C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION)
     _epilog = 'Project website:  {}'.format(C.STRING_URL_REPO)
 
-    parser = ui.cli.get_argparser(description=_description, epilog=_epilog)
+    parser = view.cli.get_argparser(description=_description, epilog=_epilog)
     parser.add_argument(
         '-v', '--verbose',
         dest='verbose',

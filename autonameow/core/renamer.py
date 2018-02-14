@@ -23,7 +23,7 @@ import logging
 
 from core import (
     interactive,
-    ui
+    view
 )
 from core.exceptions import FilesystemError
 from util import encoding as enc
@@ -88,7 +88,7 @@ class FileRenamer(object):
                 'the new name'.format(enc.displayable_path(from_basename))
             )
             log.debug(_msg)
-            ui.msg(_msg)
+            view.msg(_msg)
             return
 
         if self.mode_timid:
@@ -100,7 +100,7 @@ class FileRenamer(object):
                 return
 
         if self.dry_run:
-            ui.msg_rename(
+            view.msg_rename(
                 enc.displayable_path(from_basename),
                 enc.displayable_path(dest_basename),
                 dry_run=self.dry_run

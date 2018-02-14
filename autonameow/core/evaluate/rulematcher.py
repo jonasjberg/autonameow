@@ -24,7 +24,7 @@ from collections import namedtuple
 
 from core import (
     provider,
-    ui
+    view
 )
 from util import sanity
 
@@ -178,18 +178,18 @@ class RuleMatcher(object):
 
             _str_exact = 'Yes' if rule.exact_match else 'No '
             # s = 'Rule #{:02d} (Exact: {}  Score: {}  Weight: {}  Bias: {})  [{!s}]'
-            # ui.msg(s.format(n, _str_exact, _str_score, _str_weight, _bias,
+            # view.msg(s.format(n, _str_exact, _str_score, _str_weight, _bias,
             #                _rule.description))
             sr = 'Rule #{:02d}  {!s}'.format(n, _rule.description)
-            ui.msg(ui.colorize(sr, fore='LIGHTWHITE_EX'))
+            view.msg(view.colorize(sr, fore='LIGHTWHITE_EX'))
 
             si = 'Exact: {}  Score: {}  Weight: {}  Bias: {}'.format(_str_exact, _str_score, _str_weight, _bias)
-            ui.msg(si + '\n')
+            view.msg(si + '\n')
 
-            cf = ui.ColumnFormatter()
+            cf = view.ColumnFormatter()
             cf.setalignment('right', 'left')
-            msg_label_pass = ui.colorize('PASSED', fore='GREEN')
-            msg_label_fail = ui.colorize('FAILED', fore='RED')
+            msg_label_pass = view.colorize('PASSED', fore='GREEN')
+            msg_label_fail = view.colorize('FAILED', fore='RED')
             for c in conditions_passed:
                 d = condition_evaluator.evaluated(_rule, c)
 
@@ -203,17 +203,17 @@ class RuleMatcher(object):
                 cf.addrow('Expression:', str(c.expression))
                 cf.addrow('Evaluated Data:', str(d))
 
-            ui.msg(str(cf))
-            ui.msg('\n')
+            view.msg(str(cf))
+            view.msg('\n')
 
-        ui.msg('\nRemaining, prioritized rules:', style='heading')
+        view.msg('\nRemaining, prioritized rules:', style='heading')
         for i, rule in enumerate(prioritized_rules, start=1):
             _bias = rule.ranking_bias
             _score = scored_rules[rule]['score']
             _weight = scored_rules[rule]['weight']
             _prettyprint_rule_details(i, rule, _bias, _score, _weight)
 
-        ui.msg('\nDiscarded rules:', style='heading')
+        view.msg('\nDiscarded rules:', style='heading')
         for i, rule in enumerate(discarded_rules, start=1):
             _bias = rule.ranking_bias
             _prettyprint_rule_details(i, rule, _bias)
