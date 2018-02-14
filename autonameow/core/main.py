@@ -140,7 +140,7 @@ def cli_main(argv=None):
     """
     args = argv
     if not args:
-        print('Add "--help" to display usage information.')
+        ui.cli.msg('Add "--help" to display usage information.')
         sys.exit(C.EXIT_SUCCESS)
 
     # Handle the command line arguments with argparse.
