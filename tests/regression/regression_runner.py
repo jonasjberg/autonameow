@@ -160,22 +160,28 @@ def run_test(test):
     captured_stdout = str(aw.captured_stdout)
     captured_stderr = str(aw.captured_stderr)
 
-    stdout_assert_failures = check_stdout_asserts(test, captured_stdout)
-    if stdout_assert_failures:
-        assert isinstance(stdout_assert_failures, list)
+    stdout_match_results = check_stdout_asserts(test, captured_stdout)
+    assert isinstance(stdout_match_results, list)
 
-        fail_count += len(stdout_assert_failures)
-
-        for match_type, regexp in stdout_assert_failures:
-            assert match_type in ('matches', 'does_not_match')
-            if match_type == 'matches':
-                _msg_run_test_failure(
-                    'Expected stdout to match {!s}'.format(regexp)
-                )
-            elif match_type == 'does_not_match':
-                _msg_run_test_failure(
-                    'Expected stdout to NOT match {!s}'.format(regexp)
-                )
+    for match_result in stdout_match_results:
+        result_assert_type = str(match_result.assert_type)
+        if result_assert_type == 'matches':
+            msg = 'Expected stdout to match "{!s}"'.format(match_result.regex)
+            if match_result.passed:
+                _msg_run_test_success(msg)
+            else:
+                fail_count += 1
+                _msg_run_test_failure(msg)
+        elif result_assert_type == 'does_not_match':
+            msg = 'Expected stdout to NOT match "{!s}"'.format(match_result.regex)
+            if match_result.passed:
+                _msg_run_test_success(msg)
+            else:
+                fail_count += 1
+                _msg_run_test_failure(msg)
+        else:
+            raise AssertionError('Unexpected RegexMatchingResult.assert_type: '
+                                 '{!s}'.format(result_assert_type))
 
     return TestResults(fail_count, captured_runtime, captured_stdout,
                        captured_stderr, captured_exception=None)
@@ -464,12 +470,9 @@ def main(args):
         return C.EXIT_SUCCESS
 
     if opts.run_tests:
-        failed = 0
         failed = run_regressiontests(selected_tests,
                                      print_stderr=bool(opts.print_stderr),
                                      print_stdout=bool(opts.print_stdout))
-
-        # TODO: Rework passing number of failures between high-level functions.
         if failed:
             return C.EXIT_WARNING
 

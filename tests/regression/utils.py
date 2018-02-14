@@ -439,6 +439,7 @@ class AutonameowWrapper(object):
                     # TODO: Mock 'FileRenamer' class instead of single method
                     assert hasattr(ameow, 'renamer')
                     assert hasattr(ameow.renamer, '_rename_file')
+                    assert callable(ameow.renamer._rename_file)
 
                     # Monkey-patch method of 'FileRenamer' *instance*
                     ameow.renamer._rename_file = self.mock_rename_file
@@ -448,13 +449,14 @@ class AutonameowWrapper(object):
                     # Store runtime recorded by the 'Autonameow' class.
                     self.captured_runtime_secs = ameow.runtime_seconds
             except Exception as e:
+                # Capture "top-level" exception.
                 typ, val, tb = sys.exc_info()
                 exception_info = ''.join(traceback.format_exception(typ, val, tb))
                 self.captured_exception = e
                 self.captured_exception_traceback = exception_info
 
-        self.captured_stdout = stdout.getvalue()
-        self.captured_stderr = stderr.getvalue()
+            self.captured_stdout = stdout.getvalue()
+            self.captured_stderr = stderr.getvalue()
 
 
 REGRESSIONTESTS_ROOT_ABSPATH = None
@@ -536,41 +538,66 @@ def check_renames(actual, expected):
     return bool(expected == actual)
 
 
+class RegexMatchingResult(object):
+    def __init__(self, passed, assert_type, regex):
+        self.passed = passed
+        self.assert_type = assert_type
+        self.regex = regex.pattern
+
+
+def _load_assertion_regexes(test_dict, filedescriptor, assert_type):
+    # TODO: Load and validate regexes before running the test!
+    expressions = test_dict['asserts'][filedescriptor].get(assert_type, []) or list()
+    assert expressions
+    if not isinstance(expressions, list):
+        # Do not require a single assert to be written as a list
+        expressions = [expressions]
+
+    regexes = []
+    for expression in expressions:
+        try:
+            regexes.append(re.compile(expression, re.MULTILINE))
+        except (ValueError, TypeError) as e:
+            s = 'Bad {} matches expression "{!s}" :: {!s}'.format(filedescriptor, expression, e)
+            print(s, file=sys.stderr, flush=True)
+            continue
+    return regexes
+
+
 def check_stdout_asserts(test, captured_stdout):
-    failures = list()
+    results = list()
     if 'asserts' not in test:
-        return failures
+        return results
     if 'stdout' not in test['asserts']:
-        return failures
+        return results
 
-    stdout_match_asserts = []
-    stdout_matches = test['asserts']['stdout'].get('matches', [])
-    for regexp in stdout_matches:
-        try:
-            stdout_match_asserts.append(re.compile(regexp, re.MULTILINE))
-        except (ValueError, TypeError) as e:
-            print('Bad stdout match regexp "{!s}" :: {!s}'.format(regexp, e))
-            continue
+    # TODO: Load and validate regexes before running the test!
+    should_match_regexes = _load_assertion_regexes(test, 'stdout', 'matches')
+    for regexp in should_match_regexes:
+        # Pass if there is a match
+        if regexp.search(captured_stdout):
+            results.append(RegexMatchingResult(
+                passed=True, assert_type='matches', regex=regexp
+            ))
+        else:
+            results.append(RegexMatchingResult(
+                passed=False, assert_type='matches', regex=regexp
+            ))
 
-    for regexp in stdout_match_asserts:
+    # TODO: Load and validate regexes before running the test!
+    should_not_match_regexes = _load_assertion_regexes(test, 'stdout', 'does_not_match')
+    for regexp in should_not_match_regexes:
+        # Pass if there is NOT a match
         if not regexp.search(captured_stdout):
-            failures.append(('matches', regexp))
+            results.append(RegexMatchingResult(
+                passed=True, assert_type='does_not_match', regex=regexp
+            ))
+        else:
+            results.append(RegexMatchingResult(
+                passed=False, assert_type='does_not_match', regex=regexp
+            ))
 
-    stdout_not_match_asserts = []
-    stdout_not_matches = test['asserts']['stdout'].get('does_not_match', [])
-    for regexp in stdout_not_matches:
-        try:
-            stdout_not_match_asserts.append(re.compile(regexp, re.MULTILINE))
-        except (ValueError, TypeError) as e:
-            print(str(e))
-            continue
-
-    for regexp in stdout_not_match_asserts:
-        if regexp.match(captured_stdout):
-            print('Non-match assertion failed for "{!s}"'.format(regexp))
-            failures.append(('does_not_match', regexp))
-
-    return failures
+    return results
 
 
 def _commandline_args_for_testcase(loaded_test):
