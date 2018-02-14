@@ -26,6 +26,7 @@ from unittest import (
 )
 from unittest.mock import (
     MagicMock,
+    Mock,
     patch
 )
 
@@ -48,6 +49,7 @@ def prompt_toolkit_unavailable():
 
 
 AUTONAMEOW_OPTIONS_EMPTY = dict()
+MOCK_UI = Mock()
 
 
 @skipIf(*prompt_toolkit_unavailable())
@@ -58,16 +60,16 @@ class TestAutonameowWithoutOptions(TestCase):
 
     @patch('core.autonameow.Autonameow.exit_program', MagicMock())
     def test_instantiated_instance_is_not_none(self):
-        self.assertIsNotNone(self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY))
+        self.assertIsNotNone(self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY, ui=MOCK_UI))
 
     @patch('core.autonameow.Autonameow.exit_program')
     def test_instantiated_does_not_call_exit_program(self, exit_program_mock):
-        _ = self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY)
+        _ = self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY, ui=MOCK_UI)
         exit_program_mock.assert_not_called()
 
     @patch('core.autonameow.Autonameow.exit_program')
     def test_exit_program_called_after_running_context(self, exit_program_mock):
-        with self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY) as a:
+        with self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY, ui=MOCK_UI) as a:
             a.run()
         exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
 
@@ -187,16 +189,15 @@ class TestAutonameowOptionCombinations(TestCase):
 class TestAutonameowContextManagementProtocol(TestCase):
     def test_with_statement(self):
         Autonameow.exit_program = MagicMock()
-
-        with Autonameow(AUTONAMEOW_OPTIONS_EMPTY) as ameow:
+        with Autonameow(AUTONAMEOW_OPTIONS_EMPTY, MOCK_UI) as ameow:
             ameow.run()
 
 
 class TestAutonameowHash(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.amw_A = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
-        cls.amw_B = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
+        cls.amw_A = Autonameow(AUTONAMEOW_OPTIONS_EMPTY, MOCK_UI)
+        cls.amw_B = Autonameow(AUTONAMEOW_OPTIONS_EMPTY, MOCK_UI)
 
     def test_setup_class(self):
         self.assertIsNotNone(self.amw_A)
@@ -221,7 +222,7 @@ class TestAutonameowHash(TestCase):
 @skipIf(*prompt_toolkit_unavailable())
 class TestSetAutonameowExitCode(TestCase):
     def setUp(self):
-        self.amw = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
+        self.amw = Autonameow(AUTONAMEOW_OPTIONS_EMPTY, MOCK_UI)
         self.expected_initial = C.EXIT_SUCCESS
 
     def test_setup(self):

@@ -35,7 +35,6 @@ from core import (
     provider,
     providers,
     repository,
-    view,
 )
 from core.evaluate import RuleMatcher
 from core.context import FilesContext
@@ -52,7 +51,7 @@ class Autonameow(object):
     Main class to manage a running "autonameow" instance.
     """
 
-    def __init__(self, opts):
+    def __init__(self, opts, ui):
         """
         Main program entry point.  Initializes a autonameow instance/session.
 
@@ -61,6 +60,9 @@ class Autonameow(object):
         """
         assert isinstance(opts, dict)
         self.opts = self.check_option_combinations(opts)
+
+        # Package contained in 'autonameow/core/view'.
+        self.ui = ui
 
         # For calculating the total runtime.
         self.start_time = time.time()
@@ -132,15 +134,15 @@ class Autonameow(object):
 
     def run(self):
         if self.opts.get('quiet'):
-            view.silence()
+            self.ui.silence()
 
         # Display various information depending on verbosity level.
         if self.opts.get('verbose') or self.opts.get('debug'):
-            view.print_start_info()
+            self.ui.print_start_info()
 
         # Display startup banner with program version and exit.
         if self.opts.get('show_version'):
-            view.print_version_info(verbose=self.opts.get('verbose'))
+            self.ui.print_version_info(verbose=self.opts.get('verbose'))
             self.exit_program(C.EXIT_SUCCESS)
 
         # Check configuration file. If no alternate config file path is
@@ -172,7 +174,7 @@ class Autonameow(object):
                     enc.displayable_path(_config_path)
                 )
             }
-            view.options.prettyprint_options(self.opts, include_opts)
+            self.ui.options.prettyprint_options(self.opts, include_opts)
 
         if self.opts.get('dump_config'):
             # TODO: [TD0148] Fix '!!python/object' in '--dump-config' output.
@@ -222,15 +224,15 @@ class Autonameow(object):
 
     def _dump_active_config_and_exit(self):
         log.info('Dumping active configuration ..')
-        view.msg('Active Configuration:', style='heading')
-        view.msg(str(self.active_config))
+        self.ui.msg('Active Configuration:', style='heading')
+        self.ui.msg(str(self.active_config))
         self.exit_program(C.EXIT_SUCCESS)
 
     def _dump_registered_meowuris(self):
-        view.msg('Registered MeowURIs', style='heading')
+        self.ui.msg('Registered MeowURIs', style='heading')
 
         if self.opts.get('debug'):
-            cf = view.ColumnFormatter()
+            cf = self.ui.ColumnFormatter()
             for _type in C.MEOWURI_ROOTS_SOURCES:
                 cf.addemptyrow()
                 sourcemap = providers.Registry.meowuri_sources.get(_type, {})
@@ -239,13 +241,13 @@ class Autonameow(object):
                     if _klasses:
                         for k in _klasses:
                             cf.addrow(None, str(k))
-            view.msg(str(cf))
+            self.ui.msg(str(cf))
         else:
             _meowuris = sorted(providers.Registry.mapped_meowuris)
             for uri in _meowuris:
-                view.msg(str(uri))
+                self.ui.msg(str(uri))
 
-        view.msg('\n')
+        self.ui.msg('\n')
 
     def _load_config_from_default_path(self):
         _dp = enc.displayable_path(config.DefaultConfigFilePath)
@@ -262,11 +264,11 @@ class Autonameow(object):
                          '"{!s}"'.format(_dp))
             self.exit_program(C.EXIT_ERROR)
         else:
-            view.msg(
+            self.ui.msg(
                 'A template configuration file was written to '
                 '"{!s}"'.format(_dp), style='info'
             )
-            view.msg(
+            self.ui.msg(
                 'Use this file to configure {}. Refer to the documentation for '
                 'additional information.'.format(C.STRING_PROGRAM_NAME),
                 style='info'
@@ -338,13 +340,15 @@ class Autonameow(object):
 
         if self.opts.get('list_all'):
             log.info('Listing session repository contents ..')
-            view.msg('Session Repository Data', style='heading',
-                     add_info_log=True)
+            self.ui.msg(
+                'Session Repository Data', style='heading',
+                add_info_log=True
+            )
 
             if not results_to_list:
-                view.msg('The session repository does not contain any data ..\n')
+                self.ui.msg('The session repository does not contain any data ..\n')
             else:
-                view.msg('\n'.join(results_to_list))
+                self.ui.msg('\n'.join(results_to_list))
 
     @property
     def runtime_seconds(self):
@@ -362,7 +366,7 @@ class Autonameow(object):
 
         _elapsed_time = self.runtime_seconds
         if self.opts and self.opts.get('verbose'):
-            view.print_exit_info(self.exit_code, _elapsed_time)
+            self.ui.print_exit_info(self.exit_code, _elapsed_time)
 
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(_elapsed_time))

@@ -429,13 +429,15 @@ class AutonameowWrapper(object):
     def __call__(self):
         # TODO: [TD0158] Evaluate assertions of "skipped renames".
         from core.autonameow import Autonameow
+        from core.view import cli
 
         # Monkey-patch method of 'Autonameow' *class*
         Autonameow.exit_program = self.mock_exit_program
 
         with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
             try:
-                with Autonameow(self.opts) as ameow:
+                # TODO: [TD0170] Use mock UI!
+                with Autonameow(self.opts, ui=cli) as ameow:
                     # TODO: Mock 'FileRenamer' class instead of single method
                     assert hasattr(ameow, 'renamer')
                     assert hasattr(ameow.renamer, '_rename_file')
