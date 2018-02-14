@@ -54,11 +54,12 @@ msg_label_fail = ui.colorize('FAIL', fore='RED')
 
 
 class TestResults(object):
-    def __init__(self, failures, runtime, stdout, stderr):
-        self.failures = failures
+    def __init__(self, failure_count, runtime, stdout, stderr, raised_exception):
+        self.failure_count = failure_count
         self.captured_runtime = runtime
         self.captured_stdout = stdout
         self.captured_stderr = stderr
+        self.raised_exception = raised_exception
 
 
 def run_test(test):
@@ -77,12 +78,12 @@ def run_test(test):
             print('\nCaptured traceback:')
             print(str(aw.captured_exception_traceback))
 
-        # TODO: Fix magic number return for exceptions for use when formatting.
-        return TestResults(failures=-10, runtime=None,
-                           stdout=aw.captured_stdout, stderr=aw.captured_stderr)
+        return TestResults(failure_count=0, runtime=None,
+                           stdout=aw.captured_stdout, stderr=aw.captured_stderr,
+                           raised_exception=True)
 
     captured_runtime = aw.captured_runtime_secs
-    failures = 0
+    fail_count = 0
 
     def _msg_run_test_failure(msg):
         if VERBOSE:
@@ -106,7 +107,7 @@ def run_test(test):
                     expect_exitcode, actual_exitcode
                 )
             )
-            failures += 1
+            fail_count += 1
 
     actual_renames = aw.captured_renames
     if check_renames(actual_renames, expect_renames):
@@ -115,7 +116,7 @@ def run_test(test):
         for _in, _out in actual_renames.items():
             _msg_run_test_success('Renamed "{!s}" -> "{!s}"'.format(_in, _out))
     else:
-        failures += 1
+        fail_count += 1
         _msg_run_test_failure(
             'Renames differ. Expected {} files to be renamed. '
             '{} files were renamed.'.format(len(expect_renames), len(actual_renames))
@@ -167,7 +168,7 @@ def run_test(test):
     if stdout_assert_failures:
         assert isinstance(stdout_assert_failures, list)
 
-        failures += len(stdout_assert_failures)
+        fail_count += len(stdout_assert_failures)
 
         for match_type, regexp in stdout_assert_failures:
             assert match_type in ('matches', 'does_not_match')
@@ -180,7 +181,8 @@ def run_test(test):
                     'Expected stdout to NOT match {!s}'.format(regexp)
                 )
 
-    return TestResults(failures, captured_runtime,captured_stdout, captured_stderr)
+    return TestResults(fail_count, captured_runtime, captured_stdout,
+                       captured_stderr, raised_exception=False)
 
 
 def write_failed_tests(tests):
@@ -253,10 +255,7 @@ def run_regressiontests(tests, print_stderr, print_stdout):
 
         reporter.msg_test_start(_dirname, _description)
 
-        failures = 0
-        captured_time = None
-        captured_stderr = ''
-        captured_stdout = ''
+        results = None
         start_time = time.time()
         try:
             results = run_test(test)
@@ -264,39 +263,37 @@ def run_regressiontests(tests, print_stderr, print_stdout):
             print('\n')
             log.critical('Received keyboard interrupt. Skipping remaining ..')
             should_abort = True
-        else:
-            failures = results.failures
-            captured_time = results.captured_runtime
-            captured_stdout = results.captured_stdout
-            captured_stderr = results.captured_stderr
-
         elapsed_time = time.time() - start_time
 
-        if failures == -10:
+        if results:
+            captured_stdout = results.captured_stdout
+            captured_stderr = results.captured_stderr
+            if results.raised_exception:
+                if print_stderr and captured_stderr:
+                    reporter.msg_captured_stderr(captured_stderr)
+                if print_stdout and captured_stdout:
+                    reporter.msg_captured_stdout(captured_stdout)
+
+                # TODO: Fix formatting of failure due to top-level exception error.
+                count_failure += 1
+                failed_tests.append(test)
+                continue
+
+            failures = int(results.failure_count)
+            if failures == 0:
+                reporter.msg_test_success()
+                count_success += 1
+            elif failures > 0:
+                reporter.msg_test_failure()
+                count_failure += 1
+                failed_tests.append(test)
+
+            reporter.msg_test_runtime(elapsed_time, results.captured_runtime)
+
             if print_stderr and captured_stderr:
                 reporter.msg_captured_stderr(captured_stderr)
             if print_stdout and captured_stdout:
                 reporter.msg_captured_stdout(captured_stdout)
-
-            # TODO: Fix formatting of failure due to top-level exception error.
-            count_failure += 1
-            failed_tests.append(test)
-            continue
-
-        if failures == 0:
-            reporter.msg_test_success()
-            count_success += 1
-        elif failures > 0:
-            reporter.msg_test_failure()
-            count_failure += 1
-            failed_tests.append(test)
-
-        reporter.msg_test_runtime(elapsed_time, captured_time)
-
-        if print_stderr and captured_stderr:
-            reporter.msg_captured_stderr(captured_stderr)
-        if print_stdout and captured_stdout:
-            reporter.msg_captured_stdout(captured_stdout)
 
     global_elapsed_time = time.time() - global_start_time
     reporter.msg_overall_stats(count_total, count_skipped, count_success,
