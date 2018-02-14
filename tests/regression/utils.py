@@ -190,9 +190,23 @@ class TerminalReporter(object):
         _time_1 = '{:10.10s}'.format(_elapsed)
         _time_2 = '{:10.10s}'.format(_captured)
         if self.verbose:
-            _println(' ' * 10 + 'Runtime: {} (captured {}'.format(_time_1, _time_2))
+            _println(' ' * 10 + 'Runtime: {} (captured {}'.format(_time_1,_time_2))
         else:
             _println('  {} ({}'.format(_time_1, _time_2))
+
+    def msg_captured_exception(self, exception_info):
+        assert isinstance(exception_info, dict)
+        if self.verbose:
+            exception_str = exception_info.get('exception', '(N/A)')
+            traceback_str = exception_info.get('traceback', '(N/A)')
+            _println(
+                ui.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ', back='RED')
+                + '  ' + ui.colorize(exception_str, fore='RED')
+            )
+            _println('Captured traceback:\n' + traceback_str)
+        else:
+            _println(' ' + ui.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ',
+                                       back='RED'))
 
     @staticmethod
     def msg_captured_stderr(stderr):

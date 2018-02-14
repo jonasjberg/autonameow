@@ -54,12 +54,12 @@ msg_label_fail = ui.colorize('FAIL', fore='RED')
 
 
 class TestResults(object):
-    def __init__(self, failure_count, runtime, stdout, stderr, raised_exception):
+    def __init__(self, failure_count, runtime, stdout, stderr, captured_exception):
         self.failure_count = failure_count
         self.captured_runtime = runtime
         self.captured_stdout = stdout
         self.captured_stderr = stderr
-        self.raised_exception = raised_exception
+        self.captured_exception = captured_exception
 
 
 def run_test(test):
@@ -70,17 +70,13 @@ def run_test(test):
     aw = AutonameowWrapper(opts)
     aw()
     if aw.captured_exception:
-        print(' '
-              + ui.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ', back='RED'))
-        if VERBOSE:
-            print('\nCaptured exception:')
-            print(str(aw.captured_exception))
-            print('\nCaptured traceback:')
-            print(str(aw.captured_exception_traceback))
-
+        exception_info = {
+            'exception': str(aw.captured_exception),
+            'traceback': str(aw.captured_exception_traceback)
+        }
         return TestResults(failure_count=0, runtime=None,
                            stdout=aw.captured_stdout, stderr=aw.captured_stderr,
-                           raised_exception=True)
+                           captured_exception=exception_info)
 
     captured_runtime = aw.captured_runtime_secs
     fail_count = 0
@@ -182,7 +178,7 @@ def run_test(test):
                 )
 
     return TestResults(fail_count, captured_runtime, captured_stdout,
-                       captured_stderr, raised_exception=False)
+                       captured_stderr, captured_exception=None)
 
 
 def write_failed_tests(tests):
@@ -269,7 +265,9 @@ def run_regressiontests(tests, print_stderr, print_stdout):
         if results:
             captured_stdout = results.captured_stdout
             captured_stderr = results.captured_stderr
-            if results.raised_exception:
+            if results.captured_exception:
+                reporter.msg_captured_exception(results.captured_exception)
+
                 if print_stderr and captured_stderr:
                     reporter.msg_captured_stderr(captured_stderr)
                 if print_stdout and captured_stdout:
