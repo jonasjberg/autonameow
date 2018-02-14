@@ -92,7 +92,7 @@ def real_main(options=None):
 
 
 def print_error(message):
-    print(message, file=sys.stderr)
+    print(message, file=sys.stderr, flush=True)
 
 
 def format_sanitycheck_error(string):
