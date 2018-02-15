@@ -34,6 +34,10 @@ from util import (
 
 
 class FileObject(object):
+    __slots__ = ('abspath', 'filename', 'pathname', 'pathparent', 'mime_type',
+                 'basename_prefix', 'basename_suffix', '__cached_str',
+                 '__cached_repr', '_bytesize', '_hash_partial')
+
     def __init__(self, path):
         """
         Creates a new FileObject instance representing a single path/file.

@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import pickle
 import unittest
 from unittest import TestCase
 
@@ -316,6 +317,27 @@ class TestFileObjectOrdering(TestCase):
         self.assertEqual(self.fo_2, sorted_list_with_another_object[0])
         self.assertEqual(self.fo_1, sorted_list_with_another_object[1])
         self.assertEqual(self.some_object, sorted_list_with_another_object[2])
+
+
+def _pickle_object(obj):
+    return pickle.dumps(obj)
+
+
+def _unpickle_object(pickled):
+    return pickle.loads(pickled)
+
+
+class TestFileObjectSerialization(TestCase):
+    def test_can_be_pickled(self):
+        fo = uu.get_mock_fileobject()
+        self.assertIsInstance(fo, FileObject)
+        _ = _pickle_object(fo)
+
+    def test_round_trips_pickle_serialization(self):
+        fo = uu.get_mock_fileobject()
+        self.assertIsInstance(fo, FileObject)
+        roundtripped = _unpickle_object(_pickle_object(fo))
+        self.assertEqual(fo, roundtripped)
 
 
 class TestValidatePathArgument(TestCase):
