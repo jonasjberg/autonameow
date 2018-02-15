@@ -27,13 +27,10 @@ try:
 except ImportError:
     isbnlib = None
 
-from analyzers import (
-    AnalyzerError,
-    BaseAnalyzer
-)
+from analyzers import BaseAnalyzer
 from core import (
     persistence,
-    types,
+    types
 )
 from core.namebuilder import fields
 from core.model import WeightedMapping
@@ -41,10 +38,7 @@ from core.model.normalize import (
     normalize_full_human_name,
     normalize_full_title
 )
-from util import (
-    mimemagic,
-    sanity
-)
+from util import sanity
 from util.textutils import extract_lines
 from util.text import (
     find_edition,
@@ -356,17 +350,11 @@ class EbookAnalyzer(BaseAnalyzer):
 
     @classmethod
     def can_handle(cls, fileobject):
-        try:
-            return mimemagic.eval_glob(fileobject.mime_type,
-                                       cls.HANDLES_MIME_TYPES)
-        except (TypeError, ValueError) as e:
-            raise AnalyzerError(
-                'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
-            )
-        if (fileobject.basename_suffix == b'mobi' and
-                fileobject.mime_type == 'application/octet-stream'):
+        mime_type_ok = cls._evaluate_mime_type_glob(fileobject)
+        if (mime_type_ok
+                or fileobject.basename_suffix == b'mobi'
+                and fileobject.mime_type == 'application/octet-stream'):
             return True
-
         return False
 
     @classmethod
