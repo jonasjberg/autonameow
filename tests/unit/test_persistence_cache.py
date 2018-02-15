@@ -23,12 +23,13 @@ from unittest import TestCase
 
 import unit.utils as uu
 from core.persistence import cache
+from core.persistence.cache import CacheError
 
 
 class TestBaseCache(TestCase):
     def test_init_raises_exception_if_missing_required_arguments(self):
         def _aR(prefix):
-            with self.assertRaises(ValueError):
+            with self.assertRaises(CacheError):
                 _ = cache.BaseCache(
                     prefix,
                     cache_dir_abspath=uu.mock_cache_path()

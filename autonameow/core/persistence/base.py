@@ -21,11 +21,7 @@
 
 import logging
 import os
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import pickle
 
 from core import (
     config,

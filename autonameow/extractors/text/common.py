@@ -63,21 +63,38 @@ class AbstractTextExtractor(BaseExtractor):
         return {'full': text}
 
     def _get_text(self, fileobject):
-        # Read cached text
-        if self.cache:
-            _cached = self.cache.get(fileobject)
-            if _cached is not None:
-                self.log.info('Using cached text for: {!r}'.format(fileobject))
-                return _cached
+        cached_text = self._get_cached_text(fileobject)
+        if cached_text:
+            return cached_text
 
         text = self.extract_text(fileobject)
         if not text:
             return ''
 
         clean_text = self.cleanup(text)
-        if self.cache:
-            self.cache.set(fileobject, clean_text)
+        self._set_cached_text(fileobject, clean_text)
         return clean_text
+
+    def _get_cached_text(self, fileobject):
+        if not self.cache:
+            return None
+        try:
+            cached_text = self.cache.get(fileobject)
+        except persistence.PersistenceError as e:
+            self.log.critical('Unable to read {!s} cache :: {!s}'.format(self, e))
+        else:
+            if cached_text:
+                self.log.info('Using cached text for: {!r}'.format(fileobject))
+                return cached_text
+        return None
+
+    def _set_cached_text(self, fileobject, text):
+        if not self.cache:
+            return
+        try:
+            self.cache.set(fileobject, text)
+        except persistence.PersistenceError as e:
+            self.log.critical('Unable to write {!s} cache :: {!s}'.format(self, e))
 
     def extract_text(self, fileobject):
         """
@@ -108,6 +125,7 @@ class AbstractTextExtractor(BaseExtractor):
         if _cache:
             self.cache = _cache
         else:
+            log.debug('Failed to initialize {!s} cache'.format(self))
             self.cache = None
 
     @staticmethod

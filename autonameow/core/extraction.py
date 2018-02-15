@@ -177,7 +177,7 @@ class ExtractorRunner(object):
 
             try:
                 _metainfo = _extractor_instance.metainfo()
-            except (ExtractorError, NotImplementedError) as e:
+            except (ExtractorError, PersistenceError, NotImplementedError) as e:
                 log.error('Unable to get meta info! Aborting extractor "{!s}":'
                           ' {!s}'.format(_extractor_instance, e))
                 continue

@@ -25,5 +25,6 @@ from .cache import (
 )
 from .base import (
     get_config_persistence_path,
-    get_persistence
+    get_persistence,
+    PersistenceError
 )
