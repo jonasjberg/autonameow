@@ -409,58 +409,11 @@ class MockUI(object):
     NOTE(jonas): Would it be better to re-use library mocking functionality?
     """
     def __init__(self):
-        self.call_history = defaultdict(list)
+        self.mock_call_history = defaultdict(list)
 
-    def colorize(self, text, fore=None, back=None, style=None):
-        pass
-
-    def colorize_re_match(self, text, regex, color=None):
-        pass
-
-    def colorize_quoted(self, text, color=None):
-        pass
-
-    def ColumnFormatter(self):
-        pass
-
-    def msg(self, *args, **kwargs):
-        self.call_history['msg'].append((args, kwargs))
-
-    def msg_possible_rename(self, *args, **kwargs):
-        pass
-
-    def msg_rename(self, *args, **kwargs):
-        pass
-
-    def msg_replacement(self, *args, **kwargs):
-        pass
-
-    def print_start_info(self):
-        pass
-
-    def print_exit_info(self, exit_code, elapsed_time):
-        pass
-
-    def print_version_info(self, verbose):
-        pass
-
-    def silence(self):
-        pass
-
-    def unsilence(self):
-        pass
-
-    def ask_confirm(self, *args, **kwargs):
-        pass
-
-    def field_selection_prompt(self, *args, **kwargs):
-        pass
-
-    def meowuri_prompt(self, *args, **kwargs):
-        pass
-
-    def get_argparser(self, *args, **kwargs):
-        pass
+    def __getattr__(self, item):
+        # Argument 'item' is 'msg' for 'ui.msg('foo')'.
+        return lambda *args, **kwargs: self.mock_call_history[item].append((args, kwargs))
 
 
 class AutonameowWrapper(object):

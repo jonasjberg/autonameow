@@ -372,6 +372,35 @@ class TestMockUIActualUsage(TestCase):
     def setUp(self):
         self.mock_ui = MockUI()
 
+    def _assert_called_with_args(self, member, expect):
+        self.assertIn(member, self.mock_ui.call_history)
+        self.assertEqual(expect, self.mock_ui.call_history[member][0][0])
+
+    def _assert_called_with_kwargs(self, member, expect):
+        self.assertIn(member, self.mock_ui.call_history)
+        self.assertEqual(expect, self.mock_ui.call_history[member][0][1])
+
+    def test_call_colorize(self):
+        self.mock_ui.colorize('foo')
+        self.mock_ui.colorize('foo', fore=None)
+        self.mock_ui.colorize('foo', fore=None, back=None)
+        self.mock_ui.colorize('foo', fore=None, back=None, style=None)
+        self.mock_ui.colorize('foo', fore='BLACK')
+        self.mock_ui.colorize('foo', fore='BLACK', back='RED')
+        self.mock_ui.colorize('foo', fore='BLACK', back='RED', style='NORMAL')
+
+    def test_call_colorize_stores_passed_arguments(self):
+        self.mock_ui.colorize('foo', fore='BLACK', back='RED', style='NORMAL')
+        self._assert_called_with_args('colorize', ('foo', ))
+        self._assert_called_with_kwargs(
+            'colorize',
+            {'fore': 'BLACK', 'back': 'RED', 'style': 'NORMAL'}
+        )
+
+    def test_call_colorize_re_match(self):
+        self.mock_ui.colorize_re_match('foo', regex='bar')
+        self.mock_ui.colorize_re_match('foo', regex='bar', color='BLACK')
+
     def test_call_msg(self):
         self.mock_ui.msg('foo')
         self.mock_ui.msg('foo', style='heading')
@@ -386,19 +415,7 @@ class TestMockUIActualUsage(TestCase):
         self.mock_ui.msg('foo', style='heading', ignore_quiet=False)
         self.assertIn('msg', self.mock_ui.call_history)
         self.assertEqual('foo', self.mock_ui.call_history['msg'][0][0][0])
-
-    def test_call_colorize(self):
-        self.mock_ui.colorize('foo')
-        self.mock_ui.colorize('foo', fore=None)
-        self.mock_ui.colorize('foo', fore=None, back=None)
-        self.mock_ui.colorize('foo', fore=None, back=None, style=None)
-        self.mock_ui.colorize('foo', fore='BLACK')
-        self.mock_ui.colorize('foo', fore='BLACK', back='RED')
-        self.mock_ui.colorize('foo', fore='BLACK', back='RED', style='NORMAL')
-
-    def test_call_colorize_re_match(self):
-        self.mock_ui.colorize_re_match('foo', regex='bar')
-        self.mock_ui.colorize_re_match('foo', regex='bar', color='BLACK')
+        self._assert_called_with_args('msg', ('foo', ))
 
     def test_call_msg_possible_rename(self):
         self.mock_ui.msg_possible_rename('foo', 'bar')
