@@ -21,10 +21,6 @@
 
 import logging
 
-from core import (
-    interactive,
-    view
-)
 from core.exceptions import FilesystemError
 from util import encoding as enc
 from util import (
@@ -77,7 +73,7 @@ class FilenameDelta(object):
 class FileRenamer(object):
     def __init__(self, dry_run, timid):
         """
-        Creates a new renamer instance for use during by one program instance.
+        Creates a new renamer instance for use by one program instance.
 
         Example usage with a "timid" renamer:
 
@@ -107,9 +103,6 @@ class FileRenamer(object):
             'skipped': 0,
             'renamed': 0,
         }
-
-        # TODO: Identify pending name deltas by hashes so that only
-        #       basenames can be passed back from yielding properties?
         self._skipped = list()
         self._needs_confirmation = list()
         self._pending = list()
