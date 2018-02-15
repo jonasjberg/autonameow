@@ -22,7 +22,6 @@
 import logging
 from collections import defaultdict
 
-from analyzers import BaseAnalyzer
 from core import (
     analysis,
     plugin_handler,
@@ -32,8 +31,6 @@ from core import (
 from core.exceptions import AutonameowException
 from core.extraction import ExtractorRunner
 from core.repository import QueryResponseFailure
-from extractors import BaseExtractor
-from plugins import BasePlugin
 from util import sanity
 
 
@@ -77,6 +74,12 @@ class ProviderRunner(object):
                 self._previous_runs[fileobject][meowuri] = set()
 
             self._previous_runs[fileobject][meowuri].add(provider)
+
+            # TODO: Fix circular import problems when running new unit test runner.
+            #       $ PYTHONPATH=autonameow:tests python3 -m unit --skip-slow
+            from analyzers import BaseAnalyzer
+            from extractors import BaseExtractor
+            from plugins import BasePlugin
 
             if issubclass(provider, BaseExtractor):
                 prepared_extractors.add(provider)
