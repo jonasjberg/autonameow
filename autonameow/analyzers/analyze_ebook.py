@@ -27,7 +27,10 @@ try:
 except ImportError:
     isbnlib = None
 
-from analyzers import BaseAnalyzer
+from analyzers import (
+    AnalyzerError,
+    BaseAnalyzer
+)
 from core import (
     persistence,
     types,
@@ -357,7 +360,7 @@ class EbookAnalyzer(BaseAnalyzer):
             return mimemagic.eval_glob(fileobject.mime_type,
                                        cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
-            cls.log.error(
+            raise AnalyzerError(
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
             )
         if (fileobject.basename_suffix == b'mobi' and
