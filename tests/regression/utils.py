@@ -500,6 +500,10 @@ class AutonameowWrapper(object):
             self.captured_stdout = stdout.getvalue()
             self.captured_stderr = stderr.getvalue()
 
+            # TODO: [hack] Pretty ugly but works for simple regex matching assertions.
+            captured_mock_ui_messages = fetch_mock_ui_messages(mock_ui)
+            self.captured_stdout += '\n' + captured_mock_ui_messages
+
 
 REGRESSIONTESTS_ROOT_ABSPATH = None
 

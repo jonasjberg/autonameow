@@ -1,17 +1,17 @@
 exit_code: 0
-# TODO: [TD0170] Use mock UI in regression test 'AutonameowWrapper'.
-# stdout:
-#     matches:
-#     - 'analyzer.document'
-#     - 'analyzer.ebook'
-#     - 'analyzer.filename'
-#     - 'analyzer.text'
-#     - 'extractor.filesystem.filetags'
-#     - 'extractor.filesystem.xplat'
-#     - 'extractor.text.plain'
-#     does_not_match:
-#     - '.*NULL.*'
-#     - '.*generic.*'
-#     - 'analyzer.filetags'
-#     - 'None.None'
-#     - 'foo.bar'
+stdout:
+    matches:
+    - 'analyzer.document'
+    - 'analyzer.ebook'
+    - 'analyzer.filename'
+    - 'analyzer.text'
+    - 'extractor.filesystem.filetags'
+    - 'extractor.filesystem.xplat'
+    - 'extractor.text.plain'
+    does_not_match:
+    - '.*class.*'
+    - '.*NULL.*'
+    - '.*generic.*'
+    - 'analyzer.filetags'
+    - 'None.None'
+    - 'foo.bar'

@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+### 2018-02-15
+
+> High Priority
+> -------------
+>
+> * `[TD0170]` Use mock `ui` in regression test `AutonameowWrapper`.
+
 ### 2018-02-13
 
 > High Priority
