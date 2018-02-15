@@ -24,7 +24,7 @@ import time
 from contextlib import contextmanager
 from functools import wraps
 
-from core import view
+from core.view import cli
 
 
 LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -49,19 +49,19 @@ def init_logging(opts):
 
     # NOTE(jonas): This is probably a bad idea, but seems to work good enough.
     # TODO: [hardcoded] Remove spaces after labels, used for alignment.
-    logging.addLevelName(logging.INFO, view.colorize(
+    logging.addLevelName(logging.INFO, cli.colorize(
         '[INFO]    ', fore='LIGHTBLUE_EX', style='BRIGHT'
     ))
-    logging.addLevelName(logging.DEBUG, view.colorize(
+    logging.addLevelName(logging.DEBUG, cli.colorize(
         '[DEBUG]   ', fore='BLUE'
     ))
-    logging.addLevelName(logging.WARNING, view.colorize(
+    logging.addLevelName(logging.WARNING, cli.colorize(
         '[WARNING] ', fore='RED', style='BRIGHT'
     ))
-    logging.addLevelName(logging.ERROR, view.colorize(
+    logging.addLevelName(logging.ERROR, cli.colorize(
         '[ERROR]   ', fore='RED', style='BRIGHT'
     ))
-    logging.addLevelName(logging.CRITICAL, view.colorize(
+    logging.addLevelName(logging.CRITICAL, cli.colorize(
         '[CRITICAL]', fore='LIGHTRED_EX', style='BRIGHT'
     ))
 
@@ -71,7 +71,7 @@ def init_logging(opts):
     #       command-line. For instance, verbosity levels 1 and 3 would be
     #       enabled with '-v' and '-vvv', respectively.
 
-    _colored_timestamp = view.colorize('%(asctime)s', style='DIM')
+    _colored_timestamp = cli.colorize('%(asctime)s', style='DIM')
     if opts.get('debug'):
         fmt = (
             _colored_timestamp
