@@ -37,6 +37,7 @@ class Choice(object):
 def select_field(fileobject, templatefield, candidates):
     # TODO: [TD0024][TD0025] Implement Interactive mode.
 
+    # TODO: [TD0171] Separate logic from user interface.
     view.msg(enc.displayable_path(fileobject), style='section')
     view.msg('Candidates for unresolved field: {!s}'.format(
         templatefield.as_placeholder()))
@@ -71,6 +72,7 @@ def select_field(fileobject, templatefield, candidates):
              _candidate_value, _candidate_meowuri)
         )
 
+    # TODO: [TD0171] Separate logic from user interface.
     cf = view.ColumnFormatter()
     cf.addemptyrow()
     cf.addrow('#', 'SOURCE', 'PROBABILITY', 'FORMATTED VALUE', 'MEOWURI')
@@ -97,6 +99,7 @@ def select_template(candidates):
 
 def meowuri_prompt(message):
     # TODO: [TD0024][TD0025] Implement Interactive mode.
+    # TODO: [TD0171] Separate logic from user interface.
     response = view.meowuri_prompt(message)
     if not response:
         return Choice.ABORT
@@ -104,6 +107,7 @@ def meowuri_prompt(message):
 
 
 def ask_confirm_use_rule(fileobject, rule):
+    # TODO: [TD0171] Separate logic from user interface.
     view.msg(enc.displayable_path(fileobject), style='section')
     user_response = ask_confirm(
         'Best matched rule "{!s}"'
@@ -128,6 +132,7 @@ def ask_confirm_rename(from_basename, dest_basename):
     sanity.check_internal_string(from_basename)
     sanity.check_internal_string(dest_basename)
 
+    # TODO: [TD0171] Separate logic from user interface.
     view.msg_possible_rename(from_basename, dest_basename)
     response = view.ask_confirm('Proceed with rename? [y/n]')
     assert isinstance(response, bool)

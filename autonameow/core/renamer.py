@@ -88,6 +88,7 @@ class FileRenamer(object):
                 'the new name'.format(enc.displayable_path(from_basename))
             )
             log.debug(_msg)
+            # TODO: [TD0171] Separate logic from user interface.
             view.msg(_msg)
             return
 
@@ -100,6 +101,7 @@ class FileRenamer(object):
                 return
 
         if self.dry_run:
+            # TODO: [TD0171] Separate logic from user interface.
             view.msg_rename(
                 enc.displayable_path(from_basename),
                 enc.displayable_path(dest_basename),

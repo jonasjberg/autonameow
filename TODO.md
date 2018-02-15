@@ -14,6 +14,9 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0171]` __Separate all logic from the user interface.__  
+    Avoid using "global" input/output functionality directly.
+
 * `[TD0170]` Use mock `ui` in regression test `AutonameowWrapper`.
 
 * `[TD0167]` Cleanup data storage in the `Repository`.

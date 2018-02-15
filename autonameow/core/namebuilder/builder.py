@@ -75,6 +75,7 @@ class FilenamePostprocessor(object):
             if _match:
                 log.debug('Applying custom replacement. Regex: "{!s}" '
                           'Replacement: "{!s}"'.format(regex, replacement))
+                # TODO: [TD0171] Separate logic from user interface.
                 view.msg_replacement(filename, replacement, regex)
 
                 filename = re.sub(regex, replacement, filename)

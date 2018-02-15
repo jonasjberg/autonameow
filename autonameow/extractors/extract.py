@@ -54,6 +54,7 @@ def do_extract_text(fileobject):
             log.info('Unable to extract text from "{!s}"'.format(fileobject))
             return
 
+        # TODO: [TD0171] Separate logic from user interface.
         view.msg('Extracted Text', style='section')
         view.msg(_text)
 
@@ -99,6 +100,7 @@ def do_extract_metadata(fileobject):
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
     else:
+        # TODO: [TD0171] Separate logic from user interface.
         view.msg('Extracted Metadata', style='section')
         cf = view.ColumnFormatter()
         for k, v in sorted(results.items()):
@@ -160,6 +162,7 @@ def main(options=None):
                 e, enc.displayable_path(_file)))
             continue
 
+        # TODO: [TD0171] Separate logic from user interface.
         view.msg('{!s}'.format(current_file), style='heading')
         log.info('Processing ({}/{}) "{!s}" ..'.format(
             _num, _num_files, current_file))

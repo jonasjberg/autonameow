@@ -112,6 +112,7 @@ class RuleMatcher(object):
         discarded_rules = [r for r in all_rules if r not in remaining_rules]
         self._log_results(prioritized_rules, scored_rules, discarded_rules)
 
+        # TODO: [TD0171] Separate logic from user interface.
         if self._list_rulematch:
             self._display_details(prioritized_rules, scored_rules,
                                   discarded_rules, condition_evaluator)
@@ -161,6 +162,7 @@ class RuleMatcher(object):
     @staticmethod
     def _display_details(prioritized_rules, scored_rules, discarded_rules,
                          condition_evaluator):
+        # TODO: [TD0171] Separate logic from user interface.
         def _prettyprint_rule_details(n, _rule, _bias, _score=None, _weight=None):
             conditions_passed = condition_evaluator.passed(_rule)
             conditions_failed = condition_evaluator.failed(_rule)
