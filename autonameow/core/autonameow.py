@@ -30,6 +30,7 @@ from core import (
     config,
     exceptions,
     FileObject,
+    interactive,
     logs,
     persistence,
     provider,
@@ -40,7 +41,10 @@ from core.evaluate import RuleMatcher
 from core.context import FilesContext
 from core.renamer import FileRenamer
 from util import encoding as enc
-from util import disk
+from util import (
+    disk,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)
@@ -80,7 +84,7 @@ class Autonameow(object):
 
         self.renamer = FileRenamer(
             dry_run=self.opts.get('dry_run'),
-            mode_timid=self.opts.get('mode_timid')
+            timid=self.opts.get('mode_timid')
         )
 
         return self
@@ -276,13 +280,40 @@ class Autonameow(object):
                 continue
 
             if new_name:
-                try:
-                    self.renamer.do_rename(
-                        from_path=current_file.abspath,
-                        new_basename=new_name,
-                    )
-                except exceptions.FilesystemError as e:
-                    log.error('Rename FAILED: {!s}'.format(e))
+                self.renamer.add_pending(
+                    from_path=current_file.abspath,
+                    new_basename=new_name,
+                )
+
+            for filename_delta in self.renamer.skipped:
+                _msg = (
+                    'Skipped "{!s}" because the current name is the same as '
+                    'the new name'.format(filename_delta.displayable_old)
+                )
+                log.debug(_msg)
+                self.ui.msg(_msg)
+
+            for filename_delta in self.renamer.needs_confirmation:
+                log.debug('Timid mode enabled. Asking user to confirm ..')
+                if interactive.ask_confirm_rename(
+                        filename_delta.displayable_old,
+                        filename_delta.displayable_new):
+                    self.renamer.confirm(filename_delta)
+                else:
+                    log.debug('Skipping rename following user response')
+
+            # TODO: Display renames as they actually happen?
+            for filename_delta in self.renamer.pending:
+                self.ui.msg_rename(
+                    filename_delta.displayable_old,
+                    filename_delta.displayable_new,
+                    dry_run=self.opts.get('dry_run')
+                )
+
+            try:
+                self.renamer.do_renames()
+            except exceptions.FilesystemError as e:
+                log.error('Rename FAILED: {!s}'.format(e))
 
             # TODO: [TD0131] Hack!
             # _repositorysize = sys.getsizeof(repository.SessionRepository)
