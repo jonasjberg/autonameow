@@ -319,10 +319,10 @@ class EbookAnalyzer(BaseAnalyzer):
         try:
             string_ = types.AW_STRING(raw_string)
         except types.AWTypeError:
-            return
+            return None
         else:
             if not string_.strip():
-                return
+                return None
 
             # TODO: Cleanup and filter publisher(s)
             return string_
@@ -333,10 +333,10 @@ class EbookAnalyzer(BaseAnalyzer):
         try:
             string_ = types.AW_STRING(raw_string)
         except types.AWTypeError:
-            return
+            return None
         else:
             if not string_.strip():
-                return
+                return None
 
             # TODO: Cleanup and filter title.
             return string_

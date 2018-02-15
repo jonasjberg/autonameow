@@ -61,6 +61,7 @@ class FilenameDelta(object):
                 self.from_path == other.from_path
                 and self.new_basename == other.new_basename
             )
+        return False
 
     def __hash__(self):
         return hash((self.from_path, self.new_basename))

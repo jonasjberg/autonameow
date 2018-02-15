@@ -116,7 +116,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         # TODO: [TD0130] Implement general-purpose substring matching/extraction.
         possible_publishers = find_publisher_in_copyright_notice(text)
         if not possible_publishers:
-            return
+            return None
 
         # TODO: [cleanup] ..
         result = find_publisher(possible_publishers, self.candidate_publishers)

@@ -86,7 +86,7 @@ class FilesContext(object):
         if not name_template:
             if self.opts.get('mode_batch'):
                 log.warning('Name template unknown! Aborting ..')
-                return
+                return None
 
             # Have the user select a name template.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
@@ -100,7 +100,7 @@ class FilesContext(object):
         if not name_template:
             # User name template selection did not happen or failed.
             log.warning('Name template unknown! Aborting ..')
-            return
+            return None
 
         if not data_sources:
             if self.opts.get('mode_automagic'):
@@ -110,7 +110,7 @@ class FilesContext(object):
             if self.opts.get('mode_batch'):
                 log.warning('Data sources unknown! Aborting ..')
                 self.ameow.exit_code = C.EXIT_WARNING
-                return
+                return None
 
             # Have the user select data sources.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
@@ -121,7 +121,7 @@ class FilesContext(object):
             if not self.opts.get('mode_automagic'):
                 log.warning('Not in automagic mode. Unable to populate name.')
                 self.ameow.exit_code = C.EXIT_WARNING
-                return
+                return None
 
             while not field_databundle_dict and candidates:
                 # Try real hard to figure it out (?)
@@ -145,7 +145,7 @@ class FilesContext(object):
         if not field_databundle_dict:
             log.warning('Unable to populate name.')
             self.ameow.exit_code = C.EXIT_WARNING
-            return
+            return None
 
         try:
             new_name = namebuilder.build(
@@ -217,7 +217,7 @@ class FilesContext(object):
                 log.error('Unable to resolve all name template fields. '
                           'Running in batch mode -- Aborting..')
                 self.ameow.exit_code = C.EXIT_WARNING
-                return
+                return None
 
         resolver.collect()
 
@@ -227,7 +227,7 @@ class FilesContext(object):
             if self.opts.get('mode_batch'):
                 log.warning('Unable to populate name.')
                 # self.ameow.exit_code = C.EXIT_WARNING
-                return
+                return None
 
             # TODO: [TD0024][TD0025] Implement Interactive mode.
             for field in resolver.unresolved:
@@ -245,7 +245,7 @@ class FilesContext(object):
 
                 if choice is interactive.Choice.ABORT:
                     log.info('Aborting ..')
-                    return
+                    return None
 
                 if choice:
                     log.debug('User selected {!r}'.format(choice))

@@ -90,6 +90,7 @@ def _read_entire_text_file_autodetect_encoding(file_path):
             raise ExtractorError(
                 'Unable to use auto-detected encoding; {!s}'.format(e)
             )
+    return None
 
 
 def autodetect_encoding(file_path):

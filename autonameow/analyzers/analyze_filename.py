@@ -420,6 +420,7 @@ class FilenameTokenizer(object):
         _sep = self.main_separator
         if _sep:
             return self.filename.split(_sep)
+        return None
 
     @property
     def separators(self, maxcount=None):
