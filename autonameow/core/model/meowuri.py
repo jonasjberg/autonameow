@@ -189,9 +189,10 @@ class MeowURI(object):
                 return self.children < other.children
             if self.leaf != other.leaf:
                 return self.leaf < other.leaf
-        else:
-            # TODO: Else what?
-            pass
+
+        raise TypeError('unorderable types: {!s} < {!s}'.format(
+            self.__class__, other.__class__
+        ))
 
     def __gt__(self, other):
         return not self < other

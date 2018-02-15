@@ -260,6 +260,22 @@ class TestMeowURIComparison(TestCase):
         b = MeowURI('extractor.filesystem.xplat.basename')
         self.assertTrue(a > b)
 
+    def test_comparison_with_other_types_raises_valueerror(self):
+        a = MeowURI('extractor.filesystem.xplat.contents')
+        b = object()
+
+        with self.assertRaises(TypeError):
+            _ = a < b
+
+        with self.assertRaises(TypeError):
+            _ = a > b
+
+        with self.assertRaises(TypeError):
+            _ = b < a
+
+        with self.assertRaises(TypeError):
+            _ = b > a
+
 
 class TestEvaluateMeowURIGlobA(TestCase):
     @classmethod
