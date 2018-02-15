@@ -36,6 +36,22 @@ from util import (
 log = logging.getLogger(__name__)
 
 
+class FilenameDelta(object):
+    def __init__(self, from_path, new_basename):
+        self.from_path = from_path
+        self.new_basename = new_basename
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return (
+                self.from_path == other.from_path
+                and self.new_basename == other.new_basename
+            )
+
+    def __hash__(self):
+        return hash((self.from_path, self.new_basename))
+
+
 class FileRenamer(object):
     def __init__(self, dry_run, mode_timid):
         """

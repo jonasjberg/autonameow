@@ -37,11 +37,50 @@ except ImportError:
         file=sys.stderr
     )
 
-from core.renamer import FileRenamer
+from core.renamer import (
+    FilenameDelta,
+    FileRenamer
+)
 
 
 def prompt_toolkit_unavailable():
     return prompt_toolkit is None, 'Failed to import "prompt_toolkit"'
+
+
+class TestFilenameDelta(TestCase):
+    def test_comparison_with_equal_source_path_and_equal_new_names(self):
+        a = FilenameDelta(b'/tmp/foo/bar', 'baz')
+        b = FilenameDelta(b'/tmp/foo/bar', 'baz')
+        self.assertEqual(a, b)
+
+    def test_comparison_with_equal_source_path_but_different_new_names(self):
+        a = FilenameDelta(b'/tmp/foo/bar', 'baz')
+        b = FilenameDelta(b'/tmp/foo/bar', 'meow')
+        self.assertNotEqual(a, b)
+
+    def test_comparison_with_different_source_paths_and_equal_new_names(self):
+        a = FilenameDelta(b'/tmp/a/bar', 'meow')
+        b = FilenameDelta(b'/tmp/a/foo', 'meow')
+        self.assertNotEqual(a, b)
+
+    def test_comparison_with_different_source_paths_and_different_new_names(self):
+        a = FilenameDelta(b'/tmp/a/bar', 'meeeooow')
+        b = FilenameDelta(b'/tmp/a/foo', 'meow')
+        self.assertNotEqual(a, b)
+
+    def test_membership(self):
+        container = set()
+        a = FilenameDelta(b'/foo/a', 'meow')
+        container.add(a)
+        self.assertEqual(1, len(container))
+
+        b = FilenameDelta(b'/foo/a', 'meow')
+        container.add(b)
+        self.assertEqual(1, len(container))
+
+        c = FilenameDelta(b'/foo/a', 'meeeooowwww')
+        container.add(c)
+        self.assertEqual(2, len(container))
 
 
 @skipIf(*prompt_toolkit_unavailable())
