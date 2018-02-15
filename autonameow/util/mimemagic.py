@@ -152,7 +152,7 @@ def eval_glob(mime_to_match, glob_list):
         # Test again after the case above because NullMIMEType evaluates False.
         return False
 
-    if not (isinstance(mime_to_match, str)):
+    if not isinstance(mime_to_match, str):
         raise TypeError('Expected "mime_to_match" to be of type str')
 
     if '/' not in mime_to_match:

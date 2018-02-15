@@ -241,4 +241,3 @@ def follows_filetags_convention(filetags_parts):
         filetags_parts.datetime and filetags_parts.description
         and filetags_parts.tags
     )
-

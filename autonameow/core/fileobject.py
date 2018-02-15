@@ -126,7 +126,8 @@ class FileObject(object):
         return self.__check_equality_fast(other)
 
     def __ne__(self, other):
-        return not (self == other)
+        # Infinite recursion with 'return self != other'
+        return not self == other
 
     def __lt__(self, other):
         if isinstance(other, self.__class__):

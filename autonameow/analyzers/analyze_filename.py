@@ -548,5 +548,4 @@ def find_publisher(text, candidates):
         for pattern in patterns:
             if re.search(pattern, text):
                 return repl
-
     return None
