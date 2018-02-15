@@ -57,5 +57,5 @@ fi
     export AUTONAMEOW_SYSPATH="${AUTONAMEOW_ROOT_DIR}/autonameow"
 
     cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests \
-    pylint --rcfile='./devscripts/pylintrc' autonameow bin tests/regression tests/devscripts
+    pylint --rcfile='./devscripts/pylintrc' autonameow bin
 )
