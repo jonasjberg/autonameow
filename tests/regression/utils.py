@@ -34,7 +34,7 @@ from core import constants as C
 from core.view import cli
 from core import (
     exceptions,
-    types,
+    types
 )
 from util import encoding as enc
 from util import (
@@ -412,7 +412,11 @@ class MockUI(object):
         self.mock_call_history = defaultdict(list)
 
     def __getattr__(self, item):
-        # Argument 'item' is 'msg' for 'ui.msg('foo')'.
+        # Argument 'item' is 'msg' if callers use mock like 'ui.msg('foo')'.
+        if item == 'ColumnFormatter':
+            # TODO: [TD0171] Separate logic from user interface.
+            return cli.ColumnFormatter
+
         return lambda *args, **kwargs: self.mock_call_history[item].append((args, kwargs))
 
 
