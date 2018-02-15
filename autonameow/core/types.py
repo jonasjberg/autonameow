@@ -802,7 +802,7 @@ def coercer_for(value):
         try:
             _any_element = list(value.keys())[0]
             _sample = value.get(_any_element)
-        except (IndexError, KeyError, TypeError, ValueError):
+        except (LookupError, TypeError, ValueError):
             pass
 
     return PRIMITIVE_AW_TYPE_MAP.get(type(_sample), None)
