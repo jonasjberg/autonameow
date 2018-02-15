@@ -168,7 +168,10 @@ class BaseExtractor(object):
                 'implement (override) class method "can_handle"!'
             )
         sanity.check_isinstance(cls.HANDLES_MIME_TYPES, list)
+        return cls._evaluate_mime_type_glob(fileobject)
 
+    @classmethod
+    def _evaluate_mime_type_glob(cls, fileobject):
         try:
             return mimemagic.eval_glob(fileobject.mime_type,
                                        cls.HANDLES_MIME_TYPES)
