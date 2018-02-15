@@ -45,7 +45,7 @@ class RuleMatcher(object):
 
         response = provider.query(fileobject, meowuri)
         if response:
-            # TODO: Integrate successful/failed query response objecst.
+            # TODO: Integrate successful/failed query response objects.
             return response.value
         return None
 

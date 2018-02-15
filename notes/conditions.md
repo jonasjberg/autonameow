@@ -95,7 +95,7 @@ As per TODO-list entry "`[TD0135]` Add option to display rule matching
 information."
 
 
-Mockup of possible output format:
+Mock-up of possible output format:
 
 ```
 Rule #001 [RULE DESCRIPTION] (3 conditions)
@@ -119,7 +119,7 @@ FAILED
 Exact: Yes  Score: 0.0  Weight: 0.0  Bias: 0.0
 ```
 
-Alternative mockup:
+Alternative mock-up:
 ```
 Rule #001 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
 

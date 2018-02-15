@@ -254,7 +254,7 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
         )
 
     def test_options(self):
-        # NOTE(jonas): Omitted environment-dependant option "input_paths".
+        # NOTE(jonas): Omitted environment-dependent option "input_paths".
         expected_options = {
             'debug': False,
             'verbose': True,

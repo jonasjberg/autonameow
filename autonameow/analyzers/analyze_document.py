@@ -153,7 +153,7 @@ def find_titles_in_text(text):
 
         if line.strip() and line.replace('-', ''):
             _prob = (MAX_LINES - num) / MAX_LINES
-            # TODO: Set probabilty dynamically ..
+            # TODO: Set probability dynamically ..
             # self._add_intermediate_results(
             #     'title', self._wrap_generic_title(line, _prob)
             # )
