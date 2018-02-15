@@ -416,6 +416,15 @@ class MockUI(object):
         return lambda *args, **kwargs: self.mock_call_history[item].append((args, kwargs))
 
 
+def fetch_mock_ui_messages(mock_ui):
+    messages = list()
+    for captured_msg_call in mock_ui.mock_call_history.get('msg', list()):
+        text = ''.join(captured_msg_call[0])
+        messages.append(text)
+
+    return '\n'.join(messages)
+
+
 class AutonameowWrapper(object):
     """
     Autonameow class wrapper used by the regression tests.

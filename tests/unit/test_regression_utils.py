@@ -32,6 +32,7 @@ from regression.utils import (
     check_renames,
     commandline_for_testcase,
     _commandline_args_for_testcase,
+    fetch_mock_ui_messages,
     get_regressiontest_dirs,
     get_regressiontests_rootdir,
     glob_filter,
@@ -440,6 +441,31 @@ class TestMockUIActualUsage(TestCase):
 
     def test_call_unsilence(self):
         self.mock_ui.unsilence()
+
+
+class TestFetchMockUIMessages(TestCase):
+    def setUp(self):
+        self.mock_ui = MockUI()
+
+    def test_returns_empty_string_if_mock_is_not_used(self):
+        actual = fetch_mock_ui_messages(self.mock_ui)
+        self.assertEqual('', actual)
+
+    def test_returns_expected_string_if_mock_msg_is_called(self):
+        self.mock_ui.msg('foo')
+        actual = fetch_mock_ui_messages(self.mock_ui)
+        self.assertEqual('foo', actual)
+
+    def test_returns_expected_string_if_mock_msg_is_called_twice(self):
+        self.mock_ui.msg('foo')
+        self.mock_ui.msg('bar')
+        actual = fetch_mock_ui_messages(self.mock_ui)
+        self.assertEqual('foo\nbar', actual)
+
+    def test_returns_expected_string_if_mock_msg_is_called_with_style(self):
+        self.mock_ui.msg('foo', style='heading')
+        actual = fetch_mock_ui_messages(self.mock_ui)
+        self.assertEqual('foo', actual)
 
 
 class TestAutonameowWrapper(TestCase):
