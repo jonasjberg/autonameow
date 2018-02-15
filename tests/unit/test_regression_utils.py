@@ -373,12 +373,12 @@ class TestMockUIActualUsage(TestCase):
         self.mock_ui = MockUI()
 
     def _assert_called_with_args(self, member, expect):
-        self.assertIn(member, self.mock_ui.call_history)
-        self.assertEqual(expect, self.mock_ui.call_history[member][0][0])
+        self.assertIn(member, self.mock_ui.mock_call_history)
+        self.assertEqual(expect, self.mock_ui.mock_call_history[member][0][0])
 
     def _assert_called_with_kwargs(self, member, expect):
-        self.assertIn(member, self.mock_ui.call_history)
-        self.assertEqual(expect, self.mock_ui.call_history[member][0][1])
+        self.assertIn(member, self.mock_ui.mock_call_history)
+        self.assertEqual(expect, self.mock_ui.mock_call_history[member][0][1])
 
     def test_call_colorize(self):
         self.mock_ui.colorize('foo')
@@ -413,8 +413,8 @@ class TestMockUIActualUsage(TestCase):
 
     def test_call_msg_stores_passed_arguments(self):
         self.mock_ui.msg('foo', style='heading', ignore_quiet=False)
-        self.assertIn('msg', self.mock_ui.call_history)
-        self.assertEqual('foo', self.mock_ui.call_history['msg'][0][0][0])
+        self.assertIn('msg', self.mock_ui.mock_call_history)
+        self.assertEqual('foo', self.mock_ui.mock_call_history['msg'][0][0][0])
         self._assert_called_with_args('msg', ('foo', ))
 
     def test_call_msg_possible_rename(self):
