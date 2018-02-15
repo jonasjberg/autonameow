@@ -19,35 +19,30 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
-
 import unit.utils as uu
 from core import constants as C
 from core.model import MeowURI
 from extractors import BaseExtractor
 
+
 """
-Shared utilities for extractor unit tests.
+Extractor test class mixins with common functionality.
 """
 
 
-class CaseExtractorOutputTypes(TestCase):
-    __test__ = False
-
+class CaseExtractorOutputTypes(object):
     EXTRACTOR_CLASS = None
     SOURCE_FILEOBJECT = None
 
-    def setUp(self):
-        self.maxDiff = None
+    @classmethod
+    def setUpClass(cls):
+        cls.maxDiff = None
 
-        if self.EXTRACTOR_CLASS is None:
-            self.skipTest('Base class attribute "EXTRACTOR_CLASS" is None')
+        assert cls.EXTRACTOR_CLASS is not None
+        assert cls.SOURCE_FILEOBJECT is not None
 
-        if self.SOURCE_FILEOBJECT is None:
-            self.skipTest('Base class attribute "SOURCE_FILEOBJECT" is None')
-
-        self.extractor = self.EXTRACTOR_CLASS()
-        self.actual_extracted = self.extractor.extract(self.SOURCE_FILEOBJECT)
+        cls.extractor = cls.EXTRACTOR_CLASS()
+        cls.actual_extracted = cls.extractor.extract(cls.SOURCE_FILEOBJECT)
 
     def test_instantiated_extractor_is_not_none(self):
         actual = self.extractor
@@ -92,16 +87,18 @@ ALL_TESTFILES = [
 ]
 
 
-class CaseExtractorBasics(TestCase):
-    __test__ = False
-
+class CaseExtractorBasics(object):
+    EXTRACTOR_NAME = None
     EXTRACTOR_CLASS = None
 
-    def setUp(self):
-        if self.EXTRACTOR_CLASS is None:
-            self.skipTest('Base class attribute "EXTRACTOR_CLASS" is None')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        self.extractor = self.EXTRACTOR_CLASS()
+    @classmethod
+    def setUpClass(cls):
+        assert cls.EXTRACTOR_CLASS is not None
+        assert cls.EXTRACTOR_NAME is not None
+        cls.extractor = cls.EXTRACTOR_CLASS()
 
     def test_instantiated_extractor_is_not_none(self):
         actual = self.extractor
@@ -148,6 +145,11 @@ class CaseExtractorBasics(TestCase):
             'Expected "str". Got "{!s}"'.format(type(actual))
         )
 
+    def test_method_str_returns_expected_value(self):
+        actual = str(self.extractor)
+        expect = self.EXTRACTOR_NAME
+        self.assertEqual(expect, actual)
+
     def test_method_check_dependencies_returns_expected_type(self):
         actual = self.extractor.check_dependencies()
         self.assertIsInstance(
@@ -188,9 +190,7 @@ class CaseExtractorBasics(TestCase):
         )
 
 
-class CaseExtractorOutput(TestCase):
-    __test__ = False
-
+class CaseExtractorOutput(object):
     EXTRACTOR_CLASS = None
     SOURCE_FILEOBJECT = None
 
@@ -203,17 +203,15 @@ class CaseExtractorOutput(TestCase):
         (None, None, None),
     ]
 
-    def setUp(self):
-        self.maxDiff = None
+    @classmethod
+    def setUpClass(cls):
+        cls.maxDiff = None
 
-        if self.EXTRACTOR_CLASS is None:
-            self.skipTest('Base class attribute "EXTRACTOR_CLASS" is None')
+        assert cls.EXTRACTOR_CLASS is not None
+        assert cls.SOURCE_FILEOBJECT is not None
 
-        if self.SOURCE_FILEOBJECT is None:
-            self.skipTest('Base class attribute "SOURCE_FILEOBJECT" is None')
-
-        self.extractor = self.EXTRACTOR_CLASS()
-        self.actual_extracted = self.extractor.extract(self.SOURCE_FILEOBJECT)
+        cls.extractor = cls.EXTRACTOR_CLASS()
+        cls.actual_extracted = cls.extractor.extract(cls.SOURCE_FILEOBJECT)
 
     def test_extracted_data_is_not_none(self):
         self.assertIsNotNone(

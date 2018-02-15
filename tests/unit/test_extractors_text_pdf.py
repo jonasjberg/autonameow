@@ -57,26 +57,19 @@ class TestPrerequisites(TestCase):
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPdfTextExtractor(CaseExtractorBasics):
-    __test__ = True
+class TestPdfTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
-
-    def test_method_str_returns_expected(self):
-        actual = str(self.extractor)
-        expect = 'PdfTextExtractor'
-        self.assertEqual(expect, actual)
+    EXTRACTOR_NAME = 'PdfTextExtractor'
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPdfTextExtractorOutputTypes(CaseExtractorOutputTypes):
-    __test__ = True
+class TestPdfTextExtractorOutputTypes(CaseExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPdfTextExtractorOutputTestFileA(CaseExtractorOutput):
-    __test__ = True
+class TestPdfTextExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -85,8 +78,7 @@ class TestPdfTextExtractorOutputTestFileA(CaseExtractorOutput):
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPdfTextExtractorOutputTestFileB(CaseExtractorOutput):
-    __test__ = True
+class TestPdfTextExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_B)
     EXPECTED_FIELD_TYPE_VALUE = [

@@ -40,14 +40,9 @@ assert not UNMET_DEPENDENCIES
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestCrossPlatformFileSystemExtractor(CaseExtractorBasics):
-    __test__ = True
+class TestCrossPlatformFileSystemExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = CrossPlatformFileSystemExtractor
-
-    def test_method_str_returns_expected(self):
-        actual = str(self.extractor)
-        expect = 'CrossPlatformFileSystemExtractor'
-        self.assertEqual(actual, expect)
+    EXTRACTOR_NAME = 'CrossPlatformFileSystemExtractor'
 
 
 ALL_EXTRACTOR_FIELDS_TYPES = [

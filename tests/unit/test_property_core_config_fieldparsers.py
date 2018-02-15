@@ -45,14 +45,11 @@ from core.config.field_parsers import (
 )
 
 
-class CaseFieldParserValidation(TestCase):
+class CaseFieldParserValidation(object):
     FIELD_PARSER_CLASS = None
-    __test__ = False
 
     def setUp(self):
-        if self.FIELD_PARSER_CLASS is None:
-            self.skipTest('self.FIELD_PARSER_CLASS is None')
-
+        assert self.FIELD_PARSER_CLASS is not None
         p = self.FIELD_PARSER_CLASS()
         self.val_func = p.get_validation_function()
 
@@ -63,6 +60,9 @@ class CaseFieldParserValidation(TestCase):
             raise AssertionError('"{!s}" raised: {!s}'.format(s, e))
         else:
             self.assertIsInstance(actual, bool)
+
+    def test_validation_function_is_callable(self):
+        self.assertTrue(callable(self.val_func))
 
     @given(text())
     def test_text_input(self, s):
@@ -85,27 +85,17 @@ class CaseFieldParserValidation(TestCase):
         self._assert_return_type_bool(s)
 
 
-class TestRegexFieldParserReturnsBooleans(CaseFieldParserValidation):
-    __test__ = True
+class TestRegexFieldParserReturnsBooleans(CaseFieldParserValidation, TestCase):
     FIELD_PARSER_CLASS = RegexConfigFieldParser
 
 
-class TestBooleanConfigFieldParser(CaseFieldParserValidation):
-    __test__ = True
+class TestBooleanConfigFieldParser(CaseFieldParserValidation, TestCase):
     FIELD_PARSER_CLASS = BooleanConfigFieldParser
 
 
-class TestDateTimeConfigFieldParser(CaseFieldParserValidation):
-    __test__ = True
+class TestDateTimeConfigFieldParser(CaseFieldParserValidation, TestCase):
     FIELD_PARSER_CLASS = DateTimeConfigFieldParser
 
 
-class TestNameTemplateConfigFieldParser(CaseFieldParserValidation):
-    __test__ = True
-    FIELD_PARSER_CLASS = NameTemplateConfigFieldParser
-
-
-class TestMimeTypeConfigFieldParser(CaseFieldParserValidation):
-    __test__ = True
+class TestNameTemplateConfigFieldParser(CaseFieldParserValidation, TestCase):
     FIELD_PARSER_CLASS = MimeTypeConfigFieldParser
-

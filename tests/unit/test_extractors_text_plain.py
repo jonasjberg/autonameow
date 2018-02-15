@@ -41,14 +41,9 @@ assert not UNMET_DEPENDENCIES
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPlainTextExtractor(CaseExtractorBasics):
-    __test__ = True
+class TestPlainTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = PlainTextExtractor
-
-    def test_method_str_returns_expected(self):
-        actual = str(self.extractor)
-        expect = 'PlainTextExtractor'
-        self.assertEqual(actual, expect)
+    EXTRACTOR_NAME = 'PlainTextExtractor'
 
 
 class TestReadEntireTextFileA(TestCase):

@@ -48,26 +48,19 @@ TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('pg38145-images.epub')
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestEpubTextExtractor(CaseExtractorBasics):
-    __test__ = True
+class TestEpubTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = EpubTextExtractor
-
-    def test_method_str_returns_expected(self):
-        actual = str(self.extractor)
-        expect = 'EpubTextExtractor'
-        self.assertEqual(actual, expect)
+    EXTRACTOR_NAME = 'EpubTextExtractor'
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestEpubTextExtractorOutputTypes(CaseExtractorOutputTypes):
-    __test__ = True
+class TestEpubTextExtractorOutputTypes(CaseExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = EpubTextExtractor
     SOURCE_FILEOBJECT = TESTFILE_A
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestEpubTextExtractorOutputTestFileA(CaseExtractorOutput):
-    __test__ = True
+class TestEpubTextExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = EpubTextExtractor
     SOURCE_FILEOBJECT = TESTFILE_A
     EXPECTED_FIELD_TYPE_VALUE = [

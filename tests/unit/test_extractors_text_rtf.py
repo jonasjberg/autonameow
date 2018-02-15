@@ -79,27 +79,22 @@ class TestPrerequisites(TestCase):
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestRichTextFormatTextExtractor(CaseExtractorBasics):
-    __test__ = True
+class TestRichTextFormatTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
-
-    def test_method_str_returns_expected(self):
-        actual = str(self.extractor)
-        expect = 'RichTextFormatTextExtractor'
-        self.assertEqual(actual, expect)
+    EXTRACTOR_NAME = 'RichTextFormatTextExtractor'
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestRichTextFormatTextExtractorOutputTypes(CaseExtractorOutputTypes):
-    __test__ = True
+class TestRichTextFormatTextExtractorOutputTypes(CaseExtractorOutputTypes,
+                                                 TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
 
 
 @skip('TODO: Messy whitespace and unquoted control characters ..')
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestRichTextFormatTextExtractorOutputTestFileA(CaseExtractorOutput):
-    __test__ = True
+class TestRichTextFormatTextExtractorOutputTestFileA(CaseExtractorOutput,
+                                                     TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -108,8 +103,8 @@ class TestRichTextFormatTextExtractorOutputTestFileA(CaseExtractorOutput):
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestRichTextFormatTextExtractorOutputTestFileB(CaseExtractorOutput):
-    __test__ = True
+class TestRichTextFormatTextExtractorOutputTestFileB(CaseExtractorOutput,
+                                                     TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_B)
     EXPECTED_FIELD_TYPE_VALUE = [

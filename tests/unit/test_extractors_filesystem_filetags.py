@@ -46,19 +46,13 @@ assert not UNMET_DEPENDENCIES
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestFiletagsExtractor(CaseExtractorBasics):
-    __test__ = True
+class TestFiletagsExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = FiletagsExtractor
-
-    def test_method_str_returns_expected(self):
-        actual = str(self.extractor)
-        expect = 'FiletagsExtractor'
-        self.assertEqual(actual, expect)
+    EXTRACTOR_NAME = 'FiletagsExtractor'
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestFiletagsExtractorOutputTestFileA(CaseExtractorOutput):
-    __test__ = True
+class TestFiletagsExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = FiletagsExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('2017-09-12T224820 filetags-style name -- tag2 a tag1.txt')
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -71,8 +65,7 @@ class TestFiletagsExtractorOutputTestFileA(CaseExtractorOutput):
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestFiletagsExtractorOutputTestFileB(CaseExtractorOutput):
-    __test__ = True
+class TestFiletagsExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = FiletagsExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('empty')
     EXPECTED_FIELD_TYPE_VALUE = [
