@@ -41,7 +41,10 @@ except ImportError:
     )
 
 from core import constants as C
-from core.autonameow import Autonameow
+from core.autonameow import (
+    Autonameow,
+    check_option_combinations
+)
 
 
 def prompt_toolkit_unavailable():
@@ -74,16 +77,9 @@ class TestAutonameowWithoutOptions(TestCase):
         exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
 
 
-class TestAutonameowOptionCombinations(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.amw = Autonameow
-
-    def test_setup_class(self):
-        self.assertIsNotNone(self.amw)
-
+class TestCheckOptionCombinations(TestCase):
     def _check_options(self, given, expect):
-        actual_options = self.amw.check_option_combinations(given)
+        actual_options = check_option_combinations(given)
         for option, expected_value in expect.items():
             actual_value = actual_options.get(option)
             self.assertEqual(actual_value, expected_value,

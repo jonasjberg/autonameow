@@ -59,7 +59,7 @@ class Autonameow(object):
             opts: Dict with parsed and validated options.
         """
         assert isinstance(opts, dict)
-        self.opts = self.check_option_combinations(opts)
+        self.opts = check_option_combinations(opts)
 
         # Package contained in 'autonameow/core/view'.
         self.ui = ui
@@ -72,50 +72,6 @@ class Autonameow(object):
         self.renamer = None
 
         self._exit_code = C.EXIT_SUCCESS
-
-    @staticmethod
-    def check_option_combinations(options):
-        opts = dict(options)
-
-        # Check legality of option combinations.
-        if opts.get('mode_automagic') and opts.get('mode_interactive'):
-            log.warning('Operating mode must be either one of "automagic" or '
-                        '"interactive", not both. Reverting to default: '
-                        '[interactive mode].')
-            opts['mode_automagic'] = False
-            opts['mode_interactive'] = True
-
-        if not opts.get('mode_rulematch'):
-            log.info('Enabled rule-matching..')
-            opts['mode_rulematch'] = True
-
-        if (not opts.get('mode_automagic') and not opts.get('mode_rulematch')
-                and opts.get('mode_batch')):
-            log.warning('Running in "batch" mode without specifying an '
-                        'operating mode ("automagic" or rule-matching) does '
-                        'not make any sense.  Nothing to do!')
-
-        if opts.get('mode_batch'):
-            if opts.get('mode_interactive'):
-                log.warning('Operating mode "batch" can not be used with '
-                            '"interactive".  Disabling "interactive"..')
-                opts['mode_interactive'] = False
-
-            if opts.get('mode_timid'):
-                log.warning('Operating mode must be either one of "batch" or '
-                            '"timid", not both. Disabling "timid"..')
-                opts['mode_timid'] = False
-
-        if opts.get('mode_interactive'):
-            if opts.get('mode_timid'):
-                log.warning('Operating mode "interactive" implies "timid". '
-                            'Disabling "timid"..')
-                opts['mode_timid'] = False
-
-        if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
-            log.info('No operating-mode selected!')
-
-        return opts
 
     def __enter__(self):
         # Set up singletons for this process.
@@ -398,3 +354,47 @@ class Autonameow(object):
 
     def __hash__(self):
         return hash((util.process_id(), self.start_time))
+
+
+def check_option_combinations(options):
+    opts = dict(options)
+
+    # Check legality of option combinations.
+    if opts.get('mode_automagic') and opts.get('mode_interactive'):
+        log.warning('Operating mode must be either one of "automagic" or '
+                    '"interactive", not both. Reverting to default: '
+                    '[interactive mode].')
+        opts['mode_automagic'] = False
+        opts['mode_interactive'] = True
+
+    if not opts.get('mode_rulematch'):
+        log.info('Enabled rule-matching..')
+        opts['mode_rulematch'] = True
+
+    if (not opts.get('mode_automagic') and not opts.get('mode_rulematch')
+            and opts.get('mode_batch')):
+        log.warning('Running in "batch" mode without specifying an '
+                    'operating mode ("automagic" or rule-matching) does '
+                    'not make any sense.  Nothing to do!')
+
+    if opts.get('mode_batch'):
+        if opts.get('mode_interactive'):
+            log.warning('Operating mode "batch" can not be used with '
+                        '"interactive".  Disabling "interactive"..')
+            opts['mode_interactive'] = False
+
+        if opts.get('mode_timid'):
+            log.warning('Operating mode must be either one of "batch" or '
+                        '"timid", not both. Disabling "timid"..')
+            opts['mode_timid'] = False
+
+    if opts.get('mode_interactive'):
+        if opts.get('mode_timid'):
+            log.warning('Operating mode "interactive" implies "timid". '
+                        'Disabling "timid"..')
+            opts['mode_timid'] = False
+
+    if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
+        log.info('No operating-mode selected!')
+
+    return opts
