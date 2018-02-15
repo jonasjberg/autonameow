@@ -236,11 +236,9 @@ class Autonameow(object):
             for _type in C.MEOWURI_ROOTS_SOURCES:
                 cf.addemptyrow()
                 sourcemap = providers.Registry.meowuri_sources.get(_type, {})
-                for uri, _klasses in sourcemap.items():
-                    cf.addrow(uri, str(_klasses.pop()))
-                    if _klasses:
-                        for k in _klasses:
-                            cf.addrow(None, str(k))
+                # Sorted by MeowURI within "root sections", separated by blank lines.
+                for uri, _klass in sorted(sourcemap.items(), key=lambda x: str(x[0])):
+                    cf.addrow(str(uri), str(_klass))
             self.ui.msg(str(cf))
         else:
             _meowuris = sorted(providers.Registry.mapped_meowuris)
