@@ -390,6 +390,50 @@ class RegressionTestLoader(object):
         return _setup_dict
 
 
+class MockUI(object):
+    def __init__(self):
+        self.msg_calls = list()
+
+    def colorize(self, text, fore=None, back=None, style=None):
+        pass
+
+    def colorize_re_match(self, text, regex, color=None):
+        pass
+
+    def colorize_quoted(self, text, color=None):
+        pass
+
+    def ColumnFormatter(self):
+        pass
+
+    def msg(self, *args, **kwargs):
+        self.msg_calls.append((args, kwargs))
+
+    def msg_possible_rename(self, *args, **kwargs):
+        pass
+
+    def msg_rename(self, *args, **kwargs):
+        pass
+
+    def msg_replacement(self, *args, **kwargs):
+        pass
+
+    def print_start_info(self):
+        pass
+
+    def print_exit_info(self, exit_code, elapsed_time):
+        pass
+
+    def print_version_info(self, verbose):
+        pass
+
+    def silence(self):
+        pass
+
+    def unsilence(self):
+        pass
+
+
 class AutonameowWrapper(object):
     """
     Autonameow class wrapper used by the regression tests.
@@ -438,10 +482,11 @@ class AutonameowWrapper(object):
         # Monkey-patch method of 'Autonameow' *class*
         Autonameow.exit_program = self.mock_exit_program
 
+        mock_ui = MockUI()
+
         with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
             try:
-                # TODO: [TD0170] Use mock UI!
-                with Autonameow(self.opts, ui=cli) as ameow:
+                with Autonameow(self.opts, ui=mock_ui) as ameow:
                     # TODO: Mock 'FileRenamer' class instead of single method
                     assert hasattr(ameow, 'renamer')
                     assert hasattr(ameow.renamer, '_rename_file')
