@@ -26,6 +26,7 @@ import re
 import shutil
 import sys
 import traceback
+from collections import defaultdict
 
 import unit.constants as uuconst
 import unit.utils as uu
@@ -391,8 +392,24 @@ class RegressionTestLoader(object):
 
 
 class MockUI(object):
+    """
+    Mock view that should be functionally equivalent to the 'view' modules.
+
+    Instances of this class should expose an interface that matches that of
+    the 'view' module.  For instance, instead of:
+
+        from core import view as ui
+        ui.msg('foo')
+
+    One should be able to do this:
+
+        ui = MockUI()
+        ui.msg('foo')
+
+    NOTE(jonas): Would it be better to re-use library mocking functionality?
+    """
     def __init__(self):
-        self.msg_calls = list()
+        self.call_history = defaultdict(list)
 
     def colorize(self, text, fore=None, back=None, style=None):
         pass
@@ -407,7 +424,7 @@ class MockUI(object):
         pass
 
     def msg(self, *args, **kwargs):
-        self.msg_calls.append((args, kwargs))
+        self.call_history['msg'].append((args, kwargs))
 
     def msg_possible_rename(self, *args, **kwargs):
         pass
@@ -431,6 +448,18 @@ class MockUI(object):
         pass
 
     def unsilence(self):
+        pass
+
+    def ask_confirm(self, *args, **kwargs):
+        pass
+
+    def field_selection_prompt(self, *args, **kwargs):
+        pass
+
+    def meowuri_prompt(self, *args, **kwargs):
+        pass
+
+    def get_argparser(self, *args, **kwargs):
         pass
 
 
