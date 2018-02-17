@@ -204,7 +204,7 @@ def syspath(path, prefix=True):
       the third utility: syspath. Think of this as converting from the
       internal representation to the OS’s own representation. On Unix, this is
       a no-op: the representations are the same. On Windows, this converts a
-      bytestring path back to Unicode and then adds the ridiculous \\?\ prefix,
+      bytestring path back to Unicode and then adds the ridiculous '\\?\' prefix,
       which avoids problems with long names.
 
     Source: http://beets.io/blog/paths.html
