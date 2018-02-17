@@ -102,6 +102,7 @@ class BasePersistence(object):
             raise ValueError(
                 'Argument "file_prefix" must be a valid string'
             )
+        # TODO: Add hardcoded prefix to the prefix for arguably "safer" deletes?
         self.persistencefile_prefix = _prefix
 
         self._dp = enc.displayable_path(self._persistence_dir_abspath)
@@ -192,13 +193,15 @@ class BasePersistence(object):
             try:
                 value = self._load(_file_path)
                 self._data[key] = value
-            except ValueError as e:
+            except (EOFError, ValueError) as e:
+                # Might raise 'EOFError' if the pickled file is empty.
                 _dp = enc.displayable_path(_file_path)
                 log.error(
                     'Error when reading key "{!s}" from persistence file "{!s}"'
                     ' (corrupt file?); {!s}'.format(key, _dp, e)
                 )
                 self.delete(key)
+                raise KeyError
             except OSError as e:
                 _dp = enc.displayable_path(_file_path)
                 log.warning(
