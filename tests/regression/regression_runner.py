@@ -478,11 +478,11 @@ def main(args):
 
 
 def print_traceback():
-    DELIM = '-' * 80
-    print('\n' + DELIM)
+    DELIM = '_' * 80
+    print(DELIM + '\n', file=sys.stderr)
     import traceback
-    traceback.print_exc()
-    print(DELIM)
+    traceback.print_exc(file=sys.stderr, limit=None, chain=True)
+    print(DELIM + '\n', file=sys.stderr)
 
 
 if __name__ == '__main__':
@@ -492,12 +492,13 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('\nReceived keyboard interrupt. Exiting ..')
     except AssertionError as e:
-        print('\nCaught AssertionError in __main__ (!)')
-        print(str(e))
+        print('\n\nCaught AssertionError in regression_runner.__main__()', file=sys.stderr)
+        print(str(e), file=sys.stderr)
+        print_traceback()
         exit_code = C.EXIT_SANITYFAIL
     except Exception as e:
-        print('\n\nUnhandled exception reached regression __main__ (!)')
-        print('[ERROR] {!s}'.format(e))
+        print('\n\nUnhandled exception reached regression_runner.__main__()', file=sys.stderr)
+        print(str(e), file=sys.stderr)
         print_traceback()
         exit_code = C.EXIT_ERROR
     finally:
