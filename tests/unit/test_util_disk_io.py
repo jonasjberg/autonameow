@@ -416,18 +416,10 @@ class TestBasename(TestCase):
             self.assertEqual(actual, expect)
 
         _aE(b'test_util_disk_io.py', b'test_util_disk_io.py')
-        _aE('test_util_disk_io.py', b'test_util_disk_io.py')
-        _aE(__file__, b'test_util_disk_io.py')
-        _aE(os.path.abspath(__file__), b'test_util_disk_io.py')
-        _aE(os.path.realpath(__file__), b'test_util_disk_io.py')
-
-    def test_returns_expected_given_invalid_paths(self):
-        def _aE(given, expect):
-            actual = basename(given)
-            self.assertEqual(actual, expect)
-
-        _aE('', b'')
-        _aE(' ', b' ')
+        _aE('test_util_disk_io.py', 'test_util_disk_io.py')
+        _aE(__file__, 'test_util_disk_io.py')
+        _aE(os.path.abspath(__file__), 'test_util_disk_io.py')
+        _aE(os.path.realpath(__file__), 'test_util_disk_io.py')
 
 
 OWNER_R = stat.S_IRUSR

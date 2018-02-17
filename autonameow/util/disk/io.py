@@ -219,8 +219,10 @@ def rmdir(path, ignore_missing=False):
 
 
 def basename(file_path):
-    _basename = os.path.basename(enc.syspath(file_path))
-    return enc.bytestring_path(_basename)
+    try:
+        return os.path.basename(enc.syspath(file_path))
+    except (OSError, TypeError, ValueError) as e:
+        raise exceptions.FilesystemError(e)
 
 
 CHAR_PERMISSION_LOOKUP = {
