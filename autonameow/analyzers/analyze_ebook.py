@@ -239,13 +239,8 @@ class EbookAnalyzer(BaseAnalyzer):
                     year=metadata_dict.get('Year')
                 )
                 self.log.debug('Metadata for ISBN: {}'.format(isbn))
-                self.log.debug('Title     : {}'.format(metadata.title))
-                self.log.debug('Authors   : {}'.format(metadata.authors))
-                self.log.debug('Publisher : {}'.format(metadata.publisher))
-                self.log.debug('Year      : {}'.format(metadata.year))
-                self.log.debug('Language  : {}'.format(metadata.language))
-                self.log.debug('ISBN-10   : {}'.format(metadata.isbn10))
-                self.log.debug('ISBN-13   : {}'.format(metadata.isbn13))
+                for line in metadata.as_string().splitlines():
+                    self.log.debug(line)
 
                 # Duplicates are removed here. When both ISBN-10 and ISBN-13
                 # text is found and two queries are made, the two metadata
@@ -255,6 +250,11 @@ class EbookAnalyzer(BaseAnalyzer):
                     self._isbn_metadata.append(metadata)
                 else:
                     self.log.debug('Skipped "duplicate" metadata for ISBN: {}'.format(isbn))
+                    # print('Skipped metadata considered a duplicate:')
+                    # print_copy_pasteable_isbn_metadata('x', metadata)
+                    # print('Previously Stored metadata:')
+                    # for n, m in enumerate(self._isbn_metadata):
+                    #     print_copy_pasteable_isbn_metadata(n, m)
 
             self.log.info('Got {} instances of ISBN metadata'.format(
                 len(self._isbn_metadata)
@@ -649,6 +649,16 @@ class ISBNMetadata(object):
     def normalized_title(self):
         return self._normalized_title or ''
 
+    def as_string(self):
+        return '''Title     : {}
+Authors   : {}
+Publisher : {}
+Year      : {}
+Language  : {}
+ISBN-10   : {}
+ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
+                         self.language, self.isbn10, self.isbn13)
+
     def similarity(self, other):
         """
         Fuzzy comparison with ad-hoc threshold values.
@@ -714,6 +724,9 @@ class ISBNMetadata(object):
                     return True
                 if _sim_publisher > 0.7:
                     return True
+            elif _sim_authors > 0.25:
+                if _sim_title >= 0.99:
+                    return True
         else:
             if _sim_authors == 1:
                 if _sim_title > 0.5:
@@ -724,6 +737,9 @@ class ISBNMetadata(object):
                 if _sim_title > 0.7:
                     return True
                 if _sim_publisher > 0.7:
+                    return True
+            elif _sim_authors > 0.2:
+                if _sim_title > 0.9:
                     return True
         return False
 
@@ -739,3 +755,16 @@ class ISBNMetadata(object):
 
     def __hash__(self):
         return hash((self.isbn10, self.isbn13))
+
+
+def print_copy_pasteable_isbn_metadata(n, m):
+    print('''
+m{} = ISBNMetadata(
+    authors={},
+    language='{}',
+    publisher='{}',
+    isbn10='{}',
+    isbn13='{}',
+    title='{}',
+    year='{}'
+)'''.format(n, m.authors, m.language, m.publisher, m.isbn10, m.isbn13, m.title, m.year))
