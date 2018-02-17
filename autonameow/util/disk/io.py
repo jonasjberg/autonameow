@@ -29,6 +29,7 @@ from util import encoding as enc
 
 __all__ = [
     'delete',
+    'dirname',
     'exists',
     'file_basename',
     'file_bytesize',
@@ -73,6 +74,13 @@ def rename_file(source_path, new_basename):
         os.rename(source, dest_abspath)
     except OSError:
         raise
+
+
+def dirname(path):
+    try:
+        return os.path.dirname(enc.syspath(path))
+    except (OSError, TypeError, ValueError) as e:
+        raise exceptions.FilesystemError(e)
 
 
 def exists(path):

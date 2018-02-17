@@ -29,6 +29,7 @@ from core.exceptions import FilesystemError
 from util import encoding as enc
 from util.disk.io import (
     delete,
+    dirname,
     exists,
     file_basename,
     file_bytesize,
@@ -42,6 +43,13 @@ from util.disk.io import (
     makedirs,
     tempdir
 )
+
+
+class TestDirname(TestCase):
+    def test_returns_expected(self):
+        actual = dirname(__file__)
+        expect = os.path.dirname(__file__)
+        self.assertEqual(expect, actual)
 
 
 class TestExists(TestCase):
