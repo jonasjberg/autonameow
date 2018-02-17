@@ -24,7 +24,10 @@ import logging
 import os
 
 from util import encoding as enc
-from util import sanity
+from util import (
+    disk,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)
@@ -61,31 +64,27 @@ def get_files_gen(search_path, recurse=False):
 
     sanity.check_internal_bytestring(search_path)
 
-    _sys_search_path = enc.syspath(search_path)
-    if not (os.path.isfile(_sys_search_path)
-            or os.path.isdir(_sys_search_path)):
+    if not disk.isfile(search_path) and not disk.isdir(search_path):
         raise FileNotFoundError
 
-    if os.path.isfile(_sys_search_path):
+    if disk.isfile(search_path):
         sanity.check_internal_bytestring(search_path)
         yield search_path
-    elif os.path.isdir(_sys_search_path):
+    elif disk.isdir(search_path):
         try:
-            _dir_listing = os.listdir(_sys_search_path)
+            _dir_listing = disk.listdir(search_path)
         except PermissionError as e:
             log.warning(str(e))
         else:
             for entry in _dir_listing:
-                entry_path = os.path.join(_sys_search_path,
-                                          enc.syspath(entry))
-                _sys_entry_path = enc.syspath(entry_path)
-                if not os.path.exists(_sys_entry_path):
+                entry_path = disk.joinpaths(search_path, entry)
+                if not disk.exists(entry_path):
                     raise FileNotFoundError
 
-                if os.path.isfile(_sys_entry_path):
+                if disk.isfile(entry_path):
                     sanity.check_internal_bytestring(entry_path)
                     yield entry_path
-                elif recurse and os.path.isdir(_sys_entry_path):
+                elif recurse and disk.isdir(entry_path):
                     for f in get_files_gen(entry_path, recurse=recurse):
                         sanity.check_internal_bytestring(f)
                         yield f
