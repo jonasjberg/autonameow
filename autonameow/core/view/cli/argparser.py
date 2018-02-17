@@ -72,6 +72,7 @@ def get_argparser(**kwargs):
     parser = argparse.ArgumentParser(**_kwargs)
 
     # Iffy, ill-advised manipulation of internals. Likely to break!
+    # pylint: disable=protected-access
     parser._positionals.title = 'Positional arguments'
     parser._optionals.title = 'Optional arguments'
 

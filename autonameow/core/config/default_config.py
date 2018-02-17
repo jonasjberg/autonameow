@@ -40,6 +40,7 @@ from core import constants as C
 
 
 DEFAULT_CONFIG = {
+    # pylint: disable=anomalous-backslash-in-string
 
     #   Rules
     #   =====

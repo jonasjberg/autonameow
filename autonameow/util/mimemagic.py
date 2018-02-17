@@ -62,6 +62,7 @@ def _build_magic():
     Returns:
         An instance of 'magic' as type 'Magic'.
     """
+    # pylint: disable=unexpected-keyword-arg,no-value-for-parameter,no-member
     try:
         _magic = magic.open(magic.MAGIC_MIME_TYPE)
         _magic.load()
