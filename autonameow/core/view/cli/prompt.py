@@ -79,10 +79,8 @@ def get_config_history_path():
             return _history_path
         elif disk.isdir(_history_path):
             log.warning('Expected history path to include a file ..')
-            _fixed_path = os.path.join(
-                enc.syspath(_history_path),
-                enc.syspath(C.DEFAULT_HISTORY_FILE_BASENAME)
-            )
+            _fixed_path = disk.joinpaths(_history_path,
+                                         C.DEFAULT_HISTORY_FILE_BASENAME)
             if _fixed_path:
                 log.warning('Using fixed history path: "{!s}"'.format(
                     enc.displayable_path(_fixed_path)
