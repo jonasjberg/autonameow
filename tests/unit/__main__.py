@@ -33,6 +33,15 @@ from unit import (
 )
 
 
+"""
+Alternative (WIP) unit test runner.
+Run this from the repository root for up-to-date help:
+
+    PYTHONPATH=autonameow:tests python3 -m unit --help
+
+"""
+
+
 def without_endline(f):
     @functools.wraps(f)
     def func(*args, **kwargs):
@@ -101,8 +110,9 @@ def parse_options(args):
         '-v', '--verbose',
         dest='verbose',
         action='count',
-        default=2,
-        help='Enables verbose mode, prints additional information.'
+        default=0,
+        help='Enables additional output verbosity in increments; '
+             '"-v", "-vv", "-vvv", etc.'
     )
     optgrp_select = parser.add_argument_group(
         'Test Selection',
@@ -159,7 +169,7 @@ runner = unittest.TextTestRunner
 runner.buffer = True
 runner.resultclass = unittest.TextTestResult if opts.verbose < 2 else TestResult
 
-result = runner(verbosity=opts.verbose).run(suite)
+result = runner(verbosity=opts.verbose, buffer=True).run(suite)
 if not result.wasSuccessful():
     raise SystemExit(1)
 
