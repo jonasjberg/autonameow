@@ -209,7 +209,7 @@ def has_permissions(path, permissions):
                          'WwxX'      -      X       X
 
     Args:
-        path: The path to the file to test.
+        path: Path to the file to test as a Unicode string or bytes.
         permissions: The required permissions as a Unicode string
                              containing any of characters 'r', 'w' and 'x'.
 
@@ -218,8 +218,8 @@ def has_permissions(path, permissions):
     """
     if not isinstance(permissions, str):
         raise TypeError('Expected "permissions" to be a Unicode string')
-    if not isinstance(path, bytes):
-        raise TypeError('Expected "path" to be a bytestring path')
+    if not isinstance(path, (bytes, str)):
+        raise TypeError('Expected "path" to be a string type')
 
     if not permissions.strip():
         return True

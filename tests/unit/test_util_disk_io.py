@@ -385,8 +385,6 @@ class TestHasPermissions(TestCase):
         _aR(None, 'r')
         _aR([], 'r')
         _aR(object(), 'r')
-        _aR('', 'r')
-        _aR('foo', 'r')
 
     def test_invalid_path(self):
         path = uuconst.ASSUMED_NONEXISTENT_BASENAME
