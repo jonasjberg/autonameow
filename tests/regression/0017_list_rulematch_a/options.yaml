@@ -1,0 +1,17 @@
+config_path: $TESTFILES/configs/default.yaml
+debug: false
+dry_run: true
+dump_config: false
+dump_meowuris: false
+dump_options: false
+input_paths:
+- '$TESTFILES/gmail.pdf'
+list_all: false
+list_rulematch: true
+mode_automagic: false
+mode_batch: true
+mode_interactive: false
+quiet: false
+recurse_paths: false
+show_version: false
+verbose: false

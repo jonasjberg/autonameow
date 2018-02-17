@@ -1,0 +1,28 @@
+exit_code: 0
+renames:
+    'gmail.pdf': '2016-01-11T124132 gmail.pdf'
+stdout:
+    matches:
+    - 'Remaining.*prioritized rules'
+    - 'Discarded rules'
+    - 'Exact: Yes.*Score: N/A.*Weight: N/A.*Bias: 1.0'
+    - 'Exact: Yes.*Score: 1.00.*Weight: 1.00.*Bias: 0.5'
+    - 'Exact: No.*Score: 1.00.*Weight: 0.67  Bias: 0.1'
+    - 'FAILED.*extractor.filesystem.xplat.contents.mime_type'
+    - 'FAILED.*extractor.filesystem.xplat.pathname.full'
+    - 'FAILED.*extractor.filesystem.xplat.basename.extension'
+    - 'PASSED.*extractor.filesystem.xplat.basename.extension'
+    - 'PASSED.*extractor.filesystem.xplat.basename.full'
+    - 'PASSED.*extractor.filesystem.xplat.contents.mime_type'
+    - 'Remaining, prioritized rules'
+    - 'Rule.*0[0-9].*test_files Gmail print-to-pdf'
+    - 'Rule.*0[0-9].*Sample Entry for E-books'
+    - 'Rule.*0[0-9].*test_files simplest_pdf.md.pdf'
+    - 'Rule.*0[0-9].*Sample Entry for Photos with strict rules'
+    - 'Rule.*0[0-9].*test_files smulan.jpg'
+    - '.*Evaluated Data:.*gmail.pdf'
+    - '.*Evaluated Data:.*application/pdf'
+    - '.*Evaluated Data:.*pdf'
+    - '.*Expression:.*gmail.pdf'
+    - '.*Expression:.*application/pdf'
+    - '.*Expression:.*pdf'

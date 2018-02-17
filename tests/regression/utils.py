@@ -669,7 +669,6 @@ def _commandline_args_for_testcase(loaded_test):
         Command-line arguments as a list of Unicode strings.
     """
     # TODO: [hardcoded] Generate from 'autonameow/core/view/cli/options.py'.
-    # TODO: Add '--list_rulematch'
     TESTOPTION_CMDARG_MAP = {
         'debug': '--debug',
         'dry_run': '--dry-run',
@@ -677,6 +676,7 @@ def _commandline_args_for_testcase(loaded_test):
         'dump_meowuris': '--dump-meowuris',
         'dump_options': '--dump-options',
         'list_all': '--list-all',
+        'list_rulematch': '--list-rulematch',
         'mode_automagic': '--automagic',
         'mode_batch': '--batch',
         'mode_interactive': '--interactive',
