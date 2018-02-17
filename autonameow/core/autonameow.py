@@ -41,10 +41,7 @@ from core.evaluate import RuleMatcher
 from core.context import FilesContext
 from core.renamer import FileRenamer
 from util import encoding as enc
-from util import (
-    disk,
-    sanity
-)
+from util import disk
 
 
 log = logging.getLogger(__name__)
