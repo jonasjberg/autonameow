@@ -33,8 +33,10 @@ from util.disk.io import (
     file_basename,
     file_bytesize,
     has_permissions,
+    isabs,
     isdir,
     isfile,
+    islink,
     makedirs,
     tempdir
 )
@@ -84,6 +86,19 @@ class TestExists(TestCase):
         ]
         for df in _files:
             self._check_return(df)
+
+
+class TestIsAbs(TestCase):
+    def test_returns_true_given_absolute_path(self):
+        given = os.path.abspath(__file__)
+        actual = isabs(given)
+        self.assertTrue(actual)
+
+    def test_returns_false_given_relative_path(self):
+        for given in (b'..', b'./foo'):
+            with self.subTest(given=given):
+                actual = isabs(given)
+                self.assertFalse(actual)
 
 
 class TestIsdir(TestCase):
@@ -183,6 +198,18 @@ class TestIsfile(TestCase):
         ]
         for df in _files:
             self._check_return(df)
+
+
+class TestIsLink(TestCase):
+    def test_returns_false_given_file(self):
+        f = uu.abspath_testfile('empty')
+        actual = islink(f)
+        self.assertFalse(actual)
+
+    def test_returns_true_given_symlink(self):
+        l = uu.abspath_testfile('empty.symlink')
+        actual = islink(l)
+        self.assertTrue(actual)
 
 
 class TestTempdir(TestCase):

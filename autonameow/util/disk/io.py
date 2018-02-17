@@ -33,8 +33,10 @@ __all__ = [
     'file_basename',
     'file_bytesize',
     'has_permissions',
+    'isabs',
     'isdir',
     'isfile',
+    'islink',
     'makedirs',
     'rename_file',
     'tempdir'
@@ -78,6 +80,13 @@ def exists(path):
         raise exceptions.FilesystemError(e)
 
 
+def isabs(path):
+    try:
+        return os.path.isabs(enc.syspath(path))
+    except (OSError, TypeError, ValueError) as e:
+        raise exceptions.FilesystemError(e)
+
+
 def isdir(path):
     try:
         return os.path.isdir(enc.syspath(path))
@@ -88,6 +97,13 @@ def isdir(path):
 def isfile(path):
     try:
         return os.path.isfile(enc.syspath(path))
+    except (OSError, TypeError, ValueError) as e:
+        raise exceptions.FilesystemError(e)
+
+
+def islink(path):
+    try:
+        return os.path.islink(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
         raise exceptions.FilesystemError(e)
 
