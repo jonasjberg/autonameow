@@ -260,15 +260,14 @@ class Repository(object):
 
     def human_readable_contents(self):
         out = []
-        for fileobject, data in self.data.items():
+        for fileobject, fileobject_data in self.data.items():
             out.append('FileObject basename: "{!s}"'.format(fileobject))
 
             _abspath = enc.displayable_path(fileobject.abspath)
             out.append('FileObject absolute path: "{!s}"'.format(_abspath))
 
             out.append('')
-            # out.extend(self._human_readable_contents(data))
-            out.append(self._machine_readable_contents(data))
+            out.append(self._machine_readable_contents(fileobject_data))
             out.append('\n')
 
         return '\n'.join(out)
@@ -277,11 +276,12 @@ class Repository(object):
     def _machine_readable_contents(data):
         # First pass -- handle encoding and truncating extracted text.
         temp = dict()
-        for meowuri, data in sorted(data.items()):
-            if isinstance(data, list):
+        for meowuri, datadict in sorted(data.items()):
+            if isinstance(datadict, list):
                 log.debug('TODO: Improve robustness of handling this case')
                 temp_list = []
-                for d in data:
+                for d in datadict:
+                    sanity.check_isinstance(d, dict)
                     v = d.get('value')
                     if isinstance(v, bytes):
                         temp_list.append(enc.displayable_path(v))
@@ -296,7 +296,8 @@ class Repository(object):
                 temp[meowuri] = temp_list
 
             else:
-                v = data.get('value')
+                sanity.check_isinstance(datadict, dict)
+                v = datadict.get('value')
                 if isinstance(v, bytes):
                     # TODO: Clean up converting ANY value to Unicode strings ..
                     temp[meowuri] = enc.displayable_path(v)
@@ -319,19 +320,24 @@ class Repository(object):
                 str_value = str_value[:MAX_VALUE_WIDTH]
             cf.addrow(str_meowuri, COLUMN_DELIMITER, str_value)
 
-        for meowuri, data in sorted(temp.items()):
+        for meowuri, datadict in sorted(temp.items()):
             _meowuri_str = str(meowuri)
-            if isinstance(data, list):
-                for v in data:
-                    _add_row(_meowuri_str, v)
+            if isinstance(datadict, list):
+                datadict_list = datadict
+                for n, v in enumerate(datadict_list, start=1):
+                    numbered_meowuri = '{} ({})'.format(_meowuri_str, n)
+                    _add_row(numbered_meowuri, v)
                 continue
 
             if meowuri.matchglobs(['generic.contents.text',
                                    'extractor.text.*']):
-                _text = textutils.extract_lines(data, firstline=1, lastline=1)
+                _text = textutils.extract_lines(datadict, firstline=1, lastline=1)
                 _text = _text.rstrip('\n')
-                data = _text
-            _add_row(_meowuri_str, data)
+                v = _text
+            else:
+                v = datadict
+
+            _add_row(_meowuri_str, v)
 
         return str(cf)
 
