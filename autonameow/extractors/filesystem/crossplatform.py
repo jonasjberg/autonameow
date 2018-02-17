@@ -95,9 +95,6 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         }
     }
 
-    def __init__(self):
-        super().__init__()
-
     def extract(self, fileobject, **kwargs):
         out = dict()
         out.update(self._collect_from_fileobject(fileobject))

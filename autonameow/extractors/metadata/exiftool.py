@@ -682,9 +682,6 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'XMP:XMPToolkit': {'coercer': types.AW_STRING}
     }
 
-    def __init__(self):
-        super().__init__()
-
     def extract(self, fileobject, **kwargs):
         self.log.debug('{!s}: Starting extraction'.format(self))
         source = fileobject.abspath

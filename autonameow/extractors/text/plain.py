@@ -39,9 +39,6 @@ class PlainTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['text/plain']
     IS_SLOW = False
 
-    def __init__(self):
-        super().__init__()
-
     def extract_text(self, fileobject):
         self.log.debug('Extracting raw text from plain text file ..')
         source = fileobject.abspath
