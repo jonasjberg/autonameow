@@ -139,10 +139,10 @@ class BasePersistence(object):
             return False
 
     def has_persistencedir(self):
-        _path = enc.syspath(self._persistence_dir_abspath)
         try:
-            return bool(os.path.exists(_path) and os.path.isdir(_path))
-        except (OSError, ValueError, TypeError):
+            return bool(disk.exists(self._persistence_dir_abspath)
+                        and disk.isdir(self._persistence_dir_abspath))
+        except exceptions.FilesystemError:
             return False
 
     def _persistence_file_abspath(self, key):
@@ -186,7 +186,7 @@ class BasePersistence(object):
 
         if key not in self._data:
             _file_path = self._persistence_file_abspath(key)
-            if not os.path.exists(enc.syspath(_file_path)):
+            if not disk.exists(_file_path):
                 # Avoid displaying errors on first use.
                 raise KeyError
 
