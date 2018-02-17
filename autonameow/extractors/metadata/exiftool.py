@@ -720,10 +720,17 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     def _to_internal_format(self, raw_metadata):
         coerced_metadata = dict()
 
-        for tag_name, value in raw_metadata.items():
-            coerced = self.coerce_field_value(tag_name, value)
+        for field, value in raw_metadata.items():
+            coerced = self.coerce_field_value(field, value)
+            # TODO: [TD0034] Filter out known bad data.
+            # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
+            # Empty strings are being passed through. But if we test with
+            # 'if coerced', any False booleans, 0, etc. would be discarded.
+            # Filtering must be field-specific.
             if coerced is not None:
-                coerced_metadata[tag_name] = coerced
+                filtered = self.filter_field_value(field, coerced)
+                if filtered is not None:
+                    coerced_metadata[field] = filtered
 
         return coerced_metadata
 

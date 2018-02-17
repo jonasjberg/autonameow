@@ -74,6 +74,9 @@ class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput,
         ('EXIF:ExifImageHeight', int, 1944),
         ('EXIF:ExifImageWidth', int, 2592)
     ]
+    EXPECTED_NOT_PRESENT_FIELDS = [
+        'EXIF:UserComment'  # Empty string, should be filtered out
+    ]
 
 
 @skipIf(unmet_dependencies, dependency_error)

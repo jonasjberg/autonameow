@@ -91,6 +91,8 @@ class BaseExtractor(object):
 
     # TODO: Hack ..
     coerce_field_value = providers.ProviderMixin.coerce_field_value
+    filter_field_value = providers.ProviderMixin.filter_field_value
+
 
     def __init__(self):
         self.log = logging.getLogger(

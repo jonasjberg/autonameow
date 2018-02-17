@@ -39,6 +39,7 @@ class ProviderMixin(object):
 
     def coerce_field_value(self, field, value):
         # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+        # TODO: [hack] This is very bad.
         _field_lookup_entry = self.metainfo().get(field)
         if not _field_lookup_entry:
             self.log.debug(
@@ -97,6 +98,38 @@ class ProviderMixin(object):
                 self.log.debug('Coercing "{!s}" with value "{!s}" raised '
                                'AWTypeError: {!s}'.format(field, value, e))
                 return None
+
+    def filter_field_value(self, field, value):
+        # TODO: [hack] This is very bad.
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
+        field_metainfo = self.metainfo().get(field)
+        if not field_metainfo:
+            log.debug(
+                'Field not in "FIELD_LOOKUP" (through "metainfo()" method); '
+                '"{!s}" with value: "{!s}" ({!s})'.format(field, value,
+                                                          type(value)))
+            return None
+
+        try:
+            coercer = field_metainfo.get('coercer')
+        except AttributeError:
+            # Might be case of malformed 'FIELD_LOOKUP'.
+            log.warning('Coercer unspecified for field; "{!s}" with value:'
+                        ' "{!s}" ({!s})'.format(field, value, type(value)))
+            return None
+
+        assert isinstance(coercer, (types.BaseType, types.MultipleTypes)), (
+            'Got ({!s}) "{!s}"'.format(type(coercer), coercer)
+        )
+        if coercer in (types.AW_STRING, types.AW_PATH, types.AW_PATHCOMPONENT):
+            stripped_value = value.strip()
+            if stripped_value:
+                return stripped_value
+            return None
+
+        # TODO: Handle filtering by combinations of coercers/fields.
+        return value
 
 
 def wrap_provider_results(datadict, metainfo, source_klass):

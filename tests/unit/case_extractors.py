@@ -219,8 +219,13 @@ class CaseExtractorOutput(object):
         )
 
     def test_extracted_data_contains_all_expected_fields(self):
-        for expect_field, _, expect_value in self.EXPECTED_FIELD_TYPE_VALUE:
+        for expect_field, _, _ in self.EXPECTED_FIELD_TYPE_VALUE:
             self.assertIn(expect_field, self.actual_extracted)
+
+    def test_extracted_data_does_not_contains_certain_fields(self):
+        if hasattr(self, 'EXPECTED_NOT_PRESENT_FIELDS'):
+            for expected_missing_field in self.EXPECTED_NOT_PRESENT_FIELDS:
+                self.assertNotIn(expected_missing_field, self.actual_extracted)
 
     def test_extracted_data_contains_no_none_values_when_expected_not_none(self):
         for expect_field, _, expect_value in self.EXPECTED_FIELD_TYPE_VALUE:
