@@ -139,12 +139,11 @@ def delete(path, ignore_missing=False):
     if not path or not path.strip():
         raise ValueError('Argument "path" is empty or only whitespace')
 
-    p = enc.syspath(path)
-    if ignore_missing and not os.path.exists(p):
+    if ignore_missing and not exists(path):
         return
 
     try:
-        os.remove(enc.syspath(p))
+        os.remove(enc.syspath(path))
     except OSError as e:
         raise exceptions.FilesystemError(e)
 
