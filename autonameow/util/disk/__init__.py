@@ -20,7 +20,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from .collector import (
-    normpaths_from_opts
+    normpaths_from_opts,
+    PathCollector
 )
 from .io import *
 from .pathstring import (

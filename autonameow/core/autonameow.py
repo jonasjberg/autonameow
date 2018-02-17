@@ -149,11 +149,15 @@ class Autonameow(object):
             self.exit_program(C.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
-        files_to_process = disk.normpaths_from_opts(
-            path_list=self.opts.get('input_paths'),
+        path_collector = disk.PathCollector(
             ignore_globs=self.active_config.options['FILESYSTEM']['ignore'],
             recurse=self.opts.get('recurse_paths')
         )
+        path_collector.collect_from(self.opts.get('input_paths'))
+        for error in path_collector.errors:
+            log.warning(str(error))
+
+        files_to_process = list(path_collector.paths)
         log.info('Got {} files to process'.format(len(files_to_process)))
 
         rules = self.active_config.rules

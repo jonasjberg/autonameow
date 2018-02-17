@@ -22,6 +22,7 @@
 import fnmatch
 import logging
 
+from core.exceptions import FilesystemError
 from util import encoding as enc
 from util import (
     disk,
@@ -65,29 +66,25 @@ def get_files_gen(search_path, recurse=False):
 
     if not disk.isfile(search_path) and not disk.isdir(search_path):
         dp = enc.displayable_path(search_path)
-        raise FileNotFoundError('File or path not found: "{!s}"'.format(dp))
+        raise FileNotFoundError('Path not a file or directory: "{!s}"'.format(dp))
 
     if disk.isfile(search_path):
         sanity.check_internal_bytestring(search_path)
         yield search_path
     elif disk.isdir(search_path):
-        try:
-            _dir_listing = disk.listdir(search_path)
-        except PermissionError as e:
-            log.warning(str(e))
-        else:
-            for entry in _dir_listing:
-                entry_path = disk.joinpaths(search_path, entry)
-                if not disk.exists(entry_path):
-                    raise FileNotFoundError
+        _dir_listing = disk.listdir(search_path)
+        for entry in _dir_listing:
+            entry_path = disk.joinpaths(search_path, entry)
+            if not disk.exists(entry_path):
+                raise FileNotFoundError
 
-                if disk.isfile(entry_path):
-                    sanity.check_internal_bytestring(entry_path)
-                    yield entry_path
-                elif recurse and disk.isdir(entry_path):
-                    for f in get_files_gen(entry_path, recurse=recurse):
-                        sanity.check_internal_bytestring(f)
-                        yield f
+            if disk.isfile(entry_path):
+                sanity.check_internal_bytestring(entry_path)
+                yield entry_path
+            elif recurse and disk.isdir(entry_path):
+                for f in get_files_gen(entry_path, recurse=recurse):
+                    sanity.check_internal_bytestring(f)
+                    yield f
 
 
 class PathCollector(object):
@@ -104,6 +101,12 @@ class PathCollector(object):
             self.ignore_globs = []
 
         self.recurse = bool(recurse)
+        self.errors = list()
+        self.paths = list()
+
+    def collect_from(self, path_list):
+        results = self.get_paths(path_list)
+        self.paths.extend(results)
 
     def get_paths(self, path_list):
         if not path_list:
@@ -122,8 +125,14 @@ class PathCollector(object):
             try:
                 files = list(get_files_gen(path, self.recurse))
             except FileNotFoundError:
-                log.error('File(s) not found: "{}"'.format(
-                    enc.displayable_path(path)))
+                self.errors.append(
+                    'Path(s) not found: "{}"'.format(enc.displayable_path(path))
+                )
+                continue
+            except FilesystemError:
+                self.errors.append(
+                    'Error reading path(s): "{}"'.format(enc.displayable_path(path))
+                )
                 continue
 
             for f in self.filter_paths(files):
