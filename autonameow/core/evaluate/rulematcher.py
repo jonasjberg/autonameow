@@ -192,33 +192,35 @@ class RuleMatcher(object):
             cf.setalignment('right', 'left')
             msg_label_pass = view.colorize('PASSED', fore='GREEN')
             msg_label_fail = view.colorize('FAILED', fore='RED')
+            msg_label_padding = view.colorize('      ', fore='BLACK')
             for c in conditions_passed:
                 d = condition_evaluator.evaluated(_rule, c)
 
                 cf.addrow(msg_label_pass, str(c.meowuri))
-                cf.addrow('Expression:', str(c.expression))
-                cf.addrow('Evaluated Data:', str(d))
+                cf.addrow(msg_label_padding, 'Expression:', str(c.expression))
+                cf.addrow(msg_label_padding, 'Evaluated Data:', str(d))
 
             for c in conditions_failed:
                 d = condition_evaluator.evaluated(_rule, c)
                 cf.addrow(msg_label_fail, str(c.meowuri))
-                cf.addrow('Expression:', str(c.expression))
-                cf.addrow('Evaluated Data:', str(d))
+                cf.addrow(msg_label_padding, 'Expression:', str(c.expression))
+                cf.addrow(msg_label_padding, 'Evaluated Data:', str(d))
 
             view.msg(str(cf))
             view.msg('\n')
 
-        view.msg('\nRemaining, prioritized rules:', style='heading')
+        view.msg('Remaining, prioritized rules:', style='heading')
+        i = 1
         for i, rule in enumerate(prioritized_rules, start=1):
             _bias = rule.ranking_bias
             _score = scored_rules[rule]['score']
             _weight = scored_rules[rule]['weight']
             _prettyprint_rule_details(i, rule, _bias, _score, _weight)
 
-        view.msg('\nDiscarded rules:', style='heading')
-        for i, rule in enumerate(discarded_rules, start=1):
+        view.msg('Discarded rules:', style='heading')
+        for j, rule in enumerate(discarded_rules, start=i+1):
             _bias = rule.ranking_bias
-            _prettyprint_rule_details(i, rule, _bias)
+            _prettyprint_rule_details(j, rule, _bias)
 
 
 def prioritize_rules(rules):
