@@ -241,40 +241,44 @@ def has_permissions(path, permissions):
                       Required      Required Permissions
                      Permissions    READ  WRITE  EXECUTE
 
-                         'r'         X      -       -
-                         'w'         -      X       -
-                         'x'         -      -       X
-                         'RW'        X      X       -
-                         'WwxX'      -      X       X
+                       'r'            X     -      -
+                       'w'            -     X      -
+                       'x'            -     -      X
+                       'RW'           X     X      -
+                       'WwxX'         -     X      X
+                       ''             -     -      -
+                       ' '            -     -      -
 
     Args:
-        path: Path to the file to test as a Unicode string or bytes.
+        path: Path to the file to test as a Unicode string _OR_ bytestring.
         permissions: The required permissions as a Unicode string
-                             containing any of characters 'r', 'w' and 'x'.
+                     containing any of characters 'r', 'w' and 'x'.
 
     Returns:
         True if the given path has the given permissions, else False.
+
+    Raises:
+        EncodingBoundaryViolation: Permissions in not a Unicode string.
+        AssertionError: Path is not a Unicode or bytes string.
+        FilesystemError: Unable to look up permissions for the path.
     """
-    if not isinstance(permissions, str):
-        raise TypeError('Expected "permissions" to be a Unicode string')
+    sanity.check_internal_string(permissions)
     if not isinstance(path, (bytes, str)):
-        raise TypeError('Expected "path" to be a string type')
+        raise AssertionError('Expected "path" to be a string type')
 
     if not permissions.strip():
         return True
 
     perms = permissions.lower()
-    for char in CHAR_PERMISSION_LOOKUP.keys():
-        if char in perms:
-            try:
-                ok = os.access(enc.syspath(path),
-                               CHAR_PERMISSION_LOOKUP[char])
-            except OSError:
+    perms_to_check = {c for c in CHAR_PERMISSION_LOOKUP if c in perms}
+    for char in perms_to_check:
+        try:
+            ok = os.access(enc.syspath(path), CHAR_PERMISSION_LOOKUP[char])
+        except OSError as e:
+            raise FilesystemError(e)
+        else:
+            if not ok:
                 return False
-            else:
-                if not ok:
-                    return False
-
     return True
 
 

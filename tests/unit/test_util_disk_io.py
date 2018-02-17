@@ -435,7 +435,7 @@ class TestHasPermissions(TestCase):
 
     def test_invalid_arguments(self):
         def _aR(_path, perms):
-            with self.assertRaises(TypeError):
+            with self.assertRaises(AssertionError):
                 _ = has_permissions(_path, perms)
 
         path = uu.make_temporary_file()
@@ -499,6 +499,15 @@ class TestHasPermissions(TestCase):
         self._test(path, 'rx', False)
         self._test(path, 'wx', False)
         self._test(path, 'rwx', False)
+
+        os.chmod(enc.syspath(path), OWNER_R | OWNER_W)
+
+    def test_no_file_perms(self):
+        path = uu.make_temporary_file()
+        os.chmod(enc.syspath(path), OWNER_R)
+
+        self._test(path, '', True)
+        self._test(path, ' ', True)
 
         os.chmod(enc.syspath(path), OWNER_R | OWNER_W)
 
