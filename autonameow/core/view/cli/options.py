@@ -23,25 +23,34 @@ import argparse
 import os
 
 from core import constants as C
+from core import types
 from core.view import cli
 from util import encoding as enc
+from util import disk
 
 
-def arg_is_year(value):
+def arg_is_year(arg):
     """
     Check if "value" is a year, here defined as consisting solely of 4 digits,
     with a value in the range 0 >= year > 9999.
-    :return: True if the value is a year by the above definition
+
+    Args:
+        arg: The argument to validate.
+    Returns:
+        The given value as an integer between 0 and 9999.
+    Raises:
+        ArgumentTypeError: The given value could not be coerced into an integer
+                           or the integer values is not in range 0 >= x > 9999.
     """
-    if value:
+    if arg:
         try:
-            ivalue = int(value.strip())
-        except ValueError:
+            integer = types.AW_INTEGER(arg)
+        except types.AWTypeError:
             pass
         else:
-            if len(str(ivalue)) == 4 and ivalue >= 0:
-                return ivalue
-    raise argparse.ArgumentTypeError('"{}" is not a valid year'.format(value))
+            if 0 <= integer <= 9999:
+                return '{:04d}'.format(integer)
+    raise argparse.ArgumentTypeError('"{}" is not a valid year'.format(arg))
 
 
 def arg_is_readable_file(arg):
@@ -53,15 +62,12 @@ def arg_is_readable_file(arg):
     Args:
         arg: The argument to validate.
 
-    Returns: The expanded absolute path specified by "arg" if valid.
-
+    Returns:
+        The expanded absolute path specified by "arg" if valid.
     """
-    if (arg and os.path.exists(arg) and os.path.isfile(arg)
-            and os.access(arg, os.R_OK)):
-        if arg.startswith('~/'):
-            arg = os.path.expanduser(arg)
+    if arg and disk.isfile(arg) and disk.has_permissions(arg, 'r'):
+        arg = os.path.expanduser(arg)
         return enc.normpath(arg)
-
     raise argparse.ArgumentTypeError('Invalid file: "{!s}"'.format(arg))
 
 
