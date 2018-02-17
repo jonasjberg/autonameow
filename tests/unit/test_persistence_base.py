@@ -239,6 +239,9 @@ class TestPicklePersistence(TestCase):
         d.delete(datakey)
         self.assertFalse(uu.file_exists(_file_path))
 
+    def test_delete_unused_key(self):
+        self.c.delete('unused_key')
+
     def test_delete_shared_test_persistence(self):
         self.c.set(self.datakey, self.datavalue)
 
@@ -275,6 +278,15 @@ class TestPicklePersistence(TestCase):
         self.assertEqual(actual, data_value)
 
         self.c.delete(data_key)
+
+    def test_has(self):
+        self.c.set('a', 'data')
+        self.assertTrue(self.c.has('a'))
+
+        self.assertFalse(self.c.has('b'))
+
+        self.c.set('b', 'data')
+        self.assertTrue(self.c.has('b'))
 
     def test_keys(self):
         def _assert_has_keys(expected):

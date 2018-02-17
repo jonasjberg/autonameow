@@ -158,12 +158,12 @@ class BasePersistence(object):
             sep=self.PERSISTENCE_FILE_PREFIX_SEPARATOR,
             key=key
         )
-        _p = enc.normpath(
+        p = enc.normpath(
             os.path.join(enc.syspath(self._persistence_dir_abspath),
                          enc.syspath(enc.encode_(_basename)))
         )
-        self._persistence_file_abspath_cache[key] = _p
-        return _p
+        self._persistence_file_abspath_cache[key] = p
+        return p
 
     def get(self, key):
         """
@@ -265,20 +265,19 @@ class BasePersistence(object):
                 'Error while deleting "{!s}"; {!s}'.format(_dp, e)
             )
         else:
+            # Computed path should always be cached at this point.
+            del self._persistence_file_abspath_cache[key]
             log.debug('Deleted persistence file "{!s}"'.format(_dp))
 
     def has(self, key):
-        # TODO: Test this ..
         if key in self._data:
             return True
 
         key_file_path = self._persistence_file_abspath(key)
         try:
-            os.path.exists(key_file_path)
-        except OSError:
+            return disk.exists(key_file_path)
+        except exceptions.FilesystemError:
             return False
-        else:
-            return True
 
     def keys(self):
         # TODO: This is a major security vulnerability (!)
