@@ -25,8 +25,11 @@ import pickle
 
 from core import (
     config,
-    exceptions,
     types,
+)
+from core.exceptions import (
+    AutonameowException,
+    FilesystemError
 )
 from core import constants as C
 from util import encoding as enc
@@ -37,6 +40,15 @@ from util import (
 
 
 log = logging.getLogger(__name__)
+
+
+class PersistenceError(AutonameowException):
+    """Irrecoverable error while reading or writing persistent data."""
+
+
+class PersistenceImplementationBackendError(PersistenceError):
+    """Error while reading/writing using a specific backend. Should only be
+    raised from the '_load()' and '_dump()' methods by implementing classes."""
 
 
 def get_config_persistence_path():
@@ -113,7 +125,7 @@ class BasePersistence(object):
 
             try:
                 disk.makedirs(self._persistence_dir_abspath)
-            except exceptions.FilesystemError as e:
+            except FilesystemError as e:
                 raise PersistenceError('Unable to create persistence directory'
                                        ' "{!s}": {!s}'.format(self._dp, e))
             else:
@@ -143,7 +155,7 @@ class BasePersistence(object):
         try:
             return bool(disk.exists(self._persistence_dir_abspath)
                         and disk.isdir(self._persistence_dir_abspath))
-        except exceptions.FilesystemError:
+        except FilesystemError:
             return False
 
     def _persistence_file_abspath(self, key):
@@ -241,7 +253,7 @@ class BasePersistence(object):
         log.debug('Deleting persistence file "{!s}"'.format(_dp))
         try:
             disk.delete(_p, ignore_missing=True)
-        except exceptions.FilesystemError as e:
+        except FilesystemError as e:
             raise PersistenceError(
                 'Error while deleting "{!s}"; {!s}'.format(_dp, e)
             )
@@ -257,7 +269,7 @@ class BasePersistence(object):
         key_file_path = self._persistence_file_abspath(key)
         try:
             return disk.exists(key_file_path)
-        except exceptions.FilesystemError:
+        except FilesystemError:
             return False
 
     def keys(self):
@@ -300,7 +312,7 @@ class BasePersistence(object):
         try:
             size = disk.file_bytesize(key_file_path)
             return size
-        except exceptions.FilesystemError as e:
+        except FilesystemError as e:
             _dp = enc.displayable_path(key_file_path)
             log.error(
                 'Error when getting file size for persistence file "{!s}"'
@@ -380,15 +392,6 @@ class PicklePersistence(BasePersistence):
                     raise PersistenceImplementationBackendError(e)
         except OSError as e:
             raise PersistenceImplementationBackendError(e)
-
-
-class PersistenceError(exceptions.AutonameowException):
-    """Irrecoverable error while reading or writing persistent data."""
-
-
-class PersistenceImplementationBackendError(PersistenceError):
-    """Error while reading/writing using a specific backend. Should only be
-    raised from the '_load()' and '_dump()' methods by implementing classes."""
 
 
 def get_persistence(file_prefix, persistence_dir_abspath=None):

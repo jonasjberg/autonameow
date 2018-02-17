@@ -23,7 +23,7 @@ import logging
 import os
 import tempfile
 
-from core import exceptions
+from core.exceptions import FilesystemError
 from util import sanity
 from util import encoding as enc
 
@@ -82,42 +82,42 @@ def dirname(path):
     try:
         return os.path.dirname(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def exists(path):
     try:
         return os.path.exists(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def isabs(path):
     try:
         return os.path.isabs(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def isdir(path):
     try:
         return os.path.isdir(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def isfile(path):
     try:
         return os.path.isfile(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def islink(path):
     try:
         return os.path.islink(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def joinpaths(*paths):
@@ -125,14 +125,14 @@ def joinpaths(*paths):
     try:
         return os.path.normpath(os.path.join(*syspath_encoded_paths))
     except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def listdir(path):
     try:
         return os.listdir(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def tempdir():
@@ -147,7 +147,7 @@ def tempdir():
     try:
         return enc.normpath(tempfile.mkdtemp())
     except OSError as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def makedirs(path):
@@ -159,7 +159,7 @@ def makedirs(path):
     try:
         os.makedirs(enc.syspath(path))
     except (OSError, ValueError, TypeError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def delete(path, ignore_missing=False):
@@ -189,7 +189,7 @@ def delete(path, ignore_missing=False):
     try:
         os.remove(enc.syspath(path))
     except OSError as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def rmdir(path, ignore_missing=False):
@@ -215,14 +215,14 @@ def rmdir(path, ignore_missing=False):
     try:
         os.rmdir(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 def basename(file_path):
     try:
         return os.path.basename(enc.syspath(file_path))
     except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)
 
 
 CHAR_PERMISSION_LOOKUP = {
@@ -294,4 +294,4 @@ def file_bytesize(path):
     try:
         return os.path.getsize(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
+        raise FilesystemError(e)

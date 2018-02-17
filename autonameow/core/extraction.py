@@ -24,6 +24,7 @@ import logging
 import extractors
 from core import logs
 from core.model import force_meowuri
+from core.persistence import PersistenceError
 from core.providers import wrap_provider_results
 from extractors import ExtractorError
 from util import sanity
