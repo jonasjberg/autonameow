@@ -22,15 +22,18 @@
 from unittest import TestCase
 
 import unit.utils as uu
-from core.persistence import cache
-from core.persistence.cache import CacheError
+from core.persistence.cache import (
+    BaseCache,
+    CacheError,
+    get_cache
+)
 
 
 class TestBaseCache(TestCase):
     def test_init_raises_exception_if_missing_required_arguments(self):
         def _aR(prefix):
             with self.assertRaises(CacheError):
-                _ = cache.BaseCache(
+                _ = BaseCache(
                     prefix,
                     cache_dir_abspath=uu.mock_cache_path()
                 )
@@ -41,7 +44,7 @@ class TestBaseCache(TestCase):
         _aR(object())
 
         with self.assertRaises(TypeError):
-            _ = cache.BaseCache()
+            _ = BaseCache()
 
 
 class TestBaseCacheStorage(TestCase):
@@ -49,7 +52,7 @@ class TestBaseCacheStorage(TestCase):
         owner = 'test_owner'
         self.data_key = 'key_foo'
         self.data_value = 'value_bar'
-        self.c = cache.BaseCache(owner=owner)
+        self.c = BaseCache(owner=owner)
 
     def tearDown(self):
         self.c.flush()
@@ -109,7 +112,7 @@ class TestBaseCacheStorage(TestCase):
 class TestBaseCacheMaxFilesize(TestCase):
     def setUp(self):
         owner = 'test_owner'
-        self.c = cache.BaseCache(owner, max_filesize=500)
+        self.c = BaseCache(owner, max_filesize=500)
 
     def tearDown(self):
         self.c.flush()
@@ -128,8 +131,54 @@ class TestBaseCacheMaxFilesize(TestCase):
             self.assertLess(current_size, failing_limit)
 
 
-class CacheInterface(TestCase):
+class TestCacheInterface(TestCase):
     def test_get_cache(self):
-        actual = cache.get_cache('foo')
+        actual = get_cache('foo')
         self.assertTrue(uu.is_class_instance(actual))
-        self.assertIsInstance(actual, cache.BaseCache)
+        self.assertIsInstance(actual, BaseCache)
+
+
+class _KeyOld(object):
+    def __init__(self, data):
+        self.data = data
+
+
+class _KeyNew(object):
+    __slots__ = ('data', )
+
+    def __init__(self, data):
+        self.data = data
+
+
+class TestCacheExceptionRegressions(TestCase):
+    def setUp(self):
+        self.c = BaseCache(owner='test_key_store')
+
+    def tearDown(self):
+        self.c.flush()
+
+    def test_raises_expected_exception_when_key_implementation_changes(self):
+        # Intended to reproduce errors introduced and fixed in:
+        #
+        #     commit 17d424cf4c296df6f06aceea9a1d797562be5bfa
+        #     Author: Jonas Sjöberg <jomeganas@gmail.com>
+        #     Date:   2018-02-15 18:58:04 +0100
+        #
+        #     Add '__slots__' in the 'FileObject' class.
+        #     Since it is used a lot of dict keys, this might be worthwhile.
+        #
+        # TODO: But this does not quite manage to get it right ..
+        key_a1 = _KeyOld('foo')
+        key_a2 = _KeyOld('bar')
+        key_b = _KeyNew('bar')
+
+        self.c.set(key_a1, 'meow')
+        actual = self.c.get(key_a1)
+        self.assertEqual('meow', actual)
+
+        self.c.set(key_a2, {'a': 1})
+
+        self.c.set(key_b, 'meowmeow')
+        self.c.get(key_b)
+        actual = self.c.get(key_b)
+        self.assertEqual('meowmeow', actual)

@@ -284,12 +284,15 @@ class BasePersistence(object):
         # TODO: This is a major security vulnerability (!)
         out = []
         _file_path = enc.syspath(self._persistence_dir_abspath)
-        for bytestring_file in os.listdir(_file_path):
-            string_file = types.force_string(bytestring_file)
-            if not string_file:
+        for bytestring_basename in os.listdir(_file_path):
+            string_basename = types.force_string(bytestring_basename)
+            if not string_basename:
                 continue
-            if string_file.startswith(self.persistencefile_prefix):
-                out.append(string_file.lstrip(self.persistencefile_prefix))
+
+            key = _basename_as_key(string_basename, self.persistencefile_prefix,
+                                   self.PERSISTENCE_FILE_PREFIX_SEPARATOR)
+            if key:
+                out.append(key)
         return out
 
     def flush(self):
@@ -335,6 +338,21 @@ class BasePersistence(object):
     def __str__(self):
         return '{}("{}")'.format(self.__class__.__name__,
                                  self.persistencefile_prefix)
+
+
+def _basename_as_key(str_basename, persistencefile_prefix,
+                     persistence_file_prefix_separator):
+    if not str_basename.startswith(persistencefile_prefix):
+        return None
+
+    # Remove the first occurance of the prefix.
+    key = str_basename.replace(persistencefile_prefix, '', 1)
+
+    # Remove the first occurrence of the separator.
+    if key.startswith(persistence_file_prefix_separator):
+        key = key[len(persistence_file_prefix_separator):]
+
+    return key
 
 
 class PicklePersistence(BasePersistence):

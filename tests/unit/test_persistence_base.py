@@ -25,6 +25,7 @@ from unittest.mock import patch
 from core import constants as C
 from util import unique_identifier
 from core.persistence.base import (
+    _basename_as_key,
     get_config_persistence_path,
     get_persistence,
     BasePersistence,
@@ -166,6 +167,53 @@ class TestBasePersistence(TestCase):
         self.assertEqual(0, actual)
 
 
+class TestBaseNameAsKey(TestCase):
+    def test_returns_expected_with_prefix_foo_separator_underline(self):
+        for given_basename, expect_key in [
+            ('foo_dummytestkey', 'dummytestkey'),
+            ('foo_dummy_testkey', 'dummy_testkey'),
+            ('foo_dummy_test_key', 'dummy_test_key'),
+            ('foo_foodummytestkey', 'foodummytestkey'),
+            ('foo_foodummy_testkey', 'foodummy_testkey'),
+            ('foo_foodummy_test_key', 'foodummy_test_key'),
+            ('foo_foo_dummytestkey', 'foo_dummytestkey'),
+            ('foo_foo_dummy_testkey', 'foo_dummy_testkey'),
+            ('foo_foo_dummy_test_key', 'foo_dummy_test_key'),
+            ('foo_a', 'a'),
+            ('foo__a', '_a'),
+            ('foo_a_b', 'a_b'),
+            ('foo__a_b', '_a_b'),
+            ('foo_a__b', 'a__b'),
+            ('foo__a__b', '_a__b'),
+        ]:
+            with self.subTest(given_basename=given_basename):
+                actual = _basename_as_key(str_basename=given_basename,
+                                          persistencefile_prefix='foo',
+                                          persistence_file_prefix_separator='_')
+                self.assertEqual(expect_key, actual)
+
+    def test_returns_expected_with_prefix_a_separator_dash(self):
+        for given_basename, expect_key in [
+            ('a-a', 'a'),
+            ('a-_a', '_a'),
+            ('a-a_b', 'a_b'),
+            ('a-_a-b', '_a-b'),
+            ('a-a--b', 'a--b'),
+            ('a-_a--b', '_a--b'),
+        ]:
+            with self.subTest(given_basename=given_basename):
+                actual = _basename_as_key(str_basename=given_basename,
+                                          persistencefile_prefix='a',
+                                          persistence_file_prefix_separator='-')
+                self.assertEqual(expect_key, actual)
+
+    def test_returns_none_given_basename_without_the_prefix(self):
+        actual = _basename_as_key(str_basename='abc',
+                                  persistencefile_prefix='foo',
+                                  persistence_file_prefix_separator='_')
+        self.assertIsNone(actual)
+
+
 class TestPicklePersistence(TestCase):
     PERSISTENCE_KEY = 'temp_unit_test_persistence'
 
@@ -229,19 +277,36 @@ class TestPicklePersistence(TestCase):
         self.c.delete(data_key)
 
     def test_keys(self):
-        data_keys = ['key_1st', 'key_2nd', 'key_3rd']
-        data_value = 'foo'
-        self.c.set(data_keys[0], data_value)
-        self.c.set(data_keys[1], data_value)
+        def _assert_has_keys(expected):
+            actual = self.c.keys()
+            self.assertEqual(sorted(actual), sorted(expected))
 
-        actual = self.c.keys()
-        expect = [data_keys[0], data_keys[1]]
-        self.assertEqual(sorted(actual), sorted(expect))
+        keys = ['key_1st', 'key_2nd', 'key_3rd', '4th']
+        value = 'foo'
 
-        self.c.set(data_keys[2], data_value)
-        actual = self.c.keys()
-        expect = [data_keys[0], data_keys[1], data_keys[2]]
-        self.assertEqual(sorted(actual), sorted(expect))
+        _assert_has_keys([])
+
+        self.c.set(keys[0], value)
+        self.c.set(keys[1], value)
+        _assert_has_keys([keys[0], keys[1]])
+
+        self.c.set(keys[2], value)
+        _assert_has_keys([keys[0], keys[1], keys[2]])
+
+        self.c.set(keys[2], 'bar')
+        _assert_has_keys([keys[0], keys[1], keys[2]])
+
+        self.c.set(keys[3], value)
+        _assert_has_keys([keys[0], keys[1], keys[2], keys[3]])
+
+    def test_keys_reset_after_flush(self):
+        self.c.set('a', 'data')
+        keys = self.c.keys()
+        self.assertEqual(['a'], keys)
+
+        self.c.flush()
+        keys = self.c.keys()
+        self.assertEqual([], keys)
 
     def test_initial_filesize_is_zero(self):
         actual_initial = self.c.filesize(self.datakey)
