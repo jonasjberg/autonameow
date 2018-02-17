@@ -153,7 +153,7 @@ def _validate_path_argument(path):
         path: Alleged path in the "internal filename bytestring" format.
               Unicode str paths seem to be handled equally well on MacOS,
               at least for simple testing with trivial inputs.
-              But still; __assume 'path' is bytes__ and pass 'path' as bytes.
+              But still; __assume 'path' is bytes__.
 
     Raises:
         InvalidFileArgumentError: The given 'path' is not considered valid.
@@ -161,25 +161,22 @@ def _validate_path_argument(path):
     def _raise(error_message):
         raise exceptions.InvalidFileArgumentError(error_message)
 
-    if not isinstance(path, (str, bytes)):
-        _type = str(type(path))
-        _raise('Path is neither "str" or "bytes"; type: "{}"'.format(_type))
+    if not isinstance(path, bytes):
+        _raise('Expected path of type "bytes". Got: "{!s}"'.format(type(path)))
     elif not path.strip():
-        _raise('Path is None/empty')
+        _raise('Path is empty or only whitespace')
 
-    _path = enc.syspath(path)
-
-    if not os.path.exists(_path):
+    if not disk.exists(path):
         _raise('Path does not exist')
-    if os.path.isdir(_path):
+    if disk.isdir(path):
         # TODO: [TD0045] Implement handling/renaming directories.
         _raise('Safe handling of directories is not implemented yet')
-    if os.path.islink(_path):
+    if disk.islink(path):
         # TODO: [TD0026] Implement handling of symlinks.
         _raise('Safe handling of symbolic links is not implemented yet')
-    if not os.access(_path, os.R_OK):
+    if not disk.has_permissions(path, 'r'):
         _raise('Not authorized to read path')
 
     # Check assumptions about implementation. Might detect future bugs.
-    if not os.path.isabs(_path):
+    if not disk.isabs(path):
         _raise('Not an absolute path (?) This should not happen!')

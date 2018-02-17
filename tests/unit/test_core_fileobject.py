@@ -343,24 +343,15 @@ class TestFileObjectSerialization(TestCase):
 class TestValidatePathArgument(TestCase):
     def setUp(self):
         _num_files = min(len(uu.all_testfiles()), 5)
-        self.unicode_paths = uu.all_testfiles()[:_num_files]
         self.bytestr_paths = [
             uu.bytestring_path(p)
             for p in uu.all_testfiles()[:_num_files]
         ]
 
     def test_setup(self):
-        for upath in self.unicode_paths:
-            self.assertTrue(uu.file_exists(upath))
-            self.assertTrue(uu.is_internalstring(upath))
-
         for bpath in self.bytestr_paths:
             self.assertTrue(uu.file_exists(bpath))
             self.assertTrue(uu.is_internalbytestring(bpath))
-
-    def test_valid_unicode_paths(self):
-        for upath in self.unicode_paths:
-            _validate_path_argument(upath)
 
     def test_valid_bytes_paths(self):
         for bpath in self.bytestr_paths:
@@ -380,3 +371,8 @@ class TestValidatePathArgument(TestCase):
         _assert_raises(b'  ')
         _assert_raises([])
         _assert_raises({})
+
+    def test_raises_exception_given_unicode_path(self):
+        with self.assertRaises(InvalidFileArgumentError):
+            unicodestr_path = uu.all_testfiles()[:1]
+            _validate_path_argument(unicodestr_path)
