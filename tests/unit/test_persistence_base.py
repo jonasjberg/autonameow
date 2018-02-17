@@ -29,6 +29,7 @@ from core.persistence.base import (
     get_config_persistence_path,
     get_persistence,
     BasePersistence,
+    _key_as_file_path,
     PicklePersistence
 )
 import unit.utils as uu
@@ -212,6 +213,49 @@ class TestBaseNameAsKey(TestCase):
                                   persistencefile_prefix='foo',
                                   persistence_file_prefix_separator='_')
         self.assertIsNone(actual)
+
+
+class TestKeyAsFilePath(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.TEST_PATH = b'/tmp/autonameow_cache'
+
+    def test_returns_expected_absolute_paths(self):
+        for given_key, given_prefix, given_separator, expected_path in [
+            ('a', 'foo', '_', b'/tmp/autonameow_cache/foo_a'),
+            ('FooOwner', 'foo', '_', b'/tmp/autonameow_cache/foo_FooOwner'),
+            ('foo', 'bar', '_', b'/tmp/autonameow_cache/bar_foo'),
+            ('foo', 'foo', '_', b'/tmp/autonameow_cache/foo_foo'),
+            ('a', 'foo', '-', b'/tmp/autonameow_cache/foo-a'),
+            ('FooOwner', 'foo', '-', b'/tmp/autonameow_cache/foo-FooOwner'),
+            ('foo', 'bar', '-', b'/tmp/autonameow_cache/bar-foo'),
+            ('foo', 'foo', '-', b'/tmp/autonameow_cache/foo-foo'),
+        ]:
+            with self.subTest(given_key=given_key):
+                actual = _key_as_file_path(
+                    key=given_key,
+                    persistencefile_prefix=given_prefix,
+                    persistence_file_prefix_separator=given_separator,
+                    persistence_dir_abspath=self.TEST_PATH
+                )
+                self.assertTrue(uu.is_internalbytestring(actual))
+                self.assertTrue(uu.is_abspath(actual))
+                self.assertEqual(expected_path, actual)
+
+    def test_raises_keyerror_given_bad_key(self):
+        def _assert_raises(given):
+            with self.assertRaises(KeyError):
+                _ = _key_as_file_path(key=given,
+                                      persistencefile_prefix='foo',
+                                      persistence_file_prefix_separator='_',
+                                      persistence_dir_abspath=self.TEST_PATH)
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises(' ')
+        _assert_raises(object())
+        _assert_raises([])
+        _assert_raises(['foo', 'bar'])
+        _assert_raises({})
 
 
 class TestPicklePersistence(TestCase):

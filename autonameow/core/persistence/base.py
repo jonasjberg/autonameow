@@ -149,19 +149,9 @@ class BasePersistence(object):
         if key in self._persistence_file_abspath_cache:
             return self._persistence_file_abspath_cache[key]
 
-        string_key = types.force_string(key)
-        if not string_key.strip():
-            raise KeyError('Invalid key: "{!s}" ({!s})'.format(key, type(key)))
-
-        _basename = '{pre}{sep}{key}'.format(
-            pre=self.persistencefile_prefix,
-            sep=self.PERSISTENCE_FILE_PREFIX_SEPARATOR,
-            key=key
-        )
-        p = enc.normpath(
-            os.path.join(enc.syspath(self._persistence_dir_abspath),
-                         enc.syspath(enc.encode_(_basename)))
-        )
+        p = _key_as_file_path(key, self.persistencefile_prefix,
+                              self.PERSISTENCE_FILE_PREFIX_SEPARATOR,
+                              self._persistence_dir_abspath)
         self._persistence_file_abspath_cache[key] = p
         return p
 
@@ -352,6 +342,23 @@ def _basename_as_key(str_basename, persistencefile_prefix,
         key = key[len(persistence_file_prefix_separator):]
 
     return key
+
+
+def _key_as_file_path(key, persistencefile_prefix,
+                      persistence_file_prefix_separator,
+                      persistence_dir_abspath):
+    string_key = types.force_string(key)
+    if not string_key.strip():
+        raise KeyError('Invalid key: "{!s}" ({!s})'.format(key, type(key)))
+
+    basename = '{pre}{sep}{key}'.format(pre=persistencefile_prefix,
+                                        sep=persistence_file_prefix_separator,
+                                        key=key)
+    abspath = types.AW_PATH.normalize(
+        os.path.join(enc.syspath(persistence_dir_abspath),
+                     enc.syspath(enc.encode_(basename)))
+    )
+    return abspath
 
 
 class PicklePersistence(BasePersistence):
