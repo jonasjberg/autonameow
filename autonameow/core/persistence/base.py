@@ -185,17 +185,17 @@ class BasePersistence(object):
             raise KeyError
 
         if key not in self._data:
-            _file_path = self._persistence_file_abspath(key)
-            if not disk.exists(_file_path):
+            key_file_path = self._persistence_file_abspath(key)
+            if not disk.exists(key_file_path):
                 # Avoid displaying errors on first use.
                 raise KeyError
 
             try:
-                value = self._load(_file_path)
+                value = self._load(key_file_path)
                 self._data[key] = value
             except (EOFError, ValueError) as e:
                 # Might raise 'EOFError' if the pickled file is empty.
-                _dp = enc.displayable_path(_file_path)
+                _dp = enc.displayable_path(key_file_path)
                 log.error(
                     'Error when reading key "{!s}" from persistence file "{!s}"'
                     ' (corrupt file?); {!s}'.format(key, _dp, e)
@@ -203,7 +203,7 @@ class BasePersistence(object):
                 self.delete(key)
                 raise KeyError
             except OSError as e:
-                _dp = enc.displayable_path(_file_path)
+                _dp = enc.displayable_path(key_file_path)
                 log.warning(
                     'Error while trying to read key "{!s}" from persistence'
                     ' file "{!s}"; {!s}'.format(key, _dp, e)
@@ -211,14 +211,14 @@ class BasePersistence(object):
                 raise KeyError
             except AttributeError as e:
                 # Could happen if pickled objects implementation has changed.
-                _dp = enc.displayable_path(_file_path)
+                _dp = enc.displayable_path(key_file_path)
                 log.error(
                     'Error reading key "{!s}" from persistence file "{!s}" '
                     '(object version mismatch?); {!s}'.format(key, _dp, e)
                 )
                 self.delete(key)
             except Exception as e:
-                _dp = enc.displayable_path(_file_path)
+                _dp = enc.displayable_path(key_file_path)
                 log.critical(
                     'Caught top-level exception reading key "{!s}" from'
                     'persistence file "{!s}"; {!s}'.format(key, _dp, e)
@@ -239,11 +239,11 @@ class BasePersistence(object):
         """
         self._data[key] = value
 
-        _file_path = self._persistence_file_abspath(key)
+        key_file_path = self._persistence_file_abspath(key)
         try:
-            self._dump(value, _file_path)
+            self._dump(value, key_file_path)
         except OSError as e:
-            _dp = enc.displayable_path(_file_path)
+            _dp = enc.displayable_path(key_file_path)
             log.error(
                 'Error while trying to write key "{!s}" with value "{!s}" to '
                 'persistence file "{!s}"; {!s}'.format(key, value, _dp, e)
@@ -272,9 +272,9 @@ class BasePersistence(object):
         if key in self._data:
             return True
 
-        _file_path = self._persistence_file_abspath(key)
+        key_file_path = self._persistence_file_abspath(key)
         try:
-            os.path.exists(_file_path)
+            os.path.exists(key_file_path)
         except OSError:
             return False
         else:
@@ -283,8 +283,8 @@ class BasePersistence(object):
     def keys(self):
         # TODO: This is a major security vulnerability (!)
         out = []
-        _file_path = enc.syspath(self._persistence_dir_abspath)
-        for bytestring_basename in os.listdir(_file_path):
+        key_file_path = enc.syspath(self._persistence_dir_abspath)
+        for bytestring_basename in os.listdir(key_file_path):
             string_basename = types.force_string(bytestring_basename)
             if not string_basename:
                 continue
@@ -314,15 +314,15 @@ class BasePersistence(object):
         if not key:
             raise KeyError
 
-        _file_path = self._persistence_file_abspath(key)
-        if not os.path.exists(enc.syspath(_file_path)):
+        key_file_path = self._persistence_file_abspath(key)
+        if not os.path.exists(enc.syspath(key_file_path)):
             return 0
 
         try:
-            size = disk.file_bytesize(_file_path)
+            size = disk.file_bytesize(key_file_path)
             return size
         except exceptions.FilesystemError as e:
-            _dp = enc.displayable_path(_file_path)
+            _dp = enc.displayable_path(key_file_path)
             log.error(
                 'Error when getting file size for persistence file "{!s}"'
                 ' from key "{!s}"; {!s}'.format(_dp, key, e)
