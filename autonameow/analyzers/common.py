@@ -128,7 +128,9 @@ class BaseAnalyzer(object):
             return
 
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
-        assert meowuri_leaf not in self._intermediate_results
+        # assert meowuri_leaf not in self._intermediate_results
+        if meowuri_leaf in self._intermediate_results:
+            log.critical('Clobbered value with MeowURI leaf {!s}: "{!s}"'.format(meowuri_leaf, data))
         self._intermediate_results[meowuri_leaf] = data
 
     def _wrap_results(self):
