@@ -37,6 +37,7 @@ __all__ = [
     'isdir',
     'isfile',
     'islink',
+    'listdir',
     'makedirs',
     'rename_file',
     'tempdir'
@@ -104,6 +105,13 @@ def isfile(path):
 def islink(path):
     try:
         return os.path.islink(enc.syspath(path))
+    except (OSError, TypeError, ValueError) as e:
+        raise exceptions.FilesystemError(e)
+
+
+def listdir(path):
+    try:
+        return os.listdir(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
         raise exceptions.FilesystemError(e)
 

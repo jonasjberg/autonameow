@@ -37,6 +37,7 @@ from util.disk.io import (
     isdir,
     isfile,
     islink,
+    listdir,
     makedirs,
     tempdir
 )
@@ -210,6 +211,14 @@ class TestIsLink(TestCase):
         l = uu.abspath_testfile('empty.symlink')
         actual = islink(l)
         self.assertTrue(actual)
+
+
+class TestListDir(TestCase):
+    def test_returns_directory_contents(self):
+        given = uuconst.PATH_TEST_FILES
+        actual = listdir(given)
+        self.assertIsNotNone(actual)
+        self.assertGreater(len(actual), 1)
 
 
 class TestTempdir(TestCase):
