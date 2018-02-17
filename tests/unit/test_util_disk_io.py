@@ -22,6 +22,7 @@
 import os
 import stat
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
 import unit.constants as uuconst
 import unit.utils as uu
@@ -41,6 +42,7 @@ from util.disk.io import (
     joinpaths,
     listdir,
     makedirs,
+    rmdir,
     tempdir
 )
 
@@ -317,22 +319,6 @@ class TestDelete(TestCase):
         delete(tempfile)
         self.assertFalse(uu.file_exists(tempfile))
 
-    def test_deletes_existing_directory(self):
-        self.skipTest('TODO: [Errno 1] Operation not permitted')
-
-        _tempdir = uu.make_temp_dir()
-
-        _dir = enc.syspath(
-            os.path.join(enc.syspath(_tempdir),
-                         enc.syspath(uuconst.ASSUMED_NONEXISTENT_BASENAME))
-        )
-        self.assertTrue(uu.is_internalbytestring(_dir))
-        os.makedirs(enc.syspath(_dir))
-        self.assertTrue(uu.dir_exists(_dir))
-
-        # delete(_dir)
-        self.assertFalse(uu.dir_exists(_dir))
-
     def test_raises_exception_given_non_existent_file(self):
         not_a_file = self._get_non_existent_file()
 
@@ -345,6 +331,28 @@ class TestDelete(TestCase):
     def test_silently_ignores_non_existent_file(self):
         not_a_file = self._get_non_existent_file()
         delete(not_a_file, ignore_missing=True)
+
+
+class TestRmdir(TestCase):
+    def test_deletes_actual_existing_directory(self):
+        _tempdir = uu.make_temp_dir()
+        os.chmod(enc.syspath(_tempdir), OWNER_R | OWNER_W | OWNER_X)
+        self.assertTrue(uu.is_internalbytestring(_tempdir))
+        self.assertTrue(uu.dir_exists(_tempdir))
+        rmdir(_tempdir)
+        self.assertFalse(uu.dir_exists(_tempdir))
+
+    @patch('os.rmdir')
+    def test_deletes_directory(self, mock_rmdir):
+        rmdir(b'/tmp/foo')
+        mock_rmdir.assert_called_once_with(b'/tmp/foo')
+
+    def test_raises_exception_given_non_existent_dir(self):
+        with self.assertRaises(FilesystemError):
+            rmdir(b'/tmp/foo/bar/does/not/exist/surely')
+
+    def test_ignores_non_existent_dir_when_ignore_missing_is_true(self):
+        rmdir(b'/tmp/foo/bar/does/not/exist/surely', ignore_missing=True)
 
 
 class TestFileBasename(TestCase):

@@ -42,6 +42,7 @@ __all__ = [
     'joinpaths',
     'makedirs',
     'rename_file',
+    'rmdir',
     'tempdir'
 ]
 
@@ -172,8 +173,9 @@ def delete(path, ignore_missing=False):
 
     Raises:
         EncodingBoundaryViolation: Argument "path" is not of type 'bytes'.
-        FilesystemError: The path could not be removed, or the path does not
-                         exist and "ignore_missing" is False.
+        FilesystemError: The path could not be removed; the path does not
+                         exist and "ignore_missing" is False or the path
+                         is a directory.
         ValueError: Argument "path" is empty or only whitespace.
     """
     sanity.check_internal_bytestring(path)
@@ -186,6 +188,32 @@ def delete(path, ignore_missing=False):
     try:
         os.remove(enc.syspath(path))
     except OSError as e:
+        raise exceptions.FilesystemError(e)
+
+
+def rmdir(path, ignore_missing=False):
+    """
+    Deletes the directory at "path".
+
+    Args:
+        path: The path to delete as an "internal bytestring".
+        ignore_missing: Controls whether to ignore non-existent paths.
+                        False: Non-existent paths raises 'FilesystemError'.
+                        True: Non-existent paths are silently ignored.
+
+    Raises:
+        EncodingBoundaryViolation: Argument "path" is not of type 'bytes'.
+        FilesystemError: The path could not be removed, or the path does not
+                         exist and "ignore_missing" is False.
+    """
+    sanity.check_internal_bytestring(path)
+
+    if ignore_missing and not exists(path):
+        return
+
+    try:
+        os.rmdir(enc.syspath(path))
+    except (OSError, TypeError, ValueError) as e:
         raise exceptions.FilesystemError(e)
 
 
