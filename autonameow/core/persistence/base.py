@@ -96,7 +96,7 @@ class BasePersistence(object):
         else:
             self._persistence_dir_abspath = persistence_dir_abspath
         sanity.check_internal_bytestring(self._persistence_dir_abspath)
-        assert os.path.isabs(enc.syspath(self._persistence_dir_abspath))
+        assert disk.isabs(self._persistence_dir_abspath)
 
         _prefix = types.force_string(file_prefix)
         if not _prefix.strip():
@@ -263,8 +263,7 @@ class BasePersistence(object):
     def keys(self):
         # TODO: This is a major security vulnerability (!)
         out = []
-        key_file_path = enc.syspath(self._persistence_dir_abspath)
-        for bytestring_basename in os.listdir(key_file_path):
+        for bytestring_basename in disk.listdir(self._persistence_dir_abspath):
             string_basename = types.force_string(bytestring_basename)
             if not string_basename:
                 continue
@@ -295,7 +294,7 @@ class BasePersistence(object):
             raise KeyError
 
         key_file_path = self._persistence_file_abspath(key)
-        if not os.path.exists(enc.syspath(key_file_path)):
+        if not disk.exists(key_file_path):
             return 0
 
         try:
@@ -345,9 +344,9 @@ def _key_as_file_path(key, persistencefile_prefix,
     basename = '{pre}{sep}{key}'.format(pre=persistencefile_prefix,
                                         sep=persistence_file_prefix_separator,
                                         key=key)
+    bytestring_basename = enc.encode_(basename)
     abspath = types.AW_PATH.normalize(
-        os.path.join(enc.syspath(persistence_dir_abspath),
-                     enc.syspath(enc.encode_(basename)))
+        disk.joinpaths(persistence_dir_abspath, bytestring_basename)
     )
     return abspath
 
