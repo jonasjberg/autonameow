@@ -598,9 +598,11 @@ class RegexMatchingResult(object):
 def _load_assertion_regexes(test_dict, filedescriptor, assert_type):
     # TODO: Load and validate regexes before running the test!
     expressions = test_dict['asserts'][filedescriptor].get(assert_type, []) or list()
-    assert expressions
     if not isinstance(expressions, list):
-        # Do not require a single assert to be written as a list
+        assert expressions, (
+            'Expected non-empty assertion expressions. '
+            'Got {!s} :: {!s}'.format(type(expressions), expressions)
+        )
         expressions = [expressions]
 
     regexes = []
@@ -608,9 +610,9 @@ def _load_assertion_regexes(test_dict, filedescriptor, assert_type):
         try:
             regexes.append(re.compile(expression, re.MULTILINE))
         except (ValueError, TypeError) as e:
-            s = 'Bad {} matches expression "{!s}" :: {!s}'.format(filedescriptor, expression, e)
-            print(s, file=sys.stderr, flush=True)
-            continue
+            errormsg = 'Bad {} matches expression: "{!s}" -- {!s}'.format(
+                filedescriptor, expression, e)
+            raise RegressionTestError(errormsg)
     return regexes
 
 
