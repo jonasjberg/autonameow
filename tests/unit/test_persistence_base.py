@@ -30,6 +30,7 @@ from core.persistence.base import (
     get_persistence,
     BasePersistence,
     _key_as_file_path,
+    PersistenceImplementationBackendError,
     PicklePersistence
 )
 import unit.utils as uu
@@ -380,6 +381,16 @@ class TestPicklePersistence(TestCase):
         actual_after_second_set = self.c.filesize(self.datakey)
         self.assertGreater(actual_after_second_set, 0)
         self.assertGreater(actual_after_second_set, actual_after_first_set)
+
+    def test_pickle_errors_are_reraised(self):
+        class Foo(object):
+            def __init__(self, data):
+                self.data = data
+
+        bad_data = Foo('data')
+        with self.assertRaises(PersistenceImplementationBackendError):
+            # Raises 'AttributeError: Can't pickle local object'
+            self.c.set('key', bad_data)
 
 
 class TestGetPersistence(TestCase):

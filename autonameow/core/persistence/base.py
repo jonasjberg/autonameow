@@ -81,6 +81,7 @@ class BasePersistence(object):
 
     Inheriting class must implement '_load' and '_dump' which does the actual
     serialization and reading/writing to disk.
+    These methods should only raise 'PersistenceImplementationBackendError'.
     """
     PERSISTENCE_FILE_PREFIX_SEPARATOR = '_'
 
@@ -166,10 +167,13 @@ class BasePersistence(object):
         Returns:
             Any data stored with the given key, as any serializable type.
         Raises:
-            KeyError: The given 'key' is not a valid non-empty string,
-                      or the key is not found in the persistent data.
+            KeyError: The given 'key' is not a valid non-empty string, was not
+                      found in the persistent data or the read failed.
             PersistenceError: Failed to read stored data for some reason;
                               data corruption, encoding errors, missing files..
+                              This should not happen, implementing classes must
+                              re-raise any exceptions as
+                              'PersistenceImplementationBackendError'.
         """
         if not key:
             raise KeyError
@@ -181,32 +185,17 @@ class BasePersistence(object):
                 raise KeyError
 
             try:
-                value = self._load(key_file_path)
-                self._data[key] = value
-            except (EOFError, ValueError) as e:
-                # Might raise 'EOFError' if the pickled file is empty.
+                key_file_data = self._load(key_file_path)
+            except PersistenceImplementationBackendError as e:
                 _dp = enc.displayable_path(key_file_path)
-                log.error(
-                    'Error when reading key "{!s}" from persistence file "{!s}"'
-                    ' (corrupt file?); {!s}'.format(key, _dp, e)
-                )
+                log.error('Error while reading key "{!s}" from file "{!s}"; '
+                          '{!s}'.format(key, _dp, e))
+
+                # Is it a good idea to delete files that could not be read?
+                log.error('Deleting failed read key "{!s}"'.format(key))
                 self.delete(key)
-                raise KeyError
-            except OSError as e:
-                _dp = enc.displayable_path(key_file_path)
-                log.warning(
-                    'Error while trying to read key "{!s}" from persistence'
-                    ' file "{!s}"; {!s}'.format(key, _dp, e)
-                )
-                raise KeyError
-            except AttributeError as e:
-                # Could happen if pickled objects implementation has changed.
-                _dp = enc.displayable_path(key_file_path)
-                log.error(
-                    'Error reading key "{!s}" from persistence file "{!s}" '
-                    '(object version mismatch?); {!s}'.format(key, _dp, e)
-                )
-                self.delete(key)
+
+                raise KeyError(e)
             except Exception as e:
                 _dp = enc.displayable_path(key_file_path)
                 log.critical(
@@ -215,6 +204,8 @@ class BasePersistence(object):
                 )
                 raise PersistenceError('Error while reading persistence; '
                                        '{!s}'.format(e))
+            else:
+                self._data[key] = key_file_data
 
         return self._data.get(key)
 
@@ -366,16 +357,39 @@ class PicklePersistence(BasePersistence):
     Persistence implementation using 'pickle' to read/write data to disk.
     """
     def _load(self, file_path):
-        with open(enc.syspath(file_path), 'rb') as fh:
-            return pickle.load(fh, encoding='bytes')
+        try:
+            with open(enc.syspath(file_path), 'rb') as fh:
+                try:
+                    return pickle.load(fh, encoding='bytes')
+                except (EOFError, ValueError) as e:
+                    # Might raise 'EOFError' if the pickled file is empty.
+                    raise PersistenceImplementationBackendError(e)
+                except AttributeError as e:
+                    # Could happen if pickled objects implementation has changed.
+                    raise PersistenceImplementationBackendError(e)
+                except pickle.UnpicklingError as e:
+                    raise PersistenceImplementationBackendError(e)
+        except OSError as e:
+            raise PersistenceImplementationBackendError(e)
 
     def _dump(self, value, file_path):
-        with open(enc.syspath(file_path), 'wb') as fh:
-            pickle.dump(value, fh, pickle.HIGHEST_PROTOCOL)
+        try:
+            with open(enc.syspath(file_path), 'wb') as fh:
+                try:
+                    pickle.dump(value, fh, pickle.HIGHEST_PROTOCOL)
+                except (AttributeError, pickle.PicklingError) as e:
+                    raise PersistenceImplementationBackendError(e)
+        except OSError as e:
+            raise PersistenceImplementationBackendError(e)
 
 
 class PersistenceError(exceptions.AutonameowException):
     """Irrecoverable error while reading or writing persistent data."""
+
+
+class PersistenceImplementationBackendError(PersistenceError):
+    """Error while reading/writing using a specific backend. Should only be
+    raised from the '_load()' and '_dump()' methods by implementing classes."""
 
 
 def get_persistence(file_prefix, persistence_dir_abspath=None):
