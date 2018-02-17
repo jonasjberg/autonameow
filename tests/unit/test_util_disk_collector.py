@@ -25,7 +25,8 @@ from unittest import TestCase
 import unit.utils as uu
 from util.disk.collector import (
     get_files_gen,
-    PathCollector
+    PathCollector,
+    path_matches_any_glob
 )
 
 
@@ -184,14 +185,6 @@ class TestPathCollector(TestCase):
     def setUp(self):
         self.pc = PathCollector()
 
-    def test_raises_errors_for_invalid_paths(self):
-        def _assert_raises(test_input):
-            with self.assertRaises((FileNotFoundError, TypeError)):
-                self.pc.get_paths(test_input)
-
-        _assert_raises('x')
-        _assert_raises(' x ')
-
     def test_returns_empty_list_given_invalid_paths(self):
         def _aE(test_input):
             actual = self.pc.get_paths(test_input)
@@ -200,6 +193,8 @@ class TestPathCollector(TestCase):
         _aE(None)
         _aE('')
         _aE(' ')
+        _aE('x')
+        _aE(' x ')
 
     def test_returns_expected_number_of_files_non_recursive(self):
         _search_path = [to_abspath(['subdir'])]
@@ -411,3 +406,61 @@ class UnitTestIgnorePaths(TestCase):
             missing=['~/dummy/.DS_Store', '~/dummy/bar.jpg', '~/dummy/foo.txt',
                      '~/dummy/d/foo.txt']
         )
+
+
+class TestPathMatchesAnyGlob(TestCase):
+    def test_returns_true_if_path_matches_glob(self):
+        for given_globs in [
+            [b'*'],
+            [b'/*'],
+            [b'/tmp*'],
+            [b'/tmp/*'],
+            [b'/tmp/b*'],
+            [b'/tmp/bar*'],
+            [b'/tmp/bar'],
+            [b'*bar*'],
+            [b'*bar'],
+            [b'*/bar'],
+            [b'*p/bar'],
+            [b'*p*/bar'],
+
+            [b'*', '*baz*'],
+            [b'/*', '*baz*'],
+            [b'/tmp*', '*baz*'],
+            [b'/tmp/*', '*baz*'],
+            [b'/tmp/b*', '*baz*'],
+            [b'/tmp/bar*', '*baz*'],
+            [b'/tmp/bar', '*baz*'],
+            [b'*bar*', '*baz*'],
+            [b'*bar', '*baz*'],
+            [b'*/bar', '*baz*'],
+            [b'*p/bar', '*baz*'],
+            [b'*p*/bar', '*baz*'],
+        ]:
+            with self.subTest(given_globs=given_globs):
+                actual = path_matches_any_glob(b'/tmp/bar', given_globs)
+                self.assertTrue(actual)
+
+    def test_returns_false_if_path_does_not_match_glob(self):
+        for given_globs in [
+            [b'*foo*'],
+            [b'bar*'],
+            [b'/bar*'],
+            [b'foo'],
+            [b'/tmp/'],
+            [b'/tmp/f'],
+            [b'/tmp/foo'],
+            [b'/*n*/bar'],
+
+            [b'*foo*', b'*baz*'],
+            [b'bar*', b'*baz'],
+            [b'/bar*', b'*baz'],
+            [b'foo', b'*baz'],
+            [b'/tmp/', b'*baz'],
+            [b'/tmp/f', b'*baz'],
+            [b'/tmp/foo', b'*baz'],
+            [b'/*n*/bar', b'*baz']
+        ]:
+            with self.subTest(given_globs=given_globs):
+                actual = path_matches_any_glob(b'/tmp/bar', given_globs)
+                self.assertFalse(actual)

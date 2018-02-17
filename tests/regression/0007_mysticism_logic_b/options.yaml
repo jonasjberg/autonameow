@@ -5,12 +5,12 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $TESTFILES/2016-01-11T124132 gmail.pdf
+- $TESTFILES/2016-01-11T124132 gmail.pdf  # This file does not exit
 - $TESTFILES/4123.pdf
 - $TESTFILES/Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf
-- $TESTFILES/Corsair_RM750x_750W_specs.pdf
+- $TESTFILES/Corsair_RM750x_750W_specs.pdf  # This file does not exit
 - $TESTFILES/gmail.pdf
-- $TESTFILES/gmail€åäö.pdf
+- $TESTFILES/gmail€åäö.pdf  # This file does not exit
 - $TESTFILES/magic_pdf.pdf
 - $TESTFILES/simplest_pdf.md.pdf
 list_all: false

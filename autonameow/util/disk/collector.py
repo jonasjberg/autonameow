@@ -21,7 +21,6 @@
 
 import fnmatch
 import logging
-import os
 
 from util import encoding as enc
 from util import (
@@ -65,7 +64,8 @@ def get_files_gen(search_path, recurse=False):
     sanity.check_internal_bytestring(search_path)
 
     if not disk.isfile(search_path) and not disk.isdir(search_path):
-        raise FileNotFoundError
+        dp = enc.displayable_path(search_path)
+        raise FileNotFoundError('File or path not found: "{!s}"'.format(dp))
 
     if disk.isfile(search_path):
         sanity.check_internal_bytestring(search_path)
@@ -103,7 +103,7 @@ class PathCollector(object):
         else:
             self.ignore_globs = []
 
-        self.recurse = recurse
+        self.recurse = bool(recurse)
 
     def get_paths(self, path_list):
         if not path_list:
@@ -120,13 +120,14 @@ class PathCollector(object):
             # Path name encoding boundary. Convert to internal format.
             path = enc.normpath(path)
             try:
-                _files = get_files_gen(path, self.recurse)
+                files = list(get_files_gen(path, self.recurse))
             except FileNotFoundError:
                 log.error('File(s) not found: "{}"'.format(
                     enc.displayable_path(path)))
-            else:
-                for f in self.filter_paths(_files):
-                    file_list.add(f)
+                continue
+
+            for f in self.filter_paths(files):
+                file_list.add(f)
 
         return sorted(list(file_list))
 
@@ -134,18 +135,12 @@ class PathCollector(object):
         if not self.ignore_globs:
             return path_list
 
-        def _no_match(path, globs):
-            for pattern in globs:
-                if fnmatch.fnmatch(path, pattern):
-                    log.info('Ignored path: "{!s}" (Glob: "{!s}")'.format(
-                        enc.displayable_path(path), pattern))
-                    return None
-            return path
+        return [p for p in path_list
+                if not path_matches_any_glob(p, self.ignore_globs)]
 
-        try:
-            return [p for p in path_list if _no_match(p, self.ignore_globs)]
-        except FileNotFoundError:
-            return []
+
+def path_matches_any_glob(path, globs):
+    return any(fnmatch.fnmatch(path, glob) for glob in globs)
 
 
 def normpaths_from_opts(path_list, ignore_globs, recurse):
