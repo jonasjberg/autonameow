@@ -45,7 +45,7 @@ class FilenameDelta(object):
         self.displayable_new = self._get_displayable_new_basename()
 
     def _get_displayable_from_path_basename(self):
-        from_basename = disk.file_basename(self.from_path)
+        from_basename = disk.basename(self.from_path)
         sanity.check_internal_bytestring(from_basename)
         return enc.displayable_path(from_basename)
 
@@ -166,7 +166,7 @@ class FileRenamer(object):
         log.debug('Destination basename (bytestring): "{!s}"'.format(
             enc.displayable_path(dest_basename)))
 
-        from_basename = disk.file_basename(from_path)
+        from_basename = disk.basename(from_path)
         sanity.check_internal_bytestring(from_basename)
 
         if self._basenames_are_equivalent(from_basename, dest_basename):

@@ -31,7 +31,7 @@ __all__ = [
     'delete',
     'dirname',
     'exists',
-    'file_basename',
+    'basename',
     'file_bytesize',
     'has_permissions',
     'isabs',
@@ -218,7 +218,7 @@ def rmdir(path, ignore_missing=False):
         raise exceptions.FilesystemError(e)
 
 
-def file_basename(file_path):
+def basename(file_path):
     _basename = os.path.basename(enc.syspath(file_path))
     return enc.bytestring_path(_basename)
 

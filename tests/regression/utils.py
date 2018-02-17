@@ -457,7 +457,7 @@ class AutonameowWrapper(object):
     def mock_rename_file(self, from_path, new_basename):
         # TODO: [hack] Mocking is too messy to be reliable ..
         # NOTE(jonas): Iffy ad-hoc string coercion..
-        _from_basename = types.force_string(disk.file_basename(from_path))
+        _from_basename = types.force_string(disk.basename(from_path))
         _new_basename = types.force_string(new_basename)
 
         # Check for collisions that might cause erroneous test results.

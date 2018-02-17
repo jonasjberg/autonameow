@@ -32,7 +32,7 @@ from util.disk.io import (
     delete,
     dirname,
     exists,
-    file_basename,
+    basename,
     file_bytesize,
     has_permissions,
     isabs,
@@ -409,10 +409,10 @@ class TestRmdir(TestCase):
         rmdir(b'/tmp/foo/bar/does/not/exist/surely', ignore_missing=True)
 
 
-class TestFileBasename(TestCase):
+class TestBasename(TestCase):
     def test_returns_expected_given_valid_paths(self):
         def _aE(given, expect):
-            actual = file_basename(given)
+            actual = basename(given)
             self.assertEqual(actual, expect)
 
         _aE(b'test_util_disk_io.py', b'test_util_disk_io.py')
@@ -423,7 +423,7 @@ class TestFileBasename(TestCase):
 
     def test_returns_expected_given_invalid_paths(self):
         def _aE(given, expect):
-            actual = file_basename(given)
+            actual = basename(given)
             self.assertEqual(actual, expect)
 
         _aE('', b'')
