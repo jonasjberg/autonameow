@@ -209,7 +209,20 @@ class BasePersistence(object):
                     ' file "{!s}"; {!s}'.format(key, _dp, e)
                 )
                 raise KeyError
+            except AttributeError as e:
+                # Could happen if pickled objects implementation has changed.
+                _dp = enc.displayable_path(_file_path)
+                log.error(
+                    'Error reading key "{!s}" from persistence file "{!s}" '
+                    '(object version mismatch?); {!s}'.format(key, _dp, e)
+                )
+                self.delete(key)
             except Exception as e:
+                _dp = enc.displayable_path(_file_path)
+                log.critical(
+                    'Caught top-level exception reading key "{!s}" from'
+                    'persistence file "{!s}"; {!s}'.format(key, _dp, e)
+                )
                 raise PersistenceError('Error while reading persistence; '
                                        '{!s}'.format(e))
 
