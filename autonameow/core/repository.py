@@ -21,12 +21,12 @@
 
 import logging
 
-import util
-from core import exceptions
 from core.view.cli import ColumnFormatter
 from util import encoding as enc
-from util import sanity
-from util import textutils
+from util import (
+    sanity,
+    textutils
+)
 from util.text import truncate_text
 
 
@@ -237,25 +237,26 @@ class Repository(object):
             log.debug('Got query [{:8.8}]->[{!s}]'.format(
                 fileobject.hash_partial, meowuri
             ))
-        try:
-            data = self.__get_data(fileobject, meowuri)
-        except KeyError as e:
-            log.debug('Query raised KeyError: {!s}'.format(e))
+
+        data = self.__get_data(fileobject, meowuri)
+        if data is None:
             return QueryResponseFailure()
-        else:
-            # TODO: Store and query "generic" data separately?
-            #       Alternatively store "generic" only as "references"?
-            if isinstance(data, list):
-                return [DataBundle.from_dict(d) for d in data]
-            return DataBundle.from_dict(data)
+
+        # TODO: Store and query "generic" data separately?
+        #       Alternatively store "generic" only as "references"?
+        if isinstance(data, list):
+            return [DataBundle.from_dict(d) for d in data]
+        return DataBundle.from_dict(data)
 
     def __get_data(self, fileobject, meowuri):
-        # TODO: [TD0167] Is it necessary to be able to handle nested keys?
-        return util.nested_dict_get(self.data, [fileobject, meowuri])
+        if fileobject in self.data:
+            return self.data[fileobject].get(meowuri)
+        return None
 
     def __store_data(self, fileobject, meowuri, data):
-        # TODO: [TD0167] Is it necessary to be able to handle nested keys?
-        util.nested_dict_set(self.data, [fileobject, meowuri], data)
+        if fileobject not in self.data:
+            self.data[fileobject] = dict()
+        self.data[fileobject][meowuri] = data
 
     def human_readable_contents(self):
         out = []
