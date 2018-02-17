@@ -150,9 +150,9 @@ class Autonameow(object):
 
         # Path name encoding boundary. Returns list of paths in internal format.
         files_to_process = disk.normpaths_from_opts(
-            self.opts.get('input_paths'),
-            self.active_config.options['FILESYSTEM']['ignore'],
-            self.opts.get('recurse_paths')
+            path_list=self.opts.get('input_paths'),
+            ignore_globs=self.active_config.options['FILESYSTEM']['ignore'],
+            recurse=self.opts.get('recurse_paths')
         )
         log.info('Got {} files to process'.format(len(files_to_process)))
 
