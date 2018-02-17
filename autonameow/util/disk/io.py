@@ -54,7 +54,7 @@ def rename_file(source_path, new_basename):
 
     source = os.path.realpath(os.path.normpath(source))
     _dp_source = enc.displayable_path(source)
-    if not os.path.exists(source):
+    if not exists(source):
         raise FileNotFoundError(
             'Source does not exist: "{!s}"'.format(_dp_source)
         )
@@ -113,7 +113,7 @@ def islink(path):
 def joinpaths(*paths):
     syspath_encoded_paths = [enc.syspath(p) for p in paths if p]
     try:
-        return os.path.join(*syspath_encoded_paths)
+        return os.path.normpath(os.path.join(*syspath_encoded_paths))
     except (OSError, TypeError, ValueError) as e:
         raise exceptions.FilesystemError(e)
 

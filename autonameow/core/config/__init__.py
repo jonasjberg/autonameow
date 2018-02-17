@@ -108,7 +108,7 @@ def config_file_path():
         raise exceptions.ConfigError('No configurations paths were found')
 
     # Path name encoding boundary. Convert to internal bytestring format.
-    config_path = os.path.normpath(os.path.join(dirs[0], CONFIG_BASENAME))
+    config_path = disk.joinpaths(dirs[0], CONFIG_BASENAME)
     return enc.normpath(config_path)
 
 
@@ -119,12 +119,8 @@ def has_config_file():
     Returns:
         True if a configuration file is available, else False.
     """
-    config_path = enc.syspath(DefaultConfigFilePath)
-    if os.path.exists(config_path):
-        if os.path.isfile(config_path) or os.path.islink(config_path):
-            return True
-
-    return False
+    path = DefaultConfigFilePath
+    return disk.isfile(path) or disk.islink(path)
 
 
 def write_default_config():
@@ -134,11 +130,10 @@ def write_default_config():
     Raises:
         ConfigWriteError: The default configuration file could not be written.
     """
-    config_path = DefaultConfigFilePath
-
-    if os.path.exists(enc.syspath(config_path)):
+    path = DefaultConfigFilePath
+    if disk.exists(path):
         log.warning(
-            'Path exists: "{}"'.format(enc.displayable_path(config_path))
+            'Path exists: "{}"'.format(enc.displayable_path(path))
         )
         raise ConfigWriteError
 
@@ -146,7 +141,7 @@ def write_default_config():
     _default_config['autonameow_version'] = C.STRING_PROGRAM_VERSION
 
     try:
-        disk.write_yaml_file(config_path, _default_config)
+        disk.write_yaml_file(path, _default_config)
     except exceptions.FilesystemError as e:
         raise ConfigWriteError(e)
 
