@@ -38,6 +38,7 @@ __all__ = [
     'isfile',
     'islink',
     'listdir',
+    'joinpaths',
     'makedirs',
     'rename_file',
     'tempdir'
@@ -105,6 +106,14 @@ def isfile(path):
 def islink(path):
     try:
         return os.path.islink(enc.syspath(path))
+    except (OSError, TypeError, ValueError) as e:
+        raise exceptions.FilesystemError(e)
+
+
+def joinpaths(*paths):
+    syspath_encoded_paths = [enc.syspath(p) for p in paths if p]
+    try:
+        return os.path.join(*syspath_encoded_paths)
     except (OSError, TypeError, ValueError) as e:
         raise exceptions.FilesystemError(e)
 

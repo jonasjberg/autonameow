@@ -37,6 +37,7 @@ from util.disk.io import (
     isdir,
     isfile,
     islink,
+    joinpaths,
     listdir,
     makedirs,
     tempdir
@@ -211,6 +212,30 @@ class TestIsLink(TestCase):
         l = uu.abspath_testfile('empty.symlink')
         actual = islink(l)
         self.assertTrue(actual)
+
+
+class TestJoinPaths(TestCase):
+    def test_joins_valid_strings(self):
+        actual = joinpaths('/a', 'b', 'c')
+        self.assertEqual('/a/b/c', actual)
+
+    def test_ignores_missing_elements(self):
+        actual = joinpaths('/a', None, 'c')
+        self.assertEqual('/a/c', actual)
+
+        actual = joinpaths('/a', '', 'c')
+        self.assertEqual('/a/c', actual)
+
+    def test_raises_exception_given_invalid_arguments(self):
+        def _assert_raises(*given):
+            with self.assertRaises(FilesystemError):
+                _ = joinpaths(*given)
+
+        _assert_raises(object())
+        _assert_raises([])
+        _assert_raises(dict())
+        _assert_raises('a', {'b': 1})
+        _assert_raises('a', ['b'])
 
 
 class TestListDir(TestCase):
