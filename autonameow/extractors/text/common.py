@@ -60,6 +60,7 @@ class AbstractTextExtractor(BaseExtractor):
         sanity.check_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
+        # TODO: [TD0172] Extend the text extractors with additional fields.
         return {'full': text}
 
     def _get_text(self, fileobject):

@@ -60,6 +60,12 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0172]` __Extend the text extractors with additional fields.__  
+    Currently text extractors only collect a single field `full`, containing
+    the full plain text.  Some file formats contain information on which parts
+    are titles, heading, etc.  Text extractors should provide this when
+    possible.
+
 * `[TD0169]` Remove or re-implement the `ImageAnalyzer`.
 
 * `[TD0168]` Remove or re-implement the `TextAnalyzer`.
