@@ -108,3 +108,11 @@ class TestFilterAbleToHandle(TestCase):
             if_available=['RichTextFormatTextExtractor',
                           'ExiftoolMetadataExtractor']
         )
+
+    def test_returns_expected_extractors_for_markdown_file(self):
+        self._check_returned_extractors_for(
+            fileobject=uu.fileobject_testfile('sample.md'),
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor',
+                      'PlainTextExtractor'],
+            if_available=['ExiftoolMetadataExtractor', 'MarkdownTextExtractor']
+        )

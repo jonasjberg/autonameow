@@ -319,3 +319,5 @@ class TestExtractorClassMeowURIs(TestCase):
                                'extractor.text.tesseractocr')
         _conditional_assert_in('RichTextFormatTextExtractor',
                                'extractor.text.rtf')
+        _conditional_assert_in('MarkdownTextExtractor',
+                               'extractor.text.markdown')

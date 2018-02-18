@@ -93,7 +93,6 @@ class BaseExtractor(object):
     coerce_field_value = providers.ProviderMixin.coerce_field_value
     filter_field_value = providers.ProviderMixin.filter_field_value
 
-
     def __init__(self):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)

@@ -165,12 +165,6 @@ assert_has_command 'python3'
 assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
             'System python3 is version v3.5.0 or newer'
 
-assert_has_command 'exiftool'
-assert_has_command 'tesseract'
-assert_has_command 'pylint'
-# assert_has_command 'vulture'
-assert_has_command 'aha'
-
 assert_has_command 'sed'
 assert_true 'man sed | grep -- "^ \+.*-i\b"' \
             'System sed supports the "-i" option, required by some integration tests'
@@ -179,15 +173,26 @@ assert_has_command 'git'
 assert_true 'git --version | grep "git version 2\..*"' \
             'System git version is newer than v2.x.x'
 
+assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+
+
+# Developer scripts and testing dependencies.
 assert_has_command 'pytest'
 _pytesthelp="$(pytest --help 2>&1)"
 assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
             'Module "pytest-html" is available on the system'
 
-assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+assert_has_command 'pylint'
+# assert_has_command 'vulture'
+assert_has_command 'aha'
 
+
+# Extractor dependencies.
+assert_has_command 'exiftool'
+assert_has_command 'tesseract'
 assert_has_command 'pdftotext'
 assert_has_command 'unrtf'
+assert_has_command 'pandoc'  # MarkdownTextExtractor
 
 
 # ______________________________________________________________________________
@@ -331,11 +336,16 @@ check_testfiles_file      'magic_txt.md'
 check_testfiles_file      'magic_txt.txt'
 check_testfiles_file      'ObjectCalisthenics.rtf'
 check_testfiles_file      'pg38145-images.epub'
+check_testfiles_file      'pg38145-images.epub_expected.txt'
+check_testfiles_file      'sample.md'
+check_testfiles_file      'sample.md_expected.txt'
 check_testfiles_file      'sample.rtf'
+check_testfiles_file      'sample.rtf_expected.txt'
 check_testfiles_file      'saved-webpage.html'
 check_testfiles_file      'saved-webpage.mhtml'
 check_testfiles_file      'simple-lexical-analysis'
 check_testfiles_file      'simplest_pdf.md.pdf'
+check_testfiles_file      'simplest_pdf.md.pdf_expected.txt'
 check_testfiles_file      'simplest_pdf.md.pdf.txt'
 check_testfiles_file      'smulan.jpg'
 check_testfiles_file      'text_alnum_ascii.txt'

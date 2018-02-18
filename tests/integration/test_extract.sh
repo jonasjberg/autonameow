@@ -175,10 +175,21 @@ assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_PDF_FILE" | grep -- "Fri, Jan 
 SAMPLE_RTF_FILE="$(abspath_testfile "sample.rtf")"
 assert_bulk_test "$SAMPLE_RTF_FILE" e r
 
-sample_rtf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
+sample_rtf_file_basename="$(basename -- "${SAMPLE_RTF_FILE}")"
 
 assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_RTF_FILE" | grep -- "baz last line"' \
             "Expect text extracted from \"${sample_rtf_file_basename}\" to contain \"baz last line\""
+
+SAMPLE_MD_FILE="$(abspath_testfile "sample.md")"
+assert_bulk_test "$SAMPLE_MD_FILE" e r
+
+sample_md_file_basename="$(basename -- "${SAMPLE_MD_FILE}")"
+
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "FOO TITLE"' \
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"FOO TITLE\""
+
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "-   meow list"' \
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"-   meow list\""
 
 
 

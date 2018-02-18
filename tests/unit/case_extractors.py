@@ -241,13 +241,14 @@ class CaseExtractorOutput(object):
     def test_extracted_data_has_expected_values(self):
         for expect_field, expect_type, expect_value in self.EXPECTED_FIELD_TYPE_VALUE:
             actual_value = self.actual_extracted.get(expect_field)
-            self.assertEqual(
-                expect_value, actual_value,
-                '[{!s}] :: Expected "{!s}" ({!s}) NOT "{!s}" ({!s})'.format(
-                    expect_field, expect_value, expect_type, actual_value,
-                    type(actual_value)
-                )
-            )
+            self.assertEqual(expect_value, actual_value,
+                             '''Assertion failed for field "{!s}"
+EXPECTED VALUE of type {}:
+{!s}
+
+ACTUAL VALUE is of type {}:
+{!s}
+'''.format(expect_field, expect_type, expect_value, type(actual_value), actual_value))
 
     def test_extracted_data_has_expected_types(self):
         for expect_field, expect_type, _ in self.EXPECTED_FIELD_TYPE_VALUE:

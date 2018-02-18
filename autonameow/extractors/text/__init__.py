@@ -24,3 +24,4 @@ from .tesseractocr import TesseractOCRTextExtractor
 from .pdf import PdfTextExtractor
 from .plain import PlainTextExtractor
 from .rtf import RichTextFormatTextExtractor
+from .markdown import MarkdownTextExtractor
