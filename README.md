@@ -34,31 +34,34 @@ Current Features
 * __Rule-based Renaming__
     * __Conditions__ are evaluated in order to to determine whether to use a
       certain rule for a given file
-    * __Name Template__ rule-specific file name template to use for the new file name
-    * __Sources__ specifies which data is used to populate the name template
+    * __Name Template__ has placeholder fields that to be populated with
+      suitable data.
+    * __Sources__ specifies which data is used to populate which placeholder
+      fields in the name template.
     * Rules are ranked by score, weight and a "bias"
     * Rules can be set to allow failed conditions, which allows powerful
-      layering of more or less "targeted" rules.
+      layering of more or less "targeted" rules
+* __Metadata Extraction__ from textual contents
+    * Fuzzy extraction of date/time-information, possible titles, etc.
+* __Text Extraction__ from plain text, epub, pdf and rtf files
+* __Metadata extraction from a lot of file formats__ (using [exiftool][2])
 * __ISBN Number__ Extraction and Metadata Lookup
     * Very powerful renaming of ebooks
     * Combines information from several sources to determine possible candidate data
     * Extract ISBN numbers from various ebooks and query metadata APIs
     * Fuzzy de-duplication of ISBN metadata
-* __Metadata Extraction__ from textual contents
-    * Fuzzy extraction of date/time-information, possible titles, etc.
-* __Text Extraction__ from plain text, epub, pdf and rtf files
-* __Metadata extraction from a lot of file formats__ (using [exiftool][2])
+* Robust extraction of information from file names following the __[filetags][1] naming scheme__
 * Metadata extraction from file names
-* Robust extraction of information from file names following the [filetags][1] naming scheme
 * __Caching__ of slow operation, like querying third-party servers or extracting large amounts of text
 * __Batch Mode__ for completely hands-off operating, suitable for scripting
-* __Timid Mode__ prompts prior to renaming files with a preview.
+* __Timid Mode__ prompts prior to renaming files with a preview
 * Human name parsing and formatting
 * Regex Replacement Patterns allows final tweaking of the results
 * Configuration through a YAML config file
 * Global ignore patterns using globs
-* Sane built-in default ignore patterns.
+* Sane built-in default ignore patterns
 * Recursive mode
+* Extensive test suite
 
 
 Planned/WIP Features
@@ -74,6 +77,7 @@ Planned/WIP Features
 * Additional content extractors
 * Additional metadata extractors
 * Support for additional third-party metadata providers
+* Graphical User Interface (?)
 * *Run completely "hands-off" and always do "the right thing" . .*
 
 
