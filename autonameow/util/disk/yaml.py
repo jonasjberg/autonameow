@@ -28,16 +28,43 @@ except ImportError:
     )
 
 from core import constants as C
-from core.exceptions import FilesystemError
+from core.exceptions import (
+    AutonameowException,
+    FilesystemError
+)
 from util import encoding as enc
 from util import disk
+
+
+class YamlLoadError(AutonameowException):
+    """Error loading YAML data"""
+
+
+def load_yaml(data):
+    """
+    Loads YAML from the given data and returns its contents.
+
+    Callers must handle all exceptions.
+
+    Args:
+        data: Data to read.
+
+    Returns:
+        The parsed YAML contents of the given data as a "Python object"
+        (dict).  Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
+
+    Raises:
+        YamlLoadError: The data could not be successfully parsed.
+    """
+    try:
+        return yaml.safe_load(data)
+    except (AttributeError, UnicodeDecodeError, yaml.YAMLError) as e:
+        raise YamlLoadError(e)
 
 
 def load_yaml_file(file_path):
     """
     Loads a YAML file from the specified path and returns its contents.
-
-    Callers should handle exceptions and logging.
 
     Args:
         file_path: (Absolute) path of the file to read.
@@ -56,8 +83,8 @@ def load_yaml_file(file_path):
     try:
         with open(enc.syspath(file_path), 'r',
                   encoding=C.DEFAULT_ENCODING) as fh:
-            return yaml.safe_load(fh)
-    except (OSError, UnicodeDecodeError, yaml.YAMLError) as e:
+            return load_yaml(fh)
+    except (OSError, YamlLoadError) as e:
         raise FilesystemError(e)
 
 
