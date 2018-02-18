@@ -52,7 +52,7 @@ Current Features
     * Fuzzy de-duplication of ISBN metadata
 * Robust extraction of information from file names following the __[filetags][1] naming scheme__
 * Metadata extraction from file names
-* __Caching__ of slow operation, like querying third-party servers or extracting large amounts of text
+* __Caching__ of slow operations, like querying third-party servers or extracting large amounts of text
 * __Batch Mode__ for completely hands-off operating, suitable for scripting
 * __Timid Mode__ prompts prior to renaming files with a preview
 * Human name parsing and formatting
