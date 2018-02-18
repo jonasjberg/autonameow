@@ -32,12 +32,12 @@ Current Features
 ----------------
 
 * __Rule-based Renaming__
-    * __Conditions__ are evaluated in order to to determine whether to use a
+    * __Conditions__ are evaluated in order to determine whether to use a
       certain rule for a given file
-    * __Name Template__ has placeholder fields that to be populated with
-      suitable data.
+    * __Name Template__ has placeholder fields that will be populated with
+      suitable data
     * __Sources__ specifies which data is used to populate which placeholder
-      fields in the name template.
+      fields in the name template
     * Rules are ranked by score, weight and a "bias"
     * Rules can be set to allow failed conditions, which allows powerful
       layering of more or less "targeted" rules
@@ -78,7 +78,7 @@ Planned/WIP Features
 * Additional metadata extractors
 * Support for additional third-party metadata providers
 * Graphical User Interface (?)
-* *Run completely "hands-off" and always do "the right thing" . .*
+* *Run completely "hands-off" and always do "the right thing" ..*
 
 
 Installing
