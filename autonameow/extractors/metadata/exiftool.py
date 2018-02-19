@@ -69,13 +69,34 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'date_created'
         },
-        'ASF:ImageHeight': {'coercer': types.AW_INTEGER},
-        'ASF:ImageWidth': {'coercer': types.AW_INTEGER},
-        'ASF:VideoCodecName': {'coercer': types.AW_STRING},
-        'Composite:Aperture': {'coercer': types.AW_FLOAT},
-        'Composite:ImageSize': {'coercer': types.AW_STRING},
-        'Composite:Megapixels': {'coercer': types.AW_FLOAT},
-        'Composite:HyperfocalDistance': {'coercer': types.AW_FLOAT},
+        'ASF:ImageHeight': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False
+        },
+        'ASF:ImageWidth': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False
+        },
+        'ASF:VideoCodecName': {
+            'coercer': types.AW_STRING,
+            'multivalued': False
+        },
+        'Composite:Aperture': {
+            'coercer': types.AW_FLOAT,
+            'multivalued': False
+        },
+        'Composite:ImageSize': {
+            'coercer': types.AW_STRING,
+            'multivalued': False
+        },
+        'Composite:Megapixels': {
+            'coercer': types.AW_FLOAT,
+            'multivalued': False
+        },
+        'Composite:HyperfocalDistance': {
+            'coercer': types.AW_FLOAT,
+            'multivalued': False
+        },
         'EXIF:CreateDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
             'multivalued': False,
@@ -103,8 +124,14 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'date_created'
         },
-        'EXIF:ExifVersion': {'coercer': types.AW_INTEGER},
-        'EXIF:GainControl': {'coercer': types.AW_INTEGER},
+        'EXIF:ExifVersion': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False
+        },
+        'EXIF:GainControl': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False
+        },
         # TODO: Handle GPS date/time-information.
         #       EXIF:GPSTimeStamp: '12:07:59'
         #       EXIF:GPSDateStamp: '2016:03:26'
@@ -131,10 +158,22 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'description'
         },
-        'EXIF:ExifImageHeight': {'coercer': types.AW_INTEGER},
-        'EXIF:ExifImageWidth': {'coercer': types.AW_INTEGER},
-        'EXIF:Make': {'coercer': types.AW_STRING},
-        'EXIF:Model': {'coercer': types.AW_STRING},
+        'EXIF:ExifImageHeight': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False
+        },
+        'EXIF:ExifImageWidth': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False
+        },
+        'EXIF:Make': {
+            'coercer': types.AW_STRING,
+            'multivalued': False
+        },
+        'EXIF:Model': {
+            'coercer': types.AW_STRING,
+            'multivalued': False
+        },
         'EXIF:ModifyDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
             'mapped_fields': [
@@ -143,7 +182,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'date_modified'
         },
-        'EXIF:Software': {'coercer': types.AW_STRING},
+        'EXIF:Software': {
+            'coercer': types.AW_STRING,
+            'multivalued': False
+        },
         'EXIF:UserComment': {
             'coercer': types.AW_STRING,
             'mapped_fields': [
@@ -163,6 +205,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'File:Directory': {'coercer': types.AW_PATH},
         'File:FileAccessDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.01),
                 WeightedMapping(fields.Date, probability=0.01)
@@ -171,6 +214,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'File:FileInodeChangeDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.01),
                 WeightedMapping(fields.Date, probability=0.01)
@@ -179,19 +223,41 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'File:FileModifyDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
             ],
             'generic_field': 'date_modified'
         },
-        'File:FileName': {'coercer': types.AW_PATH},
-        'File:FilePermissions': {'coercer': types.AW_INTEGER},
-        'File:FileSize': {'coercer': types.AW_INTEGER},
-        'File:FileType': {'coercer': types.AW_STRING},
-        'File:FileTypeExtension': {'coercer': types.AW_PATHCOMPONENT},
-        'File:ImageHeight': {'coercer': types.AW_INTEGER},
-        'File:ImageWidth': {'coercer': types.AW_INTEGER},
+        'File:FileName': {
+            'coercer': types.AW_PATH,
+            'multivalued': False
+        },
+        'File:FilePermissions': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False
+        },
+        'File:FileSize': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False
+        },
+        'File:FileType': {
+            'coercer': types.AW_STRING,
+            'multivalued': False
+        },
+        'File:FileTypeExtension': {
+            'coercer': types.AW_PATHCOMPONENT,
+            'multivalued': False
+        },
+        'File:ImageHeight': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False
+        },
+        'File:ImageWidth': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False
+        },
         'File:MIMEType': {
             'coercer': types.AW_MIMETYPE,
             'mapped_fields': [
@@ -233,7 +299,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'tags'
         },
-        'PDF:Linearized': {'coercer': types.AW_BOOLEAN},
+        'PDF:Linearized': {
+            'coercer': types.AW_BOOLEAN,
+            'multivalued': False
+        },
         'PDF:ModifyDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
             'mapped_fields': [
@@ -242,8 +311,14 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'date_modified'
         },
-        'PDF:PDFVersion': {'coercer': types.AW_FLOAT},
-        'PDF:PageCount': {'coercer': types.AW_INTEGER},
+        'PDF:PDFVersion': {
+            'coercer': types.AW_FLOAT,
+            'multivalued': False
+        },
+        'PDF:PageCount': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False
+        },
         'PDF:Producer': {
             'coercer': types.AW_STRING,
             'mapped_fields': [
@@ -269,8 +344,14 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'title'
         },
-        'PDF:Trapped': {'coercer': types.AW_BOOLEAN},
-        'SourceFile': {'coercer': types.AW_PATH},
+        'PDF:Trapped': {
+            'coercer': types.AW_BOOLEAN,
+            'multivalued': False
+        },
+        'SourceFile': {
+            'coercer': types.AW_PATH,
+            'multivalued': False
+        },
         'QuickTime:CompatibleBrands': {
             'coercer': types.AW_STRING,
             'multivalued': True
@@ -517,7 +598,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'description'
         },
-        'XMP:DocumentID': {'coercer': types.AW_STRING},
+        'XMP:DocumentID': {
+            'coercer': types.AW_STRING,
+            'multivalued': False
+        },
         'XMP:EntryAuthorName': {
             'coercer': types.AW_STRING,
             'multivalued': True,
@@ -679,7 +763,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'title'
         },
-        'XMP:XMPToolkit': {'coercer': types.AW_STRING}
+        'XMP:XMPToolkit': {
+            'coercer': types.AW_STRING,
+            'multivalued': False
+        }
     }
 
     def extract(self, fileobject, **kwargs):
