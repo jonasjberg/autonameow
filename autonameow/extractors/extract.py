@@ -48,15 +48,17 @@ def do_extract_text(fileobject):
             fileobject, meowuri, data))
 
         assert isinstance(data, dict)
-        _text = data.get('value')
-        assert isinstance(_text, str)
-        if not _text:
-            log.info('Unable to extract text from "{!s}"'.format(fileobject))
+        text = data.get('value')
+        assert isinstance(text, str)
+        extractor = data.get('source', '(unknown extractor)')
+        if not text:
+            log.info('{!s} was unable to extract text from "{!s}"'.format(
+                extractor, fileobject))
             return
 
         # TODO: [TD0171] Separate logic from user interface.
-        view.msg('Extracted Text', style='section')
-        view.msg(_text)
+        view.msg('Text Extracted by {!s}:'.format(extractor), style='section')
+        view.msg(text)
 
     from extractors import TextProviderClasses
     assert TextProviderClasses
