@@ -580,9 +580,16 @@ class TimeDate(BaseType):
             return self._fail_coercion(value, msg=e)
 
         try:
-            return try_parse_datetime(string_value)
+            dt = try_parse_datetime(string_value)
         except (TypeError, ValueError) as e:
             return self._fail_coercion(value, msg=e)
+        else:
+            # TODO: [TD0054] Represent datetime as UTC within autonameow.
+            from util.dateandtime import timezone_aware_to_naive
+            naive_dt =  timezone_aware_to_naive(dt)
+
+            # TODO: [cleanup] Really OK to just drop the microseconds?
+            return naive_dt.replace(microsecond=0)
 
     def normalize(self, value):
         value = self.__call__(value)
@@ -651,6 +658,10 @@ RE_LOOSE_DATETIME_TZ = re.compile(
 RE_LOOSE_DATETIME_US = re.compile(
     _pat_loose_date + _pat_datetime_sep + _pat_loose_time + _pat_microseconds
 )
+RE_LOOSE_DATETIME_US_TZ = re.compile(
+    _pat_loose_date + _pat_datetime_sep + _pat_loose_time + _pat_microseconds
+    + _pat_timezone
+)
 
 
 def normalize_date(string):
@@ -658,6 +669,16 @@ def normalize_date(string):
     if match:
         _normalized = re.sub(RE_LOOSE_DATE, r'\1-\2-\3', string)
         return _normalized
+    return None
+
+
+def normalize_datetime_with_microseconds_and_timezone(string):
+    match = RE_LOOSE_DATETIME_US_TZ.search(string)
+    if match:
+        _normalized = re.sub(RE_LOOSE_DATETIME_US_TZ,
+                             r'\1-\2-\3T\4:\5:\6.\7 \8\9\10',
+                             string)
+        return _normalized.replace(' ', '')
     return None
 
 
@@ -700,6 +721,13 @@ def try_parse_datetime(string):
     # Handles malformed dates produced by "Mac OS X 10.11.5 Quartz PDFContext".
     if string.endswith('Z'):
         string = string[:-1]
+
+    match = normalize_datetime_with_microseconds_and_timezone(string)
+    if match:
+        try:
+            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S.%f%z')
+        except (ValueError, TypeError):
+            pass
 
     match = normalize_datetime_with_timezone(string)
     if match:

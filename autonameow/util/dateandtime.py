@@ -622,6 +622,7 @@ def timezone_aware_to_naive(aware_datetime):
     Returns:
         A new datetime object without timezone information.
     """
+    # TODO: [TD0054] Represent datetime as UTC within autonameow.
     return aware_datetime.replace(tzinfo=None)
 
 
@@ -636,6 +637,7 @@ def naive_to_timezone_aware(naive_datetime):
         A new datetime object with localized timezone information.
     """
     # Reference:  https://stackoverflow.com/a/7065242/7802196
+    # TODO: [TD0054] Represent datetime as UTC within autonameow.
     return pytz.utc.localize(naive_datetime)
 
 

@@ -21,7 +21,11 @@
 
 import os
 from unittest import TestCase
-from datetime import datetime
+from datetime import (
+    datetime,
+    timedelta,
+    timezone
+)
 
 import unit.utils as uu
 from core import types
@@ -674,6 +678,12 @@ class TestTypeTimeDate(TestCase):
         _ok('2017-07-12-20-50-15')
         _ok('2017-07-12-20_50_15')
         _ok('2017-07-12-205015')
+
+        # TODO: [cleanup] Really OK to just drop the microseconds?
+        _ok('2017-07-12T20:50:15.613051')
+
+        # TODO: [TD0054] Represent datetime as UTC within autonameow.
+        _ok('2017-07-12T20:50:15.613051+00:00')  # PandocMetadataExtractor
 
         # TODO: Handle things like 'Thu Aug 31 11:51:57 2017 +0200'
         # TODO: Add testing additional input data.
@@ -1672,6 +1682,19 @@ class TestTryParseDateTime(TestCase):
         self._assert_equal('2017:07:12 20:50:15+0200', expected)
         self._assert_equal('2017-07-12T20:50:15+0200', expected)
 
+    def test_parses_valid_datetime_with_timezone_and_microseconds(self):
+        expected = datetime(
+            2017, 7, 20, 5, 22, 31, 613051, tzinfo=timezone.utc
+        )
+        self._assert_equal('2017 07 20 05 22 31.613051+00:00', expected)
+        self._assert_equal('2017-07-20 05 22 31.613051+00:00', expected)
+        self._assert_equal('2017-07-20 05:22:31.613051+00:00', expected)
+        self._assert_equal('2017-07-20T05:22:31.613051+00:00', expected)
+        self._assert_equal('2017 07 20 05 22 31.613051+0000', expected)
+        self._assert_equal('2017-07-20 05 22 31.613051+0000', expected)
+        self._assert_equal('2017-07-20 05:22:31.613051+0000', expected)
+        self._assert_equal('2017-07-20T05:22:31.613051+0000', expected)
+
 
 class TestRegexLooseDate(TestCase):
     def test_matches_yyyy_mm_dd(self):
@@ -1844,6 +1867,48 @@ class TestRegexLooseDateTimeMicroseconds(TestCase):
         _assert_no_match('2017-07-12T20:50:15.12345')
 
 
+class TestRegexLooseDateTimeMicrosecondsAndTimezone(TestCase):
+    def test_matches_yyyy_mm_dd_hh_mm_ss_us_tz(self):
+        def _assert_matches(test_data):
+            actual = types.RE_LOOSE_DATETIME_US_TZ.match(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual('2017', actual.group(1))
+            self.assertEqual('07', actual.group(2))
+            self.assertEqual('12', actual.group(3))
+            self.assertEqual('20', actual.group(4))
+            self.assertEqual('50', actual.group(5))
+            self.assertEqual('15', actual.group(6))
+            self.assertEqual('641659', actual.group(7))
+
+        _assert_matches('2017-07-12T20:50:15.641659+00:00')
+        _assert_matches('2017-07-12 20:50:15.641659+00:00')
+        _assert_matches('2017:07:12 20:50:15.641659+00:00')
+        _assert_matches('2017_07_12 20:50:15.641659+00:00')
+        _assert_matches('2017_07_12 20-50-15.641659+00:00')
+        _assert_matches('2017_07_12 20_50_15.641659+00:00')
+        _assert_matches('2017_07_12 20_50_15 641659+00:00')
+        _assert_matches('2017_07_12 20_50_15_641659+00:00')
+        _assert_matches('2017 07 12 20 50 15 641659+00:00')
+
+    def test_does_not_match_non_yyyy_mm_dd_us(self):
+        def _assert_no_match(test_data):
+            actual = types.RE_LOOSE_DATETIME_US_TZ.match(test_data)
+            self.assertIsNone(actual)
+
+        _assert_no_match('')
+        _assert_no_match(' ')
+        _assert_no_match('foo')
+        _assert_no_match('16')
+        _assert_no_match('2017-07-12T20:50:15')
+        _assert_no_match('2017-07-12T20:50:15.')
+        _assert_no_match('2017-07-12T20:50:15.1')
+        _assert_no_match('2017-07-12T20:50:15.12')
+        _assert_no_match('2017-07-12T20:50:15.123')
+        _assert_no_match('2017-07-12T20:50:15.1234')
+        _assert_no_match('2017-07-12T20:50:15.12345')
+
+
+
 class TestNormalizeDate(TestCase):
     def test_matches_expected(self):
         expected = '2017-09-14'
@@ -1890,6 +1955,28 @@ class TestNormalizeDatetimeWithTimeZone(TestCase):
         _assert_match('2017-07-12 20:50:15+0200')
         _assert_match('2017:07:12 20:50:15+0200')
         _assert_match('2017-07-12T20:50:15+0200')
+
+
+class TestNormalizeDatetimeWithMicrosecondsAndTimeZone(TestCase):
+    def test_matches_expected(self):
+        expected = '2017-07-12T20:50:15.613051+0200'
+
+        def _assert_match(test_data):
+            actual = types.normalize_datetime_with_microseconds_and_timezone(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual(expected, actual)
+
+        _assert_match(expected)
+        _assert_match('2017 07 12 20 50 15.613051+0200')
+        _assert_match('2017 07 12 20 50 15.613051+0200')
+        _assert_match('2017-07-12 20:50:15.613051+0200')
+        _assert_match('2017:07:12 20:50:15.613051+0200')
+        _assert_match('2017-07-12T20:50:15.613051+0200')
+        _assert_match('2017 07 12 20 50 15.613051+02:00')
+        _assert_match('2017 07 12 20 50 15.613051+02:00')
+        _assert_match('2017-07-12 20:50:15.613051+02:00')
+        _assert_match('2017:07:12 20:50:15.613051+02:00')
+        _assert_match('2017-07-12T20:50:15.613051+02:00')
 
 
 class TestNormalizeDatetime(TestCase):
