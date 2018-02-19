@@ -42,6 +42,9 @@ CONFDIR_WINDOWS_FALLBACK = '~\\AppData\\Roaming'
 CONFIG_BASENAME = 'autonameow.yaml'
 
 
+# TODO: [TD0162] Split up 'autonameow.yaml' into separate files.
+
+
 class ConfigWriteError(exceptions.ConfigError):
     """A configuration file could not be written."""
 
