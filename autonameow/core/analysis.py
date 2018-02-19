@@ -51,23 +51,24 @@ def _execute_run_queue(analyzer_queue):
     """
     Executes analyzers in the analyzer run queue.
     """
-    for i, a in enumerate(analyzer_queue):
+    for i, analyzer_instance in enumerate(analyzer_queue):
         log.debug('Executing queue item {}/{}: '
-                  '{!s}'.format(i + 1, len(analyzer_queue), a))
+                  '{!s}'.format(i + 1, len(analyzer_queue), analyzer_instance))
 
-        log.debug('Running Analyzer "{!s}"'.format(a))
+        log.debug('Running Analyzer "{!s}"'.format(analyzer_instance))
         try:
-            results = a.run()
+            results = analyzer_instance.run()
         except analyzers.AnalyzerError as e:
 
-            log.error('Halted analyzer "{!s}": {!s}'.format(a, e))
+            log.error('Halted analyzer "{!s}": {!s}'.format(analyzer_instance, e))
             continue
 
-        fileobject = a.fileobject
+        # TODO: [TD0126] Clean up boundaries/interface to the 'analyzers' package.
+        fileobject = analyzer_instance.fileobject
         for _uri, _data in results.items():
             store_results(fileobject, _uri, _data)
 
-        log.debug('Finished running "{!s}"'.format(a))
+        log.debug('Finished running "{!s}"'.format(analyzer_instance))
 
 
 def request_global_data(fileobject, uri_string):
