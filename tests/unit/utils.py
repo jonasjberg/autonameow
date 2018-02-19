@@ -327,11 +327,7 @@ def load_repository_dump(file_path):
     if not file_path or not file_exists(file_path):
         return
 
-    try:
-        import cPickle as pickle
-    except ImportError:
-        import pickle
-
+    import pickle
     with open(enc.syspath(file_path), 'rb') as fh:
         _data = pickle.load(fh, encoding='bytes')
 
