@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+### 2018-02-19
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0136]` Look into "requesting" already available data.
+
 ### 2018-02-15
 
 > High Priority

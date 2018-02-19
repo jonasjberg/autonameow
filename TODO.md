@@ -116,8 +116,6 @@ Medium Priority
                 foo: Gibson Rules
     ```
 
-* `[TD0136]` Look into "requesting" already available data.
-
 * `[TD0134]` Consolidate splitting up text into "chunks".
 
 * `[TD0132]` Improve blacklisting data, prevent repeated bad requests to APIs.

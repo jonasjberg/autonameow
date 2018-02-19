@@ -109,25 +109,13 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._file_mimetype = None
 
     def analyze(self):
-        # TODO: [TD0136] Look into "requesting" already available data.
-        basename_prefix = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.basename.prefix'
-        )
-        if basename_prefix is not None:
-            self._basename_prefix = types.force_string(basename_prefix)
+        basename_prefix = self.fileobject.basename_prefix
+        self._basename_prefix = types.force_string(basename_prefix)
 
-        basename_suffix = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.basename.suffix'
-        )
-        if basename_suffix is not None:
-            self._basename_suffix = types.force_string(basename_suffix)
+        basename_suffix = self.fileobject.basename_suffix
+        self._basename_suffix = types.force_string(basename_suffix)
 
-        file_mimetype = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.contents.mime_type'
-        )
+        file_mimetype = self.fileobject.mime_type
         self._file_mimetype = file_mimetype or types.NULL_AW_MIMETYPE
         self._add_intermediate_results('datetime', self._get_datetime())
         self._add_intermediate_results('edition', self._get_edition())
