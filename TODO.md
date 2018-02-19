@@ -14,6 +14,20 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0175]` __Handle requesting exactly one or multiple alternatives.__  
+    The current high-level interface for fetching data might return a single
+    piece of data or many alternatives. This means that "clients" have to
+    perform various checks and either fail if they are unable to figure out
+    *which alternative to use* or attempt to pick out the "best" alternative.
+
+    One possible solution is to replace the single function `request()`
+    with something like `request_one()` and `request_all()`.
+
+    Another solution is to pass some kind of qualifier with each query.
+    Or possibly a "tie-breaker" callback or object that can be evaluated to
+    resolve cases where a single piece of data is needed but the request
+    results in several candidates.
+
 * `[TD0171]` __Separate all logic from the user interface.__  
     Avoid using "global" input/output functionality directly.
 

@@ -141,6 +141,8 @@ def request_global_data(fileobject, uri_string):
         log.error('Bad MeowURI in plugin request: "{!s}"'.format(uri_string))
         return None
 
+    # Pass a "tie-breaker" to resolve cases where we only want one item?
+    # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
     response = provider.query(fileobject, uri)
     if response:
         return response.value

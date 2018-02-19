@@ -168,6 +168,7 @@ class BaseAnalyzer(object):
         return data_full_meowuris
 
     def request_any_textual_content(self):
+        # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
         _response = self.request_data(self.fileobject,
                                       'generic.contents.text')
         if not _response:

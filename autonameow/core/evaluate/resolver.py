@@ -326,6 +326,8 @@ class TemplateFieldDataResolver(object):
         log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
             self, fileobject.hash_partial, meowuri))
 
+        # Pass a "tie-breaker" to resolve cases where we only want one item?
+        # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
         response = provider.query(fileobject, meowuri)
         if response:
             return response
