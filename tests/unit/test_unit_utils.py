@@ -435,8 +435,14 @@ class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
             self.assertTrue(uu.is_class_instance(instance))
 
     def test_get_instantiated_analyzers_returns_arbitrary_number(self):
-        # TODO: [hardcoded] Likely to break; Fix or remove!
-        self.assertGreaterEqual(len(self.instances), 3)
+        expected = len([
+            f for f in
+            os.listdir(
+                os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'analyzers')
+            )
+            if f.startswith('analyze_') and f.endswith('.py')
+        ])
+        self.assertGreaterEqual(len(self.instances), expected)
 
 
 class _DummyClass(object):

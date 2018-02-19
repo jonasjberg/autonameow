@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
+import os
 from unittest import TestCase
 from unittest.mock import (
     Mock,
@@ -28,6 +28,7 @@ from unittest.mock import (
 )
 
 import unit.utils as uu
+import unit.constants as uuconst
 from analyzers import (
     BaseAnalyzer,
     find_analyzer_files,
@@ -142,13 +143,16 @@ class TestNumberOfAvailableAnalyzerClasses(TestCase):
     def setUp(self):
         self.actual = get_analyzer_classes()
 
-    # TODO: [hardcoded] Testing number of extractor classes needs fixing.
     def test_get_analyzer_classes_returns_expected_number_of_analyzers(self):
-        for expect in range(1, 4):
-            with self.subTest(expected_number=expect):
-                self.assertGreaterEqual(len(self.actual), expect)
+        expected = len([
+            f for f in
+            os.listdir(
+                os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'analyzers')
+            )
+            if f.startswith('analyze_') and f.endswith('.py')
+        ])
+        self.assertGreaterEqual(len(self.actual), expected)
 
-    # TODO: [hardcoded] Likely to break; fixed analyzer names!
     def test_get_analyzer_classes_returns_expected_count(self):
         self.assertEqual(len(self.actual), len(EXPECT_ANALYZER_CLASSES))
 
