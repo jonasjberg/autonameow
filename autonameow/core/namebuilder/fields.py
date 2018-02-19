@@ -322,6 +322,7 @@ class Publisher(NameTemplateField):
 
         _candidates = dict()
 
+        # TODO: [TD0174] Don't do this here ..
         c = kwargs.get('config')
         if c:
             _options = c.get(['NAME_TEMPLATE_FIELDS', 'publisher'])

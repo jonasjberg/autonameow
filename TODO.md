@@ -60,6 +60,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0174]` Do not do replacements in the NameTemplateField classes.
+
 * `[TD0172]` __Extend the text extractors with additional fields.__  
     Currently text extractors only collect a single field `full`, containing
     the full plain text.  Some file formats contain information on which parts
