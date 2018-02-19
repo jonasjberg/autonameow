@@ -19,13 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-# Store the version here so:
-# 1) we don't load dependencies by storing it in __init__.py
-# 2) we can import it in setup.py for the same reason
-# 3) we can import it into your module module
-#
-# Source: http://stackoverflow.com/a/16084844
-
 __title__ = 'autonameow'
 __version_info__ = (0, 5, 5)
 __version__ = '.'.join(map(str, __version_info__))
