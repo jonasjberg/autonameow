@@ -19,6 +19,18 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+__all__ = [
+    '__author__',
+    '__copyright__',
+    '__email__',
+    '__license__',
+    '__title__',
+    '__version__',
+    '__version_info__',
+    '__url__',
+    '__url_repo__',
+]
+
 __title__ = 'autonameow'
 __version_info__ = (0, 5, 5)
 __version__ = '.'.join(map(str, __version_info__))
