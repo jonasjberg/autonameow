@@ -1607,7 +1607,7 @@ class TestForceStringList(TestCase):
 
 class TestTryParseDate(TestCase):
     def test_parses_valid_date(self):
-        expected = datetime.strptime('2017-09-14', '%Y-%m-%d')
+        expected = datetime(2017, 9, 14, 0, 0, 0)
 
         def _assert_match(test_data):
             actual = types.try_parse_date(test_data)
@@ -1630,6 +1630,7 @@ class TestTryParseDate(TestCase):
         _assert_match('2017 0914')
         _assert_match('201709 14')
         _assert_match('2017 09 14')
+        _assert_match('2017-09-14T05:22:31.613051+00:00')
 
     def test_invalid_dates_raises_valueerror(self):
         def _assert_raises(test_data):
@@ -1906,7 +1907,6 @@ class TestRegexLooseDateTimeMicrosecondsAndTimezone(TestCase):
         _assert_no_match('2017-07-12T20:50:15.123')
         _assert_no_match('2017-07-12T20:50:15.1234')
         _assert_no_match('2017-07-12T20:50:15.12345')
-
 
 
 class TestNormalizeDate(TestCase):

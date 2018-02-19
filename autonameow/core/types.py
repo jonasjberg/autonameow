@@ -775,12 +775,14 @@ def try_parse_date(string):
     if digits:
         sanity.check_internal_string(digits)
 
-        date_formats = ['%Y%m%d', '%Y%m', '%Y']
-        for date_format in date_formats:
-            try:
-                return datetime.strptime(digits, date_format)
-            except (ValueError, TypeError):
-                pass
+        # TODO: [hack] This is not good ..
+        MATCH_PATTERNS = [('%Y%m%d', 8),
+                          ('%Y%m', 6),
+                          ('%Y', 4)]
+        from util.dateandtime import _parse_datetime_from_start_to_char_n_patterns
+        match = _parse_datetime_from_start_to_char_n_patterns(digits, MATCH_PATTERNS)
+        if match:
+            return match
 
     raise ValueError(_error_msg)
 
