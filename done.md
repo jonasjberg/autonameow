@@ -7,8 +7,8 @@ University mail: `js224eh[a]student.lnu.se`
 
 --------------------------------------------------------------------------------
 
-`autonameow` Completed TODO-list entries
-========================================
+Completed TODO-list Entries
+===========================
 
 ### 2018-02-19
 
