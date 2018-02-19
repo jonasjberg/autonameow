@@ -117,3 +117,9 @@ class TestConstants(TestCase):
         self._is_defined_internal_string(C.STRING_COPYRIGHT_NOTICE)
         self._is_defined_internal_string(C.STRING_URL_MAIN)
         self._is_defined_internal_string(C.STRING_URL_REPO)
+
+    def test_markdown_basename_suffixes(self):
+        self._is_defined_type(frozenset, C.MARKDOWN_BASENAME_SUFFIXES)
+        for suffix in C.MARKDOWN_BASENAME_SUFFIXES:
+            self.assertTrue(uu.is_internalbytestring(suffix))
+

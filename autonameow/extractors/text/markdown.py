@@ -28,6 +28,7 @@ except ImportError:
     chardet = None
 
 import util
+from core import constants as C
 from extractors import ExtractorError
 from extractors.text.common import (
     AbstractTextExtractor,
@@ -49,10 +50,9 @@ class MarkdownTextExtractor(AbstractTextExtractor):
 
     @classmethod
     def can_handle(cls, fileobject):
-        mime_ok = cls._evaluate_mime_type_glob(fileobject)
         return bool(
-            mime_ok and fileobject.basename_suffix in (b'md', b'markdown',
-                                                       b'mkd')
+            cls._evaluate_mime_type_glob(fileobject)
+            and fileobject.basename_suffix in C.MARKDOWN_BASENAME_SUFFIXES
         )
 
     @classmethod
