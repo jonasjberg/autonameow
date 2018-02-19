@@ -366,7 +366,7 @@ class Rule(object):
         return self.__cached_hash
 
     def __str__(self):
-        return util.dump(self.__dict__)
+        return self.description
 
     def __repr__(self):
         out = []

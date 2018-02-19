@@ -182,7 +182,8 @@ class MasterDataProvider(object):
         else:
             self.debug_stats[fileobject][meowuri]['queries'] += 1
 
-        self._print_debug_stats()
+        # TODO: Provide means of toggling on/off or remove.
+        # self._print_debug_stats()
 
         # First try the repository for previously gathered data
         response = self._query_repository(fileobject, meowuri)

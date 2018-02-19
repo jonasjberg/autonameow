@@ -66,7 +66,7 @@ class RuleMatcher(object):
         log.debug('Examining {} rules ..'.format(num_all_rules))
         condition_evaluator = RuleConditionEvaluator(_data_request_callback)
         for i, rule in enumerate(all_rules, start=1):
-            log.debug('Evaluating rule {}/{}: {!r}'.format(i, num_all_rules, rule))
+            log.debug('Evaluating rule {}/{}: {!s}'.format(i, num_all_rules, rule))
             condition_evaluator.evaluate(rule)
 
         # Remove rules that require an exact match and contains a condition
@@ -300,16 +300,16 @@ class RuleConditionEvaluator(object):
         return self._evaluated[rule].get(condition)
 
     def evaluate_rule_conditions(self, rule):
-        log_strprefix = '{} :: Condition '.format(rule.description)
+        log_strprefix = 'Condition '.format(rule.description)
 
         for condition in rule.conditions:
             condition_data_uri = condition.meowuri
             data = self.data_query_function(condition_data_uri)
             if self._evaluate_condition(condition, data):
-                log.debug('{}PASSED: "{!s}"'.format(log_strprefix, condition))
+                log.debug('{}PASS: "{!s}"'.format(log_strprefix, condition))
                 self._passed[rule].append(condition)
             else:
-                log.debug('{}FAILED: "{!s}"'.format(log_strprefix, condition))
+                log.debug('{}FAIL: "{!s}"'.format(log_strprefix, condition))
                 self._failed[rule].append(condition)
 
             assert condition not in self._evaluated.get(rule, {})
