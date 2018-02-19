@@ -31,37 +31,37 @@ now.
 Current Features
 ----------------
 
-* __Rule-based Renaming__
+* __Rule-based renaming__
     * __Conditions__ are evaluated in order to determine whether to use a
       certain rule for a given file
-    * __Name Template__ has placeholder fields that will be populated with
+    * __Name template__ has placeholder fields that will be populated with
       suitable data
     * __Sources__ specifies which data is used to populate which placeholder
       fields in the name template
     * Rules are ranked by score, weight and a "bias"
     * Rules can be set to allow failed conditions, which allows powerful
       layering of more or less "targeted" rules
-* __Metadata Extraction__ from textual contents
-    * Fuzzy extraction of date/time-information, possible titles, etc.
-* __Text Extraction__ from plain text, epub, pdf and rtf files
+* __Text extraction__ from plain text, epub, pdf and rtf files
 * __Metadata extraction from a lot of file formats__ (using [exiftool][2])
-* __ISBN Number__ Extraction and Metadata Lookup
-    * Very powerful renaming of ebooks
+* Metadata extraction from textual contents
+    * Fuzzy extraction of date/time-information, possible titles, etc.
+* __ISBN number extraction and metadata lookup__
+    * Facilitates powerful renaming of ebooks
     * Combines information from several sources to determine possible candidate data
     * Extract ISBN numbers from various ebooks and query metadata APIs
     * Fuzzy de-duplication of ISBN metadata
 * Robust extraction of information from file names following the __[filetags][1] naming scheme__
 * Metadata extraction from file names
 * __Caching__ of slow operations, like querying third-party servers or extracting large amounts of text
-* __Batch Mode__ for completely hands-off operation, suitable for scripting
-* __Timid Mode__ prompts prior to renaming files with a preview
+* __Batch mode__ for completely hands-off operation, suitable for scripting
+* __Timid mode__ prompts prior to renaming files with a preview
 * Human name parsing and formatting
-* Regex Replacement Patterns allows final tweaking of the results
+* Regex replacement patterns
 * Configuration through a YAML config file
 * Global ignore patterns using globs
 * Sane built-in default ignore patterns
 * Recursive mode
-* Extensive test suite
+* [Extensive test suite][5]
 
 
 Planned/WIP Features
@@ -71,14 +71,18 @@ Planned/WIP Features
 * Smarter de-duplication of extracted data
 * Improvements to all kinds of "decision making"
 * Improved filtering of extracted data
-* __Interactive Mode__
-* __Automagic Mode__ "try-hard mode" for cases where rules do not apply or data
+* Interactive mode
+* __Automagic mode__ "try-hard mode" for cases where rules do not apply or data
   specified in rules is not available
 * Additional content extractors
 * Additional metadata extractors
 * Support for additional third-party metadata providers
+* Sane dependency management, packaging and installation
 * Graphical User Interface (?)
 * *Run completely "hands-off" and always do "the right thing" ..*
+
+Refer to the [TODO-list][3] for planned features and changes.
+Completed entries are listed [here][4].
 
 
 Installing
@@ -93,6 +97,7 @@ guide to installing under Linux and MacOS.
 Running
 =======
 Use the wrapper script `bin/autonameow.sh` to start `autonameow`.
+Pass `--help` to get up-to-date usage information.
 
 
 Documentation
@@ -137,3 +142,6 @@ Also available [here](https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt).
 
 [1]: https://github.com/novoid/filetags
 [2]: https://www.sno.phy.queensu.ca/~phil/exiftool/
+[3]: https://github.com/jonasjberg/autonameow/blob/master/TODO.md
+[4]: https://github.com/jonasjberg/autonameow/blob/master/done.md
+[5]: https://github.com/jonasjberg/autonameow/blob/master/tests/README.md
