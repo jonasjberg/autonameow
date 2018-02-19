@@ -101,8 +101,8 @@ This script accepts optional argument flags, as described in the usage text;
                -w         Write HTML test reports to disk.
                           Note: The "raw" log file is always written.
 
-  All options are optional. Default behaviour is to export test result
-  reports and print the test results to stdout/stderr in real-time.
+  All options are optional. Default behaviour is to print the test
+  results to stdout/stderr in real-time.
 
   EXIT CODES:   0         All tests/assertions passed.
                 1         Any tests/assertions FAILED.
