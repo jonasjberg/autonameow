@@ -185,11 +185,19 @@ assert_bulk_test "$SAMPLE_MD_FILE" e r
 
 sample_md_file_basename="$(basename -- "${SAMPLE_MD_FILE}")"
 
-assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "FOO TITLE"' \
-            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"FOO TITLE\""
+# From the MarkdownTextExtractor
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "ON MEOW"' \
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"ON MEOW\""
 
 assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "-   meow list"' \
             "Expect text extracted from \"${sample_md_file_basename}\" to contain \"-   meow list\""
+
+# From the PlainTextExtractor
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "On Meow"' \
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"On Meow\""
+
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "* meow list"' \
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"* meow list\""
 
 
 
