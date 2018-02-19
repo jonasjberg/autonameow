@@ -39,9 +39,6 @@ class BaseExtractor(object):
     """
     Top-level abstract base class for all filetype-specific extractor classes.
 
-    Includes common functionality and interfaces that must be implemented
-    by inheriting extractor classes.
-
     All "extractors" must inherit from the 'BaseExtractor' class. This class
     is abstract and serves to define interfaces that actual extractor classes
     must implement --- it is never used directly.
@@ -54,37 +51,45 @@ class BaseExtractor(object):
 
         (abstract)  @ BaseExtractor
                     |
-        (abstract)  +--* AbstractTextExtractor
-                    |  |
-                    |  +--* TesseractOCRTextExtractor
-                    |  '--* PdfTextExtractor
+        (abstract)  +----@ AbstractTextExtractor
+                    |    |
+                    |    +--* EpubTextExtractor
+                    |    +--* MarkdownTextExtractor
+                    |    +--* PdfTextExtractor
+                    |    +--* PlainTextExtractor
+                    |    +--* RichTextFormatTextExtractor
+                    |    '--* TesseractOCRTextExtractor
                     |
+                    +--* EpubMetadataExtractor
                     +--* ExiftoolMetadataExtractor
+                    +--* JpeginfoMetadataExtractor
+                    '--* PandocMetadataExtractor
 
     The abstract extractors defines additional interfaces, extending the base.
     It is pretty messy and should be redesigned and simplified at some point ..
     """
-
+    # NOTE: Must be overriden by inheriting classes.
     # List of MIME types that this extractor can extract information from.
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
     HANDLES_MIME_TYPES = None
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
     # Middle part of the full MeowURI ('metadata', 'contents', 'filesystem', ..)
+    # Optionally overriden by inheriting classes.
     MEOWURI_CHILD = C.UNDEFINED_MEOWURI_PART
 
     # Last part of the full MeowURI ('exiftool', 'xplat', ..)
+    # Optionally overriden by inheriting classes.
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
-    # Set at first call to 'meowuri_prefix()'.
-    _meowuri_prefix = None
-
+    # NOTE: Must be overriden by inheriting classes.
     # Controls whether the extractor is enabled and used by default.
     # Used to exclude slow running extractors from always being executed.
     # If the extractor is not enabled by the default, it must be explicitly
     # specified in order to be enqueued in the extractor run queue.
     IS_SLOW = False
 
+    # NOTE: Must be overriden by inheriting classes.
     # Dictionary with extractor-specific information, keyed by the fields that
     # the raw source produces. Stores information on types, etc..
     FIELD_LOOKUP = dict()
@@ -92,6 +97,9 @@ class BaseExtractor(object):
     # TODO: Hack ..
     coerce_field_value = providers.ProviderMixin.coerce_field_value
     filter_field_value = providers.ProviderMixin.filter_field_value
+
+    # Set at first call to 'meowuri_prefix()'.
+    _meowuri_prefix = None
 
     def __init__(self):
         self.log = logging.getLogger(
@@ -147,13 +155,14 @@ class BaseExtractor(object):
         """
         Tests if a specific extractor class can handle a given file object.
 
-        The extractor is considered to be able to handle the file if the
-        file MIME-type is listed in the class attribute 'HANDLES_MIME_TYPES'.
+        The extractor is considered to be able to handle the file if the file
+        MIME-type evaluates true for the globs defined in class attribute
+        'HANDLES_MIME_TYPES'.
 
         Inheriting extractor classes can override this method if they need
         to perform additional tests in order to determine if they can handle
         a given file object.
-        If this method is __NOT__ overridden, the inheriting class must contain
+        If this method is __NOT__ overridden, the inheriting class MUST contain
         a class attribute with MIME-types (globs) as a list of Unicode strings.
 
         Args:
@@ -187,17 +196,17 @@ class BaseExtractor(object):
 
           NOTE: This method __MUST__ be implemented by inheriting classes!
 
-        The return value should be a dictionary keyed by "MeowURIs", storing
-        data. The stored data can be either single elements or lists.
-        The data should be "safe", I.E. validated and converted to a suitable
+        The return value should be a dictionary keyed by "MeowURI leaves"
+        matching the keys in 'FIELD_LOOKUP'.
+        The data should be "safe", I.E. validated and coerced to a suitable
         "internal format" --- text should be returned as Unicode strings, etc.
+        Use the type coercers in 'types.py'.
 
         Implementing classes should make sure to catch all exceptions and
-        re-raise an "ExtractorError", passing any valuable information along.
-
-        Only raise the "ExtractorError" exception for irrecoverable errors.
+        re-raise an 'ExtractorError', passing any valuable information along.
+        Only raise the 'ExtractorError' exception for irrecoverable errors.
         Otherwise, implementers should strive to return empty values of the
-        expected type. The type coercers in 'types.py' could be useful here.
+        expected type. None is the universal "no value".
 
         Args:
             fileobject: Source of data from which to extract information as an
@@ -205,7 +214,7 @@ class BaseExtractor(object):
 
         Returns:
             All data produced gathered by the extractor as a dict keyed by
-            "MeowURIs", storing arbitrary data or lists of arbitrary data.
+            "MeowURI leaves" (field names) storing arbitrary data.
 
         Raises:
             ExtractorError: The extraction could not be completed successfully.
@@ -219,16 +228,16 @@ class BaseExtractor(object):
     @classmethod
     def check_dependencies(cls):
         """
-        Tests if the extractor can be used.
+        Checks if all dependencies required to use the extractor are available.
 
           NOTE: This method __MUST__ be implemented by inheriting classes!
 
         This should be used to test that any dependencies required by the
-        extractor are met, like third party libraries or executables.
+        extractor are available, like third party libraries or executables.
 
         Returns:
-            True if any and all dependencies are satisfied and the extractor
-            is usable, else False.
+            True if all requirements are satisfied and the extractor is usable,
+            otherwise False.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
