@@ -41,6 +41,9 @@ from util import encoding as enc
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0154] Add "incrementing counter" placeholder field
+
+
 class ConfigFieldParser(object):
     """
     Top-level superclass for all configuration field parsers.

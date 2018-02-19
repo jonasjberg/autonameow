@@ -67,6 +67,9 @@ INITIAL_CONFIGURATION_OPTIONS = {
 }
 
 
+# TODO: [TD0154] Add "incrementing counter" placeholder field
+
+
 class ConfigurationParser(object):
     def __init__(self):
         # NOTE(jonas): Make sure that defaults are not modified.

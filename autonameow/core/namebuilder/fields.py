@@ -36,6 +36,9 @@ from util import (
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0154] Add "incrementing counter" placeholder field
+
+
 class NameTemplateField(object):
     COMPATIBLE_TYPES = (None, )
     MULTIVALUED = None

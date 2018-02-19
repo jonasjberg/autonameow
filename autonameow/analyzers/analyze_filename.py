@@ -59,6 +59,8 @@ log = logging.getLogger(__name__)
 PREFERRED_FILENAME_CHAR_SPACE = '-'
 PREFERRED_FILENAME_CHAR_SEPARATOR = '_'
 
+# TODO: [TD0153] Detect and clean up incrementally numbered files
+
 
 class FilenameAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 1
