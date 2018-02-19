@@ -179,11 +179,8 @@ class MicrosoftVisionPlugin(BasePlugin):
         super().__init__(display_name=self.DISPLAY_NAME)
 
     def execute(self, fileobject):
-        _source_path = self.request_data(fileobject, 'filesystem.abspath.full')
-        if _source_path is None:
-            raise AutonameowPluginError('Required data unavailable')
-
-        response = query_api(_source_path, self.API_KEY)
+        source_path = fileobject.abspath
+        response = query_api(source_path, self.API_KEY)
         if not response:
             raise AutonameowPluginError('Did not receive a valid response')
 
@@ -214,9 +211,7 @@ class MicrosoftVisionPlugin(BasePlugin):
         return results
 
     def can_handle(self, fileobject):
-        _mime_type = self.request_data(fileobject,
-                                       'filesystem.contents.mime_type')
-        return mimemagic.eval_glob(_mime_type, 'image/*')
+        return mimemagic.eval_glob(fileobject.mime_type, 'image/*')
 
     @classmethod
     def test_init(cls):
