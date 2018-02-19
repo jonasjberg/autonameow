@@ -78,13 +78,6 @@ class Title(NameTemplateField):
     MULTIVALUED = False
 
     @classmethod
-    def normalize(cls, data):
-        data = data.strip(',.:;-_ ')
-        data = data.replace('&', 'and')
-        data = data.replace('&#8211;', '-')
-        return data
-
-    @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
         # TODO: [TD0129] Data validation at this point should be made redundant
@@ -100,7 +93,8 @@ class Title(NameTemplateField):
             string = data.value
 
         sanity.check_internal_string(string)
-        return cls.normalize(string)
+        string = string.strip(',.:;-_ ')
+        return string
 
 
 class Edition(NameTemplateField):
@@ -109,40 +103,6 @@ class Edition(NameTemplateField):
                         types.AW_STRING,
                         types.AW_INTEGER)
     MULTIVALUED = False
-
-    # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
-    REPLACE_ORDINALS = []
-    for _find, _replace in (('1st', 'first'),
-                            ('2nd', 'second'),
-                            ('3rd', 'third'),
-                            ('4th', 'fourth'),
-                            ('5th', 'fifth'),
-                            ('6th', 'sixth'),
-                            ('7th', 'seventh'),
-                            ('8th', 'eighth'),
-                            ('9th', 'ninth'),
-                            ('10th', 'tenth'),
-                            ('11th', 'eleventh'),
-                            ('12th', 'twelfth'),
-                            ('13th', 'thirteenth'),
-                            ('14th', 'fourteenth'),
-                            ('15th', 'fifteenth'),
-                            ('16th', 'sixteenth'),
-                            ('17th', 'seventeenth'),
-                            ('18th', 'eighteenth'),
-                            ('19th', 'nineteenth'),
-                            ('20th', 'twentieth')):
-        REPLACE_ORDINALS.append((re.compile(_find, re.IGNORECASE), _replace))
-
-    @classmethod
-    def normalize(cls, edition):
-        # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
-
-        # Normalize numeric titles to allow for later custom replacements.
-        for _find, _replace in cls.REPLACE_ORDINALS:
-            edition = _find.sub(_replace, edition)
-
-        return edition
 
     @classmethod
     def format(cls, data, *args, **kwargs):
@@ -171,10 +131,6 @@ class Extension(NameTemplateField):
                         types.AW_STRING,
                         types.AW_MIMETYPE)
     MULTIVALUED = False
-
-    @classmethod
-    def normalize(cls, data):
-        pass
 
     @classmethod
     def format(cls, data, *args, **kwargs):
