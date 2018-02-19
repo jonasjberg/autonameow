@@ -21,11 +21,13 @@
 
 import logging
 
-
 from core import (
     persistence,
     types,
 )
+# TODO: [TD0172] Extend the text extractors with additional fields.
+# from core.model import WeightedMapping
+# from core.namebuilder import fields
 from extractors import BaseExtractor
 from util import encoding as enc
 from util import sanity
@@ -46,7 +48,16 @@ class AbstractTextExtractor(BaseExtractor):
             'multivalued': False,
             'mapped_fields': None,
             'generic_field': 'text'
-        }
+        },
+        # TODO: [TD0172] Extend the text extractors with additional fields.
+        # 'title': {
+        #     'coercer': types.AW_STRING,
+        #     'multivalued': False,
+        #     'mapped_fields': [
+        #         WeightedMapping(fields.Title, probability=1)
+        #     ],
+        #     'generic_field': 'title'
+        # }
     }
 
     def __init__(self):
@@ -59,9 +70,12 @@ class AbstractTextExtractor(BaseExtractor):
         text = self._get_text(fileobject)
         sanity.check_internal_string(text)
 
-        self.log.debug('{!s} returning all extracted data'.format(self))
         # TODO: [TD0172] Extend the text extractors with additional fields.
-        return {'full': text}
+        # TODO: [TD0173] Use 'pandoc' to extract information from documents.
+        return {
+            'full': text,
+            # 'title': title
+        }
 
     def _get_text(self, fileobject):
         cached_text = self._get_cached_text(fileobject)

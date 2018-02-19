@@ -225,6 +225,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0173]` Use `pandoc` to extract information from documents.
+
 * `[TD0164]` Mitigate mismatched throwing/catching of exceptions.
 
 * `[TD0163]` __Fix premature importing of providers.__  
