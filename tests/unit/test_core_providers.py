@@ -292,9 +292,12 @@ class TestMapMeowURItoSourceClass(TestCase):
         actual = self.registry.providers_for_meowuri(
             meowuri, includes=['extractor']
         )
-        expected = ['CrossPlatformFileSystemExtractor',
-                    'FiletagsExtractor',
-                    'ExiftoolMetadataExtractor']
+        expected = [
+            'CrossPlatformFileSystemExtractor',
+            'FiletagsExtractor',
+            'ExiftoolMetadataExtractor',
+            'PandocMetadataExtractor'
+        ]
         self._check_returned_providers(actual, expected)
 
     # TODO: [TD0157] Look into analyzers not implementing 'FIELD_LOOKUP'.

@@ -50,7 +50,7 @@ class PandocMetadataExtractor(BaseExtractor):
     Extracts various types of metadata using "pandoc".
     """
     HANDLES_MIME_TYPES = [
-        'text/*'
+        'text/*', 'application/epub+zip'
     ]
     IS_SLOW = False
 
@@ -71,6 +71,24 @@ class PandocMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'author'
         },
+        'date-meta': {
+            'coercer': types.AW_DATE,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Date, probability=1),
+                WeightedMapping(fields.DateTime, probability=1),
+            ],
+            'generic_field': 'date_created'
+        },
+        'date': {
+            'coercer': types.AW_DATE,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Date, probability=1),
+                WeightedMapping(fields.DateTime, probability=1),
+            ],
+            'generic_field': 'date_created'
+        },
         'pagetitle': {
             'coercer': types.AW_STRING,
             'multivalued': False,
@@ -87,6 +105,10 @@ class PandocMetadataExtractor(BaseExtractor):
             ],
             'generic_field': 'title'
         },
+        'table-of-contents': {
+            'coercer': types.AW_STRING,
+            'multivalued': True,
+        },
         'title-prefix': {
             'coercer': types.AW_STRING,
             'multivalued': False,
@@ -94,6 +116,14 @@ class PandocMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Title, probability=0.5),
             ],
             'generic_field': 'title'
+        },
+        'tags': {
+            'coercer': types.AW_STRING,
+            'multivalued': True,
+            'mapped_fields': [
+                WeightedMapping(fields.Tags, probability=1),
+            ],
+            'generic_field': 'tags'
         },
         'title': {
             'coercer': types.AW_STRING,
@@ -184,7 +214,9 @@ class PandocMetadataExtractor(BaseExtractor):
         #
         # Option '--list-input-formats' is not supported in pandoc v1.16.0.2
         # found in the ubuntu LTS repositories as of 2018-02-19.
-        ok_suffixes = C.MARKDOWN_BASENAME_SUFFIXES.union(frozenset([b'tex', b'json']))
+        ok_suffixes = C.MARKDOWN_BASENAME_SUFFIXES.union(
+            frozenset([b'tex', b'json', b'epub'])
+        )
         return bool(
             # TODO: [TD0173] Check if 'pandoc' can handle a given file.
             cls._evaluate_mime_type_glob(fileobject)

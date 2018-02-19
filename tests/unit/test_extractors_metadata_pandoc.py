@@ -115,6 +115,33 @@ class TestPandocMetadataExtractorOutputTestFileA(CaseExtractorOutput,
     ]
 
 
+@skipIf(unmet_dependencies, dependency_error)
+class TestPandocMetadataExtractorOutputTestFileB(CaseExtractorOutput,
+                                                 TestCase):
+    EXTRACTOR_CLASS = PandocMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
+    from datetime import datetime
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('author', list, ['Friedrich Wilhelm Nietzsche']),
+        ('date', datetime, datetime(2017, 7, 20, 0, 0, 0)),
+        ('title', str, 'Human, All Too Human: A Book for Free Spirits'),
+    ]
+
+
+@skipIf(unmet_dependencies, dependency_error)
+class TestPandocMetadataExtractorOutputTestFileC(CaseExtractorOutput,
+                                                 TestCase):
+    EXTRACTOR_CLASS = PandocMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('4123.epub')
+
+    from datetime import datetime
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('author', list, ['Bertrand Russell']),
+        ('date', datetime, datetime(2009, 8, 20, 0, 0, 0)),
+        ('title', str, 'Mysticism and Logic and Other Essays'),
+    ]
+
+
 class TestPandocMetadataExtractorCanHandle(TestCase):
     def setUp(self):
         self.e = PandocMetadataExtractor()
@@ -124,6 +151,7 @@ class TestPandocMetadataExtractorCanHandle(TestCase):
         self.fo_rtf = uu.get_mock_fileobject(mime_type='text/rtf')
         self.fo_txt = uu.get_mock_fileobject(mime_type='text/plain')
         self.fo_md = uu.fileobject_testfile('sample.md')
+        self.fo_epub = uu.fileobject_testfile('pg38145-images.epub')
 
     def test_class_method_can_handle_returns_expected(self):
         self.assertFalse(self.e.can_handle(self.fo_image))
@@ -131,9 +159,10 @@ class TestPandocMetadataExtractorCanHandle(TestCase):
         self.assertFalse(self.e.can_handle(self.fo_rtf))
         self.assertFalse(self.e.can_handle(self.fo_txt))
         self.assertTrue(self.e.can_handle(self.fo_md))
+        self.assertTrue(self.e.can_handle(self.fo_epub))
 
 
-class TestExtractDocumentMetadataWithPandoc(TestCase):
+class TestExtractDocumentMetadataWithPandocA(TestCase):
     # TODO: [TD0173] Parse pandoc JSON output or use custom template?
     @classmethod
     def setUpClass(cls):
@@ -153,6 +182,26 @@ class TestExtractDocumentMetadataWithPandoc(TestCase):
     def test_returns_expected_metadata_title(self):
         self.assertIn('title', self.actual)
         self.assertEqual('On Meow', self.actual['title'])
+
+
+class TestExtractDocumentMetadataWithPandocB(TestCase):
+    # TODO: [TD0173] Parse pandoc JSON output or use custom template?
+    @classmethod
+    def setUpClass(cls):
+        fo = uu.fileobject_testfile('4123.epub')
+        cls.actual = extract_document_metadata_with_pandoc(fo.abspath)
+
+    def test_returns_expected_metadata_author(self):
+        self.assertIn('author', self.actual)
+        self.assertEqual(['Bertrand Russell'], self.actual['author'])
+
+    def test_returns_expected_metadata_title(self):
+        self.assertIn('title', self.actual)
+        self.assertEqual('Mysticism and Logic and Other Essays', self.actual['title'])
+
+    def test_returns_expected_date(self):
+        self.assertIn('date', self.actual)
+        self.assertEqual('2009-08-20', self.actual['date'])
 
 
 class TestConvertDocumentToJsonWithPandoc(TestCase):
