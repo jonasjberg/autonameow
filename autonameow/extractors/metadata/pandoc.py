@@ -144,9 +144,6 @@ class PandocMetadataExtractor(BaseExtractor):
             # 'if coerced', any False booleans, 0, etc. would be discarded.
             # Filtering must be field-specific.
             if coerced is not None:
-                # filtered = self.filter_field_value(field, coerced)
-                # if filtered is not None:
-                #    coerced_metadata[field] = filtered
                 coerced_metadata[field] = coerced
 
         return coerced_metadata

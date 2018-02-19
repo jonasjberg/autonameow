@@ -30,6 +30,7 @@ import unit.constants as uuconst
 from extractors import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor
 from extractors.metadata.exiftool import (
+    _filter_coerced_value,
     _get_exiftool_data,
     is_bad_metadata
 )
@@ -156,3 +157,49 @@ class TestIsBadMetadata(TestCase):
         _aF('XMP:Subject', ['Subject'])
         _aF('XMP:Subject', ['Science', 'Subject'])
         _aF('XMP:Subject', ['Title', 'Subject'])
+
+
+class TestFilterCoercedValue(TestCase):
+    def _assert_filter_returns(self, expect, given):
+        actual = _filter_coerced_value(given)
+        self.assertEqual(expect, actual)
+
+    def test_removes_none_values(self):
+        self._assert_filter_returns(None, given=None)
+        self._assert_filter_returns(None, given=[])
+        self._assert_filter_returns(None, given=[None])
+        self._assert_filter_returns(None, given=[None, None])
+
+    def test_removes_empty_strings(self):
+        self._assert_filter_returns(None, given='')
+        self._assert_filter_returns(None, given=[''])
+        self._assert_filter_returns(None, given=['', ''])
+
+    def test_removes_strings_with_only_whitespace(self):
+        self._assert_filter_returns(None, given=' ')
+        self._assert_filter_returns(None, given=['  '])
+        self._assert_filter_returns(None, given=[' ', ' '])
+
+    def test_passes_strings(self):
+        self._assert_filter_returns('a', given='a')
+        self._assert_filter_returns(['a', 'b'], given=['a', 'b'])
+
+    def test_passes_strings_but_removes_none(self):
+        self._assert_filter_returns(['a'], given=['a', None])
+        self._assert_filter_returns(['a', 'b'], given=['a', None, 'b'])
+
+    def test_passes_strings_but_removes_empty_strings(self):
+        self._assert_filter_returns(['a'], given=['a', ''])
+        self._assert_filter_returns(['a'], given=['', 'a'])
+        self._assert_filter_returns(['a', 'b'], given=['a', '', 'b'])
+
+    def test_passes_strings_but_removes_whitespace_only_strings(self):
+        self._assert_filter_returns(['a'], given=['a', ' '])
+        self._assert_filter_returns(['a'], given=[' ', 'a'])
+        self._assert_filter_returns(['a', 'b'], given=['a', ' ', 'b'])
+
+    def test_passes_integers_and_floats(self):
+        self._assert_filter_returns(1, given=1)
+        self._assert_filter_returns([1], given=[1])
+        self._assert_filter_returns(1.0, given=1.0)
+        self._assert_filter_returns([1.0], given=[1.0])

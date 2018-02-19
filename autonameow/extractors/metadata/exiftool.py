@@ -725,7 +725,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             # 'if coerced', any False booleans, 0, etc. would be discarded.
             # Filtering must be field-specific.
             if coerced is not None:
-                filtered = self.filter_field_value(field, coerced)
+                filtered = _filter_coerced_value(coerced)
                 if filtered is not None:
                     coerced_metadata[field] = filtered
 
@@ -782,3 +782,21 @@ def _get_exiftool_data(source):
         #     ValueError: write to closed file
         #
         raise ExtractorError(e)
+
+
+def _filter_coerced_value(value):
+    # TODO: [TD0034] Remove duplicated functionality (coercers normalize?)
+    def __filter_value(_value):
+        if isinstance(_value, str):
+            return _value if _value.strip() else None
+        else:
+            return _value
+
+    if not isinstance(value, list):
+        return __filter_value(value)
+    else:
+        assert isinstance(value, list)
+        list_of_non_empty_values = [v for v in value if __filter_value(v)]
+        if list_of_non_empty_values:
+            return list_of_non_empty_values
+    return None

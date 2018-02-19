@@ -96,7 +96,6 @@ class BaseExtractor(object):
 
     # TODO: Hack ..
     coerce_field_value = providers.ProviderMixin.coerce_field_value
-    filter_field_value = providers.ProviderMixin.filter_field_value
 
     # Set at first call to 'meowuri_prefix()'.
     _meowuri_prefix = None
