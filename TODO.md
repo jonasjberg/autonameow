@@ -68,8 +68,6 @@ Medium Priority
     are titles, heading, etc.  Text extractors should provide this when
     possible.
 
-* `[TD0169]` Remove or re-implement the `ImageAnalyzer`.
-
 * `[TD0168]` Remove or re-implement the `TextAnalyzer`.
 
 * `[TD0161]` Handle mapping/translation between "generic"/specific MeowURIs.

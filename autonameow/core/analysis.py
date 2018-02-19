@@ -44,6 +44,9 @@ current file.
 """
 
 
+# TODO: [TD0040] Add assigning tags to GPS coordinates.
+
+
 def _execute_run_queue(analyzer_queue):
     """
     Executes analyzers in the analyzer run queue.

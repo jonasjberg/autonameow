@@ -4,7 +4,6 @@ stdout:
     - 'analyzer.document'
     - 'analyzer.ebook'
     - 'analyzer.filename'
-    - 'analyzer.image'
     - 'analyzer.text'
     - 'plugin.guessit'
     - 'extractor.filesystem.filetags'

@@ -16,6 +16,8 @@ University mail: `js224eh[a]student.lnu.se`
 > ---------------
 >
 > * `[TD0136]` Look into "requesting" already available data.
+>
+> * `[TD0169]` Remove or re-implement the `ImageAnalyzer`.
 
 ### 2018-02-15
 

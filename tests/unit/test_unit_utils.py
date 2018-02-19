@@ -436,7 +436,7 @@ class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
 
     def test_get_instantiated_analyzers_returns_arbitrary_number(self):
         # TODO: [hardcoded] Likely to break; Fix or remove!
-        self.assertGreaterEqual(len(self.instances), 5)
+        self.assertGreaterEqual(len(self.instances), 4)
 
 
 class _DummyClass(object):

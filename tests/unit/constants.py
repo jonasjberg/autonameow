@@ -224,7 +224,6 @@ DUMMY_MAPPED_MEOWURIS = list({
     'analyzer.ebook',
     'analyzer.filename',
     # 'analyzer.filetags',  This is an extractor now
-    'analyzer.image',
     'analyzer.text',
     'extractor.filesystem.xplat',
     'extractor.metadata.exiftool',

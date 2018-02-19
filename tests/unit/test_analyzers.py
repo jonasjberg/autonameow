@@ -38,11 +38,12 @@ from core import constants as C
 
 
 # TODO: [hardcoded] Likely to break; fixed analyzer names!
-EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
-                           'analyzers.analyze_filename.FilenameAnalyzer',
-                           'analyzers.analyze_document.DocumentAnalyzer',
-                           'analyzers.analyze_text.TextAnalyzer',
-                           'analyzers.analyze_ebook.EbookAnalyzer']
+EXPECT_ANALYZER_CLASSES = [
+    'analyzers.analyze_filename.FilenameAnalyzer',
+    'analyzers.analyze_document.DocumentAnalyzer',
+    'analyzers.analyze_text.TextAnalyzer',
+    'analyzers.analyze_ebook.EbookAnalyzer'
+]
 EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
                                     for c in EXPECT_ANALYZER_CLASSES]
 
@@ -112,7 +113,6 @@ class TestFindAnalyzerSourceFiles(TestCase):
 
         # TODO: [hardcoded] Likely to break; requires manual updates.
         self.assertIn('analyze_filename.py', actual)
-        self.assertIn('analyze_image.py', actual)
         self.assertIn('analyze_document.py', actual)
         self.assertIn('analyze_text.py', actual)
 
@@ -145,7 +145,7 @@ class TestNumberOfAvailableAnalyzerClasses(TestCase):
 
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.
     def test_get_analyzer_classes_returns_expected_number_of_analyzers(self):
-        for expect in range(1, 6):
+        for expect in range(1, 5):
             with self.subTest(expected_number=expect):
                 self.assertGreaterEqual(len(self.actual), expect)
 
@@ -172,7 +172,6 @@ class TestAnalyzerClassMeowURIs(TestCase):
 
         _assert_in('analyzer.document')
         _assert_in('analyzer.filename')
-        _assert_in('analyzer.image')
         _assert_in('analyzer.text')
 
     def test_returns_meowuris_for_available_analyzers(self):

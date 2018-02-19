@@ -76,8 +76,7 @@ class TestFilterAbleToHandle(TestCase):
 
     def test_returns_expected_analyzers_for_png_image_file(self):
         fo = uu.get_mock_fileobject(mime_type='image/png')
-        self._assert_suitable(fo, expect_analyzers=['FilenameAnalyzer',
-                                                    'ImageAnalyzer'])
+        self._assert_suitable(fo, expect_analyzers=['FilenameAnalyzer'])
 
     def test_returns_expected_analyzers_for_pdf_file(self):
         fo = uu.get_mock_fileobject(mime_type='application/pdf')
