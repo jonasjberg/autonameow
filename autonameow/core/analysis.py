@@ -57,7 +57,8 @@ def _execute_run_queue(analyzer_queue):
 
         log.debug('Running Analyzer "{!s}"'.format(analyzer_instance))
         try:
-            results = analyzer_instance.run()
+            with logs.log_runtime(log, str(analyzer_instance)):
+                results = analyzer_instance.run()
         except analyzers.AnalyzerError as e:
 
             log.error('Halted analyzer "{!s}": {!s}'.format(analyzer_instance, e))

@@ -184,7 +184,8 @@ class ExtractorRunner(object):
                 continue
 
             try:
-                _extracted_data = _extractor_instance.extract(fileobject)
+                with logs.log_runtime(log, str(_extractor_instance)):
+                    _extracted_data = _extractor_instance.extract(fileobject)
             except (ExtractorError, NotImplementedError) as e:
                 log.error('Unable to extract data! Aborting extractor "{!s}":'
                           ' {!s}'.format(_extractor_instance, e))

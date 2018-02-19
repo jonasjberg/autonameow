@@ -117,7 +117,8 @@ class PluginHandler(object):
                           ' {!s}'.format(plugin, e))
                 continue
             try:
-                data = plugin(fileobject)
+                with logs.log_runtime(log, str(plugin)):
+                    data = plugin(fileobject)
             except AutonameowPluginError:
                 log.critical('Plugin instance "{!s}" execution '
                              'FAILED'.format(plugin))
