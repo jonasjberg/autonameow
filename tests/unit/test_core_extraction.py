@@ -114,5 +114,6 @@ class TestFilterAbleToHandle(TestCase):
             fileobject=uu.fileobject_testfile('sample.md'),
             expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor',
                       'PlainTextExtractor'],
-            if_available=['ExiftoolMetadataExtractor', 'MarkdownTextExtractor']
+            if_available=['ExiftoolMetadataExtractor', 'MarkdownTextExtractor',
+                          'PandocMetadataExtractor']
         )

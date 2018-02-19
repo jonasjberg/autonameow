@@ -1,0 +1,29 @@
+$if(author-meta)$
+author-meta:
+$for(author-meta)$
+- '$author-meta$'
+$endfor$
+$endif$
+
+$if(author)$
+author:
+$for(author)$
+- '$author$'
+$endfor$
+$endif$
+
+$if(title-prefix)$
+title-prefix: '$title-prefix$
+$endif$
+
+$if(title)$
+title: '$title$'
+$endif$
+
+$if(subtitle)$
+subtitle: '$subtitle$'
+$endif$
+
+$if(pagetitle)$
+pagetitle: '$pagetitle$'
+$endif$
