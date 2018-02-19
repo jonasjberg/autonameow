@@ -390,7 +390,9 @@ def displayable_replacement(original, replacement, regex, color):
 
 
 def msg_replacement(original, replacement, regex):
-    if log.getEffectiveLevel() < logging.INFO:
+    if log.getEffectiveLevel() > logging.INFO:
+        # TODO: [TD0171] Separate logic from user interface.
+        # Skip if not '--verbose' ..
         return
 
     _old, _new = displayable_replacement(original, replacement, regex,
@@ -399,7 +401,7 @@ def msg_replacement(original, replacement, regex):
     cf.addrow('Applied replacement:', '{!s}')
     cf.addrow('->', '{!s}')
     _message = str(cf).format(_old, _new)
-    log.info(_message)
+    msg(_message)
 
     # TODO: [TD0096] Fix invalid colouring if the replacement is the last character.
     #
