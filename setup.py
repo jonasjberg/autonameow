@@ -49,9 +49,9 @@ setup(
     packages=find_packages(exclude=['unit']),
     package_dir={'': 'autonameow'},
     package_data={
-        'autonameow:extractors:metadata:pandoc_template.plain'
+        'metadata': 'pandoc_template.plain'
     },
-    python_requires='~=3.5',
+    # python_requires='~=3.5',
     install_requires=[
         'beautifulsoup4==4.4.1',
         'colorama==0.3.7',
@@ -83,8 +83,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'autonameow=autonameow.core.main:cli_main',
-            'meowxtract=autonameow:extractors:extract:cli_main',
+            'autonameow=main:cli_main',
+            'meowxtract=extract:cli_main',
         ]
     }
 )
