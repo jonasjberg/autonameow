@@ -83,6 +83,10 @@ def request_global_data(fileobject, uri_string):
     # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
     response = provider.query(fileobject, uri)
     if response:
+        if isinstance(response, list):
+            # TODO: [cleanup] This method is currently only used once?
+            # TODO: Currently only called by 'request_any_textual_content()'
+            return [r.value for r in response]
         return response.value
     return None
 

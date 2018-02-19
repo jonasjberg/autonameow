@@ -169,22 +169,21 @@ class BaseAnalyzer(object):
 
     def request_any_textual_content(self):
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-        _response = self.request_data(self.fileobject,
-                                      'generic.contents.text')
-        if not _response:
+        response = self.request_data(self.fileobject, 'generic.contents.text')
+        if not response:
             return None
 
         text = None
-        if isinstance(_response, list):
-            for _r in _response:
-                sanity.check_isinstance(_r, str)
-                if _r:
-                    text = _r
+        if isinstance(response, list):
+            for r in response:
+                sanity.check_isinstance(r, str)
+                if r:
+                    text = r
                     break
         else:
-            sanity.check_isinstance(_response, str)
-            if _response:
-                text = _response
+            sanity.check_isinstance(response, str)
+            if response:
+                text = response
 
         if text is None:
             self.log.info('Requested data unavailable: "generic.contents.text"')
