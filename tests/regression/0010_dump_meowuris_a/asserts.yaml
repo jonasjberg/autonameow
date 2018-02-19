@@ -4,7 +4,6 @@ stdout:
     - 'analyzer.document'
     - 'analyzer.ebook'
     - 'analyzer.filename'
-    - 'analyzer.text'
     - 'extractor.filesystem.filetags'
     - 'extractor.filesystem.xplat'
     - 'extractor.text.plain'
