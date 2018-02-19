@@ -391,6 +391,7 @@ class Autonameow(object):
 def check_option_combinations(options):
     opts = dict(options)
 
+    # TODO: [cleanup] This is pretty messy ..
     # Check legality of option combinations.
     if opts.get('mode_automagic') and opts.get('mode_interactive'):
         log.warning('Operating mode must be either one of "automagic" or '

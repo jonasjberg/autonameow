@@ -137,9 +137,12 @@ def run_guessit(input_data, options=None):
     assert guessit, 'Missing required module "guessit"'
 
     if options:
-        guessit_options = options
+        guessit_options = dict(options)
     else:
-        guessit_options = {'no-embedded-config': True, 'name_only': True}
+        guessit_options = {
+            'no-embedded-config': True,
+            'name_only': True
+        }
 
     logging.disable(logging.DEBUG)
     try:

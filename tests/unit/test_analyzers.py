@@ -181,5 +181,4 @@ class TestAnalyzerClassMeowURIs(TestCase):
             if klass in self.analyzer_class_names:
                 self.assertIn(member, self.actual)
 
-        _conditional_assert_in('EbookAnalyzer',
-                               'analyzer.ebook')
+        _conditional_assert_in('EbookAnalyzer', 'analyzer.ebook')
