@@ -24,11 +24,13 @@ critical `TODO`-list item.
 >     * `libmagic`
 >     * `exiftool`
 >     * `tesseract`
+>     * `pandoc`
 >     * `pdftotext`
 >     * `unrtf`
 >
 > 2. Install these Python modules:
 >
+>     * `bs4`
 >     * `chardet`
 >     * `colorama`
 >     * `unidecode`
@@ -111,9 +113,9 @@ install the non-Python dependencies.
 
 Install the dependencies by running the following commands in a terminal:
 ```bash
-brew install libmagic exiftool tesseract unrtf
+brew install libmagic exiftool tesseract unrtf pandoc
 brew install poppler # pdftotext
-pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml
+pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4
 ```
 
 You might also want to install additional __optional__ third-party components:
@@ -125,8 +127,8 @@ pip3 install guessit ebooklib
 Install the dependencies by running the following commands in a terminal:
 
 ```bash
-sudo apt install exiftool tesseract-ocr pdftotext unrtf
-pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml
+sudo apt install exiftool tesseract-ocr pdftotext unrtf pandoc
+pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4
 ```
 
 Alternatively, search the repositories for the packages with `apt-search`.
