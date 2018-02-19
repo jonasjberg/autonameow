@@ -70,15 +70,22 @@ class FilenamePostprocessor(object):
 
     @staticmethod
     def _do_replacements(filename, replacements):
+        matches = list()
         for regex, replacement in replacements:
-            _match = re.search(regex, filename)
-            if _match:
-                log.debug('Applying custom replacement. Regex: "{!s}" '
-                          'Replacement: "{!s}"'.format(regex, replacement))
-                # TODO: [TD0171] Separate logic from user interface.
-                view.msg_replacement(filename, replacement, regex)
+            match = re.search(regex, filename)
+            if match:
+                matches.append((regex, replacement))
 
-                filename = re.sub(regex, replacement, filename)
+        sorted_by_longest_replacement = sorted(
+            matches, key=lambda x: len(x[1]), reverse=True
+        )
+        for regex, replacement in sorted_by_longest_replacement:
+            log.debug('Applying custom replacement. Regex: "{!s}" '
+                      'Replacement: "{!s}"'.format(regex, replacement))
+            # TODO: [TD0171] Separate logic from user interface.
+            view.msg_replacement(filename, replacement, regex)
+
+            filename = re.sub(regex, replacement, filename)
         return filename
 
     @staticmethod
