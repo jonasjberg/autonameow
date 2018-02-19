@@ -20,6 +20,9 @@ University mail: `js224eh[a]student.lnu.se`
 > * `[TD0169]` Remove or re-implement the `ImageAnalyzer`.
 >
 > * `[TD0168]` Remove or re-implement the `TextAnalyzer`.
+>
+> * `[TD0028]` __E-books epub/mobi__
+>     * Extract metadata fields. Look into using `calibre`.
 
 ### 2018-02-15
 
