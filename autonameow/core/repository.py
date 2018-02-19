@@ -248,6 +248,11 @@ class Repository(object):
             return [DataBundle.from_dict(d) for d in data]
         return DataBundle.from_dict(data)
 
+    def remove(self, fileobject):
+        # TODO: [TD0131] Limit repository size! Do not remove everything!
+        # TODO: [TD0131] Keep all but very bulky data like extracted text.
+        self.data.pop(fileobject)
+
     def __get_data(self, fileobject, meowuri):
         if fileobject in self.data:
             return self.data[fileobject].get(meowuri)

@@ -317,12 +317,12 @@ class Autonameow(object):
                 log.error('Rename FAILED: {!s}'.format(e))
 
             # TODO: [TD0131] Hack!
-            # _repositorysize = sys.getsizeof(repository.SessionRepository)
             results_to_list.append(str(repository.SessionRepository))
 
-            # TODO: [TD0131] Limit repository size!
+            # TODO: [TD0131] Limit repository size! Do not remove everything!
+            # TODO: [TD0131] Keep all but very bulky data like extracted text.
             if current_file in repository.SessionRepository.data:
-                repository.SessionRepository.data.pop(current_file)
+                repository.SessionRepository.remove(current_file)
 
         if self.opts.get('list_all'):
             log.info('Listing session repository contents ..')
