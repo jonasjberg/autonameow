@@ -214,11 +214,7 @@ class MasterDataProvider(object):
 
     def _query_repository(self, fileobject, meowuri):
         self.debug_stats[fileobject][meowuri]['repository_queries'] += 1
-        _repo_data = repository.SessionRepository.query(fileobject, meowuri)
-        if _repo_data:
-            return _repo_data
-
-        return None
+        return repository.SessionRepository.query(fileobject, meowuri)
 
     def _print_debug_stats(self):
         if not __debug__:
