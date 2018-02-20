@@ -43,15 +43,12 @@ setup(
     maintainer=projectmeta['__author__'],
     maintainer_email=projectmeta['__email__'],
     description='Automagic File Renamer',
-    keywords='automagic filename management pim rename',
+    keywords='automagic filename management metadata pim rename',
     url=projectmeta['__url_repo__'],
     license=projectmeta['__license__'],
     packages=find_packages(exclude=['unit']),
-    package_dir={'': 'autonameow'},
-    package_data={
-        'metadata': 'pandoc_template.plain'
-    },
-    # python_requires='~=3.5',
+    include_package_data=True,
+    python_requires='>=3.5',
     install_requires=[
         'beautifulsoup4==4.4.1',
         'colorama==0.3.7',
@@ -72,6 +69,7 @@ setup(
         'Environment :: Console',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Natural Language :: English',
         'Operating System :: MacOS',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3 :: Only',
@@ -83,8 +81,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'autonameow=main:cli_main',
-            'meowxtract=extract:cli_main',
+            'autonameow = main:cli_main',
+            'meowxtract = extract:cli_main',
         ]
     }
 )

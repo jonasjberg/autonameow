@@ -1,3 +1,4 @@
 include CHANGES.txt
 include LICENSE.txt
 include README.md
+include autonameow/extractors/metadata/pandoc_template.plain
