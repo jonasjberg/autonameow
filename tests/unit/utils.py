@@ -304,6 +304,8 @@ MOCK_SESSION_DATA_POOLS = dict()
 
 
 def mock_request_data_callback(fileobject, label):
+    # TODO: This does not behave as the "mocked" systems.
+    # TODO: Integrate successful/failed query response objects.
     global MOCK_SESSION_DATA_POOLS
 
     cached_data = MOCK_SESSION_DATA_POOLS.get(fileobject)
