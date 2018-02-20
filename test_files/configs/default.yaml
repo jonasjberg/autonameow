@@ -40,7 +40,7 @@ POST_PROCESSING:
 RULES:
     Sample Entry for E-books:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.extension: (pdf|mobi)
+            extractor.filesystem.xplat.extension: (pdf|mobi)
             extractor.filesystem.xplat.contents.mime_type:
             - application/epub+zip
             - image/vnd.djvu
@@ -62,7 +62,7 @@ RULES:
         ranking_bias: 0.1
     Sample Entry for Photos with strict rules:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.extension: jpg
+            extractor.filesystem.xplat.extension: jpg
             extractor.filesystem.xplat.basename.full: DCIM*
             extractor.filesystem.xplat.contents.mime_type: image/jpeg
             extractor.filesystem.xplat.pathname.full: ~/Pictures/incoming
@@ -72,19 +72,19 @@ RULES:
             - extractor.metadata.exiftool.EXIF:DateTimeDigitized
             - extractor.metadata.exiftool.EXIF:CreateDate
             description: plugin.microsoft_vision.caption
-            extension: extractor.filesystem.xplat.basename.extension
+            extension: extractor.filesystem.xplat.extension
             tags: plugin.microsoft_vision.tags
         NAME_TEMPLATE: '{datetime} {description} -- {tags}.{extension}'
         exact_match: true
         ranking_bias: 1
     test_files Gmail print-to-pdf:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.extension: pdf
+            extractor.filesystem.xplat.extension: pdf
             extractor.filesystem.xplat.basename.full: gmail.pdf
             extractor.filesystem.xplat.contents.mime_type: application/pdf
         DATA_SOURCES:
             datetime: extractor.metadata.exiftool.PDF:CreateDate
-            extension: extractor.filesystem.xplat.basename.extension
+            extension: extractor.filesystem.xplat.extension
             title: extractor.filesystem.xplat.basename.prefix
         NAME_TEMPLATE: '{datetime} {title}.{extension}'
         exact_match: true
@@ -93,7 +93,7 @@ RULES:
         CONDITIONS:
             extractor.filesystem.xplat.basename.full: simplest_pdf.md.pdf
         DATA_SOURCES:
-            extension: extractor.filesystem.xplat.basename.extension
+            extension: extractor.filesystem.xplat.extension
         NAME_TEMPLATE: simplest_pdf.md.{extension}
         exact_match: true
         ranking_bias: 1
@@ -104,7 +104,7 @@ RULES:
         DATA_SOURCES:
             datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
             description: plugin.microsoft_vision.caption
-            extension: extractor.filesystem.xplat.basename.extension
+            extension: extractor.filesystem.xplat.extension
         NAME_TEMPLATE: '{datetime} {description}.{extension}'
         exact_match: true
         ranking_bias: 1

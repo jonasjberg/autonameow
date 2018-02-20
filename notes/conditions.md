@@ -201,7 +201,7 @@ Current format for a file rule in the configuration file:
     DATA_SOURCES:
         datetime: metadata.exiftool.EXIF:DateTimeOriginal
         description: plugin.microsoft_vision.caption
-        extension: filesystem.basename.extension
+        extension: filesystem.extension
     NAME_TEMPLATE: '{datetime} {description}.{extension}'
     description: test_files smulan.jpg
     exact_match: true
@@ -245,7 +245,7 @@ Possible new format for a file rule in the configuration file:
     DATA_SOURCES:
         datetime: metadata.exiftool.EXIF:DateTimeOriginal
         description: plugin.microsoft_vision.caption
-        extension: filesystem.basename.extension
+        extension: filesystem.extension
     NAME_TEMPLATE: '{datetime} {description}.{extension}'
     description: Photos taken between 2017-05-04 and 2017-06-27
     exact_match: true
