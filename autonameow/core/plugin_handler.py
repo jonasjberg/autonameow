@@ -146,6 +146,11 @@ def request_global_data(fileobject, uri_string):
     # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
     response = provider.request(fileobject, uri)
     if response:
+        if isinstance(response, list):
+            raise NotImplementedError(
+                'TODO: [TD0175] Handle requesting exactly one or possibly many'
+            )
+        # TODO: Integrate successful/failed query response objects.
         return response.value
     return None
 
