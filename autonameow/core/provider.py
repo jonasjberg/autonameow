@@ -161,7 +161,7 @@ class MasterDataProvider(object):
             fileobject.hash_partial))
         self.provider_runner.delegate_every_possible_meowuri(fileobject)
 
-    def query(self, fileobject, meowuri):
+    def request(self, fileobject, meowuri):
         """
         Highest-level retrieval mechanism for data related to a file.
 
@@ -242,9 +242,9 @@ def initialize(active_config):
     _MASTER_DATA_PROVIDER = MasterDataProvider(active_config)
 
 
-def query(fileobject, meowuri):
+def request(fileobject, meowuri):
     sanity.check_isinstance_meowuri(meowuri)
-    return _MASTER_DATA_PROVIDER.query(fileobject, meowuri)
+    return _MASTER_DATA_PROVIDER.request(fileobject, meowuri)
 
 
 def delegate_every_possible_meowuri(fileobject):

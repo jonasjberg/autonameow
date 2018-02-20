@@ -328,7 +328,7 @@ class TemplateFieldDataResolver(object):
 
         # Pass a "tie-breaker" to resolve cases where we only want one item?
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-        response = provider.query(fileobject, meowuri)
+        response = provider.request(fileobject, meowuri)
         if response:
             return response
         log.debug('Resolver got no data.. {!s}'.format(response))
