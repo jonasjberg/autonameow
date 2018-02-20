@@ -44,7 +44,7 @@ class RuleMatcher(object):
         sanity.check_isinstance_meowuri(meowuri)
 
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-        response = provider.query(fileobject, meowuri)
+        response = provider.request(fileobject, meowuri)
         if response:
             # TODO: Integrate successful/failed query response objects.
             return response.value

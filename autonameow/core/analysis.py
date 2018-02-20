@@ -83,7 +83,7 @@ def request_global_data(fileobject, uri_string):
 
     # Pass a "tie-breaker" to resolve cases where we only want one item?
     # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-    response = provider.query(fileobject, uri)
+    response = provider.request(fileobject, uri)
     if response:
         if isinstance(response, list):
             # TODO: [cleanup] This method is currently only used once?
