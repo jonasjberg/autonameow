@@ -195,7 +195,7 @@ def flatten_dict(d, parent_key='', sep='.'):
     Returns:
         A flattened dictionary with nested keys are joined by "sep".
     """
-    if not isinstance(d, (dict, list)):
+    if not isinstance(d, dict):
         raise TypeError
 
     items = []
