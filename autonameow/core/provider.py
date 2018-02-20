@@ -185,6 +185,11 @@ class MasterDataProvider(object):
         # TODO: Provide means of toggling on/off or remove.
         # self._print_debug_stats()
 
+        if __debug__:
+            log.debug('Got request [{:8.8}]->[{!s}]'.format(
+                fileobject.hash_partial, meowuri
+            ))
+
         # First try the repository for previously gathered data
         response = self._query_repository(fileobject, meowuri)
         if response:
