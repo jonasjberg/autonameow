@@ -139,7 +139,7 @@ files.
     ```yaml
     RULES:
     -   DATA_SOURCES:
-            extension: contents.basename.extension
+            extension: contents.extension
             datetime: analysis.filename.{?????}
             title: filesystem.basename.prefix
         NAME_TEMPLATE: "{datetime} {title}.{extension}"
@@ -330,7 +330,7 @@ SessionRepository.data = {
     'metadata.pypdf.Paginated': True,
     'contents.textual.raw_text': '''1/11/2016 Gmail - .. TRUNCATED to 500/1981 characters)''',
     'filesystem.basename.full': 'gmail.pdf',
-    'filesystem.basename.extension': 'pdf',
+    'filesystem.extension': 'pdf',
     'filesystem.basename.suffix': 'pdf',
     'filesystem.basename.prefix': 'gmail',
     'filesystem.pathname.full': '/Users/jonas/PycharmProjects/autonameow.git/test_files',
@@ -354,7 +354,7 @@ SessionRepository.data = {
 | `'contents.textual.raw_text'`                   | `'''1/11/2016 Gmail - .. TRUNCATED to 500/1981 characters)'''`       | ?                                                  |
 | `'filesystem.abspath.full'`                     | `'/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf'` | ?                                                  |
 | `'filesystem.basename.full'`                    | `'gmail.pdf'`                                                        | ?                                                  |
-| `'filesystem.basename.extension'`               | `'pdf'`                                                              | `{extension}`                                      |
+| `'filesystem.extension'`                        | `'pdf'`                                                              | `{extension}`                                      |
 | `'filesystem.basename.suffix'`                  | `'pdf'`                                                              | `{extension}`                                      |
 | `'filesystem.basename.prefix'`                  | `'gmail'`                                                            | ?                                                  |
 | `'filesystem.pathname.full'`                    | `'/Users/jonas/PycharmProjects/autonameow.git/test_files'`           | ?                                                  |
@@ -665,11 +665,11 @@ these sources could possibly provide relevant evidence:
 
 * Check the extension provided by the related `FileObject` (if any):
     ```python
-	>>> f = FileObject(b'/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt')
-	>>> f
-	<FileObject("/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt")>
-	>>> f.basename_suffix
-	b'txt'
+    >>> f = FileObject(b'/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt')
+    >>> f
+    <FileObject("/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt")>
+    >>> f.basename_suffix
+    b'txt'
     ```
 
 Then add weights to the results of the evidence and calculate a __total

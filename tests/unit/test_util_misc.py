@@ -44,44 +44,44 @@ import unit.utils as uu
 
 
 DUMMY_RESULTS_DICT = {
-    'filesystem': {
-        'basename': {
-            'full': 'a',
-            'extension': 'b'
+    'A': {
+        'A1': {
+            'A1A': 'a',
+            'A1B': 'b'
         },
-        'pathname': {
-            'full': 'c',
+        'A2': {
+            'A2A': 'c',
         },
-        'contents': {
-            'mime_type': 'd'
+        'A3': {
+            'A3A': 'd'
         }
     },
-    'contents': {
-        'textual': {
-            'raw_text': 'e',
-            'number_pages': 'f',
+    'B': {
+        'B1': {
+            'B1A': 'e',
+            'B1B': 'f',
         },
-        'visual': {
-            'ocr_text': 'g',
-            'ocr_tags': 'h'},
-        'binary': {
-            'boolean_true': True,
-            'boolean_false': False
+        'B2': {
+            'B2A': 'g',
+            'B2B': 'h'},
+        'B3': {
+            'B3A': True,
+            'B3B': False
         }
     },
 }
 
 DUMMY_FLATTENED_RESULTS_DICT = {
-    'filesystem.basename.full': 'a',
-    'filesystem.basename.extension': 'b',
-    'filesystem.pathname.full': 'c',
-    'filesystem.contents.mime_type': 'd',
-    'contents.textual.raw_text': 'e',
-    'contents.textual.number_pages': 'f',
-    'contents.visual.ocr_text': 'g',
-    'contents.visual.ocr_tags': 'h',
-    'contents.binary.boolean_true': True,
-    'contents.binary.boolean_false': False,
+    'A.A1.A1A': 'a',
+    'A.A1.A1B': 'b',
+    'A.A2.A2A': 'c',
+    'A.A3.A3A': 'd',
+    'B.B1.B1A': 'e',
+    'B.B1.B1B': 'f',
+    'B.B2.B2A': 'g',
+    'B.B2.B2B': 'h',
+    'B.B3.B3A': True,
+    'B.B3.B3B': False,
 }
 
 
@@ -212,7 +212,7 @@ class TestFlattenDictWithRawMetadata(TestCase):
                 'ModDate': '2016-01-11 12:41:32',
                 'Producer': 'Skia/PDF',
                 'encrypted': False,
-                'number_pages': 2,
+                'B1B': 2,
                 'paginated': True
             }
         }
@@ -222,7 +222,7 @@ class TestFlattenDictWithRawMetadata(TestCase):
             '_raw_metadata.ModDate': '2016-01-11 12:41:32',
             '_raw_metadata.Producer': 'Skia/PDF',
             '_raw_metadata.encrypted': False,
-            '_raw_metadata.number_pages': 2,
+            '_raw_metadata.B1B': 2,
             '_raw_metadata.paginated': True,
         }
 
@@ -323,39 +323,39 @@ class TestExpandMeowURIDataDict(TestCase):
 
     def test_expanded_dict_contain_expected_first_level(self):
         actual = expand_meowuri_data_dict(self.INPUT)
-        self.assertIn('filesystem', actual)
-        self.assertIn('contents', actual)
+        self.assertIn('A', actual)
+        self.assertIn('B', actual)
 
     def test_expanded_dict_contain_expected_second_level(self):
         actual = expand_meowuri_data_dict(self.INPUT)
-        actual_filesystem = actual.get('filesystem')
-        actual_contents = actual.get('contents')
+        actual_A = actual.get('A')
+        actual_contents = actual.get('B')
 
-        self.assertIn('basename', actual_filesystem)
-        self.assertIn('pathname', actual_filesystem)
-        self.assertIn('contents', actual_filesystem)
-        self.assertIn('textual', actual_contents)
-        self.assertIn('visual', actual_contents)
-        self.assertIn('binary', actual_contents)
+        self.assertIn('A1', actual_A)
+        self.assertIn('A2', actual_A)
+        self.assertIn('A3', actual_A)
+        self.assertIn('B1', actual_contents)
+        self.assertIn('B2', actual_contents)
+        self.assertIn('B3', actual_contents)
 
 
 class TestNestedDictGet(TestCase):
     def test_get_nested_value_returns_expected(self):
-        key_list = ['filesystem', 'contents', 'mime_type']
+        key_list = ['A', 'A3', 'A3A']
         actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)
         self.assertEqual(actual, 'd')
 
     def test_get_nested_values_returns_expected(self):
-        keys_expected = [(['filesystem', 'contents', 'mime_type'], 'd'),
-                         (['filesystem', 'basename', 'full'], 'a'),
-                         (['filesystem', 'basename', 'extension'], 'b'),
-                         (['filesystem', 'pathname', 'full'], 'c'),
-                         (['contents', 'textual', 'raw_text'], 'e'),
-                         (['contents', 'textual', 'number_pages'], 'f'),
-                         (['contents', 'visual', 'ocr_text'], 'g'),
-                         (['contents', 'visual', 'ocr_tags'], 'h'),
-                         (['contents', 'binary', 'boolean_true'], True),
-                         (['contents', 'binary', 'boolean_false'], False)]
+        keys_expected = [(['A', 'A3', 'A3A'], 'd'),
+                         (['A', 'A1', 'A1A'], 'a'),
+                         (['A', 'A1', 'A1B'], 'b'),
+                         (['A', 'A2', 'A2A'], 'c'),
+                         (['B', 'B1', 'B1A'], 'e'),
+                         (['B', 'B1', 'B1B'], 'f'),
+                         (['B', 'B2', 'B2A'], 'g'),
+                         (['B', 'B2', 'B2B'], 'h'),
+                         (['B', 'B3', 'B3A'], True),
+                         (['B', 'B3', 'B3B'], False)]
 
         for key_list, expected in keys_expected:
             actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)

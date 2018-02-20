@@ -40,7 +40,7 @@ POST_PROCESSING:
 RULES:
     Sample Entry for E-books:
         - CONDITIONS:
-            extractor.filesystem.xplat.basename.extension: (pdf|mobi)
+            extractor.filesystem.xplat.extension: (pdf|mobi)
             extractor.filesystem.xplat.contents.mime_type:
             - application/epub+zip
             - image/vnd.djvu
