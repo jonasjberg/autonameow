@@ -69,7 +69,7 @@ MEOWURI_FS_FILETAGS_TAGS = 'extractor.filesystem.filetags.tags'
 
 MEOWURI_FS_XPLAT_MIMETYPE = 'extractor.filesystem.xplat.contents.mime_type'
 MEOWURI_FS_XPLAT_ABSPATH_FULL = 'extractor.filesystem.xplat.abspath.full'
-MEOWURI_FS_XPLAT_BASENAME_EXT = 'extractor.filesystem.xplat.basename.extension'
+MEOWURI_FS_XPLAT_EXTENSION = 'extractor.filesystem.xplat.extension'
 MEOWURI_FS_XPLAT_BASENAME_FULL = 'extractor.filesystem.xplat.basename.full'
 MEOWURI_FS_XPLAT_BASENAME_PREFIX = 'extractor.filesystem.xplat.basename.prefix'
 MEOWURI_FS_XPLAT_BASENAME_SUFFIX = 'extractor.filesystem.xplat.basename.suffix'
@@ -117,7 +117,7 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_FS_FILETAGS_TAGS,
     MEOWURI_FS_XPLAT_MIMETYPE,
     MEOWURI_FS_XPLAT_ABSPATH_FULL,
-    MEOWURI_FS_XPLAT_BASENAME_EXT,
+    MEOWURI_FS_XPLAT_EXTENSION,
     MEOWURI_FS_XPLAT_BASENAME_FULL,
     MEOWURI_FS_XPLAT_BASENAME_PREFIX,
     MEOWURI_FS_XPLAT_BASENAME_SUFFIX,
@@ -151,6 +151,7 @@ ALL_FULL_MEOWURIS = frozenset([
 ])
 
 # Collected 2018-02-03 when running autonameow on all files in 'test_files'.
+# Modified 2018-02-20 with changes to CrossPlatformFileSystemExtractor leaves.
 DUMPED_MEOWURIS = frozenset([
     'analyzer.document.publisher',
     'analyzer.document.title',
@@ -168,7 +169,7 @@ DUMPED_MEOWURIS = frozenset([
     # 'analyzer.filetags.extension',  This is an extractor now
     # 'analyzer.filetags.follows_filetags_convention',  This is an extractor now
     'extractor.filesystem.xplat.abspath.full',
-    'extractor.filesystem.xplat.basename.extension',
+    'extractor.filesystem.xplat.extension',
     'extractor.filesystem.xplat.basename.full',
     'extractor.filesystem.xplat.basename.prefix',
     'extractor.filesystem.xplat.basename.suffix',
@@ -237,19 +238,19 @@ DUMMY_MAPPED_MEOWURIS = list({
 # Constants used to construct dummy/mock test fixtures.
 DUMMY_RAW_RULE_CONDITIONS = [
     (MEOWURI_GEN_CONTENTS_MIMETYPE, 'application/pdf'),
-    (MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf'),
+    (MEOWURI_FS_XPLAT_EXTENSION, 'pdf'),
     (MEOWURI_FS_XPLAT_BASENAME_FULL, 'gmail.pdf'),
 
     (MEOWURI_FS_XPLAT_BASENAME_FULL, 'smulan.jpg'),
 
     (MEOWURI_GEN_CONTENTS_MIMETYPE, 'image/jpeg'),
-    (MEOWURI_FS_XPLAT_BASENAME_EXT, 'jpg'),
+    (MEOWURI_FS_XPLAT_EXTENSION, 'jpg'),
     (MEOWURI_FS_XPLAT_BASENAME_FULL, 'DCIM*'),
     (MEOWURI_FS_XPLAT_PATHNAME_FULL, '~/Pictures/incoming'),
     (MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL, 'Defined'),
 
     (MEOWURI_GEN_CONTENTS_MIMETYPE, 'application/epub+zip'),
-    (MEOWURI_FS_XPLAT_BASENAME_EXT, 'epub'),
+    (MEOWURI_FS_XPLAT_EXTENSION, 'epub'),
     (MEOWURI_FS_XPLAT_BASENAME_FULL, '.*'),
     (MEOWURI_FS_XPLAT_PATHNAME_FULL, '.*'),
     (MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR, 'Defined'),
@@ -259,13 +260,13 @@ DUMMY_RAW_RULE_CONDITIONS = [
 DUMMY_RAW_RULE_DATA_SOURCES = [
     # Part of Rule 1
     {'datetime': MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
-     'extension': MEOWURI_FS_XPLAT_BASENAME_EXT,
+     'extension': MEOWURI_FS_XPLAT_EXTENSION,
      'title': MEOWURI_FS_XPLAT_BASENAME_PREFIX},
 
     # Part of Rule 2
     {'datetime': MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
      'description': MEOWURI_PLU_MSVISION_CAPTION,
-     'extension': MEOWURI_FS_XPLAT_BASENAME_EXT},
+     'extension': MEOWURI_FS_XPLAT_EXTENSION},
 
     # Part of Rule 3
     {'datetime': [
@@ -273,12 +274,12 @@ DUMMY_RAW_RULE_DATA_SOURCES = [
         MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL
      ],
      'description': MEOWURI_PLU_MSVISION_CAPTION,
-     'extension': MEOWURI_FS_XPLAT_BASENAME_EXT},
+     'extension': MEOWURI_FS_XPLAT_EXTENSION},
 
     # Part of Rule 4
     {'author': MEOWURI_EXT_EXIFTOOL_XMPDCCREATORFILEAS,
      'datetime': MEOWURI_EXT_EXIFTOOL_XMPDCDATE,
-     'extension': MEOWURI_FS_XPLAT_BASENAME_EXT,
+     'extension': MEOWURI_FS_XPLAT_EXTENSION,
      'publisher': MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER,
      'title': MEOWURI_EXT_EXIFTOOL_XMPDCTITLE},
 ]

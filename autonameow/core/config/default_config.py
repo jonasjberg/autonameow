@@ -25,7 +25,7 @@ from core import constants as C
 # ALL_CONDITIONS_FIELDS
 # =====================
 # 'extractor.filesystem.xplat.basename.full'        Regular expression
-# 'extractor.filesystem.xplat.basename.extension'   Regular expression
+# 'extractor.filesystem.xplat.extension'            Regular expression
 # 'extractor.filesystem.xplat.pathname.full'        Regular expression
 # 'extractor.filesystem.xplat.date_accessed'        Python "datetime" format
 # 'extractor.filesystem.xplat.date_created'         Python "datetime" format
@@ -65,13 +65,13 @@ DEFAULT_CONFIG = {
             'NAME_TEMPLATE': '{datetime} {title}.{extension}',
             'CONDITIONS': {
                 'extractor.filesystem.xplat.basename.full': 'gmail.pdf',
-                'extractor.filesystem.xplat.basename.extension': 'pdf',
+                'extractor.filesystem.xplat.extension': 'pdf',
                 'extractor.filesystem.xplat.contents.mime_type': 'application/pdf',
             },
             'DATA_SOURCES': {
                 'datetime': 'extractor.metadata.exiftool.PDF:CreateDate',
                 'title': 'extractor.filesystem.xplat.basename.prefix',
-                'extension': 'extractor.filesystem.xplat.basename.extension'
+                'extension': 'extractor.filesystem.xplat.extension'
             }
         },
         # ____________________________________________________________________
@@ -86,7 +86,7 @@ DEFAULT_CONFIG = {
             'DATA_SOURCES': {
                 'datetime': 'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
                 'description': 'plugin.microsoft_vision.caption',
-                'extension': 'extractor.filesystem.xplat.basename.extension'
+                'extension': 'extractor.filesystem.xplat.extension'
             }
         },
         # ____________________________________________________________________
@@ -98,7 +98,7 @@ DEFAULT_CONFIG = {
                 'extractor.filesystem.xplat.basename.full': 'simplest_pdf.md.pdf',
             },
             'DATA_SOURCES': {
-                'extension': 'extractor.filesystem.xplat.basename.extension'
+                'extension': 'extractor.filesystem.xplat.extension'
             }
         },
         # ____________________________________________________________________
@@ -109,7 +109,7 @@ DEFAULT_CONFIG = {
             'CONDITIONS': {
                 'extractor.filesystem.xplat.pathname.full': '~/Pictures/incoming',
                 'extractor.filesystem.xplat.basename.full': 'DCIM*',
-                'extractor.filesystem.xplat.basename.extension': 'jpg',
+                'extractor.filesystem.xplat.extension': 'jpg',
                 'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
             },
             'DATA_SOURCES': {
@@ -119,7 +119,7 @@ DEFAULT_CONFIG = {
                     'extractor.metadata.exiftool.EXIF:CreateDate'
                 ],
                 'description': 'plugin.microsoft_vision.caption',
-                'extension': 'extractor.filesystem.xplat.basename.extension',
+                'extension': 'extractor.filesystem.xplat.extension',
                 'tags': 'plugin.microsoft_vision.tags'
             }
         },
@@ -135,7 +135,7 @@ DEFAULT_CONFIG = {
                     'application/pdf',
                     'application/octet-stream',
                 ],
-                'extractor.filesystem.xplat.basename.extension': '(pdf|mobi)',
+                'extractor.filesystem.xplat.extension': '(pdf|mobi)',
             },
             'DATA_SOURCES': {
                 'author': 'analyzer.ebook.author',

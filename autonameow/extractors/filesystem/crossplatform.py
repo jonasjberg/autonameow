@@ -39,7 +39,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             'coercer': types.AW_PATHCOMPONENT,
             'multivalued': False
         },
-        'basename.extension': {
+        'extension': {
             'coercer': types.AW_PATHCOMPONENT,
             'multivalued': False,
             'mapped_fields': [
@@ -106,7 +106,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         _datasources = [
             ('abspath.full', fileobject.abspath),
             ('basename.full', fileobject.filename),
-            ('basename.extension', fileobject.basename_suffix),
+            ('extension', fileobject.basename_suffix),
             ('basename.suffix', fileobject.basename_suffix),
             ('basename.prefix', fileobject.basename_prefix),
             ('pathname.full', fileobject.pathname),

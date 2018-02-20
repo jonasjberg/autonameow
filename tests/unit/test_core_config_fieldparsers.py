@@ -539,7 +539,7 @@ class TestSuitableFieldParserFor(TestCase):
         self.__expect_parser_for('RegexConfigFieldParser',
                                  uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
         self.__expect_parser_for('RegexConfigFieldParser',
-                                 uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
+                                 uuconst.MEOWURI_FS_XPLAT_EXTENSION)
         self.__expect_parser_for('RegexConfigFieldParser',
                                  uuconst.MEOWURI_GEN_CONTENTS_TEXT)
         self.__expect_parser_for('DateTimeConfigFieldParser',
