@@ -102,6 +102,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         return out
 
     def _collect_from_fileobject(self, fileobject):
+        # TODO: [TD0176] Fix inconsistent multi-part leaves/keys.
         _datasources = [
             ('abspath.full', fileobject.abspath),
             ('basename.full', fileobject.filename),
