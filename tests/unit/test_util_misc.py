@@ -50,7 +50,7 @@ DUMMY_RESULTS_DICT = {
             'A1B': 'b'
         },
         'A2': {
-            'A2A': 'c',
+            'foo': 'c',
         },
         'A3': {
             'A3A': 'd'
@@ -59,7 +59,7 @@ DUMMY_RESULTS_DICT = {
     'B': {
         'B1': {
             'B1A': 'e',
-            'B1B': 'f',
+            'B1B': 'foo',
         },
         'B2': {
             'B2A': 'g',
@@ -74,10 +74,10 @@ DUMMY_RESULTS_DICT = {
 DUMMY_FLATTENED_RESULTS_DICT = {
     'A.A1.A1A': 'a',
     'A.A1.A1B': 'b',
-    'A.A2.A2A': 'c',
+    'A.A2.foo': 'c',
     'A.A3.A3A': 'd',
     'B.B1.B1A': 'e',
-    'B.B1.B1B': 'f',
+    'B.B1.B1B': 'foo',
     'B.B2.B2A': 'g',
     'B.B2.B2B': 'h',
     'B.B3.B3A': True,
@@ -110,29 +110,26 @@ class TestMultisetCount(TestCase):
     def test_list_duplicate_count_returns_none_for_none(self):
         self.assertIsNone(multiset_count(None))
 
+    def _check(self, given, expect):
+        self.assertEqual(expect, multiset_count(given))
+
     def test_list_duplicate_count_returns_expected_no_duplicates(self):
-        self.assertEqual(multiset_count(['a', 'b', 'c']),
-                         {'a': 1, 'b': 1, 'c': 1})
+        self._check(given=['a', 'b', 'c'], expect={'a': 1, 'b': 1, 'c': 1})
 
     def test_list_duplicate_count_returns_expected_one_duplicate(self):
-        self.assertEqual(multiset_count(['a', 'a', 'c']),
-                         {'a': 2, 'c': 1})
+        self._check(given=['a', 'a', 'c'], expect={'a': 2, 'c': 1})
 
     def test_list_duplicate_count_returns_expected_only_duplicates(self):
-        self.assertEqual(multiset_count(['a', 'a', 'a']),
-                         {'a': 3})
+        self._check(given=['a', 'a', 'a'], expect={'a': 3})
 
     def test_list_duplicate_count_returns_expected_no_duplicate_one_none(self):
-        self.assertEqual(multiset_count(['a', None, 'b']),
-                         {None: 1, 'a': 1, 'b': 1})
+        self._check(given=['a', None, 'b'], expect={None: 1, 'a': 1, 'b': 1})
 
     def test_list_duplicate_count_returns_expected_one_duplicate_one_none(self):
-        self.assertEqual(multiset_count(['b', None, 'b']),
-                         {None: 1, 'b': 2})
+        self._check(given=['b', None, 'b'], expect={None: 1, 'b': 2})
 
     def test_list_duplicate_count_returns_expected_no_duplicate_two_none(self):
-        self.assertEqual(multiset_count(['a', None, 'b', None]),
-                         {None: 2, 'a': 1, 'b': 1})
+        self._check(given=['a', None, 'b', None], expect={None: 2, 'a': 1, 'b': 1})
 
 
 class TestFlattenSequenceType(TestCase):
@@ -145,85 +142,83 @@ class TestFlattenSequenceType(TestCase):
         actual = flatten_sequence_type(['foo', 1])
         self.assertEqual(['foo', 1], actual)
 
+    def _check(self, given, expect):
+        actual = flatten_sequence_type(given)
+        self.assertEqual(expect, actual)
+
     def test_returns_flat_tuple_as_is(self):
-        actual = flatten_sequence_type(('foo', 1))
-        self.assertEqual(('foo', 1), actual)
+        self._check(given=('foo', 1),
+                    expect=('foo', 1))
 
     def test_flattens_nested_list(self):
-        actual = flatten_sequence_type(['foo', 1, [2, 3]])
-        self.assertEqual(['foo', 1, 2, 3], actual)
+        self._check(given=['foo', 1, [2, 3]],
+                    expect=['foo', 1, 2, 3])
 
     def test_flattens_nested_tuple(self):
-        actual = flatten_sequence_type(('foo', 1, (2, 3)))
-        self.assertEqual(('foo', 1, 2, 3), actual)
+        self._check(given=('foo', 1, (2, 3)),
+                    expect=('foo', 1, 2, 3))
 
     def test_flattens_list_nested_in_tuple(self):
-        actual = flatten_sequence_type(('foo', 1, [2, 3]))
-        self.assertEqual(('foo', 1, 2, 3), actual)
+        self._check(given=('foo', 1, [2, 3]),
+                    expect=('foo', 1, 2, 3))
 
     def test_flattens_tuple_nested_in_list(self):
-        actual = flatten_sequence_type(['foo', 1, (2, 3)])
-        self.assertEqual(['foo', 1, 2, 3], actual)
+        self._check(given=['foo', 1, (2, 3)],
+                    expect=['foo', 1, 2, 3])
 
     def test_flattens_multiple_nested_tuples(self):
-        actual = flatten_sequence_type(('foo', 1, (2, 3), (4, (5, 6, (7, 8)))))
-        self.assertEqual(('foo', 1, 2, 3, 4, 5, 6, 7, 8), actual)
+        self._check(given=('foo', 1, (2, 3), (4, (5, 6, (7, 8)))),
+                    expect=('foo', 1, 2, 3, 4, 5, 6, 7, 8))
 
     def test_flattens_multiple_nested_tuples_and_lists(self):
-        actual = flatten_sequence_type(('foo', 1, [2, 3], (4, [5, 6, (7, 8)])))
-        self.assertEqual(('foo', 1, 2, 3, 4, 5, 6, 7, 8), actual)
+        self._check(given=('foo', 1, [2, 3], (4, [5, 6, (7, 8)])),
+                    expect=('foo', 1, 2, 3, 4, 5, 6, 7, 8))
 
 
 class TestFlattenDict(TestCase):
     def setUp(self):
-        self.maxDiff = None
         self.INPUT = DUMMY_RESULTS_DICT
         self.EXPECTED = DUMMY_FLATTENED_RESULTS_DICT
 
     def test_raises_type_error_for_invalid_input(self):
-        with self.assertRaises(TypeError):
-            flatten_dict(None)
-            flatten_dict([])
-            flatten_dict('')
+        for bad_arg in (None, [], ''):
+            with self.subTest(given=bad_arg):
+                with self.assertRaises(TypeError):
+                    flatten_dict(bad_arg)
 
     def test_returns_expected_type(self):
-        actual = flatten_dict(self.INPUT)
-
-        self.assertIsInstance(actual, dict)
+        self.assertIsInstance(flatten_dict(self.INPUT), dict)
 
     def test_returns_expected_len(self):
-        actual = flatten_dict(self.INPUT)
-        self.assertEqual(len(actual), 10)
+        self.assertEqual(len(flatten_dict(self.INPUT)), 10)
 
     def test_flattened_dict_contains_expected(self):
         actual = flatten_dict(self.INPUT)
-
-        for k, v in self.EXPECTED.items():
-            self.assertEqual(actual[k], self.EXPECTED[k])
+        self.assertEqual(self.EXPECTED, actual)
 
 
 class TestFlattenDictWithRawMetadata(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.INPUT = {
-            '_raw_metadata': {
-                'CreationDate': '2016-01-11',
-                'Creator': 'Chromium',
-                'ModDate': '2016-01-11 12:41:32',
-                'Producer': 'Skia/PDF',
-                'encrypted': False,
-                'B1B': 2,
-                'paginated': True
+            'A': {
+                '1': 'A1a',
+                '2': 'A2b',
+                '3': 'A2c',
+                '4': 'A2d',
+                '5': False,
+                '6': 100,
+                '7': True
             }
         }
         self.EXPECTED = {
-            '_raw_metadata.CreationDate': '2016-01-11',
-            '_raw_metadata.Creator': 'Chromium',
-            '_raw_metadata.ModDate': '2016-01-11 12:41:32',
-            '_raw_metadata.Producer': 'Skia/PDF',
-            '_raw_metadata.encrypted': False,
-            '_raw_metadata.B1B': 2,
-            '_raw_metadata.paginated': True,
+            'A.1': 'A1a',
+            'A.2': 'A2b',
+            'A.3': 'A2c',
+            'A.4': 'A2d',
+            'A.5': False,
+            'A.6': 100,
+            'A.7': True,
         }
 
     def test_returns_expected_type(self):
@@ -236,9 +231,7 @@ class TestFlattenDictWithRawMetadata(TestCase):
 
     def test_flattened_dict_contains_expected(self):
         actual = flatten_dict(self.INPUT)
-
-        for k, v in self.EXPECTED.items():
-            self.assertEqual(actual[k], self.EXPECTED[k])
+        self.assertEqual(self.EXPECTED, actual)
 
 
 class TestCountDictRecursive(TestCase):
@@ -258,40 +251,40 @@ class TestCountDictRecursive(TestCase):
         self.assertEqual(count_dict_recursive({'foo': {'bar': {}}}), 0)
 
     def test_returns_zero_given_empty_containers(self):
-        def _assert_zero(test_data):
+        def _assert_zero_count(test_data):
             self.assertEqual(count_dict_recursive(test_data), 0)
 
-        _assert_zero({'a': []})
-        _assert_zero({'a': [[]]})
-        _assert_zero({'a': [None]})
-        _assert_zero({'a': [None, None]})
-        _assert_zero({'a': {'b': []}})
-        _assert_zero({'a': {'b': [[]]}})
-        _assert_zero({'a': {'b': [None]}})
-        _assert_zero({'a': {'b': [None, None]}})
-        _assert_zero({'a': {'b': {'c': []}}})
-        _assert_zero({'a': {'b': {'c': [[]]}}})
-        _assert_zero({'a': {'b': {'c': [None]}}})
-        _assert_zero({'a': {'b': {'c': [None, None]}}})
+        _assert_zero_count({'a': []})
+        _assert_zero_count({'a': [[]]})
+        _assert_zero_count({'a': [None]})
+        _assert_zero_count({'a': [None, None]})
+        _assert_zero_count({'a': {'b': []}})
+        _assert_zero_count({'a': {'b': [[]]}})
+        _assert_zero_count({'a': {'b': [None]}})
+        _assert_zero_count({'a': {'b': [None, None]}})
+        _assert_zero_count({'a': {'b': {'c': []}}})
+        _assert_zero_count({'a': {'b': {'c': [[]]}}})
+        _assert_zero_count({'a': {'b': {'c': [None]}}})
+        _assert_zero_count({'a': {'b': {'c': [None, None]}}})
 
     def test_returns_expected_count(self):
-        def _assert_count(test_data, expect_count):
-            self.assertEqual(count_dict_recursive(test_data), expect_count)
+        def _assert_count_is(expected, given):
+            self.assertEqual(expected, count_dict_recursive(given))
 
-        _assert_count({'a': 'foo'}, 1)
-        _assert_count({'a': 'foo', 'b': None}, 1)
-        _assert_count({'a': 'foo', 'b': []}, 1)
-        _assert_count({'a': 'foo', 'b': 'bar'}, 2)
-        _assert_count({'a': 'foo', 'b': ['bar']}, 2)
-        _assert_count({'a': 'foo', 'b': ['c', 'd']}, 3)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', None]}, 3)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', []]}, 3)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e']}, 4)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': None}, 4)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': []}, 4)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['']}, 4)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g']}, 5)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g', 'h']}, 6)
+        _assert_count_is(1, given={'a': 'foo'})
+        _assert_count_is(1, given={'a': 'foo', 'b': None})
+        _assert_count_is(1, given={'a': 'foo', 'b': []})
+        _assert_count_is(2, given={'a': 'foo', 'b': 'bar'})
+        _assert_count_is(2, given={'a': 'foo', 'b': ['bar']})
+        _assert_count_is(3, given={'a': 'foo', 'b': ['c', 'd']})
+        _assert_count_is(3, given={'a': 'foo', 'b': ['c', 'd', None]})
+        _assert_count_is(3, given={'a': 'foo', 'b': ['c', 'd', []]})
+        _assert_count_is(4, given={'a': 'foo', 'b': ['c', 'd', 'e']})
+        _assert_count_is(4, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': None})
+        _assert_count_is(4, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': []})
+        _assert_count_is(4, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['']})
+        _assert_count_is(5, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['g']})
+        _assert_count_is(6, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['g', 'h']})
 
 
 class TestExpandMeowURIDataDict(TestCase):
@@ -349,9 +342,9 @@ class TestNestedDictGet(TestCase):
         keys_expected = [(['A', 'A3', 'A3A'], 'd'),
                          (['A', 'A1', 'A1A'], 'a'),
                          (['A', 'A1', 'A1B'], 'b'),
-                         (['A', 'A2', 'A2A'], 'c'),
+                         (['A', 'A2', 'foo'], 'c'),
                          (['B', 'B1', 'B1A'], 'e'),
-                         (['B', 'B1', 'B1B'], 'f'),
+                         (['B', 'B1', 'B1B'], 'foo'),
                          (['B', 'B2', 'B2A'], 'g'),
                          (['B', 'B2', 'B2B'], 'h'),
                          (['B', 'B3', 'B3A'], True),
