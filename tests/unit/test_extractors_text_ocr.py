@@ -48,19 +48,14 @@ DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestTesseractOCRTextExtractor(CaseExtractorBasics):
-    __test__ = True
+class TestTesseractOCRTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = TesseractOCRTextExtractor
-
-    def test_method_str_returns_expected(self):
-        actual = str(self.extractor)
-        expect = 'TesseractOCRTextExtractor'
-        self.assertEqual(actual, expect)
+    EXTRACTOR_NAME = 'TesseractOCRTextExtractor'
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestTesseractOCRTextExtractorOutputTypes(CaseExtractorOutputTypes):
-    __test__ = True
+class TestTesseractOCRTextExtractorOutputTypes(CaseExtractorOutputTypes,
+                                               TestCase):
     EXTRACTOR_CLASS = TesseractOCRTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('2007-04-23_12-comments.png')
 
@@ -82,24 +77,22 @@ class TestTesseractOCRTextExtractorCanHandle(TestCase):
         self.assertFalse(self.e.can_handle(self.fo_pdf))
 
 
-# NOTE(jonas): Use a shared instance to maintain test execution speed.
-TEST_IMAGE_FILE = uu.fileobject_testfile('2007-04-23_12-comments.png')
-TEST_IMAGE_FILE_TEXT = 'Apr 23, 2007 - 12 Comments'
-image_ocr_extractor = TesseractOCRTextExtractor()
-
-
 class TestTesseractOCRTextExtractorWithImageFile(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.e = image_ocr_extractor
+    @classmethod
+    def setUpClass(cls):
+        cls.maxDiff = None
+        cls.e = TesseractOCRTextExtractor()
+        cls.TEST_IMAGE_FILE = uu.fileobject_testfile('2007-04-23_12-comments.png')
+        cls.TEST_IMAGE_FILE_TEXT = 'Apr 23, 2007 - 12 Comments'
 
     @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
     def test__get_raw_text_returns_expected_type(self):
-        self.assertTrue(uu.is_internalstring(self.e.extract_text(TEST_IMAGE_FILE)))
+        actual = self.e.extract_text(self.TEST_IMAGE_FILE)
+        self.assertTrue(uu.is_internalstring(actual))
 
     @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
     def test_method_extract_returns_expected_type(self):
-        actual = self.e.extract(TEST_IMAGE_FILE)
+        actual = self.e.extract(self.TEST_IMAGE_FILE)
         self.assertIsInstance(actual, dict)
 
     @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
@@ -107,8 +100,8 @@ class TestTesseractOCRTextExtractorWithImageFile(TestCase):
         self.skipTest(
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'"
         )
-        actual = self.e.extract(TEST_IMAGE_FILE)
-        self.assertEqual(actual['full'], TEST_IMAGE_FILE_TEXT)
+        actual = self.e.extract(self.TEST_IMAGE_FILE)
+        self.assertEqual(actual['full'], self.TEST_IMAGE_FILE_TEXT)
 
 
 @skipIf(*PIL_IS_NOT_AVAILABLE)

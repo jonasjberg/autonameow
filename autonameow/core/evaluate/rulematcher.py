@@ -24,7 +24,7 @@ from collections import namedtuple
 
 from core import (
     provider,
-    ui
+    view
 )
 from util import sanity
 
@@ -41,17 +41,13 @@ class RuleMatcher(object):
         self._list_rulematch = bool(list_rulematch)
 
     def request_data(self, fileobject, meowuri):
-        # TODO: [TD0133] Fix inconsistent use of MeowURIs
-        #       Stick to using either instances of 'MeowURI' _OR_ strings.
-        sanity.check_isinstance_meowuri(
-            meowuri, msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
-        )
+        sanity.check_isinstance_meowuri(meowuri)
 
+        # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
         response = provider.query(fileobject, meowuri)
         if response:
-            sanity.check_isinstance(response, dict,
-                                    msg='FileObject [{!s}] MeowURI {!s}'.format(fileobject.hash_partial, meowuri))
-            return response.get('value')
+            # TODO: Integrate successful/failed query response objects.
+            return response.value
         return None
 
     def match(self, fileobject):
@@ -70,7 +66,7 @@ class RuleMatcher(object):
         log.debug('Examining {} rules ..'.format(num_all_rules))
         condition_evaluator = RuleConditionEvaluator(_data_request_callback)
         for i, rule in enumerate(all_rules, start=1):
-            log.debug('Evaluating rule {}/{}: {!r}'.format(i, num_all_rules, rule))
+            log.debug('Evaluating rule {}/{}: {!s}'.format(i, num_all_rules, rule))
             condition_evaluator.evaluate(rule)
 
         # Remove rules that require an exact match and contains a condition
@@ -117,6 +113,7 @@ class RuleMatcher(object):
         discarded_rules = [r for r in all_rules if r not in remaining_rules]
         self._log_results(prioritized_rules, scored_rules, discarded_rules)
 
+        # TODO: [TD0171] Separate logic from user interface.
         if self._list_rulematch:
             self._display_details(prioritized_rules, scored_rules,
                                   discarded_rules, condition_evaluator)
@@ -166,6 +163,7 @@ class RuleMatcher(object):
     @staticmethod
     def _display_details(prioritized_rules, scored_rules, discarded_rules,
                          condition_evaluator):
+        # TODO: [TD0171] Separate logic from user interface.
         def _prettyprint_rule_details(n, _rule, _bias, _score=None, _weight=None):
             conditions_passed = condition_evaluator.passed(_rule)
             conditions_failed = condition_evaluator.failed(_rule)
@@ -183,45 +181,47 @@ class RuleMatcher(object):
 
             _str_exact = 'Yes' if rule.exact_match else 'No '
             # s = 'Rule #{:02d} (Exact: {}  Score: {}  Weight: {}  Bias: {})  [{!s}]'
-            # ui.msg(s.format(n, _str_exact, _str_score, _str_weight, _bias,
+            # view.msg(s.format(n, _str_exact, _str_score, _str_weight, _bias,
             #                _rule.description))
             sr = 'Rule #{:02d}  {!s}'.format(n, _rule.description)
-            ui.msg(ui.colorize(sr, fore='LIGHTWHITE_EX'))
+            view.msg(view.colorize(sr, fore='LIGHTWHITE_EX'))
 
             si = 'Exact: {}  Score: {}  Weight: {}  Bias: {}'.format(_str_exact, _str_score, _str_weight, _bias)
-            ui.msg(si + '\n')
+            view.msg(si + '\n')
 
-            cf = ui.ColumnFormatter()
+            cf = view.ColumnFormatter()
             cf.setalignment('right', 'left')
-            msg_label_pass = ui.colorize('PASSED', fore='GREEN')
-            msg_label_fail = ui.colorize('FAILED', fore='RED')
+            msg_label_pass = view.colorize('PASSED', fore='GREEN')
+            msg_label_fail = view.colorize('FAILED', fore='RED')
+            msg_label_padding = view.colorize('      ', fore='BLACK')
             for c in conditions_passed:
                 d = condition_evaluator.evaluated(_rule, c)
 
                 cf.addrow(msg_label_pass, str(c.meowuri))
-                cf.addrow('Expression:', str(c.expression))
-                cf.addrow('Evaluated Data:', str(d))
+                cf.addrow(msg_label_padding, 'Expression:', str(c.expression))
+                cf.addrow(msg_label_padding, 'Evaluated Data:', str(d))
 
             for c in conditions_failed:
                 d = condition_evaluator.evaluated(_rule, c)
                 cf.addrow(msg_label_fail, str(c.meowuri))
-                cf.addrow('Expression:', str(c.expression))
-                cf.addrow('Evaluated Data:', str(d))
+                cf.addrow(msg_label_padding, 'Expression:', str(c.expression))
+                cf.addrow(msg_label_padding, 'Evaluated Data:', str(d))
 
-            ui.msg(str(cf))
-            ui.msg('\n')
+            view.msg(str(cf))
+            view.msg('\n')
 
-        ui.msg('\nRemaining, prioritized rules:', style='heading')
+        view.msg('Remaining, prioritized rules:', style='heading')
+        i = 1
         for i, rule in enumerate(prioritized_rules, start=1):
             _bias = rule.ranking_bias
             _score = scored_rules[rule]['score']
             _weight = scored_rules[rule]['weight']
             _prettyprint_rule_details(i, rule, _bias, _score, _weight)
 
-        ui.msg('\nDiscarded rules:', style='heading')
-        for i, rule in enumerate(discarded_rules, start=1):
+        view.msg('Discarded rules:', style='heading')
+        for j, rule in enumerate(discarded_rules, start=i+1):
             _bias = rule.ranking_bias
-            _prettyprint_rule_details(i, rule, _bias)
+            _prettyprint_rule_details(j, rule, _bias)
 
 
 def prioritize_rules(rules):
@@ -273,6 +273,12 @@ class RuleConditionEvaluator(object):
         self._evaluated = dict()
 
     def evaluate(self, rule_to_evaluate):
+        """
+        Evaluates a rule and stores results in instance attributes.
+
+        Args:
+            rule_to_evaluate: Rule to evaluate as instance of the 'Rule' class.
+        """
         assert rule_to_evaluate not in (self._failed, self._passed), (
             'Rule has already been evaluated; {!r}'.format(rule_to_evaluate)
         )
@@ -294,19 +300,16 @@ class RuleConditionEvaluator(object):
         return self._evaluated[rule].get(condition)
 
     def evaluate_rule_conditions(self, rule):
-        if rule.description:
-            _desc = '{} :: '.format(rule.description)
-        else:
-            _desc = ''
+        log_strprefix = 'Condition '.format(rule.description)
 
         for condition in rule.conditions:
-            _data_meowuri = condition.meowuri
-            data = self.data_query_function(_data_meowuri)
+            condition_data_uri = condition.meowuri
+            data = self.data_query_function(condition_data_uri)
             if self._evaluate_condition(condition, data):
-                log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
+                log.debug('{}PASS: "{!s}"'.format(log_strprefix, condition))
                 self._passed[rule].append(condition)
             else:
-                log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
+                log.debug('{}FAIL: "{!s}"'.format(log_strprefix, condition))
                 self._failed[rule].append(condition)
 
             assert condition not in self._evaluated.get(rule, {})

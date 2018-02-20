@@ -20,14 +20,32 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import pickle
 import unittest
 from unittest import TestCase
 
 import unit.constants as uuconst
 import unit.utils as uu
-from core import fileobject
 from core.exceptions import InvalidFileArgumentError
+from core.fileobject import (
+    _validate_path_argument,
+    FileObject
+)
 from util import encoding as enc
+
+
+class TestFileObjectExceptions(TestCase):
+    def test_raises_assertion_error_given_none_path(self):
+        with self.assertRaises(AssertionError):
+            _ = FileObject(None)
+
+    def test_raises_assertion_error_given_unicode_string_path(self):
+        with self.assertRaises(AssertionError):
+            _ = FileObject('foo')
+
+    def test_raises_exception_given_path_to_non_existent_file(self):
+        with self.assertRaises(InvalidFileArgumentError):
+            _ = FileObject(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
 
 class TestFileObjectTypes(TestCase):
@@ -89,13 +107,13 @@ class TestFileObject(TestCase):
 
     def test_pathname(self):
         actual = self.fo.pathname
-        expect = uu.normpath(uuconst.TEST_FILES_DIR)
+        expect = uu.normpath(uuconst.PATH_TEST_FILES)
         self.assertEqual(actual, expect)
 
     def test_pathparent(self):
         actual = self.fo.pathparent
         expect = uu.encode(os.path.basename(os.path.normpath(
-            enc.syspath(uuconst.TEST_FILES_DIR)
+            enc.syspath(uuconst.PATH_TEST_FILES)
         )))
         self.assertEqual(actual, expect)
 
@@ -301,36 +319,48 @@ class TestFileObjectOrdering(TestCase):
         self.assertEqual(self.some_object, sorted_list_with_another_object[2])
 
 
+def _pickle_object(obj):
+    return pickle.dumps(obj)
+
+
+def _unpickle_object(pickled):
+    return pickle.loads(pickled)
+
+
+class TestFileObjectSerialization(TestCase):
+    def test_can_be_pickled(self):
+        fo = uu.get_mock_fileobject()
+        self.assertIsInstance(fo, FileObject)
+        _ = _pickle_object(fo)
+
+    def test_round_trips_pickle_serialization(self):
+        fo = uu.get_mock_fileobject()
+        self.assertIsInstance(fo, FileObject)
+        roundtripped = _unpickle_object(_pickle_object(fo))
+        self.assertEqual(fo, roundtripped)
+
+
 class TestValidatePathArgument(TestCase):
     def setUp(self):
         _num_files = min(len(uu.all_testfiles()), 5)
-        self.unicode_paths = uu.all_testfiles()[:_num_files]
         self.bytestr_paths = [
             uu.bytestring_path(p)
             for p in uu.all_testfiles()[:_num_files]
         ]
 
     def test_setup(self):
-        for upath in self.unicode_paths:
-            self.assertTrue(uu.file_exists(upath))
-            self.assertTrue(uu.is_internalstring(upath))
-
         for bpath in self.bytestr_paths:
             self.assertTrue(uu.file_exists(bpath))
             self.assertTrue(uu.is_internalbytestring(bpath))
 
-    def test_valid_unicode_paths(self):
-        for upath in self.unicode_paths:
-            fileobject.validate_path_argument(upath)
-
     def test_valid_bytes_paths(self):
         for bpath in self.bytestr_paths:
-            fileobject.validate_path_argument(bpath)
+            _validate_path_argument(bpath)
 
     def test_invalid_paths(self):
         def _assert_raises(test_data):
             with self.assertRaises(InvalidFileArgumentError):
-                fileobject.validate_path_argument(test_data)
+                _validate_path_argument(test_data)
 
         _assert_raises(None)
         _assert_raises('')
@@ -341,3 +371,8 @@ class TestValidatePathArgument(TestCase):
         _assert_raises(b'  ')
         _assert_raises([])
         _assert_raises({})
+
+    def test_raises_exception_given_unicode_path(self):
+        with self.assertRaises(InvalidFileArgumentError):
+            unicodestr_path = uu.all_testfiles()[:1]
+            _validate_path_argument(unicodestr_path)

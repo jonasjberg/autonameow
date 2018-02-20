@@ -7,8 +7,75 @@ University mail: `js224eh[a]student.lnu.se`
 
 --------------------------------------------------------------------------------
 
-`autonameow` Completed TODO-list entries
-========================================
+Completed TODO-list Entries
+===========================
+
+### 2018-02-19
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0136]` Look into "requesting" already available data.
+>
+> * `[TD0169]` Remove or re-implement the `ImageAnalyzer`.
+>
+> * `[TD0168]` Remove or re-implement the `TextAnalyzer`.
+>
+> * `[TD0028]` __E-books epub/mobi__
+>     * Extract metadata fields. Look into using `calibre`.
+
+### 2018-02-15
+
+> High Priority
+> -------------
+>
+> * `[TD0170]` Use mock `ui` in regression test `AutonameowWrapper`.
+
+### 2018-02-13
+
+> High Priority
+> -------------
+>
+> * `[TD0165]` Integrate the `DataBundle` class completely.
+>
+> * `[TD0142]` __Rework overall architecture to fetch only explicitly needed data.__  
+>   Refer to `notes/architecture.md` for details.
+>
+> Medium Priority
+> ---------------
+>
+> * `[TD0019]` Rework the `FilenameAnalyzer`
+
+### 2018-02-08
+
+> High Priority
+> -------------
+>
+> * `[TD0156]` __Set up Unicode string encoding boundary in `ui`.__  
+>     Enforce passing only Unicode strings to the `ui` module.
+
+### 2018-02-07
+
+> High Priority
+> -------------
+>
+> * `[TD0150]` Map "generic" MeowURIs to (possible) provider classes.
+
+### 2018-02-03
+
+> High Priority
+> -------------
+>
+> * `[TD0127]` Clean up boundaries/interface to the `extractors` package.
+>
+> * `[TD0133]` Fix inconsistent use of MeowURIs; `MeowURI` instances and strings.
+
+### 2018-01-18
+
+> High Priority
+> -------------
+>
+> * `[TD0155]` Implement `--timid` mode.
 
 ### 2018-01-16
 

@@ -74,7 +74,7 @@
 # Author        (NO MATCHES)
 # Edition       analyzer.document.title                     ::  On the Origin of Species, 6th Edition
 # Edition       analyzer.filename.edition                   ::  6
-# Edition       analyzer.filetags.description               ::  Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition
+# Edition       extractor.filesystem.filetags.description   ::  Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition
 # Edition       generic.contents.text                       ::  On the Origin of Species, 6th Edition
 # Edition       generic.metadata.description                ::  Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition
 # Edition       generic.metadata.edition                    ::  6

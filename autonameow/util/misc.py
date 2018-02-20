@@ -47,6 +47,7 @@ __all__ = [
     'count_dict_recursive',
     'expand_meowuri_data_dict',
     'flatten_dict',
+    'flatten_sequence_type',
     'git_commit_hash',
     'is_executable',
     'multiset_count',
@@ -132,6 +133,34 @@ def multiset_count(list_data):
             entry_counter[entry] = 1
 
     return entry_counter
+
+
+def flatten_sequence_type(container):
+    """
+    Flattens arbitrarily nested lists or tuples of tuples and/or lists.
+
+    Args:
+        container: List or tuple of lists and/or tuples.
+                   Other types are returned as-is.
+
+    Returns:
+        A flat sequence of the same type as the given outermost container.
+        If the given value is not a list or tuple, it is returned as-is.
+    """
+    if not isinstance(container, (list, tuple)):
+        return container
+
+    container_type = type(container)
+
+    def _generate_flattened(_container):
+        for element in _container:
+            if isinstance(element, (list, tuple)):
+                for subelement in _generate_flattened(element):
+                    yield subelement
+            else:
+                yield element
+
+    return container_type(_generate_flattened(container))
 
 
 def flatten_dict(d, parent_key='', sep='.'):

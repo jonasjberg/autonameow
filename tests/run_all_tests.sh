@@ -116,9 +116,9 @@ runner_opts='-w'
 [ "$option_write_reports" != 'true' ] && runner_opts=''
 
 declare -i COUNT_FAIL=0
-run_task "$option_quiet" 'Running unit test runner'        "${SELF_DIRNAME}/run_unit_tests.sh ${runner_opts}"
-run_task "$option_quiet" 'Running regression test runner'  "${SELF_DIRNAME}/run_regression_tests.sh"
-run_task "$option_quiet" 'Running integration test runner' "${SELF_DIRNAME}/run_integration_tests.sh ${runner_opts}"
+run_task "$option_quiet" 'Running unit test runner'        '${SELF_DIRNAME}/run_unit_tests.sh ${runner_opts}'
+run_task "$option_quiet" 'Running regression test runner'  '${SELF_DIRNAME}/run_regression_tests.sh -f "!*LOCAL*"'
+run_task "$option_quiet" 'Running integration test runner' '${SELF_DIRNAME}/run_integration_tests.sh ${runner_opts}'
 
 printf '\n%s\n' "Completed in $SECONDS seconds"
 

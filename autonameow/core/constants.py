@@ -229,3 +229,8 @@ DEFAULT_PERSISTENCE_DIR_ABSPATH = b'/tmp/autonameow_cache'
 DEFAULT_HISTORY_FILE_BASENAME = b'prompt_history'
 DEFAULT_HISTORY_FILE_ABSPATH = b'/tmp/autonameow_cache/prompt_history'
 DEFAULT_CACHE_MAX_FILESIZE = 50 * 1024**2  # ~50MB
+
+
+# Extractor settings
+# Used by the 'PandocMetadataExtractor' and the 'MarkdownTextExtractor'.
+MARKDOWN_BASENAME_SUFFIXES = frozenset([b'md', b'markdown', b'mkd'])

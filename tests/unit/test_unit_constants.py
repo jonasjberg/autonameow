@@ -22,6 +22,7 @@
 from unittest import TestCase
 
 import unit.constants as uuconst
+import unit.utils as uu
 
 
 class TestConstantAllFullMeowURIs(TestCase):
@@ -68,3 +69,9 @@ class TestConstantAllFullMeowURIs(TestCase):
 
         for actual_constant in actual_constants:
             self.assertIn(actual_constant, self.tested_constant)
+
+
+class TestFileConstants(TestCase):
+    def test_assumed_non_existent_basename(self):
+        self.assertIsNotNone(uuconst.ASSUMED_NONEXISTENT_BASENAME)
+        self.assertFalse(uu.file_exists(uuconst.ASSUMED_NONEXISTENT_BASENAME))

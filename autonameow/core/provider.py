@@ -22,23 +22,117 @@
 import logging
 from collections import defaultdict
 
-import plugins
-from analyzers import BaseAnalyzer
 from core import (
     analysis,
-    extraction,
     plugin_handler,
     providers,
     repository,
 )
-from extractors import BaseExtractor
+from core.exceptions import AutonameowException
+from core.extraction import ExtractorRunner
+from core.repository import QueryResponseFailure
 from util import sanity
 
 
 log = logging.getLogger(__name__)
 
 
-# TODO: [TD0142] Rework overall architecture to fetch data when needed.
+class ProviderRunner(object):
+    def __init__(self, config):
+        self.config = config
+
+        self.extractor_runner = ExtractorRunner(
+            add_results_callback=repository.SessionRepository.store
+        )
+        self.debug_stats = defaultdict(dict)
+        self._previous_runs = dict()
+
+    def delegate_to_providers(self, fileobject, meowuri):
+        if fileobject not in self._previous_runs:
+            self._previous_runs[fileobject] = dict()
+
+        possible_providers = providers.get_providers_for_meowuri(meowuri)
+        log.debug('Got {} possible providers'.format(len(possible_providers)))
+        if not possible_providers:
+            return
+
+        # TODO: [TD0161] Translate from specific to "generic" MeowURI?
+        # Might be useful to be able to translate a specific MeowURI like
+        # 'analyzer.ebook.title' to a "generic" like 'generic.metadata.title'.
+        # Otherwise, user is almost never prompted with any possible candidates.
+
+        prepared_analyzers = set()
+        prepared_extractors = set()
+        prepared_plugins = set()
+        for provider in possible_providers:
+            log.debug('Looking at possible provider: {!s}'.format(provider))
+            if meowuri in self._previous_runs[fileobject]:
+                if provider in self._previous_runs[fileobject][meowuri]:
+                    log.debug('Skipping previously delegated {!s} to {!s}'.format(meowuri, provider))
+                    continue
+            else:
+                self._previous_runs[fileobject][meowuri] = set()
+
+            self._previous_runs[fileobject][meowuri].add(provider)
+
+            # TODO: Fix circular import problems when running new unit test runner.
+            #       $ PYTHONPATH=autonameow:tests python3 -m unit --skip-slow
+            from analyzers import BaseAnalyzer
+            from extractors import BaseExtractor
+            from plugins import BasePlugin
+
+            if issubclass(provider, BaseExtractor):
+                prepared_extractors.add(provider)
+            elif issubclass(provider, BaseAnalyzer):
+                prepared_analyzers.add(provider)
+            elif issubclass(provider, BasePlugin):
+                prepared_plugins.add(provider)
+
+        if prepared_extractors:
+            log.debug('Delegating {!s} to extractors: {!s}'.format(meowuri, prepared_extractors))
+            self._delegate_to_extractors(fileobject, prepared_extractors)
+        if prepared_analyzers:
+            log.debug('Delegating {!s} to analyzers: {!s}'.format(meowuri, prepared_analyzers))
+            self._delegate_to_analyzers(fileobject, prepared_analyzers)
+        if prepared_plugins:
+            log.debug('Delegating {!s} to plugins: {!s}'.format(meowuri, prepared_plugins))
+            self._delegate_to_plugins(fileobject, prepared_plugins)
+
+    def _delegate_to_extractors(self, fileobject, extractors_to_run):
+        try:
+            self.extractor_runner.start(fileobject, extractors_to_run)
+        except AutonameowException as e:
+            # TODO: [TD0164] Tidy up throwing/catching of exceptions.
+            log.critical('Extraction FAILED: {!s}'.format(e))
+            raise
+
+    def _delegate_to_analyzers(self, fileobject, analyzers_to_run):
+        analysis.run_analysis(
+            fileobject,
+            self.config,
+            analyzers_to_run=analyzers_to_run
+        )
+
+    def _delegate_to_plugins(self, fileobject, plugins_to_run):
+        plugin_handler.run_plugins(
+            fileobject,
+            require_plugins=plugins_to_run,
+        )
+
+    def delegate_every_possible_meowuri(self, fileobject):
+        # Run all extractors
+        try:
+            self.extractor_runner.start(fileobject, request_all=True)
+        except AutonameowException as e:
+            # TODO: [TD0164] Tidy up throwing/catching of exceptions.
+            log.critical('Extraction FAILED: {!s}'.format(e))
+            raise
+
+        # Run all analyzers
+        analysis.run_analysis(fileobject, self.config)
+
+        # Run all plugins
+        plugin_handler.run_plugins(fileobject, run_all_plugins=True)
 
 
 class MasterDataProvider(object):
@@ -57,16 +151,28 @@ class MasterDataProvider(object):
     for use by any part of the application.
     """
     def __init__(self, config):
-        self.seen_fileobject_meowuris = defaultdict(dict)
         self.config = config
 
         self.debug_stats = defaultdict(dict)
+        self.provider_runner = ProviderRunner(self.config)
+
+    def delegate_every_possible_meowuri(self, fileobject):
+        log.debug('Running all available providers for file: [{:8.8}]'.format(
+            fileobject.hash_partial))
+        self.provider_runner.delegate_every_possible_meowuri(fileobject)
 
     def query(self, fileobject, meowuri):
         """
-        First attempt to get the data from the repository.
-        If that fails, delegate the task of extracting the data to the
-        "relevant" providers. Then try querying the repository again.
+        Highest-level retrieval mechanism for data related to a file.
+
+        First the repository is queried with the MeowURI and if the query
+        returns data, it is returned. If the data is not in the repository,
+        the task of gathering the data is delegated to the "relevant" providers.
+        Then the repository is queried again.
+        If the delegation "succeeded" and the sought after data could be
+        gathered, it would now be stored in the repository and passed back
+        as the return value.
+        None is returned if nothing turns up.
         """
         if meowuri not in self.debug_stats[fileobject]:
             self.debug_stats[fileobject][meowuri] = dict()
@@ -76,79 +182,40 @@ class MasterDataProvider(object):
         else:
             self.debug_stats[fileobject][meowuri]['queries'] += 1
 
-        self._print_debug_stats()
+        # TODO: Provide means of toggling on/off or remove.
+        # self._print_debug_stats()
 
-        _data = self._query_repository(fileobject, meowuri)
-        if _data:
-            return _data
+        # First try the repository for previously gathered data
+        response = self._query_repository(fileobject, meowuri)
+        if response:
+            return response
 
+        # Have relevant providers gather the data
         self._delegate_to_providers(fileobject, meowuri)
 
-        # TODO: [TD0142] Handle this properly ..
-        _data = self._query_repository(fileobject, meowuri)
-        if _data:
-            return _data
+        # Try the repository again
+        response = self._query_repository(fileobject, meowuri)
+        if response:
+            return response
 
-        # TODO: [TD0142] Handle this properly ..
         log.debug('Failed query, then delegation, then another query and returning None')
-        return None
+        return QueryResponseFailure()
+
+    def _delegate_to_providers(self, fileobject, meowuri):
+        log.debug('Delegating request to providers: [{:8.8}]->[{!s}]'.format(
+            fileobject.hash_partial, meowuri))
+
+        self.debug_stats[fileobject][meowuri]['delegated'] += 1
+        delegation_count = self.debug_stats[fileobject][meowuri]['delegated']
+        if delegation_count > 1:
+            log.warning('Delegated {} times:  [{:8.8}]->[{!s}]'.format(
+                delegation_count, fileobject.hash_partial, meowuri))
+
+        self.provider_runner.delegate_to_providers(fileobject, meowuri)
 
     def _query_repository(self, fileobject, meowuri):
         self.debug_stats[fileobject][meowuri]['repository_queries'] += 1
-
-        if fileobject in self.seen_fileobject_meowuris:
-            _cached_data = self.seen_fileobject_meowuris[fileobject].get(meowuri)
-            if _cached_data:
-                return _cached_data
-
-        _repo_data = repository.SessionRepository.query(fileobject, meowuri)
-        if _repo_data:
-            self.seen_fileobject_meowuris[fileobject][meowuri] = _repo_data
-            return _repo_data
-
-        return None
-
-    def _delegate_to_providers(self, fileobject, meowuri):
-        log.debug('Delegating request to providers: [{:8.8}]->[{!s}]'.format(fileobject.hash_partial, meowuri))
-
-        self.debug_stats[fileobject][meowuri]['delegated'] += 1
-        _delegation_count = self.debug_stats[fileobject][meowuri]['delegated']
-        if _delegation_count > 1:
-            log.warning('Delegated {} times:  [{:8.8}]->[{!s}]'.format(_delegation_count, fileobject.hash_partial, meowuri))
-
-        # TODO: [TD0142] Rework overall architecture to fetch data when needed.
-        _possible_providers = providers.get_providers_for_meowuri(meowuri)
-        log.debug('Got {} possible providers'.format(len(_possible_providers)))
-
-        # TODO: [TD0142] Handle this properly ..
-        # TODO: [TD0142] Check here if the provider can handle the file.
-        # Run only what is suitable and necessary.
-        # Currently, when requesting 'generic.contents.text' from a PDF
-        # document, the extractor runner is started 4 times.
-        # Only one of these are really appropriate; when requesting the
-        # 'PdftotextTextExtractor'. Other extractor requests should be skipped.
-
-        # TODO: [TD0161] Translate from specific to "generic" MeowURI?
-        # Might be useful to be able to translate a specific MeowURI like
-        # 'analyzer.ebook.title' to a "generic" like 'generic.metadata.title'.
-        # Otherwise, user is almost never prompted with any possible candidates.
-        if _possible_providers:
-            for _provider in _possible_providers:
-                log.debug('Delegating possible provider: {!s}'.format(_provider))
-                if issubclass(_provider, BaseExtractor):
-                    extraction.run_extraction(fileobject, [_provider])
-                elif issubclass(_provider, BaseAnalyzer):
-                    analysis.run_analysis(
-                        fileobject,
-                        self.config,
-                        analyzers_to_run=None
-                        #analyzers_to_run=[_provider]
-                    )
-                elif issubclass(_provider, plugins.BasePlugin):
-                    plugin_handler.run_plugins(
-                        fileobject,
-                        require_plugins=_provider,
-                    )
+        return repository.SessionRepository.query(fileobject, meowuri)
 
     def _print_debug_stats(self):
         if not __debug__:
@@ -156,30 +223,29 @@ class MasterDataProvider(object):
 
         stats_strings = list()
         for _fileobject, _meowuris in self.debug_stats.items():
-            for _meowuri, _counters in _meowuris.items():
+            for uri, _counters in _meowuris.items():
                 _meowuri_stats = ['{}: {}'.format(stat, count)
                                   for stat, count in _counters.items()]
-                stats_strings.append(
-                    '[{:8.8}]->{!s:60.60} {!s}'.format(_fileobject.hash_partial,
-                                                       _meowuri,
-                                                       ' '.join(_meowuri_stats))
-                )
+                stats_strings.append('[{:8.8}]->{!s:60.60} {!s}'.format(
+                    _fileobject.hash_partial, uri, ' '.join(_meowuri_stats)))
 
         log.debug('{!s} debug stats:'.format(self.__class__.__name__))
         for stat_string in sorted(stats_strings):
             log.debug(stat_string)
 
 
-_master_data_provider = None
+_MASTER_DATA_PROVIDER = None
 
 
 def initialize(active_config):
-    global _master_data_provider
-    _master_data_provider = MasterDataProvider(active_config)
+    global _MASTER_DATA_PROVIDER
+    _MASTER_DATA_PROVIDER = MasterDataProvider(active_config)
 
 
 def query(fileobject, meowuri):
-    sanity.check_isinstance_meowuri(
-        meowuri, msg='TODO: [TD0133] Fix inconsistent use of MeowURIs'
-    )
-    return _master_data_provider.query(fileobject, meowuri)
+    sanity.check_isinstance_meowuri(meowuri)
+    return _MASTER_DATA_PROVIDER.query(fileobject, meowuri)
+
+
+def delegate_every_possible_meowuri(fileobject):
+    _MASTER_DATA_PROVIDER.delegate_every_possible_meowuri(fileobject)

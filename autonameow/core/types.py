@@ -580,9 +580,16 @@ class TimeDate(BaseType):
             return self._fail_coercion(value, msg=e)
 
         try:
-            return try_parse_datetime(string_value)
+            dt = try_parse_datetime(string_value)
         except (TypeError, ValueError) as e:
             return self._fail_coercion(value, msg=e)
+        else:
+            # TODO: [TD0054] Represent datetime as UTC within autonameow.
+            from util.dateandtime import timezone_aware_to_naive
+            naive_dt =  timezone_aware_to_naive(dt)
+
+            # TODO: [cleanup] Really OK to just drop the microseconds?
+            return naive_dt.replace(microsecond=0)
 
     def normalize(self, value):
         value = self.__call__(value)
@@ -651,6 +658,10 @@ RE_LOOSE_DATETIME_TZ = re.compile(
 RE_LOOSE_DATETIME_US = re.compile(
     _pat_loose_date + _pat_datetime_sep + _pat_loose_time + _pat_microseconds
 )
+RE_LOOSE_DATETIME_US_TZ = re.compile(
+    _pat_loose_date + _pat_datetime_sep + _pat_loose_time + _pat_microseconds
+    + _pat_timezone
+)
 
 
 def normalize_date(string):
@@ -658,6 +669,16 @@ def normalize_date(string):
     if match:
         _normalized = re.sub(RE_LOOSE_DATE, r'\1-\2-\3', string)
         return _normalized
+    return None
+
+
+def normalize_datetime_with_microseconds_and_timezone(string):
+    match = RE_LOOSE_DATETIME_US_TZ.search(string)
+    if match:
+        _normalized = re.sub(RE_LOOSE_DATETIME_US_TZ,
+                             r'\1-\2-\3T\4:\5:\6.\7 \8\9\10',
+                             string)
+        return _normalized.replace(' ', '')
     return None
 
 
@@ -700,6 +721,13 @@ def try_parse_datetime(string):
     # Handles malformed dates produced by "Mac OS X 10.11.5 Quartz PDFContext".
     if string.endswith('Z'):
         string = string[:-1]
+
+    match = normalize_datetime_with_microseconds_and_timezone(string)
+    if match:
+        try:
+            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S.%f%z')
+        except (ValueError, TypeError):
+            pass
 
     match = normalize_datetime_with_timezone(string)
     if match:
@@ -747,12 +775,14 @@ def try_parse_date(string):
     if digits:
         sanity.check_internal_string(digits)
 
-        date_formats = ['%Y%m%d', '%Y%m', '%Y']
-        for date_format in date_formats:
-            try:
-                return datetime.strptime(digits, date_format)
-            except (ValueError, TypeError):
-                pass
+        # TODO: [hack] This is not good ..
+        MATCH_PATTERNS = [('%Y%m%d', 8),
+                          ('%Y%m', 6),
+                          ('%Y', 4)]
+        from util.dateandtime import _parse_datetime_from_start_to_char_n_patterns
+        match = _parse_datetime_from_start_to_char_n_patterns(digits, MATCH_PATTERNS)
+        if match:
+            return match
 
     raise ValueError(_error_msg)
 
@@ -802,7 +832,7 @@ def coercer_for(value):
         try:
             _any_element = list(value.keys())[0]
             _sample = value.get(_any_element)
-        except (IndexError, KeyError, TypeError, ValueError):
+        except (LookupError, TypeError, ValueError):
             pass
 
     return PRIMITIVE_AW_TYPE_MAP.get(type(_sample), None)
@@ -883,6 +913,11 @@ class MultipleTypes(object):
             out.append(_formatted)
 
         return out
+
+    def __contains__(self, item):
+        if isinstance(item, BaseType):
+            return item == self.coercer
+        return False
 
 
 def listof(coercer):

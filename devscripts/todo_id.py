@@ -31,7 +31,7 @@ PARENT_PATH = os.path.normpath(
 )
 sys.path.insert(0, PARENT_PATH)
 
-from core.ui import ColumnFormatter
+from core.view import ColumnFormatter
 
 
 '''
@@ -45,7 +45,7 @@ TODO_IDENTIFIER_FORMAT = '[TD{:04d}]'
 RE_TODO_IDENTIFIER = re.compile(r'\[TD(\d{4})\]')
 RE_TODO_IGNORED = re.compile(r'[Rr]e(lated|fers?)')
 SOURCEFILE_EXTENSIONS = ['.py', '.sh']
-SOURCEFILE_IGNORED = ['test_todo_id.py']
+SOURCEFILE_IGNORED = ['test_todo_id.py', 'test_update_changelog.py']
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = 1

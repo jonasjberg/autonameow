@@ -40,14 +40,18 @@ uu.init_session_repository()
 uu.init_provider_registry()
 
 
-def get_testrules():
-    test_config = uu.get_default_config()
-    return test_config.rules
+def _init_master_data_provider(active_config):
+    uu.init_master_data_provider(active_config)
+
+
+def _get_testrules(active_config):
+    return active_config.rules
 
 
 class TestRuleMatcher(TestCase):
     def test_can_be_instantiated_with_mock_rules(self):
-        matcher = RuleMatcher(rules=get_testrules())
+        active_config = uu.get_default_config()
+        matcher = RuleMatcher(rules=_get_testrules(active_config))
         self.assertIsNotNone(matcher)
 
     def test_can_be_instantiated_with_no_rules(self):
@@ -65,7 +69,9 @@ class TestRuleMatcherMatching(TestCase):
         self.assertEqual(expect, actual)
 
     def test_expected_return_values_given_rules_and_valid_fileobject(self):
-        matcher = RuleMatcher(rules=get_testrules())
+        active_config = uu.get_default_config()
+        _init_master_data_provider(active_config)
+        matcher = RuleMatcher(rules=_get_testrules(active_config))
         actual = matcher.match(self.SHARED_FILEOBJECT)
         self.assertIsInstance(actual, list)
 

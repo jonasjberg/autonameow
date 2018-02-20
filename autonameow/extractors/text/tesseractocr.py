@@ -46,11 +46,12 @@ TESSERACT_COMMAND = 'tesseract'
 
 
 class TesseractOCRTextExtractor(AbstractTextExtractor):
-    HANDLES_MIME_TYPES = ['image/*']
-    is_slow = True
+    # NOTE(jonas): Can't do 'image/*' because it includes 'image/vnd.djvu' ..
+    HANDLES_MIME_TYPES = ['image/bmp', 'image/gif', 'image/jpeg', 'image/png']
+    IS_SLOW = True
 
     def __init__(self):
-        super(TesseractOCRTextExtractor, self).__init__()
+        super().__init__()
 
         self.init_cache()
 

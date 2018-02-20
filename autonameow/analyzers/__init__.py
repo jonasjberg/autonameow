@@ -58,7 +58,7 @@ def _get_implemented_analyzer_classes(analyzer_files):
 
     _analyzer_classes = []
     for analyzer_file in _to_import:
-        __import__(analyzer_file, None, None)
+        __import__(analyzer_file)
         namespace = inspect.getmembers(sys.modules[analyzer_file],
                                        inspect.isclass)
         for _obj_name, _obj_type in namespace:

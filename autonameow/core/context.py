@@ -48,9 +48,6 @@ class FilesContext(object):
         self.matcher = rule_matcher
 
     def handle_file(self, current_file):
-        # TODO: [TD0142] Fetch all possible data when using '--list-all'.
-        should_list_any_results = self.opts.get('list_all')
-
         #  Things to find:
         #
         #    * NAME TEMPLATE
@@ -89,24 +86,21 @@ class FilesContext(object):
         if not name_template:
             if self.opts.get('mode_batch'):
                 log.warning('Name template unknown! Aborting ..')
-                self.ameow.exit_code = C.EXIT_WARNING
-                return
+                return None
 
             # Have the user select a name template.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
             # candidates = None
             # choice = interactive.select_template(candidates)
-            # if choice != ui.action.ABORT:
+            # if choice != interactive.Choice.ABORT:
             #     name_template = choice
             # if not name_template:
             #     log.warning('No valid name template chosen. Aborting ..')
-            pass
 
         if not name_template:
             # User name template selection did not happen or failed.
             log.warning('Name template unknown! Aborting ..')
-            self.ameow.exit_code = C.EXIT_WARNING
-            return
+            return None
 
         if not data_sources:
             if self.opts.get('mode_automagic'):
@@ -116,21 +110,20 @@ class FilesContext(object):
             if self.opts.get('mode_batch'):
                 log.warning('Data sources unknown! Aborting ..')
                 self.ameow.exit_code = C.EXIT_WARNING
-                return
+                return None
 
             # Have the user select data sources.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
-            pass
 
-        field_data_dict = self._try_resolve(current_file, name_template,
-                                            data_sources)
-        if not field_data_dict:
+        field_databundle_dict = self._try_resolve(current_file, name_template,
+                                                  data_sources)
+        if not field_databundle_dict:
             if not self.opts.get('mode_automagic'):
                 log.warning('Not in automagic mode. Unable to populate name.')
                 self.ameow.exit_code = C.EXIT_WARNING
-                return
+                return None
 
-            while not field_data_dict and candidates:
+            while not field_databundle_dict and candidates:
                 # Try real hard to figure it out (?)
                 log.debug('Start of try-hard rule matching loop ..')
                 if not candidates:
@@ -145,20 +138,20 @@ class FilesContext(object):
                     )
                     data_sources = active_rule.data_sources
                     name_template = active_rule.name_template
-                    field_data_dict = self._try_resolve(current_file,
-                                                        name_template,
-                                                        data_sources)
+                    field_databundle_dict = self._try_resolve(current_file,
+                                                              name_template,
+                                                              data_sources)
 
-        if not field_data_dict:
+        if not field_databundle_dict:
             log.warning('Unable to populate name.')
             self.ameow.exit_code = C.EXIT_WARNING
-            return
+            return None
 
         try:
             new_name = namebuilder.build(
                 config=self.active_config,
                 name_template=name_template,
-                field_data_map=field_data_dict
+                field_databundle_dict=field_databundle_dict
             )
         except NameBuilderError as e:
             log.critical('Name assembly FAILED: {!s}'.format(e))
@@ -179,9 +172,8 @@ class FilesContext(object):
                 log.warning('TODO: Implement interactive rule selection.')
                 # TODO: [TD0024][TD0025] Implement Interactive mode.
                 # choice = interactive.select_rule(candidates)
-                # if choice != ui.action.ABORT:
+                # if choice != interactive.Choice.ABORT:
                 #     active_rule = choice
-                pass
             else:
                 log.debug('There are no rules available for the user to '
                           'choose from..')
@@ -225,7 +217,7 @@ class FilesContext(object):
                 log.error('Unable to resolve all name template fields. '
                           'Running in batch mode -- Aborting..')
                 self.ameow.exit_code = C.EXIT_WARNING
-                return
+                return None
 
         resolver.collect()
 
@@ -235,7 +227,7 @@ class FilesContext(object):
             if self.opts.get('mode_batch'):
                 log.warning('Unable to populate name.')
                 # self.ameow.exit_code = C.EXIT_WARNING
-                return
+                return None
 
             # TODO: [TD0024][TD0025] Implement Interactive mode.
             for field in resolver.unresolved:
@@ -253,7 +245,7 @@ class FilesContext(object):
 
                 if choice is interactive.Choice.ABORT:
                     log.info('Aborting ..')
-                    return
+                    return None
 
                 if choice:
                     log.debug('User selected {!r}'.format(choice))

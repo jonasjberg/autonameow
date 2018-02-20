@@ -30,10 +30,10 @@ from contextlib import contextmanager
 from datetime import datetime
 
 import unit.constants as uuconst
+from core import FileObject
 from core.config import rules
 from core.config.config_parser import ConfigurationParser
 from core.exceptions import InvalidMeowURIError
-from core.fileobject import FileObject
 from core.model import MeowURI
 from util import encoding as enc
 from util import (
@@ -79,7 +79,7 @@ def abspath_testfile(testfile_basename):
     Returns:
         The full absolute path to the given file.
     """
-    return os.path.abspath(os.path.join(uuconst.TEST_FILES_DIR,
+    return os.path.abspath(os.path.join(uuconst.PATH_TEST_FILES,
                                         testfile_basename))
 
 
@@ -103,7 +103,7 @@ def abspath_testconfig(testconfig_basename=None):
     assert isinstance(_basename, str), type(_basename)
 
     return os.path.abspath(
-        os.path.join(uuconst.TEST_FILES_DIR, 'configs', _basename)
+        os.path.join(uuconst.PATH_TEST_FILES, 'configs', _basename)
     )
 
 
@@ -129,8 +129,8 @@ def all_testfiles():
         as a list of Unicode strings.
     """
     _abs_paths = [
-        os.path.abspath(os.path.join(uuconst.TEST_FILES_DIR, f))
-        for f in os.listdir(uuconst.TEST_FILES_DIR)
+        os.path.abspath(os.path.join(uuconst.PATH_TEST_FILES, f))
+        for f in os.listdir(uuconst.PATH_TEST_FILES)
     ]
     return [
         f for f in _abs_paths if os.path.isfile(f) and not os.path.islink(f)
@@ -268,6 +268,7 @@ def get_mock_fileobject(mime_type=None):
         'image/png': 'magic_png.png',
         'image/x-ms-bmp': 'magic_bmp.bmp',
         'text/plain': 'magic_txt.txt',
+        'text/rtf': 'sample.rtf',
         'video/mp4': 'magic_mp4.mp4',
         'inode/x-empty': 'empty',
     }
@@ -281,19 +282,22 @@ def get_mock_fileobject(mime_type=None):
     return FileObject(normpath(temp_file))
 
 
+def get_meowuri():
+    """
+    Returns 'MeowURI' instances for use by unit tests.
+
+    Returns:
+        A valid MeowURI instance with any kind of valid value.
+    """
+    return as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+
+
 def fileobject_testfile(testfile_basename):
     """
     Like 'abspath_testfile' but wraps the result in a 'FileObject' instance.
     """
     _f = normpath(abspath_testfile(testfile_basename))
     return FileObject(_f)
-
-
-def get_mock_empty_extractor_data():
-    """
-    Returns: Mock extracted (empty) data from an 'Extraction' instance.
-    """
-    return {}
 
 
 MOCK_SESSION_DATA_POOLS = dict()
@@ -315,16 +319,6 @@ def mock_request_data_callback(fileobject, label):
         return d
 
 
-def mock_analyzer_collect_data(fileobject, meowuri_prefix, data):
-    pass
-
-
-def mock_analyzer_request_global_data(fileobject, meowuri):
-    from core import repository
-    response = repository.SessionRepository.query(fileobject, meowuri)
-    return response
-
-
 def load_repository_dump(file_path):
     """
     Loads pickled repository contents from file at "file_path".
@@ -333,11 +327,7 @@ def load_repository_dump(file_path):
     if not file_path or not file_exists(file_path):
         return
 
-    try:
-        import cPickle as pickle
-    except ImportError:
-        import pickle
-
+    import pickle
     with open(enc.syspath(file_path), 'rb') as fh:
         _data = pickle.load(fh, encoding='bytes')
 
@@ -478,22 +468,22 @@ def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_TAGS],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_TAGS],
         []
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_DESCRIPTION],
         'gmail'
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_EXTENSION],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_EXTENSION],
         'pdf'
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_DATETIME],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_DATETIME],
         None
     )
     nested_dict_set(
@@ -747,6 +737,11 @@ def init_provider_registry():
     providers.initialize()
 
 
+def init_master_data_provider(active_config):
+    from core import provider
+    provider.initialize(active_config)
+
+
 def is_internalstring(thing):
     if thing is None:
         return False
@@ -783,3 +778,31 @@ def as_meowuri(string):
     except InvalidMeowURIError as e:
         raise AssertionError(e)
     return meowuri
+
+
+def get_expected_text_for_testfile(testfile_basename):
+    """
+    Returns any text that should be extracted from a given test file.
+
+    If the given basename is found in the 'test_files' directory and
+    a accompanying file containing reference text is found, it is returned.
+
+    Args:
+        testfile_basename: The basename of a file in the 'test_files' directory
+            as a Unicode string (internal string format)
+
+    Returns:
+        Reference, expected text contained in file as a Unicode string or None
+        if there is no file with expected text.
+    """
+    assert isinstance(testfile_basename, str)
+
+    expected_text_basename = testfile_basename + '_expected.txt'
+    p = abspath_testfile(expected_text_basename)
+    try:
+        with open(p, 'r', encoding='utf8') as fh:
+            return fh.read()
+    except FileNotFoundError:
+        return None
+    except (OSError, UnicodeDecodeError):
+        raise

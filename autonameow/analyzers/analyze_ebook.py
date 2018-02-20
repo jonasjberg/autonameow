@@ -30,7 +30,7 @@ except ImportError:
 from analyzers import BaseAnalyzer
 from core import (
     persistence,
-    types,
+    types
 )
 from core.namebuilder import fields
 from core.model import WeightedMapping
@@ -38,10 +38,7 @@ from core.model.normalize import (
     normalize_full_human_name,
     normalize_full_title
 )
-from util import (
-    mimemagic,
-    sanity
-)
+from util import sanity
 from util.textutils import extract_lines
 from util.text import (
     find_edition,
@@ -79,13 +76,54 @@ class EbookAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
                           'image/vnd.djvu']
+    FIELD_LOOKUP = {
+        'author': {
+            'coercer': types.AW_STRING,
+            'multivalued': True,
+            'mapped_fields': [
+                WeightedMapping(fields.Author, probability=1),
+            ],
+            'generic_field': 'author'
+        },
+        'date': {
+            'coercer': types.AW_DATE,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Date, probability=1),
+                WeightedMapping(fields.DateTime, probability=1),
+            ],
+            'generic_field': 'date_created'
+        },
+        'edition': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Edition, probability=1),
+            ],
+            'generic_field': 'edition'
+        },
+        'publisher': {
+            'coercer': types.AW_STRING,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Publisher, probability=1),
+            ],
+            'generic_field': 'publisher'
+        },
+        'title': {
+            'coercer': types.AW_STRING,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Title, probability=1),
+            ],
+            'generic_field': 'title'
+        },
+    }
 
     # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
     def __init__(self, fileobject, config, request_data_callback):
-        super(EbookAnalyzer, self).__init__(
-            fileobject, config, request_data_callback
-        )
+        super().__init__(fileobject, config, request_data_callback)
 
         self.text = None
         self._isbn_metadata = []
@@ -201,13 +239,8 @@ class EbookAnalyzer(BaseAnalyzer):
                     year=metadata_dict.get('Year')
                 )
                 self.log.debug('Metadata for ISBN: {}'.format(isbn))
-                self.log.debug('Title     : {}'.format(metadata.title))
-                self.log.debug('Authors   : {}'.format(metadata.authors))
-                self.log.debug('Publisher : {}'.format(metadata.publisher))
-                self.log.debug('Year      : {}'.format(metadata.year))
-                self.log.debug('Language  : {}'.format(metadata.language))
-                self.log.debug('ISBN-10   : {}'.format(metadata.isbn10))
-                self.log.debug('ISBN-13   : {}'.format(metadata.isbn13))
+                for line in metadata.as_string().splitlines():
+                    self.log.debug(line)
 
                 # Duplicates are removed here. When both ISBN-10 and ISBN-13
                 # text is found and two queries are made, the two metadata
@@ -217,6 +250,11 @@ class EbookAnalyzer(BaseAnalyzer):
                     self._isbn_metadata.append(metadata)
                 else:
                     self.log.debug('Skipped "duplicate" metadata for ISBN: {}'.format(isbn))
+                    # print('Skipped metadata considered a duplicate:')
+                    # print_copy_pasteable_isbn_metadata('x', metadata)
+                    # print('Previously Stored metadata:')
+                    # for n, m in enumerate(self._isbn_metadata):
+                    #     print_copy_pasteable_isbn_metadata(n, m)
 
             self.log.info('Got {} instances of ISBN metadata'.format(
                 len(self._isbn_metadata)
@@ -229,28 +267,19 @@ class EbookAnalyzer(BaseAnalyzer):
                     continue
 
                 maybe_title = self._filter_title(_isbn_metadata.title)
-                if maybe_title:
-                    self._add_results('title', self._wrap_title(maybe_title))
+                self._add_intermediate_results('title', maybe_title)
 
                 maybe_authors = _isbn_metadata.authors
-                if maybe_authors:
-                    self._add_results('author',
-                                      self._wrap_authors(maybe_authors))
+                self._add_intermediate_results('author', maybe_authors)
 
-                maybe_publisher = self._filter_publisher(
-                    _isbn_metadata.publisher
-                )
-                if maybe_publisher:
-                    self._add_results('publisher',
-                                      self._wrap_publisher(maybe_publisher))
+                maybe_publisher = self._filter_publisher(_isbn_metadata.publisher)
+                self._add_intermediate_results('publisher', maybe_publisher)
 
                 maybe_date = self._filter_date(_isbn_metadata.year)
-                if maybe_date:
-                    self._add_results('date', self._wrap_date(maybe_date))
+                self._add_intermediate_results('date', maybe_date)
 
                 maybe_edition = self._filter_edition(_isbn_metadata.edition)
-                if maybe_edition:
-                    self._add_results('edition', self._wrap_edition(maybe_edition))
+                self._add_intermediate_results('edition', maybe_edition)
 
     def _get_isbn_metadata(self, isbn):
         if isbn in self._cached_isbn_metadata:
@@ -272,21 +301,6 @@ class EbookAnalyzer(BaseAnalyzer):
 
         return metadata
 
-    def _wrap_authors(self, list_of_authors):
-        if not list_of_authors:
-            return
-
-        return {
-            'source': str(self),
-            'value': list_of_authors,
-            'coercer': types.AW_STRING,
-            'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
-            ],
-            'generic_field': 'author',
-            'multivalued': True
-        }
-
     def _filter_date(self, raw_string):
         # TODO: [TD0034] Filter out known bad data.
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
@@ -296,46 +310,19 @@ class EbookAnalyzer(BaseAnalyzer):
         except types.AWTypeError:
             return None
 
-    def _wrap_date(self, date_string):
-        if not date_string:
-            return
-
-        return {
-            'source': str(self),
-            'value': date_string,
-            'coercer': types.AW_DATE,
-            'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
-                WeightedMapping(fields.DateTime, probability=1),
-            ],
-            'generic_field': 'date_created'
-        }
-
     def _filter_publisher(self, raw_string):
         # TODO: [TD0034] Filter out known bad data.
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         try:
             string_ = types.AW_STRING(raw_string)
         except types.AWTypeError:
-            return
+            return None
         else:
             if not string_.strip():
-                return
+                return None
 
             # TODO: Cleanup and filter publisher(s)
             return string_
-
-    def _wrap_publisher(self, publisher_string):
-        return {
-            'source': str(self),
-            'value': publisher_string,
-            'coercer': types.AW_STRING,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=1),
-            ],
-            'generic_field': 'publisher'
-        }
 
     def _filter_title(self, raw_string):
         # TODO: [TD0034] Filter out known bad data.
@@ -343,24 +330,13 @@ class EbookAnalyzer(BaseAnalyzer):
         try:
             string_ = types.AW_STRING(raw_string)
         except types.AWTypeError:
-            return
+            return None
         else:
             if not string_.strip():
-                return
+                return None
 
             # TODO: Cleanup and filter title.
             return string_
-
-    def _wrap_title(self, title_string):
-        return {
-            'source': str(self),
-            'value': title_string,
-            'coercer': types.AW_STRING,
-            'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1),
-            ],
-            'generic_field': 'title'
-        }
 
     def _filter_edition(self, raw_string):
         # TODO: [TD0034] Filter out known bad data.
@@ -372,30 +348,13 @@ class EbookAnalyzer(BaseAnalyzer):
         else:
             return int_ if int_ != 0 else None
 
-    def _wrap_edition(self, edition_integer):
-        return {
-            'source': str(self),
-            'value': edition_integer,
-            'coercer': types.AW_INTEGER,
-            'mapped_fields': [
-                WeightedMapping(fields.Edition, probability=1),
-            ],
-            'generic_field': 'edition'
-        }
-
     @classmethod
     def can_handle(cls, fileobject):
-        try:
-            return mimemagic.eval_glob(fileobject.mime_type,
-                                       cls.HANDLES_MIME_TYPES)
-        except (TypeError, ValueError) as e:
-            cls.log.error(
-                'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
-            )
-        if (fileobject.basename_suffix == b'mobi' and
-                fileobject.mime_type == 'application/octet-stream'):
+        mime_type_ok = cls._evaluate_mime_type_glob(fileobject)
+        if (mime_type_ok
+                or fileobject.basename_suffix == b'mobi'
+                and fileobject.mime_type == 'application/octet-stream'):
             return True
-
         return False
 
     @classmethod
@@ -468,7 +427,7 @@ def filter_isbns(isbn_list, isbn_blacklist):
     if not isbn_list:
         return []
 
-    assert isinstance(isbn_list, list)
+    sanity.check_isinstance(isbn_list, list)
 
     # Remove any duplicates.
     isbn_list = list(set(isbn_list))
@@ -690,6 +649,16 @@ class ISBNMetadata(object):
     def normalized_title(self):
         return self._normalized_title or ''
 
+    def as_string(self):
+        return '''Title     : {}
+Authors   : {}
+Publisher : {}
+Year      : {}
+Language  : {}
+ISBN-10   : {}
+ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
+                         self.language, self.isbn10, self.isbn13)
+
     def similarity(self, other):
         """
         Fuzzy comparison with ad-hoc threshold values.
@@ -755,6 +724,9 @@ class ISBNMetadata(object):
                     return True
                 if _sim_publisher > 0.7:
                     return True
+            elif _sim_authors > 0.25:
+                if _sim_title >= 0.99:
+                    return True
         else:
             if _sim_authors == 1:
                 if _sim_title > 0.5:
@@ -765,6 +737,9 @@ class ISBNMetadata(object):
                 if _sim_title > 0.7:
                     return True
                 if _sim_publisher > 0.7:
+                    return True
+            elif _sim_authors > 0.2:
+                if _sim_title > 0.9:
                     return True
         return False
 
@@ -780,3 +755,16 @@ class ISBNMetadata(object):
 
     def __hash__(self):
         return hash((self.isbn10, self.isbn13))
+
+
+def print_copy_pasteable_isbn_metadata(n, m):
+    print('''
+m{} = ISBNMetadata(
+    authors={},
+    language='{}',
+    publisher='{}',
+    isbn10='{}',
+    isbn13='{}',
+    title='{}',
+    year='{}'
+)'''.format(n, m.authors, m.language, m.publisher, m.isbn10, m.isbn13, m.title, m.year))

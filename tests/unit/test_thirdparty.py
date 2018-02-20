@@ -27,7 +27,7 @@ import unit.utils as uu
 import unit.constants as uuconst
 
 
-THIRDPARTY_ROOT_DIR = os.path.join(uuconst.AUTONAMEOW_SRCROOT_DIR, 'thirdparty')
+THIRDPARTY_ROOT_DIR = os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'thirdparty')
 
 
 class TestThirdPartyPath(TestCase):
@@ -41,6 +41,3 @@ class TestThirdPartyPath(TestCase):
 class TestThirdPartyImports(TestCase):
     def test_import_or_return_none_pyexiftool(self):
         from thirdparty import pyexiftool as _
-
-    def test_import_or_return_none_epubzilla(self):
-        from thirdparty import epubzilla as _

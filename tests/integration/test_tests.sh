@@ -128,16 +128,27 @@ assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
 
 # ______________________________________________________________________________
 #
-# Check the test runner scripts.
+# Basic checks of the test runner scripts.
 
 _integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_integration_tests.sh"
 assert_bulk_test "$_integration_runner_path" n e r x
 
+assert_true '"$_integration_runner_path" -h' \
+            "Expect exit code 0 when running \"${_integration_runner_path} -h\""
+
+
 _unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_unit_tests.sh"
 assert_bulk_test "$_unit_runner_path" n e r x
 
+assert_true '"$_unit_runner_path" -h' \
+            "Expect exit code 0 when running \"${_unit_runner_path} -h\""
+
+
 _regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_regression_tests.sh"
 assert_bulk_test "$_regression_runner_path" n e r x
+
+assert_true '"$_regression_runner_path" -h' \
+            "Expect exit code 0 when running \"${_regression_runner_path} -h\""
 
 
 # ______________________________________________________________________________
@@ -154,12 +165,6 @@ assert_has_command 'python3'
 assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
             'System python3 is version v3.5.0 or newer'
 
-assert_has_command 'exiftool'
-assert_has_command 'tesseract'
-assert_has_command 'pylint'
-# assert_has_command 'vulture'
-assert_has_command 'aha'
-
 assert_has_command 'sed'
 assert_true 'man sed | grep -- "^ \+.*-i\b"' \
             'System sed supports the "-i" option, required by some integration tests'
@@ -168,12 +173,26 @@ assert_has_command 'git'
 assert_true 'git --version | grep "git version 2\..*"' \
             'System git version is newer than v2.x.x'
 
+assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+
+
+# Developer scripts and testing dependencies.
 assert_has_command 'pytest'
 _pytesthelp="$(pytest --help 2>&1)"
 assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
             'Module "pytest-html" is available on the system'
 
-assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+assert_has_command 'pylint'
+# assert_has_command 'vulture'
+assert_has_command 'aha'
+
+
+# Extractor dependencies.
+assert_has_command 'exiftool'
+assert_has_command 'tesseract'
+assert_has_command 'pdftotext'
+assert_has_command 'unrtf'
+assert_has_command 'pandoc'  # MarkdownTextExtractor
 
 
 # ______________________________________________________________________________
@@ -191,6 +210,9 @@ assert_true '"${_todo_helper_script_path}"' \
 
 assert_true '"${_todo_helper_script_path}" --help' \
             'TODO-list utility script returns exit code 0 when started with argument "--help"'
+
+_whitespace_check_script_path="${_devscripts_path}/check_whitespace.sh"
+assert_bulk_test "$_whitespace_check_script_path" n e f r x
 
 
 # ______________________________________________________________________________
@@ -270,6 +292,117 @@ assert_bulk_test "$_temporary_file" f w
 rm "$_temporary_file"
 assert_false '[ -e "${_temporary_file}" ]' \
              'Reference dummy temporary file was deleted'
+
+
+# ______________________________________________________________________________
+#
+# Verify sample test files used by other tests.
+
+check_testfiles_directory()
+{
+    assert_bulk_test "$(abspath_testfile "$1")" d r x
+}
+
+check_testfiles_file()
+{
+    assert_bulk_test "$(abspath_testfile "$1")" f r
+}
+
+check_testfiles_symlink()
+{
+    # NOTE(jonas): Can't test for -L because abspath_testfile resolves links..
+    assert_bulk_test "$(abspath_testfile "$1")" e r
+}
+
+check_testfiles_file      '2007-04-23_12-comments.png'
+check_testfiles_file      '2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
+check_testfiles_file      '2017-11-20T020738 filetags-style name -- tag1.txt'
+check_testfiles_file      '4123.epub'
+check_testfiles_file      '4123.pdf'
+check_testfiles_file      'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi'
+check_testfiles_file      'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf'
+check_testfiles_file      'UTF-8-demo.txt'
+check_testfiles_file      'empty'
+check_testfiles_symlink   'empty.symlink'
+check_testfiles_file      'gmail.pdf'
+check_testfiles_file      'magic_bmp.bmp'
+check_testfiles_file      'magic_gif.gif'
+check_testfiles_file      'magic_jpg.jpg'
+check_testfiles_file      'magic_mp4.mp4'
+check_testfiles_file      'magic_pdf.pdf'
+check_testfiles_file      'magic_png.png'
+check_testfiles_file      'magic_txt'
+check_testfiles_file      'magic_txt.md'
+check_testfiles_file      'magic_txt.txt'
+check_testfiles_file      'ObjectCalisthenics.rtf'
+check_testfiles_file      'pg38145-images.epub'
+check_testfiles_file      'pg38145-images.epub_expected.txt'
+check_testfiles_file      'sample.md'
+check_testfiles_file      'sample.md_expected.txt'
+check_testfiles_file      'sample.rtf'
+check_testfiles_file      'sample.rtf_expected.txt'
+check_testfiles_file      'saved-webpage.html'
+check_testfiles_file      'saved-webpage.mhtml'
+check_testfiles_file      'simple-lexical-analysis'
+check_testfiles_file      'simplest_pdf.md.pdf'
+check_testfiles_file      'simplest_pdf.md.pdf_expected.txt'
+check_testfiles_file      'simplest_pdf.md.pdf.txt'
+check_testfiles_file      'smulan.jpg'
+check_testfiles_file      'text_alnum_ascii.txt'
+check_testfiles_file      'text_alnum_cp1252.txt'
+check_testfiles_file      'text_alnum_cp437.txt'
+check_testfiles_file      'text_alnum_cp858.txt'
+check_testfiles_file      'text_alnum_iso-8859-1.txt'
+check_testfiles_file      'text_alnum_macroman.txt'
+check_testfiles_file      'text_alnum_utf-16.txt'
+check_testfiles_file      'text_alnum_utf-8.txt'
+check_testfiles_file      'text_git_euc-jp.txt'
+check_testfiles_file      'text_git_iso-2022-jp.txt'
+check_testfiles_file      'text_git_iso88591.txt'
+check_testfiles_file      'text_git_utf-8_1.txt'
+check_testfiles_file      'text_git_utf-8_2.txt'
+check_testfiles_file      'text_git_utf16.txt'
+check_testfiles_file      'text_sample_ascii.txt'
+check_testfiles_file      'text_sample_cp1252.txt'
+check_testfiles_file      'text_sample_cp437.txt'
+check_testfiles_file      'text_sample_cp858.txt'
+check_testfiles_file      'text_sample_iso-8859-1.txt'
+check_testfiles_file      'text_sample_macroman.txt'
+check_testfiles_file      'text_sample_utf-16.txt'
+check_testfiles_file      'text_sample_utf-8.txt'
+check_testfiles_directory 'configs'
+check_testfiles_file      'configs/autonam€öw.yaml'
+check_testfiles_file      'configs/bad_0001.yaml'
+check_testfiles_file      'configs/bad_0002.yaml'
+check_testfiles_file      'configs/bad_0003.yaml'
+check_testfiles_file      'configs/bad_0004.yaml'
+check_testfiles_file      'configs/bad_0005.yaml'
+check_testfiles_file      'configs/bad_0006.yaml'
+check_testfiles_file      'configs/bad_0007.yaml'
+check_testfiles_file      'configs/bad_0008.yaml'
+check_testfiles_file      'configs/bad_0009.yaml'
+check_testfiles_file      'configs/bad_corrupt_gif.yaml'
+check_testfiles_file      'configs/bad_empty_but_sections.yaml'
+check_testfiles_file      'configs/bad_empty_but_version.yaml'
+check_testfiles_file      'configs/bad_no_file_rules.yaml'
+check_testfiles_file      'configs/default.yaml'
+check_testfiles_file      'configs/integration_default_templated.yaml'
+check_testfiles_file      'configs/integration_test_config_1.yaml'
+check_testfiles_file      'configs/integration_test_config_UTF-8-demo.yaml'
+check_testfiles_file      'configs/integration_test_config_add-ext_1.yaml'
+check_testfiles_file      'configs/integration_test_config_add-ext_2.yaml'
+check_testfiles_file      'configs/integration_test_config_filetags.yaml'
+check_testfiles_directory 'subdir'
+check_testfiles_file      'subdir/file_1'
+check_testfiles_file      'subdir/file_2'
+check_testfiles_file      'subdir/file_3'
+check_testfiles_directory 'subdir/subsubdir_A'
+check_testfiles_file      'subdir/subsubdir_A/file_A1'
+check_testfiles_file      'subdir/subsubdir_A/file_A2'
+check_testfiles_directory 'subdir/subsubdir_B'
+check_testfiles_file      'subdir/subsubdir_B/file_A3'
+check_testfiles_file      'subdir/subsubdir_B/file_B1'
+check_testfiles_file      'subdir/subsubdir_B/file_B2'
 
 
 

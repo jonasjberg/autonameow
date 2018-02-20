@@ -120,13 +120,74 @@ class ChangelogEntryClassifier(object):
 
 
 def is_blacklisted(entry):
-    # Blacklist merge commits
-    if not entry.body and re.match(r'^Merge .* into \w+', entry.subject):
+    body = str(entry.body).rstrip('.')
+    subject = str(entry.subject).rstrip('.')
+
+    def _subject_match(*args):
+        return re.match(*args, subject)
+
+    def _body_match(*args):
+        return re.match(*args, body)
+
+    def _any_match(*args):
+        return _subject_match(*args) or _body_match(*args)
+
+    # Merge commits
+    if _subject_match(r'^Merge .* into \w+') and not body:
         return True
 
-    # Blacklist reverted commits
-    if (entry.subject.startswith('Revert ')
-            and entry.body.startswith('This reverts commit')):
+    # Reverted commits
+    if _subject_match(r'^Revert .*') and _body_match(r'^This reverts commit.*'):
+        return True
+
+    # Simple additions of new TODOs
+    if _subject_match(r'^Add TODO.*'):
+        if not body or _body_match(r'^Adds TODO.*'):
+            return True
+
+    # Cleaned up imports
+    if _subject_match(r'^Remove unused imports?') and not body:
+        return True
+
+    # Trivial/uninformative commits
+    if _subject_match(r'^Fix unit tests$') and not body:
+        return True
+
+    if _subject_match(r'^Trivial fix .*') and not body:
+        return True
+
+    # Added comments
+    if _subject_match(r'^Add comment.*'):
+        if not body or _body_match(r'^Adds comment.*'):
+            return True
+
+    # Fixed typos
+    if not body and _subject_match(r'^Fix typo.*') and not 'and' in subject:
+        return True
+
+    # Shameful
+    if not body:
+        if (_subject_match(r'\bNOTE:.*(BROKEN|broken).*')
+                or _subject_match(r'.*\(WIP\).*(BROKEN|broken).*')):
+            return True
+
+    # Trivial changes
+    if not body:
+        if (_subject_match(r'.*(related\.md|notes\.md).*')
+                or _subject_match(r'(Add|Modify|Remove).*logging.*')
+                or _subject_match(r'Trivial.*')
+                or _subject_match(r'Whitespace fixes')
+                or _subject_match(r'Whitespace fixes')
+                or _subject_match(r'Rename variables')
+                or _subject_match(r'Rename function \'.*\'')
+                or _subject_match(r'.*[sS]pelling.*')
+                or _subject_match(r'(Add|Modify|Remove).*(to|in|from)? \'.*\.md\'')
+                or _subject_match(r'(Changes|Fixes).*(in|to)? \'.*\.md\'')):
+            return True
+
+    if _any_match(r'.*\bpylint(rc)?\b.*'):
+        return True
+    if _any_match(r'.*update_changelog.*'):
         return True
 
     return False
@@ -276,11 +337,5 @@ if __name__ == '__main__':
             print(text.indent(entry.body, amount=14))
             if entry.body:
                 print()
-
-    # for _le in log_entries:
-    #     print(text.indent('- ' + _le.subject, amount=12))
-    #     print(text.indent(_le.body, amount=14))
-    #     if _le.body:
-    #         print()
 
     sys.exit(exit_status)

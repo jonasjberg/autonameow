@@ -39,7 +39,7 @@ _re_copyright_year = r'(?P<year>\d{4})'
 _re_copyright_years = r'(?P<year_range>\d{4}[- ]+\d{4})'
 
 RE_COPYRIGHT_NOTICE_A = re.compile(
-    '({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?({year}|{years}) ?{name}'.format(
+    r'({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?({year}|{years}) ?{name}'.format(
         copyright=_re_copyright_text,
         symbol=_re_copyright_symbol,
         year=_re_copyright_year,
@@ -48,7 +48,7 @@ RE_COPYRIGHT_NOTICE_A = re.compile(
     ), re.IGNORECASE
 )
 RE_COPYRIGHT_NOTICE_B = re.compile(
-    '({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?{name}[,\ ]+?({year}|{years})'.format(
+    r'({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?{name}[,\ ]+?({year}|{years})'.format(
         copyright=_re_copyright_text,
         symbol=_re_copyright_symbol,
         year=_re_copyright_year,

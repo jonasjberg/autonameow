@@ -21,10 +21,7 @@
 
 from unittest import TestCase
 
-from core.model.fields import (
-    Author,
-    Title
-)
+from core.model.fields import Author
 
 
 # From 'notes/metadata_processing.md':

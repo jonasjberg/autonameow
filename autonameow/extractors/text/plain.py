@@ -37,10 +37,7 @@ log = logging.getLogger(__name__)
 
 class PlainTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['text/plain']
-    is_slow = False
-
-    def __init__(self):
-        super(PlainTextExtractor, self).__init__()
+    IS_SLOW = False
 
     def extract_text(self, fileobject):
         self.log.debug('Extracting raw text from plain text file ..')
@@ -90,6 +87,7 @@ def _read_entire_text_file_autodetect_encoding(file_path):
             raise ExtractorError(
                 'Unable to use auto-detected encoding; {!s}'.format(e)
             )
+    return None
 
 
 def autodetect_encoding(file_path):

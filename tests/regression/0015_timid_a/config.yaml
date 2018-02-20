@@ -1,0 +1,10 @@
+RULES:
+    Extension from MIME-type:
+        CONDITIONS:
+            extractor.filesystem.xplat.contents.mime_type: '*/*'
+        NAME_TEMPLATE: '{title}.{extension}'
+        DATA_SOURCES:
+            extension: analyzer.filename.extension
+            title: extractor.filesystem.xplat.basename.prefix
+        exact_match: false
+        ranking_bias: 0.01

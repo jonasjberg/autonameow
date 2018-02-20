@@ -11,7 +11,7 @@ input_paths:
 - $TESTFILES/magic_png.png
 - $TESTFILES/magic_txt.md
 - $TESTFILES/magic_txt
-list_all: true
+list_all: false
 mode_automagic: true
 mode_batch: true
 mode_interactive: false

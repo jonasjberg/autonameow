@@ -475,6 +475,215 @@ class TestISBNMetadataEquality(TestCase):
         )
         self.assertNotEqual(m1, m2)
 
+    def test_comparison_of_live_isbn_metadata(self):
+        m1 = ISBNMetadata(
+            authors=['Zhong Li', 'Wolfgang A. Halang', 'Guanrong Chen'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540268995',
+            isbn13='9783540268994',
+            title='Integration Of Fuzzy Logic And Chaos Theory',
+            year='2006'
+        )
+        m2 = ISBNMetadata(
+            authors=['Wesley Chu', 'Tsau Young Lin'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540250573',
+            isbn13='9783540250579',
+            title='Foundations And Advances In Data Mining',
+            year='2005'
+        )
+        m3 = ISBNMetadata(
+            authors=['Mircea Gh. Negoita', 'Bernd Reusch'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540250069',
+            isbn13='9783540250067',
+            title='Real World Applications Of Computational Intelligence',
+            year='2005'
+        )
+        self.assertNotEqual(m1, m2)
+        self.assertNotEqual(m1, m3)
+        self.assertNotEqual(m2, m3)
+
+    def test_comparison_of_metadata_with_et_al_authors_title_case_change(self):
+        m1 = ISBNMetadata(
+            authors=['Zhong Li', 'Wolfgang A. Halang', 'Guanrong Chen'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540268995',
+            isbn13='9783540268994',
+            title='Integration Of Fuzzy Logic And Chaos Theory',
+            year='2006'
+        )
+        m2 = ISBNMetadata(
+            authors=['Zhong Li', 'et.al.'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540268995',
+            isbn13='9783540268994',
+            title='Integration Of Fuzzy Logic And Chaos Theory',
+            year='2006'
+        )
+        m3 = ISBNMetadata(
+            authors=['Zhong Li', 'et.al.'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540268995',
+            isbn13='9783540268994',
+            title='Integration of Fuzzy Logic and Chaos Theory',
+            year='2006'
+        )
+        self.assertEqual(m1, m2)
+        self.assertEqual(m1, m3)
+
+    def test_comparison_of_metadata_with_different_author_ordering(self):
+        m1 = ISBNMetadata(
+            authors=['Zhong Li', 'Wolfgang A. Halang', 'Guanrong Chen'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540268995',
+            isbn13='9783540268994',
+            title='Integration Of Fuzzy Logic And Chaos Theory',
+            year='2006'
+        )
+        m2 = ISBNMetadata(
+            authors=['Guanrong Chen', 'Wolfgang A. Halang', 'Zhong Li'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540268995',
+            isbn13='9783540268994',
+            title='Integration Of Fuzzy Logic And Chaos Theory',
+            year='2006'
+        )
+        self.assertEqual(m1, m2)
+
+    def test_comparison_of_live_isbn_metadata_2(self):
+        m0 = ISBNMetadata(
+            authors=['Spiros Sirmakessis'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540250700',
+            isbn13='9783540250708',
+            title='Knowledge Mining Proceedings Of The NEMIS 2004 Final Conference',
+            year='2005'
+        )
+        m1 = ISBNMetadata(
+            authors=['Bogdan Gabrys'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540240772',
+            isbn13='9783540240778',
+            title='Do Smart Adaptive Systems Exist?: Best Practice For Selection And Combination Of Intelligent Methods',
+            year='2005'
+        )
+        m2 = ISBNMetadata(
+            authors=['Larry Bull', 'Tim Kovacs'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540250735',
+            isbn13='9783540250739',
+            title='Foundations Of Learning Classifier Systems',
+            year='2005'
+        )
+        m3 = ISBNMetadata(
+            authors=['Wesley Chu', 'Tsau Young Lin'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540250573',
+            isbn13='9783540250579',
+            title='Foundations And Advances In Data Mining',
+            year='2005'
+        )
+
+        m4 = ISBNMetadata(
+            authors=['Zhong Li', 'Wolfgang A. Halang', 'Guanrong Chen'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540268995',
+            isbn13='9783540268994',
+            title='Integration Of Fuzzy Logic And Chaos Theory',
+            year='2006'
+        )
+        m5 = ISBNMetadata(
+            authors=['Ana María Gil Lafuente'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540232133',
+            isbn13='9783540232131',
+            title='Fuzzy Logic In Financial Analysis',
+            year='2005'
+        )
+        m6 = ISBNMetadata(
+            authors=['Udo Seiffert', 'Patrick Schweizer'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540229019',
+            isbn13='9783540229018',
+            title='Bioinformatics Using Computational Intelligence Paradigms',
+            year='2005'
+        )
+        m7 = ISBNMetadata(
+            authors=['Mircea Gh. Negoita', 'Daniel Neagu', 'Vasile Palade'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540232192',
+            isbn13='9783540232193',
+            title='Computational Intelligence: Engineering Of Hybrid Systems',
+            year='2005'
+        )
+        m8 = ISBNMetadata(
+            authors=['Nadia Nedjah', 'Luiza de Macedo Mourelle'],
+            language='eng',
+            publisher='Springer',
+            isbn10='354025322X',
+            isbn13='9783540253228',
+            title='Fuzzy Systems Engineering: Theory And Practice',
+            year='2005'
+        )
+        m9 = ISBNMetadata(
+            authors=['Claude Ghaoui'],
+            language='eng',
+            publisher='Springer',
+            isbn10='354025045X',
+            isbn13='9783540250456',
+            title='Knowledge-Based Virtual Education: User-Centred Paradigms',
+            year='2005'
+        )
+        m10 = ISBNMetadata(
+            authors=['John N. Mordeson', 'Kiran R. Bhutani', 'A. Rosenfeld'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540250727',
+            isbn13='9783540250722',
+            title='Fuzzy Group Theory',
+            year='2005'
+        )
+        m11 = ISBNMetadata(
+            authors=['Mircea Gh. Negoita', 'Bernd Reusch'],
+            language='eng',
+            publisher='Springer',
+            isbn10='3540250069',
+            isbn13='9783540250067',
+            title='Real World Applications Of Computational Intelligence',
+            year='2005'
+        )
+        unique_isbn_metadata = set()
+        unique_isbn_metadata.add(m0)
+        unique_isbn_metadata.add(m1)
+        unique_isbn_metadata.add(m2)
+        unique_isbn_metadata.add(m3)
+        unique_isbn_metadata.add(m4)
+        unique_isbn_metadata.add(m5)
+        unique_isbn_metadata.add(m6)
+        unique_isbn_metadata.add(m7)
+        unique_isbn_metadata.add(m8)
+        unique_isbn_metadata.add(m9)
+        unique_isbn_metadata.add(m10)
+        unique_isbn_metadata.add(m11)
+        self.assertEqual(12, len(unique_isbn_metadata))
+
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestFindEbookISBNsInText(TestCase):

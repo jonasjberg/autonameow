@@ -75,17 +75,10 @@ class TestPluginClassMeowURIs(TestCase):
         self.actual = [k.meowuri_prefix() for k in plugins.ProviderClasses]
 
     def test_returns_expected_type(self):
+        from core.model import MeowURI
         for meowuri in self.actual:
-            self.assertTrue(uu.is_internalstring(meowuri))
+            self.assertIsInstance(meowuri, MeowURI)
             self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
-
-    # def test_returns_meowuris_for_extractors_assumed_always_available(self):
-    #     self.skipTest('TODO: Add plugins that should be always available')
-    #
-    #     def _assert_in(member):
-    #         self.assertIn(member, self.actual)
-    #
-    #     _assert_in(None)
 
     def test_returns_meowuris_for_available_extractors(self):
         def _conditional_assert_in(klass, member):

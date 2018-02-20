@@ -21,20 +21,20 @@
 
 import logging
 
-
 from core import (
     persistence,
     types,
 )
-from extractors import (
-    BaseExtractor,
-    ExtractorError
-)
+# TODO: [TD0172] Extend the text extractors with additional fields.
+# from core.model import WeightedMapping
+# from core.namebuilder import fields
+from extractors import BaseExtractor
 from util import encoding as enc
 from util import sanity
 from util.text import (
     normalize_unicode,
-    remove_nonbreaking_spaces
+    remove_nonbreaking_spaces,
+    remove_zerowidth_spaces
 )
 
 
@@ -48,11 +48,20 @@ class AbstractTextExtractor(BaseExtractor):
             'multivalued': False,
             'mapped_fields': None,
             'generic_field': 'text'
-        }
+        },
+        # TODO: [TD0172] Extend the text extractors with additional fields.
+        # 'title': {
+        #     'coercer': types.AW_STRING,
+        #     'multivalued': False,
+        #     'mapped_fields': [
+        #         WeightedMapping(fields.Title, probability=1)
+        #     ],
+        #     'generic_field': 'title'
+        # }
     }
 
     def __init__(self):
-        super(AbstractTextExtractor, self).__init__()
+        super().__init__()
 
         self.cache = None
         # NOTE(jonas): Call 'self.init_cache()' in subclass init to use caching.
@@ -61,25 +70,46 @@ class AbstractTextExtractor(BaseExtractor):
         text = self._get_text(fileobject)
         sanity.check_internal_string(text)
 
-        self.log.debug('{!s} returning all extracted data'.format(self))
-        return {'full': text}
+        # TODO: [TD0172] Extend the text extractors with additional fields.
+        # TODO: [TD0173] Use 'pandoc' to extract information from documents.
+        return {
+            'full': text,
+            # 'title': title
+        }
 
     def _get_text(self, fileobject):
-        # Read cached text
-        if self.cache:
-            _cached = self.cache.get(fileobject)
-            if _cached is not None:
-                self.log.info('Using cached text for: {!r}'.format(fileobject))
-                return _cached
+        cached_text = self._get_cached_text(fileobject)
+        if cached_text:
+            return cached_text
 
         text = self.extract_text(fileobject)
         if not text:
             return ''
 
         clean_text = self.cleanup(text)
-        if self.cache:
-            self.cache.set(fileobject, clean_text)
+        self._set_cached_text(fileobject, clean_text)
         return clean_text
+
+    def _get_cached_text(self, fileobject):
+        if not self.cache:
+            return None
+        try:
+            cached_text = self.cache.get(fileobject)
+        except persistence.PersistenceError as e:
+            self.log.critical('Unable to read {!s} cache :: {!s}'.format(self, e))
+        else:
+            if cached_text:
+                self.log.info('Using cached text for: {!r}'.format(fileobject))
+                return cached_text
+        return None
+
+    def _set_cached_text(self, fileobject, text):
+        if not self.cache:
+            return
+        try:
+            self.cache.set(fileobject, text)
+        except persistence.PersistenceError as e:
+            self.log.critical('Unable to write {!s} cache :: {!s}'.format(self, e))
 
     def extract_text(self, fileobject):
         """
@@ -110,6 +140,7 @@ class AbstractTextExtractor(BaseExtractor):
         if _cache:
             self.cache = _cache
         else:
+            log.debug('Failed to initialize {!s} cache'.format(self))
             self.cache = None
 
     @staticmethod
@@ -121,6 +152,7 @@ class AbstractTextExtractor(BaseExtractor):
         text = raw_text
         text = normalize_unicode(text)
         text = remove_nonbreaking_spaces(text)
+        text = remove_zerowidth_spaces(text)
         return text if text else ''
 
 

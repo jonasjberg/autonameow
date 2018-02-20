@@ -16,6 +16,9 @@ Various utility scripts related to `autonameow` development.
 Experimental script for finding expected field values in the output of
 `autonameow --list-all`.
 
+### `check_whitespace.sh`
+Check text file style violations, whitespace, line separators and tabs.
+
 ### `cloc.sh`
 Generate statistics on the project source code using `cloc`.
 

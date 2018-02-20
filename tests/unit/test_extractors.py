@@ -26,14 +26,15 @@ from unittest.mock import (
     patch
 )
 
-import unit.constants as uuconst
 import unit.utils as uu
 from core import constants as C
 from extractors import (
     AUTONAMEOW_EXTRACTOR_PATH,
     BaseExtractor,
-    find_extractor_module_files,
-    _get_package_classes,
+    EXTRACTOR_CLASS_PACKAGES,
+    EXTRACTOR_CLASS_PACKAGES_METADATA,
+    EXTRACTOR_CLASS_PACKAGES_TEXT,
+    _find_extractor_classes_in_packages,
     get_extractor_classes,
     ProviderClasses
 )
@@ -51,6 +52,20 @@ class TestExtractorsConstants(TestCase):
     def test_extractor_path_contains_expected_top_level_directory(self):
         _top = 'extractors'
         self.assertTrue(AUTONAMEOW_EXTRACTOR_PATH.endswith(_top))
+
+    def _assert_list_of_strings(self, given):
+        self.assertIsInstance(given, list)
+        for element in given:
+            self.assertIsInstance(element, str)
+
+    def test_extractor_class_packages(self):
+        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES)
+
+    def test_extractor_class_packages_text(self):
+        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_TEXT)
+
+    def test_extractor_class_packages_metadata(self):
+        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_METADATA)
 
 
 class TestBaseExtractor(TestCase):
@@ -149,54 +164,29 @@ class TestBaseExtractorClassMethods(TestCase):
         self.assertTrue(actual)
 
 
-class TestFindExtractorModuleSourceFiles(TestCase):
-    def test_returns_expected_type(self):
-        actual = find_extractor_module_files()
-        self.assertIsInstance(actual, list)
-
-    def test_returns_expected_files(self):
-        actual = find_extractor_module_files()
-
-        self.assertNotIn('__init__.py', actual)
-        self.assertNotIn('__pycache__', actual)
-        self.assertNotIn('common.py', actual)
-
-
-def subclasses_base_extractor(klass):
-    return uu.is_class(klass) and issubclass(klass, BaseExtractor)
-
-
-class TestGetAllExtractorClasses(TestCase):
-    def setUp(self):
-        self.sources = ['text', 'metadata']
-        self.actual = _get_package_classes(self.sources)
+class TestFindExtractorClassesInPackages(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.actual = _find_extractor_classes_in_packages(EXTRACTOR_CLASS_PACKAGES)
 
     def test_returns_expected_type(self):
-        self.assertIsInstance(self.actual, tuple)
+        self.assertIsInstance(self.actual, list)
 
-    def test_returns_abstract_subclasses_of_base_extractor(self):
-        actual_abstract, _ = self.actual
-        for _abstract in actual_abstract:
-            with self.subTest(klass=_abstract):
-                self.assertTrue(subclasses_base_extractor(_abstract))
-
-    def test_returns_implemented_subclasses_of_base_extractor(self):
-        _, actual_implemented = self.actual
-        for _implemented in actual_implemented:
-            with self.subTest(_implemented):
-                self.assertTrue(subclasses_base_extractor(_implemented))
+    def test_returns_subclasses_of_base_extractor(self):
+        for klass in self.actual:
+            with self.subTest(klass):
+                self.assertTrue(uu.is_class(klass))
+                self.assertTrue(issubclass(klass, BaseExtractor))
 
     def test_does_not_include_base_extractor(self):
-        abstract, implemented = self.actual
-        self.assertNotIn(BaseExtractor, abstract)
-        self.assertNotIn(BaseExtractor, implemented)
+        self.assertNotIn(BaseExtractor, self.actual)
 
 
 class TestGetImplementedExtractorClasses(TestCase):
-    def setUp(self):
-        self.actual = get_extractor_classes(
-            packages=uuconst.EXTRACTOR_CLASS_PACKAGES,
-            modules=uuconst.EXTRACTOR_CLASS_MODULES
+    @classmethod
+    def setUpClass(cls):
+        cls.actual = get_extractor_classes(
+            packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
     def test_get_extractor_classes_returns_expected_type(self):
@@ -215,11 +205,72 @@ class TestGetImplementedExtractorClasses(TestCase):
         self.assertNotIn(AbstractTextExtractor, self.actual)
 
 
+class TestGetTextExtractorClasses(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.actual = get_extractor_classes(
+            packages=EXTRACTOR_CLASS_PACKAGES_TEXT,
+        )
+
+    def test_get_extractor_classes_returns_expected_type(self):
+        self.assertIsInstance(self.actual, list)
+
+    def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
+        for klass in self.actual:
+            self.assertTrue(uu.is_class(klass))
+            self.assertTrue(issubclass(klass, BaseExtractor))
+
+    def test_get_extractor_classes_does_not_include_base_extractor(self):
+        self.assertNotIn(BaseExtractor, self.actual)
+
+    def test_get_extractor_classes_does_not_include_abstract_extractors(self):
+        from extractors.text.common import AbstractTextExtractor
+        self.assertNotIn(AbstractTextExtractor, self.actual)
+
+    def test_returns_text_extractors(self):
+        from extractors.text.common import AbstractTextExtractor
+        for klass in self.actual:
+            self.assertTrue(issubclass(klass, AbstractTextExtractor))
+
+
+class TestGetMetadataExtractorClasses(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.actual = get_extractor_classes(
+            packages=EXTRACTOR_CLASS_PACKAGES_METADATA,
+        )
+
+    def test_get_extractor_classes_returns_expected_type(self):
+        self.assertIsInstance(self.actual, list)
+
+    def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
+        for klass in self.actual:
+            self.assertTrue(uu.is_class(klass))
+            self.assertTrue(issubclass(klass, BaseExtractor))
+
+    def test_get_extractor_classes_does_not_include_base_extractor(self):
+        self.assertNotIn(BaseExtractor, self.actual)
+
+    def test_get_extractor_classes_does_not_include_abstract_extractors(self):
+        from extractors.text.common import AbstractTextExtractor
+        self.assertNotIn(AbstractTextExtractor, self.actual)
+
+    def test_returns_metadata_extractors_verified_by_name(self):
+        for klass in self.actual:
+            _klass_name = klass.__name__
+            self.assertIn('Metadata', _klass_name)
+
+    def test_returns_metadata_extractors_verified_by_meowuri_prefix(self):
+        for klass in self.actual:
+            _meowuri_prefix = str(klass.meowuri_prefix())
+            self.assertTrue(_meowuri_prefix.startswith('extractor.metadata'))
+
+
 class TestNumberOfAvailableExtractorClasses(TestCase):
-    def setUp(self):
-        self.actual = get_extractor_classes(
-            packages=uuconst.EXTRACTOR_CLASS_PACKAGES,
-            modules=uuconst.EXTRACTOR_CLASS_MODULES
+    @classmethod
+    def setUpClass(cls):
+        cls.actual = get_extractor_classes(
+            packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
     # This tests up to the current number of extractors without dependencies.
@@ -235,14 +286,15 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
 
 
 class TestExtractorClassMeowURIs(TestCase):
-    extractor_class_names = [e.__name__ for e in ProviderClasses]
-
-    def setUp(self):
-        self.actual = [k.meowuri_prefix() for k in ProviderClasses]
+    @classmethod
+    def setUpClass(cls):
+        cls.extractor_class_names = [e.__name__ for e in ProviderClasses]
+        cls.actual = [k.meowuri_prefix() for k in ProviderClasses]
 
     def test_returns_expected_type(self):
+        from core.model import MeowURI
         for meowuri in self.actual:
-            self.assertTrue(uu.is_internalstring(meowuri))
+            self.assertIsInstance(meowuri, MeowURI)
             self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
 
     def test_returns_meowuris_for_extractors_assumed_always_available(self):
@@ -261,7 +313,11 @@ class TestExtractorClassMeowURIs(TestCase):
                                'extractor.filesystem.xplat')
         _conditional_assert_in('ExiftoolMetadataExtractor',
                                'extractor.metadata.exiftool')
-        _conditional_assert_in('PdftotextTextExtractor',
-                               'extractor.text.pdftotext')
+        _conditional_assert_in('PdfTextExtractor',
+                               'extractor.text.pdf')
         _conditional_assert_in('TesseractOCRTextExtractor',
                                'extractor.text.tesseractocr')
+        _conditional_assert_in('RichTextFormatTextExtractor',
+                               'extractor.text.rtf')
+        _conditional_assert_in('MarkdownTextExtractor',
+                               'extractor.text.markdown')

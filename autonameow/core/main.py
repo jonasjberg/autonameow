@@ -23,10 +23,8 @@ import sys
 import traceback
 
 from core import constants as C
-from core import (
-    logs,
-    ui
-)
+from core import logs
+from core.view import cli
 from core.autonameow import Autonameow
 from core.exceptions import AWAssertionError
 
@@ -87,12 +85,12 @@ def real_main(options=None):
         logs.silence()
 
     # Main program entry point.
-    with Autonameow(opts) as ameow:
+    with Autonameow(opts, ui=cli) as ameow:
         ameow.run()
 
 
 def print_error(message):
-    print(message, file=sys.stderr)
+    print(message, file=sys.stderr, flush=True)
 
 
 def format_sanitycheck_error(string):
@@ -140,11 +138,11 @@ def cli_main(argv=None):
     """
     args = argv
     if not args:
-        print('Add "--help" to display usage information.')
+        cli.msg('Add "--help" to display usage information.')
         sys.exit(C.EXIT_SUCCESS)
 
     # Handle the command line arguments with argparse.
-    opts = ui.options.cli_parse_args(args)
+    opts = cli.options.cli_parse_args(args)
 
     # Translate from 'argparse'-specific format to internal options dict.
     options = {

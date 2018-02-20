@@ -40,6 +40,10 @@ from util import textutils
 log = logging.getLogger(__name__)
 
 
+def is_datetime_instance(thing):
+    return bool(isinstance(thing, datetime))
+
+
 def hyphenate_date(date_str):
     """
     Convert a date in 'YYYYMMDD' format to 'YYYY-MM-DD' format.
@@ -194,57 +198,78 @@ def regex_search_str(text):
     return results
 
 
-def match_special_case(text):
+def _parse_datetime_from_start_to_char_n_patterns(text, match_patterns):
     """
-    Very special case that is almost guaranteed to be correct.
-    That is my personal favorite naming scheme; 1992-12-24_121314
-                                                1992-12-24T121314
-    :param text: text to extract date/time from
-    :return: datetime if found otherwise None
+    Try to parse string into a datetime object using multiple patterns.
+
+    Patterns are tuples with a date format and a number of characters to
+    include when parsing that format, from the first character to N.
+
+    Args:
+        text: String to parse. Should be single line of text.
+        match_patterns: List of tuples containing a date format and number of
+                        characters in the text string to include, from 0 to N.
+
+    Returns:
+        The first successful datetime-conversion that is also "probable".
     """
-    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-    # TODO: [TD0043] Allow the user to tweak hardcoded settings.
-    if text is None or text.strip() is None:
+    if not text or text.strip() is None:
         return None
 
+    for date_format, num_chars in match_patterns:
+        try:
+            dt = datetime.strptime(text[:num_chars], date_format)
+        except (TypeError, ValueError):
+            pass
+        else:
+            if date_is_probable(dt):
+                return dt
+
+    return None
+
+
+def match_special_case(text):
+    """
+    Matches strings with a ISO-like date on the form YYYY-mm-dd HH:MM:SS.
+
+    NOTE(jonas): These are patterns I have personally used over the years
+                 that I know are highly likely to be correct if in a filename.
+                 This should be made much more flexible, using user-specified
+                 or possibly "learned" patterns ..
+
+    Args:
+        text: Text line to extract datetime object from as a Unicode text.
+
+    Returns: A date and time as an instance of 'datetime' or None.
+    """
+    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     # TODO: [TD0043] Allow specifying custom matching patterns in the config.
-    match_patterns = [('%Y-%m-%d_%H%M%S', 17),
+    MATCH_PATTERNS = [('%Y-%m-%d_%H%M%S', 17),
                       ('%Y-%m-%dT%H%M%S', 17),
                       ('%Y%m%d_%H%M%S', 15),
                       ('%Y%m%dT%H%M%S', 15)]
-    for mp, chars in match_patterns:
-        try:
-            dt = datetime.strptime(text[:chars], mp)
-        except (TypeError, ValueError):
-            log.debug('Failed matching very special case.')
-        else:
-            if date_is_probable(dt):
-                log.debug('[DATETIME] Found very special case: '
-                          '"{}"'.format(dt))
-                return dt
-    return None
+    return _parse_datetime_from_start_to_char_n_patterns(text, MATCH_PATTERNS)
 
 
 def match_special_case_no_date(text):
     """
-    Very special case that is almost guaranteed to be correct, date only.
-    That is my personal favorite naming scheme: 1992-12-24
-    :param text: text to extract date/time from
-    :return: datetime if found otherwise None
+    Matches strings with a ISO-like date on the form YYYY-mm-dd.
+
+    NOTE(jonas): These are patterns I have personally used over the years
+                 that I know are highly likely to be correct if in a filename.
+                 This should be made much more flexible, using user-specified
+                 or possibly "learned" patterns ..
+
+    Args:
+        text: Text to extract datetime object from as a Unicode string.
+
+    Returns: A date as an instance of 'datetime' or None.
     """
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     # TODO: [TD0043] Allow the user to tweak hardcoded settings.
-    text = enc.decode_(text)
-    try:
-        dt = datetime.strptime(text[:10], '%Y-%m-%d')
-    except (TypeError, ValueError):
-        log.debug('Failed matching date only version of very special case.')
-    else:
-        if date_is_probable(dt):
-            log.debug('[DATETIME] Found very special case, date only: '
-                      '"{}"'.format(dt))
-            return dt
-    return None
+    MATCH_PATTERNS = [('%Y-%m-%d', 10),
+                      ('%Y%m%d', 8)]
+    return _parse_datetime_from_start_to_char_n_patterns(text, MATCH_PATTERNS)
 
 
 def match_android_messenger_filename(text):
@@ -578,13 +603,12 @@ def match_screencapture_unixtime(text):
     :return: datetime-object if a match is found, else None
     """
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-    text = enc.decode_(text)
-
-    pattern = re.compile(r'.*(\d{13}).*')
-    for t in re.findall(pattern, text):
-        dt = match_any_unix_timestamp(t)
-        if dt:
-            return dt
+    if text:
+        pattern = re.compile(r'.*(\d{13}).*')
+        for t in re.findall(pattern, text):
+            dt = match_any_unix_timestamp(t)
+            if dt:
+                return dt
     return None
 
 
@@ -598,6 +622,7 @@ def timezone_aware_to_naive(aware_datetime):
     Returns:
         A new datetime object without timezone information.
     """
+    # TODO: [TD0054] Represent datetime as UTC within autonameow.
     return aware_datetime.replace(tzinfo=None)
 
 
@@ -612,6 +637,7 @@ def naive_to_timezone_aware(naive_datetime):
         A new datetime object with localized timezone information.
     """
     # Reference:  https://stackoverflow.com/a/7065242/7802196
+    # TODO: [TD0054] Represent datetime as UTC within autonameow.
     return pytz.utc.localize(naive_datetime)
 
 

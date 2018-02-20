@@ -25,10 +25,8 @@ import sys
 import time
 
 from core import constants as C
-from core import (
-    types,
-    ui
-)
+from core import types
+from core.view import cli
 from core.persistence import get_persistence
 from regression.utils import (
     AutonameowWrapper,
@@ -49,16 +47,17 @@ PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 
 
 log = logging.getLogger('regression_runner')
-msg_label_pass = ui.colorize('PASS', fore='GREEN')
-msg_label_fail = ui.colorize('FAIL', fore='RED')
+msg_label_pass = cli.colorize('PASS', fore='GREEN')
+msg_label_fail = cli.colorize('FAIL', fore='RED')
 
 
 class TestResults(object):
-    def __init__(self, failures, runtime, stdout, stderr):
-        self.failures = failures
+    def __init__(self, failure_count, runtime, stdout, stderr, captured_exception):
+        self.failure_count = failure_count
         self.captured_runtime = runtime
         self.captured_stdout = stdout
         self.captured_stderr = stderr
+        self.captured_exception = captured_exception
 
 
 def run_test(test):
@@ -69,20 +68,16 @@ def run_test(test):
     aw = AutonameowWrapper(opts)
     aw()
     if aw.captured_exception:
-        print(' '
-              + ui.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ', back='RED'))
-        if VERBOSE:
-            print('\nCaptured exception:')
-            print(str(aw.captured_exception))
-            print('\nCaptured traceback:')
-            print(str(aw.captured_exception_traceback))
-
-        # TODO: Fix magic number return for exceptions for use when formatting.
-        return TestResults(failures=-10, runtime=None,
-                           stdout=aw.captured_stdout, stderr=aw.captured_stderr)
+        exception_info = {
+            'exception': str(aw.captured_exception),
+            'traceback': str(aw.captured_exception_traceback)
+        }
+        return TestResults(failure_count=0, runtime=None,
+                           stdout=aw.captured_stdout, stderr=aw.captured_stderr,
+                           captured_exception=exception_info)
 
     captured_runtime = aw.captured_runtime_secs
-    failures = 0
+    fail_count = 0
 
     def _msg_run_test_failure(msg):
         if VERBOSE:
@@ -106,7 +101,7 @@ def run_test(test):
                     expect_exitcode, actual_exitcode
                 )
             )
-            failures += 1
+            fail_count += 1
 
     actual_renames = aw.captured_renames
     if check_renames(actual_renames, expect_renames):
@@ -115,7 +110,7 @@ def run_test(test):
         for _in, _out in actual_renames.items():
             _msg_run_test_success('Renamed "{!s}" -> "{!s}"'.format(_in, _out))
     else:
-        failures += 1
+        fail_count += 1
         _msg_run_test_failure(
             'Renames differ. Expected {} files to be renamed. '
             '{} files were renamed.'.format(len(expect_renames), len(actual_renames))
@@ -160,11 +155,34 @@ def run_test(test):
 
     # TODO: [TD0158] Evaluate assertions of "skipped renames".
 
-    captured_stdout = aw.captured_stdout
-    captured_stderr = aw.captured_stderr
-    failures += check_stdout_asserts(test, captured_stdout)
+    captured_stdout = str(aw.captured_stdout)
+    captured_stderr = str(aw.captured_stderr)
 
-    return TestResults(failures, captured_runtime, captured_stdout, captured_stderr)
+    stdout_match_results = check_stdout_asserts(test, captured_stdout)
+    assert isinstance(stdout_match_results, list)
+
+    for match_result in stdout_match_results:
+        result_assert_type = str(match_result.assert_type)
+        if result_assert_type == 'matches':
+            msg = 'Expected stdout to match "{!s}"'.format(match_result.regex)
+            if match_result.passed:
+                _msg_run_test_success(msg)
+            else:
+                fail_count += 1
+                _msg_run_test_failure(msg)
+        elif result_assert_type == 'does_not_match':
+            msg = 'Expected stdout to NOT match "{!s}"'.format(match_result.regex)
+            if match_result.passed:
+                _msg_run_test_success(msg)
+            else:
+                fail_count += 1
+                _msg_run_test_failure(msg)
+        else:
+            raise AssertionError('Unexpected RegexMatchingResult.assert_type: '
+                                 '{!s}'.format(result_assert_type))
+
+    return TestResults(fail_count, captured_runtime, captured_stdout,
+                       captured_stderr, captured_exception=None)
 
 
 def write_failed_tests(tests):
@@ -190,7 +208,7 @@ def load_failed_tests():
 
 def print_test_info(tests):
     if VERBOSE:
-        cf = ui.ColumnFormatter()
+        cf = cli.ColumnFormatter()
         for t in tests:
             _test_dirname = types.force_string(t.get('test_dirname'))
             _test_description = types.force_string(t.get('description'))
@@ -237,50 +255,48 @@ def run_regressiontests(tests, print_stderr, print_stdout):
 
         reporter.msg_test_start(_dirname, _description)
 
-        failures = 0
-        captured_time = None
-        captured_stderr = ''
-        captured_stdout = ''
+        results = None
         start_time = time.time()
         try:
             results = run_test(test)
         except KeyboardInterrupt:
-            print('\n')
+            # Move cursor two characters back and print spaces over "^C".
+            print('\b\b  \n')
             log.critical('Received keyboard interrupt. Skipping remaining ..')
             should_abort = True
-        else:
-            failures = results.failures
-            captured_time = results.captured_runtime
-            captured_stdout = results.captured_stdout
-            captured_stderr = results.captured_stderr
-
         elapsed_time = time.time() - start_time
 
-        if failures == -10:
+        if results:
+            captured_stdout = results.captured_stdout
+            captured_stderr = results.captured_stderr
+            if results.captured_exception:
+                reporter.msg_captured_exception(results.captured_exception)
+
+                if print_stderr and captured_stderr:
+                    reporter.msg_captured_stderr(captured_stderr)
+                if print_stdout and captured_stdout:
+                    reporter.msg_captured_stdout(captured_stdout)
+
+                # TODO: Fix formatting of failure due to top-level exception error.
+                count_failure += 1
+                failed_tests.append(test)
+                continue
+
+            failures = int(results.failure_count)
+            if failures == 0:
+                reporter.msg_test_success()
+                count_success += 1
+            elif failures > 0:
+                reporter.msg_test_failure()
+                count_failure += 1
+                failed_tests.append(test)
+
+            reporter.msg_test_runtime(elapsed_time, results.captured_runtime)
+
             if print_stderr and captured_stderr:
                 reporter.msg_captured_stderr(captured_stderr)
             if print_stdout and captured_stdout:
                 reporter.msg_captured_stdout(captured_stdout)
-
-            # TODO: Fix formatting of failure due to top-level exception error.
-            count_failure += 1
-            failed_tests.append(test)
-            continue
-
-        if failures == 0:
-            reporter.msg_test_success()
-            count_success += 1
-        elif failures > 0:
-            reporter.msg_test_failure()
-            count_failure += 1
-            failed_tests.append(test)
-
-        reporter.msg_test_runtime(elapsed_time, captured_time)
-
-        if print_stderr and captured_stderr:
-            reporter.msg_captured_stderr(captured_stderr)
-        if print_stdout and captured_stdout:
-            reporter.msg_captured_stdout(captured_stdout)
 
     global_elapsed_time = time.time() - global_start_time
     reporter.msg_overall_stats(count_total, count_skipped, count_success,
@@ -297,6 +313,7 @@ def run_regressiontests(tests, print_stderr, print_stdout):
 
 
 def filter_tests(tests, filter_func, expr):
+    assert callable(filter_func)
     return [t for t in tests if filter_func(expr, t.get('test_dirname', b''))]
 
 
@@ -305,7 +322,7 @@ def main(args):
         C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION)
     _epilog = 'Project website:  {}'.format(C.STRING_URL_REPO)
 
-    parser = ui.cli.get_argparser(description=_description, epilog=_epilog)
+    parser = cli.get_argparser(description=_description, epilog=_epilog)
     parser.add_argument(
         '-v', '--verbose',
         dest='verbose',
@@ -336,11 +353,12 @@ def main(args):
     optgrp_select.add_argument(
         '-f', '--filter',
         dest='filter_glob',
-        nargs=1,
         metavar='GLOB',
+        action='append',
         help='Select tests whose "TEST_NAME" (dirname) matches "GLOB". '
              'Matching is case-sensitive. An asterisk matches anything '
-             'and if "GLOB" begins with "!", the matching is inverted.'
+             'and if "GLOB" begins with "!", the matching is inverted. '
+             'Give this option more than once to chain the filters.'
     )
     optgrp_select.add_argument(
         '--last-failed',
@@ -406,19 +424,27 @@ def main(args):
         return
 
     # Start test selection based on any criteria given with the options.
-    filtered = list(loaded_tests)
     if opts.filter_glob:
-        filtered = filter_tests(loaded_tests, glob_filter,
-                                expr=opts.filter_glob[0])
-        log.info('Filter selected {} test case(s) ..'.format(len(filtered)))
+        all_filtered = list()
+        tests_to_filter = list(loaded_tests)
+        for filter_expression in opts.filter_glob:
+            filtered = filter_tests(tests_to_filter, glob_filter,
+                                    expr=filter_expression)
+            log.info('Filter expression "{!s}" matched {} test case(s)'.format(
+                filter_expression, len(filtered)))
+            tests_to_filter = filtered
+            all_filtered = filtered
+        log.info('Filtering selected {} test case(s)'.format(len(all_filtered)))
+        selected_tests = all_filtered
+    else:
+        selected_tests = loaded_tests
 
-    selected_tests = filtered
     if opts.filter_lastfailed:
         _failed_lastrun = load_failed_tests()
         if _failed_lastrun:
             # TODO: Improve comparing regression test cases.
             # Fails if any option is modified. Compare only directory basenames?
-            selected_tests = [t for t in filtered if t in _failed_lastrun]
+            selected_tests = [t for t in selected_tests if t in _failed_lastrun]
             log.info('Selected {} of {} test case(s) that failed during the '
                      'last completed run ..'.format(len(selected_tests),
                                                     len(_failed_lastrun)))
@@ -442,12 +468,9 @@ def main(args):
         return C.EXIT_SUCCESS
 
     if opts.run_tests:
-        failed = 0
         failed = run_regressiontests(selected_tests,
                                      print_stderr=bool(opts.print_stderr),
                                      print_stdout=bool(opts.print_stdout))
-
-        # TODO: Rework passing number of failures between high-level functions.
         if failed:
             return C.EXIT_WARNING
 
@@ -455,11 +478,11 @@ def main(args):
 
 
 def print_traceback():
-    DELIM = '-' * 80
-    print('\n' + DELIM)
+    DELIM = '_' * 80
+    print(DELIM + '\n', file=sys.stderr)
     import traceback
-    traceback.print_exc()
-    print(DELIM)
+    traceback.print_exc(file=sys.stderr, limit=None, chain=True)
+    print(DELIM + '\n', file=sys.stderr)
 
 
 if __name__ == '__main__':
@@ -469,12 +492,13 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('\nReceived keyboard interrupt. Exiting ..')
     except AssertionError as e:
-        print('\nCaught AssertionError in __main__ (!)')
-        print(str(e))
+        print('\n\nCaught AssertionError in regression_runner.__main__()', file=sys.stderr)
+        print(str(e), file=sys.stderr)
+        print_traceback()
         exit_code = C.EXIT_SANITYFAIL
     except Exception as e:
-        print('\n\nUnhandled exception reached regression __main__ (!)')
-        print('[ERROR] {!s}'.format(e))
+        print('\n\nUnhandled exception reached regression_runner.__main__()', file=sys.stderr)
+        print(str(e), file=sys.stderr)
         print_traceback()
         exit_code = C.EXIT_ERROR
     finally:

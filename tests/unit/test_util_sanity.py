@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 
+import unit.utils as uu
 from core import constants as C
 from core.exceptions import EncodingBoundaryViolation
 from unit import constants as uuconst
@@ -73,7 +74,7 @@ class TestCheckIsinstanceMeowuri(TestCase):
         from core.model import MeowURI
         _assert_valid(MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE))
         _assert_valid(MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE))
-        _assert_valid(MeowURI(uuconst.MEOWURI_AZR_FILETAGS_EXTENSION))
+        _assert_valid(MeowURI(uuconst.MEOWURI_FS_FILETAGS_EXTENSION))
 
     def test_raises_exception_for_not_instances_of_meowuri(self):
         def _assert_raises(test_input):
@@ -86,4 +87,25 @@ class TestCheckIsinstanceMeowuri(TestCase):
         _assert_raises(None)
         _assert_raises(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         _assert_raises(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE)
-        _assert_raises(uuconst.MEOWURI_AZR_FILETAGS_EXTENSION)
+        _assert_raises(uuconst.MEOWURI_FS_FILETAGS_EXTENSION)
+
+
+class TestCheckIsinstanceFileObject(TestCase):
+    def test_check_passes(self):
+        def _assert_valid(test_input):
+            sanity.check_isinstance_fileobject(test_input)
+            sanity.check_isinstance_fileobject(test_input, msg='foo')
+
+        _assert_valid(uu.fileobject_testfile('empty'))
+
+    def test_raises_exception_for_not_instances_of_fileobject(self):
+        def _assert_raises(test_input):
+            with self.assertRaises(AssertionError):
+                sanity.check_isinstance_fileobject(test_input)
+
+            with self.assertRaises(AssertionError):
+                sanity.check_isinstance_fileobject(test_input, msg='foo')
+
+        _assert_raises(None)
+        _assert_raises('foo')
+        _assert_raises(object())

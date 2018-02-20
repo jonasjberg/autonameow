@@ -52,15 +52,14 @@ metadata.exiftool.XMP-dc:Creator
 ```
 
 
-__Analyzers__ store data with the prefix `analysis`;
+__Analyzers__ store data with the prefix `analyzer`;
 
 ```
-analysis.filetags.datetime
-analysis.filetags.description
-analysis.filetags.tags
-analysis.ebook.author
-analysis.ebook.title
-analysis.ebook.publisher
+analyzer.document.title
+analyzer.document.author
+analyzer.ebook.author
+analyzer.ebook.title
+analyzer.ebook.publisher
 ```
 
 

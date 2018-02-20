@@ -28,12 +28,8 @@ from core import (
     repository
 )
 from core.config.configuration import Configuration
-from core.exceptions import (
-    AutonameowException,
-    InvalidMeowURIError
-)
-from core.fileobject import FileObject
-from core.model import MeowURI
+from core.exceptions import AutonameowException
+from core.model import force_meowuri
 from util import sanity
 
 
@@ -48,45 +44,52 @@ current file.
 """
 
 
+# TODO: [TD0040] Add assigning tags to GPS coordinates.
+
+
 def _execute_run_queue(analyzer_queue):
     """
     Executes analyzers in the analyzer run queue.
     """
-    for i, a in enumerate(analyzer_queue):
+    for i, analyzer_instance in enumerate(analyzer_queue):
         log.debug('Executing queue item {}/{}: '
-                  '{!s}'.format(i + 1, len(analyzer_queue), a))
+                  '{!s}'.format(i + 1, len(analyzer_queue), analyzer_instance))
 
-        log.debug('Running Analyzer "{!s}"'.format(a))
+        log.debug('Running Analyzer "{!s}"'.format(analyzer_instance))
         try:
-            results = a.run()
+            with logs.log_runtime(log, str(analyzer_instance)):
+                results = analyzer_instance.run()
         except analyzers.AnalyzerError as e:
 
-            log.error('Halted analyzer "{!s}": {!s}'.format(a, e))
+            log.error('Halted analyzer "{!s}": {!s}'.format(analyzer_instance, e))
             continue
 
-        fileobject = a.fileobject
+        # TODO: [TD0126] Clean up boundaries/interface to the 'analyzers' package.
+        fileobject = analyzer_instance.fileobject
         for _uri, _data in results.items():
             store_results(fileobject, _uri, _data)
 
-        log.debug('Finished running "{!s}"'.format(a))
+        log.debug('Finished running "{!s}"'.format(analyzer_instance))
 
 
-def request_global_data(fileobject, meowuri_string):
-    # TODO: [TD0133] Fix inconsistent use of MeowURIs
-    #       Stick to using either instances of 'MeowURI' _OR_ strings.
-    sanity.check_internal_string(meowuri_string)
+def request_global_data(fileobject, uri_string):
+    # NOTE(jonas): String to MeowURI conversion boundary.
+    sanity.check_internal_string(uri_string)
 
-    try:
-        meowuri = MeowURI(meowuri_string)
-    except InvalidMeowURIError as e:
-        log.critical('Analyzer request used bad MeowURI "{!s}" :: '
-                     '{!s}'.format(meowuri_string, e))
+    uri = force_meowuri(uri_string)
+    if not uri:
+        log.error('Bad MeowURI in analyzer request: "{!s}"'.format(uri_string))
         return None
 
-    response = provider.query(fileobject, meowuri)
+    # Pass a "tie-breaker" to resolve cases where we only want one item?
+    # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
+    response = provider.query(fileobject, uri)
     if response:
-        sanity.check_isinstance(response, dict)
-        return response.get('value')
+        if isinstance(response, list):
+            # TODO: [cleanup] This method is currently only used once?
+            # TODO: Currently only called by 'request_any_textual_content()'
+            return [r.value for r in response]
+        return response.value
     return None
 
 
@@ -109,6 +112,12 @@ def store_results(fileobject, meowuri_prefix, data):
         meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
         data: The data to add, as any type or container.
     """
+    uri = force_meowuri(meowuri_prefix)
+    if not uri:
+        log.error('Unable to create MeowURI from analyzer prefix string '
+                  '"{!s}"'.format(meowuri_prefix))
+        return
+
     # TODO: [TD0102] Fix inconsistencies in results passed back by analyzers.
     if isinstance(data, list):
         for d in data:
@@ -116,28 +125,13 @@ def store_results(fileobject, meowuri_prefix, data):
                 '[TD0102] Expected list elements passed to "store_results()"'
                 ' to be type dict. Got: ({!s}) "{!s}"'.format(type(d), d)
             )
-            try:
-                _meowuri = MeowURI(meowuri_prefix)
-            except InvalidMeowURIError as e:
-                log.critical(
-                    'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-                )
-                return
-            repository.SessionRepository.store(fileobject, _meowuri, d)
+            repository.SessionRepository.store(fileobject, uri, d)
     else:
         assert isinstance(data, dict), (
             '[TD0102] Got non-dict data in "analysis.store_results()" :: '
             '({!s}) "{!s}"'.format(type(data), data)
         )
-
-        try:
-            _meowuri = MeowURI(meowuri_prefix)
-        except InvalidMeowURIError as e:
-            log.critical(
-                'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-            )
-            return
-        repository.SessionRepository.store(fileobject, _meowuri, data)
+        repository.SessionRepository.store(fileobject, uri, data)
 
 
 def _instantiate_analyzers(fileobject, klass_list, config):
@@ -170,7 +164,7 @@ def _start(fileobject, config, analyzers_to_run=None):
     log.debug(' Analysis Preparation Started '.center(120, '='))
 
     # TODO: [TD0126] Remove assertions once "boundaries" are cleaned up.
-    sanity.check_isinstance(fileobject, FileObject)
+    sanity.check_isinstance_fileobject(fileobject)
     sanity.check_isinstance(config, Configuration)
 
     all_available_analyzers = set(analyzers.ProviderClasses)
@@ -184,9 +178,8 @@ def _start(fileobject, config, analyzers_to_run=None):
 
     klasses = filter_able_to_handle(chosen_analyzers, fileobject)
     if not klasses:
-        raise AutonameowException(
-            'None of the analyzers applies (!)'
-        )
+        log.debug('None of the analyzers can handle the current file')
+        return
 
     analyzer_queue = []
     for a in _instantiate_analyzers(fileobject, klasses, config):
@@ -225,5 +218,6 @@ def run_analysis(fileobject, active_config, analyzers_to_run=None):
     try:
         _start(fileobject, active_config, analyzers_to_run)
     except AutonameowException as e:
+        # TODO: [TD0164] Tidy up throwing/catching of exceptions.
         log.critical('Analysis FAILED: {!s}'.format(e))
         raise

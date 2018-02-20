@@ -21,7 +21,11 @@
 
 import os
 from unittest import TestCase
-from datetime import datetime
+from datetime import (
+    datetime,
+    timedelta,
+    timezone
+)
 
 import unit.utils as uu
 from core import types
@@ -180,6 +184,7 @@ class TestNullMIMEType(TestCase):
 class TestTypeBoolean(TestCase):
     def test_coerces_expected_primitive(self):
         self.assertEqual(bool, type(types.AW_BOOLEAN(None)))
+        self.assertIsInstance(types.AW_BOOLEAN(None), bool)
 
     def test_null(self):
         self.assertEqual(types.AW_BOOLEAN.NULL, types.AW_BOOLEAN(None))
@@ -331,6 +336,7 @@ class TestTypeBoolean(TestCase):
 class TestTypeInteger(TestCase):
     def test_coerces_expected_primitive(self):
         self.assertEqual(int, type(types.AW_INTEGER(None)))
+        self.assertIsInstance(types.AW_INTEGER(None), int)
 
     def test_null(self):
         self.assertEqual(types.AW_INTEGER.NULL, types.AW_INTEGER(None))
@@ -419,6 +425,7 @@ class TestTypeInteger(TestCase):
 class TestTypeFloat(TestCase):
     def test_coerces_expected_primitive(self):
         self.assertEqual(float, type(types.AW_FLOAT(None)))
+        self.assertIsInstance(types.AW_FLOAT(None), float)
 
     def test_null(self):
         self.assertEqual(types.AW_FLOAT.NULL, types.AW_FLOAT(None))
@@ -621,6 +628,9 @@ class TestTypeTimeDate(TestCase):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(str, type(types.AW_TIMEDATE(None)))
 
+        with self.assertRaises(types.AWTypeError):
+            self.assertIsInstance(types.AW_TIMEDATE(None), str)
+
     def test_null(self):
         self.assertEqual('INVALID DATE', types.AW_TIMEDATE.NULL)
         with self.assertRaises(types.AWTypeError):
@@ -669,6 +679,12 @@ class TestTypeTimeDate(TestCase):
         _ok('2017-07-12-20_50_15')
         _ok('2017-07-12-205015')
 
+        # TODO: [cleanup] Really OK to just drop the microseconds?
+        _ok('2017-07-12T20:50:15.613051')
+
+        # TODO: [TD0054] Represent datetime as UTC within autonameow.
+        _ok('2017-07-12T20:50:15.613051+00:00')  # PandocMetadataExtractor
+
         # TODO: Handle things like 'Thu Aug 31 11:51:57 2017 +0200'
         # TODO: Add testing additional input data.
 
@@ -710,6 +726,9 @@ class TestTypeDate(TestCase):
     def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(datetime, type(types.AW_DATE(None)))
+
+        with self.assertRaises(types.AWTypeError):
+            self.assertIsInstance(types.AW_DATE(None), datetime)
 
     def test_null(self):
         self.assertEqual('INVALID DATE', types.AW_DATE.NULL)
@@ -819,7 +838,10 @@ class TestTypeDate(TestCase):
 class TestTypeExiftoolTimeDate(TestCase):
     def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
-            self.assertEqual(type(types.AW_EXIFTOOLTIMEDATE(None)), str)
+            self.assertEqual(str, type(types.AW_EXIFTOOLTIMEDATE(None)))
+
+        with self.assertRaises(types.AWTypeError):
+            self.assertIsInstance(types.AW_EXIFTOOLTIMEDATE(None), str)
 
     def test_null(self):
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE.NULL, 'INVALID DATE')
@@ -999,7 +1021,8 @@ class TestTypePath(TestCase):
 
 class TestTypePathComponent(TestCase):
     def test_coerces_expected_primitive(self):
-        self.assertEqual(type(types.AW_PATHCOMPONENT(None)), bytes)
+        self.assertEqual(bytes, type(types.AW_PATHCOMPONENT(None)))
+        self.assertIsInstance(types.AW_PATHCOMPONENT(None), bytes)
 
     def test_null(self):
         self.assertEqual(types.AW_PATHCOMPONENT(None), b'')
@@ -1089,6 +1112,7 @@ class TestTypePathComponent(TestCase):
 class TestTypeString(TestCase):
     def test_coerces_expected_primitive(self):
         self.assertEqual(str, type(types.AW_STRING(None)))
+        self.assertIsInstance(types.AW_STRING(None), str)
 
     def test_null(self):
         self.assertEqual('', types.AW_STRING.NULL)
@@ -1583,7 +1607,7 @@ class TestForceStringList(TestCase):
 
 class TestTryParseDate(TestCase):
     def test_parses_valid_date(self):
-        expected = datetime.strptime('2017-09-14', '%Y-%m-%d')
+        expected = datetime(2017, 9, 14, 0, 0, 0)
 
         def _assert_match(test_data):
             actual = types.try_parse_date(test_data)
@@ -1606,6 +1630,7 @@ class TestTryParseDate(TestCase):
         _assert_match('2017 0914')
         _assert_match('201709 14')
         _assert_match('2017 09 14')
+        _assert_match('2017-09-14T05:22:31.613051+00:00')
 
     def test_invalid_dates_raises_valueerror(self):
         def _assert_raises(test_data):
@@ -1657,6 +1682,19 @@ class TestTryParseDateTime(TestCase):
         self._assert_equal('2017-07-12 20:50:15+0200', expected)
         self._assert_equal('2017:07:12 20:50:15+0200', expected)
         self._assert_equal('2017-07-12T20:50:15+0200', expected)
+
+    def test_parses_valid_datetime_with_timezone_and_microseconds(self):
+        expected = datetime(
+            2017, 7, 20, 5, 22, 31, 613051, tzinfo=timezone.utc
+        )
+        self._assert_equal('2017 07 20 05 22 31.613051+00:00', expected)
+        self._assert_equal('2017-07-20 05 22 31.613051+00:00', expected)
+        self._assert_equal('2017-07-20 05:22:31.613051+00:00', expected)
+        self._assert_equal('2017-07-20T05:22:31.613051+00:00', expected)
+        self._assert_equal('2017 07 20 05 22 31.613051+0000', expected)
+        self._assert_equal('2017-07-20 05 22 31.613051+0000', expected)
+        self._assert_equal('2017-07-20 05:22:31.613051+0000', expected)
+        self._assert_equal('2017-07-20T05:22:31.613051+0000', expected)
 
 
 class TestRegexLooseDate(TestCase):
@@ -1830,6 +1868,47 @@ class TestRegexLooseDateTimeMicroseconds(TestCase):
         _assert_no_match('2017-07-12T20:50:15.12345')
 
 
+class TestRegexLooseDateTimeMicrosecondsAndTimezone(TestCase):
+    def test_matches_yyyy_mm_dd_hh_mm_ss_us_tz(self):
+        def _assert_matches(test_data):
+            actual = types.RE_LOOSE_DATETIME_US_TZ.match(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual('2017', actual.group(1))
+            self.assertEqual('07', actual.group(2))
+            self.assertEqual('12', actual.group(3))
+            self.assertEqual('20', actual.group(4))
+            self.assertEqual('50', actual.group(5))
+            self.assertEqual('15', actual.group(6))
+            self.assertEqual('641659', actual.group(7))
+
+        _assert_matches('2017-07-12T20:50:15.641659+00:00')
+        _assert_matches('2017-07-12 20:50:15.641659+00:00')
+        _assert_matches('2017:07:12 20:50:15.641659+00:00')
+        _assert_matches('2017_07_12 20:50:15.641659+00:00')
+        _assert_matches('2017_07_12 20-50-15.641659+00:00')
+        _assert_matches('2017_07_12 20_50_15.641659+00:00')
+        _assert_matches('2017_07_12 20_50_15 641659+00:00')
+        _assert_matches('2017_07_12 20_50_15_641659+00:00')
+        _assert_matches('2017 07 12 20 50 15 641659+00:00')
+
+    def test_does_not_match_non_yyyy_mm_dd_us(self):
+        def _assert_no_match(test_data):
+            actual = types.RE_LOOSE_DATETIME_US_TZ.match(test_data)
+            self.assertIsNone(actual)
+
+        _assert_no_match('')
+        _assert_no_match(' ')
+        _assert_no_match('foo')
+        _assert_no_match('16')
+        _assert_no_match('2017-07-12T20:50:15')
+        _assert_no_match('2017-07-12T20:50:15.')
+        _assert_no_match('2017-07-12T20:50:15.1')
+        _assert_no_match('2017-07-12T20:50:15.12')
+        _assert_no_match('2017-07-12T20:50:15.123')
+        _assert_no_match('2017-07-12T20:50:15.1234')
+        _assert_no_match('2017-07-12T20:50:15.12345')
+
+
 class TestNormalizeDate(TestCase):
     def test_matches_expected(self):
         expected = '2017-09-14'
@@ -1876,6 +1955,28 @@ class TestNormalizeDatetimeWithTimeZone(TestCase):
         _assert_match('2017-07-12 20:50:15+0200')
         _assert_match('2017:07:12 20:50:15+0200')
         _assert_match('2017-07-12T20:50:15+0200')
+
+
+class TestNormalizeDatetimeWithMicrosecondsAndTimeZone(TestCase):
+    def test_matches_expected(self):
+        expected = '2017-07-12T20:50:15.613051+0200'
+
+        def _assert_match(test_data):
+            actual = types.normalize_datetime_with_microseconds_and_timezone(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual(expected, actual)
+
+        _assert_match(expected)
+        _assert_match('2017 07 12 20 50 15.613051+0200')
+        _assert_match('2017 07 12 20 50 15.613051+0200')
+        _assert_match('2017-07-12 20:50:15.613051+0200')
+        _assert_match('2017:07:12 20:50:15.613051+0200')
+        _assert_match('2017-07-12T20:50:15.613051+0200')
+        _assert_match('2017 07 12 20 50 15.613051+02:00')
+        _assert_match('2017 07 12 20 50 15.613051+02:00')
+        _assert_match('2017-07-12 20:50:15.613051+02:00')
+        _assert_match('2017:07:12 20:50:15.613051+02:00')
+        _assert_match('2017-07-12T20:50:15.613051+02:00')
 
 
 class TestNormalizeDatetime(TestCase):
@@ -1984,6 +2085,22 @@ class TestMultipleTypes(TestCase):
                 self.assertIsInstance(actual, list)
                 self.assertIsNotNone(actual[0])
                 self.assertEqual(1, len(actual))
+
+
+class TestListofComparison(TestCase):
+    def test_expect_coercer_klass_in_multipletypes(self):
+        list_of_string_coercer = types.listof(types.AW_STRING)
+        self.assertIn(types.AW_STRING, list_of_string_coercer)
+
+        list_of_int_coercer = types.listof(types.AW_INTEGER)
+        self.assertIn(types.AW_INTEGER, list_of_int_coercer)
+
+    def test_expect_coercer_klass_not_in_multipletypes(self):
+        list_of_string_coercer = types.listof(types.AW_STRING)
+        self.assertNotIn(types.AW_INTEGER, list_of_string_coercer)
+
+        list_of_int_coercer = types.listof(types.AW_INTEGER)
+        self.assertNotIn(types.AW_STRING, list_of_int_coercer)
 
 
 class TestListofStrings(TestCase):

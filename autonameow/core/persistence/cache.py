@@ -109,7 +109,7 @@ class BaseCache(object):
     def owner(self, value):
         _owner = types.force_string(value)
         if not _owner.strip():
-            raise ValueError(
+            raise CacheError(
                 'Argument "owner" must be a valid, non-empty/whitespace string'
             )
         self._owner = _owner
@@ -152,7 +152,10 @@ class BaseCache(object):
         self._data[key] = _timestamped_value
 
         self._enforce_max_filesize()
-        self._persistence.set(self.owner, self._data)
+        try:
+            self._persistence.set(self.owner, self._data)
+        except PersistenceError as e:
+            raise CacheError(e)
 
     def delete(self, key):
         try:
@@ -216,6 +219,6 @@ class BaseCache(object):
 def get_cache(owner, max_filesize=None):
     try:
         return BaseCache(owner, max_filesize=max_filesize)
-    except PersistenceError as e:
-        log.error('Cache unavailable :: {!s}'.format(e))
+    except (CacheError, PersistenceError) as e:
+        log.error('Failed to get cache for owner {!s} :: {!s}'.format(owner, e))
         return None

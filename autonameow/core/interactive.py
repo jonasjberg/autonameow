@@ -21,9 +21,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import sys
 
-from core import ui
+from core import view
 from util import sanity
 from util import encoding as enc
 
@@ -38,13 +37,21 @@ class Choice(object):
 def select_field(fileobject, templatefield, candidates):
     # TODO: [TD0024][TD0025] Implement Interactive mode.
 
-    ui.msg(enc.displayable_path(fileobject), style='section')
-    ui.msg('Candidates for unresolved field: {!s}'.format(
+    # TODO: [TD0171] Separate logic from user interface.
+    view.msg(enc.displayable_path(fileobject), style='section')
+    view.msg('Candidates for unresolved field: {!s}'.format(
         templatefield.as_placeholder()))
 
-    prioritized_candidates = sorted(candidates,
-                                    key=lambda x: (x.probability, x.value),
-                                    reverse=True)
+    try:
+        prioritized_candidates = sorted(candidates,
+                                        key=lambda x: (x.probability, x.value),
+                                        reverse=True)
+    except TypeError as e:
+        # TODO: FIX THIS! Must separate "real" value from displayable value!
+        log.critical('Error while sorting candidates in "select_field()"')
+        log.critical(str(e))
+        return Choice.ABORT
+
     numbered_candidates = dict()
     rows_to_display = list()
     for n, c in enumerate(prioritized_candidates):
@@ -65,15 +72,16 @@ def select_field(fileobject, templatefield, candidates):
              _candidate_value, _candidate_meowuri)
         )
 
-    cf = ui.ColumnFormatter()
+    # TODO: [TD0171] Separate logic from user interface.
+    cf = view.ColumnFormatter()
     cf.addemptyrow()
     cf.addrow('#', 'SOURCE', 'PROBABILITY', 'FORMATTED VALUE', 'MEOWURI')
     cf.addrow('=', '======', '===========', '===============', '=======')
     for row_to_display in rows_to_display:
         cf.addrow(*row_to_display)
-    ui.msg(str(cf))
+    view.msg(str(cf))
 
-    response = ui.field_selection_prompt(numbered_candidates)
+    response = view.field_selection_prompt(numbered_candidates)
     if not response:
         return Choice.ABORT
 
@@ -91,20 +99,16 @@ def select_template(candidates):
 
 def meowuri_prompt(message):
     # TODO: [TD0024][TD0025] Implement Interactive mode.
-    if not sys.__stdout__.isatty():
-        # TODO: [TD0111] Separate abstract user interaction from CLI specifics.
-        log.warning('Standard input is not a TTY --- would have triggered an '
-                    'AssertionError in "prompt_toolkit". ABORTING!')
+    # TODO: [TD0171] Separate logic from user interface.
+    response = view.meowuri_prompt(message)
+    if not response:
         return Choice.ABORT
-
-    response = ui.meowuri_prompt(message)
-    if response:
-        return response
-    return Choice.ABORT
+    return response
 
 
 def ask_confirm_use_rule(fileobject, rule):
-    ui.msg(enc.displayable_path(fileobject), style='section')
+    # TODO: [TD0171] Separate logic from user interface.
+    view.msg(enc.displayable_path(fileobject), style='section')
     user_response = ask_confirm(
         'Best matched rule "{!s}"'
         '\nProceed with this rule?'.format(rule.description)
@@ -119,7 +123,7 @@ def ask_confirm(message=None):
         sanity.check_internal_string(message)
         msg = '{!s}  [y/n]'.format(message)
 
-    response = ui.ask_confirm(msg)
+    response = view.ask_confirm(msg)
     assert isinstance(response, bool)
     return response
 
@@ -128,7 +132,8 @@ def ask_confirm_rename(from_basename, dest_basename):
     sanity.check_internal_string(from_basename)
     sanity.check_internal_string(dest_basename)
 
-    ui.msg_possible_rename(from_basename, dest_basename)
-    response = ui.ask_confirm('Proceed with rename? [y/n]')
+    # TODO: [TD0171] Separate logic from user interface.
+    view.msg_possible_rename(from_basename, dest_basename)
+    response = view.ask_confirm('Proceed with rename? [y/n]')
     assert isinstance(response, bool)
     return response

@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import itertools
 import re
 from unittest import TestCase
 from unittest.mock import (
@@ -32,13 +33,11 @@ from core.namebuilder.builder import (
 
 
 class TestFilenamePostprocessor(TestCase):
-    @patch('core.namebuilder.builder.ui', MagicMock())
+    @patch('core.namebuilder.builder.view', MagicMock())
     def __check_call(self, **kwargs):
         given = kwargs.pop('given')
         expect = kwargs.pop('expect')
-
         p = FilenamePostprocessor(**kwargs)
-
         actual = p(given)
         self.assertEqual(expect, actual)
 
@@ -92,6 +91,46 @@ class TestFilenamePostprocessor(TestCase):
         ]
         self.__check_call(given='Foo barbar Bar', expect='MjaoXbarXBar',
                           regex_replacements=reps)
+
+    def test_perform_longer_replacements_first(self):
+        reps = [
+            (re.compile(r'In A'), 'in a'),
+            (re.compile(r'In'), 'in'),
+            (re.compile(r'A'), 'a'),
+            (re.compile(r'The'), 'the'),
+        ]
+        for reps_order in itertools.permutations(reps):
+            with self.subTest(replacements=reps_order):
+                self.__check_call(given='The Cat In A Hat',
+                                  expect='the Cat in a Hat',
+                                  regex_replacements=reps_order)
+
+    def test_perform_longer_replacements_first_with_word_boundaries(self):
+        reps = [
+            (re.compile(r'\bIn A\b'), 'in a'),
+            (re.compile(r'\bIn\b'), 'in'),
+            (re.compile(r'\bA\b'), 'a'),
+            (re.compile(r'\bThe\b'), 'the'),
+        ]
+        for reps_order in itertools.permutations(reps):
+            with self.subTest(replacements=reps_order):
+                self.__check_call(given='The Cat In A Hat InA The FlAt',
+                                  expect='the Cat in a Hat InA the FlAt',
+                                  regex_replacements=reps_order)
+
+    def test_does_not_exhibit_inconsistent_behaviour(self):
+        reps = [
+            (re.compile(r'\bThe\b'), 'the'),
+            (re.compile(r'\bAnd\b'), 'and'),
+            (re.compile(r'\bIn\b'), 'in'),
+            (re.compile(r'\bOf\b'), 'of'),
+            (re.compile(r'\bIn A\b'), 'in a'),
+        ]
+        for reps_order in itertools.permutations(reps):
+            with self.subTest(replacements=reps_order):
+                self.__check_call(given='a cat And a Dog In A thing in The HAT',
+                                  expect='a cat and a Dog in a thing in the HAT',
+                                  regex_replacements=reps_order)
 
     def test_simplify_unicode(self):
         self.__check_call(given='foo', expect='foo',

@@ -62,6 +62,7 @@ def _build_magic():
     Returns:
         An instance of 'magic' as type 'Magic'.
     """
+    # pylint: disable=unexpected-keyword-arg,no-value-for-parameter,no-member
     try:
         _magic = magic.open(magic.MAGIC_MIME_TYPE)
         _magic.load()
@@ -152,7 +153,7 @@ def eval_glob(mime_to_match, glob_list):
         # Test again after the case above because NullMIMEType evaluates False.
         return False
 
-    if not (isinstance(mime_to_match, str)):
+    if not isinstance(mime_to_match, str):
         raise TypeError('Expected "mime_to_match" to be of type str')
 
     if '/' not in mime_to_match:
@@ -304,7 +305,6 @@ try:
     }
 except AttributeError:
     log.error('Unable to get MIME-type map from the "mimetypes" module.')
-    pass
 else:
     for _ext, _mime in _mimetypes_map.items():
         MAPPER.add_mapping(_mime, _ext)
@@ -337,6 +337,7 @@ MAPPER.add_mapping('text/rtf', 'rtf')
 MAPPER.add_mapping('text/x-asm', 'asm')
 MAPPER.add_mapping('text/x-c', 'c')
 MAPPER.add_mapping('text/x-c++', 'cpp')
+MAPPER.add_mapping('text/x-env', 'sh')
 MAPPER.add_mapping('text/x-sh', 'sh')
 MAPPER.add_mapping('text/x-shellscript', 'sh')
 MAPPER.add_mapping('text/x-shellscript', 'bash')

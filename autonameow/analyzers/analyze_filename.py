@@ -23,7 +23,6 @@ import logging
 import re
 from collections import Counter
 
-
 from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
@@ -60,91 +59,118 @@ log = logging.getLogger(__name__)
 PREFERRED_FILENAME_CHAR_SPACE = '-'
 PREFERRED_FILENAME_CHAR_SEPARATOR = '_'
 
+# TODO: [TD0153] Detect and clean up incrementally numbered files
+
 
 class FilenameAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 1
     HANDLES_MIME_TYPES = ['*/*']
+    FIELD_LOOKUP = {
+        'datetime': {
+            'coercer': types.AW_TIMEDATE,
+            'multivalued': False,
+            # TODO: [TD0166] No longer able to set probabilities dynamically ..
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=1.0),
+                WeightedMapping(fields.Date, probability=1.0),
+            ],
+            'generic_field': 'date_created'
+        },
+        'edition': {
+            'coercer': types.AW_INTEGER,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Edition, probability=1.0),
+            ],
+            'generic_field': 'edition'
+        },
+        'extension': {
+            'coercer': types.AW_PATHCOMPONENT,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Extension, probability=1.0),
+            ]
+        },
+        'publisher': {
+            'coercer': types.AW_STRING,
+            'multivalued': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Publisher, probability=1.0),
+            ],
+            'generic_field': 'publisher'
+        }
+    }
 
     # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
 
     def __init__(self, fileobject, config, request_data_callback):
-        super(FilenameAnalyzer, self).__init__(
-            fileobject, config, request_data_callback
-        )
+        super().__init__(fileobject, config, request_data_callback)
 
         self._basename_prefix = None
         self._basename_suffix = None
         self._file_mimetype = None
 
     def analyze(self):
-        # TODO: [TD0136] Look into "requesting" already available data.
-        basename_prefix = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.basename.prefix'
-        )
-        if basename_prefix is not None:
-            self._basename_prefix = types.force_string(basename_prefix)
+        basename_prefix = self.fileobject.basename_prefix
+        self._basename_prefix = types.force_string(basename_prefix)
 
-        basename_suffix = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.basename.suffix'
-        )
-        if basename_suffix is not None:
-            self._basename_suffix = types.force_string(basename_suffix)
+        basename_suffix = self.fileobject.basename_suffix
+        self._basename_suffix = types.force_string(basename_suffix)
 
-        file_mimetype = self.request_data(
-            self.fileobject,
-            'extractor.filesystem.xplat.contents.mime_type'
-        )
+        file_mimetype = self.fileobject.mime_type
         self._file_mimetype = file_mimetype or types.NULL_AW_MIMETYPE
+        self._add_intermediate_results('datetime', self._get_datetime())
+        self._add_intermediate_results('edition', self._get_edition())
+        self._add_intermediate_results('extension', self._get_extension())
+        self._add_intermediate_results('publisher', self._get_publisher())
 
-        self._add_results('datetime', self.get_datetime())
-        self._add_results('edition', self._get_edition())
-        self._add_results('extension', self._get_extension())
-        self._add_results('publisher', self._get_publisher())
+    def _get_datetime(self):
+        result = self._get_datetime_from_name()
+        if result and not dateandtime.is_datetime_instance(result):
+            # Sanity check because value has not been explicitly coerced.
+            raise AssertionError(
+                'FilenameAnalyzer._get_datetime_from_name() should '
+                'return None or instances of "datetime". '
+                'Got {!s}'.format(type(result))
+            )
+        return result
 
-    def get_datetime(self):
+    def _get_datetime_from_name(self):
+        # TODO: [TD0043] Allow the user to tweak hardcoded settings.
         # TODO: [TD0110] Improve finding probable date/time in file names.
-        fn_timestamps = self._get_datetime_from_name()
-        if fn_timestamps:
-            if len(fn_timestamps) == 1:
-                _timestamp = fn_timestamps[0]
-                try:
-                    _coerced_value = types.AW_TIMEDATE(_timestamp.get('value'))
-                except types.AWTypeError:
-                    pass
-                else:
-                    _prob = _timestamp.get('weight', 0.001)
-                    return {
-                        'value': _coerced_value,
-                        'coercer': types.AW_TIMEDATE,
-                        'mapped_fields': [
-                            WeightedMapping(fields.DateTime, probability=_prob),
-                            WeightedMapping(fields.Date, probability=_prob),
-                        ],
-                        'generic_field': 'date_created'
-                    }
+        basename_prefix = str(self._basename_prefix)
 
-        # return fn_timestamps or None
-        # TODO: Fix inconsistent analyzer results data.
+        # Strip non-digits from the left.
+        basename_prefix = re.sub(r'^[^\d]+', '', basename_prefix)
+
+        match = get_most_likely_datetime_from_string(basename_prefix)
+        if match:
+            self.log.debug('Found "most likely" date/time in the basename')
+            return match
+
+        match = dateandtime.match_android_messenger_filename(basename_prefix)
+        if match:
+            self.log.debug('Found "android messenger timestamp" date/time in the basename')
+            return match
+
+        match = dateandtime.match_screencapture_unixtime(basename_prefix)
+        if match:
+            self.log.debug('Found "screencapture UNIX timestamp" date/time in the basename')
+            return match
+
+        match = dateandtime.match_any_unix_timestamp(basename_prefix)
+        if match:
+            self.log.debug('Found "UNIX timestamp" date/time in the basename')
+            return match
+
         return None
 
     def _get_edition(self):
         if not self._basename_prefix:
             return None
 
-        _number = find_edition(self._basename_prefix)
-        if not _number:
-            return None
-
-        return {
-            'value': _number,
-            'coercer': types.AW_INTEGER,
-            'mapped_fields': [
-                WeightedMapping(fields.Edition, probability=1),
-            ],
-            'generic_field': 'edition'
-        }
+        number = find_edition(self._basename_prefix)
+        return number
 
     def _get_extension(self):
         self.log.debug(
@@ -153,14 +179,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         )
         result = likely_extension(self._basename_suffix, self._file_mimetype)
         self.log.debug('Likely extension: "{!s}"'.format(result))
-
-        return {
-            'value': result,
-            'coercer': types.AW_PATHCOMPONENT,
-            'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
-            ]
-        }
+        return result
 
     def _get_publisher(self):
         if not self._basename_prefix:
@@ -172,120 +191,7 @@ class FilenameAnalyzer(BaseAnalyzer):
 
         _candidates = _options.get('candidates', {})
         result = find_publisher(self._basename_prefix, _candidates)
-        if not result:
-            return None
-
-        return {
-            'value': result,
-            'coercer': types.AW_STRING,
-            'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=1),
-            ],
-            'generic_field': 'publisher'
-        }
-
-    def _get_datetime_from_name(self):
-        """
-        Extracts date and time information from the file name.
-        :return: a list of dictionaries on the form:
-                 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
-                     'source' : "Create date",
-                     'weight'  : 1
-                   }, .. ]
-        """
-        fn = self.fileobject.basename_prefix
-        try:
-            fn = types.AW_STRING(fn)
-        except types.AWTypeError:
-            return []
-
-        # Strip non-digits from the left.
-        fn = re.sub(r'^[^\d]+', '', fn)
-
-        try:
-            dt = types.AW_TIMEDATE(fn)
-        except types.AWTypeError:
-            pass
-        else:
-            return [{'value': dt,
-                     'source': 'timedate_coercion',
-                     'weight': 1}]
-
-        results = []
-
-        # 1. The Very Special Case
-        # ========================
-        # If this matches, it is very likely to be relevant, so test it first.
-        # TODO: [TD0102] Look at how results are stored and named.
-        dt_special = dateandtime.match_special_case(fn)
-        if dt_special:
-            results.append({'value': dt_special,
-                            'source': 'very_special_case',
-                            'weight': 1})
-        else:
-            dt_special_no_date = dateandtime.match_special_case_no_date(fn)
-            if dt_special_no_date:
-                results.append({'value': dt_special_no_date,
-                                'source': 'very_special_case_no_date',
-                                'weight': 1})
-
-        # 2. Common patterns
-        # ==================
-        # Try more common patterns, starting with the most common.
-        # TODO: [TD0102] Look at how results are stored and named.
-        # TODO: [TD0019] This is not the way to do it!
-        dt_android = dateandtime.match_android_messenger_filename(fn)
-        if dt_android:
-            results.append({'value': dt_android,
-                            'source': 'android_messenger',
-                            'weight': 1})
-
-        # Match UNIX timestamp
-        dt_unix = dateandtime.match_any_unix_timestamp(fn)
-        if dt_unix:
-            # TODO: [TD0102] Look at how results are stored and named.
-            # TODO: [TD0019] Rework The FilenameAnalyzer class.
-            results.append(
-                {'value': dt_unix,
-                 'source': 'unix_timestamp',
-                 'weight': 1}
-            )
-
-        # Match screencapture-prefixed UNIX timestamp
-        dt_screencapture_unix = dateandtime.match_screencapture_unixtime(fn)
-        if dt_screencapture_unix:
-            # TODO: [TD0102] Look at how results are stored and named.
-            # TODO: [TD0019] Rework The FilenameAnalyzer class.
-            results.append({'value': dt_screencapture_unix,
-                            'source': 'screencapture_unixtime',
-                            'weight': 1})
-
-        # 3. Generalized patternmatching and bruteforcing
-        # ===============================================
-        # General "regex search" with various patterns.
-        dt_regex = dateandtime.regex_search_str(fn)
-        if dt_regex:
-            for dt in dt_regex:
-                results.append({'value': dt,
-                                'source': 'regex_search',
-                                'weight': 0.25})
-        else:
-            self.log.debug('Unable to extract date/time-information '
-                           'from file name using regex search.')
-
-        # Lastly, an iterative brute force search.
-        # TODO: Collapse duplicate results with 'util.misc.multiset_count'..?
-        dt_brute = dateandtime.bruteforce_str(fn)
-        if dt_brute:
-            for dt in dt_brute:
-                results.append({'value': dt,
-                                'source': 'bruteforce_search',
-                                'weight': 0.1})
-        else:
-            self.log.debug('Unable to extract date/time-information '
-                           'from file name using brute force search.')
-
-        return results
+        return result
 
     @classmethod
     def check_dependencies(cls):
@@ -391,6 +297,10 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     'text/x-c++': {
         'cpp': {'cpp', 'c++', 'txt'},
         'h': {'h'}
+    },
+    'text/x-env': {
+        '': {''},
+        'sh': {'sh'}
     },
     'text/x-makefile': {
         '': {''},
@@ -500,6 +410,7 @@ class FilenameTokenizer(object):
         _sep = self.main_separator
         if _sep:
             return self.filename.split(_sep)
+        return None
 
     @property
     def separators(self, maxcount=None):
@@ -603,11 +514,28 @@ class FilenameTokenizer(object):
         return _most_common
 
 
+def get_most_likely_datetime_from_string(string):
+    """
+    Tries to extract the "most likely" date/time.
+
+    Returns: An instance of 'datetime' or None.
+    """
+    # TODO: [TD0043] Allow the user to tweak hardcoded settings.
+
+    # "The Very Special Case" (ISO-date like with time)
+    match = dateandtime.match_special_case(string)
+    if match:
+        return match
+
+    # "The Very Special Case" (ISO-date like without time)
+    match = dateandtime.match_special_case_no_date(string)
+    return match
+
+
 def find_publisher(text, candidates):
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     for repl, patterns in candidates.items():
         for pattern in patterns:
             if re.search(pattern, text):
                 return repl
-
     return None

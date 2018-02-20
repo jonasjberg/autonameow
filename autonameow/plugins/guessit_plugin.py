@@ -39,7 +39,6 @@ from util import mimemagic
 class GuessitPlugin(BasePlugin):
     DISPLAY_NAME = 'Guessit'
     MEOWURI_LEAF = DISPLAY_NAME.lower()
-
     FIELD_LOOKUP = {
         'audio_codec': {
             'coercer': types.AW_STRING,
@@ -107,7 +106,7 @@ class GuessitPlugin(BasePlugin):
     }
 
     def __init__(self):
-        super(GuessitPlugin, self).__init__(self.DISPLAY_NAME)
+        super().__init__(self.DISPLAY_NAME)
 
     def execute(self, fileobject):
         _file_basename = fileobject.filename
@@ -127,10 +126,7 @@ class GuessitPlugin(BasePlugin):
         return _results
 
     def can_handle(self, fileobject):
-        _mime_type = self.request_data(
-            fileobject, 'extractor.filesystem.xplat.contents.mime_type'
-        )
-        return mimemagic.eval_glob(_mime_type, 'video/*')
+        return mimemagic.eval_glob(fileobject.mime_type, 'video/*')
 
     @classmethod
     def test_init(cls):
@@ -141,9 +137,12 @@ def run_guessit(input_data, options=None):
     assert guessit, 'Missing required module "guessit"'
 
     if options:
-        guessit_options = options
+        guessit_options = dict(options)
     else:
-        guessit_options = {'no-embedded-config': True, 'name_only': True}
+        guessit_options = {
+            'no-embedded-config': True,
+            'name_only': True
+        }
 
     logging.disable(logging.DEBUG)
     try:

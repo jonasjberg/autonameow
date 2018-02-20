@@ -22,21 +22,23 @@
 
 import os
 
-from util import encoding as enc
 
-_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-_PARENT_PARENT_DIR = os.path.normpath(os.path.join(
-    _THIS_DIR, os.pardir, os.pardir
+_PATH_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+_PATH_THIS_DIR_PARENT_PARENT = os.path.normpath(os.path.join(
+    _PATH_THIS_DIR, os.pardir, os.pardir
 ))
-TEST_FILES_DIR = os.path.normpath(os.path.join(
-    _PARENT_PARENT_DIR, 'test_files'
-))
-REGRESSIONTEST_DIR = os.path.normpath(os.path.join(
-    _PARENT_PARENT_DIR, 'tests', 'regression'
-))
-AUTONAMEOW_SRCROOT_DIR = os.path.normpath(os.path.join(
-    _PARENT_PARENT_DIR, enc.syspath('autonameow')
-))
+
+
+def join_path_from_srcroot(*components):
+    return os.path.normpath(os.path.join(
+        _PATH_THIS_DIR_PARENT_PARENT, *components
+    ))
+
+
+PATH_TEST_FILES = join_path_from_srcroot('test_files')
+PATH_TESTS_REGRESSION = join_path_from_srcroot('tests', 'regression')
+PATH_TESTS_UNIT = join_path_from_srcroot('tests', 'unit')
+PATH_AUTONAMEOW_SRCROOT = join_path_from_srcroot('autonameow')
 
 
 REGRESSIONTEST_DIR_BASENAMES = [
@@ -59,11 +61,11 @@ MEOWURI_AZR_FILENAME_PUBLISHER = 'analyzer.filename.publisher'
 MEOWURI_AZR_FILENAME_TAGS = 'analyzer.filename.tags'
 MEOWURI_AZR_FILENAME_TITLE = 'analyzer.filename.title'
 
-MEOWURI_AZR_FILETAGS_DATETIME = 'analyzer.filetags.datetime'
-MEOWURI_AZR_FILETAGS_DESCRIPTION = 'analyzer.filetags.description'
-MEOWURI_AZR_FILETAGS_EXTENSION = 'analyzer.filetags.extension'
-MEOWURI_AZR_FILETAGS_FOLLOWS = 'analyzer.filetags.follows_filetags_convention'
-MEOWURI_AZR_FILETAGS_TAGS = 'analyzer.filetags.tags'
+MEOWURI_FS_FILETAGS_DATETIME = 'extractor.filesystem.filetags.datetime'
+MEOWURI_FS_FILETAGS_DESCRIPTION = 'extractor.filesystem.filetags.description'
+MEOWURI_FS_FILETAGS_EXTENSION = 'extractor.filesystem.filetags.extension'
+MEOWURI_FS_FILETAGS_FOLLOWS = 'extractor.filesystem.filetags.follows_filetags_convention'
+MEOWURI_FS_FILETAGS_TAGS = 'extractor.filesystem.filetags.tags'
 
 MEOWURI_FS_XPLAT_MIMETYPE = 'extractor.filesystem.xplat.contents.mime_type'
 MEOWURI_FS_XPLAT_ABSPATH_FULL = 'extractor.filesystem.xplat.abspath.full'
@@ -108,11 +110,11 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_AZR_FILENAME_PUBLISHER,
     MEOWURI_AZR_FILENAME_TAGS,
     MEOWURI_AZR_FILENAME_TITLE,
-    MEOWURI_AZR_FILETAGS_DATETIME,
-    MEOWURI_AZR_FILETAGS_DESCRIPTION,
-    MEOWURI_AZR_FILETAGS_EXTENSION,
-    MEOWURI_AZR_FILETAGS_FOLLOWS,
-    MEOWURI_AZR_FILETAGS_TAGS,
+    MEOWURI_FS_FILETAGS_DATETIME,
+    MEOWURI_FS_FILETAGS_DESCRIPTION,
+    MEOWURI_FS_FILETAGS_EXTENSION,
+    MEOWURI_FS_FILETAGS_FOLLOWS,
+    MEOWURI_FS_FILETAGS_TAGS,
     MEOWURI_FS_XPLAT_MIMETYPE,
     MEOWURI_FS_XPLAT_ABSPATH_FULL,
     MEOWURI_FS_XPLAT_BASENAME_EXT,
@@ -148,19 +150,84 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_PLU_MSVISION_CAPTION,
 ])
 
+# Collected 2018-02-03 when running autonameow on all files in 'test_files'.
+DUMPED_MEOWURIS = frozenset([
+    'analyzer.document.publisher',
+    'analyzer.document.title',
+    'analyzer.ebook.author',
+    'analyzer.ebook.date',
+    'analyzer.ebook.edition',
+    'analyzer.ebook.publisher',
+    'analyzer.ebook.title',
+    'analyzer.filename.datetime',
+    'analyzer.filename.edition',
+    'analyzer.filename.extension',
+    'analyzer.filename.publisher',
+    # 'analyzer.filetags.datetime',  This is an extractor now
+    # 'analyzer.filetags.description',  This is an extractor now
+    # 'analyzer.filetags.extension',  This is an extractor now
+    # 'analyzer.filetags.follows_filetags_convention',  This is an extractor now
+    'extractor.filesystem.xplat.abspath.full',
+    'extractor.filesystem.xplat.basename.extension',
+    'extractor.filesystem.xplat.basename.full',
+    'extractor.filesystem.xplat.basename.prefix',
+    'extractor.filesystem.xplat.basename.suffix',
+    'extractor.filesystem.xplat.contents.mime_type',
+    'extractor.filesystem.xplat.date_accessed',
+    'extractor.filesystem.xplat.date_created',
+    'extractor.filesystem.xplat.date_modified',
+    'extractor.filesystem.xplat.pathname.full',
+    'extractor.filesystem.xplat.pathname.parent',
+    'extractor.metadata.exiftool.EXIF:CreateDate',
+    'extractor.metadata.exiftool.EXIF:DateTimeDigitized',
+    'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
+    'extractor.metadata.exiftool.File:Directory',
+    'extractor.metadata.exiftool.File:FileAccessDate',
+    'extractor.metadata.exiftool.File:FileInodeChangeDate',
+    'extractor.metadata.exiftool.File:FileModifyDate',
+    'extractor.metadata.exiftool.File:FileName',
+    'extractor.metadata.exiftool.File:FilePermissions',
+    'extractor.metadata.exiftool.File:FileSize',
+    'extractor.metadata.exiftool.File:FileType',
+    'extractor.metadata.exiftool.File:FileTypeExtension',
+    'extractor.metadata.exiftool.File:MIMEType',
+    'extractor.metadata.exiftool.PDF:CreateDate',
+    'extractor.metadata.exiftool.PDF:Creator',
+    'extractor.metadata.exiftool.PDF:Linearized',
+    'extractor.metadata.exiftool.PDF:ModifyDate',
+    'extractor.metadata.exiftool.PDF:PDFVersion',
+    'extractor.metadata.exiftool.PDF:PageCount',
+    'extractor.metadata.exiftool.PDF:Producer',
+    'extractor.metadata.exiftool.SourceFile',
+    'extractor.text.epub.full',
+    'extractor.text.pdf.full',
+    'generic.contents.mime_type',
+    'generic.contents.text',
+    'generic.metadata.author',
+    'generic.metadata.creator',
+    'generic.metadata.date_created',
+    'generic.metadata.date_modified',
+    'generic.metadata.description',
+    'generic.metadata.edition',
+    'generic.metadata.producer',
+    'generic.metadata.publisher',
+    'generic.metadata.subject',
+    'generic.metadata.tags',
+    'generic.metadata.title',
+    'plugin.microsoft_vision.caption',
+    'plugin.microsoft_vision.tags'
+])
+
 
 DUMMY_MAPPED_MEOWURIS = list({
     'analyzer.document',
     'analyzer.ebook',
     'analyzer.filename',
-    'analyzer.filetags',
-    'analyzer.image',
-    'analyzer.text',
-    'analyzer.video',
+    # 'analyzer.filetags',  This is an extractor now
     'extractor.filesystem.xplat',
     'extractor.metadata.exiftool',
     'extractor.metadata.jpeginfo',
-    'extractor.text.pdftotext',
+    'extractor.text.pdf',
     'extractor.text.plain',
     'extractor.text.tesseractocr',
     'plugin.guessit',
@@ -216,10 +283,6 @@ DUMMY_RAW_RULE_DATA_SOURCES = [
      'title': MEOWURI_EXT_EXIFTOOL_XMPDCTITLE},
 ]
 
-
-# Sources to search for extractor classes.
-EXTRACTOR_CLASS_PACKAGES = ['filesystem', 'metadata', 'text']
-EXTRACTOR_CLASS_MODULES = []
 
 # Various test files (hopefully) included with the sources.
 DEFAULT_YAML_CONFIG_BASENAME = 'default.yaml'

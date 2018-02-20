@@ -107,6 +107,36 @@ class TestAvailableNametemplatefieldClasses(TestCase):
         _aIn(fields.Title)
 
 
+class TestNameTemplateField(TestCase):
+    def test_comparison(self):
+        self.assertEqual(fields.Author, fields.Author)
+
+        a1 = fields.Author
+        a2 = fields.Author
+        self.assertEqual(a1, a2)
+
+        self.assertNotEqual(fields.Author, fields.Title)
+
+    def test_membership(self):
+        s = set()
+        self.assertNotIn(fields.Author, s)
+        self.assertNotIn(fields.Title, s)
+        self.assertNotIn(fields.Publisher, s)
+
+        s.add(fields.Author)
+        self.assertEqual(len(s), 1)
+
+        s.add(fields.Author)
+        self.assertEqual(len(s), 1)
+
+        s.add(fields.Title)
+        self.assertEqual(len(s), 2)
+
+        self.assertIn(fields.Author, s)
+        self.assertIn(fields.Title, s)
+        self.assertNotIn(fields.Publisher, s)
+
+
 class TestIsValidTemplateField(TestCase):
     def test_invalid_fields_returns_false(self):
         def _aF(test_input):

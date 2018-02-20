@@ -25,10 +25,7 @@ from analyzers import BaseAnalyzer
 from core import types
 from core.model import WeightedMapping
 from core.namebuilder import fields
-from util import (
-    dateandtime,
-    textutils
-)
+from util import textutils
 from util.text.patternmatching import find_publisher_in_copyright_notice
 
 
@@ -40,13 +37,34 @@ from util.text.patternmatching import find_publisher_in_copyright_notice
 class DocumentAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['application/pdf', 'text/*']
-
-    # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+    FIELD_LOOKUP = {
+        'title': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                # TODO: [TD0166] Set probabilities dynamically
+                WeightedMapping(fields.Title, probability=1),
+            ],
+            'generic_field': 'title'
+        },
+        'datetime': {
+            'coercer': types.AW_TIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25)
+            ],
+            'generic_field': 'date_created',
+        },
+        'publisher': {
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Publisher, probability=1),
+            ],
+            'generic_field': 'publisher',
+        }
+    }
 
     def __init__(self, fileobject, config, request_data_callback):
-        super(DocumentAnalyzer, self).__init__(
-            fileobject, config, request_data_callback
-        )
+        super().__init__(fileobject, config, request_data_callback)
 
         self.text = None
         self.text_lines = 0
@@ -64,151 +82,45 @@ class DocumentAnalyzer(BaseAnalyzer):
         # TODO: [TD0134] Consolidate splitting up text into chunks.
         text_chunk_1 = self._extract_leading_text_chunk(chunk_ratio=0.1)
 
-        # TODO: [TD0102] Fix inconsistent results passed back by analyzers.
-        # Self._add_results('datetime',
-        #                   self._get_datetime_from_text(text_chunk_1))
+        # TODO: Search text for datetime information.
 
-        self._add_title_from_text_to_results(text_chunk_1)
+        text_titles = [t for t, _ in find_titles_in_text(text_chunk_1)]
+        if text_titles:
+            # TODO: Pass multiple possible titles with probabilities.
+            #       (title is not "multivalued")
+            maybe_text_title = text_titles[0]
+            self._add_intermediate_results('title', maybe_text_title)
 
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
         if _options:
-            _candidates = _options.get('candidates', {})
-            if _candidates:
-                self.candidate_publishers = _candidates
+            self.candidate_publishers = _options.get('candidates', {})
 
-        # TODO: [cleanup] ..
         if self.candidate_publishers:
-            self._search_text_for_candidate_publisher(text_chunk_1)
-            self._search_text_for_copyright_publisher(text_chunk_1)
-
-    def _add_title_from_text_to_results(self, text):
-        # Add all lines that aren't all whitespace or all dashes, from the
-        # first to line number "max_lines".
-        # The first line is assigned probability 1, probabilities decrease
-        # for each line until line number "max_lines" with probability 0.
-        max_lines = 1
-        for num, line in enumerate(text.splitlines()):
-            if num > max_lines:
-                break
-
-            if line.strip() and line.replace('-', ''):
-                _prob = (max_lines - num) / max_lines
-                self._add_results(
-                    'title', self._wrap_generic_title(line, _prob)
-                )
+            # TODO: Pass multiple possible publishers with probabilities.
+            #       (publisher is not "multivalued")
+            self._add_intermediate_results(
+                'publisher',
+                self._search_text_for_candidate_publisher(text_chunk_1)
+            )
+            self._add_intermediate_results(
+                'publisher',
+                self._search_text_for_copyright_publisher(text_chunk_1)
+            )
 
     def _search_text_for_candidate_publisher(self, text):
         # TODO: [TD0130] Implement general-purpose substring matching/extraction.
         result = find_publisher(text, self.candidate_publishers)
-        if not result:
-            return
-
-        self._add_results(
-            'publisher', self._wrap_publisher(result)
-        )
+        return result
 
     def _search_text_for_copyright_publisher(self, text):
         # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-        result = find_publisher_in_copyright_notice(text)
-        if not result:
-            return
-
-        if self.candidate_publishers:
-            # TODO: [cleanup] ..
-            result = find_publisher(result, self.candidate_publishers)
-            if not result:
-                return
-
-            self._add_results(
-                'publisher', self._wrap_publisher(result)
-            )
-
-    def _wrap_publisher(self, data):
-        return {
-            'value': data,
-            'coercer': types.AW_STRING,
-            'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=1),
-            ],
-            'generic_field': 'publisher',
-            'source': str(self)
-        }
-
-    def _wrap_generic_title(self, data, probability):
-        return {
-            'value': data,
-            'coercer': types.AW_STRING,
-            'mapped_fields': [
-                WeightedMapping(fields.Title, probability=probability),
-            ],
-            'generic_field': 'title',
-            'source': str(self)
-        }
-
-    def _get_datetime_from_text(self, text):
-        # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-        dt_regex = dateandtime.regex_search_str(text)
-        if not dt_regex:
+        possible_publishers = find_publisher_in_copyright_notice(text)
+        if not possible_publishers:
             return None
 
-        assert isinstance(dt_regex, list)
-        results = []
-        for data in dt_regex:
-            results.append({
-                'value': data,
-                'coercer': types.AW_TIMEDATE,
-                'mapped_fields': [
-                    WeightedMapping(fields.DateTime, probability=0.25),
-                    WeightedMapping(fields.Date, probability=0.25)
-                ],
-                'generic_field': 'date_created',
-                'source': str(self)
-                })
-
-        # TODO: Temporary premature return skips brute force search ..
-        return results
-
-        matches = 0
-        text_split = text.split('\n')
-        self.log.debug('Try getting datetime from text split by newlines')
-        for t in text_split:
-            dt_brute = dateandtime.bruteforce_str(t)
-            if dt_brute:
-                matches += 1
-                assert isinstance(dt_brute, list)
-                for v in dt_brute:
-                    results.append({
-                        'value': v,
-                        'coercer': types.AW_TIMEDATE,
-                        'mapped_fields': [
-                            WeightedMapping(fields.DateTime, probability=0.1),
-                            WeightedMapping(fields.Date, probability=0.1)
-                        ],
-                        'generic_field': 'date_created',
-                        'source': str(self)
-                    })
-
-        if matches == 0:
-            self.log.debug('No matches. Trying with text split by whitespace')
-            text_split = text.split()
-            for t in text_split:
-                dt_brute = dateandtime.bruteforce_str(t)
-                if dt_brute:
-                    matches += 1
-                    assert isinstance(dt_brute, list)
-                    for v in dt_brute:
-                        results.append({
-                            'value': v,
-                            'coercer': types.AW_TIMEDATE,
-                            'mapped_fields': [
-                                WeightedMapping(fields.DateTime, probability=0.1),
-                                WeightedMapping(fields.Date, probability=0.1)
-                            ],
-                            'generic_field': 'date_created',
-                            'source': str(self)
-                        })
-
-        return results
+        # TODO: [cleanup] ..
+        result = find_publisher(possible_publishers, self.candidate_publishers)
+        return result
 
     def _extract_leading_text_chunk(self, chunk_ratio):
         assert chunk_ratio >= 0, 'Argument chunk_ratio is negative'
@@ -225,6 +137,29 @@ class DocumentAnalyzer(BaseAnalyzer):
     @classmethod
     def check_dependencies(cls):
         return True
+
+
+def find_titles_in_text(text):
+    # Add all lines that aren't all whitespace or all dashes, from the
+    # first to line number "MAX_LINES".
+    # The first line is assigned probability 1, probabilities decrease
+    # for each line until line number "MAX_LINES" with probability 0.
+    MAX_LINES = 1
+
+    titles = list()
+    for num, line in enumerate(text.splitlines()):
+        if num > MAX_LINES:
+            break
+
+        if line.strip() and line.replace('-', ''):
+            _prob = (MAX_LINES - num) / MAX_LINES
+            # TODO: Set probability dynamically ..
+            # self._add_intermediate_results(
+            #     'title', self._wrap_generic_title(line, _prob)
+            # )
+            titles.append((line, _prob))
+
+    return titles
 
 
 def find_publisher(text, candidates):

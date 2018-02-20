@@ -66,14 +66,16 @@ class Configuration(object):
 
         # For Debugging/development only.
         _referenced_meowuris = sorted(self.referenced_meowuris)
-        for _meowuri in _referenced_meowuris:
-            log.debug('Configuration Rule referenced meowURI'
-                      ' "{!s}"'.format(_meowuri))
+        for uri in _referenced_meowuris:
+            log.debug(
+                'Configuration Rule referenced meowURI "{!s}"'.format(uri)
+            )
 
     def get(self, key_list):
         try:
             return nested_dict_get(self._options, key_list)
         except KeyError:
+            log.debug('Get raised KeyError: ' + '.'.join(key_list))
             return None
 
     @property

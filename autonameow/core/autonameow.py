@@ -29,16 +29,16 @@ from core import constants as C
 from core import (
     config,
     exceptions,
+    FileObject,
+    interactive,
     logs,
     persistence,
     provider,
     providers,
     repository,
-    ui,
 )
 from core.evaluate import RuleMatcher
 from core.context import FilesContext
-from core.fileobject import FileObject
 from core.renamer import FileRenamer
 from util import encoding as enc
 from util import disk
@@ -52,7 +52,7 @@ class Autonameow(object):
     Main class to manage a running "autonameow" instance.
     """
 
-    def __init__(self, opts):
+    def __init__(self, opts, ui):
         """
         Main program entry point.  Initializes a autonameow instance/session.
 
@@ -60,7 +60,10 @@ class Autonameow(object):
             opts: Dict with parsed and validated options.
         """
         assert isinstance(opts, dict)
-        self.opts = self.check_option_combinations(opts)
+        self.opts = check_option_combinations(opts)
+
+        # Package contained in 'autonameow/core/view'.
+        self.ui = ui
 
         # For calculating the total runtime.
         self.start_time = time.time()
@@ -71,50 +74,6 @@ class Autonameow(object):
 
         self._exit_code = C.EXIT_SUCCESS
 
-    @staticmethod
-    def check_option_combinations(options):
-        opts = dict(options)
-
-        # Check legality of option combinations.
-        if opts.get('mode_automagic') and opts.get('mode_interactive'):
-            log.warning('Operating mode must be either one of "automagic" or '
-                        '"interactive", not both. Reverting to default: '
-                        '[interactive mode].')
-            opts['mode_automagic'] = False
-            opts['mode_interactive'] = True
-
-        if not opts.get('mode_rulematch'):
-            log.info('Enabled rule-matching..')
-            opts['mode_rulematch'] = True
-
-        if (not opts.get('mode_automagic') and not opts.get('mode_rulematch')
-                and opts.get('mode_batch')):
-            log.warning('Running in "batch" mode without specifying an '
-                        'operating mode ("automagic" or rule-matching) does '
-                        'not make any sense.  Nothing to do!')
-
-        if opts.get('mode_batch'):
-            if opts.get('mode_interactive'):
-                log.warning('Operating mode "batch" can not be used with '
-                            '"interactive".  Disabling "interactive"..')
-                opts['mode_interactive'] = False
-
-            if opts.get('mode_timid'):
-                log.warning('Operating mode must be either one of "batch" or '
-                            '"timid", not both. Disabling "timid"..')
-                opts['mode_timid'] = False
-
-        if opts.get('mode_interactive'):
-            if opts.get('mode_timid'):
-                log.warning('Operating mode "interactive" implies "timid". '
-                            'Disabling "timid"..')
-                opts['mode_timid'] = False
-
-        if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
-            log.info('No operating-mode selected!')
-
-        return opts
-
     def __enter__(self):
         # Set up singletons for this process.
         repository.initialize(self)
@@ -122,7 +81,7 @@ class Autonameow(object):
 
         self.renamer = FileRenamer(
             dry_run=self.opts.get('dry_run'),
-            mode_timid=self.opts.get('mode_timid')
+            timid=self.opts.get('mode_timid')
         )
 
         return self
@@ -132,15 +91,15 @@ class Autonameow(object):
 
     def run(self):
         if self.opts.get('quiet'):
-            ui.silence()
+            self.ui.silence()
 
         # Display various information depending on verbosity level.
         if self.opts.get('verbose') or self.opts.get('debug'):
-            ui.print_start_info()
+            self.ui.print_start_info()
 
         # Display startup banner with program version and exit.
         if self.opts.get('show_version'):
-            ui.print_version_info(verbose=self.opts.get('verbose'))
+            self.ui.print_version_info(verbose=self.opts.get('verbose'))
             self.exit_program(C.EXIT_SUCCESS)
 
         # Check configuration file. If no alternate config file path is
@@ -172,7 +131,7 @@ class Autonameow(object):
                     enc.displayable_path(_config_path)
                 )
             }
-            ui.options.prettyprint_options(self.opts, include_opts)
+            self.ui.options.prettyprint_options(self.opts, include_opts)
 
         if self.opts.get('dump_config'):
             # TODO: [TD0148] Fix '!!python/object' in '--dump-config' output.
@@ -187,11 +146,15 @@ class Autonameow(object):
             self.exit_program(C.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
-        files_to_process = disk.normpaths_from_opts(
-            self.opts.get('input_paths'),
-            self.active_config.options['FILESYSTEM']['ignore'],
-            self.opts.get('recurse_paths')
+        path_collector = disk.PathCollector(
+            ignore_globs=self.active_config.options['FILESYSTEM']['ignore'],
+            recurse=self.opts.get('recurse_paths')
         )
+        path_collector.collect_from(self.opts.get('input_paths'))
+        for error in path_collector.errors:
+            log.warning(str(error))
+
+        files_to_process = list(path_collector.paths)
         log.info('Got {} files to process'.format(len(files_to_process)))
 
         rules = self.active_config.rules
@@ -222,30 +185,28 @@ class Autonameow(object):
 
     def _dump_active_config_and_exit(self):
         log.info('Dumping active configuration ..')
-        ui.msg('Active Configuration:', style='heading')
-        ui.msg(str(self.active_config))
+        self.ui.msg('Active Configuration:', style='heading')
+        self.ui.msg(str(self.active_config))
         self.exit_program(C.EXIT_SUCCESS)
 
     def _dump_registered_meowuris(self):
-        ui.msg('Registered MeowURIs', style='heading')
+        self.ui.msg('Registered MeowURIs', style='heading')
 
         if self.opts.get('debug'):
-            cf = ui.ColumnFormatter()
+            cf = self.ui.ColumnFormatter()
             for _type in C.MEOWURI_ROOTS_SOURCES:
                 cf.addemptyrow()
                 sourcemap = providers.Registry.meowuri_sources.get(_type, {})
-                for _meowuri, _klasses in sourcemap.items():
-                    cf.addrow(_meowuri, str(_klasses.pop()))
-                    if _klasses:
-                        for k in _klasses:
-                            cf.addrow(None, str(k))
-            ui.msg(str(cf))
+                # Sorted by MeowURI within "root sections", separated by blank lines.
+                for uri, _klass in sorted(sourcemap.items(), key=lambda x: str(x[0])):
+                    cf.addrow(str(uri), str(_klass))
+            self.ui.msg(str(cf))
         else:
             _meowuris = sorted(providers.Registry.mapped_meowuris)
-            for _meowuri in _meowuris:
-                ui.msg(str(_meowuri))
+            for uri in _meowuris:
+                self.ui.msg(str(uri))
 
-        ui.msg('\n')
+        self.ui.msg('\n')
 
     def _load_config_from_default_path(self):
         _dp = enc.displayable_path(config.DefaultConfigFilePath)
@@ -262,12 +223,15 @@ class Autonameow(object):
                          '"{!s}"'.format(_dp))
             self.exit_program(C.EXIT_ERROR)
         else:
-            ui.msg('A template configuration file was written to '
-                   '"{!s}"'.format(_dp), style='info')
-            ui.msg('Use this file to configure {}. '
-                   'Refer to the documentation for additional '
-                   'information.'.format(C.STRING_PROGRAM_NAME),
-                   style='info')
+            self.ui.msg(
+                'A template configuration file was written to '
+                '"{!s}"'.format(_dp), style='info'
+            )
+            self.ui.msg(
+                'Use this file to configure {}. Refer to the documentation for '
+                'additional information.'.format(C.STRING_PROGRAM_NAME),
+                style='info'
+            )
             self.exit_program(C.EXIT_SUCCESS)
 
     def _load_config_from_alternate_path(self):
@@ -303,6 +267,10 @@ class Autonameow(object):
                 )
                 continue
 
+            if self.opts.get('list_all'):
+                log.debug('Calling provider.delegate_every_possible_meowuri()')
+                provider.delegate_every_possible_meowuri(current_file)
+
             try:
                 new_name = context.handle_file(current_file)
             except exceptions.AutonameowException as e:
@@ -313,27 +281,60 @@ class Autonameow(object):
                 continue
 
             if new_name:
-                self.renamer.do_rename(
+                self.renamer.add_pending(
                     from_path=current_file.abspath,
                     new_basename=new_name,
                 )
 
+            for filename_delta in self.renamer.skipped:
+                _msg = (
+                    'Skipped "{!s}" because the current name is the same as '
+                    'the new name'.format(filename_delta.displayable_old)
+                )
+                log.debug(_msg)
+                self.ui.msg(_msg)
+
+            for filename_delta in self.renamer.needs_confirmation:
+                log.debug('Timid mode enabled. Asking user to confirm ..')
+                if interactive.ask_confirm_rename(
+                        filename_delta.displayable_old,
+                        filename_delta.displayable_new):
+                    self.renamer.confirm(filename_delta)
+                else:
+                    log.debug('Skipping rename following user response')
+
+            # TODO: Display renames as they actually happen?
+            for filename_delta in self.renamer.pending:
+                self.ui.msg_rename(
+                    filename_delta.displayable_old,
+                    filename_delta.displayable_new,
+                    dry_run=self.opts.get('dry_run')
+                )
+
+            try:
+                self.renamer.do_renames()
+            except exceptions.FilesystemError as e:
+                log.error('Rename FAILED: {!s}'.format(e))
+
             # TODO: [TD0131] Hack!
-            # _repositorysize = sys.getsizeof(repository.SessionRepository)
             results_to_list.append(str(repository.SessionRepository))
 
-            # TODO: [TD0131] Limit repository size!
-            repository.SessionRepository.data.pop(current_file)
+            # TODO: [TD0131] Limit repository size! Do not remove everything!
+            # TODO: [TD0131] Keep all but very bulky data like extracted text.
+            if current_file in repository.SessionRepository.data:
+                repository.SessionRepository.remove(current_file)
 
         if self.opts.get('list_all'):
             log.info('Listing session repository contents ..')
-            ui.msg('Session Repository Data', style='heading',
-                   add_info_log=True)
+            self.ui.msg(
+                'Session Repository Data', style='heading',
+                add_info_log=True
+            )
 
             if not results_to_list:
-                ui.msg('The session repository does not contain any data ..\n')
+                self.ui.msg('The session repository does not contain any data ..\n')
             else:
-                ui.msg('\n'.join(results_to_list))
+                self.ui.msg('\n'.join(results_to_list))
 
     @property
     def runtime_seconds(self):
@@ -351,7 +352,7 @@ class Autonameow(object):
 
         _elapsed_time = self.runtime_seconds
         if self.opts and self.opts.get('verbose'):
-            ui.print_exit_info(self.exit_code, _elapsed_time)
+            self.ui.print_exit_info(self.exit_code, _elapsed_time)
 
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(_elapsed_time))
@@ -385,3 +386,48 @@ class Autonameow(object):
 
     def __hash__(self):
         return hash((util.process_id(), self.start_time))
+
+
+def check_option_combinations(options):
+    opts = dict(options)
+
+    # TODO: [cleanup] This is pretty messy ..
+    # Check legality of option combinations.
+    if opts.get('mode_automagic') and opts.get('mode_interactive'):
+        log.warning('Operating mode must be either one of "automagic" or '
+                    '"interactive", not both. Reverting to default: '
+                    '[interactive mode].')
+        opts['mode_automagic'] = False
+        opts['mode_interactive'] = True
+
+    if not opts.get('mode_rulematch'):
+        log.info('Enabled rule-matching..')
+        opts['mode_rulematch'] = True
+
+    if (not opts.get('mode_automagic') and not opts.get('mode_rulematch')
+            and opts.get('mode_batch')):
+        log.warning('Running in "batch" mode without specifying an '
+                    'operating mode ("automagic" or rule-matching) does '
+                    'not make any sense.  Nothing to do!')
+
+    if opts.get('mode_batch'):
+        if opts.get('mode_interactive'):
+            log.warning('Operating mode "batch" can not be used with '
+                        '"interactive".  Disabling "interactive"..')
+            opts['mode_interactive'] = False
+
+        if opts.get('mode_timid'):
+            log.warning('Operating mode must be either one of "batch" or '
+                        '"timid", not both. Disabling "timid"..')
+            opts['mode_timid'] = False
+
+    if opts.get('mode_interactive'):
+        if opts.get('mode_timid'):
+            log.warning('Operating mode "interactive" implies "timid". '
+                        'Disabling "timid"..')
+            opts['mode_timid'] = False
+
+    if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
+        log.info('No operating-mode selected!')
+
+    return opts

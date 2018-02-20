@@ -21,5 +21,7 @@
 
 from .epub import EpubTextExtractor
 from .tesseractocr import TesseractOCRTextExtractor
-from .pdftotext import PdftotextTextExtractor
+from .pdf import PdfTextExtractor
 from .plain import PlainTextExtractor
+from .rtf import RichTextFormatTextExtractor
+from .markdown import MarkdownTextExtractor

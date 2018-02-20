@@ -29,9 +29,8 @@ from core import (
 from core.exceptions import (
     AutonameowException,
     AutonameowPluginError,
-    InvalidMeowURIError
 )
-from core.model import MeowURI
+from core.model import force_meowuri
 from core.model.genericfields import get_field_class
 from util import sanity
 
@@ -118,7 +117,8 @@ class PluginHandler(object):
                           ' {!s}'.format(plugin, e))
                 continue
             try:
-                data = plugin(fileobject)
+                with logs.log_runtime(log, str(plugin)):
+                    data = plugin(fileobject)
             except AutonameowPluginError:
                 log.critical('Plugin instance "{!s}" execution '
                              'FAILED'.format(plugin))
@@ -133,22 +133,20 @@ class PluginHandler(object):
             store_results(fileobject, _meowuri_prefix, _results)
 
 
-def request_data(fileobject, meowuri_string):
-    # TODO: [TD0133] Fix inconsistent use of MeowURIs
-    #       Stick to using either instances of 'MeowURI' _OR_ strings.
-    sanity.check_internal_string(meowuri_string)
+def request_global_data(fileobject, uri_string):
+    # NOTE(jonas): String to MeowURI conversion boundary.
+    sanity.check_internal_string(uri_string)
 
-    try:
-        meowuri = MeowURI(meowuri_string)
-    except InvalidMeowURIError as e:
-        log.critical('Plugin request used bad MeowURI "{!s}" :: '
-                     '{!s}'.format(meowuri_string, e))
+    uri = force_meowuri(uri_string)
+    if not uri:
+        log.error('Bad MeowURI in plugin request: "{!s}"'.format(uri_string))
         return None
 
-    response = provider.query(fileobject, meowuri)
+    # Pass a "tie-breaker" to resolve cases where we only want one item?
+    # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
+    response = provider.query(fileobject, uri)
     if response:
-        sanity.check_isinstance(response, dict)
-        return response.get('value')
+        return response.value
     return None
 
 
@@ -165,14 +163,14 @@ def store_results(fileobject, meowuri_prefix, data):
     """
     # TODO: [TD0108] Fix inconsistencies in results passed back by plugins.
     for _uri_leaf, _data in data.items():
-        try:
-            _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
-        except InvalidMeowURIError as e:
-            log.critical(
-                'Got invalid MeowURI from plugin -- !{!s}"'.format(e)
-            )
+        uri = force_meowuri(meowuri_prefix, _uri_leaf)
+        if not uri:
+            log.error('Unable to construct full plugin result MeowURI'
+                      'from prefix "{!s}" and leaf "{!s}"'.format(
+                          meowuri_prefix, _uri_leaf))
             continue
-        repository.SessionRepository.store(fileobject, _meowuri, _data)
+
+        repository.SessionRepository.store(fileobject, uri, _data)
 
 
 def _wrap_extracted_data(extracteddata, metainfo, source_klass):
@@ -223,5 +221,6 @@ def run_plugins(fileobject, require_plugins=None, run_all_plugins=False):
                              require_plugins=require_plugins,
                              run_all_plugins=run_all_plugins is True)
     except AutonameowPluginError as e:
+        # TODO: [TD0164] Tidy up throwing/catching of exceptions.
         log.critical('Plugins FAILED: {!s}'.format(e))
         raise AutonameowException(e)

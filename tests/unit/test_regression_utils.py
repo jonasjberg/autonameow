@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import inspect
 import os
 from unittest import TestCase
 
@@ -31,10 +32,12 @@ from regression.utils import (
     check_renames,
     commandline_for_testcase,
     _commandline_args_for_testcase,
+    fetch_mock_ui_messages,
     get_regressiontest_dirs,
     get_regressiontests_rootdir,
     glob_filter,
     load_regressiontests,
+    MockUI,
     regexp_filter,
     RegressionTestError,
     RegressionTestLoader,
@@ -146,7 +149,7 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
             'input_paths': ['$TESTFILES'],
         }
         expected = {
-            'input_paths': [uuconst.TEST_FILES_DIR],
+            'input_paths': [uuconst.PATH_TEST_FILES],
         }
         actual = RegressionTestLoader._set_testfile_path(input_options)
         self.assertEqual(actual, expected)
@@ -251,7 +254,7 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
         )
 
     def test_options(self):
-        # NOTE(jonas): Omitted environment-dependant option "input_paths".
+        # NOTE(jonas): Omitted environment-dependent option "input_paths".
         expected_options = {
             'debug': False,
             'verbose': True,
@@ -318,6 +321,151 @@ class TestLoadRegressiontests(TestCase):
 
     def test_returns_at_least_one_test(self):
         self.assertGreaterEqual(len(self.actual_loaded), 1)
+
+
+class TestMockUIInterface(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from core.view import cli as core_view_cli
+        cls.actual_cli_interface = inspect.getmembers(
+            core_view_cli,
+            lambda x: (inspect.isfunction(x) and not inspect.isbuiltin(x)
+                       or (inspect.isclass(x) and x.__name__ == 'ColumnFormatter'))
+        )
+
+    def test_expected_interface_from_introspection(self):
+        self.assertGreater(len(self.actual_cli_interface), 0)
+        for name, value in self.actual_cli_interface:
+            if name == 'ColumnFormatter':
+                self.assertTrue(uu.is_class(value))
+            else:
+                self.assertTrue(callable(value), name)
+
+    def test_expected_interface_includes_commonly_used_functions(self):
+        for expected in (
+            'colorize',
+            'ColumnFormatter',
+            'colorize_re_match',
+            'colorize_quoted',
+            'msg',
+            'msg_possible_rename',
+            'msg_rename',
+            'msg_replacement',
+            'print_exit_info',
+            'print_start_info',
+            'print_version_info',
+            'silence',
+            'unsilence'
+        ):
+            with self.subTest(expected_member=expected):
+                self.assertTrue(any(
+                    expected in member for member in self.actual_cli_interface
+                ))
+
+    def test_mock_implements_all_methods_exposed_by_the_cli_view(self):
+        mock_ui = MockUI()
+        for expected_name, _ in self.actual_cli_interface:
+            self.assertTrue(hasattr(mock_ui, expected_name),
+                            'Expected attribute {!s}'.format(expected_name))
+
+
+class TestMockUIActualUsage(TestCase):
+    def setUp(self):
+        self.mock_ui = MockUI()
+
+    def _assert_called_with_args(self, member, expect):
+        self.assertIn(member, self.mock_ui.mock_call_history)
+        self.assertEqual(expect, self.mock_ui.mock_call_history[member][0][0])
+
+    def _assert_called_with_kwargs(self, member, expect):
+        self.assertIn(member, self.mock_ui.mock_call_history)
+        self.assertEqual(expect, self.mock_ui.mock_call_history[member][0][1])
+
+    def test_call_colorize(self):
+        self.mock_ui.colorize('foo')
+        self.mock_ui.colorize('foo', fore=None)
+        self.mock_ui.colorize('foo', fore=None, back=None)
+        self.mock_ui.colorize('foo', fore=None, back=None, style=None)
+        self.mock_ui.colorize('foo', fore='BLACK')
+        self.mock_ui.colorize('foo', fore='BLACK', back='RED')
+        self.mock_ui.colorize('foo', fore='BLACK', back='RED', style='NORMAL')
+
+    def test_call_colorize_stores_passed_arguments(self):
+        self.mock_ui.colorize('foo', fore='BLACK', back='RED', style='NORMAL')
+        self._assert_called_with_args('colorize', ('foo', ))
+        self._assert_called_with_kwargs(
+            'colorize',
+            {'fore': 'BLACK', 'back': 'RED', 'style': 'NORMAL'}
+        )
+
+    def test_call_colorize_re_match(self):
+        self.mock_ui.colorize_re_match('foo', regex='bar')
+        self.mock_ui.colorize_re_match('foo', regex='bar', color='BLACK')
+
+    def test_call_msg(self):
+        self.mock_ui.msg('foo')
+        self.mock_ui.msg('foo', style='heading')
+        self.mock_ui.msg('foo', add_info_log=False)
+        self.mock_ui.msg('foo', ignore_quiet=False)
+        self.mock_ui.msg('foo', style='heading', add_info_log=False)
+        self.mock_ui.msg('foo', style='heading', ignore_quiet=False)
+        self.mock_ui.msg('foo', ignore_quiet=False, add_info_log=False)
+        self.mock_ui.msg('foo', style='heading', ignore_quiet=False, add_info_log=False)
+
+    def test_call_msg_stores_passed_arguments(self):
+        self.mock_ui.msg('foo', style='heading', ignore_quiet=False)
+        self.assertIn('msg', self.mock_ui.mock_call_history)
+        self.assertEqual('foo', self.mock_ui.mock_call_history['msg'][0][0][0])
+        self._assert_called_with_args('msg', ('foo', ))
+
+    def test_call_msg_possible_rename(self):
+        self.mock_ui.msg_possible_rename('foo', 'bar')
+
+    def test_call_msg_rename(self):
+        self.mock_ui.msg_rename('foo', 'bar', False)
+
+    def test_call_msg_replacement(self):
+        self.mock_ui.msg_replacement('foo', 'bar', 'baz')
+
+    def test_call_print_exit_info(self):
+        self.mock_ui.print_exit_info(0, 1)
+
+    def test_call_print_start_info(self):
+        self.mock_ui.print_start_info()
+
+    def test_call_print_version_info(self):
+        self.mock_ui.print_version_info(False)
+
+    def test_call_silence(self):
+        self.mock_ui.silence()
+
+    def test_call_unsilence(self):
+        self.mock_ui.unsilence()
+
+
+class TestFetchMockUIMessages(TestCase):
+    def setUp(self):
+        self.mock_ui = MockUI()
+
+    def test_returns_empty_string_if_mock_is_not_used(self):
+        actual = fetch_mock_ui_messages(self.mock_ui)
+        self.assertEqual('', actual)
+
+    def test_returns_expected_string_if_mock_msg_is_called(self):
+        self.mock_ui.msg('foo')
+        actual = fetch_mock_ui_messages(self.mock_ui)
+        self.assertEqual('foo', actual)
+
+    def test_returns_expected_string_if_mock_msg_is_called_twice(self):
+        self.mock_ui.msg('foo')
+        self.mock_ui.msg('bar')
+        actual = fetch_mock_ui_messages(self.mock_ui)
+        self.assertEqual('foo\nbar', actual)
+
+    def test_returns_expected_string_if_mock_msg_is_called_with_style(self):
+        self.mock_ui.msg('foo', style='heading')
+        actual = fetch_mock_ui_messages(self.mock_ui)
+        self.assertEqual('foo', actual)
 
 
 class TestAutonameowWrapper(TestCase):
@@ -446,9 +594,11 @@ SAMPLE_TESTCASE_0000 = {
         'dump_meowuris': False,
         'dump_options': False,
         'list_all': False,
+        'list_rulematch': False,
         'mode_automagic': True,
         'mode_batch': True,
         'mode_interactive': False,
+        'mode_timid': False,
         'quiet': False,
         'recurse_paths': False,
         'show_version': False,
@@ -475,9 +625,11 @@ SAMPLE_TESTCASE_0006 = {
             'foo/test_files/magic_jpg.jpg'
         ],
         'list_all': False,
+        'list_rulematch': False,
         'mode_automagic': True,
         'mode_batch': True,
         'mode_interactive': False,
+        'mode_timid': False,
         'quiet': True,
         'recurse_paths': False,
         'show_version': False,

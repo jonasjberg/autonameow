@@ -31,77 +31,146 @@ class TestIsBlacklisted(TestCase):
     def __as_changelogentry(self, subject, body):
         return ChangelogEntry(subject, body)
 
-    def _test_blacklist(self, subject, body, expect):
+    def _assert_blacklists(self, subject, body):
         cle = self.__as_changelogentry(subject, body)
         actual = is_blacklisted(cle)
         self.assertIsInstance(actual, bool)
-        self.assertEqual(expect, actual)
+        self.assertTrue(actual)
+
+    def _assert_not_blacklisted(self, subject, body):
+        cle = self.__as_changelogentry(subject, body)
+        actual = is_blacklisted(cle)
+        self.assertIsInstance(actual, bool)
+        self.assertFalse(actual)
 
     # Should not be filtered
     def test_does_not_blacklist_foo_bar(self):
-        self._test_blacklist(subject='foo', body='bar', expect=False)
+        self._assert_not_blacklisted(subject='foo', body='bar')
 
     # Merge commits
     def test_does_not_blacklist_merge_mention(self):
-        self._test_blacklist(
+        self._assert_not_blacklisted(
             subject="Move debug logging to 'if __debug__' branches.",
             body='bar',
-            expect=False
         )
 
     def test_does_not_blacklist_into_mention(self):
-        self._test_blacklist(
+        self._assert_not_blacklisted(
             subject='Move MeowURI parsing to separate class.',
             body="Extracts parts of the 'MeowURI' class into new 'MeowURIParser'.",
-            expect=False
         )
 
     def test_blacklists_merged_branch_from_githhub_remote(self):
-        self._test_blacklist(
+        self._assert_blacklists(
             subject="Merge branch 'develop' of github.com:jonasjberg/autonameow into develop",
             body='',
-            expect=True
         )
 
     def test_blacklists_merged_remote_tracking_branch_from_githhub(self):
-        self._test_blacklist(
+        self._assert_blacklists(
             subject="Merge remote-tracking branch 'github/develop' into develop",
             body='',
-            expect=True
         )
 
     def test_blacklists_merged_stash(self):
-        self._test_blacklist(
+        self._assert_blacklists(
             subject='Merge stash into rework_architecture ..',
             body='',
-            expect=True
         )
 
     def test_blacklists_merged_branch_from_local_develop(self):
-        self._test_blacklist(
+        self._assert_blacklists(
             subject="Merge branch 'develop' into rework_generic_fields",
             body='',
-            expect=True
         )
 
     def test_blacklists_merged_branch_from_local_develop(self):
-        self._test_blacklist(
+        self._assert_blacklists(
             subject="Merge branch 'rework_generic_fields' into develop",
             body='',
-            expect=True
         )
 
     # Reverted commits
     def test_blacklists_reverted_commits(self):
-        self._test_blacklist(
+        self._assert_blacklists(
             subject='Revert "Set default logging level to \'ERROR\'."',
             body='This reverts commit 48b886e3c38eab69d08c972f8e782d28f237e5a4.',
-            expect=True
         )
 
     def test_does_not_blacklist_revert_mention(self):
-        self._test_blacklist(
+        self._assert_not_blacklisted(
             subject='Modify operating mode conflict resolution.',
             body='Adds reverting to "less safe" defaults in case of conflicts.',
-            expect=False
+        )
+
+    # Adding new TODOs
+    def test_blacklists_new_todos_with_ids(self):
+        self._assert_blacklists(
+            subject='Add TODO [TD0163] on prematurely initializing providers.',
+            body='',
+        )
+
+    def test_blacklists_new_todo_notes(self):
+        self._assert_blacklists(
+            subject='Add TODO-note on killing descendant processes.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject='Add TODOs on bad unit test dependencies.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject='Add TODO-notes on provider boundary cleanup.',
+            body='Adds TODO-items [TD0126][TD0127][TD0128].',
+        )
+
+    def test_does_not_blacklist_todo_mention(self):
+        self._assert_not_blacklisted(
+            subject='Modify handling of "generic fields" in analyzers.',
+            body='Adds TODO [TD0146] on reworking "generic fields" and possibly'
+                 + 'bundling multiple fields in some type of "records".',
+        )
+
+    # Unused imports
+    def test_blacklists_removal_of_unused_imports(self):
+        self._assert_blacklists(
+            subject='Remove unused imports.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject='Remove unused import.',
+            body='',
+        )
+
+    # Trivial and uninformative commits
+    def test_blacklists_trivial_uninformative_fix(self):
+        self._assert_blacklists(
+            subject='Fix unit tests.',
+            body='',
+        )
+
+    def test_blacklists_trivial_uninformative_trivial_fix(self):
+        self._assert_blacklists(
+            subject='Trivial fix to TODO-list.',
+            body='',
+        )
+
+    def test_does_not_blacklist_fix_mention(self):
+        self._assert_not_blacklisted(
+            subject='Fix testing for capitalized "Usage".',
+            body='',
+        )
+
+    # Adding comments
+    def test_blacklists_added_comment(self):
+        self._assert_blacklists(
+            subject='Add comment on requiring all extractors.',
+            body='',
+        )
+
+    # Fixed typos
+    def test_blacklists_fixed_typo_and_added_comment(self):
+        self._assert_blacklists(
+            subject='Fix typo in comment. Add comment.',
+            body='',
         )

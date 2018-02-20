@@ -1,6 +1,16 @@
 exit_code: 0
 stdout:
-    #    matches:
-    #    - 'foo.bar'
-    does_not_match:
+    matches:
     - 'analyzer.document'
+    - 'analyzer.ebook'
+    - 'analyzer.filename'
+    - 'extractor.filesystem.filetags'
+    - 'extractor.filesystem.xplat'
+    - 'extractor.text.plain'
+    does_not_match:
+    - '.*class.*'
+    - '.*NULL.*'
+    - '.*generic.*'
+    - 'analyzer.filetags'
+    - 'None.None'
+    - 'foo.bar'

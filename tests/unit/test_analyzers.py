@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
+import os
 from unittest import TestCase
 from unittest.mock import (
     Mock,
@@ -28,6 +28,7 @@ from unittest.mock import (
 )
 
 import unit.utils as uu
+import unit.constants as uuconst
 from analyzers import (
     BaseAnalyzer,
     find_analyzer_files,
@@ -38,13 +39,11 @@ from core import constants as C
 
 
 # TODO: [hardcoded] Likely to break; fixed analyzer names!
-EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
-                           'analyzers.analyze_filename.FilenameAnalyzer',
-                           'analyzers.analyze_filetags.FiletagsAnalyzer',
-                           'analyzers.analyze_video.VideoAnalyzer',
-                           'analyzers.analyze_document.DocumentAnalyzer',
-                           'analyzers.analyze_text.TextAnalyzer',
-                           'analyzers.analyze_ebook.EbookAnalyzer']
+EXPECT_ANALYZER_CLASSES = [
+    'analyzers.analyze_filename.FilenameAnalyzer',
+    'analyzers.analyze_document.DocumentAnalyzer',
+    'analyzers.analyze_ebook.EbookAnalyzer'
+]
 EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
                                     for c in EXPECT_ANALYZER_CLASSES]
 
@@ -114,10 +113,8 @@ class TestFindAnalyzerSourceFiles(TestCase):
 
         # TODO: [hardcoded] Likely to break; requires manual updates.
         self.assertIn('analyze_filename.py', actual)
-        self.assertIn('analyze_image.py', actual)
         self.assertIn('analyze_document.py', actual)
-        self.assertIn('analyze_text.py', actual)
-        self.assertIn('analyze_video.py', actual)
+        self.assertIn('analyze_ebook.py', actual)
 
 
 class TestGetAnalyzerClasses(TestCase):
@@ -146,29 +143,16 @@ class TestNumberOfAvailableAnalyzerClasses(TestCase):
     def setUp(self):
         self.actual = get_analyzer_classes()
 
-    # TODO: [hardcoded] Testing number of extractor classes needs fixing.
-    def test_get_analyzer_classes_returns_at_least_one_analyzer(self):
-        self.assertGreaterEqual(len(self.actual), 1)
+    def test_get_analyzer_classes_returns_expected_number_of_analyzers(self):
+        expected = len([
+            f for f in
+            os.listdir(
+                os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'analyzers')
+            )
+            if f.startswith('analyze_') and f.endswith('.py')
+        ])
+        self.assertGreaterEqual(len(self.actual), expected)
 
-    def test_get_analyzer_classes_returns_at_least_two_analyzers(self):
-        self.assertGreaterEqual(len(self.actual), 2)
-
-    def test_get_analyzer_classes_returns_at_least_three_analyzers(self):
-        self.assertGreaterEqual(len(self.actual), 3)
-
-    def test_get_analyzer_classes_returns_at_least_four_analyzers(self):
-        self.assertGreaterEqual(len(self.actual), 4)
-
-    def test_get_analyzer_classes_returns_at_least_five_analyzers(self):
-        self.assertGreaterEqual(len(self.actual), 5)
-
-    def test_get_analyzer_classes_returns_at_least_six_analyzers(self):
-        self.assertGreaterEqual(len(self.actual), 6)
-
-    def test_get_analyzer_classes_returns_at_least_seven(self):
-        self.assertGreaterEqual(len(self.actual), 7)
-
-    # TODO: [hardcoded] Likely to break; fixed analyzer names!
     def test_get_analyzer_classes_returns_expected_count(self):
         self.assertEqual(len(self.actual), len(EXPECT_ANALYZER_CLASSES))
 
@@ -180,8 +164,9 @@ class TestAnalyzerClassMeowURIs(TestCase):
         self.actual = [a.meowuri_prefix() for a in ProviderClasses]
 
     def test_returns_expected_type(self):
+        from core.model import MeowURI
         for meowuri in self.actual:
-            self.assertTrue(uu.is_internalstring(meowuri))
+            self.assertIsInstance(meowuri, MeowURI)
             self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
 
     def test_returns_meowuris_for_analyzers_assumed_always_available(self):
@@ -190,15 +175,10 @@ class TestAnalyzerClassMeowURIs(TestCase):
 
         _assert_in('analyzer.document')
         _assert_in('analyzer.filename')
-        _assert_in('analyzer.filetags')
-        _assert_in('analyzer.image')
-        _assert_in('analyzer.text')
-        _assert_in('analyzer.video')
 
     def test_returns_meowuris_for_available_analyzers(self):
         def _conditional_assert_in(klass, member):
             if klass in self.analyzer_class_names:
                 self.assertIn(member, self.actual)
 
-        _conditional_assert_in('EbookAnalyzer',
-                               'analyzer.ebook')
+        _conditional_assert_in('EbookAnalyzer', 'analyzer.ebook')

@@ -30,6 +30,7 @@ import unit.constants as uuconst
 from extractors import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor
 from extractors.metadata.exiftool import (
+    _filter_coerced_value,
     _get_exiftool_data,
     is_bad_metadata
 )
@@ -50,26 +51,21 @@ temp_file = uu.make_temporary_file()
 
 
 @skipIf(unmet_dependencies, dependency_error)
-class TestExiftoolMetadataExtractorOutputTypes(CaseExtractorOutputTypes):
-    __test__ = True
+class TestExiftoolMetadataExtractor(CaseExtractorBasics, TestCase):
+    EXTRACTOR_CLASS = ExiftoolMetadataExtractor
+    EXTRACTOR_NAME = 'ExiftoolMetadataExtractor'
+
+
+@skipIf(unmet_dependencies, dependency_error)
+class TestExiftoolMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
+                                               TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
 @skipIf(unmet_dependencies, dependency_error)
-class TestExiftoolMetadataExtractor(CaseExtractorBasics):
-    __test__ = True
-    EXTRACTOR_CLASS = ExiftoolMetadataExtractor
-
-    def test_method_str_returns_expected(self):
-        actual = str(self.extractor)
-        expect = 'ExiftoolMetadataExtractor'
-        self.assertEqual(actual, expect)
-
-
-@skipIf(unmet_dependencies, dependency_error)
-class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput):
-    __test__ = True
+class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput,
+                                                   TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('smulan.jpg')
     _dt = uu.str_to_datetime
@@ -79,11 +75,14 @@ class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput):
         ('EXIF:ExifImageHeight', int, 1944),
         ('EXIF:ExifImageWidth', int, 2592)
     ]
+    EXPECTED_NOT_PRESENT_FIELDS = [
+        'EXIF:UserComment'  # Empty string, should be filtered out
+    ]
 
 
 @skipIf(unmet_dependencies, dependency_error)
-class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput):
-    __test__ = True
+class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput,
+                                                   TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('simplest_pdf.md.pdf')
     _dt = uu.str_to_datetime
@@ -158,3 +157,49 @@ class TestIsBadMetadata(TestCase):
         _aF('XMP:Subject', ['Subject'])
         _aF('XMP:Subject', ['Science', 'Subject'])
         _aF('XMP:Subject', ['Title', 'Subject'])
+
+
+class TestFilterCoercedValue(TestCase):
+    def _assert_filter_returns(self, expect, given):
+        actual = _filter_coerced_value(given)
+        self.assertEqual(expect, actual)
+
+    def test_removes_none_values(self):
+        self._assert_filter_returns(None, given=None)
+        self._assert_filter_returns(None, given=[])
+        self._assert_filter_returns(None, given=[None])
+        self._assert_filter_returns(None, given=[None, None])
+
+    def test_removes_empty_strings(self):
+        self._assert_filter_returns(None, given='')
+        self._assert_filter_returns(None, given=[''])
+        self._assert_filter_returns(None, given=['', ''])
+
+    def test_removes_strings_with_only_whitespace(self):
+        self._assert_filter_returns(None, given=' ')
+        self._assert_filter_returns(None, given=['  '])
+        self._assert_filter_returns(None, given=[' ', ' '])
+
+    def test_passes_strings(self):
+        self._assert_filter_returns('a', given='a')
+        self._assert_filter_returns(['a', 'b'], given=['a', 'b'])
+
+    def test_passes_strings_but_removes_none(self):
+        self._assert_filter_returns(['a'], given=['a', None])
+        self._assert_filter_returns(['a', 'b'], given=['a', None, 'b'])
+
+    def test_passes_strings_but_removes_empty_strings(self):
+        self._assert_filter_returns(['a'], given=['a', ''])
+        self._assert_filter_returns(['a'], given=['', 'a'])
+        self._assert_filter_returns(['a', 'b'], given=['a', '', 'b'])
+
+    def test_passes_strings_but_removes_whitespace_only_strings(self):
+        self._assert_filter_returns(['a'], given=['a', ' '])
+        self._assert_filter_returns(['a'], given=[' ', 'a'])
+        self._assert_filter_returns(['a', 'b'], given=['a', ' ', 'b'])
+
+    def test_passes_integers_and_floats(self):
+        self._assert_filter_returns(1, given=1)
+        self._assert_filter_returns([1], given=[1])
+        self._assert_filter_returns(1.0, given=1.0)
+        self._assert_filter_returns([1.0], given=[1.0])

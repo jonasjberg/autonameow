@@ -28,12 +28,10 @@ from core import constants as C
 from core import (
     exceptions,
     extraction,
+    FileObject,
     logs,
-    types,
-    ui
+    view
 )
-from core.fileobject import FileObject
-from extractors import ExtractorError
 from util import encoding as enc
 from util import disk
 
@@ -45,107 +43,72 @@ log = logging.getLogger(__name__)
 
 
 def do_extract_text(fileobject):
-    klasses = extraction.suitable_extractors_for(fileobject)
-    if not klasses:
-        log.debug('No extractors suitable for "{!s}"'.format(fileobject))
-        return
+    def _collect_results_callback(fileobject, meowuri, data):
+        log.debug('_collect_results_callback({!s}, {!s}, {!s})'.format(
+            fileobject, meowuri, data))
 
-    log.debug('Got {} extractors for "{!s}"'.format(len(klasses), fileobject))
-    for k in klasses:
-        log.debug(str(k))
-
-    text_extractors = [
-        k for k in klasses
-        if k.meowuri_prefix().startswith('extractor.text')
-    ]
-    if not text_extractors:
-        log.warning(
-            'No text extractors are suited for "{!s}"'.format(fileobject)
-        )
-        return
-
-    log.debug('Got {} text extractors for "{!s}"'.format(len(text_extractors),
-                                                         fileobject))
-    for te in text_extractors:
-        log.debug(str(te))
-
-    for te in text_extractors:
-        _extractor_instance = te()
-        try:
-            _text = _extractor_instance.extract(fileobject)
-        except ExtractorError as e:
-            log.error(
-                'Halted extractor "{!s}": {!s}'.format(_extractor_instance, e)
-            )
-            continue
-
-        assert isinstance(_text, dict)
-        _full_text = _text.get('full')
-        if not _full_text:
-            log.error('Unable to extract text from "{!s}"'.format(fileobject))
+        assert isinstance(data, dict)
+        text = data.get('value')
+        assert isinstance(text, str)
+        extractor = data.get('source', '(unknown extractor)')
+        if not text:
+            log.info('{!s} was unable to extract text from "{!s}"'.format(
+                extractor, fileobject))
             return
 
-        assert isinstance(_full_text, str)
-        # TODO: Factor out method of presenting the extracted text.
-        ui.msg('Text Extracted by {!s}:'.format(_extractor_instance),
-               style='section')
-        ui.msg(_full_text)
+        # TODO: [TD0171] Separate logic from user interface.
+        view.msg('Text Extracted by {!s}:'.format(extractor), style='section')
+        view.msg(text)
+
+    from extractors import TextProviderClasses
+    assert TextProviderClasses
+    runner = extraction.ExtractorRunner(
+        add_results_callback=_collect_results_callback
+    )
+    try:
+        runner.start(fileobject, request_extractors=TextProviderClasses)
+    except exceptions.AutonameowException as e:
+        log.critical('Extraction FAILED: {!s}'.format(e))
 
 
 def do_extract_metadata(fileobject):
-    klasses = extraction.suitable_extractors_for(fileobject)
-    if not klasses:
-        log.debug('No extractors suitable for "{!s}"'.format(fileobject))
-        return
+    results = dict()
 
-    log.debug('Got {} extractors for "{!s}"'.format(len(klasses), fileobject))
-    for k in klasses:
-        log.debug(str(k))
+    def _collect_results_callback(_, meowuri, data):
+        _value = data.get('value')
+        if not _value:
+            return
 
-    metadata_extractors = [
-        k for k in klasses
-        if k.meowuri_prefix().startswith('extractor.metadata')
-    ]
-    if not metadata_extractors:
-        log.warning(
-            'No metadata extractors are suited for "{!s}"'.format(fileobject)
-        )
-        return
+        if isinstance(_value, bytes):
+            _str_value = enc.displayable_path(_value)
+        else:
+            try:
+                _str_value = str(_value)
+            except (TypeError, ValueError) as e:
+                log.warning('Unable to convert value to Unicode string :: {!s} '
+                            ': ({}) {!s}'.format(meowuri, type(_value), _value))
+                log.warning(str(e))
+                return
 
-    log.debug('Got {} metadata extractors for "{!s}"'.format(
-        len(metadata_extractors), fileobject
-    ))
-    for me in metadata_extractors:
-        log.debug(str(me))
+        results[meowuri] = _str_value
 
-    for me in metadata_extractors:
-        _extractor_instance = me()
-        try:
-            _metadata = _extractor_instance.extract(fileobject)
-        except ExtractorError as e:
-            log.error('Halted extractor "{!s}": {!s}'.format(
-                _extractor_instance, e
-            ))
-            continue
-
-        try:
-            _metainfo = _extractor_instance.metainfo()
-        except ExtractorError as e:
-            log.error('Halted extractor "{!s}": {!s}'.format(
-                _extractor_instance, e
-            ))
-            continue
-
-        assert isinstance(_metadata, dict)
-        assert isinstance(_metainfo, dict)
-
-        ui.msg('Metadata Extracted by {!s}'.format(_extractor_instance),
-               style='section')
-        cf = ui.ColumnFormatter()
-        for k, v in sorted(_metadata.items()):
+    from extractors import MetadataProviderClasses
+    assert MetadataProviderClasses
+    runner = extraction.ExtractorRunner(
+        add_results_callback=_collect_results_callback
+    )
+    try:
+        runner.start(fileobject, request_extractors=MetadataProviderClasses)
+    except exceptions.AutonameowException as e:
+        log.critical('Extraction FAILED: {!s}'.format(e))
+    else:
+        # TODO: [TD0171] Separate logic from user interface.
+        view.msg('Extracted Metadata', style='section')
+        cf = view.ColumnFormatter()
+        for k, v in sorted(results.items()):
             cf.addrow(str(k), str(v))
         cf.addemptyrow()
-        ui.msg(cf)
+        view.msg(str(cf))
 
 
 def main(options=None):
@@ -201,7 +164,8 @@ def main(options=None):
                 e, enc.displayable_path(_file)))
             continue
 
-        ui.msg('{!s}'.format(current_file), style='heading')
+        # TODO: [TD0171] Separate logic from user interface.
+        view.msg('{!s}'.format(current_file), style='heading')
         log.info('Processing ({}/{}) "{!s}" ..'.format(
             _num, _num_files, current_file))
 

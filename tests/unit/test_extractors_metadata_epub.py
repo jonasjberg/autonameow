@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import skipIf
+from unittest import skipIf, TestCase
 
 import unit.utils as uu
 from extractors.metadata import EpubMetadataExtractor
@@ -35,26 +35,19 @@ dependency_error = 'Extractor dependencies not satisfied'
 
 
 @skipIf(unmet_dependencies, dependency_error)
-class TestEpubMetadataExtractor(CaseExtractorBasics):
-    __test__ = True
+class TestEpubMetadataExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = EpubMetadataExtractor
-
-    def test_method_str_returns_expected(self):
-        actual = str(self.extractor)
-        expect = 'EpubMetadataExtractor'
-        self.assertEqual(actual, expect)
+    EXTRACTOR_NAME = 'EpubMetadataExtractor'
 
 
 @skipIf(unmet_dependencies, dependency_error)
-class TestEpubMetadataExtractorOutputTypes(CaseExtractorOutputTypes):
-    __test__ = True
+class TestEpubMetadataExtractorOutputTypes(CaseExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = EpubMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
 
 
 @skipIf(unmet_dependencies, dependency_error)
-class TestEpubMetadataExtractorOutputTestFileA(CaseExtractorOutput):
-    __test__ = True
+class TestEpubMetadataExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = EpubMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
     EXPECTED_FIELD_TYPE_VALUE = [

@@ -36,19 +36,12 @@ from util import (
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0154] Add "incrementing counter" placeholder field
+
+
 class NameTemplateField(object):
     COMPATIBLE_TYPES = (None, )
     MULTIVALUED = None
-
-    def __init__(self):
-        self._transforms = {
-            Title: None,  # TODO: Function?
-            Edition: None,  # TODO: Function?
-        }
-
-    def transform(self, target_field):
-        # TODO: Implement transforming data between field types, if possible.
-        pass
 
     @classmethod
     def format(cls, data, *args, **kwargs):
@@ -75,6 +68,10 @@ class NameTemplateField(object):
         # for instance 'core.namebuilder.fields.Extension' and not 'Extension'.
         return self.__class__.__name__.lower()
 
+    # @classmethod
+    # def __eq__(cls, other):
+    #     return cls.__class__ == other.__class__
+
 
 class Title(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
@@ -83,33 +80,24 @@ class Title(NameTemplateField):
                         types.AW_INTEGER)
     MULTIVALUED = False
 
-    def __init__(self):
-        super(Title).__init__()
-
-    @classmethod
-    def normalize(cls, data):
-        data = data.strip(',.:;-_ ')
-        data = data.replace('&', 'and')
-        data = data.replace('&#8211;', '-')
-        return data
-
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
         # TODO: [TD0129] Data validation at this point should be made redundant
-        if data.get('coercer') in (types.AW_PATHCOMPONENT, types.AW_PATH):
-            string = types.force_string(data.get('value'))
+        if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+            string = types.force_string(data.value)
             if not string:
                 raise exceptions.NameBuilderError(
                     'Unicode string conversion failed for "{!r}"'.format(data)
                 )
-        elif data.get('coercer') == types.AW_STRING:
-            string = data.get('value')
+        elif data.coercer == types.AW_STRING:
+            string = data.value
         else:
-            string = data.get('value')
+            string = data.value
 
         sanity.check_internal_string(string)
-        return cls.normalize(string)
+        string = string.strip(',.:;-_ ')
+        return string
 
 
 class Edition(NameTemplateField):
@@ -119,55 +107,18 @@ class Edition(NameTemplateField):
                         types.AW_INTEGER)
     MULTIVALUED = False
 
-    # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
-    REPLACE_ORDINALS = []
-    for _find, _replace in (('1st', 'first'),
-                            ('2nd', 'second'),
-                            ('3rd', 'third'),
-                            ('4th', 'fourth'),
-                            ('5th', 'fifth'),
-                            ('6th', 'sixth'),
-                            ('7th', 'seventh'),
-                            ('8th', 'eighth'),
-                            ('9th', 'ninth'),
-                            ('10th', 'tenth'),
-                            ('11th', 'eleventh'),
-                            ('12th', 'twelfth'),
-                            ('13th', 'thirteenth'),
-                            ('14th', 'fourteenth'),
-                            ('15th', 'fifteenth'),
-                            ('16th', 'sixteenth'),
-                            ('17th', 'seventeenth'),
-                            ('18th', 'eighteenth'),
-                            ('19th', 'nineteenth'),
-                            ('20th', 'twentieth')):
-        REPLACE_ORDINALS.append((re.compile(_find, re.IGNORECASE), _replace))
-
-    def __init__(self):
-        super(Edition).__init__()
-
-    @classmethod
-    def normalize(cls, edition):
-        # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
-
-        # Normalize numeric titles to allow for later custom replacements.
-        for _find, _replace in cls.REPLACE_ORDINALS:
-            edition = _find.sub(_replace, edition)
-
-        return edition
-
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
         # TODO: [TD0129] Data validation at this point should be made redundant
-        if data.get('coercer') in (types.AW_PATHCOMPONENT, types.AW_PATH):
-            string = types.force_string(data.get('value'))
+        if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+            string = types.force_string(data.value)
             if not string:
                 raise exceptions.NameBuilderError(
                     'Unicode string conversion failed for "{!r}"'.format(data)
                 )
-        elif data.get('coercer') in (types.AW_STRING, types.AW_INTEGER):
-            string = types.force_string(data.get('value'))
+        elif data.coercer in (types.AW_STRING, types.AW_INTEGER):
+            string = types.force_string(data.value)
         else:
             raise exceptions.NameBuilderError(
                 'Got incompatible data: {!r}'.format(data)
@@ -184,18 +135,11 @@ class Extension(NameTemplateField):
                         types.AW_MIMETYPE)
     MULTIVALUED = False
 
-    def __init__(self):
-        super(Extension).__init__()
-
-    @classmethod
-    def normalize(cls, data):
-        pass
-
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
-        value = data.get('value')
-        coercer = data.get('coercer')
+        value = data.value
+        coercer = data.coercer
         if coercer:
             string = coercer.format(value)
         else:
@@ -219,48 +163,28 @@ class Author(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
+        _d_coercer = data.coercer
+        sanity.check_isinstance(_d_coercer, types.BaseType)
+
+        _d_value = data.value
+        # TODO: Coercer references that are passed around are class INSTANCES!
+        # TODO: [hack] Fix 'types.listof()' expects classes!
+        coercer = types.listof(_d_coercer)
+        list_of_str_authors = coercer(_d_value)
+        sanity.check_isinstance(list_of_str_authors, list)
+
         # TODO: [TD0129] Data validation at this point should be made redundant
-        if isinstance(data.get('value'), list):
-            # Multiple authors
-            _formatted = []
-            for d in data.get('value'):
-                if data.get('coercer') in (types.AW_PATHCOMPONENT,
-                                           types.AW_PATH):
-                    string = types.force_string(d)
-                    if not string:
-                        raise exceptions.NameBuilderError(
-                            'Unicode string conversion failed for '
-                            '"{!r}"'.format(data)
-                        )
-                elif data.get('coercer') == types.AW_STRING:
-                    string = d
-                else:
-                    raise exceptions.NameBuilderError(
-                        'Got incompatible data: {!r}'.format(d)
-                    )
+        if any(not s.strip() for s in list_of_str_authors):
+            raise exceptions.NameBuilderError(
+                'Unicode string coercion resulted in empty (or whitespace) '
+                'string for data "{!r}"'.format(data)
+            )
+        _formatted = []
+        for author in list_of_str_authors:
+            sanity.check_internal_string(author)
+            _formatted.append(text.format_name(author))
 
-                sanity.check_internal_string(string)
-                _formatted.append(text.format_name(string))
-
-            return ' '.join(sorted(_formatted))
-        else:
-            # One author
-            if data.get('coercer') in (types.AW_PATHCOMPONENT, types.AW_PATH):
-                string = types.force_string(data.get('value'))
-                if not string:
-                    raise exceptions.NameBuilderError(
-                        'Unicode string conversion failed for '
-                        '"{!r}"'.format(data)
-                    )
-            elif data.get('coercer') == types.AW_STRING:
-                string = data.get('value')
-            else:
-                raise exceptions.NameBuilderError(
-                    'Got incompatible data: {!r}'.format(data)
-                )
-
-            sanity.check_internal_string(string)
-            return text.format_name(data.get('value'))
+        return ' '.join(sorted(_formatted))
 
 
 class Creator(NameTemplateField):
@@ -281,7 +205,7 @@ class DateTime(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
-        _value = data.get('value')
+        _value = data.value
         if not _value:
             raise exceptions.NameBuilderError(
                 '{!s}.format() got empty data'.format(cls)
@@ -310,7 +234,7 @@ class Date(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
-        _value = data.get('value')
+        _value = data.value
         if not _value:
             raise exceptions.NameBuilderError(
                 '{!s}.format() got empty data'.format(cls)
@@ -340,7 +264,7 @@ class Description(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        value = data.get('value')
+        value = data.value
         return types.force_string(value)
 
 
@@ -357,6 +281,7 @@ class Publisher(NameTemplateField):
 
         _candidates = dict()
 
+        # TODO: [TD0174] Don't do this here ..
         c = kwargs.get('config')
         if c:
             _options = c.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
@@ -364,7 +289,8 @@ class Publisher(NameTemplateField):
                 _candidates = _options.get('candidates', {})
 
         # TODO: [TD0152] Fix too many replacements applied? Stop after first?
-        _formatted = data.get('value')
+        _formatted = data.value
+        sanity.check_internal_string(_formatted)
         for repl, patterns in _candidates.items():
             for pattern in patterns:
                 _formatted = pattern.sub(repl, _formatted)
@@ -381,13 +307,13 @@ class Tags(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        _value = data.get('value')
+        _value = data.value
         _tag_list = types.listof(types.AW_STRING)(_value)
 
         # TODO: [TD0129] Is this kind of double-double-check really necessary..?
-        assert isinstance(_tag_list, list)
+        sanity.check_isinstance(_tag_list, list)
         for t in _tag_list:
-            assert isinstance(t, str)
+            sanity.check_isinstance(t, str)
 
         if len(_tag_list) == 1:
             # Single tag doesn't need to be joined.
@@ -409,7 +335,7 @@ class Time(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        _value = data.get('value')
+        _value = data.value
         c = kwargs.get('config')
         if c:
             datetime_format = c.options['DATETIME_FORMAT']['time']
@@ -427,7 +353,7 @@ class Year(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         datetime_format = '%Y'
-        return formatted_datetime(data.get('value'), datetime_format)
+        return formatted_datetime(data.value, datetime_format)
 
 
 def format_string_placeholders(format_string):
@@ -520,5 +446,5 @@ def nametemplatefield_classes_in_formatstring(format_string):
 
 
 def formatted_datetime(datetime_object, format_string):
-    assert isinstance(datetime_object, datetime.datetime)
+    sanity.check_isinstance(datetime_object, datetime.datetime)
     return datetime_object.strftime(format_string)

@@ -67,6 +67,9 @@ INITIAL_CONFIGURATION_OPTIONS = {
 }
 
 
+# TODO: [TD0154] Add "incrementing counter" placeholder field
+
+
 class ConfigurationParser(object):
     def __init__(self):
         # NOTE(jonas): Make sure that defaults are not modified.
@@ -342,7 +345,6 @@ class ConfigurationParser(object):
 
         Raises:
             EncodingBoundaryViolation: Argument "path" is not a bytestring.
-            ConfigReadError: The configuration file could not be read.
             ConfigError: The configuration file is empty.
         """
         sanity.check_internal_bytestring(path)

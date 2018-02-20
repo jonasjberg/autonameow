@@ -39,6 +39,7 @@ __all__ = [
     'normalize_unicode',
     'simplify_unicode',
     'remove_nonbreaking_spaces',
+    'remove_zerowidth_spaces',
     'strip_ansiescape',
     'truncate_text',
     'urldecode'
@@ -256,7 +257,7 @@ def simplify_unicode(string):
 
 
 def _strip_accents_homerolled(string):
-    assert isinstance(string, str)
+    sanity.check_internal_string(string)
     nkfd_form = unicodedata.normalize('NFKD', string)
     return ''.join([c for c in nkfd_form if not unicodedata.combining(c)])
 
@@ -267,7 +268,11 @@ def _strip_accents_unidecode(string):
 
 
 def remove_nonbreaking_spaces(text):
-    return text.replace('\xa0', ' ')
+    return text.replace('\u00A0', ' ')
+
+
+def remove_zerowidth_spaces(text):
+    return text.replace('\u200B', '')
 
 
 def strip_ansiescape(string):
