@@ -42,7 +42,7 @@ class TestGetProvidersForMeowURIs(TestCase):
             uu.as_meowuri(uuconst.MEOWURI_FS_FILETAGS_TAGS),
         ]
         cls._meowuris_filesystem = [
-            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT),
+            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_EXTENSION),
             uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL),
             uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX),
             uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
@@ -162,7 +162,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         cls._mapping_meowuris_extractors = [
             ExpectedMapping(
                 MeowURIs=[
-                    uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT),
+                    uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_EXTENSION),
                     uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL),
                     uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX),
                     uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
@@ -377,7 +377,7 @@ class TestProviderRegistryMethodResolvable(TestCase):
         _aT('extractor.metadata.exiftool')
         _aT(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE)
         _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
-        _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
+        _aT(uuconst.MEOWURI_FS_XPLAT_EXTENSION)
         _aT(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
     def test_with_meowuri_and_no_mapped_meowuirs(self):

@@ -78,7 +78,7 @@ class ConfigFieldParser(object):
     # determine if the class is suited to handle the expression or data.
     #
     # The "meowURI" consist of a lower case words, separated by periods.
-    # For instance; "contents.mime_type" or "filesystem.basename.extension".
+    # For instance; "contents.mime_type" or "filesystem.extension".
     # The "meowURI" can contain "globs" as wildcards. Globs substitute
     # any of the lower case words with an asterisk, effectively ignoring that
     # part during comparison.
@@ -222,7 +222,8 @@ class RegexConfigFieldParser(ConfigFieldParser):
     APPLIES_TO_MEOWURIS = [
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
         '*.XMP-dc:Title', '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher',
-        '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.text.*', '*.text',
+        '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.extension',
+        '*.text.*', '*.text'
     ]
     # Add MeowURIs from "generic" fields.
     APPLIES_TO_MEOWURIS.extend([

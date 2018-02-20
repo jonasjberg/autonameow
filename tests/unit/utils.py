@@ -353,7 +353,7 @@ def mock_session_data_pool(fileobject):
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT],
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_EXTENSION],
         b'pdf.pdf'
     )
     nested_dict_set(
@@ -433,7 +433,7 @@ def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT],
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_EXTENSION],
         b'pdf.pdf'
     )
     nested_dict_set(
