@@ -44,7 +44,7 @@ b402ae3211fec7f4b5bd66eddf0d72d4cfc94c04) arranged as follows:
 __Extractors__ store data without any special prefix;
 
 ```
-filesystem.basename.full
+filesystem.basename_full
 filesystem.contents.mime_type
 metadata.exiftool.EXIF:DateTimeOriginal
 metadata.exiftool.QuickTime:CreationDate

@@ -333,7 +333,9 @@ class TestEvaluateMeowURIGlobB(TestCase):
             actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
             self.assertTrue(actual)
 
-        _t(['*.pathname.*', '*.basename.*', '*.full'])
+        _t(['*.basename_full'])
+        _t(['*.xplat.basename_full'])
+        _t(['*.pathname.*', '*.basename_full', '*.full'])
 
 
 class TestEvaluateMeowURIGlobC(TestCase):
@@ -634,7 +636,7 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
 
     def test_extraction_collect_extractor_xplat_filesystem(self):
         _prefix = 'extractor.filesystem.xplat'
-        for _key in ['abspath_full', 'basename.full', 'extension',
+        for _key in ['abspath_full', 'basename_full', 'extension',
                      'basename.suffix', 'basename.prefix', 'contents.mime_type',
                      'date_accessed', 'date_created', 'date_modified',
                      'pathname.full', 'pathname.parent']:
@@ -778,12 +780,11 @@ class TestMeowURIParser(TestCase):
         self.assertEqual(str(b[2]), 'File:MIMEType')
 
     def test_partitions_two_lists_of_parts(self):
-        a = self.p.parse(['extractor.filesystem.xplat', 'basename.full'])
+        a = self.p.parse(['extractor.filesystem.xplat', 'basename_full'])
         self.assertIsInstance(a[0], MeowURIRoot)
         self.assertIsInstance(a[1], list)
         self.assertIsInstance(a[1][0], MeowURIChild)
         self.assertIsInstance(a[1][1], MeowURIChild)
-        self.assertIsInstance(a[1][2], MeowURIChild)
         self.assertIsInstance(a[2], MeowURILeaf)
 
         b = self.p.parse('extractor.metadata.exiftool.File:MIMEType')
@@ -794,12 +795,11 @@ class TestMeowURIParser(TestCase):
         self.assertIsInstance(b[2], MeowURILeaf)
 
     def test_returns_two_lists_of_partitioned_parts_as_strings(self):
-        a = self.p.parse(['extractor.filesystem.xplat', 'basename.full'])
+        a = self.p.parse(['extractor.filesystem.xplat', 'basename_full'])
         self.assertEqual(str(a[0]), 'extractor')
         self.assertEqual(str(a[1][0]), 'filesystem')
         self.assertEqual(str(a[1][1]), 'xplat')
-        self.assertEqual(str(a[1][2]), 'basename')
-        self.assertEqual(str(a[2]), 'full')
+        self.assertEqual(str(a[2]), 'basename_full')
 
         b = self.p.parse('extractor.metadata.exiftool.File:MIMEType')
         self.assertEqual(str(b[0]), 'extractor')

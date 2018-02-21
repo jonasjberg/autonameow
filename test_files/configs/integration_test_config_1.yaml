@@ -19,7 +19,7 @@ RULES:
     test_files Gmail print-to-pdf:
         CONDITIONS:
             extractor.filesystem.xplat.extension: pdf
-            extractor.filesystem.xplat.basename.full: gmail.pdf
+            extractor.filesystem.xplat.basename_full: gmail.pdf
             extractor.filesystem.xplat.contents.mime_type: application/pdf
         DATA_SOURCES:
             datetime: extractor.metadata.exiftool.PDF:CreateDate
@@ -31,7 +31,7 @@ RULES:
         ranking_bias: null
     test_files smulan.jpg:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.full: smulan.jpg
+            extractor.filesystem.xplat.basename_full: smulan.jpg
             extractor.filesystem.xplat.contents.mime_type: image/jpeg
         DATA_SOURCES:
             datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
@@ -43,7 +43,7 @@ RULES:
         ranking_bias: 1
     test_files simplest_pdf.md.pdf:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.full: simplest_pdf.md.pdf
+            extractor.filesystem.xplat.basename_full: simplest_pdf.md.pdf
         DATA_SOURCES:
             extension: extractor.filesystem.xplat.extension
         NAME_TEMPLATE: simplest_pdf.md.{extension}

@@ -102,7 +102,7 @@ Rule #001 [RULE DESCRIPTION] (3 conditions)
 
 PASSED
 
-  - extractor.filesystem.xplat.basename.full
+  - extractor.filesystem.xplat.basename_full
     Expression          'Untitled.mov'
     Evaluated Data      'Untitled.mov'
 
@@ -123,7 +123,7 @@ Alternative mock-up:
 ```
 Rule #001 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION]
 
-PASSED  extractor.filesystem.xplat.basename.full
+PASSED  extractor.filesystem.xplat.basename_full
         Expr:  'Untitled.mov'
         Data:  'Untitled.mov'
 PASSED  extractor.filesystem.xplat.contents.mime_type

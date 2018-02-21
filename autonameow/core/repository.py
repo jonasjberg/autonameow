@@ -151,9 +151,6 @@ class Repository(object):
                         ' "{!s}"'.format(meowuri))
             return
 
-        # if meowuri == 'extractor.filesystem.xplat.basename.full':
-        #     assert 'extractor.filesystem.xplat.basename.full' not in self.data[fileobject]
-
         if isinstance(data, list):
             data_sample = data[0]
         else:

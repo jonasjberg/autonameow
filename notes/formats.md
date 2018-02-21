@@ -74,7 +74,7 @@ This is an example of conditions from a single rule in the default configuration
 ```python
 'CONDITIONS': {
     'filesystem.pathname.full': None,
-    'filesystem.basename.full': None,
+    'filesystem.basename_full': None,
     'filesystem.extension': None,
     'contents.mime_type': None
 },
@@ -89,7 +89,7 @@ The first three conditions has to do with the file name;
 ```python
 'CONDITIONS': {
     'filesystem.pathname.full': '(~/temp|/tmp)',
-    'filesystem.basename.full': '^\..*',
+    'filesystem.basename_full': '^\..*',
     'filesystem.extension': None
 },
 ```
@@ -237,7 +237,7 @@ Registered "MeowURIs" as of version `v0.4.5`.
 * `contents.textual.paginated`
 * `contents.visual.ocr_text`
 * `filesystem.extension`
-* `filesystem.basename.full`
+* `filesystem.basename_full`
 * `filesystem.basename.prefix`
 * `filesystem.basename.suffix`
 * `filesystem.pathname.full`

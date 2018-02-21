@@ -119,7 +119,7 @@ Medium Priority
     ```yaml
     Quicktime Desktop Recording:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.full: 'Untitled.mov'
+            extractor.filesystem.xplat.basename_full: 'Untitled.mov'
             extractor.filesystem.xplat.contents.mime_type: 'video/quicktime'
             extractor.filesystem.xplat.pathname.full: '/Users/jonas/Desktop'
         NAME_TEMPLATE: '{datetime} -- screenshot macbookpro.mov'
