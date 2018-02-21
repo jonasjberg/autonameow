@@ -2,7 +2,7 @@ exit_code: 0
 # stdout:
 #     matches:
 #     - 'generic.contents.mime_type +:: +text/plain'
-#     - 'extractor.filesystem.xplat.pathname.parent +:: +test_files'
+#     - 'extractor.filesystem.xplat.pathname_parent +:: +test_files'
 #     - 'extractor.filesystem.filetags.datetime +:: +2017-11-20 02:07:38'
 #     - 'generic.metadata.date_created +:: +2017-11-20 02:07:38'
 # 

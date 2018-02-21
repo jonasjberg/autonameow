@@ -627,7 +627,7 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
         for _key in ['abspath_full', 'basename_full', 'extension',
                      'basename_suffix', 'basename_prefix', 'contents.mime_type',
                      'date_accessed', 'date_created', 'date_modified',
-                     'pathname_full', 'pathname.parent']:
+                     'pathname_full', 'pathname_parent']:
             self._check(_prefix, _key, expected='{}.{}'.format(_prefix, _key))
 
     def test_extraction_collect_extractor_metadata_exiftool(self):

@@ -334,7 +334,7 @@ SessionRepository.data = {
     'filesystem.basename_suffix': 'pdf',
     'filesystem.basename_prefix': 'gmail',
     'filesystem.pathname_full': '/Users/jonas/PycharmProjects/autonameow.git/test_files',
-    'filesystem.pathname.parent': 'test_files',
+    'filesystem.pathname_parent': 'test_files',
     'filesystem.contents.mime_type': 'application/pdf',
     'filesystem.date_accessed': datetime.datetime(2017, 9, 3, 15, 41, 54,),
     'filesystem.date_created': datetime.datetime(2017, 6, 10, 16, 36, 18,),
@@ -358,7 +358,7 @@ SessionRepository.data = {
 | `'filesystem.basename_suffix'`                  | `'pdf'`                                                              | `{extension}`                                      |
 | `'filesystem.basename_prefix'`                  | `'gmail'`                                                            | ?                                                  |
 | `'filesystem.pathname_full'`                    | `'/Users/jonas/PycharmProjects/autonameow.git/test_files'`           | ?                                                  |
-| `'filesystem.pathname.parent'`                  | `'test_files'`                                                       | ?                                                  |
+| `'filesystem.pathname_parent'`                  | `'test_files'`                                                       | ?                                                  |
 | `'filesystem.contents.mime_type'`               | `'application/pdf'`                                                  | `{extension}`                                      |
 | `'filesystem.date_accessed'`                    | `datetime.datetime(2017, 9, 3, 15, 41, 54,)`                         | `{date}` `{datetime}`                              |
 | `'filesystem.date_created'`                     | `datetime.datetime(2017, 6, 10, 16, 36, 18,)`                        | `{date}` `{datetime}`                              |

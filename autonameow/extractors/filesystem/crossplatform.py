@@ -58,7 +58,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             'multivalued': False,
         },
         'pathname_full': {'coercer': types.AW_PATH, 'multivalued': False},
-        'pathname.parent': {'coercer': types.AW_PATH, 'multivalued': False},
+        'pathname_parent': {'coercer': types.AW_PATH, 'multivalued': False},
         'contents.mime_type': {
             'coercer': types.AW_MIMETYPE,
             'multivalued': False,
@@ -110,7 +110,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             ('basename_suffix', fileobject.basename_suffix),
             ('basename_prefix', fileobject.basename_prefix),
             ('pathname_full', fileobject.pathname),
-            ('pathname.parent', fileobject.pathparent),
+            ('pathname_parent', fileobject.pathparent),
             ('contents.mime_type', fileobject.mime_type)
         ]
 

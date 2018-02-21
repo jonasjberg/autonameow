@@ -241,7 +241,7 @@ Registered "MeowURIs" as of version `v0.4.5`.
 * `filesystem.basename_prefix`
 * `filesystem.basename_suffix`
 * `filesystem.pathname_full`
-* `filesystem.pathname.parent`
+* `filesystem.pathname_parent`
 * `metadata.exiftool.[exiftool_fields]`
 * `metadata.pypdf.[PyPDF2_fields]`
 * `metadata.pypdf.number_pages`
