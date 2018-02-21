@@ -51,7 +51,7 @@ ALL_EXTRACTOR_FIELDS_TYPES = [
     ('extension', bytes),
     ('basename_suffix', bytes),
     ('basename_prefix', bytes),
-    ('pathname.full', bytes),
+    ('pathname_full', bytes),
     ('pathname.parent', bytes),
     ('contents.mime_type', str),
     ('date_accessed', datetime),
@@ -96,7 +96,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
         _aE('extension', b'txt')
         _aE('basename_suffix', b'txt')
         _aE('basename_prefix', b'magic_txt')
-        # _aE('pathname.full', 'TODO')
+        # _aE('pathname_full', 'TODO')
         # _aE('pathname.parent', 'TODO)
         _aE('contents.mime_type', 'text/plain')
         # _aE('date_accessed', 'TODO')
@@ -134,7 +134,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
         _aE('extension', b'')
         _aE('basename_suffix', b'')
         _aE('basename_prefix', b'empty')
-        # _aE('pathname.full', 'TODO')
+        # _aE('pathname_full', 'TODO')
         # _aE('pathname.parent', 'TODO)
         _aE('contents.mime_type', 'inode/x-empty')
         # _aE('date_accessed', 'TODO')

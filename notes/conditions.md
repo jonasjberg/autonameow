@@ -112,7 +112,7 @@ PASSED
 
 FAILED
 
-  - extractor.filesystem.xplat.pathname.full
+  - extractor.filesystem.xplat.pathname_full
     Expression         '/Users/jonas/Desktop'
     Evaluated Data     '/home/jonas/whatever'
 
@@ -129,7 +129,7 @@ PASSED  extractor.filesystem.xplat.basename_full
 PASSED  extractor.filesystem.xplat.contents.mime_type
         Expr:  'video/quicktime'
         Data:  'video/quicktime'
-FAILED  extractor.filesystem.xplat.pathname.full
+FAILED  extractor.filesystem.xplat.pathname_full
         Expr:  '/Users/jonas/Desktop'
         Data:  '/home/jonas/whatever'
 

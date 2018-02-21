@@ -229,6 +229,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
         '*.basename_full',
         '*.basename_prefix',
         '*.basename_suffix',
+        '*.pathname_full',
         '*.text.*', '*.text'
     ]
     # Add MeowURIs from "generic" fields.

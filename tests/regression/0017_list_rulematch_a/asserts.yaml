@@ -9,7 +9,7 @@ stdout:
     - 'Exact: Yes.*Score: 1.00.*Weight: 1.00.*Bias: 0.5'
     - 'Exact: No.*Score: 1.00.*Weight: 0.67  Bias: 0.1'
     - 'FAILED.*extractor.filesystem.xplat.contents.mime_type'
-    - 'FAILED.*extractor.filesystem.xplat.pathname.full'
+    - 'FAILED.*extractor.filesystem.xplat.pathname_full'
     - 'FAILED.*extractor.filesystem.xplat.extension'
     - 'PASSED.*extractor.filesystem.xplat.extension'
     - 'PASSED.*extractor.filesystem.xplat.basename_full'

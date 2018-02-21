@@ -26,7 +26,7 @@ from core import constants as C
 # =====================
 # 'extractor.filesystem.xplat.basename_full'        Regular expression
 # 'extractor.filesystem.xplat.extension'            Regular expression
-# 'extractor.filesystem.xplat.pathname.full'        Regular expression
+# 'extractor.filesystem.xplat.pathname_full'        Regular expression
 # 'extractor.filesystem.xplat.date_accessed'        Python "datetime" format
 # 'extractor.filesystem.xplat.date_created'         Python "datetime" format
 # 'extractor.filesystem.xplat.date_modified'        Python "datetime" format
@@ -107,7 +107,7 @@ DEFAULT_CONFIG = {
             'ranking_bias': 1,
             'NAME_TEMPLATE': '{datetime} {description} -- {tags}.{extension}',
             'CONDITIONS': {
-                'extractor.filesystem.xplat.pathname.full': '~/Pictures/incoming',
+                'extractor.filesystem.xplat.pathname_full': '~/Pictures/incoming',
                 'extractor.filesystem.xplat.basename_full': 'DCIM*',
                 'extractor.filesystem.xplat.extension': 'jpg',
                 'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
