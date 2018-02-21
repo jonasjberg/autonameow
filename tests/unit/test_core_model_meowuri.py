@@ -477,9 +477,6 @@ class TestEvaluateMeowURIGlobF(TestCase):
     #                                        'filesystem.pathname.*',
     #                                        'filesystem.pathname.full']
     #     ))
-    #     self.assertFalse(eval_meowuri_glob(
-    #         'filesystem.abspath.full', ['*.text.full']
-    #     ))
     #
     #     self.assertTrue(eval_meowuri_glob(
     #         uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
@@ -637,7 +634,7 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
 
     def test_extraction_collect_extractor_xplat_filesystem(self):
         _prefix = 'extractor.filesystem.xplat'
-        for _key in ['abspath.full', 'basename.full', 'extension',
+        for _key in ['abspath_full', 'basename.full', 'extension',
                      'basename.suffix', 'basename.prefix', 'contents.mime_type',
                      'date_accessed', 'date_created', 'date_modified',
                      'pathname.full', 'pathname.parent']:
@@ -686,8 +683,8 @@ class TestDifferentCombinationsOfStringAndMeowURIArgs(TestCase):
             uu.as_meowuri('extractor.filesystem'), 'xplat.extension'
         )
         self._assert_meowuri_str(
-            'extractor.filesystem.xplat.abspath.full',
-            uu.as_meowuri('extractor.filesystem.xplat'), 'abspath.full'
+            'extractor.filesystem.xplat.abspath_full',
+            uu.as_meowuri('extractor.filesystem'), 'xplat.abspath_full'
         )
 
     def test_two_string_arguments_with_one_part_and_one_meowuri_instance(self):
@@ -696,8 +693,8 @@ class TestDifferentCombinationsOfStringAndMeowURIArgs(TestCase):
             uu.as_meowuri('extractor.filesystem'), 'xplat', 'extension'
         )
         self._assert_meowuri_str(
-            'extractor.filesystem.xplat.abspath.full',
-            uu.as_meowuri('extractor.filesystem.xplat'), 'abspath', 'full'
+            'extractor.filesystem.xplat.abspath_full',
+            uu.as_meowuri('extractor.filesystem'), 'xplat', 'abspath_full'
         )
 
 
