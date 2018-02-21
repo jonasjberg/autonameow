@@ -358,7 +358,7 @@ def evaluate_meowuri_globs(meowuri_string, glob_list):
         'contents.mime_type'        ['contents.mime_type']      True
         'contents.foo'              ['foo.*', 'contents.*']     True
         'foo.bar'                   ['*.*']                     True
-        'filesystem.basename.full'  ['contents.*', '*.parent']  False
+        'filesystem.basename_full'  ['contents.*', '*.parent']  False
 
     Args:
         meowuri_string: A string representation of a MeowURI.

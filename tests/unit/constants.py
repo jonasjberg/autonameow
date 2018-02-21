@@ -70,7 +70,7 @@ MEOWURI_FS_FILETAGS_TAGS = 'extractor.filesystem.filetags.tags'
 MEOWURI_FS_XPLAT_MIMETYPE = 'extractor.filesystem.xplat.contents.mime_type'
 MEOWURI_FS_XPLAT_ABSPATH_FULL = 'extractor.filesystem.xplat.abspath_full'
 MEOWURI_FS_XPLAT_EXTENSION = 'extractor.filesystem.xplat.extension'
-MEOWURI_FS_XPLAT_BASENAME_FULL = 'extractor.filesystem.xplat.basename.full'
+MEOWURI_FS_XPLAT_BASENAME_FULL = 'extractor.filesystem.xplat.basename_full'
 MEOWURI_FS_XPLAT_BASENAME_PREFIX = 'extractor.filesystem.xplat.basename.prefix'
 MEOWURI_FS_XPLAT_BASENAME_SUFFIX = 'extractor.filesystem.xplat.basename.suffix'
 MEOWURI_FS_XPLAT_PATHNAME_FULL = 'extractor.filesystem.xplat.pathname.full'
@@ -170,7 +170,7 @@ DUMPED_MEOWURIS = frozenset([
     # 'analyzer.filetags.follows_filetags_convention',  This is an extractor now
     'extractor.filesystem.xplat.abspath_full',
     'extractor.filesystem.xplat.extension',
-    'extractor.filesystem.xplat.basename.full',
+    'extractor.filesystem.xplat.basename_full',
     'extractor.filesystem.xplat.basename.prefix',
     'extractor.filesystem.xplat.basename.suffix',
     'extractor.filesystem.xplat.contents.mime_type',

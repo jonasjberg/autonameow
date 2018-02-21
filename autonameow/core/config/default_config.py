@@ -24,7 +24,7 @@ from core import constants as C
 
 # ALL_CONDITIONS_FIELDS
 # =====================
-# 'extractor.filesystem.xplat.basename.full'        Regular expression
+# 'extractor.filesystem.xplat.basename_full'        Regular expression
 # 'extractor.filesystem.xplat.extension'            Regular expression
 # 'extractor.filesystem.xplat.pathname.full'        Regular expression
 # 'extractor.filesystem.xplat.date_accessed'        Python "datetime" format
@@ -64,7 +64,7 @@ DEFAULT_CONFIG = {
             'ranking_bias': None,
             'NAME_TEMPLATE': '{datetime} {title}.{extension}',
             'CONDITIONS': {
-                'extractor.filesystem.xplat.basename.full': 'gmail.pdf',
+                'extractor.filesystem.xplat.basename_full': 'gmail.pdf',
                 'extractor.filesystem.xplat.extension': 'pdf',
                 'extractor.filesystem.xplat.contents.mime_type': 'application/pdf',
             },
@@ -80,7 +80,7 @@ DEFAULT_CONFIG = {
             'ranking_bias': 1,
             'NAME_TEMPLATE': '{datetime} {description}.{extension}',
             'CONDITIONS': {
-                'extractor.filesystem.xplat.basename.full': 'smulan.jpg',
+                'extractor.filesystem.xplat.basename_full': 'smulan.jpg',
                 'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
             },
             'DATA_SOURCES': {
@@ -95,7 +95,7 @@ DEFAULT_CONFIG = {
             'ranking_bias': 1,
             'NAME_TEMPLATE': 'simplest_pdf.md.{extension}',
             'CONDITIONS': {
-                'extractor.filesystem.xplat.basename.full': 'simplest_pdf.md.pdf',
+                'extractor.filesystem.xplat.basename_full': 'simplest_pdf.md.pdf',
             },
             'DATA_SOURCES': {
                 'extension': 'extractor.filesystem.xplat.extension'
@@ -108,7 +108,7 @@ DEFAULT_CONFIG = {
             'NAME_TEMPLATE': '{datetime} {description} -- {tags}.{extension}',
             'CONDITIONS': {
                 'extractor.filesystem.xplat.pathname.full': '~/Pictures/incoming',
-                'extractor.filesystem.xplat.basename.full': 'DCIM*',
+                'extractor.filesystem.xplat.basename_full': 'DCIM*',
                 'extractor.filesystem.xplat.extension': 'jpg',
                 'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
             },

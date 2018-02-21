@@ -223,6 +223,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
         '*.XMP-dc:Title', '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher',
         '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.extension',
+        '*.basename_full',
         '*.text.*', '*.text'
     ]
     # Add MeowURIs from "generic" fields.

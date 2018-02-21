@@ -47,7 +47,7 @@ class TestCrossPlatformFileSystemExtractor(CaseExtractorBasics, TestCase):
 
 ALL_EXTRACTOR_FIELDS_TYPES = [
     ('abspath_full', bytes),
-    ('basename.full', bytes),
+    ('basename_full', bytes),
     ('extension', bytes),
     ('basename.suffix', bytes),
     ('basename.prefix', bytes),
@@ -92,7 +92,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
         self.assertTrue(self.actual.get('abspath_full', b'').endswith(
             b'test_files/magic_txt.txt'
         ))
-        _aE('basename.full', b'magic_txt.txt')
+        _aE('basename_full', b'magic_txt.txt')
         _aE('extension', b'txt')
         _aE('basename.suffix', b'txt')
         _aE('basename.prefix', b'magic_txt')
@@ -130,7 +130,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
         self.assertTrue(self.actual.get('abspath_full', b'').endswith(
             b'test_files/empty'
         ))
-        _aE('basename.full', b'empty')
+        _aE('basename_full', b'empty')
         _aE('extension', b'')
         _aE('basename.suffix', b'')
         _aE('basename.prefix', b'empty')

@@ -35,7 +35,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
 
     FIELD_LOOKUP = {
         'abspath_full': {'coercer': types.AW_PATH, 'multivalued': False},
-        'basename.full': {
+        'basename_full': {
             'coercer': types.AW_PATHCOMPONENT,
             'multivalued': False
         },
@@ -105,7 +105,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         # TODO: [TD0176] Fix inconsistent multi-part leaves/keys.
         _datasources = [
             ('abspath_full', fileobject.abspath),
-            ('basename.full', fileobject.filename),
+            ('basename_full', fileobject.filename),
             ('extension', fileobject.basename_suffix),
             ('basename.suffix', fileobject.basename_suffix),
             ('basename.prefix', fileobject.basename_prefix),

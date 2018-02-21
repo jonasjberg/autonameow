@@ -329,7 +329,7 @@ SessionRepository.data = {
     'metadata.pypdf.NumberPages': 2,
     'metadata.pypdf.Paginated': True,
     'contents.textual.raw_text': '''1/11/2016 Gmail - .. TRUNCATED to 500/1981 characters)''',
-    'filesystem.basename.full': 'gmail.pdf',
+    'filesystem.basename_full': 'gmail.pdf',
     'filesystem.extension': 'pdf',
     'filesystem.basename.suffix': 'pdf',
     'filesystem.basename.prefix': 'gmail',
@@ -352,8 +352,8 @@ SessionRepository.data = {
 | "MeowURI"                                       | Raw Data                                                             | Populateable (?) Fields                            |
 |:------------------------------------------------|:---------------------------------------------------------------------|----------------------------------------------------|
 | `'contents.textual.raw_text'`                   | `'''1/11/2016 Gmail - .. TRUNCATED to 500/1981 characters)'''`       | ?                                                  |
-| `'filesystem.abspath.full'`                     | `'/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf'` | ?                                                  |
-| `'filesystem.basename.full'`                    | `'gmail.pdf'`                                                        | ?                                                  |
+| `'filesystem.abspath_full'`                     | `'/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf'` | ?                                                  |
+| `'filesystem.basename_full'`                    | `'gmail.pdf'`                                                        | ?                                                  |
 | `'filesystem.extension'`                        | `'pdf'`                                                              | `{extension}`                                      |
 | `'filesystem.basename.suffix'`                  | `'pdf'`                                                              | `{extension}`                                      |
 | `'filesystem.basename.prefix'`                  | `'gmail'`                                                            | ?                                                  |
