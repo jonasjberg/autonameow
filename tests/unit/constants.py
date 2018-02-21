@@ -74,7 +74,7 @@ MEOWURI_FS_XPLAT_BASENAME_FULL = 'extractor.filesystem.xplat.basename_full'
 MEOWURI_FS_XPLAT_BASENAME_PREFIX = 'extractor.filesystem.xplat.basename_prefix'
 MEOWURI_FS_XPLAT_BASENAME_SUFFIX = 'extractor.filesystem.xplat.basename_suffix'
 MEOWURI_FS_XPLAT_PATHNAME_FULL = 'extractor.filesystem.xplat.pathname_full'
-MEOWURI_FS_XPLAT_PATHNAME_PARENT = 'extractor.filesystem.xplat.pathname.parent'
+MEOWURI_FS_XPLAT_PATHNAME_PARENT = 'extractor.filesystem.xplat.pathname_parent'
 
 MEOWURI_GEN_CONTENTS_MIMETYPE = 'generic.contents.mime_type'
 MEOWURI_GEN_CONTENTS_TEXT = 'generic.contents.text'
@@ -178,7 +178,7 @@ DUMPED_MEOWURIS = frozenset([
     'extractor.filesystem.xplat.date_created',
     'extractor.filesystem.xplat.date_modified',
     'extractor.filesystem.xplat.pathname_full',
-    'extractor.filesystem.xplat.pathname.parent',
+    'extractor.filesystem.xplat.pathname_parent',
     'extractor.metadata.exiftool.EXIF:CreateDate',
     'extractor.metadata.exiftool.EXIF:DateTimeDigitized',
     'extractor.metadata.exiftool.EXIF:DateTimeOriginal',

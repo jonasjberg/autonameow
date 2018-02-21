@@ -6,7 +6,7 @@ RULES:
     Regression test 0008_nietzsche_b:
         CONDITIONS:
             extractor.filesystem.xplat.basename_full: pg38145-images.epub
-            extractor.filesystem.xplat.pathname.parent: test_files
+            extractor.filesystem.xplat.pathname_parent: test_files
         DATA_SOURCES:
             author: generic.metadata.author
             extension: extractor.filesystem.xplat.contents.mime_type
