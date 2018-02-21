@@ -405,25 +405,6 @@ def mock_session_data_pool_empty_analysis_data(fileobject):
     return data
 
 
-def mock_session_data_pool_with_analysis_data(fileobject):
-    data = dict()
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
-        [{'source': 'filenamepart_tags',
-          'value': ['tagfoo', 'tagbar'],
-          'weight': 1}]
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
-        [{'source': 'filenamepart_base',
-          'value': 'gmail',
-          'weight': 0.25}]
-    )
-    return data
-
-
 def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
     # TODO: [hack][cleanup] Mock properly! Remove?
     data = dict()
