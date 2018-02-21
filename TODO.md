@@ -242,6 +242,11 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0177]` __Refactor the `ConfigFieldParser` classes.__  
+    Should not handle both parsing and evaluation of expressions.
+    This will have to be done in conjunction with `[TD0015]`.
+    Also, see related item `[TD0138]`.
+
 * `[TD0173]` Use `pandoc` to extract information from documents.
 
 * `[TD0164]` Mitigate mismatched throwing/catching of exceptions.

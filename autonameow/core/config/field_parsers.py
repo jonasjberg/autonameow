@@ -90,6 +90,7 @@ class ConfigFieldParser(object):
     ALLOW_MULTIVALUED_EXPRESSION = None
 
     def __init__(self):
+        # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
         self.init()
 
     def init(self):
@@ -185,6 +186,7 @@ class ConfigFieldParser(object):
 
 
 class BooleanConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     APPLIES_TO_MEOWURIS = ['*.filetags.follows_filetags_convention']
     ALLOW_MULTIVALUED_EXPRESSION = False
 
@@ -218,6 +220,7 @@ class BooleanConfigFieldParser(ConfigFieldParser):
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     # NOTE: Globs does not include all possible extractor globs.
     APPLIES_TO_MEOWURIS = [
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
@@ -300,6 +303,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     APPLIES_TO_MEOWURIS = ['*.mime_type', gf.GenericMimeType.uri()]
     ALLOW_MULTIVALUED_EXPRESSION = True
 
@@ -347,6 +351,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     # NOTE: Globs does not include all possible extractor globs.
     APPLIES_TO_MEOWURIS = [
         '*.PDF:CreateDate', '*.PDF:ModifyDate', '*.EXIF:DateTimeOriginal',
@@ -396,6 +401,7 @@ NAMETEMPLATEFIELDS_DUMMYDATA = dict.fromkeys(
 
 
 class NameTemplateConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     APPLIES_TO_MEOWURIS = []
     ALLOW_MULTIVALUED_EXPRESSION = False
 
