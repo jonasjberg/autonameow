@@ -46,7 +46,7 @@ class TestCrossPlatformFileSystemExtractor(CaseExtractorBasics, TestCase):
 
 
 ALL_EXTRACTOR_FIELDS_TYPES = [
-    ('abspath.full', bytes),
+    ('abspath_full', bytes),
     ('basename.full', bytes),
     ('extension', bytes),
     ('basename.suffix', bytes),
@@ -89,7 +89,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
             actual = self.actual.get(field)
             self.assertEqual(actual, expected)
 
-        self.assertTrue(self.actual.get('abspath.full', b'').endswith(
+        self.assertTrue(self.actual.get('abspath_full', b'').endswith(
             b'test_files/magic_txt.txt'
         ))
         _aE('basename.full', b'magic_txt.txt')
@@ -127,7 +127,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
             actual = self.actual.get(field)
             self.assertEqual(actual, expected)
 
-        self.assertTrue(self.actual.get('abspath.full', b'').endswith(
+        self.assertTrue(self.actual.get('abspath_full', b'').endswith(
             b'test_files/empty'
         ))
         _aE('basename.full', b'empty')
