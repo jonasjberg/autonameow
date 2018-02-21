@@ -53,7 +53,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
                 WeightedMapping(fields.Extension, probability=1),
             ]
         },
-        'basename.prefix': {
+        'basename_prefix': {
             'coercer': types.AW_PATHCOMPONENT,
             'multivalued': False,
         },
@@ -108,7 +108,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             ('basename_full', fileobject.filename),
             ('extension', fileobject.basename_suffix),
             ('basename_suffix', fileobject.basename_suffix),
-            ('basename.prefix', fileobject.basename_prefix),
+            ('basename_prefix', fileobject.basename_prefix),
             ('pathname.full', fileobject.pathname),
             ('pathname.parent', fileobject.pathparent),
             ('contents.mime_type', fileobject.mime_type)

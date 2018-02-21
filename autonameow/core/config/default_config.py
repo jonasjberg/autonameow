@@ -70,7 +70,7 @@ DEFAULT_CONFIG = {
             },
             'DATA_SOURCES': {
                 'datetime': 'extractor.metadata.exiftool.PDF:CreateDate',
-                'title': 'extractor.filesystem.xplat.basename.prefix',
+                'title': 'extractor.filesystem.xplat.basename_prefix',
                 'extension': 'extractor.filesystem.xplat.extension'
             }
         },

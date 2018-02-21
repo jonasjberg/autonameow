@@ -5,7 +5,7 @@ DATETIME_FORMAT:
 RULES:
     Regression test 0007_mysticism_logic_c:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.prefix: '4123'
+            extractor.filesystem.xplat.basename_prefix: '4123'
             extractor.filesystem.xplat.pathname.parent: test_files
         DATA_SOURCES:
             extension: extractor.metadata.exiftool.File:MIMEType

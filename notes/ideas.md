@@ -79,7 +79,7 @@ files.
             },
             # If the file basename (without extension) matches any of the two
             # expressions, "The Tale of Tail" is used as the title.
-            { 'source': 'filesystem.basename.prefix',
+            { 'source': 'filesystem.basename_prefix',
               'candidates': [
                 { 'expression': ['The-Tale-of-Tail', 'The-Tale-.*'],
                   'override': 'The Tale of Tail' },
@@ -141,7 +141,7 @@ files.
     -   DATA_SOURCES:
             extension: contents.extension
             datetime: analysis.filename.{?????}
-            title: filesystem.basename.prefix
+            title: filesystem.basename_prefix
         NAME_TEMPLATE: "{datetime} {title}.{extension}"
     DATETIME_FORMAT:
         datetime: '%Y-%m-%dT%H%M%S'
@@ -332,7 +332,7 @@ SessionRepository.data = {
     'filesystem.basename_full': 'gmail.pdf',
     'filesystem.extension': 'pdf',
     'filesystem.basename_suffix': 'pdf',
-    'filesystem.basename.prefix': 'gmail',
+    'filesystem.basename_prefix': 'gmail',
     'filesystem.pathname.full': '/Users/jonas/PycharmProjects/autonameow.git/test_files',
     'filesystem.pathname.parent': 'test_files',
     'filesystem.contents.mime_type': 'application/pdf',
@@ -356,7 +356,7 @@ SessionRepository.data = {
 | `'filesystem.basename_full'`                    | `'gmail.pdf'`                                                        | ?                                                  |
 | `'filesystem.extension'`                        | `'pdf'`                                                              | `{extension}`                                      |
 | `'filesystem.basename_suffix'`                  | `'pdf'`                                                              | `{extension}`                                      |
-| `'filesystem.basename.prefix'`                  | `'gmail'`                                                            | ?                                                  |
+| `'filesystem.basename_prefix'`                  | `'gmail'`                                                            | ?                                                  |
 | `'filesystem.pathname.full'`                    | `'/Users/jonas/PycharmProjects/autonameow.git/test_files'`           | ?                                                  |
 | `'filesystem.pathname.parent'`                  | `'test_files'`                                                       | ?                                                  |
 | `'filesystem.contents.mime_type'`               | `'application/pdf'`                                                  | `{extension}`                                      |

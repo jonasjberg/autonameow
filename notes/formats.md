@@ -238,7 +238,7 @@ Registered "MeowURIs" as of version `v0.4.5`.
 * `contents.visual.ocr_text`
 * `filesystem.extension`
 * `filesystem.basename_full`
-* `filesystem.basename.prefix`
+* `filesystem.basename_prefix`
 * `filesystem.basename_suffix`
 * `filesystem.pathname.full`
 * `filesystem.pathname.parent`

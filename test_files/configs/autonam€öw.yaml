@@ -16,7 +16,7 @@ RULES:
         DATA_SOURCES:
             datetime: analysis.filename.unixtimestamp
             extension: filesystem.extension
-            title: filesystem.basename.prefix
+            title: filesystem.basename_prefix
         NAME_TEMPLATE: "{datetime} {title} -- screenshot macbookpro.{extension}"
         exact_match: true
         weight: 1
@@ -31,7 +31,7 @@ RULES:
         DATA_SOURCES:
             datetime: metadata.exiftool.QuickTime:CreationDate
             extension: filesystem.extension
-            title: filesystem.basename.prefix
+            title: filesystem.basename_prefix
         NAME_TEMPLATE: "{datetime} {title} -- screenshot macbookpro.{extension}"
         exact_match: true
         weight: 1
@@ -45,7 +45,7 @@ RULES:
         DATA_SOURCES:
             datetime: metadata.exiftool.PDF:CreateDate
             extension: filesystem.extension
-            title: filesystem.basename.prefix
+            title: filesystem.basename_prefix
         NAME_TEMPLATE: "{datetime}\_{title}.{extension}"
         exact_match: true
         weight: null

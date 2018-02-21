@@ -637,7 +637,7 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
     def test_extraction_collect_extractor_xplat_filesystem(self):
         _prefix = 'extractor.filesystem.xplat'
         for _key in ['abspath_full', 'basename_full', 'extension',
-                     'basename_suffix', 'basename.prefix', 'contents.mime_type',
+                     'basename_suffix', 'basename_prefix', 'contents.mime_type',
                      'date_accessed', 'date_created', 'date_modified',
                      'pathname.full', 'pathname.parent']:
             self._check(_prefix, _key, expected='{}.{}'.format(_prefix, _key))
