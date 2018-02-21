@@ -14,7 +14,7 @@ RULES:
             extractor.filesystem.xplat.contents.mime_type: '*/*'
         DATA_SOURCES:
             extension: extractor.filesystem.xplat.contents.mime_type
-            title: extractor.filesystem.xplat.basename.prefix
+            title: extractor.filesystem.xplat.basename_prefix
         NAME_TEMPLATE: '{title}.{extension}'
         exact_match: false
         ranking_bias: 0.01

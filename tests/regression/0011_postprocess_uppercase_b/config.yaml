@@ -27,7 +27,7 @@ RULES:
         DATA_SOURCES:
             datetime: extractor.metadata.exiftool.PDF:CreateDate
             extension: extractor.filesystem.xplat.extension
-            title: extractor.filesystem.xplat.basename.prefix
+            title: extractor.filesystem.xplat.basename_prefix
         NAME_TEMPLATE: '{datetime} {title}.{extension}'
         description: 
         exact_match: true

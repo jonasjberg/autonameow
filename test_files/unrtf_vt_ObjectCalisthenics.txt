@@ -1,0 +1,192 @@
+###  Translation from RTF performed by UnRTF, version 0.21.9 
+### font table contains 7 fonts total
+
+TITLE: Object Calisthenics
+
+AUTHOR: Rally Software
+### creation date: 19 January 2006 19:10 
+### revision date: 26 January 2006 16:48 
+### last printed: 15 December 2005 12:05 
+### total pages: 8
+### total words: 3191
+### total chars: 15640
+
+-----------------
+033[7mObject Calisthenics
+033[m033[7m1033[m033[7m1033[m033[7m steps to better 033[m033[7msoftware 033[m033[7mdesign today.
+033[m
+Weve all seen poorly written code thats hard to understand, test, and maintain. Object-oriented programming promised to save us from our old procedural code, allowing us to write software incrementally, reusing as we go along. But sometimes it seems like were just chasing down the same old complex, coupled designs in Java that we had in C. 
+
+Good object-oriented design is hard to learn. Transitioning from procedural development to object-oriented design requires a major shift in thinking that is more difficult than it seems. Many developers assume theyre doing a good job with OO design, when in reality theyre unconsciously stuck in old habits that are hard to break.  It doesnt help that many examples and best practices (even Suns code in the JDK) encourage poor OO design in the name of performance or simple weight of history. 
+
+The core concepts behind good design are well understood. Alan Shalloway has suggested that seven code qualities matter: cohesion, loose coupling, no redundancy, encapsulation, testability, readability, and focus. Yet its hard to put those concepts into practice. Its one thing to understand that encapsulation means hiding data, implementation, type, design, or construction. Its another thing altogether to design code that implements encapsulation well. So heres an exercise that can help you to internalize principles of good object-oriented design and actually use them in real life. 
+
+033[7mThe Challenge
+033[mDo a simple project using far stricter coding standards than youve ever used in your life. Below, youll find 12 rules of thumb that will help push your code into good object-oriented shape. 
+
+By suspending disbelief, and rigidly applying these rules on a small, 1000 line project, youll start to see a significantly different approach to designing software. Once youve written 1000 lines of code, the exercise is done, and you can relax and go back to using these 12 rules as guidelines.
+
+This is a hard exercise, especially because many of these rules are not universally applicable. The fact is, sometimes classes are a little more than 50 lines. But theres great value in thinking about what would have to happen to move those responsibilities into real, first-class-objects of their own. Its developing this type of thinking thats the real value of the exercise. So stretch the limits of what you imagine is possible, and see whether you start thinking about your code in a new way. 
+
+033[7mThe Rules033[m033[7m
+1.      
+033[mDont abbreviate
+1.      
+One level of indentation per method 
+2.      
+Dont use the ELSE keyword 
+3.      
+No static methods other than factory methods
+4.      
+Keep all entities small
+5.      
+One level of indentation per method 
+6.      
+One dot per line 
+7.      
+Wrap all primitives
+8.      
+First class collections
+1.      
+One dot per line 
+1.      
+Dont abbreviate 
+1.      
+Keep all entities small
+1.      
+First class collections
+1.      
+No classes with more than 2 instance variables.
+9.      
+
+10.     
+No get/set methods
+
+1.      
+ All classes must have state
+1.      
+ No static methods other than factory methods
+
+033[7mRule 1: One level of indentation per method 033[m033[7m
+033[mEver stare at a big old method wondering where to start? A giant method lacks cohesiveness. One guideline is to limit method length to 5 lines, but that kind of transition can be daunting if your code is littered with 500-line monsters. Instead, try to ensure that each method does exactly one thing  one control structure, or one block of statements, per method. If youve got nested control structures in a method, youre working at multiple levels of abstraction, and that means youre doing more than one thing. 
+
+As you work with methods that do *exactly* one thing, expressed within classes doing exactly one thing, your code begins to change. As each unit in your application becomes smaller, your level of re-use will start to rise exponentially. It can be difficult to spot opportunities for reuse within a method that has five responsibilities and is implemented in 100 lines.  A three-line method that manages the state of a single object in a given context is usable in many different contexts. 
+
+Use the 033[7mExtract Method 033[mfeature of your IDE to pull out behaviors until your methods only have one level of indentation, like this: <example>
+
+
+
+
+
+
+class Board {
+        
+...
+        
+String board() {
+        
+        
+StringBuffer buf = new StringBuffer();
+        
+        
+for(int i = 0; i < 10; i++) {
+        
+        
+        
+for(int j = 0; j < 10; j++) 
+        
+        
+        
+        
+buf.append(data[i][j]);
+        
+        
+        
+buf.append(\n);
+        
+        
+} 
+        
+        
+return buf.toString();
+        
+}
+}
+
+
+Class Board {
+        
+...
+        
+String board() {
+        
+        
+StringBuffer buf = new StringBuffer();
+        
+        
+collectRows(buf);
+        
+        
+Return buf.toString();
+        
+}
+
+        
+Void collectRows(StringBuffer buf) {
+        
+        
+For(int I = 0; I < 10; i++) 
+        
+        
+        
+collectRow(buf, i);
+        
+}
+
+        
+Void collectRow(StringBuffer buf, int row) {
+        
+        
+For(int I = 0; I < 10; i++) 
+        
+        
+        
+Buf.append(data[row][i]);
+        
+        
+buf.append(\n);
+        
+}
+}
+
+Notice that another effect has occurred with this refactoring. Each individual method has become virtually trivial to match its implementation to its name. Determining the existence of bugs in these much smaller snippets is frequently much easier. 
+
+Here at the end of the first rule, we should also point out that the more you practice applying the rules, the more the advantages come to fruition. Your first attempts to decompose problems in the style presented here will feel awkward and likely lead to little gain you can perceive. There is a skill to the application of the rules  this is the art of the programmer raised to another level.
+
+
+033[7mRule 2: 033[m033[7mDont use the033[m033[7m ELSE033[m033[7m keyword033[m033[7m
+033[mEvery programmer understands the if/else construct. Its built into nearly every programming language, and simple conditional logic is easy for anyone to understand.  Nearly every programmer has seen a nasty nested conditional thats impossible to follow, or a case statement that goes on for pages. Even worse, it is all too easy to simply add another branch to an existing conditional rather than factoring to a better solution. Conditionals are also a frequent source of duplication. Status flags and state of residence are two examples which frequently lead to this kind of trouble:
+
+if (status == DONE) { 
+        
+doSomething(); 
+} else {
+        
+É
+
+Object-oriented languages give us a powerful tool, polymorphism, for handling complex conditional cases. Designs that use polymorphism can be easier to read and maintain, and express their intent more clearly.  But its not always easy to make the transition, especially when we have ELSE in our back pocket. So as part of this exercise, youre not allowed to use ELSE. Try the Null Object pattern; it may help in some situations. There are other tools that can help you rid yourself of the else as well. See how many alternatives you can come up with.
+
+033[7mRule 3: 033[m033[7mWrap all primitives033[m033[7m and Strings033[m033[7m
+033[mIn the Java language, int is a primitive, not a real object, so it obeys different rules than objects.  It is used with a syntax that isnt object-oriented. More importantly, an int on its own is just a scalar, so it has no meaning.  When a method takes an int as a parameter, the method name needs to do all of the work of expressing the intent. If the same method takes an Hour as a parameter, its much easier to see whats going on. Small objects like this can make programs more maintainable, since it isnt possible to pass a Year to a method that takes an Hour parameter. With a primitive variable the compiler cant help you write semantically correct programs. With an object, even a small one, you are giving both the compiler and the programmer additional info about what the value is and why it is being used.
+
+Small objects like Hour or Money also give us an obvious place to put behavior that would otherwise have been littered around other classes. This becomes especially true when you apply the 033[7mRule X033[m, and 033[7monly033[m the small object can access the value. 
+
+033[7mRule 4: First class collections
+033[mApplication of this rule is simple: any class that contains a collection should contain no other member variables. Each collection gets wrapped in its own class, so now behaviors related to the collection have a home. You may find that filters become a part of this new class. Also, your new class can handle activities like joining two groups together or applying a rule to each element of the group. 
+
+033[7mRule 033[m033[7m5033[m033[7m4033[m033[7m: One dot per line
+033[mSometimes its hard to know which object should take responsibility for an activity. If you start looking for lines of code with multiple dots, youll start to find many misplaced responsibilities. If youve got more than one dot on any given line of code, the activity is happening in the wrong place. Maybe your object is dealing with two other objects at once. If this is the case, your object is a middleman; it knows too much about too many people. Consider moving the activity into one of the other objects.
+
+If all those dots are connected, your object is digging deeply into another object. These multiple dots indicate that youre violating encapsulation. Try asking that object to do something for you, rather than poking around its insides. A major part of encapsulation is not reaching across class boundaries into types that you shouldnt know about. 
+
+The Law of Demeter (Only talk to your friends) is a good place to start, but think about it this way: You can play with your toys, toys that you make, and toys that someone gives you. You dont ever, *ever* play with your toys toys.  

@@ -106,7 +106,7 @@ class MeowURI(object):
     The "MeowURI" consists of (lower-case?) words, separated by periods.
 
     Examples:   "generic.metadata.author"
-                "extractor.filesystem.xplat.basename.prefix"
+                "extractor.filesystem.xplat.basename_prefix"
                 "analyzer.filename.datetime"
 
     NOTE: Assume that instances of this class are immutable once instantiated.
