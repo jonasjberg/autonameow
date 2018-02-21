@@ -28,12 +28,12 @@ Simplified example of data storage:
 ```python
 file_object = FileObject('/tmp/foo/bar.txt')
 data = file_object.abspath
-Repository.store(file_object, 'filesystem.pathname.full', data)
+Repository.store(file_object, 'filesystem.pathname_full', data)
 ```
 
 The data can then be retrieved by querying the repository:
 ```python
-data = Repository.query(file_object, 'filesystem.pathname.full')
+data = Repository.query(file_object, 'filesystem.pathname_full')
 ```
 
 

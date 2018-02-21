@@ -290,7 +290,7 @@ class TestEvaluateMeowURIGlobA(TestCase):
         _f(['extractor.filesystem.xplat.pathname.*'])
         _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
         _f(['extractor.filesystem.xplat.contents.full'])
-        _f(['extractor.filesystem.xplat.pathname.*', 'filesystem.pathname.full'])
+        _f(['extractor.filesystem.xplat.pathname.*', 'filesystem.pathname_full'])
         _f(['NAME_TEMPLATE'])
         _f(['extractor.filesystem.xplat.pathname.*'])
         _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
@@ -303,7 +303,7 @@ class TestEvaluateMeowURIGlobA(TestCase):
         _t(['extractor.*'])
         _t(['extractor.filesystem.*'])
         _t(['extractor.filesystem.xplat.contents.*'])
-        _t(['extractor.*', 'extractor.filesystem.xplat.pathname.*',
+        _t(['extractor.*', 'extractor.filesystem.xplat.*',
             uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
 
 
@@ -324,7 +324,7 @@ class TestEvaluateMeowURIGlobB(TestCase):
             uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
         _f(['NAME_TEMPLATE'])
         _f(['extractor.filesystem.pathname.*'])
-        _f(['extractor.filesystem.pathname.full'])
+        _f(['extractor.filesystem.pathname_full'])
         _f(['extractor.filesystem.xplat.pathname.*'])
         _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
 
@@ -416,18 +416,16 @@ class TestEvaluateMeowURIGlobE(TestCase):
     def test_evaluates_true(self):
         def _t(test_input):
             actual = evaluate_meowuri_globs(self.meowuri_string, test_input)
-            self.assertTrue(actual)
+            self.assertTrue(actual, test_input)
 
         _t(['*'])
         _t(['extractor.*'])
         _t(['extractor.filesystem.*'])
         _t(['extractor.filesystem.xplat.*'])
-        _t(['extractor.filesystem.xplat.pathname.*'])
         _t([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
         _t(['extractor.filesystem.xplat.*',
-            'extractor.filesystem.xplat.pathname.*',
             uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
-        _t(['*.pathname.*'])
+        _t(['*.xplat.*'])
 
 
 class TestEvaluateMeowURIGlobF(TestCase):
@@ -470,16 +468,6 @@ class TestEvaluateMeowURIGlobF(TestCase):
         _t(['*.PDF:Creator'])
 
     # def test_eval_glob_b(self):
-    #     self.assertFalse(eval_meowuri_glob(
-    #         'filesystem.pathname.parent', ['*.pathname.full',
-    #                                        'filesystem.*.full']
-    #     ))
-    #     self.assertFalse(eval_meowuri_glob(
-    #         'contents.textual.text.full', ['filesystem.*',
-    #                                        'filesystem.pathname.*',
-    #                                        'filesystem.pathname.full']
-    #     ))
-    #
     #     self.assertTrue(eval_meowuri_glob(
     #         uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
     #         [uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE]
@@ -639,7 +627,7 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
         for _key in ['abspath_full', 'basename_full', 'extension',
                      'basename_suffix', 'basename_prefix', 'contents.mime_type',
                      'date_accessed', 'date_created', 'date_modified',
-                     'pathname.full', 'pathname.parent']:
+                     'pathname_full', 'pathname.parent']:
             self._check(_prefix, _key, expected='{}.{}'.format(_prefix, _key))
 
     def test_extraction_collect_extractor_metadata_exiftool(self):
