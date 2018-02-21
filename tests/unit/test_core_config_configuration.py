@@ -57,6 +57,7 @@ class TestDefaultConfig(TestCase):
         self.assertIsNotNone(self.configuration.rules)
 
     def test_default_configuration_contain_at_least_two_rules(self):
+        # TODO: [hardcoded] Rework or remove ..
         self.assertGreaterEqual(len(self.configuration.rules), 2,
                                 'Arbitrary rule count test')
 
@@ -81,6 +82,7 @@ class TestConfigurationDataAccess(TestCase):
         self.assertIsInstance(self.configuration.rules, list)
 
     def test_rules_returns_expected_rule_count(self):
+        # TODO: [hardcoded] Rework or remove ..
         self.assertGreaterEqual(len(self.configuration.rules), 3)
 
     def test_name_templates_returns_expected_type(self):

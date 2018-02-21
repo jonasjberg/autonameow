@@ -50,6 +50,7 @@ def _get_testrules(active_config):
 
 class TestRuleMatcher(TestCase):
     def test_can_be_instantiated_with_mock_rules(self):
+        # TODO: [hack][cleanup] Mock properly! Remove?
         active_config = uu.get_default_config()
         matcher = RuleMatcher(rules=_get_testrules(active_config))
         self.assertIsNotNone(matcher)
@@ -69,6 +70,7 @@ class TestRuleMatcherMatching(TestCase):
         self.assertEqual(expect, actual)
 
     def test_expected_return_values_given_rules_and_valid_fileobject(self):
+        # TODO: [hack][cleanup] Mock properly! Remove?
         active_config = uu.get_default_config()
         _init_master_data_provider(active_config)
         matcher = RuleMatcher(rules=_get_testrules(active_config))
@@ -252,6 +254,7 @@ class TestRuleConditionEvaluator(TestCase):
             else:
                 return None
 
+        # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
         cls._mock_request_data_function = _mock_request_data_function
 
     def test_init(self):

@@ -47,6 +47,7 @@ from analyzers.analyze_ebook import (
 def get_ebook_analyzer(fileobject):
     mock_config = Mock()
 
+    # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
     return EbookAnalyzer(
         fileobject,
         mock_config,
