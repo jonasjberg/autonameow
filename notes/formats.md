@@ -239,7 +239,7 @@ Registered "MeowURIs" as of version `v0.4.5`.
 * `filesystem.extension`
 * `filesystem.basename_full`
 * `filesystem.basename.prefix`
-* `filesystem.basename.suffix`
+* `filesystem.basename_suffix`
 * `filesystem.pathname.full`
 * `filesystem.pathname.parent`
 * `metadata.exiftool.[exiftool_fields]`

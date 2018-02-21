@@ -630,14 +630,14 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
 
     def test_extraction_store_results(self):
         _prefix = 'extractor.filesystem.xplat'
-        _leaf = 'basename.suffix'
+        _leaf = 'basename_suffix'
         self._check(_prefix, _leaf,
-                    expected='extractor.filesystem.xplat.basename.suffix')
+                    expected='extractor.filesystem.xplat.basename_suffix')
 
     def test_extraction_collect_extractor_xplat_filesystem(self):
         _prefix = 'extractor.filesystem.xplat'
         for _key in ['abspath_full', 'basename_full', 'extension',
-                     'basename.suffix', 'basename.prefix', 'contents.mime_type',
+                     'basename_suffix', 'basename.prefix', 'contents.mime_type',
                      'date_accessed', 'date_created', 'date_modified',
                      'pathname.full', 'pathname.parent']:
             self._check(_prefix, _key, expected='{}.{}'.format(_prefix, _key))
@@ -717,17 +717,16 @@ class TestDifferentNumberOfStringArgs(TestCase):
         def _check(*args):
             actual = MeowURI(*args)
             self.assertEqual(
-                str(actual), 'extractor.filesystem.xplat.basename.suffix'
+                str(actual), 'extractor.filesystem.xplat.basename_suffix'
             )
 
-        _check('extractor.filesystem.xplat.basename.suffix')
-        _check('extractor.filesystem.xplat.basename', 'suffix')
-        _check('extractor.filesystem.xplat', 'basename', 'suffix')
-        _check('extractor.filesystem', 'xplat', 'basename', 'suffix')
-        _check('extractor', 'filesystem', 'xplat', 'basename', 'suffix')
-        _check('extractor', 'filesystem.xplat.basename.suffix')
-        _check('extractor', 'filesystem', 'xplat.basename.suffix')
-        _check('extractor', 'filesystem', 'xplat', 'basename.suffix')
+        _check('extractor.filesystem.xplat.basename_suffix')
+        _check('extractor.filesystem.xplat', 'basename_suffix')
+        _check('extractor.filesystem', 'xplat', 'basename_suffix')
+        _check('extractor', 'filesystem', 'xplat', 'basename_suffix')
+        _check('extractor', 'filesystem.xplat.basename_suffix')
+        _check('extractor', 'filesystem', 'xplat.basename_suffix')
+        _check('extractor', 'filesystem', 'xplat', 'basename_suffix')
 
     def test_valid_meowuri_c(self):
         def _check(*args):

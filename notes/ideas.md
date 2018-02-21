@@ -331,7 +331,7 @@ SessionRepository.data = {
     'contents.textual.raw_text': '''1/11/2016 Gmail - .. TRUNCATED to 500/1981 characters)''',
     'filesystem.basename_full': 'gmail.pdf',
     'filesystem.extension': 'pdf',
-    'filesystem.basename.suffix': 'pdf',
+    'filesystem.basename_suffix': 'pdf',
     'filesystem.basename.prefix': 'gmail',
     'filesystem.pathname.full': '/Users/jonas/PycharmProjects/autonameow.git/test_files',
     'filesystem.pathname.parent': 'test_files',
@@ -355,7 +355,7 @@ SessionRepository.data = {
 | `'filesystem.abspath_full'`                     | `'/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf'` | ?                                                  |
 | `'filesystem.basename_full'`                    | `'gmail.pdf'`                                                        | ?                                                  |
 | `'filesystem.extension'`                        | `'pdf'`                                                              | `{extension}`                                      |
-| `'filesystem.basename.suffix'`                  | `'pdf'`                                                              | `{extension}`                                      |
+| `'filesystem.basename_suffix'`                  | `'pdf'`                                                              | `{extension}`                                      |
 | `'filesystem.basename.prefix'`                  | `'gmail'`                                                            | ?                                                  |
 | `'filesystem.pathname.full'`                    | `'/Users/jonas/PycharmProjects/autonameow.git/test_files'`           | ?                                                  |
 | `'filesystem.pathname.parent'`                  | `'test_files'`                                                       | ?                                                  |
