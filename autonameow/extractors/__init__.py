@@ -71,6 +71,33 @@ def get_extractor_classes(packages):
     return out
 
 
+def dump_extractor_field_lookups():
+    global ProviderClasses
+    from core import types
+    from util import disk
+    # import pdb
+    # pdb.set_trace()
+
+    # TODO: [TD0176] Store only strings in 'FIELD_LOOKUP'.
+
+    for provider in ProviderClasses:
+        _prefix = str(provider.meowuri_prefix())
+        prefix = types.AW_PATHCOMPONENT(_prefix)
+        extension = types.AW_PATHCOMPONENT('.yaml')
+        dest = disk.joinpaths(
+            b'/Users/jonas/PycharmProjects/autonameow.git/autonameow/extractors/',
+            prefix + extension,
+        )
+        p = provider()
+        field_lookup_data = p.metainfo()
+        del p
+        disk.write_yaml_file(dest, field_lookup_data)
+
+
+
 ProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES)
 TextProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_TEXT)
 MetadataProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_METADATA)
+
+
+# dump_extractor_field_lookups()
