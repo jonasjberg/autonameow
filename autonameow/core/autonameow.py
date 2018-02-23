@@ -121,14 +121,14 @@ class Autonameow(object):
         config.set_active(self.active_config)
 
         if self.opts.get('dump_options'):
-            _config_path = persistence.get_config_persistence_path()
-            _default_config_path = config.DefaultConfigFilePath
+            filepath_config = persistence.get_config_persistence_path()
+            filepath_default_config = config.DefaultConfigFilePath
             include_opts = {
                 'config_file_path': '"{!s}"'.format(
-                    enc.displayable_path(_default_config_path)
+                    enc.displayable_path(filepath_default_config)
                 ),
                 'cache_directory_path': '"{!s}"'.format(
-                    enc.displayable_path(_config_path)
+                    enc.displayable_path(filepath_config)
                 )
             }
             self.ui.options.prettyprint_options(self.opts, include_opts)
@@ -154,7 +154,7 @@ class Autonameow(object):
         for error in path_collector.errors:
             log.warning(str(error))
 
-        files_to_process = list(path_collector.paths)
+        files_to_process = list(path_collector.filepaths)
         log.info('Got {} files to process'.format(len(files_to_process)))
 
         rules = self.active_config.rules
