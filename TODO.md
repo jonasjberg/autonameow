@@ -14,13 +14,6 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0176]` __Fix inconsistent `CrossPlatformFileSystemExtractor` leaves__  
-    All provider MeowURIs consist of 4 parts except for one extractor.
-    Handling the case where a leaf can consist of multiple parts requires
-    better parsing of strings and lots of special cases and it might never
-    actually be desired.  Even though it might be nice to support this case,
-    it currently makes much more sense to fix this inconsistency.
-
 * `[TD0175]` __Handle requesting exactly one or multiple alternatives.__  
     The current high-level interface for fetching data might return a single
     piece of data or many alternatives. This means that "clients" have to

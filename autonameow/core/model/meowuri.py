@@ -48,7 +48,7 @@ class MeowURIParser(object):
         # Normalize into a list of period-separated Unicode words ..
         raw_parts = []
         for arg in args_list:
-            if isinstance(arg, MeowURI):
+            if isinstance(arg, (MeowURI, MeowURIChild, MeowURIRoot, MeowURILeaf)):
                 # TODO: [performance] This is probably extremely inefficient ..
                 arg = str(arg)
 
@@ -185,16 +185,20 @@ class MeowURI(object):
         return False
 
     def __contains__(self, item):
-        self_string = str(self)
-        if isinstance(item, self.__class__):
-            item_string = str(item)
-            return self_string.startswith(item_string)
-        elif isinstance(item, str):
-            if not item.strip():
-                return False
-            return self_string.startswith(item)
-        else:
+        if not isinstance(item, (str, self.__class__, MeowURIRoot, MeowURILeaf)):
             return False
+
+        self_str = str(self)
+        self_str_parts = meowuri_list(self_str)
+        item_string = str(item)
+        try:
+            item_string_parts = meowuri_list(item_string)
+        except InvalidMeowURIError:
+            return False
+        return any(p in self_str_parts for p in item_string_parts)
+
+    def stripleaf(self):
+        return MeowURI(self._parts[:-1])
 
     def __eq__(self, other):
         if isinstance(other, str):

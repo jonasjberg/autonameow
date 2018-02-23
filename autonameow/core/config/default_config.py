@@ -30,7 +30,7 @@ from core import constants as C
 # 'extractor.filesystem.xplat.date_accessed'        Python "datetime" format
 # 'extractor.filesystem.xplat.date_created'         Python "datetime" format
 # 'extractor.filesystem.xplat.date_modified'        Python "datetime" format
-# 'extractor.filesystem.xplat.contents.mime_type'   Supports simple "globbing" ('*/jpeg')
+# 'extractor.filesystem.xplat.mime_type'            Supports simple "globbing" ('*/jpeg')
 # 'extractor.metadata.exiftool'     See note below.
 
 #   TODO: Document all fields ..
@@ -66,7 +66,7 @@ DEFAULT_CONFIG = {
             'CONDITIONS': {
                 'extractor.filesystem.xplat.basename_full': 'gmail.pdf',
                 'extractor.filesystem.xplat.extension': 'pdf',
-                'extractor.filesystem.xplat.contents.mime_type': 'application/pdf',
+                'extractor.filesystem.xplat.mime_type': 'application/pdf',
             },
             'DATA_SOURCES': {
                 'datetime': 'extractor.metadata.exiftool.PDF:CreateDate',
@@ -81,7 +81,7 @@ DEFAULT_CONFIG = {
             'NAME_TEMPLATE': '{datetime} {description}.{extension}',
             'CONDITIONS': {
                 'extractor.filesystem.xplat.basename_full': 'smulan.jpg',
-                'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
+                'extractor.filesystem.xplat.mime_type': 'image/jpeg',
             },
             'DATA_SOURCES': {
                 'datetime': 'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
@@ -110,7 +110,7 @@ DEFAULT_CONFIG = {
                 'extractor.filesystem.xplat.pathname_full': '~/Pictures/incoming',
                 'extractor.filesystem.xplat.basename_full': 'DCIM*',
                 'extractor.filesystem.xplat.extension': 'jpg',
-                'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
+                'extractor.filesystem.xplat.mime_type': 'image/jpeg',
             },
             'DATA_SOURCES': {
                 'datetime': [
@@ -129,7 +129,7 @@ DEFAULT_CONFIG = {
             'ranking_bias': 0.1,
             'NAME_TEMPLATE': 'default_book',
             'CONDITIONS': {
-                'extractor.filesystem.xplat.contents.mime_type': [
+                'extractor.filesystem.xplat.mime_type': [
                     'application/epub+zip',
                     'image/vnd.djvu',
                     'application/pdf',
@@ -139,7 +139,7 @@ DEFAULT_CONFIG = {
             },
             'DATA_SOURCES': {
                 'author': 'analyzer.ebook.author',
-                'extension': 'extractor.filesystem.xplat.contents.mime_type',
+                'extension': 'extractor.filesystem.xplat.mime_type',
                 'year': 'analyzer.ebook.date',
                 'edition': [
                     'analyzer.ebook.edition',

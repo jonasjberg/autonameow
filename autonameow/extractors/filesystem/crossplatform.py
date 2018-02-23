@@ -60,7 +60,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         },
         'pathname_full': {'coercer': types.AW_PATH, 'multivalued': False},
         'pathname_parent': {'coercer': types.AW_PATH, 'multivalued': False},
-        'contents.mime_type': {
+        'mime_type': {
             'coercer': types.AW_MIMETYPE,
             'multivalued': False,
             'mapped_fields': [
@@ -103,7 +103,6 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         return out
 
     def _collect_from_fileobject(self, fileobject):
-        # TODO: [TD0176] Fix inconsistent multi-part leaves/keys.
         _datasources = [
             ('abspath_full', fileobject.abspath),
             ('basename_full', fileobject.filename),
@@ -112,7 +111,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             ('basename_prefix', fileobject.basename_prefix),
             ('pathname_full', fileobject.pathname),
             ('pathname_parent', fileobject.pathparent),
-            ('contents.mime_type', fileobject.mime_type)
+            ('mime_type', fileobject.mime_type)
         ]
 
         result = dict()

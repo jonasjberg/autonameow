@@ -74,12 +74,11 @@ class ConfigFieldParser(object):
       For example, the 'RegexConfigFieldParser' would return the matched part.
     """
 
-    # List of "meowURIs" (or configuration "keys"/"fields") used to
+    # List of "MeowURIs" (or configuration "keys"/"fields") used to
     # determine if the class is suited to handle the expression or data.
     #
-    # The "meowURI" consist of a lower case words, separated by periods.
-    # For instance; "contents.mime_type" or "filesystem.extension".
-    # The "meowURI" can contain "globs" as wildcards. Globs substitute
+    # The "MeowURI" consist of a lower case words, separated by periods.
+    # The "MeowURI" can contain "globs" as wildcards. Globs substitute
     # any of the lower case words with an asterisk, effectively ignoring that
     # part during comparison.
     #

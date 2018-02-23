@@ -76,7 +76,7 @@ This is an example of conditions from a single rule in the default configuration
     'filesystem.pathname_full': None,
     'filesystem.basename_full': None,
     'filesystem.extension': None,
-    'contents.mime_type': None
+    'mime_type': None
 },
 ```
 
@@ -105,7 +105,7 @@ The last condition tests the file MIME type.
 
 ```python
 'CONDITIONS': {
-    'contents.mime_type': 'image/*'
+    'mime_type': 'image/*'
 }
 ```
 
@@ -173,7 +173,7 @@ There might be multiple sources for `extension` data, for example;
 
     ```python
     {
-        'extension': 'contents.mime_type.extension'
+        'extension': 'mime_type.extension'
     }
     ```
 

@@ -534,22 +534,27 @@ class TestIsValidSourceSpecification(TestCase):
         _aF('metadata.exiftool.PDF:CreateDate')
 
     def test_good_source_returns_true(self):
-        def _aT(test_input):
-            self.assertTrue(is_valid_source(test_input))
-
-        _aT(MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_CONTENTS_TEXT))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_AUTHOR))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_CREATOR))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_PRODUCER))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_SUBJECT))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_TAGS))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_DATECREATED))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED))
-        _aT(MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE))
-        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL))
-        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_EXTENSION))
-        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE))
+        for given_str in [
+            uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE,
+            uuconst.MEOWURI_GEN_CONTENTS_TEXT,
+            uuconst.MEOWURI_GEN_METADATA_AUTHOR,
+            uuconst.MEOWURI_GEN_METADATA_CREATOR,
+            uuconst.MEOWURI_GEN_METADATA_PRODUCER,
+            uuconst.MEOWURI_GEN_METADATA_SUBJECT,
+            uuconst.MEOWURI_GEN_METADATA_TAGS,
+            uuconst.MEOWURI_GEN_METADATA_DATECREATED,
+            uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED,
+            uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
+            uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
+            uuconst.MEOWURI_FS_XPLAT_EXTENSION,
+            uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        ]:
+            with self.subTest(given=given_str):
+                given = uu.as_meowuri(given_str)
+                self.assertTrue(
+                    is_valid_source(given),
+                    'Unexpectedly not a valid source: {!s}'.format(given)
+                )
 
 
 class TestParseConditions(TestCase):

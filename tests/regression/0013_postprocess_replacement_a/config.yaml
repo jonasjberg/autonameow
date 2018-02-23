@@ -15,7 +15,7 @@ RULES:
             extractor.filesystem.xplat.pathname_parent: test_files
         DATA_SOURCES:
             author: generic.metadata.author
-            extension: extractor.filesystem.xplat.contents.mime_type
+            extension: extractor.filesystem.xplat.mime_type
             title: generic.metadata.title
         NAME_TEMPLATE: '{author} {title}.{extension}'
         exact_match: true

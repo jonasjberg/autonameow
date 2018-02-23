@@ -252,7 +252,7 @@ Expanding on the first item above.
 
 A lot of "raw" data could probably be converted with varying results and
 conversion losses.
-For instance, `filesystem.contents.mime_type` could be "coerced" or converted
+For instance, `filesystem.mime_type` could be "coerced" or converted
 to some format appropriate for populating the template field `{title}`.
 
 ```
@@ -266,7 +266,7 @@ form.  Alternatively, this conversion could simply not be permitted.
 
 
 Some "raw" data will not relate to certain name template fields in any
-meaningful way.  For example, `filesystem.contents.mime_type` can not be
+meaningful way.  For example, `filesystem.mime_type` can not be
 transformed to a format suited for populating the template field `{datetime}`.
 
 There is no way to transform a MIME type to date/time-information in a single
@@ -335,7 +335,7 @@ SessionRepository.data = {
     'filesystem.basename_prefix': 'gmail',
     'filesystem.pathname_full': '/Users/jonas/PycharmProjects/autonameow.git/test_files',
     'filesystem.pathname_parent': 'test_files',
-    'filesystem.contents.mime_type': 'application/pdf',
+    'filesystem.mime_type': 'application/pdf',
     'filesystem.date_accessed': datetime.datetime(2017, 9, 3, 15, 41, 54,),
     'filesystem.date_created': datetime.datetime(2017, 6, 10, 16, 36, 18,),
     'filesystem.date_modified': datetime.datetime(2017, 6, 10, 16, 36, 18,),
@@ -359,7 +359,7 @@ SessionRepository.data = {
 | `'filesystem.basename_prefix'`                  | `'gmail'`                                                            | ?                                                  |
 | `'filesystem.pathname_full'`                    | `'/Users/jonas/PycharmProjects/autonameow.git/test_files'`           | ?                                                  |
 | `'filesystem.pathname_parent'`                  | `'test_files'`                                                       | ?                                                  |
-| `'filesystem.contents.mime_type'`               | `'application/pdf'`                                                  | `{extension}`                                      |
+| `'filesystem.mime_type'`                        | `'application/pdf'`                                                  | `{extension}`                                      |
 | `'filesystem.date_accessed'`                    | `datetime.datetime(2017, 9, 3, 15, 41, 54,)`                         | `{date}` `{datetime}`                              |
 | `'filesystem.date_created'`                     | `datetime.datetime(2017, 6, 10, 16, 36, 18,)`                        | `{date}` `{datetime}`                              |
 | `'filesystem.date_modified'`                    | `datetime.datetime(2017, 6, 10, 16, 36, 18,)`                        | `{date}` `{datetime}`                              |

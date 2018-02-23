@@ -20,10 +20,10 @@ RULES:
         CONDITIONS:
             extractor.filesystem.filetags.follows_filetags_convention: true
             extractor.filesystem.xplat.extension: '(txt|md)'
-            extractor.filesystem.xplat.contents.mime_type: 'text/*'
+            extractor.filesystem.xplat.mime_type: 'text/*'
         DATA_SOURCES:
             datetime: extractor.filesystem.filetags.datetime
-            extension: extractor.filesystem.xplat.contents.mime_type
+            extension: extractor.filesystem.xplat.mime_type
             description: extractor.filesystem.filetags.description
             tags: extractor.filesystem.filetags.tags
         NAME_TEMPLATE: '{datetime} {description} -- {tags}.{extension}'

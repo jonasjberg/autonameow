@@ -106,7 +106,7 @@ PASSED
     Expression          'Untitled.mov'
     Evaluated Data      'Untitled.mov'
 
-  - extractor.filesystem.xplat.contents.mime_type
+  - extractor.filesystem.xplat.mime_type
     Expression         'video/quicktime'
     Evaluated Data     'video/quicktime'
 
@@ -126,7 +126,7 @@ Rule #001 (Exact: Yes/No  Score: 0.0  Weight: 0.0  Bias: 0.0)  [RULE DESCRIPTION
 PASSED  extractor.filesystem.xplat.basename_full
         Expr:  'Untitled.mov'
         Data:  'Untitled.mov'
-PASSED  extractor.filesystem.xplat.contents.mime_type
+PASSED  extractor.filesystem.xplat.mime_type
         Expr:  'video/quicktime'
         Data:  'video/quicktime'
 FAILED  extractor.filesystem.xplat.pathname_full
@@ -154,7 +154,7 @@ Examples:
 
 ```python
 raw_conditions = {
-    'contents.mime_type' = 'application/pdf'
+    'mime_type' = 'application/pdf'
     'filesystem.basename' = 'gmail.pdf'
     'filesystem.extension' = 'pdf'
 }
@@ -162,7 +162,7 @@ raw_conditions = {
 
 ```python
 raw_conditions = {
-    'contents.mime_type' = 'image/jpeg'
+    'mime_type' = 'image/jpeg'
     'filesystem.basename' = 'DCIM*'
     'filesystem.extension' = 'jpg'
     'filesystem.pathname' = '~/Pictures/incoming'
@@ -172,7 +172,7 @@ raw_conditions = {
 
 ```python
 raw_conditions = {
-    'contents.mime_type' = 'application/epub+zip'
+    'mime_type' = 'application/epub+zip'
     'filesystem.basename' = '.*'
     'filesystem.extension' = 'epub'
     'filesystem.pathname' = '.*'
@@ -184,7 +184,7 @@ Possible solutions:
 
 1. Encapsulate each condition in a class instance
     * The class could validate the data at instantiation.
-    * The condition field ("query string") `contents.mime_type` is to be
+    * The condition field ("query string") `mime_type` is to be
       validated by the `MimeTypeConfigFieldParser`, while the
       `filesystem.basename` condition should be checked by the
       `RegexConfigFieldParser`.
@@ -196,7 +196,7 @@ Current format for a file rule in the configuration file:
 
 ```yaml
 -   CONDITIONS:
-        contents.mime_type: image/jpeg
+        mime_type: image/jpeg
         filesystem.basename: smulan.jpg
     DATA_SOURCES:
         datetime: metadata.exiftool.EXIF:DateTimeOriginal
@@ -236,7 +236,7 @@ Possible new format for a file rule in the configuration file:
 
 ```yaml
 -   CONDITIONS:
-        contents.mime_type: image/jpeg
+        mime_type: image/jpeg
         filesystem.basename: DCIM.*
         filesystem.extension: jpg
         metadata.exiftool.EXIF:DateTimeOriginal: Defined
@@ -262,7 +262,7 @@ Another hypothetical file rule using unimplemented features:
 
 ```yaml
 -   CONDITIONS:
-        contents.mime_type: application/pdf
+        mime_type: application/pdf
         contents.textual.raw_text: ^Gibson[ _-]?Rules.*?$
     DATA_SOURCES:
         author: book_analyzer.isbn.author

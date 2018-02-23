@@ -46,7 +46,7 @@ __Extractors__ store data without any special prefix;
 
 ```
 filesystem.basename_full
-filesystem.contents.mime_type
+filesystem.mime_type
 metadata.exiftool.EXIF:DateTimeOriginal
 metadata.exiftool.QuickTime:CreationDate
 metadata.exiftool.XMP-dc:Creator
@@ -145,7 +145,7 @@ These two data entries are stored in the repository with
 source-specific MeowURIs:
 
 * `metadata.exiftool.File:MIMEType: application/pdf`
-* `filesystem.contents.mime_type: application/pdf`
+* `filesystem.mime_type: application/pdf`
 
 They are also stored under a "generic URI":
 
@@ -161,7 +161,7 @@ storing data "elements"; `D1`, `D2`, `D3`, `D4`.
 #### Current approach:
 
 * Source-specific URIs:
-    * `filesystem.contents.mime_type: D1`
+    * `filesystem.mime_type: D1`
     * `metadata.exiftool.File:MIMEType: D2`
     * `metadata.pypdf.CreationDate: D3`
     * `metadata.exiftool.PDF:CreateDate: D4`
@@ -172,7 +172,7 @@ storing data "elements"; `D1`, `D2`, `D3`, `D4`.
 #### Alternative approach 1:
 
 * Source-specific URIs:
-    * `filesystem.contents.mime_type: D1`
+    * `filesystem.mime_type: D1`
     * `metadata.exiftool.File:MIMEType: D2`
     * `metadata.pypdf.CreationDate: D3`
     * `metadata.exiftool.PDF:CreateDate: D4`
@@ -183,7 +183,7 @@ storing data "elements"; `D1`, `D2`, `D3`, `D4`.
 #### Alternative approach 2:
 
 * Source-specific URIs:
-    * `filesystem.contents.mime_type: D1`
+    * `filesystem.mime_type: D1`
     * `metadata.exiftool.File:MIMEType: D2`
     * `metadata.pypdf.CreationDate: D3`
     * `metadata.exiftool.PDF:CreateDate: D4`
@@ -212,7 +212,7 @@ Also; it might make sense to keep a URI-node (like `.generic.`) in the MeowURIs
 to clearly separate the types, which might be helpful for the implementation.
 In this case, it probably wouldn't be very difficult to translate from a
 "internal" URI like `generic.contents.mimetype` or `contents.generic.mimetype`
-to a simplified form, used in all user interfaces; `contents.mime_type` ..
+to a simplified form, used in all user interfaces; `mime_type` ..
 
 
 Going with "Alternative approach 2"
