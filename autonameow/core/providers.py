@@ -350,15 +350,8 @@ def _map_generic_sources(meowuri_class_map):
 
 
 def get_providers_for_meowuri(meowuri, include_roots=None):
-    providers = set()
-    if not meowuri:
-        return providers
-
     sanity.check_isinstance_meowuri(meowuri)
-
-    source_classes = Registry.providers_for_meowuri(meowuri, include_roots)
-    providers.update(source_classes)
-    return providers
+    return set(Registry.providers_for_meowuri(meowuri, include_roots))
 
 
 def get_providers_for_meowuris(meowuri_list, include_roots=None):
