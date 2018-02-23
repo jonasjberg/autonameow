@@ -22,6 +22,11 @@
 import inspect
 import os
 from unittest import TestCase
+from unittest.mock import (
+    MagicMock,
+    patch
+)
+
 
 import unit.constants as uuconst
 import unit.utils as uu
@@ -472,21 +477,25 @@ class TestAutonameowWrapper(TestCase):
     def setUp(self):
         self.aw = AutonameowWrapper()
 
+    @patch('core.autonameow.master_provider', MagicMock())
     def test_call(self):
         self.aw()
 
+    @patch('core.autonameow.master_provider', MagicMock())
     def test_captured_exitcode_type(self):
         self.aw()
         actual = self.aw.captured_exitcode
         self.assertIsNotNone(actual)
         self.assertTrue(type(actual), int)
 
+    @patch('core.autonameow.master_provider', MagicMock())
     def test_captured_stdout_type(self):
         self.aw()
         actual = self.aw.captured_stdout
         self.assertIsNotNone(actual)
         self.assertTrue(type(actual), str)
 
+    @patch('core.autonameow.master_provider', MagicMock())
     def test_captured_stderr_type(self):
         self.aw()
         actual = self.aw.captured_stderr
