@@ -28,7 +28,7 @@ from core.model import MeowURI
 from core.model.meowuri import (
     evaluate_meowuri_globs,
     force_meowuri,
-    is_meowuri_part,
+    is_one_meowuri_part,
     is_meowuri_parts,
     meowuri_list,
     MeowURILeaf,
@@ -38,96 +38,94 @@ from core.model.meowuri import (
 )
 
 
-class TestMeowURIStringMatchingFunctions(TestCase):
-    def test_is_meowuri_part(self):
-        def _aT(test_input):
-            actual = is_meowuri_part(test_input)
+class TestIsOneMeowURIPart(TestCase):
+    def test_returns_true_given_valid_meowuri_parts(self):
+        def _assert_meowuri_part(test_input):
+            actual = is_one_meowuri_part(test_input)
             self.assertIsInstance(actual, bool)
             self.assertTrue(actual)
 
-        _aT('f')
-        _aT('foo')
-        _aT('123')
-        _aT('foo123')
-        _aT('_')
+        _assert_meowuri_part('f')
+        _assert_meowuri_part('foo')
+        _assert_meowuri_part('123')
+        _assert_meowuri_part('foo123')
+        _assert_meowuri_part('_')
 
-        def _aF(test_input):
-            actual = is_meowuri_part(test_input)
+    def test_returns_false_given_non_meowuri_part(self):
+        def _assert_not_meowuri_part(test_input):
+            actual = is_one_meowuri_part(test_input)
             self.assertIsInstance(actual, bool)
             self.assertFalse(actual)
 
         for _bad_input in [None, b'', b'foo', 1, {}, [], object()]:
-            _aF(_bad_input)
+            _assert_not_meowuri_part(_bad_input)
 
-        _aF('')
-        _aF(' ')
-        _aF('.')
-        _aF('..')
-        _aF(' .')
-        _aF(' ..')
-        _aF(' . ')
-        _aF(' .. ')
-        _aF('.foo')
-        _aF('foo.')
-        _aF('foo.bar')
-        _aF('.foo.bar')
-        _aF('.foo.bar.')
+        _assert_not_meowuri_part('')
+        _assert_not_meowuri_part(' ')
+        _assert_not_meowuri_part('.')
+        _assert_not_meowuri_part('..')
+        _assert_not_meowuri_part(' .')
+        _assert_not_meowuri_part(' ..')
+        _assert_not_meowuri_part(' . ')
+        _assert_not_meowuri_part(' .. ')
+        _assert_not_meowuri_part('.foo')
+        _assert_not_meowuri_part('foo.')
+        _assert_not_meowuri_part('foo.bar')
+        _assert_not_meowuri_part('.foo.bar')
+        _assert_not_meowuri_part('.foo.bar.')
 
-    def test_is_meowuri_parts(self):
-        def _aT(test_input):
-            actual = is_meowuri_parts(test_input)
-            self.assertIsInstance(actual, bool)
-            self.assertTrue(actual)
 
-        _aT('f.o')
-        _aT('foo.bar')
-        _aT('123.bar')
-        _aT('foo.123')
-        _aT('f.o.b')
-        _aT('foo.bar.baz')
-        _aT('123.bar.baz')
-        _aT('foo.123.baz')
+class TestIsMeowURIParts(TestCase):
+    def _assert_meowuri_parts(self, given):
+        actual = is_meowuri_parts(given)
+        self.assertIsInstance(actual, bool)
+        self.assertTrue(actual)
+
+    def test_returns_true_given_valid_meowuri_parts(self):
+        self._assert_meowuri_parts('f.o')
+        self._assert_meowuri_parts('foo.bar')
+        self._assert_meowuri_parts('123.bar')
+        self._assert_meowuri_parts('foo.123')
+        self._assert_meowuri_parts('f.o.b')
+        self._assert_meowuri_parts('foo.bar.baz')
+        self._assert_meowuri_parts('123.bar.baz')
+        self._assert_meowuri_parts('foo.123.baz')
         # TODO: Normalize exiftool tags? Translate to some "custom" format?
-        _aT(':.:')
-        _aT('extractor.filesystem.xplat.contents.mime_type')
+        self._assert_meowuri_parts(':.:')
+        self._assert_meowuri_parts('extractor.filesystem.xplat.contents.mime_type')
 
-        def _aF(test_input):
+    def test_returns_false_given_non_meowuri_parts(self):
+        def _assert_not_meowuri_parts(test_input):
             actual = is_meowuri_parts(test_input)
             self.assertIsInstance(actual, bool)
             self.assertFalse(actual)
 
         for _bad_input in [None, b'', b'foo', 1, {}, [], object()]:
-            _aF(_bad_input)
+            _assert_not_meowuri_parts(_bad_input)
 
-        _aF('')
-        _aF(' ')
-        _aF('.')
-        _aF('..')
-        _aF(' .')
-        _aF(' ..')
-        _aF(' . ')
-        _aF(' .. ')
-        _aF('f')
-        _aF('foo')
-        _aF('123')
-        _aF('foo123')
-        _aF('_')
-        _aF('.foo')
-        _aF('foo.')
-        _aF('foo. ')
-        _aF('.foo.bar')
-        _aF('foo.bar.')
-        _aF('.foo.bar.')
+        _assert_not_meowuri_parts('')
+        _assert_not_meowuri_parts(' ')
+        _assert_not_meowuri_parts('.')
+        _assert_not_meowuri_parts('..')
+        _assert_not_meowuri_parts(' .')
+        _assert_not_meowuri_parts(' ..')
+        _assert_not_meowuri_parts(' . ')
+        _assert_not_meowuri_parts(' .. ')
+        _assert_not_meowuri_parts('f')
+        _assert_not_meowuri_parts('foo')
+        _assert_not_meowuri_parts('123')
+        _assert_not_meowuri_parts('foo123')
+        _assert_not_meowuri_parts('_')
+        _assert_not_meowuri_parts('.foo')
+        _assert_not_meowuri_parts('foo.')
+        _assert_not_meowuri_parts('foo. ')
+        _assert_not_meowuri_parts('.foo.bar')
+        _assert_not_meowuri_parts('foo.bar.')
+        _assert_not_meowuri_parts('.foo.bar.')
 
-    def test_full_meowuris(self):
-        def _aT(test_input):
-            actual = is_meowuri_parts(test_input)
-            self.assertIsInstance(actual, bool)
-            self.assertTrue(actual,
-                            'Expected True for "{!s}"'.format(test_input))
-
-        for _valid_meowuri in uuconst.ALL_FULL_MEOWURIS:
-            _aT(_valid_meowuri)
+    def test_all_full_meowuris_defined_in_unit_test_constants(self):
+        for given in uuconst.ALL_FULL_MEOWURIS:
+            self._assert_meowuri_parts(given)
 
 
 class TestMeowURI(TestCase):
@@ -143,34 +141,37 @@ class TestMeowURI(TestCase):
 
 
 class TestMeowURIRoot(TestCase):
-    def test_from_valid_input(self):
+    def test_retuens_instance_of_meowuriroot_given_valid_arguments(self):
+        for given in [
+            'analyzer',
+            'generic',
+            'plugin',
+            ' analyzer',
+            ' generic',
+            ' plugin',
+            ' analyzer ',
+            ' generic ',
+            ' plugin '
+        ]:
+            with self.subTest(given=given):
+                actual = MeowURIRoot(given)
+                self.assertIsNotNone(actual)
 
-        def _ok(test_input):
-            a = MeowURIRoot(test_input)
-            self.assertIsNotNone(a)
-
-        _ok('analyzer')
-        _ok('generic')
-        _ok('plugin')
-        _ok(' analyzer')
-        _ok(' generic')
-        _ok(' plugin')
-        _ok(' analyzer ')
-        _ok(' generic ')
-        _ok(' plugin ')
-
-    def test_from_invalid_input(self):
-        def _f(test_input):
-            with self.assertRaises(InvalidMeowURIError):
-                _ = MeowURIRoot(test_input)
-
-        _f(None)
-        _f('')
-        _f('foo')
-        _f('analysis')
-        _f('filesystem')
-        _f('plugins')
-        _f('metadata')
+    def test_raises_exception_given_invalid_arguments(self):
+        for given in [
+            None,
+            '',
+            ' ',
+            '.',
+            'foo',
+            'analysis',
+            'filesystem',
+            'plugins',
+            'metadata',
+        ]:
+            with self.subTest(given=given):
+                with self.assertRaises(InvalidMeowURIError):
+                    _ = MeowURIRoot(given)
 
 
 class TestMeowURIMutability(TestCase):
@@ -479,29 +480,9 @@ class TestEvaluateMeowURIGlobF(TestCase):
         _t(['*.exiftool.PDF:Creator'])
         _t(['*.PDF:Creator'])
 
-    # def test_eval_glob_b(self):
-    #     self.assertTrue(eval_meowuri_glob(
-    #         uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
-    #         [uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE]
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
-    #         ['extractor.metadata.exiftool.*']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
-    #         ['extractor.metadata.*']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
-    #         ['datetime', 'date_accessed', 'date_created', 'date_modified',
-    #          '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
-    #          '*.EXIF:ModifyDate']
-    #     ))
-
 
 class TestMeowURIContains(TestCase):
-    def test_empty_meowuri_returns_false(self):
+    def test_returns_false_given_empty_or_none_arguments(self):
         def _aF(test_input):
             for _dummy_meowuris in uuconst.DUMMY_MAPPED_MEOWURIS:
                 m = MeowURI(_dummy_meowuris)
@@ -511,8 +492,9 @@ class TestMeowURIContains(TestCase):
 
         _aF(None)
         _aF('')
+        _aF(' ')
 
-    def test_invalid_meowuri_returns_false(self):
+    def test_returns_false_given_invalid_arguments(self):
         def _aF(test_input):
             for _dummy_meowuris in uuconst.DUMMY_MAPPED_MEOWURIS:
                 m = MeowURI(_dummy_meowuris)
@@ -527,19 +509,35 @@ class TestMeowURIContains(TestCase):
         _aF('  ')
         _aF('foo')
 
-    def test_subset_returns_true(self):
+    def test_returns_true_given_string_that_matches_from_the_start(self):
         m = MeowURI('extractor.filesystem.xplat.contents.mime_type')
+        for given in [
+            'extractor.filesystem.xplat.contents.mime_type',
+            'extractor.filesystem.xplat.contents',
+            'extractor.filesystem.xplat',
+            'extractor.filesystem',
+            'extractor'
+        ]:
+            with self.subTest(given=given):
+                actual = given in m
+                self.assertTrue(actual)
+                self.assertIsInstance(actual, bool)
 
-        def _aT(test_input):
-            actual = test_input in m
-            self.assertTrue(actual)
-            self.assertIsInstance(actual, bool)
-
-        _aT('extractor.filesystem.xplat.contents.mime_type')
-        _aT('extractor.filesystem.xplat.contents')
-        _aT('extractor.filesystem.xplat')
-        _aT('extractor.filesystem')
-        _aT('extractor')
+    from unittest import expectedFailure
+    @expectedFailure
+    def test_returns_true_given_string_that_matches_from_the_end(self):
+        m = MeowURI('extractor.filesystem.xplat.contents.mime_type')
+        for given in [
+            'extractor.filesystem.xplat.contents.mime_type',
+            'filesystem.xplat.contents.mime_type',
+            'xplat.contents.mime_type',
+            'contents.mime_type',
+            'mime_type'
+        ]:
+            with self.subTest(given=given):
+                actual = given in m
+                self.assertTrue(actual)
+                self.assertIsInstance(actual, bool)
 
 
 class TestMeowURIList(TestCase):
@@ -549,78 +547,95 @@ class TestMeowURIList(TestCase):
 
     def test_raises_exception_for_empty_argument(self):
         with self.assertRaises(InvalidMeowURIError):
-            self.assertIsNone(meowuri_list(''))
+            _ = meowuri_list('')
+
+    def test_raises_exception_for_non_string_argument(self):
+        for given in (b'', b' ', b'foo', b'foo.bar'):
+            with self.assertRaises(InvalidMeowURIError):
+                _ = meowuri_list(given)
 
     def test_raises_exception_for_only_periods(self):
-        with self.assertRaises(InvalidMeowURIError):
-            self.assertIsNone(meowuri_list('.'))
-            self.assertIsNone(meowuri_list('..'))
-            self.assertIsNone(meowuri_list('...'))
+        for given in ('.', ' .', '. ', ' . ',
+                      '..', ' ..', '.. ', ' .. ',
+                      '...', ' ...', '... ', ' ... '):
+            with self.assertRaises(InvalidMeowURIError):
+                _ = meowuri_list(given)
 
     def test_return_value_is_type_list(self):
-        self.assertIsInstance(meowuri_list('a.b'), list)
+        for given in ('a', 'a.b', 'a.b.c', 'foo.bar'):
+            self.assertIsInstance(meowuri_list(given), list)
 
     def test_valid_argument_returns_expected(self):
-        self.assertEqual(meowuri_list('a'), ['a'])
-        self.assertEqual(meowuri_list('a.b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a.b.c'), ['a', 'b', 'c'])
-        self.assertEqual(meowuri_list('a.b.c.a'), ['a', 'b', 'c', 'a'])
-        self.assertEqual(meowuri_list('a.b.c.a.b'),
-                         ['a', 'b', 'c', 'a', 'b'])
-        self.assertEqual(meowuri_list('a.b.c.a.b.c'),
-                         ['a', 'b', 'c', 'a', 'b', 'c'])
+        for given, expect in [
+            ('a', ['a']),
+            ('a.b', ['a', 'b']),
+            ('a.b.c', ['a', 'b', 'c']),
+            ('a.b.c.a', ['a', 'b', 'c', 'a']),
+            ('a.b.c.a.b', ['a', 'b', 'c', 'a', 'b']),
+            ('a.b.c.a.b.c', ['a', 'b', 'c', 'a', 'b', 'c']),
+        ]:
+            with self.subTest(given=given, expect=expect):
+                self.assertEqual(expect, meowuri_list(given))
 
     def test_valid_argument_returns_expected_for_unexpected_input(self):
-        self.assertEqual(meowuri_list('a.b.'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a.b..'), ['a', 'b'])
-        self.assertEqual(meowuri_list('.a.b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('..a.b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a..b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('.a..b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('..a..b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('...a..b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a..b.'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a..b..'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a..b...'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a...b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('.a...b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('..a...b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('...a...b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a...b.'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a...b..'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a...b...'), ['a', 'b'])
+        for given, expect in [
+            ('a.b.', ['a', 'b']),
+            ('a.b..', ['a', 'b']),
+            ('.a.b', ['a', 'b']),
+            ('..a.b', ['a', 'b']),
+            ('a..b', ['a', 'b']),
+            ('.a..b', ['a', 'b']),
+            ('..a..b', ['a', 'b']),
+            ('...a..b', ['a', 'b']),
+            ('a..b.', ['a', 'b']),
+            ('a..b..', ['a', 'b']),
+            ('a..b...', ['a', 'b']),
+            ('a...b', ['a', 'b']),
+            ('.a...b', ['a', 'b']),
+            ('..a...b', ['a', 'b']),
+            ('...a...b', ['a', 'b']),
+            ('a...b.', ['a', 'b']),
+            ('a...b..', ['a', 'b']),
+            ('a...b...', ['a', 'b'])
+        ]:
+            with self.subTest(given=given, expect=expect):
+                self.assertEqual(expect, meowuri_list(given))
 
-    def test_returns_expected(self):
-        self.assertEqual(meowuri_list('filesystem.contents.mime_type'),
-                         ['filesystem', 'contents', 'mime_type'])
-        self.assertEqual(meowuri_list('metadata.exiftool.EXIF:Foo'),
-                         ['metadata', 'exiftool', 'EXIF:Foo'])
+    def test_returns_expected_given_assumedly_correct_sample_meowuris(self):
+        for given, expect in [
+            ('filesystem.contents.mime_type',
+             ['filesystem', 'contents', 'mime_type']),
+            ('metadata.exiftool.EXIF:Foo',
+             ['metadata', 'exiftool', 'EXIF:Foo'])
+        ]:
+            with self.subTest(given=given, expect=expect):
+                self.assertEqual(expect, meowuri_list(given))
 
 
 class TestMeowURIIsGeneric(TestCase):
     def test_generic_meowuris_return_true(self):
-        def _aT(test_input):
+        def _assert_meowuri_true(test_input):
             actual = MeowURI(test_input).is_generic
             self.assertTrue(actual)
 
-        _aT(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        _aT(uuconst.MEOWURI_GEN_CONTENTS_TEXT)
-        _aT(uuconst.MEOWURI_GEN_METADATA_AUTHOR)
-        _aT(uuconst.MEOWURI_GEN_METADATA_CREATOR)
-        _aT(uuconst.MEOWURI_GEN_METADATA_PRODUCER)
-        _aT(uuconst.MEOWURI_GEN_METADATA_SUBJECT)
-        _aT(uuconst.MEOWURI_GEN_METADATA_TAGS)
-        _aT(uuconst.MEOWURI_GEN_METADATA_DATECREATED)
-        _aT(uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED)
+        _assert_meowuri_true(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
+        _assert_meowuri_true(uuconst.MEOWURI_GEN_CONTENTS_TEXT)
+        _assert_meowuri_true(uuconst.MEOWURI_GEN_METADATA_AUTHOR)
+        _assert_meowuri_true(uuconst.MEOWURI_GEN_METADATA_CREATOR)
+        _assert_meowuri_true(uuconst.MEOWURI_GEN_METADATA_PRODUCER)
+        _assert_meowuri_true(uuconst.MEOWURI_GEN_METADATA_SUBJECT)
+        _assert_meowuri_true(uuconst.MEOWURI_GEN_METADATA_TAGS)
+        _assert_meowuri_true(uuconst.MEOWURI_GEN_METADATA_DATECREATED)
+        _assert_meowuri_true(uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED)
 
     def test_non_generic_meowuris_return_false(self):
-        def _aF(test_input):
+        def _assert_meowuri_false(test_input):
             actual = MeowURI(test_input).is_generic
             self.assertFalse(actual)
 
-        _aF(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        _aF(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        _aF(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE)
+        _assert_meowuri_false(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        _assert_meowuri_false(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        _assert_meowuri_false(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE)
 
 
 class TestMeowURIBasedOnDebuggerFindings(TestCase):

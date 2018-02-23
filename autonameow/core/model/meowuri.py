@@ -21,6 +21,7 @@
 
 import logging
 import re
+from collections import namedtuple
 
 from core import types
 from core import constants as C
@@ -35,22 +36,32 @@ log = logging.getLogger(__name__)
 # TODO: [TD0125] Add aliases (generics) for MeowURI leafs
 
 
+MeowURIParts = namedtuple('MeowURIParts', 'root children leaf')
+
+
 class MeowURIParser(object):
     def parse(self, *args):
         # Handle all kinds of combinations of arguments, lists and tuples.
         flattened = flatten_sequence_type(args)
         args_list = list(flattened)
 
-        # Normalize into a list of period-separated (Unicode(!)) words ..
+        # Normalize into a list of period-separated Unicode words ..
         raw_parts = []
         for arg in args_list:
             if isinstance(arg, MeowURI):
-                # TODO: This is probably extremely inefficient ..
+                # TODO: [performance] This is probably extremely inefficient ..
                 arg = str(arg)
 
+            if not isinstance(arg, str):
+                raise InvalidMeowURIError(
+                    'Invalid MeowURI part: {} "{!s}"'.format(type(arg), arg)
+                )
+
             if is_meowuri_parts(arg):
-                raw_parts.extend(self._split(arg))
-            elif is_meowuri_part(arg):
+                # Split the "meowURI" by periods to a list of strings.
+                parts_list = meowuri_list(arg)
+                raw_parts.extend(parts_list)
+            elif is_one_meowuri_part(arg):
                 raw_parts.append(arg)
             else:
                 raise InvalidMeowURIError(
@@ -83,17 +94,7 @@ class MeowURIParser(object):
         if raw_parts:
             _children = [MeowURIChild(n) for n in raw_parts]
 
-        return _root, _children, _leaf
-
-    @staticmethod
-    def _split(raw_string):
-        # TODO: Data has already passed through functions requiring Unicode str
-        #       .. this makes no sense here.  Remove or relocate.
-        string = types.force_string(raw_string)
-        if string:
-            # Split the "meowURI" by periods to a list of strings.
-            return meowuri_list(string)
-        return []
+        return MeowURIParts(root=_root, children=_children, leaf=_leaf)
 
 
 class MeowURI(object):
@@ -114,8 +115,13 @@ class MeowURI(object):
     MP = MeowURIParser()
 
     def __init__(self, *args):
-        self._root, self._children, self._leaf = self.MP.parse(*args)
-        self._parts = [self._root] + self._children + [self._leaf]
+        meowuri_parts = self.MP.parse(*args)
+        self._root = meowuri_parts.root
+        self._children = meowuri_parts.children
+        self._leaf = meowuri_parts.leaf
+        self._parts = (
+            [meowuri_parts.root] + meowuri_parts.children + [meowuri_parts.leaf]
+        )
 
         # Lazily computed.
         self.__cached_str = None
@@ -159,14 +165,14 @@ class MeowURI(object):
         return self.root == C.MEOWURI_ROOT_GENERIC
 
     def __contains__(self, item):
-        _self_string = str(self)
+        self_string = str(self)
         if isinstance(item, self.__class__):
-            _item_string = str(item)
-            return _self_string.startswith(_item_string)
+            item_string = str(item)
+            return self_string.startswith(item_string)
         elif isinstance(item, str):
             if not item.strip():
                 return False
-            return _self_string.startswith(item)
+            return self_string.startswith(item)
         else:
             return False
 
@@ -282,7 +288,7 @@ RE_MEOWURI_PARTS = re.compile(
 )
 
 
-def is_meowuri_part(raw_string):
+def is_one_meowuri_part(raw_string):
     """
     Safely check if an unknown (string) argument is a valid MeowURI part.
 
@@ -319,7 +325,7 @@ def meowuri_list(meowuri):
     Returns: The components of the given "meowURI" as a list.
     """
     if not isinstance(meowuri, str):
-        raise InvalidMeowURIError('meowURI must be of type "str"')
+        raise InvalidMeowURIError('MeowURI must be of type "str"')
     else:
         uri = meowuri.strip()
     if not uri:
