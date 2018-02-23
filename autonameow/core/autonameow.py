@@ -354,6 +354,7 @@ class Autonameow(object):
         if self.opts and self.opts.get('verbose'):
             self.ui.print_exit_info(self.exit_code, _elapsed_time)
 
+        logs.log_previously_logged_runtimes(log)
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(_elapsed_time))
 
