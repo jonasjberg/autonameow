@@ -351,23 +351,25 @@ def meowuri_list(meowuri):
     if not uri:
         raise InvalidMeowURIError('Got empty meowURI')
 
-    if '.' in uri:
-        # Remove any leading/trailing periods.
-        if uri.startswith('.'):
-            uri = uri.lstrip('.')
-        if uri.endswith('.'):
-            uri = uri.rstrip('.')
+    sep = str(C.MEOWURI_SEPARATOR)
+    if sep in uri:
+        # Remove any leading/trailing separators.
+        if uri.startswith(sep):
+            uri = uri.lstrip(sep)
+        if uri.endswith(sep):
+            uri = uri.rstrip(sep)
 
-        # Collapse any repeating periods.
-        while '..' in uri:
-            uri = uri.replace('..', '.')
+        # Collapse any repeating separators.
+        repeated_separators = 2 * sep
+        while repeated_separators in uri:
+            uri = uri.replace(repeated_separators, sep)
 
-        # Check if input is all periods.
-        stripped_period = str(uri).replace('.', '')
+        # Check if input is all separators.
+        stripped_period = str(uri).replace(sep, '')
         if not stripped_period.strip():
             raise InvalidMeowURIError('Invalid meowURI')
 
-    parts = uri.split('.')
+    parts = uri.split(sep)
     return [p for p in parts if p is not None]
 
 
@@ -381,10 +383,12 @@ def evaluate_meowuri_globs(meowuri_string, glob_list):
     which means that part is ignored during the comparison. Examples:
 
         meowuri                     glob_list                   evaluates
-        'contents.mime_type'        ['contents.mime_type']      True
+        'contents.bar'              ['contents.bar']            True
         'contents.foo'              ['foo.*', 'contents.*']     True
         'foo.bar'                   ['*.*']                     True
         'filesystem.basename_full'  ['contents.*', '*.parent']  False
+
+    Note that the separator (currently a period) is defined in 'constants.py'.
 
     Args:
         meowuri_string: A string representation of a MeowURI.
@@ -412,8 +416,9 @@ def evaluate_meowuri_globs(meowuri_string, glob_list):
     if meowuri_string in glob_list:
         return True
 
+    sep = str(C.MEOWURI_SEPARATOR)
     for glob in glob_list:
-        glob_parts = glob.split('.')
+        glob_parts = glob.split(sep)
 
         # All wildcards match anything.
         if len([gp for gp in glob_parts if gp == '*']) == len(glob_parts):
@@ -426,23 +431,23 @@ def evaluate_meowuri_globs(meowuri_string, glob_list):
             else:
                 continue
 
-        if glob.startswith('*.') and glob.endswith('.*'):
+        if glob.startswith('*'+sep) and glob.endswith(sep+'*'):
             # Check if the center piece is a match.
             literal_glob_parts = [g for g in glob_parts if g != '*']
             for literal_glob_part in literal_glob_parts:
                 # Put back periods to match whole parts and not substrings.
-                glob_center_part = '.{}.'.format(literal_glob_part)
+                glob_center_part = '{sep}{lit}{sep}'.format(sep=sep, lit=literal_glob_part)
                 if glob_center_part in meowuri_string:
                     return True
 
         # First part doesn't matter, check if trailing pieces match.
-        if glob.startswith('*.'):
+        if glob.startswith('*'+sep):
             stripped_glob = re.sub(r'^\*', '', glob)
             if meowuri_string.endswith(stripped_glob):
                 return True
 
         # Last part doesn't matter, check if leading pieces match.
-        if glob.endswith('.*'):
+        if glob.endswith(sep+'*'):
             stripped_glob = re.sub(r'\*$', '', glob)
             if meowuri_string.startswith(stripped_glob):
                 return True
