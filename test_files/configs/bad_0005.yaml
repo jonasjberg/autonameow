@@ -41,14 +41,14 @@ RULES:
     - Sample Entry for E-books:
         CONDITIONS:
             extractor.filesystem.xplat.extension: (pdf|mobi)
-            extractor.filesystem.xplat.contents.mime_type:
+            extractor.filesystem.xplat.mime_type:
             - application/epub+zip
             - image/vnd.djvu
             - application/pdf
             - application/octet-stream
         CONDITIONS:
             extractor.filesystem.xplat.extension: (pdf|mobi)
-            extractor.filesystem.xplat.contents.mime_type:
+            extractor.filesystem.xplat.mime_type:
             - application/epub+zip
             - image/vnd.djvu
             - application/pdf
@@ -58,7 +58,7 @@ RULES:
             edition:
             - analyzer.ebook.edition
             - analyzer.filename.edition
-            extension: extractor.filesystem.xplat.contents.mime_type
+            extension: extractor.filesystem.xplat.mime_type
             publisher:
             - analyzer.ebook.publisher
             - analyzer.filename.publisher

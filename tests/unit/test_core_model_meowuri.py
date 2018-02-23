@@ -28,8 +28,8 @@ from core.model import MeowURI
 from core.model.meowuri import (
     evaluate_meowuri_globs,
     force_meowuri,
-    is_one_meowuri_part,
     is_meowuri_parts,
+    is_one_meowuri_part,
     meowuri_list,
     MeowURILeaf,
     MeowURIChild,
@@ -92,7 +92,7 @@ class TestIsMeowURIParts(TestCase):
         self._assert_meowuri_parts('foo.123.baz')
         # TODO: Normalize exiftool tags? Translate to some "custom" format?
         self._assert_meowuri_parts(':.:')
-        self._assert_meowuri_parts('extractor.filesystem.xplat.contents.mime_type')
+        self._assert_meowuri_parts('extractor.filesystem.xplat.mime_type')
 
     def test_returns_false_given_non_meowuri_parts(self):
         def _assert_not_meowuri_parts(test_input):
@@ -138,6 +138,17 @@ class TestMeowURI(TestCase):
     def test___repr__(self):
         expect = '<MeowURI({})>'.format(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
         self.assertEqual(expect, repr(self.m))
+
+
+class TestMeowURIStripLeaf(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.m = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
+
+    def test_returns_meowuri_without_the_leaf(self):
+        actual = self.m.stripleaf()
+        self.assertIsInstance(actual, MeowURI)
+        self.assertEqual('extractor.filesystem.xplat', str(actual))
 
 
 class TestMeowURIRoot(TestCase):
@@ -254,27 +265,27 @@ class TestMeowURIEquality(TestCase):
 
 class TestMeowURIComparison(TestCase):
     def test_less_than_based_on_length(self):
-        a = MeowURI('extractor.filesystem.xplat.basename')
-        b = MeowURI('extractor.filesystem.xplat.contents.full')
+        a = MeowURI('extractor.filesystem.xplat')
+        b = MeowURI('extractor.filesystem.xplat.basename_full')
         self.assertTrue(a < b)
 
     def test_greater_than_based_on_length(self):
-        a = MeowURI('extractor.filesystem.xplat.contents.full')
-        b = MeowURI('extractor.filesystem.xplat.basename')
+        a = MeowURI('extractor.filesystem.xplat.basename_full')
+        b = MeowURI('extractor.filesystem.xplat')
         self.assertTrue(a > b)
 
     def test_less_than_based_on_contents(self):
-        a = MeowURI('extractor.filesystem.xplat.basename')
-        b = MeowURI('extractor.filesystem.xplat.contents')
+        a = MeowURI('extractor.filesystem.xplat.abspath_full')
+        b = MeowURI('extractor.filesystem.xplat.pathname_full')
         self.assertTrue(a < b)
 
     def test_greater_than_based_on_contents(self):
-        a = MeowURI('extractor.filesystem.xplat.contents')
-        b = MeowURI('extractor.filesystem.xplat.basename')
+        a = MeowURI('extractor.filesystem.xplat.pathname_full')
+        b = MeowURI('extractor.filesystem.xplat.basename_full')
         self.assertTrue(a > b)
 
     def test_comparison_with_other_types_raises_valueerror(self):
-        a = MeowURI('extractor.filesystem.xplat.contents')
+        a = MeowURI('extractor.filesystem.xplat.basename_full')
         b = object()
 
         with self.assertRaises(TypeError):
@@ -315,7 +326,7 @@ class TestEvaluateMeowURIGlobA(TestCase):
 
         _t(['extractor.*'])
         _t(['extractor.filesystem.*'])
-        _t(['extractor.filesystem.xplat.contents.*'])
+        _t(['extractor.filesystem.xplat.*'])
         _t(['extractor.*', 'extractor.filesystem.xplat.*',
             uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
 
@@ -390,7 +401,6 @@ class TestEvaluateMeowURIGlobD(TestCase):
         _f(['generic.*'])
         _f(['generic.contents.*'])
         _f([uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE])
-        _f(['*.contents.mime_type'])
         _f(['*.mime_type'])
         _f(['extractor.filesystem.xplat.pathname.extension'])
         _f(['extractor.filesystem.xplat.pathname.*'])
@@ -423,7 +433,6 @@ class TestEvaluateMeowURIGlobE(TestCase):
         _f(['generic.*'])
         _f(['generic.contents.*'])
         _f([uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE])
-        _f(['*.contents.mime_type'])
         _f(['*.mime_type'])
 
     def test_evaluates_true(self):
@@ -485,22 +494,22 @@ class TestMeowURIContains(TestCase):
     def test_returns_false_given_empty_or_none_arguments(self):
         def _aF(test_input):
             for _dummy_meowuris in uuconst.DUMMY_MAPPED_MEOWURIS:
-                m = MeowURI(_dummy_meowuris)
-                actual = test_input in m
-                self.assertFalse(actual)
-                self.assertIsInstance(actual, bool)
+                m = uu.as_meowuri(_dummy_meowuris)
+                self.assertNotIn(test_input, m)
 
         _aF(None)
+        _aF(False)
+        _aF(True)
+        _aF([])
+        _aF([''])
         _aF('')
-        _aF(' ')
+        _aF(b'')
 
     def test_returns_false_given_invalid_arguments(self):
         def _aF(test_input):
             for _dummy_meowuris in uuconst.DUMMY_MAPPED_MEOWURIS:
-                m = MeowURI(_dummy_meowuris)
-                actual = test_input in m
-                self.assertFalse(actual)
-                self.assertIsInstance(actual, bool)
+                m = uu.as_meowuri(_dummy_meowuris)
+                self.assertNotIn(test_input, m)
 
         _aF(1)
         _aF(1.0)
@@ -508,36 +517,40 @@ class TestMeowURIContains(TestCase):
         _aF(' ')
         _aF('  ')
         _aF('foo')
+        _aF(b' ')
+        _aF(b'  ')
+        _aF(b'foo')
 
     def test_returns_true_given_string_that_matches_from_the_start(self):
-        m = MeowURI('extractor.filesystem.xplat.contents.mime_type')
+        m = uu.as_meowuri('extractor.filesystem.xplat.basename_suffix')
         for given in [
-            'extractor.filesystem.xplat.contents.mime_type',
-            'extractor.filesystem.xplat.contents',
+            'extractor.filesystem.xplat.basename_suffix',
             'extractor.filesystem.xplat',
             'extractor.filesystem',
-            'extractor'
+            'extractor',
         ]:
             with self.subTest(given=given):
-                actual = given in m
-                self.assertTrue(actual)
-                self.assertIsInstance(actual, bool)
+                self.assertIn(given, m)
 
-    from unittest import expectedFailure
-    @expectedFailure
-    def test_returns_true_given_string_that_matches_from_the_end(self):
-        m = MeowURI('extractor.filesystem.xplat.contents.mime_type')
+    def test_returns_true_given_meowuri_that_matches_from_the_start(self):
+        m = uu.as_meowuri('extractor.filesystem.xplat.basename_suffix')
         for given in [
-            'extractor.filesystem.xplat.contents.mime_type',
-            'filesystem.xplat.contents.mime_type',
-            'xplat.contents.mime_type',
-            'contents.mime_type',
-            'mime_type'
+            m,
+            MeowURIRoot('extractor'),
+            uu.as_meowuri('extractor.filesystem'),
+            uu.as_meowuri('extractor.filesystem.xplat'),
         ]:
             with self.subTest(given=given):
-                actual = given in m
-                self.assertTrue(actual)
-                self.assertIsInstance(actual, bool)
+                self.assertIn(given, m)
+
+    def test_returns_true_given_string_that_matches_any_part(self):
+        uri_str = uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE
+        uri_parts_list = meowuri_list(uri_str)
+        m = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE)
+        for n in range(1, len(uri_parts_list)):
+            # Try all parts, starting with the last (leaf)
+            given = '.'.join(uri_parts_list[-n:])
+            self.assertIn(given, m)
 
 
 class TestMeowURIMatchesStart(TestCase):
@@ -638,7 +651,7 @@ class TestMeowURIMatchesEnd(TestCase):
                 self._assert_matches_from_end_returns(True, m, given)
 
     def test_returns_false_given_string_that_does_not_match_from_the_end(self):
-        m = MeowURI('extractor.filesystem.xplat.contents.mime_type')
+        m = MeowURI('extractor.filesystem.xplat.mime_type')
         for given in [
             'extension',
             'xplat.extension',
@@ -653,7 +666,7 @@ class TestMeowURIMatchesEnd(TestCase):
                 self._assert_matches_from_end_returns(False, m, given)
 
     def test_returns_false_given_meowuri_that_does_not_match_from_the_end(self):
-        m = MeowURI('extractor.filesystem.xplat.contents.mime_type')
+        m = MeowURI('extractor.filesystem.xplat.mime_type')
         for given in [
             MeowURIRoot('extractor'),
             uu.as_meowuri('extractor.filesystem.xplat'),
@@ -745,10 +758,8 @@ class TestMeowURIList(TestCase):
 
     def test_returns_expected_given_assumedly_correct_sample_meowuris(self):
         for given, expect in [
-            ('filesystem.contents.mime_type',
-             ['filesystem', 'contents', 'mime_type']),
-            ('metadata.exiftool.EXIF:Foo',
-             ['metadata', 'exiftool', 'EXIF:Foo'])
+            ('filesystem.mime_type', ['filesystem', 'mime_type']),
+            ('metadata.exiftool.EXIF:Foo', ['metadata', 'exiftool', 'EXIF:Foo'])
         ]:
             with self.subTest(given=given, expect=expect):
                 self.assertEqual(expect, meowuri_list(given))
@@ -794,7 +805,7 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
     def test_extraction_collect_extractor_xplat_filesystem(self):
         _prefix = 'extractor.filesystem.xplat'
         for _key in ['abspath_full', 'basename_full', 'extension',
-                     'basename_suffix', 'basename_prefix', 'contents.mime_type',
+                     'basename_suffix', 'basename_prefix', 'mime_type',
                      'date_accessed', 'date_created', 'date_modified',
                      'pathname_full', 'pathname_parent']:
             self._check(_prefix, _key, expected='{}.{}'.format(_prefix, _key))

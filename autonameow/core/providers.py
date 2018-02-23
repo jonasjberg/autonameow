@@ -177,15 +177,14 @@ class ProviderRegistry(object):
                 self.log.debug('Mapped MeowURI "{!s}" to "{!s}" ({!s})'.format(
                     meowuri, klass, key))
 
-    def resolvable(self, meowuri):
-        if not meowuri:
+    def might_be_resolvable(self, uri):
+        if not uri:
             return False
 
+        sanity.check_isinstance_meowuri(uri)
         resolvable = list(self.mapped_meowuris)
-        # TODO: [TD0113] Fix exceptions not being handled properly (?)
-        if any(r in meowuri for r in resolvable):
-            return True
-        return False
+        uri_without_leaf = uri.stripleaf()
+        return any(m.matches_start(uri_without_leaf) for m in resolvable)
 
     def providers_for_meowuri(self, requested_meowuri, includes=None):
         """
@@ -252,9 +251,10 @@ class ProviderRegistry(object):
         # 'requested_meowuri' is full "source-specific";
         #     'extractor.metadata.exiftool.EXIF:CreateDate'
         found = set()
+        requested_meowuri_without_leaf = requested_meowuri.stripleaf()
         for root in self._yield_included_roots(includes):
             for uri in self.meowuri_sources[root].keys():
-                if uri in requested_meowuri:
+                if uri.matches_start(requested_meowuri_without_leaf):
                     found.add(self.meowuri_sources[root][uri])
         return found
 

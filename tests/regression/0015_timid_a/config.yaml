@@ -1,7 +1,7 @@
 RULES:
     Extension from MIME-type:
         CONDITIONS:
-            extractor.filesystem.xplat.contents.mime_type: '*/*'
+            extractor.filesystem.xplat.mime_type: '*/*'
         NAME_TEMPLATE: '{title}.{extension}'
         DATA_SOURCES:
             extension: analyzer.filename.extension

@@ -11,7 +11,7 @@ FILESYSTEM_OPTIONS:
 RULES:
     Fix incorrect extensions with filename analyzer:
         CONDITIONS:
-            extractor.filesystem.xplat.contents.mime_type: '*/*'
+            extractor.filesystem.xplat.mime_type: '*/*'
         DATA_SOURCES:
             extension: analyzer.filename.extension
             title: extractor.filesystem.xplat.basename_prefix

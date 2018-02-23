@@ -162,11 +162,11 @@ class TestMapMeowURItoSourceClass(TestCase):
         cls._mapping_meowuris_extractors = [
             ExpectedMapping(
                 MeowURIs=[
-                    uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_EXTENSION),
-                    uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL),
-                    uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX),
+                    # uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_EXTENSION),
+                    # uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL),
+                    # uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX),
                     uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
-                    uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL)
+                    # uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL)
                 ],
                 Providers=['CrossPlatformFileSystemExtractor']
             ),
@@ -198,9 +198,11 @@ class TestMapMeowURItoSourceClass(TestCase):
         actual_count = len(actual_providers)
         actual_provider_names = [k.__name__ for k in actual_providers]
         expect_count = len(expected_provider_names)
-        self.assertEqual(expect_count, actual_count)
+        fail_msg = 'Expected: {!s}\nActual: {!s}'.format(
+            expected_provider_names, actual_provider_names)
+        self.assertEqual(expect_count, actual_count, fail_msg)
         self.assertEqual(sorted(expected_provider_names),
-                         sorted(actual_provider_names))
+                         sorted(actual_provider_names), fail_msg)
 
     def test_maps_meowuris_to_expected_provider(self):
         for meowuris, expected_providers in self._mapping_meowuris_all_providers:
@@ -336,43 +338,51 @@ class TestMapMeowURItoSourceClass(TestCase):
     #     self._check_returned_providers(actual, expected)
 
 
-class TestProviderRegistryMethodResolvable(TestCase):
+class TestProviderRegistryMightBeResolvable(TestCase):
     @classmethod
     def setUpClass(cls):
         mock_provider = Mock()
         mock_provider.FIELD_LOOKUP = dict()
         dummy_source_map = {
             'analyzer': {
-                'analyzer.filename': mock_provider
+                uu.as_meowuri('analyzer.filename'): mock_provider
             },
             'plugin': {
-                'plugin.guessit': mock_provider
+                uu.as_meowuri('plugin.guessit'): mock_provider
             },
             'extractor': {
-                'extractor.metadata.exiftool': mock_provider,
-                'extractor.filesystem.xplat': mock_provider
+                uu.as_meowuri('extractor.metadata.exiftool'): mock_provider,
+                uu.as_meowuri('extractor.filesystem.xplat'): mock_provider
             }
         }
         cls.p = ProviderRegistry(meowuri_source_map=dummy_source_map)
 
     def test_empty_meowuri_returns_false(self):
-        self.assertFalse(self.p.resolvable(None))
-        self.assertFalse(self.p.resolvable(''))
+        self.assertFalse(self.p.might_be_resolvable(None))
+        self.assertFalse(self.p.might_be_resolvable(''))
 
-    def test_bad_meowuri_returns_false(self):
+    def test_returns_false_given_non_meowuri_arguments(self):
         def _aF(test_input):
-            self.assertFalse(self.p.resolvable(test_input))
+            with self.assertRaises(AssertionError):
+                _ = self.p.might_be_resolvable(test_input)
 
-        _aF('')
         _aF(' ')
         _aF('foo')
         _aF('not.a.valid.source.surely')
         _aF('metadata.exiftool')
         _aF('metadata.exiftool.PDF:CreateDate')
 
+    def test_returns_false_given_empty_or_none_arguments(self):
+        def _aF(test_input):
+            self.assertFalse(self.p.might_be_resolvable(test_input))
+
+        _aF('')
+        _aF(None)
+
     def test_good_meowuri_returns_true(self):
         def _aT(test_input):
-            self.assertTrue(self.p.resolvable(test_input))
+            given_meowuri = uu.as_meowuri(test_input)
+            self.assertTrue(self.p.might_be_resolvable(given_meowuri))
 
         _aT('extractor.metadata.exiftool')
         _aT(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE)
@@ -387,14 +397,14 @@ class TestProviderRegistryMethodResolvable(TestCase):
         # p.mapped_meowuris = dict()
 
         meowuri = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE)
-        self.assertFalse(p.resolvable(meowuri))
+        self.assertFalse(p.might_be_resolvable(meowuri))
 
     def test_with_meowuri_and_single_mapped_meowuri(self):
         mock_provider = Mock()
         mock_provider.FIELD_LOOKUP = dict()
         dummy_source_map = {
             'plugin': {
-                'plugin.guessit': mock_provider
+                uu.as_meowuri('plugin.guessit'): mock_provider
             }
         }
         p = ProviderRegistry(meowuri_source_map=dummy_source_map)
@@ -403,24 +413,24 @@ class TestProviderRegistryMethodResolvable(TestCase):
         # p.mapped_meowuris = {'plugin.guessit'}
 
         uri_guessit = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_DATE)
-        self.assertTrue(p.resolvable(uri_guessit))
+        self.assertTrue(p.might_be_resolvable(uri_guessit))
 
         uri_exiftool = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE)
-        self.assertFalse(p.resolvable(uri_exiftool))
+        self.assertFalse(p.might_be_resolvable(uri_exiftool))
 
         uri_filesystem = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        self.assertFalse(p.resolvable(uri_filesystem))
+        self.assertFalse(p.might_be_resolvable(uri_filesystem))
 
     def test_with_meowuri_and_three_mapped_meowuris(self):
         meowuri_guessit_a = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_DATE)
         meowuri_guessit_b = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_TYPE)
         meowuri_guessit_c = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_TITLE)
-        self.assertTrue(self.p.resolvable(meowuri_guessit_a))
-        self.assertTrue(self.p.resolvable(meowuri_guessit_b))
-        self.assertTrue(self.p.resolvable(meowuri_guessit_c))
+        self.assertTrue(self.p.might_be_resolvable(meowuri_guessit_a))
+        self.assertTrue(self.p.might_be_resolvable(meowuri_guessit_b))
+        self.assertTrue(self.p.might_be_resolvable(meowuri_guessit_c))
 
         meowuri_exiftool = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE)
-        self.assertTrue(self.p.resolvable(meowuri_exiftool))
+        self.assertTrue(self.p.might_be_resolvable(meowuri_exiftool))
 
         meowuri_fn = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_TAGS)
-        self.assertTrue(self.p.resolvable(meowuri_fn))
+        self.assertTrue(self.p.might_be_resolvable(meowuri_fn))

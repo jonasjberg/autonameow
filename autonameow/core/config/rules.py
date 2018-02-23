@@ -58,9 +58,9 @@ class RuleCondition(object):
         The expression is some expression that will be evaluated on the data
         contained at the location referenced to by the "MeowURI".
 
-        Example: If the "MeowURI" is 'contents.mime_type', a valid
+        Example: If the "MeowURI" is 'mime_type', a valid
         expression could be 'image/*'. When this condition is evaluated,
-        the data contained at 'contents.mime_type' might be 'image/jpeg'.
+        the data contained at 'mime_type' might be 'image/jpeg'.
         In this case the evaluation would return True.
 
         Args:
@@ -594,7 +594,7 @@ def is_valid_source(meowuri):
 
     if meowuri.is_generic:
         return True
-    if providers.Registry.resolvable(meowuri):
+    if providers.Registry.might_be_resolvable(meowuri):
         return True
 
     return False
