@@ -1069,6 +1069,17 @@ class TestTypePathComponent(TestCase):
         _assert_returns(b'/tmp/foo', b'/tmp/foo')
         _assert_returns(b'/tmp/f.e', b'/tmp/f.e')
 
+        _assert_returns('a', b'a')
+        _assert_returns('a.b', b'a.b')
+        _assert_returns('a.b.c', b'a.b.c')
+        _assert_returns(b'a', b'a')
+        _assert_returns(b'a.b', b'a.b')
+        _assert_returns(b'a.b.c', b'a.b.c')
+        _assert_returns('extractor.filesystem.xplat', b'extractor.filesystem.xplat')
+        _assert_returns(b'extractor.filesystem.xplat', b'extractor.filesystem.xplat')
+        _assert_returns('extractor.text.common', b'extractor.text.common')
+        _assert_returns(b'extractor.text.common', b'extractor.text.common')
+
     def test_call_with_coercible_data_including_user_home(self):
         def _assert_returns(test_data, expected):
             self.assertEqual(expected, types.AW_PATHCOMPONENT(test_data))
