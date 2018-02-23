@@ -540,6 +540,148 @@ class TestMeowURIContains(TestCase):
                 self.assertIsInstance(actual, bool)
 
 
+class TestMeowURIMatchesStart(TestCase):
+    def _assert_matches_from_start_returns(self, expect, uri, given):
+        actual = uri.matches_start(given)
+        self.assertEqual(expect, actual)
+        self.assertIsInstance(actual, bool)
+
+    def test_returns_true_given_string_that_matches_from_the_start(self):
+        m = MeowURI('extractor.filesystem.xplat.extension')
+        for given in [
+            'extractor',
+            'extractor.filesystem',
+            'extractor.filesystem.xplat',
+            'extractor.filesystem.xplat.extension',
+        ]:
+            with self.subTest(given=given):
+                self._assert_matches_from_start_returns(True, m, given)
+
+    def test_returns_true_given_meowuri_that_matches_from_the_start(self):
+        m = MeowURI('extractor.filesystem.xplat.extension')
+        for given in [
+            m,
+            MeowURIRoot('extractor'),
+            uu.as_meowuri('extractor.filesystem'),
+            uu.as_meowuri('extractor.filesystem.xplat'),
+            uu.as_meowuri('extractor.filesystem.xplat.extension'),
+        ]:
+            with self.subTest(given=given):
+                self._assert_matches_from_start_returns(True, m, given)
+
+    def test_returns_false_given_string_not_matching_from_the_start(self):
+        m = MeowURI('extractor.filesystem.xplat.extension')
+        for given in [
+            uuconst.MEOWURI_AZR_FILENAME_DATETIME,
+            uuconst.MEOWURI_FS_FILETAGS_DATETIME,
+            'extractor.filesystem.filetags',
+        ]:
+            with self.subTest(given=given):
+                self._assert_matches_from_start_returns(False, m, given)
+
+    def test_returns_false_given_meowuri_not_matching_from_the_start(self):
+        m = MeowURI('extractor.filesystem.xplat.extension')
+        for given in [
+            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL),
+            uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME),
+            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL),
+            uu.as_meowuri('extractor.filesystem.filetags.extension'),
+            uu.as_meowuri('extractor.filesystem.filetags'),
+            MeowURIRoot('analyzer'),
+            MeowURIRoot('plugin')
+        ]:
+            with self.subTest(given=given):
+                self._assert_matches_from_start_returns(False, m, given)
+
+    def test_returns_false_given_invalid_arguments(self):
+        m = MeowURI(uuconst.MEOWURI_FS_XPLAT_PATHNAME_PARENT)
+        for given in [
+            None,
+            False,
+            True,
+            object(),
+            1, 1.0,
+            dict(), {'a': 1},
+            [], ['a'], [1, 2], ['a', 'b'],
+            '', ' ', '  ',
+            b'', b' ', b'foo',
+
+        ]:
+            with self.subTest(given=given):
+                self._assert_matches_from_start_returns(False, m, given)
+
+
+class TestMeowURIMatchesEnd(TestCase):
+    def _assert_matches_from_end_returns(self, expect, uri, given):
+        actual = uri.matches_end(given)
+        self.assertEqual(expect, actual)
+        self.assertIsInstance(actual, bool)
+
+    def test_returns_true_given_string_that_matches_from_the_end(self):
+        m = MeowURI('extractor.filesystem.xplat.extension')
+        for given in [
+            'extension',
+            'xplat.extension',
+            'filesystem.xplat.extension',
+            'extractor.filesystem.xplat.extension',
+        ]:
+            with self.subTest(given=given):
+                self._assert_matches_from_end_returns(True, m, given)
+
+    def test_returns_true_given_meowuri_that_matches_from_the_end(self):
+        m = MeowURI('extractor.filesystem.xplat.extension')
+        for given in [
+            m,
+            MeowURILeaf('extension'),
+        ]:
+            with self.subTest(given=given):
+                self._assert_matches_from_end_returns(True, m, given)
+
+    def test_returns_false_given_string_that_does_not_match_from_the_end(self):
+        m = MeowURI('extractor.filesystem.xplat.contents.mime_type')
+        for given in [
+            'extension',
+            'xplat.extension',
+            'filesystem.xplat.extension',
+            'extractor.filesystem.xplat.extension',
+            'extractor.filesystem.xplat',
+            'extractor.filesystem',
+            'extractor',
+            uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE,
+        ]:
+            with self.subTest(given=given):
+                self._assert_matches_from_end_returns(False, m, given)
+
+    def test_returns_false_given_meowuri_that_does_not_match_from_the_end(self):
+        m = MeowURI('extractor.filesystem.xplat.contents.mime_type')
+        for given in [
+            MeowURIRoot('extractor'),
+            uu.as_meowuri('extractor.filesystem.xplat'),
+            uu.as_meowuri('extractor.filesystem'),
+            uu.as_meowuri(uuconst.MEOWURI_FS_FILETAGS_DATETIME),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE),
+        ]:
+            with self.subTest(given=given):
+                self._assert_matches_from_end_returns(False, m, given)
+
+    def test_returns_false_given_invalid_arguments(self):
+        m = MeowURI(uuconst.MEOWURI_FS_XPLAT_PATHNAME_PARENT)
+        for given in [
+            None,
+            False,
+            True,
+            object(),
+            1, 1.0,
+            dict(), {'a': 1},
+            [], ['a'], [1, 2], ['a', 'b'],
+            '', ' ', '  ',
+            b'', b' ', b'foo',
+
+        ]:
+            with self.subTest(given=given):
+                self._assert_matches_from_end_returns(False, m, given)
+
+
 class TestMeowURIList(TestCase):
     def test_raises_exception_for_none_argument(self):
         with self.assertRaises(InvalidMeowURIError):
