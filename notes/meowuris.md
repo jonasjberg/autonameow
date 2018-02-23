@@ -314,7 +314,9 @@ order and autocompletion.  Actual usage is currently not very good.
 MeowURI naming and hierarchical structure must be done properly.
 
 
-How about this? Like climbing down a hierarchy, from most to least specific.
+### How about this?
+
+Like climbing down a hierarchy, from most to least specific.
 
 
 Example requesting the `description` field:
@@ -394,3 +396,167 @@ So queries with MeowURIs;
 * `a.b.e.x` would return values `x1` and `x2`
 * `a.b.x` would return values `x1`, `x2` and `x3`
 * `a.x` would return all values `x1` through `x5`
+
+
+### Or how about this?
+These are all title-related MeowURIs:
+
+```
+(generic.metadata.title)
+analyzer.document.title
+plugin.guessit.title
+extractor.metadata.exiftool.PDF:Title
+extractor.metadata.exiftool.RTF:Title
+extractor.metadata.exiftool.XMP:EntryTitle
+extractor.metadata.exiftool.XMP:Title
+extractor.metadata.pandoc.title
+```
+
+I might want to get a specific exiftool field:
+```
+extractor.metadata.exiftool.PDF:Title
+```
+
+Any exiftool title:
+```
+extractor.metadata.exiftool.title
+```
+Any exiftool title, alternative (?):
+```
+extractor.exiftool.title
+```
+
+Any title:
+```
+title
+```
+(this is currently `generic.metadata.title`)
+
+
+Any __metadata__ title:
+```
+metadata.title
+```
+__This would not be possible with the new plan__ (?)
+
+
+
+As a table:
+
+
+(generic.metadata.title)
+analyzer.document.title
+plugin.guessit.title
+
+extractor.metadata.exiftool.PDF:Title
+extractor.metadata.exiftool.RTF:Title
+extractor.metadata.exiftool.XMP:EntryTitle
+extractor.metadata.exiftool.XMP:Title
+extractor.metadata.pandoc.title
+
+
+
+
+
+Problems with the "MeowURI" abstraction
+---------------------------------------
+
+### Replacing `basename_full` with `basename.full`
+Using leaves consisting of a single part makes sense in that mapping
+between "external" and "internal" field names is straight-forward.
+
+Providers return "raw" data as dicts:
+```python
+raw_metadata = {
+    'PDF:CreateDate': '2018-02-21'
+}
+```
+
+Which is then collected by the various runners and stored with the full
+MeowURI:
+```python
+provider_metadata = {
+    'extractor.metadata.exiftool.PDF:CreateDate': {
+        'value': '2018-02-21',
+        'metainfo': '...'
+    }
+}
+```
+
+The external keys (`PDF:CreateDate`) can easily be swapped with whatever.
+
+For leaves that must be referred to as a two-part string, things become complicated.
+
+
+Providers return "raw" data as dicts:
+```python
+raw_metadata = {
+    'basename': {
+        'full': 'foo'
+    }
+}
+```
+
+Which is then collected by the various runners and stored with the full
+MeowURI:
+```python
+provider_metadata = {
+    'extractor.filesystem.xplat.basename.full': {
+        'value': 'foo',
+        'metainfo': '...'
+    }
+}
+```
+
+
+At the same time, how many possible providers would provide the full basename
+of a file?  It would not add any value whatsoever. So maybe the user-facing
+MeowURIs __should__ split the leaf in two parts?
+
+
+__This is probably the way to go, discoverability through
+auto-complete/suggestions in the CLI interface.__
+
+Might simply translate `_` to `.` somewhere at the UI layer boundaries.
+
+#### Related TODOs:
+
+> * `[TD0162]` Handle mapping/translation between "generic"/specific MeowURIs.
+>
+> * `[TD0125]` __Add aliases (generics) for MeowURI leafs__  
+>   Should probably provide a consistent internal alternative field name when
+>   specifying extractor-specific MeowURIs, not only with "generic".
+>
+>   Example of equivalent MeowURIs with the "alias" or "generic":
+>
+>     ```
+>     extractor.metadata.exiftool.PDF:CreateDate
+>     extractor.metadata.exiftool.date_created
+>     ```
+>
+>   Another example:
+>
+>     ```
+>     extractor.metadata.exiftool.EXIF:DateTimeOriginal
+>     extractor.metadata.exiftool.date_created
+>     ```
+>   The examples illustrate that multiple provider-specific fields would have to
+>   share a single "alias" or "generic", because there will always be fewer of
+>   them. If these were not based on the subclasses of `GenericField`, they could
+>   simply be made to map directly with the provider fields, maybe only with a
+>   slight transformation like converting to lower-case.
+>
+>   Example of alternative using simple transformations:
+>
+>     ```
+>     extractor.metadata.exiftool.EXIF:DateTimeOriginal
+>     extractor.metadata.exiftool.exif_datetimeoriginal
+>     ```
+>
+> * `[TD0089]` Validate only "generic" data fields when reading config.
+>
+> * `[TD0146]` Rework "generic fields", possibly collecting fields in "records".
+
+
+### Mapping configuration field parsers and other "globbing"
+Probably does not matter as it should be reworked anyway?
