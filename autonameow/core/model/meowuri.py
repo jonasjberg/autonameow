@@ -207,7 +207,7 @@ class MeowURI(object):
         return self.__cached_str
 
     def __repr__(self):
-        return str(self)
+        return '<{}({!s})>'.format(self.__class__.__name__, self)
 
 
 class MeowURIChild(object):
