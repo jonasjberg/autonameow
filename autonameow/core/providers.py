@@ -39,6 +39,7 @@ class ProviderMixin(object):
 
     def coerce_field_value(self, field, value):
         # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+        # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
         # TODO: [hack] This is very bad.
         _field_lookup_entry = self.metainfo().get(field)
         if not _field_lookup_entry:
@@ -119,6 +120,7 @@ def wrap_provider_results(datadict, metainfo, source_klass):
 
     out = dict()
 
+    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     for field, value in datadict.items():
         field_metainfo = dict(metainfo.get(field, {}))
         if not field_metainfo:
@@ -326,6 +328,7 @@ def _map_generic_sources(meowuri_class_map):
 
             # TODO: [TD0151] Fix inconsistent use of classes/instances.
             # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+            # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
             metainfo_dict = dict(klass.FIELD_LOOKUP)
             for _, field_metainfo in metainfo_dict.items():
                 _generic_field_string = field_metainfo.get('generic_field')

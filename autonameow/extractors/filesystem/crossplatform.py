@@ -33,6 +33,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
     MEOWURI_LEAF = 'xplat'
     IS_SLOW = False
 
+    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'abspath_full': {'coercer': types.AW_PATH, 'multivalued': False},
         'basename_full': {

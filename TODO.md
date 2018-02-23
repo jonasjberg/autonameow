@@ -81,7 +81,7 @@ High Priority
 Medium Priority
 ---------------
 
-* `[TD0176]` __Store only strings in `FIELD_LOOKUP`.__  
+* `[TD0178]` __Store only strings in `FIELD_LOOKUP`.__  
     Further decouples the extractors from the rest of the system.
     Would also allow potentially storing the `FIELD_LOOKUP` in a separate file
     that is loaded at run-time.
