@@ -76,16 +76,21 @@ class ExtractorRunner(object):
             assert callable(add_results_callback)
             self._add_results_callback = add_results_callback
         else:
+            # Throw away the results. For testing, etc.
             self._add_results_callback = lambda *_: None
 
-        self._available_extractors = set(extractors.ProviderClasses)
+        self._available_extractors = set()
+        self.exclude_slow = True
+
+        self.register(extractors.ProviderClasses)
+
+    def register(self, extractor_klasses):
+        self._available_extractors.update(extractor_klasses)
         if __debug__:
             log.debug('Initialized {!s} with {} available extractors'.format(
                 self.__class__.__name__, len(self._available_extractors)))
             for k in self._available_extractors:
                 log.debug('Available: {!s}'.format(str(k.__name__)))
-
-        self.exclude_slow = True
 
     def start(self, fileobject, request_extractors=None, request_all=None):
         """
