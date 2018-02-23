@@ -15,6 +15,7 @@ Notes on the internal data identifier system and "MeowURI" naming convention.
 * 2017-09-23 --- `jonasjberg` Added notes from `ideas.md`
 * 2017-09-27 --- `jonasjberg` Added "Breaking up MeowURIs into Parts"
 * 2017-09-28 --- `jonasjberg` Added "Alternative approach 3"
+* 2018-02-21 --- `jonasjberg` Rework hierarchical structure and naming.
 
 
 Data Storage
@@ -299,3 +300,97 @@ __Suggested new form:__  `metadata.description`
 Analyzers only really expose a internal naming convention.
 
 There might not be any need to use "generic" analyzer-URIs (?)
+
+
+--------------------------------------------------------------------------------
+
+
+Flexibility in Actual Usage
+---------------------------
+> Jonas Sjöberg, 2018-02-20.
+
+The original idea for efficient command-line usage is speed through logical
+order and autocompletion.  Actual usage is currently not very good.
+MeowURI naming and hierarchical structure must be done properly.
+
+
+How about this? Like climbing down a hierarchy, from most to least specific.
+
+
+Example requesting the `description` field:
+
+1. Full "direct" lookup from a single specific provider `filetags`:
+
+        extractor.filesystem.filetags.DESCRIPTION
+
+2. From any of the `filesystem` providers:
+
+        extractor.filesystem.DESCRIPTION
+
+2. From any of the `extractor` group of providers:
+
+        extractor.DESCRIPTION
+
+3. from __any/all__ of the available providers:
+
+        DESCRIPTION
+
+    This is currently called "generic" MeowURIs, written as:
+    ```
+    generic.metadata.DESCRIPTION
+    ```
+
+If only one provider has produced data with a `description` field, all of the
+above would return the same result.
+
+
+~~And again, restated:~~
+
+When the "leaf" position shifts from the first to last position of the full
+MeowURI, the data query becomes increasingly explicit and direct.
+
+```
+ specific:  a.b.c.X
+            a.b.X
+            a.X
+"generic":  X
+```
+
+~~Might think of it like a tree structure of `X` nodes that all refer to the same
+piece of information.~~
+
+* `X` --- any `X`
+* `a.X` --- `X` within subtrees of `a` (from any children of `a`)
+* `a.b.X` --- `X` within subtrees of `b` (child of `a`)
+* `a.b.c.X` --- `X` within subtrees of `c` (child of `b` which is child of `a`)
+
+
+--------------------------------------------------------------------------------
+
+
+Might visualize it like this:
+ *Think about if this general case is actually what is used?*
+
+```
+a ________________________________________________________
+  x1  x2        x3          x4                        x5
+
+
+b __________________    c ____________________    d ______
+  x1  x2        x3          x5                         x6
+
+
+e ______    f ______    g ______    h ________    i ______
+  x1  x2        x3          x4                        x5
+```
+
+* Top is the "root"
+* Middle `b` to `d` are provider groups (extractors, analyzers, plugins)
+* Bottom `e` to `i` are actual providers (filesystem extractor, ebook analyzer, etc.)
+
+
+So queries with MeowURIs;
+
+* `a.b.e.x` would return values `x1` and `x2`
+* `a.b.x` would return values `x1`, `x2` and `x3`
+* `a.x` would return all values `x1` through `x5`
