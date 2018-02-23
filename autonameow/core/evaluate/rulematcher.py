@@ -22,10 +22,7 @@
 import logging
 from collections import namedtuple
 
-from core import (
-    master_provider,
-    view
-)
+from core import view
 from util import sanity
 
 
@@ -36,15 +33,17 @@ MatchResult = namedtuple('MatchResult', 'rule score weight')
 
 
 class RuleMatcher(object):
-    def __init__(self, rules, list_rulematch=None):
+    def __init__(self, rules, provider, list_rulematch=None):
         self._rules = list(rules)
         self._list_rulematch = bool(list_rulematch)
+        self._provider = provider
+        self._evaluator_klass = RuleConditionEvaluator
 
     def request_data(self, fileobject, meowuri):
         sanity.check_isinstance_meowuri(meowuri)
 
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-        response = master_provider.request(fileobject, meowuri)
+        response = self._provider.request(fileobject, meowuri)
         if response:
             if isinstance(response, list):
                 raise NotImplementedError(
@@ -68,7 +67,7 @@ class RuleMatcher(object):
 
         num_all_rules = len(all_rules)
         log.debug('Examining {} rules ..'.format(num_all_rules))
-        condition_evaluator = RuleConditionEvaluator(_data_request_callback)
+        condition_evaluator = self._evaluator_klass(_data_request_callback)
         for i, rule in enumerate(all_rules, start=1):
             log.debug('Evaluating rule {}/{}: {!s}'.format(i, num_all_rules, rule))
             condition_evaluator.evaluate(rule)
