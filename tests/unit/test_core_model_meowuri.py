@@ -130,6 +130,18 @@ class TestMeowURIStringMatchingFunctions(TestCase):
             _aT(_valid_meowuri)
 
 
+class TestMeowURI(TestCase):
+    def setUp(self):
+        self.m = MeowURI(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
+
+    def test___str__(self):
+        self.assertEqual(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL, str(self.m))
+
+    def test___repr__(self):
+        expect = '<MeowURI({})>'.format(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
+        self.assertEqual(expect, repr(self.m))
+
+
 class TestMeowURIRoot(TestCase):
     def test_from_valid_input(self):
 
