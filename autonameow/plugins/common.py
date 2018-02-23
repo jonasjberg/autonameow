@@ -41,6 +41,7 @@ class BasePlugin(object):
 
     # Dictionary with plugin-specific information, keyed by the fields that
     # the raw source produces. Stores information on types, etc..
+    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = dict()
 
     # TODO: Hack ..
@@ -91,6 +92,7 @@ class BasePlugin(object):
 
     def metainfo(self):
         # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
         return dict(self.FIELD_LOOKUP)
 
     def __str__(self):

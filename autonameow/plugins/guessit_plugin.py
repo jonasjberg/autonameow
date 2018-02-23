@@ -39,6 +39,7 @@ from util import mimemagic
 class GuessitPlugin(BasePlugin):
     DISPLAY_NAME = 'Guessit'
     MEOWURI_LEAF = DISPLAY_NAME.lower()
+    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'audio_codec': {
             'coercer': types.AW_STRING,

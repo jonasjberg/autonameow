@@ -65,6 +65,7 @@ PREFERRED_FILENAME_CHAR_SEPARATOR = '_'
 class FilenameAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 1
     HANDLES_MIME_TYPES = ['*/*']
+    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'datetime': {
             'coercer': types.AW_TIMEDATE,

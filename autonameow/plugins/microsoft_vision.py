@@ -148,6 +148,7 @@ class MicrosoftVisionPlugin(BasePlugin):
     """
     DISPLAY_NAME = 'MicrosoftVision'
     MEOWURI_LEAF = DISPLAY_NAME.lower()
+    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'caption': {
             'coercer': types.AW_STRING,

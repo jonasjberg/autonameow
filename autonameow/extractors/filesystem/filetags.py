@@ -51,6 +51,7 @@ FiletagsParts = namedtuple('FiletagsParts',
 class FiletagsExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['*/*']
     IS_SLOW = False
+    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'datetime': {
             'coercer': types.AW_TIMEDATE,

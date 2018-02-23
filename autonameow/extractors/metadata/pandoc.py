@@ -54,6 +54,7 @@ class PandocMetadataExtractor(BaseExtractor):
     ]
     IS_SLOW = False
 
+    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'author': {
             'coercer': types.AW_STRING,
