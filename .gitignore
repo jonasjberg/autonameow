@@ -120,6 +120,7 @@ coverage.xml
 *,cover
 .hypothesis/
 .pytest_cache
+.smother
 
 # Translations
 *.mo
