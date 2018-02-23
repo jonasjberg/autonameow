@@ -33,7 +33,7 @@ from core import (
     interactive,
     logs,
     persistence,
-    provider,
+    master_provider,
     providers,
     repository,
 )
@@ -163,7 +163,7 @@ class Autonameow(object):
 
         self.matcher = RuleMatcher(rules, self.opts.get('list_rulematch'))
 
-        provider.initialize(self.active_config)
+        master_provider.initialize(self.active_config)
 
         self._handle_files(files_to_process)
 
@@ -269,7 +269,7 @@ class Autonameow(object):
 
             if self.opts.get('list_all'):
                 log.debug('Calling provider.delegate_every_possible_meowuri()')
-                provider.delegate_every_possible_meowuri(current_file)
+                master_provider.delegate_every_possible_meowuri(current_file)
 
             try:
                 new_name = context.handle_file(current_file)

@@ -23,7 +23,7 @@ import logging
 
 from core import (
     logs,
-    provider,
+    master_provider,
     repository
 )
 from core.exceptions import (
@@ -144,7 +144,7 @@ def request_global_data(fileobject, uri_string):
 
     # Pass a "tie-breaker" to resolve cases where we only want one item?
     # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-    response = provider.request(fileobject, uri)
+    response = master_provider.request(fileobject, uri)
     if response:
         if isinstance(response, list):
             raise NotImplementedError(
