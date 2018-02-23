@@ -28,6 +28,7 @@ from unittest.mock import (
 from core.logs import (
     deinit_logging,
     init_logging,
+    log_previously_logged_runtimes,
     log_func_runtime,
     log_runtime,
 )
@@ -67,7 +68,7 @@ class TestLogFuncRuntime(TestCase):
         # I.E. when __debug__ == False
         self.assertTrue(__debug__)
 
-    def test_logger_called_at_enter_and_exit(self):
+    def test_logger_called_at_exit(self):
         @log_func_runtime(self.mock_logger)
         def dummy_func():
             pass
@@ -96,6 +97,34 @@ class TestLogFuncRuntime(TestCase):
 
         self.assertIn('dummy_func Completed in 1.000000000 seconds',
                       self.mock_logger.debug.call_args[0][0])
+
+
+class TestLogAllLoggedRuntimes(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # TODO: [cleanup] Do not use global to store logged run-times
+        deinit_logging()
+
+    def setUp(self):
+        opts = dict()
+        init_logging(opts)
+
+    def tearDown(self):
+        deinit_logging()
+
+    def setUp(self):
+        self.mock_logger = Mock()
+
+    def test_nothing_is_logged_when_no_runtimes_have_been_logged(self):
+        log_previously_logged_runtimes(self.mock_logger)
+        self.assertEqual(self.mock_logger.debug.call_count, 0)
+
+    def test_calls_debug_with_one_logged_runtime(self):
+        mock_runtime_logger = Mock()
+        with log_runtime(mock_runtime_logger, 'Foo'):
+            pass
+        log_previously_logged_runtimes(self.mock_logger)
+        self.assertEqual(self.mock_logger.debug.call_count, 1)
 
 
 class TestInitLogging(TestCase):

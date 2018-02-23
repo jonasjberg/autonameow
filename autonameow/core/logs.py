@@ -90,6 +90,11 @@ def init_logging(opts):
         fmt = '%(levelname)s %(message)s'
         logging.basicConfig(level=logging.WARNING, format=fmt)
 
+    # Reset global list of logged run-times.
+    # TODO: [cleanup] Do not use global variable to store logged run-times
+    global global_logged_runtime
+    global_logged_runtime = list()
+
     _logging_initialized = True
 
 
@@ -107,6 +112,11 @@ def deinit_logging():
     # logging.shutdown()
     # importlib.reload(logging)
 
+    # Reset global list of logged run-times.
+    # TODO: [cleanup] Do not use global variable to store logged run-times
+    global global_logged_runtime
+    global_logged_runtime = list()
+
     global _logging_initialized
     _logging_initialized = False
 
@@ -123,8 +133,13 @@ def unsilence():
     logging.disabled = False
 
 
+# TODO: [cleanup] Do not use global variable to store logged run-times
+global_logged_runtime = list()
+
+
 @contextmanager
 def log_runtime(logger, name):
+    global global_logged_runtime
     def _log(message):
         MAX_WIDTH = 120
         message = ' ' + message + ' '
@@ -136,7 +151,9 @@ def log_runtime(logger, name):
         yield
     finally:
         elapsed_time = time.time() - start_time
-        _log('{} Completed in {:.9f} seconds'.format(name, elapsed_time))
+        completed_msg = '{} Completed in {:.9f} seconds'.format(name, elapsed_time)
+        global_logged_runtime.append(completed_msg)
+        _log(completed_msg)
 
 
 def log_func_runtime(logger):
@@ -161,8 +178,17 @@ def log_func_runtime(logger):
             _start_time = time.time()
             func_returnval = func(*args, **kwds)
             _elapsed_time = time.time() - _start_time
-            logger.debug('{}.{} Completed in {:.9f} seconds'.format(
-                func.__module__, func.__name__, _elapsed_time))
+            completed_msg = '{}.{} Completed in {:.9f} seconds'.format(
+                func.__module__, func.__name__, _elapsed_time)
+            global global_logged_runtime
+            global_logged_runtime.append(completed_msg)
+            logger.debug(completed_msg)
             return func_returnval
         return log_runtime_wrapper
     return decorator
+
+
+def log_previously_logged_runtimes(logger):
+    global global_logged_runtime
+    for entry in global_logged_runtime:
+        logger.debug(entry)
