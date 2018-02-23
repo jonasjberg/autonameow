@@ -164,6 +164,26 @@ class MeowURI(object):
     def is_generic(self):
         return self.root == C.MEOWURI_ROOT_GENERIC
 
+    def matches_start(self, item):
+        return self._check_partial_match(item, 'startswith')
+
+    def matches_end(self, item):
+        return self._check_partial_match(item, 'endswith')
+
+    def _check_partial_match(self, item, str_comparison_func):
+        self_str = str(self)
+        self_str_match_func = getattr(self_str, str_comparison_func)
+        assert callable(self_str_match_func)
+
+        if isinstance(item, str):
+            if not item.strip():
+                return False
+            return self_str_match_func(item)
+        elif isinstance(item, (self.__class__, MeowURIRoot, MeowURILeaf)):
+            item_string = str(item)
+            return self_str_match_func(item_string)
+        return False
+
     def __contains__(self, item):
         self_string = str(self)
         if isinstance(item, self.__class__):
