@@ -303,7 +303,7 @@ class RuleConditionEvaluator(object):
         return self._evaluated[rule].get(condition)
 
     def evaluate_rule_conditions(self, rule):
-        log_strprefix = 'Condition '.format(rule.description)
+        log_strprefix = '{!s} :: '.format(rule.description)
 
         for condition in rule.conditions:
             condition_data_uri = condition.meowuri
