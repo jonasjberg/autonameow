@@ -22,7 +22,7 @@
 import logging
 
 from core import (
-    provider,
+    master_provider,
     repository,
     types
 )
@@ -328,7 +328,7 @@ class TemplateFieldDataResolver(object):
 
         # Pass a "tie-breaker" to resolve cases where we only want one item?
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-        response = provider.request(fileobject, meowuri)
+        response = master_provider.request(fileobject, meowuri)
         if response:
             return response
         log.debug('Resolver got no data.. {!s}'.format(response))

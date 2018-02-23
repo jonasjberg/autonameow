@@ -23,7 +23,7 @@ import logging
 from collections import namedtuple
 
 from core import (
-    provider,
+    master_provider,
     view
 )
 from util import sanity
@@ -44,7 +44,7 @@ class RuleMatcher(object):
         sanity.check_isinstance_meowuri(meowuri)
 
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-        response = provider.request(fileobject, meowuri)
+        response = master_provider.request(fileobject, meowuri)
         if response:
             if isinstance(response, list):
                 raise NotImplementedError(
