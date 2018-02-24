@@ -505,10 +505,12 @@ class TestAutonameowWrapper(TestCase):
 
 class TestAutonameowWrapperWithDefaultOptions(TestCase):
     @classmethod
+    @patch('core.autonameow.master_provider', MagicMock())
     def setUpClass(cls):
         cls.aw = AutonameowWrapper()
         cls.aw()
 
+    @patch('core.autonameow.master_provider', MagicMock())
     def test_exitcode_is_exit_success(self):
         actual = self.aw.captured_exitcode
         self.assertEqual(actual, C.EXIT_SUCCESS)
