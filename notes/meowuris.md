@@ -69,8 +69,6 @@ __Plugins__ store data with the prefix `plugin`;
 ```
 plugin.microsoft_vision.caption
 plugin.microsoft_vision.tags
-plugin.guessit.date
-plugin.guessit.title
 ```
 
 
@@ -404,7 +402,7 @@ These are all title-related MeowURIs:
 ```
 (generic.metadata.title)
 analyzer.document.title
-plugin.guessit.title
+extractor.filesystem.guessit.title
 extractor.metadata.exiftool.PDF:Title
 extractor.metadata.exiftool.RTF:Title
 extractor.metadata.exiftool.XMP:EntryTitle
@@ -446,7 +444,7 @@ As a table:
 
 (generic.metadata.title)
 analyzer.document.title
-plugin.guessit.title
+extractor.filesystem.guessit.title
 
 extractor.metadata.exiftool.PDF:Title
 extractor.metadata.exiftool.RTF:Title

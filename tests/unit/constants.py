@@ -100,9 +100,9 @@ MEOWURI_EXT_EXIFTOOL_XMPDCTITLE = 'extractor.metadata.exiftool.XMP-dc:Title'
 MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE = 'extractor.metadata.exiftool.QuickTime:CreationDate'
 
 MEOWURI_PLU_MSVISION_CAPTION = 'plugin.microsoft_vision.caption'
-MEOWURI_PLU_GUESSIT_DATE = 'plugin.guessit.date'
-MEOWURI_PLU_GUESSIT_TITLE = 'plugin.guessit.title'
-MEOWURI_PLU_GUESSIT_TYPE = 'plugin.guessit.type'
+MEOWURI_EXT_GUESSIT_DATE = 'extractor.filesystem.guessit.date'
+MEOWURI_EXT_GUESSIT_TITLE = 'extractor.filesystem.guessit.title'
+MEOWURI_EXT_GUESSIT_TYPE = 'extractor.filesystem.guessit.type'
 
 
 ALL_FULL_MEOWURIS = frozenset([
@@ -144,9 +144,9 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER,
     MEOWURI_EXT_EXIFTOOL_XMPDCTITLE,
     MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE,
-    MEOWURI_PLU_GUESSIT_DATE,
-    MEOWURI_PLU_GUESSIT_TITLE,
-    MEOWURI_PLU_GUESSIT_TYPE,
+    MEOWURI_EXT_GUESSIT_DATE,
+    MEOWURI_EXT_GUESSIT_TITLE,
+    MEOWURI_EXT_GUESSIT_TYPE,
     MEOWURI_PLU_MSVISION_CAPTION,
 ])
 
@@ -226,12 +226,12 @@ DUMMY_MAPPED_MEOWURIS = list({
     'analyzer.filename',
     # 'analyzer.filetags',  This is an extractor now
     'extractor.filesystem.xplat',
+    'extractor.filesystem.guessit',
     'extractor.metadata.exiftool',
     'extractor.metadata.jpeginfo',
     'extractor.text.pdf',
     'extractor.text.plain',
     'extractor.text.tesseractocr',
-    'plugin.guessit',
 })
 
 

@@ -19,39 +19,32 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from unittest import TestCase, skipIf
 
-try:
-    import guessit
-except ImportError:
-    GUESSIT_IS_NOT_AVAILABLE = True, 'Missing (optional..) required module "guessit"'
-else:
-    GUESSIT_IS_NOT_AVAILABLE = False, ''
-
 import unit.utils as uu
-from plugins.guessit_plugin import (
-    GuessitPlugin,
+from extractors.filesystem.guessit import (
+    GuessitExtractor,
     run_guessit
+)
+from unit.case_extractors import (
+    CaseExtractorBasics,
+    CaseExtractorOutput
 )
 
 
-class TestGuessitPlugin(TestCase):
-    def test_guessit_plugin_class_can_be_instantiated(self):
-        plugin_instance = GuessitPlugin()
-        self.assertIsNotNone(plugin_instance)
-
-    def test_test_init_returns_true_if_guessit_is_available(self):
-        plugin_instance = GuessitPlugin()
-
-        guessit_available = uu.is_importable('guessit')
-        if guessit_available:
-            self.assertTrue(plugin_instance.test_init())
-        else:
-            self.assertFalse(plugin_instance.test_init())
+UNMET_DEPENDENCIES = (
+    GuessitExtractor.check_dependencies() is False,
+    'Extractor dependencies ("guessit") are not available'
+)
 
 
-@skipIf(*GUESSIT_IS_NOT_AVAILABLE)
+@skipIf(*UNMET_DEPENDENCIES)
+class TestGuessitExtractor(CaseExtractorBasics, TestCase):
+    EXTRACTOR_CLASS = GuessitExtractor
+    EXTRACTOR_NAME = 'GuessitExtractor'
+
+
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRunGuessit(TestCase):
     def test_run_guessit_no_options_returns_expected_type(self):
         actual = run_guessit('foo', options=None)
@@ -62,7 +55,16 @@ class TestRunGuessit(TestCase):
         self.assertIsInstance(actual, dict)
 
 
-@skipIf(*GUESSIT_IS_NOT_AVAILABLE)
+@skipIf(*UNMET_DEPENDENCIES)
+class TestGuessitExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
+    EXTRACTOR_CLASS = GuessitExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_mp4.mp4')
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('title', str, 'magic'),
+    ]
+
+
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRunGuessitWithDummyData(TestCase):
     def setUp(self):
         # NOTE: Below file name was copied from the guessit tests.

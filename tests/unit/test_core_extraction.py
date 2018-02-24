@@ -67,7 +67,7 @@ class TestFilterAbleToHandle(TestCase):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='video/mp4'),
             expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
-            if_available=['ExiftoolMetadataExtractor']
+            if_available=['ExiftoolMetadataExtractor', 'GuessitExtractor']
         )
 
     def test_returns_expected_extractors_for_png_image_file(self):

@@ -22,7 +22,7 @@
 from unittest import TestCase, skipIf
 
 try:
-    import guessit
+    import unidecode
 except ImportError:
     UNIDECODE_IS_NOT_AVAILABLE = True, 'Missing required module "unidecode"'
 else:
