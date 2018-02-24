@@ -26,25 +26,23 @@ try:
 except ImportError:
     guessit = None
 
-from core import (
-    exceptions,
-    types,
-)
+from core import types
 from core.model import WeightedMapping
 from core.namebuilder import fields
-from plugins import BasePlugin
+from extractors import (
+    BaseExtractor,
+    ExtractorError
+)
 from util import mimemagic
 
 
-class GuessitPlugin(BasePlugin):
-    DISPLAY_NAME = 'Guessit'
-    MEOWURI_LEAF = DISPLAY_NAME.lower()
+class GuessitExtractor(BaseExtractor):
+    HANDLES_MIME_TYPES = ['video/*']
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'audio_codec': {
             'coercer': types.AW_STRING,
             'mapped_fields': [],
-            'generic_field': None
         },
         'date': {
             'coercer': types.AW_TIMEDATE,
@@ -56,13 +54,9 @@ class GuessitPlugin(BasePlugin):
         },
         'episode': {
             'coercer': types.AW_INTEGER,
-            'mapped_fields': [],
-            'generic_field': None
         },
         'format': {
             'coercer': types.AW_STRING,
-            'mapped_fields': [],
-            'generic_field': None
         },
         'release_group': {
             'coercer': types.AW_STRING,
@@ -73,13 +67,9 @@ class GuessitPlugin(BasePlugin):
         },
         'screen_size': {
             'coercer': types.AW_STRING,
-            'mapped_fields': [],
-            'generic_field': None
         },
         'season': {
             'coercer': types.AW_INTEGER,
-            'mapped_fields': [],
-            'generic_field': None
         },
         'title': {
             'coercer': types.AW_STRING,
@@ -89,13 +79,12 @@ class GuessitPlugin(BasePlugin):
         },
         'type': {
             'coercer': types.AW_STRING,
-            'mapped_fields': [],
-            'generic_field': None
+            'mapped_fields': [
+                WeightedMapping(fields.Tags, probability=0.5),
+            ]
         },
         'video_codec': {
             'coercer': types.AW_STRING,
-            'mapped_fields': [],
-            'generic_field': None
         },
         'year': {
             'coercer': types.AW_DATE,
@@ -107,16 +96,22 @@ class GuessitPlugin(BasePlugin):
     }
 
     def __init__(self):
-        super().__init__(self.DISPLAY_NAME)
+        super().__init__()
 
-    def execute(self, fileobject):
-        _file_basename = fileobject.filename
-        if _file_basename is None:
-            raise exceptions.AutonameowPluginError('Required data unavailable')
+    def extract(self, fileobject, **kwargs):
+        file_basename = fileobject.filename
+        if not file_basename:
+            self.log.debug(
+                '{!s} aborting --- file basename is not available'.format(self)
+            )
+            return
 
-        data = run_guessit(_file_basename)
+        data = run_guessit(file_basename)
         if not data:
-            raise exceptions.AutonameowPluginError('Got no data from "guessit"')
+            self.log.debug(
+                '{!s} aborting --- got not data from guessit'.format(self)
+            )
+            return
 
         _results = dict()
         for field, value in data.items():
@@ -126,11 +121,12 @@ class GuessitPlugin(BasePlugin):
 
         return _results
 
-    def can_handle(self, fileobject):
+    @classmethod
+    def can_handle(cls, fileobject):
         return mimemagic.eval_glob(fileobject.mime_type, 'video/*')
 
     @classmethod
-    def test_init(cls):
+    def check_dependencies(cls):
         return guessit is not None
 
 
@@ -150,7 +146,9 @@ def run_guessit(input_data, options=None):
         result = guessit.guessit(input_data, guessit_options)
     except (guessit.api.GuessitException, Exception) as e:
         logging.disable(logging.NOTSET)
-        raise exceptions.AutonameowPluginError(e)
+        raise ExtractorError(e)
     else:
-        logging.disable(logging.NOTSET)
         return result
+    finally:
+        # TODO: Reset logging to state before disabling DEBUG!
+        logging.disable(logging.NOTSET)

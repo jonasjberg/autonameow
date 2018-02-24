@@ -85,7 +85,5 @@ class TestPluginClassMeowURIs(TestCase):
             if klass in self.plugin_class_names:
                 self.assertIn(member, self.actual)
 
-        _conditional_assert_in('GuessitPlugin',
-                               'plugin.guessit')
         _conditional_assert_in('MicrosoftVision',
                                'plugin.microsoftvision')

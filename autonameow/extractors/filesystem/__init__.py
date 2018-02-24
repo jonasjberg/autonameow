@@ -21,3 +21,4 @@
 
 from .crossplatform import CrossPlatformFileSystemExtractor
 from .filetags import FiletagsExtractor
+from .guessit import GuessitExtractor

@@ -4,7 +4,7 @@ stdout:
     - 'analyzer.document'
     - 'analyzer.ebook'
     - 'analyzer.filename'
-    - 'plugin.guessit'
+    - 'extractor.filesystem.guessit'
     - 'extractor.filesystem.filetags'
     - 'extractor.filesystem.xplat'
     - 'extractor.metadata.exiftool'

@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 
 
 class BasePlugin(object):
-    # Last part of the full MeowURI ('guessit', 'microsoft_vision', ..)
+    # Last part of the full MeowURI ('microsoft_vision', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
     # Set at first call to 'meowuri_prefix()'.

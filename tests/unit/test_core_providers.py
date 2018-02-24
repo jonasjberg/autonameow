@@ -59,19 +59,15 @@ class TestGetProvidersForMeowURIs(TestCase):
             uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE),
         ]
         cls._meowuris_guessit = [
-            uu.as_meowuri('plugin.guessit.date'),
-            uu.as_meowuri('plugin.guessit.title'),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_GUESSIT_DATE),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_GUESSIT_TITLE),
         ]
-        cls._extractor_meowuris = (cls._meowuris_filesystem
-                                   + cls._meowuris_exiftool)
-        cls._plugin_meowuris = cls._meowuris_guessit
         cls._all_meowuris = (cls._meowuris_filetags + cls._meowuris_filesystem
                              + cls._meowuris_exiftool + cls._meowuris_guessit)
-
         uu.init_provider_registry()
 
     def _assert_maps(self, actual_sources, expected_providers):
-        self.assertEqual(len(actual_sources), len(expected_providers))
+        self.assertEqual(len(expected_providers), len(actual_sources))
         for s in actual_sources:
             self.assertTrue(uu.is_class(s))
             self.assertIn(s.__name__, expected_providers)
@@ -109,7 +105,7 @@ class TestGetProvidersForMeowURIs(TestCase):
     def test_returns_expected_source_guessit(self):
         # TODO: This should not depend on actually having the (OPTIONAL) 'guessit' dependency installed!
         actual = get_providers_for_meowuris(self._meowuris_guessit)
-        self._assert_maps(actual, ['GuessitPlugin'])
+        self._assert_maps(actual, ['GuessitExtractor'])
 
     def test_returns_expected_providers(self):
         # TODO: This should not depend on actually having the (OPTIONAL) 'guessit' dependency installed!
@@ -118,7 +114,7 @@ class TestGetProvidersForMeowURIs(TestCase):
         self._assert_maps(actual, ['CrossPlatformFileSystemExtractor',
                                    'ExiftoolMetadataExtractor',
                                    'FiletagsExtractor',
-                                   'GuessitPlugin'])
+                                   'GuessitExtractor'])
 
     def test_returns_included_sources_analyzers(self):
         actual = get_providers_for_meowuris(
@@ -132,14 +128,8 @@ class TestGetProvidersForMeowURIs(TestCase):
         )
         self._assert_maps(actual, ['CrossPlatformFileSystemExtractor',
                                    'ExiftoolMetadataExtractor',
+                                   'GuessitExtractor',
                                    'FiletagsExtractor'])
-
-    def test_returns_included_sources_plugins(self):
-        # TODO: This should not depend on actually having the (OPTIONAL) 'guessit' dependency installed!
-        actual = get_providers_for_meowuris(
-            self._all_meowuris, include_roots=['plugin']
-        )
-        self._assert_maps(actual, ['GuessitPlugin'])
 
 
 class TestMapMeowURItoSourceClass(TestCase):
@@ -297,6 +287,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         expected = [
             'CrossPlatformFileSystemExtractor',
             'FiletagsExtractor',
+            'GuessitExtractor',
             'ExiftoolMetadataExtractor',
             'PandocMetadataExtractor'
         ]
@@ -315,14 +306,6 @@ class TestMapMeowURItoSourceClass(TestCase):
     #                 'FiletagsExtractor']
     #     self._check_returned_providers(actual, expected)
 
-    # def test_maps_generic_meowuri_datecreated_to_expected_plugins(self):
-    #     meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_DATECREATED)
-    #     actual = self.registry.providers_for_meowuri(
-    #         meowuri, includes=['plugin']
-    #     )
-    #     expected = ['GuessitPlugin']
-    #     self._check_returned_providers(actual, expected)
-
     # def test_maps_generic_meowuri_datecreated_to_expected_providers(self):
     #     meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_DATECREATED)
     #     actual = self.registry.providers_for_meowuri(
@@ -334,7 +317,7 @@ class TestMapMeowURItoSourceClass(TestCase):
     #                 'EbookAnalyzer',
     #                 'FilenameAnalyzer',
     #                 'FiletagsExtractor',
-    #                 'GuessitPlugin']
+    #                 'GuessitExtractor']
     #     self._check_returned_providers(actual, expected)
 
 
@@ -348,11 +331,11 @@ class TestProviderRegistryMightBeResolvable(TestCase):
                 uu.as_meowuri('analyzer.filename'): mock_provider
             },
             'plugin': {
-                uu.as_meowuri('plugin.guessit'): mock_provider
             },
             'extractor': {
                 uu.as_meowuri('extractor.metadata.exiftool'): mock_provider,
-                uu.as_meowuri('extractor.filesystem.xplat'): mock_provider
+                uu.as_meowuri('extractor.filesystem.xplat'): mock_provider,
+                uu.as_meowuri('extractor.filesystem.guessit'): mock_provider,
             }
         }
         cls.p = ProviderRegistry(meowuri_source_map=dummy_source_map)
@@ -403,16 +386,13 @@ class TestProviderRegistryMightBeResolvable(TestCase):
         mock_provider = Mock()
         mock_provider.FIELD_LOOKUP = dict()
         dummy_source_map = {
-            'plugin': {
-                uu.as_meowuri('plugin.guessit'): mock_provider
+            'extractor': {
+                uu.as_meowuri('extractor.filesystem.guessit'): mock_provider
             }
         }
         p = ProviderRegistry(meowuri_source_map=dummy_source_map)
 
-        # Patch the instance attribute.
-        # p.mapped_meowuris = {'plugin.guessit'}
-
-        uri_guessit = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_DATE)
+        uri_guessit = uu.as_meowuri(uuconst.MEOWURI_EXT_GUESSIT_DATE)
         self.assertTrue(p.might_be_resolvable(uri_guessit))
 
         uri_exiftool = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE)
@@ -422,9 +402,9 @@ class TestProviderRegistryMightBeResolvable(TestCase):
         self.assertFalse(p.might_be_resolvable(uri_filesystem))
 
     def test_with_meowuri_and_three_mapped_meowuris(self):
-        meowuri_guessit_a = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_DATE)
-        meowuri_guessit_b = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_TYPE)
-        meowuri_guessit_c = uu.as_meowuri(uuconst.MEOWURI_PLU_GUESSIT_TITLE)
+        meowuri_guessit_a = uu.as_meowuri(uuconst.MEOWURI_EXT_GUESSIT_DATE)
+        meowuri_guessit_b = uu.as_meowuri(uuconst.MEOWURI_EXT_GUESSIT_TYPE)
+        meowuri_guessit_c = uu.as_meowuri(uuconst.MEOWURI_EXT_GUESSIT_TITLE)
         self.assertTrue(self.p.might_be_resolvable(meowuri_guessit_a))
         self.assertTrue(self.p.might_be_resolvable(meowuri_guessit_b))
         self.assertTrue(self.p.might_be_resolvable(meowuri_guessit_c))
