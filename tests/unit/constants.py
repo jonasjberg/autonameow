@@ -99,7 +99,6 @@ MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER = 'extractor.metadata.exiftool.XMP-dc:Publis
 MEOWURI_EXT_EXIFTOOL_XMPDCTITLE = 'extractor.metadata.exiftool.XMP-dc:Title'
 MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE = 'extractor.metadata.exiftool.QuickTime:CreationDate'
 
-MEOWURI_PLU_MSVISION_CAPTION = 'plugin.microsoft_vision.caption'
 MEOWURI_EXT_GUESSIT_DATE = 'extractor.filesystem.guessit.date'
 MEOWURI_EXT_GUESSIT_TITLE = 'extractor.filesystem.guessit.title'
 MEOWURI_EXT_GUESSIT_TYPE = 'extractor.filesystem.guessit.type'
@@ -147,7 +146,6 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_EXT_GUESSIT_DATE,
     MEOWURI_EXT_GUESSIT_TITLE,
     MEOWURI_EXT_GUESSIT_TYPE,
-    MEOWURI_PLU_MSVISION_CAPTION,
 ])
 
 # Collected 2018-02-03 when running autonameow on all files in 'test_files'.
@@ -215,8 +213,6 @@ DUMPED_MEOWURIS = frozenset([
     'generic.metadata.subject',
     'generic.metadata.tags',
     'generic.metadata.title',
-    'plugin.microsoft_vision.caption',
-    'plugin.microsoft_vision.tags'
 ])
 
 
@@ -265,7 +261,6 @@ DUMMY_RAW_RULE_DATA_SOURCES = [
 
     # Part of Rule 2
     {'datetime': MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
-     'description': MEOWURI_PLU_MSVISION_CAPTION,
      'extension': MEOWURI_FS_XPLAT_EXTENSION},
 
     # Part of Rule 3
@@ -273,7 +268,6 @@ DUMMY_RAW_RULE_DATA_SOURCES = [
         MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE,
         MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL
      ],
-     'description': MEOWURI_PLU_MSVISION_CAPTION,
      'extension': MEOWURI_FS_XPLAT_EXTENSION},
 
     # Part of Rule 4

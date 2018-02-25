@@ -38,7 +38,7 @@ RULES:
             extractor.filesystem.xplat.mime_type: image/jpeg
         DATA_SOURCES:
             datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
-            description: plugin.microsoft_vision.caption
+            description: extractor.filesystem.filetags.description
             extension: extractor.filesystem.xplat.extension
         NAME_TEMPLATE: '{datetime} {description}.{extension}'
         description: 
