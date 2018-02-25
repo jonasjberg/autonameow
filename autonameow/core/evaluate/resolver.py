@@ -22,6 +22,7 @@
 import logging
 
 from core import (
+    logs,
     master_provider,
     repository,
     types
@@ -110,8 +111,9 @@ class TemplateFieldDataResolver(object):
         return [f for f in self._fields if f not in self.fields_data.keys()]
 
     def collect(self):
-        self._gather_data()
-        self._verify_types()
+        with logs.log_runtime(log, '{!s}.collect()'.format(self)):
+            self._gather_data()
+            self._verify_types()
 
     def collected_all(self):
         if not self.fields_data:
@@ -271,8 +273,6 @@ class TemplateFieldDataResolver(object):
     def _verify_types(self):
         for field, databundle in self.fields_data.items():
             assert isinstance(databundle, DataBundle)
-            log.debug('Verifying data for field {{{!s}}} :: {!s}'.format(
-                field.as_placeholder(), databundle))
             self._verify_type(field, databundle)
 
         # Remove data type is incompatible with associated field.
@@ -283,7 +283,8 @@ class TemplateFieldDataResolver(object):
                 self.fields_data.pop(field)
 
     def _verify_type(self, field, databundle):
-        log.debug('Verifying type of field {{{!s}}} data :: {!s}'.format(field, databundle))
+        log.debug('Verifying type of field {{{!s}}} with data :: {!s}'.format(
+            field.as_placeholder(), databundle.value))
         if field.type_compatible(databundle.coercer):
             log.debug('Field-Data type compatible')
         else:
