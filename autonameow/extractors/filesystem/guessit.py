@@ -122,10 +122,6 @@ class GuessitExtractor(BaseExtractor):
         return _results
 
     @classmethod
-    def can_handle(cls, fileobject):
-        return mimemagic.eval_glob(fileobject.mime_type, 'video/*')
-
-    @classmethod
     def check_dependencies(cls):
         return guessit is not None
 
