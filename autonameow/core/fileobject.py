@@ -28,7 +28,6 @@ from util import encoding as enc
 from util import (
     disk,
     mimemagic,
-    partial_sha256digest,
     sanity
 )
 
@@ -101,6 +100,7 @@ class FileObject(object):
 
     def _get_hash_partial(self):
         # Raises FilesystemError for any "real" errors.
+        from util import partial_sha256digest
         return partial_sha256digest(self.abspath)
 
     def __str__(self):
