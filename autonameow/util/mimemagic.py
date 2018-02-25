@@ -31,6 +31,7 @@ except ImportError:
     )
 
 from core import types
+from core.exceptions import AutonameowException
 from util import sanity
 
 
@@ -47,11 +48,7 @@ def _build_magic():
        module and get an error using a method like open, your code is
        expecting the other one."
 
-    http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
-      "The following code allows the rest of the script to work the same
-       way with either version of 'magic'"
-
-    TODO: Seems like this is the version currently in use? (on MacOS)
+    NOTE: (MacOS) Seems like this is the version currently in use?
           https://pypi.python.org/pypi/file-magic/0.3.0
           https://github.com/file/file
 
@@ -59,17 +56,65 @@ def _build_magic():
           $ brew install libmagic
           $ pip3 install file-magic
 
-    Returns:
-        An instance of 'magic' as type 'Magic'.
-    """
-    # pylint: disable=unexpected-keyword-arg,no-value-for-parameter,no-member
-    try:
-        _magic = magic.open(magic.MAGIC_MIME_TYPE)
-        _magic.load()
-    except AttributeError:
-        _magic = magic.Magic(mime=True)
-        _magic.file = _magic.from_file
+    NOTE: (Linux) Simplest to install 'python3-magic' from the repositories.
+          For Debian-likes using apt:  'apt install python3-magic'
 
+    Returns:
+        Callable the returns a MIME-type read from magic header bytes of the
+        given file.
+    """
+    # Attempt to detect which of three 'magic' implementations that was
+    # imported and return a function that is roughly equivalent to running
+    # 'file --mime-type' on POSIX systems.
+    #
+    # Based off of this:
+    # https://github.com/androguard/androguard/blob/2e1f04350bcb38a3acf796f8f8829d816b38fe21/androguard/core/bytecodes/apk.py#L380
+    #
+    # Documentation for the various magics:
+    # 'filemagic'       https://pypi.python.org/pypi/filemagic
+    # 'file-magic'      https://github.com/file/file/tree/master/python
+    # 'python-magic'    https://github.com/ahupp/python-magic
+    #
+    # pylint: disable=unexpected-keyword-arg,no-value-for-parameter,no-member
+    _magic = None
+    try:
+        # Test if loaded magic is the 'python-magic' package.
+        getattr(magic, 'MagicException')
+    except AttributeError:
+        try:
+            # Test if loaded magic is the 'filemagic' package.
+            getattr(magic.Magic, 'id_buffer')
+        except AttributeError:
+            # Load the 'file-magic' package.
+            # https://github.com/file/file/tree/master/python
+            ms = magic.open(magic.MAGIC_MIME_TYPE)
+            ms.load()
+            _magic = ms.file
+        else:
+            # Now using the 'filemagic' package.
+            # To identify with mime type, rather than a textual description,
+            # pass the magic.MAGIC_MIME_TYPE flag when creating the magic.Magic
+            # instance.
+            _magic = magic.Magic(flags=magic.MAGIC_MIME_TYPE)
+            _magic = m.id_filename
+    else:
+        # Now using the 'python-magic' package.
+        #
+        # There is also a Magic class that provides more direct control,
+        # including overriding the magic database file and turning on character
+        # encoding detection. This is not recommended for general use.
+        # In particular, it's not safe for sharing across multiple threads and
+        # will fail throw if this is # attempted.
+        # https://github.com/ahupp/python-magic
+        #
+        # NOTE(jonas): Might cause problems later on, if using threading!
+        m = magic.Magic(mime=True, uncompress=False)
+        _magic = m.from_file
+
+    if _magic is None:
+        raise AutonameowException(
+            'Unable to build a magic function in "mimemagic.py" ..'
+        )
     return _magic
 
 
@@ -99,7 +144,7 @@ def filetype(file_path):
         MY_MAGIC = _build_magic()
 
     try:
-        found_type = MY_MAGIC.file(file_path)
+        found_type = MY_MAGIC(file_path)
     except (AttributeError, TypeError):
         # TODO: Fix 'magic.MagicException' not available in both libraries.
         found_type = _unknown_mime_type
