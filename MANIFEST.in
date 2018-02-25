@@ -3,3 +3,4 @@ include LICENSE.txt
 include README.md
 include autonameow/extractors/metadata/pandoc_template.plain
 include autonameow/util/mimemagic.mappings
+include autonameow/util/mimemagic.preferred
