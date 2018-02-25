@@ -78,6 +78,14 @@ check_git_ls_files_does_not_match 'docs/test_results'
 
 # ______________________________________________________________________________
 #
+# Make sure that data files are available.
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.mappings" e f r
+
+
+
+# ______________________________________________________________________________
+#
 # Check TODO-list identifiers with stand-alone TODO-list utility script.
 
 _todo_helper_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/todo_id.py"
