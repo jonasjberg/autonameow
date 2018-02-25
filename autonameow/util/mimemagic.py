@@ -21,6 +21,7 @@
 
 import logging
 import mimetypes
+import os
 
 from core import types
 from core.exceptions import AutonameowException
@@ -28,6 +29,10 @@ from util import sanity
 
 
 log = logging.getLogger(__name__)
+
+
+# File in this directory with mappings between MIME-types and extensions.
+MIMEMAGIC_MAPPINGS_BASENAME = 'mimemagic.mappings'
 
 
 def _build_magic():
@@ -355,39 +360,38 @@ else:
         MAPPER.add_mapping(_mime, _ext)
 
 
-# Any custom "extension to MIME-type"-mappings goes here.
-MAPPER.add_mapping('application/epub+zip', 'epub')
-MAPPER.add_mapping('application/gzip', 'gz')
-MAPPER.add_mapping('application/gzip', 'tar.gz')
-MAPPER.add_mapping('application/octet-stream', 'bin')
-MAPPER.add_mapping('application/rar', 'rar')
-MAPPER.add_mapping('application/rtf', 'rtf')
-MAPPER.add_mapping('application/vnd.oasis.opendocument.presentation', 'odp')
-MAPPER.add_mapping('application/vnd.oasis.opendocument.text', 'odt')
-MAPPER.add_mapping('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx')
-MAPPER.add_mapping('application/x-7z-compressed', '7z')
-MAPPER.add_mapping('application/x-bzip2', 'bz2')
-MAPPER.add_mapping('application/x-gzip', 'gz')
-MAPPER.add_mapping('application/x-gzip', 'tgz')
-MAPPER.add_mapping('application/x-gzip', 'tar.gz')
-MAPPER.add_mapping('application/x-lzma', 'lzma')
-MAPPER.add_mapping('application/x-lzma', 'tar.lzma')
-MAPPER.add_mapping('application/x-rar', 'rar')
-MAPPER.add_mapping('application/x-tex', 'tex')
-MAPPER.add_mapping('audio/midi', 'mid')
-MAPPER.add_mapping('audio/x-flac', 'flac')
-MAPPER.add_mapping('image/vnd.djvu', 'djvu')
-MAPPER.add_mapping('inode/x-empty', '')
-MAPPER.add_mapping('text/rtf', 'rtf')
-MAPPER.add_mapping('text/x-asm', 'asm')
-MAPPER.add_mapping('text/x-c', 'c')
-MAPPER.add_mapping('text/x-c++', 'cpp')
-MAPPER.add_mapping('text/x-env', 'sh')
-MAPPER.add_mapping('text/x-sh', 'sh')
-MAPPER.add_mapping('text/x-shellscript', 'sh')
-MAPPER.add_mapping('text/x-shellscript', 'bash')
-MAPPER.add_mapping('text/x-tex', 'tex')
-MAPPER.add_mapping('video/x-matroska', 'mkv')
+def _load_mimemagic_mappings():
+    """
+    Load MIME-type to extension mappings from external file.
+
+    Each line should contain a MIME-type and a extension, separated by a colon.
+    Any whitespace is ignored, as well as any initial period in the extension.
+    Lines beginning with a hash ('#') are also ignored.
+    """
+    mapfile = os.path.realpath(os.path.join(
+        os.path.dirname(__file__), MIMEMAGIC_MAPPINGS_BASENAME
+    ))
+    try:
+        with open(mapfile, 'r') as fh:
+            lines = fh.readlines()
+    except OSError:
+        return
+
+    for n, line in enumerate(lines, start=1):
+        if line.startswith('#'):
+            continue
+        try:
+            mime_type, extension = line.strip().split(':')
+        except ValueError:
+            log.error('Error parsing "{!s}" line {}'.format(mapfile, n))
+        else:
+            mime_type = mime_type.strip()
+            extension = extension.strip().lstrip('.')
+            MAPPER.add_mapping(mime_type, extension)
+
+
+# Load any custom "extension to MIME-type"-mappings.
+_load_mimemagic_mappings()
 
 # Any custom overrides of the "extension to MIME-type"-mapping goes here.
 MAPPER.add_preferred_extension('image/jpeg', 'jpg')
