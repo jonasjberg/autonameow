@@ -496,6 +496,8 @@ class ISBNMetadata(object):
 
     @authors.setter
     def authors(self, value):
+        # TODO: [TD0179] Handle malformed entries like ['Michael Dory, Adam Parrish, and Brendan Berg']
+        # TODO: [TD0179] Handle malformed entries like ['Micha Gorelick, Andy R. Terrel']
         if not value:
             return
 
