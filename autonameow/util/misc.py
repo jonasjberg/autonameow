@@ -39,7 +39,6 @@ except ImportError:
     )
 
 from core import constants as C
-from core import types
 
 __all__ = [
     'dump',
@@ -398,6 +397,7 @@ def git_commit_hash():
         # NOTE(jonas): git returns 128 for the "fatal: Not a git repository.."
         # error. Substring matching is redundant but probably won't hurt either.
         if process.returncode == 0:
+            from core import types
             string = types.force_string(stdout).strip()
             if string and 'fatal: Not a git repository' not in string:
                 return string
