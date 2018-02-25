@@ -363,16 +363,23 @@ else:
         MAPPER.add_mapping(_mime, _ext)
 
 
-def _load_mimemagic_mappings():
+def _read_mimetype_extension_mapping_file(mapfile_basename, callback):
     """
     Load MIME-type to extension mappings from external file.
 
     Each line should contain a MIME-type and a extension, separated by a colon.
     Any whitespace is ignored, as well as any initial period in the extension.
     Lines beginning with a hash ('#') are also ignored.
+
+    Args:
+        mapfile_basename: Basename of the file in this directory to read.
+        callback: Called with the MIME-type and extension, once per line.
+
+    Returns:
+        All MIME-types mapped to the given extension, as a list of strings.
     """
     mapfile = os.path.realpath(os.path.join(
-        os.path.dirname(__file__), MIMEMAGIC_MAPPINGS_BASENAME
+        os.path.dirname(__file__), mapfile_basename
     ))
     try:
         with open(mapfile, 'r') as fh:
@@ -390,37 +397,24 @@ def _load_mimemagic_mappings():
         else:
             mime_type = mime_type.strip()
             extension = extension.strip().lstrip('.')
-            MAPPER.add_mapping(mime_type, extension)
+            callback(mime_type, extension)
+
+
+def _load_mimemagic_mappings():
+    """
+    Load MIME-type to extension mappings from external file.
+    """
+    _read_mimetype_extension_mapping_file(MIMEMAGIC_MAPPINGS_BASENAME,
+                                          MAPPER.add_mapping)
 
 
 def _load_mimemagic_mapping_overrides():
     """
     Load MIME-type to extension mapping overrides from external file.
-
-    Each line should contain a MIME-type and a extension, separated by a colon.
-    Any whitespace is ignored, as well as any initial period in the extension.
-    Lines beginning with a hash ('#') are also ignored.
+    These are the "preferred" extensions for any given MIME-type.
     """
-    mapfile = os.path.realpath(os.path.join(
-        os.path.dirname(__file__), MIMEMAGIC_PREFERRED_BASENAME
-    ))
-    try:
-        with open(mapfile, 'r') as fh:
-            lines = fh.readlines()
-    except OSError:
-        return
-
-    for n, line in enumerate(lines, start=1):
-        if line.startswith('#'):
-            continue
-        try:
-            mime_type, extension = line.strip().split(':')
-        except ValueError:
-            log.error('Error parsing "{!s}" line {}'.format(mapfile, n))
-        else:
-            mime_type = mime_type.strip()
-            extension = extension.strip().lstrip('.')
-            MAPPER.add_preferred_extension(mime_type, extension)
+    _read_mimetype_extension_mapping_file(MIMEMAGIC_PREFERRED_BASENAME,
+                                          MAPPER.add_preferred_extension)
 
 
 # Load any custom "extension to MIME-type"-mappings.
