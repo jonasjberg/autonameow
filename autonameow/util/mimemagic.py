@@ -143,9 +143,9 @@ def filetype(file_path):
         The MIME type of the file at the given path ('application/pdf') or
         an instance of 'NullMIMEType' if the MIME type can not be determined.
     """
-    _unknown_mime_type = types.NullMIMEType()
+    unknown_mime_type = types.NullMIMEType()
     if not file_path:
-        return _unknown_mime_type
+        return unknown_mime_type
 
     global MY_MAGIC
     if MY_MAGIC is None:
@@ -155,7 +155,7 @@ def filetype(file_path):
         found_type = MY_MAGIC(file_path)
     except (AttributeError, TypeError):
         # TODO: Fix 'magic.MagicException' not available in both libraries.
-        found_type = _unknown_mime_type
+        found_type = unknown_mime_type
 
     return found_type
 
@@ -285,18 +285,18 @@ class MimeExtensionMapper(object):
         Returns:
             All MIME-types mapped to the given extension, as a list of strings.
         """
-        _candidates = self._ext_to_mime.get(extension)
-        if not _candidates:
+        candidates = self._ext_to_mime.get(extension)
+        if not candidates:
             return []
 
         # NOTE(jonas): Sorting criteria pretty much arbitrarily chosen.
         #              Gives more consistent results, which helps with testing.
-        _sorted_candidates = sorted(
-            list(_candidates),
+        sorted_candidates = sorted(
+            list(candidates),
             key=lambda x: ('x-' not in x, 'text' in x, len(x)),
             reverse=True
         )
-        return _sorted_candidates
+        return sorted_candidates
 
     def get_mimetype(self, extension):
         """
@@ -311,9 +311,9 @@ class MimeExtensionMapper(object):
             An instance of 'NullMIMEType' is returned if no MIME-type is found.
         """
         if extension and extension.strip():
-            _candidates = self.get_candidate_mimetypes(extension)
-            if _candidates:
-                return _candidates[0]
+            candidates = self.get_candidate_mimetypes(extension)
+            if candidates:
+                return candidates[0]
 
         return types.NullMIMEType()
 
@@ -321,29 +321,29 @@ class MimeExtensionMapper(object):
         """
         Returns a list of all extensions mapped to a given MIME-type.
         """
-        _candidates = self._mime_to_ext.get(mimetype, [])
-        if not _candidates:
+        candidates = self._mime_to_ext.get(mimetype, [])
+        if not candidates:
             return []
 
         # De-prioritize any composite extensions like "tar.gz".
-        _sorted_candidates = sorted(
-            list(_candidates),
+        sorted_candidates = sorted(
+            list(candidates),
             key=lambda x: '.' not in x,
             reverse=True
         )
-        return _sorted_candidates
+        return sorted_candidates
 
     def get_extension(self, mimetype):
         """
         Returns a single extension for a given MIME-type.
         """
-        _preferred = self._mime_to_preferred_ext.get(mimetype)
-        if _preferred:
-            return _preferred
+        preferred = self._mime_to_preferred_ext.get(mimetype)
+        if preferred:
+            return preferred
 
-        _candidates = self.get_candidate_extensions(mimetype)
-        if _candidates:
-            return _candidates[0]
+        candidates = self.get_candidate_extensions(mimetype)
+        if candidates:
+            return candidates[0]
 
         return None
 
@@ -351,16 +351,17 @@ class MimeExtensionMapper(object):
 # Shared global singleton.
 MAPPER = MimeExtensionMapper()
 
-# Add MIME to extension mappings from the 'mimetypes' module.
-try:
-    _mimetypes_map = {
-        ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
-    }
-except AttributeError:
-    log.error('Unable to get MIME-type map from the "mimetypes" module.')
-else:
-    for _ext, _mime in _mimetypes_map.items():
-        MAPPER.add_mapping(_mime, _ext)
+
+def _load_mimetypes_module_mimemagic_mappings():
+    try:
+        mimetypes_types_map = {
+            ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
+        }
+    except AttributeError:
+        log.error('Unable to get MIME-type map from the "mimetypes" module.')
+    else:
+        for extension, mime_type in mimetypes_types_map.items():
+            MAPPER.add_mapping(mime_type, extension)
 
 
 def _read_mimetype_extension_mapping_file(mapfile_basename, callback):
@@ -419,6 +420,10 @@ def _load_mimemagic_mapping_overrides():
     _read_mimetype_extension_mapping_file(MIMEMAGIC_PREFERRED_BASENAME,
                                           MAPPER.add_preferred_extension)
 
+
+# Load MIME to extension mappings from the 'mimetypes' module.
+# This is the baseline, extended by the following custom mappings.
+_load_mimetypes_module_mimemagic_mappings()
 
 # Load any custom "extension to MIME-type"-mappings.
 _load_mimemagic_mappings()
