@@ -47,6 +47,11 @@ setup(
     url=projectmeta['__url_repo__'],
     license=projectmeta['__license__'],
     packages=find_packages(exclude=['unit']),
+    package_data={
+        'autonameow': [
+            'extractors/metadata/pandoc_template.plain',
+        ],
+    },
     include_package_data=True,
     python_requires='>=3.5',
     install_requires=[
@@ -62,6 +67,8 @@ setup(
         'pytz==2014.10',
         'PyYAML==3.11',
         'Unidecode==0.4.19',
+        'guessit==2.1.0',
+        # NOTE: Run 'apt install python3-magic' on Debian-derivatives to satisfy the magic dependency.
         # 'python3-magic',   TODO: Which version is actually used??
     ],
     classifiers=[
