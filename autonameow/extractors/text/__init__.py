@@ -25,3 +25,6 @@ from .pdf import PdfTextExtractor
 from .plain import PlainTextExtractor
 from .rtf import RichTextFormatTextExtractor
 from .markdown import MarkdownTextExtractor
+
+# TODO: [TD0027] Add text extractor for Word Documents.
+# TODO: [TD0064] Add text extractor for DjVu E-books ('djvutxt'?)
