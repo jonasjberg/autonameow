@@ -103,7 +103,7 @@ def _build_magic():
             # To identify with mime type, rather than a textual description,
             # pass the magic.MAGIC_MIME_TYPE flag when creating the magic.Magic
             # instance.
-            _magic = magic.Magic(flags=magic.MAGIC_MIME_TYPE)
+            m = magic.Magic(flags=magic.MAGIC_MIME_TYPE)
             _magic = m.id_filename
     else:
         # Now using the 'python-magic' package.
