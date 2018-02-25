@@ -38,7 +38,6 @@ class TestFindPluginSourceFiles(TestCase):
         actual = plugins.find_plugin_files()
 
         # TODO: [hardcoded] Likely to break; requires manual updates.
-        self.assertIn('microsoft_vision.py', actual)
         self.assertNotIn('__init__.py', actual)
 
 
@@ -79,11 +78,3 @@ class TestPluginClassMeowURIs(TestCase):
         for meowuri in self.actual:
             self.assertIsInstance(meowuri, MeowURI)
             self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
-
-    def test_returns_meowuris_for_available_extractors(self):
-        def _conditional_assert_in(klass, member):
-            if klass in self.plugin_class_names:
-                self.assertIn(member, self.actual)
-
-        _conditional_assert_in('MicrosoftVision',
-                               'plugin.microsoftvision')

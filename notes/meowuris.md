@@ -64,14 +64,6 @@ analyzer.ebook.publisher
 ```
 
 
-__Plugins__ store data with the prefix `plugin`;
-
-```
-plugin.microsoft_vision.caption
-plugin.microsoft_vision.tags
-```
-
-
 The "MeowURI" naming convention has been changed a lot and should be cleaned up.
 Maybe it would be helpful to add a prefix to the extractor URIs.
 

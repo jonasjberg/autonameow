@@ -459,8 +459,8 @@ Low Priority
       list of possible search strings that should be replace with the key.
 
 * `[TD0037]` Improve "filetags" integration.
-    * For instance, the Microsoft Vision API returns *a lot* of tags,
-      too many to use in a filename without any kind of selection process.
+    * Some providers return *a lot* of tags, too many to use in a filename
+      without any kind or probably multiple selection processes.
     * It would be very useful to be able to filter tags by getting the
       intersection of the unfiltered tags and a whitelist.
     * Allow specifying allowed tags in the configuration?

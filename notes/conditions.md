@@ -200,7 +200,7 @@ Current format for a file rule in the configuration file:
         filesystem.basename: smulan.jpg
     DATA_SOURCES:
         datetime: metadata.exiftool.EXIF:DateTimeOriginal
-        description: plugin.microsoft_vision.caption
+        description: extractor.filesystem.filetags.description
         extension: filesystem.extension
     NAME_TEMPLATE: '{datetime} {description}.{extension}'
     description: test_files smulan.jpg
@@ -244,7 +244,7 @@ Possible new format for a file rule in the configuration file:
         metadata.exiftool.EXIF:DateTimeOriginal: < 2017-06-27
     DATA_SOURCES:
         datetime: metadata.exiftool.EXIF:DateTimeOriginal
-        description: plugin.microsoft_vision.caption
+        description: extractor.filesystem.filetags.description
         extension: filesystem.extension
     NAME_TEMPLATE: '{datetime} {description}.{extension}'
     description: Photos taken between 2017-05-04 and 2017-06-27

@@ -62,8 +62,8 @@ RULES:
         ranking_bias: 0.1
     Sample Entry for Photos with strict rules:
         CONDITIONS:
-            extractor.filesystem.xplat.extension: jpg
             extractor.filesystem.xplat.basename_full: DCIM*
+            extractor.filesystem.xplat.extension: jpg
             extractor.filesystem.xplat.mime_type: image/jpeg
             extractor.filesystem.xplat.pathname_full: ~/Pictures/incoming
         DATA_SOURCES:
@@ -71,16 +71,16 @@ RULES:
             - extractor.metadata.exiftool.EXIF:DateTimeOriginal
             - extractor.metadata.exiftool.EXIF:DateTimeDigitized
             - extractor.metadata.exiftool.EXIF:CreateDate
-            description: plugin.microsoft_vision.caption
+            description: extractor.filesystem.filetags.description
             extension: extractor.filesystem.xplat.extension
-            tags: plugin.microsoft_vision.tags
+            tags: extractor.filesystem.filetags.tags
         NAME_TEMPLATE: '{datetime} {description} -- {tags}.{extension}'
         exact_match: true
         ranking_bias: 1
     test_files Gmail print-to-pdf:
         CONDITIONS:
-            extractor.filesystem.xplat.extension: pdf
             extractor.filesystem.xplat.basename_full: gmail.pdf
+            extractor.filesystem.xplat.extension: pdf
             extractor.filesystem.xplat.mime_type: application/pdf
         DATA_SOURCES:
             datetime: extractor.metadata.exiftool.PDF:CreateDate
@@ -103,7 +103,7 @@ RULES:
             extractor.filesystem.xplat.mime_type: image/jpeg
         DATA_SOURCES:
             datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
-            description: plugin.microsoft_vision.caption
+            description: extractor.filesystem.filetags.description
             extension: extractor.filesystem.xplat.extension
         NAME_TEMPLATE: '{datetime} {description}.{extension}'
         exact_match: true
