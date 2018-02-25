@@ -81,21 +81,21 @@ class TemplateFieldDataResolver(object):
     def mapped_all_template_fields(self):
         return all(field in self.data_sources for field in self._fields)
 
-    def add_known_source(self, field, meowuri):
+    def add_known_source(self, field, uri):
         sanity.check_isinstance_meowuri(
-            meowuri,
+            uri,
             msg='TODO: Fix collecting/verifying data from sources.'
         )
         if field in self._fields:
             if not self.data_sources.get(field):
-                log.debug('Added (first) known source for field {!s} :: {!s}'.format(field.as_placeholder(), meowuri))
-                self.data_sources[field] = [meowuri]
+                log.debug('Added (first) known source for field {!s} :: {!s}'.format(field.as_placeholder(), uri))
+                self.data_sources[field] = [uri]
             else:
-                log.debug('Added (additional) known source for field {!s} :: {!s}'.format(field.as_placeholder(), meowuri))
-                self.data_sources[field] += [meowuri]
+                log.debug('Added (additional) known source for field {!s} :: {!s}'.format(field.as_placeholder(), uri))
+                self.data_sources[field] += [uri]
         else:
             log.debug('Attempted to add source for unused name template field '
-                      '"{!s}": {!s}'.format(field, meowuri))
+                      '"{!s}": {!s}'.format(field, uri))
 
     def add_known_sources(self, source_dict):
         for _field, uri in source_dict.items():
@@ -257,58 +257,46 @@ class TemplateFieldDataResolver(object):
         return True
 
     def _gather_data(self):
-        for _field, _meowuris in self.data_sources.items():
-            if (_field in self.fields_data
-                    and self.fields_data.get(_field) is not None):
-                _str_field = str(_field.as_placeholder())
-
+        for field, uris in self.data_sources.items():
+            if (field in self.fields_data
+                    and self.fields_data[field] is not None):
                 log.debug('Skipping previously gathered data for field '
-                          '{{{}}}"'.format(_str_field))
+                          '{{{}}}"'.format(field.as_placeholder))
                 continue
 
-            assert _meowuris, (
-                'Resolver attempted to gather data with empty MeowURI!'
-            )
-            for uri in _meowuris:
-                if self._gather_data_for_template_field(_field, uri):
+            for uri in uris:
+                if self._gather_data_for_template_field(field, uri):
                     break
 
     def _verify_types(self):
-        for field, data in self.fields_data.items():
-            assert not isinstance(data, list)
+        for field, databundle in self.fields_data.items():
+            assert isinstance(databundle, DataBundle)
             log.debug('Verifying data for field {{{!s}}} :: {!s}'.format(
-                field.as_placeholder(), data))
-            self._verify_type(field, data)
+                field.as_placeholder(), databundle))
+            self._verify_type(field, databundle)
 
         # Remove data type is incompatible with associated field.
         # TODO: ?????
         _fields_data = self.fields_data.copy()
-        for field, data in _fields_data.items():
-            if data is None:
+        for field, databundle in _fields_data.items():
+            if databundle is None:
                 self.fields_data.pop(field)
 
-    def _verify_type(self, field, data):
-        _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
-        assert not isinstance(data, list), (
-            'Expected "data" not to be a list. Got {}'.format(_data_info)
-        )
-
-        log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
-        _coercer = data.coercer
-        _compatible = field.type_compatible(_coercer)
-        if _compatible:
-            log.debug('Verified Field-Data Compatibility  OK!')
+    def _verify_type(self, field, databundle):
+        log.debug('Verifying type of field {{{!s}}} data :: {!s}'.format(field, databundle))
+        if field.type_compatible(databundle.coercer):
+            log.debug('Field-Data type compatible')
         else:
             self.fields_data[field] = None
-            log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
+            log.debug('Field-Data type INCOMPATIBLE')
 
-    def _request_data(self, fileobject, meowuri):
+    def _request_data(self, fileobject, uri):
         log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
-            self, fileobject.hash_partial, meowuri))
+            self, fileobject.hash_partial, uri))
 
         # Pass a "tie-breaker" to resolve cases where we only want one item?
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-        response = master_provider.request(fileobject, meowuri)
+        response = master_provider.request(fileobject, uri)
         if response:
             return response
         log.debug('Resolver got no data.. {!s}'.format(response))
