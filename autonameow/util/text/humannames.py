@@ -89,10 +89,6 @@ class HumanNameParser(object):
         '',
     ])
 
-    # Regex matching names in the class-specific format.
-    # NOTE: This __MUST__ be defined by inheriting classes!
-    RE_FORMATTED_NAME = None
-
     def __call__(self, name):
         if name is None:
             return {}
@@ -125,7 +121,7 @@ class HumanNameParser(object):
 
     @classmethod
     def _preprocess(cls, name):
-        if not name or not name.strip():
+        if not name.strip():
             return ''
 
         for ignored_word in cls.IGNORED_AUTHOR_WORDS:
@@ -146,11 +142,6 @@ class HumanNameFormatter(object):
 
     Example usage:  formatted = HumanNameFormatterSubclass()('Lord Gibson III')
     """
-    # List of words to exclude from the output.
-    IGNORED_AUTHOR_WORDS = frozenset([
-        '',
-    ])
-
     # Regex matching names in the class-specific format.
     # NOTE: This __MUST__ be defined by inheriting classes!
     RE_FORMATTED_NAME = None
