@@ -54,6 +54,7 @@ setup(
         'autonameow': [
             'extractors/metadata/pandoc_template.plain',
             'util/mimemagic.mappings',
+            'util/mimemagic.preferred',
         ],
     },
     include_package_data=True,

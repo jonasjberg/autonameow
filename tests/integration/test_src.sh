@@ -81,7 +81,7 @@ check_git_ls_files_does_not_match 'docs/test_results'
 # Make sure that data files are available.
 
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.mappings" e f r
-
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.preferred" e f r
 
 
 # ______________________________________________________________________________

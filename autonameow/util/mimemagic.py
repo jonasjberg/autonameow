@@ -34,6 +34,9 @@ log = logging.getLogger(__name__)
 # File in this directory with mappings between MIME-types and extensions.
 MIMEMAGIC_MAPPINGS_BASENAME = 'mimemagic.mappings'
 
+# File in this directory with preferred extensions for MIME-types.
+MIMEMAGIC_PREFERRED_BASENAME = 'mimemagic.preferred'
+
 
 def _build_magic():
     """
@@ -390,20 +393,41 @@ def _load_mimemagic_mappings():
             MAPPER.add_mapping(mime_type, extension)
 
 
+def _load_mimemagic_mapping_overrides():
+    """
+    Load MIME-type to extension mapping overrides from external file.
+
+    Each line should contain a MIME-type and a extension, separated by a colon.
+    Any whitespace is ignored, as well as any initial period in the extension.
+    Lines beginning with a hash ('#') are also ignored.
+    """
+    mapfile = os.path.realpath(os.path.join(
+        os.path.dirname(__file__), MIMEMAGIC_PREFERRED_BASENAME
+    ))
+    try:
+        with open(mapfile, 'r') as fh:
+            lines = fh.readlines()
+    except OSError:
+        return
+
+    for n, line in enumerate(lines, start=1):
+        if line.startswith('#'):
+            continue
+        try:
+            mime_type, extension = line.strip().split(':')
+        except ValueError:
+            log.error('Error parsing "{!s}" line {}'.format(mapfile, n))
+        else:
+            mime_type = mime_type.strip()
+            extension = extension.strip().lstrip('.')
+            MAPPER.add_preferred_extension(mime_type, extension)
+
+
 # Load any custom "extension to MIME-type"-mappings.
 _load_mimemagic_mappings()
 
-# Any custom overrides of the "extension to MIME-type"-mapping goes here.
-MAPPER.add_preferred_extension('image/jpeg', 'jpg')
-MAPPER.add_preferred_extension('application/gzip', 'gz')
-MAPPER.add_preferred_extension('audio/midi', 'mid')
-MAPPER.add_preferred_extension('video/quicktime', 'mov')
-MAPPER.add_preferred_extension('video/mp4', 'mp4')
-MAPPER.add_preferred_extension('text/plain', 'txt')
-MAPPER.add_preferred_extension('text/rtf', 'rtf')
-MAPPER.add_preferred_extension('text/x-sh', 'sh')
-MAPPER.add_preferred_extension('text/x-shellscript', 'sh')
-MAPPER.add_preferred_extension('inode/x-empty', '')
+# Load any custom overrides of the "extension to MIME-type"-mappings.
+_load_mimemagic_mapping_overrides()
 
 
 def get_mimetype(extension):
