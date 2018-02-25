@@ -202,11 +202,10 @@ class TemplateFieldDataResolver(object):
 
         # Response is either a DataBundle or a list of DataBundles
         if not isinstance(response, DataBundle):
+            # TODO: [TD0112] FIX THIS HORRIBLE MESS!
             assert isinstance(response, list)
             assert all(isinstance(d, DataBundle) for d in response)
 
-        # TODO: [TD0112] FIX THIS HORRIBLE MESS!
-        if isinstance(response, list):
             log.debug('Got list of data. Attempting to deduplicate list of datadicts')
             _deduped_list = dedupe_list_of_databundles(response)
             if len(_deduped_list) < len(response):
@@ -235,7 +234,7 @@ class TemplateFieldDataResolver(object):
                         assert isinstance(maybe_one, DataBundle)
                         response = maybe_one
 
-        elif isinstance(response.value, list):
+        if isinstance(response.value, list):
             # TODO: [TD0112] Clean up merging data.
             list_value = response.value
             if len(list_value) > 1:
@@ -259,10 +258,10 @@ class TemplateFieldDataResolver(object):
 
     def _gather_data(self):
         for _field, _meowuris in self.data_sources.items():
-            _str_field = str(_field.as_placeholder())
-
             if (_field in self.fields_data
                     and self.fields_data.get(_field) is not None):
+                _str_field = str(_field.as_placeholder())
+
                 log.debug('Skipping previously gathered data for field '
                           '{{{}}}"'.format(_str_field))
                 continue
