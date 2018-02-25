@@ -184,8 +184,9 @@ class FilesContext(object):
             best_match = candidates.pop(0)
             if best_match:
                 # Is the score of the best matched rule high enough?
-                rule, score, _ = best_match
-                description = rule.description
+                rule = best_match.rule
+                score = best_match.score
+                description = best_match.rule.description
                 if score > RULE_SCORE_CONFIRM_THRESHOLD:
                     active_rule = rule
                 else:
