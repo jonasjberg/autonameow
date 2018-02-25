@@ -274,30 +274,11 @@ class TemplateFieldDataResolver(object):
                     break
 
     def _verify_types(self):
-        # TODO: [TD0115] Clear up uncertainties about data multiplicities.
         for field, data in self.fields_data.items():
-            log.debug('Verifying data for field {{{!s}}}'.format(field.as_placeholder()))
-            log.debug('field = {!s}'.format(field))
-            log.debug('data = {!s}'.format(data))
-
-            if isinstance(data, list):
-                if not field.MULTIVALUED:
-                    self.fields_data[field] = None
-                    log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
-                    log.debug('Template field {{{!s}}} expects a single value. '
-                              'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
-                                                         type(data), data))
-                    continue
-                for d in data:
-                    self._verify_type(field, d)
-            else:
-                # if field.MULTIVALUED:
-                #     self.fields_data[field] = None
-                #     log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
-                #     log.debug('Template field {{{!s}}} expects multiple values. '
-                #               'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
-                #                                          type(data), data))
-                self._verify_type(field, data)
+            assert not isinstance(data, list)
+            log.debug('Verifying data for field {{{!s}}} :: {!s}'.format(
+                field.as_placeholder(), data))
+            self._verify_type(field, data)
 
         # Remove data type is incompatible with associated field.
         # TODO: ?????
