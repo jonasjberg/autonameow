@@ -140,6 +140,11 @@ class Extension(NameTemplateField):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = data.value
         coercer = data.coercer
+
+        if not value:
+            # Might be 'NullMIMEType', which evaluates False here.
+            return ''
+
         if coercer:
             string = coercer.format(value)
         else:
@@ -150,7 +155,6 @@ class Extension(NameTemplateField):
             raise exceptions.NameBuilderError(
                 'Unicode string conversion failed for "{!r}"'.format(data)
             )
-
         return string
 
 
