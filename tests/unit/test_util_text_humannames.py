@@ -126,6 +126,9 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     TD(Given='Steve Anson ... et al', Expect='Anson S.'),
     TD(Given='Steve Anson ... [et al]', Expect='Anson S.'),
     TD(Given='Steve Anson ... [et al.]', Expect='Anson S.'),
+
+    # Failed special cases
+    TD(Given='Regina O. Obe', Expect='Obe R.O.'),
 ]
 
 TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
@@ -163,7 +166,11 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
               'Ming Yang', 'Yun Li', 'Frank Klawonn',
               'Antonio J. Tallon-Ballesteros'],
        Expect=['Gao Y.', 'Klawonn F.', 'Li B.', 'Li Y.',
-               'Tallon-Ballesteros A.J.', 'Yang M.', 'Yin H.', 'Zhang D.'])
+               'Tallon-Ballesteros A.J.', 'Yang M.', 'Yin H.', 'Zhang D.']),
+
+    # Failed special cases
+    TD(Given=['Regina O. Obe', 'Leo S. Hsu'],
+       Expect=['Hsu L.S.', 'Obe R.O.']),
 ]
 
 

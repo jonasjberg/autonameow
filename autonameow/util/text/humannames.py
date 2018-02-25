@@ -103,6 +103,24 @@ class HumanNameParser(object):
         if not parsed_name:
             return {}
 
+        checked_parsed_name = self._check_bad_nameparser_result(parsed_name)
+        return checked_parsed_name
+
+    @classmethod
+    def _check_bad_nameparser_result(cls, parsed_name):
+        # Check for bad handling of names like 'Regina O. Obe'
+        original_parts = parsed_name.get('original', '').split(' ')
+        if len(original_parts) == 3 and re.match(r'[A-Z]\.', original_parts[1]):
+            if parsed_name.get('suffix', '') == original_parts[2]:
+                # Last name mistaken for suffix
+                # Middle name mistaken for last name
+                if not parsed_name.get('middle'):
+                    parsed_name['suffix'] = ''
+                    parsed_name['suffix_list'] = ['']
+                    parsed_name['middle'] = original_parts[1]
+                    parsed_name['middle_list'] = [original_parts[1]]
+                    parsed_name['last'] = original_parts[2]
+                    parsed_name['last_list'] = [original_parts[2]]
         return parsed_name
 
     @classmethod
