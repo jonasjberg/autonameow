@@ -25,6 +25,9 @@ from setuptools import (
     setup
 )
 
+# TODO: [TD0008] Simplify installation.
+# TODO: [TD0008] Add support for 'pip' or similar package manager.
+
 # Access attributes without importing the file.
 # https://packaging.python.org/guides/single-sourcing-package-version/#single-sourcing-the-version
 ABSPATH_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
