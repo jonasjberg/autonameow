@@ -158,6 +158,15 @@ class TestIsBadMetadata(TestCase):
         _aF('XMP:Subject', ['Science', 'Subject'])
         _aF('XMP:Subject', ['Title', 'Subject'])
 
+        _aF('PDF:Author', 'Unknown')
+        _aF('PDF:Subject', 'Unknown')
+        _aF('PDF:Title', 'Unknown')
+        _aF('XMP:Author', 'Unknown')
+        _aF('XMP:Creator', 'Unknown')
+        _aF('XMP:Description', 'Unknown')
+        _aF('XMP:Subject', 'Unknown')
+        _aF('XMP:Subject', ['Unknown'])
+        _aF('XMP:Title', 'Unknown')
 
 class TestFilterCoercedValue(TestCase):
     def _assert_filter_returns(self, expect, given):

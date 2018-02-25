@@ -38,14 +38,14 @@ IGNORED_EXIFTOOL_TAGNAMES = frozenset([
 
 # Metadata to ignore per field. Note that the values are set literals.
 BAD_EXIFTOOL_METADATA = {
-    'PDF:Author': {'Author'},
-    'PDF:Subject': {'Subject'},
-    'PDF:Title': {'Title'},
-    'XMP:Author': {'Author', 'Creator'},
-    'XMP:Creator': {'Author', 'Creator'},
-    'XMP:Description': {'Subject', 'Description'},
-    'XMP:Subject': {'Subject', 'Description'},
-    'XMP:Title': {'Title'}
+    'PDF:Author': {'Author', 'Unknown'},
+    'PDF:Subject': {'Subject', 'Unknown'},
+    'PDF:Title': {'Title', 'Unknown'},
+    'XMP:Author': {'Author', 'Creator', 'Unknown'},
+    'XMP:Creator': {'Author', 'Creator', 'Unknown'},
+    'XMP:Description': {'Subject', 'Description', 'Unknown'},
+    'XMP:Subject': {'Subject', 'Description', 'Unknown'},
+    'XMP:Title': {'Title', 'Unknown'}
 }
 
 
