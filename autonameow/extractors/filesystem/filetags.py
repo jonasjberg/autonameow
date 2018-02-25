@@ -33,7 +33,7 @@ from util import (
 )
 
 
-# TODO: [TD0043][TD0009] Fetch values from the active configuration.
+# TODO: [TD0043] Fetch values from the active configuration.
 # BETWEEN_TAG_SEPARATOR = enc.bytestring_path(
 #     opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
 # )

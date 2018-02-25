@@ -10,6 +10,29 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-02-24
+
+> High Priority
+> -------------
+>
+> * `[TD0108]` Fix inconsistencies in results passed back by plugins.
+>
+> * `[TD0128]` Clean up boundaries/interface to the `plugins` package.
+>
+> Medium Priority
+> ---------------
+>
+> * `[TD0009]` Implement proper plugin interface
+>     * Have plugins "register" themselves to a plugin handler?
+>     * Querying plugins might need some translation layer between the
+>       `autonameow` field naming convention and the specific plugins naming
+>       convention. For instance, querying a plugin for `title` might require
+>       actually querying the plugin for `document:title` or similar.
+>     * Abstract base class for all plugins;
+>         * Means of providing input data to the plugin.
+>         * Means of executing the plugin.
+>         * Means of querying for all or a specific field.
+
 ### 2018-02-23
 
 > High Priority
@@ -21,6 +44,11 @@ Completed TODO-list Entries
 >     better parsing of strings and lots of special cases and it might never
 >     actually be desired.  Even though it might be nice to support this case,
 >     it currently makes much more sense to fix this inconsistency.
+>
+> Low Priority
+> ------------
+>
+> * `[TD0113]` Fix exceptions not being handled properly (?)
 
 ### 2018-02-19
 

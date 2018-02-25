@@ -177,7 +177,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         cls._mapping_meowuris_all_providers = (cls._mapping_meowuris_analyzers +
                                                cls._mapping_meowuris_extractors)
 
-        # NOTE: This depends on actual extractors, plugins, analyzers.
+        # NOTE: This depends on actual extractors, analyzers.
         from core import providers
         providers.initialize()
         cls.registry = providers.Registry
@@ -229,22 +229,6 @@ class TestMapMeowURItoSourceClass(TestCase):
             for uri in meowuris:
                 actual = self.registry.providers_for_meowuri(
                     uri, includes=['extractor']
-                )
-                self.assertEqual(0, len(actual))
-
-    def test_maps_meowuris_to_expected_provider_include_plugins(self):
-        for meowuris, _ in self._mapping_meowuris_analyzers:
-            for uri in meowuris:
-                actual = self.registry.providers_for_meowuri(
-                    uri, includes=['plugin']
-                )
-                self.assertEqual(0, len(actual))
-
-    def test_maps_none_given_extractor_meowuris_but_includes_plugins(self):
-        for meowuris, _ in self._mapping_meowuris_extractors:
-            for uri in meowuris:
-                actual = self.registry.providers_for_meowuri(
-                    uri, includes=['plugin']
                 )
                 self.assertEqual(0, len(actual))
 
@@ -329,8 +313,6 @@ class TestProviderRegistryMightBeResolvable(TestCase):
         dummy_source_map = {
             'analyzer': {
                 uu.as_meowuri('analyzer.filename'): mock_provider
-            },
-            'plugin': {
             },
             'extractor': {
                 uu.as_meowuri('extractor.metadata.exiftool'): mock_provider,

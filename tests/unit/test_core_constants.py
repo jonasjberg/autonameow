@@ -103,7 +103,6 @@ class TestConstants(TestCase):
         self._is_defined_internal_string(C.RE_ALLOWED_MEOWURI_PART_CHARS)
         self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_ANALYZERS)
         self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_EXTRACTORS)
-        self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_PLUGINS)
         self._is_defined_internal_string(C.MEOWURI_ROOT_GENERIC)
 
         self._is_defined_type(frozenset, C.MEOWURI_ROOTS_SOURCES)

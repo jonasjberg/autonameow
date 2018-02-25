@@ -58,11 +58,7 @@ High Priority
 
 * `[TD0102]` Fix inconsistencies in results passed back by analyzers.
 
-* `[TD0108]` Fix inconsistencies in results passed back by plugins.
-
 * `[TD0126]` Clean up boundaries/interface to the `analyzers` package.
-
-* `[TD0128]` Clean up boundaries/interface to the `plugins` package.
 
 * `[TD0129]` Enforce passing validated data to `NameTemplateField.format()`.
 
@@ -163,17 +159,6 @@ Medium Priority
 
 * `[TD0008]` Simplify installation.
     * Add support for `pip` or similar package manager.
-
-* `[TD0009]` Implement proper plugin interface
-    * Have plugins "register" themselves to a plugin handler?
-    * Querying plugins might need some translation layer between the
-      `autonameow` field naming convention and the specific plugins naming
-      convention. For instance, querying a plugin for `title` might require
-      actually querying the plugin for `document:title` or similar.
-    * Abstract base class for all plugins;
-        * Means of providing input data to the plugin.
-        * Means of executing the plugin.
-        * Means of querying for all or a specific field.
 
 * `[TD0015]` Allow conditionals in the configuration rules.
     * Test if a rule is applicable by evaluating conditionals.
@@ -378,8 +363,6 @@ Low Priority
 
 * `[TD0114]` Improve the `EbookAnalyzer`.
 
-* `[TD0113]` Fix exceptions not being handled properly (?)
-
 * `[TD0109]` __Allow arbitrary name template placeholder fields.__  
     It is currently difficult to use a rule similar to this:
 
@@ -390,9 +373,9 @@ Low Priority
             extractor.filesystem.xplat.contents.mime_type: video/*
         NAME_TEMPLATE: '{title} S{season}E{episode}.{extension}'
         DATA_SOURCES:
-            title: plugin.guessit.title
-            season: plugin.guessit.season
-            episode: plugin.guess.episode
+            title: extractor.filesystem.guessit.title
+            season: extractor.filesystem.guessit.season
+            episode: extractor.filesystem.guessit.episode
             extension: extractor.filesystem.xplat.contents.mime_type
         exact_match: true
     ```
