@@ -22,14 +22,6 @@
 import logging
 import mimetypes
 
-try:
-    import magic
-except ImportError:
-    raise SystemExit(
-        'Missing required module "magic".  Make sure "magic" (file-magic) '
-        'is available before running this program.'
-    )
-
 from core import types
 from core.exceptions import AutonameowException
 from util import sanity
@@ -42,39 +34,47 @@ def _build_magic():
     """
     Workaround ambiguity about which magic library is actually used.
 
-    https://github.com/ahupp/python-magic
-      "There are, sadly, two libraries which use the module name magic.
-       Both have been around for quite a while.If you are using this
-       module and get an error using a method like open, your code is
-       expecting the other one."
+    Attempt to detect which of three 'magic' implementations that was
+    imported and return a function that is roughly equivalent to running
+    'file --mime-type' on POSIX systems.
 
-    NOTE: (MacOS) Seems like this is the version currently in use?
-          https://pypi.python.org/pypi/file-magic/0.3.0
-          https://github.com/file/file
+    Based off of this:
+    https://github.com/androguard/androguard/blob/2e1f04350bcb38a3acf796f8f8829d816b38fe21/androguard/core/bytecodes/apk.py#L380
 
-          Requires 'libmagic'! Install by running;
-          $ brew install libmagic
-          $ pip3 install file-magic
+    Documentation for the various magics:
+    'filemagic'       https://pypi.python.org/pypi/filemagic
+    'file-magic'      https://github.com/file/file/tree/master/python
+    'python-magic'    https://github.com/ahupp/python-magic
 
-    NOTE: (Linux) Simplest to install 'python3-magic' from the repositories.
-          For Debian-likes using apt:  'apt install python3-magic'
+    Notes on versions used on my (jonas) development boxes:
+
+        MacOS   Seems like this is the version currently in use on MacOS?
+                https://pypi.python.org/pypi/file-magic/0.3.0
+                https://github.com/file/file
+
+                Requires 'libmagic'! Install by running;
+                $ brew install libmagic
+                $ pip3 install file-magic
+
+        Linux   Install 'python3-magic' from the repositories on Linux.
+                For Debian-likes using apt:  'apt install python3-magic'
 
     Returns:
         Callable the returns a MIME-type read from magic header bytes of the
         given file.
+
+    Raises:
+        SystemExit: Unable to import any 'magic' module.
+        AutonameowException: Failed to get a callable from any 'magic' module.
     """
-    # Attempt to detect which of three 'magic' implementations that was
-    # imported and return a function that is roughly equivalent to running
-    # 'file --mime-type' on POSIX systems.
-    #
-    # Based off of this:
-    # https://github.com/androguard/androguard/blob/2e1f04350bcb38a3acf796f8f8829d816b38fe21/androguard/core/bytecodes/apk.py#L380
-    #
-    # Documentation for the various magics:
-    # 'filemagic'       https://pypi.python.org/pypi/filemagic
-    # 'file-magic'      https://github.com/file/file/tree/master/python
-    # 'python-magic'    https://github.com/ahupp/python-magic
-    #
+    try:
+        import magic
+    except ImportError:
+        raise SystemExit(
+            'Missing required module "magic".  Make sure a "magic" module and '
+            'possibly additional required files (DLLs, magic definitions, ..) '
+            'is available before running this program.'
+        )
     # pylint: disable=unexpected-keyword-arg,no-value-for-parameter,no-member
     _magic = None
     try:
@@ -113,7 +113,7 @@ def _build_magic():
 
     if _magic is None:
         raise AutonameowException(
-            'Unable to build a magic function in "mimemagic.py" ..'
+            'Unable to retrieve a suitable magic callable in "mimemagic.py" ..'
         )
     return _magic
 
