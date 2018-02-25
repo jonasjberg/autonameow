@@ -24,7 +24,6 @@ from collections import defaultdict
 
 from core import (
     analysis,
-    plugin_handler,
     providers,
     repository,
 )
@@ -63,7 +62,6 @@ class ProviderRunner(object):
 
         prepared_analyzers = set()
         prepared_extractors = set()
-        prepared_plugins = set()
         for provider in possible_providers:
             log.debug('Looking at possible provider: {!s}'.format(provider))
             if meowuri in self._previous_runs[fileobject]:
@@ -79,14 +77,11 @@ class ProviderRunner(object):
             #       $ PYTHONPATH=autonameow:tests python3 -m unit --skip-slow
             from analyzers import BaseAnalyzer
             from extractors import BaseExtractor
-            from plugins import BasePlugin
 
             if issubclass(provider, BaseExtractor):
                 prepared_extractors.add(provider)
             elif issubclass(provider, BaseAnalyzer):
                 prepared_analyzers.add(provider)
-            elif issubclass(provider, BasePlugin):
-                prepared_plugins.add(provider)
 
         if prepared_extractors:
             log.debug('Delegating {!s} to extractors: {!s}'.format(meowuri, prepared_extractors))
@@ -94,9 +89,6 @@ class ProviderRunner(object):
         if prepared_analyzers:
             log.debug('Delegating {!s} to analyzers: {!s}'.format(meowuri, prepared_analyzers))
             self._delegate_to_analyzers(fileobject, prepared_analyzers)
-        if prepared_plugins:
-            log.debug('Delegating {!s} to plugins: {!s}'.format(meowuri, prepared_plugins))
-            self._delegate_to_plugins(fileobject, prepared_plugins)
 
     def _delegate_to_extractors(self, fileobject, extractors_to_run):
         try:
@@ -113,12 +105,6 @@ class ProviderRunner(object):
             analyzers_to_run=analyzers_to_run
         )
 
-    def _delegate_to_plugins(self, fileobject, plugins_to_run):
-        plugin_handler.run_plugins(
-            fileobject,
-            require_plugins=plugins_to_run,
-        )
-
     def delegate_every_possible_meowuri(self, fileobject):
         # Run all extractors
         try:
@@ -131,9 +117,6 @@ class ProviderRunner(object):
         # Run all analyzers
         analysis.run_analysis(fileobject, self.config)
 
-        # Run all plugins
-        plugin_handler.run_plugins(fileobject, run_all_plugins=True)
-
 
 class MasterDataProvider(object):
     """
@@ -144,7 +127,7 @@ class MasterDataProvider(object):
     the requested data or not, this is a "reactive" interface to the repository.
 
     If the requested data is in the repository, is it retrieved and returned.
-    Otherwise, data providers (extractors/analyzers/plugins) that might be able
+    Otherwise, data providers (extractors/analyzers) that might be able
     to provide the requested data is executed. If the execution turns up the
     requested data, it is returned.
     This is intended to be a "dynamic" or "reactive" data retrieval interface

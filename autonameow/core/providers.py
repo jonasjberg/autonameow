@@ -156,7 +156,7 @@ class ProviderRegistry(object):
         self.meowuri_sources = dict(meowuri_source_map)
         self._debug_log_mapped_meowuri_sources()
 
-        # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
+        # Set of all MeowURIs "registered" by extractors or analyzers.
         self.mapped_meowuris = self.unique_map_meowuris(self.meowuri_sources)
 
         # Providers declaring generic MeowURIs through 'metainfo()'.
@@ -261,7 +261,7 @@ class ProviderRegistry(object):
     @staticmethod
     def unique_map_meowuris(meowuri_class_map):
         out = set()
-        # for root in ['extractors', 'analyzer', 'plugin'] ..
+        # for root in ['extractors', 'analyzer'] ..
         for root in meowuri_class_map.keys():
             for uri in meowuri_class_map[root].keys():
                 out.add(uri)
@@ -302,11 +302,9 @@ def _get_meowuri_source_map():
 
     import analyzers
     import extractors
-    import plugins
     return {
         'extractor': __get_meowuri_roots_for_providers(extractors),
         'analyzer': __get_meowuri_roots_for_providers(analyzers),
-        'plugin': __get_meowuri_roots_for_providers(plugins)
     }
 
 
@@ -317,7 +315,7 @@ def _map_generic_sources(meowuri_class_map):
     """
     out = dict()
 
-    # for root in ['extractors', 'analyzer', 'plugin'] ..
+    # for root in ['extractors', 'analyzer'] ..
     for root in sorted(list(C.MEOWURI_ROOTS_SOURCES)):
         if root not in meowuri_class_map:
             continue

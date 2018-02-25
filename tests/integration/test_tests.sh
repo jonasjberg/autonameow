@@ -193,6 +193,10 @@ assert_has_command 'tesseract'
 assert_has_command 'pdftotext'
 assert_has_command 'unrtf'
 assert_has_command 'pandoc'  # MarkdownTextExtractor
+assert_has_command 'guessit'
+
+assert_true 'guessit -h ; [ "$?" -eq "0" ]' \
+            'Executing "guessit -h" returns success'
 
 
 # ______________________________________________________________________________

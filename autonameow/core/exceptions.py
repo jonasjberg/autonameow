@@ -41,10 +41,6 @@ class ConfigError(AutonameowException):
     """Base class for exceptions raised when querying a configuration."""
 
 
-class AutonameowPluginError(AutonameowException):
-    """A plugin encountered an unrecoverable error."""
-
-
 class NameBuilderError(AutonameowException):
     """An error occurred while constructing a name. Unable to proceed."""
 

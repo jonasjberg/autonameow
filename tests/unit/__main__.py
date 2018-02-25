@@ -144,7 +144,6 @@ if opts.skip_slow:
     suite = build_testsuite(
         filename_filter=lambda f: not (f.startswith('test_property_')
                                        or f.startswith('test_extractors_')
-                                       or f.startswith('test_plugins_')
                                        or f.startswith('test_core_main'))
     )
 elif opts.filter_glob:

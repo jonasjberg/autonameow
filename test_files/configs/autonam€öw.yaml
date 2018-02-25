@@ -57,7 +57,7 @@ RULES:
                 basename: smulån@föo.jpg
         DATA_SOURCES:
             datetime: metadata.exiftool.EXIF:DateTimeOriginal
-            description: plugin.microsoft_vision.caption
+            description: extractor.filesystem.filetags.description
             extension: filesystem.extension
         NAME_TEMPLATE: "{datetime}\_{description}.{extension}"
         exact_match: true

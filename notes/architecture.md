@@ -195,13 +195,7 @@ unimplemented..) included:
            ~~determined by the class methods `can_handle`.~~
           2. ~~Run all analyzers in turn, passing the results back to the~~
            ~~`SessionRepository`.~~
-      4. ~~__Run "plugins"__~~
-          1. ~~Gather all available plugins.~~
-          2. ~~Filter out plugins that "can handle" the file, determined by the~~
-           ~~class method `can_handle` of each plugin.~~
-          3. ~~Run all plugins in turn, passing the results back to the~~
-           ~~`SessionRepository`.~~
-      5. __Run "rule matcher"__~~
+      4. __Run "rule matcher"__~~
           1. ~~Get all rules from the active configuration.~~
           2. ~~For each rule, do;~~
               1. ~~Evaluate all rule conditions.~~
@@ -214,7 +208,7 @@ unimplemented..) included:
           4. ~~Prioritize rules by score, weight and ranking bias.~~
           5. ~~Store all prioritized rules as "candidates", presenting the highest~~
            ~~priority rule as the "best match".~~
-      6. ~~__A) If running in "automagic" mode__~~
+      5. ~~__A) If running in "automagic" mode__~~
           1. ~~Set the active name template to the name template defined in the~~
            ~~"best matched" rule.~~
           2. ~~Create an instance of `Resolver`~~

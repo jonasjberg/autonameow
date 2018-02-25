@@ -156,13 +156,10 @@ class TestMeowURIRoot(TestCase):
         for given in [
             'analyzer',
             'generic',
-            'plugin',
             ' analyzer',
             ' generic',
-            ' plugin',
             ' analyzer ',
             ' generic ',
-            ' plugin '
         ]:
             with self.subTest(given=given):
                 actual = MeowURIRoot(given)
@@ -177,7 +174,6 @@ class TestMeowURIRoot(TestCase):
             'foo',
             'analysis',
             'filesystem',
-            'plugins',
             'metadata',
         ]:
             with self.subTest(given=given):
@@ -601,7 +597,6 @@ class TestMeowURIMatchesStart(TestCase):
             uu.as_meowuri('extractor.filesystem.filetags.extension'),
             uu.as_meowuri('extractor.filesystem.filetags'),
             MeowURIRoot('analyzer'),
-            MeowURIRoot('plugin')
         ]:
             with self.subTest(given=given):
                 self._assert_matches_from_start_returns(False, m, given)
