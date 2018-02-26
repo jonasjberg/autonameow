@@ -20,15 +20,21 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import os
 import re
 from collections import Counter
 
-from analyzers import BaseAnalyzer
+from analyzers import (
+    AnalyzerError,
+    BaseAnalyzer
+)
+from core import constants as C
 from core import types
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from util import (
     dateandtime,
+    disk,
     sanity
 )
 from util.text import (
@@ -36,6 +42,10 @@ from util.text import (
     urldecode
 )
 
+
+_PATH_THIS_DIR = types.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
+BASENAME_PROBABLE_EXT_LOOKUP = types.AW_PATHCOMPONENT('probable_extension_lookup')
+PATH_PROBABLE_EXT_LOOKUP = disk.joinpaths(_PATH_THIS_DIR, BASENAME_PROBABLE_EXT_LOOKUP)
 
 log = logging.getLogger(__name__)
 
@@ -321,6 +331,93 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'mpg': {'mpeg'}
     }
 }
+
+
+class MimetypeExtensionMapParser(object):
+    (STATE_INITIAL, STATE_MIMETYPE_BLOCK, STATE_LIST_BLOCK) = range(3)
+    VALUE_REPLACEMENTS = {
+        'BLANK': ''
+    }
+
+    def __init__(self):
+        self.state = self.STATE_INITIAL
+
+    def parse(self, data):
+        text = types.force_string(data)
+        if not text.strip():
+            return dict()
+
+        # Ignore comments starting with hashes.
+        text = re.sub(r'#.*', '', text)
+
+        parsed = {}
+        for line in text.splitlines():
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+
+            m = self._match_mimetype_block_start(line)
+            if m:
+                mimetype_value = m
+                parsed[mimetype_value] = dict()
+                self.state = self.STATE_MIMETYPE_BLOCK
+                continue
+
+            if self.state == self.STATE_MIMETYPE_BLOCK:
+                use_extension_value = self._match_extension_list_start(line)
+                if use_extension_value is not None:
+                    parsed[mimetype_value][use_extension_value] = set()
+                    self.state = self.STATE_LIST_BLOCK
+
+            elif self.state == self.STATE_LIST_BLOCK:
+                m = self._match_extension_list_item(line)
+                if m is not None:
+                    parsed[mimetype_value][use_extension_value].add(m)
+                else:
+                    use_extension_value = self._match_extension_list_start(line)
+                    if use_extension_value is not None:
+                        parsed[mimetype_value][use_extension_value] = set()
+                        self.state = self.STATE_LIST_BLOCK
+
+        return parsed
+
+    def _match_mimetype_block_start(self, line):
+        if line.startswith('MIMETYPE '):
+            _, value = line.split(' ')
+            return value
+        return None
+
+    def _match_extension_list_item(self, line):
+        m = re.match(r'(^- )(.*)', line)
+        if m:
+            value = m.group(2).strip()
+            return self._replace_keywords(value)
+        return None
+
+    def _match_extension_list_start(self, line):
+        m = re.match(r'(^EXTENSION) (.*)', line)
+        if m:
+            value = m.group(2).strip()
+            return self._replace_keywords(value)
+        return None
+
+    def _replace_keywords(self, value):
+        return self.VALUE_REPLACEMENTS.get(value, value)
+
+
+def _parse_mimetype_extension_suffixes_map_data(data):
+    parser = MimetypeExtensionMapParser()
+    return parser.parse(data)
+
+
+def _load_mimetype_extension_suffixes_map_file(filepath):
+    try:
+        with open(filepath, 'r', encoding=C.DEFAULT_ENCODING) as fh:
+            file_data = fh.read()
+    except Exception as e:
+        raise AnalyzerError('Error while loading MIME-type extension suffixes '
+                            'data :: {!s}'.format(e))
+    return _parse_mimetype_extension_suffixes_map_data(file_data)
 
 
 def likely_extension(basename_suffix, mime_type):

@@ -1,6 +1,7 @@
 include CHANGES.txt
 include LICENSE.txt
 include README.md
+include autonameow/analyzers/probable_extension_lookup
 include autonameow/extractors/metadata/pandoc_template.plain
 include autonameow/util/mimemagic.mappings
 include autonameow/util/mimemagic.preferred

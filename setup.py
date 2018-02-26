@@ -52,6 +52,7 @@ setup(
     packages=find_packages(exclude=['unit']),
     package_data={
         'autonameow': [
+            'analyzers/probable_extension_lookup',
             'extractors/metadata/pandoc_template.plain',
             'util/mimemagic.mappings',
             'util/mimemagic.preferred',
