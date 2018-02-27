@@ -71,10 +71,10 @@ class RuleMatcher(object):
 
         all_rules = list(self._rules)
 
-        num_all_rules = len(all_rules)
-        log.debug('Examining {} rules ..'.format(num_all_rules))
+        total_rule_count = len(all_rules)
+        log.debug('Examining {} rules ..'.format(total_rule_count))
         for i, rule in enumerate(all_rules, start=1):
-            log.debug('Evaluating rule {}/{}: {!s}'.format(i, num_all_rules, rule))
+            log.debug('Evaluating rule {}/{}: {!s}'.format(i, total_rule_count, rule))
             self.condition_evaluator.evaluate(rule)
 
         # Remove rules that require an exact match and contains a condition
