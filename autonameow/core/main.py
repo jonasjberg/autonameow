@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import traceback
 
 from core import constants as C
 from core import logs
@@ -107,6 +106,8 @@ ______________________________________________________
  Running: {_program} version {_version}
 Platform: {_platform}
   Python: {_python}
+
+Encodings and Unicode: {_encoding}
 ______________________________________________________
 
 {message}
@@ -115,6 +116,7 @@ ______________________________________________________
 '''
     # TODO: [TD0095] Clean this up. Try to minimize imports.
     import platform
+    import traceback
 
     typ, val, tb = sys.exc_info()
     msg = ERROR_MSG_TEMPLATE.format(
@@ -123,6 +125,17 @@ ______________________________________________________
         _platform=platform.platform(),
         _python='{!s} {!s}'.format(platform.python_implementation(),
                                    platform.python_version()),
+        _encoding='''
+   sys.getdefaultencoding(): {!r}
+sys.getfilesystemencoding(): {!r}
+         sys.stdin.encoding: {!r}
+        sys.stdout.encoding: {!r}
+             sys.maxunicode: {!r}
+'''.format(sys.getdefaultencoding(),
+           sys.getfilesystemencoding(),
+           sys.stdin.encoding,
+           sys.stdout.encoding,
+           sys.maxunicode),
         traceback=''.join(traceback.format_exception(typ, val, tb)),
         message=string
     )
