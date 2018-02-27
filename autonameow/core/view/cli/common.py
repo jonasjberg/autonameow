@@ -374,6 +374,49 @@ def msg_possible_rename(from_basename, dest_basename):
     msg(column_template.format(_name_old, _name_new), ignore_quiet=True)
 
 
+def _colorize_string_diff(a, b, color, secondary_color, colorize_=None):
+    """
+    Returns a pair of strings with any differences colorized.
+
+    This function is stolen from 'beets/ui/__init__.py:_colordiff'.
+    Copyright 2016, Adrian Sampson.
+    """
+    if colorize_ is None:
+        colorize_ = colorize
+    else:
+        assert callable(colorize_)
+
+    a_out = []
+    b_out = []
+
+    from difflib import SequenceMatcher
+    matcher = SequenceMatcher(lambda x: False, a, b)
+    for op, a_start, a_end, b_start, b_end in matcher.get_opcodes():
+        if op == 'equal':
+            # In both strings.
+            a_out.append(a[a_start:a_end])
+            b_out.append(b[b_start:b_end])
+        elif op == 'insert':
+            # Right only.
+            b_out.append(colorize_(b[b_start:b_end], color))
+        elif op == 'delete':
+            # Left only.
+            a_out.append(colorize_(a[a_start:a_end], color))
+        elif op == 'replace':
+            # Right and left differ. Colorize with 'secondary_color'
+            # if it's just a case change.
+            if a[a_start:a_end].lower() != b[b_start:b_end].lower():
+                c = color
+            else:
+                c = secondary_color
+            a_out.append(colorize_(a[a_start:a_end], c))
+            b_out.append(colorize_(b[b_start:b_end], c))
+        else:
+            assert(False)
+
+    return ''.join(a_out), ''.join(b_out)
+
+
 def _colorize_replacement(original, replacement, regex, color):
     _colored_replacement = colorize(replacement, fore=color)
     return re.sub(regex, _colored_replacement, original)

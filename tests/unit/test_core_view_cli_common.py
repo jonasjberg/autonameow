@@ -37,6 +37,7 @@ from core.types import BUILTIN_REGEX_TYPE
 from core.view.cli.common import (
     colorize,
     colorize_quoted,
+    _colorize_string_diff,
     ColumnFormatter,
     displayable_replacement,
     msg,
@@ -351,6 +352,50 @@ class TestMsgPossibleRename(TestCase):
 
     def test_raises_exception_if_called_with_bytes_strings_dest_and_from(self):
         self.__check_raises_exception(b'foo', b'bar')
+
+
+class TestColorizeStringDiff(TestCase):
+    def _assert_colorized_diff(self, expect, given):
+        expect_a, expect_b = expect
+        given_a, given_b = given
+
+        def _mock_colorize(string, color):
+            # Use strings instead of ANSI escape codes.
+            #   Primary color start: 'C1'
+            # Secondary color start: 'C2'
+            #     Color end (reset): 'CR'
+            return color + string + 'CR'
+
+        actual_a, actual_b = _colorize_string_diff(
+            given_a, given_b, color='C1', secondary_color='C2',
+            colorize_=_mock_colorize
+        )
+        self.assertEqual(expect_a, actual_a, 'Given A: "{}"'.format(given_a))
+        self.assertEqual(expect_b, actual_b, 'Given B: "{}"'.format(given_b))
+
+    def test_returns_empty_strings_as_is(self):
+        expect = ['', '']
+        given = ['', '']
+        self._assert_colorized_diff(expect, given)
+
+    def test_returns_whitespace_strings_as_is(self):
+        self._assert_colorized_diff(expect=(' ', ' '), given=(' ', ' '))
+
+    def test_returns_identical_strings_as_is(self):
+        self._assert_colorized_diff(expect=['C1aCR', 'C1bCR'], given=['a', 'b'])
+
+    def test_returns_identical_strings_as_is(self):
+        self._assert_colorized_diff(expect=['a', 'a'], given=['a', 'a'])
+
+    def test_colorizes_one_character_difference(self):
+        self._assert_colorized_diff(expect=['C1aCR', 'C1bCR'], given=['a', 'b'])
+
+    def test_colorizes_case_difference_with_secondary_color(self):
+        self._assert_colorized_diff(expect=['C2aCR', 'C2ACR'], given=['a', 'A'])
+
+    def test_colorizes_both_case_difference_and_character_difference(self):
+        self._assert_colorized_diff(expect=['C1fooCR C2aCR', 'C1barCR C2ACR'],
+                                    given=['foo a', 'bar A'])
 
 
 class TestColumnFormatter(TestCase):
