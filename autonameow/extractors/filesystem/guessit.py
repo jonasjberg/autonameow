@@ -33,7 +33,6 @@ from extractors import (
     BaseExtractor,
     ExtractorError
 )
-from util import mimemagic
 
 
 class GuessitExtractor(BaseExtractor):

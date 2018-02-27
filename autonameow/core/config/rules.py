@@ -34,7 +34,6 @@ from core.exceptions import (
 )
 from core.model import MeowURI
 from core.namebuilder import fields
-import util
 
 
 log = logging.getLogger(__name__)
