@@ -28,7 +28,10 @@ from core import (
     logs,
     namebuilder,
 )
-from core.evaluate import TemplateFieldDataResolver
+from core.evaluate import (
+    RuleMatcher,
+    TemplateFieldDataResolver
+)
 from core.exceptions import (
     AutonameowException,
     NameBuilderError
@@ -41,11 +44,11 @@ log = logging.getLogger(__name__)
 
 class FilesContext(object):
     def __init__(self, autonameow_exit_code, options, active_config,
-                 rule_matcher):
+                 master_provider):
         self.autonameow_exit_code = autonameow_exit_code
         self.opts = options
         self.active_config = active_config
-        self.matcher = rule_matcher
+        self.master_provider = master_provider
 
     def handle_file(self, current_file):
         #  Things to find:
@@ -69,9 +72,15 @@ class FilesContext(object):
         data_sources = None
         name_template = None
         if self.opts.get('mode_rulematch'):
-            # TODO: Cleanup ..
+            matcher = RuleMatcher(
+                self.active_config.rules,
+                self.master_provider,
+                # TODO: [TD0171] Separate logic from user interface.
+                list_rulematch=self.opts.get('list_rulematch')
+            )
             with logs.log_runtime(log, 'Rule-Matching'):
-                candidates = self.matcher.match(current_file)
+                candidates = matcher.match(current_file)
+
             log.debug('Matcher returned {} candidate rules'.format(len(candidates)))
             if candidates:
                 active_rule = self._try_get_rule(current_file, candidates)

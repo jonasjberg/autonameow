@@ -37,7 +37,6 @@ from core import (
     providers,
     repository,
 )
-from core.evaluate import RuleMatcher
 from core.context import FilesContext
 from core.renamer import FileRenamer
 from util import encoding as enc
@@ -69,8 +68,8 @@ class Autonameow(object):
         self.start_time = time.time()
 
         self.active_config = None
-        self.matcher = None
         self.renamer = None
+        self.master_provider = None
 
         self._exit_code = C.EXIT_SUCCESS
 
@@ -162,12 +161,7 @@ class Autonameow(object):
             log.warning('Configuration does not contain any rules!')
 
         master_provider.initialize(self.active_config)
-
-        self.matcher = RuleMatcher(
-            rules,
-            master_provider,
-            list_rulematch=self.opts.get('list_rulematch')
-        )
+        self.master_provider = master_provider
 
         self._handle_files(files_to_process)
 
@@ -255,7 +249,7 @@ class Autonameow(object):
         context = FilesContext(autonameow_exit_code=self.exit_code,
                                options=self.opts,
                                active_config=self.active_config,
-                               rule_matcher=self.matcher)
+                               master_provider=self.master_provider)
 
         for file_path in file_paths:
             _displayable_file_path = enc.displayable_path(file_path)
