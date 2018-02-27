@@ -448,6 +448,10 @@ Low Priority
       intersection of the unfiltered tags and a whitelist.
     * Allow specifying allowed tags in the configuration?
     * Allow specifying mutually exclusive tags in the configuration?
+    * Convert various metadata to tags.
+      From `XMP:Description: Computers, Software, Engineering` to a list of
+      tags `computers`, `software` and `engineering`.
+
 
 * `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF
   GPS data. Look into comparing coordinates with the
