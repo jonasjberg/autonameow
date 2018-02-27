@@ -74,7 +74,7 @@ class TestRuleMatcherMatching(TestCase):
 
     def test_returns_empty_list_if_no_rules_are_available(self):
         matcher = _get_rulematcher(rules=[])
-        actual = matcher.match()
+        actual = matcher.get_match_results()
         expect = []
         self.assertEqual(expect, actual)
 
@@ -96,7 +96,7 @@ class TestRuleMatcherMatching(TestCase):
 
     def _check_matcher_result(self, given, expect):
         matcher = _get_rulematcher(rules=given, provider=None)
-        actual = matcher.match()
+        actual = matcher.get_match_results()
         self.assertEqual(expect, actual)
 
     @patch('core.evaluate.rulematcher.RuleConditionEvaluator.passed')
@@ -108,7 +108,7 @@ class TestRuleMatcherMatching(TestCase):
         # 0 conditions met
         mock_passed.return_value = []
         matcher = _get_rulematcher(rules=[rule], provider=None)
-        actual = matcher.match()
+        actual = matcher.get_match_results()
         expect = [(rule, 0.0, 1.0)]
         self.assertEqual(actual, expect)
 
@@ -127,7 +127,7 @@ class TestRuleMatcherMatching(TestCase):
         mock_passed.return_value = ['a', 'b', 'c']
 
         matcher = _get_rulematcher(rules=[rule], provider=None)
-        actual = matcher.match()
+        actual = matcher.get_match_results()
         expect = [(rule, 1.0, 1.0)]
         self.assertEqual(expect, actual)
 
@@ -144,7 +144,7 @@ class TestRuleMatcherMatching(TestCase):
         mock_passed.return_value = ['a', 'b', 'c']
 
         matcher = _get_rulematcher(rules=[rule1, rule2], provider=None)
-        actual = matcher.match()
+        actual = matcher.get_match_results()
         expect = [(rule1, 1.0, 1.0), (rule2, 1.0, 1.0)]
         self.assertEqual(expect, actual)
 
@@ -162,7 +162,7 @@ class TestRuleMatcherMatching(TestCase):
         mock_passed.side_effect = [['a', 'b'], ['a', 'b', 'c', 'd', 'e']]
 
         matcher = _get_rulematcher(rules=[rule1, rule2], provider=None)
-        actual = matcher.match()
+        actual = matcher.get_match_results()
         expect = [(rule2, 1.0, 1.0), (rule1, 1.0, 0.4)]
         self.assertEqual(expect, actual)
 

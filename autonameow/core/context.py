@@ -80,7 +80,7 @@ class FilesContext(object):
                 list_rulematch=self.opts.get('list_rulematch')
             )
             with logs.log_runtime(log, 'Rule-Matching'):
-                candidates = matcher.match()
+                candidates = matcher.get_match_results()
 
             log.debug('Matcher returned {} candidate rules'.format(len(candidates)))
             if candidates:

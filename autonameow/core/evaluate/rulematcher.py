@@ -64,7 +64,7 @@ class RuleMatcher(object):
             return response.value
         return None
 
-    def match(self):
+    def get_match_results(self):
         if not self._rules:
             log.debug('No rules available for matching!')
             return []
