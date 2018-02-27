@@ -100,18 +100,7 @@ class RuleMatcher(object):
                                   for rule in remaining_rules)
         scored_rules = dict()
         for rule in remaining_rules:
-            met_conditions = len(self.condition_evaluator.passed(rule))
-            num_conditions = rule.number_conditions
-
-            # Ratio of met conditions to the total number of conditions
-            # for a single rule.
-            score = met_conditions / max(1, num_conditions)
-
-            # Ratio of number of conditions in this rule to the number of
-            # conditions in the rule with the highest number of conditions.
-            weight = num_conditions / max(1, max_condition_count)
-
-            scored_rules[rule] = {'score': score, 'weight': weight}
+            scored_rules[rule] = self._score_rule(max_condition_count, rule)
 
         log.debug(
             'Prioritizing remaining {} candidates ..'.format(num_rules_remain)
@@ -134,6 +123,20 @@ class RuleMatcher(object):
                         weight=scored_rules[rule]['weight'])
             for rule in prioritized_rules
         ]
+
+    def _score_rule(self, max_condition_count, rule):
+        met_conditions = len(self.condition_evaluator.passed(rule))
+        num_conditions = rule.number_conditions
+
+        # Ratio of met conditions to the total number of conditions
+        # for a single rule.
+        score = met_conditions / max(1, num_conditions)
+
+        # Ratio of number of conditions in this rule to the number of
+        # conditions in the rule with the highest number of conditions.
+        weight = num_conditions / max(1, max_condition_count)
+
+        return {'score': score, 'weight': weight}
 
     @staticmethod
     def _log_results(prioritized_rules, scored_rules, discarded_rules):
