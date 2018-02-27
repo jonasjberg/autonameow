@@ -27,6 +27,7 @@ critical `TODO`-list item.
 >     * `pandoc`
 >     * `pdftotext`
 >     * `unrtf`
+>     * `jpeginfo`
 >
 > 2. Install these Python modules:
 >
@@ -110,7 +111,7 @@ install the non-Python dependencies.
 
 Install the dependencies by running the following commands in a terminal:
 ```bash
-brew install libmagic exiftool tesseract unrtf pandoc
+brew install libmagic exiftool tesseract unrtf pandoc jpeginfo
 brew install poppler # pdftotext
 pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib
 ```
@@ -120,7 +121,7 @@ pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs
 Install the dependencies by running the following commands in a terminal:
 
 ```bash
-sudo apt install exiftool tesseract-ocr pdftotext unrtf pandoc
+sudo apt install exiftool tesseract-ocr pdftotext unrtf pandoc jpeginfo
 pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib
 ```
 

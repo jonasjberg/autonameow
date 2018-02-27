@@ -42,6 +42,7 @@ class GuessitExtractor(BaseExtractor):
         'audio_codec': {
             'coercer': types.AW_STRING,
             'mapped_fields': [],
+            'generic_field': None
         },
         'date': {
             'coercer': types.AW_TIMEDATE,
@@ -53,9 +54,13 @@ class GuessitExtractor(BaseExtractor):
         },
         'episode': {
             'coercer': types.AW_INTEGER,
+            'mapped_fields': [],
+            'generic_field': None
         },
         'format': {
             'coercer': types.AW_STRING,
+            'mapped_fields': [],
+            'generic_field': None
         },
         'release_group': {
             'coercer': types.AW_STRING,
@@ -66,9 +71,13 @@ class GuessitExtractor(BaseExtractor):
         },
         'screen_size': {
             'coercer': types.AW_STRING,
+            'mapped_fields': [],
+            'generic_field': None
         },
         'season': {
             'coercer': types.AW_INTEGER,
+            'mapped_fields': [],
+            'generic_field': None
         },
         'title': {
             'coercer': types.AW_STRING,
@@ -84,6 +93,8 @@ class GuessitExtractor(BaseExtractor):
         },
         'video_codec': {
             'coercer': types.AW_STRING,
+            'mapped_fields': [],
+            'generic_field': None
         },
         'year': {
             'coercer': types.AW_DATE,
@@ -147,3 +158,4 @@ def run_guessit(input_data, options=None):
     finally:
         # TODO: Reset logging to state before disabling DEBUG!
         logging.disable(logging.NOTSET)
+        return result
