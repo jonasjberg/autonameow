@@ -75,11 +75,12 @@ class FilesContext(object):
             matcher = RuleMatcher(
                 self.active_config.rules,
                 self.master_provider,
+                current_file,
                 # TODO: [TD0171] Separate logic from user interface.
                 list_rulematch=self.opts.get('list_rulematch')
             )
             with logs.log_runtime(log, 'Rule-Matching'):
-                candidates = matcher.match(current_file)
+                candidates = matcher.match()
 
             log.debug('Matcher returned {} candidate rules'.format(len(candidates)))
             if candidates:
