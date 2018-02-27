@@ -28,7 +28,10 @@ from core import (
     logs,
     namebuilder,
 )
-from core.evaluate import TemplateFieldDataResolver
+from core.evaluate import (
+    RuleMatcher,
+    TemplateFieldDataResolver
+)
 from core.exceptions import (
     AutonameowException,
     NameBuilderError
@@ -40,12 +43,12 @@ log = logging.getLogger(__name__)
 
 
 class FilesContext(object):
-    def __init__(self, autonameow_instance, options, active_config,
-                 rule_matcher):
-        self.ameow = autonameow_instance
+    def __init__(self, autonameow_exit_code, options, active_config,
+                 master_provider):
+        self.autonameow_exit_code = autonameow_exit_code
         self.opts = options
         self.active_config = active_config
-        self.matcher = rule_matcher
+        self.master_provider = master_provider
 
     def handle_file(self, current_file):
         #  Things to find:
@@ -69,9 +72,16 @@ class FilesContext(object):
         data_sources = None
         name_template = None
         if self.opts.get('mode_rulematch'):
-            # TODO: Cleanup ..
+            matcher = RuleMatcher(
+                self.active_config.rules,
+                self.master_provider,
+                current_file,
+                # TODO: [TD0171] Separate logic from user interface.
+                list_rulematch=self.opts.get('list_rulematch')
+            )
             with logs.log_runtime(log, 'Rule-Matching'):
-                candidates = self.matcher.match(current_file)
+                candidates = matcher.get_match_results()
+
             log.debug('Matcher returned {} candidate rules'.format(len(candidates)))
             if candidates:
                 active_rule = self._try_get_rule(current_file, candidates)
@@ -109,7 +119,7 @@ class FilesContext(object):
 
             if self.opts.get('mode_batch'):
                 log.warning('Data sources unknown! Aborting ..')
-                self.ameow.exit_code = C.EXIT_WARNING
+                self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
             # Have the user select data sources.
@@ -120,7 +130,7 @@ class FilesContext(object):
         if not field_databundle_dict:
             if not self.opts.get('mode_automagic'):
                 log.warning('Not in automagic mode. Unable to populate name.')
-                self.ameow.exit_code = C.EXIT_WARNING
+                self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
             while not field_databundle_dict and candidates:
@@ -144,7 +154,7 @@ class FilesContext(object):
 
         if not field_databundle_dict:
             log.warning('Unable to populate name.')
-            self.ameow.exit_code = C.EXIT_WARNING
+            self.autonameow_exit_code = C.EXIT_WARNING
             return None
 
         try:
@@ -217,7 +227,7 @@ class FilesContext(object):
             if self.opts.get('mode_batch'):
                 log.error('Unable to resolve all name template fields. '
                           'Running in batch mode -- Aborting..')
-                self.ameow.exit_code = C.EXIT_WARNING
+                self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
         resolver.collect()
@@ -227,7 +237,7 @@ class FilesContext(object):
             log.info('Resolver has not collected all fields ..')
             if self.opts.get('mode_batch'):
                 log.warning('Unable to populate name.')
-                # self.ameow.exit_code = C.EXIT_WARNING
+                # self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
             # TODO: [TD0024][TD0025] Implement Interactive mode.
@@ -260,7 +270,7 @@ class FilesContext(object):
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
             log.warning('Unable to populate name. Missing field data.')
-            self.ameow.exit_code = C.EXIT_WARNING
+            self.autonameow_exit_code = C.EXIT_WARNING
             return None
 
         return resolver.fields_data

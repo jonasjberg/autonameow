@@ -33,11 +33,22 @@ MatchResult = namedtuple('MatchResult', 'rule score weight')
 
 
 class RuleMatcher(object):
-    def __init__(self, rules, provider, list_rulematch=None):
+    def __init__(self, rules, provider, fileobject, list_rulematch=None):
+        """
+        Creates a new instance that evaluates rules against a given file.
+        """
         self._rules = list(rules)
         self._list_rulematch = bool(list_rulematch)
         self._provider = provider
         self._evaluator_klass = RuleConditionEvaluator
+        self._fileobject = fileobject
+
+        # Functions that use this does not have access to 'self.fileobject'.
+        # This method, which calls a callback, is itself passed as a callback..
+        def _data_request_callback(meowuri):
+            return self.request_data(self._fileobject, meowuri)
+
+        self.condition_evaluator = self._evaluator_klass(_data_request_callback)
 
     def request_data(self, fileobject, meowuri):
         sanity.check_isinstance_meowuri(meowuri)
@@ -53,31 +64,25 @@ class RuleMatcher(object):
             return response.value
         return None
 
-    def match(self, fileobject):
+    def get_match_results(self):
         if not self._rules:
             log.debug('No rules available for matching!')
             return []
 
         all_rules = list(self._rules)
 
-        # Functions that use this does not have access to 'self.fileobject'.
-        # This method, which calls a callback, is itself passed as a callback..
-        def _data_request_callback(meowuri):
-            return self.request_data(fileobject, meowuri)
-
-        num_all_rules = len(all_rules)
-        log.debug('Examining {} rules ..'.format(num_all_rules))
-        condition_evaluator = self._evaluator_klass(_data_request_callback)
+        total_rule_count = len(all_rules)
+        log.debug('Examining {} rules ..'.format(total_rule_count))
         for i, rule in enumerate(all_rules, start=1):
-            log.debug('Evaluating rule {}/{}: {!s}'.format(i, num_all_rules, rule))
-            condition_evaluator.evaluate(rule)
+            log.debug('Evaluating rule {}/{}: {!s}'.format(i, total_rule_count, rule))
+            self.condition_evaluator.evaluate(rule)
 
         # Remove rules that require an exact match and contains a condition
         # that failed evaluation.
         remaining_rules = [
             rule for rule in all_rules
             if not rule.exact_match
-            or rule.exact_match and not condition_evaluator.failed(rule)
+            or rule.exact_match and not self.condition_evaluator.failed(rule)
         ]
 
         num_rules_remain = len(remaining_rules)
@@ -95,18 +100,7 @@ class RuleMatcher(object):
                                   for rule in remaining_rules)
         scored_rules = dict()
         for rule in remaining_rules:
-            met_conditions = len(condition_evaluator.passed(rule))
-            num_conditions = rule.number_conditions
-
-            # Ratio of met conditions to the total number of conditions
-            # for a single rule.
-            score = met_conditions / max(1, num_conditions)
-
-            # Ratio of number of conditions in this rule to the number of
-            # conditions in the rule with the highest number of conditions.
-            weight = num_conditions / max(1, max_condition_count)
-
-            scored_rules[rule] = {'score': score, 'weight': weight}
+            scored_rules[rule] = self._score_rule(max_condition_count, rule)
 
         log.debug(
             'Prioritizing remaining {} candidates ..'.format(num_rules_remain)
@@ -118,8 +112,7 @@ class RuleMatcher(object):
 
         # TODO: [TD0171] Separate logic from user interface.
         if self._list_rulematch:
-            self._display_details(prioritized_rules, scored_rules,
-                                  discarded_rules, condition_evaluator)
+            self._display_details(prioritized_rules, scored_rules, discarded_rules)
         else:
             self._log_results(prioritized_rules, scored_rules, discarded_rules)
 
@@ -130,6 +123,20 @@ class RuleMatcher(object):
                         weight=scored_rules[rule]['weight'])
             for rule in prioritized_rules
         ]
+
+    def _score_rule(self, max_condition_count, rule):
+        met_conditions = len(self.condition_evaluator.passed(rule))
+        num_conditions = rule.number_conditions
+
+        # Ratio of met conditions to the total number of conditions
+        # for a single rule.
+        score = met_conditions / max(1, num_conditions)
+
+        # Ratio of number of conditions in this rule to the number of
+        # conditions in the rule with the highest number of conditions.
+        weight = num_conditions / max(1, max_condition_count)
+
+        return {'score': score, 'weight': weight}
 
     @staticmethod
     def _log_results(prioritized_rules, scored_rules, discarded_rules):
@@ -163,13 +170,11 @@ class RuleMatcher(object):
                 i, rule.exact_match, rule.ranking_bias, rule.description
             )
 
-    @staticmethod
-    def _display_details(prioritized_rules, scored_rules, discarded_rules,
-                         condition_evaluator):
+    def _display_details(self, prioritized_rules, scored_rules, discarded_rules):
         # TODO: [TD0171] Separate logic from user interface.
         def _prettyprint_rule_details(n, _rule, _bias, _score=None, _weight=None):
-            conditions_passed = condition_evaluator.passed(_rule)
-            conditions_failed = condition_evaluator.failed(_rule)
+            conditions_passed = self.condition_evaluator.passed(_rule)
+            conditions_failed = self.condition_evaluator.failed(_rule)
 
             UNAVAILABLE = 'N/A '
             FMT_DECIMAL = '{:.2f}'
@@ -198,14 +203,14 @@ class RuleMatcher(object):
             msg_label_fail = view.colorize('FAILED', fore='RED')
             msg_label_padding = view.colorize('      ', fore='BLACK')
             for c in conditions_passed:
-                d = condition_evaluator.evaluated(_rule, c)
+                d = self.condition_evaluator.evaluated(_rule, c)
 
                 cf.addrow(msg_label_pass, str(c.meowuri))
                 cf.addrow(msg_label_padding, 'Expression:', str(c.expression))
                 cf.addrow(msg_label_padding, 'Evaluated Data:', str(d))
 
             for c in conditions_failed:
-                d = condition_evaluator.evaluated(_rule, c)
+                d = self.condition_evaluator.evaluated(_rule, c)
                 cf.addrow(msg_label_fail, str(c.meowuri))
                 cf.addrow(msg_label_padding, 'Expression:', str(c.expression))
                 cf.addrow(msg_label_padding, 'Evaluated Data:', str(d))
