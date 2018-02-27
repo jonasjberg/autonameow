@@ -252,7 +252,7 @@ class Autonameow(object):
         """
         results_to_list = []
 
-        context = FilesContext(autonameow_instance=self,
+        context = FilesContext(autonameow_exit_code=self.exit_code,
                                options=self.opts,
                                active_config=self.active_config,
                                rule_matcher=self.matcher)
