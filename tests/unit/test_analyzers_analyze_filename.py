@@ -32,7 +32,7 @@ from analyzers.analyze_filename import (
     FilenameAnalyzer,
     FilenameTokenizer,
     likely_extension,
-    _load_mimetype_extension_suffixes_map_file,
+    _read_probable_extension_config_file,
     _parse_mimetype_extension_suffixes_map_data,
     PATH_PROBABLE_EXT_LOOKUP,
     SubstringFinder
@@ -927,9 +927,9 @@ class TestLoadMimetypeExtensionSuffixesMapFile(TestCase):
         self.assertTrue(uu.file_exists(self.filepath))
 
     def test_returns_loaded_data_as_expected_type(self):
-        actual = _load_mimetype_extension_suffixes_map_file(self.filepath)
+        actual = _read_probable_extension_config_file(self.filepath)
         self.assertIsInstance(actual, dict)
 
     def test_returns_non_empty_dict(self):
-        actual = _load_mimetype_extension_suffixes_map_file(self.filepath)
+        actual = _read_probable_extension_config_file(self.filepath)
         self.assertGreater(len(actual), 10)
