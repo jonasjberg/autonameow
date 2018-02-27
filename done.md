@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-02-27
+
+> Low Priority
+> ------------
+>
+> * `[TD0096]` Fix some replacements cause incorrect color highlighting.
+
 ### 2018-02-24
 
 > High Priority

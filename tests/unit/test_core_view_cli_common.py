@@ -33,13 +33,11 @@ else:
     COLORAMA_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
-from core.types import BUILTIN_REGEX_TYPE
 from core.view.cli.common import (
     colorize,
     colorize_quoted,
     _colorize_string_diff,
     ColumnFormatter,
-    displayable_replacement,
     msg,
     msg_possible_rename,
     msg_rename,
@@ -672,118 +670,3 @@ class TestColorizeQuoted(TestCase):
         __check(' "foo" "bar"', ' "{COL}foo{RES}" "{COL}bar{RES}"')
         __check(' "foo"" "bar"', ' "{COL}foo{RES}""{COL} {RES}"bar"')
         __check(' "a"" ""b"', ' "{COL}a{RES}""{COL} {RES}""{COL}b{RES}"')
-
-
-@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
-class TestDisplayableReplacement(TestCase):
-    def __check_replacement(self, original, regex, replacement,
-                            expect_old, expect_new):
-        assert regex and isinstance(regex, BUILTIN_REGEX_TYPE)
-        for arg in (original, replacement, expect_old, expect_new):
-            assert isinstance(arg, str)
-
-        COLOR = 'RED'
-        ANSI_COLOR = '\x1b[31m'
-        ANSI_RESET = '\x1b[39m'
-
-        _expected_old = expect_old.format(COL=ANSI_COLOR, RES=ANSI_RESET)
-        _expected_new = expect_new.format(COL=ANSI_COLOR, RES=ANSI_RESET)
-        actual_old, actual_new = displayable_replacement(
-            original, replacement, regex, COLOR
-        )
-
-        def __unescape_ansi(s):
-            return s.replace(ANSI_COLOR, '{COL}').replace(ANSI_RESET, '{RES}')
-
-        self.assertEqual(
-            actual_old, _expected_old,
-            'OLD :: Actual: "{!s}"  Expected: "{!s}"'.format(
-                __unescape_ansi(actual_old), __unescape_ansi(_expected_old)
-            )
-        )
-        self.assertEqual(
-            actual_new, _expected_new,
-            'NEW :: Actual: "{!s}"  Expected: "{!s}"'.format(
-                __unescape_ansi(actual_new), __unescape_ansi(_expected_new)
-            )
-        )
-
-    def test_unchanged_when_regex_does_not_match(self):
-        self.__check_replacement(
-            original='Bar, x123',
-            regex=re.compile(r'Foo'),
-            replacement='Mjao',
-            expect_old='Bar, x123',
-            expect_new='Bar, x123'
-        )
-
-    def test_unchanged_when_regex_match_equals_replacement_string(self):
-        self.__check_replacement(
-            original='Bar, x123',
-            regex=re.compile(r'Bar'),
-            replacement='Bar',
-            expect_old='Bar, x123',
-            expect_new='Bar, x123'
-        )
-
-    def test_one_single_character_replacement(self):
-        self.__check_replacement(
-            original='Bar, x123',
-            regex=re.compile(r'x'),
-            replacement='Mjao',
-            expect_old='Bar, {COL}x{RES}123',
-            expect_new='Bar, {COL}Mjao{RES}123'
-        )
-
-    def test_two_single_character_replacements_one_leading(self):
-        self.__check_replacement(
-            original='xBar, x123',
-            regex=re.compile(r'x'),
-            replacement='mjao',
-            expect_old='{COL}x{RES}Bar, {COL}x{RES}123',
-            expect_new='{COL}mjao{RES}Bar, {COL}mjao{RES}123'
-        )
-
-    def test_three_single_character_replacements_one_leading_one_trailing(self):
-        self.__check_replacement(
-            original='xBar, x123x',
-            regex=re.compile(r'x'),
-            replacement='mjao',
-            expect_old='{COL}x{RES}Bar, {COL}x{RES}123{COL}x{RES}',
-            expect_new='{COL}mjao{RES}Bar, {COL}mjao{RES}123{COL}mjao{RES}'
-        )
-
-    def test_multiple_character_replacement_a(self):
-        self.__check_replacement(
-            original='Bar,, x123',
-            regex=re.compile(r'[x,]+'),
-            replacement='Z',
-            expect_old='Bar{COL},,{RES} {COL}x{RES}123',
-            expect_new='Bar{COL}Z{RES} {COL}Z{RES}123'
-        )
-
-    def test_multiple_character_replacement_b(self):
-        self.skipTest('TODO: [TD0096] Fix invalid replacement colouring')
-        self.__check_replacement(
-            original='Bar,, x123',
-            regex=re.compile(r'[x,]'),
-            replacement='Z',
-            expect_old='Bar{COL},,{RES} {COL}x{RES}123',
-            expect_new='Bar{COL}Z{RES}{COL}Z{RES} {COL}Z{RES}123'
-        )
-
-    # TODO: [TD0096] Fix invalid colouring if the replacement is the last character.
-    #
-    # Applying custom replacement. Regex: "re.compile('\\.$')" Replacement: ""
-    # Applying custom replacement: "2007-04-23_12-comments.png." -> "2007-04-23_12-comments.png"
-    #                                                     ^   ^
-    #                 Should not be colored red, but is --'   '-- Should be red, but isn't ..
-    def test_bug_replacement_is_last_character(self):
-        self.skipTest('TODO: [TD0096] Fix invalid replacement colouring')
-        self.__check_replacement(
-            original='2007-04-23_12-comments.png.',
-            regex=re.compile(r'\.$'),
-            replacement='',
-            expect_old='2007-04-23_12-comments.png{COL}.{RES}',
-            expect_new='2007-04-23_12-comments.png'
-        )

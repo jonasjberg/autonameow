@@ -392,8 +392,6 @@ Low Priority
     template fields or by allowing arbitrary placeholder fields with some
     simple format like `{a}`, `{b}`, etc.
 
-* `[TD0096]` Fix some replacements cause incorrect color highlighting.
-
 * `[TD0091]` Take a look at old code in `util/dateandtime.py`.
 
 * `[TD0068]` Let the user specify which languages to use for OCR.

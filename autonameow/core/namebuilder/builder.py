@@ -79,13 +79,16 @@ class FilenamePostprocessor(object):
         sorted_by_longest_replacement = sorted(
             matches, key=lambda x: len(x[1]), reverse=True
         )
+        filename_before = filename
         for regex, replacement in sorted_by_longest_replacement:
             log.debug('Applying custom replacement. Regex: "{!s}" '
                       'Replacement: "{!s}"'.format(regex, replacement))
-            # TODO: [TD0171] Separate logic from user interface.
-            view.msg_replacement(filename, replacement, regex)
-
             filename = re.sub(regex, replacement, filename)
+
+        filename_after = filename
+        if filename_before != filename_after:
+            # TODO: [TD0171] Separate logic from user interface.
+            view.msg_filename_replacement(filename_before, filename_after)
         return filename
 
     @staticmethod

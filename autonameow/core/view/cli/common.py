@@ -422,36 +422,17 @@ def _colorize_replacement(original, replacement, regex, color):
     return re.sub(regex, _colored_replacement, original)
 
 
-def displayable_replacement(original, replacement, regex, color):
-    if re.sub(regex, replacement, original) == original:
-        # Something was matched but replaced with the same string.
-        return original, original
-
-    colored_old = colorize_re_match(original, regex=regex, color=color)
-    colored_new = _colorize_replacement(original, replacement, regex, color)
-    return colored_old, colored_new
-
-
-def msg_replacement(original, replacement, regex):
-    if log.getEffectiveLevel() > logging.INFO:
-        # TODO: [TD0171] Separate logic from user interface.
-        # Skip if not '--verbose' ..
-        return
-
-    _old, _new = displayable_replacement(original, replacement, regex,
-                                         C.REPLACEMENT_HIGHLIGHT_COLOR)
+def msg_filename_replacement(before, after):
+    _old, _new = _colorize_string_diff(
+        before, after,
+        C.REPLACEMENT_HIGHLIGHT_COLOR,
+        C.REPLACEMENT_SECONDARY_HIGHLIGHT_COLOR
+    )
     cf = ColumnFormatter(align='right')
-    cf.addrow('Applied replacement:', '{!s}')
+    cf.addrow('Applied replacements:', '{!s}')
     cf.addrow('->', '{!s}')
     _message = str(cf).format(_old, _new)
     msg(_message)
-
-    # TODO: [TD0096] Fix invalid colouring if the replacement is the last character.
-    #
-    # Applying custom replacement. Regex: "re.compile('\\.$')" Replacement: ""
-    # Applying custom replacement: "2007-04-23_12-comments.png." -> "2007-04-23_12-comments.png"
-    #                                                     ^   ^
-    #                 Should not be colored red, but is --'   '-- Should be red, but isn't ..
 
 
 class ColumnFormatter(object):

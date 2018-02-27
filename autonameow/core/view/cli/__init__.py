@@ -29,7 +29,7 @@ from .common import (
     msg,
     msg_possible_rename,
     msg_rename,
-    msg_replacement,
+    msg_filename_replacement,
     print_exit_info,
     print_start_info,
     print_version_info,

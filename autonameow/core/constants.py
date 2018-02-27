@@ -50,6 +50,7 @@ AUTONAMEOW_SRCROOT_DIR = os.path.realpath(os.path.join(_parent_dir, os.pardir))
 
 # Color used to highlight post-processing replacements.
 REPLACEMENT_HIGHLIGHT_COLOR = 'RED'
+REPLACEMENT_SECONDARY_HIGHLIGHT_COLOR = 'LIGHTRED_EX'
 
 # Used by command-line interface functions.
 CLI_MSG_HEADING_CHAR = '='

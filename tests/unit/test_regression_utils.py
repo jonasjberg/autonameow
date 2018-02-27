@@ -353,9 +353,9 @@ class TestMockUIInterface(TestCase):
             'colorize_re_match',
             'colorize_quoted',
             'msg',
+            'msg_filename_replacement',
             'msg_possible_rename',
             'msg_rename',
-            'msg_replacement',
             'print_exit_info',
             'print_start_info',
             'print_version_info',
@@ -428,9 +428,6 @@ class TestMockUIActualUsage(TestCase):
 
     def test_call_msg_rename(self):
         self.mock_ui.msg_rename('foo', 'bar', False)
-
-    def test_call_msg_replacement(self):
-        self.mock_ui.msg_replacement('foo', 'bar', 'baz')
 
     def test_call_print_exit_info(self):
         self.mock_ui.print_exit_info(0, 1)

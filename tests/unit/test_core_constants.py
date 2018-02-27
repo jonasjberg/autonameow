@@ -63,6 +63,10 @@ class TestConstants(TestCase):
         self._is_defined_type(bool, C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME)
         self._is_defined_type(bool, C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE)
 
+    def test_default_cli_colors(self):
+        self._is_defined_internal_string(C.REPLACEMENT_HIGHLIGHT_COLOR)
+        self._is_defined_internal_string(C.REPLACEMENT_SECONDARY_HIGHLIGHT_COLOR)
+
     def test_python_version_string(self):
         self._is_defined_internal_string(C.STRING_PYTHON_VERSION)
 
