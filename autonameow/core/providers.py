@@ -25,7 +25,7 @@ from core import constants as C
 from core import types
 from core.model.genericfields import (
     GenericField,
-    get_field_class
+    get_field_for_uri_leaf
 )
 from util import sanity
 
@@ -145,7 +145,7 @@ def _wrap_provider_result_field(field_metainfo, source_klass, value):
     # Map strings to generic field classes.
     _generic_field_string = field_info.get('generic_field')
     if _generic_field_string:
-        _generic_field_klass = get_field_class(_generic_field_string)
+        _generic_field_klass = get_field_for_uri_leaf(_generic_field_string)
         if _generic_field_klass:
             field_info['generic_field'] = _generic_field_klass
         else:
@@ -340,7 +340,7 @@ def _map_generic_sources(meowuri_class_map):
                     continue
 
                 sanity.check_internal_string(_generic_field_string)
-                _generic_field_klass = get_field_class(_generic_field_string)
+                _generic_field_klass = get_field_for_uri_leaf(_generic_field_string)
                 if not _generic_field_klass:
                     continue
 

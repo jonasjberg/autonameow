@@ -165,6 +165,6 @@ def _get_field_uri_leaf_to_klass_mapping():
     return _URI_LEAF_TO_KLASS_MAPPING
 
 
-def get_field_class(string):
+def get_field_for_uri_leaf(string):
     leaf_to_klass_map = _get_field_uri_leaf_to_klass_mapping()
     return leaf_to_klass_map.get(string)
