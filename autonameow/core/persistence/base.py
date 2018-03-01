@@ -335,7 +335,7 @@ def _basename_as_key(str_basename, persistencefile_prefix,
     if not str_basename.startswith(persistencefile_prefix):
         return None
 
-    # Remove the first occurance of the prefix.
+    # Remove the first occurrence of the prefix.
     key = str_basename.replace(persistencefile_prefix, '', 1)
 
     # Remove the first occurrence of the separator.

@@ -295,7 +295,7 @@ class TestGetProvidersForMeowURIs(TestCase):
         )
         self._assert_maps(actual, [])
 
-    def test_returns_included_sources_extractorss(self):
+    def test_returns_included_sources_extractors(self):
         actual = get_providers_for_meowuris(
             self._all_meowuris, include_roots=['extractor']
         )
@@ -533,7 +533,7 @@ class TestProviderRegistryMightBeResolvable(TestCase):
         _aT(uuconst.MEOWURI_FS_XPLAT_EXTENSION)
         _aT(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
-    def test_with_meowuri_and_no_mapped_meowuirs(self):
+    def test_with_meowuri_and_no_mapped_meowuris(self):
         p = ProviderRegistry(meowuri_source_map=dict())
 
         # Patch the instance attribute.

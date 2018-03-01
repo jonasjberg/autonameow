@@ -152,7 +152,7 @@ class TestMeowURIStripLeaf(TestCase):
 
 
 class TestMeowURIRoot(TestCase):
-    def test_retuens_instance_of_meowuriroot_given_valid_arguments(self):
+    def test_returns_instance_of_meowuriroot_given_valid_arguments(self):
         for given in [
             'analyzer',
             'generic',

@@ -139,7 +139,7 @@ class TestCollapseWhitespace(TestCase):
         self._check('   foo   bar   \n', ' foo bar \n')
         self._check('    foo    bar    \n', ' foo bar \n')
 
-    def test_collapsees_multiple_spaces_with_newlines(self):
+    def test_collapses_multiple_spaces_with_newlines(self):
         self._check('foo   \n   bar\n   ', 'foo \n bar\n ')
         self._check('foo   \n   bar   \n', 'foo \n bar \n')
 
