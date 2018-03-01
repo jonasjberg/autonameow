@@ -233,7 +233,7 @@ class TestWrapProviderResults(TestCase):
                 'coercer': types.AW_PATHCOMPONENT,
                 'multivalued': False,
                 'mapped_fields': [
-                    WeightedMapping(fields.Extension, probability=1),
+                    WeightedMapping(fields.Extension, probability=1.0),
                 ],
                 'source': 'foo_klass'
             }
@@ -257,6 +257,44 @@ class TestWrapProviderResults(TestCase):
         self.assertIn('extension', actual)
         self.assertIn('coercer', actual['extension'])
         self.assertEqual(types.AW_PATHCOMPONENT, actual['extension']['coercer'])
+
+    def test_wraps_example_resuts(self):
+        from core import types
+        actual = wrap_provider_results(
+            datadict={
+                'health': 0.5,
+                'is_jpeg': False,
+            },
+            metainfo={
+                'health': {
+                    'coercer': 'aw_float',
+                    'multivalued': False,
+                    'mapped_fields': None,
+                },
+                'is_jpeg': {
+                    'coercer': 'aw_boolean',
+                    'multivalued': False,
+                    'mapped_fields': None,
+                    'generic_field': None
+                }
+            },
+            source_klass='foo_klass'
+        )
+        expect = {
+            'health': {
+                'value': 0.5,
+                'coercer': types.AW_FLOAT,
+                'multivalued': False,
+                'source': 'foo_klass'
+            },
+            'is_jpeg': {
+                'value': False,
+                'coercer': types.AW_BOOLEAN,
+                'multivalued': False,
+                'source': 'foo_klass'
+            }
+        }
+        self.assertEqual(expect, actual)
 
 
 class TestTranslateMetainfoMappings(TestCase):

@@ -106,7 +106,7 @@ class ProviderMixin(object):
 
 def wrap_provider_results(datadict, metainfo, source_klass):
     """
-    Joins the plain data dict with metainfo defined in 'FIELD_LOOKUP'.
+    Translates metainfo to internal format and merges it with source and data.
 
     Args:
         datadict: Provider results data, keys are provider-specific fields
@@ -125,52 +125,60 @@ def wrap_provider_results(datadict, metainfo, source_klass):
 
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     for field, value in datadict.items():
-        field_metainfo = metainfo.get(field, {})
-        if not field_metainfo:
+        raw_field_metainfo = metainfo.get(field, {})
+        if not raw_field_metainfo:
             log.warning('Missing metainfo for field "{!s}"'.format(field))
             log.debug('Field {} not in {!s}'.format(field, metainfo))
             continue
 
-        wrapped_field = _wrap_provider_result_field(field_metainfo, source_klass, value)
-        if wrapped_field:
-            wrapped[field] = wrapped_field
-        else:
-            log.warning('Unable to wrap provider {!s} field "{!s}"'.format(source_klass, field))
+        field_metainfo = _translate_field_metainfo_to_internal_format(raw_field_metainfo)
+        if not field_metainfo:
+            log.warning('Translation of metainfo to internal format failed for provider {!s} field "{!s}"'.format(source_klass, field))
+            continue
+
+        wrapped[field] = _wrap_provider_result_field(field_metainfo, source_klass, value)
 
     return wrapped
 
 
-def _wrap_provider_result_field(field_metainfo, source_klass, value):
+def _translate_field_metainfo_to_internal_format(field_metainfo):
+    # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
     _field_metainfo = dict(field_metainfo)
+    internal_field_metainfo = dict()
 
     coercer_klass = get_coercer_from_metainfo_string(_field_metainfo.get('coercer'))
     if coercer_klass is None:
+        # TODO: Improve robustness. Raise appropriate exception.
+        # TODO: Improve robustness. Log provider with malformed metainfo entries.
+        # Fail by returning None if coercer is missing.
         return None
 
-    _field_metainfo['coercer'] = coercer_klass
+    internal_field_metainfo['coercer'] = coercer_klass
 
     mapped_fields_strings = _field_metainfo.get('mapped_fields')
     if mapped_fields_strings:
         translated_mapped_fields = translate_metainfo_mappings(mapped_fields_strings)
         if translated_mapped_fields:
-            _field_metainfo['mapped_fields'] = translated_mapped_fields
-        else:
-            # TODO: Improve robustness. Raise appropriate exception.
-            # TODO: Improve robustness. Log provider with malformed metainfo entries.
-            _field_metainfo.pop('mapped_fields')
+            internal_field_metainfo['mapped_fields'] = translated_mapped_fields
 
-    # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
     # Map strings to generic field classes.
     generic_field_string = _field_metainfo.get('generic_field')
     if generic_field_string:
         generic_field_klass = genericfields.get_field_for_uri_leaf(generic_field_string)
         if generic_field_klass:
-            _field_metainfo['generic_field'] = generic_field_klass
-        else:
-            # TODO: Improve robustness. Raise appropriate exception.
-            # TODO: Improve robustness. Log provider with malformed metainfo entries.
-            _field_metainfo.pop('generic_field')
+            internal_field_metainfo['generic_field'] = generic_field_klass
 
+    multivalued_string = _field_metainfo.get('multivalued')
+    if multivalued_string is not None:
+        translated_multivalued = translate_multivalued(multivalued_string)
+        if translated_multivalued is not None:
+            internal_field_metainfo['multivalued'] = translated_multivalued
+
+    return internal_field_metainfo
+
+
+def _wrap_provider_result_field(field_metainfo, source_klass, value):
+    _field_metainfo = dict(field_metainfo)
     field_info_to_add = {
         # Do not store a reference to the class itself before actually needed..
         'source': str(source_klass),
@@ -221,6 +229,10 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
                     probability=float(param_prob_str)
                 ))
     return translated
+
+
+def translate_multivalued(multivalued_string):
+    return bool(multivalued_string)
 
 
 def get_field_class_from_metainfo_string(string):
