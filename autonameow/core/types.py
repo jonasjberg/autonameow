@@ -787,23 +787,6 @@ def try_parse_date(string):
     raise ValueError(_error_msg)
 
 
-def try_coerce(value):
-    coercer = coercer_for(value)
-    if coercer:
-        if isinstance(value, list):
-            try:
-                return listof(coercer)(value)
-            except AWTypeError:
-                pass
-        else:
-            try:
-                return coercer(value)
-            except AWTypeError:
-                pass
-
-    return None
-
-
 def coercer_for(value):
     """
     Returns a coercer class suitable for the type of the given value.
