@@ -32,6 +32,7 @@ from core.model.genericfields import (
     GenericProducer,
     GenericSubject,
     GenericTags,
+    get_all_generic_field_klasses,
     meowuri_genericfield_map
 )
 import unit.utils as uu
@@ -76,6 +77,25 @@ class TestGenericFieldStr(TestCase):
         for generic_field, expected_uri in self.klass_expected:
             actual = generic_field.uri()
             self.assertEqual(actual, expected_uri)
+
+
+class TestGetAllGenericFieldKlasses(TestCase):
+    def test_returns_sequence_type(self):
+        actual = get_all_generic_field_klasses()
+        list_actual = [x for x in actual]
+        self.assertTrue(all(x in actual for x in list_actual))
+        self.assertTrue(all(x in list_actual for x in actual))
+
+    def test_returns_at_least_ten_generic_field_class(self):
+        actual = get_all_generic_field_klasses()
+        self.assertGreaterEqual(len(actual), 10)
+
+    def test_returns_subclasses_of_generic_field(self):
+        actual = get_all_generic_field_klasses()
+        for a in actual:
+            with self.subTest(actual_field_klass=a):
+                self.assertTrue(uu.is_class(a))
+                self.assertTrue(issubclass(a, GenericField))
 
 
 class TestGenericMeowURIs(TestCase):

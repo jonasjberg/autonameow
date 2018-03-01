@@ -131,6 +131,10 @@ class GenericTitle(GenericField):
     meowuri_leaf = 'Title'
 
 
+def get_all_generic_field_klasses():
+    return set(GenericField.__subclasses__())
+
+
 def meowuri_genericfield_map():
     return {
         klass.uri(): klass
