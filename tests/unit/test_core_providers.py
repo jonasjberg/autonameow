@@ -26,6 +26,7 @@ from unittest.mock import MagicMock, Mock
 from core.providers import (
     get_providers_for_meowuris,
     ProviderRegistry,
+    translate_metainfo_mappings,
     wrap_provider_results,
 )
 import unit.utils as uu
@@ -39,8 +40,6 @@ class TestWrapProviderResults(TestCase):
     def setUpClass(cls):
         import datetime
         from core import types
-        from core.model import WeightedMapping
-        from core.namebuilder import fields
         cls.EXAMPLE_FIELD_LOOKUP = {
             'abspath_full': {
                 'coercer': 'aw_path',
@@ -54,14 +53,14 @@ class TestWrapProviderResults(TestCase):
                 'coercer': 'aw_pathcomponent',
                 'multivalued': False,
                 'mapped_fields': [
-                    WeightedMapping(fields.Extension, probability=1),
+                    {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
                 ],
             },
             'basename_suffix': {
                 'coercer': 'aw_pathcomponent',
                 'multivalued': False,
                 'mapped_fields': [
-                    WeightedMapping(fields.Extension, probability=1),
+                    {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
                 ]
             },
             'basename_prefix': {
@@ -74,7 +73,7 @@ class TestWrapProviderResults(TestCase):
                 'coercer': 'aw_mimetype',
                 'multivalued': False,
                 'mapped_fields': [
-                    WeightedMapping(fields.Extension, probability=1),
+                    {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
                 ],
                 'generic_field': 'mime_type'
             },
@@ -82,8 +81,8 @@ class TestWrapProviderResults(TestCase):
                 'coercer': 'aw_timedate',
                 'multivalued': False,
                 'mapped_fields': [
-                    WeightedMapping(fields.Date, probability=1),
-                    WeightedMapping(fields.DateTime, probability=1),
+                    {'WeightedMapping': {'field': 'Date', 'probability': 1}},
+                    {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
                 ],
                 'generic_field': 'date_created'
             },
@@ -91,8 +90,8 @@ class TestWrapProviderResults(TestCase):
                 'coercer': 'aw_timedate',
                 'multivalued': False,
                 'mapped_fields': [
-                    WeightedMapping(fields.Date, probability=0.25),
-                    WeightedMapping(fields.DateTime, probability=0.25),
+                    {'WeightedMapping': {'field': 'Date', 'probability': 0.25}},
+                    {'WeightedMapping': {'field': 'DateTime', 'probability': 0.25}},
                 ],
                 'generic_field': 'date_modified'
             }
@@ -108,7 +107,10 @@ class TestWrapProviderResults(TestCase):
             'basename_full': b'foo.bar.pdf',
             'date_modified': datetime.datetime(2017, 11, 5, 15, 33, 50)
         }
+
+        from core.model import WeightedMapping
         from core.model.genericfields import GenericDateCreated, GenericDateModified, GenericMimeType
+        from core.namebuilder import fields
         cls.EXPECTED_WRAPPED = {
             'date_created': {
                 'coercer': types.AW_TIMEDATE,
@@ -206,7 +208,7 @@ class TestWrapProviderResults(TestCase):
             self.assertIn(key, actual)
         self.assertEqual(self.EXPECTED_WRAPPED, actual)
 
-    def test_translates_coercer_string_to_coercer_class(self):
+    def test_translates_arbitrary_datadict_metainfo_and_source_class(self):
         from core import types
         from core.model import WeightedMapping
         from core.namebuilder import fields
@@ -219,7 +221,7 @@ class TestWrapProviderResults(TestCase):
                     'coercer': 'aw_pathcomponent',
                     'multivalued': False,
                     'mapped_fields': [
-                        WeightedMapping(fields.Extension, probability=1),
+                        {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
                     ],
                 },
             },
@@ -237,6 +239,60 @@ class TestWrapProviderResults(TestCase):
             }
         }
         self.assertEqual(expect, actual)
+
+    def test_translates_coercer_string_to_coercer_class(self):
+        from core import types
+        actual = wrap_provider_results(
+            datadict={
+                'extension': b'pdf',
+            },
+            metainfo={
+                'extension': {
+                    'coercer': 'aw_pathcomponent',
+                    'multivalued': False,
+                },
+            },
+            source_klass='foo_klass'
+        )
+        self.assertIn('extension', actual)
+        self.assertIn('coercer', actual['extension'])
+        self.assertEqual(types.AW_PATHCOMPONENT, actual['extension']['coercer'])
+
+
+class TestTranslateMetainfoMappings(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from core.model import WeightedMapping
+        from core.namebuilder import fields
+        cls.WeightedMapping = WeightedMapping
+        cls.fields_DateTime = fields.DateTime
+        cls.fields_Date = fields.Date
+        cls.fields_Title = fields.Title
+
+    def test_returns_empty_list_given_empty_or_none_argument(self):
+        for given in [None, list(), list(dict())]:
+            actual = translate_metainfo_mappings(given)
+            self.assertEqual(list(), actual)
+
+    def test_translates_two_weighted_mappings(self):
+        expected = [
+            self.WeightedMapping(self.fields_DateTime, probability=1.0),
+            self.WeightedMapping(self.fields_Date, probability=1.0)
+        ]
+        actual = translate_metainfo_mappings([
+            {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+            {'WeightedMapping': {'field': 'Date', 'probability': 1.0}},
+        ])
+        self.assertEqual(expected, actual)
+
+    def test_translates_one_weighted_mapping(self):
+        expected = [
+            self.WeightedMapping(self.fields_Title, probability=1.0),
+        ]
+        actual = translate_metainfo_mappings([
+            {'WeightedMapping': {'field': 'Title', 'probability': 1}},
+        ])
+        self.assertEqual(expected, actual)
 
 
 class TestGetProvidersForMeowURIs(TestCase):

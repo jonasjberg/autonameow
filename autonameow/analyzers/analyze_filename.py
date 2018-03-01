@@ -30,8 +30,6 @@ from analyzers import (
 )
 from core import constants as C
 from core import types
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from util import (
     dateandtime,
     disk,
@@ -82,8 +80,8 @@ class FilenameAnalyzer(BaseAnalyzer):
             'multivalued': False,
             # TODO: [TD0166] No longer able to set probabilities dynamically ..
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1.0),
-                WeightedMapping(fields.Date, probability=1.0),
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1.0}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1.0}},
             ],
             'generic_field': 'date_created'
         },
@@ -91,7 +89,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             'coercer': 'aw_integer',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Edition, probability=1.0),
+                {'WeightedMapping': {'field': 'Edition', 'probability': 1.0}},
             ],
             'generic_field': 'edition'
         },
@@ -99,14 +97,14 @@ class FilenameAnalyzer(BaseAnalyzer):
             'coercer': 'aw_pathcomponent',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1.0),
+                {'WeightedMapping': {'field': 'Extension', 'probability': 1.0}},
             ]
         },
         'publisher': {
             'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=1.0),
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 1.0}},
             ],
             'generic_field': 'publisher'
         }

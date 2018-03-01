@@ -32,8 +32,6 @@ from core import (
     persistence,
     types
 )
-from core.namebuilder import fields
-from core.model import WeightedMapping
 from core.model.normalize import (
     normalize_full_human_name,
     normalize_full_title
@@ -82,7 +80,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
+                {'WeightedMapping': {'field': 'Author', 'probability': 1}},
             ],
             'generic_field': 'author'
         },
@@ -90,8 +88,8 @@ class EbookAnalyzer(BaseAnalyzer):
             'coercer': 'aw_date',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
-                WeightedMapping(fields.DateTime, probability=1),
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -99,7 +97,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'coercer': 'aw_integer',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Edition, probability=1),
+                {'WeightedMapping': {'field': 'Edition', 'probability': 1}},
             ],
             'generic_field': 'edition'
         },
@@ -107,7 +105,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=1),
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 1}},
             ],
             'generic_field': 'publisher'
         },
@@ -115,7 +113,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1),
+                {'WeightedMapping': {'field': 'Title', 'probability': 1}},
             ],
             'generic_field': 'title'
         },

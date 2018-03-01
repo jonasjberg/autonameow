@@ -21,8 +21,6 @@
 
 import zipfile
 
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
     ExtractorError
@@ -37,21 +35,21 @@ class EpubMetadataExtractor(BaseExtractor):
         'author': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
+                {'WeightedMapping': {'field': 'Author', 'probability': 1}},
             ],
             'generic_field': 'author'
         },
         'title': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1),
+                {'WeightedMapping': {'field': 'Title', 'probability': 1}},
             ],
             'generic_field': 'title'
         },
         'producer': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=0.1),
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.1}},
             ],
             'generic_field': 'producer'
         }

@@ -26,8 +26,6 @@ from core import (
     types,
 )
 # TODO: [TD0172] Extend the text extractors with additional fields.
-# from core.model import WeightedMapping
-# from core.namebuilder import fields
 from extractors import BaseExtractor
 from util import encoding as enc
 from util import sanity
@@ -55,7 +53,7 @@ class AbstractTextExtractor(BaseExtractor):
         #     'coercer': 'aw_string',
         #     'multivalued': False,
         #     'mapped_fields': [
-        #         WeightedMapping(fields.Title, probability=1)
+        #         {'WeightedMapping': {'field': 'Title', 'probability': 1}},
         #     ],
         #     'generic_field': 'title'
         # }

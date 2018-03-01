@@ -27,8 +27,6 @@ import subprocess
 import util
 from core import constants as C
 from core import types
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
     ExtractorError
@@ -60,7 +58,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
+                {'WeightedMapping': {'field': 'Author', 'probability': 1}},
             ],
             'generic_field': 'author'
         },
@@ -68,7 +66,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
+                {'WeightedMapping': {'field': 'Author', 'probability': 1}},
             ],
             'generic_field': 'author'
         },
@@ -76,8 +74,8 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_date',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
-                WeightedMapping(fields.DateTime, probability=1),
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -85,8 +83,8 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_date',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
-                WeightedMapping(fields.DateTime, probability=1),
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -94,7 +92,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=0.4),
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.4}},
             ],
             'generic_field': 'title'
         },
@@ -102,7 +100,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=0.25),
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.25}},
             ],
             'generic_field': 'title'
         },
@@ -114,7 +112,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=0.5),
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.5}},
             ],
             'generic_field': 'title'
         },
@@ -122,7 +120,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Tags, probability=1),
+                {'WeightedMapping': {'field': 'Tags', 'probability': 1}},
             ],
             'generic_field': 'tags'
         },
@@ -130,7 +128,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1),
+                {'WeightedMapping': {'field': 'Title', 'probability': 1}},
             ],
             'generic_field': 'title'
         },

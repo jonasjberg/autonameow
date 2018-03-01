@@ -26,8 +26,6 @@ try:
 except ImportError:
     guessit = None
 
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
     ExtractorError
@@ -46,8 +44,8 @@ class GuessitExtractor(BaseExtractor):
         'date': {
             'coercer': 'aw_timedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -64,8 +62,8 @@ class GuessitExtractor(BaseExtractor):
         'release_group': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=0.1),
-                WeightedMapping(fields.Description, probability=0.001),
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.1}},
+                {'WeightedMapping': {'field': 'Description', 'probability': 0.001}},
             ]
         },
         'screen_size': {
@@ -81,13 +79,13 @@ class GuessitExtractor(BaseExtractor):
         'title': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1),
+                {'WeightedMapping': {'field': 'Title', 'probability': 1}},
             ]
         },
         'type': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Tags, probability=0.5),
+                {'WeightedMapping': {'field': 'Tags', 'probability': 0.5}},
             ]
         },
         'video_codec': {
@@ -98,8 +96,8 @@ class GuessitExtractor(BaseExtractor):
         'year': {
             'coercer': 'aw_date',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ]
         },
     }

@@ -22,8 +22,6 @@
 import re
 from collections import namedtuple
 
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from extractors import BaseExtractor
 from util import encoding as enc
 from util import (
@@ -56,8 +54,8 @@ class FiletagsExtractor(BaseExtractor):
             'coercer': 'aw_timedate',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1),
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -65,8 +63,8 @@ class FiletagsExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Description, probability=1),
-                WeightedMapping(fields.Title, probability=0.5),
+                {'WeightedMapping': {'field': 'Description', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.5}},
             ],
             'generic_field': 'description'
         },
@@ -74,7 +72,7 @@ class FiletagsExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Tags, probability=1),
+                {'WeightedMapping': {'field': 'Tags', 'probability': 1}},
             ],
             'generic_field': 'tags'
         },
@@ -82,7 +80,7 @@ class FiletagsExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
+                {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
             ],
         },
         'follows_filetags_convention': {

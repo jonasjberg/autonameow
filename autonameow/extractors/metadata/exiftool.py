@@ -19,8 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
     ExtractorError
@@ -64,8 +62,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_exiftooltimedate',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -101,8 +99,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_exiftooltimedate',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -110,8 +108,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_exiftooltimedate',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -119,8 +117,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_exiftooltimedate',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -139,22 +137,22 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         # 'EXIF:GPSTimeStamp': {
         #     'coercer': 'aw_exiftooltimedate',
         #     'mapped_fields': [
-        #         fields.WeightedMapping(fields.Time, probability=1),
+        #         {'WeightedMapping': {'field': 'Date', 'probability': 1}},
         #     ]
         # },
         'EXIF:GPSDateStamp': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
         'EXIF:ImageDescription': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Description, probability=1),
-                WeightedMapping(fields.Tags, probability=0.5),
-                WeightedMapping(fields.Title, probability=0.25)
+                {'WeightedMapping': {'field': 'Description', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Tags', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.25}},
             ],
             'generic_field': 'description'
         },
@@ -177,8 +175,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'EXIF:ModifyDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.25),
-                WeightedMapping(fields.Date, probability=0.25)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.25}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.25}},
             ],
             'generic_field': 'date_modified'
         },
@@ -189,16 +187,16 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'EXIF:UserComment': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Description, probability=0.5),
-                WeightedMapping(fields.Tags, probability=0.5)
+                {'WeightedMapping': {'field': 'Description', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Tags', 'probability': 0.5}},
             ],
             'generic_field': 'description'
         },
         'File:Comment': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Description, probability=0.5),
-                WeightedMapping(fields.Tags, probability=0.5)
+                {'WeightedMapping': {'field': 'Description', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Tags', 'probability': 0.5}},
             ],
             'generic_field': 'description'
         },
@@ -207,8 +205,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_exiftooltimedate',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.01),
-                WeightedMapping(fields.Date, probability=0.01)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.01}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.01}},
             ],
             'generic_field': 'date_modified'
         },
@@ -216,8 +214,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_exiftooltimedate',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.01),
-                WeightedMapping(fields.Date, probability=0.01)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.01}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.01}},
             ],
             'generic_field': 'date_modified'
         },
@@ -225,8 +223,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_exiftooltimedate',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.25),
-                WeightedMapping(fields.Date, probability=0.25)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.25}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.25}},
             ],
             'generic_field': 'date_modified'
         },
@@ -261,7 +259,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'File:MIMEType': {
             'coercer': 'aw_mimetype',
             'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1)
+                {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
             ],
             'generic_field': 'mime_type'
         },
@@ -269,25 +267,25 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
+                {'WeightedMapping': {'field': 'Author', 'probability': 1}},
             ],
             'generic_field': 'author'
         },
         'PDF:CreateDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
         'PDF:Creator': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Creator, probability=1),
-                WeightedMapping(fields.Author, probability=0.025),
-                WeightedMapping(fields.Publisher, probability=0.02),
-                WeightedMapping(fields.Title, probability=0.01)
+                {'WeightedMapping': {'field': 'Creator', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.025}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.02}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.01}},
             ],
             'generic_field': 'creator'
         },
@@ -295,7 +293,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Tags, probability=1),
+                {'WeightedMapping': {'field': 'Tags', 'probability': 1}},
             ],
             'generic_field': 'tags'
         },
@@ -306,8 +304,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'PDF:ModifyDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.25),
-                WeightedMapping(fields.Date, probability=0.25)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.25}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.25}},
             ],
             'generic_field': 'date_modified'
         },
@@ -322,25 +320,25 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'PDF:Producer': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=0.25),
-                WeightedMapping(fields.Author, probability=0.02),
-                WeightedMapping(fields.Title, probability=0.01)
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.25}},
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.02}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.01}},
             ],
             'generic_field': 'producer'
         },
         'PDF:Subject': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Description, probability=1),
-                WeightedMapping(fields.Tags, probability=0.8),
-                WeightedMapping(fields.Title, probability=0.5)
+                {'WeightedMapping': {'field': 'Description', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Tags', 'probability': 0.8}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.5}},
             ],
             'generic_field': 'subject',
         },
         'PDF:Title': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1)
+                {'WeightedMapping': {'field': 'Title', 'probability': 1}}
             ],
             'generic_field': 'title'
         },
@@ -359,64 +357,64 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'QuickTime:CreateDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}}
             ],
             'generic_field': 'date_created'
         },
         'QuickTime:CreationDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}}
             ],
             'generic_field': 'date_created'
         },
         'QuickTime:ModifyDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.5),
-                WeightedMapping(fields.Date, probability=0.5)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.5}},
             ],
             'generic_field': 'date_modified'
         },
         'QuickTime:CreationDate-und-SE': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}}
             ],
             'generic_field': 'date_created'
         },
         'QuickTime:TrackCreateDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}}
             ],
             'generic_field': 'date_created'
         },
         'QuickTime:TrackModifyDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.5),
-                WeightedMapping(fields.Date, probability=0.5)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.5}},
             ],
             'generic_field': 'date_modified'
         },
         'QuickTime:MediaCreateDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}}
             ],
             'generic_field': 'date_created'
         },
         'QuickTime:MediaModifyDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.5),
-                WeightedMapping(fields.Date, probability=0.5)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.5}},
             ],
             'generic_field': 'date_modified'
         },
@@ -424,24 +422,24 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1.0),
-                WeightedMapping(fields.Publisher, probability=0.1)
+                {'WeightedMapping': {'field': 'Author', 'probability': 1.0}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.1}},
             ],
             'generic_field': 'author'
         },
         'RTF:Company': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=0.6),
-                WeightedMapping(fields.Publisher, probability=0.5),
-                WeightedMapping(fields.Creator, probability=0.1)
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.6}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Creator', 'probability': 0.1}},
             ]
         },
         'RTF:CreateDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1.0),
-                WeightedMapping(fields.Date, probability=1.0)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1.0}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1.0}},
             ],
             'generic_field': 'date_created'
         },
@@ -449,40 +447,40 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=0.8),
-                WeightedMapping(fields.Publisher, probability=0.1)
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.8}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.1}},
             ],
             'generic_field': 'author'
         },
         'RTF:LastPrinted': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.01),
-                WeightedMapping(fields.Date, probability=0.01)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.01}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.01}},
             ]
         },
         'RTF:ModifyDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.25),
-                WeightedMapping(fields.Date, probability=0.25)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.25}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.25}},
             ],
             'generic_field': 'date_modified'
         },
         'RTF:Title': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1)
+                {'WeightedMapping': {'field': 'Title', 'probability': 1}},
             ],
             'generic_field': 'title'
         },
         'XML:Application': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Creator, probability=1),
-                WeightedMapping(fields.Author, probability=0.025),
-                WeightedMapping(fields.Publisher, probability=0.02),
-                WeightedMapping(fields.Title, probability=0.01)
+                {'WeightedMapping': {'field': 'Creator', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.025}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.02}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.01}},
             ],
             'generic_field': 'creator'
         },
@@ -490,17 +488,17 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=0.6),
-                WeightedMapping(fields.Publisher, probability=0.5),
-                WeightedMapping(fields.Creator, probability=0.1)
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.6}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Creator', 'probability': 0.1}},
             ],
             'generic_field': 'author'
         },
         'XML:CreateDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -509,17 +507,17 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=0.9),
-                WeightedMapping(fields.Publisher, probability=0.5),
-                WeightedMapping(fields.Creator, probability=0.1)
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.9}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Creator', 'probability': 0.1}},
             ],
             'generic_field': 'author'
         },
         'XML:ModifyDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_modified'
         },
@@ -527,7 +525,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=0.7)
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.7}},
             ]
         },
         'XMP:About': {'coercer': 'aw_string'},
@@ -535,17 +533,17 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=0.5),
-                WeightedMapping(fields.Creator, probability=0.5),
-                WeightedMapping(fields.Publisher, probability=0.02),
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Creator', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.02}},
             ],
             'generic_field': 'author'
         },
         'XMP:CreateDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -553,10 +551,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Creator, probability=1),
-                WeightedMapping(fields.Author, probability=0.75),
-                WeightedMapping(fields.Publisher, probability=0.02),
-                WeightedMapping(fields.Title, probability=0.01)
+                {'WeightedMapping': {'field': 'Creator', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.75}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.02}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.01}},
             ],
             'generic_field': 'author'
         },
@@ -564,28 +562,28 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Creator, probability=1),
-                WeightedMapping(fields.Author, probability=0.75),
-                WeightedMapping(fields.Publisher, probability=0.03),
-                WeightedMapping(fields.Title, probability=0.02)
+                {'WeightedMapping': {'field': 'Creator', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.75}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.03}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.02}},
             ],
             'generic_field': 'author'
         },
         'XMP:CreatorTool': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Creator, probability=1),
-                WeightedMapping(fields.Author, probability=0.025),
-                WeightedMapping(fields.Publisher, probability=0.02),
-                WeightedMapping(fields.Title, probability=0.01)
+                {'WeightedMapping': {'field': 'Creator', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.025}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.02}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.01}},
             ],
             'generic_field': 'creator'
         },
         'XMP:Date': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -593,8 +591,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             # TODO: Possibly HTML; <p>TEXT</p>, HTML-encoded characters, etc.
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Description, probability=1),
-                WeightedMapping(fields.Tags, probability=0.5)
+                {'WeightedMapping': {'field': 'Description', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Tags', 'probability': 0.5}},
             ],
             'generic_field': 'description'
         },
@@ -606,40 +604,40 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
-                WeightedMapping(fields.Creator, probability=0.5),
-                WeightedMapping(fields.Publisher, probability=0.02),
-                WeightedMapping(fields.Title, probability=0.01)
+                {'WeightedMapping': {'field': 'Author', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Creator', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.02}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.01}},
             ],
             'generic_field': 'author'
         },
         'XMP:EntryIssued': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
         'XMP:EntryTitle': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1)
+                {'WeightedMapping': {'field': 'Title', 'probability': 1}},
             ],
             'generic_field': 'title'
         },
         'XMP:EntrySummary': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Description, probability=0.5),
-                WeightedMapping(fields.Tags, probability=0.5)
+                {'WeightedMapping': {'field': 'Description', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Tags', 'probability': 0.5}},
             ],
             'generic_field': 'description'
         },
         'XMP:Format': {
             'coercer': 'aw_mimetype',
             'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=0.75)
+                {'WeightedMapping': {'field': 'Extension', 'probability': 0.75}},
             ],
             'generic_field': 'mime_type'
         },
@@ -673,9 +671,9 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'XMP:Keywords': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Tags, probability=1),
-                WeightedMapping(fields.Title, probability=0.5),
-                WeightedMapping(fields.Description, probability=0.8)
+                {'WeightedMapping': {'field': 'Tags', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Description', 'probability': 0.8}},
             ],
             'generic_field': 'tags'
         },
@@ -694,43 +692,43 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'XMP:MetadataDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.25),
-                WeightedMapping(fields.Date, probability=0.25)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.25}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.25}},
             ],
             'generic_field': 'date_modified'
         },
         'XMP:ModifyDate': {
             'coercer': 'aw_exiftooltimedate',
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=0.25),
-                WeightedMapping(fields.Date, probability=0.25)
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.25}},
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.25}},
             ],
             'generic_field': 'date_modified'
         },
         'XMP:Producer': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=0.25),
-                WeightedMapping(fields.Author, probability=0.02),
-                WeightedMapping(fields.Title, probability=0.01)
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.25}},
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.02}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.01}},
             ],
             'generic_field': 'producer'
         },
         'XMP:Publisher': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=1),
-                WeightedMapping(fields.Author, probability=0.5),
-                WeightedMapping(fields.Creator, probability=0.2),
-                WeightedMapping(fields.Title, probability=0.01)
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Creator', 'probability': 0.2}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.01}},
             ],
             'generic_field': 'publisher'
         },
         'XMP:Rights': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=0.5),
-                WeightedMapping(fields.Author, probability=0.5),
+                {'WeightedMapping': {'field': 'Publisher', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Author', 'probability': 0.5}},
             ],
         },
         'XMP:Subject': {
@@ -742,25 +740,25 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
-                WeightedMapping(fields.Description, probability=1),
-                WeightedMapping(fields.Tags, probability=0.8),
-                WeightedMapping(fields.Title, probability=0.5)
+                {'WeightedMapping': {'field': 'Description', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Tags', 'probability': 0.8}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.5}},
             ],
             'generic_field': 'subject',
         },
         'XMP:TagsList': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Tags, probability=1),
-                WeightedMapping(fields.Title, probability=0.5),
-                WeightedMapping(fields.Description, probability=0.8)
+                {'WeightedMapping': {'field': 'Tags', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Title', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Description', 'probability': 0.8}},
             ],
             'generic_field': 'tags'
         },
         'XMP:Title': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1)
+                {'WeightedMapping': {'field': 'Title', 'probability': 1}},
             ],
             'generic_field': 'title'
         },

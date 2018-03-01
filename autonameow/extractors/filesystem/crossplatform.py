@@ -22,8 +22,6 @@
 import os
 from datetime import datetime
 
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from extractors import BaseExtractor
 
 
@@ -43,14 +41,14 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             'coercer': 'aw_pathcomponent',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
+                {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
             ],
         },
         'basename_suffix': {
             'coercer': 'aw_pathcomponent',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
+                {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
             ]
         },
         'basename_prefix': {
@@ -63,7 +61,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             'coercer': 'aw_mimetype',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
+                {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
             ],
             'generic_field': 'mime_type'
         },
@@ -71,16 +69,16 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             'coercer': 'aw_timedate',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Date, probability=0.1),
-                WeightedMapping(fields.DateTime, probability=0.1),
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.1}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.1}},
             ]
         },
         'date_created': {
             'coercer': 'aw_timedate',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
-                WeightedMapping(fields.DateTime, probability=1),
+                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
             ],
             'generic_field': 'date_created'
         },
@@ -88,8 +86,8 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             'coercer': 'aw_timedate',
             'multivalued': False,
             'mapped_fields': [
-                WeightedMapping(fields.Date, probability=0.25),
-                WeightedMapping(fields.DateTime, probability=0.25),
+                {'WeightedMapping': {'field': 'Date', 'probability': 0.25}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.25}},
             ],
             'generic_field': 'date_modified'
         }

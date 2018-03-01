@@ -23,10 +23,11 @@ import logging
 
 from core import constants as C
 from core import types
-from core.model.genericfields import (
-    GenericField,
-    get_field_for_uri_leaf
+from core.model import (
+    genericfields,
+    WeightedMapping
 )
+from core.namebuilder.fields import nametemplatefield_class_from_string
 from util import sanity
 
 
@@ -148,14 +149,26 @@ def _wrap_provider_result_field(field_metainfo, source_klass, value):
 
     _field_metainfo['coercer'] = coercer_klass
 
+    mapped_fields_strings = _field_metainfo.get('mapped_fields')
+    if mapped_fields_strings:
+        translated_mapped_fields = translate_metainfo_mappings(mapped_fields_strings)
+        if translated_mapped_fields:
+            _field_metainfo['mapped_fields'] = translated_mapped_fields
+        else:
+            # TODO: Improve robustness. Raise appropriate exception.
+            # TODO: Improve robustness. Log provider with malformed metainfo entries.
+            _field_metainfo.pop('mapped_fields')
+
     # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
     # Map strings to generic field classes.
     generic_field_string = _field_metainfo.get('generic_field')
     if generic_field_string:
-        generic_field_klass = get_field_for_uri_leaf(generic_field_string)
+        generic_field_klass = genericfields.get_field_for_uri_leaf(generic_field_string)
         if generic_field_klass:
             _field_metainfo['generic_field'] = generic_field_klass
         else:
+            # TODO: Improve robustness. Raise appropriate exception.
+            # TODO: Improve robustness. Log provider with malformed metainfo entries.
             _field_metainfo.pop('generic_field')
 
     field_info_to_add = {
@@ -163,7 +176,6 @@ def _wrap_provider_result_field(field_metainfo, source_klass, value):
         'source': str(source_klass),
         'value': value
     }
-
     _field_metainfo.update(field_info_to_add)
     return _field_metainfo
 
@@ -184,6 +196,35 @@ _METAINFO_STRING_COERCER_KLASS_MAP = {
 
 def get_coercer_from_metainfo_string(string):
     return _METAINFO_STRING_COERCER_KLASS_MAP.get(string)
+
+
+def translate_metainfo_mappings(metainfo_mapped_fields):
+    # TODO: Improve robustness. Raise appropriate exception.
+    # TODO: Improve robustness. Log provider with malformed metainfo entries.
+    translated = list()
+    if not metainfo_mapped_fields:
+        return translated
+
+    for mapping in metainfo_mapped_fields:
+        for mapping_type, mapping_params in mapping.items():
+            # TODO: [cleanup] Allow possible alternative future mapping types.
+            if mapping_type == 'WeightedMapping':
+                param_field_str = mapping_params.get('field')
+                param_prob_str = mapping_params.get('probability')
+                assert param_field_str
+                assert param_prob_str
+
+                param_field = get_field_class_from_metainfo_string(param_field_str)
+                assert param_field
+                translated.append(WeightedMapping(
+                    field=param_field,
+                    probability=float(param_prob_str)
+                ))
+    return translated
+
+
+def get_field_class_from_metainfo_string(string):
+    return nametemplatefield_class_from_string(string)
 
 
 class ProviderRegistry(object):
@@ -372,11 +413,11 @@ def _map_generic_sources(meowuri_class_map):
                     continue
 
                 sanity.check_internal_string(_generic_field_string)
-                _generic_field_klass = get_field_for_uri_leaf(_generic_field_string)
+                _generic_field_klass = genericfields.get_field_for_uri_leaf(_generic_field_string)
                 if not _generic_field_klass:
                     continue
 
-                assert issubclass(_generic_field_klass, GenericField)
+                assert issubclass(_generic_field_klass, genericfields.GenericField)
                 _generic_meowuri = _generic_field_klass.uri()
                 if not _generic_meowuri:
                     continue
