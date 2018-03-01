@@ -44,14 +44,13 @@ class AbstractTextExtractor(BaseExtractor):
     FIELD_LOOKUP = {
         'full': {
             'coercer': 'aw_string',
-            'multivalued': False,
-            'mapped_fields': None,
+            'multivalued': 'false',
             'generic_field': 'text'
         },
         # TODO: [TD0172] Extend the text extractors with additional fields.
         # 'title': {
         #     'coercer': 'aw_string',
-        #     'multivalued': False,
+        #     'multivalued': 'false',
         #     'mapped_fields': [
         #         {'WeightedMapping': {'field': 'Title', 'probability': 1}},
         #     ],

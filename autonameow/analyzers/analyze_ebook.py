@@ -78,7 +78,7 @@ class EbookAnalyzer(BaseAnalyzer):
     FIELD_LOOKUP = {
         'author': {
             'coercer': 'aw_string',
-            'multivalued': True,
+            'multivalued': 'true',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Author', 'probability': 1}},
             ],
@@ -86,7 +86,7 @@ class EbookAnalyzer(BaseAnalyzer):
         },
         'date': {
             'coercer': 'aw_date',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Date', 'probability': 1}},
                 {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
@@ -95,7 +95,7 @@ class EbookAnalyzer(BaseAnalyzer):
         },
         'edition': {
             'coercer': 'aw_integer',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Edition', 'probability': 1}},
             ],
@@ -103,7 +103,7 @@ class EbookAnalyzer(BaseAnalyzer):
         },
         'publisher': {
             'coercer': 'aw_string',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Publisher', 'probability': 1}},
             ],
@@ -111,7 +111,7 @@ class EbookAnalyzer(BaseAnalyzer):
         },
         'title': {
             'coercer': 'aw_string',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Title', 'probability': 1}},
             ],

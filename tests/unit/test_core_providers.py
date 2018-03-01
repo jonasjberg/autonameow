@@ -43,35 +43,35 @@ class TestWrapProviderResults(TestCase):
         cls.EXAMPLE_FIELD_LOOKUP = {
             'abspath_full': {
                 'coercer': 'aw_path',
-                'multivalued': False
+                'multivalued': 'false'
             },
             'basename_full': {
                 'coercer': 'aw_pathcomponent',
-                'multivalued': False
+                'multivalued': 'false'
             },
             'extension': {
                 'coercer': 'aw_pathcomponent',
-                'multivalued': False,
+                'multivalued': 'false',
                 'mapped_fields': [
                     {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
                 ],
             },
             'basename_suffix': {
                 'coercer': 'aw_pathcomponent',
-                'multivalued': False,
+                'multivalued': 'false',
                 'mapped_fields': [
                     {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
                 ]
             },
             'basename_prefix': {
                 'coercer': 'aw_pathcomponent',
-                'multivalued': False,
+                'multivalued': 'false',
             },
-            'pathname_full': {'coercer': 'aw_path', 'multivalued': False},
-            'pathname_parent': {'coercer': 'aw_path', 'multivalued': False},
+            'pathname_full': {'coercer': 'aw_path', 'multivalued': 'false'},
+            'pathname_parent': {'coercer': 'aw_path', 'multivalued': 'false'},
             'mime_type': {
                 'coercer': 'aw_mimetype',
-                'multivalued': False,
+                'multivalued': 'false',
                 'mapped_fields': [
                     {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
                 ],
@@ -79,7 +79,7 @@ class TestWrapProviderResults(TestCase):
             },
             'date_created': {
                 'coercer': 'aw_timedate',
-                'multivalued': False,
+                'multivalued': 'false',
                 'mapped_fields': [
                     {'WeightedMapping': {'field': 'Date', 'probability': 1}},
                     {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
@@ -88,7 +88,7 @@ class TestWrapProviderResults(TestCase):
             },
             'date_modified': {
                 'coercer': 'aw_timedate',
-                'multivalued': False,
+                'multivalued': 'false',
                 'mapped_fields': [
                     {'WeightedMapping': {'field': 'Date', 'probability': 0.25}},
                     {'WeightedMapping': {'field': 'DateTime', 'probability': 0.25}},
@@ -219,7 +219,7 @@ class TestWrapProviderResults(TestCase):
             metainfo={
                 'extension': {
                     'coercer': 'aw_pathcomponent',
-                    'multivalued': False,
+                    'multivalued': 'false',
                     'mapped_fields': [
                         {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
                     ],
@@ -249,7 +249,7 @@ class TestWrapProviderResults(TestCase):
             metainfo={
                 'extension': {
                     'coercer': 'aw_pathcomponent',
-                    'multivalued': False,
+                    'multivalued': 'false',
                 },
             },
             source_klass='foo_klass'
@@ -258,7 +258,32 @@ class TestWrapProviderResults(TestCase):
         self.assertIn('coercer', actual['extension'])
         self.assertEqual(types.AW_PATHCOMPONENT, actual['extension']['coercer'])
 
-    def test_wraps_example_resuts(self):
+    def test_translates_multivalued_string_to_boolean(self):
+        actual = wrap_provider_results(
+            datadict={
+                'foo': 'a',
+                'bar': 'b',
+            },
+            metainfo={
+                'foo': {
+                    'coercer': 'aw_string',
+                    'multivalued': 'false',
+                },
+                'bar': {
+                    'coercer': 'aw_string',
+                    'multivalued': 'true',
+                },
+            },
+            source_klass='foo_klass'
+        )
+        self.assertIn('foo', actual)
+        self.assertIn('multivalued', actual['foo'])
+        self.assertFalse(actual['foo']['multivalued'])
+        self.assertIn('bar', actual)
+        self.assertIn('multivalued', actual['bar'])
+        self.assertTrue(actual['bar']['multivalued'])
+
+    def test_wraps_example_results(self):
         from core import types
         actual = wrap_provider_results(
             datadict={
@@ -268,12 +293,12 @@ class TestWrapProviderResults(TestCase):
             metainfo={
                 'health': {
                     'coercer': 'aw_float',
-                    'multivalued': False,
+                    'multivalued': 'false',
                     'mapped_fields': None,
                 },
                 'is_jpeg': {
                     'coercer': 'aw_boolean',
-                    'multivalued': False,
+                    'multivalued': 'false',
                     'mapped_fields': None,
                     'generic_field': None
                 }

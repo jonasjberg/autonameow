@@ -52,7 +52,7 @@ class FiletagsExtractor(BaseExtractor):
     FIELD_LOOKUP = {
         'datetime': {
             'coercer': 'aw_timedate',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
                 {'WeightedMapping': {'field': 'Date', 'probability': 1}},
@@ -61,7 +61,7 @@ class FiletagsExtractor(BaseExtractor):
         },
         'description': {
             'coercer': 'aw_string',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Description', 'probability': 1}},
                 {'WeightedMapping': {'field': 'Title', 'probability': 0.5}},
@@ -70,7 +70,7 @@ class FiletagsExtractor(BaseExtractor):
         },
         'tags': {
             'coercer': 'aw_string',
-            'multivalued': True,
+            'multivalued': 'true',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Tags', 'probability': 1}},
             ],
@@ -78,14 +78,14 @@ class FiletagsExtractor(BaseExtractor):
         },
         'extension': {
             'coercer': 'aw_string',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
             ],
         },
         'follows_filetags_convention': {
             'coercer': 'aw_boolean',
-            'multivalued': False,
+            'multivalued': 'false',
         }
     }
 

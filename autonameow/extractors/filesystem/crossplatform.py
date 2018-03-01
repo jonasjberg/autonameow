@@ -32,34 +32,34 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
 
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
-        'abspath_full': {'coercer': 'aw_path', 'multivalued': False},
+        'abspath_full': {'coercer': 'aw_path', 'multivalued': 'false'},
         'basename_full': {
             'coercer': 'aw_pathcomponent',
-            'multivalued': False
+            'multivalued': 'false'
         },
         'extension': {
             'coercer': 'aw_pathcomponent',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
             ],
         },
         'basename_suffix': {
             'coercer': 'aw_pathcomponent',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
             ]
         },
         'basename_prefix': {
             'coercer': 'aw_pathcomponent',
-            'multivalued': False,
+            'multivalued': 'false',
         },
-        'pathname_full': {'coercer': 'aw_path', 'multivalued': False},
-        'pathname_parent': {'coercer': 'aw_path', 'multivalued': False},
+        'pathname_full': {'coercer': 'aw_path', 'multivalued': 'false'},
+        'pathname_parent': {'coercer': 'aw_path', 'multivalued': 'false'},
         'mime_type': {
             'coercer': 'aw_mimetype',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
             ],
@@ -67,7 +67,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         },
         'date_accessed': {
             'coercer': 'aw_timedate',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Date', 'probability': 0.1}},
                 {'WeightedMapping': {'field': 'DateTime', 'probability': 0.1}},
@@ -75,7 +75,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         },
         'date_created': {
             'coercer': 'aw_timedate',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Date', 'probability': 1}},
                 {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
@@ -84,7 +84,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         },
         'date_modified': {
             'coercer': 'aw_timedate',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Date', 'probability': 0.25}},
                 {'WeightedMapping': {'field': 'DateTime', 'probability': 0.25}},

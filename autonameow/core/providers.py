@@ -232,7 +232,7 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
 
 
 def translate_multivalued(multivalued_string):
-    return bool(multivalued_string)
+    return types.AW_BOOLEAN(multivalued_string)
 
 
 def get_field_class_from_metainfo_string(string):

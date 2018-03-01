@@ -36,18 +36,14 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     """
     HANDLES_MIME_TYPES = ['image/jpeg', 'image/jfif']
     IS_SLOW = False
-    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'health': {
             'coercer': 'aw_float',
-            'multivalued': False,
-            'mapped_fields': None,
+            'multivalued': 'false',
         },
         'is_jpeg': {
             'coercer': 'aw_boolean',
-            'multivalued': False,
-            'mapped_fields': None,
-            'generic_field': None
+            'multivalued': 'false',
         }
     }
 

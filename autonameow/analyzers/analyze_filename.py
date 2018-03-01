@@ -77,7 +77,7 @@ class FilenameAnalyzer(BaseAnalyzer):
     FIELD_LOOKUP = {
         'datetime': {
             'coercer': 'aw_timedate',
-            'multivalued': False,
+            'multivalued': 'false',
             # TODO: [TD0166] No longer able to set probabilities dynamically ..
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'DateTime', 'probability': 1.0}},
@@ -87,7 +87,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         },
         'edition': {
             'coercer': 'aw_integer',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Edition', 'probability': 1.0}},
             ],
@@ -95,14 +95,14 @@ class FilenameAnalyzer(BaseAnalyzer):
         },
         'extension': {
             'coercer': 'aw_pathcomponent',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Extension', 'probability': 1.0}},
             ]
         },
         'publisher': {
             'coercer': 'aw_string',
-            'multivalued': False,
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Publisher', 'probability': 1.0}},
             ],
