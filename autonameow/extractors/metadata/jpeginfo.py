@@ -39,12 +39,12 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'health': {
-            'coercer': types.AW_FLOAT,
+            'coercer': 'aw_float',
             'multivalued': False,
             'mapped_fields': None,
         },
         'is_jpeg': {
-            'coercer': types.AW_BOOLEAN,
+            'coercer': 'aw_boolean',
             'multivalued': False,
             'mapped_fields': None,
             'generic_field': None

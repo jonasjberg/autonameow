@@ -79,7 +79,7 @@ class EbookAnalyzer(BaseAnalyzer):
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'author': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
@@ -87,7 +87,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'generic_field': 'author'
         },
         'date': {
-            'coercer': types.AW_DATE,
+            'coercer': 'aw_date',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Date, probability=1),
@@ -96,7 +96,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'generic_field': 'date_created'
         },
         'edition': {
-            'coercer': types.AW_INTEGER,
+            'coercer': 'aw_integer',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Edition, probability=1),
@@ -104,7 +104,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'generic_field': 'edition'
         },
         'publisher': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
@@ -112,7 +112,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'generic_field': 'publisher'
         },
         'title': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),

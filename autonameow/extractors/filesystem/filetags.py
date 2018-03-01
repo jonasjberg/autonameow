@@ -22,7 +22,6 @@
 import re
 from collections import namedtuple
 
-from core import types
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from extractors import BaseExtractor
@@ -54,7 +53,7 @@ class FiletagsExtractor(BaseExtractor):
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'datetime': {
-            'coercer': types.AW_TIMEDATE,
+            'coercer': 'aw_timedate',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
@@ -63,7 +62,7 @@ class FiletagsExtractor(BaseExtractor):
             'generic_field': 'date_created'
         },
         'description': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
@@ -72,7 +71,7 @@ class FiletagsExtractor(BaseExtractor):
             'generic_field': 'description'
         },
         'tags': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
@@ -80,14 +79,14 @@ class FiletagsExtractor(BaseExtractor):
             'generic_field': 'tags'
         },
         'extension': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ],
         },
         'follows_filetags_convention': {
-            'coercer': types.AW_BOOLEAN,
+            'coercer': 'aw_boolean',
             'multivalued': False,
         }
     }

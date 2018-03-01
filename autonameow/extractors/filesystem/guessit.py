@@ -26,7 +26,6 @@ try:
 except ImportError:
     guessit = None
 
-from core import types
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from extractors import (
@@ -40,12 +39,12 @@ class GuessitExtractor(BaseExtractor):
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'audio_codec': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [],
             'generic_field': None
         },
         'date': {
-            'coercer': types.AW_TIMEDATE,
+            'coercer': 'aw_timedate',
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
@@ -53,51 +52,51 @@ class GuessitExtractor(BaseExtractor):
             'generic_field': 'date_created'
         },
         'episode': {
-            'coercer': types.AW_INTEGER,
+            'coercer': 'aw_integer',
             'mapped_fields': [],
             'generic_field': None
         },
         'format': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [],
             'generic_field': None
         },
         'release_group': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=0.1),
                 WeightedMapping(fields.Description, probability=0.001),
             ]
         },
         'screen_size': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [],
             'generic_field': None
         },
         'season': {
-            'coercer': types.AW_INTEGER,
+            'coercer': 'aw_integer',
             'mapped_fields': [],
             'generic_field': None
         },
         'title': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
             ]
         },
         'type': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=0.5),
             ]
         },
         'video_codec': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [],
             'generic_field': None
         },
         'year': {
-            'coercer': types.AW_DATE,
+            'coercer': 'aw_date',
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)

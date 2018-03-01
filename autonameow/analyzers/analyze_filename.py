@@ -78,7 +78,7 @@ class FilenameAnalyzer(BaseAnalyzer):
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'datetime': {
-            'coercer': types.AW_TIMEDATE,
+            'coercer': 'aw_timedate',
             'multivalued': False,
             # TODO: [TD0166] No longer able to set probabilities dynamically ..
             'mapped_fields': [
@@ -88,7 +88,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             'generic_field': 'date_created'
         },
         'edition': {
-            'coercer': types.AW_INTEGER,
+            'coercer': 'aw_integer',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Edition, probability=1.0),
@@ -96,14 +96,14 @@ class FilenameAnalyzer(BaseAnalyzer):
             'generic_field': 'edition'
         },
         'extension': {
-            'coercer': types.AW_PATHCOMPONENT,
+            'coercer': 'aw_pathcomponent',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1.0),
             ]
         },
         'publisher': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1.0),

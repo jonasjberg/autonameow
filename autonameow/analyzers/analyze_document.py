@@ -22,7 +22,6 @@
 import re
 
 from analyzers import BaseAnalyzer
-from core import types
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from util import textutils
@@ -39,7 +38,7 @@ class DocumentAnalyzer(BaseAnalyzer):
     HANDLES_MIME_TYPES = ['application/pdf', 'text/*']
     FIELD_LOOKUP = {
         'title': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [
                 # TODO: [TD0166] Set probabilities dynamically
                 WeightedMapping(fields.Title, probability=1),
@@ -47,7 +46,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             'generic_field': 'title'
         },
         'datetime': {
-            'coercer': types.AW_TIMEDATE,
+            'coercer': 'aw_timedate',
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
@@ -55,7 +54,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             'generic_field': 'date_created',
         },
         'publisher': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],

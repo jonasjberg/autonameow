@@ -50,16 +50,18 @@ class ProviderMixin(object):
             return None
 
         try:
-            coercer = _field_lookup_entry.get('coercer')
+            coercer_string = _field_lookup_entry.get('coercer')
         except AttributeError:
             # Might be case of malformed 'FIELD_LOOKUP'.
-            coercer = None
+            coercer_string = None
 
-        if not coercer:
+        if not coercer_string:
             self.log.warning('Coercer unspecified for field; "{!s}" with value:'
                              ' "{!s}" ({!s})'.format(field, value, type(value)))
             return None
 
+        sanity.check_internal_string(coercer_string)
+        coercer = get_coercer_from_metainfo_string(coercer_string)
         assert isinstance(coercer, (types.BaseType, types.MultipleTypes)), (
             'Got ({!s}) "{!s}"'.format(type(coercer), coercer)
         )
@@ -128,13 +130,23 @@ def wrap_provider_results(datadict, metainfo, source_klass):
             log.debug('Field {} not in {!s}'.format(field, metainfo))
             continue
 
-        wrapped[field] = _wrap_provider_result_field(field_metainfo, source_klass, value)
+        wrapped_field = _wrap_provider_result_field(field_metainfo, source_klass, value)
+        if wrapped_field:
+            wrapped[field] = wrapped_field
+        else:
+            log.warning('Unable to wrap provider {!s} field "{!s}"'.format(source_klass, field))
 
     return wrapped
 
 
 def _wrap_provider_result_field(field_metainfo, source_klass, value):
     _field_metainfo = dict(field_metainfo)
+
+    coercer_klass = get_coercer_from_metainfo_string(_field_metainfo.get('coercer'))
+    if coercer_klass is None:
+        return None
+
+    _field_metainfo['coercer'] = coercer_klass
 
     # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
     # Map strings to generic field classes.
@@ -154,6 +166,24 @@ def _wrap_provider_result_field(field_metainfo, source_klass, value):
 
     _field_metainfo.update(field_info_to_add)
     return _field_metainfo
+
+
+_METAINFO_STRING_COERCER_KLASS_MAP = {
+    'aw_path': types.AW_PATH,
+    'aw_pathcomponent': types.AW_PATHCOMPONENT,
+    'aw_timedate': types.AW_TIMEDATE,
+    'aw_mimetype': types.AW_MIMETYPE,
+    'aw_boolean': types.AW_BOOLEAN,
+    'aw_integer': types.AW_INTEGER,
+    'aw_date': types.AW_DATE,
+    'aw_exiftooltimedate': types.AW_EXIFTOOLTIMEDATE,
+    'aw_float': types.AW_FLOAT,
+    'aw_string': types.AW_STRING,
+}
+
+
+def get_coercer_from_metainfo_string(string):
+    return _METAINFO_STRING_COERCER_KLASS_MAP.get(string)
 
 
 class ProviderRegistry(object):

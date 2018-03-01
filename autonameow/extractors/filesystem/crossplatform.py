@@ -22,7 +22,6 @@
 import os
 from datetime import datetime
 
-from core import types
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from extractors import BaseExtractor
@@ -35,33 +34,33 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
 
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
-        'abspath_full': {'coercer': types.AW_PATH, 'multivalued': False},
+        'abspath_full': {'coercer': 'aw_path', 'multivalued': False},
         'basename_full': {
-            'coercer': types.AW_PATHCOMPONENT,
+            'coercer': 'aw_pathcomponent',
             'multivalued': False
         },
         'extension': {
-            'coercer': types.AW_PATHCOMPONENT,
+            'coercer': 'aw_pathcomponent',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ],
         },
         'basename_suffix': {
-            'coercer': types.AW_PATHCOMPONENT,
+            'coercer': 'aw_pathcomponent',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ]
         },
         'basename_prefix': {
-            'coercer': types.AW_PATHCOMPONENT,
+            'coercer': 'aw_pathcomponent',
             'multivalued': False,
         },
-        'pathname_full': {'coercer': types.AW_PATH, 'multivalued': False},
-        'pathname_parent': {'coercer': types.AW_PATH, 'multivalued': False},
+        'pathname_full': {'coercer': 'aw_path', 'multivalued': False},
+        'pathname_parent': {'coercer': 'aw_path', 'multivalued': False},
         'mime_type': {
-            'coercer': types.AW_MIMETYPE,
+            'coercer': 'aw_mimetype',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
@@ -69,7 +68,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             'generic_field': 'mime_type'
         },
         'date_accessed': {
-            'coercer': types.AW_TIMEDATE,
+            'coercer': 'aw_timedate',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Date, probability=0.1),
@@ -77,7 +76,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             ]
         },
         'date_created': {
-            'coercer': types.AW_TIMEDATE,
+            'coercer': 'aw_timedate',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Date, probability=1),
@@ -86,7 +85,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             'generic_field': 'date_created'
         },
         'date_modified': {
-            'coercer': types.AW_TIMEDATE,
+            'coercer': 'aw_timedate',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Date, probability=0.25),

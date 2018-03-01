@@ -42,33 +42,36 @@ class TestWrapProviderResults(TestCase):
         from core.model import WeightedMapping
         from core.namebuilder import fields
         cls.EXAMPLE_FIELD_LOOKUP = {
-            'abspath_full': {'coercer': types.AW_PATH, 'multivalued': False},
+            'abspath_full': {
+                'coercer': 'aw_path',
+                'multivalued': False
+            },
             'basename_full': {
-                'coercer': types.AW_PATHCOMPONENT,
+                'coercer': 'aw_pathcomponent',
                 'multivalued': False
             },
             'extension': {
-                'coercer': types.AW_PATHCOMPONENT,
+                'coercer': 'aw_pathcomponent',
                 'multivalued': False,
                 'mapped_fields': [
                     WeightedMapping(fields.Extension, probability=1),
                 ],
             },
             'basename_suffix': {
-                'coercer': types.AW_PATHCOMPONENT,
+                'coercer': 'aw_pathcomponent',
                 'multivalued': False,
                 'mapped_fields': [
                     WeightedMapping(fields.Extension, probability=1),
                 ]
             },
             'basename_prefix': {
-                'coercer': types.AW_PATHCOMPONENT,
+                'coercer': 'aw_pathcomponent',
                 'multivalued': False,
             },
-            'pathname_full': {'coercer': types.AW_PATH, 'multivalued': False},
-            'pathname_parent': {'coercer': types.AW_PATH, 'multivalued': False},
+            'pathname_full': {'coercer': 'aw_path', 'multivalued': False},
+            'pathname_parent': {'coercer': 'aw_path', 'multivalued': False},
             'mime_type': {
-                'coercer': types.AW_MIMETYPE,
+                'coercer': 'aw_mimetype',
                 'multivalued': False,
                 'mapped_fields': [
                     WeightedMapping(fields.Extension, probability=1),
@@ -76,7 +79,7 @@ class TestWrapProviderResults(TestCase):
                 'generic_field': 'mime_type'
             },
             'date_created': {
-                'coercer': types.AW_TIMEDATE,
+                'coercer': 'aw_timedate',
                 'multivalued': False,
                 'mapped_fields': [
                     WeightedMapping(fields.Date, probability=1),
@@ -85,7 +88,7 @@ class TestWrapProviderResults(TestCase):
                 'generic_field': 'date_created'
             },
             'date_modified': {
-                'coercer': types.AW_TIMEDATE,
+                'coercer': 'aw_timedate',
                 'multivalued': False,
                 'mapped_fields': [
                     WeightedMapping(fields.Date, probability=0.25),
@@ -202,6 +205,38 @@ class TestWrapProviderResults(TestCase):
         for key in self.EXPECTED_WRAPPED.keys():
             self.assertIn(key, actual)
         self.assertEqual(self.EXPECTED_WRAPPED, actual)
+
+    def test_translates_coercer_string_to_coercer_class(self):
+        from core import types
+        from core.model import WeightedMapping
+        from core.namebuilder import fields
+        actual = wrap_provider_results(
+            datadict={
+                'extension': b'pdf',
+            },
+            metainfo={
+                'extension': {
+                    'coercer': 'aw_pathcomponent',
+                    'multivalued': False,
+                    'mapped_fields': [
+                        WeightedMapping(fields.Extension, probability=1),
+                    ],
+                },
+            },
+            source_klass='foo_klass'
+        )
+        expect = {
+            'extension': {
+                'value': b'pdf',
+                'coercer': types.AW_PATHCOMPONENT,
+                'multivalued': False,
+                'mapped_fields': [
+                    WeightedMapping(fields.Extension, probability=1),
+                ],
+                'source': 'foo_klass'
+            }
+        }
+        self.assertEqual(expect, actual)
 
 
 class TestGetProvidersForMeowURIs(TestCase):

@@ -45,14 +45,14 @@ class AbstractTextExtractor(BaseExtractor):
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'full': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': None,
             'generic_field': 'text'
         },
         # TODO: [TD0172] Extend the text extractors with additional fields.
         # 'title': {
-        #     'coercer': types.AW_STRING,
+        #     'coercer': 'aw_string',
         #     'multivalued': False,
         #     'mapped_fields': [
         #         WeightedMapping(fields.Title, probability=1)

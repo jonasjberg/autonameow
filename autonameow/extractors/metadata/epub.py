@@ -21,7 +21,6 @@
 
 import zipfile
 
-from core import types
 from core.model import WeightedMapping
 from core.namebuilder import fields
 from extractors import (
@@ -36,21 +35,21 @@ class EpubMetadataExtractor(BaseExtractor):
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'author': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
             ],
             'generic_field': 'author'
         },
         'title': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
             ],
             'generic_field': 'title'
         },
         'producer': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=0.1),
             ],

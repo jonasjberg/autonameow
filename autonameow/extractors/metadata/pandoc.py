@@ -57,7 +57,7 @@ class PandocMetadataExtractor(BaseExtractor):
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'author': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
@@ -65,7 +65,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'generic_field': 'author'
         },
         'author-meta': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
@@ -73,7 +73,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'generic_field': 'author'
         },
         'date-meta': {
-            'coercer': types.AW_DATE,
+            'coercer': 'aw_date',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Date, probability=1),
@@ -82,7 +82,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'generic_field': 'date_created'
         },
         'date': {
-            'coercer': types.AW_DATE,
+            'coercer': 'aw_date',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Date, probability=1),
@@ -91,7 +91,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'generic_field': 'date_created'
         },
         'pagetitle': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=0.4),
@@ -99,7 +99,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'generic_field': 'title'
         },
         'subtitle': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=0.25),
@@ -107,11 +107,11 @@ class PandocMetadataExtractor(BaseExtractor):
             'generic_field': 'title'
         },
         'table-of-contents': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': True,
         },
         'title-prefix': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=0.5),
@@ -119,7 +119,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'generic_field': 'title'
         },
         'tags': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
@@ -127,7 +127,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'generic_field': 'tags'
         },
         'title': {
-            'coercer': types.AW_STRING,
+            'coercer': 'aw_string',
             'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
