@@ -144,7 +144,7 @@ class BaseAnalyzer(object):
 
         # TODO: [TD0034] Filter out known bad data.
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-        wrapped = wrap_provider_results(self._intermediate_results, _metainfo, self)
+        wrapped = wrap_provider_results(self._intermediate_results, _metainfo, self.__class__)
 
         meowuri_prefix = self.meowuri_prefix()
 

@@ -25,10 +25,183 @@ from unittest.mock import MagicMock, Mock
 
 from core.providers import (
     get_providers_for_meowuris,
-    ProviderRegistry
+    ProviderRegistry,
+    wrap_provider_results,
 )
 import unit.utils as uu
 import unit.constants as uuconst
+
+
+class TestWrapProviderResults(TestCase):
+    # TODO: [cleanup][temporary] Remove after refactoring!
+    # TODO: [cleanup][hack] Use mocks!
+    @classmethod
+    def setUpClass(cls):
+        import datetime
+        from core import types
+        from core.model import WeightedMapping
+        from core.namebuilder import fields
+        cls.EXAMPLE_FIELD_LOOKUP = {
+            'abspath_full': {'coercer': types.AW_PATH, 'multivalued': False},
+            'basename_full': {
+                'coercer': types.AW_PATHCOMPONENT,
+                'multivalued': False
+            },
+            'extension': {
+                'coercer': types.AW_PATHCOMPONENT,
+                'multivalued': False,
+                'mapped_fields': [
+                    WeightedMapping(fields.Extension, probability=1),
+                ],
+            },
+            'basename_suffix': {
+                'coercer': types.AW_PATHCOMPONENT,
+                'multivalued': False,
+                'mapped_fields': [
+                    WeightedMapping(fields.Extension, probability=1),
+                ]
+            },
+            'basename_prefix': {
+                'coercer': types.AW_PATHCOMPONENT,
+                'multivalued': False,
+            },
+            'pathname_full': {'coercer': types.AW_PATH, 'multivalued': False},
+            'pathname_parent': {'coercer': types.AW_PATH, 'multivalued': False},
+            'mime_type': {
+                'coercer': types.AW_MIMETYPE,
+                'multivalued': False,
+                'mapped_fields': [
+                    WeightedMapping(fields.Extension, probability=1),
+                ],
+                'generic_field': 'mime_type'
+            },
+            'date_created': {
+                'coercer': types.AW_TIMEDATE,
+                'multivalued': False,
+                'mapped_fields': [
+                    WeightedMapping(fields.Date, probability=1),
+                    WeightedMapping(fields.DateTime, probability=1),
+                ],
+                'generic_field': 'date_created'
+            },
+            'date_modified': {
+                'coercer': types.AW_TIMEDATE,
+                'multivalued': False,
+                'mapped_fields': [
+                    WeightedMapping(fields.Date, probability=0.25),
+                    WeightedMapping(fields.DateTime, probability=0.25),
+                ],
+                'generic_field': 'date_modified'
+            }
+        }
+        cls.EXAMPLE_DATADICT = {
+            'extension': b'pdf', 'mime_type': 'application/pdf',
+            'date_created': datetime.datetime(2017, 12, 26, 23, 15, 40),
+            'basename_suffix': b'pdf',
+            'abspath_full': b'/tank/temp/to-be-sorted/aw/foo.bar.pdf',
+            'pathname_parent': b'aw',
+            'basename_prefix': b'foo.bar',
+            'pathname_full': b'/tank/temp/to-be-sorted/aw',
+            'basename_full': b'foo.bar.pdf',
+            'date_modified': datetime.datetime(2017, 11, 5, 15, 33, 50)
+        }
+        from core.model.genericfields import GenericDateCreated, GenericDateModified, GenericMimeType
+        cls.EXPECTED_WRAPPED = {
+            'date_created': {
+                'coercer': types.AW_TIMEDATE,
+                'mapped_fields': [
+                    WeightedMapping(field=fields.Date, probability=1),
+                    WeightedMapping(field=fields.DateTime, probability=1)
+                ],
+                'multivalued': False,
+                'source': 'CrossPlatformFileSystemExtractor',
+                'value': datetime.datetime(2017, 12, 26, 23, 15, 40),
+                'generic_field': GenericDateCreated
+            },
+            'extension': {
+                'coercer': types.AW_PATHCOMPONENT,
+                'source': 'CrossPlatformFileSystemExtractor',
+                'mapped_fields': [
+                    WeightedMapping(field=fields.Extension, probability=1)
+                ],
+                'multivalued': False,
+                'value': b'pdf'
+            },
+            'basename_prefix': {
+                'coercer': types.AW_PATHCOMPONENT,
+                'source': 'CrossPlatformFileSystemExtractor',
+                'value': b'foo.bar',
+                'multivalued': False
+            },
+            'date_modified': {
+                'coercer': types.AW_TIMEDATE,
+                'mapped_fields': [
+                    WeightedMapping(field=fields.Date, probability=0.25),
+                    WeightedMapping(field=fields.DateTime, probability=0.25)
+                ],
+                'multivalued': False,
+                'source': 'CrossPlatformFileSystemExtractor',
+                'value': datetime.datetime(2017, 11, 5, 15, 33, 50),
+                'generic_field': GenericDateModified
+            },
+            'basename_full': {
+                'coercer': types.AW_PATHCOMPONENT,
+                'source': 'CrossPlatformFileSystemExtractor',
+                'value': b'foo.bar.pdf',
+                'multivalued': False
+            },
+            'pathname_parent': {
+                'coercer': types.AW_PATH,
+                'source': 'CrossPlatformFileSystemExtractor',
+                'value': b'aw',
+                'multivalued': False
+            },
+            'basename_suffix': {
+                'coercer': types.AW_PATHCOMPONENT,
+                'source': 'CrossPlatformFileSystemExtractor',
+                'mapped_fields': [
+                    WeightedMapping(field=fields.Extension, probability=1)
+                ],
+                'multivalued': False,
+                'value': b'pdf'
+            },
+            'pathname_full': {
+                'coercer': types.AW_PATH,
+                'source': 'CrossPlatformFileSystemExtractor',
+                'value': b'/tank/temp/to-be-sorted/aw',
+                'multivalued': False
+            },
+            'abspath_full': {
+                'coercer': types.AW_PATH,
+                'source': 'CrossPlatformFileSystemExtractor',
+                'value': b'/tank/temp/to-be-sorted/aw/foo.bar.pdf',
+                'multivalued': False
+            },
+            'mime_type': {
+                'coercer': types.AW_MIMETYPE,
+                'mapped_fields': [
+                    WeightedMapping(field=fields.Extension, probability=1)
+                ],
+                'multivalued': False,
+                'source': 'CrossPlatformFileSystemExtractor',
+                'value': 'application/pdf',
+                'generic_field': GenericMimeType
+            }
+        }
+
+    def test_wraps_actual_crossplatform_filesystem_extractor_results(self):
+        # TODO: [cleanup][temporary] Remove after refactoring!
+        # TODO: [cleanup][hack] Use mocks!
+        from extractors.filesystem import CrossPlatformFileSystemExtractor
+        example_provider_instance = CrossPlatformFileSystemExtractor()
+        actual = wrap_provider_results(
+            datadict=self.EXAMPLE_DATADICT,
+            metainfo=self.EXAMPLE_FIELD_LOOKUP,
+            source_klass=example_provider_instance
+        )
+        for key in self.EXPECTED_WRAPPED.keys():
+            self.assertIn(key, actual)
+        self.assertEqual(self.EXPECTED_WRAPPED, actual)
 
 
 class TestGetProvidersForMeowURIs(TestCase):

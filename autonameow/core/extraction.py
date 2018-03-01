@@ -203,8 +203,7 @@ class ExtractorRunner(object):
 
             # TODO: [TD0034] Filter out known bad data.
             # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-            _results = wrap_provider_results(_extracted_data, _metainfo,
-                                             _extractor_instance)
+            _results = wrap_provider_results(_extracted_data, _metainfo, klass)
             _meowuri_prefix = klass.meowuri_prefix()
             self.store_results(fileobject, _meowuri_prefix, _results)
 
