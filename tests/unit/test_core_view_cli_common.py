@@ -380,9 +380,6 @@ class TestColorizeStringDiff(TestCase):
         self._assert_colorized_diff(expect=(' ', ' '), given=(' ', ' '))
 
     def test_returns_identical_strings_as_is(self):
-        self._assert_colorized_diff(expect=['C1aCR', 'C1bCR'], given=['a', 'b'])
-
-    def test_returns_identical_strings_as_is(self):
         self._assert_colorized_diff(expect=['a', 'a'], given=['a', 'a'])
 
     def test_colorizes_one_character_difference(self):

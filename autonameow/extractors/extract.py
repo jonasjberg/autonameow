@@ -43,9 +43,9 @@ log = logging.getLogger(__name__)
 
 
 def do_extract_text(fileobject):
-    def _collect_results_callback(fileobject, meowuri, data):
+    def _collect_results_callback(fileobject_, meowuri, data):
         log.debug('_collect_results_callback({!s}, {!s}, {!s})'.format(
-            fileobject, meowuri, data))
+            fileobject_, meowuri, data))
 
         assert isinstance(data, dict)
         text = data.get('value')
@@ -53,7 +53,7 @@ def do_extract_text(fileobject):
         extractor = data.get('source', '(unknown extractor)')
         if not text:
             log.info('{!s} was unable to extract text from "{!s}"'.format(
-                extractor, fileobject))
+                extractor, fileobject_))
             return
 
         # TODO: [TD0171] Separate logic from user interface.
@@ -84,10 +84,10 @@ def do_extract_metadata(fileobject):
         else:
             try:
                 _str_value = str(_value)
-            except (TypeError, ValueError) as e:
+            except (TypeError, ValueError) as e_:
                 log.warning('Unable to convert value to Unicode string :: {!s} '
                             ': ({}) {!s}'.format(meowuri, type(_value), _value))
-                log.warning(str(e))
+                log.warning(str(e_))
                 return
 
         results[meowuri] = _str_value

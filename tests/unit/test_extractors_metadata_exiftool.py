@@ -168,6 +168,7 @@ class TestIsBadMetadata(TestCase):
         _aF('XMP:Subject', ['Unknown'])
         _aF('XMP:Title', 'Unknown')
 
+
 class TestFilterCoercedValue(TestCase):
     def _assert_filter_returns(self, expect, given):
         actual = _filter_coerced_value(given)

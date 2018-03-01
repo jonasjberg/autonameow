@@ -412,7 +412,7 @@ def _colorize_string_diff(a, b, color, secondary_color, colorize_=None):
             a_out.append(colorize_(a[a_start:a_end], c))
             b_out.append(colorize_(b[b_start:b_end], c))
         else:
-            assert(False)
+            assert False
 
     return ''.join(a_out), ''.join(b_out)
 

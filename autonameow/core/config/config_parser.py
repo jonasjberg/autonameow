@@ -181,7 +181,7 @@ class ConfigurationParser(object):
             log.debug('Trying to load post-processing replacements')
 
             # TODO: [TD0141] Coerce raw values to a known type.
-            if not 'POST_PROCESSING' in config_dict:
+            if 'POST_PROCESSING' not in config_dict:
                 log.debug('Did not find any post-processing options ..')
                 return
 

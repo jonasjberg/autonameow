@@ -63,9 +63,9 @@ def is_readable_file(file_path):
 
 
 def get_source_files(paths):
-    def _recurse(path):
+    def _recurse(_path):
         matches = []
-        for root, dirnames, filenames in os.walk(path):
+        for root, dirnames, filenames in os.walk(_path):
             for filename in filenames:
                 if filename in SOURCEFILE_IGNORED:
                     continue

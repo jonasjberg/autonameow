@@ -586,7 +586,7 @@ class TimeDate(BaseType):
         else:
             # TODO: [TD0054] Represent datetime as UTC within autonameow.
             from util.dateandtime import timezone_aware_to_naive
-            naive_dt =  timezone_aware_to_naive(dt)
+            naive_dt = timezone_aware_to_naive(dt)
 
             # TODO: [cleanup] Really OK to just drop the microseconds?
             return naive_dt.replace(microsecond=0)

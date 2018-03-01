@@ -94,7 +94,6 @@ def dump_extractor_field_lookups():
         disk.write_yaml_file(dest, field_lookup_data)
 
 
-
 ProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES)
 TextProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_TEXT)
 MetadataProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_METADATA)

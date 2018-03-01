@@ -139,12 +139,12 @@ global_logged_runtime = list()
 
 @contextmanager
 def log_runtime(logger, name):
-    global global_logged_runtime
     def _log(message):
         MAX_WIDTH = 120
         message = ' ' + message + ' '
         logger.debug(message.center(MAX_WIDTH, '='))
 
+    global global_logged_runtime
     _log('{} Started'.format(name))
     start_time = time.time()
     try:

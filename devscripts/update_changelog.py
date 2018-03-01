@@ -162,7 +162,7 @@ def is_blacklisted(entry):
             return True
 
     # Fixed typos
-    if not body and _subject_match(r'^Fix typo.*') and not 'and' in subject:
+    if not body and _subject_match(r'^Fix typo.*') and 'and' not in subject:
         return True
 
     # Shameful
@@ -207,7 +207,6 @@ def git_log_for_range(hash_first, hash_second):
         ['git', 'log', '--format="{}"'.format(GIT_LOG_FORMAT), _commit_range]
     )
     return types.force_string(stdout.strip())
-
 
 
 def get_previous_version_tag():
@@ -280,7 +279,6 @@ if __name__ == '__main__':
               file=sys.stderr)
         sys.exit(EXIT_FAILURE)
 
-
     exit_status = EXIT_SUCCESS
 
     header = get_changelog_header_line()
@@ -309,7 +307,7 @@ if __name__ == '__main__':
         #     _body = consolidate_almost_equal(_subject, _body)
 
         cle = ChangelogEntry(_subject, _body)
-        if not cle in log_entries and not is_blacklisted(cle):
+        if cle not in log_entries and not is_blacklisted(cle):
             log_entries.append(cle)
 
     section_entries = {

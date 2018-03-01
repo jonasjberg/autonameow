@@ -108,12 +108,10 @@ class TestLogAllLoggedRuntimes(TestCase):
     def setUp(self):
         opts = dict()
         init_logging(opts)
+        self.mock_logger = Mock()
 
     def tearDown(self):
         deinit_logging()
-
-    def setUp(self):
-        self.mock_logger = Mock()
 
     def test_nothing_is_logged_when_no_runtimes_have_been_logged(self):
         log_previously_logged_runtimes(self.mock_logger)
