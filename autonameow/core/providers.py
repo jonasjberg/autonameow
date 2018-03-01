@@ -103,7 +103,7 @@ class ProviderMixin(object):
 
 def wrap_provider_results(datadict, metainfo, source_klass):
     """
-    Joins the plain data dict with metainfo from 'FIELD_LOOKUP'.
+    Joins the plain data dict with metainfo defined in 'FIELD_LOOKUP'.
 
     Args:
         datadict: Provider results data, keys are provider-specific fields
@@ -114,37 +114,44 @@ def wrap_provider_results(datadict, metainfo, source_klass):
     Returns:
         A dict with various information bundled with the actual data.
     """
-    assert metainfo, 'Provider {} did not pass metainfo'.format(source_klass)
-
+    sanity.check_isinstance(metainfo, dict,
+                            msg='Source provider: {!s}'.format(source_klass))
     log.debug('Wrapping provider {!s} results (datadict len: {}) (metainfo len: {})'.format(source_klass, len(datadict), len(metainfo)))
 
-    out = dict()
+    wrapped = dict()
 
     # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     for field, value in datadict.items():
-        field_metainfo = dict(metainfo.get(field, {}))
+        field_metainfo = metainfo.get(field, {})
         if not field_metainfo:
             log.warning('Missing metainfo for field "{!s}"'.format(field))
             log.debug('Field {} not in {!s}'.format(field, metainfo))
             continue
 
-        field_metainfo['value'] = value
-        # Do not store a reference to the class itself before actually needed..
-        field_metainfo['source'] = str(source_klass)
+        wrapped[field] = _wrap_provider_result_field(field_metainfo, source_klass, value)
 
-        # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
-        # Map strings to generic field classes.
-        _generic_field_string = field_metainfo.get('generic_field')
-        if _generic_field_string:
-            _generic_field_klass = get_field_class(_generic_field_string)
-            if _generic_field_klass:
-                field_metainfo['generic_field'] = _generic_field_klass
-            else:
-                field_metainfo.pop('generic_field')
+    return wrapped
 
-        out[field] = field_metainfo
 
-    return out
+def _wrap_provider_result_field(field_metainfo, source_klass, value):
+    field_info = dict(field_metainfo)
+
+    field_info['value'] = value
+
+    # Do not store a reference to the class itself before actually needed..
+    field_info['source'] = str(source_klass)
+
+    # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
+    # Map strings to generic field classes.
+    _generic_field_string = field_info.get('generic_field')
+    if _generic_field_string:
+        _generic_field_klass = get_field_class(_generic_field_string)
+        if _generic_field_klass:
+            field_info['generic_field'] = _generic_field_klass
+        else:
+            field_info.pop('generic_field')
+
+    return field_info
 
 
 class ProviderRegistry(object):
