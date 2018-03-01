@@ -134,24 +134,26 @@ def wrap_provider_results(datadict, metainfo, source_klass):
 
 
 def _wrap_provider_result_field(field_metainfo, source_klass, value):
-    field_info = dict(field_metainfo)
-
-    field_info['value'] = value
-
-    # Do not store a reference to the class itself before actually needed..
-    field_info['source'] = str(source_klass)
+    _field_metainfo = dict(field_metainfo)
 
     # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
     # Map strings to generic field classes.
-    _generic_field_string = field_info.get('generic_field')
-    if _generic_field_string:
-        _generic_field_klass = get_field_for_uri_leaf(_generic_field_string)
-        if _generic_field_klass:
-            field_info['generic_field'] = _generic_field_klass
+    generic_field_string = _field_metainfo.get('generic_field')
+    if generic_field_string:
+        generic_field_klass = get_field_for_uri_leaf(generic_field_string)
+        if generic_field_klass:
+            _field_metainfo['generic_field'] = generic_field_klass
         else:
-            field_info.pop('generic_field')
+            _field_metainfo.pop('generic_field')
 
-    return field_info
+    field_info_to_add = {
+        # Do not store a reference to the class itself before actually needed..
+        'source': str(source_klass),
+        'value': value
+    }
+
+    _field_metainfo.update(field_info_to_add)
+    return _field_metainfo
 
 
 class ProviderRegistry(object):
