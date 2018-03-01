@@ -74,13 +74,12 @@ class EbookAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
                           'image/vnd.djvu']
-    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'author': {
             'coercer': 'aw_string',
             'multivalued': 'true',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Author', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Author', 'probability': '1'}},
             ],
             'generic_field': 'author'
         },
@@ -88,8 +87,8 @@ class EbookAnalyzer(BaseAnalyzer):
             'coercer': 'aw_date',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
-                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': '1'}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': '1'}},
             ],
             'generic_field': 'date_created'
         },
@@ -97,7 +96,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'coercer': 'aw_integer',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Edition', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Edition', 'probability': '1'}},
             ],
             'generic_field': 'edition'
         },
@@ -105,7 +104,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'coercer': 'aw_string',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Publisher', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': '1'}},
             ],
             'generic_field': 'publisher'
         },
@@ -113,7 +112,7 @@ class EbookAnalyzer(BaseAnalyzer):
             'coercer': 'aw_string',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Title', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Title', 'probability': '1'}},
             ],
             'generic_field': 'title'
         },

@@ -48,14 +48,13 @@ FiletagsParts = namedtuple('FiletagsParts',
 class FiletagsExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['*/*']
     IS_SLOW = False
-    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'datetime': {
             'coercer': 'aw_timedate',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
-                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': '1'}},
+                {'WeightedMapping': {'field': 'Date', 'probability': '1'}},
             ],
             'generic_field': 'date_created'
         },
@@ -63,8 +62,8 @@ class FiletagsExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Description', 'probability': 1}},
-                {'WeightedMapping': {'field': 'Title', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Description', 'probability': '1'}},
+                {'WeightedMapping': {'field': 'Title', 'probability': '0.5'}},
             ],
             'generic_field': 'description'
         },
@@ -72,7 +71,7 @@ class FiletagsExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': 'true',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Tags', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Tags', 'probability': '1'}},
             ],
             'generic_field': 'tags'
         },
@@ -80,7 +79,7 @@ class FiletagsExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Extension', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Extension', 'probability': '1'}},
             ],
         },
         'follows_filetags_convention': {

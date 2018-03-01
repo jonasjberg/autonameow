@@ -40,7 +40,6 @@ class ProviderMixin(object):
 
     def coerce_field_value(self, field, value):
         # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
-        # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
         # TODO: [hack] This is very bad.
         _field_lookup_entry = self.metainfo().get(field)
         if not _field_lookup_entry:
@@ -123,7 +122,6 @@ def wrap_provider_results(datadict, metainfo, source_klass):
 
     wrapped = dict()
 
-    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     for field, value in datadict.items():
         raw_field_metainfo = metainfo.get(field, {})
         if not raw_field_metainfo:
@@ -219,14 +217,21 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
             if mapping_type == 'WeightedMapping':
                 param_field_str = mapping_params.get('field')
                 param_prob_str = mapping_params.get('probability')
+                # TODO: Improve robustness. Raise appropriate exception.
+                # TODO: Improve robustness. Log provider with malformed metainfo entries.
                 assert param_field_str
                 assert param_prob_str
 
                 param_field = get_field_class_from_metainfo_string(param_field_str)
+                param_prob = types.AW_FLOAT(param_prob_str)
+                # TODO: Improve robustness. Raise appropriate exception.
+                # TODO: Improve robustness. Log provider with malformed metainfo entries.
                 assert param_field
+                assert param_prob
+
                 translated.append(WeightedMapping(
                     field=param_field,
-                    probability=float(param_prob_str)
+                    probability=param_prob
                 ))
     return translated
 
@@ -418,7 +423,6 @@ def _map_generic_sources(meowuri_class_map):
 
             # TODO: [TD0151] Fix inconsistent use of classes/instances.
             # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
-            # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
             for _, field_metainfo in klass.metainfo().items():
                 _generic_field_string = field_metainfo.get('generic_field')
                 if not _generic_field_string:

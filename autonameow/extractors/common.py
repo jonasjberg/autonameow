@@ -92,7 +92,6 @@ class BaseExtractor(object):
     # NOTE: Must be overriden by inheriting classes.
     # Dictionary with extractor-specific information, keyed by the fields that
     # the raw source produces. Stores information on types, etc..
-    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = dict()
 
     # TODO: Hack ..
@@ -224,7 +223,6 @@ class BaseExtractor(object):
     @classmethod
     def metainfo(cls):
         # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
-        # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
         return dict(cls.FIELD_LOOKUP)
 
     @classmethod

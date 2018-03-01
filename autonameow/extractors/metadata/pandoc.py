@@ -52,13 +52,12 @@ class PandocMetadataExtractor(BaseExtractor):
     ]
     IS_SLOW = False
 
-    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'author': {
             'coercer': 'aw_string',
             'multivalued': 'true',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Author', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Author', 'probability': '1'}},
             ],
             'generic_field': 'author'
         },
@@ -66,7 +65,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': 'true',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Author', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Author', 'probability': '1'}},
             ],
             'generic_field': 'author'
         },
@@ -74,8 +73,8 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_date',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
-                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': '1'}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': '1'}},
             ],
             'generic_field': 'date_created'
         },
@@ -83,8 +82,8 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_date',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Date', 'probability': 1}},
-                {'WeightedMapping': {'field': 'DateTime', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Date', 'probability': '1'}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': '1'}},
             ],
             'generic_field': 'date_created'
         },
@@ -92,7 +91,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Title', 'probability': 0.4}},
+                {'WeightedMapping': {'field': 'Title', 'probability': '0.4'}},
             ],
             'generic_field': 'title'
         },
@@ -100,7 +99,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Title', 'probability': 0.25}},
+                {'WeightedMapping': {'field': 'Title', 'probability': '0.25'}},
             ],
             'generic_field': 'title'
         },
@@ -112,7 +111,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Title', 'probability': 0.5}},
+                {'WeightedMapping': {'field': 'Title', 'probability': '0.5'}},
             ],
             'generic_field': 'title'
         },
@@ -120,7 +119,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': 'true',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Tags', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Tags', 'probability': '1'}},
             ],
             'generic_field': 'tags'
         },
@@ -128,7 +127,7 @@ class PandocMetadataExtractor(BaseExtractor):
             'coercer': 'aw_string',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Title', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Title', 'probability': '1'}},
             ],
             'generic_field': 'title'
         },

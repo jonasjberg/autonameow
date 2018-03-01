@@ -68,7 +68,6 @@ class BaseAnalyzer(object):
 
     # Dictionary with analyzer-specific information, keyed by the fields that
     # the analyzer produces. Stores information on types, etc..
-    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = dict()
 
     # TODO: Hack ..
@@ -193,7 +192,6 @@ class BaseAnalyzer(object):
     @classmethod
     def metainfo(cls):
         # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
-        # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
         return dict(cls.FIELD_LOOKUP)
 
     @classmethod

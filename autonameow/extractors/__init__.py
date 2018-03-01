@@ -78,7 +78,7 @@ def dump_extractor_field_lookups():
     # import pdb
     # pdb.set_trace()
 
-    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
+    # TODO: [temporary][debug] Store only strings in 'FIELD_LOOKUP'.
 
     for provider in ProviderClasses:
         _prefix = str(provider.meowuri_prefix())

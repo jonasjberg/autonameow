@@ -40,7 +40,6 @@ log = logging.getLogger(__name__)
 
 
 class AbstractTextExtractor(BaseExtractor):
-    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'full': {
             'coercer': 'aw_string',
@@ -52,7 +51,7 @@ class AbstractTextExtractor(BaseExtractor):
         #     'coercer': 'aw_string',
         #     'multivalued': 'false',
         #     'mapped_fields': [
-        #         {'WeightedMapping': {'field': 'Title', 'probability': 1}},
+        #         {'WeightedMapping': {'field': 'Title', 'probability': '1'}},
         #     ],
         #     'generic_field': 'title'
         # }

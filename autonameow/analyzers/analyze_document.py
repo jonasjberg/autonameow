@@ -39,22 +39,22 @@ class DocumentAnalyzer(BaseAnalyzer):
             'coercer': 'aw_string',
             'mapped_fields': [
                 # TODO: [TD0166] Set probabilities dynamically
-                {'WeightedMapping': {'field': 'Title', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Title', 'probability': '1'}},
             ],
             'generic_field': 'title'
         },
         'datetime': {
             'coercer': 'aw_timedate',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'DateTime', 'probability': 0.25}},
-                {'WeightedMapping': {'field': 'Date', 'probability': 0.25}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': '0.25'}},
+                {'WeightedMapping': {'field': 'Date', 'probability': '0.25'}},
             ],
             'generic_field': 'date_created',
         },
         'publisher': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Publisher', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Publisher', 'probability': '1'}},
             ],
             'generic_field': 'publisher',
         }

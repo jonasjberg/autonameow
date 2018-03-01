@@ -30,26 +30,25 @@ from extractors import (
 class EpubMetadataExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
     IS_SLOW = False
-    # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
     FIELD_LOOKUP = {
         'author': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Author', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Author', 'probability': '1'}},
             ],
             'generic_field': 'author'
         },
         'title': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Title', 'probability': 1}},
+                {'WeightedMapping': {'field': 'Title', 'probability': '1'}},
             ],
             'generic_field': 'title'
         },
         'producer': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Author', 'probability': 0.1}},
+                {'WeightedMapping': {'field': 'Author', 'probability': '0.1'}},
             ],
             'generic_field': 'producer'
         }

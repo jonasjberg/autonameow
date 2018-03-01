@@ -10,6 +10,16 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-03-02
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0178]` __Store only strings in `FIELD_LOOKUP`.__  
+>     Further decouples the extractors from the rest of the system.
+>     Would also allow potentially storing the `FIELD_LOOKUP` in a separate file
+>     that is loaded at run-time.
+
 ### 2018-02-27
 
 > Low Priority
