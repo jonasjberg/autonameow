@@ -327,8 +327,7 @@ def _map_generic_sources(meowuri_class_map):
             # TODO: [TD0151] Fix inconsistent use of classes/instances.
             # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
             # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
-            metainfo_dict = dict(klass.FIELD_LOOKUP)
-            for _, field_metainfo in metainfo_dict.items():
+            for _, field_metainfo in klass.metainfo().items():
                 _generic_field_string = field_metainfo.get('generic_field')
                 if not _generic_field_string:
                     continue

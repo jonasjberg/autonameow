@@ -21,7 +21,7 @@
 
 import collections
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import MagicMock, Mock
 
 from core.providers import (
     get_providers_for_meowuris,
@@ -305,11 +305,16 @@ class TestMapMeowURItoSourceClass(TestCase):
     #     self._check_returned_providers(actual, expected)
 
 
+def _get_mock_provider():
+    mock_provider = Mock()
+    mock_provider.metainfo = MagicMock(return_value=dict())
+    return mock_provider
+
+
 class TestProviderRegistryMightBeResolvable(TestCase):
     @classmethod
     def setUpClass(cls):
-        mock_provider = Mock()
-        mock_provider.FIELD_LOOKUP = dict()
+        mock_provider = _get_mock_provider()
         dummy_source_map = {
             'analyzer': {
                 uu.as_meowuri('analyzer.filename'): mock_provider
@@ -365,8 +370,7 @@ class TestProviderRegistryMightBeResolvable(TestCase):
         self.assertFalse(p.might_be_resolvable(meowuri))
 
     def test_with_meowuri_and_single_mapped_meowuri(self):
-        mock_provider = Mock()
-        mock_provider.FIELD_LOOKUP = dict()
+        mock_provider = _get_mock_provider()
         dummy_source_map = {
             'extractor': {
                 uu.as_meowuri('extractor.filesystem.guessit'): mock_provider

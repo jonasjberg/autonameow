@@ -190,10 +190,11 @@ class BaseAnalyzer(object):
             self.log.info('Requested data unavailable: "generic.contents.text"')
         return text
 
-    def metainfo(self):
+    @classmethod
+    def metainfo(cls):
         # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
         # TODO: [TD0178] Store only strings in 'FIELD_LOOKUP'.
-        return self.FIELD_LOOKUP
+        return dict(cls.FIELD_LOOKUP)
 
     @classmethod
     def meowuri_prefix(cls):
