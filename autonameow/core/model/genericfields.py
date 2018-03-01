@@ -135,13 +135,6 @@ def get_all_generic_field_klasses():
     return set(GenericField.__subclasses__())
 
 
-def meowuri_genericfield_map():
-    return {
-        klass.uri(): klass
-        for klass in GenericField.__subclasses__()
-    }
-
-
 def get_datetime_fields():
     return [
         GenericDateModified, GenericDateCreated

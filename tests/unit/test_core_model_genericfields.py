@@ -33,7 +33,6 @@ from core.model.genericfields import (
     GenericSubject,
     GenericTags,
     get_all_generic_field_klasses,
-    meowuri_genericfield_map
 )
 import unit.utils as uu
 import unit.constants as uuconst
@@ -98,15 +97,3 @@ class TestGetAllGenericFieldKlasses(TestCase):
                 self.assertTrue(issubclass(a, GenericField))
 
 
-class TestGenericMeowURIs(TestCase):
-    def test_returns_expected_type(self):
-        actual = meowuri_genericfield_map()
-        self.assertIsInstance(actual, dict)
-
-        from core.model import MeowURI
-        for meowuri, field_klass in actual.items():
-            self.assertTrue(uu.is_class_instance(meowuri))
-            self.assertIsInstance(meowuri, MeowURI)
-
-            self.assertTrue(uu.is_class(field_klass))
-            self.assertTrue(issubclass(field_klass, GenericField))
