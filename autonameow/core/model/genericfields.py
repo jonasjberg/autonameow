@@ -148,20 +148,23 @@ def get_string_fields():
     ]
 
 
-def get_field_class(string):
-    KLASSES = {
-        'author': GenericAuthor,
-        'creator': GenericCreator,
-        'date_created': GenericDateCreated,
-        'date_modified': GenericDateModified,
-        'description': GenericDescription,
-        'edition': GenericEdition,
-        'mime_type': GenericMimeType,
-        'producer': GenericProducer,
-        'publisher': GenericPublisher,
-        'subject': GenericSubject,
-        'tags': GenericTags,
-        'text': GenericText,
-        'title': GenericTitle,
+def _build_field_uri_leaf_to_klass_mapping():
+    return {
+        klass.uri().leaf: klass
+        for klass in get_all_generic_field_klasses()
     }
-    return KLASSES.get(string)
+
+
+_URI_LEAF_TO_KLASS_MAPPING = None
+
+
+def _get_field_uri_leaf_to_klass_mapping():
+    global _URI_LEAF_TO_KLASS_MAPPING
+    if _URI_LEAF_TO_KLASS_MAPPING is None:
+        _URI_LEAF_TO_KLASS_MAPPING = _build_field_uri_leaf_to_klass_mapping()
+    return _URI_LEAF_TO_KLASS_MAPPING
+
+
+def get_field_class(string):
+    leaf_to_klass_map = _get_field_uri_leaf_to_klass_mapping()
+    return leaf_to_klass_map.get(string)

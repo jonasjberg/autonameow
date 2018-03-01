@@ -20,6 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+from unittest.mock import (
+    Mock,
+    patch
+)
 
 from core import constants as C
 from core.model.genericfields import (
@@ -33,6 +37,7 @@ from core.model.genericfields import (
     GenericSubject,
     GenericTags,
     get_all_generic_field_klasses,
+    get_field_class,
 )
 import unit.utils as uu
 import unit.constants as uuconst
@@ -97,3 +102,60 @@ class TestGetAllGenericFieldKlasses(TestCase):
                 self.assertTrue(issubclass(a, GenericField))
 
 
+class TestGetFieldClass(TestCase):
+    def test_returns_none_if_no_corresponding_field_class_is_found(self):
+        for given in [None, '', ' ', 'foo', 'foo bar']:
+            with self.subTest(given=given):
+                self.assertIsNone(get_field_class(given))
+
+    @patch('core.model.genericfields._get_field_uri_leaf_to_klass_mapping')
+    def test_returns_expected_given_generic_field_class_leaf(
+            self, mock__get_field_uri_leaf_to_klass_mapping
+    ):
+        DUMMY_MAPPING = {
+            'author': 'GenericAuthor',
+            'creator': 'GenericCreator',
+            'date_created': 'GenericDateCreated',
+            'date_modified': 'GenericDateModified',
+            'description': 'GenericDescription',
+            'edition': 'GenericEdition',
+            'mime_type': 'GenericMimeType',
+            'producer': 'GenericProducer',
+            'publisher': 'GenericPublisher',
+            'subject': 'GenericSubject',
+            'tags': 'GenericTags',
+            'text': 'GenericText',
+            'title': 'GenericTitle',
+        }
+        mock__get_field_uri_leaf_to_klass_mapping.return_value = dict(DUMMY_MAPPING)
+        for string in DUMMY_MAPPING.keys():
+            actual = get_field_class(string)
+            self.assertEqual(DUMMY_MAPPING[string], actual)
+
+    def test_returns_expected(self):
+        # TODO: [hardcoded] Must be updated when modifying generic fields ..
+        from core.model.genericfields import (
+            GenericDescription,
+            GenericEdition,
+            GenericPublisher,
+            GenericText,
+            GenericTitle
+        )
+        EXPECTED_MAPPING = {
+            'author': GenericAuthor,
+            'creator': GenericCreator,
+            'date_created': GenericDateCreated,
+            'date_modified': GenericDateModified,
+            'description': GenericDescription,
+            'edition': GenericEdition,
+            'mime_type': GenericMimeType,
+            'producer': GenericProducer,
+            'publisher': GenericPublisher,
+            'subject': GenericSubject,
+            'tags': GenericTags,
+            'text': GenericText,
+            'title': GenericTitle,
+        }
+        for string in EXPECTED_MAPPING.keys():
+            actual = get_field_class(string)
+            self.assertEqual(EXPECTED_MAPPING[string], actual)
