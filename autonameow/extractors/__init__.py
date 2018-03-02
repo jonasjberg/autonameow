@@ -103,29 +103,25 @@ class ExtractorRegistry(object):
         self._text_providers = None
         self._metadata_providers = None
 
+    def _get_cached_or_collect(self, self_attribute, packages):
+        if getattr(self, self_attribute) is None:
+            setattr(self, self_attribute, set(get_extractor_classes(packages)))
+        return getattr(self, self_attribute)
+
     @property
     def all_providers(self):
-        if self._all_providers is None:
-            self._all_providers = set(
-                get_extractor_classes(EXTRACTOR_CLASS_PACKAGES)
-            )
-        return self._all_providers
+        return self._get_cached_or_collect('_all_providers',
+                                           EXTRACTOR_CLASS_PACKAGES)
 
     @property
     def text_providers(self):
-        if self._text_providers is None:
-            self._text_providers = set(
-                get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_TEXT)
-            )
-        return self._text_providers
+        return self._get_cached_or_collect('_text_providers',
+                                           EXTRACTOR_CLASS_PACKAGES_TEXT)
 
     @property
     def metadata_providers(self):
-        if self._metadata_providers is None:
-            self._metadata_providers = set(
-                get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_METADATA)
-            )
-        return self._metadata_providers
+        return self._get_cached_or_collect('_metadata_providers',
+                                           EXTRACTOR_CLASS_PACKAGES_METADATA)
 
 
 registry = ExtractorRegistry()
