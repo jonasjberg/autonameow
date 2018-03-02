@@ -90,10 +90,10 @@ class TemplateFieldDataResolver(object):
         )
         if field in self._fields:
             if not self.data_sources.get(field):
-                log.debug('Added (first) known source for field {!s} :: {!s}'.format(field.as_placeholder(), uri))
+                log.debug('Added (first) known source for field {!s} :: {!s}'.format(field, uri))
                 self.data_sources[field] = [uri]
             else:
-                log.debug('Added (additional) known source for field {!s} :: {!s}'.format(field.as_placeholder(), uri))
+                log.debug('Added (additional) known source for field {!s} :: {!s}'.format(field, uri))
                 self.data_sources[field] += [uri]
         else:
             log.debug('Attempted to add source for unused name template field '
@@ -124,10 +124,10 @@ class TemplateFieldDataResolver(object):
 
     def lookup_candidates(self, field):
         # TODO: [TD0024][TD0025] Implement Interactive mode.
-        log.debug('Resolver is looking up candidates for field {!s} ..'.format(field.as_placeholder()))
+        log.debug('Resolver is looking up candidates for field {!s} ..'.format(field))
 
         candidates = repository.SessionRepository.query_mapped(self.file, field)
-        log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field.as_placeholder()))
+        log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field))
 
         out = []
         for uri, candidate in candidates:
@@ -186,7 +186,7 @@ class TemplateFieldDataResolver(object):
     def _has_data_for_placeholder_fields(self):
         for field in self._fields:
             if field not in self.fields_data.keys():
-                log.warning('Missing placeholder field "{}"'.format(field))
+                log.warning('Missing placeholder field {!s}'.format(field))
                 return False
             elif self.fields_data.get(field) is None:
                 log.error('None data for placeholder field "{}"'.format(field))
@@ -194,10 +194,9 @@ class TemplateFieldDataResolver(object):
         return True
 
     def _gather_data_for_template_field(self, _field, uri):
-        _str_field = str(_field.as_placeholder())
         log.debug(
-            'Gathering data for template field {{{}}} from [{:8.8}]->'
-            '[{!s}]'.format(_str_field, self.file.hash_partial, uri)
+            'Gathering data for template field {!s} from [{:8.8}]->'
+            '[{!s}]'.format(_field, self.file.hash_partial, uri)
         )
         response = self._request_data(self.file, uri)
         if not response:
@@ -229,9 +228,9 @@ class TemplateFieldDataResolver(object):
                 if uri.is_generic:
                     maybe_one = get_one_from_many_generic_values(response, uri)
                     if not maybe_one:
-                        log.warning('[TD0112] Not sure what data to use for field {{{}}}..'.format(_str_field))
+                        log.warning('[TD0112] Not sure what data to use for field {!s}..'.format(_field))
                         for i, d in enumerate(response):
-                            log.debug('[TD0112] Field {{{}}} candidate {:03d} :: "{!s}"'.format(_str_field, i, d.value))
+                            log.debug('[TD0112] Field {!s} candidate {:03d} :: "{!s}"'.format(_field, i, d.value))
                         return False
                     else:
                         assert isinstance(maybe_one, DataBundle)
@@ -254,8 +253,8 @@ class TemplateFieldDataResolver(object):
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
         sanity.check_isinstance(response, DataBundle)
 
-        log.debug('Updated data for field {{{}}} :: {!s}'.format(
-            _str_field, response.value))
+        log.debug('Updated data for field {!s} :: {!s}'.format(_field,
+                                                               response.value))
         self.fields_data[_field] = response
         return True
 
@@ -264,7 +263,7 @@ class TemplateFieldDataResolver(object):
             if (field in self.fields_data
                     and self.fields_data[field] is not None):
                 log.debug('Skipping previously gathered data for field '
-                          '{{{}}}"'.format(field.as_placeholder))
+                          '{!s}"'.format(field))
                 continue
 
             for uri in uris:
@@ -284,8 +283,8 @@ class TemplateFieldDataResolver(object):
                 self.fields_data.pop(field)
 
     def _verify_type(self, field, databundle):
-        log.debug('Verifying type of field {{{!s}}} with data :: {!s}'.format(
-            field.as_placeholder(), databundle.value))
+        log.debug('Verifying type of field {!s} with data :: {!s}'.format(
+            field, databundle.value))
         if field.type_compatible(databundle.coercer):
             log.debug('Field-Data type compatible')
         else:
@@ -363,9 +362,9 @@ def sort_by_mapped_weights(databundles, primary_field, secondary_field=None):
     """
     Sorts bundles by their "weighted mapping" probabilities for given fields.
     """
-    assert issubclass(primary_field, NameTemplateField)
+    sanity.check_isinstance(primary_field, NameTemplateField)
     if secondary_field is not None:
-        assert issubclass(secondary_field, NameTemplateField)
+        sanity.check_isinstance(secondary_field, NameTemplateField)
 
     databundles.sort(
         key=lambda b: (b.field_mapping_probability(primary_field),

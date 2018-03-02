@@ -29,6 +29,8 @@ Completed TODO-list Entries
 >     to unmet dependencies` as the first thing, above the actual help text.
 >     Instead "load" providers and check these dependencies just prior to
 >     actually using them.
+>
+> * `[TD0140]` Template field classes `str()` method not working as intended.
 
 ### 2018-02-27
 

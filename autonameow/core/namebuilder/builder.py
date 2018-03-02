@@ -166,7 +166,7 @@ def pre_assemble_format(field_databundle_dict, config):
 
     for field, data in field_databundle_dict.items():
         log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))
-        assert field and issubclass(field, NameTemplateField)
+        assert field and isinstance(field, NameTemplateField)
         from core.repository import DataBundle
         assert data and isinstance(data, DataBundle)
 
@@ -174,12 +174,12 @@ def pre_assemble_format(field_databundle_dict, config):
         if data.multivalued:
             if not field.MULTIVALUED:
                 log.critical(
-                    'Template field "{!s}" expects a single value. Got '
-                    'multivalued data'.format(field.as_placeholder())
+                    'Template field {!s} expects a single value. Got '
+                    'multivalued data'.format(field)
                 )
                 raise exceptions.NameBuilderError(
-                    'Template field "{!s}" expects a single value. '
-                    'Got {} values'.format(field.as_placeholder(), len(data))
+                    'Template field {!s} expects a single value. '
+                    'Got {} values'.format(field, len(data))
                 )
 
         _formatted = field.format(data, config=config)

@@ -300,8 +300,6 @@ Low Priority
 
 * `[TD0141]` Coerce raw values to known types in the `ConfigurationParser`.
 
-* `[TD0140]` Template field classes `str()` method not working as intended.
-
 * `[TD0139]` Warn if data sources does not match name template placeholders?
 
 * `[TD0125]` __Add aliases (generics) for MeowURI leafs__  

@@ -243,7 +243,7 @@ class FilesContext(object):
             # TODO: [TD0024][TD0025] Implement Interactive mode.
             for field in resolver.unresolved:
                 candidates = resolver.lookup_candidates(field)
-                log.info('Found {} candidates for field {!s}'.format(len(candidates), field.as_placeholder()))
+                log.info('Found {} candidates for field {!s}'.format(len(candidates), field))
                 choice = None
                 if candidates:
                     # Returns instance of 'FieldDataCandidate' or 'Choice.ABORT'

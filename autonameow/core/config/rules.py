@@ -533,7 +533,7 @@ def parse_data_sources(raw_sources):
             log.warning('Template Field: ”{!s}"'.format(raw_templatefield))
             continue
 
-        assert issubclass(tf, fields.NameTemplateField), type(tf)
+        assert isinstance(tf, fields.NameTemplateField), type(tf)
 
         if not raw_meowuri_strings:
             log.debug('Skipped source with empty MeowURI(s) '
@@ -552,17 +552,13 @@ def parse_data_sources(raw_sources):
                 continue
 
             if is_valid_source(uri):
-                log.debug('Validated source: [{!s}]: {!s}'.format(
-                    tf.as_placeholder(), uri
-                ))
+                log.debug('Validated field {!s} source: {!s}'.format(tf, uri))
                 if not passed.get(tf):
                     passed[tf] = [uri]
                 else:
                     passed[tf] += [uri]
             else:
-                log.debug('Invalid source: [{!s}]: {!s}'.format(
-                    tf.as_placeholder(), uri
-                ))
+                log.debug('Invalid field {!s} source: {!s}'.format(tf, uri))
 
     log.debug(
         'Returning {} (out of {}) valid sources'.format(len(passed),
