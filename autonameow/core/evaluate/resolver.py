@@ -292,7 +292,7 @@ class TemplateFieldDataResolver(object):
             log.debug('Field-Data type INCOMPATIBLE')
 
     def _request_data(self, fileobject, uri):
-        log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
+        log.debug('{!s} requesting [{:8.8}]->[{!s}]'.format(
             self, fileobject.hash_partial, uri))
 
         # Pass a "tie-breaker" to resolve cases where we only want one item?
@@ -300,7 +300,7 @@ class TemplateFieldDataResolver(object):
         response = master_provider.request(fileobject, uri)
         if response:
             return response
-        log.debug('Resolver got no data.. {!s}'.format(response))
+        log.debug('Resolver got no data from query {!r}'.format(response))
         return None
 
     def __str__(self):

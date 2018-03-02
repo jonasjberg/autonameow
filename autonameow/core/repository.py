@@ -39,7 +39,7 @@ class QueryResponseFailure(object):
         self.uri = uri or 'unspecified MeowURI'
         self.msg = msg or ''
 
-    def __str__(self):
+    def __repr__(self):
         if self.fileobject:
             fileobject_str = self.fileobject.hash_partial
         else:
@@ -50,8 +50,11 @@ class QueryResponseFailure(object):
         else:
             _msg = ''
 
-        return 'Failed query [{:8.8}]->[{!s}]{!s}'.format(
+        return '[{:8.8}]->[{!s}]{!s}'.format(
             fileobject_str, self.uri, _msg)
+
+    def __str__(self):
+        return 'Failed query ' + repr(self)
 
     def __bool__(self):
         return False

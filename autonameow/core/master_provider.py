@@ -187,7 +187,10 @@ class MasterDataProvider(object):
             return response
 
         log.debug('Failed query, then delegation, then another query and returning None')
-        return QueryResponseFailure()
+        return QueryResponseFailure(
+            fileobject=fileobject, uri=meowuri,
+            msg='Repository query -> Delegation -> Repository query'
+        )
 
     def _delegate_to_providers(self, fileobject, meowuri):
         log.debug('Delegating request to providers: [{:8.8}]->[{!s}]'.format(
