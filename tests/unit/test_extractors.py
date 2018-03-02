@@ -36,7 +36,6 @@ from extractors import (
     EXTRACTOR_CLASS_PACKAGES_TEXT,
     _find_extractor_classes_in_packages,
     get_extractor_classes,
-    ProviderClasses
 )
 
 
@@ -288,8 +287,9 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
 class TestExtractorClassMeowURIs(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.extractor_class_names = [e.__name__ for e in ProviderClasses]
-        cls.actual = [k.meowuri_prefix() for k in ProviderClasses]
+        provider_klasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES)
+        cls.extractor_class_names = [e.__name__ for e in provider_klasses]
+        cls.actual = [k.meowuri_prefix() for k in provider_klasses]
 
     def test_returns_expected_type(self):
         from core.model import MeowURI

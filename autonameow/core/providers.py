@@ -379,11 +379,11 @@ def _get_meowuri_source_map():
         Returns: Dictionary keyed by instances of the 'MeowURI' class,
                  storing provider classes.
         """
-        _klass_list = getattr(module_name, 'ProviderClasses')
-        sanity.check_isinstance(_klass_list, list)
+        module_registry = getattr(module_name, 'registry')
+        klass_list = module_registry.all_providers
 
         mapping = dict()
-        for klass in _klass_list:
+        for klass in klass_list:
             uri = klass.meowuri_prefix()
             if not uri:
                 log.critical('Got empty from '
@@ -394,7 +394,6 @@ def _get_meowuri_source_map():
                 'Provider MeowURI "{!s}" is already mapped'.format(uri)
             )
             mapping[uri] = klass
-
         return mapping
 
     import analyzers

@@ -82,7 +82,7 @@ class ExtractorRunner(object):
         self._available_extractors = set()
         self.exclude_slow = True
 
-        self.register(extractors.ProviderClasses)
+        self.register(extractors.registry.all_providers)
 
     def register(self, extractor_klasses):
         self._available_extractors.update(extractor_klasses)

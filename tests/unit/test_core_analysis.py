@@ -60,7 +60,7 @@ class TestAnalysis(TestCase):
 class TestFilterAbleToHandle(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.ALL_AVAILABLE_ANALYZERS = analyzers.ProviderClasses
+        cls.ALL_AVAILABLE_ANALYZERS = analyzers.registry.all_providers
 
     def _assert_suitable(self, fileobject, expect_analyzers):
         actual = [

@@ -167,7 +167,7 @@ def _start(fileobject, config, analyzers_to_run=None):
     sanity.check_isinstance_fileobject(fileobject)
     sanity.check_isinstance(config, Configuration)
 
-    all_available_analyzers = set(analyzers.ProviderClasses)
+    all_available_analyzers = analyzers.registry.all_providers
 
     if analyzers_to_run:
         assert isinstance(analyzers_to_run, (list, set))

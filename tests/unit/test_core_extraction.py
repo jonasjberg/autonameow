@@ -31,9 +31,9 @@ import unit.utils as uu
 class TestFilterAbleToHandle(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.all_provider_classes = set(extractors.ProviderClasses)
+        cls.ALL_AVAILABLE_EXTRACTORS = extractors.registry.all_providers
         cls.extractor_class_names = [
-            e.__name__ for e in cls.all_provider_classes
+            e.__name__ for e in cls.ALL_AVAILABLE_EXTRACTORS
         ]
 
     def _assert_in_if_available(self, member, container):
@@ -46,7 +46,7 @@ class TestFilterAbleToHandle(TestCase):
             self.assertNotIn(member, container)
 
     def _names_of_resulting_extractors(self, fileobject):
-        klasses = filter_able_to_handle(self.all_provider_classes, fileobject)
+        klasses = filter_able_to_handle(self.ALL_AVAILABLE_EXTRACTORS, fileobject)
         return [k.__name__ for k in klasses]
 
     def _check_returned_extractors_for(self, fileobject, expected, if_available):

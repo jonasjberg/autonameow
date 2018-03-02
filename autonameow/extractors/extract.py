@@ -32,6 +32,7 @@ from core import (
     logs,
     view
 )
+import extractors
 from util import encoding as enc
 from util import disk
 
@@ -60,13 +61,11 @@ def do_extract_text(fileobject):
         view.msg('Text Extracted by {!s}:'.format(extractor), style='section')
         view.msg(text)
 
-    from extractors import TextProviderClasses
-    assert TextProviderClasses
     runner = extraction.ExtractorRunner(
         add_results_callback=_collect_results_callback
     )
     try:
-        runner.start(fileobject, request_extractors=TextProviderClasses)
+        runner.start(fileobject, request_extractors=extractors.registry.text_providers)
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
 
@@ -92,13 +91,11 @@ def do_extract_metadata(fileobject):
 
         results[meowuri] = _str_value
 
-    from extractors import MetadataProviderClasses
-    assert MetadataProviderClasses
     runner = extraction.ExtractorRunner(
         add_results_callback=_collect_results_callback
     )
     try:
-        runner.start(fileobject, request_extractors=MetadataProviderClasses)
+        runner.start(fileobject, request_extractors=extractors.registry.metadata_providers)
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
     else:

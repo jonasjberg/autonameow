@@ -72,7 +72,6 @@ def get_extractor_classes(packages):
 
 
 def dump_extractor_field_lookups():
-    global ProviderClasses
     from core import types
     from util import disk
     # import pdb
@@ -80,23 +79,53 @@ def dump_extractor_field_lookups():
 
     # TODO: [temporary][debug] Store only strings in 'FIELD_LOOKUP'.
 
-    for provider in ProviderClasses:
+    for provider in registry.all_providers:
         _prefix = str(provider.meowuri_prefix())
         prefix = types.AW_PATHCOMPONENT(_prefix)
         extension = types.AW_PATHCOMPONENT('.yaml')
         dest = disk.joinpaths(
-            b'/Users/jonas/PycharmProjects/autonameow.git/autonameow/extractors/',
+            b'/home/jonas/temp/autonameow/',
             prefix + extension,
         )
         p = provider()
         field_lookup_data = p.metainfo()
         del p
+        log.info('Writing to "{!s}"'.format(dest))
         disk.write_yaml_file(dest, field_lookup_data)
 
 
-ProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES)
-TextProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_TEXT)
-MetadataProviderClasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_METADATA)
-
-
 # dump_extractor_field_lookups()
+
+
+class ExtractorRegistry(object):
+    def __init__(self):
+        self._all_providers = None
+        self._text_providers = None
+        self._metadata_providers = None
+
+    @property
+    def all_providers(self):
+        if self._all_providers is None:
+            self._all_providers = set(
+                get_extractor_classes(EXTRACTOR_CLASS_PACKAGES)
+            )
+        return self._all_providers
+
+    @property
+    def text_providers(self):
+        if self._text_providers is None:
+            self._text_providers = set(
+                get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_TEXT)
+            )
+        return self._text_providers
+
+    @property
+    def metadata_providers(self):
+        if self._metadata_providers is None:
+            self._metadata_providers = set(
+                get_extractor_classes(EXTRACTOR_CLASS_PACKAGES_METADATA)
+            )
+        return self._metadata_providers
+
+
+registry = ExtractorRegistry()
