@@ -701,6 +701,7 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
         else:
             _sim_publisher = FIELDS_MISSING_SIMILARITY
 
+        # TODO: [TD0181] Use machine learning in ISBN metadata de-duplication.
         # TODO: Arbitrary threshold values..
         # Solving "properly" requires machine learning techniques; HMM? Bayes?
         log.debug('Comparing {!s} to {!s} ..'.format(self, other))

@@ -222,6 +222,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0181]` Use machine learning in ISBN metadata de-duplication.
+
 * `[TD0179]` Detect and correct malformed ISBN metadata.
 
 * `[TD0177]` __Refactor the `ConfigFieldParser` classes.__  
