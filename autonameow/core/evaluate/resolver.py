@@ -74,6 +74,7 @@ class TemplateFieldDataResolver(object):
         self.file = fileobject
         self.name_template = name_template
 
+        # TODO: [TD0180] Add abstraction for file name composed of placeholder fields.
         self._fields = nametemplatefield_classes_in_formatstring(name_template)
 
         self.data_sources = dict()

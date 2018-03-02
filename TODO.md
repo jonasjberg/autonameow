@@ -70,6 +70,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0180]` Add abstraction for file name composed of placeholder fields.
+
 * `[TD0174]` Do not do replacements in the NameTemplateField classes.
 
 * `[TD0172]` __Extend the text extractors with additional fields.__  
