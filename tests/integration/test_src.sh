@@ -94,12 +94,6 @@ assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/exiftool
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/jpeginfo_fieldmeta.yaml" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/pandoc_fieldmeta.yaml" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/common_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/epub_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/markdown_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/pdf_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/plain_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/rtf_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/tesseractocr_fieldmeta.yaml" e f r
 
 
 # ______________________________________________________________________________

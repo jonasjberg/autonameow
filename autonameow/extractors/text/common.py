@@ -20,6 +20,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import os
+import sys
 
 from core import (
     persistence,
@@ -90,6 +92,11 @@ class AbstractTextExtractor(BaseExtractor):
             self.cache.set(fileobject, text)
         except persistence.PersistenceError as e:
             self.log.critical('Unable to write {!s} cache :: {!s}'.format(self, e))
+
+    @classmethod
+    def python_source_filepath(cls):
+        # NOTE(jonas): Subclasses of this class use a shared field meta yaml.
+        return os.path.realpath(__file__)
 
     def extract_text(self, fileobject):
         """
