@@ -1,0 +1,4 @@
+full:
+    coercer: aw_string
+    generic_field: text
+    multivalued: false

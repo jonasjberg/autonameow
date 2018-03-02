@@ -1,0 +1,52 @@
+audio_codec:
+    coercer: aw_string
+date:
+    coercer: aw_timedate
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            probability: 1
+    -   WeightedMapping:
+            field: Date
+            probability: 1
+episode:
+    coercer: aw_integer
+format:
+    coercer: aw_string
+release_group:
+    coercer: aw_string
+    mapped_fields:
+    -   WeightedMapping:
+            field: Publisher
+            probability: 0.1
+    -   WeightedMapping:
+            field: Description
+            probability: 0.001
+screen_size:
+    coercer: aw_string
+season:
+    coercer: aw_integer
+title:
+    coercer: aw_string
+    mapped_fields:
+    -   WeightedMapping:
+            field: Title
+            probability: 1
+type:
+    coercer: aw_string
+    mapped_fields:
+    -   WeightedMapping:
+            field: Tags
+            probability: 0.5
+video_codec:
+    coercer: aw_string
+year:
+    coercer: aw_date
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            probability: 1
+    -   WeightedMapping:
+            field: Date
+            probability: 1

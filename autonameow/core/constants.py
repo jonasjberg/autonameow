@@ -233,3 +233,4 @@ DEFAULT_CACHE_MAX_FILESIZE = 50 * 1024**2  # ~50MB
 # Extractor settings
 # Used by the 'PandocMetadataExtractor' and the 'MarkdownTextExtractor'.
 MARKDOWN_BASENAME_SUFFIXES = frozenset([b'md', b'markdown', b'mkd'])
+EXTRACTOR_FIELDMETA_BASENAME_SUFFIX = '_fieldmeta.yaml'

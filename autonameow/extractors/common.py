@@ -20,12 +20,15 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import os
+import sys
 
 from core import constants as C
 from core import providers
 from core.exceptions import AutonameowException
 from core.model import MeowURI
 from util import (
+    disk,
     mimemagic,
     sanity
 )
@@ -93,6 +96,9 @@ class BaseExtractor(object):
     # Dictionary with extractor-specific information, keyed by the fields that
     # the raw source produces. Stores information on types, etc..
     FIELD_LOOKUP = dict()
+
+    # Cached field meta info read from files.
+    _FIELD_METAINFO = None
 
     # TODO: Hack ..
     coerce_field_value = providers.ProviderMixin.coerce_field_value
@@ -189,6 +195,23 @@ class BaseExtractor(object):
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
             )
 
+    @classmethod
+    def python_source_filepath(cls):
+        return os.path.realpath(sys.modules[cls.__module__].__file__)
+
+    @classmethod
+    def fieldmeta_filepath(cls):
+        return _fieldmeta_filepath_from_extractor_source_filepath(
+            cls.python_source_filepath()
+        )
+
+    @classmethod
+    def metainfo_from_yaml_file(cls):
+        if cls._FIELD_METAINFO is None:
+            filepath_fieldmeta = cls.fieldmeta_filepath()
+            cls._FIELD_METAINFO = disk.load_yaml_file(filepath_fieldmeta)
+        return cls._FIELD_METAINFO
+
     def extract(self, fileobject, **kwargs):
         """
         Extracts and returns data using a specific extractor.
@@ -246,3 +269,10 @@ class BaseExtractor(object):
 
     def __repr__(self):
         return '<{}>'.format(self.__class__.__name__)
+
+
+def _fieldmeta_filepath_from_extractor_source_filepath(filepath):
+    filepath_without_extension, _ = os.path.splitext(filepath)
+    return os.path.realpath(os.path.normpath(
+        filepath_without_extension + C.EXTRACTOR_FIELDMETA_BASENAME_SUFFIX
+    ))

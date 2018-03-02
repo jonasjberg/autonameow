@@ -83,6 +83,23 @@ check_git_ls_files_does_not_match 'docs/test_results'
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.mappings" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.preferred" e f r
 
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/analyzers/probable_extension_lookup" e f r
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/pandoc_template.plain" e f r
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/filetags_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/guessit_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/exiftool_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/jpeginfo_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/pandoc_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/epub_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/markdown_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/pdf_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/plain_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/rtf_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/tesseractocr_fieldmeta.yaml" e f r
+
 
 # ______________________________________________________________________________
 #

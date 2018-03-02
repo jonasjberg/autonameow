@@ -28,7 +28,6 @@ from unittest.mock import (
 
 import unit.utils as uu
 from core import constants as C
-from core.config.rules import Rule
 from core.evaluate.rulematcher import (
     prioritize_rules,
     RuleConditionEvaluator,
