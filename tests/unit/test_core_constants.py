@@ -83,6 +83,9 @@ class TestConstants(TestCase):
     def test_default_cache_max_filesize(self):
         self._is_defined_type(int, C.DEFAULT_CACHE_MAX_FILESIZE)
 
+    def test_text_extractor_cache_max_filesize(self):
+        self._is_defined_type(int, C.TEXT_EXTRACTOR_CACHE_MAX_FILESIZE)
+
     def test_default_datetime_formats(self):
         self._is_defined_internal_string(C.DEFAULT_DATETIME_FORMAT_DATETIME)
         self._is_defined_internal_string(C.DEFAULT_DATETIME_FORMAT_DATE)

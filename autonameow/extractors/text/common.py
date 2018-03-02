@@ -21,13 +21,12 @@
 
 import logging
 import os
-import sys
 
 from core import (
     persistence,
     types,
 )
-# TODO: [TD0172] Extend the text extractors with additional fields.
+from core import constants as C
 from extractors import BaseExtractor
 from util import encoding as enc
 from util import sanity
@@ -43,10 +42,12 @@ log = logging.getLogger(__name__)
 
 class AbstractTextExtractor(BaseExtractor):
     def __init__(self):
+        """
+        # NOTE: Call 'self.init_cache()' in subclasses init to enable caching.
+        """
         super().__init__()
 
         self.cache = None
-        # NOTE(jonas): Call 'self.init_cache()' in subclass init to use caching.
 
     def extract(self, fileobject, **kwargs):
         text = self._get_text(fileobject)
@@ -122,8 +123,10 @@ class AbstractTextExtractor(BaseExtractor):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def init_cache(self):
-        _max_filesize = 50 * 1024**2  # ~50MB
-        _cache = persistence.get_cache(str(self), max_filesize=_max_filesize)
+        _cache = persistence.get_cache(
+            str(self),
+            max_filesize=C.TEXT_EXTRACTOR_CACHE_MAX_FILESIZE
+        )
         if _cache:
             self.cache = _cache
         else:
