@@ -517,9 +517,9 @@ class TestParseMimetypeExtensionSuffixesMapData(TestCase):
         self._assert_parses(
             given='''
 MIMETYPE application/msword
-EXTENSION doc
-- doc
-            ''',
+    EXTENSION doc
+    - doc
+''',
             expect={
                 'application/msword': {
                     'doc': {'doc'}
@@ -531,10 +531,10 @@ EXTENSION doc
         self._assert_parses(
             given='''
 MIMETYPE application/msword
-EXTENSION doc
-- doc
-- exe
-            ''',
+    EXTENSION doc
+    - doc
+    - exe
+''',
             expect={
                 'application/msword': {
                     'doc': {'doc', 'exe'}
@@ -550,7 +550,7 @@ MIMETYPE application/octet-stream
     - chm
     EXTENSION azw3
     - azw3
-            ''',
+''',
             expect={
                 'application/octet-stream': {
                     'chm': {'chm'},
@@ -563,10 +563,10 @@ MIMETYPE application/octet-stream
         self._assert_parses(
             given='''
 MIMETYPE text/x-env
-EXTENSION BLANK
-- BLANK
-EXTENSION sh
-- sh
+    EXTENSION BLANK
+    - BLANK
+    EXTENSION sh
+    - sh
 ''',
             expect={
                 'text/x-env': {
@@ -599,196 +599,202 @@ EXTENSION sh
 # If the file extension is something else, another entry is evaluated.
 
 MIMETYPE application/gzip
-EXTENSION gz
-- gz
-EXTENSION tar.gz
-- tar.gz
+    EXTENSION gz
+    - gz
+    EXTENSION tar.gz
+    - tar.gz
 MIMETYPE application/msword
-EXTENSION doc
-- doc
+    EXTENSION doc
+    - doc
 MIMETYPE application/octet-stream
-EXTENSION BLANK
-- BLANK
-EXTENSION azw3
-- azw3
-EXTENSION bin
-- bin
-- binary
-EXTENSION chm
-- chm
-EXTENSION gz.sig
-- gz.sig
-EXTENSION hex
-- hex
-EXTENSION mobi
-- mobi
-EXTENSION pdf
-- pdf
-EXTENSION prc
-- prc
-EXTENSION scpt
-- scpt
-EXTENSION sig
-- sig
-EXTENSION sln  # Visual Studio Solution
-- sln
-EXTENSION tar.gz.sig
-- tar.gz.sig
-EXTENSION txt
-- txt
+    EXTENSION BLANK
+    - BLANK
+    EXTENSION azw3
+    - azw3
+    EXTENSION bin
+    - bin
+    - binary
+    EXTENSION chm
+    - chm
+    EXTENSION gz.sig
+    - gz.sig
+    EXTENSION hex
+    - hex
+    EXTENSION mobi
+    - mobi
+    EXTENSION pdf
+    - pdf
+    EXTENSION prc
+    - prc
+    EXTENSION scpt
+    - scpt
+    EXTENSION sig
+    - sig
+    EXTENSION sln  # Visual Studio Solution
+    - sln
+    EXTENSION tar.gz.sig
+    - tar.gz.sig
+    EXTENSION txt
+    - txt
 MIMETYPE application/postscript
-EXTENSION eps
-- eps
-EXTENSION ps
-- ps
+    EXTENSION eps
+    - eps
+    EXTENSION ps
+    - ps
 MIMETYPE application/vnd.ms-powerpoint
-EXTENSION ppt
-- ppt
+    EXTENSION ppt
+    - ppt
+
+# Not indented ..
 MIMETYPE application/x-bzip2
 EXTENSION tar.bz2
 - tar.bz2
+
 MIMETYPE application/x-gzip
-EXTENSION html.gz
-- htm.gz
-- html
-- html.gz
-- htm
-EXTENSION tar.gz
-- tgz
-- tar.gz
-EXTENSION txt.gz
-- txt
-- txt.gz
-EXTENSION txt.tar.gz
-- txt.tgz
-- txt.tar.gz
-EXTENSION w.gz    # CWEB source code
-- w.gz
-MIMETYPE application/x-lzma
+    EXTENSION html.gz
+    - htm.gz
+    - html
+    - html.gz
+    - htm
+    EXTENSION tar.gz
+    - tgz
+    - tar.gz
+    EXTENSION txt.gz
+    - txt
+    - txt.gz
+    EXTENSION txt.tar.gz
+    - txt.tgz
+    - txt.tar.gz
+    EXTENSION w.gz    # CWEB source code
+    - w.gz
+MIMETYPE application/x-lzma # Not indented ..
 EXTENSION tar.lzma
 - tar.lzma
 MIMETYPE application/zip
-EXTENSION alfredworkflow
-- alfredworkflow
-EXTENSION epub
-- epub
-EXTENSION zip
-- zip
+    EXTENSION alfredworkflow
+    - alfredworkflow
+    EXTENSION epub
+    - epub
+    EXTENSION zip
+    - zip
 MIMETYPE audio/mpeg
-EXTENSION mp3
-- mp3
+    EXTENSION mp3
+    - mp3
 MIMETYPE message/rfc822
-EXTENSION mhtml
-- mhtml
+    EXTENSION mhtml
+    - mhtml
 MIMETYPE text/html
-EXTENSION html
-- htm.gz
-- html
-- html.gz
-- htm
-EXTENSION mhtml
-- mhtml
-EXTENSION txt
-- txt
+    EXTENSION html
+    - htm.gz
+    - html
+    - html.gz
+    - htm
+    EXTENSION mhtml
+    - mhtml
+    EXTENSION txt
+    - txt
 MIMETYPE text/plain
-EXTENSION bibtex
-- bibtex
-EXTENSION c
-- c
-EXTENSION cpp
-- cpp
-- c++
-EXTENSION css
-- css
-EXTENSION csv
-- csv
-EXTENSION gemspec
-- gemspec
-EXTENSION h
-- h
-EXTENSION html
-- html
-- htm
-EXTENSION java
-- java
-EXTENSION js
-- js
-EXTENSION json
-- json
-EXTENSION key
-- key
-EXTENSION log
-- log
-EXTENSION md
-- markdown
-- md
-- mkd
-EXTENSION puml
-- puml
-EXTENSION py
-- py
-- python
-EXTENSION rake
-- rake
-EXTENSION sh
-- bash
-- sh
-EXTENSION spec
-- spec
-EXTENSION txt
-- txt
-- txt.gz
-EXTENSION yaml
-- yaml
+    EXTENSION bibtex
+    - bibtex
+    EXTENSION c
+    - c
+    EXTENSION cpp
+    - cpp
+    - c++
+    EXTENSION css
+    - css
+    EXTENSION csv
+    - csv
+    EXTENSION gemspec
+    - gemspec
+    EXTENSION h
+    - h
+    EXTENSION html
+    - html
+    - htm
+    EXTENSION java
+    - java
+    EXTENSION js
+    - js
+    EXTENSION json
+    - json
+    EXTENSION key
+    - key
+    EXTENSION log
+    - log
+    EXTENSION md
+    - markdown
+    - md
+    - mkd
+    EXTENSION puml
+    - puml
+    EXTENSION py
+    - py
+    - python
+    EXTENSION rake
+    - rake
+    EXTENSION sh
+    - bash
+    - sh
+    EXTENSION spec
+    - spec
+    EXTENSION txt
+    - txt
+    - txt.gz
+    EXTENSION yaml
+    - yaml
 MIMETYPE text/x-c
-EXTENSION c
-- txt
-- c
-EXTENSION h
-- h
-EXTENSION w
-- w
+    EXTENSION c
+    - txt
+    - c
+    EXTENSION h
+    - h
+    EXTENSION w
+    - w
 MIMETYPE text/x-c++
-EXTENSION cpp
-- txt
-- cpp
-- c++
-EXTENSION h
-- h
+    EXTENSION cpp
+    - txt
+    - cpp
+    - c++
+    EXTENSION h
+    - h
 MIMETYPE text/x-env
-EXTENSION BLANK
-- BLANK
-EXTENSION sh
-- sh
+    EXTENSION BLANK
+    - BLANK
+    EXTENSION sh
+    - sh
 MIMETYPE text/x-makefile
-EXTENSION BLANK
-- BLANK
-EXTENSION asm
-- asm
+    EXTENSION BLANK
+    - BLANK
+    EXTENSION asm
+    - asm
 MIMETYPE text/x-shellscript
-EXTENSION py
-- py
-EXTENSION sh
-- txt
-- bash
-- sh
+    EXTENSION py
+    - py
+    EXTENSION sh
+    - txt
+    - bash
+    - sh
+
+
 MIMETYPE text/x-tex
-EXTENSION log
-- log
-EXTENSION tex
-- tex
+    EXTENSION log
+    - log
+    EXTENSION tex
+    - tex
+
 MIMETYPE text/xml
-EXTENSION cbp
-- cbp
-EXTENSION workspace
-- workspace
+    EXTENSION cbp
+    - cbp
+    EXTENSION workspace
+    - workspace
 MIMETYPE video/mpeg
-EXTENSION VOB
-- VOB
-EXTENSION mpg
-- mpeg
-EXTENSION vob
-- vob
+    EXTENSION VOB
+    - VOB
+    EXTENSION mpg
+    - mpeg
+    EXTENSION vob
+    - vob
 '''
         self._assert_parses(given, expect={
             'application/octet-stream': {
