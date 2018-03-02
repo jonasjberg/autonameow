@@ -40,7 +40,8 @@ MeowURIParts = namedtuple('MeowURIParts', 'root children leaf')
 
 
 class MeowURIParser(object):
-    def parse(self, *args):
+    @staticmethod
+    def parse(*args):
         # Handle all kinds of combinations of arguments, lists and tuples.
         flattened = flatten_sequence_type(args)
         args_list = list(flattened)
@@ -112,10 +113,8 @@ class MeowURI(object):
 
     NOTE: Assume that instances of this class are immutable once instantiated.
     """
-    MP = MeowURIParser()
-
     def __init__(self, *args):
-        meowuri_parts = self.MP.parse(*args)
+        meowuri_parts = MeowURIParser.parse(*args)
         self._root = meowuri_parts.root
         self._children = meowuri_parts.children
         self._leaf = meowuri_parts.leaf
