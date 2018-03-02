@@ -30,29 +30,6 @@ from extractors import (
 class EpubMetadataExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
     IS_SLOW = False
-    FIELD_LOOKUP = {
-        'author': {
-            'coercer': 'aw_string',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Author', 'probability': '1'}},
-            ],
-            'generic_field': 'author'
-        },
-        'title': {
-            'coercer': 'aw_string',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Title', 'probability': '1'}},
-            ],
-            'generic_field': 'title'
-        },
-        'producer': {
-            'coercer': 'aw_string',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Author', 'probability': '0.1'}},
-            ],
-            'generic_field': 'producer'
-        }
-    }
 
     def extract(self, fileobject, **kwargs):
         _raw_metadata = _get_epub_metadata(fileobject.abspath)

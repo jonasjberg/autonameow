@@ -163,12 +163,10 @@ class TestCrossPlatformFileSystemExtractorMetainfo(TestCase):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
             self.assertIn('coercer', self.actual.get(_field, {}))
 
-    def test_metainfo_multivalued_is_none_or_true_false_string(self):
+    def test_metainfo_multivalued_is_none_or_boolean(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
             _field_lookup_entry = self.actual.get(_field, {})
             self.assertIn('multivalued', _field_lookup_entry)
 
             actual = _field_lookup_entry.get('multivalued')
-            self.assertIsInstance(actual, (str, type(None)))
-            if actual is not None:
-                self.assertIn(actual, ('true', 'false'))
+            self.assertIsInstance(actual, (bool, type(None)))

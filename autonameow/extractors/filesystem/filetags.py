@@ -48,45 +48,6 @@ FiletagsParts = namedtuple('FiletagsParts',
 class FiletagsExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['*/*']
     IS_SLOW = False
-    FIELD_LOOKUP = {
-        'datetime': {
-            'coercer': 'aw_timedate',
-            'multivalued': 'false',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'DateTime', 'probability': '1'}},
-                {'WeightedMapping': {'field': 'Date', 'probability': '1'}},
-            ],
-            'generic_field': 'date_created'
-        },
-        'description': {
-            'coercer': 'aw_string',
-            'multivalued': 'false',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Description', 'probability': '1'}},
-                {'WeightedMapping': {'field': 'Title', 'probability': '0.5'}},
-            ],
-            'generic_field': 'description'
-        },
-        'tags': {
-            'coercer': 'aw_string',
-            'multivalued': 'true',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Tags', 'probability': '1'}},
-            ],
-            'generic_field': 'tags'
-        },
-        'extension': {
-            'coercer': 'aw_string',
-            'multivalued': 'false',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Extension', 'probability': '1'}},
-            ],
-        },
-        'follows_filetags_convention': {
-            'coercer': 'aw_boolean',
-            'multivalued': 'false',
-        }
-    }
 
     def __init__(self):
         super().__init__()

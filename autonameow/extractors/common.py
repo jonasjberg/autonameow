@@ -25,7 +25,10 @@ import sys
 
 from core import constants as C
 from core import providers
-from core.exceptions import AutonameowException
+from core.exceptions import (
+    AutonameowException,
+    FilesystemError
+)
 from core.model import MeowURI
 from util import (
     disk,
@@ -92,14 +95,6 @@ class BaseExtractor(object):
     # specified in order to be enqueued in the extractor run queue.
     IS_SLOW = False
 
-    # NOTE: Must be overriden by inheriting classes.
-    # Dictionary with extractor-specific information, keyed by the fields that
-    # the raw source produces. Stores information on types, etc..
-    FIELD_LOOKUP = dict()
-
-    # Cached field meta info read from files.
-    _FIELD_METAINFO = None
-
     # TODO: Hack ..
     coerce_field_value = providers.ProviderMixin.coerce_field_value
 
@@ -110,7 +105,6 @@ class BaseExtractor(object):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
-        # TODO: Set 'FIELD_LOOKUP' default values? Maybe 'multivalued' = False?
 
     @classmethod
     def meowuri_prefix(cls):
@@ -207,10 +201,12 @@ class BaseExtractor(object):
 
     @classmethod
     def metainfo_from_yaml_file(cls):
-        if cls._FIELD_METAINFO is None:
-            filepath_fieldmeta = cls.fieldmeta_filepath()
-            cls._FIELD_METAINFO = disk.load_yaml_file(filepath_fieldmeta)
-        return cls._FIELD_METAINFO
+        filepath_fieldmeta = cls.fieldmeta_filepath()
+        try:
+            field_metainfo = disk.load_yaml_file(filepath_fieldmeta)
+        except FilesystemError:
+            field_metainfo = dict()
+        return field_metainfo
 
     def extract(self, fileobject, **kwargs):
         """
@@ -219,7 +215,7 @@ class BaseExtractor(object):
           NOTE: This method __MUST__ be implemented by inheriting classes!
 
         The return value should be a dictionary keyed by "MeowURI leaves"
-        matching the keys in 'FIELD_LOOKUP'.
+        matching the keys in the field meta data, defined in YAML-files.
         The data should be "safe", I.E. validated and coerced to a suitable
         "internal format" --- text should be returned as Unicode strings, etc.
         Use the type coercers in 'types.py'.
@@ -246,7 +242,10 @@ class BaseExtractor(object):
     @classmethod
     def metainfo(cls):
         # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
-        return dict(cls.FIELD_LOOKUP)
+        if cls not in _FIELD_META_CACHE:
+            metainfo = cls.metainfo_from_yaml_file()
+            _FIELD_META_CACHE[cls] = metainfo
+        return dict(_FIELD_META_CACHE[cls])
 
     @classmethod
     def check_dependencies(cls):
@@ -276,3 +275,7 @@ def _fieldmeta_filepath_from_extractor_source_filepath(filepath):
     return os.path.realpath(os.path.normpath(
         filepath_without_extension + C.EXTRACTOR_FIELDMETA_BASENAME_SUFFIX
     ))
+
+
+# Cached field meta info read from files, keyed by extractor classes.
+_FIELD_META_CACHE = dict()

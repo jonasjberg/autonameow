@@ -40,23 +40,6 @@ log = logging.getLogger(__name__)
 
 
 class AbstractTextExtractor(BaseExtractor):
-    FIELD_LOOKUP = {
-        'full': {
-            'coercer': 'aw_string',
-            'multivalued': 'false',
-            'generic_field': 'text'
-        },
-        # TODO: [TD0172] Extend the text extractors with additional fields.
-        # 'title': {
-        #     'coercer': 'aw_string',
-        #     'multivalued': 'false',
-        #     'mapped_fields': [
-        #         {'WeightedMapping': {'field': 'Title', 'probability': '1'}},
-        #     ],
-        #     'generic_field': 'title'
-        # }
-    }
-
     def __init__(self):
         super().__init__()
 

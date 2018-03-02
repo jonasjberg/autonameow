@@ -30,68 +30,6 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
     MEOWURI_LEAF = 'xplat'
     IS_SLOW = False
 
-    FIELD_LOOKUP = {
-        'abspath_full': {'coercer': 'aw_path', 'multivalued': 'false'},
-        'basename_full': {
-            'coercer': 'aw_pathcomponent',
-            'multivalued': 'false'
-        },
-        'extension': {
-            'coercer': 'aw_pathcomponent',
-            'multivalued': 'false',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Extension', 'probability': '1'}},
-            ],
-        },
-        'basename_suffix': {
-            'coercer': 'aw_pathcomponent',
-            'multivalued': 'false',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Extension', 'probability': '1'}},
-            ]
-        },
-        'basename_prefix': {
-            'coercer': 'aw_pathcomponent',
-            'multivalued': 'false',
-        },
-        'pathname_full': {'coercer': 'aw_path', 'multivalued': 'false'},
-        'pathname_parent': {'coercer': 'aw_path', 'multivalued': 'false'},
-        'mime_type': {
-            'coercer': 'aw_mimetype',
-            'multivalued': 'false',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Extension', 'probability': '1'}},
-            ],
-            'generic_field': 'mime_type'
-        },
-        'date_accessed': {
-            'coercer': 'aw_timedate',
-            'multivalued': 'false',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Date', 'probability': '0.1'}},
-                {'WeightedMapping': {'field': 'DateTime', 'probability': '0.1'}},
-            ]
-        },
-        'date_created': {
-            'coercer': 'aw_timedate',
-            'multivalued': 'false',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Date', 'probability': '1'}},
-                {'WeightedMapping': {'field': 'DateTime', 'probability': '1'}},
-            ],
-            'generic_field': 'date_created'
-        },
-        'date_modified': {
-            'coercer': 'aw_timedate',
-            'multivalued': 'false',
-            'mapped_fields': [
-                {'WeightedMapping': {'field': 'Date', 'probability': '0.25'}},
-                {'WeightedMapping': {'field': 'DateTime', 'probability': '0.25'}},
-            ],
-            'generic_field': 'date_modified'
-        }
-    }
-
     def extract(self, fileobject, **kwargs):
         out = dict()
         out.update(self._collect_from_fileobject(fileobject))

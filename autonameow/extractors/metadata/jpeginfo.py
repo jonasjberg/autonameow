@@ -36,16 +36,6 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     """
     HANDLES_MIME_TYPES = ['image/jpeg', 'image/jfif']
     IS_SLOW = False
-    FIELD_LOOKUP = {
-        'health': {
-            'coercer': 'aw_float',
-            'multivalued': 'false',
-        },
-        'is_jpeg': {
-            'coercer': 'aw_boolean',
-            'multivalued': 'false',
-        }
-    }
 
     _HEALTH = {
         'OK': 1.0,
