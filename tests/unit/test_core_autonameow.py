@@ -72,9 +72,16 @@ class TestAutonameowWithoutOptions(TestCase):
         _ = self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY, ui=MOCK_UI)
         exit_program_mock.assert_not_called()
 
+    # TODO: [cleanup] This much mocking indicates poor design choices ..
+    @patch('core.providers.initialize', MagicMock())
+    @patch('core.providers.Registry')
     @patch('core.autonameow.Autonameow.exit_program')
     @patch('core.autonameow.master_provider', MagicMock())
-    def test_exit_program_called_after_running_context(self, exit_program_mock):
+    def test_exit_program_called_after_running_context(
+            self, exit_program_mock, mock_registry
+    ):
+        mock_registry.might_be_resolvable.return_value = True
+
         with self.amw(opts=AUTONAMEOW_OPTIONS_EMPTY, ui=MOCK_UI) as a:
             a.run()
         exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
@@ -186,9 +193,14 @@ class TestCheckOptionCombinations(TestCase):
 
 
 class TestAutonameowContextManagementProtocol(TestCase):
-    @patch('core.autonameow.master_provider')
-    def test_with_statement(self, mock_aster_provider):
+    # TODO: [cleanup] This much mocking indicates poor design choices ..
+    @patch('core.autonameow.master_provider', MagicMock())
+    @patch('core.providers.initialize', MagicMock())
+    @patch('core.providers.Registry')
+    def test_with_statement(self, mock_registry):
+        mock_registry.might_be_resolvable.return_value = True
         Autonameow.exit_program = MagicMock()
+
         with Autonameow(AUTONAMEOW_OPTIONS_EMPTY, MOCK_UI) as ameow:
             ameow.run()
 
