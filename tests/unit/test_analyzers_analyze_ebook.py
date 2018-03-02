@@ -34,10 +34,11 @@ else:
 
 import unit.utils as uu
 from analyzers.analyze_ebook import (
+    deduplicate_isbns,
     EbookAnalyzer,
+    extract_ebook_isbns_from_text,
     extract_isbns_from_text,
     filter_isbns,
-    find_ebook_isbns_in_text,
     ISBNMetadata,
     remove_ignored_textlines,
     validate_isbn
@@ -132,6 +133,30 @@ class TestValidateISBN(TestCase):
         ]
         for sample_isbn in sample_invalid_isbns:
             self.assertIsNone(validate_isbn(sample_isbn))
+
+
+class TestDeduplicateIsbns(TestCase):
+    def _assert_that_it(self, returns, given):
+        actual = deduplicate_isbns(given)
+        self.assertEqual(sorted(returns), sorted(actual))
+
+    def test_returns_only_unique_isbns_given_duplicates(self):
+        self._assert_that_it(
+            returns=['9780596802295', '9780596802301'],
+            given=['9780596802295', '9780596802295', '9780596802301']
+        )
+
+    def test_returns_unique_isbns_as_is(self):
+        self._assert_that_it(
+            returns=['9780596802295', '9780596802301'],
+            given=['9780596802295', '9780596802301']
+        )
+
+    def test_returns_single_isbn_as_is(self):
+        self._assert_that_it(
+            returns=['9780596802301'],
+            given=['9780596802301']
+        )
 
 
 class TestFilterISBN(TestCase):
@@ -687,7 +712,7 @@ class TestISBNMetadataEquality(TestCase):
 
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
-class TestFindEbookISBNsInText(TestCase):
+class TestExtractEbookISBNsInText(TestCase):
     def test_finds_expected(self):
         text = '''Computational Intelligence
 
@@ -715,7 +740,7 @@ METODY I TECHNIKI SZTUCZNEJ INTELIGENCJI
 by Leszek Rutkowski, 2005 by Polish Scientific Publishers PWN
 c by Wydawnictwo Naukowe PWN SA, Warszawa 2005
 '''
-        actual = find_ebook_isbns_in_text(text)
+        actual = extract_ebook_isbns_from_text(text)
         self.assertIn('9783540762881', actual)
 
 

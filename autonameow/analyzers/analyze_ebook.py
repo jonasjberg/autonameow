@@ -59,7 +59,8 @@ BLACKLISTED_ISBN_NUMBERS = [
 ]
 
 IGNORED_TEXTLINES = frozenset([
-    'This page intentionally left blank'
+    'This page intentionally left blank',
+    'Cover'
 ])
 
 
@@ -202,11 +203,11 @@ class EbookAnalyzer(BaseAnalyzer):
             'Searching for eISBNs in chunk 1 lines {}-{} '
             '({} lines)'.format(_chunk1_start, _chunk1_end, _chunk_1_numlines)
         )
-        isbns = find_ebook_isbns_in_text(_text_chunk_1)
+        isbns = extract_ebook_isbns_from_text(_text_chunk_1)
         if not isbns:
             # Find e-ISBNs in chunk #2
             _text_chunk_2 = extract_lines(self.text, _chunk2_start, _chunk2_end)
-            isbns = find_ebook_isbns_in_text(_text_chunk_2)
+            isbns = extract_ebook_isbns_from_text(_text_chunk_2)
             if not isbns:
                 # Find any ISBNs in chunk #1
                 isbns = extract_isbns_from_text(_text_chunk_1)
@@ -215,6 +216,7 @@ class EbookAnalyzer(BaseAnalyzer):
                     isbns = extract_isbns_from_text(_text_chunk_2)
 
         if isbns:
+            isbns = deduplicate_isbns(isbns)
             isbns = filter_isbns(isbns, self._isbn_num_blacklist)
             for isbn in isbns:
                 self.log.debug('Extracted ISBN: {!s}'.format(isbn))
@@ -388,20 +390,15 @@ def remove_ignored_textlines(text):
     return '\n'.join(out)
 
 
-def find_ebook_isbns_in_text(text):
+def extract_ebook_isbns_from_text(text):
     sanity.check_internal_string(text)
 
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
 
     match = RE_E_ISBN.search(text)
-    if not match:
-        return []
-
-    possible_isbns = isbnlib.get_isbnlike(match.group(0))
-    if possible_isbns:
-        return [isbnlib.get_canonical_isbn(i)
-                for i in possible_isbns if validate_isbn(i)]
-    return []
+    if match:
+        return extract_isbns_from_text(match.group(0))
+    return list()
 
 
 def extract_isbns_from_text(text):
@@ -411,7 +408,7 @@ def extract_isbns_from_text(text):
     if possible_isbns:
         return [isbnlib.get_canonical_isbn(i)
                 for i in possible_isbns if validate_isbn(i)]
-    return []
+    return list()
 
 
 def validate_isbn(possible_isbn):
@@ -426,6 +423,10 @@ def validate_isbn(possible_isbn):
     return isbn_number
 
 
+def deduplicate_isbns(isbn_list):
+    return list(set(isbn_list))
+
+
 def filter_isbns(isbn_list, isbn_blacklist):
     # TODO: [TD0034] Filter out known bad data.
     # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
@@ -433,9 +434,6 @@ def filter_isbns(isbn_list, isbn_blacklist):
         return []
 
     sanity.check_isinstance(isbn_list, list)
-
-    # Remove any duplicates.
-    isbn_list = list(set(isbn_list))
 
     # Remove known bad ISBN numbers.
     isbn_list = [n for n in isbn_list if n and n not in isbn_blacklist]
