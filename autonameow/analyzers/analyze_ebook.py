@@ -167,7 +167,14 @@ class EbookAnalyzer(BaseAnalyzer):
 
         # TODO: [TD0134] Consolidate splitting up text into chunks.
         # Search the text in arbitrarily sized chunks.
-        chunk_size = int(num_text_lines * 0.01)
+        if is_epub_ebook(self.fileobject):
+            # TODO: The epub text extractor repeats text a lot of text.
+            # Use bigger chunks for epub text in order to catch ISBNs.
+            CHUNK_PERCENTAGE = 0.05
+        else:
+            CHUNK_PERCENTAGE = 0.01
+
+        chunk_size = int(num_text_lines * CHUNK_PERCENTAGE)
         if chunk_size < 1:
             chunk_size = 1
         self.log.debug('Got {} lines of text. Using chunk size {}'.format(
@@ -769,3 +776,7 @@ m{} = ISBNMetadata(
     title='{}',
     year='{}'
 )'''.format(n, m.authors, m.language, m.publisher, m.isbn10, m.isbn13, m.title, m.year))
+
+
+def is_epub_ebook(fileobject):
+    return fileobject.mime_type == 'application/epub+zip'
