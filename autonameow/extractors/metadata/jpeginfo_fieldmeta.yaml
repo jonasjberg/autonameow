@@ -1,6 +1,7 @@
 health:
     coercer: aw_float
     multivalued: false
+
 is_jpeg:
     coercer: aw_boolean
     multivalued: false
