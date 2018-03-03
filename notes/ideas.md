@@ -18,6 +18,183 @@ Various ideas on possible upcoming features and changes to `autonameow`.
 * 2017-10-28 --- `jonasjberg` Using a proper Metadata Repository.
 * 2018-01-18 --- `jonasjberg` Move section to other file.
 * 2018-01-30 --- `jonasjberg` Add "Decision Rules for Attribute-Based Choices".
+* 2018-03-03 --- `jonasjberg` Notes on "reasoning" and probabilities.
+
+
+--------------------------------------------------------------------------------
+
+
+Notes on "reasoning" and Probabilities
+--------------------------------------
+> Jonas Sjöberg, 2018-03-03.
+
+
+Subset of current problems and possible solutions:
+
+1. Deduplication of (ISBN) metadata records
+    * Replace hardcoded threshold field comparison values
+    * Adjust values based on domain knowledge?
+    * Supervised learning by involving the user? How?
+
+2. Named entity recognition
+    * Find likely titles, publishers, etc. in unstructured text.
+    * Adjust values based on (hardcoded) domain knowledge?  
+      *Titles in documents published by X is likely within lines 1-3 ..*
+    * Automated learning? Where is the "feedback-loop"?  
+      *Use selection from candidates by the user as positive examples?*
+
+3. Candidate weighting/ranking
+    * Learn from previous renames?  
+      *If 99% of all previous metadata sets containing `publisher: foo`
+      contained a correct `author` field, assume it is likely correct?*
+    * How much example data can be stored and evaluated in a reasonable time?
+
+4. Classification of file name substrings
+
+
+--------------------------------------------------------------------------------
+
+
+Thoughts on Implementing a ("reasoning") Probability System
+-----------------------------------------------------------
+> Jonas Sjöberg, 2017-10-14.
+
+
+*It has been obvious for quite some time that `autonameow` needs to integrate
+ideas and techniques from machine learning and probabilistic programming to
+solve some of the main problems.*
+
+*These are fields that I have no prior experience with, whatsoever..  But, here
+are some high-level ideas of problems that have already been solved, better..*
+
+Lets say the program component `FilenameTokenizer` was given the file name
+`A%20Quick%20Introduction%20to%20IFF.txt` and has managed to detect that the
+filename is URL-encoded, etc and finally came up with this result:
+`['A', 'Quick', 'Introduction', 'to', 'IFF.txt']`
+
+Which is pretty good. But the separator-detection would like additional
+information in order to figure out how to split the last element `IFF.txt`.
+
+The main point is this:
+__Parts of the system need to "ask" other parts to verify propositions__
+
+In this case, the `FilenameTokenizer` would like to know if the `.txt` part of
+`IFF.txt` is a file extension or not.
+
+It would be nice if there was a system so that the `FilenameTokenizer` could
+pass this question to some central point, that could figure out which parts of
+the system that are able to answer the question.
+
+Given the question;
+__Given the string `IFF.txt`, is the substring `.txt` a file extension?__;
+these sources could possibly provide relevant evidence:
+
+- Check if the MIME-type of the related file (if any) is `text/plain`:
+    ```python
+    >>> _ext = 'IFF.txt'.split('.')[-1]
+    >>> _ext
+    'txt'
+    >>> from core import types
+    >>> types.AW_MIMETYPE(_ext)
+    'text/plain'
+    ```
+
+* Check the extension provided by the related `FileObject` (if any):
+    ```python
+    >>> f = FileObject(b'/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt')
+    >>> f
+    <FileObject("/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt")>
+    >>> f.basename_suffix
+    b'txt'
+    ```
+
+Then add weights to the results of the evidence and calculate a __total
+probability score__.
+
+In this case, the MIME-type test would probably be weighted by `10`, so that a
+failed evaluation decreases the total score a lot.
+
+The `FileObject` evidence, along with other potential sources of information
+related to file extension, would probably be weighted a bit lower.
+
+Everything would be combined and returned as an answer to the question
+originally posed by the `FilenameTokenizer` component.
+
+
+--------------------------------------------------------------------------------
+
+
+Using a proper Metadata Repository
+----------------------------------
+> Jonas Sjöberg, 2017-10-28.
+
+
+The current means of central storage uses the `Repository` class to store all
+data in a simple two level key-value store.
+The first primary key (level 1) is the `FileObject` that produced the data.
+These contain values keyed by `MeowURI` (level 2).
+
+
+### "Proper" Metadata Repositories
+
+> Metadata repository not only stores metadata like Metadata registry but also
+> adds relationships with related metadata types.
+>
+> <https://en.wikipedia.org/wiki/Metadata_repository>
+
+Blog post on nomenclature: [Metadata Repositories vs. Metadata
+Registries](http://datadictionary.blogspot.se/2008/03/metadata-repositories-vs-metadata.html)
+
+### Retrieval
+The current system is far from being able to arrange and retrieve data
+"dynamically", using relational queries. This would sometimes be very useful..
+
+### Primary Keys
+One specific general case is metadata that share a single unique identifier,
+like ISBN-numbers. This is currently not easy to implement.
+
+
+--------------------------------------------------------------------------------
+
+
+Decision Rules for Attribute-Based Choices
+------------------------------------------
+Possible methods of weighting when prioritizing candidate data.
+
+
+* __Conjunctive Rule__  
+    Establishes minimum required performance for each evaluative criterion.
+
+    Selects the first (or all) item(s) that meet or exceed these minimum
+    standards.
+
+* __Disjunctive Rule__  
+    Establishes a minimum required performance for each important attribute.
+    All items that meet or exceed the performance level for __any__ key
+    attribute are acceptable.
+
+* __Elimination-by-Aspects Rule__  
+    First, evaluative criteria ranked in terms of importance.
+    Second, cutoff point for each criterion is established.
+    Finally (in order of attribute importance) brands are eliminated if they
+    fail to meet or exceed the cutoff.
+
+* __Lexicographic Decision Rule__  
+    User ranks the criteria in order of importance.
+    Then selects item that best on the most important attribute.
+
+    If two or more items tie, they are evaluated on the second most important
+    attribute. This continues through the attributes until on item outperforms
+    the others.
+
+* __Compensatory Decision Rule__  
+    States that the item that rates highest on the sum of the users judgements
+    of the relevant evaluative criteria will be chosen.
+
+*Very much inspired by `Marketing 334 Consumer Behavior Chap016TR.ppt`*
+
+
+--------------------------------------------------------------------------------
 
 
 Field Candidates
@@ -614,145 +791,3 @@ Entering `.` and then pressing `<TAB>`:
 > extractor.
   (exiftool, filesystem, pypdf, tesseract, ..)
 ```
-
-
---------------------------------------------------------------------------------
-
-
-Thoughts on Implementing a ("reasoning") Probability System
------------------------------------------------------------
-> Jonas Sjöberg, 2017-10-14.
-
-
-*It has been obvious for quite some time that `autonameow` needs to integrate
-ideas and techniques from machine learning and probabilistic programming to
-solve some of the main problems.*
-
-*These are fields that I have no prior experience with, whatsoever..  But, here
-are some high-level ideas of problems that have already been solved, better..*
-
-Lets say the program component `FilenameTokenizer` was given the file name
-`A%20Quick%20Introduction%20to%20IFF.txt` and has managed to detect that the
-filename is URL-encoded, etc and finally came up with this result:
-`['A', 'Quick', 'Introduction', 'to', 'IFF.txt']`
-
-Which is pretty good. But the separator-detection would like additional
-information in order to figure out how to split the last element `IFF.txt`.
-
-The main point is this:
-__Parts of the system need to "ask" other parts to verify propositions__
-
-In this case, the `FilenameTokenizer` would like to know if the `.txt` part of
-`IFF.txt` is a file extension or not.
-
-It would be nice if there was a system so that the `FilenameTokenizer` could
-pass this question to some central point, that could figure out which parts of
-the system that are able to answer the question.
-
-Given the question;
-__Given the string `IFF.txt`, is the substring `.txt` a file extension?__;
-these sources could possibly provide relevant evidence:
-
-- Check if the MIME-type of the related file (if any) is `text/plain`:
-    ```python
-    >>> _ext = 'IFF.txt'.split('.')[-1]
-    >>> _ext
-    'txt'
-    >>> from core import types
-    >>> types.AW_MIMETYPE(_ext)
-    'text/plain'
-    ```
-
-* Check the extension provided by the related `FileObject` (if any):
-    ```python
-    >>> f = FileObject(b'/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt')
-    >>> f
-    <FileObject("/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt")>
-    >>> f.basename_suffix
-    b'txt'
-    ```
-
-Then add weights to the results of the evidence and calculate a __total
-probability score__.
-
-In this case, the MIME-type test would probably be weighted by `10`, so that a
-failed evaluation decreases the total score a lot.
-
-The `FileObject` evidence, along with other potential sources of information
-related to file extension, would probably be weighted a bit lower.
-
-Everything would be combined and returned as an answer to the question
-originally posed by the `FilenameTokenizer` component.
-
-
---------------------------------------------------------------------------------
-
-
-Decision Rules for Attribute-Based Choices
-------------------------------------------
-Possible methods of weighting when prioritizing candidate data.
-
-
-* __Conjunctive Rule__  
-    Establishes minimum required performance for each evaluative criterion.
-
-    Selects the first (or all) item(s) that meet or exceed these minimum
-    standards.
-
-* __Disjunctive Rule__  
-    Establishes a minimum required performance for each important attribute.
-    All items that meet or exceed the performance level for __any__ key
-    attribute are acceptable.
-
-* __Elimination-by-Aspects Rule__  
-    First, evaluative criteria ranked in terms of importance.
-    Second, cutoff point for each criterion is established.
-    Finally (in order of attribute importance) brands are eliminated if they
-    fail to meet or exceed the cutoff.
-
-* __Lexicographic Decision Rule__  
-    User ranks the criteria in order of importance.
-    Then selects item that best on the most important attribute.
-
-    If two or more items tie, they are evaluated on the second most important
-    attribute. This continues through the attributes until on brand outperforms
-    the others.
-
-* __Compensatory Decision Rule__  
-    States that the brand that rates highest on the sum of the users judgements
-    of the relevant evaluative criteria will be chosen.
-
-*Very much inspired by `Marketing 334 Consumer Behavior Chap016TR.ppt`*
-
-
---------------------------------------------------------------------------------
-
-
-Using a proper Metadata Repository
-----------------------------------
-> Jonas Sjöberg, 2017-10-28.
-
-
-The current means of central storage uses the `Repository` class to store all
-data in a simple two level key-value store.
-The first primary key (level 1) is the `FileObject` that produced the data.
-These contain values keyed by `MeowURI` (level 2).
-
-
-### "Proper" Metadata Repositories
-
-> Metadata repository not only stores metadata like Metadata registry but also
-> adds relationships with related metadata types.
->
-> <https://en.wikipedia.org/wiki/Metadata_repository>
-
-Blog post on nomenclature: [Metadata Repositories vs. Metadata
-Registries](http://datadictionary.blogspot.se/2008/03/metadata-repositories-vs-metadata.html)
-
-### Retrieval
-The current system is far from being able to arrange and retrieve data
-"dynamically", using relational queries. This would sometimes be very useful..
-
-### Primary Keys
-One specific general case is metadata that share a single unique identifier,
-like ISBN-numbers. This is currently not easy to implement.
