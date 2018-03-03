@@ -318,6 +318,8 @@ def remove_blacklisted_lines(text, blacklist):
     """
     Removes any text lines that matches any line in 'blacklist'.
 
+    Blacklisted lines should not contain any line separators.
+
     Args:
         text: The text to process as a Unicode string.
         blacklist: List of Unicode strings to ignore.
@@ -328,9 +330,9 @@ def remove_blacklisted_lines(text, blacklist):
     """
     out = []
 
-    for line in text.splitlines():
-        if line in blacklist:
-            continue
-        out.append(line)
+    blacklisted_lines = set(blacklist)
+    for line in text.splitlines(keepends=True):
+        if not any(line.strip() == bad_line for bad_line in blacklisted_lines):
+            out.append(line)
 
-    return '\n'.join(out)
+    return ''.join(out)
