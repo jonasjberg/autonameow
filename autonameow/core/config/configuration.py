@@ -23,9 +23,9 @@ import logging
 
 from core import constants as C
 from util import (
-    dump,
+    disk,
     nested_dict_get,
-    text
+    text,
 )
 
 
@@ -121,10 +121,14 @@ class Configuration(object):
 
         out.append('\nReusable Name Templates:\n')
         out.append(
-            text.indent(dump(self.reusable_nametemplates), amount=4)
+            text.indent(_dump(self.reusable_nametemplates), amount=4)
         )
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(text.indent(dump(self.options), amount=4))
+        out.append(text.indent(_dump(self.options), amount=4))
 
         return ''.join(out)
+
+
+def _dump(data):
+    return disk.write_yaml(data)

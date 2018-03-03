@@ -29,18 +29,9 @@ import os
 import shutil
 import subprocess
 
-try:
-    import yaml
-except ImportError:
-    raise SystemExit(
-        'Missing required module "yaml". '
-        'Make sure "pyyaml" is available before running this program.'
-    )
-
 from core import constants as C
 
 __all__ = [
-    'dump',
     'count_dict_recursive',
     'flatten_sequence_type',
     'git_commit_hash',
@@ -54,23 +45,6 @@ __all__ = [
 
 
 log = logging.getLogger(__name__)
-
-
-def dump(obj):
-    """
-    Returns a human-readable representation of "obj".
-
-    Args:
-        obj: The object to dump.
-
-    Returns:
-        A human-readable representation of "obj" in YAML-format.
-    """
-    try:
-        return yaml.dump(obj, default_flow_style=False, width=120, indent=4)
-    except TypeError as e:
-        log.critical('Dump FAILED: ' + str(e))
-        raise
 
 
 __counter_generator_function = itertools.count(0)
