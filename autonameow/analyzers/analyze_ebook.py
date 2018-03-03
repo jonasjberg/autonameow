@@ -501,6 +501,7 @@ class ISBNMetadata(object):
         # TODO: [TD0179] Handle malformed entries like ['Michael Dory, Adam Parrish, and Brendan Berg']
         # TODO: [TD0179] Handle malformed entries like ['Micha Gorelick, Andy R. Terrel']
         # TODO: [TD0179] Handle ['Raúl Garreta, Guillermo Moncecchi']
+        # TODO: [TD0179] Handle ['Jose Argudo Blanco, David Upton']
         if not value:
             return
 
