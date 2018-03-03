@@ -29,7 +29,6 @@ from unittest.mock import (
 
 from util.misc import (
     count_dict_recursive,
-    flatten_dict,
     flatten_sequence_type,
     git_commit_hash,
     is_executable,
@@ -171,65 +170,6 @@ class TestFlattenSequenceType(TestCase):
     def test_flattens_multiple_nested_tuples_and_lists(self):
         self._check(given=('foo', 1, [2, 3], (4, [5, 6, (7, 8)])),
                     expect=('foo', 1, 2, 3, 4, 5, 6, 7, 8))
-
-
-class TestFlattenDict(TestCase):
-    def setUp(self):
-        self.INPUT = DUMMY_RESULTS_DICT
-        self.EXPECTED = DUMMY_FLATTENED_RESULTS_DICT
-
-    def test_raises_type_error_for_invalid_input(self):
-        for bad_arg in (None, [], ''):
-            with self.subTest(given=bad_arg):
-                with self.assertRaises(TypeError):
-                    flatten_dict(bad_arg)
-
-    def test_returns_expected_type(self):
-        self.assertIsInstance(flatten_dict(self.INPUT), dict)
-
-    def test_returns_expected_len(self):
-        self.assertEqual(len(flatten_dict(self.INPUT)), 10)
-
-    def test_flattened_dict_contains_expected(self):
-        actual = flatten_dict(self.INPUT)
-        self.assertEqual(self.EXPECTED, actual)
-
-
-class TestFlattenDictWithRawMetadata(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.INPUT = {
-            'A': {
-                '1': 'A1a',
-                '2': 'A2b',
-                '3': 'A2c',
-                '4': 'A2d',
-                '5': False,
-                '6': 100,
-                '7': True
-            }
-        }
-        self.EXPECTED = {
-            'A.1': 'A1a',
-            'A.2': 'A2b',
-            'A.3': 'A2c',
-            'A.4': 'A2d',
-            'A.5': False,
-            'A.6': 100,
-            'A.7': True,
-        }
-
-    def test_returns_expected_type(self):
-        actual = flatten_dict(self.INPUT)
-        self.assertIsInstance(actual, dict)
-
-    def test_returns_expected_len(self):
-        actual = flatten_dict(self.INPUT)
-        self.assertEqual(len(actual), 7)
-
-    def test_flattened_dict_contains_expected(self):
-        actual = flatten_dict(self.INPUT)
-        self.assertEqual(self.EXPECTED, actual)
 
 
 class TestCountDictRecursive(TestCase):

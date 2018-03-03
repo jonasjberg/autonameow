@@ -23,7 +23,6 @@
 Miscellaneous utility functions.
 """
 
-import collections
 import itertools
 import logging
 import os
@@ -43,7 +42,6 @@ from core import constants as C
 __all__ = [
     'dump',
     'count_dict_recursive',
-    'flatten_dict',
     'flatten_sequence_type',
     'git_commit_hash',
     'is_executable',
@@ -158,54 +156,6 @@ def flatten_sequence_type(container):
                 yield element
 
     return container_type(_generate_flattened(container))
-
-
-def flatten_dict(d, parent_key='', sep='.'):
-    """
-    Flattens a possibly nested dictionary by joining nested keys.
-
-    Based on this post:  https://stackoverflow.com/a/6027615/7802196
-    Example:
-              INPUT = {
-                  'contents': {
-                      'mime_type': None,
-                      'textual': {
-                          'text': {
-                              'full: None,
-                          }
-                      }
-                  }
-              }
-              OUTPUT = {
-                  'contents.mime_type': None,
-                  'contents.textual.text.full': None,
-              }
-
-    Note that if the low-level values are empty dictionaries or lists,
-    they will be omitted from the output.
-
-    Args:
-        d: The dictionary to flatten.
-        parent_key: Not used, required for recursion.
-        sep: String or character to use as separator.
-
-    Returns:
-        A flattened dictionary with nested keys are joined by "sep".
-    """
-    if not isinstance(d, dict):
-        raise TypeError
-
-    items = []
-
-    for k, v in d.items():
-        new_key = parent_key + sep + k if parent_key else k
-
-        if isinstance(v, collections.MutableMapping):
-            items.extend(flatten_dict(v, new_key, sep=sep).items())
-        else:
-            items.append((new_key, v))
-
-    return dict(items)
 
 
 def count_dict_recursive(dictionary, count=0):
