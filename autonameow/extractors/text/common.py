@@ -32,6 +32,7 @@ from util import encoding as enc
 from util import sanity
 from util.text import (
     normalize_unicode,
+    remove_blacklisted_lines,
     remove_nonbreaking_spaces,
     remove_zerowidth_spaces
 )
@@ -48,6 +49,7 @@ class AbstractTextExtractor(BaseExtractor):
         super().__init__()
 
         self.cache = None
+        self.BLACKLISTED_TEXTLINES = frozenset(list())
 
     def extract(self, fileobject, **kwargs):
         text = self._get_text(fileobject)
@@ -133,8 +135,7 @@ class AbstractTextExtractor(BaseExtractor):
             log.debug('Failed to initialize {!s} cache'.format(self))
             self.cache = None
 
-    @staticmethod
-    def cleanup(raw_text):
+    def cleanup(self, raw_text):
         if not raw_text:
             return ''
 
@@ -143,6 +144,7 @@ class AbstractTextExtractor(BaseExtractor):
         text = normalize_unicode(text)
         text = remove_nonbreaking_spaces(text)
         text = remove_zerowidth_spaces(text)
+        text = remove_blacklisted_lines(text, self.BLACKLISTED_TEXTLINES)
         return text if text else ''
 
 
