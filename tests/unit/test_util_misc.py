@@ -28,7 +28,6 @@ from unittest.mock import (
 )
 
 from util.misc import (
-    contains_none,
     count_dict_recursive,
     expand_meowuri_data_dict,
     flatten_dict,
@@ -491,39 +490,6 @@ class TestWhichExecutable(TestCase):
 
     def test_returns_false_for_bogus_commands(self):
         self.assertFalse(is_executable('thisisntexecutablesurely'))
-
-
-class TestContainsNone(TestCase):
-    def _assert_false(self, test_data):
-        actual = contains_none(test_data)
-        self.assertFalse(actual)
-        self.assertIsInstance(actual, bool)
-
-    def _assert_true(self, test_data):
-        actual = contains_none(test_data)
-        self.assertTrue(actual)
-        self.assertIsInstance(actual, bool)
-
-    def test_returns_true_as_expected(self):
-        self._assert_true([])
-        self._assert_true([None])
-        self._assert_true([None, None])
-        self._assert_true(['', None])
-        self._assert_true([None, ''])
-        self._assert_true([None, '', None])
-        self._assert_true(['', None, ''])
-        self._assert_true([None, 'a'])
-        self._assert_true(['a', None])
-        self._assert_true([None, 'a', None])
-        self._assert_true(['a', None, 'a'])
-        self._assert_true(['a', None, ''])
-
-    def test_returns_false_as_expected(self):
-        self._assert_false([''])
-        self._assert_false([' '])
-        self._assert_false(['a', ''])
-        self._assert_false([' ', 'a'])
-        self._assert_false([' ', 'a', ''])
 
 
 class TestGitCommitHash(TestCase):

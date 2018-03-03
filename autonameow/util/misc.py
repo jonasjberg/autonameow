@@ -42,7 +42,6 @@ from core import constants as C
 
 __all__ = [
     'dump',
-    'contains_none',
     'count_dict_recursive',
     'expand_meowuri_data_dict',
     'flatten_dict',
@@ -366,13 +365,6 @@ def is_executable(command):
         True if the command would be executable, otherwise False.
     """
     return shutil.which(command) is not None
-
-
-def contains_none(iterable):
-    """
-    Returns True if the given iterable is empty or contains a None item.
-    """
-    return not iterable or None in iterable
 
 
 def process_id():
