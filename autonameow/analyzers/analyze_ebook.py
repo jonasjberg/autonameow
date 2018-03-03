@@ -42,6 +42,7 @@ from util.text import (
     find_edition,
     html_unescape,
     normalize_unicode,
+    remove_blacklisted_lines,
     string_similarity,
     RE_EDITION
 )
@@ -59,7 +60,7 @@ BLACKLISTED_ISBN_NUMBERS = [
     '1101100001'
 ]
 
-IGNORED_TEXTLINES = frozenset([
+BLACKLISTED_TEXTLINES = frozenset([
     'This page intentionally left blank',
     'Cover'
 ])
@@ -153,7 +154,7 @@ class EbookAnalyzer(BaseAnalyzer):
         if not _maybe_text:
             return
 
-        self.text = remove_ignored_textlines(_maybe_text)
+        self.text = remove_blacklisted_lines(_maybe_text, BLACKLISTED_TEXTLINES)
 
         # TODO: [TD0114] Check metadata for ISBNs.
         # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier', "XMP:Subject"
@@ -368,27 +369,6 @@ class EbookAnalyzer(BaseAnalyzer):
     @classmethod
     def check_dependencies(cls):
         return isbnlib is not None
-
-
-def remove_ignored_textlines(text):
-    """
-    Removes any text lines that match those in 'IGNORED_TEXTLINES'.
-
-    Args:
-        text: The text to process as a Unicode string.
-
-    Returns:
-        The given text with any lines matching those in 'IGNORED_TEXTLINES'
-        removed, as a Unicode string.
-    """
-    out = []
-
-    for line in text.splitlines():
-        if line in IGNORED_TEXTLINES:
-            continue
-        out.append(line)
-
-    return '\n'.join(out)
 
 
 def extract_ebook_isbns_from_text(text):

@@ -39,6 +39,7 @@ __all__ = [
     'batch_regex_replace',
     'normalize_unicode',
     'simplify_unicode',
+    'remove_blacklisted_lines',
     'remove_nonbreaking_spaces',
     'remove_zerowidth_spaces',
     'strip_ansiescape',
@@ -311,3 +312,25 @@ def batch_regex_replace(regex_replacement_tuples, string):
         string = re.sub(regex, replacement, string)
 
     return string
+
+
+def remove_blacklisted_lines(text, blacklist):
+    """
+    Removes any text lines that matches any line in 'blacklist'.
+
+    Args:
+        text: The text to process as a Unicode string.
+        blacklist: List of Unicode strings to ignore.
+
+    Returns:
+        The given text with any lines matching those in 'blacklist' removed,
+        as a Unicode string.
+    """
+    out = []
+
+    for line in text.splitlines():
+        if line in blacklist:
+            continue
+        out.append(line)
+
+    return '\n'.join(out)

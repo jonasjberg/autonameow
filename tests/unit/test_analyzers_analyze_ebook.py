@@ -40,7 +40,6 @@ from analyzers.analyze_ebook import (
     extract_isbns_from_text,
     filter_isbns,
     ISBNMetadata,
-    remove_ignored_textlines,
     validate_isbn
 )
 
@@ -181,18 +180,6 @@ class TestFilterISBN(TestCase):
         for sample_isbn in sample_invalid_isbns:
             actual = filter_isbns(sample_isbn, self.BLACKLISTED_ISBN_NUMBERS)
             self.assertEqual(actual, [])
-
-
-class TestRemoveIgnoredTextLines(TestCase):
-    def test_removes_lines_as_expected(self):
-        input_text = '''Foo Bar: A Modern Approach
-This page intentionally left blank
-Foo Bar'''
-        expect_text = '''Foo Bar: A Modern Approach
-Foo Bar'''
-
-        actual = remove_ignored_textlines(input_text)
-        self.assertEqual(actual, expect_text)
 
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)

@@ -38,6 +38,7 @@ from util.text.transform import (
     indent,
     batch_regex_replace,
     normalize_unicode,
+    remove_blacklisted_lines,
     remove_nonbreaking_spaces,
     remove_zerowidth_spaces,
     simplify_unicode,
@@ -577,3 +578,19 @@ class TestBatchRegexReplace(TestCase):
                           regex_replacements=[(re.compile(r"'"), '')])
         self._check_call(given='Foo\'s Bar', expect='Foos Bar',
                           regex_replacements=[(re.compile("'"), '')])
+
+
+class TestRemoveBlacklistedLines(TestCase):
+    def _assert_that_it_returns(self, expected, given_text, given_blacklist):
+        actual = remove_blacklisted_lines(given_text, given_blacklist)
+        self.assertEqual(expected, actual)
+
+    def test_removes_single_blacklisted_line(self):
+        self._assert_that_it_returns(
+            expected='''Foo Bar: A Modern Approach
+Foo Bar''',
+            given_text='''Foo Bar: A Modern Approach
+This page intentionally left blank
+Foo Bar''',
+            given_blacklist=frozenset(['This page intentionally left blank'])
+        )
