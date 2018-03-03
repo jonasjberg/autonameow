@@ -29,7 +29,6 @@ from unittest.mock import (
 
 from util.misc import (
     count_dict_recursive,
-    expand_meowuri_data_dict,
     flatten_dict,
     flatten_sequence_type,
     git_commit_hash,
@@ -284,51 +283,6 @@ class TestCountDictRecursive(TestCase):
         _assert_count_is(4, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['']})
         _assert_count_is(5, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['g']})
         _assert_count_is(6, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['g', 'h']})
-
-
-class TestExpandMeowURIDataDict(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.EXPECTED = DUMMY_RESULTS_DICT
-        self.INPUT = DUMMY_FLATTENED_RESULTS_DICT
-
-    def test_raises_type_error_for_invalid_input(self):
-        with self.assertRaises(TypeError):
-            expand_meowuri_data_dict(None)
-            expand_meowuri_data_dict([])
-            expand_meowuri_data_dict('')
-
-    def test_returns_expected_type(self):
-        actual = expand_meowuri_data_dict(self.INPUT)
-
-        self.assertIsInstance(actual, dict)
-
-    def test_returns_expected_len(self):
-        actual = len(expand_meowuri_data_dict(self.INPUT))
-        expected = len(self.EXPECTED)
-
-        self.assertEqual(actual, expected)
-
-    def test_expanded_dict_contains_all_expected(self):
-        actual = expand_meowuri_data_dict(self.INPUT)
-        self.assertDictEqual(actual, self.EXPECTED)
-
-    def test_expanded_dict_contain_expected_first_level(self):
-        actual = expand_meowuri_data_dict(self.INPUT)
-        self.assertIn('A', actual)
-        self.assertIn('B', actual)
-
-    def test_expanded_dict_contain_expected_second_level(self):
-        actual = expand_meowuri_data_dict(self.INPUT)
-        actual_A = actual.get('A')
-        actual_contents = actual.get('B')
-
-        self.assertIn('A1', actual_A)
-        self.assertIn('A2', actual_A)
-        self.assertIn('A3', actual_A)
-        self.assertIn('B1', actual_contents)
-        self.assertIn('B2', actual_contents)
-        self.assertIn('B3', actual_contents)
 
 
 class TestNestedDictGet(TestCase):

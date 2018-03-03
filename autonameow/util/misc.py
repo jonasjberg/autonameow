@@ -43,7 +43,6 @@ from core import constants as C
 __all__ = [
     'dump',
     'count_dict_recursive',
-    'expand_meowuri_data_dict',
     'flatten_dict',
     'flatten_sequence_type',
     'git_commit_hash',
@@ -240,35 +239,6 @@ def count_dict_recursive(dictionary, count=0):
                 count += 1
 
     return count
-
-
-def expand_meowuri_data_dict(meowuri_dict):
-    """
-    Performs the reverse operation of that of 'flatten_dict'.
-
-    A dictionary with "meowURIs" as keys storing data in each value is
-    expanded by splitting the meowURIs by periods and creating a
-    nested dictionary.
-
-    Args:
-        meowuri_dict: Dictionary keyed by "meowURIs".
-
-    Returns:
-        An "expanded" or "unflattened" version of the given dictionary.
-    """
-    if not meowuri_dict or not isinstance(meowuri_dict, dict):
-        raise TypeError
-
-    out = dict()
-    for key, value in meowuri_dict.items():
-        key_parts = key.split('.')
-        try:
-            nested_dict_set(out, key_parts, value)
-        except KeyError:
-            log.error('Duplicate "meowURIs" would have clobbered existing!'
-                      ' Key: "{!s}"  Value: {!s}'.format(key, value))
-
-    return out
 
 
 def nested_dict_get(dictionary, list_of_keys):
