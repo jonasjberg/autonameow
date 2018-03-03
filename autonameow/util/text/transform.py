@@ -36,6 +36,7 @@ __all__ = [
     'collapse_whitespace',
     'html_unescape',
     'indent',
+    'batch_regex_replace',
     'normalize_unicode',
     'simplify_unicode',
     'remove_nonbreaking_spaces',
@@ -294,3 +295,19 @@ def urldecode(string):
 
 def html_unescape(string):
     return html.unescape(string)
+
+
+def batch_regex_replace(regex_replacement_tuples, string):
+    matches = list()
+    for regex, replacement in regex_replacement_tuples:
+        match = re.search(regex, string)
+        if match:
+            matches.append((regex, replacement))
+
+    sorted_by_longest_replacement = sorted(
+        matches, key=lambda x: len(x[1]), reverse=True
+    )
+    for regex, replacement in sorted_by_longest_replacement:
+        string = re.sub(regex, replacement, string)
+
+    return string

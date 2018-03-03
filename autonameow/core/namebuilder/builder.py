@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import re
 
 from core import (
     exceptions,
@@ -69,27 +68,13 @@ class FilenamePostprocessor(object):
         return _filename
 
     @staticmethod
-    def _do_replacements(filename, replacements):
-        matches = list()
-        for regex, replacement in replacements:
-            match = re.search(regex, filename)
-            if match:
-                matches.append((regex, replacement))
-
-        sorted_by_longest_replacement = sorted(
-            matches, key=lambda x: len(x[1]), reverse=True
-        )
-        filename_before = filename
-        for regex, replacement in sorted_by_longest_replacement:
-            log.debug('Applying custom replacement. Regex: "{!s}" '
-                      'Replacement: "{!s}"'.format(regex, replacement))
-            filename = re.sub(regex, replacement, filename)
-
-        filename_after = filename
-        if filename_before != filename_after:
+    def _do_replacements(filename, regex_replacement_tuples):
+        before = filename
+        after = text.batch_regex_replace(regex_replacement_tuples, filename)
+        if before != after:
             # TODO: [TD0171] Separate logic from user interface.
-            view.msg_filename_replacement(filename_before, filename_after)
-        return filename
+            view.msg_filename_replacement(before, after)
+        return after
 
     @staticmethod
     def _do_simplify_unicode(filename):
