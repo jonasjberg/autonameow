@@ -52,6 +52,67 @@ Subset of current problems and possible solutions:
 4. Classification of file name substrings
 
 
+### Deduplication of metadata records
+Given two records that probably should be considered equivalent:
+
+```python
+a = {
+    'author': 'Sjöberg G.',
+    'title': 'Meow Meow',
+    'year': 2018,
+}
+
+b = {
+    'author': 'Gibson Sjöberg',
+    'title': 'Meow! Meow!',
+    'year': 2018,
+}
+```
+
+Each field is compared using a suitable comparison function that returns a
+float between 0 and 1.
+Simple comparison of the records would calculate a weighted average
+similarities between the separate fields.
+
+Dummy field comparison results:
+
+| Field   | Record A value      | Record B value  | Similarity  | Difference |
+| ------- | ------------------- | --------------- |:----------- |:---------- |
+| author  | Gibson Cat Sjöberg  | Gibson Sjöberg  | 0.78        | 0.22       |
+| title   | Meow Meow           | Meow! Meow!     | 0.82        | 0.18       |
+| year    | 2018                | 2018            | 1.00        | 0.00       |
+
+
+Then one might calculate the record similarity as:
+
+$R_{similarity} = (0.78 + 0.82 + 1.00) / 3$
+
+$R_{similarity} = w * 0.78 + w * 0.82 + w * 1.00$
+
+.. with $w = 1/3$. I.E. equally weighted average.
+
+
+But field weights will likely need to adjusted separately to yield better
+results.
+
+$R_{similarity} = w_{a} * 0.78 + w_{b} * 0.82 + w_{c} * 1.00$
+
+Also, given a final record similarity score between 0 and 1.
+How would one pick a threshold value for whether the records should be
+considered equivalent?
+
+
+__Open questions:__
+
+* What information should be used to modify the weights $w_{a}$, $w_{b}$, $w_{c}$?
+* What information should be used to modify the record similarity threshold?
+* Apply previously learned weights/thresholds based on certain fields having specific values?
+* Could application of weights/thresholds based on values itself be weighted?
+* How meta can this become while remaining practical and relatively fast?
+* How flexible should "routing" of "weight/threshold controllers" be?
+* What is practical and actually effective?
+
+
 --------------------------------------------------------------------------------
 
 
