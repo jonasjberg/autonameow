@@ -224,8 +224,6 @@ Low Priority
 
 * `[TD0181]` Use machine learning in ISBN metadata de-duplication.
 
-* `[TD0179]` Detect and correct malformed ISBN metadata.
-
 * `[TD0177]` __Refactor the `ConfigFieldParser` classes.__  
     Should not handle both parsing and evaluation of expressions.
     This will have to be done in conjunction with `[TD0015]`.

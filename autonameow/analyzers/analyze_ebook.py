@@ -45,6 +45,7 @@ from util.text import (
     string_similarity,
     RE_EDITION
 )
+from util.text.humannames import split_multiple_names
 
 
 log = logging.getLogger(__name__)
@@ -498,25 +499,20 @@ class ISBNMetadata(object):
 
     @authors.setter
     def authors(self, value):
-        # TODO: [TD0179] Handle malformed entries like ['Michael Dory, Adam Parrish, and Brendan Berg']
-        # TODO: [TD0179] Handle malformed entries like ['Micha Gorelick, Andy R. Terrel']
-        # TODO: [TD0179] Handle ['Raúl Garreta, Guillermo Moncecchi']
-        # TODO: [TD0179] Handle ['Jose Argudo Blanco, David Upton']
         if not value:
             return
 
+        values = value
         if not isinstance(value, list):
-            value = [value]
+            values = [values]
 
         # TODO: [TD0112] Add some sort of system for normalizing entities.
         # Fix any malformed entries.
         _author_list = []
-        for element in value:
-            sanity.check_internal_string(element)
-
+        for author in values:
             # Handle strings like 'Foo Bar [and Gibson Meow]'
-            if re.match(r'.*\[.*\].*', element):
-                _splits = element.split('[')
+            if re.match(r'.*\[.*\].*', author):
+                _splits = author.split('[')
                 _cleaned_splits = [
                     re.sub(r'[\[\]]', '', s)
                     for s in _splits
@@ -531,13 +527,14 @@ class ISBNMetadata(object):
                 ]
                 _author_list.extend(_cleaned_splits)
             else:
-                _author_list.append(element)
+                _author_list.append(author)
 
         stripped_author_list = [a.strip() for a in _author_list if a]
+        fixed_author_list = split_multiple_names(stripped_author_list)
 
-        self._authors = stripped_author_list
+        self._authors = fixed_author_list
         self._normalized_authors = [
-            normalize_full_human_name(a) for a in stripped_author_list if a
+            normalize_full_human_name(a) for a in fixed_author_list if a
         ]
 
     @property

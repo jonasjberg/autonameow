@@ -22,7 +22,10 @@
 import re
 
 from thirdparty import nameparser
-from util import sanity
+from util import (
+    flatten_sequence_type,
+    sanity,
+)
 
 
 RE_AUTHOR_ET_AL = re.compile(
@@ -273,3 +276,15 @@ def format_name(human_name, formatter=None):
         return ''
 
     return formatter(_parsed_name)
+
+
+def split_multiple_names(list_of_names):
+    RE_NAME_SEPARATORS = r',| ?and'
+
+    result = list()
+    flat_list_of_names = flatten_sequence_type(list_of_names)
+    for name_or_names in flat_list_of_names:
+        split_parts = re.split(RE_NAME_SEPARATORS, name_or_names)
+        non_whitespace_parts = [p.strip() for p in split_parts if p]
+        result.extend(non_whitespace_parts)
+    return result

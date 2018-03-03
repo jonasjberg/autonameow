@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-03-03
+
+> Low Priority
+> ------------
+>
+> * `[TD0179]` Detect and correct malformed ISBN metadata.
+
 ### 2018-03-02
 
 > Medium Priority
