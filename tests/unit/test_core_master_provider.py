@@ -105,3 +105,53 @@ class TestProviderRunner(TestCase):
         provider_runner.delegate_to_providers(fo, uri)
         mock__delegate_to_analyzers.assert_called_once_with(fo, provider_For_meowuri)
         mock__delegate_to_extractors.assert_not_called()
+
+    @patch('core.repository.SessionRepository', MagicMock())
+    def test_delegation_history_methods(
+            self
+    ):
+        fo1 = MagicMock()
+        uri1 = MagicMock()
+        provider1 = MagicMock()
+
+        fo2 = MagicMock()
+        uri2 = MagicMock()
+        provider2 = MagicMock()
+
+        provider_runner = ProviderRunner(config=None)
+        self.assertFalse(provider_runner._previously_delegated(fo1, uri1, provider1))
+        self.assertFalse(provider_runner._previously_delegated(fo1, uri2, provider1))
+        self.assertFalse(provider_runner._previously_delegated(fo2, uri1, provider1))
+        self.assertFalse(provider_runner._previously_delegated(fo1, uri2, provider2))
+        self.assertFalse(provider_runner._previously_delegated(fo1, uri1, provider2))
+        self.assertFalse(provider_runner._previously_delegated(fo2, uri1, provider2))
+        self.assertFalse(provider_runner._previously_delegated(fo2, uri2, provider2))
+
+        provider_runner._remember_delegation(fo1, uri1, provider1)
+        self.assertTrue(provider_runner._previously_delegated(fo1, uri1, provider1))
+        self.assertFalse(provider_runner._previously_delegated(fo1, uri2, provider1))
+        self.assertFalse(provider_runner._previously_delegated(fo2, uri1, provider1))
+        self.assertFalse(provider_runner._previously_delegated(fo1, uri2, provider2))
+        self.assertFalse(provider_runner._previously_delegated(fo1, uri1, provider2))
+        self.assertFalse(provider_runner._previously_delegated(fo2, uri1, provider2))
+        self.assertFalse(provider_runner._previously_delegated(fo2, uri2, provider2))
+
+        provider_runner._remember_delegation(fo2, uri1, provider1)
+        self.assertTrue(provider_runner._previously_delegated(fo1, uri1, provider1))
+        self.assertFalse(provider_runner._previously_delegated(fo1, uri2, provider1))
+        self.assertTrue(provider_runner._previously_delegated(fo2, uri1, provider1))
+        self.assertFalse(provider_runner._previously_delegated(fo1, uri2, provider2))
+        self.assertFalse(provider_runner._previously_delegated(fo1, uri1, provider2))
+        self.assertFalse(provider_runner._previously_delegated(fo2, uri1, provider2))
+        self.assertFalse(provider_runner._previously_delegated(fo2, uri2, provider2))
+
+        provider_runner._remember_delegation(fo1, uri2, provider1)
+        provider_runner._remember_delegation(fo1, uri1, provider2)
+        provider_runner._remember_delegation(fo2, uri1, provider2)
+        self.assertTrue(provider_runner._previously_delegated(fo1, uri1, provider1))
+        self.assertTrue(provider_runner._previously_delegated(fo1, uri2, provider1))
+        self.assertTrue(provider_runner._previously_delegated(fo2, uri1, provider1))
+        self.assertFalse(provider_runner._previously_delegated(fo1, uri2, provider2))
+        self.assertTrue(provider_runner._previously_delegated(fo1, uri1, provider2))
+        self.assertTrue(provider_runner._previously_delegated(fo2, uri1, provider2))
+        self.assertFalse(provider_runner._previously_delegated(fo2, uri2, provider2))

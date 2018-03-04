@@ -44,12 +44,9 @@ class ProviderRunner(object):
             add_results_callback=repository.SessionRepository.store
         )
         self.debug_stats = defaultdict(dict)
-        self._previous_runs = dict()
+        self._delegation_history = defaultdict(dict)
 
     def delegate_to_providers(self, fileobject, meowuri):
-        if fileobject not in self._previous_runs:
-            self._previous_runs[fileobject] = dict()
-
         possible_providers = providers.get_providers_for_meowuri(meowuri)
         log.debug('Got {} possible providers'.format(len(possible_providers)))
         if not possible_providers:
@@ -64,23 +61,15 @@ class ProviderRunner(object):
         prepared_extractors = set()
         for provider in possible_providers:
             log.debug('Looking at possible provider: {!s}'.format(provider))
-            if meowuri in self._previous_runs[fileobject]:
-                if provider in self._previous_runs[fileobject][meowuri]:
-                    log.debug('Skipping previously delegated {!s} to {!s}'.format(meowuri, provider))
-                    continue
-            else:
-                self._previous_runs[fileobject][meowuri] = set()
+            if self._previously_delegated(fileobject, meowuri, provider):
+                log.debug('Skipping previously delegated {!s} to {!s}'.format(meowuri, provider))
+                continue
 
-            self._previous_runs[fileobject][meowuri].add(provider)
+            self._remember_delegation(fileobject, meowuri, provider)
 
-            # TODO: Fix circular import problems when running new unit test runner.
-            #       $ PYTHONPATH=autonameow:tests python3 -m unit --skip-slow
-            from analyzers import BaseAnalyzer
-            from extractors import BaseExtractor
-
-            if issubclass(provider, BaseExtractor):
+            if _provider_is_extractor(provider):
                 prepared_extractors.add(provider)
-            elif issubclass(provider, BaseAnalyzer):
+            elif _provider_is_analyzer(provider):
                 prepared_analyzers.add(provider)
 
         if prepared_extractors:
@@ -89,6 +78,17 @@ class ProviderRunner(object):
         if prepared_analyzers:
             log.debug('Delegating {!s} to analyzers: {!s}'.format(meowuri, prepared_analyzers))
             self._delegate_to_analyzers(fileobject, prepared_analyzers)
+
+    def _previously_delegated(self, fileobject, meowuri, provider):
+        if meowuri in self._delegation_history[fileobject]:
+            if provider in self._delegation_history[fileobject][meowuri]:
+                return True
+        else:
+            self._delegation_history[fileobject][meowuri] = set()
+        return False
+
+    def _remember_delegation(self, fileobject, meowuri, provider):
+        self._delegation_history[fileobject][meowuri].add(provider)
 
     def _delegate_to_extractors(self, fileobject, extractors_to_run):
         try:
@@ -116,6 +116,20 @@ class ProviderRunner(object):
 
         # Run all analyzers
         analysis.run_analysis(fileobject, self.config)
+
+
+def _provider_is_extractor(provider):
+    # TODO: [hack] Fix circular import problems when running new unit test runner.
+    #       $ PYTHONPATH=autonameow:tests python3 -m unit --skip-slow
+    from extractors import BaseExtractor
+    return issubclass(provider, BaseExtractor)
+
+
+def _provider_is_analyzer(provider):
+    # TODO: [hack] Fix circular import problems when running new unit test runner.
+    #       $ PYTHONPATH=autonameow:tests python3 -m unit --skip-slow
+    from analyzers import BaseAnalyzer
+    return issubclass(provider, BaseAnalyzer)
 
 
 class MasterDataProvider(object):
