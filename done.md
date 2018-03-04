@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-03-04
+
+> Low Priority
+> ------------
+>
+> * `[TD0159]` Fix stand-alone extractor not respecting the `--quiet` option.
+
 ### 2018-03-03
 
 > Low Priority

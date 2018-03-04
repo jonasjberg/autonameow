@@ -238,8 +238,6 @@ Low Priority
 
 * `[TD0160]` Consolidate setting up working directories that might not exist.
 
-* `[TD0159]` Fix stand-alone extractor not respecting the `--quiet` option.
-
 * `[TD0154]` __Add "incrementing counter" placeholder field__  
     Add name template placeholder field for different kinds of numbering, I.E.
     a name template like `foo_{counter}.{ext}` gives `foo_001.c`, `foo_002.c`.

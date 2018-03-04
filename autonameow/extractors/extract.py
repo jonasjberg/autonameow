@@ -41,10 +41,9 @@ from util import disk
 log = logging.getLogger(__name__)
 
 
-# TODO: [TD0159] Fix stand-alone extractor not respecting the `--quiet` option.
-
-
 TextExtractionResult = namedtuple('TextExtractionResult', 'fulltext provider')
+
+
 
 
 def do_extract_text(fileobject):
@@ -149,7 +148,6 @@ def main(options=None):
     opts = {
         'debug': False,
         'verbose': False,
-        'quiet': False,
 
         'extract_text': False,
         'extract_metadata': False,
@@ -256,13 +254,6 @@ def parse_args(raw_args):
         default=False,
         help='Enables verbose mode, prints additional information.'
     )
-    optgrp_output.add_argument(
-        '-q', '--quiet',
-        dest='quiet',
-        action='store_true',
-        default=False,
-        help='Enables quiet mode, suppress all but renames.'
-    )
 
     return parser.parse_args(raw_args)
 
@@ -286,7 +277,6 @@ def cli_main(argv=None):
     options = {
         'debug': opts.debug,
         'verbose': opts.verbose,
-        'quiet': opts.quiet,
 
         'extract_text': opts.extract_text,
         'extract_metadata': opts.extract_metadata,

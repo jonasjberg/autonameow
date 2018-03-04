@@ -72,12 +72,6 @@ assert_true '"$EXTRACT_RUNNER" --debug' \
 assert_false '"$EXTRACT_RUNNER" --verbose --debug' \
              'Mutually exclusive options "--verbose" and "--debug" should generate an error'
 
-assert_false '"$EXTRACT_RUNNER" --verbose --quiet' \
-             'Mutually exclusive options "--verbose" and "--quiet" should generate an error'
-
-assert_false '"$EXTRACT_RUNNER" --debug --quiet' \
-             'Mutually exclusive options "--debug" and "--quiet" should generate an error'
-
 
 # ______________________________________________________________________________
 #
@@ -122,9 +116,6 @@ assert_true '"$EXTRACT_RUNNER" --metadata --verbose -- "$SAMPLE_PDF_FILE"' \
 assert_true '"$EXTRACT_RUNNER" --metadata --debug -- "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 when started with \"--metadata --debug\" given the file \"${sample_pdf_file_basename}\""
 
-assert_true '"$EXTRACT_RUNNER" --metadata --quiet -- "$SAMPLE_PDF_FILE"' \
-            "Expect exit code 0 when started with \"--metadata --quiet\" given the file \"${sample_pdf_file_basename}\""
-
 
 # ______________________________________________________________________________
 #
@@ -138,9 +129,6 @@ assert_true '"$EXTRACT_RUNNER" --text --verbose -- "$SAMPLE_PDF_FILE"' \
 
 assert_true '"$EXTRACT_RUNNER" --text --debug -- "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 when started with \"--text --debug\" given the file \"${sample_pdf_file_basename}\""
-
-assert_true '"$EXTRACT_RUNNER" --text --quiet -- "$SAMPLE_PDF_FILE"' \
-            "Expect exit code 0 when started with \"--text --quiet\" given the file \"${sample_pdf_file_basename}\""
 
 
 # ______________________________________________________________________________
