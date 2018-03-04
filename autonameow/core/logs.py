@@ -137,21 +137,41 @@ def unsilence():
 global_logged_runtime = list()
 
 
+def _decorate_log_entry_section(string):
+    MAX_WIDTH = 120
+    return ' {!s} '.format(string).center(MAX_WIDTH, '=')
+
+
 @contextmanager
-def log_runtime(logger, name):
+def log_runtime(logger, description, log_level=None):
+    """
+    Context manager that logs the time taken for the context to complete.
+
+    Args:
+        logger: Logger instance that is used to log the results.
+        description: Name of thing being measured for use in the log entry.
+        log_level: Log level to call the logger instance with, as a string
+                   or integer. Refer to 'logging.getLevelName()'.
+    """
+    if not log_level:
+        # Include log level 'NOTSET' (0)
+        log_level = 'DEBUG'
+
+    # Translate either string or integer log levels to integer.
+    _log_level = logging.getLevelName(log_level)
+
     def _log(message):
-        MAX_WIDTH = 120
-        message = ' ' + message + ' '
-        logger.debug(message.center(MAX_WIDTH, '='))
+        decorated_message = _decorate_log_entry_section(message)
+        logger.log(_log_level, decorated_message)
 
     global global_logged_runtime
-    _log('{} Started'.format(name))
+    _log('{} Started'.format(description))
     start_time = time.time()
     try:
         yield
     finally:
         elapsed_time = time.time() - start_time
-        completed_msg = '{} Completed in {:.9f} seconds'.format(name, elapsed_time)
+        completed_msg = '{} Completed in {:.9f} seconds'.format(description, elapsed_time)
         global_logged_runtime.append(completed_msg)
         _log(completed_msg)
 

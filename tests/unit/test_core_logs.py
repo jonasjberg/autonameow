@@ -34,29 +34,67 @@ from core.logs import (
 )
 
 
+mock__decorate_log_entry_section = Mock(side_effect=lambda x: x)
+
+
 class TestLogRunTime(TestCase):
     def setUp(self):
         self.mock_logger = Mock()
+        self.LOGLEVEL_DEFAULT = 10
+        self.LOGLEVEL_INFO = 20
 
     def test_logger_called_at_enter_and_exit(self):
         with log_runtime(self.mock_logger, 'Foo'):
             pass
-        self.assertEqual(self.mock_logger.debug.call_count, 2)
 
-    def test_logged_messages(self):
-        with log_runtime(self.mock_logger, 'Foo'):
-            self.assertIn('Foo Started',
-                          self.mock_logger.debug.call_args[0][0])
-        self.assertIn('Foo Completed',
-                      self.mock_logger.debug.call_args[0][0])
+        self.assertEqual(self.mock_logger.log.call_count, 2)
+
+    def test_logger_called_at_enter_and_exit_with_specific_log_level(self):
+        with log_runtime(self.mock_logger, 'Foo', log_level='INFO'):
+            pass
+
+        self.assertEqual(self.mock_logger.log.call_count, 2)
 
     @patch('time.time')
+    @patch('core.logs._decorate_log_entry_section', mock__decorate_log_entry_section)
+    def test_logged_messages(self, mock_time):
+        mock_time.side_effect = [0, 0]
+
+        with log_runtime(self.mock_logger, 'Foo'):
+            pass
+
+            self.mock_logger.log.assert_called_with(
+                self.LOGLEVEL_DEFAULT, 'Foo Started'
+            )
+        self.mock_logger.log.assert_called_with(
+            self.LOGLEVEL_DEFAULT, 'Foo Completed in 0.000000000 seconds'
+        )
+
+    @patch('time.time')
+    @patch('core.logs._decorate_log_entry_section', mock__decorate_log_entry_section)
+    def test_logged_messages_with_specific_log_level(self, mock_time):
+        mock_time.side_effect = [0, 0]
+
+        with log_runtime(self.mock_logger, 'Foo', log_level='INFO'):
+            pass
+
+            self.mock_logger.log.assert_called_with(
+                self.LOGLEVEL_INFO, 'Foo Started'
+            )
+        self.mock_logger.log.assert_called_with(
+            self.LOGLEVEL_INFO, 'Foo Completed in 0.000000000 seconds'
+        )
+
+    @patch('time.time')
+    @patch('core.logs._decorate_log_entry_section', mock__decorate_log_entry_section)
     def test_timing_measurement(self, mock_time):
         mock_time.side_effect = [1511626070.045472, 1511626071.045472]
         with log_runtime(self.mock_logger, 'Foo'):
             pass
-        self.assertIn('Foo Completed in 1.000000000 seconds',
-                      self.mock_logger.debug.call_args[0][0])
+
+        self.mock_logger.log.assert_called_with(
+            self.LOGLEVEL_DEFAULT, 'Foo Completed in 1.000000000 seconds'
+        )
 
 
 class TestLogFuncRuntime(TestCase):
