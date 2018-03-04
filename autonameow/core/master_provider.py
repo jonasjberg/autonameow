@@ -209,13 +209,7 @@ class MasterDataProvider(object):
     def _delegate_to_providers(self, fileobject, meowuri):
         log.debug('Delegating request to providers: [{:8.8}]->[{!s}]'.format(
             fileobject.hash_partial, meowuri))
-
         self.debug_stats[fileobject][meowuri]['delegated'] += 1
-        delegation_count = self.debug_stats[fileobject][meowuri]['delegated']
-        if delegation_count > 1:
-            log.warning('Delegated {} times:  [{:8.8}]->[{!s}]'.format(
-                delegation_count, fileobject.hash_partial, meowuri))
-
         self.provider_runner.delegate_to_providers(fileobject, meowuri)
 
     def _query_repository(self, fileobject, meowuri):
