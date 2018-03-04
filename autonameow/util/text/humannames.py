@@ -288,3 +288,7 @@ def split_multiple_names(list_of_names):
         non_whitespace_parts = [p.strip() for p in split_parts if p]
         result.extend(non_whitespace_parts)
     return result
+
+
+def filter_multiple_names(list_of_names):
+    return [n for n in list_of_names if len(n) > 1]

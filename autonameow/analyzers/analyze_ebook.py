@@ -46,7 +46,10 @@ from util.text import (
     string_similarity,
     RE_EDITION
 )
-from util.text.humannames import split_multiple_names
+from util.text.humannames import (
+    filter_multiple_names,
+    split_multiple_names
+)
 
 
 log = logging.getLogger(__name__)
@@ -511,10 +514,11 @@ class ISBNMetadata(object):
 
         stripped_author_list = [a.strip() for a in _author_list if a]
         fixed_author_list = split_multiple_names(stripped_author_list)
+        filtered_author_list = filter_multiple_names(fixed_author_list)
 
-        self._authors = fixed_author_list
+        self._authors = filtered_author_list
         self._normalized_authors = [
-            normalize_full_human_name(a) for a in fixed_author_list if a
+            normalize_full_human_name(a) for a in filtered_author_list if a
         ]
 
     @property

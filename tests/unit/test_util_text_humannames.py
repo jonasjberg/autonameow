@@ -27,6 +27,7 @@ from unittest import (
 
 from util.text.humannames import (
     _parse_name,
+    filter_multiple_names,
     format_name,
     format_name_list,
     HumanNameFormatter,
@@ -508,3 +509,13 @@ class TestSplitMultipleNames(TestCase):
                 [['Gibson Cat Sjöberg and Woo Blackmoon'], 'Friedrich Nietzsche'],
                 [['Gibson Cat Sjöberg, and Woo Blackmoon'], 'Friedrich Nietzsche'],
             ])
+
+
+class TestFilterMultipleNames(TestCase):
+    def test_returns_valid_names_as_is(self):
+        self.assertEqual(['Friedrich Nietzsche', 'Gibson Sjöberg'],
+                         filter_multiple_names(['Friedrich Nietzsche', 'Gibson Sjöberg']))
+
+    def test_removes_names_consisting_of_a_single_letter(self):
+        self.assertEqual(['Ankur Ankan', 'Abinash P'],
+                         filter_multiple_names(['Ankur Ankan', 'Abinash P', 'a']))
