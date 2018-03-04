@@ -288,20 +288,14 @@ class FindIsoDateLike(TestCase):
         self.expected = uu.str_to_datetime('2016-07-22 131730')
         self.assertIsInstance(self.expected, datetime)
 
-    def test_invalid_argument_raises_value_error(self):
-        def _assert_raises(test_data):
-            with self.assertRaises(ValueError):
-                find_isodate_like(test_data)
-
-        _assert_raises(None)
-        _assert_raises('')
-        _assert_raises(' ')
-        _assert_raises('  ')
-
     def _assert_none(self, test_data):
         self.assertIsNone(find_isodate_like(test_data))
 
     def test_returns_none_for_no_possible_matches(self):
+        self._assert_none(None)
+        self._assert_none('')
+        self._assert_none(' ')
+        self._assert_none('  ')
         self._assert_none('abc')
         self._assert_none(' a ')
         self._assert_none(' 1 ')
