@@ -88,7 +88,7 @@ def collapse_whitespace(string):
     return collapsed
 
 
-def indent(text, amount=None, ch=None):
+def indent(text, columns=None, padchar=None):
     """
     Indents (multi-line) text by a specified amount.
 
@@ -99,8 +99,8 @@ def indent(text, amount=None, ch=None):
 
     Args:
         text: Single or multi-line text to indent, as a Unicode str.
-        amount: Optional padding character ('ch') multiple, as an integer.
-        ch: Optional character to use for padding.
+        columns: Optional padding character ('ch') multiple, as an integer.
+        padchar: Optional character to use for padding.
 
     Returns:
         An indented version of the given text as an Unicode str.
@@ -110,24 +110,17 @@ def indent(text, amount=None, ch=None):
     DEFAULT_AMOUNT = 4
     DEFAULT_PADDING = ' '
 
-    if amount is None:
-        amount = DEFAULT_AMOUNT
-    else:
-        if not isinstance(amount, int):
-            raise TypeError('Expected "amount" to be of type int')
-        elif amount <= 0:
-            raise ValueError('Expected "amount" to be greater than zero')
+    if columns is None:
+        columns = DEFAULT_AMOUNT
+    assert isinstance(columns, int)
+    assert columns > 0
 
-    if ch is None:
-        ch = DEFAULT_PADDING
-
-    if text is None:
-        raise ValueError('Got None argument "text"')
-
+    if padchar is None:
+        padchar = DEFAULT_PADDING
+    sanity.check_internal_string(padchar)
     sanity.check_internal_string(text)
-    sanity.check_internal_string(ch)
 
-    padding = amount * ch
+    padding = columns * padchar
     return ''.join(padding + line for line in text.splitlines(True))
 
 

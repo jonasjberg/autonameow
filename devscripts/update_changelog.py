@@ -328,11 +328,11 @@ if __name__ == '__main__':
             section_entries['Changes'].append(entry)
 
     for section, entries in sorted(section_entries.items()):
-        print('\n' + text.indent(section, amount=12))
+        print('\n' + text.indent(section, columns=12))
 
         for entry in entries:
-            print(text.indent('- ' + entry.subject, amount=12))
-            print(text.indent(entry.body, amount=14))
+            print(text.indent('- ' + entry.subject, columns=12))
+            print(text.indent(entry.body, columns=14))
             if entry.body:
                 print()
 

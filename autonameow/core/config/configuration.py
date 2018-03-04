@@ -119,15 +119,15 @@ class Configuration(object):
 
         for n, rule in enumerate(self.rules, start=1):
             out.append('Rule {}/{}:\n'.format(n, len(self.rules)))
-            out.append(text.indent(rule.stringify(), amount=4) + '\n')
+            out.append(text.indent(rule.stringify(), columns=4) + '\n')
 
         out.append('\nReusable Name Templates:\n')
         out.append(
-            text.indent(_yaml_format(self.reusable_nametemplates), amount=4)
+            text.indent(_yaml_format(self.reusable_nametemplates), columns=4)
         )
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(text.indent(_yaml_format(self.options), amount=4))
+        out.append(text.indent(_yaml_format(self.options), columns=4))
 
         return ''.join(out)
 

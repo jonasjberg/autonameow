@@ -188,24 +188,24 @@ class TestIndent(TestCase):
     def test_invalid_arguments_raises_exception(self):
         def _assert_raises(exception_type, *args, **kwargs):
             with self.assertRaises(exception_type):
-                indent(*args, **kwargs)
+                _ = indent(*args, **kwargs)
 
-        _assert_raises(ValueError, None)
+        _assert_raises(AssertionError, None)
         _assert_raises(EncodingBoundaryViolation, b'')
-        _assert_raises(ValueError, 'foo', amount=0)
-        _assert_raises(TypeError, 'foo', amount=object())
+        _assert_raises(AssertionError, 'foo', columns=0)
+        _assert_raises(AssertionError, 'foo', columns=object())
 
-        # TODO: Should raise 'TypeError' when given 'ch=1' (expects str)
-        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=1)
-        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=b'')
-        _assert_raises(EncodingBoundaryViolation, 'foo', ch=b'')
+        # TODO: Should raise 'TypeError' when given 'padchar=1' (expects str)
+        _assert_raises(EncodingBoundaryViolation, 'foo', columns=2, padchar=1)
+        _assert_raises(EncodingBoundaryViolation, 'foo', columns=2, padchar=b'')
+        _assert_raises(EncodingBoundaryViolation, 'foo', padchar=b'')
 
     def test_indents_single_line(self):
-        self.assertEqual(indent('foo'), '    foo')
-        self.assertEqual(indent('foo bar'), '    foo bar')
+        self.assertEqual('    foo', indent('foo'))
+        self.assertEqual('    foo bar', indent('foo bar'))
 
     def test_indents_two_lines(self):
-        self.assertEqual(indent('foo\nbar'), '    foo\n    bar')
+        self.assertEqual('    foo\n    bar', indent('foo\nbar'))
 
     def test_indents_three_lines(self):
         input_ = ('foo\n'
@@ -217,14 +217,14 @@ class TestIndent(TestCase):
         self.assertEqual(indent(input_), expect)
 
     def test_indents_single_line_specified_amount(self):
-        self.assertEqual(indent('foo', amount=1), ' foo')
-        self.assertEqual(indent('foo', amount=2), '  foo')
-        self.assertEqual(indent('foo', amount=3), '   foo')
-        self.assertEqual(indent('foo', amount=4), '    foo')
-        self.assertEqual(indent('foo bar', amount=2), '  foo bar')
+        self.assertEqual(' foo', indent('foo', columns=1))
+        self.assertEqual('  foo', indent('foo', columns=2))
+        self.assertEqual('   foo', indent('foo', columns=3))
+        self.assertEqual('    foo', indent('foo', columns=4))
+        self.assertEqual('  foo bar', indent('foo bar', columns=2))
 
     def test_indents_two_lines_specified_amount(self):
-        self.assertEqual(indent('foo\nbar', amount=2), '  foo\n  bar')
+        self.assertEqual('  foo\n  bar', indent('foo\nbar', columns=2))
 
     def test_indents_three_lines_specified_amount(self):
         input_ = ('foo\n'
@@ -233,7 +233,7 @@ class TestIndent(TestCase):
         expect = ('  foo\n'
                   '    bar\n'
                   '  baz\n')
-        self.assertEqual(indent(input_, amount=2), expect)
+        self.assertEqual(expect, indent(input_, columns=2))
 
         input_ = ('foo\n'
                   '  bar\n'
@@ -241,17 +241,15 @@ class TestIndent(TestCase):
         expect = ('   foo\n'
                   '     bar\n'
                   '   baz\n')
-        self.assertEqual(indent(input_, amount=3), expect)
+        self.assertEqual(expect, indent(input_, columns=3))
 
     def test_indents_single_line_specified_padding(self):
-        self.assertEqual(indent('foo', ch='X'), 'XXXXfoo')
-        self.assertEqual(indent('foo bar', ch='X'), 'XXXXfoo bar')
+        self.assertEqual('XXXXfoo', indent('foo', padchar='X'))
+        self.assertEqual('XXXXfoo bar', indent('foo bar', padchar='X'))
 
     def test_indents_two_lines_specified_padding(self):
-        self.assertEqual(indent('foo\nbar', ch='X'),
-                         'XXXXfoo\nXXXXbar')
-        self.assertEqual(indent('foo\nbar', ch='Xj'),
-                         'XjXjXjXjfoo\nXjXjXjXjbar')
+        self.assertEqual('XXXXfoo\nXXXXbar', indent('foo\nbar', padchar='X'))
+        self.assertEqual('XjXjXjXjfoo\nXjXjXjXjbar', indent('foo\nbar', padchar='Xj'))
 
     def test_indents_three_lines_specified_padding(self):
         input_ = ('foo\n'
@@ -260,7 +258,7 @@ class TestIndent(TestCase):
         expect = ('XXXXfoo\n'
                   'XXXX  bar\n'
                   'XXXXbaz\n')
-        self.assertEqual(indent(input_, ch='X'), expect)
+        self.assertEqual(expect, indent(input_, padchar='X'))
 
         input_ = ('foo\n'
                   '  bar\n'
@@ -268,24 +266,21 @@ class TestIndent(TestCase):
         expect = ('XjXjXjXjfoo\n'
                   'XjXjXjXj  bar\n'
                   'XjXjXjXjbaz\n')
-        self.assertEqual(indent(input_, ch='Xj'), expect)
+        self.assertEqual(expect, indent(input_, padchar='Xj'))
 
     def test_indents_text_single_line_specified_padding_and_amount(self):
-        self.assertEqual(indent('foo', amount=1, ch='  '), '  foo')
-        self.assertEqual(indent('foo', amount=2, ch='  '), '    foo')
-        self.assertEqual(indent('foo', amount=1, ch=''), 'foo')
-        self.assertEqual(indent('foo', amount=2, ch=''), 'foo')
-        self.assertEqual(indent('foo', amount=3, ch=''), 'foo')
-        self.assertEqual(indent('foo', amount=4, ch=''), 'foo')
-        self.assertEqual(indent('foo', ch='X', amount=2), 'XXfoo')
-        self.assertEqual(indent('foo bar', ch='X', amount=2),
-                         'XXfoo bar')
+        self.assertEqual('  foo', indent('foo', columns=1, padchar='  '))
+        self.assertEqual('    foo', indent('foo', columns=2, padchar='  '))
+        self.assertEqual('foo', indent('foo', columns=1, padchar=''))
+        self.assertEqual('foo', indent('foo', columns=2, padchar=''))
+        self.assertEqual('foo', indent('foo', columns=3, padchar=''))
+        self.assertEqual('foo', indent('foo', columns=4, padchar=''))
+        self.assertEqual('XXfoo', indent('foo', padchar='X', columns=2))
+        self.assertEqual('XXfoo bar', indent('foo bar', padchar='X', columns=2))
 
     def test_indents_two_lines_specified_padding_and_amount(self):
-        self.assertEqual(indent('foo\nbar', ch='X', amount=2),
-                         'XXfoo\nXXbar')
-        self.assertEqual(indent('foo\nbar', ch='X', amount=4),
-                         'XXXXfoo\nXXXXbar')
+        self.assertEqual('XXfoo\nXXbar', indent('foo\nbar', padchar='X', columns=2))
+        self.assertEqual('XXXXfoo\nXXXXbar', indent('foo\nbar', padchar='X', columns=4))
 
     def test_indents_three_lines_specified_padding_and_amount(self):
         input_ = ('foo\n'
@@ -294,7 +289,7 @@ class TestIndent(TestCase):
         expect = ('XXfoo\n'
                   'XX  bar\n'
                   'XXbaz\n')
-        self.assertEqual(indent(input_, ch='X', amount=2), expect)
+        self.assertEqual(expect, indent(input_, padchar='X', columns=2))
 
         input_ = ('foo\n'
                   '  bar\n'
@@ -302,7 +297,7 @@ class TestIndent(TestCase):
         expect = ('XXXfoo\n'
                   'XXX  bar\n'
                   'XXXbaz\n')
-        self.assertEqual(indent(input_, ch='X', amount=3), expect)
+        self.assertEqual(expect, indent(input_, padchar='X', columns=3))
 
 
 class TestNormalizeUnicode(TestCase):
