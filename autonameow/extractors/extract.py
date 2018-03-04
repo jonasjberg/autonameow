@@ -23,7 +23,9 @@
 import argparse
 import logging
 import sys
+from collections import namedtuple
 
+import extractors
 from core import constants as C
 from core import (
     exceptions,
@@ -32,7 +34,6 @@ from core import (
     logs,
     view
 )
-import extractors
 from util import encoding as enc
 from util import disk
 
@@ -43,7 +44,12 @@ log = logging.getLogger(__name__)
 # TODO: [TD0159] Fix stand-alone extractor not respecting the `--quiet` option.
 
 
+TextExtractionResult = namedtuple('TextExtractionResult', 'fulltext provider')
+
+
 def do_extract_text(fileobject):
+    all_extraction_results = list()
+
     def _collect_results_callback(fileobject_, meowuri, data):
         log.debug('_collect_results_callback({!s}, {!s}, {!s})'.format(
             fileobject_, meowuri, data))
@@ -52,14 +58,10 @@ def do_extract_text(fileobject):
         text = data.get('value')
         assert isinstance(text, str)
         extractor = data.get('source', '(unknown extractor)')
-        if not text:
-            log.info('{!s} was unable to extract text from "{!s}"'.format(
-                extractor, fileobject_))
-            return
 
-        # TODO: [TD0171] Separate logic from user interface.
-        view.msg('Text Extracted by {!s}:'.format(extractor), style='section')
-        view.msg(text)
+        all_extraction_results.append(
+            TextExtractionResult(fulltext=text, provider=extractor)
+        )
 
     runner = extraction.ExtractorRunner(
         add_results_callback=_collect_results_callback
@@ -68,6 +70,8 @@ def do_extract_text(fileobject):
         runner.start(fileobject, request_extractors=extractors.registry.text_providers)
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
+    finally:
+        return all_extraction_results
 
 
 def do_extract_metadata(fileobject):
@@ -99,13 +103,41 @@ def do_extract_metadata(fileobject):
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
     else:
+        return results
+
+
+def display_file_processing_starting(fileobject, num, total_fileobject_num):
+    # TODO: [TD0171] Separate logic from user interface.
+    view.msg('{!s}'.format(fileobject), style='heading')
+    log.info('Processing ({}/{}) "{!s}" ..'.format(
+        num, total_fileobject_num, fileobject))
+
+
+def display_file_processing_ended(fileobject, num, total_fileobject_num):
+    log.info('Finished processing ({}/{}) "{!s}"'.format(
+        num, total_fileobject_num, fileobject))
+
+
+def display_text_extraction_result(fileobject, text_extraction_result):
+    provider = text_extraction_result.provider
+    text = text_extraction_result.fulltext
+    if text:
         # TODO: [TD0171] Separate logic from user interface.
-        view.msg('Extracted Metadata', style='section')
-        cf = view.ColumnFormatter()
-        for k, v in sorted(results.items()):
-            cf.addrow(str(k), str(v))
-        cf.addemptyrow()
-        view.msg(str(cf))
+        view.msg('Text Extracted by {!s}:'.format(provider), style='section')
+        view.msg(text)
+    else:
+        log.info('{!s} was unable to extract text from "{!s}"'.format(provider, fileobject))
+
+
+def display_metadata_extraction_result(results):
+    cf = view.ColumnFormatter()
+    for field, value in sorted(results.items()):
+        cf.addrow(str(field), str(value))
+    cf.addemptyrow()
+
+    # TODO: [TD0171] Separate logic from user interface.
+    view.msg('Extracted Metadata', style='section')
+    view.msg(str(cf))
 
 
 def main(options=None):
@@ -148,29 +180,34 @@ def main(options=None):
         recurse=False
     )
 
-    _num_files = len(files_to_process)
-    log.info('Got {} files to process'.format(_num_files))
+    num_files_total = len(files_to_process)
+    log.info('Got {} files to process'.format(num_files_total))
 
-    for _num, _file in enumerate(files_to_process, start=1):
-        # Sanity checking the "file_path" is part of 'FileObject' init.
+    for n, filepath in enumerate(files_to_process, start=1):
         try:
-            current_file = FileObject(_file)
+            current_file = FileObject(filepath)
         except (exceptions.InvalidFileArgumentError,
                 exceptions.FilesystemError) as e:
             log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                e, enc.displayable_path(_file)))
+                e, enc.displayable_path(filepath)))
             continue
 
-        # TODO: [TD0171] Separate logic from user interface.
-        view.msg('{!s}'.format(current_file), style='heading')
-        log.info('Processing ({}/{}) "{!s}" ..'.format(
-            _num, _num_files, current_file))
+        display_file_processing_starting(current_file, n, num_files_total)
 
         if opts.get('extract_text'):
-            do_extract_text(current_file)
+            with logs.log_runtime(log, 'Text Extraction', log_level='INFO'):
+                results = do_extract_text(current_file)
+
+            for result in results:
+                display_text_extraction_result(current_file, result)
 
         if opts.get('extract_metadata'):
-            do_extract_metadata(current_file)
+            with logs.log_runtime(log, 'Metadata Extraction', log_level='INFO'):
+                result = do_extract_metadata(current_file)
+
+            display_metadata_extraction_result(result)
+
+        display_file_processing_ended(current_file, n, num_files_total)
 
 
 def parse_args(raw_args):
