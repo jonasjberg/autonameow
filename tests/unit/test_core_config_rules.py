@@ -54,6 +54,10 @@ class TestRuleMethods(TestCase):
         actual = hash(self.rule)
         self.assertIsNotNone(actual)
 
+    def test_stringify_dummy_rule(self):
+        s = self.rule.stringify()
+        self.assertIsInstance(s, str)
+
 
 class TestRuleComparison(TestCase):
     def setUp(self):

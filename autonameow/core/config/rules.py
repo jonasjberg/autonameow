@@ -373,6 +373,34 @@ class Rule(object):
             out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
         return 'Rule({})'.format(', '.join(out))
 
+    def stringify(self):
+        # TODO: [TD0171] Separate logic from user interface.
+        # TODO: [cleanup][hack] This is pretty bad ..
+        from core.view.cli import ColumnFormatter
+        cf = ColumnFormatter()
+        for field, sources in self.data_sources.items():
+            cf.addrow(str(field), str(sources[0]))
+            for source in sources[1:]:
+                cf.addrow('', str(source))
+        str_sources = str(cf)
+
+        str_conditions = '\n'.join([str(c) for c in self.conditions])
+
+        return '''"{description}"
+
+Exact Match:  {exact}
+Conditions:
+{conditions}
+
+Name Template:
+{template}
+
+Data Sources:
+{sources}
+'''.format(description=self.description, exact=self.exact_match,
+           conditions=str_conditions, template=self.name_template,
+           sources=str_sources)
+
 
 def get_valid_rule(description, exact_match, ranking_bias, name_template,
                    conditions, data_sources):

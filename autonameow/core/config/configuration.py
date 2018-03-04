@@ -22,6 +22,7 @@
 import logging
 
 from core import constants as C
+from core import types
 from util import (
     disk,
     nested_dict_get,
@@ -113,22 +114,23 @@ class Configuration(object):
         return _rule_templates + _reusable_templates
 
     def __str__(self):
-        out = ['Written by autonameow version v{}\n\n'.format(self.version)]
+        # TODO: [cleanup][hack] This is pretty bad ..
+        out = ['autonameow version {}\n\n'.format(self.version)]
 
-        for number, rule in enumerate(self.rules):
-            out.append('Rule {}:\n'.format(number + 1))
-            out.append(text.indent(str(rule), amount=4) + '\n')
+        for n, rule in enumerate(self.rules, start=1):
+            out.append('Rule {}/{}:\n'.format(n, len(self.rules)))
+            out.append(text.indent(rule.stringify(), amount=4) + '\n')
 
         out.append('\nReusable Name Templates:\n')
         out.append(
-            text.indent(_dump(self.reusable_nametemplates), amount=4)
+            text.indent(_yaml_format(self.reusable_nametemplates), amount=4)
         )
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(text.indent(_dump(self.options), amount=4))
+        out.append(text.indent(_yaml_format(self.options), amount=4))
 
         return ''.join(out)
 
 
-def _dump(data):
-    return disk.write_yaml(data)
+def _yaml_format(data):
+    return types.force_string(disk.write_yaml(data))
