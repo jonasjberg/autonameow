@@ -162,7 +162,8 @@ class TestAnalyzerClassMeowURIs(TestCase):
         import analyzers
         all_providers = analyzers.registry.all_providers
         cls.actual = [a.meowuri_prefix() for a in all_providers]
-        cls.analyzer_class_names = [a.__name__ for a in all_providers]
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        cls.analyzer_class_names = [a.name() for a in all_providers]
 
     def test_returns_expected_type(self):
         from core.model import MeowURI

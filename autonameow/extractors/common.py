@@ -263,6 +263,11 @@ class BaseExtractor(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
+    @classmethod
+    def name(cls):
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        return cls.__name__
+
     def __str__(self):
         return self.__class__.__name__
 

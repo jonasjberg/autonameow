@@ -247,6 +247,12 @@ class CaseExtractorBasics(object):
             '"{!s}".  Got "{!s}"'.format(expect_starts_with, actual)
         )
 
+    def test_class_method_name_returns_expected_value(self):
+        expect = self.EXTRACTOR_NAME
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        self.assertEqual(expect, self.EXTRACTOR_CLASS.name())
+        self.assertEqual(expect, self.extractor.name())
+
 
 class CaseExtractorOutput(object):
     EXTRACTOR_CLASS = None

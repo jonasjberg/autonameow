@@ -179,7 +179,9 @@ def _wrap_provider_result_field(field_metainfo, source_klass, value):
     _field_metainfo = dict(field_metainfo)
     field_info_to_add = {
         # Do not store a reference to the class itself before actually needed..
-        'source': str(source_klass),
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        # TODO: [cleanup][hack] Can't use str(source_klass) on the class ..
+        'source': str(source_klass.name()),
         'value': value
     }
     _field_metainfo.update(field_info_to_add)
@@ -386,8 +388,9 @@ def _get_meowuri_source_map():
         for klass in klass_list:
             uri = klass.meowuri_prefix()
             if not uri:
+                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
                 log.critical('Got empty from '
-                             '"{!s}.meowuri_prefix()"'.format(klass.__name__))
+                             '"{!s}.meowuri_prefix()"'.format(klass.name()))
                 continue
 
             assert uri not in mapping, (

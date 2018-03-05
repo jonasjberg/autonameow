@@ -225,7 +225,7 @@ class TestWrapProviderResults(TestCase):
                     ],
                 },
             },
-            source_klass='foo_klass'
+            source_klass=_get_mock_provider()
         )
         expect = {
             'extension': {
@@ -235,7 +235,7 @@ class TestWrapProviderResults(TestCase):
                 'mapped_fields': [
                     WeightedMapping(fields.Extension, probability=1.0),
                 ],
-                'source': 'foo_klass'
+                'source': 'MockProvider'
             }
         }
         self.assertEqual(expect, actual)
@@ -252,7 +252,7 @@ class TestWrapProviderResults(TestCase):
                     'multivalued': 'false',
                 },
             },
-            source_klass='foo_klass'
+            source_klass=_get_mock_provider()
         )
         self.assertIn('extension', actual)
         self.assertIn('coercer', actual['extension'])
@@ -274,7 +274,7 @@ class TestWrapProviderResults(TestCase):
                     'multivalued': 'true',
                 },
             },
-            source_klass='foo_klass'
+            source_klass=_get_mock_provider()
         )
         self.assertIn('foo', actual)
         self.assertIn('multivalued', actual['foo'])
@@ -303,20 +303,20 @@ class TestWrapProviderResults(TestCase):
                     'generic_field': None
                 }
             },
-            source_klass='foo_klass'
+            source_klass=_get_mock_provider()
         )
         expect = {
             'health': {
                 'value': 0.5,
                 'coercer': types.AW_FLOAT,
                 'multivalued': False,
-                'source': 'foo_klass'
+                'source': 'MockProvider'
             },
             'is_jpeg': {
                 'value': False,
                 'coercer': types.AW_BOOLEAN,
                 'multivalued': False,
-                'source': 'foo_klass'
+                'source': 'MockProvider'
             }
         }
         self.assertEqual(expect, actual)
@@ -397,7 +397,8 @@ class TestGetProvidersForMeowURIs(TestCase):
         self.assertEqual(len(expected_providers), len(actual_sources))
         for s in actual_sources:
             self.assertTrue(uu.is_class(s))
-            self.assertIn(s.__name__, expected_providers)
+            # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+            self.assertIn(s.name(), expected_providers)
 
     def test_raises_exception_for_invalid_meowuris(self):
         def _assert_raises(meowuri_list):
@@ -513,7 +514,8 @@ class TestMapMeowURItoSourceClass(TestCase):
                                   expected_provider_names):
         # TODO: Not sure why this is assumed. Likely erroneous (?)
         actual_count = len(actual_providers)
-        actual_provider_names = [k.__name__ for k in actual_providers]
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        actual_provider_names = [k.name() for k in actual_providers]
         expect_count = len(expected_provider_names)
         fail_msg = 'Expected: {!s}\nActual: {!s}'.format(
             expected_provider_names, actual_provider_names)
@@ -635,6 +637,7 @@ class TestMapMeowURItoSourceClass(TestCase):
 def _get_mock_provider():
     mock_provider = Mock()
     mock_provider.metainfo = MagicMock(return_value=dict())
+    mock_provider.name.return_value = 'MockProvider'
     return mock_provider
 
 

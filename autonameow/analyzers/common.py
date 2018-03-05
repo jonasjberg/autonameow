@@ -259,3 +259,8 @@ class BaseAnalyzer(object):
 
     def __str__(self):
         return self.__class__.__name__
+
+    @classmethod
+    def name(cls):
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        return cls.__name__

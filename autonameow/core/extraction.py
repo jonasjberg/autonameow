@@ -90,7 +90,8 @@ class ExtractorRunner(object):
             log.debug('Initialized {!s} with {} available extractors'.format(
                 self.__class__.__name__, len(self._available_extractors)))
             for k in self._available_extractors:
-                log.debug('Available: {!s}'.format(str(k.__name__)))
+                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+                log.debug('Available: {!s}'.format(k.name()))
 
     def start(self, fileobject, request_extractors=None, request_all=None):
         """
@@ -141,7 +142,8 @@ class ExtractorRunner(object):
                 len(selected), fileobject
             ))
             for k in selected:
-                log.debug('Prepared:  {!s}'.format(str(k.__name__)))
+                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+                log.debug('Prepared:  {!s}'.format(k.name()))
 
         if selected:
             # Run all prepared extractors.
@@ -155,7 +157,8 @@ class ExtractorRunner(object):
 
         if __debug__:
             def __format_string(_extractors):
-                return ', '.join(str(k.__name__) for k in _extractors)
+                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+                return ', '.join(k.name() for k in _extractors)
 
             if not requested_klasses.issubset(available):
                 na = requested_klasses.difference(available)

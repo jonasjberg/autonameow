@@ -33,7 +33,8 @@ class TestFilterAbleToHandle(TestCase):
     def setUpClass(cls):
         cls.ALL_AVAILABLE_EXTRACTORS = extractors.registry.all_providers
         cls.extractor_class_names = [
-            e.__name__ for e in cls.ALL_AVAILABLE_EXTRACTORS
+            # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+            e.name() for e in cls.ALL_AVAILABLE_EXTRACTORS
         ]
 
     def _assert_in_if_available(self, member, container):
@@ -47,7 +48,8 @@ class TestFilterAbleToHandle(TestCase):
 
     def _names_of_resulting_extractors(self, fileobject):
         klasses = filter_able_to_handle(self.ALL_AVAILABLE_EXTRACTORS, fileobject)
-        return [k.__name__ for k in klasses]
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        return [k.name() for k in klasses]
 
     def _check_returned_extractors_for(self, fileobject, expected, if_available):
         actual = self._names_of_resulting_extractors(fileobject)

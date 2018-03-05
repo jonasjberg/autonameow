@@ -155,7 +155,8 @@ class TestGetMetadataExtractorClasses(TestCase):
 
     def test_returns_metadata_extractors_verified_by_name(self):
         for klass in self.actual:
-            _klass_name = klass.__name__
+            # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+            _klass_name = klass.name()
             self.assertIn('Metadata', _klass_name)
 
     def test_returns_metadata_extractors_verified_by_meowuri_prefix(self):
@@ -187,7 +188,8 @@ class TestExtractorClassMeowURIs(TestCase):
     @classmethod
     def setUpClass(cls):
         provider_klasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES)
-        cls.extractor_class_names = [e.__name__ for e in provider_klasses]
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        cls.extractor_class_names = [e.name() for e in provider_klasses]
         cls.actual = [k.meowuri_prefix() for k in provider_klasses]
 
     def test_returns_expected_type(self):
