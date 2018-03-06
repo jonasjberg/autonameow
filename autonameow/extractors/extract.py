@@ -171,21 +171,20 @@ def display_metadata_extraction_result(results):
 def display_summary_metadata_stats(all_processed_files, metadata_results):
     num_files_processed = len(all_processed_files)
     files_not_in_results = [f for f in all_processed_files
-                            if f not in metadata_results]
+                            if not metadata_results[f]]
 
     cf = _column_formatter()
     cf.addrow('PROCESSED FILE', '# METADATA FIELDS', 'PROVIDER')
     cf.addrow('==============', '=================', '========')
     for f, metadata_extraction_results in sorted(metadata_results.items()):
-        # TODO: [hack][cleanup] Fix unnecessary nesting lists of lists ..
-        assert len(metadata_extraction_results) == 1
-        for metadata_extraction_result in metadata_extraction_results[0]:
+        for metadata_extraction_result in metadata_extraction_results:
             field_count = str(metadata_extraction_result.metadata_fieldcount)
             provider = str(metadata_extraction_result.provider)
             cf.addrow(str(f), field_count, provider)
     for f in files_not_in_results:
         cf.addrow(str(f), 'N/A', 'N/A')
 
+    # TODO: [TD0171] Separate logic from user interface.
     view.msg('Metadata Extraction Results', style='section')
     view.msg('Got results for {} out of {} total processed files'.format(len(metadata_results), num_files_processed))
     view.msg('Remaining {} files could either not be handled by any extractor or the extraction failed'.format(len(files_not_in_results), num_files_processed))
@@ -217,6 +216,7 @@ def display_summary_text_stats(all_processed_files, text_results):
 
 
 def display_summary_statistics(all_processed_files, summary_results):
+    # TODO: [TD0171] Separate logic from user interface.
     view.msg('Summary Extraction Result Statistics', style='heading')
 
     results_text = summary_results['text']
@@ -272,7 +272,7 @@ def main(options=None):
 
     summary_results = {
         'text': defaultdict(list),
-        'metadata': defaultdict(list),
+        'metadata': defaultdict(dict),
     }
     all_processed_files = list()
     for n, filepath in enumerate(files_to_process, start=1):
@@ -299,7 +299,7 @@ def main(options=None):
             with logs.log_runtime(log, 'Metadata Extraction', log_level='INFO'):
                 result = do_extract_metadata(current_file)
 
-            summary_results['metadata'][current_file].append(result)
+            summary_results['metadata'][current_file] = result
             display_metadata_extraction_result(result)
 
         display_file_processing_ended(current_file, n, num_files_total)
