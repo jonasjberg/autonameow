@@ -52,6 +52,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     """
     HANDLES_MIME_TYPES = [
         'video/*', 'application/pdf', 'image/*', 'application/epub+zip',
+        'application/msword',
         'text/*', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ]
     IS_SLOW = False

@@ -233,6 +233,188 @@ File:MIMEType:
             field: Extension
             probability: 1.0
 
+FlashPix:Author:
+    coercer: aw_string
+    generic_field: author
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            probability: 1.0
+    multivalued: true
+
+FlashPix:Characters:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:CharCountWithSpaces:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:Comments:
+    coercer: aw_string
+    generic_field: description
+    mapped_fields:
+    -   WeightedMapping:
+            field: Description
+            probability: 0.5
+    -   WeightedMapping:
+            field: Tags
+            probability: 0.5
+
+FlashPix:Company:
+    coercer: aw_string
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            probability: 0.6
+    -   WeightedMapping:
+            field: Publisher
+            probability: 0.5
+    -   WeightedMapping:
+            field: Creator
+            probability: 0.1
+
+FlashPix:CreateDate:
+    coercer: aw_timedate
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            probability: 1.0
+    -   WeightedMapping:
+            field: Date
+            probability: 1.0
+
+FlashPix:HeadingPairs:
+    # TODO: Needs cleanup ..
+    coercer: aw_string
+    generic_field: title
+    mapped_fields:
+    -   WeightedMapping:
+            field: Title
+            probability: 1.0
+    multivalued: True
+
+FlashPix:Keywords:
+    coercer: aw_string
+    generic_field: tags
+    mapped_fields:
+    -   WeightedMapping:
+            field: Tags
+            probability: 1.0
+    -   WeightedMapping:
+            field: Title
+            probability: 0.5
+    -   WeightedMapping:
+            field: Description
+            probability: 0.8
+
+FlashPix:LastModifiedBy:
+    coercer: aw_string
+    generic_field: author
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            probability: 0.8
+    multivalued: true
+
+FlashPix:LastPrinted:
+    coercer: aw_timedate
+    generic_field: date_modified
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            probability: 0.01
+    -   WeightedMapping:
+            field: Date
+            probability: 0.01
+
+FlashPix:Lines:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:ModifyDate:
+    coercer: aw_timedate
+    generic_field: date_modified
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            probability: 0.25
+    -   WeightedMapping:
+            field: Date
+            probability: 0.25
+
+FlashPix:Pages:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:Paragraphs:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:RevisionNumber:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:Software:
+    coercer: aw_string
+    generic_field: creator
+    mapped_fields:
+    -   WeightedMapping:
+            field: Creator
+            probability: 1.0
+    -   WeightedMapping:
+            field: Author
+            probability: 0.025
+    -   WeightedMapping:
+            field: Publisher
+            probability: 0.02
+    -   WeightedMapping:
+            field: Title
+            probability: 0.01
+
+FlashPix:Title:
+    coercer: aw_string
+    generic_field: title
+    mapped_fields:
+    -   WeightedMapping:
+            field: Title
+            probability: 1.0
+    multivalued: false
+
+FlashPix:TitleOfParts:
+    # TODO: Needs cleanup ..
+    coercer: aw_string
+    generic_field: title
+    mapped_fields:
+    -   WeightedMapping:
+            field: Title
+            probability: 1.0
+    multivalued: false
+
+FlashPix:Subject:
+    coercer: aw_string
+    generic_field: subject
+    mapped_fields:
+    -   WeightedMapping:
+            field: Description
+            probability: 1.0
+    -   WeightedMapping:
+            field: Tags
+            probability: 0.8
+    -   WeightedMapping:
+            field: Title
+            probability: 0.5
+    multivalued: true
+
+FlashPix:TotalEditTime:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:Words:
+    coercer: aw_integer
+    multivalued: false
+
 PDF:Author:
     coercer: aw_string
     generic_field: author
