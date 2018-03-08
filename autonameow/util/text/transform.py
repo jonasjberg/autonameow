@@ -38,6 +38,7 @@ __all__ = [
     'indent',
     'batch_regex_replace',
     'normalize_unicode',
+    'normalize_whitespace',
     'simplify_unicode',
     'remove_blacklisted_lines',
     'remove_blacklisted_re_lines',
@@ -65,6 +66,9 @@ RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 #
 RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]{2,}')
 
+# Like above but matches any number of whitespace characters.
+RE_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]+')
+
 
 def collapse_whitespace(string):
     """
@@ -87,6 +91,29 @@ def collapse_whitespace(string):
     sanity.check_internal_string(string)
     collapsed = re.sub(RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
     return collapsed
+
+
+def normalize_whitespace(string):
+    """
+    Replaces all whitespace except newlines with a single space.
+
+    Does not remove leading or trailing whitespace.
+    Does not change linefeeds or carriage returns.
+    Handles Unicode whitespace characters.
+
+    Args:
+        string: Unicode String to transform.
+
+    Returns:
+        Given string with all whitespace replaced with a single space,
+        as a Unicode string.
+    """
+    if not string:
+        return string
+
+    sanity.check_internal_string(string)
+    normalized = re.sub(RE_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
+    return normalized
 
 
 def indent(text, columns=None, padchar=None):

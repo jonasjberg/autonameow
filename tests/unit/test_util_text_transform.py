@@ -38,6 +38,7 @@ from util.text.transform import (
     indent,
     batch_regex_replace,
     normalize_unicode,
+    normalize_whitespace,
     remove_blacklisted_lines,
     remove_blacklisted_re_lines,
     remove_nonbreaking_spaces,
@@ -185,6 +186,184 @@ class TestCollapseWhitespace(TestCase):
         self._check('foo\t\t\tbar', 'foo bar')
         self._check('\t\tfoo bar', ' foo bar')
         self._check('\t\t\tfoo bar', ' foo bar')
+
+
+class TestNormalizeWhitespace(TestCase):
+    def _assert_returns(self, expect, given):
+        actual = normalize_whitespace(given)
+        self.assertEqual(expect, actual)
+
+    def test_returns_empty_as_is(self):
+        for expect, given in [
+            ('', ''),
+
+            # Pass through empty/None/False values.
+            (None, None),
+            ([], []),
+        ]:
+            self._assert_returns(expect, given)
+
+    def test_raises_exception_given_non_string_types(self):
+        for bad_input in [
+            object(),
+            b'foo',
+            ['foo'],
+        ]:
+            with self.assertRaises(AssertionError):
+                _ = normalize_whitespace(bad_input)
+
+    def test_returns_string_without_whitespace_as_is(self):
+        self._assert_returns('foo', 'foo')
+
+    def test_does_not_strip_trailing_leading_whitespace(self):
+        for expected, given in [
+            ('foo ', 'foo '),
+            (' foo', ' foo'),
+            (' foo ', ' foo '),
+            (' foo bar', ' foo bar'),
+            (' foo bar ', ' foo bar ')
+        ]:
+            self._assert_returns(expected, given)
+
+    def test_does_not_change_single_newline(self):
+        for expected, given in [
+            ('foo\n', 'foo\n'),
+            ('\nfoo', '\nfoo'),
+            ('\nfoo\n', '\nfoo\n'),
+            ('\nfoo bar\n', '\nfoo bar\n'),
+            ('\nfoo\nbar\n', '\nfoo\nbar\n')
+        ]:
+            self._assert_returns(expected, given)
+
+    def test_does_not_change_single_newline_and_space(self):
+        for expected, given in [
+            ('foo\n ', 'foo\n '),
+            (' \nfoo', ' \nfoo'),
+            (' \nfoo\n ', ' \nfoo\n '),
+            (' \nfoo bar\n', ' \nfoo bar\n'),
+            (' \nfoo\nbar\n', ' \nfoo\nbar\n'),
+
+            ('\n foo', '\n foo'),
+            ('\n foo\n ', '\n foo\n '),
+            ('\n foo bar\n', '\n foo bar\n'),
+            ('\n foo\nbar\n', '\n foo\nbar\n'),
+        ]:
+            self._assert_returns(expected, given)
+
+    def test_does_not_change_newlines_and_space(self):
+        for expected, given in [
+            ('foo\n\n ', 'foo\n\n '),
+            (' \n\nfoo', ' \n\nfoo'),
+            (' \n\nfoo\n ', ' \n\nfoo\n '),
+            (' \n\nfoo bar\n', ' \n\nfoo bar\n'),
+            (' \n\nfoo\nbar\n', ' \n\nfoo\nbar\n'),
+
+            ('\n\n foo', '\n\n foo'),
+            ('\n\n foo\n ', '\n\n foo\n '),
+            ('\n\n foo bar\n', '\n\n foo bar\n'),
+            ('\n\n foo\nbar\n', '\n\n foo\nbar\n'),
+        ]:
+            self._assert_returns(expected, given)
+
+    def test_collapses_multiple_spaces(self):
+        self._assert_returns('foo ', given='foo  ')
+        self._assert_returns('foo ', given='foo   ')
+        self._assert_returns('foo ', given='foo    ')
+        self._assert_returns(' foo', given='  foo')
+        self._assert_returns(' foo', given='   foo')
+        self._assert_returns(' foo', given='    foo')
+        self._assert_returns('foo bar', given='foo  bar')
+        self._assert_returns('foo bar', given='foo   bar')
+        self._assert_returns('foo bar', given='foo    bar')
+        self._assert_returns('foo bar ', given='foo  bar  ')
+        self._assert_returns('foo bar ', given='foo   bar   ')
+        self._assert_returns('foo bar ', given='foo    bar    ')
+        self._assert_returns(' foo bar ', given='  foo  bar  ')
+        self._assert_returns(' foo bar ', given='   foo   bar   ')
+        self._assert_returns(' foo bar ', given='    foo    bar    ')
+
+    def test_collapses_multiple_spaces_with_newline(self):
+        self._assert_returns('foo \n', given='foo  \n')
+        self._assert_returns('foo \n', given='foo   \n')
+        self._assert_returns('foo \n', given='foo    \n')
+        self._assert_returns(' foo\n', given='  foo\n')
+        self._assert_returns(' foo\n', given='   foo\n')
+        self._assert_returns(' foo\n', given='    foo\n')
+        self._assert_returns('foo bar\n', given='foo  bar\n')
+        self._assert_returns('foo bar\n', given='foo   bar\n')
+        self._assert_returns('foo bar\n', given='foo    bar\n')
+        self._assert_returns('foo bar \n', given='foo  bar  \n')
+        self._assert_returns('foo bar \n', given='foo   bar   \n')
+        self._assert_returns('foo bar \n', given='foo    bar    \n')
+        self._assert_returns(' foo bar \n', given='  foo  bar  \n')
+        self._assert_returns(' foo bar \n', given='   foo   bar   \n')
+        self._assert_returns(' foo bar \n', given='    foo    bar    \n')
+
+    def test_collapses_multiple_spaces_with_newlines(self):
+        self._assert_returns('foo \n bar\n ', given='foo   \n   bar\n   ')
+        self._assert_returns('foo \n bar \n', given='foo   \n   bar   \n')
+
+    def test_replaces_single_tab_with_space(self):
+        self._assert_returns('foo ', given='foo\t')
+        self._assert_returns(' foo', given='\tfoo')
+        self._assert_returns(' foo ', given='\tfoo\t')
+
+    def test_replaces_single_tab_and_single_space_with_space(self):
+        self._assert_returns('foo ', given='foo \t')
+        self._assert_returns(' foo', given='\t foo')
+        self._assert_returns(' foo ', given='\t foo \t')
+
+    def test_replaces_tabs_and_spaces_with_single_space(self):
+        self._assert_returns('foo ', given='foo  \t')
+        self._assert_returns(' foo', given='\t  foo')
+        self._assert_returns(' foo ', given='\t  foo  \t')
+        self._assert_returns('foo ', given='foo \t\t')
+        self._assert_returns(' foo', given='\t\t foo')
+        self._assert_returns(' foo ', given='\t\t foo \t\t')
+
+        self._assert_returns('foo bar', given='foo  \t bar')
+        self._assert_returns('bar foo', given='bar\t  foo')
+        self._assert_returns('bar foo ', given='bar\t  foo  \t')
+        self._assert_returns('foo bar', given='foo \t\tbar')
+        self._assert_returns('bar foo', given='bar\t\t foo')
+        self._assert_returns('bar foo ', given='bar\t\t foo \t\t')
+
+    def test_collapses_multiple_tabs(self):
+        self._assert_returns('foo ', given='foo\t\t')
+        self._assert_returns('foo ', given='foo\t\t\t')
+        self._assert_returns(' foo', given='\t\tfoo')
+        self._assert_returns(' foo', given='\t\t\tfoo')
+
+        self._assert_returns('foo bar', given='foo\t\tbar')
+        self._assert_returns('foo bar', given='foo\t\t\tbar')
+        self._assert_returns(' foo bar', given='\t\tfoo bar')
+        self._assert_returns(' foo bar', given='\t\t\tfoo bar')
+
+    def test_replaces_tabs_and_spaces_with_single_space_keeps_newlines(self):
+        self._assert_returns('foo \n', given='foo  \t\n')
+        self._assert_returns(' foo\n', given='\t  foo\n')
+        self._assert_returns(' foo \n', given='\t  foo  \t\n')
+        self._assert_returns('foo \n', given='foo \t\t\n')
+        self._assert_returns(' foo\n', given='\t\t foo\n')
+        self._assert_returns(' foo \n', given='\t\t foo \t\t\n')
+
+        self._assert_returns('foo bar\n', given='foo  \t bar\n')
+        self._assert_returns('bar foo\n', given='bar\t  foo\n')
+        self._assert_returns('bar foo \n', given='bar\t  foo  \t\n')
+        self._assert_returns('foo bar\n', given='foo \t\tbar\n')
+        self._assert_returns('bar foo\n', given='bar\t\t foo\n')
+        self._assert_returns('bar foo \n', given='bar\t\t foo \t\t\n')
+
+    def test_collapses_multiple_tabs_keeps_newlines(self):
+        self._assert_returns('foo \n', given='foo\t\t\n')
+        self._assert_returns('foo \n', given='foo\t\t\t\n')
+        self._assert_returns(' foo\n', given='\t\tfoo\n')
+        self._assert_returns(' foo\n', given='\t\t\tfoo\n')
+
+        self._assert_returns('foo bar\n', given='foo\t\tbar\n')
+        self._assert_returns('foo bar\n', given='foo\t\t\tbar\n')
+        self._assert_returns(' foo bar\n', given='\t\tfoo bar\n')
+        self._assert_returns(' foo bar\n', given='\t\t\tfoo bar\n')
 
 
 class TestIndent(TestCase):
