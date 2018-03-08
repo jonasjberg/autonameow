@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
 import subprocess
 
 from extractors import ExtractorError
@@ -38,6 +39,9 @@ class PdfTextExtractor(AbstractTextExtractor):
 
         self.BLACKLISTED_TEXTLINES = frozenset([
             'Syntax Warning: Invalid Font Weight',
+        ])
+        self.BLACKLISTED_RE_TEXTLINES = frozenset([
+            re.compile(r'^Syntax Error:? .*'),
         ])
         self.init_cache()
 
