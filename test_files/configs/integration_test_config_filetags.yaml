@@ -30,4 +30,4 @@ RULES:
         exact_match: true
         ranking_bias: 1
 COMPATIBILITY:
-    autonameow_version: v0.5.5
+    autonameow_version: v0.5.6
