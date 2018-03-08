@@ -286,6 +286,54 @@ class TestQueryResponseFailure(TestCase):
                         expect_start='Failed query [',
                         expect_end=']->[{!s}] :: foo Bar'.format(uri))
 
+    def _check_repr(self, response, expect_start, expect_end):
+        actual = repr(response)
+        self.assertIsInstance(actual, str)
+        # Ignore the middle part with the FileObject hash.
+        self.assertTrue(actual.startswith(expect_start))
+        self.assertTrue(actual.endswith(expect_end))
+
+    def test___repr__with_arg_fileobject(self):
+        response = QueryResponseFailure(fileobject=uu.get_mock_fileobject())
+        self._check_repr(response,
+                         expect_start='[',
+                         expect_end=']->[unspecified MeowURI]')
+
+    def test___repr__with_arg_uri(self):
+        uri = uu.get_meowuri()
+        response = QueryResponseFailure(uri=uri)
+        self._check_repr(response,
+                         expect_start='[',
+                         expect_end=']->[{!s}]'.format(uri))
+
+    def test___repr__with_arg_msg(self):
+        response = QueryResponseFailure(msg='foo Bar')
+        self._check_repr(response,
+                         expect_start='[',
+                         expect_end=']->[unspecified MeowURI] :: foo Bar')
+
+    def test___repr__with_args_fileobject_uri(self):
+        uri = uu.get_meowuri()
+        response = QueryResponseFailure(fileobject=uu.get_mock_fileobject(),
+                                        uri=uri)
+        self._check_repr(response,
+                         expect_start='[',
+                         expect_end=']->[{!s}]'.format(uri))
+
+    def test___repr__with_args_fileobject_msg(self):
+        response = QueryResponseFailure(fileobject=uu.get_mock_fileobject(),
+                                        msg='foo Bar')
+        self._check_repr(response,
+                         expect_start='[',
+                         expect_end=']->[unspecified MeowURI] :: foo Bar')
+
+    def test___repr__with_args_uri_msg(self):
+        uri = uu.get_meowuri()
+        response = QueryResponseFailure(uri=uri, msg='foo Bar')
+        self._check_repr(response,
+                         expect_start='[',
+                         expect_end=']->[{!s}] :: foo Bar'.format(uri))
+
 
 class TestDataBundle(TestCase):
     @classmethod

@@ -76,16 +76,22 @@ class ExtractorRunner(object):
             assert callable(add_results_callback)
             self._add_results_callback = add_results_callback
         else:
+            # Throw away the results. For testing, etc.
             self._add_results_callback = lambda *_: None
 
-        self._available_extractors = set(extractors.ProviderClasses)
+        self._available_extractors = set()
+        self.exclude_slow = True
+
+        self.register(extractors.registry.all_providers)
+
+    def register(self, extractor_klasses):
+        self._available_extractors.update(extractor_klasses)
         if __debug__:
             log.debug('Initialized {!s} with {} available extractors'.format(
                 self.__class__.__name__, len(self._available_extractors)))
             for k in self._available_extractors:
-                log.debug('Available: {!s}'.format(str(k.__name__)))
-
-        self.exclude_slow = True
+                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+                log.debug('Available: {!s}'.format(k.name()))
 
     def start(self, fileobject, request_extractors=None, request_all=None):
         """
@@ -136,7 +142,8 @@ class ExtractorRunner(object):
                 len(selected), fileobject
             ))
             for k in selected:
-                log.debug('Prepared:  {!s}'.format(str(k.__name__)))
+                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+                log.debug('Prepared:  {!s}'.format(k.name()))
 
         if selected:
             # Run all prepared extractors.
@@ -150,7 +157,8 @@ class ExtractorRunner(object):
 
         if __debug__:
             def __format_string(_extractors):
-                return ', '.join(str(k.__name__) for k in _extractors)
+                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+                return ', '.join(k.name() for k in _extractors)
 
             if not requested_klasses.issubset(available):
                 na = requested_klasses.difference(available)
@@ -198,8 +206,7 @@ class ExtractorRunner(object):
 
             # TODO: [TD0034] Filter out known bad data.
             # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-            _results = wrap_provider_results(_extracted_data, _metainfo,
-                                             _extractor_instance)
+            _results = wrap_provider_results(_extracted_data, _metainfo, klass)
             _meowuri_prefix = klass.meowuri_prefix()
             self.store_results(fileobject, _meowuri_prefix, _results)
 

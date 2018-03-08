@@ -1,0 +1,233 @@
+# Data used by filename analyzer to find a new extension from a given
+# MIME-type and current extension.
+#
+# For instance, given this entry:
+#
+#     MIMETYPE application/octet-stream
+#         EXTENSION BLANK
+#         - BLANK
+#         EXTENSION azw3
+#         - azw3
+#         EXTENSION bin
+#         - bin
+#         - binary
+#
+# First, the analyzed file MIME-type must be 'application/octet-stream'.
+# Then, if it does not have a extension, the BLANK extension is used.
+# Otherwise, if the file extension is 'azw3', 'azw3' is used.
+# Alternatively, 'bin' is used if the file extension is either 'bin' or 'binary'.
+# If the file extension is something else, another entry is evaluated.
+
+# Note that all of these might be corrupt files.
+MIMETYPE application/octet-stream
+    EXTENSION BLANK
+    - BLANK
+    EXTENSION azw3
+    - azw3
+    EXTENSION bin
+    - bin
+    - binary
+    EXTENSION chm
+    - chm
+    EXTENSION gz.sig
+    - gz.sig
+    EXTENSION hex
+    - hex
+    EXTENSION mobi
+    - mobi
+    EXTENSION pdf
+    - pdf
+    EXTENSION prc
+    - prc
+    EXTENSION scpt
+    - scpt
+    EXTENSION sig
+    - sig
+    EXTENSION sln       # Visual Studio Solution
+    - sln
+    EXTENSION tar.gz.sig
+    - tar.gz.sig
+    EXTENSION txt
+    - txt
+
+MIMETYPE application/gzip
+    EXTENSION gz
+    - gz
+    EXTENSION tar.gz
+    - tar.gz
+
+MIMETYPE application/msword
+    EXTENSION doc
+    - doc
+
+MIMETYPE application/postscript
+    EXTENSION eps
+    - eps
+    EXTENSION ps
+    - ps
+
+MIMETYPE application/vnd.ms-powerpoint
+    EXTENSION ppt
+    - ppt
+
+MIMETYPE application/x-bzip2
+    EXTENSION tar.bz2
+    - tar.bz2
+
+MIMETYPE application/x-gzip
+    EXTENSION html.gz
+    - htm.gz
+    - html
+    - html.gz
+    - htm
+    EXTENSION tar.gz
+    - tgz
+    - tar.gz
+    EXTENSION txt.gz
+    - txt
+    - txt.gz
+    EXTENSION txt.tar.gz
+    - txt.tgz
+    - txt.tar.gz
+    EXTENSION w.gz      # CWEB source code
+    - w.gz
+
+MIMETYPE application/x-lzma
+    EXTENSION tar.lzma
+    - tar.lzma
+
+MIMETYPE application/zip
+    EXTENSION alfredworkflow
+    - alfredworkflow
+    EXTENSION epub
+    - epub
+    EXTENSION zip
+    - zip
+
+MIMETYPE audio/mpeg
+    EXTENSION mp3
+    - mp3
+
+MIMETYPE message/rfc822
+    EXTENSION mhtml     # Chrome Save as "Webpage, Single File"
+    - mhtml
+
+MIMETYPE text/html
+    EXTENSION html      # Not actually gzipped HTML
+    - htm.gz
+    - html
+    - html.gz
+    - htm
+    EXTENSION mhtml
+    - mhtml
+    EXTENSION txt
+    - txt
+
+MIMETYPE text/plain
+    EXTENSION bibtex
+    - bibtex
+    EXTENSION c
+    - c
+    EXTENSION cpp
+    - cpp
+    - c++
+    EXTENSION css
+    - css
+    EXTENSION csv
+    - csv
+    EXTENSION gemspec
+    - gemspec
+    EXTENSION h
+    - h
+    EXTENSION html
+    - html
+    - htm
+    EXTENSION java
+    - java
+    EXTENSION js
+    - js
+    EXTENSION json
+    - json
+    EXTENSION key
+    - key
+    EXTENSION log
+    - log
+    EXTENSION md
+    - markdown
+    - md
+    - mkd
+    EXTENSION puml
+    - puml
+    EXTENSION py
+    - py
+    - python
+    EXTENSION rake
+    - rake
+    EXTENSION sh
+    - bash
+    - sh
+    EXTENSION spec
+    - spec
+    EXTENSION txt
+    - txt
+    - txt.gz
+    EXTENSION yaml
+    - yaml
+
+MIMETYPE text/x-c
+    EXTENSION c
+    - txt
+    - c
+    EXTENSION h
+    - h
+    EXTENSION w
+    - w
+MIMETYPE text/x-c++
+    EXTENSION cpp
+    - txt
+    - cpp
+    - c++
+    EXTENSION h
+    - h
+
+MIMETYPE text/x-env
+    # Leave shell-scripts without extension as-is.
+    EXTENSION BLANK
+    - BLANK
+    EXTENSION sh
+    - sh
+
+MIMETYPE text/x-makefile
+    EXTENSION BLANK
+    - BLANK
+    EXTENSION asm   # Incorrect MIME-type
+    - asm
+
+MIMETYPE text/x-shellscript
+    EXTENSION py
+    - py
+    EXTENSION sh
+    - txt
+    - bash
+    - sh
+
+MIMETYPE text/x-tex
+    # LaTeX-related
+    EXTENSION log
+    - log
+    EXTENSION tex
+    - tex
+
+MIMETYPE text/xml
+    EXTENSION cbp
+    - cbp
+    EXTENSION workspace   # Intellij IDE project metadata
+    - workspace
+
+MIMETYPE video/mpeg
+    EXTENSION VOB
+    - VOB
+    EXTENSION mpg
+    - mpeg
+    EXTENSION vob
+    - vob

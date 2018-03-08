@@ -54,6 +54,10 @@ class TestRuleMethods(TestCase):
         actual = hash(self.rule)
         self.assertIsNotNone(actual)
 
+    def test_stringify_dummy_rule(self):
+        s = self.rule.stringify()
+        self.assertIsInstance(s, str)
+
 
 class TestRuleComparison(TestCase):
     def setUp(self):
@@ -374,7 +378,7 @@ class TestRuleConditionFromValidInput(TestCase):
         self._is_valid(uri, 'tar.*')
 
     def test_condition_filesystem_extension(self):
-        uri = uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT
+        uri = uuconst.MEOWURI_FS_XPLAT_EXTENSION
         self._is_valid(uri, 'pdf')
         self._is_valid(uri, '.*')
         self._is_valid(uri, '.?')
@@ -418,8 +422,8 @@ class TestRuleConditionGivenInvalidExpression(TestCase):
         self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX, '')
 
     def test_invalid_condition_filesystem_extension(self):
-        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, None)
-        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, '')
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_EXTENSION, None)
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_EXTENSION, '')
 
 
 class TestRuleConditionGivenInvalidMeowURI(TestCase):
@@ -493,7 +497,7 @@ class TestGetValidRuleCondition(TestCase):
         self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application/pdf')
         self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/rtf')
         self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'image/*')
-        self._aV(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf')
+        self._aV(uuconst.MEOWURI_FS_XPLAT_EXTENSION, 'pdf')
         self._aV(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, 'foo.pdf')
         self._aV(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL, '~/temp/foo')
 
@@ -505,7 +509,7 @@ class TestGetValidRuleCondition(TestCase):
         self._aR(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application/*//pdf')
         self._aR(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application///pdf')
         self._aR(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/')
-        self._aR(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, '')
+        self._aR(uuconst.MEOWURI_FS_XPLAT_EXTENSION, '')
         self._aR(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, None)
         self._aR(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL, '')
 
@@ -534,22 +538,27 @@ class TestIsValidSourceSpecification(TestCase):
         _aF('metadata.exiftool.PDF:CreateDate')
 
     def test_good_source_returns_true(self):
-        def _aT(test_input):
-            self.assertTrue(is_valid_source(test_input))
-
-        _aT(MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_CONTENTS_TEXT))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_AUTHOR))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_CREATOR))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_PRODUCER))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_SUBJECT))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_TAGS))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_DATECREATED))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED))
-        _aT(MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE))
-        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL))
-        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT))
-        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE))
+        for given_str in [
+            uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE,
+            uuconst.MEOWURI_GEN_CONTENTS_TEXT,
+            uuconst.MEOWURI_GEN_METADATA_AUTHOR,
+            uuconst.MEOWURI_GEN_METADATA_CREATOR,
+            uuconst.MEOWURI_GEN_METADATA_PRODUCER,
+            uuconst.MEOWURI_GEN_METADATA_SUBJECT,
+            uuconst.MEOWURI_GEN_METADATA_TAGS,
+            uuconst.MEOWURI_GEN_METADATA_DATECREATED,
+            uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED,
+            uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
+            uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
+            uuconst.MEOWURI_FS_XPLAT_EXTENSION,
+            uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        ]:
+            with self.subTest(given=given_str):
+                given = uu.as_meowuri(given_str)
+                self.assertTrue(
+                    is_valid_source(given),
+                    'Unexpectedly not a valid source: {!s}'.format(given)
+                )
 
 
 class TestParseConditions(TestCase):

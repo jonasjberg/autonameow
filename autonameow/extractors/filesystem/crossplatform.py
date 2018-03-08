@@ -22,9 +22,6 @@
 import os
 from datetime import datetime
 
-from core import types
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from extractors import BaseExtractor
 
 
@@ -32,68 +29,6 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['*/*']
     MEOWURI_LEAF = 'xplat'
     IS_SLOW = False
-
-    FIELD_LOOKUP = {
-        'abspath.full': {'coercer': types.AW_PATH, 'multivalued': False},
-        'basename.full': {
-            'coercer': types.AW_PATHCOMPONENT,
-            'multivalued': False
-        },
-        'basename.extension': {
-            'coercer': types.AW_PATHCOMPONENT,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
-            ],
-        },
-        'basename.suffix': {
-            'coercer': types.AW_PATHCOMPONENT,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
-            ]
-        },
-        'basename.prefix': {
-            'coercer': types.AW_PATHCOMPONENT,
-            'multivalued': False,
-        },
-        'pathname.full': {'coercer': types.AW_PATH, 'multivalued': False},
-        'pathname.parent': {'coercer': types.AW_PATH, 'multivalued': False},
-        'contents.mime_type': {
-            'coercer': types.AW_MIMETYPE,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
-            ],
-            'generic_field': 'mime_type'
-        },
-        'date_accessed': {
-            'coercer': types.AW_TIMEDATE,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Date, probability=0.1),
-                WeightedMapping(fields.DateTime, probability=0.1),
-            ]
-        },
-        'date_created': {
-            'coercer': types.AW_TIMEDATE,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
-                WeightedMapping(fields.DateTime, probability=1),
-            ],
-            'generic_field': 'date_created'
-        },
-        'date_modified': {
-            'coercer': types.AW_TIMEDATE,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Date, probability=0.25),
-                WeightedMapping(fields.DateTime, probability=0.25),
-            ],
-            'generic_field': 'date_modified'
-        }
-    }
 
     def extract(self, fileobject, **kwargs):
         out = dict()
@@ -103,14 +38,14 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
 
     def _collect_from_fileobject(self, fileobject):
         _datasources = [
-            ('abspath.full', fileobject.abspath),
-            ('basename.full', fileobject.filename),
-            ('basename.extension', fileobject.basename_suffix),
-            ('basename.suffix', fileobject.basename_suffix),
-            ('basename.prefix', fileobject.basename_prefix),
-            ('pathname.full', fileobject.pathname),
-            ('pathname.parent', fileobject.pathparent),
-            ('contents.mime_type', fileobject.mime_type)
+            ('abspath_full', fileobject.abspath),
+            ('basename_full', fileobject.filename),
+            ('extension', fileobject.basename_suffix),
+            ('basename_suffix', fileobject.basename_suffix),
+            ('basename_prefix', fileobject.basename_prefix),
+            ('pathname_full', fileobject.pathname),
+            ('pathname_parent', fileobject.pathparent),
+            ('mime_type', fileobject.mime_type)
         ]
 
         result = dict()

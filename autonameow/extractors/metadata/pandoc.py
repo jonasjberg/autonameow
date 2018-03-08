@@ -27,8 +27,6 @@ import subprocess
 import util
 from core import constants as C
 from core import types
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
     ExtractorError
@@ -53,87 +51,6 @@ class PandocMetadataExtractor(BaseExtractor):
         'text/*', 'application/epub+zip'
     ]
     IS_SLOW = False
-
-    FIELD_LOOKUP = {
-        'author': {
-            'coercer': types.AW_STRING,
-            'multivalued': True,
-            'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
-            ],
-            'generic_field': 'author'
-        },
-        'author-meta': {
-            'coercer': types.AW_STRING,
-            'multivalued': True,
-            'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
-            ],
-            'generic_field': 'author'
-        },
-        'date-meta': {
-            'coercer': types.AW_DATE,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
-                WeightedMapping(fields.DateTime, probability=1),
-            ],
-            'generic_field': 'date_created'
-        },
-        'date': {
-            'coercer': types.AW_DATE,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
-                WeightedMapping(fields.DateTime, probability=1),
-            ],
-            'generic_field': 'date_created'
-        },
-        'pagetitle': {
-            'coercer': types.AW_STRING,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Title, probability=0.4),
-            ],
-            'generic_field': 'title'
-        },
-        'subtitle': {
-            'coercer': types.AW_STRING,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Title, probability=0.25),
-            ],
-            'generic_field': 'title'
-        },
-        'table-of-contents': {
-            'coercer': types.AW_STRING,
-            'multivalued': True,
-        },
-        'title-prefix': {
-            'coercer': types.AW_STRING,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Title, probability=0.5),
-            ],
-            'generic_field': 'title'
-        },
-        'tags': {
-            'coercer': types.AW_STRING,
-            'multivalued': True,
-            'mapped_fields': [
-                WeightedMapping(fields.Tags, probability=1),
-            ],
-            'generic_field': 'tags'
-        },
-        'title': {
-            'coercer': types.AW_STRING,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1),
-            ],
-            'generic_field': 'title'
-        },
-    }
 
     def extract(self, fileobject, **kwargs):
         self.log.debug('{!s}: Starting extraction'.format(self))

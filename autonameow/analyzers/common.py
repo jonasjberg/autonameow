@@ -143,7 +143,7 @@ class BaseAnalyzer(object):
 
         # TODO: [TD0034] Filter out known bad data.
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-        wrapped = wrap_provider_results(self._intermediate_results, _metainfo, self)
+        wrapped = wrap_provider_results(self._intermediate_results, _metainfo, self.__class__)
 
         meowuri_prefix = self.meowuri_prefix()
 
@@ -189,9 +189,10 @@ class BaseAnalyzer(object):
             self.log.info('Requested data unavailable: "generic.contents.text"')
         return text
 
-    def metainfo(self):
+    @classmethod
+    def metainfo(cls):
         # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
-        return self.FIELD_LOOKUP
+        return dict(cls.FIELD_LOOKUP)
 
     @classmethod
     def meowuri_prefix(cls):
@@ -258,3 +259,8 @@ class BaseAnalyzer(object):
 
     def __str__(self):
         return self.__class__.__name__
+
+    @classmethod
+    def name(cls):
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        return cls.__name__

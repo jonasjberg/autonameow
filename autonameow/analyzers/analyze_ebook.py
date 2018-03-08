@@ -32,8 +32,6 @@ from core import (
     persistence,
     types
 )
-from core.namebuilder import fields
-from core.model import WeightedMapping
 from core.model.normalize import (
     normalize_full_human_name,
     normalize_full_title
@@ -44,8 +42,13 @@ from util.text import (
     find_edition,
     html_unescape,
     normalize_unicode,
+    remove_blacklisted_lines,
     string_similarity,
     RE_EDITION
+)
+from util.text.humannames import (
+    filter_multiple_names,
+    split_multiple_names
 )
 
 
@@ -60,8 +63,9 @@ BLACKLISTED_ISBN_NUMBERS = [
     '1101100001'
 ]
 
-IGNORED_TEXTLINES = frozenset([
-    'This page intentionally left blank'
+BLACKLISTED_TEXTLINES = frozenset([
+    'This page intentionally left blank',
+    'Cover'
 ])
 
 
@@ -78,43 +82,43 @@ class EbookAnalyzer(BaseAnalyzer):
                           'image/vnd.djvu']
     FIELD_LOOKUP = {
         'author': {
-            'coercer': types.AW_STRING,
-            'multivalued': True,
+            'coercer': 'aw_string',
+            'multivalued': 'true',
             'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
+                {'WeightedMapping': {'field': 'Author', 'probability': '1'}},
             ],
             'generic_field': 'author'
         },
         'date': {
-            'coercer': types.AW_DATE,
-            'multivalued': False,
+            'coercer': 'aw_date',
+            'multivalued': 'false',
             'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
-                WeightedMapping(fields.DateTime, probability=1),
+                {'WeightedMapping': {'field': 'Date', 'probability': '1'}},
+                {'WeightedMapping': {'field': 'DateTime', 'probability': '1'}},
             ],
             'generic_field': 'date_created'
         },
         'edition': {
-            'coercer': types.AW_INTEGER,
-            'multivalued': False,
+            'coercer': 'aw_integer',
+            'multivalued': 'false',
             'mapped_fields': [
-                WeightedMapping(fields.Edition, probability=1),
+                {'WeightedMapping': {'field': 'Edition', 'probability': '1'}},
             ],
             'generic_field': 'edition'
         },
         'publisher': {
-            'coercer': types.AW_STRING,
-            'multivalued': False,
+            'coercer': 'aw_string',
+            'multivalued': 'false',
             'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=1),
+                {'WeightedMapping': {'field': 'Publisher', 'probability': '1'}},
             ],
             'generic_field': 'publisher'
         },
         'title': {
-            'coercer': types.AW_STRING,
-            'multivalued': False,
+            'coercer': 'aw_string',
+            'multivalued': 'false',
             'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1),
+                {'WeightedMapping': {'field': 'Title', 'probability': '1'}},
             ],
             'generic_field': 'title'
         },
@@ -153,7 +157,7 @@ class EbookAnalyzer(BaseAnalyzer):
         if not _maybe_text:
             return
 
-        self.text = remove_ignored_textlines(_maybe_text)
+        self.text = remove_blacklisted_lines(_maybe_text, BLACKLISTED_TEXTLINES)
 
         # TODO: [TD0114] Check metadata for ISBNs.
         # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier', "XMP:Subject"
@@ -169,7 +173,14 @@ class EbookAnalyzer(BaseAnalyzer):
 
         # TODO: [TD0134] Consolidate splitting up text into chunks.
         # Search the text in arbitrarily sized chunks.
-        chunk_size = int(num_text_lines * 0.01)
+        if is_epub_ebook(self.fileobject):
+            # TODO: The epub text extractor repeats text a lot of text.
+            # Use bigger chunks for epub text in order to catch ISBNs.
+            CHUNK_PERCENTAGE = 0.05
+        else:
+            CHUNK_PERCENTAGE = 0.01
+
+        chunk_size = int(num_text_lines * CHUNK_PERCENTAGE)
         if chunk_size < 1:
             chunk_size = 1
         self.log.debug('Got {} lines of text. Using chunk size {}'.format(
@@ -197,11 +208,11 @@ class EbookAnalyzer(BaseAnalyzer):
             'Searching for eISBNs in chunk 1 lines {}-{} '
             '({} lines)'.format(_chunk1_start, _chunk1_end, _chunk_1_numlines)
         )
-        isbns = find_ebook_isbns_in_text(_text_chunk_1)
+        isbns = extract_ebook_isbns_from_text(_text_chunk_1)
         if not isbns:
             # Find e-ISBNs in chunk #2
             _text_chunk_2 = extract_lines(self.text, _chunk2_start, _chunk2_end)
-            isbns = find_ebook_isbns_in_text(_text_chunk_2)
+            isbns = extract_ebook_isbns_from_text(_text_chunk_2)
             if not isbns:
                 # Find any ISBNs in chunk #1
                 isbns = extract_isbns_from_text(_text_chunk_1)
@@ -210,6 +221,7 @@ class EbookAnalyzer(BaseAnalyzer):
                     isbns = extract_isbns_from_text(_text_chunk_2)
 
         if isbns:
+            isbns = deduplicate_isbns(isbns)
             isbns = filter_isbns(isbns, self._isbn_num_blacklist)
             for isbn in isbns:
                 self.log.debug('Extracted ISBN: {!s}'.format(isbn))
@@ -362,41 +374,15 @@ class EbookAnalyzer(BaseAnalyzer):
         return isbnlib is not None
 
 
-def remove_ignored_textlines(text):
-    """
-    Removes any text lines that match those in 'IGNORED_TEXTLINES'.
-
-    Args:
-        text: The text to process as a Unicode string.
-
-    Returns:
-        The given text with any lines matching those in 'IGNORED_TEXTLINES'
-        removed, as a Unicode string.
-    """
-    out = []
-
-    for line in text.splitlines():
-        if line in IGNORED_TEXTLINES:
-            continue
-        out.append(line)
-
-    return '\n'.join(out)
-
-
-def find_ebook_isbns_in_text(text):
+def extract_ebook_isbns_from_text(text):
     sanity.check_internal_string(text)
 
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
 
     match = RE_E_ISBN.search(text)
-    if not match:
-        return []
-
-    possible_isbns = isbnlib.get_isbnlike(match.group(0))
-    if possible_isbns:
-        return [isbnlib.get_canonical_isbn(i)
-                for i in possible_isbns if validate_isbn(i)]
-    return []
+    if match:
+        return extract_isbns_from_text(match.group(0))
+    return list()
 
 
 def extract_isbns_from_text(text):
@@ -406,7 +392,7 @@ def extract_isbns_from_text(text):
     if possible_isbns:
         return [isbnlib.get_canonical_isbn(i)
                 for i in possible_isbns if validate_isbn(i)]
-    return []
+    return list()
 
 
 def validate_isbn(possible_isbn):
@@ -421,6 +407,10 @@ def validate_isbn(possible_isbn):
     return isbn_number
 
 
+def deduplicate_isbns(isbn_list):
+    return list(set(isbn_list))
+
+
 def filter_isbns(isbn_list, isbn_blacklist):
     # TODO: [TD0034] Filter out known bad data.
     # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
@@ -428,9 +418,6 @@ def filter_isbns(isbn_list, isbn_blacklist):
         return []
 
     sanity.check_isinstance(isbn_list, list)
-
-    # Remove any duplicates.
-    isbn_list = list(set(isbn_list))
 
     # Remove known bad ISBN numbers.
     isbn_list = [n for n in isbn_list if n and n not in isbn_blacklist]
@@ -498,18 +485,17 @@ class ISBNMetadata(object):
         if not value:
             return
 
+        values = value
         if not isinstance(value, list):
-            value = [value]
+            values = [values]
 
         # TODO: [TD0112] Add some sort of system for normalizing entities.
         # Fix any malformed entries.
         _author_list = []
-        for element in value:
-            sanity.check_internal_string(element)
-
+        for author in values:
             # Handle strings like 'Foo Bar [and Gibson Meow]'
-            if re.match(r'.*\[.*\].*', element):
-                _splits = element.split('[')
+            if re.match(r'.*\[.*\].*', author):
+                _splits = author.split('[')
                 _cleaned_splits = [
                     re.sub(r'[\[\]]', '', s)
                     for s in _splits
@@ -524,13 +510,15 @@ class ISBNMetadata(object):
                 ]
                 _author_list.extend(_cleaned_splits)
             else:
-                _author_list.append(element)
+                _author_list.append(author)
 
         stripped_author_list = [a.strip() for a in _author_list if a]
+        fixed_author_list = split_multiple_names(stripped_author_list)
+        filtered_author_list = filter_multiple_names(fixed_author_list)
 
-        self._authors = stripped_author_list
+        self._authors = filtered_author_list
         self._normalized_authors = [
-            normalize_full_human_name(a) for a in stripped_author_list if a
+            normalize_full_human_name(a) for a in filtered_author_list if a
         ]
 
     @property
@@ -695,6 +683,7 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
         else:
             _sim_publisher = FIELDS_MISSING_SIMILARITY
 
+        # TODO: [TD0181] Use machine learning in ISBN metadata de-duplication.
         # TODO: Arbitrary threshold values..
         # Solving "properly" requires machine learning techniques; HMM? Bayes?
         log.debug('Comparing {!s} to {!s} ..'.format(self, other))
@@ -768,3 +757,7 @@ m{} = ISBNMetadata(
     title='{}',
     year='{}'
 )'''.format(n, m.authors, m.language, m.publisher, m.isbn10, m.isbn13, m.title, m.year))
+
+
+def is_epub_ebook(fileobject):
+    return fileobject.mime_type == 'application/epub+zip'

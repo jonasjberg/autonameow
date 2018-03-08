@@ -44,6 +44,11 @@ class EpubTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
     IS_SLOW = False
 
+    def __init__(self):
+        super().__init__()
+
+        self.init_cache()
+
     def extract_text(self, fileobject):
         self.log.debug('Extracting raw text from EPUB file ..')
         result = extract_text_with_ebooklib(fileobject.abspath)

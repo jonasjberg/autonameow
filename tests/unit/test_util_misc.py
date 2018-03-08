@@ -28,10 +28,7 @@ from unittest.mock import (
 )
 
 from util.misc import (
-    contains_none,
     count_dict_recursive,
-    expand_meowuri_data_dict,
-    flatten_dict,
     flatten_sequence_type,
     git_commit_hash,
     is_executable,
@@ -44,44 +41,44 @@ import unit.utils as uu
 
 
 DUMMY_RESULTS_DICT = {
-    'filesystem': {
-        'basename': {
-            'full': 'a',
-            'extension': 'b'
+    'A': {
+        'A1': {
+            'A1A': 'a',
+            'A1B': 'b'
         },
-        'pathname': {
-            'full': 'c',
+        'A2': {
+            'foo': 'c',
         },
-        'contents': {
-            'mime_type': 'd'
+        'A3': {
+            'A3A': 'd'
         }
     },
-    'contents': {
-        'textual': {
-            'raw_text': 'e',
-            'number_pages': 'f',
+    'B': {
+        'B1': {
+            'B1A': 'e',
+            'B1B': 'foo',
         },
-        'visual': {
-            'ocr_text': 'g',
-            'ocr_tags': 'h'},
-        'binary': {
-            'boolean_true': True,
-            'boolean_false': False
+        'B2': {
+            'B2A': 'g',
+            'B2B': 'h'},
+        'B3': {
+            'B3A': True,
+            'B3B': False
         }
     },
 }
 
 DUMMY_FLATTENED_RESULTS_DICT = {
-    'filesystem.basename.full': 'a',
-    'filesystem.basename.extension': 'b',
-    'filesystem.pathname.full': 'c',
-    'filesystem.contents.mime_type': 'd',
-    'contents.textual.raw_text': 'e',
-    'contents.textual.number_pages': 'f',
-    'contents.visual.ocr_text': 'g',
-    'contents.visual.ocr_tags': 'h',
-    'contents.binary.boolean_true': True,
-    'contents.binary.boolean_false': False,
+    'A.A1.A1A': 'a',
+    'A.A1.A1B': 'b',
+    'A.A2.foo': 'c',
+    'A.A3.A3A': 'd',
+    'B.B1.B1A': 'e',
+    'B.B1.B1B': 'foo',
+    'B.B2.B2A': 'g',
+    'B.B2.B2B': 'h',
+    'B.B3.B3A': True,
+    'B.B3.B3B': False,
 }
 
 
@@ -110,29 +107,26 @@ class TestMultisetCount(TestCase):
     def test_list_duplicate_count_returns_none_for_none(self):
         self.assertIsNone(multiset_count(None))
 
+    def _check(self, given, expect):
+        self.assertEqual(expect, multiset_count(given))
+
     def test_list_duplicate_count_returns_expected_no_duplicates(self):
-        self.assertEqual(multiset_count(['a', 'b', 'c']),
-                         {'a': 1, 'b': 1, 'c': 1})
+        self._check(given=['a', 'b', 'c'], expect={'a': 1, 'b': 1, 'c': 1})
 
     def test_list_duplicate_count_returns_expected_one_duplicate(self):
-        self.assertEqual(multiset_count(['a', 'a', 'c']),
-                         {'a': 2, 'c': 1})
+        self._check(given=['a', 'a', 'c'], expect={'a': 2, 'c': 1})
 
     def test_list_duplicate_count_returns_expected_only_duplicates(self):
-        self.assertEqual(multiset_count(['a', 'a', 'a']),
-                         {'a': 3})
+        self._check(given=['a', 'a', 'a'], expect={'a': 3})
 
     def test_list_duplicate_count_returns_expected_no_duplicate_one_none(self):
-        self.assertEqual(multiset_count(['a', None, 'b']),
-                         {None: 1, 'a': 1, 'b': 1})
+        self._check(given=['a', None, 'b'], expect={None: 1, 'a': 1, 'b': 1})
 
     def test_list_duplicate_count_returns_expected_one_duplicate_one_none(self):
-        self.assertEqual(multiset_count(['b', None, 'b']),
-                         {None: 1, 'b': 2})
+        self._check(given=['b', None, 'b'], expect={None: 1, 'b': 2})
 
     def test_list_duplicate_count_returns_expected_no_duplicate_two_none(self):
-        self.assertEqual(multiset_count(['a', None, 'b', None]),
-                         {None: 2, 'a': 1, 'b': 1})
+        self._check(given=['a', None, 'b', None], expect={None: 2, 'a': 1, 'b': 1})
 
 
 class TestFlattenSequenceType(TestCase):
@@ -145,100 +139,37 @@ class TestFlattenSequenceType(TestCase):
         actual = flatten_sequence_type(['foo', 1])
         self.assertEqual(['foo', 1], actual)
 
+    def _check(self, given, expect):
+        actual = flatten_sequence_type(given)
+        self.assertEqual(expect, actual)
+
     def test_returns_flat_tuple_as_is(self):
-        actual = flatten_sequence_type(('foo', 1))
-        self.assertEqual(('foo', 1), actual)
+        self._check(given=('foo', 1),
+                    expect=('foo', 1))
 
     def test_flattens_nested_list(self):
-        actual = flatten_sequence_type(['foo', 1, [2, 3]])
-        self.assertEqual(['foo', 1, 2, 3], actual)
+        self._check(given=['foo', 1, [2, 3]],
+                    expect=['foo', 1, 2, 3])
 
     def test_flattens_nested_tuple(self):
-        actual = flatten_sequence_type(('foo', 1, (2, 3)))
-        self.assertEqual(('foo', 1, 2, 3), actual)
+        self._check(given=('foo', 1, (2, 3)),
+                    expect=('foo', 1, 2, 3))
 
     def test_flattens_list_nested_in_tuple(self):
-        actual = flatten_sequence_type(('foo', 1, [2, 3]))
-        self.assertEqual(('foo', 1, 2, 3), actual)
+        self._check(given=('foo', 1, [2, 3]),
+                    expect=('foo', 1, 2, 3))
 
     def test_flattens_tuple_nested_in_list(self):
-        actual = flatten_sequence_type(['foo', 1, (2, 3)])
-        self.assertEqual(['foo', 1, 2, 3], actual)
+        self._check(given=['foo', 1, (2, 3)],
+                    expect=['foo', 1, 2, 3])
 
     def test_flattens_multiple_nested_tuples(self):
-        actual = flatten_sequence_type(('foo', 1, (2, 3), (4, (5, 6, (7, 8)))))
-        self.assertEqual(('foo', 1, 2, 3, 4, 5, 6, 7, 8), actual)
+        self._check(given=('foo', 1, (2, 3), (4, (5, 6, (7, 8)))),
+                    expect=('foo', 1, 2, 3, 4, 5, 6, 7, 8))
 
     def test_flattens_multiple_nested_tuples_and_lists(self):
-        actual = flatten_sequence_type(('foo', 1, [2, 3], (4, [5, 6, (7, 8)])))
-        self.assertEqual(('foo', 1, 2, 3, 4, 5, 6, 7, 8), actual)
-
-
-class TestFlattenDict(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.INPUT = DUMMY_RESULTS_DICT
-        self.EXPECTED = DUMMY_FLATTENED_RESULTS_DICT
-
-    def test_raises_type_error_for_invalid_input(self):
-        with self.assertRaises(TypeError):
-            flatten_dict(None)
-            flatten_dict([])
-            flatten_dict('')
-
-    def test_returns_expected_type(self):
-        actual = flatten_dict(self.INPUT)
-
-        self.assertIsInstance(actual, dict)
-
-    def test_returns_expected_len(self):
-        actual = flatten_dict(self.INPUT)
-        self.assertEqual(len(actual), 10)
-
-    def test_flattened_dict_contains_expected(self):
-        actual = flatten_dict(self.INPUT)
-
-        for k, v in self.EXPECTED.items():
-            self.assertEqual(actual[k], self.EXPECTED[k])
-
-
-class TestFlattenDictWithRawMetadata(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.INPUT = {
-            '_raw_metadata': {
-                'CreationDate': '2016-01-11',
-                'Creator': 'Chromium',
-                'ModDate': '2016-01-11 12:41:32',
-                'Producer': 'Skia/PDF',
-                'encrypted': False,
-                'number_pages': 2,
-                'paginated': True
-            }
-        }
-        self.EXPECTED = {
-            '_raw_metadata.CreationDate': '2016-01-11',
-            '_raw_metadata.Creator': 'Chromium',
-            '_raw_metadata.ModDate': '2016-01-11 12:41:32',
-            '_raw_metadata.Producer': 'Skia/PDF',
-            '_raw_metadata.encrypted': False,
-            '_raw_metadata.number_pages': 2,
-            '_raw_metadata.paginated': True,
-        }
-
-    def test_returns_expected_type(self):
-        actual = flatten_dict(self.INPUT)
-        self.assertIsInstance(actual, dict)
-
-    def test_returns_expected_len(self):
-        actual = flatten_dict(self.INPUT)
-        self.assertEqual(len(actual), 7)
-
-    def test_flattened_dict_contains_expected(self):
-        actual = flatten_dict(self.INPUT)
-
-        for k, v in self.EXPECTED.items():
-            self.assertEqual(actual[k], self.EXPECTED[k])
+        self._check(given=('foo', 1, [2, 3], (4, [5, 6, (7, 8)])),
+                    expect=('foo', 1, 2, 3, 4, 5, 6, 7, 8))
 
 
 class TestCountDictRecursive(TestCase):
@@ -258,104 +189,59 @@ class TestCountDictRecursive(TestCase):
         self.assertEqual(count_dict_recursive({'foo': {'bar': {}}}), 0)
 
     def test_returns_zero_given_empty_containers(self):
-        def _assert_zero(test_data):
+        def _assert_zero_count(test_data):
             self.assertEqual(count_dict_recursive(test_data), 0)
 
-        _assert_zero({'a': []})
-        _assert_zero({'a': [[]]})
-        _assert_zero({'a': [None]})
-        _assert_zero({'a': [None, None]})
-        _assert_zero({'a': {'b': []}})
-        _assert_zero({'a': {'b': [[]]}})
-        _assert_zero({'a': {'b': [None]}})
-        _assert_zero({'a': {'b': [None, None]}})
-        _assert_zero({'a': {'b': {'c': []}}})
-        _assert_zero({'a': {'b': {'c': [[]]}}})
-        _assert_zero({'a': {'b': {'c': [None]}}})
-        _assert_zero({'a': {'b': {'c': [None, None]}}})
+        _assert_zero_count({'a': []})
+        _assert_zero_count({'a': [[]]})
+        _assert_zero_count({'a': [None]})
+        _assert_zero_count({'a': [None, None]})
+        _assert_zero_count({'a': {'b': []}})
+        _assert_zero_count({'a': {'b': [[]]}})
+        _assert_zero_count({'a': {'b': [None]}})
+        _assert_zero_count({'a': {'b': [None, None]}})
+        _assert_zero_count({'a': {'b': {'c': []}}})
+        _assert_zero_count({'a': {'b': {'c': [[]]}}})
+        _assert_zero_count({'a': {'b': {'c': [None]}}})
+        _assert_zero_count({'a': {'b': {'c': [None, None]}}})
 
     def test_returns_expected_count(self):
-        def _assert_count(test_data, expect_count):
-            self.assertEqual(count_dict_recursive(test_data), expect_count)
+        def _assert_count_is(expected, given):
+            self.assertEqual(expected, count_dict_recursive(given))
 
-        _assert_count({'a': 'foo'}, 1)
-        _assert_count({'a': 'foo', 'b': None}, 1)
-        _assert_count({'a': 'foo', 'b': []}, 1)
-        _assert_count({'a': 'foo', 'b': 'bar'}, 2)
-        _assert_count({'a': 'foo', 'b': ['bar']}, 2)
-        _assert_count({'a': 'foo', 'b': ['c', 'd']}, 3)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', None]}, 3)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', []]}, 3)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e']}, 4)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': None}, 4)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': []}, 4)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['']}, 4)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g']}, 5)
-        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g', 'h']}, 6)
-
-
-class TestExpandMeowURIDataDict(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.EXPECTED = DUMMY_RESULTS_DICT
-        self.INPUT = DUMMY_FLATTENED_RESULTS_DICT
-
-    def test_raises_type_error_for_invalid_input(self):
-        with self.assertRaises(TypeError):
-            expand_meowuri_data_dict(None)
-            expand_meowuri_data_dict([])
-            expand_meowuri_data_dict('')
-
-    def test_returns_expected_type(self):
-        actual = expand_meowuri_data_dict(self.INPUT)
-
-        self.assertIsInstance(actual, dict)
-
-    def test_returns_expected_len(self):
-        actual = len(expand_meowuri_data_dict(self.INPUT))
-        expected = len(self.EXPECTED)
-
-        self.assertEqual(actual, expected)
-
-    def test_expanded_dict_contains_all_expected(self):
-        actual = expand_meowuri_data_dict(self.INPUT)
-        self.assertDictEqual(actual, self.EXPECTED)
-
-    def test_expanded_dict_contain_expected_first_level(self):
-        actual = expand_meowuri_data_dict(self.INPUT)
-        self.assertIn('filesystem', actual)
-        self.assertIn('contents', actual)
-
-    def test_expanded_dict_contain_expected_second_level(self):
-        actual = expand_meowuri_data_dict(self.INPUT)
-        actual_filesystem = actual.get('filesystem')
-        actual_contents = actual.get('contents')
-
-        self.assertIn('basename', actual_filesystem)
-        self.assertIn('pathname', actual_filesystem)
-        self.assertIn('contents', actual_filesystem)
-        self.assertIn('textual', actual_contents)
-        self.assertIn('visual', actual_contents)
-        self.assertIn('binary', actual_contents)
+        _assert_count_is(1, given={'a': 'foo'})
+        _assert_count_is(1, given={'a': 'foo', 'b': None})
+        _assert_count_is(1, given={'a': 'foo', 'b': []})
+        _assert_count_is(2, given={'a': 'foo', 'b': 'bar'})
+        _assert_count_is(2, given={'a': 'foo', 'b': ['bar']})
+        _assert_count_is(3, given={'a': 'foo', 'b': ['c', 'd']})
+        _assert_count_is(3, given={'a': 'foo', 'b': ['c', 'd', None]})
+        _assert_count_is(3, given={'a': 'foo', 'b': ['c', 'd', []]})
+        _assert_count_is(4, given={'a': 'foo', 'b': ['c', 'd', 'e']})
+        _assert_count_is(4, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': None})
+        _assert_count_is(4, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': []})
+        _assert_count_is(4, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['']})
+        _assert_count_is(5, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['g']})
+        _assert_count_is(6, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['g', 'h']})
 
 
 class TestNestedDictGet(TestCase):
     def test_get_nested_value_returns_expected(self):
-        key_list = ['filesystem', 'contents', 'mime_type']
+        key_list = ['A', 'A3', 'A3A']
         actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)
         self.assertEqual(actual, 'd')
 
     def test_get_nested_values_returns_expected(self):
-        keys_expected = [(['filesystem', 'contents', 'mime_type'], 'd'),
-                         (['filesystem', 'basename', 'full'], 'a'),
-                         (['filesystem', 'basename', 'extension'], 'b'),
-                         (['filesystem', 'pathname', 'full'], 'c'),
-                         (['contents', 'textual', 'raw_text'], 'e'),
-                         (['contents', 'textual', 'number_pages'], 'f'),
-                         (['contents', 'visual', 'ocr_text'], 'g'),
-                         (['contents', 'visual', 'ocr_tags'], 'h'),
-                         (['contents', 'binary', 'boolean_true'], True),
-                         (['contents', 'binary', 'boolean_false'], False)]
+        keys_expected = [(['A', 'A3', 'A3A'], 'd'),
+                         (['A', 'A1', 'A1A'], 'a'),
+                         (['A', 'A1', 'A1B'], 'b'),
+                         (['A', 'A2', 'foo'], 'c'),
+                         (['B', 'B1', 'B1A'], 'e'),
+                         (['B', 'B1', 'B1B'], 'foo'),
+                         (['B', 'B2', 'B2A'], 'g'),
+                         (['B', 'B2', 'B2B'], 'h'),
+                         (['B', 'B3', 'B3A'], True),
+                         (['B', 'B3', 'B3B'], False)]
 
         for key_list, expected in keys_expected:
             actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)
@@ -498,39 +384,6 @@ class TestWhichExecutable(TestCase):
 
     def test_returns_false_for_bogus_commands(self):
         self.assertFalse(is_executable('thisisntexecutablesurely'))
-
-
-class TestContainsNone(TestCase):
-    def _assert_false(self, test_data):
-        actual = contains_none(test_data)
-        self.assertFalse(actual)
-        self.assertIsInstance(actual, bool)
-
-    def _assert_true(self, test_data):
-        actual = contains_none(test_data)
-        self.assertTrue(actual)
-        self.assertIsInstance(actual, bool)
-
-    def test_returns_true_as_expected(self):
-        self._assert_true([])
-        self._assert_true([None])
-        self._assert_true([None, None])
-        self._assert_true(['', None])
-        self._assert_true([None, ''])
-        self._assert_true([None, '', None])
-        self._assert_true(['', None, ''])
-        self._assert_true([None, 'a'])
-        self._assert_true(['a', None])
-        self._assert_true([None, 'a', None])
-        self._assert_true(['a', None, 'a'])
-        self._assert_true(['a', None, ''])
-
-    def test_returns_false_as_expected(self):
-        self._assert_false([''])
-        self._assert_false([' '])
-        self._assert_false(['a', ''])
-        self._assert_false([' ', 'a'])
-        self._assert_false([' ', 'a', ''])
 
 
 class TestGitCommitHash(TestCase):

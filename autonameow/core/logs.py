@@ -90,6 +90,11 @@ def init_logging(opts):
         fmt = '%(levelname)s %(message)s'
         logging.basicConfig(level=logging.WARNING, format=fmt)
 
+    # Reset global list of logged run-times.
+    # TODO: [cleanup] Do not use global variable to store logged run-times
+    global global_logged_runtime
+    global_logged_runtime = list()
+
     _logging_initialized = True
 
 
@@ -107,6 +112,11 @@ def deinit_logging():
     # logging.shutdown()
     # importlib.reload(logging)
 
+    # Reset global list of logged run-times.
+    # TODO: [cleanup] Do not use global variable to store logged run-times
+    global global_logged_runtime
+    global_logged_runtime = list()
+
     global _logging_initialized
     _logging_initialized = False
 
@@ -123,20 +133,47 @@ def unsilence():
     logging.disabled = False
 
 
-@contextmanager
-def log_runtime(logger, name):
-    def _log(message):
-        MAX_WIDTH = 120
-        message = ' ' + message + ' '
-        logger.debug(message.center(MAX_WIDTH, '='))
+# TODO: [cleanup] Do not use global variable to store logged run-times
+global_logged_runtime = list()
 
-    _log('{} Started'.format(name))
+
+def _decorate_log_entry_section(string):
+    MAX_WIDTH = 120
+    return ' {!s} '.format(string).center(MAX_WIDTH, '=')
+
+
+@contextmanager
+def log_runtime(logger, description, log_level=None):
+    """
+    Context manager that logs the time taken for the context to complete.
+
+    Args:
+        logger: Logger instance that is used to log the results.
+        description: Name of thing being measured for use in the log entry.
+        log_level: Log level to call the logger instance with, as a string
+                   or integer. Refer to 'logging.getLevelName()'.
+    """
+    if not log_level:
+        # Include log level 'NOTSET' (0)
+        log_level = 'DEBUG'
+
+    # Translate either string or integer log levels to integer.
+    _log_level = logging.getLevelName(log_level)
+
+    def _log(message):
+        decorated_message = _decorate_log_entry_section(message)
+        logger.log(_log_level, decorated_message)
+
+    global global_logged_runtime
+    _log('{} Started'.format(description))
     start_time = time.time()
     try:
         yield
     finally:
         elapsed_time = time.time() - start_time
-        _log('{} Completed in {:.9f} seconds'.format(name, elapsed_time))
+        completed_msg = '{} Completed in {:.9f} seconds'.format(description, elapsed_time)
+        global_logged_runtime.append(completed_msg)
+        _log(completed_msg)
 
 
 def log_func_runtime(logger):
@@ -161,8 +198,17 @@ def log_func_runtime(logger):
             _start_time = time.time()
             func_returnval = func(*args, **kwds)
             _elapsed_time = time.time() - _start_time
-            logger.debug('{}.{} Completed in {:.9f} seconds'.format(
-                func.__module__, func.__name__, _elapsed_time))
+            completed_msg = '{}.{} Completed in {:.9f} seconds'.format(
+                func.__module__, func.__name__, _elapsed_time)
+            global global_logged_runtime
+            global_logged_runtime.append(completed_msg)
+            logger.debug(completed_msg)
             return func_returnval
         return log_runtime_wrapper
     return decorator
+
+
+def log_previously_logged_runtimes(logger):
+    global global_logged_runtime
+    for entry in global_logged_runtime:
+        logger.debug(entry)

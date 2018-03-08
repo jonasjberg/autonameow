@@ -22,9 +22,6 @@
 import re
 from collections import namedtuple
 
-from core import types
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from extractors import BaseExtractor
 from util import encoding as enc
 from util import (
@@ -33,7 +30,7 @@ from util import (
 )
 
 
-# TODO: [TD0043][TD0009] Fetch values from the active configuration.
+# TODO: [TD0043] Fetch values from the active configuration.
 # BETWEEN_TAG_SEPARATOR = enc.bytestring_path(
 #     opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
 # )
@@ -51,45 +48,6 @@ FiletagsParts = namedtuple('FiletagsParts',
 class FiletagsExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['*/*']
     IS_SLOW = False
-    FIELD_LOOKUP = {
-        'datetime': {
-            'coercer': types.AW_TIMEDATE,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1),
-            ],
-            'generic_field': 'date_created'
-        },
-        'description': {
-            'coercer': types.AW_STRING,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Description, probability=1),
-                WeightedMapping(fields.Title, probability=0.5),
-            ],
-            'generic_field': 'description'
-        },
-        'tags': {
-            'coercer': types.AW_STRING,
-            'multivalued': True,
-            'mapped_fields': [
-                WeightedMapping(fields.Tags, probability=1),
-            ],
-            'generic_field': 'tags'
-        },
-        'extension': {
-            'coercer': types.AW_STRING,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
-            ],
-        },
-        'follows_filetags_convention': {
-            'coercer': types.AW_BOOLEAN,
-            'multivalued': False,
-        }
-    }
 
     def __init__(self):
         super().__init__()

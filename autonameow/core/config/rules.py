@@ -34,7 +34,6 @@ from core.exceptions import (
 )
 from core.model import MeowURI
 from core.namebuilder import fields
-import util
 
 
 log = logging.getLogger(__name__)
@@ -58,9 +57,9 @@ class RuleCondition(object):
         The expression is some expression that will be evaluated on the data
         contained at the location referenced to by the "MeowURI".
 
-        Example: If the "MeowURI" is 'contents.mime_type', a valid
+        Example: If the "MeowURI" is 'mime_type', a valid
         expression could be 'image/*'. When this condition is evaluated,
-        the data contained at 'contents.mime_type' might be 'image/jpeg'.
+        the data contained at 'mime_type' might be 'image/jpeg'.
         In this case the evaluation would return True.
 
         Args:
@@ -374,6 +373,34 @@ class Rule(object):
             out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
         return 'Rule({})'.format(', '.join(out))
 
+    def stringify(self):
+        # TODO: [TD0171] Separate logic from user interface.
+        # TODO: [cleanup][hack] This is pretty bad ..
+        from core.view.cli import ColumnFormatter
+        cf = ColumnFormatter()
+        for field, sources in self.data_sources.items():
+            cf.addrow(str(field), str(sources[0]))
+            for source in sources[1:]:
+                cf.addrow('', str(source))
+        str_sources = str(cf)
+
+        str_conditions = '\n'.join([str(c) for c in self.conditions])
+
+        return '''"{description}"
+
+Exact Match:  {exact}
+Conditions:
+{conditions}
+
+Name Template:
+{template}
+
+Data Sources:
+{sources}
+'''.format(description=self.description, exact=self.exact_match,
+           conditions=str_conditions, template=self.name_template,
+           sources=str_sources)
+
 
 def get_valid_rule(description, exact_match, ranking_bias, name_template,
                    conditions, data_sources):
@@ -534,7 +561,7 @@ def parse_data_sources(raw_sources):
             log.warning('Template Field: ”{!s}"'.format(raw_templatefield))
             continue
 
-        assert issubclass(tf, fields.NameTemplateField), type(tf)
+        assert isinstance(tf, fields.NameTemplateField), type(tf)
 
         if not raw_meowuri_strings:
             log.debug('Skipped source with empty MeowURI(s) '
@@ -553,17 +580,13 @@ def parse_data_sources(raw_sources):
                 continue
 
             if is_valid_source(uri):
-                log.debug('Validated source: [{!s}]: {!s}'.format(
-                    tf.as_placeholder(), uri
-                ))
+                log.debug('Validated field {!s} source: {!s}'.format(tf, uri))
                 if not passed.get(tf):
                     passed[tf] = [uri]
                 else:
                     passed[tf] += [uri]
             else:
-                log.debug('Invalid source: [{!s}]: {!s}'.format(
-                    tf.as_placeholder(), uri
-                ))
+                log.debug('Invalid field {!s} source: {!s}'.format(tf, uri))
 
     log.debug(
         'Returning {} (out of {}) valid sources'.format(len(passed),
@@ -594,7 +617,7 @@ def is_valid_source(meowuri):
 
     if meowuri.is_generic:
         return True
-    if providers.Registry.resolvable(meowuri):
+    if providers.Registry.might_be_resolvable(meowuri):
         return True
 
     return False

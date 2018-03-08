@@ -28,9 +28,13 @@ from unittest.mock import (
 
 import unit.utils as uu
 from analyzers.analyze_filename import (
+    BASENAME_PROBABLE_EXT_LOOKUP,
     FilenameAnalyzer,
     FilenameTokenizer,
     likely_extension,
+    _read_probable_extension_config_file,
+    _parse_mimetype_extension_suffixes_map_data,
+    PATH_PROBABLE_EXT_LOOKUP,
     SubstringFinder
 )
 from core.namebuilder import fields
@@ -486,3 +490,451 @@ class TestFilenameTokenizerTokens(TestCase):
     def test_html_encoded(self):
         self._t(filename='A%20Quick%20Introduction%20to%20IFF.txt',
                 tokens=['A', 'Quick', 'Introduction', 'to', 'IFF.txt'])
+
+
+class TestParseMimetypeExtensionSuffixesMapData(TestCase):
+    def _assert_parses(self, given, expect):
+        actual = _parse_mimetype_extension_suffixes_map_data(given)
+        self.assertEqual(expect, actual, 'Given: "{!s}"'.format(given))
+
+    def test_returns_empty_parsed_data_given_empty_input_data(self):
+        self._assert_parses(given='', expect={})
+        self._assert_parses(given=' ', expect={})
+        self._assert_parses(given=' ', expect={})
+
+    def test_returns_empty_parsed_data_given_only_comment(self):
+        self._assert_parses(given='#', expect={})
+        self._assert_parses(given='# ', expect={})
+        self._assert_parses(given='# foo', expect={})
+        self._assert_parses(
+            given='''
+# foo
+            ''',
+            expect={}
+        )
+
+    def test_parses_single_entry_with_one_ext_matching_one_ext(self):
+        self._assert_parses(
+            given='''
+MIMETYPE application/msword
+    EXTENSION doc
+    - doc
+''',
+            expect={
+                'application/msword': {
+                    'doc': {'doc'}
+                },
+            }
+        )
+
+    def test_parses_single_entry_with_one_ext_matching_two_ext(self):
+        self._assert_parses(
+            given='''
+MIMETYPE application/msword
+    EXTENSION doc
+    - doc
+    - exe
+''',
+            expect={
+                'application/msword': {
+                    'doc': {'doc', 'exe'}
+                },
+            }
+        )
+
+    def test_parses_two_entries_with_one_ext_matching_one_ext(self):
+        self._assert_parses(
+            given='''
+MIMETYPE application/octet-stream
+    EXTENSION chm
+    - chm
+    EXTENSION azw3
+    - azw3
+''',
+            expect={
+                'application/octet-stream': {
+                    'chm': {'chm'},
+                    'azw3': {'azw3'},
+                },
+            }
+        )
+
+    def test_parses_blank_values(self):
+        self._assert_parses(
+            given='''
+MIMETYPE text/x-env
+    EXTENSION BLANK
+    - BLANK
+    EXTENSION sh
+    - sh
+''',
+            expect={
+                'text/x-env': {
+                    '': {''},
+                    'sh': {'sh'}
+                },
+            }
+        )
+
+    def test_parses_actual_file_contents(self):
+        given = '''
+# Data used by filename analyzer to find a new extension from a given
+# MIME-type and current extension.
+#
+# For instance, given this entry:
+#
+#     MIMETYPE application/octet-stream
+#         EXTENSION BLANK
+#         - BLANK
+#         EXTENSION azw3
+#         - azw3
+#         EXTENSION bin
+#         - bin
+#         - binary
+#
+# First, the analyzed file MIME-type must be 'application/octet-stream'.
+# Then, if it does not have a extension, the BLANK extension is used.
+# Otherwise, if the file extension is 'azw3', 'azw3' is used.
+# Alternatively, 'bin' is used if the file extension is either 'bin' or 'binary'.
+# If the file extension is something else, another entry is evaluated.
+
+MIMETYPE application/gzip
+    EXTENSION gz
+    - gz
+    EXTENSION tar.gz
+    - tar.gz
+MIMETYPE application/msword
+    EXTENSION doc
+    - doc
+MIMETYPE application/octet-stream
+    EXTENSION BLANK
+    - BLANK
+    EXTENSION azw3
+    - azw3
+    EXTENSION bin
+    - bin
+    - binary
+    EXTENSION chm
+    - chm
+    EXTENSION gz.sig
+    - gz.sig
+    EXTENSION hex
+    - hex
+    EXTENSION mobi
+    - mobi
+    EXTENSION pdf
+    - pdf
+    EXTENSION prc
+    - prc
+    EXTENSION scpt
+    - scpt
+    EXTENSION sig
+    - sig
+    EXTENSION sln  # Visual Studio Solution
+    - sln
+    EXTENSION tar.gz.sig
+    - tar.gz.sig
+    EXTENSION txt
+    - txt
+MIMETYPE application/postscript
+    EXTENSION eps
+    - eps
+    EXTENSION ps
+    - ps
+MIMETYPE application/vnd.ms-powerpoint
+    EXTENSION ppt
+    - ppt
+
+# Not indented ..
+MIMETYPE application/x-bzip2
+EXTENSION tar.bz2
+- tar.bz2
+
+MIMETYPE application/x-gzip
+    EXTENSION html.gz
+    - htm.gz
+    - html
+    - html.gz
+    - htm
+    EXTENSION tar.gz
+    - tgz
+    - tar.gz
+    EXTENSION txt.gz
+    - txt
+    - txt.gz
+    EXTENSION txt.tar.gz
+    - txt.tgz
+    - txt.tar.gz
+    EXTENSION w.gz    # CWEB source code
+    - w.gz
+MIMETYPE application/x-lzma # Not indented ..
+EXTENSION tar.lzma
+- tar.lzma
+MIMETYPE application/zip
+    EXTENSION alfredworkflow
+    - alfredworkflow
+    EXTENSION epub
+    - epub
+    EXTENSION zip
+    - zip
+MIMETYPE audio/mpeg
+    EXTENSION mp3
+    - mp3
+MIMETYPE message/rfc822
+    EXTENSION mhtml
+    - mhtml
+MIMETYPE text/html
+    EXTENSION html
+    - htm.gz
+    - html
+    - html.gz
+    - htm
+    EXTENSION mhtml
+    - mhtml
+    EXTENSION txt
+    - txt
+MIMETYPE text/plain
+    EXTENSION bibtex
+    - bibtex
+    EXTENSION c
+    - c
+    EXTENSION cpp
+    - cpp
+    - c++
+    EXTENSION css
+    - css
+    EXTENSION csv
+    - csv
+    EXTENSION gemspec
+    - gemspec
+    EXTENSION h
+    - h
+    EXTENSION html
+    - html
+    - htm
+    EXTENSION java
+    - java
+    EXTENSION js
+    - js
+    EXTENSION json
+    - json
+    EXTENSION key
+    - key
+    EXTENSION log
+    - log
+    EXTENSION md
+    - markdown
+    - md
+    - mkd
+    EXTENSION puml
+    - puml
+    EXTENSION py
+    - py
+    - python
+    EXTENSION rake
+    - rake
+    EXTENSION sh
+    - bash
+    - sh
+    EXTENSION spec
+    - spec
+    EXTENSION txt
+    - txt
+    - txt.gz
+    EXTENSION yaml
+    - yaml
+MIMETYPE text/x-c
+    EXTENSION c
+    - txt
+    - c
+    EXTENSION h
+    - h
+    EXTENSION w
+    - w
+MIMETYPE text/x-c++
+    EXTENSION cpp
+    - txt
+    - cpp
+    - c++
+    EXTENSION h
+    - h
+MIMETYPE text/x-env
+    EXTENSION BLANK
+    - BLANK
+    EXTENSION sh
+    - sh
+MIMETYPE text/x-makefile
+    EXTENSION BLANK
+    - BLANK
+    EXTENSION asm
+    - asm
+MIMETYPE text/x-shellscript
+    EXTENSION py
+    - py
+    EXTENSION sh
+    - txt
+    - bash
+    - sh
+
+
+MIMETYPE text/x-tex
+    EXTENSION log
+    - log
+    EXTENSION tex
+    - tex
+
+MIMETYPE text/xml
+    EXTENSION cbp
+    - cbp
+    EXTENSION workspace
+    - workspace
+MIMETYPE video/mpeg
+    EXTENSION VOB
+    - VOB
+    EXTENSION mpg
+    - mpeg
+    EXTENSION vob
+    - vob
+'''
+        self._assert_parses(given, expect={
+            'application/octet-stream': {
+                # Might be corrupt files.
+                '': {''},
+                'azw3': {'azw3'},
+                'bin': {'bin', 'binary'},
+                'chm': {'chm'},
+                'gz.sig': {'gz.sig'},
+                'hex': {'hex'},
+                'mobi': {'mobi'},
+                'pdf': {'pdf'},
+                'prc': {'prc'},
+                'scpt': {'scpt'},
+                'sig': {'sig'},
+                'sln': {'sln'},  # Visual Studio Solution
+                'tar.gz.sig': {'tar.gz.sig'},
+                'txt': {'txt'}
+            },
+            'application/msword': {
+                'doc': {'doc'}
+            },
+            'application/postscript': {
+                'ps': {'ps'},
+                'eps': {'eps'},
+            },
+            'application/gzip': {
+                'gz': {'gz'},
+                'tar.gz': {'tar.gz'}
+            },
+            'application/zip': {
+                'zip': {'zip'},
+                'epub': {'epub'},
+                'alfredworkflow': {'alfredworkflow'}
+            },
+            'application/vnd.ms-powerpoint': {
+                'ppt': {'ppt'},
+            },
+            'application/x-bzip2': {
+                'tar.bz2': {'tar.bz2'},
+            },
+            'application/x-gzip': {
+                'html.gz': {'html', 'htm', 'htm.gz', 'html.gz'},
+                'tar.gz': {'tar.gz', 'tgz'},
+                'txt.gz': {'txt.gz', 'txt'},
+                'txt.tar.gz': {'txt.tgz', 'txt.tar.gz'},
+                'w.gz': {'w.gz'}  # CWEB source code
+            },
+            'application/x-lzma': {
+                'tar.lzma': {'tar.lzma'}
+            },
+            'audio/mpeg': {
+                'mp3': {'mp3'}
+            },
+            'message/rfc822': {
+                'mhtml': {'mhtml'}  # Chrome Save as "Webpage, Single File"
+            },
+            'text/html': {
+                'html': {'html', 'htm', 'htm.gz', 'html.gz'},  # Not actually gzipped HTML
+                'mhtml': {'mhtml'},
+                'txt': {'txt'},
+            },
+            'text/plain': {
+                'bibtex': {'bibtex'},
+                'c': {'c'},
+                'cpp': {'cpp', 'c++'},
+                'css': {'css'},
+                'csv': {'csv'},
+                'gemspec': {'gemspec'},
+                'h': {'h'},
+                'html': {'html', 'htm'},
+                'java': {'java'},
+                'js': {'js'},
+                'json': {'json'},
+                'key': {'key'},
+                'log': {'log'},
+                'md': {'markdown', 'md', 'mkd'},
+                'puml': {'puml'},
+                'py': {'py', 'python'},
+                'rake': {'rake'},
+                'spec': {'spec'},
+                'sh': {'bash', 'sh'},
+                'txt': {'txt', 'txt.gz'},
+                'yaml': {'yaml'},
+            },
+            'text/xml': {
+                'cbp': {'cbp'},
+                'workspace': {'workspace'}
+            },
+            'text/x-c': {
+                'c': {'c', 'txt'},
+                'h': {'h'},
+                'w': {'w'}  # CWEB source code
+            },
+            'text/x-c++': {
+                'cpp': {'cpp', 'c++', 'txt'},
+                'h': {'h'}
+            },
+            'text/x-env': {
+                '': {''},
+                'sh': {'sh'}
+            },
+            'text/x-makefile': {
+                '': {''},
+                'asm': {'asm'}
+            },
+            'text/x-shellscript': {
+                'sh': {'bash', 'sh', 'txt'},
+                'py': {'py'},
+            },
+            'text/x-tex': {
+                'log': {'log'},
+                'tex': {'tex'},
+            },
+            'video/mpeg': {
+                'VOB': {'VOB'},
+                'vob': {'vob'},
+                'mpg': {'mpeg'}
+            }
+        })
+
+
+class TestLoadMimetypeExtensionSuffixesMapFile(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.filepath = PATH_PROBABLE_EXT_LOOKUP
+
+    def test_constant_basename_probable_ext_lookup_is_expected_type(self):
+        self.assertTrue(uu.is_internalbytestring(BASENAME_PROBABLE_EXT_LOOKUP))
+
+    def test_constant_path_probable_ext_lookup_is_expected_type(self):
+        self.assertTrue(uu.is_internalbytestring(PATH_PROBABLE_EXT_LOOKUP))
+
+    def test_extension_suffixes_map_file_exists(self):
+        self.assertTrue(uu.file_exists(self.filepath))
+
+    def test_returns_loaded_data_as_expected_type(self):
+        actual = _read_probable_extension_config_file(self.filepath)
+        self.assertIsInstance(actual, dict)
+
+    def test_returns_non_empty_dict(self):
+        actual = _read_probable_extension_config_file(self.filepath)
+        self.assertGreater(len(actual), 10)

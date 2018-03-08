@@ -49,10 +49,6 @@ class NameTemplateField(object):
         log.warning('Called unimplemented "{!s}.format()"'.format(cls.__name__))
 
     @classmethod
-    def as_placeholder(cls):
-        return cls.__name__.lower()
-
-    @classmethod
     def type_compatible(cls, type_class):
         if isinstance(type_class, types.MultipleTypes):
             if not cls.MULTIVALUED:
@@ -61,19 +57,23 @@ class NameTemplateField(object):
         else:
             return type_class in cls.COMPATIBLE_TYPES
 
+    def as_placeholder(self):
+        return self.__class__.__name__.lower().lstrip('_')
+
     def __str__(self):
-        # TODO: [TD0140] str() method not working as intended.
-        # These classes are mostly not instantiated and used as classes.
-        # Calling str() on a class will not call this method, resulting in
-        # for instance 'core.namebuilder.fields.Extension' and not 'Extension'.
-        return self.__class__.__name__.lower()
+        return '{{{}}}'.format(self.as_placeholder())
 
-    # @classmethod
-    # def __eq__(cls, other):
-    #     return cls.__class__ == other.__class__
+    def __repr__(self):
+        return 'NameTemplateField<{}>'.format(self.__class__.__name__.lstrip('_'))
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__
+
+    def __hash__(self):
+        return hash(self.__class__)
 
 
-class Title(NameTemplateField):
+class _Title(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
                         types.AW_STRING,
@@ -100,7 +100,7 @@ class Title(NameTemplateField):
         return string
 
 
-class Edition(NameTemplateField):
+class _Edition(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
                         types.AW_STRING,
@@ -128,7 +128,7 @@ class Edition(NameTemplateField):
         return '{}E'.format(string)
 
 
-class Extension(NameTemplateField):
+class _Extension(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
                         types.AW_STRING,
@@ -140,6 +140,11 @@ class Extension(NameTemplateField):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = data.value
         coercer = data.coercer
+
+        if not value:
+            # Might be 'NullMIMEType', which evaluates False here.
+            return ''
+
         if coercer:
             string = coercer.format(value)
         else:
@@ -150,11 +155,10 @@ class Extension(NameTemplateField):
             raise exceptions.NameBuilderError(
                 'Unicode string conversion failed for "{!r}"'.format(data)
             )
-
         return string
 
 
-class Author(NameTemplateField):
+class _Author(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
                         types.AW_STRING)
@@ -187,7 +191,7 @@ class Author(NameTemplateField):
         return ' '.join(sorted(_formatted))
 
 
-class Creator(NameTemplateField):
+class _Creator(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
                         types.AW_STRING,
@@ -196,7 +200,7 @@ class Creator(NameTemplateField):
     MULTIVALUED = True
 
 
-class DateTime(NameTemplateField):
+class _DateTime(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_DATE,
                         types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE)
@@ -225,7 +229,7 @@ class DateTime(NameTemplateField):
             raise exceptions.NameBuilderError('Unknown "datetime" format')
 
 
-class Date(NameTemplateField):
+class _Date(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_DATE,
                         types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE)
@@ -254,7 +258,7 @@ class Date(NameTemplateField):
             raise exceptions.NameBuilderError('Unknown "date" format')
 
 
-class Description(NameTemplateField):
+class _Description(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
                         types.AW_STRING,
@@ -268,7 +272,7 @@ class Description(NameTemplateField):
         return types.force_string(value)
 
 
-class Publisher(NameTemplateField):
+class _Publisher(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
                         types.AW_STRING,
@@ -298,7 +302,7 @@ class Publisher(NameTemplateField):
         return _formatted
 
 
-class Tags(NameTemplateField):
+class _Tags(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
                         types.AW_STRING,
@@ -328,7 +332,7 @@ class Tags(NameTemplateField):
             raise exceptions.NameBuilderError('Unknown "between_tag_separator"')
 
 
-class Time(NameTemplateField):
+class _Time(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
@@ -344,7 +348,7 @@ class Time(NameTemplateField):
             raise exceptions.NameBuilderError('Unknown "time" format')
 
 
-class Year(NameTemplateField):
+class _Year(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_DATE,
                         types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE)
@@ -380,7 +384,8 @@ def available_nametemplatefield_classes():
     """
     Returns: All available name template field classes as a list of classes.
     """
-    return [k for k in globals()['NameTemplateField'].__subclasses__()]
+    # NOTE(jonas): Classes are instantiated here.
+    return [k() for k in globals()['NameTemplateField'].__subclasses__()]
 
 
 NAMETEMPLATEFIELD_CLASS_STRING_LOOKUP = {
@@ -448,3 +453,17 @@ def nametemplatefield_classes_in_formatstring(format_string):
 def formatted_datetime(datetime_object, format_string):
     sanity.check_isinstance(datetime_object, datetime.datetime)
     return datetime_object.strftime(format_string)
+
+
+# Singletons for actual use.
+Author = _Author()
+Creator = _Creator()
+Date = _Date()
+DateTime = _DateTime()
+Description = _Description()
+Edition = _Edition()
+Extension = _Extension()
+Publisher = _Publisher()
+Tags = _Tags()
+Title = _Title()
+Time = _Time()

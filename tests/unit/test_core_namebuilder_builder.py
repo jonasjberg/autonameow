@@ -132,6 +132,14 @@ class TestFilenamePostprocessor(TestCase):
                                   expect='a cat and a Dog in a thing in the HAT',
                                   regex_replacements=reps_order)
 
+    def test_replaces_single_quote(self):
+        self.__check_call(given='Foo\'s Bar', expect='Foos Bar',
+                          regex_replacements=[(re.compile(r'[\']'), '')])
+        self.__check_call(given='Foo\'s Bar', expect='Foos Bar',
+                          regex_replacements=[(re.compile(r"'"), '')])
+        self.__check_call(given='Foo\'s Bar', expect='Foos Bar',
+                          regex_replacements=[(re.compile("'"), '')])
+
     def test_simplify_unicode(self):
         self.__check_call(given='foo', expect='foo',
                           simplify_unicode=False)

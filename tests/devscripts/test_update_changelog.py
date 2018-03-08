@@ -174,3 +174,75 @@ class TestIsBlacklisted(TestCase):
             subject='Fix typo in comment. Add comment.',
             body='',
         )
+
+    # Added/changed notes.
+    def test_blacklists_added_notes(self):
+        self._assert_blacklists(
+            subject='Add notes on extractors.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject='Add notes on MeowURis.',
+            body='',
+        )
+
+    def test_blacklists_modified_notes(self):
+        self._assert_blacklists(
+            subject='Update notes on extractors.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject='Update notes on MeowURis.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject='Modify notes on extractors.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject='Modify notes on MeowURis.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject="Update 'ideas.md'.",
+            body='',
+        )
+        self._assert_blacklists(
+            subject="Update 'notes/ideas.md'.",
+            body='',
+        )
+        self._assert_blacklists(
+            subject="Modify 'ideas.md'.",
+            body='',
+        )
+        self._assert_blacklists(
+            subject="Modify 'notes/ideas.md'.",
+            body='',
+        )
+
+    def test_blacklists_fixed_notes(self):
+        self._assert_blacklists(
+            subject='Fix notes on extractors.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject='Fix notes on MeowURis.',
+            body='',
+        )
+
+    # Added/changed notes.
+    def test_blacklists_changes_to_gitignore(self):
+        self._assert_blacklists(
+            subject='Add .* to \'.gitignore\'',
+            body='',
+        )
+        self._assert_blacklists(
+            subject="Add 'junk' directory to .gitignore.",
+            body='',
+        )
+
+    def test_does_not_blacklist_changed_gitignore_with_additional_info(self):
+        self._assert_not_blacklisted(
+            subject="Add regression tests to '.gitignore'.",
+            body="Ignores 'skip' files and regression tests named '*LOCAL*'."
+        )

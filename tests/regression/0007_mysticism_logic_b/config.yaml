@@ -5,8 +5,8 @@ DATETIME_FORMAT:
 RULES:
     Regression test 0007_mysticism_logic_b:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.full: 4123.pdf
-            extractor.filesystem.xplat.pathname.parent: test_files
+            extractor.filesystem.xplat.basename_full: 4123.pdf
+            extractor.filesystem.xplat.pathname_parent: test_files
         DATA_SOURCES:
             extension: extractor.metadata.exiftool.File:MIMEType
             title: extractor.metadata.exiftool.PDF:Title

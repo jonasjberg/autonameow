@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import re
 
 from core import (
     exceptions,
@@ -69,24 +68,13 @@ class FilenamePostprocessor(object):
         return _filename
 
     @staticmethod
-    def _do_replacements(filename, replacements):
-        matches = list()
-        for regex, replacement in replacements:
-            match = re.search(regex, filename)
-            if match:
-                matches.append((regex, replacement))
-
-        sorted_by_longest_replacement = sorted(
-            matches, key=lambda x: len(x[1]), reverse=True
-        )
-        for regex, replacement in sorted_by_longest_replacement:
-            log.debug('Applying custom replacement. Regex: "{!s}" '
-                      'Replacement: "{!s}"'.format(regex, replacement))
+    def _do_replacements(filename, regex_replacement_tuples):
+        before = filename
+        after = text.batch_regex_replace(regex_replacement_tuples, filename)
+        if before != after:
             # TODO: [TD0171] Separate logic from user interface.
-            view.msg_replacement(filename, replacement, regex)
-
-            filename = re.sub(regex, replacement, filename)
-        return filename
+            view.msg_filename_replacement(before, after)
+        return after
 
     @staticmethod
     def _do_simplify_unicode(filename):
@@ -163,7 +151,7 @@ def pre_assemble_format(field_databundle_dict, config):
 
     for field, data in field_databundle_dict.items():
         log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))
-        assert field and issubclass(field, NameTemplateField)
+        assert field and isinstance(field, NameTemplateField)
         from core.repository import DataBundle
         assert data and isinstance(data, DataBundle)
 
@@ -171,12 +159,12 @@ def pre_assemble_format(field_databundle_dict, config):
         if data.multivalued:
             if not field.MULTIVALUED:
                 log.critical(
-                    'Template field "{!s}" expects a single value. Got '
-                    'multivalued data'.format(field.as_placeholder())
+                    'Template field {!s} expects a single value. Got '
+                    'multivalued data'.format(field)
                 )
                 raise exceptions.NameBuilderError(
-                    'Template field "{!s}" expects a single value. '
-                    'Got {} values'.format(field.as_placeholder(), len(data))
+                    'Template field {!s} expects a single value. '
+                    'Got {} values'.format(field, len(data))
                 )
 
         _formatted = field.format(data, config=config)

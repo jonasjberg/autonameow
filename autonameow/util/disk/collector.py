@@ -102,13 +102,13 @@ class PathCollector(object):
 
         self.recurse = bool(recurse)
         self.errors = list()
-        self.paths = list()
+        self.filepaths = list()
 
     def collect_from(self, path_list):
-        results = self.get_paths(path_list)
-        self.paths.extend(results)
+        results = self.get_filepaths(path_list)
+        self.filepaths.extend(results)
 
-    def get_paths(self, path_list):
+    def get_filepaths(self, path_list):
         if not path_list:
             return []
         if not isinstance(path_list, list):
@@ -154,4 +154,4 @@ def path_matches_any_glob(path, globs):
 
 def normpaths_from_opts(path_list, ignore_globs, recurse):
     pc = PathCollector(ignore_globs, recurse)
-    return pc.get_paths(path_list)
+    return pc.get_filepaths(path_list)

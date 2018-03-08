@@ -181,7 +181,7 @@ class ConfigurationParser(object):
             log.debug('Trying to load post-processing replacements')
 
             # TODO: [TD0141] Coerce raw values to a known type.
-            if not 'POST_PROCESSING' in config_dict:
+            if 'POST_PROCESSING' not in config_dict:
                 log.debug('Did not find any post-processing options ..')
                 return
 
@@ -194,16 +194,13 @@ class ConfigurationParser(object):
             for regex, replacement in _reps.items():
                 _match = types.force_string(regex)
                 _replace = types.force_string(replacement)
-                if None in (_match, _replace):
-                    log.warning('Skipped bad replacement: "{!s}": '
-                                '"{!s}"'.format(regex, replacement))
-                    continue
-
                 try:
                     compiled_pat = re.compile(_match)
                 except re.error:
                     log.warning('Malformed regular expression: '
                                 '"{!s}"'.format(_match))
+                    log.warning('Skipped bad replacement :: "{!s}": '
+                                '"{!s}"'.format(regex, replacement))
                 else:
                     log.debug(
                         'Added post-processing replacement :: Match: "{!s}"'

@@ -33,11 +33,10 @@ from core import (
     interactive,
     logs,
     persistence,
-    provider,
+    master_provider,
     providers,
     repository,
 )
-from core.evaluate import RuleMatcher
 from core.context import FilesContext
 from core.renamer import FileRenamer
 from util import encoding as enc
@@ -69,8 +68,8 @@ class Autonameow(object):
         self.start_time = time.time()
 
         self.active_config = None
-        self.matcher = None
         self.renamer = None
+        self.master_provider = None
 
         self._exit_code = C.EXIT_SUCCESS
 
@@ -121,14 +120,14 @@ class Autonameow(object):
         config.set_active(self.active_config)
 
         if self.opts.get('dump_options'):
-            _config_path = persistence.get_config_persistence_path()
-            _default_config_path = config.DefaultConfigFilePath
+            filepath_config = persistence.get_config_persistence_path()
+            filepath_default_config = config.DefaultConfigFilePath
             include_opts = {
                 'config_file_path': '"{!s}"'.format(
-                    enc.displayable_path(_default_config_path)
+                    enc.displayable_path(filepath_default_config)
                 ),
                 'cache_directory_path': '"{!s}"'.format(
-                    enc.displayable_path(_config_path)
+                    enc.displayable_path(filepath_config)
                 )
             }
             self.ui.options.prettyprint_options(self.opts, include_opts)
@@ -154,16 +153,15 @@ class Autonameow(object):
         for error in path_collector.errors:
             log.warning(str(error))
 
-        files_to_process = list(path_collector.paths)
+        files_to_process = list(path_collector.filepaths)
         log.info('Got {} files to process'.format(len(files_to_process)))
 
         rules = self.active_config.rules
         if not rules:
             log.warning('Configuration does not contain any rules!')
 
-        self.matcher = RuleMatcher(rules, self.opts.get('list_rulematch'))
-
-        provider.initialize(self.active_config)
+        master_provider.initialize(self.active_config)
+        self.master_provider = master_provider
 
         self._handle_files(files_to_process)
 
@@ -248,10 +246,10 @@ class Autonameow(object):
         """
         results_to_list = []
 
-        context = FilesContext(autonameow_instance=self,
+        context = FilesContext(autonameow_exit_code=self.exit_code,
                                options=self.opts,
                                active_config=self.active_config,
-                               rule_matcher=self.matcher)
+                               master_provider=self.master_provider)
 
         for file_path in file_paths:
             _displayable_file_path = enc.displayable_path(file_path)
@@ -269,7 +267,7 @@ class Autonameow(object):
 
             if self.opts.get('list_all'):
                 log.debug('Calling provider.delegate_every_possible_meowuri()')
-                provider.delegate_every_possible_meowuri(current_file)
+                master_provider.delegate_every_possible_meowuri(current_file)
 
             try:
                 new_name = context.handle_file(current_file)
@@ -354,6 +352,7 @@ class Autonameow(object):
         if self.opts and self.opts.get('verbose'):
             self.ui.print_exit_info(self.exit_code, _elapsed_time)
 
+        logs.log_previously_logged_runtimes(log)
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(_elapsed_time))
 

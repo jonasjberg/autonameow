@@ -22,7 +22,6 @@
 import filecmp
 import os
 
-import util
 from core import constants as C
 from core import exceptions
 from util import encoding as enc
@@ -101,7 +100,8 @@ class FileObject(object):
 
     def _get_hash_partial(self):
         # Raises FilesystemError for any "real" errors.
-        return util.partial_sha256digest(self.abspath)
+        from util import partial_sha256digest
+        return partial_sha256digest(self.abspath)
 
     def __str__(self):
         if self.__cached_str is None:

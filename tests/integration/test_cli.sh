@@ -254,6 +254,20 @@ assert_true '"$AUTONAMEOW_RUNNER" --dump-meowuris --verbose' \
             'Expect exit code 0 for "--dump-meowuris --verbose"'
 
 
+# ______________________________________________________________________________
+#
+# Check the '--dump-config' option.
+
+assert_true '"$AUTONAMEOW_RUNNER" --dump-config' \
+            'Expect exit code 0 for "--dump-config"'
+
+assert_true '"$AUTONAMEOW_RUNNER" --dump-config --debug' \
+            'Expect exit code 0 for "--dump-config --debug"'
+
+assert_true '"$AUTONAMEOW_RUNNER" --dump-config --verbose' \
+            'Expect exit code 0 for "--dump-config --verbose"'
+
+
 
 
 # Calculate total execution time.

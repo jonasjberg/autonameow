@@ -22,7 +22,8 @@
 import logging
 
 from core import (
-    provider,
+    logs,
+    master_provider,
     repository,
     types
 )
@@ -73,6 +74,7 @@ class TemplateFieldDataResolver(object):
         self.file = fileobject
         self.name_template = name_template
 
+        # TODO: [TD0180] Add abstraction for file name composed of placeholder fields.
         self._fields = nametemplatefield_classes_in_formatstring(name_template)
 
         self.data_sources = dict()
@@ -81,21 +83,21 @@ class TemplateFieldDataResolver(object):
     def mapped_all_template_fields(self):
         return all(field in self.data_sources for field in self._fields)
 
-    def add_known_source(self, field, meowuri):
+    def add_known_source(self, field, uri):
         sanity.check_isinstance_meowuri(
-            meowuri,
+            uri,
             msg='TODO: Fix collecting/verifying data from sources.'
         )
         if field in self._fields:
             if not self.data_sources.get(field):
-                log.debug('Added (first) known source for field {!s} :: {!s}'.format(field.as_placeholder(), meowuri))
-                self.data_sources[field] = [meowuri]
+                log.debug('Added (first) known source for field {!s} :: {!s}'.format(field, uri))
+                self.data_sources[field] = [uri]
             else:
-                log.debug('Added (additional) known source for field {!s} :: {!s}'.format(field.as_placeholder(), meowuri))
-                self.data_sources[field] += [meowuri]
+                log.debug('Added (additional) known source for field {!s} :: {!s}'.format(field, uri))
+                self.data_sources[field] += [uri]
         else:
             log.debug('Attempted to add source for unused name template field '
-                      '"{!s}": {!s}'.format(field, meowuri))
+                      '"{!s}": {!s}'.format(field, uri))
 
     def add_known_sources(self, source_dict):
         for _field, uri in source_dict.items():
@@ -110,8 +112,9 @@ class TemplateFieldDataResolver(object):
         return [f for f in self._fields if f not in self.fields_data.keys()]
 
     def collect(self):
-        self._gather_data()
-        self._verify_types()
+        with logs.log_runtime(log, '{!s}.collect()'.format(self)):
+            self._gather_data()
+            self._verify_types()
 
     def collected_all(self):
         if not self.fields_data:
@@ -121,10 +124,10 @@ class TemplateFieldDataResolver(object):
 
     def lookup_candidates(self, field):
         # TODO: [TD0024][TD0025] Implement Interactive mode.
-        log.debug('Resolver is looking up candidates for field {!s} ..'.format(field.as_placeholder()))
+        log.debug('Resolver is looking up candidates for field {!s} ..'.format(field))
 
         candidates = repository.SessionRepository.query_mapped(self.file, field)
-        log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field.as_placeholder()))
+        log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field))
 
         out = []
         for uri, candidate in candidates:
@@ -183,7 +186,7 @@ class TemplateFieldDataResolver(object):
     def _has_data_for_placeholder_fields(self):
         for field in self._fields:
             if field not in self.fields_data.keys():
-                log.warning('Missing placeholder field "{}"'.format(field))
+                log.warning('Missing placeholder field {!s}'.format(field))
                 return False
             elif self.fields_data.get(field) is None:
                 log.error('None data for placeholder field "{}"'.format(field))
@@ -191,10 +194,9 @@ class TemplateFieldDataResolver(object):
         return True
 
     def _gather_data_for_template_field(self, _field, uri):
-        _str_field = str(_field.as_placeholder())
         log.debug(
-            'Gathering data for template field {{{}}} from [{:8.8}]->'
-            '[{!s}]'.format(_str_field, self.file.hash_partial, uri)
+            'Gathering data for template field {!s} from [{:8.8}]->'
+            '[{!s}]'.format(_field, self.file.hash_partial, uri)
         )
         response = self._request_data(self.file, uri)
         if not response:
@@ -202,11 +204,10 @@ class TemplateFieldDataResolver(object):
 
         # Response is either a DataBundle or a list of DataBundles
         if not isinstance(response, DataBundle):
+            # TODO: [TD0112] FIX THIS HORRIBLE MESS!
             assert isinstance(response, list)
             assert all(isinstance(d, DataBundle) for d in response)
 
-        # TODO: [TD0112] FIX THIS HORRIBLE MESS!
-        if isinstance(response, list):
             log.debug('Got list of data. Attempting to deduplicate list of datadicts')
             _deduped_list = dedupe_list_of_databundles(response)
             if len(_deduped_list) < len(response):
@@ -227,15 +228,15 @@ class TemplateFieldDataResolver(object):
                 if uri.is_generic:
                     maybe_one = get_one_from_many_generic_values(response, uri)
                     if not maybe_one:
-                        log.warning('[TD0112] Not sure what data to use for field {{{}}}..'.format(_str_field))
+                        log.warning('[TD0112] Not sure what data to use for field {!s}..'.format(_field))
                         for i, d in enumerate(response):
-                            log.debug('[TD0112] Field {{{}}} candidate {:03d} :: "{!s}"'.format(_str_field, i, d.value))
+                            log.debug('[TD0112] Field {!s} candidate {:03d} :: "{!s}"'.format(_field, i, d.value))
                         return False
                     else:
                         assert isinstance(maybe_one, DataBundle)
                         response = maybe_one
 
-        elif isinstance(response.value, list):
+        if isinstance(response.value, list):
             # TODO: [TD0112] Clean up merging data.
             list_value = response.value
             if len(list_value) > 1:
@@ -252,86 +253,54 @@ class TemplateFieldDataResolver(object):
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
         sanity.check_isinstance(response, DataBundle)
 
-        log.debug('Updated data for field {{{}}} :: {!s}'.format(
-            _str_field, response.value))
+        log.debug('Updated data for field {!s} :: {!s}'.format(_field,
+                                                               response.value))
         self.fields_data[_field] = response
         return True
 
     def _gather_data(self):
-        for _field, _meowuris in self.data_sources.items():
-            _str_field = str(_field.as_placeholder())
-
-            if (_field in self.fields_data
-                    and self.fields_data.get(_field) is not None):
+        for field, uris in self.data_sources.items():
+            if (field in self.fields_data
+                    and self.fields_data[field] is not None):
                 log.debug('Skipping previously gathered data for field '
-                          '{{{}}}"'.format(_str_field))
+                          '{!s}"'.format(field))
                 continue
 
-            assert _meowuris, (
-                'Resolver attempted to gather data with empty MeowURI!'
-            )
-            for uri in _meowuris:
-                if self._gather_data_for_template_field(_field, uri):
+            for uri in uris:
+                if self._gather_data_for_template_field(field, uri):
                     break
 
     def _verify_types(self):
-        # TODO: [TD0115] Clear up uncertainties about data multiplicities.
-        for field, data in self.fields_data.items():
-            log.debug('Verifying data for field {{{!s}}}'.format(field.as_placeholder()))
-            log.debug('field = {!s}'.format(field))
-            log.debug('data = {!s}'.format(data))
-
-            if isinstance(data, list):
-                if not field.MULTIVALUED:
-                    self.fields_data[field] = None
-                    log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
-                    log.debug('Template field {{{!s}}} expects a single value. '
-                              'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
-                                                         type(data), data))
-                    continue
-                for d in data:
-                    self._verify_type(field, d)
-            else:
-                # if field.MULTIVALUED:
-                #     self.fields_data[field] = None
-                #     log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
-                #     log.debug('Template field {{{!s}}} expects multiple values. '
-                #               'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
-                #                                          type(data), data))
-                self._verify_type(field, data)
+        for field, databundle in self.fields_data.items():
+            assert isinstance(databundle, DataBundle)
+            self._verify_type(field, databundle)
 
         # Remove data type is incompatible with associated field.
         # TODO: ?????
         _fields_data = self.fields_data.copy()
-        for field, data in _fields_data.items():
-            if data is None:
+        for field, databundle in _fields_data.items():
+            if databundle is None:
                 self.fields_data.pop(field)
 
-    def _verify_type(self, field, data):
-        _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
-        assert not isinstance(data, list), (
-            'Expected "data" not to be a list. Got {}'.format(_data_info)
-        )
-
-        log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
-        _coercer = data.coercer
-        _compatible = field.type_compatible(_coercer)
-        if _compatible:
-            log.debug('Verified Field-Data Compatibility  OK!')
+    def _verify_type(self, field, databundle):
+        log.debug('Verifying type of field {!s} with data :: {!s}'.format(
+            field, databundle.value))
+        if field.type_compatible(databundle.coercer):
+            log.debug('Field-Data type compatible')
         else:
             self.fields_data[field] = None
-            log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
+            log.debug('Field-Data type INCOMPATIBLE')
 
-    def _request_data(self, fileobject, meowuri):
-        log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
-            self, fileobject.hash_partial, meowuri))
+    def _request_data(self, fileobject, uri):
+        log.debug('{!s} requesting [{:8.8}]->[{!s}]'.format(
+            self, fileobject.hash_partial, uri))
 
         # Pass a "tie-breaker" to resolve cases where we only want one item?
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-        response = provider.query(fileobject, meowuri)
+        response = master_provider.request(fileobject, uri)
         if response:
             return response
-        log.debug('Resolver got no data.. {!s}'.format(response))
+        log.debug('Resolver got no data from query {!r}'.format(response))
         return None
 
     def __str__(self):
@@ -393,9 +362,9 @@ def sort_by_mapped_weights(databundles, primary_field, secondary_field=None):
     """
     Sorts bundles by their "weighted mapping" probabilities for given fields.
     """
-    assert issubclass(primary_field, NameTemplateField)
+    sanity.check_isinstance(primary_field, NameTemplateField)
     if secondary_field is not None:
-        assert issubclass(secondary_field, NameTemplateField)
+        sanity.check_isinstance(secondary_field, NameTemplateField)
 
     databundles.sort(
         key=lambda b: (b.field_mapping_probability(primary_field),

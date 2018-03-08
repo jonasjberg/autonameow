@@ -85,7 +85,7 @@ class TestRenameFile(TestCase):
     @patch('os.rename')
     @patch('util.disk.io.exists')
     def test_raises_exception_if_destination_path_does_not_exist(
-            self,mock_exists, mock_rename
+            self, mock_exists, mock_rename
     ):
         mock_exists.return_value = True
         with self.assertRaises(FileExistsError):
@@ -273,8 +273,8 @@ class TestIsLink(TestCase):
         self.assertFalse(actual)
 
     def test_returns_true_given_symlink(self):
-        l = uu.abspath_testfile('empty.symlink')
-        actual = islink(l)
+        f = uu.abspath_testfile('empty.symlink')
+        actual = islink(f)
         self.assertTrue(actual)
 
 

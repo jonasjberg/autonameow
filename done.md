@@ -10,6 +10,89 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-03-04
+
+> Low Priority
+> ------------
+>
+> * `[TD0159]` Fix stand-alone extractor not respecting the `--quiet` option.
+
+### 2018-03-03
+
+> Low Priority
+> ------------
+>
+> * `[TD0179]` Detect and correct malformed ISBN metadata.
+
+### 2018-03-02
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0178]` __Store only strings in `FIELD_LOOKUP`.__  
+>     Further decouples the extractors from the rest of the system.
+>     Would also allow potentially storing the `FIELD_LOOKUP` in a separate file
+>     that is loaded at run-time.
+>
+> Low Priority
+> ------------
+>
+> * `[TD0163]` __Fix premature importing of providers.__  
+>     Running `autonameow --help` if some provider dependency is missing should
+>     not print `Excluding analyzer "<class 'analyze_ebook.EbookAnalyzer'>" due
+>     to unmet dependencies` as the first thing, above the actual help text.
+>     Instead "load" providers and check these dependencies just prior to
+>     actually using them.
+>
+> * `[TD0140]` Template field classes `str()` method not working as intended.
+
+### 2018-02-27
+
+> Low Priority
+> ------------
+>
+> * `[TD0096]` Fix some replacements cause incorrect color highlighting.
+
+### 2018-02-24
+
+> High Priority
+> -------------
+>
+> * `[TD0108]` Fix inconsistencies in results passed back by plugins.
+>
+> * `[TD0128]` Clean up boundaries/interface to the `plugins` package.
+>
+> Medium Priority
+> ---------------
+>
+> * `[TD0009]` Implement proper plugin interface
+>     * Have plugins "register" themselves to a plugin handler?
+>     * Querying plugins might need some translation layer between the
+>       `autonameow` field naming convention and the specific plugins naming
+>       convention. For instance, querying a plugin for `title` might require
+>       actually querying the plugin for `document:title` or similar.
+>     * Abstract base class for all plugins;
+>         * Means of providing input data to the plugin.
+>         * Means of executing the plugin.
+>         * Means of querying for all or a specific field.
+
+### 2018-02-23
+
+> High Priority
+> -------------
+>
+> * `[TD0176]` __Fix inconsistent `CrossPlatformFileSystemExtractor` leaves__  
+>     All provider MeowURIs consist of 4 parts except for one extractor.
+>     Handling the case where a leaf can consist of multiple parts requires
+>     better parsing of strings and lots of special cases and it might never
+>     actually be desired.  Even though it might be nice to support this case,
+>     it currently makes much more sense to fix this inconsistency.
+>
+> Low Priority
+> ------------
+>
+> * `[TD0113]` Fix exceptions not being handled properly (?)
+
 ### 2018-02-19
 
 > Medium Priority

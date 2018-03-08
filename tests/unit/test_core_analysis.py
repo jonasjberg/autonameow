@@ -60,11 +60,12 @@ class TestAnalysis(TestCase):
 class TestFilterAbleToHandle(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.ALL_AVAILABLE_ANALYZERS = analyzers.ProviderClasses
+        cls.ALL_AVAILABLE_ANALYZERS = analyzers.registry.all_providers
 
     def _assert_suitable(self, fileobject, expect_analyzers):
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
         actual = [
-            c.__name__ for c in
+            c.name() for c in
             filter_able_to_handle(self.ALL_AVAILABLE_ANALYZERS, fileobject)
         ]
         for analyzer in expect_analyzers:

@@ -22,7 +22,6 @@
 import pprint
 
 from core import exceptions
-from core.model import MeowURI
 
 
 def check_internal_bytestring(value):
@@ -101,6 +100,7 @@ def check_isinstance_meowuri(thing, msg=None):
     if not __debug__:
         return
 
+    from core.model import MeowURI
     check_isinstance(thing, MeowURI, msg)
 
 

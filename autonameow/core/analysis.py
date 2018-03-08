@@ -24,7 +24,7 @@ import logging
 import analyzers
 from core import (
     logs,
-    provider,
+    master_provider,
     repository
 )
 from core.config.configuration import Configuration
@@ -83,7 +83,7 @@ def request_global_data(fileobject, uri_string):
 
     # Pass a "tie-breaker" to resolve cases where we only want one item?
     # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-    response = provider.query(fileobject, uri)
+    response = master_provider.request(fileobject, uri)
     if response:
         if isinstance(response, list):
             # TODO: [cleanup] This method is currently only used once?
@@ -167,7 +167,7 @@ def _start(fileobject, config, analyzers_to_run=None):
     sanity.check_isinstance_fileobject(fileobject)
     sanity.check_isinstance(config, Configuration)
 
-    all_available_analyzers = set(analyzers.ProviderClasses)
+    all_available_analyzers = analyzers.registry.all_providers
 
     if analyzers_to_run:
         assert isinstance(analyzers_to_run, (list, set))

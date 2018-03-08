@@ -50,6 +50,7 @@ AUTONAMEOW_SRCROOT_DIR = os.path.realpath(os.path.join(_parent_dir, os.pardir))
 
 # Color used to highlight post-processing replacements.
 REPLACEMENT_HIGHLIGHT_COLOR = 'RED'
+REPLACEMENT_SECONDARY_HIGHLIGHT_COLOR = 'LIGHTRED_EX'
 
 # Used by command-line interface functions.
 CLI_MSG_HEADING_CHAR = '='
@@ -212,13 +213,11 @@ RE_ALLOWED_MEOWURI_PART_CHARS = r'[\w:-]'
 
 MEOWURI_ROOT_SOURCE_ANALYZERS = 'analyzer'
 MEOWURI_ROOT_SOURCE_EXTRACTORS = 'extractor'
-MEOWURI_ROOT_SOURCE_PLUGINS = 'plugin'
 MEOWURI_ROOT_GENERIC = 'generic'
 
 MEOWURI_ROOTS_SOURCES = frozenset([
     MEOWURI_ROOT_SOURCE_ANALYZERS,
     MEOWURI_ROOT_SOURCE_EXTRACTORS,
-    MEOWURI_ROOT_SOURCE_PLUGINS
 ])
 MEOWURI_ROOTS = frozenset([MEOWURI_ROOT_GENERIC]).union(MEOWURI_ROOTS_SOURCES)
 
@@ -229,8 +228,10 @@ DEFAULT_PERSISTENCE_DIR_ABSPATH = b'/tmp/autonameow_cache'
 DEFAULT_HISTORY_FILE_BASENAME = b'prompt_history'
 DEFAULT_HISTORY_FILE_ABSPATH = b'/tmp/autonameow_cache/prompt_history'
 DEFAULT_CACHE_MAX_FILESIZE = 50 * 1024**2  # ~50MB
+TEXT_EXTRACTOR_CACHE_MAX_FILESIZE = 50 * 1024**2  # ~50MB
 
 
 # Extractor settings
 # Used by the 'PandocMetadataExtractor' and the 'MarkdownTextExtractor'.
 MARKDOWN_BASENAME_SUFFIXES = frozenset([b'md', b'markdown', b'mkd'])
+EXTRACTOR_FIELDMETA_BASENAME_SUFFIX = '_fieldmeta.yaml'

@@ -53,7 +53,7 @@ EOF
 fi
 
 
-"$AUTONAMEOW_RUNNER" --list-all "$@" 2>/dev/null \
+"$AUTONAMEOW_RUNNER" --list-all --dry-run "$@" 2>/dev/null \
     | grep -Eo '^([0-9a-zA-Z:-]+\.)+.*: ' \
     | cut -d':' -f1- \
     | sed 's/[ \t]*$//' | sed 's/:$//' \

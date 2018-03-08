@@ -20,15 +20,19 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import os
 import re
 from collections import Counter
 
-from analyzers import BaseAnalyzer
+from analyzers import (
+    AnalyzerError,
+    BaseAnalyzer
+)
+from core import constants as C
 from core import types
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from util import (
     dateandtime,
+    disk,
     sanity
 )
 from util.text import (
@@ -36,6 +40,10 @@ from util.text import (
     urldecode
 )
 
+
+_PATH_THIS_DIR = types.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
+BASENAME_PROBABLE_EXT_LOOKUP = types.AW_PATHCOMPONENT('probable_extension_lookup')
+PATH_PROBABLE_EXT_LOOKUP = disk.joinpaths(_PATH_THIS_DIR, BASENAME_PROBABLE_EXT_LOOKUP)
 
 log = logging.getLogger(__name__)
 
@@ -67,35 +75,35 @@ class FilenameAnalyzer(BaseAnalyzer):
     HANDLES_MIME_TYPES = ['*/*']
     FIELD_LOOKUP = {
         'datetime': {
-            'coercer': types.AW_TIMEDATE,
-            'multivalued': False,
+            'coercer': 'aw_timedate',
+            'multivalued': 'false',
             # TODO: [TD0166] No longer able to set probabilities dynamically ..
             'mapped_fields': [
-                WeightedMapping(fields.DateTime, probability=1.0),
-                WeightedMapping(fields.Date, probability=1.0),
+                {'WeightedMapping': {'field': 'DateTime', 'probability': '1.0'}},
+                {'WeightedMapping': {'field': 'Date', 'probability': '1.0'}},
             ],
             'generic_field': 'date_created'
         },
         'edition': {
-            'coercer': types.AW_INTEGER,
-            'multivalued': False,
+            'coercer': 'aw_integer',
+            'multivalued': 'false',
             'mapped_fields': [
-                WeightedMapping(fields.Edition, probability=1.0),
+                {'WeightedMapping': {'field': 'Edition', 'probability': '1.0'}},
             ],
             'generic_field': 'edition'
         },
         'extension': {
-            'coercer': types.AW_PATHCOMPONENT,
-            'multivalued': False,
+            'coercer': 'aw_pathcomponent',
+            'multivalued': 'false',
             'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1.0),
+                {'WeightedMapping': {'field': 'Extension', 'probability': '1.0'}},
             ]
         },
         'publisher': {
-            'coercer': types.AW_STRING,
-            'multivalued': False,
+            'coercer': 'aw_string',
+            'multivalued': 'false',
             'mapped_fields': [
-                WeightedMapping(fields.Publisher, probability=1.0),
+                {'WeightedMapping': {'field': 'Publisher', 'probability': '1.0'}},
             ],
             'generic_field': 'publisher'
         }
@@ -198,135 +206,130 @@ class FilenameAnalyzer(BaseAnalyzer):
         return True
 
 
-# For each MIME-type; use the file extension in the dict key if the
-# current file extension is any of the dict values stored under that key.
-# NOTE(jonas): The inner-most values are set-literals.
-MIMETYPE_EXTENSION_SUFFIXES_MAP = {
-    'application/octet-stream': {
-        # Might be corrupt files.
-        '': {''},
-        'azw3': {'azw3'},
-        'bin': {'bin', 'binary'},
-        'chm': {'chm'},
-        'gz.sig': {'gz.sig'},
-        'hex': {'hex'},
-        'mobi': {'mobi'},
-        'pdf': {'pdf'},
-        'prc': {'prc'},
-        'scpt': {'scpt'},
-        'sig': {'sig'},
-        'sln': {'sln'},  # Visual Studio Solution
-        'tar.gz.sig': {'tar.gz.sig'},
-        'txt': {'txt'}
-    },
-    'application/msword': {
-        'doc': {'doc'}
-    },
-    'application/postscript': {
-        'ps': {'ps'},
-        'eps': {'eps'},
-    },
-    'application/gzip': {
-        'gz': {'gz'},
-        'tar.gz': {'tar.gz'}
-    },
-    'application/zip': {
-        'zip': {'zip'},
-        'epub': {'epub'},
-        'alfredworkflow': {'alfredworkflow'}
-    },
-    'application/vnd.ms-powerpoint': {
-        'ppt': {'ppt'},
-    },
-    'application/x-bzip2': {
-        'tar.bz2': {'tar.bz2'},
-    },
-    'application/x-gzip': {
-        'html.gz': {'html', 'htm', 'htm.gz', 'html.gz'},
-        'tar.gz': {'tar.gz', 'tgz'},
-        'txt.gz': {'txt.gz', 'txt'},
-        'txt.tar.gz': {'txt.tgz', 'txt.tar.gz'},
-        'w.gz': {'w.gz'}  # CWEB source code
-    },
-    'application/x-lzma': {
-        'tar.lzma': {'tar.lzma'}
-    },
-    'audio/mpeg': {
-        'mp3': {'mp3'}
-    },
-    'message/rfc822': {
-        'mhtml': {'mhtml'}  # Chrome Save as "Webpage, Single File"
-    },
-    'text/html': {
-        'html': {'html', 'htm', 'htm.gz', 'html.gz'},  # Not actually gzipped HTML
-        'mhtml': {'mhtml'},
-        'txt': {'txt'},
-    },
-    'text/plain': {
-        'bibtex': {'bibtex'},
-        'c': {'c'},
-        'cpp': {'cpp', 'c++'},
-        'css': {'css'},
-        'csv': {'csv'},
-        'gemspec': {'gemspec'},
-        'h': {'h'},
-        'html': {'html', 'htm'},
-        'java': {'java'},
-        'js': {'js'},
-        'json': {'json'},
-        'key': {'key'},
-        'log': {'log'},
-        'md': {'markdown', 'md', 'mkd'},
-        'puml': {'puml'},
-        'py': {'py', 'python'},
-        'rake': {'rake'},
-        'spec': {'spec'},
-        'sh': {'bash', 'sh'},
-        'txt': {'txt', 'txt.gz'},
-        'yaml': {'yaml'},
-    },
-    'text/xml': {
-        'cbp': {'cbp'},
-        'workspace': {'workspace'}
-    },
-    'text/x-c': {
-        'c': {'c', 'txt'},
-        'h': {'h'},
-        'w': {'w'}  # CWEB source code
-    },
-    'text/x-c++': {
-        'cpp': {'cpp', 'c++', 'txt'},
-        'h': {'h'}
-    },
-    'text/x-env': {
-        '': {''},
-        'sh': {'sh'}
-    },
-    'text/x-makefile': {
-        '': {''},
-        'asm': {'asm'}
-    },
-    'text/x-shellscript': {
-        'sh': {'bash', 'sh', 'txt'},
-        'py': {'py'},
-    },
-    'text/x-tex': {
-        'log': {'log'},
-        'tex': {'tex'},
-    },
-    'video/mpeg': {
-        'VOB': {'VOB'},
-        'vob': {'vob'},
-        'mpg': {'mpeg'}
+# Populated at first access.
+_PROBABLE_EXTENSION_CONFIG = None
+
+
+def get_probable_extension_config():
+    """
+    Retrieves the data used to find a likely extension from
+    a given MIME-type and basename suffix.
+
+    The data is read from disk, parsed and cached at first call.
+
+    Returns:
+        Config data as a dict.
+    """
+    global _PROBABLE_EXTENSION_CONFIG
+    if _PROBABLE_EXTENSION_CONFIG is None:
+        _PROBABLE_EXTENSION_CONFIG = _read_probable_extension_config_file(
+            PATH_PROBABLE_EXT_LOOKUP
+        )
+    return _PROBABLE_EXTENSION_CONFIG
+
+
+class MimetypeExtensionMapParser(object):
+    (STATE_INITIAL, STATE_MIMETYPE_BLOCK, STATE_LIST_BLOCK) = range(3)
+    VALUE_REPLACEMENTS = {
+        'BLANK': ''
     }
-}
+
+    def __init__(self):
+        self.state = self.STATE_INITIAL
+
+    def parse(self, data):
+        text = types.force_string(data)
+        if not text.strip():
+            return dict()
+
+        # Ignore comments starting with hashes.
+        text = re.sub(r'#.*', '', text)
+
+        parsed = {}
+        for line in text.splitlines():
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+
+            m = self._match_mimetype_block_start(line)
+            if m:
+                mimetype_value = m
+                parsed[mimetype_value] = dict()
+                self.state = self.STATE_MIMETYPE_BLOCK
+                continue
+
+            if self.state == self.STATE_MIMETYPE_BLOCK:
+                use_extension_value = self._match_extension_list_start(line)
+                if use_extension_value is not None:
+                    parsed[mimetype_value][use_extension_value] = set()
+                    self.state = self.STATE_LIST_BLOCK
+
+            elif self.state == self.STATE_LIST_BLOCK:
+                m = self._match_extension_list_item(line)
+                if m is not None:
+                    parsed[mimetype_value][use_extension_value].add(m)
+                else:
+                    use_extension_value = self._match_extension_list_start(line)
+                    if use_extension_value is not None:
+                        parsed[mimetype_value][use_extension_value] = set()
+                        self.state = self.STATE_LIST_BLOCK
+
+        return parsed
+
+    def _match_mimetype_block_start(self, line):
+        if line.startswith('MIMETYPE '):
+            _, value = line.split(' ')
+            return value
+        return None
+
+    def _match_extension_list_item(self, line):
+        m = re.match(r'(^- )(.*)', line)
+        if m:
+            value = m.group(2).strip()
+            return self._replace_keywords(value)
+        return None
+
+    def _match_extension_list_start(self, line):
+        m = re.match(r'(^EXTENSION) (.*)', line)
+        if m:
+            value = m.group(2).strip()
+            return self._replace_keywords(value)
+        return None
+
+    def _replace_keywords(self, value):
+        return self.VALUE_REPLACEMENTS.get(value, value)
+
+
+def _parse_mimetype_extension_suffixes_map_data(data):
+    parser = MimetypeExtensionMapParser()
+    try:
+        return parser.parse(data)
+    except Exception as e:
+        raise AnalyzerError(
+            'Error while parsing probable extension data :: {!s}'.format(e)
+        )
+
+
+def _read_probable_extension_config_file(filepath):
+    try:
+        with open(filepath, 'r', encoding=C.DEFAULT_ENCODING) as fh:
+            file_data = fh.read()
+    except OSError as e:
+        raise AnalyzerError(
+            'Error while loading probable extension data file :: {!s}'.format(e)
+        )
+    return _parse_mimetype_extension_suffixes_map_data(file_data)
 
 
 def likely_extension(basename_suffix, mime_type):
     if mime_type and basename_suffix is not None:
         sanity.check_internal_string(mime_type)
 
-        ext_suffixes_map = MIMETYPE_EXTENSION_SUFFIXES_MAP.get(mime_type, {})
+        # For each MIME-type; use the file extension in the dict key if the
+        # current file extension is any of the dict values stored under that key.
+        # NOTE(jonas): The inner-most values are set-literals.
+        mimetype_ext_suffixes_map = get_probable_extension_config()
+        ext_suffixes_map = mimetype_ext_suffixes_map.get(mime_type, {})
         for ext, suffixes in ext_suffixes_map.items():
             if basename_suffix in suffixes:
                 return ext

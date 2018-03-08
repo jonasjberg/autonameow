@@ -20,19 +20,19 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import os
 
 from core import (
     persistence,
     types,
 )
-# TODO: [TD0172] Extend the text extractors with additional fields.
-# from core.model import WeightedMapping
-# from core.namebuilder import fields
+from core import constants as C
 from extractors import BaseExtractor
 from util import encoding as enc
 from util import sanity
 from util.text import (
     normalize_unicode,
+    remove_blacklisted_lines,
     remove_nonbreaking_spaces,
     remove_zerowidth_spaces
 )
@@ -42,29 +42,14 @@ log = logging.getLogger(__name__)
 
 
 class AbstractTextExtractor(BaseExtractor):
-    FIELD_LOOKUP = {
-        'full': {
-            'coercer': types.AW_STRING,
-            'multivalued': False,
-            'mapped_fields': None,
-            'generic_field': 'text'
-        },
-        # TODO: [TD0172] Extend the text extractors with additional fields.
-        # 'title': {
-        #     'coercer': types.AW_STRING,
-        #     'multivalued': False,
-        #     'mapped_fields': [
-        #         WeightedMapping(fields.Title, probability=1)
-        #     ],
-        #     'generic_field': 'title'
-        # }
-    }
-
     def __init__(self):
+        """
+        # NOTE: Call 'self.init_cache()' in subclasses init to enable caching.
+        """
         super().__init__()
 
         self.cache = None
-        # NOTE(jonas): Call 'self.init_cache()' in subclass init to use caching.
+        self.BLACKLISTED_TEXTLINES = frozenset(list())
 
     def extract(self, fileobject, **kwargs):
         text = self._get_text(fileobject)
@@ -111,6 +96,11 @@ class AbstractTextExtractor(BaseExtractor):
         except persistence.PersistenceError as e:
             self.log.critical('Unable to write {!s} cache :: {!s}'.format(self, e))
 
+    @classmethod
+    def python_source_filepath(cls):
+        # NOTE(jonas): Subclasses of this class use a shared field meta yaml.
+        return os.path.realpath(__file__)
+
     def extract_text(self, fileobject):
         """
         Extracts any unstructured textual contents from the given file.
@@ -135,16 +125,17 @@ class AbstractTextExtractor(BaseExtractor):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def init_cache(self):
-        _max_filesize = 50 * 1024**2  # ~50MB
-        _cache = persistence.get_cache(str(self), max_filesize=_max_filesize)
+        _cache = persistence.get_cache(
+            str(self),
+            max_filesize=C.TEXT_EXTRACTOR_CACHE_MAX_FILESIZE
+        )
         if _cache:
             self.cache = _cache
         else:
             log.debug('Failed to initialize {!s} cache'.format(self))
             self.cache = None
 
-    @staticmethod
-    def cleanup(raw_text):
+    def cleanup(self, raw_text):
         if not raw_text:
             return ''
 
@@ -153,6 +144,7 @@ class AbstractTextExtractor(BaseExtractor):
         text = normalize_unicode(text)
         text = remove_nonbreaking_spaces(text)
         text = remove_zerowidth_spaces(text)
+        text = remove_blacklisted_lines(text, self.BLACKLISTED_TEXTLINES)
         return text if text else ''
 
 

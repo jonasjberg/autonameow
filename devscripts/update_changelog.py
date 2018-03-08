@@ -162,7 +162,7 @@ def is_blacklisted(entry):
             return True
 
     # Fixed typos
-    if not body and _subject_match(r'^Fix typo.*') and not 'and' in subject:
+    if not body and _subject_match(r'^Fix typo.*') and 'and' not in subject:
         return True
 
     # Shameful
@@ -173,22 +173,40 @@ def is_blacklisted(entry):
 
     # Trivial changes
     if not body:
-        if (_subject_match(r'.*(related\.md|notes\.md).*')
-                or _subject_match(r'(Add|Modify|Remove).*logging.*')
+        if (_subject_match(r'(Add|Modify|Remove).*logging.*')
                 or _subject_match(r'Trivial.*')
-                or _subject_match(r'Whitespace fixes')
+                or _subject_match(r'Minor (changes?|fix|fixes) .*')
                 or _subject_match(r'Whitespace fixes')
                 or _subject_match(r'Rename variables')
                 or _subject_match(r'Rename function \'.*\'')
-                or _subject_match(r'.*[sS]pelling.*')
-                or _subject_match(r'(Add|Modify|Remove).*(to|in|from)? \'.*\.md\'')
+                or _subject_match(r'.*[sS]pelling.*')):
+            return True
+
+    # Changes to notes
+    if not body:
+        if (_subject_match(r'.*(related\.md|notes\.md).*')
                 or _subject_match(r'(Changes|Fixes).*(in|to)? \'.*\.md\'')):
             return True
 
+    if not body:
+        if _subject_match(r'^(Add|Fix|Modify|Remove|Update)'):
+            if (_subject_match(r'.*notes on \w+')
+                    or _subject_match(r'.*(to|in|from)? \'.*\.md\'')
+                    or _subject_match(r'.* \'?\w+(\/\w+)?\.md\'?')
+                    or _subject_match(r'.* \w+ notes')):
+                return True
+
+    # Changes related to various developer tools
     if _any_match(r'.*\bpylint(rc)?\b.*'):
         return True
+
     if _any_match(r'.*update_changelog.*'):
         return True
+
+    # Changes to '.gitignore'
+    if not body:
+        if _subject_match(r'.*\'?\.gitignore\'?'):
+            return True
 
     return False
 
@@ -207,7 +225,6 @@ def git_log_for_range(hash_first, hash_second):
         ['git', 'log', '--format="{}"'.format(GIT_LOG_FORMAT), _commit_range]
     )
     return types.force_string(stdout.strip())
-
 
 
 def get_previous_version_tag():
@@ -280,7 +297,6 @@ if __name__ == '__main__':
               file=sys.stderr)
         sys.exit(EXIT_FAILURE)
 
-
     exit_status = EXIT_SUCCESS
 
     header = get_changelog_header_line()
@@ -309,7 +325,7 @@ if __name__ == '__main__':
         #     _body = consolidate_almost_equal(_subject, _body)
 
         cle = ChangelogEntry(_subject, _body)
-        if not cle in log_entries and not is_blacklisted(cle):
+        if cle not in log_entries and not is_blacklisted(cle):
             log_entries.append(cle)
 
     section_entries = {
@@ -330,11 +346,11 @@ if __name__ == '__main__':
             section_entries['Changes'].append(entry)
 
     for section, entries in sorted(section_entries.items()):
-        print('\n' + text.indent(section, amount=12))
+        print('\n' + text.indent(section, columns=12))
 
         for entry in entries:
-            print(text.indent('- ' + entry.subject, amount=12))
-            print(text.indent(entry.body, amount=14))
+            print(text.indent('- ' + entry.subject, columns=12))
+            print(text.indent(entry.body, columns=14))
             if entry.body:
                 print()
 

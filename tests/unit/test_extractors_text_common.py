@@ -104,7 +104,7 @@ class TestAbstractTextExtractorMetainfo(TestCase):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
             self.assertIn('coercer', self.actual.get(_field, {}))
 
-    def test_metainfo_multiple_is_bool_or_none(self):
+    def test_metainfo_multivalued_is_none_or_boolean(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
             _field_lookup_entry = self.actual.get(_field, {})
             self.assertIn('multivalued', _field_lookup_entry)

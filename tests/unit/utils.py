@@ -304,6 +304,8 @@ MOCK_SESSION_DATA_POOLS = dict()
 
 
 def mock_request_data_callback(fileobject, label):
+    # TODO: [hack][cleanup] This does not behave as the "mocked" systems.
+    # TODO: Integrate successful/failed query response objects.
     global MOCK_SESSION_DATA_POOLS
 
     cached_data = MOCK_SESSION_DATA_POOLS.get(fileobject)
@@ -351,7 +353,7 @@ def mock_session_data_pool(fileobject):
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT],
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_EXTENSION],
         b'pdf.pdf'
     )
     nested_dict_set(
@@ -403,26 +405,8 @@ def mock_session_data_pool_empty_analysis_data(fileobject):
     return data
 
 
-def mock_session_data_pool_with_analysis_data(fileobject):
-    data = dict()
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
-        [{'source': 'filenamepart_tags',
-          'value': ['tagfoo', 'tagbar'],
-          'weight': 1}]
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
-        [{'source': 'filenamepart_base',
-          'value': 'gmail',
-          'weight': 0.25}]
-    )
-    return data
-
-
 def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
+    # TODO: [hack][cleanup] Mock properly! Remove?
     data = dict()
     nested_dict_set(
         data,
@@ -431,7 +415,7 @@ def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT],
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_EXTENSION],
         b'pdf.pdf'
     )
     nested_dict_set(
@@ -500,6 +484,7 @@ def get_mock_analyzer():
     """
     Returns: A mock Analyzer class.
     """
+    # TODO: [hack][cleanup] Mock properly! Remove?
     n = 0
     while n < len(get_instantiated_analyzers()):
         yield get_instantiated_analyzers()[n]
@@ -577,12 +562,14 @@ def get_instantiated_analyzers():
     """
     # NOTE: These are instantiated with a None FileObject, which might be a
     #       problem and is surely not very pretty.
+    # TODO: [hack][cleanup] Mock properly! Remove?
     import analyzers
     return [klass(None, None, None) for klass in
             analyzers.get_analyzer_classes()]
 
 
 def get_dummy_rules_to_examine():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     _raw_conditions = get_dummy_parsed_conditions()
     _raw_sources = get_dummy_raw_data_sources()
 
@@ -624,6 +611,7 @@ def get_dummy_rules_to_examine():
 
 
 def get_dummy_rulecondition_instances():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     return [
         rules.RuleCondition(MeowURI(meowuri_string), expression)
         for meowuri_string, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS
@@ -631,21 +619,25 @@ def get_dummy_rulecondition_instances():
 
 
 def get_dummy_raw_conditions():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     return [{meowuri: expression}
             for meowuri, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS]
 
 
 def get_dummy_raw_data_sources():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     return uuconst.DUMMY_RAW_RULE_DATA_SOURCES
 
 
 def get_dummy_parsed_conditions():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     _raw_conditions = get_dummy_raw_conditions()
     conditions = [rules.parse_conditions(c) for c in _raw_conditions]
     return conditions
 
 
 def get_dummy_rule():
+    # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
     _valid_conditions = get_dummy_parsed_conditions()
     return rules.Rule(
         description='dummy',
@@ -728,6 +720,7 @@ def is_importable(module_name):
 
 
 def init_session_repository():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     from core import repository
     repository.initialize()
 
@@ -738,8 +731,8 @@ def init_provider_registry():
 
 
 def init_master_data_provider(active_config):
-    from core import provider
-    provider.initialize(active_config)
+    from core import master_provider
+    master_provider.initialize(active_config)
 
 
 def is_internalstring(thing):
@@ -755,6 +748,7 @@ def is_internalbytestring(thing):
 
 
 def get_default_config():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     init_session_repository()
 
     _config_path = normpath(abspath_testconfig())

@@ -21,9 +21,6 @@
 
 import zipfile
 
-from core import types
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
     ExtractorError
@@ -33,29 +30,6 @@ from extractors import (
 class EpubMetadataExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
     IS_SLOW = False
-    FIELD_LOOKUP = {
-        'author': {
-            'coercer': types.AW_STRING,
-            'mapped_fields': [
-                WeightedMapping(fields.Author, probability=1),
-            ],
-            'generic_field': 'author'
-        },
-        'title': {
-            'coercer': types.AW_STRING,
-            'mapped_fields': [
-                WeightedMapping(fields.Title, probability=1),
-            ],
-            'generic_field': 'title'
-        },
-        'producer': {
-            'coercer': types.AW_STRING,
-            'mapped_fields': [
-                WeightedMapping(fields.Author, probability=0.1),
-            ],
-            'generic_field': 'producer'
-        }
-    }
 
     def extract(self, fileobject, **kwargs):
         _raw_metadata = _get_epub_metadata(fileobject.abspath)

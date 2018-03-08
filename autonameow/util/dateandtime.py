@@ -641,19 +641,16 @@ def naive_to_timezone_aware(naive_datetime):
     return pytz.utc.localize(naive_datetime)
 
 
-def find_isodate_like(unicode_text):
+def find_isodate_like(text):
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-    if not unicode_text:
-        raise ValueError('Got None/empty argument')
-
-    unicode_text = unicode_text.strip()
-    if not unicode_text:
-        raise ValueError('Got empty string argument')
-
-    string_digits = textutils.extract_digits(unicode_text)
-    try:
-        dt = datetime.strptime(string_digits, '%Y%m%d%H%M%S')
-    except (ValueError, TypeError):
-        return None
-    else:
-        return dt
+    if text and isinstance(text, str):
+        unicode_text = text.strip()
+        if unicode_text:
+            string_digits = textutils.extract_digits(unicode_text)
+            try:
+                dt = datetime.strptime(string_digits, '%Y%m%d%H%M%S')
+            except (ValueError, TypeError):
+                pass
+            else:
+                return dt
+    return None

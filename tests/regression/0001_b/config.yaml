@@ -5,13 +5,13 @@ DATETIME_FORMAT:
 RULES:
     test_files Gmail print-to-pdf:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.extension: pdf
-            extractor.filesystem.xplat.basename.full: gmail.pdf
-            extractor.filesystem.xplat.contents.mime_type: application/pdf
+            extractor.filesystem.xplat.extension: pdf
+            extractor.filesystem.xplat.basename_full: gmail.pdf
+            extractor.filesystem.xplat.mime_type: application/pdf
         DATA_SOURCES:
             date: extractor.metadata.exiftool.PDF:CreateDate
-            extension: extractor.filesystem.xplat.basename.extension
-            title: extractor.filesystem.xplat.basename.prefix
+            extension: extractor.filesystem.xplat.extension
+            title: extractor.filesystem.xplat.basename_prefix
         NAME_TEMPLATE: '{date} {title}.{extension}'
         exact_match: true
         ranking_bias: null

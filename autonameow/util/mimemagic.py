@@ -21,55 +21,108 @@
 
 import logging
 import mimetypes
-
-try:
-    import magic
-except ImportError:
-    raise SystemExit(
-        'Missing required module "magic".  Make sure "magic" (file-magic) '
-        'is available before running this program.'
-    )
+import os
 
 from core import types
+from core.exceptions import AutonameowException
 from util import sanity
 
 
 log = logging.getLogger(__name__)
 
 
+# File in this directory with mappings between MIME-types and extensions.
+MIMEMAGIC_MAPPINGS_BASENAME = 'mimemagic.mappings'
+
+# File in this directory with preferred extensions for MIME-types.
+MIMEMAGIC_PREFERRED_BASENAME = 'mimemagic.preferred'
+
+
 def _build_magic():
     """
     Workaround ambiguity about which magic library is actually used.
 
-    https://github.com/ahupp/python-magic
-      "There are, sadly, two libraries which use the module name magic.
-       Both have been around for quite a while.If you are using this
-       module and get an error using a method like open, your code is
-       expecting the other one."
+    Attempt to detect which of three 'magic' implementations that was
+    imported and return a function that is roughly equivalent to running
+    'file --mime-type' on POSIX systems.
 
-    http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
-      "The following code allows the rest of the script to work the same
-       way with either version of 'magic'"
+    Based off of this:
+    https://github.com/androguard/androguard/blob/2e1f04350bcb38a3acf796f8f8829d816b38fe21/androguard/core/bytecodes/apk.py#L380
 
-    TODO: Seems like this is the version currently in use? (on MacOS)
-          https://pypi.python.org/pypi/file-magic/0.3.0
-          https://github.com/file/file
+    Documentation for the various magics:
+    'filemagic'       https://pypi.python.org/pypi/filemagic
+    'file-magic'      https://github.com/file/file/tree/master/python
+    'python-magic'    https://github.com/ahupp/python-magic
 
-          Requires 'libmagic'! Install by running;
-          $ brew install libmagic
-          $ pip3 install file-magic
+    Notes on versions used on my (jonas) development boxes:
+
+        MacOS   Seems like this is the version currently in use on MacOS?
+                https://pypi.python.org/pypi/file-magic/0.3.0
+                https://github.com/file/file
+
+                Requires 'libmagic'! Install by running;
+                $ brew install libmagic
+                $ pip3 install file-magic
+
+        Linux   Install 'python3-magic' from the repositories on Linux.
+                For Debian-likes using apt:  'apt install python3-magic'
 
     Returns:
-        An instance of 'magic' as type 'Magic'.
-    """
-    # pylint: disable=unexpected-keyword-arg,no-value-for-parameter,no-member
-    try:
-        _magic = magic.open(magic.MAGIC_MIME_TYPE)
-        _magic.load()
-    except AttributeError:
-        _magic = magic.Magic(mime=True)
-        _magic.file = _magic.from_file
+        Callable the returns a MIME-type read from magic header bytes of the
+        given file.
 
+    Raises:
+        SystemExit: Unable to import any 'magic' module.
+        AutonameowException: Failed to get a callable from any 'magic' module.
+    """
+    try:
+        import magic
+    except ImportError:
+        raise SystemExit(
+            'Missing required module "magic".  Make sure a "magic" module and '
+            'possibly additional required files (DLLs, magic definitions, ..) '
+            'is available before running this program.'
+        )
+    # pylint: disable=unexpected-keyword-arg,no-value-for-parameter,no-member
+    _magic = None
+    try:
+        # Test if loaded magic is the 'python-magic' package.
+        getattr(magic, 'MagicException')
+    except AttributeError:
+        try:
+            # Test if loaded magic is the 'filemagic' package.
+            getattr(magic.Magic, 'id_buffer')
+        except AttributeError:
+            # Load the 'file-magic' package.
+            # https://github.com/file/file/tree/master/python
+            ms = magic.open(magic.MAGIC_MIME_TYPE)
+            ms.load()
+            _magic = ms.file
+        else:
+            # Now using the 'filemagic' package.
+            # To identify with mime type, rather than a textual description,
+            # pass the magic.MAGIC_MIME_TYPE flag when creating the magic.Magic
+            # instance.
+            m = magic.Magic(flags=magic.MAGIC_MIME_TYPE)
+            _magic = m.id_filename
+    else:
+        # Now using the 'python-magic' package.
+        #
+        # There is also a Magic class that provides more direct control,
+        # including overriding the magic database file and turning on character
+        # encoding detection. This is not recommended for general use.
+        # In particular, it's not safe for sharing across multiple threads and
+        # will fail throw if this is # attempted.
+        # https://github.com/ahupp/python-magic
+        #
+        # NOTE(jonas): Might cause problems later on, if using threading!
+        m = magic.Magic(mime=True, uncompress=False)
+        _magic = m.from_file
+
+    if _magic is None:
+        raise AutonameowException(
+            'Unable to retrieve a suitable magic callable in "mimemagic.py" ..'
+        )
     return _magic
 
 
@@ -90,19 +143,19 @@ def filetype(file_path):
         The MIME type of the file at the given path ('application/pdf') or
         an instance of 'NullMIMEType' if the MIME type can not be determined.
     """
-    _unknown_mime_type = types.NullMIMEType()
+    unknown_mime_type = types.NullMIMEType()
     if not file_path:
-        return _unknown_mime_type
+        return unknown_mime_type
 
     global MY_MAGIC
     if MY_MAGIC is None:
         MY_MAGIC = _build_magic()
 
     try:
-        found_type = MY_MAGIC.file(file_path)
+        found_type = MY_MAGIC(file_path)
     except (AttributeError, TypeError):
         # TODO: Fix 'magic.MagicException' not available in both libraries.
-        found_type = _unknown_mime_type
+        found_type = unknown_mime_type
 
     return found_type
 
@@ -232,18 +285,18 @@ class MimeExtensionMapper(object):
         Returns:
             All MIME-types mapped to the given extension, as a list of strings.
         """
-        _candidates = self._ext_to_mime.get(extension)
-        if not _candidates:
+        candidates = self._ext_to_mime.get(extension)
+        if not candidates:
             return []
 
         # NOTE(jonas): Sorting criteria pretty much arbitrarily chosen.
         #              Gives more consistent results, which helps with testing.
-        _sorted_candidates = sorted(
-            list(_candidates),
+        sorted_candidates = sorted(
+            list(candidates),
             key=lambda x: ('x-' not in x, 'text' in x, len(x)),
             reverse=True
         )
-        return _sorted_candidates
+        return sorted_candidates
 
     def get_mimetype(self, extension):
         """
@@ -258,9 +311,9 @@ class MimeExtensionMapper(object):
             An instance of 'NullMIMEType' is returned if no MIME-type is found.
         """
         if extension and extension.strip():
-            _candidates = self.get_candidate_mimetypes(extension)
-            if _candidates:
-                return _candidates[0]
+            candidates = self.get_candidate_mimetypes(extension)
+            if candidates:
+                return candidates[0]
 
         return types.NullMIMEType()
 
@@ -268,29 +321,29 @@ class MimeExtensionMapper(object):
         """
         Returns a list of all extensions mapped to a given MIME-type.
         """
-        _candidates = self._mime_to_ext.get(mimetype, [])
-        if not _candidates:
+        candidates = self._mime_to_ext.get(mimetype, [])
+        if not candidates:
             return []
 
         # De-prioritize any composite extensions like "tar.gz".
-        _sorted_candidates = sorted(
-            list(_candidates),
+        sorted_candidates = sorted(
+            list(candidates),
             key=lambda x: '.' not in x,
             reverse=True
         )
-        return _sorted_candidates
+        return sorted_candidates
 
     def get_extension(self, mimetype):
         """
         Returns a single extension for a given MIME-type.
         """
-        _preferred = self._mime_to_preferred_ext.get(mimetype)
-        if _preferred:
-            return _preferred
+        preferred = self._mime_to_preferred_ext.get(mimetype)
+        if preferred:
+            return preferred
 
-        _candidates = self.get_candidate_extensions(mimetype)
-        if _candidates:
-            return _candidates[0]
+        candidates = self.get_candidate_extensions(mimetype)
+        if candidates:
+            return candidates[0]
 
         return None
 
@@ -298,63 +351,85 @@ class MimeExtensionMapper(object):
 # Shared global singleton.
 MAPPER = MimeExtensionMapper()
 
-# Add MIME to extension mappings from the 'mimetypes' module.
-try:
-    _mimetypes_map = {
-        ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
-    }
-except AttributeError:
-    log.error('Unable to get MIME-type map from the "mimetypes" module.')
-else:
-    for _ext, _mime in _mimetypes_map.items():
-        MAPPER.add_mapping(_mime, _ext)
+
+def _load_mimetypes_module_mimemagic_mappings():
+    try:
+        mimetypes_types_map = {
+            ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
+        }
+    except AttributeError:
+        log.error('Unable to get MIME-type map from the "mimetypes" module.')
+    else:
+        for extension, mime_type in mimetypes_types_map.items():
+            MAPPER.add_mapping(mime_type, extension)
 
 
-# Any custom "extension to MIME-type"-mappings goes here.
-MAPPER.add_mapping('application/epub+zip', 'epub')
-MAPPER.add_mapping('application/gzip', 'gz')
-MAPPER.add_mapping('application/gzip', 'tar.gz')
-MAPPER.add_mapping('application/octet-stream', 'bin')
-MAPPER.add_mapping('application/rar', 'rar')
-MAPPER.add_mapping('application/rtf', 'rtf')
-MAPPER.add_mapping('application/vnd.oasis.opendocument.presentation', 'odp')
-MAPPER.add_mapping('application/vnd.oasis.opendocument.text', 'odt')
-MAPPER.add_mapping('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx')
-MAPPER.add_mapping('application/x-7z-compressed', '7z')
-MAPPER.add_mapping('application/x-bzip2', 'bz2')
-MAPPER.add_mapping('application/x-gzip', 'gz')
-MAPPER.add_mapping('application/x-gzip', 'tgz')
-MAPPER.add_mapping('application/x-gzip', 'tar.gz')
-MAPPER.add_mapping('application/x-lzma', 'lzma')
-MAPPER.add_mapping('application/x-lzma', 'tar.lzma')
-MAPPER.add_mapping('application/x-rar', 'rar')
-MAPPER.add_mapping('application/x-tex', 'tex')
-MAPPER.add_mapping('audio/midi', 'mid')
-MAPPER.add_mapping('audio/x-flac', 'flac')
-MAPPER.add_mapping('image/vnd.djvu', 'djvu')
-MAPPER.add_mapping('inode/x-empty', '')
-MAPPER.add_mapping('text/rtf', 'rtf')
-MAPPER.add_mapping('text/x-asm', 'asm')
-MAPPER.add_mapping('text/x-c', 'c')
-MAPPER.add_mapping('text/x-c++', 'cpp')
-MAPPER.add_mapping('text/x-env', 'sh')
-MAPPER.add_mapping('text/x-sh', 'sh')
-MAPPER.add_mapping('text/x-shellscript', 'sh')
-MAPPER.add_mapping('text/x-shellscript', 'bash')
-MAPPER.add_mapping('text/x-tex', 'tex')
-MAPPER.add_mapping('video/x-matroska', 'mkv')
+def _read_mimetype_extension_mapping_file(mapfile_basename, callback):
+    """
+    Load MIME-type to extension mappings from external file.
 
-# Any custom overrides of the "extension to MIME-type"-mapping goes here.
-MAPPER.add_preferred_extension('image/jpeg', 'jpg')
-MAPPER.add_preferred_extension('application/gzip', 'gz')
-MAPPER.add_preferred_extension('audio/midi', 'mid')
-MAPPER.add_preferred_extension('video/quicktime', 'mov')
-MAPPER.add_preferred_extension('video/mp4', 'mp4')
-MAPPER.add_preferred_extension('text/plain', 'txt')
-MAPPER.add_preferred_extension('text/rtf', 'rtf')
-MAPPER.add_preferred_extension('text/x-sh', 'sh')
-MAPPER.add_preferred_extension('text/x-shellscript', 'sh')
-MAPPER.add_preferred_extension('inode/x-empty', '')
+    Each line should contain a MIME-type and a extension, separated by a colon.
+    Any whitespace is ignored, as well as any initial period in the extension.
+    Lines beginning with a hash ('#') are also ignored.
+
+    Args:
+        mapfile_basename: Basename of the file in this directory to read.
+        callback: Called with the MIME-type and extension, once per line.
+
+    Returns:
+        All MIME-types mapped to the given extension, as a list of strings.
+    """
+    mapfile = os.path.realpath(os.path.join(
+        os.path.dirname(__file__), mapfile_basename
+    ))
+    try:
+        with open(mapfile, 'r') as fh:
+            lines = fh.readlines()
+    except OSError:
+        return
+
+    for n, line in enumerate(lines, start=1):
+        if line.startswith('#'):
+            continue
+        try:
+            mime_type, extension = line.strip().split(':')
+        except ValueError:
+            log.error('Error parsing "{!s}" line {}'.format(mapfile, n))
+        else:
+            mime_type = types.force_string(mime_type).strip()
+            extension = types.force_string(extension).strip().lstrip('.')
+            if not mime_type:
+                continue
+
+            callback(mime_type, extension)
+
+
+def _load_mimemagic_mappings():
+    """
+    Load MIME-type to extension mappings from external file.
+    """
+    _read_mimetype_extension_mapping_file(MIMEMAGIC_MAPPINGS_BASENAME,
+                                          MAPPER.add_mapping)
+
+
+def _load_mimemagic_mapping_overrides():
+    """
+    Load MIME-type to extension mapping overrides from external file.
+    These are the "preferred" extensions for any given MIME-type.
+    """
+    _read_mimetype_extension_mapping_file(MIMEMAGIC_PREFERRED_BASENAME,
+                                          MAPPER.add_preferred_extension)
+
+
+# Load MIME to extension mappings from the 'mimetypes' module.
+# This is the baseline, extended by the following custom mappings.
+_load_mimetypes_module_mimemagic_mappings()
+
+# Load any custom "extension to MIME-type"-mappings.
+_load_mimemagic_mappings()
+
+# Load any custom overrides of the "extension to MIME-type"-mappings.
+_load_mimemagic_mapping_overrides()
 
 
 def get_mimetype(extension):

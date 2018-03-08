@@ -36,8 +36,10 @@ __all__ = [
     'collapse_whitespace',
     'html_unescape',
     'indent',
+    'batch_regex_replace',
     'normalize_unicode',
     'simplify_unicode',
+    'remove_blacklisted_lines',
     'remove_nonbreaking_spaces',
     'remove_zerowidth_spaces',
     'strip_ansiescape',
@@ -86,7 +88,7 @@ def collapse_whitespace(string):
     return collapsed
 
 
-def indent(text, amount=None, ch=None):
+def indent(text, columns=None, padchar=None):
     """
     Indents (multi-line) text by a specified amount.
 
@@ -97,8 +99,8 @@ def indent(text, amount=None, ch=None):
 
     Args:
         text: Single or multi-line text to indent, as a Unicode str.
-        amount: Optional padding character ('ch') multiple, as an integer.
-        ch: Optional character to use for padding.
+        columns: Optional padding character ('ch') multiple, as an integer.
+        padchar: Optional character to use for padding.
 
     Returns:
         An indented version of the given text as an Unicode str.
@@ -108,24 +110,17 @@ def indent(text, amount=None, ch=None):
     DEFAULT_AMOUNT = 4
     DEFAULT_PADDING = ' '
 
-    if amount is None:
-        amount = DEFAULT_AMOUNT
-    else:
-        if not isinstance(amount, int):
-            raise TypeError('Expected "amount" to be of type int')
-        elif amount <= 0:
-            raise ValueError('Expected "amount" to be greater than zero')
+    if columns is None:
+        columns = DEFAULT_AMOUNT
+    assert isinstance(columns, int)
+    assert columns > 0
 
-    if ch is None:
-        ch = DEFAULT_PADDING
-
-    if text is None:
-        raise ValueError('Got None argument "text"')
-
+    if padchar is None:
+        padchar = DEFAULT_PADDING
+    sanity.check_internal_string(padchar)
     sanity.check_internal_string(text)
-    sanity.check_internal_string(ch)
 
-    padding = amount * ch
+    padding = columns * padchar
     return ''.join(padding + line for line in text.splitlines(True))
 
 
@@ -294,3 +289,43 @@ def urldecode(string):
 
 def html_unescape(string):
     return html.unescape(string)
+
+
+def batch_regex_replace(regex_replacement_tuples, string):
+    matches = list()
+    for regex, replacement in regex_replacement_tuples:
+        match = re.search(regex, string)
+        if match:
+            matches.append((regex, replacement))
+
+    sorted_by_longest_replacement = sorted(
+        matches, key=lambda x: len(x[1]), reverse=True
+    )
+    for regex, replacement in sorted_by_longest_replacement:
+        string = re.sub(regex, replacement, string)
+
+    return string
+
+
+def remove_blacklisted_lines(text, blacklist):
+    """
+    Removes any text lines that matches any line in 'blacklist'.
+
+    Blacklisted lines should not contain any line separators.
+
+    Args:
+        text: The text to process as a Unicode string.
+        blacklist: List of Unicode strings to ignore.
+
+    Returns:
+        The given text with any lines matching those in 'blacklist' removed,
+        as a Unicode string.
+    """
+    out = []
+
+    blacklisted_lines = set(blacklist)
+    for line in text.splitlines(keepends=True):
+        if not any(line.strip() == bad_line for bad_line in blacklisted_lines):
+            out.append(line)
+
+    return ''.join(out)

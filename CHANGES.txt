@@ -1,3 +1,561 @@
+2018-03-08  [autonameow v0.5.6]
+            Removed the plugin system.
+            The 'MicrosoftVisionPlugin' is removed and the 'GuessitPlugin' is
+            reworked into an extractor.
+            This might be added back at some later time, but for right now
+            there is no sense in keeping this around. It should be rewritten
+            again from scratch if ever needed in the future.
+            A lot of cleanup and refactoring. Major changes to MeowURIs.
+
+            NOTE: This version changes the configuration syntax ---
+                  config files written by previous version will *NOT* work!
+
+            Additions
+            - Add handling Word documents in exiftool extractor.
+              Adds 'application/msword' to 'ExiftoolMetadataExtractor' MIME-types.
+              Adds field meta with prefixes 'FlashPix' to 'exiftool_fieldmeta.yaml'.
+
+            - Add new option '--stats' to stand-alone extractor.
+              Adds option '--stats' for displaying statistics after extraction.
+              This is useful for getting an overview of which files are currently
+              supported and other high-level information on extractor output.
+
+            - Add workaround to getting provider names.
+              Adds workaround for being unable to get name from 'str(klass)'.
+
+              Adds class method 'name()' to 'BaseAnalyzer' and 'BaseExtractor'.
+
+              Should pass around instances of provider classes instead of the
+              classes themselves to solve this and other related problems.
+              This has not been done yet because that kind of refactoring would
+              likely introduce a lot of problems related to caching in the text
+              extractors and ebook analyzer ..
+
+              References TODO-list item [TD0151].
+
+            - Add text utility function 'filter_multiple_names()'.
+
+            - Add additional example for TODO [TD0179].
+
+            - Add constant 'TEXT_EXTRACTOR_CACHE_MAX_FILESIZE'.
+
+            - Add external 'FIELD_LOOKUP' files and functions.
+              Adds functionality for reading 'FIELD_LOOKUP' from yaml files.
+
+              Also adds the yaml-files themselves.
+
+              Note that the previous way of defining 'FIELD_LOOKUP' as class
+              instance attributes is still in use.  This commit just adds the
+              functionality and data files that contain the same information
+              as that in the 'FIELD_LOOKUP' dicts.
+
+            - Add 'genericfields.get_all_generic_field_klasses()'.
+              Adds yet still unused function for getting all generic field classes.
+
+            - Add function '_colorize_string_diff()'.
+              Adds function for colorizing the difference of two strings.
+
+              Stolen from the "beets" project.
+              Function '_colordiff' in 'beets/ui/__init__.py'
+              git commit cb785107425ed7bfafb8a349deb3e6731deb1883
+
+              Modified to use the autonameow 'colorize()' function and
+              dependency injecting this function for easier unit testing.
+
+            - Add parser for external 'FilenameAnalyzer' data.
+              Adds a 'MimetypeExtensionMapParser' class for reading data file.
+
+              The function 'likely_extension()' uses data currently stored in dict
+              'MIMETYPE_EXTENSION_SUFFIXES_MAP'.
+              This data should be stored in an external file.
+              I first tried dumping the data in YAML format, but the aliasing and
+              handling of sets, etc.  gave a pretty messy result. This commit adds
+              a way overkill, poorly implemented parser for reading the simple data
+              file.
+
+              Note that this commit does not actually swap out the old dict with
+              this new parser and data.
+
+              The file 'probable_extension_lookup' is also added to the manifest
+              and 'setup.py'.
+
+            - Add 'devscripts/find_unit_tests_visits.sh'.
+
+            - Add coercing external data to Unicode strings.
+              Adds coercing external MIME-type mappings loaded in 'mimemagic.py'.
+
+              Should provide some additional robustness for non-Unicode text files.
+              This also introduced some circular import errors that had to be resolved
+              by changing some imports around and moving some imports to local scopes.
+
+            - Add initial setuptools/pip packaging.
+              Based on the "Python Packaging User Guide".
+
+              This guide in particular:
+
+                https://packaging.python.org/tutorials/distributing-packages/
+
+            - Add package data file and magic-note in 'setup.py'.
+
+            - Add dependencies to 'setup.py'.
+              Adds dependencies with the lowest versions currently used for testing.
+
+              I test autonameow regularly on MacOS and Linux and the versions of
+              python modules available through homebrew are all newer than those
+              found in the Ubuntu repositories.  The versions listed here are the
+              ones used on my Linux machine.  Full listing, for future reference:
+
+                                      Linux       MacOS
+                  beautifulsoup4      4.4.1       4.6.0
+                  chardet             2.3.0       3.0.4
+                  colorama         *  0.3.7       0.3.7
+                  EbookLib         *  0.16        0.16
+                  hypothesis       *  3.38.0      3.38.0
+                  guessit             2.1.0       2.1.4
+                  isbnlib             3.5.6       3.7.2
+                  Pillow              3.1.2       4.0.0
+                  pytz                2014.10     2017.2
+                  PyYAML              3.11        3.12
+                  Unidecode           0.4.19      0.4.20
+
+              Note that "magic" is missing because I can't seem to be certain
+              of exactly which library is actually used on both platforms ..
+
+            - Add '.smother' to '.gitignore'.
+
+            - Fix bad TODO ID. Add TODOs referencing [TD0178].
+
+            - Add partial matching methods to the 'MeowURI' class.
+              Adds additional matching methods to the 'MeowURI' class.
+
+              Methods 'matches_start()' and 'matches_end()' work as 'str.startswith()'
+              and 'str.endswith()' but accepts either instances of 'MeowURI',
+              'MeowURILeaf', 'MeowURIRoot' or Unicode strings.
+
+            - Add additional 'PathComponent.coerce()' unit tests.
+
+            - Add unit tests for the 'ProviderRunner' class.
+
+            - Add debug logging all runtime logs before exiting.
+              Adds function 'log_previously_logged_runtimes()'.
+
+              Calls to 'log_runtime()' and 'log_func_runtime()' are stored in a
+              global.  Passing a logger instance to 'log_previously_logged_runtimes()'
+              debug simply logs the contents of this list.
+
+              This is all pretty ugly, but does what I need for now ..
+
+            - Add 'NotImplementedError' referencing [TD0175].
+
+
+            Changes
+            - Remove the plugin system.
+              Removes all functionality related to "plugin" providers.
+
+              This might be added back at some later time, but for right now there is
+              no sense in keeping this around. It should be rewritten again from
+              scratch if ever needed in the future.
+
+              Completes TODO-list items [TD0108][TD0128][TD0009][TD0013].
+
+            - Remove 'GuessitPlugin'. Add 'GuessitExtractor'.
+              Reworks the guessit plugin into a extractor.
+
+              Functionality should be basically unchanged.
+              At this point, there is no point in keeping poorly implement
+              "plugins" and plugin system around as they aren't different enough
+              from the extractors to warrant special treatment and makes changing
+              and refactoring difficult due to the poor design.
+
+              MeowURIs 'plugin.guessit.*' are now 'extractor.filesystem.guessit.*'.
+
+            - Remove the 'MicrosoftVisionPlugin'.
+              Removes mostly broken 'MicrosoftVisionPlugin' and related.
+
+            - Remove '--quiet' option from stand-alone extractor.
+              Removes unimplemented '--quiet' option from stand-alone extractor.
+
+              Completes TODO-list item [TD0159].
+
+            - Refactor 'ProviderRunner'.
+
+            - Refactor stand-alone extraction runner.
+
+            - Refactor 'log_runtime()' and related unit tests.
+
+            - Remove blacklisted text lines in text extractors.
+              Adds filtering blacklisted text lines in the 'AbstractTextExtractor'.
+
+              Part of the 'cleanup()' method that is called with the raw extracted
+              in all text extractors.
+              This should probably allow regular expressions, but this simple exact
+              matching is a start and does not risk increasing extractor run-time
+              as much as regular expressions *probably* would.
+
+            - Rework function 'remove_ignored_textlines()'.
+              Moves and renames function 'remove_ignored_textlines()'.
+
+              Renames 'remove_ignored_textlines()' to 'remove_blacklisted_lines()'
+              and moves it to 'util/text/transform.py'.
+
+              The blacklist is now passed along with the text to process.
+
+            - Rename unit test source files to match convention.
+              Renames unit test files to match naming convention.
+
+                'test_persistence_cache.py' -> 'test_core_persistence_cache.py'
+                'test_persistence_base.py' -> 'test_core_persistence_base.py'
+
+            - Factor out function 'batch_regex_replace()'.
+              Factors out functionality for applying multiple replacements.
+
+              Extracts functionality from method '_do_replacements()' in the
+              'FilenamePostprocessor' class into new function 'batch_regex_replace()'.
+
+            - Remove utility function 'dump()'.
+              Removes 'dump()' and replaces use with 'write_yaml()'.
+
+            - Refactor writing yaml files.
+              Factors out function 'write_yaml()' from 'write_yaml_file()'.
+
+            - Remove unused utility function 'flatten_dict()'.
+
+            - Remove unused function 'expand_meowuri_data_dict()'.
+
+            - Remove unused utility function 'contains_none()'.
+
+            - Remove unused function 'types.coercer_for()'.
+
+            - Remove unused function 'types.try_coerce()'.
+
+            - Remove unused 'meowuri_genericfield_map()'.
+              Removes unused function 'genericfields.meowuri_genericfield_map()'.
+
+            - Remove unused class attributes in 'humannames.py'.
+
+            - Remove unused function "mocking" function.
+
+            - Refactor unit tests in 'test_core_types.py'.
+
+            - Enable caching in the 'EpubTextExtractor'.
+
+            - Remove temporary code for dumping 'FIELD_LOOKUP'.
+
+            - Increase size of text chunks for epub e-books.
+              Increases the amount of text that is searched for ISBN-numbers.
+
+              The 'EpubTextExtractor' returns text with a lot of duplicated lines and
+              sections. I'm currently not sure if this is to be expected or caused by
+              the "hail mary" approach currently used in the 'EpubTextExtractor',
+              collecting all possible text ..
+
+              Assuming that this is typical for epub e-books, the text chunks that are
+              searched for ISBN-numbers are increased for files with MIME-type
+              'application/epub+zip'.
+
+            - Remove duplicated text extractor "*_fieldmeta.yaml".
+              Adds using a shared field meta yaml file for all text extractors.
+
+            - Replace inline 'FIELD_LOOKUP' with yaml-files.
+              Removes inline 'FIELD_LOOKUP' dicts. Read from '*_fieldmeta.yaml'.
+
+            - Refactor duplicate code in 'ExtractorRegistry'.
+
+            - Remove 'ProviderClasses'. Add registry classes.
+              Fixes prematurely importing providers classes at module import.
+
+              Adds simple "registry" classes that wraps the function calls that was
+              previously performed when the modules were imported.
+              All use of 'extractors.ProviderClasses' and 'analyzers.ProviderClasses'
+              should now be 'extractors.registry.all_providers' and
+              'analyzers.registry.all_providers' instead.
+              This should be functionally equivalent but collect the provider classes
+              only when needed.
+
+            - Replace float 'probability' with strings.
+              Replaces floats in 'FIELD_LOOKUP' with strings.
+
+              Completes TODO-list item [TD0178].
+
+            - Replace boolean 'multivalued' with strings.
+              Replaces booleans in 'FIELD_LOOKUP' with strings 'true' or 'false'.
+
+              References TODO-list item [TD0178] on only storing strings in
+              'FIELD_LOOKUP'.
+
+            - Replace 'FIELD_LOOKUP' mappings with strings.
+              Replaces actual class references in 'FIELD_LOOKUP' with strings.
+
+              Replaces all instances of 'WeightedMapping' namedtuple and references
+              to 'NameTemplateField' subclasses with strings.
+
+              Example entry, old form:
+
+                  'mapped_fields': [
+                      WeightedMapping(fields.Title, probability=1)
+                  ]
+
+              New form:
+
+                  'mapped_fields': [
+                      {'WeightedMapping': {'field': 'Title', 'probability': 1}}
+                  ]
+
+              The new form is translated to the old form in 'providers.py'.
+              References TODO-list item [TD0178] on only storing strings in
+              'FIELD_LOOKUP'.
+
+            - Replace 'FIELD_LOOKUP' classes with strings.
+              Replaces actual class references in 'FIELD_LOOKUP' with strings.
+
+              Replaces all coercer classes in the provider 'FIELD_LOOKUP' dicts.
+
+              Adds using 'get_coercer_from_metainfo_string()' to translate from
+              the strings to actual classes.
+              References TODO-list item [TD0178] on only storing strings in
+              'FIELD_LOOKUP'.
+
+            - Store classes instead of instances in results.
+              Pass classes instead of class instances to 'wrap_provider_results()'.
+
+              Does not make much sense to store the individual instances as they
+              should not keep any interesting state at all.
+
+            - Minor refactoring of wrapping provider results.
+              Factor out function '_wrap_provider_result_field()'. Minor cleanups.
+
+            - Rename 'RuleMatcher.match()' to 'RuleMatcher.get_match_results()'.
+
+            - Factor out method 'RuleMatcher._score_rule()'.
+
+            - Rework 'RuleMatcher.__init__()' to take a 'FileObject'.
+              Modifies the rule matcher to be re-instantiated for each given file.
+
+            - Instantiate the 'RuleMatcher' where it is actually used.
+              Removes passing a 'RuleMatcher' instance to the 'FilesContext'.
+
+              Adds passing a reference to the "master provider" instead.
+
+            - Do not pass entire 'Autonameow' instance to 'FilesContext'.
+              Adds passing only the 'exit_code' attribute instead of the instance.
+
+            - Use external config file for probable extensions.
+              Replaces 'MIMETYPE_EXTENSION_SUFFIXES_MAP' with reading from file.
+
+              Reads the content of a file at 'PATH_PROBABLE_EXT_LOOKUP' that contains
+              the same data as the now deleted 'MIMETYPE_EXTENSION_SUFFIXES_MAP' dict.
+
+            - Remove None-test when parsing replacements.
+              Removes bad test for None when parsing post-processing replacements.
+
+              Values returned by 'force_string()' should only ever return strings or
+              the "null" value of the 'String' coercer class, which is an empty
+              string. So checking for None after this call does not make any sense.
+
+            - Remove checking lists of bundles in the resolver.
+              Removes checking for lists of bundles in 'resolver._verify_types()'.
+
+              At this point there should only be one single 'DataBundle' per name
+              template field, but the values contained in the bundles might very
+              well be lists.
+
+            - Prevent '(UNKNOWN MIME-TYPE)' to be used as extension.
+              Adds testing if an instance of 'NullMIMEType' is used as extension.
+
+              Checks if the value is non-empty in the 'Extension' name template
+              field 'format()' method.
+              However, this test should probably be done a lot earlier, as there
+              is a distinct difference between an unknown MIME-type and a MIME-type
+              that is mapped to an empty extension.
+
+            - Define MIME-type to extension overrides in file.
+              Moves preferred extensions for MIME-types to an external file.
+
+              Isolates future changes from the program logic.
+
+              The file 'autonameow/util/mimemagic.preferred' should define one
+              "mapping" per line.  Each line should contain a MIME-type and a
+              extension, separated by a colon.
+              Any whitespace is ignored, as well as any initial period in the
+              extension.  Lines beginning with a hash ('#') are also ignored.
+
+            - Define MIME-type to extension mappings in file.
+              Moves MIME-type to extension mappings to an external file.
+
+              Isolates future changes from the program logic.
+
+              The file 'autonameow/util/mimemagic.mappings' should define one
+              "mapping" per line.  Each line should contain a MIME-type and a
+              extension, separated by a colon.
+              Any whitespace is ignored, as well as any initial period in the
+              extension.  Lines beginning with a hash ('#') are also ignored.
+
+            - Move 'magic' import to inside '_build_magic()'.
+
+            - Attempt to improve handling of different "magics".
+              Adds possibly improved handling of different 'magic' implementations.
+
+              Attempt to detect which of three 'magic' implementations that was
+              imported and return a function that is roughly equivalent to running
+              'file --mime-type' on POSIX systems.
+
+              Based off of this:
+              https://github.com/androguard/androguard/blob/2e1f04350bcb38a3acf796f8f8829d816b38fe21/androguard/core/bytecodes/apk.py#L380
+
+              Documentation for the various magics:
+
+                'filemagic'       https://pypi.python.org/pypi/filemagic
+                'file-magic'      https://github.com/file/file/tree/master/python
+                'python-magic'    https://github.com/ahupp/python-magic
+
+            - Remove unnecessary 'can_handle()' override.
+              Removes 'GuessitExtractor.can_handle()', equivalent to the base class.
+
+            - Minor refactoring of the 'RuleMatcher()' class.
+              Modifies the 'RuleMatcher' tests and implementation.
+
+              Set the 'RuleConditionEvaluator' class in 'RuleMatcher.__init__()'
+              for easier mocking in unit test.
+
+              Remove using the global module attribute 'master_provider.request()'.
+              This is now passed in to the 'RuleMatcher' init.
+
+            - Rename 'provider.py' to 'master_provider.py'.
+
+            - Simplify 'get_providers_for_meowuri()'.
+
+            - Minor refactoring of the 'ExtractorRunner' class.
+              Moves collecting extractors out of 'ExtractorRunner.__init__()'.
+
+            - Rework MeowURI matching. Modify 'contents.mime_type'.
+              Replaces 'contents.mime_type' with 'mime_type'.
+
+              Modifies matching of MeowURIs for readability.
+
+              Completes TODO-list item [TD0176].
+
+            - Clean up 'meowuri.py' and related unit tests.
+
+            - Modify 'MeowURI.__repr__()'. Add unit tests.
+
+            - Modify MeowURI leaf 'pathname.parent'.
+              Replaces 'pathname.parent' with 'pathname_parent'.
+              References [TD0176]
+
+            - Modify MeowURI leaf 'pathname.full'.
+              Replaces 'pathname.full' with 'pathname_full'.
+              References [TD0176]
+
+            - Modify MeowURI leaf 'basename.prefix'.
+              Replaces 'basename.prefix' with 'basename_prefix'.
+              References [TD0176]
+
+            - Modify MeowURI leaf 'basename.suffix'.
+              Replaces 'basename.suffix' with 'basename_suffix'.
+              References [TD0176]
+
+            - Modify MeowURI leaf 'basename.full'.
+              Replaces 'basename.full' with 'basename_full'.
+              References [TD0176]
+
+            - Modify MeowURI leaf 'abspath.full'.
+              Replaces 'abspath.full' with 'abspath_full'.
+              References [TD0176]
+
+            - Modify 'CommonFileSystemExtractor' leaf.
+              Replaces 'basename.extension' with 'extension'.
+              References [TD0176]
+
+            - Rename 'MasterDataProvider.query()' to 'request()'.
+              Mostly to clearly differentiate from 'Repository.query()'.
+
+
+            Fixes
+            - Add detecting and fixing bad 'nameparser' results.
+
+            - Fix broken '--dump-config'.
+
+            - Fix 'remove_blacklisted_lines()' removed separators.
+              Fixes mangled line separators in 'remove_blacklisted_lines()'.
+
+              Now any line separators should be left intact. Adds unit tests.
+
+            - Handle malformed ISBN metadata authors.
+              Adds handling *some* malformed ISBN metadata author entries.
+
+              Fixes some case where multiple authors should be separate list
+              elements but are instead all in a single list element, separated
+              by various separators.
+
+              Completes TODO-list item [TD0179].
+
+            - Minor fixes and tweaks to the 'EbookAnalyzer'.
+
+            - Calculate 'get_field_class()' results dynamically.
+              Fixes hardcoded mapping of generic field leaves to classes.
+
+              Adds collecting the leaves dynamically from each available generic
+              field class 'uri()' method.
+              This is done once at first access, following calls use the cached
+              data in module attribute '_URI_LEAF_TO_KLASS_MAPPING'.
+
+            - Improve displaying "custom" filename replacements.
+              Swaps out functionality for displaying replacement messages.
+
+              Fixes edge-cases not covered by the previous functions.
+              Completes TODO-list item [TD0096] on some replacements causing
+              incorrect color highlighting.
+
+            - Fix field 'XMP:Subject' is standardized as list.
+
+            - Various fixes and cleanups in 'resolver.py'.
+
+            - Fix incorrect variable name in 'mimemagic.py'.
+
+            - Fix bad 'setup.py'.
+              Remove copyright sign from 'version.py'.
+
+              The copyright sign raises a KeyError when 'setup.py' evaluates
+              the file in order to fetch attributes without importing ..
+
+            - Clean up old unit tests. Use sane test values.
+
+            - Fix direct access of 'FIELD_LOOKUP'.
+              Modifies inconsistent access of 'FIELD_LOOKUP'.
+
+              Prefer calling the class method 'metainfo()' over accessing the
+              'FIELD_LOOKUP' class attribute directly. Fixes unit tests.
+
+            - Do not keep a static instance of 'MeowURIParser'.
+              Modifies 'MeowURI' to call static method 'MeowURIParser.parse()'.
+
+            - Rework 'NameTemplateField' classes.
+              Uses singleton instances of 'NameTemplateField' subclasses.
+
+              Instead of always using subclasses of 'NameTemplateField' as
+              uninstantiated classes, they are now used like the coercer classes
+              in 'types.py', I.E. shared singletons available as module attributes
+              in 'fields.py'.
+
+              External use is unchanged. Actual classes are renamed with a leading
+              '_' and the singletons now have the old class names.
+
+              This solves some issues related to '__repr__()' and '__str__()'.
+              Completes TODO-list item [TD0140] on template field classes 'str()'
+              method not working as intended.
+
+            - Fix invalid stand-alone extraction statistics.
+              Removes unnecessary nesting lists of lists.
+
+              This fixes a bug in listing files not contained in the metadata
+              extraction provide results.
+
+            - Clean up 'indent()' and related unit tests.
+
+            - Remove warnings on repeated delegations.
+              This is now properly handled by the 'ProviderRunner' class.
+
+
 2018-02-20  [autonameow v0.5.5]
             Adds new metadata extractor 'PandocMetadataExtractor'
             that extracts titles, heading, table of contents, authors, etc.

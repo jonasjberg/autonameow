@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 import unit.utils as uu
 from core import constants as C
 from core.model import MeowURI
@@ -99,6 +101,62 @@ class CaseExtractorBasics(object):
         assert cls.EXTRACTOR_CLASS is not None
         assert cls.EXTRACTOR_NAME is not None
         cls.extractor = cls.EXTRACTOR_CLASS()
+
+    def test_instance_metainfo_returns_expected_type(self):
+        actual = self.extractor.metainfo()
+        self.assertIsInstance(actual, dict)
+
+    def test_instance_metainfo_is_not_mutable(self):
+        first = self.extractor.metainfo()
+        first['foo'] = 'bar'
+        second = self.extractor.metainfo()
+        self.assertNotEqual(first, second)
+        self.assertNotIn('foo', second)
+
+    def test_class_metainfo_returns_expected_type(self):
+        actual = self.EXTRACTOR_CLASS.metainfo()
+        self.assertIsInstance(actual, dict)
+
+    def test_class_metainfo_is_not_mutable(self):
+        first = self.EXTRACTOR_CLASS.metainfo()
+        first['foo'] = 'bar'
+        second = self.EXTRACTOR_CLASS.metainfo()
+        self.assertNotEqual(first, second)
+        self.assertNotIn('foo', second)
+
+    def test_instance_python_source_filepath_returns_expected_type(self):
+        actual = self.extractor.python_source_filepath()
+        self.assertIsInstance(actual, str)
+
+    def test_instance_python_source_filepath_returns_an_absolute_path(self):
+        actual = self.extractor.python_source_filepath()
+        self.assertTrue(os.path.isabs(actual))
+
+    def test_class_python_source_filepath_returns_expected_type(self):
+        actual = self.EXTRACTOR_CLASS.python_source_filepath()
+        self.assertIsInstance(actual, str)
+
+    def test_class_python_source_filepath_returns_an_absolute_path(self):
+        actual = self.EXTRACTOR_CLASS.python_source_filepath()
+        self.assertTrue(os.path.isabs(actual))
+
+    def test_instance_fieldmeta_filepath_is_path_to_an_existing_file(self):
+        actual = self.extractor.fieldmeta_filepath()
+        self.assertTrue(os.path.exists(actual))
+        self.assertTrue(os.path.isfile(actual))
+
+    def test_class_fieldmeta_filepath_is_path_to_an_existing_file(self):
+        actual = self.EXTRACTOR_CLASS.fieldmeta_filepath()
+        self.assertTrue(os.path.exists(actual))
+        self.assertTrue(os.path.isfile(actual))
+
+    def test_instance_metainfo_from_yaml_file_returns_expected_type(self):
+        actual = self.extractor.metainfo_from_yaml_file()
+        self.assertIsInstance(actual, dict)
+
+    def test_instance_metainfo_from_yaml_file_returns_some_contents(self):
+        actual = self.extractor.metainfo_from_yaml_file()
+        self.assertGreaterEqual(len(actual), 1)
 
     def test_instantiated_extractor_is_not_none(self):
         actual = self.extractor
@@ -188,6 +246,12 @@ class CaseExtractorBasics(object):
             'Expected "meowuri_prefix()" to return a string that starts with '
             '"{!s}".  Got "{!s}"'.format(expect_starts_with, actual)
         )
+
+    def test_class_method_name_returns_expected_value(self):
+        expect = self.EXTRACTOR_NAME
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        self.assertEqual(expect, self.EXTRACTOR_CLASS.name())
+        self.assertEqual(expect, self.extractor.name())
 
 
 class CaseExtractorOutput(object):

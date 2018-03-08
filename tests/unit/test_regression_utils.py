@@ -22,6 +22,11 @@
 import inspect
 import os
 from unittest import TestCase
+from unittest.mock import (
+    MagicMock,
+    patch
+)
+
 
 import unit.constants as uuconst
 import unit.utils as uu
@@ -348,9 +353,9 @@ class TestMockUIInterface(TestCase):
             'colorize_re_match',
             'colorize_quoted',
             'msg',
+            'msg_filename_replacement',
             'msg_possible_rename',
             'msg_rename',
-            'msg_replacement',
             'print_exit_info',
             'print_start_info',
             'print_version_info',
@@ -424,9 +429,6 @@ class TestMockUIActualUsage(TestCase):
     def test_call_msg_rename(self):
         self.mock_ui.msg_rename('foo', 'bar', False)
 
-    def test_call_msg_replacement(self):
-        self.mock_ui.msg_replacement('foo', 'bar', 'baz')
-
     def test_call_print_exit_info(self):
         self.mock_ui.print_exit_info(0, 1)
 
@@ -472,21 +474,25 @@ class TestAutonameowWrapper(TestCase):
     def setUp(self):
         self.aw = AutonameowWrapper()
 
+    @patch('core.autonameow.master_provider', MagicMock())
     def test_call(self):
         self.aw()
 
+    @patch('core.autonameow.master_provider', MagicMock())
     def test_captured_exitcode_type(self):
         self.aw()
         actual = self.aw.captured_exitcode
         self.assertIsNotNone(actual)
         self.assertTrue(type(actual), int)
 
+    @patch('core.autonameow.master_provider', MagicMock())
     def test_captured_stdout_type(self):
         self.aw()
         actual = self.aw.captured_stdout
         self.assertIsNotNone(actual)
         self.assertTrue(type(actual), str)
 
+    @patch('core.autonameow.master_provider', MagicMock())
     def test_captured_stderr_type(self):
         self.aw()
         actual = self.aw.captured_stderr
@@ -496,10 +502,12 @@ class TestAutonameowWrapper(TestCase):
 
 class TestAutonameowWrapperWithDefaultOptions(TestCase):
     @classmethod
+    @patch('core.autonameow.master_provider', MagicMock())
     def setUpClass(cls):
         cls.aw = AutonameowWrapper()
         cls.aw()
 
+    @patch('core.autonameow.master_provider', MagicMock())
     def test_exitcode_is_exit_success(self):
         actual = self.aw.captured_exitcode
         self.assertEqual(actual, C.EXIT_SUCCESS)

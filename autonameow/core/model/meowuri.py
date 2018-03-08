@@ -21,6 +21,7 @@
 
 import logging
 import re
+from collections import namedtuple
 
 from core import types
 from core import constants as C
@@ -35,22 +36,33 @@ log = logging.getLogger(__name__)
 # TODO: [TD0125] Add aliases (generics) for MeowURI leafs
 
 
+MeowURIParts = namedtuple('MeowURIParts', 'root children leaf')
+
+
 class MeowURIParser(object):
-    def parse(self, *args):
+    @staticmethod
+    def parse(*args):
         # Handle all kinds of combinations of arguments, lists and tuples.
         flattened = flatten_sequence_type(args)
         args_list = list(flattened)
 
-        # Normalize into a list of period-separated (Unicode(!)) words ..
+        # Normalize into a list of period-separated Unicode words ..
         raw_parts = []
         for arg in args_list:
-            if isinstance(arg, MeowURI):
-                # TODO: This is probably extremely inefficient ..
+            if isinstance(arg, (MeowURI, MeowURIChild, MeowURIRoot, MeowURILeaf)):
+                # TODO: [performance] This is probably extremely inefficient ..
                 arg = str(arg)
 
+            if not isinstance(arg, str):
+                raise InvalidMeowURIError(
+                    'Invalid MeowURI part: {} "{!s}"'.format(type(arg), arg)
+                )
+
             if is_meowuri_parts(arg):
-                raw_parts.extend(self._split(arg))
-            elif is_meowuri_part(arg):
+                # Split the "meowURI" by periods to a list of strings.
+                parts_list = meowuri_list(arg)
+                raw_parts.extend(parts_list)
+            elif is_one_meowuri_part(arg):
                 raw_parts.append(arg)
             else:
                 raise InvalidMeowURIError(
@@ -83,17 +95,7 @@ class MeowURIParser(object):
         if raw_parts:
             _children = [MeowURIChild(n) for n in raw_parts]
 
-        return _root, _children, _leaf
-
-    @staticmethod
-    def _split(raw_string):
-        # TODO: Data has already passed through functions requiring Unicode str
-        #       .. this makes no sense here.  Remove or relocate.
-        string = types.force_string(raw_string)
-        if string:
-            # Split the "meowURI" by periods to a list of strings.
-            return meowuri_list(string)
-        return []
+        return MeowURIParts(root=_root, children=_children, leaf=_leaf)
 
 
 class MeowURI(object):
@@ -106,16 +108,19 @@ class MeowURI(object):
     The "MeowURI" consists of (lower-case?) words, separated by periods.
 
     Examples:   "generic.metadata.author"
-                "extractor.filesystem.xplat.basename.prefix"
+                "extractor.filesystem.xplat.basename_prefix"
                 "analyzer.filename.datetime"
 
     NOTE: Assume that instances of this class are immutable once instantiated.
     """
-    MP = MeowURIParser()
-
     def __init__(self, *args):
-        self._root, self._children, self._leaf = self.MP.parse(*args)
-        self._parts = [self._root] + self._children + [self._leaf]
+        meowuri_parts = MeowURIParser.parse(*args)
+        self._root = meowuri_parts.root
+        self._children = meowuri_parts.children
+        self._leaf = meowuri_parts.leaf
+        self._parts = (
+            [meowuri_parts.root] + meowuri_parts.children + [meowuri_parts.leaf]
+        )
 
         # Lazily computed.
         self.__cached_str = None
@@ -158,17 +163,41 @@ class MeowURI(object):
     def is_generic(self):
         return self.root == C.MEOWURI_ROOT_GENERIC
 
-    def __contains__(self, item):
-        _self_string = str(self)
-        if isinstance(item, self.__class__):
-            _item_string = str(item)
-            return _self_string.startswith(_item_string)
-        elif isinstance(item, str):
+    def matches_start(self, item):
+        return self._check_partial_match(item, 'startswith')
+
+    def matches_end(self, item):
+        return self._check_partial_match(item, 'endswith')
+
+    def _check_partial_match(self, item, str_comparison_func):
+        self_str = str(self)
+        self_str_match_func = getattr(self_str, str_comparison_func)
+        assert callable(self_str_match_func)
+
+        if isinstance(item, str):
             if not item.strip():
                 return False
-            return _self_string.startswith(item)
-        else:
+            return self_str_match_func(item)
+        elif isinstance(item, (self.__class__, MeowURIRoot, MeowURILeaf)):
+            item_string = str(item)
+            return self_str_match_func(item_string)
+        return False
+
+    def __contains__(self, item):
+        if not isinstance(item, (str, self.__class__, MeowURIRoot, MeowURILeaf)):
             return False
+
+        self_str = str(self)
+        self_str_parts = meowuri_list(self_str)
+        item_string = str(item)
+        try:
+            item_string_parts = meowuri_list(item_string)
+        except InvalidMeowURIError:
+            return False
+        return any(p in self_str_parts for p in item_string_parts)
+
+    def stripleaf(self):
+        return MeowURI(self._parts[:-1])
 
     def __eq__(self, other):
         if isinstance(other, str):
@@ -207,7 +236,7 @@ class MeowURI(object):
         return self.__cached_str
 
     def __repr__(self):
-        return str(self)
+        return '<{}({!s})>'.format(self.__class__.__name__, self)
 
 
 class MeowURIChild(object):
@@ -282,7 +311,7 @@ RE_MEOWURI_PARTS = re.compile(
 )
 
 
-def is_meowuri_part(raw_string):
+def is_one_meowuri_part(raw_string):
     """
     Safely check if an unknown (string) argument is a valid MeowURI part.
 
@@ -319,29 +348,31 @@ def meowuri_list(meowuri):
     Returns: The components of the given "meowURI" as a list.
     """
     if not isinstance(meowuri, str):
-        raise InvalidMeowURIError('meowURI must be of type "str"')
+        raise InvalidMeowURIError('MeowURI must be of type "str"')
     else:
         uri = meowuri.strip()
     if not uri:
         raise InvalidMeowURIError('Got empty meowURI')
 
-    if '.' in uri:
-        # Remove any leading/trailing periods.
-        if uri.startswith('.'):
-            uri = uri.lstrip('.')
-        if uri.endswith('.'):
-            uri = uri.rstrip('.')
+    sep = str(C.MEOWURI_SEPARATOR)
+    if sep in uri:
+        # Remove any leading/trailing separators.
+        if uri.startswith(sep):
+            uri = uri.lstrip(sep)
+        if uri.endswith(sep):
+            uri = uri.rstrip(sep)
 
-        # Collapse any repeating periods.
-        while '..' in uri:
-            uri = uri.replace('..', '.')
+        # Collapse any repeating separators.
+        repeated_separators = 2 * sep
+        while repeated_separators in uri:
+            uri = uri.replace(repeated_separators, sep)
 
-        # Check if input is all periods.
-        stripped_period = str(uri).replace('.', '')
+        # Check if input is all separators.
+        stripped_period = str(uri).replace(sep, '')
         if not stripped_period.strip():
             raise InvalidMeowURIError('Invalid meowURI')
 
-    parts = uri.split('.')
+    parts = uri.split(sep)
     return [p for p in parts if p is not None]
 
 
@@ -355,10 +386,12 @@ def evaluate_meowuri_globs(meowuri_string, glob_list):
     which means that part is ignored during the comparison. Examples:
 
         meowuri                     glob_list                   evaluates
-        'contents.mime_type'        ['contents.mime_type']      True
+        'contents.bar'              ['contents.bar']            True
         'contents.foo'              ['foo.*', 'contents.*']     True
         'foo.bar'                   ['*.*']                     True
-        'filesystem.basename.full'  ['contents.*', '*.parent']  False
+        'filesystem.basename_full'  ['contents.*', '*.parent']  False
+
+    Note that the separator (currently a period) is defined in 'constants.py'.
 
     Args:
         meowuri_string: A string representation of a MeowURI.
@@ -386,8 +419,9 @@ def evaluate_meowuri_globs(meowuri_string, glob_list):
     if meowuri_string in glob_list:
         return True
 
+    sep = str(C.MEOWURI_SEPARATOR)
     for glob in glob_list:
-        glob_parts = glob.split('.')
+        glob_parts = glob.split(sep)
 
         # All wildcards match anything.
         if len([gp for gp in glob_parts if gp == '*']) == len(glob_parts):
@@ -400,23 +434,23 @@ def evaluate_meowuri_globs(meowuri_string, glob_list):
             else:
                 continue
 
-        if glob.startswith('*.') and glob.endswith('.*'):
+        if glob.startswith('*'+sep) and glob.endswith(sep+'*'):
             # Check if the center piece is a match.
             literal_glob_parts = [g for g in glob_parts if g != '*']
             for literal_glob_part in literal_glob_parts:
                 # Put back periods to match whole parts and not substrings.
-                glob_center_part = '.{}.'.format(literal_glob_part)
+                glob_center_part = '{sep}{lit}{sep}'.format(sep=sep, lit=literal_glob_part)
                 if glob_center_part in meowuri_string:
                     return True
 
         # First part doesn't matter, check if trailing pieces match.
-        if glob.startswith('*.'):
+        if glob.startswith('*'+sep):
             stripped_glob = re.sub(r'^\*', '', glob)
             if meowuri_string.endswith(stripped_glob):
                 return True
 
         # Last part doesn't matter, check if leading pieces match.
-        if glob.endswith('.*'):
+        if glob.endswith(sep+'*'):
             stripped_glob = re.sub(r'\*$', '', glob)
             if meowuri_string.startswith(stripped_glob):
                 return True

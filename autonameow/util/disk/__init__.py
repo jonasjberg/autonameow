@@ -36,6 +36,7 @@ from .sanitize import sanitize_filename
 from .yaml import (
     load_yaml,
     load_yaml_file,
+    write_yaml,
     write_yaml_file,
     YamlLoadError
 )

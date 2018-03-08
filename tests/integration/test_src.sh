@@ -78,6 +78,26 @@ check_git_ls_files_does_not_match 'docs/test_results'
 
 # ______________________________________________________________________________
 #
+# Make sure that data files are available.
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.mappings" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.preferred" e f r
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/analyzers/probable_extension_lookup" e f r
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/pandoc_template.plain" e f r
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/filetags_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/guessit_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/exiftool_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/jpeginfo_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/pandoc_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/common_fieldmeta.yaml" e f r
+
+
+# ______________________________________________________________________________
+#
 # Check TODO-list identifiers with stand-alone TODO-list utility script.
 
 _todo_helper_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/todo_id.py"

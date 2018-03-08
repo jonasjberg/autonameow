@@ -58,11 +58,7 @@ High Priority
 
 * `[TD0102]` Fix inconsistencies in results passed back by analyzers.
 
-* `[TD0108]` Fix inconsistencies in results passed back by plugins.
-
 * `[TD0126]` Clean up boundaries/interface to the `analyzers` package.
-
-* `[TD0128]` Clean up boundaries/interface to the `plugins` package.
 
 * `[TD0129]` Enforce passing validated data to `NameTemplateField.format()`.
 
@@ -73,6 +69,8 @@ High Priority
 
 Medium Priority
 ---------------
+
+* `[TD0180]` Add abstraction for file name composed of placeholder fields.
 
 * `[TD0174]` Do not do replacements in the NameTemplateField classes.
 
@@ -112,7 +110,7 @@ Medium Priority
     ```yaml
     Quicktime Desktop Recording:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.full: 'Untitled.mov'
+            extractor.filesystem.xplat.basename_full: 'Untitled.mov'
             extractor.filesystem.xplat.contents.mime_type: 'video/quicktime'
             extractor.filesystem.xplat.pathname.full: '/Users/jonas/Desktop'
         NAME_TEMPLATE: '{datetime} -- screenshot macbookpro.mov'
@@ -158,17 +156,6 @@ Medium Priority
 
 * `[TD0008]` Simplify installation.
     * Add support for `pip` or similar package manager.
-
-* `[TD0009]` Implement proper plugin interface
-    * Have plugins "register" themselves to a plugin handler?
-    * Querying plugins might need some translation layer between the
-      `autonameow` field naming convention and the specific plugins naming
-      convention. For instance, querying a plugin for `title` might require
-      actually querying the plugin for `document:title` or similar.
-    * Abstract base class for all plugins;
-        * Means of providing input data to the plugin.
-        * Means of executing the plugin.
-        * Means of querying for all or a specific field.
 
 * `[TD0015]` Allow conditionals in the configuration rules.
     * Test if a rule is applicable by evaluating conditionals.
@@ -235,23 +222,21 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0181]` Use machine learning in ISBN metadata de-duplication.
+
+* `[TD0177]` __Refactor the `ConfigFieldParser` classes.__  
+    Should not handle both parsing and evaluation of expressions.
+    This will have to be done in conjunction with `[TD0015]`.
+    Also, see related item `[TD0138]`.
+
 * `[TD0173]` Use `pandoc` to extract information from documents.
 
 * `[TD0164]` Mitigate mismatched throwing/catching of exceptions.
-
-* `[TD0163]` __Fix premature importing of providers.__  
-    Running `autonameow --help` if some provider dependency is missing should
-    not print `Excluding analyzer "<class 'analyze_ebook.EbookAnalyzer'>" due
-    to unmet dependencies` as the first thing, above the actual help text.
-    Instead "load" providers and check these dependencies just prior to
-    actually using them.
 
 * `[TD0162]` __Split up `autonameow.yaml` into separate files.__  
     Use separate configuration files for options, rules, etc.
 
 * `[TD0160]` Consolidate setting up working directories that might not exist.
-
-* `[TD0159]` Fix stand-alone extractor not respecting the `--quiet` option.
 
 * `[TD0154]` __Add "incrementing counter" placeholder field__  
     Add name template placeholder field for different kinds of numbering, I.E.
@@ -313,8 +298,6 @@ Low Priority
 
 * `[TD0141]` Coerce raw values to known types in the `ConfigurationParser`.
 
-* `[TD0140]` Template field classes `str()` method not working as intended.
-
 * `[TD0139]` Warn if data sources does not match name template placeholders?
 
 * `[TD0125]` __Add aliases (generics) for MeowURI leafs__  
@@ -368,8 +351,6 @@ Low Priority
 
 * `[TD0114]` Improve the `EbookAnalyzer`.
 
-* `[TD0113]` Fix exceptions not being handled properly (?)
-
 * `[TD0109]` __Allow arbitrary name template placeholder fields.__  
     It is currently difficult to use a rule similar to this:
 
@@ -380,9 +361,9 @@ Low Priority
             extractor.filesystem.xplat.contents.mime_type: video/*
         NAME_TEMPLATE: '{title} S{season}E{episode}.{extension}'
         DATA_SOURCES:
-            title: plugin.guessit.title
-            season: plugin.guessit.season
-            episode: plugin.guess.episode
+            title: extractor.filesystem.guessit.title
+            season: extractor.filesystem.guessit.season
+            episode: extractor.filesystem.guessit.episode
             extension: extractor.filesystem.xplat.contents.mime_type
         exact_match: true
     ```
@@ -396,8 +377,6 @@ Low Priority
     This could be solved by either adding `{season}` and `{episode}` as new
     template fields or by allowing arbitrary placeholder fields with some
     simple format like `{a}`, `{b}`, etc.
-
-* `[TD0096]` Fix some replacements cause incorrect color highlighting.
 
 * `[TD0091]` Take a look at old code in `util/dateandtime.py`.
 
@@ -449,12 +428,16 @@ Low Priority
       list of possible search strings that should be replace with the key.
 
 * `[TD0037]` Improve "filetags" integration.
-    * For instance, the Microsoft Vision API returns *a lot* of tags,
-      too many to use in a filename without any kind of selection process.
+    * Some providers return *a lot* of tags, too many to use in a filename
+      without any kind or probably multiple selection processes.
     * It would be very useful to be able to filter tags by getting the
       intersection of the unfiltered tags and a whitelist.
     * Allow specifying allowed tags in the configuration?
     * Allow specifying mutually exclusive tags in the configuration?
+    * Convert various metadata to tags.
+      From `XMP:Description: Computers, Software, Engineering` to a list of
+      tags `computers`, `software` and `engineering`.
+
 
 * `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF
   GPS data. Look into comparing coordinates with the

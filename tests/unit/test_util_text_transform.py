@@ -19,10 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import itertools
+import re
 from unittest import TestCase, skipIf
 
 try:
-    import guessit
+    import unidecode
 except ImportError:
     UNIDECODE_IS_NOT_AVAILABLE = True, 'Missing required module "unidecode"'
 else:
@@ -34,7 +36,9 @@ from util.text.transform import (
     collapse_whitespace,
     html_unescape,
     indent,
+    batch_regex_replace,
     normalize_unicode,
+    remove_blacklisted_lines,
     remove_nonbreaking_spaces,
     remove_zerowidth_spaces,
     simplify_unicode,
@@ -139,7 +143,7 @@ class TestCollapseWhitespace(TestCase):
         self._check('   foo   bar   \n', ' foo bar \n')
         self._check('    foo    bar    \n', ' foo bar \n')
 
-    def test_collapsees_multiple_spaces_with_newlines(self):
+    def test_collapses_multiple_spaces_with_newlines(self):
         self._check('foo   \n   bar\n   ', 'foo \n bar\n ')
         self._check('foo   \n   bar   \n', 'foo \n bar \n')
 
@@ -184,24 +188,24 @@ class TestIndent(TestCase):
     def test_invalid_arguments_raises_exception(self):
         def _assert_raises(exception_type, *args, **kwargs):
             with self.assertRaises(exception_type):
-                indent(*args, **kwargs)
+                _ = indent(*args, **kwargs)
 
-        _assert_raises(ValueError, None)
+        _assert_raises(AssertionError, None)
         _assert_raises(EncodingBoundaryViolation, b'')
-        _assert_raises(ValueError, 'foo', amount=0)
-        _assert_raises(TypeError, 'foo', amount=object())
+        _assert_raises(AssertionError, 'foo', columns=0)
+        _assert_raises(AssertionError, 'foo', columns=object())
 
-        # TODO: Should raise 'TypeError' when given 'ch=1' (expects str)
-        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=1)
-        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=b'')
-        _assert_raises(EncodingBoundaryViolation, 'foo', ch=b'')
+        # TODO: Should raise 'TypeError' when given 'padchar=1' (expects str)
+        _assert_raises(EncodingBoundaryViolation, 'foo', columns=2, padchar=1)
+        _assert_raises(EncodingBoundaryViolation, 'foo', columns=2, padchar=b'')
+        _assert_raises(EncodingBoundaryViolation, 'foo', padchar=b'')
 
     def test_indents_single_line(self):
-        self.assertEqual(indent('foo'), '    foo')
-        self.assertEqual(indent('foo bar'), '    foo bar')
+        self.assertEqual('    foo', indent('foo'))
+        self.assertEqual('    foo bar', indent('foo bar'))
 
     def test_indents_two_lines(self):
-        self.assertEqual(indent('foo\nbar'), '    foo\n    bar')
+        self.assertEqual('    foo\n    bar', indent('foo\nbar'))
 
     def test_indents_three_lines(self):
         input_ = ('foo\n'
@@ -213,14 +217,14 @@ class TestIndent(TestCase):
         self.assertEqual(indent(input_), expect)
 
     def test_indents_single_line_specified_amount(self):
-        self.assertEqual(indent('foo', amount=1), ' foo')
-        self.assertEqual(indent('foo', amount=2), '  foo')
-        self.assertEqual(indent('foo', amount=3), '   foo')
-        self.assertEqual(indent('foo', amount=4), '    foo')
-        self.assertEqual(indent('foo bar', amount=2), '  foo bar')
+        self.assertEqual(' foo', indent('foo', columns=1))
+        self.assertEqual('  foo', indent('foo', columns=2))
+        self.assertEqual('   foo', indent('foo', columns=3))
+        self.assertEqual('    foo', indent('foo', columns=4))
+        self.assertEqual('  foo bar', indent('foo bar', columns=2))
 
     def test_indents_two_lines_specified_amount(self):
-        self.assertEqual(indent('foo\nbar', amount=2), '  foo\n  bar')
+        self.assertEqual('  foo\n  bar', indent('foo\nbar', columns=2))
 
     def test_indents_three_lines_specified_amount(self):
         input_ = ('foo\n'
@@ -229,7 +233,7 @@ class TestIndent(TestCase):
         expect = ('  foo\n'
                   '    bar\n'
                   '  baz\n')
-        self.assertEqual(indent(input_, amount=2), expect)
+        self.assertEqual(expect, indent(input_, columns=2))
 
         input_ = ('foo\n'
                   '  bar\n'
@@ -237,17 +241,15 @@ class TestIndent(TestCase):
         expect = ('   foo\n'
                   '     bar\n'
                   '   baz\n')
-        self.assertEqual(indent(input_, amount=3), expect)
+        self.assertEqual(expect, indent(input_, columns=3))
 
     def test_indents_single_line_specified_padding(self):
-        self.assertEqual(indent('foo', ch='X'), 'XXXXfoo')
-        self.assertEqual(indent('foo bar', ch='X'), 'XXXXfoo bar')
+        self.assertEqual('XXXXfoo', indent('foo', padchar='X'))
+        self.assertEqual('XXXXfoo bar', indent('foo bar', padchar='X'))
 
     def test_indents_two_lines_specified_padding(self):
-        self.assertEqual(indent('foo\nbar', ch='X'),
-                         'XXXXfoo\nXXXXbar')
-        self.assertEqual(indent('foo\nbar', ch='Xj'),
-                         'XjXjXjXjfoo\nXjXjXjXjbar')
+        self.assertEqual('XXXXfoo\nXXXXbar', indent('foo\nbar', padchar='X'))
+        self.assertEqual('XjXjXjXjfoo\nXjXjXjXjbar', indent('foo\nbar', padchar='Xj'))
 
     def test_indents_three_lines_specified_padding(self):
         input_ = ('foo\n'
@@ -256,7 +258,7 @@ class TestIndent(TestCase):
         expect = ('XXXXfoo\n'
                   'XXXX  bar\n'
                   'XXXXbaz\n')
-        self.assertEqual(indent(input_, ch='X'), expect)
+        self.assertEqual(expect, indent(input_, padchar='X'))
 
         input_ = ('foo\n'
                   '  bar\n'
@@ -264,24 +266,21 @@ class TestIndent(TestCase):
         expect = ('XjXjXjXjfoo\n'
                   'XjXjXjXj  bar\n'
                   'XjXjXjXjbaz\n')
-        self.assertEqual(indent(input_, ch='Xj'), expect)
+        self.assertEqual(expect, indent(input_, padchar='Xj'))
 
     def test_indents_text_single_line_specified_padding_and_amount(self):
-        self.assertEqual(indent('foo', amount=1, ch='  '), '  foo')
-        self.assertEqual(indent('foo', amount=2, ch='  '), '    foo')
-        self.assertEqual(indent('foo', amount=1, ch=''), 'foo')
-        self.assertEqual(indent('foo', amount=2, ch=''), 'foo')
-        self.assertEqual(indent('foo', amount=3, ch=''), 'foo')
-        self.assertEqual(indent('foo', amount=4, ch=''), 'foo')
-        self.assertEqual(indent('foo', ch='X', amount=2), 'XXfoo')
-        self.assertEqual(indent('foo bar', ch='X', amount=2),
-                         'XXfoo bar')
+        self.assertEqual('  foo', indent('foo', columns=1, padchar='  '))
+        self.assertEqual('    foo', indent('foo', columns=2, padchar='  '))
+        self.assertEqual('foo', indent('foo', columns=1, padchar=''))
+        self.assertEqual('foo', indent('foo', columns=2, padchar=''))
+        self.assertEqual('foo', indent('foo', columns=3, padchar=''))
+        self.assertEqual('foo', indent('foo', columns=4, padchar=''))
+        self.assertEqual('XXfoo', indent('foo', padchar='X', columns=2))
+        self.assertEqual('XXfoo bar', indent('foo bar', padchar='X', columns=2))
 
     def test_indents_two_lines_specified_padding_and_amount(self):
-        self.assertEqual(indent('foo\nbar', ch='X', amount=2),
-                         'XXfoo\nXXbar')
-        self.assertEqual(indent('foo\nbar', ch='X', amount=4),
-                         'XXXXfoo\nXXXXbar')
+        self.assertEqual('XXfoo\nXXbar', indent('foo\nbar', padchar='X', columns=2))
+        self.assertEqual('XXXXfoo\nXXXXbar', indent('foo\nbar', padchar='X', columns=4))
 
     def test_indents_three_lines_specified_padding_and_amount(self):
         input_ = ('foo\n'
@@ -290,7 +289,7 @@ class TestIndent(TestCase):
         expect = ('XXfoo\n'
                   'XX  bar\n'
                   'XXbaz\n')
-        self.assertEqual(indent(input_, ch='X', amount=2), expect)
+        self.assertEqual(expect, indent(input_, padchar='X', columns=2))
 
         input_ = ('foo\n'
                   '  bar\n'
@@ -298,7 +297,7 @@ class TestIndent(TestCase):
         expect = ('XXXfoo\n'
                   'XXX  bar\n'
                   'XXXbaz\n')
-        self.assertEqual(indent(input_, ch='X', amount=3), expect)
+        self.assertEqual(expect, indent(input_, padchar='X', columns=3))
 
 
 class TestNormalizeUnicode(TestCase):
@@ -496,3 +495,222 @@ class TestStripAccentsUnidecode(TestCase):
     def test_strips_accents(self):
         self._assert_strips(given='Mère, Françoise, noël, 889',
                             expect='Mere, Francoise, noel, 889')
+
+
+class TestBatchRegexReplace(TestCase):
+    def _check_call(self, given, expect, regex_replacements):
+        actual = batch_regex_replace(regex_replacements, given)
+        self.assertEqual(expect, actual)
+
+    def test_one_replacement(self):
+        reps = [
+            (re.compile(r'Foo'), 'Mjao')
+        ]
+        self._check_call(given='Foo Bar', expect='Mjao Bar',
+                          regex_replacements=reps)
+
+    def test_two_replacements(self):
+        reps = [
+            (re.compile(r'Foo'), 'Mjao'),
+            (re.compile(r' '), 'X'),
+        ]
+        self._check_call(given='Foo Bar', expect='MjaoXBar',
+                          regex_replacements=reps)
+
+    def test_three_replacements(self):
+        reps = [
+            (re.compile(r'Foo'), 'Mjao'),
+            (re.compile(r' '), 'X'),
+            (re.compile(r'(bar){2,}'), 'bar'),
+        ]
+        self._check_call(given='Foo barbar Bar', expect='MjaoXbarXBar',
+                          regex_replacements=reps)
+
+    def test_perform_longer_replacements_first(self):
+        reps = [
+            (re.compile(r'In A'), 'in a'),
+            (re.compile(r'In'), 'in'),
+            (re.compile(r'A'), 'a'),
+            (re.compile(r'The'), 'the'),
+        ]
+        for reps_order in itertools.permutations(reps):
+            with self.subTest(replacements=reps_order):
+                self._check_call(given='The Cat In A Hat',
+                                  expect='the Cat in a Hat',
+                                  regex_replacements=reps_order)
+
+    def test_perform_longer_replacements_first_with_word_boundaries(self):
+        reps = [
+            (re.compile(r'\bIn A\b'), 'in a'),
+            (re.compile(r'\bIn\b'), 'in'),
+            (re.compile(r'\bA\b'), 'a'),
+            (re.compile(r'\bThe\b'), 'the'),
+        ]
+        for reps_order in itertools.permutations(reps):
+            with self.subTest(replacements=reps_order):
+                self._check_call(given='The Cat In A Hat InA The FlAt',
+                                  expect='the Cat in a Hat InA the FlAt',
+                                  regex_replacements=reps_order)
+
+    def test_does_not_exhibit_inconsistent_behaviour(self):
+        reps = [
+            (re.compile(r'\bThe\b'), 'the'),
+            (re.compile(r'\bAnd\b'), 'and'),
+            (re.compile(r'\bIn\b'), 'in'),
+            (re.compile(r'\bOf\b'), 'of'),
+            (re.compile(r'\bIn A\b'), 'in a'),
+        ]
+        for reps_order in itertools.permutations(reps):
+            with self.subTest(replacements=reps_order):
+                self._check_call(given='a cat And a Dog In A thing in The HAT',
+                                  expect='a cat and a Dog in a thing in the HAT',
+                                  regex_replacements=reps_order)
+
+    def test_replaces_single_quote(self):
+        self._check_call(given='Foo\'s Bar', expect='Foos Bar',
+                          regex_replacements=[(re.compile(r'[\']'), '')])
+        self._check_call(given='Foo\'s Bar', expect='Foos Bar',
+                          regex_replacements=[(re.compile(r"'"), '')])
+        self._check_call(given='Foo\'s Bar', expect='Foos Bar',
+                          regex_replacements=[(re.compile("'"), '')])
+
+
+class TestRemoveBlacklistedLines(TestCase):
+    def _assert_that_it_returns(self, expected, given_text, given_blacklist):
+        actual = remove_blacklisted_lines(given_text, given_blacklist)
+        self.assertEqual(expected, actual)
+
+    def test_returns_empty_or_whitespace_text_as_is(self):
+        for text in ['', ' ', '\n', ' \n', ' \n ']:
+            for blacklist in [[], ['a'], frozenset([]), frozenset(['a'])]:
+                with self.subTest(given=text, blacklist=blacklist):
+                    self._assert_that_it_returns(
+                        expected=text,
+                        given_text=text,
+                        given_blacklist=blacklist
+                    )
+
+    def test_returns_text_as_is_if_blacklist_is_empty_list(self):
+        self._assert_that_it_returns(
+            expected='foo\nbar',
+            given_text='foo\nbar',
+            given_blacklist=[]
+        )
+
+    def test_returns_text_as_is_if_blacklist_is_empty_frozenset(self):
+        self._assert_that_it_returns(
+            expected='foo\nbar',
+            given_text='foo\nbar',
+            given_blacklist=frozenset([])
+        )
+
+    def test_removes_one_blacklisted_line(self):
+        self._assert_that_it_returns(
+            expected='''
+Foo Bar: A Modern Approach
+Foo Bar
+''',
+            given_text='''
+Foo Bar: A Modern Approach
+This page intentionally left blank
+Foo Bar
+''',
+            given_blacklist=frozenset(['This page intentionally left blank'])
+        )
+
+    def test_removes_single_blacklisted_line_and_keeps_line_breaks(self):
+        self._assert_that_it_returns(
+            expected='''
+Foo Bar: A Modern Approach
+
+
+a
+
+b
+''',
+            given_text='''
+Foo Bar: A Modern Approach
+
+This page intentionally left blank
+
+a
+
+b
+''',
+            given_blacklist=frozenset(['This page intentionally left blank'])
+        )
+
+    def test_removes_one_matching_line_with_one_blacklisted_word(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+b
+
+c
+''',
+            given_text='''
+a
+b
+MEOW
+
+c
+''',
+            given_blacklist=frozenset(['MEOW'])
+        )
+
+    def test_removes_multiple_matching_lines_with_one_blacklisted_word(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+b
+
+c
+''',
+            given_text='''
+a
+MEOW
+MEOW
+b
+MEOW
+
+c
+MEOW
+''',
+            given_blacklist=frozenset(['MEOW'])
+        )
+
+    def test_removes_matching_lines_with_two_blacklisted_words(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+
+c
+''',
+            given_text='''
+a
+MEOW
+
+c
+''',
+            given_blacklist=frozenset(['MEOW', 'b'])
+        )
+
+    def test_removes_matching_lines_with_multiple_blacklisted_words(self):
+        self._assert_that_it_returns(
+            expected='''
+a MEOW
+
+''',
+            given_text='''
+a MEOW
+MEOW
+c
+MEOW
+b
+MEOW
+
+c
+MEOW
+''',
+            given_blacklist=frozenset(['MEOW', 'b', 'c'])
+        )

@@ -27,11 +27,13 @@ from unittest import (
 
 from util.text.humannames import (
     _parse_name,
+    filter_multiple_names,
     format_name,
     format_name_list,
     HumanNameFormatter,
     HumanNameParser,
     LastNameInitialsFormatter,
+    split_multiple_names,
     strip_author_et_al,
     strip_edited_by
 )
@@ -126,6 +128,9 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     TD(Given='Steve Anson ... et al', Expect='Anson S.'),
     TD(Given='Steve Anson ... [et al]', Expect='Anson S.'),
     TD(Given='Steve Anson ... [et al.]', Expect='Anson S.'),
+
+    # Failed special cases
+    TD(Given='Regina O. Obe', Expect='Obe R.O.'),
 ]
 
 TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
@@ -163,7 +168,11 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
               'Ming Yang', 'Yun Li', 'Frank Klawonn',
               'Antonio J. Tallon-Ballesteros'],
        Expect=['Gao Y.', 'Klawonn F.', 'Li B.', 'Li Y.',
-               'Tallon-Ballesteros A.J.', 'Yang M.', 'Yin H.', 'Zhang D.'])
+               'Tallon-Ballesteros A.J.', 'Yang M.', 'Yin H.', 'Zhang D.']),
+
+    # Failed special cases
+    TD(Given=['Regina O. Obe', 'Leo S. Hsu'],
+       Expect=['Hsu L.S.', 'Obe R.O.']),
 ]
 
 
@@ -420,3 +429,93 @@ class TestFormatNameList(TestCase):
         for given, expect in TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS:
             actual = format_name_list(given, valid_formatter)
             self.assertEqual(actual, expect)
+
+
+class TestSplitMultipleNames(TestCase):
+    def _assert_that_it_returns(self, expected, given_any_of):
+        for given in given_any_of:
+            with self.subTest(given=given, expected=expected):
+                actual = split_multiple_names(given)
+                self.assertEqual(expected, actual)
+
+    def test_splits_two_names_where_one_contains_an_initial(self):
+        self._assert_that_it_returns(
+            expected=[
+                'Gross Gorelick', 'Andy D. Kennel'
+            ],
+            given_any_of=[
+                ['Gross Gorelick, Andy D. Kennel'],
+                ['Gross Gorelick,Andy D. Kennel'],
+                ['Gross Gorelick and Andy D. Kennel'],
+                ['Gross Gorelick, and Andy D. Kennel'],
+                ['Gross Gorelick,and Andy D. Kennel'],
+            ])
+
+    def test_splits_two_first_name_last_name_names_various_separators(self):
+        self._assert_that_it_returns(
+            expected=[
+                'Raúl Garreta', 'Guillermo Moncecchi'
+            ],
+            given_any_of=[
+                ['Raúl Garreta, Guillermo Moncecchi'],
+                ['Raúl Garreta,Guillermo Moncecchi'],
+                ['Raúl Garreta and Guillermo Moncecchi'],
+                ['Raúl Garreta, and Guillermo Moncecchi'],
+            ])
+
+    def test_splits_three_first_name_last_name_names_various_separators(self):
+        self._assert_that_it_returns(
+            expected=[
+                'Gibson Pawsy', 'Friedrich Nietzsche', 'Foobar Baz'
+            ],
+            given_any_of=[
+                ['Gibson Pawsy, Friedrich Nietzsche, Foobar Baz'],
+                ['Gibson Pawsy, Friedrich Nietzsche and Foobar Baz'],
+                ['Gibson Pawsy and Friedrich Nietzsche, Foobar Baz'],
+                ['Gibson Pawsy and Friedrich Nietzsche and Foobar Baz'],
+                ['Gibson Pawsy, Friedrich Nietzsche, and Foobar Baz'],
+                ['Gibson Pawsy and Friedrich Nietzsche, and Foobar Baz'],
+                ['Gibson Pawsy, and Friedrich Nietzsche and Foobar Baz'],
+                ['Gibson Pawsy, and Friedrich Nietzsche, and Foobar Baz'],
+
+                ['Gibson Pawsy,Friedrich Nietzsche,Foobar Baz'],
+                ['Gibson Pawsy,Friedrich Nietzsche and Foobar Baz'],
+                ['Gibson Pawsy and Friedrich Nietzsche,Foobar Baz'],
+                ['Gibson Pawsy and Friedrich Nietzsche and Foobar Baz'],
+                ['Gibson Pawsy,Friedrich Nietzsche,and Foobar Baz'],
+                ['Gibson Pawsy and Friedrich Nietzsche,and Foobar Baz'],
+                ['Gibson Pawsy,and Friedrich Nietzsche and Foobar Baz'],
+                ['Gibson Pawsy,and Friedrich Nietzsche,and Foobar Baz'],
+            ])
+
+    def test_splits_two_names_where_one_contains_a_middle_name(self):
+        self._assert_that_it_returns(
+            expected=[
+                'Gibson Cat Sjöberg', 'Woo Blackmoon'
+            ],
+            given_any_of=[
+                ['Gibson Cat Sjöberg, Woo Blackmoon'],
+                ['Gibson Cat Sjöberg and Woo Blackmoon'],
+                ['Gibson Cat Sjöberg, and Woo Blackmoon'],
+            ])
+
+    def test_splits_three_names_split_across_two_lists(self):
+        self._assert_that_it_returns(
+            expected=[
+                'Gibson Cat Sjöberg', 'Woo Blackmoon', 'Friedrich Nietzsche'
+            ],
+            given_any_of=[
+                [['Gibson Cat Sjöberg, Woo Blackmoon'], 'Friedrich Nietzsche'],
+                [['Gibson Cat Sjöberg and Woo Blackmoon'], 'Friedrich Nietzsche'],
+                [['Gibson Cat Sjöberg, and Woo Blackmoon'], 'Friedrich Nietzsche'],
+            ])
+
+
+class TestFilterMultipleNames(TestCase):
+    def test_returns_valid_names_as_is(self):
+        self.assertEqual(['Friedrich Nietzsche', 'Gibson Sjöberg'],
+                         filter_multiple_names(['Friedrich Nietzsche', 'Gibson Sjöberg']))
+
+    def test_removes_names_consisting_of_a_single_letter(self):
+        self.assertEqual(['Ankur Ankan', 'Abinash P'],
+                         filter_multiple_names(['Ankur Ankan', 'Abinash P', 'a']))

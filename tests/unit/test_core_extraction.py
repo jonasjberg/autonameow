@@ -31,9 +31,10 @@ import unit.utils as uu
 class TestFilterAbleToHandle(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.all_provider_classes = set(extractors.ProviderClasses)
+        cls.ALL_AVAILABLE_EXTRACTORS = extractors.registry.all_providers
         cls.extractor_class_names = [
-            e.__name__ for e in cls.all_provider_classes
+            # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+            e.name() for e in cls.ALL_AVAILABLE_EXTRACTORS
         ]
 
     def _assert_in_if_available(self, member, container):
@@ -46,8 +47,9 @@ class TestFilterAbleToHandle(TestCase):
             self.assertNotIn(member, container)
 
     def _names_of_resulting_extractors(self, fileobject):
-        klasses = filter_able_to_handle(self.all_provider_classes, fileobject)
-        return [k.__name__ for k in klasses]
+        klasses = filter_able_to_handle(self.ALL_AVAILABLE_EXTRACTORS, fileobject)
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        return [k.name() for k in klasses]
 
     def _check_returned_extractors_for(self, fileobject, expected, if_available):
         actual = self._names_of_resulting_extractors(fileobject)
@@ -67,7 +69,7 @@ class TestFilterAbleToHandle(TestCase):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='video/mp4'),
             expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
-            if_available=['ExiftoolMetadataExtractor']
+            if_available=['ExiftoolMetadataExtractor', 'GuessitExtractor']
         )
 
     def test_returns_expected_extractors_for_png_image_file(self):

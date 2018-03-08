@@ -15,8 +15,8 @@ RULES:
                 extension: png
         DATA_SOURCES:
             datetime: analysis.filename.unixtimestamp
-            extension: filesystem.basename.extension
-            title: filesystem.basename.prefix
+            extension: filesystem.extension
+            title: filesystem.basename_prefix
         NAME_TEMPLATE: "{datetime} {title} -- screenshot macbookpro.{extension}"
         exact_match: true
         weight: 1
@@ -30,8 +30,8 @@ RULES:
                 extension: mov
         DATA_SOURCES:
             datetime: metadata.exiftool.QuickTime:CreationDate
-            extension: filesystem.basename.extension
-            title: filesystem.basename.prefix
+            extension: filesystem.extension
+            title: filesystem.basename_prefix
         NAME_TEMPLATE: "{datetime} {title} -- screenshot macbookpro.{extension}"
         exact_match: true
         weight: 1
@@ -44,8 +44,8 @@ RULES:
                 extension: pdf
         DATA_SOURCES:
             datetime: metadata.exiftool.PDF:CreateDate
-            extension: filesystem.basename.extension
-            title: filesystem.basename.prefix
+            extension: filesystem.extension
+            title: filesystem.basename_prefix
         NAME_TEMPLATE: "{datetime}\_{title}.{extension}"
         exact_match: true
         weight: null
@@ -57,8 +57,8 @@ RULES:
                 basename: smulån@föo.jpg
         DATA_SOURCES:
             datetime: metadata.exiftool.EXIF:DateTimeOriginal
-            description: plugin.microsoft_vision.caption
-            extension: filesystem.basename.extension
+            description: extractor.filesystem.filetags.description
+            extension: filesystem.extension
         NAME_TEMPLATE: "{datetime}\_{description}.{extension}"
         exact_match: true
         weight: 1

@@ -62,20 +62,31 @@ class TestCliMain(TestCase):
     # the "captured stdout" is always empty which causes tests in
     # 'test_regression_utils.py' to fail..
 
+    # TODO: [cleanup] This much mocking indicates poor design choices ..
+    @patch('core.providers.Registry')
     @patch('core.main.sys.exit', MagicMock())
     @patch('core.logs.init_logging', MagicMock())
-    def test_prints_help_when_started_without_args(self):
+    @patch('core.autonameow.master_provider', MagicMock())
+    @patch('core.providers.initialize', MagicMock())
+    def test_prints_help_when_started_without_args(self, mock_registry):
+        mock_registry.might_be_resolvable.return_value = True
+
         with uu.capture_stdout() as out:
             cli_main(self.EMPTY_COMMANDLINE_OPTIONS)
 
             # NOTE: [hardcoded] Likely to break if usage help text is changed.
             self.assertIn('"--help"', out.getvalue().strip())
 
+    # TODO: [cleanup] This much mocking indicates poor design choices ..
     @patch('core.main.sys.exit')
     @patch('core.main.Autonameow.exit_program')
+    @patch('core.providers.Registry')
     @patch('core.logs.init_logging', MagicMock())
+    @patch('core.autonameow.master_provider', MagicMock())
+    @patch('core.providers.initialize', MagicMock())
     def test_exits_with_expected_return_code_when_started_without_args(
-            self, mock_exit_program, mock_sys_exit):
+            self, mock_registry, mock_exit_program, mock_sys_exit):
+        mock_registry.might_be_resolvable.return_value = True
 
         with uu.capture_stdout() as _:
             cli_main(self.EMPTY_COMMANDLINE_OPTIONS)

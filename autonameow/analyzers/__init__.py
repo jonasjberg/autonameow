@@ -95,5 +95,15 @@ def get_analyzer_classes():
     return out
 
 
-# TODO: [TD0163] Fix premature importing of providers.
-ProviderClasses = get_analyzer_classes()
+class AnalyzerRegistry(object):
+    def __init__(self):
+        self._all_providers = None
+
+    @property
+    def all_providers(self):
+        if self._all_providers is None:
+            self._all_providers = set(get_analyzer_classes())
+        return self._all_providers
+
+
+registry = AnalyzerRegistry()

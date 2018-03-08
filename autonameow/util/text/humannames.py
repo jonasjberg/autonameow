@@ -22,7 +22,10 @@
 import re
 
 from thirdparty import nameparser
-from util import sanity
+from util import (
+    flatten_sequence_type,
+    sanity,
+)
 
 
 RE_AUTHOR_ET_AL = re.compile(
@@ -89,10 +92,6 @@ class HumanNameParser(object):
         '',
     ])
 
-    # Regex matching names in the class-specific format.
-    # NOTE: This __MUST__ be defined by inheriting classes!
-    RE_FORMATTED_NAME = None
-
     def __call__(self, name):
         if name is None:
             return {}
@@ -103,11 +102,29 @@ class HumanNameParser(object):
         if not parsed_name:
             return {}
 
+        checked_parsed_name = self._check_bad_nameparser_result(parsed_name)
+        return checked_parsed_name
+
+    @classmethod
+    def _check_bad_nameparser_result(cls, parsed_name):
+        # Check for bad handling of names like 'Regina O. Obe'
+        original_parts = parsed_name.get('original', '').split(' ')
+        if len(original_parts) == 3 and re.match(r'[A-Z]\.', original_parts[1]):
+            if parsed_name.get('suffix', '') == original_parts[2]:
+                # Last name mistaken for suffix
+                # Middle name mistaken for last name
+                if not parsed_name.get('middle'):
+                    parsed_name['suffix'] = ''
+                    parsed_name['suffix_list'] = ['']
+                    parsed_name['middle'] = original_parts[1]
+                    parsed_name['middle_list'] = [original_parts[1]]
+                    parsed_name['last'] = original_parts[2]
+                    parsed_name['last_list'] = [original_parts[2]]
         return parsed_name
 
     @classmethod
     def _preprocess(cls, name):
-        if not name or not name.strip():
+        if not name.strip():
             return ''
 
         for ignored_word in cls.IGNORED_AUTHOR_WORDS:
@@ -128,11 +145,6 @@ class HumanNameFormatter(object):
 
     Example usage:  formatted = HumanNameFormatterSubclass()('Lord Gibson III')
     """
-    # List of words to exclude from the output.
-    IGNORED_AUTHOR_WORDS = frozenset([
-        '',
-    ])
-
     # Regex matching names in the class-specific format.
     # NOTE: This __MUST__ be defined by inheriting classes!
     RE_FORMATTED_NAME = None
@@ -264,3 +276,19 @@ def format_name(human_name, formatter=None):
         return ''
 
     return formatter(_parsed_name)
+
+
+def split_multiple_names(list_of_names):
+    RE_NAME_SEPARATORS = r',| ?and'
+
+    result = list()
+    flat_list_of_names = flatten_sequence_type(list_of_names)
+    for name_or_names in flat_list_of_names:
+        split_parts = re.split(RE_NAME_SEPARATORS, name_or_names)
+        non_whitespace_parts = [p.strip() for p in split_parts if p]
+        result.extend(non_whitespace_parts)
+    return result
+
+
+def filter_multiple_names(list_of_names):
+    return [n for n in list_of_names if len(n) > 1]
