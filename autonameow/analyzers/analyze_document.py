@@ -81,7 +81,9 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         # TODO: Search text for datetime information.
 
-        text_titles = [t for t, _ in find_titles_in_text(text_chunk_1)]
+        text_titles = [
+            t for t, _ in find_titles_in_text(text_chunk_1, num_lines_to_search=1)
+        ]
         if text_titles:
             # TODO: Pass multiple possible titles with probabilities.
             #       (title is not "multivalued")
@@ -136,25 +138,34 @@ class DocumentAnalyzer(BaseAnalyzer):
         return True
 
 
-def find_titles_in_text(text):
+def find_titles_in_text(text, num_lines_to_search):
     # Add all lines that aren't all whitespace or all dashes, from the
-    # first to line number "MAX_LINES".
-    # The first line is assigned probability 1, probabilities decrease
-    # for each line until line number "MAX_LINES" with probability 0.
-    MAX_LINES = 1
+    # first to line number "num_lines_to_search".
+    # The first line is assigned probability 1, probabilities decrease for
+    # for each line until line number "num_lines_to_search" with probability 0.1.
+    assert isinstance(num_lines_to_search, int) and num_lines_to_search > 0
 
     titles = list()
-    for num, line in enumerate(text.splitlines()):
-        if num > MAX_LINES:
+    line_count = 0
+    for line in text.splitlines():
+        if line_count == num_lines_to_search:
             break
 
-        if line.strip() and line.replace('-', ''):
-            _prob = (MAX_LINES - num) / MAX_LINES
-            # TODO: Set probability dynamically ..
-            # self._add_intermediate_results(
-            #     'title', self._wrap_generic_title(line, _prob)
-            # )
-            titles.append((line, _prob))
+        if not line.strip():
+            continue
+
+        if not line.replace('-', ''):
+            # TODO: [TD0130] Improve matching irrelevant lines to be ignored.
+            continue
+
+        score = (num_lines_to_search - line_count) / num_lines_to_search
+        # TODO: Set probability dynamically ..
+        # self._add_intermediate_results(
+        #     'title', self._wrap_generic_title(line, score)
+        # )
+        titles.append((line, score))
+
+        line_count += 1
 
     return titles
 
