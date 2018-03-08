@@ -40,6 +40,7 @@ __all__ = [
     'normalize_unicode',
     'simplify_unicode',
     'remove_blacklisted_lines',
+    'remove_blacklisted_re_lines',
     'remove_nonbreaking_spaces',
     'remove_zerowidth_spaces',
     'strip_ansiescape',
@@ -327,5 +328,31 @@ def remove_blacklisted_lines(text, blacklist):
     for line in text.splitlines(keepends=True):
         if not any(line.strip() == bad_line for bad_line in blacklisted_lines):
             out.append(line)
+
+    return ''.join(out)
+
+
+def remove_blacklisted_re_lines(text, compiled_regexes):
+    """
+    Removes any text lines that matches any regular expression in 'blacklist'.
+
+    Any line separators are removed from each line before evaluating
+    the regular expressions.
+
+    Args:
+        text: The text to process as a Unicode string.
+        compiled_regexes: Regular expressions matching lines to blacklist.
+
+    Returns:
+        The given text with any lines matching any of the given regular
+        expressions removed, as a Unicode string.
+    """
+    regexes = set(compiled_regexes)
+    out = []
+    for line in text.splitlines(keepends=True):
+        stripped_line = line.strip()
+        if any(regex.match(stripped_line) for regex in regexes):
+            continue
+        out.append(line)
 
     return ''.join(out)

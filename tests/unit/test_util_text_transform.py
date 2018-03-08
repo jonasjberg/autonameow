@@ -39,6 +39,7 @@ from util.text.transform import (
     batch_regex_replace,
     normalize_unicode,
     remove_blacklisted_lines,
+    remove_blacklisted_re_lines,
     remove_nonbreaking_spaces,
     remove_zerowidth_spaces,
     simplify_unicode,
@@ -713,4 +714,146 @@ c
 MEOW
 ''',
             given_blacklist=frozenset(['MEOW', 'b', 'c'])
+        )
+
+
+class TestRemoveBlacklistedReLines(TestCase):
+    def _assert_that_it_returns(self, expected, given_text, given_blacklist):
+        compiled_regexes = [re.compile(p) for p in given_blacklist]
+        actual = remove_blacklisted_re_lines(given_text, compiled_regexes)
+        self.assertEqual(expected, actual)
+
+    def test_returns_empty_or_whitespace_text_as_is(self):
+        for text in ['', ' ', '\n', ' \n', ' \n ']:
+            for blacklist in [[], [r'a'], frozenset([]), frozenset([r'a'])]:
+                with self.subTest(given=text, blacklist=blacklist):
+                    self._assert_that_it_returns(
+                        expected=text,
+                        given_text=text,
+                        given_blacklist=blacklist
+                    )
+
+    def test_returns_text_as_is_if_blacklist_is_empty_list(self):
+        self._assert_that_it_returns(
+            expected='foo\nbar',
+            given_text='foo\nbar',
+            given_blacklist=[]
+        )
+
+    def test_returns_text_as_is_if_blacklist_is_empty_frozenset(self):
+        self._assert_that_it_returns(
+            expected='foo\nbar',
+            given_text='foo\nbar',
+            given_blacklist=frozenset([])
+        )
+
+    def test_removes_one_matching_blacklisted_line(self):
+        self._assert_that_it_returns(
+            expected='''
+Foo Bar: A Modern Approach
+Foo Bar
+''',
+            given_text='''
+Foo Bar: A Modern Approach
+This page intentionally left blank
+Foo Bar
+''',
+            given_blacklist=frozenset([r'.*intentionally.*'])
+        )
+
+    def test_removes_single_matching_line_and_keeps_line_breaks(self):
+        self._assert_that_it_returns(
+            expected='''
+Foo Bar: A Modern Approach
+
+
+a
+
+b
+''',
+            given_text='''
+Foo Bar: A Modern Approach
+
+This page intentionally left blank
+
+a
+
+b
+''',
+            given_blacklist=frozenset(['.*intentionally.*'])
+        )
+
+    def test_removes_one_matching_line_with_one_blacklist_regex(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+b
+
+c
+''',
+            given_text='''
+a
+b
+MEOW
+
+c
+''',
+            given_blacklist=frozenset(['M..W'])
+        )
+
+    def test_removes_multiple_matching_lines_with_one_blacklist_regex(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+b
+
+c
+''',
+            given_text='''
+a
+MEOW
+MEOW
+b
+MEOW
+
+c
+MEOW
+''',
+            given_blacklist=frozenset(['M.*W'])
+        )
+
+    def test_removes_matching_lines_with_two_blacklist_regexes(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+
+c
+''',
+            given_text='''
+a
+MEOW
+
+c
+''',
+            given_blacklist=frozenset(['M.*W', 'b'])
+        )
+
+    def test_removes_matching_lines_with_multiple_blacklist_regexes(self):
+        self._assert_that_it_returns(
+            expected='''
+a MEOW
+
+''',
+            given_text='''
+a MEOW
+MEOW
+c
+MEOW
+b
+MEOW
+
+cat
+MEOW
+''',
+            given_blacklist=frozenset(['M.*', 'b', 'c.*'])
         )
