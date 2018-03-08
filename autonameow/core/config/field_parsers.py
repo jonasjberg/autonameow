@@ -313,13 +313,13 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         if not expression:
             return False
 
-        string_expr = types.force_string(expression)
-        if not string_expr:
+        str_expression = types.force_string(expression)
+        if not str_expression:
             return False
 
         try:
             # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
-            if re.match(r'^([a-z]+|\*)/([a-z0-9\-.+]+|\*)$', string_expr):
+            if re.match(r'^([a-z]+|\*)/([a-z0-9\-.+]+|\*)$', str_expression):
                 return True
         except TypeError:
             pass

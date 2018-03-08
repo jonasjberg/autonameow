@@ -92,7 +92,7 @@ def _run_jpeginfo(source):
     except (OSError, ValueError, TypeError, subprocess.SubprocessError) as e:
         raise ExtractorError(e)
 
-    result = types.force_string(stdout)
-    if not result:
+    str_stdout = types.force_string(stdout)
+    if not str_stdout:
         return ''
-    return result
+    return str_stdout

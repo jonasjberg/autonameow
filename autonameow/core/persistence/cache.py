@@ -107,12 +107,12 @@ class BaseCache(object):
 
     @owner.setter
     def owner(self, value):
-        _owner = types.force_string(value)
-        if not _owner.strip():
+        str_value = types.force_string(value)
+        if not str_value.strip():
             raise CacheError(
                 'Argument "owner" must be a valid, non-empty/whitespace string'
             )
-        self._owner = _owner
+        self._owner = str_value
 
     def get(self, key):
         """

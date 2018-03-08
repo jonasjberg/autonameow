@@ -234,6 +234,7 @@ class TestIsValidTemplateField(TestCase):
             self.assertFalse(fields.is_valid_template_field(test_input))
 
         _aF(None)
+        _aF(False)
         _aF('')
         _aF('foo')
 

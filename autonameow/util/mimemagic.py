@@ -396,12 +396,12 @@ def _read_mimetype_extension_mapping_file(mapfile_basename, callback):
         except ValueError:
             log.error('Error parsing "{!s}" line {}'.format(mapfile, n))
         else:
-            mime_type = types.force_string(mime_type).strip()
-            extension = types.force_string(extension).strip().lstrip('.')
-            if not mime_type:
+            str_mime_type = types.force_string(mime_type).strip()
+            str_extension = types.force_string(extension).strip().lstrip('.')
+            if not str_mime_type:
                 continue
 
-            callback(mime_type, extension)
+            callback(str_mime_type, str_extension)
 
 
 def _load_mimemagic_mappings():

@@ -241,9 +241,9 @@ class Rule(object):
 
     @description.setter
     def description(self, raw_description):
-        valid_description = types.force_string(raw_description)
-        if valid_description:
-            self._description = valid_description
+        str_description = types.force_string(raw_description)
+        if str_description.strip():
+            self._description = str_description
         else:
             self._description = C.DEFAULT_RULE_DESCRIPTION
 

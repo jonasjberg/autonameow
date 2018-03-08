@@ -284,9 +284,9 @@ def git_commit_hash():
         # error. Substring matching is redundant but probably won't hurt either.
         if process.returncode == 0:
             from core import types
-            string = types.force_string(stdout).strip()
-            if string and 'fatal: Not a git repository' not in string:
-                return string
+            str_stdout = types.force_string(stdout).strip()
+            if str_stdout and 'fatal: Not a git repository' not in str_stdout:
+                return str_stdout
         return None
     finally:
         os.chdir(_old_pwd)

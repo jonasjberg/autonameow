@@ -85,19 +85,19 @@ class _Title(NameTemplateField):
         # TODO: [TD0036] Allow per-field replacements and customization.
         # TODO: [TD0129] Data validation at this point should be made redundant
         if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
-            string = types.force_string(data.value)
-            if not string:
+            str_data_value = types.force_string(data.value)
+            if not str_data_value:
                 raise exceptions.NameBuilderError(
                     'Unicode string conversion failed for "{!r}"'.format(data)
                 )
         elif data.coercer == types.AW_STRING:
-            string = data.value
+            str_data_value = data.value
         else:
-            string = data.value
+            str_data_value = data.value
 
-        sanity.check_internal_string(string)
-        string = string.strip(',.:;-_ ')
-        return string
+        sanity.check_internal_string(str_data_value)
+        str_data_value = str_data_value.strip(',.:;-_ ')
+        return str_data_value
 
 
 class _Edition(NameTemplateField):
@@ -112,20 +112,20 @@ class _Edition(NameTemplateField):
         # TODO: [TD0036] Allow per-field replacements and customization.
         # TODO: [TD0129] Data validation at this point should be made redundant
         if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
-            string = types.force_string(data.value)
-            if not string:
+            str_data_value = types.force_string(data.value)
+            if not str_data_value:
                 raise exceptions.NameBuilderError(
                     'Unicode string conversion failed for "{!r}"'.format(data)
                 )
         elif data.coercer in (types.AW_STRING, types.AW_INTEGER):
-            string = types.force_string(data.value)
+            str_data_value = types.force_string(data.value)
         else:
             raise exceptions.NameBuilderError(
                 'Got incompatible data: {!r}'.format(data)
             )
 
-        sanity.check_internal_string(string)
-        return '{}E'.format(string)
+        sanity.check_internal_string(str_data_value)
+        return '{}E'.format(str_data_value)
 
 
 class _Extension(NameTemplateField):
@@ -146,16 +146,16 @@ class _Extension(NameTemplateField):
             return ''
 
         if coercer:
-            string = coercer.format(value)
+            str_data_value = coercer.format(value)
         else:
             log.warning('{!s} coercer unknown for "{!s}"'.format(cls, value))
-            string = types.force_string(value)
+            str_data_value = types.force_string(value)
 
-        if string is None:
+        if str_data_value is None:
             raise exceptions.NameBuilderError(
                 'Unicode string conversion failed for "{!r}"'.format(data)
             )
-        return string
+        return str_data_value
 
 
 class _Author(NameTemplateField):

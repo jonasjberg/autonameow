@@ -109,13 +109,13 @@ class BasePersistence(object):
         sanity.check_internal_bytestring(self._persistence_dir_abspath)
         assert disk.isabs(self._persistence_dir_abspath)
 
-        _prefix = types.force_string(file_prefix)
-        if not _prefix.strip():
+        str_file_prefix = types.force_string(file_prefix)
+        if not str_file_prefix.strip():
             raise ValueError(
                 'Argument "file_prefix" must be a valid string'
             )
         # TODO: Add hardcoded prefix to the prefix for arguably "safer" deletes?
-        self.persistencefile_prefix = _prefix
+        self.persistencefile_prefix = str_file_prefix
 
         self._dp = enc.displayable_path(self._persistence_dir_abspath)
         if not self.has_persistencedir():
@@ -275,11 +275,11 @@ class BasePersistence(object):
         # TODO: This is a major security vulnerability (!)
         out = []
         for bytestring_basename in disk.listdir(self._persistence_dir_abspath):
-            string_basename = types.force_string(bytestring_basename)
-            if not string_basename:
+            str_basename = types.force_string(bytestring_basename)
+            if not str_basename:
                 continue
 
-            key = _basename_as_key(string_basename, self.persistencefile_prefix,
+            key = _basename_as_key(str_basename, self.persistencefile_prefix,
                                    self.PERSISTENCE_FILE_PREFIX_SEPARATOR)
             if key:
                 out.append(key)
@@ -348,8 +348,8 @@ def _basename_as_key(str_basename, persistencefile_prefix,
 def _key_as_file_path(key, persistencefile_prefix,
                       persistence_file_prefix_separator,
                       persistence_dir_abspath):
-    string_key = types.force_string(key)
-    if not string_key.strip():
+    str_key = types.force_string(key)
+    if not str_key.strip():
         raise KeyError('Invalid key: "{!s}" ({!s})'.format(key, type(key)))
 
     basename = '{pre}{sep}{key}'.format(pre=persistencefile_prefix,
