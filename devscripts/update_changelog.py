@@ -173,22 +173,40 @@ def is_blacklisted(entry):
 
     # Trivial changes
     if not body:
-        if (_subject_match(r'.*(related\.md|notes\.md).*')
-                or _subject_match(r'(Add|Modify|Remove).*logging.*')
+        if (_subject_match(r'(Add|Modify|Remove).*logging.*')
                 or _subject_match(r'Trivial.*')
-                or _subject_match(r'Whitespace fixes')
+                or _subject_match(r'Minor (changes?|fix|fixes) .*')
                 or _subject_match(r'Whitespace fixes')
                 or _subject_match(r'Rename variables')
                 or _subject_match(r'Rename function \'.*\'')
-                or _subject_match(r'.*[sS]pelling.*')
-                or _subject_match(r'(Add|Modify|Remove).*(to|in|from)? \'.*\.md\'')
+                or _subject_match(r'.*[sS]pelling.*')):
+            return True
+
+    # Changes to notes
+    if not body:
+        if (_subject_match(r'.*(related\.md|notes\.md).*')
                 or _subject_match(r'(Changes|Fixes).*(in|to)? \'.*\.md\'')):
             return True
 
+    if not body:
+        if _subject_match(r'^(Add|Fix|Modify|Remove|Update)'):
+            if (_subject_match(r'.*notes on \w+')
+                    or _subject_match(r'.*(to|in|from)? \'.*\.md\'')
+                    or _subject_match(r'.* \'?\w+(\/\w+)?\.md\'?')
+                    or _subject_match(r'.* \w+ notes')):
+                return True
+
+    # Changes related to various developer tools
     if _any_match(r'.*\bpylint(rc)?\b.*'):
         return True
+
     if _any_match(r'.*update_changelog.*'):
         return True
+
+    # Changes to '.gitignore'
+    if not body:
+        if _subject_match(r'.*\'?\.gitignore\'?'):
+            return True
 
     return False
 
