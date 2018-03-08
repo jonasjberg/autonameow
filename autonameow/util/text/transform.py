@@ -52,7 +52,8 @@ __all__ = [
 # Attempt at matching ANSI escape sequences. Likely incomplete.
 RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 
-# Matches sequentially repeating whitespace, except newlines.
+# Matches whitespace that repeats at least once, except newlines.
+# I.E. a single space is NOT matched but two consecutive spaces is.
 #
 # Inverting the following classes solves the problem of matching whitespace
 # Unicode characters included in the '\s' class but NOT newlines,
@@ -62,7 +63,7 @@ RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 #   \r   ASCII Carriage Return (CR)
 #   \n   ASCII ASCII Linefeed (LF)
 #
-RE_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]{2,}')
+RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]{2,}')
 
 
 def collapse_whitespace(string):
@@ -82,10 +83,9 @@ def collapse_whitespace(string):
     #  Assume type-checks is handled elsewhere. Pass through None, [], {}, etc.
     if not string:
         return string
-    if not isinstance(string, str):
-        raise TypeError('Expected argument "string" to be a Unicode str')
 
-    collapsed = re.sub(RE_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
+    sanity.check_internal_string(string)
+    collapsed = re.sub(RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
     return collapsed
 
 
