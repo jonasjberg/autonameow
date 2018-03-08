@@ -64,7 +64,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         super().__init__(fileobject, config, request_data_callback)
 
         self.text = None
-        self.text_lines = 0
+        self.num_text_lines = 0
         self.candidate_publishers = {}
 
     def analyze(self):
@@ -73,7 +73,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             return
 
         self.text = _maybe_text
-        self.text_lines = len(self.text.splitlines())
+        self.num_text_lines = len(self.text.splitlines())
 
         # Arbitrarily search the text in chunks of 10%
         # TODO: [TD0134] Consolidate splitting up text into chunks.
@@ -124,7 +124,7 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         # Chunk #1: from BEGINNING to (BEGINNING + CHUNK_SIZE)
         _chunk1_start = 1
-        _chunk1_end = int(self.text_lines * chunk_ratio)
+        _chunk1_end = int(self.num_text_lines * chunk_ratio)
         if _chunk1_end < 1:
             _chunk1_end = 1
         text = textutils.extract_lines(self.text, firstline=_chunk1_start,
