@@ -240,11 +240,11 @@ class MeowURI(object):
 
 
 class MeowURIChild(object):
-    def __init__(self, raw_string):
-        string = _normalize_string(raw_string)
-        self._validate(string)
-
-        self._value = string
+    def __init__(self, raw_value):
+        str_value = types.force_string(raw_value)
+        normalized_str_value = _normalize_string(str_value)
+        self._validate(normalized_str_value)
+        self._value = normalized_str_value
 
     def _validate(self, string):
         if not string:
@@ -259,11 +259,10 @@ class MeowURIChild(object):
 
 
 class MeowURILeaf(object):
-    def __init__(self, raw_string):
-        string = raw_string.strip()
-        self._validate(string)
-
-        self._value = string
+    def __init__(self, raw_value):
+        str_value = types.force_string(raw_value)
+        self._validate(str_value)
+        self._value = str_value
 
     def _validate(self, string):
         if not string:
@@ -278,13 +277,11 @@ class MeowURILeaf(object):
 
 
 class MeowURIRoot(object):
-    def __init__(self, raw_string):
-        string = types.force_string(raw_string)
-        if string:
-            string = _normalize_string(raw_string)
-
-        self._validate(string)
-        self._value = string
+    def __init__(self, raw_value):
+        str_value = types.force_string(raw_value)
+        normalized_str_value = _normalize_string(str_value)
+        self._validate(normalized_str_value)
+        self._value = normalized_str_value
 
     def _validate(self, string):
         if not string:
