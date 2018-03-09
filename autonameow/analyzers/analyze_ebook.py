@@ -22,6 +22,7 @@
 import logging
 import re
 
+# TODO: [TD0182] Isolate third-party metadata services like 'isbnlib'.
 try:
     import isbnlib
 except ImportError:
