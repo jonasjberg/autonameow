@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-03-10
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0134]` Consolidate splitting up text into "chunks".
+
 ### 2018-03-04
 
 > Low Priority

@@ -22,11 +22,11 @@
 import re
 
 from analyzers import BaseAnalyzer
-from util import textutils
 from util.text.patternmatching import find_publisher_in_copyright_notice
 from util.text import (
     collapse_whitespace,
-    remove_blacklisted_lines
+    remove_blacklisted_lines,
+    TextChunker
 )
 
 
@@ -94,13 +94,14 @@ class DocumentAnalyzer(BaseAnalyzer):
         self.num_text_lines = len(self.text.splitlines())
 
         # Arbitrarily search the text in chunks of 10%
-        # TODO: [TD0134] Consolidate splitting up text into chunks.
-        text_chunk_1 = self._extract_leading_text_chunk(chunk_ratio=0.1)
+        text_chunks = TextChunker(self.text, chunk_to_text_ratio=0.1)
+        leading_text = text_chunks.leading
 
         # TODO: Search text for datetime information.
 
+        # TODO: [incomplete] Search more than 1 line! Handle multiple matches.
         text_titles = [
-            t for t, _ in find_titles_in_text(text_chunk_1, num_lines_to_search=1)
+            t for t, _ in find_titles_in_text(leading_text, num_lines_to_search=1)
         ]
         if text_titles:
             # TODO: Pass multiple possible titles with probabilities.
@@ -117,11 +118,11 @@ class DocumentAnalyzer(BaseAnalyzer):
             #       (publisher is not "multivalued")
             self._add_intermediate_results(
                 'publisher',
-                self._search_text_for_candidate_publisher(text_chunk_1)
+                self._search_text_for_candidate_publisher(leading_text)
             )
             self._add_intermediate_results(
                 'publisher',
-                self._search_text_for_copyright_publisher(text_chunk_1)
+                self._search_text_for_copyright_publisher(leading_text)
             )
 
     def _search_text_for_candidate_publisher(self, text):
@@ -138,18 +139,6 @@ class DocumentAnalyzer(BaseAnalyzer):
         # TODO: [cleanup] ..
         result = find_publisher(possible_publishers, self.candidate_publishers)
         return result
-
-    def _extract_leading_text_chunk(self, chunk_ratio):
-        assert chunk_ratio >= 0, 'Argument chunk_ratio is negative'
-
-        # Chunk #1: from BEGINNING to (BEGINNING + CHUNK_SIZE)
-        _chunk1_start = 1
-        _chunk1_end = int(self.num_text_lines * chunk_ratio)
-        if _chunk1_end < 1:
-            _chunk1_end = 1
-        text = textutils.extract_lines(self.text, firstline=_chunk1_start,
-                                       lastline=_chunk1_end)
-        return text
 
     @classmethod
     def check_dependencies(cls):
