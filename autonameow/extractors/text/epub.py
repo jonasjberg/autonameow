@@ -71,6 +71,7 @@ def extract_text_with_ebooklib(file_path):
     except epub.EpubException as e:
         raise ExtractorError(e)
 
+    # TODO: The epub text extractor repeats a lot of text.
     result = ''
     for id_, _ in book.spine:
         item = book.get_item_with_id(id_)

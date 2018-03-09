@@ -42,14 +42,14 @@ from services.isbn import (
     fetch_isbn_metadata,
 )
 from util import sanity
-from util.textutils import extract_lines
 from util.text import (
     find_edition,
     html_unescape,
     normalize_unicode,
     remove_blacklisted_lines,
     string_similarity,
-    RE_EDITION
+    RE_EDITION,
+    TextChunker
 )
 from util.text.humannames import (
     filter_multiple_names,
@@ -166,68 +166,11 @@ class EbookAnalyzer(BaseAnalyzer):
 
         # TODO: [TD0114] Check metadata for ISBNs.
         # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier', "XMP:Subject"
-
-        # NOTE(jonas): Works under the assumption that relevant ISBN-numbers
-        #              are more likely found either at the beginning or the
-        #              end of the text, NOT somewhere in the middle.
-        #
-        # First try to find "e-book ISBNs" in the beginning, then at the end.
-        # Then try to find _any_ ISBNs in the beginning, then at the end.
-
-        num_text_lines = len(self.text.splitlines())
-
-        # TODO: [TD0134] Consolidate splitting up text into chunks.
-        # Search the text in arbitrarily sized chunks.
-        if is_epub_ebook(self.fileobject):
-            # TODO: The epub text extractor repeats text a lot of text.
-            # Use bigger chunks for epub text in order to catch ISBNs.
-            CHUNK_PERCENTAGE = 0.05
-        else:
-            CHUNK_PERCENTAGE = 0.01
-
-        chunk_size = int(num_text_lines * CHUNK_PERCENTAGE)
-        if chunk_size < 1:
-            chunk_size = 1
-        self.log.debug('Got {} lines of text. Using chunk size {}'.format(
-            num_text_lines, chunk_size
-        ))
-
-        # Chunk #1: from BEGINNING to (BEGINNING + CHUNK_SIZE)
-        _chunk1_start = 1
-        _chunk1_end = chunk_size
-
-        # Chunk #2: from (END - CHUNK_SIZE) to END
-        _chunk2_start = num_text_lines - chunk_size
-        _chunk2_end = num_text_lines
-        if _chunk2_end < 1:
-            _chunk2_end = 1
-
-        # Find e-ISBNs in chunk #1
-        _text_chunk_1 = extract_lines(self.text, _chunk1_start, _chunk1_end)
-        _chunk_1_numlines = len(_text_chunk_1.splitlines())
-        assert num_text_lines > _chunk_1_numlines, (
-            'extract_lines() might be broken -- full text: {} '
-            'chunk 1: {}'.format(num_text_lines, _chunk_1_numlines)
-        )
-        self.log.debug(
-            'Searching for eISBNs in chunk 1 lines {}-{} '
-            '({} lines)'.format(_chunk1_start, _chunk1_end, _chunk_1_numlines)
-        )
-        isbn_numbers = extract_ebook_isbns_from_text(_text_chunk_1)
-        if not isbn_numbers:
-            # Find e-ISBNs in chunk #2
-            _text_chunk_2 = extract_lines(self.text, _chunk2_start, _chunk2_end)
-            isbn_numbers = extract_ebook_isbns_from_text(_text_chunk_2)
-            if not isbn_numbers:
-                # Find any ISBNs in chunk #1
-                isbn_numbers = extract_isbns_from_text(_text_chunk_1)
-                if not isbn_numbers:
-                    # Find for any ISBNs in chunk #2
-                    isbn_numbers = extract_isbns_from_text(_text_chunk_2)
-
+        isbn_numbers = self._extract_isbn_numbers_from_text()
         if isbn_numbers:
             isbn_numbers = deduplicate_isbns(isbn_numbers)
             isbn_numbers = filter_isbns(isbn_numbers, self._isbn_num_blacklist)
+            self.log.debug('Extracted {} ISBN numbers'.format(len(isbn_numbers)))
             for isbn_number in isbn_numbers:
                 self.log.debug('Extracted ISBN: {!s}'.format(isbn_number))
 
@@ -297,6 +240,44 @@ class EbookAnalyzer(BaseAnalyzer):
 
                 maybe_edition = self._filter_edition(_isbn_metadata.edition)
                 self._add_intermediate_results('edition', maybe_edition)
+
+    def _extract_isbn_numbers_from_text(self):
+        # NOTE(jonas): Works under the assumption that relevant ISBN-numbers
+        #              are more likely found either at the beginning or the
+        #              end of the text, NOT somewhere in the middle.
+        #
+        # First try to find "e-book ISBNs" in the beginning, then at the end.
+        # Then try to find _any_ ISBNs in the beginning, then at the end.
+
+        # Search the text in arbitrarily sized chunks.
+        if is_epub_ebook(self.fileobject):
+            # Use bigger chunks for epub text in order to catch ISBNs.
+            CHUNK_PERCENTAGE = 0.05
+        else:
+            CHUNK_PERCENTAGE = 0.01
+
+        text_chunks = TextChunker(self.text, CHUNK_PERCENTAGE)
+        leading_text = text_chunks.leading
+        leading_text_linecount = len(leading_text.splitlines())
+
+        self.log.debug('Searching leading {} text lines for eISBNs'.format(leading_text_linecount))
+        isbn_numbers = extract_ebook_isbns_from_text(leading_text)
+
+        if not isbn_numbers:
+            trailing_text = text_chunks.trailing
+            trailing_text_linecount = len(trailing_text.splitlines())
+            self.log.debug('Searching trailing {} text lines for eISBNs'.format(trailing_text_linecount))
+            isbn_numbers = extract_ebook_isbns_from_text(trailing_text)
+
+            if not isbn_numbers:
+                self.log.debug('Searching leading {} text lines for *any* ISBNs'.format(leading_text_linecount))
+                isbn_numbers = extract_isbns_from_text(leading_text)
+
+                if not isbn_numbers:
+                    self.log.debug('Searching trailing {} text lines for *any* ISBNs'.format(trailing_text_linecount))
+                    isbn_numbers = extract_isbns_from_text(trailing_text)
+
+        return isbn_numbers
 
     def _get_isbn_metadata(self, isbn_number):
         if isbn_number in self._cached_isbn_metadata:
