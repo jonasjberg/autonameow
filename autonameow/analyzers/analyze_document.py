@@ -24,11 +24,27 @@ import re
 from analyzers import BaseAnalyzer
 from util import textutils
 from util.text.patternmatching import find_publisher_in_copyright_notice
+from util.text import (
+    collapse_whitespace,
+    remove_blacklisted_lines
+)
 
 
 # TODO: [TD0094] Search text for DOIs and query external services
 # Example DOI: `10.1109/TPDS.2010.125`. Could be used to query external
 # services for publication metadata, as with ISBN-numbers.
+
+
+BLACKLISTED_TEXTLINES = frozenset([
+    'Brought to you by:',
+    'Get More Refcardz! Visit refcardz.com',
+    'Preface:',
+    'Table of Contents',
+    'This page intentionally left blank',
+    'Unknown',
+    'www.allitebooks.com',
+    'www.it-ebooks.info',
+])
 
 
 class DocumentAnalyzer(BaseAnalyzer):
@@ -72,7 +88,9 @@ class DocumentAnalyzer(BaseAnalyzer):
         if not _maybe_text:
             return
 
-        self.text = _maybe_text
+        filtered_text = remove_blacklisted_lines(_maybe_text, BLACKLISTED_TEXTLINES)
+        normalized_whitespace_text = collapse_whitespace(filtered_text)
+        self.text = normalized_whitespace_text
         self.num_text_lines = len(self.text.splitlines())
 
         # Arbitrarily search the text in chunks of 10%
