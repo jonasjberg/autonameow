@@ -162,10 +162,9 @@ def _get_exiftool_data(source):
 def _filter_coerced_value(value):
     # TODO: [TD0034] Remove duplicated functionality (coercers normalize?)
     def __filter_value(_value):
-        if isinstance(_value, str):
-            return _value if _value.strip() else None
-        else:
+        if not isinstance(_value, (bytes, str)):
             return _value
+        return _value if _value.strip() else None
 
     if not isinstance(value, list):
         return __filter_value(value)

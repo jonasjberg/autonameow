@@ -44,14 +44,14 @@ class GuessitExtractor(BaseExtractor):
             self.log.debug(
                 '{!s} aborting --- file basename is not available'.format(self)
             )
-            return
+            return None
 
         data = run_guessit(file_basename)
         if not data:
             self.log.debug(
                 '{!s} aborting --- got not data from guessit'.format(self)
             )
-            return
+            return None
 
         _results = dict()
         for field, value in data.items():
@@ -88,4 +88,3 @@ def run_guessit(input_data, options=None):
     finally:
         # TODO: Reset logging to state before disabling DEBUG!
         logging.disable(logging.NOTSET)
-        return result
