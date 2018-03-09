@@ -135,7 +135,5 @@ class TestFieldmetaFilepathFromExtractorSourceFilepath(TestCase):
         actual = _fieldmeta_filepath_from_extractor_source_filepath(
             '/tmp/autonameow.git/autonameow/extractors/metadata/exiftool.py'
         )
-        self.assertEqual(
-            '/tmp/autonameow.git/autonameow/extractors/metadata/exiftool_fieldmeta.yaml',
-            actual
-        )
+        # Result may be '/private/tmp/autonameow...' on MacOS, instead of just '/tmp/autonameow...'
+        self.assertTrue(actual.endswith('/tmp/autonameow.git/autonameow/extractors/metadata/exiftool_fieldmeta.yaml'))
