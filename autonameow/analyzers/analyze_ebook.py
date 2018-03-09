@@ -37,6 +37,10 @@ from core.model.normalize import (
     normalize_full_human_name,
     normalize_full_title
 )
+from services.isbn import (
+    extract_isbnlike_from_text,
+    fetch_isbn_metadata,
+)
 from util import sanity
 from util.textutils import extract_lines
 from util.text import (
@@ -209,34 +213,34 @@ class EbookAnalyzer(BaseAnalyzer):
             'Searching for eISBNs in chunk 1 lines {}-{} '
             '({} lines)'.format(_chunk1_start, _chunk1_end, _chunk_1_numlines)
         )
-        isbns = extract_ebook_isbns_from_text(_text_chunk_1)
-        if not isbns:
+        isbn_numbers = extract_ebook_isbns_from_text(_text_chunk_1)
+        if not isbn_numbers:
             # Find e-ISBNs in chunk #2
             _text_chunk_2 = extract_lines(self.text, _chunk2_start, _chunk2_end)
-            isbns = extract_ebook_isbns_from_text(_text_chunk_2)
-            if not isbns:
+            isbn_numbers = extract_ebook_isbns_from_text(_text_chunk_2)
+            if not isbn_numbers:
                 # Find any ISBNs in chunk #1
-                isbns = extract_isbns_from_text(_text_chunk_1)
-                if not isbns:
+                isbn_numbers = extract_isbns_from_text(_text_chunk_1)
+                if not isbn_numbers:
                     # Find for any ISBNs in chunk #2
-                    isbns = extract_isbns_from_text(_text_chunk_2)
+                    isbn_numbers = extract_isbns_from_text(_text_chunk_2)
 
-        if isbns:
-            isbns = deduplicate_isbns(isbns)
-            isbns = filter_isbns(isbns, self._isbn_num_blacklist)
-            for isbn in isbns:
-                self.log.debug('Extracted ISBN: {!s}'.format(isbn))
+        if isbn_numbers:
+            isbn_numbers = deduplicate_isbns(isbn_numbers)
+            isbn_numbers = filter_isbns(isbn_numbers, self._isbn_num_blacklist)
+            for isbn_number in isbn_numbers:
+                self.log.debug('Extracted ISBN: {!s}'.format(isbn_number))
 
-                metadata_dict = self._get_isbn_metadata(isbn)
+                metadata_dict = self._get_isbn_metadata(isbn_number)
                 if not metadata_dict:
                     self.log.warning(
-                        'Unable to get metadata for ISBN: "{}"'.format(isbn)
+                        'Unable to get metadata for ISBN: "{}"'.format(isbn_number)
                     )
 
                     # TODO: [TD0132] Improve blacklisting failed requests..
                     # TODO: [TD0132] Prevent hammering APIs with bad request.
-                    self.log.debug('Blacklisting ISBN: "{}"'.format(isbn))
-                    self._isbn_num_blacklist.add(isbn)
+                    self.log.debug('Blacklisting ISBN: "{}"'.format(isbn_number))
+                    self._isbn_num_blacklist.add(isbn_number)
                     if self.cache:
                         self.cache.set(CACHE_KEY_ISBNBLACKLIST,
                                        self._isbn_num_blacklist)
@@ -251,7 +255,7 @@ class EbookAnalyzer(BaseAnalyzer):
                     title=metadata_dict.get('Title'),
                     year=metadata_dict.get('Year')
                 )
-                self.log.debug('Metadata for ISBN: {}'.format(isbn))
+                self.log.debug('Metadata for ISBN: {}'.format(isbn_number))
                 for line in metadata.as_string().splitlines():
                     self.log.debug(line)
 
@@ -259,10 +263,10 @@ class EbookAnalyzer(BaseAnalyzer):
                 # text is found and two queries are made, the two metadata
                 # results are "joined" when being added to this set.
                 if metadata not in self._isbn_metadata:
-                    self.log.debug('Added metadata for ISBN: {}'.format(isbn))
+                    self.log.debug('Added metadata for ISBN: {}'.format(isbn_number))
                     self._isbn_metadata.append(metadata)
                 else:
-                    self.log.debug('Skipped "duplicate" metadata for ISBN: {}'.format(isbn))
+                    self.log.debug('Skipped "duplicate" metadata for ISBN: {}'.format(isbn_number))
                     # print('Skipped metadata considered a duplicate:')
                     # print_copy_pasteable_isbn_metadata('x', metadata)
                     # print('Previously Stored metadata:')
@@ -294,21 +298,21 @@ class EbookAnalyzer(BaseAnalyzer):
                 maybe_edition = self._filter_edition(_isbn_metadata.edition)
                 self._add_intermediate_results('edition', maybe_edition)
 
-    def _get_isbn_metadata(self, isbn):
-        if isbn in self._cached_isbn_metadata:
+    def _get_isbn_metadata(self, isbn_number):
+        if isbn_number in self._cached_isbn_metadata:
             self.log.info(
-                'Using cached metadata for ISBN: {!s}'.format(isbn)
+                'Using cached metadata for ISBN: {!s}'.format(isbn_number)
             )
-            return self._cached_isbn_metadata.get(isbn)
+            return self._cached_isbn_metadata.get(isbn_number)
 
-        self.log.debug('Querying external service for ISBN: {!s}'.format(isbn))
-        metadata = fetch_isbn_metadata(isbn)
+        self.log.debug('Querying external service for ISBN: {!s}'.format(isbn_number))
+        metadata = fetch_isbn_metadata(isbn_number)
         if metadata:
             self.log.info(
-                'Caching metadata for ISBN: {!s}'.format(isbn)
+                'Caching metadata for ISBN: {!s}'.format(isbn_number)
             )
 
-            self._cached_isbn_metadata.update({isbn: metadata})
+            self._cached_isbn_metadata.update({isbn_number: metadata})
             if self.cache:
                 self.cache.set(CACHE_KEY_ISBNMETA, self._cached_isbn_metadata)
 
@@ -387,25 +391,10 @@ def extract_ebook_isbns_from_text(text):
 
 
 def extract_isbns_from_text(text):
-    sanity.check_internal_string(text)
-
-    possible_isbns = isbnlib.get_isbnlike(text)
+    possible_isbns = extract_isbnlike_from_text(text)
     if possible_isbns:
-        return [isbnlib.get_canonical_isbn(i)
-                for i in possible_isbns if validate_isbn(i)]
+        return possible_isbns
     return list()
-
-
-def validate_isbn(possible_isbn):
-    if not possible_isbn:
-        return None
-
-    sanity.check_internal_string(possible_isbn)
-
-    isbn_number = isbnlib.clean(possible_isbn)
-    if not isbn_number or isbnlib.notisbn(isbn_number):
-        return None
-    return isbn_number
 
 
 def deduplicate_isbns(isbn_list):
@@ -423,27 +412,6 @@ def filter_isbns(isbn_list, isbn_blacklist):
     # Remove known bad ISBN numbers.
     isbn_list = [n for n in isbn_list if n and n not in isbn_blacklist]
     return isbn_list
-
-
-def fetch_isbn_metadata(isbn_number):
-    logging.disable(logging.DEBUG)
-
-    isbn_metadata = None
-    try:
-        isbn_metadata = isbnlib.meta(isbn_number)
-    except isbnlib.NotValidISBNError as e:
-        log.error(
-            'Metadata query FAILED for ISBN: "{}"'.format(isbn_number)
-        )
-        log.debug(str(e))
-    except Exception as e:
-        # TODO: [TD0132] Improve blacklisting failed requests..
-        # NOTE: isbnlib does not expose all exceptions.
-        # We should handle 'ISBNLibHTTPError' ("with code 403 [Forbidden]")
-        log.error(e)
-
-    logging.disable(logging.NOTSET)
-    return isbn_metadata
 
 
 class ISBNMetadata(object):
