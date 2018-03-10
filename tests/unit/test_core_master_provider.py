@@ -24,7 +24,10 @@ from unittest.mock import MagicMock, Mock, patch
 
 import unit.utils as uu
 import unit.constants as uuconst
-from core.master_provider import ProviderRunner
+from core.master_provider import (
+    MasterDataProvider,
+    ProviderRunner
+)
 
 
 class TestProviderRunner(TestCase):
@@ -155,3 +158,56 @@ class TestProviderRunner(TestCase):
         self.assertTrue(provider_runner._previously_delegated(fo1, uri1, provider2))
         self.assertTrue(provider_runner._previously_delegated(fo2, uri1, provider2))
         self.assertFalse(provider_runner._previously_delegated(fo2, uri2, provider2))
+
+
+def _get_mock_config():
+    return Mock()
+
+
+class TestMasterDataProvider(TestCase):
+    @patch('core.repository.SessionRepository', MagicMock())
+    def test_instantiated_master_data_provider_is_not_none(self):
+        p = MasterDataProvider(config=_get_mock_config())
+        self.assertIsNotNone(p)
+
+    @patch('core.repository.SessionRepository', MagicMock())
+    @patch('core.master_provider.ProviderRunner.delegate_every_possible_meowuri')
+    def test_delegate_every_possible_meowuri(self, mock_delegate_every_possible_meowuri):
+        p = MasterDataProvider(config=_get_mock_config())
+
+        mock_fileobject = Mock()
+        p.delegate_every_possible_meowuri(mock_fileobject)
+        mock_delegate_every_possible_meowuri.assert_called_with(mock_fileobject)
+
+    @patch('core.repository.SessionRepository')
+    @patch('core.master_provider.MasterDataProvider._delegate_to_providers')
+    def test_request_when_data_is_already_stored_in_the_repository(
+            self, mock__delegate_to_providers, mock_session_repository
+    ):
+        mock_session_repository.query.return_value = True  # Data already in repository
+        mock_fileobject = Mock()
+        mock_meowuri = Mock()
+
+        p = MasterDataProvider(config=_get_mock_config())
+        response = p.request(mock_fileobject, mock_meowuri)
+
+        self.assertTrue(response)
+        mock_session_repository.query.assert_called_once_with(mock_fileobject, mock_meowuri)
+        mock__delegate_to_providers.assert_not_called()
+
+    @patch('core.repository.SessionRepository')
+    @patch('core.master_provider.MasterDataProvider._delegate_to_providers')
+    def test_request_delegates_to_providers_when_data_is_not_stored_in_the_repository(
+            self, mock__delegate_to_providers, mock_session_repository
+    ):
+        mock_session_repository.query.return_value = False  # Data not in repository
+        mock_fileobject = Mock()
+        mock_meowuri = Mock()
+
+        p = MasterDataProvider(config=_get_mock_config())
+        response = p.request(mock_fileobject, mock_meowuri)
+
+        self.assertFalse(response)  # Mock returns False every time ..
+        mock_session_repository.query.assert_called_with(mock_fileobject, mock_meowuri)
+        self.assertEqual(2, mock_session_repository.query.call_count)
+        mock__delegate_to_providers.assert_called_with(mock_fileobject, mock_meowuri)

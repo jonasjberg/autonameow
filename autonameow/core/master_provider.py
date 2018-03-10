@@ -203,6 +203,20 @@ class MasterDataProvider(object):
             msg='Repository query -> Delegation -> Repository query'
         )
 
+    def request_one(self, fileobject, uri):
+        # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
+        response = self.request(fileobject, uri)
+        if isinstance(response, list):
+            if len(response) == 1:
+                return response[0]
+
+            return QueryResponseFailure(
+                fileobject=fileobject, uri=uri,
+                msg='Requested one but response contains {}'.format(len(response))
+            )
+
+        return response
+
     def _delegate_to_providers(self, fileobject, uri):
         log.debug('Delegating request to providers: {!r}->[{!s}]'.format(fileobject, uri))
         self.debug_stats[fileobject][uri]['delegated'] += 1
@@ -241,6 +255,11 @@ def initialize(active_config):
 def request(fileobject, uri):
     sanity.check_isinstance_meowuri(uri)
     return _MASTER_DATA_PROVIDER.request(fileobject, uri)
+
+
+def request_one(fileobject, uri):
+    sanity.check_isinstance_meowuri(uri)
+    return _MASTER_DATA_PROVIDER.request_one(fileobject, uri)
 
 
 def delegate_every_possible_meowuri(fileobject):

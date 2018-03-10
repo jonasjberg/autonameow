@@ -53,14 +53,8 @@ class RuleMatcher(object):
     def request_data(self, fileobject, meowuri):
         sanity.check_isinstance_meowuri(meowuri)
 
-        # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-        response = self._provider.request(fileobject, meowuri)
+        response = self._provider.request_one(fileobject, meowuri)
         if response:
-            if isinstance(response, list):
-                raise NotImplementedError(
-                    'TODO: [TD0175] Handle requesting exactly one or possibly many'
-                )
-            # TODO: Integrate successful/failed query response objects.
             return response.value
         return None
 
