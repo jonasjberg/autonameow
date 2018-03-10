@@ -46,8 +46,8 @@ class ProviderRunner(object):
         self.debug_stats = defaultdict(dict)
         self._delegation_history = defaultdict(dict)
 
-    def delegate_to_providers(self, fileobject, meowuri):
-        possible_providers = providers.get_providers_for_meowuri(meowuri)
+    def delegate_to_providers(self, fileobject, uri):
+        possible_providers = providers.get_providers_for_meowuri(uri)
         log.debug('Got {} possible providers'.format(len(possible_providers)))
         if not possible_providers:
             return
@@ -61,11 +61,11 @@ class ProviderRunner(object):
         prepared_extractors = set()
         for provider in possible_providers:
             log.debug('Looking at possible provider: {!s}'.format(provider))
-            if self._previously_delegated(fileobject, meowuri, provider):
-                log.debug('Skipping previously delegated {!s} to {!s}'.format(meowuri, provider))
+            if self._previously_delegated(fileobject, uri, provider):
+                log.debug('Skipping previously delegated {!s} to {!s}'.format(uri, provider))
                 continue
 
-            self._remember_delegation(fileobject, meowuri, provider)
+            self._remember_delegation(fileobject, uri, provider)
 
             if _provider_is_extractor(provider):
                 prepared_extractors.add(provider)
@@ -73,22 +73,22 @@ class ProviderRunner(object):
                 prepared_analyzers.add(provider)
 
         if prepared_extractors:
-            log.debug('Delegating {!s} to extractors: {!s}'.format(meowuri, prepared_extractors))
+            log.debug('Delegating {!s} to extractors: {!s}'.format(uri, prepared_extractors))
             self._delegate_to_extractors(fileobject, prepared_extractors)
         if prepared_analyzers:
-            log.debug('Delegating {!s} to analyzers: {!s}'.format(meowuri, prepared_analyzers))
+            log.debug('Delegating {!s} to analyzers: {!s}'.format(uri, prepared_analyzers))
             self._delegate_to_analyzers(fileobject, prepared_analyzers)
 
-    def _previously_delegated(self, fileobject, meowuri, provider):
-        if meowuri in self._delegation_history[fileobject]:
-            if provider in self._delegation_history[fileobject][meowuri]:
+    def _previously_delegated(self, fileobject, uri, provider):
+        if uri in self._delegation_history[fileobject]:
+            if provider in self._delegation_history[fileobject][uri]:
                 return True
         else:
-            self._delegation_history[fileobject][meowuri] = set()
+            self._delegation_history[fileobject][uri] = set()
         return False
 
-    def _remember_delegation(self, fileobject, meowuri, provider):
-        self._delegation_history[fileobject][meowuri].add(provider)
+    def _remember_delegation(self, fileobject, uri, provider):
+        self._delegation_history[fileobject][uri].add(provider)
 
     def _delegate_to_extractors(self, fileobject, extractors_to_run):
         try:
@@ -157,7 +157,7 @@ class MasterDataProvider(object):
         log.debug('Running all available providers for {!r}'.format(fileobject))
         self.provider_runner.delegate_every_possible_meowuri(fileobject)
 
-    def request(self, fileobject, meowuri):
+    def request(self, fileobject, uri):
         """
         Highest-level retrieval mechanism for data related to a file.
 
@@ -170,59 +170,60 @@ class MasterDataProvider(object):
         as the return value.
         None is returned if nothing turns up.
         """
-        if meowuri not in self.debug_stats[fileobject]:
-            self.debug_stats[fileobject][meowuri] = dict()
-            self.debug_stats[fileobject][meowuri]['queries'] = 1
-            self.debug_stats[fileobject][meowuri]['repository_queries'] = 0
-            self.debug_stats[fileobject][meowuri]['delegated'] = 0
+        if uri not in self.debug_stats[fileobject]:
+            self.debug_stats[fileobject][uri] = dict()
+            self.debug_stats[fileobject][uri]['queries'] = 1
+            self.debug_stats[fileobject][uri]['repository_queries'] = 0
+            self.debug_stats[fileobject][uri]['delegated'] = 0
         else:
-            self.debug_stats[fileobject][meowuri]['queries'] += 1
+            self.debug_stats[fileobject][uri]['queries'] += 1
 
         # TODO: Provide means of toggling on/off or remove.
         # self._print_debug_stats()
 
         if __debug__:
-            log.debug('Got request {!r}->[{!s}]'.format(fileobject, meowuri))
+            log.debug('Got request {!r}->[{!s}]'.format(fileobject, uri))
 
         # First try the repository for previously gathered data
-        response = self._query_repository(fileobject, meowuri)
+        response = self._query_repository(fileobject, uri)
         if response:
             return response
 
         # Have relevant providers gather the data
-        self._delegate_to_providers(fileobject, meowuri)
+        self._delegate_to_providers(fileobject, uri)
 
         # Try the repository again
-        response = self._query_repository(fileobject, meowuri)
+        response = self._query_repository(fileobject, uri)
         if response:
             return response
 
         log.debug('Failed query, then delegation, then another query and returning None')
         return QueryResponseFailure(
-            fileobject=fileobject, uri=meowuri,
+            fileobject=fileobject, uri=uri,
             msg='Repository query -> Delegation -> Repository query'
         )
 
-    def _delegate_to_providers(self, fileobject, meowuri):
-        log.debug('Delegating request to providers: {!r}->[{!s}]'.format(fileobject, meowuri))
-        self.debug_stats[fileobject][meowuri]['delegated'] += 1
-        self.provider_runner.delegate_to_providers(fileobject, meowuri)
+    def _delegate_to_providers(self, fileobject, uri):
+        log.debug('Delegating request to providers: {!r}->[{!s}]'.format(fileobject, uri))
+        self.debug_stats[fileobject][uri]['delegated'] += 1
+        self.provider_runner.delegate_to_providers(fileobject, uri)
 
-    def _query_repository(self, fileobject, meowuri):
-        self.debug_stats[fileobject][meowuri]['repository_queries'] += 1
-        return repository.SessionRepository.query(fileobject, meowuri)
+    def _query_repository(self, fileobject, uri):
+        self.debug_stats[fileobject][uri]['repository_queries'] += 1
+        return repository.SessionRepository.query(fileobject, uri)
 
     def _print_debug_stats(self):
         if not __debug__:
             return
 
         stats_strings = list()
-        for _fileobject, _meowuris in self.debug_stats.items():
-            for uri, _counters in _meowuris.items():
-                _meowuri_stats = ['{}: {}'.format(stat, count)
-                                  for stat, count in _counters.items()]
-                stats_strings.append('{!r}->{!s:60.60} {!s}'.format(
-                    _fileobject, uri, ' '.join(_meowuri_stats)))
+        for fileobject, uris in self.debug_stats.items():
+            for uri, _counters in uris.items():
+                uri_stats = [
+                    '{}: {}'.format(stat, count) for stat, count in _counters.items()
+                ]
+                stats = '{!r}->{!s:60.60} {!s}'.format(fileobject, uri, ' '.join(uri_stats))
+                stats_strings.append(stats)
 
         log.debug('{!s} debug stats:'.format(self.__class__.__name__))
         for stat_string in sorted(stats_strings):
@@ -237,9 +238,9 @@ def initialize(active_config):
     _MASTER_DATA_PROVIDER = MasterDataProvider(active_config)
 
 
-def request(fileobject, meowuri):
-    sanity.check_isinstance_meowuri(meowuri)
-    return _MASTER_DATA_PROVIDER.request(fileobject, meowuri)
+def request(fileobject, uri):
+    sanity.check_isinstance_meowuri(uri)
+    return _MASTER_DATA_PROVIDER.request(fileobject, uri)
 
 
 def delegate_every_possible_meowuri(fileobject):
