@@ -129,30 +129,20 @@ class Autonameow(object):
         if self.opts.get('dump_meowuris'):
             self._dump_registered_meowuris()
 
-        # Handle any input paths/files. Abort early if input paths are missing.
+        # Abort early if input paths are missing.
         if not self.opts.get('input_paths'):
             log.warning('No input files specified ..')
             self.exit_program(C.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
-        path_collector = disk.PathCollector(
-            ignore_globs=self.active_config.options['FILESYSTEM']['ignore'],
-            recurse=self.opts.get('recurse_paths')
-        )
-        path_collector.collect_from(self.opts.get('input_paths'))
-        for error in path_collector.errors:
-            log.warning(str(error))
-
-        files_to_process = list(path_collector.filepaths)
+        files_to_process = self._collect_path_from_opts()
         log.info('Got {} files to process'.format(len(files_to_process)))
 
-        rules = self.active_config.rules
-        if not rules:
-            log.warning('Configuration does not contain any rules!')
-
+        # Initialize the global master data provider.
         master_provider.initialize(self.active_config)
         self.master_provider = master_provider
 
+        # Handle any input paths/files.
         self._handle_files(files_to_process)
 
         _stats = 'Processed {t} files. Renamed {r}  Skipped {s}  ' \
@@ -163,6 +153,18 @@ class Autonameow(object):
         log.info(_stats)
 
         self.exit_program(self.exit_code)
+
+    def _collect_path_from_opts(self):
+        path_collector = disk.PathCollector(
+            ignore_globs=self.active_config.options['FILESYSTEM']['ignore'],
+            recurse=self.opts.get('recurse_paths')
+        )
+        path_collector.collect_from(self.opts.get('input_paths'))
+
+        for error in path_collector.errors:
+            log.warning(str(error))
+
+        return list(path_collector.filepaths)
 
     @logs.log_func_runtime(log)
     def load_config(self, path):

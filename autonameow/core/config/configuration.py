@@ -60,6 +60,9 @@ class Configuration(object):
                     'generated and then manually transfer rules to this file.'
                 )
 
+        if not self._rules:
+            log.warning('Configuration does not contain any rules!')
+
         self.referenced_meowuris = set()
         for rule in self._rules:
             # Keep track of all "meowURIs" referenced by rules.
