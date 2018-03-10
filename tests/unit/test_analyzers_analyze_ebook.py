@@ -98,7 +98,6 @@ class TestFilterISBN(TestCase):
 
     def test_returns_none_for_invalid_isbn_numbers(self):
         sample_invalid_isbns = [
-            None,
             [None],
             [''],
             ['1111111111'],

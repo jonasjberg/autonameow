@@ -165,12 +165,14 @@ class EbookAnalyzer(BaseAnalyzer):
         # TODO: [TD0114] Check metadata for ISBNs.
         # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier', "XMP:Subject"
         isbn_numbers = self._extract_isbn_numbers_from_text()
+        self.log.debug('Extracted {} ISBN numbers'.format(len(isbn_numbers)))
         if isbn_numbers:
             isbn_numbers = deduplicate_isbns(isbn_numbers)
             isbn_numbers = filter_isbns(isbn_numbers, self._isbn_num_blacklist)
-            self.log.debug('Extracted {} ISBN numbers'.format(len(isbn_numbers)))
+            self.log.debug('Prepared {} ISBN numbers'.format(len(isbn_numbers)))
+
             for isbn_number in isbn_numbers:
-                self.log.debug('Extracted ISBN: {!s}'.format(isbn_number))
+                self.log.debug('Processing ISBN: {!s}'.format(isbn_number))
 
                 metadata_dict = self._get_isbn_metadata(isbn_number)
                 if not metadata_dict:
@@ -379,12 +381,8 @@ def deduplicate_isbns(isbn_list):
 def filter_isbns(isbn_list, isbn_blacklist):
     # TODO: [TD0034] Filter out known bad data.
     # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-    if not isbn_list:
-        return []
-
-    # Remove known bad ISBN numbers.
-    isbn_list = [n for n in isbn_list if n and n not in isbn_blacklist]
-    return isbn_list
+    # Remove known "bad" ISBN numbers.
+    return [n for n in isbn_list if n and n not in isbn_blacklist]
 
 
 class ISBNMetadata(object):
