@@ -41,7 +41,6 @@ from services.isbn import (
     extract_isbnlike_from_text,
     fetch_isbn_metadata,
 )
-from util import sanity
 from util.text import (
     find_and_extract_edition,
     html_unescape,
@@ -360,7 +359,6 @@ class EbookAnalyzer(BaseAnalyzer):
 
 
 def extract_ebook_isbns_from_text(text):
-    sanity.check_internal_string(text)
     match = RE_E_ISBN.search(text)
     if match:
         return extract_isbns_from_text(match.group(0))
@@ -383,8 +381,6 @@ def filter_isbns(isbn_list, isbn_blacklist):
     # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
     if not isbn_list:
         return []
-
-    sanity.check_isinstance(isbn_list, list)
 
     # Remove known bad ISBN numbers.
     isbn_list = [n for n in isbn_list if n and n not in isbn_blacklist]
