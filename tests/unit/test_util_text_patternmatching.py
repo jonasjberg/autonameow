@@ -25,7 +25,6 @@ from core import types
 from util.text.patternmatching import (
     compiled_ordinal_regexes,
     find_and_extract_edition,
-    find_edition,
     find_publisher_in_copyright_notice
 )
 
@@ -134,7 +133,7 @@ class TestFindAndExtractEdition(TestCase):
         self._check_result(given='Bar 5 ed - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
         self._check_result(given='Bar 5th - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
 
-        # TODO: Sort matches by length.
+        # TODO: [TD0118] Sort matches by length.
         # self._check_result(given='Bar 4th ed - Baz._', expect_edition=4, expect_text='Bar  - Baz._')
         # self._check_result(given='Bar 5th edition - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
         # self._check_result(given='Bar fifth e - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
@@ -163,7 +162,7 @@ class TestFindAndExtractEdition(TestCase):
     def test_use_biggest_matching_number(self):
         self._check_result(given='Foobar 1st 10th Edition.pdf', expect_edition=10, expect_text='Foobar 1st .pdf')
 
-        # TODO: Remove extra removing of any trailing '[eE]dition' ..
+        # TODO: [TD0118] Remove extra removing of any trailing '[eE]dition' ..
         # self._check_result(given='Foobar 10th 1st Edition.pdf', expect_edition=10, expect_text='Foobar  1st Edition.pdf')
         # self._check_result(given='Foobar 1st Edition 10th Edition.pdf', expect_edition=10, expect_text='Foobar 1st Edition.pdf')
         # self._check_result(given='Foobar 10th Edition 1st Edition.pdf', expect_edition=10, expect_text='Foobar 1st Edition.pdf')
@@ -171,73 +170,6 @@ class TestFindAndExtractEdition(TestCase):
 
         self._check_result(given='Foobar 1st Edition 10th.pdf', expect_edition=10, expect_text='Foobar 1st .pdf')
         self._check_result(given='Foobar 1st 10th Edition.pdf', expect_edition=10, expect_text='Foobar 1st .pdf')
-
-
-class TestFindEdition(TestCase):
-    # TODO: [TD0118] Improve robustness and refactor finding editions in text.
-    def test_returns_expected_edition(self):
-        def _aE(test_input, expected):
-            self.assertEqual(find_edition(test_input), expected)
-
-        _aE('1st', 1)
-        _aE('2nd', 2)
-        _aE('3rd', 3)
-        _aE('4th', 4)
-        _aE('5th', 5)
-        _aE('6th', 6)
-        _aE('1 1st', 1)
-        _aE('1 2nd', 2)
-        _aE('1 3rd', 3)
-        _aE('1 4th', 4)
-        _aE('1 5th', 5)
-        _aE('1 6th', 6)
-        _aE('1 1st 2', 1)
-        _aE('1 2nd 2', 2)
-        _aE('1 3rd 2', 3)
-        _aE('1 4th 2', 4)
-        _aE('1 5th 2', 5)
-        _aE('1 6th 2', 6)
-        _aE('Foo, Bar - Baz._5th', 5)
-        _aE('Foo,Bar-_Baz_-_3ed_2002', 3)
-        _aE('Foo,Bar-_Baz_-_4ed_2003', 4)
-        _aE('Embedded_Systems_6th_.2011', 6)
-        _aE('Networking_4th', 4)
-        _aE('Foo 2E - Bar B. 2001', 2)
-        _aE('Third Edition', 3)
-        _aE('Bar 5e - Baz._', 5)
-        _aE('Bar 5 e - Baz._', 5)
-        _aE('Bar 5ed - Baz._', 5)
-        _aE('Bar 5 ed - Baz._', 5)
-        _aE('Bar 5th - Baz._', 5)
-        _aE('Bar 5th ed - Baz._', 5)
-        _aE('Bar 5th edition - Baz._', 5)
-        _aE('Bar fifth e - Baz._', 5)
-        _aE('Bar fifth ed - Baz._', 5)
-        _aE('Bar fifth edition - Baz._', 5)
-        _aE('Foobar 1st Edition.pdf', 1)
-        _aE('Foobar 10th Edition.pdf', 10)
-        _aE('Foobar 11th Edition.pdf', 11)
-        _aE('Foobar 25th Edition.pdf', 25)
-        _aE('Foobar 30th Edition.pdf', 30)
-        _aE('Foobar 1st 10th Edition.pdf', 10)
-        _aE('Foobar 10th 1st Edition.pdf', 10)
-        _aE('Foobar 1st Edition 10th Edition.pdf', 10)
-        _aE('Foobar 10th Edition 1st Edition.pdf', 10)
-        _aE('Foobar Edition 1st 10th.pdf', 10)
-        _aE('Foobar 1st Edition 10th.pdf', 10)
-        _aE('Foobar 1st 10th Edition.pdf', 10)
-
-    def test_returns_none_for_unavailable_editions(self):
-        def _aN(test_input):
-            actual = find_edition(test_input)
-            self.assertIsNone(actual)
-
-        _aN('Foo, Bar - Baz._')
-        _aN('Foo, Bar 5 - Baz._')
-        _aN('Foo, Bar 5s - Baz._')
-        _aN('Foo 7 Entities')
-        _aN('7 Entities')
-        _aN('7')
 
 
 class TestFindPublisherInCopyrightNotice(TestCase):

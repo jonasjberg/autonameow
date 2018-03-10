@@ -36,7 +36,7 @@ from util import (
     sanity
 )
 from util.text import (
-    find_edition,
+    find_and_extract_edition,
     urldecode
 )
 
@@ -177,7 +177,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not self._basename_prefix:
             return None
 
-        number = find_edition(self._basename_prefix)
+        number, _ = find_and_extract_edition(self._basename_prefix)
         return number
 
     def _get_extension(self):

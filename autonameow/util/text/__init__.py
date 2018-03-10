@@ -30,8 +30,6 @@ from .humannames import (
     strip_edited_by
 )
 from .patternmatching import (
-    find_edition,
     find_and_extract_edition,
-    RE_EDITION
 )
 from .transform import *

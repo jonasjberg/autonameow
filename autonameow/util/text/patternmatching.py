@@ -25,11 +25,6 @@ from core import types
 from util.text.transform import collapse_whitespace
 
 
-RE_EDITION = re.compile(
-    r'([0-9])+\s?((st|nd|rd|th)\s?|(e|ed.?|edition))\b',
-    re.IGNORECASE
-)
-
 # Like '\w' but without numbers (Unicode letters): '[^\W\d]'
 _re_copyright_name = r'(?P<name>[^\W\d]+[\D\.]+)'
 _re_copyright_symbol = r'(©|\(?[Cc]\)?)'
@@ -193,16 +188,16 @@ def find_and_extract_edition(string):
         modified_text = re.sub(matched_regex, '', text)
 
         # Strip any extra trailing edition.
-        # TODO: Handle this in the matched regex ..
+        # TODO: [TD0118] Handle this in the matched regex ..
         modified_text = re.sub(r' ?Edition', '', modified_text, re.IGNORECASE)
 
         return matched_number, modified_text
 
-    _RE_EDITION = re.compile(
+    RE_EDITION = re.compile(
         r'([0-9])+\s?((st|nd|rd|th)\s?|(ed?\.?|edition))[\b]?',
         re.IGNORECASE
     )
-    match = _RE_EDITION.search(text)
+    match = RE_EDITION.search(text)
     if match:
         e = match.group(1)
         try:
@@ -210,48 +205,10 @@ def find_and_extract_edition(string):
         except types.AWTypeError:
             pass
         else:
-            modified_text = re.sub(_RE_EDITION, '', text)
+            modified_text = re.sub(RE_EDITION, '', text)
             return edition, modified_text
 
     return None, None
-
-
-def find_edition(text):
-    """
-    Extract an "edition", like "1st Edition", from a Unicode text string.
-
-    Args:
-        text: Unicode string to search.
-
-    Returns:
-        Any found edition as an integer or None if no edition was found.
-    """
-    # TODO: [TD0118] Refactor and improve robustness.
-    text = text.replace('_', ' ')
-    text = text.replace('-', ' ')
-
-    matches = []
-    for _num, _re_pattern in compiled_ordinal_regexes().items():
-        m = _re_pattern.search(text)
-        if m:
-            matches.append(_num)
-
-    if matches:
-        # Handle case where "25th" matches "5th" and returns 5.
-        # Store all matches and return the highest matched number.
-        matches = sorted(matches, reverse=True)
-        return matches[0]
-
-    match = RE_EDITION.search(text)
-    if match:
-        e = match.group(1)
-        try:
-            edition = types.AW_INTEGER(e)
-            return edition
-        except types.AWTypeError:
-            pass
-
-    return None
 
 
 def find_publisher_in_copyright_notice(string):

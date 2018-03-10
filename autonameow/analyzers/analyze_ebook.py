@@ -43,12 +43,11 @@ from services.isbn import (
 )
 from util import sanity
 from util.text import (
-    find_edition,
+    find_and_extract_edition,
     html_unescape,
     normalize_unicode,
     remove_blacklisted_lines,
     string_similarity,
-    RE_EDITION,
     TextChunker
 )
 from util.text.humannames import (
@@ -362,9 +361,6 @@ class EbookAnalyzer(BaseAnalyzer):
 
 def extract_ebook_isbns_from_text(text):
     sanity.check_internal_string(text)
-
-    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-
     match = RE_E_ISBN.search(text)
     if match:
         return extract_isbns_from_text(match.group(0))
@@ -570,18 +566,14 @@ class ISBNMetadata(object):
     @title.setter
     def title(self, value):
         if value and isinstance(value, str):
-            match = find_edition(value)
-            if match:
-                self.edition = match
-                # TODO: [TD0130] Implement general-purpose substring matching.
-                # TODO: [TD0130] This is WRONG!
-                # Result of 'find_edition()' might not come from the part of
-                # the string that matched 'RE_EDITION'. Need a better way to
-                # identify and extract substrings ("fields") from strings.
-                value = re.sub(RE_EDITION, '', value)
-
-            self._title = value
-            self._normalized_title = normalize_full_title(value)
+            edition, modified_value = find_and_extract_edition(value)
+            if edition:
+                self.edition = edition
+                self._title = modified_value.strip()
+                self._normalized_title = normalize_full_title(modified_value)
+            else:
+                self._title = value
+                self._normalized_title = normalize_full_title(value)
 
     @property
     def normalized_title(self):
