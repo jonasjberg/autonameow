@@ -124,5 +124,5 @@ class ISBNMetadataService(object):
 
 def fetch_isbn_metadata(isbn_number):
     isbn_metadata_service = ISBNMetadataService()
-    return isbn_metadata_service.query_isbn_metadata(isbn_number)
+    return isbn_metadata_service.query(isbn_number)
 
