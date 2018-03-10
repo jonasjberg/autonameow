@@ -120,17 +120,7 @@ class Autonameow(object):
         config.set_active(self.active_config)
 
         if self.opts.get('dump_options'):
-            filepath_config = persistence.get_config_persistence_path()
-            filepath_default_config = config.DefaultConfigFilePath
-            include_opts = {
-                'config_file_path': '"{!s}"'.format(
-                    enc.displayable_path(filepath_default_config)
-                ),
-                'cache_directory_path': '"{!s}"'.format(
-                    enc.displayable_path(filepath_config)
-                )
-            }
-            self.ui.options.prettyprint_options(self.opts, include_opts)
+            self._dump_options()
 
         if self.opts.get('dump_config'):
             # TODO: [TD0148] Fix '!!python/object' in '--dump-config' output.
@@ -180,6 +170,19 @@ class Autonameow(object):
             self.active_config = config.load_config_from_file(path)
         except exceptions.ConfigError as e:
             log.critical('Unable to load configuration -- {!s}'.format(e))
+
+    def _dump_options(self):
+        filepath_config = persistence.get_config_persistence_path()
+        filepath_default_config = config.DefaultConfigFilePath
+        include_opts = {
+            'config_file_path': '"{!s}"'.format(
+                enc.displayable_path(filepath_default_config)
+            ),
+            'cache_directory_path': '"{!s}"'.format(
+                enc.displayable_path(filepath_config)
+            )
+        }
+        self.ui.options.prettyprint_options(self.opts, include_opts)
 
     def _dump_active_config_and_exit(self):
         log.info('Dumping active configuration ..')
