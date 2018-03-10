@@ -154,8 +154,7 @@ class MasterDataProvider(object):
         self.provider_runner = ProviderRunner(self.config)
 
     def delegate_every_possible_meowuri(self, fileobject):
-        log.debug('Running all available providers for file: [{:8.8}]'.format(
-            fileobject.hash_partial))
+        log.debug('Running all available providers for {!r}'.format(fileobject))
         self.provider_runner.delegate_every_possible_meowuri(fileobject)
 
     def request(self, fileobject, meowuri):
@@ -183,9 +182,7 @@ class MasterDataProvider(object):
         # self._print_debug_stats()
 
         if __debug__:
-            log.debug('Got request [{:8.8}]->[{!s}]'.format(
-                fileobject.hash_partial, meowuri
-            ))
+            log.debug('Got request {!r}->[{!s}]'.format(fileobject, meowuri))
 
         # First try the repository for previously gathered data
         response = self._query_repository(fileobject, meowuri)
@@ -207,8 +204,7 @@ class MasterDataProvider(object):
         )
 
     def _delegate_to_providers(self, fileobject, meowuri):
-        log.debug('Delegating request to providers: [{:8.8}]->[{!s}]'.format(
-            fileobject.hash_partial, meowuri))
+        log.debug('Delegating request to providers: {!r}->[{!s}]'.format(fileobject, meowuri))
         self.debug_stats[fileobject][meowuri]['delegated'] += 1
         self.provider_runner.delegate_to_providers(fileobject, meowuri)
 
@@ -225,8 +221,8 @@ class MasterDataProvider(object):
             for uri, _counters in _meowuris.items():
                 _meowuri_stats = ['{}: {}'.format(stat, count)
                                   for stat, count in _counters.items()]
-                stats_strings.append('[{:8.8}]->{!s:60.60} {!s}'.format(
-                    _fileobject.hash_partial, uri, ' '.join(_meowuri_stats)))
+                stats_strings.append('{!r}->{!s:60.60} {!s}'.format(
+                    _fileobject, uri, ' '.join(_meowuri_stats)))
 
         log.debug('{!s} debug stats:'.format(self.__class__.__name__))
         for stat_string in sorted(stats_strings):

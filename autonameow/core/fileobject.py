@@ -35,7 +35,7 @@ from util import (
 class FileObject(object):
     __slots__ = ('abspath', 'filename', 'pathname', 'pathparent', 'mime_type',
                  'basename_prefix', 'basename_suffix', '__cached_str',
-                 '__cached_repr', '_bytesize', '_hash_partial')
+                 '_bytesize', '_hash_partial')
 
     def __init__(self, path):
         """
@@ -67,7 +67,6 @@ class FileObject(object):
 
         # Avoid round-tripping to the OS to decode strings.
         self.__cached_str = None
-        self.__cached_repr = None
 
         # Set only when needed.
         self._bytesize = None
@@ -106,16 +105,10 @@ class FileObject(object):
     def __str__(self):
         if self.__cached_str is None:
             self.__cached_str = enc.displayable_path(self.filename)
-
         return self.__cached_str
 
     def __repr__(self):
-        if self.__cached_repr is None:
-            self.__cached_repr = '<{!s}("{!s}")>'.format(
-                self.__class__.__name__, enc.displayable_path(self.abspath)
-            )
-
-        return self.__cached_repr
+        return '{!s}({:8.8})'.format(self.__class__.__name__, self.hash_partial)
 
     def __hash__(self):
         # NOTE(jonas): Theoretical risk of hash collisions due to the "partial"

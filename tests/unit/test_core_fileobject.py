@@ -132,6 +132,12 @@ class TestFileObject(TestCase):
         expect = 'b9e68e1bea3e5b19ca6b2f98b73a54b73daafaa250484902e09982e07a12e733'
         self.assertEqual(actual, expect)
 
+    def test___str__(self):
+        self.assertEqual('magic_txt.txt', str(self.fo))
+
+    def test___repr__(self):
+        self.assertEqual('FileObject(b9e68e1b)', repr(self.fo))
+
 
 class TestFileObjectEquivalence(TestCase):
     def setUp(self):

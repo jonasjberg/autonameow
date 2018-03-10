@@ -195,8 +195,8 @@ class TemplateFieldDataResolver(object):
 
     def _gather_data_for_template_field(self, _field, uri):
         log.debug(
-            'Gathering data for template field {!s} from [{:8.8}]->'
-            '[{!s}]'.format(_field, self.file.hash_partial, uri)
+            'Gathering data for template field {!s} from {!r}->'
+            '[{!s}]'.format(_field, self.file, uri)
         )
         response = self._request_data(self.file, uri)
         if not response:
@@ -292,8 +292,7 @@ class TemplateFieldDataResolver(object):
             log.debug('Field-Data type INCOMPATIBLE')
 
     def _request_data(self, fileobject, uri):
-        log.debug('{!s} requesting [{:8.8}]->[{!s}]'.format(
-            self, fileobject.hash_partial, uri))
+        log.debug('{!s} requesting {!r}->[{!s}]'.format(self, fileobject, uri))
 
         # Pass a "tie-breaker" to resolve cases where we only want one item?
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.

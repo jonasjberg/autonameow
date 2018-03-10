@@ -41,17 +41,16 @@ class QueryResponseFailure(object):
 
     def __repr__(self):
         if self.fileobject:
-            fileobject_str = self.fileobject.hash_partial
+            str_fileobject = repr(self.fileobject)
         else:
-            fileobject_str = 'unknown FileObject'
+            str_fileobject = '(Unknown FileObject)'
 
         if self.msg:
             _msg = ' :: {!s}'.format(self.msg)
         else:
             _msg = ''
 
-        return '[{:8.8}]->[{!s}]{!s}'.format(
-            fileobject_str, self.uri, _msg)
+        return '{}->[{!s}]{!s}'.format(str_fileobject, self.uri, _msg)
 
     def __str__(self):
         return 'Failed query ' + repr(self)
@@ -187,8 +186,8 @@ class Repository(object):
             else:
                 _debugmsg_data = data
 
-            log.debug('Storing [{:8.8}]->[{!s}] :: ({}) {!s}'.format(
-                fileobject.hash_partial,
+            log.debug('Storing {!r}->[{!s}] :: ({}) {!s}'.format(
+                fileobject,
                 meowuri,
                 type(_debugmsg_data.get('value')),
                 _debugmsg_data.get('value')
@@ -234,9 +233,7 @@ class Repository(object):
             return QueryResponseFailure(msg='did not include a MeowURI')
 
         if __debug__:
-            log.debug('Got query [{:8.8}]->[{!s}]'.format(
-                fileobject.hash_partial, meowuri
-            ))
+            log.debug('Got query {!r}->[{!s}]'.format(fileobject, meowuri))
 
         data = self.__get_data(fileobject, meowuri)
         if data is None:
