@@ -70,22 +70,19 @@ class TextChunker(object):
             # Chunk size could be 0 after rounding.
             return [self.text]
 
-        text_lines = self.text.splitlines(keepends=True)
+        lines = self.text.splitlines(keepends=True)
 
         # First pluck the first and last chunks to make sure that their line
         # counts match the chunk size.
-        leading_chunk = ''.join(text_lines[:chunk_size])
-        text_lines = text_lines[chunk_size:]
-        trailing_chunk = ''.join(text_lines[-chunk_size:])
-        text_lines = text_lines[:-chunk_size]
+        leading_chunk, lines = self._pop_leading(chunk_size, lines)
+        trailing_chunk, lines = self._pop_trailing(chunk_size, lines)
 
         # Then split the remaining lines into groups of "chunk size" lines.
-        remaining_text_lines = list(text_lines)
+        remaining_lines = list(lines)
         center_chunks = list()
         loop_iteration_count = 0
-        while remaining_text_lines:
-            current_chunk = ''.join(remaining_text_lines[:chunk_size])
-            remaining_text_lines = remaining_text_lines[chunk_size:]
+        while remaining_lines:
+            current_chunk, remaining_lines = self._pop_leading(chunk_size, remaining_lines)
             center_chunks.append(current_chunk)
 
             # Add any left over lines to the last center chunk.
@@ -95,8 +92,8 @@ class TextChunker(object):
             # chunks varies somewhat with minor changes in chunk size and
             # input text, as long as the first and last chunks and total
             # number of chunks is more consistent.
-            if len(remaining_text_lines) < chunk_size:
-                center_chunks[-1] += ''.join(remaining_text_lines)
+            if len(remaining_lines) < chunk_size:
+                center_chunks[-1] += ''.join(remaining_lines)
                 break
 
             # Fail fast. Avoid infinite loops ..
@@ -110,6 +107,26 @@ class TextChunker(object):
         center_chunks.insert(0, leading_chunk)
         center_chunks.append(trailing_chunk)
         return list(center_chunks)
+
+    @staticmethod
+    def _pop_trailing(chunk_size, text_lines):
+        """
+        Remove 'chunk_size' lines from the end of a list of text lines
+        and join into a single string. Returns a (str, [str]) tuple.
+        """
+        trailing_chunk = ''.join(text_lines[-chunk_size:])
+        text_lines = text_lines[:-chunk_size]
+        return trailing_chunk, text_lines
+
+    @staticmethod
+    def _pop_leading(chunk_size, text_lines):
+        """
+        Remove 'chunk_size' lines from the start of a list of text lines
+        and join into a single string. Returns a (str, [str]) tuple.
+        """
+        leading_chunk = ''.join(text_lines[:chunk_size])
+        text_lines = text_lines[chunk_size:]
+        return leading_chunk, text_lines
 
     def __getitem__(self, item):
         return self.chunks[item]
