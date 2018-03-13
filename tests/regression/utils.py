@@ -61,12 +61,11 @@ def read_plaintext_file(file_path, ignore_errors=None):
         with open(file_path, 'r', encoding=C.DEFAULT_ENCODING) as fh:
             contents = fh.read()
     except (FileNotFoundError, UnicodeDecodeError) as e:
-        if ignore_errors:
-            return ''
-        else:
+        if not ignore_errors:
             raise RegressionTestError(e)
+        return ''
     else:
-        return contents
+        return types.force_string(contents)
 
 
 # Redefined print functions with disabled buffering.
@@ -243,63 +242,77 @@ class TerminalReporter(object):
 
 
 class RegressionTestLoader(object):
+    # Optional description of the test.
     BASENAME_DESCRIPTION = b'description'
+    # The test is skipped if this file exists.
     BASENAME_SKIP = b'skip'
+    # Options like those passed to the main() entry points.
     BASENAME_YAML_OPTIONS = b'options.yaml'
+    # Test assertions.
     BASENAME_YAML_ASSERTS = b'asserts.yaml'
 
     def __init__(self, abspath):
         assert isinstance(abspath, bytes)
         self.abspath = abspath
-        self.skiptest = False
 
     def _get_test_setup_dict_from_files(self):
-        abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
-        description = read_plaintext_file(abspath_desc, ignore_errors=True)
+        description = self._load_file_description()
+        assert isinstance(description, str)
 
-        options = self._load_options_from_file()
+        options = self._load_file_options()
         options = self._modify_options_input_paths(options)
         options = self._modify_options_config_path(options)
-
-        abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
-        try:
-            asserts = disk.load_yaml_file(abspath_asserts)
-        except exceptions.FilesystemError as e:
-            raise RegressionTestError(e)
-
-        if not asserts:
-            raise RegressionTestError(
-                'Read empty asserts from file: "{!s}"'.format(abspath_asserts)
-            )
-
-        _abspath_skip = self._joinpath(self.BASENAME_SKIP)
-        if uu.file_exists(_abspath_skip):
-            _skiptest = True
-        else:
-            _skiptest = False
-
-        assert isinstance(asserts, dict)
         assert isinstance(options, dict)
+
+        asserts = self._load_file_asserts()
+        assert isinstance(asserts, dict)
+
+        should_skip = self._load_file_skip()
+        assert isinstance(should_skip, bool)
+
         return {
             'asserts': asserts,
             'description': description.strip() or '(description unavailable)',
             'options': options,
-            'skiptest': _skiptest
+            'skiptest': should_skip
         }
 
-    def _load_options_from_file(self):
+    def _load_file_description(self):
+        abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
+        description = read_plaintext_file(abspath_desc, ignore_errors=True)
+        one_line_description = re.sub(r'\s+', ' ', description)
+        return one_line_description
+
+    def _load_file_asserts(self):
+        abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
+        try:
+            asserts = disk.load_yaml_file(abspath_asserts)
+        except exceptions.FilesystemError as e:
+            raise RegressionTestError('Error reading asserts from file: '
+                                      '"{!s}" :: {!s}'.format(abspath_asserts, e))
+
+        if not asserts:
+            log.warning('Read empty asserts from file: '
+                        '"{!s}"'.format(abspath_asserts))
+            asserts = dict()
+        return asserts
+
+    def _load_file_options(self):
         abspath_opts = self._joinpath(self.BASENAME_YAML_OPTIONS)
         try:
             options = disk.load_yaml_file(abspath_opts)
         except exceptions.FilesystemError as e:
-            raise RegressionTestError(e)
-
+            raise RegressionTestError('Error reading options from file: '
+                                      '"{!s}" :: {!s}'.format(abspath_opts, e))
         if not options:
-            log.warning(
-                'Read empty options from file: "{!s}"'.format(abspath_opts)
-            )
+            log.warning('Read empty options from file: '
+                        '"{!s}"'.format(abspath_opts))
             options = dict()
         return options
+
+    def _load_file_skip(self):
+        _abspath_skip = self._joinpath(self.BASENAME_SKIP)
+        return bool(uu.file_exists(_abspath_skip))
 
     @staticmethod
     def _modify_options_input_paths(options):
