@@ -254,32 +254,22 @@ class RegressionTestLoader(object):
         self.skiptest = False
 
     def _get_test_setup_dict_from_files(self):
-        _abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
-        _description = read_plaintext_file(_abspath_desc, ignore_errors=True)
+        abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
+        description = read_plaintext_file(abspath_desc, ignore_errors=True)
 
-        _abspath_opts = self._joinpath(self.BASENAME_YAML_OPTIONS)
+        options = self._load_options_from_file()
+        options = self._modify_options_input_paths(options)
+        options = self._set_config_path(options)
+
+        abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
         try:
-            _options = disk.load_yaml_file(_abspath_opts)
+            asserts = disk.load_yaml_file(abspath_asserts)
         except exceptions.FilesystemError as e:
             raise RegressionTestError(e)
 
-        if not _options:
-            log.warning(
-                'Read empty options from file: "{!s}"'.format(_abspath_opts)
-            )
-            _options = dict()
-        _options = self._set_testfile_path(_options)
-        _options = self._set_config_path(_options)
-
-        _abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
-        try:
-            _asserts = disk.load_yaml_file(_abspath_asserts)
-        except exceptions.FilesystemError as e:
-            raise RegressionTestError(e)
-
-        if not _asserts:
+        if not asserts:
             raise RegressionTestError(
-                'Read empty asserts from file: "{!s}"'.format(_abspath_asserts)
+                'Read empty asserts from file: "{!s}"'.format(abspath_asserts)
             )
 
         _abspath_skip = self._joinpath(self.BASENAME_SKIP)
@@ -288,55 +278,39 @@ class RegressionTestLoader(object):
         else:
             _skiptest = False
 
-        assert isinstance(_asserts, dict)
-        assert isinstance(_options, dict)
+        assert isinstance(asserts, dict)
+        assert isinstance(options, dict)
         return {
-            'asserts': _asserts,
-            'description': _description.strip() or '(description unavailable)',
-            'options': _options,
+            'asserts': asserts,
+            'description': description.strip() or '(description unavailable)',
+            'options': options,
             'skiptest': _skiptest
         }
 
+    def _load_options_from_file(self):
+        abspath_opts = self._joinpath(self.BASENAME_YAML_OPTIONS)
+        try:
+            options = disk.load_yaml_file(abspath_opts)
+        except exceptions.FilesystemError as e:
+            raise RegressionTestError(e)
+
+        if not options:
+            log.warning(
+                'Read empty options from file: "{!s}"'.format(abspath_opts)
+            )
+            options = dict()
+        return options
+
     @staticmethod
-    def _set_testfile_path(options):
-        """
-        Replaces '$TESTFILES' with the full absolute path to the 'test_files'
-        directory.
-        For instance; '$TESTFILES/foo.txt' --> '$SRCROOT/test_files/foo.txt',
-        where '$SRCROOT' is the full absolute path to the autonameow sources.
-        """
+    def _modify_options_input_paths(options):
+        assert isinstance(options, dict)
         if 'input_paths' not in options:
             return options
 
-        _fixed_paths = []
-        for path in options['input_paths']:
-            if path == '$TESTFILES':
-                # Substitute "variable".
-                _abspath = uuconst.PATH_TEST_FILES
-            elif path.startswith('$TESTFILES/'):
-                # Substitute "variable".
-                _basename = path.replace('$TESTFILES/', '')
-                _abspath = uu.abspath_testfile(_basename)
-            else:
-                # Normalize path.
-                try:
-                    _abspath_bytes = types.AW_PATH.normalize(path)
-                except types.AWTypeError as e:
-                    raise RegressionTestError('Invalid path in "input_paths":'
-                                              '"{!s}" :: {!s}'.format(path, e))
-                else:
-                    # NOTE(jonas): Iffy ad-hoc string coercion..
-                    _abspath = types.force_string(_abspath_bytes)
-
-            # Allow non-existent but not empty paths.
-            if not _abspath.strip():
-                raise RegressionTestError(
-                    'Path is empty after processing: "{!s}"'.format(path)
-                )
-            _fixed_paths.append(_abspath)
-
-        options['input_paths'] = _fixed_paths
-        return options
+        input_paths = options['input_paths']
+        modified_options = dict(options)
+        modified_options['input_paths'] = _expand_input_paths_variables(input_paths)
+        return modified_options
 
     def _set_config_path(self, options):
         """
@@ -360,9 +334,9 @@ class RegressionTestLoader(object):
                    'config_path': '$THISTEST/config.yaml'
                --> 'config_path': 'self.abspath/config.yaml'
         """
-        _options = dict(options)
+        assert isinstance(options, dict)
 
-        _path = types.force_string(_options.get('config_path'))
+        _path = types.force_string(options.get('config_path'))
         if not _path:
             # Use default config.
             _abspath = uu.abspath_testconfig()
@@ -388,8 +362,9 @@ class RegressionTestLoader(object):
             )
 
         log.debug('Set config_path "{!s}" to "{!s}"'.format(_path, _abspath))
-        _options['config_path'] = enc.normpath(_abspath)
-        return _options
+        modified_options = dict(options)
+        modified_options['config_path'] = enc.normpath(_abspath)
+        return modified_options
 
     def _joinpath(self, leaf):
         assert isinstance(leaf, bytes)
@@ -404,6 +379,47 @@ class RegressionTestLoader(object):
             enc.syspath(self.abspath)
         )
         return _setup_dict
+
+
+def _expand_input_paths_variables(input_paths):
+    """
+    Replaces '$TESTFILES' with the full absolute path to the 'test_files'
+    directory.
+    For instance; '$TESTFILES/foo.txt' --> '$SRCROOT/test_files/foo.txt',
+    where '$SRCROOT' is the full absolute path to the autonameow sources.
+    """
+    assert isinstance(input_paths, list)
+
+    results = []
+    for path in input_paths:
+        if path == '$TESTFILES':
+            # Substitute "variable".
+            modified_path = uuconst.PATH_TEST_FILES
+        elif path.startswith('$TESTFILES/'):
+            # Substitute "variable".
+            path_basename = path.replace('$TESTFILES/', '')
+            modified_path = uu.abspath_testfile(path_basename)
+        else:
+            # Normalize path.
+            try:
+                bytestring_path = types.AW_PATH.normalize(path)
+            except types.AWTypeError as e:
+                raise RegressionTestError(
+                    'Invalid path: "{!s}" :: {!s}'.format(path, e)
+                )
+            else:
+                # NOTE(jonas): Iffy ad-hoc string coercion..
+                modified_path = types.force_string(bytestring_path)
+
+        # Allow non-existent but not empty paths.
+        if not modified_path.strip():
+            raise RegressionTestError(
+                'Path is empty after processing: "{!s}"'.format(path)
+            )
+
+        results.append(modified_path)
+
+    return results
 
 
 class MockUI(object):

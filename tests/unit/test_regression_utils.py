@@ -37,6 +37,7 @@ from regression.utils import (
     check_renames,
     commandline_for_testcase,
     _commandline_args_for_testcase,
+    _expand_input_paths_variables,
     fetch_mock_ui_messages,
     get_regressiontest_dirs,
     get_regressiontests_rootdir,
@@ -110,7 +111,12 @@ class TestGetRegressiontestDirs(TestCase):
                 self.assertTrue(uu.is_internalbytestring(d))
 
 
-class TestRegressionTestLoaderSetTestfilePath(TestCase):
+class TestRegressionTestLoaderModifyOptionsInputPaths(TestCase):
+    def test_handles_empty_dict_options(self):
+        actual = RegressionTestLoader._modify_options_input_paths(dict())
+        expect = dict()
+        self.assertEqual(expect, actual)
+
     def test_options_without_input_paths_is_passed_through_as_is(self):
         input_options = {
             'verbose': True,
@@ -119,57 +125,8 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
             'dry_run': True,
             'recurse_paths': False,
         }
-
-        actual = RegressionTestLoader._set_testfile_path(input_options)
+        actual = RegressionTestLoader._modify_options_input_paths(input_options)
         self.assertEqual(actual, input_options)
-
-    def test_input_path_is_replaced(self):
-        input_options = {
-            'verbose': True,
-            'input_paths': ['$TESTFILES/gmail.pdf'],
-            'mode_batch': True,
-        }
-        expected = {
-            'verbose': True,
-            'input_paths': [uu.abspath_testfile('gmail.pdf')],
-            'mode_batch': True,
-        }
-        actual = RegressionTestLoader._set_testfile_path(input_options)
-        self.assertEqual(actual, expected)
-
-    def test_input_paths_are_replaced(self):
-        input_options = {
-            'input_paths': ['$TESTFILES/gmail.pdf',
-                            '$TESTFILES/magic_txt.txt'],
-        }
-        expected = {
-            'input_paths': [uu.abspath_testfile('gmail.pdf'),
-                            uu.abspath_testfile('magic_txt.txt')],
-        }
-        actual = RegressionTestLoader._set_testfile_path(input_options)
-        self.assertEqual(actual, expected)
-
-    def test_testfiles_directory_only_is_replaced(self):
-        input_options = {
-            'input_paths': ['$TESTFILES'],
-        }
-        expected = {
-            'input_paths': [uuconst.PATH_TEST_FILES],
-        }
-        actual = RegressionTestLoader._set_testfile_path(input_options)
-        self.assertEqual(actual, expected)
-
-    def test_paths_are_normalized(self):
-        input_options = {
-            'input_paths': ['~/foo/temp'],
-        }
-
-        _expected = os.path.join(uuconst.PATH_USER_HOME, 'foo', 'temp')
-        expected = {
-            'input_paths': [_expected],
-        }
-        actual = RegressionTestLoader._set_testfile_path(input_options)
-        self.assertEqual(actual, expected)
 
 
 class TestRegressionTestLoaderSetConfigPath(TestCase):
@@ -311,6 +268,41 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
 
         expect = uuconst.REGRESSIONTEST_DIR_BASENAMES[1]
         self.assertEqual(actual, expect)
+
+
+class TestExpandInputPathsVariables(TestCase):
+    def _assert_that_it_returns(self, expected, given):
+        actual = _expand_input_paths_variables(given)
+        self.assertEqual(expected, actual)
+
+    def test_empty_input_paths_is_passed_through_as_is(self):
+        self._assert_that_it_returns(expected=[], given=[])
+
+    def test_input_path_is_replaced(self):
+        self._assert_that_it_returns(
+            expected=[uu.abspath_testfile('gmail.pdf')],
+            given=['$TESTFILES/gmail.pdf']
+        )
+
+    def test_input_paths_are_replaced(self):
+        self._assert_that_it_returns(
+            expected=[uu.abspath_testfile('gmail.pdf'),
+                      uu.abspath_testfile('magic_txt.txt')],
+            given=['$TESTFILES/gmail.pdf',
+                   '$TESTFILES/magic_txt.txt']
+        )
+
+    def test_testfiles_directory_only_is_replaced(self):
+        self._assert_that_it_returns(
+            expected=[uuconst.PATH_TEST_FILES],
+            given=['$TESTFILES']
+        )
+
+    def test_paths_are_normalized(self):
+        self._assert_that_it_returns(
+            expected=[os.path.join(uuconst.PATH_USER_HOME, 'foo', 'temp')],
+            given=['~/foo/temp']
+        )
 
 
 class TestLoadRegressiontests(TestCase):
