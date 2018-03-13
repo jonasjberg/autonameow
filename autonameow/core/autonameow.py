@@ -108,12 +108,13 @@ class Autonameow(object):
             self._load_config_from_alternate_path()
         else:
             if not config.has_config_file():
+                log.info('No configuration file was found.')
                 self._write_template_config_to_default_path_and_exit()
             else:
                 self._load_config_from_default_path()
 
         if not self.active_config:
-            log.critical('Unable to load configuration -- Aborting ..')
+            log.critical('Unable to load configuration --- Aborting ..')
             self.exit_program(C.EXIT_ERROR)
 
         # Set globally accessible configuration instance.
@@ -145,12 +146,12 @@ class Autonameow(object):
         # Handle any input paths/files.
         self._handle_files(files_to_process)
 
-        _stats = 'Processed {t} files. Renamed {r}  Skipped {s}  ' \
-                 'Failed {f}'.format(t=len(files_to_process),
-                                     r=self.renamer.stats['renamed'],
-                                     s=self.renamer.stats['skipped'],
-                                     f=self.renamer.stats['failed'])
-        log.info(_stats)
+        stats = 'Processed {t} files. Renamed {r}  Skipped {s}  ' \
+                'Failed {f}'.format(t=len(files_to_process),
+                                    r=self.renamer.stats['renamed'],
+                                    s=self.renamer.stats['skipped'],
+                                    f=self.renamer.stats['failed'])
+        log.info(stats)
 
         self.exit_program(self.exit_code)
 
@@ -171,7 +172,7 @@ class Autonameow(object):
         try:
             self.active_config = config.load_config_from_file(path)
         except exceptions.ConfigError as e:
-            log.critical('Unable to load configuration -- {!s}'.format(e))
+            log.critical('Unable to load configuration --- {!s}'.format(e))
 
     def _dump_options(self):
         filepath_config = persistence.get_config_persistence_path()
@@ -187,7 +188,6 @@ class Autonameow(object):
         self.ui.options.prettyprint_options(self.opts, include_opts)
 
     def _dump_active_config_and_exit(self):
-        log.info('Dumping active configuration ..')
         self.ui.msg('Active Configuration:', style='heading')
         self.ui.msg(str(self.active_config))
         self.exit_program(C.EXIT_SUCCESS)
@@ -212,36 +212,29 @@ class Autonameow(object):
         self.ui.msg('\n')
 
     def _load_config_from_default_path(self):
-        _dp = enc.displayable_path(config.DefaultConfigFilePath)
-        log.info('Using configuration: "{}"'.format(_dp))
-        self.load_config(config.DefaultConfigFilePath)
+        default_config_path = config.DefaultConfigFilePath
+        str_path = enc.displayable_path(default_config_path)
+        log.info('Using configuration: "{}"'.format(str_path))
+        self.load_config(default_config_path)
 
     def _write_template_config_to_default_path_and_exit(self):
-        log.info('No configuration file was found. Writing default ..')
-        _dp = enc.displayable_path(config.DefaultConfigFilePath)
+        str_path = enc.displayable_path(config.DefaultConfigFilePath)
         try:
             config.write_default_config()
-        except exceptions.ConfigError:
+        except exceptions.ConfigError as e:
             log.critical('Unable to write template configuration file to path: '
-                         '"{!s}"'.format(_dp))
+                         '"{!s}" --- {!s}'.format(str_path, e))
             self.exit_program(C.EXIT_ERROR)
-        else:
-            self.ui.msg(
-                'A template configuration file was written to '
-                '"{!s}"'.format(_dp), style='info'
-            )
-            self.ui.msg(
-                'Use this file to configure {}. Refer to the documentation for '
-                'additional information.'.format(C.STRING_PROGRAM_NAME),
-                style='info'
-            )
-            self.exit_program(C.EXIT_SUCCESS)
+
+        message = 'Wrote default configuration file to "{!s}"'.format(str_path)
+        self.ui.msg(message, style='info')
+        self.exit_program(C.EXIT_SUCCESS)
 
     def _load_config_from_alternate_path(self):
-        log.info('Using configuration file: "{!s}"'.format(
-            enc.displayable_path(self.opts.get('config_path'))
-        ))
-        self.load_config(self.opts.get('config_path'))
+        opts_config_path = self.opts.get('config_path')
+        str_path = enc.displayable_path(opts_config_path)
+        log.info('Using configuration file: "{!s}"'.format(str_path))
+        self.load_config(opts_config_path)
 
     def _handle_files(self, file_paths):
         """
@@ -249,7 +242,7 @@ class Autonameow(object):
         Assume all state is setup and completely reset for each loop iteration.
         It is not currently possible to share "information" between runs.
         """
-        results_to_list = []
+        aggregate_repository_contents = []
 
         context = FilesContext(
             ui=self.ui,
@@ -260,8 +253,8 @@ class Autonameow(object):
         )
 
         for file_path in file_paths:
-            _displayable_file_path = enc.displayable_path(file_path)
-            log.info('Processing: "{!s}"'.format(_displayable_file_path))
+            str_file_path = enc.displayable_path(file_path)
+            log.info('Processing: "{!s}"'.format(str_file_path))
 
             # Sanity checking the "file_path" is part of 'FileObject' init.
             try:
@@ -269,7 +262,7 @@ class Autonameow(object):
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
                 log.warning(
-                    '{!s} - SKIPPING: "{!s}"'.format(e, _displayable_file_path)
+                    '{!s} --- SKIPPING: "{!s}"'.format(e, str_file_path)
                 )
                 continue
 
@@ -281,7 +274,7 @@ class Autonameow(object):
                 new_name = context.handle_file(current_file)
             except exceptions.AutonameowException as e:
                 log.critical(
-                    '{!s} - SKIPPING: "{!s}"'.format(e, _displayable_file_path)
+                    '{!s} --- SKIPPING: "{!s}"'.format(e, str_file_path)
                 )
                 self.exit_code = C.EXIT_WARNING
                 continue
@@ -293,21 +286,18 @@ class Autonameow(object):
                 )
 
             for filename_delta in self.renamer.skipped:
-                _msg = (
+                message = (
                     'Skipped "{!s}" because the current name is the same as '
                     'the new name'.format(filename_delta.displayable_old)
                 )
-                log.debug(_msg)
-                self.ui.msg(_msg)
+                self.ui.msg(message)
 
             for filename_delta in self.renamer.needs_confirmation:
+                # TODO: [cleanup] The renamer is a mess. Why pass 'timid'?
                 log.debug('Timid mode enabled. Asking user to confirm ..')
-                if interactive.ask_confirm_rename(
-                        filename_delta.displayable_old,
-                        filename_delta.displayable_new):
+                if interactive.ask_confirm_rename(filename_delta.displayable_old,
+                                                  filename_delta.displayable_new):
                     self.renamer.confirm(filename_delta)
-                else:
-                    log.debug('Skipping rename following user response')
 
             # TODO: Display renames as they actually happen?
             for filename_delta in self.renamer.pending:
@@ -323,7 +313,7 @@ class Autonameow(object):
                 log.error('Rename FAILED: {!s}'.format(e))
 
             # TODO: [TD0131] Hack!
-            results_to_list.append(str(repository.SessionRepository))
+            aggregate_repository_contents.append(str(repository.SessionRepository))
 
             # TODO: [TD0131] Limit repository size! Do not remove everything!
             # TODO: [TD0131] Keep all but very bulky data like extracted text.
@@ -331,35 +321,35 @@ class Autonameow(object):
                 repository.SessionRepository.remove(current_file)
 
         if self.opts.get('list_all'):
-            log.info('Listing session repository contents ..')
-            self.ui.msg('Session Repository Data', style='heading')
-
-            if not results_to_list:
-                self.ui.msg('The session repository does not contain any data ..\n')
+            if not aggregate_repository_contents:
+                str_repo = 'The session repository does not contain any data ..\n'
             else:
-                self.ui.msg('\n'.join(results_to_list))
+                str_repo = '\n'.join(aggregate_repository_contents)
+
+            self.ui.msg('Session Repository Data', style='heading')
+            self.ui.msg(str_repo)
 
     @property
     def runtime_seconds(self):
         return time.time() - self.start_time
 
-    def exit_program(self, exit_code_):
+    def exit_program(self, exit_code_value):
         """
         Main program exit point.  Shuts down this autonameow instance/session.
 
         Args:
-            exit_code_: Integer exit code to pass to the parent process.
-                Indicate success with 0, failure non-zero.
+            exit_code_value: Integer exit code to pass to the parent process.
+                             Indicate success with 0, failure non-zero.
         """
-        self.exit_code = exit_code_
+        self.exit_code = exit_code_value
 
-        _elapsed_time = self.runtime_seconds
+        elapsed_time = self.runtime_seconds
         if self.opts and self.opts.get('verbose'):
-            self.ui.print_exit_info(self.exit_code, _elapsed_time)
+            self.ui.print_exit_info(self.exit_code, elapsed_time)
 
         logs.log_previously_logged_runtimes(log)
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
-        log.debug('Total execution time: {:.6f} seconds'.format(_elapsed_time))
+        log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
 
         sys.exit(self.exit_code)
 
@@ -384,8 +374,7 @@ class Autonameow(object):
                    the values in 'constants.py' prefixed 'EXIT_'.
         """
         if isinstance(value, int) and value > self._exit_code:
-            log.debug('Exit code updated: {} -> {}'.format(self._exit_code,
-                                                           value))
+            log.debug('Exit code updated: {} -> {}'.format(self._exit_code, value))
             self._exit_code = value
 
     def __hash__(self):
