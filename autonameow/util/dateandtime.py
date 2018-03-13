@@ -24,17 +24,15 @@ import re
 import string
 from datetime import datetime
 
+from core import constants as C
+from core.exceptions import DependencyError
+from util import encoding as enc
+from util import textutils
+
 try:
     import pytz
 except ImportError:
-    raise SystemExit(
-        'Missing required module "pytz". '
-        'Make sure "pytz" is available before running this program.'
-    )
-
-from core import constants as C
-from util import encoding as enc
-from util import textutils
+    raise DependencyError(missing_modules='pytz')
 
 
 log = logging.getLogger(__name__)

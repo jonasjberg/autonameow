@@ -19,21 +19,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    import yaml
-except ImportError:
-    raise SystemExit(
-        'Missing required module "yaml". '
-        'Make sure "pyyaml" is available before running this program.'
-    )
-
 from core import constants as C
 from core.exceptions import (
     AutonameowException,
+    DependencyError,
     FilesystemError
 )
 from util import encoding as enc
 from util import disk
+
+try:
+    import yaml
+except ImportError:
+    raise DependencyError(missing_modules='yaml')
 
 
 # TODO: Merge separate 'YamlLoadError' and "YamlReadError" exceptions?

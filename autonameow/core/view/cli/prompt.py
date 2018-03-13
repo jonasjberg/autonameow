@@ -22,6 +22,23 @@
 import logging
 import sys
 
+from core import constants as C
+from core import (
+    config,
+    providers,
+)
+from core.exceptions import (
+    DependencyError,
+    InvalidMeowURIError
+)
+from core.model import MeowURI
+from core.view import cli
+from util import encoding as enc
+from util import (
+    disk,
+    sanity
+)
+
 try:
     from prompt_toolkit import prompt
     from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -40,24 +57,7 @@ try:
         ValidationError
     )
 except ImportError:
-    raise SystemExit(
-        'Missing required module "prompt_toolkit". '
-        'Make sure "prompt_toolkit" is available before running this program.'
-    )
-
-from core import constants as C
-from core import (
-    config,
-    providers,
-)
-from core.exceptions import InvalidMeowURIError
-from core.model import MeowURI
-from core.view import cli
-from util import encoding as enc
-from util import (
-    disk,
-    sanity
-)
+    raise DependencyError(missing_modules='prompt_toolkit')
 
 
 log = logging.getLogger(__name__)

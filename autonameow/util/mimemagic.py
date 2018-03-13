@@ -24,7 +24,10 @@ import mimetypes
 import os
 
 from core import types
-from core.exceptions import AutonameowException
+from core.exceptions import (
+    AutonameowException,
+    DependencyError
+)
 from util import sanity
 
 
@@ -78,11 +81,7 @@ def _build_magic():
     try:
         import magic
     except ImportError:
-        raise SystemExit(
-            'Missing required module "magic".  Make sure a "magic" module and '
-            'possibly additional required files (DLLs, magic definitions, ..) '
-            'is available before running this program.'
-        )
+        raise DependencyError(missing_modules='filemagic')
     # pylint: disable=unexpected-keyword-arg,no-value-for-parameter,no-member
     _magic = None
     try:
