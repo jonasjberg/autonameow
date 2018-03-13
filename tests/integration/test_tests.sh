@@ -43,6 +43,22 @@ assert_has_command()
                 "System provides executable command \"${_cmd_name}\""
 }
 
+check_testfiles_directory()
+{
+    assert_bulk_test "$(abspath_testfile "$1")" d r x
+}
+
+check_testfiles_file()
+{
+    assert_bulk_test "$(abspath_testfile "$1")" f r
+}
+
+check_testfiles_symlink()
+{
+    # NOTE(jonas): Can't test for -L because abspath_testfile resolves links..
+    assert_bulk_test "$(abspath_testfile "$1")" e r
+}
+
 
 
 # Test Cases
@@ -103,6 +119,9 @@ assert_true '[ -d "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
             'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should be a directory'
 
 
+assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+
+
 # ______________________________________________________________________________
 #
 # Check environment variables used by specific types of tests.
@@ -128,6 +147,21 @@ assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
 
 # ______________________________________________________________________________
 #
+# Check test dependencies
+
+assert_has_command 'grep'
+assert_has_command 'mktemp'
+assert_has_command 'realpath'
+
+assert_has_command 'sed'
+assert_true 'man sed | grep -- "^ \+.*-i\b"' \
+            'System sed supports the "-i" option, required by some integration tests'
+
+assert_has_command 'time'
+
+
+# ______________________________________________________________________________
+#
 # Basic checks of the test runner scripts.
 
 _integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_integration_tests.sh"
@@ -149,54 +183,6 @@ assert_bulk_test "$_regression_runner_path" n e r x
 
 assert_true '"$_regression_runner_path" -h' \
             "Expect exit code 0 when running \"${_regression_runner_path} -h\""
-
-
-# ______________________________________________________________________________
-#
-# Verify that required (or preferred) commands are available.
-
-assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
-            'Should be running a target operating system'
-
-assert_false '[ -z "$TERM" ]' \
-             'Environment variable "$TERM" should be set'
-
-assert_has_command 'python3'
-assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
-            'System python3 is version v3.5.0 or newer'
-
-assert_has_command 'sed'
-assert_true 'man sed | grep -- "^ \+.*-i\b"' \
-            'System sed supports the "-i" option, required by some integration tests'
-
-assert_has_command 'git'
-assert_true 'git --version | grep "git version 2\..*"' \
-            'System git version is newer than v2.x.x'
-
-assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
-
-
-# Developer scripts and testing dependencies.
-assert_has_command 'pytest'
-_pytesthelp="$(pytest --help 2>&1)"
-assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
-            'Module "pytest-html" is available on the system'
-
-assert_has_command 'pylint'
-# assert_has_command 'vulture'
-assert_has_command 'aha'
-
-
-# Extractor dependencies.
-assert_has_command 'exiftool'
-assert_has_command 'tesseract'
-assert_has_command 'pdftotext'
-assert_has_command 'unrtf'
-assert_has_command 'pandoc'  # MarkdownTextExtractor
-assert_has_command 'guessit'
-
-assert_true 'guessit -h ; [ "$?" -eq "0" ]' \
-            'Executing "guessit -h" returns success'
 
 
 # ______________________________________________________________________________
@@ -301,22 +287,6 @@ assert_false '[ -e "${_temporary_file}" ]' \
 # ______________________________________________________________________________
 #
 # Verify sample test files used by other tests.
-
-check_testfiles_directory()
-{
-    assert_bulk_test "$(abspath_testfile "$1")" d r x
-}
-
-check_testfiles_file()
-{
-    assert_bulk_test "$(abspath_testfile "$1")" f r
-}
-
-check_testfiles_symlink()
-{
-    # NOTE(jonas): Can't test for -L because abspath_testfile resolves links..
-    assert_bulk_test "$(abspath_testfile "$1")" e r
-}
 
 check_testfiles_file      '2007-04-23_12-comments.png'
 check_testfiles_file      '2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
