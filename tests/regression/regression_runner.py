@@ -32,9 +32,9 @@ from regression.utils import (
     AutonameowWrapper,
     check_renames,
     check_stdout_asserts,
-    commandline_for_testcase,
+    commandline_for_testsuite,
     glob_filter,
-    load_regressiontests,
+    load_regression_testsuites,
     print_test_info,
     TerminalReporter,
 )
@@ -58,11 +58,10 @@ class TestResults(object):
 
 
 def run_test(test, reporter):
-    opts = test.get('options')
-    expect_exitcode = test['asserts'].get('exit_code', None)
-    expect_renames = test['asserts'].get('renames', {})
+    expect_exitcode = test.asserts.get('exit_code', None)
+    expect_renames = test.asserts.get('renames', {})
 
-    aw = AutonameowWrapper(opts)
+    aw = AutonameowWrapper(test.options)
     aw()
     if aw.captured_exception:
         exception_info = {
@@ -170,19 +169,22 @@ def run_test(test, reporter):
                        captured_stderr, captured_exception=None)
 
 
-def write_failed_tests(tests):
-    p = get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
-                        persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH)
-    if p:
-        p.set('lastrun', {'failed': tests})
+def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
+                     persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH):
+    return get_persistence(file_prefix, persistence_dir_abspath)
 
 
-def load_failed_tests():
-    p = get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
-                        persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH)
-    if p:
+def write_failed_testsuites(suites):
+    persistent_storage = _get_persistence()
+    if persistent_storage:
+        persistent_storage.set('lastrun', {'failed': suites})
+
+
+def load_failed_testsuites():
+    persistent_storage = _get_persistence()
+    if persistent_storage:
         try:
-            lastrun = p.get('lastrun')
+            lastrun = persistent_storage.get('lastrun')
         except KeyError:
             pass
         else:
@@ -193,9 +195,8 @@ def load_failed_tests():
 
 def print_test_commandlines(tests):
     for test in tests:
-        test_dirname = types.force_string(test.get('test_dirname'))
-        arg_string = commandline_for_testcase(test)
-        print('# {!s}\n{!s}\n'.format(test_dirname, arg_string))
+        arg_string = commandline_for_testsuite(test)
+        print('# {!s}\n{!s}\n'.format(test.str_dirname, arg_string))
 
 
 def run_regressiontests(tests, verbose, print_stderr, print_stdout):
@@ -215,15 +216,13 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
             count_skipped += count_total - count_success - count_failure
             break
 
-        _dirname = types.force_string(test.get('test_dirname', '(?)'))
-        _description = test.get('description', '(UNDESCRIBED)')
-        if test.get('skiptest'):
-            reporter.msg_test_skipped(_dirname, _description)
+        if test.should_skip:
+            reporter.msg_test_skipped(test.str_dirname, test.description)
             reporter.msg_test_runtime(None, None)
             count_skipped += 1
             continue
 
-        reporter.msg_test_start(_dirname, _description)
+        reporter.msg_test_start(test.str_dirname, test.description)
 
         results = None
         start_time = time.time()
@@ -277,14 +276,14 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
         # Otherwise all tests would have to be re-run in order to "catch"
         # the failed tests, if re-running the failed tests and aborting
         # before completion..
-        write_failed_tests(failed_tests)
+        write_failed_testsuites(failed_tests)
 
     return count_failure
 
 
 def filter_tests(tests, filter_func, expr):
     assert callable(filter_func)
-    return [t for t in tests if filter_func(expr, t.get('test_dirname', b''))]
+    return [t for t in tests if filter_func(expr, t.dirname)]
 
 
 def main(args):
@@ -322,7 +321,7 @@ def main(args):
     )
     optgrp_select.add_argument(
         '-f', '--filter',
-        dest='filter_glob',
+        dest='filter_globs',
         metavar='GLOB',
         action='append',
         help='Select tests whose "TEST_NAME" (dirname) matches "GLOB". '
@@ -335,8 +334,8 @@ def main(args):
         dest='filter_lastfailed',
         action='store_true',
         default=False,
-        help='Select only the test cases that failed during the last completed '
-             'run. Selects all if none failed.'
+        help='Select only the test suites that failed during the last '
+             'completed run. Selects all if none failed.'
     )
 
     optgrp_action = parser.add_argument_group(
@@ -349,7 +348,7 @@ def main(args):
         action='store_true',
         default=False,
         help='Print the "short name" (directory basename) of the selected '
-             'test case(s) and exit. '
+             'test suite(s) and exit. '
              'Enable verbose mode for additional information.'
     )
     optgrp_action.add_argument(
@@ -358,11 +357,11 @@ def main(args):
         action='store_true',
         default=False,
         help='Print equivalent command-line invocations for the selected '
-             'test case(s) and exit. '
+             'test suite(s) and exit. '
              'If executed "manually", these would produce the same behaviour '
              'and results as the corresponding regression test. '
              'Each result is printed as two lines; first being "# TEST_NAME", '
-             'where "TEST_NAME" is the directory basename of the test case. '
+             'where "TEST_NAME" is the directory basename of the test suite. '
              'The second line is the equivalent command-line. '
              'Use "test selection" options to narrow down the results.'
     )
@@ -371,7 +370,7 @@ def main(args):
         dest='run_tests',
         action='store_true',
         default=True,
-        help='Run the selected test case(s). (DEFAULT: True)'
+        help='Run the selected test suite(s). (DEFAULT: True)'
     )
 
     opts = parser.parse_args(args)
@@ -386,41 +385,41 @@ def main(args):
     else:
         log.setLevel(logging.WARNING)
 
-    loaded_tests = load_regressiontests()
+    loaded_tests = load_regression_testsuites()
     log.info('Loaded {} regression test(s) ..'.format(len(loaded_tests)))
     if not loaded_tests:
         return
 
     # Start test selection based on any criteria given with the options.
-    if opts.filter_glob:
+    if opts.filter_globs:
         all_filtered = list()
         tests_to_filter = list(loaded_tests)
-        for filter_expression in opts.filter_glob:
+        for filter_expression in opts.filter_globs:
             filtered = filter_tests(tests_to_filter, glob_filter,
                                     expr=filter_expression)
-            log.info('Filter expression "{!s}" matched {} test case(s)'.format(
+            log.info('Filter expression "{!s}" matched {} test suite(s)'.format(
                 filter_expression, len(filtered)))
             tests_to_filter = filtered
             all_filtered = filtered
-        log.info('Filtering selected {} test case(s)'.format(len(all_filtered)))
+        log.info('Filtering selected {} test suite(s)'.format(len(all_filtered)))
         selected_tests = all_filtered
     else:
         selected_tests = loaded_tests
 
     if opts.filter_lastfailed:
-        _failed_lastrun = load_failed_tests()
-        if _failed_lastrun:
-            # TODO: Improve comparing regression test cases.
+        failed_lastrun = load_failed_testsuites()
+        if failed_lastrun:
+            # TODO: Improve comparing regression test suites.
             # Fails if any option is modified. Compare only directory basenames?
-            selected_tests = [t for t in selected_tests if t in _failed_lastrun]
-            log.info('Selected {} of {} test case(s) that failed during the '
+            selected_tests = [t for t in selected_tests if t in failed_lastrun]
+            log.info('Selected {} of {} test suite(s) that failed during the '
                      'last completed run ..'.format(len(selected_tests),
-                                                    len(_failed_lastrun)))
+                                                    len(failed_lastrun)))
         else:
-            log.info('Selected all {} test case(s) as None failed during the '
+            log.info('Selected all {} test suite(s) as None failed during the '
                      'last completed run ..'.format(len(selected_tests)))
 
-    log.info('Selected {} of {} test case(s) ..'.format(len(selected_tests),
+    log.info('Selected {} of {} test suite(s) ..'.format(len(selected_tests),
                                                         len(loaded_tests)))
     # End of test selection.
     if not selected_tests:

@@ -35,19 +35,20 @@ from util import encoding as enc
 from regression.utils import (
     AutonameowWrapper,
     check_renames,
-    commandline_for_testcase,
-    _commandline_args_for_testcase,
+    commandline_for_testsuite,
+    _commandline_args_for_testsuite,
     _expand_input_paths_variables,
     fetch_mock_ui_messages,
-    get_regressiontest_dirs,
+    get_all_testsuite_dirpaths,
     get_regressiontests_rootdir,
     glob_filter,
-    load_regressiontests,
+    load_regression_testsuites,
     MockUI,
     regexp_filter,
     RegressionTestError,
     RegressionTestLoader,
-    regtest_abspath
+    RegressionTestSuite,
+    _testsuite_abspath
 )
 
 
@@ -59,10 +60,10 @@ class TestGetRegressiontestsRootdir(TestCase):
         self.assertTrue(uu.is_internalbytestring(actual))
 
 
-class TestRegtestAbspath(TestCase):
+class TestTestsuiteAbspath(TestCase):
     def test_valid_argument_returns_absolute_bytestring_path(self):
         def _pass(test_input):
-            _actual = regtest_abspath(test_input)
+            _actual = _testsuite_abspath(test_input)
             self.assertTrue(uu.dir_exists(_actual))
             self.assertTrue(uu.is_abspath(_actual))
             self.assertTrue(uu.is_internalbytestring(_actual))
@@ -76,7 +77,7 @@ class TestRegtestAbspath(TestCase):
     def test_bad_argument_raises_exception(self):
         def _fail(test_input):
             with self.assertRaises(AssertionError):
-                _ = regtest_abspath(test_input)
+                _ = _testsuite_abspath(test_input)
 
         _fail(None)
         _fail('0001')
@@ -85,9 +86,9 @@ class TestRegtestAbspath(TestCase):
         _fail(b'1337_this_directory_should_not_exist')
 
 
-class TestGetRegressiontestDirs(TestCase):
+class TestGetAllTestsuiteDirpaths(TestCase):
     def setUp(self):
-        self.actual = get_regressiontest_dirs()
+        self.actual = get_all_testsuite_dirpaths()
 
     def test_returns_list(self):
         self.assertIsInstance(self.actual, list)
@@ -109,6 +110,28 @@ class TestGetRegressiontestDirs(TestCase):
         for d in self.actual:
             with self.subTest(directory=d):
                 self.assertTrue(uu.is_internalbytestring(d))
+
+
+class TestRegressionTestSuite(TestCase):
+    def test_test_suites_are_orderable_types(self):
+        a = RegressionTestSuite(
+            abspath=b'/tmp/bar',
+            dirname=b'bar',
+            asserts=None,
+            options=None,
+            skip=False,
+            description='bar'
+        )
+        b = RegressionTestSuite(
+            abspath=b'/tmp/foo',
+            dirname=b'foo',
+            asserts=None,
+            options=None,
+            skip=False,
+            description='foo'
+        )
+        self.assertGreater(b, a)
+        self.assertLess(a, b)
 
 
 class TestRegressionTestLoaderModifyOptionsInputPaths(TestCase):
@@ -133,7 +156,7 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
     @classmethod
     def setUpClass(cls):
         cls._default_config_path = uu.normpath(uu.abspath_testconfig())
-        cls._regressiontest_dir = regtest_abspath(
+        cls._regressiontest_dir = _testsuite_abspath(
             uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
         )
 
@@ -203,13 +226,13 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
         self._check(input_options, expected)
 
 
-class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
+class TestRegressionTestLoaderGetTestSetupDictFromFiles(TestCase):
     def setUp(self):
-        _regressiontest_dir = regtest_abspath(
+        _regressiontest_dir = _testsuite_abspath(
             uuconst.REGRESSIONTEST_DIR_BASENAMES[1]
         )
-        b = RegressionTestLoader(_regressiontest_dir)
-        self.actual = b.load()
+        self.loader = RegressionTestLoader(_regressiontest_dir)
+        self.actual = self.loader._get_test_setup_dict_from_files()
 
     def test_description(self):
         self.assertEqual(
@@ -258,7 +281,7 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
         self.assertEqual(actual, expected_asserts)
 
     def test_test_abspath(self):
-        actual = self.actual.get('test_abspath')
+        actual = self.loader.test_abspath
         self.assertIsInstance(actual, bytes)
         self.assertTrue(uu.is_abspath(actual))
 
@@ -266,7 +289,7 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
         self.assertTrue(actual.endswith(expect))
 
     def test_test_dirname(self):
-        actual = self.actual.get('test_dirname')
+        actual = self.loader.test_dirname
         self.assertIsInstance(actual, bytes)
 
         expect = uuconst.REGRESSIONTEST_DIR_BASENAMES[1]
@@ -308,15 +331,15 @@ class TestExpandInputPathsVariables(TestCase):
         )
 
 
-class TestLoadRegressiontests(TestCase):
-    actual_loaded = load_regressiontests()
+class TestLoadRegressionTestSuites(TestCase):
+    actual_loaded = load_regression_testsuites()
 
     def test_returns_list(self):
         self.assertIsInstance(self.actual_loaded, list)
 
     def test_returns_list_of_dicts(self):
         for a in self.actual_loaded:
-            self.assertEqual(type(a), dict)
+            self.assertIsInstance(a, RegressionTestSuite)
 
     def test_returns_at_least_one_test(self):
         self.assertGreaterEqual(len(self.actual_loaded), 1)
@@ -639,21 +662,32 @@ SAMPLE_TESTCASE_0006 = {
 }
 
 
-class TestCommandlineArgsForTestcase(TestCase):
-    def test_returns_expected_command_for_testcase_0000(self):
+def _as_testsuite(datadict):
+    return RegressionTestSuite(
+        abspath=datadict['test_abspath'],
+        dirname=datadict['test_dirname'],
+        asserts=datadict['asserts'],
+        options=datadict['options'],
+        skip=datadict['skiptest'],
+        description=datadict['description']
+    )
+
+
+class TestCommandlineArgsForTestSuite(TestCase):
+    def test_returns_expected_command_for_test_0000(self):
         expected_options = [
             '--dry-run',
             '--automagic',
             '--batch',
             "--config-path 'foo/test_files/configs/default.yaml'"
         ]
-        actual = _commandline_args_for_testcase(SAMPLE_TESTCASE_0000)
-
+        suite = _as_testsuite(SAMPLE_TESTCASE_0000)
+        actual = _commandline_args_for_testsuite(suite)
         self.assertEqual(len(expected_options), len(actual))
         for expect_option in expected_options:
             self.assertIn(expect_option, actual)
 
-    def test_returns_expected_command_for_testcase_0006(self):
+    def test_returns_expected_command_for_test_0006(self):
         expected_options = [
             '--dry-run',
             '--automagic',
@@ -664,8 +698,8 @@ class TestCommandlineArgsForTestcase(TestCase):
             "'foo/test_files/smulan.jpg'",
             "'foo/test_files/magic_jpg.jpg'"
         ]
-        actual = _commandline_args_for_testcase(SAMPLE_TESTCASE_0006)
-
+        suite = _as_testsuite(SAMPLE_TESTCASE_0006)
+        actual = _commandline_args_for_testsuite(suite)
         self.assertEqual(len(expected_options), len(actual))
         for expect_option in expected_options:
             self.assertIn(expect_option, actual)
@@ -673,17 +707,27 @@ class TestCommandlineArgsForTestcase(TestCase):
 
 class TestCommandlineForTestcase(TestCase):
     def test_returns_expected_for_empty_testcase(self):
-        actual = commandline_for_testcase({})
+        suite = RegressionTestSuite(
+            abspath=b'/tmp/bar',
+            dirname=b'bar',
+            asserts=None,
+            options=None,
+            skip=False,
+            description=None
+        )
+        actual = commandline_for_testsuite(suite)
         expect = 'autonameow'
         self.assertEqual(actual, expect)
 
     def test_returns_expected_for_testcase_0000(self):
-        actual = commandline_for_testcase(SAMPLE_TESTCASE_0000)
+        suite = _as_testsuite(SAMPLE_TESTCASE_0000)
+        actual = commandline_for_testsuite(suite)
         expect = "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/configs/default.yaml'"
         self.assertEqual(actual, expect)
 
     def test_returns_expected_for_testcase_0006(self):
-        actual = commandline_for_testcase(SAMPLE_TESTCASE_0006)
+        suite = _as_testsuite(SAMPLE_TESTCASE_0006)
+        actual = commandline_for_testsuite(suite)
         expect = "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/configs/default.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'"
         self.assertEqual(actual, expect)
 
