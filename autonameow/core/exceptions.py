@@ -66,7 +66,7 @@ class NameBuilderError(AutonameowException):
 
 
 class FilesystemError(AutonameowException):
-    """Errors occured while reading/writing files on disk. Should be used by
+    """Errors occurred while reading/writing files on disk. Should be used by
     the filesystem abstraction layer as a catch-all for failed operations."""
 
 
