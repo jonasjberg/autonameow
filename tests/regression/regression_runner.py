@@ -35,20 +35,17 @@ from regression.utils import (
     commandline_for_testcase,
     glob_filter,
     load_regressiontests,
-    regexp_filter,
-    TerminalReporter
+    print_test_info,
+    TerminalReporter,
 )
 
 
-VERBOSE = False
 _this_dir = os.path.abspath(os.path.dirname(__file__))
 PERSISTENCE_DIR_ABSPATH = types.AW_PATH.normalize(_this_dir)
 PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 
 
 log = logging.getLogger('regression_runner')
-msg_label_pass = cli.colorize('PASS', fore='GREEN')
-msg_label_fail = cli.colorize('FAIL', fore='RED')
 
 
 class TestResults(object):
@@ -60,7 +57,7 @@ class TestResults(object):
         self.captured_exception = captured_exception
 
 
-def run_test(test):
+def run_test(test, reporter):
     opts = test.get('options')
     expect_exitcode = test['asserts'].get('exit_code', None)
     expect_renames = test['asserts'].get('renames', {})
@@ -79,24 +76,12 @@ def run_test(test):
     captured_runtime = aw.captured_runtime_secs
     fail_count = 0
 
-    def _msg_run_test_failure(msg):
-        if VERBOSE:
-            print('{} {!s}'.format(msg_label_fail, msg))
-
-    def _msg_run_test_success(msg):
-        if VERBOSE:
-            print('{} {!s}'.format(msg_label_pass, msg))
-
-    def _msg(msg):
-        if VERBOSE:
-            print(msg)
-
     if expect_exitcode is not None:
         actual_exitcode = aw.captured_exitcode
         if actual_exitcode == expect_exitcode:
-            _msg_run_test_success('Exit code is {} as expected'.format(actual_exitcode))
+            reporter.msg_run_test_success('Exit code is {} as expected'.format(actual_exitcode))
         else:
-            _msg_run_test_failure(
+            reporter.msg_run_test_failure(
                 'Expected exit code {!s} but got {!s}'.format(
                     expect_exitcode, actual_exitcode
                 )
@@ -105,50 +90,50 @@ def run_test(test):
 
     actual_renames = aw.captured_renames
     if check_renames(actual_renames, expect_renames):
-        _msg_run_test_success('Renamed {} files as expected'.format(len(actual_renames)))
+        reporter.msg_run_test_success('Renamed {} files as expected'.format(len(actual_renames)))
 
         for _in, _out in actual_renames.items():
-            _msg_run_test_success('Renamed "{!s}" -> "{!s}"'.format(_in, _out))
+            reporter.msg_run_test_success('Renamed "{!s}" -> "{!s}"'.format(_in, _out))
     else:
         fail_count += 1
-        _msg_run_test_failure(
+        reporter.msg_run_test_failure(
             'Renames differ. Expected {} files to be renamed. '
             '{} files were renamed.'.format(len(expect_renames), len(actual_renames))
         )
 
         if expect_renames:
             if not actual_renames:
-                _msg('  Expected {} files to be renamed but none were!'.format(len(expect_renames)))
+                reporter.msg('  Expected {} files to be renamed but none were!'.format(len(expect_renames)))
                 for _in, _out in expect_renames.items():
-                    _msg('  Expected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
+                    reporter.msg('  Expected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
             else:
                 # Expected renames and got renames.
                 for _expect_in, _expect_out in expect_renames.items():
                     if _expect_in not in actual_renames:
-                        _msg('  Not renamed. Expected:  "{!s}" -> "{!s}"'.format(_expect_in, _expect_out))
+                        reporter.msg('  Not renamed. Expected:  "{!s}" -> "{!s}"'.format(_expect_in, _expect_out))
                     else:
                         assert _expect_in in actual_renames
                         _actual_out = actual_renames.get(_expect_in)
                         if _actual_out != _expect_out:
-                            _msg('  New file name differs from expected file name.')
-                            _msg('  Expected: "{!s}"'.format(_expect_out))
-                            _msg('  Actual:   "{!s}"'.format(_actual_out))
+                            reporter.msg('  New file name differs from expected file name.')
+                            reporter.msg('  Expected: "{!s}"'.format(_expect_out))
+                            reporter.msg('  Actual:   "{!s}"'.format(_actual_out))
 
                 for _actual_in, _actual_out in actual_renames.items():
                     if _actual_in not in expect_renames:
-                        _msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_actual_in, _actual_out))
+                        reporter.msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_actual_in, _actual_out))
                     else:
                         assert _actual_in in expect_renames
                         _expect_out = expect_renames.get(_actual_in)
                         if _expect_out != _actual_out:
-                            _msg('  New file name differs from expected file name.')
-                            _msg('  Expected: "{!s}"'.format(_expect_out))
-                            _msg('  Actual:   "{!s}"'.format(_actual_out))
+                            reporter.msg('  New file name differs from expected file name.')
+                            reporter.msg('  Expected: "{!s}"'.format(_expect_out))
+                            reporter.msg('  Actual:   "{!s}"'.format(_actual_out))
         else:
             if actual_renames:
-                _msg('  Did not expect any files to be renamed but {} were!'.format(len(actual_renames)))
+                reporter.msg('  Did not expect any files to be renamed but {} were!'.format(len(actual_renames)))
                 for _in, _out in actual_renames.items():
-                    _msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
+                    reporter.msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
             else:
                 # All good
                 pass
@@ -166,17 +151,17 @@ def run_test(test):
         if result_assert_type == 'matches':
             msg = 'Expected stdout to match "{!s}"'.format(match_result.regex)
             if match_result.passed:
-                _msg_run_test_success(msg)
+                reporter.msg_run_test_success(msg)
             else:
                 fail_count += 1
-                _msg_run_test_failure(msg)
+                reporter.msg_run_test_failure(msg)
         elif result_assert_type == 'does_not_match':
             msg = 'Expected stdout to NOT match "{!s}"'.format(match_result.regex)
             if match_result.passed:
-                _msg_run_test_success(msg)
+                reporter.msg_run_test_success(msg)
             else:
                 fail_count += 1
-                _msg_run_test_failure(msg)
+                reporter.msg_run_test_failure(msg)
         else:
             raise AssertionError('Unexpected RegexMatchingResult.assert_type: '
                                  '{!s}'.format(result_assert_type))
@@ -206,21 +191,6 @@ def load_failed_tests():
     return []
 
 
-def print_test_info(tests):
-    if VERBOSE:
-        cf = cli.ColumnFormatter()
-        for t in tests:
-            _test_dirname = types.force_string(t.get('test_dirname'))
-            _test_description = types.force_string(t.get('description'))
-            cf.addrow(_test_dirname, _test_description)
-        print(cf)
-    else:
-        _test_dirnames = [
-            types.force_string(t.get('test_dirname')) for t in tests
-        ]
-        print('\n'.join(_test_dirnames))
-
-
 def print_test_commandlines(tests):
     for test in tests:
         test_dirname = types.force_string(test.get('test_dirname'))
@@ -228,8 +198,8 @@ def print_test_commandlines(tests):
         print('# {!s}\n{!s}\n'.format(test_dirname, arg_string))
 
 
-def run_regressiontests(tests, print_stderr, print_stdout):
-    reporter = TerminalReporter(VERBOSE)
+def run_regressiontests(tests, verbose, print_stderr, print_stdout):
+    reporter = TerminalReporter(verbose)
     count_total = len(tests)
     count_success = 0
     count_failure = 0
@@ -258,10 +228,10 @@ def run_regressiontests(tests, print_stderr, print_stdout):
         results = None
         start_time = time.time()
         try:
-            results = run_test(test)
+            results = run_test(test, reporter)
         except KeyboardInterrupt:
             # Move cursor two characters back and print spaces over "^C".
-            print('\b\b  \n')
+            print('\b\b  \n', flush=True)
             log.critical('Received keyboard interrupt. Skipping remaining ..')
             should_abort = True
         elapsed_time = time.time() - start_time
@@ -410,12 +380,10 @@ def main(args):
     formatter = logging.Formatter('%(name)s %(levelname)-9.9s %(message)s')
     handler.setFormatter(formatter)
     log.addHandler(handler)
-    global VERBOSE
-    if opts.verbose:
-        VERBOSE = True
+    verbose = bool(opts.verbose)
+    if verbose:
         log.setLevel(logging.INFO)
     else:
-        VERBOSE = False
         log.setLevel(logging.WARNING)
 
     loaded_tests = load_regressiontests()
@@ -460,7 +428,7 @@ def main(args):
 
     # Perform actions on the selected tests.
     if opts.list_tests:
-        print_test_info(selected_tests)
+        print_test_info(selected_tests, verbose)
         return C.EXIT_SUCCESS
 
     if opts.get_cmd:
@@ -468,7 +436,7 @@ def main(args):
         return C.EXIT_SUCCESS
 
     if opts.run_tests:
-        failed = run_regressiontests(selected_tests,
+        failed = run_regressiontests(selected_tests, verbose,
                                      print_stderr=bool(opts.print_stderr),
                                      print_stdout=bool(opts.print_stdout))
         if failed:
@@ -478,11 +446,18 @@ def main(args):
 
 
 def print_traceback():
-    DELIM = '_' * 80
-    print(DELIM + '\n', file=sys.stderr)
+    def _print_separator():
+        print('_' * 80 + '\n', file=sys.stderr)
+
+    _print_separator()
     import traceback
     traceback.print_exc(file=sys.stderr, limit=None, chain=True)
-    print(DELIM + '\n', file=sys.stderr)
+    _print_separator()
+
+
+def print_exception_error(message, exception):
+    print('\n\n{!s}'.format(message), file=sys.stderr)
+    print(str(exception), file=sys.stderr)
 
 
 if __name__ == '__main__':
@@ -492,13 +467,15 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('\nReceived keyboard interrupt. Exiting ..')
     except AssertionError as e:
-        print('\n\nCaught AssertionError in regression_runner.__main__()', file=sys.stderr)
-        print(str(e), file=sys.stderr)
+        print_exception_error(
+            'Caught AssertionError in regression_runner.__main__()', e
+        )
         print_traceback()
         exit_code = C.EXIT_SANITYFAIL
     except Exception as e:
-        print('\n\nUnhandled exception reached regression_runner.__main__()', file=sys.stderr)
-        print(str(e), file=sys.stderr)
+        print_exception_error(
+            'Unhandled exception reached regression_runner.__main__()', e
+        )
         print_traceback()
         exit_code = C.EXIT_ERROR
     finally:

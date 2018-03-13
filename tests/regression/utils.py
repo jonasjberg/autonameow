@@ -81,6 +81,21 @@ class TerminalReporter(object):
         self.MAX_DESCRIPTION_LENGTH = TERMINAL_WIDTH - 70
         assert self.MAX_DESCRIPTION_LENGTH > 0, 'Terminal is not wide enough ..'
 
+        self.msg_label_pass = cli.colorize('PASS', fore='GREEN')
+        self.msg_label_fail = cli.colorize('FAIL', fore='RED')
+
+    def msg(self, string):
+        if self.verbose:
+            _println(string)
+
+    def msg_run_test_success(self, string):
+        if self.verbose:
+            _println('{} {!s}'.format(self.msg_label_pass, string))
+
+    def msg_run_test_failure(self, string):
+        if self.verbose:
+            _println('{} {!s}'.format(self.msg_label_fail, string))
+
     def msg_test_success(self):
         _label = cli.colorize('[SUCCESS]', fore='GREEN')
         if self.verbose:
@@ -107,7 +122,8 @@ class TerminalReporter(object):
         ))
 
     def msg_overall_failure(self):
-        _println(cli.colorize(self._center_with_fill('SOME TESTS FAILED'),
+        _println(cli.colorize(
+            self._center_with_fill('SOME TESTS FAILED'),
             fore='RED', style='BRIGHT'
         ))
 
@@ -149,8 +165,7 @@ class TerminalReporter(object):
     def msg_test_start(self, shortname, description):
         if self.verbose:
             _desc = cli.colorize(description, style='DIM')
-            print()
-            _println('Running "{}"'.format(shortname))
+            _println('\nRunning "{}"'.format(shortname))
             _println(_desc)
         else:
             maxlen = self.MAX_DESCRIPTION_LENGTH
@@ -196,7 +211,7 @@ class TerminalReporter(object):
         _time_1 = '{:10.10s}'.format(_elapsed)
         _time_2 = '{:10.10s}'.format(_captured)
         if self.verbose:
-            _println(' ' * 10 + 'Runtime: {} (captured {}'.format(_time_1,_time_2))
+            _println(' ' * 10 + 'Runtime: {} (captured {}'.format(_time_1, _time_2))
         else:
             _println('  {} ({}'.format(_time_1, _time_2))
 
@@ -792,3 +807,18 @@ def regexp_filter(expression, bytestring):
         raise RegressionTestError(e)
 
     return bool(regexp.match(bytestring))
+
+
+def print_test_info(tests, verbose):
+    if verbose:
+        cf = cli.ColumnFormatter()
+        for t in tests:
+            _test_dirname = types.force_string(t.get('test_dirname'))
+            _test_description = types.force_string(t.get('description'))
+            cf.addrow(_test_dirname, _test_description)
+        print(cf)
+    else:
+        _test_dirnames = [
+            types.force_string(t.get('test_dirname')) for t in tests
+        ]
+        print('\n'.join(_test_dirnames))
