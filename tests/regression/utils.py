@@ -259,7 +259,7 @@ class RegressionTestLoader(object):
 
         options = self._load_options_from_file()
         options = self._modify_options_input_paths(options)
-        options = self._set_config_path(options)
+        options = self._modify_options_config_path(options)
 
         abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
         try:
@@ -312,7 +312,7 @@ class RegressionTestLoader(object):
         modified_options['input_paths'] = _expand_input_paths_variables(input_paths)
         return modified_options
 
-    def _set_config_path(self, options):
+    def _modify_options_config_path(self, options):
         """
         Modifies the 'config_path' entry in the options dict.
 
@@ -336,34 +336,35 @@ class RegressionTestLoader(object):
         """
         assert isinstance(options, dict)
 
-        _path = types.force_string(options.get('config_path'))
-        if not _path:
+        config_path = types.force_string(options.get('config_path'))
+        if not config_path:
             # Use default config.
-            _abspath = uu.abspath_testconfig()
-        elif _path.startswith('$TESTFILES/'):
+            modified_path = uu.abspath_testconfig()
+        elif config_path.startswith('$TESTFILES/'):
             # Substitute "variable".
-            _basename = _path.replace('$TESTFILES/', '').strip()
-            _abspath = uu.abspath_testfile(_basename)
-        elif _path.startswith('$THISTEST/'):
+            config_path_basename = config_path.replace('$TESTFILES/', '').strip()
+            modified_path = uu.abspath_testfile(config_path_basename)
+        elif config_path.startswith('$THISTEST/'):
             # Substitute "variable".
-            _basename = _path.replace('$THISTEST/', '').strip()
+            config_path_basename = config_path.replace('$THISTEST/', '').strip()
             try:
-                _bytes_basename = types.AW_PATHCOMPONENT(_basename)
+                bytestring_basename = types.AW_PATHCOMPONENT(config_path_basename)
             except types.AWTypeError as e:
                 raise RegressionTestError(e)
-            _abspath = self._joinpath(_bytes_basename)
+
+            modified_path = self._joinpath(bytestring_basename)
         else:
             # Assume absolute path.
-            _abspath = _path
+            modified_path = config_path
 
-        if not uu.file_exists(_abspath):
+        if not uu.file_exists(modified_path):
             raise RegressionTestError(
-                'Invalid "config_path": "{!s}"'.format(_path)
+                'Invalid "config_path": "{!s}"'.format(config_path)
             )
 
-        log.debug('Set config_path "{!s}" to "{!s}"'.format(_path, _abspath))
+        log.debug('Set config_path "{!s}" to "{!s}"'.format(config_path, modified_path))
         modified_options = dict(options)
-        modified_options['config_path'] = enc.normpath(_abspath)
+        modified_options['config_path'] = enc.normpath(modified_path)
         return modified_options
 
     def _joinpath(self, leaf):

@@ -129,7 +129,7 @@ class TestRegressionTestLoaderModifyOptionsInputPaths(TestCase):
         self.assertEqual(actual, input_options)
 
 
-class TestRegressionTestLoaderSetConfigPath(TestCase):
+class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
     def setUp(self):
         self._default_config_path = uu.normpath(uu.abspath_testconfig())
         self._regressiontest_dir = regtest_abspath(
@@ -138,7 +138,7 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
         self.rtl = RegressionTestLoader(self._regressiontest_dir)
 
     def _check(self, input_options, expected):
-        actual = self.rtl._set_config_path(input_options)
+        actual = self.rtl._modify_options_config_path(input_options)
         self.assertEqual(actual, expected)
 
     def test_uses_default_config_if_config_path_unspecified(self):
