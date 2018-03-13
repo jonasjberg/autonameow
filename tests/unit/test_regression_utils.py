@@ -403,13 +403,9 @@ class TestMockUIActualUsage(TestCase):
 
     def test_call_msg(self):
         self.mock_ui.msg('foo')
-        self.mock_ui.msg('foo', style='heading')
-        self.mock_ui.msg('foo', add_info_log=False)
         self.mock_ui.msg('foo', ignore_quiet=False)
-        self.mock_ui.msg('foo', style='heading', add_info_log=False)
+        self.mock_ui.msg('foo', style='heading')
         self.mock_ui.msg('foo', style='heading', ignore_quiet=False)
-        self.mock_ui.msg('foo', ignore_quiet=False, add_info_log=False)
-        self.mock_ui.msg('foo', style='heading', ignore_quiet=False, add_info_log=False)
 
     def test_call_msg_stores_passed_arguments(self):
         self.mock_ui.msg('foo', style='heading', ignore_quiet=False)

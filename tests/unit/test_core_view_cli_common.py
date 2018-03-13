@@ -71,16 +71,6 @@ class TestMsg(TestCase):
         self.assertIn('text printed by msg() with style="info"',
                       out.getvalue().strip())
 
-    def test_msg_style_info_log_true(self):
-        with uu.capture_stdout() as out:
-            msg('text printed by msg() with style="info", add_info_log=True',
-                style='info', add_info_log=True)
-
-        self.assertIn(
-            'text printed by msg() with style="info", add_info_log=True',
-            out.getvalue().strip()
-        )
-
     def test_msg_style_color_quoted(self):
         with uu.capture_stdout() as out:
             msg('msg() text with style="color_quoted" no "yes" no',

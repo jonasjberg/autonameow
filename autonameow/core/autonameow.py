@@ -332,10 +332,7 @@ class Autonameow(object):
 
         if self.opts.get('list_all'):
             log.info('Listing session repository contents ..')
-            self.ui.msg(
-                'Session Repository Data', style='heading',
-                add_info_log=True
-            )
+            self.ui.msg('Session Repository Data', style='heading')
 
             if not results_to_list:
                 self.ui.msg('The session repository does not contain any data ..\n')

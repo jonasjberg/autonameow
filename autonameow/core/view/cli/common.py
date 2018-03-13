@@ -251,7 +251,7 @@ def print_stdout(string):
         pass
 
 
-def msg(message, style=None, add_info_log=False, ignore_quiet=False):
+def msg(message, style=None, ignore_quiet=False):
     """
     Displays a message to the user optionally using preset formatting options.
 
@@ -259,7 +259,6 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
         message: The raw text message to print as a Unicode string.
         style: Optional message type as a Unicode string.
                Should be one of 'info', 'heading', 'section' or 'color_quoted'.
-        add_info_log: Displays and logs the message if True. Defaults to False.
         ignore_quiet: Whether to ignore the global quiet ('--quiet') option.
 
     Raises:
@@ -285,13 +284,9 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
 
     if not style:
         _print_default_msg(message)
-        if add_info_log:
-            log.info(message)
 
     elif style == 'info':
         _print_info_msg(message)
-        if add_info_log:
-            log.info(message)
 
     elif style == 'heading':
         heading_underline = C.CLI_MSG_HEADING_CHAR * len(message.strip())
@@ -309,8 +304,6 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
     else:
         log.warning('Unknown message style "{!s}"'.format(style))
         _print_default_msg(message)
-        if add_info_log:
-            log.info(message)
 
 
 def msg_rename(from_basename, dest_basename, dry_run):
