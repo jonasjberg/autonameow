@@ -42,31 +42,6 @@ from util import (
 )
 
 
-# class TestCase(unittest.TestCase):
-#     # TODO: Use this to get rid of duplicate self.maxDiff settings, etc.
-#     def setUp(self):
-#         pass
-#
-#     def tearDown(self):
-#         pass
-
-
-def ok_(expr, msg=None):
-    """
-    Shorthand for assert
-    """
-    if not expr:
-        raise AssertionError(msg)
-
-
-def eq_(a, b, msg=None):
-    """
-    Shorthand for 'assert a == b, "{!r} != {!r}".format(a, b)'
-    """
-    if not a == b:
-        raise AssertionError(msg or '{!r} != {!r}'.format(a, b))
-
-
 def abspath_testfile(testfile_basename):
     """
     Utility function used by tests to construct a full path to individual test

@@ -41,6 +41,9 @@ PATH_TESTS_UNIT = join_path_from_srcroot('tests', 'unit')
 PATH_AUTONAMEOW_SRCROOT = join_path_from_srcroot('autonameow')
 
 
+PATH_USER_HOME = os.path.expanduser('~')
+
+
 REGRESSIONTEST_DIR_BASENAMES = [
     b'0000_unittest_dummy',
     b'0001',

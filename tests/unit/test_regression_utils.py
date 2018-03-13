@@ -164,8 +164,7 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
             'input_paths': ['~/foo/temp'],
         }
 
-        user_home = os.path.expanduser('~')
-        _expected = os.path.join(user_home, 'foo', 'temp')
+        _expected = os.path.join(uuconst.PATH_USER_HOME, 'foo', 'temp')
         expected = {
             'input_paths': [_expected],
         }

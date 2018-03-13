@@ -23,15 +23,12 @@ import os
 from unittest import TestCase
 from datetime import (
     datetime,
-    timedelta,
     timezone
 )
 
 import unit.utils as uu
+import unit.constants as uuconst
 from core import types
-
-
-USER_HOME = os.path.expanduser('~')
 
 
 class CaseCoercers(object):
@@ -867,9 +864,9 @@ class TestTypePath(TestCase, CaseCoercers):
         relative_home_foo = uu.normpath(os.path.join(os.path.curdir, 'home/foo'))
         cls.TESTDATA_NORMALIZE = [
             # Expands tilde to user home directory
-            ('~', uu.encode(USER_HOME)),
-            ('~/', uu.encode(USER_HOME)),
-            ('~/foo', uu.normpath(os.path.join(USER_HOME, 'foo'))),
+            ('~', uu.encode(uuconst.PATH_USER_HOME)),
+            ('~/', uu.encode(uuconst.PATH_USER_HOME)),
+            ('~/foo', uu.normpath(os.path.join(uuconst.PATH_USER_HOME, 'foo'))),
 
             # Collapses repeating path separators
             ('/home/foo', b'/home/foo'),
@@ -909,9 +906,9 @@ class TestTypePath(TestCase, CaseCoercers):
             (b'/tmp', '/tmp'),
             (b'/tmp/foo', '/tmp/foo'),
             (b'/tmp/foo.bar', '/tmp/foo.bar'),
-            (b'~', USER_HOME),
-            (b'~/foo', os.path.join(USER_HOME, 'foo')),
-            (b'~/foo.bar', os.path.join(USER_HOME, 'foo.bar')),
+            (b'~', uuconst.PATH_USER_HOME),
+            (b'~/foo', os.path.join(uuconst.PATH_USER_HOME, 'foo')),
+            (b'~/foo.bar', os.path.join(uuconst.PATH_USER_HOME, 'foo.bar')),
         ]
 
     def test_call_with_null(self):
@@ -936,9 +933,9 @@ class TestTypePathComponent(TestCase, CaseCoercers):
         relative_home_foo = uu.normpath(os.path.join(os.path.curdir, 'home/foo'))
         cls.TESTDATA_NORMALIZE = [
             # Path with user home
-            ('~', uu.encode(USER_HOME)),
-            ('~/', uu.encode(USER_HOME)),
-            ('~/foo', uu.normpath(os.path.join(USER_HOME, 'foo'))),
+            ('~', uu.encode(uuconst.PATH_USER_HOME)),
+            ('~/', uu.encode(uuconst.PATH_USER_HOME)),
+            ('~/foo', uu.normpath(os.path.join(uuconst.PATH_USER_HOME, 'foo'))),
 
             # Normalizes path components
             ('/', b'/'),
