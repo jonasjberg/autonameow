@@ -471,3 +471,8 @@ def initialize():
         Registry = ProviderRegistry(
             meowuri_source_map=_get_meowuri_source_map()
         )
+
+
+def shutdown():
+    global Registry
+    Registry = None

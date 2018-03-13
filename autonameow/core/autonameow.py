@@ -86,7 +86,9 @@ class Autonameow(object):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        # Reset singletons.
         repository.shutdown(self)
+        providers.shutdown()
 
     def run(self):
         if self.opts.get('quiet'):
