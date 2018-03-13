@@ -24,8 +24,6 @@ import time
 from contextlib import contextmanager
 from functools import wraps
 
-from core.view import cli
-
 
 LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
@@ -46,6 +44,11 @@ def init_logging(opts):
     if _logging_initialized:
         # TODO: Fix global logging state making testing tedious.
         return
+
+    # This module is likely imported from a lot of places. The "lazy" import
+    # below is intended to prevent prematurely importing third-party modules
+    # that might be missing, like 'prompt_toolkit'.
+    from core.view import cli
 
     # NOTE(jonas): This is probably a bad idea, but seems to work good enough.
     # TODO: [hardcoded] Remove spaces after labels, used for alignment.
