@@ -22,10 +22,6 @@
 import itertools
 import re
 from unittest import TestCase
-from unittest.mock import (
-    MagicMock,
-    patch
-)
 
 from core.namebuilder.builder import (
     FilenamePostprocessor
@@ -33,7 +29,6 @@ from core.namebuilder.builder import (
 
 
 class TestFilenamePostprocessor(TestCase):
-    @patch('core.namebuilder.builder.view', MagicMock())
     def __check_call(self, **kwargs):
         given = kwargs.pop('given')
         expect = kwargs.pop('expect')

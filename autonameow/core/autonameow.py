@@ -61,7 +61,7 @@ class Autonameow(object):
         assert isinstance(opts, dict)
         self.opts = check_option_combinations(opts)
 
-        # Package contained in 'autonameow/core/view'.
+        # Package in 'autonameow/core/view' or equivalent interface.
         self.ui = ui
 
         # For calculating the total runtime.
@@ -251,10 +251,13 @@ class Autonameow(object):
         """
         results_to_list = []
 
-        context = FilesContext(autonameow_exit_code=self.exit_code,
-                               options=self.opts,
-                               active_config=self.active_config,
-                               master_provider=self.master_provider)
+        context = FilesContext(
+            ui=self.ui,
+            autonameow_exit_code=self.exit_code,
+            options=self.opts,
+            active_config=self.active_config,
+            master_provider=self.master_provider
+        )
 
         for file_path in file_paths:
             _displayable_file_path = enc.displayable_path(file_path)

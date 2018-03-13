@@ -21,10 +21,7 @@
 
 import logging
 
-from core import (
-    exceptions,
-    view,
-)
+from core import exceptions
 from core.namebuilder.fields import NameTemplateField
 from util import encoding as enc
 from util import (
@@ -69,19 +66,14 @@ class FilenamePostprocessor(object):
 
     @staticmethod
     def _do_replacements(filename, regex_replacement_tuples):
-        before = filename
-        after = text.batch_regex_replace(regex_replacement_tuples, filename)
-        if before != after:
-            # TODO: [TD0171] Separate logic from user interface.
-            view.msg_filename_replacement(before, after)
-        return after
+        return text.batch_regex_replace(regex_replacement_tuples, filename)
 
     @staticmethod
     def _do_simplify_unicode(filename):
         return text.simplify_unicode(filename)
 
 
-def build(config, name_template, field_databundle_dict):
+def build(ui, config, name_template, field_databundle_dict):
     """
     Constructs a new filename given a name template and a dict mapping
     name template fields to data to be populated in each field.
@@ -140,10 +132,14 @@ def build(config, name_template, field_databundle_dict):
         simplify_unicode=config.get(['POST_PROCESSING',
                                      'simplify_unicode'])
     )
-    new_name = postprocessor(new_name)
+    before = str(new_name)
+    postprocessed_new_name = postprocessor(new_name)
+    after = str(postprocessed_new_name)
+    if before != after:
+        ui.msg_filename_replacement(before, after)
 
     # TODO: [TD0036] Allow per-field replacements and customization.
-    return new_name
+    return postprocessed_new_name
 
 
 def pre_assemble_format(field_databundle_dict, config):
