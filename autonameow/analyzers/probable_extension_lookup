@@ -101,6 +101,8 @@ MIMETYPE application/zip
     - alfredworkflow
     EXTENSION epub
     - epub
+    EXTENSION tdesktop-theme  # Telegram messenger theme
+    - tdesktop-theme
     EXTENSION zip
     - zip
 
@@ -126,6 +128,12 @@ MIMETYPE text/html
     - txt
 
 MIMETYPE text/plain
+    # Telegram messenger theme files
+    EXTENSION attheme
+    - attheme
+    EXTENSION tdesktop-palette
+    - tdesktop-palette
+
     EXTENSION bibtex
     - bibtex
     EXTENSION c
