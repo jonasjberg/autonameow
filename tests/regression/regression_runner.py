@@ -93,21 +93,31 @@ def run_test(test, reporter):
         reporter.msg('     Expected: "{!s}"'.format(_expected))
         reporter.msg('     Actual:   "{!s}"'.format(_actual))
 
+    def _report_unexpected_rename(_old, _new):
+        reporter.msg_run_test_failure(
+            'Unexpected rename:  "{!s}" -> "{!s}"'.format(_old, _new)
+        )
+
     actual_renames = aw.captured_renames
     if check_renames(actual_renames, expect_renames):
         for actual_old, actual_new in actual_renames.items():
-            reporter.msg_run_test_success('Renamed "{!s}" -> "{!s}"'.format(actual_old, actual_new))
+            reporter.msg_run_test_success(
+                'Renamed "{!s}" -> "{!s}"'.format(actual_old, actual_new)
+            )
     else:
         # TODO: Keep count of individual rename assertions?
         fail_count += 1
         if expect_renames:
             if not actual_renames:
-                reporter.msg_run_test_failure('Expected {} files to be renamed but none were!'.format(len(expect_renames)))
-
+                reporter.msg_run_test_failure(
+                    'Expected {} files to be renamed but none were!'.format(len(expect_renames))
+                )
             # Expected renames and got renames.
             for expect_old, expect_new in expect_renames.items():
                 if expect_old not in actual_renames:
-                    reporter.msg_run_test_failure('Not renamed. Expected:  "{!s}" -> "{!s}"'.format(expect_old, expect_new))
+                    reporter.msg_run_test_failure(
+                        'Not renamed. Expected:  "{!s}" -> "{!s}"'.format(expect_old, expect_new)
+                    )
                 else:
                     actual_new = actual_renames.get(expect_old)
                     if actual_new != expect_new:
@@ -115,7 +125,7 @@ def run_test(test, reporter):
 
             for actual_old, actual_new in actual_renames.items():
                 if actual_old not in expect_renames:
-                    reporter.msg_run_test_failure('Unexpected rename:  "{!s}" -> "{!s}"'.format(actual_old, actual_new))
+                    _report_unexpected_rename(actual_old, actual_new)
                 else:
                     expect_new = expect_renames.get(actual_old)
                     if expect_new != actual_new:
@@ -123,7 +133,7 @@ def run_test(test, reporter):
         else:
             if actual_renames:
                 for actual_old, actual_new in actual_renames.items():
-                    reporter.msg_run_test_failure('Unexpected rename:  "{!s}" -> "{!s}"'.format(actual_old, actual_new))
+                    _report_unexpected_rename(actual_old, actual_new)
 
     # TODO: [TD0158] Evaluate assertions of "skipped renames".
 
