@@ -57,18 +57,15 @@ def _build_magic():
     'file-magic'      https://github.com/file/file/tree/master/python
     'python-magic'    https://github.com/ahupp/python-magic
 
-    Notes on versions used on my (jonas) development boxes:
+    Notes on installing versions used on my (jonas) active development boxes:
 
-        MacOS   Seems like this is the version currently in use on MacOS?
-                https://pypi.python.org/pypi/file-magic/0.3.0
-                https://github.com/file/file
-
-                Requires 'libmagic'! Install by running;
+        MacOS   Requires 'libmagic'. Install by running;
                 $ brew install libmagic
                 $ pip3 install file-magic
 
         Linux   Install 'python3-magic' from the repositories on Linux.
-                For Debian-likes using apt:  'apt install python3-magic'
+                For Debian-likes using apt:
+                $ apt install python3-magic
 
     Returns:
         Callable the returns a MIME-type read from magic header bytes of the
@@ -81,7 +78,7 @@ def _build_magic():
     try:
         import magic
     except ImportError:
-        raise DependencyError(missing_modules='filemagic')
+        raise DependencyError(missing_modules='magic')
     # pylint: disable=unexpected-keyword-arg,no-value-for-parameter,no-member
     _magic = None
     try:
@@ -102,6 +99,7 @@ def _build_magic():
             # To identify with mime type, rather than a textual description,
             # pass the magic.MAGIC_MIME_TYPE flag when creating the magic.Magic
             # instance.
+            # NOTE(jonas): This one is used on both MacOS and Linux devboxes.
             m = magic.Magic(flags=magic.MAGIC_MIME_TYPE)
             _magic = m.id_filename
     else:

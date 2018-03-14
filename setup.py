@@ -71,18 +71,21 @@ setup(
         'beautifulsoup4==4.4.1',
         'colorama==0.3.7',
         'chardet==2.3.0',
-        'EbookLib==0.16',
+        'ebooklib==0.16',
         'guessit==2.1.0',
-        'hypothesis==3.38.0',
         'isbnlib==3.5.6',
-        'Pillow==3.1.2',
+        'pillow==3.1.2',
         'prompt-toolkit==1.0.15',
         'pytz==2014.10',
-        'PyYAML==3.11',
-        'Unidecode==0.4.19',
+        'pyyaml==3.11',
+        'unidecode==0.4.19',
         'guessit==2.1.0',
         # NOTE: Run 'apt install python3-magic' on Debian-derivatives to satisfy the magic dependency.
         # 'python3-magic',   TODO: Which version is actually used??
+    ],
+    tests_require=[
+        # TODO: Move 'hypothesis' to dev-requirements
+        'hypothesis==3.38.0',
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -95,6 +98,7 @@ setup(
         'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Scientific/Engineering :: Information Analysis',
         'Topic :: Software Development :: Build Tools',
         'Topic :: Utilities',
