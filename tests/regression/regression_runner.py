@@ -78,64 +78,52 @@ def run_test(test, reporter):
     if expect_exitcode is not None:
         actual_exitcode = aw.captured_exitcode
         if actual_exitcode == expect_exitcode:
-            reporter.msg_run_test_success('Exit code is {} as expected'.format(actual_exitcode))
+            reporter.msg_run_test_success(
+                'Exit code is {!s} as expected'.format(actual_exitcode)
+            )
         else:
             reporter.msg_run_test_failure(
-                'Expected exit code {!s} but got {!s}'.format(
-                    expect_exitcode, actual_exitcode
-                )
+                'Expected exit code {!s} but got {!s}'.format(expect_exitcode, actual_exitcode)
             )
             fail_count += 1
 
+    # TODO: [cleanup] This is way too messy ..
+    def _report_differing_filenames(_expected, _actual):
+        reporter.msg_run_test_failure('New file name differs from expected file name.')
+        reporter.msg('     Expected: "{!s}"'.format(_expected))
+        reporter.msg('     Actual:   "{!s}"'.format(_actual))
+
     actual_renames = aw.captured_renames
     if check_renames(actual_renames, expect_renames):
-        reporter.msg_run_test_success('Renamed {} files as expected'.format(len(actual_renames)))
-
-        for _in, _out in actual_renames.items():
-            reporter.msg_run_test_success('Renamed "{!s}" -> "{!s}"'.format(_in, _out))
+        for actual_old, actual_new in actual_renames.items():
+            reporter.msg_run_test_success('Renamed "{!s}" -> "{!s}"'.format(actual_old, actual_new))
     else:
+        # TODO: Keep count of individual rename assertions?
         fail_count += 1
-        reporter.msg_run_test_failure(
-            'Renames differ. Expected {} files to be renamed. '
-            '{} files were renamed.'.format(len(expect_renames), len(actual_renames))
-        )
-
         if expect_renames:
             if not actual_renames:
-                reporter.msg('  Expected {} files to be renamed but none were!'.format(len(expect_renames)))
-                for _in, _out in expect_renames.items():
-                    reporter.msg('  Expected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
-            else:
-                # Expected renames and got renames.
-                for _expect_in, _expect_out in expect_renames.items():
-                    if _expect_in not in actual_renames:
-                        reporter.msg('  Not renamed. Expected:  "{!s}" -> "{!s}"'.format(_expect_in, _expect_out))
-                    else:
-                        assert _expect_in in actual_renames
-                        _actual_out = actual_renames.get(_expect_in)
-                        if _actual_out != _expect_out:
-                            reporter.msg('  New file name differs from expected file name.')
-                            reporter.msg('  Expected: "{!s}"'.format(_expect_out))
-                            reporter.msg('  Actual:   "{!s}"'.format(_actual_out))
+                reporter.msg_run_test_failure('Expected {} files to be renamed but none were!'.format(len(expect_renames)))
 
-                for _actual_in, _actual_out in actual_renames.items():
-                    if _actual_in not in expect_renames:
-                        reporter.msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_actual_in, _actual_out))
-                    else:
-                        assert _actual_in in expect_renames
-                        _expect_out = expect_renames.get(_actual_in)
-                        if _expect_out != _actual_out:
-                            reporter.msg('  New file name differs from expected file name.')
-                            reporter.msg('  Expected: "{!s}"'.format(_expect_out))
-                            reporter.msg('  Actual:   "{!s}"'.format(_actual_out))
+            # Expected renames and got renames.
+            for expect_old, expect_new in expect_renames.items():
+                if expect_old not in actual_renames:
+                    reporter.msg_run_test_failure('Not renamed. Expected:  "{!s}" -> "{!s}"'.format(expect_old, expect_new))
+                else:
+                    actual_new = actual_renames.get(expect_old)
+                    if actual_new != expect_new:
+                        _report_differing_filenames(expect_new, actual_new)
+
+            for actual_old, actual_new in actual_renames.items():
+                if actual_old not in expect_renames:
+                    reporter.msg_run_test_failure('Unexpected rename:  "{!s}" -> "{!s}"'.format(actual_old, actual_new))
+                else:
+                    expect_new = expect_renames.get(actual_old)
+                    if expect_new != actual_new:
+                        _report_differing_filenames(expect_new, actual_new)
         else:
             if actual_renames:
-                reporter.msg('  Did not expect any files to be renamed but {} were!'.format(len(actual_renames)))
-                for _in, _out in actual_renames.items():
-                    reporter.msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
-            else:
-                # All good
-                pass
+                for actual_old, actual_new in actual_renames.items():
+                    reporter.msg_run_test_failure('Unexpected rename:  "{!s}" -> "{!s}"'.format(actual_old, actual_new))
 
     # TODO: [TD0158] Evaluate assertions of "skipped renames".
 
@@ -148,22 +136,19 @@ def run_test(test, reporter):
     for match_result in stdout_match_results:
         result_assert_type = str(match_result.assert_type)
         if result_assert_type == 'matches':
-            msg = 'Expected stdout to match "{!s}"'.format(match_result.regex)
-            if match_result.passed:
-                reporter.msg_run_test_success(msg)
-            else:
-                fail_count += 1
-                reporter.msg_run_test_failure(msg)
+            msg_template = 'Expected stdout to match "{!s}"'
         elif result_assert_type == 'does_not_match':
-            msg = 'Expected stdout to NOT match "{!s}"'.format(match_result.regex)
-            if match_result.passed:
-                reporter.msg_run_test_success(msg)
-            else:
-                fail_count += 1
-                reporter.msg_run_test_failure(msg)
+            msg_template = 'Expected stdout to NOT match "{!s}"'
         else:
             raise AssertionError('Unexpected RegexMatchingResult.assert_type: '
                                  '{!s}'.format(result_assert_type))
+
+        msg = msg_template.format(match_result.regex)
+        if match_result.passed:
+            reporter.msg_run_test_success(msg)
+        else:
+            fail_count += 1
+            reporter.msg_run_test_failure(msg)
 
     return TestResults(fail_count, captured_runtime, captured_stdout,
                        captured_stderr, captured_exception=None)
