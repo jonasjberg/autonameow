@@ -118,6 +118,8 @@ MIMETYPE text/html
     - html
     - html.gz
     - htm
+    EXTENSION java
+    - java
     EXTENSION mhtml
     - mhtml
     EXTENSION txt
