@@ -262,7 +262,6 @@ class Autonameow(object):
         aggregate_repository_contents = []
 
         context = FilesContext(
-            ui=self.ui,
             autonameow_exit_code=self.exit_code,
             options=self.opts,
             active_config=self.active_config,

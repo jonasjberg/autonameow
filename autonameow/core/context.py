@@ -43,9 +43,8 @@ log = logging.getLogger(__name__)
 
 
 class FilesContext(object):
-    def __init__(self, ui, autonameow_exit_code, options, active_config,
+    def __init__(self, autonameow_exit_code, options, active_config,
                  master_provider):
-        self.ui = ui
         self.autonameow_exit_code = autonameow_exit_code
         self.opts = options
         self.active_config = active_config
