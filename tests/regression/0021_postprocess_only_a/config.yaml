@@ -1,0 +1,12 @@
+POST_PROCESSING:
+    replacements:
+        empty: identify_as_not_empty
+
+RULES:
+    Rule that should not be applied when only post-processing:
+        CONDITIONS:
+            extractor.filesystem.xplat.pathname_parent: test_files
+        DATA_SOURCES:
+            extension: extractor.filesystem.xplat.mime_type
+        NAME_TEMPLATE: 'FOO BAR.{extension}'
+        exact_match: false

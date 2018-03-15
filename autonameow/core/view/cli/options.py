@@ -159,6 +159,15 @@ def init_argparser():
              'Use the "--batch" option to force non-interactive mode and '
              'skip paths with unresolved queries.'
     )
+    optgrp_mode_method.add_argument(
+        '--postprocess-only',
+        default=False,
+        dest='mode_postprocess_only',
+        action='store_true',
+        help='Enable POST-PROCESSING ONLY (Default: DISABLED) '
+             'Do not construct new file names, only do post-processing '
+             'using any global post-processing settings.'
+    )
 
     optgrp_mode_interaction = parser.add_argument_group(
         'User interaction',

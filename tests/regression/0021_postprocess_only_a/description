@@ -1,0 +1,3 @@
+Option '--postprocess-only' with 'test_files/empty' should not apply a matching rule.
+Expect one postprocessing replacement that modifies the entire filename.
+

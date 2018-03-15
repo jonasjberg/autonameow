@@ -268,6 +268,24 @@ assert_true '"$AUTONAMEOW_RUNNER" --dump-config --verbose' \
             'Expect exit code 0 for "--dump-config --verbose"'
 
 
+# ______________________________________________________________________________
+#
+# Check the '--postprocess-only' option.
+
+assert_true '"$AUTONAMEOW_RUNNER" --help 2>&1 | grep -- "--postprocess-only"' \
+            'Help text includes the "--postprocess-only" option'
+
+assert_true '"$AUTONAMEOW_RUNNER" --postprocess-only' \
+            'Expect exit code 0 for "--postprocess-only"'
+
+assert_true '"$AUTONAMEOW_RUNNER" --postprocess-only --debug' \
+            'Expect exit code 0 for "--postprocess-only --debug"'
+
+assert_true '"$AUTONAMEOW_RUNNER" --postprocess-only --verbose' \
+            'Expect exit code 0 for "--postprocess-only --verbose"'
+
+
+
 
 
 # Calculate total execution time.

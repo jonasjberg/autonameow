@@ -1,0 +1,3 @@
+exit_code: 0
+renames:
+   empty: identify_as_not_empty
