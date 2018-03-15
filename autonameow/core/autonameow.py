@@ -71,6 +71,7 @@ class Autonameow(object):
         self.active_config = None
         self.renamer = None
         self.master_provider = None
+        self.postprocessor = None
 
         self._exit_code = C.EXIT_SUCCESS
 
@@ -145,6 +146,19 @@ class Autonameow(object):
         # Initialize the global master data provider.
         master_provider.initialize(self.active_config)
         self.master_provider = master_provider
+
+        # Initialize a re-usable post-processor.
+        # TODO: Improve access of nested configuration values.
+        self.postprocessor = FilenamePostprocessor(
+            lowercase_filename=self.active_config.get(
+                ['POST_PROCESSING', 'lowercase_filename']),
+            uppercase_filename=self.active_config.get(
+                ['POST_PROCESSING', 'uppercase_filename']),
+            regex_replacements=self.active_config.get(
+                ['POST_PROCESSING', 'replacements']),
+            simplify_unicode=self.active_config.get(
+                ['POST_PROCESSING', 'simplify_unicode'])
+        )
 
         # Handle any input paths/files.
         self._handle_files(files_to_process)
@@ -273,32 +287,20 @@ class Autonameow(object):
                 log.debug('Calling provider.delegate_every_possible_meowuri()')
                 master_provider.delegate_every_possible_meowuri(current_file)
 
-            try:
-                new_name = context.find_new_name(current_file)
-            except exceptions.AutonameowException as e:
-                log.critical(
-                    '{!s} --- SKIPPING: "{!s}"'.format(e, str_file_path)
-                )
-                self.exit_code = C.EXIT_WARNING
-                continue
+            if self.opts.get('mode_postprocess_only'):
+                new_name = str(current_file)
+            else:
+                try:
+                    new_name = context.find_new_name(current_file)
+                except exceptions.AutonameowException as e:
+                    log.critical(
+                        '{!s} --- SKIPPING: "{!s}"'.format(e, str_file_path)
+                    )
+                    self.exit_code = C.EXIT_WARNING
+                    continue
 
             if new_name:
-                postprocessor = FilenamePostprocessor(
-                    lowercase_filename=self.active_config.get(
-                        ['POST_PROCESSING', 'lowercase_filename']),
-                    uppercase_filename=self.active_config.get(
-                        ['POST_PROCESSING', 'uppercase_filename']),
-                    regex_replacements=self.active_config.get(
-                        ['POST_PROCESSING', 'replacements']),
-                    simplify_unicode=self.active_config.get(
-                        ['POST_PROCESSING', 'simplify_unicode'])
-                )
-                before = str(new_name)
-                postprocessed_new_name = postprocessor(new_name)
-                after = str(postprocessed_new_name)
-                if before != after:
-                    self.ui.msg_filename_replacement(before, after)
-
+                postprocessed_new_name = self._do_post_processing(new_name)
                 self.renamer.add_pending(
                     from_path=current_file.abspath,
                     new_basename=postprocessed_new_name,
@@ -347,6 +349,14 @@ class Autonameow(object):
 
             self.ui.msg('Session Repository Data', style='heading')
             self.ui.msg(str_repo)
+
+    def _do_post_processing(self, filename):
+        before = str(filename)
+        postprocessed_filename = self.postprocessor(filename)
+        after = str(postprocessed_filename)
+        if before != after:
+            self.ui.msg_filename_replacement(before, after)
+        return postprocessed_filename
 
     @property
     def runtime_seconds(self):
