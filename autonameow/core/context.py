@@ -51,7 +51,7 @@ class FilesContext(object):
         self.active_config = active_config
         self.master_provider = master_provider
 
-    def handle_file(self, current_file):
+    def find_new_name(self, current_file):
         #  Things to find:
         #
         #    * NAME TEMPLATE
@@ -114,6 +114,10 @@ class FilesContext(object):
             return None
 
         if not data_sources:
+            if len(name_template.placeholders) == 0:
+                # TODO: [hack][cleanup] This is such a mess ..
+                return str(name_template)
+
             if self.opts.get('mode_automagic'):
                 # Try real hard to figure it out (?)
                 pass
@@ -160,7 +164,6 @@ class FilesContext(object):
 
         try:
             new_name = namebuilder.build(
-                ui=self.ui,
                 config=self.active_config,
                 name_template=name_template,
                 field_databundle_dict=field_databundle_dict

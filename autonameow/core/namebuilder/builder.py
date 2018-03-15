@@ -28,53 +28,13 @@ from util import encoding as enc
 from util import (
     disk,
     sanity,
-    text
 )
 
 
 log = logging.getLogger(__name__)
 
 
-class FilenamePostprocessor(object):
-    def __init__(self, lowercase_filename=None, uppercase_filename=None,
-                 regex_replacements=None, simplify_unicode=None):
-        self.lowercase_filename = lowercase_filename or False
-        self.uppercase_filename = uppercase_filename or False
-        self.simplify_unicode = simplify_unicode or False
-
-        # List of tuples containing a compiled regex and a unicode string.
-        self.regex_replacements = regex_replacements or []
-
-    def __call__(self, filename):
-        _filename = filename
-
-        # TODO: [TD0137] Add rule-specific replacements.
-        # Do replacements first as the regular expressions are case-sensitive.
-        if self.regex_replacements:
-            _filename = self._do_replacements(_filename,
-                                              self.regex_replacements)
-
-        # Convert to lower-case if both upper- and lower- are enabled.
-        if self.lowercase_filename:
-            _filename = _filename.lower()
-        elif self.uppercase_filename:
-            _filename = _filename.upper()
-
-        if self.simplify_unicode:
-            _filename = self._do_simplify_unicode(_filename)
-
-        return _filename
-
-    @staticmethod
-    def _do_replacements(filename, regex_replacement_tuples):
-        return text.batch_regex_replace(regex_replacement_tuples, filename)
-
-    @staticmethod
-    def _do_simplify_unicode(filename):
-        return text.simplify_unicode(filename)
-
-
-def build(ui, config, name_template, field_databundle_dict):
+def build(config, name_template, field_databundle_dict):
     """
     Constructs a new filename given a name template and a dict mapping
     name template fields to data to be populated in each field.
@@ -123,25 +83,8 @@ def build(ui, config, name_template, field_databundle_dict):
     else:
         log.debug('Skipped sanitizing filename')
 
-    # Do any case-transformations.
-    postprocessor = FilenamePostprocessor(
-        lowercase_filename=config.get(['POST_PROCESSING',
-                                       'lowercase_filename']),
-        uppercase_filename=config.get(['POST_PROCESSING',
-                                       'uppercase_filename']),
-        regex_replacements=config.get(['POST_PROCESSING',
-                                       'replacements']),
-        simplify_unicode=config.get(['POST_PROCESSING',
-                                     'simplify_unicode'])
-    )
-    before = str(new_name)
-    postprocessed_new_name = postprocessor(new_name)
-    after = str(postprocessed_new_name)
-    if before != after:
-        ui.msg_filename_replacement(before, after)
-
     # TODO: [TD0036] Allow per-field replacements and customization.
-    return postprocessed_new_name
+    return new_name
 
 
 def pre_assemble_format(field_databundle_dict, config):

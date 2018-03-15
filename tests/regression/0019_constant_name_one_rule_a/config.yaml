@@ -1,0 +1,7 @@
+RULES:
+    Constant name A:
+        CONDITIONS:
+            extractor.filesystem.xplat.mime_type: '*/*'
+        NAME_TEMPLATE: 'CONSTANT_NAME_A'
+        exact_match: true
+        ranking_bias: 1.0

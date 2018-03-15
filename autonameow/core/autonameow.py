@@ -38,6 +38,7 @@ from core import (
     repository,
 )
 from core.context import FilesContext
+from core.namebuilder import FilenamePostprocessor
 from core.renamer import FileRenamer
 from util import encoding as enc
 from util import disk
@@ -273,7 +274,7 @@ class Autonameow(object):
                 master_provider.delegate_every_possible_meowuri(current_file)
 
             try:
-                new_name = context.handle_file(current_file)
+                new_name = context.find_new_name(current_file)
             except exceptions.AutonameowException as e:
                 log.critical(
                     '{!s} --- SKIPPING: "{!s}"'.format(e, str_file_path)
@@ -282,9 +283,25 @@ class Autonameow(object):
                 continue
 
             if new_name:
+                postprocessor = FilenamePostprocessor(
+                    lowercase_filename=self.active_config.get(
+                        ['POST_PROCESSING', 'lowercase_filename']),
+                    uppercase_filename=self.active_config.get(
+                        ['POST_PROCESSING', 'uppercase_filename']),
+                    regex_replacements=self.active_config.get(
+                        ['POST_PROCESSING', 'replacements']),
+                    simplify_unicode=self.active_config.get(
+                        ['POST_PROCESSING', 'simplify_unicode'])
+                )
+                before = str(new_name)
+                postprocessed_new_name = postprocessor(new_name)
+                after = str(postprocessed_new_name)
+                if before != after:
+                    self.ui.msg_filename_replacement(before, after)
+
                 self.renamer.add_pending(
                     from_path=current_file.abspath,
-                    new_basename=new_name,
+                    new_basename=postprocessed_new_name,
                 )
 
             for filename_delta in self.renamer.skipped:
