@@ -36,9 +36,14 @@ __all__ = [
     'collapse_whitespace',
     'html_unescape',
     'indent',
+    'batch_regex_replace',
     'normalize_unicode',
+    'normalize_whitespace',
     'simplify_unicode',
+    'remove_blacklisted_lines',
+    'remove_blacklisted_re_lines',
     'remove_nonbreaking_spaces',
+    'remove_zerowidth_spaces',
     'strip_ansiescape',
     'truncate_text',
     'urldecode'
@@ -48,7 +53,8 @@ __all__ = [
 # Attempt at matching ANSI escape sequences. Likely incomplete.
 RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 
-# Matches sequentially repeating whitespace, except newlines.
+# Matches whitespace that repeats at least once, except newlines.
+# I.E. a single space is NOT matched but two consecutive spaces is.
 #
 # Inverting the following classes solves the problem of matching whitespace
 # Unicode characters included in the '\s' class but NOT newlines,
@@ -58,7 +64,10 @@ RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 #   \r   ASCII Carriage Return (CR)
 #   \n   ASCII ASCII Linefeed (LF)
 #
-RE_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]{2,}')
+RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]{2,}')
+
+# Like above but matches any number of whitespace characters.
+RE_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]+')
 
 
 def collapse_whitespace(string):
@@ -78,14 +87,36 @@ def collapse_whitespace(string):
     #  Assume type-checks is handled elsewhere. Pass through None, [], {}, etc.
     if not string:
         return string
-    if not isinstance(string, str):
-        raise TypeError('Expected argument "string" to be a Unicode str')
 
-    collapsed = re.sub(RE_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
+    sanity.check_internal_string(string)
+    collapsed = re.sub(RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
     return collapsed
 
 
-def indent(text, amount=None, ch=None):
+def normalize_whitespace(string):
+    """
+    Replaces all whitespace except newlines with a single space.
+
+    Does not remove leading or trailing whitespace.
+    Does not change linefeeds or carriage returns.
+    Handles Unicode whitespace characters.
+
+    Args:
+        string: Unicode String to transform.
+
+    Returns:
+        Given string with all whitespace replaced with a single space,
+        as a Unicode string.
+    """
+    if not string:
+        return string
+
+    sanity.check_internal_string(string)
+    normalized = re.sub(RE_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
+    return normalized
+
+
+def indent(text, columns=None, padchar=None):
     """
     Indents (multi-line) text by a specified amount.
 
@@ -96,8 +127,8 @@ def indent(text, amount=None, ch=None):
 
     Args:
         text: Single or multi-line text to indent, as a Unicode str.
-        amount: Optional padding character ('ch') multiple, as an integer.
-        ch: Optional character to use for padding.
+        columns: Optional padding character ('ch') multiple, as an integer.
+        padchar: Optional character to use for padding.
 
     Returns:
         An indented version of the given text as an Unicode str.
@@ -107,24 +138,17 @@ def indent(text, amount=None, ch=None):
     DEFAULT_AMOUNT = 4
     DEFAULT_PADDING = ' '
 
-    if amount is None:
-        amount = DEFAULT_AMOUNT
-    else:
-        if not isinstance(amount, int):
-            raise TypeError('Expected "amount" to be of type int')
-        elif amount <= 0:
-            raise ValueError('Expected "amount" to be greater than zero')
+    if columns is None:
+        columns = DEFAULT_AMOUNT
+    assert isinstance(columns, int)
+    assert columns > 0
 
-    if ch is None:
-        ch = DEFAULT_PADDING
-
-    if text is None:
-        raise ValueError('Got None argument "text"')
-
+    if padchar is None:
+        padchar = DEFAULT_PADDING
+    sanity.check_internal_string(padchar)
     sanity.check_internal_string(text)
-    sanity.check_internal_string(ch)
 
-    padding = amount * ch
+    padding = columns * padchar
     return ''.join(padding + line for line in text.splitlines(True))
 
 
@@ -256,17 +280,22 @@ def simplify_unicode(string):
 
 
 def _strip_accents_homerolled(string):
-    assert isinstance(string, str)
+    sanity.check_internal_string(string)
     nkfd_form = unicodedata.normalize('NFKD', string)
     return ''.join([c for c in nkfd_form if not unicodedata.combining(c)])
 
 
 def _strip_accents_unidecode(string):
+    assert unidecode, 'Missing required module "unidecode"'
     return unidecode(string)
 
 
 def remove_nonbreaking_spaces(text):
-    return text.replace('\xa0', ' ')
+    return text.replace('\u00A0', ' ')
+
+
+def remove_zerowidth_spaces(text):
+    return text.replace('\u200B', '')
 
 
 def strip_ansiescape(string):
@@ -288,3 +317,69 @@ def urldecode(string):
 
 def html_unescape(string):
     return html.unescape(string)
+
+
+def batch_regex_replace(regex_replacement_tuples, string):
+    matches = list()
+    for regex, replacement in regex_replacement_tuples:
+        match = re.search(regex, string)
+        if match:
+            matches.append((regex, replacement))
+
+    sorted_by_longest_replacement = sorted(
+        matches, key=lambda x: len(x[1]), reverse=True
+    )
+    for regex, replacement in sorted_by_longest_replacement:
+        string = re.sub(regex, replacement, string)
+
+    return string
+
+
+def remove_blacklisted_lines(text, blacklist):
+    """
+    Removes any text lines that matches any line in 'blacklist'.
+
+    Blacklisted lines should not contain any line separators.
+
+    Args:
+        text: The text to process as a Unicode string.
+        blacklist: List of Unicode strings to ignore.
+
+    Returns:
+        The given text with any lines matching those in 'blacklist' removed,
+        as a Unicode string.
+    """
+    out = []
+
+    blacklisted_lines = set(blacklist)
+    for line in text.splitlines(keepends=True):
+        if not any(line.strip() == bad_line for bad_line in blacklisted_lines):
+            out.append(line)
+
+    return ''.join(out)
+
+
+def remove_blacklisted_re_lines(text, compiled_regexes):
+    """
+    Removes any text lines that matches any regular expression in 'blacklist'.
+
+    Any line separators are removed from each line before evaluating
+    the regular expressions.
+
+    Args:
+        text: The text to process as a Unicode string.
+        compiled_regexes: Regular expressions matching lines to blacklist.
+
+    Returns:
+        The given text with any lines matching any of the given regular
+        expressions removed, as a Unicode string.
+    """
+    regexes = set(compiled_regexes)
+    out = []
+    for line in text.splitlines(keepends=True):
+        stripped_line = line.strip()
+        if any(regex.match(stripped_line) for regex in regexes):
+            continue
+        out.append(line)
+
+    return ''.join(out)

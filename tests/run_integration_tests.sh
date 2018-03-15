@@ -74,8 +74,8 @@ print_usage_info()
                -w         Write HTML test reports to disk.
                           Note: The "raw" log file is always written.
 
-  All options are optional. Default behaviour is to export test result
-  reports and print the test results to stdout/stderr in real-time.
+  All options are optional. Default behaviour is to print the test
+  results to stdout/stderr in real-time.
 
   EXIT CODES:   ${EXIT_SUCCESS}         All tests/assertions passed.
                 ${EXIT_FAILURE}         Any tests/assertions FAILED.

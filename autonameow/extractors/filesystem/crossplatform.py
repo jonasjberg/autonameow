@@ -22,124 +22,64 @@
 import os
 from datetime import datetime
 
-from core import types
-from core.model import WeightedMapping
-from core.namebuilder import fields
 from extractors import BaseExtractor
 
 
 class CrossPlatformFileSystemExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['*/*']
     MEOWURI_LEAF = 'xplat'
-    is_slow = False
-
-    FIELD_LOOKUP = {
-        'abspath.full': {'coercer': types.AW_PATH, 'multivalued': False},
-        'basename.full': {
-            'coercer': types.AW_PATHCOMPONENT,
-            'multivalued': False
-        },
-        'basename.extension': {
-            'coercer': types.AW_PATHCOMPONENT,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
-            ],
-        },
-        'basename.suffix': {
-            'coercer': types.AW_PATHCOMPONENT,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
-            ]
-        },
-        'basename.prefix': {
-            'coercer': types.AW_PATHCOMPONENT,
-            'multivalued': False,
-        },
-        'pathname.full': {'coercer': types.AW_PATH, 'multivalued': False},
-        'pathname.parent': {'coercer': types.AW_PATH, 'multivalued': False},
-        'contents.mime_type': {
-            'coercer': types.AW_MIMETYPE,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Extension, probability=1),
-            ],
-            'generic_field': 'mime_type'
-        },
-        'date_accessed': {
-            'coercer': types.AW_TIMEDATE,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Date, probability=0.1),
-                WeightedMapping(fields.DateTime, probability=0.1),
-            ]
-        },
-        'date_created': {
-            'coercer': types.AW_TIMEDATE,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Date, probability=1),
-                WeightedMapping(fields.DateTime, probability=1),
-            ],
-            'generic_field': 'date_created'
-        },
-        'date_modified': {
-            'coercer': types.AW_TIMEDATE,
-            'multivalued': False,
-            'mapped_fields': [
-                WeightedMapping(fields.Date, probability=0.25),
-                WeightedMapping(fields.DateTime, probability=0.25),
-            ],
-            'generic_field': 'date_modified'
-        }
-    }
-
-    def __init__(self):
-        super(CrossPlatformFileSystemExtractor, self).__init__()
+    IS_SLOW = False
 
     def extract(self, fileobject, **kwargs):
+        out = dict()
+        out.update(self._collect_from_fileobject(fileobject))
+        out.update(self._collect_filesystem_timestamps(fileobject))
+        return out
+
+    def _collect_from_fileobject(self, fileobject):
         _datasources = [
-            ('abspath.full', fileobject.abspath),
-            ('basename.full', fileobject.filename),
-            ('basename.extension', fileobject.basename_suffix),
-            ('basename.suffix', fileobject.basename_suffix),
-            ('basename.prefix', fileobject.basename_prefix),
-            ('pathname.full', fileobject.pathname),
-            ('pathname.parent', fileobject.pathparent),
-            ('contents.mime_type', fileobject.mime_type)
+            ('abspath_full', fileobject.abspath),
+            ('basename_full', fileobject.filename),
+            ('extension', fileobject.basename_suffix),
+            ('basename_suffix', fileobject.basename_suffix),
+            ('basename_prefix', fileobject.basename_prefix),
+            ('pathname_full', fileobject.pathname),
+            ('pathname_parent', fileobject.pathparent),
+            ('mime_type', fileobject.mime_type)
         ]
 
-        out = dict()
+        result = dict()
         for _uri, _source in _datasources:
             _coerced_data = self.coerce_field_value(_uri, _source)
             if _coerced_data is not None:
-                out[_uri] = _coerced_data
+                result[_uri] = _coerced_data
+        return result
 
+    def _collect_filesystem_timestamps(self, fileobject):
+        result = dict()
         try:
             access_time = _get_access_time(fileobject.abspath)
             create_time = _get_create_time(fileobject.abspath)
             modify_time = _get_modify_time(fileobject.abspath)
         except OSError as e:
-            self.log.error('Unable to get timestamps from filesystem:'
-                           ' {!s}'.format(e))
-        else:
-            _coerced_access_time = self.coerce_field_value('date_accessed',
-                                                           access_time)
-            if _coerced_access_time:
-                out['date_accessed'] = _coerced_access_time
+            self.log.error(
+                'Unable to get filesystem timestamps: {!s}'.format(e)
+            )
+            return result
 
-            _coerced_create_time = self.coerce_field_value('date_created',
-                                                           create_time)
-            if _coerced_create_time:
-                out['date_created'] = _coerced_create_time
+        coerced_t_access = self.coerce_field_value('date_accessed', access_time)
+        if coerced_t_access:
+            result['date_accessed'] = coerced_t_access
 
-            _coerced_modify_time = self.coerce_field_value('date_modified',
-                                                           modify_time)
-            if _coerced_modify_time:
-                out['date_modified'] = _coerced_modify_time
+        coerced_t_create = self.coerce_field_value('date_created', create_time)
+        if coerced_t_create:
+            result['date_created'] = coerced_t_create
 
-        return out
+        coerced_t_modify = self.coerce_field_value('date_modified', modify_time)
+        if coerced_t_modify:
+            result['date_modified'] = coerced_t_modify
+
+        return result
 
     @classmethod
     def check_dependencies(cls):

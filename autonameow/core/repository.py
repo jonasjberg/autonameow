@@ -21,16 +21,85 @@
 
 import logging
 
-import util
-from core import exceptions
-from core.ui.cli import ColumnFormatter
+from core.view.cli import ColumnFormatter
 from util import encoding as enc
-from util import sanity
-from util import textutils
+from util import (
+    sanity,
+    textutils
+)
 from util.text import truncate_text
 
 
 log = logging.getLogger(__name__)
+
+
+class QueryResponseFailure(object):
+    def __init__(self, fileobject=None, uri=None, msg=None):
+        self.fileobject = fileobject
+        self.uri = uri or 'unspecified MeowURI'
+        self.msg = msg or ''
+
+    def __repr__(self):
+        if self.fileobject:
+            str_fileobject = repr(self.fileobject)
+        else:
+            str_fileobject = '(Unknown FileObject)'
+
+        if self.msg:
+            _msg = ' :: {!s}'.format(self.msg)
+        else:
+            _msg = ''
+
+        return '{}->[{!s}]{!s}'.format(str_fileobject, self.uri, _msg)
+
+    def __str__(self):
+        return 'Failed query ' + repr(self)
+
+    def __bool__(self):
+        return False
+
+
+class DataBundle(object):
+    def __init__(self, value, coercer, source, generic_field, mapped_fields,
+                 multivalued):
+        self.value = value
+        self.coercer = coercer
+        self.source = source
+        self.generic_field = generic_field
+        self.mapped_fields = mapped_fields
+        self.multivalued = multivalued
+
+    @classmethod
+    def from_dict(cls, data):
+        return DataBundle(
+            value=data.get('value'),
+            coercer=data.get('coercer'),
+            source=data.get('source'),
+            generic_field=data.get('generic_field'),
+            mapped_fields=data.get('mapped_fields'),
+            multivalued=data.get('multivalued')
+        )
+
+    def maps_field(self, field):
+        # TODO: Duplicates functionality of function with the same name!
+        # This might return a None, using a default dict value will not work.
+        if not self.mapped_fields or not field:
+            return False
+
+        for mapping in self.mapped_fields:
+            if field == mapping.field:
+                return True
+        return False
+
+    def field_mapping_probability(self, field):
+        if not self.maps_field(field):
+            return 0.0
+
+        for mapping in self.mapped_fields:
+            if field == mapping.field:
+                return float(mapping.probability)
+
+        return 0.0
 
 
 class Repository(object):
@@ -54,7 +123,11 @@ class Repository(object):
             }
 
     The first level of the nested structure uses instances of 'fileobject' as
-    keys into containing structures that use "MeowURIs" (Unicode strings) keys.
+    keys into containing structures that use instances of 'MeowURI' as keys.
+    Data is stored as dictionaries, with the actual data value along with
+    additional "metainfo".
+
+    NOTE: Data is passed in as dicts but returned as instances of 'DataBundle'!
     """
     def __init__(self):
         self.data = dict()
@@ -79,9 +152,6 @@ class Repository(object):
             log.warning('Attempted to add empty data with meowURI'
                         ' "{!s}"'.format(meowuri))
             return
-
-        # if meowuri == 'extractor.filesystem.xplat.basename.full':
-        #     assert 'extractor.filesystem.xplat.basename.full' not in self.data[fileobject]
 
         if isinstance(data, list):
             data_sample = data[0]
@@ -108,18 +178,18 @@ class Repository(object):
             __store(data)
 
     def _store(self, fileobject, meowuri, data):
-        if meowuri.matchglobs(['generic.contents.text', 'extractor.text.*']):
-            _debugmsg_data = dict(data)
-            _truncated_value = truncate_text(_debugmsg_data['value'])
-            _debugmsg_data['value'] = _truncated_value
-        else:
-            _debugmsg_data = data
-
         if __debug__:
-            log.debug('{} storing: [{:8.8}]->[{!s}] :: "{!s}"'.format(
-                self.__class__.__name__,
-                fileobject.hash_partial,
+            if meowuri.matchglobs(['generic.contents.text', 'extractor.text.*']):
+                _debugmsg_data = dict(data)
+                _truncated_value = truncate_text(_debugmsg_data['value'])
+                _debugmsg_data['value'] = _truncated_value
+            else:
+                _debugmsg_data = data
+
+            log.debug('Storing {!r}->[{!s}] :: ({}) {!s}'.format(
+                fileobject,
                 meowuri,
+                type(_debugmsg_data.get('value')),
                 _debugmsg_data.get('value')
             ))
         try:
@@ -145,50 +215,61 @@ class Repository(object):
             if isinstance(data, list):
                 for d in data:
                     if maps_field(d, field):
-                        d.update(meowuri=meowuri)
-                        out.append(d)
+                        # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
+                        out.append(
+                            (meowuri, DataBundle.from_dict(d))
+                        )
             else:
                 if maps_field(data, field):
-                    data.update(meowuri=meowuri)
-                    out.append(data)
+                    # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
+                    out.append(
+                        (meowuri, DataBundle.from_dict(data))
+                    )
 
         return out
 
     def query(self, fileobject, meowuri):
         if not meowuri:
-            raise exceptions.InvalidMeowURIError(
-                'Unable to resolve empty meowURI'
-            )
+            return QueryResponseFailure(msg='did not include a MeowURI')
 
         if __debug__:
-            log.debug('Got request [{:8.8}]->[{!s}]'.format(
-                fileobject.hash_partial, meowuri
-            ))
-        try:
-            data = self.__get_data(fileobject, meowuri)
-        except KeyError as e:
-            log.debug('Repository request raised KeyError: {!s}'.format(e))
-            return None
-        else:
-            return data
+            log.debug('Got query {!r}->[{!s}]'.format(fileobject, meowuri))
 
-    def __get_data(self, file, meowuri):
-        return util.nested_dict_get(self.data, [file, meowuri])
+        data = self.__get_data(fileobject, meowuri)
+        if data is None:
+            return QueryResponseFailure()
 
-    def __store_data(self, file, meowuri, data):
-        util.nested_dict_set(self.data, [file, meowuri], data)
+        # TODO: Store and query "generic" data separately?
+        #       Alternatively store "generic" only as "references"?
+        if isinstance(data, list):
+            return [DataBundle.from_dict(d) for d in data]
+        return DataBundle.from_dict(data)
+
+    def remove(self, fileobject):
+        # TODO: [TD0131] Limit repository size! Do not remove everything!
+        # TODO: [TD0131] Keep all but very bulky data like extracted text.
+        self.data.pop(fileobject)
+
+    def __get_data(self, fileobject, meowuri):
+        if fileobject in self.data:
+            return self.data[fileobject].get(meowuri)
+        return None
+
+    def __store_data(self, fileobject, meowuri, data):
+        if fileobject not in self.data:
+            self.data[fileobject] = dict()
+        self.data[fileobject][meowuri] = data
 
     def human_readable_contents(self):
         out = []
-        for fileobject, data in self.data.items():
+        for fileobject, fileobject_data in self.data.items():
             out.append('FileObject basename: "{!s}"'.format(fileobject))
 
             _abspath = enc.displayable_path(fileobject.abspath)
             out.append('FileObject absolute path: "{!s}"'.format(_abspath))
 
             out.append('')
-            # out.extend(self._human_readable_contents(data))
-            out.append(self._machine_readable_contents(data))
+            out.append(self._machine_readable_contents(fileobject_data))
             out.append('\n')
 
         return '\n'.join(out)
@@ -197,11 +278,12 @@ class Repository(object):
     def _machine_readable_contents(data):
         # First pass -- handle encoding and truncating extracted text.
         temp = dict()
-        for meowuri, data in sorted(data.items()):
-            if isinstance(data, list):
+        for meowuri, datadict in sorted(data.items()):
+            if isinstance(datadict, list):
                 log.debug('TODO: Improve robustness of handling this case')
                 temp_list = []
-                for d in data:
+                for d in datadict:
+                    sanity.check_isinstance(d, dict)
                     v = d.get('value')
                     if isinstance(v, bytes):
                         temp_list.append(enc.displayable_path(v))
@@ -216,8 +298,10 @@ class Repository(object):
                 temp[meowuri] = temp_list
 
             else:
-                v = data.get('value')
+                sanity.check_isinstance(datadict, dict)
+                v = datadict.get('value')
                 if isinstance(v, bytes):
+                    # TODO: Clean up converting ANY value to Unicode strings ..
                     temp[meowuri] = enc.displayable_path(v)
 
                 elif meowuri.matchglobs(['generic.contents.text',
@@ -225,6 +309,7 @@ class Repository(object):
                     # Often *a lot* of text, trim to arbitrary size..
                     temp[meowuri] = truncate_text(v)
                 else:
+                    # TODO: Clean up converting ANY value to Unicode strings ..
                     temp[meowuri] = str(v)
 
         cf = ColumnFormatter()
@@ -237,19 +322,24 @@ class Repository(object):
                 str_value = str_value[:MAX_VALUE_WIDTH]
             cf.addrow(str_meowuri, COLUMN_DELIMITER, str_value)
 
-        for meowuri, data in sorted(temp.items()):
+        for meowuri, datadict in sorted(temp.items()):
             _meowuri_str = str(meowuri)
-            if isinstance(data, list):
-                for v in data:
-                    _add_row(_meowuri_str, v)
+            if isinstance(datadict, list):
+                datadict_list = datadict
+                for n, v in enumerate(datadict_list, start=1):
+                    numbered_meowuri = '{} ({})'.format(_meowuri_str, n)
+                    _add_row(numbered_meowuri, v)
                 continue
 
             if meowuri.matchglobs(['generic.contents.text',
                                    'extractor.text.*']):
-                _text = textutils.extract_lines(data, firstline=1, lastline=1)
+                _text = textutils.extract_lines(datadict, firstline=1, lastline=1)
                 _text = _text.rstrip('\n')
-                data = _text
-            _add_row(_meowuri_str, data)
+                v = _text
+            else:
+                v = datadict
+
+            _add_row(_meowuri_str, v)
 
         return str(cf)
 

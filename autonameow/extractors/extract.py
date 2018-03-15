@@ -23,17 +23,17 @@
 import argparse
 import logging
 import sys
+from collections import defaultdict
 
+import extractors
 from core import constants as C
 from core import (
     exceptions,
     extraction,
+    FileObject,
     logs,
-    types,
-    ui
+    view
 )
-from core.fileobject import FileObject
-from extractors import ExtractorError
 from util import encoding as enc
 from util import disk
 
@@ -41,111 +41,189 @@ from util import disk
 log = logging.getLogger(__name__)
 
 
-# TODO: [TD0159] Fix stand-alone extractor not respecting the `--quiet` option.
+def _column_formatter():
+    return view.ColumnFormatter()
+
+
+class TextExtractionResult(object):
+    def __init__(self, fulltext, provider):
+        self.fulltext = fulltext
+        self.provider = provider
+
+        self.fulltext_linecount = len(self.fulltext.splitlines())
+
+    def __gt__(self, other):
+        return ((self.provider, self.fulltext_linecount)
+                > (other.provider, other.fulltext_linecount))
+
+
+class MetadataExtractionResult(object):
+    def __init__(self, metadata, provider):
+        self.metadata = metadata
+        self.provider = provider
+
+        self.metadata_fieldcount = len(self.metadata)
+
+    def __gt__(self, other):
+        return ((self.provider, self.metadata_fieldcount)
+                > (other.provider, other.metadata_fieldcount))
+
+
+def _decode_any_bytestring(value):
+    # Values *should* have been coerced at this point.
+    if isinstance(value, bytes):
+        return enc.displayable_path(value)
+    return value
 
 
 def do_extract_text(fileobject):
-    klasses = extraction.suitable_extractors_for(fileobject)
-    if not klasses:
-        log.debug('No extractors suitable for "{!s}"'.format(fileobject))
-        return
+    all_text_extraction_results = list()
 
-    log.debug('Got {} extractors for "{!s}"'.format(len(klasses), fileobject))
-    for k in klasses:
-        log.debug(str(k))
+    def _collect_results_callback(fileobject_, meowuri, data):
+        log.debug('_collect_results_callback(%s, %s, %s)', fileobject_, meowuri, data)
 
-    text_extractors = [
-        k for k in klasses
-        if k.meowuri_prefix().startswith('extractor.text')
-    ]
-    if not text_extractors:
-        log.warning(
-            'No text extractors are suited for "{!s}"'.format(fileobject)
-        )
-        return
+        assert isinstance(data, dict)
+        text = data.get('value')
+        assert isinstance(text, str)
+        extractor = data.get('source', '(unknown extractor)')
 
-    log.debug('Got {} text extractors for "{!s}"'.format(len(text_extractors),
-                                                         fileobject))
-    for te in text_extractors:
-        log.debug(str(te))
+        all_text_extraction_results.append(TextExtractionResult(
+            fulltext=text, provider=extractor
+        ))
 
-    for te in text_extractors:
-        _extractor_instance = te()
-        try:
-            _text = _extractor_instance.extract(fileobject)
-        except ExtractorError as e:
-            log.error(
-                'Halted extractor "{!s}": {!s}'.format(_extractor_instance, e)
-            )
-            continue
-
-        assert isinstance(_text, dict)
-        _full_text = _text.get('full')
-        if not _full_text:
-            log.error('Unable to extract text from "{!s}"'.format(fileobject))
-            return
-
-        assert isinstance(_full_text, str)
-        # TODO: Factor out method of presenting the extracted text.
-        ui.msg('Text Extracted by {!s}:'.format(_extractor_instance),
-               style='section')
-        ui.msg(_full_text)
+    runner = extraction.ExtractorRunner(
+        add_results_callback=_collect_results_callback
+    )
+    try:
+        runner.start(fileobject,
+                     request_extractors=extractors.registry.text_providers)
+    except exceptions.AutonameowException as e:
+        log.critical('Extraction FAILED: {!s}'.format(e))
+    finally:
+        return all_text_extraction_results
 
 
 def do_extract_metadata(fileobject):
-    klasses = extraction.suitable_extractors_for(fileobject)
-    if not klasses:
-        log.debug('No extractors suitable for "{!s}"'.format(fileobject))
-        return
+    provider_results = defaultdict(dict)
 
-    log.debug('Got {} extractors for "{!s}"'.format(len(klasses), fileobject))
-    for k in klasses:
-        log.debug(str(k))
+    def _collect_results_callback(fileobject_, meowuri, data):
+        log.debug('_collect_results_callback(%s, %s, %s)', fileobject_, meowuri, data)
 
-    metadata_extractors = [
-        k for k in klasses
-        if k.meowuri_prefix().startswith('extractor.metadata')
-    ]
-    if not metadata_extractors:
-        log.warning(
-            'No metadata extractors are suited for "{!s}"'.format(fileobject)
-        )
-        return
+        assert isinstance(data, dict)
+        provider = data.get('source', '(unknown extractor)')
+        _value = data.get('value')
+        _str_value = _decode_any_bytestring(_value)
 
-    log.debug('Got {} metadata extractors for "{!s}"'.format(
-        len(metadata_extractors), fileobject
-    ))
-    for me in metadata_extractors:
-        log.debug(str(me))
+        provider_results[provider][meowuri] = _str_value
 
-    for me in metadata_extractors:
-        _extractor_instance = me()
-        try:
-            _metadata = _extractor_instance.extract(fileobject)
-        except ExtractorError as e:
-            log.error('Halted extractor "{!s}": {!s}'.format(
-                _extractor_instance, e
+    runner = extraction.ExtractorRunner(
+        add_results_callback=_collect_results_callback
+    )
+    try:
+        runner.start(fileobject,
+                     request_extractors=extractors.registry.metadata_providers)
+    except exceptions.AutonameowException as e:
+        log.critical('Extraction FAILED: {!s}'.format(e))
+    finally:
+        all_metadata_extraction_results = list()
+        for provider, metadata in provider_results.items():
+            all_metadata_extraction_results.append(MetadataExtractionResult(
+                metadata=metadata, provider=provider
             ))
-            continue
+        return all_metadata_extraction_results
 
-        try:
-            _metainfo = _extractor_instance.metainfo()
-        except ExtractorError as e:
-            log.error('Halted extractor "{!s}": {!s}'.format(
-                _extractor_instance, e
-            ))
-            continue
 
-        assert isinstance(_metadata, dict)
-        assert isinstance(_metainfo, dict)
+def display_file_processing_starting(fileobject, num, total_fileobject_num):
+    # TODO: [TD0171] Separate logic from user interface.
+    view.msg('{!s}'.format(fileobject), style='heading')
+    log.info('Processing ({}/{}) "{!s}" ..'.format(
+        num, total_fileobject_num, fileobject))
 
-        ui.msg('Metadata Extracted by {!s}'.format(_extractor_instance),
-               style='section')
-        cf = ui.ColumnFormatter()
-        for k, v in sorted(_metadata.items()):
-            cf.addrow(str(k), str(v))
-        cf.addemptyrow()
-        ui.msg(cf)
+
+def display_file_processing_ended(fileobject, num, total_fileobject_num):
+    log.info('Finished processing ({}/{}) "{!s}"'.format(
+        num, total_fileobject_num, fileobject))
+
+
+def display_text_extraction_result(fileobject, text_extraction_result):
+    provider = text_extraction_result.provider
+    text = text_extraction_result.fulltext
+    if text:
+        # TODO: [TD0171] Separate logic from user interface.
+        view.msg('Text Extracted by {!s}:'.format(provider), style='section')
+        view.msg(text)
+    else:
+        log.info('{!s} was unable to extract text from "{!s}"'.format(provider, fileobject))
+
+
+def display_metadata_extraction_result(results):
+    cf = _column_formatter()
+    for metadata_extraction_result in results:
+        provider = str(metadata_extraction_result.provider)
+        for uri, data in metadata_extraction_result.metadata.items():
+            cf.addrow(str(uri), str(data), provider)
+
+    # TODO: [TD0171] Separate logic from user interface.
+    view.msg('Extracted Metadata', style='section')
+    view.msg(str(cf))
+
+
+def display_summary_metadata_stats(all_processed_files, metadata_results):
+    num_files_processed = len(all_processed_files)
+    files_not_in_results = [f for f in all_processed_files
+                            if not metadata_results[f]]
+
+    cf = _column_formatter()
+    cf.addrow('PROCESSED FILE', '# METADATA FIELDS', 'PROVIDER')
+    cf.addrow('==============', '=================', '========')
+    for f, metadata_extraction_results in sorted(metadata_results.items()):
+        for metadata_extraction_result in metadata_extraction_results:
+            field_count = str(metadata_extraction_result.metadata_fieldcount)
+            provider = str(metadata_extraction_result.provider)
+            cf.addrow(str(f), field_count, provider)
+    for f in files_not_in_results:
+        cf.addrow(str(f), 'N/A', 'N/A')
+
+    # TODO: [TD0171] Separate logic from user interface.
+    view.msg('Metadata Extraction Results', style='section')
+    view.msg('Got results for {} out of {} total processed files'.format(len(metadata_results), num_files_processed))
+    view.msg('Remaining {} files could either not be handled by any extractor or the extraction failed'.format(len(files_not_in_results), num_files_processed))
+    view.msg(' ')
+    view.msg(str(cf))
+
+
+def display_summary_text_stats(all_processed_files, text_results):
+    num_files_processed = len(all_processed_files)
+    files_not_in_results = [f for f in all_processed_files
+                            if f not in text_results]
+
+    cf = _column_formatter()
+    cf.addrow('PROCESSED FILE', '# LINES', 'PROVIDER')
+    cf.addrow('==============', '=======', '========')
+    for f, text_extraction_results in sorted(text_results.items()):
+        for text_extraction_result in text_extraction_results:
+            linecount = str(text_extraction_result.fulltext_linecount)
+            provider = str(text_extraction_result.provider)
+            cf.addrow(str(f), linecount, provider)
+    for f in files_not_in_results:
+        cf.addrow(str(f), 'N/A', 'N/A')
+
+    view.msg('Text Extraction Results', style='section')
+    view.msg('Got results for {} out of {} total processed files'.format(len(text_results), num_files_processed))
+    view.msg('Remaining {} files could either not be handled by any extractor or the extraction failed'.format(len(files_not_in_results), num_files_processed))
+    view.msg(' ')
+    view.msg(str(cf))
+
+
+def display_summary_statistics(all_processed_files, summary_results):
+    # TODO: [TD0171] Separate logic from user interface.
+    view.msg('Summary Extraction Result Statistics', style='heading')
+
+    results_text = summary_results['text']
+    display_summary_text_stats(all_processed_files, results_text)
+
+    results_metadata = summary_results['metadata']
+    display_summary_metadata_stats(all_processed_files, results_metadata)
 
 
 def main(options=None):
@@ -157,7 +235,8 @@ def main(options=None):
     opts = {
         'debug': False,
         'verbose': False,
-        'quiet': False,
+
+        'show_stats': False,
 
         'extract_text': False,
         'extract_metadata': False,
@@ -188,28 +267,45 @@ def main(options=None):
         recurse=False
     )
 
-    _num_files = len(files_to_process)
-    log.info('Got {} files to process'.format(_num_files))
+    num_files_total = len(files_to_process)
+    log.info('Got {} files to process'.format(num_files_total))
 
-    for _num, _file in enumerate(files_to_process, start=1):
-        # Sanity checking the "file_path" is part of 'FileObject' init.
+    summary_results = {
+        'text': defaultdict(list),
+        'metadata': defaultdict(dict),
+    }
+    all_processed_files = list()
+    for n, filepath in enumerate(files_to_process, start=1):
         try:
-            current_file = FileObject(_file)
+            current_file = FileObject(filepath)
         except (exceptions.InvalidFileArgumentError,
                 exceptions.FilesystemError) as e:
             log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                e, enc.displayable_path(_file)))
+                e, enc.displayable_path(filepath)))
             continue
 
-        ui.msg('{!s}'.format(current_file), style='heading')
-        log.info('Processing ({}/{}) "{!s}" ..'.format(
-            _num, _num_files, current_file))
+        all_processed_files.append(current_file)
+        display_file_processing_starting(current_file, n, num_files_total)
 
         if opts.get('extract_text'):
-            do_extract_text(current_file)
+            with logs.log_runtime(log, 'Text Extraction', log_level='INFO'):
+                results = do_extract_text(current_file)
+
+            for result in results:
+                summary_results['text'][current_file].append(result)
+                display_text_extraction_result(current_file, result)
 
         if opts.get('extract_metadata'):
-            do_extract_metadata(current_file)
+            with logs.log_runtime(log, 'Metadata Extraction', log_level='INFO'):
+                result = do_extract_metadata(current_file)
+
+            summary_results['metadata'][current_file] = result
+            display_metadata_extraction_result(result)
+
+        display_file_processing_ended(current_file, n, num_files_total)
+
+    if opts.get('show_stats'):
+        display_summary_statistics(all_processed_files, summary_results)
 
 
 def parse_args(raw_args):
@@ -258,12 +354,13 @@ def parse_args(raw_args):
         default=False,
         help='Enables verbose mode, prints additional information.'
     )
-    optgrp_output.add_argument(
-        '-q', '--quiet',
-        dest='quiet',
+
+    optgrp_debug = parser.add_argument_group('Debug/developer options')
+    optgrp_debug.add_argument(
+        '--stats',
+        dest='show_stats',
         action='store_true',
-        default=False,
-        help='Enables quiet mode, suppress all but renames.'
+        help='Display detailed information on all extraction results.'
     )
 
     return parser.parse_args(raw_args)
@@ -288,7 +385,8 @@ def cli_main(argv=None):
     options = {
         'debug': opts.debug,
         'verbose': opts.verbose,
-        'quiet': opts.quiet,
+
+        'show_stats': opts.show_stats,
 
         'extract_text': opts.extract_text,
         'extract_metadata': opts.extract_metadata,

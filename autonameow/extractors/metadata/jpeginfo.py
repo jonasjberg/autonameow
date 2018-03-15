@@ -35,36 +35,19 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     Extracts jpeg/jfif image metadata using "jpeginfo".
     """
     HANDLES_MIME_TYPES = ['image/jpeg', 'image/jfif']
-    is_slow = False
+    IS_SLOW = False
 
-    STATUS_LOOKUP = {
+    _HEALTH = {
         'OK': 1.0,
         'UNKNOWN': 0.66,
         'WARNING': 0.33,
         'ERROR': 0.0
     }
 
-    FIELD_LOOKUP = {
-        'health': {
-            'coercer': types.AW_FLOAT,
-            'multivalued': False,
-            'mapped_fields': None,
-        },
-        'is_jpeg': {
-            'coercer': types.AW_BOOLEAN,
-            'multivalued': False,
-            'mapped_fields': None,
-            'generic_field': None
-        }
-    }
-
-    def __init__(self):
-        super(JpeginfoMetadataExtractor, self).__init__()
-
     def extract(self, fileobject, **kwargs):
         source = fileobject.abspath
-        _metadata = self._get_metadata(source)
-        return _metadata
+        metadata = self._get_metadata(source)
+        return metadata
 
     def _get_metadata(self, source):
         out = dict()
@@ -76,22 +59,21 @@ class JpeginfoMetadataExtractor(BaseExtractor):
 
         if 'not a jpeg file' in jpeginfo_output.lower():
             is_jpeg = False
-            health = self.STATUS_LOOKUP.get('UNKNOWN')
+            health = self._HEALTH.get('UNKNOWN')
         else:
             is_jpeg = True
             # Regex from 'photosort.py'. Copyright (c) 2013, Mike Greiling.
             match = re.search(r'\[([^\]]*)\][^\[]*$', jpeginfo_output)
             status = match.group(1) if match else 'UNKNOWN'
-            health = self.STATUS_LOOKUP.get(status,
-                                            self.STATUS_LOOKUP.get('UNKNOWN'))
+            health = self._HEALTH.get(status, self._HEALTH.get('UNKNOWN'))
 
-        _coerced_health = self.coerce_field_value('health', health)
-        if _coerced_health is not None:
-            out['health'] = _coerced_health
+        coerced_health = self.coerce_field_value('health', health)
+        if coerced_health is not None:
+            out['health'] = coerced_health
 
-        _coerced_is_jpeg = self.coerce_field_value('is_jpeg', is_jpeg)
-        if _coerced_is_jpeg is not None:
-            out['is_jpeg'] = _coerced_is_jpeg
+        coerced_is_jpeg = self.coerce_field_value('is_jpeg', is_jpeg)
+        if coerced_is_jpeg is not None:
+            out['is_jpeg'] = coerced_is_jpeg
 
         return out
 
@@ -110,7 +92,7 @@ def _run_jpeginfo(source):
     except (OSError, ValueError, TypeError, subprocess.SubprocessError) as e:
         raise ExtractorError(e)
 
-    result = types.force_string(stdout)
-    if not result:
+    str_stdout = types.force_string(stdout)
+    if not str_stdout:
         return ''
-    return result
+    return str_stdout

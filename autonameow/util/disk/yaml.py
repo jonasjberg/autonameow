@@ -19,26 +19,51 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
+from core import constants as C
+from core.exceptions import (
+    AutonameowException,
+    DependencyError,
+    FilesystemError
+)
+from util import encoding as enc
+from util import disk
 
 try:
     import yaml
 except ImportError:
-    raise SystemExit(
-        'Missing required module "yaml". '
-        'Make sure "pyyaml" is available before running this program.'
-    )
+    raise DependencyError(missing_modules='yaml')
 
-from core import constants as C
-from core import exceptions
-from util import encoding as enc
+
+# TODO: Merge separate 'YamlLoadError' and "YamlReadError" exceptions?
+class YamlLoadError(AutonameowException):
+    """Error loading YAML data"""
+
+
+def load_yaml(data):
+    """
+    Loads YAML from the given data and returns its contents.
+
+    Callers must handle all exceptions.
+
+    Args:
+        data: Data to read.
+
+    Returns:
+        The parsed YAML contents of the given data as a "Python object"
+        (dict).  Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
+
+    Raises:
+        YamlLoadError: The data could not be successfully parsed.
+    """
+    try:
+        return yaml.safe_load(data)
+    except (AttributeError, UnicodeDecodeError, yaml.YAMLError) as e:
+        raise YamlLoadError(e)
 
 
 def load_yaml_file(file_path):
     """
     Loads a YAML file from the specified path and returns its contents.
-
-    Callers should handle exceptions and logging.
 
     Args:
         file_path: (Absolute) path of the file to read.
@@ -51,43 +76,55 @@ def load_yaml_file(file_path):
         FilesystemError: The configuration file could not be read and/or loaded.
     """
     if not file_path:
-        raise exceptions.FilesystemError(
+        raise FilesystemError(
             'Missing required argument "file_path"'
         )
     try:
         with open(enc.syspath(file_path), 'r',
                   encoding=C.DEFAULT_ENCODING) as fh:
-            return yaml.safe_load(fh)
-    except (OSError, UnicodeDecodeError, yaml.YAMLError) as e:
-        raise exceptions.FilesystemError(e)
+            return load_yaml(fh)
+    except (OSError, YamlLoadError) as e:
+        raise FilesystemError(e)
 
 
-def write_yaml_file(dest_path, yaml_data):
+def write_yaml(data, destination=None):
+    _kwargs = dict(
+        encoding=C.DEFAULT_ENCODING,
+        default_flow_style=False,
+        width=160,
+        indent=4
+    )
+    # TODO: [hack] Pass stdout to destination instead of returning the result?
+    if destination is not None:
+        yaml.dump(data, destination, **_kwargs)
+        return None
+    return yaml.dump(data, **_kwargs)
+
+
+def write_yaml_file(dest_filepath, datadict):
     """
     Writes the given data ("Python object"/dict) to the specified path.
 
+    NOTE: The destination path is *OVERWRITTEN* if it already exists!
+
     Args:
-        dest_path: The (absolute) path to the output file as a bytestring.
-                   NOTE: The path will be *OVERWRITTEN* if it already exists!
-        yaml_data: Data to write as a "Python object" (dict).
-                   Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
+        dest_filepath: The (absolute) path to the output file as a bytestring.
+        datadict: Data to write as a "Python object" (dict).
+                  Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
 
     Raises:
         FilesystemError: The yaml file could not be written.
     """
-    if not dest_path:
-        raise exceptions.FilesystemError(
+    if not dest_filepath:
+        raise FilesystemError(
             'Missing required argument "dest_path"'
         )
-    if not os.access(os.path.dirname(dest_path), os.W_OK):
-        raise exceptions.FilesystemError(dest_path, 'Insufficient permissions')
+    if not disk.has_permissions(disk.dirname(dest_filepath), 'w'):
+        raise FilesystemError(dest_filepath, 'Insufficient permissions')
 
     try:
-        with open(enc.syspath(dest_path), 'w',
+        with open(enc.syspath(dest_filepath), 'w',
                   encoding=C.DEFAULT_ENCODING) as fh:
-            yaml.dump(yaml_data, fh,
-                      encoding=C.DEFAULT_ENCODING,
-                      default_flow_style=False,
-                      width=160, indent=4)
+            write_yaml(datadict, fh)
     except (OSError, UnicodeEncodeError, yaml.YAMLError) as e:
-        raise exceptions.FilesystemError(dest_path, e)
+        raise FilesystemError(dest_filepath, e)

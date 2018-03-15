@@ -37,11 +37,19 @@ from extractors import extract
 #              that might lead to even worse troubles later on..
 
 
+def _get_input_paths():
+    return [uu.abspath_testfile('magic_txt.txt')]
+
+
+def _get_input_fileobject():
+    return uu.fileobject_testfile('magic_txt.txt')
+
+
 class TestStandaloneExtract(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.input_paths = [uu.abspath_testfile('magic_txt.txt')]
-        cls.input_fileobject = uu.fileobject_testfile('magic_txt.txt')
+        cls.input_paths = _get_input_paths()
+        cls.input_fileobject = _get_input_fileobject()
 
     # NOTE(jonas): Without this patch, other unit tests will fail!
     #
@@ -62,44 +70,87 @@ class TestStandaloneExtract(TestCase):
     # AssertionError: 'No input files specified' not found in ''
 
     @patch('extractors.extract.logs', MagicMock())
-    def test_exits_with_exit_success_if_not_given_any_input_paths(self):
+    def _assert_exit_success(self, options=None):
         with self.assertRaises(SystemExit) as e:
-            extract.main()
+            extract.main(options)
             self.assertEqual(e.type, SystemExit)
             self.assertEqual(e.value.code, C.EXIT_SUCCESS)
 
-    @patch('extractors.extract.logs', MagicMock())
-    def test_exits_with_exit_success_if_not_specifying_actions(self):
-        _options = {'input_paths': self.input_paths}
-        with self.assertRaises(SystemExit) as e:
-            extract.main(_options)
-            self.assertEqual(e.type, SystemExit)
-            self.assertEqual(e.value.code, C.EXIT_SUCCESS)
+    def test_exits_with_exit_success_if_not_given_any_options(self):
+        self._assert_exit_success()
+
+    def test_exits_with_exit_success_if_given_empty_list_of_input_paths(self):
+        options = {'input_paths': []}
+        self._assert_exit_success(options)
+
+    def test_exits_with_exit_success_if_given_input_paths_but_no_actions(self):
+        options = {'input_paths': self.input_paths}
+        self._assert_exit_success(options)
+
+
+class TestStandaloneExtractTextExtraction(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.input_paths = _get_input_paths()
+        cls.input_fileobject = _get_input_fileobject()
 
     @patch('extractors.extract.logs', MagicMock())
     @patch('extractors.extract.do_extract_text')
     def test_extract_text(self, mock_do_extract_text):
-        _options = {'input_paths': self.input_paths,
-                    'extract_text': True}
-        extract.main(_options)
+        options = {'input_paths': self.input_paths,
+                   'extract_text': True}
+        extract.main(options)
         mock_do_extract_text.assert_called_once_with(self.input_fileobject)
+
+    @patch('extractors.extract.logs', MagicMock())
+    @patch('extractors.extract.do_extract_text')
+    def test_extract_text_without_input_paths(self, mock_do_extract_text):
+        options = {'extract_text': True}
+        with self.assertRaises(SystemExit) as e:
+            extract.main(options)
+            self.assertEqual(e.type, SystemExit)
+            self.assertEqual(e.value.code, C.EXIT_SUCCESS)
+        mock_do_extract_text.assert_not_called()
+
+
+class TestStandaloneExtractMetadataExtraction(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.input_paths = _get_input_paths()
+        cls.input_fileobject = _get_input_fileobject()
 
     @patch('extractors.extract.logs', MagicMock())
     @patch('extractors.extract.do_extract_metadata')
     def test_extract_metadata(self, mock_do_extract_metadata):
-        _options = {'input_paths': self.input_paths,
-                    'extract_metadata': True}
-        extract.main(_options)
+        options = {'input_paths': self.input_paths,
+                   'extract_metadata': True}
+        extract.main(options)
         mock_do_extract_metadata.assert_called_once_with(self.input_fileobject)
+
+    @patch('extractors.extract.logs', MagicMock())
+    @patch('extractors.extract.do_extract_metadata')
+    def test_extract_metadata_without_input_paths(self, mock_do_extract_metadata):
+        options = {'extract_metadata': True}
+        with self.assertRaises(SystemExit) as e:
+            extract.main(options)
+            self.assertEqual(e.type, SystemExit)
+            self.assertEqual(e.value.code, C.EXIT_SUCCESS)
+        mock_do_extract_metadata.assert_not_called()
+
+
+class TestStandaloneExtractTextAndMetadataExtraction(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.input_paths = _get_input_paths()
+        cls.input_fileobject = _get_input_fileobject()
 
     @patch('extractors.extract.logs', MagicMock())
     @patch('extractors.extract.do_extract_text')
     @patch('extractors.extract.do_extract_metadata')
-    def test_extract_text_and_metadata(self, mock_do_extract_metadata,
-                                       mock_do_extract_text):
-        _options = {'input_paths': self.input_paths,
-                    'extract_metadata': True,
-                    'extract_text': True}
-        extract.main(_options)
+    def test_extract_text_and_metadata(self, mock_do_extract_metadata, mock_do_extract_text):
+        options = {'input_paths': self.input_paths,
+                   'extract_metadata': True,
+                   'extract_text': True}
+        extract.main(options)
         mock_do_extract_metadata.assert_called_once_with(self.input_fileobject)
         mock_do_extract_text.assert_called_once_with(self.input_fileobject)

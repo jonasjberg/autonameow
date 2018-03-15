@@ -22,7 +22,6 @@
 import pprint
 
 from core import exceptions
-from core.model import MeowURI
 
 
 def check_internal_bytestring(value):
@@ -39,8 +38,8 @@ def check_internal_bytestring(value):
     if not __debug__:
         return
     if not isinstance(value, bytes):
-        _msg = ('Assertion Failed - Expected an "internal" bytestring.'
-                '  Got "{!s}" ("{!s}")'.format(type(value), value))
+        _msg = 'Expected a "internal" bytestring.  Got {!s}:\n{!s}'.format(
+            type(value), pprint.pformat(value))
         raise exceptions.EncodingBoundaryViolation(_msg)
 
 
@@ -58,8 +57,8 @@ def check_internal_string(value):
     if not __debug__:
         return
     if not isinstance(value, str):
-        _msg = ('Assertion Failed - Expected a Unicode string.'
-                '  Got "{!s}" ("{!s}")'.format(type(value), value))
+        _msg = 'Expected a Unicode string.  Got {!s}:\n{!s}'.format(
+            type(value), pprint.pformat(value))
         raise exceptions.EncodingBoundaryViolation(_msg)
 
 
@@ -79,7 +78,7 @@ def check_isinstance(thing, expected_type, msg=None):
         return
 
     if not isinstance(thing, expected_type):
-        error_msg = 'Expected instance of {!s}. Got {!s}\n({!s})'.format(
+        error_msg = 'Expected instance of {!s}.  Got {!s}\n{!s}'.format(
             expected_type, type(thing), pprint.pformat(thing))
         if msg:
             error_msg += '\n\n{!s}'.format(msg)
@@ -101,4 +100,24 @@ def check_isinstance_meowuri(thing, msg=None):
     if not __debug__:
         return
 
+    from core.model import MeowURI
     check_isinstance(thing, MeowURI, msg)
+
+
+def check_isinstance_fileobject(thing, msg=None):
+    """
+    Checks that a given "thing" is an instance of class "FileObject".
+
+    Args:
+        thing: The object to test.
+        msg: Optional message to include in with a failed assertion error.
+
+    Raises:
+        AssertionError: Given object is not an instance of "FileObject".
+    """
+    if not __debug__:
+        return
+
+    # NOTE(jonas): Prevent circular imports.
+    from core.fileobject import FileObject
+    check_isinstance(thing, FileObject, msg)

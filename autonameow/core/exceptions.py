@@ -20,13 +20,33 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
+class AWAssertionError(AssertionError):
+    """Error due to incorrect assumptions about internal interactions.
+       Equivalent to assertions, intended to prevent bugs and regressions."""
+
+
 class AutonameowException(Exception):
     """Base exception. All custom exceptions should subclass this."""
 
 
-class AWAssertionError(AssertionError):
-    """Error due to incorrect assumptions about internal interactions.
-       Equivalent to assertions, intended to prevent bugs and regressions."""
+class DependencyError(AutonameowException):
+    """Failed to import a required module or other dependency error."""
+    def __init__(self, missing_modules=None):
+        if missing_modules is not None:
+            if not isinstance(missing_modules, list):
+                missing_modules = [missing_modules]
+            self.missing_modules = missing_modules
+        else:
+            self.missing_modules = None
+
+    def __str__(self):
+        msg = 'Missing required module(s): '
+        if self.missing_modules:
+            mods = sorted(set(self.missing_modules))
+            msg += ' '.join(['"{!s}"'.format(m) for m in mods])
+        else:
+            msg += '(unspecified)'
+        return msg
 
 
 class EncodingBoundaryViolation(AWAssertionError):
@@ -41,16 +61,12 @@ class ConfigError(AutonameowException):
     """Base class for exceptions raised when querying a configuration."""
 
 
-class AutonameowPluginError(AutonameowException):
-    """A plugin encountered an unrecoverable error."""
-
-
 class NameBuilderError(AutonameowException):
     """An error occurred while constructing a name. Unable to proceed."""
 
 
 class FilesystemError(AutonameowException):
-    """Errors occured while reading/writing files on disk. Should be used by
+    """Errors occurred while reading/writing files on disk. Should be used by
     the filesystem abstraction layer as a catch-all for failed operations."""
 
 

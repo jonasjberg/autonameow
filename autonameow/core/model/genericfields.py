@@ -56,63 +56,35 @@ class GenericField(object):
                                  cls.meowuri_leaf.lower())
         return MeowURI(_uri)
 
-    @classmethod
-    def evaluation_function(cls):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
 
 class GenericAuthor(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Author'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericCreator(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Creator'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericDescription(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Description'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericDateCreated(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Date_Created'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericDateModified(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Date_Modified'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericEdition(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Edition'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericHealth(GenericField):
@@ -123,79 +95,44 @@ class GenericHealth(GenericField):
     meowuri_child = 'contents'
     meowuri_leaf = 'health'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericMimeType(GenericField):
     meowuri_child = 'contents'
     meowuri_leaf = 'Mime_Type'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericProducer(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Producer'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericPublisher(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Publisher'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericSubject(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Subject'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericTags(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Tags'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
 
 class GenericText(GenericField):
     meowuri_child = 'contents'
     meowuri_leaf = 'text'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
 
 class GenericTitle(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'Title'
 
-    @classmethod
-    def evaluation_function(cls):
-        pass
 
-
-def meowuri_genericfield_map():
-    return {
-        klass.uri(): klass
-        for klass in GenericField.__subclasses__()
-    }
+def get_all_generic_field_klasses():
+    return set(GenericField.__subclasses__())
 
 
 def get_datetime_fields():
@@ -211,20 +148,23 @@ def get_string_fields():
     ]
 
 
-def get_field_class(string):
-    KLASSES = {
-        'author': GenericAuthor,
-        'creator': GenericCreator,
-        'date_created': GenericDateCreated,
-        'date_modified': GenericDateModified,
-        'description': GenericDescription,
-        'edition': GenericEdition,
-        'mime_type': GenericMimeType,
-        'producer': GenericProducer,
-        'publisher': GenericPublisher,
-        'subject': GenericSubject,
-        'tags': GenericTags,
-        'text': GenericText,
-        'title': GenericTitle,
+def _build_field_uri_leaf_to_klass_mapping():
+    return {
+        klass.uri().leaf: klass
+        for klass in get_all_generic_field_klasses()
     }
-    return KLASSES.get(string)
+
+
+_URI_LEAF_TO_KLASS_MAPPING = None
+
+
+def _get_field_uri_leaf_to_klass_mapping():
+    global _URI_LEAF_TO_KLASS_MAPPING
+    if _URI_LEAF_TO_KLASS_MAPPING is None:
+        _URI_LEAF_TO_KLASS_MAPPING = _build_field_uri_leaf_to_klass_mapping()
+    return _URI_LEAF_TO_KLASS_MAPPING
+
+
+def get_field_for_uri_leaf(string):
+    leaf_to_klass_map = _get_field_uri_leaf_to_klass_mapping()
+    return leaf_to_klass_map.get(string)

@@ -19,8 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from unittest import TestCase
 
+import unit.constants as uuconst
 import unit.utils as uu
 from core import version
 
@@ -71,3 +73,35 @@ class TestVersionModuleAttributes(TestCase):
     def test_RELEASE_DATE(self):
         # TODO: [TD0145] Add script for automating release of a new version.
         self._is_defined_internal_string(version.RELEASE_DATE)
+
+
+class TestTechniqueForAccessingAttributesWithoutImporting(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.version_file_path = os.path.realpath(
+            os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'core', 'version.py')
+        )
+
+    def test_version_file_exists(self):
+        self.assertTrue(os.path.isfile(self.version_file_path))
+
+    def test_can_access_attributes_by_executing_the_file(self):
+        # Simulates technique used in 'setup.py' for loading attributes without
+        # imports.  Based on the "Python Packaging User Guide" at:
+        # https://packaging.python.org/guides/single-sourcing-package-version/#single-sourcing-the-version
+        projectmeta = dict()
+        with open(self.version_file_path) as fp:
+            exec(fp.read(), projectmeta)
+
+        for key in [
+            '__copyright__',
+            '__email__',
+            '__license__',
+            '__title__',
+            '__version__',
+            '__version_info__',
+            '__url__',
+            '__url_repo__',
+         ]:
+            self.assertIn(key, projectmeta)
+            self.assertIsNotNone(projectmeta[key])

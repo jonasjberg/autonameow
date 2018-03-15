@@ -20,3 +20,4 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from . import version
+from .fileobject import FileObject

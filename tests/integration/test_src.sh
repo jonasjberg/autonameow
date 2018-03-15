@@ -78,6 +78,26 @@ check_git_ls_files_does_not_match 'docs/test_results'
 
 # ______________________________________________________________________________
 #
+# Make sure that data files are available.
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.mappings" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.preferred" e f r
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/analyzers/probable_extension_lookup" e f r
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/pandoc_template.plain" e f r
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/filetags_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/guessit_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/exiftool_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/jpeginfo_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/pandoc_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/common_fieldmeta.yaml" e f r
+
+
+# ______________________________________________________________________________
+#
 # Check TODO-list identifiers with stand-alone TODO-list utility script.
 
 _todo_helper_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/todo_id.py"
@@ -90,30 +110,28 @@ assert_true '"${_todo_helper_script_path}"' \
 #
 # Check text file style violations, whitespace, line separators, etc.
 
-assert_true '[ "$(git grep -l -I $'\r''$' | grep -v 'test_files' | grep -v 'local' | grep -v 'junk' | wc -l)" -eq "0" ]' \
-            'Text files should use UNIX line terminators ("\n")'
-
 text_files=(
-    $(git ls-files | xargs file --mime-type -- | grep 'text/' | cut -d':' -f1 | grep -v -- 'tests.*\.yaml$\|.md$\|test_results\|local\|junk\|test_files\|notes\|thirdparty\|write_sample_textfiles.py')
+    $(git ls-files | xargs file --mime-type -- | grep 'text/' | cut -d':' -f1 | grep -v -- 'tests.*\.yaml$\|.md$\|test_results\|local\|junk\|test_files\|notes\|thirdparty\|write_sample_textfiles.py\|test_extractors_text_rtf.py')
 )
-
 _check_committed_textfiles_exist_and_readable()
 {
     for tf in "${text_files[@]}"
     do
         [ -r "$tf" ] || return 1
     done
-	return 0
+    return 0
 }
 
 assert_true '_check_committed_textfiles_exist_and_readable' \
             'All committed files with MIME-type matching "text/*" exist and are readable'
 
-assert_false 'grep  -l "[[:space:]]\+$" -- "${text_files[@]}"' \
-             'Committed text files does not contain trailing whitespace'
 
-assert_false '$(find "${text_files[@]}" -type f -exec grep -l '^[[:space:]]*'$'\t' "{}" +)' \
-             'Committed text files uses spaces, __NOT__ tabs!'
+_whitespace_check_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check_whitespace.sh"
+assert_bulk_test "$_whitespace_check_script_path" e x
+
+assert_true '$_whitespace_check_script_path' \
+            'Whitespace conformance script checks pass ("check_whitespace.sh" returns 0)'
+
 
 
 

@@ -501,13 +501,13 @@ class TestInstantiatedFieldParsers(TestCase):
 
 class TestSuitableFieldParserFor(TestCase):
     def __expect_parser_for(self, expected_parser, arg):
-        _meowuri = MeowURI(arg)
-        actual = suitable_field_parser_for(_meowuri)
+        uri = MeowURI(arg)
+        actual = suitable_field_parser_for(uri)
         self.assertEqual(str(actual), expected_parser)
 
     def test_returns_expected_type(self):
-        _meowuri = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        actual = suitable_field_parser_for(_meowuri)
+        uri = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
+        actual = suitable_field_parser_for(uri)
         self.assertNotIsInstance(actual, list)
         self.assertIsInstance(actual, field_parsers.ConfigFieldParser)
         self.assertTrue(issubclass(actual.__class__,
@@ -539,7 +539,7 @@ class TestSuitableFieldParserFor(TestCase):
         self.__expect_parser_for('RegexConfigFieldParser',
                                  uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
         self.__expect_parser_for('RegexConfigFieldParser',
-                                 uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
+                                 uuconst.MEOWURI_FS_XPLAT_EXTENSION)
         self.__expect_parser_for('RegexConfigFieldParser',
                                  uuconst.MEOWURI_GEN_CONTENTS_TEXT)
         self.__expect_parser_for('DateTimeConfigFieldParser',

@@ -22,6 +22,7 @@
 import os
 import stat
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
 import unit.constants as uuconst
 import unit.utils as uu
@@ -29,15 +30,82 @@ from core.exceptions import FilesystemError
 from util import encoding as enc
 from util.disk.io import (
     delete,
+    dirname,
     exists,
-    file_basename,
+    basename,
     file_bytesize,
     has_permissions,
+    isabs,
     isdir,
     isfile,
+    islink,
+    joinpaths,
+    listdir,
     makedirs,
+    rename_file,
+    rmdir,
     tempdir
 )
+
+
+class TestRenameFile(TestCase):
+    @patch('os.rename', MagicMock())
+    def test_raises_exception_given_unicode_string_or_none_paths(self):
+        def _assert_raises(given_source_path, given_new_basename):
+            with self.assertRaises(AssertionError):
+                _ = rename_file(given_source_path, given_new_basename)
+
+        _assert_raises('foo', b'bar')
+        _assert_raises(b'foo', 'bar')
+        _assert_raises(b'foo', b'bar')
+        _assert_raises(None, b'bar')
+        _assert_raises(b'foo', None)
+        _assert_raises(None, None)
+
+    @patch('os.rename', MagicMock())
+    def test_raises_exception_given_relative_source_path(self):
+        def _assert_raises(given_source_path):
+            with self.assertRaises(AssertionError):
+                _ = rename_file(given_source_path, b'bar')
+
+        _assert_raises(b'../foo')
+        _assert_raises(b'./foo')
+        _assert_raises(b'foo')
+
+    @patch('os.rename')
+    @patch('util.disk.io.exists')
+    def test_raises_exception_if_source_path_does_not_exist(
+            self, mock_exists, mock_rename
+    ):
+        mock_exists.return_value = False
+        with self.assertRaises(FileNotFoundError):
+            rename_file(b'/tmp/foo/bar', b'baz')
+        mock_rename.assert_not_called()
+
+    @patch('os.rename')
+    @patch('util.disk.io.exists')
+    def test_raises_exception_if_destination_path_does_not_exist(
+            self, mock_exists, mock_rename
+    ):
+        mock_exists.return_value = True
+        with self.assertRaises(FileExistsError):
+            rename_file(b'/tmp/foo/bar', b'baz')
+        mock_rename.assert_not_called()
+
+    @patch('os.rename')
+    def test_renames_file_given_valid_arguments(self, mock_rename):
+        test_file_path = uu.make_temporary_file()
+        test_file_dir_path = os.path.realpath(os.path.dirname(test_file_path))
+        expected_destpath = os.path.join(test_file_dir_path, b'baz')
+        rename_file(test_file_path, b'baz')
+        mock_rename.assert_called_once_with(test_file_path, expected_destpath)
+
+
+class TestDirname(TestCase):
+    def test_returns_expected(self):
+        actual = dirname(__file__)
+        expect = os.path.dirname(__file__)
+        self.assertEqual(expect, actual)
 
 
 class TestExists(TestCase):
@@ -86,6 +154,19 @@ class TestExists(TestCase):
             self._check_return(df)
 
 
+class TestIsAbs(TestCase):
+    def test_returns_true_given_absolute_path(self):
+        given = os.path.abspath(__file__)
+        actual = isabs(given)
+        self.assertTrue(actual)
+
+    def test_returns_false_given_relative_path(self):
+        for given in (b'..', b'./foo'):
+            with self.subTest(given=given):
+                actual = isabs(given)
+                self.assertFalse(actual)
+
+
 class TestIsdir(TestCase):
     def _check_return(self, path_to_test):
         actual = isdir(path_to_test)
@@ -129,11 +210,11 @@ class TestIsdir(TestCase):
     def test_returns_true_for_likely_directory_paths(self):
         _files = [
             os.path.dirname(__file__),
-            uuconst.AUTONAMEOW_SRCROOT_DIR,
+            uuconst.PATH_AUTONAMEOW_SRCROOT,
             '/',
             b'/',
             uu.bytestring_path(os.path.dirname(__file__)),
-            uu.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
+            uu.bytestring_path(uuconst.PATH_AUTONAMEOW_SRCROOT)
         ]
         for df in _files:
             self._check_return(df)
@@ -183,6 +264,50 @@ class TestIsfile(TestCase):
         ]
         for df in _files:
             self._check_return(df)
+
+
+class TestIsLink(TestCase):
+    def test_returns_false_given_file(self):
+        f = uu.abspath_testfile('empty')
+        actual = islink(f)
+        self.assertFalse(actual)
+
+    def test_returns_true_given_symlink(self):
+        f = uu.abspath_testfile('empty.symlink')
+        actual = islink(f)
+        self.assertTrue(actual)
+
+
+class TestJoinPaths(TestCase):
+    def test_joins_valid_strings(self):
+        actual = joinpaths('/a', 'b', 'c')
+        self.assertEqual('/a/b/c', actual)
+
+    def test_ignores_missing_elements(self):
+        actual = joinpaths('/a', None, 'c')
+        self.assertEqual('/a/c', actual)
+
+        actual = joinpaths('/a', '', 'c')
+        self.assertEqual('/a/c', actual)
+
+    def test_raises_exception_given_invalid_arguments(self):
+        def _assert_raises(*given):
+            with self.assertRaises(FilesystemError):
+                _ = joinpaths(*given)
+
+        _assert_raises(object())
+        _assert_raises([])
+        _assert_raises(dict())
+        _assert_raises('a', {'b': 1})
+        _assert_raises('a', ['b'])
+
+
+class TestListDir(TestCase):
+    def test_returns_directory_contents(self):
+        given = uuconst.PATH_TEST_FILES
+        actual = listdir(given)
+        self.assertIsNotNone(actual)
+        self.assertGreater(len(actual), 1)
 
 
 class TestTempdir(TestCase):
@@ -248,22 +373,6 @@ class TestDelete(TestCase):
         delete(tempfile)
         self.assertFalse(uu.file_exists(tempfile))
 
-    def test_deletes_existing_directory(self):
-        self.skipTest('TODO: [Errno 1] Operation not permitted')
-
-        _tempdir = uu.make_temp_dir()
-
-        _dir = enc.syspath(
-            os.path.join(enc.syspath(_tempdir),
-                         enc.syspath(uuconst.ASSUMED_NONEXISTENT_BASENAME))
-        )
-        self.assertTrue(uu.is_internalbytestring(_dir))
-        os.makedirs(enc.syspath(_dir))
-        self.assertTrue(uu.dir_exists(_dir))
-
-        # delete(_dir)
-        self.assertFalse(uu.dir_exists(_dir))
-
     def test_raises_exception_given_non_existent_file(self):
         not_a_file = self._get_non_existent_file()
 
@@ -278,25 +387,39 @@ class TestDelete(TestCase):
         delete(not_a_file, ignore_missing=True)
 
 
-class TestFileBasename(TestCase):
+class TestRmdir(TestCase):
+    def test_deletes_actual_existing_directory(self):
+        _tempdir = uu.make_temp_dir()
+        os.chmod(enc.syspath(_tempdir), OWNER_R | OWNER_W | OWNER_X)
+        self.assertTrue(uu.is_internalbytestring(_tempdir))
+        self.assertTrue(uu.dir_exists(_tempdir))
+        rmdir(_tempdir)
+        self.assertFalse(uu.dir_exists(_tempdir))
+
+    @patch('os.rmdir')
+    def test_deletes_directory(self, mock_rmdir):
+        rmdir(b'/tmp/foo')
+        mock_rmdir.assert_called_once_with(b'/tmp/foo')
+
+    def test_raises_exception_given_non_existent_dir(self):
+        with self.assertRaises(FilesystemError):
+            rmdir(b'/tmp/foo/bar/does/not/exist/surely')
+
+    def test_ignores_non_existent_dir_when_ignore_missing_is_true(self):
+        rmdir(b'/tmp/foo/bar/does/not/exist/surely', ignore_missing=True)
+
+
+class TestBasename(TestCase):
     def test_returns_expected_given_valid_paths(self):
         def _aE(given, expect):
-            actual = file_basename(given)
+            actual = basename(given)
             self.assertEqual(actual, expect)
 
         _aE(b'test_util_disk_io.py', b'test_util_disk_io.py')
-        _aE('test_util_disk_io.py', b'test_util_disk_io.py')
-        _aE(__file__, b'test_util_disk_io.py')
-        _aE(os.path.abspath(__file__), b'test_util_disk_io.py')
-        _aE(os.path.realpath(__file__), b'test_util_disk_io.py')
-
-    def test_returns_expected_given_invalid_paths(self):
-        def _aE(given, expect):
-            actual = file_basename(given)
-            self.assertEqual(actual, expect)
-
-        _aE('', b'')
-        _aE(' ', b' ')
+        _aE('test_util_disk_io.py', 'test_util_disk_io.py')
+        _aE(__file__, 'test_util_disk_io.py')
+        _aE(os.path.abspath(__file__), 'test_util_disk_io.py')
+        _aE(os.path.realpath(__file__), 'test_util_disk_io.py')
 
 
 OWNER_R = stat.S_IRUSR
@@ -312,7 +435,7 @@ class TestHasPermissions(TestCase):
 
     def test_invalid_arguments(self):
         def _aR(_path, perms):
-            with self.assertRaises(TypeError):
+            with self.assertRaises(AssertionError):
                 _ = has_permissions(_path, perms)
 
         path = uu.make_temporary_file()
@@ -324,8 +447,6 @@ class TestHasPermissions(TestCase):
         _aR(None, 'r')
         _aR([], 'r')
         _aR(object(), 'r')
-        _aR('', 'r')
-        _aR('foo', 'r')
 
     def test_invalid_path(self):
         path = uuconst.ASSUMED_NONEXISTENT_BASENAME
@@ -378,6 +499,15 @@ class TestHasPermissions(TestCase):
         self._test(path, 'rx', False)
         self._test(path, 'wx', False)
         self._test(path, 'rwx', False)
+
+        os.chmod(enc.syspath(path), OWNER_R | OWNER_W)
+
+    def test_no_file_perms(self):
+        path = uu.make_temporary_file()
+        os.chmod(enc.syspath(path), OWNER_R)
+
+        self._test(path, '', True)
+        self._test(path, ' ', True)
 
         os.chmod(enc.syspath(path), OWNER_R | OWNER_W)
 

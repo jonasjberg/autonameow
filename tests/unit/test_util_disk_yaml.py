@@ -24,12 +24,43 @@ from unittest import TestCase
 import unit.utils as uu
 from core.exceptions import FilesystemError
 from util.disk.yaml import (
+    load_yaml,
     load_yaml_file,
-    write_yaml_file
+    write_yaml_file,
+    YamlLoadError
 )
 
 
-class TestLoadYAML(TestCase):
+class TestLoadYaml(TestCase):
+    def test_loads_empty_unicode_string(self):
+        actual = load_yaml('')
+        self.assertIsNone(None, actual)
+
+    def test_loads_valid_unicode_string_yaml_data(self):
+        given = '''my_list:
+- one
+- two
+'''
+        actual = load_yaml(given)
+        expect = {'my_list': ['one', 'two']}
+        self.assertEqual(expect, actual)
+
+    def test_raises_yaml_load_error_given_none(self):
+        with self.assertRaises(YamlLoadError):
+            _ = load_yaml(None)
+
+    def test_raises_yaml_load_error_given_bad_unicode_string(self):
+        with self.assertRaises(YamlLoadError):
+            _ = load_yaml('- - " a -')
+
+    def test_raises_yaml_load_error_given_unexpected_types(self):
+        for bad_value in (1, 1.0, {'foo': 'bar'}, []):
+            with self.subTest(given=bad_value):
+                with self.assertRaises(YamlLoadError):
+                    _ = load_yaml(bad_value)
+
+
+class TestLoadYamlFile(TestCase):
     def test_loads_valid_file(self):
         _yaml_path = uu.abspath_testconfig()
         actual = load_yaml_file(_yaml_path)
@@ -49,7 +80,7 @@ class TestLoadYAML(TestCase):
         _fail(uu.abspath_testfile('magic_png.png'))
 
 
-class TestWriteYAML(TestCase):
+class TestWriteYamlFile(TestCase):
     def test_writes_valid_data_to_valid_path(self):
         _dest_path = uu.make_temporary_file()
         self.assertTrue(uu.file_exists(_dest_path))

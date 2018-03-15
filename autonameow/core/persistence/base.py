@@ -20,17 +20,15 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import os
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import pickle
 
 from core import (
     config,
-    exceptions,
     types,
+)
+from core.exceptions import (
+    AutonameowException,
+    FilesystemError
 )
 from core import constants as C
 from util import encoding as enc
@@ -41,6 +39,15 @@ from util import (
 
 
 log = logging.getLogger(__name__)
+
+
+class PersistenceError(AutonameowException):
+    """Irrecoverable error while reading or writing persistent data."""
+
+
+class PersistenceImplementationBackendError(PersistenceError):
+    """Error while reading/writing using a specific backend. Should only be
+    raised from the '_load()' and '_dump()' methods by implementing classes."""
 
 
 def get_config_persistence_path():
@@ -85,6 +92,7 @@ class BasePersistence(object):
 
     Inheriting class must implement '_load' and '_dump' which does the actual
     serialization and reading/writing to disk.
+    These methods should only raise 'PersistenceImplementationBackendError'.
     """
     PERSISTENCE_FILE_PREFIX_SEPARATOR = '_'
 
@@ -99,14 +107,15 @@ class BasePersistence(object):
         else:
             self._persistence_dir_abspath = persistence_dir_abspath
         sanity.check_internal_bytestring(self._persistence_dir_abspath)
-        assert os.path.isabs(enc.syspath(self._persistence_dir_abspath))
+        assert disk.isabs(self._persistence_dir_abspath)
 
-        _prefix = types.force_string(file_prefix)
-        if not _prefix.strip():
+        str_file_prefix = types.force_string(file_prefix)
+        if not str_file_prefix.strip():
             raise ValueError(
                 'Argument "file_prefix" must be a valid string'
             )
-        self.persistencefile_prefix = _prefix
+        # TODO: Add hardcoded prefix to the prefix for arguably "safer" deletes?
+        self.persistencefile_prefix = str_file_prefix
 
         self._dp = enc.displayable_path(self._persistence_dir_abspath)
         if not self.has_persistencedir():
@@ -115,7 +124,7 @@ class BasePersistence(object):
 
             try:
                 disk.makedirs(self._persistence_dir_abspath)
-            except exceptions.FilesystemError as e:
+            except FilesystemError as e:
                 raise PersistenceError('Unable to create persistence directory'
                                        ' "{!s}": {!s}'.format(self._dp, e))
             else:
@@ -142,31 +151,21 @@ class BasePersistence(object):
             return False
 
     def has_persistencedir(self):
-        _path = enc.syspath(self._persistence_dir_abspath)
         try:
-            return bool(os.path.exists(_path) and os.path.isdir(_path))
-        except (OSError, ValueError, TypeError):
+            return bool(disk.exists(self._persistence_dir_abspath)
+                        and disk.isdir(self._persistence_dir_abspath))
+        except FilesystemError:
             return False
 
     def _persistence_file_abspath(self, key):
         if key in self._persistence_file_abspath_cache:
             return self._persistence_file_abspath_cache[key]
 
-        string_key = types.force_string(key)
-        if not string_key.strip():
-            raise KeyError('Invalid key: "{!s}" ({!s})'.format(key, type(key)))
-
-        _basename = '{pre}{sep}{key}'.format(
-            pre=self.persistencefile_prefix,
-            sep=self.PERSISTENCE_FILE_PREFIX_SEPARATOR,
-            key=key
-        )
-        _p = enc.normpath(
-            os.path.join(enc.syspath(self._persistence_dir_abspath),
-                         enc.syspath(enc.encode_(_basename)))
-        )
-        self._persistence_file_abspath_cache[key] = _p
-        return _p
+        p = _key_as_file_path(key, self.persistencefile_prefix,
+                              self.PERSISTENCE_FILE_PREFIX_SEPARATOR,
+                              self._persistence_dir_abspath)
+        self._persistence_file_abspath_cache[key] = p
+        return p
 
     def get(self, key):
         """
@@ -179,40 +178,45 @@ class BasePersistence(object):
         Returns:
             Any data stored with the given key, as any serializable type.
         Raises:
-            KeyError: The given 'key' is not a valid non-empty string,
-                      or the key is not found in the persistent data.
+            KeyError: The given 'key' is not a valid non-empty string, was not
+                      found in the persistent data or the read failed.
             PersistenceError: Failed to read stored data for some reason;
                               data corruption, encoding errors, missing files..
+                              This should not happen, implementing classes must
+                              re-raise any exceptions as
+                              'PersistenceImplementationBackendError'.
         """
         if not key:
             raise KeyError
 
         if key not in self._data:
-            _file_path = self._persistence_file_abspath(key)
-            if not os.path.exists(enc.syspath(_file_path)):
+            key_file_path = self._persistence_file_abspath(key)
+            if not disk.exists(key_file_path):
                 # Avoid displaying errors on first use.
                 raise KeyError
 
             try:
-                value = self._load(_file_path)
-                self._data[key] = value
-            except ValueError as e:
-                _dp = enc.displayable_path(_file_path)
-                log.error(
-                    'Error when reading key "{!s}" from persistence file "{!s}"'
-                    ' (corrupt file?); {!s}'.format(key, _dp, e)
-                )
+                key_file_data = self._load(key_file_path)
+            except PersistenceImplementationBackendError as e:
+                _dp = enc.displayable_path(key_file_path)
+                log.error('Error while reading key "{!s}" from file "{!s}"; '
+                          '{!s}'.format(key, _dp, e))
+
+                # Is it a good idea to delete files that could not be read?
+                log.error('Deleting failed read key "{!s}"'.format(key))
                 self.delete(key)
-            except OSError as e:
-                _dp = enc.displayable_path(_file_path)
-                log.warning(
-                    'Error while trying to read key "{!s}" from persistence'
-                    ' file "{!s}"; {!s}'.format(key, _dp, e)
-                )
-                raise KeyError
+
+                raise KeyError(e)
             except Exception as e:
+                _dp = enc.displayable_path(key_file_path)
+                log.critical(
+                    'Caught top-level exception reading key "{!s}" from'
+                    'persistence file "{!s}"; {!s}'.format(key, _dp, e)
+                )
                 raise PersistenceError('Error while reading persistence; '
                                        '{!s}'.format(e))
+            else:
+                self._data[key] = key_file_data
 
         return self._data.get(key)
 
@@ -227,11 +231,11 @@ class BasePersistence(object):
         """
         self._data[key] = value
 
-        _file_path = self._persistence_file_abspath(key)
+        key_file_path = self._persistence_file_abspath(key)
         try:
-            self._dump(value, _file_path)
+            self._dump(value, key_file_path)
         except OSError as e:
-            _dp = enc.displayable_path(_file_path)
+            _dp = enc.displayable_path(key_file_path)
             log.error(
                 'Error while trying to write key "{!s}" with value "{!s}" to '
                 'persistence file "{!s}"; {!s}'.format(key, value, _dp, e)
@@ -248,36 +252,37 @@ class BasePersistence(object):
         log.debug('Deleting persistence file "{!s}"'.format(_dp))
         try:
             disk.delete(_p, ignore_missing=True)
-        except exceptions.FilesystemError as e:
+        except FilesystemError as e:
             raise PersistenceError(
                 'Error while deleting "{!s}"; {!s}'.format(_dp, e)
             )
         else:
+            # Computed path should always be cached at this point.
+            del self._persistence_file_abspath_cache[key]
             log.debug('Deleted persistence file "{!s}"'.format(_dp))
 
     def has(self, key):
-        # TODO: Test this ..
         if key in self._data:
             return True
 
-        _file_path = self._persistence_file_abspath(key)
+        key_file_path = self._persistence_file_abspath(key)
         try:
-            os.path.exists(_file_path)
-        except OSError:
+            return disk.exists(key_file_path)
+        except FilesystemError:
             return False
-        else:
-            return True
 
     def keys(self):
         # TODO: This is a major security vulnerability (!)
         out = []
-        _file_path = enc.syspath(self._persistence_dir_abspath)
-        for bytestring_file in os.listdir(_file_path):
-            string_file = types.force_string(bytestring_file)
-            if not string_file:
+        for bytestring_basename in disk.listdir(self._persistence_dir_abspath):
+            str_basename = types.force_string(bytestring_basename)
+            if not str_basename:
                 continue
-            if string_file.startswith(self.persistencefile_prefix):
-                out.append(string_file.lstrip(self.persistencefile_prefix))
+
+            key = _basename_as_key(str_basename, self.persistencefile_prefix,
+                                   self.PERSISTENCE_FILE_PREFIX_SEPARATOR)
+            if key:
+                out.append(key)
         return out
 
     def flush(self):
@@ -299,15 +304,15 @@ class BasePersistence(object):
         if not key:
             raise KeyError
 
-        _file_path = self._persistence_file_abspath(key)
-        if not os.path.exists(enc.syspath(_file_path)):
+        key_file_path = self._persistence_file_abspath(key)
+        if not disk.exists(key_file_path):
             return 0
 
         try:
-            size = disk.file_bytesize(_file_path)
+            size = disk.file_bytesize(key_file_path)
             return size
-        except exceptions.FilesystemError as e:
-            _dp = enc.displayable_path(_file_path)
+        except FilesystemError as e:
+            _dp = enc.displayable_path(key_file_path)
             log.error(
                 'Error when getting file size for persistence file "{!s}"'
                 ' from key "{!s}"; {!s}'.format(_dp, key, e)
@@ -325,21 +330,67 @@ class BasePersistence(object):
                                  self.persistencefile_prefix)
 
 
+def _basename_as_key(str_basename, persistencefile_prefix,
+                     persistence_file_prefix_separator):
+    if not str_basename.startswith(persistencefile_prefix):
+        return None
+
+    # Remove the first occurrence of the prefix.
+    key = str_basename.replace(persistencefile_prefix, '', 1)
+
+    # Remove the first occurrence of the separator.
+    if key.startswith(persistence_file_prefix_separator):
+        key = key[len(persistence_file_prefix_separator):]
+
+    return key
+
+
+def _key_as_file_path(key, persistencefile_prefix,
+                      persistence_file_prefix_separator,
+                      persistence_dir_abspath):
+    str_key = types.force_string(key)
+    if not str_key.strip():
+        raise KeyError('Invalid key: "{!s}" ({!s})'.format(key, type(key)))
+
+    basename = '{pre}{sep}{key}'.format(pre=persistencefile_prefix,
+                                        sep=persistence_file_prefix_separator,
+                                        key=key)
+    bytestring_basename = enc.encode_(basename)
+    abspath = types.AW_PATH.normalize(
+        disk.joinpaths(persistence_dir_abspath, bytestring_basename)
+    )
+    return abspath
+
+
 class PicklePersistence(BasePersistence):
     """
     Persistence implementation using 'pickle' to read/write data to disk.
     """
     def _load(self, file_path):
-        with open(enc.syspath(file_path), 'rb') as fh:
-            return pickle.load(fh, encoding='bytes')
+        try:
+            with open(enc.syspath(file_path), 'rb') as fh:
+                try:
+                    return pickle.load(fh, encoding='bytes')
+                except (EOFError, ValueError) as e:
+                    # Might raise 'EOFError' if the pickled file is empty.
+                    raise PersistenceImplementationBackendError(e)
+                except AttributeError as e:
+                    # Could happen if pickled objects implementation has changed.
+                    raise PersistenceImplementationBackendError(e)
+                except pickle.UnpicklingError as e:
+                    raise PersistenceImplementationBackendError(e)
+        except OSError as e:
+            raise PersistenceImplementationBackendError(e)
 
     def _dump(self, value, file_path):
-        with open(enc.syspath(file_path), 'wb') as fh:
-            pickle.dump(value, fh, pickle.HIGHEST_PROTOCOL)
-
-
-class PersistenceError(exceptions.AutonameowException):
-    """Irrecoverable error while reading or writing persistent data."""
+        try:
+            with open(enc.syspath(file_path), 'wb') as fh:
+                try:
+                    pickle.dump(value, fh, pickle.HIGHEST_PROTOCOL)
+                except (AttributeError, pickle.PicklingError) as e:
+                    raise PersistenceImplementationBackendError(e)
+        except OSError as e:
+            raise PersistenceImplementationBackendError(e)
 
 
 def get_persistence(file_prefix, persistence_dir_abspath=None):

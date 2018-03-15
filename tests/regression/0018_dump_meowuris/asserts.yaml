@@ -1,0 +1,17 @@
+exit_code: 0
+stdout:
+    matches:
+    - 'analyzer.document'
+    - 'analyzer.ebook'
+    - 'analyzer.filename'
+    - 'extractor.filesystem.guessit'
+    - 'extractor.filesystem.filetags'
+    - 'extractor.filesystem.xplat'
+    - 'extractor.metadata.exiftool'
+    - 'extractor.metadata.jpeginfo'
+    - 'extractor.text.epub'
+    - 'extractor.text.markdown'
+    - 'extractor.text.pdf'
+    - 'extractor.text.plain'
+    - 'extractor.text.rtf'
+    - 'extractor.text.tesseractocr'

@@ -19,8 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core.ui.cli.common import ColumnFormatter
-
 
 def levenshtein(string_a, string_b):
     n, m = len(string_a), len(string_b)
@@ -78,6 +76,7 @@ if __name__ == '__main__':
         d = string_difference(a, b)
         results.append((a, b, s, d))
 
+    from core.view.cli.common import ColumnFormatter
     cf = ColumnFormatter()
     cf.addrow('String A', 'String B', 'Similarity', 'Difference')
     cf.addrow('========', '========', '==========', '==========')

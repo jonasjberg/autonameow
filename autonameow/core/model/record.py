@@ -54,3 +54,6 @@ class RecordComparator(object):
             return record1
         elif _record2_field_sum > _record1_field_sum:
             return record2
+
+        # TODO: Tie-breaker?
+        return None

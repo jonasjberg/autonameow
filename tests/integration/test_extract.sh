@@ -72,12 +72,6 @@ assert_true '"$EXTRACT_RUNNER" --debug' \
 assert_false '"$EXTRACT_RUNNER" --verbose --debug' \
              'Mutually exclusive options "--verbose" and "--debug" should generate an error'
 
-assert_false '"$EXTRACT_RUNNER" --verbose --quiet' \
-             'Mutually exclusive options "--verbose" and "--quiet" should generate an error'
-
-assert_false '"$EXTRACT_RUNNER" --debug --quiet' \
-             'Mutually exclusive options "--debug" and "--quiet" should generate an error'
-
 
 # ______________________________________________________________________________
 #
@@ -102,14 +96,16 @@ assert_false '"$EXTRACT_RUNNER" --debug 2>&1 | grep -- ":root:"' \
              'Output should not contain ":root:" when starting with "--debug"'
 
 
-# ______________________________________________________________________________
-#
-# Smoke-test metadata extraction.
-
+# Test file to extract from.
 SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
 assert_bulk_test "$SAMPLE_PDF_FILE" e r
 
 sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
+
+
+# ______________________________________________________________________________
+#
+# Smoke-test metadata extraction.
 
 assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 when started with \"--metadata\" given the file \"${sample_pdf_file_basename}\""
@@ -120,8 +116,16 @@ assert_true '"$EXTRACT_RUNNER" --metadata --verbose -- "$SAMPLE_PDF_FILE"' \
 assert_true '"$EXTRACT_RUNNER" --metadata --debug -- "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 when started with \"--metadata --debug\" given the file \"${sample_pdf_file_basename}\""
 
-assert_true '"$EXTRACT_RUNNER" --metadata --quiet -- "$SAMPLE_PDF_FILE"' \
-            "Expect exit code 0 when started with \"--metadata --quiet\" given the file \"${sample_pdf_file_basename}\""
+# Metadata extraction with statistics.
+
+assert_true '"$EXTRACT_RUNNER" --metadata --stats -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --metadata --stats --verbose -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata --stats --verbose\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --metadata --stats --debug -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata --stats --debug\" given the file \"${sample_pdf_file_basename}\""
 
 
 # ______________________________________________________________________________
@@ -137,8 +141,98 @@ assert_true '"$EXTRACT_RUNNER" --text --verbose -- "$SAMPLE_PDF_FILE"' \
 assert_true '"$EXTRACT_RUNNER" --text --debug -- "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 when started with \"--text --debug\" given the file \"${sample_pdf_file_basename}\""
 
-assert_true '"$EXTRACT_RUNNER" --text --quiet -- "$SAMPLE_PDF_FILE"' \
-            "Expect exit code 0 when started with \"--text --quiet\" given the file \"${sample_pdf_file_basename}\""
+# Text extraction with statistics.
+
+assert_true '"$EXTRACT_RUNNER" --text --stats -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--text --stats\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --text --stats --verbose -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--text --stats --verbose\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --text --stats --debug -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--text --stats --debug\" given the file \"${sample_pdf_file_basename}\""
+
+
+# ______________________________________________________________________________
+#
+# Smoke-test combined metadata and text extraction.
+
+assert_true '"$EXTRACT_RUNNER" --metadata --text -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata --text\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --metadata --text --verbose -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata --text --verbose\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --metadata --text --debug -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata --text --debug\" given the file \"${sample_pdf_file_basename}\""
+
+# Metadata and text extraction with statistics.
+
+assert_true '"$EXTRACT_RUNNER" --metadata --text --stats -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata --text --stats\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --metadata --text --stats --verbose -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata --text --stats --verbose\" given the file \"${sample_pdf_file_basename}\""
+
+assert_true '"$EXTRACT_RUNNER" --metadata --text --stats --debug -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 when started with \"--metadata --text --stats --debug\" given the file \"${sample_pdf_file_basename}\""
+
+
+# ______________________________________________________________________________
+#
+# Verify output of metadata extraction. Focus on values that are changed by coercers.
+
+assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.File:MIMEType\ \+application/pdf"' \
+            "Expect metadata extracted from \"${sample_pdf_file_basename}\" to contain expected exiftool.File:MIMEType"
+
+assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.File:FileType\ \+PDF"' \
+            "Expect metadata extracted from \"${sample_pdf_file_basename}\" to contain expected exiftool.File:FileType"
+
+assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.File:FileName\ .*gmail.pdf"' \
+            "Expect metadata extracted from \"${sample_pdf_file_basename}\" to contain expected exiftool.File:FileName"
+
+assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.PDF:CreateDate\ \+2016-01-11 12:41:32+00:00"' \
+            "Expect metadata extracted from \"${sample_pdf_file_basename}\" to contain expected exiftool.PDF:CreateDate"
+
+assert_true '"$EXTRACT_RUNNER" --metadata -- "$SAMPLE_PDF_FILE" | grep -- "extractor.metadata.exiftool.PDF:ModifyDate\ \+2016-01-11 12:41:32+00:00"' \
+            "Expect metadata extracted from \"${sample_pdf_file_basename}\" to contain expected exiftool.PDF:ModifyDate"
+
+
+# ______________________________________________________________________________
+#
+# Verify output of text extraction.
+
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_PDF_FILE" | grep -- "Fri, Jan 8, 2016 at 3:50 PM"' \
+            "Expect text extracted from \"${sample_pdf_file_basename}\" to contain \"Fri, Jan 8, 2016 at 3:50 PM\""
+
+
+# Test file to extract from.
+SAMPLE_RTF_FILE="$(abspath_testfile "sample.rtf")"
+assert_bulk_test "$SAMPLE_RTF_FILE" e r
+
+sample_rtf_file_basename="$(basename -- "${SAMPLE_RTF_FILE}")"
+
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_RTF_FILE" | grep -- "baz last line"' \
+            "Expect text extracted from \"${sample_rtf_file_basename}\" to contain \"baz last line\""
+
+SAMPLE_MD_FILE="$(abspath_testfile "sample.md")"
+assert_bulk_test "$SAMPLE_MD_FILE" e r
+
+sample_md_file_basename="$(basename -- "${SAMPLE_MD_FILE}")"
+
+# From the MarkdownTextExtractor
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "ON MEOW"' \
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"ON MEOW\""
+
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "-   meow list"' \
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"-   meow list\""
+
+# From the PlainTextExtractor
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "On Meow"' \
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"On Meow\""
+
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "* meow list"' \
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"* meow list\""
 
 
 

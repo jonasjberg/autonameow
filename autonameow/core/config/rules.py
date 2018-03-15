@@ -32,9 +32,11 @@ from core.exceptions import (
     ConfigurationSyntaxError,
     InvalidMeowURIError
 )
-from core.model import MeowURI
+from core.model import (
+    MeowURI,
+    NameTemplate
+)
 from core.namebuilder import fields
-import util
 
 
 log = logging.getLogger(__name__)
@@ -58,9 +60,9 @@ class RuleCondition(object):
         The expression is some expression that will be evaluated on the data
         contained at the location referenced to by the "MeowURI".
 
-        Example: If the "MeowURI" is 'contents.mime_type', a valid
+        Example: If the "MeowURI" is 'mime_type', a valid
         expression could be 'image/*'. When this condition is evaluated,
-        the data contained at 'contents.mime_type' might be 'image/jpeg'.
+        the data contained at 'mime_type' might be 'image/jpeg'.
         In this case the evaluation would return True.
 
         Args:
@@ -200,13 +202,11 @@ class RuleCondition(object):
 class Rule(object):
     """
     Represents a single rule entry in a loaded configuration.
-
-    All data validation happens at 'Rule' init or when setting any attribute.
     """
     def __init__(self, conditions, data_sources, name_template,
                  description=None, exact_match=None, ranking_bias=None):
         """
-        Creates a new 'Rule' instance.
+        Creates a new 'Rule' instance from previously validated data.
 
         Args:
             conditions: Dict used to create instances of 'RuleCondition'.
@@ -219,101 +219,29 @@ class Rule(object):
                          evaluation. Defaults to False.
             ranking_bias: (OPTIONAL) Float between 0-1 that influences ranking.
         """
-        self._description = None
-        self._exact_match = None
-        self._ranking_bias = None
-        self._name_template = None
-        self._conditions = None
-        self._data_sources = None
-
-        self.description = description
-        self.exact_match = exact_match
-        self.ranking_bias = ranking_bias
-        self.name_template = name_template
-        self.conditions = conditions
+        assert isinstance(conditions, list)
+        self._conditions = conditions
+        assert isinstance(data_sources, dict)
         self.data_sources = data_sources
+        self.name_template = name_template
+
+        self.description = description or C.DEFAULT_RULE_DESCRIPTION
+        self.exact_match = bool(exact_match)
+        if ranking_bias is not None:
+            self.ranking_bias = float(ranking_bias)
+        else:
+            self.ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
 
         # NOTE(jonas): This assumes instances of 'RuleCondition' are immutable!
         self.__cached_hash = None
 
     @property
-    def description(self):
-        return self._description
-
-    @description.setter
-    def description(self, raw_description):
-        valid_description = types.force_string(raw_description)
-        if valid_description:
-            self._description = valid_description
-        else:
-            self._description = C.DEFAULT_RULE_DESCRIPTION
-
-    @property
-    def exact_match(self):
-        return self._exact_match
-
-    @exact_match.setter
-    def exact_match(self, raw_exact_match):
-        try:
-            self._exact_match = types.AW_BOOLEAN(raw_exact_match)
-        except types.AWTypeError as e:
-            raise InvalidRuleError(e)
-
-    @property
-    def ranking_bias(self):
-        if self._ranking_bias:
-            return self._ranking_bias
-        return C.DEFAULT_RULE_RANKING_BIAS
-
-    @ranking_bias.setter
-    def ranking_bias(self, raw_ranking_bias):
-        try:
-            self._ranking_bias = parse_ranking_bias(raw_ranking_bias)
-        except InvalidRuleError as e:
-            log.warning(e)
-            self._ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
-
-    @property
-    def name_template(self):
-        return self._name_template
-
-    @name_template.setter
-    def name_template(self, raw_name_template):
-        # Name template has already been validated in the 'Configuration' class.
-        if not raw_name_template:
-            raise InvalidRuleError('Got None name template')
-        self._name_template = raw_name_template
-
-    @property
     def conditions(self):
-        return self._conditions
-
-    @conditions.setter
-    def conditions(self, valid_conditions):
-        if not isinstance(valid_conditions, list):
-            _msg = 'Expected list. Got {!s}'.format(type(valid_conditions))
-            raise InvalidRuleError(_msg)
-
-        for c in valid_conditions:
-            if not isinstance(c, RuleCondition):
-                _msg = 'Invalid condition: ({!s}) "{!s}"'.format(type(c), c)
-                raise InvalidRuleError(_msg)
-
-        self._conditions = valid_conditions
+        return list(self._conditions)
 
     @property
     def number_conditions(self):
-        return len(self._conditions)
-
-    @property
-    def data_sources(self):
-        return self._data_sources
-
-    @data_sources.setter
-    def data_sources(self, raw_data_sources):
-        # Skips and warns about invalid/missing sources. Does not fail or
-        # raise any exceptions even if all of the sources fail validation.
-        self._data_sources = parse_data_sources(raw_data_sources)
+        return len(self.conditions)
 
     def referenced_meowuris(self):
         """
@@ -338,10 +266,9 @@ class Rule(object):
         if not isinstance(other, self.__class__):
             return False
 
-        return (
+        return bool(
             self.conditions == other.conditions and
             self.data_sources == other.data_sources and
-            self.description == other.description and
             self.exact_match == other.exact_match and
             self.name_template == other.name_template and
             self.ranking_bias == other.ranking_bias
@@ -359,14 +286,14 @@ class Rule(object):
                 hashed_data_sources += data_source_hash
 
             self.__cached_hash = hash(
-                (hashed_conditions, hashed_data_sources, self.description,
+                (hashed_conditions, hashed_data_sources,
                  self.exact_match, self.name_template, self.ranking_bias)
             )
 
         return self.__cached_hash
 
     def __str__(self):
-        return util.dump(self.__dict__)
+        return self.description
 
     def __repr__(self):
         out = []
@@ -374,9 +301,37 @@ class Rule(object):
             out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
         return 'Rule({})'.format(', '.join(out))
 
+    def stringify(self):
+        # TODO: [TD0171] Separate logic from user interface.
+        # TODO: [cleanup][hack] This is pretty bad ..
+        from core.view.cli import ColumnFormatter
+        cf = ColumnFormatter()
+        for field, sources in self.data_sources.items():
+            cf.addrow(str(field), str(sources[0]))
+            for source in sources[1:]:
+                cf.addrow('', str(source))
+        str_sources = str(cf)
 
-def get_valid_rule(description, exact_match, ranking_bias, name_template,
-                   conditions, data_sources):
+        str_conditions = '\n'.join([str(c) for c in self.conditions])
+
+        return '''"{description}"
+
+Exact Match:  {exact}
+Conditions:
+{conditions}
+
+Name Template:
+{template}
+
+Data Sources:
+{sources}
+'''.format(description=self.description, exact=self.exact_match,
+           conditions=str_conditions, template=self.name_template,
+           sources=str_sources)
+
+
+def get_valid_rule(raw_description, raw_exact_match, raw_ranking_bias, format_string,
+                   conditions, raw_data_sources):
     """
     Main retrieval mechanism for 'Rule' class instances.
 
@@ -388,21 +343,44 @@ def get_valid_rule(description, exact_match, ranking_bias, name_template,
     Raises:
         InvalidRuleError: Validation failed or the 'Rule' instantiation failed.
     """
+    # Conditions
     if not conditions:
         conditions = dict()
-
     try:
         valid_conditions = parse_conditions(conditions)
     except ConfigurationSyntaxError as e:
         raise InvalidRuleError(e)
 
-    try:
-        _rule = Rule(valid_conditions, data_sources, name_template,
-                     description, exact_match, ranking_bias)
-    except InvalidRuleError as e:
-        raise e
+    # Skips and warns about invalid/missing sources. Does not fail or
+    # raise any exceptions even if all of the sources fail validation.
+    data_sources = parse_data_sources(raw_data_sources)
+
+    # Convert previously validated format string to instance of 'NameTemplate'.
+    # Name templates should be passed as class instances from here on out.
+    name_template = NameTemplate(format_string)
+
+    # Description
+    str_description = types.force_string(raw_description)
+    if str_description.strip():
+        description = str_description
     else:
-        return _rule
+        description = C.DEFAULT_RULE_DESCRIPTION
+
+    # Exact match
+    try:
+        exact_match = types.AW_BOOLEAN(raw_exact_match)
+    except types.AWTypeError as e:
+        raise InvalidRuleError(e)
+
+    # Ranking bias
+    try:
+        ranking_bias = parse_ranking_bias(raw_ranking_bias)
+    except ConfigurationSyntaxError as e:
+        log.warning(e)
+        ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
+
+    return Rule(valid_conditions, data_sources, name_template,
+                description, exact_match, ranking_bias)
 
 
 def get_valid_rule_condition(meowuri, raw_expression):
@@ -448,30 +426,30 @@ def parse_ranking_bias(value):
     with the default bias defined by "DEFAULT_RULE_RANKING_BIAS".
 
     Args:
-        value: The raw value to parse.
+        value: The "raw" value to parse.
     Returns:
         The specified value if the value is a number type in the range 0-1.
         If the specified value is None, a default bias is returned.
     Raises:
         ConfigurationSyntaxError: The value is of an unexpected type or not
-            within the range 0-1.
+                                  within the range 0-1.
     """
     if value is None:
         return C.DEFAULT_RULE_RANKING_BIAS
 
     try:
-        _value = types.AW_FLOAT(value)
+        float_value = types.AW_FLOAT(value)
     except types.AWTypeError:
         raise ConfigurationSyntaxError(
             'Expected float but got "{!s}" ({!s})'.format(value, type(value))
         )
     else:
-        if not 0.0 <= _value <= 1.0:
+        if not 0.0 <= float_value <= 1.0:
             raise ConfigurationSyntaxError(
                 'Expected float between 0.0 and 1.0. Got {} -- Using default: '
                 '{}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
             )
-        return _value
+        return float_value
 
 
 def parse_conditions(raw_conditions):
@@ -484,13 +462,12 @@ def parse_conditions(raw_conditions):
     try:
         for meowuri_string, expression_string in raw_conditions.items():
             try:
-                _meowuri = MeowURI(meowuri_string)
+                uri = MeowURI(meowuri_string)
             except InvalidMeowURIError as e:
                 raise ConfigurationSyntaxError(e)
 
             try:
-                valid_condition = get_valid_rule_condition(_meowuri,
-                                                           expression_string)
+                valid_condition = get_valid_rule_condition(uri, expression_string)
             except InvalidRuleError as e:
                 raise ConfigurationSyntaxError(e)
             else:
@@ -498,7 +475,7 @@ def parse_conditions(raw_conditions):
                 log.debug('Validated condition: "{!s}"'.format(valid_condition))
     except ValueError as e:
         raise ConfigurationSyntaxError(
-            'contains invalid condition: ' + str(e)
+            'contains invalid condition: {!s}'.format(e)
         )
 
     log.debug(
@@ -534,7 +511,7 @@ def parse_data_sources(raw_sources):
             log.warning('Template Field: ”{!s}"'.format(raw_templatefield))
             continue
 
-        assert issubclass(tf, fields.NameTemplateField), type(tf)
+        assert isinstance(tf, fields.NameTemplateField), type(tf)
 
         if not raw_meowuri_strings:
             log.debug('Skipped source with empty MeowURI(s) '
@@ -546,24 +523,20 @@ def parse_data_sources(raw_sources):
 
         for meowuri_string in raw_meowuri_strings:
             try:
-                _meowuri = MeowURI(meowuri_string)
+                uri = MeowURI(meowuri_string)
             except InvalidMeowURIError as e:
                 log.warning('Skipped source with invalid MeoWURI: '
                             '"{!s}"; {!s}'.format(meowuri_string, e))
                 continue
 
-            if is_valid_source(_meowuri):
-                log.debug('Validated source: [{!s}]: {!s}'.format(
-                    tf.as_placeholder(), _meowuri
-                ))
+            if is_valid_source(uri):
+                log.debug('Validated field {!s} source: {!s}'.format(tf, uri))
                 if not passed.get(tf):
-                    passed[tf] = [_meowuri]
+                    passed[tf] = [uri]
                 else:
-                    passed[tf] += [_meowuri]
+                    passed[tf] += [uri]
             else:
-                log.debug('Invalid source: [{!s}]: {!s}'.format(
-                    tf.as_placeholder(), _meowuri
-                ))
+                log.debug('Invalid field {!s} source: {!s}'.format(tf, uri))
 
     log.debug(
         'Returning {} (out of {}) valid sources'.format(len(passed),
@@ -594,7 +567,7 @@ def is_valid_source(meowuri):
 
     if meowuri.is_generic:
         return True
-    if providers.Registry.resolvable(meowuri):
+    if providers.Registry.might_be_resolvable(meowuri):
         return True
 
     return False

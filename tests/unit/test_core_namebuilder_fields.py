@@ -21,63 +21,21 @@
 
 from unittest import TestCase
 
-import unit.utils as uu
 from core import types
 from core.namebuilder import fields
 
 
-class TestFormatStringPlaceholders(TestCase):
-    def _assert_contains(self, template, expected):
-        self.assertEqual(fields.format_string_placeholders(template), expected)
-
-    def test_empty_or_whitespace(self):
-        self._assert_contains('', [])
-        self._assert_contains(' ', [])
-
-    def test_unexpected_input_raises_valueerror(self):
-        def _assert_raises(template):
-            with self.assertRaises(TypeError):
-                fields.format_string_placeholders(template)
-
-        _assert_raises(None)
-        _assert_raises(1)
-        _assert_raises(uu.str_to_datetime('2016-01-11 124132'))
-        _assert_raises(b'')
-        _assert_raises(b' ')
-        _assert_raises(b'foo')
-        _assert_raises(b'{foo}')
-
-    def test_no_placeholders(self):
-        self._assert_contains('abc', [])
-        self._assert_contains('abc}', [])
-        self._assert_contains('{abc', [])
-        self._assert_contains('{abc {foo', [])
-        self._assert_contains('{abc foo}', [])
-
-    def test_one_placeholder(self):
-        self._assert_contains('abc {foo}', ['foo'])
-        self._assert_contains('abc {foo}', ['foo'])
-        self._assert_contains('{abc {foo}', ['foo'])
-        self._assert_contains('abc} {foo}', ['foo'])
-        self._assert_contains('{abc def} {foo}', ['foo'])
-        self._assert_contains('abc{ def} {foo}', ['foo'])
-
-    def test_two_unique_placeholders(self):
-        self._assert_contains('{abc} {foo}', ['abc', 'foo'])
-        self._assert_contains('{abc} abc {foo}', ['abc', 'foo'])
-        self._assert_contains('{abc} {{foo}', ['abc', 'foo'])
-        self._assert_contains('{abc} {abc {foo}', ['abc', 'foo'])
-        self._assert_contains('{abc} {abc }{foo}', ['abc', 'foo'])
-
-    def test_duplicate_placeholders(self):
-        self._assert_contains('{foo} {foo}', ['foo', 'foo'])
-        self._assert_contains('{foo} abc {foo}', ['foo', 'foo'])
-        self._assert_contains('{foo} {foo}', ['foo', 'foo'])
-        self._assert_contains('{foo} {abc {foo}', ['foo', 'foo'])
-        self._assert_contains('{foo} abc} {foo}', ['foo', 'foo'])
-        self._assert_contains('{foo} {abc } {foo}', ['foo', 'foo'])
-        self._assert_contains('{foo} {abc} {foo}', ['foo', 'abc', 'foo'])
-        self._assert_contains('{abc} {abc} {foo}', ['abc', 'abc', 'foo'])
+FIELDS_AUTHOR = fields.Author
+FIELDS_CREATOR = fields.Creator
+FIELDS_DATE = fields.Date
+FIELDS_DATETIME = fields.DateTime
+FIELDS_DESCRIPTION = fields.Description
+FIELDS_EDITION = fields.Edition
+FIELDS_EXTENSION = fields.Extension
+FIELDS_PUBLISHER = fields.Publisher
+FIELDS_TAGS = fields.Tags
+FIELDS_TIME = fields.Time
+FIELDS_TITLE = fields.Title
 
 
 class TestAvailableNametemplatefieldClasses(TestCase):
@@ -95,16 +53,99 @@ class TestAvailableNametemplatefieldClasses(TestCase):
         def _aIn(member):
             self.assertIn(member, actual)
 
-        _aIn(fields.Author)
-        _aIn(fields.Creator)
-        _aIn(fields.Date)
-        _aIn(fields.DateTime)
-        _aIn(fields.Description)
-        _aIn(fields.Edition)
-        _aIn(fields.Extension)
-        _aIn(fields.Publisher)
-        _aIn(fields.Tags)
-        _aIn(fields.Title)
+        _aIn(FIELDS_AUTHOR)
+        _aIn(FIELDS_CREATOR)
+        _aIn(FIELDS_DATE)
+        _aIn(FIELDS_DATETIME)
+        _aIn(FIELDS_DESCRIPTION)
+        _aIn(FIELDS_EDITION)
+        _aIn(FIELDS_EXTENSION)
+        _aIn(FIELDS_PUBLISHER)
+        _aIn(FIELDS_TAGS)
+        _aIn(FIELDS_TITLE)
+
+
+class TestNameTemplateField(TestCase):
+    def test_comparison(self):
+        self.assertEqual(FIELDS_AUTHOR, FIELDS_AUTHOR)
+
+        a1 = FIELDS_AUTHOR
+        a2 = FIELDS_AUTHOR
+        self.assertEqual(a1, a2)
+
+        self.assertNotEqual(FIELDS_AUTHOR, FIELDS_TITLE)
+
+    def test_membership(self):
+        s = set()
+        self.assertNotIn(FIELDS_AUTHOR, s)
+        self.assertNotIn(FIELDS_TITLE, s)
+        self.assertNotIn(FIELDS_PUBLISHER, s)
+
+        s.add(FIELDS_AUTHOR)
+        self.assertEqual(len(s), 1)
+
+        s.add(FIELDS_AUTHOR)
+        self.assertEqual(len(s), 1)
+
+        s.add(FIELDS_TITLE)
+        self.assertEqual(len(s), 2)
+
+        self.assertIn(FIELDS_AUTHOR, s)
+        self.assertIn(FIELDS_TITLE, s)
+        self.assertNotIn(FIELDS_PUBLISHER, s)
+
+
+class TestNameTemplateFieldSubclasses(TestCase):
+    def test_as_placeholder_returns_expected(self):
+        for field, expected in [
+            (FIELDS_AUTHOR, 'author'),
+            (FIELDS_CREATOR, 'creator'),
+            (FIELDS_DATE, 'date'),
+            (FIELDS_DATETIME, 'datetime'),
+            (FIELDS_DESCRIPTION, 'description'),
+            (FIELDS_EDITION, 'edition'),
+            (FIELDS_EXTENSION, 'extension'),
+            (FIELDS_PUBLISHER, 'publisher'),
+            (FIELDS_TAGS, 'tags'),
+            (FIELDS_TIME, 'time'),
+            (FIELDS_TITLE, 'title'),
+        ]:
+            actual = field.as_placeholder()
+            self.assertEqual(expected, actual)
+
+    def test___str___returns_expected(self):
+        for field, expected in [
+            (FIELDS_AUTHOR, '{author}'),
+            (FIELDS_CREATOR, '{creator}'),
+            (FIELDS_DATE, '{date}'),
+            (FIELDS_DATETIME, '{datetime}'),
+            (FIELDS_DESCRIPTION, '{description}'),
+            (FIELDS_EDITION, '{edition}'),
+            (FIELDS_EXTENSION, '{extension}'),
+            (FIELDS_PUBLISHER, '{publisher}'),
+            (FIELDS_TAGS, '{tags}'),
+            (FIELDS_TIME, '{time}'),
+            (FIELDS_TITLE, '{title}'),
+        ]:
+            actual = str(field)
+            self.assertEqual(expected, actual)
+
+    def test___repr__returns_expected(self):
+        for field, expected in [
+            (FIELDS_AUTHOR, 'NameTemplateField<Author>'),
+            (FIELDS_CREATOR, 'NameTemplateField<Creator>'),
+            (FIELDS_DATE, 'NameTemplateField<Date>'),
+            (FIELDS_DATETIME, 'NameTemplateField<DateTime>'),
+            (FIELDS_DESCRIPTION, 'NameTemplateField<Description>'),
+            (FIELDS_EDITION, 'NameTemplateField<Edition>'),
+            (FIELDS_EXTENSION, 'NameTemplateField<Extension>'),
+            (FIELDS_PUBLISHER, 'NameTemplateField<Publisher>'),
+            (FIELDS_TAGS, 'NameTemplateField<Tags>'),
+            (FIELDS_TIME, 'NameTemplateField<Time>'),
+            (FIELDS_TITLE, 'NameTemplateField<Title>'),
+        ]:
+            actual = repr(field)
+            self.assertEqual(expected, actual)
 
 
 class TestIsValidTemplateField(TestCase):
@@ -113,6 +154,7 @@ class TestIsValidTemplateField(TestCase):
             self.assertFalse(fields.is_valid_template_field(test_input))
 
         _aF(None)
+        _aF(False)
         _aF('')
         _aF('foo')
 
@@ -139,71 +181,31 @@ class TestNametemplatefieldClassFromString(TestCase):
 
         _aE('', None)
         _aE('auuuthoorrr', None)
-        _aE('author', fields.Author)
-        _aE('title', fields.Title)
-
-
-class TestNametemplatefieldClassesInFormatstring(TestCase):
-    def _aC(self, string, klass_list):
-        actual = fields.nametemplatefield_classes_in_formatstring(string)
-        for klass in klass_list:
-            self.assertIn(klass, actual)
-
-    def test_contains_none(self):
-        self._aC('', [])
-        self._aC('foo', [])
-
-    def test_contains_expected_1(self):
-        self._aC('{title}', [fields.Title])
-        self._aC('{title} foo', [fields.Title])
-        self._aC('{title} title', [fields.Title])
-
-    def test_contains_expected_2(self):
-        self._aC('{title} {author}',
-                 [fields.Title, fields.Author])
-        self._aC('{title} foo {author}',
-                 [fields.Title, fields.Author])
-        self._aC('{title} title {author} author',
-                 [fields.Title, fields.Author])
-
-    def test_contains_expected_3(self):
-        self._aC('{title} {author} {description}',
-                 [fields.Title, fields.Author, fields.Description])
-        self._aC('foo {title} {author} - {description}.foo',
-                 [fields.Title, fields.Author, fields.Description])
+        _aE('author', FIELDS_AUTHOR)
+        _aE('title', FIELDS_TITLE)
 
 
 class NameTemplateFieldCompatible(TestCase):
     def _compatible(self, nametemplate_field, coercer_class):
-        tf = nametemplate_field()
-        actual = tf.type_compatible(coercer_class)
+        actual = nametemplate_field.type_compatible(coercer_class)
         self.assertTrue(actual)
 
     def _incompatible(self, nametemplate_field, coercer_class):
-        tf = nametemplate_field()
-        actual = tf.type_compatible(coercer_class)
+        actual = nametemplate_field.type_compatible(coercer_class)
         self.assertFalse(actual)
 
     def test_compatible_with_name_template_field_description(self):
-        self._compatible(fields.Description, types.AW_STRING)
-        self._compatible(fields.Description, types.AW_INTEGER)
+        self._compatible(FIELDS_DESCRIPTION, types.AW_STRING)
+        self._compatible(FIELDS_DESCRIPTION, types.AW_INTEGER)
 
     def test_not_compatible_with_name_template_field_description(self):
-        self._incompatible(fields.Description, types.AW_TIMEDATE)
-        self._incompatible(fields.Description, types.listof(types.AW_STRING))
+        self._incompatible(FIELDS_DESCRIPTION, types.AW_TIMEDATE)
+        self._incompatible(FIELDS_DESCRIPTION, types.listof(types.AW_STRING))
 
     def test_compatible_with_name_template_field_tags(self):
-        self._compatible(fields.Tags, types.AW_STRING)
-        self._compatible(fields.Tags, types.listof(types.AW_STRING))
+        self._compatible(FIELDS_TAGS, types.AW_STRING)
+        self._compatible(FIELDS_TAGS, types.listof(types.AW_STRING))
 
     def test_not_compatible_with_name_template_field_tags(self):
-        self._incompatible(fields.Description, types.AW_TIMEDATE)
-        self._incompatible(fields.Description, types.listof(types.AW_TIMEDATE))
-
-
-class TestTitle(TestCase):
-    def test___str__(self):
-        self.skipTest('TODO: [TD0140] Fix Template field classes __str__')
-        actual = str(fields.Title)
-        expect = 'Title'
-        self.assertEqual(expect, actual)
+        self._incompatible(FIELDS_DESCRIPTION, types.AW_TIMEDATE)
+        self._incompatible(FIELDS_DESCRIPTION, types.listof(types.AW_TIMEDATE))

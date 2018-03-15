@@ -1,0 +1,44 @@
+datetime:
+    coercer: aw_timedate
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            probability: 1.0
+    -   WeightedMapping:
+            field: Date
+            probability: 1.0
+    multivalued: false
+
+description:
+    coercer: aw_string
+    generic_field: description
+    mapped_fields:
+    -   WeightedMapping:
+            field: Description
+            probability: 1.0
+    -   WeightedMapping:
+            field: Title
+            probability: 0.5
+    multivalued: false
+
+extension:
+    coercer: aw_string
+    mapped_fields:
+    -   WeightedMapping:
+            field: Extension
+            probability: 1.0
+    multivalued: false
+
+follows_filetags_convention:
+    coercer: aw_boolean
+    multivalued: false
+
+tags:
+    coercer: aw_string
+    generic_field: tags
+    mapped_fields:
+    -   WeightedMapping:
+            field: Tags
+            probability: 1.0
+    multivalued: true

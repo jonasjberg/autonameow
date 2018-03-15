@@ -17,6 +17,306 @@ Various ideas on possible upcoming features and changes to `autonameow`.
 * 2017-10-14 --- `jonasjberg` Add thoughts on a reasoning/probability system.
 * 2017-10-28 --- `jonasjberg` Using a proper Metadata Repository.
 * 2018-01-18 --- `jonasjberg` Move section to other file.
+* 2018-01-30 --- `jonasjberg` Add "Decision Rules for Attribute-Based Choices".
+* 2018-03-03 --- `jonasjberg` Notes on "reasoning" and probabilities.
+
+
+--------------------------------------------------------------------------------
+
+
+Notes on "reasoning" and Probabilities
+--------------------------------------
+> Jonas Sjöberg, 2018-03-03.
+
+
+Subset of current problems and possible solutions:
+
+1. Deduplication of (ISBN) metadata records
+    * Replace hardcoded threshold field comparison values
+    * Adjust values based on domain knowledge?
+    * Supervised learning by involving the user? How?
+
+2. Named entity recognition
+    * Find likely titles, publishers, etc. in unstructured text.
+    * Adjust values based on (hardcoded) domain knowledge?  
+      *Titles in documents published by X is likely within lines 1-3 ..*
+    * Automated learning? Where is the "feedback-loop"?  
+      *Use selection from candidates by the user as positive examples?*
+
+3. Candidate weighting/ranking
+    * Learn from previous renames?  
+      *If 99% of all previous metadata sets containing `publisher: foo`
+      contained a correct `author` field, assume it is likely correct?*
+    * How much example data can be stored and evaluated in a reasonable time?
+
+4. Classification of file name substrings
+
+
+### Deduplication of metadata records
+Given two records that probably should be considered equivalent:
+
+```python
+a = {
+    'author': 'Sjöberg G.',
+    'title': 'Meow Meow',
+    'year': 2018,
+}
+
+b = {
+    'author': 'Gibson Sjöberg',
+    'title': 'Meow! Meow!',
+    'year': 2018,
+}
+```
+
+Each field is compared using a suitable comparison function that returns a
+float between 0 and 1.
+Simple comparison of the records would calculate a weighted average
+similarities between the separate fields.
+
+Dummy field comparison results:
+
+| Field   | Record A value      | Record B value  | Similarity  | Difference |
+| ------- | ------------------- | --------------- |:----------- |:---------- |
+| author  | Gibson Cat Sjöberg  | Gibson Sjöberg  | 0.78        | 0.22       |
+| title   | Meow Meow           | Meow! Meow!     | 0.82        | 0.18       |
+| year    | 2018                | 2018            | 1.00        | 0.00       |
+
+
+Then one might calculate the record similarity as:
+
+$R_{similarity} = (0.78 + 0.82 + 1.00) / 3$
+
+$R_{similarity} = w * 0.78 + w * 0.82 + w * 1.00$
+
+.. with $w = 1/3$. I.E. equally weighted average.
+
+
+But field weights will likely need to adjusted separately to yield better
+results.
+
+$R_{similarity} = w_{a} * 0.78 + w_{b} * 0.82 + w_{c} * 1.00$
+
+Also, given a final record similarity score between 0 and 1.
+How would one pick a threshold value for whether the records should be
+considered equivalent?
+
+
+__Open questions:__
+
+* What information should be used to modify the weights $w_{a}$, $w_{b}$, $w_{c}$?
+* What information should be used to modify the record similarity threshold?
+* Apply previously learned weights/thresholds based on certain fields having specific values?
+* Could application of weights/thresholds based on values itself be weighted?
+* How meta can this become while remaining practical and relatively fast?
+* How flexible should "routing" of "weight/threshold controllers" be?
+* What is practical and actually effective?
+
+
+### Named entity recognition
+Using some kind of universal text parser that converts multiple document
+formats to a single known format, with markup/semantics/structure intact, would
+probably be a lot easier.
+But this only works for source text that is structured and valid; as in
+´START_TITLE foo END_TITLE`, where *foo* might not actually be the title. The
+author might have used the markup to change the appearance, ignoring the
+structure *(E.G. typical mis-use of MS Word, etc..)*
+
+__Assuming that we'll work with unstructured text .._
+
+Given some raw, unstructred text:
+```
+A
+MEOW
+TITLE
+
+by Gibson
+Catson
+
+foo
+```
+
+We'd like to see this output when analyzing the text:
+
+```python
+results = {
+    'title': 'A MEOW TITLE',
+    'author': 'Gibson Catson'
+}
+```
+
+Could probably find a "very abstract" generalization of commonalitites between
+several heuristics.  Where a "heuristic" might be to assume a "entity" is
+always constrained to a single line.  Then, absolute line number as well as
+line number relative to other candidate entities could be the main features.
+
+
+Or maybe something along the lines of blocks, like so;
+
+```
+        .->   A                   Block A -->   A MEOW TITLE
+Block A |     MEOW
+        '->   TITLE
+                                  block C -->   foo
+Block B -->   by Gibson
+        '->   Catson              Block B -->   by Gibson Catson
+
+Block C -->   foo
+```
+
+Where the condition for termination a block is variable.
+Each block could be turned into simple feature vectors by word count, character
+count, capitalization, position, number of lnie breaks, etc.
+
+
+
+### Classification of file name substrings
+Like above, with a lot more constraints --- always a single line of text, etc.
+
+
+--------------------------------------------------------------------------------
+
+
+Thoughts on Implementing a ("reasoning") Probability System
+-----------------------------------------------------------
+> Jonas Sjöberg, 2017-10-14.
+
+
+*It has been obvious for quite some time that `autonameow` needs to integrate
+ideas and techniques from machine learning and probabilistic programming to
+solve some of the main problems.*
+
+*These are fields that I have no prior experience with, whatsoever..  But, here
+are some high-level ideas of problems that have already been solved, better..*
+
+Lets say the program component `FilenameTokenizer` was given the file name
+`A%20Quick%20Introduction%20to%20IFF.txt` and has managed to detect that the
+filename is URL-encoded, etc and finally came up with this result:
+`['A', 'Quick', 'Introduction', 'to', 'IFF.txt']`
+
+Which is pretty good. But the separator-detection would like additional
+information in order to figure out how to split the last element `IFF.txt`.
+
+The main point is this:
+__Parts of the system need to "ask" other parts to verify propositions__
+
+In this case, the `FilenameTokenizer` would like to know if the `.txt` part of
+`IFF.txt` is a file extension or not.
+
+It would be nice if there was a system so that the `FilenameTokenizer` could
+pass this question to some central point, that could figure out which parts of
+the system that are able to answer the question.
+
+Given the question;
+__Given the string `IFF.txt`, is the substring `.txt` a file extension?__;
+these sources could possibly provide relevant evidence:
+
+- Check if the MIME-type of the related file (if any) is `text/plain`:
+    ```python
+    >>> _ext = 'IFF.txt'.split('.')[-1]
+    >>> _ext
+    'txt'
+    >>> from core import types
+    >>> types.AW_MIMETYPE(_ext)
+    'text/plain'
+    ```
+
+* Check the extension provided by the related `FileObject` (if any):
+    ```python
+    >>> f = FileObject(b'/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt')
+    >>> f
+    <FileObject("/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt")>
+    >>> f.basename_suffix
+    b'txt'
+    ```
+
+Then add weights to the results of the evidence and calculate a __total
+probability score__.
+
+In this case, the MIME-type test would probably be weighted by `10`, so that a
+failed evaluation decreases the total score a lot.
+
+The `FileObject` evidence, along with other potential sources of information
+related to file extension, would probably be weighted a bit lower.
+
+Everything would be combined and returned as an answer to the question
+originally posed by the `FilenameTokenizer` component.
+
+
+--------------------------------------------------------------------------------
+
+
+Using a proper Metadata Repository
+----------------------------------
+> Jonas Sjöberg, 2017-10-28.
+
+
+The current means of central storage uses the `Repository` class to store all
+data in a simple two level key-value store.
+The first primary key (level 1) is the `FileObject` that produced the data.
+These contain values keyed by `MeowURI` (level 2).
+
+
+### "Proper" Metadata Repositories
+
+> Metadata repository not only stores metadata like Metadata registry but also
+> adds relationships with related metadata types.
+>
+> <https://en.wikipedia.org/wiki/Metadata_repository>
+
+Blog post on nomenclature: [Metadata Repositories vs. Metadata
+Registries](http://datadictionary.blogspot.se/2008/03/metadata-repositories-vs-metadata.html)
+
+### Retrieval
+The current system is far from being able to arrange and retrieve data
+"dynamically", using relational queries. This would sometimes be very useful..
+
+### Primary Keys
+One specific general case is metadata that share a single unique identifier,
+like ISBN-numbers. This is currently not easy to implement.
+
+
+--------------------------------------------------------------------------------
+
+
+Decision Rules for Attribute-Based Choices
+------------------------------------------
+Possible methods of weighting when prioritizing candidate data.
+
+
+* __Conjunctive Rule__  
+    Establishes minimum required performance for each evaluative criterion.
+
+    Selects the first (or all) item(s) that meet or exceed these minimum
+    standards.
+
+* __Disjunctive Rule__  
+    Establishes a minimum required performance for each important attribute.
+    All items that meet or exceed the performance level for __any__ key
+    attribute are acceptable.
+
+* __Elimination-by-Aspects Rule__  
+    First, evaluative criteria ranked in terms of importance.
+    Second, cutoff point for each criterion is established.
+    Finally (in order of attribute importance) brands are eliminated if they
+    fail to meet or exceed the cutoff.
+
+* __Lexicographic Decision Rule__  
+    User ranks the criteria in order of importance.
+    Then selects item that best on the most important attribute.
+
+    If two or more items tie, they are evaluated on the second most important
+    attribute. This continues through the attributes until on item outperforms
+    the others.
+
+* __Compensatory Decision Rule__  
+    States that the item that rates highest on the sum of the users judgements
+    of the relevant evaluative criteria will be chosen.
+
+*Very much inspired by `Marketing 334 Consumer Behavior Chap016TR.ppt`*
+
+
+--------------------------------------------------------------------------------
 
 
 Field Candidates
@@ -78,7 +378,7 @@ files.
             },
             # If the file basename (without extension) matches any of the two
             # expressions, "The Tale of Tail" is used as the title.
-            { 'source': 'filesystem.basename.prefix',
+            { 'source': 'filesystem.basename_prefix',
               'candidates': [
                 { 'expression': ['The-Tale-of-Tail', 'The-Tale-.*'],
                   'override': 'The Tale of Tail' },
@@ -138,9 +438,9 @@ files.
     ```yaml
     RULES:
     -   DATA_SOURCES:
-            extension: contents.basename.extension
+            extension: contents.extension
             datetime: analysis.filename.{?????}
-            title: filesystem.basename.prefix
+            title: filesystem.basename_prefix
         NAME_TEMPLATE: "{datetime} {title}.{extension}"
     DATETIME_FORMAT:
         datetime: '%Y-%m-%dT%H%M%S'
@@ -251,7 +551,7 @@ Expanding on the first item above.
 
 A lot of "raw" data could probably be converted with varying results and
 conversion losses.
-For instance, `filesystem.contents.mime_type` could be "coerced" or converted
+For instance, `filesystem.mime_type` could be "coerced" or converted
 to some format appropriate for populating the template field `{title}`.
 
 ```
@@ -265,7 +565,7 @@ form.  Alternatively, this conversion could simply not be permitted.
 
 
 Some "raw" data will not relate to certain name template fields in any
-meaningful way.  For example, `filesystem.contents.mime_type` can not be
+meaningful way.  For example, `filesystem.mime_type` can not be
 transformed to a format suited for populating the template field `{datetime}`.
 
 There is no way to transform a MIME type to date/time-information in a single
@@ -328,13 +628,13 @@ SessionRepository.data = {
     'metadata.pypdf.NumberPages': 2,
     'metadata.pypdf.Paginated': True,
     'contents.textual.raw_text': '''1/11/2016 Gmail - .. TRUNCATED to 500/1981 characters)''',
-    'filesystem.basename.full': 'gmail.pdf',
-    'filesystem.basename.extension': 'pdf',
-    'filesystem.basename.suffix': 'pdf',
-    'filesystem.basename.prefix': 'gmail',
-    'filesystem.pathname.full': '/Users/jonas/PycharmProjects/autonameow.git/test_files',
-    'filesystem.pathname.parent': 'test_files',
-    'filesystem.contents.mime_type': 'application/pdf',
+    'filesystem.basename_full': 'gmail.pdf',
+    'filesystem.extension': 'pdf',
+    'filesystem.basename_suffix': 'pdf',
+    'filesystem.basename_prefix': 'gmail',
+    'filesystem.pathname_full': '/Users/jonas/PycharmProjects/autonameow.git/test_files',
+    'filesystem.pathname_parent': 'test_files',
+    'filesystem.mime_type': 'application/pdf',
     'filesystem.date_accessed': datetime.datetime(2017, 9, 3, 15, 41, 54,),
     'filesystem.date_created': datetime.datetime(2017, 6, 10, 16, 36, 18,),
     'filesystem.date_modified': datetime.datetime(2017, 6, 10, 16, 36, 18,),
@@ -351,14 +651,14 @@ SessionRepository.data = {
 | "MeowURI"                                       | Raw Data                                                             | Populateable (?) Fields                            |
 |:------------------------------------------------|:---------------------------------------------------------------------|----------------------------------------------------|
 | `'contents.textual.raw_text'`                   | `'''1/11/2016 Gmail - .. TRUNCATED to 500/1981 characters)'''`       | ?                                                  |
-| `'filesystem.abspath.full'`                     | `'/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf'` | ?                                                  |
-| `'filesystem.basename.full'`                    | `'gmail.pdf'`                                                        | ?                                                  |
-| `'filesystem.basename.extension'`               | `'pdf'`                                                              | `{extension}`                                      |
-| `'filesystem.basename.suffix'`                  | `'pdf'`                                                              | `{extension}`                                      |
-| `'filesystem.basename.prefix'`                  | `'gmail'`                                                            | ?                                                  |
-| `'filesystem.pathname.full'`                    | `'/Users/jonas/PycharmProjects/autonameow.git/test_files'`           | ?                                                  |
-| `'filesystem.pathname.parent'`                  | `'test_files'`                                                       | ?                                                  |
-| `'filesystem.contents.mime_type'`               | `'application/pdf'`                                                  | `{extension}`                                      |
+| `'filesystem.abspath_full'`                     | `'/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf'` | ?                                                  |
+| `'filesystem.basename_full'`                    | `'gmail.pdf'`                                                        | ?                                                  |
+| `'filesystem.extension'`                        | `'pdf'`                                                              | `{extension}`                                      |
+| `'filesystem.basename_suffix'`                  | `'pdf'`                                                              | `{extension}`                                      |
+| `'filesystem.basename_prefix'`                  | `'gmail'`                                                            | ?                                                  |
+| `'filesystem.pathname_full'`                    | `'/Users/jonas/PycharmProjects/autonameow.git/test_files'`           | ?                                                  |
+| `'filesystem.pathname_parent'`                  | `'test_files'`                                                       | ?                                                  |
+| `'filesystem.mime_type'`                        | `'application/pdf'`                                                  | `{extension}`                                      |
 | `'filesystem.date_accessed'`                    | `datetime.datetime(2017, 9, 3, 15, 41, 54,)`                         | `{date}` `{datetime}`                              |
 | `'filesystem.date_created'`                     | `datetime.datetime(2017, 6, 10, 16, 36, 18,)`                        | `{date}` `{datetime}`                              |
 | `'filesystem.date_modified'`                    | `datetime.datetime(2017, 6, 10, 16, 36, 18,)`                        | `{date}` `{datetime}`                              |
@@ -613,105 +913,3 @@ Entering `.` and then pressing `<TAB>`:
 > extractor.
   (exiftool, filesystem, pypdf, tesseract, ..)
 ```
-
-
---------------------------------------------------------------------------------
-
-
-Thoughts on Implementing a ("reasoning") Probability System
------------------------------------------------------------
-> Jonas Sjöberg, 2017-10-14.
-
-
-*It has been obvious for quite some time that `autonameow` needs to integrate
-ideas and techniques from machine learning and probabilistic programming to
-solve some of the main problems.*
-
-*These are fields that I have no prior experience with, whatsoever..  But, here
-are some high-level ideas of problems that have already been solved, better..*
-
-Lets say the program component `FilenameTokenizer` was given the file name
-`A%20Quick%20Introduction%20to%20IFF.txt` and has managed to detect that the
-filename is URL-encoded, etc and finally came up with this result:
-`['A', 'Quick', 'Introduction', 'to', 'IFF.txt']`
-
-Which is pretty good. But the separator-detection would like additional
-information in order to figure out how to split the last element `IFF.txt`.
-
-The main point is this:
-__Parts of the system need to "ask" other parts to verify propositions__
-
-In this case, the `FilenameTokenizer` would like to know if the `.txt` part of
-`IFF.txt` is a file extension or not.
-
-It would be nice if there was a system so that the `FilenameTokenizer` could
-pass this question to some central point, that could figure out which parts of
-the system that are able to answer the question.
-
-Given the question;
-__Given the string `IFF.txt`, is the substring `.txt` a file extension?__;
-these sources could possibly provide relevant evidence:
-
-- Check if the MIME-type of the related file (if any) is `text/plain`:
-    ```python
-    >>> _ext = 'IFF.txt'.split('.')[-1]
-    >>> _ext
-    'txt'
-    >>> from core import types
-    >>> types.AW_MIMETYPE(_ext)
-    'text/plain'
-    ```
-
-* Check the extension provided by the related `FileObject` (if any):
-    ```python
-	>>> f = FileObject(b'/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt')
-	>>> f
-	<FileObject("/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt")>
-	>>> f.basename_suffix
-	b'txt'
-    ```
-
-Then add weights to the results of the evidence and calculate a __total
-probability score__.
-
-In this case, the MIME-type test would probably be weighted by `10`, so that a
-failed evaluation decreases the total score a lot.
-
-The `FileObject` evidence, along with other potential sources of information
-related to file extension, would probably be weighted a bit lower.
-
-Everything would be combined and returned as an answer to the question
-originally posed by the `FilenameTokenizer` component.
-
-
---------------------------------------------------------------------------------
-
-
-Using a proper Metadata Repository
-----------------------------------
-> Jonas Sjöberg, 2017-10-28.
-
-
-The current means of central storage uses the `Repository` class to store all
-data in a simple two level key-value store.
-The first primary key (level 1) is the `FileObject` that produced the data.
-These contain values keyed by `MeowURI` (level 2).
-
-
-### "Proper" Metadata Repositories
-
-> Metadata repository not only stores metadata like Metadata registry but also
-> adds relationships with related metadata types.
->
-> <https://en.wikipedia.org/wiki/Metadata_repository>
-
-Blog post on nomenclature: [Metadata Repositories vs. Metadata
-Registries](http://datadictionary.blogspot.se/2008/03/metadata-repositories-vs-metadata.html)
-
-### Retrieval
-The current system is far from being able to arrange and retrieve data
-"dynamically", using relational queries. This would sometimes be very useful..
-
-### Primary Keys
-One specific general case is metadata that share a single unique identifier,
-like ISBN-numbers. This is currently not easy to implement.

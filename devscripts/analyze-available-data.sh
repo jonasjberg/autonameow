@@ -74,7 +74,7 @@
 # Author        (NO MATCHES)
 # Edition       analyzer.document.title                     ::  On the Origin of Species, 6th Edition
 # Edition       analyzer.filename.edition                   ::  6
-# Edition       analyzer.filetags.description               ::  Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition
+# Edition       extractor.filesystem.filetags.description   ::  Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition
 # Edition       generic.contents.text                       ::  On the Origin of Species, 6th Edition
 # Edition       generic.metadata.description                ::  Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition
 # Edition       generic.metadata.edition                    ::  6
@@ -83,7 +83,7 @@
 # Edition       extractor.metadata.exiftool.File:FileName   ::  Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf
 # Edition       extractor.metadata.exiftool.PDF:Title       ::  On the Origin of Species, 6th Edition
 # Edition       extractor.text.pdftotext.full               ::  On the Origin of Species, 6th Edition
-# Edition       extractor.filesystem.xplat.basename.full    ::  Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf
+# Edition       extractor.filesystem.xplat.basename_full    ::  Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf
 # Edition       extractor.filesystem.xplat.basename.prefix  ::  Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition
 # Publisher     analyzer.document.publisher                 ::  FeedBooks
 # Publisher     generic.metadata.publisher                  ::  FeedBooks

@@ -23,3 +23,4 @@ from .builder import (
     build,
     populate_name_template
 )
+from .postprocess import FilenamePostprocessor

@@ -1,0 +1,17 @@
+config_path: $THISTEST/config.yaml
+debug: true
+dry_run: false
+dump_config: false
+dump_meowuris: false
+dump_options: false
+input_paths:
+- $TESTFILES/magic_txt
+list_all: false
+mode_automagic: true
+mode_batch: true
+mode_interactive: false
+mode_timid: true
+quiet: false
+recurse_paths: false
+show_version: false
+verbose: false

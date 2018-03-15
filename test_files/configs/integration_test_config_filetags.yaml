@@ -18,16 +18,16 @@ NAME_TEMPLATES:
 RULES:
     Filetags cleanup:
         CONDITIONS:
-            analyzer.filetags.follows_filetags_convention: true
-            extractor.filesystem.xplat.basename.extension: '(txt|md)'
-            extractor.filesystem.xplat.contents.mime_type: 'text/*'
+            extractor.filesystem.filetags.follows_filetags_convention: true
+            extractor.filesystem.xplat.extension: '(txt|md)'
+            extractor.filesystem.xplat.mime_type: 'text/*'
         DATA_SOURCES:
-            datetime: analyzer.filetags.datetime
-            extension: extractor.filesystem.xplat.contents.mime_type
-            description: analyzer.filetags.description
-            tags: analyzer.filetags.tags
+            datetime: extractor.filesystem.filetags.datetime
+            extension: extractor.filesystem.xplat.mime_type
+            description: extractor.filesystem.filetags.description
+            tags: extractor.filesystem.filetags.tags
         NAME_TEMPLATE: '{datetime} {description} -- {tags}.{extension}'
         exact_match: true
         ranking_bias: 1
 COMPATIBILITY:
-    autonameow_version: v0.5.3
+    autonameow_version: v0.5.6

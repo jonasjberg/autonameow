@@ -26,57 +26,10 @@ import types
 from datetime import datetime
 from unittest import TestCase
 
-import unit.utils as uu
 import unit.constants as uuconst
-from core.fileobject import FileObject
+import unit.utils as uu
+from core import FileObject
 from core.model import MeowURI
-
-
-class TestUnitUtilityConstants(TestCase):
-    def test_tests_dir_is_defined(self):
-        self.assertIsNotNone(uuconst.TEST_FILES_DIR)
-
-    def test_tests_dir_exists(self):
-        self.assertTrue(os.path.exists(uuconst.TEST_FILES_DIR))
-
-    def test_tests_dir_is_a_directory(self):
-        self.assertTrue(os.path.isdir(uuconst.TEST_FILES_DIR))
-
-    def test_tests_dir_is_readable(self):
-        self.assertTrue(os.access(uuconst.TEST_FILES_DIR, os.R_OK))
-
-    def test_tests_dir_is_executable(self):
-        self.assertTrue(os.access(uuconst.TEST_FILES_DIR, os.X_OK))
-
-    def test_autonameow_srcroot_dir_is_defined(self):
-        self.assertIsNotNone(uuconst.AUTONAMEOW_SRCROOT_DIR)
-
-    def test_autonameow_srcroot_dir_exists(self):
-        self.assertTrue(os.path.exists(uuconst.AUTONAMEOW_SRCROOT_DIR))
-
-    def test_autonameow_srcroot_dir_is_a_directory(self):
-        self.assertTrue(os.path.isdir(uuconst.AUTONAMEOW_SRCROOT_DIR))
-
-    def test_autonameow_srcroot_dir_is_readable(self):
-        self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.R_OK))
-
-    def test_autonameow_srcroot_dir_is_executable(self):
-        self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.X_OK))
-
-    def test_regressiontest_dir_is_defined(self):
-        self.assertIsNotNone(uuconst.REGRESSIONTEST_DIR)
-
-    def test_regressiontest_dir_exists(self):
-        self.assertTrue(os.path.exists(uuconst.REGRESSIONTEST_DIR))
-
-    def test_regressiontest_dir_is_a_directory(self):
-        self.assertTrue(os.path.isdir(uuconst.REGRESSIONTEST_DIR))
-
-    def test_regressiontest_dir_is_readable(self):
-        self.assertTrue(os.access(uuconst.REGRESSIONTEST_DIR, os.R_OK))
-
-    def test_regressiontest_dir_is_executable(self):
-        self.assertTrue(os.access(uuconst.REGRESSIONTEST_DIR, os.X_OK))
 
 
 class TestUnitUtilityAbsPathTestFile(TestCase):
@@ -231,11 +184,11 @@ class TestUnitUtilityDirExists(TestCase):
     def test_returns_true_for_likely_directory_paths(self):
         _files = [
             os.path.dirname(__file__),
-            uuconst.AUTONAMEOW_SRCROOT_DIR,
+            uuconst.PATH_AUTONAMEOW_SRCROOT,
             '/',
             b'/',
             uu.bytestring_path(os.path.dirname(__file__)),
-            uu.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
+            uu.bytestring_path(uuconst.PATH_AUTONAMEOW_SRCROOT)
         ]
         for df in _files:
             self._check_return(df)
@@ -398,6 +351,14 @@ class TestUnitUtilityGetMockFileObject(TestCase):
             self.assertEqual(actual.mime_type, mt)
 
 
+class TestUnitUtilityGetMeowURI(TestCase):
+    def test_returns_something(self):
+        self.assertIsNotNone(uu.get_meowuri())
+
+    def test_returns_expected_type(self):
+        self.assertIsInstance(uu.get_meowuri(), MeowURI)
+
+
 class TestCaptureStdout(TestCase):
     def test_capture_stdout(self):
         with uu.capture_stdout() as out:
@@ -443,8 +404,14 @@ class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
             self.assertTrue(uu.is_class_instance(instance))
 
     def test_get_instantiated_analyzers_returns_arbitrary_number(self):
-        # TODO: [hardcoded] Likely to break; Fix or remove!
-        self.assertGreaterEqual(len(self.instances), 6)
+        expected = len([
+            f for f in
+            os.listdir(
+                os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'analyzers')
+            )
+            if f.startswith('analyze_') and f.endswith('.py')
+        ])
+        self.assertGreaterEqual(len(self.instances), expected)
 
 
 class _DummyClass(object):
@@ -674,3 +641,23 @@ class TestAsMeowURI(TestCase):
         for given in [None, '', ' ', {}, []]:
             with self.assertRaises(AssertionError):
                 _ = uu.as_meowuri(given)
+
+
+class GetExpectedTextForTestfile(TestCase):
+    def test_returns_none_when_expected_text_file_does_not_exist(self):
+        actual = uu.get_expected_text_for_testfile('magic_png.png')
+        self.assertIsNone(actual)
+
+    def test_returns_expected_text_when_expected_text_file_exists(self):
+        actual = uu.get_expected_text_for_testfile('sample.rtf')
+        expect = '''Foo title
+bar text
+
+
+meow list
+
+cat list
+
+baz last line
+'''
+        self.assertEqual(expect, actual)

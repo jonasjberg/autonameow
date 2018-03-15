@@ -20,26 +20,54 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+from unittest.mock import patch
+
+import unit.utils as uu
+from regression.regression_runner import (
+    _get_persistence,
+    load_failed_testsuites,
+    write_failed_testsuites,
+)
+from regression.utils import RegressionTestSuite
 
 
-class TestTemporaryStuff(TestCase):
-    # def test_temporary_write_testdata(self):
-    #     from core.disk import write_yaml_file
-    #     _asserts = {
-    #         'exit_code': 0,
-    #         'renames': {
-    #             'gmail.pdf': '2016-01-11T124132 gmail.pdf',
-    #             'foo': 'bar'
-    #         }
-    #     }
-    #     write_yaml_file(b'/tmp/test_asserts.yaml', _asserts)
+class TestLoadAndWriteFailedTestsuites(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.TEMP_DIR = uu.make_temp_dir()
 
-    # def test_temporary_write_options(self):
-    #     from core.disk import write_yaml_file
-    #     _opts = {'debug': False, 'verbose': True, 'quiet': False, 'show_version': False, 'dump_config': False, 'dump_options': False, 'dump_meowuris': False, 'list_all': True, 'mode_batch': True, 'mode_automagic': True, 'mode_interactive': False, 'config_path': None, 'dry_run': True, 'recurse_paths': False, 'input_paths': ['/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf']}
-    #     write_yaml_file(b'/tmp/test_options.yaml', _opts)
+    def _mock_get_persistence(self):
+        return _get_persistence(file_prefix='test_regression_runner',
+                                persistence_dir_abspath=self.TEMP_DIR)
 
-    def test_noop(self):
-        self.assertTrue(True)
+    def test_write_failed_testsuites_empty_list(self):
+        suites = []
+        with patch('regression.regression_runner._get_persistence',
+                   self._mock_get_persistence):
+            write_failed_testsuites(suites)
 
+    def test_write_and_read_with_two_actual_suites(self):
+        a = RegressionTestSuite(
+            abspath=b'/tmp/bar',
+            dirname=b'bar',
+            asserts=None,
+            options=None,
+            skip=False,
+            description='bar'
+        )
+        b = RegressionTestSuite(
+            abspath=b'/tmp/foo',
+            dirname=b'foo',
+            asserts=None,
+            options=None,
+            skip=False,
+            description='foo'
+        )
+        suites = [a, b]
+        with patch('regression.regression_runner._get_persistence',
+                   self._mock_get_persistence):
+            write_failed_testsuites(suites)
+            loaded = load_failed_testsuites()
 
+        self.assertEqual(len(loaded), len(suites))
+        self.assertEqual(sorted(loaded), sorted(suites))

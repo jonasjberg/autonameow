@@ -16,6 +16,9 @@ Various utility scripts related to `autonameow` development.
 Experimental script for finding expected field values in the output of
 `autonameow --list-all`.
 
+### `check_whitespace.sh`
+Check text file style violations, whitespace, line separators and tabs.
+
 ### `cloc.sh`
 Generate statistics on the project source code using `cloc`.
 
@@ -27,6 +30,9 @@ Generate `.tags` file with `ctags`.
 
 ### `delete-python-caches.sh`
 Delete all `*.pyc` files and `__pycache__` directories.
+
+### `find_unit_test_visits.sh`
+Find which unit tests that covered which lines of source code using `smother`.
 
 ### `filter_list-all_meowuris.sh`
 Run autonameow with the given file(s) and the `--list-all` option and filters

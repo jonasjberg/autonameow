@@ -19,9 +19,45 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from unittest import TestCase
 
 import unit.constants as uuconst
+import unit.utils as uu
+
+
+class TestJoinPathFromSrcroot(TestCase):
+    def test_returns_absolute_path_from_unicode_string(self):
+        actual = uuconst.join_path_from_srcroot('autonameow')
+        self.assertTrue(os.path.isabs(actual))
+
+    def test_returns_absolute_path_from_two_unicode_strings(self):
+        actual = uuconst.join_path_from_srcroot('autonameow', 'core')
+        self.assertTrue(os.path.isabs(actual))
+
+
+class TestUnitUtilityConstants(TestCase):
+    def _check_directory_path(self, given_path):
+        self.assertIsNotNone(given_path)
+        self.assertTrue(os.path.exists(given_path))
+        self.assertTrue(os.path.isdir(given_path))
+        self.assertTrue(os.access(given_path, os.R_OK))
+        self.assertTrue(os.access(given_path, os.X_OK))
+
+    def test_constant_path_test_files(self):
+        self._check_directory_path(uuconst.PATH_TEST_FILES)
+
+    def test_constant_path_autonameow_srcroot(self):
+        self._check_directory_path(uuconst.PATH_AUTONAMEOW_SRCROOT)
+
+    def test_constant_path_tests_regression(self):
+        self._check_directory_path(uuconst.PATH_TESTS_REGRESSION)
+
+    def test_constant_path_tests_unit(self):
+        self._check_directory_path(uuconst.PATH_TESTS_UNIT)
+
+    def test_constant_path_user_home(self):
+        self._check_directory_path(uuconst.PATH_USER_HOME)
 
 
 class TestConstantAllFullMeowURIs(TestCase):
@@ -68,3 +104,9 @@ class TestConstantAllFullMeowURIs(TestCase):
 
         for actual_constant in actual_constants:
             self.assertIn(actual_constant, self.tested_constant)
+
+
+class TestFileConstants(TestCase):
+    def test_assumed_non_existent_basename(self):
+        self.assertIsNotNone(uuconst.ASSUMED_NONEXISTENT_BASENAME)
+        self.assertFalse(uu.file_exists(uuconst.ASSUMED_NONEXISTENT_BASENAME))

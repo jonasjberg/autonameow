@@ -63,6 +63,10 @@ class TestConstants(TestCase):
         self._is_defined_type(bool, C.DEFAULT_POSTPROCESS_UPPERCASE_FILENAME)
         self._is_defined_type(bool, C.DEFAULT_POSTPROCESS_SIMPLIFY_UNICODE)
 
+    def test_default_cli_colors(self):
+        self._is_defined_internal_string(C.REPLACEMENT_HIGHLIGHT_COLOR)
+        self._is_defined_internal_string(C.REPLACEMENT_SECONDARY_HIGHLIGHT_COLOR)
+
     def test_python_version_string(self):
         self._is_defined_internal_string(C.STRING_PYTHON_VERSION)
 
@@ -78,6 +82,9 @@ class TestConstants(TestCase):
 
     def test_default_cache_max_filesize(self):
         self._is_defined_type(int, C.DEFAULT_CACHE_MAX_FILESIZE)
+
+    def test_text_extractor_cache_max_filesize(self):
+        self._is_defined_type(int, C.TEXT_EXTRACTOR_CACHE_MAX_FILESIZE)
 
     def test_default_datetime_formats(self):
         self._is_defined_internal_string(C.DEFAULT_DATETIME_FORMAT_DATETIME)
@@ -103,7 +110,6 @@ class TestConstants(TestCase):
         self._is_defined_internal_string(C.RE_ALLOWED_MEOWURI_PART_CHARS)
         self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_ANALYZERS)
         self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_EXTRACTORS)
-        self._is_defined_internal_string(C.MEOWURI_ROOT_SOURCE_PLUGINS)
         self._is_defined_internal_string(C.MEOWURI_ROOT_GENERIC)
 
         self._is_defined_type(frozenset, C.MEOWURI_ROOTS_SOURCES)
@@ -117,3 +123,9 @@ class TestConstants(TestCase):
         self._is_defined_internal_string(C.STRING_COPYRIGHT_NOTICE)
         self._is_defined_internal_string(C.STRING_URL_MAIN)
         self._is_defined_internal_string(C.STRING_URL_REPO)
+
+    def test_markdown_basename_suffixes(self):
+        self._is_defined_type(frozenset, C.MARKDOWN_BASENAME_SUFFIXES)
+        for suffix in C.MARKDOWN_BASENAME_SUFFIXES:
+            self.assertTrue(uu.is_internalbytestring(suffix))
+

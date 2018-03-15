@@ -1,0 +1,34 @@
+# Extra mappings between extensions and MIME-types.
+application/epub+zip: epub
+application/gzip: gz
+application/gzip: tar.gz
+application/octet-stream: bin
+application/rar: rar
+application/rtf: rtf
+application/vnd.oasis.opendocument.presentation: odp
+application/vnd.oasis.opendocument.text: odt
+application/vnd.openxmlformats-officedocument.wordprocessingml.document: docx
+application/x-7z-compressed: 7z
+application/x-bzip2: bz2
+application/x-gzip: gz
+application/x-gzip: tgz
+application/x-gzip: tar.gz
+application/x-lzma: lzma
+application/x-lzma: tar.lzma
+application/x-rar: rar
+application/x-tex: tex
+audio/midi: mid
+audio/x-flac: flac
+image/vnd.djvu: djvu
+inode/x-empty:
+text/rtf: rtf
+text/x-asm: asm
+text/x-c: c
+text/x-c++: cpp
+text/x-env: sh
+text/x-java: java
+text/x-sh: sh
+text/x-shellscript: sh
+text/x-shellscript: bash
+text/x-tex: tex
+video/x-matroska: mkv

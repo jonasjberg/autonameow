@@ -21,10 +21,13 @@
 
 import fnmatch
 import logging
-import os
 
+from core.exceptions import FilesystemError
 from util import encoding as enc
-from util import sanity
+from util import (
+    disk,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)
@@ -61,34 +64,27 @@ def get_files_gen(search_path, recurse=False):
 
     sanity.check_internal_bytestring(search_path)
 
-    _sys_search_path = enc.syspath(search_path)
-    if not (os.path.isfile(_sys_search_path)
-            or os.path.isdir(_sys_search_path)):
-        raise FileNotFoundError
+    if not disk.isfile(search_path) and not disk.isdir(search_path):
+        dp = enc.displayable_path(search_path)
+        raise FileNotFoundError('Path not a file or directory: "{!s}"'.format(dp))
 
-    if os.path.isfile(_sys_search_path):
+    if disk.isfile(search_path):
         sanity.check_internal_bytestring(search_path)
         yield search_path
-    elif os.path.isdir(_sys_search_path):
-        try:
-            _dir_listing = os.listdir(_sys_search_path)
-        except PermissionError as e:
-            log.warning(str(e))
-        else:
-            for entry in _dir_listing:
-                entry_path = os.path.join(_sys_search_path,
-                                          enc.syspath(entry))
-                _sys_entry_path = enc.syspath(entry_path)
-                if not os.path.exists(_sys_entry_path):
-                    raise FileNotFoundError
+    elif disk.isdir(search_path):
+        _dir_listing = disk.listdir(search_path)
+        for entry in _dir_listing:
+            entry_path = disk.joinpaths(search_path, entry)
+            if not disk.exists(entry_path):
+                raise FileNotFoundError
 
-                if os.path.isfile(_sys_entry_path):
-                    sanity.check_internal_bytestring(entry_path)
-                    yield entry_path
-                elif recurse and os.path.isdir(_sys_entry_path):
-                    for f in get_files_gen(entry_path, recurse=recurse):
-                        sanity.check_internal_bytestring(f)
-                        yield f
+            if disk.isfile(entry_path):
+                sanity.check_internal_bytestring(entry_path)
+                yield entry_path
+            elif recurse and disk.isdir(entry_path):
+                for f in get_files_gen(entry_path, recurse=recurse):
+                    sanity.check_internal_bytestring(f)
+                    yield f
 
 
 class PathCollector(object):
@@ -104,9 +100,15 @@ class PathCollector(object):
         else:
             self.ignore_globs = []
 
-        self.recurse = recurse
+        self.recurse = bool(recurse)
+        self.errors = list()
+        self.filepaths = list()
 
-    def get_paths(self, path_list):
+    def collect_from(self, path_list):
+        results = self.get_filepaths(path_list)
+        self.filepaths.extend(results)
+
+    def get_filepaths(self, path_list):
         if not path_list:
             return []
         if not isinstance(path_list, list):
@@ -121,13 +123,20 @@ class PathCollector(object):
             # Path name encoding boundary. Convert to internal format.
             path = enc.normpath(path)
             try:
-                _files = get_files_gen(path, self.recurse)
+                files = list(get_files_gen(path, self.recurse))
             except FileNotFoundError:
-                log.error('File(s) not found: "{}"'.format(
-                    enc.displayable_path(path)))
-            else:
-                for f in self.filter_paths(_files):
-                    file_list.add(f)
+                self.errors.append(
+                    'Path(s) not found: "{}"'.format(enc.displayable_path(path))
+                )
+                continue
+            except FilesystemError:
+                self.errors.append(
+                    'Error reading path(s): "{}"'.format(enc.displayable_path(path))
+                )
+                continue
+
+            for f in self.filter_paths(files):
+                file_list.add(f)
 
         return sorted(list(file_list))
 
@@ -135,20 +144,14 @@ class PathCollector(object):
         if not self.ignore_globs:
             return path_list
 
-        def _no_match(path, globs):
-            for pattern in globs:
-                if fnmatch.fnmatch(path, pattern):
-                    log.info('Ignored path: "{!s}" (Glob: "{!s}")'.format(
-                        enc.displayable_path(path), pattern))
-                    return None
-            return path
+        return [p for p in path_list
+                if not path_matches_any_glob(p, self.ignore_globs)]
 
-        try:
-            return [p for p in path_list if _no_match(p, self.ignore_globs)]
-        except FileNotFoundError:
-            return []
+
+def path_matches_any_glob(path, globs):
+    return any(fnmatch.fnmatch(path, glob) for glob in globs)
 
 
 def normpaths_from_opts(path_list, ignore_globs, recurse):
     pc = PathCollector(ignore_globs, recurse)
-    return pc.get_paths(path_list)
+    return pc.get_filepaths(path_list)

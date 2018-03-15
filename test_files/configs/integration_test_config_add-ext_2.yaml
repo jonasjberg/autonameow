@@ -11,12 +11,12 @@ FILESYSTEM_OPTIONS:
 RULES:
     Fix incorrect extensions with filename analyzer:
         CONDITIONS:
-            extractor.filesystem.xplat.contents.mime_type: '*/*'
+            extractor.filesystem.xplat.mime_type: '*/*'
         DATA_SOURCES:
             extension: analyzer.filename.extension
-            title: extractor.filesystem.xplat.basename.prefix
+            title: extractor.filesystem.xplat.basename_prefix
         NAME_TEMPLATE: '{title}.{extension}'
         exact_match: false
         ranking_bias: 0.01
 COMPATIBILITY:
-    autonameow_version: v0.5.3
+    autonameow_version: v0.5.6

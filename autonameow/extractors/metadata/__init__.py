@@ -22,3 +22,4 @@
 from .exiftool import ExiftoolMetadataExtractor
 from .jpeginfo import JpeginfoMetadataExtractor
 from .epub import EpubMetadataExtractor
+from .pandoc import PandocMetadataExtractor

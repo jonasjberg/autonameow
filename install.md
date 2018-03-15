@@ -24,22 +24,25 @@ critical `TODO`-list item.
 >     * `libmagic`
 >     * `exiftool`
 >     * `tesseract`
+>     * `pandoc`
+>     * `pdftotext`
+>     * `unrtf`
+>     * `jpeginfo`
 >
 > 2. Install these Python modules:
 >
+>     * `bs4`
 >     * `chardet`
 >     * `colorama`
+>     * `ebooklib`
+>     * `guessit`
 >     * `unidecode`
 >     * `prompt_toolkit`
->     * `python-magic`
+>     * `file-magic`
 >     * `pytz`
 >     * `pyyaml`
 >
-> 3. Optionally, install additional 3rd party software ("plugins"):
->
->     * `guessit`
->
-> 4. Make sure to fetch all Git submodules:
+> 3. Make sure to fetch all Git submodules:
 >
 >     ```bash
 >     git submodule update --init --recursive
@@ -108,31 +111,23 @@ install the non-Python dependencies.
 
 Install the dependencies by running the following commands in a terminal:
 ```bash
-brew install libmagic exiftool tesseract
-pip3 install chardet colorama unidecode prompt_toolkit python-magic pytz pyyaml
+brew install libmagic exiftool tesseract unrtf pandoc jpeginfo
+brew install poppler # pdftotext
+pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib
 ```
 
-You might also want to install additional __optional__ third-party components:
-```bash
-pip3 install guessit
-```
 
 ### Instructions for Linux
 Install the dependencies by running the following commands in a terminal:
 
 ```bash
-sudo apt install exiftool tesseract-ocr
-pip3 install chardet colorama unidecode prompt_toolkit python-magic pytz pyyaml
+sudo apt install exiftool tesseract-ocr pdftotext unrtf pandoc jpeginfo
+pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib
 ```
 
 Alternatively, search the repositories for the packages with `apt-search`.
 Make sure to install the `python3-PACKAGE_NAME` versions, many packages are
 available as separate `python2` and `python3` versions.
-
-You might want to install additional __optional__ third-party components:
-```bash
-pip3 install guessit
-```
 
 
 Instructions for Windows

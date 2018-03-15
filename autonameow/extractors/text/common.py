@@ -20,21 +20,23 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-
+import os
 
 from core import (
     persistence,
     types,
 )
-from extractors import (
-    BaseExtractor,
-    ExtractorError
-)
+from core import constants as C
+from extractors import BaseExtractor
 from util import encoding as enc
 from util import sanity
 from util.text import (
+    collapse_whitespace,
     normalize_unicode,
-    remove_nonbreaking_spaces
+    remove_blacklisted_lines,
+    remove_blacklisted_re_lines,
+    remove_nonbreaking_spaces,
+    remove_zerowidth_spaces
 )
 
 
@@ -42,44 +44,65 @@ log = logging.getLogger(__name__)
 
 
 class AbstractTextExtractor(BaseExtractor):
-    FIELD_LOOKUP = {
-        'full': {
-            'coercer': types.AW_STRING,
-            'multivalued': False,
-            'mapped_fields': None,
-            'generic_field': 'text'
-        }
-    }
-
     def __init__(self):
-        super(AbstractTextExtractor, self).__init__()
+        """
+        # NOTE: Call 'self.init_cache()' in subclasses init to enable caching.
+        """
+        super().__init__()
 
         self.cache = None
-        # NOTE(jonas): Call 'self.init_cache()' in subclass init to use caching.
+        self.BLACKLISTED_TEXTLINES = frozenset(list())
+        self.BLACKLISTED_RE_TEXTLINES = frozenset(list())
 
     def extract(self, fileobject, **kwargs):
         text = self._get_text(fileobject)
         sanity.check_internal_string(text)
 
-        self.log.debug('{!s} returning all extracted data'.format(self))
-        return {'full': text}
+        # TODO: [TD0172] Extend the text extractors with additional fields.
+        # TODO: [TD0173] Use 'pandoc' to extract information from documents.
+        return {
+            'full': text,
+            # 'title': title
+        }
 
     def _get_text(self, fileobject):
-        # Read cached text
-        if self.cache:
-            _cached = self.cache.get(fileobject)
-            if _cached is not None:
-                self.log.info('Using cached text for: {!r}'.format(fileobject))
-                return _cached
+        cached_text = self._get_cached_text(fileobject)
+        if cached_text:
+            return cached_text
 
         text = self.extract_text(fileobject)
         if not text:
             return ''
 
         clean_text = self.cleanup(text)
-        if self.cache:
-            self.cache.set(fileobject, clean_text)
+        self._set_cached_text(fileobject, clean_text)
         return clean_text
+
+    def _get_cached_text(self, fileobject):
+        if not self.cache:
+            return None
+        try:
+            cached_text = self.cache.get(fileobject)
+        except persistence.PersistenceError as e:
+            self.log.critical('Unable to read {!s} cache :: {!s}'.format(self, e))
+        else:
+            if cached_text:
+                self.log.info('Using cached text for: {!r}'.format(fileobject))
+                return cached_text
+        return None
+
+    def _set_cached_text(self, fileobject, text):
+        if not self.cache:
+            return
+        try:
+            self.cache.set(fileobject, text)
+        except persistence.PersistenceError as e:
+            self.log.critical('Unable to write {!s} cache :: {!s}'.format(self, e))
+
+    @classmethod
+    def python_source_filepath(cls):
+        # NOTE(jonas): Subclasses of this class use a shared field meta yaml.
+        return os.path.realpath(__file__)
 
     def extract_text(self, fileobject):
         """
@@ -105,22 +128,28 @@ class AbstractTextExtractor(BaseExtractor):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def init_cache(self):
-        _max_filesize = 50 * 1024**2  # ~50MB
-        _cache = persistence.get_cache(str(self), max_filesize=_max_filesize)
+        _cache = persistence.get_cache(
+            str(self),
+            max_filesize=C.TEXT_EXTRACTOR_CACHE_MAX_FILESIZE
+        )
         if _cache:
             self.cache = _cache
         else:
+            log.debug('Failed to initialize {!s} cache'.format(self))
             self.cache = None
 
-    @staticmethod
-    def cleanup(raw_text):
+    def cleanup(self, raw_text):
         if not raw_text:
             return ''
 
         sanity.check_internal_string(raw_text)
         text = raw_text
         text = normalize_unicode(text)
+        # text = collapse_whitespace(text)
         text = remove_nonbreaking_spaces(text)
+        text = remove_zerowidth_spaces(text)
+        text = remove_blacklisted_lines(text, self.BLACKLISTED_TEXTLINES)
+        text = remove_blacklisted_re_lines(text, self.BLACKLISTED_RE_TEXTLINES)
         return text if text else ''
 
 

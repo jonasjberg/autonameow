@@ -37,119 +37,157 @@ from core.config.rules import (
 from core.model import MeowURI
 
 
-uu.init_session_repository()
 uu.init_provider_registry()
 
 
-class TestRuleMethods(TestCase):
+def _get_rule(*args, **kwargs):
+    test_default_conditions = kwargs.get('conditions') or list()
+    test_default_data_sources = kwargs.get('data_sources') or dict()
+    test_default_name_template = kwargs.get('name_template') or 'dummy'
+    kwargs.update({
+        'conditions': test_default_conditions,
+        'data_sources': test_default_data_sources,
+        'name_template': test_default_name_template
+    })
+    return Rule(*args, **kwargs)
+
+
+MOCK_CONDITIONS_A = ['a']
+MOCK_CONDITIONS_B = ['b']
+MOCK_DATA_SOURCES_A = {'a': 'foo'}
+MOCK_DATA_SOURCES_B = {'b': 'bar'}
+
+
+class TestRule(TestCase):
     def setUp(self):
-        self.maxDiff = None
-        self.rule = uu.get_dummy_rule()
+        self.default_rule = _get_rule()
 
-    def test_rule_string(self):
-        actual = str(self.rule)
-        self.assertTrue(uu.is_internalstring(actual))
+    def test_required_arguments_no_conditions_no_data_sources(self):
+        self.assertEqual(self.default_rule.conditions, [])
+        self.assertEqual(self.default_rule.data_sources, dict())
+        self.assertEqual(self.default_rule.name_template, 'dummy')
 
-    def test_rule_hash(self):
-        actual = hash(self.rule)
-        self.assertIsNotNone(actual)
+    def test_required_arguments_no_data_sources(self):
+        rule = _get_rule(conditions=MOCK_CONDITIONS_A)
+        self.assertEqual(rule.conditions, MOCK_CONDITIONS_A)
+        self.assertEqual(rule.data_sources, dict())
+        self.assertEqual(rule.name_template, 'dummy')
+
+    def test_required_arguments(self):
+        rule = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
+            data_sources=MOCK_DATA_SOURCES_A,
+        )
+        self.assertEqual(rule.conditions, MOCK_CONDITIONS_A)
+        self.assertEqual(len(MOCK_DATA_SOURCES_A), len(rule.data_sources))
+        self.assertEqual(rule.name_template, 'dummy')
+
+    def test_exact_match_coerces_to_false_if_none(self):
+        rule = _get_rule(exact_match=None)
+        self.assertEqual(rule.exact_match, False)
+
+    def test_exact_match_uses_default_value_if_left_unspecified(self):
+        self.assertEqual(self.default_rule.exact_match, False)
+
+    def test_ranking_bias_uses_default_value_if_none(self):
+        a = _get_rule(ranking_bias=None)
+        self.assertEqual(a.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
+
+    def test_ranking_bias_uses_default_value_if_left_unspecified(self):
+        self.assertEqual(self.default_rule.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
+
+    def test_description_ses_default_value_if_none(self):
+        a = _get_rule(description=None)
+        self.assertEqual(a.description, C.DEFAULT_RULE_DESCRIPTION)
+
+    def test_description_uses_default_value_if_left_unspecified(self):
+        self.assertEqual(self.default_rule.description, C.DEFAULT_RULE_DESCRIPTION)
 
 
 class TestRuleComparison(TestCase):
-    def setUp(self):
-        self.a = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-        )
+    def test_should_not_be_equal_to_objects_of_another_type(self):
+        a = _get_rule()
+        for b in [None, False, object(), {}, [], 'foo']:
+            self.assertNotEqual(a, b)
 
-    def test_not_equal_to_dict_with_equivalent_contents(self):
-        b = {
-            'conditions': [],
-            'data_sources': dict(),
-            'name_template': 'dummy',
-        }
-        self.assertNotEqual(self.a, b)
-
-    def test_not_equal_to_objects_of_another_type(self):
-        for b in [None, {}, [], 'foo']:
-            self.assertNotEqual(self.a, b)
-
-    def test_is_equal_to_itself(self):
-        self.assertEqual(self.a, self.a)
+    def test_should_be_equal_to_itself(self):
+        a = _get_rule()
+        self.assertEqual(a, a)
 
     def test_hashable_for_set_membership(self):
-        # NOTE(jonas): Assumes dummy rule conditions are unique.
-        all_rules = uu.get_dummy_rules_to_examine()
-        container = set(all_rules)
-        self.assertEqual(len(all_rules), len(container))
+        container = set()
+
+        a = _get_rule(data_sources={'foo': 'bar'})
+        container.add(a)
+        self.assertEqual(1, len(container))
+
+        b = _get_rule(data_sources={'baz': 'bar'})
+        container.add(b)
+        container.add(b)
+        self.assertEqual(2, len(container))
+
+        c = _get_rule(name_template='meow')
+        container.add(c)
+        container.add(c)
+        self.assertEqual(3, len(container))
+
+        # Descriptions are ignored.
+        d = _get_rule(name_template='meow', description='MEOW MEOW')
+        container.add(d)
+        self.assertEqual(3, len(container))
 
     def test_equality_only_required_arguments(self):
-        b = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-        )
-        self.assertEqual(self.a, b)
+        a = _get_rule(name_template='dummy')
+        b = _get_rule(name_template='dummy')
+        self.assertEqual(a, b)
 
     def test_equality_required_arguments_no_data_sources(self):
-        _valid_conditions = uu.get_dummy_parsed_conditions()
-        b = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=dict(),
-            name_template='dummy',
+        a = _get_rule()
+        b = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
         )
-        c = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=dict(),
-            name_template='dummy',
+        c = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
         )
-        d = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=dict(),
+        d = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
             name_template='foo',
         )
-        self.assertNotEqual(self.a, b)
-        self.assertNotEqual(self.a, c)
-        self.assertNotEqual(self.a, d)
+        self.assertNotEqual(a, b)
+        self.assertNotEqual(a, c)
+        self.assertNotEqual(a, d)
         self.assertNotEqual(b, d)
         self.assertNotEqual(c, d)
         self.assertEqual(b, c)
 
     def test_equality_required_arguments(self):
-        _valid_conditions = uu.get_dummy_parsed_conditions()
-        _valid_data_sources = uu.get_dummy_raw_data_sources()
-        a = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=_valid_data_sources[0],
-            name_template='dummy',
+        a = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
+            data_sources=MOCK_DATA_SOURCES_A,
         )
-        b = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=_valid_data_sources[0],
-            name_template='dummy',
+        b = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
+            data_sources=MOCK_DATA_SOURCES_A,
         )
-        c = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=_valid_data_sources[1],
-            name_template='dummy',
+        c = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
+            data_sources=MOCK_DATA_SOURCES_B,
         )
-        d = Rule(
-            conditions=_valid_conditions[1],
-            data_sources=_valid_data_sources[0],
-            name_template='dummy',
+        d = _get_rule(
+            conditions=MOCK_CONDITIONS_B,
+            data_sources=MOCK_DATA_SOURCES_A,
         )
-        e = Rule(
-            conditions=_valid_conditions[1],
-            data_sources=_valid_data_sources[1],
-            name_template='dummy',
+        e = _get_rule(
+            description='meow',
+            conditions=MOCK_CONDITIONS_B,
+            data_sources=MOCK_DATA_SOURCES_B,
         )
-        f = Rule(
-            conditions=_valid_conditions[1],
-            data_sources=_valid_data_sources[1],
-            name_template='dummy',
+        f = _get_rule(
+            description='MEOW MEOW',
+            conditions=MOCK_CONDITIONS_B,
+            data_sources=MOCK_DATA_SOURCES_B,
         )
-        # Equal to itself.
+        # Rules should equal themselves.
         self.assertEqual(a, a)
         self.assertEqual(b, b)
         self.assertEqual(c, c)
@@ -157,10 +195,12 @@ class TestRuleComparison(TestCase):
         self.assertEqual(e, e)
         self.assertEqual(f, f)
 
-        # Equal if Same conditions and data sources.
+        # Equality based on conditions and data sources.
         self.assertEqual(a, b)
+        # Descriptions are ignored.
         self.assertEqual(e, f)
 
+        # Inequality based on conditions and data sources.
         self.assertNotEqual(a, c)
         self.assertNotEqual(a, d)
         self.assertNotEqual(a, e)
@@ -176,75 +216,22 @@ class TestRuleComparison(TestCase):
         self.assertNotEqual(d, f)
 
 
-class TestRuleInit(TestCase):
-    def test_required_arguments_no_conditions_no_data_sources(self):
-        rule = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-        )
-        self.assertEqual(rule.conditions, [])
-        self.assertEqual(rule.data_sources, dict())
-        self.assertEqual(rule.name_template, 'dummy')
+class TestDummyRule(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.rule = uu.get_dummy_rule()
 
-    def test_required_arguments_no_data_sources(self):
-        _valid_conditions = uu.get_dummy_parsed_conditions()
-        rule = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=dict(),
-            name_template='dummy',
-        )
-        self.assertEqual(rule.conditions, _valid_conditions[0])
-        self.assertEqual(rule.data_sources, dict())
-        self.assertEqual(rule.name_template, 'dummy')
+    def test_rule_string(self):
+        actual = str(self.rule)
+        self.assertTrue(uu.is_internalstring(actual))
 
-    def test_required_arguments(self):
-        _valid_conditions = uu.get_dummy_parsed_conditions()
-        _valid_data_sources = uu.get_dummy_raw_data_sources()[0]
-        rule = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=_valid_data_sources,
-            name_template='dummy',
-        )
-        self.assertEqual(rule.conditions, _valid_conditions[0])
-        self.assertEqual(len(rule.data_sources), len(_valid_data_sources))
-        self.assertEqual(rule.name_template, 'dummy')
+    def test_rule_hash(self):
+        actual = hash(self.rule)
+        self.assertIsNotNone(actual)
 
-    def test_optional_argument_exact_match(self):
-        # Defaults (coerces) to False if None.
-        rule = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-            exact_match=None,
-        )
-        self.assertEqual(rule.exact_match, False)
-
-        # Defaults to False if unspecified.
-        rule = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-        )
-        self.assertEqual(rule.exact_match, False)
-
-    def test_optional_argument_ranking_bias(self):
-        # Uses default value if None.
-        rule = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-            ranking_bias=None
-        )
-        self.assertEqual(rule.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
-
-        # Uses default value if unspecified.
-        rule = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-        )
-        self.assertEqual(rule.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
+    def test_stringify_dummy_rule(self):
+        s = self.rule.stringify()
+        self.assertIsInstance(s, str)
 
 
 class TestRuleConditionComparison(TestCase):
@@ -320,65 +307,65 @@ class TestRuleConditionComparison(TestCase):
 
 class TestRuleConditionFromValidInput(TestCase):
     def _is_valid(self, query, expression):
-        _meowuri = MeowURI(query)
-        self.assertIsInstance(_meowuri, MeowURI, 'Dependency init failed')
+        uri = MeowURI(query)
+        self.assertIsInstance(uri, MeowURI, 'Dependency init failed')
 
-        actual = RuleCondition(_meowuri, expression)
+        actual = RuleCondition(uri, expression)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, RuleCondition)
 
     def test_condition_contents_mime_type(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
-        self._is_valid(_meowuri, 'text/rtf')
-        self._is_valid(_meowuri, 'text/*')
-        self._is_valid(_meowuri, '*/application')
-        self._is_valid(_meowuri, '*/*')
+        uri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        self._is_valid(uri, 'text/rtf')
+        self._is_valid(uri, 'text/*')
+        self._is_valid(uri, '*/application')
+        self._is_valid(uri, '*/*')
 
     def test_condition_contents_mime_type_with_expression_list(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
-        self._is_valid(_meowuri, ['text/rtf'])
-        self._is_valid(_meowuri, ['text/*'])
-        self._is_valid(_meowuri, ['*/application'])
-        self._is_valid(_meowuri, ['*/*'])
+        uri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        self._is_valid(uri, ['text/rtf'])
+        self._is_valid(uri, ['text/*'])
+        self._is_valid(uri, ['*/application'])
+        self._is_valid(uri, ['*/*'])
 
-        self._is_valid(_meowuri, ['text/rtf', 'text/rtf'])
-        self._is_valid(_meowuri, ['text/rtf', 'text/*'])
-        self._is_valid(_meowuri, ['text/*', '*/rtf'])
-        self._is_valid(_meowuri, ['*/application', 'pdf/application'])
-        self._is_valid(_meowuri, ['*/*', '*/*'])
+        self._is_valid(uri, ['text/rtf', 'text/rtf'])
+        self._is_valid(uri, ['text/rtf', 'text/*'])
+        self._is_valid(uri, ['text/*', '*/rtf'])
+        self._is_valid(uri, ['*/application', 'pdf/application'])
+        self._is_valid(uri, ['*/*', '*/*'])
 
     def test_condition_filesystem_basename_full(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL
-        self._is_valid(_meowuri, 'foo.tar.gz')
-        self._is_valid(_meowuri, 'foo.*')
-        self._is_valid(_meowuri, '.*foo.*')
-        self._is_valid(_meowuri, '.*')
+        uri = uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL
+        self._is_valid(uri, 'foo.tar.gz')
+        self._is_valid(uri, 'foo.*')
+        self._is_valid(uri, '.*foo.*')
+        self._is_valid(uri, '.*')
 
     def test_condition_filesystem_basename_full_with_expression_list(self):
         self.skipTest('TODO: ..')
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL
-        self._is_valid(_meowuri, ['foo.tar.gz'])
-        self._is_valid(_meowuri, ['foo.*'])
-        self._is_valid(_meowuri, ['.*foo.*'])
-        self._is_valid(_meowuri, ['.*'])
+        uri = uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL
+        self._is_valid(uri, ['foo.tar.gz'])
+        self._is_valid(uri, ['foo.*'])
+        self._is_valid(uri, ['.*foo.*'])
+        self._is_valid(uri, ['.*'])
 
     def test_condition_filesystem_basename_prefix(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX
-        self._is_valid(_meowuri, 'foo')
-        self._is_valid(_meowuri, '.*')
-        self._is_valid(_meowuri, 'foo(bar)?')
+        uri = uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX
+        self._is_valid(uri, 'foo')
+        self._is_valid(uri, '.*')
+        self._is_valid(uri, 'foo(bar)?')
 
     def test_condition_filesystem_basename_suffix(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX
-        self._is_valid(_meowuri, 'tar.gz')
-        self._is_valid(_meowuri, 'tar.*')
+        uri = uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX
+        self._is_valid(uri, 'tar.gz')
+        self._is_valid(uri, 'tar.*')
 
     def test_condition_filesystem_extension(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT
-        self._is_valid(_meowuri, 'pdf')
-        self._is_valid(_meowuri, '.*')
-        self._is_valid(_meowuri, '.?')
-        self._is_valid(_meowuri, 'pdf?')
+        uri = uuconst.MEOWURI_FS_XPLAT_EXTENSION
+        self._is_valid(uri, 'pdf')
+        self._is_valid(uri, '.*')
+        self._is_valid(uri, '.?')
+        self._is_valid(uri, 'pdf?')
 
     def test_condition_metadata_exiftool(self):
         self._is_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE, '1996')
@@ -393,17 +380,17 @@ class TestRuleConditionFromValidInput(TestCase):
 class TestRuleConditionGivenInvalidExpression(TestCase):
     def _assert_raises(self, query, expression):
         with self.assertRaises(InvalidRuleError):
-            _meowuri = MeowURI(query)
-            _ = get_valid_rule_condition(_meowuri, expression)
+            uri = MeowURI(query)
+            _ = get_valid_rule_condition(uri, expression)
 
     def test_invalid_condition_contents_mime_type(self):
-        _meowuri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
-        self._assert_raises(_meowuri, None)
-        self._assert_raises(_meowuri, '')
-        self._assert_raises(_meowuri, '/')
-        self._assert_raises(_meowuri, 'application/*//pdf')
-        self._assert_raises(_meowuri, 'application///pdf')
-        self._assert_raises(_meowuri, 'text/')
+        uri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        self._assert_raises(uri, None)
+        self._assert_raises(uri, '')
+        self._assert_raises(uri, '/')
+        self._assert_raises(uri, 'application/*//pdf')
+        self._assert_raises(uri, 'application///pdf')
+        self._assert_raises(uri, 'text/')
 
     def test_invalid_condition_filesystem_basename_full(self):
         self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, None)
@@ -418,8 +405,8 @@ class TestRuleConditionGivenInvalidExpression(TestCase):
         self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX, '')
 
     def test_invalid_condition_filesystem_extension(self):
-        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, None)
-        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, '')
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_EXTENSION, None)
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_EXTENSION, '')
 
 
 class TestRuleConditionGivenInvalidMeowURI(TestCase):
@@ -454,8 +441,8 @@ class TestRuleConditionGivenInvalidMeowURI(TestCase):
 class TestRuleConditionMethods(TestCase):
     def setUp(self):
         self.maxDiff = None
-        _meowuri = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        self.a = RuleCondition(_meowuri, 'application/pdf')
+        uri = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        self.a = RuleCondition(uri, 'application/pdf')
 
     def test_rule___repr__(self):
         expected = 'RuleCondition({}, application/pdf)'.format(
@@ -479,21 +466,21 @@ class TestRuleConditionMethods(TestCase):
 
 class TestGetValidRuleCondition(TestCase):
     def _aV(self, query, expression):
-        _meowuri = MeowURI(query)
-        actual = get_valid_rule_condition(_meowuri, expression)
+        uri = MeowURI(query)
+        actual = get_valid_rule_condition(uri, expression)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, RuleCondition)
 
     def _aR(self, query, expression):
-        _meowuri = MeowURI(query)
+        uri = MeowURI(query)
         with self.assertRaises(InvalidRuleError):
-            _ = get_valid_rule_condition(_meowuri, expression)
+            _ = get_valid_rule_condition(uri, expression)
 
     def test_returns_valid_rule_condition_for_valid_query_valid_data(self):
         self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application/pdf')
         self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/rtf')
         self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'image/*')
-        self._aV(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf')
+        self._aV(uuconst.MEOWURI_FS_XPLAT_EXTENSION, 'pdf')
         self._aV(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, 'foo.pdf')
         self._aV(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL, '~/temp/foo')
 
@@ -505,7 +492,7 @@ class TestGetValidRuleCondition(TestCase):
         self._aR(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application/*//pdf')
         self._aR(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application///pdf')
         self._aR(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/')
-        self._aR(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, '')
+        self._aR(uuconst.MEOWURI_FS_XPLAT_EXTENSION, '')
         self._aR(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, None)
         self._aR(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL, '')
 
@@ -534,22 +521,27 @@ class TestIsValidSourceSpecification(TestCase):
         _aF('metadata.exiftool.PDF:CreateDate')
 
     def test_good_source_returns_true(self):
-        def _aT(test_input):
-            self.assertTrue(is_valid_source(test_input))
-
-        _aT(MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_CONTENTS_TEXT))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_AUTHOR))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_CREATOR))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_PRODUCER))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_SUBJECT))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_TAGS))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_DATECREATED))
-        _aT(MeowURI(uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED))
-        _aT(MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE))
-        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL))
-        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT))
-        _aT(MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE))
+        for given_str in [
+            uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE,
+            uuconst.MEOWURI_GEN_CONTENTS_TEXT,
+            uuconst.MEOWURI_GEN_METADATA_AUTHOR,
+            uuconst.MEOWURI_GEN_METADATA_CREATOR,
+            uuconst.MEOWURI_GEN_METADATA_PRODUCER,
+            uuconst.MEOWURI_GEN_METADATA_SUBJECT,
+            uuconst.MEOWURI_GEN_METADATA_TAGS,
+            uuconst.MEOWURI_GEN_METADATA_DATECREATED,
+            uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED,
+            uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
+            uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
+            uuconst.MEOWURI_FS_XPLAT_EXTENSION,
+            uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+        ]:
+            with self.subTest(given=given_str):
+                given = uu.as_meowuri(given_str)
+                self.assertTrue(
+                    is_valid_source(given),
+                    'Unexpectedly not a valid source: {!s}'.format(given)
+                )
 
 
 class TestParseConditions(TestCase):

@@ -31,7 +31,7 @@ PARENT_PATH = os.path.normpath(
 )
 sys.path.insert(0, PARENT_PATH)
 
-from core.ui import ColumnFormatter
+from core.view import ColumnFormatter
 
 
 '''
@@ -45,7 +45,7 @@ TODO_IDENTIFIER_FORMAT = '[TD{:04d}]'
 RE_TODO_IDENTIFIER = re.compile(r'\[TD(\d{4})\]')
 RE_TODO_IGNORED = re.compile(r'[Rr]e(lated|fers?)')
 SOURCEFILE_EXTENSIONS = ['.py', '.sh']
-SOURCEFILE_IGNORED = ['test_todo_id.py']
+SOURCEFILE_IGNORED = ['test_todo_id.py', 'test_update_changelog.py']
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
@@ -63,9 +63,9 @@ def is_readable_file(file_path):
 
 
 def get_source_files(paths):
-    def _recurse(path):
+    def _recurse(_path):
         matches = []
-        for root, dirnames, filenames in os.walk(path):
+        for root, dirnames, filenames in os.walk(_path):
             for filename in filenames:
                 if filename in SOURCEFILE_IGNORED:
                     continue
@@ -151,13 +151,20 @@ def get_next_todo_id():
     return TODO_IDENTIFIER_FORMAT.format(last_id + 1)
 
 
-def do_all_checks():
-    def check_todo_done_does_not_contain_same_id():
-        ids_in_both_todolist_and_done = ids_todolist & ids_done
+class TodoIdChecker(object):
+    def __init__(self):
+        self.ids_todolist = find_todo_ids_in_todo_file()
+        self.ids_done = find_todo_ids_in_done_file()
+        self.ids_in_sources = find_todo_ids_in_source_files()
+
+        self.failure_messages = list()
+
+    def check_todo_done_does_not_contain_same_id(self):
+        ids_in_both_todolist_and_done = self.ids_todolist & self.ids_done
         if not ids_in_both_todolist_and_done:
             return True
 
-        print('''
+        self.failure_messages.append('''
 FAILED Check #1
 ===============
 Expected the TODO-list and the list of completed items
@@ -170,15 +177,15 @@ Found {} IDs used in both the TODO-list and DONE-list:
                       for i in ids_in_both_todolist_and_done])))
         return False
 
-    def check_sources_does_not_contain_ids_not_in_todo():
-        if ids_in_sources.issubset(ids_todolist):
+    def check_sources_does_not_contain_ids_not_in_todo(self):
+        if self.ids_in_sources.issubset(self.ids_todolist):
             # All IDs in the sources are also in the TODO-list.
             return True
 
         ids_only_in_sources = sorted(
-            [i for i in ids_in_sources if i not in ids_todolist]
+            [i for i in self.ids_in_sources if i not in self.ids_todolist]
         )
-        print('''
+        self.failure_messages.append('''
 FAILED Check #2
 ===============
 Expected the sources to only contain identifiers used in the
@@ -191,15 +198,15 @@ Found {} IDs in the sources that are not in the TODO-list:
                       for i in ids_only_in_sources])))
         return False
 
-    def check_sources_does_not_contain_ids_in_done():
-        if not ids_in_sources.intersection(ids_done):
+    def check_sources_does_not_contain_ids_in_done(self):
+        if not self.ids_in_sources.intersection(self.ids_done):
             # None of the IDs in the sources are in the DONE-list.
             return True
 
         ids_in_sources_and_done = sorted(
-            [i for i in ids_in_sources if i in ids_done]
+            [i for i in self.ids_in_sources if i in self.ids_done]
         )
-        print('''
+        self.failure_messages.append('''
 FAILED Check #3
 ===============
 Expected the sources to not contain any "completed" identifiers,
@@ -212,18 +219,17 @@ Found {} IDs used in both the sources and the DONE-list:
                       for i in ids_in_sources_and_done])))
         return False
 
-    ids_in_sources = find_todo_ids_in_source_files()
-    if not ids_in_sources:
-        print('[WARNING] Unable to find any IDs (!)')
+    def all_checks_passed(self):
+        if not self.ids_in_sources:
+            self.failure_messages.append(
+                '[WARNING] Unable to find any IDs (!)'
+            )
 
-    ids_todolist = find_todo_ids_in_todo_file()
-    ids_done = find_todo_ids_in_done_file()
-
-    ok = True
-    ok &= check_todo_done_does_not_contain_same_id()
-    ok &= check_sources_does_not_contain_ids_not_in_todo()
-    ok &= check_sources_does_not_contain_ids_in_done()
-    return ok
+        ok = True
+        ok &= self.check_todo_done_does_not_contain_same_id()
+        ok &= self.check_sources_does_not_contain_ids_not_in_todo()
+        ok &= self.check_sources_does_not_contain_ids_in_done()
+        return ok
 
 
 def list_orphaned():
@@ -235,7 +241,8 @@ def list_orphaned():
     ids_in_todo_but_not_sources = sorted(
         [i for i in ids_todolist if i not in ids_in_sources]
     )
-    print('''
+    if ids_in_todo_but_not_sources:
+        print('''
 Found {} IDs in the TODO-list that are not in the sources:
 
 {}
@@ -322,8 +329,10 @@ if __name__ == '__main__':
 
     exit_status = EXIT_SUCCESS
     if opts.do_check:
-        _checks_pass = do_all_checks()
-        if not _checks_pass:
+        checker = TodoIdChecker()
+        if not checker.all_checks_passed():
+            for message in checker.failure_messages:
+                print(message)
             exit_status |= EXIT_FAILURE
 
     elif opts.do_list_orphaned:

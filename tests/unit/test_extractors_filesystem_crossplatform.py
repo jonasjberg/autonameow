@@ -40,25 +40,20 @@ assert not UNMET_DEPENDENCIES
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestPlainTextExtractor(CaseExtractorBasics):
-    __test__ = True
+class TestCrossPlatformFileSystemExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = CrossPlatformFileSystemExtractor
-
-    def test_method_str_returns_expected(self):
-        actual = str(self.extractor)
-        expect = 'CrossPlatformFileSystemExtractor'
-        self.assertEqual(actual, expect)
+    EXTRACTOR_NAME = 'CrossPlatformFileSystemExtractor'
 
 
 ALL_EXTRACTOR_FIELDS_TYPES = [
-    ('abspath.full', bytes),
-    ('basename.full', bytes),
-    ('basename.extension', bytes),
-    ('basename.suffix', bytes),
-    ('basename.prefix', bytes),
-    ('pathname.full', bytes),
-    ('pathname.parent', bytes),
-    ('contents.mime_type', str),
+    ('abspath_full', bytes),
+    ('basename_full', bytes),
+    ('extension', bytes),
+    ('basename_suffix', bytes),
+    ('basename_prefix', bytes),
+    ('pathname_full', bytes),
+    ('pathname_parent', bytes),
+    ('mime_type', str),
     ('date_accessed', datetime),
     ('date_created', datetime),
     ('date_modified', datetime)
@@ -94,16 +89,16 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
             actual = self.actual.get(field)
             self.assertEqual(actual, expected)
 
-        self.assertTrue(self.actual.get('abspath.full', b'').endswith(
+        self.assertTrue(self.actual.get('abspath_full', b'').endswith(
             b'test_files/magic_txt.txt'
         ))
-        _aE('basename.full', b'magic_txt.txt')
-        _aE('basename.extension', b'txt')
-        _aE('basename.suffix', b'txt')
-        _aE('basename.prefix', b'magic_txt')
-        # _aE('pathname.full', 'TODO')
-        # _aE('pathname.parent', 'TODO)
-        _aE('contents.mime_type', 'text/plain')
+        _aE('basename_full', b'magic_txt.txt')
+        _aE('extension', b'txt')
+        _aE('basename_suffix', b'txt')
+        _aE('basename_prefix', b'magic_txt')
+        # _aE('pathname_full', 'TODO')
+        # _aE('pathname_parent', 'TODO)
+        _aE('mime_type', 'text/plain')
         # _aE('date_accessed', 'TODO')
         # _aE('date_created', 'TODO')
         # _aE('date_modified', 'TODO')
@@ -132,16 +127,16 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
             actual = self.actual.get(field)
             self.assertEqual(actual, expected)
 
-        self.assertTrue(self.actual.get('abspath.full', b'').endswith(
+        self.assertTrue(self.actual.get('abspath_full', b'').endswith(
             b'test_files/empty'
         ))
-        _aE('basename.full', b'empty')
-        _aE('basename.extension', b'')
-        _aE('basename.suffix', b'')
-        _aE('basename.prefix', b'empty')
-        # _aE('pathname.full', 'TODO')
-        # _aE('pathname.parent', 'TODO)
-        _aE('contents.mime_type', 'inode/x-empty')
+        _aE('basename_full', b'empty')
+        _aE('extension', b'')
+        _aE('basename_suffix', b'')
+        _aE('basename_prefix', b'empty')
+        # _aE('pathname_full', 'TODO')
+        # _aE('pathname_parent', 'TODO)
+        _aE('mime_type', 'inode/x-empty')
         # _aE('date_accessed', 'TODO')
         # _aE('date_created', 'TODO')
         # _aE('date_modified', 'TODO')
@@ -168,7 +163,7 @@ class TestCrossPlatformFileSystemExtractorMetainfo(TestCase):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
             self.assertIn('coercer', self.actual.get(_field, {}))
 
-    def test_metainfo_multiple_is_bool_or_none(self):
+    def test_metainfo_multivalued_is_none_or_boolean(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
             _field_lookup_entry = self.actual.get(_field, {})
             self.assertIn('multivalued', _field_lookup_entry)

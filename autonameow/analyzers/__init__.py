@@ -58,7 +58,7 @@ def _get_implemented_analyzer_classes(analyzer_files):
 
     _analyzer_classes = []
     for analyzer_file in _to_import:
-        __import__(analyzer_file, None, None)
+        __import__(analyzer_file)
         namespace = inspect.getmembers(sys.modules[analyzer_file],
                                        inspect.isclass)
         for _obj_name, _obj_type in namespace:
@@ -95,4 +95,15 @@ def get_analyzer_classes():
     return out
 
 
-ProviderClasses = get_analyzer_classes()
+class AnalyzerRegistry(object):
+    def __init__(self):
+        self._all_providers = None
+
+    @property
+    def all_providers(self):
+        if self._all_providers is None:
+            self._all_providers = set(get_analyzer_classes())
+        return self._all_providers
+
+
+registry = AnalyzerRegistry()

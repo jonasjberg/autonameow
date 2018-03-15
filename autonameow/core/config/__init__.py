@@ -23,14 +23,6 @@ import logging
 import os
 import platform
 
-try:
-    import yaml
-except ImportError:
-    raise SystemExit(
-        'Missing required module "yaml". '
-        'Make sure "pyyaml" is available before running this program.'
-    )
-
 from core import constants as C
 from core import exceptions
 from core.config.config_parser import ConfigurationParser
@@ -48,28 +40,9 @@ CONFDIR_UNIX_FALLBACK = '~/.config'
 CONFDIR_WINDOWS_VAR = 'APPDATA'
 CONFDIR_WINDOWS_FALLBACK = '~\\AppData\\Roaming'
 CONFIG_BASENAME = 'autonameow.yaml'
-YAML_TAB_PROBLEM = "found character '\\t' that cannot start any token"
 
 
-class ConfigReadError(exceptions.ConfigError):
-    """A configuration file could not be read."""
-    def __init__(self, filename, reason=None):
-        self.filename = filename
-        self.reason = reason
-
-        message = 'file {} could not be read'.format(filename)
-        if (isinstance(reason, yaml.scanner.ScannerError)
-                and reason.problem == YAML_TAB_PROBLEM):
-            # Special-case error message for tab indentation in YAML markup.
-            message += ': found tab character at line {}, column {}'.format(
-                reason.problem_mark.line + 1,
-                reason.problem_mark.column + 1,
-            )
-        elif reason:
-            # Generic error message uses exception's message.
-            message += ': {}'.format(reason)
-
-        super(ConfigReadError, self).__init__(message)
+# TODO: [TD0162] Split up 'autonameow.yaml' into separate files.
 
 
 class ConfigWriteError(exceptions.ConfigError):
@@ -105,7 +78,6 @@ def config_dirs():
         paths.append(CONFDIR_WINDOWS_FALLBACK)
         if CONFDIR_WINDOWS_VAR in os.environ:
             paths.append(os.environ[CONFDIR_WINDOWS_VAR])
-        pass
 
     else:
         # Assume Unix.
@@ -139,7 +111,7 @@ def config_file_path():
         raise exceptions.ConfigError('No configurations paths were found')
 
     # Path name encoding boundary. Convert to internal bytestring format.
-    config_path = os.path.normpath(os.path.join(dirs[0], CONFIG_BASENAME))
+    config_path = disk.joinpaths(dirs[0], CONFIG_BASENAME)
     return enc.normpath(config_path)
 
 
@@ -150,12 +122,8 @@ def has_config_file():
     Returns:
         True if a configuration file is available, else False.
     """
-    config_path = enc.syspath(DefaultConfigFilePath)
-    if os.path.exists(config_path):
-        if os.path.isfile(config_path) or os.path.islink(config_path):
-            return True
-
-    return False
+    path = DefaultConfigFilePath
+    return disk.isfile(path) or disk.islink(path)
 
 
 def write_default_config():
@@ -165,11 +133,10 @@ def write_default_config():
     Raises:
         ConfigWriteError: The default configuration file could not be written.
     """
-    config_path = DefaultConfigFilePath
-
-    if os.path.exists(enc.syspath(config_path)):
+    path = DefaultConfigFilePath
+    if disk.exists(path):
         log.warning(
-            'Path exists: "{}"'.format(enc.displayable_path(config_path))
+            'Path exists: "{}"'.format(enc.displayable_path(path))
         )
         raise ConfigWriteError
 
@@ -177,7 +144,7 @@ def write_default_config():
     _default_config['autonameow_version'] = C.STRING_PROGRAM_VERSION
 
     try:
-        disk.write_yaml_file(config_path, _default_config)
+        disk.write_yaml_file(path, _default_config)
     except exceptions.FilesystemError as e:
         raise ConfigWriteError(e)
 

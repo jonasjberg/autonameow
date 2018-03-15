@@ -28,7 +28,6 @@ from unittest.mock import (
 
 import unit.utils as uu
 from core import constants as C
-from core.config.rules import Rule
 from core.evaluate.rulematcher import (
     prioritize_rules,
     RuleConditionEvaluator,
@@ -40,46 +39,43 @@ uu.init_session_repository()
 uu.init_provider_registry()
 
 
-def get_testrules():
-    test_config = uu.get_default_config()
-    return test_config.rules
+SHARED_FILEOBJECT = uu.get_mock_fileobject(mime_type='application/pdf')
+
+
+def _get_rulematcher(**kwargs):
+    rules = kwargs.get('rules', None)
+    provider = kwargs.get('provider', None)
+    list_rulematch = kwargs.get('list_rulematch', None)
+    return RuleMatcher(rules, provider, SHARED_FILEOBJECT, list_rulematch)
+
+
+def _init_master_data_provider(active_config):
+    uu.init_master_data_provider(active_config)
+
+
+def _get_testrules(active_config):
+    return active_config.rules
 
 
 class TestRuleMatcher(TestCase):
     def test_can_be_instantiated_with_mock_rules(self):
-        matcher = RuleMatcher(rules=get_testrules())
+        # TODO: [hack][cleanup] Mock properly! Remove?
+        active_config = uu.get_default_config()
+        matcher = _get_rulematcher(rules=_get_testrules(active_config), provider=None)
         self.assertIsNotNone(matcher)
 
     def test_can_be_instantiated_with_no_rules(self):
-        matcher = RuleMatcher(rules=[])
+        matcher = _get_rulematcher(rules=[], provider=None)
         self.assertIsNotNone(matcher)
 
 
 class TestRuleMatcherMatching(TestCase):
-    SHARED_FILEOBJECT = uu.get_mock_fileobject(mime_type='application/pdf')
 
     def test_returns_empty_list_if_no_rules_are_available(self):
-        matcher = RuleMatcher(rules=[])
-        actual = matcher.match(self.SHARED_FILEOBJECT)
+        matcher = _get_rulematcher(rules=[])
+        actual = matcher.get_match_results()
         expect = []
         self.assertEqual(expect, actual)
-
-    def test_expected_return_values_given_rules_and_valid_fileobject(self):
-        matcher = RuleMatcher(rules=get_testrules())
-        actual = matcher.match(self.SHARED_FILEOBJECT)
-        self.assertIsInstance(actual, list)
-
-        for triple in actual:
-            self.assertIsInstance(triple, tuple)
-
-            self.assertIsInstance(triple[0], Rule)
-
-            _assumed_score = triple[1]
-            _assumed_weight = triple[2]
-            self.assertIsInstance(_assumed_score, float)
-            self.assertIsInstance(_assumed_weight, float)
-            self.assertTrue(0 <= _assumed_score <= 1)
-            self.assertTrue(0 <= _assumed_weight <= 1)
 
     @staticmethod
     def _get_mock_rule(exact_match, num_conditions, bias):
@@ -98,8 +94,8 @@ class TestRuleMatcherMatching(TestCase):
         return rule
 
     def _check_matcher_result(self, given, expect):
-        matcher = RuleMatcher(rules=given)
-        actual = matcher.match(self.SHARED_FILEOBJECT)
+        matcher = _get_rulematcher(rules=given, provider=None)
+        actual = matcher.get_match_results()
         self.assertEqual(expect, actual)
 
     @patch('core.evaluate.rulematcher.RuleConditionEvaluator.passed')
@@ -110,8 +106,8 @@ class TestRuleMatcherMatching(TestCase):
         )
         # 0 conditions met
         mock_passed.return_value = []
-        matcher = RuleMatcher(rules=[rule])
-        actual = matcher.match(self.SHARED_FILEOBJECT)
+        matcher = _get_rulematcher(rules=[rule], provider=None)
+        actual = matcher.get_match_results()
         expect = [(rule, 0.0, 1.0)]
         self.assertEqual(actual, expect)
 
@@ -129,8 +125,8 @@ class TestRuleMatcherMatching(TestCase):
         # 3 conditions met
         mock_passed.return_value = ['a', 'b', 'c']
 
-        matcher = RuleMatcher(rules=[rule])
-        actual = matcher.match(self.SHARED_FILEOBJECT)
+        matcher = _get_rulematcher(rules=[rule], provider=None)
+        actual = matcher.get_match_results()
         expect = [(rule, 1.0, 1.0)]
         self.assertEqual(expect, actual)
 
@@ -146,8 +142,8 @@ class TestRuleMatcherMatching(TestCase):
         # 3 conditions met for both rules
         mock_passed.return_value = ['a', 'b', 'c']
 
-        matcher = RuleMatcher(rules=[rule1, rule2])
-        actual = matcher.match(self.SHARED_FILEOBJECT)
+        matcher = _get_rulematcher(rules=[rule1, rule2], provider=None)
+        actual = matcher.get_match_results()
         expect = [(rule1, 1.0, 1.0), (rule2, 1.0, 1.0)]
         self.assertEqual(expect, actual)
 
@@ -164,8 +160,8 @@ class TestRuleMatcherMatching(TestCase):
         )
         mock_passed.side_effect = [['a', 'b'], ['a', 'b', 'c', 'd', 'e']]
 
-        matcher = RuleMatcher(rules=[rule1, rule2])
-        actual = matcher.match(self.SHARED_FILEOBJECT)
+        matcher = _get_rulematcher(rules=[rule1, rule2], provider=None)
+        actual = matcher.get_match_results()
         expect = [(rule2, 1.0, 1.0), (rule1, 1.0, 0.4)]
         self.assertEqual(expect, actual)
 
@@ -246,6 +242,7 @@ class TestRuleConditionEvaluator(TestCase):
             else:
                 return None
 
+        # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
         cls._mock_request_data_function = _mock_request_data_function
 
     def test_init(self):

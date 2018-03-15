@@ -67,6 +67,9 @@ INITIAL_CONFIGURATION_OPTIONS = {
 }
 
 
+# TODO: [TD0154] Add "incrementing counter" placeholder field
+
+
 class ConfigurationParser(object):
     def __init__(self):
         # NOTE(jonas): Make sure that defaults are not modified.
@@ -110,16 +113,16 @@ class ConfigurationParser(object):
             _error = 'Got invalid name template: "{!s}": {!s}"'.format(
                 raw_name, raw_templ
             )
-            name = types.force_string(raw_name).strip()
-            templ = types.force_string(raw_templ)
-            if not name or not templ:
+            str_name = types.force_string(raw_name).strip()
+            str_template = types.force_string(raw_templ)
+            if not str_name or not str_template:
                 raise ConfigurationSyntaxError(_error)
 
             # Remove any non-breaking spaces in the name template.
-            templ = text.remove_nonbreaking_spaces(templ)
+            str_template = text.remove_nonbreaking_spaces(str_template)
 
-            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(templ):
-                validated[name] = templ
+            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(str_template):
+                validated[str_name] = str_template
             else:
                 raise ConfigurationSyntaxError(_error)
 
@@ -141,8 +144,8 @@ class ConfigurationParser(object):
             return validated
 
         for raw_field, raw_options in raw_templatefields.items():
-            field = types.force_string(raw_field)
-            if not field or not is_valid_template_field(field):
+            str_field = types.force_string(raw_field)
+            if not is_valid_template_field(str_field):
                 raise ConfigurationSyntaxError(
                     'Invalid name template field: "{!s}"'.format(raw_field)
                 )
@@ -167,7 +170,7 @@ class ConfigurationParser(object):
                 if _validated_candidates:
                     util.nested_dict_set(
                         validated,
-                        ['NAME_TEMPLATE_FIELDS', field, 'candidates', repl],
+                        ['NAME_TEMPLATE_FIELDS', str_field, 'candidates', repl],
                         _validated_candidates
                     )
 
@@ -178,7 +181,7 @@ class ConfigurationParser(object):
             log.debug('Trying to load post-processing replacements')
 
             # TODO: [TD0141] Coerce raw values to a known type.
-            if not 'POST_PROCESSING' in config_dict:
+            if 'POST_PROCESSING' not in config_dict:
                 log.debug('Did not find any post-processing options ..')
                 return
 
@@ -189,24 +192,21 @@ class ConfigurationParser(object):
 
             match_replace_pairs = []
             for regex, replacement in _reps.items():
-                _match = types.force_string(regex)
-                _replace = types.force_string(replacement)
-                if None in (_match, _replace):
-                    log.warning('Skipped bad replacement: "{!s}": '
-                                '"{!s}"'.format(regex, replacement))
-                    continue
-
+                str_regex = types.force_string(regex)
+                str_replacement = types.force_string(replacement)
                 try:
-                    compiled_pat = re.compile(_match)
+                    compiled_pat = re.compile(str_regex)
                 except re.error:
                     log.warning('Malformed regular expression: '
-                                '"{!s}"'.format(_match))
+                                '"{!s}"'.format(str_regex))
+                    log.warning('Skipped bad replacement :: "{!s}": '
+                                '"{!s}"'.format(regex, replacement))
                 else:
                     log.debug(
                         'Added post-processing replacement :: Match: "{!s}"'
                         ' Replace: "{!s}"'.format(regex, replacement)
                     )
-                    match_replace_pairs.append((compiled_pat, _replace))
+                    match_replace_pairs.append((compiled_pat, str_replacement))
 
             self._options['POST_PROCESSING']['replacements'] = match_replace_pairs
 
@@ -342,7 +342,6 @@ class ConfigurationParser(object):
 
         Raises:
             EncodingBoundaryViolation: Argument "path" is not a bytestring.
-            ConfigReadError: The configuration file could not be read.
             ConfigError: The configuration file is empty.
         """
         sanity.check_internal_bytestring(path)
@@ -375,26 +374,27 @@ class ConfigurationRuleParser(object):
         validated = self._validate_rules(rules_dict)
         return validated
 
-    def _validate_name_template(self, _raw_name_template):
-        _template = types.force_string(_raw_name_template)
-        if not _template:
+    def _validate_name_template_format_string(self, _raw_name_template):
+        # TODO: Does this duplicate name template validation?
+        str_template = types.force_string(_raw_name_template)
+        if not str_template:
             return None
 
         # TODO: [TD0109] Allow arbitrary name template placeholder fields.
 
         # First test if the field data is a valid name template entry,
-        if _template in self._reusable_nametemplates:
+        if str_template in self._reusable_nametemplates:
             # If it is, use the format string defined in that entry.
-            return self._reusable_nametemplates.get(_template)
+            return self._reusable_nametemplates.get(str_template)
         else:
             # If not, check if it is a valid name template string.
-            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(_template):
+            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(str_template):
                 # TODO: [TD0139] This currently passes just about everything.
                 # If the user intends to use a "reusable name template" but
                 # misspelled it slightly, it currently goes unnoticed.
 
                 # TODO: [TD0139] Warn if sources do not match placeholders?
-                return _template
+                return str_template
 
         return None
 
@@ -415,48 +415,44 @@ class ConfigurationRuleParser(object):
                 Note that the message will be used in the following sentence:
                 "Bad rule "x"; {message}"
         """
-        if 'NAME_TEMPLATE' not in raw_rule:
-            raise ConfigurationSyntaxError(
-                'is missing name template'
-            )
-        valid_template = self._validate_name_template(raw_rule.get('NAME_TEMPLATE'))
-        if not valid_template:
-            raise ConfigurationSyntaxError(
-                'uses invalid name template format'
-            )
-        name_template = text.remove_nonbreaking_spaces(valid_template)
+        raw_format_string = raw_rule.get('NAME_TEMPLATE')
+        if not raw_format_string:
+            raise ConfigurationSyntaxError('is missing name template')
+
+        format_string = text.remove_nonbreaking_spaces(raw_format_string)
+        valid_format_string = self._validate_name_template_format_string(format_string)
+        if not valid_format_string:
+            raise ConfigurationSyntaxError('uses invalid name template format')
 
         try:
-            _rule = get_valid_rule(
-                description=raw_rule.get('description'),
-                exact_match=raw_rule.get('exact_match'),
-                ranking_bias=raw_rule.get('ranking_bias'),
-                name_template=name_template,
+            return get_valid_rule(
+                raw_description=raw_rule.get('description'),
+                raw_exact_match=raw_rule.get('exact_match'),
+                raw_ranking_bias=raw_rule.get('ranking_bias'),
+                format_string=valid_format_string,
                 conditions=raw_rule.get('CONDITIONS'),
-                data_sources=raw_rule.get('DATA_SOURCES')
+                raw_data_sources=raw_rule.get('DATA_SOURCES')
             )
         except InvalidRuleError as e:
             raise ConfigurationSyntaxError(e)
-        else:
-            return _rule
 
     def _validate_rules(self, rules_dict):
         validated = []
 
         for raw_name, raw_contents in rules_dict.items():
-            name = types.force_string(raw_name)
-            if not name:
+            str_name = types.force_string(raw_name)
+            if not str_name:
                 log.error('Skipped rule with bad name: "{!s}"'.format(raw_name))
                 continue
 
-            raw_contents.update({'description': name})
-            log.debug('Validating rule "{!s}" ..'.format(name))
+            raw_contents.update({'description': str_name})
+            log.debug('Validating rule "{!s}" ..'.format(str_name))
             try:
                 valid_rule = self._to_rule_instance(raw_contents)
             except ConfigurationSyntaxError as e:
-                log.error('Bad rule "{!s}"; {!s}'.format(name, e))
+                log.error('Bad rule "{!s}"; {!s}'.format(str_name, e))
             else:
-                log.debug('Validated rule "{!s}" .. OK!'.format(name))
+                log.debug('Validated rule "{!s}" .. OK!'.format(str_name))
 
                 # Create and populate "Rule" objects with *validated* data.
                 validated.append(valid_rule)

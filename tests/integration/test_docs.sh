@@ -59,9 +59,6 @@ assert_bulk_test "$_srcroot_readme" n e f r
 assert_true '[ -f "$_srcroot_readme" ]' \
             'The root source directory should contain a "README.md"'
 
-assert_false 'grep_todos "$_srcroot_readme"' \
-             'Main README.md does not contain TODOs'
-
 
 
 # Calculate total execution time.

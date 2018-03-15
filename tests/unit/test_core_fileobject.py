@@ -20,14 +20,32 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import pickle
 import unittest
 from unittest import TestCase
 
 import unit.constants as uuconst
 import unit.utils as uu
-from core import fileobject
 from core.exceptions import InvalidFileArgumentError
+from core.fileobject import (
+    _validate_path_argument,
+    FileObject
+)
 from util import encoding as enc
+
+
+class TestFileObjectExceptions(TestCase):
+    def test_raises_assertion_error_given_none_path(self):
+        with self.assertRaises(AssertionError):
+            _ = FileObject(None)
+
+    def test_raises_assertion_error_given_unicode_string_path(self):
+        with self.assertRaises(AssertionError):
+            _ = FileObject('foo')
+
+    def test_raises_exception_given_path_to_non_existent_file(self):
+        with self.assertRaises(InvalidFileArgumentError):
+            _ = FileObject(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
 
 class TestFileObjectTypes(TestCase):
@@ -73,46 +91,39 @@ class TestFileObject(TestCase):
         self.assertTrue(uu.is_abspath(actual))
 
     def test_basename_suffix(self):
-        actual = self.fo.basename_suffix
-        expect = b'txt'
-        self.assertEqual(actual, expect)
+        self.assertEqual(b'txt', self.fo.basename_suffix)
 
     def test_basename_prefix(self):
-        actual = self.fo.basename_prefix
-        expect = b'magic_txt'
-        self.assertEqual(actual, expect)
+        self.assertEqual(b'magic_txt', self.fo.basename_prefix)
 
     def test_filename(self):
-        actual = self.fo.filename
-        expect = b'magic_txt.txt'
-        self.assertEqual(actual, expect)
+        self.assertEqual(b'magic_txt.txt', self.fo.filename)
 
     def test_pathname(self):
-        actual = self.fo.pathname
-        expect = uu.normpath(uuconst.TEST_FILES_DIR)
-        self.assertEqual(actual, expect)
+        expected = uu.normpath(uuconst.PATH_TEST_FILES)
+        self.assertEqual(expected, self.fo.pathname)
 
     def test_pathparent(self):
-        actual = self.fo.pathparent
-        expect = uu.encode(os.path.basename(os.path.normpath(
-            enc.syspath(uuconst.TEST_FILES_DIR)
+        expected = uu.encode(os.path.basename(os.path.normpath(
+            enc.syspath(uuconst.PATH_TEST_FILES)
         )))
-        self.assertEqual(actual, expect)
+        self.assertEqual(expected, self.fo.pathparent)
 
     def test_mime_type(self):
-        actual = self.fo.mime_type
-        expect = 'text/plain'
-        self.assertEqual(actual, expect)
+        self.assertEqual('text/plain', self.fo.mime_type)
 
     def test_bytesize(self):
-        actual = self.fo.bytesize
-        expect = 5
-        self.assertEqual(actual, expect)
+        self.assertEqual(5, self.fo.bytesize)
 
     def test_hash_partial(self):
-        actual = self.fo.hash_partial
-        expect = 'b9e68e1bea3e5b19ca6b2f98b73a54b73daafaa250484902e09982e07a12e733'
-        self.assertEqual(actual, expect)
+        expected = 'b9e68e1bea3e5b19ca6b2f98b73a54b73daafaa250484902e09982e07a12e733'
+        self.assertEqual(expected, self.fo.hash_partial)
+
+    def test___str__(self):
+        self.assertEqual('magic_txt.txt', str(self.fo))
+
+    def test___repr__(self):
+        self.assertEqual('FileObject(b9e68e1b)', repr(self.fo))
 
 
 class TestFileObjectEquivalence(TestCase):
@@ -132,6 +143,19 @@ class TestFileObjectEquivalence(TestCase):
 
     def test_equivalence_expect_equal(self):
         self.assertEqual(self.fo_dupe_1, self.fo_dupe_2)
+
+    def test_returns_false_when_compared_to_other_types(self):
+        for other in [
+            object(),
+            None,
+            False, True,
+            1, 1.0,
+            'x', b'x',
+            [], [1], ['x'], [b'x'],
+            {}, {'x': 'x'}
+        ]:
+            with self.subTest(other=other):
+                self.assertNotEqual(self.fo_unique, other)
 
 
 class TestFileObjectHash(TestCase):
@@ -182,25 +206,25 @@ class TestFileObjectMembership(TestCase):
     def test_membership_with_same(self):
         s = set()
         s.add(self.fo_unique)
-        self.assertEqual(len(s), 1)
+        self.assertEqual(1, len(s))
         s.add(self.fo_unique)
-        self.assertEqual(len(s), 1)
+        self.assertEqual(1, len(s))
 
     def test_membership_with_duplicates(self):
         s = set()
         s.add(self.fo_dupe_1)
-        self.assertEqual(len(s), 1)
+        self.assertEqual(1, len(s))
         s.add(self.fo_dupe_2)
-        self.assertEqual(len(s), 1)
+        self.assertEqual(1, len(s))
 
     def test_membership_with_different(self):
         s = set()
         s.add(self.fo_unique)
-        self.assertEqual(len(s), 1)
+        self.assertEqual(1, len(s))
         s.add(self.fo_dupe_1)
-        self.assertEqual(len(s), 2)
+        self.assertEqual(2, len(s))
         s.add(self.fo_dupe_2)
-        self.assertEqual(len(s), 2)
+        self.assertEqual(2, len(s))
 
 
 @unittest.skip('TODO: [TD0026] Implement safe handling of symlinks.')
@@ -224,11 +248,11 @@ class TestFileObjectFromSymlink(TestCase):
         s = set()
 
         s.add(self.fo_orig)
-        self.assertEqual(len(s), 1)
+        self.assertEqual(1, len(s))
 
         s.add(self.fo_link)
         # TODO: [TD0026] Expect 1 or 2?
-        self.assertEqual(len(s), 2)
+        self.assertEqual(2, len(s))
 
         # TODO: [TD0026] Should this fail or not?
         self.assertIn(self.fo_orig, s)
@@ -301,43 +325,69 @@ class TestFileObjectOrdering(TestCase):
         self.assertEqual(self.some_object, sorted_list_with_another_object[2])
 
 
+def _pickle_object(obj):
+    return pickle.dumps(obj)
+
+
+def _unpickle_object(pickled):
+    return pickle.loads(pickled)
+
+
+class TestFileObjectSerialization(TestCase):
+    def test_can_be_pickled(self):
+        fo = uu.get_mock_fileobject()
+        self.assertIsInstance(fo, FileObject)
+        _ = _pickle_object(fo)
+
+    def test_round_trips_pickle_serialization(self):
+        fo = uu.get_mock_fileobject()
+        self.assertIsInstance(fo, FileObject)
+        roundtripped = _unpickle_object(_pickle_object(fo))
+        self.assertEqual(fo, roundtripped)
+
+
 class TestValidatePathArgument(TestCase):
-    def setUp(self):
-        _num_files = min(len(uu.all_testfiles()), 5)
-        self.unicode_paths = uu.all_testfiles()[:_num_files]
-        self.bytestr_paths = [
+    @classmethod
+    def setUpClass(cls):
+        all_available_testfiles = uu.all_testfiles()
+        # Use at most 5 test files.
+        num_testfiles_to_use = min(len(all_available_testfiles), 5)
+        cls.bytestr_paths = [
             uu.bytestring_path(p)
-            for p in uu.all_testfiles()[:_num_files]
+            for p in all_available_testfiles[:num_testfiles_to_use]
         ]
 
     def test_setup(self):
-        for upath in self.unicode_paths:
-            self.assertTrue(uu.file_exists(upath))
-            self.assertTrue(uu.is_internalstring(upath))
-
         for bpath in self.bytestr_paths:
             self.assertTrue(uu.file_exists(bpath))
             self.assertTrue(uu.is_internalbytestring(bpath))
 
-    def test_valid_unicode_paths(self):
-        for upath in self.unicode_paths:
-            fileobject.validate_path_argument(upath)
-
-    def test_valid_bytes_paths(self):
+    def test_valid_bytes_paths_does_not_raise_any_exception(self):
         for bpath in self.bytestr_paths:
-            fileobject.validate_path_argument(bpath)
+            _validate_path_argument(bpath)
 
-    def test_invalid_paths(self):
-        def _assert_raises(test_data):
-            with self.assertRaises(InvalidFileArgumentError):
-                fileobject.validate_path_argument(test_data)
+    def test_invalid_paths_raises_expected_exception(self):
+        for bad_path in [
+            None,
+            object(),
+            True, False,
+            '', ' ', '  ', '\t', '\n', '\r',
+            b'', b' ', b'  ', b'\t', b'\n', b'\r',
+            [], ['a'], [b'a'],
+            {}, {'a': 'b'},
+        ]:
+            with self.subTest(given=bad_path):
+                with self.assertRaises(InvalidFileArgumentError):
+                    _validate_path_argument(bad_path)
 
-        _assert_raises(None)
-        _assert_raises('')
-        _assert_raises(' ')
-        _assert_raises('  ')
-        _assert_raises(b'')
-        _assert_raises(b' ')
-        _assert_raises(b'  ')
-        _assert_raises([])
-        _assert_raises({})
+    def test_raises_exception_given_unicode_path(self):
+        unicodestr_path = uu.all_testfiles()[:1]
+        with self.assertRaises(InvalidFileArgumentError):
+            _validate_path_argument(unicodestr_path)
+
+    def test_raises_exception_given_directory_path(self):
+        path_to_dir = uu.bytestring_path(uuconst.PATH_TEST_FILES)
+        self.assertTrue(uu.is_internalbytestring(path_to_dir))
+        self.assertTrue(uu.dir_exists(path_to_dir))
+        with self.assertRaises(InvalidFileArgumentError):
+            _validate_path_argument(path_to_dir)

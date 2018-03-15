@@ -22,202 +22,163 @@
 import logging
 
 import extractors
-from core import (
-    logs,
-    repository
-)
-from core.exceptions import (
-    AutonameowException,
-    InvalidMeowURIError
-)
-from core.fileobject import FileObject
-from core.model import MeowURI
-from core.model.genericfields import get_field_class
+from core import logs
+from core.model import force_meowuri
+from core.persistence import PersistenceError
+from core.providers import wrap_provider_results
 from extractors import ExtractorError
+from util import sanity
 
 
 log = logging.getLogger(__name__)
 
 
-def store_results(fileobject, meowuri_prefix, data):
-    """
-    Collects extractor data, passes it the session repository.
-
-    Args:
-        fileobject: Instance of 'FileObject' that produced the data to add.
-        meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
-        data: Data to add, as a dict containing the data and meta-information.
-    """
-    assert isinstance(data, dict), (
-        'Expected data of type "dict" in "extraction.store_results()" '
-        ':: ({!s}) {!s}'.format(type(data), data)
-    )
-
-    for _uri_leaf, _data in data.items():
-        try:
-            _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
-        except InvalidMeowURIError as e:
-            log.critical(
-                'Got invalid MeowURI from extractor -- !{!s}"'.format(e)
-            )
-            continue
-        repository.SessionRepository.store(fileobject, _meowuri, _data)
-
-
-def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
-    """
-    Filters out "slow" extractor classes if they are not explicitly required.
-
-    If the extractor class variable 'is_slow' is True, the extractor is
-    excluded if the same class is not specified in 'required_extractors'.
-
-    Args:
-        extractor_klasses: List of extractor classes to filter.
-        required_extractors: List of required extractor classes.
-
-    Returns:
-        A list of extractor classes, including "slow" classes only if required.
-    """
-    out = []
-
-    for klass in extractor_klasses:
-        if not klass.is_slow:
-            out.append(klass)
-        elif klass.is_slow:
-            if klass in required_extractors:
-                log.debug('Extractor "{!s}" is required ..'.format(klass))
-                out.append(klass)
-                log.debug('Included slow extractor "{!s}"'.format(klass))
-            else:
-                log.debug('Excluded slow extractor "{!s}"'.format(klass))
-
-    return out
-
-
-def suitable_extractors_for(fileobject):
+def filter_able_to_handle(extractor_klasses, fileobject):
     """
     Returns extractor classes that can handle the given file object.
 
     Args:
-        fileobject: File to get extractors for as an instance of 'FileObject'.
+        extractor_klasses: List or set of extractor classes to filter.
+        fileobject: The 'FileObject' that extractors should be able to handle.
 
     Returns:
-        A list of extractor classes that can extract data from the given file.
+        The set of extractor classes that can extract data from the given file.
     """
-    return [e for e in extractors.ProviderClasses if e.can_handle(fileobject)]
-
-
-def _wrap_extracted_data(extracteddata, metainfo, source_klass):
-    out = dict()
-
-    for field, value in extracteddata.items():
-        field_metainfo = dict(metainfo.get(field, {}))
-        if not field_metainfo:
-            log.warning('Missing metainfo for field "{!s}"'.format(field))
-
-        field_metainfo['value'] = value
-        # Do not store a reference to the class itself before actually needed..
-        field_metainfo['source'] = str(source_klass)
-
-        # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
-        # Map strings to generic field classes.
-        _generic_field_string = field_metainfo.get('generic_field')
-        if _generic_field_string:
-            _generic_field_klass = get_field_class(_generic_field_string)
-            if _generic_field_klass:
-                field_metainfo['generic_field'] = _generic_field_klass
-            else:
-                field_metainfo.pop('generic_field')
-
-        out[field] = field_metainfo
-
-    return out
-
-
-def filter_able_to_handle(extractor_klasses, fileobject):
     return {k for k in extractor_klasses if k.can_handle(fileobject)}
 
 
-def filter_meowuri_prefix(extractor_klasses, match_string):
-    assert isinstance(match_string, str)
-    return {k for k in extractor_klasses
-            if k.meowuri_prefix().startswith(match_string)}
-
-
-def filter_not_slow(extractor_klasses):
-    return {k for k in extractor_klasses if not k.is_slow}
+def filter_not_slow(extractor_klasses, required):
+    return {k for k in extractor_klasses if not k.IS_SLOW or k in required}
 
 
 class ExtractorRunner(object):
-    def __init__(self, available_extractors=None, add_results_callback=None):
-        if not available_extractors:
-            self._available_extractors = set()
-        else:
-            self._available_extractors = set(available_extractors)
+    def __init__(self, add_results_callback=None):
+        """
+        Instantiates a new extractor runner.
 
-        # TODO: Separate repository from the runner ('extract.py' use-case)
-        self.add_results_callback = add_results_callback
+        Results are passed to the callback when running the extractors.
+        The callback should accept three arguments;
+
+            fileobject (FileObject), meowuri (MeowURI), data (dict)
+
+        It will be called for each extracted "item" returned by each of the
+        selected extractors. Results are simply discarded if the callback is
+        left unspecified, rendering the run basically a expensive "no-op".
+
+        If 'exclude_slow' is true, "slow" extractors that are not explicitly
+        requested are excluded. Alternatively, if all extractors are requested
+        slow extractors will be included as well.
+
+        Args:
+            add_results_callback: Callable that accepts three arguments.
+        """
+        if add_results_callback:
+            assert callable(add_results_callback)
+            self._add_results_callback = add_results_callback
+        else:
+            # Throw away the results. For testing, etc.
+            self._add_results_callback = lambda *_: None
+
+        self._available_extractors = set()
         self.exclude_slow = True
 
-    def start(self, fileobject, request_extractors=None, request_all=None):
-        log.debug(' Extractor Runner Started '.center(120, '='))
-        assert isinstance(fileobject, FileObject), (
-            'Expected type "FileObject". Got {!s}'.format(type(fileobject)))
+        self.register(extractors.registry.all_providers)
 
-        _requested_extractors = set()
-        if request_extractors:
-            _requested_extractors = set(request_extractors)
+    def register(self, extractor_klasses):
+        self._available_extractors.update(extractor_klasses)
+        if __debug__:
+            log.debug('Initialized {!s} with {} available extractors'.format(
+                self.__class__.__name__, len(self._available_extractors)))
+            for k in self._available_extractors:
+                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+                log.debug('Available: {!s}'.format(k.name()))
+
+    def start(self, fileobject, request_extractors=None, request_all=None):
+        """
+        Starts extraction data from the given file using specified extractors.
+
+        Which extractors that are included is controlled by either passing a
+        list of extractor classes to 'request_extractors' or setting
+        'request_all' to True.
+        If 'exclude_slow' is true, "slow" extractors that are not explicitly
+        requested are excluded.
+        Note that extractors that are unable to handle the given 'fileobject'
+        are always excluded.
+
+        Args:
+            fileobject: The file object to extract data from.
+            request_extractors: List of extractor classes that must be included.
+            request_all: Whether all data extractors should be included.
+
+        Raises:
+            AssertionError: A sanity check failed.
+        """
+        log.debug(' Extractor Runner Started '.center(120, '='))
+        sanity.check_isinstance_fileobject(fileobject)
 
         _request_all = bool(request_all)
 
-        all_klasses = set(self._available_extractors)
-        for k in all_klasses:
-            log.debug('Available: {!s}'.format(str(k.__name__)))
+        # Get only extractors suitable for the given file.
+        available = filter_able_to_handle(self._available_extractors,
+                                          fileobject)
+        log.debug('Removed extractors that can not handle the current file. '
+                  'Remaining: {}'.format(len(available)))
 
-        selected_klasses = set()
+        selected = set()
         if _request_all:
             # Add all available extractors.
             log.debug('Requested all available extractors')
-            selected_klasses = all_klasses
-        else:
+            selected = available
+        elif request_extractors:
             # Add requested extractors.
-            if _requested_extractors:
-                selected_klasses = selected_klasses.union(_requested_extractors)
+            requested_klasses = set(request_extractors)
+            selected = self._select_from_available(available, requested_klasses)
 
-                if __debug__:
-                    log.debug('Requested {} extractors'.format(
-                        len(_requested_extractors)
-                    ))
-                    for k in _requested_extractors:
-                        log.debug('Requested:  {!s}'.format(str(k.__name__)))
+        log.debug('Selected {} of {} available extractors'.format(
+            len(selected), len(self._available_extractors)))
 
-        log.debug('Selected {} of {} available extractors'.format(len(selected_klasses), len(all_klasses)))
-
-        # Get only extractors suitable for the given file.
-        selected_klasses = filter_able_to_handle(selected_klasses, fileobject)
-        log.debug('Removed extractors that can not handle the current file. '
-                  'Remaining: {}'.format(len(selected_klasses)))
-
-        if self.exclude_slow:
-            selected_klasses = filter_not_slow(selected_klasses)
-            log.debug('Removed slow extractors. Remaining: {}'.format(
-                len(selected_klasses)
+        if __debug__:
+            log.debug('Prepared {} extractors that can handle "{!s}"'.format(
+                len(selected), fileobject
             ))
+            for k in selected:
+                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+                log.debug('Prepared:  {!s}'.format(k.name()))
 
-        log.debug('Prepared {} extractors that can handle "{!s}"'.format(
-            len(selected_klasses), fileobject
-        ))
-        for k in selected_klasses:
-            log.debug('Prepared:  {!s}'.format(str(k.__name__)))
-
-        if selected_klasses:
+        if selected:
             # Run all prepared extractors.
             with logs.log_runtime(log, 'Extraction'):
-                self._run_extractors(fileobject, selected_klasses)
+                self._run_extractors(fileobject, selected)
 
-    @staticmethod
-    def _run_extractors(fileobject, all_klasses):
-        for klass in all_klasses:
+    def _select_from_available(self, available, requested_klasses):
+        selected = {
+            k for k in requested_klasses if k in available
+        }
+
+        if __debug__:
+            def __format_string(_extractors):
+                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+                return ', '.join(k.name() for k in _extractors)
+
+            if not requested_klasses.issubset(available):
+                na = requested_klasses.difference(available)
+                log.debug('Requested {} unavailable extractors: {}'.format(
+                    len(na), __format_string(na)))
+
+            log.debug('Selected {} requested extractors: {}'.format(
+                len(selected), __format_string(selected)))
+
+        if self.exclude_slow:
+            selected = filter_not_slow(selected, requested_klasses)
+            if __debug__:
+                log.debug('Removed slow extractors. Remaining: {}'.format(
+                    len(selected)
+                ))
+
+        return selected
+
+    def _run_extractors(self, fileobject, extractors_to_run):
+        for klass in extractors_to_run:
             _extractor_instance = klass()
             if not _extractor_instance:
                 log.critical('Error instantiating "{!s}" (!!)'.format(klass))
@@ -225,13 +186,14 @@ class ExtractorRunner(object):
 
             try:
                 _metainfo = _extractor_instance.metainfo()
-            except (ExtractorError, NotImplementedError) as e:
+            except (ExtractorError, PersistenceError, NotImplementedError) as e:
                 log.error('Unable to get meta info! Aborting extractor "{!s}":'
                           ' {!s}'.format(_extractor_instance, e))
                 continue
 
             try:
-                _extracted_data = _extractor_instance.extract(fileobject)
+                with logs.log_runtime(log, str(_extractor_instance)):
+                    _extracted_data = _extractor_instance.extract(fileobject)
             except (ExtractorError, NotImplementedError) as e:
                 log.error('Unable to extract data! Aborting extractor "{!s}":'
                           ' {!s}'.format(_extractor_instance, e))
@@ -244,33 +206,26 @@ class ExtractorRunner(object):
 
             # TODO: [TD0034] Filter out known bad data.
             # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-            _results = _wrap_extracted_data(_extracted_data, _metainfo,
-                                            _extractor_instance)
+            _results = wrap_provider_results(_extracted_data, _metainfo, klass)
             _meowuri_prefix = klass.meowuri_prefix()
-            store_results(fileobject, _meowuri_prefix, _results)
+            self.store_results(fileobject, _meowuri_prefix, _results)
 
+    def store_results(self, fileobject, meowuri_prefix, data):
+        """
+        Constructs a full MeowURI and calls the callback with the results.
 
-def get_extractor_runner():
-    return ExtractorRunner(available_extractors=extractors.ProviderClasses)
+        Args:
+            fileobject: Instance of 'FileObject' that produced the data to add.
+            meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
+            data: Data to add, as a dict containing the data and meta-information.
+        """
+        sanity.check_isinstance(data, dict)
+        for _uri_leaf, _data in data.items():
+            uri = force_meowuri(meowuri_prefix, _uri_leaf)
+            if not uri:
+                log.error('Unable to construct full extractor result MeowURI'
+                          'from prefix "{!s}" and leaf "{!s}"'.format(
+                              meowuri_prefix, _uri_leaf))
+                continue
 
-
-def run_extraction(fileobject, require_extractors, run_all_extractors=False):
-    """
-    Sets up and executes data extraction for the given file.
-
-    Args:
-        fileobject: The file object to extract data from.
-        require_extractors: List of extractor classes that should be included.
-        run_all_extractors: Whether all data extractors should be included.
-
-    Raises:
-        AutonameowException: An unrecoverable error occurred during extraction.
-    """
-    runner = get_extractor_runner()
-    try:
-        runner.start(fileobject,
-                     request_extractors=require_extractors,
-                     request_all=run_all_extractors)
-    except AutonameowException as e:
-        log.critical('Extraction FAILED: {!s}'.format(e))
-        raise
+            self._add_results_callback(fileobject, uri, _data)

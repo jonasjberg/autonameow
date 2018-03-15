@@ -56,7 +56,7 @@ test_automagic_rename()
     local _temp_file
 
     _sample_file_basename="$(basename -- "${_sample_file}")"
-    _temp_dir="$(mktemp -d)"
+    _temp_dir="$(mktemp -d -t aw_test_integration_rename.XXXXXX)"
     _expected_name="${_temp_dir}/${_expected_basename}"
     _temp_file="${_temp_dir}/${_sample_file_basename}"
 

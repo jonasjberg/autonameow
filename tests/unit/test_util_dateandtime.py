@@ -27,12 +27,35 @@ from util.dateandtime import (
     date_is_probable,
     find_isodate_like,
     hyphenate_date,
+    is_datetime_instance,
     match_any_unix_timestamp,
     match_special_case,
+    match_special_case_no_date,
     naive_to_timezone_aware,
     timezone_aware_to_naive,
     _year_is_probable
 )
+
+
+class TestIsDatetimeInstance(TestCase):
+    def test_returns_false_given_something_else_than_datetime_instance(self):
+        for given in (
+                False, None, [], {}, object(), 'foo', 1, lambda x: True
+        ):
+            with self.subTest(given=given):
+                actual = is_datetime_instance(given)
+                self.assertIsInstance(actual, bool)
+                self.assertFalse(actual)
+
+    def test_returns_true_given_datetime_instance(self):
+        for given in (
+            uu.str_to_datetime('2016-07-22 131730'),
+            datetime.now()
+        ):
+            with self.subTest(given=given):
+                actual = is_datetime_instance(given)
+                self.assertIsInstance(actual, bool)
+                self.assertTrue(actual)
 
 
 class TestDateIsProbable(TestCase):
@@ -132,31 +155,102 @@ class TestMatchUnixTimestamp(TestCase):
 
 
 class TestMatchSpecialCase(TestCase):
-    def setUp(self):
-        self.expect = datetime.strptime('20160722 131730', '%Y%m%d %H%M%S')
-        self.assertIsInstance(self.expect, datetime)
+    @classmethod
+    def setUpClass(cls):
+        cls.expect = datetime.strptime('20160722 131730', '%Y%m%d %H%M%S')
+
+    def _assert_match(self, given):
+        actual = match_special_case(given)
+        self.assertIsNotNone(actual)
+        self.assertEqual(self.expect, actual)
+
+    def _assert_no_match(self, given):
+        self.assertIsNone(match_special_case(given))
 
     def test_match_special_case_1st_variation(self):
-        self.assertIsNotNone(match_special_case('2016-07-22_131730'))
-        self.assertEqual(self.expect, match_special_case('2016-07-22_131730'))
+        self._assert_match('2016-07-22_131730')
 
     def test_match_special_case_2nd_variation(self):
-        self.assertIsNotNone(match_special_case('2016-07-22T131730'))
-        self.assertEqual(self.expect, match_special_case('2016-07-22T131730'))
+        self._assert_match('2016-07-22T131730')
 
     def test_match_special_case_3rd_variation(self):
-        self.assertIsNotNone(match_special_case('20160722_131730'))
-        self.assertEqual(self.expect, match_special_case('20160722_131730'))
+        self._assert_match('20160722_131730')
 
     def test_match_special_case_4th_variation(self):
-        self.assertIsNotNone(match_special_case('20160722T131730'))
-        self.assertEqual(self.expect, match_special_case('20160722T131730'))
+        self._assert_match('20160722T131730')
 
-    def test_match_special_case_with_invalid_argument(self):
-        self.assertIsNone(match_special_case(None))
-        self.assertIsNone(match_special_case(''))
-        self.assertIsNone(match_special_case(' '))
-        self.assertIsNone(match_special_case('abc'))
+    def test_does_not_match_strings_without_iso_like_dates(self):
+        self._assert_no_match('')
+        self._assert_no_match(' ')
+        self._assert_no_match('foo')
+        self._assert_no_match('2018')
+
+    def test_does_not_match_improbable_dates_and_or_times(self):
+        self._assert_no_match('0000-00-00T000000')
+        self._assert_no_match('1111-22-33T445566')
+        self._assert_no_match('9999-99-99T999999')
+        self._assert_no_match('1234-56-78T890123')
+        self._assert_no_match('8765-43-21T132456')
+
+        self._assert_no_match('00000000T000000')
+        self._assert_no_match('11112233T445566')
+        self._assert_no_match('99999999T999999')
+        self._assert_no_match('12345678T890123')
+        self._assert_no_match('87654321T132456')
+
+    def test_returns_none_for_non_strings(self):
+        self._assert_no_match(None)
+
+
+class TestMatchSpecialCaseNoDate(TestCase):
+    def _assert_match(self, given):
+        actual = match_special_case_no_date(given)
+        self.assertIsInstance(actual, datetime,
+                              'Given string: {!s}'.format(given))
+
+    def _assert_no_match(self, given):
+        actual = match_special_case_no_date(given)
+        self.assertIsNone(actual)
+
+    def test_returns_datetime_instances_for_iso_like_strings(self):
+        self._assert_match('2018-02-13')
+        self._assert_match('2018-02-13          ')
+        self._assert_match('2018-02-13foo')
+        self._assert_match('2018-02-13        foo')
+        self._assert_match('1986-01-02')
+
+        self._assert_match('20180213')
+        self._assert_match('20180213          ')
+        self._assert_match('20180213foo')
+        self._assert_match('20180213        foo')
+        self._assert_match('19860102')
+
+    def test_returns_datetime_instance_with_expected_date(self):
+        expect = datetime.strptime('20180213', '%Y%m%d')
+        actual = match_special_case_no_date('2018-02-13')
+        self.assertEqual(expect, actual)
+
+    def test_does_not_match_strings_without_iso_like_dates(self):
+        self._assert_no_match('')
+        self._assert_no_match(' ')
+        self._assert_no_match('foo')
+        self._assert_no_match('2018')
+
+    def test_does_not_match_improbable_dates(self):
+        self._assert_no_match('0000-00-00')
+        self._assert_no_match('1111-22-33')
+        self._assert_no_match('9999-99-99')
+        self._assert_no_match('1234-56-78')
+        self._assert_no_match('8765-43-21')
+
+        self._assert_no_match('00000000')
+        self._assert_no_match('11112233')
+        self._assert_no_match('99999999')
+        self._assert_no_match('12345678')
+        self._assert_no_match('87654321')
+
+    def test_returns_none_for_non_strings(self):
+        self._assert_no_match(None)
 
 
 class TestNaiveToTimezoneAware(TestCase):
@@ -194,20 +288,14 @@ class FindIsoDateLike(TestCase):
         self.expected = uu.str_to_datetime('2016-07-22 131730')
         self.assertIsInstance(self.expected, datetime)
 
-    def test_invalid_argument_raises_value_error(self):
-        def _assert_raises(test_data):
-            with self.assertRaises(ValueError):
-                find_isodate_like(test_data)
-
-        _assert_raises(None)
-        _assert_raises('')
-        _assert_raises(' ')
-        _assert_raises('  ')
-
     def _assert_none(self, test_data):
         self.assertIsNone(find_isodate_like(test_data))
 
     def test_returns_none_for_no_possible_matches(self):
+        self._assert_none(None)
+        self._assert_none('')
+        self._assert_none(' ')
+        self._assert_none('  ')
         self._assert_none('abc')
         self._assert_none(' a ')
         self._assert_none(' 1 ')

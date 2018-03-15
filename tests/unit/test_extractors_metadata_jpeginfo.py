@@ -43,26 +43,21 @@ dependency_error = 'Extractor dependencies not satisfied'
 
 
 @skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorOutputTypes(CaseExtractorOutputTypes):
-    __test__ = True
+class TestJpeginfoMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
+                                               TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
 @skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractor(CaseExtractorBasics):
-    __test__ = True
+class TestJpeginfoMetadataExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
-
-    def test_method_str_returns_expected_value(self):
-        actual = str(self.extractor)
-        expect = 'JpeginfoMetadataExtractor'
-        self.assertEqual(actual, expect)
+    EXTRACTOR_NAME = 'JpeginfoMetadataExtractor'
 
 
 @skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorOutputTestFileA(CaseExtractorOutput):
-    __test__ = True
+class TestJpeginfoMetadataExtractorOutputTestFileA(CaseExtractorOutput,
+                                                   TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -72,8 +67,8 @@ class TestJpeginfoMetadataExtractorOutputTestFileA(CaseExtractorOutput):
 
 
 @skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorOutputTestFileB(CaseExtractorOutput):
-    __test__ = True
+class TestJpeginfoMetadataExtractorOutputTestFileB(CaseExtractorOutput,
+                                                   TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_png.png')
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -83,8 +78,8 @@ class TestJpeginfoMetadataExtractorOutputTestFileB(CaseExtractorOutput):
 
 
 @skipIf(unmet_dependencies, dependency_error)
-class TestJpeginfoMetadataExtractorOutputTestFileC(CaseExtractorOutput):
-    __test__ = True
+class TestJpeginfoMetadataExtractorOutputTestFileC(CaseExtractorOutput,
+                                                   TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_txt.txt')
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -107,7 +102,7 @@ class TestJpeginfoMetadataExtractorMetainfo(TestCase):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
             self.assertIn('coercer', self.actual.get(_field, {}))
 
-    def test_metainfo_multiple_is_bool_or_none(self):
+    def test_metainfo_multivalued_is_none_or_boolean(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
             _field_lookup_entry = self.actual.get(_field, {})
             self.assertIn('multivalued', _field_lookup_entry)

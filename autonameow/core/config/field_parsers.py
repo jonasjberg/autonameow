@@ -41,6 +41,9 @@ from util import encoding as enc
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0154] Add "incrementing counter" placeholder field
+
+
 class ConfigFieldParser(object):
     """
     Top-level superclass for all configuration field parsers.
@@ -71,12 +74,11 @@ class ConfigFieldParser(object):
       For example, the 'RegexConfigFieldParser' would return the matched part.
     """
 
-    # List of "meowURIs" (or configuration "keys"/"fields") used to
+    # List of "MeowURIs" (or configuration "keys"/"fields") used to
     # determine if the class is suited to handle the expression or data.
     #
-    # The "meowURI" consist of a lower case words, separated by periods.
-    # For instance; "contents.mime_type" or "filesystem.basename.extension".
-    # The "meowURI" can contain "globs" as wildcards. Globs substitute
+    # The "MeowURI" consist of a lower case words, separated by periods.
+    # The "MeowURI" can contain "globs" as wildcards. Globs substitute
     # any of the lower case words with an asterisk, effectively ignoring that
     # part during comparison.
     #
@@ -87,6 +89,7 @@ class ConfigFieldParser(object):
     ALLOW_MULTIVALUED_EXPRESSION = None
 
     def __init__(self):
+        # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
         self.init()
 
     def init(self):
@@ -182,6 +185,7 @@ class ConfigFieldParser(object):
 
 
 class BooleanConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     APPLIES_TO_MEOWURIS = ['*.filetags.follows_filetags_convention']
     ALLOW_MULTIVALUED_EXPRESSION = False
 
@@ -215,11 +219,18 @@ class BooleanConfigFieldParser(ConfigFieldParser):
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     # NOTE: Globs does not include all possible extractor globs.
     APPLIES_TO_MEOWURIS = [
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
         '*.XMP-dc:Title', '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher',
-        '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.text.*', '*.text',
+        '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.extension',
+        '*.basename_full',
+        '*.basename_prefix',
+        '*.basename_suffix',
+        '*.pathname_full',
+        '*.pathname_parent',
+        '*.text.*', '*.text'
     ]
     # Add MeowURIs from "generic" fields.
     APPLIES_TO_MEOWURIS.extend([
@@ -293,6 +304,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     APPLIES_TO_MEOWURIS = ['*.mime_type', gf.GenericMimeType.uri()]
     ALLOW_MULTIVALUED_EXPRESSION = True
 
@@ -301,13 +313,13 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         if not expression:
             return False
 
-        string_expr = types.force_string(expression)
-        if not string_expr:
+        str_expression = types.force_string(expression)
+        if not str_expression:
             return False
 
         try:
             # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
-            if re.match(r'^([a-z]+|\*)/([a-z0-9\-.+]+|\*)$', string_expr):
+            if re.match(r'^([a-z]+|\*)/([a-z0-9\-.+]+|\*)$', str_expression):
                 return True
         except TypeError:
             pass
@@ -340,6 +352,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     # NOTE: Globs does not include all possible extractor globs.
     APPLIES_TO_MEOWURIS = [
         '*.PDF:CreateDate', '*.PDF:ModifyDate', '*.EXIF:DateTimeOriginal',
@@ -389,6 +402,7 @@ NAMETEMPLATEFIELDS_DUMMYDATA = dict.fromkeys(
 
 
 class NameTemplateConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     APPLIES_TO_MEOWURIS = []
     ALLOW_MULTIVALUED_EXPRESSION = False
 
@@ -454,8 +468,8 @@ def suitable_field_parser_for(meowuri):
     log.debug('suitable_field_parser_for("{!s}")'.format(meowuri))
     sanity.check_isinstance_meowuri(meowuri)
 
-    candidates= [p for p in FieldParserInstances
-                 if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
+    candidates = [p for p in FieldParserInstances
+                  if meowuri.matchglobs(p.APPLIES_TO_MEOWURIS)]
     if not candidates:
         return None
 

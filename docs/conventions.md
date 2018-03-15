@@ -108,7 +108,7 @@ import os                    #  1. Standard library
 try:                         #  2.
     import yaml              #  Third-party
 except ImportError:          #  and/or/maybe
-    yaml = None              #  potentially unavaiable
+    yaml = None              #  potentially unavailable
 
 from core import exceptions  #  3. Project-specific
 ```

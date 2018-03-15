@@ -19,84 +19,60 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
 from unittest import TestCase
-from unittest.mock import (
-    MagicMock,
-    patch
-)
 
-from core.namebuilder.builder import (
-    FilenamePostprocessor
-)
+from core import exceptions
+from core.namebuilder import populate_name_template
 
 
-class TestFilenamePostprocessor(TestCase):
-    @patch('core.namebuilder.builder.ui', MagicMock())
-    def __check_call(self, **kwargs):
-        given = kwargs.pop('given')
-        expect = kwargs.pop('expect')
+class TestPopulateNameTemplate(TestCase):
+    def test_strips_single_quotes_from_format_string(self):
+        actual = populate_name_template("'foo' bar'")
+        self.assertEqual('foo bar', actual)
 
-        p = FilenamePostprocessor(**kwargs)
+    def test_strips_double_quotes_from_format_string(self):
+        actual = populate_name_template('"foo" bar"')
+        self.assertEqual('foo bar', actual)
 
-        actual = p(given)
-        self.assertEqual(expect, actual)
+    def test_strips_single_and_double_quotes_from_format_string(self):
+        actual = populate_name_template('"foo" \'"baz"\' bar"')
+        self.assertEqual('foo baz bar', actual)
 
-    def test_lowercase_filename_true(self):
-        self.__check_call(given='Foo Bar', expect='foo bar',
-                          lowercase_filename=True)
+    def test_name_template_using_template_1_given_all_fields(self):
+        template = '{title} - {author} {datetime}.{extension}'
+        data = {'title': '11 years old and dying',
+                'author': 'Gibson',
+                'datetime': '2017-05-27',
+                'extension': 'pdf'}
+        expect = '11 years old and dying - Gibson 2017-05-27.pdf'
 
-    def test_lowercase_filename_false(self):
-        self.__check_call(given='Foo Bar', expect='Foo Bar',
-                          lowercase_filename=False)
+        self.assertEqual(populate_name_template(template, **data), expect)
 
-    def test_uppercase_filename_true(self):
-        self.__check_call(given='Foo Bar', expect='FOO BAR',
-                          uppercase_filename=True)
+    def test_name_template_using_template_1_some_fields_missing(self):
+        with self.assertRaises(exceptions.NameTemplateSyntaxError):
+            template = '{title} - {author} {datetime}.{extension}'
+            data = {'author': None,
+                    'datetime': '2017-05-27',
+                    'extension': None}
+            expect = '11 years old and dying - Gibson 2017-05-27.pdf'
+            self.assertEqual(populate_name_template(template, **data), expect)
 
-    def test_uppercase_filename_false(self):
-        self.__check_call(given='Foo Bar', expect='Foo Bar',
-                          uppercase_filename=False)
+    def test_name_template_using_template_2_given_all_fields(self):
+        template = '{publisher} {title} {edition} - {author} {date}.{extension}'
+        data = {'title': '11 years old and dying',
+                'publisher': 'CatPub',
+                'edition': 'Final Edition',
+                'author': 'Gibson',
+                'date': '2017',
+                'extension': 'pdf'}
+        expect = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
 
-    def test_lowercase_filename_true_and_uppercase_filename_true(self):
-        self.__check_call(given='Foo Bar', expect='foo bar',
-                          uppercase_filename=True,
-                          lowercase_filename=True)
+        self.assertEqual(populate_name_template(template, **data), expect)
 
-    def test_no_replacements(self):
-        for reps in [None, {}]:
-            with self.subTest(reps=reps):
-                self.__check_call(given='Foo Bar', expect='Foo Bar',
-                                  regex_replacements=reps)
+    def test_name_template_using_template_2_all_fields_missing(self):
+        template = '{publisher} {title} {edition} - {author} {date}.{extension}'
+        data = dict()
+        expect = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
 
-    def test_one_replacement(self):
-        reps = [
-            (re.compile(r'Foo'), 'Mjao')
-        ]
-        self.__check_call(given='Foo Bar', expect='Mjao Bar',
-                          regex_replacements=reps)
-
-    def test_two_replacements(self):
-        reps = [
-            (re.compile(r'Foo'), 'Mjao'),
-            (re.compile(r' '), 'X'),
-        ]
-        self.__check_call(given='Foo Bar', expect='MjaoXBar',
-                          regex_replacements=reps)
-
-    def test_three_replacements(self):
-        reps = [
-            (re.compile(r'Foo'), 'Mjao'),
-            (re.compile(r' '), 'X'),
-            (re.compile(r'(bar){2,}'), 'bar'),
-        ]
-        self.__check_call(given='Foo barbar Bar', expect='MjaoXbarXBar',
-                          regex_replacements=reps)
-
-    def test_simplify_unicode(self):
-        self.__check_call(given='foo', expect='foo',
-                          simplify_unicode=False)
-        self.__check_call(given='Fooçalbar', expect='Fooçalbar',
-                          simplify_unicode=False)
-        self.__check_call(given='Fooçalbar', expect='Foocalbar',
-                          simplify_unicode=True)
+        with self.assertRaises(exceptions.NameTemplateSyntaxError):
+            self.assertEqual(populate_name_template(template, **data), expect)

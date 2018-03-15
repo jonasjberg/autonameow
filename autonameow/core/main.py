@@ -20,13 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import traceback
 
 from core import constants as C
-from core import (
-    logs,
-    ui
-)
+from core import logs
+from core.view import cli
 from core.autonameow import Autonameow
 from core.exceptions import AWAssertionError
 
@@ -88,12 +85,12 @@ def real_main(options=None):
         logs.silence()
 
     # Main program entry point.
-    with Autonameow(opts) as ameow:
+    with Autonameow(opts, ui=cli) as ameow:
         ameow.run()
 
 
 def print_error(message):
-    print(message, file=sys.stderr)
+    print(message, file=sys.stderr, flush=True)
 
 
 def format_sanitycheck_error(string):
@@ -110,6 +107,8 @@ ______________________________________________________
  Running: {_program} version {_version}
 Platform: {_platform}
   Python: {_python}
+
+Encodings and Unicode: {_encoding}
 ______________________________________________________
 
 {message}
@@ -118,6 +117,7 @@ ______________________________________________________
 '''
     # TODO: [TD0095] Clean this up. Try to minimize imports.
     import platform
+    import traceback
 
     typ, val, tb = sys.exc_info()
     msg = ERROR_MSG_TEMPLATE.format(
@@ -126,6 +126,17 @@ ______________________________________________________
         _platform=platform.platform(),
         _python='{!s} {!s}'.format(platform.python_implementation(),
                                    platform.python_version()),
+        _encoding='''
+   sys.getdefaultencoding(): {!r}
+sys.getfilesystemencoding(): {!r}
+         sys.stdin.encoding: {!r}
+        sys.stdout.encoding: {!r}
+             sys.maxunicode: {!r}
+'''.format(sys.getdefaultencoding(),
+           sys.getfilesystemencoding(),
+           sys.stdin.encoding,
+           sys.stdout.encoding,
+           sys.maxunicode),
         traceback=''.join(traceback.format_exception(typ, val, tb)),
         message=string
     )
@@ -141,11 +152,11 @@ def cli_main(argv=None):
     """
     args = argv
     if not args:
-        print('Add "--help" to display usage information.')
+        cli.msg('Add "--help" to display usage information.')
         sys.exit(C.EXIT_SUCCESS)
 
     # Handle the command line arguments with argparse.
-    opts = ui.options.cli_parse_args(args)
+    opts = cli.options.cli_parse_args(args)
 
     # Translate from 'argparse'-specific format to internal options dict.
     options = {

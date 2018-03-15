@@ -237,6 +237,38 @@ assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\"\""
 
 
+# ______________________________________________________________________________
+#
+# Check the '--dump-meowuris' option.
+
+assert_true '"$AUTONAMEOW_RUNNER" --help 2>&1 | grep -- "--dump-meowuris"' \
+            'Help text includes the "--dump-meowuris" option'
+
+assert_true '"$AUTONAMEOW_RUNNER" --dump-meowuris' \
+            'Expect exit code 0 for "--dump-meowuris"'
+
+assert_true '"$AUTONAMEOW_RUNNER" --dump-meowuris --debug' \
+            'Expect exit code 0 for "--dump-meowuris --debug"'
+
+assert_true '"$AUTONAMEOW_RUNNER" --dump-meowuris --verbose' \
+            'Expect exit code 0 for "--dump-meowuris --verbose"'
+
+
+# ______________________________________________________________________________
+#
+# Check the '--dump-config' option.
+
+assert_true '"$AUTONAMEOW_RUNNER" --dump-config' \
+            'Expect exit code 0 for "--dump-config"'
+
+assert_true '"$AUTONAMEOW_RUNNER" --dump-config --debug' \
+            'Expect exit code 0 for "--dump-config --debug"'
+
+assert_true '"$AUTONAMEOW_RUNNER" --dump-config --verbose' \
+            'Expect exit code 0 for "--dump-config --verbose"'
+
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"

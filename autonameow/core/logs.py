@@ -24,8 +24,6 @@ import time
 from contextlib import contextmanager
 from functools import wraps
 
-from core import ui
-
 
 LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
@@ -47,21 +45,26 @@ def init_logging(opts):
         # TODO: Fix global logging state making testing tedious.
         return
 
+    # This module is likely imported from a lot of places. The "lazy" import
+    # below is intended to prevent prematurely importing third-party modules
+    # that might be missing, like 'prompt_toolkit'.
+    from core.view import cli
+
     # NOTE(jonas): This is probably a bad idea, but seems to work good enough.
     # TODO: [hardcoded] Remove spaces after labels, used for alignment.
-    logging.addLevelName(logging.INFO, ui.colorize(
+    logging.addLevelName(logging.INFO, cli.colorize(
         '[INFO]    ', fore='LIGHTBLUE_EX', style='BRIGHT'
     ))
-    logging.addLevelName(logging.DEBUG, ui.colorize(
+    logging.addLevelName(logging.DEBUG, cli.colorize(
         '[DEBUG]   ', fore='BLUE'
     ))
-    logging.addLevelName(logging.WARNING, ui.colorize(
+    logging.addLevelName(logging.WARNING, cli.colorize(
         '[WARNING] ', fore='RED', style='BRIGHT'
     ))
-    logging.addLevelName(logging.ERROR, ui.colorize(
+    logging.addLevelName(logging.ERROR, cli.colorize(
         '[ERROR]   ', fore='RED', style='BRIGHT'
     ))
-    logging.addLevelName(logging.CRITICAL, ui.colorize(
+    logging.addLevelName(logging.CRITICAL, cli.colorize(
         '[CRITICAL]', fore='LIGHTRED_EX', style='BRIGHT'
     ))
 
@@ -71,7 +74,7 @@ def init_logging(opts):
     #       command-line. For instance, verbosity levels 1 and 3 would be
     #       enabled with '-v' and '-vvv', respectively.
 
-    _colored_timestamp = ui.colorize('%(asctime)s', style='DIM')
+    _colored_timestamp = cli.colorize('%(asctime)s', style='DIM')
     if opts.get('debug'):
         fmt = (
             _colored_timestamp
@@ -90,6 +93,11 @@ def init_logging(opts):
         fmt = '%(levelname)s %(message)s'
         logging.basicConfig(level=logging.WARNING, format=fmt)
 
+    # Reset global list of logged run-times.
+    # TODO: [cleanup] Do not use global variable to store logged run-times
+    global global_logged_runtime
+    global_logged_runtime = list()
+
     _logging_initialized = True
 
 
@@ -107,6 +115,11 @@ def deinit_logging():
     # logging.shutdown()
     # importlib.reload(logging)
 
+    # Reset global list of logged run-times.
+    # TODO: [cleanup] Do not use global variable to store logged run-times
+    global global_logged_runtime
+    global_logged_runtime = list()
+
     global _logging_initialized
     _logging_initialized = False
 
@@ -123,20 +136,47 @@ def unsilence():
     logging.disabled = False
 
 
-@contextmanager
-def log_runtime(logger, name):
-    def _log(message):
-        MAX_WIDTH = 120
-        message = ' ' + message + ' '
-        logger.debug(message.center(MAX_WIDTH, '='))
+# TODO: [cleanup] Do not use global variable to store logged run-times
+global_logged_runtime = list()
 
-    _log('{} Started'.format(name))
+
+def _decorate_log_entry_section(string):
+    MAX_WIDTH = 120
+    return ' {!s} '.format(string).center(MAX_WIDTH, '=')
+
+
+@contextmanager
+def log_runtime(logger, description, log_level=None):
+    """
+    Context manager that logs the time taken for the context to complete.
+
+    Args:
+        logger: Logger instance that is used to log the results.
+        description: Name of thing being measured for use in the log entry.
+        log_level: Log level to call the logger instance with, as a string
+                   or integer. Refer to 'logging.getLevelName()'.
+    """
+    if not log_level:
+        # Include log level 'NOTSET' (0)
+        log_level = 'DEBUG'
+
+    # Translate either string or integer log levels to integer.
+    _log_level = logging.getLevelName(log_level)
+
+    def _log(message):
+        decorated_message = _decorate_log_entry_section(message)
+        logger.log(_log_level, decorated_message)
+
+    global global_logged_runtime
+    _log('{} Started'.format(description))
     start_time = time.time()
     try:
         yield
     finally:
         elapsed_time = time.time() - start_time
-        _log('{} Completed in {:.9f} seconds'.format(name, elapsed_time))
+        completed_msg = '{} Completed in {:.9f} seconds'.format(description, elapsed_time)
+        global_logged_runtime.append(completed_msg)
+        _log(completed_msg)
 
 
 def log_func_runtime(logger):
@@ -161,8 +201,17 @@ def log_func_runtime(logger):
             _start_time = time.time()
             func_returnval = func(*args, **kwds)
             _elapsed_time = time.time() - _start_time
-            logger.debug('{}.{} Completed in {:.9f} seconds'.format(
-                func.__module__, func.__name__, _elapsed_time))
+            completed_msg = '{}.{} Completed in {:.9f} seconds'.format(
+                func.__module__, func.__name__, _elapsed_time)
+            global global_logged_runtime
+            global_logged_runtime.append(completed_msg)
+            logger.debug(completed_msg)
             return func_returnval
         return log_runtime_wrapper
     return decorator
+
+
+def log_previously_logged_runtimes(logger):
+    global global_logged_runtime
+    for entry in global_logged_runtime:
+        logger.debug(entry)

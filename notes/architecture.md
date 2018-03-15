@@ -19,6 +19,45 @@ __NOTE: This information is not being kept up to date!__
 * 2017-12-02 --- `jonasjberg` Remove old part. Add note that it is all old.
 * 2017-12-15 --- `jonasjberg` Add section on "on demand" extraction.
 * 2018-01-01 --- `jonasjberg` Update ..
+* 2018-03-06 --- `jonasjberg` Ideas on constructing extractors declaratively
+
+
+--------------------------------------------------------------------------------
+
+
+Declarative Extractors through YAML files
+-----------------------------------------
+> Jonas Sjöberg, 2018-03-06.
+
+The extractor `FIELD_LOOK` data was moved to external yaml files in commit
+6a1707a7896bef2e151ce96de420a5f78652045a.
+
+__How about moving all extractor code to YAML files?__
+
+Assuming all extractors will use external programs do do the actual extraction,
+the command-lines to execute could be specified in a yaml file.  This also goes
+for any filtering and other kinds of special handling of specific fields in
+specific extractors.
+
+I came across an example of this in
+`dbpedia_fact-extractor.git/date_normalizer/*`, where data and Python code is
+declared in yaml-files which is then evaluated and used by the main program.
+
+This should make things a lot cleaner and make development of additional
+extractors a lot less complicated.  But it probably also will require a sound
+YAML data format.
+
+Pros:
+
+* Simplifies and isolates extractor changes
+* A lot less boilerplate
+
+Cons:
+
+* Executing arbitrary code in yaml files is a huge security vulnerability
+* Arguably less "safe" due to interpreter doing *even less* validation before execution
+* Messy if extractor must do some unforeseen or complex behaviour
+
 
 
 Rethinking Requests and Gathering Required Data
@@ -195,13 +234,7 @@ unimplemented..) included:
            ~~determined by the class methods `can_handle`.~~
           2. ~~Run all analyzers in turn, passing the results back to the~~
            ~~`SessionRepository`.~~
-      4. ~~__Run "plugins"__~~
-          1. ~~Gather all available plugins.~~
-          2. ~~Filter out plugins that "can handle" the file, determined by the~~
-           ~~class method `can_handle` of each plugin.~~
-          3. ~~Run all plugins in turn, passing the results back to the~~
-           ~~`SessionRepository`.~~
-      5. __Run "rule matcher"__~~
+      4. __Run "rule matcher"__~~
           1. ~~Get all rules from the active configuration.~~
           2. ~~For each rule, do;~~
               1. ~~Evaluate all rule conditions.~~
@@ -214,7 +247,7 @@ unimplemented..) included:
           4. ~~Prioritize rules by score, weight and ranking bias.~~
           5. ~~Store all prioritized rules as "candidates", presenting the highest~~
            ~~priority rule as the "best match".~~
-      6. ~~__A) If running in "automagic" mode__~~
+      5. ~~__A) If running in "automagic" mode__~~
           1. ~~Set the active name template to the name template defined in the~~
            ~~"best matched" rule.~~
           2. ~~Create an instance of `Resolver`~~

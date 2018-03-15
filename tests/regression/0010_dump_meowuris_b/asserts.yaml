@@ -1,0 +1,14 @@
+exit_code: 0
+stdout:
+    matches:
+    - 'analyzer.document'
+    - 'analyzer.ebook'
+    - 'analyzer.filename'
+    - 'extractor.filesystem.filetags'
+    - 'extractor.filesystem.xplat'
+    - 'extractor.text.plain'
+    - 'class .*DocumentAnalyzer'
+    does_not_match:
+    - 'analyzer.filetags'
+    - 'None.None'
+    - 'foo.bar'

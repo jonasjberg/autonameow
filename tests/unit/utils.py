@@ -30,41 +30,16 @@ from contextlib import contextmanager
 from datetime import datetime
 
 import unit.constants as uuconst
+from core import FileObject
 from core.config import rules
 from core.config.config_parser import ConfigurationParser
 from core.exceptions import InvalidMeowURIError
-from core.fileobject import FileObject
 from core.model import MeowURI
 from util import encoding as enc
 from util import (
     nested_dict_get,
     nested_dict_set
 )
-
-
-# class TestCase(unittest.TestCase):
-#     # TODO: Use this to get rid of duplicate self.maxDiff settings, etc.
-#     def setUp(self):
-#         pass
-#
-#     def tearDown(self):
-#         pass
-
-
-def ok_(expr, msg=None):
-    """
-    Shorthand for assert
-    """
-    if not expr:
-        raise AssertionError(msg)
-
-
-def eq_(a, b, msg=None):
-    """
-    Shorthand for 'assert a == b, "{!r} != {!r}".format(a, b)'
-    """
-    if not a == b:
-        raise AssertionError(msg or '{!r} != {!r}'.format(a, b))
 
 
 def abspath_testfile(testfile_basename):
@@ -79,7 +54,7 @@ def abspath_testfile(testfile_basename):
     Returns:
         The full absolute path to the given file.
     """
-    return os.path.abspath(os.path.join(uuconst.TEST_FILES_DIR,
+    return os.path.abspath(os.path.join(uuconst.PATH_TEST_FILES,
                                         testfile_basename))
 
 
@@ -103,7 +78,7 @@ def abspath_testconfig(testconfig_basename=None):
     assert isinstance(_basename, str), type(_basename)
 
     return os.path.abspath(
-        os.path.join(uuconst.TEST_FILES_DIR, 'configs', _basename)
+        os.path.join(uuconst.PATH_TEST_FILES, 'configs', _basename)
     )
 
 
@@ -129,8 +104,8 @@ def all_testfiles():
         as a list of Unicode strings.
     """
     _abs_paths = [
-        os.path.abspath(os.path.join(uuconst.TEST_FILES_DIR, f))
-        for f in os.listdir(uuconst.TEST_FILES_DIR)
+        os.path.abspath(os.path.join(uuconst.PATH_TEST_FILES, f))
+        for f in os.listdir(uuconst.PATH_TEST_FILES)
     ]
     return [
         f for f in _abs_paths if os.path.isfile(f) and not os.path.islink(f)
@@ -268,6 +243,7 @@ def get_mock_fileobject(mime_type=None):
         'image/png': 'magic_png.png',
         'image/x-ms-bmp': 'magic_bmp.bmp',
         'text/plain': 'magic_txt.txt',
+        'text/rtf': 'sample.rtf',
         'video/mp4': 'magic_mp4.mp4',
         'inode/x-empty': 'empty',
     }
@@ -281,6 +257,16 @@ def get_mock_fileobject(mime_type=None):
     return FileObject(normpath(temp_file))
 
 
+def get_meowuri():
+    """
+    Returns 'MeowURI' instances for use by unit tests.
+
+    Returns:
+        A valid MeowURI instance with any kind of valid value.
+    """
+    return as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+
+
 def fileobject_testfile(testfile_basename):
     """
     Like 'abspath_testfile' but wraps the result in a 'FileObject' instance.
@@ -289,17 +275,12 @@ def fileobject_testfile(testfile_basename):
     return FileObject(_f)
 
 
-def get_mock_empty_extractor_data():
-    """
-    Returns: Mock extracted (empty) data from an 'Extraction' instance.
-    """
-    return {}
-
-
 MOCK_SESSION_DATA_POOLS = dict()
 
 
 def mock_request_data_callback(fileobject, label):
+    # TODO: [hack][cleanup] This does not behave as the "mocked" systems.
+    # TODO: Integrate successful/failed query response objects.
     global MOCK_SESSION_DATA_POOLS
 
     cached_data = MOCK_SESSION_DATA_POOLS.get(fileobject)
@@ -315,16 +296,6 @@ def mock_request_data_callback(fileobject, label):
         return d
 
 
-def mock_analyzer_collect_data(fileobject, meowuri_prefix, data):
-    pass
-
-
-def mock_analyzer_request_global_data(fileobject, meowuri):
-    from core import repository
-    response = repository.SessionRepository.query(fileobject, meowuri)
-    return response
-
-
 def load_repository_dump(file_path):
     """
     Loads pickled repository contents from file at "file_path".
@@ -333,11 +304,7 @@ def load_repository_dump(file_path):
     if not file_path or not file_exists(file_path):
         return
 
-    try:
-        import cPickle as pickle
-    except ImportError:
-        import pickle
-
+    import pickle
     with open(enc.syspath(file_path), 'rb') as fh:
         _data = pickle.load(fh, encoding='bytes')
 
@@ -361,7 +328,7 @@ def mock_session_data_pool(fileobject):
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT],
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_EXTENSION],
         b'pdf.pdf'
     )
     nested_dict_set(
@@ -413,26 +380,8 @@ def mock_session_data_pool_empty_analysis_data(fileobject):
     return data
 
 
-def mock_session_data_pool_with_analysis_data(fileobject):
-    data = dict()
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
-        [{'source': 'filenamepart_tags',
-          'value': ['tagfoo', 'tagbar'],
-          'weight': 1}]
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
-        [{'source': 'filenamepart_base',
-          'value': 'gmail',
-          'weight': 0.25}]
-    )
-    return data
-
-
 def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
+    # TODO: [hack][cleanup] Mock properly! Remove?
     data = dict()
     nested_dict_set(
         data,
@@ -441,7 +390,7 @@ def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT],
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_EXTENSION],
         b'pdf.pdf'
     )
     nested_dict_set(
@@ -478,22 +427,22 @@ def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_TAGS],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_TAGS],
         []
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_DESCRIPTION],
         'gmail'
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_EXTENSION],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_EXTENSION],
         'pdf'
     )
     nested_dict_set(
         data,
-        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_DATETIME],
+        [fileobject, uuconst.MEOWURI_FS_FILETAGS_DATETIME],
         None
     )
     nested_dict_set(
@@ -510,6 +459,7 @@ def get_mock_analyzer():
     """
     Returns: A mock Analyzer class.
     """
+    # TODO: [hack][cleanup] Mock properly! Remove?
     n = 0
     while n < len(get_instantiated_analyzers()):
         yield get_instantiated_analyzers()[n]
@@ -587,53 +537,14 @@ def get_instantiated_analyzers():
     """
     # NOTE: These are instantiated with a None FileObject, which might be a
     #       problem and is surely not very pretty.
+    # TODO: [hack][cleanup] Mock properly! Remove?
     import analyzers
     return [klass(None, None, None) for klass in
             analyzers.get_analyzer_classes()]
 
 
-def get_dummy_rules_to_examine():
-    _raw_conditions = get_dummy_parsed_conditions()
-    _raw_sources = get_dummy_raw_data_sources()
-
-    out = []
-    out.append(rules.Rule(
-        description='test_files Gmail print-to-pdf',
-        exact_match=True,
-        ranking_bias=0.5,
-        name_template='{datetime} {title}.{extension}',
-        conditions=_raw_conditions[0],
-        data_sources=_raw_sources[0]
-    ))
-    out.append(rules.Rule(
-        description='test_files smulan.jpg',
-        exact_match=True,
-        ranking_bias=1.0,
-        name_template='{datetime} {description}.{extension}',
-        conditions=_raw_conditions[1],
-        data_sources=_raw_sources[1]
-    ))
-    out.append(rules.Rule(
-        description='Sample Entry for Photos with strict rules',
-        exact_match=True,
-        ranking_bias=1.0,
-        name_template='{datetime} {description} -- {tags}.{extension}',
-        conditions=_raw_conditions[2],
-        data_sources=_raw_sources[2]
-    ))
-    out.append(rules.Rule(
-        description='Sample Entry for EPUB e-books',
-        exact_match=True,
-        ranking_bias=1.0,
-        name_template='{publisher} {title} {edition} - {author} {date}.{extension}',
-        conditions=_raw_conditions[3],
-        data_sources=_raw_sources[3]
-    ))
-
-    return out
-
-
 def get_dummy_rulecondition_instances():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     return [
         rules.RuleCondition(MeowURI(meowuri_string), expression)
         for meowuri_string, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS
@@ -641,21 +552,25 @@ def get_dummy_rulecondition_instances():
 
 
 def get_dummy_raw_conditions():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     return [{meowuri: expression}
             for meowuri, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS]
 
 
 def get_dummy_raw_data_sources():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     return uuconst.DUMMY_RAW_RULE_DATA_SOURCES
 
 
 def get_dummy_parsed_conditions():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     _raw_conditions = get_dummy_raw_conditions()
     conditions = [rules.parse_conditions(c) for c in _raw_conditions]
     return conditions
 
 
 def get_dummy_rule():
+    # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
     _valid_conditions = get_dummy_parsed_conditions()
     return rules.Rule(
         description='dummy',
@@ -738,6 +653,7 @@ def is_importable(module_name):
 
 
 def init_session_repository():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     from core import repository
     repository.initialize()
 
@@ -745,6 +661,11 @@ def init_session_repository():
 def init_provider_registry():
     from core import providers
     providers.initialize()
+
+
+def init_master_data_provider(active_config):
+    from core import master_provider
+    master_provider.initialize(active_config)
 
 
 def is_internalstring(thing):
@@ -760,6 +681,7 @@ def is_internalbytestring(thing):
 
 
 def get_default_config():
+    # TODO: [hack][cleanup] Mock properly! Remove?
     init_session_repository()
 
     _config_path = normpath(abspath_testconfig())
@@ -783,3 +705,31 @@ def as_meowuri(string):
     except InvalidMeowURIError as e:
         raise AssertionError(e)
     return meowuri
+
+
+def get_expected_text_for_testfile(testfile_basename):
+    """
+    Returns any text that should be extracted from a given test file.
+
+    If the given basename is found in the 'test_files' directory and
+    a accompanying file containing reference text is found, it is returned.
+
+    Args:
+        testfile_basename: The basename of a file in the 'test_files' directory
+            as a Unicode string (internal string format)
+
+    Returns:
+        Reference, expected text contained in file as a Unicode string or None
+        if there is no file with expected text.
+    """
+    assert isinstance(testfile_basename, str)
+
+    expected_text_basename = testfile_basename + '_expected.txt'
+    p = abspath_testfile(expected_text_basename)
+    try:
+        with open(p, 'r', encoding='utf8') as fh:
+            return fh.read()
+    except FileNotFoundError:
+        return None
+    except (OSError, UnicodeDecodeError):
+        raise

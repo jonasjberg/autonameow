@@ -24,8 +24,18 @@ import logging
 from core import constants as C
 from core import providers
 from core.exceptions import AutonameowException
-from core.model.genericfields import get_field_class
-from util import mimemagic
+from core.model import (
+    force_meowuri,
+    MeowURI
+)
+from core.providers import wrap_provider_results
+from util import (
+    mimemagic,
+    sanity
+)
+
+
+log = logging.getLogger(__name__)
 
 
 class AnalyzerError(AutonameowException):
@@ -50,7 +60,7 @@ class BaseAnalyzer(object):
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
     HANDLES_MIME_TYPES = None
 
-    # Last part of the full MeowURI ('filetags', 'filename', ..)
+    # Last part of the full MeowURI ('ebook', 'filename', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
     # Set at first call to 'meowuri_prefix()'.
@@ -73,7 +83,8 @@ class BaseAnalyzer(object):
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        self.results = dict()
+        # self._intermediate_results = list()
+        self._intermediate_results = dict()
 
     def run(self):
         """
@@ -91,7 +102,8 @@ class BaseAnalyzer(object):
             AnalyzerError: The extraction could not be completed successfully.
         """
         self.analyze()
-        return self.results
+        results = self._wrap_results()
+        return results
 
     def analyze(self):
         """
@@ -111,90 +123,86 @@ class BaseAnalyzer(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def _add_results(self, meowuri_leaf, data):
-        """
-        Stores results in an instance variable dict under a full MeowURI.
-
-        Constructs a full "MeowURI" from the given 'meowuri_leaf' and the
-        analyzer-specific MeowURI.
-
-        Args:
-            meowuri_leaf: Last part of the "MeowURI"; for example 'author',
-                as a Unicode str.
-            data: ?
-        """
-        if not data:
+    def _add_intermediate_results(self, meowuri_leaf, data):
+        if data is None:
             return
 
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
-        # Map strings to generic field classes.
-        assert isinstance(data, dict), (
-            'Expected dict. Got {!s} ({!s})'.format(type(data), data)
-        )
-        _generic_field_string = data.get('generic_field')
-        if _generic_field_string:
-            _generic_field_klass = get_field_class(_generic_field_string)
-            if _generic_field_klass:
-                data['generic_field'] = _generic_field_klass
-            else:
-                data.pop('generic_field')
+        # assert meowuri_leaf not in self._intermediate_results
+        if meowuri_leaf in self._intermediate_results:
+            log.critical('Clobbered value with MeowURI leaf {!s}: "{!s}"'.format(meowuri_leaf, data))
+        self._intermediate_results[meowuri_leaf] = data
 
-        # TODO: [TD0133] Fix inconsistent use of MeowURIs
-        #       Stick to using either instances of 'MeowURI' _OR_ strings.
-        _meowuri = '{}.{}'.format(self.meowuri_prefix(), meowuri_leaf)
-        _existing_data = self.results.get(_meowuri)
-        if _existing_data:
-            if not isinstance(_existing_data, list):
-                _existing_data = [_existing_data]
-            self.results[_meowuri] = _existing_data + [data]
-        else:
-            self.results[_meowuri] = data
+    def _wrap_results(self):
+        try:
+            _metainfo = self.metainfo()
+        except NotImplementedError as e:
+            log.critical('Unable to get meta info! Aborting analyzer "{!s}":'
+                         ' {!s}'.format(self, e))
+            raise AnalyzerError(e)
+
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
+        wrapped = wrap_provider_results(self._intermediate_results, _metainfo, self.__class__)
+
+        meowuri_prefix = self.meowuri_prefix()
+
+        data_full_meowuris = dict()
+        for meowuri_leaf, data in wrapped.items():
+            uri = force_meowuri(meowuri_prefix, meowuri_leaf)
+            if not uri:
+                self.log.error(
+                    'Unable to construct full MeowURI from prefix "{!s}" '
+                    'and leaf "{!s}"'.format(meowuri_prefix, meowuri_leaf)
+                )
+                continue
+
+            assert uri not in data_full_meowuris, (
+                'Already wrapped MeowURI {!s} ({!s})'.format(uri, data)
+            )
+            data_full_meowuris[uri] = data
+
+        if not data_full_meowuris:
+            return dict()
+
+        return data_full_meowuris
 
     def request_any_textual_content(self):
-        _response = self.request_data(self.fileobject,
-                                      'generic.contents.text')
-        if not _response:
+        # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
+        response = self.request_data(self.fileobject, 'generic.contents.text')
+        if not response:
             return None
 
         text = None
-        if isinstance(_response, list):
-            for _r in _response:
-                assert isinstance(_r, str), (
-                    'Expected MeowURI "generic.contents.text" list entries to'
-                    ' be type str. Got "{!s}"'.format(type(_r))
-                )
-                if _r:
-                    text = _r
+        if isinstance(response, list):
+            for r in response:
+                sanity.check_isinstance(r, str)
+                if r:
+                    text = r
                     break
         else:
-            assert isinstance(_response, str), (
-                'Expected MeowURI "generic.contents.text" to return '
-                'type str. Got "{!s}"'.format(type(_response))
-            )
-            if _response:
-                text = _response
+            sanity.check_isinstance(response, str)
+            if response:
+                text = response
 
         if text is None:
             self.log.info('Requested data unavailable: "generic.contents.text"')
         return text
 
-    def metainfo(self):
+    @classmethod
+    def metainfo(cls):
         # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
-        return self.FIELD_LOOKUP
+        return dict(cls.FIELD_LOOKUP)
 
     @classmethod
     def meowuri_prefix(cls):
         """
         Returns: Analyzer-specific "MeowURI" root/prefix as a Unicode string.
         """
-        # TODO: [TD0133] Fix inconsistent use of MeowURIs
-        #       Stick to using either instances of 'MeowURI' _OR_ strings.
         if not cls._meowuri_prefix:
             _leaf = cls.__module__.split('_')[-1] or cls.MEOWURI_LEAF
-
-            cls._meowuri_prefix = '{root}{sep}{leaf}'.format(
-                root=C.MEOWURI_ROOT_SOURCE_ANALYZERS, sep=C.MEOWURI_SEPARATOR,
-                leaf=_leaf
+            cls._meowuri_prefix = MeowURI(
+                C.MEOWURI_ROOT_SOURCE_ANALYZERS, _leaf
             )
         return cls._meowuri_prefix
 
@@ -223,8 +231,11 @@ class BaseAnalyzer(object):
                 'Classes without class attribute "HANDLES_MIME_TYPES" must '
                 'implement (override) class method "can_handle"!'
             )
-        assert isinstance(cls.HANDLES_MIME_TYPES, list)
+        sanity.check_isinstance(cls.HANDLES_MIME_TYPES, list)
+        return cls._evaluate_mime_type_glob(fileobject)
 
+    @classmethod
+    def _evaluate_mime_type_glob(cls, fileobject):
         try:
             return mimemagic.eval_glob(fileobject.mime_type,
                                        cls.HANDLES_MIME_TYPES)
@@ -248,3 +259,8 @@ class BaseAnalyzer(object):
 
     def __str__(self):
         return self.__class__.__name__
+
+    @classmethod
+    def name(cls):
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        return cls.__name__

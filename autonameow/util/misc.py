@@ -23,30 +23,17 @@
 Miscellaneous utility functions.
 """
 
-import collections
 import itertools
 import logging
 import os
 import shutil
 import subprocess
 
-try:
-    import yaml
-except ImportError:
-    raise SystemExit(
-        'Missing required module "yaml". '
-        'Make sure "pyyaml" is available before running this program.'
-    )
-
 from core import constants as C
-from core import types
 
 __all__ = [
-    'dump',
-    'contains_none',
     'count_dict_recursive',
-    'expand_meowuri_data_dict',
-    'flatten_dict',
+    'flatten_sequence_type',
     'git_commit_hash',
     'is_executable',
     'multiset_count',
@@ -58,23 +45,6 @@ __all__ = [
 
 
 log = logging.getLogger(__name__)
-
-
-def dump(obj):
-    """
-    Returns a human-readable representation of "obj".
-
-    Args:
-        obj: The object to dump.
-
-    Returns:
-        A human-readable representation of "obj" in YAML-format.
-    """
-    try:
-        return yaml.dump(obj, default_flow_style=False, width=120, indent=4)
-    except TypeError as e:
-        log.critical('Dump FAILED: ' + str(e))
-        raise
 
 
 __counter_generator_function = itertools.count(0)
@@ -134,52 +104,32 @@ def multiset_count(list_data):
     return entry_counter
 
 
-def flatten_dict(d, parent_key='', sep='.'):
+def flatten_sequence_type(container):
     """
-    Flattens a possibly nested dictionary by joining nested keys.
-
-    Based on this post:  https://stackoverflow.com/a/6027615/7802196
-    Example:
-              INPUT = {
-                  'contents': {
-                      'mime_type': None,
-                      'textual': {
-                          'text': {
-                              'full: None,
-                          }
-                      }
-                  }
-              }
-              OUTPUT = {
-                  'contents.mime_type': None,
-                  'contents.textual.text.full': None,
-              }
-
-    Note that if the low-level values are empty dictionaries or lists,
-    they will be omitted from the output.
+    Flattens arbitrarily nested lists or tuples of tuples and/or lists.
 
     Args:
-        d: The dictionary to flatten.
-        parent_key: Not used, required for recursion.
-        sep: String or character to use as separator.
+        container: List or tuple of lists and/or tuples.
+                   Other types are returned as-is.
 
     Returns:
-        A flattened dictionary with nested keys are joined by "sep".
+        A flat sequence of the same type as the given outermost container.
+        If the given value is not a list or tuple, it is returned as-is.
     """
-    if not isinstance(d, (dict, list)):
-        raise TypeError
+    if not isinstance(container, (list, tuple)):
+        return container
 
-    items = []
+    container_type = type(container)
 
-    for k, v in d.items():
-        new_key = parent_key + sep + k if parent_key else k
+    def _generate_flattened(_container):
+        for element in _container:
+            if isinstance(element, (list, tuple)):
+                for subelement in _generate_flattened(element):
+                    yield subelement
+            else:
+                yield element
 
-        if isinstance(v, collections.MutableMapping):
-            items.extend(flatten_dict(v, new_key, sep=sep).items())
-        else:
-            items.append((new_key, v))
-
-    return dict(items)
+    return container_type(_generate_flattened(container))
 
 
 def count_dict_recursive(dictionary, count=0):
@@ -213,35 +163,6 @@ def count_dict_recursive(dictionary, count=0):
                 count += 1
 
     return count
-
-
-def expand_meowuri_data_dict(meowuri_dict):
-    """
-    Performs the reverse operation of that of 'flatten_dict'.
-
-    A dictionary with "meowURIs" as keys storing data in each value is
-    expanded by splitting the meowURIs by periods and creating a
-    nested dictionary.
-
-    Args:
-        meowuri_dict: Dictionary keyed by "meowURIs".
-
-    Returns:
-        An "expanded" or "unflattened" version of the given dictionary.
-    """
-    if not meowuri_dict or not isinstance(meowuri_dict, dict):
-        raise TypeError
-
-    out = dict()
-    for key, value in meowuri_dict.items():
-        key_parts = key.split('.')
-        try:
-            nested_dict_set(out, key_parts, value)
-        except KeyError:
-            log.error('Duplicate "meowURIs" would have clobbered existing!'
-                      ' Key: "{!s}"  Value: {!s}'.format(key, value))
-
-    return out
 
 
 def nested_dict_get(dictionary, list_of_keys):
@@ -340,13 +261,6 @@ def is_executable(command):
     return shutil.which(command) is not None
 
 
-def contains_none(iterable):
-    """
-    Returns True if the given iterable is empty or contains a None item.
-    """
-    return not iterable or None in iterable
-
-
 def process_id():
     return os.getpid()
 
@@ -369,9 +283,10 @@ def git_commit_hash():
         # NOTE(jonas): git returns 128 for the "fatal: Not a git repository.."
         # error. Substring matching is redundant but probably won't hurt either.
         if process.returncode == 0:
-            string = types.force_string(stdout).strip()
-            if string and 'fatal: Not a git repository' not in string:
-                return string
+            from core import types
+            str_stdout = types.force_string(stdout).strip()
+            if str_stdout and 'fatal: Not a git repository' not in str_stdout:
+                return str_stdout
         return None
     finally:
         os.chdir(_old_pwd)

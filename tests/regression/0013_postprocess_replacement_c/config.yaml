@@ -10,12 +10,9 @@ DATETIME_FORMAT:
 RULES:
     test_files simplest_pdf.md.pdf:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.full: simplest_pdf.md.pdf
+            extractor.filesystem.xplat.basename_full: simplest_pdf.md.pdf
         DATA_SOURCES:
-            extension: extractor.filesystem.xplat.basename.extension
+            extension: extractor.filesystem.xplat.extension
         NAME_TEMPLATE: simplest_pdf.md.{extension}
         exact_match: true
         ranking_bias: 1
-
-COMPATIBILITY:
-    autonameow_version: v0.5.3

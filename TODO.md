@@ -14,22 +14,33 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0175]` __Handle requesting exactly one or multiple alternatives.__  
+    The current high-level interface for fetching data might return a single
+    piece of data or many alternatives. This means that "clients" have to
+    perform various checks and either fail if they are unable to figure out
+    *which alternative to use* or attempt to pick out the "best" alternative.
+
+    One possible solution is to replace the single function `request()`
+    with something like `request_one()` and `request_all()`.
+
+    Another solution is to pass some kind of qualifier with each query.
+    Or possibly a "tie-breaker" callback or object that can be evaluated to
+    resolve cases where a single piece of data is needed but the request
+    results in several candidates.
+
+* `[TD0171]` __Separate all logic from the user interface.__  
+    Avoid using "global" input/output functionality directly.
+
+* `[TD0167]` Cleanup data storage in the `Repository`.
+
+* `[TD0166]` The analyzers should be able to set probabilities on the fly.
+
 * `[TD0157]` __Look into the analyzers `FIELD_LOOKUP` attribute.__  
     Does it make sense to keep this? Differences between "analyzers" and
     "extractor" enough to motivate them continue being separate concepts?
     Only the `FilenameAnalyzer` currently has a `FIELD_LOOKUP` (!)
 
-* `[TD0156]` __Set up Unicode string encoding boundary in `ui`.__  
-    Enforce passing only Unicode strings to the `ui` module.
-
-* `[TD0155]` Implement `--timid` mode.
-
-* `[TD0150]` Map "generic" MeowURIs to (possible) provider classes.
-
 * `[TD0146]` Rework "generic fields", possibly collecting fields in "records".
-
-* `[TD0142]` __Rework overall architecture to fetch only explicitly needed data.__  
-  Refer to `notes/architecture.md` for details.
 
 * `[TD0131]` __Limit `Repository` memory usage__  
   Given enough files, it currently eats up all the RAM, which causes other
@@ -47,17 +58,9 @@ High Priority
 
 * `[TD0102]` Fix inconsistencies in results passed back by analyzers.
 
-* `[TD0108]` Fix inconsistencies in results passed back by plugins.
-
 * `[TD0126]` Clean up boundaries/interface to the `analyzers` package.
 
-* `[TD0127]` Clean up boundaries/interface to the `extractors` package.
-
-* `[TD0128]` Clean up boundaries/interface to the `plugins` package.
-
 * `[TD0129]` Enforce passing validated data to `NameTemplateField.format()`.
-
-* `[TD0133]` Fix inconsistent use of MeowURIs; `MeowURI` instances and strings.
 
 * `[TD0138]` __Fix inconsistent type of `RuleCondition.expression`.__  
   Probably best to always store a list of expressions, even when there is only one.
@@ -66,6 +69,16 @@ High Priority
 
 Medium Priority
 ---------------
+
+* `[TD0182]` Isolate third-party metadata services like `isbnlib`.
+
+* `[TD0174]` Do not do replacements in the NameTemplateField classes.
+
+* `[TD0172]` __Extend the text extractors with additional fields.__  
+    Currently text extractors only collect a single field `full`, containing
+    the full plain text.  Some file formats contain information on which parts
+    are titles, heading, etc.  Text extractors should provide this when
+    possible.
 
 * `[TD0161]` Handle mapping/translation between "generic"/specific MeowURIs.
 
@@ -97,7 +110,7 @@ Medium Priority
     ```yaml
     Quicktime Desktop Recording:
         CONDITIONS:
-            extractor.filesystem.xplat.basename.full: 'Untitled.mov'
+            extractor.filesystem.xplat.basename_full: 'Untitled.mov'
             extractor.filesystem.xplat.contents.mime_type: 'video/quicktime'
             extractor.filesystem.xplat.pathname.full: '/Users/jonas/Desktop'
         NAME_TEMPLATE: '{datetime} -- screenshot macbookpro.mov'
@@ -110,10 +123,6 @@ Medium Priority
                 (bar){2,}: bar
                 foo: Gibson Rules
     ```
-
-* `[TD0136]` Look into "requesting" already available data.
-
-* `[TD0134]` Consolidate splitting up text into "chunks".
 
 * `[TD0132]` Improve blacklisting data, prevent repeated bad requests to APIs.
 
@@ -146,60 +155,48 @@ Medium Priority
 * `[TD0008]` Simplify installation.
     * Add support for `pip` or similar package manager.
 
-* `[TD0009]` Implement proper plugin interface
-    * Have plugins "register" themselves to a plugin handler?
-    * Querying plugins might need some translation layer between the
-      `autonameow` field naming convention and the specific plugins naming
-      convention. For instance, querying a plugin for `title` might require
-      actually querying the plugin for `document:title` or similar.
-    * Abstract base class for all plugins;
-        * Means of providing input data to the plugin.
-        * Means of executing the plugin.
-        * Means of querying for all or a specific field.
-
 * `[TD0015]` Allow conditionals in the configuration rules.
     * Test if a rule is applicable by evaluating conditionals.
         * Textual contents of the file matches a regular expression?
         * Some date/time-information lies within some specific range.
 
-* `[TD0019]` Rework the `FilenameAnalyzer`
-    * `[TD0020]` Identify data fields in file names.
+* `[TD0020]` Identify data fields in file names.
+
+    ```
+    screencapture-github-jonasjberg-autonameow-1497964021919.png
+    ^___________^ ^__________________________^ ^___________^
+         tag            title/description        timestamp
+    ```
+
+    * Use some kind of iterative evaluation; split into parts at
+      separators, assign field types to the parts and find a "best fit".
+      Might have to try several times at different separators, re-evaluting
+      partials after assuming that some part is a given type, etc.
+    * __This is a non-trivial problem__, I would rather not re-implment
+      existing solutions poorly.
+    * Look into how `guessit` does it or possibility of modifying
+      `guessit` to identify custom fields.
+
+* `[TD0110]` Improve finding probable date/time in file names.
+    * Provide a single most probable result.
+    * Rank formats: `YMD` (EU), `MDY` (US), `DMY` (parts of EU, Asia), etc.
+    * Look at any surrounding __context__ of files.
+
+        For instance, given a directory containing files:
 
         ```
-        screencapture-github-jonasjberg-autonameow-1497964021919.png
-        ^___________^ ^__________________________^ ^___________^
-             tag            title/description        timestamp
+        foo_08.18.17.txt
+        bar_11.04.16.txt
         ```
+        The date components of `bar_11.04.16.txt` can not be clearly
+        determined. Many possible date formats could work.
 
-        * Use some kind of iterative evaluation; split into parts at
-          separators, assign field types to the parts and find a "best fit".
-          Might have to try several times at different separators, re-evaluting
-          partials after assuming that some part is a given type, etc.
-        * __This is a non-trivial problem__, I would rather not re-implment
-          existing solutions poorly.
-        * Look into how `guessit` does it or possibility of modifying
-          `guessit` to identify custom fields.
+        But `foo_08.18.17.txt` can only be successfully parsed with the
+        date format `foo_MM.DD.YY`.
+        *(18 is probably not the future year 2018, but 08 might be 2008..)*
 
-    * `[TD0110]` Improve finding probable date/time in file names.
-        * Provide a single most probable result.
-        * Rank formats: `YMD` (EU), `MDY` (US), `DMY` (parts of EU, Asia), etc.
-        * Look at any surrounding __context__ of files.
-
-            For instance, given a directory containing files:
-
-            ```
-            foo_08.18.17.txt
-            bar_11.04.16.txt
-            ```
-            The date components of `bar_11.04.16.txt` can not be clearly
-            determined. Many possible date formats could work.
-
-            But `foo_08.18.17.txt` can only be successfully parsed with the
-            date format `foo_MM.DD.YY`.
-            *(18 is probably not the future year 2018, but 08 might be 2008..)*
-
-            This information could be used to weight this format higher to
-            help improve the results of parsing `foo_08.18.17.txt`.
+        This information could be used to weight this format higher to
+        help improve the results of parsing `foo_08.18.17.txt`.
 
 * `[TD0024]` Rework handling of unresolved operations
     * Instead of aborting if a rule data source is unavailable, use an
@@ -223,9 +220,21 @@ Medium Priority
 Low Priority
 ------------
 
-* `[TD0160]` Consolidate setting up working directories that might not exist.
+* `[TD0181]` Use machine learning in ISBN metadata de-duplication.
 
-* `[TD0159]` Fix stand-alone extractor not respecting the `--quiet` option.
+* `[TD0177]` __Refactor the `ConfigFieldParser` classes.__  
+    Should not handle both parsing and evaluation of expressions.
+    This will have to be done in conjunction with `[TD0015]`.
+    Also, see related item `[TD0138]`.
+
+* `[TD0173]` Use `pandoc` to extract information from documents.
+
+* `[TD0164]` Mitigate mismatched throwing/catching of exceptions.
+
+* `[TD0162]` __Split up `autonameow.yaml` into separate files.__  
+    Use separate configuration files for options, rules, etc.
+
+* `[TD0160]` Consolidate setting up working directories that might not exist.
 
 * `[TD0154]` __Add "incrementing counter" placeholder field__  
     Add name template placeholder field for different kinds of numbering, I.E.
@@ -287,8 +296,6 @@ Low Priority
 
 * `[TD0141]` Coerce raw values to known types in the `ConfigurationParser`.
 
-* `[TD0140]` Template field classes `str()` method not working as intended.
-
 * `[TD0139]` Warn if data sources does not match name template placeholders?
 
 * `[TD0125]` __Add aliases (generics) for MeowURI leafs__  
@@ -342,8 +349,6 @@ Low Priority
 
 * `[TD0114]` Improve the `EbookAnalyzer`.
 
-* `[TD0113]` Fix exceptions not being handled properly (?)
-
 * `[TD0109]` __Allow arbitrary name template placeholder fields.__  
     It is currently difficult to use a rule similar to this:
 
@@ -354,9 +359,9 @@ Low Priority
             extractor.filesystem.xplat.contents.mime_type: video/*
         NAME_TEMPLATE: '{title} S{season}E{episode}.{extension}'
         DATA_SOURCES:
-            title: plugin.guessit.title
-            season: plugin.guessit.season
-            episode: plugin.guess.episode
+            title: extractor.filesystem.guessit.title
+            season: extractor.filesystem.guessit.season
+            episode: extractor.filesystem.guessit.episode
             extension: extractor.filesystem.xplat.contents.mime_type
         exact_match: true
     ```
@@ -371,21 +376,15 @@ Low Priority
     template fields or by allowing arbitrary placeholder fields with some
     simple format like `{a}`, `{b}`, etc.
 
-* `[TD0096]` Fix some replacements cause incorrect color highlighting.
-
 * `[TD0091]` Take a look at old code in `util/dateandtime.py`.
 
 * `[TD0068]` Let the user specify which languages to use for OCR.
-
-* `[TD0055]` Fully implement the `VideoAnalyzer` class.
 
 * `[TD0026]` Implement safe handling of symbolic link input paths.
 
 * __Add additional filetype-specific "extractors"__
     * `[TD0027]` __Word Documents__
         * Extract plain text and metadata from Word documents.
-    * `[TD0028]` __E-books epub/mobi__
-        * Extract metadata fields. Look into using `calibre`.
     * `[TD0064]` __E-books DjVu__
         * Extract plain text with `djvutxt`
 
@@ -427,12 +426,16 @@ Low Priority
       list of possible search strings that should be replace with the key.
 
 * `[TD0037]` Improve "filetags" integration.
-    * For instance, the Microsoft Vision API returns *a lot* of tags,
-      too many to use in a filename without any kind of selection process.
+    * Some providers return *a lot* of tags, too many to use in a filename
+      without any kind or probably multiple selection processes.
     * It would be very useful to be able to filter tags by getting the
       intersection of the unfiltered tags and a whitelist.
     * Allow specifying allowed tags in the configuration?
     * Allow specifying mutually exclusive tags in the configuration?
+    * Convert various metadata to tags.
+      From `XMP:Description: Computers, Software, Engineering` to a list of
+      tags `computers`, `software` and `engineering`.
+
 
 * `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF
   GPS data. Look into comparing coordinates with the
