@@ -32,7 +32,10 @@ from core.exceptions import (
     ConfigurationSyntaxError,
     InvalidMeowURIError
 )
-from core.model import MeowURI
+from core.model import (
+    MeowURI,
+    NameTemplate
+)
 from core.namebuilder import fields
 
 
@@ -352,8 +355,9 @@ def get_valid_rule(raw_description, raw_exact_match, raw_ranking_bias, format_st
     # raise any exceptions even if all of the sources fail validation.
     data_sources = parse_data_sources(raw_data_sources)
 
-    # Name template
-    name_template = format_string
+    # Convert previously validated format string to instance of 'NameTemplate'.
+    # Name templates should be passed as class instances from here on out.
+    name_template = NameTemplate(format_string)
 
     # Description
     str_description = types.force_string(raw_description)
@@ -500,7 +504,6 @@ def parse_data_sources(raw_sources):
                         '(MeowURI: "{!s}")'.format(raw_meowuri_strings))
             continue
 
-        # TODO: [TD0180] Add abstraction for file name composed of placeholder fields.
         tf = fields.nametemplatefield_class_from_string(raw_templatefield)
         if not tf:
             log.warning('Failed to convert template field string to class '

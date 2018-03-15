@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-03-15
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0180]` Add abstraction for file name composed of placeholder fields.
+
 ### 2018-03-10
 
 > Medium Priority

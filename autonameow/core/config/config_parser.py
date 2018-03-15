@@ -374,8 +374,8 @@ class ConfigurationRuleParser(object):
         validated = self._validate_rules(rules_dict)
         return validated
 
-    def _validate_name_template(self, _raw_name_template):
-        # TODO: [TD0180] Does this duplicate name template validation?
+    def _validate_name_template_format_string(self, _raw_name_template):
+        # TODO: Does this duplicate name template validation?
         str_template = types.force_string(_raw_name_template)
         if not str_template:
             return None
@@ -415,13 +415,13 @@ class ConfigurationRuleParser(object):
                 Note that the message will be used in the following sentence:
                 "Bad rule "x"; {message}"
         """
-        raw_name_template = raw_rule.get('NAME_TEMPLATE')
-        if not raw_name_template:
+        raw_format_string = raw_rule.get('NAME_TEMPLATE')
+        if not raw_format_string:
             raise ConfigurationSyntaxError('is missing name template')
 
-        raw_name_template = text.remove_nonbreaking_spaces(raw_name_template)
-        valid_template = self._validate_name_template(raw_name_template)
-        if not valid_template:
+        format_string = text.remove_nonbreaking_spaces(raw_format_string)
+        valid_format_string = self._validate_name_template_format_string(format_string)
+        if not valid_format_string:
             raise ConfigurationSyntaxError('uses invalid name template format')
 
         try:
@@ -429,7 +429,7 @@ class ConfigurationRuleParser(object):
                 raw_description=raw_rule.get('description'),
                 raw_exact_match=raw_rule.get('exact_match'),
                 raw_ranking_bias=raw_rule.get('ranking_bias'),
-                format_string=valid_template,
+                format_string=valid_format_string,
                 conditions=raw_rule.get('CONDITIONS'),
                 raw_data_sources=raw_rule.get('DATA_SOURCES')
             )

@@ -29,10 +29,7 @@ from core import (
 )
 from core.model import genericfields as gf
 from core.namebuilder import fields
-from core.namebuilder.fields import (
-    NameTemplateField,
-    nametemplatefield_classes_in_formatstring
-)
+from core.namebuilder.fields import NameTemplateField
 from core.repository import DataBundle
 from util import sanity
 from util.text import format_name
@@ -70,12 +67,9 @@ class FieldDataCandidate(object):
 
 
 class TemplateFieldDataResolver(object):
-    def __init__(self, fileobject, name_template):
-        self.file = fileobject
-        self.name_template = name_template
-
-        # TODO: [TD0180] Add abstraction for file name composed of placeholder fields.
-        self._fields = nametemplatefield_classes_in_formatstring(name_template)
+    def __init__(self, fileobject, name_template_fields):
+        self.fileobject = fileobject
+        self._fields = name_template_fields
 
         self.data_sources = dict()
         self.fields_data = dict()
@@ -126,7 +120,7 @@ class TemplateFieldDataResolver(object):
         # TODO: [TD0024][TD0025] Implement Interactive mode.
         log.debug('Resolver is looking up candidates for field {!s} ..'.format(field))
 
-        candidates = repository.SessionRepository.query_mapped(self.file, field)
+        candidates = repository.SessionRepository.query_mapped(self.fileobject, field)
         log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field))
 
         out = []
@@ -196,9 +190,9 @@ class TemplateFieldDataResolver(object):
     def _gather_data_for_template_field(self, _field, uri):
         log.debug(
             'Gathering data for template field {!s} from {!r}->'
-            '[{!s}]'.format(_field, self.file, uri)
+            '[{!s}]'.format(_field, self.fileobject, uri)
         )
-        response = self._request_data(self.file, uri)
+        response = self._request_data(self.fileobject, uri)
         if not response:
             return False
 

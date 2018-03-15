@@ -21,14 +21,34 @@
 
 import re
 
-
-# TODO: [TD0180] Add abstraction for file name composed of placeholder fields.
+from core.namebuilder.fields import nametemplatefield_class_from_string
+from util import sanity
 
 
 class NameTemplate(object):
     def __init__(self, format_string):
         assert isinstance(format_string, str)
         self._format_string = format_string
+
+        self._str_placeholders = None
+        self._placeholders = None
+
+    @property
+    def str_placeholders(self):
+        if self._str_placeholders is None:
+            self._str_placeholders = format_string_placeholders(self._format_string)
+        return self._str_placeholders
+
+    @property
+    def placeholders(self):
+        if self._placeholders is None:
+            self._placeholders = [
+                nametemplatefield_class_from_string(p) for p in self.str_placeholders
+            ]
+        return self._placeholders
+
+    def __str__(self):
+        return self._format_string
 
 
 def format_string_placeholders(format_string):
@@ -38,14 +58,13 @@ def format_string_placeholders(format_string):
     The text "{foo} mjao baz {bar}" would return ['foo', 'bar'].
 
     Args:
-        format_string: Format string to get placeholders from.
-
+        format_string: Format string from which to get placeholders,
+                       as a Unicode string.
     Returns:
-        Any format string placeholder fields as a list of unicode strings.
+        Any format string placeholder fields as a list of Unicode strings.
     """
-    if not isinstance(format_string, str):
-        raise TypeError('Expected "format_string" to be of type str')
+    sanity.check_internal_string(format_string)
     if not format_string.strip():
-        return []
+        return list()
 
     return re.findall(r'{(\w+)}', format_string)

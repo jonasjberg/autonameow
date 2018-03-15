@@ -28,10 +28,34 @@ from core.model.name_template import (
 )
 
 
+def _get_nametemplate(*args, **kwargs):
+    return NameTemplate(*args, **kwargs)
+
+
 class TestNameTemplate(TestCase):
     def test_instantiated_name_template_is_not_none_given_unicode_str(self):
-        nt = NameTemplate('foo')
+        nt = _get_nametemplate('foo')
         self.assertIsNotNone(nt)
+
+    def test_str_placeholders(self):
+        nta = _get_nametemplate('foo')
+        self.assertEqual([], nta.str_placeholders)
+
+        ntb = _get_nametemplate('{foo}')
+        self.assertEqual(['foo'], ntb.str_placeholders)
+
+        ntc = _get_nametemplate('{foo} bar {baz}')
+        self.assertEqual(['foo', 'baz'], ntc.str_placeholders)
+
+    def test___str__(self):
+        nta = _get_nametemplate('foo')
+        self.assertEqual('foo', str(nta))
+
+        ntb = _get_nametemplate('{foo}')
+        self.assertEqual('{foo}', str(ntb))
+
+        ntc = _get_nametemplate('{foo} bar {baz}')
+        self.assertEqual('{foo} bar {baz}', str(ntc))
 
 
 class TestFormatStringPlaceholders(TestCase):
@@ -41,11 +65,11 @@ class TestFormatStringPlaceholders(TestCase):
             False,
             1,
             1.0,
-            uu.str_to_datetime('2016-01-11 124132'),
             b'', b' ', b'foo', b'{foo}',
+            object(),
         ]:
             with self.subTest(given=bad_arg):
-                with self.assertRaises(TypeError):
+                with self.assertRaises(AssertionError):
                     format_string_placeholders(bad_arg)
 
     def _assert_template(self, template, placeholders):

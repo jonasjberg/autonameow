@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
 import logging
 
 from core import exceptions
@@ -78,7 +79,7 @@ def build(ui, config, name_template, field_databundle_dict):
     Constructs a new filename given a name template and a dict mapping
     name template fields to data to be populated in each field.
     """
-    log.debug('Using name template: "{}"'.format(name_template))
+    log.debug('Using name template "{!s}"'.format(name_template))
 
     if not field_databundle_dict:
         log.error('Name builder got empty data map! This should not happen ..')
@@ -94,11 +95,12 @@ def build(ui, config, name_template, field_databundle_dict):
     log.debug(str(data))
 
     # Construct the new file name
+    str_name_template = str(name_template)
     try:
-        new_name = populate_name_template(name_template, **data)
+        new_name = populate_name_template(str_name_template, **data)
     except (exceptions.NameTemplateSyntaxError, TypeError) as e:
-        log.debug('Unable to assemble basename with template "{!s}" and '
-                  'data: {!s}'.format(name_template, data))
+        log.debug('Unable to assemble basename with name template "{!s}" '
+                  'and data: {!s}'.format(name_template, data))
         raise exceptions.NameBuilderError(
             'Unable to assemble basename: {!s}'.format(e)
         )
@@ -182,13 +184,18 @@ def post_assemble_format(new_name):
     return new_name.rstrip('.')
 
 
-def populate_name_template(name_template, **kwargs):
+def _remove_single_and_double_quotes(string):
+    return re.sub(r'[\'"]+', '', string)
+
+
+def populate_name_template(format_string, **kwargs):
     """
-    Assembles a basename string from a given "name_template" filename format
+    Assembles a basename string from a given "format_string" filename format
     string that is populated with an arbitrary number of keyword arguments.
 
     Args:
-        name_template: The filename format string to populate and return.
+        format_string: The filename format string to populate and return,
+                       as a Unicode string.
         **kwargs: An arbitrary number of keyword arguments used to fill out
                   the filename format string.
 
@@ -197,24 +204,19 @@ def populate_name_template(name_template, **kwargs):
         with values from the given argument keywords.
 
     Raises:
-        NameTemplateSyntaxError: Error due to either an invalid "name_template"
+        NameTemplateSyntaxError: Error due to either an invalid "format_string"
                                  or insufficient/invalid keyword arguments.
     """
-    if not isinstance(name_template, str):
-        raise TypeError('"name_template" must be of type "str"')
+    if not isinstance(format_string, str):
+        raise TypeError('Argument "format_string" must be of type "str"')
 
-    if "'" or '"' in name_template:
-        log.debug('Removing single and double quotes from template: '
-                  '"{!s}"'.format(name_template))
-    while "'" in name_template:
-        name_template = name_template.replace("'", '')
-    while '"' in name_template:
-        name_template = name_template.replace('"', '')
+    if "'" or '"' in format_string:
+        log.debug('Removing single and double quotes from format string '
+                  '"{!s}"'.format(format_string))
+        format_string = _remove_single_and_double_quotes(format_string)
 
-    # NOTE: Used to validate name template strings in the configuration file.
+    # NOTE: Used to validate format strings in the configuration file.
     try:
-        out = name_template.format(**kwargs)
+        return format_string.format(**kwargs)
     except (TypeError, KeyError, ValueError) as e:
         raise exceptions.NameTemplateSyntaxError(e)
-    else:
-        return out

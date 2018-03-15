@@ -185,36 +185,6 @@ class TestNametemplatefieldClassFromString(TestCase):
         _aE('title', FIELDS_TITLE)
 
 
-class TestNametemplatefieldClassesInFormatstring(TestCase):
-    def _aC(self, string, nametemplate_field_list):
-        actual = fields.nametemplatefield_classes_in_formatstring(string)
-        for nametemplate_field in nametemplate_field_list:
-            self.assertIn(nametemplate_field, actual)
-
-    def test_contains_none(self):
-        self._aC('', [])
-        self._aC('foo', [])
-
-    def test_contains_expected_1(self):
-        self._aC('{title}', [FIELDS_TITLE])
-        self._aC('{title} foo', [FIELDS_TITLE])
-        self._aC('{title} title', [FIELDS_TITLE])
-
-    def test_contains_expected_2(self):
-        self._aC('{title} {author}',
-                 [FIELDS_TITLE, FIELDS_AUTHOR])
-        self._aC('{title} foo {author}',
-                 [FIELDS_TITLE, FIELDS_AUTHOR])
-        self._aC('{title} title {author} author',
-                 [FIELDS_TITLE, FIELDS_AUTHOR])
-
-    def test_contains_expected_3(self):
-        self._aC('{title} {author} {description}',
-                 [FIELDS_TITLE, FIELDS_AUTHOR, FIELDS_DESCRIPTION])
-        self._aC('foo {title} {author} - {description}.foo',
-                 [FIELDS_TITLE, FIELDS_AUTHOR, FIELDS_DESCRIPTION])
-
-
 class NameTemplateFieldCompatible(TestCase):
     def _compatible(self, nametemplate_field, coercer_class):
         actual = nametemplate_field.type_compatible(coercer_class)
