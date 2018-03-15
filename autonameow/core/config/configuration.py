@@ -54,11 +54,14 @@ class Configuration(object):
                             'running {})'.format(self.version,
                                                  C.STRING_PROGRAM_VERSION))
                 log.info(
-                    'The current recommended procedure is to move the '
-                    'current config to a temporary location, re-run '
-                    'the program so that a new template config file is '
-                    'generated and then manually transfer rules to this file.'
+                    'The currently recommended way to migrate to a new version'
+                    'is to move the current config to a temporary location, '
+                    're-run the program so that a new template config file is '
+                    'generated and then manually merge the old rules back into '
+                    'the new file, while making any necessary adjustments to '
+                    'accommodate any changes in syntax, naming, etc.'
                 )
+                # TODO: Handle migrating between configuration versions?
 
         if not self._rules:
             log.warning('Configuration does not contain any rules!')

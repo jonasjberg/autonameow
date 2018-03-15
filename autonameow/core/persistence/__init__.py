@@ -28,3 +28,9 @@ from .base import (
     get_persistence,
     PersistenceError
 )
+from .config import (
+    DefaultConfigFilePath,
+    has_config_file,
+    load_config_from_file,
+    write_default_config,
+)

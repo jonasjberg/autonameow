@@ -68,7 +68,7 @@ class Autonameow(object):
         # For calculating the total runtime.
         self.start_time = time.time()
 
-        self.active_config = None
+        self.config = None
         self.renamer = None
         self.master_provider = None
         self.postprocessor = None
@@ -105,24 +105,27 @@ class Autonameow(object):
             self.ui.print_version_info(verbose=self.opts.get('verbose'))
             self.exit_program(C.EXIT_SUCCESS)
 
-        # Check configuration file. If no alternate config file path is
-        # provided and no config file is found at default paths; copy the
-        # template config and tell the user.
+        # Check the configuration file.
+        # If a specific config path was not passed in with the options
+        # and no config file is found in the OS-specific default paths,
+        # write the default "example" config, tell the user and exit.
         if self.opts.get('config_path'):
-            self._load_config_from_alternate_path()
+            self._load_config_from_options_config_path()
         else:
-            if not config.has_config_file():
-                log.info('No configuration file was found.')
-                self._write_template_config_to_default_path_and_exit()
+            filepath_default_config = persistence.DefaultConfigFilePath
+            if persistence.has_config_file():
+                self._load_config_from_path(filepath_default_config)
             else:
-                self._load_config_from_default_path()
+                log.info('No configuration file was found.')
+                self._write_example_config_to_path(filepath_default_config)
+                self.exit_program(C.EXIT_SUCCESS)
 
-        if not self.active_config:
+        if not self.config:
             log.critical('Unable to load configuration --- Aborting ..')
             self.exit_program(C.EXIT_ERROR)
 
         # Set globally accessible configuration instance.
-        config.set_active(self.active_config)
+        config.set_global_configuration(self.config)
 
         if self.opts.get('dump_options'):
             self._dump_options()
@@ -144,20 +147,16 @@ class Autonameow(object):
         log.info('Got {} files to process'.format(len(files_to_process)))
 
         # Initialize the global master data provider.
-        master_provider.initialize(self.active_config)
+        master_provider.initialize(self.config)
         self.master_provider = master_provider
 
         # Initialize a re-usable post-processor.
         # TODO: Improve access of nested configuration values.
         self.postprocessor = FilenamePostprocessor(
-            lowercase_filename=self.active_config.get(
-                ['POST_PROCESSING', 'lowercase_filename']),
-            uppercase_filename=self.active_config.get(
-                ['POST_PROCESSING', 'uppercase_filename']),
-            regex_replacements=self.active_config.get(
-                ['POST_PROCESSING', 'replacements']),
-            simplify_unicode=self.active_config.get(
-                ['POST_PROCESSING', 'simplify_unicode'])
+            lowercase_filename=self.config.get(['POST_PROCESSING', 'lowercase_filename']),
+            uppercase_filename=self.config.get(['POST_PROCESSING', 'uppercase_filename']),
+            regex_replacements=self.config.get(['POST_PROCESSING', 'replacements']),
+            simplify_unicode=self.config.get(['POST_PROCESSING', 'simplify_unicode'])
         )
 
         # Handle any input paths/files.
@@ -174,7 +173,7 @@ class Autonameow(object):
 
     def _collect_path_from_opts(self):
         path_collector = disk.PathCollector(
-            ignore_globs=self.active_config.options['FILESYSTEM']['ignore'],
+            ignore_globs=self.config.options['FILESYSTEM']['ignore'],
             recurse=self.opts.get('recurse_paths')
         )
         path_collector.collect_from(self.opts.get('input_paths'))
@@ -187,13 +186,13 @@ class Autonameow(object):
     @logs.log_func_runtime(log)
     def load_config(self, path):
         try:
-            self.active_config = config.load_config_from_file(path)
+            self.config = persistence.load_config_from_file(path)
         except exceptions.ConfigError as e:
             log.critical('Unable to load configuration --- {!s}'.format(e))
 
     def _dump_options(self):
         filepath_config = persistence.get_config_persistence_path()
-        filepath_default_config = config.DefaultConfigFilePath
+        filepath_default_config = persistence.DefaultConfigFilePath
         include_opts = {
             'config_file_path': '"{!s}"'.format(
                 enc.displayable_path(filepath_default_config)
@@ -206,7 +205,7 @@ class Autonameow(object):
 
     def _dump_active_config_and_exit(self):
         self.ui.msg('Active Configuration:', style='heading')
-        self.ui.msg(str(self.active_config))
+        self.ui.msg(str(self.config))
         self.exit_program(C.EXIT_SUCCESS)
 
     def _dump_registered_meowuris(self):
@@ -228,30 +227,26 @@ class Autonameow(object):
 
         self.ui.msg('\n')
 
-    def _load_config_from_default_path(self):
-        default_config_path = config.DefaultConfigFilePath
-        str_path = enc.displayable_path(default_config_path)
-        log.info('Using configuration: "{}"'.format(str_path))
-        self.load_config(default_config_path)
+    def _load_config_from_path(self, filepath):
+        str_filepath = enc.displayable_path(filepath)
+        log.info('Using configuration: "{}"'.format(str_filepath))
+        self.load_config(filepath)
 
-    def _write_template_config_to_default_path_and_exit(self):
-        str_path = enc.displayable_path(config.DefaultConfigFilePath)
+    def _load_config_from_options_config_path(self):
+        filepath = self.opts.get('config_path')
+        self._load_config_from_path(filepath)
+
+    def _write_example_config_to_path(self, filepath):
+        str_filepath = enc.displayable_path(filepath)
         try:
-            config.write_default_config()
+            persistence.write_default_config()
         except exceptions.ConfigError as e:
             log.critical('Unable to write template configuration file to path: '
-                         '"{!s}" --- {!s}'.format(str_path, e))
+                         '"{!s}" --- {!s}'.format(str_filepath, e))
             self.exit_program(C.EXIT_ERROR)
 
-        message = 'Wrote default configuration file to "{!s}"'.format(str_path)
+        message = 'Wrote default configuration file to "{!s}"'.format(str_filepath)
         self.ui.msg(message, style='info')
-        self.exit_program(C.EXIT_SUCCESS)
-
-    def _load_config_from_alternate_path(self):
-        opts_config_path = self.opts.get('config_path')
-        str_path = enc.displayable_path(opts_config_path)
-        log.info('Using configuration file: "{!s}"'.format(str_path))
-        self.load_config(opts_config_path)
 
     def _handle_files(self, file_paths):
         """
@@ -264,7 +259,7 @@ class Autonameow(object):
         context = FilesContext(
             autonameow_exit_code=self.exit_code,
             options=self.opts,
-            active_config=self.active_config,
+            active_config=self.config,
             master_provider=self.master_provider
         )
 

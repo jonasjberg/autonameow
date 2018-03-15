@@ -64,12 +64,12 @@ log = logging.getLogger(__name__)
 
 
 def get_config_history_path():
-    _active_config = config.ActiveConfig
-    if not _active_config:
+    active_config = config.ActiveConfig
+    if not active_config:
         return C.DEFAULT_HISTORY_FILE_ABSPATH
 
     try:
-        _history_path = _active_config.get(['PERSISTENCE', 'history_file_path'])
+        _history_path = active_config.get(['PERSISTENCE', 'history_file_path'])
     except AttributeError:
         _history_path = None
 
