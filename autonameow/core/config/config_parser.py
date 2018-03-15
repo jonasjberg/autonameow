@@ -68,6 +68,7 @@ INITIAL_CONFIGURATION_OPTIONS = {
 
 
 # TODO: [TD0154] Add "incrementing counter" placeholder field
+# TODO: [cleanup][hack] This entire file is way too complicated and messy!
 
 
 class ConfigurationParser(object):
@@ -78,72 +79,72 @@ class ConfigurationParser(object):
         self._options = copy.deepcopy(INITIAL_CONFIGURATION_OPTIONS)
 
     def parse(self, config_dict):
-        _reusable_nametemplates = self._load_reusable_nametemplates(config_dict)
+        reusable_name_templates = self._load_reusable_name_templates(config_dict)
         self._options.update(
-            self._load_template_fields(config_dict)
+            self._load_placeholder_field_options(config_dict)
         )
 
-        rule_parser = ConfigurationRuleParser(_reusable_nametemplates)
-        _raw_rules = config_dict.get('RULES', dict())
-        _rules = rule_parser.parse(_raw_rules)
+        rule_parser = ConfigurationRuleParser(reusable_name_templates)
+        raw_rules = config_dict.get('RULES', dict())
+        valid_rules = rule_parser.parse(raw_rules)
 
         self._load_options(config_dict)
         version = self._load_version(config_dict)
 
         new_config = Configuration(
             options=self._options,
-            rules_=_rules,
-            reusable_nametemplates=_reusable_nametemplates,
+            rules_=valid_rules,
+            reusable_nametemplates=reusable_name_templates,
             version=version
         )
         return new_config
 
     @staticmethod
-    def _load_reusable_nametemplates(config_dict):
-        validated = dict()
-
+    def _load_reusable_name_templates(config_dict):
         raw_templates = config_dict.get('NAME_TEMPLATES', {})
+        if not raw_templates:
+            return dict()
+
         if not isinstance(raw_templates, dict):
-            log.warning('Configuration templates is not of type dict')
-            log.debug('Expected NAME_TEMPLATES to be of type "dict". '
-                      'Got {}'.format(type(raw_templates)))
-            return validated
-
-        for raw_name, raw_templ in raw_templates.items():
-            _error = 'Got invalid name template: "{!s}": {!s}"'.format(
-                raw_name, raw_templ
+            raise ConfigurationSyntaxError(
+                'Expected "NAME_TEMPLATES" to be of type dict. Got {}'.format(type(raw_templates))
             )
+
+        validated = dict()
+        for raw_name, raw_format_string in raw_templates.items():
+            error = 'Invalid name template: "{!s}": {!s}"'.format(raw_name, raw_format_string)
             str_name = types.force_string(raw_name).strip()
-            str_template = types.force_string(raw_templ)
-            if not str_name or not str_template:
-                raise ConfigurationSyntaxError(_error)
+            str_format_string = types.force_string(raw_format_string)
+            if not str_name or not str_format_string:
+                raise ConfigurationSyntaxError(error)
 
-            # Remove any non-breaking spaces in the name template.
-            str_template = text.remove_nonbreaking_spaces(str_template)
+            # Remove any non-breaking spaces.
+            str_name = text.remove_nonbreaking_spaces(str_name)
+            str_format_string = text.remove_nonbreaking_spaces(str_format_string)
 
-            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(str_template):
-                validated[str_name] = str_template
+            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(str_format_string):
+                validated[str_name] = str_format_string
             else:
-                raise ConfigurationSyntaxError(_error)
+                raise ConfigurationSyntaxError(error)
 
         return validated
 
     @staticmethod
-    def _load_template_fields(config_dict):
+    def _load_placeholder_field_options(config_dict):
         # TODO: [TD0036] Allow per-field replacements and customization.
-        validated = dict()
-
-        raw_templatefields = config_dict.get('NAME_TEMPLATE_FIELDS')
-        if not raw_templatefields:
+        raw_name_template_fields = config_dict.get('NAME_TEMPLATE_FIELDS')
+        if not raw_name_template_fields:
             log.debug(
-                'Configuration does not contain name template field options'
+                'Configuration does not contain any name template field options'
             )
-            return validated
-        if not isinstance(raw_templatefields, dict):
-            log.warning('Name template field options is not of type dict')
-            return validated
+            return dict()
 
-        for raw_field, raw_options in raw_templatefields.items():
+        if not isinstance(raw_name_template_fields, dict):
+            log.warning('Name template field options is not of type dict')
+            return dict()
+
+        validated = dict()
+        for raw_field, raw_options in raw_name_template_fields.items():
             str_field = types.force_string(raw_field)
             if not is_valid_template_field(str_field):
                 raise ConfigurationSyntaxError(
@@ -177,41 +178,11 @@ class ConfigurationParser(object):
         return validated
 
     def _load_options(self, config_dict):
-        def _try_load_postprocessing_replacements():
-            log.debug('Trying to load post-processing replacements')
+        options_parser = ConfigurationOptionsParser(
+            raw_options=config_dict,
+            initial_options=self._options
+        )
 
-            # TODO: [TD0141] Coerce raw values to a known type.
-            if 'POST_PROCESSING' not in config_dict:
-                log.debug('Did not find any post-processing options ..')
-                return
-
-            _reps = config_dict['POST_PROCESSING'].get('replacements')
-            if not _reps or not isinstance(_reps, dict):
-                log.warning('Unable to load post-processing replacements')
-                return
-
-            match_replace_pairs = []
-            for regex, replacement in _reps.items():
-                str_regex = types.force_string(regex)
-                str_replacement = types.force_string(replacement)
-                try:
-                    compiled_pat = re.compile(str_regex)
-                except re.error:
-                    log.warning('Malformed regular expression: '
-                                '"{!s}"'.format(str_regex))
-                    log.warning('Skipped bad replacement :: "{!s}": '
-                                '"{!s}"'.format(regex, replacement))
-                else:
-                    log.debug(
-                        'Added post-processing replacement :: Match: "{!s}"'
-                        ' Replace: "{!s}"'.format(regex, replacement)
-                    )
-                    match_replace_pairs.append((compiled_pat, str_replacement))
-
-            self._options['POST_PROCESSING']['replacements'] = match_replace_pairs
-
-        options_parser = ConfigurationOptionsParser(raw_options=config_dict,
-                                                    initial_options=self._options)
         options_parser.try_load_option(
             section='DATETIME_FORMAT',
             key='date',
@@ -278,14 +249,15 @@ class ConfigurationParser(object):
         )
 
         options_parser.try_load_persistence_option(
-            'cache_directory',
-            C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+            option='cache_directory',
+            default=C.DEFAULT_PERSISTENCE_DIR_ABSPATH
         )
         options_parser.try_load_persistence_option(
-            'history_file_path',
-            C.DEFAULT_HISTORY_FILE_ABSPATH
+            option='history_file_path',
+            default=C.DEFAULT_HISTORY_FILE_ABSPATH
         )
 
+        # TODO: [cleanup] This is way too complicated and not at all readable.
         self._options.update(options_parser.parsed)
 
         # Handle conflicting upper-case and lower-case options.
@@ -297,8 +269,44 @@ class ConfigurationParser(object):
             self._options['POST_PROCESSING']['uppercase_filename'] = False
 
         # TODO: [TD0137] Add rule-specific replacements.
-        _try_load_postprocessing_replacements()
+        self._try_load_postprocessing_replacements(config_dict)
 
+        self._try_load_filesystem_options(config_dict)
+
+    def _try_load_postprocessing_replacements(self, config_dict):
+        log.debug('Trying to load post-processing replacements')
+
+        # TODO: [TD0141] Coerce raw values to a known type.
+        if 'POST_PROCESSING' not in config_dict:
+            log.debug('Did not find any post-processing options ..')
+            return
+
+        raw_replacements = config_dict['POST_PROCESSING'].get('replacements')
+        if not raw_replacements or not isinstance(raw_replacements, dict):
+            log.warning('Unable to load post-processing replacements')
+            return
+
+        match_replace_pairs = []
+        for regex, replacement in raw_replacements.items():
+            str_regex = types.force_string(regex)
+            str_replacement = types.force_string(replacement)
+            try:
+                compiled_pat = re.compile(str_regex)
+            except re.error:
+                log.warning('Malformed regular expression: '
+                            '"{!s}"'.format(str_regex))
+                log.warning('Skipped bad replacement :: "{!s}": '
+                            '"{!s}"'.format(regex, replacement))
+            else:
+                log.debug(
+                    'Added post-processing replacement :: Match: "{!s}"'
+                    ' Replace: "{!s}"'.format(regex, replacement)
+                )
+                match_replace_pairs.append((compiled_pat, str_replacement))
+
+        self._options['POST_PROCESSING']['replacements'] = match_replace_pairs
+
+    def _try_load_filesystem_options(self, config_dict):
         # Combine the default ignore patterns with any user-specified patterns.
         if 'FILESYSTEM_OPTIONS' in config_dict:
             _maybe_str_list = config_dict['FILESYSTEM_OPTIONS'].get('ignore')
@@ -320,12 +328,11 @@ class ConfigurationParser(object):
     @staticmethod
     def _load_version(config_dict):
         if 'COMPATIBILITY' in config_dict:
-            _raw_version = config_dict['COMPATIBILITY'].get('autonameow_version')
-            valid_version = parse_versioning(_raw_version)
+            raw_version = config_dict['COMPATIBILITY'].get('autonameow_version')
+            valid_version = parse_versioning(raw_version)
             if valid_version:
                 return valid_version
-            else:
-                log.debug('Read invalid version: "{!s}"'.format(_raw_version))
+            log.debug('Read invalid version: "{!s}"'.format(raw_version))
 
         log.error('Unable to read program version from configuration.')
         return None
@@ -342,21 +349,21 @@ class ConfigurationParser(object):
 
         Raises:
             EncodingBoundaryViolation: Argument "path" is not a bytestring.
-            ConfigError: The configuration file is empty.
+            ConfigError: The configuration file is empty or could not be parsed.
         """
         sanity.check_internal_bytestring(path)
 
         try:
-            _loaded_data = disk.load_yaml_file(path)
+            loaded_data = disk.load_yaml_file(path)
         except FilesystemError as e:
             raise ConfigError(e)
 
-        if not _loaded_data:
+        if not loaded_data:
             raise ConfigError('Read empty config: "{!s}"'.format(
                 enc.displayable_path(path)
             ))
 
-        return self.parse(_loaded_data)
+        return self.parse(loaded_data)
 
 
 class ConfigurationRuleParser(object):
@@ -485,7 +492,8 @@ class ConfigurationOptionsParser(object):
                 log.debug('Added {} option :: '
                           '{!s}: "{!s}"'.format(section, key, raw_value))
                 self.parsed[section][key] = raw_value
-                return  # OK!
+                # OK!
+                return
 
         # Use the default value.
         if __debug__:
@@ -508,26 +516,28 @@ class ConfigurationOptionsParser(object):
             raw_value = self.raw_options['PERSISTENCE'].get(option)
             if isinstance(raw_value, (str, bytes)) and raw_value.strip():
                 try:
-                    _bytes_path = types.AW_PATH.normalize(raw_value)
+                    bytes_value = types.AW_PATH.normalize(raw_value)
                 except types.AWTypeError as e:
-                    _dp = enc.displayable_path(raw_value)
-                    log.error('Bad value for option {}: "{!s}"'.format(option,
-                                                                       _dp))
+                    log.error('Bad value for option {}: "{!s}"'.format(
+                        option, types.force_string(raw_value)
+                    ))
                     log.debug(str(e))
                 else:
                     log.debug('Added persistence option :: {!s}: {!s}'.format(
-                        option, enc.displayable_path(_bytes_path)
+                        option, enc.displayable_path(bytes_value)
                     ))
-                    self.parsed['PERSISTENCE'][option] = _bytes_path
+                    self.parsed['PERSISTENCE'][option] = bytes_value
+                    # OK!
                     return
 
-        _bytes_path = types.AW_PATH.normalize(default)
+        # Use the default value.
+        bytes_default = types.AW_PATH.normalize(default)
         log.debug(
             'Using default persistence option :: {!s}: {!s}'.format(
-                option, enc.displayable_path(_bytes_path)
+                option, enc.displayable_path(bytes_default)
             )
         )
-        self.parsed['PERSISTENCE'][option] = _bytes_path
+        self.parsed['PERSISTENCE'][option] = bytes_default
 
 
 def parse_versioning(semver_string):
@@ -544,21 +554,15 @@ def parse_versioning(semver_string):
         A tuple of three integers representing the "major", "minor" and
         "patch" version numbers.  Or None if the validation fails.
     """
-    if not semver_string or not isinstance(semver_string, str):
-        return None
-    if not semver_string.strip():
+    if not isinstance(semver_string, str) or not semver_string.strip():
         return None
 
     RE_VERSION_NUMBER = re.compile(r'v?(\d+)\.(\d+)\.(\d+)')
     match = RE_VERSION_NUMBER.search(semver_string)
     if match:
-        try:
-            major = int(match.group(1))
-            minor = int(match.group(2))
-            patch = int(match.group(3))
-        except TypeError:
-            pass
-        else:
-            return major, minor, patch
+        major = int(match.group(1))
+        minor = int(match.group(2))
+        patch = int(match.group(3))
+        return major, minor, patch
 
     return None
