@@ -279,6 +279,7 @@ class Rule(object):
     @name_template.setter
     def name_template(self, raw_name_template):
         # Name template has already been validated in the 'Configuration' class.
+        # TODO: [TD0180] Add abstraction for file name composed of placeholder fields.
         if not raw_name_template:
             raise InvalidRuleError('Got None name template')
         self._name_template = raw_name_template
@@ -554,6 +555,7 @@ def parse_data_sources(raw_sources):
                         '(MeowURI: "{!s}")'.format(raw_meowuri_strings))
             continue
 
+        # TODO: [TD0180] Add abstraction for file name composed of placeholder fields.
         tf = fields.nametemplatefield_class_from_string(raw_templatefield)
         if not tf:
             log.warning('Failed to convert template field string to class '

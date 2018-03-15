@@ -21,12 +21,12 @@
 
 import datetime
 import logging
-import re
 
 from core import (
     exceptions,
     types,
 )
+from core.model.name_template import format_string_placeholders
 from util import (
     sanity,
     text
@@ -360,26 +360,6 @@ class _Year(NameTemplateField):
         return formatted_datetime(data.value, datetime_format)
 
 
-def format_string_placeholders(format_string):
-    """
-    Gets the format string placeholder fields from a text string.
-
-    The text "{foo} mjao baz {bar}" would return ['foo', 'bar'].
-
-    Args:
-        format_string: Format string to get placeholders from.
-
-    Returns:
-        Any format string placeholder fields as a list of unicode strings.
-    """
-    if not isinstance(format_string, str):
-        raise TypeError('Expected "format_string" to be of type str')
-    if not format_string.strip():
-        return []
-
-    return re.findall(r'{(\w+)}', format_string)
-
-
 def available_nametemplatefield_classes():
     """
     Returns: All available name template field classes as a list of classes.
@@ -398,19 +378,6 @@ NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS = [
 ]
 
 
-def is_valid_template_field(template_field):
-    """
-    Checks whether the given string is a legal name template placeholder field.
-
-    Args:
-        template_field: The field to test as type str.
-
-    Returns:
-        True if the given string is a legal name template field, else False.
-    """
-    return nametemplatefield_class_from_string(template_field) is not None
-
-
 def nametemplatefield_class_from_string(string):
     """
     Get a name template field class from a Unicode string.
@@ -427,6 +394,19 @@ def nametemplatefield_class_from_string(string):
         s = string.lower().strip()
         return NAMETEMPLATEFIELD_CLASS_STRING_LOOKUP.get(s, None)
     return None
+
+
+def is_valid_template_field(template_field):
+    """
+    Checks whether the given string is a legal name template placeholder field.
+
+    Args:
+        template_field: The field to test as type str.
+
+    Returns:
+        True if the given string is a legal name template field, else False.
+    """
+    return nametemplatefield_class_from_string(template_field) is not None
 
 
 def nametemplatefield_classes_in_formatstring(format_string):

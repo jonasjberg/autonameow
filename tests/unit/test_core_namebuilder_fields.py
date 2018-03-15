@@ -21,7 +21,6 @@
 
 from unittest import TestCase
 
-import unit.utils as uu
 from core import types
 from core.namebuilder import fields
 
@@ -37,85 +36,6 @@ FIELDS_PUBLISHER = fields.Publisher
 FIELDS_TAGS = fields.Tags
 FIELDS_TIME = fields.Time
 FIELDS_TITLE = fields.Title
-
-
-class TestFormatStringPlaceholders(TestCase):
-    def _assert_contains(self, template, placeholders):
-        actual = fields.format_string_placeholders(template)
-        self.assertEqual(placeholders, actual)
-
-    def test_empty_or_whitespace(self):
-        self._assert_contains(template='', placeholders=[])
-        self._assert_contains(template=' ', placeholders=[])
-
-    def test_unexpected_input_raises_valueerror(self):
-        def _assert_raises(template):
-            with self.assertRaises(TypeError):
-                fields.format_string_placeholders(template)
-
-        _assert_raises(None)
-        _assert_raises(1)
-        _assert_raises(uu.str_to_datetime('2016-01-11 124132'))
-        _assert_raises(b'')
-        _assert_raises(b' ')
-        _assert_raises(b'foo')
-        _assert_raises(b'{foo}')
-
-    def test_no_placeholders(self):
-        self._assert_contains(template='abc',
-                              placeholders=[])
-        self._assert_contains(template='abc}',
-                              placeholders=[])
-        self._assert_contains(template='{abc',
-                              placeholders=[])
-        self._assert_contains(template='{abc {foo',
-                              placeholders=[])
-        self._assert_contains(template='{abc foo}',
-                              placeholders=[])
-
-    def test_one_placeholder(self):
-        self._assert_contains(template='abc {foo}',
-                              placeholders=['foo'])
-        self._assert_contains(template='abc {foo}',
-                              placeholders=['foo'])
-        self._assert_contains(template='{abc {foo}',
-                              placeholders=['foo'])
-        self._assert_contains(template='abc} {foo}',
-                              placeholders=['foo'])
-        self._assert_contains(template='{abc def} {foo}',
-                              placeholders=['foo'])
-        self._assert_contains(template='abc{ def} {foo}',
-                              placeholders=['foo'])
-
-    def test_two_unique_placeholders(self):
-        self._assert_contains(template='{abc} {foo}',
-                              placeholders=['abc', 'foo'])
-        self._assert_contains(template='{abc} abc {foo}',
-                              placeholders=['abc', 'foo'])
-        self._assert_contains(template='{abc} {{foo}',
-                              placeholders=['abc', 'foo'])
-        self._assert_contains(template='{abc} {abc {foo}',
-                              placeholders=['abc', 'foo'])
-        self._assert_contains(template='{abc} {abc }{foo}',
-                              placeholders=['abc', 'foo'])
-
-    def test_duplicateplaceholders(self):
-        self._assert_contains(template='{foo} {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} abc {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} {abc {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} abc} {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} {abc } {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} {abc} {foo}',
-                              placeholders=['foo', 'abc', 'foo'])
-        self._assert_contains(template='{abc} {abc} {foo}',
-                              placeholders=['abc', 'abc', 'foo'])
 
 
 class TestAvailableNametemplatefieldClasses(TestCase):
