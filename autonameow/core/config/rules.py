@@ -199,13 +199,11 @@ class RuleCondition(object):
 class Rule(object):
     """
     Represents a single rule entry in a loaded configuration.
-
-    All data validation happens at 'Rule' init or when setting any attribute.
     """
     def __init__(self, conditions, data_sources, name_template,
                  description=None, exact_match=None, ranking_bias=None):
         """
-        Creates a new 'Rule' instance.
+        Creates a new 'Rule' instance from previously validated data.
 
         Args:
             conditions: Dict used to create instances of 'RuleCondition'.
@@ -218,102 +216,29 @@ class Rule(object):
                          evaluation. Defaults to False.
             ranking_bias: (OPTIONAL) Float between 0-1 that influences ranking.
         """
-        self._description = None
-        self._exact_match = None
-        self._ranking_bias = None
-        self._name_template = None
-        self._conditions = None
-        self._data_sources = None
-
-        self.description = description
-        self.exact_match = exact_match
-        self.ranking_bias = ranking_bias
-        self.name_template = name_template
-        self.conditions = conditions
+        assert isinstance(conditions, list)
+        self._conditions = conditions
+        assert isinstance(data_sources, dict)
         self.data_sources = data_sources
+        self.name_template = name_template
+
+        self.description = description or C.DEFAULT_RULE_DESCRIPTION
+        self.exact_match = bool(exact_match)
+        if ranking_bias is not None:
+            self.ranking_bias = float(ranking_bias)
+        else:
+            self.ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
 
         # NOTE(jonas): This assumes instances of 'RuleCondition' are immutable!
         self.__cached_hash = None
 
     @property
-    def description(self):
-        return self._description
-
-    @description.setter
-    def description(self, raw_description):
-        str_description = types.force_string(raw_description)
-        if str_description.strip():
-            self._description = str_description
-        else:
-            self._description = C.DEFAULT_RULE_DESCRIPTION
-
-    @property
-    def exact_match(self):
-        return self._exact_match
-
-    @exact_match.setter
-    def exact_match(self, raw_exact_match):
-        try:
-            self._exact_match = types.AW_BOOLEAN(raw_exact_match)
-        except types.AWTypeError as e:
-            raise InvalidRuleError(e)
-
-    @property
-    def ranking_bias(self):
-        if self._ranking_bias:
-            return self._ranking_bias
-        return C.DEFAULT_RULE_RANKING_BIAS
-
-    @ranking_bias.setter
-    def ranking_bias(self, raw_ranking_bias):
-        try:
-            self._ranking_bias = parse_ranking_bias(raw_ranking_bias)
-        except InvalidRuleError as e:
-            log.warning(e)
-            self._ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
-
-    @property
-    def name_template(self):
-        return self._name_template
-
-    @name_template.setter
-    def name_template(self, raw_name_template):
-        # Name template has already been validated in the 'Configuration' class.
-        # TODO: [TD0180] Add abstraction for file name composed of placeholder fields.
-        if not raw_name_template:
-            raise InvalidRuleError('Got None name template')
-        self._name_template = raw_name_template
-
-    @property
     def conditions(self):
-        return self._conditions
-
-    @conditions.setter
-    def conditions(self, valid_conditions):
-        if not isinstance(valid_conditions, list):
-            _msg = 'Expected list. Got {!s}'.format(type(valid_conditions))
-            raise InvalidRuleError(_msg)
-
-        for c in valid_conditions:
-            if not isinstance(c, RuleCondition):
-                _msg = 'Invalid condition: ({!s}) "{!s}"'.format(type(c), c)
-                raise InvalidRuleError(_msg)
-
-        self._conditions = valid_conditions
+        return list(self._conditions)
 
     @property
     def number_conditions(self):
-        return len(self._conditions)
-
-    @property
-    def data_sources(self):
-        return self._data_sources
-
-    @data_sources.setter
-    def data_sources(self, raw_data_sources):
-        # Skips and warns about invalid/missing sources. Does not fail or
-        # raise any exceptions even if all of the sources fail validation.
-        self._data_sources = parse_data_sources(raw_data_sources)
+        return len(self.conditions)
 
     def referenced_meowuris(self):
         """
@@ -338,10 +263,9 @@ class Rule(object):
         if not isinstance(other, self.__class__):
             return False
 
-        return (
+        return bool(
             self.conditions == other.conditions and
             self.data_sources == other.data_sources and
-            self.description == other.description and
             self.exact_match == other.exact_match and
             self.name_template == other.name_template and
             self.ranking_bias == other.ranking_bias
@@ -359,7 +283,7 @@ class Rule(object):
                 hashed_data_sources += data_source_hash
 
             self.__cached_hash = hash(
-                (hashed_conditions, hashed_data_sources, self.description,
+                (hashed_conditions, hashed_data_sources,
                  self.exact_match, self.name_template, self.ranking_bias)
             )
 
@@ -403,8 +327,8 @@ Data Sources:
            sources=str_sources)
 
 
-def get_valid_rule(description, exact_match, ranking_bias, name_template,
-                   conditions, data_sources):
+def get_valid_rule(raw_description, raw_exact_match, raw_ranking_bias, format_string,
+                   conditions, raw_data_sources):
     """
     Main retrieval mechanism for 'Rule' class instances.
 
@@ -416,21 +340,43 @@ def get_valid_rule(description, exact_match, ranking_bias, name_template,
     Raises:
         InvalidRuleError: Validation failed or the 'Rule' instantiation failed.
     """
+    # Conditions
     if not conditions:
         conditions = dict()
-
     try:
         valid_conditions = parse_conditions(conditions)
     except ConfigurationSyntaxError as e:
         raise InvalidRuleError(e)
 
-    try:
-        _rule = Rule(valid_conditions, data_sources, name_template,
-                     description, exact_match, ranking_bias)
-    except InvalidRuleError as e:
-        raise e
+    # Skips and warns about invalid/missing sources. Does not fail or
+    # raise any exceptions even if all of the sources fail validation.
+    data_sources = parse_data_sources(raw_data_sources)
+
+    # Name template
+    name_template = format_string
+
+    # Description
+    str_description = types.force_string(raw_description)
+    if str_description.strip():
+        description = str_description
     else:
-        return _rule
+        description = C.DEFAULT_RULE_DESCRIPTION
+
+    # Exact match
+    try:
+        exact_match = types.AW_BOOLEAN(raw_exact_match)
+    except types.AWTypeError as e:
+        raise InvalidRuleError(e)
+
+    # Ranking bias
+    try:
+        ranking_bias = parse_ranking_bias(raw_ranking_bias)
+    except ConfigurationSyntaxError as e:
+        log.warning(e)
+        ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
+
+    return Rule(valid_conditions, data_sources, name_template,
+                description, exact_match, ranking_bias)
 
 
 def get_valid_rule_condition(meowuri, raw_expression):
@@ -476,30 +422,30 @@ def parse_ranking_bias(value):
     with the default bias defined by "DEFAULT_RULE_RANKING_BIAS".
 
     Args:
-        value: The raw value to parse.
+        value: The "raw" value to parse.
     Returns:
         The specified value if the value is a number type in the range 0-1.
         If the specified value is None, a default bias is returned.
     Raises:
         ConfigurationSyntaxError: The value is of an unexpected type or not
-            within the range 0-1.
+                                  within the range 0-1.
     """
     if value is None:
         return C.DEFAULT_RULE_RANKING_BIAS
 
     try:
-        _value = types.AW_FLOAT(value)
+        float_value = types.AW_FLOAT(value)
     except types.AWTypeError:
         raise ConfigurationSyntaxError(
             'Expected float but got "{!s}" ({!s})'.format(value, type(value))
         )
     else:
-        if not 0.0 <= _value <= 1.0:
+        if not 0.0 <= float_value <= 1.0:
             raise ConfigurationSyntaxError(
                 'Expected float between 0.0 and 1.0. Got {} -- Using default: '
                 '{}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
             )
-        return _value
+        return float_value
 
 
 def parse_conditions(raw_conditions):
@@ -517,8 +463,7 @@ def parse_conditions(raw_conditions):
                 raise ConfigurationSyntaxError(e)
 
             try:
-                valid_condition = get_valid_rule_condition(uri,
-                                                           expression_string)
+                valid_condition = get_valid_rule_condition(uri, expression_string)
             except InvalidRuleError as e:
                 raise ConfigurationSyntaxError(e)
             else:
@@ -526,7 +471,7 @@ def parse_conditions(raw_conditions):
                 log.debug('Validated condition: "{!s}"'.format(valid_condition))
     except ValueError as e:
         raise ConfigurationSyntaxError(
-            'contains invalid condition: ' + str(e)
+            'contains invalid condition: {!s}'.format(e)
         )
 
     log.debug(

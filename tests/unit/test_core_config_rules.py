@@ -37,123 +37,157 @@ from core.config.rules import (
 from core.model import MeowURI
 
 
-uu.init_session_repository()
 uu.init_provider_registry()
 
 
-class TestRuleMethods(TestCase):
+def _get_rule(*args, **kwargs):
+    test_default_conditions = kwargs.get('conditions') or list()
+    test_default_data_sources = kwargs.get('data_sources') or dict()
+    test_default_name_template = kwargs.get('name_template') or 'dummy'
+    kwargs.update({
+        'conditions': test_default_conditions,
+        'data_sources': test_default_data_sources,
+        'name_template': test_default_name_template
+    })
+    return Rule(*args, **kwargs)
+
+
+MOCK_CONDITIONS_A = ['a']
+MOCK_CONDITIONS_B = ['b']
+MOCK_DATA_SOURCES_A = {'a': 'foo'}
+MOCK_DATA_SOURCES_B = {'b': 'bar'}
+
+
+class TestRule(TestCase):
     def setUp(self):
-        self.maxDiff = None
-        self.rule = uu.get_dummy_rule()
+        self.default_rule = _get_rule()
 
-    def test_rule_string(self):
-        actual = str(self.rule)
-        self.assertTrue(uu.is_internalstring(actual))
+    def test_required_arguments_no_conditions_no_data_sources(self):
+        self.assertEqual(self.default_rule.conditions, [])
+        self.assertEqual(self.default_rule.data_sources, dict())
+        self.assertEqual(self.default_rule.name_template, 'dummy')
 
-    def test_rule_hash(self):
-        actual = hash(self.rule)
-        self.assertIsNotNone(actual)
+    def test_required_arguments_no_data_sources(self):
+        rule = _get_rule(conditions=MOCK_CONDITIONS_A)
+        self.assertEqual(rule.conditions, MOCK_CONDITIONS_A)
+        self.assertEqual(rule.data_sources, dict())
+        self.assertEqual(rule.name_template, 'dummy')
 
-    def test_stringify_dummy_rule(self):
-        s = self.rule.stringify()
-        self.assertIsInstance(s, str)
+    def test_required_arguments(self):
+        rule = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
+            data_sources=MOCK_DATA_SOURCES_A,
+        )
+        self.assertEqual(rule.conditions, MOCK_CONDITIONS_A)
+        self.assertEqual(len(MOCK_DATA_SOURCES_A), len(rule.data_sources))
+        self.assertEqual(rule.name_template, 'dummy')
+
+    def test_exact_match_coerces_to_false_if_none(self):
+        rule = _get_rule(exact_match=None)
+        self.assertEqual(rule.exact_match, False)
+
+    def test_exact_match_uses_default_value_if_left_unspecified(self):
+        self.assertEqual(self.default_rule.exact_match, False)
+
+    def test_ranking_bias_uses_default_value_if_none(self):
+        a = _get_rule(ranking_bias=None)
+        self.assertEqual(a.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
+
+    def test_ranking_bias_uses_default_value_if_left_unspecified(self):
+        self.assertEqual(self.default_rule.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
+
+    def test_description_ses_default_value_if_none(self):
+        a = _get_rule(description=None)
+        self.assertEqual(a.description, C.DEFAULT_RULE_DESCRIPTION)
+
+    def test_description_uses_default_value_if_left_unspecified(self):
+        self.assertEqual(self.default_rule.description, C.DEFAULT_RULE_DESCRIPTION)
 
 
 class TestRuleComparison(TestCase):
-    def setUp(self):
-        self.a = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-        )
+    def test_should_not_be_equal_to_objects_of_another_type(self):
+        a = _get_rule()
+        for b in [None, False, object(), {}, [], 'foo']:
+            self.assertNotEqual(a, b)
 
-    def test_not_equal_to_dict_with_equivalent_contents(self):
-        b = {
-            'conditions': [],
-            'data_sources': dict(),
-            'name_template': 'dummy',
-        }
-        self.assertNotEqual(self.a, b)
-
-    def test_not_equal_to_objects_of_another_type(self):
-        for b in [None, {}, [], 'foo']:
-            self.assertNotEqual(self.a, b)
-
-    def test_is_equal_to_itself(self):
-        self.assertEqual(self.a, self.a)
+    def test_should_be_equal_to_itself(self):
+        a = _get_rule()
+        self.assertEqual(a, a)
 
     def test_hashable_for_set_membership(self):
-        # NOTE(jonas): Assumes dummy rule conditions are unique.
-        all_rules = uu.get_dummy_rules_to_examine()
-        container = set(all_rules)
-        self.assertEqual(len(all_rules), len(container))
+        container = set()
+
+        a = _get_rule(data_sources={'foo': 'bar'})
+        container.add(a)
+        self.assertEqual(1, len(container))
+
+        b = _get_rule(data_sources={'baz': 'bar'})
+        container.add(b)
+        container.add(b)
+        self.assertEqual(2, len(container))
+
+        c = _get_rule(name_template='meow')
+        container.add(c)
+        container.add(c)
+        self.assertEqual(3, len(container))
+
+        # Descriptions are ignored.
+        d = _get_rule(name_template='meow', description='MEOW MEOW')
+        container.add(d)
+        self.assertEqual(3, len(container))
 
     def test_equality_only_required_arguments(self):
-        b = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-        )
-        self.assertEqual(self.a, b)
+        a = _get_rule(name_template='dummy')
+        b = _get_rule(name_template='dummy')
+        self.assertEqual(a, b)
 
     def test_equality_required_arguments_no_data_sources(self):
-        _valid_conditions = uu.get_dummy_parsed_conditions()
-        b = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=dict(),
-            name_template='dummy',
+        a = _get_rule()
+        b = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
         )
-        c = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=dict(),
-            name_template='dummy',
+        c = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
         )
-        d = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=dict(),
+        d = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
             name_template='foo',
         )
-        self.assertNotEqual(self.a, b)
-        self.assertNotEqual(self.a, c)
-        self.assertNotEqual(self.a, d)
+        self.assertNotEqual(a, b)
+        self.assertNotEqual(a, c)
+        self.assertNotEqual(a, d)
         self.assertNotEqual(b, d)
         self.assertNotEqual(c, d)
         self.assertEqual(b, c)
 
     def test_equality_required_arguments(self):
-        _valid_conditions = uu.get_dummy_parsed_conditions()
-        _valid_data_sources = uu.get_dummy_raw_data_sources()
-        a = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=_valid_data_sources[0],
-            name_template='dummy',
+        a = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
+            data_sources=MOCK_DATA_SOURCES_A,
         )
-        b = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=_valid_data_sources[0],
-            name_template='dummy',
+        b = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
+            data_sources=MOCK_DATA_SOURCES_A,
         )
-        c = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=_valid_data_sources[1],
-            name_template='dummy',
+        c = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
+            data_sources=MOCK_DATA_SOURCES_B,
         )
-        d = Rule(
-            conditions=_valid_conditions[1],
-            data_sources=_valid_data_sources[0],
-            name_template='dummy',
+        d = _get_rule(
+            conditions=MOCK_CONDITIONS_B,
+            data_sources=MOCK_DATA_SOURCES_A,
         )
-        e = Rule(
-            conditions=_valid_conditions[1],
-            data_sources=_valid_data_sources[1],
-            name_template='dummy',
+        e = _get_rule(
+            description='meow',
+            conditions=MOCK_CONDITIONS_B,
+            data_sources=MOCK_DATA_SOURCES_B,
         )
-        f = Rule(
-            conditions=_valid_conditions[1],
-            data_sources=_valid_data_sources[1],
-            name_template='dummy',
+        f = _get_rule(
+            description='MEOW MEOW',
+            conditions=MOCK_CONDITIONS_B,
+            data_sources=MOCK_DATA_SOURCES_B,
         )
-        # Equal to itself.
+        # Rules should equal themselves.
         self.assertEqual(a, a)
         self.assertEqual(b, b)
         self.assertEqual(c, c)
@@ -161,10 +195,12 @@ class TestRuleComparison(TestCase):
         self.assertEqual(e, e)
         self.assertEqual(f, f)
 
-        # Equal if Same conditions and data sources.
+        # Equality based on conditions and data sources.
         self.assertEqual(a, b)
+        # Descriptions are ignored.
         self.assertEqual(e, f)
 
+        # Inequality based on conditions and data sources.
         self.assertNotEqual(a, c)
         self.assertNotEqual(a, d)
         self.assertNotEqual(a, e)
@@ -180,75 +216,22 @@ class TestRuleComparison(TestCase):
         self.assertNotEqual(d, f)
 
 
-class TestRuleInit(TestCase):
-    def test_required_arguments_no_conditions_no_data_sources(self):
-        rule = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-        )
-        self.assertEqual(rule.conditions, [])
-        self.assertEqual(rule.data_sources, dict())
-        self.assertEqual(rule.name_template, 'dummy')
+class TestDummyRule(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.rule = uu.get_dummy_rule()
 
-    def test_required_arguments_no_data_sources(self):
-        _valid_conditions = uu.get_dummy_parsed_conditions()
-        rule = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=dict(),
-            name_template='dummy',
-        )
-        self.assertEqual(rule.conditions, _valid_conditions[0])
-        self.assertEqual(rule.data_sources, dict())
-        self.assertEqual(rule.name_template, 'dummy')
+    def test_rule_string(self):
+        actual = str(self.rule)
+        self.assertTrue(uu.is_internalstring(actual))
 
-    def test_required_arguments(self):
-        _valid_conditions = uu.get_dummy_parsed_conditions()
-        _valid_data_sources = uu.get_dummy_raw_data_sources()[0]
-        rule = Rule(
-            conditions=_valid_conditions[0],
-            data_sources=_valid_data_sources,
-            name_template='dummy',
-        )
-        self.assertEqual(rule.conditions, _valid_conditions[0])
-        self.assertEqual(len(rule.data_sources), len(_valid_data_sources))
-        self.assertEqual(rule.name_template, 'dummy')
+    def test_rule_hash(self):
+        actual = hash(self.rule)
+        self.assertIsNotNone(actual)
 
-    def test_optional_argument_exact_match(self):
-        # Defaults (coerces) to False if None.
-        rule = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-            exact_match=None,
-        )
-        self.assertEqual(rule.exact_match, False)
-
-        # Defaults to False if unspecified.
-        rule = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-        )
-        self.assertEqual(rule.exact_match, False)
-
-    def test_optional_argument_ranking_bias(self):
-        # Uses default value if None.
-        rule = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-            ranking_bias=None
-        )
-        self.assertEqual(rule.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
-
-        # Uses default value if unspecified.
-        rule = Rule(
-            conditions=[],
-            data_sources=dict(),
-            name_template='dummy',
-        )
-        self.assertEqual(rule.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
+    def test_stringify_dummy_rule(self):
+        s = self.rule.stringify()
+        self.assertIsInstance(s, str)
 
 
 class TestRuleConditionComparison(TestCase):

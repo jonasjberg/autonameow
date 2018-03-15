@@ -217,7 +217,7 @@ class FilesContext(object):
         return active_rule
 
     def _try_resolve(self, current_file, name_template, data_sources):
-        resolver = TemplateFieldDataResolver(current_file, name_template)
+        resolver = TemplateFieldDataResolver(current_file, name_template.placeholders)
         resolver.add_known_sources(data_sources)
 
         # TODO: Rework the rule matcher and this logic to try another candidate.

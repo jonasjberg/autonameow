@@ -375,6 +375,7 @@ class ConfigurationRuleParser(object):
         return validated
 
     def _validate_name_template(self, _raw_name_template):
+        # TODO: [TD0180] Does this duplicate name template validation?
         str_template = types.force_string(_raw_name_template)
         if not str_template:
             return None
@@ -414,30 +415,26 @@ class ConfigurationRuleParser(object):
                 Note that the message will be used in the following sentence:
                 "Bad rule "x"; {message}"
         """
-        if 'NAME_TEMPLATE' not in raw_rule:
-            raise ConfigurationSyntaxError(
-                'is missing name template'
-            )
-        valid_template = self._validate_name_template(raw_rule.get('NAME_TEMPLATE'))
+        raw_name_template = raw_rule.get('NAME_TEMPLATE')
+        if not raw_name_template:
+            raise ConfigurationSyntaxError('is missing name template')
+
+        raw_name_template = text.remove_nonbreaking_spaces(raw_name_template)
+        valid_template = self._validate_name_template(raw_name_template)
         if not valid_template:
-            raise ConfigurationSyntaxError(
-                'uses invalid name template format'
-            )
-        name_template = text.remove_nonbreaking_spaces(valid_template)
+            raise ConfigurationSyntaxError('uses invalid name template format')
 
         try:
-            _rule = get_valid_rule(
-                description=raw_rule.get('description'),
-                exact_match=raw_rule.get('exact_match'),
-                ranking_bias=raw_rule.get('ranking_bias'),
-                name_template=name_template,
+            return get_valid_rule(
+                raw_description=raw_rule.get('description'),
+                raw_exact_match=raw_rule.get('exact_match'),
+                raw_ranking_bias=raw_rule.get('ranking_bias'),
+                format_string=valid_template,
                 conditions=raw_rule.get('CONDITIONS'),
-                data_sources=raw_rule.get('DATA_SOURCES')
+                raw_data_sources=raw_rule.get('DATA_SOURCES')
             )
         except InvalidRuleError as e:
             raise ConfigurationSyntaxError(e)
-        else:
-            return _rule
 
     def _validate_rules(self, rules_dict):
         validated = []

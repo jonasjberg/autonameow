@@ -543,48 +543,6 @@ def get_instantiated_analyzers():
             analyzers.get_analyzer_classes()]
 
 
-def get_dummy_rules_to_examine():
-    # TODO: [hack][cleanup] Mock properly! Remove?
-    _raw_conditions = get_dummy_parsed_conditions()
-    _raw_sources = get_dummy_raw_data_sources()
-
-    out = []
-    out.append(rules.Rule(
-        description='test_files Gmail print-to-pdf',
-        exact_match=True,
-        ranking_bias=0.5,
-        name_template='{datetime} {title}.{extension}',
-        conditions=_raw_conditions[0],
-        data_sources=_raw_sources[0]
-    ))
-    out.append(rules.Rule(
-        description='test_files smulan.jpg',
-        exact_match=True,
-        ranking_bias=1.0,
-        name_template='{datetime} {description}.{extension}',
-        conditions=_raw_conditions[1],
-        data_sources=_raw_sources[1]
-    ))
-    out.append(rules.Rule(
-        description='Sample Entry for Photos with strict rules',
-        exact_match=True,
-        ranking_bias=1.0,
-        name_template='{datetime} {description} -- {tags}.{extension}',
-        conditions=_raw_conditions[2],
-        data_sources=_raw_sources[2]
-    ))
-    out.append(rules.Rule(
-        description='Sample Entry for EPUB e-books',
-        exact_match=True,
-        ranking_bias=1.0,
-        name_template='{publisher} {title} {edition} - {author} {date}.{extension}',
-        conditions=_raw_conditions[3],
-        data_sources=_raw_sources[3]
-    ))
-
-    return out
-
-
 def get_dummy_rulecondition_instances():
     # TODO: [hack][cleanup] Mock properly! Remove?
     return [
