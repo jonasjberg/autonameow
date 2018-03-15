@@ -1,0 +1,2 @@
+Two rules with constant file name, I.E. templates do not contain placeholders and no data sources are given.
+Rule ranking should be determined only by the ranking bias. Neither rule require an exact match.
