@@ -70,6 +70,20 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0183]` __Look into `exiftool` time-complexity.__  
+    There is a kind of "batch" option in `exiftool` that starts a single
+    process which can then be fed multiple files in a streaming-like fashion.
+    This is probably faster, as it avoids the perl interpreter startup
+    overhead.
+    But the question is how much faster it is for smaller number of files.
+    It should be pretty trivial to get approximate values empirically.
+    time-complexity of he single process batched mode as well as the "simpler"
+    method currently used by the `ExiftoolMetadataExtractor`, I.E. separate
+    perl process per file.
+
+    * __Measure time-complexity of single process exiftool__
+    * __Measure time-complexity of one exiftool process per file__
+
 * `[TD0182]` Isolate third-party metadata services like `isbnlib`.
 
 * `[TD0174]` Do not do replacements in the NameTemplateField classes.

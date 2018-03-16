@@ -137,6 +137,8 @@ def _get_exiftool_data(source):
     Returns:
         Exiftool results as a dictionary of strings/ints/floats.
     """
+    # TODO: [TD0183] Look into 'exiftool' time-complexity.
+    # TODO: [TD0183] Worth redoing this to share a single process?
     try:
         with pyexiftool.ExifTool() as et:
             try:
