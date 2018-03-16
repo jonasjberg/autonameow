@@ -314,6 +314,8 @@ class Autonameow(object):
                 if interactive.ask_confirm_rename(filename_delta.displayable_old,
                                                   filename_delta.displayable_new):
                     self.renamer.confirm(filename_delta)
+                else:
+                    self.renamer.reject(filename_delta)
 
             # TODO: Display renames as they actually happen?
             for filename_delta in self.renamer.pending:

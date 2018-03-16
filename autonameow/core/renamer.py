@@ -111,9 +111,11 @@ class FileRenamer(object):
     @property
     def skipped(self):
         """
+        NOTE: Skipped files are removed from the list of skipped files!
         Returns: Files that will not be renamed as instances of 'FilenameDelta'.
         """
-        yield from self._skipped
+        while self._skipped:
+            yield self._skipped.pop()
 
     @property
     def pending(self):
@@ -188,6 +190,18 @@ class FileRenamer(object):
         )
         self._needs_confirmation.remove(filename_delta)
         self._pending.append(filename_delta)
+
+    def reject(self, filename_delta):
+        """
+        Opposite of 'confirm()', do NOT rename file when calling 'do_rename()'.
+
+        Args:
+            filename_delta: File to reject as an instance of 'FilenameDelta'.
+        """
+        assert filename_delta in self._needs_confirmation, (
+            '{!s} does not need to be confirmed'.format(filename_delta)
+        )
+        self._needs_confirmation.remove(filename_delta)
 
     def do_renames(self):
         """
