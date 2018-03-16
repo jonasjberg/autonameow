@@ -45,6 +45,7 @@ class ProviderRunner(object):
         )
         self.debug_stats = defaultdict(dict)
         self._delegation_history = defaultdict(dict)
+        self._provider_delegation_history = defaultdict(set)
 
     def delegate_to_providers(self, fileobject, uri):
         possible_providers = providers.get_providers_for_meowuri(uri)
@@ -65,7 +66,32 @@ class ProviderRunner(object):
                 log.debug('Skipping previously delegated {!s} to {!s}'.format(uri, provider))
                 continue
 
+            if self._previously_delegated_provider(fileobject, provider):
+                # TODO: [incomplete] Replace "remembering" delegations by both uri and provider with this?
+                # This basically comes down to how "granular" the mapping from
+                # an arbitrary uri to the correct provider.
+                # Preventing delegation based on fileobject, uri and provider
+                # is a lot more specific. But in practice, this currently
+                # causes the same provider to be repeatedly called, resulting
+                # in a lot of unnecessary work as well as storing duplicates.
+                #
+                # Preventing delegation based on only fileobject and provider
+                # is more coarse, but could also mean that some providers won't
+                # be executed even though they should be.
+                # I guess this method will work as long as all providers always
+                # returns all possible results at once, regardless of which uri
+                # caused the delegation.
+                # Files are assumed to not change during autonameow execution,
+                # and *I THINK* that all providers currently store all possible
+                # extracted data for a given file, irregardless of which uri
+                # was queried ..
+                log.debug('Skipping previously delegated provider {!s}'.format(provider))
+                continue
+
             self._remember_delegation(fileobject, uri, provider)
+
+            # TODO: [incomplete] Replace "remembering" delegations by both uri and provider with this?
+            self._remember_provider_delegation(fileobject, provider)
 
             if _provider_is_extractor(provider):
                 prepared_extractors.add(provider)
@@ -89,6 +115,17 @@ class ProviderRunner(object):
 
     def _remember_delegation(self, fileobject, uri, provider):
         self._delegation_history[fileobject][uri].add(provider)
+
+    def _previously_delegated_provider(self, fileobject, provider):
+        # TODO: [incomplete] Replace "remembering" delegations by both uri and provider with this?
+        return bool(
+            fileobject in self._provider_delegation_history
+            and provider in self._provider_delegation_history[fileobject]
+        )
+
+    def _remember_provider_delegation(self, fileobject, provider):
+        # TODO: [incomplete] Replace "remembering" delegations by both uri and provider with this?
+        self._provider_delegation_history[fileobject].add(provider)
 
     def _delegate_to_extractors(self, fileobject, extractors_to_run):
         try:
