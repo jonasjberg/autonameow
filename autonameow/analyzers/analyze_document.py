@@ -22,6 +22,8 @@
 import re
 
 from analyzers import BaseAnalyzer
+from core.model.normalize import normalize_full_title
+from util.text.filter import RegexLineFilter
 from util.text.patternmatching import find_publisher_in_copyright_notice
 from util.text import (
     collapse_whitespace,
@@ -44,7 +46,27 @@ BLACKLISTED_TEXTLINES = frozenset([
     'Unknown',
     'www.allitebooks.com',
     'www.it-ebooks.info',
+    'free ebooks wwwebook777com',
+    'free ebooks www.ebook777.com',
+    'free ebooks ==> www.ebook777.com',
+    'Free ebooks ==> www.ebook777.com',
 ])
+
+
+title_filter = RegexLineFilter([
+    r'^[\.=-]+$',
+    r'for your convenience .* has placed some of the front',
+    r'matter material after the index\.? Please use the Bookmarks',
+    r'and Contents at a Glance links to access them\.?',
+    r'Contents at a Glance',
+    r'about the author.*',
+    r'about the technical reviewer.*',
+    r'acknowledgments.*',
+    r'introduction.*',
+    r'index.?[0-9]+',
+    r'.*chapter ?[0-9]+.*',
+    r'.*www\.?ebook777\.?com.*',
+], ignore_case=True)
 
 
 class DocumentAnalyzer(BaseAnalyzer):
@@ -84,11 +106,11 @@ class DocumentAnalyzer(BaseAnalyzer):
         self.candidate_publishers = {}
 
     def analyze(self):
-        _maybe_text = self.request_any_textual_content()
-        if not _maybe_text:
+        maybe_text = self.request_any_textual_content()
+        if not maybe_text:
             return
 
-        filtered_text = remove_blacklisted_lines(_maybe_text, BLACKLISTED_TEXTLINES)
+        filtered_text = remove_blacklisted_lines(maybe_text, BLACKLISTED_TEXTLINES)
         normalized_whitespace_text = collapse_whitespace(filtered_text)
         self.text = normalized_whitespace_text
         self.num_text_lines = len(self.text.splitlines())
@@ -106,8 +128,11 @@ class DocumentAnalyzer(BaseAnalyzer):
         if text_titles:
             # TODO: Pass multiple possible titles with probabilities.
             #       (title is not "multivalued")
+            self.log.debug('TEXTTITLES: ' + str(text_titles))
             maybe_text_title = text_titles[0]
-            self._add_intermediate_results('title', maybe_text_title)
+            normalized_title = normalize_full_title(maybe_text_title)
+            if normalized_title:
+                self._add_intermediate_results('title', normalized_title)
 
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
         if _options:
@@ -161,8 +186,8 @@ def find_titles_in_text(text, num_lines_to_search):
         if not line.strip():
             continue
 
-        if not line.replace('-', ''):
-            # TODO: [TD0130] Improve matching irrelevant lines to be ignored.
+        filtered_line = title_filter(line)
+        if not filtered_line:
             continue
 
         score = (num_lines_to_search - line_count) / num_lines_to_search
@@ -170,7 +195,7 @@ def find_titles_in_text(text, num_lines_to_search):
         # self._add_intermediate_results(
         #     'title', self._wrap_generic_title(line, score)
         # )
-        titles.append((line, score))
+        titles.append((filtered_line, score))
 
         line_count += 1
 
@@ -180,8 +205,8 @@ def find_titles_in_text(text, num_lines_to_search):
 def find_publisher(text, candidates):
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     text = text.lower()
-    for repl, patterns in candidates.items():
+    for replacement, patterns in candidates.items():
         for pattern in patterns:
             if re.search(pattern, text):
-                return repl
+                return replacement
     return None
