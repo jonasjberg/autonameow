@@ -140,6 +140,24 @@ class TestReportRuntime(TestCase):
 
         mock_reporter.assert_called_with('Foo Completed in 0.000000000 seconds')
 
+    @patch('time.time')
+    def test_reporter_function_gets_decorated_str_by_default(self, mock_time):
+        mock_time.side_effect = [0, 0]
+        mock_reporter = Mock()
+        with report_runtime(mock_reporter, 'Foo'):
+            mock_reporter.assert_called_with('================================= Foo Started ==================================')
+
+        mock_reporter.assert_called_with('===================== Foo Completed in 0.000000000 seconds =====================')
+
+    @patch('time.time')
+    def test_reporter_function_gets_undecorated_string(self, mock_time):
+        mock_time.side_effect = [0, 0]
+        mock_reporter = Mock()
+        with report_runtime(mock_reporter, 'Foo', decorate=False):
+            mock_reporter.assert_called_with('Foo Started')
+
+        mock_reporter.assert_called_with('Foo Completed in 0.000000000 seconds')
+
 
 class TestLogRunTime(TestCase):
     def setUp(self):

@@ -185,20 +185,24 @@ def center_pad_log_entry(string):
 
 
 @contextmanager
-def report_runtime(reporter_function, description):
+def report_runtime(reporter_function, description, decorate=True):
     """
     Context manager that reports the time taken for the context to complete.
 
     Args:
         reporter_function: Callable that accepts Unicode string messages.
         description: Name of thing being measured for use in the log entry.
+        decorate: Whether to center and pad the string passed to the reporter.
     """
     assert callable(reporter_function)
     assert isinstance(description, str)
 
     def _report(message):
-        decorated_message = center_pad(message, maxwidth=TERMINAL_WIDTH, fillchar='=')
-        reporter_function(decorated_message)
+        if decorate:
+            _msg = center_pad(message, maxwidth=TERMINAL_WIDTH, fillchar='=')
+        else:
+            _msg = message
+        reporter_function(_msg)
 
     _report('{} Started'.format(description))
     start_time = time.time()
