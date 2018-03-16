@@ -129,8 +129,10 @@ class FilesContext(object):
             # Have the user select data sources.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
 
-        field_databundle_dict = self._try_resolve(current_file, name_template,
-                                                  data_sources)
+        resolver = TemplateFieldDataResolver(current_file, name_template.placeholders)
+        field_databundle_dict = self._try_resolve(
+            resolver, current_file, data_sources
+        )
         if not field_databundle_dict:
             if not self.opts.get('mode_automagic'):
                 log.warning('Not in automagic mode. Unable to populate name.')
@@ -152,9 +154,9 @@ class FilesContext(object):
                     )
                     data_sources = active_rule.data_sources
                     name_template = active_rule.name_template
-                    field_databundle_dict = self._try_resolve(current_file,
-                                                              name_template,
-                                                              data_sources)
+                    field_databundle_dict = self._try_resolve(
+                        resolver, current_file, data_sources
+                    )
 
         if not field_databundle_dict:
             log.warning('Unable to populate name.')
@@ -218,8 +220,7 @@ class FilesContext(object):
 
         return active_rule
 
-    def _try_resolve(self, current_file, name_template, data_sources):
-        resolver = TemplateFieldDataResolver(current_file, name_template.placeholders)
+    def _try_resolve(self, resolver, current_file, data_sources):
         resolver.add_known_sources(data_sources)
 
         # TODO: Rework the rule matcher and this logic to try another candidate.
