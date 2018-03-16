@@ -101,6 +101,9 @@ class DataBundle(object):
 
         return 0.0
 
+    def __str__(self):
+        return '<{!s}({!s})>'.format(self.__class__.__name__, self.value)
+
 
 class Repository(object):
     """

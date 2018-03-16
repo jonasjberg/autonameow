@@ -90,14 +90,14 @@ def build(config, name_template, field_databundle_dict):
 def pre_assemble_format(field_databundle_dict, config):
     out = dict()
 
-    for field, data in field_databundle_dict.items():
-        log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))
+    for field, databundle in field_databundle_dict.items():
+        log.debug('pre_assemble_format({!s}, {!s})'.format(field, databundle))
         assert field and isinstance(field, NameTemplateField)
         from core.repository import DataBundle
-        assert data and isinstance(data, DataBundle)
+        assert databundle and isinstance(databundle, DataBundle)
 
         # TODO: [TD0115] Clear up uncertainties about data multiplicities
-        if data.multivalued:
+        if databundle.multivalued:
             if not field.MULTIVALUED:
                 log.critical(
                     'Template field {!s} expects a single value. Got '
@@ -105,12 +105,12 @@ def pre_assemble_format(field_databundle_dict, config):
                 )
                 raise exceptions.NameBuilderError(
                     'Template field {!s} expects a single value. '
-                    'Got {} values'.format(field, len(data))
+                    'Got {} values'.format(field, len(databundle))
                 )
 
-        _formatted = field.format(data, config=config)
-        if _formatted is not None:
-            out[field] = _formatted
+        formatted_field = field.format(databundle, config=config)
+        if formatted_field is not None:
+            out[field] = formatted_field
         else:
             raise exceptions.NameBuilderError(
                 'Unable to format name template field "{!s}"'.format(field)
