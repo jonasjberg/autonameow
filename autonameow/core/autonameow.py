@@ -143,7 +143,7 @@ class Autonameow(object):
             self.exit_program(C.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
-        files_to_process = self._collect_path_from_opts()
+        files_to_process = self._collect_paths_from_opts()
         log.info('Got {} files to process'.format(len(files_to_process)))
 
         # Initialize the global master data provider.
@@ -171,7 +171,7 @@ class Autonameow(object):
 
         self.exit_program(self.exit_code)
 
-    def _collect_path_from_opts(self):
+    def _collect_paths_from_opts(self):
         path_collector = disk.PathCollector(
             ignore_globs=self.config.options['FILESYSTEM']['ignore'],
             recurse=self.opts.get('recurse_paths')
@@ -263,11 +263,12 @@ class Autonameow(object):
             master_provider=self.master_provider
         )
 
+        should_list_all = self.opts.get('list_all')
+
         for file_path in file_paths:
             str_file_path = enc.displayable_path(file_path)
             log.info('Processing: "{!s}"'.format(str_file_path))
 
-            # Sanity checking the "file_path" is part of 'FileObject' init.
             try:
                 current_file = FileObject(file_path)
             except (exceptions.InvalidFileArgumentError,
@@ -277,7 +278,7 @@ class Autonameow(object):
                 )
                 continue
 
-            if self.opts.get('list_all'):
+            if should_list_all:
                 log.debug('Calling provider.delegate_every_possible_meowuri()')
                 master_provider.delegate_every_possible_meowuri(current_file)
 
@@ -335,7 +336,7 @@ class Autonameow(object):
             if current_file in repository.SessionRepository.data:
                 repository.SessionRepository.remove(current_file)
 
-        if self.opts.get('list_all'):
+        if should_list_all:
             if not aggregate_repository_contents:
                 str_repo = 'The session repository does not contain any data ..\n'
             else:
