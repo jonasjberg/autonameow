@@ -43,8 +43,10 @@ class RegexFilter(object):
         >>> fb('bar')
         >>> fb(['Foo', 'bar'])
         []
+
+    Intended for single-line strings --- re.MULTILINE is not used.
     """
-    def __init__(self, expressions):
+    def __init__(self, expressions, ignore_case=False):
         """
         Creates a new re-usable instance.
 
@@ -54,13 +56,16 @@ class RegexFilter(object):
         """
         # Used to ignore previously added expressions.
         self._seen_expressions = set()
-        self._regexes = self._compile_regexes(expressions)
+        self._regexes = self._compile_regexes(expressions, ignore_case)
 
     @property
     def regexes(self):
         return set(self._regexes)
 
     def __call__(self, values):
+        return self._filter_values(values)
+
+    def _filter_values(self, values):
         if isinstance(values, (list, set)):
             # Preserve input sequence type
             container_type = type(values)
@@ -73,9 +78,13 @@ class RegexFilter(object):
                 return value
         return None
 
-    def _compile_regexes(self, expressions):
+    def _compile_regexes(self, expressions, ignore_case=False):
         if not isinstance(expressions, list):
             expressions = [expressions]
+
+        re_flags = 0
+        if ignore_case:
+            re_flags |= re.IGNORECASE
 
         regexes = set()
         for expression in expressions:
@@ -84,7 +93,7 @@ class RegexFilter(object):
                 # Can't do de-duplication by adding compiled regexes to a set ..
                 continue
 
-            regexes.add(re.compile(expression))
+            regexes.add(re.compile(expression, re_flags))
             self._seen_expressions.add(expression)
 
         return regexes
@@ -94,3 +103,23 @@ class RegexFilter(object):
 
     def __len__(self):
         return len(self.regexes)
+
+
+class RegexLineFilter(RegexFilter):
+    """
+    Filters a multi-line string, line by line.
+    Lines that match any of the regexes are not included in the output.
+    """
+    def _filter_values(self, text_lines):
+        filtered_lines = []
+        for line in text_lines.splitlines(keepends=True):
+            stripped_line = line.strip()
+            if self._matches_any_regex(stripped_line):
+                continue
+
+            filtered_lines.append(line)
+
+        joined_filtered_lines = ''.join(filtered_lines)
+        if joined_filtered_lines:
+            return joined_filtered_lines
+        return None

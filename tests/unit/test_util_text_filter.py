@@ -25,6 +25,7 @@ from unittest import TestCase
 from core.exceptions import EncodingBoundaryViolation
 from util.text.filter import (
     RegexFilter,
+    RegexLineFilter,
 )
 
 
@@ -34,6 +35,10 @@ _BUILTIN_REGEX_TYPE = type(re.compile(''))
 
 def _get_regex_filter(*args, **kwargs):
     return RegexFilter(*args, **kwargs)
+
+
+def _get_regex_line_filter(*args, **kwargs):
+    return RegexLineFilter(*args, **kwargs)
 
 
 class TestRegexFilter(TestCase):
@@ -143,3 +148,44 @@ class TestRegexFilter(TestCase):
             with self.subTest(given=given):
                 actual = f(given)
                 self.assertEqual(expected, actual)
+
+
+class TestRegexLineFilter(TestCase):
+    def test_replaces_expected_with_ignore_case_true(self):
+        regexes = [
+            r'^[\.=-]+$',
+            r'for your convenience .* has placed some of the front',
+        ]
+        f = _get_regex_line_filter(regexes, ignore_case=True)
+        actual = f('For your convenience Foobar has placed some of the front')
+        expected = None
+        self.assertEqual(expected, actual)
+
+    def test_replaces_expected_multiline_with_ignore_case_true(self):
+        f = _get_regex_line_filter(r'[=A-]+', ignore_case=True)
+        actual = f('''----------
+MEOW MEOW
+==========
+aaa
+----------
+BBB
+''')
+        expected = '''MEOW MEOW
+BBB
+'''
+        self.assertEqual(expected, actual)
+
+    def test_replaces_expected_multiline_with_ignore_case_false(self):
+        f = _get_regex_line_filter(r'[=A-]+', ignore_case=False)
+        actual = f('''----------
+MEOW MEOW
+==========
+aaa
+----------
+BBB
+''')
+        expected = '''MEOW MEOW
+aaa
+BBB
+'''
+        self.assertEqual(expected, actual)
