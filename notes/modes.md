@@ -14,6 +14,18 @@ Unsorted notes on overall program operation and usability.
 * 2017-10-01 --- `jonasjberg` Initial
 * 2017-11-10 --- `jonasjberg` Redefine `automagic` vs. "default"
 * 2017-11-15 --- `jonasjberg` Add additional options
+* 2018-03-18 --- `jonasjberg` Allow combining "timid" and "batch"
+
+
+--------------------------------------------------------------------------------
+
+
+Current Plans
+=============
+TODO: Document current state ..
+
+
+--------------------------------------------------------------------------------
 
 
 Current Plans
