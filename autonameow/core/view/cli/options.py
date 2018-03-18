@@ -178,7 +178,7 @@ def init_argparser():
         default=False,
         dest='mode_timid',
         action='store_true',
-        help='Enable TIMID MODE. Ask user to confirm renames. '
+        help='Enable TIMID MODE. Have the user confirm each file before renaming. '
     )
     optgrp_mode_interaction.add_argument(
         '--interactive',
@@ -192,8 +192,9 @@ def init_argparser():
         default=False,
         dest='mode_batch',
         action='store_true',
-        help='Enable BATCH MODE. Abort instead of querying the user. Does not '
-             'require any user interaction and is suitable for scripting, etc.'
+        help='Enable BATCH MODE. Abort instead of querying the user, suitable '
+             'for scripting, etc. Disables all user interaction except TIMID '
+             'MODE file rename confirmations, if enabled.'
     )
 
     parser.add_argument(

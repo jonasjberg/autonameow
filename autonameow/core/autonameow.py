@@ -435,11 +435,6 @@ def check_option_combinations(options):
                         '"interactive".  Disabling "interactive"..')
             opts['mode_interactive'] = False
 
-        if opts.get('mode_timid'):
-            log.warning('Operating mode must be either one of "batch" or '
-                        '"timid", not both. Disabling "timid"..')
-            opts['mode_timid'] = False
-
     if opts.get('mode_interactive'):
         if opts.get('mode_timid'):
             log.warning('Operating mode "interactive" implies "timid". '
