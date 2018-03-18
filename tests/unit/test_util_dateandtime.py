@@ -179,6 +179,9 @@ class TestMatchSpecialCase(TestCase):
     def test_match_special_case_4th_variation(self):
         self._assert_match('20160722T131730')
 
+    def test_match_special_case_5th_variation(self):
+        self._assert_match('2016-07-22_13-17-30')
+
     def test_does_not_match_strings_without_iso_like_dates(self):
         self._assert_no_match('')
         self._assert_no_match(' ')

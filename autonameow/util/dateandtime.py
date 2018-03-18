@@ -228,7 +228,7 @@ def _parse_datetime_from_start_to_char_n_patterns(text, match_patterns):
 
 def match_special_case(text):
     """
-    Matches strings with a ISO-like date on the form YYYY-mm-dd HH:MM:SS.
+    Matches variations of ISO-like (YYYY-mm-dd HH:MM:SS) date/time strings.
 
     NOTE(jonas): These are patterns I have personally used over the years
                  that I know are highly likely to be correct if in a filename.
@@ -240,13 +240,16 @@ def match_special_case(text):
 
     Returns: A date and time as an instance of 'datetime' or None.
     """
+    if not text:
+        return None
+
+    subbed_text = re.sub(r'[-_T]', '-', text)
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     # TODO: [TD0043] Allow specifying custom matching patterns in the config.
-    MATCH_PATTERNS = [('%Y-%m-%d_%H%M%S', 17),
-                      ('%Y-%m-%dT%H%M%S', 17),
-                      ('%Y%m%d_%H%M%S', 15),
-                      ('%Y%m%dT%H%M%S', 15)]
-    return _parse_datetime_from_start_to_char_n_patterns(text, MATCH_PATTERNS)
+    MATCH_PATTERNS = [('%Y-%m-%d-%H-%M-%S', 19),
+                      ('%Y-%m-%d-%H%M%S', 17),
+                      ('%Y%m%d-%H%M%S', 15)]
+    return _parse_datetime_from_start_to_char_n_patterns(subbed_text, MATCH_PATTERNS)
 
 
 def match_special_case_no_date(text):
