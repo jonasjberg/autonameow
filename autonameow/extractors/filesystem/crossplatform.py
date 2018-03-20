@@ -37,20 +37,21 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         return metadata
 
     def _collect_from_fileobject(self, fileobject):
-        FIELD_NAME_FILEOBJECT_ATTRIBUTE_MAP = [
-            ('abspath_full', fileobject.abspath),
-            ('basename_full', fileobject.filename),
-            ('extension', fileobject.basename_suffix),
-            ('basename_suffix', fileobject.basename_suffix),
-            ('basename_prefix', fileobject.basename_prefix),
-            ('pathname_full', fileobject.pathname),
-            ('pathname_parent', fileobject.pathparent),
-            ('mime_type', fileobject.mime_type)
+        FIELD_FILEOBJECT_ATTRIBUTE_MAP = [
+            ('abspath_full', 'abspath'),
+            ('basename_full', 'filename'),
+            ('extension', 'basename_suffix'),
+            ('basename_suffix', 'basename_suffix'),
+            ('basename_prefix', 'basename_prefix'),
+            ('pathname_full', 'pathname'),
+            ('pathname_parent', 'pathparent'),
+            ('mime_type', 'mime_type')
         ]
 
         fileobject_metadata = dict()
-        for field, value in FIELD_NAME_FILEOBJECT_ATTRIBUTE_MAP:
-            coerced_value = self.coerce_field_value(field, value)
+        for field, attribute in FIELD_FILEOBJECT_ATTRIBUTE_MAP:
+            fileobject_attr_value = getattr(fileobject, attribute)
+            coerced_value = self.coerce_field_value(field, fileobject_attr_value)
             if coerced_value is not None:
                 fileobject_metadata[field] = coerced_value
         return fileobject_metadata
