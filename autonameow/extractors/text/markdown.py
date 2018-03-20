@@ -40,9 +40,7 @@ class MarkdownTextExtractor(AbstractTextExtractor):
     IS_SLOW = False
 
     def extract_text(self, fileobject):
-        self.log.debug('Extracting raw text from markdown text file ..')
-        result = get_plaintext_from_markdown_file_with_pandoc(fileobject.abspath)
-        return result
+        return get_plaintext_from_markdown_file_with_pandoc(fileobject.abspath)
 
     @classmethod
     def can_handle(cls, fileobject):

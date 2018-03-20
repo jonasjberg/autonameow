@@ -31,13 +31,13 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
     IS_SLOW = False
 
     def extract(self, fileobject, **kwargs):
-        out = dict()
-        out.update(self._collect_from_fileobject(fileobject))
-        out.update(self._collect_filesystem_timestamps(fileobject))
-        return out
+        metadata = dict()
+        metadata.update(self._collect_from_fileobject(fileobject))
+        metadata.update(self._collect_filesystem_timestamps(fileobject))
+        return metadata
 
     def _collect_from_fileobject(self, fileobject):
-        _datasources = [
+        FIELD_NAME_FILEOBJECT_ATTRIBUTE_MAP = [
             ('abspath_full', fileobject.abspath),
             ('basename_full', fileobject.filename),
             ('extension', fileobject.basename_suffix),
@@ -48,12 +48,12 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             ('mime_type', fileobject.mime_type)
         ]
 
-        result = dict()
-        for _uri, _source in _datasources:
-            _coerced_data = self.coerce_field_value(_uri, _source)
-            if _coerced_data is not None:
-                result[_uri] = _coerced_data
-        return result
+        fileobject_metadata = dict()
+        for field, value in FIELD_NAME_FILEOBJECT_ATTRIBUTE_MAP:
+            coerced_value = self.coerce_field_value(field, value)
+            if coerced_value is not None:
+                fileobject_metadata[field] = coerced_value
+        return fileobject_metadata
 
     def _collect_filesystem_timestamps(self, fileobject):
         result = dict()

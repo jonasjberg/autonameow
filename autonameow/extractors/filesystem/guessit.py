@@ -19,8 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-
 try:
     import guessit as guessit
 except ImportError:
@@ -46,20 +44,20 @@ class GuessitExtractor(BaseExtractor):
             )
             return None
 
-        data = run_guessit(file_basename)
-        if not data:
+        guessit_output = run_guessit(file_basename)
+        if not guessit_output:
             self.log.debug(
                 '{!s} aborting --- got not data from guessit'.format(self)
             )
             return None
 
-        _results = dict()
-        for field, value in data.items():
-            _coerced = self.coerce_field_value(field, value)
-            if _coerced is not None:
-                _results[field] = _coerced
+        metadata = dict()
+        for field, value in guessit_output.items():
+            coerced_value = self.coerce_field_value(field, value)
+            if coerced_value is not None:
+                metadata[field] = coerced_value
 
-        return _results
+        return metadata
 
     @classmethod
     def check_dependencies(cls):
@@ -77,6 +75,7 @@ def run_guessit(input_data, options=None):
             'name_only': True
         }
 
+    import logging
     logging.disable(logging.DEBUG)
     try:
         result = guessit.guessit(input_data, guessit_options)

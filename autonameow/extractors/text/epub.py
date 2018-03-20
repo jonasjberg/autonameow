@@ -19,8 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-
 try:
     from bs4 import BeautifulSoup
 except ImportError:
@@ -37,9 +35,6 @@ from util import encoding as enc
 from util import sanity
 
 
-log = logging.getLogger(__name__)
-
-
 class EpubTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
     IS_SLOW = False
@@ -50,9 +45,7 @@ class EpubTextExtractor(AbstractTextExtractor):
         self.init_cache()
 
     def extract_text(self, fileobject):
-        self.log.debug('Extracting raw text from EPUB file ..')
-        result = extract_text_with_ebooklib(fileobject.abspath)
-        return result
+        return extract_text_with_ebooklib(fileobject.abspath)
 
     @classmethod
     def check_dependencies(cls):

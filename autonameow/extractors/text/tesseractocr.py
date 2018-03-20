@@ -43,6 +43,7 @@ from util import encoding as enc
 
 
 TESSERACT_COMMAND = 'tesseract'
+TESSERACT_ARGS = None
 
 
 class TesseractOCRTextExtractor(AbstractTextExtractor):
@@ -60,14 +61,10 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         #       on the image contents. Will need to pass "tesseract_args"
         #       somehow. I'm starting to think image OCR does not belong
         #       in this inheritance hierarchy ..
-        tesseract_args = None
-
-        self.log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
-            tesseract_args, enc.displayable_path(fileobject.abspath)
-        ))
-        result = get_text_from_ocr(fileobject.abspath,
-                                   tesseract_args=tesseract_args)
-        return result
+        return get_text_from_ocr(
+            fileobject.abspath,
+            tesseract_args=TESSERACT_ARGS
+        )
 
     @classmethod
     def check_dependencies(cls):

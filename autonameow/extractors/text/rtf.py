@@ -34,9 +34,7 @@ class RichTextFormatTextExtractor(AbstractTextExtractor):
     IS_SLOW = False
 
     def extract_text(self, fileobject):
-        self.log.debug('Calling unrtf')
-        result = extract_text_with_unrtf(fileobject.abspath)
-        return result
+        return extract_text_with_unrtf(fileobject.abspath)
 
     @classmethod
     def check_dependencies(cls):

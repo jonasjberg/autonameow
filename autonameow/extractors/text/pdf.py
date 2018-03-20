@@ -46,9 +46,7 @@ class PdfTextExtractor(AbstractTextExtractor):
         self.init_cache()
 
     def extract_text(self, fileobject):
-        self.log.debug('Calling pdftotext')
-        result = extract_pdf_content_with_pdftotext(fileobject.abspath)
-        return result
+        return extract_pdf_content_with_pdftotext(fileobject.abspath)
 
     @classmethod
     def check_dependencies(cls):

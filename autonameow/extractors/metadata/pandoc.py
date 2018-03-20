@@ -53,13 +53,7 @@ class PandocMetadataExtractor(BaseExtractor):
     IS_SLOW = False
 
     def extract(self, fileobject, **kwargs):
-        self.log.debug('{!s}: Starting extraction'.format(self))
-        source = fileobject.abspath
-
-        _metadata = self._get_metadata(source)
-
-        self.log.debug('{!s}: Completed extraction'.format(self))
-        return _metadata
+        return self._get_metadata(fileobject.abspath)
 
     def _get_metadata(self, source):
         _raw_metadata = extract_document_metadata_with_pandoc(source)

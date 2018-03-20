@@ -40,10 +40,7 @@ class PlainTextExtractor(AbstractTextExtractor):
     IS_SLOW = False
 
     def extract_text(self, fileobject):
-        self.log.debug('Extracting raw text from plain text file ..')
-        source = fileobject.abspath
-        result = read_entire_text_file(source)
-        return result
+        return read_entire_text_file(fileobject.abspath)
 
     @classmethod
     def check_dependencies(cls):

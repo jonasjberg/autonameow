@@ -58,16 +58,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     IS_SLOW = False
 
     def extract(self, fileobject, **kwargs):
-        self.log.debug('{!s}: Starting extraction'.format(self))
-        source = fileobject.abspath
-
         try:
-            _metadata = self._get_metadata(source)
+            return self._get_metadata(fileobject.abspath)
         except ValueError as e:
             raise ExtractorError('Possible bug in "pyexiftool": {!s}'.format(e))
-
-        self.log.debug('{!s}: Completed extraction'.format(self))
-        return _metadata
 
     def _get_metadata(self, source):
         _raw_metadata = _get_exiftool_data(source)

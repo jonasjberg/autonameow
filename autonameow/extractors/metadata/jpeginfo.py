@@ -45,17 +45,15 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     }
 
     def extract(self, fileobject, **kwargs):
-        source = fileobject.abspath
-        metadata = self._get_metadata(source)
-        return metadata
+        return self._get_metadata(fileobject.abspath)
 
     def _get_metadata(self, source):
-        out = dict()
+        metadata = dict()
 
         jpeginfo_output = _run_jpeginfo(source)
         if not jpeginfo_output:
             self.log.debug('Got empty output from jpeginfo')
-            return out
+            return metadata
 
         if 'not a jpeg file' in jpeginfo_output.lower():
             is_jpeg = False
@@ -69,13 +67,13 @@ class JpeginfoMetadataExtractor(BaseExtractor):
 
         coerced_health = self.coerce_field_value('health', health)
         if coerced_health is not None:
-            out['health'] = coerced_health
+            metadata['health'] = coerced_health
 
         coerced_is_jpeg = self.coerce_field_value('is_jpeg', is_jpeg)
         if coerced_is_jpeg is not None:
-            out['is_jpeg'] = coerced_is_jpeg
+            metadata['is_jpeg'] = coerced_is_jpeg
 
-        return out
+        return metadata
 
     @classmethod
     def check_dependencies(cls):
