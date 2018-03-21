@@ -243,25 +243,6 @@ class Rule(object):
     def number_conditions(self):
         return len(self.conditions)
 
-    def referenced_meowuris(self):
-        """
-        Get all "MeowURIs" referenced by this rule.
-
-        The "MeowURI" can be part of either a condition or a data source.
-
-        Returns: The set of all "MeowURIs" referenced by this rule.
-        """
-        unique_meowuris = set()
-
-        for condition in self.conditions:
-            unique_meowuris.add(condition.meowuri)
-
-        for _, _meowuris in self.data_sources.items():
-            for m in _meowuris:
-                unique_meowuris.add(m)
-
-        return unique_meowuris
-
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False

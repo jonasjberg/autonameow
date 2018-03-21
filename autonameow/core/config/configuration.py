@@ -66,18 +66,6 @@ class Configuration(object):
         if not self._rules:
             log.warning('Configuration does not contain any rules!')
 
-        self.referenced_meowuris = set()
-        for rule in self._rules:
-            # Keep track of all "meowURIs" referenced by rules.
-            self.referenced_meowuris.update(rule.referenced_meowuris())
-
-        # For Debugging/development only.
-        _referenced_meowuris = sorted(self.referenced_meowuris)
-        for uri in _referenced_meowuris:
-            log.debug(
-                'Configuration Rule referenced meowURI "{!s}"'.format(uri)
-            )
-
     def get(self, key_list):
         try:
             return nested_dict_get(self._options, key_list)
