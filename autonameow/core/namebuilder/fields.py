@@ -292,7 +292,7 @@ class _Publisher(NameTemplateField):
 
         candidates = dict()
 
-        # TODO: [TD0174] Don't do this here ..
+        # TODO: [TD0174] Don't do field value replacements here!
         c = kwargs.get('config')
         if c:
             name_template_field_options = c.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
