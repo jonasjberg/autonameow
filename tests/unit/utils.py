@@ -31,8 +31,10 @@ from datetime import datetime
 
 import unit.constants as uuconst
 from core import FileObject
-from core.config import rules
-from core.config.config_parser import ConfigurationParser
+from core.config.config_parser import (
+    ConfigurationParser,
+    parse_conditions
+)
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from util import encoding as enc
@@ -545,8 +547,9 @@ def get_instantiated_analyzers():
 
 def get_dummy_rulecondition_instances():
     # TODO: [hack][cleanup] Mock properly! Remove?
+    from core.config.rules import RuleCondition
     return [
-        rules.RuleCondition(MeowURI(meowuri_string), expression)
+        RuleCondition(MeowURI(meowuri_string), expression)
         for meowuri_string, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS
     ]
 
@@ -565,14 +568,15 @@ def get_dummy_raw_data_sources():
 def get_dummy_parsed_conditions():
     # TODO: [hack][cleanup] Mock properly! Remove?
     _raw_conditions = get_dummy_raw_conditions()
-    conditions = [rules.parse_conditions(c) for c in _raw_conditions]
+    conditions = [parse_conditions(c) for c in _raw_conditions]
     return conditions
 
 
 def get_dummy_rule():
     # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
     _valid_conditions = get_dummy_parsed_conditions()
-    return rules.Rule(
+    from core.config.rules import Rule
+    return Rule(
         description='dummy',
         exact_match=False,
         ranking_bias=0.5,
