@@ -113,14 +113,10 @@ class ConfigurationParser(object):
         validated = dict()
         for raw_name, raw_format_string in raw_templates.items():
             error = 'Invalid name template: "{!s}": {!s}"'.format(raw_name, raw_format_string)
-            str_name = types.force_string(raw_name).strip()
-            str_format_string = types.force_string(raw_format_string)
+            str_name = _coerce_string(raw_name).strip()
+            str_format_string = _coerce_string(raw_format_string)
             if not str_name or not str_format_string:
                 raise ConfigurationSyntaxError(error)
-
-            # Remove any non-breaking spaces.
-            str_name = text.remove_nonbreaking_spaces(str_name)
-            str_format_string = text.remove_nonbreaking_spaces(str_format_string)
 
             if NameTemplateConfigFieldParser.is_valid_nametemplate_string(str_format_string):
                 validated[str_name] = str_format_string
@@ -145,7 +141,7 @@ class ConfigurationParser(object):
 
         validated = dict()
         for raw_field, raw_options in raw_name_template_fields.items():
-            str_field = types.force_string(raw_field)
+            str_field = _coerce_string(raw_field)
             if not is_valid_template_field(str_field):
                 raise ConfigurationSyntaxError(
                     'Invalid name template field: "{!s}"'.format(raw_field)
@@ -288,8 +284,8 @@ class ConfigurationParser(object):
 
         match_replace_pairs = []
         for regex, replacement in raw_replacements.items():
-            str_regex = types.force_string(regex)
-            str_replacement = types.force_string(replacement)
+            str_regex = _coerce_string(regex)
+            str_replacement = _coerce_string(replacement)
             try:
                 compiled_pat = re.compile(str_regex)
             except re.error:
@@ -311,7 +307,7 @@ class ConfigurationParser(object):
         if 'FILESYSTEM_OPTIONS' in config_dict:
             _maybe_str_list = config_dict['FILESYSTEM_OPTIONS'].get('ignore')
             _user_ignores = [
-                s for s in types.force_stringlist(_maybe_str_list) if s.strip()
+                s for s in _coerce_stringlist(_maybe_str_list) if s.strip()
             ]
             if _user_ignores:
                 for s in _user_ignores:
@@ -465,6 +461,16 @@ class ConfigurationRuleParser(object):
                 validated.append(valid_rule)
 
         return validated
+
+
+def _coerce_string(data):
+    str_data = types.force_string(data)
+    return text.remove_nonbreaking_spaces(str_data)
+
+
+def _coerce_stringlist(data_list):
+    str_data_list = types.force_stringlist(data_list)
+    return [text.remove_nonbreaking_spaces(s) for s in str_data_list]
 
 
 class ConfigurationOptionsParser(object):
