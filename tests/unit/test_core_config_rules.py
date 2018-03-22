@@ -411,7 +411,7 @@ class TestRuleConditionGivenInvalidExpression(TestCase):
 
 class TestRuleConditionGivenInvalidMeowURI(TestCase):
     def _assert_raises(self, meowuri, expression):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             _ = RuleCondition(meowuri, expression)
 
     def test_meowuri_none_expression_valid(self):
@@ -433,9 +433,9 @@ class TestRuleConditionGivenInvalidMeowURI(TestCase):
         self._assert_raises('', None)
 
     def test_meowuri_not_handled_by_parser(self):
-        _unhandled_meowuri = uu.as_meowuri('extractor.foo.bar')
-        with self.assertRaises(ValueError):
-            _ = RuleCondition(_unhandled_meowuri, 'baz')
+        unhandled_meowuri = uu.as_meowuri('extractor.foo.bar')
+        with self.assertRaises(InvalidRuleError):
+            _ = RuleCondition(unhandled_meowuri, 'baz')
 
 
 class TestRuleConditionMethods(TestCase):
@@ -498,50 +498,34 @@ class TestGetValidRuleCondition(TestCase):
 
 
 class TestIsValidSourceSpecification(TestCase):
-    def test_empty_source_returns_false(self):
-        def _aF(test_input):
-            with uu.capture_stderr() as _:
-                self.assertFalse(is_valid_source(test_input))
+    def test_returns_false_given_none_or_empty_source(self):
+        for given in [None, '']:
+            self.assertFalse(is_valid_source(given))
 
-        _aF(None)
-        _aF('')
+    def test_returns_false_given_invalid_source(self):
+        for given in [
+            ' ',
+            'not.a.valid.source.surely',
+            'foo',
+            'foo.bar',
+            'foo.bar.baz.',
+        ]:
+            self.assertFalse(is_valid_source(given))
 
-    def test_bad_source_returns_false(self):
-        def _aF(test_input):
-            with uu.capture_stderr() as _:
-                self.assertFalse(is_valid_source(test_input))
-
-        _aF(None)
-        _aF('')
-        _aF('not.a.valid.source.surely')
-        _aF('foobar')
-        _aF('exiftool')
-        _aF('exiftool.PDF:CreateDate')
-        _aF('metadata.exiftool')
-        _aF('metadata.exiftool.PDF:CreateDate')
-
-    def test_good_source_returns_true(self):
+    def test_returns_true_given_valid_source(self):
         for given_str in [
-            uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE,
+            # Generic sources
             uuconst.MEOWURI_GEN_CONTENTS_TEXT,
             uuconst.MEOWURI_GEN_METADATA_AUTHOR,
-            uuconst.MEOWURI_GEN_METADATA_CREATOR,
-            uuconst.MEOWURI_GEN_METADATA_PRODUCER,
-            uuconst.MEOWURI_GEN_METADATA_SUBJECT,
-            uuconst.MEOWURI_GEN_METADATA_TAGS,
-            uuconst.MEOWURI_GEN_METADATA_DATECREATED,
-            uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED,
+
+            # Extractor sources
             uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
             uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
-            uuconst.MEOWURI_FS_XPLAT_EXTENSION,
             uuconst.MEOWURI_FS_XPLAT_MIMETYPE
         ]:
             with self.subTest(given=given_str):
                 given = uu.as_meowuri(given_str)
-                self.assertTrue(
-                    is_valid_source(given),
-                    'Unexpectedly not a valid source: {!s}'.format(given)
-                )
+                self.assertTrue(is_valid_source(given))
 
 
 class TestParseConditions(TestCase):

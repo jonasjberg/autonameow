@@ -43,8 +43,7 @@ log = logging.getLogger(__name__)
 
 
 class InvalidRuleError(ConfigError):
-    """The Rule is in a bad state. The Rule state should only be set
-    with known good data. This error implies data validation has failed."""
+    """Error while constructing an instance of 'Rule' or its members."""
 
 
 class RuleCondition(object):
@@ -69,13 +68,14 @@ class RuleCondition(object):
             meowuri: A "MeowURI" describing the target of the condition,
                      as a previously validated instance of 'MeowURI'.
             raw_expression: A expression to use when evaluating this condition.
+
+        Raises:
+            InvalidRuleError: The 'RuleCondition' instantiation failed.
         """
         # TODO: Clean up setting the 'parser' attribute.
         # NOTE(jonas): The "MeowURI" determines which parser class is used.
 
         # TODO: [TD0015] Allow conditionals in the configuration rules.
-        # Possible a list of functions already "loaded" with the target value.
-        # Also "loaded" with corresponding (reference to) a validation function.
         self._parser = None
         self._meowuri = None
         self._expression = None
@@ -89,19 +89,12 @@ class RuleCondition(object):
         return self._meowuri
 
     @meowuri.setter
-    def meowuri(self, meowuri):
-        if not isinstance(meowuri, MeowURI):
-            raise TypeError(
-                'Expected instance of MeowURI. Got {!s}'.format(type(meowuri))
+    def meowuri(self, uri):
+        if not self._get_parser_for(uri):
+            raise InvalidRuleError(
+                'No field parser can handle MeowURI: "{!s}"'.format(uri)
             )
-
-        # Consider the "MeowURI" valid if any parser can handle it.
-        if not self._get_parser_for(meowuri):
-            raise ValueError(
-                'No field parser can handle MeowURI: "{!s}"'.format(meowuri)
-            )
-        else:
-            self._meowuri = meowuri
+        self._meowuri = uri
 
     @property
     def expression(self):
@@ -112,8 +105,10 @@ class RuleCondition(object):
         # The "MeowURI" is required in order to know how the expression
         # should be evaluated. Consider the expression invalid.
         if not self.meowuri:
-            raise ValueError('The condition first needs a valid "MeowURI" in '
-                             'order to validate an expression')
+            raise InvalidRuleError(
+                'Rule condition does not (yet) have a valid "MeowURI", '
+                'which is required in order to validate an expression'
+            )
 
         # TODO: [TD0089] Validate only "generic" metadata fields ..
         # TODO: Check if the "MeowURI" is "generic", only validate if it is.
@@ -125,15 +120,15 @@ class RuleCondition(object):
         # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
 
         if not self._get_parser_for(self.meowuri):
-            raise ValueError('Found no suitable parsers for MeowURI: '
-                             '"{!s}"'.format(self.meowuri))
+            raise InvalidRuleError('Found no suitable parsers for MeowURI: '
+                                   '"{!s}"'.format(self.meowuri))
 
         valid_expression = self._validate_expression(raw_expression)
         if valid_expression:
             log.debug('Validated expression: "{!s}"'.format(raw_expression))
             self._expression = raw_expression
         else:
-            raise ValueError(
+            raise InvalidRuleError(
                 'Invalid expression: "{!s}"'.format(raw_expression)
             )
 
@@ -157,8 +152,8 @@ class RuleCondition(object):
         Args:
             data: The data to used during the evaluation.
 
-        Returns: The result of the evaluation if the evaluation is successful
-            with the given data, otherwise False.
+        Returns: False if evaluation returned False or failed, or the
+                 ("truthy") evaluation result if the evaluation passed.
         """
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
@@ -175,7 +170,7 @@ class RuleCondition(object):
         if not isinstance(other, self.__class__):
             return False
 
-        return (
+        return bool(
             self.expression == other.expression and
             self.meowuri == other.meowuri
         )
@@ -221,12 +216,14 @@ class Rule(object):
         """
         assert isinstance(conditions, list)
         self._conditions = conditions
+
         assert isinstance(data_sources, dict)
         self.data_sources = data_sources
-        self.name_template = name_template
 
+        self.name_template = name_template
         self.description = description or C.DEFAULT_RULE_DESCRIPTION
         self.exact_match = bool(exact_match)
+
         if ranking_bias is not None:
             self.ranking_bias = float(ranking_bias)
         else:
@@ -385,17 +382,12 @@ def get_valid_rule_condition(meowuri, raw_expression):
     assert isinstance(meowuri, MeowURI), 'Expected instance of "MeowURI"'
 
     try:
-        condition = RuleCondition(meowuri, raw_expression)
-    except (TypeError, ValueError) as e:
-        # Add information and then pass the exception up the chain so that the
-        # error can be displayed with additional contextual information.
-        raise InvalidRuleError(
-            'Invalid rule condition ("{!s}": "{!s}"); {!s}'.format(
-                meowuri, raw_expression, e
-            )
-        )
-    else:
-        return condition
+        return RuleCondition(meowuri, raw_expression)
+    except InvalidRuleError as e:
+        log.debug('Invalid rule condition ("{!s}": "{!s}"); {!s}'.format(
+            meowuri, raw_expression, e
+        ))
+        raise
 
 
 def parse_ranking_bias(value):
@@ -441,14 +433,14 @@ def parse_conditions(raw_conditions):
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
     passed = []
     try:
-        for meowuri_string, expression_string in raw_conditions.items():
+        for str_meowuri, raw_expression in raw_conditions.items():
             try:
-                uri = MeowURI(meowuri_string)
+                uri = MeowURI(str_meowuri)
             except InvalidMeowURIError as e:
                 raise ConfigurationSyntaxError(e)
 
             try:
-                valid_condition = get_valid_rule_condition(uri, expression_string)
+                valid_condition = get_valid_rule_condition(uri, raw_expression)
             except InvalidRuleError as e:
                 raise ConfigurationSyntaxError(e)
             else:
@@ -467,8 +459,6 @@ def parse_conditions(raw_conditions):
 
 
 def parse_data_sources(raw_sources):
-    passed = dict()
-
     if not raw_sources:
         # Allow empty/None data sources.
         raw_sources = dict()
@@ -479,6 +469,7 @@ def parse_data_sources(raw_sources):
             'Expected sources to be of type dict'
         )
 
+    parsed_data_sources = dict()
     for raw_templatefield, raw_meowuri_strings in raw_sources.items():
         if not fields.is_valid_template_field(raw_templatefield):
             log.warning('Skipped source with invalid name template field '
@@ -487,9 +478,10 @@ def parse_data_sources(raw_sources):
 
         tf = fields.nametemplatefield_class_from_string(raw_templatefield)
         if not tf:
-            log.warning('Failed to convert template field string to class '
-                        'instance. This should not happen!')
-            log.warning('Template Field: ”{!s}"'.format(raw_templatefield))
+            log.critical(
+                'Failed to convert template field string to class instance. '
+                'This should not happen as the prior validation passed!'
+            )
             continue
 
         assert isinstance(tf, fields.NameTemplateField), type(tf)
@@ -512,43 +504,37 @@ def parse_data_sources(raw_sources):
 
             if is_valid_source(uri):
                 log.debug('Validated field {!s} source: {!s}'.format(tf, uri))
-                if not passed.get(tf):
-                    passed[tf] = [uri]
+                if not parsed_data_sources.get(tf):
+                    parsed_data_sources[tf] = [uri]
                 else:
-                    passed[tf] += [uri]
+                    parsed_data_sources[tf] += [uri]
             else:
                 log.debug('Invalid field {!s} source: {!s}'.format(tf, uri))
 
     log.debug(
-        'Returning {} (out of {}) valid sources'.format(len(passed),
+        'Returning {} (out of {}) valid sources'.format(len(parsed_data_sources),
                                                         len(raw_sources))
     )
-    return passed
+    return parsed_data_sources
 
 
-def is_valid_source(meowuri):
+def is_valid_source(uri):
     """
-    Check if the source is valid.
+    Validates a data source represented by an instance of 'MeowURI'.
 
-    For example, the source value "extractor.metadata.exiftool.PDF:CreateDate"
-    would be considered valid if "extractor.metadata.exiftool" was registered
-    by a source.
+    All generic sources are valid.
+    Sources like "extractor.metadata.exiftool.PDF:CreateDate" are considered
+    valid only if "extractor.metadata.exiftool" was registered by a source.
 
     Args:
-        meowuri: The source to test as an instance of 'MeowURI'.
+        uri: The data source to test as an instance of 'MeowURI'.
 
     Returns:
-        The given source value if it passes the test, otherwise False.
+        True if the source is valid, otherwise False.
     """
-    if not meowuri or not isinstance(meowuri, MeowURI):
-        log.warning('Got None or not an instance of "MeowURI"')
-        log.debug('"is_valid_source()" got ({!s}) {!s}'.format(type(meowuri),
-                                                               meowuri))
-        return False
-
-    if meowuri.is_generic:
-        return True
-    if providers.Registry.might_be_resolvable(meowuri):
-        return True
-
+    if isinstance(uri, MeowURI):
+        if uri.is_generic:
+            return True
+        if providers.Registry.might_be_resolvable(uri):
+            return True
     return False
