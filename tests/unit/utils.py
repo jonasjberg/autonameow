@@ -25,18 +25,11 @@ import io
 import os
 import sys
 import tempfile
-import unittest
 from contextlib import contextmanager
 from datetime import datetime
 
 import unit.constants as uuconst
 from core import FileObject
-from core.config.config_parser import (
-    ConfigurationParser,
-    parse_rule_conditions
-)
-from core.exceptions import InvalidMeowURIError
-from core.model import MeowURI
 from util import encoding as enc
 from util import (
     nested_dict_get,
@@ -125,7 +118,7 @@ def file_exists(file_path):
         True if the file exists, else False.
     """
     try:
-        return os.path.isfile(enc.syspath(file_path))
+        return bool(os.path.isfile(enc.syspath(file_path)))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -142,7 +135,7 @@ def dir_exists(dir_path):
     """
     _path = enc.syspath(dir_path)
     try:
-        return os.path.exists(_path) and os.path.isdir(_path)
+        return bool(os.path.exists(_path) and os.path.isdir(_path))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -159,7 +152,7 @@ def path_is_readable(file_path):
         False for any other case, including errors.
     """
     try:
-        return os.access(enc.syspath(file_path), os.R_OK)
+        return bool(os.access(enc.syspath(file_path), os.R_OK))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -176,7 +169,7 @@ def is_abspath(path):
         False for any other case, including errors.
     """
     try:
-        return os.path.isabs(enc.syspath(path))
+        return bool(os.path.isabs(enc.syspath(path)))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -291,31 +284,9 @@ def mock_request_data_callback(fileobject, label):
         cached_data = MOCK_SESSION_DATA_POOLS[fileobject] = d
 
     try:
-        d = nested_dict_get(cached_data, [fileobject, label])
+        return nested_dict_get(cached_data, [fileobject, label])
     except KeyError:
         return None
-    else:
-        return d
-
-
-def load_repository_dump(file_path):
-    """
-    Loads pickled repository contents from file at "file_path".
-    NOTE: Debugging/testing experiment --- TO BE REMOVED!
-    """
-    if not file_path or not file_exists(file_path):
-        return
-
-    import pickle
-    with open(enc.syspath(file_path), 'rb') as fh:
-        _data = pickle.load(fh, encoding='bytes')
-
-    if not _data:
-        return
-
-    from core import repository
-    repository.initialize()
-    repository.SessionRepository.data = _data
 
 
 def mock_session_data_pool(fileobject):
@@ -549,7 +520,7 @@ def get_dummy_rulecondition_instances():
     # TODO: [hack][cleanup] Mock properly! Remove?
     from core.config.rules import RuleCondition
     return [
-        RuleCondition(MeowURI(meowuri_string), expression)
+        RuleCondition(as_meowuri(meowuri_string), expression)
         for meowuri_string, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS
     ]
 
@@ -567,21 +538,23 @@ def get_dummy_raw_data_sources():
 
 def get_dummy_parsed_conditions():
     # TODO: [hack][cleanup] Mock properly! Remove?
-    _raw_conditions = get_dummy_raw_conditions()
-    conditions = [parse_rule_conditions(c) for c in _raw_conditions]
-    return conditions
+    _dummy_raw_conditions = get_dummy_raw_conditions()
+
+    from core.config.config_parser import parse_rule_conditions
+    return [parse_rule_conditions(c) for c in _dummy_raw_conditions]
 
 
 def get_dummy_rule():
     # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
-    _valid_conditions = get_dummy_parsed_conditions()
+    _dummy_parsed_conditions = get_dummy_parsed_conditions()
+
     from core.config.rules import Rule
     return Rule(
         description='dummy',
         exact_match=False,
         ranking_bias=0.5,
         name_template='dummy',
-        conditions=_valid_conditions[0],
+        conditions=_dummy_parsed_conditions[0],
         data_sources=get_dummy_raw_data_sources()[0]
     )
 
@@ -691,6 +664,7 @@ def get_default_config():
     _config_path = normpath(abspath_testconfig())
     assert isinstance(_config_path, bytes)
 
+    from core.config.config_parser import ConfigurationParser
     config_parser = ConfigurationParser()
     return config_parser.from_file(_config_path)
 
@@ -704,11 +678,12 @@ def mock_cache_path():
 
 
 def as_meowuri(string):
+    from core.model import MeowURI
+    from core.exceptions import InvalidMeowURIError
     try:
-        meowuri = MeowURI(string)
+        return MeowURI(string)
     except InvalidMeowURIError as e:
         raise AssertionError(e)
-    return meowuri
 
 
 def get_expected_text_for_testfile(testfile_basename):
