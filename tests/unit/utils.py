@@ -563,23 +563,25 @@ def is_class_instance(thing):
     """
     Tests whether a given object is a instance of a class.
 
+    Note that primitives or builtins are not considered class instances.
+    This function is intended for verifying user-defined classes.
+
     Args:
         thing: The object to test.
 
     Returns:
-        True if the given object is an instance of a class, otherwise False.
+        True if the given object is an instance of a class that is not a
+        builtin or primitive, otherwise False.
     """
     if not thing:
         return False
-    if isinstance(thing,
-                  (type, bool, str, bytes, int, float, list, set, tuple)):
+
+    if isinstance(thing, (type, bool, str, bytes, int, float, list, set, tuple)):
         return False
 
     if hasattr(thing, '__class__'):
         return True
 
-    # Make sure to always return boolean. Catches case where "thing" is a
-    # built-in/primitive not included in the messy "isinstance"-check ..
     return False
 
 
@@ -593,7 +595,7 @@ def is_class(thing):
     Returns:
         True if the given object is a class, otherwise False.
     """
-    return inspect.isclass(thing)
+    return bool(inspect.isclass(thing))
 
 
 def str_to_datetime(yyyy_mm_ddthhmmss, tz=None):
