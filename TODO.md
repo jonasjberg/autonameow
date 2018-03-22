@@ -234,6 +234,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0184]` Clean up translation of `metainfo` to "internal format".
+
 * `[TD0181]` Use machine learning in ISBN metadata de-duplication.
 
 * `[TD0177]` __Refactor the `ConfigFieldParser` classes.__  

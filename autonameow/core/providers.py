@@ -41,8 +41,8 @@ class ProviderMixin(object):
     def coerce_field_value(self, field, value):
         # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
         # TODO: [hack] This is very bad.
-        _field_lookup_entry = self.metainfo().get(field)
-        if not _field_lookup_entry:
+        field_metainfo = self.metainfo().get(field)
+        if not field_metainfo:
             self.log.debug(
                 'Field not in "FIELD_LOOKUP" (through "metainfo()" method); '
                 '"{!s}" with value: "{!s}" ({!s})'.format(field, value,
@@ -50,7 +50,7 @@ class ProviderMixin(object):
             return None
 
         try:
-            coercer_string = _field_lookup_entry.get('coercer')
+            coercer_string = field_metainfo.get('coercer')
         except AttributeError:
             # Might be case of malformed 'FIELD_LOOKUP'.
             coercer_string = None
@@ -61,12 +61,12 @@ class ProviderMixin(object):
             return None
 
         sanity.check_internal_string(coercer_string)
-        coercer = get_coercer_from_metainfo_string(coercer_string)
+        coercer = get_coercer_for_metainfo_string(coercer_string)
         assert isinstance(coercer, (types.BaseType, types.MultipleTypes)), (
             'Got ({!s}) "{!s}"'.format(type(coercer), coercer)
         )
 
-        if 'multivalued' not in _field_lookup_entry:
+        if 'multivalued' not in field_metainfo:
             self.log.debug(
                 'Multivalued unspecified for field; "{!s}" with value:'
                 ' "{!s}" ({!s})'.format(field, value, type(value))
@@ -74,7 +74,7 @@ class ProviderMixin(object):
 
         if isinstance(value, list):
             # Check "FIELD_LOOKUP" assumptions.
-            if not _field_lookup_entry.get('multivalued'):
+            if not field_metainfo.get('multivalued'):
                 self.log.warning(
                     'Got list but "FIELD_LOOKUP" specifies a single value.'
                     ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
@@ -89,7 +89,7 @@ class ProviderMixin(object):
                 return None
         else:
             # Check "FIELD_LOOKUP" assumptions.
-            if _field_lookup_entry.get('multivalued'):
+            if field_metainfo.get('multivalued'):
                 self.log.debug(
                     'Got single value but "FIELD_LOOKUP" specifies multiple. '
                     'Coercing to list. Tag: "{!s}" Value: "{!s}"'.format(field,
@@ -144,7 +144,7 @@ def _translate_field_metainfo_to_internal_format(field_metainfo):
     _field_metainfo = dict(field_metainfo)
     internal_field_metainfo = dict()
 
-    coercer_klass = get_coercer_from_metainfo_string(_field_metainfo.get('coercer'))
+    coercer_klass = get_coercer_for_metainfo_string(_field_metainfo.get('coercer'))
     if coercer_klass is None:
         # TODO: Improve robustness. Raise appropriate exception.
         # TODO: Improve robustness. Log provider with malformed metainfo entries.
@@ -202,13 +202,13 @@ _METAINFO_STRING_COERCER_KLASS_MAP = {
 }
 
 
-def get_coercer_from_metainfo_string(string):
+def get_coercer_for_metainfo_string(string):
     return _METAINFO_STRING_COERCER_KLASS_MAP.get(string)
 
 
 def translate_metainfo_mappings(metainfo_mapped_fields):
-    # TODO: Improve robustness. Raise appropriate exception.
-    # TODO: Improve robustness. Log provider with malformed metainfo entries.
+    # TODO: [TD0184] Improve robustness. Raise appropriate exception.
+    # TODO: [TD0184] Log provider with malformed metainfo entries.
     translated = list()
     if not metainfo_mapped_fields:
         return translated
@@ -219,8 +219,9 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
             if mapping_type == 'WeightedMapping':
                 param_field_str = mapping_params.get('field')
                 param_prob_str = mapping_params.get('probability')
-                # TODO: Improve robustness. Raise appropriate exception.
-                # TODO: Improve robustness. Log provider with malformed metainfo entries.
+                # TODO: [TD0184] Improve robustness. Raise appropriate exception.
+                # TODO: [TD0184] Log provider with malformed metainfo entries.
+                # TODO: [TD0184] Clean up translation of 'metainfo' to "internal format".
                 assert param_field_str
                 assert param_prob_str
 
@@ -388,7 +389,7 @@ def _get_meowuri_source_map():
         for klass in klass_list:
             uri = klass.meowuri_prefix()
             if not uri:
-                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+                # TODO: [TD0151] Fix inconsistent use of classes/instances.
                 log.critical('Got empty from '
                              '"{!s}.meowuri_prefix()"'.format(klass.name()))
                 continue
