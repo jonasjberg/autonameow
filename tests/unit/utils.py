@@ -33,7 +33,7 @@ import unit.constants as uuconst
 from core import FileObject
 from core.config.config_parser import (
     ConfigurationParser,
-    parse_conditions
+    parse_rule_conditions
 )
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
@@ -568,7 +568,7 @@ def get_dummy_raw_data_sources():
 def get_dummy_parsed_conditions():
     # TODO: [hack][cleanup] Mock properly! Remove?
     _raw_conditions = get_dummy_raw_conditions()
-    conditions = [parse_conditions(c) for c in _raw_conditions]
+    conditions = [parse_rule_conditions(c) for c in _raw_conditions]
     return conditions
 
 

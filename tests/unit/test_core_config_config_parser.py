@@ -33,13 +33,16 @@ except ImportError:
           file=sys.stderr)
 
 import unit.utils as uu
+import unit.constants as uuconst
 from core import constants as C
 from core.config.config_parser import (
     ConfigurationParser,
     ConfigurationRuleParser,
     ConfigurationOptionsParser,
     INITIAL_CONFIGURATION_OPTIONS,
-    parse_versioning
+    parse_rule_conditions,
+    parse_rule_ranking_bias,
+    parse_versioning,
 )
 from core.config.default_config import DEFAULT_CONFIG
 from core.exceptions import (
@@ -446,6 +449,76 @@ class TestConfigurationOptionsParserTryLoadPersistenceOption(TestCase):
                expect=C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
         _check(raw_options={'PERSISTENCE': {'cache_directory': 1324}},
                expect=C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
+
+
+class TestParseRuleConditions(TestCase):
+    def _assert_parsed_result(self, expect_uri, expect_expression, given):
+        actual = parse_rule_conditions(given)
+        self.assertEqual(expect_uri, actual[0].meowuri)
+        self.assertEqual(expect_expression, actual[0].expression)
+
+    def test_parse_condition_filesystem_pathname_is_valid(self):
+        raw_conditions = {
+            uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'
+        }
+        actual = parse_rule_conditions(raw_conditions)
+        self.assertEqual(actual[0].meowuri,
+                         uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL)
+        self.assertEqual(actual[0].expression, '~/.config')
+
+        self._assert_parsed_result(
+            expect_uri=uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL,
+            expect_expression='~/.config',
+            given={uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'}
+        )
+
+    def test_parse_condition_contents_mime_type_is_valid(self):
+        raw_conditions = {
+            uuconst.MEOWURI_FS_XPLAT_MIMETYPE: 'image/jpeg'
+        }
+        actual = parse_rule_conditions(raw_conditions)
+        self.assertEqual(actual[0].meowuri, uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        self.assertEqual(actual[0].expression, 'image/jpeg')
+
+    def test_parse_condition_contents_metadata_is_valid(self):
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
+        raw_conditions = {
+            uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL: 'Defined',
+        }
+        actual = parse_rule_conditions(raw_conditions)
+        self.assertEqual(actual[0].meowuri,
+                         uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL)
+        self.assertEqual(actual[0].expression, 'Defined')
+
+    def test_parse_empty_conditions_is_allowed(self):
+        raw_conditions = dict()
+        _ = parse_rule_conditions(raw_conditions)
+
+
+class TestParseRuleRankingBias(TestCase):
+    def test_negative_value_raises_configuration_syntax_error(self):
+        for given in [-1, -0.1, -0.01, -0.0000000001]:
+            with self.assertRaises(ConfigurationSyntaxError):
+                _ = parse_rule_ranking_bias(given)
+
+    def test_value_greater_than_one_raises_configuration_syntax_error(self):
+        for given in [2, 1.1, 1.00000000001]:
+            with self.assertRaises(ConfigurationSyntaxError):
+                _ = parse_rule_ranking_bias(given)
+
+    def test_unexpected_type_value_raises_configuration_syntax_error(self):
+        for given in ['', object()]:
+            with self.assertRaises(ConfigurationSyntaxError):
+                _ = parse_rule_ranking_bias(given)
+
+    def test_none_value_returns_default_weight(self):
+        actual = parse_rule_ranking_bias(None)
+        self.assertEqual(C.DEFAULT_RULE_RANKING_BIAS, actual)
+
+    def test_value_within_range_zero_to_one_returns_value(self):
+        for given in [0, 0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 1]:
+            self.assertEqual(given, parse_rule_ranking_bias(given))
 
 
 class TestValidateVersionNumber(TestCase):

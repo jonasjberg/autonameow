@@ -46,6 +46,10 @@ class InvalidRuleError(ConfigError):
     """Error while constructing an instance of 'Rule' or its members."""
 
 
+class InvalidRuleConditionError(ConfigError):
+    """Error while instantiating a new 'RuleCondition'."""
+
+
 class RuleCondition(object):
     """
     Represents a single condition contained in a configuration rule.
@@ -70,7 +74,7 @@ class RuleCondition(object):
             raw_expression: A expression to use when evaluating this condition.
 
         Raises:
-            InvalidRuleError: The 'RuleCondition' instantiation failed.
+            InvalidRuleConditionError: The 'RuleCondition' instantiation failed.
         """
         # TODO: Clean up setting the 'parser' attribute.
         # NOTE(jonas): The "MeowURI" determines which parser class is used.
@@ -91,7 +95,7 @@ class RuleCondition(object):
     @meowuri.setter
     def meowuri(self, uri):
         if not self._get_parser_for(uri):
-            raise InvalidRuleError(
+            raise InvalidRuleConditionError(
                 'No field parser can handle MeowURI: "{!s}"'.format(uri)
             )
         self._meowuri = uri
@@ -105,7 +109,7 @@ class RuleCondition(object):
         # The "MeowURI" is required in order to know how the expression
         # should be evaluated. Consider the expression invalid.
         if not self.meowuri:
-            raise InvalidRuleError(
+            raise InvalidRuleConditionError(
                 'Rule condition does not (yet) have a valid "MeowURI", '
                 'which is required in order to validate an expression'
             )
@@ -120,17 +124,17 @@ class RuleCondition(object):
         # TODO: [TD0138] Fix inconsistent type of 'expression'. Enforce list?
 
         if not self._get_parser_for(self.meowuri):
-            raise InvalidRuleError('Found no suitable parsers for MeowURI: '
-                                   '"{!s}"'.format(self.meowuri))
+            raise InvalidRuleConditionError(
+                'No field parser can handle MeowURI: "{!s}"'.format(self.meowuri)
+            )
 
         valid_expression = self._validate_expression(raw_expression)
-        if valid_expression:
-            log.debug('Validated expression: "{!s}"'.format(raw_expression))
-            self._expression = raw_expression
-        else:
-            raise InvalidRuleError(
+        if not valid_expression:
+            raise InvalidRuleConditionError(
                 'Invalid expression: "{!s}"'.format(raw_expression)
             )
+        log.debug('Validated expression: "{!s}"'.format(raw_expression))
+        self._expression = raw_expression
 
     def _validate_expression(self, raw_expression):
         return bool(self._parser.validate(raw_expression))
@@ -208,7 +212,8 @@ class Rule(object):
                         NOTE: Rules without conditions always evaluates True.
             data_sources: Dict of template field names and "MeowURIs".
                           NOTE: Rules without data sources are allowed.
-            name_template: Name template to use for files matching the rule.
+            name_template: Name template to use for files matching the rule,
+                           as an instance of 'NameTemplate'.
             description: (OPTIONAL) Human-readable description.
             exact_match: (OPTIONAL) True if all conditions must be met at
                          evaluation. Defaults to False.
@@ -218,10 +223,15 @@ class Rule(object):
         self._conditions = conditions
 
         assert isinstance(data_sources, dict)
-        self.data_sources = data_sources
+        self.data_sources = dict(data_sources)
 
         self.name_template = name_template
-        self.description = description or C.DEFAULT_RULE_DESCRIPTION
+
+        if isinstance(description, str) and description.strip():
+            self.description = description
+        else:
+            self.description = str(C.DEFAULT_RULE_DESCRIPTION)
+
         self.exact_match = bool(exact_match)
 
         if ranking_bias is not None:
@@ -308,12 +318,10 @@ Data Sources:
            sources=str_sources)
 
 
-def get_valid_rule(raw_description, raw_exact_match, raw_ranking_bias, format_string,
+def get_valid_rule(description, exact_match, ranking_bias, format_string,
                    conditions, raw_data_sources):
     """
     Main retrieval mechanism for 'Rule' class instances.
-
-    Does validation of all data, suited to handle input from untrusted sources.
 
     Returns:
         An instance of 'Rule' if the given arguments are valid.
@@ -321,141 +329,25 @@ def get_valid_rule(raw_description, raw_exact_match, raw_ranking_bias, format_st
     Raises:
         InvalidRuleError: Validation failed or the 'Rule' instantiation failed.
     """
-    # Conditions
-    if not conditions:
-        conditions = dict()
-    try:
-        valid_conditions = parse_conditions(conditions)
-    except ConfigurationSyntaxError as e:
-        raise InvalidRuleError(e)
-
     # Skips and warns about invalid/missing sources. Does not fail or
     # raise any exceptions even if all of the sources fail validation.
     data_sources = parse_data_sources(raw_data_sources)
+
+    if not isinstance(format_string, str):
+        raise InvalidRuleError('Expected "format_string" to be of type "str"')
 
     # Convert previously validated format string to instance of 'NameTemplate'.
     # Name templates should be passed as class instances from here on out.
     name_template = NameTemplate(format_string)
 
-    # Description
-    str_description = types.force_string(raw_description)
-    if str_description.strip():
-        description = str_description
-    else:
-        description = C.DEFAULT_RULE_DESCRIPTION
+    if not isinstance(exact_match, bool):
+        raise InvalidRuleError('Expected "exact_match" to be of type "bool"')
 
-    # Exact match
-    try:
-        exact_match = types.AW_BOOLEAN(raw_exact_match)
-    except types.AWTypeError as e:
-        raise InvalidRuleError(e)
+    if not isinstance(ranking_bias, float):
+        raise InvalidRuleError('Expected "ranking_bias" to be of type "float"')
 
-    # Ranking bias
-    try:
-        ranking_bias = parse_ranking_bias(raw_ranking_bias)
-    except ConfigurationSyntaxError as e:
-        log.warning(e)
-        ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
-
-    return Rule(valid_conditions, data_sources, name_template,
+    return Rule(conditions, data_sources, name_template,
                 description, exact_match, ranking_bias)
-
-
-def get_valid_rule_condition(meowuri, raw_expression):
-    """
-    Tries to create and return a 'RuleCondition' instance.
-
-    Validation of the "raw" arguments are performed as part of the
-    'RuleCondition' initialization. In case of failure, False is returned.
-
-    Args:
-        meowuri: The "MeowURI" that provides access to *some data* to be
-                 evaluated in the condition, as an instance of 'MeowURI'.
-        raw_expression: The expression or value that describes the condition.
-
-    Returns:
-        An instance of the 'RuleCondition' class if the given arguments are
-        valid, otherwise False.
-    Raises:
-        InvalidRuleError: The 'RuleCondition' instance could not be created.
-    """
-    assert isinstance(meowuri, MeowURI), 'Expected instance of "MeowURI"'
-
-    try:
-        return RuleCondition(meowuri, raw_expression)
-    except InvalidRuleError as e:
-        log.debug('Invalid rule condition ("{!s}": "{!s}"); {!s}'.format(
-            meowuri, raw_expression, e
-        ))
-        raise
-
-
-def parse_ranking_bias(value):
-    """
-    Validates data to be used as a "ranking_bias".
-
-    The value must be an integer or float between 0 and 1.
-    To allow for an unspecified bias, None values are allowed and substituted
-    with the default bias defined by "DEFAULT_RULE_RANKING_BIAS".
-
-    Args:
-        value: The "raw" value to parse.
-    Returns:
-        The specified value if the value is a number type in the range 0-1.
-        If the specified value is None, a default bias is returned.
-    Raises:
-        ConfigurationSyntaxError: The value is of an unexpected type or not
-                                  within the range 0-1.
-    """
-    if value is None:
-        return C.DEFAULT_RULE_RANKING_BIAS
-
-    try:
-        float_value = types.AW_FLOAT(value)
-    except types.AWTypeError:
-        raise ConfigurationSyntaxError(
-            'Expected float but got "{!s}" ({!s})'.format(value, type(value))
-        )
-    else:
-        if not 0.0 <= float_value <= 1.0:
-            raise ConfigurationSyntaxError(
-                'Expected float between 0.0 and 1.0. Got {} -- Using default: '
-                '{}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
-            )
-        return float_value
-
-
-def parse_conditions(raw_conditions):
-    if not isinstance(raw_conditions, dict):
-        raise ConfigurationSyntaxError('Expected conditions of type "dict". '
-                                       'Got {!s}'.format(type(raw_conditions)))
-
-    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
-    passed = []
-    try:
-        for str_meowuri, raw_expression in raw_conditions.items():
-            try:
-                uri = MeowURI(str_meowuri)
-            except InvalidMeowURIError as e:
-                raise ConfigurationSyntaxError(e)
-
-            try:
-                valid_condition = get_valid_rule_condition(uri, raw_expression)
-            except InvalidRuleError as e:
-                raise ConfigurationSyntaxError(e)
-            else:
-                passed.append(valid_condition)
-                log.debug('Validated condition: "{!s}"'.format(valid_condition))
-    except ValueError as e:
-        raise ConfigurationSyntaxError(
-            'contains invalid condition: {!s}'.format(e)
-        )
-
-    log.debug(
-        'Returning {} (out of {}) valid conditions'.format(len(passed),
-                                                           len(raw_conditions))
-    )
-    return passed
 
 
 def parse_data_sources(raw_sources):

@@ -29,7 +29,9 @@ from core import types
 from core.config.configuration import Configuration
 from core.config.rules import (
     get_valid_rule,
-    InvalidRuleError
+    InvalidRuleConditionError,
+    InvalidRuleError,
+    RuleCondition,
 )
 from core.config.field_parsers import (
     BooleanConfigFieldParser,
@@ -37,11 +39,13 @@ from core.config.field_parsers import (
     NameTemplateConfigFieldParser,
 )
 from core.exceptions import (
-    ConfigurationSyntaxError,
     ConfigError,
+    ConfigurationSyntaxError,
     FilesystemError,
+    InvalidMeowURIError,
 )
 from core.namebuilder.fields import is_valid_template_field
+from core.model import MeowURI
 from util import encoding as enc
 from util import (
     disk,
@@ -373,16 +377,74 @@ class ConfigurationRuleParser(object):
         if not isinstance(rules_dict, dict):
             raise ConfigurationSyntaxError('Expected rules to be type "dict". '
                                            'Got {!s}'.format(type(rules_dict)))
+        return self._parse_rules(rules_dict)
 
-        validated = self._validate_rules(rules_dict)
-        return validated
+    def _parse_rules(self, rules_dict):
+        parsed_rules = list()
 
-    def _validate_name_template_format_string(self, _raw_name_template):
-        # TODO: Does this duplicate name template validation?
-        str_template = types.force_string(_raw_name_template)
-        if not str_template:
-            return None
+        for raw_rule_name, raw_rule_data in rules_dict.items():
+            str_rule_name = _coerce_string(raw_rule_name)
+            if not str_rule_name:
+                log.error('Skipped rule with bad name: "{!s}"'.format(raw_rule_name))
+                continue
 
+            raw_rule_data.update({'description': str_rule_name})
+            log.debug('Validating rule "{!s}" ..'.format(str_rule_name))
+            try:
+                valid_rule = self._to_rule_instance(raw_rule_data)
+            except ConfigurationSyntaxError as e:
+                log.error('Validation failed for rule "{!s}" :: {!s}'.format(str_rule_name, e))
+            else:
+                log.debug('Validated rule "{!s}" .. OK!'.format(str_rule_name))
+                parsed_rules.append(valid_rule)
+
+        return parsed_rules
+
+    def _to_rule_instance(self, raw_rule):
+        """
+        Validates one "raw" rule from a configuration and returns an
+        instance of the 'Rule' class, representing the "raw" rule.
+
+        Args:
+            raw_rule: A single rule entry from a configuration.
+
+        Returns:
+            An instance of the 'Rule' class representing the given rule.
+
+        Raises:
+            ConfigurationSyntaxError: Validation of the raw rule data failed
+                                      could not be used to instantiate objects.
+        """
+        description = _coerce_string(raw_rule.get('description'))
+        format_string = self._parse_format_string(raw_rule.get('NAME_TEMPLATE'))
+        conditions = parse_rule_conditions(raw_rule.get('CONDITIONS'))
+        exact_match = parse_rule_exact_match(raw_rule.get('exact_match'))
+        ranking_bias = parse_rule_ranking_bias(raw_rule.get('ranking_bias'))
+
+        try:
+            return get_valid_rule(
+                description=description,
+                exact_match=exact_match,
+                ranking_bias=ranking_bias,
+                format_string=format_string,
+                conditions=conditions,
+                raw_data_sources=raw_rule.get('DATA_SOURCES')
+            )
+        except InvalidRuleError as e:
+            raise ConfigurationSyntaxError(e)
+
+    def _parse_format_string(self, raw_format_string):
+        str_format_string = _coerce_string(raw_format_string)
+        if not str_format_string:
+            raise ConfigurationSyntaxError('missing name template format string')
+
+        valid_format_string = self._lookup_name_template_format_string(str_format_string)
+        if not valid_format_string:
+            raise ConfigurationSyntaxError('bad name template format string')
+
+        return valid_format_string
+
+    def _lookup_name_template_format_string(self, str_template):
         # TODO: [TD0109] Allow arbitrary name template placeholder fields.
 
         # First test if the field data is a valid name template entry,
@@ -400,67 +462,6 @@ class ConfigurationRuleParser(object):
                 return str_template
 
         return None
-
-    def _to_rule_instance(self, raw_rule):
-        """
-        Validates one "raw" rule from a configuration and returns an
-        instance of the 'Rule' class, representing the "raw" rule.
-
-        Args:
-            raw_rule: A single rule entry from a configuration.
-
-        Returns:
-            An instance of the 'Rule' class representing the given rule.
-
-        Raises:
-            ConfigurationSyntaxError: The given rule contains bad data,
-                making instantiating a 'Rule' object impossible.
-                Note that the message will be used in the following sentence:
-                "Bad rule "x"; {message}"
-        """
-        raw_format_string = raw_rule.get('NAME_TEMPLATE')
-        if not raw_format_string:
-            raise ConfigurationSyntaxError('is missing name template')
-
-        format_string = text.remove_nonbreaking_spaces(raw_format_string)
-        valid_format_string = self._validate_name_template_format_string(format_string)
-        if not valid_format_string:
-            raise ConfigurationSyntaxError('uses invalid name template format')
-
-        try:
-            return get_valid_rule(
-                raw_description=raw_rule.get('description'),
-                raw_exact_match=raw_rule.get('exact_match'),
-                raw_ranking_bias=raw_rule.get('ranking_bias'),
-                format_string=valid_format_string,
-                conditions=raw_rule.get('CONDITIONS'),
-                raw_data_sources=raw_rule.get('DATA_SOURCES')
-            )
-        except InvalidRuleError as e:
-            raise ConfigurationSyntaxError(e)
-
-    def _validate_rules(self, rules_dict):
-        validated = []
-
-        for raw_name, raw_contents in rules_dict.items():
-            str_name = types.force_string(raw_name)
-            if not str_name:
-                log.error('Skipped rule with bad name: "{!s}"'.format(raw_name))
-                continue
-
-            raw_contents.update({'description': str_name})
-            log.debug('Validating rule "{!s}" ..'.format(str_name))
-            try:
-                valid_rule = self._to_rule_instance(raw_contents)
-            except ConfigurationSyntaxError as e:
-                log.error('Bad rule "{!s}"; {!s}'.format(str_name, e))
-            else:
-                log.debug('Validated rule "{!s}" .. OK!'.format(str_name))
-
-                # Create and populate "Rule" objects with *validated* data.
-                validated.append(valid_rule)
-
-        return validated
 
 
 def _coerce_string(data):
@@ -544,6 +545,76 @@ class ConfigurationOptionsParser(object):
             )
         )
         self.parsed['PERSISTENCE'][option] = bytes_default
+
+
+def parse_rule_conditions(raw_conditions):
+    if not isinstance(raw_conditions, dict):
+        raise ConfigurationSyntaxError('Expected conditions of type "dict". '
+                                       'Got {!s}'.format(type(raw_conditions)))
+
+    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
+    passed = []
+    for str_meowuri, raw_expression in raw_conditions.items():
+        try:
+            uri = MeowURI(str_meowuri)
+        except InvalidMeowURIError as e:
+            raise ConfigurationSyntaxError(e)
+        else:
+            try:
+                valid_condition = RuleCondition(uri, raw_expression)
+            except InvalidRuleConditionError as e:
+                raise ConfigurationSyntaxError(e)
+
+            passed.append(valid_condition)
+            log.debug('Validated condition: "{!s}"'.format(valid_condition))
+
+    log.debug(
+        'Returning {} (out of {}) valid conditions'.format(len(passed),
+                                                           len(raw_conditions))
+    )
+    return passed
+
+
+def parse_rule_exact_match(raw_exact_match):
+    try:
+        return types.AW_BOOLEAN(raw_exact_match)
+    except types.AWTypeError:
+        raise ConfigurationSyntaxError('bad value for "exact match"')
+
+
+def parse_rule_ranking_bias(value):
+    """
+    Validates data to be used as a "ranking_bias".
+
+    The value must be an integer or float between 0 and 1.
+    To allow for an unspecified bias, None values are allowed and substituted
+    with the default bias defined by "DEFAULT_RULE_RANKING_BIAS".
+
+    Args:
+        value: The "raw" value to parse.
+    Returns:
+        The specified value if the value is a number type in the range 0-1.
+        If the specified value is None, a default bias is returned.
+    Raises:
+        ConfigurationSyntaxError: The value is of an unexpected type or not
+                                  within the range 0-1.
+    """
+    if value is None:
+        return C.DEFAULT_RULE_RANKING_BIAS
+
+    try:
+        float_value = types.AW_FLOAT(value)
+    except types.AWTypeError:
+        raise ConfigurationSyntaxError(
+            'Expected float but got "{!s}" ({!s})'.format(value, type(value))
+        )
+    else:
+        if not 0.0 <= float_value <= 1.0:
+            raise ConfigurationSyntaxError(
+                'Expected float between 0.0 and 1.0. Got {} -- Using default: '
+                '{}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
+            )
+        return float_value
 
 
 def parse_versioning(semver_string):

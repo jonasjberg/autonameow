@@ -24,13 +24,9 @@ from unittest import TestCase
 import unit.constants as uuconst
 import unit.utils as uu
 from core import constants as C
-from core import exceptions
 from core.config.rules import (
-    get_valid_rule_condition,
     is_valid_source,
-    InvalidRuleError,
-    parse_conditions,
-    parse_ranking_bias,
+    InvalidRuleConditionError,
     Rule,
     RuleCondition
 )
@@ -305,12 +301,17 @@ class TestRuleConditionComparison(TestCase):
         self.assertNotEqual(a, b)
 
 
+def _get_rule_condition(meowuri, expression):
+    assert isinstance(meowuri, MeowURI)
+    return RuleCondition(meowuri, expression)
+
+
 class TestRuleConditionFromValidInput(TestCase):
     def _is_valid(self, query, expression):
         uri = MeowURI(query)
         self.assertIsInstance(uri, MeowURI, 'Dependency init failed')
 
-        actual = RuleCondition(uri, expression)
+        actual = _get_rule_condition(uri, expression)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, RuleCondition)
 
@@ -379,9 +380,9 @@ class TestRuleConditionFromValidInput(TestCase):
 
 class TestRuleConditionGivenInvalidExpression(TestCase):
     def _assert_raises(self, query, expression):
-        with self.assertRaises(InvalidRuleError):
+        with self.assertRaises(InvalidRuleConditionError):
             uri = MeowURI(query)
-            _ = get_valid_rule_condition(uri, expression)
+            _ = _get_rule_condition(uri, expression)
 
     def test_invalid_condition_contents_mime_type(self):
         uri = uuconst.MEOWURI_FS_XPLAT_MIMETYPE
@@ -412,7 +413,7 @@ class TestRuleConditionGivenInvalidExpression(TestCase):
 class TestRuleConditionGivenInvalidMeowURI(TestCase):
     def _assert_raises(self, meowuri, expression):
         with self.assertRaises(AssertionError):
-            _ = RuleCondition(meowuri, expression)
+            _ = _get_rule_condition(meowuri, expression)
 
     def test_meowuri_none_expression_valid(self):
         self._assert_raises(None, 'application/pdf')
@@ -434,8 +435,8 @@ class TestRuleConditionGivenInvalidMeowURI(TestCase):
 
     def test_meowuri_not_handled_by_parser(self):
         unhandled_meowuri = uu.as_meowuri('extractor.foo.bar')
-        with self.assertRaises(InvalidRuleError):
-            _ = RuleCondition(unhandled_meowuri, 'baz')
+        with self.assertRaises(InvalidRuleConditionError):
+            _ = _get_rule_condition(unhandled_meowuri, 'baz')
 
 
 class TestRuleConditionMethods(TestCase):
@@ -467,14 +468,14 @@ class TestRuleConditionMethods(TestCase):
 class TestGetValidRuleCondition(TestCase):
     def _aV(self, query, expression):
         uri = MeowURI(query)
-        actual = get_valid_rule_condition(uri, expression)
+        actual = _get_rule_condition(uri, expression)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, RuleCondition)
 
     def _aR(self, query, expression):
         uri = MeowURI(query)
-        with self.assertRaises(InvalidRuleError):
-            _ = get_valid_rule_condition(uri, expression)
+        with self.assertRaises(InvalidRuleConditionError):
+            _ = _get_rule_condition(uri, expression)
 
     def test_returns_valid_rule_condition_for_valid_query_valid_data(self):
         self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application/pdf')
@@ -526,70 +527,3 @@ class TestIsValidSourceSpecification(TestCase):
             with self.subTest(given=given_str):
                 given = uu.as_meowuri(given_str)
                 self.assertTrue(is_valid_source(given))
-
-
-class TestParseConditions(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-    def test_parse_condition_filesystem_pathname_is_valid(self):
-        raw_conditions = {
-            uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'
-        }
-        actual = parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].meowuri,
-                         uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL)
-        self.assertEqual(actual[0].expression, '~/.config')
-
-    def test_parse_condition_contents_mime_type_is_valid(self):
-        raw_conditions = {
-            uuconst.MEOWURI_FS_XPLAT_MIMETYPE: 'image/jpeg'
-        }
-        actual = parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].meowuri, uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        self.assertEqual(actual[0].expression, 'image/jpeg')
-
-    def test_parse_condition_contents_metadata_is_valid(self):
-        # TODO: [TD0015] Handle expression in 'condition_value'
-        #                ('Defined', '> 2017', etc)
-        raw_conditions = {
-            uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL: 'Defined',
-        }
-        actual = parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].meowuri,
-                         uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL)
-        self.assertEqual(actual[0].expression, 'Defined')
-
-    def test_parse_empty_conditions_is_allowed(self):
-        raw_conditions = dict()
-        _ = parse_conditions(raw_conditions)
-
-
-class TestParseRankingBias(TestCase):
-    def test_negative_value_raises_configuration_syntax_error(self):
-        with self.assertRaises(exceptions.ConfigurationSyntaxError):
-            parse_ranking_bias(-1)
-            parse_ranking_bias(-0.1)
-            parse_ranking_bias(-0.01)
-            parse_ranking_bias(-0.0000000001)
-
-    def test_value_greater_than_one_raises_configuration_syntax_error(self):
-        with self.assertRaises(exceptions.ConfigurationSyntaxError):
-            parse_ranking_bias(2)
-            parse_ranking_bias(1.1)
-            parse_ranking_bias(1.00000000001)
-
-    def test_unexpected_type_value_raises_configuration_syntax_error(self):
-        with self.assertRaises(exceptions.ConfigurationSyntaxError):
-            parse_ranking_bias('')
-            parse_ranking_bias(object())
-
-    def test_none_value_returns_default_weight(self):
-        self.assertEqual(parse_ranking_bias(None),
-                         C.DEFAULT_RULE_RANKING_BIAS)
-
-    def test_value_within_range_zero_to_one_returns_value(self):
-        input_values = [0, 0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 1]
-
-        for value in input_values:
-            self.assertEqual(parse_ranking_bias(value), value)
