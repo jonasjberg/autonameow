@@ -24,6 +24,59 @@ from core.model.normalize import (
     normalize_full_title
 )
 
+# Benefits of encapsulating a field/value tuple in a 'Field' class
+# ================================================================
+# Cases where there are fields that should have a single value,
+# I.E. not 'multivalued'.
+# Storing metadata in dicts keyed by fields does not handle this well;
+#
+#     metadata = {
+#         'XMP:ModifyDate': [1942, 2018]
+#     }
+#
+# Passing this to 'coerce_field_value' would result in either skipping the
+# value because the field meta specifies that a single value is expected
+# *OR* coercing the list into a single value, maybe by only using the first
+# (1942) or maybe joining them into a single string ('1942 2018') ..
+#
+# Either way is not what we want. Would probably rather store two separate
+# instances, __which isn't possible__ when storing in dicts keyed by the field!
+#
+# Workarounds like this will NOT work for obvious reasons..
+#
+#     metadata = {
+#         'XMP:ModifyDate_A': 1942,
+#         'XMP:ModifyDate_B': 2018
+#     }
+#
+# HOWEVER, this could be worked around by encapsulating the field name and
+# value in an instance of a 'Field' class that uses both the field name and value
+# to calculate the hash used by dicts;
+#
+#     metadata = [
+#         Field('XMP:ModifyDate', 1942),
+#         Field('XMP:ModifyDate', 2018)
+#     ]
+#
+# And to avoid having to iterate over lists to check for membership, etc.,
+# a collection of fields could be bundled with instances of a 'Record' class;
+#
+#     metadata = Record(
+#         Field('XMP:ModifyDate', 1942),
+#         Field('XMP:ModifyDate', 2018)
+#     )
+#
+# Alternatively, to indicate these are mutually exclusive *possible* values;
+#
+#     metadata = [
+#         Record(
+#             Field('XMP:ModifyDate', 1942),
+#         ),
+#         Record(
+#             Field('XMP:ModifyDate', 2018)
+#         )
+#     ]
+
 
 class BaseField(object):
     def __init__(self, value):
