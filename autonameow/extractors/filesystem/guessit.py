@@ -37,7 +37,9 @@ class GuessitExtractor(BaseExtractor):
         super().__init__()
 
     def extract(self, fileobject, **kwargs):
-        file_basename = fileobject.filename
+        return self._get_metadata(fileobject.filename)
+
+    def _get_metadata(self, file_basename):
         if not file_basename:
             self.log.debug(
                 '{!s} aborting --- file basename is not available'.format(self)
@@ -51,13 +53,20 @@ class GuessitExtractor(BaseExtractor):
             )
             return None
 
-        metadata = dict()
-        for field, value in guessit_output.items():
-            coerced_value = self.coerce_field_value(field, value)
-            if coerced_value is not None:
-                metadata[field] = coerced_value
-
+        metadata = self._to_internal_format(guessit_output)
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         return metadata
+
+    def _to_internal_format(self, raw_metadata):
+        coerced_metadata = dict()
+
+        for field, value in raw_metadata.items():
+            coerced = self.coerce_field_value(field, value)
+            if coerced is not None:
+                coerced_metadata[field] = coerced
+
+        return coerced_metadata
 
     @classmethod
     def check_dependencies(cls):

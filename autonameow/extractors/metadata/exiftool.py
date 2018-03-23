@@ -68,8 +68,9 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         if _raw_metadata:
             _filtered_metadata = self._filter_raw_data(_raw_metadata)
 
-            # Internal data format boundary.  Wrap "raw" data with type classes.
             metadata = self._to_internal_format(_filtered_metadata)
+            # TODO: [TD0034] Filter out known bad data.
+            # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
             return metadata
 
         return dict()
@@ -88,8 +89,6 @@ class ExiftoolMetadataExtractor(BaseExtractor):
 
         for field, value in raw_metadata.items():
             coerced = self.coerce_field_value(field, value)
-            # TODO: [TD0034] Filter out known bad data.
-            # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
             # Empty strings are being passed through. But if we test with
             # 'if coerced', any False booleans, 0, etc. would be discarded.
             # Filtering must be field-specific.

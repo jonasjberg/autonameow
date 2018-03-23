@@ -47,11 +47,11 @@ FIELD_2 = Title('Meow')
 
 
 class TestRecordInit(TestCase):
-    def test_init_given_one_field(self):
+    def test_instantiated_record_is_not_none_given_one_field(self):
         r1 = Record(FIELD_1)
         self.assertIsNotNone(r1)
 
-    def test_init_given_two_fields(self):
+    def test_instantiated_record_is_not_none_given_two_fields(self):
         r2 = Record(FIELD_1, FIELD_2)
         self.assertIsNotNone(r2)
 

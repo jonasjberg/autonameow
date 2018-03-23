@@ -81,7 +81,6 @@ class BaseAnalyzer(ProviderMixin):
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        # self._intermediate_results = list()
         self._intermediate_results = dict()
 
     def run(self):

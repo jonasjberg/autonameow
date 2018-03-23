@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
-import logging
 import os
 import subprocess
 
@@ -40,9 +39,6 @@ PATH_CUSTOM_PANDOC_TEMPLATE = disk.joinpaths(_PATH_THIS_DIR,
                                              BASENAME_PANDOC_TEMPLATE)
 
 
-log = logging.getLogger(__name__)
-
-
 class PandocMetadataExtractor(BaseExtractor):
     """
     Extracts various types of metadata using "pandoc".
@@ -60,8 +56,9 @@ class PandocMetadataExtractor(BaseExtractor):
         if _raw_metadata:
             _filtered_metadata = self._filter_raw_data(_raw_metadata)
 
-            # Internal data format boundary.  Wrap "raw" data with type classes.
             metadata = self._to_internal_format(_filtered_metadata)
+            # TODO: [TD0034] Filter out known bad data.
+            # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
             return metadata
 
         return dict()
