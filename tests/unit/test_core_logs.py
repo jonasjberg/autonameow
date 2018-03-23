@@ -145,9 +145,11 @@ class TestReportRuntime(TestCase):
         mock_time.side_effect = [0, 0]
         mock_reporter = Mock()
         with report_runtime(mock_reporter, 'Foo'):
-            mock_reporter.assert_called_with('================================= Foo Started ==================================')
+            first_call_arg = mock_reporter.call_args_list[0][0][0]
+            self.assertIn('= Foo Started =', first_call_arg)
 
-        mock_reporter.assert_called_with('===================== Foo Completed in 0.000000000 seconds =====================')
+        second_call_arg = mock_reporter.call_args_list[1][0][0]
+        self.assertIn('= Foo Completed in 0.000000000 seconds =', second_call_arg)
 
     @patch('time.time')
     def test_reporter_function_gets_undecorated_string(self, mock_time):
