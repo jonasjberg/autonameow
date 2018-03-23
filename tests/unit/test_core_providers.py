@@ -53,14 +53,14 @@ class TestWrapProviderResults(TestCase):
                 'coercer': 'aw_pathcomponent',
                 'multivalued': 'false',
                 'mapped_fields': [
-                    {'WeightedMapping': {'field': 'Extension', 'probability': '1'}},
+                    {'WeightedMapping': {'field': 'Extension', 'weight': '1'}},
                 ],
             },
             'basename_suffix': {
                 'coercer': 'aw_pathcomponent',
                 'multivalued': 'false',
                 'mapped_fields': [
-                    {'WeightedMapping': {'field': 'Extension', 'probability': '1'}},
+                    {'WeightedMapping': {'field': 'Extension', 'weight': '1'}},
                 ]
             },
             'basename_prefix': {
@@ -73,7 +73,7 @@ class TestWrapProviderResults(TestCase):
                 'coercer': 'aw_mimetype',
                 'multivalued': 'false',
                 'mapped_fields': [
-                    {'WeightedMapping': {'field': 'Extension', 'probability': '1'}},
+                    {'WeightedMapping': {'field': 'Extension', 'weight': '1'}},
                 ],
                 'generic_field': 'mime_type'
             },
@@ -81,8 +81,8 @@ class TestWrapProviderResults(TestCase):
                 'coercer': 'aw_timedate',
                 'multivalued': 'false',
                 'mapped_fields': [
-                    {'WeightedMapping': {'field': 'Date', 'probability': '1'}},
-                    {'WeightedMapping': {'field': 'DateTime', 'probability': '1'}},
+                    {'WeightedMapping': {'field': 'Date', 'weight': '1'}},
+                    {'WeightedMapping': {'field': 'DateTime', 'weight': '1'}},
                 ],
                 'generic_field': 'date_created'
             },
@@ -90,8 +90,8 @@ class TestWrapProviderResults(TestCase):
                 'coercer': 'aw_timedate',
                 'multivalued': 'false',
                 'mapped_fields': [
-                    {'WeightedMapping': {'field': 'Date', 'probability': '0.25'}},
-                    {'WeightedMapping': {'field': 'DateTime', 'probability': '0.25'}},
+                    {'WeightedMapping': {'field': 'Date', 'weight': '0.25'}},
+                    {'WeightedMapping': {'field': 'DateTime', 'weight': '0.25'}},
                 ],
                 'generic_field': 'date_modified'
             }
@@ -115,8 +115,8 @@ class TestWrapProviderResults(TestCase):
             'date_created': {
                 'coercer': types.AW_TIMEDATE,
                 'mapped_fields': [
-                    WeightedMapping(field=fields.Date, probability=1),
-                    WeightedMapping(field=fields.DateTime, probability=1)
+                    WeightedMapping(field=fields.Date, weight=1),
+                    WeightedMapping(field=fields.DateTime, weight=1)
                 ],
                 'multivalued': False,
                 'source': 'CrossPlatformFileSystemExtractor',
@@ -127,7 +127,7 @@ class TestWrapProviderResults(TestCase):
                 'coercer': types.AW_PATHCOMPONENT,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'mapped_fields': [
-                    WeightedMapping(field=fields.Extension, probability=1)
+                    WeightedMapping(field=fields.Extension, weight=1)
                 ],
                 'multivalued': False,
                 'value': b'pdf'
@@ -141,8 +141,8 @@ class TestWrapProviderResults(TestCase):
             'date_modified': {
                 'coercer': types.AW_TIMEDATE,
                 'mapped_fields': [
-                    WeightedMapping(field=fields.Date, probability=0.25),
-                    WeightedMapping(field=fields.DateTime, probability=0.25)
+                    WeightedMapping(field=fields.Date, weight=0.25),
+                    WeightedMapping(field=fields.DateTime, weight=0.25)
                 ],
                 'multivalued': False,
                 'source': 'CrossPlatformFileSystemExtractor',
@@ -165,7 +165,7 @@ class TestWrapProviderResults(TestCase):
                 'coercer': types.AW_PATHCOMPONENT,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'mapped_fields': [
-                    WeightedMapping(field=fields.Extension, probability=1)
+                    WeightedMapping(field=fields.Extension, weight=1)
                 ],
                 'multivalued': False,
                 'value': b'pdf'
@@ -185,7 +185,7 @@ class TestWrapProviderResults(TestCase):
             'mime_type': {
                 'coercer': types.AW_MIMETYPE,
                 'mapped_fields': [
-                    WeightedMapping(field=fields.Extension, probability=1)
+                    WeightedMapping(field=fields.Extension, weight=1)
                 ],
                 'multivalued': False,
                 'source': 'CrossPlatformFileSystemExtractor',
@@ -221,7 +221,7 @@ class TestWrapProviderResults(TestCase):
                     'coercer': 'aw_pathcomponent',
                     'multivalued': 'false',
                     'mapped_fields': [
-                        {'WeightedMapping': {'field': 'Extension', 'probability': '1'}},
+                        {'WeightedMapping': {'field': 'Extension', 'weight': '1'}},
                     ],
                 },
             },
@@ -233,7 +233,7 @@ class TestWrapProviderResults(TestCase):
                 'coercer': types.AW_PATHCOMPONENT,
                 'multivalued': False,
                 'mapped_fields': [
-                    WeightedMapping(fields.Extension, probability=1.0),
+                    WeightedMapping(fields.Extension, weight=1.0),
                 ],
                 'source': 'MockProvider'
             }
@@ -339,21 +339,21 @@ class TestTranslateMetainfoMappings(TestCase):
 
     def test_translates_two_weighted_mappings(self):
         expected = [
-            self.WeightedMapping(self.fields_DateTime, probability=1.0),
-            self.WeightedMapping(self.fields_Date, probability=1.0)
+            self.WeightedMapping(self.fields_DateTime, weight=1.0),
+            self.WeightedMapping(self.fields_Date, weight=1.0)
         ]
         actual = translate_metainfo_mappings([
-            {'WeightedMapping': {'field': 'DateTime', 'probability': '1'}},
-            {'WeightedMapping': {'field': 'Date', 'probability': '1.0'}},
+            {'WeightedMapping': {'field': 'DateTime', 'weight': '1'}},
+            {'WeightedMapping': {'field': 'Date', 'weight': '1.0'}},
         ])
         self.assertEqual(expected, actual)
 
     def test_translates_one_weighted_mapping(self):
         expected = [
-            self.WeightedMapping(self.fields_Title, probability=1.0),
+            self.WeightedMapping(self.fields_Title, weight=1.0),
         ]
         actual = translate_metainfo_mappings([
-            {'WeightedMapping': {'field': 'Title', 'probability': '1'}},
+            {'WeightedMapping': {'field': 'Title', 'weight': '1'}},
         ])
         self.assertEqual(expected, actual)
 

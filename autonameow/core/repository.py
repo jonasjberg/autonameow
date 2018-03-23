@@ -91,13 +91,13 @@ class DataBundle(object):
                 return True
         return False
 
-    def field_mapping_probability(self, field):
+    def field_mapping_weight(self, field):
         if not self.maps_field(field):
             return 0.0
 
         for mapping in self.mapped_fields:
             if field == mapping.field:
-                return float(mapping.probability)
+                return float(mapping.weight)
 
         return 0.0
 

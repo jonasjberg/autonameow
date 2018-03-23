@@ -77,10 +77,10 @@ class FilenameAnalyzer(BaseAnalyzer):
         'datetime': {
             'coercer': 'aw_timedate',
             'multivalued': 'false',
-            # TODO: [TD0166] No longer able to set probabilities dynamically ..
+            # TODO: [TD0166] No longer able to set weights dynamically ..
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'DateTime', 'probability': '1.0'}},
-                {'WeightedMapping': {'field': 'Date', 'probability': '1.0'}},
+                {'WeightedMapping': {'field': 'DateTime', 'weight': '1.0'}},
+                {'WeightedMapping': {'field': 'Date', 'weight': '1.0'}},
             ],
             'generic_field': 'date_created'
         },
@@ -88,7 +88,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             'coercer': 'aw_integer',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Edition', 'probability': '1.0'}},
+                {'WeightedMapping': {'field': 'Edition', 'weight': '1.0'}},
             ],
             'generic_field': 'edition'
         },
@@ -96,14 +96,14 @@ class FilenameAnalyzer(BaseAnalyzer):
             'coercer': 'aw_pathcomponent',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Extension', 'probability': '1.0'}},
+                {'WeightedMapping': {'field': 'Extension', 'weight': '1.0'}},
             ]
         },
         'publisher': {
             'coercer': 'aw_string',
             'multivalued': 'false',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Publisher', 'probability': '1.0'}},
+                {'WeightedMapping': {'field': 'Publisher', 'weight': '1.0'}},
             ],
             'generic_field': 'publisher'
         }

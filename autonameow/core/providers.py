@@ -218,7 +218,7 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
             # TODO: [cleanup] Allow possible alternative future mapping types.
             if mapping_type == 'WeightedMapping':
                 param_field_str = mapping_params.get('field')
-                param_prob_str = mapping_params.get('probability')
+                param_prob_str = mapping_params.get('weight')
                 # TODO: [TD0184] Improve robustness. Raise appropriate exception.
                 # TODO: [TD0184] Log provider with malformed metainfo entries.
                 # TODO: [TD0184] Clean up translation of 'metainfo' to "internal format".
@@ -234,7 +234,7 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
 
                 translated.append(WeightedMapping(
                     field=param_field,
-                    probability=param_prob
+                    weight=param_prob
                 ))
     return translated
 

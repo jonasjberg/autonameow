@@ -7,10 +7,10 @@ date:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
 
 episode:
     coercer: aw_integer
@@ -23,10 +23,10 @@ release_group:
     mapped_fields:
     -   WeightedMapping:
             field: Publisher
-            probability: 0.1
+            weight: 0.1
     -   WeightedMapping:
             field: Description
-            probability: 0.001
+            weight: 0.001
 
 screen_size:
     coercer: aw_string
@@ -39,14 +39,14 @@ title:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 1.0
+            weight: 1.0
 
 type:
     coercer: aw_string
     mapped_fields:
     -   WeightedMapping:
             field: Tags
-            probability: 0.5
+            weight: 0.5
 
 video_codec:
     coercer: aw_string
@@ -56,7 +56,7 @@ year:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0

@@ -308,7 +308,7 @@ Data pipeline in reverse order; working backwards from the final result:
             <class 'core.namebuilder.fields.Extension'>: <ExtractedData(
                 PathComponent,
                 mapped_fields=[
-                    WeightedMapping(field=<class 'core.namebuilder.fields.Extension'>, probability=1)
+                    WeightedMapping(field=<class 'core.namebuilder.fields.Extension'>, weight=1)
                 ],
                 generic_field=None)(png)>,
             <class 'core.namebuilder.fields.Title'>: <ExtractedData(

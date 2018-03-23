@@ -22,4 +22,4 @@
 from collections import namedtuple
 
 
-WeightedMapping = namedtuple('WeightedMapping', ['field', 'probability'])
+WeightedMapping = namedtuple('WeightedMapping', ['field', 'weight'])

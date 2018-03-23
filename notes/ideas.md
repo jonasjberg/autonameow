@@ -532,8 +532,8 @@ Some contextual metadata should be kept along with each stored data item for;
         'PDF:Producer': ExtractedData(
             wrapper=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.publisher, probability=0.25),
-                fields.WeightedMapping(fields.author, probability=0.01)
+                fields.WeightedMapping(fields.publisher, weight=0.25),
+                fields.WeightedMapping(fields.author, weight=0.01)
             ]
         ```
     * ~~Alternatively, assigning semantic context and probabilities to the raw

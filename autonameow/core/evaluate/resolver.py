@@ -133,10 +133,10 @@ class TemplateFieldDataResolver(object):
                 continue
 
             # TODO: How does this behave if the same generic field is mapped more than once with different probabilities?
-            _candidate_probability = str(0.0)
+            _candidate_probability = 0.0
             for mapping in candidate_mapped_fields:
                 if mapping.field == field:
-                    _candidate_probability = str(mapping.probability)
+                    _candidate_probability = mapping.weight
                     break
 
             _candidate_coercer = candidate.coercer
@@ -168,7 +168,7 @@ class TemplateFieldDataResolver(object):
             out.append(
                 FieldDataCandidate(string_value=_formatted_value,
                                    source=_candidate_source,
-                                   probability=_candidate_probability,
+                                   probability=str(_candidate_probability),
                                    meowuri=uri,
                                    coercer=_candidate_coercer,
                                    generic_field=_candidate_generic_field)
@@ -360,8 +360,8 @@ def sort_by_mapped_weights(databundles, primary_field, secondary_field=None):
         sanity.check_isinstance(secondary_field, NameTemplateField)
 
     databundles.sort(
-        key=lambda b: (b.field_mapping_probability(primary_field),
-                       b.field_mapping_probability(secondary_field)),
+        key=lambda b: (b.field_mapping_weight(primary_field),
+                       b.field_mapping_weight(secondary_field)),
         reverse=True
     )
     return databundles

@@ -358,16 +358,16 @@ class TestDataBundle(TestCase):
         # analyzer.filename.publisher
         cls.d1 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Publisher, probability=1),
+                WeightedMapping(cls.fields_Publisher, weight=1),
             ]
         })
         # extractor.metadata.exiftool.XMP:Creator
         cls.d2 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Author, probability=0.5),
-                WeightedMapping(cls.fields_Creator, probability=1),
-                WeightedMapping(cls.fields_Publisher, probability=0.02),
-                WeightedMapping(cls.fields_Title, probability=0.01)
+                WeightedMapping(cls.fields_Author, weight=0.5),
+                WeightedMapping(cls.fields_Creator, weight=1),
+                WeightedMapping(cls.fields_Publisher, weight=0.02),
+                WeightedMapping(cls.fields_Title, weight=0.01)
             ]
         })
 
@@ -379,32 +379,32 @@ class TestDataBundle(TestCase):
 
         self.assertTrue(self.d2.maps_field(self.fields_Publisher))
 
-    def test_field_mapping_probability_returns_default_value(self):
-        self.assertEqual(0.0, self.d1.field_mapping_probability(None))
-        self.assertEqual(0.0, self.d1.field_mapping_probability(False))
-        self.assertEqual(0.0, self.d1.field_mapping_probability(list()))
+    def test_field_mapping_weight_returns_default_value(self):
+        self.assertEqual(0.0, self.d1.field_mapping_weight(None))
+        self.assertEqual(0.0, self.d1.field_mapping_weight(False))
+        self.assertEqual(0.0, self.d1.field_mapping_weight(list()))
 
-    def test_field_mapping_probability_d1(self):
+    def test_field_mapping_weight_d1(self):
         for field in (self.fields_Author, self.fields_Creator,
                       self.fields_Title):
             with self.subTest(field=str(field)):
-                actual = self.d1.field_mapping_probability(field)
+                actual = self.d1.field_mapping_weight(field)
                 self.assertEqual(0.0, actual)
 
         self.assertEqual(
-            1.0, self.d1.field_mapping_probability(self.fields_Publisher)
+            1.0, self.d1.field_mapping_weight(self.fields_Publisher)
         )
 
-    def test_field_mapping_probability_d2(self):
+    def test_field_mapping_weight_d2(self):
         self.assertEqual(
-            0.5, self.d2.field_mapping_probability(self.fields_Author)
+            0.5, self.d2.field_mapping_weight(self.fields_Author)
         )
         self.assertEqual(
-            1, self.d2.field_mapping_probability(self.fields_Creator)
+            1, self.d2.field_mapping_weight(self.fields_Creator)
         )
         self.assertEqual(
-            0.02, self.d2.field_mapping_probability(self.fields_Publisher)
+            0.02, self.d2.field_mapping_weight(self.fields_Publisher)
         )
         self.assertEqual(
-            0.01, self.d2.field_mapping_probability(self.fields_Title)
+            0.01, self.d2.field_mapping_weight(self.fields_Title)
         )

@@ -182,33 +182,33 @@ class TestSortDatadictsByMappingWeights(TestCase):
         # extractor.metadata.exiftool.XMP:Creator
         cls.d1 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Author, probability=0.5),
-                WeightedMapping(cls.fields_Creator, probability=1),
-                WeightedMapping(cls.fields_Publisher, probability=0.02),
-                WeightedMapping(cls.fields_Title, probability=0.01)
+                WeightedMapping(cls.fields_Author, weight=0.5),
+                WeightedMapping(cls.fields_Creator, weight=1),
+                WeightedMapping(cls.fields_Publisher, weight=0.02),
+                WeightedMapping(cls.fields_Title, weight=0.01)
             ]
         })
         # extractor.metadata.exiftool.XMP:CreatorFile-as
         cls.d2 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Author, probability=0.5),
-                WeightedMapping(cls.fields_Creator, probability=1),
-                WeightedMapping(cls.fields_Publisher, probability=0.03),
-                WeightedMapping(cls.fields_Title, probability=0.02)
+                WeightedMapping(cls.fields_Author, weight=0.5),
+                WeightedMapping(cls.fields_Creator, weight=1),
+                WeightedMapping(cls.fields_Publisher, weight=0.03),
+                WeightedMapping(cls.fields_Title, weight=0.02)
             ]
         })
         # extractor.metadata.exiftool.XMP:Contributor
         cls.d3 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Author, probability=0.75),
-                WeightedMapping(cls.fields_Creator, probability=0.5),
-                WeightedMapping(cls.fields_Publisher, probability=0.02),
+                WeightedMapping(cls.fields_Author, weight=0.75),
+                WeightedMapping(cls.fields_Creator, weight=0.5),
+                WeightedMapping(cls.fields_Publisher, weight=0.02),
             ]
         })
         # analyzer.filename.publisher
         cls.d4 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Publisher, probability=1),
+                WeightedMapping(cls.fields_Publisher, weight=1),
             ]
         })
 

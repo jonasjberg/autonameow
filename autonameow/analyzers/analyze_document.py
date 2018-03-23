@@ -76,23 +76,23 @@ class DocumentAnalyzer(BaseAnalyzer):
         'title': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                # TODO: [TD0166] Set probabilities dynamically
-                {'WeightedMapping': {'field': 'Title', 'probability': '1'}},
+                # TODO: [TD0166] Set weights dynamically
+                {'WeightedMapping': {'field': 'Title', 'weight': '1'}},
             ],
             'generic_field': 'title'
         },
         'datetime': {
             'coercer': 'aw_timedate',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'DateTime', 'probability': '0.25'}},
-                {'WeightedMapping': {'field': 'Date', 'probability': '0.25'}},
+                {'WeightedMapping': {'field': 'DateTime', 'weight': '0.25'}},
+                {'WeightedMapping': {'field': 'Date', 'weight': '0.25'}},
             ],
             'generic_field': 'date_created',
         },
         'publisher': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Publisher', 'probability': '1'}},
+                {'WeightedMapping': {'field': 'Publisher', 'weight': '1'}},
             ],
             'generic_field': 'publisher',
         }
@@ -173,8 +173,8 @@ class DocumentAnalyzer(BaseAnalyzer):
 def find_titles_in_text(text, num_lines_to_search):
     # Add all lines that aren't all whitespace or all dashes, from the
     # first to line number "num_lines_to_search".
-    # The first line is assigned probability 1, probabilities decrease for
-    # for each line until line number "num_lines_to_search" with probability 0.1.
+    # The first line is assigned weight 1, weights decrease for
+    # for each line until line number "num_lines_to_search" with weight 0.1.
     assert isinstance(num_lines_to_search, int) and num_lines_to_search > 0
 
     titles = list()
@@ -191,7 +191,7 @@ def find_titles_in_text(text, num_lines_to_search):
             continue
 
         score = (num_lines_to_search - line_count) / num_lines_to_search
-        # TODO: Set probability dynamically ..
+        # TODO: Set weight dynamically ..
         # self._add_intermediate_results(
         #     'title', self._wrap_generic_title(line, score)
         # )

@@ -33,7 +33,7 @@ High Priority
 
 * `[TD0167]` Cleanup data storage in the `Repository`.
 
-* `[TD0166]` The analyzers should be able to set probabilities on the fly.
+* `[TD0166]` The analyzers should be able to set field map weights on the fly.
 
 * `[TD0157]` __Look into the analyzers `FIELD_LOOKUP` attribute.__  
     Does it make sense to keep this? Differences between "analyzers" and
