@@ -36,39 +36,44 @@ log = logging.getLogger(__name__)
 
 class ProviderMixin(object):
     def coerce_field_value(self, field, value):
+        if value is None:
+            return None
+
         # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
         # TODO: [hack] This is very bad.
         field_metainfo = self.metainfo().get(field)
         if not field_metainfo:
             self.log.debug(
-                'Field not in "FIELD_LOOKUP" (through "metainfo()" method); '
-                '"{!s}" with value: "{!s}" ({!s})'.format(field, value,
-                                                          type(value)))
+                'Field not in "metainfo"; "{!s}" with value: '
+                '"{!s}" ({!s})'.format(field, value, type(value))
+            )
             return None
 
         try:
             coercer_string = field_metainfo.get('coercer')
         except AttributeError:
-            # Might be case of malformed 'FIELD_LOOKUP'.
+            # Might be case of malformed "metainfo" ..
             coercer_string = None
 
         if not coercer_string:
-            self.log.warning('Coercer unspecified for field; "{!s}" with value:'
-                             ' "{!s}" ({!s})'.format(field, value, type(value)))
+            self.log.warning(
+                '"coercer" unspecified for field; "{!s}" with value: '
+                '"{!s}" ({!s})'.format(field, value, type(value))
+            )
             return None
 
         sanity.check_internal_string(coercer_string)
         coercer = get_coercer_for_metainfo_string(coercer_string)
         assert isinstance(coercer, (types.BaseType, types.MultipleTypes)), (
-            'Got ({!s}) "{!s}"'.format(type(coercer), coercer)
+            '{!s} "{!s}"'.format(type(coercer), coercer)
         )
 
         if 'multivalued' not in field_metainfo:
             # Abort instead of using a default value. Many systems rely on this
             # being correct --- make sure that the provider metainfo is correct.
             self.log.warning(
-                'Multivalued unspecified for field; "{!s}" with value:'
-                ' "{!s}" ({!s})'.format(field, value, type(value))
+                '"multivalued" unspecified for field; "{!s}" with value: '
+                '"{!s}" ({!s})'.format(field, value, type(value))
             )
             return None
 
@@ -77,31 +82,47 @@ class ProviderMixin(object):
         metainfo_multivalued = bool(field_metainfo.get('multivalued'))
         if isinstance(value, list):
             if metainfo_multivalued:
-                try:
-                    return types.listof(coercer)(value)
-                except types.AWTypeError as e:
-                    self.log.warning(
-                        'Error while coercing field "{!s}" with value '
-                        '"{!s}": {!s}'.format(field, value, e)
-                    )
-                    return None
+                return self._coerce_multiple_values(field, value, coercer)
 
+            # TODO: [incomplete] Handle mismatch somehow instead of skipping?
+            # Fields like "date created" is expected to be a single value,
+            # If an actual value is [1942, 2018] it should probably be handled
+            # as two separate possible fields.
+            # TODO: How would this fit into the concept of "records"?
             self.log.debug(
                 'Got list but "metainfo" specifies a single value.'
                 ' Field: "{!s}" Value: "{!s}"'.format(field, value)
             )
             return None
 
+        # Value is not a list
         if metainfo_multivalued:
             self.log.debug(
                 'Got single value but "metainfo" specifies "multivalued"; '
                 'coercing to list. Field: "{!s}" Value: "{!s}"'.format(field, value)
             )
+            return self._coerce_multiple_values(field, value, coercer)
+
+        return self._coerce_single_value(field, value, coercer)
+
+    def _coerce_single_value(self, field, value, coercer):
         try:
             return coercer(value)
         except types.AWTypeError as e:
-            self.log.debug('Coercing "{!s}" with value "{!s}" raised '
-                           'AWTypeError: {!s}'.format(field, value, e))
+            self.log.debug(
+                'Error while coercing field "{!s}" with value '
+                '"{!s}" :: {!s}'.format(field, value, e)
+            )
+            return None
+
+    def _coerce_multiple_values(self, field, values, coercer):
+        try:
+            return types.listof(coercer)(values)
+        except types.AWTypeError as e:
+            self.log.debug(
+                'Error while coercing field "{!s}" with values '
+                '"{!s}" :: {!s}'.format(field, values, e)
+            )
             return None
 
 

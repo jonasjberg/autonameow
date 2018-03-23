@@ -59,14 +59,17 @@ class FiletagsExtractor(BaseExtractor):
         self._follows_filetags_convention = None
 
     def extract(self, fileobject, **kwargs):
-        result = self._partition_filename(fileobject.filename)
+        return self._get_metadata(fileobject.filename)
 
-        if 'tags' in result:
+    def _get_metadata(self, file_basename):
+        metadata = self._partition_filename(file_basename)
+
+        if 'tags' in metadata:
             # NOTE(jonas): Assume that consistent output by sorting outweigh
             #              users that would like to keep the order unchanged ..
-            result['tags'].sort()
+            metadata['tags'].sort()
 
-        return result
+        return metadata
 
     def _partition_filename(self, filename):
         parts = partition_basename(filename)
@@ -80,10 +83,10 @@ class FiletagsExtractor(BaseExtractor):
     def _to_internal_format(self, raw_metadata):
         coerced_metadata = dict()
 
-        for tag_name, value in raw_metadata.items():
-            coerced = self.coerce_field_value(tag_name, value)
+        for field, value in raw_metadata.items():
+            coerced = self.coerce_field_value(field, value)
             if coerced is not None:
-                coerced_metadata[tag_name] = coerced
+                coerced_metadata[field] = coerced
 
         return coerced_metadata
 
@@ -164,15 +167,15 @@ def partition_basename(file_path):
             tags = [t.strip() for t in tags if t]
 
     # Encoding boundary;  Internal filename bytestring --> internal Unicode str
-    def decode_if_not_none_or_empty(bytestring_maybe):
+    def _decode_bytestring(bytestring_maybe):
         if bytestring_maybe:
             return enc.decode_(bytestring_maybe)
-        return None
+        return ''
 
-    timestamp = decode_if_not_none_or_empty(timestamp)
-    description = decode_if_not_none_or_empty(description)
-    tags = [decode_if_not_none_or_empty(t) for t in tags]
-    suffix = decode_if_not_none_or_empty(suffix)
+    timestamp = _decode_bytestring(timestamp)
+    description = _decode_bytestring(description)
+    tags = [_decode_bytestring(t) for t in tags]
+    suffix = _decode_bytestring(suffix)
 
     # return timestamp, description, tags or [], suffix
     return FiletagsParts(timestamp, description, tags, suffix)
