@@ -18,8 +18,16 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
-
-# Runs basic spell checking on the sources.
+#
+# ______________________________________________________________________________
+#
+# Searches the sources for previously and/or commonly misspelled words.
+# These are based on searching the git history with something like this;
+#
+#     git log --all -p -- *.py | grep -- '^-.*#.*' | grep -v '^-$' \
+#     | grep -oi -- '[[:alpha:]]\+' | tr '[:upper:]' '[:lower:]' | sort -u \
+#     | aspell list -a
+# ______________________________________________________________________________
 
 set -o nounset -o pipefail
 
@@ -37,11 +45,11 @@ EOF
 fi
 
 
+SELF_DIR="$(realpath -e "$(dirname "$0")")"
 
 # Get absolute path to the autonameow source root.
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
-    SELF_DIR="$(realpath -e "$(dirname "$0")")"
     AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIR" && realpath -e -- ".." ) )"
 fi
 
@@ -52,76 +60,33 @@ then
 fi
 
 
-
-# ______________________________________________________________________________
-#
-# Search source code for misspelled words. These are based on the git history.
-# # git log --all -p -- *.py | grep -- '^-.*#.*' | grep -v '^-$' | grep -oi -- '[[:alpha:]]\+' | tr '[:upper:]' '[:lower:]' | sort -u | aspell list -a | less
-
-# pushd "$AUTONAMEOW_ROOT_DIR" || exit 1
-# {
-#
-#
-#     find autonameow bin devscripts docs tests -xdev -type f \
-#          \( -name "*.py" -or -name "*.sh" -or -name "*.md" \) -exec cat '{}' + \
-#             | grep -v -- '^[[:space:]]\?$'
-# }
-# popd
+# Check that a wordlist exists.
+wordlist_filepath="${SELF_DIR}/check-spelling-wordlist.txt"
+[ -f "$wordlist_filepath" ] || { printf 'Wordlist not found at "%s"\n' "$wordlist_filepath" ; exit 1 ; }
 
 
+declare -i exitstatus
+exitstatus=0
 
-# Concatenate all Python files, excluding those in sub-directories
-# under 'thirdparty'. Contents of 'thirdparty' itself is included.
-#
-# Skip lines that are empty or contain only whitespace
-#
-# Remove all leading whitespace.
-normalized_text="$(find "${AUTONAMEOW_ROOT_DIR}" -xdev -type f -not -path "*/thirdparty/*/*" \( -name "*.md" -or -name "*.py" \) -exec cat '{}' + \
-                 | grep -v -- '^[[:space:]]\?$' \
-                 | sed -e 's/^[[:space:]]*//' \
-                 | tr '[:upper:]' '[:lower:]')"
+while IFS= read -r -d '' filepath
+do
+    [ -f "$filepath" ] || continue
+
+    # Skip lines that are empty or contain only whitespace
+    # Remove all leading whitespace.
+    if grep -v -- '^[[:space:]]\?$' "$filepath" \
+        | sed -e 's/^[[:space:]]*//' \
+        | grep --ignore-case --fixed-strings --file="$wordlist_filepath"
+    then
+        printf '%s\n\n' "$filepath"
+        exitstatus=1
+    fi
+
+done < <(find "${AUTONAMEOW_ROOT_DIR}" -xdev -type f -not -path "*/thirdparty/*/*" \( -name "*.md" -or -name "*.py" \) -print0 | sort -z)
 
 
-# Check comments with aspell. Lists misspelled words.
+# # Check comments with aspell. Lists misspelled words.
 # grep --line-buffered -- '# \?.*' <<< "$normalized_text" | sort -u | aspell list -a | sort -u
 
 
-
-check_sources_do_not_match()
-{
-    local -r _pattern="$1"
-    grep -- "$_pattern" <<< "$normalized_text"
-}
-
-declare -a PREVIOUSLY_MISSPELLED_WORDS=(
-'autonamew'
-'autoameow'
-'autonamoew'
-'automaticaly'
-'bytesting'
-'dependant'
-'doucment'
-'expeeted'
-'expceted'
-'filname'
-'filobject'
-'implment'
-'meowuirs'
-'mockup'
-'occured'
-'ocurred'
-'objecst'
-'probabilty'
-'retuens'
-'_return_non_'
-'unavaiable'
-)
-
-
-for misspelled_word in "${PREVIOUSLY_MISSPELLED_WORDS[@]}"
-do
-    if check_sources_do_not_match "$misspelled_word"
-    then
-        exit 1
-    fi
-done
+exit "$exitstatus"
