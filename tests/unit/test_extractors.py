@@ -34,6 +34,11 @@ from extractors import (
 from extractors.common import BaseExtractor
 
 
+def _get_extractor_classes(**kwargs):
+    packages = kwargs.get('packages', dict())
+    return get_extractor_classes(packages)
+
+
 class TestExtractorsConstants(TestCase):
     def test_autonameow_extractor_path_is_defined(self):
         self.assertIsNotNone(AUTONAMEOW_EXTRACTOR_PATH)
@@ -83,7 +88,7 @@ class TestFindExtractorClassesInPackages(TestCase):
 class TestGetImplementedExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual = get_extractor_classes(
+        cls.actual, _ = _get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
@@ -106,7 +111,7 @@ class TestGetImplementedExtractorClasses(TestCase):
 class TestGetTextExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual = get_extractor_classes(
+        cls.actual, _ = _get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES_TEXT,
         )
 
@@ -134,7 +139,7 @@ class TestGetTextExtractorClasses(TestCase):
 class TestGetMetadataExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual = get_extractor_classes(
+        cls.actual, _ = _get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES_METADATA,
         )
 
@@ -168,7 +173,7 @@ class TestGetMetadataExtractorClasses(TestCase):
 class TestNumberOfAvailableExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual = get_extractor_classes(
+        cls.actual, _ = _get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
@@ -187,7 +192,9 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
 class TestExtractorClassMeowURIs(TestCase):
     @classmethod
     def setUpClass(cls):
-        provider_klasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES)
+        provider_klasses, _ = _get_extractor_classes(
+            packages=EXTRACTOR_CLASS_PACKAGES
+        )
         # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
         cls.extractor_class_names = [e.name() for e in provider_klasses]
         cls.actual = [k.meowuri_prefix() for k in provider_klasses]

@@ -248,13 +248,15 @@ def get_field_class_from_metainfo_string(string):
 
 
 class ProviderRegistry(object):
-    def __init__(self, meowuri_source_map):
+    def __init__(self, meowuri_source_map, excluded_providers):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
         self.meowuri_sources = dict(meowuri_source_map)
         self._debug_log_mapped_meowuri_sources()
+
+        self.excluded_providers = excluded_providers
 
         # Set of all MeowURIs "registered" by extractors or analyzers.
         self.mapped_meowuris = self.unique_map_meowuris(self.meowuri_sources)
@@ -408,6 +410,22 @@ def _get_meowuri_source_map():
     }
 
 
+def _get_excluded_sources():
+    """
+    Returns a dict of provider classes excluded due to unmet dependencies.
+    """
+    def __get_excluded_providers(module_name):
+        module_registry = getattr(module_name, 'registry')
+        return module_registry.excluded_providers
+
+    import extractors
+    import analyzers
+    return {
+        'extractor': __get_excluded_providers(extractors),
+        'analyzer': __get_excluded_providers(analyzers),
+    }
+
+
 def _map_generic_sources(meowuri_class_map):
     """
     Returns a dict keyed by provider classes storing sets of "generic"
@@ -470,7 +488,8 @@ def initialize():
     global Registry
     if not Registry:
         Registry = ProviderRegistry(
-            meowuri_source_map=_get_meowuri_source_map()
+            meowuri_source_map=_get_meowuri_source_map(),
+            excluded_providers=_get_excluded_sources()
         )
 
 

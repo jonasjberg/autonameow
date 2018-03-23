@@ -512,8 +512,8 @@ def get_instantiated_analyzers():
     #       problem and is surely not very pretty.
     # TODO: [hack][cleanup] Mock properly! Remove?
     import analyzers
-    return [klass(None, None, None) for klass in
-            analyzers.get_analyzer_classes()]
+    registered, _ = analyzers.get_analyzer_classes()
+    return [klass(None, None, None) for klass in registered]
 
 
 def get_dummy_rulecondition_instances():

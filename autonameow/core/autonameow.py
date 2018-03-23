@@ -209,21 +209,35 @@ class Autonameow(object):
         self.exit_program(C.EXIT_SUCCESS)
 
     def _dump_registered_meowuris(self):
-        self.ui.msg('Registered MeowURIs', style='heading')
-
         if self.opts.get('debug'):
-            cf = self.ui.ColumnFormatter()
+            cf_registered = self.ui.ColumnFormatter()
+            cf_excluded = self.ui.ColumnFormatter()
+
             for _type in C.MEOWURI_ROOTS_SOURCES:
-                cf.addemptyrow()
+                # Separate "root sections" by blank lines.
+                cf_registered.addemptyrow()
+                cf_excluded.addemptyrow()
+
                 sourcemap = providers.Registry.meowuri_sources.get(_type, {})
-                # Sorted by MeowURI within "root sections", separated by blank lines.
-                for uri, _klass in sorted(sourcemap.items(), key=lambda x: str(x[0])):
-                    cf.addrow(str(uri), str(_klass))
-            self.ui.msg(str(cf))
+                # Sorted by MeowURI within "root sections".
+                for uri, klass in sorted(sourcemap.items(), key=lambda x: str(x[0])):
+                    cf_registered.addrow(str(uri), str(klass))
+
+                excluded = providers.Registry.excluded_providers.get(_type, set())
+                str_excluded = [str(k) for k in excluded]
+                for klass in sorted(str_excluded):
+                    cf_excluded.addrow(str(klass))
+
+            str_registered_providers = str(cf_registered)
+            str_excluded_providers = str(cf_excluded)
+
+            self.ui.msg('Registered MeowURIs', style='heading')
+            self.ui.msg(str_registered_providers)
+            self.ui.msg('Providers Excluded (unmet dependencies)', style='heading')
+            self.ui.msg(str_excluded_providers)
         else:
             _meowuris = sorted(providers.Registry.mapped_meowuris)
-            for uri in _meowuris:
-                self.ui.msg(str(uri))
+            self.ui.msg('\n'.join(str(m) for m in _meowuris))
 
         self.ui.msg('\n')
 

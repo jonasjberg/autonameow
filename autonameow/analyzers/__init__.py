@@ -77,33 +77,44 @@ analyzer_source_files = find_analyzer_files()
 
 def get_analyzer_classes():
     """
-    Get a list of all available analyzers as a list of "type".
-    All classes inheriting from the "Analyzer" class are included.
+    Get a tuple of all available and any excluded analyzers.
+
+    All classes inheriting from the "Analyzer" class are included if any and
+    all dependencies are satisfied.
 
     Returns:
-        All available analyzer classes as a list of type.
+        A tuple of lists with included and excluded analyzer classes.
     """
     klasses = _get_implemented_analyzer_classes(analyzer_source_files)
 
-    out = []
+    registered = list()
+    excluded = list()
     for klass in klasses:
         if klass.check_dependencies():
-            out.append(klass)
+            registered.append(klass)
+            log.debug('Registered analyzer "{!s}"'.format(klass))
         else:
-            log.warning('Excluding analyzer "{!s}" due to unmet '
-                        'dependencies'.format(klass))
-    return out
+            excluded.append(klass)
+            log.debug('Excluding analyzer "{!s}" due to unmet dependencies'.format(klass))
+    return registered, excluded
 
 
 class AnalyzerRegistry(object):
     def __init__(self):
         self._all_providers = None
+        self._excluded_providers = set()
 
     @property
     def all_providers(self):
         if self._all_providers is None:
-            self._all_providers = set(get_analyzer_classes())
+            registered, excluded = get_analyzer_classes()
+            self._all_providers = set(registered)
+            self._excluded_providers.update(excluded)
         return self._all_providers
+
+    @property
+    def excluded_providers(self):
+        return self._excluded_providers
 
 
 registry = AnalyzerRegistry()

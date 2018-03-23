@@ -641,6 +641,12 @@ def _get_mock_provider():
     return mock_provider
 
 
+def _get_provider_registry(**kwargs):
+    meowuri_source_map = kwargs.get('meowuri_source_map', dict())
+    excluded_providers = kwargs.get('excluded_providers', dict())
+    return ProviderRegistry(meowuri_source_map, excluded_providers)
+
+
 class TestProviderRegistryMightBeResolvable(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -655,7 +661,7 @@ class TestProviderRegistryMightBeResolvable(TestCase):
                 uu.as_meowuri('extractor.filesystem.guessit'): mock_provider,
             }
         }
-        cls.p = ProviderRegistry(meowuri_source_map=dummy_source_map)
+        cls.p = _get_provider_registry(meowuri_source_map=dummy_source_map)
 
     def test_empty_meowuri_returns_false(self):
         self.assertFalse(self.p.might_be_resolvable(None))
@@ -691,7 +697,7 @@ class TestProviderRegistryMightBeResolvable(TestCase):
         _aT(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
     def test_with_meowuri_and_no_mapped_meowuris(self):
-        p = ProviderRegistry(meowuri_source_map=dict())
+        p = _get_provider_registry(meowuri_source_map=dict())
 
         # Patch the instance attribute.
         # p.mapped_meowuris = dict()
@@ -706,7 +712,7 @@ class TestProviderRegistryMightBeResolvable(TestCase):
                 uu.as_meowuri('extractor.filesystem.guessit'): mock_provider
             }
         }
-        p = ProviderRegistry(meowuri_source_map=dummy_source_map)
+        p = _get_provider_registry(meowuri_source_map=dummy_source_map)
 
         uri_guessit = uu.as_meowuri(uuconst.MEOWURI_EXT_GUESSIT_DATE)
         self.assertTrue(p.might_be_resolvable(uri_guessit))

@@ -259,8 +259,8 @@ def init_argparser():
         dest='dump_meowuris',
         action='store_true',
         help='Dump all MeowURIs registered to the "Repository" at startup. '
-             'NOTE: Some sources require explict inclusion and might therefore'
-             ' not be included.  Use "--debug" for more information.'
+             'Use "--debug" for detailed information and a list of providers '
+             'excluded due to unsatisfied dependencies.'
     )
 
     return parser

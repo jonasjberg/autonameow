@@ -61,14 +61,14 @@ def _find_extractor_classes_in_packages(packages):
 def get_extractor_classes(packages):
     klasses = _find_extractor_classes_in_packages(packages)
 
-    out = []
+    excluded = list()
+    registered = list()
     for klass in klasses:
         if klass.check_dependencies():
-            out.append(klass)
-            log.debug('Registered extractor class: "{!s}"'.format(klass))
+            registered.append(klass)
         else:
-            log.info('Excluded extractor "{!s}" due to unmet dependencies'.format(klass))
-    return out
+            excluded.append(klass)
+    return registered, excluded
 
 
 class ExtractorRegistry(object):
@@ -76,11 +76,22 @@ class ExtractorRegistry(object):
         self._all_providers = None
         self._text_providers = None
         self._metadata_providers = None
+        self._excluded_providers = set()
 
     def _get_cached_or_collect(self, self_attribute, packages):
         if getattr(self, self_attribute) is None:
-            setattr(self, self_attribute, set(get_extractor_classes(packages)))
+            self._collect_and_register(self_attribute, packages)
         return getattr(self, self_attribute)
+
+    def _collect_and_register(self, self_attribute, packages):
+        registered, excluded = get_extractor_classes(packages)
+        for registered_klass in registered:
+            log.debug('Registered extractor "{!s}"'.format(registered_klass))
+        for excluded_klass in excluded:
+            log.info('Excluded extractor "{!s}" due to unmet dependencies'.format(excluded_klass))
+
+        setattr(self, self_attribute, set(registered))
+        self._excluded_providers.update(excluded)
 
     @property
     def all_providers(self):
@@ -96,6 +107,10 @@ class ExtractorRegistry(object):
     def metadata_providers(self):
         return self._get_cached_or_collect('_metadata_providers',
                                            EXTRACTOR_CLASS_PACKAGES_METADATA)
+
+    @property
+    def excluded_providers(self):
+        return self._excluded_providers
 
 
 registry = ExtractorRegistry()

@@ -46,7 +46,7 @@ class TestAnalysis(TestCase):
                 analysis._start(self.fo, _bad_arg)
 
     def test__instantiate_analyzers_returns_expected_type(self):
-        analyzer_classes = analyzers.get_analyzer_classes()
+        analyzer_classes, _ = analyzers.get_analyzer_classes()
         actual = analysis._instantiate_analyzers(
             self.fo, analyzer_classes, self.config
         )

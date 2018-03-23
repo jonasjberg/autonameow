@@ -119,7 +119,7 @@ class TestFindAnalyzerSourceFiles(TestCase):
 class TestGetAnalyzerClasses(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.klasses = get_analyzer_classes()
+        self.klasses, _ = get_analyzer_classes()
 
     def test_get_analyzer_classes_returns_expected_type(self):
         self.assertIsInstance(self.klasses, list)
@@ -140,7 +140,7 @@ class TestGetAnalyzerClasses(TestCase):
 
 class TestNumberOfAvailableAnalyzerClasses(TestCase):
     def setUp(self):
-        self.actual = get_analyzer_classes()
+        self.actual, _ = get_analyzer_classes()
 
     def test_get_analyzer_classes_returns_expected_number_of_analyzers(self):
         expected = len([

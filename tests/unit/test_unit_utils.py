@@ -327,8 +327,9 @@ class TestUnitUtilityGetMockAnalyzer(TestCase):
 
     def test_get_mock_analyzer_returns_analyzers(self):
         import analyzers
+        registered, _ = analyzers.get_analyzer_classes()
         for a in uu.get_mock_analyzer():
-            self.assertIn(type(a), analyzers.get_analyzer_classes())
+            self.assertIn(type(a), registered)
 
 
 class TestUnitUtilityGetMockFileObject(TestCase):
