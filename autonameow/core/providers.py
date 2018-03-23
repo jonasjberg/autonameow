@@ -67,40 +67,45 @@ class ProviderMixin(object):
         )
 
         if 'multivalued' not in field_metainfo:
-            self.log.debug(
+            # Abort instead of using a default value. Many systems rely on this
+            # being correct --- make sure that the provider metainfo is correct.
+            self.log.warning(
                 'Multivalued unspecified for field; "{!s}" with value:'
                 ' "{!s}" ({!s})'.format(field, value, type(value))
             )
+            return None
 
+        # Check whether "metainfo" types and multiplicities match actual data.
+        # TODO: [Hack][incomplete][cleanup] This should be rewritten ..
+        metainfo_multivalued = bool(field_metainfo.get('multivalued'))
         if isinstance(value, list):
-            # Check "FIELD_LOOKUP" assumptions.
-            if not field_metainfo.get('multivalued'):
-                self.log.warning(
-                    'Got list but "FIELD_LOOKUP" specifies a single value.'
-                    ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
-                )
-                return None
+            if metainfo_multivalued:
+                try:
+                    return types.listof(coercer)(value)
+                except types.AWTypeError as e:
+                    self.log.warning(
+                        'Error while coercing field "{!s}" with value '
+                        '"{!s}": {!s}'.format(field, value, e)
+                    )
+                    return None
 
-            try:
-                return types.listof(coercer)(value)
-            except types.AWTypeError as e:
-                self.log.debug('Coercing "{!s}" with value "{!s}" raised '
-                               'AWTypeError: {!s}'.format(field, value, e))
-                return None
-        else:
-            # Check "FIELD_LOOKUP" assumptions.
-            if field_metainfo.get('multivalued'):
-                self.log.debug(
-                    'Got single value but "FIELD_LOOKUP" specifies multiple. '
-                    'Coercing to list. Tag: "{!s}" Value: "{!s}"'.format(field,
-                                                                         value)
-                )
-            try:
-                return coercer(value)
-            except types.AWTypeError as e:
-                self.log.debug('Coercing "{!s}" with value "{!s}" raised '
-                               'AWTypeError: {!s}'.format(field, value, e))
-                return None
+            self.log.debug(
+                'Got list but "metainfo" specifies a single value.'
+                ' Field: "{!s}" Value: "{!s}"'.format(field, value)
+            )
+            return None
+
+        if metainfo_multivalued:
+            self.log.debug(
+                'Got single value but "metainfo" specifies "multivalued"; '
+                'coercing to list. Field: "{!s}" Value: "{!s}"'.format(field, value)
+            )
+        try:
+            return coercer(value)
+        except types.AWTypeError as e:
+            self.log.debug('Coercing "{!s}" with value "{!s}" raised '
+                           'AWTypeError: {!s}'.format(field, value, e))
+            return None
 
 
 def wrap_provider_results(datadict, metainfo, source_klass):

@@ -1,5 +1,6 @@
 audio_codec:
     coercer: aw_string
+    multivalued: false
 
 date:
     coercer: aw_timedate
@@ -11,12 +12,15 @@ date:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 episode:
     coercer: aw_integer
+    multivalued: false
 
 format:
     coercer: aw_string
+    multivalued: false
 
 release_group:
     coercer: aw_string
@@ -27,12 +31,15 @@ release_group:
     -   WeightedMapping:
             field: Description
             weight: 0.001
+    multivalued: false
 
 screen_size:
     coercer: aw_string
+    multivalued: false
 
 season:
     coercer: aw_integer
+    multivalued: false
 
 title:
     coercer: aw_string
@@ -40,6 +47,7 @@ title:
     -   WeightedMapping:
             field: Title
             weight: 1.0
+    multivalued: false
 
 type:
     coercer: aw_string
@@ -47,9 +55,11 @@ type:
     -   WeightedMapping:
             field: Tags
             weight: 0.5
+    multivalued: false
 
 video_codec:
     coercer: aw_string
+    multivalued: false
 
 year:
     coercer: aw_date
@@ -60,3 +70,4 @@ year:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false

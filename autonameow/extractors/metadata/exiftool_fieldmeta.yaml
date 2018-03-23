@@ -94,6 +94,7 @@ EXIF:GPSDateStamp:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 EXIF:GainControl:
     coercer: aw_integer
@@ -112,6 +113,7 @@ EXIF:ImageDescription:
     -   WeightedMapping:
             field: Title
             weight: 0.25
+    multivalued: false
 
 EXIF:Make:
     coercer: aw_string
@@ -131,6 +133,7 @@ EXIF:ModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 0.25
+    multivalued: false
 
 EXIF:Software:
     coercer: aw_string
@@ -146,6 +149,7 @@ EXIF:UserComment:
     -   WeightedMapping:
             field: Tags
             weight: 0.5
+    multivalued: false
 
 File:Comment:
     coercer: aw_string
@@ -157,9 +161,11 @@ File:Comment:
     -   WeightedMapping:
             field: Tags
             weight: 0.5
+    multivalued: false
 
 File:Directory:
     coercer: aw_path
+    multivalued: false
 
 File:FileAccessDate:
     coercer: aw_exiftooltimedate
@@ -232,6 +238,7 @@ File:MIMEType:
     -   WeightedMapping:
             field: Extension
             weight: 1.0
+    multivalued: false
 
 FlashPix:Author:
     coercer: aw_string
@@ -260,6 +267,7 @@ FlashPix:Comments:
     -   WeightedMapping:
             field: Tags
             weight: 0.5
+    multivalued: false
 
 FlashPix:Company:
     coercer: aw_string
@@ -273,6 +281,7 @@ FlashPix:Company:
     -   WeightedMapping:
             field: Creator
             weight: 0.1
+    multivalued: false
 
 FlashPix:CreateDate:
     coercer: aw_timedate
@@ -284,6 +293,7 @@ FlashPix:CreateDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 FlashPix:HeadingPairs:
     # TODO: Needs cleanup ..
@@ -308,6 +318,7 @@ FlashPix:Keywords:
     -   WeightedMapping:
             field: Description
             weight: 0.8
+    multivalued: true
 
 FlashPix:LastModifiedBy:
     coercer: aw_string
@@ -328,6 +339,7 @@ FlashPix:LastPrinted:
     -   WeightedMapping:
             field: Date
             weight: 0.01
+    multivalued: false
 
 FlashPix:Lines:
     coercer: aw_integer
@@ -343,6 +355,7 @@ FlashPix:ModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 0.25
+    multivalued: false
 
 FlashPix:Pages:
     coercer: aw_integer
@@ -372,6 +385,7 @@ FlashPix:Software:
     -   WeightedMapping:
             field: Title
             weight: 0.01
+    multivalued: false
 
 FlashPix:Title:
     coercer: aw_string
@@ -434,6 +448,7 @@ PDF:CreateDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 PDF:Creator:
     coercer: aw_string
@@ -451,6 +466,7 @@ PDF:Creator:
     -   WeightedMapping:
             field: Title
             weight: 0.01
+    multivalued: false
 
 PDF:Keywords:
     coercer: aw_string
@@ -475,6 +491,7 @@ PDF:ModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 0.25
+    multivalued: false
 
 PDF:PDFVersion:
     coercer: aw_float
@@ -497,6 +514,7 @@ PDF:Producer:
     -   WeightedMapping:
             field: Title
             weight: 0.01
+    multivalued: false
 
 PDF:Subject:
     coercer: aw_string
@@ -511,6 +529,7 @@ PDF:Subject:
     -   WeightedMapping:
             field: Title
             weight: 0.5
+    multivalued: false
 
 PDF:Title:
     coercer: aw_string
@@ -519,6 +538,7 @@ PDF:Title:
     -   WeightedMapping:
             field: Title
             weight: 1.0
+    multivalued: false
 
 PDF:Trapped:
     coercer: aw_boolean
@@ -538,6 +558,7 @@ QuickTime:CreateDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 QuickTime:CreationDate:
     coercer: aw_exiftooltimedate
@@ -549,6 +570,7 @@ QuickTime:CreationDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 QuickTime:CreationDate-und-SE:
     coercer: aw_exiftooltimedate
@@ -560,6 +582,7 @@ QuickTime:CreationDate-und-SE:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 QuickTime:MediaCreateDate:
     coercer: aw_exiftooltimedate
@@ -571,6 +594,7 @@ QuickTime:MediaCreateDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 QuickTime:MediaModifyDate:
     coercer: aw_exiftooltimedate
@@ -582,6 +606,7 @@ QuickTime:MediaModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 0.5
+    multivalued: false
 
 QuickTime:ModifyDate:
     coercer: aw_exiftooltimedate
@@ -593,6 +618,7 @@ QuickTime:ModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 0.5
+    multivalued: false
 
 QuickTime:TrackCreateDate:
     coercer: aw_exiftooltimedate
@@ -604,6 +630,7 @@ QuickTime:TrackCreateDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 QuickTime:TrackModifyDate:
     coercer: aw_exiftooltimedate
@@ -615,6 +642,7 @@ QuickTime:TrackModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 0.5
+    multivalued: false
 
 RTF:Author:
     coercer: aw_string
@@ -640,6 +668,7 @@ RTF:Company:
     -   WeightedMapping:
             field: Creator
             weight: 0.1
+    multivalued: false
 
 RTF:CreateDate:
     coercer: aw_exiftooltimedate
@@ -651,6 +680,7 @@ RTF:CreateDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 RTF:LastModifiedBy:
     coercer: aw_string
@@ -673,6 +703,7 @@ RTF:LastPrinted:
     -   WeightedMapping:
             field: Date
             weight: 0.01
+    multivalued: false
 
 RTF:ModifyDate:
     coercer: aw_exiftooltimedate
@@ -684,6 +715,7 @@ RTF:ModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 0.25
+    multivalued: false
 
 RTF:Title:
     coercer: aw_string
@@ -692,6 +724,7 @@ RTF:Title:
     -   WeightedMapping:
             field: Title
             weight: 1.0
+    multivalued: false
 
 SourceFile:
     coercer: aw_path
@@ -713,6 +746,7 @@ XML:Application:
     -   WeightedMapping:
             field: Title
             weight: 0.01
+    multivalued: false
 
 XML:Company:
     coercer: aw_string
@@ -739,6 +773,7 @@ XML:CreateDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 XML:LastModifiedBy:
     coercer: aw_string
@@ -765,6 +800,7 @@ XML:ModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 XML:TitlesOfParts:
     coercer: aw_string
@@ -776,6 +812,7 @@ XML:TitlesOfParts:
 
 XMP:About:
     coercer: aw_string
+    multivalued: false
 
 XMP:Contributor:
     coercer: aw_string
@@ -802,6 +839,7 @@ XMP:CreateDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 XMP:Creator:
     coercer: aw_string
@@ -855,6 +893,7 @@ XMP:CreatorTool:
     -   WeightedMapping:
             field: Title
             weight: 0.01
+    multivalued: false
 
 XMP:Date:
     coercer: aw_exiftooltimedate
@@ -866,6 +905,7 @@ XMP:Date:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 XMP:Description:
     coercer: aw_string
@@ -877,6 +917,7 @@ XMP:Description:
     -   WeightedMapping:
             field: Tags
             weight: 0.5
+    multivalued: false
 
 XMP:DocumentID:
     coercer: aw_string
@@ -910,6 +951,7 @@ XMP:EntryIssued:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
 
 XMP:EntrySummary:
     coercer: aw_string
@@ -921,6 +963,7 @@ XMP:EntrySummary:
     -   WeightedMapping:
             field: Tags
             weight: 0.5
+    multivalued: false
 
 XMP:EntryTitle:
     coercer: aw_string
@@ -929,6 +972,7 @@ XMP:EntryTitle:
     -   WeightedMapping:
             field: Title
             weight: 1.0
+    multivalued: false
 
 XMP:Format:
     coercer: aw_mimetype
@@ -937,6 +981,7 @@ XMP:Format:
     -   WeightedMapping:
             field: Extension
             weight: 0.75
+    multivalued: false
 
 XMP:HistoryAction:
     coercer: aw_string
@@ -964,6 +1009,7 @@ XMP:HistoryWhen:
 
 XMP:Identifier:
     coercer: aw_string
+    multivalued: false
 
 XMP:Keywords:
     coercer: aw_string
@@ -978,6 +1024,7 @@ XMP:Keywords:
     -   WeightedMapping:
             field: Description
             weight: 0.8
+    multivalued: false
 
 XMP:ManifestLinkForm:
     coercer: aw_string
@@ -1001,6 +1048,7 @@ XMP:MetadataDate:
     -   WeightedMapping:
             field: Date
             weight: 0.25
+    multivalued: false
 
 XMP:ModifyDate:
     coercer: aw_exiftooltimedate
@@ -1012,6 +1060,7 @@ XMP:ModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 0.25
+    multivalued: false
 
 XMP:Producer:
     coercer: aw_string
@@ -1026,6 +1075,7 @@ XMP:Producer:
     -   WeightedMapping:
             field: Title
             weight: 0.01
+    multivalued: false
 
 XMP:Publisher:
     coercer: aw_string
@@ -1043,6 +1093,7 @@ XMP:Publisher:
     -   WeightedMapping:
             field: Title
             weight: 0.01
+    multivalued: false
 
 XMP:Rights:
     coercer: aw_string
@@ -1053,6 +1104,7 @@ XMP:Rights:
     -   WeightedMapping:
             field: Author
             weight: 0.5
+    multivalued: false
 
 XMP:Subject:
     coercer: aw_string
@@ -1082,6 +1134,7 @@ XMP:TagsList:
     -   WeightedMapping:
             field: Description
             weight: 0.8
+    multivalued: true
 
 XMP:Title:
     coercer: aw_string
@@ -1090,6 +1143,7 @@ XMP:Title:
     -   WeightedMapping:
             field: Title
             weight: 1.0
+    multivalued: false
 
 XMP:XMPToolkit:
     coercer: aw_string
