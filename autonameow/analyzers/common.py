@@ -22,13 +22,13 @@
 import logging
 
 from core import constants as C
-from core import providers
 from core.exceptions import AutonameowException
 from core.model import (
     force_meowuri,
     MeowURI
 )
 from core.providers import wrap_provider_results
+from core.providers import ProviderMixin
 from util import (
     mimemagic,
     sanity
@@ -42,7 +42,7 @@ class AnalyzerError(AutonameowException):
     """Irrecoverable error occurred when running a "analyzer" class."""
 
 
-class BaseAnalyzer(object):
+class BaseAnalyzer(ProviderMixin):
     """
     Top-level abstract base class for all content-specific analyzer classes.
 
@@ -70,9 +70,7 @@ class BaseAnalyzer(object):
     # the analyzer produces. Stores information on types, etc..
     FIELD_LOOKUP = dict()
 
-    # TODO: Hack ..
     # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
-    coerce_field_value = providers.ProviderMixin.coerce_field_value
 
     def __init__(self, fileobject, config, request_data_callback):
         self.config = config

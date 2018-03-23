@@ -35,9 +35,6 @@ log = logging.getLogger(__name__)
 
 
 class ProviderMixin(object):
-    def __init__(self):
-        pass
-
     def coerce_field_value(self, field, value):
         # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
         # TODO: [hack] This is very bad.
