@@ -42,6 +42,6 @@ __license__ = 'GNU General Public License Version 2'
 __copyright__ = 'Copyright(c)2016-2018 {}'.format(__author__)
 
 
-# TODO: Automaticaly update this when tagging a new version.
+# TODO: Automatically update this when tagging a new version.
 # TODO: [TD0145] Add script for automating release of a new version.
 RELEASE_DATE = '2018-03-08'

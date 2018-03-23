@@ -186,7 +186,7 @@ Medium Priority
       separators, assign field types to the parts and find a "best fit".
       Might have to try several times at different separators, re-evaluting
       partials after assuming that some part is a given type, etc.
-    * __This is a non-trivial problem__, I would rather not re-implment
+    * __This is a non-trivial problem__, I would rather not re-implement
       existing solutions poorly.
     * Look into how `guessit` does it or possibility of modifying
       `guessit` to identify custom fields.

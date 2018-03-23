@@ -76,7 +76,7 @@ fi
 # Skip lines that are empty or contain only whitespace
 #
 # Remove all leading whitespace.
-normalized_text="$(find "${AUTONAMEOW_ROOT_DIR}" -xdev -type f -not -path "*/thirdparty/*/*" -name "*.md" -exec cat '{}' + \
+normalized_text="$(find "${AUTONAMEOW_ROOT_DIR}" -xdev -type f -not -path "*/thirdparty/*/*" \( -name "*.md" -or -name "*.py" \) -exec cat '{}' + \
                  | grep -v -- '^[[:space:]]\?$' \
                  | sed -e 's/^[[:space:]]*//' \
                  | tr '[:upper:]' '[:lower:]')"
@@ -93,24 +93,35 @@ check_sources_do_not_match()
     grep -- "$_pattern" <<< "$normalized_text"
 }
 
-check_sources_do_not_match 'autonamew'
-check_sources_do_not_match 'autoameow'
-check_sources_do_not_match 'autonamoew'
-check_sources_do_not_match 'automaticaly'
-check_sources_do_not_match 'bytesting'
-check_sources_do_not_match 'dependant'
-check_sources_do_not_match 'doucment'
-check_sources_do_not_match 'expeeted'
-check_sources_do_not_match 'expceted'
-check_sources_do_not_match 'filname'
-check_sources_do_not_match 'filobject'
-check_sources_do_not_match 'meowuirs'
-check_sources_do_not_match 'mockup'
-check_sources_do_not_match 'occured'
-check_sources_do_not_match 'ocurred'
-check_sources_do_not_match 'objecst'
-check_sources_do_not_match 'probabilty'
-check_sources_do_not_match 'retuens'
-check_sources_do_not_match '_returns_non_'
-check_sources_do_not_match '_return_non_'
-check_sources_do_not_match 'unavaiable'
+declare -a PREVIOUSLY_MISSPELLED_WORDS=(
+'autonamew'
+'autoameow'
+'autonamoew'
+'automaticaly'
+'bytesting'
+'dependant'
+'doucment'
+'expeeted'
+'expceted'
+'filname'
+'filobject'
+'implment'
+'meowuirs'
+'mockup'
+'occured'
+'ocurred'
+'objecst'
+'probabilty'
+'retuens'
+'_return_non_'
+'unavaiable'
+)
+
+
+for misspelled_word in "${PREVIOUSLY_MISSPELLED_WORDS[@]}"
+do
+    if check_sources_do_not_match "$misspelled_word"
+    then
+        exit 1
+    fi
+done
