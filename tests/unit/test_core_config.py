@@ -27,6 +27,9 @@ from core.config import set_global_configuration
 
 
 class TestSetGlobalConfiguration(TestCase):
+    def tearDown(self):
+        set_global_configuration(None)
+
     def test_call_with_mock_config(self):
         # TODO: [cleanup] Make this do something useful or remove!
         # TODO: [cleanup][hack] Manage global state properly ..
