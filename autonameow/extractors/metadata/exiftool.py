@@ -130,8 +130,11 @@ def _get_exiftool_data(source):
     Returns:
         Exiftool results as a dictionary of strings/ints/floats.
     """
-    # TODO: [TD0183] Look into 'exiftool' time-complexity.
-    # TODO: [TD0183] Worth redoing this to share a single process?
+    # TODO: [TD0183] Rework to be initialized once at first use and remain open.
+    # The 'ExiftoolMetadataExtractor' should be reworked to be instantiated once
+    # at first use and then remain available for re-use for any additional
+    # extraction. Make sure it is properly closed at program exit to prevent any
+    # kind of resource leaks.
     try:
         with pyexiftool.ExifTool() as et:
             try:

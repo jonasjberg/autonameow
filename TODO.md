@@ -81,8 +81,38 @@ Medium Priority
     method currently used by the `ExiftoolMetadataExtractor`, I.E. separate
     perl process per file.
 
-    * __Measure time-complexity of single process exiftool__
-    * __Measure time-complexity of one exiftool process per file__
+    * ~~__Measure time-complexity of single process exiftool__~~
+    * ~~__Measure time-complexity of one exiftool process per file__~~
+
+    __UPDATE: Measurement Results__  
+    Runtimes averaged from consecutive 10 runs for each batch of n files.
+
+    ```
+    (A) Processing each file in a new 'pyexiftool' context that spins up
+        a separate exiftool process for each processed file in that test.
+
+    (B) All files batch-processed in the same 'pyexiftool' context, using
+        a single exiftool process per context.
+
+            # Files     Runtime (seconds)
+                        A               B
+             1     0.067685127     0.067897081
+             5     0.340682030     0.075258017
+            10     0.683529139     0.091509819
+            15     1.062947035     0.147505045
+            20     1.433600664     0.162235022
+            30     2.244422674     0.272763968
+            40     2.918226719     0.278112650
+            50     3.786715746     0.465392113
+    ```
+
+    It is clearly worth using the batch-processing even for a small number of
+    files.
+
+    The `ExiftoolMetadataExtractor` should be reworked to be instantiated once
+    at first use and then remain available for re-use for any additional
+    extraction. Make sure it is properly closed at program exit to prevent any
+    kind of resource leaks.
 
 * `[TD0182]` Isolate third-party metadata services like `isbnlib`.
 
