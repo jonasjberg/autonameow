@@ -27,10 +27,10 @@ from unittest.mock import (
 
 import unit.utils as uu
 from core import constants as C
-from extractors import extract
+from extractors import meowxtract
 
 
-# NOTE(jonas): Without patching 'extractors.extract.logs', unit tests in other
+# NOTE(jonas): Without patching 'extractors.meowxtract.logs', unit tests in other
 #              files might fail due to some shared global state not being reset
 #              after THESE tests have completed. This is related to mocking the
 #              logging and is obviously a symptom of some bad design choices,
@@ -45,7 +45,7 @@ def _get_input_fileobject():
     return uu.fileobject_testfile('magic_txt.txt')
 
 
-class TestStandaloneExtract(TestCase):
+class TestMeowxtractExtract(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.input_paths = _get_input_paths()
@@ -69,10 +69,10 @@ class TestStandaloneExtract(TestCase):
     #     raise self.failureException(msg)
     # AssertionError: 'No input files specified' not found in ''
 
-    @patch('extractors.extract.logs', MagicMock())
+    @patch('extractors.meowxtract.logs', MagicMock())
     def _assert_exit_success(self, options=None):
         with self.assertRaises(SystemExit) as e:
-            extract.main(options)
+            meowxtract.main(options)
             self.assertEqual(e.type, SystemExit)
             self.assertEqual(e.value.code, C.EXIT_SUCCESS)
 
@@ -88,69 +88,69 @@ class TestStandaloneExtract(TestCase):
         self._assert_exit_success(options)
 
 
-class TestStandaloneExtractTextExtraction(TestCase):
+class TestMeowxtractExtractTextExtraction(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.input_paths = _get_input_paths()
         cls.input_fileobject = _get_input_fileobject()
 
-    @patch('extractors.extract.logs', MagicMock())
-    @patch('extractors.extract.do_extract_text')
+    @patch('extractors.meowxtract.logs', MagicMock())
+    @patch('extractors.meowxtract.do_extract_text')
     def test_extract_text(self, mock_do_extract_text):
         options = {'input_paths': self.input_paths,
                    'extract_text': True}
-        extract.main(options)
+        meowxtract.main(options)
         mock_do_extract_text.assert_called_once_with(self.input_fileobject)
 
-    @patch('extractors.extract.logs', MagicMock())
-    @patch('extractors.extract.do_extract_text')
+    @patch('extractors.meowxtract.logs', MagicMock())
+    @patch('extractors.meowxtract.do_extract_text')
     def test_extract_text_without_input_paths(self, mock_do_extract_text):
         options = {'extract_text': True}
         with self.assertRaises(SystemExit) as e:
-            extract.main(options)
+            meowxtract.main(options)
             self.assertEqual(e.type, SystemExit)
             self.assertEqual(e.value.code, C.EXIT_SUCCESS)
         mock_do_extract_text.assert_not_called()
 
 
-class TestStandaloneExtractMetadataExtraction(TestCase):
+class TestMeowxtractExtractMetadataExtraction(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.input_paths = _get_input_paths()
         cls.input_fileobject = _get_input_fileobject()
 
-    @patch('extractors.extract.logs', MagicMock())
-    @patch('extractors.extract.do_extract_metadata')
+    @patch('extractors.meowxtract.logs', MagicMock())
+    @patch('extractors.meowxtract.do_extract_metadata')
     def test_extract_metadata(self, mock_do_extract_metadata):
         options = {'input_paths': self.input_paths,
                    'extract_metadata': True}
-        extract.main(options)
+        meowxtract.main(options)
         mock_do_extract_metadata.assert_called_once_with(self.input_fileobject)
 
-    @patch('extractors.extract.logs', MagicMock())
-    @patch('extractors.extract.do_extract_metadata')
+    @patch('extractors.meowxtract.logs', MagicMock())
+    @patch('extractors.meowxtract.do_extract_metadata')
     def test_extract_metadata_without_input_paths(self, mock_do_extract_metadata):
         options = {'extract_metadata': True}
         with self.assertRaises(SystemExit) as e:
-            extract.main(options)
+            meowxtract.main(options)
             self.assertEqual(e.type, SystemExit)
             self.assertEqual(e.value.code, C.EXIT_SUCCESS)
         mock_do_extract_metadata.assert_not_called()
 
 
-class TestStandaloneExtractTextAndMetadataExtraction(TestCase):
+class TestMeowxtractExtractTextAndMetadataExtraction(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.input_paths = _get_input_paths()
         cls.input_fileobject = _get_input_fileobject()
 
-    @patch('extractors.extract.logs', MagicMock())
-    @patch('extractors.extract.do_extract_text')
-    @patch('extractors.extract.do_extract_metadata')
+    @patch('extractors.meowxtract.logs', MagicMock())
+    @patch('extractors.meowxtract.do_extract_text')
+    @patch('extractors.meowxtract.do_extract_metadata')
     def test_extract_text_and_metadata(self, mock_do_extract_metadata, mock_do_extract_text):
         options = {'input_paths': self.input_paths,
                    'extract_metadata': True,
                    'extract_text': True}
-        extract.main(options)
+        meowxtract.main(options)
         mock_do_extract_metadata.assert_called_once_with(self.input_fileobject)
         mock_do_extract_text.assert_called_once_with(self.input_fileobject)

@@ -48,7 +48,7 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-EXTRACT_RUNNER="${AUTONAMEOW_ROOT_DIR}/bin/extract.sh"
+EXTRACT_RUNNER="${AUTONAMEOW_ROOT_DIR}/bin/meowxtract.sh"
 assert_bulk_test "$EXTRACT_RUNNER" n e f r x
 
 assert_true '"$EXTRACT_RUNNER"' \

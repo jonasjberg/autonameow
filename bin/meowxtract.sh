@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# 'extract.sh' -- autonameow Stand-alone Content Extraction
-# =========================================================
+# 'meowxtract.sh' -- Stand-alone autonameow Content Extraction
+# ============================================================
 # Copyright(c) 2016-2018 Jonas Sjöberg
 # https://github.com/jonasjberg
 # http://www.jonasjberg.com
@@ -82,5 +82,5 @@ fi
 # TODO: Avoid using launcher-scripts to setup "$PYTHONPATH" ..
 # Execute stand-alone content extraction.
 PYTHONPATH="${AUTONAMEOW_PATH}/autonameow" \
-    python3 "${AUTONAMEOW_PATH}/autonameow/extractors/extract.py" "$@"
+    python3 "${AUTONAMEOW_PATH}/autonameow/extractors/meowxtract.py" "$@"
 
