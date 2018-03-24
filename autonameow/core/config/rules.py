@@ -22,10 +22,7 @@
 import logging
 
 from core import constants as C
-from core import (
-    providers,
-    types,
-)
+from core import master_provider
 from core.config import field_parsers
 from core.exceptions import (
     ConfigError,
@@ -427,6 +424,6 @@ def is_valid_source(uri):
     if isinstance(uri, MeowURI):
         if uri.is_generic:
             return True
-        if providers.Registry.might_be_resolvable(uri):
+        if master_provider.Registry.might_be_resolvable(uri):
             return True
     return False

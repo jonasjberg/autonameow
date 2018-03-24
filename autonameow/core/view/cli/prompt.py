@@ -25,7 +25,7 @@ import sys
 from core import constants as C
 from core import (
     config,
-    providers,
+    master_provider,
 )
 from core.exceptions import (
     DependencyError,
@@ -118,7 +118,7 @@ class MeowURIValidator(Validator):
 
 class MeowURICompleter(Completer):
     def __init__(self):
-        self.all_meowuris = list(providers.Registry.mapped_meowuris)
+        self.all_meowuris = list(master_provider.Registry.mapped_meowuris)
 
     # TODO: [TD0099] Split by MeowURI separators.
     def get_completions(self, document, complete_event):

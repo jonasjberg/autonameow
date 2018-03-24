@@ -111,12 +111,12 @@ MOCK_REGISTRY.might_be_resolvable.return_value = True
 
 
 class TestLoadConfigFromFile(TestCase):
-    @patch('core.config.rules.providers.Registry', MOCK_REGISTRY)
+    @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
     def test_raises_exception_given_none(self):
         with self.assertRaises(AssertionError):
             _ = load_config_from_file(None)
 
-    @patch('core.config.rules.providers.Registry', MOCK_REGISTRY)
+    @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
     def test_loads_valid_config_from_absolute_path(self):
         _config_path = uu.normpath(uu.abspath_testconfig())
         actual = load_config_from_file(_config_path)

@@ -34,7 +34,6 @@ from core import (
     logs,
     persistence,
     master_provider,
-    providers,
     repository,
 )
 from core.context import FilesContext
@@ -78,7 +77,7 @@ class Autonameow(object):
     def __enter__(self):
         # Set up singletons for this process.
         repository.initialize(self)
-        providers.initialize()
+        master_provider.initialize_provider_registry()
 
         self.renamer = FileRenamer(
             dry_run=self.opts.get('dry_run'),
@@ -90,7 +89,7 @@ class Autonameow(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         # Reset singletons.
         repository.shutdown(self)
-        providers.shutdown()
+        master_provider.shutdown_provider_registry()
 
     def run(self):
         if self.opts.get('quiet'):
@@ -127,6 +126,10 @@ class Autonameow(object):
         # Set globally accessible configuration instance.
         config.set_global_configuration(self.config)
 
+        # Initialize the global master data provider.
+        master_provider.initialize_master_data_provider(self.config)
+        self.master_provider = master_provider
+
         if self.opts.get('dump_options'):
             self._dump_options()
 
@@ -137,19 +140,6 @@ class Autonameow(object):
         if self.opts.get('dump_meowuris'):
             self._dump_registered_meowuris()
 
-        # Abort early if input paths are missing.
-        if not self.opts.get('input_paths'):
-            log.warning('No input files specified ..')
-            self.exit_program(C.EXIT_SUCCESS)
-
-        # Path name encoding boundary. Returns list of paths in internal format.
-        files_to_process = self._collect_paths_from_opts()
-        log.info('Got {} files to process'.format(len(files_to_process)))
-
-        # Initialize the global master data provider.
-        master_provider.initialize(self.config)
-        self.master_provider = master_provider
-
         # Initialize a re-usable post-processor.
         # TODO: Improve access of nested configuration values.
         self.postprocessor = FilenamePostprocessor(
@@ -158,6 +148,15 @@ class Autonameow(object):
             regex_replacements=self.config.get(['POST_PROCESSING', 'replacements']),
             simplify_unicode=self.config.get(['POST_PROCESSING', 'simplify_unicode'])
         )
+
+        # Abort if input paths are missing.
+        if not self.opts.get('input_paths'):
+            log.warning('No input files specified ..')
+            self.exit_program(C.EXIT_SUCCESS)
+
+        # Path name encoding boundary. Returns list of paths in internal format.
+        files_to_process = self._collect_paths_from_opts()
+        log.info('Got {} files to process'.format(len(files_to_process)))
 
         # Handle any input paths/files.
         self._handle_files(files_to_process)
@@ -218,12 +217,12 @@ class Autonameow(object):
                 cf_registered.addemptyrow()
                 cf_excluded.addemptyrow()
 
-                sourcemap = providers.Registry.meowuri_sources.get(_type, {})
+                sourcemap = self.master_provider.Registry.meowuri_sources.get(_type, {})
                 # Sorted by MeowURI within "root sections".
                 for uri, klass in sorted(sourcemap.items(), key=lambda x: str(x[0])):
                     cf_registered.addrow(str(uri), str(klass))
 
-                excluded = providers.Registry.excluded_providers.get(_type, set())
+                excluded = self.master_provider.Registry.excluded_providers.get(_type, set())
                 str_excluded = [str(k) for k in excluded]
                 for klass in sorted(str_excluded):
                     cf_excluded.addrow(str(klass))
@@ -236,7 +235,7 @@ class Autonameow(object):
             self.ui.msg('Providers Excluded (unmet dependencies)', style='heading')
             self.ui.msg(str_excluded_providers)
         else:
-            _meowuris = sorted(providers.Registry.mapped_meowuris)
+            _meowuris = sorted(self.master_provider.Registry.mapped_meowuris)
             self.ui.msg('\n'.join(str(m) for m in _meowuris))
 
         self.ui.msg('\n')
@@ -294,7 +293,7 @@ class Autonameow(object):
 
             if should_list_all:
                 log.debug('Calling provider.delegate_every_possible_meowuri()')
-                master_provider.delegate_every_possible_meowuri(current_file)
+                self.master_provider.delegate_every_possible_meowuri(current_file)
 
             if self.opts.get('mode_postprocess_only'):
                 new_name = str(current_file)

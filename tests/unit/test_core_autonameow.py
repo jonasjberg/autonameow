@@ -20,15 +20,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from unittest import (
-    skipIf,
-    TestCase
-)
-from unittest.mock import (
-    MagicMock,
-    Mock,
-    patch
-)
+from unittest import skipIf, TestCase
+from unittest.mock import MagicMock, Mock, patch
 
 try:
     import prompt_toolkit
@@ -73,8 +66,8 @@ class TestAutonameowWithoutOptions(TestCase):
         exit_program_mock.assert_not_called()
 
     # TODO: [cleanup] This much mocking indicates poor design choices ..
-    @patch('core.providers.initialize', MagicMock())
-    @patch('core.providers.Registry')
+    @patch('core.master_provider.initialize_master_data_provider', MagicMock())
+    @patch('core.master_provider.Registry')
     @patch('core.autonameow.Autonameow.exit_program')
     @patch('core.autonameow.master_provider', MagicMock())
     def test_exit_program_called_after_running_context(
@@ -294,8 +287,8 @@ class TestCheckOptionCombinations(TestCase):
 class TestAutonameowContextManagementProtocol(TestCase):
     # TODO: [cleanup] This much mocking indicates poor design choices ..
     @patch('core.autonameow.master_provider', MagicMock())
-    @patch('core.providers.initialize', MagicMock())
-    @patch('core.providers.Registry')
+    @patch('core.master_provider.initialize_master_data_provider', MagicMock())
+    @patch('core.master_provider.Registry')
     def test_with_statement(self, mock_registry):
         mock_registry.might_be_resolvable.return_value = True
         Autonameow.exit_program = MagicMock()

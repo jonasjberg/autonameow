@@ -27,6 +27,7 @@ import sys
 import tempfile
 from contextlib import contextmanager
 from datetime import datetime
+from unittest.mock import MagicMock, Mock
 
 import unit.constants as uuconst
 from core import FileObject
@@ -638,13 +639,13 @@ def init_session_repository():
 
 
 def init_provider_registry():
-    from core import providers
-    providers.initialize()
+    from core import master_provider
+    master_provider.initialize_provider_registry()
 
 
 def init_master_data_provider(active_config):
     from core import master_provider
-    master_provider.initialize(active_config)
+    master_provider.initialize_master_data_provider(active_config)
 
 
 def is_internalstring(thing):
@@ -714,3 +715,10 @@ def get_expected_text_for_testfile(testfile_basename):
         return None
     except (OSError, UnicodeDecodeError):
         raise
+
+
+def get_mock_provider():
+    mock_provider = Mock()
+    mock_provider.metainfo = MagicMock(return_value=dict())
+    mock_provider.name.return_value = 'MockProvider'
+    return mock_provider

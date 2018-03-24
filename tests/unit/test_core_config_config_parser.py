@@ -64,12 +64,12 @@ class TestConfigurationParser(TestCase):
     def setUp(self):
         self.p = ConfigurationParser()
 
-    @patch('core.config.rules.providers.Registry', MOCK_REGISTRY)
+    @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
     def test_parsed_default_config_is_not_none(self):
         actual = self.p.parse(DEFAULT_CONFIG)
         self.assertIsNotNone(actual)
 
-    @patch('core.config.rules.providers.Registry', MOCK_REGISTRY)
+    @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
     def test_parsed_default_config_has_expected_options(self):
         actual = self.p.parse(DEFAULT_CONFIG)
         actual_options = actual.options
@@ -269,7 +269,7 @@ class TestDefaultConfigFromFile(TestCase):
         self._assert_valid_existing_file(self.config_path_bytestring)
         self.assertTrue(uu.is_internalbytestring(self.config_path_bytestring))
 
-    @patch('core.config.rules.providers.Registry', MOCK_REGISTRY)
+    @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
     def test_loads_default_config_from_bytestring_path(self):
         config = self.config_parser.from_file(self.config_path_bytestring)
         self.assertIsNotNone(config)
@@ -290,7 +290,7 @@ class TestDefaultConfigFromFile(TestCase):
 
 
 class TestConfigurationRuleParser(TestCase):
-    @patch('core.config.rules.providers.Registry', MOCK_REGISTRY)
+    @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
     def test_parses_rules_from_default_config_given_all_nametemplates(self):
         from core.config.default_config import DEFAULT_CONFIG
         given_rules = DEFAULT_CONFIG.get('RULES')
