@@ -64,7 +64,7 @@ class ProviderMixin(object):
         sanity.check_internal_string(coercer_string)
         coercer = get_coercer_for_metainfo_string(coercer_string)
         assert isinstance(coercer, (types.BaseType, types.MultipleTypes)), (
-            '{!s} "{!s}"'.format(type(coercer), coercer)
+            'Expected coercer class. Got {!s} "{!s}"'.format(type(coercer), coercer)
         )
 
         if 'multivalued' not in field_metainfo:
@@ -76,11 +76,18 @@ class ProviderMixin(object):
             )
             return None
 
-        # Check whether "metainfo" types and multiplicities match actual data.
-        # TODO: [Hack][incomplete][cleanup] This should be rewritten ..
-        metainfo_multivalued = bool(field_metainfo.get('multivalued'))
+        multivalued = bool(field_metainfo.get('multivalued'))
+        return self._coerce_field_value(field, value, coercer, multivalued)
+
+    def _coerce_field_value(self, field, value, coercer, multivalued):
+        """
+        Check whether types and multiplicities defined in "metainfo"
+        matches the actual data and do type coercions.
+        """
+        # Value is a list ("multivalued") --- coerce to list or abort
+        # if expecting a single value, can't do reliable conversion.
         if isinstance(value, list):
-            if metainfo_multivalued:
+            if multivalued:
                 return self._coerce_multiple_values(field, value, coercer)
 
             # TODO: [incomplete] Handle mismatch somehow instead of skipping?
@@ -94,8 +101,8 @@ class ProviderMixin(object):
             )
             return None
 
-        # Value is not a list
-        if metainfo_multivalued:
+        # Value is not a list --- do single value coercion or coerce into list.
+        if multivalued:
             self.log.debug(
                 'Got single value but "metainfo" specifies "multivalued"; '
                 'coercing to list. Field: "{!s}" Value: "{!s}"'.format(field, value)
@@ -145,7 +152,7 @@ def wrap_provider_results(datadict, metainfo, source_klass):
     wrapped = dict()
 
     for field, value in datadict.items():
-        raw_field_metainfo = metainfo.get(field, {})
+        raw_field_metainfo = metainfo.get(field)
         if not raw_field_metainfo:
             log.warning('Missing metainfo for field "{!s}"'.format(field))
             log.debug('Field {} not in {!s}'.format(field, metainfo))
@@ -247,7 +254,7 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
                 assert param_field_str
                 assert param_prob_str
 
-                param_field = get_field_class_from_metainfo_string(param_field_str)
+                param_field = nametemplatefield_class_from_string(param_field_str)
                 param_prob = types.AW_FLOAT(param_prob_str)
                 # TODO: Improve robustness. Raise appropriate exception.
                 # TODO: Improve robustness. Log provider with malformed metainfo entries.
@@ -263,7 +270,3 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
 
 def translate_multivalued(multivalued_string):
     return types.AW_BOOLEAN(multivalued_string)
-
-
-def get_field_class_from_metainfo_string(string):
-    return nametemplatefield_class_from_string(string)

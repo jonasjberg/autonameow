@@ -22,6 +22,7 @@
 from unittest import TestCase
 
 from core.providers import (
+    get_coercer_for_metainfo_string,
     translate_metainfo_mappings,
     wrap_provider_results,
 )
@@ -315,6 +316,20 @@ class TestWrapProviderResults(TestCase):
             }
         }
         self.assertEqual(expect, actual)
+
+
+class TestGotCoercerForMetainfoString(TestCase):
+    def _get_coercer_for_metainfo_string(self, given):
+        return get_coercer_for_metainfo_string(given)
+
+    def test_does_not_return_none_given_string_representation_of_existing_coercer(self):
+        self.assertIsNotNone(self._get_coercer_for_metainfo_string('aw_path'))
+
+    def test_returns_none_given_string_that_does_not_map_to_existing_coercer(self):
+        self.assertIsNone(self._get_coercer_for_metainfo_string('foo'))
+
+    def test_returns_none_given_none(self):
+        self.assertIsNone(self._get_coercer_for_metainfo_string(None))
 
 
 class TestTranslateMetainfoMappings(TestCase):
