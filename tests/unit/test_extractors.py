@@ -29,14 +29,14 @@ from extractors import (
     EXTRACTOR_CLASS_PACKAGES_METADATA,
     EXTRACTOR_CLASS_PACKAGES_TEXT,
     _find_extractor_classes_in_packages,
-    get_extractor_classes,
+    _get_extractor_classes,
 )
 from extractors.common import BaseExtractor
 
 
-def _get_extractor_classes(**kwargs):
+def get_extractor_classes(**kwargs):
     packages = kwargs.get('packages', dict())
-    return get_extractor_classes(packages)
+    return _get_extractor_classes(packages)
 
 
 class TestExtractorsConstants(TestCase):
@@ -88,7 +88,7 @@ class TestFindExtractorClassesInPackages(TestCase):
 class TestGetImplementedExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual, _ = _get_extractor_classes(
+        cls.actual, _ = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
@@ -111,7 +111,7 @@ class TestGetImplementedExtractorClasses(TestCase):
 class TestGetTextExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual, _ = _get_extractor_classes(
+        cls.actual, _ = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES_TEXT,
         )
 
@@ -139,7 +139,7 @@ class TestGetTextExtractorClasses(TestCase):
 class TestGetMetadataExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual, _ = _get_extractor_classes(
+        cls.actual, _ = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES_METADATA,
         )
 
@@ -173,7 +173,7 @@ class TestGetMetadataExtractorClasses(TestCase):
 class TestNumberOfAvailableExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual, _ = _get_extractor_classes(
+        cls.actual, _ = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
@@ -192,7 +192,7 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
 class TestExtractorClassMeowURIs(TestCase):
     @classmethod
     def setUpClass(cls):
-        provider_klasses, _ = _get_extractor_classes(
+        provider_klasses, _ = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES
         )
         # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.

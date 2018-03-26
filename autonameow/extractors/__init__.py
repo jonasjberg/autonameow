@@ -58,7 +58,7 @@ def _find_extractor_classes_in_packages(packages):
     return klasses
 
 
-def get_extractor_classes(packages):
+def _get_extractor_classes(packages):
     klasses = _find_extractor_classes_in_packages(packages)
 
     excluded = list()
@@ -84,7 +84,7 @@ class ExtractorRegistry(object):
         return getattr(self, self_attribute)
 
     def _collect_and_register(self, self_attribute, packages):
-        registered, excluded = get_extractor_classes(packages)
+        registered, excluded = _get_extractor_classes(packages)
         for registered_klass in registered:
             log.debug('Registered extractor "{!s}"'.format(registered_klass))
         for excluded_klass in excluded:
