@@ -258,7 +258,8 @@ def msg(message, style=None, ignore_quiet=False):
     Args:
         message: The raw text message to print as a Unicode string.
         style: Optional message type as a Unicode string.
-               Should be one of 'info', 'heading', 'section' or 'color_quoted'.
+               Should be one of 'info', 'heading', 'section', 'color_quoted'
+               or 'highlight'.
         ignore_quiet: Whether to ignore the global quiet ('--quiet') option.
 
     Raises:
@@ -300,6 +301,10 @@ def msg(message, style=None, ignore_quiet=False):
 
     elif style == 'color_quoted':
         print_stdout(colorize_quoted(message, color='LIGHTGREEN_EX'))
+
+    elif style == 'highlight':
+        colored_message = colorize(message, fore='LIGHTWHITE_EX')
+        print_stdout(colored_message)
 
     else:
         log.warning('Unknown message style "{!s}"'.format(style))
