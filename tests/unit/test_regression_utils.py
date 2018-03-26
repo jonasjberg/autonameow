@@ -412,14 +412,6 @@ class TestMockUIActualUsage(TestCase):
         self.mock_ui.colorize('foo', fore='BLACK', back='RED')
         self.mock_ui.colorize('foo', fore='BLACK', back='RED', style='NORMAL')
 
-    def test_call_colorize_stores_passed_arguments(self):
-        self.mock_ui.colorize('foo', fore='BLACK', back='RED', style='NORMAL')
-        self._assert_called_with_args('colorize', ('foo', ))
-        self._assert_called_with_kwargs(
-            'colorize',
-            {'fore': 'BLACK', 'back': 'RED', 'style': 'NORMAL'}
-        )
-
     def test_call_colorize_re_match(self):
         self.mock_ui.colorize_re_match('foo', regex='bar')
         self.mock_ui.colorize_re_match('foo', regex='bar', color='BLACK')

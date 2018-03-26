@@ -46,7 +46,10 @@ def _get_rulematcher(**kwargs):
     rules = kwargs.get('rules', None)
     provider = kwargs.get('provider', None)
     list_rulematch = kwargs.get('list_rulematch', None)
-    return RuleMatcher(rules, provider, SHARED_FILEOBJECT, list_rulematch)
+    mock_view = Mock()
+    return RuleMatcher(
+        rules, provider, SHARED_FILEOBJECT, mock_view, list_rulematch
+    )
 
 
 def _init_master_data_provider(active_config):

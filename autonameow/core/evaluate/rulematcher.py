@@ -22,7 +22,6 @@
 import logging
 from collections import namedtuple
 
-from core import view
 from util import sanity
 
 
@@ -33,15 +32,17 @@ MatchResult = namedtuple('MatchResult', 'rule score weight')
 
 
 class RuleMatcher(object):
-    def __init__(self, rules, provider, fileobject, list_rulematch=None):
+    def __init__(self, rules, provider, fileobject, ui, list_rulematch=None):
         """
         Creates a new instance that evaluates rules against a given file.
         """
         self._rules = list(rules)
-        self._list_rulematch = bool(list_rulematch)
         self._provider = provider
-        self._evaluator_klass = RuleConditionEvaluator
         self._fileobject = fileobject
+        self.ui = ui
+        self._list_rulematch = bool(list_rulematch)
+
+        self._evaluator_klass = RuleConditionEvaluator
 
         # Functions that use this does not have access to 'self.fileobject'.
         # This method, which calls a callback, is itself passed as a callback..
@@ -104,7 +105,6 @@ class RuleMatcher(object):
         discarded_rules = [r for r in all_rules if r not in remaining_rules]
         self._log_results(prioritized_rules, scored_rules, discarded_rules)
 
-        # TODO: [TD0171] Separate logic from user interface.
         if self._list_rulematch:
             self._display_details(prioritized_rules, scored_rules, discarded_rules)
         else:
@@ -165,8 +165,8 @@ class RuleMatcher(object):
             )
 
     def _display_details(self, prioritized_rules, scored_rules, discarded_rules):
-        # TODO: [TD0171] Separate logic from user interface.
         def _prettyprint_rule_details(n, _rule, _bias, _score=None, _weight=None):
+            # TODO: [TD0171] Separate logic from user interface.
             conditions_passed = self.condition_evaluator.passed(_rule)
             conditions_failed = self.condition_evaluator.failed(_rule)
 
@@ -182,37 +182,40 @@ class RuleMatcher(object):
                 _str_weight = FMT_DECIMAL.format(_weight)
 
             _str_exact = 'Yes' if rule.exact_match else 'No '
-            # s = 'Rule #{:02d} (Exact: {}  Score: {}  Weight: {}  Bias: {})  [{!s}]'
-            # view.msg(s.format(n, _str_exact, _str_score, _str_weight, _bias,
-            #                _rule.description))
             sr = 'Rule #{:02d}  {!s}'.format(n, _rule.description)
-            view.msg(view.colorize(sr, fore='LIGHTWHITE_EX'))
+            self.ui.msg(sr, style='highlight')
 
             si = 'Exact: {}  Score: {}  Weight: {}  Bias: {}'.format(_str_exact, _str_score, _str_weight, _bias)
-            view.msg(si + '\n')
+            self.ui.msg(si + '\n')
 
-            cf = view.ColumnFormatter()
-            cf.setalignment('right', 'left')
-            msg_label_pass = view.colorize('PASSED', fore='GREEN')
-            msg_label_fail = view.colorize('FAILED', fore='RED')
-            msg_label_padding = view.colorize('      ', fore='BLACK')
+            rows = list()
+            def _addrow(*data):
+                rows.append((data))
+
+            msg_label_pass = self.ui.colorize('PASSED', fore='GREEN')
+            msg_label_fail = self.ui.colorize('FAILED', fore='RED')
+            msg_label_padding = self.ui.colorize('      ', fore='BLACK')
+
             for c in conditions_passed:
                 d = self.condition_evaluator.evaluated(_rule, c)
 
-                cf.addrow(msg_label_pass, str(c.meowuri))
-                cf.addrow(msg_label_padding, 'Expression:', str(c.expression))
-                cf.addrow(msg_label_padding, 'Evaluated Data:', str(d))
+                _addrow(msg_label_pass, str(c.meowuri))
+                _addrow(msg_label_padding, 'Expression:', str(c.expression))
+                _addrow(msg_label_padding, 'Evaluated Data:', str(d))
 
             for c in conditions_failed:
                 d = self.condition_evaluator.evaluated(_rule, c)
-                cf.addrow(msg_label_fail, str(c.meowuri))
-                cf.addrow(msg_label_padding, 'Expression:', str(c.expression))
-                cf.addrow(msg_label_padding, 'Evaluated Data:', str(d))
+                _addrow(msg_label_fail, str(c.meowuri))
+                _addrow(msg_label_padding, 'Expression:', str(c.expression))
+                _addrow(msg_label_padding, 'Evaluated Data:', str(d))
 
-            view.msg(str(cf))
-            view.msg('\n')
+            self.ui.msg_columnate(
+                column_names=[],
+                row_data=rows,
+                alignment=('right', 'left')
+            )
 
-        view.msg('Remaining, prioritized rules:', style='heading')
+        self.ui.msg('Remaining, prioritized rules:', style='heading')
         i = 1
         for i, rule in enumerate(prioritized_rules, start=1):
             _bias = rule.ranking_bias
@@ -220,7 +223,7 @@ class RuleMatcher(object):
             _weight = scored_rules[rule]['weight']
             _prettyprint_rule_details(i, rule, _bias, _score, _weight)
 
-        view.msg('Discarded rules:', style='heading')
+        self.ui.msg('Discarded rules:', style='heading')
         for j, rule in enumerate(discarded_rules, start=i+1):
             _bias = rule.ranking_bias
             _prettyprint_rule_details(j, rule, _bias)

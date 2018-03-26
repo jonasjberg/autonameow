@@ -506,6 +506,19 @@ class MockUI(object):
     NOTE(jonas): Would it be better to re-use library mocking functionality?
     """
     def __init__(self):
+        # Dictionary keyed by members 'ui' storing call arguments.
+        # Using a new MockUI once like this:
+        #
+        #     ui.msg('foo', bar=42)
+        #
+        # Stores the following:
+        #
+        #     mock_call_history == {
+        #         'msg': [
+        #             (('foo',), {'bar': 42})
+        #         ]
+        #     }
+        #
         self.mock_call_history = defaultdict(list)
 
     def __getattr__(self, item):
@@ -513,6 +526,12 @@ class MockUI(object):
         if item == 'ColumnFormatter':
             # TODO: [TD0171] Separate logic from user interface.
             return cli.ColumnFormatter
+        if item == 'colorize':
+            # Pass-through string unchanged.
+            return lambda x, **kwargs: x
+        if item == 'msg_columnate':
+            # TODO: [TD0171] Separate logic from user interface.
+            return cli.msg_columnate
 
         return lambda *args, **kwargs: self.mock_call_history[item].append((args, kwargs))
 
@@ -520,7 +539,10 @@ class MockUI(object):
 def fetch_mock_ui_messages(mock_ui):
     messages = list()
     for captured_msg_call in mock_ui.mock_call_history.get('msg', list()):
-        text = ''.join(captured_msg_call[0])
+        try:
+            text = ''.join(captured_msg_call[0])
+        except TypeError:
+            raise AssertionError(str(captured_msg_call))
         messages.append(text)
 
     return '\n'.join(messages)
