@@ -5,9 +5,9 @@ ebooklib==0.16
 file-magic
 guessit==2.1.0
 isbnlib==3.5.6
-pillow==3.1.2
+pillow
 prompt-toolkit==1.0.15
-pytz==2014.10
+pytz
 pyyaml==3.11
 unidecode==0.4.19
 guessit==2.1.0
