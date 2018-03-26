@@ -129,7 +129,11 @@ class FilesContext(object):
             # Have the user select data sources.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
 
-        resolver = TemplateFieldDataResolver(current_file, name_template.placeholders)
+        resolver = TemplateFieldDataResolver(
+            current_file,
+            name_template.placeholders,
+            self.master_provider
+        )
         field_databundle_dict = self._try_resolve(
             resolver, current_file, data_sources
         )
