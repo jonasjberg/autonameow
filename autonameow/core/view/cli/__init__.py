@@ -27,6 +27,7 @@ from .common import (
     colorize_re_match,
     colorize_quoted,
     msg,
+    msg_columnate,
     msg_possible_rename,
     msg_rename,
     msg_filename_replacement,

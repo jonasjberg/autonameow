@@ -587,6 +587,21 @@ class ColumnFormatter(object):
         return '\n'.join(l.rstrip() for l in lines)
 
 
+def msg_columnate(column_names, row_data, alignment=None):
+    cf = ColumnFormatter()
+    if alignment:
+        # cf.setalignment('right', 'left')
+        cf.setalignment(*alignment)
+
+    if column_names:
+        cf.addrow(*column_names)
+
+    for data in row_data:
+        cf.addrow(*data)
+
+    msg(str(cf) + '\n')
+
+
 def silence():
     global BE_QUIET
     log.disabled = True

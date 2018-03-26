@@ -22,6 +22,7 @@
 import re
 import unittest
 from unittest import TestCase, skipIf
+from unittest.mock import patch
 
 # TODO: Test behaviour when colorama is missing!
 #       (program still runs but output is not colored)
@@ -39,6 +40,7 @@ from core.view.cli.common import (
     _colorize_string_diff,
     ColumnFormatter,
     msg,
+    msg_columnate,
     msg_possible_rename,
     msg_rename,
 )
@@ -657,3 +659,45 @@ class TestColorizeQuoted(TestCase):
         __check(' "foo" "bar"', ' "{COL}foo{RES}" "{COL}bar{RES}"')
         __check(' "foo"" "bar"', ' "{COL}foo{RES}""{COL} {RES}"bar"')
         __check(' "a"" ""b"', ' "{COL}a{RES}""{COL} {RES}""{COL}b{RES}"')
+
+
+class TestMsgColumnate(TestCase):
+    def _assert_msg_called_with(self, expected, column_names, row_data):
+        with patch('core.view.cli.common.msg') as mock_msg:
+            _ = msg_columnate(column_names, row_data)
+        mock_msg.assert_called_once_with(expected)
+
+    def test_two_column_names_empty_row_data(self):
+        self._assert_msg_called_with(
+            'A  B\n',
+            column_names=['A', 'B'],
+            row_data=[]
+        )
+
+    def test_empty_column_names_one_row_of_two_columns(self):
+        self._assert_msg_called_with(
+            'a  b\n',
+            column_names=[],
+            row_data=[('a', 'b')]
+        )
+
+    def test_empty_column_names_two_rows_of_two_columns(self):
+        self._assert_msg_called_with(
+            'a  b\nc  d\n',
+            column_names=[],
+            row_data=[('a', 'b'), ('c', 'd')]
+        )
+
+    def test_two_column_names_one_row_of_two_columns(self):
+        self._assert_msg_called_with(
+            'A  B\na  b\n',
+            column_names=['A', 'B'],
+            row_data=[('a', 'b')]
+        )
+
+    def test_two_column_names_two_rows_of_two_columns(self):
+        self._assert_msg_called_with(
+            'A  B\na  b\nc  d\n',
+            column_names=['A', 'B'],
+            row_data=[('a', 'b'), ('c', 'd')]
+        )
