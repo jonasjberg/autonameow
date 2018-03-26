@@ -429,6 +429,10 @@ FlashPix:Words:
     coercer: aw_integer
     multivalued: false
 
+ICC_Profile:ProfileDateTime:
+    coercer: aw_exiftooltimedate
+    multivalued: false
+
 PDF:Author:
     coercer: aw_string
     generic_field: author
