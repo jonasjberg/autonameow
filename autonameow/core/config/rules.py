@@ -424,6 +424,7 @@ def is_valid_source(uri):
     if isinstance(uri, MeowURI):
         if uri.is_generic:
             return True
+        # TODO: [TD0185] Rework access to 'master_provider' functionality.
         if master_provider.Registry.might_be_resolvable(uri):
             return True
     return False

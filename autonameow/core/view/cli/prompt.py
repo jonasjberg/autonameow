@@ -118,6 +118,7 @@ class MeowURIValidator(Validator):
 
 class MeowURICompleter(Completer):
     def __init__(self):
+        # TODO: [TD0185] Rework access to 'master_provider' functionality.
         self.all_meowuris = list(master_provider.Registry.mapped_meowuris)
 
     # TODO: [TD0099] Split by MeowURI separators.

@@ -291,6 +291,7 @@ class TemplateFieldDataResolver(object):
         # Pass a "tie-breaker" to resolve cases where we only want one item?
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
         response = master_provider.request(fileobject, uri)
+        # TODO: [TD0185] Rework the highest level data request handler interface.
         if response:
             return response
         log.debug('Resolver got no data from query {!r}'.format(response))

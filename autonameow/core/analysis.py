@@ -83,6 +83,7 @@ def request_global_data(fileobject, uri_string):
 
     # Pass a "tie-breaker" to resolve cases where we only want one item?
     # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
+    # TODO: [TD0185] Rework access to 'master_provider' functionality.
     response = master_provider.request(fileobject, uri)
     if response:
         if isinstance(response, list):

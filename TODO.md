@@ -14,6 +14,24 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0185]` __Rework the highest level data request handler interface.__
+
+    * Don't pass the `master_provider` as a module. Use new "controller" class?
+    * Fix both global and direct references used to access the `Registry` and
+      `master_provider` functions.  
+      Some places access module-level functions directly after importing the
+      module, while some get a reference to the module passed in as an argument
+      (emanating from `Autonameow.master_provider`. Incomplete and forgotten?)
+
+    * Look at possibly wrapping up the pairs of "runner" and "registry" classes
+      in a "facade"-like controller class. Alternatively, just try to clean up
+      the current messy accessing.
+      Related notes:  `notes/2018-03-24-rough-architecture-sketch.jpg`
+
+    * Allow setting up (instantiating) provider classes once, then re-use the
+      instances when processing files.
+      Related to `[TD0183]` on using one `exiftool` process in "batch mode".
+
 * `[TD0175]` __Handle requesting exactly one or multiple alternatives.__  
     The current high-level interface for fetching data might return a single
     piece of data or many alternatives. This means that "clients" have to
