@@ -83,12 +83,12 @@ def do_extract_text(fileobject):
         log.debug('_collect_results_callback(%s, %s, %s)', fileobject_, meowuri, data)
 
         assert isinstance(data, dict)
-        text = data.get('value')
-        assert isinstance(text, str)
-        extractor = data.get('source', '(unknown extractor)')
+        _value = data.get('value')
+        assert isinstance(_value, str)
+        _extractor = data.get('source', '(unknown extractor)')
 
         all_text_extraction_results.append(TextExtractionResult(
-            fulltext=text, provider=extractor
+            fulltext=_value, provider=_extractor
         ))
 
     runner = extraction.ExtractorRunner(
@@ -110,11 +110,11 @@ def do_extract_metadata(fileobject):
         log.debug('_collect_results_callback(%s, %s, %s)', fileobject_, meowuri, data)
 
         assert isinstance(data, dict)
-        _provider = data.get('source', '(unknown extractor)')
         _value = data.get('value')
         _str_value = _decode_any_bytestring(_value)
+        _extractor = data.get('source', '(unknown extractor)')
 
-        provider_results[_provider][meowuri] = _str_value
+        provider_results[_extractor][meowuri] = _str_value
 
     runner = extraction.ExtractorRunner(
         add_results_callback=_collect_results_callback
