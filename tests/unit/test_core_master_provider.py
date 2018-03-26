@@ -286,15 +286,15 @@ class TestProviderRunner(TestCase):
         self.assertIsNotNone(provider_runner)
 
     # TODO: [cleanup] This much mocking indicates poor design choices ..
-    @patch('core.master_provider.get_providers_for_meowuri')
+    @patch('core.master_provider.Registry.providers_for_meowuri')
     @patch('core.repository.SessionRepository', MagicMock())
     @patch('core.master_provider.ProviderRunner._delegate_to_extractors')
     @patch('core.master_provider.ProviderRunner._delegate_to_analyzers')
     def test_does_not_delegate_when_no_providers_are_available_for_meowuri(
             self, mock__delegate_to_analyzers,
-            mock__delegate_to_extractors, mock_get_providers_for_meowuri
+            mock__delegate_to_extractors, mock_providers_for_meowuri
     ):
-        mock_get_providers_for_meowuri.return_value = set()
+        mock_providers_for_meowuri.return_value = set()
         provider_runner = ProviderRunner(config=None)
 
         fo = uu.get_mock_fileobject(mime_type='text/plain')
@@ -305,19 +305,19 @@ class TestProviderRunner(TestCase):
         mock__delegate_to_extractors.assert_not_called()
 
     # # TODO: [cleanup] This much mocking indicates poor design choices ..
-    @patch('core.master_provider.get_providers_for_meowuri')
+    @patch('core.master_provider.Registry.providers_for_meowuri')
     @patch('core.repository.SessionRepository', MagicMock())
     @patch('core.master_provider.ProviderRunner._delegate_to_extractors')
     @patch('core.master_provider.ProviderRunner._delegate_to_analyzers')
     def test_delegates_once_to_expected_provider_filesystem_extractor(
             self, mock__delegate_to_analyzers,
-            mock__delegate_to_extractors, mock_get_providers_for_meowuri
+            mock__delegate_to_extractors, mock_providers_for_meowuri
     ):
         provider_runner = ProviderRunner(config=None)
 
         from extractors.filesystem import CrossPlatformFileSystemExtractor
         provider_For_meowuri = set([CrossPlatformFileSystemExtractor])
-        mock_get_providers_for_meowuri.return_value = provider_For_meowuri
+        mock_providers_for_meowuri.return_value = provider_For_meowuri
 
         fo = uu.get_mock_fileobject(mime_type='text/plain')
         uri = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
@@ -331,19 +331,19 @@ class TestProviderRunner(TestCase):
         mock__delegate_to_extractors.assert_called_once_with(fo, provider_For_meowuri)
 
     # # TODO: [cleanup] This much mocking indicates poor design choices ..
-    @patch('core.master_provider.get_providers_for_meowuri')
+    @patch('core.master_provider.Registry.providers_for_meowuri')
     @patch('core.repository.SessionRepository', MagicMock())
     @patch('core.master_provider.ProviderRunner._delegate_to_extractors')
     @patch('core.master_provider.ProviderRunner._delegate_to_analyzers')
     def test_delegates_once_to_expected_provider_ebook_analyzer(
             self, mock__delegate_to_analyzers,
-            mock__delegate_to_extractors, mock_get_providers_for_meowuri
+            mock__delegate_to_extractors, mock_providers_for_meowuri
     ):
         provider_runner = ProviderRunner(config=None)
 
         from analyzers.analyze_ebook import EbookAnalyzer
         provider_For_meowuri = set([EbookAnalyzer])
-        mock_get_providers_for_meowuri.return_value = provider_For_meowuri
+        mock_providers_for_meowuri.return_value = provider_For_meowuri
 
         fo = uu.get_mock_fileobject(mime_type='text/plain')
         uri = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)

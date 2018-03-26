@@ -129,11 +129,6 @@ def _get_excluded_sources():
     }
 
 
-def get_providers_for_meowuri(meowuri, include_roots=None):
-    sanity.check_isinstance_meowuri(meowuri)
-    return set(Registry.providers_for_meowuri(meowuri, include_roots))
-
-
 class ProviderRegistry(object):
     def __init__(self, meowuri_source_map, excluded_providers):
         self.log = logging.getLogger(
@@ -271,7 +266,7 @@ class ProviderRunner(object):
         self._provider_delegation_history = defaultdict(set)
 
     def delegate_to_providers(self, fileobject, uri):
-        possible_providers = get_providers_for_meowuri(uri)
+        possible_providers = set(Registry.providers_for_meowuri(uri))
         log.debug('Got {} possible providers'.format(len(possible_providers)))
         if not possible_providers:
             return
