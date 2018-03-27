@@ -47,10 +47,10 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     def extract(self, fileobject, **kwargs):
         return self._get_metadata(fileobject.abspath)
 
-    def _get_metadata(self, source):
+    def _get_metadata(self, filepath):
         metadata = dict()
 
-        jpeginfo_output = _run_jpeginfo(source)
+        jpeginfo_output = _run_jpeginfo(filepath)
         if not jpeginfo_output:
             self.log.debug('Got empty output from jpeginfo')
             return metadata
@@ -80,10 +80,10 @@ class JpeginfoMetadataExtractor(BaseExtractor):
         return util.is_executable('jpeginfo')
 
 
-def _run_jpeginfo(source):
+def _run_jpeginfo(filepath):
     try:
         process = subprocess.Popen(
-            ['jpeginfo', '-c', source],
+            ['jpeginfo', '-c', filepath],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, _ = process.communicate()

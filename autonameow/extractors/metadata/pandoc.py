@@ -51,8 +51,8 @@ class PandocMetadataExtractor(BaseExtractor):
     def extract(self, fileobject, **kwargs):
         return self._get_metadata(fileobject.abspath)
 
-    def _get_metadata(self, source):
-        _raw_metadata = extract_document_metadata_with_pandoc(source)
+    def _get_metadata(self, filepath):
+        _raw_metadata = extract_document_metadata_with_pandoc(filepath)
         if _raw_metadata:
             _filtered_metadata = self._filter_raw_data(_raw_metadata)
 
@@ -137,7 +137,7 @@ class PandocMetadataExtractor(BaseExtractor):
                 and disk.isfile(PATH_CUSTOM_PANDOC_TEMPLATE))
 
 
-def extract_document_metadata_with_pandoc(file_path):
+def extract_document_metadata_with_pandoc(filepath):
     # TODO: [TD0173] Parse JSON output or output of custom template?
     if not disk.isfile(PATH_CUSTOM_PANDOC_TEMPLATE):
         raise ExtractorError('Missing custom pandoc template file: '
@@ -148,7 +148,7 @@ def extract_document_metadata_with_pandoc(file_path):
     try:
         process = subprocess.Popen(
             ['pandoc', '--to', 'plain', '--template',
-             PATH_CUSTOM_PANDOC_TEMPLATE, '--', file_path],
+             PATH_CUSTOM_PANDOC_TEMPLATE, '--', filepath],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, stderr = process.communicate()
@@ -178,13 +178,13 @@ def parse_pandoc_json(json_dict):
     pass
 
 
-def convert_document_to_json_with_pandoc(file_path):
+def convert_document_to_json_with_pandoc(filepath):
     # TODO: [TD0173] Parse JSON output or output of custom template?
     # TODO: Convert non-UTF8 source text to UTF-8.
     #       pandoc does not handle non-UTF8 input.
     try:
         process = subprocess.Popen(
-            ['pandoc', '--to', 'json', '--', file_path],
+            ['pandoc', '--to', 'json', '--', filepath],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, stderr = process.communicate()

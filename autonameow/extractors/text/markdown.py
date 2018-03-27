@@ -54,12 +54,12 @@ class MarkdownTextExtractor(AbstractTextExtractor):
         return util.is_executable('pandoc')
 
 
-def get_plaintext_from_markdown_file_with_pandoc(file_path):
+def get_plaintext_from_markdown_file_with_pandoc(filepath):
     # TODO: Convert non-UTF8 source text to UTF-8.
     #       pandoc does not handle non-UTF8 input.
     try:
         process = subprocess.Popen(
-            ['pandoc', '--from', 'markdown', '--to', 'plain', '--', file_path],
+            ['pandoc', '--from', 'markdown', '--to', 'plain', '--', filepath],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, stderr = process.communicate()

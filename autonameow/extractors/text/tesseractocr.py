@@ -72,12 +72,12 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         return util.is_executable(TESSERACT_COMMAND) and Image is not None
 
 
-def pil_read_image(image_path):
+def pil_read_image(filepath):
     """
     Loads an image at the given path with PIL.
 
     Args:
-        image_path: Path of the image to load, as a Unicode string.
+        filepath: Path of the image to load, as a Unicode string.
 
     Returns:
         An instance of the 'PIL.Image.Image' class.
@@ -86,17 +86,17 @@ def pil_read_image(image_path):
         ExtractorError: The image could not be loaded, for any reason.
     """
     try:
-        return Image.open(image_path)
+        return Image.open(filepath)
     except (AttributeError, OSError, ValueError) as e:
         raise ExtractorError('Unable to load image; {!s}'.format(e))
 
 
-def get_text_from_ocr(image_path, tesseract_args=None):
+def get_text_from_ocr(filepath, tesseract_args=None):
     """
     Get any textual content from the image by running OCR with tesseract.
 
     Args:
-        image_path: The path to the image to process.
+        filepath: The path to the image to process.
         tesseract_args: Optional tesseract arguments as Unicode strings.
 
     Returns:
@@ -107,7 +107,7 @@ def get_text_from_ocr(image_path, tesseract_args=None):
     """
     # TODO: Test this!
 
-    image = pil_read_image(image_path)
+    image = pil_read_image(filepath)
 
     # NOTE: Catching TypeError to work around bug in 'pytesseract';
     #

@@ -52,15 +52,15 @@ class EpubTextExtractor(AbstractTextExtractor):
         return all(m is not None for m in (epub, BeautifulSoup))
 
 
-def extract_text_with_ebooklib(file_path):
+def extract_text_with_ebooklib(filepath):
     assert epub, 'Missing required module "epub"'
     assert BeautifulSoup, 'Missing required module "BeautifulSoup"'
 
-    unicode_file_path = enc.decode_(file_path)
-    sanity.check_internal_string(unicode_file_path)
+    unicode_filepath = enc.decode_(filepath)
+    sanity.check_internal_string(unicode_filepath)
 
     try:
-        book = epub.read_epub(unicode_file_path)
+        book = epub.read_epub(unicode_filepath)
     except epub.EpubException as e:
         raise ExtractorError(e)
 
