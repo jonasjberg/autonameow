@@ -282,6 +282,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0186]` Re-implement the `EpubMetadataExtractor`.
+
 * `[TD0184]` Clean up translation of `metainfo` to "internal format".
 
 * `[TD0181]` Use machine learning in ISBN metadata de-duplication.

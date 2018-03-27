@@ -34,6 +34,9 @@ unmet_dependencies = not EpubMetadataExtractor.check_dependencies()
 dependency_error = 'Extractor dependencies not satisfied'
 
 
+# TODO: [TD0186] Re-implement epub metadata extractor
+
+
 @skipIf(unmet_dependencies, dependency_error)
 class TestEpubMetadataExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = EpubMetadataExtractor

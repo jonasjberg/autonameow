@@ -69,6 +69,7 @@ class FilesContext(object):
         #                      '--> Data Sources
 
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
+        # TODO: [hack][cleanup] This is such a mess ..
         active_rule = None
         data_sources = None
         name_template = None
@@ -114,8 +115,9 @@ class FilesContext(object):
             return None
 
         if not data_sources:
-            if len(name_template.placeholders) == 0:
-                # TODO: [hack][cleanup] This is such a mess ..
+            # TODO: [hack][cleanup] This is such a mess ..
+            if not name_template.placeholders:
+                # No placeholders means we don't need any sources. Return as-is.
                 return str(name_template)
 
             if self.opts.get('mode_automagic'):

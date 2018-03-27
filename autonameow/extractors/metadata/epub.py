@@ -41,17 +41,18 @@ class EpubMetadataExtractor(BaseExtractor):
         return dict()
 
     def _to_internal_format(self, raw_metadata):
-        # TODO: Re-implement epub metadata extractor
+        # TODO: [TD0186] Re-implement epub metadata extractor
         return raw_metadata
 
     @classmethod
     def check_dependencies(cls):
+        # TODO: [TD0186] Re-implement epub metadata extractor
         return False
 
 
 def _get_epub_metadata(source):
     try:
-        # TODO: Re-implement epub metadata extractor
+        # TODO: [TD0186] Re-implement epub metadata extractor
         raise ExtractorError('TODO: Reimplement epub metadata extraction')
     except (zipfile.BadZipFile, OSError) as e:
         raise ExtractorError('Unable to open epub file; "{!s}"'.format(e))
