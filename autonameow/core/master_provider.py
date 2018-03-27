@@ -519,7 +519,8 @@ def initialize_master_data_provider(active_config):
 
 def shutdown_master_data_provider():
     global _MASTER_DATA_PROVIDER
-    _MASTER_DATA_PROVIDER.shutdown()
+    if _MASTER_DATA_PROVIDER:
+        _MASTER_DATA_PROVIDER.shutdown()
 
 
 def initialize_provider_registry():
