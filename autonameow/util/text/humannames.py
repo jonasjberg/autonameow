@@ -291,4 +291,14 @@ def split_multiple_names(list_of_names):
 
 
 def filter_multiple_names(list_of_names):
-    return [n for n in list_of_names if len(n) > 1]
+    filter_output = list()
+    for name in list_of_names:
+        filtered_name = filter_name(name)
+        if filtered_name and len(filtered_name) > 1:
+            filter_output.append(filtered_name)
+
+    return filter_output
+
+
+def filter_name(human_name):
+    return strip_edited_by(human_name)

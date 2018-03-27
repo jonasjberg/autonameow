@@ -27,6 +27,7 @@ from unittest import (
 
 from util.text.humannames import (
     _parse_name,
+    filter_name,
     filter_multiple_names,
     format_name,
     format_name_list,
@@ -512,10 +513,30 @@ class TestSplitMultipleNames(TestCase):
 
 
 class TestFilterMultipleNames(TestCase):
+    def _assert_filtered_output(self, expect, given):
+        actual = filter_multiple_names(given)
+        self.assertEqual(expect, actual)
+
     def test_returns_valid_names_as_is(self):
-        self.assertEqual(['Friedrich Nietzsche', 'Gibson Sjöberg'],
-                         filter_multiple_names(['Friedrich Nietzsche', 'Gibson Sjöberg']))
+        self._assert_filtered_output(
+            expect=['Friedrich Nietzsche', 'Gibson Sjöberg'],
+            given=['Friedrich Nietzsche', 'Gibson Sjöberg']
+        )
 
     def test_removes_names_consisting_of_a_single_letter(self):
-        self.assertEqual(['Ankur Ankan', 'Abinash P'],
-                         filter_multiple_names(['Ankur Ankan', 'Abinash P', 'a']))
+        self._assert_filtered_output(
+            expect=['Ankur Ankan', 'Abinash P'],
+            given=['Ankur Ankan', 'Abinash P', 'a']
+        )
+
+    def test_removes_edited_by_from_start_of_a_name(self):
+        self._assert_filtered_output(
+            expect=['Jaana Laiho', 'Achim Wacker', 'Tomáš Novosad'],
+            given=['edited by Jaana Laiho', 'Achim Wacker', 'Tomáš Novosad']
+        )
+
+
+class TestFilterName(TestCase):
+    def test_removes_edited_by_from_start_of_name(self):
+        actual = filter_name('edited by Jeene Leiho')
+        self.assertEqual('Jeene Leiho', actual)
