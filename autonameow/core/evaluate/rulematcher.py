@@ -260,8 +260,8 @@ def prioritize_rules(rules):
     prioritized_rules = sorted(
         rules.items(),
         reverse=True,
-        key=lambda d: (d[1]['score'] * d[1]['weight'],
-                       d[0].exact_match,
+        key=lambda d: (d[0].exact_match,
+                       d[1]['score'] * d[1]['weight'],
                        d[1]['score'],
                        d[1]['weight'],
                        d[0].ranking_bias)
