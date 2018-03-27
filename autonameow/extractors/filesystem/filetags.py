@@ -52,12 +52,6 @@ class FiletagsExtractor(BaseExtractor):
     def __init__(self):
         super().__init__()
 
-        self._timestamp = None
-        self._description = None
-        self._tags = None
-        self._extension = None
-        self._follows_filetags_convention = None
-
     def extract(self, fileobject, **kwargs):
         return self._get_metadata(fileobject.filename)
 
@@ -113,7 +107,7 @@ FILENAMEPART_TS_REGEX = re.compile(
 )
 
 
-def partition_basename(file_path):
+def partition_basename(filepath):
     """
     Splits a basename into parts as per the "filetags" naming convention.
 
@@ -134,7 +128,7 @@ def partition_basename(file_path):
         timestamp   description            tags       ext
 
     Args:
-        file_path: Path whose basename to split, as an "internal bytestring".
+        filepath: Path whose basename to split, as an "internal bytestring".
     Returns:
         Any identified parts as a tuple of 4 elements (quad);
             'timestamp', 'description', 'tags', 'extension', where 'tags' is a
@@ -142,7 +136,7 @@ def partition_basename(file_path):
     """
     sanity.check_internal_bytestring(FILENAME_TAG_SEPARATOR)
 
-    prefix, suffix = disk.split_basename(file_path)
+    prefix, suffix = disk.split_basename(filepath)
 
     timestamp = FILENAMEPART_TS_REGEX.match(prefix)
     if timestamp:
