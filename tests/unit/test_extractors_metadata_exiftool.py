@@ -124,7 +124,12 @@ class TestExiftoolMetadataExtractorInternals(TestCase):
 
 
 class TestIsBadMetadata(TestCase):
-    def test_good_tags_values_return_true(self):
+    def _assert_bad(self, tag, value):
+        actual = is_bad_metadata(tag, value)
+        self.assertTrue(actual)
+        self.assertIsInstance(actual, bool)
+
+    def test_good_tags_values_return_false(self):
         def _aT(tag, value):
             actual = is_bad_metadata(tag, value)
             self.assertFalse(actual)
@@ -138,35 +143,35 @@ class TestIsBadMetadata(TestCase):
         _aT('XMP:Subject', ['Non-Fiction', 'Human Science', 'Philosophy',
                             'Religion', 'Science and Technics', 'Science'])
 
-    def test_bad_tags_values_return_false(self):
-        def _aF(tag, value):
-            actual = is_bad_metadata(tag, value)
-            self.assertTrue(actual)
-            self.assertIsInstance(actual, bool)
+    def test_bad_tags_values_return_true(self):
+        self._assert_bad('PDF:Subject', 'Subject')
+        self._assert_bad('PDF:Author', 'Author')
+        self._assert_bad('PDF:Title', 'Title')
+        self._assert_bad('XMP:Author', 'Author')
+        self._assert_bad('XMP:Creator', 'Author')
+        self._assert_bad('XMP:Creator', 'Creator')
+        self._assert_bad('XMP:Description', 'Subject')
+        self._assert_bad('XMP:Description', 'Description')
+        self._assert_bad('XMP:Subject', 'Subject')
+        self._assert_bad('XMP:Title', 'Title')
+        self._assert_bad('XMP:Subject', ['Subject'])
+        self._assert_bad('XMP:Subject', ['Science', 'Subject'])
+        self._assert_bad('XMP:Subject', ['Title', 'Subject'])
 
-        _aF('PDF:Subject', 'Subject')
-        _aF('PDF:Author', 'Author')
-        _aF('PDF:Title', 'Title')
-        _aF('XMP:Author', 'Author')
-        _aF('XMP:Creator', 'Author')
-        _aF('XMP:Creator', 'Creator')
-        _aF('XMP:Description', 'Subject')
-        _aF('XMP:Description', 'Description')
-        _aF('XMP:Subject', 'Subject')
-        _aF('XMP:Title', 'Title')
-        _aF('XMP:Subject', ['Subject'])
-        _aF('XMP:Subject', ['Science', 'Subject'])
-        _aF('XMP:Subject', ['Title', 'Subject'])
+        self._assert_bad('PDF:Author', 'Unknown')
+        self._assert_bad('PDF:Subject', 'Unknown')
+        self._assert_bad('PDF:Title', 'Unknown')
+        self._assert_bad('XMP:Author', 'Unknown')
+        self._assert_bad('XMP:Creator', 'Unknown')
+        self._assert_bad('XMP:Description', 'Unknown')
+        self._assert_bad('XMP:Subject', 'Unknown')
+        self._assert_bad('XMP:Subject', ['Unknown'])
+        self._assert_bad('XMP:Title', 'Unknown')
 
-        _aF('PDF:Author', 'Unknown')
-        _aF('PDF:Subject', 'Unknown')
-        _aF('PDF:Title', 'Unknown')
-        _aF('XMP:Author', 'Unknown')
-        _aF('XMP:Creator', 'Unknown')
-        _aF('XMP:Description', 'Unknown')
-        _aF('XMP:Subject', 'Unknown')
-        _aF('XMP:Subject', ['Unknown'])
-        _aF('XMP:Title', 'Unknown')
+    def test_certain_bad_values_return_true_for_any_tag(self):
+        self._assert_bad('PDF:Creator', 'www.allitebooks.com')
+        self._assert_bad('PDF:Producer', 'www.allitebooks.com')
+        self._assert_bad('PDF:Subject', 'www.allitebooks.com')
 
 
 class TestFilterCoercedValue(TestCase):

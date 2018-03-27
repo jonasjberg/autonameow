@@ -45,6 +45,16 @@ BAD_EXIFTOOL_METADATA = {
     'XMP:Title': {'Title', 'Unknown'}
 }
 
+# Metadata to ignore in all fields.
+BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
+    'Advanced PDF Repair at http://www.datanumen.com/apdfr/',
+    'http://cncmanual.com/',
+    'http://freepdf-books.com',
+    'www.allitebooks.com',
+    'www.it-ebooks.info',
+    'www.itbookshub.com',
+])
+
 
 class ExiftoolMetadataExtractor(BaseExtractor):
     """
@@ -105,16 +115,16 @@ class ExiftoolMetadataExtractor(BaseExtractor):
 
 
 def is_bad_metadata(tag_name, value):
-    if tag_name in BAD_EXIFTOOL_METADATA:
-        if isinstance(value, list):
-            for v in value:
-                if v in BAD_EXIFTOOL_METADATA[tag_name]:
-                    return True
-            return False
-        else:
-            if value in BAD_EXIFTOOL_METADATA[tag_name]:
-                return True
-    return False
+    if isinstance(value, list):
+        return bool(any(
+            v in BAD_EXIFTOOL_METADATA_ANY_TAG
+            or v in BAD_EXIFTOOL_METADATA.get(tag_name, set())
+            for v in value
+        ))
+    return bool(
+        value in BAD_EXIFTOOL_METADATA_ANY_TAG
+        or value in BAD_EXIFTOOL_METADATA.get(tag_name, set())
+    )
 
 
 def is_binary_blob(value):
