@@ -27,6 +27,7 @@ text/x-c: c
 text/x-c++: cpp
 text/x-env: sh
 text/x-java: java
+text/x-java-source: java
 text/x-sh: sh
 text/x-shellscript: sh
 text/x-shellscript: bash

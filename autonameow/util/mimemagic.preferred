@@ -7,6 +7,7 @@ video/quicktime: mov
 video/mp4: mp4
 text/plain: txt
 text/rtf: rtf
+text/x-java: java
 text/x-sh: sh
 text/x-shellscript: sh
 inode/x-empty:

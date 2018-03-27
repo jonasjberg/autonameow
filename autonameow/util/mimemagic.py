@@ -310,6 +310,13 @@ class MimeExtensionMapper(object):
         if extension and extension.strip():
             candidates = self.get_candidate_mimetypes(extension)
             if candidates:
+                if len(candidates) > 1:
+                    # If more than one candidate MIME-type, use any candidate
+                    # found in the preferred extension mapping.
+                    for candidate in candidates:
+                        if candidate in self._mime_to_preferred_ext:
+                            return candidate
+                # Use the first of the (arbitrarily sorted) candidates.
                 return candidates[0]
 
         return types.NullMIMEType()
