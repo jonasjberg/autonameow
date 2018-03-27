@@ -68,17 +68,13 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     IS_SLOW = False
 
     def extract(self, fileobject, **kwargs):
-        try:
-            return self._get_metadata(fileobject.abspath)
-        except ValueError as e:
-            raise ExtractorError('Possible bug in "pyexiftool": {!s}'.format(e))
+        return self._get_metadata(fileobject.abspath)
 
-    def _get_metadata(self, source):
-        _raw_metadata = _get_exiftool_data(source)
-        if _raw_metadata:
-            _filtered_metadata = self._filter_raw_data(_raw_metadata)
-
-            metadata = self._to_internal_format(_filtered_metadata)
+    def _get_metadata(self, filepath):
+        raw_metadata = _get_exiftool_data(filepath)
+        if raw_metadata:
+            filtered_metadata = self._filter_raw_data(raw_metadata)
+            metadata = self._to_internal_format(filtered_metadata)
             # TODO: [TD0034] Filter out known bad data.
             # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
             return metadata
@@ -135,7 +131,7 @@ def is_ignored_tagname(tagname):
     return bool(tagname in IGNORED_EXIFTOOL_TAGNAMES)
 
 
-def _get_exiftool_data(source):
+def _get_exiftool_data(filepath):
     """
     Returns:
         Exiftool results as a dictionary of strings/ints/floats.
@@ -148,7 +144,7 @@ def _get_exiftool_data(source):
     try:
         with pyexiftool.ExifTool() as et:
             try:
-                return et.get_metadata(source)
+                return et.get_metadata(filepath)
             except (AttributeError, ValueError, TypeError) as e:
                 # Raises ValueError if an ExifTool instance isn't running.
                 raise ExtractorError(e)
