@@ -170,3 +170,33 @@ class TestCrossPlatformFileSystemExtractorMetainfo(TestCase):
 
             actual = _field_lookup_entry.get('multivalued')
             self.assertIsInstance(actual, (bool, type(None)))
+
+
+class TestFieldFileobjectAttributeMap(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.actual_map = CrossPlatformFileSystemExtractor.FIELD_FILEOBJECT_ATTRIBUTE_MAP
+        cls.fo = uu.get_mock_fileobject()
+
+    def test_map_field_names_are_non_empty_unicode_strings(self):
+        for field, _ in self.actual_map:
+            with self.subTest(field=field):
+                self.assertIsInstance(field, str)
+                self.assertGreater(len(field), 0)
+
+    def test_map_field_names_are_unique(self):
+        seen = set()
+        all_fields = [field for field, _ in self.actual_map]
+        all_fields_deduped = set(all_fields)
+        self.assertEqual(len(all_fields), len(all_fields_deduped))
+
+    def test_attributes_defined_in_map_are_all_part_of_actual_fileobject(self):
+        for _, attribute in self.actual_map:
+            with self.subTest(attribute=attribute):
+                self.assertTrue(hasattr(self.fo, attribute))
+
+    def test_attributes_defined_in_map_are_not_none_in_actual_fileobject(self):
+        for _, attribute in self.actual_map:
+            with self.subTest(attribute=attribute):
+                actual_attr_value = getattr(self.fo, attribute)
+                self.assertIsNotNone(actual_attr_value)
