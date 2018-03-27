@@ -20,6 +20,78 @@ __NOTE: This information is not being kept up to date!__
 * 2017-12-15 --- `jonasjberg` Add section on "on demand" extraction.
 * 2018-01-01 --- `jonasjberg` Update ..
 * 2018-03-06 --- `jonasjberg` Ideas on constructing extractors declaratively
+* 2018-03-26 --- `jonasjberg` Loading providers "lazily"
+
+
+--------------------------------------------------------------------------------
+
+
+Cleaning up the Provider Runners and Registries
+-----------------------------------------------
+> Jonas Sjöberg, 2018-03-26.
+
+Current way of launching providers is pretty messy, especially regarding
+setup and collection of classes and how/when the classes are instantiated.
+
+### "Registries"
+Providers are first handled as classes, which are collected and made available
+from some kind of "registry".
+When a provider is fetched from the "registry" for the first time, the class
+should be instantiated and stored for re-use during any additional requests.
+This would allow implementing `[TD0183]`. It also avoids redundantly re-loading
+caches and setting up other provider-specific state that remains unchanged when
+processing files.
+
+### "Runners"
+Each group of providers (extractors, analyzers) should be started by a "runner"
+class.
+The runner gets available providers (as class instances) from the registry.
+
+### "Controllers"
+Not quite sure about this yet.
+The "runners" and "registries" would be bundled in light-weight "controller"
+classes that would serve mainly to encapsulate the "runner" and "registry"
+singletons and keep them out of global (module) scope.
+
+### Other Considerations
+Think about allowing for asynchronous/parallell running of providers.
+However, this might currently not make much sense with the current "streaming"
+way that providers are called upon sequentially, while evaluating conditions
+and fetching data, etc..
+
+### Related TODOs;
+
+> * `[TD0185]` __Rework the highest level data request handler interface.__
+>
+>     * Don't pass the `master_provider` as a module. Use new "controller" class?
+>     * Fix both global and direct references used to access the `Registry` and
+>       `master_provider` functions.  
+>       Some places access module-level functions directly after importing the
+>       module, while some get a reference to the module passed in as an argument
+>       (emanating from `Autonameow.master_provider`. Incomplete and forgotten?)
+>
+>     * Look at possibly wrapping up the pairs of "runner" and "registry" classes
+>       in a "facade"-like controller class. Alternatively, just try to clean up
+>       the current messy accessing.
+>       Related notes:  `notes/2018-03-24-rough-architecture-sketch.jpg`
+>
+>     * Allow setting up (instantiating) provider classes once, then re-use the
+>       instances when processing files.
+>       Related to `[TD0183]` on using one `exiftool` process in "batch mode".
+>
+> * `[TD0183]` __Look into `exiftool` time-complexity.__  
+>
+>    The `ExiftoolMetadataExtractor` should be reworked to be instantiated once
+>    at first use and then remain available for re-use for any additional
+>    extraction. Make sure it is properly closed at program exit to prevent any
+>    kind of resource leaks.
+>
+> * `[TD0126]` Clean up boundaries/interface to the `analyzers` package.
+>
+> * `[TD0151]` __Fix inconsistent use of classes vs. class instances.__  
+>     Attributes of the provider classes are accessed both from uninstantiated
+>     classes and class instances. The `metainfo()` method should be accessible
+>     without first having to instantiate the class.
 
 
 --------------------------------------------------------------------------------
