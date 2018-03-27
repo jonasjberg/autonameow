@@ -79,6 +79,7 @@ class ExtractorRunner(object):
             # Throw away the results. For testing, etc.
             self._add_results_callback = lambda *_: None
 
+        self._instance_pool = dict()
         self._available_extractors = set()
         self.exclude_slow = True
 
@@ -179,29 +180,28 @@ class ExtractorRunner(object):
 
     def _run_extractors(self, fileobject, extractors_to_run):
         for klass in extractors_to_run:
-            _extractor_instance = klass()
-            if not _extractor_instance:
-                log.critical('Error instantiating "{!s}" (!!)'.format(klass))
+            extractor_instance = self._get_pooled_extractor_instance(klass)
+            if not extractor_instance:
+                log.critical('Unable to get an instance of "{!s}"'.format(klass))
                 continue
 
             try:
-                _metainfo = _extractor_instance.metainfo()
+                _metainfo = extractor_instance.metainfo()
             except (ExtractorError, PersistenceError, NotImplementedError) as e:
                 log.error('Unable to get meta info! Aborting extractor "{!s}":'
-                          ' {!s}'.format(_extractor_instance, e))
+                          ' {!s}'.format(extractor_instance, e))
                 continue
 
             try:
-                with logs.log_runtime(log, str(_extractor_instance)):
-                    _extracted_data = _extractor_instance.extract(fileobject)
+                with logs.log_runtime(log, str(extractor_instance)):
+                    _extracted_data = extractor_instance.extract(fileobject)
             except (ExtractorError, NotImplementedError) as e:
                 log.error('Unable to extract data! Aborting extractor "{!s}":'
-                          ' {!s}'.format(_extractor_instance, e))
+                          ' {!s}'.format(extractor_instance, e))
                 continue
 
             if not _extracted_data:
-                log.warning('Got empty data from extractor "{!s}"'.format(
-                    _extractor_instance))
+                log.warning('Got no data from extractor "{!s}"'.format(extractor_instance))
                 continue
 
             # TODO: [TD0034] Filter out known bad data.
@@ -209,6 +209,13 @@ class ExtractorRunner(object):
             _results = wrap_provider_results(_extracted_data, _metainfo, klass)
             _meowuri_prefix = klass.meowuri_prefix()
             self.store_results(fileobject, _meowuri_prefix, _results)
+
+    def _get_pooled_extractor_instance(self, klass):
+        instance = self._instance_pool.get(klass)
+        if not instance:
+            instance = klass()
+            self._instance_pool[klass] = instance
+        return instance
 
     def store_results(self, fileobject, meowuri_prefix, data):
         """
