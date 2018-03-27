@@ -32,12 +32,13 @@ class EpubMetadataExtractor(BaseExtractor):
     IS_SLOW = False
 
     def extract(self, fileobject, **kwargs):
-        _raw_metadata = _get_epub_metadata(fileobject.abspath)
-        if _raw_metadata:
-            # Internal data format boundary.  Wrap "raw" data with type classes.
-            metadata = self._to_internal_format(_raw_metadata)
-            return metadata
+        return self._get_metadata(fileobject.abspath)
 
+    def _get_metadata(self, filepath):
+        raw_metadata = _get_epub_metadata(filepath)
+        if raw_metadata:
+            metadata = self._to_internal_format(raw_metadata)
+            return metadata
         return dict()
 
     def _to_internal_format(self, raw_metadata):
@@ -50,7 +51,7 @@ class EpubMetadataExtractor(BaseExtractor):
         return False
 
 
-def _get_epub_metadata(source):
+def _get_epub_metadata(filepath):
     try:
         # TODO: [TD0186] Re-implement epub metadata extractor
         raise ExtractorError('TODO: Reimplement epub metadata extraction')
