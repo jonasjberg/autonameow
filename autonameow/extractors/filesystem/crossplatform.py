@@ -43,6 +43,9 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
     def extract(self, fileobject, **kwargs):
         return self._get_metadata(fileobject)
 
+    def shutdown(self):
+        pass
+
     def _get_metadata(self, fileobject):
         metadata = dict()
         metadata.update(self._collect_from_fileobject(fileobject))

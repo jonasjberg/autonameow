@@ -236,6 +236,12 @@ class BaseExtractor(ProviderMixin):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
+    def shutdown(self):
+        """
+        Do any final clean up, kill any processes, etc.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
     @classmethod
     def metainfo(cls):
         # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.

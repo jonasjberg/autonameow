@@ -47,6 +47,9 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     def extract(self, fileobject, **kwargs):
         return self._get_metadata(fileobject.abspath)
 
+    def shutdown(self):
+        pass
+
     def _get_metadata(self, filepath):
         metadata = dict()
 

@@ -31,7 +31,6 @@ from extractors import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor
 from extractors.metadata.exiftool import (
     _filter_coerced_value,
-    _get_exiftool_data,
     is_bad_metadata
 )
 
@@ -97,30 +96,6 @@ class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput,
         ('PDF:PageCount', int, 1),
         ('PDF:Producer', str, 'pdfTeX-1.40.16')
     ]
-
-
-@skipIf(unmet_dependencies, dependency_error)
-class TestExiftoolMetadataExtractorInternals(TestCase):
-    def setUp(self):
-        self.e = ExiftoolMetadataExtractor()
-
-    def test__get_metadata_raises_expected_exceptions(self):
-        with self.assertRaises(ExtractorError):
-            e = ExiftoolMetadataExtractor()
-            e._get_metadata(None)
-
-        with self.assertRaises(ExtractorError):
-            f = ExiftoolMetadataExtractor()
-            f._get_metadata(uuconst.ASSUMED_NONEXISTENT_BASENAME)
-
-    def test_get_exiftool_data_raises_expected_exception(self):
-        with self.assertRaises(ExtractorError):
-            _ = ExiftoolMetadataExtractor()
-            _get_exiftool_data(None)
-
-        with self.assertRaises(ExtractorError):
-            _ = ExiftoolMetadataExtractor()
-            _get_exiftool_data(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
 
 class TestIsBadMetadata(TestCase):

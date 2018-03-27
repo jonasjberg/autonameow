@@ -190,12 +190,14 @@ class ExtractorRunner(object):
             except (ExtractorError, PersistenceError, NotImplementedError) as e:
                 log.error('Unable to get meta info! Aborting extractor "{!s}":'
                           ' {!s}'.format(extractor_instance, e))
+                # TODO: Remove extractor from instance pool?
                 continue
 
             try:
                 with logs.log_runtime(log, str(extractor_instance)):
                     _extracted_data = extractor_instance.extract(fileobject)
             except (ExtractorError, NotImplementedError) as e:
+                # TODO: Remove extractor from instance pool?
                 log.error('Unable to extract data! Aborting extractor "{!s}":'
                           ' {!s}'.format(extractor_instance, e))
                 continue
@@ -236,3 +238,9 @@ class ExtractorRunner(object):
                 continue
 
             self._add_results_callback(fileobject, uri, _data)
+
+    def shutdown(self):
+        log.debug('Shutting down {!s}'.format(self.__class__.__name__))
+        for instance in self._instance_pool.values():
+            log.debug('Shutting down extractor "{!s}"'.format(instance))
+            instance.shutdown()

@@ -34,6 +34,9 @@ class EpubMetadataExtractor(BaseExtractor):
     def extract(self, fileobject, **kwargs):
         return self._get_metadata(fileobject.abspath)
 
+    def shutdown(self):
+        pass
+
     def _get_metadata(self, filepath):
         raw_metadata = _get_epub_metadata(filepath)
         if raw_metadata:

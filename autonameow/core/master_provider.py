@@ -372,6 +372,10 @@ class ProviderRunner(object):
         # Run all analyzers
         analysis.run_analysis(fileobject, self.config)
 
+    def shutdown(self):
+        log.debug('Shutting down {!s}'.format(self.__class__.__name__))
+        self.extractor_runner.shutdown()
+
 
 def _provider_is_extractor(provider):
     # TODO: [hack] Fix circular import problems when running new unit test runner.
@@ -472,6 +476,10 @@ class MasterDataProvider(object):
 
         return response
 
+    def shutdown(self):
+        log.debug('Shutting down {!s}'.format(self.__class__.__name__))
+        self.provider_runner.shutdown()
+
     def _delegate_to_providers(self, fileobject, uri):
         log.debug('Delegating request to providers: {!r}->[{!s}]'.format(fileobject, uri))
         self.debug_stats[fileobject][uri]['delegated'] += 1
@@ -507,6 +515,11 @@ def initialize_master_data_provider(active_config):
     # Keep one global 'MasterDataProvider' singleton per 'Autonameow' instance.
     global _MASTER_DATA_PROVIDER
     _MASTER_DATA_PROVIDER = MasterDataProvider(active_config)
+
+
+def shutdown_master_data_provider():
+    global _MASTER_DATA_PROVIDER
+    _MASTER_DATA_PROVIDER.shutdown()
 
 
 def initialize_provider_registry():

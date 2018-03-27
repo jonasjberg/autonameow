@@ -39,6 +39,9 @@ class GuessitExtractor(BaseExtractor):
     def extract(self, fileobject, **kwargs):
         return self._get_metadata(fileobject.filename)
 
+    def shutdown(self):
+        pass
+
     def _get_metadata(self, file_basename):
         if not file_basename:
             self.log.debug(

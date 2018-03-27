@@ -102,6 +102,11 @@ class CaseExtractorBasics(object):
         assert cls.EXTRACTOR_NAME is not None
         cls.extractor = cls.EXTRACTOR_CLASS()
 
+    @classmethod
+    def tearDownClass(cls):
+        assert cls.extractor
+        cls.extractor.shutdown()
+
     def test_instance_metainfo_returns_expected_type(self):
         actual = self.extractor.metainfo()
         self.assertIsInstance(actual, dict)
@@ -276,6 +281,11 @@ class CaseExtractorOutput(object):
 
         cls.extractor = cls.EXTRACTOR_CLASS()
         cls.actual_extracted = cls.extractor.extract(cls.SOURCE_FILEOBJECT)
+
+    @classmethod
+    def tearDownClass(cls):
+        assert cls.extractor
+        cls.extractor.shutdown()
 
     def test_extracted_data_is_not_none(self):
         self.assertIsNotNone(

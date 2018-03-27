@@ -65,6 +65,9 @@ class AbstractTextExtractor(BaseExtractor):
             # 'title': title
         }
 
+    def shutdown(self):
+        pass
+
     def _get_text(self, fileobject):
         cached_text = self._get_cached_text(fileobject)
         if cached_text:

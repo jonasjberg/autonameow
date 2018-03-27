@@ -90,6 +90,7 @@ class Autonameow(object):
         # Reset singletons.
         repository.shutdown(self)
         master_provider.shutdown_provider_registry()
+        master_provider.shutdown_master_data_provider()
 
     def run(self):
         if self.opts.get('quiet'):

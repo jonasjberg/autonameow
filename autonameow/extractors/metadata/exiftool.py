@@ -67,11 +67,65 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     ]
     IS_SLOW = False
 
+    def __init__(self):
+        super().__init__()
+
+        self._exiftool = None
+        self._initialize_exiftool_instance()
+
     def extract(self, fileobject, **kwargs):
         return self._get_metadata(fileobject.abspath)
 
+    def shutdown(self):
+        self._shutdown_exiftool_instance()
+
+    def _initialize_exiftool_instance(self):
+        # TODO: [TD0183] Rework to be initialized once at first use and remain open.
+        # The 'ExiftoolMetadataExtractor' should be reworked to be instantiated once
+        # at first use and then remain available for re-use for any additional
+        # extraction. Make sure it is properly closed at program exit to prevent any
+        # kind of resource leaks.
+        try:
+            et = pyexiftool.ExifTool()
+            et.start()
+        except (OSError, ValueError) as e:
+            # ValueError can be raised by 'pyexiftool' when aborting with CTRL-C.
+            #
+            #     self._process.stdin.write(b"-stay_open\nFalse\n")
+            #     ValueError: write to closed file
+            #
+            raise ExtractorError(e)
+        else:
+            self._exiftool = et
+
+    def _shutdown_exiftool_instance(self):
+        # TODO: [TD0183] Make sure to prevent any kind of resource leaks ..
+        if self._exiftool:
+            self._exiftool.terminate()
+            self._exiftool = None
+
+    def _get_exiftool_data(self, filepath):
+        """
+        Returns:
+            Exiftool results as a dictionary of strings/ints/floats.
+        """
+        assert self._exiftool
+        try:
+            try:
+                return self._exiftool.get_metadata(filepath)
+            except (AttributeError, ValueError, TypeError) as e:
+                # Raises ValueError if an ExifTool instance isn't running.
+                raise ExtractorError(e)
+        except (OSError, ValueError) as e:
+            # ValueError can be raised by 'pyexiftool' when aborting with CTRL-C.
+            #
+            #     self._process.stdin.write(b"-stay_open\nFalse\n")
+            #     ValueError: write to closed file
+            #
+            raise ExtractorError(e)
+
     def _get_metadata(self, filepath):
-        raw_metadata = _get_exiftool_data(filepath)
+        raw_metadata = self._get_exiftool_data(filepath)
         if raw_metadata:
             filtered_metadata = self._filter_raw_data(raw_metadata)
             metadata = self._to_internal_format(filtered_metadata)
@@ -129,38 +183,6 @@ def is_binary_blob(value):
 
 def is_ignored_tagname(tagname):
     return bool(tagname in IGNORED_EXIFTOOL_TAGNAMES)
-
-
-def _get_exiftool_data(filepath):
-    """
-    Returns:
-        Exiftool results as a dictionary of strings/ints/floats.
-    """
-    # TODO: [TD0183] Rework to be initialized once at first use and remain open.
-    # The 'ExiftoolMetadataExtractor' should be reworked to be instantiated once
-    # at first use and then remain available for re-use for any additional
-    # extraction. Make sure it is properly closed at program exit to prevent any
-    # kind of resource leaks.
-    try:
-        with pyexiftool.ExifTool() as et:
-            try:
-                return et.get_metadata(filepath)
-            except (AttributeError, ValueError, TypeError) as e:
-                # Raises ValueError if an ExifTool instance isn't running.
-                raise ExtractorError(e)
-    except (OSError, ValueError) as e:
-        # 'OSError: [Errno 12] Cannot allocate memory'
-        # This apparently happens, not sure if it is a bug in 'pyexiftool' or
-        # if the repository or something else grows way too large when running
-        # with a lot of files ..
-        # TODO: [TD0131] Limit repository size!
-        #
-        # ValueError can be raised by 'pyexiftool' when aborting with CTRL-C.
-        #
-        #     self._process.stdin.write(b"-stay_open\nFalse\n")
-        #     ValueError: write to closed file
-        #
-        raise ExtractorError(e)
 
 
 def _filter_coerced_value(value):
