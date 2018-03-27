@@ -132,19 +132,32 @@ def parse_options(args):
         dest='skip_slow',
         action='store_true',
         default=False,
-        help='Skip slow unit tests.'
+        help='Skip all "slow" unit tests.'
+    )
+    optgrp_select.add_argument(
+        '--skip-hypothesis',
+        dest='skip_hypothesis',
+        action='store_true',
+        default=False,
+        help='Skip "property-based" tests using hypothesis.'
     )
     return parser.parse_args(args)
 
 
 opts = parse_options(sys.argv[1:])
 
+# TODO: Allow combining filtering and skipping of certain tests.
 if opts.skip_slow:
-    print('Excluded property-based and extractor tests ..')
+    print('Excluded all "slow" (property-based and extractor) tests ..')
     suite = build_testsuite(
         filename_filter=lambda f: not (f.startswith('test_property_')
                                        or f.startswith('test_extractors_')
                                        or f.startswith('test_core_main'))
+    )
+elif opts.skip_hypothesis:
+    print('Excluded property-based tests ..')
+    suite = build_testsuite(
+        filename_filter=lambda f: not f.startswith('test_property_')
     )
 elif opts.filter_glob:
     glob_expression = opts.filter_glob[0]
