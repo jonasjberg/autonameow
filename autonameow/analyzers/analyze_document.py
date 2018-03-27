@@ -38,12 +38,17 @@ from util.text import (
 
 
 BLACKLISTED_TEXTLINES = frozenset([
+    'Advanced PDF Repair at http://www.datanumen.com/apdfr/',
     'Brought to you by:',
+    'freepdf-books.com',
     'Get More Refcardz! Visit refcardz.com',
+    'http://freepdf-books.com',
+    'www.itbookshub.com',
     'Preface:',
     'Table of Contents',
     'This page intentionally left blank',
     'Unknown',
+    'www.freepdf-books.com',
     'www.allitebooks.com',
     'www.it-ebooks.info',
     'free ebooks wwwebook777com',
@@ -55,13 +60,15 @@ BLACKLISTED_TEXTLINES = frozenset([
 
 title_filter = RegexLineFilter([
     r'^[\.=-]+$',
-    r'for your convenience .* has placed some of the front',
+    r'.*cncmanual\.com.*',
     r'matter material after the index\.? Please use the Bookmarks',
     r'and Contents at a Glance links to access them\.?',
     r'Contents at a Glance',
     r'about the author.*',
     r'about the technical reviewer.*',
     r'acknowledgments.*',
+    r'for your convenience .* has placed some of the front',
+    r'.*freepdf-books\.com.*',
     r'introduction.*',
     r'index.?[0-9]+',
     r'.*chapter ?[0-9]+.*',
