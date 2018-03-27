@@ -26,6 +26,7 @@ from core import constants as C
 from extractors import (
     AUTONAMEOW_EXTRACTOR_PATH,
     EXTRACTOR_CLASS_PACKAGES,
+    EXTRACTOR_CLASS_PACKAGES_FILESYSTEM,
     EXTRACTOR_CLASS_PACKAGES_METADATA,
     EXTRACTOR_CLASS_PACKAGES_TEXT,
     _find_extractor_classes_in_packages,
@@ -60,11 +61,14 @@ class TestExtractorsConstants(TestCase):
     def test_extractor_class_packages(self):
         self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES)
 
-    def test_extractor_class_packages_text(self):
-        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_TEXT)
+    def test_extractor_class_packages_filesystem(self):
+        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_FILESYSTEM)
 
     def test_extractor_class_packages_metadata(self):
         self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_METADATA)
+
+    def test_extractor_class_packages_text(self):
+        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_TEXT)
 
 
 class TestFindExtractorClassesInPackages(TestCase):
