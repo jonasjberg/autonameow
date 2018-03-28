@@ -276,22 +276,22 @@ def normalize_unicode(text):
     return normalized
 
 
-def simplify_unicode(string):
+def simplify_unicode(text):
     """
-    Strips accents or diacritics from a Unicode string.
+    Strips accents or diacritics from Unicode text.
 
     Based on this post:  https://stackoverflow.com/a/17069876
     """
-    if not string:
-        return string
+    if not text:
+        return text
 
+    assert isinstance(text, str)
     if unidecode:
-        return _strip_accents_unidecode(string)
-    return _strip_accents_homerolled(string)
+        return _strip_accents_unidecode(text)
+    return _strip_accents_homerolled(text)
 
 
 def _strip_accents_homerolled(string):
-    sanity.check_internal_string(string)
     nkfd_form = unicodedata.normalize('NFKD', string)
     return ''.join([c for c in nkfd_form if not unicodedata.combining(c)])
 
