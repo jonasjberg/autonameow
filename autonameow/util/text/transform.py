@@ -70,26 +70,31 @@ RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]{2,}')
 RE_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]+')
 
 
-def collapse_whitespace(string):
+def collapse_whitespace(text):
     """
-    Replaces repeating whitespace, except newlines, with a single space.
+    Replaces all repeating whitespace except newlines with a single space.
 
     Does not remove leading or trailing whitespace.
     Does not change linefeeds or carriage returns.
     Handles Unicode whitespace characters.
 
+    NOTE: Assumes type-checks is handled elsewhere.
+          "Empty" values like None, [], {}, etc. are passed through as-is.
+
     Args:
-        string: Unicode String to transform.
+        text (str): Unicode text to transform.
 
     Returns:
-        Transformed text as a Unicode string.
-    """
-    #  Assume type-checks is handled elsewhere. Pass through None, [], {}, etc.
-    if not string:
-        return string
+        str: Transformed text as a Unicode string.
 
-    sanity.check_internal_string(string)
-    collapsed = re.sub(RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
+    Raises:
+        AssertionError: Given text is not an instance of 'str'.
+    """
+    if not text:
+        return text
+
+    assert isinstance(text, str)
+    collapsed = re.sub(RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE, ' ', text)
     return collapsed
 
 

@@ -56,10 +56,8 @@ class TestCollapseWhitespace(TestCase):
         actual = collapse_whitespace(given)
         self.assertEqual(actual, expect)
 
-    def test_returns_empty_as_is(self):
+    def test_returns_empty_values_as_is(self):
         self._check('', '')
-
-        # Assumes that type-checks is handled elsewhere.
         self._check(None, None)
         self._check([], [])
 
