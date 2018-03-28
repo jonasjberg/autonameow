@@ -253,14 +253,10 @@ RE_UNICODE_DOUBLE_QUOTES = re.compile(
 
 
 def normalize_unicode(text):
-    # Normalization Form KC (NFKC)
-    # Compatibility Decomposition, followed by Canonical Composition.
-    # http://unicode.org/reports/tr15/
-    NORMALIZATION_FORM = 'NFKC'
+    if not text:
+        return text
 
-    if not isinstance(text, str):
-        raise TypeError('Expected "text" to be a Unicode str')
-
+    assert isinstance(text, str)
     text = re.sub(RE_UNICODE_DASHES_HYPHENS, '-', text)
     text = re.sub(RE_UNICODE_MINUSES, '-', text)
     text = re.sub(RE_UNICODE_OVERLINES, '-', text)
@@ -272,7 +268,12 @@ def normalize_unicode(text):
     text = re.sub(RE_UNICODE_SINGLE_QUOTES, "'", text)
     text = re.sub(RE_UNICODE_DOUBLE_QUOTES, '"', text)
 
-    return unicodedata.normalize(NORMALIZATION_FORM, text)
+    # Normalization Form KC (NFKC)
+    # Compatibility Decomposition, followed by Canonical Composition.
+    # http://unicode.org/reports/tr15/
+    NORMALIZATION_FORM = 'NFKC'
+    normalized = unicodedata.normalize(NORMALIZATION_FORM, text)
+    return normalized
 
 
 def simplify_unicode(string):

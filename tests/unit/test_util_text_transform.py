@@ -482,20 +482,23 @@ class TestNormalizeUnicode(TestCase):
         actual = normalize_unicode(test_input)
         self.assertEqual(actual, expected)
 
+    def test_returns_empty_values_as_is(self):
+        self._aE('', '')
+        self._aE(b'', b'')
+        self._aE(None, None)
+        self._aE([], [])
+        self._aE({}, {})
+
     def test_raises_exception_given_bad_input(self):
         def _aR(test_input):
-            with self.assertRaises(TypeError):
-                normalize_unicode(test_input)
+            with self.assertRaises(AssertionError):
+                _ = normalize_unicode(test_input)
 
-        _aR(None)
-        _aR([])
         _aR(['foo'])
-        _aR({})
         _aR({'foo': 'bar'})
         _aR(object())
         _aR(1)
         _aR(1.0)
-        _aR(b'')
         _aR(b'foo')
 
     def test_returns_expected(self):
