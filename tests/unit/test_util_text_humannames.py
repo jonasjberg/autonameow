@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import itertools
 from collections import namedtuple
 from unittest import (
     skipIf,
@@ -513,30 +514,73 @@ class TestSplitMultipleNames(TestCase):
 
 
 class TestFilterMultipleNames(TestCase):
-    def _assert_filtered_output(self, expect, given):
+    def _assert_filter_output_contains(self, expected, given):
         actual = filter_multiple_names(given)
-        self.assertEqual(expect, actual)
+        self.assertEqual(sorted(expected), sorted(actual))
+
+    def _assert_filter_returns(self, expected, given):
+        actual = filter_multiple_names(given)
+        self.assertEqual(expected, actual)
 
     def test_returns_valid_names_as_is(self):
-        self._assert_filtered_output(
-            expect=['Friedrich Nietzsche', 'Gibson Sjöberg'],
+        self._assert_filter_returns(
+            expected=['Friedrich Nietzsche', 'Gibson Sjöberg'],
             given=['Friedrich Nietzsche', 'Gibson Sjöberg']
         )
 
     def test_removes_names_consisting_of_a_single_letter(self):
-        self._assert_filtered_output(
-            expect=['Ankur Ankan', 'Abinash P'],
+        self._assert_filter_returns(
+            expected=['Ankur Ankan', 'Abinash P'],
             given=['Ankur Ankan', 'Abinash P', 'a']
         )
 
     def test_removes_edited_by_from_start_of_a_name(self):
-        self._assert_filtered_output(
-            expect=['Jaana Laiho', 'Achim Wacker', 'Tomáš Novosad'],
-            given=['edited by Jaana Laiho', 'Achim Wacker', 'Tomáš Novosad']
+        for given_names in [
+            ['edited by Gibson Sjöberg', 'Achim Weckar',         'Tomáš Navasod'],
+            ['ed. by Gibson Sjöberg',    'Achim Weckar',         'Tomáš Navasod'],
+            ['Edited by Gibson Sjöberg', 'Achim Weckar',         'Tomáš Navasod'],
+            ['Ed. by Gibson Sjöberg',    'Achim Weckar',         'Tomáš Navasod'],
+            ['Edited by Gibson Sjöberg', 'author Achim Weckar',  'Tomáš Navasod'],
+            ['Ed. by Gibson Sjöberg',    'author Achim Weckar',  'Tomáš Navasod'],
+            ['edited by Gibson Sjöberg', 'author: Achim Weckar', 'Tomáš Navasod'],
+            ['ed. by Gibson Sjöberg',    'author: Achim Weckar', 'Tomáš Navasod'],
+            ['Edited by Gibson Sjöberg', 'Author Achim Weckar',  'Tomáš Navasod'],
+            ['Ed. by Gibson Sjöberg',    'Author Achim Weckar',  'Tomáš Navasod'],
+            ['edited by Gibson Sjöberg', 'Author: Achim Weckar', 'Tomáš Navasod'],
+            ['ed. by Gibson Sjöberg',    'Author: Achim Weckar', 'Tomáš Navasod'],
+        ]:
+            for name_ordering in itertools.permutations(given_names):
+                self._assert_filter_output_contains(
+                    expected=['Gibson Sjöberg', 'Achim Weckar', 'Tomáš Navasod'],
+                    given=name_ordering
+                )
+
+    def test_removes_editor_from_list_of_names(self):
+        self._assert_filter_returns(
+            expected=['John P. Vecca'],
+            given=['editor', 'John P. Vecca']
         )
 
 
 class TestFilterName(TestCase):
+    def _assert_filter_returns(self, expected, given):
+        actual = filter_name(given)
+        self.assertEqual(expected, actual)
+
+    def _assert_filter_does_not_pass(self, given):
+        actual = filter_name(given)
+        self.assertEqual('', actual)
+
     def test_removes_edited_by_from_start_of_name(self):
-        actual = filter_name('edited by Jeene Leiho')
-        self.assertEqual('Jeene Leiho', actual)
+        self._assert_filter_returns('Gibson Sjöberg', given='edited by Gibson Sjöberg')
+        self._assert_filter_returns('Gibson Sjöberg', given='Edited by Gibson Sjöberg')
+        self._assert_filter_returns('Gibson Sjöberg', given='ed. by Gibson Sjöberg')
+        self._assert_filter_returns('Gibson Sjöberg', given='Ed. by Gibson Sjöberg')
+
+    def test_returns_empty_string_given_name_editor(self):
+        self._assert_filter_does_not_pass('editor')
+        self._assert_filter_does_not_pass('Editor')
+
+    def test_returns_empty_string_given_name_author(self):
+        self._assert_filter_does_not_pass('author')
+        self._assert_filter_does_not_pass('Author')

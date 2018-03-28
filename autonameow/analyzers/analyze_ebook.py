@@ -431,6 +431,7 @@ class ISBNMetadata(object):
 
         # TODO: [TD0112] Add some sort of system for normalizing entities.
         # Fix any malformed entries.
+        # Handle this like ['David Astolfo ... Technical reviewers: Mario Ferrari ...']
         _author_list = []
         for author in values:
             # Handle strings like 'Foo Bar [and Gibson Meow]'

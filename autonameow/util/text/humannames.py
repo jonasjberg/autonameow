@@ -31,6 +31,9 @@ from util import (
 RE_AUTHOR_ET_AL = re.compile(
     r'[\[\(\{]?et.al\.?[\]\)\}]?', re.IGNORECASE
 )
+RE_AUTHOR_PREFIX = re.compile(
+    r'author:? ', re.IGNORECASE
+)
 RE_EDITED_BY = re.compile(
     r'ed(\.|ited) by', re.IGNORECASE
 )
@@ -40,13 +43,16 @@ def strip_author_et_al(string):
     """
     Attempts to remove variations of "et al." from a Unicode string.
     """
-    _subbed = RE_AUTHOR_ET_AL.sub('', string).replace('...', '')
-    return _subbed.strip().rstrip(',').lstrip('.')
+    subbed = RE_AUTHOR_ET_AL.sub('', string).replace('...', '')
+    return subbed.strip().rstrip(',').lstrip('.')
 
 
 def strip_edited_by(string):
-    _subbed = RE_EDITED_BY.sub('', string)
-    return _subbed.strip()
+    return RE_EDITED_BY.sub('', string).strip()
+
+
+def strip_author_prefix(string):
+    return RE_AUTHOR_PREFIX.sub('', string).strip()
 
 
 def _parse_name(human_name):
@@ -278,6 +284,15 @@ def format_name(human_name, formatter=None):
     return formatter(_parsed_name)
 
 
+def remove_blacklisted_names(human_name):
+    if human_name.lower().strip() in [
+        'author',
+        'editor'
+    ]:
+        return ''
+    return human_name
+
+
 def split_multiple_names(list_of_names):
     RE_NAME_SEPARATORS = r',| ?and'
 
@@ -301,4 +316,7 @@ def filter_multiple_names(list_of_names):
 
 
 def filter_name(human_name):
-    return strip_edited_by(human_name)
+    filtered_name = remove_blacklisted_names(human_name)
+    modified = strip_edited_by(filtered_name)
+    modified = strip_author_prefix(modified)
+    return modified
