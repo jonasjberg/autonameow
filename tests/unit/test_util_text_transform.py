@@ -46,6 +46,7 @@ from util.text.transform import (
     _strip_accents_homerolled,
     _strip_accents_unidecode,
     strip_ansiescape,
+    truncate_text,
     urldecode,
 )
 
@@ -574,6 +575,39 @@ class TestStripAnsiEscape(TestCase):
         self._aE('', '')
         self._aE('a', 'a')
         self._aE('[30m[44mautonameow[49m[39m', 'autonameow')
+
+
+class TestTruncateText(TestCase):
+    def _assert_that_it_returns(self, expected, given_text, **kwargs):
+        actual = truncate_text(given_text, **kwargs)
+        self.assertEqual(expected, actual)
+
+    def test_returns_empty_string_as_is(self):
+        self._assert_that_it_returns(expected='', given_text='')
+
+    def test_returns_text_shorter_than_max_as_is(self):
+        self._assert_that_it_returns(expected='abc',
+                                     given_text='abc',
+                                     maxlen=3)
+        self._assert_that_it_returns(expected='abc',
+                                     given_text='abc',
+                                     maxlen=5)
+
+    def test_truncates_text_if_given_text_is_longer_than_maxlen(self):
+        self._assert_that_it_returns(expected='abc',
+                                     given_text='abc def',
+                                     maxlen=3)
+        self._assert_that_it_returns(expected='abc d',
+                                     given_text='abc def',
+                                     maxlen=5)
+
+    def test_truncates_text_if_given_text_is_longer_than_maxlen_append_info(self):
+        self._assert_that_it_returns(expected='abc  (3/7 characters)',
+                                     given_text='abc def',
+                                     maxlen=3, append_info=True)
+        self._assert_that_it_returns(expected='abc d  (5/7 characters)',
+                                     given_text='abc def',
+                                     maxlen=5, append_info=True)
 
 
 class TestUrlDecode(TestCase):

@@ -314,12 +314,17 @@ def strip_ansiescape(string):
     return stripped
 
 
-def truncate_text(text, number_chars=500):
-    msg = '  (.. TRUNCATED to {}/{} characters)'.format(number_chars, len(text))
+def truncate_text(text, maxlen=500, append_info=False):
+    assert isinstance(text, str)
+    assert isinstance(maxlen, int)
 
-    if len(text) <= number_chars:
+    if len(text) <= maxlen:
         return text
-    return text[0:number_chars] + msg
+
+    truncated = text[0:maxlen]
+    if not append_info:
+        return truncated
+    return truncated + '  ({}/{} characters)'.format(maxlen, len(text))
 
 
 def urldecode(string):
