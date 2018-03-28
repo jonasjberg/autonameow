@@ -126,37 +126,37 @@ def normalize_whitespace(text):
     return normalized
 
 
+DEFAULT_INDENT_AMOUNT = 4
+DEFAULT_INDENT_PADCHAR = ' '
+
+
 def indent(text, columns=None, padchar=None):
     """
     Indents (multi-line) text by a specified amount.
 
-    Shifts text right by a given "amount" (default: 4) using the character
-    "ch" for padding (defaults to ' ').
-
-    Based on this post; https://stackoverflow.com/a/8348914/7802196
+    Shifts text right by a given "amount" (default: DEFAULT_INDENT_AMOUNT)
+    using the character "ch" for padding (default: DEFAULT_INDENT_PADCHAR).
 
     Args:
-        text: Single or multi-line text to indent, as a Unicode str.
-        columns: Optional padding character ('ch') multiple, as an integer.
-        padchar: Optional character to use for padding.
+        text (str): Single or multi-line text to indent.
+        columns (int)(optional): Padding character ('ch') multiple.
+        padchar (str)(optional): Character to use for padding.
 
     Returns:
-        An indented version of the given text as an Unicode str.
+        str: An indented version of the given text as a Unicode str.
+
     Raises:
-        ValueError: Given 'text' is None or a optional argument is set to None.
+        AssertionError: Any argument has an unexpected type or value.
     """
-    DEFAULT_AMOUNT = 4
-    DEFAULT_PADDING = ' '
+    assert isinstance(text, str)
 
     if columns is None:
-        columns = DEFAULT_AMOUNT
-    assert isinstance(columns, int)
-    assert columns > 0
+        columns = DEFAULT_INDENT_AMOUNT
+    assert isinstance(columns, int) and columns > 0
 
     if padchar is None:
-        padchar = DEFAULT_PADDING
-    sanity.check_internal_string(padchar)
-    sanity.check_internal_string(text)
+        padchar = DEFAULT_INDENT_PADCHAR
+    assert isinstance(padchar, str)
 
     padding = columns * padchar
     return ''.join(padding + line for line in text.splitlines(True))
