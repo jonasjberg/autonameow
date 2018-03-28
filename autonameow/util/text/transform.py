@@ -310,6 +310,7 @@ def remove_zerowidth_spaces(text):
 
 
 def strip_ansiescape(string):
+    assert isinstance(string, str)
     stripped = re.sub(RE_ANSI_ESCAPE, '', string)
     return stripped
 
@@ -336,6 +337,11 @@ def html_unescape(string):
 
 
 def batch_regex_replace(regex_replacement_tuples, string):
+    if not string:
+        return string
+
+    assert isinstance(string, str)
+
     matches = list()
     for regex, replacement in regex_replacement_tuples:
         match = re.search(regex, string)

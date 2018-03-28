@@ -794,7 +794,7 @@ class TestRemoveBlacklistedLines(TestCase):
         actual = remove_blacklisted_lines(given_text, given_blacklist)
         self.assertEqual(expected, actual)
 
-    def test_returns_empty_or_whitespace_text_as_is(self):
+    def test_returns_empty_values_or_whitespace_text_as_is(self):
         for text in ['', ' ', '\n', ' \n', ' \n ']:
             for blacklist in [[], ['a'], frozenset([]), frozenset(['a'])]:
                 with self.subTest(given=text, blacklist=blacklist):
