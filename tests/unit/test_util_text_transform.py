@@ -31,7 +31,6 @@ else:
     UNIDECODE_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
-from core.exceptions import EncodingBoundaryViolation
 from util.text.transform import (
     collapse_whitespace,
     html_unescape,
@@ -191,7 +190,7 @@ class TestNormalizeWhitespace(TestCase):
         actual = normalize_whitespace(given)
         self.assertEqual(expect, actual)
 
-    def test_returns_empty_as_is(self):
+    def test_returns_empty_values_as_is(self):
         for expect, given in [
             ('', ''),
 
@@ -366,19 +365,17 @@ class TestNormalizeWhitespace(TestCase):
 
 class TestIndent(TestCase):
     def test_invalid_arguments_raises_exception(self):
-        def _assert_raises(exception_type, *args, **kwargs):
-            with self.assertRaises(exception_type):
+        def _assert_raises(*args, **kwargs):
+            with self.assertRaises(AssertionError):
                 _ = indent(*args, **kwargs)
 
-        _assert_raises(AssertionError, None)
-        _assert_raises(EncodingBoundaryViolation, b'')
-        _assert_raises(AssertionError, 'foo', columns=0)
-        _assert_raises(AssertionError, 'foo', columns=object())
-
-        # TODO: Should raise 'TypeError' when given 'padchar=1' (expects str)
-        _assert_raises(EncodingBoundaryViolation, 'foo', columns=2, padchar=1)
-        _assert_raises(EncodingBoundaryViolation, 'foo', columns=2, padchar=b'')
-        _assert_raises(EncodingBoundaryViolation, 'foo', padchar=b'')
+        _assert_raises(None)
+        _assert_raises(b'')
+        _assert_raises('foo', columns=0)
+        _assert_raises('foo', columns=object())
+        _assert_raises('foo', columns=2, padchar=1)
+        _assert_raises('foo', columns=2, padchar=b'')
+        _assert_raises('foo', padchar=b'')
 
     def test_indents_single_line(self):
         self.assertEqual('    foo', indent('foo'))

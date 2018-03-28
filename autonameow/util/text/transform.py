@@ -98,7 +98,7 @@ def collapse_whitespace(text):
     return collapsed
 
 
-def normalize_whitespace(string):
+def normalize_whitespace(text):
     """
     Replaces all whitespace except newlines with a single space.
 
@@ -106,18 +106,23 @@ def normalize_whitespace(string):
     Does not change linefeeds or carriage returns.
     Handles Unicode whitespace characters.
 
+    NOTE: Assumes type-checks is handled elsewhere.
+          "Empty" values like None, [], {}, etc. are passed through as-is.
+
     Args:
-        string: Unicode String to transform.
+        text (str): Unicode text to transform.
 
     Returns:
-        Given string with all whitespace replaced with a single space,
-        as a Unicode string.
-    """
-    if not string:
-        return string
+        str: The given text with all whitespace replaced with a single space.
 
-    sanity.check_internal_string(string)
-    normalized = re.sub(RE_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
+    Raises:
+        AssertionError: Given text is not an instance of 'str'.
+    """
+    if not text:
+        return text
+
+    assert isinstance(text, str)
+    normalized = re.sub(RE_WHITESPACE_EXCEPT_NEWLINE, ' ', text)
     return normalized
 
 
