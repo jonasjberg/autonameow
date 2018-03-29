@@ -81,6 +81,10 @@ class FiletagsExtractor(BaseExtractor):
         coerced_metadata = dict()
 
         for field, value in raw_metadata.items():
+            if value is None:
+                # Value of field "timestamp" is None if missing.
+                continue
+
             coerced = self.coerce_field_value(field, value)
             if coerced is not None:
                 coerced_metadata[field] = coerced
@@ -169,12 +173,20 @@ def partition_basename(filepath):
             return enc.decode_(bytestring_maybe)
         return ''
 
-    timestamp = _decode_bytestring(timestamp)
+    if timestamp:
+        # Set timestamp to None instead of empty string here so that it can be
+        # detected and skipped when converting values to the "internal format".
+        # Coercing None with 'AW_TIMEDATE' raises a 'AWTypeError' exception,
+        # which would happen for every file that do not have a "timestamp"
+        # filetags part.
+        timestamp = _decode_bytestring(timestamp)
+    else:
+        timestamp = None
+
     description = _decode_bytestring(description)
     tags = [_decode_bytestring(t) for t in tags]
     suffix = _decode_bytestring(suffix)
 
-    # return timestamp, description, tags or [], suffix
     return FiletagsParts(timestamp, description, tags, suffix)
 
 
