@@ -52,6 +52,14 @@ class FilesContext(object):
         self.master_provider = master_provider
 
     def find_new_name(self, current_file):
+        def _log_unable_to_find_new_name():
+            log.warning(
+                'Unable to find new name for ”{!s}".'.format(current_file)
+            )
+
+        def _log_current_file_warning(msg):
+            log.info('("{!s}") {!s}'.format(current_file, msg))
+
         #  Things to find:
         #
         #    * NAME TEMPLATE
@@ -97,7 +105,8 @@ class FilesContext(object):
 
         if not name_template:
             if self.opts.get('mode_batch'):
-                log.warning('Name template unknown! Aborting ..')
+                _log_current_file_warning('Name template unknown. Running in batch mode -- Aborting')
+                _log_unable_to_find_new_name()
                 return None
 
             # Have the user select a name template.
@@ -107,11 +116,12 @@ class FilesContext(object):
             # if choice != interactive.Choice.ABORT:
             #     name_template = choice
             # if not name_template:
-            #     log.warning('No valid name template chosen. Aborting ..')
+            #     log.warning('No valid name template chosen. Aborting')
 
         if not name_template:
             # User name template selection did not happen or failed.
-            log.warning('Name template unknown! Aborting ..')
+            _log_current_file_warning('Name template unknown.')
+            _log_unable_to_find_new_name()
             return None
 
         if not data_sources:
@@ -125,7 +135,8 @@ class FilesContext(object):
                 pass
 
             if self.opts.get('mode_batch'):
-                log.warning('Data sources unknown! Aborting ..')
+                _log_current_file_warning('Data sources unknown. Running in batch mode -- Aborting')
+                _log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
@@ -142,7 +153,8 @@ class FilesContext(object):
         )
         if not field_databundle_dict:
             if not self.opts.get('mode_automagic'):
-                log.warning('Not in automagic mode. Unable to populate name.')
+                _log_current_file_warning('Missing field data bundles. Not in automagic mode.')
+                _log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
@@ -166,7 +178,8 @@ class FilesContext(object):
                     )
 
         if not field_databundle_dict:
-            log.warning('Unable to populate name.')
+            _log_current_file_warning('Missing field data bundles.')
+            _log_unable_to_find_new_name()
             self.autonameow_exit_code = C.EXIT_WARNING
             return None
 
@@ -235,10 +248,20 @@ class FilesContext(object):
         #     if self.opts.get('mode_automagic'):
         #         data_sources = matcher.candidates()[1]
 
+        def _log_unable_to_find_new_name():
+            log.warning(
+                'Unable to find new name for ”{!s}".'.format(current_file)
+            )
+
+        def _log_current_file_warning(msg):
+            log.info('("{!s}") {!s}'.format(current_file, msg))
+
         if not resolver.mapped_all_template_fields():
             if self.opts.get('mode_batch'):
-                log.error('Unable to resolve all name template fields. '
-                          'Running in batch mode -- Aborting..')
+                _log_current_file_warning(
+                    'Unable to resolve all name template fields. Running in batch mode -- Aborting'
+                )
+                _log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
@@ -248,7 +271,10 @@ class FilesContext(object):
         if not resolver.collected_all():
             log.info('Resolver has not collected all fields ..')
             if self.opts.get('mode_batch'):
-                log.warning('Unable to populate name.')
+                _log_current_file_warning(
+                    'Unable to resolve all name template fields. Running in batch mode -- Aborting'
+                )
+                _log_unable_to_find_new_name()
                 # self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
@@ -281,7 +307,8 @@ class FilesContext(object):
         # Add automatically resolving missing sources from possible candidates.
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-            log.warning('Unable to populate name. Missing field data.')
+            _log_current_file_warning('Resolver could not collect all field data')
+            _log_unable_to_find_new_name()
             self.autonameow_exit_code = C.EXIT_WARNING
             return None
 

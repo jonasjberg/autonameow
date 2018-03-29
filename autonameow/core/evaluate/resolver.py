@@ -178,13 +178,17 @@ class TemplateFieldDataResolver(object):
         return out
 
     def _has_data_for_placeholder_fields(self):
+        log.debug('Checking gathered data for fields..')
         for field in self._fields:
             if field not in self.fields_data.keys():
-                log.warning('Missing placeholder field {!s}'.format(field))
+                log.debug('Gathered data does not contain placeholder field {!s}'.format(field))
                 return False
+
             elif self.fields_data.get(field) is None:
-                log.error('None data for placeholder field "{}"'.format(field))
+                log.debug('Gathered data is None for placeholder field {!s}'.format(field))
                 return False
+
+        log.debug('Checking gathered data for fields.. OK! Gathered data for all fields')
         return True
 
     def _gather_data_for_template_field(self, _field, uri):
