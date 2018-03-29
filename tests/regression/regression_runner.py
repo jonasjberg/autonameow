@@ -100,6 +100,10 @@ def run_test(test, reporter):
 
     actual_renames = aw.captured_renames
     if check_renames(actual_renames, expect_renames):
+        assert len(actual_renames) == len(expect_renames)
+        reporter.msg_run_test_success(
+            'Renamed {} files as expected'.format(len(expect_renames))
+        )
         for actual_old, actual_new in actual_renames.items():
             reporter.msg_run_test_success(
                 'Renamed "{!s}" -> "{!s}"'.format(actual_old, actual_new)
