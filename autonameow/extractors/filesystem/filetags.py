@@ -93,8 +93,8 @@ class FiletagsExtractor(BaseExtractor):
 
     @classmethod
     def can_handle(cls, fileobject):
-        # Assume 'FileObject' has a basename.
-        return True
+        # File name should not be empty or only whitespace.
+        return bool(fileobject.filename.strip())
 
     @classmethod
     def check_dependencies(cls):
