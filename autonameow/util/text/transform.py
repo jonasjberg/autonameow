@@ -29,8 +29,6 @@ try:
 except ImportError:
     unidecode = None
 
-from util import sanity
-
 
 __all__ = [
     'collapse_whitespace',
@@ -45,6 +43,7 @@ __all__ = [
     'remove_nonbreaking_spaces',
     'remove_zerowidth_spaces',
     'strip_ansiescape',
+    'strip_single_space_lines',
     'truncate_text',
     'urldecode'
 ]
@@ -96,6 +95,30 @@ def collapse_whitespace(text):
     assert isinstance(text, str)
     collapsed = re.sub(RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE, ' ', text)
     return collapsed
+
+
+RE_SINGLE_SPACE_LINES = re.compile(r'^ $', re.MULTILINE)
+
+
+def strip_single_space_lines(text):
+    """
+    Like 'str.strip()' but restricted to lines that only contain a single space.
+
+    Args:
+        text (str): Unicode text to transform.
+
+    Returns:
+        str: The given text with any lines containing only a single space
+             replaced by an empty line.
+
+    Raises:
+        AssertionError: Given text is not an instance of 'str'.
+    """
+    if not text:
+        return text
+
+    assert isinstance(text, str)
+    return re.sub(RE_SINGLE_SPACE_LINES, '', text)
 
 
 def normalize_whitespace(text):

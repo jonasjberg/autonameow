@@ -46,6 +46,7 @@ from util.text.transform import (
     _strip_accents_homerolled,
     _strip_accents_unidecode,
     strip_ansiescape,
+    strip_single_space_lines,
     truncate_text,
     urldecode,
 )
@@ -184,6 +185,32 @@ class TestCollapseWhitespace(TestCase):
         self._check('foo\t\t\tbar', 'foo bar')
         self._check('\t\tfoo bar', ' foo bar')
         self._check('\t\t\tfoo bar', ' foo bar')
+
+
+class TestStripSingleSpaceLines(TestCase):
+    def _assert_returns(self, expect, given):
+        actual = strip_single_space_lines(given)
+        self.assertEqual(expect, actual)
+
+    def test_returns_line_with_single_character_as_is(self):
+        self._assert_returns('A', given='A')
+
+    def test_returns_lines_with_one_character_per_line_as_is(self):
+        self._assert_returns('A\nB', given='A\nB')
+        self._assert_returns('A\nB\n', given='A\nB\n')
+
+    def test_removes_line_containing_single_space_only(self):
+        self._assert_returns('', given=' ')
+        self._assert_returns('\n', given=' \n')
+
+    def test_removes_lines_containing_single_space_only(self):
+        self._assert_returns('\n', given=' \n')
+
+    def test_removes_single_space_lines_and_returns_others_as_is(self):
+        self._assert_returns('\nA', given=' \nA')
+        self._assert_returns('\nA\n', given=' \nA\n')
+        self._assert_returns('A\n\nB\n', given='A\n \nB\n')
+        self._assert_returns('\nX\n', given=' \nX\n')
 
 
 class TestNormalizeWhitespace(TestCase):
