@@ -21,41 +21,42 @@
 
 from unittest import TestCase
 
-from core import types
 from util.text.patternmatching import (
-    compiled_ordinal_regexes,
+    compiled_ordinal_edition_regexes,
     find_and_extract_edition,
     find_publisher_in_copyright_notice
 )
 
 
 class TestCompiledOrdinalRegexes(TestCase):
-    def setUp(self):
-        self.actual = compiled_ordinal_regexes()
+    @classmethod
+    def setUpClass(cls):
+        from core import types
+        cls.builtin_regex_type = types.BUILTIN_REGEX_TYPE
+        cls.actual = compiled_ordinal_edition_regexes()
 
     def test_returns_expected_type(self):
         self.assertIsNotNone(self.actual)
         self.assertIsInstance(self.actual, dict)
 
     def test_returns_compiled_regular_expressions(self):
-        re_one = self.actual.get(1)
-        self.assertIsInstance(re_one, types.BUILTIN_REGEX_TYPE)
+        ordinal_one_regex = self.actual.get(1)
+        self.assertIsInstance(ordinal_one_regex, self.builtin_regex_type)
 
-        for _pattern in self.actual.values():
-            self.assertIsInstance(_pattern, types.BUILTIN_REGEX_TYPE)
+        for ordinal_regex in self.actual.values():
+            self.assertIsInstance(ordinal_regex, self.builtin_regex_type)
 
     def test_returned_regexes_matches_strings(self):
-        def _aM(test_input):
-            match = self.actual.get(2).search(test_input)
-            actual = match.group(0)
-            expected = 2
-            self.assertTrue(actual, expected)
-
-        _aM('2nd')
-        _aM('second')
-        _aM('SECOND')
-        _aM('foo 2nd bar')
-        _aM('foo 2ND bar')
+        for given in [
+            '2nd', 'second', 'SECOND', 'foo 2nd bar', 'foo 2ND bar',
+            '2nd ed', 'second ed', 'SECOND ED', 'foo 2nd ed bar', 'foo 2ND ED bar',
+            '2nd ed.', 'second ed.', 'SECOND ED.', 'foo 2nd ed. bar', 'foo 2ND ED. bar',
+            '2nd edition', 'second edition', 'SECOND EDITION', 'foo 2nd edition bar', 'foo 2ND EDITION bar',
+          ]:
+            with self.subTest(given=given):
+                actual = self.actual.get(2).search(given)
+                match = actual.group(0)
+                self.assertTrue(2, match)
 
 
 class TestFindAndExtractEdition(TestCase):
@@ -131,14 +132,16 @@ class TestFindAndExtractEdition(TestCase):
         self._check_result(given='Bar 5th - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
         self._check_result(given='Bar 5ed - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
         self._check_result(given='Bar 5 ed - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
-        self._check_result(given='Bar 5th - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
+        self._check_result(given='Bar 5 ed. - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
+        self._check_result(given='Bar 5th ed - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
+        self._check_result(given='Bar 5th ed. - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
 
-        # TODO: [TD0118] Sort matches by length.
-        # self._check_result(given='Bar 4th ed - Baz._', expect_edition=4, expect_text='Bar  - Baz._')
-        # self._check_result(given='Bar 5th edition - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
-        # self._check_result(given='Bar fifth e - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
-        # self._check_result(given='Bar fifth ed - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
-
+    def test_finds_edition_and_returns_modified_text_given_sample_text_with_longer_matches_first(self):
+        self._check_result(given='Bar 4th ed - Baz._', expect_edition=4, expect_text='Bar  - Baz._')
+        self._check_result(given='Bar 5th edition - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
+        self._check_result(given='Bar fifth e - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
+        self._check_result(given='Bar fifth ed - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
+        self._check_result(given='Bar fifth ed. - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
         self._check_result(given='Bar fifth edition - Baz._', expect_edition=5, expect_text='Bar  - Baz._')
 
     def test_finds_edition_and_returns_modified_text_with_only_literal_edition(self):
@@ -161,14 +164,13 @@ class TestFindAndExtractEdition(TestCase):
 
     def test_use_biggest_matching_number(self):
         self._check_result(given='Foobar 1st 10th Edition.pdf', expect_edition=10, expect_text='Foobar 1st .pdf')
-
-        # TODO: [TD0118] Remove extra removing of any trailing '[eE]dition' ..
-        # self._check_result(given='Foobar 10th 1st Edition.pdf', expect_edition=10, expect_text='Foobar  1st Edition.pdf')
-        # self._check_result(given='Foobar 1st Edition 10th Edition.pdf', expect_edition=10, expect_text='Foobar 1st Edition.pdf')
-        # self._check_result(given='Foobar 10th Edition 1st Edition.pdf', expect_edition=10, expect_text='Foobar 1st Edition.pdf')
-        # self._check_result(given='Foobar Edition 1st 10th.pdf', expect_edition=10, expect_text='Foobar Edition 1st.pdf')
-
-        self._check_result(given='Foobar 1st Edition 10th.pdf', expect_edition=10, expect_text='Foobar 1st .pdf')
+        self._check_result(given='Foobar 10th 1st Edition.pdf', expect_edition=10, expect_text='Foobar  1st Edition.pdf')
+        self._check_result(given='Foobar 1st Edition 10th Edition.pdf', expect_edition=10, expect_text='Foobar 1st Edition .pdf')
+        self._check_result(given='Foobar 2nd Edition 10th Edition.pdf', expect_edition=10, expect_text='Foobar 2nd Edition .pdf')
+        self._check_result(given='Foobar 10th Edition 1st Edition.pdf', expect_edition=10, expect_text='Foobar  1st Edition.pdf')
+        self._check_result(given='Foobar Edition 1st 10th.pdf', expect_edition=10, expect_text='Foobar Edition 1st .pdf')
+        self._check_result(given='Foobar Edition 2nd 10th.pdf', expect_edition=10, expect_text='Foobar Edition 2nd .pdf')
+        self._check_result(given='Foobar 1st Edition 10th.pdf', expect_edition=10, expect_text='Foobar 1st Edition .pdf')
         self._check_result(given='Foobar 1st 10th Edition.pdf', expect_edition=10, expect_text='Foobar 1st .pdf')
 
 

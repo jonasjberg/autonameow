@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-03-29
+
+> Low Priority
+> ------------
+>
+> * `[TD0118]` Improve robustness and refactor searching text for editions.
+
 ### 2018-03-15
 
 > Medium Priority
