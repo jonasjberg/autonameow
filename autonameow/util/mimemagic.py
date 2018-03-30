@@ -138,7 +138,7 @@ def filetype(file_path):
 
     Returns:
         The MIME type of the file at the given path ('application/pdf') or
-        an instance of 'NullMIMEType' if the MIME type can not be determined.
+        a "null" class instance if the MIME type can not be determined.
     """
     unknown_mime_type = types.NullMIMEType()
     if not file_path:
@@ -200,7 +200,7 @@ def eval_glob(mime_to_match, glob_list):
         return False
 
     if not mime_to_match:
-        # Test again after the case above because NullMIMEType evaluates False.
+        # Test again after the case above because 'NullMIMEType' evaluates False.
         return False
 
     if not isinstance(mime_to_match, str):
@@ -305,9 +305,9 @@ class MimeExtensionMapper(object):
         Returns:
             A single MIME-type mapped to the given extension, as a Unicode
             string. See the "get_candidates"-method for info on prioritization.
-            An instance of 'NullMIMEType' is returned if no MIME-type is found.
+            If no MIME-type is found, a "null" class instance is returned.
         """
-        if extension and extension.strip():
+        if isinstance(extension, str) and extension.strip():
             candidates = self.get_candidate_mimetypes(extension)
             if candidates:
                 if len(candidates) > 1:
@@ -441,4 +441,5 @@ def get_mimetype(extension):
 
 
 def get_extension(mimetype):
+    assert isinstance(mimetype, str)
     return MAPPER.get_extension(mimetype)
