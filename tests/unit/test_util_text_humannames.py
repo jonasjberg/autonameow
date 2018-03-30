@@ -469,6 +469,9 @@ class TestSplitMultipleNames(TestCase):
     def test_does_not_split_single_name(self):
         self._assert_unchanged(['Anandra Mitra'])
 
+    def test_does_not_split_single_name_comma_between_surname_lastname(self):
+        self._assert_unchanged(['edited by Ludlow, David'])
+
     def test_splits_two_names_where_one_contains_an_initial(self):
         self._assert_that_it_returns(
             expected=[

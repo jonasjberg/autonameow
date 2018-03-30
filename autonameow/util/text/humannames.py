@@ -316,6 +316,13 @@ def split_multiple_names(list_of_names):
 
     result = list()
     flat_list_of_names = flatten_sequence_type(list_of_names)
+    if len(flat_list_of_names) == 1 and flat_list_of_names[0].startswith('edited by'):
+         # TODO: [hack] FIX THIS!
+         # TODO: Some cases require filtering out substrings, which is
+         #       currently typically done in a separate step after this
+         #       function..
+         return flat_list_of_names
+
     for name_or_names in flat_list_of_names:
         split_parts = re.split(RE_NAME_SEPARATORS, name_or_names)
         non_whitespace_parts = [p.strip() for p in split_parts if p]
