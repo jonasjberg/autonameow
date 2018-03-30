@@ -520,6 +520,15 @@ PDF:Producer:
             weight: 0.01
     multivalued: false
 
+PDF:PTEX_Fullbanner:
+    coercer: aw_string
+    generic_field: creator
+    mapped_fields:
+    -   WeightedMapping:
+            field: Creator
+            weight: 1.0
+    multivalued: false
+
 PDF:Subject:
     coercer: aw_string
     generic_field: subject
@@ -547,6 +556,16 @@ PDF:Title:
 PDF:Trapped:
     coercer: aw_boolean
     multivalued: false
+
+
+Photoshop:ImageWidth:
+    coercer: aw_integer
+    multivalued: false
+
+Photoshop:ImageHeight:
+    coercer: aw_integer
+    multivalued: false
+
 
 QuickTime:CompatibleBrands:
     coercer: aw_string
@@ -978,6 +997,14 @@ XMP:EntryTitle:
             weight: 1.0
     multivalued: false
 
+XMP:ExifImageHeight:
+    coercer: aw_integer
+    multivalued: false
+
+XMP:ExifImageWidth:
+    coercer: aw_integer
+    multivalued: false
+
 XMP:Format:
     coercer: aw_mimetype
     generic_field: mime_type
@@ -1081,6 +1108,15 @@ XMP:Producer:
             weight: 0.01
     multivalued: false
 
+XMP:PTEXFullbanner:
+    coercer: aw_string
+    generic_field: creator
+    mapped_fields:
+    -   WeightedMapping:
+            field: Creator
+            weight: 1.0
+    multivalued: false
+
 XMP:Publisher:
     coercer: aw_string
     generic_field: publisher
@@ -1147,6 +1183,10 @@ XMP:Title:
     -   WeightedMapping:
             field: Title
             weight: 1.0
+    multivalued: false
+
+XMP:Trapped:
+    coercer: aw_boolean
     multivalued: false
 
 XMP:XMPToolkit:
