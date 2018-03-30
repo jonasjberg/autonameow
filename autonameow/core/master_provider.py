@@ -25,6 +25,7 @@ from collections import defaultdict
 from core import constants as C
 from core import (
     analysis,
+    event,
     repository,
 )
 from core.exceptions import AutonameowException
@@ -523,7 +524,7 @@ def shutdown_master_data_provider():
         _MASTER_DATA_PROVIDER.shutdown()
 
 
-def initialize_provider_registry():
+def _initialize_provider_registry(*args, **kwargs):
     # Keep one global 'ProviderRegistry' singleton per 'Autonameow' instance.
     global Registry
     if not Registry:
@@ -533,7 +534,7 @@ def initialize_provider_registry():
         )
 
 
-def shutdown_provider_registry():
+def _shutdown_provider_registry(*args, **kwargs):
     global Registry
     Registry = None
 
@@ -550,3 +551,7 @@ def request_one(fileobject, uri):
 
 def delegate_every_possible_meowuri(fileobject):
     _MASTER_DATA_PROVIDER.delegate_every_possible_meowuri(fileobject)
+
+
+event.dispatcher.on_startup.add(_initialize_provider_registry)
+event.dispatcher.on_shutdown.add(_shutdown_provider_registry)

@@ -640,7 +640,7 @@ def init_session_repository():
 
 def init_provider_registry():
     from core import master_provider
-    master_provider.initialize_provider_registry()
+    master_provider._initialize_provider_registry()
 
 
 def init_master_data_provider(active_config):

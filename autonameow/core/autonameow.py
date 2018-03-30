@@ -81,9 +81,6 @@ class Autonameow(object):
             'autonameow_instance': self
         })
 
-        # Set up singletons for this process.
-        master_provider.initialize_provider_registry()
-
         self.renamer = FileRenamer(
             dry_run=self.opts.get('dry_run'),
             timid=self.opts.get('mode_timid')
@@ -101,7 +98,6 @@ class Autonameow(object):
         })
 
         # Reset singletons.
-        master_provider.shutdown_provider_registry()
         master_provider.shutdown_master_data_provider()
 
     def run(self):
