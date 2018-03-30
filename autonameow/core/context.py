@@ -173,6 +173,13 @@ class FilesContext(object):
                     )
                     data_sources = active_rule.data_sources
                     name_template = active_rule.name_template
+
+                    # New resolver with state derived from currently active rule.
+                    resolver = TemplateFieldDataResolver(
+                        current_file,
+                        name_template.placeholders,
+                        self.master_provider
+                    )
                     field_databundle_dict = self._try_resolve(
                         resolver, current_file, data_sources
                     )
