@@ -81,6 +81,10 @@ def strip_bad_author_substrings(string):
     s = strip_edited_by(s)
     s = strip_author_prefix(s)
     s = strip_author_et_al(s)
+
+    if s.lower().startswith('by '):
+        s = s[3:]
+
     return s
 
 

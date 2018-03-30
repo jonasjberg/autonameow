@@ -613,11 +613,18 @@ class TestFilterMultipleNames(TestCase):
             given=['Michael Kross', 'et al.']
         )
 
-    # def test_based_on_live_data_d(self):
-    #     self._assert_filter_returns(
-    #         expected=['David Astolfo ... Technical reviewers: Mario Ferrari ...'],
-    #         given=['Michael Kross', 'et al.']
-    #     )
+    def test_based_on_live_data_d(self):
+        self.skipTest('TODO: ..')
+        self._assert_filter_returns(
+            expected=['David Astolfo ... Technical reviewers: Mario Ferrari ...'],
+            given=['Michael Kross', 'et al.']
+        )
+
+    def test_based_on_live_data_e(self):
+        self._assert_filter_returns(
+            expected=['Eric Conrad', 'Sith Misaner', 'Josh Faldmen'],
+            given=['by Eric Conrad', 'Sith Misaner', 'Josh Faldmen']
+        )
 
 
 class TestFilterName(TestCase):
