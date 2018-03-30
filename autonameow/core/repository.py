@@ -21,7 +21,6 @@
 
 import logging
 
-from core.view.cli import ColumnFormatter
 from util import encoding as enc
 from util import (
     sanity,
@@ -315,6 +314,7 @@ class Repository(object):
                     # TODO: Clean up converting ANY value to Unicode strings ..
                     temp[meowuri] = str(v)
 
+        from core.view.cli import ColumnFormatter
         cf = ColumnFormatter()
         COLUMN_DELIMITER = '::'
         MAX_VALUE_WIDTH = 80
