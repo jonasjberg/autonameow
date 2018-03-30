@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections import defaultdict
 import logging
 
 from core import (
@@ -71,7 +72,7 @@ class TemplateFieldDataResolver(object):
         self._fields = name_template_fields
         self._master_provider = master_provider
 
-        self.data_sources = dict()
+        self.data_sources = defaultdict(list)
         self.fields_data = dict()
 
     def mapped_all_template_fields(self):
@@ -98,12 +99,7 @@ class TemplateFieldDataResolver(object):
         self._add_known_source(field, uri)
 
     def _add_known_source(self, field, uri):
-        current_field_data_sources = self.data_sources.get(field, None)
-        if current_field_data_sources is None:
-            self.data_sources[field] = [uri]
-        else:
-            self.data_sources[field] += [uri]
-
+        self.data_sources[field].append(uri)
         n = len(self.data_sources[field])
         log.debug('Added known source (#{}) for field {!s} :: {!s}'.format(n, field, uri))
 
