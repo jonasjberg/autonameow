@@ -77,29 +77,35 @@ class TemplateFieldDataResolver(object):
     def mapped_all_template_fields(self):
         return all(field in self.data_sources for field in self._fields)
 
+    def add_known_sources(self, source_dict):
+        for field, uri in source_dict.items():
+            if isinstance(uri, list):
+                for m in uri:
+                    self.add_known_source(field, m)
+            else:
+                self.add_known_source(field, uri)
+
     def add_known_source(self, field, uri):
         sanity.check_isinstance_meowuri(
             uri,
             msg='TODO: Fix collecting/verifying data from sources.'
         )
-        if field in self._fields:
-            if not self.data_sources.get(field):
-                log.debug('Added (first) known source for field {!s} :: {!s}'.format(field, uri))
-                self.data_sources[field] = [uri]
-            else:
-                log.debug('Added (additional) known source for field {!s} :: {!s}'.format(field, uri))
-                self.data_sources[field] += [uri]
-        else:
+        if field not in self._fields:
             log.debug('Attempted to add source for unused name template field '
                       '"{!s}": {!s}'.format(field, uri))
+            return
 
-    def add_known_sources(self, source_dict):
-        for _field, uri in source_dict.items():
-            if isinstance(uri, list):
-                for m in uri:
-                    self.add_known_source(_field, m)
-            else:
-                self.add_known_source(_field, uri)
+        self._add_known_source(field, uri)
+
+    def _add_known_source(self, field, uri):
+        current_field_data_sources = self.data_sources.get(field, None)
+        if current_field_data_sources is None:
+            self.data_sources[field] = [uri]
+        else:
+            self.data_sources[field] += [uri]
+
+        n = len(self.data_sources[field])
+        log.debug('Added known source (#{}) for field {!s} :: {!s}'.format(n, field, uri))
 
     @property
     def unresolved(self):
@@ -179,16 +185,21 @@ class TemplateFieldDataResolver(object):
 
     def _has_data_for_placeholder_fields(self):
         log.debug('Checking gathered data for fields..')
-        for field in self._fields:
-            if field not in self.fields_data.keys():
-                log.debug('Gathered data does not contain placeholder field {!s}'.format(field))
-                return False
 
-            elif self.fields_data.get(field) is None:
-                log.debug('Gathered data is None for placeholder field {!s}'.format(field))
-                return False
+        missing_fields = [f for f in self._fields if f not in self.fields_data.keys()]
+        if missing_fields:
+            str_missing_fields = ' '.join([str(f) for f in missing_fields])
+            log.debug('Gathered data does not contain field(s) {!s}'.format(str_missing_fields))
 
-        log.debug('Checking gathered data for fields.. OK! Gathered data for all fields')
+        none_data_fields = [f for f in self._fields if self.fields_data.get(f, 'x') is None]
+        if none_data_fields:
+            str_none_data_fields = ' '.join([str(f) for f in none_data_fields])
+            log.debug('Gathered data is None for field(s) {!s}'.format(str_none_data_fields))
+
+        if missing_fields or none_data_fields:
+            return False
+
+        log.debug('Checking gathered data for fields.. OK!')
         return True
 
     def _gather_data_for_template_field(self, _field, uri):
