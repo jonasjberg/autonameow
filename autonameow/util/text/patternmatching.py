@@ -95,14 +95,26 @@ _ORDINAL_NUMBER_PATTERNS = [
 RE_ORDINALS = dict()
 
 
-def compiled_ordinal_edition_regexes():
+def compiled_ordinal_regexes():
     global RE_ORDINALS
     if not RE_ORDINALS:
         for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
-            ordinal_edition_pattern = regexp + '( edition)?( ed\.?)?( e)?'
-            compiled_regex = re.compile(ordinal_edition_pattern, re.IGNORECASE)
+            compiled_regex = re.compile(regexp, re.IGNORECASE)
             RE_ORDINALS[number] = compiled_regex
     return RE_ORDINALS
+
+
+RE_ORDINAL_EDITION = dict()
+
+
+def compiled_ordinal_edition_regexes():
+    global RE_ORDINAL_EDITION
+    if not RE_ORDINAL_EDITION:
+        for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
+            ordinal_edition_pattern = regexp + ' ?(edition|ed\.?|e)'
+            compiled_regex = re.compile(ordinal_edition_pattern, re.IGNORECASE)
+            RE_ORDINAL_EDITION[number] = compiled_regex
+    return RE_ORDINAL_EDITION
 
 
 def find_and_extract_edition(string):
@@ -132,11 +144,19 @@ def find_and_extract_edition(string):
 
     assert isinstance(string, str)
 
-    matches = []
-    for number, regex in compiled_ordinal_edition_regexes().items():
-        m = regex.search(string)
-        if m:
-            matches.append((number, regex))
+    def _find_editions(ordinal_regexes):
+        _matches = []
+        for number, regex in ordinal_regexes.items():
+            m = regex.search(string)
+            if m:
+                _matches.append((number, regex))
+
+        return _matches
+
+    matches = _find_editions(compiled_ordinal_edition_regexes())
+    if not matches:
+        # Try again with less "specific" regexes.
+        matches = _find_editions(compiled_ordinal_regexes())
 
     if matches:
         # Handle case where "25th" matches "5th" and returns 5.
@@ -147,7 +167,7 @@ def find_and_extract_edition(string):
         modified_text = re.sub(matched_regex, '', string)
         return matched_number, modified_text
 
-    # Try a second approach.
+    # Try a third approach.
     match = RE_EDITION.search(string)
     if match:
         ed = match.group(1)

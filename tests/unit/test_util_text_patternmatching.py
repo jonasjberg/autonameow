@@ -23,6 +23,7 @@ from unittest import TestCase
 
 from util.text.patternmatching import (
     compiled_ordinal_edition_regexes,
+    compiled_ordinal_regexes,
     find_and_extract_edition,
     find_publisher_in_copyright_notice
 )
@@ -33,7 +34,7 @@ class TestCompiledOrdinalRegexes(TestCase):
     def setUpClass(cls):
         from core import types
         cls.builtin_regex_type = types.BUILTIN_REGEX_TYPE
-        cls.actual = compiled_ordinal_edition_regexes()
+        cls.actual = compiled_ordinal_regexes()
 
     def test_returns_expected_type(self):
         self.assertIsNotNone(self.actual)
@@ -55,6 +56,38 @@ class TestCompiledOrdinalRegexes(TestCase):
           ]:
             with self.subTest(given=given):
                 actual = self.actual.get(2).search(given)
+                self.assertIsNotNone(actual)
+                match = actual.group(0)
+                self.assertTrue(2, match)
+
+
+class TestCompiledOrdinalEditionRegexes(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from core import types
+        cls.builtin_regex_type = types.BUILTIN_REGEX_TYPE
+        cls.actual = compiled_ordinal_edition_regexes()
+
+    def test_returns_expected_type(self):
+        self.assertIsNotNone(self.actual)
+        self.assertIsInstance(self.actual, dict)
+
+    def test_returns_compiled_regular_expressions(self):
+        ordinal_one_regex = self.actual.get(1)
+        self.assertIsInstance(ordinal_one_regex, self.builtin_regex_type)
+
+        for ordinal_regex in self.actual.values():
+            self.assertIsInstance(ordinal_regex, self.builtin_regex_type)
+
+    def test_returned_regexes_matches_strings(self):
+        for given in [
+            '2nd ed', 'second ed', 'SECOND ED', 'foo 2nd ed bar', 'foo 2ND ED bar',
+            '2nd ed.', 'second ed.', 'SECOND ED.', 'foo 2nd ed. bar', 'foo 2ND ED. bar',
+            '2nd edition', 'second edition', 'SECOND EDITION', 'foo 2nd edition bar', 'foo 2ND EDITION bar',
+          ]:
+            with self.subTest(given=given):
+                actual = self.actual.get(2).search(given)
+                self.assertIsNotNone(actual)
                 match = actual.group(0)
                 self.assertTrue(2, match)
 
@@ -70,7 +103,11 @@ class TestFindAndExtractEdition(TestCase):
         ]:
             actual_edition, actual_text = find_and_extract_edition(given)
             self.assertIsNone(actual_edition)
-            self.assertIsNone(actual_text)
+            self.assertEqual(given, actual_text)
+
+    def test_raises_assertion_error_given_non_str_type(self):
+        with self.assertRaises(AssertionError):
+            _, _ = find_and_extract_edition(b'foo')
 
     def _check_result(self, given, expect_edition, expect_text):
         actual_edition, actual_text = find_and_extract_edition(given)
@@ -162,20 +199,19 @@ class TestFindAndExtractEdition(TestCase):
         self._check_result(given='8th Edition', expect_edition=8, expect_text='')
         self._check_result(given='Eighth Edition', expect_edition=8, expect_text='')
 
-    def test_use_biggest_matching_number(self):
+    def test_uses_biggest_matching_number_in_case_of_multiple_matches(self):
         self._check_result(given='Foobar 1st 10th Edition.pdf', expect_edition=10, expect_text='Foobar 1st .pdf')
-        self._check_result(given='Foobar 10th 1st Edition.pdf', expect_edition=10, expect_text='Foobar  1st Edition.pdf')
         self._check_result(given='Foobar 1st Edition 10th Edition.pdf', expect_edition=10, expect_text='Foobar 1st Edition .pdf')
         self._check_result(given='Foobar 2nd Edition 10th Edition.pdf', expect_edition=10, expect_text='Foobar 2nd Edition .pdf')
         self._check_result(given='Foobar 10th Edition 1st Edition.pdf', expect_edition=10, expect_text='Foobar  1st Edition.pdf')
         self._check_result(given='Foobar Edition 1st 10th.pdf', expect_edition=10, expect_text='Foobar Edition 1st .pdf')
         self._check_result(given='Foobar Edition 2nd 10th.pdf', expect_edition=10, expect_text='Foobar Edition 2nd .pdf')
-        self._check_result(given='Foobar 1st Edition 10th.pdf', expect_edition=10, expect_text='Foobar 1st Edition .pdf')
         self._check_result(given='Foobar 1st 10th Edition.pdf', expect_edition=10, expect_text='Foobar 1st .pdf')
 
-    def test_do_not_use_biggest_matching_number_if_edition_is_obvious(self):
-        self.skipTest('TODO: ..')
+    def test_does_not_use_biggest_matching_number_if_edition_is_obvious(self):
         self._check_result(given='11th Hour CISSP: Study Guide 2nd Edition', expect_edition=2, expect_text='11th Hour CISSP: Study Guide ')
+        self._check_result(given='Foobar 1st Edition 10th.pdf', expect_edition=1, expect_text='Foobar  10th.pdf')
+        self._check_result(given='Foobar 10th 1st Edition.pdf', expect_edition=1, expect_text='Foobar 10th .pdf')
 
     def test_handles_example_false_positives(self):
         self.skipTest('TODO: ..')
