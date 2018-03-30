@@ -21,7 +21,6 @@
 
 from unittest import TestCase
 
-from core import types
 from core.namebuilder import fields
 
 
@@ -186,6 +185,13 @@ class TestNametemplatefieldClassFromString(TestCase):
 
 
 class NameTemplateFieldCompatible(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from core import coercers
+        cls.coercers_AW_INTEGER = coercers.AW_INTEGER
+        cls.coercers_AW_STRING = coercers.AW_STRING
+        cls.coercers_AW_TIMEDATE = coercers.AW_TIMEDATE
+
     def _compatible(self, nametemplate_field, coercer_class):
         actual = nametemplate_field.type_compatible(coercer_class)
         self.assertTrue(actual)
@@ -195,17 +201,23 @@ class NameTemplateFieldCompatible(TestCase):
         self.assertFalse(actual)
 
     def test_compatible_with_name_template_field_description(self):
-        self._compatible(FIELDS_DESCRIPTION, types.AW_STRING)
-        self._compatible(FIELDS_DESCRIPTION, types.AW_INTEGER)
+        self._compatible(FIELDS_DESCRIPTION, self.coercers_AW_STRING)
+        self._compatible(FIELDS_DESCRIPTION, self.coercers_AW_INTEGER)
 
     def test_not_compatible_with_name_template_field_description(self):
-        self._incompatible(FIELDS_DESCRIPTION, types.AW_TIMEDATE)
-        self._incompatible(FIELDS_DESCRIPTION, types.listof(types.AW_STRING))
+        self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_TIMEDATE)
+
+        from core import coercers
+        self._incompatible(FIELDS_DESCRIPTION, coercers.listof(self.coercers_AW_STRING))
 
     def test_compatible_with_name_template_field_tags(self):
-        self._compatible(FIELDS_TAGS, types.AW_STRING)
-        self._compatible(FIELDS_TAGS, types.listof(types.AW_STRING))
+        self._compatible(FIELDS_TAGS, self.coercers_AW_STRING)
+
+        from core import coercers
+        self._compatible(FIELDS_TAGS, coercers.listof(self.coercers_AW_STRING))
 
     def test_not_compatible_with_name_template_field_tags(self):
-        self._incompatible(FIELDS_DESCRIPTION, types.AW_TIMEDATE)
-        self._incompatible(FIELDS_DESCRIPTION, types.listof(types.AW_TIMEDATE))
+        self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_TIMEDATE)
+
+        from core import coercers
+        self._incompatible(FIELDS_DESCRIPTION, coercers.listof(self.coercers_AW_TIMEDATE))

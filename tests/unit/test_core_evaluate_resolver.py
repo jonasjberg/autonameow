@@ -42,15 +42,12 @@ class TestDedupeListOfDatabundles(TestCase):
         self.assertEqual(expect, actual)
 
     def test_dedupes_two_identical_generic_titles(self):
-        # from core import types
         from core.model import genericfields as gf
         databundle_a = {
-            # 'coercer': types.AW_STRING,
             'generic_field': gf.GenericTitle,
             'value': 'Mysticism and Logic and Other Essays'
         }
         databundle_b = {
-            # 'coercer': types.AW_STRING,
             'generic_field': gf.GenericTitle,
             'value': 'Mysticism and Logic and Other Essays'
         }

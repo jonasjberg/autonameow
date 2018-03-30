@@ -21,7 +21,7 @@
 
 import re
 
-from core import types
+from core import coercers
 from util.text.transform import collapse_whitespace
 
 
@@ -172,8 +172,8 @@ def find_and_extract_edition(string):
     if match:
         ed = match.group(1)
         try:
-            edition = types.AW_INTEGER(ed)
-        except types.AWTypeError:
+            edition = coercers.AW_INTEGER(ed)
+        except coercers.AWTypeError:
             pass
         else:
             modified_text = re.sub(RE_EDITION, '', string)

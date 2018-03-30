@@ -23,7 +23,7 @@ import logging
 import re
 from collections import namedtuple
 
-from core import types
+from core import coercers
 from core import constants as C
 from core.exceptions import InvalidMeowURIError
 from util import sanity
@@ -241,7 +241,7 @@ class MeowURI(object):
 
 class MeowURIChild(object):
     def __init__(self, raw_value):
-        str_value = types.force_string(raw_value)
+        str_value = coercers.force_string(raw_value)
         normalized_str_value = _normalize_string(str_value)
         self._validate(normalized_str_value)
         self._value = normalized_str_value
@@ -260,7 +260,7 @@ class MeowURIChild(object):
 
 class MeowURILeaf(object):
     def __init__(self, raw_value):
-        str_value = types.force_string(raw_value)
+        str_value = coercers.force_string(raw_value)
         self._validate(str_value)
         self._value = str_value
 
@@ -278,7 +278,7 @@ class MeowURILeaf(object):
 
 class MeowURIRoot(object):
     def __init__(self, raw_value):
-        str_value = types.force_string(raw_value)
+        str_value = coercers.force_string(raw_value)
         normalized_str_value = _normalize_string(str_value)
         self._validate(normalized_str_value)
         self._value = normalized_str_value

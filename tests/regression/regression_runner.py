@@ -25,7 +25,7 @@ import sys
 import time
 
 from core import constants as C
-from core import types
+from core import coercers
 from core.view import cli
 from core.persistence import get_persistence
 from regression.utils import (
@@ -41,7 +41,7 @@ from regression.utils import (
 
 
 _this_dir = os.path.abspath(os.path.dirname(__file__))
-PERSISTENCE_DIR_ABSPATH = types.AW_PATH.normalize(_this_dir)
+PERSISTENCE_DIR_ABSPATH = coercers.AW_PATH.normalize(_this_dir)
 PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 
 

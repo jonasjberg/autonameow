@@ -23,7 +23,7 @@ import logging
 import time
 
 from core import constants as C
-from core import types
+from core import coercers
 from core.exceptions import AutonameowException
 from core.persistence.base import (
     PersistenceError,
@@ -107,7 +107,7 @@ class BaseCache(object):
 
     @owner.setter
     def owner(self, value):
-        str_value = types.force_string(value)
+        str_value = coercers.force_string(value)
         if not str_value.strip():
             raise CacheError(
                 'Argument "owner" must be a valid, non-empty/whitespace string'

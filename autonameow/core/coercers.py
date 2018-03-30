@@ -40,7 +40,7 @@ However, functionality provided by these classes have expanded and multiple
 parts of autonameow now use these types in various ways. The exact workings
 of the coercion _IS_ relevant for some of the usages..
 The best way to get a grip on what these classes are doing is to look at the
-tests in 'tests/unit/test_core_types.py'.
+tests in 'tests/unit/test_core_coercers.py'.
 
 Note that the behaviours of for instance 'format()' and 'normalize()' vary
 a lot between classes.
@@ -68,7 +68,7 @@ class AWTypeError(exceptions.AutonameowException):
 
 
 class BaseNullValue(object):
-    AS_STRING = '(NULL BaseType value)'
+    AS_STRING = '(NULL BaseNullValue)'
 
     def __bool__(self):
         return False
@@ -96,10 +96,10 @@ class _NullMIMEType(BaseNullValue):
     AS_STRING = '(UNKNOWN MIME-TYPE)'
 
 
-class BaseType(object):
+class BaseCoercer(object):
     """
-    Base class for all custom types. Provides type coercion and known defaults.
-    Does not store values -- intended to act as filters.
+    Base class for all type coercers with shared functionality.
+    Does *not* store values or any kind of state -- intended to act as filters.
     """
     # Default "None" value to fall back to.
     NULL = BaseNullValue()
@@ -200,7 +200,7 @@ class BaseType(object):
         return not self.__eq__(other)
 
 
-class _Path(BaseType):
+class _Path(BaseCoercer):
     COERCIBLE_TYPES = (str, bytes)
 
     # Always force coercion so that all incoming data is properly normalized.
@@ -241,7 +241,7 @@ class _Path(BaseType):
         return enc.displayable_path(_normalized)
 
 
-class _PathComponent(BaseType):
+class _PathComponent(BaseCoercer):
     COERCIBLE_TYPES = (str, bytes)
     EQUIVALENT_TYPES = (bytes, )
     NULL = b''
@@ -267,7 +267,7 @@ class _PathComponent(BaseType):
         return enc.displayable_path(_coerced)
 
 
-class _Boolean(BaseType):
+class _Boolean(BaseCoercer):
     COERCIBLE_TYPES = (bytes, str, int, float, object)
     EQUIVALENT_TYPES = (bool, )
     NULL = False
@@ -326,7 +326,7 @@ class _Boolean(BaseType):
         return self.bool_to_string(value)
 
 
-class _Integer(BaseType):
+class _Integer(BaseCoercer):
     COERCIBLE_TYPES = (bytes, str, float)
     EQUIVALENT_TYPES = (int, )
     NULL = 0
@@ -374,7 +374,7 @@ class _Integer(BaseType):
         )
 
 
-class _Float(BaseType):
+class _Float(BaseCoercer):
     COERCIBLE_TYPES = (bytes, str, int)
     EQUIVALENT_TYPES = (float, )
     NULL = 0.0
@@ -427,7 +427,7 @@ class _Float(BaseType):
         )
 
 
-class _String(BaseType):
+class _String(BaseCoercer):
     COERCIBLE_TYPES = (str, bytes, int, float, bool)
     EQUIVALENT_TYPES = (str, )
     NULL = ''
@@ -458,7 +458,7 @@ class _String(BaseType):
         return value
 
 
-class _MimeType(BaseType):
+class _MimeType(BaseCoercer):
     COERCIBLE_TYPES = (str, bytes)
     EQUIVALENT_TYPES = ()
     NULL = _NullMIMEType()
@@ -504,7 +504,7 @@ class _MimeType(BaseType):
         return formatted if formatted is not None else self.null()
 
 
-class _Date(BaseType):
+class _Date(BaseCoercer):
     COERCIBLE_TYPES = (str, bytes, int, float)
     EQUIVALENT_TYPES = (datetime, )
 
@@ -557,7 +557,7 @@ class _Date(BaseType):
         )
 
 
-class _TimeDate(BaseType):
+class _TimeDate(BaseCoercer):
     COERCIBLE_TYPES = (str, bytes, int, float)
     EQUIVALENT_TYPES = (datetime, )
 
@@ -819,14 +819,14 @@ class MultipleTypes(object):
     Do not call directly! Use the 'listof()' function.
     Coercing a list of values:
 
-        coerced_list = types.listof(types.AW_STRING)(raw_list)
+        coerced_list = coercers.listof(coercers.AW_STRING)(raw_list)
 
     Formatting a list of values:
 
-        formatted_list = types.listof(types.AW_STRING).format(raw_list)
+        formatted_list = coercers.listof(coercers.AW_STRING).format(raw_list)
     """
     def __init__(self, coercer):
-        sanity.check_isinstance(coercer, BaseType)
+        sanity.check_isinstance(coercer, BaseCoercer)
         self.coercer = coercer
 
     def __call__(self, value):
@@ -864,7 +864,7 @@ class MultipleTypes(object):
         return out
 
     def __contains__(self, item):
-        if isinstance(item, BaseType):
+        if isinstance(item, BaseCoercer):
             return item == self.coercer
         return False
 

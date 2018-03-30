@@ -25,7 +25,7 @@ import logging
 from core import (
     logs,
     repository,
-    types
+    coercers
 )
 from core.model import genericfields as gf
 from core.model.normalize import (
@@ -150,7 +150,7 @@ class TemplateFieldDataResolver(object):
             if _candidate_value and _candidate_coercer:
                 try:
                     _formatted_value = _candidate_coercer.format(_candidate_value)
-                except types.AWTypeError as e:
+                except coercers.AWTypeError as e:
                     # TODO: FIX THIS! Should use "list of string"-coercer for authors and other "multi-valued" template fields.
                     log.critical(
                         'Error while formatting (coercing) candidate value in '

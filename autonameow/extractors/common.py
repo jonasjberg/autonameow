@@ -215,7 +215,7 @@ class BaseExtractor(ProviderMixin):
         matching the keys in the field meta data, defined in YAML-files.
         The data should be "safe", I.E. validated and coerced to a suitable
         "internal format" --- text should be returned as Unicode strings, etc.
-        Use the type coercers in 'types.py'.
+        Use the type coercers in 'coercers.py'.
 
         Implementing classes should make sure to catch all exceptions and
         re-raise an 'ExtractorError', passing any valuable information along.

@@ -31,7 +31,7 @@ except ImportError:
 from analyzers import BaseAnalyzer
 from core import (
     persistence,
-    types
+    coercers
 )
 from core.model.normalize import (
     normalize_full_human_name,
@@ -373,16 +373,16 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         # TODO: Cleanup and filter date/year
         try:
-            return types.AW_DATE(raw_string)
-        except types.AWTypeError:
+            return coercers.AW_DATE(raw_string)
+        except coercers.AWTypeError:
             return None
 
     def _filter_publisher(self, raw_string):
         # TODO: [TD0034] Filter out known bad data.
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         try:
-            string_ = types.AW_STRING(raw_string)
-        except types.AWTypeError:
+            string_ = coercers.AW_STRING(raw_string)
+        except coercers.AWTypeError:
             return None
         else:
             if not string_.strip():
@@ -395,8 +395,8 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
         # TODO: [TD0034] Filter out known bad data.
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         try:
-            string_ = types.AW_STRING(raw_string)
-        except types.AWTypeError:
+            string_ = coercers.AW_STRING(raw_string)
+        except coercers.AWTypeError:
             return None
         else:
             if not string_.strip():
@@ -409,8 +409,8 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
         # TODO: [TD0034] Filter out known bad data.
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         try:
-            int_ = types.AW_INTEGER(raw_string)
-        except types.AWTypeError:
+            int_ = coercers.AW_INTEGER(raw_string)
+        except coercers.AWTypeError:
             return None
         else:
             return int_ if int_ != 0 else None
@@ -616,8 +616,8 @@ class ISBNMetadata(object):
         if value and isinstance(value, str):
             self._year = value
             try:
-                self._normalized_year = types.AW_INTEGER(value)
-            except types.AWTypeError:
+                self._normalized_year = coercers.AW_INTEGER(value)
+            except coercers.AWTypeError:
                 self._normalized_year = self.NORMALIZED_YEAR_UNKNOWN
 
     @property

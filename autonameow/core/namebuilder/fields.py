@@ -24,7 +24,7 @@ import logging
 
 from core import (
     exceptions,
-    types,
+    coercers,
 )
 from util import (
     sanity,
@@ -49,7 +49,7 @@ class NameTemplateField(object):
 
     @classmethod
     def type_compatible(cls, type_class):
-        if isinstance(type_class, types.MultipleTypes):
+        if isinstance(type_class, coercers.MultipleTypes):
             if not cls.MULTIVALUED:
                 return False
             return type_class.coercer in cls.COMPATIBLE_TYPES
@@ -73,23 +73,23 @@ class NameTemplateField(object):
 
 
 class _Title(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER)
     MULTIVALUED = False
 
     @classmethod
     def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = databundle.value
-        if databundle.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
-            str_value = types.force_string(value)
+        if databundle.coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
+            str_value = coercers.force_string(value)
             if not str_value:
                 raise exceptions.NameBuilderError(
                     'Unicode string conversion failed for "{!r}"'.format(databundle)
                 )
-        elif databundle.coercer == types.AW_STRING:
+        elif databundle.coercer == coercers.AW_STRING:
             str_value = databundle.value
         else:
             str_value = databundle.value
@@ -101,10 +101,10 @@ class _Title(NameTemplateField):
 
 
 class _Edition(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER)
     MULTIVALUED = False
 
     @classmethod
@@ -112,14 +112,14 @@ class _Edition(NameTemplateField):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = databundle.value
 
-        if databundle.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
-            str_value = types.force_string(value)
+        if databundle.coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
+            str_value = coercers.force_string(value)
             if not str_value:
                 raise exceptions.NameBuilderError(
                     'Unicode string conversion failed for "{!r}"'.format(databundle)
                 )
-        elif databundle.coercer in (types.AW_STRING, types.AW_INTEGER):
-            str_value = types.force_string(databundle.value)
+        elif databundle.coercer in (coercers.AW_STRING, coercers.AW_INTEGER):
+            str_value = coercers.force_string(databundle.value)
         else:
             raise exceptions.NameBuilderError(
                 'Got incompatible data: {!r}'.format(databundle)
@@ -132,10 +132,10 @@ class _Edition(NameTemplateField):
 
 
 class _Extension(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_MIMETYPE)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_MIMETYPE)
     MULTIVALUED = False
 
     @classmethod
@@ -152,7 +152,7 @@ class _Extension(NameTemplateField):
             formatted_value = coercer.format(value)
         else:
             log.warning('{!s} coercer unknown for "{!s}"'.format(cls, value))
-            formatted_value = types.force_string(value)
+            formatted_value = coercers.force_string(value)
 
         if formatted_value is None:
             raise exceptions.NameBuilderError(
@@ -162,21 +162,21 @@ class _Extension(NameTemplateField):
 
 
 class _Author(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING)
     MULTIVALUED = True
 
     @classmethod
     def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
         databundle_coercer = databundle.coercer
-        sanity.check_isinstance(databundle_coercer, types.BaseType)
+        sanity.check_isinstance(databundle_coercer, coercers.BaseCoercer)
 
         value = databundle.value
         # TODO: Coercer references that are passed around are class INSTANCES!
-        # TODO: [hack] Fix 'types.listof()' expects classes!
-        coercer = types.listof(databundle_coercer)
+        # TODO: [hack] Fix 'coercers.listof()' expects classes!
+        coercer = coercers.listof(databundle_coercer)
         str_list_value = coercer(value)
         sanity.check_isinstance(str_list_value, list)
 
@@ -196,18 +196,18 @@ class _Author(NameTemplateField):
 
 
 class _Creator(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER,
-                        types.AW_FLOAT)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER,
+                        coercers.AW_FLOAT)
     MULTIVALUED = True
 
 
 class _DateTime(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_DATE,
-                        types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE)
+    COMPATIBLE_TYPES = (coercers.AW_DATE,
+                        coercers.AW_TIMEDATE,
+                        coercers.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod
@@ -235,9 +235,9 @@ class _DateTime(NameTemplateField):
 
 
 class _Date(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_DATE,
-                        types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE)
+    COMPATIBLE_TYPES = (coercers.AW_DATE,
+                        coercers.AW_TIMEDATE,
+                        coercers.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod
@@ -265,25 +265,25 @@ class _Date(NameTemplateField):
 
 
 class _Description(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER,
-                        types.AW_FLOAT)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER,
+                        coercers.AW_FLOAT)
     MULTIVALUED = False
 
     @classmethod
     def format(cls, databundle, *args, **kwargs):
         value = databundle.value
-        formatted_value = types.force_string(value)
+        formatted_value = coercers.force_string(value)
         return formatted_value
 
 
 class _Publisher(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER)
     MULTIVALUED = False
 
     @classmethod
@@ -312,16 +312,16 @@ class _Publisher(NameTemplateField):
 
 
 class _Tags(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER)
     MULTIVALUED = True
 
     @classmethod
     def format(cls, databundle, *args, **kwargs):
         value = databundle.value
-        str_list_value = types.listof(types.AW_STRING)(value)
+        str_list_value = coercers.listof(coercers.AW_STRING)(value)
 
         # TODO: [TD0129] Is this kind of double-double-check really necessary..?
         sanity.check_isinstance(str_list_value, list)
@@ -343,8 +343,8 @@ class _Tags(NameTemplateField):
 
 
 class _Time(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE)
+    COMPATIBLE_TYPES = (coercers.AW_TIMEDATE,
+                        coercers.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod
@@ -360,9 +360,9 @@ class _Time(NameTemplateField):
 
 
 class _Year(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_DATE,
-                        types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE)
+    COMPATIBLE_TYPES = (coercers.AW_DATE,
+                        coercers.AW_TIMEDATE,
+                        coercers.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod

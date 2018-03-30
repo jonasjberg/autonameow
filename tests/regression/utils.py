@@ -34,7 +34,7 @@ from core import constants as C
 from core.view import cli
 from core import (
     exceptions,
-    types
+    coercers
 )
 from util import encoding as enc
 from util import (
@@ -65,7 +65,7 @@ def read_plaintext_file(file_path, ignore_errors=None):
             raise RegressionTestError(e)
         return ''
     else:
-        return types.force_string(contents)
+        return coercers.force_string(contents)
 
 
 # Redefined print functions with disabled buffering.
@@ -252,17 +252,17 @@ class RegressionTestSuite(object):
         self.should_skip = bool(skip)
 
         if description:
-            self.description = types.force_string(description).strip()
+            self.description = coercers.force_string(description).strip()
         else:
             self.description = '(UNDESCRIBED)'
 
     @property
     def str_abspath(self):
-        return types.force_string(self.abspath)
+        return coercers.force_string(self.abspath)
 
     @property
     def str_dirname(self):
-        return types.force_string(self.dirname)
+        return coercers.force_string(self.dirname)
 
     def __hash__(self):
         return hash(
@@ -409,7 +409,7 @@ class RegressionTestLoader(object):
         """
         assert isinstance(options, dict)
 
-        config_path = types.force_string(options.get('config_path'))
+        config_path = coercers.force_string(options.get('config_path'))
         if not config_path:
             # Use default config.
             modified_path = uu.abspath_testconfig()
@@ -421,8 +421,8 @@ class RegressionTestLoader(object):
             # Substitute "variable".
             config_path_basename = config_path.replace('$THISTEST/', '').strip()
             try:
-                bytestring_basename = types.AW_PATHCOMPONENT(config_path_basename)
-            except types.AWTypeError as e:
+                bytestring_basename = coercers.AW_PATHCOMPONENT(config_path_basename)
+            except coercers.AWTypeError as e:
                 raise RegressionTestError(e)
 
             modified_path = self._joinpath(bytestring_basename)
@@ -468,14 +468,14 @@ def _expand_input_paths_variables(input_paths):
         else:
             # Normalize path.
             try:
-                bytestring_path = types.AW_PATH.normalize(path)
-            except types.AWTypeError as e:
+                bytestring_path = coercers.AW_PATH.normalize(path)
+            except coercers.AWTypeError as e:
                 raise RegressionTestError(
                     'Invalid path: "{!s}" :: {!s}'.format(path, e)
                 )
             else:
                 # NOTE(jonas): Iffy ad-hoc string coercion..
-                modified_path = types.force_string(bytestring_path)
+                modified_path = coercers.force_string(bytestring_path)
 
         # Allow non-existent but not empty paths.
         if not modified_path.strip():
@@ -576,8 +576,8 @@ class AutonameowWrapper(object):
     def mock_rename_file(self, from_path, new_basename):
         # TODO: [hack] Mocking is too messy to be reliable ..
         # NOTE(jonas): Iffy ad-hoc string coercion..
-        _from_basename = types.force_string(disk.basename(from_path))
-        _new_basename = types.force_string(new_basename)
+        _from_basename = coercers.force_string(disk.basename(from_path))
+        _new_basename = coercers.force_string(new_basename)
 
         # Check for collisions that might cause erroneous test results.
         if _from_basename in self.captured_renames:
@@ -818,7 +818,7 @@ def _commandline_args_for_testsuite(suite):
 
         options_config_path = suite_options.get('config_path')
         if options_config_path:
-            str_config_path = types.force_string(options_config_path)
+            str_config_path = coercers.force_string(options_config_path)
             assert str_config_path != ''
             arguments.append("--config-path '{}'".format(str_config_path))
 
@@ -877,8 +877,8 @@ def glob_filter(glob, bytestring):
         )
     try:
         # Coercing to "AW_PATHCOMPONENT" because there is no "AW_BYTES".
-        bytes_glob = types.AW_PATHCOMPONENT(glob)
-    except types.AWTypeError as e:
+        bytes_glob = coercers.AW_PATHCOMPONENT(glob)
+    except coercers.AWTypeError as e:
         raise RegressionTestError(e)
 
     regexp = bytes_glob.replace(b'*', b'.*')
@@ -900,8 +900,8 @@ def regexp_filter(expression, bytestring):
         )
     try:
         # Coercing to "AW_PATHCOMPONENT" because there is no "AW_BYTES".
-        bytes_expr = types.AW_PATHCOMPONENT(expression)
-    except types.AWTypeError as e:
+        bytes_expr = coercers.AW_PATHCOMPONENT(expression)
+    except coercers.AWTypeError as e:
         raise RegressionTestError(e)
 
     try:

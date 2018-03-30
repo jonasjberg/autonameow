@@ -23,7 +23,7 @@ import logging
 import mimetypes
 import os
 
-from core import types
+from core import coercers
 from core.exceptions import (
     AutonameowException,
     DependencyError
@@ -140,7 +140,7 @@ def filetype(file_path):
         The MIME type of the file at the given path ('application/pdf') or
         a "null" class instance if the MIME type can not be determined.
     """
-    unknown_mime_type = types.NULL_AW_MIMETYPE
+    unknown_mime_type = coercers.NULL_AW_MIMETYPE
     if not file_path:
         return unknown_mime_type
 
@@ -194,7 +194,7 @@ def eval_glob(mime_to_match, glob_list):
         return False
 
     # Unknown MIME-type evaluates True if a glob matches anything, else False.
-    if mime_to_match == types.NULL_AW_MIMETYPE:
+    if mime_to_match == coercers.NULL_AW_MIMETYPE:
         if '*/*' in glob_list:
             return True
         return False
@@ -242,7 +242,7 @@ def eval_glob(mime_to_match, glob_list):
 
 class MimeExtensionMapper(object):
     def __init__(self):
-        self.unknown_mime_type = types.NULL_AW_MIMETYPE
+        self.unknown_mime_type = coercers.NULL_AW_MIMETYPE
 
         # Stores sets.
         self._mime_to_ext = dict()
@@ -402,8 +402,8 @@ def _read_mimetype_extension_mapping_file(mapfile_basename, callback):
         except ValueError:
             log.error('Error parsing "{!s}" line {}'.format(mapfile, n))
         else:
-            str_mime_type = types.force_string(mime_type).strip()
-            str_extension = types.force_string(extension).strip().lstrip('.')
+            str_mime_type = coercers.force_string(mime_type).strip()
+            str_extension = coercers.force_string(extension).strip().lstrip('.')
             if not str_mime_type:
                 continue
 

@@ -32,7 +32,7 @@ except ImportError:
     colorama = None
 
 from core import constants as C
-from core import types
+from core import coercers
 from util import (
     git_commit_hash,
     sanity
@@ -189,7 +189,7 @@ def colorize(text, fore=None, back=None, style=None):
 
 
 def colorize_re_match(text, regex, color=None):
-    _re_type = types.BUILTIN_REGEX_TYPE
+    _re_type = coercers.BUILTIN_REGEX_TYPE
     assert regex and isinstance(regex, _re_type), (
         'Expected type {!s}. Got {!s}'.format(type(_re_type), type(regex))
     )

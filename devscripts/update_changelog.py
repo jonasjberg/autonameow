@@ -28,7 +28,7 @@ import sys
 
 import util
 from core import (
-    types,
+    coercers,
     version
 )
 from util import text
@@ -224,21 +224,21 @@ def git_log_for_range(hash_first, hash_second):
     stdout = subprocess.check_output(
         ['git', 'log', '--format="{}"'.format(GIT_LOG_FORMAT), _commit_range]
     )
-    return types.force_string(stdout.strip())
+    return coercers.force_string(stdout.strip())
 
 
 def get_previous_version_tag():
     stdout = subprocess.check_output(
         ['git', 'describe', '--abbrev=0', '--tags']
     )
-    return types.force_string(stdout.strip())
+    return coercers.force_string(stdout.strip())
 
 
 def get_commit_for_tag(tag_name):
     stdout = subprocess.check_output(
         ['git', 'rev-list', '-n', '1', tag_name]
     )
-    return types.force_string(stdout.strip())
+    return coercers.force_string(stdout.strip())
 
 
 def transform_fixes_to_fix(string):

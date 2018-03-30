@@ -283,8 +283,8 @@ def git_commit_hash():
         # NOTE(jonas): git returns 128 for the "fatal: Not a git repository.."
         # error. Substring matching is redundant but probably won't hurt either.
         if process.returncode == 0:
-            from core import types
-            str_stdout = types.force_string(stdout).strip()
+            from core import coercers
+            str_stdout = coercers.force_string(stdout).strip()
             if str_stdout and 'fatal: Not a git repository' not in str_stdout:
                 return str_stdout
         return None

@@ -22,7 +22,7 @@
 import logging
 
 from core import constants as C
-from core import types
+from core import coercers
 from util import (
     disk,
     nested_dict_get,
@@ -127,4 +127,4 @@ class Configuration(object):
 
 
 def _yaml_format(data):
-    return types.force_string(disk.write_yaml(data))
+    return coercers.force_string(disk.write_yaml(data))

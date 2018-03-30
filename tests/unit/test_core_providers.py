@@ -34,8 +34,15 @@ class TestWrapProviderResults(TestCase):
     # TODO: [cleanup][hack] Use mocks!
     @classmethod
     def setUpClass(cls):
+        from core import coercers
+        cls.coercers_AW_BOOLEAN = coercers.AW_BOOLEAN
+        cls.coercers_AW_FLOAT = coercers.AW_FLOAT
+        cls.coercers_AW_MIMETYPE = coercers.AW_MIMETYPE
+        cls.coercers_AW_PATHCOMPONENT = coercers.AW_PATHCOMPONENT
+        cls.coercers_AW_PATH = coercers.AW_PATH
+        cls.coercers_AW_TIMEDATE = coercers.AW_TIMEDATE
+
         import datetime
-        from core import types
         cls.EXAMPLE_FIELD_LOOKUP = {
             'abspath_full': {
                 'coercer': 'aw_path',
@@ -109,7 +116,7 @@ class TestWrapProviderResults(TestCase):
         from core.namebuilder import fields
         cls.EXPECTED_WRAPPED = {
             'date_created': {
-                'coercer': types.AW_TIMEDATE,
+                'coercer': cls.coercers_AW_TIMEDATE,
                 'mapped_fields': [
                     WeightedMapping(field=fields.Date, weight=1),
                     WeightedMapping(field=fields.DateTime, weight=1)
@@ -120,7 +127,7 @@ class TestWrapProviderResults(TestCase):
                 'generic_field': GenericDateCreated
             },
             'extension': {
-                'coercer': types.AW_PATHCOMPONENT,
+                'coercer': cls.coercers_AW_PATHCOMPONENT,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'mapped_fields': [
                     WeightedMapping(field=fields.Extension, weight=1)
@@ -129,13 +136,13 @@ class TestWrapProviderResults(TestCase):
                 'value': b'pdf'
             },
             'basename_prefix': {
-                'coercer': types.AW_PATHCOMPONENT,
+                'coercer': cls.coercers_AW_PATHCOMPONENT,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'value': b'foo.bar',
                 'multivalued': False
             },
             'date_modified': {
-                'coercer': types.AW_TIMEDATE,
+                'coercer': cls.coercers_AW_TIMEDATE,
                 'mapped_fields': [
                     WeightedMapping(field=fields.Date, weight=0.25),
                     WeightedMapping(field=fields.DateTime, weight=0.25)
@@ -146,19 +153,19 @@ class TestWrapProviderResults(TestCase):
                 'generic_field': GenericDateModified
             },
             'basename_full': {
-                'coercer': types.AW_PATHCOMPONENT,
+                'coercer': cls.coercers_AW_PATHCOMPONENT,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'value': b'foo.bar.pdf',
                 'multivalued': False
             },
             'pathname_parent': {
-                'coercer': types.AW_PATH,
+                'coercer': cls.coercers_AW_PATH,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'value': b'aw',
                 'multivalued': False
             },
             'basename_suffix': {
-                'coercer': types.AW_PATHCOMPONENT,
+                'coercer': cls.coercers_AW_PATHCOMPONENT,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'mapped_fields': [
                     WeightedMapping(field=fields.Extension, weight=1)
@@ -167,19 +174,19 @@ class TestWrapProviderResults(TestCase):
                 'value': b'pdf'
             },
             'pathname_full': {
-                'coercer': types.AW_PATH,
+                'coercer': cls.coercers_AW_PATH,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'value': b'/tank/temp/to-be-sorted/aw',
                 'multivalued': False
             },
             'abspath_full': {
-                'coercer': types.AW_PATH,
+                'coercer': cls.coercers_AW_PATH,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'value': b'/tank/temp/to-be-sorted/aw/foo.bar.pdf',
                 'multivalued': False
             },
             'mime_type': {
-                'coercer': types.AW_MIMETYPE,
+                'coercer': cls.coercers_AW_MIMETYPE,
                 'mapped_fields': [
                     WeightedMapping(field=fields.Extension, weight=1)
                 ],
@@ -205,7 +212,6 @@ class TestWrapProviderResults(TestCase):
         self.assertEqual(self.EXPECTED_WRAPPED, actual)
 
     def test_translates_arbitrary_datadict_metainfo_and_source_class(self):
-        from core import types
         from core.model import WeightedMapping
         from core.namebuilder import fields
         actual = wrap_provider_results(
@@ -226,7 +232,7 @@ class TestWrapProviderResults(TestCase):
         expect = {
             'extension': {
                 'value': b'pdf',
-                'coercer': types.AW_PATHCOMPONENT,
+                'coercer': self.coercers_AW_PATHCOMPONENT,
                 'multivalued': False,
                 'mapped_fields': [
                     WeightedMapping(fields.Extension, weight=1.0),
@@ -237,7 +243,6 @@ class TestWrapProviderResults(TestCase):
         self.assertEqual(expect, actual)
 
     def test_translates_coercer_string_to_coercer_class(self):
-        from core import types
         actual = wrap_provider_results(
             datadict={
                 'extension': b'pdf',
@@ -252,7 +257,7 @@ class TestWrapProviderResults(TestCase):
         )
         self.assertIn('extension', actual)
         self.assertIn('coercer', actual['extension'])
-        self.assertEqual(types.AW_PATHCOMPONENT, actual['extension']['coercer'])
+        self.assertEqual(self.coercers_AW_PATHCOMPONENT, actual['extension']['coercer'])
 
     def test_translates_multivalued_string_to_boolean(self):
         actual = wrap_provider_results(
@@ -280,7 +285,6 @@ class TestWrapProviderResults(TestCase):
         self.assertTrue(actual['bar']['multivalued'])
 
     def test_wraps_example_results(self):
-        from core import types
         actual = wrap_provider_results(
             datadict={
                 'health': 0.5,
@@ -304,13 +308,13 @@ class TestWrapProviderResults(TestCase):
         expect = {
             'health': {
                 'value': 0.5,
-                'coercer': types.AW_FLOAT,
+                'coercer': self.coercers_AW_FLOAT,
                 'multivalued': False,
                 'source': 'MockProvider'
             },
             'is_jpeg': {
                 'value': False,
-                'coercer': types.AW_BOOLEAN,
+                'coercer': self.coercers_AW_BOOLEAN,
                 'multivalued': False,
                 'source': 'MockProvider'
             }

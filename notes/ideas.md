@@ -216,8 +216,8 @@ these sources could possibly provide relevant evidence:
     >>> _ext = 'IFF.txt'.split('.')[-1]
     >>> _ext
     'txt'
-    >>> from core import types
-    >>> types.AW_MIMETYPE(_ext)
+    >>> from core import coercers
+    >>> coercers.AW_MIMETYPE(_ext)
     'text/plain'
     ```
 
@@ -530,7 +530,7 @@ Some contextual metadata should be kept along with each stored data item for;
       Example;
         ```python
         'PDF:Producer': ExtractedData(
-            wrapper=types.AW_STRING,
+            wrapper=coercers.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping(fields.publisher, weight=0.25),
                 fields.WeightedMapping(fields.author, weight=0.01)

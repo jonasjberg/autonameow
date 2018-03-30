@@ -21,7 +21,7 @@
 
 import logging
 
-from core import types
+from core import coercers
 from core.model import (
     genericfields,
     WeightedMapping
@@ -63,7 +63,7 @@ class ProviderMixin(object):
 
         sanity.check_internal_string(coercer_string)
         coercer = get_coercer_for_metainfo_string(coercer_string)
-        assert isinstance(coercer, (types.BaseType, types.MultipleTypes)), (
+        assert isinstance(coercer, (coercers.BaseCoercer, coercers.MultipleTypes)), (
             'Expected coercer class. Got {!s} "{!s}"'.format(type(coercer), coercer)
         )
 
@@ -114,7 +114,7 @@ class ProviderMixin(object):
     def _coerce_single_value(self, field, value, coercer):
         try:
             return coercer(value)
-        except types.AWTypeError as e:
+        except coercers.AWTypeError as e:
             self.log.debug(
                 'Error while coercing field "{!s}" with value '
                 '"{!s}" :: {!s}'.format(field, value, e)
@@ -123,8 +123,8 @@ class ProviderMixin(object):
 
     def _coerce_multiple_values(self, field, values, coercer):
         try:
-            return types.listof(coercer)(values)
-        except types.AWTypeError as e:
+            return coercers.listof(coercer)(values)
+        except coercers.AWTypeError as e:
             self.log.debug(
                 'Error while coercing field "{!s}" with values '
                 '"{!s}" :: {!s}'.format(field, values, e)
@@ -218,16 +218,16 @@ def _wrap_provider_result_field(field_metainfo, source_klass, value):
 
 
 _METAINFO_STRING_COERCER_KLASS_MAP = {
-    'aw_path': types.AW_PATH,
-    'aw_pathcomponent': types.AW_PATHCOMPONENT,
-    'aw_timedate': types.AW_TIMEDATE,
-    'aw_mimetype': types.AW_MIMETYPE,
-    'aw_boolean': types.AW_BOOLEAN,
-    'aw_integer': types.AW_INTEGER,
-    'aw_date': types.AW_DATE,
-    'aw_exiftooltimedate': types.AW_EXIFTOOLTIMEDATE,
-    'aw_float': types.AW_FLOAT,
-    'aw_string': types.AW_STRING,
+    'aw_path': coercers.AW_PATH,
+    'aw_pathcomponent': coercers.AW_PATHCOMPONENT,
+    'aw_timedate': coercers.AW_TIMEDATE,
+    'aw_mimetype': coercers.AW_MIMETYPE,
+    'aw_boolean': coercers.AW_BOOLEAN,
+    'aw_integer': coercers.AW_INTEGER,
+    'aw_date': coercers.AW_DATE,
+    'aw_exiftooltimedate': coercers.AW_EXIFTOOLTIMEDATE,
+    'aw_float': coercers.AW_FLOAT,
+    'aw_string': coercers.AW_STRING,
 }
 
 
@@ -255,7 +255,7 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
                 assert param_prob_str
 
                 param_field = nametemplatefield_class_from_string(param_field_str)
-                param_prob = types.AW_FLOAT(param_prob_str)
+                param_prob = coercers.AW_FLOAT(param_prob_str)
                 # TODO: Improve robustness. Raise appropriate exception.
                 # TODO: Improve robustness. Log provider with malformed metainfo entries.
                 assert param_field
@@ -269,4 +269,4 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
 
 
 def translate_multivalued(multivalued_string):
-    return types.AW_BOOLEAN(multivalued_string)
+    return coercers.AW_BOOLEAN(multivalued_string)

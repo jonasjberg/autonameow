@@ -29,7 +29,7 @@ from analyzers import (
     BaseAnalyzer
 )
 from core import constants as C
-from core import types
+from core import coercers
 from util import (
     dateandtime,
     disk,
@@ -41,8 +41,8 @@ from util.text import (
 )
 
 
-_PATH_THIS_DIR = types.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
-BASENAME_PROBABLE_EXT_LOOKUP = types.AW_PATHCOMPONENT('probable_extension_lookup')
+_PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
+BASENAME_PROBABLE_EXT_LOOKUP = coercers.AW_PATHCOMPONENT('probable_extension_lookup')
 PATH_PROBABLE_EXT_LOOKUP = disk.joinpaths(_PATH_THIS_DIR, BASENAME_PROBABLE_EXT_LOOKUP)
 
 log = logging.getLogger(__name__)
@@ -120,13 +120,13 @@ class FilenameAnalyzer(BaseAnalyzer):
 
     def analyze(self):
         basename_prefix = self.fileobject.basename_prefix
-        self._basename_prefix = types.force_string(basename_prefix)
+        self._basename_prefix = coercers.force_string(basename_prefix)
 
         basename_suffix = self.fileobject.basename_suffix
-        self._basename_suffix = types.force_string(basename_suffix)
+        self._basename_suffix = coercers.force_string(basename_suffix)
 
         file_mimetype = self.fileobject.mime_type
-        self._file_mimetype = file_mimetype or types.NULL_AW_MIMETYPE
+        self._file_mimetype = file_mimetype or coercers.NULL_AW_MIMETYPE
         self._add_intermediate_results('datetime', self._get_datetime())
         self._add_intermediate_results('edition', self._get_edition())
         self._add_intermediate_results('extension', self._get_extension())
@@ -238,7 +238,7 @@ class MimetypeExtensionMapParser(object):
         self.state = self.STATE_INITIAL
 
     def parse(self, data):
-        text = types.force_string(data)
+        text = coercers.force_string(data)
         if not text.strip():
             return dict()
 
@@ -335,21 +335,21 @@ def likely_extension(basename_suffix, mime_type):
                 return ext
 
     # NOTE(jonas): Calling 'format()' returns a extension as a Unicode string.
-    _coerced_mime = types.AW_MIMETYPE(mime_type)
+    _coerced_mime = coercers.AW_MIMETYPE(mime_type)
     if _coerced_mime:
         log.debug('Passing coerced MIME "{!s}" to '
                   'AW_MIMETYPE.format()'.format(_coerced_mime))
-        return types.AW_MIMETYPE.format(_coerced_mime)
+        return coercers.AW_MIMETYPE.format(_coerced_mime)
 
     if basename_suffix == '':
         log.debug('Basename suffix is empty. Giving up..')
         return ''
 
-    _coerced_suffix = types.AW_MIMETYPE(basename_suffix)
+    _coerced_suffix = coercers.AW_MIMETYPE(basename_suffix)
     if _coerced_suffix:
         log.debug('Passing coerced suffix "{!s}" to '
                   'AW_MIMETYPE.format()'.format(_coerced_suffix))
-        return types.AW_MIMETYPE.format(_coerced_suffix)
+        return coercers.AW_MIMETYPE.format(_coerced_suffix)
 
     return None
 

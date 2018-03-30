@@ -24,7 +24,7 @@ import os
 
 from core import (
     persistence,
-    types,
+    coercers,
 )
 from core import constants as C
 from extractors import BaseExtractor
@@ -160,8 +160,8 @@ class AbstractTextExtractor(BaseExtractor):
 
 def decode_raw(raw_text):
     try:
-        text = types.AW_STRING(raw_text)
-    except types.AWTypeError:
+        text = coercers.AW_STRING(raw_text)
+    except coercers.AWTypeError:
         try:
             text = enc.autodetect_decode(raw_text)
         except ValueError:

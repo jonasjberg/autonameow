@@ -24,7 +24,7 @@ import pickle
 
 from core import (
     config,
-    types,
+    coercers,
 )
 from core.exceptions import (
     AutonameowException,
@@ -109,7 +109,7 @@ class BasePersistence(object):
         sanity.check_internal_bytestring(self._persistence_dir_abspath)
         assert disk.isabs(self._persistence_dir_abspath)
 
-        str_file_prefix = types.force_string(file_prefix)
+        str_file_prefix = coercers.force_string(file_prefix)
         if not str_file_prefix.strip():
             raise ValueError(
                 'Argument "file_prefix" must be a valid string'
@@ -275,7 +275,7 @@ class BasePersistence(object):
         # TODO: This is a major security vulnerability (!)
         out = []
         for bytestring_basename in disk.listdir(self._persistence_dir_abspath):
-            str_basename = types.force_string(bytestring_basename)
+            str_basename = coercers.force_string(bytestring_basename)
             if not str_basename:
                 continue
 
@@ -348,7 +348,7 @@ def _basename_as_key(str_basename, persistencefile_prefix,
 def _key_as_file_path(key, persistencefile_prefix,
                       persistence_file_prefix_separator,
                       persistence_dir_abspath):
-    str_key = types.force_string(key)
+    str_key = coercers.force_string(key)
     if not str_key.strip():
         raise KeyError('Invalid key: "{!s}" ({!s})'.format(key, type(key)))
 
@@ -356,7 +356,7 @@ def _key_as_file_path(key, persistencefile_prefix,
                                         sep=persistence_file_prefix_separator,
                                         key=key)
     bytestring_basename = enc.encode_(basename)
-    abspath = types.AW_PATH.normalize(
+    abspath = coercers.AW_PATH.normalize(
         disk.joinpaths(persistence_dir_abspath, bytestring_basename)
     )
     return abspath

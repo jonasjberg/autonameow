@@ -23,7 +23,7 @@ import argparse
 import os
 
 from core import constants as C
-from core import types
+from core import coercers
 from core.view import cli
 from util import encoding as enc
 from util import disk
@@ -44,8 +44,8 @@ def arg_is_year(arg):
     """
     if arg:
         try:
-            integer = types.AW_INTEGER(arg)
-        except types.AWTypeError:
+            integer = coercers.AW_INTEGER(arg)
+        except coercers.AWTypeError:
             pass
         else:
             if 0 <= integer <= 9999:

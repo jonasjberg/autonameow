@@ -27,7 +27,7 @@ from datetime import datetime
 from core import (
     exceptions,
     namebuilder,
-    types,
+    coercers,
 )
 from core.model import genericfields as gf
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
@@ -192,8 +192,8 @@ class BooleanConfigFieldParser(ConfigFieldParser):
     @staticmethod
     def is_valid_boolean(expression):
         try:
-            types.AW_BOOLEAN(expression)
-        except types.AWTypeError:
+            coercers.AW_BOOLEAN(expression)
+        except coercers.AWTypeError:
             return False
         else:
             return True
@@ -201,9 +201,9 @@ class BooleanConfigFieldParser(ConfigFieldParser):
     @staticmethod
     def evaluate_boolean_operation(expression, test_data):
         try:
-            a = types.AW_BOOLEAN(expression)
-            b = types.AW_BOOLEAN(test_data)
-        except types.AWTypeError:
+            a = coercers.AW_BOOLEAN(expression)
+            b = coercers.AW_BOOLEAN(test_data)
+        except coercers.AWTypeError:
             # TODO: [TD0149] Make sure this case is handled properly.
             raise
         else:
@@ -313,7 +313,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         if not expression:
             return False
 
-        str_expression = types.force_string(expression)
+        str_expression = coercers.force_string(expression)
         if not str_expression:
             return False
 

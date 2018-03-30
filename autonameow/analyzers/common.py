@@ -113,7 +113,7 @@ class BaseAnalyzer(ProviderMixin):
 
         Only raise the "AnalyzerError" exception for irrecoverable errors.
         Otherwise, implementers should strive to return empty values of the
-        expected type. The type coercers in 'types.py' could be useful here.
+        expected type. The type coercers in 'coercers.py' could be useful here.
 
         Raises:
             AnalyzerError: The extraction could not be completed successfully.

@@ -25,7 +25,7 @@ import re
 
 import util
 from core import constants as C
-from core import types
+from core import coercers
 from core.config.configuration import Configuration
 from core.config.rules import (
     get_valid_rule,
@@ -465,12 +465,12 @@ class ConfigurationRuleParser(object):
 
 
 def _coerce_string(data):
-    str_data = types.force_string(data)
+    str_data = coercers.force_string(data)
     return text.remove_nonbreaking_spaces(str_data)
 
 
 def _coerce_stringlist(data_list):
-    str_data_list = types.force_stringlist(data_list)
+    str_data_list = coercers.force_stringlist(data_list)
     return [text.remove_nonbreaking_spaces(s) for s in str_data_list]
 
 
@@ -523,10 +523,10 @@ class ConfigurationOptionsParser(object):
             raw_value = self.raw_options['PERSISTENCE'].get(option)
             if isinstance(raw_value, (str, bytes)) and raw_value.strip():
                 try:
-                    bytes_value = types.AW_PATH.normalize(raw_value)
-                except types.AWTypeError as e:
+                    bytes_value = coercers.AW_PATH.normalize(raw_value)
+                except coercers.AWTypeError as e:
                     log.error('Bad value for option {}: "{!s}"'.format(
-                        option, types.force_string(raw_value)
+                        option, coercers.force_string(raw_value)
                     ))
                     log.debug(str(e))
                 else:
@@ -538,7 +538,7 @@ class ConfigurationOptionsParser(object):
                     return
 
         # Use the default value.
-        bytes_default = types.AW_PATH.normalize(default)
+        bytes_default = coercers.AW_PATH.normalize(default)
         log.debug(
             'Using default persistence option :: {!s}: {!s}'.format(
                 option, enc.displayable_path(bytes_default)
@@ -577,8 +577,8 @@ def parse_rule_conditions(raw_conditions):
 
 def parse_rule_exact_match(raw_exact_match):
     try:
-        return types.AW_BOOLEAN(raw_exact_match)
-    except types.AWTypeError:
+        return coercers.AW_BOOLEAN(raw_exact_match)
+    except coercers.AWTypeError:
         raise ConfigurationSyntaxError('bad value for "exact match"')
 
 
@@ -603,8 +603,8 @@ def parse_rule_ranking_bias(value):
         return C.DEFAULT_RULE_RANKING_BIAS
 
     try:
-        float_value = types.AW_FLOAT(value)
-    except types.AWTypeError:
+        float_value = coercers.AW_FLOAT(value)
+    except coercers.AWTypeError:
         raise ConfigurationSyntaxError(
             'Expected float but got "{!s}" ({!s})'.format(value, type(value))
         )

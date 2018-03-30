@@ -25,7 +25,7 @@ import subprocess
 
 import util
 from core import constants as C
-from core import types
+from core import coercers
 from extractors import (
     BaseExtractor,
     ExtractorError
@@ -33,8 +33,8 @@ from extractors import (
 from extractors.text.common import decode_raw
 from util import disk
 
-_PATH_THIS_DIR = types.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
-BASENAME_PANDOC_TEMPLATE = types.AW_PATHCOMPONENT('pandoc_template.plain')
+_PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
+BASENAME_PANDOC_TEMPLATE = coercers.AW_PATHCOMPONENT('pandoc_template.plain')
 PATH_CUSTOM_PANDOC_TEMPLATE = disk.joinpaths(_PATH_THIS_DIR,
                                              BASENAME_PANDOC_TEMPLATE)
 

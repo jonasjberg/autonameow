@@ -22,7 +22,7 @@
 import re
 import subprocess
 
-from core import types
+from core import coercers
 from extractors import (
     BaseExtractor,
     ExtractorError
@@ -93,7 +93,7 @@ def _run_jpeginfo(filepath):
     except (OSError, ValueError, TypeError, subprocess.SubprocessError) as e:
         raise ExtractorError(e)
 
-    str_stdout = types.force_string(stdout)
+    str_stdout = coercers.force_string(stdout)
     if not str_stdout:
         return ''
     return str_stdout

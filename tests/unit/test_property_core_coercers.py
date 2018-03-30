@@ -19,10 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    SkipTest,
-    TestCase
-)
+from unittest import SkipTest, TestCase
 
 try:
     from hypothesis import given
@@ -36,15 +33,15 @@ try:
 except ImportError:
     raise SkipTest('Unable to import "hypothesis". Skipping ..')
 
-from core import types
+from core import coercers
 
 
 class TestForceStringRaisesOnlyExpectedException(TestCase):
     @given(text())
     def test_text_input(self, s):
         try:
-            _ = types.force_string(s)
-        except types.AWTypeError:
+            _ = coercers.force_string(s)
+        except coercers.AWTypeError:
             pass
         except Exception as e:
             raise AssertionError('force_string("{!s}") raised: {!s}'.format(s,
@@ -53,8 +50,8 @@ class TestForceStringRaisesOnlyExpectedException(TestCase):
     @given(characters())
     def test_character_input(self, s):
         try:
-            _ = types.force_string(s)
-        except types.AWTypeError:
+            _ = coercers.force_string(s)
+        except coercers.AWTypeError:
             pass
         except Exception as e:
             raise AssertionError('force_string("{!s}") raised: {!s}'.format(s,
@@ -63,8 +60,8 @@ class TestForceStringRaisesOnlyExpectedException(TestCase):
     @given(binary())
     def test_binary_input(self, s):
         try:
-            _ = types.force_string(s)
-        except types.AWTypeError:
+            _ = coercers.force_string(s)
+        except coercers.AWTypeError:
             pass
         except Exception as e:
             raise AssertionError('force_string("{!s}") raised: {!s}'.format(s,
@@ -76,7 +73,7 @@ class TestCoerceString(TestCase):
     def test_text_input(self, s):
         self.assertIsInstance(s, str, 'Expected hypothesis data of type str')
 
-        coerced_string = types.AW_STRING(s)
+        coerced_string = coercers.AW_STRING(s)
         self.assertIsInstance(coerced_string, str)
         self.assertEqual(coerced_string, s)
 
@@ -84,27 +81,27 @@ class TestCoerceString(TestCase):
     def test_character_input(self, s):
         self.assertIsInstance(s, str, 'Expected hypothesis data of type str')
 
-        coerced_string = types.AW_STRING(s)
+        coerced_string = coercers.AW_STRING(s)
         self.assertIsInstance(coerced_string, str)
         self.assertEqual(coerced_string, s)
 
     @given(binary())
     def test_binary_input_raises_only_expected_exception(self, s):
         try:
-            _ = types.AW_STRING(s)
-        except types.AWTypeError:
+            _ = coercers.AW_STRING(s)
+        except coercers.AWTypeError:
             pass
         except Exception as e:
             raise AssertionError('AW_STRING("{!s}") raised: {!s}'.format(s, e))
 
     @given(integers())
     def test_integer_input(self, s):
-        coerced_string = types.AW_STRING(s)
+        coerced_string = coercers.AW_STRING(s)
         self.assertIsInstance(coerced_string, str)
         self.assertEqual(coerced_string, str(s))
 
     @given(booleans())
     def test_boolean_input(self, s):
-        coerced_string = types.AW_STRING(s)
+        coerced_string = coercers.AW_STRING(s)
         self.assertIsInstance(coerced_string, str)
         self.assertIn(coerced_string, ('True', 'False'))

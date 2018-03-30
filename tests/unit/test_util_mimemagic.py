@@ -22,7 +22,7 @@
 from unittest import TestCase
 
 import unit.utils as uu
-from core import types
+from core import coercers
 from core.exceptions import EncodingBoundaryViolation
 from util.mimemagic import (
     eval_glob,
@@ -62,11 +62,16 @@ class TestFileTypeMagic(TestCase):
 
     def test_filetype_magic_with_invalid_args(self):
         actual = filetype(None)
-        self.assertEqual(actual, types.NULL_AW_MIMETYPE)
+        unknown_mimetype = coercers.NULL_AW_MIMETYPE
+        self.assertEqual(actual, unknown_mimetype)
         self.assertFalse(actual)
 
 
 class TestEvalMagicGlob(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.null_mimetype = coercers.NULL_AW_MIMETYPE
+
     def _aF(self, mime_to_match, glob_list):
         actual = eval_glob(mime_to_match, glob_list)
         self.assertIsInstance(actual, bool)
@@ -124,8 +129,8 @@ class TestEvalMagicGlob(TestCase):
         self._aF('application/epub+zip', ['image/jpeg'])
         self._aF('application/epub+zip', 'video/*')
         self._aF('application/epub+zip', ['video/*'])
-        self._aF('application/epub+zip', str(types.NULL_AW_MIMETYPE))
-        self._aF('application/epub+zip', types.NULL_AW_MIMETYPE)
+        self._aF('application/epub+zip', str(self.null_mimetype))
+        self._aF('application/epub+zip', self.null_mimetype)
 
     def test_eval_magic_blob_returns_true_as_expected(self):
         self._aT('image/jpeg', '*/*')
@@ -142,17 +147,17 @@ class TestEvalMagicGlob(TestCase):
         self._aT('application/epub+zip', ['application/epub+zip'])
         self._aT('application/epub+zip', ['application/*'])
         self._aT('application/epub+zip', ['*/epub+zip'])
-        self._aT(types.NULL_AW_MIMETYPE, '*/*')
+        self._aT(self.null_mimetype, '*/*')
 
     def test_unknown_mime_type_evaluates_true_for_any_glob(self):
-        self._aT(types.NULL_AW_MIMETYPE, '*/*')
-        self._aT(types.NULL_AW_MIMETYPE, ['*/*'])
-        self._aT(types.NULL_AW_MIMETYPE, ['*/*', '*/jpeg'])
+        self._aT(self.null_mimetype, '*/*')
+        self._aT(self.null_mimetype, ['*/*'])
+        self._aT(self.null_mimetype, ['*/*', '*/jpeg'])
 
     def test_unknown_mime_type_evaluates_false(self):
-        self._aF(types.NULL_AW_MIMETYPE, 'image/jpeg')
-        self._aF(types.NULL_AW_MIMETYPE, ['image/jpeg'])
-        self._aF(types.NULL_AW_MIMETYPE, ['application/*', '*/jpeg'])
+        self._aF(self.null_mimetype, 'image/jpeg')
+        self._aF(self.null_mimetype, ['image/jpeg'])
+        self._aF(self.null_mimetype, ['application/*', '*/jpeg'])
         self._aF(None, 'image/jpeg')
 
 
@@ -294,8 +299,9 @@ class TestMimemagicGetMimetype(TestCase):
         self.assertEqual(expect, actual)
 
     def test_unknown_mime_type(self):
+        unknown_mimetype = coercers.NULL_AW_MIMETYPE
         for given in [None, '', ' ', '  ', 'me0ww']:
-            self._assert_returns_mime(given=given, expect=types.NULL_AW_MIMETYPE)
+            self._assert_returns_mime(given=given, expect=unknown_mimetype)
 
     def test_maps_extensions_jpg_and_jpeg_to_mime_type_image_jpeg(self):
         self._assert_returns_mime(given='jpg', expect='image/jpeg')
