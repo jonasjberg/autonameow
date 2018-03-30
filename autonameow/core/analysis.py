@@ -162,7 +162,7 @@ def _start(fileobject, config, analyzers_to_run=None):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
-    log.debug(' Analysis Preparation Started '.center(120, '='))
+    log.debug(logs.center_pad_log_entry('Analysis Preparation Started'))
 
     # TODO: [TD0126] Remove assertions once "boundaries" are cleaned up.
     sanity.check_isinstance_fileobject(fileobject)

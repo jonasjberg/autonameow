@@ -114,7 +114,7 @@ class ExtractorRunner(object):
         Raises:
             AssertionError: A sanity check failed.
         """
-        log.debug(' Extractor Runner Started '.center(120, '='))
+        log.debug(logs.center_pad_log_entry('Extractor Runner Started'))
         sanity.check_isinstance_fileobject(fileobject)
 
         _request_all = bool(request_all)
