@@ -38,6 +38,7 @@ from util.text.humannames import (
     split_multiple_names,
     strip_repeating_periods,
     strip_author_et_al,
+    strip_bad_author_substrings,
     strip_edited_by
 )
 
@@ -581,6 +582,30 @@ class TestFilterMultipleNames(TestCase):
             expected=['John P. Vecca'],
             given=['editor', 'John P. Vecca']
         )
+
+    def test_based_on_live_data_a(self):
+        self._assert_filter_returns(
+            expected=['Daboreh Littlajohn Shindar', 'Thomes X. Shindar', 'Leure F. Huntar', 'Will Schmiad'],
+            given=['Daboreh Littlajohn Shindar', 'Thomes X. Shindar', 'Leure F. Huntar', 'technical review', 'Will Schmiad', 'DVD presenter']
+        )
+
+    def test_based_on_live_data_b(self):
+        self._assert_filter_returns(
+            expected=['Hairdo Barber', 'Green Grasdal'],
+            given=['Hairdo Barber ...', 'et al.', 'Green Grasdal', 'technical editor']
+        )
+
+    def test_based_on_live_data_c(self):
+        self._assert_filter_returns(
+            expected=['Michael Kross'],
+            given=['Michael Kross', 'et al.']
+        )
+
+    # def test_based_on_live_data_d(self):
+    #     self._assert_filter_returns(
+    #         expected=['David Astolfo ... Technical reviewers: Mario Ferrari ...'],
+    #         given=['Michael Kross', 'et al.']
+    #     )
 
 
 class TestFilterName(TestCase):

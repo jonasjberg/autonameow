@@ -74,6 +74,16 @@ def strip_repeating_periods(string):
     return RE_REPEATING_PERIODS.sub('', string).strip()
 
 
+def strip_bad_author_substrings(string):
+    assert isinstance(string, str)
+    s = string
+    s = strip_repeating_periods(s)
+    s = strip_edited_by(s)
+    s = strip_author_prefix(s)
+    s = strip_author_et_al(s)
+    return s
+
+
 def _parse_name(human_name):
     """
     Thin wrapper around 'nameparser'.
@@ -149,15 +159,7 @@ class HumanNameParser(object):
 
     @classmethod
     def _preprocess(cls, name):
-        if not name.strip():
-            return ''
-
-        for ignored_word in cls.IGNORED_AUTHOR_WORDS:
-            name = name.replace(ignored_word, '')
-
-        name = strip_author_et_al(name)
-        name = name.strip().rstrip(',').lstrip('.')
-        return name
+        return filter_name(name)
 
 
 class HumanNameFormatter(object):
@@ -332,7 +334,6 @@ def filter_multiple_names(list_of_names):
 
 
 def filter_name(human_name):
-    filtered_name = remove_blacklisted_names(human_name)
-    modified = strip_edited_by(filtered_name)
-    modified = strip_author_prefix(modified)
-    return modified
+    name = remove_blacklisted_names(human_name)
+    name = strip_bad_author_substrings(name)
+    return name
