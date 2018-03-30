@@ -424,7 +424,19 @@ class RepositoryPool(object):
         return len(self._repositories)
 
 
-def initialize(*args, **kwargs):
+def maps_field(datadict, field):
+    # This might return a None, using a default dict value will not work.
+    mapped_fields = datadict.get('mapped_fields')
+    if not mapped_fields:
+        return False
+
+    for mapping in mapped_fields:
+        if field == mapping.field:
+            return True
+    return False
+
+
+def _initialize(*args, **kwargs):
     # Keep one global 'SessionRepository' per 'Autonameow' instance.
     id_ = kwargs.get('autonameow_instance', None)
 
@@ -436,7 +448,7 @@ def initialize(*args, **kwargs):
     SessionRepository = Pool.get(id_)
 
 
-def shutdown(*args, **kwargs):
+def _shutdown(*args, **kwargs):
     global Pool
     if not Pool:
         return
@@ -452,17 +464,8 @@ def shutdown(*args, **kwargs):
         r.shutdown()
 
 
-def maps_field(datadict, field):
-    # This might return a None, using a default dict value will not work.
-    mapped_fields = datadict.get('mapped_fields')
-    if not mapped_fields:
-        return False
-
-    for mapping in mapped_fields:
-        if field == mapping.field:
-            return True
-    return False
-
-
 Pool = None
 SessionRepository = None
+
+event.dispatcher.on_startup.add(_initialize)
+event.dispatcher.on_shutdown.add(_shutdown)

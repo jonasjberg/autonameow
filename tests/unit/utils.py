@@ -635,7 +635,7 @@ def is_importable(module_name):
 def init_session_repository():
     # TODO: [hack][cleanup] Mock properly! Remove?
     from core import repository
-    repository.initialize()
+    repository._initialize()
 
 
 def init_provider_registry():

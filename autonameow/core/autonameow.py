@@ -73,9 +73,6 @@ class Autonameow(object):
         self.master_provider = None
         self.postprocessor = None
 
-        event.dispatcher.on_startup.add(repository.initialize)
-        event.dispatcher.on_shutdown.add(repository.shutdown)
-
         self._exit_code = C.EXIT_SUCCESS
 
     def __enter__(self):
