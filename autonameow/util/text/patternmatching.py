@@ -123,12 +123,18 @@ def find_and_extract_edition(string):
 
     Returns:
         Any found edition and modified text as a (int, str) tuple.
+
+    Raises:
+        AssertionError: Given text is not an instance of 'str'.
     """
-    text = str(string)
+    if not string:
+        return None, string
+
+    assert isinstance(string, str)
 
     matches = []
     for number, regex in compiled_ordinal_edition_regexes().items():
-        m = regex.search(text)
+        m = regex.search(string)
         if m:
             matches.append((number, regex))
 
@@ -138,11 +144,11 @@ def find_and_extract_edition(string):
         matches = sorted(matches, key=lambda x: x[0], reverse=True)
         match_to_use = matches[0]
         matched_number, matched_regex = match_to_use
-        modified_text = re.sub(matched_regex, '', text)
+        modified_text = re.sub(matched_regex, '', string)
         return matched_number, modified_text
 
     # Try a second approach.
-    match = RE_EDITION.search(text)
+    match = RE_EDITION.search(string)
     if match:
         ed = match.group(1)
         try:
@@ -150,10 +156,10 @@ def find_and_extract_edition(string):
         except types.AWTypeError:
             pass
         else:
-            modified_text = re.sub(RE_EDITION, '', text)
+            modified_text = re.sub(RE_EDITION, '', string)
             return edition, modified_text
 
-    return None, None
+    return None, string
 
 
 def find_publisher_in_copyright_notice(string):

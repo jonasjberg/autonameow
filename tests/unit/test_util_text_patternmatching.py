@@ -173,6 +173,14 @@ class TestFindAndExtractEdition(TestCase):
         self._check_result(given='Foobar 1st Edition 10th.pdf', expect_edition=10, expect_text='Foobar 1st Edition .pdf')
         self._check_result(given='Foobar 1st 10th Edition.pdf', expect_edition=10, expect_text='Foobar 1st .pdf')
 
+    def test_do_not_use_biggest_matching_number_if_edition_is_obvious(self):
+        self.skipTest('TODO: ..')
+        self._check_result(given='11th Hour CISSP: Study Guide 2nd Edition', expect_edition=2, expect_text='11th Hour CISSP: Study Guide ')
+
+    def test_handles_example_false_positives(self):
+        self.skipTest('TODO: ..')
+        self._check_result(given='Eleventh Hour CISSP', expect_edition=None, expect_text='Eleventh Hour CISSP')
+
 
 class TestFindPublisherInCopyrightNotice(TestCase):
     def test_returns_expected_publisher(self):
