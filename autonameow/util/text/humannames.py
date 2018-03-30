@@ -312,7 +312,7 @@ def remove_blacklisted_names(human_name):
 
 
 def split_multiple_names(list_of_names):
-    RE_NAME_SEPARATORS = r',| ?and'
+    RE_NAME_SEPARATORS = r',| ?\band| ?\+'
 
     result = list()
     flat_list_of_names = flatten_sequence_type(list_of_names)

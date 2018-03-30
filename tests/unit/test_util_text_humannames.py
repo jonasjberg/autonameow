@@ -462,6 +462,13 @@ class TestSplitMultipleNames(TestCase):
                 actual = split_multiple_names(given)
                 self.assertEqual(expected, actual)
 
+    def _assert_unchanged(self, given):
+        actual = split_multiple_names(given)
+        self.assertEqual(given, actual)
+
+    def test_does_not_split_single_name(self):
+        self._assert_unchanged(['Anandra Mitra'])
+
     def test_splits_two_names_where_one_contains_an_initial(self):
         self._assert_that_it_returns(
             expected=[
@@ -485,6 +492,8 @@ class TestSplitMultipleNames(TestCase):
                 ['Raúl Garreta,Guillermo Moncecchi'],
                 ['Raúl Garreta and Guillermo Moncecchi'],
                 ['Raúl Garreta, and Guillermo Moncecchi'],
+                ['Raúl Garreta + Guillermo Moncecchi'],
+                ['Raúl Garreta+Guillermo Moncecchi'],
             ])
 
     def test_splits_three_first_name_last_name_names_various_separators(self):
