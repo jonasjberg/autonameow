@@ -32,29 +32,29 @@ from core.evaluate.resolver import (
 )
 
 
-@skip('TODO: Fix or remove')
 class TestDedupeListOfDatabundles(TestCase):
-    def _t(self, given, expect):
+    def _t(self, given, expected):
         from core.repository import DataBundle
 
         bundles = [DataBundle.from_dict(g) for g in given]
         actual = dedupe_list_of_databundles(bundles)
-        self.assertEqual(actual, expect)
+        expect = [DataBundle.from_dict(x) for x in expected]
+        self.assertEqual(expect, actual)
 
-    def test_returns_list_with_one_element_as_is(self):
-        self._t(given=['A'], expect=['A'])
-
-    def test_returns_list_of_only_unique_values_as_is(self):
-        self._t(given=['A', 'B'], expect=['A', 'B'])
-
-    def test_dedupes_two_equivalent_values(self):
-        self._t(given=['A', 'A'], expect=['A'])
-
-    def test_dedupes_three_equivalent_values(self):
-        self._t(given=['A', 'A', 'A'], expect=['A'])
-
-    def test_dedupes_two_duplicate_values_and_returns_one_as_is(self):
-        self._t(given=['A', 'B', 'A'], expect=['A', 'b'])
+    def test_dedupes_two_identical_generic_titles(self):
+        # from core import types
+        from core.model import genericfields as gf
+        databundle_a = {
+            # 'coercer': types.AW_STRING,
+            'generic_field': gf.GenericTitle,
+            'value': 'Mysticism and Logic and Other Essays'
+        }
+        databundle_b = {
+            # 'coercer': types.AW_STRING,
+            'generic_field': gf.GenericTitle,
+            'value': 'Mysticism and Logic and Other Essays'
+        }
+        self._t(given=[databundle_a, databundle_b], expected=[databundle_a])
 
 
 @skip('TODO: Fix or remove')

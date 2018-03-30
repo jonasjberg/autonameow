@@ -28,11 +28,14 @@ from core import (
     types
 )
 from core.model import genericfields as gf
+from core.model.normalize import (
+    normalize_full_human_name,
+    normalize_full_title
+)
 from core.namebuilder import fields
 from core.namebuilder.fields import NameTemplateField
 from core.repository import DataBundle
 from util import sanity
-from util.text import format_name
 
 
 log = logging.getLogger(__name__)
@@ -125,7 +128,7 @@ class TemplateFieldDataResolver(object):
         candidates = repository.SessionRepository.query_mapped(self.fileobject, field)
         log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field))
 
-        out = []
+        out = list()
         for uri, candidate in candidates:
             sanity.check_isinstance_meowuri(uri)
             sanity.check_isinstance(candidate, DataBundle)
@@ -187,7 +190,7 @@ class TemplateFieldDataResolver(object):
             str_missing_fields = ' '.join([str(f) for f in missing_fields])
             log.debug('Gathered data does not contain field(s) {!s}'.format(str_missing_fields))
 
-        none_data_fields = [f for f in self._fields if self.fields_data.get(f, 'x') is None]
+        none_data_fields = [f for f in self._fields if self.fields_data.get(f, '_') is None]
         if none_data_fields:
             str_none_data_fields = ' '.join([str(f) for f in none_data_fields])
             log.debug('Gathered data is None for field(s) {!s}'.format(str_none_data_fields))
@@ -198,77 +201,95 @@ class TemplateFieldDataResolver(object):
         log.debug('Checking gathered data for fields.. OK!')
         return True
 
-    def _gather_data_for_template_field(self, _field, uri):
+    def _gather_data_for_template_field(self, field, uri):
         log.debug(
             'Gathering data for template field {!s} from {!r}->'
-            '[{!s}]'.format(_field, self.fileobject, uri)
+            '[{!s}]'.format(field, self.fileobject, uri)
         )
         response = self._request_data(self.fileobject, uri)
         if not response:
             return False
 
         # Response is either a DataBundle or a list of DataBundles
+        databundle = response
         if not isinstance(response, DataBundle):
             # TODO: [TD0112] FIX THIS HORRIBLE MESS!
             assert isinstance(response, list)
             assert all(isinstance(d, DataBundle) for d in response)
 
-            log.debug('Got list of data. Attempting to deduplicate list of datadicts')
-            _deduped_list = dedupe_list_of_databundles(response)
-            if len(_deduped_list) < len(response):
+            databundles = response
+            num_databundles = len(databundles)
+            log.debug(
+                'Got list of data. Attempting de-duplication of '
+                '{} databundles'.format(num_databundles)
+            )
+            deduped_databundles = dedupe_list_of_databundles(databundles)
+            num_deduped_databundles = len(deduped_databundles)
+            log.debug('De-duplication returned {} of {} databundles'.format(
+                num_deduped_databundles, num_databundles
+            ))
+            if num_deduped_databundles < num_databundles:
                 # TODO: [TD0112] FIX THIS HORRIBLE MESS!
                 # Use the deduplicated list
-                response = _deduped_list
+                databundles = deduped_databundles
 
-            if len(_deduped_list) == 1:
-                log.debug('Deduplicated list of datadicts has a single element')
-                log.debug('Using one of {} equivalent '
-                          'entries'.format(len(response)))
-                log.debug('Using "{!s}" from equivalent: {!s}'.format(response[0].value, ', '.join('"{}"'.format(_d.value) for _d in response)))
-                response = response[0]
+            if len(databundles) == 1:
+                databundle = databundles[0]
+                log.debug('Using value "{!s}" from {} value(s); {!s}'.format(
+                    databundle.value,
+                    len(databundles),
+                    ', '.join('"{!s}"'.format(d.value) for d in databundles)
+                ))
             else:
-                log.debug('Deduplicated list of datadicts still has multiple elements')
+                log.debug('Deduplicated list of databundles still has multiple elements')
 
                 # TODO: [TD0112] Handle this properly!
                 if uri.is_generic:
-                    maybe_one = get_one_from_many_generic_values(response, uri)
-                    if not maybe_one:
-                        log.warning('[TD0112] Not sure what data to use for field {!s}..'.format(_field))
-                        for i, d in enumerate(response):
-                            log.debug('[TD0112] Field {!s} candidate {:03d} :: "{!s}"'.format(_field, i, d.value))
-                        return False
-                    else:
+                    maybe_one = get_one_from_many_generic_values(databundles, uri)
+                    if maybe_one:
                         assert isinstance(maybe_one, DataBundle)
-                        response = maybe_one
+                        databundle = maybe_one
+                        log.debug('Using value "{!s}" from {} value(s); {!s}'.format(
+                            databundle.value,
+                            len(databundles),
+                            ', '.join('"{!s}"'.format(d.value) for d in databundles)
+                        ))
+                    else:
+                        log.warning(
+                            '[TD0112] Not sure what data to use for field '
+                            '{!s}..'.format(field)
+                        )
+                        for i, d in enumerate(databundles):
+                            log.debug('[TD0112] Field {!s} candidate {:03d} :: "{!s}"'.format(field, i, d.value))
 
-        if isinstance(response.value, list):
+                        return False
+
+        if isinstance(databundle.value, list):
             # TODO: [TD0112] Clean up merging data.
-            list_value = response.value
-            if len(list_value) > 1:
+            # TODO: [critical] This is really wrong? Some (multivalued) values *should* be lists? (!)
+            databundle_values = databundle.value
+            if len(databundle_values) > 1:
                 seen_data = set()
-                for d in list_value:
+                for d in databundle_values:
                     seen_data.add(d)
 
                 if len(seen_data) == 1:
                     # TODO: [TD0112] FIX THIS!
                     log.debug('Merged {} equivalent entries ({!s} is now {!s})'.format(
-                        len(list_value), list_value, list(list(seen_data)[0])))
-                    response.value = list(list(seen_data)[0])
+                        len(databundle_values), databundle_values, list(list(seen_data)[0])))
+                    databundle.value = list(list(seen_data)[0])
 
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
-        sanity.check_isinstance(response, DataBundle)
+        sanity.check_isinstance(databundle, DataBundle)
 
-        log.debug('Updated data for field {!s} :: {!s}'.format(_field,
-                                                               response.value))
-        self.fields_data[_field] = response
+        log.debug('Updated data for field {!s} :: {!s}'.format(field, databundle.value))
+        self.fields_data[field] = databundle
         return True
 
     def _gather_data(self):
         for field, uris in self.data_sources.items():
-            if (field in self.fields_data
-                    and self.fields_data[field] is not None):
-                log.debug('Skipping previously gathered data for field '
-                          '{!s}"'.format(field))
+            if self.fields_data.get(field) is not None:
+                log.debug('Skipping previously gathered field {!s}"'.format(field))
                 continue
 
             for uri in uris:
@@ -332,9 +353,9 @@ def dedupe_list_of_databundles(databundle_list):
     if len(list_of_databundles) == 1:
         return list_of_databundles
 
-    deduped = []
+    deduped = list()
     seen_values = set()
-    seen_lists = []
+    seen_lists = list()
     for databundle in list_of_databundles:
         value = databundle.value
         # Assume that the data is free from None values at this point.
@@ -344,21 +365,33 @@ def dedupe_list_of_databundles(databundle_list):
             sorted_list_value = sorted(list(value))
             if sorted_list_value in seen_lists:
                 continue
+
             seen_lists.append(sorted_list_value)
             deduped.append(databundle)
-        else:
-            # TODO: [TD0112] Hack! Do this in a separate system.
-            if databundle.generic_field is gf.GenericAuthor:
-                _normalized_author = format_name(value)
-                if _normalized_author in seen_values:
-                    continue
-                seen_values.add(_normalized_author)
-            else:
-                if value in seen_values:
-                    continue
-                seen_values.add(value)
+            continue
 
-            deduped.append(databundle)
+        # TODO: [TD0112] Hack! Do this in a separate system.
+        if databundle.generic_field is gf.GenericAuthor:
+            normalized_author = normalize_full_human_name(value)
+            if normalized_author in seen_values:
+                continue
+
+            seen_values.add(normalized_author)
+
+        elif databundle.generic_field is gf.GenericTitle:
+            normalized_title = normalize_full_title(value)
+            if normalized_title in seen_values:
+                continue
+
+            seen_values.add(normalized_title)
+
+        else:
+            if value in seen_values:
+                continue
+
+            seen_values.add(value)
+
+        deduped.append(databundle)
 
     return deduped
 
