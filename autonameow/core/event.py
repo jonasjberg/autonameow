@@ -20,6 +20,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 
 class EventHandler(object):
     def __init__(self):
@@ -33,11 +35,33 @@ class EventHandler(object):
         for func in self.callables:
             func(*args, **kwargs)
 
+    def __str__(self):
+        return self.__class__.__name__
+
 
 class EventDispatcher(object):
     def __init__(self):
-        self.on_startup = EventHandler()
-        self.on_shutdown = EventHandler()
+        self.log = logging.getLogger('{}.{!s}'.format(__name__, self))
+        self._event_handlers = {
+            'on_startup': EventHandler(),
+            'on_shutdown': EventHandler()
+        }
+
+    def _get_event_handler(self, name):
+        event_handler = self._event_handlers.get(name)
+        if event_handler:
+            self.log.debug('{!s} returning event handler "{!s}"'.format(self, name))
+            return event_handler
+
+        msg = '{!s} accessed with nonexistent event handler "{!s}"'.format(self, name)
+        self.log.critical(msg)
+        raise AssertionError(msg)
+
+    def __getattr__(self, item):
+        return self._get_event_handler(item)
+
+    def __str__(self):
+        return self.__class__.__name__
 
 
 dispatcher = EventDispatcher()

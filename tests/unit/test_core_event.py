@@ -85,6 +85,12 @@ class TestEventHandler(TestCase):
     def test_calls_all_added_callables_with_args_and_kwargs(self):
         self._assert_calls_all_added_callables_with('A', 'B', x='C', y='D')
 
+    def test___str__(self):
+        handler = _get_event_handler()
+        actual = str(handler)
+        self.assertIsInstance(actual, str)
+        self.assertEqual('EventHandler', actual)
+
 
 class TestEventDispatcher(TestCase):
     def test_instantiated_event_dispatcher_is_not_none(self):
@@ -110,6 +116,15 @@ class TestEventDispatcher(TestCase):
 
     def test_dispatcher_has_attribute_on_shutdown(self):
         self._assert_has_callable_attribute('on_shutdown')
+
+    def test_raises_assertion_error_if_handler_does_not_exist(self):
+        dispatcher = _get_event_dispatcher()
+        for bad_arg in [
+            '',
+            'foobar',
+        ]:
+            with self.assertRaises(AssertionError):
+                _ = getattr(dispatcher, bad_arg)
 
     def test_calls_are_dispatched_to_added_callables(self):
         dispatcher = _get_event_dispatcher()
@@ -155,3 +170,9 @@ class TestEventDispatcher(TestCase):
         mock_startup_callable_A.assert_called_with(7)
         mock_startup_callable_B.assert_called_with(7)
         mock_shutdown_callable.assert_called_once_with(5, z=6)
+
+    def test___str__(self):
+        dispatcher = _get_event_dispatcher()
+        actual = str(dispatcher)
+        self.assertIsInstance(actual, str)
+        self.assertEqual('EventDispatcher', actual)
