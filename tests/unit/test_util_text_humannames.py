@@ -36,6 +36,7 @@ from util.text.humannames import (
     HumanNameParser,
     LastNameInitialsFormatter,
     split_multiple_names,
+    strip_repeating_periods,
     strip_author_et_al,
     strip_edited_by
 )
@@ -217,6 +218,26 @@ class TeststripEditedBy(TestCase):
         _t('Ed. by Gibson Catberg')
         _t('edited by Gibson Catberg')
         _t('Edited by Gibson Catberg')
+
+
+class TestStripRepeatingPeriods(TestCase):
+    def _assert_returns(self, expected, given):
+        actual = strip_repeating_periods(given)
+        self.assertEqual(expected, actual)
+
+    def test_returns_valid_author_as_is(self):
+        self._assert_returns('Gibson C. Sjöberg',
+                             'Gibson C. Sjöberg')
+
+    def test_strips_repeating_periods(self):
+        self._assert_returns('Gibson C. Sjöberg',
+                             'Gibson C. Sjöberg ...')
+        self._assert_returns('Gibson C. Sjöberg',
+                             'Gibson C. Sjöberg .....')
+        self._assert_returns('Gibson C. Sjöberg',
+                             'Gibson C. Sjöberg...')
+        self._assert_returns('Gibson C. Sjöberg',
+                             'Gibson C. Sjöberg.....')
 
 
 class TestNameParser(TestCase):

@@ -37,6 +37,9 @@ RE_AUTHOR_PREFIX = re.compile(
 RE_EDITED_BY = re.compile(
     r'ed(\.|ited) by', re.IGNORECASE
 )
+RE_REPEATING_PERIODS = re.compile(
+    r'\.\.+', re.IGNORECASE
+)
 
 
 def strip_author_et_al(string):
@@ -53,6 +56,10 @@ def strip_edited_by(string):
 
 def strip_author_prefix(string):
     return RE_AUTHOR_PREFIX.sub('', string).strip()
+
+
+def strip_repeating_periods(string):
+    return RE_REPEATING_PERIODS.sub('', string).strip()
 
 
 def _parse_name(human_name):
