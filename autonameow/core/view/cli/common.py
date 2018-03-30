@@ -32,8 +32,8 @@ except ImportError:
     colorama = None
 
 from core import constants as C
-from core import coercers
 from util import (
+    coercers,
     git_commit_hash,
     sanity
 )

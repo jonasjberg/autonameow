@@ -28,7 +28,7 @@ from datetime import (
 
 import unit.utils as uu
 import unit.constants as uuconst
-from core import coercers
+from util import coercers
 
 
 class CaseCoercers(object):

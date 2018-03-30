@@ -21,7 +21,7 @@
 
 import re
 
-from core import coercers
+from util import coercers
 from util.text.transform import collapse_whitespace
 
 

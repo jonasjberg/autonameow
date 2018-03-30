@@ -22,8 +22,8 @@
 from unittest import TestCase
 
 import unit.utils as uu
-from core import coercers
 from core.exceptions import EncodingBoundaryViolation
+from util import coercers
 from util.mimemagic import (
     eval_glob,
     filetype,

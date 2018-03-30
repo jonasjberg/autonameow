@@ -23,10 +23,12 @@ import argparse
 import os
 
 from core import constants as C
-from core import coercers
 from core.view import cli
 from util import encoding as enc
-from util import disk
+from util import (
+    coercers,
+    disk
+)
 
 
 def arg_is_year(arg):

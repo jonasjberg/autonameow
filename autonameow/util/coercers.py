@@ -40,7 +40,7 @@ However, functionality provided by these classes have expanded and multiple
 parts of autonameow now use these types in various ways. The exact workings
 of the coercion _IS_ relevant for some of the usages..
 The best way to get a grip on what these classes are doing is to look at the
-tests in 'tests/unit/test_core_coercers.py'.
+tests in 'tests/unit/test_util_coercers.py'.
 
 Note that the behaviours of for instance 'format()' and 'normalize()' vary
 a lot between classes.

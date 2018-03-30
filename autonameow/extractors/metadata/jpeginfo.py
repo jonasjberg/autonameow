@@ -22,12 +22,12 @@
 import re
 import subprocess
 
-from core import coercers
+import util
+from util import coercers
 from extractors import (
     BaseExtractor,
     ExtractorError
 )
-import util
 
 
 class JpeginfoMetadataExtractor(BaseExtractor):

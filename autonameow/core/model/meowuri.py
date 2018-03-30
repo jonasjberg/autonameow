@@ -23,10 +23,12 @@ import logging
 import re
 from collections import namedtuple
 
-from core import coercers
 from core import constants as C
 from core.exceptions import InvalidMeowURIError
-from util import sanity
+from util import (
+    coercers,
+    sanity
+)
 from util.misc import flatten_sequence_type
 
 

@@ -23,12 +23,12 @@ import logging
 import time
 
 from core import constants as C
-from core import coercers
 from core.exceptions import AutonameowException
 from core.persistence.base import (
     PersistenceError,
     PicklePersistence
 )
+from util import coercers
 
 
 log = logging.getLogger(__name__)

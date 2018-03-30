@@ -22,17 +22,15 @@
 import logging
 import pickle
 
-from core import (
-    config,
-    coercers,
-)
+from core import constants as C
+from core import config
 from core.exceptions import (
     AutonameowException,
     FilesystemError
 )
-from core import constants as C
 from util import encoding as enc
 from util import (
+    coercers,
     disk,
     sanity
 )

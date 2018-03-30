@@ -25,7 +25,6 @@ import sys
 import time
 
 from core import constants as C
-from core import coercers
 from core.view import cli
 from core.persistence import get_persistence
 from regression.utils import (
@@ -38,6 +37,7 @@ from regression.utils import (
     print_test_info,
     TerminalReporter,
 )
+from util import coercers
 
 
 _this_dir = os.path.abspath(os.path.dirname(__file__))

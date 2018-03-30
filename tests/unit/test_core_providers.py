@@ -34,7 +34,7 @@ class TestWrapProviderResults(TestCase):
     # TODO: [cleanup][hack] Use mocks!
     @classmethod
     def setUpClass(cls):
-        from core import coercers
+        from util import coercers
         cls.coercers_AW_BOOLEAN = coercers.AW_BOOLEAN
         cls.coercers_AW_FLOAT = coercers.AW_FLOAT
         cls.coercers_AW_MIMETYPE = coercers.AW_MIMETYPE

@@ -31,13 +31,11 @@ from collections import defaultdict
 import unit.constants as uuconst
 import unit.utils as uu
 from core import constants as C
+from core import exceptions
 from core.view import cli
-from core import (
-    exceptions,
-    coercers
-)
 from util import encoding as enc
 from util import (
+    coercers,
     disk,
     sanity
 )

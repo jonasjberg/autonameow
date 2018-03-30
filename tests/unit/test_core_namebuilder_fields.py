@@ -187,7 +187,7 @@ class TestNametemplatefieldClassFromString(TestCase):
 class NameTemplateFieldCompatible(TestCase):
     @classmethod
     def setUpClass(cls):
-        from core import coercers
+        from util import coercers
         cls.coercers_AW_INTEGER = coercers.AW_INTEGER
         cls.coercers_AW_STRING = coercers.AW_STRING
         cls.coercers_AW_TIMEDATE = coercers.AW_TIMEDATE
@@ -207,17 +207,17 @@ class NameTemplateFieldCompatible(TestCase):
     def test_not_compatible_with_name_template_field_description(self):
         self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_TIMEDATE)
 
-        from core import coercers
+        from util import coercers
         self._incompatible(FIELDS_DESCRIPTION, coercers.listof(self.coercers_AW_STRING))
 
     def test_compatible_with_name_template_field_tags(self):
         self._compatible(FIELDS_TAGS, self.coercers_AW_STRING)
 
-        from core import coercers
+        from util import coercers
         self._compatible(FIELDS_TAGS, coercers.listof(self.coercers_AW_STRING))
 
     def test_not_compatible_with_name_template_field_tags(self):
         self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_TIMEDATE)
 
-        from core import coercers
+        from util import coercers
         self._incompatible(FIELDS_DESCRIPTION, coercers.listof(self.coercers_AW_TIMEDATE))

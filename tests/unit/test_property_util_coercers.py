@@ -33,7 +33,7 @@ try:
 except ImportError:
     raise SkipTest('Unable to import "hypothesis". Skipping ..')
 
-from core import coercers
+from util import coercers
 
 
 class TestForceStringRaisesOnlyExpectedException(TestCase):

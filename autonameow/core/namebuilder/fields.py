@@ -22,11 +22,9 @@
 import datetime
 import logging
 
-from core import (
-    exceptions,
-    coercers,
-)
+from core import exceptions
 from util import (
+    coercers,
     sanity,
     text
 )

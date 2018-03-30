@@ -60,7 +60,7 @@ class TestFieldGetterMethods(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        from core.coercers import NULL_AW_MIMETYPE
+        from util.coercers import NULL_AW_MIMETYPE
         cls.null_mimetype = NULL_AW_MIMETYPE
 
     def test__get_edition_returns_expected_given_basename_with_edition(self):

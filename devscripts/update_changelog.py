@@ -27,11 +27,11 @@ import subprocess
 import sys
 
 import util
-from core import (
+from core import version
+from util import (
     coercers,
-    version
+    text
 )
-from util import text
 
 '''
 Helper utility for updating the change log from git log entries.

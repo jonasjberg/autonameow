@@ -29,8 +29,8 @@ from analyzers import (
     BaseAnalyzer
 )
 from core import constants as C
-from core import coercers
 from util import (
+    coercers,
     dateandtime,
     disk,
     sanity

@@ -25,7 +25,6 @@ import re
 
 import util
 from core import constants as C
-from core import coercers
 from core.config.configuration import Configuration
 from core.config.rules import (
     get_valid_rule,
@@ -48,6 +47,7 @@ from core.namebuilder.fields import is_valid_template_field
 from core.model import MeowURI
 from util import encoding as enc
 from util import (
+    coercers,
     disk,
     sanity,
     text

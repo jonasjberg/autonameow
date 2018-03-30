@@ -32,7 +32,7 @@ from util.text.patternmatching import (
 class TestCompiledOrdinalRegexes(TestCase):
     @classmethod
     def setUpClass(cls):
-        from core import coercers
+        from util import coercers
         cls.builtin_regex_type = coercers.BUILTIN_REGEX_TYPE
         cls.actual = compiled_ordinal_regexes()
 
@@ -64,7 +64,7 @@ class TestCompiledOrdinalRegexes(TestCase):
 class TestCompiledOrdinalEditionRegexes(TestCase):
     @classmethod
     def setUpClass(cls):
-        from core import coercers
+        from util import coercers
         cls.builtin_regex_type = coercers.BUILTIN_REGEX_TYPE
         cls.actual = compiled_ordinal_edition_regexes()
 

@@ -22,14 +22,14 @@
 import logging
 import os
 
-from core import (
-    persistence,
-    coercers,
-)
 from core import constants as C
+from core import persistence
 from extractors import BaseExtractor
 from util import encoding as enc
-from util import sanity
+from util import (
+    coercers,
+    sanity
+)
 from util.text import (
     normalize_whitespace,
     normalize_unicode,

@@ -29,10 +29,7 @@ except ImportError:
     isbnlib = None
 
 from analyzers import BaseAnalyzer
-from core import (
-    persistence,
-    coercers
-)
+from core import persistence
 from core.model.normalize import (
     normalize_full_human_name,
     normalize_full_title
@@ -41,6 +38,7 @@ from services.isbn import (
     extract_isbnlike_from_text,
     fetch_isbn_metadata,
 )
+from util import coercers
 from util.text import (
     find_and_extract_edition,
     html_unescape,

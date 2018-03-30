@@ -22,8 +22,8 @@
 import logging
 
 from core import constants as C
-from core import coercers
 from util import (
+    coercers,
     disk,
     nested_dict_get,
     text,

@@ -21,14 +21,15 @@
 
 import logging
 
-from core import coercers
 from core.model import (
     genericfields,
     WeightedMapping
 )
 from core.namebuilder.fields import nametemplatefield_class_from_string
-from util import sanity
-
+from util import (
+    coercers,
+    sanity
+)
 
 log = logging.getLogger(__name__)
 

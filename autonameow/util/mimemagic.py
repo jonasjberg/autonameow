@@ -23,12 +23,14 @@ import logging
 import mimetypes
 import os
 
-from core import coercers
 from core.exceptions import (
     AutonameowException,
     DependencyError
 )
-from util import sanity
+from util import (
+    coercers,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)

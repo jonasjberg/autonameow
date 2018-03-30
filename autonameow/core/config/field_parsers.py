@@ -27,11 +27,11 @@ from datetime import datetime
 from core import (
     exceptions,
     namebuilder,
-    coercers,
 )
 from core.model import genericfields as gf
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
 from util import (
+    coercers,
     mimemagic,
     sanity
 )

@@ -24,8 +24,7 @@ import logging
 
 from core import (
     logs,
-    repository,
-    coercers
+    repository
 )
 from core.model import genericfields as gf
 from core.model.normalize import (
@@ -35,7 +34,10 @@ from core.model.normalize import (
 from core.namebuilder import fields
 from core.namebuilder.fields import NameTemplateField
 from core.repository import DataBundle
-from util import sanity
+from util import (
+    coercers,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)
