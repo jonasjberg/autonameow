@@ -198,7 +198,7 @@ class EbookAnalyzer(BaseAnalyzer):
                     title=metadata_dict.get('Title'),
                     year=metadata_dict.get('Year')
                 )
-                self.log.debug('Metadata for ISBN: {}'.format(isbn_number))
+                self.log.debug('Metadata for ISBN {}'.format(isbn_number))
                 for line in metadata.as_string().splitlines():
                     self.log.debug(line)
 
@@ -209,7 +209,7 @@ class EbookAnalyzer(BaseAnalyzer):
                     self.log.debug('Added metadata for ISBN: {}'.format(isbn_number))
                     self._isbn_metadata.append(metadata)
                 else:
-                    self.log.debug('Skipped "duplicate" metadata for ISBN: {}'.format(isbn_number))
+                    self.log.debug('Metadata for ISBN {} considered duplicate and skipped'.format(isbn_number))
                     # print('Skipped metadata considered a duplicate:')
                     # print_copy_pasteable_isbn_metadata('x', metadata)
                     # print('Previously Stored metadata:')
@@ -219,27 +219,85 @@ class EbookAnalyzer(BaseAnalyzer):
             self.log.info('Got {} instances of ISBN metadata'.format(
                 len(self._isbn_metadata)
             ))
-            for _isbn_metadata in self._isbn_metadata:
-                # NOTE(jonas): Arbitrary removal of metadata records ..
-                if not _isbn_metadata.authors and not _isbn_metadata.publisher:
-                    self.log.debug('Skipped ISBN metadata missing both '
-                                   'authors and publisher')
-                    continue
+            for n, metadata in enumerate(self._isbn_metadata):
+                for line in metadata.as_string().splitlines():
+                    self.log.debug('ISBNMetadata {} :: {!s}'.format(n, line))
 
-                maybe_title = self._filter_title(_isbn_metadata.title)
-                self._add_intermediate_results('title', maybe_title)
+            if len(self._isbn_metadata) > 0:
+                # TODO: [TD0187] Fix clobbering of results
+                self.log.debug('Attemping to find most probable ISBN metadata..')
+                most_probable_isbn_metadata = self._find_most_probable_isbn_metadata()
+                if most_probable_isbn_metadata:
+                    self._add_itermediate_results_from_metadata([most_probable_isbn_metadata])
+            else:
+                self._add_itermediate_results_from_metadata(self._isbn_metadata)
 
-                maybe_authors = _isbn_metadata.authors
-                self._add_intermediate_results('author', maybe_authors)
+    def _add_itermediate_results_from_metadata(self, isbn_metadata):
+        for n, metadata in enumerate(isbn_metadata):
+            for line in metadata.as_string().splitlines():
+                self.log.debug('ISBNMetadata {} :: {!s}'.format(n, line))
 
-                maybe_publisher = self._filter_publisher(_isbn_metadata.publisher)
-                self._add_intermediate_results('publisher', maybe_publisher)
+            # NOTE(jonas): Arbitrary removal of metadata records ..
+            if not metadata.authors and not metadata.publisher:
+                self.log.debug('Skipped ISBN metadata missing both '
+                               'authors and publisher')
+                continue
 
-                maybe_date = self._filter_date(_isbn_metadata.year)
-                self._add_intermediate_results('date', maybe_date)
+            maybe_title = self._filter_title(metadata.title)
+            self._add_intermediate_results('title', maybe_title)
 
-                maybe_edition = self._filter_edition(_isbn_metadata.edition)
-                self._add_intermediate_results('edition', maybe_edition)
+            maybe_authors = metadata.authors
+            self._add_intermediate_results('author', maybe_authors)
+
+            maybe_publisher = self._filter_publisher(metadata.publisher)
+            self._add_intermediate_results('publisher', maybe_publisher)
+
+            maybe_date = self._filter_date(metadata.year)
+            self._add_intermediate_results('date', maybe_date)
+
+            maybe_edition = self._filter_edition(metadata.edition)
+            self._add_intermediate_results('edition', maybe_edition)
+
+    def _find_most_probable_isbn_metadata(self):
+        # TODO: [TD0187] Fix clobbering of results.
+        # TODO: [TD0114] Improve the EbookAnalyzer.
+        # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
+        # TODO: [TD0185] Rework access to 'master_provider' functionality.
+        response = self.request_data(self.fileobject, 'generic.metadata.description')
+        if not response or not isinstance(response, str):
+            self.log.debug('Reference metadata title "generic.metadata.description" unavailable.')
+
+            # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
+            # TODO: [TD0185] Rework access to 'master_provider' functionality.
+            response = self.request_data(self.fileobject, 'generic.metadata.title')
+            if not response or not isinstance(response, str):
+                self.log.debug('Reference metadata title "generic.metadata.title" unavailable. Unable to find most probable ISBN metadata..')
+                return None
+
+        _, ref_title = find_and_extract_edition(response)
+        reference_title = normalize_full_title(ref_title)
+        self.log.debug('Using reference metadata title "{!s}"'.format(reference_title))
+        # response = self.request_data(self.fileobject, 'generic.contents.text')
+
+        candidates = list()
+        for metadata in self._isbn_metadata:
+            metadata_title = metadata.normalized_title
+            if not metadata_title:
+                self.log.debug('Skipped ISBN metadata with missing or empty normalized title')
+                continue
+
+            title_similarity = string_similarity(metadata_title, reference_title)
+            self.log.debug('Metadata/reference title similarity {} ("{!s}"/"{!s}")'.format(title_similarity, metadata_title, reference_title))
+            candidates.append((title_similarity, metadata))
+
+        if candidates:
+            sorted_candidates = sorted(candidates, key=lambda x: x[0], reverse=True)
+            # Return first metadata from list of (title_similarity, metadata) tuples
+            most_probable = sorted_candidates[0][1]
+            self.log.debug('Most probable metadata has title "{!s}"'.format(most_probable.title))
+            return most_probable
+
+        return None
 
     def _extract_isbn_numbers_from_text(self):
         # NOTE(jonas): Works under the assumption that relevant ISBN-numbers
@@ -430,6 +488,7 @@ class ISBNMetadata(object):
             values = [values]
 
         # TODO: [TD0112] Add some sort of system for normalizing entities.
+        # TODO: It is not uncommon that the publisher is listed as an author..
         # Fix any malformed entries.
         # Handle this like ['David Astolfo ... Technical reviewers: Mario Ferrari ...']
         _author_list = []
@@ -641,9 +700,9 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
                         return True
         if _year_diff < 2:
             if _sim_authors > 0.7:
-                if _sim_title > 0.3:
+                if _sim_title > 0.9:
                     return True
-                if _sim_publisher > 0.2:
+                if _sim_publisher > 0.7 and _sim_title > 0.7:
                     return True
             elif _sim_authors > 0.5:
                 if _sim_title > 0.7:

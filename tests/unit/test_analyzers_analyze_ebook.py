@@ -623,6 +623,31 @@ class TestISBNMetadataEquality(TestCase):
         unique_isbn_metadata.add(m11)
         self.assertEqual(12, len(unique_isbn_metadata))
 
+    def test_comparison_of_live_isbn_metadata_3(self):
+        m0 = ISBNMetadata(
+            authors=['Stephen G. Kochan'],
+            language='eng',
+            publisher='Addison-Wesley',
+            isbn10='0321967607',
+            isbn13='9780321967602',
+            title='Programming In Objective-C',
+            year='2014'
+        )
+        m1 = ISBNMetadata(
+            authors=['Stephen G. Kochan'],
+            language='eng',
+            publisher='Addison-Wesley',
+            isbn10='0321776410',
+            isbn13='9780321776419',
+            title='Programming In C',
+            year='2013'
+        )
+        self.assertNotEqual(m0, m1)
+        unique_isbn_metadata = set()
+        unique_isbn_metadata.add(m0)
+        unique_isbn_metadata.add(m1)
+        self.assertEqual(2, len(unique_isbn_metadata))
+
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestExtractEbookISBNsInText(TestCase):
