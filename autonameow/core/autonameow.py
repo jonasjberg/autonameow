@@ -87,6 +87,9 @@ class Autonameow(object):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self._shutdown()
+
+    def _shutdown(self):
         # Reset singletons.
         repository.shutdown(self)
         master_provider.shutdown_provider_registry()
@@ -392,6 +395,7 @@ class Autonameow(object):
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
 
+        self._shutdown()
         sys.exit(self.exit_code)
 
     @property
