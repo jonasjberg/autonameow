@@ -140,7 +140,7 @@ def filetype(file_path):
         The MIME type of the file at the given path ('application/pdf') or
         an instance of 'NullMIMEType' if the MIME type can not be determined.
     """
-    unknown_mime_type = types.NullMIMEType()
+    unknown_mime_type = types.NULL_AW_MIMETYPE
     if not file_path:
         return unknown_mime_type
 
@@ -242,6 +242,8 @@ def eval_glob(mime_to_match, glob_list):
 
 class MimeExtensionMapper(object):
     def __init__(self):
+        self.unknown_mime_type = types.NULL_AW_MIMETYPE
+
         # Stores sets.
         self._mime_to_ext = dict()
         self._ext_to_mime = dict()
@@ -319,7 +321,7 @@ class MimeExtensionMapper(object):
                 # Use the first of the (arbitrarily sorted) candidates.
                 return candidates[0]
 
-        return types.NullMIMEType()
+        return self.unknown_mime_type
 
     def get_candidate_extensions(self, mimetype):
         """

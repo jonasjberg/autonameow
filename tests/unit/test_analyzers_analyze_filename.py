@@ -38,7 +38,6 @@ from analyzers.analyze_filename import (
     SubstringFinder
 )
 from core.namebuilder import fields
-from core.types import NullMIMEType
 
 
 uu.init_session_repository()
@@ -58,6 +57,11 @@ class TestFieldGetterMethods(TestCase):
         }
 
         self.fna = FilenameAnalyzer(None, mock_config, None)
+
+    @classmethod
+    def setUpClass(cls):
+        from core.types import NULL_AW_MIMETYPE
+        cls.null_mimetype = NULL_AW_MIMETYPE
 
     def test__get_edition_returns_expected_given_basename_with_edition(self):
         self.fna._basename_prefix = 'foo 2nd Edition bar'
@@ -107,17 +111,17 @@ class TestFieldGetterMethods(TestCase):
         self.__assert_extension('jpg')
 
     def test__get_extension_returns_expected_given_suffix_null_mime_type(self):
-        self.fna._file_mimetype = NullMIMEType()
+        self.fna._file_mimetype = self.null_mimetype
         self.fna._basename_suffix = 'jpg'
         self.__assert_extension('jpg')
 
     def test__get_extension_returns_expected_given_empty_suffix_null_mime(self):
-        self.fna._file_mimetype = NullMIMEType()
+        self.fna._file_mimetype = self.null_mimetype
         self.fna._basename_suffix = ''
         self.__assert_extension('')
 
     def test__get_extension_returns_none_given_none_suffix_null_mime(self):
-        self.fna._file_mimetype = NullMIMEType()
+        self.fna._file_mimetype = self.null_mimetype
         self.fna._basename_suffix = None
         self.__assert_extension(None)
 

@@ -158,7 +158,7 @@ class TestBaseNullValue(TestCase):
 
 class TestNullMIMEType(TestCase):
     def setUp(self):
-        self.nm = types.NullMIMEType()
+        self.nm = types._NullMIMEType()
 
     def test_boolean_evaluation_returns_false(self):
         self.assertFalse(self.nm)
@@ -179,8 +179,8 @@ class TestNullMIMEType(TestCase):
 
         _is_equal(True, value=False)
         _is_equal(True, value=self.nm)
-        _is_equal(True, value=types.NullMIMEType())
-        _is_equal(True, value=types.NullMIMEType)
+        _is_equal(True, value=types._NullMIMEType())
+        _is_equal(True, value=types._NullMIMEType)
         _is_equal(False, value=types.BaseNullValue())
         _is_equal(False, value=types.BaseNullValue())
         _is_equal(False, value=None)
@@ -193,7 +193,7 @@ class TestNullMIMEType(TestCase):
         _is_equal(False, value='foo')
 
     def test___str__(self):
-        expected = types.NullMIMEType.AS_STRING
+        expected = types._NullMIMEType.AS_STRING
         self.assertEqual(expected, str(self.nm))
 
     def test___hash__(self):
@@ -201,8 +201,8 @@ class TestNullMIMEType(TestCase):
         self.assertIsNotNone(actual)
 
     def test_hashable_for_set_membership(self):
-        a = types.NullMIMEType()
-        b = types.NullMIMEType()
+        a = types._NullMIMEType()
+        b = types._NullMIMEType()
 
         container = set()
         container.add(a)
@@ -1254,7 +1254,7 @@ class TestTypeMimeType(TestCase, CaseCoercers):
         ]
 
     def test_null(self):
-        self.assertEqual(types.AW_MIMETYPE.NULL, types.NullMIMEType())
+        self.assertEqual(types.AW_MIMETYPE.NULL, types._NullMIMEType())
 
         self.assertFalse(types.AW_MIMETYPE.NULL)
         self.assertFalse(types.AW_MIMETYPE.null())
@@ -1796,7 +1796,7 @@ class TestMultipleTypes(TestCase):
         for coercer in self.coercer_singletons:
             mt = types.MultipleTypes(coercer)
 
-            if isinstance(coercer, (types.Date, types.TimeDate)):
+            if isinstance(coercer, (types._Date, types._TimeDate)):
                 # Skip coercers that do not allow failures and raises
                 # AWTypeError instead of returning the type-specific "null".
                 # TODO: Using coercers "correctly" is becoming too difficult!
@@ -1814,7 +1814,7 @@ class TestMultipleTypes(TestCase):
         for coercer in self.coercer_singletons:
             mt = types.MultipleTypes(coercer)
 
-            if isinstance(coercer, types.TimeDate):
+            if isinstance(coercer, types._TimeDate):
                 # Skip coercers that do not allow failures.
                 # TODO: Using coercers "correctly" is becoming too difficult!
                 with self.assertRaises(types.AWTypeError):

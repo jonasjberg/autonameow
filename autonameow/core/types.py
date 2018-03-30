@@ -91,7 +91,7 @@ class BaseNullValue(object):
         return hash(self.__class__)
 
 
-class NullMIMEType(BaseNullValue):
+class _NullMIMEType(BaseNullValue):
     # Default MIME type string used if the MIME type detection fails.
     AS_STRING = '(UNKNOWN MIME-TYPE)'
 
@@ -200,7 +200,7 @@ class BaseType(object):
         return not self.__eq__(other)
 
 
-class Path(BaseType):
+class _Path(BaseType):
     COERCIBLE_TYPES = (str, bytes)
 
     # Always force coercion so that all incoming data is properly normalized.
@@ -241,7 +241,7 @@ class Path(BaseType):
         return enc.displayable_path(_normalized)
 
 
-class PathComponent(BaseType):
+class _PathComponent(BaseType):
     COERCIBLE_TYPES = (str, bytes)
     EQUIVALENT_TYPES = (bytes, )
     NULL = b''
@@ -267,7 +267,7 @@ class PathComponent(BaseType):
         return enc.displayable_path(_coerced)
 
 
-class Boolean(BaseType):
+class _Boolean(BaseType):
     COERCIBLE_TYPES = (bytes, str, int, float, object)
     EQUIVALENT_TYPES = (bool, )
     NULL = False
@@ -326,7 +326,7 @@ class Boolean(BaseType):
         return self.bool_to_string(value)
 
 
-class Integer(BaseType):
+class _Integer(BaseType):
     COERCIBLE_TYPES = (bytes, str, float)
     EQUIVALENT_TYPES = (int, )
     NULL = 0
@@ -374,7 +374,7 @@ class Integer(BaseType):
         )
 
 
-class Float(BaseType):
+class _Float(BaseType):
     COERCIBLE_TYPES = (bytes, str, int)
     EQUIVALENT_TYPES = (float, )
     NULL = 0.0
@@ -427,7 +427,7 @@ class Float(BaseType):
         )
 
 
-class String(BaseType):
+class _String(BaseType):
     COERCIBLE_TYPES = (str, bytes, int, float, bool)
     EQUIVALENT_TYPES = (str, )
     NULL = ''
@@ -458,10 +458,10 @@ class String(BaseType):
         return value
 
 
-class MimeType(BaseType):
+class _MimeType(BaseType):
     COERCIBLE_TYPES = (str, bytes)
     EQUIVALENT_TYPES = ()
-    NULL = NullMIMEType()
+    NULL = _NullMIMEType()
 
     def __call__(self, value=None):
         # Overrides the 'BaseType' __call__ method as to not perform the test
@@ -504,7 +504,7 @@ class MimeType(BaseType):
         return formatted if formatted is not None else self.null()
 
 
-class Date(BaseType):
+class _Date(BaseType):
     COERCIBLE_TYPES = (str, bytes, int, float)
     EQUIVALENT_TYPES = (datetime, )
 
@@ -557,7 +557,7 @@ class Date(BaseType):
         )
 
 
-class TimeDate(BaseType):
+class _TimeDate(BaseType):
     COERCIBLE_TYPES = (str, bytes, int, float)
     EQUIVALENT_TYPES = (datetime, )
 
@@ -617,7 +617,7 @@ class TimeDate(BaseType):
         )
 
 
-class ExifToolTimeDate(TimeDate):
+class _ExifToolTimeDate(_TimeDate):
     def coerce(self, value):
         try:
             if re.match(r'.*0000:00:00 00:00:00.*', value):
@@ -874,18 +874,18 @@ def listof(coercer):
 
 
 # Singletons for actual use.
-AW_BOOLEAN = Boolean()
-AW_DATE = Date()
-AW_PATH = Path()
-AW_PATHCOMPONENT = PathComponent()
-AW_INTEGER = Integer()
-AW_FLOAT = Float()
-AW_STRING = String()
-AW_MIMETYPE = MimeType()
-AW_TIMEDATE = TimeDate()
-AW_EXIFTOOLTIMEDATE = ExifToolTimeDate()
+AW_BOOLEAN = _Boolean()
+AW_DATE = _Date()
+AW_PATH = _Path()
+AW_PATHCOMPONENT = _PathComponent()
+AW_INTEGER = _Integer()
+AW_FLOAT = _Float()
+AW_STRING = _String()
+AW_MIMETYPE = _MimeType()
+AW_TIMEDATE = _TimeDate()
+AW_EXIFTOOLTIMEDATE = _ExifToolTimeDate()
 
-NULL_AW_MIMETYPE = NullMIMEType()
+NULL_AW_MIMETYPE = _NullMIMEType()
 
 
 # This is not clearly defined otherwise.
