@@ -58,16 +58,7 @@ This is a hard exercise, especially because many of these rules are not universa
 '''
 
 TESTFILE_B = uu.abspath_testfile('sample.rtf')
-TESTFILE_B_EXPECTED = '''Foo title
-bar text
-
-        
-meow list
-        
-cat list
-
-baz last line
-'''
+TESTFILE_B_EXPECTED = uu.get_expected_text_for_testfile('sample.rtf')
 
 
 class TestPrerequisites(TestCase):
@@ -76,6 +67,12 @@ class TestPrerequisites(TestCase):
 
     def test_test_file_exists_b(self):
         self.assertTrue(uu.file_exists(TESTFILE_B))
+
+    def test_expected_text_is_type_str_a(self):
+        self.assertIsInstance(TESTFILE_A_EXPECTED, str)
+
+    def test_expected_text_is_type_str_b(self):
+        self.assertIsInstance(TESTFILE_B_EXPECTED, str)
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
@@ -110,19 +107,6 @@ class TestRichTextFormatTextExtractorOutputTestFileB(CaseExtractorOutput,
     EXPECTED_FIELD_TYPE_VALUE = [
         ('full', str, TESTFILE_B_EXPECTED),
     ]
-
-
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestExtractTextWithUnrtf(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.actual = extract_text_with_unrtf(TESTFILE_B)
-
-    def test_returns_expected_type(self):
-        self.assertTrue(uu.is_internalstring(self.actual))
-
-    def test_returns_expected_text(self):
-        self.assertEqual(TESTFILE_B_EXPECTED, self.actual)
 
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)

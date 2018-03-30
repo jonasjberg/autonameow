@@ -55,6 +55,12 @@ class TestPrerequisites(TestCase):
     def test_test_file_exists_b(self):
         self.assertTrue(uu.file_exists(TESTFILE_B))
 
+    def test_expected_text_is_type_str_a(self):
+        self.assertIsInstance(TESTFILE_A_EXPECTED, str)
+
+    def test_expected_text_is_type_str_b(self):
+        self.assertIsInstance(TESTFILE_B_EXPECTED, str)
+
 
 @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestPdfTextExtractor(CaseExtractorBasics, TestCase):

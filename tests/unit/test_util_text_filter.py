@@ -96,6 +96,11 @@ class TestRegexFilter(TestCase):
         self.assertEqual(2, len(f))
 
     def test_call_returns_expected_when_called_with_unicode_strings(self):
+        f = _get_regex_filter(r'...')
+        actual = f('foo ...')
+        self.assertEqual('foo', actual)
+
+    def test_call_returns_expected_when_called_with_unicode_strings(self):
         f = _get_regex_filter(r'X?fo.*')
         for given, expected in [
             ('bar',      'bar'),
