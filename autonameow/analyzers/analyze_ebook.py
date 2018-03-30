@@ -223,7 +223,7 @@ class EbookAnalyzer(BaseAnalyzer):
                 for line in metadata.as_string().splitlines():
                     self.log.debug('ISBNMetadata {} :: {!s}'.format(n, line))
 
-            if len(self._isbn_metadata) > 0:
+            if len(self._isbn_metadata) > 1:
                 # TODO: [TD0187] Fix clobbering of results
                 self.log.debug('Attemping to find most probable ISBN metadata..')
                 most_probable_isbn_metadata = self._find_most_probable_isbn_metadata()
