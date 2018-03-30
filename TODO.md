@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0187]` __Fix "clobbering" of analyzer results..__
+
 * `[TD0185]` __Rework the highest level data request handler interface.__
 
     * Don't pass the `master_provider` as a module. Use new "controller" class?
