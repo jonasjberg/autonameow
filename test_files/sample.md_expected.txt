@@ -3,7 +3,7 @@ ON MEOW
 
 Meow meow meow
 
--   meow list
--   cat list
+- meow list
+- cat list
 
 this is the meow last line

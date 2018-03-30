@@ -22,7 +22,7 @@
 import re
 
 from analyzers import BaseAnalyzer
-from core.model.normalize import normalize_full_title
+from core.model.normalize import cleanup_full_title
 from util.text.filter import RegexLineFilter
 from util.text.patternmatching import find_publisher_in_copyright_notice
 from util.text import (
@@ -137,9 +137,9 @@ class DocumentAnalyzer(BaseAnalyzer):
             #       (title is not "multivalued")
             self.log.debug('TEXTTITLES: ' + str(text_titles))
             maybe_text_title = text_titles[0]
-            normalized_title = normalize_full_title(maybe_text_title)
-            if normalized_title:
-                self._add_intermediate_results('title', normalized_title)
+            clean_title = cleanup_full_title(maybe_text_title)
+            if clean_title:
+                self._add_intermediate_results('title', clean_title)
 
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
         if _options:

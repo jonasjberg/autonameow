@@ -31,12 +31,13 @@ from extractors import BaseExtractor
 from util import encoding as enc
 from util import sanity
 from util.text import (
-    collapse_whitespace,
+    normalize_whitespace,
     normalize_unicode,
     remove_blacklisted_lines,
     remove_blacklisted_re_lines,
     remove_nonbreaking_spaces,
-    remove_zerowidth_spaces
+    remove_zerowidth_spaces,
+    strip_single_space_lines
 )
 
 
@@ -148,7 +149,8 @@ class AbstractTextExtractor(BaseExtractor):
         sanity.check_internal_string(raw_text)
         text = raw_text
         text = normalize_unicode(text)
-        # text = collapse_whitespace(text)
+        text = normalize_whitespace(text)
+        text = strip_single_space_lines(text)
         text = remove_nonbreaking_spaces(text)
         text = remove_zerowidth_spaces(text)
         text = remove_blacklisted_lines(text, self.BLACKLISTED_TEXTLINES)

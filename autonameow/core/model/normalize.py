@@ -24,6 +24,7 @@ import re
 from util.text import (
     html_unescape,
     normalize_unicode,
+    normalize_whitespace,
     strip_edited_by
 )
 
@@ -35,39 +36,46 @@ TITLE_REPLACEMENTS = {
 }
 
 
-def _collapse_whitespace(string):
-    while '  ' in string:
-        string = string.replace('  ', ' ')
-    return string
+def _normalize_whitespace(string):
+    return normalize_whitespace(string)
 
 
 def normalize_full_title(string):
-    if string is None:
+    clean_title = cleanup_full_title(string)
+    return clean_title.lower()
+
+
+def normalize_full_human_name(string):
+    clean_name = cleanup_full_human_name(string)
+    return clean_name.lower()
+
+
+def cleanup_full_title(string):
+    if not string:
         return ''
 
+    assert isinstance(string, str)
     title = normalize_unicode(string)
     title = html_unescape(title)
-    title = title.lower()
+    title = _normalize_whitespace(title)
 
     # Replace potentially valuable characters before the next step.
-    for _find, _replace in TITLE_REPLACEMENTS.items():
-        title = title.replace(_find, _replace)
+    for pattern, replacement in TITLE_REPLACEMENTS.items():
+        title = title.replace(pattern, replacement)
 
     title = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', title)
-    title = _collapse_whitespace(title)
     title = title.strip()
     return title
 
 
-def normalize_full_human_name(string):
-    if string is None:
+def cleanup_full_human_name(string):
+    if not string:
         return ''
 
+    assert isinstance(string, str)
     name = normalize_unicode(string)
-    name = name.lower()
-    name = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', name)
-    name = _collapse_whitespace(name)
+    name = _normalize_whitespace(name)
     name = strip_edited_by(name)
+    name = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', name)
     name = name.strip()
-
     return name
