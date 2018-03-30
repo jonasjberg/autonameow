@@ -28,6 +28,7 @@ def set_global_configuration(config):
         config: The new global config as an instance of 'Configuration'.
     """
     # TODO: [cleanup][hack] Manage global state properly ..
+    # TODO [TD0188] Consolidate access to active, global configuration.
     global ActiveConfig
     ActiveConfig = config
 

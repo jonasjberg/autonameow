@@ -90,6 +90,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0188]` Consolidate access to active, global configuration.
+
 * `[TD0183]` __Look into `exiftool` time-complexity.__  
     There is a kind of "batch" option in `exiftool` that starts a single
     process which can then be fed multiple files in a streaming-like fashion.

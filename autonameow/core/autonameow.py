@@ -133,6 +133,7 @@ class Autonameow(object):
             self.exit_program(C.EXIT_ERROR)
 
         # Set globally accessible configuration instance.
+        # TODO [TD0188] Consolidate access to active, global configuration.
         config.set_global_configuration(self.config)
 
         # Initialize the global master data provider.

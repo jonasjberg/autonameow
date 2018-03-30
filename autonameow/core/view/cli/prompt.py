@@ -64,6 +64,7 @@ log = logging.getLogger(__name__)
 
 
 def get_config_history_path():
+    # TODO [TD0188] Consolidate access to active, global configuration.
     active_config = config.ActiveConfig
     if not active_config:
         return C.DEFAULT_HISTORY_FILE_ABSPATH

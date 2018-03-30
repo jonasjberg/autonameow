@@ -51,6 +51,7 @@ class PersistenceImplementationBackendError(PersistenceError):
 def get_config_persistence_path():
     _active_config = config.ActiveConfig
     if not _active_config:
+    # TODO [TD0188] Consolidate access to active, global configuration.
         return C.DEFAULT_PERSISTENCE_DIR_ABSPATH
 
     try:
