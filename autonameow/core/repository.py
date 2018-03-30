@@ -103,6 +103,32 @@ class DataBundle(object):
     def __str__(self):
         return '<{!s}({!s})>'.format(self.__class__.__name__, self.value)
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+
+        return bool(
+            self.value == other.value
+            and self.coercer == other.coercer
+            and self.source == other.source
+            and self.generic_field == other.generic_field
+            and self.mapped_fields == other.mapped_fields
+            and self.multivalued == other.multivalued
+        )
+
+    def __hash__(self):
+        hash_mapped_fields = sum(hash(f) for f in self.mapped_fields)
+
+        if isinstance(self.value, list):
+            hash_value = sum(hash(v) for v in self.value)
+        else:
+            hash_value = hash(self.value)
+
+        return hash(
+            (hash_value, self.coercer, self.source, self.generic_field,
+             hash_mapped_fields, self.multivalued)
+        )
+
 
 class Repository(object):
     """

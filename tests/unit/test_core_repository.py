@@ -408,3 +408,54 @@ class TestDataBundle(TestCase):
         self.assertEqual(
             0.01, self.d2.field_mapping_weight(self.fields_Title)
         )
+
+
+class TestDataBundleComparison(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        mock_coercer = Mock()
+        mock_source = Mock()
+        mock_generic_field = Mock()
+        mock_mapped_field = Mock()
+        cls.databundle_dict = {
+            'value': 'foo',
+            'coercer': mock_coercer,
+            'source': mock_source,
+            'generic_field': mock_generic_field,
+            'mapped_fields': [mock_mapped_field],
+            'multivalued': False
+        }
+
+    def _databundle_from_dict(self, datadict):
+        return DataBundle.from_dict(datadict)
+
+    def test_comparison_with_databundle_created_from_same_source_dict(self):
+        databundle_dict = dict(self.databundle_dict)
+        a = self._databundle_from_dict(databundle_dict)
+        b = self._databundle_from_dict(databundle_dict)
+        self.assertEqual(a, b)
+
+    def test_comparison_with_databundle_that_has_different_value(self):
+        databundle_dict = dict(self.databundle_dict)
+        a = self._databundle_from_dict(databundle_dict)
+
+        databundle_dict['value'] = 'BAR'
+        b = self._databundle_from_dict(databundle_dict)
+        self.assertNotEqual(a, b)
+
+    def test_membership(self):
+        databundle_dict = dict(self.databundle_dict)
+
+        container = set()
+        a = self._databundle_from_dict(databundle_dict)
+        container.add(a)
+        self.assertEqual(1, len(container))
+
+        b = self._databundle_from_dict(databundle_dict)
+        container.add(b)
+        self.assertEqual(1, len(container))
+
+        databundle_dict['value'] = 'BAR'
+        c = self._databundle_from_dict(databundle_dict)
+        container.add(c)
+        self.assertEqual(2, len(container))
