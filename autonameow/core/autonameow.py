@@ -28,6 +28,7 @@ import util
 from core import constants as C
 from core import (
     config,
+    event,
     exceptions,
     FileObject,
     interactive,
@@ -72,11 +73,18 @@ class Autonameow(object):
         self.master_provider = None
         self.postprocessor = None
 
+        event.dispatcher.on_startup.add(repository.initialize)
+        event.dispatcher.on_shutdown.add(repository.shutdown)
+
         self._exit_code = C.EXIT_SUCCESS
 
     def __enter__(self):
+        # Send "global" startup call to all registered listeners.
+        event.dispatcher.on_startup({
+            'autonameow_instance': self
+        })
+
         # Set up singletons for this process.
-        repository.initialize(self)
         master_provider.initialize_provider_registry()
 
         self.renamer = FileRenamer(
@@ -90,8 +98,12 @@ class Autonameow(object):
         self._shutdown()
 
     def _shutdown(self):
+        # Send "global" shutdown call to all registered listeners.
+        event.dispatcher.on_shutdown({
+            'autonameow_instance': self
+        })
+
         # Reset singletons.
-        repository.shutdown(self)
         master_provider.shutdown_provider_registry()
         master_provider.shutdown_master_data_provider()
 

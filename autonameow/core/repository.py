@@ -21,6 +21,7 @@
 
 import logging
 
+from core import event
 from util import encoding as enc
 from util import (
     sanity,
@@ -423,23 +424,26 @@ class RepositoryPool(object):
         return len(self._repositories)
 
 
-def initialize(id_=None):
+def initialize(*args, **kwargs):
     # Keep one global 'SessionRepository' per 'Autonameow' instance.
+    id_ = kwargs.get('autonameow_instance', None)
+
     global Pool
     Pool = RepositoryPool()
-    Pool.add(id_=id_)
+    Pool.add(id_)
 
     global SessionRepository
-    SessionRepository = Pool.get(id_=id_)
+    SessionRepository = Pool.get(id_)
 
 
-def shutdown(id_=None):
+def shutdown(*args, **kwargs):
     global Pool
     if not Pool:
         return
 
+    id_ = kwargs.get('autonameow_instance', None)
     try:
-        r = Pool.get(id_=id_)
+        r = Pool.get(id_)
     except KeyError as e:
         log.error(
             'Unable to retrieve repository with ID "{!s}"; {!s}'.format(id_, e)
