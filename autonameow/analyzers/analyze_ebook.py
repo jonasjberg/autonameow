@@ -189,18 +189,29 @@ class EbookAnalyzer(BaseAnalyzer):
                                        self._isbn_num_blacklist)
                     continue
 
-                metadata = ISBNMetadata(
-                    authors=metadata_dict.get('Authors'),
-                    language=metadata_dict.get('Language'),
-                    publisher=metadata_dict.get('Publisher'),
-                    isbn10=metadata_dict.get('ISBN-10'),
-                    isbn13=metadata_dict.get('ISBN-13'),
-                    title=metadata_dict.get('Title'),
-                    year=metadata_dict.get('Year')
-                )
-                self.log.debug('Metadata for ISBN {}'.format(isbn_number))
+                authors = metadata_dict.get('Authors')
+                language = metadata_dict.get('Language')
+                publisher = metadata_dict.get('Publisher')
+                isbn10 = metadata_dict.get('ISBN-10')
+                isbn13 = metadata_dict.get('ISBN-13')
+                title = metadata_dict.get('Title')
+                year = metadata_dict.get('Year')
+                self.log.debug('ISBN metadata dict for ISBN {}:'.format(isbn_number))
+                str_metadata_dict = '''Title     : {!s}
+Authors   : {!s}
+Publisher : {!s}
+Year      : {!s}
+Language  : {!s}
+ISBN-10   : {!s}
+ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, isbn13)
+                for line in str_metadata_dict.splitlines():
+                    self.log.debug('metadata_dict ' + line)
+
+                metadata = ISBNMetadata(authors, language, publisher,
+                                        isbn10, isbn13, title, year)
+                self.log.debug('ISBNMetadata object for ISBN {}'.format(isbn_number))
                 for line in metadata.as_string().splitlines():
-                    self.log.debug(line)
+                    self.log.debug('ISBNMetadata ' + line)
 
                 # Duplicates are removed here. When both ISBN-10 and ISBN-13
                 # text is found and two queries are made, the two metadata
