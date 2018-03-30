@@ -42,6 +42,18 @@ RE_REPEATING_PERIODS = re.compile(
 )
 
 
+BLACKLISTED_HUMAN_NAMES = frozenset([
+    'author',
+    'dvd presenter',
+    'editor',
+    'inc',
+    'presenter',
+    'reviewer',
+    'technical editor',
+    'technical review',
+])
+
+
 def strip_author_et_al(string):
     """
     Attempts to remove variations of "et al." from a Unicode string.
@@ -292,10 +304,7 @@ def format_name(human_name, formatter=None):
 
 
 def remove_blacklisted_names(human_name):
-    if human_name.lower().strip() in [
-        'author',
-        'editor'
-    ]:
+    if human_name.lower().strip() in BLACKLISTED_HUMAN_NAMES:
         return ''
     return human_name
 
