@@ -49,22 +49,22 @@ class PersistenceImplementationBackendError(PersistenceError):
 
 
 def get_config_persistence_path():
-    _active_config = config.ActiveConfig
-    if not _active_config:
     # TODO [TD0188] Consolidate access to active, global configuration.
+    active_config = config.ActiveConfig
+    if not active_config:
         return C.DEFAULT_PERSISTENCE_DIR_ABSPATH
 
     try:
-        _path = _active_config.get(['PERSISTENCE', 'cache_directory'])
+        cache_dirpath = active_config.get(['PERSISTENCE', 'cache_directory'])
     except AttributeError:
-        _path = None
+        cache_dirpath = None
 
-    if not _path:
+    if not cache_dirpath:
         # TODO: Duplicate default setting! Already set in 'configuration.py'.
-        _path = C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+        cache_dirpath = C.DEFAULT_PERSISTENCE_DIR_ABSPATH
 
-    sanity.check_internal_bytestring(_path)
-    return _path
+    sanity.check_internal_bytestring(cache_dirpath)
+    return cache_dirpath
 
 
 class BasePersistence(object):

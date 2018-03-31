@@ -645,7 +645,7 @@ def init_provider_registry():
 
 def init_master_data_provider(active_config):
     from core import master_provider
-    master_provider.initialize_master_data_provider(active_config)
+    master_provider._initialize_master_data_provider(active_config)
 
 
 def is_internalstring(thing):

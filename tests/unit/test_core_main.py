@@ -64,7 +64,7 @@ class TestCliMain(TestCase):
     @patch('core.main.sys.exit', MagicMock())
     @patch('core.logs.init_logging', MagicMock())
     @patch('core.autonameow.master_provider', MagicMock())
-    @patch('core.master_provider.initialize_master_data_provider', MagicMock())
+    @patch('core.master_provider._initialize_master_data_provider', MagicMock())
     def test_prints_help_when_started_without_args(self, mock_registry):
         mock_registry.might_be_resolvable.return_value = True
 
@@ -80,7 +80,7 @@ class TestCliMain(TestCase):
     @patch('core.master_provider.Registry')
     @patch('core.logs.init_logging', MagicMock())
     @patch('core.autonameow.master_provider', MagicMock())
-    @patch('core.master_provider.initialize_master_data_provider', MagicMock())
+    @patch('core.master_provider._initialize_master_data_provider', MagicMock())
     def test_exits_with_expected_return_code_when_started_without_args(
             self, mock_registry, mock_exit_program, mock_sys_exit):
         mock_registry.might_be_resolvable.return_value = True

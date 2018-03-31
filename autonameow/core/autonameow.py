@@ -70,16 +70,12 @@ class Autonameow(object):
 
         self.config = None
         self.renamer = None
-        self.master_provider = None
         self.postprocessor = None
 
         self._exit_code = C.EXIT_SUCCESS
 
     def __enter__(self):
-        # Send "global" startup call to all registered listeners.
-        event.dispatcher.on_startup({
-            'autonameow_instance': self
-        })
+        self._dispatch_on_startup()
 
         self.renamer = FileRenamer(
             dry_run=self.opts.get('dry_run'),
@@ -89,16 +85,15 @@ class Autonameow(object):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._shutdown()
+        self._dispatch_on_shutdown()
 
-    def _shutdown(self):
+    def _dispatch_on_startup(self):
+        # Send "global" startup call to all registered listeners.
+        event.dispatcher.on_startup(autonameow_instance=self)
+
+    def _dispatch_on_shutdown(self):
         # Send "global" shutdown call to all registered listeners.
-        event.dispatcher.on_shutdown({
-            'autonameow_instance': self
-        })
-
-        # Reset singletons.
-        master_provider.shutdown_master_data_provider()
+        event.dispatcher.on_shutdown(autonameow_instance=self)
 
     def run(self):
         if self.opts.get('quiet'):
@@ -135,10 +130,7 @@ class Autonameow(object):
         # Set globally accessible configuration instance.
         # TODO [TD0188] Consolidate access to active, global configuration.
         config.set_global_configuration(self.config)
-
-        # Initialize the global master data provider.
-        master_provider.initialize_master_data_provider(self.config)
-        self.master_provider = master_provider
+        event.dispatcher.on_config_changed(config=self.config)
 
         if self.opts.get('dump_options'):
             self._dump_options()
@@ -227,12 +219,12 @@ class Autonameow(object):
                 cf_registered.addemptyrow()
                 cf_excluded.addemptyrow()
 
-                sourcemap = self.master_provider.Registry.meowuri_sources.get(_type, {})
+                sourcemap = master_provider.Registry.meowuri_sources.get(_type, {})
                 # Sorted by MeowURI within "root sections".
                 for uri, klass in sorted(sourcemap.items(), key=lambda x: str(x[0])):
                     cf_registered.addrow(str(uri), str(klass))
 
-                excluded = self.master_provider.Registry.excluded_providers.get(_type, set())
+                excluded = master_provider.Registry.excluded_providers.get(_type, set())
                 str_excluded = [str(k) for k in excluded]
                 for klass in sorted(str_excluded):
                     cf_excluded.addrow(str(klass))
@@ -245,8 +237,8 @@ class Autonameow(object):
             self.ui.msg('Providers Excluded (unmet dependencies)', style='heading')
             self.ui.msg(str_excluded_providers)
         else:
-            _meowuris = sorted(self.master_provider.Registry.mapped_meowuris)
-            self.ui.msg('\n'.join(str(m) for m in _meowuris))
+            meowuris = sorted(master_provider.Registry.mapped_meowuris)
+            self.ui.msg('\n'.join(str(m) for m in meowuris))
 
         self.ui.msg('\n')
 
@@ -284,7 +276,7 @@ class Autonameow(object):
             autonameow_exit_code=self.exit_code,
             options=self.opts,
             active_config=self.config,
-            master_provider=self.master_provider
+            master_provider=master_provider
         )
 
         should_list_all = self.opts.get('list_all')
@@ -304,7 +296,7 @@ class Autonameow(object):
 
             if should_list_all:
                 log.debug('Calling provider.delegate_every_possible_meowuri()')
-                self.master_provider.delegate_every_possible_meowuri(current_file)
+                master_provider.delegate_every_possible_meowuri(current_file)
 
             if self.opts.get('mode_postprocess_only'):
                 new_name = str(current_file)
@@ -401,7 +393,7 @@ class Autonameow(object):
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
 
-        self._shutdown()
+        self._dispatch_on_shutdown()
         sys.exit(self.exit_code)
 
     @property

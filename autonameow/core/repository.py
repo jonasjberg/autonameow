@@ -438,14 +438,15 @@ def maps_field(datadict, field):
 
 def _initialize(*args, **kwargs):
     # Keep one global 'SessionRepository' per 'Autonameow' instance.
-    id_ = kwargs.get('autonameow_instance', None)
+    # assert 'autonameow_instance' in kwargs
+    autonameow_instance = kwargs.get('autonameow_instance', None)
 
     global Pool
     Pool = RepositoryPool()
-    Pool.add(id_)
+    Pool.add(id_=autonameow_instance)
 
     global SessionRepository
-    SessionRepository = Pool.get(id_)
+    SessionRepository = Pool.get(autonameow_instance)
 
 
 def _shutdown(*args, **kwargs):
@@ -453,9 +454,10 @@ def _shutdown(*args, **kwargs):
     if not Pool:
         return
 
-    id_ = kwargs.get('autonameow_instance', None)
+    assert 'autonameow_instance' in kwargs
+    autonameow_instance = kwargs.get('autonameow_instance', None)
     try:
-        r = Pool.get(id_)
+        r = Pool.get(autonameow_instance)
     except KeyError as e:
         log.error(
             'Unable to retrieve repository with ID "{!s}"; {!s}'.format(id_, e)

@@ -512,13 +512,16 @@ _MASTER_DATA_PROVIDER = None
 Registry = None
 
 
-def initialize_master_data_provider(active_config):
+def _initialize_master_data_provider(*args, **kwargs):
+    # assert 'config' in kwargs
+    active_config = kwargs.get('config')
+
     # Keep one global 'MasterDataProvider' singleton per 'Autonameow' instance.
     global _MASTER_DATA_PROVIDER
     _MASTER_DATA_PROVIDER = MasterDataProvider(active_config)
 
 
-def shutdown_master_data_provider():
+def _shutdown_master_data_provider(*args, **kwargs):
     global _MASTER_DATA_PROVIDER
     if _MASTER_DATA_PROVIDER:
         _MASTER_DATA_PROVIDER.shutdown()
@@ -554,4 +557,6 @@ def delegate_every_possible_meowuri(fileobject):
 
 
 event.dispatcher.on_startup.add(_initialize_provider_registry)
+event.dispatcher.on_config_changed.add(_initialize_master_data_provider)
 event.dispatcher.on_shutdown.add(_shutdown_provider_registry)
+event.dispatcher.on_shutdown.add(_shutdown_master_data_provider)

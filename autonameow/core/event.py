@@ -23,6 +23,9 @@
 import logging
 
 
+log = logging.getLogger(__name__)
+
+
 class EventHandler(object):
     def __init__(self):
         self.callables = set()
@@ -32,6 +35,9 @@ class EventHandler(object):
         self.callables.add(func)
 
     def __call__(self, *args, **kwargs):
+        log.debug(
+            '{!s} called with args {!s} kwargs {!s}'.format(self, args, kwargs)
+        )
         for func in self.callables:
             func(*args, **kwargs)
 
@@ -44,7 +50,8 @@ class EventDispatcher(object):
         self.log = logging.getLogger('{}.{!s}'.format(__name__, self))
         self._event_handlers = {
             'on_startup': EventHandler(),
-            'on_shutdown': EventHandler()
+            'on_shutdown': EventHandler(),
+            'on_config_changed': EventHandler()
         }
 
     def _get_event_handler(self, name):

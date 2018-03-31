@@ -25,6 +25,7 @@ import sys
 from core import constants as C
 from core import (
     config,
+    event,
     master_provider,
 )
 from core.exceptions import (
@@ -63,31 +64,44 @@ except ImportError:
 log = logging.getLogger(__name__)
 
 
-def get_config_history_path():
-    # TODO [TD0188] Consolidate access to active, global configuration.
-    active_config = config.ActiveConfig
-    if not active_config:
-        return C.DEFAULT_HISTORY_FILE_ABSPATH
+class ConfigHistoryPathStore(object):
+    def __init__(self):
+        self._config_history_path = None
+        self.default_history_file_path = C.DEFAULT_HISTORY_FILE_ABSPATH
 
-    try:
-        _history_path = active_config.get(['PERSISTENCE', 'history_file_path'])
-    except AttributeError:
-        _history_path = None
+    def update_from_config(self, active_config):
+        if not active_config:
+            return
 
-    if _history_path:
-        if disk.isfile(_history_path):
-            return _history_path
-        elif disk.isdir(_history_path):
+        history_filepath = active_config.get(['PERSISTENCE', 'history_file_path'])
+        if not history_filepath:
+            return
+
+        if disk.isfile(history_filepath):
+            self._config_history_path = history_filepath
+        elif disk.isdir(history_filepath):
             log.warning('Expected history path to include a file ..')
-            _fixed_path = disk.joinpaths(_history_path,
-                                         C.DEFAULT_HISTORY_FILE_BASENAME)
-            if _fixed_path:
-                log.warning('Using fixed history path: "{!s}"'.format(
-                    enc.displayable_path(_fixed_path)
+            fixed_history_filepath = disk.joinpaths(
+                history_filepath, C.DEFAULT_HISTORY_FILE_BASENAME
+            )
+            if fixed_history_filepath:
+                log.warning('Added default filename to history path: "{!s}"'.format(
+                    enc.displayable_path(fixed_history_filepath)
                 ))
-                return _fixed_path
+                self._config_history_path = fixed_history_filepath
 
-    return C.DEFAULT_HISTORY_FILE_ABSPATH
+    @property
+    def config_history_path(self):
+        # TODO [TD0188] Consolidate access to active, global configuration.
+        if not self._config_history_path:
+            log.debug('Using default history file path "{!s}"'.format(self.default_history_file_path))
+            return self.default_history_file_path
+
+        log.debug('Using history file path "{!s}"'.format(self._config_history_path))
+        return self._config_history_path
+
+
+_config_history_path_store = ConfigHistoryPathStore()
 
 
 class NumberSelectionValidator(Validator):
@@ -146,11 +160,11 @@ def meowuri_prompt(message=None):
                      'AssertionError in "prompt_toolkit". ABORTING!')
         return None
 
-    _history_file_path = get_config_history_path()
-    if _history_file_path:
-        history = FileHistory(_history_file_path)
+    history_filepath = _config_history_path_store.config_history_path
+    if history_filepath:
+        history = FileHistory(history_filepath)
         log.debug('Prompt history file: "{!s}"'.format(
-            enc.displayable_path(_history_file_path)
+            enc.displayable_path(history_filepath)
         ))
     else:
         log.debug('Prompt history file: in-memory (volatile)')
@@ -208,6 +222,16 @@ def ask_confirm(message):
     # TODO: Test this!
     answer = confirm(message + ' ')
     return answer
+
+
+def _on_config_changed(*args, **kwargs):
+    active_config = kwargs.get('config')
+    assert active_config
+
+    _config_history_path_store.update_from_config(active_config)
+
+
+event.dispatcher.on_config_changed.add(_on_config_changed)
 
 
 if __name__ == '__main__':

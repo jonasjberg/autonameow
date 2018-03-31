@@ -117,6 +117,9 @@ class TestEventDispatcher(TestCase):
     def test_dispatcher_has_attribute_on_shutdown(self):
         self._assert_has_callable_attribute('on_shutdown')
 
+    def test_dispatcher_has_attribute_on_config_changed(self):
+        self._assert_has_callable_attribute('on_config_changed')
+
     def test_raises_assertion_error_if_handler_does_not_exist(self):
         dispatcher = _get_event_dispatcher()
         for bad_arg in [

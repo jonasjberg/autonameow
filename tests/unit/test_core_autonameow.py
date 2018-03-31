@@ -66,7 +66,7 @@ class TestAutonameowWithoutOptions(TestCase):
         exit_program_mock.assert_not_called()
 
     # TODO: [cleanup] This much mocking indicates poor design choices ..
-    @patch('core.master_provider.initialize_master_data_provider', MagicMock())
+    @patch('core.master_provider._initialize_master_data_provider', MagicMock())
     @patch('core.master_provider.Registry')
     @patch('core.autonameow.Autonameow.exit_program')
     @patch('core.autonameow.master_provider', MagicMock())
@@ -287,7 +287,7 @@ class TestCheckOptionCombinations(TestCase):
 class TestAutonameowContextManagementProtocol(TestCase):
     # TODO: [cleanup] This much mocking indicates poor design choices ..
     @patch('core.autonameow.master_provider', MagicMock())
-    @patch('core.master_provider.initialize_master_data_provider', MagicMock())
+    @patch('core.master_provider._initialize_master_data_provider', MagicMock())
     @patch('core.master_provider.Registry')
     def test_with_statement(self, mock_registry):
         mock_registry.might_be_resolvable.return_value = True

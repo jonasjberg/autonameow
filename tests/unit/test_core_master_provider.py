@@ -177,7 +177,7 @@ class TestProvidersForMeowURI(TestCase):
         # NOTE: This depends on actual extractors, analyzers.
         from core import master_provider
         with patch('core.repository.SessionRepository', MagicMock()):
-            master_provider.initialize_master_data_provider(_get_mock_config())
+            master_provider._initialize_master_data_provider(_get_mock_config())
             cls.registry = master_provider.Registry
 
     def _check_returned_providers(self, actual_providers,
