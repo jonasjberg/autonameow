@@ -75,7 +75,7 @@ class Autonameow(object):
         self._exit_code = C.EXIT_SUCCESS
 
     def __enter__(self):
-        self._dispatch_on_startup()
+        self._dispatch_event_on_startup()
 
         self.renamer = FileRenamer(
             dry_run=self.opts.get('dry_run'),
@@ -85,13 +85,13 @@ class Autonameow(object):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._dispatch_on_shutdown()
+        self._dispatch_event_on_shutdown()
 
-    def _dispatch_on_startup(self):
+    def _dispatch_event_on_startup(self):
         # Send "global" startup call to all registered listeners.
         event.dispatcher.on_startup(autonameow_instance=self)
 
-    def _dispatch_on_shutdown(self):
+    def _dispatch_event_on_shutdown(self):
         # Send "global" shutdown call to all registered listeners.
         event.dispatcher.on_shutdown(autonameow_instance=self)
 
@@ -393,7 +393,7 @@ class Autonameow(object):
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
 
-        self._dispatch_on_shutdown()
+        self._dispatch_event_on_shutdown()
         sys.exit(self.exit_code)
 
     @property
