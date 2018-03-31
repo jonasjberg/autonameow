@@ -372,10 +372,6 @@ class ProviderRunner(object):
         # Run all analyzers
         analysis.run_analysis(fileobject, self.config)
 
-    def shutdown(self):
-        log.debug('Shutting down {!s}'.format(self.__class__.__name__))
-        self.extractor_runner.shutdown()
-
 
 def _provider_is_extractor(provider):
     # TODO: [hack] Fix circular import problems when running new unit test runner.
@@ -475,10 +471,6 @@ class MasterDataProvider(object):
 
         return response
 
-    def shutdown(self):
-        log.debug('Shutting down {!s}'.format(self.__class__.__name__))
-        self.provider_runner.shutdown()
-
     def _delegate_to_providers(self, fileobject, uri):
         log.debug('Delegating request to providers: {!r}->[{!s}]'.format(fileobject, uri))
         self.debug_stats[fileobject][uri]['delegated'] += 1
@@ -521,8 +513,7 @@ def _initialize_master_data_provider(*_, **kwargs):
 
 def _shutdown_master_data_provider(*_, **__):
     global _MASTER_DATA_PROVIDER
-    if _MASTER_DATA_PROVIDER:
-        _MASTER_DATA_PROVIDER.shutdown()
+    _MASTER_DATA_PROVIDER = None
 
 
 def _initialize_provider_registry(*_, **__):
@@ -540,6 +531,12 @@ def _shutdown_provider_registry(*_, **__):
     Registry = None
 
 
+event.dispatcher.on_config_changed.add(_initialize_master_data_provider)
+event.dispatcher.on_startup.add(_initialize_provider_registry)
+event.dispatcher.on_shutdown.add(_shutdown_provider_registry)
+event.dispatcher.on_shutdown.add(_shutdown_master_data_provider)
+
+
 def request(fileobject, uri):
     sanity.check_isinstance_meowuri(uri)
     return _MASTER_DATA_PROVIDER.request(fileobject, uri)
@@ -552,9 +549,3 @@ def request_one(fileobject, uri):
 
 def delegate_every_possible_meowuri(fileobject):
     _MASTER_DATA_PROVIDER.delegate_every_possible_meowuri(fileobject)
-
-
-event.dispatcher.on_startup.add(_initialize_provider_registry)
-event.dispatcher.on_config_changed.add(_initialize_master_data_provider)
-event.dispatcher.on_shutdown.add(_shutdown_provider_registry)
-event.dispatcher.on_shutdown.add(_shutdown_master_data_provider)

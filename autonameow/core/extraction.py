@@ -22,6 +22,7 @@
 import logging
 
 import extractors
+from core import event
 from core import logs
 from core.model import force_meowuri
 from core.persistence import PersistenceError
@@ -84,6 +85,7 @@ class ExtractorRunner(object):
         self.exclude_slow = True
 
         self.register(extractors.registry.all_providers)
+        event.dispatcher.on_shutdown.add(self.shutdown_pooled_extractors)
 
     def register(self, extractor_klasses):
         self._available_extractors.update(extractor_klasses)
@@ -239,7 +241,7 @@ class ExtractorRunner(object):
 
             self._add_results_callback(fileobject, uri, _data)
 
-    def shutdown(self):
+    def shutdown_pooled_extractors(self, *_, **__):
         log.debug('Shutting down {!s}'.format(self.__class__.__name__))
         for instance in self._instance_pool.values():
             log.debug('Shutting down extractor "{!s}"'.format(instance))
