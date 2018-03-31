@@ -512,7 +512,7 @@ _MASTER_DATA_PROVIDER = None
 Registry = None
 
 
-def _initialize_master_data_provider(*args, **kwargs):
+def _initialize_master_data_provider(*_, **kwargs):
     # assert 'config' in kwargs
     active_config = kwargs.get('config')
 
@@ -521,13 +521,13 @@ def _initialize_master_data_provider(*args, **kwargs):
     _MASTER_DATA_PROVIDER = MasterDataProvider(active_config)
 
 
-def _shutdown_master_data_provider(*args, **kwargs):
+def _shutdown_master_data_provider(*_, **__):
     global _MASTER_DATA_PROVIDER
     if _MASTER_DATA_PROVIDER:
         _MASTER_DATA_PROVIDER.shutdown()
 
 
-def _initialize_provider_registry(*args, **kwargs):
+def _initialize_provider_registry(*_, **__):
     # Keep one global 'ProviderRegistry' singleton per 'Autonameow' instance.
     global Registry
     if not Registry:
@@ -537,7 +537,7 @@ def _initialize_provider_registry(*args, **kwargs):
         )
 
 
-def _shutdown_provider_registry(*args, **kwargs):
+def _shutdown_provider_registry(*_, **__):
     global Registry
     Registry = None
 

@@ -224,7 +224,7 @@ def ask_confirm(message):
     return answer
 
 
-def _on_config_changed(*args, **kwargs):
+def _on_config_changed(*_, **kwargs):
     active_config = kwargs.get('config')
     assert active_config
 

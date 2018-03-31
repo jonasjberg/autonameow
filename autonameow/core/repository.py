@@ -436,7 +436,7 @@ def maps_field(datadict, field):
     return False
 
 
-def _initialize(*args, **kwargs):
+def _initialize(*_, **kwargs):
     # Keep one global 'SessionRepository' per 'Autonameow' instance.
     # assert 'autonameow_instance' in kwargs
     autonameow_instance = kwargs.get('autonameow_instance', None)
@@ -449,7 +449,7 @@ def _initialize(*args, **kwargs):
     SessionRepository = Pool.get(autonameow_instance)
 
 
-def _shutdown(*args, **kwargs):
+def _shutdown(*_, **kwargs):
     global Pool
     if not Pool:
         return
