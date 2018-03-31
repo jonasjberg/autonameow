@@ -165,8 +165,7 @@ class Repository(object):
         )
 
     def shutdown(self):
-        # TODO: Any shutdown tasks goes here ..
-        pass
+        self.data = dict()
 
     def store(self, fileobject, meowuri, data):
         """
