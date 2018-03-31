@@ -212,12 +212,11 @@ class ProviderRegistry(object):
             includes = VALID_INCLUDES
         else:
             # Search only specified providers.
-            if __debug__:
-                # Sanity-check 'includes' argument.
-                for include in includes:
-                    assert include in VALID_INCLUDES, (
-                        '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
-                    )
+            # Sanity-check 'includes' argument.
+            for include in includes:
+                assert include in VALID_INCLUDES, (
+                    '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
+                )
 
         # Sort for more consistent behaviour.
         for root in sorted(list(includes)):
@@ -441,8 +440,7 @@ class MasterDataProvider(object):
         # TODO: Provide means of toggling on/off or remove.
         # self._print_debug_stats()
 
-        if __debug__:
-            log.debug('Got request {!r}->[{!s}]'.format(fileobject, uri))
+        log.debug('Got request {!r}->[{!s}]'.format(fileobject, uri))
 
         # First try the repository for previously gathered data
         response = self._query_repository(fileobject, uri)

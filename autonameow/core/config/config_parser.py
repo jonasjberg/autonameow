@@ -503,11 +503,10 @@ class ConfigurationOptionsParser(object):
                 return
 
         # Use the default value.
-        if __debug__:
-            if not validation_func(default):
-                raise AssertionError(
-                    'Bad default "{!s}" value: "{!s}"'.format(key, default)
-                )
+        if not validation_func(default):
+            raise AssertionError(
+                'Bad default "{!s}" value: "{!s}"'.format(key, default)
+            )
         log.debug('Using default for {} option {!s}: "{!s}"'.format(
             key, section, default
         ))

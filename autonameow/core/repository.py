@@ -273,8 +273,7 @@ class Repository(object):
         if not meowuri:
             return QueryResponseFailure(msg='did not include a MeowURI')
 
-        if __debug__:
-            log.debug('Got query {!r}->[{!s}]'.format(fileobject, meowuri))
+        log.debug('Got query {!r}->[{!s}]'.format(fileobject, meowuri))
 
         data = self.__get_data(fileobject, meowuri)
         if data is None:
