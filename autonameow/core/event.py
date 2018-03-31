@@ -46,6 +46,23 @@ class EventHandler(object):
 
 
 class EventDispatcher(object):
+    """
+    Provides access to predefined event handlers to any part of the program.
+    Example usage:
+
+    >>> from core.event import EventDispatcher
+    >>> d = EventDispatcher()
+    >>> def _on_event_func(*args, **kwargs):
+    ...     arg_foo = kwargs.get('foo')
+    ...     print(*args, arg_foo)
+    ...
+    >>> # Bind a callable to the 'on_event' event handler.
+    >>> d.on_startup.add(_on_event_func)
+
+    >>> # Trigger the 'on_event' event and call all bound callables.
+    >>> d.on_startup(1337, foo='bar')
+    1337 bar
+    """
     def __init__(self):
         self.log = logging.getLogger('{}.{!s}'.format(__name__, self))
         self._event_handlers = {
@@ -54,18 +71,18 @@ class EventDispatcher(object):
             'on_config_changed': EventHandler()
         }
 
-    def _get_event_handler(self, name):
-        event_handler = self._event_handlers.get(name)
-        if event_handler:
+    def _get_event_handlers(self, name):
+        event_handlers = self._event_handlers.get(name)
+        if event_handlers:
             self.log.debug('{!s} returning event handler "{!s}"'.format(self, name))
-            return event_handler
+            return event_handlers
 
-        msg = '{!s} accessed with nonexistent event handler "{!s}"'.format(self, name)
+        msg = '{!s} get called with nonexistent event handler "{!s}"'.format(self, name)
         self.log.critical(msg)
         raise AssertionError(msg)
 
     def __getattr__(self, item):
-        return self._get_event_handler(item)
+        return self._get_event_handlers(item)
 
     def __str__(self):
         return self.__class__.__name__
