@@ -137,24 +137,37 @@ class Repository(object):
     of the program. The repository stores data per file, cataloguing the
     individual data elements using "MeowURIs".
 
+    The first level of the nested structure uses instances of 'FileObject'
+    as keys into containing structures keyed by instances of 'MeowURI'.
+    Actual data "values" are stored in these dictionary structures,
+    along with additional "metainfo" about the data "value".
+
     The internal storage structure is laid out like this:
 
             STORAGE = {
-                'fileobject_A': {
-                    'meowuri_a': 1
-                    'meowuri_b': 'foo'
-                    'meowuri_c': (...)
+                'fileObject_A': {
+                    'MeowURI_A': datadict()
+                    'MeowURI_B': datadict()
                 }
-                'fileobject_B': {
-                    'meowuri_a': ['bar']
-                    'meowuri_b': [2, 1]
+                'fileObject_B': {
+                    'MeowURI_A': datadict()
                 }
             }
 
-    The first level of the nested structure uses instances of 'fileobject' as
-    keys into containing structures that use instances of 'MeowURI' as keys.
-    Data is stored as dictionaries, with the actual data value along with
-    additional "metainfo".
+    And the inner 'datadict' dictionaries are laid out like this:
+
+            datadict = {
+                'coercer': <subclass of BaseCoercer>,
+                'generic_field': <subclass of GenericField>,
+                'mapped_fields: [
+                     <WeightedMapping>,
+                     <WeightedMapping>,
+                     ...
+                ],
+                'multivalued': False,
+                'source': source provider class name as a string,
+                'value': Actual data value, as a primitive type or 'datetime'
+            }
 
     NOTE: Data is passed in as dicts but returned as instances of 'DataBundle'!
     """
