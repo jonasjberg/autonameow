@@ -53,9 +53,6 @@ class PandocMetadataExtractor(BaseExtractor):
     def extract(self, fileobject, **kwargs):
         return self._get_metadata(fileobject.abspath)
 
-    def shutdown(self):
-        pass
-
     def _get_metadata(self, filepath):
         _raw_metadata = extract_document_metadata_with_pandoc(filepath)
         if _raw_metadata:

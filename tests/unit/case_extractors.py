@@ -105,7 +105,8 @@ class CaseExtractorBasics(object):
     @classmethod
     def tearDownClass(cls):
         assert cls.extractor
-        cls.extractor.shutdown()
+        if hasattr(cls.extractor, 'shutdown'):
+            cls.extractor.shutdown()
 
     def test_instance_metainfo_returns_expected_type(self):
         actual = self.extractor.metainfo()
@@ -285,7 +286,8 @@ class CaseExtractorOutput(object):
     @classmethod
     def tearDownClass(cls):
         assert cls.extractor
-        cls.extractor.shutdown()
+        if hasattr(cls.extractor, 'shutdown'):
+            cls.extractor.shutdown()
 
     def test_extracted_data_is_not_none(self):
         self.assertIsNotNone(

@@ -244,5 +244,11 @@ class ExtractorRunner(object):
     def shutdown_pooled_extractors(self, *_, **__):
         log.debug('Shutting down {!s}'.format(self.__class__.__name__))
         for instance in self._instance_pool.values():
-            log.debug('Shutting down extractor "{!s}"'.format(instance))
+            if not hasattr(instance, 'shutdown'):
+                continue
+
+            assert callable(getattr(instance, 'shutdown')), (
+                'Expected callable extractor attribute "shutdown"'
+            )
+            log.debug('Shutting down extractor "{!s}" ..'.format(instance))
             instance.shutdown()

@@ -73,6 +73,10 @@ class BaseExtractor(ProviderMixin):
 
     The abstract extractors defines additional interfaces, extending the base.
     It is pretty messy and should be redesigned and simplified at some point ..
+
+    NOTE: Extractors that setup any external processes or other resources that
+          should be released at program exit or any errors must have a method
+          'shutdown(self)' with appropriate behaviour for handling this.
     """
     # NOTE: Must be overriden by inheriting classes.
     # List of MIME types that this extractor can extract information from.
@@ -233,12 +237,6 @@ class BaseExtractor(ProviderMixin):
 
         Raises:
             ExtractorError: The extraction could not be completed successfully.
-        """
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def shutdown(self):
-        """
-        Do any final clean up, kill any processes, etc.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
