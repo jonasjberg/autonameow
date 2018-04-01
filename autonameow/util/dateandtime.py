@@ -571,32 +571,6 @@ def bruteforce_str(text):
     return results
 
 
-def special_datetime_ocr_search(text):
-    """
-    Very special case. OCR text often mistakes "/" for "7", hence
-    this search.
-    Text actually contains:   2016/02/08
-    OCR returns result:       2016702708
-    :return:
-    """
-    # TODO: [TD0091] Take a look at old, untested code ..
-    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-
-    pattern = re.compile(r'(\d{4}7[01]\d7[0123]\d)')
-    dt_fmt = '%Y7%m7%d'
-    for dt_str in re.findall(pattern, text):
-        try:
-            dt = datetime.strptime(dt_str, dt_fmt)
-        except (TypeError, ValueError):
-            pass
-        else:
-            if date_is_probable(dt):
-                log.debug('[DATETIME] Special OCR search found {} '
-                          'matches'.format(dt))
-                return dt
-    return None
-
-
 def match_screencapture_unixtime(text):
     """
     Match filenames created by the Chrome extension "Full Page Screen Capture".
