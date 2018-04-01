@@ -80,11 +80,9 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         self._shutdown_exiftool_instance()
 
     def _initialize_exiftool_instance(self):
-        # TODO: [TD0183] Rework to be initialized once at first use and remain open.
-        # The 'ExiftoolMetadataExtractor' should be reworked to be instantiated once
-        # at first use and then remain available for re-use for any additional
-        # extraction. Make sure it is properly closed at program exit to prevent any
-        # kind of resource leaks.
+        # Instantiate at first use and remain available for re-use for any
+        # additional extraction. Make sure it is properly closed at program
+        # exit to prevent any kind of resource leaks.
         try:
             et = pyexiftool.ExifTool()
             et.start()
@@ -99,7 +97,6 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             self._exiftool = et
 
     def _shutdown_exiftool_instance(self):
-        # TODO: [TD0183] Make sure to prevent any kind of resource leaks ..
         if self._exiftool:
             self._exiftool.terminate()
             self._exiftool = None
