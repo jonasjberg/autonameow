@@ -71,25 +71,3 @@ def extract_lines(text, firstline, lastline):
 
     extracted = lines[firstline:lastline]
     return ''.join(extracted)
-
-
-def extractlines_do(callback, text, fromline, toline):
-    """
-    Perform an action within certain lines of some given text.
-
-    Args:
-        callback: The callable to pass the extracted lines to.
-        text: The Text to extract lines from, as a Unicode string.
-        fromline: First line number of the text to be extracted, as an integer.
-        toline: Last line number of the text to be extracted, as an integer.
-
-    Returns:
-        The result of calling "callback" with the contents in "text" between
-        lines "fromline" and "toline".
-    """
-    assert callable(callback), 'Argument "callback" must be callable'
-    assert isinstance(fromline, int), 'Expected "fromline" of type int'
-    assert isinstance(toline, int), 'Expected "toline" of type int'
-
-    lines = extract_lines(text, fromline, toline)
-    return callback(lines)

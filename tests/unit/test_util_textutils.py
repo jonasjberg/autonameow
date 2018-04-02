@@ -26,7 +26,6 @@ from core.exceptions import EncodingBoundaryViolation
 from util.textutils import (
     extract_digits,
     extract_lines,
-    extractlines_do,
 )
 
 
@@ -201,37 +200,3 @@ fifth
         _check_number_of_lines(first=4, last=5, expect=2)
         _check_number_of_lines(first=3, last=5, expect=3)
         _check_number_of_lines(first=2, last=5, expect=4)
-
-
-class TestExtractlinesDo(TestCase):
-    def setUp(self):
-        self.text = '''foo
-2. bar
-3. baz
-4. foo
-'''
-
-    def __assert_transforms_lines(self, first, last, expect):
-        actual = extractlines_do(
-            lambda t: t.upper(),
-            self.text, fromline=first, toline=last
-        )
-        self.assertEqual(actual, expect)
-
-    def test_transforms_all_lines(self):
-        self.__assert_transforms_lines(
-            first=1, last=4,
-            expect='FOO\n2. BAR\n3. BAZ\n4. FOO\n'
-        )
-
-    def test_transforms_lines_two_to_three(self):
-        self.__assert_transforms_lines(
-            first=2, last=3,
-            expect='2. BAR\n3. BAZ\n'
-        )
-
-    def test_transforms_lines_three_to_three(self):
-        self.__assert_transforms_lines(
-            first=3, last=3,
-            expect='3. BAZ\n'
-        )
