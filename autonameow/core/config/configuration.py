@@ -101,12 +101,6 @@ class Configuration(object):
     def reusable_nametemplates(self):
         return self._reusable_nametemplates
 
-    @property
-    def name_templates(self):
-        _rule_templates = [r.name_template for r in self.rules]
-        _reusable_templates = [t for t in self.reusable_nametemplates.values()]
-        return _rule_templates + _reusable_templates
-
     def __str__(self):
         # TODO: [cleanup][hack] This is pretty bad ..
         out = ['autonameow version {}\n\n'.format(self.version)]
