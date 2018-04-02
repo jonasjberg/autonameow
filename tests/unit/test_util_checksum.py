@@ -19,10 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 
 import unit.utils as uu
 from util import checksum
@@ -56,14 +53,26 @@ def really_big_testfile_unavailable():
 
 
 class TestHashlibDigest(TestCase):
-    def test_raises_value_error_given_bad_algorithm(self):
+    def test_raises_assertion_error_given_bad_algorithm(self):
         def _aR(algorithm):
-            with self.assertRaises(ValueError):
-                checksum.hashlib_digest(TESTFILE_MAGICTXT, algorithm)
+            with self.assertRaises(AssertionError):
+                _ = checksum.hashlib_digest(TESTFILE_MAGICTXT, algorithm)
 
         _aR('')
         _aR('sha529')
         _aR('mja003')
+
+    def test_raises_filesystem_error_given_bad_file(self):
+        from core.exceptions import FilesystemError
+
+        for bad_file in [
+            None,
+            object(),
+            '',
+            b''
+        ]:
+            with self.assertRaises(FilesystemError):
+                _ = checksum.hashlib_digest(bad_file)
 
 
 class TestSha256Digest(TestCase):
