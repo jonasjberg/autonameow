@@ -272,22 +272,20 @@ class Repository(object):
 
         log.debug('Got query {!r}->[{!s}]'.format(fileobject, meowuri))
 
-        if meowuri.is_generic:
+        meowuri_is_generic = meowuri.is_generic
+        if meowuri_is_generic:
             data = self._query_generic(fileobject, meowuri)
         else:
             data = self._query_explicit(fileobject, meowuri)
-            assert not isinstance(data, list)
 
         if data is None:
             return QueryResponseFailure()
 
-        # TODO: Always return responses to generic queries as lists?
-        if isinstance(data, list):
-            if len(data) == 1:
-                return DataBundle.from_dict(data[0])
-            else:
-                return [DataBundle.from_dict(d) for d in data]
+        if meowuri_is_generic:
+            assert isinstance(data, list)
+            return [DataBundle.from_dict(d) for d in data]
 
+        assert isinstance(data, dict)
         return DataBundle.from_dict(data)
 
     def _query_explicit(self, fileobject, uri):

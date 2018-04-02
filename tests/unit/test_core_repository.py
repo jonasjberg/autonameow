@@ -192,7 +192,7 @@ class TestRepositoryGenericToExplicMeowURIMapping(TestCase):
 
         generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
         response = self.r.query(self.fo, generic_uri)
-        self.assertEqual('MEow MEOW', response.value)
+        self.assertEqual('MEow MEOW', response[0].value)
 
 
 class TestRepositoryPool(TestCase):
