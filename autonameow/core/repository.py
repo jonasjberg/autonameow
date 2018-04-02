@@ -487,9 +487,7 @@ def _shutdown(*_, **kwargs):
     try:
         r = Pool.get(autonameow_instance)
     except KeyError as e:
-        log.error(
-            'Unable to retrieve repository with ID "{!s}"; {!s}'.format(id_, e)
-        )
+        log.critical('Unable to retrieve repository :: {!s}'.format(e))
     else:
         r.shutdown()
 
