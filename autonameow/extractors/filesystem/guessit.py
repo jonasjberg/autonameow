@@ -19,11 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    import guessit as guessit
-except ImportError:
-    guessit = None
-
 from extractors import (
     BaseExtractor,
     ExtractorError
@@ -36,11 +31,18 @@ class GuessitExtractor(BaseExtractor):
     def __init__(self):
         super().__init__()
 
+        self._guessit_module = None
+        self._initialize_guessit_module()
+
     def extract(self, fileobject, **kwargs):
         return self._get_metadata(fileobject.filename)
 
     def shutdown(self):
-        pass
+        self._guessit_module = None
+        reset_lazily_imported_guessit_module()
+
+    def _initialize_guessit_module(self):
+        self._guessit_module = get_lazily_imported_guessit_module()
 
     def _get_metadata(self, file_basename):
         if not file_basename:
@@ -49,7 +51,7 @@ class GuessitExtractor(BaseExtractor):
             )
             return None
 
-        guessit_output = run_guessit(file_basename)
+        guessit_output = run_guessit(file_basename, self._guessit_module)
         if not guessit_output:
             self.log.debug(
                 '{!s} aborting --- got not data from guessit'.format(self)
@@ -73,11 +75,35 @@ class GuessitExtractor(BaseExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        return guessit is not None
+        _guessit = get_lazily_imported_guessit_module()
+        return _guessit is not None
 
 
-def run_guessit(input_data, options=None):
-    assert guessit, 'Missing required module "guessit"'
+_GUESSIT_MODULE = None
+
+
+def get_lazily_imported_guessit_module():
+    global _GUESSIT_MODULE
+    if _GUESSIT_MODULE is None:
+        try:
+            import guessit as _guessit
+        except ImportError:
+            _guessit = None
+
+        _GUESSIT_MODULE = _guessit
+    return _GUESSIT_MODULE
+
+
+def reset_lazily_imported_guessit_module():
+    global _GUESSIT_MODULE
+    _GUESSIT_MODULE = None
+
+
+def run_guessit(input_data, guessit_module, options=None):
+    assert guessit_module
+    assert hasattr(guessit_module, 'guessit')
+    assert hasattr(guessit_module, 'api')
+    assert callable(getattr(guessit_module, 'guessit'))
 
     if options:
         guessit_options = dict(options)
@@ -90,8 +116,8 @@ def run_guessit(input_data, options=None):
     import logging
     logging.disable(logging.DEBUG)
     try:
-        result = guessit.guessit(input_data, guessit_options)
-    except (guessit.api.GuessitException, Exception) as e:
+        result = guessit_module.guessit(input_data, guessit_options)
+    except (guessit_module.api.GuessitException, Exception) as e:
         logging.disable(logging.NOTSET)
         raise ExtractorError(e)
     else:
