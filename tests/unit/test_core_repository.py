@@ -164,15 +164,35 @@ class TestRepositoryStorage(TestCase):
         self.assertFalse(response)
         self.assertIsInstance(response, QueryResponseFailure)
 
-    def test_valid_meowuri_returns_expected_data_multiple_entries(self):
-        valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, valid_uri, {'value': 'expected_data_a'})
-        self.r.store(self.fileobject, valid_uri, {'value': 'expected_data_b'})
+    def test_valid_meowuris_returns_expected_data(self):
+        uri_A = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        uri_B = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_TITLE)
+        self.r.store(self.fileobject, uri_A, {'value': 'foo'})
+        self.r.store(self.fileobject, uri_B, {'value': 'bar'})
 
-        response = self.r.query(self.fileobject, valid_uri)
-        databundle_values = [d.value for d in response]
-        self.assertIn('expected_data_a', databundle_values)
-        self.assertIn('expected_data_b', databundle_values)
+        response_A = self.r.query(self.fileobject, uri_A)
+        self.assertEqual('foo', response_A.value)
+        response_B = self.r.query(self.fileobject, uri_B)
+        self.assertEqual('bar', response_B.value)
+
+
+class TestRepositoryGenericToExplicMeowURIMapping(TestCase):
+    def setUp(self):
+        self.r = Repository()
+        self.fo = uu.get_mock_fileobject(mime_type='text/plain')
+
+    def test_storing_data_with_explicit_uri_is_returned_with_generic_query(self):
+        from core.model.genericfields import GenericTitle
+        data = {
+            'value': 'MEow MEOW',
+            'generic_field': GenericTitle(),
+        }
+        explicit_uri = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE)
+        self.r.store(self.fo, explicit_uri, data)
+
+        generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
+        response = self.r.query(self.fo, generic_uri)
+        self.assertEqual('MEow MEOW', response.value)
 
 
 class TestRepositoryPool(TestCase):

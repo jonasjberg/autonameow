@@ -86,6 +86,7 @@ MEOWURI_GEN_METADATA_CREATOR = 'generic.metadata.creator'
 MEOWURI_GEN_METADATA_PRODUCER = 'generic.metadata.producer'
 MEOWURI_GEN_METADATA_SUBJECT = 'generic.metadata.subject'
 MEOWURI_GEN_METADATA_TAGS = 'generic.metadata.tags'
+MEOWURI_GEN_METADATA_TITLE = 'generic.metadata.title'
 MEOWURI_GEN_METADATA_DATECREATED = 'generic.metadata.date_created'
 MEOWURI_GEN_METADATA_DATEMODIFIED = 'generic.metadata.date_modified'
 
