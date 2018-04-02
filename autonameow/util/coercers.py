@@ -52,14 +52,13 @@ import os
 import re
 from datetime import datetime
 
-
+import util.text as textutils
 from core import constants as C
 from core import exceptions
 from util import encoding as enc
 from util import (
     mimemagic,
     sanity,
-    textutils
 )
 
 

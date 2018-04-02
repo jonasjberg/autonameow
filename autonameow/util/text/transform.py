@@ -32,6 +32,7 @@ except ImportError:
 
 __all__ = [
     'collapse_whitespace',
+    'extract_digits',
     'html_unescape',
     'indent',
     'batch_regex_replace',
@@ -428,3 +429,13 @@ def remove_blacklisted_re_lines(text, compiled_regexes):
         out.append(line)
 
     return ''.join(out)
+
+
+def extract_digits(string):
+    """
+    Extracts and returns digits from a Unicode string, as a Unicode string.
+    """
+    assert isinstance(string, str)
+
+    digits = ''.join(c for c in string if c.isdigit())
+    return digits if digits.strip() else ''

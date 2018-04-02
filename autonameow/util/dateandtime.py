@@ -27,7 +27,6 @@ from datetime import datetime
 from core import constants as C
 from core.exceptions import DependencyError
 from util import encoding as enc
-from util import textutils
 
 try:
     import pytz
@@ -36,6 +35,12 @@ except ImportError:
 
 
 log = logging.getLogger(__name__)
+
+
+def _extract_digits(string):
+    # Local import to avoid circular imports within the 'util' module.
+    from util.text import extract_digits
+    return extract_digits(string)
 
 
 def is_datetime_instance(thing):
@@ -143,8 +148,8 @@ def regex_search_str(text):
 
     for m_date, m_time, _ in re.findall(DT_PATTERN_1, text):
         # Skip if entries doesn't contain digits.
-        m_date = textutils.extract_digits(m_date)
-        m_time = textutils.extract_digits(m_time)
+        m_date = _extract_digits(m_date)
+        m_time = _extract_digits(m_time)
 
         if not m_date or not m_time:
             continue
@@ -479,7 +484,7 @@ def bruteforce_str(text):
     # discards everything except digits in the text.
 
     # Try another approach, start by extracting all digits.
-    digits_only = textutils.extract_digits(text)
+    digits_only = _extract_digits(text)
 
     if not digits_only or len(digits_only) < 4:
         return results
@@ -621,7 +626,7 @@ def find_isodate_like(text):
     if text and isinstance(text, str):
         unicode_text = text.strip()
         if unicode_text:
-            string_digits = textutils.extract_digits(unicode_text)
+            string_digits = _extract_digits(unicode_text)
             try:
                 dt = datetime.strptime(string_digits, '%Y%m%d%H%M%S')
             except (ValueError, TypeError):

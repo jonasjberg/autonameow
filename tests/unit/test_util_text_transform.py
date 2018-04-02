@@ -33,6 +33,7 @@ else:
 import unit.utils as uu
 from util.text.transform import (
     collapse_whitespace,
+    extract_digits,
     html_unescape,
     indent,
     batch_regex_replace,
@@ -1097,3 +1098,46 @@ MEOW
 ''',
             given_blacklist=frozenset(['M.*', 'b', 'c.*'])
         )
+
+
+class TestExtractDigits(TestCase):
+    def test_extract_digits_returns_empty_string_given_no_digits(self):
+        def _assert_empty(test_data):
+            actual = extract_digits(test_data)
+            self.assertEqual(actual, '')
+
+        _assert_empty('')
+        _assert_empty(' ')
+        _assert_empty('_')
+        _assert_empty('ö')
+        _assert_empty('foo')
+
+    def test_extract_digits_returns_digits(self):
+        def _assert_equal(test_data, expected):
+            actual = extract_digits(test_data)
+            self.assertTrue(uu.is_internalstring(actual))
+            self.assertEqual(actual, expected)
+
+        _assert_equal('0', '0')
+        _assert_equal('1', '1')
+        _assert_equal('1', '1')
+        _assert_equal('_1', '1')
+        _assert_equal('foo1', '1')
+        _assert_equal('foo1bar', '1')
+        _assert_equal('foo1bar2', '12')
+        _assert_equal('1a2b3c4d', '1234')
+        _assert_equal('  1a2b3c4d', '1234')
+        _assert_equal('  1a2b3c4d  _', '1234')
+        _assert_equal('1.0', '10')
+        _assert_equal('2.3', '23')
+
+    def test_raises_exception_given_bad_arguments(self):
+        def _assert_raises(test_data):
+            with self.assertRaises(AssertionError):
+                extract_digits(test_data)
+
+        _assert_raises(None)
+        _assert_raises([])
+        _assert_raises(1)
+        _assert_raises(b'foo')
+        _assert_raises(b'1')
