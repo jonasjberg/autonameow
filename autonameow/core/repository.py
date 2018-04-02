@@ -316,71 +316,57 @@ class Repository(object):
 
     @staticmethod
     def _machine_readable_contents(data):
-        # First pass -- handle encoding and truncating extracted text.
-        temp = dict()
+        # First pass --- handle encoding and truncate extracted text.
+        first_pass = dict()
         for meowuri, datadict in sorted(data.items()):
             if isinstance(datadict, list):
-                log.debug('TODO: Improve robustness of handling this case')
                 temp_list = []
                 for d in datadict:
                     sanity.check_isinstance(d, dict)
-                    v = d.get('value')
-                    if isinstance(v, bytes):
-                        temp_list.append(enc.displayable_path(v))
-                    elif meowuri.matchglobs(['generic.contents.text',
-                                             'extractor.text.*']):
+                    str_v = _stringify_datadict_value(d.get('value'))
+                    if meowuri.matchglobs(['generic.contents.text',
+                                           'extractor.text.*']):
                         # Often *a lot* of text, trim to arbitrary size..
-                        _truncated = truncate_text(v)
-                        temp_list.append(_truncated)
+                        temp_list.append(_truncate_text(str_v))
                     else:
-                        temp_list.append(str(v))
+                        temp_list.append(str_v)
 
-                temp[meowuri] = temp_list
+                first_pass[meowuri] = temp_list
 
             else:
                 sanity.check_isinstance(datadict, dict)
-                v = datadict.get('value')
-                if isinstance(v, bytes):
-                    # TODO: Clean up converting ANY value to Unicode strings ..
-                    temp[meowuri] = enc.displayable_path(v)
-
-                elif meowuri.matchglobs(['generic.contents.text',
-                                         'extractor.text.*']):
+                str_v = _stringify_datadict_value(datadict.get('value'))
+                if meowuri.matchglobs(['generic.contents.text',
+                                       'extractor.text.*']):
                     # Often *a lot* of text, trim to arbitrary size..
-                    temp[meowuri] = truncate_text(v)
+                    first_pass[meowuri] = _truncate_text(str_v)
                 else:
-                    # TODO: Clean up converting ANY value to Unicode strings ..
-                    temp[meowuri] = str(v)
+                    first_pass[meowuri] = str_v
 
+        # Second pass --- align in columns and add numbers to generic URIs.
         from core.view.cli import ColumnFormatter
         cf = ColumnFormatter()
         COLUMN_DELIMITER = '::'
         MAX_VALUE_WIDTH = 80
 
-        def _add_row(str_meowuri, value):
-            str_value = str(value)
-            if len(str_value) > MAX_VALUE_WIDTH:
-                str_value = str_value[:MAX_VALUE_WIDTH]
-            cf.addrow(str_meowuri, COLUMN_DELIMITER, str_value)
+        def _add_row(_str_meowuri, _value):
+            _str_value = str(_value)
+            if len(_str_value) > MAX_VALUE_WIDTH:
+                _str_value = _str_value[:MAX_VALUE_WIDTH]
+            cf.addrow(_str_meowuri, COLUMN_DELIMITER, _str_value)
 
-        for meowuri, datadict in sorted(temp.items()):
-            _meowuri_str = str(meowuri)
-            if isinstance(datadict, list):
-                datadict_list = datadict
-                for n, v in enumerate(datadict_list, start=1):
-                    numbered_meowuri = '{} ({})'.format(_meowuri_str, n)
+        for meowuri, str_value in sorted(first_pass.items()):
+            str_meowuri = str(meowuri)
+
+            if isinstance(str_value, list):
+                str_values = str_value
+                for n, v in enumerate(str_values, start=1):
+                    numbered_meowuri = '{} ({})'.format(str_meowuri, n)
                     _add_row(numbered_meowuri, v)
+
                 continue
 
-            if meowuri.matchglobs(['generic.contents.text',
-                                   'extractor.text.*']):
-                _text = textutils.extract_lines(datadict, firstline=1, lastline=1)
-                _text = _text.rstrip('\n')
-                v = _text
-            else:
-                v = datadict
-
-            _add_row(_meowuri_str, v)
+            _add_row(str_meowuri, str_value)
 
         return str(cf)
 
@@ -395,6 +381,37 @@ class Repository(object):
     # def __repr__(self):
     #     # TODO: Implement this properly.
     #     pass
+
+
+def _truncate_text(text):
+    t = truncate_text(text, maxlen=20, append_info=True)
+    t = t.replace('\n', ' ')
+    return t
+
+
+def _stringify_datadict_value(datadict_value):
+    def __stringify_value(_value):
+        assert not isinstance(_value, (list, dict))
+
+        if isinstance(_value, bytes):
+            return enc.displayable_path(_value)
+        else:
+            return str(_value)
+
+    if isinstance(datadict_value, list):
+        values = datadict_value
+
+        str_values = list()
+        for value in values:
+            str_value = __stringify_value(value)
+            assert isinstance(str_value, str)
+            str_values.append(str_value)
+
+        return str(str_values)
+
+    str_value = __stringify_value(datadict_value)
+    assert isinstance(str_value, str)
+    return str_value
 
 
 def _create_repository():
