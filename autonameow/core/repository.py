@@ -205,7 +205,6 @@ class Repository(object):
             return
 
         sanity.check_isinstance(data, dict)
-
         self._store(fileobject, meowuri, data)
         self._store_generic(fileobject, meowuri, data)
 
@@ -230,18 +229,11 @@ class Repository(object):
             log.debug('Storing {!r}->[{!s}] :: {} {!s}'.format(
                 fileobject, meowuri, type(_data_value), _data_value
             ))
+
         any_existing = self.__get_data(fileobject, meowuri)
-        if any_existing is not None:
-            assert meowuri.is_generic, (
-                'Assume only "generic" URIs are added more than once '
-            )
-
-            if not isinstance(any_existing, list):
-                any_existing = [any_existing]
-            if not isinstance(data, list):
-                data = [data]
-
-            data = any_existing + data
+        assert not any_existing, (
+            'Would have clobbered value for URI {!s}'.format(meowuri)
+        )
 
         self.__store_data(fileobject, meowuri, data)
 
@@ -261,24 +253,16 @@ class Repository(object):
         return set()
 
     def query_mapped(self, fileobject, field):
-        out = []
+        out = list()
 
         fileobject_data = self.data.get(fileobject)
-        for meowuri, data in fileobject_data.items():
-            if isinstance(data, list):
-                _ = 1 / 0
-                for d in data:
-                    if maps_field(d, field):
-                        # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
-                        out.append(
-                            (meowuri, DataBundle.from_dict(d))
-                        )
-            else:
-                if maps_field(data, field):
-                    # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
-                    out.append(
-                        (meowuri, DataBundle.from_dict(data))
-                    )
+        for meowuri, datadict in fileobject_data.items():
+            assert isinstance(datadict, dict)
+            if maps_field(datadict, field):
+                # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
+                out.append(
+                    (meowuri, DataBundle.from_dict(datadict))
+                )
 
         return out
 
@@ -292,6 +276,7 @@ class Repository(object):
             data = self._query_generic(fileobject, meowuri)
         else:
             data = self._query_explicit(fileobject, meowuri)
+            assert not isinstance(data, list)
 
         if data is None:
             return QueryResponseFailure()
@@ -338,7 +323,7 @@ class Repository(object):
         self.data[fileobject][meowuri] = data
 
     def human_readable_contents(self):
-        out = []
+        out = list()
         for fileobject, fileobject_data in self.data.items():
             out.append('FileObject basename: "{!s}"'.format(fileobject))
 
@@ -359,7 +344,7 @@ class Repository(object):
         first_pass = dict()
         for meowuri, datadict in sorted(data.items()):
             if isinstance(datadict, list):
-                temp_list = []
+                temp_list = list()
                 for d in datadict:
                     sanity.check_isinstance(d, dict)
                     str_v = _stringify_datadict_value(d.get('value'))
