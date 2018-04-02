@@ -72,10 +72,10 @@ class FieldDataCandidate(object):
 
 
 class TemplateFieldDataResolver(object):
-    def __init__(self, fileobject, name_template_fields, master_provider):
+    def __init__(self, fileobject, name_template_fields, provider):
         self.fileobject = fileobject
         self._fields = name_template_fields
-        self._master_provider = master_provider
+        self._provider = provider
 
         self.data_sources = defaultdict(list)
         self.fields_data = dict()
@@ -310,7 +310,7 @@ class TemplateFieldDataResolver(object):
         # Pass a "tie-breaker" to resolve cases where we only want one item?
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
         # TODO: [TD0185] Rework the highest level data request handler interface.
-        response = self._master_provider.request(fileobject, uri)
+        response = self._provider.request(fileobject, uri)
         if response:
             return response
         log.debug('Resolver got no data from query {!r}'.format(response))
