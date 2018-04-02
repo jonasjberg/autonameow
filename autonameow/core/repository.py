@@ -175,7 +175,7 @@ class Repository(object):
     NOTE: Data is passed in as dicts but returned as instances of 'DataBundle'!
     """
     def __init__(self):
-        self.data = dict()
+        self._data = dict()
 
         # Stores references from "generic" to "explicit" URIs.
         # Outher dict is keyed by instances of 'FileObject', storing
@@ -183,7 +183,7 @@ class Repository(object):
         self._generic_to_explicit_uri_map = dict()
 
     def shutdown(self):
-        self.data = dict()
+        self._data = dict()
         self._generic_to_explicit_uri_map = dict()
 
     def store(self, fileobject, meowuri, data):
@@ -252,7 +252,7 @@ class Repository(object):
     def query_mapped(self, fileobject, field):
         out = list()
 
-        fileobject_data = self.data.get(fileobject)
+        fileobject_data = self._data.get(fileobject)
         for meowuri, datadict in fileobject_data.items():
             assert isinstance(datadict, dict)
             if maps_field(datadict, field):
@@ -304,22 +304,24 @@ class Repository(object):
     def remove(self, fileobject):
         # TODO: [TD0131] Limit repository size! Do not remove everything!
         # TODO: [TD0131] Keep all but very bulky data like extracted text.
-        self.data.pop(fileobject)
-        self._generic_to_explicit_uri_map.pop(fileobject)
+        if fileobject in self._data:
+            self._data.pop(fileobject)
+        if fileobject in self._generic_to_explicit_uri_map:
+            self._generic_to_explicit_uri_map.pop(fileobject)
 
     def __get_data(self, fileobject, meowuri):
-        if fileobject in self.data:
-            return self.data[fileobject].get(meowuri)
+        if fileobject in self._data:
+            return self._data[fileobject].get(meowuri)
         return None
 
     def __store_data(self, fileobject, meowuri, data):
-        if fileobject not in self.data:
-            self.data[fileobject] = dict()
-        self.data[fileobject][meowuri] = data
+        if fileobject not in self._data:
+            self._data[fileobject] = dict()
+        self._data[fileobject][meowuri] = data
 
     def human_readable_contents(self):
         out = list()
-        for fileobject, fileobject_data in self.data.items():
+        for fileobject, fileobject_data in self._data.items():
             out.append('FileObject basename: "{!s}"'.format(fileobject))
 
             _abspath = enc.displayable_path(fileobject.abspath)
@@ -403,7 +405,7 @@ class Repository(object):
         """
         Returns: Total number of (MeowURI, databundle) entries for all files.
         """
-        return sum(len(v) for k, v in self.data.items())
+        return sum(len(v) for k, v in self._data.items())
 
     def __str__(self):
         return self.human_readable_contents()

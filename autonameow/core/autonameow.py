@@ -351,8 +351,7 @@ class Autonameow(object):
 
             # TODO: [TD0131] Limit repository size! Do not remove everything!
             # TODO: [TD0131] Keep all but very bulky data like extracted text.
-            if current_file in repository.SessionRepository.data:
-                repository.SessionRepository.remove(current_file)
+            repository.SessionRepository.remove(current_file)
 
         if should_list_all:
             if not aggregate_repository_contents:
