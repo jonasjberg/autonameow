@@ -178,8 +178,9 @@ class Repository(object):
         self._data = dict()
 
         # Stores references from "generic" to "explicit" URIs.
-        # Outher dict is keyed by instances of 'FileObject', storing
-        # defaultdicts of sets that in turn store the "explicit" URIs.
+        # Outer dict is keyed by instances of 'FileObject', storing
+        # defaultdicts keyed by "generic" URIs that in turn store sets
+        # of "explicit" URIs.
         self._generic_to_explicit_uri_map = dict()
 
     def shutdown(self):
@@ -245,9 +246,10 @@ class Repository(object):
         self._generic_to_explicit_uri_map[fileobject][generic_uri].add(explicit_uri)
 
     def _get_explicit_uris_from_generic_uri(self, fileobject, generic_uri):
-        if fileobject in self._generic_to_explicit_uri_map:
-            return self._generic_to_explicit_uri_map[fileobject].get(generic_uri)
-        return set()
+        if fileobject not in self._generic_to_explicit_uri_map:
+            return set()
+
+        return self._generic_to_explicit_uri_map[fileobject].get(generic_uri)
 
     def query_mapped(self, fileobject, field):
         out = list()
