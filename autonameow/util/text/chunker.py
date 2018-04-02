@@ -51,9 +51,9 @@ class TextChunker(object):
         self.num_text_lines = len(self.text.splitlines())
 
         assert isinstance(chunk_to_text_ratio, (int, float))
-        _chunk_percentage = float(chunk_to_text_ratio)
-        assert 0.0 <= _chunk_percentage <= 1.0
-        self.chunk_percentage = _chunk_percentage
+        _chunk_ratio = float(chunk_to_text_ratio)
+        assert 0.0 <= _chunk_ratio <= 1.0
+        self.chunk_ratio = _chunk_ratio
 
         self._chunks = None
 
@@ -64,7 +64,7 @@ class TextChunker(object):
         return self._chunks
 
     def _split_text_into_chunks(self):
-        chunk_size = int(self.num_text_lines * self.chunk_percentage)
+        chunk_size = int(self.num_text_lines * self.chunk_ratio)
 
         if chunk_size == 0 or self.num_text_lines <= chunk_size:
             # Chunk size could be 0 after rounding.
