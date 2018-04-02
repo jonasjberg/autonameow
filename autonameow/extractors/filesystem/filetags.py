@@ -55,9 +55,6 @@ class FiletagsExtractor(BaseExtractor):
     def extract(self, fileobject, **kwargs):
         return self._get_metadata(fileobject.filename)
 
-    def shutdown(self):
-        pass
-
     def _get_metadata(self, file_basename):
         metadata = self._partition_filename(file_basename)
 
