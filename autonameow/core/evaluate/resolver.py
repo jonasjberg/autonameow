@@ -266,21 +266,6 @@ class TemplateFieldDataResolver(object):
 
                         return False
 
-        if isinstance(databundle.value, list):
-            # TODO: [TD0112] Clean up merging data.
-            # TODO: [critical] This is really wrong? Some (multivalued) values *should* be lists? (!)
-            databundle_values = databundle.value
-            if len(databundle_values) > 1:
-                seen_data = set()
-                for d in databundle_values:
-                    seen_data.add(d)
-
-                if len(seen_data) == 1:
-                    # TODO: [TD0112] FIX THIS!
-                    log.debug('Merged {} equivalent entries ({!s} is now {!s})'.format(
-                        len(databundle_values), databundle_values, list(list(seen_data)[0])))
-                    databundle.value = list(list(seen_data)[0])
-
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
         sanity.check_isinstance(databundle, DataBundle)
 
