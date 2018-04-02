@@ -65,11 +65,17 @@ def extract_text_with_ebooklib(filepath):
         raise ExtractorError(e)
 
     # TODO: The epub text extractor repeats a lot of text.
-    result = ''
+    # NOTE: Books produced by 'calibre' are messy. Seems to use tables for
+    # formatting and classes "calibreN" with N being just about any number..
+    text_lines = list()
     for id_, _ in book.spine:
         item = book.get_item_with_id(id_)
         soup = BeautifulSoup(item.content, 'lxml')
-        for child in soup.find_all(['title', 'p', 'div', 'h1', 'h2', 'h3',
-                                    'h4']):
-            result = result + child.text + '\n'
+        for child in soup.find_all(['div', 'h1', 'h2', 'h3', 'h4', 'title', 'p', 'td']):
+            child_text = child.text
+            child_text = child_text.strip()
+            if child_text:
+                text_lines.append(child_text)
+
+    result = '\n'.join(text_lines)
     return result
