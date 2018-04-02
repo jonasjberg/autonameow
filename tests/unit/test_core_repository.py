@@ -24,7 +24,6 @@ from unittest.mock import Mock
 
 import unit.utils as uu
 import unit.constants as uuconst
-from core import exceptions
 from core.repository import (
     DataBundle,
     QueryResponseFailure,
@@ -101,23 +100,31 @@ class TestRepositoryStorage(TestCase):
 
         self.assertEqual(len(self.r), 2)
 
-    def test_adding_list_of_two_results_increments_len_twice(self):
-        self.skipTest('TODO: Reimplement "Repository.__len__()"')
-        _field_one = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        _result_one = {'value': ['foo', 'bar']}
-        self.r.store(self.fileobject, _field_one, _result_one)
+    def test_adding_one_result_for_two_files_increments_len_twice(self):
+        _field = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        _results = {'value': 'foo'}
+
+        fo_A = self.fileobject
+        fo_B = uu.get_mock_fileobject(mime_type='image/jpeg')
+        self.r.store(fo_A, _field, _results)
+        self.r.store(fo_B, _field, _results)
 
         self.assertEqual(len(self.r), 2)
 
-    def test_adding_two_lists_of_two_results_increments_len_twice(self):
-        self.skipTest('TODO: Reimplement "Repository.__len__()"')
+    def test_adding_two_results_for_two_files_increments_len_four_times(self):
         _field_one = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        _result_one = {'value_A': ['foo', 'bar']}
-        _result_two = {'value_B': ['baz', 'BLA']}
-        self.r.store(self.fileobject, _field_one, _result_one)
-        self.r.store(self.fileobject, _field_one, _result_two)
+        _field_two = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        _result_one = {'value': 'foo'}
+        _result_two = {'value': 'bar'}
 
-        self.assertEqual(len(self.r), 2)
+        fo_A = self.fileobject
+        fo_B = uu.get_mock_fileobject(mime_type='image/jpeg')
+        self.r.store(fo_A, _field_one, _result_one)
+        self.r.store(fo_A, _field_two, _result_two)
+        self.r.store(fo_B, _field_one, _result_one)
+        self.r.store(fo_B, _field_two, _result_two)
+
+        self.assertEqual(len(self.r), 4)
 
     def test_add_empty_does_not_increment_len(self):
         _field = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
@@ -143,38 +150,29 @@ class TestRepositoryStorage(TestCase):
             self.r.store(self.fileobject, valid_uri, {'value': 'foo'})
 
     def test_valid_meowuri_returns_expected_data(self):
-        self.skipTest('TODO: Reimplement "Repository.__len__()"')
         valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, valid_uri, 'expected_data')
+        self.r.store(self.fileobject, valid_uri, {'value': 'expected_data'})
 
         response = self.r.query(self.fileobject, valid_uri)
-        self.assertEqual(response, 'expected_data')
+        self.assertEqual(response.value, 'expected_data')
 
-    def test_none_meowuri_raises_exception(self):
-        self.skipTest('TODO: Reimplement "Repository.__len__()"')
+    def test_none_meowuri_returns_query_response_failure(self):
         valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, valid_uri, 'expected_data')
+        self.r.store(self.fileobject, valid_uri, {'value': 'foo'})
 
-        with self.assertRaises(exceptions.InvalidMeowURIError):
-            self.r.query(self.fileobject, None)
+        response = self.r.query(self.fileobject, None)
+        self.assertFalse(response)
+        self.assertIsInstance(response, QueryResponseFailure)
 
     def test_valid_meowuri_returns_expected_data_multiple_entries(self):
-        self.skipTest('TODO: Reimplement "Repository.__len__()"')
         valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, valid_uri, 'expected_data_a')
-        self.r.store(self.fileobject, valid_uri, 'expected_data_b')
+        self.r.store(self.fileobject, valid_uri, {'value': 'expected_data_a'})
+        self.r.store(self.fileobject, valid_uri, {'value': 'expected_data_b'})
 
         response = self.r.query(self.fileobject, valid_uri)
-        self.assertIn('expected_data_a', response)
-        self.assertIn('expected_data_b', response)
-
-
-class TestRepositoryGenericStorage(TestCase):
-    def setUp(self):
-        self.r = Repository()
-
-    def test_todo(self):
-        self.skipTest('TODO: Add tests for storing "generic fields" ..')
+        databundle_values = [d.value for d in response]
+        self.assertIn('expected_data_a', databundle_values)
+        self.assertIn('expected_data_b', databundle_values)
 
 
 class TestRepositoryPool(TestCase):

@@ -192,6 +192,7 @@ class Repository(object):
             return
 
         if isinstance(data, list):
+            # Assume that all list elements are the same type.
             data_sample = data[0]
         else:
             data_sample = data
@@ -363,16 +364,13 @@ class Repository(object):
         return str(cf)
 
     def __len__(self):
-        # TODO:  FIX THIS! Unverified after removing the 'ExtractedData' class.
-        # return util.count_dict_recursive(self.data)
+        """
+        Returns: Total number of (MeowURI, databundle) entries for all files.
+        """
         return sum(len(v) for k, v in self.data.items())
 
     def __str__(self):
         return self.human_readable_contents()
-
-    # def __repr__(self):
-    #     # TODO: Implement this properly.
-    #     pass
 
 
 def _is_full_text_meowuri(uri):
