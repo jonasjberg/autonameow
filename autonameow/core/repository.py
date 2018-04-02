@@ -23,10 +23,7 @@ import logging
 
 from core import event
 from util import encoding as enc
-from util import (
-    sanity,
-    textutils
-)
+from util import sanity
 from util.text import truncate_text
 
 
@@ -220,18 +217,15 @@ class Repository(object):
 
     def _store(self, fileobject, meowuri, data):
         if __debug__:
-            if meowuri.matchglobs(['generic.contents.text', 'extractor.text.*']):
-                _debugmsg_data = dict(data)
-                _truncated_value = truncate_text(_debugmsg_data['value'])
-                _debugmsg_data['value'] = _truncated_value
-            else:
-                _debugmsg_data = data
+            _data_value = data.get('value')
+            if _is_full_text_meowuri(meowuri):
+                assert isinstance(_data_value, str), (
+                    'Expect data stored with this MeowURI to be type "str"'
+                )
+                _data_value = _truncate_text(_data_value)
 
-            log.debug('Storing {!r}->[{!s}] :: ({}) {!s}'.format(
-                fileobject,
-                meowuri,
-                type(_debugmsg_data.get('value')),
-                _debugmsg_data.get('value')
+            log.debug('Storing {!r}->[{!s}] :: {} {!s}'.format(
+                fileobject, meowuri, type(_data_value), _data_value
             ))
         try:
             any_existing = self.__get_data(fileobject, meowuri)
@@ -324,8 +318,7 @@ class Repository(object):
                 for d in datadict:
                     sanity.check_isinstance(d, dict)
                     str_v = _stringify_datadict_value(d.get('value'))
-                    if meowuri.matchglobs(['generic.contents.text',
-                                           'extractor.text.*']):
+                    if _is_full_text_meowuri(meowuri):
                         # Often *a lot* of text, trim to arbitrary size..
                         temp_list.append(_truncate_text(str_v))
                     else:
@@ -336,8 +329,7 @@ class Repository(object):
             else:
                 sanity.check_isinstance(datadict, dict)
                 str_v = _stringify_datadict_value(datadict.get('value'))
-                if meowuri.matchglobs(['generic.contents.text',
-                                       'extractor.text.*']):
+                if _is_full_text_meowuri(meowuri):
                     # Often *a lot* of text, trim to arbitrary size..
                     first_pass[meowuri] = _truncate_text(str_v)
                 else:
@@ -381,6 +373,10 @@ class Repository(object):
     # def __repr__(self):
     #     # TODO: Implement this properly.
     #     pass
+
+
+def _is_full_text_meowuri(uri):
+    return uri.matchglobs(['generic.contents.text', 'extractor.text.*'])
 
 
 def _truncate_text(text):
