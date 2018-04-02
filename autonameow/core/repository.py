@@ -175,9 +175,6 @@ class Repository(object):
     NOTE: Data is passed in as dicts but returned as instances of 'DataBundle'!
     """
     def __init__(self):
-        self.log = logging.getLogger(
-            '{!s}.{!s}'.format(__name__, self.__module__)
-        )
         self.data = dict()
 
         # Stores references from "generic" to "explicit" URIs.
