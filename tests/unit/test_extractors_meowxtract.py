@@ -108,13 +108,16 @@ class TestMeowxtractExtract(TestCase):
             self.assertEqual(e.type, SystemExit)
             self.assertEqual(e.value.code, C.EXIT_SUCCESS)
 
+    @patch('extractors.meowxtract.log', MagicMock())
     def test_exits_with_exit_success_if_not_given_any_options(self):
         self._assert_exit_success()
 
+    @patch('extractors.meowxtract.log', MagicMock())
     def test_exits_with_exit_success_if_given_empty_list_of_input_paths(self):
         options = {'input_paths': []}
         self._assert_exit_success(options)
 
+    @patch('extractors.meowxtract.log', MagicMock())
     def test_exits_with_exit_success_if_given_input_paths_but_no_actions(self):
         options = {'input_paths': self.input_paths}
         self._assert_exit_success(options)
@@ -128,6 +131,7 @@ class TestMeowxtractExtractTextExtraction(TestCase):
 
     @patch('extractors.meowxtract.logs', MagicMock())
     @patch('extractors.meowxtract.do_extract_text')
+    @patch('extractors.meowxtract.view', MagicMock())
     def test_extract_text(self, mock_do_extract_text):
         options = {'input_paths': self.input_paths,
                    'extract_text': True}
@@ -136,6 +140,7 @@ class TestMeowxtractExtractTextExtraction(TestCase):
 
     @patch('extractors.meowxtract.logs', MagicMock())
     @patch('extractors.meowxtract.do_extract_text')
+    @patch('extractors.meowxtract.log', MagicMock())
     def test_extract_text_without_input_paths(self, mock_do_extract_text):
         options = {'extract_text': True}
         with self.assertRaises(SystemExit) as e:
@@ -153,6 +158,7 @@ class TestMeowxtractExtractMetadataExtraction(TestCase):
 
     @patch('extractors.meowxtract.logs', MagicMock())
     @patch('extractors.meowxtract.do_extract_metadata')
+    @patch('extractors.meowxtract.view', MagicMock())
     def test_extract_metadata(self, mock_do_extract_metadata):
         options = {'input_paths': self.input_paths,
                    'extract_metadata': True}
@@ -161,6 +167,7 @@ class TestMeowxtractExtractMetadataExtraction(TestCase):
 
     @patch('extractors.meowxtract.logs', MagicMock())
     @patch('extractors.meowxtract.do_extract_metadata')
+    @patch('extractors.meowxtract.log', MagicMock())
     def test_extract_metadata_without_input_paths(self, mock_do_extract_metadata):
         options = {'extract_metadata': True}
         with self.assertRaises(SystemExit) as e:
@@ -179,6 +186,7 @@ class TestMeowxtractExtractTextAndMetadataExtraction(TestCase):
     @patch('extractors.meowxtract.logs', MagicMock())
     @patch('extractors.meowxtract.do_extract_text')
     @patch('extractors.meowxtract.do_extract_metadata')
+    @patch('extractors.meowxtract.view', MagicMock())
     def test_extract_text_and_metadata(self, mock_do_extract_metadata, mock_do_extract_text):
         options = {'input_paths': self.input_paths,
                    'extract_metadata': True,
