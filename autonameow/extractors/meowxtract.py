@@ -28,6 +28,7 @@ from collections import defaultdict
 import extractors
 from core import constants as C
 from core import (
+    event,
     exceptions,
     extraction,
     FileObject,
@@ -99,7 +100,7 @@ def do_extract_text(fileobject):
                      request_extractors=extractors.registry.text_providers)
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
-    finally:
+    else:
         return all_text_extraction_results
 
 
@@ -125,7 +126,7 @@ def do_extract_metadata(fileobject):
         runner.start(fileobject, request_extractors)
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
-    finally:
+    else:
         all_metadata_extraction_results = list()
         for provider, metadata in provider_results.items():
             all_metadata_extraction_results.append(MetadataExtractionResult(
@@ -399,6 +400,9 @@ def cli_main(argv=None):
         main(options)
     except KeyboardInterrupt:
         sys.exit('\nReceived keyboard interrupt; Exiting ..')
+    finally:
+        # Shutdown pooled extractor instances.
+        event.dispatcher.on_shutdown()
 
 
 if __name__ == '__main__':
