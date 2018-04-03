@@ -20,14 +20,15 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import (
-    MagicMock,
-    patch
-)
+from unittest.mock import MagicMock, patch
 
 import unit.utils as uu
 from core import constants as C
 from extractors import meowxtract
+from extractors.meowxtract import (
+    MetadataExtractionResult,
+    TextExtractionResult
+)
 
 
 # NOTE(jonas): Without patching 'extractors.meowxtract.logs', unit tests in other
@@ -44,6 +45,37 @@ def _get_input_paths():
 def _get_input_fileobject():
     return uu.fileobject_testfile('magic_txt.txt')
 
+
+def _get_text_extraction_result():
+    return TextExtractionResult('foo\nbar\nbaz', 'ProviderName')
+
+
+def _get_metadata_extraction_result():
+    return MetadataExtractionResult({'A': 1, 'B': 2}, 'ProviderName')
+
+
+class TestTextExtractionResult(TestCase):
+    def test_instantiated_test_extraction_result_is_not_none(self):
+        r = _get_text_extraction_result()
+        self.assertIsNotNone(r)
+
+    def test___repr__(self):
+        r = _get_text_extraction_result()
+        self.assertEqual(
+            '<TextExtractionResult(ProviderName (3 lines of text))>', repr(r)
+        )
+
+
+class TestMetadataExtractionResult(TestCase):
+    def test_instantiated_metadata_extraction_result_is_not_none(self):
+        r = _get_metadata_extraction_result()
+        self.assertIsNotNone(r)
+
+    def test___repr__(self):
+        r = _get_metadata_extraction_result()
+        self.assertEqual(
+            '<MetadataExtractionResult(ProviderName (2 metadata fields))>', repr(r)
+        )
 
 class TestMeowxtractExtract(TestCase):
     @classmethod

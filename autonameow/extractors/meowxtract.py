@@ -57,6 +57,11 @@ class TextExtractionResult(object):
         return ((self.provider, self.fulltext_linecount)
                 > (other.provider, other.fulltext_linecount))
 
+    def __repr__(self):
+        return '<{}({provider} ({fulltext_linecount} lines of text))>'.format(
+            self.__class__.__name__, **self.__dict__
+        )
+
 
 class MetadataExtractionResult(object):
     def __init__(self, metadata, provider):
@@ -68,6 +73,11 @@ class MetadataExtractionResult(object):
     def __gt__(self, other):
         return ((self.provider, self.metadata_fieldcount)
                 > (other.provider, other.metadata_fieldcount))
+
+    def __repr__(self):
+        return '<{}({provider} ({metadata_fieldcount} metadata fields))>'.format(
+            self.__class__.__name__, **self.__dict__
+        )
 
 
 def _decode_any_bytestring(value):
