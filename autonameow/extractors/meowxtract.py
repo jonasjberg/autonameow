@@ -169,8 +169,9 @@ def display_text_extraction_result(fileobject, text_extraction_result):
 
 
 def display_metadata_extraction_result(results):
+    _results = list(results)
     cf = _column_formatter()
-    for metadata_extraction_result in results:
+    for metadata_extraction_result in _results:
         provider = str(metadata_extraction_result.provider)
         for uri, data in metadata_extraction_result.metadata.items():
             cf.addrow(str(uri), str(data), provider)
@@ -309,10 +310,10 @@ def main(options=None):
 
         if opts.get('extract_metadata'):
             with logs.log_runtime(log, 'Metadata Extraction', log_level='INFO'):
-                result = do_extract_metadata(current_file)
+                results = do_extract_metadata(current_file)
 
-            summary_results['metadata'][current_file] = result
-            display_metadata_extraction_result(result)
+            summary_results['metadata'][current_file] = results
+            display_metadata_extraction_result(results)
 
         display_file_processing_ended(current_file, n, num_files_total)
 
