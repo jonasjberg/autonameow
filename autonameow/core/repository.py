@@ -23,6 +23,7 @@ import logging
 from collections import defaultdict
 
 from core import event
+from core import logs
 from util import encoding as enc
 from util import sanity
 from util.text import truncate_text
@@ -216,7 +217,7 @@ class Repository(object):
             self._map_generic_to_explicit_uri(fileobject, generic_field_uri, uri)
 
     def _store(self, fileobject, meowuri, data):
-        if __debug__:
+        if logs.DEBUG:
             _data_value = data.get('value')
             if _is_full_text_meowuri(meowuri):
                 assert isinstance(_data_value, str), (
@@ -239,7 +240,7 @@ class Repository(object):
         if fileobject not in self._generic_to_explicit_uri_map:
             self._generic_to_explicit_uri_map[fileobject] = defaultdict(set)
 
-        if __debug__:
+        if logs.DEBUG:
             log.debug('Mapping {!r} generic MeowURI {!s} -> {!s}'.format(
                 fileobject, generic_uri, explicit_uri
             ))

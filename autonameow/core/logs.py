@@ -284,3 +284,6 @@ def log_previously_logged_runtimes(logger):
     global global_logged_runtime
     for entry in global_logged_runtime:
         logger.debug(entry)
+
+
+DEBUG = bool(__debug__)

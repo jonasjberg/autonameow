@@ -89,7 +89,7 @@ class ExtractorRunner(object):
 
     def register(self, extractor_klasses):
         self._available_extractors.update(extractor_klasses)
-        if __debug__:
+        if logs.DEBUG:
             log.debug('Initialized {!s} with {} available extractors'.format(
                 self.__class__.__name__, len(self._available_extractors)))
             for k in self._available_extractors:
@@ -122,31 +122,29 @@ class ExtractorRunner(object):
         _request_all = bool(request_all)
 
         # Get only extractors suitable for the given file.
-        available = filter_able_to_handle(self._available_extractors,
-                                          fileobject)
+        extractors_for_file = filter_able_to_handle(
+            self._available_extractors, fileobject
+        )
         log.debug('Removed extractors that can not handle the current file. '
-                  'Remaining: {}'.format(len(available)))
+                  'Remaining: {}'.format(len(extractors_for_file)))
 
         selected = set()
         if _request_all:
             # Add all available extractors.
             log.debug('Requested all available extractors')
-            selected = available
+            selected = extractors_for_file
         elif request_extractors:
             # Add requested extractors.
             requested_klasses = set(request_extractors)
-            selected = self._select_from_available(available, requested_klasses)
+            selected = self._select_from_available(extractors_for_file, requested_klasses)
 
-        log.debug('Selected {} of {} available extractors'.format(
-            len(selected), len(self._available_extractors)))
-
-        if __debug__:
-            log.debug('Prepared {} extractors that can handle "{!s}"'.format(
-                len(selected), fileobject
+        if logs.DEBUG:
+            log.debug('Selected {} of {} available extractors'.format(
+                len(selected), len(self._available_extractors)
             ))
             for k in selected:
                 # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
-                log.debug('Prepared:  {!s}'.format(k.name()))
+                log.debug('Selected extractor:  {!s}'.format(k.name()))
 
         if selected:
             # Run all prepared extractors.
@@ -158,7 +156,7 @@ class ExtractorRunner(object):
             k for k in requested_klasses if k in available
         }
 
-        if __debug__:
+        if logs.DEBUG:
             def __format_string(_extractors):
                 # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
                 return ', '.join(k.name() for k in _extractors)
@@ -173,7 +171,7 @@ class ExtractorRunner(object):
 
         if self.exclude_slow:
             selected = filter_not_slow(selected, requested_klasses)
-            if __debug__:
+            if logs.DEBUG:
                 log.debug('Removed slow extractors. Remaining: {}'.format(
                     len(selected)
                 ))
