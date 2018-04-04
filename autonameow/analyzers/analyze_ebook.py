@@ -43,6 +43,7 @@ from util.text import (
     find_and_extract_edition,
     html_unescape,
     normalize_unicode,
+    RegexCache,
     remove_blacklisted_lines,
     string_similarity,
     TextChunker
@@ -68,9 +69,6 @@ BLACKLISTED_TEXTLINES = frozenset([
     'This page intentionally left blank',
     'Cover'
 ])
-
-
-RE_E_ISBN = re.compile(r'^e-ISBN.*', re.MULTILINE)
 
 
 CACHE_KEY_ISBNMETA = 'isbnlib_meta'
@@ -428,7 +426,8 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
 
 def extract_ebook_isbns_from_text(text):
-    match = RE_E_ISBN.search(text)
+    regex_e_isbn = RegexCache(r'^e-ISBN.*', flags=re.MULTILINE)
+    match = regex_e_isbn.search(text)
     if match:
         return extract_isbns_from_text(match.group(0))
     return list()

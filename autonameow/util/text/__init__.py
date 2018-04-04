@@ -33,3 +33,4 @@ from .patternmatching import (
     find_and_extract_edition,
 )
 from .transform import *
+from .regexcache import RegexCache
