@@ -26,6 +26,7 @@ from core import constants as C
 from core import (
     analysis,
     event,
+    logs,
     repository,
 )
 from core.exceptions import AutonameowException
@@ -154,7 +155,7 @@ class ProviderRegistry(object):
         #            for r in VALID_SOURCE_ROOTS)
 
     def _debug_log_mapped_meowuri_sources(self):
-        if not __debug__:
+        if not logs.DEBUG:
             return
 
         for key in self.meowuri_sources.keys():
@@ -481,7 +482,7 @@ class MasterDataProvider(object):
         return repository.SessionRepository.query(fileobject, uri)
 
     def _print_debug_stats(self):
-        if not __debug__:
+        if not logs.DEBUG:
             return
 
         stats_strings = list()

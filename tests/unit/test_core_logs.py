@@ -27,6 +27,7 @@ from unittest.mock import (
 
 from core.logs import (
     center_pad,
+    DEBUG,
     deinit_logging,
     init_logging,
     log_func_runtime,
@@ -302,3 +303,16 @@ class TestInitLogging(TestCase):
     def test_init_logging_quiet(self):
         opts = {'quiet': True}
         init_logging(opts)
+
+
+class TestConstantDebug(TestCase):
+    def test_assume_running_with___debug__(self):
+        # The function under test is a no-op when running in optimized mode,
+        # I.E. when __debug__ == False
+        self.assertTrue(__debug__)
+
+    def test_constant_value_debug_is_equal_to___debug__(self):
+        self.assertEqual(__debug__, DEBUG)
+
+    def test_constant_value_debug_is_type_boolean(self):
+        self.assertIsInstance(__debug__, bool)

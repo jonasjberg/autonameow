@@ -240,6 +240,10 @@ File:MIMEType:
             weight: 1.0
     multivalued: false
 
+FlashPix:AppVersion:
+    coercer: aw_float
+    multivalued: false
+
 FlashPix:Author:
     coercer: aw_string
     generic_field: author
@@ -254,6 +258,10 @@ FlashPix:Characters:
     multivalued: false
 
 FlashPix:CharCountWithSpaces:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:CodePage:
     coercer: aw_integer
     multivalued: false
 
@@ -283,6 +291,18 @@ FlashPix:Company:
             weight: 0.1
     multivalued: false
 
+FlashPix:CompObjUserType:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:CompObjUserTypeLen:
+    coercer: aw_int
+    multivalued: false
+
+FlashPix:ContentTypeId:
+    coercer: aw_string
+    multivalued: false
+
 FlashPix:CreateDate:
     coercer: aw_timedate
     generic_field: date_created
@@ -295,6 +315,30 @@ FlashPix:CreateDate:
             weight: 1.0
     multivalued: false
 
+FlashPix:Description0:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:DocType:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:Group:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:Group0:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:HandleApprovalSignTable:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:HandleDefaultText:
+    coercer: aw_integer
+    multivalued: false
+
 FlashPix:HeadingPairs:
     # TODO: Needs cleanup ..
     coercer: aw_string
@@ -304,6 +348,54 @@ FlashPix:HeadingPairs:
             field: Title
             weight: 1.0
     multivalued: true
+
+FlashPix:Hyperlinks:
+    coercer: aw_string
+    multivalued: true
+
+FlashPix:HyperlinksChanged:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:IssueDate:
+    coercer: aw_date
+    generic_field: date_modified
+    mapped_fields:
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
+
+FlashPix:Issued0:
+    coercer: aw_date
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
+
+FlashPix:IssuedBy:
+    coercer: aw_string
+    generic_field: author
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            weight: 1.0
+    multivalued: false
+
+FlashPix:IssuedBy0:
+    coercer: aw_string
+    generic_field: author
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            weight: 1.0
+    multivalued: false
+
+FlashPix:Language:
+    coercer: aw_string
+    multivalued: false
 
 FlashPix:Keywords:
     coercer: aw_string
@@ -345,6 +437,10 @@ FlashPix:Lines:
     coercer: aw_integer
     multivalued: false
 
+FlashPix:LinksUpToDate:
+    coercer: aw_integer
+    multivalued: false
+
 FlashPix:ModifyDate:
     coercer: aw_timedate
     generic_field: date_modified
@@ -357,6 +453,10 @@ FlashPix:ModifyDate:
             weight: 0.25
     multivalued: false
 
+FlashPix:Order:
+    coercer: aw_float
+    multivalued: false
+
 FlashPix:Pages:
     coercer: aw_integer
     multivalued: false
@@ -365,7 +465,36 @@ FlashPix:Paragraphs:
     coercer: aw_integer
     multivalued: false
 
+FlashPix:PublishingStartDate:
+    coercer: aw_timedate
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
+
+FlashPix:PublishingExpirationDate:
+    coercer: aw_timedate
+    mapped_fields:
+    -   WeightedMapping:
+            field: Date
+            weight: 0.01
+    multivalued: false
+
 FlashPix:RevisionNumber:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:ScaleCrop:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:SharedDoc:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:Security:
     coercer: aw_integer
     multivalued: false
 
@@ -387,6 +516,38 @@ FlashPix:Software:
             weight: 0.01
     multivalued: false
 
+FlashPix:Template:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:TemplateConfidentiality:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:TemplateLanguage:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:TemplateUrl:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:TemplateVersion:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:Valid:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:Xd_ProgID:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:Xd_Signature:
+    coercer: aw_string
+    multivalued: false
+
 FlashPix:Title:
     coercer: aw_string
     generic_field: title
@@ -404,7 +565,7 @@ FlashPix:TitleOfParts:
     -   WeightedMapping:
             field: Title
             weight: 1.0
-    multivalued: false
+    multivalued: true
 
 FlashPix:Subject:
     coercer: aw_string
@@ -419,7 +580,7 @@ FlashPix:Subject:
     -   WeightedMapping:
             field: Title
             weight: 0.5
-    multivalued: true
+    multivalued: false
 
 FlashPix:TotalEditTime:
     coercer: aw_integer

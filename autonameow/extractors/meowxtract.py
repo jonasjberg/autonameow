@@ -28,6 +28,7 @@ from collections import defaultdict
 import extractors
 from core import constants as C
 from core import (
+    event,
     exceptions,
     extraction,
     FileObject,
@@ -56,6 +57,11 @@ class TextExtractionResult(object):
         return ((self.provider, self.fulltext_linecount)
                 > (other.provider, other.fulltext_linecount))
 
+    def __repr__(self):
+        return '<{}({provider} ({fulltext_linecount} lines of text))>'.format(
+            self.__class__.__name__, **self.__dict__
+        )
+
 
 class MetadataExtractionResult(object):
     def __init__(self, metadata, provider):
@@ -67,6 +73,11 @@ class MetadataExtractionResult(object):
     def __gt__(self, other):
         return ((self.provider, self.metadata_fieldcount)
                 > (other.provider, other.metadata_fieldcount))
+
+    def __repr__(self):
+        return '<{}({provider} ({metadata_fieldcount} metadata fields))>'.format(
+            self.__class__.__name__, **self.__dict__
+        )
 
 
 def _decode_any_bytestring(value):
@@ -99,7 +110,7 @@ def do_extract_text(fileobject):
                      request_extractors=extractors.registry.text_providers)
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
-    finally:
+    else:
         return all_text_extraction_results
 
 
@@ -125,7 +136,7 @@ def do_extract_metadata(fileobject):
         runner.start(fileobject, request_extractors)
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
-    finally:
+    else:
         all_metadata_extraction_results = list()
         for provider, metadata in provider_results.items():
             all_metadata_extraction_results.append(MetadataExtractionResult(
@@ -158,8 +169,9 @@ def display_text_extraction_result(fileobject, text_extraction_result):
 
 
 def display_metadata_extraction_result(results):
+    _results = list(results)
     cf = _column_formatter()
-    for metadata_extraction_result in results:
+    for metadata_extraction_result in _results:
         provider = str(metadata_extraction_result.provider)
         for uri, data in metadata_extraction_result.metadata.items():
             cf.addrow(str(uri), str(data), provider)
@@ -298,10 +310,10 @@ def main(options=None):
 
         if opts.get('extract_metadata'):
             with logs.log_runtime(log, 'Metadata Extraction', log_level='INFO'):
-                result = do_extract_metadata(current_file)
+                results = do_extract_metadata(current_file)
 
-            summary_results['metadata'][current_file] = result
-            display_metadata_extraction_result(result)
+            summary_results['metadata'][current_file] = results
+            display_metadata_extraction_result(results)
 
         display_file_processing_ended(current_file, n, num_files_total)
 
@@ -399,6 +411,9 @@ def cli_main(argv=None):
         main(options)
     except KeyboardInterrupt:
         sys.exit('\nReceived keyboard interrupt; Exiting ..')
+    finally:
+        # Shutdown pooled extractor instances.
+        event.dispatcher.on_shutdown()
 
 
 if __name__ == '__main__':

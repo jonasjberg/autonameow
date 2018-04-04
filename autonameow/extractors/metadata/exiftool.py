@@ -146,6 +146,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
         return {tag: value for tag, value in raw_metadata.items()
                 if value is not None
+                and not is_empty_string(value)
                 and not is_ignored_tagname(tag)
                 and not is_binary_blob(value)
                 and not is_bad_metadata(tag, value)}
@@ -203,6 +204,12 @@ def is_binary_blob(value):
 
 def is_ignored_tagname(tagname):
     return bool(tagname in IGNORED_EXIFTOOL_TAGNAMES)
+
+
+def is_empty_string(value):
+    if isinstance(value, (str, bytes)) and not value.strip():
+        return True
+    return False
 
 
 def _filter_coerced_value(value):
