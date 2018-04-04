@@ -342,6 +342,13 @@ command_exists()
     return 0
 }
 
+assert_has_command()
+{
+    local -r _cmd_name="$1"
+    assert_true 'command_exists "$_cmd_name"' \
+                "System provides executable command \"${_cmd_name}\""
+}
+
 
 
 # Test Cases

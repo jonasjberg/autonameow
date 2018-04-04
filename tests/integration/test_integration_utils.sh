@@ -86,6 +86,14 @@ assert_false 'command_exists this_is_not_a_command_surely' \
              'Expect command_exists to return failure when given "this_is_not_a_command_surely"'
 
 
+# ______________________________________________________________________________
+#
+# Test function 'assert_has_command()'
+
+assert_has_command 'cd'
+
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"

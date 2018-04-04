@@ -112,7 +112,7 @@ fi
 
 
 HAS_PYTEST='false'
-if command -v "pytest" >/dev/null 2>&1
+if command_exists 'pytest'
 then
     HAS_PYTEST='true'
 

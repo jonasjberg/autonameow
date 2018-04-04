@@ -56,10 +56,6 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-assert_true 'command -v python3' \
-            'Python v3.x is available on the system'
-
-
 # ______________________________________________________________________________
 #
 # Make sure that certain files have not been added to version control.
