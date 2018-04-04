@@ -23,20 +23,7 @@ import re
 
 from thirdparty import nameparser
 from util import sanity
-
-
-RE_AUTHOR_ET_AL = re.compile(
-    r'[\[\(\{]?et.al\.?[\]\)\}]?', re.IGNORECASE
-)
-RE_AUTHOR_PREFIX = re.compile(
-    r'author:? ', re.IGNORECASE
-)
-RE_EDITED_BY = re.compile(
-    r'ed(\.|ited) by', re.IGNORECASE
-)
-RE_REPEATING_PERIODS = re.compile(
-    r'\.\.+', re.IGNORECASE
-)
+from util.text.regexcache import RegexCache
 
 
 BLACKLISTED_HUMAN_NAMES = frozenset([
@@ -55,20 +42,32 @@ def strip_author_et_al(string):
     """
     Attempts to remove variations of "et al." from a Unicode string.
     """
-    subbed = RE_AUTHOR_ET_AL.sub('', string).replace('...', '')
-    return subbed.strip().rstrip(',').lstrip('.')
+    RE_AUTHOR_ET_AL = r'[\[\(\{]?et.al\.?[\]\)\}]?'
+    regex = RegexCache(RE_AUTHOR_ET_AL, flags=re.IGNORECASE)
+
+    subbed_string = regex.sub('', string).replace('...', '')
+    return subbed_string.strip().rstrip(',').lstrip('.')
 
 
 def strip_edited_by(string):
-    return RE_EDITED_BY.sub('', string).strip()
+    RE_EDITED_BY = r'ed(\.|ited) by'
+    regex = RegexCache(RE_EDITED_BY, flags=re.IGNORECASE)
+    subbed_string = regex.sub('', string)
+    return subbed_string.strip()
 
 
 def strip_author_prefix(string):
-    return RE_AUTHOR_PREFIX.sub('', string).strip()
+    RE_AUTHOR_PREFIX = r'author:? '
+    regex = RegexCache(RE_AUTHOR_PREFIX, flags=re.IGNORECASE)
+    subbed_string = regex.sub('', string)
+    return subbed_string.strip()
 
 
 def strip_repeating_periods(string):
-    return RE_REPEATING_PERIODS.sub('', string).strip()
+    RE_REPEATING_PERIODS = r'\.\.+'
+    regex = RegexCache(RE_REPEATING_PERIODS, flags=re.IGNORECASE)
+    subbed_string = regex.sub('', string)
+    return subbed_string.strip()
 
 
 def strip_bad_author_substrings(string):
