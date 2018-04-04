@@ -318,6 +318,30 @@ assert_bulk_test()
     done
 }
 
+# Asserts that the given argument would be interpreted as a function if used as
+# a command name.
+assert_bash_function()
+{
+    local -r _func_name="$1"
+    assert_true '[ "$(type -t "${_func_name}")" = "function" ]' \
+                "${_func_name} is a bash function"
+}
+
+# Tests that a command or list of commands are available.
+# Returns true if ALL commands are available. Else false.
+command_exists()
+{
+    for arg in "$@"
+    do
+        if ! command -v "$arg" >/dev/null 2>&1
+        then
+            return 1
+        fi
+    done
+
+    return 0
+}
+
 
 
 # Test Cases
