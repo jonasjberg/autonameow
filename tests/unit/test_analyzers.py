@@ -43,12 +43,9 @@ EXPECT_ANALYZER_CLASSES = [
     'analyzers.analyze_document.DocumentAnalyzer',
     'analyzers.analyze_ebook.EbookAnalyzer'
 ]
-EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
-                                    for c in EXPECT_ANALYZER_CLASSES]
-
-
-def subclasses_base_analyzer(klass):
-    return uu.is_class(klass) and issubclass(klass, BaseAnalyzer)
+EXPECT_ANALYZER_CLASSES_BASENAME = [
+    c.split('.')[-1] for c in EXPECT_ANALYZER_CLASSES
+]
 
 
 class TestBaseAnalyzer(TestCase):
@@ -124,6 +121,7 @@ class TestGetAnalyzerClasses(TestCase):
     def test_get_analyzer_classes_returns_expected_type(self):
         self.assertIsInstance(self.klasses, list)
         for klass in self.klasses:
+            uu.is_class(klass)
             self.assertTrue(issubclass(klass, BaseAnalyzer))
 
     def test_get_analyzer_classes_does_not_include_abstract_classes(self):
