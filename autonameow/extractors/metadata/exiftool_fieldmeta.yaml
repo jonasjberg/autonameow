@@ -351,7 +351,7 @@ FlashPix:HeadingPairs:
     -   WeightedMapping:
             field: Title
             weight: 1.0
-    multivalued: True
+    multivalued: true
 
 FlashPix:Hyperlinks:
     coercer: aw_string
@@ -596,6 +596,203 @@ FlashPix:Words:
 
 ICC_Profile:ProfileDateTime:
     coercer: aw_exiftooltimedate
+    multivalued: false
+
+Palm:ASIN:
+    coercer: aw_string
+    multivalued: false
+
+Palm:Author:
+    coercer: aw_string
+    generic_field: author
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            weight: 1.0
+    multivalued: true
+
+Palm:BookName:
+    coercer: aw_string
+    generic_field: title
+    mapped_fields:
+    - WeightedMapping:
+        field: Title
+        weight: 1.0
+    multivalued: false
+
+
+Palm:CreatorSoftware:
+    coercer: aw_string
+    generic_field: creator
+    mapped_fields:
+    -   WeightedMapping:
+            field: Creator
+            weight: 1.0
+    -   WeightedMapping:
+            field: Author
+            weight: 0.025
+    -   WeightedMapping:
+            field: Publisher
+            weight: 0.02
+    -   WeightedMapping:
+            field: Title
+            weight: 0.01
+    multivalued: false
+
+Palm:CDEType:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:CodePage:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:Compression:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:Contributor:
+    coercer: aw_string
+    generic_field: author
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            weight: 0.5
+    -   WeightedMapping:
+            field: Creator
+            weight: 0.5
+    -   WeightedMapping:
+            field: Publisher
+            weight: 0.02
+    multivalued: true
+
+Palm:CreateDate:
+    coercer: aw_exiftooltimedate
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            weight: 1.0
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
+
+Palm:Description:
+    coercer: aw_string
+    generic_field: description
+    mapped_fields:
+    -   WeightedMapping:
+            field: Description
+            weight: 1.0
+    -   WeightedMapping:
+            field: Tags
+            weight: 0.5
+    multivalued: false
+
+Palm:DatabaseName:
+    coercer: aw_string
+    multivalued: false
+
+Palm:Encryption:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:KF8CoverURI:
+    coercer: aw_string
+    multivalued: false
+
+Palm:Language:
+    coercer: aw_string
+    multivalued: false
+
+Palm:LastBackupDate:
+    coercer: aw_exiftooltimedate
+    multivalued: false
+
+Palm:MinimumVersion:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:MobiType:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:MobiVersion:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:ModificationNumber:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:ModifyDate:
+    coercer: aw_exiftooltimedate
+    generic_field: date_modified
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            weight: 0.25
+    -   WeightedMapping:
+            field: Date
+            weight: 0.25
+    multivalued: false
+
+Palm:PalmFileType:
+    coercer: aw_string
+    multivalued: false
+
+Palm:PublishDate:
+    coercer: aw_exiftooltimedate
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            weight: 1.0
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
+
+Palm:Publisher:
+    coercer: aw_string
+    generic_field: publisher
+    mapped_fields:
+    -   WeightedMapping:
+            field: Publisher
+            weight: 1.0
+    -   WeightedMapping:
+            field: Author
+            weight: 0.25
+    -   WeightedMapping:
+            field: Creator
+            weight: 0.1
+    multivalued: false
+
+Palm:ResourceCount:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:Source:
+    coercer: aw_string
+    multivalued: false
+
+Palm:StartReading:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:Subject:
+    # Example: "COM051360 - COMPUTERS / Programming Languages / Python"
+    coercer: aw_string
+    multivalued: false
+
+Palm:UncompressedTextLength:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:UpdatedTitle:
+    coercer: aw_string
+    generic_field: title
     multivalued: false
 
 PDF:Author:

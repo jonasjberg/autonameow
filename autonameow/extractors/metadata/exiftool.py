@@ -28,13 +28,19 @@ import util
 
 
 IGNORED_EXIFTOOL_TAGNAMES = frozenset([
+    'Palm:CreatorBuildNumber',
+    'Palm:CreatorBuildNumber2',
+    'Palm:CreatorMajorVersion',
+    'Palm:CreatorMinorVersion',
     'ExifTool:ExifToolVersion',
-    'XMP:PageImage'
+    'XMP:PageImage',
 ])
 
 
 # Metadata to ignore per field. Note that the values are set literals.
 BAD_EXIFTOOL_METADATA = {
+    'Palm:Author': {'Unknown'},
+    'Palm:Contributor': {'calibre (3.6.0) [https://calibre-ebook.com]'},
     'PDF:Author': {'Author', 'Unknown'},
     'PDF:Subject': {'Subject', 'Unknown'},
     'PDF:Title': {'Title', 'Unknown'},
@@ -47,6 +53,7 @@ BAD_EXIFTOOL_METADATA = {
 
 # Metadata to ignore in all fields.
 BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
+    '0101:01:01 00:00:00+00:00',
     'Advanced PDF Repair at http://www.datanumen.com/apdfr/',
     'http://cncmanual.com/',
     'http://freepdf-books.com',
@@ -61,9 +68,11 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     Extracts various types of metadata using "exiftool".
     """
     HANDLES_MIME_TYPES = [
-        'video/*', 'application/pdf', 'image/*', 'application/epub+zip',
+        'video/*', 'text/*', 'image/*',
+        'application/epub+zip',
+        'application/pdf',
         'application/msword',
-        'text/*', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ]
     IS_SLOW = False
 
@@ -158,8 +167,22 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         return coerced_metadata
 
     @classmethod
+    def can_handle(cls, fileobject):
+        return bool(
+            cls._evaluate_mime_type_glob(fileobject)
+            or is_kindle_ebook(fileobject)
+        )
+
+    @classmethod
     def check_dependencies(cls):
         return util.is_executable('exiftool') and pyexiftool is not None
+
+
+def is_kindle_ebook(fileobject):
+    return bool(
+        fileobject.mime_type == 'application/octet-stream'
+        and fileobject.basename_suffix == b'azw3'
+    )
 
 
 def is_bad_metadata(tag_name, value):

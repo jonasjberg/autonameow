@@ -546,6 +546,16 @@ class TestSplitMultipleNames(TestCase):
                 [['Gibson Cat Sjöberg, and Woo Blackmoon'], 'Friedrich Nietzsche'],
             ])
 
+    def test_splits_three_name_separated_by_commas_without_spaces(self):
+        self._assert_that_it_returns(
+            expected=[
+                'Mahssen Mahemmad', 'Muhemmad Badruddin Khen', 'Eiheb Bashiar Mahemmad Beshiar'
+            ],
+            given_any_of=[
+                ['Mahssen Mahemmad,Muhemmad Badruddin Khen,Eiheb Bashiar Mahemmad Beshiar']
+            ]
+        )
+
 
 class TestFilterMultipleNames(TestCase):
     def _assert_filter_output_contains(self, expected, given):
