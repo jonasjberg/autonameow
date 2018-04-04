@@ -253,6 +253,10 @@ FlashPix:Author:
             weight: 1.0
     multivalued: true
 
+FlashPix:Bytes:
+    coercer: aw_integer
+    multivalued: false
+
 FlashPix:Characters:
     coercer: aw_integer
     multivalued: false
