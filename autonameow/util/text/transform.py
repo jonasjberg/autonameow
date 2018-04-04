@@ -29,6 +29,8 @@ try:
 except ImportError:
     unidecode = None
 
+from util.text.regexcache import RegexCache
+
 
 __all__ = [
     'collapse_whitespace',
@@ -48,26 +50,6 @@ __all__ = [
     'truncate_text',
     'urldecode'
 ]
-
-
-# Attempt at matching ANSI escape sequences. Likely incomplete.
-RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-
-# Matches whitespace that repeats at least once, except newlines.
-# I.E. a single space is NOT matched but two consecutive spaces is.
-#
-# Inverting the following classes solves the problem of matching whitespace
-# Unicode characters included in the '\s' class but NOT newlines,
-# which is also included in '\s'.
-#
-#   \S   Any character which is not a Unicode whitespace character.
-#   \r   ASCII Carriage Return (CR)
-#   \n   ASCII ASCII Linefeed (LF)
-#
-RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]{2,}')
-
-# Like above but matches any number of whitespace characters.
-RE_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]+')
 
 
 def collapse_whitespace(text):
@@ -94,11 +76,21 @@ def collapse_whitespace(text):
         return text
 
     assert isinstance(text, str)
-    collapsed = re.sub(RE_REPEATED_WHITESPACE_EXCEPT_NEWLINE, ' ', text)
+
+    # Matches whitespace that repeats at least once, except newlines.
+    # I.E. a single space is NOT matched but two consecutive spaces is.
+    #
+    # Inverting the following classes solves the problem of matching whitespace
+    # Unicode characters included in the '\s' class but NOT newlines,
+    # which is also included in '\s'.
+    #
+    #   \S   Any character which is not a Unicode whitespace character.
+    #   \r   ASCII Carriage Return (CR)
+    #   \n   ASCII ASCII Linefeed (LF)
+    #
+    re_repeated_whitespace_except_newline = RegexCache(r'[^\S\r\n]{2,}')
+    collapsed = re.sub(re_repeated_whitespace_except_newline, ' ', text)
     return collapsed
-
-
-RE_SINGLE_SPACE_LINES = re.compile(r'^ $', re.MULTILINE)
 
 
 def strip_single_space_lines(text):
@@ -119,7 +111,10 @@ def strip_single_space_lines(text):
         return text
 
     assert isinstance(text, str)
-    return re.sub(RE_SINGLE_SPACE_LINES, '', text)
+
+    re_single_space_lines = RegexCache(r'^ $', re.MULTILINE)
+    without_single_space_lines = re.sub(re_single_space_lines, '', text)
+    return without_single_space_lines
 
 
 def normalize_whitespace(text):
@@ -146,7 +141,19 @@ def normalize_whitespace(text):
         return text
 
     assert isinstance(text, str)
-    normalized = re.sub(RE_WHITESPACE_EXCEPT_NEWLINE, ' ', text)
+
+    # Matches any number of whitespace characters, except newlines.
+    #
+    # Inverting the following classes solves the problem of matching whitespace
+    # Unicode characters included in the '\s' class but NOT newlines,
+    # which is also included in '\s'.
+    #
+    #   \S   Any character which is not a Unicode whitespace character.
+    #   \r   ASCII Carriage Return (CR)
+    #   \n   ASCII ASCII Linefeed (LF)
+    #
+    re_whitespace_except_newline = RegexCache(r'[^\S\r\n]+')
+    normalized = re.sub(re_whitespace_except_newline, ' ', text)
     return normalized
 
 
@@ -335,8 +342,12 @@ def remove_zerowidth_spaces(text):
 
 def strip_ansiescape(string):
     assert isinstance(string, str)
-    stripped = re.sub(RE_ANSI_ESCAPE, '', string)
-    return stripped
+
+    # Attempt at matching ANSI escape sequences. Likely incomplete.
+    re_ansi_escape = RegexCache(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+
+    subbed_string = re_ansi_escape.sub('', string)
+    return subbed_string
 
 
 def truncate_text(text, maxlen=500, append_info=False):
