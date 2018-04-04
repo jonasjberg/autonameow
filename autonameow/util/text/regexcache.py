@@ -28,8 +28,8 @@ class _RegexCache(object):
 
     def _get_or_compile_and_store(self, pattern, flags=None):
         assert isinstance(pattern, str)
-        if flags is not None:
-            assert isinstance(flags, int)
+        if flags is None:
+            flags = 0
 
         key = (pattern, flags)
         if key not in self._compiled_regexes:
@@ -40,6 +40,9 @@ class _RegexCache(object):
 
     def __call__(self, pattern, flags=None):
         return self._get_or_compile_and_store(pattern, flags)
+
+    def __len__(self):
+        return len(self._compiled_regexes)
 
 
 RegexCache = _RegexCache()
