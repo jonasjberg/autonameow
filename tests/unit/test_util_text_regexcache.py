@@ -33,66 +33,60 @@ class TestRegexCache(TestCase):
     def setUp(self):
         self.rc = _RegexCache()
 
+    def _check_cached_regex_type(self, *args):
+        cached_regex = self.rc(*args)
+        self.assertIsInstance(cached_regex, uuconst.BUILTIN_REGEX_TYPE)
+
+    def _assert_does_not_recompile(self, *args):
+        mock_re_compile = Mock()
+        with patch('util.text.regexcache.re.compile', mock_re_compile):
+            _ = self.rc(*args)
+            mock_re_compile.assert_not_called()
+
+    def _assert_compiles(self, *args):
+        mock_re_compile = Mock()
+        with patch('util.text.regexcache.re.compile', mock_re_compile):
+            _ = self.rc(*args)
+            mock_re_compile.assert_called_once()
+
     def test_instantiated_regexcache_is_not_none(self):
         self.assertIsNotNone(self.rc)
 
-    def test_regexcache_is_initially_empty(self):
+    def test_instantiated_regexcache_len_is_initially_zero(self):
         self.assertEqual(0, len(self.rc))
 
-    def test_regexcache_stores_regex(self):
+    def test_returns_expected_len_and_cached_regex_type(self):
         self.rc(r'foo.*')
         self.assertEqual(1, len(self.rc))
+        self._check_cached_regex_type(r'foo.*')
 
-        cached_regex = self.rc(r'foo.*')
-        self.assertIsInstance(cached_regex, uuconst.BUILTIN_REGEX_TYPE)
-
-    def test_regexcache_stores_regex_with_flags(self):
+    def test_returns_expected_len_and_type_with_flags(self):
         self.rc(r'foo.*', re.IGNORECASE)
         self.assertEqual(1, len(self.rc))
+        self._check_cached_regex_type(r'foo.*', re.IGNORECASE)
 
-        cached_regex = self.rc(r'foo.*', re.IGNORECASE)
-        self.assertIsInstance(cached_regex, uuconst.BUILTIN_REGEX_TYPE)
-
-    def test_regexcache_stores_regexes_with_and_without_flags(self):
+    def test_returns_expected_len_and_type_with_and_without_flags(self):
         self.rc(r'foo.*', re.IGNORECASE)
         self.rc(r'bar.*')
         self.assertEqual(2, len(self.rc))
+        self._check_cached_regex_type(r'foo.*', re.IGNORECASE)
+        self._check_cached_regex_type(r'bar.*')
 
-        cached_regex_A = self.rc(r'foo.*', re.IGNORECASE)
-        self.assertIsInstance(cached_regex_A, uuconst.BUILTIN_REGEX_TYPE)
-
-        cached_regex_B = self.rc(r'bar.*')
-        self.assertIsInstance(cached_regex_B, uuconst.BUILTIN_REGEX_TYPE)
-
-    def test_does_not_recompile_cached_regex_with_matching_patterns(self):
-        self.rc(r'foo.*')
-        self.assertEqual(1, len(self.rc))
-
-        mock_re_compile = Mock()
-        with patch('util.text.regexcache.re.compile', mock_re_compile):
-            _ = self.rc(r'foo.*')
-            mock_re_compile.assert_not_called()
-
-    def test_does_not_recompile_cached_regex_with_matching_patterns_flags(self):
-        self.rc(r'foo.*', re.IGNORECASE)
-
-        mock_re_compile = Mock()
-        with patch('util.text.regexcache.re.compile', mock_re_compile):
-            _ = self.rc(r'foo.*', re.IGNORECASE)
-            mock_re_compile.assert_not_called()
+    def test_compiles_first_seen_regex(self):
+        self._assert_compiles(r'foo.*', re.MULTILINE)
 
     def test_compiles_regex_with_matching_pattern_but_different_flags(self):
         self.rc(r'foo.*', re.IGNORECASE)
-
-        mock_re_compile = Mock()
-        with patch('util.text.regexcache.re.compile', mock_re_compile):
-            _ = self.rc(r'foo.*', re.MULTILINE)
-            mock_re_compile.assert_called_once()
+        self._assert_compiles(r'foo.*', re.MULTILINE)
 
     def test_compiles_regex_with_matching_pattern_but_first_without_flags(self):
         self.rc(r'foo.*')
+        self._assert_compiles(r'foo.*', re.MULTILINE)
 
-        mock_re_compile = Mock()
-        with patch('util.text.regexcache.re.compile', mock_re_compile):
-            _ = self.rc(r'foo.*', re.MULTILINE)
-            mock_re_compile.assert_called_once()
+    def test_does_not_recompile_cached_regex_with_matching_patterns(self):
+        self.rc(r'foo.*')
+        self._assert_does_not_recompile(r'foo.*')
+
+    def test_does_not_recompile_cached_regex_with_matching_patterns_flags(self):
+        self.rc(r'foo.*', re.IGNORECASE)
+        self._assert_does_not_recompile(r'foo.*', re.IGNORECASE)
