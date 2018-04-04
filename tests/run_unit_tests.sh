@@ -51,12 +51,31 @@ EOF
     exit "$EXIT_CRITICAL"
 fi
 
+
+exit_with_error_message_if_missing_command()
+{
+    local -r _cmdname="$1"
+
+    if ! command -v "${_cmdname}" >/dev/null 2>&1
+    then
+        cat >&2 <<EOF
+
+    [ERROR] This program requires "${_cmdname}" to run.
+
+EOF
+        exit 1
+    fi
+}
+
+exit_with_error_message_if_missing_command 'python3'
+exit_with_error_message_if_missing_command 'pytest'
+
+
 # Default configuration.
 option_write_report='false'
 option_quiet='false'
 option_enable_coverage='false'
 option_run_last_failed='false'
-
 
 print_usage_info()
 {
@@ -88,7 +107,6 @@ EOF
 }
 
 
-
 # Set options to 'true' here and invert logic as necessary when testing (use
 # "if not true"). Motivated by hopefully reducing bugs and weird behaviour
 # caused by users setting the default option variables to unexpected values.
@@ -111,80 +129,38 @@ else
 fi
 
 
-HAS_PYTEST='false'
-if command_exists 'pytest'
-then
-    HAS_PYTEST='true'
-
-    # Workaround for pytest crashing when writing something other than stdout ..
-    captured_pytest_help="$(pytest --help 2>&1)"
-fi
+# Workaround for pytest crashing when writing something other than stdout ..
+captured_pytest_help="$(pytest --help 2>&1)"
 
 if [ "$option_write_report" == 'true' ]
 then
-    # Make sure required executables are available.
-    if [ "$HAS_PYTEST" != 'true' ]
-    then
-        echo "This script requires \"pytest\" to generate HTML reports." 1>&2
-        echo "Install using pip by executing:  pip3 install pytest"
-        exit "$EXIT_CRITICAL"
-    fi
-
     if ! grep -q -- '--html' <<< "$captured_pytest_help"
     then
-        echo "This script requires \"pytest-html\" to generate HTML reports." 1>&2
-        echo "Install using pip by executing:  pip3 install pytest-html"
+        echo 'This script requires "pytest-html" to generate HTML reports.' 1>&2
+        echo 'Install using pip by executing:  pip3 install pytest-html'
         exit "$EXIT_CRITICAL"
     fi
 fi
 
 if [ "$option_enable_coverage" == 'true' ]
 then
-    # Make sure required executables are available.
-    if [ "$HAS_PYTEST" != 'true' ]
-    then
-        echo "This script requires \"pytest\" to check test coverage." 1>&2
-        echo "Install using pip by executing:  pip3 install pytest"
-        exit "$EXIT_CRITICAL"
-    fi
-
     if ! grep -q -- '--cov' <<< "$captured_pytest_help"
     then
-        echo "This script requires \"pytest-cov\" to check test coverage." 1>&2
-        echo "Install using pip by executing:  pip3 install pytest-cov"
+        echo 'This script requires "pytest-cov" to check test coverage.' 1>&2
+        echo 'Install using pip by executing:  pip3 install pytest-cov'
         exit "$EXIT_CRITICAL"
     fi
 fi
-
-if [ "$option_run_last_failed" == 'true' ]
-then
-    # Make sure required executables are available.
-    if [ "$HAS_PYTEST" != 'true' ]
-    then
-        echo "This script requires \"pytest\" to run last failed." 1>&2
-        echo "Install using pip by executing:  pip3 install pytest"
-        exit "$EXIT_CRITICAL"
-    fi
-fi
-
 
 
 _timestamp="$(date "+%Y-%m-%dT%H%M%S")"
 _unittest_log="${AUTONAMEOW_TESTRESULTS_DIR}/unittest_log_${_timestamp}.html"
 if [ -e "$_unittest_log" ]
 then
-    echo "File exists: \"${_unittest_log}\" .. Aborting" >&2
+    printf 'File exists: "%s" .. Aborting\n' "$_unittest_log" >&2
     exit "$EXIT_CRITICAL"
 fi
 
-
-run_unittest()
-{
-    (
-      cd "$AUTONAMEOW_ROOT_DIR" || return 1
-      PYTHONPATH=autonameow:tests python3 -m unittest discover --catch --buffer --start-directory tests/unit --pattern "test_*.py" --top-level-directory .
-    )
-}
 
 run_pytest()
 {
@@ -208,17 +184,12 @@ run_pytest()
 
 
 declare -i COUNT_FAIL=0
-if [ "$HAS_PYTEST" != 'true' ]
-then
-    run_task "$option_quiet" "Running \"unittest\"" run_unittest
-else
-    run_task "$option_quiet" "Running \"pytest\"" run_pytest
-fi
+run_task "$option_quiet" "Running \"pytest\"" run_pytest
 
 
 if [ -s "$_unittest_log" ]
 then
-    echo "Wrote unit test HTML log file: \"${_unittest_log}\""
+    printf 'Wrote unit test HTML log file: "%s"\n' "$_unittest_log"
 
     # Write log file name to temporary file, used by other scripts.
     set +o noclobber
