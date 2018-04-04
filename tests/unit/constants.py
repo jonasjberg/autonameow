@@ -21,6 +21,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
 
 
 _PATH_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -286,3 +287,7 @@ DUMMY_RAW_RULE_DATA_SOURCES = [
 
 # Various test files (hopefully) included with the sources.
 DEFAULT_YAML_CONFIG_BASENAME = 'default.yaml'
+
+
+# This is not clearly defined otherwise.
+BUILTIN_REGEX_TYPE = type(re.compile(''))

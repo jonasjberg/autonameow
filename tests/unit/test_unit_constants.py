@@ -110,3 +110,10 @@ class TestFileConstants(TestCase):
     def test_assumed_non_existent_basename(self):
         self.assertIsNotNone(uuconst.ASSUMED_NONEXISTENT_BASENAME)
         self.assertFalse(uu.file_exists(uuconst.ASSUMED_NONEXISTENT_BASENAME))
+
+
+class TestConstantBuiltinRegexType(TestCase):
+    def test_has_expected_type(self):
+        import re
+        compiled_regex = re.compile('foo')
+        self.assertEqual(uuconst.BUILTIN_REGEX_TYPE, type(compiled_regex))

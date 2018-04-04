@@ -19,18 +19,14 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
 from unittest import TestCase
 
 from core.exceptions import EncodingBoundaryViolation
+from unit import constants as uuconst
 from util.text.filter import (
     RegexFilter,
     RegexLineFilter,
 )
-
-
-# This is not clearly defined otherwise.
-_BUILTIN_REGEX_TYPE = type(re.compile(''))
 
 
 def _get_regex_filter(*args, **kwargs):
@@ -55,7 +51,7 @@ class TestRegexFilter(TestCase):
         ]:
             f = _get_regex_filter(given)
             for actual_regex in f.regexes:
-                self.assertIsInstance(actual_regex, _BUILTIN_REGEX_TYPE)
+                self.assertIsInstance(actual_regex, uuconst.BUILTIN_REGEX_TYPE)
 
     def test_raises_assertion_error_when_passing_bad_args_to_init(self):
         for given_expressions in [
