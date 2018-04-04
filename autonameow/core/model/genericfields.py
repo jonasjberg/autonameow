@@ -45,8 +45,8 @@ from core.model import MeowURI
 
 class GenericField(object):
     meowuri_root = C.MEOWURI_ROOT_GENERIC
-    meowuri_child = C.UNDEFINED_MEOWURI_PART
-    meowuri_leaf = C.UNDEFINED_MEOWURI_PART
+    meowuri_child = C.MEOWURI_UNDEFINED_PART
+    meowuri_leaf = C.MEOWURI_UNDEFINED_PART
 
     @classmethod
     def uri(cls):

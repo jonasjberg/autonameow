@@ -131,19 +131,19 @@ class MeowURI(object):
     def root(self):
         if self._root:
             return str(self._root)
-        return C.UNDEFINED_MEOWURI_PART
+        return C.MEOWURI_UNDEFINED_PART
 
     @property
     def children(self):
         if self._children:
             return [str(n) for n in self._children]
-        return C.UNDEFINED_MEOWURI_PART
+        return C.MEOWURI_UNDEFINED_PART
 
     @property
     def leaf(self):
         if self._leaf:
             return str(self._leaf)
-        return C.UNDEFINED_MEOWURI_PART
+        return C.MEOWURI_UNDEFINED_PART
 
     @property
     def parts(self):

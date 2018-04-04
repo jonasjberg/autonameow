@@ -86,11 +86,11 @@ class BaseExtractor(ProviderMixin):
     # Resource identifier "MeowURI" for the data returned by this extractor.
     # Middle part of the full MeowURI ('metadata', 'contents', 'filesystem', ..)
     # Optionally overriden by inheriting classes.
-    MEOWURI_CHILD = C.UNDEFINED_MEOWURI_PART
+    MEOWURI_CHILD = C.MEOWURI_UNDEFINED_PART
 
     # Last part of the full MeowURI ('exiftool', 'xplat', ..)
     # Optionally overriden by inheriting classes.
-    MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
+    MEOWURI_LEAF = C.MEOWURI_UNDEFINED_PART
 
     # NOTE: Must be overriden by inheriting classes.
     # Controls whether the extractor is enabled and used by default.
@@ -111,7 +111,7 @@ class BaseExtractor(ProviderMixin):
     def meowuri_prefix(cls):
         if not cls._meowuri_prefix:
             def _undefined(attribute):
-                return attribute == C.UNDEFINED_MEOWURI_PART
+                return attribute == C.MEOWURI_UNDEFINED_PART
 
             _node = cls.MEOWURI_CHILD
             if _undefined(_node):
@@ -141,14 +141,14 @@ class BaseExtractor(ProviderMixin):
         # index used on a mapping or sequence is invalid: IndexError, KeyError.
         # This can be raised directly by codecs.lookup()." -- Python 3.6.1 docs
         except LookupError:
-            return C.UNDEFINED_MEOWURI_PART
+            return C.MEOWURI_UNDEFINED_PART
 
     @classmethod
     def _meowuri_leaf_from_module_name(cls):
         try:
             return cls.__module__.split('.')[-1]
         except LookupError:
-            return C.UNDEFINED_MEOWURI_PART
+            return C.MEOWURI_UNDEFINED_PART
 
     @classmethod
     def can_handle(cls, fileobject):

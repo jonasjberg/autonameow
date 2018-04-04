@@ -74,10 +74,10 @@ class TestAbstractTextExtractor(TestCase):
         self.assertIsNone(self.e.HANDLES_MIME_TYPES)
 
     def test_abstract_class_does_not_specify_meowuri_node(self):
-        self.assertEqual(self.e.MEOWURI_CHILD, C.UNDEFINED_MEOWURI_PART)
+        self.assertEqual(self.e.MEOWURI_CHILD, C.MEOWURI_UNDEFINED_PART)
 
     def test_abstract_class_does_not_specify_meowuri_leaf(self):
-        self.assertEqual(self.e.MEOWURI_LEAF, C.UNDEFINED_MEOWURI_PART)
+        self.assertEqual(self.e.MEOWURI_LEAF, C.MEOWURI_UNDEFINED_PART)
 
     def test__get_raw_text_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

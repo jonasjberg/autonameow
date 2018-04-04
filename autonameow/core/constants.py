@@ -207,7 +207,7 @@ EXIT_SANITYFAIL = 3  # Program failure due to failed sanity check.
 
 # Repository and internal data storage
 MEOWURI_NODE_GENERIC = 'generic'
-UNDEFINED_MEOWURI_PART = 'NULL'
+MEOWURI_UNDEFINED_PART = 'NULL'
 MEOWURI_SEPARATOR = '.'
 RE_ALLOWED_MEOWURI_PART_CHARS = r'[\w:-]'
 

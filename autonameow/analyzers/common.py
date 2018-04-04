@@ -61,7 +61,7 @@ class BaseAnalyzer(ProviderMixin):
     HANDLES_MIME_TYPES = None
 
     # Last part of the full MeowURI ('ebook', 'filename', ..)
-    MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
+    MEOWURI_LEAF = C.MEOWURI_UNDEFINED_PART
 
     # Set at first call to 'meowuri_prefix()'.
     _meowuri_prefix = None

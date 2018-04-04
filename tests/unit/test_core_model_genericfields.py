@@ -57,11 +57,11 @@ class TestGenericFieldBase(TestCase):
 
     def test_base_class_uri_child_is_undefined(self):
         self.assertEqual(GenericField.meowuri_child,
-                         C.UNDEFINED_MEOWURI_PART)
+                         C.MEOWURI_UNDEFINED_PART)
 
     def test_base_class_uri_leaf_is_undefined(self):
         self.assertEqual(GenericField.meowuri_leaf,
-                         C.UNDEFINED_MEOWURI_PART)
+                         C.MEOWURI_UNDEFINED_PART)
 
 
 class TestGenericFieldStr(TestCase):

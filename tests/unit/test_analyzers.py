@@ -169,7 +169,7 @@ class TestAnalyzerClassMeowURIs(TestCase):
         from core.model import MeowURI
         for meowuri in self.actual:
             self.assertIsInstance(meowuri, MeowURI)
-            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
+            self.assertTrue(C.MEOWURI_UNDEFINED_PART not in meowuri)
 
     def test_returns_meowuris_for_analyzers_assumed_always_available(self):
         def _assert_in(member):
