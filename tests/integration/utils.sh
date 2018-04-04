@@ -206,34 +206,6 @@ assert_false()
     fi
 }
 
-# TODO: Finish this function ..
-log_system_info()
-{
-    local _os_name
-    local _os_vers
-    local _cpu_info
-
-    _os_name="$(uname -s)"
-    _os_vers="$(uname -r)"
-
-    case "$OSTYPE" in
-        darwin*)
-            _cpu_info="$(sysctl -n machdep.cpu.brand_string)" ;;
-
-        linux*|msys)
-            if [ -e '/proc/cpuinfo' ]
-            then
-                _cpu_info="$(grep -m1 'model name' '/proc/cpuinfo')"
-                _cpu_info="${_cpu_info#*:}"
-            fi ;;
-
-        *)
-            _cpu_info="undetermined" ;;
-    esac
-
-    echo "System info: Running ${_os_name} ${_os_vers} on ${_cpu_info}"
-}
-
 # Converts the integration test log file to HTML using executable 'aha' if
 # available.  Executed at the end of a test run by 'run_integration_tests.sh'.
 convert_raw_log_to_html()
