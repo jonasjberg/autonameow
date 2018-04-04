@@ -36,13 +36,6 @@ fi
 source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 
 
-assert_has_command()
-{
-    local -r _cmd_name="$1"
-    assert_true 'command -v "$_cmd_name"' \
-                "System provides executable \"${_cmd_name}\""
-}
-
 assert_can_import_python_module()
 {
     local -r _module_name="$1"

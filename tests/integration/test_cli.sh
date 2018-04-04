@@ -48,7 +48,7 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-assert_true 'command -v python3' \
+assert_true 'command_exists python3' \
             'Python v3.x is available on the system'
 
 ACTIVE_CONFIG="$(abspath_testfile "configs/default.yaml")"

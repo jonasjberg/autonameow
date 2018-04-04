@@ -36,13 +36,6 @@ fi
 source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 
 
-assert_has_command()
-{
-    local -r _cmd_name="$1"
-    assert_true 'command -v "$_cmd_name"' \
-                "System provides executable command \"${_cmd_name}\""
-}
-
 check_testfiles_directory()
 {
     assert_bulk_test "$(abspath_testfile "$1")" d r x
@@ -82,44 +75,15 @@ assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
 #
 # Check shared environment variables, used by all tests.
 
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" n e d r w x
-
-assert_false '[ -z "$AUTONAMEOW_ROOT_DIR" ]' \
-             'Environment variable "AUTONAMEOW_ROOT_DIR" should not be unset'
-
-assert_true '[ -d "$AUTONAMEOW_ROOT_DIR" ]' \
-            'Environment variable "AUTONAMEOW_ROOT_DIR" should be a directory'
-
-assert_true '[ -r "$AUTONAMEOW_ROOT_DIR" ]' \
-            'Environment variable "AUTONAMEOW_ROOT_DIR" should be a existing readable path'
+assert_bulk_test "$AUTONAMEOW_ROOT_DIR" n d r w x
 
 
-_common_utils_path="${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
-assert_bulk_test "$_common_utils_path" e r x
+# ______________________________________________________________________________
+#
+# Check script for setting environment variables, used by all tests.
 
 _setup_environment_path="${AUTONAMEOW_ROOT_DIR}/tests/setup_environment.sh"
-assert_bulk_test "$_setup_environment_path" e r x
-
-assert_true '[ -e "$_setup_environment_path" ]' \
-            'Shared test environment setup script exists'
-
-assert_true '[ -r "$_setup_environment_path" ]' \
-            'Shared test environment setup script exists and is readable'
-
-assert_true '[ -x "$_setup_environment_path" ]' \
-            'Shared test environment setup script is executable'
-
-
-assert_bulk_test "$AUTONAMEOW_TESTRESULTS_DIR" n e d
-
-assert_false '[ -z "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
-             'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should not be unset'
-
-assert_true '[ -d "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
-            'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should be a directory'
-
-
-assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+assert_bulk_test "$_setup_environment_path" n f r x
 
 
 # ______________________________________________________________________________
@@ -127,15 +91,8 @@ assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 # Check environment variables used by specific types of tests.
 
 assert_bulk_test "$AUTONAMEOW_INTEGRATION_STATS" n e f
-assert_false '[ -z "$AUTONAMEOW_INTEGRATION_STATS" ]' \
-             'Environment variable "AUTONAMEOW_INTEGRATION_STATS" should not be unset'
 
-assert_true '[ -f "$AUTONAMEOW_INTEGRATION_STATS" ]' \
-            'Environment variable "AUTONAMEOW_INTEGRATION_STATS" should be a file'
-
-assert_bulk_test "$AUTONAMEOW_INTEGRATION_LOG" n
-assert_false '[ -z "$AUTONAMEOW_INTEGRATION_LOG" ]' \
-             'Environment variable "AUTONAMEOW_INTEGRATION_LOG" should not be unset'
+assert_bulk_test "$AUTONAMEOW_INTEGRATION_LOG" n e
 
 assert_false '[ -d "$AUTONAMEOW_INTEGRATION_LOG" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_LOG" should not be a directory'
@@ -216,27 +173,12 @@ assert_bulk_test "$_check_spelling_script_wordlist_path" n e f r
 # Shared bash script (integration test) functionality.
 
 _abspath_testfile_empty="$(abspath_testfile "empty")"
-assert_false '[ -z "${_abspath_testfile_empty}" ]' \
-             'abspath_testfile "empty" should return something'
-
-assert_true '[ -e "${_abspath_testfile_empty}" ]' \
-            'abspath_testfile "empty" should an existing path'
-
-assert_true '[ -f "${_abspath_testfile_empty}" ]' \
-            'abspath_testfile "empty" should the path to an existing file'
+assert_bulk_test "$_abspath_testfile_empty" n e f
 
 _abspath_testfile_subdir="$(abspath_testfile "subdir")"
-assert_false '[ -z "${_abspath_testfile_subdir}" ]' \
-             'abspath_testfile "subdir" should return something'
+assert_bulk_test "$_abspath_testfile_subdir" n e d
 
-assert_true '[ -e "${_abspath_testfile_subdir}" ]' \
-            'abspath_testfile "subdir" should an existing path'
-
-assert_true '[ -d "${_abspath_testfile_subdir}" ]' \
-            'abspath_testfile "subdir" should the path to an existing directory'
-
-assert_true 'type -t calculate_execution_time' \
-            'calculate_execution_time is a function'
+assert_bash_function 'calculate_execution_time'
 
 assert_true '[ "$(calculate_execution_time 1501987087187088013 1501987087942286968)" -eq "755" ]' \
             'calculate_execution_time returns expected (755ms)'

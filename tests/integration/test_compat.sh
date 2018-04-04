@@ -49,16 +49,12 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-assert_true '"$AUTONAMEOW_RUNNER"' \
-            'The autonameow launcher script can be started with no arguments'
-
-assert_true 'command -v python3' \
-            'Python v3.x is available on the system'
-
-
 # ______________________________________________________________________________
 # Reporting program version and related.
 # Testing version in the compatilibity section of the config.
+
+assert_true '"$AUTONAMEOW_RUNNER"' \
+            'The autonameow launcher script can be started with no arguments'
 
 assert_true '"$AUTONAMEOW_RUNNER" --version' \
             'autonameow should return zero when started with "--version"'
