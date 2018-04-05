@@ -74,7 +74,7 @@ class GuessitExtractor(BaseExtractor):
         return coerced_metadata
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         _guessit = get_lazily_imported_guessit_module()
         return _guessit is not None
 

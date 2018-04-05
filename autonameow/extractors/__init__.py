@@ -67,7 +67,7 @@ def _get_extractor_classes(packages):
     excluded = list()
     registered = list()
     for klass in klasses:
-        if klass.check_dependencies():
+        if klass.dependencies_satisfied():
             registered.append(klass)
         else:
             excluded.append(klass)

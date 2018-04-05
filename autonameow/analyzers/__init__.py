@@ -90,7 +90,7 @@ def get_analyzer_classes():
     registered = list()
     excluded = list()
     for klass in klasses:
-        if klass.check_dependencies():
+        if klass.dependencies_satisfied():
             registered.append(klass)
             log.debug('Registered analyzer "{!s}"'.format(klass))
         else:

@@ -67,7 +67,7 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         )
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         # Requires tesseract and PIL.Image.
         return util.is_executable(TESSERACT_COMMAND) and Image is not None
 

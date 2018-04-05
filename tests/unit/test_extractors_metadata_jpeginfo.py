@@ -36,7 +36,7 @@ ALL_EXTRACTOR_FIELDS_TYPES = [
 ]
 
 UNMET_DEPENDENCIES = (
-    not JpeginfoMetadataExtractor.check_dependencies(),
+    not JpeginfoMetadataExtractor.dependencies_satisfied(),
     'Extractor dependencies not satisfied'
 )
 

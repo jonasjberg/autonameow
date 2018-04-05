@@ -134,7 +134,7 @@ class PandocMetadataExtractor(BaseExtractor):
         )
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return (util.is_executable('pandoc')
                 and disk.isfile(PATH_CUSTOM_PANDOC_TEMPLATE))
 

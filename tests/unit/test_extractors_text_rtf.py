@@ -31,7 +31,7 @@ from unit.case_extractors import (
 
 
 UNMET_DEPENDENCIES = (
-    not RichTextFormatTextExtractor.check_dependencies(),
+    not RichTextFormatTextExtractor.dependencies_satisfied(),
     'Extractor dependencies not satisfied'
 )
 

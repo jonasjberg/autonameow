@@ -43,7 +43,7 @@ class PlainTextExtractor(AbstractTextExtractor):
         return read_entire_text_file(fileobject.abspath)
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return True
 
 

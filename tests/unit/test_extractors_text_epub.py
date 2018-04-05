@@ -38,7 +38,7 @@ from unit.case_extractors import (
 
 
 UNMET_DEPENDENCIES = (
-    not EpubTextExtractor.check_dependencies(),
+    not EpubTextExtractor.dependencies_satisfied(),
     'Extractor dependencies not satisfied'
 )
 

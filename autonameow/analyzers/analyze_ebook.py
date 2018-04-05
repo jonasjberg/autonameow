@@ -421,7 +421,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
         return False
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return isbnlib is not None
 
 

@@ -85,7 +85,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         return timestamps
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return True
 
 

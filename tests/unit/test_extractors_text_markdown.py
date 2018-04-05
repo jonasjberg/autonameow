@@ -31,7 +31,7 @@ from unit.case_extractors import (
 
 
 UNMET_DEPENDENCIES = (
-    MarkdownTextExtractor.check_dependencies() is False,
+    MarkdownTextExtractor.dependencies_satisfied() is False,
     'Extractor dependencies not satisfied (!)'
 )
 

@@ -37,7 +37,7 @@ class RichTextFormatTextExtractor(AbstractTextExtractor):
         return extract_text_with_unrtf(fileobject.abspath)
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return util.is_executable('unrtf')
 
 

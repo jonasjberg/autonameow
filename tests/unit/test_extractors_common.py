@@ -66,9 +66,9 @@ class TestBaseExtractor(TestCase):
         self.assertNotEqual(first, second)
         self.assertNotIn('foo', second)
 
-    def test_check_dependencies_raises_not_implemented_error(self):
+    def test_dependencies_satisfied_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            _ = self.e.check_dependencies()
+            _ = self.e.dependencies_satisfied()
 
     def test_str_is_defined_and_reachable(self):
         self.assertIsNotNone(str(self.e))
@@ -107,9 +107,9 @@ class TestBaseExtractorClassMethods(TestCase):
 
         self.e = BaseExtractor
 
-    def test_unimplemented_check_dependencies(self):
+    def test_unimplemented_dependencies_satisfied(self):
         with self.assertRaises(NotImplementedError):
-            _ = self.e.check_dependencies()
+            _ = self.e.dependencies_satisfied()
 
     def test_can_handle_raises_exception_if_handles_mime_types_is_none(self):
         with self.assertRaises(NotImplementedError):

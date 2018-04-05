@@ -46,7 +46,7 @@ class EpubMetadataExtractor(BaseExtractor):
         return raw_metadata
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         # TODO: [TD0186] Re-implement epub metadata extractor
         return False
 

@@ -76,7 +76,7 @@ class JpeginfoMetadataExtractor(BaseExtractor):
         return metadata
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return util.is_executable('jpeginfo')
 
 

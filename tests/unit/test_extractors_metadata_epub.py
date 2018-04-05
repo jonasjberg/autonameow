@@ -31,7 +31,7 @@ from unit.case_extractors import (
 
 
 UNMET_DEPENDENCIES = (
-    not EpubMetadataExtractor.check_dependencies(),
+    not EpubMetadataExtractor.dependencies_satisfied(),
     'Extractor dependencies not satisfied'
 )
 

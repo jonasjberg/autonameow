@@ -32,7 +32,7 @@ from unit.case_extractors import CaseExtractorBasics
 
 
 UNMET_DEPENDENCIES = (
-    not PlainTextExtractor.check_dependencies(),
+    not PlainTextExtractor.dependencies_satisfied(),
     'Extractor dependencies not satisfied'
 )
 assert not UNMET_DEPENDENCIES[0], (

@@ -243,7 +243,7 @@ class BaseAnalyzer(ProviderMixin):
             )
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         """
         Tests if the analyzer can be used.
 

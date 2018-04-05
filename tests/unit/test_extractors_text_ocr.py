@@ -41,7 +41,7 @@ from unit.case_extractors import (
 
 
 UNMET_DEPENDENCIES = (
-    not TesseractOCRTextExtractor.check_dependencies(),
+    not TesseractOCRTextExtractor.dependencies_satisfied(),
     'Extractor dependencies not satisfied'
 )
 

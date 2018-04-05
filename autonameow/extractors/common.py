@@ -249,7 +249,7 @@ class BaseExtractor(ProviderMixin):
         return dict(_FIELD_META_CACHE[cls])
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         """
         Checks if all dependencies required to use the extractor are available.
 

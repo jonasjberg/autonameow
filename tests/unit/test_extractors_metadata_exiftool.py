@@ -36,7 +36,7 @@ from unit.case_extractors import (
 
 
 UNMET_DEPENDENCIES = (
-    not ExiftoolMetadataExtractor.check_dependencies(),
+    not ExiftoolMetadataExtractor.dependencies_satisfied(),
     'Extractor dependencies not satisfied'
 )
 

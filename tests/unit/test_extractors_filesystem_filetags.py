@@ -37,7 +37,7 @@ from unit.case_extractors import (
 
 
 UNMET_DEPENDENCIES = (
-    FiletagsExtractor.check_dependencies() is False,
+    FiletagsExtractor.dependencies_satisfied() is False,
     'Extractor dependencies not satisfied (!)'
 )
 assert not UNMET_DEPENDENCIES[0], (

@@ -33,7 +33,7 @@ from unit.case_extractors import (
 
 
 UNMET_DEPENDENCIES = (
-    PdfTextExtractor.check_dependencies() is False,
+    PdfTextExtractor.dependencies_satisfied() is False,
     'Extractor dependencies not satisfied'
 )
 

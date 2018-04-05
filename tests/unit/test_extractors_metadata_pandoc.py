@@ -37,7 +37,7 @@ from unit.case_extractors import (
 
 
 UNMET_DEPENDENCIES = (
-    not PandocMetadataExtractor.check_dependencies(),
+    not PandocMetadataExtractor.dependencies_satisfied(),
     'Extractor dependencies not satisfied'
 )
 

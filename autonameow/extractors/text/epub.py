@@ -48,7 +48,7 @@ class EpubTextExtractor(AbstractTextExtractor):
         return extract_text_with_ebooklib(fileobject.abspath)
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return all(m is not None for m in (epub, BeautifulSoup))
 
 

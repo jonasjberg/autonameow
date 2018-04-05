@@ -125,7 +125,7 @@ class AbstractTextExtractor(BaseExtractor):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def init_cache(self):

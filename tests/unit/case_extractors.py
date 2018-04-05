@@ -214,8 +214,8 @@ class CaseExtractorBasics(object):
         expect = self.EXTRACTOR_NAME
         self.assertEqual(expect, actual)
 
-    def test_method_check_dependencies_returns_expected_type(self):
-        actual = self.extractor.check_dependencies()
+    def test_method_dependencies_satisfied_returns_expected_type(self):
+        actual = self.extractor.dependencies_satisfied()
         self.assertIsInstance(
             actual, bool,
             'Expected "bool". Got "{!s}"'.format(type(actual))

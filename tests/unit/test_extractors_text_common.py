@@ -83,9 +83,9 @@ class TestAbstractTextExtractor(TestCase):
         with self.assertRaises(NotImplementedError):
             self.e.extract_text(self.test_file)
 
-    def test_check_dependencies_raises_not_implemented_error(self):
+    def test_dependencies_satisfied_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e.check_dependencies()
+            self.e.dependencies_satisfied()
 
 
 class TestAbstractTextExtractorMetainfo(TestCase):

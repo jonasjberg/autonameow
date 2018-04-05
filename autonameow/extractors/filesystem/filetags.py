@@ -94,7 +94,7 @@ class FiletagsExtractor(BaseExtractor):
         return bool(fileobject.filename.strip())
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return True
 
 
