@@ -65,13 +65,13 @@ def _get_extractor_classes(packages):
     klasses = _find_extractor_classes_in_packages(packages)
 
     excluded = list()
-    registered = list()
+    included = list()
     for klass in klasses:
         if klass.dependencies_satisfied():
-            registered.append(klass)
+            included.append(klass)
         else:
             excluded.append(klass)
-    return registered, excluded
+    return included, excluded
 
 
 class ExtractorRegistry(object):
@@ -88,13 +88,14 @@ class ExtractorRegistry(object):
         return getattr(self, self_attribute)
 
     def _collect_and_register(self, self_attribute, packages):
-        registered, excluded = _get_extractor_classes(packages)
-        for registered_klass in registered:
-            log.debug('Registered extractor "{!s}"'.format(registered_klass))
+        included, excluded = _get_extractor_classes(packages)
+
+        for included_klass in included:
+            log.debug('Included extractor "{!s}"'.format(included_klass))
         for excluded_klass in excluded:
             log.info('Excluded extractor "{!s}" due to unmet dependencies'.format(excluded_klass))
 
-        setattr(self, self_attribute, set(registered))
+        setattr(self, self_attribute, set(included))
         self._excluded_providers.update(excluded)
 
     @property
