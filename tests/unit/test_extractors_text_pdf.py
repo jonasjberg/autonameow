@@ -35,8 +35,10 @@ from unit.case_extractors import (
 )
 
 
-UNMET_DEPENDENCIES = PdfTextExtractor.check_dependencies() is False
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
+UNMET_DEPENDENCIES = (
+    PdfTextExtractor.check_dependencies() is False,
+    'Extractor dependencies not satisfied'
+)
 
 # NOTE: It seems that pdftotext strips trailing whitespace on MacOS (v0.57.0)
 #       but not on Linux (v0.41.0) --- gives inconsistent test results (?)
@@ -62,19 +64,19 @@ class TestPrerequisites(TestCase):
         self.assertIsInstance(TESTFILE_B_EXPECTED, str)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     EXTRACTOR_NAME = 'PdfTextExtractor'
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorOutputTypes(CaseExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
@@ -83,7 +85,7 @@ class TestPdfTextExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     ]
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_B)
@@ -92,7 +94,7 @@ class TestPdfTextExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
     ]
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestCachingRuntime(TestCase):
     """
     These will likely fail on some systems. The idea is to make sure that
@@ -152,7 +154,7 @@ class TestCachingRuntime(TestCase):
         self.__assert_runtime_improvement(0.010)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestExtractPdfContentWithPdftotext(TestCase):
     def setUp(self):
         self.maxDiff = None
@@ -165,7 +167,7 @@ class TestExtractPdfContentWithPdftotext(TestCase):
         self.assertEqual(TESTFILE_A_EXPECTED, self.actual)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorInternals(TestCase):
     def setUp(self):
         self.test_fileobject = uu.fileobject_testfile('gmail.pdf')

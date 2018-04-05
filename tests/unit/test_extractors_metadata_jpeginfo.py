@@ -38,24 +38,26 @@ ALL_EXTRACTOR_FIELDS_TYPES = [
     ('is_jpeg', bool),
 ]
 
-unmet_dependencies = not JpeginfoMetadataExtractor.check_dependencies()
-dependency_error = 'Extractor dependencies not satisfied'
+UNMET_DEPENDENCIES = (
+    not JpeginfoMetadataExtractor.check_dependencies(),
+    'Extractor dependencies not satisfied'
+)
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestJpeginfoMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
                                                TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestJpeginfoMetadataExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
     EXTRACTOR_NAME = 'JpeginfoMetadataExtractor'
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestJpeginfoMetadataExtractorOutputTestFileA(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
@@ -66,7 +68,7 @@ class TestJpeginfoMetadataExtractorOutputTestFileA(CaseExtractorOutput,
     ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestJpeginfoMetadataExtractorOutputTestFileB(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
@@ -77,7 +79,7 @@ class TestJpeginfoMetadataExtractorOutputTestFileB(CaseExtractorOutput,
     ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestJpeginfoMetadataExtractorOutputTestFileC(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
@@ -88,7 +90,7 @@ class TestJpeginfoMetadataExtractorOutputTestFileC(CaseExtractorOutput,
     ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestJpeginfoMetadataExtractorMetainfo(TestCase):
     def setUp(self):
         _extractor_instance = JpeginfoMetadataExtractor()

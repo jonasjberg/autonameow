@@ -40,8 +40,10 @@ from unit.case_extractors import (
 )
 
 
-unmet_dependencies = not PandocMetadataExtractor.check_dependencies()
-dependency_error = 'Extractor dependencies not satisfied'
+UNMET_DEPENDENCIES = (
+    not PandocMetadataExtractor.check_dependencies(),
+    'Extractor dependencies not satisfied'
+)
 
 
 EXPECTED_PANDOC_JSON_FOR_SAMPLE_DOT_MD = [
@@ -91,20 +93,20 @@ EXPECTED_PANDOC_JSON_FOR_SAMPLE_DOT_MD = [
 ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPandocMetadataExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
     EXTRACTOR_NAME = 'PandocMetadataExtractor'
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPandocMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
                                              TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('sample.md')
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPandocMetadataExtractorOutputTestFileA(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
@@ -115,7 +117,7 @@ class TestPandocMetadataExtractorOutputTestFileA(CaseExtractorOutput,
     ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPandocMetadataExtractorOutputTestFileB(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
@@ -128,7 +130,7 @@ class TestPandocMetadataExtractorOutputTestFileB(CaseExtractorOutput,
     ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPandocMetadataExtractorOutputTestFileC(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor

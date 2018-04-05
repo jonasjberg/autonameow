@@ -34,40 +34,47 @@ from extractors.text.plain import (
 from unit.case_extractors import CaseExtractorBasics
 
 
-# This really shouldn't happen. Probably caused by an error if it does.
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied (!)'
-UNMET_DEPENDENCIES = PlainTextExtractor.check_dependencies() is False
-assert not UNMET_DEPENDENCIES
+UNMET_DEPENDENCIES = (
+    not PlainTextExtractor.check_dependencies(),
+    'Extractor dependencies not satisfied'
+)
+assert not UNMET_DEPENDENCIES[0], (
+    'Expected extractor to not have any dependencies (always satisfied)'
+)
+
+print(UNMET_DEPENDENCIES)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPlainTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = PlainTextExtractor
     EXTRACTOR_NAME = 'PlainTextExtractor'
 
 
 class TestReadEntireTextFileA(TestCase):
-    def setUp(self):
-        self.sample_file = uu.abspath_testfile('magic_txt.txt')
+    @classmethod
+    def setUpClass(cls):
+        cls.sample_file = uu.abspath_testfile('magic_txt.txt')
+        cls.actual = read_entire_text_file(cls.sample_file)
+
+    def test_prerequisites(self):
         self.assertTrue(uu.file_exists(self.sample_file))
 
     def test_read_entire_text_file_returns_something(self):
-        actual = read_entire_text_file(self.sample_file)
-        self.assertIsNotNone(actual)
+        self.assertIsNotNone(self.actual)
 
     def test_returns_expected_encoding(self):
-        actual = read_entire_text_file(self.sample_file)
-        self.assertTrue(uu.is_internalstring(actual))
+        self.assertTrue(uu.is_internalstring(self.actual))
 
     def test_returns_expected_contents(self):
-        actual = read_entire_text_file(self.sample_file)
-        self.assertEqual(actual, 'text\n')
+        self.assertEqual('text\n', self.actual)
 
 
 class TestReadEntireTextFileB(TestCase):
-    def setUp(self):
-        self.sample_file = uu.abspath_testfile('simplest_pdf.md.pdf.txt')
-        self.expected_text = '''Probably a title
+    @classmethod
+    def setUpClass(cls):
+        cls.sample_file = uu.abspath_testfile('simplest_pdf.md.pdf.txt')
+        cls.expected_text = '''Probably a title
 Text following the title, probably.
 
 
@@ -87,6 +94,7 @@ Test test. This file contains no digits whatsoever.
                                         1
 '''
 
+    def test_prerequisites(self):
         self.assertTrue(uu.file_exists(self.sample_file))
 
     def test_read_entire_text_file_returns_something(self):
@@ -194,10 +202,11 @@ class TestAutodetectEncoding(TestCase):
 
 
 class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
-    def setUp(self):
-        self.testfile_encoding = get_sample_text_files(prefix='text_alnum_')
+    @classmethod
+    def setUpClass(cls):
+        cls.testfile_encoding = get_sample_text_files(prefix='text_alnum_')
 
-    def test_setup(self):
+    def test_prerequisites(self):
         self.assertGreaterEqual(len(self.testfile_encoding), 0)
         self.assertTrue(uu.file_exists(f) for f, _ in self.testfile_encoding)
         self.assertTrue(uu.is_internalstring(e)
@@ -206,8 +215,6 @@ class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
     def test_detects_encodings(self):
         self.skipTest('TODO: Improve auto-detecting encodings ..')
         for testfile, expected_encoding in self.testfile_encoding:
-            self.assertTrue(uu.file_exists(testfile))
-
             if expected_encoding == 'cp1252':
                 # TODO: Improve encoding detection! (or not, for these samples)
                 continue
@@ -217,10 +224,11 @@ class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
 
 
 class TestAutoDetectsEncodingFromSampleText(TestCase):
-    def setUp(self):
-        self.testfile_encoding = get_sample_text_files(prefix='text_sample_')
+    @classmethod
+    def setUpClass(cls):
+        cls.testfile_encoding = get_sample_text_files(prefix='text_sample_')
 
-    def test_setup(self):
+    def test_prerequisites(self):
         self.assertGreater(len(self.testfile_encoding), 0)
         self.assertTrue(uu.file_exists(f) for f, _ in self.testfile_encoding)
         self.assertTrue(uu.is_internalstring(e,)
@@ -228,7 +236,6 @@ class TestAutoDetectsEncodingFromSampleText(TestCase):
 
     def test_detects_encodings(self):
         for testfile, expected_encoding in self.testfile_encoding:
-            self.assertTrue(uu.file_exists(testfile))
             actual = autodetect_encoding(testfile).lower()
 
             if actual == 'iso-8859-1' and expected_encoding == 'cp1252':

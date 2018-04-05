@@ -30,26 +30,28 @@ from unit.case_extractors import (
 )
 
 
-unmet_dependencies = not EpubMetadataExtractor.check_dependencies()
-dependency_error = 'Extractor dependencies not satisfied'
+UNMET_DEPENDENCIES = (
+    not EpubMetadataExtractor.check_dependencies(),
+    'Extractor dependencies not satisfied'
+)
 
 
 # TODO: [TD0186] Re-implement epub metadata extractor
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestEpubMetadataExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = EpubMetadataExtractor
     EXTRACTOR_NAME = 'EpubMetadataExtractor'
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestEpubMetadataExtractorOutputTypes(CaseExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = EpubMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestEpubMetadataExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = EpubMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')

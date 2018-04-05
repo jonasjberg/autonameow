@@ -35,8 +35,10 @@ from unit.case_extractors import (
 )
 
 
-UNMET_DEPENDENCIES = RichTextFormatTextExtractor.check_dependencies() is False
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
+UNMET_DEPENDENCIES = (
+    not RichTextFormatTextExtractor.check_dependencies(),
+    'Extractor dependencies not satisfied'
+)
 
 # TODO: This will fail. Either normalize text before returning or skip this!
 TESTFILE_A = uu.abspath_testfile('ObjectCalisthenics.rtf')
@@ -75,13 +77,13 @@ class TestPrerequisites(TestCase):
         self.assertIsInstance(TESTFILE_B_EXPECTED, str)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRichTextFormatTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
     EXTRACTOR_NAME = 'RichTextFormatTextExtractor'
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRichTextFormatTextExtractorOutputTypes(CaseExtractorOutputTypes,
                                                  TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
@@ -89,7 +91,7 @@ class TestRichTextFormatTextExtractorOutputTypes(CaseExtractorOutputTypes,
 
 
 @skip('TODO: Messy whitespace and unquoted control characters ..')
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRichTextFormatTextExtractorOutputTestFileA(CaseExtractorOutput,
                                                      TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
@@ -99,7 +101,7 @@ class TestRichTextFormatTextExtractorOutputTestFileA(CaseExtractorOutput,
     ]
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRichTextFormatTextExtractorOutputTestFileB(CaseExtractorOutput,
                                                      TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
@@ -109,7 +111,7 @@ class TestRichTextFormatTextExtractorOutputTestFileB(CaseExtractorOutput,
     ]
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRichTextFormatTextExtractorInternals(TestCase):
     def setUp(self):
         self.maxDiff = None

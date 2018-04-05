@@ -35,8 +35,8 @@ from unit.case_extractors import (
 
 
 UNMET_DEPENDENCIES = (
-    GuessitExtractor.check_dependencies() is False,
-    'Extractor dependencies ("guessit") are not available'
+    not GuessitExtractor.check_dependencies(),
+    'Extractor dependencies ("guessit") not satified'
 )
 
 

@@ -33,7 +33,6 @@ from extractors.metadata.exiftool import (
     _filter_coerced_value,
     is_bad_metadata
 )
-
 from unit.case_extractors import (
     CaseExtractorBasics,
     CaseExtractorOutput,
@@ -41,28 +40,26 @@ from unit.case_extractors import (
 )
 
 
-unmet_dependencies = not ExiftoolMetadataExtractor.check_dependencies()
-dependency_error = 'Extractor dependencies not satisfied'
+UNMET_DEPENDENCIES = (
+    not ExiftoolMetadataExtractor.check_dependencies(),
+    'Extractor dependencies not satisfied'
+)
 
 
-temp_fileobject = uu.get_mock_fileobject()
-temp_file = uu.make_temporary_file()
-
-
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestExiftoolMetadataExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     EXTRACTOR_NAME = 'ExiftoolMetadataExtractor'
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestExiftoolMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
                                                TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
@@ -79,7 +76,7 @@ class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput,
     ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor

@@ -33,13 +33,16 @@ from extractors.filesystem.crossplatform import (
 from unit.case_extractors import CaseExtractorBasics
 
 
-# This really shouldn't happen. Probably caused by an error if it does.
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied (!)'
-UNMET_DEPENDENCIES = CrossPlatformFileSystemExtractor.check_dependencies() is False
-assert not UNMET_DEPENDENCIES
+UNMET_DEPENDENCIES = (
+    not CrossPlatformFileSystemExtractor.check_dependencies(),
+    'Extractor dependencies not satisfied'
+)
+assert not UNMET_DEPENDENCIES[0], (
+    'Expected extractor to not have any dependencies (always satisfied)'
+)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestCrossPlatformFileSystemExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = CrossPlatformFileSystemExtractor
     EXTRACTOR_NAME = 'CrossPlatformFileSystemExtractor'
@@ -72,10 +75,11 @@ class TestDatetimeFromTimestamp(TestCase):
 
 
 class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         _fo = uu.fileobject_testfile('magic_txt.txt')
         _extractor_instance = CrossPlatformFileSystemExtractor()
-        self.actual = _extractor_instance.extract(_fo)
+        cls.actual = _extractor_instance.extract(_fo)
 
     def test_extract_returns_expected_type(self):
         self.assertIsInstance(self.actual, dict)
@@ -110,10 +114,11 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
 
 
 class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         _fo = uu.fileobject_testfile('empty')
         _extractor_instance = CrossPlatformFileSystemExtractor()
-        self.actual = _extractor_instance.extract(_fo)
+        cls.actual = _extractor_instance.extract(_fo)
 
     def test_extract_returns_expected_type(self):
         self.assertIsInstance(self.actual, dict)
@@ -148,9 +153,10 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
 
 
 class TestCrossPlatformFileSystemExtractorMetainfo(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         _extractor_instance = CrossPlatformFileSystemExtractor()
-        self.actual = _extractor_instance.metainfo()
+        cls.actual = _extractor_instance.metainfo()
 
     def test_metainfo_returns_expected_type(self):
         self.assertIsInstance(self.actual, dict)

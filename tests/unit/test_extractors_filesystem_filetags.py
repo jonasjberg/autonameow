@@ -39,19 +39,22 @@ from unit.case_extractors import (
 )
 
 
-# This really shouldn't happen. Probably caused by an error if it does.
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied (!)'
-UNMET_DEPENDENCIES = FiletagsExtractor.check_dependencies() is False
-assert not UNMET_DEPENDENCIES
+UNMET_DEPENDENCIES = (
+    FiletagsExtractor.check_dependencies() is False,
+    'Extractor dependencies not satisfied (!)'
+)
+assert not UNMET_DEPENDENCIES[0], (
+    'Expected extractor to not have any dependencies (always satisfied)'
+)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestFiletagsExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = FiletagsExtractor
     EXTRACTOR_NAME = 'FiletagsExtractor'
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestFiletagsExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = FiletagsExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('2017-09-12T224820 filetags-style name -- tag2 a tag1.txt')
@@ -64,7 +67,7 @@ class TestFiletagsExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     ]
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestFiletagsExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = FiletagsExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('empty')

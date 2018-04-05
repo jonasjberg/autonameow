@@ -40,26 +40,28 @@ from unit.case_extractors import (
 )
 
 
-UNMET_DEPENDENCIES = not EpubTextExtractor.check_dependencies()
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
+UNMET_DEPENDENCIES = (
+    not EpubTextExtractor.check_dependencies(),
+    'Extractor dependencies not satisfied'
+)
 
 TESTFILE_A = uu.fileobject_testfile('pg38145-images.epub')
 TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('pg38145-images.epub')
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestEpubTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = EpubTextExtractor
     EXTRACTOR_NAME = 'EpubTextExtractor'
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestEpubTextExtractorOutputTypes(CaseExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = EpubTextExtractor
     SOURCE_FILEOBJECT = TESTFILE_A
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestEpubTextExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = EpubTextExtractor
     SOURCE_FILEOBJECT = TESTFILE_A
@@ -71,13 +73,13 @@ class TestEpubTextExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
 # TODO:  Rework the tests or the extractors.. ?
 # NOTE(jonas): Text extractors pass results to parent class that wraps the data
 #              to the format returned directly by the metadata extractors ..
-# @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+# @skipIf(*UNMET_DEPENDENCIES)
 # class TestEpubTextExtractorOutputTypes(TestCaseExtractorOutputTypes):
 #     EXTRACTOR_CLASS = EpubTextExtractor
 #     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
-@skipIf(epub is None, 'Failed to import "ebooklib.epub"')
+@skipIf(*UNMET_DEPENDENCIES)
 class TestExtractTextWithEbooklib(TestCase):
     def setUp(self):
         self.sample_file = uu.abspath_testfile('pg38145-images.epub')
