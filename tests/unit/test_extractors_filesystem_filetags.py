@@ -21,10 +21,7 @@
 
 from collections import namedtuple
 from datetime import datetime
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 
 import unit.utils as uu
 from extractors.filesystem.filetags import (

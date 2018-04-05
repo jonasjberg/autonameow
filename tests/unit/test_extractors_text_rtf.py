@@ -19,15 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skipIf,
-    skip,
-    TestCase,
-)
+from unittest import skip, skipIf, TestCase
 
 import unit.utils as uu
 from extractors.text import RichTextFormatTextExtractor
-from extractors.text.rtf import extract_text_with_unrtf
 from unit.case_extractors import (
     CaseExtractorBasics,
     CaseExtractorOutput,

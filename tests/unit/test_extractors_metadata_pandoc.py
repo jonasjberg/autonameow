@@ -19,11 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skip,
-    skipIf,
-    TestCase,
-)
+from unittest import skip, skipIf, TestCase
 
 import unit.utils as uu
 from extractors.metadata import PandocMetadataExtractor

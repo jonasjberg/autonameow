@@ -19,13 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skipIf,
-    TestCase,
-)
-from unittest.mock import Mock
+from unittest import TestCase
 
-import unit.utils as uu
 from analyzers.analyze_document import (
     find_titles_in_text,
 )

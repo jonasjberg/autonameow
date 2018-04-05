@@ -21,10 +21,7 @@
 
 import itertools
 from collections import namedtuple
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 
 from util.text.humannames import (
     _parse_name,
@@ -38,7 +35,6 @@ from util.text.humannames import (
     split_multiple_names,
     strip_repeating_periods,
     strip_author_et_al,
-    strip_bad_author_substrings,
     strip_edited_by
 )
 

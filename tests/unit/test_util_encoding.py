@@ -42,10 +42,7 @@
 import os
 import sys
 from contextlib import contextmanager
-from unittest import (
-    skipIf,
-    TestCase
-)
+from unittest import skipIf, TestCase
 
 try:
     import chardet

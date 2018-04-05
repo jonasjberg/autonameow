@@ -19,10 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 
 try:
     import PIL
@@ -130,9 +127,3 @@ class TestTesseractWrapper(TestCase):
         for _test_file in _test_files:
             with self.assertRaises(ExtractorError):
                 _ = tesseractocr.pil_read_image(_test_file)
-
-        # def test_pil_read_image_raises_exception_for_invalid_images(self):
-        # _test_inputs = [
-        #     image_file = uu.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
-        # ]
-        # actual = ocr.pil_read_image(image_file)
