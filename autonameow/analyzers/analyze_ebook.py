@@ -216,6 +216,12 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                     self.log.debug('Added metadata for ISBN: {}'.format(isbn_number))
                     self._isbn_metadata.append(metadata)
                 else:
+                    # TODO: [TD0190] Join/merge metadata "records" with missing values.
+                    # TODO: If the ISBN metadata record that is considered dupliate
+                    #       contains a field value that is missing/empty in the kept
+                    #       metadata record, copy it to the kept record before
+                    #       discarding the "duplicate" record.
+
                     self.log.debug('Metadata for ISBN {} considered duplicate and skipped'.format(isbn_number))
                     # print('Skipped metadata considered a duplicate:')
                     # print_copy_pasteable_isbn_metadata('x', metadata)
@@ -244,7 +250,8 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             for line in metadata.as_string().splitlines():
                 self.log.debug('ISBNMetadata {} :: {!s}'.format(n, line))
 
-            # NOTE(jonas): Arbitrary removal of metadata records ..
+            # TODO: [hack][incomplete] Arbitrary removal of metadata records ..
+            # TODO: [TD0190] Join/merge metadata "records" with missing values.
             if not metadata.authors and not metadata.publisher:
                 self.log.debug('Skipped ISBN metadata missing both '
                                'authors and publisher')

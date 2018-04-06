@@ -90,6 +90,12 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0190]` __Join/merge metadata "records" with missing field values__  
+    When de-duplicating and discarding "duplicate" sets of metadata
+    ("records"), check if the chosen metadata record has any missing or empty
+    field values that are present in the other metadata record.  If so, "join"
+    fields with missing values before discarding the "duplicate" record.
+
 * `[TD0189]` __Canonicalize metadata values with direct replacements.__  
     Should probably store some kind of lookup tables in external files.
     These should be used to reduce the space of possible values by doing
