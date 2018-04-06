@@ -47,7 +47,7 @@ class TestRegexCache(TestCase):
         mock_re_compile = Mock()
         with patch('util.text.regexcache.re.compile', mock_re_compile):
             _ = self.rc(*args)
-            mock_re_compile.assert_called_once()
+            mock_re_compile.assert_called_once_with(*args)
 
     def test_instantiated_regexcache_is_not_none(self):
         self.assertIsNotNone(self.rc)
