@@ -37,6 +37,7 @@ from util.text.humannames import (
     strip_author_et_al,
     strip_edited_by
 )
+from thirdparty import nameparser as _nameparser
 
 
 TD = namedtuple('TD', 'Given Expect')
@@ -180,7 +181,6 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
 
 
 def nameparser_unavailable():
-    from thirdparty import nameparser as _nameparser
     return _nameparser is None, 'Failed to import "thirdparty.nameparser"'
 
 
@@ -207,7 +207,7 @@ class TeststripAuthorEtAl(TestCase):
         _t('Gibson Catberg ... {et al.}')
 
 
-class TeststripEditedBy(TestCase):
+class TestStripEditedBy(TestCase):
     def test_strips_edited_by_variations(self):
         def _t(test_input):
             actual = strip_edited_by(test_input)
@@ -241,11 +241,10 @@ class TestStripRepeatingPeriods(TestCase):
 
 
 class TestNameParser(TestCase):
-    def test_nameparser_return_type(self):
-        # Make sure that 'nameparser' is indeed available.
-        from thirdparty import nameparser
-        self.assertIsNotNone(nameparser)
+    def test_thirdparty_nameparser_is_available(self):
+        self.assertIsNotNone(_nameparser)
 
+    def test__parse_name_returns_expected_type_given_single_word_name(self):
         actual = _parse_name('foo')
         self.assertIsInstance(actual, dict)
 
