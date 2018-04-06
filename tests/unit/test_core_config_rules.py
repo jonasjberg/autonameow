@@ -59,24 +59,24 @@ class TestRule(TestCase):
         self.default_rule = _get_rule()
 
     def test_required_arguments_no_conditions_no_data_sources(self):
-        self.assertEqual(self.default_rule.conditions, [])
-        self.assertEqual(self.default_rule.data_sources, dict())
-        self.assertEqual(self.default_rule.name_template, 'dummy')
+        self.assertEqual([], self.default_rule.conditions)
+        self.assertEqual(dict(), self.default_rule.data_sources)
+        self.assertEqual('dummy', self.default_rule.name_template)
 
     def test_required_arguments_no_data_sources(self):
         rule = _get_rule(conditions=MOCK_CONDITIONS_A)
-        self.assertEqual(rule.conditions, MOCK_CONDITIONS_A)
-        self.assertEqual(rule.data_sources, dict())
-        self.assertEqual(rule.name_template, 'dummy')
+        self.assertEqual(MOCK_CONDITIONS_A, rule.conditions)
+        self.assertEqual(dict(), rule.data_sources)
+        self.assertEqual('dummy', rule.name_template)
 
     def test_required_arguments(self):
         rule = _get_rule(
             conditions=MOCK_CONDITIONS_A,
             data_sources=MOCK_DATA_SOURCES_A,
         )
-        self.assertEqual(rule.conditions, MOCK_CONDITIONS_A)
+        self.assertEqual(MOCK_CONDITIONS_A, rule.conditions)
         self.assertEqual(len(MOCK_DATA_SOURCES_A), len(rule.data_sources))
-        self.assertEqual(rule.name_template, 'dummy')
+        self.assertEqual('dummy', rule.name_template)
 
     def test_exact_match_coerces_to_false_if_none(self):
         rule = _get_rule(exact_match=None)
@@ -87,17 +87,17 @@ class TestRule(TestCase):
 
     def test_ranking_bias_uses_default_value_if_none(self):
         a = _get_rule(ranking_bias=None)
-        self.assertEqual(a.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
+        self.assertEqual(C.DEFAULT_RULE_RANKING_BIAS, a.ranking_bias)
 
     def test_ranking_bias_uses_default_value_if_left_unspecified(self):
-        self.assertEqual(self.default_rule.ranking_bias, C.DEFAULT_RULE_RANKING_BIAS)
+        self.assertEqual(C.DEFAULT_RULE_RANKING_BIAS, self.default_rule.ranking_bias)
 
     def test_description_ses_default_value_if_none(self):
         a = _get_rule(description=None)
-        self.assertEqual(a.description, C.DEFAULT_RULE_DESCRIPTION)
+        self.assertEqual(C.DEFAULT_RULE_DESCRIPTION, a.description)
 
     def test_description_uses_default_value_if_left_unspecified(self):
-        self.assertEqual(self.default_rule.description, C.DEFAULT_RULE_DESCRIPTION)
+        self.assertEqual(C.DEFAULT_RULE_DESCRIPTION, self.default_rule.description)
 
 
 class TestRuleComparison(TestCase):
@@ -449,7 +449,7 @@ class TestRuleConditionMethods(TestCase):
         expected = 'RuleCondition({}, application/pdf)'.format(
             uuconst.MEOWURI_FS_XPLAT_MIMETYPE
         )
-        self.assertEqual(repr(self.a), expected)
+        self.assertEqual(expected, repr(self.a))
 
     def test_rule___repr__exhaustive(self):
         expected_reprs = []
@@ -462,7 +462,7 @@ class TestRuleConditionMethods(TestCase):
 
         for condition, expect in zip(uu.get_dummy_rulecondition_instances(),
                                      expected_reprs):
-            self.assertEqual(repr(condition), expect)
+            self.assertEqual(expect, repr(condition))
 
 
 class TestGetValidRuleCondition(TestCase):

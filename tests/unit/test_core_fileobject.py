@@ -198,10 +198,10 @@ class TestFileObjectMembership(TestCase):
              self.fo_dupe_1: 'b',
              self.fo_dupe_2: 'c'}
 
-        self.assertEqual(len(d), 2)
-        self.assertEqual(d.get(self.fo_unique), 'a')
-        self.assertEqual(d.get(self.fo_dupe_1), 'c')
-        self.assertEqual(d.get(self.fo_dupe_2), 'c')
+        self.assertEqual(2, len(d))
+        self.assertEqual('a', d.get(self.fo_unique))
+        self.assertEqual('c', d.get(self.fo_dupe_1))
+        self.assertEqual('c', d.get(self.fo_dupe_2))
 
     def test_membership_with_same(self):
         s = set()

@@ -189,7 +189,7 @@ class TeststripAuthorEtAl(TestCase):
         def _t(test_input):
             actual = strip_author_et_al(test_input)
             expect = 'Gibson Catberg'
-            self.assertEqual(actual, expect)
+            self.assertEqual(expect, actual)
 
         _t('Gibson Catberg, et al.')
         _t('Gibson Catberg, et al')
@@ -318,19 +318,19 @@ class TestHumanNameParser(TestCase):
     def test_parses_strings(self):
         actual = self.name_parser('foo')
         self.assertIsInstance(actual, dict)
-        self.assertEqual(actual['original'], 'foo')
+        self.assertEqual('foo', actual['original'])
 
     def test_parses_name(self):
         actual = self.name_parser('Gibson Catson, Ph.D.')
         self.assertIsInstance(actual, dict)
-        self.assertEqual(actual['first'], 'Gibson')
-        self.assertEqual(actual['last'], 'Catson')
-        self.assertEqual(actual['suffix'], 'Ph.D.')
+        self.assertEqual('Gibson', actual['first'])
+        self.assertEqual('Catson', actual['last'])
+        self.assertEqual('Ph.D.', actual['suffix'])
 
     def test_preprocess_returns_empty_string_for_empty_input(self):
         def _assert_empty_string(given):
             actual = self.name_parser._preprocess(given)
-            self.assertEqual(actual, '')
+            self.assertEqual('', actual)
 
         _assert_empty_string('')
         _assert_empty_string(' ')
@@ -339,7 +339,7 @@ class TestHumanNameParser(TestCase):
 
     def _check_preprocess(self, given, expect):
         actual = self.name_parser._preprocess(given)
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
     def test_preprocess_pass_through_valid_input_as_is(self):
         self._check_preprocess('foo', 'foo')
@@ -367,7 +367,7 @@ class TestHumanNameParser(TestCase):
                 # Skip comparison of empty values for brevity.
                 if v:
                     expected = expect.get(k)
-                    self.assertEqual(v, expected,
+                    self.assertEqual(expected, v,
                                      'Key "{}". Expected: "{!s}"  '
                                      'Got: "{!s}"'.format(k, expected, v))
 
@@ -394,7 +394,7 @@ class TestLastNameInitialsFormatter(TestCase):
     def test_formats_full_human_names(self):
         for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
             actual = format_name(given, formatter=LastNameInitialsFormatter)
-            self.assertEqual(actual, expect)
+            self.assertEqual(expect, actual)
 
     def test_raises_exception_given_byte_strings(self):
         with self.assertRaises(AssertionError):
@@ -404,7 +404,7 @@ class TestLastNameInitialsFormatter(TestCase):
         def _aE(test_input):
             actual = format_name(test_input,
                                  formatter=LastNameInitialsFormatter)
-            self.assertEqual(actual, '')
+            self.assertEqual('', actual)
 
         _aE(None)
         _aE('')
@@ -418,7 +418,7 @@ class TestFormatName(TestCase):
     def test_formats_full_name_with_default_formatter(self):
         for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
             actual = format_name(given)
-            self.assertEqual(actual, expect)
+            self.assertEqual(expect, actual)
 
     def test_raises_exception_given_invalid_formatter(self):
         invalid_formatter = True
@@ -430,7 +430,7 @@ class TestFormatName(TestCase):
 
         for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
             actual = format_name(given, valid_formatter)
-            self.assertEqual(actual, expect)
+            self.assertEqual(expect, actual)
 
 
 @skipIf(*nameparser_unavailable())
@@ -438,7 +438,7 @@ class TestFormatNameList(TestCase):
     def test_formats_list_of_full_human_names_with_default_formatter(self):
         for given, expect in TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS:
             actual = format_name_list(given)
-            self.assertEqual(actual, expect)
+            self.assertEqual(expect, actual)
 
     def test_raises_exception_given_invalid_formatter(self):
         invalid_formatter = True
@@ -450,7 +450,7 @@ class TestFormatNameList(TestCase):
 
         for given, expect in TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS:
             actual = format_name_list(given, valid_formatter)
-            self.assertEqual(actual, expect)
+            self.assertEqual(expect, actual)
 
 
 class TestSplitMultipleNames(TestCase):

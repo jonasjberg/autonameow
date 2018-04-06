@@ -462,9 +462,10 @@ class TestParseRuleConditions(TestCase):
             uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'
         }
         actual = parse_rule_conditions(raw_conditions)
-        self.assertEqual(actual[0].meowuri,
-                         uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL)
-        self.assertEqual(actual[0].expression, '~/.config')
+        self.assertEqual(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL,
+                         actual[0].meowuri)
+        self.assertEqual('~/.config',
+                         actual[0].expression)
 
         self._assert_parsed_result(
             expect_uri=uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL,
@@ -477,8 +478,8 @@ class TestParseRuleConditions(TestCase):
             uuconst.MEOWURI_FS_XPLAT_MIMETYPE: 'image/jpeg'
         }
         actual = parse_rule_conditions(raw_conditions)
-        self.assertEqual(actual[0].meowuri, uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        self.assertEqual(actual[0].expression, 'image/jpeg')
+        self.assertEqual(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, actual[0].meowuri)
+        self.assertEqual('image/jpeg', actual[0].expression)
 
     def test_parse_condition_contents_metadata_is_valid(self):
         # TODO: [TD0015] Handle expression in 'condition_value'
@@ -487,9 +488,10 @@ class TestParseRuleConditions(TestCase):
             uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL: 'Defined',
         }
         actual = parse_rule_conditions(raw_conditions)
-        self.assertEqual(actual[0].meowuri,
-                         uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL)
-        self.assertEqual(actual[0].expression, 'Defined')
+        self.assertEqual(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
+                         actual[0].meowuri)
+        self.assertEqual('Defined',
+                         actual[0].expression)
 
     def test_parse_empty_conditions_is_allowed(self):
         raw_conditions = dict()
@@ -526,7 +528,7 @@ class TestValidateVersionNumber(TestCase):
         def _assert_equal(test_input, expected):
             actual = parse_versioning(test_input)
             self.assertIsInstance(actual, tuple)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _assert_equal('0.0.0', (0, 0, 0))
         _assert_equal('0.4.6', (0, 4, 6))

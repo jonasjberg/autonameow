@@ -170,3 +170,16 @@ Bind shared utilities to shorthands;
 
 
 __TODO: INCOMPLETE!__
+
+
+Test Code
+---------
+
+### Assertions
+Calls to assertions with unordered parameters should pass the argument with the
+__expected value first__.
+
+Example:
+```python
+assertEqual(expect, actual)
+```
