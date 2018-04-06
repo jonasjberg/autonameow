@@ -170,6 +170,9 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
        Expect=['Gao Y.', 'Klawonn F.', 'Li B.', 'Li Y.',
                'Tallon-Ballesteros A.J.', 'Yang M.', 'Yin H.', 'Zhang D.']),
 
+    TD(Given=['Benjamin Bearkins', 'Jacob Rock Hammer', 'Jam M. Raid'],
+       Expect=['Bearkins B.', 'Hammer J.R.', 'Raid J.M.']),
+
     # Failed special cases
     TD(Given=['Regina O. Obe', 'Leo S. Hsu'],
        Expect=['Hsu L.S.', 'Obe R.O.']),
@@ -468,6 +471,9 @@ class TestSplitMultipleNames(TestCase):
     def test_does_not_split_single_name_comma_between_surname_lastname(self):
         self._assert_unchanged(['edited by Ludlow, David'])
 
+    def test_does_not_split_any_in_list_of_three_valid_names(self):
+        self._assert_unchanged(['Benjamin Bearkins', 'Jacob Rock Hammer', 'Jam M. Raid'])
+
     def test_splits_two_names_where_one_contains_an_initial(self):
         self._assert_that_it_returns(
             expected=[
@@ -566,6 +572,10 @@ class TestFilterMultipleNames(TestCase):
         self._assert_filter_returns(
             expected=['Friedrich Nietzsche', 'Gibson Sjöberg'],
             given=['Friedrich Nietzsche', 'Gibson Sjöberg']
+        )
+        self._assert_filter_returns(
+            expected=['Benjamin Bearkins', 'Jacob Rock Hammer', 'Jam M. Raid'],
+            given=['Benjamin Bearkins', 'Jacob Rock Hammer', 'Jam M. Raid']
         )
 
     def test_removes_names_consisting_of_a_single_letter(self):
