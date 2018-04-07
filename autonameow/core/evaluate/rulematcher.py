@@ -103,8 +103,6 @@ class RuleMatcher(object):
         prioritized_rules = prioritize_rules(scored_rules)
 
         discarded_rules = [r for r in all_rules if r not in remaining_rules]
-        self._log_results(prioritized_rules, scored_rules, discarded_rules)
-
         if self._list_rulematch:
             self._display_details(prioritized_rules, scored_rules, discarded_rules)
         else:

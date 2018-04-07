@@ -434,7 +434,8 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
 
 def extract_ebook_isbns_from_text(text):
-    regex_e_isbn = RegexCache(r'^e-ISBN.*', flags=re.MULTILINE)
+    regex_e_isbn = RegexCache(r'(^e-ISBN.*|^ISBN.*electronic.*)',
+                              flags=re.MULTILINE)
     match = regex_e_isbn.search(text)
     if match:
         return extract_isbns_from_text(match.group(0))

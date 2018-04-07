@@ -651,8 +651,13 @@ class TestISBNMetadataEquality(TestCase):
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestExtractEbookISBNsInText(TestCase):
-    def test_finds_expected(self):
-        text = '''Computational Intelligence
+    def _assert_returns(self, expected, given):
+        actual = extract_ebook_isbns_from_text(given)
+        self.assertEqual(expected, actual)
+
+    def test_finds_expected_in_multiline_text_with_two_isbn_numbers(self):
+        self._assert_returns(['9783540762881'],
+                             given='''Computational Intelligence
 
 Leszek Rutkowski
 
@@ -677,9 +682,20 @@ Originally published in Polish
 METODY I TECHNIKI SZTUCZNEJ INTELIGENCJI
 by Leszek Rutkowski, 2005 by Polish Scientific Publishers PWN
 c by Wydawnictwo Naukowe PWN SA, Warszawa 2005
-'''
-        actual = extract_ebook_isbns_from_text(text)
-        self.assertIn('9783540762881', actual)
+''')
+
+    def test_finds_expected_with_parenthesis_electronic_suffix(self):
+        self._assert_returns(['9781484233184'],
+                             given='ISBN (electronic): 978-1-4842-3318-4')
+
+    def test_finds_expected_in_multiline_text_with_parenthesis_electronic_suffix(self):
+        self._assert_returns(['9781484233184'],
+                             given='''ISBN-13 (pbk): 978-1-4842-3317-7
+https://doi.org/10.1007/978-1-4842-3318-4
+
+ISBN-13 (electronic): 978-1-4842-3318-4
+
+''')
 
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
