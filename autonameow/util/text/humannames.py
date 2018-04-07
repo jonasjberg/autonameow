@@ -84,13 +84,29 @@ def strip_bad_author_substrings(string):
     return s
 
 
+def _handle_letter_case_of_names_with_van(string):
+    def __lower_first_upper_second(_match):
+        _lowered_first = _match.group(1).lower()
+        _lowered_second = _match.group(2).upper()
+        return _lowered_first + _lowered_second
+
+    subbed = re.sub(' Van ', ' van ', string)
+    subbed = re.sub('(Van)([\w])', __lower_first_upper_second, subbed)
+    return subbed
+
+
+def _handle_special_cases_of_name_letter_case(string):
+    # TODO: [incomplete] Will probably need to handle more special cases.
+    modified_string = _handle_letter_case_of_names_with_van(string)
+    return modified_string
+
+
 def normalize_letter_case(string):
     assert isinstance(string, str)
-    # TODO: [incomplete] Does not differentiate between words.
-    # TODO: [incomplete] Handle apostrophes and other non-alphabetic characters.
+
     title_case_string = string.title()
-    title_case_string = re.sub(r' Van ', ' van ', title_case_string)
-    return title_case_string
+    title_case_name = _handle_special_cases_of_name_letter_case(title_case_string)
+    return title_case_name
 
 
 def _parse_name(human_name):
@@ -355,4 +371,5 @@ def filter_multiple_names(list_of_names):
 def filter_name(human_name):
     name = remove_blacklisted_names(human_name)
     name = strip_bad_author_substrings(name)
+    name = normalize_letter_case(name)
     return name

@@ -363,9 +363,9 @@ class TestHumanNameParser(TestCase):
         self.name_parser = HumanNameParser()
 
     def test_parses_strings(self):
-        actual = self.name_parser('foo')
+        actual = self.name_parser('Foo')
         self.assertIsInstance(actual, dict)
-        self.assertEqual('foo', actual['original'])
+        self.assertEqual('Foo', actual['original'])
 
     def test_parses_name(self):
         actual = self.name_parser('Gibson Catson, Ph.D.')
@@ -389,22 +389,22 @@ class TestHumanNameParser(TestCase):
         self.assertEqual(expect, actual)
 
     def test_preprocess_pass_through_valid_input_as_is(self):
-        self._check_preprocess('foo', 'foo')
+        self._check_preprocess('Foo', 'Foo')
 
     def test_preprocess_strips_whitespace(self):
-        self._check_preprocess('foo ', 'foo')
-        self._check_preprocess(' foo', 'foo')
-        self._check_preprocess('\tfoo', 'foo')
-        self._check_preprocess(' \tfoo', 'foo')
-        self._check_preprocess('foo \t', 'foo')
+        self._check_preprocess('Foo ', 'Foo')
+        self._check_preprocess(' Foo', 'Foo')
+        self._check_preprocess('\tfoo', 'Foo')
+        self._check_preprocess(' \tfoo', 'Foo')
+        self._check_preprocess('Foo \t', 'Foo')
 
     def test_preprocess_strips_trailing_characters(self):
-        self._check_preprocess('foo,', 'foo')
-        self._check_preprocess('foo,,', 'foo')
+        self._check_preprocess('Foo,', 'Foo')
+        self._check_preprocess('Foo,,', 'Foo')
 
     def test_preprocess_strips_et_al(self):
-        self._check_preprocess('foo et al.', 'foo')
-        self._check_preprocess('foo, et al.', 'foo')
+        self._check_preprocess('Foo et al.', 'Foo')
+        self._check_preprocess('Foo, et al.', 'Foo')
 
     def test_parses_human_names(self):
         for given, expect in self.TESTDATA_FULLNAME_EXPECTED:
@@ -425,11 +425,11 @@ class TestHumanNameFormatter(TestCase):
 
     def test_call_raises_exception_gives_invalid_arguments(self):
         with self.assertRaises(AssertionError):
-            _ = self.name_formatter('foo')
+            _ = self.name_formatter('Foo')
 
     def test_format_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            _ = self.name_formatter.format('foo')
+            _ = self.name_formatter.format('Foo')
 
     def test_call_raises_exception_given_none(self):
         with self.assertRaises(AssertionError):
@@ -445,7 +445,7 @@ class TestLastNameInitialsFormatter(TestCase):
 
     def test_raises_exception_given_byte_strings(self):
         with self.assertRaises(AssertionError):
-            _ = format_name(b'foo', formatter=LastNameInitialsFormatter)
+            _ = format_name(b'Foo', formatter=LastNameInitialsFormatter)
 
     def test_returns_empty_string_for_none_or_empty_input(self):
         def _aE(test_input):
