@@ -57,6 +57,8 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'Advanced PDF Repair at http://www.datanumen.com/apdfr/',
     'http://cncmanual.com/',
     'http://freepdf-books.com',
+    'Toolkit http://www.activepdf.com',
+    'Toolkit http://www.activepdf.com(Infix)',
     'www.allitebooks.com',
     'www.it-ebooks.info',
     'www.itbookshub.com',
