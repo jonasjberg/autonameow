@@ -1239,9 +1239,6 @@ XMP:Creator:
     -   WeightedMapping:
             field: Publisher
             weight: 0.02
-    -   WeightedMapping:
-            field: Title
-            weight: 0.01
     multivalued: true
 
 XMP:CreatorFile-as:
@@ -1257,9 +1254,6 @@ XMP:CreatorFile-as:
     -   WeightedMapping:
             field: Publisher
             weight: 0.03
-    -   WeightedMapping:
-            field: Title
-            weight: 0.02
     multivalued: true
 
 XMP:CreatorTool:
@@ -1321,9 +1315,6 @@ XMP:EntryAuthorName:
     -   WeightedMapping:
             field: Publisher
             weight: 0.02
-    -   WeightedMapping:
-            field: Title
-            weight: 0.01
     multivalued: true
 
 XMP:EntryIssued:
