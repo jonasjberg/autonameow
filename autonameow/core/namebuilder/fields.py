@@ -34,6 +34,7 @@ log = logging.getLogger(__name__)
 
 
 # TODO: [TD0154] Add "incrementing counter" placeholder field
+# TODO: [TD0191] Add new 'subtitle' placeholder field.
 
 
 class NameTemplateField(object):

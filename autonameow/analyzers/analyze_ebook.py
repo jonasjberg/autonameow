@@ -257,6 +257,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                                'authors and publisher')
                 continue
 
+            # TODO: [TD0191] Detect and extract subtitles from titles.
             maybe_title = self._filter_title(metadata.title)
             self._add_intermediate_results('title', maybe_title)
 

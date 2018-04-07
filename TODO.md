@@ -276,6 +276,22 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0191]` __Detect and extract subtitles from titles__  
+    ISBN metadata currently often contains titles on the form
+    `X Essentials - [Programming the X Framework]` and
+    `X Essentials - Programming the X Framework`.
+
+    This should be detected and split up into two parts, so that the `title`
+    field becomes `X Essentials` and a new `subtitle` field would get
+    `Programming the X Framework`.
+
+    This would include adding a new `subtitle` name template placeholder as
+    well as other representations like a "generic" field, etc.
+
+    If the concept of metadata "records" is to be used, this step of detecting
+    fields within fields should probably be done before storing results in the
+    repository somewhere when individual provider data are "wrapped"? *(?)*
+
 * `[TD0186]` Re-implement the `EpubMetadataExtractor`.
 
 * `[TD0184]` Clean up translation of `metainfo` to "internal format".
