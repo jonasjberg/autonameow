@@ -145,6 +145,9 @@ class TemplateFieldDataResolver(object):
                     _candidate_probability = mapping.weight
                     break
 
+            if not field.type_compatible(candidate.coercer):
+                continue
+
             _formatted_value = field.format(candidate)
             assert _formatted_value is not None
 
