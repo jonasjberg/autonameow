@@ -31,6 +31,7 @@ except ImportError:
 from analyzers import BaseAnalyzer
 from core import persistence
 from core.model.normalize import (
+    cleanup_full_title,
     normalize_full_human_name,
     normalize_full_title
 )
@@ -258,7 +259,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                 continue
 
             # TODO: [TD0191] Detect and extract subtitles from titles.
-            maybe_title = self._filter_title(metadata.title)
+            maybe_title = cleanup_full_title(metadata.title)
             self._add_intermediate_results('title', maybe_title)
 
             maybe_authors = metadata.authors
@@ -393,20 +394,6 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                 return None
 
             # TODO: Cleanup and filter publisher(s)
-            return string_
-
-    def _filter_title(self, raw_string):
-        # TODO: [TD0034] Filter out known bad data.
-        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-        try:
-            string_ = coercers.AW_STRING(raw_string)
-        except coercers.AWTypeError:
-            return None
-        else:
-            if not string_.strip():
-                return None
-
-            # TODO: Cleanup and filter title.
             return string_
 
     def _filter_edition(self, raw_string):
