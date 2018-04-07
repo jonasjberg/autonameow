@@ -42,6 +42,7 @@ def select_field(fileobject, templatefield, candidates):
     view.msg('Candidates for unresolved field: {!s}'.format(
         templatefield.as_placeholder()))
 
+    # TODO: [TD0171][cleanup][hack] Do NOT prioritize candidates here!
     try:
         prioritized_candidates = sorted(candidates,
                                         key=lambda x: (x.probability, x.value),

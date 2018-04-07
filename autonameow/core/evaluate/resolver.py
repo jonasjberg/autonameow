@@ -57,13 +57,12 @@ class FieldDataCandidate(object):
     """
     Simple "struct"-like container used by 'lookup_candidates()'.
     """
-    def __init__(self, string_value, source, probability, meowuri, coercer,
+    def __init__(self, string_value, source, probability, meowuri,
                  generic_field):
         self.value = string_value
         self.source = source
         self.probability = probability
         self.meowuri = meowuri
-        self.coercer = coercer
         self.generic_field = generic_field
 
     def __repr__(self):
@@ -130,7 +129,7 @@ class TemplateFieldDataResolver(object):
         candidates = repository.SessionRepository.query_mapped(self.fileobject, field)
         log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field))
 
-        out = list()
+        field_data_candidate_list = list()
         for uri, candidate in candidates:
             sanity.check_isinstance_meowuri(uri)
             sanity.check_isinstance(candidate, DataBundle)
@@ -146,20 +145,8 @@ class TemplateFieldDataResolver(object):
                     _candidate_probability = mapping.weight
                     break
 
-            _candidate_coercer = candidate.coercer
-            _candidate_value = candidate.value
-            _formatted_value = ''
-            if _candidate_value and _candidate_coercer:
-                try:
-                    _formatted_value = _candidate_coercer.format(_candidate_value)
-                except coercers.AWTypeError as e:
-                    # TODO: FIX THIS! Should use "list of string"-coercer for authors and other "multi-valued" template fields.
-                    log.critical(
-                        'Error while formatting (coercing) candidate value in '
-                        '"TemplateFieldDataResolver.lookup_candidates()"'
-                    )
-                    log.critical(str(e))
-                    continue
+            _formatted_value = field.format(candidate)
+            assert _formatted_value is not None
 
             _candidate_source = candidate.source
             if not _candidate_source:
@@ -172,17 +159,16 @@ class TemplateFieldDataResolver(object):
             if uri.is_generic:
                 log.error('Added generic candidate MeowURI {!s}'.format(uri))
 
-            out.append(
-                FieldDataCandidate(string_value=_formatted_value,
-                                   source=_candidate_source,
-                                   probability=str(_candidate_probability),
-                                   meowuri=uri,
-                                   coercer=_candidate_coercer,
-                                   generic_field=_candidate_generic_field)
-            )
+            field_data_candidate_list.append(FieldDataCandidate(
+                string_value=_formatted_value,
+                source=_candidate_source,
+                probability=str(_candidate_probability),
+                meowuri=uri,
+                generic_field=_candidate_generic_field
+            ))
 
         # TODO: [TD0104] Merge candidates and re-normalize probabilities.
-        return out
+        return field_data_candidate_list
 
     def _has_data_for_placeholder_fields(self):
         log.debug('Checking gathered data for fields..')

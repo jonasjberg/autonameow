@@ -157,7 +157,6 @@ class TestFieldDataCandidate(TestCase):
             source='klass',
             probability=0.01,
             meowuri='meowuri',
-            coercer='coercer',
             generic_field='generic_field_klass'
         )
         actual = repr(fdc)
