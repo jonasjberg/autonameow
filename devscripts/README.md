@@ -47,6 +47,9 @@ Perform static analysis on all Python scripts using `pylint`.
 ### `list-imported-modules.sh`
 List modules imported by the specified Python program.
 
+### `run_command_on_git_revs.sh`
+Execute arbitrary shell commands over a range of git revisions.
+
 ### `todo_grep.sh`
 Simple `grep` wrapper for searching the sources for TODOs.
 
