@@ -201,7 +201,33 @@ def regex_search_str(text):
     return results
 
 
-def _parse_datetime_from_start_to_char_n_patterns(text, match_patterns):
+def _parse_datetime_and_check_if_probable(string, date_format):
+    """
+    Try to parse string into a datetime object with a specific format.
+
+    Args:
+        string (str): Unicode string to parse.
+        date_format (str): Unicode 'datetime' format string.
+
+    Returns:
+        An instance of 'datetime' if the string is parsed and deemed
+        "probable", otherwise None.
+    """
+    assert isinstance(string, str)
+    assert isinstance(date_format, str)
+
+    try:
+        dt = datetime.strptime(string, date_format)
+    except (TypeError, ValueError):
+        pass
+    else:
+        if date_is_probable(dt):
+            return dt
+
+    return None
+
+
+def _parse_datetime_from_start_to_char_n_patterns(string, match_patterns):
     """
     Try to parse string into a datetime object using multiple patterns.
 
@@ -209,31 +235,28 @@ def _parse_datetime_from_start_to_char_n_patterns(text, match_patterns):
     include when parsing that format, from the first character to N.
 
     Args:
-        text: String to parse. Should be single line of text.
-        match_patterns: List of tuples containing a date format and number of
-                        characters in the text string to include, from 0 to N.
-
+        string (str): Unicode string to parse.
+        match_patterns: List of tuples containing a date format string and
+                        number of characters in the string to include,
+                        from 0 to N.
     Returns:
         The first successful datetime-conversion that is also "probable".
     """
-    if not text or text.strip() is None:
+    if not string or string.strip() is None:
         return None
 
     for date_format, num_chars in match_patterns:
-        try:
-            dt = datetime.strptime(text[:num_chars], date_format)
-        except (TypeError, ValueError):
-            pass
-        else:
-            if date_is_probable(dt):
-                return dt
+        partial_string = string[:num_chars]
+        dt = _parse_datetime_and_check_if_probable(partial_string, date_format)
+        if dt:
+            return dt
 
     return None
 
 
-def match_special_case(text):
+def match_special_case(string):
     """
-    Matches variations of ISO-like (YYYY-mm-dd HH:MM:SS) date/time strings.
+    Matches variations of ISO-like (YYYY-mm-dd HH:MM:SS) date/time in strings.
 
     NOTE(jonas): These are patterns I have personally used over the years
                  that I know are highly likely to be correct if in a filename.
@@ -241,25 +264,37 @@ def match_special_case(text):
                  or possibly "learned" patterns ..
 
     Args:
-        text: Text line to extract datetime object from as a Unicode text.
+        string: Unicode string to attempt to extract a datetime object from.
 
-    Returns: A date and time as an instance of 'datetime' or None.
+    Returns: A "probable" time/date as an instance of 'datetime' or None.
     """
-    if not text:
+    if not string:
         return None
 
-    subbed_text = re.sub(r'[-_T]', '-', text)
+    assert isinstance(string, str)
+    modified_string = re.sub(r'[-_T]', '-', string).strip()
+
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     # TODO: [TD0043] Allow specifying custom matching patterns in the config.
-    MATCH_PATTERNS = [('%Y-%m-%d-%H-%M-%S', 19),
-                      ('%Y-%m-%d-%H%M%S', 17),
-                      ('%Y%m%d-%H%M%S', 15)]
-    return _parse_datetime_from_start_to_char_n_patterns(subbed_text, MATCH_PATTERNS)
+    # MATCH_PATTERNS = [('%Y-%m-%d-%H-%M-%S', 19),
+    #                   ('%Y-%m-%d-%H%M%S', 17),
+    #                   ('%Y%m%d-%H%M%S', 15)]
+    DATETIME_FORMAT_FOR_N_CHARS = {
+        19: '%Y-%m-%d-%H-%M-%S',
+        17: '%Y-%m-%d-%H%M%S',
+        15: '%Y%m%d-%H%M%S'
+    }
+    modified_string_len = len(modified_string)
+    pattern = DATETIME_FORMAT_FOR_N_CHARS.get(modified_string_len)
+    if not pattern:
+        return None
+
+    return _parse_datetime_and_check_if_probable(modified_string, pattern)
 
 
-def match_special_case_no_date(text):
+def match_special_case_no_date(string):
     """
-    Matches strings with a ISO-like date on the form YYYY-mm-dd.
+    Matches variations of ISO-like (YYYY-mm-dd) dates in strings.
 
     NOTE(jonas): These are patterns I have personally used over the years
                  that I know are highly likely to be correct if in a filename.
@@ -267,15 +302,28 @@ def match_special_case_no_date(text):
                  or possibly "learned" patterns ..
 
     Args:
-        text: Text to extract datetime object from as a Unicode string.
+        string: Unicode string to attempt to extract a datetime object from.
 
-    Returns: A date as an instance of 'datetime' or None.
+    Returns: A "probable" date as an instance of 'datetime' or None.
     """
+    if not string:
+        return None
+
+    assert isinstance(string, str)
+    modified_string = re.sub(r'[^\d]+', '', string).strip()
+
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     # TODO: [TD0043] Allow the user to tweak hardcoded settings.
-    MATCH_PATTERNS = [('%Y-%m-%d', 10),
-                      ('%Y%m%d', 8)]
-    return _parse_datetime_from_start_to_char_n_patterns(text, MATCH_PATTERNS)
+    DATETIME_FORMAT_FOR_N_CHARS = {
+        10: '%Y-%m-%d',
+        8: '%Y%m%d'
+    }
+    modified_string_len = len(modified_string)
+    pattern = DATETIME_FORMAT_FOR_N_CHARS.get(modified_string_len)
+    if not pattern:
+        return None
+
+    return _parse_datetime_and_check_if_probable(modified_string, pattern)
 
 
 def match_android_messenger_filename(text):
