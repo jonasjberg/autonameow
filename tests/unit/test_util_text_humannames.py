@@ -32,6 +32,7 @@ from util.text.humannames import (
     HumanNameFormatter,
     HumanNameParser,
     LastNameInitialsFormatter,
+    normalize_letter_case,
     split_multiple_names,
     strip_repeating_periods,
     strip_author_et_al,
@@ -238,6 +239,52 @@ class TestStripRepeatingPeriods(TestCase):
                              'Gibson C. Sjöberg...')
         self._assert_returns('Gibson C. Sjöberg',
                              'Gibson C. Sjöberg.....')
+
+
+class TestNormalizeLetterCase(TestCase):
+    def _assert_returns(self, expected, given):
+        actual = normalize_letter_case(given)
+        self.assertEqual(expected, actual)
+
+    def test_returns_name_with_proper_letter_case_as_is(self):
+        for given_and_expected in [
+            'Gibson Sjöberg',
+            'Gibson C. Sjöberg'
+        ]:
+            with self.subTest(given_and_expected=given_and_expected):
+                self._assert_returns(given_and_expected, given_and_expected)
+
+    def test_returns_testdata_list_of_names_lastname_initials_as_is(self):
+        for list_of_names, _ in TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS:
+            for name in list_of_names:
+                with self.subTest(given_and_expected=name):
+                    self._assert_returns(name, name)
+
+    def test_normalizes_names_with_all_lower_case_letters(self):
+        for testdata in [
+            TD(given='gibson sjöberg', expect='Gibson Sjöberg'),
+            TD(given='gibson c. sjöberg', expect='Gibson C. Sjöberg'),
+            TD(given='gibson van cat', expect='Gibson van Cat'),
+        ]:
+            with self.subTest():
+                self._assert_returns(testdata.expect, testdata.given)
+
+    def test_normalizes_names_with_all_upper_case_letters(self):
+        self._assert_returns('Gibson Sjöberg', 'GIBSON SJÖBERG')
+
+    def test_normalizes_names_with_all_upper_case_first_name(self):
+        self._assert_returns('Gibson Sjöberg', 'GIBSON Sjöberg')
+
+    def test_normalizes_names_with_all_upper_case_last_name(self):
+        self._assert_returns('Gibson Sjöberg', 'Gibson SJÖBERG')
+
+    def test_normalizes_names_with_mixed_case_first_name(self):
+        for given in ['GiBsOn Sjöberg', 'gIbSoN Sjöberg']:
+            self._assert_returns('Gibson Sjöberg', given)
+
+    def test_normalizes_names_with_mixed_case_last_name(self):
+        for given in ['Gibson SjÖbErG', 'Gibson sJöBeRg']:
+            self._assert_returns('Gibson Sjöberg', given)
 
 
 class TestNameParser(TestCase):

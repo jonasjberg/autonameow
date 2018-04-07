@@ -84,6 +84,15 @@ def strip_bad_author_substrings(string):
     return s
 
 
+def normalize_letter_case(string):
+    assert isinstance(string, str)
+    # TODO: [incomplete] Does not differentiate between words.
+    # TODO: [incomplete] Handle apostrophes and other non-alphabetic characters.
+    title_case_string = string.title()
+    title_case_string = re.sub(r' Van ', ' van ', title_case_string)
+    return title_case_string
+
+
 def _parse_name(human_name):
     """
     Thin wrapper around 'nameparser'.
