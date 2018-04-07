@@ -59,6 +59,7 @@ BLACKLISTED_TEXTLINES = frozenset([
 
 
 title_filter = RegexLineFilter([
+    r'^\w$',
     r'^[\.=-]+$',
     r'.*cncmanual\.com.*',
     r'matter material after the index\.? Please use the Bookmarks',
@@ -84,7 +85,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             'coercer': 'aw_string',
             'mapped_fields': [
                 # TODO: [TD0166] Set weights dynamically
-                {'WeightedMapping': {'field': 'Title', 'weight': '1'}},
+                {'WeightedMapping': {'field': 'Title', 'weight': '0.1'}},
             ],
             'generic_field': 'title'
         },
@@ -135,7 +136,6 @@ class DocumentAnalyzer(BaseAnalyzer):
         if text_titles:
             # TODO: Pass multiple possible titles with probabilities.
             #       (title is not "multivalued")
-            self.log.debug('TEXTTITLES: ' + str(text_titles))
             maybe_text_title = text_titles[0]
             clean_title = cleanup_full_title(maybe_text_title)
             if clean_title:
