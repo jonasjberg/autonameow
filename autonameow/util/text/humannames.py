@@ -340,7 +340,7 @@ def split_multiple_names(list_of_names):
     # Local import to avoid circular imports within the 'util' module.
     from util import flatten_sequence_type
 
-    RE_NAME_SEPARATORS = r',| ?\band| ?\+'
+    RE_NAME_SEPARATORS = r',| ?\band| ?\+| ?& ?'
 
     result = list()
     flat_list_of_names = flatten_sequence_type(list_of_names)

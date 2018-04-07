@@ -604,6 +604,18 @@ class TestSplitMultipleNames(TestCase):
             ]
         )
 
+    def test_splits_two_names_separated_by_ampersand(self):
+        self._assert_that_it_returns(
+            expected=[
+                "Larry O'Brien", 'Bruce Eckel'
+            ],
+            given_any_of=[
+                ["Larry O'Brien & Bruce Eckel"],
+                ["Larry O'Brien &  Bruce Eckel"],
+                ["Larry O'Brien  &  Bruce Eckel"]
+            ]
+        )
+
 
 class TestFilterMultipleNames(TestCase):
     def _assert_filter_output_contains(self, expected, given):
