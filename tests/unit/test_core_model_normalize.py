@@ -21,19 +21,20 @@
 
 from unittest import TestCase
 
-from core.model.normalize import normalize_full_title
+from core.model.normalize import (
+    cleanup_full_title,
+    normalize_full_title
+)
 
 
 class TestNormalizeFullTitle(TestCase):
     def test_none(self):
         actual = normalize_full_title(None)
-        expect = ''
-        self.assertEqual(actual, expect)
+        self.assertEqual('', actual)
 
     def test_returns_trivial_input_as_is(self):
         actual = normalize_full_title('foo')
-        expect = 'foo'
-        self.assertEqual(actual, expect)
+        self.assertEqual('foo', actual)
 
     def test_removes_noisy_characters(self):
         TESTDATA_GIVEN_EXPECT = [
@@ -45,7 +46,7 @@ class TestNormalizeFullTitle(TestCase):
         ]
         for given, expect in TESTDATA_GIVEN_EXPECT:
             actual = normalize_full_title(given)
-            self.assertEqual(actual, expect)
+            self.assertEqual(expect, actual)
 
     def test_replaces_certain_characters(self):
         TESTDATA_GIVEN_EXPECT = [
@@ -53,7 +54,7 @@ class TestNormalizeFullTitle(TestCase):
         ]
         for given, expect in TESTDATA_GIVEN_EXPECT:
             actual = normalize_full_title(given)
-            self.assertEqual(actual, expect)
+            self.assertEqual(expect, actual)
 
     def test_returns_expected_string(self):
         TESTDATA_GIVEN_EXPECT = [
@@ -66,6 +67,38 @@ class TestNormalizeFullTitle(TestCase):
         ]
         for given, expect in TESTDATA_GIVEN_EXPECT:
             actual = normalize_full_title(given)
-            self.assertEqual(actual, expect)
+            self.assertEqual(expect, actual)
 
 
+class TestCleanupFullTitle(TestCase):
+    def _assert_cleaned_up_title_is(self, expected, given):
+        actual = cleanup_full_title(given)
+        self.assertEqual(expected, actual)
+
+    def test_returns_empty_string_given_none(self):
+        self._assert_cleaned_up_title_is('', None)
+
+    def test_returns_trivial_input_as_is(self):
+        self._assert_cleaned_up_title_is('foo', 'foo')
+
+    def test_replaces_certain_characters(self):
+        TESTDATA_GIVEN_EXPECT = [
+            ('foo & bar', 'foo and bar'),
+        ]
+        for given, expect in TESTDATA_GIVEN_EXPECT:
+            self._assert_cleaned_up_title_is(expect, given)
+
+    def test_returns_expected_string(self):
+        TESTDATA_GIVEN_EXPECT = [
+            ('foo:', 'foo:'),
+            ('foo: ', 'foo:'),
+            ('^~ foo', '^~ foo'),
+            ('  fo%"o ', 'fo%"o'),
+            ('  fo%"o 123 ', 'fo%"o 123'),
+            ('  foo:  bar ', 'foo: bar'),
+        ]
+        for given, expect in TESTDATA_GIVEN_EXPECT:
+            self._assert_cleaned_up_title_is(expect, given)
+
+    def test_replaces_non_breaking_spaces(self):
+        self._assert_cleaned_up_title_is('foo', '\xa0foo')

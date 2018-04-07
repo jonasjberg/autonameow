@@ -42,12 +42,13 @@ def _normalize_whitespace(string):
 
 def normalize_full_title(string):
     clean_title = cleanup_full_title(string)
-    return clean_title.lower()
+    normalized_title = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', clean_title)
+    return normalized_title.lower().strip()
 
 
 def normalize_full_human_name(string):
-    clean_name = cleanup_full_human_name(string)
-    return clean_name.lower()
+    normalized_name = cleanup_full_human_name(string)
+    return normalized_name.lower()
 
 
 def cleanup_full_title(string):
@@ -63,7 +64,6 @@ def cleanup_full_title(string):
     for pattern, replacement in TITLE_REPLACEMENTS.items():
         title = title.replace(pattern, replacement)
 
-    title = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', title)
     title = title.strip()
     return title
 
