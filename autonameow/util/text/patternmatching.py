@@ -139,6 +139,7 @@ def find_and_extract_edition(string):
     Raises:
         AssertionError: Given text is not an instance of 'str'.
     """
+    # TODO: [TD0192] Detect and extract editions from titles
     if not string:
         return None, string
 

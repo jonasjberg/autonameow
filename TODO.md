@@ -276,6 +276,21 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0192]` __Detect and extract editions from titles__  
+    This is already done in the `EbookAnalyzer` using functions in
+    `patternmatching.py` but this needs to be extracted into a separate system.
+
+    The resulting data might also include a confidence level; given a title
+    like `Head First autonameow`, the substring `First` might be assumed to be
+    an edition but it might also just be part of the title. So the resulting
+    data returned by the system could assign a low confidence level to the
+    transformation;
+
+    ```python
+    >>> yet_unimplemented_system('Head First autonameow')
+    {'edition': 1, 'confidence': 0.1, 'title': 'Head autonameow'}
+    ```
+
 * `[TD0191]` __Detect and extract subtitles from titles__  
     ISBN metadata currently often contains titles on the form
     `X Essentials - [Programming the X Framework]` and

@@ -290,6 +290,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                 self.log.debug('Reference metadata title "generic.metadata.title" unavailable. Unable to find most probable ISBN metadata..')
                 return None
 
+        # TODO: [TD0192] Detect and extract editions from titles
         _, ref_title = find_and_extract_edition(response)
         reference_title = normalize_full_title(ref_title)
         self.log.debug('Using reference metadata title "{!s}"'.format(reference_title))
@@ -625,6 +626,7 @@ class ISBNMetadata(object):
     @title.setter
     def title(self, value):
         if value and isinstance(value, str):
+            # TODO: [TD0192] Detect and extract editions from titles
             edition, modified_value = find_and_extract_edition(value)
             if edition:
                 self.edition = edition

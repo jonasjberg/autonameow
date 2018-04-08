@@ -177,6 +177,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not self._basename_prefix:
             return None
 
+        # TODO: [TD0192] Detect and extract editions from titles
         number, _ = find_and_extract_edition(self._basename_prefix)
         return number
 
