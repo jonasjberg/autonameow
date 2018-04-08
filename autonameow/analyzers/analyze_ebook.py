@@ -329,7 +329,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             # Use bigger chunks for epub text in order to catch ISBNs.
             CHUNK_PERCENTAGE = 0.05
         else:
-            CHUNK_PERCENTAGE = 0.01
+            CHUNK_PERCENTAGE = 0.05
 
         text_chunks = TextChunker(self.text, CHUNK_PERCENTAGE)
         leading_text = text_chunks.leading
