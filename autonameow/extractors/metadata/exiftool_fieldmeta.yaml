@@ -300,7 +300,7 @@ FlashPix:CompObjUserType:
     multivalued: false
 
 FlashPix:CompObjUserTypeLen:
-    coercer: aw_int
+    coercer: aw_integer
     multivalued: false
 
 FlashPix:ContentTypeId:
