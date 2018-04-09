@@ -521,6 +521,7 @@ class ISBNMetadata(object):
         fixed_author_list = split_multiple_names(stripped_author_list)
         filtered_author_list = filter_multiple_names(fixed_author_list)
 
+        self._log_attribute_setter('author', filtered_author_list, values)
         self._authors = filtered_author_list
         self._normalized_authors = [
             normalize_full_human_name(a) for a in filtered_author_list if a
@@ -636,6 +637,8 @@ class ISBNMetadata(object):
                 self._title = value
                 self._normalized_title = normalize_full_title(value)
 
+            self._log_attribute_setter('title', self._title, value)
+
     @property
     def normalized_title(self):
         return self._normalized_title or ''
@@ -734,6 +737,12 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
                 if _sim_title > 0.9:
                     return True
         return False
+
+    def _log_attribute_setter(self, attribute, raw_value, value):
+        log.debug(
+            '{} attribute {} set (value :: raw) {!s} :: {!s}'.format(
+                self.__class__.__name__, attribute, value, raw_value)
+        )
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
