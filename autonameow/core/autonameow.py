@@ -310,6 +310,10 @@ class Autonameow(object):
                     self.exit_code = C.EXIT_WARNING
                     continue
 
+            # TODO: [TD0153] Detect and clean up incrementally numbered files.
+            # TODO: [TD0154] Add "incrementing counter" template placeholder.
+            # TODO: Check destination path exists at a somewhat high level in
+            #       order to trigger routines to handle [TD0153] and [TD0154].
             if new_name:
                 postprocessed_new_name = self._do_post_processing(new_name)
                 self.renamer.add_pending(
