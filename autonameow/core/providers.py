@@ -64,9 +64,11 @@ class ProviderMixin(object):
 
         sanity.check_internal_string(coercer_string)
         coercer = get_coercer_for_metainfo_string(coercer_string)
-        assert isinstance(coercer, (coercers.BaseCoercer, coercers.MultipleTypes)), (
-            'Expected coercer class. Got {!s} "{!s}"'.format(type(coercer), coercer)
-        )
+        if not isinstance(coercer, (coercers.BaseCoercer, coercers.MultipleTypes)):
+            msg = 'Expected coercer class. Got {} "{!s}" from coercer_string {!s} "{!s}"'.format(
+                type(coercer), coercer, type(coercer_string), coercer_string
+            )
+            raise AssertionError(msg)
 
         if 'multivalued' not in field_metainfo:
             # Abort instead of using a default value. Many systems rely on this
