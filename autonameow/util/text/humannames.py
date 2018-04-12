@@ -30,6 +30,7 @@ BLACKLISTED_HUMAN_NAMES = frozenset([
     'author',
     'dvd presenter',
     'editor',
+    'foreword',
     'inc',
     'presenter',
     'reviewer',
@@ -56,6 +57,13 @@ def strip_edited_by(string):
     return subbed_string.strip()
 
 
+def strip_foreword_by(string):
+    RE_FOREWORD_BY = r'foreword( by)?:?'
+    regex = RegexCache(RE_FOREWORD_BY, flags=re.IGNORECASE)
+    subbed_string = regex.sub('', string)
+    return subbed_string.strip()
+
+
 def strip_author_prefix(string):
     RE_AUTHOR_PREFIX = r'author:? '
     regex = RegexCache(RE_AUTHOR_PREFIX, flags=re.IGNORECASE)
@@ -75,6 +83,7 @@ def strip_bad_author_substrings(string):
     s = string
     s = strip_repeating_periods(s)
     s = strip_edited_by(s)
+    s = strip_foreword_by(s)
     s = strip_author_prefix(s)
     s = strip_author_et_al(s)
 

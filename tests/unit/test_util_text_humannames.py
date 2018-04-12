@@ -36,7 +36,8 @@ from util.text.humannames import (
     split_multiple_names,
     strip_repeating_periods,
     strip_author_et_al,
-    strip_edited_by
+    strip_edited_by,
+    strip_foreword_by
 )
 from thirdparty import nameparser as _nameparser
 
@@ -219,6 +220,19 @@ class TestStripEditedBy(TestCase):
         _t('Ed. by Gibson Catberg')
         _t('edited by Gibson Catberg')
         _t('Edited by Gibson Catberg')
+
+
+class TestStripForewordBy(TestCase):
+    def test_strips_foreword_by_variations(self):
+        def _t(test_input):
+            actual = strip_foreword_by(test_input)
+            expect = 'Gibson Catberg'
+            self.assertEqual(expect, actual)
+
+        _t('Foreword by: Gibson Catberg')
+        _t('foreword by: Gibson Catberg')
+        _t('Foreword: Gibson Catberg')
+        _t('foreword: Gibson Catberg')
 
 
 class TestStripRepeatingPeriods(TestCase):
@@ -710,11 +724,15 @@ class TestFilterName(TestCase):
         actual = filter_name(given)
         self.assertEqual('', actual)
 
-    def test_removes_edited_by_from_start_of_name(self):
+    def test_removes_variations_of_edited_by_from_start_of_name(self):
         self._assert_filter_returns('Gibson Sjöberg', given='edited by Gibson Sjöberg')
         self._assert_filter_returns('Gibson Sjöberg', given='Edited by Gibson Sjöberg')
         self._assert_filter_returns('Gibson Sjöberg', given='ed. by Gibson Sjöberg')
         self._assert_filter_returns('Gibson Sjöberg', given='Ed. by Gibson Sjöberg')
+
+    def test_removes_variations_of_foreword_from_start_of_name(self):
+        self._assert_filter_returns('Rick F. Haribay', given='Foreword By Rick F. Haribay')
+        self._assert_filter_returns('Rick F. Haribay', given='Foreword: Rick F. Haribay')
 
     def test_returns_empty_string_given_name_editor(self):
         self._assert_filter_does_not_pass('editor')
@@ -723,3 +741,7 @@ class TestFilterName(TestCase):
     def test_returns_empty_string_given_name_author(self):
         self._assert_filter_does_not_pass('author')
         self._assert_filter_does_not_pass('Author')
+
+    def test_returns_empty_string_given_name_foreword(self):
+        self._assert_filter_does_not_pass('foreword')
+        self._assert_filter_does_not_pass('Foreword')
