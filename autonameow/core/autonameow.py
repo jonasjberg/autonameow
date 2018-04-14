@@ -37,7 +37,7 @@ from core import (
     master_provider,
     repository,
 )
-from core.context import FilesContext
+from core.context import FileContext
 from core.namebuilder import FilenamePostprocessor
 from core.renamer import FileRenamer
 from util import encoding as enc
@@ -271,14 +271,6 @@ class Autonameow(object):
         """
         aggregate_repository_contents = []
 
-        context = FilesContext(
-            ui=self.ui,
-            autonameow_exit_code=self.exit_code,
-            options=self.opts,
-            active_config=self.config,
-            master_provider=master_provider
-        )
-
         should_list_all = self.opts.get('list_all')
 
         for file_path in file_paths:
@@ -301,8 +293,16 @@ class Autonameow(object):
             if self.opts.get('mode_postprocess_only'):
                 new_name = str(current_file)
             else:
+                context = FileContext(
+                    fileobject=current_file,
+                    ui=self.ui,
+                    autonameow_exit_code=self.exit_code,
+                    options=self.opts,
+                    active_config=self.config,
+                    master_provider=master_provider
+                )
                 try:
-                    new_name = context.find_new_name(current_file)
+                    new_name = context.find_new_name()
                 except exceptions.AutonameowException as e:
                     log.critical(
                         '{!s} --- SKIPPING: "{!s}"'.format(e, str_file_path)
