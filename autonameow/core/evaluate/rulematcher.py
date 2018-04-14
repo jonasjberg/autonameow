@@ -28,7 +28,7 @@ from util import sanity
 log = logging.getLogger(__name__)
 
 
-MatchResult = namedtuple('MatchResult', 'rule score weight')
+MatchedRule = namedtuple('MatchedRule', 'rule score weight')
 
 
 class RuleMatcher(object):
@@ -59,9 +59,9 @@ class RuleMatcher(object):
             return response.value
         return None
 
-    def get_match_results(self):
+    def get_matched_rules(self):
         if not self._rules:
-            log.debug('No rules available for matching!')
+            log.info('No rules available for matching!')
             return []
 
         all_rules = list(self._rules)
@@ -108,9 +108,8 @@ class RuleMatcher(object):
         else:
             self._log_results(prioritized_rules, scored_rules, discarded_rules)
 
-        # Return list of (RULE (Rule), SCORE (float), WEIGHT (float) tuples.
         return [
-            MatchResult(rule=rule,
+            MatchedRule(rule=rule,
                         score=scored_rules[rule]['score'],
                         weight=scored_rules[rule]['weight'])
             for rule in prioritized_rules

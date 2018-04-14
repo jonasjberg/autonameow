@@ -90,11 +90,12 @@ class FilesContext(object):
                 list_rulematch=self.opts.get('list_rulematch')
             )
             with logs.log_runtime(log, 'Rule-Matching'):
-                candidates = matcher.get_match_results()
+                # Returns a list of 'MatchedRule' named tuples.
+                matched_rules = matcher.get_matched_rules()
 
-            log.debug('Matcher returned {} candidate rules'.format(len(candidates)))
-            if candidates:
-                active_rule = self._try_get_rule(current_file, candidates)
+            log.debug('Matcher returned {} candidate rules'.format(len(matched_rules)))
+            if matched_rules:
+                active_rule = self._try_get_rule(current_file, matched_rules)
 
         if active_rule:
             log.info(
@@ -111,8 +112,8 @@ class FilesContext(object):
 
             # Have the user select a name template.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
-            # candidates = None
-            # choice = interactive.select_template(candidates)
+            # matched_rules = None
+            # choice = interactive.select_template(matched_rules)
             # if choice != interactive.Choice.ABORT:
             #     name_template = choice
             # if not name_template:
@@ -158,15 +159,15 @@ class FilesContext(object):
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
-            while not field_databundle_dict and candidates:
+            while not field_databundle_dict and matched_rules:
                 # Try real hard to figure it out (?)
                 log.debug('Start of try-hard rule matching loop ..')
-                if not candidates:
-                    log.debug('No candidates! Exiting try-hard matching loop')
+                if not matched_rules:
+                    log.debug('No matched_rules! Exiting try-hard matching loop')
                     break
 
-                log.debug('Remaining candidates: {}'.format(len(candidates)))
-                active_rule = self._try_get_rule(current_file, candidates)
+                log.debug('Remaining matched_rules: {}'.format(len(matched_rules)))
+                active_rule = self._try_get_rule(current_file, matched_rules)
                 if active_rule:
                     log.info(
                         'Using rule: "{!s}"'.format(active_rule.description)
@@ -203,15 +204,14 @@ class FilesContext(object):
         log.info('New name: "{}"'.format(enc.displayable_path(new_name)))
         return new_name
 
-    def _try_get_rule(self, current_file, candidates):
+    def _try_get_rule(self, current_file, _matched_rules):
         active_rule = None
 
         if self.opts.get('mode_interactive'):
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
             # Have the user select a rule from any candidate matches.
-            # candidates = matcher.candidates()
-            if candidates:
+            if _matched_rules:
                 log.warning('TODO: Implement interactive rule selection.')
                 # TODO: [TD0024][TD0025] Implement Interactive mode.
                 # choice = interactive.select_rule(candidates)
@@ -222,9 +222,9 @@ class FilesContext(object):
                           'choose from..')
 
         RULE_SCORE_CONFIRM_THRESHOLD = 0
-        if candidates and not active_rule:
+        if _matched_rules and not active_rule:
             # User rule selection did not happen or failed.
-            best_match = candidates.pop(0)
+            best_match = _matched_rules.pop(0)
             if best_match:
                 # Is the score of the best matched rule high enough?
                 rule = best_match.rule
