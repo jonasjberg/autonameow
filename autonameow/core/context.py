@@ -53,14 +53,6 @@ class FileContext(object):
         self.master_provider = master_provider
 
     def find_new_name(self):
-        def _log_unable_to_find_new_name():
-            log.warning(
-                'Unable to find new name for ”{!s}".'.format(self.fileobject)
-            )
-
-        def _log_fail(msg):
-            log.info('("{!s}") {!s}'.format(self.fileobject, msg))
-
         #  Things to find:
         #
         #    * NAME TEMPLATE
@@ -76,7 +68,7 @@ class FileContext(object):
         #
         #    * Matched Rule ---+--> Template
         #                      '--> Data Sources
-
+        #
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         # TODO: [hack][cleanup] This is such a mess ..
         data_sources = None
@@ -93,8 +85,8 @@ class FileContext(object):
 
         if not name_template:
             if self.opts.get('mode_batch'):
-                _log_fail('Name template unknown. Running in batch mode -- Aborting')
-                _log_unable_to_find_new_name()
+                self._log_fail('Name template unknown. Running in batch mode -- Aborting')
+                self._log_unable_to_find_new_name()
                 return None
 
             # Have the user select a name template.
@@ -102,8 +94,8 @@ class FileContext(object):
 
         if not name_template:
             # User name template selection did not happen or failed.
-            _log_fail('Name template unknown.')
-            _log_unable_to_find_new_name()
+            self._log_fail('Name template unknown')
+            self._log_unable_to_find_new_name()
             return None
 
         if not data_sources:
@@ -117,19 +109,19 @@ class FileContext(object):
                 pass
 
             if self.opts.get('mode_batch'):
-                _log_fail('Data sources unknown. Running in batch mode -- Aborting')
-                _log_unable_to_find_new_name()
+                self._log_fail('Data sources unknown. Running in batch mode -- Aborting')
+                self._log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
             # Have the user select data sources.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
 
-        field_databundle_dict = self._get_databundle_dict(name_template.placeholders, data_sources)
+        field_databundle_dict = self._get_resolved_databundle_dict(name_template.placeholders, data_sources)
         if not field_databundle_dict:
             if not self.opts.get('mode_automagic'):
-                _log_fail('Missing field data bundles. Not in automagic mode.')
-                _log_unable_to_find_new_name()
+                self._log_fail('Missing field data bundles. Not in automagic mode -- Aborting')
+                self._log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
@@ -148,11 +140,11 @@ class FileContext(object):
                     name_template = active_rule.name_template
 
                     # New resolver with state derived from currently active rule.
-                    field_databundle_dict = self._get_databundle_dict(name_template.placeholders, data_sources)
+                    field_databundle_dict = self._get_resolved_databundle_dict(name_template.placeholders, data_sources)
 
         if not field_databundle_dict:
-            _log_fail('Missing field data bundles.')
-            _log_unable_to_find_new_name()
+            self._log_fail('Missing data bundles for all fields')
+            self._log_unable_to_find_new_name()
             self.autonameow_exit_code = C.EXIT_WARNING
             return None
 
@@ -168,6 +160,14 @@ class FileContext(object):
 
         log.info('New name: "{}"'.format(enc.displayable_path(new_name)))
         return new_name
+
+    def _log_unable_to_find_new_name(self):
+        log.warning(
+            'Unable to find new name for ”{!s}".'.format(self.fileobject)
+        )
+
+    def _log_fail(self, msg):
+        log.info('("{!s}") {!s}'.format(self.fileobject, msg))
 
     def _get_matched_rules(self):
         matcher = RuleMatcher(
@@ -185,7 +185,7 @@ class FileContext(object):
 
     def _pop_from_matched_rules(self, _matched_rules):
         if not _matched_rules:
-            log.debug('No matched rules to choose an active rule from..')
+            log.debug('No matched rules from which to choose an active rule..')
             return None
 
         if self.opts.get('mode_interactive'):
@@ -215,7 +215,7 @@ class FileContext(object):
         log.debug('Negative response. Will not use rule "{!s}"'.format(candidate_rule))
         return None
 
-    def _get_databundle_dict(self, placeholders, data_sources):
+    def _get_resolved_databundle_dict(self, placeholders, data_sources):
         resolver = TemplateFieldDataResolver(
             fileobject=self.fileobject,
             name_template_fields=placeholders,
@@ -225,11 +225,6 @@ class FileContext(object):
 
         # TODO: Rework the rule matcher and this logic to try another candidate.
 
-        def _log_unable_to_find_new_name():
-            log.warning(
-                'Unable to find new name for ”{!s}".'.format(self.fileobject)
-            )
-
         def _log_current_file_warning(msg):
             log.info('("{!s}") {!s}'.format(self.fileobject, msg))
 
@@ -238,7 +233,7 @@ class FileContext(object):
                 _log_current_file_warning(
                     'Unable to resolve all name template fields. Running in batch mode -- Aborting'
                 )
-                _log_unable_to_find_new_name()
+                self._log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
@@ -251,7 +246,7 @@ class FileContext(object):
                 _log_current_file_warning(
                     'Unable to resolve all name template fields. Running in batch mode -- Aborting'
                 )
-                _log_unable_to_find_new_name()
+                self._log_unable_to_find_new_name()
                 return None
 
             # TODO: [TD0024][TD0025] Implement Interactive mode.
@@ -280,7 +275,7 @@ class FileContext(object):
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
             _log_current_file_warning('Resolver could not collect all field data')
-            _log_unable_to_find_new_name()
+            self._log_unable_to_find_new_name()
             self.autonameow_exit_code = C.EXIT_WARNING
             return None
 
