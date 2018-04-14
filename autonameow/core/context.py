@@ -78,19 +78,17 @@ class FilesContext(object):
 
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         # TODO: [hack][cleanup] This is such a mess ..
-        active_rule = None
         data_sources = None
         name_template = None
 
         matched_rules = self._get_matched_rules(current_file)
         log.debug('Matcher returned {} matched rules'.format(len(matched_rules)))
         if matched_rules:
-            active_rule = self._try_get_rule(current_file, matched_rules)
-
-        if active_rule:
-            log.info('Using rule: "{!s}"'.format(active_rule))
-            data_sources = active_rule.data_sources
-            name_template = active_rule.name_template
+            active_rule = self._pop_from_matched_rules(current_file, matched_rules)
+            if active_rule:
+                log.info('Using rule: "{!s}"'.format(active_rule))
+                data_sources = active_rule.data_sources
+                name_template = active_rule.name_template
 
         if not name_template:
             if self.opts.get('mode_batch'):
@@ -149,7 +147,7 @@ class FilesContext(object):
                     break
 
                 log.debug('Remaining matched_rules: {}'.format(len(matched_rules)))
-                active_rule = self._try_get_rule(current_file, matched_rules)
+                active_rule = self._pop_from_matched_rules(current_file, matched_rules)
                 if active_rule:
                     log.info('Using rule: "{!s}"'.format(active_rule))
                     data_sources = active_rule.data_sources
@@ -198,45 +196,37 @@ class FilesContext(object):
 
         return matched_rules
 
-    def _try_get_rule(self, current_file, _matched_rules):
-        active_rule = None
+    def _pop_from_matched_rules(self, current_file, _matched_rules):
+        if not _matched_rules:
+            log.debug('No matched rules to choose an active rule from..')
+            return None
 
         if self.opts.get('mode_interactive'):
-            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
-
             # Have the user select a rule from any candidate matches.
-            if _matched_rules:
-                log.warning('TODO: Implement interactive rule selection.')
-                # TODO: [TD0024][TD0025] Implement Interactive mode.
-            else:
-                log.debug('There are no rules available for the user to '
-                          'choose from..')
+            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
+            log.warning('TODO: Implement interactive rule selection.')
+            # TODO: [TD0024][TD0025] Implement Interactive mode.
 
-        RULE_SCORE_CONFIRM_THRESHOLD = 0
-        if _matched_rules and not active_rule:
-            # User rule selection did not happen or failed.
-            candidate_matched_rule = _matched_rules.pop(0)
-            if candidate_matched_rule:
-                candidate_rule = candidate_matched_rule.rule
-                candidate_score = candidate_matched_rule.score
+        # User rule selection did not happen or failed ..
+        candidate_matched_rule = _matched_rules.pop(0)
+        assert candidate_matched_rule
+        candidate_rule = candidate_matched_rule.rule
+        candidate_score = candidate_matched_rule.score
 
-                # Is the score of the best matched rule high enough?
-                if candidate_score > RULE_SCORE_CONFIRM_THRESHOLD:
-                    active_rule = candidate_rule
-                else:
-                    # Best matched rule might be a bad fit.
-                    log.debug('Score {} is below threshold {} for rule "{!s}"'.format(candidate_score, RULE_SCORE_CONFIRM_THRESHOLD, candidate_rule))
-                    log.debug('Need confirmation before using this rule..')
-                    ok_to_use_rule = self._confirm_apply_rule(current_file, candidate_rule)
-                    if ok_to_use_rule:
-                        log.debug('Positive response. Using rule "{!s}"'.format(candidate_rule))
-                        active_rule = candidate_rule
-                    else:
-                        log.debug('Negative response. Will not use rule "{!s}"'.format(candidate_rule))
-            else:
-                log.debug('Rule-matcher did not find a "best match" rule')
+        # Is the score of the best matched rule high enough?
+        RULE_SCORE_CONFIRM_THRESHOLD = 0.0
+        if candidate_score > RULE_SCORE_CONFIRM_THRESHOLD:
+            return candidate_rule
 
-        return active_rule
+        # Best matched rule might be a bad fit.
+        log.debug('Score {} is below threshold {} for rule "{!s}"'.format(candidate_score, RULE_SCORE_CONFIRM_THRESHOLD, candidate_rule))
+        ok_to_use_rule = self._confirm_apply_rule(current_file, candidate_rule)
+        if ok_to_use_rule:
+            log.debug('Positive response. Using rule "{!s}"'.format(candidate_rule))
+            return candidate_rule
+
+        log.debug('Negative response. Will not use rule "{!s}"'.format(candidate_rule))
+        return None
 
     def _try_resolve(self, resolver, current_file, data_sources):
         resolver.add_known_sources(data_sources)
