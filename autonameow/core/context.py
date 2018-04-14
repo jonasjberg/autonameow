@@ -82,18 +82,8 @@ class FilesContext(object):
         data_sources = None
         name_template = None
 
-        matcher = RuleMatcher(
-            self.active_config.rules,
-            self.master_provider,
-            current_file,
-            self.ui,
-            list_rulematch=self.opts.get('list_rulematch')
-        )
-        with logs.log_runtime(log, 'Rule-Matching'):
-            # Returns a list of 'MatchedRule' named tuples.
-            matched_rules = matcher.get_matched_rules()
-
-        log.debug('Matcher returned {} candidate rules'.format(len(matched_rules)))
+        matched_rules = self._get_matched_rules(current_file)
+        log.debug('Matcher returned {} matched rules'.format(len(matched_rules)))
         if matched_rules:
             active_rule = self._try_get_rule(current_file, matched_rules)
 
@@ -199,6 +189,20 @@ class FilesContext(object):
 
         log.info('New name: "{}"'.format(enc.displayable_path(new_name)))
         return new_name
+
+    def _get_matched_rules(self, current_file):
+        matcher = RuleMatcher(
+            self.active_config.rules,
+            self.master_provider,
+            current_file,
+            self.ui,
+            list_rulematch=self.opts.get('list_rulematch')
+        )
+        with logs.log_runtime(log, 'Rule-Matching'):
+            # Returns a list of 'MatchedRule' named tuples.
+            matched_rules = matcher.get_matched_rules()
+
+        return matched_rules
 
     def _try_get_rule(self, current_file, _matched_rules):
         active_rule = None
