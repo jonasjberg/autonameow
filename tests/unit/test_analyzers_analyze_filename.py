@@ -172,12 +172,19 @@ class TestLikelyExtension(TestCase):
             (Expect('log'),
              Given(suffix='log', mime='text/x-tex')),
 
+            (Expect(''),
+             Given(suffix='', mime='text/plain')),
+
             (Expect('c'),
              Given(suffix='c', mime='text/x-c')),
             (Expect('c'),
              Given(suffix='txt', mime='text/x-c')),
             (Expect('c'),
              Given(suffix='c', mime='text/plain')),
+            (Expect('c'),
+             Given(suffix='c', mime='application/octet-stream')),
+            (Expect('conf'),
+             Given(suffix='conf', mime='text/plain')),
             (Expect('cpp'),
              Given(suffix='cpp', mime='text/x-c++')),
             (Expect('cpp'),
@@ -186,6 +193,10 @@ class TestLikelyExtension(TestCase):
              Given(suffix='c++', mime='text/x-c++')),
             (Expect('cpp'),
              Given(suffix='c++', mime='text/plain')),
+            (Expect('h'),
+             Given(suffix='h', mime='text/x-c')),
+            (Expect('h'),
+             Given(suffix='h', mime='application/octet-stream')),
 
             # Incorrectly identified CSS
             (Expect('css'),
@@ -212,7 +223,13 @@ class TestLikelyExtension(TestCase):
              Given(suffix='', mime='application/x-dosexec')),
 
             (Expect('html'),
+             Given(suffix='htm', mime='text/xml')),
+            (Expect('html'),
+             Given(suffix='html', mime='text/xml')),
+            (Expect('html'),
              Given(suffix='htm.gz', mime='text/html')),
+            (Expect('html.1'),
+             Given(suffix='html.1', mime='text/html')),
             (Expect('html'),
              Given(suffix='html.gz', mime='text/html')),
             (Expect('html.gz'),
@@ -230,6 +247,8 @@ class TestLikelyExtension(TestCase):
 
             (Expect('log'),
              Given(suffix='log', mime='text/plain')),
+            (Expect('log'),
+             Given(suffix='log', mime='application/octet-stream')),
 
             # OpenOffice/LibreOffice
             (Expect('odp'),
@@ -275,6 +294,14 @@ class TestLikelyExtension(TestCase):
              Given(suffix='ms12 (Security copy)', mime='application/octet-stream')),
             (Expect('ms12 (Security copy)'),
              Given(suffix='ms12-(Security-copy)', mime='application/octet-stream')),
+
+            # Texas Instruments calculator firmware
+            (Expect('89u'),
+             Given(suffix='89u', mime='application/octet-stream')),
+            (Expect('rom'),
+             Given(suffix='ROM', mime='application/octet-stream')),
+            (Expect('rom'),
+             Given(suffix='rom', mime='application/octet-stream')),
 
             (Expect('pdf'),
              Given(suffix='pdf', mime='application/pdf')),
@@ -339,6 +366,9 @@ class TestLikelyExtension(TestCase):
              Given(suffix='workspace', mime='text/xml')),
             (Expect('yaml'),
              Given(suffix='yaml', mime='text/plain')),
+
+            (Expect('xml'),
+             Given(suffix='xml', mime='text/plain')),
 
             (Expect('zip'),
              Given(suffix='zip', mime='application/zip')),

@@ -22,11 +22,15 @@
 MIMETYPE application/octet-stream
     EXTENSION BLANK
     - BLANK
+    EXTENSION 89u           # Texas Instruments calculator firmware
+    - 89u
     EXTENSION azw3
     - azw3
     EXTENSION bin
     - bin
     - binary
+    EXTENSION c
+    - c
     EXTENSION chm
     - chm
     EXTENSION dmg           # Apple disk images
@@ -37,8 +41,12 @@ MIMETYPE application/octet-stream
     - fcd
     EXTENSION gz.sig
     - gz.sig
+    EXTENSION h
+    - h
     EXTENSION hex
     - hex
+    EXTENSION log
+    - log
     EXTENSION mobi
     - mobi
 
@@ -58,6 +66,9 @@ MIMETYPE application/octet-stream
     - pdf
     EXTENSION prc
     - prc
+    EXTENSION rom
+    - rom
+    - ROM
     EXTENSION scpt
     - scpt
     EXTENSION sig
@@ -157,11 +168,14 @@ MIMETYPE message/rfc822
     - mhtml
 
 MIMETYPE text/html
-    EXTENSION html      # Not actually gzipped HTML
-    - htm.gz
+    EXTENSION html
+    - htm.gz            # Not actually gzipped HTML
     - html
-    - html.gz
+    - html.gz           # Not actually gzipped HTML
     - htm
+    EXTENSION html.1
+    - htm.1
+    - html.1
     EXTENSION java
     - java
     EXTENSION js
@@ -172,6 +186,9 @@ MIMETYPE text/html
     - txt
 
 MIMETYPE text/plain
+    EXTENSION BLANK
+    - BLANK
+
     # Telegram messenger theme files
     EXTENSION attheme
     - attheme
@@ -196,6 +213,8 @@ MIMETYPE text/plain
 
     EXTENSION c
     - c
+    EXTENSION conf
+    - conf
     EXTENSION cpp
     - cpp
     - c++
@@ -243,6 +262,8 @@ MIMETYPE text/plain
     - txt.gz
     EXTENSION yaml
     - yaml
+    EXTENSION xml
+    - xml
 
 MIMETYPE text/x-asm
     EXTENSION css       # Incorrectly identified css
@@ -307,6 +328,9 @@ MIMETYPE text/xml
     - cbp
     EXTENSION spx         # MacOS system report
     - spx
+    EXTENSION html
+    - htm
+    - html
     EXTENSION workspace   # Intellij IDE project metadata
     - workspace
 
