@@ -91,9 +91,6 @@ class FileContext(object):
 
             # Have the user select a name template.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
-
-        if not name_template:
-            # User name template selection did not happen or failed.
             self._log_fail('Name template unknown')
             self._log_unable_to_find_new_name()
             return None
@@ -104,18 +101,21 @@ class FileContext(object):
                 # No placeholders means we don't need any sources. Return as-is.
                 return str(name_template)
 
-            if self.opts.get('mode_automagic'):
-                # Try real hard to figure it out (?)
-                pass
-
             if self.opts.get('mode_batch'):
                 self._log_fail('Data sources unknown. Running in batch mode -- Aborting')
                 self._log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
+            if self.opts.get('mode_automagic'):
+                # Try real hard to figure it out (?)
+                pass
+
             # Have the user select data sources.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
+            self._log_fail('Data sources unknown')
+            self._log_unable_to_find_new_name()
+            return None
 
         field_databundle_dict = self._get_resolved_databundle_dict(name_template.placeholders, data_sources)
         if not field_databundle_dict:
@@ -125,9 +125,9 @@ class FileContext(object):
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
-            while not field_databundle_dict and matched_rules:
+            while not field_databundle_dict:
                 # Try real hard to figure it out (?)
-                log.debug('Start of try-hard rule matching loop ..')
+                log.debug('Entering try-hard rule matching loop ..')
                 if not matched_rules:
                     log.debug('No matched_rules! Exiting try-hard matching loop')
                     break
@@ -185,7 +185,6 @@ class FileContext(object):
 
     def _pop_from_matched_rules(self, _matched_rules):
         if not _matched_rules:
-            log.debug('No matched rules from which to choose an active rule..')
             return None
 
         if self.opts.get('mode_interactive'):
@@ -215,24 +214,31 @@ class FileContext(object):
         log.debug('Negative response. Will not use rule "{!s}"'.format(candidate_rule))
         return None
 
+    def _confirm_apply_rule(self, rule):
+        if self.opts.get('mode_batch'):
+            log.info('Rule required confirmation but in batch mode -- '
+                     'Skipping file ..')
+            return False
+
+        user_response = interactive.ask_confirm_use_rule(self.fileobject, rule)
+        log.debug('User response: "{!s}"'.format(user_response))
+        return user_response
+
     def _get_resolved_databundle_dict(self, placeholders, data_sources):
         resolver = TemplateFieldDataResolver(
             fileobject=self.fileobject,
             name_template_fields=placeholders,
-            provider=self.master_provider
+            provider=self.master_provider,
+            config=self.active_config
         )
         resolver.add_known_sources(data_sources)
 
         # TODO: Rework the rule matcher and this logic to try another candidate.
 
-        def _log_current_file_warning(msg):
-            log.info('("{!s}") {!s}'.format(self.fileobject, msg))
-
         if not resolver.mapped_all_template_fields():
             if self.opts.get('mode_batch'):
-                _log_current_file_warning(
-                    'Unable to resolve all name template fields. Running in batch mode -- Aborting'
-                )
+                self._log_fail('Unable to resolve all name template fields. '
+                               'Running in batch mode -- Aborting')
                 self._log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
@@ -243,9 +249,8 @@ class FileContext(object):
         if not resolver.collected_all():
             log.info('Resolver has not collected all fields ..')
             if self.opts.get('mode_batch'):
-                _log_current_file_warning(
-                    'Unable to resolve all name template fields. Running in batch mode -- Aborting'
-                )
+                self._log_fail('Unable to resolve all name template fields. '
+                               'Running in batch mode -- Aborting')
                 self._log_unable_to_find_new_name()
                 return None
 
@@ -274,19 +279,9 @@ class FileContext(object):
         # Add automatically resolving missing sources from possible candidates.
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-            _log_current_file_warning('Resolver could not collect all field data')
+            self._log_fail('Resolver could not collect all field data')
             self._log_unable_to_find_new_name()
             self.autonameow_exit_code = C.EXIT_WARNING
             return None
 
         return resolver.fields_data
-
-    def _confirm_apply_rule(self, rule):
-        if self.opts.get('mode_batch'):
-            log.info('Rule required confirmation but in batch mode -- '
-                     'Skipping file ..')
-            return False
-
-        user_response = interactive.ask_confirm_use_rule(self.fileobject, rule)
-        log.debug('User response: "{!s}"'.format(user_response))
-        return user_response
