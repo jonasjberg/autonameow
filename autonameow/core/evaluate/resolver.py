@@ -71,10 +71,11 @@ class FieldDataCandidate(object):
 
 
 class TemplateFieldDataResolver(object):
-    def __init__(self, fileobject, name_template_fields, provider):
+    def __init__(self, fileobject, name_template_fields, provider, config):
         self.fileobject = fileobject
         self._fields = name_template_fields
         self._provider = provider
+        self.config = config
 
         self.data_sources = defaultdict(list)
         self.fields_data = dict()
@@ -148,7 +149,7 @@ class TemplateFieldDataResolver(object):
             if not field.type_compatible(candidate.coercer):
                 continue
 
-            _formatted_value = field.format(candidate)
+            _formatted_value = field.format(candidate, config=self.config)
             assert _formatted_value is not None
 
             _candidate_source = candidate.source

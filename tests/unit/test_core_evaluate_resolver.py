@@ -135,7 +135,7 @@ class TestTemplateFieldDataResolverTypeAssertions(TestCase):
     def setUpClass(cls):
         fo = uu.get_mock_fileobject()
         name_template = '{datetime} {title}.{extension}',
-        cls.tfdr = TemplateFieldDataResolver(fo, name_template)
+        cls.tfdr = TemplateFieldDataResolver(fo, name_template, None)
 
     def test_add_known_source_not_given_instance_of_meowuri(self):
         mock_field = Mock()
