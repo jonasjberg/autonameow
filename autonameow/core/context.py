@@ -98,9 +98,7 @@ class FilesContext(object):
                 active_rule = self._try_get_rule(current_file, matched_rules)
 
         if active_rule:
-            log.info(
-                'Using rule: "{!s}"'.format(active_rule.description)
-            )
+            log.info('Using rule: "{!s}"'.format(active_rule))
             data_sources = active_rule.data_sources
             name_template = active_rule.name_template
 
@@ -169,9 +167,7 @@ class FilesContext(object):
                 log.debug('Remaining matched_rules: {}'.format(len(matched_rules)))
                 active_rule = self._try_get_rule(current_file, matched_rules)
                 if active_rule:
-                    log.info(
-                        'Using rule: "{!s}"'.format(active_rule.description)
-                    )
+                    log.info('Using rule: "{!s}"'.format(active_rule))
                     data_sources = active_rule.data_sources
                     name_template = active_rule.name_template
 
@@ -224,24 +220,24 @@ class FilesContext(object):
         RULE_SCORE_CONFIRM_THRESHOLD = 0
         if _matched_rules and not active_rule:
             # User rule selection did not happen or failed.
-            best_match = _matched_rules.pop(0)
-            if best_match:
+            candidate_matched_rule = _matched_rules.pop(0)
+            if candidate_matched_rule:
+                candidate_rule = candidate_matched_rule.rule
+                candidate_score = candidate_matched_rule.score
+
                 # Is the score of the best matched rule high enough?
-                rule = best_match.rule
-                score = best_match.score
-                description = best_match.rule.description
-                if score > RULE_SCORE_CONFIRM_THRESHOLD:
-                    active_rule = rule
+                if candidate_score > RULE_SCORE_CONFIRM_THRESHOLD:
+                    active_rule = candidate_rule
                 else:
                     # Best matched rule might be a bad fit.
-                    log.debug('Score {} is below threshold {} for rule "{!s}"'.format(score, RULE_SCORE_CONFIRM_THRESHOLD, description))
+                    log.debug('Score {} is below threshold {} for rule "{!s}"'.format(candidate_score, RULE_SCORE_CONFIRM_THRESHOLD, candidate_rule))
                     log.debug('Need confirmation before using this rule..')
-                    ok_to_use_rule = self._confirm_apply_rule(current_file, rule)
+                    ok_to_use_rule = self._confirm_apply_rule(current_file, candidate_rule)
                     if ok_to_use_rule:
-                        log.debug('Positive response. Using rule "{!s}"'.format(description))
-                        active_rule = rule
+                        log.debug('Positive response. Using rule "{!s}"'.format(candidate_rule))
+                        active_rule = candidate_rule
                     else:
-                        log.debug('Negative response. Will not use rule "{!s}"'.format(description))
+                        log.debug('Negative response. Will not use rule "{!s}"'.format(candidate_rule))
             else:
                 log.debug('Rule-matcher did not find a "best match" rule')
 
