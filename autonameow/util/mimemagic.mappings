@@ -33,3 +33,4 @@ text/x-shellscript: sh
 text/x-shellscript: bash
 text/x-tex: tex
 video/x-matroska: mkv
+application/x-iso9660-image: dmg

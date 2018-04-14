@@ -29,6 +29,8 @@ MIMETYPE application/octet-stream
     - binary
     EXTENSION chm
     - chm
+    EXTENSION dmg       # Apple disk images
+    - dmg
     EXTENSION gz.sig
     - gz.sig
     EXTENSION hex
@@ -73,6 +75,12 @@ MIMETYPE application/vnd.ms-powerpoint
 MIMETYPE application/x-bzip2
     EXTENSION tar.bz2
     - tar.bz2
+    EXTENSION dmg       # Apple disk images
+    - dmg
+
+MIMETYPE application/x-iso9660-image
+    EXTENSION dmg       # Apple disk images
+    - dmg
 
 MIMETYPE application/x-gzip
     EXTENSION html.gz

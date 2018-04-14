@@ -292,6 +292,9 @@ class TestMimemagicGetExtension(TestCase):
         self._assert_returns_extension(given='text/x-shellscript', expect='sh')
         self._assert_returns_extension(given='text/x-sh', expect='sh')
 
+    def test_maps_mime_type_application_x_iso9660_image_to_extension_dmg(self):
+        self._assert_returns_extension(given='application/x-iso9660-image', expect='dmg')
+
 
 class TestMimemagicGetMimetype(TestCase):
     def _assert_returns_mime(self, given, expect):
@@ -316,3 +319,6 @@ class TestMimemagicGetMimetype(TestCase):
 
     def test_maps_extension_java_to_mime_type_x_java(self):
         self._assert_returns_mime(given='java', expect='text/x-java')
+
+    def test_maps_extension_dmg_to_mime_type_application_x_iso9660_image(self):
+        self._assert_returns_mime(given='dmg', expect='application/x-iso9660-image')

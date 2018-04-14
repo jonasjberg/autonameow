@@ -272,6 +272,14 @@ class TestLikelyExtension(TestCase):
             # Chrome Save as "Webpage, Single File"
             (Expect('mhtml'),
              Given(suffix='mhtml', mime='message/rfc822')),
+
+            # Apple disk image
+            (Expect('dmg'),
+             Given(suffix='dmg', mime='application/x-iso9660-image')),
+            (Expect('dmg'),
+             Given(suffix='dmg', mime='application/x-bzip2')),
+            (Expect('dmg'),
+             Given(suffix='dmg', mime='application/octet-stream')),
         ]
 
     def test_returns_expected(self):
