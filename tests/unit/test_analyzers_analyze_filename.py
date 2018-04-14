@@ -141,14 +141,36 @@ class TestLikelyExtension(TestCase):
              Given(suffix='alfredworkflow', mime='application/zip')),
             (Expect('azw3'),
              Given(suffix='azw3', mime='application/octet-stream')),
-            (Expect('bibtex'),
-             Given(suffix='bibtex', mime='text/plain')),
             (Expect('bin'),
              Given(suffix='bin', mime='application/octet-stream')),
             (Expect('bz2'),
              Given(suffix='bz2', mime='application/x-bzip2')),
             (Expect('chm'),
              Given(suffix='chm', mime='application/octet-stream')),
+
+            # TeX/LaTeX
+            (Expect('aux'),
+             Given(suffix='aux', mime='text/plain')),
+            (Expect('bibtex'),
+             Given(suffix='bibtex', mime='text/plain')),
+            (Expect('bib'),
+             Given(suffix='bib', mime='text/plain')),
+            (Expect('bbl'),
+             Given(suffix='bbl', mime='text/plain')),
+            (Expect('bcf'),
+             Given(suffix='bcf', mime='text/xml')),
+            (Expect('blg'),
+             Given(suffix='blg', mime='text/plain')),
+            (Expect('dvi'),
+             Given(suffix='dvi', mime='application/x-dvi')),
+            (Expect('fdb_latexmk'),
+             Given(suffix='fdb_latexmk', mime='text/plain')),
+            (Expect('fls'),
+             Given(suffix='fls', mime='text/plain')),
+            (Expect('out'),
+             Given(suffix='out', mime='inode/x-empty')),
+            (Expect('log'),
+             Given(suffix='log', mime='text/x-tex')),
 
             (Expect('c'),
              Given(suffix='c', mime='text/x-c')),
@@ -165,12 +187,25 @@ class TestLikelyExtension(TestCase):
             (Expect('cpp'),
              Given(suffix='c++', mime='text/plain')),
 
+            # Microsoft Office
             (Expect('doc'),
              Given(suffix='doc', mime='application/msword')),
+            (Expect('doc'),
+             Given(suffix='', mime='application/msword')),
+            (Expect('xls'),
+             Given(suffix='xls', mime='application/vnd.ms-excel')),
+            (Expect('xls'),
+             Given(suffix='', mime='application/vnd.ms-excel')),
+
             (Expect('eps'),
              Given(suffix='eps', mime='application/postscript')),
             (Expect('hex'),
              Given(suffix='hex', mime='application/octet-stream')),
+
+            (Expect('exe'),
+             Given(suffix='exe', mime='application/x-dosexec')),
+            (Expect('exe'),
+             Given(suffix='', mime='application/x-dosexec')),
 
             (Expect('html'),
              Given(suffix='htm.gz', mime='text/html')),
@@ -185,8 +220,6 @@ class TestLikelyExtension(TestCase):
             (Expect('html.gz'),
              Given(suffix='html', mime='application/x-gzip')),
 
-            (Expect('log'),
-             Given(suffix='log', mime='text/x-tex')),
             (Expect('log'),
              Given(suffix='log', mime='text/plain')),
 
@@ -294,6 +327,18 @@ class TestLikelyExtension(TestCase):
              Given(suffix='dmg', mime='application/x-bzip2')),
             (Expect('dmg'),
              Given(suffix='dmg', mime='application/octet-stream')),
+
+            # Adobe
+            (Expect('psd'),
+             Given(suffix='psd', mime='image/vnd.adobe.photoshop')),
+
+            # MacOS system report
+            (Expect('spx'),
+             Given(suffix='spx', mime='text/xml')),
+
+            # Microsoft paper specification file
+            (Expect('xps'),
+             Given(suffix='xps', mime='application/octet-stream')),
         ]
 
     def test_returns_expected(self):

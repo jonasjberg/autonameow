@@ -31,6 +31,10 @@ MIMETYPE application/octet-stream
     - chm
     EXTENSION dmg       # Apple disk images
     - dmg
+    EXTENSION fc        # FirstClass settings
+    - fc
+    EXTENSION fcd       # FirstClass settings
+    - fcd
     EXTENSION gz.sig
     - gz.sig
     EXTENSION hex
@@ -51,6 +55,8 @@ MIMETYPE application/octet-stream
     - tar.gz.sig
     EXTENSION txt
     - txt
+    EXTENSION xps       # Microsoft paper specification file
+    - xps
 
 MIMETYPE application/gzip
     EXTENSION gz
@@ -58,9 +64,18 @@ MIMETYPE application/gzip
     EXTENSION tar.gz
     - tar.gz
 
+
+# Microsoft Office
 MIMETYPE application/msword
     EXTENSION doc
     - doc
+    - BLANK
+
+MIMETYPE application/vnd.ms-excel
+    EXTENSION xls
+    - xls
+    - BLANK
+
 
 MIMETYPE application/postscript
     EXTENSION eps
@@ -118,6 +133,10 @@ MIMETYPE audio/mpeg
     EXTENSION mp3
     - mp3
 
+MIMETYPE inode/x-empty
+    EXTENSION out
+    - out
+
 MIMETYPE message/rfc822
     EXTENSION mhtml     # Chrome Save as "Webpage, Single File"
     - mhtml
@@ -142,8 +161,22 @@ MIMETYPE text/plain
     EXTENSION tdesktop-palette
     - tdesktop-palette
 
+    # TeX/LaTeX bibliographies/references, makefiles, ..
+    EXTENSION aux
+    - aux
+    EXTENSION bib
+    - bib
+    EXTENSION bbl
+    - bbl
+    EXTENSION blg
+    - blg
     EXTENSION bibtex
     - bibtex
+    EXTENSION fdb_latexmk
+    - fdb_latexmk
+    EXTENSION fls
+    - fls
+
     EXTENSION c
     - c
     EXTENSION cpp
@@ -230,15 +263,27 @@ MIMETYPE text/x-shellscript
     - sh
 
 MIMETYPE text/x-tex
-    # LaTeX-related
+    # TeX/LaTeX-related
+    EXTENSION aux
+    - aux
+    EXTENSION bak0
+    - bak0
+    EXTENSION bbl
+    - bbl
+    EXTENSION cls
+    - cls
     EXTENSION log
     - log
     EXTENSION tex
     - tex
 
 MIMETYPE text/xml
+    EXTENSION bcf         # TeX/LaTeX-related
+    - bcf
     EXTENSION cbp
     - cbp
+    EXTENSION spx         # MacOS system report
+    - spx
     EXTENSION workspace   # Intellij IDE project metadata
     - workspace
 

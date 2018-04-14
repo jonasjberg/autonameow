@@ -299,6 +299,19 @@ class TestMimemagicGetExtension(TestCase):
         self._assert_returns_extension('odp', given='application/vnd.oasis.opendocument.presentation')
         self._assert_returns_extension('ods', given='application/vnd.oasis.opendocument.spreadsheet')
         self._assert_returns_extension('odt', given='application/vnd.oasis.opendocument.text')
+        self._assert_returns_extension('xlsx', given='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+    def test_maps_photoshop_mime_types_to_expected_extensions(self):
+        self._assert_returns_extension('psd', given='image/vnd.adobe.photoshop')
+
+    def test_maps_mime_type_application_x_dvi_to_extension_dvi(self):
+        self._assert_returns_extension('dvi', given='application/x-dvi')
+
+    def test_maps_mime_type_application_vnd_ms_excel_to_extension_xls(self):
+        self._assert_returns_extension('xls', given='application/vnd.ms-excel')
+
+    def test_maps_mime_type_application_x_dosexec_to_extension_exe(self):
+        self._assert_returns_extension('exe', given='application/x-dosexec')
 
 
 class TestMimemagicGetMimetype(TestCase):
@@ -332,3 +345,13 @@ class TestMimemagicGetMimetype(TestCase):
         self._assert_returns_mime('application/vnd.oasis.opendocument.presentation', given='odp')
         self._assert_returns_mime('application/vnd.oasis.opendocument.spreadsheet', given='ods')
         self._assert_returns_mime('application/vnd.oasis.opendocument.text', given='odt')
+        self._assert_returns_mime('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', given='xlsx')
+
+    def test_maps_extensions_photoshop_mime_types(self):
+        self._assert_returns_mime('image/vnd.adobe.photoshop', given='psd')
+
+    def test_maps_extension_dvi_to_mime_type_application_x_dvi(self):
+        self._assert_returns_mime('application/x-dvi', given='dvi')
+
+    def test_maps_extensions_microsoft_office_mime_types(self):
+        self._assert_returns_mime('application/vnd.ms-excel', given='xls')

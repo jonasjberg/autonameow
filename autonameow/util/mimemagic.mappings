@@ -8,9 +8,12 @@ application/rtf: rtf
 application/vnd.oasis.opendocument.presentation: odp
 application/vnd.oasis.opendocument.spreadsheet: ods
 application/vnd.oasis.opendocument.text: odt
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: xlsx
 application/vnd.openxmlformats-officedocument.wordprocessingml.document: docx
 application/x-7z-compressed: 7z
 application/x-bzip2: bz2
+application/x-dvi: dvi
+application/x-dosexec: exe
 application/x-gzip: gz
 application/x-gzip: tgz
 application/x-gzip: tar.gz
@@ -20,6 +23,7 @@ application/x-rar: rar
 application/x-tex: tex
 audio/midi: mid
 audio/x-flac: flac
+image/vnd.adobe.photoshop: psd
 image/vnd.djvu: djvu
 inode/x-empty:
 text/rtf: rtf
