@@ -281,6 +281,10 @@ class TestLikelyExtension(TestCase):
             (Expect('mobi'),
              Given(suffix='mobi', mime='application/octet-stream')),
 
+            # Might be corrupt or misidentified mp4
+            (Expect('mp4'),
+             Given(suffix='mp4', mime='application/octet-stream')),
+
             # National Instruments Multisim
             (Expect('ms10'),
              Given(suffix='ms10', mime='application/octet-stream')),

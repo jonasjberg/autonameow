@@ -49,6 +49,8 @@ MIMETYPE application/octet-stream
     - log
     EXTENSION mobi
     - mobi
+    EXTENSION mp4
+    - mp4
 
     # National Instruments Multisim
     EXTENSION ms10
