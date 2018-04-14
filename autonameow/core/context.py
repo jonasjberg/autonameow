@@ -125,14 +125,7 @@ class FileContext(object):
             # Have the user select data sources.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
 
-        resolver = TemplateFieldDataResolver(
-            self.fileobject,
-            name_template.placeholders,
-            self.master_provider
-        )
-        field_databundle_dict = self._try_resolve(
-            resolver, data_sources
-        )
+        field_databundle_dict = self._get_databundle_dict(name_template.placeholders, data_sources)
         if not field_databundle_dict:
             if not self.opts.get('mode_automagic'):
                 _log_fail('Missing field data bundles. Not in automagic mode.')
@@ -155,14 +148,7 @@ class FileContext(object):
                     name_template = active_rule.name_template
 
                     # New resolver with state derived from currently active rule.
-                    resolver = TemplateFieldDataResolver(
-                        self.fileobject,
-                        name_template.placeholders,
-                        self.master_provider
-                    )
-                    field_databundle_dict = self._try_resolve(
-                        resolver, data_sources
-                    )
+                    field_databundle_dict = self._get_databundle_dict(name_template.placeholders, data_sources)
 
         if not field_databundle_dict:
             _log_fail('Missing field data bundles.')
@@ -229,7 +215,12 @@ class FileContext(object):
         log.debug('Negative response. Will not use rule "{!s}"'.format(candidate_rule))
         return None
 
-    def _try_resolve(self, resolver, data_sources):
+    def _get_databundle_dict(self, placeholders, data_sources):
+        resolver = TemplateFieldDataResolver(
+            fileobject=self.fileobject,
+            name_template_fields=placeholders,
+            provider=self.master_provider
+        )
         resolver.add_known_sources(data_sources)
 
         # TODO: Rework the rule matcher and this logic to try another candidate.
