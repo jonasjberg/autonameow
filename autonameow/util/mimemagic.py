@@ -397,7 +397,8 @@ def _read_mimetype_extension_mapping_file(mapfile_basename, callback):
         return
 
     for n, line in enumerate(lines, start=1):
-        if line.startswith('#'):
+        line = line.strip()
+        if not line or line.startswith('#'):
             continue
         try:
             mime_type, extension = line.strip().split(':')
