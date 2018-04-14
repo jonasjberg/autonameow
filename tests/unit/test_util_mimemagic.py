@@ -295,6 +295,11 @@ class TestMimemagicGetExtension(TestCase):
     def test_maps_mime_type_application_x_iso9660_image_to_extension_dmg(self):
         self._assert_returns_extension(given='application/x-iso9660-image', expect='dmg')
 
+    def test_maps_opendocument_mime_types_to_expected_extensions(self):
+        self._assert_returns_extension(given='application/vnd.oasis.opendocument.presentation', expect='odp')
+        self._assert_returns_extension(given='application/vnd.oasis.opendocument.spreadsheet', expect='ods')
+        self._assert_returns_extension(given='application/vnd.oasis.opendocument.text', expect='odt')
+
 
 class TestMimemagicGetMimetype(TestCase):
     def _assert_returns_mime(self, given, expect):
@@ -313,12 +318,17 @@ class TestMimemagicGetMimetype(TestCase):
     def test_maps_extension_png_to_mime_type_image_png(self):
         self._assert_returns_mime(given='png', expect='image/png')
 
-    def test_maps_extensions_sh_and_bash_to_mime_type_x_shellscript(self):
+    def test_maps_extensions_sh_and_bash_to_mime_type_text_x_shellscript(self):
         self._assert_returns_mime(given='sh', expect='text/x-shellscript')
         self._assert_returns_mime(given='bash', expect='text/x-shellscript')
 
-    def test_maps_extension_java_to_mime_type_x_java(self):
+    def test_maps_extension_java_to_mime_type_text_x_java(self):
         self._assert_returns_mime(given='java', expect='text/x-java')
 
     def test_maps_extension_dmg_to_mime_type_application_x_iso9660_image(self):
         self._assert_returns_mime(given='dmg', expect='application/x-iso9660-image')
+
+    def test_maps_extensions_opendocument_mime_types(self):
+        self._assert_returns_mime(given='odp', expect='application/vnd.oasis.opendocument.presentation')
+        self._assert_returns_mime(given='ods', expect='application/vnd.oasis.opendocument.spreadsheet')
+        self._assert_returns_mime(given='odt', expect='application/vnd.oasis.opendocument.text')

@@ -190,6 +190,20 @@ class TestLikelyExtension(TestCase):
             (Expect('log'),
              Given(suffix='log', mime='text/plain')),
 
+            # OpenOffice/LibreOffice
+            (Expect('odp'),
+             Given(suffix='odp', mime='application/vnd.oasis.opendocument.presentation')),
+            (Expect('odp'),
+             Given(suffix='', mime='application/vnd.oasis.opendocument.presentation')),
+            (Expect('ods'),
+             Given(suffix='ods', mime='application/vnd.oasis.opendocument.spreadsheet')),
+            (Expect('ods'),
+             Given(suffix='', mime='application/vnd.oasis.opendocument.spreadsheet')),
+            (Expect('odt'),
+             Given(suffix='odt', mime='application/vnd.oasis.opendocument.text')),
+            (Expect('odt'),
+             Given(suffix='', mime='application/vnd.oasis.opendocument.text')),
+
             (Expect('mid'),
              Given(suffix='mid', mime='audio/midi')),
             (Expect('md'),

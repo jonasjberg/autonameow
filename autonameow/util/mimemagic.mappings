@@ -6,6 +6,7 @@ application/octet-stream: bin
 application/rar: rar
 application/rtf: rtf
 application/vnd.oasis.opendocument.presentation: odp
+application/vnd.oasis.opendocument.spreadsheet: ods
 application/vnd.oasis.opendocument.text: odt
 application/vnd.openxmlformats-officedocument.wordprocessingml.document: docx
 application/x-7z-compressed: 7z
