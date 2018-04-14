@@ -134,18 +134,6 @@ def init_argparser():
         description='Methods for resolving new file names.'
     )
     optgrp_mode_method.add_argument(
-        '--rulematch',
-        default=True,
-        dest='mode_rulematch',
-        action='store_true',
-        help='Enable RULE-MATCHING. (Default: ENABLED) '
-             'Try to perform renames without user interaction by matching the '
-             'given paths against available rules. '
-             'The user might still be asked to resolve any uncertainties. '
-             'Use the "--batch" option to force non-interactive mode and '
-             'skip paths with unresolved queries.'
-    )
-    optgrp_mode_method.add_argument(
         '--automagic',
         default=False,
         dest='mode_automagic',

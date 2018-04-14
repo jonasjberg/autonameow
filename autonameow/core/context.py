@@ -81,21 +81,21 @@ class FilesContext(object):
         active_rule = None
         data_sources = None
         name_template = None
-        if self.opts.get('mode_rulematch'):
-            matcher = RuleMatcher(
-                self.active_config.rules,
-                self.master_provider,
-                current_file,
-                self.ui,
-                list_rulematch=self.opts.get('list_rulematch')
-            )
-            with logs.log_runtime(log, 'Rule-Matching'):
-                # Returns a list of 'MatchedRule' named tuples.
-                matched_rules = matcher.get_matched_rules()
 
-            log.debug('Matcher returned {} candidate rules'.format(len(matched_rules)))
-            if matched_rules:
-                active_rule = self._try_get_rule(current_file, matched_rules)
+        matcher = RuleMatcher(
+            self.active_config.rules,
+            self.master_provider,
+            current_file,
+            self.ui,
+            list_rulematch=self.opts.get('list_rulematch')
+        )
+        with logs.log_runtime(log, 'Rule-Matching'):
+            # Returns a list of 'MatchedRule' named tuples.
+            matched_rules = matcher.get_matched_rules()
+
+        log.debug('Matcher returned {} candidate rules'.format(len(matched_rules)))
+        if matched_rules:
+            active_rule = self._try_get_rule(current_file, matched_rules)
 
         if active_rule:
             log.info('Using rule: "{!s}"'.format(active_rule))

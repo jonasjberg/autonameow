@@ -155,63 +155,23 @@ class TestCheckOptionCombinations(TestCase):
                     'mode_timid': False}
         )
 
-    def test_valid_operating_mode_combination(self):
-        self._check_options(
-            given={'mode_automagic': False, 'mode_rulematch': True},
-            expect={'mode_automagic': False, 'mode_rulematch': True}
-        )
-        self._check_options(
-            given={'mode_automagic': True, 'mode_rulematch': False},
-            expect={'mode_automagic': True, 'mode_rulematch': True}
-        )
-        self._check_options(
-            given={'mode_automagic': True, 'mode_rulematch': True},
-            expect={'mode_automagic': True, 'mode_rulematch': True}
-        )
-
-    def test_default_operating_mode_combination(self):
-        # Always enable rule-matching for now.
-        # TODO: Really enable options like this? Better to error out and exit?
-        self._check_options(
-            given={'mode_automagic': False, 'mode_rulematch': False},
-            expect={'mode_automagic': False, 'mode_rulematch': True}
-        )
-
     def test_user_interaction_and_operating_mode_combination(self):
         self._check_options(
             given={'mode_automagic': False,
-                   'mode_rulematch': False,
                    'mode_batch': False},
             expect={'mode_automagic': False,
-                    'mode_rulematch': True,
-                    'mode_batch': False}
-        )
-        self._check_options(
-            given={'mode_automagic': False,
-                   'mode_rulematch': True,
-                   'mode_batch': False},
-            expect={'mode_automagic': False,
-                    'mode_rulematch': True,
                     'mode_batch': False}
         )
         self._check_options(
             given={'mode_automagic': True,
-                   'mode_rulematch': False,
                    'mode_batch': False},
             expect={'mode_automagic': True,
-                    'mode_rulematch': True,
                     'mode_batch': False}
         )
-
-    def test_illegal_user_interaction_and_operating_mode_combination(self):
-        # Always enable rule-matching for now.
-        # TODO: Really enable options like this? Better to error out and exit?
         self._check_options(
             given={'mode_automagic': False,
-                   'mode_rulematch': False,
                    'mode_batch': True},
             expect={'mode_automagic': False,
-                    'mode_rulematch': True,
                     'mode_batch': True}
         )
 
@@ -219,14 +179,11 @@ class TestCheckOptionCombinations(TestCase):
         self._check_options(
             given={
                 'mode_automagic': False,
-                'mode_rulematch': False,
                 'mode_batch': False,
                 'mode_postprocess_only': True
             },
             expect={
                 'mode_automagic': False,
-                # Always enable rule-matching for now.
-                'mode_rulematch': True,
                 'mode_batch': False,
                 'mode_postprocess_only': True
             }
@@ -236,14 +193,11 @@ class TestCheckOptionCombinations(TestCase):
         self._check_options(
             given={
                 'mode_automagic': False,
-                'mode_rulematch': False,
                 'mode_batch': True,
                 'mode_postprocess_only': True
             },
             expect={
                 'mode_automagic': False,
-                # Always enable rule-matching for now.
-                'mode_rulematch': True,
                 'mode_batch': True,
                 'mode_postprocess_only': True
             }
@@ -253,14 +207,11 @@ class TestCheckOptionCombinations(TestCase):
         self._check_options(
             given={
                 'mode_automagic': True,
-                'mode_rulematch': False,
                 'mode_batch': False,
                 'mode_postprocess_only': True
             },
             expect={
                 'mode_automagic': False,
-                # Always enable rule-matching for now.
-                'mode_rulematch': True,
                 'mode_batch': False,
                 'mode_postprocess_only': True
             }
@@ -270,14 +221,11 @@ class TestCheckOptionCombinations(TestCase):
         self._check_options(
             given={
                 'mode_automagic': True,
-                'mode_rulematch': False,
                 'mode_batch': True,
                 'mode_postprocess_only': True
             },
             expect={
                 'mode_automagic': False,
-                # Always enable rule-matching for now.
-                'mode_rulematch': True,
                 'mode_batch': True,
                 'mode_postprocess_only': True
             }

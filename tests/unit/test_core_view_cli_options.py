@@ -26,8 +26,8 @@ import unit.constants as uuconst
 from core.view.cli.options import (
     arg_is_year,
     arg_is_readable_file,
-    init_argparser,
-    cli_parse_args
+    cli_parse_args,
+    init_argparser
 )
 
 
@@ -86,23 +86,27 @@ class TestArgParse(TestCase):
     def test_init_argparser(self):
         self.assertIsInstance(init_argparser(), argparse.ArgumentParser)
 
-    def test_parse_args_returns_expected_type(self):
+    def test_parsing_empty_string_arg_returns_expected_type(self):
         self.assertIsInstance(cli_parse_args(''), argparse.Namespace)
-        self.assertIsInstance(cli_parse_args('--help'), argparse.Namespace)
 
-    def test_parse_args_raises_typeerror_if_argument_missing(self):
+    def test_raises_typeerror_if_not_given_any_arguments_at_all(self):
         with self.assertRaises(TypeError):
-            cli_parse_args()
+            _ = cli_parse_args()
 
     def _assert_valid_argument(self, given):
-        self.assertIsNotNone(cli_parse_args(given))
+        given_argument_list = [given]
+        opts = cli_parse_args(given_argument_list)
+        self.assertIsInstance(opts, argparse.Namespace)
+        self.assertEqual(0, len(opts.input_paths),
+                         'Argument mistaken for positional argument')
 
     def test_cli_parse_args_accepts_argument_dry_run(self):
         self._assert_valid_argument('--dry-run')
         self._assert_valid_argument('-d')
 
     def test_cli_parse_args_accepts_argument_help(self):
-        self._assert_valid_argument('--help')
+        with self.assertRaises(SystemExit):
+            self._assert_valid_argument('--help')
 
     def test_cli_parse_args_accepts_argument_debug(self):
         self._assert_valid_argument('--debug')
@@ -120,9 +124,6 @@ class TestArgParse(TestCase):
 
     def test_cli_parse_args_accepts_argument_list_rulematch(self):
         self._assert_valid_argument('--list-rulematch')
-
-    def test_cli_parse_args_accepts_argument_rulematch(self):
-        self._assert_valid_argument('--rulematch')
 
     def test_cli_parse_args_accepts_argument_automagic(self):
         self._assert_valid_argument('--automagic')

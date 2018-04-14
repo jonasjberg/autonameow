@@ -439,16 +439,6 @@ def check_option_combinations(options):
         opts['mode_automagic'] = False
         opts['mode_interactive'] = True
 
-    if not opts.get('mode_rulematch'):
-        log.info('Enabled rule-matching..')
-        opts['mode_rulematch'] = True
-
-    if (not opts.get('mode_automagic') and not opts.get('mode_rulematch')
-            and opts.get('mode_batch')):
-        log.warning('Running in "batch" mode without specifying an '
-                    'operating mode ("automagic" or rule-matching) does '
-                    'not make any sense.  Nothing to do!')
-
     if opts.get('mode_batch'):
         if opts.get('mode_interactive'):
             log.warning('Operating mode "batch" can not be used with '
@@ -471,8 +461,5 @@ def check_option_combinations(options):
             log.warning('Operating mode "interactive" can not be used with '
                         '"post-process only". Disabling "interactive".')
             opts['mode_interactive'] = False
-    else:
-        if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
-            log.info('No operating-mode selected!')
 
     return opts
