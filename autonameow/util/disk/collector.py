@@ -58,9 +58,9 @@ def get_files_gen(search_path, recurse=False):
     # identical paths, which would be merged into just one if stored in a set.
 
     if not search_path:
-        raise FileNotFoundError
+        raise FileNotFoundError('Search is missing or empty')
     if not search_path.strip():
-        raise FileNotFoundError
+        raise FileNotFoundError('Search path is all whitespace')
 
     sanity.check_internal_bytestring(search_path)
 
@@ -76,7 +76,8 @@ def get_files_gen(search_path, recurse=False):
         for entry in _dir_listing:
             entry_path = disk.joinpaths(search_path, entry)
             if not disk.exists(entry_path):
-                raise FileNotFoundError
+                log.warning('Skipped non-existing path "{!s}"'.format(enc.displayable_path(entry_path)))
+                continue
 
             if disk.isfile(entry_path):
                 sanity.check_internal_bytestring(entry_path)
