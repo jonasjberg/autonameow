@@ -29,11 +29,11 @@ MIMETYPE application/octet-stream
     - binary
     EXTENSION chm
     - chm
-    EXTENSION dmg       # Apple disk images
+    EXTENSION dmg           # Apple disk images
     - dmg
-    EXTENSION fc        # FirstClass settings
+    EXTENSION fc            # FirstClass settings
     - fc
-    EXTENSION fcd       # FirstClass settings
+    EXTENSION fcd           # FirstClass settings
     - fcd
     EXTENSION gz.sig
     - gz.sig
@@ -41,6 +41,19 @@ MIMETYPE application/octet-stream
     - hex
     EXTENSION mobi
     - mobi
+
+    # National Instruments Multisim
+    EXTENSION ms10
+    - ms10
+    EXTENSION ms10 (Security copy)
+    - ms10 (Security copy)
+    - ms10-(Security-copy)
+    EXTENSION ms12
+    - ms12
+    EXTENSION ms12 (Security copy)
+    - ms12 (Security copy)
+    - ms12-(Security-copy)
+
     EXTENSION pdf
     - pdf
     EXTENSION prc
@@ -49,13 +62,15 @@ MIMETYPE application/octet-stream
     - scpt
     EXTENSION sig
     - sig
-    EXTENSION sln       # Visual Studio Solution
+    EXTENSION sln           # Visual Studio Solution
     - sln
     EXTENSION tar.gz.sig
     - tar.gz.sig
     EXTENSION txt
     - txt
-    EXTENSION xps       # Microsoft paper specification file
+    EXTENSION webarchive    # Safari saved webpage
+    - webarchive
+    EXTENSION xps           # Microsoft paper specification file
     - xps
 
 MIMETYPE application/gzip
@@ -149,6 +164,8 @@ MIMETYPE text/html
     - htm
     EXTENSION java
     - java
+    EXTENSION js
+    - js
     EXTENSION mhtml
     - mhtml
     EXTENSION txt
@@ -201,6 +218,8 @@ MIMETYPE text/plain
     - json
     EXTENSION key
     - key
+    EXTENSION lc
+    - lc
     EXTENSION log
     - log
     EXTENSION md
@@ -224,6 +243,10 @@ MIMETYPE text/plain
     - txt.gz
     EXTENSION yaml
     - yaml
+
+MIMETYPE text/x-asm
+    EXTENSION css       # Incorrectly identified css
+    - css
 
 MIMETYPE text/x-c
     EXTENSION c

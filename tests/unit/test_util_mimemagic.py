@@ -313,6 +313,9 @@ class TestMimemagicGetExtension(TestCase):
     def test_maps_mime_type_application_x_dosexec_to_extension_exe(self):
         self._assert_returns_extension('exe', given='application/x-dosexec')
 
+    def test_maps_mime_type_application_vnd_debian_binary_package_to_extension_deb(self):
+        self._assert_returns_extension('deb', given='application/vnd.debian.binary-package')
+
 
 class TestMimemagicGetMimetype(TestCase):
     def _assert_returns_mime(self, expect, given):
@@ -355,3 +358,6 @@ class TestMimemagicGetMimetype(TestCase):
 
     def test_maps_extensions_microsoft_office_mime_types(self):
         self._assert_returns_mime('application/vnd.ms-excel', given='xls')
+
+    def test_maps_extension_deb_to_mime_type_application_vnd_debian_binary_package(self):
+        self._assert_returns_mime('application/vnd.debian.binary-package', 'deb')

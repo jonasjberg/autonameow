@@ -187,6 +187,10 @@ class TestLikelyExtension(TestCase):
             (Expect('cpp'),
              Given(suffix='c++', mime='text/plain')),
 
+            # Incorrectly identified CSS
+            (Expect('css'),
+             Given(suffix='css', mime='text/x-asm')),
+
             # Microsoft Office
             (Expect('doc'),
              Given(suffix='doc', mime='application/msword')),
@@ -220,6 +224,10 @@ class TestLikelyExtension(TestCase):
             (Expect('html.gz'),
              Given(suffix='html', mime='application/x-gzip')),
 
+            # Incorrectly identified JavaScript
+            (Expect('js'),
+             Given(suffix='js', mime='text/html')),
+
             (Expect('log'),
              Given(suffix='log', mime='text/plain')),
 
@@ -237,6 +245,12 @@ class TestLikelyExtension(TestCase):
             (Expect('odt'),
              Given(suffix='', mime='application/vnd.oasis.opendocument.text')),
 
+            (Expect('deb'),
+             Given(suffix='deb', mime='application/vnd.debian.binary-package')),
+
+            (Expect('lc'),
+             Given(suffix='lc', mime='text/plain')),
+
             (Expect('mid'),
              Given(suffix='mid', mime='audio/midi')),
             (Expect('md'),
@@ -247,6 +261,21 @@ class TestLikelyExtension(TestCase):
              Given(suffix='markdown', mime='text/plain')),
             (Expect('mobi'),
              Given(suffix='mobi', mime='application/octet-stream')),
+
+            # National Instruments Multisim
+            (Expect('ms10'),
+             Given(suffix='ms10', mime='application/octet-stream')),
+            (Expect('ms10 (Security copy)'),
+             Given(suffix='ms10 (Security copy)', mime='application/octet-stream')),
+            (Expect('ms10 (Security copy)'),
+             Given(suffix='ms10-(Security-copy)', mime='application/octet-stream')),
+            (Expect('ms12'),
+             Given(suffix='ms12', mime='application/octet-stream')),
+            (Expect('ms12 (Security copy)'),
+             Given(suffix='ms12 (Security copy)', mime='application/octet-stream')),
+            (Expect('ms12 (Security copy)'),
+             Given(suffix='ms12-(Security-copy)', mime='application/octet-stream')),
+
             (Expect('pdf'),
              Given(suffix='pdf', mime='application/pdf')),
             (Expect('pdf'),
@@ -339,6 +368,10 @@ class TestLikelyExtension(TestCase):
             # Microsoft paper specification file
             (Expect('xps'),
              Given(suffix='xps', mime='application/octet-stream')),
+
+            # Safari saved webpage
+            (Expect('webarchive'),
+             Given(suffix='webarchive', mime='application/octet-stream')),
         ]
 
     def test_returns_expected(self):
