@@ -100,12 +100,6 @@ class FilesContext(object):
 
             # Have the user select a name template.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
-            # matched_rules = None
-            # choice = interactive.select_template(matched_rules)
-            # if choice != interactive.Choice.ABORT:
-            #     name_template = choice
-            # if not name_template:
-            #     log.warning('No valid name template chosen. Aborting')
 
         if not name_template:
             # User name template selection did not happen or failed.
@@ -214,9 +208,6 @@ class FilesContext(object):
             if _matched_rules:
                 log.warning('TODO: Implement interactive rule selection.')
                 # TODO: [TD0024][TD0025] Implement Interactive mode.
-                # choice = interactive.select_rule(candidates)
-                # if choice != interactive.Choice.ABORT:
-                #     active_rule = choice
             else:
                 log.debug('There are no rules available for the user to '
                           'choose from..')
@@ -251,9 +242,6 @@ class FilesContext(object):
         resolver.add_known_sources(data_sources)
 
         # TODO: Rework the rule matcher and this logic to try another candidate.
-        # if not resolver.mapped_all_template_fields():
-        #     if self.opts.get('mode_automagic'):
-        #         data_sources = matcher.candidates()[1]
 
         def _log_unable_to_find_new_name():
             log.warning(
@@ -282,7 +270,6 @@ class FilesContext(object):
                     'Unable to resolve all name template fields. Running in batch mode -- Aborting'
                 )
                 _log_unable_to_find_new_name()
-                # self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
             # TODO: [TD0024][TD0025] Implement Interactive mode.
@@ -295,10 +282,6 @@ class FilesContext(object):
                     choice = interactive.select_field(current_file, field, candidates)
 
                 # TODO: [TD0024] Use MeowURI prompt in interactive mode?
-                # if choice is interactive.Choice.ABORT:
-                #     _m = 'Specify source for field {!s}'.format(field)
-                #     choice = interactive.meowuri_prompt(_m)
-
                 if choice is interactive.Choice.ABORT:
                     log.info('Aborting ..')
                     return None
