@@ -278,57 +278,57 @@ class TestMimeExtensionMapper(TestCase):
 
 
 class TestMimemagicGetExtension(TestCase):
-    def _assert_returns_extension(self, given, expect):
+    def _assert_returns_extension(self, expect, given):
         actual = get_extension(given)
         self.assertEqual(expect, actual)
 
     def test_maps_mime_type_image_jpeg_to_extension_jpg(self):
-        self._assert_returns_extension(given='image/jpeg', expect='jpg')
+        self._assert_returns_extension('jpg', given='image/jpeg')
 
     def test_maps_mime_type_image_png_to_extension_png(self):
-        self._assert_returns_extension(given='image/png', expect='png')
+        self._assert_returns_extension('png', given='image/png')
 
     def test_maps_mime_type_text_x_sh_and_x_shellscript_to_extension_sh(self):
-        self._assert_returns_extension(given='text/x-shellscript', expect='sh')
-        self._assert_returns_extension(given='text/x-sh', expect='sh')
+        self._assert_returns_extension('sh', given='text/x-shellscript')
+        self._assert_returns_extension('sh', given='text/x-sh')
 
     def test_maps_mime_type_application_x_iso9660_image_to_extension_dmg(self):
-        self._assert_returns_extension(given='application/x-iso9660-image', expect='dmg')
+        self._assert_returns_extension('dmg', given='application/x-iso9660-image')
 
     def test_maps_opendocument_mime_types_to_expected_extensions(self):
-        self._assert_returns_extension(given='application/vnd.oasis.opendocument.presentation', expect='odp')
-        self._assert_returns_extension(given='application/vnd.oasis.opendocument.spreadsheet', expect='ods')
-        self._assert_returns_extension(given='application/vnd.oasis.opendocument.text', expect='odt')
+        self._assert_returns_extension('odp', given='application/vnd.oasis.opendocument.presentation')
+        self._assert_returns_extension('ods', given='application/vnd.oasis.opendocument.spreadsheet')
+        self._assert_returns_extension('odt', given='application/vnd.oasis.opendocument.text')
 
 
 class TestMimemagicGetMimetype(TestCase):
-    def _assert_returns_mime(self, given, expect):
+    def _assert_returns_mime(self, expect, given):
         actual = get_mimetype(given)
         self.assertEqual(expect, actual)
 
     def test_unknown_mime_type(self):
         unknown_mimetype = coercers.NULL_AW_MIMETYPE
-        for given in [None, '', ' ', '  ', 'me0ww']:
-            self._assert_returns_mime(given=given, expect=unknown_mimetype)
+        for invalid_extension in [None, '', ' ', '  ', 'me0ww']:
+            self._assert_returns_mime(unknown_mimetype, given=invalid_extension)
 
     def test_maps_extensions_jpg_and_jpeg_to_mime_type_image_jpeg(self):
-        self._assert_returns_mime(given='jpg', expect='image/jpeg')
-        self._assert_returns_mime(given='jpeg', expect='image/jpeg')
+        self._assert_returns_mime('image/jpeg', given='jpg')
+        self._assert_returns_mime('image/jpeg', given='jpeg')
 
     def test_maps_extension_png_to_mime_type_image_png(self):
-        self._assert_returns_mime(given='png', expect='image/png')
+        self._assert_returns_mime('image/png', given='png')
 
     def test_maps_extensions_sh_and_bash_to_mime_type_text_x_shellscript(self):
-        self._assert_returns_mime(given='sh', expect='text/x-shellscript')
-        self._assert_returns_mime(given='bash', expect='text/x-shellscript')
+        self._assert_returns_mime('text/x-shellscript', given='sh')
+        self._assert_returns_mime('text/x-shellscript', given='bash')
 
     def test_maps_extension_java_to_mime_type_text_x_java(self):
-        self._assert_returns_mime(given='java', expect='text/x-java')
+        self._assert_returns_mime('text/x-java', given='java')
 
     def test_maps_extension_dmg_to_mime_type_application_x_iso9660_image(self):
-        self._assert_returns_mime(given='dmg', expect='application/x-iso9660-image')
+        self._assert_returns_mime('application/x-iso9660-image', given='dmg')
 
     def test_maps_extensions_opendocument_mime_types(self):
-        self._assert_returns_mime(given='odp', expect='application/vnd.oasis.opendocument.presentation')
-        self._assert_returns_mime(given='ods', expect='application/vnd.oasis.opendocument.spreadsheet')
-        self._assert_returns_mime(given='odt', expect='application/vnd.oasis.opendocument.text')
+        self._assert_returns_mime('application/vnd.oasis.opendocument.presentation', given='odp')
+        self._assert_returns_mime('application/vnd.oasis.opendocument.spreadsheet', given='ods')
+        self._assert_returns_mime('application/vnd.oasis.opendocument.text', given='odt')
