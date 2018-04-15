@@ -179,6 +179,8 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
     # Failed special cases
     TD(given=['Regina O. Obe', 'Leo S. Hsu'],
        expect=['Hsu L.S.', 'Obe R.O.']),
+    TD(given=['Hermann Lödding', 'Ralph Riedel', 'Klaus-Dieter Thoben', 'Gregor von Cieminski', 'Dimitris Kiritsis'],
+       expect=['Kiritsis D.', 'Lödding H.', 'Riedel R.', 'Thoben K.', 'vonCieminski G.']),
 ]
 
 
@@ -279,6 +281,7 @@ class TestNormalizeLetterCase(TestCase):
             TD(given='gibson sjöberg', expect='Gibson Sjöberg'),
             TD(given='gibson c. sjöberg', expect='Gibson C. Sjöberg'),
             TD(given='gibson van cat', expect='Gibson van Cat'),
+            TD(given='gibson von cat', expect='Gibson von Cat'),
         ]:
             with self.subTest():
                 self._assert_returns(testdata.expect, testdata.given)
@@ -712,6 +715,12 @@ class TestFilterMultipleNames(TestCase):
         self._assert_filter_returns(
             expected=['Eric Conrad', 'Sith Misaner', 'Josh Faldmen'],
             given=['by Eric Conrad', 'Sith Misaner', 'Josh Faldmen']
+        )
+
+    def test_based_on_live_data_f(self):
+        self._assert_filter_returns(
+            expected=['Hermann Lödding', 'Ralph Riedel', 'Klaus-Dieter Thoben', 'Gregor von Cieminski', 'Dimitris Kiritsis'],
+            given=['Hermann Lödding', 'Ralph Riedel', 'Klaus-Dieter Thoben', 'Gregor von Cieminski', 'Dimitris Kiritsis']
         )
 
 

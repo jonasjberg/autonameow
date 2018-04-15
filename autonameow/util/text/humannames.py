@@ -104,9 +104,21 @@ def _handle_letter_case_of_names_with_van(string):
     return subbed
 
 
+def _handle_letter_case_of_names_with_von(string):
+    def __lower_first_upper_second(_match):
+        _lowered_first = _match.group(1).lower()
+        _lowered_second = _match.group(2).upper()
+        return _lowered_first + _lowered_second
+
+    subbed = re.sub(' Von ', ' von ', string)
+    subbed = re.sub('(Von)([\w])', __lower_first_upper_second, subbed)
+    return subbed
+
+
 def _handle_special_cases_of_name_letter_case(string):
     # TODO: [incomplete] Will probably need to handle more special cases.
     modified_string = _handle_letter_case_of_names_with_van(string)
+    modified_string = _handle_letter_case_of_names_with_von(modified_string)
     return modified_string
 
 
