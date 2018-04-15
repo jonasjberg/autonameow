@@ -53,7 +53,7 @@ RE_COPYRIGHT_NOTICE_B = re.compile(
 )
 
 RE_EDITION = re.compile(
-    r'([0-9])+\s?((st|nd|rd|th)\s?|(ed?\.?|edition))[\b]?',
+    r'([0-9])+\s?(e\b|ed\.?|edition)',
     re.IGNORECASE
 )
 

@@ -213,9 +213,14 @@ class TestFindAndExtractEdition(TestCase):
         self._check_result(given='Foobar 1st Edition 10th.pdf', expect_edition=1, expect_text='Foobar  10th.pdf')
         self._check_result(given='Foobar 10th 1st Edition.pdf', expect_edition=1, expect_text='Foobar 10th .pdf')
 
-    def test_handles_example_false_positives(self):
-        self.skipTest('TODO: ..')
-        self._check_result(given='Eleventh Hour CISSP', expect_edition=None, expect_text='Eleventh Hour CISSP')
+    def test_strings_without_editions_that_has_caused_false_positives(self):
+        for given in [
+            'Microsoft Exchange 2010 PowerShell Cookbook: Manage and maintain your Microsoft Exchange 2010 environment with Windows PowerShell 2.0 and the Exchange Management Shell',
+            # TODO: Fix false positives;
+            # 'Eleventh Hour CISSP',
+            # 'Head First C#'
+        ]:
+            self._check_result(given=given, expect_edition=None, expect_text=given)
 
 
 class TestFindPublisherInCopyrightNotice(TestCase):
