@@ -230,19 +230,17 @@ class HumanNameFormatter(object):
             )
 
         _original_string = parsed_name.get('original', '')
-        if self._is_formatted(_original_string):
+        if self._original_name_is_already_formatted(_original_string):
             return _original_string
 
         return self.format(parsed_name)
 
     @classmethod
-    def _is_formatted(cls, name):
+    def _original_name_is_already_formatted(cls, name):
         """
         Return names that are already in the output format as-is.
         """
-        if cls.RE_FORMATTED_NAME.match(name):
-            return True
-        return False
+        return bool(cls.RE_FORMATTED_NAME.match(name))
 
     def format(self, name):
         """
