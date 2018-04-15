@@ -264,14 +264,22 @@ class TemplateFieldDataResolver(object):
         return True
 
     def _gather_data(self):
-        for field, uris in self.data_sources.items():
+        for field, field_data_source_uris in self.data_sources.items():
             if self.fields_data.get(field) is not None:
                 log.debug('Skipping previously gathered field {!s}"'.format(field))
                 continue
 
-            for uri in uris:
+            field_data_source_uris_copy = field_data_source_uris.copy()
+            for uri in field_data_source_uris:
                 if self._gather_data_for_template_field(field, uri):
+                    # Remove used known source.
+                    field_data_source_uris_copy.remove(uri)
                     break
+
+            # Update known sources. If data was uccessfully gathered, do not
+            # attempt to gather it again if 'collect()' is called a second time
+            # after adding addtional known sources.
+            self.data_sources[field] = field_data_source_uris_copy
 
     def _verify_types(self):
         for field, databundle in self.fields_data.items():
