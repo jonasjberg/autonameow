@@ -137,6 +137,7 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     TD(given='Le Minh Nguyen', expect='Nguyen L.M.'),
     TD(given='Shiva Prasad K.', expect='Prasad S.K.'),
     TD(given='Shiva Prasad K.M.', expect='Prasad S.K.M.'),
+    TD(given='Florin Popentiu-Vladicescu', expect='Popentiu-Vladicescu F.'),
 ]
 
 TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
@@ -198,6 +199,8 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
        expect=['Prasad S.K.M.', 'Reddy M.S.', 'Viswanath K.']),
     TD(given=['M. Sreenivasa Reddy', 'K. Viswanath', 'Shiva Prasad K.'],
        expect=['Prasad S.K.', 'Reddy M.S.', 'Viswanath K.']),
+    TD(given=['Srikanta Patnaik', 'Florin Popentiu-Vladicescu'],
+       expect=['Patnaik S.', 'Popentiu-Vladicescu F.']),
 ]
 
 
