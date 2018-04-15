@@ -168,11 +168,6 @@ def _parse_name(human_name):
 
 
 class HumanNameParser(object):
-    # List of words to exclude from the output.
-    IGNORED_AUTHOR_WORDS = frozenset([
-        '',
-    ])
-
     def __call__(self, name):
         if name is None:
             return {}
