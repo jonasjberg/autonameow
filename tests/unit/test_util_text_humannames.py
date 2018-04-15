@@ -134,6 +134,7 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
 
     # Failed special cases
     TD(given='Regina O. Obe', expect='Obe R.O.'),
+    TD(given='Le Minh Nguyen', expect='Nguyen L.M.'),
 ]
 
 TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
@@ -181,6 +182,10 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
        expect=['Hsu L.S.', 'Obe R.O.']),
     TD(given=['Hermann Lödding', 'Ralph Riedel', 'Klaus-Dieter Thoben', 'Gregor von Cieminski', 'Dimitris Kiritsis'],
        expect=['Kiritsis D.', 'Lödding H.', 'Riedel R.', 'Thoben K.', 'vonCieminski G.']),
+    TD(given=['Le Minh Nguyen', 'Bogdan Trawinski'],
+       expect=['Nguyen L.M.', 'Trawinski B.']),
+    TD(given=['Ngoc Thanh Nguyen', 'Satoshi Tojo', 'Le Minh Nguyen', 'Bogdan Trawinski'],
+       expect=['Nguyen L.M.', 'Nguyen N.T.', 'Tojo S.', 'Trawinski B.']),
 ]
 
 

@@ -188,19 +188,33 @@ class HumanNameParser(object):
 
     @classmethod
     def _check_bad_nameparser_result(cls, parsed_name):
-        # Check for bad handling of names like 'Regina O. Obe'
         original_parts = parsed_name.get('original', '').split(' ')
-        if len(original_parts) == 3 and re.match(r'[A-Z]\.', original_parts[1]):
-            if parsed_name.get('suffix', '') == original_parts[2]:
-                # Last name mistaken for suffix
-                # Middle name mistaken for last name
-                if not parsed_name.get('middle'):
-                    parsed_name['suffix'] = ''
-                    parsed_name['suffix_list'] = ['']
-                    parsed_name['middle'] = original_parts[1]
-                    parsed_name['middle_list'] = [original_parts[1]]
-                    parsed_name['last'] = original_parts[2]
-                    parsed_name['last_list'] = [original_parts[2]]
+        if len(original_parts) == 3:
+            # Correct for bad handling of names like 'Regina O. Obe'
+            if re.match(r'[A-Z]\.', original_parts[1]):
+                if parsed_name.get('suffix', '') == original_parts[2]:
+                    # Last name mistaken for suffix
+                    # Middle name mistaken for last name
+                    if not parsed_name.get('middle'):
+                        parsed_name['suffix'] = ''
+                        parsed_name['suffix_list'] = ['']
+                        parsed_name['middle'] = original_parts[1]
+                        parsed_name['middle_list'] = [original_parts[1]]
+                        parsed_name['last'] = original_parts[2]
+                        parsed_name['last_list'] = [original_parts[2]]
+
+            # Correct for bad handling of names like 'Le Minh Nguyen'.
+            elif (parsed_name['original'] == parsed_name['first']
+                  and parsed_name['last'] == ''
+                  and parsed_name['middle'] == ''
+                  and parsed_name['suffix'] == ''
+                  and parsed_name['title'] == ''):
+                parsed_name['first'] = original_parts[0]
+                parsed_name['first_list'] = [original_parts[0]]
+                parsed_name['middle'] = original_parts[1]
+                parsed_name['middle_list'] = [original_parts[1]]
+                parsed_name['last'] = original_parts[2]
+
         return parsed_name
 
     @classmethod
