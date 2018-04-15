@@ -109,7 +109,14 @@ class ExiftoolMetadataExtractor(BaseExtractor):
 
     def _shutdown_exiftool_instance(self):
         if self._exiftool:
-            self._exiftool.terminate()
+            try:
+                self._exiftool.terminate()
+            except BrokenPipeError:
+                # "thirdparty/pyexiftool/exiftool.py", line 185, in terminate
+                #     self._process.stdin.flush()
+                # BrokenPipeError: [Errno 32] Broken pipe
+                pass
+
             self._exiftool = None
 
     def _get_exiftool_data(self, filepath):
