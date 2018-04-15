@@ -135,6 +135,8 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     # Failed special cases
     TD(given='Regina O. Obe', expect='Obe R.O.'),
     TD(given='Le Minh Nguyen', expect='Nguyen L.M.'),
+    TD(given='Shiva Prasad K.', expect='Prasad S.K.'),
+    TD(given='Shiva Prasad K.M.', expect='Prasad S.K.M.'),
 ]
 
 TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
@@ -176,6 +178,12 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
 
     TD(given=['Benjamin Bearkins', 'Jacob Rock Hammer', 'Jam M. Raid'],
        expect=['Bearkins B.', 'Hammer J.R.', 'Raid J.M.']),
+    TD(given=['Subhransu Sekhar Dash', 'Swagatam Das', 'Bijaya Ketan Panigrahi'],
+       expect=['Das S.', 'Dash S.S.', 'Panigrahi B.K.']),
+    TD(given=['Syed Faraz Hasan', 'Nazmul Siddique', 'Shyam Chakraborty'],
+       expect=['Chakraborty S.', 'Hasan S.F.', 'Siddique N.']),
+    TD(given=['Elias Kyriakides', 'Marios Polycarpou'],
+       expect=['Kyriakides E.', 'Polycarpou M.']),
 
     # Failed special cases
     TD(given=['Regina O. Obe', 'Leo S. Hsu'],
@@ -186,6 +194,10 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
        expect=['Nguyen L.M.', 'Trawinski B.']),
     TD(given=['Ngoc Thanh Nguyen', 'Satoshi Tojo', 'Le Minh Nguyen', 'Bogdan Trawinski'],
        expect=['Nguyen L.M.', 'Nguyen N.T.', 'Tojo S.', 'Trawinski B.']),
+    TD(given=['M. Sreenivasa Reddy', 'K. Viswanath', 'Shiva Prasad K.M.'],
+       expect=['Prasad S.K.M.', 'Reddy M.S.', 'Viswanath K.']),
+    TD(given=['M. Sreenivasa Reddy', 'K. Viswanath', 'Shiva Prasad K.'],
+       expect=['Prasad S.K.', 'Reddy M.S.', 'Viswanath K.']),
 ]
 
 
@@ -379,6 +391,16 @@ class TestHumanNameParser(TestCase):
                    'middle': 'Wilhelm',
                    'middle_list': ['Wilhelm'],
                    'original': 'Nietzsche, Friedrich Wilhelm'}),
+
+        # Failed special cases
+        TD(given='Shiva Prasad K.M.',
+           expect={'first': 'Shiva',
+                   'first_list': ['Shiva'],
+                   'last': 'Prasad',
+                   'last_list': ['Prasad'],
+                   'middle': 'K.M.',
+                   'middle_list': ['K', 'M'],
+                   'original': 'Shiva Prasad K.M.'}),
     ]
 
     def setUp(self):

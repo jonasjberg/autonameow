@@ -215,6 +215,18 @@ class HumanNameParser(object):
                 parsed_name['middle_list'] = [original_parts[1]]
                 parsed_name['last'] = original_parts[2]
 
+            # Correct for bad handling of names like 'Shiva Prasad K.M.'
+            elif re.match(r'([A-Z]\.)+', parsed_name['last']) and len(parsed_name['last_list']) == 1:
+                # Swap 'last' with 'middle' and 'last_list' with 'middle_list'.
+                misplaced_last = parsed_name['middle']
+                misplaced_last_list = parsed_name['middle_list']
+                misplaced_middle = parsed_name['last']
+                misplaced_middle_list = [s for s in parsed_name['last_list'][0].split('.') if s.strip()]
+                parsed_name['last'] = misplaced_last
+                parsed_name['last_list'] = misplaced_last_list
+                parsed_name['middle'] = misplaced_middle
+                parsed_name['middle_list'] = misplaced_middle_list
+
         return parsed_name
 
     @classmethod
