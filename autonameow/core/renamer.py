@@ -224,10 +224,10 @@ class FileRenamer(object):
 
         try:
             disk.rename_file(from_path, dest_basename)
-        except (FileNotFoundError, FileExistsError, FilesystemError) as e:
+        except FilesystemError:
             # TODO: Failure count not handled by the regression test mock!
             self.stats['failed'] += 1
-            raise FilesystemError(e)
+            raise
         else:
             self.stats['renamed'] += 1
 

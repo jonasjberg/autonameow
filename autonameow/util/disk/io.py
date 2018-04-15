@@ -71,11 +71,15 @@ def rename_file(source_path, new_basename):
             'Destination exists: "{!s}"'.format(_dp_dest)
         )
 
-    log.debug('Renaming "{!s}" to "{!s}"'.format(_dp_source, _dp_dest))
+    bytestring_source_path = enc.syspath(source_path)
+    bytestring_dest_path = enc.syspath(dest_path)
+    log.debug('Renaming "{!s}" to "{!s}" ..'.format(_dp_source, _dp_dest))
     try:
-        os.rename(enc.syspath(source_path), enc.syspath(dest_path))
-    except OSError:
-        raise
+        os.rename(bytestring_source_path, bytestring_dest_path)
+    except OSError as e:
+        raise FilesystemError(e)
+    else:
+        log.debug('Renamed "{!s}" to "{!s}"'.format(_dp_source, _dp_dest))
 
 
 def dirname(path):

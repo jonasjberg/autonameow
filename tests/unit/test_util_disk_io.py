@@ -100,6 +100,15 @@ class TestRenameFile(TestCase):
         rename_file(test_file_path, b'baz')
         mock_rename.assert_called_once_with(test_file_path, expected_destpath)
 
+    def test_raises_expected_exception_when_filename_is_too_long(self):
+        test_file_path = uu.make_temporary_file()
+        too_long_destination_basename = 256 * b'X'
+        self.assertEqual(256, len(too_long_destination_basename))
+
+        with self.assertRaises(FilesystemError) as cm:
+            rename_file(test_file_path, too_long_destination_basename)
+        # self.assertEqual(cm.exception.error_code, 36)
+
 
 class TestDirname(TestCase):
     def test_returns_expected(self):
