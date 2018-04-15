@@ -60,6 +60,7 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'Toolkit http://www.activepdf.com',
     'Toolkit http://www.activepdf.com(Infix)',
     'www.allitebooks.com',
+    'www.ebook777.com',
     'www.it-ebooks.info',
     'www.itbookshub.com',
 ])
