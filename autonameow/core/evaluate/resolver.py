@@ -32,12 +32,8 @@ from core.metadata.normalize import (
 )
 from core.model import genericfields as gf
 from core.namebuilder import fields
-from core.namebuilder.fields import NameTemplateField
 from core.repository import DataBundle
-from util import (
-    coercers,
-    sanity
-)
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -385,9 +381,9 @@ def sort_by_mapped_weights(databundles, primary_field, secondary_field=None):
     """
     Sorts bundles by their "weighted mapping" probabilities for given fields.
     """
-    sanity.check_isinstance(primary_field, NameTemplateField)
+    sanity.check_isinstance(primary_field, fields.NameTemplateField)
     if secondary_field is not None:
-        sanity.check_isinstance(secondary_field, NameTemplateField)
+        sanity.check_isinstance(secondary_field, fields.NameTemplateField)
 
     databundles.sort(
         key=lambda b: (b.field_mapping_weight(primary_field),
