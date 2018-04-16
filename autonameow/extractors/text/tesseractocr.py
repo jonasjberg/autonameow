@@ -179,7 +179,7 @@ def get_errors(error_string):
 
 def new_temporary_file(prefix=None, suffix=None):
     """
-    Returns the absoluate path to a named temporary file, as a Unicode string.
+    Returns the absolute path to a named temporary file, as a Unicode string.
     """
     return os.path.realpath(
         tempfile.NamedTemporaryFile(delete=False,

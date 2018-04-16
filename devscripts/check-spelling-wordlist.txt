@@ -1,3 +1,6 @@
+absoluate
+addtional
+attemping
 autoameow
 automaticaly
 autonamew
@@ -5,16 +8,19 @@ autonamoew
 bytesting
 dependant
 doucment
+dupliate
 expceted
 expeeted
 filname
 filobject
 implment
+itermediate
 meowuirs
 mockup
 objecst
 occured
 ocurred
+overriden
 probabilty
 refrence
 retuens
@@ -22,3 +28,4 @@ _return_non_
 similarty
 simlarity
 unavaiable
+ uccessfully

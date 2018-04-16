@@ -387,7 +387,7 @@ def parse_data_sources(raw_sources):
             try:
                 uri = MeowURI(meowuri_string)
             except InvalidMeowURIError as e:
-                log.warning('Skipped source with invalid MeoWURI: '
+                log.warning('Skipped source with invalid MeowURI: '
                             '"{!s}"; {!s}'.format(meowuri_string, e))
                 continue
 

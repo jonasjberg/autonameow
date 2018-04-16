@@ -78,21 +78,21 @@ class BaseExtractor(ProviderMixin):
           should be released at program exit or any errors must have a method
           'shutdown(self)' with appropriate behaviour for handling this.
     """
-    # NOTE: Must be overriden by inheriting classes.
+    # NOTE: Must be overridden by inheriting classes.
     # List of MIME types that this extractor can extract information from.
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
     HANDLES_MIME_TYPES = None
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
     # Middle part of the full MeowURI ('metadata', 'contents', 'filesystem', ..)
-    # Optionally overriden by inheriting classes.
+    # Optionally overridden by inheriting classes.
     MEOWURI_CHILD = C.MEOWURI_UNDEFINED_PART
 
     # Last part of the full MeowURI ('exiftool', 'xplat', ..)
-    # Optionally overriden by inheriting classes.
+    # Optionally overridden by inheriting classes.
     MEOWURI_LEAF = C.MEOWURI_UNDEFINED_PART
 
-    # NOTE: Must be overriden by inheriting classes.
+    # NOTE: Must be overridden by inheriting classes.
     # Controls whether the extractor is enabled and used by default.
     # Used to exclude slow running extractors from always being executed.
     # If the extractor is not enabled by the default, it must be explicitly

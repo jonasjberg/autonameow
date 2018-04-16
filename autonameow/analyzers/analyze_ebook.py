@@ -218,7 +218,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                     self._isbn_metadata.append(metadata)
                 else:
                     # TODO: [TD0190] Join/merge metadata "records" with missing values.
-                    # TODO: If the ISBN metadata record that is considered dupliate
+                    # TODO: If the ISBN metadata record that is considered duplicate
                     #       contains a field value that is missing/empty in the kept
                     #       metadata record, copy it to the kept record before
                     #       discarding the "duplicate" record.
@@ -239,14 +239,14 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
             if len(self._isbn_metadata) > 1:
                 # TODO: [TD0187] Fix clobbering of results
-                self.log.debug('Attemping to find most probable ISBN metadata..')
+                self.log.debug('Attempting to find most probable ISBN metadata..')
                 most_probable_isbn_metadata = self._find_most_probable_isbn_metadata()
                 if most_probable_isbn_metadata:
-                    self._add_itermediate_results_from_metadata([most_probable_isbn_metadata])
+                    self._add_intermediate_results_from_metadata([most_probable_isbn_metadata])
             else:
-                self._add_itermediate_results_from_metadata(self._isbn_metadata)
+                self._add_intermediate_results_from_metadata(self._isbn_metadata)
 
-    def _add_itermediate_results_from_metadata(self, isbn_metadata):
+    def _add_intermediate_results_from_metadata(self, isbn_metadata):
         for n, metadata in enumerate(isbn_metadata):
             for line in metadata.as_string().splitlines():
                 self.log.debug('ISBNMetadata {} :: {!s}'.format(n, line))

@@ -276,9 +276,9 @@ class TemplateFieldDataResolver(object):
                     field_data_source_uris_copy.remove(uri)
                     break
 
-            # Update known sources. If data was uccessfully gathered, do not
+            # Update known sources. If data was successfully gathered, do not
             # attempt to gather it again if 'collect()' is called a second time
-            # after adding addtional known sources.
+            # after adding additional known sources.
             self.data_sources[field] = field_data_source_uris_copy
 
     def _verify_types(self):

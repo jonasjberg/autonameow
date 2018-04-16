@@ -223,7 +223,7 @@ RE_UNICODE_OVERLINES = re.compile(
 
 # \u06D4 Arabic full stop
 # \u2024 One dot leader
-# \uFF0E Fullwidth full stop
+# \uFF0E Full-width full stop
 RE_UNICODE_PERIODS = re.compile(
     '[\u06d4\u2024\uff0e]'
 )
@@ -259,7 +259,7 @@ RE_UNICODE_TILDES = re.compile(
 # \u2019 Right single quotation mark
 # \uA78B Latin capital letter saltillo
 # \uA78C Latin small letter saltillo
-# \uFF07 Fullwidth apostrophe
+# \uFF07 Full-width apostrophe
 RE_UNICODE_APOSTROPHES = re.compile(
     '[\u0027\u055a\u2019\ua78b\ua78c\uff07]'
 )
