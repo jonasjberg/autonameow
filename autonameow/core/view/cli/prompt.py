@@ -24,7 +24,6 @@ import sys
 
 from core import constants as C
 from core import (
-    config,
     event,
     master_provider,
 )
