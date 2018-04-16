@@ -36,19 +36,22 @@ TITLE_REPLACEMENTS = {
 }
 
 
-def _normalize_whitespace(string):
-    return normalize_whitespace(string)
-
-
-def normalize_full_title(string):
-    clean_title = cleanup_full_title(string)
-    normalized_title = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', clean_title)
-    return normalized_title.lower().strip()
-
-
 def normalize_full_human_name(string):
     normalized_name = cleanup_full_human_name(string)
     return normalized_name.lower()
+
+
+def cleanup_full_human_name(string):
+    if not string:
+        return ''
+
+    assert isinstance(string, str)
+    name = normalize_unicode(string)
+    name = normalize_whitespace(name)
+    name = strip_edited_by(name)
+    name = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', name)
+    name = name.strip()
+    return name
 
 
 def cleanup_full_title(string):
@@ -58,7 +61,7 @@ def cleanup_full_title(string):
     assert isinstance(string, str)
     title = normalize_unicode(string)
     title = html_unescape(title)
-    title = _normalize_whitespace(title)
+    title = normalize_whitespace(title)
 
     # Replace potentially valuable characters before the next step.
     for pattern, replacement in TITLE_REPLACEMENTS.items():
@@ -68,14 +71,7 @@ def cleanup_full_title(string):
     return title
 
 
-def cleanup_full_human_name(string):
-    if not string:
-        return ''
-
-    assert isinstance(string, str)
-    name = normalize_unicode(string)
-    name = _normalize_whitespace(name)
-    name = strip_edited_by(name)
-    name = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', name)
-    name = name.strip()
-    return name
+def normalize_full_title(string):
+    clean_title = cleanup_full_title(string)
+    normalized_title = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', clean_title)
+    return normalized_title.lower().strip()

@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core.model.normalize import (
+from core.metadata.normalize import (
     normalize_full_human_name,
     normalize_full_title
 )

@@ -22,7 +22,7 @@
 import re
 
 from analyzers import BaseAnalyzer
-from core.model.normalize import cleanup_full_title
+from core.metadata.normalize import cleanup_full_title
 from util.text.filter import RegexLineFilter
 from util.text.patternmatching import find_publisher_in_copyright_notice
 from util.text import (

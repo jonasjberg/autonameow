@@ -30,10 +30,10 @@ except ImportError:
 
 from analyzers import BaseAnalyzer
 from core import persistence
-from core.model.normalize import (
+from core.metadata.normalize import (
     cleanup_full_title,
     normalize_full_human_name,
-    normalize_full_title
+    normalize_full_title,
 )
 from services.isbn import (
     extract_isbnlike_from_text,

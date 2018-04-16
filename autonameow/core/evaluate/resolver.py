@@ -26,11 +26,11 @@ from core import (
     logs,
     repository
 )
-from core.model import genericfields as gf
-from core.model.normalize import (
+from core.metadata.normalize import (
     normalize_full_human_name,
     normalize_full_title
 )
+from core.model import genericfields as gf
 from core.namebuilder import fields
 from core.namebuilder.fields import NameTemplateField
 from core.repository import DataBundle
