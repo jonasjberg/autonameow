@@ -16,6 +16,310 @@ Notes on the internal data identifier system and "MeowURI" naming convention.
 * 2017-09-27 --- `jonasjberg` Added "Breaking up MeowURIs into Parts"
 * 2017-09-28 --- `jonasjberg` Added "Alternative approach 3"
 * 2018-02-21 --- `jonasjberg` Rework hierarchical structure and naming.
+* 2018-04-18 --- `jonasjberg` Metadata processing layer positioning
+
+
+--------------------------------------------------------------------------------
+
+
+Field Normalization, Filtering and other Processing
+---------------------------------------------------
+> Jonas Sjöberg, 2018-04-18.
+
+*Where should a metadata "pre-processing" system be inserted?*
+
+Related to the above notes on how URIs would be increasingly specific when longer.
+
+Currently, a MeowURI like `extractor.metadata.exiftool.PDF:Title` might return
+`MILLER & FREUND’S PROBABILITY AND STATISTICS FOR ENGINEERS; NINTH EDITION Global Edition`.
+
+I.E. a query with an URI like `èxtractor.metadata.exiftool.PDF:Title` that should
+return a value `{title}` actually returned `{publisher} {title} {edition} {edition}`.
+
+```
+MILLER & FREUND’S PROBABILITY AND STATISTICS FOR ENGINEERS; NINTH EDITION Global Edition
+{_ publisher _}   {_______________ title ________________}  {_ edition _} {_ edition? _}
+```
+
+This is related to `[TD0192]` on extracting editions from titles and general
+Handling of field values with parts that really belong in another separate
+field.
+
+Maybe this should be as it is; a means of accessing a specific field value from
+a specific source with no/little changes made by `autonameow`.
+
+Then a "less specific" URI like `extractor.metadata.title` would take all
+available title-like field values, process them, run de-duplication, detect
+fields within fields, etc.
+
+Then `extractor.metadata.title` might just return `PROBABILITY AND STATISTICS
+FOR ENGINEERS` if that is the only value available (like `XMP:Title`, etc.)
+__or a list__ of all title-like values produced by exiftool.
+
+* Do minimal provider-specific processing of metadata returned by "full" URIs.
+* Do processing, "field-in-field" detection, etc. of metadata returned by
+  "less specific" or "implicit" URIs.
+
+
+--------------------------------------------------------------------------------
+
+
+Flexibility in Actual Usage
+---------------------------
+> Jonas Sjöberg, 2018-02-20.
+
+The original idea for efficient command-line usage is speed through logical
+order and autocompletion.  Actual usage is currently not very good.
+MeowURI naming and hierarchical structure must be done properly.
+
+
+### How about this?
+
+Like climbing down a hierarchy, from most to least specific.
+
+
+Example requesting the `description` field:
+
+1. Full "direct" lookup from a single specific provider `filetags`:
+
+        extractor.filesystem.filetags.DESCRIPTION
+
+2. From any of the `filesystem` providers:
+
+        extractor.filesystem.DESCRIPTION
+
+2. From any of the `extractor` group of providers:
+
+        extractor.DESCRIPTION
+
+3. from __any/all__ of the available providers:
+
+        DESCRIPTION
+
+    This is currently called "generic" MeowURIs, written as:
+    ```
+    generic.metadata.DESCRIPTION
+    ```
+
+If only one provider has produced data with a `description` field, all of the
+above would return the same result.
+
+
+~~And again, restated:~~
+
+When the "leaf" position shifts from the first to last position of the full
+MeowURI, the data query becomes increasingly explicit and direct.
+
+```
+ specific:  a.b.c.X
+            a.b.X
+            a.X
+"generic":  X
+```
+
+~~Might think of it like a tree structure of `X` nodes that all refer to the same
+piece of information.~~
+
+* `X` --- any `X`
+* `a.X` --- `X` within subtrees of `a` (from any children of `a`)
+* `a.b.X` --- `X` within subtrees of `b` (child of `a`)
+* `a.b.c.X` --- `X` within subtrees of `c` (child of `b` which is child of `a`)
+
+
+--------------------------------------------------------------------------------
+
+
+Might visualize it like this:
+ *Think about if this general case is actually what is used?*
+
+```
+a ________________________________________________________
+  x1  x2        x3          x4                        x5
+
+
+b __________________    c ____________________    d ______
+  x1  x2        x3          x5                         x6
+
+
+e ______    f ______    g ______    h ________    i ______
+  x1  x2        x3          x4                        x5
+```
+
+* Top is the "root"
+* Middle `b` to `d` are provider groups (extractors, analyzers, plugins)
+* Bottom `e` to `i` are actual providers (filesystem extractor, ebook analyzer, etc.)
+
+
+So queries with MeowURIs;
+
+* `a.b.e.x` would return values `x1` and `x2`
+* `a.b.x` would return values `x1`, `x2` and `x3`
+* `a.x` would return all values `x1` through `x5`
+
+
+### Or how about this?
+These are all title-related MeowURIs:
+
+```
+(generic.metadata.title)
+analyzer.document.title
+extractor.filesystem.guessit.title
+extractor.metadata.exiftool.PDF:Title
+extractor.metadata.exiftool.RTF:Title
+extractor.metadata.exiftool.XMP:EntryTitle
+extractor.metadata.exiftool.XMP:Title
+extractor.metadata.pandoc.title
+```
+
+I might want to get a specific exiftool field:
+```
+extractor.metadata.exiftool.PDF:Title
+```
+
+Any exiftool title:
+```
+extractor.metadata.exiftool.title
+```
+Any exiftool title, alternative (?):
+```
+extractor.exiftool.title
+```
+
+Any title:
+```
+title
+```
+(this is currently `generic.metadata.title`)
+
+
+Any __metadata__ title:
+```
+metadata.title
+```
+__This would not be possible with the new plan__ (?)
+
+
+
+As a table:
+
+
+(generic.metadata.title)
+analyzer.document.title
+extractor.filesystem.guessit.title
+
+extractor.metadata.exiftool.PDF:Title
+extractor.metadata.exiftool.RTF:Title
+extractor.metadata.exiftool.XMP:EntryTitle
+extractor.metadata.exiftool.XMP:Title
+extractor.metadata.pandoc.title
+
+
+
+Problems with the "MeowURI" abstraction
+---------------------------------------
+
+### Replacing `basename_full` with `basename.full`
+Using leaves consisting of a single part makes sense in that mapping
+between "external" and "internal" field names is straight-forward.
+
+Providers return "raw" data as dicts:
+```python
+raw_metadata = {
+    'PDF:CreateDate': '2018-02-21'
+}
+```
+
+Which is then collected by the various runners and stored with the full
+MeowURI:
+```python
+provider_metadata = {
+    'extractor.metadata.exiftool.PDF:CreateDate': {
+        'value': '2018-02-21',
+        'metainfo': '...'
+    }
+}
+```
+
+The external keys (`PDF:CreateDate`) can easily be swapped with whatever.
+
+For leaves that must be referred to as a two-part string, things become complicated.
+
+
+Providers return "raw" data as dicts:
+```python
+raw_metadata = {
+    'basename': {
+        'full': 'foo'
+    }
+}
+```
+
+Which is then collected by the various runners and stored with the full
+MeowURI:
+```python
+provider_metadata = {
+    'extractor.filesystem.xplat.basename.full': {
+        'value': 'foo',
+        'metainfo': '...'
+    }
+}
+```
+
+
+At the same time, how many possible providers would provide the full basename
+of a file?  It would not add any value whatsoever. So maybe the user-facing
+MeowURIs __should__ split the leaf in two parts?
+
+
+__This is probably the way to go, discoverability through
+auto-complete/suggestions in the CLI interface.__
+
+Might simply translate `_` to `.` somewhere at the UI layer boundaries.
+
+#### Related TODOs:
+
+> * `[TD0162]` Handle mapping/translation between "generic"/specific MeowURIs.
+>
+> * `[TD0125]` __Add aliases (generics) for MeowURI leafs__  
+>   Should probably provide a consistent internal alternative field name when
+>   specifying extractor-specific MeowURIs, not only with "generic".
+>
+>   Example of equivalent MeowURIs with the "alias" or "generic":
+>
+>     ```
+>     extractor.metadata.exiftool.PDF:CreateDate
+>     extractor.metadata.exiftool.date_created
+>     ```
+>
+>   Another example:
+>
+>     ```
+>     extractor.metadata.exiftool.EXIF:DateTimeOriginal
+>     extractor.metadata.exiftool.date_created
+>     ```
+>   The examples illustrate that multiple provider-specific fields would have to
+>   share a single "alias" or "generic", because there will always be fewer of
+>   them. If these were not based on the subclasses of `GenericField`, they could
+>   simply be made to map directly with the provider fields, maybe only with a
+>   slight transformation like converting to lower-case.
+>
+>   Example of alternative using simple transformations:
+>
+>     ```
+>     extractor.metadata.exiftool.EXIF:DateTimeOriginal
+>     extractor.metadata.exiftool.exif_datetimeoriginal
+>     ```
+>
+> * `[TD0089]` Validate only "generic" data fields when reading config.
+>
+> * `[TD0146]` Rework "generic fields", possibly collecting fields in "records".
+
+
+### Mapping configuration field parsers and other "globbing"
+Probably does not matter as it should be reworked anyway?
+
+
+--------------------------------------------------------------------------------
 
 
 Data Storage
@@ -290,263 +594,3 @@ __Suggested new form:__  `metadata.description`
 Analyzers only really expose a internal naming convention.
 
 There might not be any need to use "generic" analyzer-URIs (?)
-
-
---------------------------------------------------------------------------------
-
-
-Flexibility in Actual Usage
----------------------------
-> Jonas Sjöberg, 2018-02-20.
-
-The original idea for efficient command-line usage is speed through logical
-order and autocompletion.  Actual usage is currently not very good.
-MeowURI naming and hierarchical structure must be done properly.
-
-
-### How about this?
-
-Like climbing down a hierarchy, from most to least specific.
-
-
-Example requesting the `description` field:
-
-1. Full "direct" lookup from a single specific provider `filetags`:
-
-        extractor.filesystem.filetags.DESCRIPTION
-
-2. From any of the `filesystem` providers:
-
-        extractor.filesystem.DESCRIPTION
-
-2. From any of the `extractor` group of providers:
-
-        extractor.DESCRIPTION
-
-3. from __any/all__ of the available providers:
-
-        DESCRIPTION
-
-    This is currently called "generic" MeowURIs, written as:
-    ```
-    generic.metadata.DESCRIPTION
-    ```
-
-If only one provider has produced data with a `description` field, all of the
-above would return the same result.
-
-
-~~And again, restated:~~
-
-When the "leaf" position shifts from the first to last position of the full
-MeowURI, the data query becomes increasingly explicit and direct.
-
-```
- specific:  a.b.c.X
-            a.b.X
-            a.X
-"generic":  X
-```
-
-~~Might think of it like a tree structure of `X` nodes that all refer to the same
-piece of information.~~
-
-* `X` --- any `X`
-* `a.X` --- `X` within subtrees of `a` (from any children of `a`)
-* `a.b.X` --- `X` within subtrees of `b` (child of `a`)
-* `a.b.c.X` --- `X` within subtrees of `c` (child of `b` which is child of `a`)
-
-
---------------------------------------------------------------------------------
-
-
-Might visualize it like this:
- *Think about if this general case is actually what is used?*
-
-```
-a ________________________________________________________
-  x1  x2        x3          x4                        x5
-
-
-b __________________    c ____________________    d ______
-  x1  x2        x3          x5                         x6
-
-
-e ______    f ______    g ______    h ________    i ______
-  x1  x2        x3          x4                        x5
-```
-
-* Top is the "root"
-* Middle `b` to `d` are provider groups (extractors, analyzers, plugins)
-* Bottom `e` to `i` are actual providers (filesystem extractor, ebook analyzer, etc.)
-
-
-So queries with MeowURIs;
-
-* `a.b.e.x` would return values `x1` and `x2`
-* `a.b.x` would return values `x1`, `x2` and `x3`
-* `a.x` would return all values `x1` through `x5`
-
-
-### Or how about this?
-These are all title-related MeowURIs:
-
-```
-(generic.metadata.title)
-analyzer.document.title
-extractor.filesystem.guessit.title
-extractor.metadata.exiftool.PDF:Title
-extractor.metadata.exiftool.RTF:Title
-extractor.metadata.exiftool.XMP:EntryTitle
-extractor.metadata.exiftool.XMP:Title
-extractor.metadata.pandoc.title
-```
-
-I might want to get a specific exiftool field:
-```
-extractor.metadata.exiftool.PDF:Title
-```
-
-Any exiftool title:
-```
-extractor.metadata.exiftool.title
-```
-Any exiftool title, alternative (?):
-```
-extractor.exiftool.title
-```
-
-Any title:
-```
-title
-```
-(this is currently `generic.metadata.title`)
-
-
-Any __metadata__ title:
-```
-metadata.title
-```
-__This would not be possible with the new plan__ (?)
-
-
-
-As a table:
-
-
-(generic.metadata.title)
-analyzer.document.title
-extractor.filesystem.guessit.title
-
-extractor.metadata.exiftool.PDF:Title
-extractor.metadata.exiftool.RTF:Title
-extractor.metadata.exiftool.XMP:EntryTitle
-extractor.metadata.exiftool.XMP:Title
-extractor.metadata.pandoc.title
-
-
-
-
-
-Problems with the "MeowURI" abstraction
----------------------------------------
-
-### Replacing `basename_full` with `basename.full`
-Using leaves consisting of a single part makes sense in that mapping
-between "external" and "internal" field names is straight-forward.
-
-Providers return "raw" data as dicts:
-```python
-raw_metadata = {
-    'PDF:CreateDate': '2018-02-21'
-}
-```
-
-Which is then collected by the various runners and stored with the full
-MeowURI:
-```python
-provider_metadata = {
-    'extractor.metadata.exiftool.PDF:CreateDate': {
-        'value': '2018-02-21',
-        'metainfo': '...'
-    }
-}
-```
-
-The external keys (`PDF:CreateDate`) can easily be swapped with whatever.
-
-For leaves that must be referred to as a two-part string, things become complicated.
-
-
-Providers return "raw" data as dicts:
-```python
-raw_metadata = {
-    'basename': {
-        'full': 'foo'
-    }
-}
-```
-
-Which is then collected by the various runners and stored with the full
-MeowURI:
-```python
-provider_metadata = {
-    'extractor.filesystem.xplat.basename.full': {
-        'value': 'foo',
-        'metainfo': '...'
-    }
-}
-```
-
-
-At the same time, how many possible providers would provide the full basename
-of a file?  It would not add any value whatsoever. So maybe the user-facing
-MeowURIs __should__ split the leaf in two parts?
-
-
-__This is probably the way to go, discoverability through
-auto-complete/suggestions in the CLI interface.__
-
-Might simply translate `_` to `.` somewhere at the UI layer boundaries.
-
-#### Related TODOs:
-
-> * `[TD0162]` Handle mapping/translation between "generic"/specific MeowURIs.
->
-> * `[TD0125]` __Add aliases (generics) for MeowURI leafs__  
->   Should probably provide a consistent internal alternative field name when
->   specifying extractor-specific MeowURIs, not only with "generic".
->
->   Example of equivalent MeowURIs with the "alias" or "generic":
->
->     ```
->     extractor.metadata.exiftool.PDF:CreateDate
->     extractor.metadata.exiftool.date_created
->     ```
->
->   Another example:
->
->     ```
->     extractor.metadata.exiftool.EXIF:DateTimeOriginal
->     extractor.metadata.exiftool.date_created
->     ```
->   The examples illustrate that multiple provider-specific fields would have to
->   share a single "alias" or "generic", because there will always be fewer of
->   them. If these were not based on the subclasses of `GenericField`, they could
->   simply be made to map directly with the provider fields, maybe only with a
->   slight transformation like converting to lower-case.
->
->   Example of alternative using simple transformations:
->
->     ```
->     extractor.metadata.exiftool.EXIF:DateTimeOriginal
->     extractor.metadata.exiftool.exif_datetimeoriginal
->     ```
->
-> * `[TD0089]` Validate only "generic" data fields when reading config.
->
-> * `[TD0146]` Rework "generic fields", possibly collecting fields in "records".
-
-
-### Mapping configuration field parsers and other "globbing"
-Probably does not matter as it should be reworked anyway?
