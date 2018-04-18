@@ -216,11 +216,40 @@ class HumanNameParser(object):
                 misplaced_last = parsed_name['middle']
                 misplaced_last_list = parsed_name['middle_list']
                 misplaced_middle = parsed_name['last']
-                misplaced_middle_list = [s for s in parsed_name['last_list'][0].split('.') if s.strip()]
+                misplaced_middle_list = [
+                    s for s
+                    in parsed_name['last_list'][0].split('.')
+                    if s.strip()
+                ]
                 parsed_name['last'] = misplaced_last
                 parsed_name['last_list'] = misplaced_last_list
                 parsed_name['middle'] = misplaced_middle
                 parsed_name['middle_list'] = misplaced_middle_list
+
+        elif len(original_parts) == 2:
+            # Correct for bad handling of names like 'I.N. Bronsh'
+            if re.match(r'([A-Z]\.){2,}', original_parts[0]):
+                if (parsed_name['first'] == parsed_name['first_list'][0]
+                        and parsed_name['last'] == parsed_name['last_list'][0]
+                        and not parsed_name['middle']
+                        and not parsed_name['middle_list']
+                        and not parsed_name['suffix']
+                        and not parsed_name['title']
+                        and not parsed_name['title_list']):
+
+                    initials = [
+                        s for s in parsed_name['first'].split('.') if s.strip()
+                    ]
+                    try:
+                        first_initial = initials[0]
+                        remaining_initials = initials[1:]
+                        parsed_name['first'] = first_initial
+                        parsed_name['first_list'] = [first_initial]
+                        parsed_name['middle'] = remaining_initials[0]
+                        parsed_name['middle_list'] = remaining_initials
+                    except IndexError:
+                        print('älkjshdfg')
+                        raise
 
         return parsed_name
 

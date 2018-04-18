@@ -138,6 +138,10 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     TD(given='Shiva Prasad K.', expect='Prasad S.K.'),
     TD(given='Shiva Prasad K.M.', expect='Prasad S.K.M.'),
     TD(given='Florin Popentiu-Vladicescu', expect='Popentiu-Vladicescu F.'),
+    TD(given='I. Bronsh', expect='Bronsh I.'),
+    TD(given='I.N. Bronsh', expect='Bronsh I.N.'),
+    TD(given='Bronsh I.', expect='Bronsh I.'),
+    TD(given='Bronsh I.N.', expect='Bronsh I.N.'),
 ]
 
 TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
@@ -201,6 +205,12 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
        expect=['Prasad S.K.', 'Reddy M.S.', 'Viswanath K.']),
     TD(given=['Srikanta Patnaik', 'Florin Popentiu-Vladicescu'],
        expect=['Patnaik S.', 'Popentiu-Vladicescu F.']),
+    TD(given=['I.N. Bronsh', 'K.A. Semandyayev', 'Gert Musiol', 'Steiner Mühlig'],
+       expect=['Bronsh I.N.', 'Musiol G.', 'Mühlig S.', 'Semandyayev K.A.']),
+    TD(given=['I.N. Bronsh', 'K. Semandyayev', 'Gert Musiol', 'Steiner Mühlig'],
+       expect=['Bronsh I.N.', 'Musiol G.', 'Mühlig S.', 'Semandyayev K.']),
+    TD(given=['I. Bronsh', 'K. Semandyayev', 'Gert Musiol', 'Steiner Mühlig'],
+       expect=['Bronsh I.', 'Musiol G.', 'Mühlig S.', 'Semandyayev K.']),
 ]
 
 
@@ -404,6 +414,22 @@ class TestHumanNameParser(TestCase):
                    'middle': 'K.M.',
                    'middle_list': ['K', 'M'],
                    'original': 'Shiva Prasad K.M.'}),
+        TD(given='I.N. Bronsh',
+           expect={'first': 'I',
+                   'first_list': ['I'],
+                   'last': 'Bronsh',
+                   'last_list': ['Bronsh'],
+                   'middle': 'N',
+                   'middle_list': ['N'],
+                   'original': 'I.N. Bronsh'}),
+        TD(given='K.A. Semandyayev',
+           expect={'first': 'K',
+                   'first_list': ['K'],
+                   'last': 'Semandyayev',
+                   'last_list': ['Semandyayev'],
+                   'middle': 'A',
+                   'middle_list': ['A'],
+                   'original': 'K.A. Semandyayev'}),
     ]
 
     def setUp(self):
@@ -751,6 +777,12 @@ class TestFilterMultipleNames(TestCase):
         self._assert_filter_returns(
             expected=['Hermann Lödding', 'Ralph Riedel', 'Klaus-Dieter Thoben', 'Gregor von Cieminski', 'Dimitris Kiritsis'],
             given=['Hermann Lödding', 'Ralph Riedel', 'Klaus-Dieter Thoben', 'Gregor von Cieminski', 'Dimitris Kiritsis']
+        )
+
+    def test_based_on_live_data_g(self):
+        self._assert_filter_returns(
+            expected=['I.N. Bronsh', 'K.A. Semandyayev', 'Gert Musiol', 'Steiner Mühlig'],
+            given=['I.N. Bronsh', 'K.A. Semandyayev', 'Gert Musiol', 'Steiner Mühlig']
         )
 
 
