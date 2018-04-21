@@ -264,7 +264,7 @@ class RegressionTestSuite(object):
 
     def __hash__(self):
         return hash(
-            (self.abspath, self.asserts, self.options, self.should_skip)
+            (self.abspath, self.dirname)
         )
 
     def __eq__(self, other):

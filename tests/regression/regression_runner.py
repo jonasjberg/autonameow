@@ -190,7 +190,8 @@ def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
 def write_failed_testsuites(suites):
     persistent_storage = _get_persistence()
     if persistent_storage:
-        persistent_storage.set('lastrun', {'failed': suites})
+        suites_list = list(suites)
+        persistent_storage.set('lastrun', {'failed': suites_list})
 
 
 def load_failed_testsuites():
@@ -214,25 +215,20 @@ def print_test_commandlines(tests):
 
 def run_regressiontests(tests, verbose, print_stderr, print_stdout):
     reporter = TerminalReporter(verbose)
-    count_total = len(tests)
-    count_success = 0
-    count_failure = 0
-    count_skipped = 0
+    run_results = TestRunResults()
     should_abort = False
-
-    failed_tests = list()
-
     global_start_time = time.time()
 
     for test in tests:
         if should_abort:
-            count_skipped += count_total - count_success - count_failure
+            remaining = [t for t in tests if t not in run_results.all]
+            run_results.skipped.update(remaining)
             break
 
         if test.should_skip:
             reporter.msg_test_skipped(test.str_dirname, test.description)
             reporter.msg_test_runtime(None, None)
-            count_skipped += 1
+            run_results.skipped.add(test)
             continue
 
         reporter.msg_test_start(test.str_dirname, test.description)
@@ -259,19 +255,17 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
                 if print_stdout and captured_stdout:
                     reporter.msg_captured_stdout(captured_stdout)
 
-                # TODO: Fix formatting of failure due to top-level exception error.
-                count_failure += 1
-                failed_tests.append(test)
+                run_results.failed.add(test)
                 continue
 
             failures = int(results.failure_count)
-            if failures == 0:
+            test_passed = failures == 0
+            if test_passed:
                 reporter.msg_test_success()
-                count_success += 1
-            elif failures > 0:
+                run_results.passed.add(test)
+            else:
                 reporter.msg_test_failure()
-                count_failure += 1
-                failed_tests.append(test)
+                run_results.failed.add(test)
 
             reporter.msg_test_runtime(elapsed_time, results.captured_runtime)
 
@@ -281,17 +275,22 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
                 reporter.msg_captured_stdout(captured_stdout)
 
     global_elapsed_time = time.time() - global_start_time
-    reporter.msg_overall_stats(count_total, count_skipped, count_success,
-                               count_failure, global_elapsed_time)
+    reporter.msg_overall_stats(
+        len(tests),
+        count_skipped=len(run_results.skipped),
+        count_success=len(run_results.passed),
+        count_failure=len(run_results.failed),
+        elapsed_time=global_elapsed_time
+    )
 
     if not should_abort:
         # Store failed tests only if all tests were executed.
         # Otherwise all tests would have to be re-run in order to "catch"
         # the failed tests, if re-running the failed tests and aborting
         # before completion..
-        write_failed_testsuites(failed_tests)
+        write_failed_testsuites(run_results.failed)
 
-    return count_failure
+    return run_results
 
 
 def filter_tests(tests, filter_func, expr):
@@ -448,10 +447,12 @@ def main(args):
         return C.EXIT_SUCCESS
 
     if opts.run_tests:
-        failed = run_regressiontests(selected_tests, verbose,
-                                     print_stderr=bool(opts.print_stderr),
-                                     print_stdout=bool(opts.print_stdout))
-        if failed:
+        run_results = run_regressiontests(
+            selected_tests, verbose,
+            print_stderr=bool(opts.print_stderr),
+            print_stdout=bool(opts.print_stdout)
+        )
+        if run_results.failed:
             return C.EXIT_WARNING
 
     return C.EXIT_SUCCESS
