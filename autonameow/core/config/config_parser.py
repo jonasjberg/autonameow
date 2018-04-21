@@ -153,7 +153,7 @@ class ConfigurationParser(object):
 
             # User-defined names with lists of patterns.
             for repl, pat_list in raw_options.get('candidates', {}).items():
-                _validated_candidates = []
+                _validated_candidates = list()
                 for _pat in pat_list:
                     try:
                         compiled_pat = re.compile(_pat, re.IGNORECASE)
@@ -286,7 +286,7 @@ class ConfigurationParser(object):
             log.warning('Unable to load post-processing replacements')
             return
 
-        match_replace_pairs = []
+        match_replace_pairs = list()
         for regex, replacement in raw_replacements.items():
             str_regex = _coerce_string(regex)
             str_replacement = _coerce_string(replacement)
@@ -552,7 +552,7 @@ def parse_rule_conditions(raw_conditions):
                                        'Got {!s}'.format(type(raw_conditions)))
 
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
-    passed = []
+    passed = list()
     for str_meowuri, raw_expression in raw_conditions.items():
         try:
             uri = MeowURI(str_meowuri)

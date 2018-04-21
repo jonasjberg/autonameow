@@ -454,7 +454,7 @@ def _expand_input_paths_variables(input_paths):
     """
     assert isinstance(input_paths, list)
 
-    results = []
+    results = list()
     for path in input_paths:
         if path == '$TESTFILES':
             # Substitute "variable".
@@ -669,7 +669,7 @@ def get_all_testsuite_dirpaths():
 
 
 def load_regression_testsuites():
-    all_loaded_tests = []
+    all_loaded_tests = list()
 
     testsuite_paths = get_all_testsuite_dirpaths()
     for suite_path in testsuite_paths:
@@ -720,7 +720,7 @@ def _load_assertion_regexes(asserts_dict, filedescriptor, assert_type):
         )
         expressions = [expressions]
 
-    regexes = []
+    regexes = list()
     for expression in expressions:
         try:
             regexes.append(re.compile(expression, re.MULTILINE))
@@ -803,7 +803,7 @@ def _commandline_args_for_testsuite(suite):
         'verbose': '--verbose',
     }
 
-    arguments = []
+    arguments = list()
     suite_options = suite.options
     if suite_options:
         for opt, arg in TESTOPTION_CMDARG_MAP.items():

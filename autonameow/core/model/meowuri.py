@@ -49,7 +49,7 @@ class MeowURIParser(object):
         args_list = list(flattened)
 
         # Normalize into a list of period-separated Unicode words ..
-        raw_parts = []
+        raw_parts = list()
         for arg in args_list:
             if isinstance(arg, (MeowURI, MeowURIChild, MeowURIRoot, MeowURILeaf)):
                 # TODO: [performance] This is probably extremely inefficient ..
@@ -93,7 +93,7 @@ class MeowURIParser(object):
             _leaf = None
 
         # Remaining elements are children
-        _children = []
+        _children = list()
         if raw_parts:
             _children = [MeowURIChild(n) for n in raw_parts]
 

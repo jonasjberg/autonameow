@@ -77,7 +77,7 @@ class TestRuleMatcherMatching(TestCase):
     def test_returns_empty_list_if_no_rules_are_available(self):
         matcher = _get_rulematcher(rules=[])
         actual = matcher.get_matched_rules()
-        expect = []
+        expect = list()
         self.assertEqual(expect, actual)
 
     @staticmethod
@@ -88,7 +88,7 @@ class TestRuleMatcherMatching(TestCase):
         rule.number_conditions = int(num_conditions)
         rule.ranking_bias = float(bias)
 
-        _conditions = []
+        _conditions = list()
         for _ in range(num_conditions):
             rule_condition = Mock()
             _conditions.append(rule_condition)
@@ -108,7 +108,7 @@ class TestRuleMatcherMatching(TestCase):
             exact_match=False, num_conditions=3, bias=0.5
         )
         # 0 conditions met
-        mock_passed.return_value = []
+        mock_passed.return_value = list()
         matcher = _get_rulematcher(rules=[rule], provider=None)
         actual = matcher.get_matched_rules()
         expect = [(rule, 0.0, 1.0)]

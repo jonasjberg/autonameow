@@ -51,7 +51,7 @@ class TestMainFileExistsAndIsExecutable(TestCase):
 
 
 class TestCliMain(TestCase):
-    EMPTY_COMMANDLINE_OPTIONS = []
+    EMPTY_COMMANDLINE_OPTIONS = list()
 
     # TODO: Calling 'init_logging()' here messes up other tests for some reason.
     # If only 'test_regression_utils.py' is executed, all tests pass.

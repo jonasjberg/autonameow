@@ -158,7 +158,7 @@ def colorize(text, fore=None, back=None, style=None):
     if not (fore or back or style) or not colorama:
         return text
 
-    buffer = []
+    buffer = list()
 
     if fore:
         fore = fore.upper()
@@ -199,7 +199,7 @@ def colorize_re_match(text, regex, color=None):
     else:
         _color = 'LIGHTGREEN_EX'
 
-    replacements = []
+    replacements = list()
     match_iter = regex.findall(text)
     if not match_iter:
         return text
@@ -384,8 +384,8 @@ def _colorize_string_diff(a, b, color, secondary_color, colorize_=None):
     else:
         assert callable(colorize_)
 
-    a_out = []
-    b_out = []
+    a_out = list()
+    b_out = list()
 
     from difflib import SequenceMatcher
     matcher = SequenceMatcher(lambda x: False, a, b)
@@ -465,10 +465,10 @@ class ColumnFormatter(object):
 
     def __init__(self, align='left'):
         self._column_count = 0
-        self._data = []
-        self._column_widths = []
+        self._data = list()
+        self._column_widths = list()
         self._default_align = self.ALIGNMENT_STRINGS.get(align, 'ljust')
-        self._column_align = []
+        self._column_align = list()
 
     def setalignment(self, *args):
         maybe_strings = list(args)
@@ -476,7 +476,7 @@ class ColumnFormatter(object):
         if not strings:
             return
 
-        _column_alignment = []
+        _column_alignment = list()
         for i in range(0, self.number_columns):
             if i < len(strings) and [s in self.ALIGNMENT_STRINGS.keys() for s in strings]:
                 _column_alignment.append(self.ALIGNMENT_STRINGS.get(strings[i]))
@@ -488,7 +488,7 @@ class ColumnFormatter(object):
     @property
     def alignment(self):
         if not self._column_align:
-            out = []
+            out = list()
             out.extend(self._default_align for _ in range(self.number_columns))
             return out
         return self._column_align
@@ -551,7 +551,7 @@ class ColumnFormatter(object):
 
     @staticmethod
     def _check_types_replace_none(maybe_strings):
-        out = []
+        out = list()
 
         if not maybe_strings:
             return out
@@ -573,7 +573,7 @@ class ColumnFormatter(object):
 
         padding = self.PADDING_CHAR * self.COLUMN_PADDING
 
-        lines = []
+        lines = list()
         for row in self._data:
             lines.append(
                 padding.join(

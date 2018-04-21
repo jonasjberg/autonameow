@@ -71,7 +71,7 @@ class TestBaseCacheStorage(TestCase):
         self.assertIsNone(actual)
 
     def test_keys_initially_empty(self):
-        expect = []
+        expect = list()
         actual = self.c.keys()
         self.assertEqual(actual, expect)
 

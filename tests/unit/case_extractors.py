@@ -222,7 +222,7 @@ class CaseExtractorBasics(object):
         )
 
     def test_method_can_handle_returns_expected_type(self):
-        actual_list = []
+        actual_list = list()
 
         for f in ALL_TESTFILES:
             actual = self.extractor.can_handle(f)

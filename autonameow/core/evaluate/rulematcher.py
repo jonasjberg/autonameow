@@ -284,8 +284,8 @@ class RuleConditionEvaluator(object):
         assert rule_to_evaluate not in (self._failed, self._passed), (
             'Rule has already been evaluated; {!r}'.format(rule_to_evaluate)
         )
-        self._failed[rule_to_evaluate] = []
-        self._passed[rule_to_evaluate] = []
+        self._failed[rule_to_evaluate] = list()
+        self._passed[rule_to_evaluate] = list()
         self._evaluated[rule_to_evaluate] = dict()
 
         self.evaluate_rule_conditions(rule_to_evaluate)

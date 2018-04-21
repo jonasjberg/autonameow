@@ -129,7 +129,7 @@ class TestRepositoryStorage(TestCase):
 
     def test_add_empty_does_not_increment_len(self):
         _field = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        _results = []
+        _results = list()
         self.r.store(self.fileobject, _field, _results)
 
         self.assertEqual(len(self.r), 0)

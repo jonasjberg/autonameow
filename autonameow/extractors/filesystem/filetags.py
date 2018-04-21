@@ -152,7 +152,7 @@ def partition_basename(filepath):
             description = prefix.strip()
         else:
             description = None
-        tags = []
+        tags = list()
     else:
         # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
         prefix_tags_list = re.split(FILENAME_TAG_SEPARATOR, prefix, 1)
@@ -160,7 +160,7 @@ def partition_basename(filepath):
         try:
             tags = prefix_tags_list[1].split(BETWEEN_TAG_SEPARATOR)
         except IndexError:
-            tags = []
+            tags = list()
         else:
             tags = [t.strip() for t in tags if t]
 

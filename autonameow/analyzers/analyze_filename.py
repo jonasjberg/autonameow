@@ -503,7 +503,7 @@ class FilenameTokenizer(object):
         non_words = cls.RE_UNICODE_WORDS.split(string)
         seps = [s for s in non_words if s is not None and len(s) >= 1]
 
-        sep_chars = []
+        sep_chars = list()
         for sep in seps:
             if len(sep) > 1:
                 sep_chars.extend(list(sep))

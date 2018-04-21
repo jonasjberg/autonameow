@@ -56,7 +56,7 @@ def _get_implemented_analyzer_classes(analyzer_files):
     # Strip extensions.
     _to_import = [f[:-3] for f in analyzer_files]
 
-    _analyzer_classes = []
+    _analyzer_classes = list()
     for analyzer_file in _to_import:
         __import__(analyzer_file)
         namespace = inspect.getmembers(sys.modules[analyzer_file],

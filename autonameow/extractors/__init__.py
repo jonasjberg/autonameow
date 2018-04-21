@@ -46,7 +46,7 @@ EXTRACTOR_CLASS_PACKAGES = (EXTRACTOR_CLASS_PACKAGES_FILESYSTEM
 
 
 def _find_extractor_classes_in_packages(packages):
-    klasses = []
+    klasses = list()
     for package in packages:
         __import__(package)
         namespace = inspect.getmembers(sys.modules[package], inspect.isclass)

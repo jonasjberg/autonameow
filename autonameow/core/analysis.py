@@ -182,7 +182,7 @@ def _start(fileobject, config, analyzers_to_run=None):
         log.debug('None of the analyzers can handle the current file')
         return
 
-    analyzer_queue = []
+    analyzer_queue = list()
     for a in _instantiate_analyzers(fileobject, klasses, config):
         if a not in analyzer_queue:
             analyzer_queue.insert(0, a)
@@ -190,7 +190,7 @@ def _start(fileobject, config, analyzers_to_run=None):
             log.error('Attempted to enqueue queued analyzer: "{!s}"'.format(a))
 
     def _prettyprint(list_):
-        out = []
+        out = list()
         for pos, item in enumerate(list_):
             out.append('{:02d}: {!s}'.format(pos, item))
         return ', '.join(out)

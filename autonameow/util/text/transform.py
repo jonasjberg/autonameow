@@ -406,7 +406,7 @@ def remove_blacklisted_lines(text, blacklist):
         The given text with any lines matching those in 'blacklist' removed,
         as a Unicode string.
     """
-    out = []
+    out = list()
 
     blacklisted_lines = set(blacklist)
     for line in text.splitlines(keepends=True):
@@ -432,7 +432,7 @@ def remove_blacklisted_re_lines(text, compiled_regexes):
         expressions removed, as a Unicode string.
     """
     regexes = set(compiled_regexes)
-    out = []
+    out = list()
     for line in text.splitlines(keepends=True):
         stripped_line = line.strip()
         if any(regex.match(stripped_line) for regex in regexes):

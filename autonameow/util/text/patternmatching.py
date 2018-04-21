@@ -146,7 +146,7 @@ def find_and_extract_edition(string):
     assert isinstance(string, str)
 
     def _find_editions(ordinal_regexes):
-        _matches = []
+        _matches = list()
         for number, regex in ordinal_regexes.items():
             m = regex.search(string)
             if m:

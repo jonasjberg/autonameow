@@ -83,7 +83,7 @@ class ConfigFieldParser(object):
     # part during comparison.
     #
     # Example:  ['filesystem.basename.*', 'filesystem.*.extension]
-    APPLIES_TO_MEOWURIS = []
+    APPLIES_TO_MEOWURIS = list()
 
     # Whether to allow multiple expressions or not.
     ALLOW_MULTIVALUED_EXPRESSION = None
@@ -403,7 +403,7 @@ NAMETEMPLATEFIELDS_DUMMYDATA = dict.fromkeys(
 
 class NameTemplateConfigFieldParser(ConfigFieldParser):
     # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
-    APPLIES_TO_MEOWURIS = []
+    APPLIES_TO_MEOWURIS = list()
     ALLOW_MULTIVALUED_EXPRESSION = False
 
     @staticmethod

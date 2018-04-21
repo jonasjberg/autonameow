@@ -452,7 +452,7 @@ class TestRuleConditionMethods(TestCase):
         self.assertEqual(expected, repr(self.a))
 
     def test_rule___repr__exhaustive(self):
-        expected_reprs = []
+        expected_reprs = list()
 
         for raw_condition in uu.get_dummy_raw_conditions():
             for meowuri, expression in raw_condition.items():

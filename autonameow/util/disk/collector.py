@@ -99,7 +99,7 @@ class PathCollector(object):
                 enc.bytestring_path(i) for i in ignore_globs
             ]
         else:
-            self.ignore_globs = []
+            self.ignore_globs = list()
 
         self.recurse = bool(recurse)
         self.errors = list()

@@ -835,7 +835,7 @@ class MultipleTypes(object):
         if not isinstance(value, list):
             value = [value]
 
-        out = []
+        out = list()
         for v in value:
             _coerced = self.coercer(v)
             if _coerced is None:
@@ -852,7 +852,7 @@ class MultipleTypes(object):
         if not isinstance(value, list):
             value = [value]
 
-        out = []
+        out = list()
         for v in value:
             _formatted = self.coercer.format(v)
             if _formatted is None:

@@ -318,7 +318,7 @@ class TestConfigurationRuleParser(TestCase):
     def test_returns_expected_given_empty_dict(self):
         rule_parser = ConfigurationRuleParser()
         given_rules = dict()
-        expect = []
+        expect = list()
         self.assertEqual(expect, rule_parser.parse(given_rules))
 
     def test_raises_exception_given_non_dict(self):

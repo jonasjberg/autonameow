@@ -206,7 +206,7 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
     count_skipped = 0
     should_abort = False
 
-    failed_tests = []
+    failed_tests = list()
 
     global_start_time = time.time()
 

@@ -41,7 +41,7 @@ class TestLoadAndWriteFailedTestsuites(TestCase):
                                 persistence_dir_abspath=self.TEMP_DIR)
 
     def test_write_failed_testsuites_empty_list(self):
-        suites = []
+        suites = list()
         with patch('regression.regression_runner._get_persistence',
                    self._mock_get_persistence):
             write_failed_testsuites(suites)

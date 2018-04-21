@@ -62,7 +62,7 @@ def config_dirs():
         A list of absolute paths to configuration directories, ordered from
         high to low priority.
     """
-    paths = []
+    paths = list()
 
     if platform.system() == 'Darwin':
         paths.append(FILEPATH_CONFIG_MACOS)
@@ -84,7 +84,7 @@ def config_dirs():
         if FILEPATH_CONFIG_UNIX_VAR in os.environ:
             paths.append(os.environ[FILEPATH_CONFIG_UNIX_VAR])
 
-    abs_paths = []
+    abs_paths = list()
     for path in paths:
         path = os.path.abspath(os.path.expanduser(path))
         if path not in abs_paths:

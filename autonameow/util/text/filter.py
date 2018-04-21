@@ -111,7 +111,7 @@ class RegexLineFilter(RegexFilter):
     Lines that match any of the regexes are not included in the output.
     """
     def _filter_values(self, text_lines):
-        filtered_lines = []
+        filtered_lines = list()
         for line in text_lines.splitlines(keepends=True):
             stripped_line = line.strip()
             if self._matches_any_regex(stripped_line):

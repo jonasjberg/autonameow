@@ -269,7 +269,7 @@ class Autonameow(object):
         Assume all state is setup and completely reset for each loop iteration.
         It is not currently possible to share "information" between runs.
         """
-        aggregate_repository_contents = []
+        aggregate_repository_contents = list()
 
         should_list_all = self.opts.get('list_all')
 

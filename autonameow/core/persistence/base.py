@@ -272,7 +272,7 @@ class BasePersistence(object):
 
     def keys(self):
         # TODO: This is a major security vulnerability (!)
-        out = []
+        out = list()
         for bytestring_basename in disk.listdir(self._persistence_dir_abspath):
             str_basename = coercers.force_string(bytestring_basename)
             if not str_basename:

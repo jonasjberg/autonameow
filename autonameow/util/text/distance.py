@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     args = sys.argv[1:]
     arg_combinations = list(itertools.combinations(args, 2))
-    results = []
+    results = list()
     for a, b in arg_combinations:
         # Trivial canonicalization
         # a = a.lower().replace('.', '').strip()

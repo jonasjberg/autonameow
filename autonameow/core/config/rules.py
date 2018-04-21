@@ -281,7 +281,7 @@ class Rule(object):
         return self.description
 
     def __repr__(self):
-        out = []
+        out = list()
         for key in self.__dict__:
             out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
         return 'Rule({})'.format(', '.join(out))

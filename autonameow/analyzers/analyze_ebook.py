@@ -130,7 +130,7 @@ class EbookAnalyzer(BaseAnalyzer):
         super().__init__(fileobject, config, request_data_callback)
 
         self.text = None
-        self._isbn_metadata = []
+        self._isbn_metadata = list()
 
         self._cached_isbn_metadata = dict()
         self._isbn_num_blacklist = set(BLACKLISTED_ISBN_NUMBERS)
@@ -463,7 +463,7 @@ class ISBNMetadata(object):
         self._edition = None
 
         # Used when comparing class instances.
-        self._normalized_authors = []
+        self._normalized_authors = list()
         self._normalized_language = None
         self._normalized_publisher = None
         self._normalized_title = None
@@ -496,7 +496,7 @@ class ISBNMetadata(object):
         # TODO: It is not uncommon that the publisher is listed as an author..
         # Fix any malformed entries.
         # Handle this like ['David Astolfo ... Technical reviewers: Mario Ferrari ...']
-        _author_list = []
+        _author_list = list()
         for author in values:
             # Handle strings like 'Foo Bar [and Gibson Meow]'
             if re.match(r'.*\[.*\].*', author):
