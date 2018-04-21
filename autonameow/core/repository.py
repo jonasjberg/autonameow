@@ -297,8 +297,8 @@ class Repository(object):
             return None
 
         data_list = list()
-        for uri in explicit_uris:
-            d = self.__get_data(fileobject, uri)
+        for explicit_uri in explicit_uris:
+            d = self.__get_data(fileobject, explicit_uri)
             if d:
                 data_list.append(d)
 
