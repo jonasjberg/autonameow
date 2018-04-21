@@ -214,7 +214,7 @@ def _parse_datetime_and_check_if_probable(string, date_format):
     return None
 
 
-def _parse_datetime_from_start_to_char_n_patterns(string, match_patterns):
+def parse_datetime_from_start_to_char_n_patterns(s, match_patterns):
     """
     Try to parse string into a datetime object using multiple patterns.
 

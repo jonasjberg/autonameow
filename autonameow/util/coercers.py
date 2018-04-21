@@ -778,8 +778,8 @@ def try_parse_date(string):
         MATCH_PATTERNS = [('%Y%m%d', 8),
                           ('%Y%m', 6),
                           ('%Y', 4)]
-        from util.dateandtime import _parse_datetime_from_start_to_char_n_patterns
-        match = _parse_datetime_from_start_to_char_n_patterns(digits, MATCH_PATTERNS)
+        from util.dateandtime import parse_datetime_from_start_to_char_n_patterns
+        match = parse_datetime_from_start_to_char_n_patterns(digits, MATCH_PATTERNS)
         if match:
             return match
 
