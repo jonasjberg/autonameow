@@ -43,7 +43,7 @@ RE_COPYRIGHT_NOTICE_A = re.compile(
     ), re.IGNORECASE
 )
 RE_COPYRIGHT_NOTICE_B = re.compile(
-    r'({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?{name}[,\ ]+?({year}|{years})'.format(
+    r'({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?{name}[, ]+?({year}|{years})'.format(
         copyright=_re_copyright_text,
         symbol=_re_copyright_symbol,
         year=_re_copyright_year,
@@ -111,7 +111,7 @@ def compiled_ordinal_edition_regexes():
     global RE_ORDINAL_EDITION
     if not RE_ORDINAL_EDITION:
         for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
-            ordinal_edition_pattern = regexp + ' ?(edition|ed\.?|e)'
+            ordinal_edition_pattern = regexp + r' ?(edition|ed\.?|e)'
             compiled_regex = re.compile(ordinal_edition_pattern, re.IGNORECASE)
             RE_ORDINAL_EDITION[number] = compiled_regex
     return RE_ORDINAL_EDITION

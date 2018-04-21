@@ -99,8 +99,8 @@ def _handle_letter_case_of_names_with_van(string):
         _lowered_second = _match.group(2).upper()
         return _lowered_first + _lowered_second
 
-    subbed = re.sub(' Van ', ' van ', string)
-    subbed = re.sub('(Van)([\w])', __lower_first_upper_second, subbed)
+    subbed = re.sub(r' Van ', ' van ', string)
+    subbed = re.sub(r'(Van)([\w])', __lower_first_upper_second, subbed)
     return subbed
 
 
@@ -110,8 +110,8 @@ def _handle_letter_case_of_names_with_von(string):
         _lowered_second = _match.group(2).upper()
         return _lowered_first + _lowered_second
 
-    subbed = re.sub(' Von ', ' von ', string)
-    subbed = re.sub('(Von)([\w])', __lower_first_upper_second, subbed)
+    subbed = re.sub(r' Von ', ' von ', string)
+    subbed = re.sub(r'(Von)([\w])', __lower_first_upper_second, subbed)
     return subbed
 
 
