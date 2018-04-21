@@ -57,6 +57,20 @@ class TestResults(object):
         self.captured_exception = captured_exception
 
 
+class TestRunResults(object):
+    def __init__(self):
+        self.failed = set()
+        self.passed = set()
+        self.skipped = set()
+
+    @property
+    def all(self):
+        return self.failed.union(self.passed).union(self.skipped)
+
+    def __len__(self):
+        return len(self.all)
+
+
 def run_test(test, reporter):
     expect_exitcode = test.asserts.get('exit_code', None)
     expect_renames = test.asserts.get('renames', {})
