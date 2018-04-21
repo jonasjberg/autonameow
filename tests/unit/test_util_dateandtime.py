@@ -26,7 +26,6 @@ import unit.utils as uu
 from util.dateandtime import (
     date_is_probable,
     find_isodate_like,
-    hyphenate_date,
     is_datetime_instance,
     match_any_unix_timestamp,
     match_special_case,
@@ -111,13 +110,6 @@ class TestYearIsProbable(TestCase):
         self._assert_probable(True, 2001)
         self._assert_probable(True, 2017)
         self._assert_probable(True, 2018)
-
-
-class TestDateAndTime(TestCase):
-    def test_hyphenate_date(self):
-        self.assertEqual('2016-12-24', hyphenate_date('20161224'))
-        self.assertEqual('20161224T121314', hyphenate_date('20161224T121314'))
-        self.assertEqual('return as-is', hyphenate_date('return as-is'))
 
 
 class TestMatchUnixTimestamp(TestCase):

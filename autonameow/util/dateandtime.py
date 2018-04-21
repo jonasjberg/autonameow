@@ -46,17 +46,6 @@ def is_datetime_instance(thing):
     return bool(isinstance(thing, datetime))
 
 
-def hyphenate_date(date_str):
-    """
-    Convert a date in 'YYYYMMDD' format to 'YYYY-MM-DD' format.
-    This function is lifted as-is from utils.py in the "youtube-dl" project.
-    """
-    match = re.match(r'^(\d\d\d\d)(\d\d)(\d\d)$', date_str)
-    if match is not None:
-        return '-'.join(match.groups())
-    return date_str
-
-
 def _year_is_probable(int_year):
     """
     Check if year is "probable", meaning greater than 1900 and
