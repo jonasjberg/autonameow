@@ -140,7 +140,6 @@ class TestMatchUnixTimestamp(TestCase):
         __check('date --date="@1461786010" --rfc-3339=seconds')
 
     def test_returns_none_as_expected(self):
-        self.assertIsNone(match_any_unix_timestamp(None))
         self.assertIsNone(match_any_unix_timestamp(''))
         self.assertIsNone(match_any_unix_timestamp(' '))
         self.assertIsNone(match_any_unix_timestamp('abc'))
@@ -175,8 +174,8 @@ class TestMatchSpecialCase(TestCase):
     def test_match_special_case_5th_variation(self):
         self._assert_match('2016-07-22_13-17-30')
 
-    def test_does_not_match_none_or_empty_strings(self):
-        for given in [None, '', ' ']:
+    def test_does_not_match_empty_strings(self):
+        for given in ['', ' ']:
             self._assert_no_match(given)
 
     def test_does_not_match_strings_without_iso_like_dates(self):
@@ -231,8 +230,8 @@ class TestMatchSpecialCaseNoDate(TestCase):
         ]:
             self._assert_match(given)
 
-    def test_does_not_match_none_or_empty_strings(self):
-        for given in [None, '', ' ']:
+    def test_does_not_match_empty_strings(self):
+        for given in ['', ' ']:
             self._assert_no_match(given)
 
     def test_does_not_match_strings_without_valid_iso_like_dates(self):

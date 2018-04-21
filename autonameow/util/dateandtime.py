@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import re
 from datetime import datetime
 
@@ -33,13 +32,10 @@ except ImportError:
     raise DependencyError(missing_modules='pytz')
 
 
-log = logging.getLogger(__name__)
-
-
-def _extract_digits(string):
+def _extract_digits(s):
     # Local import to avoid circular imports within the 'util' module.
     from util.text import extract_digits
-    return extract_digits(string)
+    return extract_digits(s)
 
 
 def is_datetime_instance(thing):
@@ -93,24 +89,23 @@ def date_is_probable(date,
     return bool(year_min < date.year < year_max)
 
 
+def _parse_datetime_and_check_if_probable(s, date_format):
     """
-def _parse_datetime_and_check_if_probable(string, date_format):
-    """
-    Try to parse string into a datetime object with a specific format.
+    Try to parse a string into a datetime object with a specific format.
 
     Args:
-        string (str): Unicode string to parse.
+        s (str): Unicode string to parse.
         date_format (str): Unicode 'datetime' format string.
 
     Returns:
         An instance of 'datetime' if the string is parsed and deemed
         "probable", otherwise None.
     """
-    assert isinstance(string, str)
+    assert isinstance(s, str)
     assert isinstance(date_format, str)
 
     try:
-        dt = datetime.strptime(string, date_format)
+        dt = datetime.strptime(s, date_format)
     except (TypeError, ValueError):
         pass
     else:
@@ -122,24 +117,25 @@ def _parse_datetime_and_check_if_probable(string, date_format):
 
 def parse_datetime_from_start_to_char_n_patterns(s, match_patterns):
     """
-    Try to parse string into a datetime object using multiple patterns.
+    Try to parse a string into a datetime object using multiple patterns.
 
     Patterns are tuples with a date format and a number of characters to
     include when parsing that format, from the first character to N.
 
     Args:
-        string (str): Unicode string to parse.
+        s (str): Unicode string to parse.
         match_patterns: List of tuples containing a date format string and
                         number of characters in the string to include,
                         from 0 to N.
     Returns:
         The first successful datetime-conversion that is also "probable".
     """
-    if not string or string.strip() is None:
+    assert isinstance(s, str)
+    if not s.strip():
         return None
 
     for date_format, num_chars in match_patterns:
-        partial_string = string[:num_chars]
+        partial_string = s[:num_chars]
         dt = _parse_datetime_and_check_if_probable(partial_string, date_format)
         if dt:
             return dt
@@ -147,7 +143,7 @@ def parse_datetime_from_start_to_char_n_patterns(s, match_patterns):
     return None
 
 
-def match_special_case(string):
+def match_special_case(s):
     """
     Matches variations of ISO-like (YYYY-mm-dd HH:MM:SS) date/time in strings.
 
@@ -157,15 +153,15 @@ def match_special_case(string):
                  or possibly "learned" patterns ..
 
     Args:
-        string: Unicode string to attempt to extract a datetime object from.
+        s: Unicode string to attempt to extract a datetime object from.
 
     Returns: A "probable" time/date as an instance of 'datetime' or None.
     """
-    if not string:
+    assert isinstance(s, str)
+    if not s.strip():
         return None
 
-    assert isinstance(string, str)
-    modified_string = re.sub(r'[-_T]', '-', string).strip()
+    modified_string = re.sub(r'[-_T]', '-', s).strip()
 
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     # TODO: [TD0043] Allow specifying custom matching patterns in the config.
@@ -185,7 +181,7 @@ def match_special_case(string):
     return _parse_datetime_and_check_if_probable(modified_string, pattern)
 
 
-def match_special_case_no_date(string):
+def match_special_case_no_date(s):
     """
     Matches variations of ISO-like (YYYY-mm-dd) dates in strings.
 
@@ -195,15 +191,15 @@ def match_special_case_no_date(string):
                  or possibly "learned" patterns ..
 
     Args:
-        string: Unicode string to attempt to extract a datetime object from.
+        s: Unicode string to attempt to extract a datetime object from.
 
     Returns: A "probable" date as an instance of 'datetime' or None.
     """
-    if not string:
+    assert isinstance(s, str)
+    if not s.strip():
         return None
 
-    assert isinstance(string, str)
-    modified_string = re.sub(r'[^\d]+', '', string).strip()
+    modified_string = re.sub(r'[^\d]+', '', s).strip()
 
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     # TODO: [TD0043] Allow the user to tweak hardcoded settings.
@@ -227,6 +223,9 @@ def match_android_messenger_filename(text):
     :return: list of datetime-objects if matches were found, otherwise None
     """
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
+    assert isinstance(text, str)
+    if not text.strip():
+        return None
 
     # TODO: [cleanup] Fix this! It currently does not seem to work, at all.
     # Some hints are in the Android Messenger source code:
@@ -235,24 +234,19 @@ def match_android_messenger_filename(text):
     # $ date --date='@1453473286' --rfc-3339=seconds
     #   2016-01-22 15:34:46+01:00
     # $ 1453473286723
-
-    results = []
-
     dt_pattern = re.compile(r'.*(received_)(\d{17})(\.jpe?g)?')
+
+    results = list()
     for _, dt_str, _ in re.findall(dt_pattern, text):
         try:
             microsecond = int(dt_str[13:])
             ms = microsecond % 1000 * 1000
             dt = datetime.utcfromtimestamp(ms // 1000).replace(microsecond=ms)
         except ValueError as e:
-            log.debug('Unable to extract datetime from "{}": {}'.format(dt_str,
-                                                                        str(e)))
+            pass
         else:
             if date_is_probable(dt):
-                log.debug('Extracted datetime from Android messenger file '
-                          'name text: "{}"'.format(dt.isoformat()))
                 results.append(dt)
-
     return results
 
 
@@ -263,13 +257,13 @@ def match_any_unix_timestamp(text):
     :return: datetime if found otherwise None
     """
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-    if text is None or text.strip() is None:
+    assert isinstance(text, str)
+    if not text.strip():
         return None
 
     match_iter = re.finditer(r'(\d{10,13})', text)
-    if match_iter is None:
-        log.debug('Probably not a UNIX timestamp -- does not contain '
-                  '10-13 consecutive digits.')
+    if not match_iter:
+        # Probably not a UNIX timestamp, expected 10-13 consecutive digits.
         return None
 
     for match in match_iter:
@@ -287,11 +281,9 @@ def match_any_unix_timestamp(text):
             digits = float(digits)
             dt = datetime.fromtimestamp(digits)
         except (TypeError, ValueError):
-            log.debug('Failed matching UNIX timestamp.')
+            pass
         else:
             if date_is_probable(dt):
-                log.debug('Extracted date/time-info [{}] from UNIX timestamp '
-                          '"{}"'.format(dt, text))
                 return dt
     return None
 
@@ -303,12 +295,15 @@ def match_screencapture_unixtime(text):
     :return: datetime-object if a match is found, else None
     """
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-    if text:
-        pattern = re.compile(r'.*(\d{13}).*')
-        for t in re.findall(pattern, text):
-            dt = match_any_unix_timestamp(t)
-            if dt:
-                return dt
+    assert isinstance(text, str)
+    if not text.strip():
+        return None
+
+    pattern = re.compile(r'.*(\d{13}).*')
+    for t in re.findall(pattern, text):
+        dt = match_any_unix_timestamp(t)
+        if dt:
+            return dt
     return None
 
 
