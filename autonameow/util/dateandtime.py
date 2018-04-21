@@ -76,7 +76,9 @@ def _year_is_probable(int_year):
     return date_is_probable(year)
 
 
-def date_is_probable(date):
+def date_is_probable(date,
+                     year_max=C.YEAR_UPPER_LIMIT.year,
+                     year_min=C.YEAR_LOWER_LIMIT.year):
     """
     Check if date is "probable", meaning greater than 1900 and
     not in the future, I.E. greater than the year of todays date.
@@ -88,11 +90,7 @@ def date_is_probable(date):
     Returns:
         True if the date is "probable", else False.
     """
-    if date.year > C.YEAR_UPPER_LIMIT.year:
-        return False
-    elif date.year < C.YEAR_LOWER_LIMIT.year:
-        return False
-    return True
+    return bool(year_min < date.year < year_max)
 
 
     """
