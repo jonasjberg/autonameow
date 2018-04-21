@@ -26,7 +26,7 @@ import unit.utils as uu
 from regression.regression_runner import (
     _get_persistence,
     load_failed_testsuites,
-    TestRunResults,
+    RunResults,
     write_failed_testsuites,
 )
 from regression.utils import RegressionTestSuite
@@ -74,7 +74,7 @@ class TestLoadAndWriteFailedTestsuites(TestCase):
         self.assertEqual(sorted(loaded), sorted(suites))
 
 
-class TestTestRunResults(TestCase):
+class TestRunResults(TestCase):
     def _get_mock_test_suite(self):
         return Mock()
 
@@ -87,7 +87,7 @@ class TestTestRunResults(TestCase):
         mock_test_suite_failed_B = self._get_mock_test_suite()
         mock_test_suite_passed = self._get_mock_test_suite()
 
-        run_results = TestRunResults()
+        run_results = RunResults()
         _assert_all_count(0, run_results)
 
         run_results.failed.add(mock_test_suite_failed_A)
@@ -102,7 +102,7 @@ class TestTestRunResults(TestCase):
         _assert_all_count(3, run_results)
 
     def test_all_returns_union_of_all_stored_test_suites(self):
-        run_results = TestRunResults()
+        run_results = RunResults()
         self.assertFalse(run_results.all)
 
         mock_test_suite_failed = self._get_mock_test_suite()
