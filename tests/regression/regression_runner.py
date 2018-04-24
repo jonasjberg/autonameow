@@ -184,7 +184,10 @@ def run_test(test, reporter):
 
 def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
                      persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH):
-    return get_persistence(file_prefix, persistence_dir_abspath)
+    storage_backend = get_persistence(file_prefix, persistence_dir_abspath)
+    if not storage_backend:
+        log.critical('Unable to get backend for persistent storage')
+    return storage_backend
 
 
 def write_failed_testsuites(suites):
@@ -202,7 +205,8 @@ def load_failed_testsuites():
         except KeyError:
             pass
         else:
-            if lastrun and isinstance(lastrun, dict):
+            if lastrun:
+                assert isinstance(lastrun, dict)
                 return lastrun.get('failed', [])
     return []
 
