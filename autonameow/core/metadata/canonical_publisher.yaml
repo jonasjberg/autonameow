@@ -1,6 +1,8 @@
 AcademicPress:
 - Academic Press
 - Academic Press is an imprint of Elsevier
+ArtechHouse:
+- Artech House
 AtlantisPress:
 - Atlantis Press
 FeedBooks:
@@ -23,6 +25,7 @@ CambridgeUP:
 ChelseaHouse:
 - Chelsea House
 CRCPress:
+- Chapman & Hall/CRC
 - CRC Press
 - www.crcpress.com
 CourseTechnology:
@@ -36,6 +39,8 @@ DennisPub:
 Elsevier:
 - Elsevier/Morgan Kaufmann
 - Elsevier Science
+ExelixisMedia:
+- Exelixis Media P.C.
 HoughtonMifflin:
 - Houghton Mifflin
 IABooks:
@@ -100,6 +105,7 @@ PragmaticBookshelf:
 PrenticeHall:
 - Prentice Hall
 - PRENTICE HALL
+- Prentice Hall PTR
 Sams:
 - Sams Publishing
 - samspublishing.com
@@ -119,6 +125,8 @@ Syngress:
 TaylorFrancis:
 - Taylor & Francis
 - Taylor and Francis
+Westview:
+- Westview
 Wiley:
 - John Wiley & Sons, Inc.
 - John Wiley & Sons Inc

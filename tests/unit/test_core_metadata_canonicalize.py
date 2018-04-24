@@ -53,6 +53,10 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Atlantis Press',
         'AtlantisPress',
     ],
+    'ArtechHouse': [
+        'ArtechHouse',
+        'Artech House',
+    ],
     'FeedBooks': [
         'FeedBooks',
         'This book is brought to you by Feedbooks',
@@ -83,6 +87,7 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'ChelseaHouse',
     ],
     'CRCPress': [
+        'Chapman & Hall/CRC',
         'CRCPress',
         'CRC Press',
         'www.crcpress.com',
@@ -103,6 +108,9 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Elsevier/Morgan Kaufmann',
         'Elsevier Science',
         'Elsevier',
+    ],
+    'ExelixisMedia': [
+        'Exelixis Media P.C.',
     ],
     'IABooks': [
         'Indo American Books',
@@ -200,6 +208,7 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Prentice Hall',
         'PrenticeHall',
         'PRENTICE HALL',
+        'Prentice Hall PTR',
     ],
     'Sams': [
         'Sams',
@@ -226,6 +235,9 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
     'TaylorFrancis': [
         'TaylorFrancis',
         'Taylor and Francis',
+    ],
+    'Westview': [
+        'Westview',
     ],
     'Wiley': [
         'John Wiley & Sons, Inc.',
