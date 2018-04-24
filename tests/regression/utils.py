@@ -75,11 +75,15 @@ class TerminalReporter(object):
     def __init__(self, verbose=False):
         self.verbose = verbose
 
-        self.MAX_DESCRIPTION_LENGTH = TERMINAL_WIDTH - 70
+        self.MAX_DESCRIPTION_LENGTH = TERMINAL_WIDTH - 75
         assert self.MAX_DESCRIPTION_LENGTH > 0, 'Terminal is not wide enough ..'
 
         self.msg_label_pass = cli.colorize('PASS', fore='GREEN')
         self.msg_label_fail = cli.colorize('FAIL', fore='RED')
+        self.msg_mark_history_pass = cli.colorize('|', fore='GREEN')
+        self.msg_mark_history_fail = cli.colorize('!', fore='RED')
+        self.msg_mark_history_skip = cli.colorize('#', fore='YELLOW')
+        self.msg_mark_history_unknown = cli.colorize('?', fore='YELLOW')
 
     def msg(self, string):
         if self.verbose:
@@ -106,6 +110,18 @@ class TerminalReporter(object):
             _println('{} One or more assertions FAILED!'.format(_label))
         else:
             _print(' ' + _label + ' ')
+
+    def msg_test_history(self, history):
+        # TODO: [hack] Refactor ..
+        for past_result in history:
+            if past_result == 'fail':
+                _print(self.msg_mark_history_fail)
+            elif past_result == 'pass':
+                _print(self.msg_mark_history_pass)
+            elif past_result == 'skip':
+                _print(self.msg_mark_history_skip)
+            else:
+                _print(self.msg_mark_history_unknown)
 
     @staticmethod
     def _center_with_fill(text):

@@ -27,6 +27,7 @@ from regression.regression_runner import (
     _get_persistence,
     load_failed_testsuites,
     RunResults,
+    RunResultsHistory,
     write_failed_testsuites,
 )
 from regression.utils import RegressionTestSuite
@@ -126,3 +127,62 @@ class TestRunResults(TestCase):
         self.assertNotIn(mock_test_suite_passed, run_results.skipped)
         self.assertNotIn(mock_test_suite_skipped, run_results.failed)
         self.assertNotIn(mock_test_suite_skipped, run_results.passed)
+
+
+class TestRunResultsHistory(TestCase):
+    def _get_mock_test_suite(self):
+        return Mock()
+
+    def _get_run_results(self):
+        mock_test_suite_failed = self._get_mock_test_suite()
+        mock_test_suite_passed = self._get_mock_test_suite()
+        mock_test_suite_skipped = self._get_mock_test_suite()
+
+        run_results = RunResults()
+        run_results.failed.add(mock_test_suite_failed)
+        run_results.passed.add(mock_test_suite_passed)
+        run_results.skipped.add(mock_test_suite_skipped)
+        return run_results
+
+    def _get_run_results_history(self, *args, **kwargs):
+        return RunResultsHistory(*args, **kwargs)
+
+    def test_history_with_maxlen_five_contains_single_run_result(self):
+        run_results_history = self._get_run_results_history(maxlen=5)
+
+        run_results = self._get_run_results()
+        run_results_history.add(run_results)
+
+        self.assertEqual(1, len(run_results_history))
+
+    def test_history_with_maxlen_five_contains_five_run_results(self):
+        run_results_history = self._get_run_results_history(maxlen=5)
+
+        for _ in range(5):
+            run_results = self._get_run_results()
+            run_results_history.add(run_results)
+
+        self.assertEqual(5, len(run_results_history))
+
+    def test_history_with_maxlen_five_stores_at_most_five_run_results(self):
+        run_results_history = self._get_run_results_history(maxlen=5)
+
+        for _ in range(7):
+            run_results = self._get_run_results()
+            run_results_history.add(run_results)
+
+        self.assertEqual(5, len(run_results_history))
+
+    def test_run_results_is_in_chronological_order(self):
+        run_results_history = self._get_run_results_history(maxlen=2)
+
+        run_results_history.add('A')
+        self.assertEqual('A', run_results_history[0])
+
+        run_results_history.add('B')
+        self.assertEqual('B', run_results_history[0])
+        self.assertEqual('A', run_results_history[1])
+
+        run_results_history.add('C')
+        self.assertEqual('C', run_results_history[0])
+        self.assertEqual('B', run_results_history[1])

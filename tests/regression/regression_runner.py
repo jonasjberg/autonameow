@@ -23,6 +23,7 @@ import logging
 import os
 import sys
 import time
+from collections import deque
 
 from core import constants as C
 from core.view import cli
@@ -69,6 +70,24 @@ class RunResults(object):
 
     def __len__(self):
         return len(self.all)
+
+
+class RunResultsHistory(object):
+    # TODO: [hack] Refactor ..
+    # TODO: [cleanup][incomplete] This is not used!
+    def __init__(self, maxlen):
+        assert isinstance(maxlen, int)
+        self._run_results = deque(maxlen=maxlen)
+
+    def add(self, run_results):
+        self._run_results.appendleft(run_results)
+
+    def __len__(self):
+        return len(self._run_results)
+
+    def __getitem__(self, item):
+        run_results_list = list(self._run_results)
+        return run_results_list[item]
 
 
 def run_test(test, reporter):
@@ -190,6 +209,55 @@ def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
     return storage_backend
 
 
+def load_history():
+    # TODO: [hack] Refactor ..
+    persistent_storage = _get_persistence()
+    if persistent_storage:
+        try:
+            history = persistent_storage.get('history')
+        except KeyError:
+            pass
+        else:
+            if history:
+                assert isinstance(history, list)
+                return history
+    return []
+
+
+def load_testsuite_history(testsuite, history):
+    if history:
+        testsuite_history = list()
+        for run_results in history:
+            # TODO: [hack] Refactor ..
+            if testsuite in run_results.failed:
+                testsuite_history.append('fail')
+            elif testsuite in run_results.passed:
+                testsuite_history.append('pass')
+            elif testsuite in run_results.skipped:
+                testsuite_history.append('skip')
+            else:
+                testsuite_history.append('unknown')
+
+        return testsuite_history
+
+    # TODO: [hack] Refactor ..
+    return [None, None, None, None, None]
+
+
+def write_test_results_history(run_results):
+    # TODO: [hack] Refactor ..
+    history = load_history()
+    assert isinstance(history, list)
+
+    # TODO: [hack] Refactor ..
+    history.insert(0, run_results)
+    history = history[:5]
+
+    persistent_storage = _get_persistence()
+    if persistent_storage:
+        persistent_storage.set('history', history)
+
+
 def write_failed_testsuites(suites):
     persistent_storage = _get_persistence()
     if persistent_storage:
@@ -218,29 +286,37 @@ def print_test_commandlines(tests):
 
 
 def run_regressiontests(tests, verbose, print_stderr, print_stdout):
+    history = load_history()
     reporter = TerminalReporter(verbose)
     run_results = RunResults()
     should_abort = False
     global_start_time = time.time()
 
-    for test in tests:
+    for testsuite in tests:
         if should_abort:
             remaining = [t for t in tests if t not in run_results.all]
             run_results.skipped.update(remaining)
             break
 
-        if test.should_skip:
-            reporter.msg_test_skipped(test.str_dirname, test.description)
+        if testsuite.should_skip:
+            reporter.msg_test_skipped(testsuite.str_dirname, testsuite.description)
+            run_results.skipped.add(testsuite)
+
+            # TODO: [hack] Refactor ..
+            testsuite_history = load_testsuite_history(testsuite, history)
+            assert isinstance(testsuite_history, list)
+            assert len(testsuite_history) == 5
+            reporter.msg_test_history(testsuite_history)
+
             reporter.msg_test_runtime(None, None)
-            run_results.skipped.add(test)
             continue
 
-        reporter.msg_test_start(test.str_dirname, test.description)
+        reporter.msg_test_start(testsuite.str_dirname, testsuite.description)
 
         results = None
         start_time = time.time()
         try:
-            results = run_test(test, reporter)
+            results = run_test(testsuite, reporter)
         except KeyboardInterrupt:
             # Move cursor two characters back and print spaces over "^C".
             print('\b\b  \n', flush=True)
@@ -259,18 +335,23 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
                 if print_stdout and captured_stdout:
                     reporter.msg_captured_stdout(captured_stdout)
 
-                run_results.failed.add(test)
+                run_results.failed.add(testsuite)
                 continue
 
             failures = int(results.failure_count)
             test_passed = failures == 0
             if test_passed:
                 reporter.msg_test_success()
-                run_results.passed.add(test)
+                run_results.passed.add(testsuite)
             else:
                 reporter.msg_test_failure()
-                run_results.failed.add(test)
+                run_results.failed.add(testsuite)
 
+            # TODO: [hack] Refactor ..
+            testsuite_history = load_testsuite_history(testsuite, history)
+            assert isinstance(testsuite_history, list)
+            assert len(testsuite_history) == 5
+            reporter.msg_test_history(testsuite_history)
             reporter.msg_test_runtime(elapsed_time, results.captured_runtime)
 
             if print_stderr and captured_stderr:
@@ -293,6 +374,7 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
         # the failed tests, if re-running the failed tests and aborting
         # before completion..
         write_failed_testsuites(run_results.failed)
+        write_test_results_history(run_results)
 
     return run_results
 
