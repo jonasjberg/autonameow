@@ -226,19 +226,20 @@ def load_history():
 
 def load_testsuite_history(testsuite, history):
     if history:
-        testsuite_history = list()
+        past_outcomes = list()
         for run_results in history:
             # TODO: [hack] Refactor ..
             if testsuite in run_results.failed:
-                testsuite_history.append('fail')
+                past_outcomes.append('fail')
             elif testsuite in run_results.passed:
-                testsuite_history.append('pass')
+                past_outcomes.append('pass')
             elif testsuite in run_results.skipped:
-                testsuite_history.append('skip')
+                past_outcomes.append('skip')
             else:
-                testsuite_history.append('unknown')
+                past_outcomes.append('unknown')
 
-        return testsuite_history
+        return past_outcomes
+
 
     # TODO: [hack] Refactor ..
     return [None, None, None, None, None]
@@ -305,7 +306,6 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
             # TODO: [hack] Refactor ..
             testsuite_history = load_testsuite_history(testsuite, history)
             assert isinstance(testsuite_history, list)
-            assert len(testsuite_history) == 5
             reporter.msg_test_history(testsuite_history)
 
             reporter.msg_test_runtime(None, None)
@@ -350,7 +350,6 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
             # TODO: [hack] Refactor ..
             testsuite_history = load_testsuite_history(testsuite, history)
             assert isinstance(testsuite_history, list)
-            assert len(testsuite_history) == 5
             reporter.msg_test_history(testsuite_history)
             reporter.msg_test_runtime(elapsed_time, results.captured_runtime)
 

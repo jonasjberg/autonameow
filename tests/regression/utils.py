@@ -117,7 +117,11 @@ class TerminalReporter(object):
 
     def msg_test_history(self, history):
         # TODO: [hack] Refactor ..
-        for past_result in history:
+        while len(history) < 5:
+            history.append('unknown')
+
+        # TODO: [hack] Refactor ..
+        for past_result in history[:5]:
             if past_result == 'fail':
                 _print(self.msg_mark_history_fail)
             elif past_result == 'pass':
