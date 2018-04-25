@@ -80,9 +80,13 @@ class TerminalReporter(object):
 
         self.msg_label_pass = cli.colorize('PASS', fore='GREEN')
         self.msg_label_fail = cli.colorize('FAIL', fore='RED')
-        self.msg_mark_history_pass = cli.colorize('|', fore='GREEN')
-        self.msg_mark_history_fail = cli.colorize('!', fore='RED')
-        self.msg_mark_history_skip = cli.colorize('#', fore='YELLOW')
+
+        # Unicode character "ballot box with check" (U+2611)
+        self.msg_mark_history_pass = cli.colorize('\u2611', fore='GREEN')
+        # Unicode character "ballot box with x" (U+2612)
+        self.msg_mark_history_fail = cli.colorize('\u2612', fore='RED')
+        # Unicode character "ballot box" (U+2610)
+        self.msg_mark_history_skip = cli.colorize('\u2610', fore='YELLOW')
         self.msg_mark_history_unknown = cli.colorize('?', fore='YELLOW')
 
     def msg(self, string):
