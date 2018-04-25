@@ -1329,6 +1329,18 @@ XMP:EntryIssued:
             weight: 1.0
     multivalued: false
 
+XMP:EntryPublished:
+    coercer: aw_exiftooltimedate
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            weight: 1.0
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
+
 XMP:EntrySummary:
     coercer: aw_string
     generic_field: description
