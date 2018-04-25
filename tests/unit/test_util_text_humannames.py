@@ -785,6 +785,12 @@ class TestFilterMultipleNames(TestCase):
             given=['I.N. Bronsh', 'K.A. Semandyayev', 'Gert Musiol', 'Steiner Mühlig']
         )
 
+    def test_based_on_live_data_h(self):
+        self._assert_filter_returns(
+            expected=['Stuart J. Russell', 'Peter Norvig', 'Ernest Davis'],
+            given=['Stuart J. Russell', 'Peter Norvig', 'Contributing Writers', 'Ernest Davis']
+        )
+
 
 class TestFilterName(TestCase):
     def _assert_filter_returns(self, expected, given):

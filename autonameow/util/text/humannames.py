@@ -28,6 +28,7 @@ from util.text.regexcache import RegexCache
 
 BLACKLISTED_HUMAN_NAMES = frozenset([
     'author',
+    'contributing writers',
     'dvd presenter',
     'editor',
     'foreword',
