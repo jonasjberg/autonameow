@@ -239,6 +239,7 @@ class TeststripAuthorEtAl(TestCase):
         _t('Gibson Catberg ... [et al.]')
         _t('Gibson Catberg ... {et al}')
         _t('Gibson Catberg ... {et al.}')
+        _t('Gibson Catberg ... [et al.]')
 
 
 class TestStripEditedBy(TestCase):
@@ -686,6 +687,15 @@ class TestSplitMultipleNames(TestCase):
                 ["Larry O'Brien & Bruce Eckel"],
                 ["Larry O'Brien &  Bruce Eckel"],
                 ["Larry O'Brien  &  Bruce Eckel"]
+            ]
+        )
+
+    def test_based_on_live_data_a(self):
+        self._assert_that_it_returns(
+            expected=['Stuart K. Rassel', 'Pitr Narval', 'Arnest Dawid'],
+            given_any_of=[
+                ['Stuart K. Rassel', 'Pitr Narval', 'Arnest Dawid'],
+                ['Stuart K. Rassel and Pitr Narval', 'Arnest Dawid']
             ]
         )
 
