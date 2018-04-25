@@ -129,6 +129,10 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Jones and Bartlett',
         'www.jbpub.com',
     ],
+    'LuLu': [
+        'Lulu Press',
+        '[Lulu Press], lulu.com',
+    ],
     'Manning': [
         'Manning Publications',
         'Manning',
@@ -196,6 +200,7 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
     ],
     'Pearson': [
         'Pearson',
+        'Pearson/AddisonWesley',
         'Pearson/PrenticeHall',
         'Pearson Education',
     ],
