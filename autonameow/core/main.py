@@ -85,7 +85,11 @@ def real_main(options=None):
 
     # Main program entry point.
     with Autonameow(opts, ui=cli) as ameow:
-        ameow.run()
+        try:
+            ameow.run()
+        except KeyboardInterrupt:
+            # TODO: [incomplete] Handle this properly!
+            ameow.exit_program(C.EXIT_SUCCESS)
 
 
 def print_error(message):
