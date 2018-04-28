@@ -40,6 +40,13 @@ BLACKLISTED_HUMAN_NAMES = frozenset([
 ])
 
 
+def strip_contributions(string):
+    RE_CONTRIBUTIONS = r'(with )?contributions( by)? '
+    regex = RegexCache(RE_CONTRIBUTIONS, flags=re.IGNORECASE)
+    subbed_string = regex.sub('', string)
+    return subbed_string.strip()
+
+
 def strip_author_et_al(string):
     """
     Attempts to remove variations of "et al." from a Unicode string.
@@ -87,6 +94,7 @@ def strip_bad_author_substrings(string):
     s = strip_foreword_by(s)
     s = strip_author_prefix(s)
     s = strip_author_et_al(s)
+    s = strip_contributions(s)
 
     if s.lower().startswith('by '):
         s = s[3:]

@@ -800,6 +800,10 @@ class TestFilterMultipleNames(TestCase):
             expected=['Stuart J. Russell', 'Peter Norvig', 'Ernest Davis'],
             given=['Stuart J. Russell', 'Peter Norvig', 'Contributing Writers', 'Ernest Davis']
         )
+        self._assert_filter_returns(
+            expected=['Ricard Dahl', 'William Z. Longdon', 'Nichlas H. Bee', 'Carl K. Soze'],
+            given=['Ricard Dahl', 'William Z. Longdon', 'Nichlas H. Bee', 'With Contributions By Carl K. Soze']
+        )
 
 
 class TestFilterName(TestCase):
@@ -820,6 +824,20 @@ class TestFilterName(TestCase):
     def test_removes_variations_of_foreword_from_start_of_name(self):
         self._assert_filter_returns('Rick F. Haribay', given='Foreword By Rick F. Haribay')
         self._assert_filter_returns('Rick F. Haribay', given='Foreword: Rick F. Haribay')
+
+    def test_removes_variations_of_contributions(self):
+        for given in [
+            'with contributions by Carl K. Soze',
+            'with Contributions by Carl K. Soze',
+            'With Contributions By Carl K. Soze',
+            'contributions by Carl K. Soze',
+            'Contributions by Carl K. Soze',
+            'Contributions By Carl K. Soze',
+            'contributions Carl K. Soze',
+            'Contributions Carl K. Soze',
+            'Contributions Carl K. Soze'
+        ]:
+            self._assert_filter_returns('Carl K. Soze', given)
 
     def test_returns_empty_string_given_name_editor(self):
         self._assert_filter_does_not_pass('editor')
