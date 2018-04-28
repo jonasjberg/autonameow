@@ -24,7 +24,8 @@ from unittest import TestCase
 import unit.utils as uu
 from core.metadata.canonicalize import (
     build_string_value_canonicalizer,
-    canonicalize_publisher
+    canonicalize_publisher,
+    StringValueCanonicalizer
 )
 
 
@@ -302,3 +303,83 @@ class TestCanonicalizePublisher(TestCase):
                 with self.subTest(given=equivalent_value):
                     actual = _canonicalize_publisher(equivalent_value)
                     self.assertEqual(canonical, actual)
+
+
+class TestStringValueCanonicalizer(TestCase):
+    def test_returns_values_as_is_when_given_empty_lookup_data(self):
+        c = StringValueCanonicalizer(value_lookup_dict=dict())
+
+        for given_and_expected in [
+            '',
+            'foo',
+            'foo bar'
+        ]:
+            with self.subTest(given_and_expected=given_and_expected):
+                actual = c(given_and_expected)
+                self.assertEqual(given_and_expected, actual)
+
+    def test_replaces_one_value_matching_one_pattern(self):
+        value_lookup_dict = {
+            'BAZ': [
+                '.*foo'
+            ]
+        }
+        c = StringValueCanonicalizer(value_lookup_dict)
+
+        for given in [
+            'foo',
+            'foo foo',
+            'fooo',
+            'fooo foo',
+            'foo fooo',
+            'foo bar',
+            'fooo bar',
+            'bar foo',
+            'bar foo',
+        ]:
+            with self.subTest():
+                actual = c(given)
+                self.assertEqual('BAZ', actual)
+
+    def test_replaces_two_values_matching_one_pattern_each(self):
+        value_lookup_dict = {
+            'BAZ': [
+                '.*foo.*'
+            ],
+            'MEOW': [
+                '.*w.*'
+            ]
+        }
+        c = StringValueCanonicalizer(value_lookup_dict)
+
+        for given, expected in [
+            ('BAZ', 'BAZ'),
+            ('baz', 'BAZ'),
+            ('foo', 'BAZ'),
+            ('foo foo', 'BAZ'),
+
+            ('MEOW', 'MEOW'),
+            ('meow', 'MEOW'),
+            ('MEOW MEOW', 'MEOW'),
+            ('meow meow', 'MEOW'),
+            ('w', 'MEOW'),
+            ('ww', 'MEOW'),
+
+            # Patterns for both 'BAZ' and 'MEOW' match.
+            # TODO: [incomplete] Result depends on order in 'value_lookup_dict'.. ?
+            ('foow', 'BAZ'),
+            ('foo w', 'BAZ'),
+            ('w foo', 'BAZ'),
+        ]:
+            with self.subTest():
+                actual = c(given)
+                self.assertEqual(expected, actual)
+
+        # Expect these to not match and be passed through as-is.
+        for given_and_expected in [
+            'BAZ BAZ',
+            'baz baz',
+        ]:
+            with self.subTest():
+                actual = c(given_and_expected)
+                self.assertEqual(given_and_expected, given_and_expected)
