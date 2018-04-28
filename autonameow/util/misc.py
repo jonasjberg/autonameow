@@ -36,7 +36,6 @@ __all__ = [
     'flatten_sequence_type',
     'git_commit_hash',
     'is_executable',
-    'multiset_count',
     'nested_dict_get',
     'nested_dict_set',
     'process_id',
@@ -47,36 +46,6 @@ log = logging.getLogger(__name__)
 
 
 __counter_generator_function = itertools.count(0)
-
-
-def multiset_count(list_data):
-    """
-    Counts duplicate entries in a list and returns a dictionary of frequencies.
-
-    keyed by entries,
-    with the entry count as value.
-
-    Args:
-        list_data: A list of data to count.
-
-    Returns:
-        A dictionary with unique list entries as keys and the corresponding
-        value is the frequency of that entry in the given "list_data".
-    """
-    if list_data is None:
-        return None
-
-    entry_counter = dict()
-    if not list_data:
-        return entry_counter
-
-    for entry in list_data:
-        if entry in entry_counter:
-            entry_counter[entry] += 1
-        else:
-            entry_counter[entry] = 1
-
-    return entry_counter
 
 
 def flatten_sequence_type(container):

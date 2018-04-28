@@ -32,7 +32,6 @@ from util.misc import (
     flatten_sequence_type,
     git_commit_hash,
     is_executable,
-    multiset_count,
     nested_dict_get,
     nested_dict_set,
 )
@@ -79,35 +78,6 @@ DUMMY_FLATTENED_RESULTS_DICT = {
     'B.B3.B3A': True,
     'B.B3.B3B': False,
 }
-
-
-class TestMultisetCount(TestCase):
-    def test_list_duplicate_count_returns_empty_dict_for_empty_list(self):
-        self.assertEqual(multiset_count([]), {})
-
-    def test_list_duplicate_count_returns_none_for_none(self):
-        self.assertIsNone(multiset_count(None))
-
-    def _check(self, given, expect):
-        self.assertEqual(expect, multiset_count(given))
-
-    def test_list_duplicate_count_returns_expected_no_duplicates(self):
-        self._check(given=['a', 'b', 'c'], expect={'a': 1, 'b': 1, 'c': 1})
-
-    def test_list_duplicate_count_returns_expected_one_duplicate(self):
-        self._check(given=['a', 'a', 'c'], expect={'a': 2, 'c': 1})
-
-    def test_list_duplicate_count_returns_expected_only_duplicates(self):
-        self._check(given=['a', 'a', 'a'], expect={'a': 3})
-
-    def test_list_duplicate_count_returns_expected_no_duplicate_one_none(self):
-        self._check(given=['a', None, 'b'], expect={None: 1, 'a': 1, 'b': 1})
-
-    def test_list_duplicate_count_returns_expected_one_duplicate_one_none(self):
-        self._check(given=['b', None, 'b'], expect={None: 1, 'b': 2})
-
-    def test_list_duplicate_count_returns_expected_no_duplicate_two_none(self):
-        self._check(given=['a', None, 'b', None], expect={None: 2, 'a': 1, 'b': 1})
 
 
 class TestFlattenSequenceType(TestCase):
