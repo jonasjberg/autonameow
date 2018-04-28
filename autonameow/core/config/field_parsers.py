@@ -442,18 +442,6 @@ def get_instantiated_field_parsers():
     return [p() for p in globals()['ConfigFieldParser'].__subclasses__()]
 
 
-def available_field_parsers():
-    """
-    Get a list of all available field parser classes, I.E. all classes
-    that inherit from the 'ConfigFieldParser' class.
-
-    Returns:
-        A list of all field parser classes.
-    """
-    return [klass for klass in
-            globals()['ConfigFieldParser'].__subclasses__()]
-
-
 def suitable_field_parser_for(meowuri):
     """
     Returns field parser instances that can handle the given "meowURI".

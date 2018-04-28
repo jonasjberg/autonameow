@@ -28,7 +28,6 @@ from core.config.field_parsers import (
     MimeTypeConfigFieldParser,
     NameTemplateConfigFieldParser,
     RegexConfigFieldParser,
-    available_field_parsers,
     get_instantiated_field_parsers,
     suitable_field_parser_for
 )
@@ -52,20 +51,6 @@ class TestFieldParserFunctions(TestCase):
         parsers = get_instantiated_field_parsers()
         for p in parsers:
             self.assertTrue(uu.is_class_instance(p))
-
-    def test_get_available_parsers(self):
-        self.assertIsNotNone(available_field_parsers())
-
-    def test_get_available_parsers_returns_expected_type(self):
-        actual = available_field_parsers()
-        self.assertIsInstance(actual, list)
-
-        for p in actual:
-            self.assertTrue(uu.is_class(p))
-
-    def test_get_available_parsers_returns_arbitrary_number(self):
-        # TODO: [hardcoded] Likely to break; Fix or remove!
-        self.assertGreaterEqual(len(available_field_parsers()), 4)
 
 
 class TestFieldParser(TestCase):
