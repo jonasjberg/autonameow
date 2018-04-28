@@ -46,7 +46,6 @@ from util.text.transform import (
     simplify_unicode,
     _strip_accents_homerolled,
     _strip_accents_unidecode,
-    strip_ansiescape,
     strip_single_space_lines,
     truncate_text,
     urldecode,
@@ -592,17 +591,6 @@ class TestZeroWidthSpaces(TestCase):
     def test_handles_empty_string(self):
         actual = remove_zerowidth_spaces('')
         self.assertEqual('', actual)
-
-
-class TestStripAnsiEscape(TestCase):
-    def _aE(self, test_input, expected):
-        actual = strip_ansiescape(test_input)
-        self.assertEqual(actual, expected)
-
-    def test_strips_ansi_escape_codes(self):
-        self._aE('', '')
-        self._aE('a', 'a')
-        self._aE('[30m[44mautonameow[49m[39m', 'autonameow')
 
 
 class TestTruncateText(TestCase):

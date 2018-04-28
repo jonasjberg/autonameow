@@ -45,7 +45,6 @@ __all__ = [
     'remove_blacklisted_re_lines',
     'remove_nonbreaking_spaces',
     'remove_zerowidth_spaces',
-    'strip_ansiescape',
     'strip_single_space_lines',
     'truncate_text',
     'urldecode'
@@ -338,16 +337,6 @@ def remove_nonbreaking_spaces(text):
 
 def remove_zerowidth_spaces(text):
     return text.replace('\u200B', '')
-
-
-def strip_ansiescape(string):
-    assert isinstance(string, str)
-
-    # Attempt at matching ANSI escape sequences. Likely incomplete.
-    re_ansi_escape = RegexCache(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-
-    subbed_string = re_ansi_escape.sub('', string)
-    return subbed_string
 
 
 def truncate_text(text, maxlen=500, append_info=False):
