@@ -91,6 +91,8 @@ def real_main(options=None):
             # TODO: [incomplete] Handle this properly!
             ameow.exit_program(C.EXIT_SUCCESS)
 
+    logs.deinit_logging()
+
 
 def print_error(message):
     print(message, file=sys.stderr, flush=True)
