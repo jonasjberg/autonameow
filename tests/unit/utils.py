@@ -78,12 +78,12 @@ def abspath_testconfig(testconfig_basename=None):
     )
 
 
-def encode(string):
-    return enc.encode_(string)
+def encode(s):
+    return enc.encode_(s)
 
 
-def decode(string):
-    return enc.decode_(string)
+def decode(s):
+    return enc.decode_(s)
 
 
 def bytestring_path(path):
@@ -680,11 +680,11 @@ def mock_cache_path():
     return b'/tmp/autonameow_cache'
 
 
-def as_meowuri(string):
+def as_meowuri(s):
     from core.model import MeowURI
     from core.exceptions import InvalidMeowURIError
     try:
-        return MeowURI(string)
+        return MeowURI(s)
     except InvalidMeowURIError as e:
         raise AssertionError(e)
 
