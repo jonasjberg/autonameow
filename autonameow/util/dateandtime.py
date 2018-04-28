@@ -24,7 +24,6 @@ from datetime import datetime
 
 from core import constants as C
 from core.exceptions import DependencyError
-from util import encoding as enc
 
 try:
     import pytz
@@ -40,36 +39,6 @@ def _extract_digits(s):
 
 def is_datetime_instance(thing):
     return bool(isinstance(thing, datetime))
-
-
-def _year_is_probable(int_year):
-    """
-    Check if year is "probable", meaning greater than 1900 and
-    not in the future, I.E. greater than the current year.
-    That is, simply: 1900 < year < this year
-
-    Args:
-        int_year: The year to test as an integer.
-
-    Returns:
-        True if the year is "probable", else False.
-    """
-    # Check if number of digits in "year" is less than three,
-    # I.E. we got something like '86' (1986) or maybe '08' (2008).
-    year = int_year
-    if len(str(year)) <= 2:
-        # Assume 50-99 becomes 1950-1999, and 0-49 becomes 2000-2049.
-        if year < 50:
-            year += 2000
-        else:
-            year += 1900
-
-    try:
-        year = datetime.strptime(str(year), '%Y')
-    except (ValueError, TypeError):
-        return False
-
-    return date_is_probable(year)
 
 
 def date_is_probable(date,

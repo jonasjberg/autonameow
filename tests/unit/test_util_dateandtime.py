@@ -32,7 +32,6 @@ from util.dateandtime import (
     match_special_case_no_date,
     naive_to_timezone_aware,
     timezone_aware_to_naive,
-    _year_is_probable
 )
 
 
@@ -82,35 +81,6 @@ class TestDateIsProbable(TestCase):
         self._assert_probable(True, '2017-01-01 135959')
         self._assert_probable(True, '2018-01-01 000000')
         self._assert_probable(True, '2018-01-01 135959')
-
-
-class TestYearIsProbable(TestCase):
-    def _assert_probable(self, expect, given):
-        actual = _year_is_probable(given)
-        self.assertEqual(expect, actual)
-
-    def test_returns_false_given_improbable_dates(self):
-        self._assert_probable(False, 20)    # 1920 or 2020
-        self._assert_probable(False, 30)    # 1930 or 2030
-        self._assert_probable(False, 40)    # 1940 or 2040
-        self._assert_probable(False, 100)   # Below lower or above upper limit
-        self._assert_probable(False, 455)   # Below lower or above upper limit
-        self._assert_probable(False, 1190)  # Below lower limit
-        self._assert_probable(False, 2200)  # Above upper limit
-        self._assert_probable(False, 4875)  # Above upper limit
-        self._assert_probable(False, 9999)  # Above upper limit
-
-    def test_returns_true_given_probable_dates(self):
-        self._assert_probable(True, 0)      # might be 2000
-        self._assert_probable(True, 1)      # might be 2001
-        self._assert_probable(True, 10)     # might be 2010
-        self._assert_probable(True, 50)     # might be 1950 or 2050
-        self._assert_probable(True, 90)     # might be 1990
-        self._assert_probable(True, 1975)
-        self._assert_probable(True, 1900)
-        self._assert_probable(True, 2001)
-        self._assert_probable(True, 2017)
-        self._assert_probable(True, 2018)
 
 
 class TestMatchUnixTimestamp(TestCase):
