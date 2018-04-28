@@ -36,21 +36,30 @@ import unit.utils as uu
 import unit.constants as uuconst
 
 
-class TestFieldParserFunctions(TestCase):
-    def setUp(self):
-        self.maxDiff = None
+class TestGetInstantiatedFieldParsers(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.actual = get_instantiated_field_parsers()
 
-    def test_get_instantiated_parsers_returns_list(self):
-        self.assertIsInstance(get_instantiated_field_parsers(), list)
+    def test_returns_list(self):
+        self.assertIsInstance(self.actual, list)
 
-    def test_get_instantiated_parsers_returns_arbitrary_number(self):
-        # TODO: [hardcoded] Likely to break; Fix or remove!
-        self.assertGreaterEqual(len(get_instantiated_field_parsers()), 3)
+    def test_returns_at_least_one_element(self):
+        self.assertGreaterEqual(len(self.actual), 1)
 
-    def test_get_instantiated_parsers_returns_class_objects(self):
-        parsers = get_instantiated_field_parsers()
-        for p in parsers:
+    def test_returns_at_least_two_elements(self):
+        self.assertGreaterEqual(len(self.actual), 2)
+
+    def test_returns_at_least_three_elements(self):
+        self.assertGreaterEqual(len(self.actual), 3)
+
+    def test_returns_instantiated_classes(self):
+        for p in self.actual:
             self.assertTrue(uu.is_class_instance(p))
+
+    def test_returns_subclasses_of_config_field_parser(self):
+        for p in self.actual:
+            self.assertIsInstance(p, field_parsers.ConfigFieldParser)
 
 
 class TestFieldParser(TestCase):
