@@ -35,7 +35,6 @@ from util.misc import (
     multiset_count,
     nested_dict_get,
     nested_dict_set,
-    unique_identifier
 )
 import unit.utils as uu
 
@@ -80,24 +79,6 @@ DUMMY_FLATTENED_RESULTS_DICT = {
     'B.B3.B3A': True,
     'B.B3.B3B': False,
 }
-
-
-class TestUniqueIdentifier(TestCase):
-    def test_unique_identifier_returns_not_none(self):
-        self.assertIsNotNone(unique_identifier())
-
-    def test_unique_identifier_returns_string(self):
-        uuid = unique_identifier()
-        self.assertTrue(uu.is_internalstring(uuid))
-
-    def test_unique_identifier_returns_100_unique_values(self):
-        seen = set()
-        count = 100
-
-        for i in range(0, count):
-            seen.add(unique_identifier())
-
-        self.assertEqual(len(seen), count)
 
 
 class TestMultisetCount(TestCase):

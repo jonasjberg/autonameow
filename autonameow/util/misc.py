@@ -40,7 +40,6 @@ __all__ = [
     'nested_dict_get',
     'nested_dict_set',
     'process_id',
-    'unique_identifier',
 ]
 
 
@@ -48,30 +47,6 @@ log = logging.getLogger(__name__)
 
 
 __counter_generator_function = itertools.count(0)
-
-
-def unique_identifier():
-    """
-    Returns a (practically unique) identifier string.
-
-    The numeric part of the identifier is incremented at each function call.
-
-    Numbers are unique even after as much as 10^6 function calls, which I doubt
-    will be used up during a single program invocation.
-
-    Returns:
-        A (pretty much unique) identifier text string.
-    """
-    n = next(__counter_generator_function)
-    if n % 3 == 0:
-        _prefix = 'M3'
-    else:
-        _prefix = 'ME'
-    if n % 2 == 0:
-        _postfix = 'OW'
-    else:
-        _postfix = '0W'
-    return '{}{:03d}{}'.format(_prefix, n, _postfix)
 
 
 def multiset_count(list_data):

@@ -23,7 +23,6 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from core import constants as C
-from util import unique_identifier
 from core.persistence.base import (
     _basename_as_key,
     get_config_persistence_path,
@@ -306,8 +305,8 @@ class TestPicklePersistence(TestCase):
         self.assertEqual(actual, self.datavalue)
 
     def test_get_from_empty(self):
-        random_key = unique_identifier()
-        c = PicklePersistence(random_key)
+        random_ten_character_key = uu.random_ascii_string(10)
+        c = PicklePersistence(random_ten_character_key)
 
         # The persistence should not have the key in 'self._data' nor should
         # the persistent data exist.  Expect a KeyError.
