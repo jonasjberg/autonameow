@@ -38,6 +38,9 @@ Find which unit tests that covered which lines of source code using `smother`.
 Run autonameow with the given file(s) and the `--list-all` option and filters
 the output to display a lexicographically sorted list of unique MeowURIs.
 
+### `functions-rarely-called.sh`
+Very simple *and likely broken* search of unused functions and methods.
+
 ### `lint_bash.sh`
 Perform static analysis on all bash scripts using `shellcheck`.
 
