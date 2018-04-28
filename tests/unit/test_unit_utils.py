@@ -662,3 +662,20 @@ cat list
 baz last line
 '''
         self.assertEqual(expect, actual)
+
+
+class RandomAsciiString(TestCase):
+    def test_returns_empty_string(self):
+        actual = uu.random_ascii_string(0)
+        self.assertIsInstance(actual, str)
+        self.assertEqual(0, len(actual))
+
+    def test_returns_ten_character_string(self):
+        actual = uu.random_ascii_string(10)
+        self.assertIsInstance(actual, str)
+        self.assertEqual(10, len(actual))
+
+    def test_returns_string_with_only_ascii_characters(self):
+        actual = uu.random_ascii_string(200)
+        all_chars_are_ascii = all(ord(c) < 128 for c in actual)
+        self.assertTrue(all_chars_are_ascii)

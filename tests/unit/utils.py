@@ -23,6 +23,8 @@
 import inspect
 import io
 import os
+import random
+import string
 import sys
 import tempfile
 from contextlib import contextmanager
@@ -722,3 +724,9 @@ def get_mock_provider():
     mock_provider.metainfo = MagicMock(return_value=dict())
     mock_provider.name.return_value = 'MockProvider'
     return mock_provider
+
+
+def random_ascii_string(num_chars):
+    assert isinstance(num_chars, int)
+    ASCII_CHARS = string.ascii_lowercase + string.ascii_uppercase
+    return ''.join(random.choice(ASCII_CHARS) for _ in range(num_chars))
