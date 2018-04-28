@@ -25,34 +25,7 @@ import os
 from core import constants as C
 from core.view import cli
 from util import encoding as enc
-from util import (
-    coercers,
-    disk
-)
-
-
-def arg_is_year(arg):
-    """
-    Check if "value" is a year, here defined as consisting solely of 4 digits,
-    with a value in the range 0 >= year > 9999.
-
-    Args:
-        arg: The argument to validate.
-    Returns:
-        The given value as an integer between 0 and 9999.
-    Raises:
-        ArgumentTypeError: The given value could not be coerced into an integer
-                           or the integer values is not in range 0 >= x > 9999.
-    """
-    if arg:
-        try:
-            integer = coercers.AW_INTEGER(arg)
-        except coercers.AWTypeError:
-            pass
-        else:
-            if 0 <= integer <= 9999:
-                return '{:04d}'.format(integer)
-    raise argparse.ArgumentTypeError('"{}" is not a valid year'.format(arg))
+from util import disk
 
 
 def arg_is_readable_file(arg):

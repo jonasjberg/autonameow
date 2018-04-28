@@ -24,39 +24,10 @@ from unittest import TestCase
 
 import unit.constants as uuconst
 from core.view.cli.options import (
-    arg_is_year,
     arg_is_readable_file,
     cli_parse_args,
     init_argparser
 )
-
-
-class TestArgumentValidatorArgIsYear(TestCase):
-    def test_raises_exception_given_invalid_arguments(self):
-        for invalid_year in [
-            None, '', ' ', 'abc', '19 00', '¡@$!', '-1', '-10', '-100', '-1000',
-            -1, -10, -100, -1000,
-        ]:
-            with self.subTest(given=invalid_year):
-                with self.assertRaises(argparse.ArgumentTypeError):
-                    arg_is_year(invalid_year)
-
-    def test_returns_true_given_valid_year_arguments(self):
-        for valid_year in [
-            '10', '100', '1000', '1970', '2017', '9999',
-            10, 100, 1000, 1970, 2017, 9999,
-        ]:
-            with self.subTest(given=valid_year):
-                self.assertTrue(arg_is_year(valid_year))
-
-    def test_returns_zero_padded_valid_years(self):
-        for valid_year in [
-            '10', '100', '1000', '1970', '2017', '9999',
-            10, 100, 1000, 1970, 2017, 9999,
-        ]:
-            with self.subTest(given=valid_year):
-                actual = arg_is_year(valid_year)
-                self.assertEqual(4, len(str(actual)))
 
 
 class TestArgumentValidatorIsReadableFile(TestCase):
