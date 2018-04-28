@@ -42,9 +42,15 @@ def _relative_absolute_path(basename):
 
 
 class StringValueCanonicalizer(object):
-    def __init__(self, config_basename):
-        self.filepath_config = _relative_absolute_path(config_basename)
-        self.canonical_value_regexes = self._load_yaml_canonical_value_regexes(self.filepath_config)
+    def __init__(self, value_lookup_dict, lookup_dict_filepath=None):
+        if lookup_dict_filepath:
+            str_lookup_dict_filepath = coercers.force_string(lookup_dict_filepath)
+        else:
+            str_lookup_dict_filepath = '(unknown filepath)'
+
+        # Store original path for additional information when logging errors.
+        self.str_lookup_dict_filepath = str(str_lookup_dict_filepath)
+        self.canonical_value_regexes = self._parse_canonical_value_regexes(value_lookup_dict)
 
     def __call__(self, string):
         canonical_value = self._find_first_match(string)
@@ -64,15 +70,10 @@ class StringValueCanonicalizer(object):
 
         return None
 
-    def _load_yaml_canonical_value_regexes(self, filepath):
-        yaml_data = disk.load_yaml_file(filepath)
-        return self._parse_canonical_value_regexes(yaml_data)
-
     def _parse_canonical_value_regexes(self, datadict):
         assert isinstance(datadict, dict)
 
         parsed_value_regexes = dict()
-
         for canonical, pattern_list in datadict.items():
             compiled_regexes = list()
 
@@ -81,9 +82,8 @@ class StringValueCanonicalizer(object):
                     regex = re.compile(pattern, re.DOTALL | re.IGNORECASE)
                 except re.error as e:
                     log.error('Invalid regex in "{!s}" :: '
-                              '{!s}'.format(self.filepath_config, e))
+                              '{!s}'.format(self.str_lookup_dict_filepath, e))
                     continue
-
                 compiled_regexes.append(regex)
 
             if compiled_regexes:
@@ -92,7 +92,14 @@ class StringValueCanonicalizer(object):
         return parsed_value_regexes
 
 
-_CANONICALIZER_PUBLISHER = StringValueCanonicalizer(b'canonical_publisher.yaml')
+def build_string_value_canonicalizer(yaml_config_filename):
+    yaml_config_filepath = _relative_absolute_path(yaml_config_filename)
+    config_data = disk.load_yaml_file(yaml_config_filepath)
+    canonicalizer = StringValueCanonicalizer(config_data, yaml_config_filepath)
+    return canonicalizer
+
+
+_CANONICALIZER_PUBLISHER = build_string_value_canonicalizer(b'canonical_publisher.yaml')
 
 
 def canonicalize_publisher(string):

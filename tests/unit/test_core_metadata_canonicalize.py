@@ -23,8 +23,8 @@ from unittest import TestCase
 
 import unit.utils as uu
 from core.metadata.canonicalize import (
-    canonicalize_publisher,
-    StringValueCanonicalizer
+    build_string_value_canonicalizer,
+    canonicalize_publisher
 )
 
 
@@ -32,8 +32,8 @@ def _canonicalize_publisher(given):
     return canonicalize_publisher(given)
 
 
-def _get_string_value_canonicalizer(*args, **kwargs):
-    return StringValueCanonicalizer(*args, **kwargs)
+def _build_string_value_canonicalizer(*args, **kwargs):
+    return build_string_value_canonicalizer(*args, **kwargs)
 
 
 PUBLISHER_CANONICAL_EQUIVALENTS = {
@@ -275,22 +275,22 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
 }
 
 
-class TestStringValueCanonicalizer(TestCase):
+class TestBuildStringValueCanonicalizer(TestCase):
     def test_filepath_config_is_expected_absolute_path(self):
-        c = StringValueCanonicalizer(b'canonical_publisher.yaml')
-        actual = c.filepath_config
-
-        self.assertIsInstance(actual, bytes)
-        self.assertTrue(actual.endswith(b'canonical_publisher.yaml'))
+        c = _build_string_value_canonicalizer(b'canonical_publisher.yaml')
+        actual = c.str_lookup_dict_filepath
+        self.assertIsInstance(actual, str,
+                              '*not bytestring* path is stored for logging only')
+        self.assertTrue(actual.endswith('canonical_publisher.yaml'))
         self.assertTrue(uu.is_abspath(actual))
 
     def test_returns_given_as_is_when_used_as_callable(self):
-        c = StringValueCanonicalizer(b'canonical_publisher.yaml')
+        c = _build_string_value_canonicalizer(b'canonical_publisher.yaml')
         actual = c('Manning')
         self.assertEqual('Manning', actual)
 
     def test_returns_expected_when_used_as_callable(self):
-        c = StringValueCanonicalizer(b'canonical_publisher.yaml')
+        c = _build_string_value_canonicalizer(b'canonical_publisher.yaml')
         actual = c('Manning Publications')
         self.assertEqual('Manning', actual)
 
