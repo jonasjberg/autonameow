@@ -699,6 +699,22 @@ class TestSplitMultipleNames(TestCase):
             ]
         )
 
+    def test_based_on_live_data_b(self):
+        self._assert_that_it_returns(
+            expected=['Christopher Columbus', 'Prabhkar Ragvan', 'Heinrich Schueltze'],
+            given_any_of=[
+                ['Christopher Columbus, Prabhkar Ragvan, and Heinrich Schueltze'],
+                ['Christopher Columbus, Prabhkar Ragvan, Heinrich Schueltze']
+            ]
+        )
+        self._assert_that_it_returns(
+            expected=['Christopher Z. Columbus', 'Prabhkar Ragvan', 'Heinrich K. Schueltze'],
+            given_any_of=[
+                ['Christopher Z. Columbus, Prabhkar Ragvan, and Heinrich K. Schueltze'],
+                ['Christopher Z. Columbus, Prabhkar Ragvan, Heinrich K. Schueltze']
+            ]
+        )
+
 
 class TestFilterMultipleNames(TestCase):
     def _assert_filter_output_contains(self, expected, given):
