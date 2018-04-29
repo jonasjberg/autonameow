@@ -1,151 +1,202 @@
 AcademicPress:
-- Academic Press
-- Academic Press is an imprint of Elsevier
+    match_any_literal:
+    - Academic Press
+    - Academic Press is an imprint of Elsevier
 ArtechHouse:
-- Artech House
+    match_any_literal:
+    - Artech House
 AtlantisPress:
-- Atlantis Press
+    match_any_literal:
+    - Atlantis Press
 FeedBooks:
-- This book is brought to you by Feedbooks
-- http://www.feedbooks.com
+    match_any_literal:
+    - This book is brought to you by Feedbooks
+    - http://www.feedbooks.com
 ProjectGutenberg:
-- Project Gutenberg
-- www.gutenberg.net
+    match_any_literal:
+    - Project Gutenberg
+    - www.gutenberg.net
 AddisonWesley:
-- addison.wesley professional
-- addison.wesley
+    match_any_regex:
+    - addison.wesley professional
+    - addison.wesley
 Apress:
-- www.apress.com
+    match_any_literal:
+    - www.apress.com
 BigNerdRanch:
-- Big Nerd Ranch
-- Big Nerd Ranch, Inc.
-- www.bignerdranch.com
+    match_any_literal:
+    - Big Nerd Ranch
+    - Big Nerd Ranch, Inc.
+    - www.bignerdranch.com
 CambridgeUP:
-- Cambridge University Press
+    match_any_literal:
+    - Cambridge University Press
 ChelseaHouse:
-- Chelsea House
+    match_any_literal:
+    - Chelsea House
 CRCPress:
-- Chapman & Hall/CRC
-- CRC Press
-- www.crcpress.com
+    match_any_literal:
+    - Chapman & Hall/CRC
+    - CRC Press
+    - www.crcpress.com
 CourseTechnology:
-- Course Technology/Cengage Learning
-- Cengage Learning
-- Course Technology
-- Course Technology PTR
-- Course Technology U.S.
+    match_any_literal:
+    - Course Technology/Cengage Learning
+    - Cengage Learning
+    - Course Technology
+    - Course Technology PTR
+    - Course Technology U.S.
 DennisPub:
-- Dennis Pub.
+    match_any_literal:
+    - Dennis Pub.
 Elsevier:
-- Elsevier/Morgan Kaufmann
-- Elsevier Science
+    match_any_literal:
+    - Elsevier/Morgan Kaufmann
+    - Elsevier Science
 ExelixisMedia:
-- Exelixis Media P.C.
+    match_any_literal:
+    - Exelixis Media P.C.
 HoughtonMifflin:
-- Houghton Mifflin
+    match_any_literal:
+    - Houghton Mifflin
 IABooks:
-- Indo American Books
-- IA Books
-- sales@iabooks.com
-- www.iabooks.com
+    match_any_literal:
+    - Indo American Books
+    - IA Books
+    - sales@iabooks.com
+    - www.iabooks.com
 ImperialCollegePress:
-- Imperial College Press
+    match_any_literal:
+    - Imperial College Press
 JonesBartlett:
-- Jones and Bartlett Publishers
-- Jones and Bartlett
-- www.jbpub.com
+    match_any_literal:
+    - Jones and Bartlett Publishers
+    - Jones and Bartlett
+    - www.jbpub.com
 LuLu:
-- Lulu Press
-- '.?Lulu Press.?, lulu.com'
+    match_any_literal:
+    - Lulu Press
+    match_any_regex:
+    - '.?Lulu Press.?, lulu.com'
 Manning:
-- Manning Publications
+    match_any_literal:
+    - Manning Publications
 McGrawHill:
-- McGraw Hill Professional
-- McGraw-Hill
-- The McGraw-Hill Companies
+    match_any_literal:
+    - McGraw Hill Professional
+    - McGraw-Hill
+    - McGraw Hill
+    - The McGraw-Hill Companies
 MicrosoftPress:
-- Microsoft Press
-- Microsoft Pr
+    match_any_literal:
+    - Microsoft Press
+    - Microsoft Pr
 MITPress:
-- MIT Press
-- mitpress.mit.edu
+    match_any_literal:
+    - M I T Press
+    - MIT Press
+    - mitpress.mit.edu
+MorganClaypool:
+    match_any_literal:
+    - Morgan and Claypool Publishers
+    - Morgan & Claypool Publishers
 MorganKaufmann:
-- Morgan Kaufmann Publishers
-- Morgan Kaufmann
+    match_any_literal:
+    - Morgan Kaufmann Publishers
+    - Morgan Kaufmann
 NewAgeInt:
-- New Age International
+    match_any_literal:
+    - New Age International
 NoStarchPress:
-- No Starch Press, Inc.
-- No Starch Press Inc.
-- No Starch Press
-- NoStarchPress Inc.
-- www.nostarch.com
+    match_any_literal:
+    - No Starch Press, Inc.
+    - No Starch Press Inc.
+    - No Starch Press
+    - NoStarchPress Inc.
+    - www.nostarch.com
 OReilly:
-- "O'Reilly Media"
-- "O'Reilly"
-- 'O\u2019Reilly Media, Inc.'
-- "O'Reilly & Associates"
-- Oreilly & Associates Inc
-- Oreilly & Associates
+    match_any_literal:
+    - "O'Reilly Media"
+    - "O'Reilly"
+    - "O\u2019Reilly Media, Inc."
+    - "O'Reilly & Associates"
+    - Oreilly & Associates Inc
+    - Oreilly & Associates
 OxfordUP:
-- Oxford University Press
+    match_any_literal:
+    - Oxford University Press
 Packt:
-- Packt Publishing Limited
-- Packt Publishing
-- Packt Publ.
-- Packt Pub.
-- Published by Packt Publishing Ltd.
-- www.packtpub.com
+    match_any_literal:
+    - Packt Publishing Limited
+    - Packt Publishing
+    - Packt Publ.
+    - Packt Pub.
+    - Published by Packt Publishing Ltd.
+    - www.packtpub.com
 PeachpitPress:
-- Peachpit Press
-- peachpit.com
+    match_any_literal:
+    - Peachpit Press
+    - peachpit.com
 Pearson:
-- Pearson/PrenticeHall
-- Pearson/AddisonWesley
-- Pearson Education
+    match_any_literal:
+    - Pearson/PrenticeHall
+    - Pearson/AddisonWesley
+    - Pearson Education
 PragmaticBookshelf:
-- The Pragmatic Bookshelf
-- The Pragmatic Programmers, LLC.
+    match_any_literal:
+    - The Pragmatic Bookshelf
+    - The Pragmatic Programmers, LLC.
 PrenticeHall:
-- Prentice Hall
-- PRENTICE HALL
-- Prentice Hall PTR
+    match_any_literal:
+    - Prentice Hall
+    - PRENTICE HALL
+    - Prentice Hall PTR
 Sams:
-- Sams Publishing
-- samspublishing.com
+    match_any_literal:
+    - Sams Publishing
+    - samspublishing.com
 SimpleProgrammer:
-- Simple Programmer
+    match_any_literal:
+    - Simple Programmer
 Springer:
-- springer
-- Springer Berlin
-- Springer-Verlag New York Inc
-- Springer-Verlag
+    match_any_literal:
+    - springer
+    - Springer Berlin
+    - Springer-Verlag New York Inc
+    - Springer-Verlag
 StanfordUP:
-- Stanford University Press
+    match_any_literal:
+    - Stanford University Press
 Syngress:
-- Syngress Media Inc
-- Syngress Pub.
-- www.syngress.com
+    match_any_literal:
+    - Syngress Media Inc
+    - Syngress Pub.
+    - www.syngress.com
 TaylorFrancis:
-- Taylor & Francis
-- Taylor and Francis
+    match_any_regex:
+    - Taylor (&|and) Francis
 Westview:
-- Westview
+    match_any_literal:
+    - Westview
 Wiley:
-- John Wiley & Sons, Inc.
-- John Wiley & Sons Inc
-- John Wiley & Sons
-- John Wiley
-- J. Wiley
-- Wiley Pub., Inc.
-- Wiley Pub.
-- wiley & Sons
-- wiley
+    match_any_literal:
+    - John Wiley & Sons, Inc.
+    - John Wiley & Sons Inc
+    - John Wiley & Sons
+    - John Wiley
+    - J. Wiley
+    - Wiley Pub., Inc.
+    - Wiley Pub.
+    - wiley & Sons
+    - wiley
 Wordware:
-- Wordware Pub(lishing)?
+    match_any_regex:
+    - Wordware Pub(lishing)?
 WorldScientific:
-- WorldSci(entific)?
-- World Scientific
+    match_any_regex:
+    - WorldSci(entific)?
+    - World Scientific
 Wrox:
-- Wrox/John Wiley & Sons
-- www.wrox.com
+    match_any_literal:
+    - Wrox/John Wiley & Sons
+    - www.wrox.com
