@@ -87,7 +87,7 @@ class TerminalReporter(object):
         self.msg_mark_history_fail = cli.colorize('\u2612', fore='RED')
         # Unicode character "ballot box" (U+2610)
         self.msg_mark_history_skip = cli.colorize('\u2610', fore='YELLOW')
-        self.msg_mark_history_unknown = cli.colorize('?', fore='YELLOW')
+        self.msg_mark_history_unknown = self.msg_mark_history_skip
 
     def msg(self, string):
         if self.verbose:
