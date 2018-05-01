@@ -57,7 +57,7 @@ class FileObject(object):
             os.path.basename(os.path.dirname(enc.syspath(path)))
         )
 
-        self.mime_type = mimemagic.filetype(self.abspath)
+        self.mime_type = mimemagic.file_mimetype(self.abspath)
 
         # Extract parts of the file name.
         self.basename_prefix = disk.basename_prefix(self.abspath) or b''

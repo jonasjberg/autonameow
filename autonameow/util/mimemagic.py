@@ -124,7 +124,7 @@ def _build_magic():
 MY_MAGIC = None
 
 
-def filetype(file_path):
+def file_mimetype(file_path):
     """
     Determine file type by reading "magic" header bytes.
 

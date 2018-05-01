@@ -25,7 +25,7 @@ import unit.utils as uu
 from core.exceptions import EncodingBoundaryViolation
 from util import coercers
 from util.mimemagic import eval_glob
-from util.mimemagic import filetype
+from util.mimemagic import file_mimetype
 from util.mimemagic import get_extension
 from util.mimemagic import get_mimetype
 from util.mimemagic import MimeExtensionMapper
@@ -53,13 +53,13 @@ class TestFileTypeMagic(TestCase):
             self.assertTrue(uu.file_exists(test_file))
             self.assertTrue(uu.path_is_readable(test_file))
 
-    def test_filetype_magic(self):
+    def test_file_mimetype(self):
         for test_file, expected_mime in self.test_files:
-            actual = filetype(test_file)
+            actual = file_mimetype(test_file)
             self.assertEqual(actual, expected_mime)
 
-    def test_filetype_magic_with_invalid_args(self):
-        actual = filetype(None)
+    def test_file_mimetype_with_invalid_args(self):
+        actual = file_mimetype(None)
         unknown_mimetype = coercers.NULL_AW_MIMETYPE
         self.assertEqual(actual, unknown_mimetype)
         self.assertFalse(actual)
