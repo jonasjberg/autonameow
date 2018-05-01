@@ -31,38 +31,50 @@ from util.mimemagic import get_mimetype
 from util.mimemagic import MimeExtensionMapper
 
 
-class TestFileTypeMagic(TestCase):
-    TEST_FILES = [('magic_bmp.bmp', 'image/x-ms-bmp'),
-                  ('magic_gif.gif', 'image/gif'),
-                  ('magic_jpg.jpg', 'image/jpeg'),
-                  ('magic_mp4.mp4', 'video/mp4'),
-                  ('magic_pdf.pdf', 'application/pdf'),
-                  ('magic_png.png', 'image/png'),
-                  ('magic_txt',     'text/plain'),
-                  ('magic_txt.md',  'text/plain'),
-                  ('magic_txt.txt', 'text/plain')]
+class TestFileMimetype(TestCase):
+    TESTFILE_BASENAME_EXPECTED_MIMETYPE = [
+        ('magic_bmp.bmp', 'image/x-ms-bmp'),
+        ('magic_gif.gif', 'image/gif'),
+        ('magic_jpg.jpg', 'image/jpeg'),
+        ('magic_mp4.mp4', 'video/mp4'),
+        ('magic_pdf.pdf', 'application/pdf'),
+        ('magic_png.png', 'image/png'),
+        ('magic_txt',     'text/plain'),
+        ('magic_txt.md',  'text/plain'),
+        ('magic_txt.txt', 'text/plain')
+    ]
 
-    def setUp(self):
-        self.test_files = [
-            (uu.abspath_testfile(basename), expect_mime)
-            for basename, expect_mime in self.TEST_FILES
+    @classmethod
+    def setUpClass(cls):
+        cls.null_mimetype = coercers.NULL_AW_MIMETYPE
+        cls.FILEPATH_EXPECTED = [
+            (uu.abspath_testfile(basename), mimetype)
+            for basename, mimetype in cls.TESTFILE_BASENAME_EXPECTED_MIMETYPE
         ]
 
     def test_test_files_exist_and_are_readable(self):
-        for test_file, _ in self.test_files:
-            self.assertTrue(uu.file_exists(test_file))
-            self.assertTrue(uu.path_is_readable(test_file))
+        for filepath, _ in self.FILEPATH_EXPECTED:
+            self.assertTrue(uu.file_exists(filepath))
+            self.assertTrue(uu.path_is_readable(filepath))
 
-    def test_file_mimetype(self):
-        for test_file, expected_mime in self.test_files:
-            actual = file_mimetype(test_file)
-            self.assertEqual(actual, expected_mime)
+    def test_sanity_check_that_expected_mime_types_contain_a_slash(self):
+        for _, expected_mime in self.FILEPATH_EXPECTED:
+            self.assertIn('/', expected_mime)
 
-    def test_file_mimetype_with_invalid_args(self):
-        actual = file_mimetype(None)
-        unknown_mimetype = coercers.NULL_AW_MIMETYPE
-        self.assertEqual(actual, unknown_mimetype)
-        self.assertFalse(actual)
+    def test_file_mimetype_returns_expected_mime_types_given_test_files(self):
+        for filepath, expected_mime in self.FILEPATH_EXPECTED:
+            actual = file_mimetype(filepath)
+            self.assertEqual(expected_mime, actual)
+
+    def test_file_mimetype_returns_expected_null_mime_type_given_bad_args(self):
+        for invalid_filepath in [
+            None,
+            '',
+            b''
+        ]:
+            actual = file_mimetype(invalid_filepath)
+            self.assertEqual(self.null_mimetype, actual)
+            self.assertFalse(actual)
 
 
 class TestEvalMagicGlob(TestCase):
@@ -183,9 +195,10 @@ class TestMimeExtensionMapper(TestCase):
 
     def test_initially_empty(self):
         _mimes = self.m.get_candidate_mimetypes('rtf')
-        self.assertEqual(_mimes, [])
+        expected = list()
+        self.assertEqual(expected, _mimes)
         _exts = self.m.get_candidate_extensions('application/rtf')
-        self.assertEqual(_exts, [])
+        self.assertEqual(expected, _exts)
 
     def test_add_extension_for_mime(self):
         self.m.add_mapping('application/rtf', 'rtf')
@@ -265,14 +278,14 @@ class TestMimeExtensionMapper(TestCase):
             expect=['baz', 'foo', 'foobar']
         )
         _preferred = self.m.get_extension('foo/bar')
-        self.assertEqual(_preferred, 'baz')
+        self.assertEqual('baz', _preferred)
 
     def test_get_extension(self):
         self.m.add_mapping('application/gzip', 'gz')
         self.m.add_mapping('application/gzip', 'tar.gz')
 
         _extension = self.m.get_extension('application/gzip')
-        self.assertEqual(_extension, 'gz')
+        self.assertEqual('gz', _extension)
 
 
 class TestMimemagicGetExtension(TestCase):
