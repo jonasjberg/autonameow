@@ -299,7 +299,7 @@ class Autonameow(object):
                     autonameow_exit_code=self.exit_code,
                     options=self.opts,
                     active_config=self.config,
-                    master_provider=master_provider
+                    masterprovider=master_provider
                 )
                 try:
                     new_name = context.find_new_name()

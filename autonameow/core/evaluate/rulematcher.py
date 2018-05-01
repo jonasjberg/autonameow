@@ -32,12 +32,12 @@ MatchedRule = namedtuple('MatchedRule', 'rule score weight')
 
 
 class RuleMatcher(object):
-    def __init__(self, rules, provider, fileobject, ui, list_rulematch=None):
+    def __init__(self, rules, masterprovider, fileobject, ui, list_rulematch=None):
         """
         Creates a new instance that evaluates rules against a given file.
         """
         self._rules = list(rules)
-        self._provider = provider
+        self._masterprovider = masterprovider
         self._fileobject = fileobject
         self.ui = ui
         self._list_rulematch = bool(list_rulematch)
@@ -54,7 +54,7 @@ class RuleMatcher(object):
     def request_data(self, fileobject, meowuri):
         sanity.check_isinstance_meowuri(meowuri)
 
-        response = self._provider.request_one(fileobject, meowuri)
+        response = self._masterprovider.request_one(fileobject, meowuri)
         if response:
             return response.value
         return None

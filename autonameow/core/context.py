@@ -44,13 +44,13 @@ log = logging.getLogger(__name__)
 
 class FileContext(object):
     def __init__(self, fileobject, ui, autonameow_exit_code, options, active_config,
-                 master_provider):
+                 masterprovider):
         self.fileobject = fileobject
         self.ui = ui
         self.autonameow_exit_code = autonameow_exit_code
         self.opts = options
         self.active_config = active_config
-        self.master_provider = master_provider
+        self._masterprovider = masterprovider
 
     def find_new_name(self):
         #  Things to find:
@@ -171,10 +171,10 @@ class FileContext(object):
 
     def _get_matched_rules(self):
         matcher = RuleMatcher(
-            self.active_config.rules,
-            self.master_provider,
-            self.fileobject,
-            self.ui,
+            rules=self.active_config.rules,
+            masterprovider=self._masterprovider,
+            fileobject=self.fileobject,
+            ui=self.ui,
             list_rulematch=self.opts.get('list_rulematch')
         )
         with logs.log_runtime(log, 'Rule-Matching'):
@@ -228,7 +228,7 @@ class FileContext(object):
         resolver = TemplateFieldDataResolver(
             fileobject=self.fileobject,
             name_template_fields=placeholders,
-            provider=self.master_provider,
+            masterprovider=self._masterprovider,
             config=self.active_config
         )
         resolver.add_known_sources(data_sources)
