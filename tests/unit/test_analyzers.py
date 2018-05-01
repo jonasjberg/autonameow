@@ -21,19 +21,13 @@
 
 import os
 from unittest import TestCase
-from unittest.mock import (
-    Mock,
-    patch,
-    PropertyMock
-)
+from unittest.mock import Mock, patch, PropertyMock
 
-import unit.utils as uu
 import unit.constants as uuconst
-from analyzers import (
-    BaseAnalyzer,
-    find_analyzer_files,
-    get_analyzer_classes,
-)
+import unit.utils as uu
+from analyzers import BaseAnalyzer
+from analyzers import find_analyzer_files
+from analyzers import get_analyzer_classes
 from core import constants as C
 
 

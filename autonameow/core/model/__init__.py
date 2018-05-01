@@ -19,10 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from .mapping import WeightedMapping
-from .meowuri import (
-    force_meowuri,
-    MeowURI
-)
+from .meowuri import force_meowuri
+from .meowuri import MeowURI
 from .name_template import NameTemplate

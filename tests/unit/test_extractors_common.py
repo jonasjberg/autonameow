@@ -20,18 +20,12 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import (
-    Mock,
-    PropertyMock,
-    patch
-)
+from unittest.mock import Mock, PropertyMock, patch
 
 import unit.utils as uu
 from core import constants as C
-from extractors.common import (
-    BaseExtractor,
-    _fieldmeta_filepath_from_extractor_source_filepath,
-)
+from extractors.common import BaseExtractor
+from extractors.common import _fieldmeta_filepath_from_extractor_source_filepath
 
 
 class TestBaseExtractor(TestCase):

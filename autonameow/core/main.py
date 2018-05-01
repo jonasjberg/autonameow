@@ -23,9 +23,9 @@ import sys
 
 from core import constants as C
 from core import logs
-from core.view import cli
 from core.autonameow import Autonameow
 from core.exceptions import AWAssertionError
+from core.view import cli
 
 
 # Default options passed to the main 'Autonameow' class instance.

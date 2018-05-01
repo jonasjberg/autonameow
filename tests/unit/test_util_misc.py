@@ -22,20 +22,15 @@
 
 import os
 from unittest import TestCase
-from unittest.mock import (
-    MagicMock,
-    patch
-)
+from unittest.mock import MagicMock, patch
 
-from util.misc import (
-    count_dict_recursive,
-    flatten_sequence_type,
-    git_commit_hash,
-    is_executable,
-    nested_dict_get,
-    nested_dict_set,
-)
 import unit.utils as uu
+from util.misc import count_dict_recursive
+from util.misc import flatten_sequence_type
+from util.misc import git_commit_hash
+from util.misc import is_executable
+from util.misc import nested_dict_get
+from util.misc import nested_dict_set
 
 
 DUMMY_RESULTS_DICT = {

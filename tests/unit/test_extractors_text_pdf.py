@@ -25,11 +25,9 @@ from unittest import skipIf, TestCase
 import unit.utils as uu
 from extractors.text import PdfTextExtractor
 from extractors.text.pdf import extract_pdf_content_with_pdftotext
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput,
-    CaseExtractorOutputTypes
-)
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
+from unit.case_extractors import CaseExtractorOutputTypes
 
 
 UNMET_DEPENDENCIES = (

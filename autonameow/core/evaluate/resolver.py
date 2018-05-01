@@ -19,17 +19,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
-from core import (
-    logs,
-    repository
-)
-from core.metadata.normalize import (
-    normalize_full_human_name,
-    normalize_full_title
-)
+from core import logs
+from core import repository
+from core.metadata.normalize import normalize_full_human_name
+from core.metadata.normalize import normalize_full_title
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from core.repository import DataBundle

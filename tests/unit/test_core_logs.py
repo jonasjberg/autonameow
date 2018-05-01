@@ -20,21 +20,16 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import (
-    Mock,
-    patch
-)
+from unittest.mock import Mock, patch
 
-from core.logs import (
-    center_pad,
-    DEBUG,
-    deinit_logging,
-    init_logging,
-    log_func_runtime,
-    log_previously_logged_runtimes,
-    log_runtime,
-    report_runtime,
-)
+from core.logs import center_pad
+from core.logs import DEBUG
+from core.logs import deinit_logging
+from core.logs import init_logging
+from core.logs import log_func_runtime
+from core.logs import log_previously_logged_runtimes
+from core.logs import log_runtime
+from core.logs import report_runtime
 
 
 mock_center_pad_log_entry = Mock(side_effect=lambda x: x)

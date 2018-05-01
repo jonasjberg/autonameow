@@ -25,10 +25,8 @@ from unittest.mock import MagicMock, patch
 import unit.utils as uu
 from core import constants as C
 from extractors import meowxtract
-from extractors.meowxtract import (
-    MetadataExtractionResult,
-    TextExtractionResult
-)
+from extractors.meowxtract import MetadataExtractionResult
+from extractors.meowxtract import TextExtractionResult
 
 
 # NOTE(jonas): Without patching 'extractors.meowxtract.logs', unit tests in other

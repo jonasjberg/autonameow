@@ -23,11 +23,9 @@ import os
 from unittest import skipIf, TestCase
 
 import unit.utils as uu
-from extractors.text.plain import (
-    PlainTextExtractor,
-    read_entire_text_file,
-    autodetect_encoding
-)
+from extractors.text.plain import autodetect_encoding
+from extractors.text.plain import PlainTextExtractor
+from extractors.text.plain import read_entire_text_file
 from unit.case_extractors import CaseExtractorBasics
 
 

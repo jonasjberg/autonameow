@@ -21,10 +21,8 @@
 
 from unittest import TestCase
 
-from core.metadata.normalize import (
-    cleanup_full_title,
-    normalize_full_title
-)
+from core.metadata.normalize import cleanup_full_title
+from core.metadata.normalize import normalize_full_title
 
 
 class TestNormalizeFullTitle(TestCase):

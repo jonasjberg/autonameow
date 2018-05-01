@@ -24,12 +24,10 @@ from unittest import TestCase
 import unit.constants as uuconst
 import unit.utils as uu
 from core import constants as C
-from core.config.rules import (
-    is_valid_source,
-    InvalidRuleConditionError,
-    Rule,
-    RuleCondition
-)
+from core.config.rules import is_valid_source
+from core.config.rules import InvalidRuleConditionError
+from core.config.rules import Rule
+from core.config.rules import RuleCondition
 from core.model import MeowURI
 
 

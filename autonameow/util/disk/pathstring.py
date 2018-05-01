@@ -21,8 +21,8 @@
 
 import os
 
-from util import sanity
 from util import encoding as enc
+from util import sanity
 
 
 def split_basename(file_path):

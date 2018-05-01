@@ -27,16 +27,14 @@ from collections import defaultdict
 
 import extractors
 from core import constants as C
-from core import (
-    event,
-    exceptions,
-    extraction,
-    FileObject,
-    logs,
-    view
-)
-from util import encoding as enc
+from core import event
+from core import exceptions
+from core import extraction
+from core import FileObject
+from core import logs
+from core import view
 from util import disk
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)

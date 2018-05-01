@@ -23,10 +23,8 @@ import subprocess
 
 import util
 from extractors import ExtractorError
-from extractors.text.common import (
-    AbstractTextExtractor,
-    decode_raw
-)
+from extractors.text.common import AbstractTextExtractor
+from extractors.text.common import decode_raw
 
 
 class RichTextFormatTextExtractor(AbstractTextExtractor):

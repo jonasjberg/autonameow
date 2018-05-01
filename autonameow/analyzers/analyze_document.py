@@ -23,13 +23,11 @@ import re
 
 from analyzers import BaseAnalyzer
 from core.metadata.normalize import cleanup_full_title
+from util.text import collapse_whitespace
+from util.text import remove_blacklisted_lines
+from util.text import TextChunker
 from util.text.filter import RegexLineFilter
 from util.text.patternmatching import find_publisher_in_copyright_notice
-from util.text import (
-    collapse_whitespace,
-    remove_blacklisted_lines,
-    TextChunker
-)
 
 
 # TODO: [TD0094] Search text for DOIs and query external services

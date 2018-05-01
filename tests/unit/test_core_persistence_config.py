@@ -25,12 +25,10 @@ from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
 
 import unit.utils as uu
-from core.persistence.config import (
-    CONFIG_BASENAME,
-    config_dirs,
-    config_file_path,
-    load_config_from_file
-)
+from core.persistence.config import CONFIG_BASENAME
+from core.persistence.config import config_dirs
+from core.persistence.config import config_file_path
+from core.persistence.config import load_config_from_file
 
 
 class TestConfigDirs(TestCase):

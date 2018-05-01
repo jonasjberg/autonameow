@@ -20,19 +20,13 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import (
-    MagicMock,
-    Mock,
-    patch
-)
+from unittest.mock import MagicMock, Mock, patch
 
 import unit.utils as uu
 from core import constants as C
-from core.evaluate.rulematcher import (
-    prioritize_rules,
-    RuleConditionEvaluator,
-    RuleMatcher
-)
+from core.evaluate.rulematcher import prioritize_rules
+from core.evaluate.rulematcher import RuleConditionEvaluator
+from core.evaluate.rulematcher import RuleMatcher
 
 
 uu.init_session_repository()

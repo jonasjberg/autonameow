@@ -23,11 +23,9 @@ import datetime
 import logging
 
 from core import exceptions
-from util import (
-    coercers,
-    sanity,
-    text
-)
+from util import coercers
+from util import sanity
+from util import text
 
 
 log = logging.getLogger(__name__)

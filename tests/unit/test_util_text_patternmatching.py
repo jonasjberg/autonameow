@@ -21,12 +21,10 @@
 
 from unittest import TestCase
 
-from util.text.patternmatching import (
-    compiled_ordinal_edition_regexes,
-    compiled_ordinal_regexes,
-    find_and_extract_edition,
-    find_publisher_in_copyright_notice
-)
+from util.text.patternmatching import compiled_ordinal_edition_regexes
+from util.text.patternmatching import compiled_ordinal_regexes
+from util.text.patternmatching import find_and_extract_edition
+from util.text.patternmatching import find_publisher_in_copyright_notice
 
 
 class TestCompiledOrdinalRegexes(TestCase):

@@ -24,17 +24,13 @@ import os
 import sys
 
 from core import constants as C
-from core.exceptions import (
-    AutonameowException,
-    FilesystemError
-)
+from core.exceptions import AutonameowException
+from core.exceptions import FilesystemError
 from core.model import MeowURI
 from core.providers import ProviderMixin
-from util import (
-    disk,
-    mimemagic,
-    sanity
-)
+from util import disk
+from util import mimemagic
+from util import sanity
 
 
 class ExtractorError(AutonameowException):

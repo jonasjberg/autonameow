@@ -22,12 +22,10 @@
 import re
 import subprocess
 
-from extractors import ExtractorError
-from extractors.text.common import (
-    AbstractTextExtractor,
-    decode_raw
-)
 import util
+from extractors import ExtractorError
+from extractors.text.common import AbstractTextExtractor
+from extractors.text.common import decode_raw
 
 
 class PdfTextExtractor(AbstractTextExtractor):

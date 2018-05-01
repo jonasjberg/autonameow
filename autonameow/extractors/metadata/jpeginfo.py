@@ -23,11 +23,9 @@ import re
 import subprocess
 
 import util
+from extractors import BaseExtractor
+from extractors import ExtractorError
 from util import coercers
-from extractors import (
-    BaseExtractor,
-    ExtractorError
-)
 
 
 class JpeginfoMetadataExtractor(BaseExtractor):

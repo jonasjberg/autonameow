@@ -19,10 +19,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core.metadata.normalize import (
-    normalize_full_human_name,
-    normalize_full_title
-)
+from core.metadata.normalize import normalize_full_human_name
+from core.metadata.normalize import normalize_full_title
+
 
 # Benefits of encapsulating a field/value tuple in a 'Field' class
 # ================================================================

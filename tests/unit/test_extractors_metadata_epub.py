@@ -23,11 +23,9 @@ from unittest import skipIf, TestCase
 
 import unit.utils as uu
 from extractors.metadata import EpubMetadataExtractor
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput,
-    CaseExtractorOutputTypes
-)
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
+from unit.case_extractors import CaseExtractorOutputTypes
 
 
 UNMET_DEPENDENCIES = (

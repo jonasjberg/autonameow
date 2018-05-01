@@ -25,23 +25,21 @@ import sys
 import time
 
 import util
+from core import config
 from core import constants as C
-from core import (
-    config,
-    event,
-    exceptions,
-    FileObject,
-    interactive,
-    logs,
-    persistence,
-    master_provider,
-    repository,
-)
+from core import event
+from core import exceptions
+from core import FileObject
+from core import interactive
+from core import logs
+from core import master_provider
+from core import persistence
+from core import repository
 from core.context import FileContext
 from core.namebuilder import FilenamePostprocessor
 from core.renamer import FileRenamer
-from util import encoding as enc
 from util import disk
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)

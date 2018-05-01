@@ -21,7 +21,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 

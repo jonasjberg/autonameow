@@ -23,8 +23,8 @@
 import logging
 
 from core import view
-from util import sanity
 from util import encoding as enc
+from util import sanity
 
 
 log = logging.getLogger(__name__)

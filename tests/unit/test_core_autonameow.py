@@ -34,10 +34,8 @@ except ImportError:
     )
 
 from core import constants as C
-from core.autonameow import (
-    Autonameow,
-    check_option_combinations
-)
+from core.autonameow import Autonameow
+from core.autonameow import check_option_combinations
 
 
 def prompt_toolkit_unavailable():

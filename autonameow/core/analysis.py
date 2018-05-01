@@ -22,11 +22,9 @@
 import logging
 
 import analyzers
-from core import (
-    logs,
-    master_provider,
-    repository
-)
+from core import logs
+from core import master_provider
+from core import repository
 from core.config.configuration import Configuration
 from core.exceptions import AutonameowException
 from core.model import force_meowuri

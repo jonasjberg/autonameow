@@ -23,13 +23,11 @@ import collections
 from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
 
-import unit.utils as uu
 import unit.constants as uuconst
-from core.master_provider import (
-    MasterDataProvider,
-    ProviderRegistry,
-    ProviderRunner
-)
+import unit.utils as uu
+from core.master_provider import MasterDataProvider
+from core.master_provider import ProviderRegistry
+from core.master_provider import ProviderRunner
 
 
 def _get_provider_registry(**kwargs):

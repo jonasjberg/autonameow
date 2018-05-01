@@ -23,16 +23,12 @@ import logging
 
 from core import constants as C
 from core.exceptions import AutonameowException
-from core.model import (
-    force_meowuri,
-    MeowURI
-)
-from core.providers import wrap_provider_results
+from core.model import force_meowuri
+from core.model import MeowURI
 from core.providers import ProviderMixin
-from util import (
-    mimemagic,
-    sanity
-)
+from core.providers import wrap_provider_results
+from util import mimemagic
+from util import sanity
 
 
 log = logging.getLogger(__name__)

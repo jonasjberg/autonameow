@@ -28,10 +28,8 @@ except ImportError:
 else:
     ISBNLIB_IS_NOT_AVAILABLE = False, ''
 
-from services.isbn import (
-    extract_isbnlike_from_text,
-    validate_isbn
-)
+from services.isbn import extract_isbnlike_from_text
+from services.isbn import validate_isbn
 
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)

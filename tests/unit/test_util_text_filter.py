@@ -23,10 +23,8 @@ from unittest import TestCase
 
 from core.exceptions import EncodingBoundaryViolation
 from unit import constants as uuconst
-from util.text.filter import (
-    RegexFilter,
-    RegexLineFilter,
-)
+from util.text.filter import RegexFilter
+from util.text.filter import RegexLineFilter
 
 
 def _get_regex_filter(*args, **kwargs):

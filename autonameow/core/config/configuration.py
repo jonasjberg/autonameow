@@ -22,12 +22,10 @@
 import logging
 
 from core import constants as C
-from util import (
-    coercers,
-    disk,
-    nested_dict_get,
-    text,
-)
+from util import coercers
+from util import disk
+from util import nested_dict_get
+from util import text
 
 
 log = logging.getLogger(__name__)

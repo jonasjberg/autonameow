@@ -24,16 +24,12 @@ from datetime import datetime
 from unittest import skipIf, TestCase
 
 import unit.utils as uu
-from extractors.filesystem.filetags import (
-    FiletagsExtractor,
-    FiletagsParts,
-    follows_filetags_convention,
-    partition_basename
-)
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput
-)
+from extractors.filesystem.filetags import FiletagsExtractor
+from extractors.filesystem.filetags import FiletagsParts
+from extractors.filesystem.filetags import follows_filetags_convention
+from extractors.filesystem.filetags import partition_basename
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
 
 
 UNMET_DEPENDENCIES = (

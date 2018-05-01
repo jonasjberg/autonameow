@@ -24,8 +24,8 @@ import os
 
 from core import constants as C
 from core.view import cli
-from util import encoding as enc
 from util import disk
+from util import encoding as enc
 
 
 def arg_is_readable_file(arg):

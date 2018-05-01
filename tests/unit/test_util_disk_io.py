@@ -28,24 +28,22 @@ import unit.constants as uuconst
 import unit.utils as uu
 from core.exceptions import FilesystemError
 from util import encoding as enc
-from util.disk.io import (
-    delete,
-    dirname,
-    exists,
-    basename,
-    file_bytesize,
-    has_permissions,
-    isabs,
-    isdir,
-    isfile,
-    islink,
-    joinpaths,
-    listdir,
-    makedirs,
-    rename_file,
-    rmdir,
-    tempdir
-)
+from util.disk.io import basename
+from util.disk.io import delete
+from util.disk.io import dirname
+from util.disk.io import exists
+from util.disk.io import file_bytesize
+from util.disk.io import has_permissions
+from util.disk.io import isabs
+from util.disk.io import isdir
+from util.disk.io import isfile
+from util.disk.io import islink
+from util.disk.io import joinpaths
+from util.disk.io import listdir
+from util.disk.io import makedirs
+from util.disk.io import rename_file
+from util.disk.io import rmdir
+from util.disk.io import tempdir
 
 
 class TestRenameFile(TestCase):

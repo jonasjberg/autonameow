@@ -21,22 +21,17 @@
 
 from collections import namedtuple
 from unittest import TestCase
-from unittest.mock import (
-    Mock,
-    patch
-)
+from unittest.mock import Mock, patch
 
 import unit.utils as uu
-from analyzers.analyze_filename import (
-    BASENAME_PROBABLE_EXT_LOOKUP,
-    FilenameAnalyzer,
-    FilenameTokenizer,
-    likely_extension,
-    _read_probable_extension_config_file,
-    _parse_mimetype_extension_suffixes_map_data,
-    PATH_PROBABLE_EXT_LOOKUP,
-    SubstringFinder
-)
+from analyzers.analyze_filename import BASENAME_PROBABLE_EXT_LOOKUP
+from analyzers.analyze_filename import FilenameAnalyzer
+from analyzers.analyze_filename import FilenameTokenizer
+from analyzers.analyze_filename import likely_extension
+from analyzers.analyze_filename import PATH_PROBABLE_EXT_LOOKUP
+from analyzers.analyze_filename import SubstringFinder
+from analyzers.analyze_filename import _parse_mimetype_extension_suffixes_map_data
+from analyzers.analyze_filename import _read_probable_extension_config_file
 from core.namebuilder import fields
 
 

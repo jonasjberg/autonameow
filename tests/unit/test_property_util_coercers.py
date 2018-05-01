@@ -23,13 +23,11 @@ from unittest import SkipTest, TestCase
 
 try:
     from hypothesis import given
-    from hypothesis.strategies import (
-        binary,
-        booleans,
-        characters,
-        integers,
-        text
-    )
+    from hypothesis.strategies import binary
+    from hypothesis.strategies import booleans
+    from hypothesis.strategies import characters
+    from hypothesis.strategies import integers
+    from hypothesis.strategies import text
 except ImportError:
     raise SkipTest('Unable to import "hypothesis". Skipping ..')
 

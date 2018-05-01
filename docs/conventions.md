@@ -112,14 +112,19 @@ from core import exceptions  #  3. Project-specific
 
 Statements with multiple clauses should be split up into separate lines, like this;
 ```python
-from core import (
-    exceptions,
-    version
-)
+from core import exceptions
+from core import version
 ```
 __Not like this;__
 ```python
 from core import exceptions, version
+```
+And __not like this;__
+```python
+from core import (
+    exceptions,
+    version
+)
 ```
 
 This is motivated primarily by cleaner diffs and merges.

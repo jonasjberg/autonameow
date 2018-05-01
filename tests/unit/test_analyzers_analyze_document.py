@@ -21,9 +21,7 @@
 
 from unittest import TestCase
 
-from analyzers.analyze_document import (
-    find_titles_in_text,
-)
+from analyzers.analyze_document import find_titles_in_text
 
 
 class TestFindTitlesInText(TestCase):

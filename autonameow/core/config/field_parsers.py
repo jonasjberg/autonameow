@@ -24,18 +24,14 @@ import re
 import unicodedata
 from datetime import datetime
 
-from core import (
-    exceptions,
-    namebuilder,
-)
+from core import exceptions
+from core import namebuilder
 from core.model import genericfields as gf
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
-from util import (
-    coercers,
-    mimemagic,
-    sanity
-)
+from util import coercers
 from util import encoding as enc
+from util import mimemagic
+from util import sanity
 
 
 log = logging.getLogger(__name__)

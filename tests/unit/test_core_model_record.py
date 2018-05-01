@@ -21,15 +21,10 @@
 
 from unittest import TestCase
 
-from core.model.fields import (
-    Author,
-    # Isbn,
-    Title
-)
-from core.model.record import (
-    RecordComparator,
-    Record
-)
+from core.model.fields import Author
+from core.model.fields import Title
+from core.model.record import Record
+from core.model.record import RecordComparator
 
 
 # From 'notes/metadata_processing.md':

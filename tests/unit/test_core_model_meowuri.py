@@ -21,21 +21,19 @@
 
 from unittest import TestCase
 
-import unit.utils as uu
 import unit.constants as uuconst
+import unit.utils as uu
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
-from core.model.meowuri import (
-    evaluate_meowuri_globs,
-    force_meowuri,
-    is_meowuri_parts,
-    is_one_meowuri_part,
-    meowuri_list,
-    MeowURILeaf,
-    MeowURIChild,
-    MeowURIParser,
-    MeowURIRoot
-)
+from core.model.meowuri import evaluate_meowuri_globs
+from core.model.meowuri import force_meowuri
+from core.model.meowuri import is_meowuri_parts
+from core.model.meowuri import is_one_meowuri_part
+from core.model.meowuri import meowuri_list
+from core.model.meowuri import MeowURILeaf
+from core.model.meowuri import MeowURIChild
+from core.model.meowuri import MeowURIParser
+from core.model.meowuri import MeowURIRoot
 
 
 class TestIsOneMeowURIPart(TestCase):

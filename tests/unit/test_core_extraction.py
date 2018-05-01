@@ -22,10 +22,8 @@
 from unittest import TestCase
 
 import extractors
-from core.extraction import (
-    filter_able_to_handle,
-)
 import unit.utils as uu
+from core.extraction import filter_able_to_handle
 
 
 class TestFilterAbleToHandle(TestCase):

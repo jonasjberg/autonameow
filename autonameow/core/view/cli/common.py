@@ -32,11 +32,9 @@ except ImportError:
     colorama = None
 
 from core import constants as C
-from util import (
-    coercers,
-    git_commit_hash,
-    sanity
-)
+from util import coercers
+from util import git_commit_hash
+from util import sanity
 
 
 log = logging.getLogger(__name__)

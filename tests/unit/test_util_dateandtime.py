@@ -23,16 +23,14 @@ from datetime import datetime
 from unittest import TestCase
 
 import unit.utils as uu
-from util.dateandtime import (
-    date_is_probable,
-    find_isodate_like,
-    is_datetime_instance,
-    match_any_unix_timestamp,
-    match_special_case,
-    match_special_case_no_date,
-    naive_to_timezone_aware,
-    timezone_aware_to_naive,
-)
+from util.dateandtime import date_is_probable
+from util.dateandtime import find_isodate_like
+from util.dateandtime import is_datetime_instance
+from util.dateandtime import match_any_unix_timestamp
+from util.dateandtime import match_special_case
+from util.dateandtime import match_special_case_no_date
+from util.dateandtime import naive_to_timezone_aware
+from util.dateandtime import timezone_aware_to_naive
 
 
 class TestIsDatetimeInstance(TestCase):

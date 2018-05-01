@@ -24,14 +24,12 @@ from unittest import TestCase
 import unit.utils as uu
 from core import constants as C
 from core.exceptions import EncodingBoundaryViolation
-from util.disk.pathstring import (
-    basename_prefix,
-    basename_suffix,
-    compare_basenames,
-    path_ancestry,
-    path_components,
-    split_basename
-)
+from util.disk.pathstring import basename_prefix
+from util.disk.pathstring import basename_suffix
+from util.disk.pathstring import compare_basenames
+from util.disk.pathstring import path_ancestry
+from util.disk.pathstring import path_components
+from util.disk.pathstring import split_basename
 
 
 class TestSplitBasename(TestCase):

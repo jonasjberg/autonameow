@@ -27,10 +27,8 @@ from unittest import TestCase
 import unit.constants as uuconst
 import unit.utils as uu
 from core.exceptions import InvalidFileArgumentError
-from core.fileobject import (
-    _validate_path_argument,
-    FileObject
-)
+from core.fileobject import FileObject
+from core.fileobject import _validate_path_argument
 from util import encoding as enc
 
 

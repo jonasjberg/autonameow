@@ -19,30 +19,22 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    SkipTest,
-    TestCase
-)
+from unittest import SkipTest, TestCase
 
 try:
     from hypothesis import given
-    from hypothesis.strategies import (
-        binary,
-        booleans,
-        characters,
-        integers,
-        text
-    )
+    from hypothesis.strategies import binary
+    from hypothesis.strategies import booleans
+    from hypothesis.strategies import characters
+    from hypothesis.strategies import integers
+    from hypothesis.strategies import text
 except ImportError:
     raise SkipTest('Unable to import "hypothesis". Skipping ..')
 
-from core.config.field_parsers import (
-    BooleanConfigFieldParser,
-    DateTimeConfigFieldParser,
-    MimeTypeConfigFieldParser,
-    NameTemplateConfigFieldParser,
-    RegexConfigFieldParser
-)
+from core.config.field_parsers import BooleanConfigFieldParser
+from core.config.field_parsers import DateTimeConfigFieldParser
+from core.config.field_parsers import MimeTypeConfigFieldParser
+from core.config.field_parsers import RegexConfigFieldParser
 
 
 class CaseFieldParserValidation(object):

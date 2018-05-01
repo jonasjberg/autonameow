@@ -22,16 +22,12 @@
 from unittest import TestCase, skipIf
 
 import unit.utils as uu
-from extractors.filesystem.guessit import (
-    GuessitExtractor,
-    get_lazily_imported_guessit_module,
-    reset_lazily_imported_guessit_module,
-    run_guessit
-)
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput
-)
+from extractors.filesystem.guessit import get_lazily_imported_guessit_module
+from extractors.filesystem.guessit import GuessitExtractor
+from extractors.filesystem.guessit import reset_lazily_imported_guessit_module
+from extractors.filesystem.guessit import run_guessit
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
 
 
 UNMET_DEPENDENCIES = (

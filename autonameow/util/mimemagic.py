@@ -23,14 +23,10 @@ import logging
 import mimetypes
 import os
 
-from core.exceptions import (
-    AutonameowException,
-    DependencyError
-)
-from util import (
-    coercers,
-    sanity
-)
+from core.exceptions import AutonameowException
+from core.exceptions import DependencyError
+from util import coercers
+from util import sanity
 
 
 log = logging.getLogger(__name__)

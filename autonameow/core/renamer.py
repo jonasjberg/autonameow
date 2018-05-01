@@ -22,11 +22,9 @@
 import logging
 
 from core.exceptions import FilesystemError
+from util import disk
 from util import encoding as enc
-from util import (
-    disk,
-    sanity
-)
+from util import sanity
 
 
 log = logging.getLogger(__name__)

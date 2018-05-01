@@ -30,14 +30,10 @@ else:
 
 import unit.utils as uu
 from extractors import ExtractorError
-from extractors.text import (
-    TesseractOCRTextExtractor,
-    tesseractocr
-)
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutputTypes
-)
+from extractors.text import tesseractocr
+from extractors.text import TesseractOCRTextExtractor
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutputTypes
 
 
 UNMET_DEPENDENCIES = (

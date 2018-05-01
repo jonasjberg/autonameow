@@ -20,13 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from core import constants as C
-from core.exceptions import (
-    AutonameowException,
-    DependencyError,
-    FilesystemError
-)
-from util import encoding as enc
+from core.exceptions import AutonameowException
+from core.exceptions import DependencyError
+from core.exceptions import FilesystemError
 from util import disk
+from util import encoding as enc
 
 try:
     import yaml

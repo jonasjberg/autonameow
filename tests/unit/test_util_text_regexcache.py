@@ -24,9 +24,7 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 from unit import constants as uuconst
-from util.text.regexcache import (
-    _RegexCache,
-)
+from util.text.regexcache import _RegexCache
 
 
 class TestRegexCache(TestCase):

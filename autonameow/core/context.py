@@ -21,21 +21,14 @@
 
 import logging
 
-
 from core import constants as C
-from core import (
-    interactive,
-    logs,
-    namebuilder,
-)
-from core.evaluate import (
-    RuleMatcher,
-    TemplateFieldDataResolver
-)
-from core.exceptions import (
-    AutonameowException,
-    NameBuilderError
-)
+from core import interactive
+from core import logs
+from core import namebuilder
+from core.evaluate import RuleMatcher
+from core.evaluate import TemplateFieldDataResolver
+from core.exceptions import AutonameowException
+from core.exceptions import NameBuilderError
 from util import encoding as enc
 
 

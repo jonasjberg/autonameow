@@ -22,13 +22,11 @@
 import logging
 from collections import defaultdict
 
+from core import analysis
 from core import constants as C
-from core import (
-    analysis,
-    event,
-    logs,
-    repository,
-)
+from core import event
+from core import logs
+from core import repository
 from core.exceptions import AutonameowException
 from core.model import genericfields
 from core.repository import QueryResponseFailure

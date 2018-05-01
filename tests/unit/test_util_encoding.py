@@ -50,14 +50,12 @@ except ImportError:
     chardet = None
 
 import unit.utils as uu
-from util.encoding import (
-    arg_encoding,
-    autodetect_decode,
-    bytestring_path,
-    convert_command_args,
-    normpath,
-    syspath
-)
+from util.encoding import arg_encoding
+from util.encoding import autodetect_decode
+from util.encoding import bytestring_path
+from util.encoding import convert_command_args
+from util.encoding import normpath
+from util.encoding import syspath
 
 
 class UtilTest(TestCase):

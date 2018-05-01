@@ -22,18 +22,14 @@
 import logging
 import pickle
 
-from core import constants as C
 from core import config
-from core.exceptions import (
-    AutonameowException,
-    FilesystemError
-)
+from core import constants as C
+from core.exceptions import AutonameowException
+from core.exceptions import FilesystemError
+from util import coercers
+from util import disk
 from util import encoding as enc
-from util import (
-    coercers,
-    disk,
-    sanity
-)
+from util import sanity
 
 
 log = logging.getLogger(__name__)

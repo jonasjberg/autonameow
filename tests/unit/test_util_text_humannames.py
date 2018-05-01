@@ -23,23 +23,21 @@ import itertools
 from collections import namedtuple
 from unittest import skipIf, TestCase
 
-from util.text.humannames import (
-    _parse_name,
-    filter_name,
-    filter_multiple_names,
-    format_name,
-    format_name_list,
-    HumanNameFormatter,
-    HumanNameParser,
-    LastNameInitialsFormatter,
-    normalize_letter_case,
-    split_multiple_names,
-    strip_repeating_periods,
-    strip_author_et_al,
-    strip_edited_by,
-    strip_foreword_by
-)
 from thirdparty import nameparser as _nameparser
+from util.text.humannames import filter_multiple_names
+from util.text.humannames import filter_name
+from util.text.humannames import format_name
+from util.text.humannames import format_name_list
+from util.text.humannames import HumanNameFormatter
+from util.text.humannames import HumanNameParser
+from util.text.humannames import LastNameInitialsFormatter
+from util.text.humannames import normalize_letter_case
+from util.text.humannames import split_multiple_names
+from util.text.humannames import strip_author_et_al
+from util.text.humannames import strip_edited_by
+from util.text.humannames import strip_foreword_by
+from util.text.humannames import strip_repeating_periods
+from util.text.humannames import _parse_name
 
 
 TD = namedtuple('TD', 'given expect')

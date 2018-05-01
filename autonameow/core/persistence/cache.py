@@ -24,10 +24,8 @@ import time
 
 from core import constants as C
 from core.exceptions import AutonameowException
-from core.persistence.base import (
-    PersistenceError,
-    PicklePersistence
-)
+from core.persistence.base import PersistenceError
+from core.persistence.base import PicklePersistence
 from util import coercers
 
 

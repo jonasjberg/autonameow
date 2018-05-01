@@ -22,34 +22,28 @@
 import inspect
 import os
 from unittest import TestCase
-from unittest.mock import (
-    MagicMock,
-    patch
-)
-
+from unittest.mock import MagicMock, patch
 
 import unit.constants as uuconst
 import unit.utils as uu
 from core import constants as C
+from regression.utils import AutonameowWrapper
+from regression.utils import check_renames
+from regression.utils import commandline_for_testsuite
+from regression.utils import fetch_mock_ui_messages
+from regression.utils import get_all_testsuite_dirpaths
+from regression.utils import get_regressiontests_rootdir
+from regression.utils import glob_filter
+from regression.utils import load_regression_testsuites
+from regression.utils import MockUI
+from regression.utils import regexp_filter
+from regression.utils import RegressionTestError
+from regression.utils import RegressionTestLoader
+from regression.utils import RegressionTestSuite
+from regression.utils import _commandline_args_for_testsuite
+from regression.utils import _expand_input_paths_variables
+from regression.utils import _testsuite_abspath
 from util import encoding as enc
-from regression.utils import (
-    AutonameowWrapper,
-    check_renames,
-    commandline_for_testsuite,
-    _commandline_args_for_testsuite,
-    _expand_input_paths_variables,
-    fetch_mock_ui_messages,
-    get_all_testsuite_dirpaths,
-    get_regressiontests_rootdir,
-    glob_filter,
-    load_regression_testsuites,
-    MockUI,
-    regexp_filter,
-    RegressionTestError,
-    RegressionTestLoader,
-    RegressionTestSuite,
-    _testsuite_abspath
-)
 
 
 class TestGetRegressiontestsRootdir(TestCase):

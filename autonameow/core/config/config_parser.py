@@ -26,32 +26,24 @@ import re
 import util
 from core import constants as C
 from core.config.configuration import Configuration
-from core.config.rules import (
-    get_valid_rule,
-    InvalidRuleConditionError,
-    InvalidRuleError,
-    RuleCondition,
-)
-from core.config.field_parsers import (
-    BooleanConfigFieldParser,
-    DateTimeConfigFieldParser,
-    NameTemplateConfigFieldParser,
-)
-from core.exceptions import (
-    ConfigError,
-    ConfigurationSyntaxError,
-    FilesystemError,
-    InvalidMeowURIError,
-)
-from core.namebuilder.fields import is_valid_template_field
+from core.config.field_parsers import BooleanConfigFieldParser
+from core.config.field_parsers import DateTimeConfigFieldParser
+from core.config.field_parsers import NameTemplateConfigFieldParser
+from core.config.rules import get_valid_rule
+from core.config.rules import InvalidRuleConditionError
+from core.config.rules import InvalidRuleError
+from core.config.rules import RuleCondition
+from core.exceptions import ConfigError
+from core.exceptions import ConfigurationSyntaxError
+from core.exceptions import FilesystemError
+from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
+from core.namebuilder.fields import is_valid_template_field
+from util import coercers
+from util import disk
 from util import encoding as enc
-from util import (
-    coercers,
-    disk,
-    sanity,
-    text
-)
+from util import sanity
+from util import text
 
 
 log = logging.getLogger(__name__)

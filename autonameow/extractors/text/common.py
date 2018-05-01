@@ -25,20 +25,16 @@ import os
 from core import constants as C
 from core import persistence
 from extractors import BaseExtractor
+from util import coercers
 from util import encoding as enc
-from util import (
-    coercers,
-    sanity
-)
-from util.text import (
-    normalize_whitespace,
-    normalize_unicode,
-    remove_blacklisted_lines,
-    remove_blacklisted_re_lines,
-    remove_nonbreaking_spaces,
-    remove_zerowidth_spaces,
-    strip_single_space_lines
-)
+from util import sanity
+from util.text import normalize_unicode
+from util.text import normalize_whitespace
+from util.text import remove_blacklisted_lines
+from util.text import remove_blacklisted_re_lines
+from util.text import remove_nonbreaking_spaces
+from util.text import remove_zerowidth_spaces
+from util.text import strip_single_space_lines
 
 
 log = logging.getLogger(__name__)

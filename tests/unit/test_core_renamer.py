@@ -22,10 +22,8 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from core.renamer import (
-    FilenameDelta,
-    FileRenamer
-)
+from core.renamer import FilenameDelta
+from core.renamer import FileRenamer
 
 
 class TestFilenameDelta(TestCase):

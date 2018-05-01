@@ -20,27 +20,22 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import (
-    Mock,
-    patch
-)
+from unittest.mock import patch
 
-from core import constants as C
-from core.model.genericfields import (
-    GenericAuthor,
-    GenericCreator,
-    GenericDateCreated,
-    GenericDateModified,
-    GenericField,
-    GenericMimeType,
-    GenericProducer,
-    GenericSubject,
-    GenericTags,
-    get_all_generic_field_klasses,
-    get_field_for_uri_leaf,
-)
-import unit.utils as uu
 import unit.constants as uuconst
+import unit.utils as uu
+from core import constants as C
+from core.model.genericfields import GenericAuthor
+from core.model.genericfields import GenericCreator
+from core.model.genericfields import GenericDateCreated
+from core.model.genericfields import GenericDateModified
+from core.model.genericfields import GenericField
+from core.model.genericfields import GenericMimeType
+from core.model.genericfields import GenericProducer
+from core.model.genericfields import GenericSubject
+from core.model.genericfields import GenericTags
+from core.model.genericfields import get_all_generic_field_klasses
+from core.model.genericfields import get_field_for_uri_leaf
 
 
 class TestGenericFieldBase(TestCase):
@@ -139,13 +134,11 @@ class TestGetFieldForUriLeaf(TestCase):
 
     def test_returns_expected(self):
         # TODO: [hardcoded] Must be updated when modifying generic fields ..
-        from core.model.genericfields import (
-            GenericDescription,
-            GenericEdition,
-            GenericPublisher,
-            GenericText,
-            GenericTitle
-        )
+        from core.model.genericfields import GenericDescription
+        from core.model.genericfields import GenericEdition
+        from core.model.genericfields import GenericPublisher
+        from core.model.genericfields import GenericText
+        from core.model.genericfields import GenericTitle
         EXPECTED_MAPPING = {
             'author': GenericAuthor,
             'creator': GenericCreator,

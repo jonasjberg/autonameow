@@ -24,10 +24,8 @@ import logging
 import os
 import sys
 
-from .common import (
-    BaseExtractor,
-    ExtractorError,
-)
+from .common import BaseExtractor
+from .common import ExtractorError
 
 
 log = logging.getLogger(__name__)

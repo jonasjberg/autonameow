@@ -25,10 +25,8 @@ from collections import namedtuple
 
 from core import constants as C
 from core.exceptions import InvalidMeowURIError
-from util import (
-    coercers,
-    sanity
-)
+from util import coercers
+from util import sanity
 from util.misc import flatten_sequence_type
 
 

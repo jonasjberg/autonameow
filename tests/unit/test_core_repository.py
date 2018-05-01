@@ -22,14 +22,12 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-import unit.utils as uu
 import unit.constants as uuconst
-from core.repository import (
-    DataBundle,
-    QueryResponseFailure,
-    Repository,
-    RepositoryPool,
-)
+import unit.utils as uu
+from core.repository import DataBundle
+from core.repository import QueryResponseFailure
+from core.repository import Repository
+from core.repository import RepositoryPool
 
 
 class TestRepositoryRetrieval(TestCase):

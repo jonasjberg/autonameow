@@ -30,29 +30,21 @@ except ImportError:
 
 from analyzers import BaseAnalyzer
 from core import persistence
-from core.metadata.normalize import (
-    cleanup_full_title,
-    normalize_full_human_name,
-    normalize_full_title,
-)
-from services.isbn import (
-    extract_isbnlike_from_text,
-    fetch_isbn_metadata,
-)
+from core.metadata.normalize import cleanup_full_title
+from core.metadata.normalize import normalize_full_human_name
+from core.metadata.normalize import normalize_full_title
+from services.isbn import extract_isbnlike_from_text
+from services.isbn import fetch_isbn_metadata
 from util import coercers
-from util.text import (
-    find_and_extract_edition,
-    html_unescape,
-    normalize_unicode,
-    RegexCache,
-    remove_blacklisted_lines,
-    string_similarity,
-    TextChunker
-)
-from util.text.humannames import (
-    filter_multiple_names,
-    split_multiple_names
-)
+from util.text import find_and_extract_edition
+from util.text import html_unescape
+from util.text import normalize_unicode
+from util.text import RegexCache
+from util.text import remove_blacklisted_lines
+from util.text import string_similarity
+from util.text import TextChunker
+from util.text.humannames import filter_multiple_names
+from util.text.humannames import split_multiple_names
 
 
 log = logging.getLogger(__name__)

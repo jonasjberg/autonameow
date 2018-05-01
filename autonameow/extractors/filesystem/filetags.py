@@ -23,11 +23,9 @@ import re
 from collections import namedtuple
 
 from extractors import BaseExtractor
+from util import disk
 from util import encoding as enc
-from util import (
-    disk,
-    sanity
-)
+from util import sanity
 
 
 # TODO: [TD0043] Fetch values from the active configuration.

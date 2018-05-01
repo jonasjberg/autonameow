@@ -26,18 +26,16 @@ import time
 from collections import deque
 
 from core import constants as C
-from core.view import cli
 from core.persistence import get_persistence
-from regression.utils import (
-    AutonameowWrapper,
-    check_renames,
-    check_stdout_asserts,
-    commandline_for_testsuite,
-    glob_filter,
-    load_regression_testsuites,
-    print_test_info,
-    TerminalReporter,
-)
+from core.view import cli
+from regression.utils import AutonameowWrapper
+from regression.utils import check_renames
+from regression.utils import check_stdout_asserts
+from regression.utils import commandline_for_testsuite
+from regression.utils import glob_filter
+from regression.utils import load_regression_testsuites
+from regression.utils import print_test_info
+from regression.utils import TerminalReporter
 from util import coercers
 
 

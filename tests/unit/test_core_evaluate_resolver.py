@@ -24,12 +24,10 @@ from unittest.mock import Mock
 
 import unit.constants as uuconst
 import unit.utils as uu
-from core.evaluate.resolver import (
-    dedupe_list_of_databundles,
-    FieldDataCandidate,
-    sort_by_mapped_weights,
-    TemplateFieldDataResolver
-)
+from core.evaluate.resolver import dedupe_list_of_databundles
+from core.evaluate.resolver import FieldDataCandidate
+from core.evaluate.resolver import sort_by_mapped_weights
+from core.evaluate.resolver import TemplateFieldDataResolver
 
 
 class TestDedupeListOfDatabundles(TestCase):

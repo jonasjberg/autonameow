@@ -22,17 +22,15 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from core import constants as C
-from core.persistence.base import (
-    _basename_as_key,
-    get_config_persistence_path,
-    get_persistence,
-    BasePersistence,
-    _key_as_file_path,
-    PersistenceImplementationBackendError,
-    PicklePersistence
-)
 import unit.utils as uu
+from core import constants as C
+from core.persistence.base import BasePersistence
+from core.persistence.base import get_config_persistence_path
+from core.persistence.base import get_persistence
+from core.persistence.base import PersistenceImplementationBackendError
+from core.persistence.base import PicklePersistence
+from core.persistence.base import _basename_as_key
+from core.persistence.base import _key_as_file_path
 
 
 class TestPersistenceDirectory(TestCase):

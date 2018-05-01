@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
 import unittest
 from unittest import TestCase, skipIf
 from unittest.mock import patch
@@ -34,16 +33,14 @@ else:
     COLORAMA_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
-from core.view.cli.common import (
-    colorize,
-    colorize_quoted,
-    _colorize_string_diff,
-    ColumnFormatter,
-    msg,
-    msg_columnate,
-    msg_possible_rename,
-    msg_rename,
-)
+from core.view.cli.common import colorize
+from core.view.cli.common import colorize_quoted
+from core.view.cli.common import ColumnFormatter
+from core.view.cli.common import msg
+from core.view.cli.common import msg_columnate
+from core.view.cli.common import msg_possible_rename
+from core.view.cli.common import msg_rename
+from core.view.cli.common import _colorize_string_diff
 
 
 ANSI_RESET_FG = '\x1b[39m'

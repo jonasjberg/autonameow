@@ -27,10 +27,8 @@ import unittest
 
 from core import constants as C
 from core import view
-from unit import (
-    build_testsuite,
-    unit_test_glob
-)
+from unit import build_testsuite
+from unit import unit_test_glob
 
 
 """

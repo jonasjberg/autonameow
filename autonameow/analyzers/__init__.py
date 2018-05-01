@@ -24,10 +24,8 @@ import logging
 import os
 import sys
 
-from .common import (
-    AnalyzerError,
-    BaseAnalyzer
-)
+from .common import AnalyzerError
+from .common import BaseAnalyzer
 
 
 # Analyzers are assumed to be located in the same directory as this file.

@@ -23,11 +23,9 @@ import argparse
 from unittest import TestCase
 
 import unit.constants as uuconst
-from core.view.cli.options import (
-    arg_is_readable_file,
-    cli_parse_args,
-    init_argparser
-)
+from core.view.cli.options import arg_is_readable_file
+from core.view.cli.options import cli_parse_args
+from core.view.cli.options import init_argparser
 
 
 class TestArgumentValidatorIsReadableFile(TestCase):

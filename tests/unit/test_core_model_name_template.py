@@ -21,11 +21,8 @@
 
 from unittest import TestCase
 
-import unit.utils as uu
-from core.model.name_template import (
-    format_string_placeholders,
-    NameTemplate
-)
+from core.model.name_template import format_string_placeholders
+from core.model.name_template import NameTemplate
 
 
 def _get_nametemplate(*args, **kwargs):

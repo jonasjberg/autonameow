@@ -24,12 +24,10 @@ import os
 
 from core import constants as C
 from core import exceptions
+from util import disk
 from util import encoding as enc
-from util import (
-    disk,
-    mimemagic,
-    sanity
-)
+from util import mimemagic
+from util import sanity
 
 
 class FileObject(object):

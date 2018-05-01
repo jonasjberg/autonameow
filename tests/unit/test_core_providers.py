@@ -21,12 +21,10 @@
 
 from unittest import TestCase
 
-from core.providers import (
-    get_coercer_for_metainfo_string,
-    translate_metainfo_mappings,
-    wrap_provider_results,
-)
 import unit.utils as uu
+from core.providers import get_coercer_for_metainfo_string
+from core.providers import translate_metainfo_mappings
+from core.providers import wrap_provider_results
 
 
 class TestWrapProviderResults(TestCase):

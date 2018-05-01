@@ -35,21 +35,17 @@ except ImportError:
 import unit.utils as uu
 import unit.constants as uuconst
 from core import constants as C
-from core.config.config_parser import (
-    ConfigurationParser,
-    ConfigurationRuleParser,
-    ConfigurationOptionsParser,
-    INITIAL_CONFIGURATION_OPTIONS,
-    parse_rule_conditions,
-    parse_rule_ranking_bias,
-    parse_versioning,
-)
+from core.config.config_parser import ConfigurationOptionsParser
+from core.config.config_parser import ConfigurationParser
+from core.config.config_parser import ConfigurationRuleParser
+from core.config.config_parser import INITIAL_CONFIGURATION_OPTIONS
+from core.config.config_parser import parse_rule_conditions
+from core.config.config_parser import parse_rule_ranking_bias
+from core.config.config_parser import parse_versioning
 from core.config.default_config import DEFAULT_CONFIG
-from core.exceptions import (
-    ConfigError,
-    ConfigurationSyntaxError,
-    EncodingBoundaryViolation,
-)
+from core.exceptions import ConfigError
+from core.exceptions import ConfigurationSyntaxError
+from core.exceptions import EncodingBoundaryViolation
 
 
 MOCK_REGISTRY = Mock()

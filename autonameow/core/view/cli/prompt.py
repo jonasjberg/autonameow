@@ -23,39 +23,27 @@ import logging
 import sys
 
 from core import constants as C
-from core import (
-    event,
-    master_provider,
-)
-from core.exceptions import (
-    DependencyError,
-    InvalidMeowURIError
-)
+from core import event
+from core import master_provider
+from core.exceptions import DependencyError
+from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from core.view import cli
+from util import disk
 from util import encoding as enc
-from util import (
-    disk,
-    sanity
-)
+from util import sanity
 
 try:
     from prompt_toolkit import prompt
     from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-    from prompt_toolkit.completion import (
-        Completer,
-        Completion
-    )
-    from prompt_toolkit.history import (
-        FileHistory,
-        InMemoryHistory
-    )
+    from prompt_toolkit.completion import Completer
+    from prompt_toolkit.completion import Completion
+    from prompt_toolkit.history import FileHistory
+    from prompt_toolkit.history import InMemoryHistory
     from prompt_toolkit.interface import AbortAction
     from prompt_toolkit.shortcuts import confirm
-    from prompt_toolkit.validation import (
-        Validator,
-        ValidationError
-    )
+    from prompt_toolkit.validation import ValidationError
+    from prompt_toolkit.validation import Validator
 except ImportError:
     raise DependencyError(missing_modules='prompt_toolkit')
 

@@ -24,15 +24,11 @@ from unittest import skipIf, TestCase
 
 import unit.utils as uu
 from extractors.metadata import ExiftoolMetadataExtractor
-from extractors.metadata.exiftool import (
-    _filter_coerced_value,
-    is_bad_metadata
-)
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput,
-    CaseExtractorOutputTypes
-)
+from extractors.metadata.exiftool import is_bad_metadata
+from extractors.metadata.exiftool import _filter_coerced_value
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
+from unit.case_extractors import CaseExtractorOutputTypes
 
 
 UNMET_DEPENDENCIES = (

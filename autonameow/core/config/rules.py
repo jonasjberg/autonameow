@@ -24,15 +24,11 @@ import logging
 from core import constants as C
 from core import master_provider
 from core.config import field_parsers
-from core.exceptions import (
-    ConfigError,
-    ConfigurationSyntaxError,
-    InvalidMeowURIError
-)
-from core.model import (
-    MeowURI,
-    NameTemplate
-)
+from core.exceptions import ConfigError
+from core.exceptions import ConfigurationSyntaxError
+from core.exceptions import InvalidMeowURIError
+from core.model import MeowURI
+from core.model import NameTemplate
 from core.namebuilder import fields
 
 

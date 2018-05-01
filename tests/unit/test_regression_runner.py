@@ -23,13 +23,11 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 import unit.utils as uu
-from regression.regression_runner import (
-    _get_persistence,
-    load_failed_testsuites,
-    RunResults,
-    RunResultsHistory,
-    write_failed_testsuites,
-)
+from regression.regression_runner import load_failed_testsuites
+from regression.regression_runner import RunResults
+from regression.regression_runner import RunResultsHistory
+from regression.regression_runner import write_failed_testsuites
+from regression.regression_runner import _get_persistence
 from regression.utils import RegressionTestSuite
 
 

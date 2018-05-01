@@ -23,12 +23,10 @@ import re
 from unittest import TestCase
 
 import unit.utils as uu
-from core.metadata.canonicalize import (
-    build_string_value_canonicalizer,
-    canonicalize_publisher,
-    StringValueCanonicalizer,
-    CanonicalizerConfigParser
-)
+from core.metadata.canonicalize import build_string_value_canonicalizer
+from core.metadata.canonicalize import CanonicalizerConfigParser
+from core.metadata.canonicalize import canonicalize_publisher
+from core.metadata.canonicalize import StringValueCanonicalizer
 
 
 def _canonicalize_publisher(given):

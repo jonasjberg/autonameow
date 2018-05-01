@@ -26,12 +26,10 @@ import platform
 from core import constants as C
 from core.config.config_parser import ConfigurationParser
 from core.config.default_config import DEFAULT_CONFIG
-from core.exceptions import (
-    ConfigError,
-    FilesystemError
-)
-from util import encoding as enc
+from core.exceptions import ConfigError
+from core.exceptions import FilesystemError
 from util import disk
+from util import encoding as enc
 
 
 FILEPATH_CONFIG_MACOS = '~/Library/Application Support'

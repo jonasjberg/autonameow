@@ -21,13 +21,11 @@
 
 import os
 from unittest import TestCase
-from datetime import (
-    datetime,
-    timezone
-)
+from datetime import datetime
+from datetime import timezone
 
-import unit.utils as uu
 import unit.constants as uuconst
+import unit.utils as uu
 from util import coercers
 
 

@@ -21,7 +21,7 @@
 
 import itertools
 import re
-from unittest import TestCase, skipIf
+from unittest import skipIf, TestCase
 
 try:
     import unidecode
@@ -31,25 +31,23 @@ else:
     UNIDECODE_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
-from util.text.transform import (
-    collapse_whitespace,
-    extract_digits,
-    html_unescape,
-    indent,
-    batch_regex_replace,
-    normalize_unicode,
-    normalize_whitespace,
-    remove_blacklisted_lines,
-    remove_blacklisted_re_lines,
-    remove_nonbreaking_spaces,
-    remove_zerowidth_spaces,
-    simplify_unicode,
-    _strip_accents_homerolled,
-    _strip_accents_unidecode,
-    strip_single_space_lines,
-    truncate_text,
-    urldecode,
-)
+from util.text.transform import batch_regex_replace
+from util.text.transform import collapse_whitespace
+from util.text.transform import extract_digits
+from util.text.transform import html_unescape
+from util.text.transform import indent
+from util.text.transform import normalize_unicode
+from util.text.transform import normalize_whitespace
+from util.text.transform import remove_blacklisted_lines
+from util.text.transform import remove_blacklisted_re_lines
+from util.text.transform import remove_nonbreaking_spaces
+from util.text.transform import remove_zerowidth_spaces
+from util.text.transform import simplify_unicode
+from util.text.transform import strip_single_space_lines
+from util.text.transform import truncate_text
+from util.text.transform import urldecode
+from util.text.transform import _strip_accents_homerolled
+from util.text.transform import _strip_accents_unidecode
 
 
 class TestCollapseWhitespace(TestCase):

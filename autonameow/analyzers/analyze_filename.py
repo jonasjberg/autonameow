@@ -24,21 +24,15 @@ import os
 import re
 from collections import Counter
 
-from analyzers import (
-    AnalyzerError,
-    BaseAnalyzer
-)
+from analyzers import AnalyzerError
+from analyzers import BaseAnalyzer
 from core import constants as C
-from util import (
-    coercers,
-    dateandtime,
-    disk,
-    sanity
-)
-from util.text import (
-    find_and_extract_edition,
-    urldecode
-)
+from util import coercers
+from util import dateandtime
+from util import disk
+from util import sanity
+from util.text import find_and_extract_edition
+from util.text import urldecode
 
 
 _PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))

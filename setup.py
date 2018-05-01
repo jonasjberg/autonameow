@@ -20,10 +20,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from setuptools import (
-    find_packages,
-    setup
-)
+from setuptools import find_packages
+from setuptools import setup
 
 # TODO: [TD0008] Simplify installation.
 # TODO: [TD0008] Add support for 'pip' or similar package manager.

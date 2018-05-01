@@ -21,12 +21,10 @@
 
 import re
 
-from util.text import (
-    html_unescape,
-    normalize_unicode,
-    normalize_whitespace,
-    strip_edited_by
-)
+from util.text import html_unescape
+from util.text import normalize_unicode
+from util.text import normalize_whitespace
+from util.text import strip_edited_by
 
 
 RE_NOT_LETTER_NUMBER_WHITESPACE = re.compile(r'[^\w\d\s]')

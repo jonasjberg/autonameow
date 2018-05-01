@@ -21,10 +21,8 @@
 
 from unittest import TestCase
 
-from devscripts.update_changelog import (
-    ChangelogEntry,
-    is_blacklisted
-)
+from devscripts.update_changelog import ChangelogEntry
+from devscripts.update_changelog import is_blacklisted
 
 
 class TestIsBlacklisted(TestCase):

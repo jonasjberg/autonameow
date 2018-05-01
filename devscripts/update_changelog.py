@@ -28,10 +28,8 @@ import sys
 
 import util
 from core import version
-from util import (
-    coercers,
-    text
-)
+from util import coercers
+from util import text
 
 '''
 Helper utility for updating the change log from git log entries.

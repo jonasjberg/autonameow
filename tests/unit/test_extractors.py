@@ -23,15 +23,13 @@ from unittest import TestCase
 
 import unit.utils as uu
 from core import constants as C
-from extractors import (
-    AUTONAMEOW_EXTRACTOR_PATH,
-    EXTRACTOR_CLASS_PACKAGES,
-    EXTRACTOR_CLASS_PACKAGES_FILESYSTEM,
-    EXTRACTOR_CLASS_PACKAGES_METADATA,
-    EXTRACTOR_CLASS_PACKAGES_TEXT,
-    _find_extractor_classes_in_packages,
-    _get_extractor_classes,
-)
+from extractors import AUTONAMEOW_EXTRACTOR_PATH
+from extractors import EXTRACTOR_CLASS_PACKAGES
+from extractors import EXTRACTOR_CLASS_PACKAGES_FILESYSTEM
+from extractors import EXTRACTOR_CLASS_PACKAGES_METADATA
+from extractors import EXTRACTOR_CLASS_PACKAGES_TEXT
+from extractors import _find_extractor_classes_in_packages
+from extractors import _get_extractor_classes
 from extractors.common import BaseExtractor
 
 

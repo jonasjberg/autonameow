@@ -19,12 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from extractors import (
-    BaseExtractor,
-    ExtractorError
-)
-from thirdparty import pyexiftool
 import util
+from extractors import BaseExtractor
+from extractors import ExtractorError
+from thirdparty import pyexiftool
 
 
 IGNORED_EXIFTOOL_TAGNAMES = frozenset([

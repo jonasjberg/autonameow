@@ -29,10 +29,8 @@ except ImportError:
 import util
 from core import constants as C
 from extractors import ExtractorError
-from extractors.text.common import (
-    AbstractTextExtractor,
-    decode_raw
-)
+from extractors.text.common import AbstractTextExtractor
+from extractors.text.common import decode_raw
 
 
 class MarkdownTextExtractor(AbstractTextExtractor):

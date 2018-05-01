@@ -24,13 +24,11 @@ from unittest import TestCase
 import unit.utils as uu
 from core.exceptions import EncodingBoundaryViolation
 from util import coercers
-from util.mimemagic import (
-    eval_glob,
-    filetype,
-    get_mimetype,
-    get_extension,
-    MimeExtensionMapper
-)
+from util.mimemagic import eval_glob
+from util.mimemagic import filetype
+from util.mimemagic import get_extension
+from util.mimemagic import get_mimetype
+from util.mimemagic import MimeExtensionMapper
 
 
 class TestFileTypeMagic(TestCase):

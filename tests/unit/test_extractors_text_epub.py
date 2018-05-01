@@ -30,11 +30,9 @@ import unit.utils as uu
 from extractors import ExtractorError
 from extractors.text import EpubTextExtractor
 from extractors.text.epub import extract_text_with_ebooklib
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput,
-    CaseExtractorOutputTypes
-)
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
+from unit.case_extractors import CaseExtractorOutputTypes
 
 
 UNMET_DEPENDENCIES = (

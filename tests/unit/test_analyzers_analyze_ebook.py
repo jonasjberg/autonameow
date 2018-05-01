@@ -30,13 +30,11 @@ else:
     ISBNLIB_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
-from analyzers.analyze_ebook import (
-    deduplicate_isbns,
-    EbookAnalyzer,
-    extract_ebook_isbns_from_text,
-    filter_isbns,
-    ISBNMetadata
-)
+from analyzers.analyze_ebook import deduplicate_isbns
+from analyzers.analyze_ebook import EbookAnalyzer
+from analyzers.analyze_ebook import extract_ebook_isbns_from_text
+from analyzers.analyze_ebook import filter_isbns
+from analyzers.analyze_ebook import ISBNMetadata
 
 
 def get_ebook_analyzer(fileobject):
