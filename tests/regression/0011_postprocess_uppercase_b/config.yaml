@@ -29,7 +29,7 @@ RULES:
             extension: extractor.filesystem.xplat.extension
             title: extractor.filesystem.xplat.basename_prefix
         NAME_TEMPLATE: '{datetime} {title}.{extension}'
-        description: 
+        description:
         exact_match: true
         ranking_bias: null
     test_files smulan.jpg:
@@ -41,7 +41,7 @@ RULES:
             description: extractor.filesystem.filetags.description
             extension: extractor.filesystem.xplat.extension
         NAME_TEMPLATE: '{datetime} {description}.{extension}'
-        description: 
+        description:
         exact_match: true
         ranking_bias: 1
     test_files simplest_pdf.md.pdf:
