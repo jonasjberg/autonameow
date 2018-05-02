@@ -198,7 +198,8 @@ def is_blacklisted(entry):
     if _any_match(r'.*\bpylint(rc)?\b.*'):
         return True
 
-    if _any_match(r'.*update_changelog.*'):
+    if (_any_match(r'.*update_changelog.*')
+            or _any_match(r'.*generate_changelog.*')):
         return True
 
     # Changes to '.gitignore'

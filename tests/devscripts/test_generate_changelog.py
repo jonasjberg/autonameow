@@ -21,8 +21,8 @@
 
 from unittest import TestCase
 
-from devscripts.update_changelog import ChangelogEntry
-from devscripts.update_changelog import is_blacklisted
+from devscripts.generate_changelog import ChangelogEntry
+from devscripts.generate_changelog import is_blacklisted
 
 
 class TestIsBlacklisted(TestCase):
@@ -243,4 +243,14 @@ class TestIsBlacklisted(TestCase):
         self._assert_not_blacklisted(
             subject="Add regression tests to '.gitignore'.",
             body="Ignores 'skip' files and regression tests named '*LOCAL*'."
+        )
+
+    def test_blacklists_this_script_itself(self):
+        self._assert_blacklists(
+            subject="Add blacklist patterns to 'generate_changelog.py'.",
+            body='',
+        )
+        self._assert_blacklists(
+            subject="Add blacklist patterns to 'generate_changelog.py'.",
+            body='',
         )
