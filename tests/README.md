@@ -161,11 +161,11 @@ directory names.
 
 The directory contains the following files:
 
-* `description` --- Plain-text file with a longer description of
-  the test.
+* `description` --- Optional description of the test.
 
-* `asserts.yaml` --- __[REQUIRED]__ Assertions to be evaluated to
-  determine whether the test passes or fails.
+* `asserts.yaml` --- Assertions evaluated when running the test.
+  If assertions are left out or empty, the test will pass if no unexpected
+  "top-level" exceptions are raised.
 
     * Example `asserts.yaml`:
         ```yaml
@@ -173,9 +173,15 @@ The directory contains the following files:
         renames:
             2017-09-12 foo -- tag2 a tag1.txt: '2017-09-12 foo -- a tag1 tag2.txt'
             2017-11-20 bar -- tag1.txt: '2017-11-20T020738 bar -- tag1.txt'
+        stdout:
+            matches:
+            - 'foo.bar'
+            - 'analyzer.ebook'
+            does_not_match:
+            - '.*NULL.*'
         ```
 
-* `options.yaml` --- Options to pass to the `autonameow` instance.
+* `options.yaml` --- Options passed to the `Autonameow` instance.
   These mirror the "internal format" options dict passed to the program
   in `autonameow/core/main.py`.
 
@@ -189,7 +195,7 @@ The directory contains the following files:
         dump_options: false
         input_paths:
         - '$TESTFILES/2017-11-20 bar -- tag1.txt'
-        - '$TESTFILES/2017-09-12 foo -- tag2 a tag1.txt'
+        - '/tmp/foo/bar.txt'
         list_all: false
         mode_automagic: true
         mode_batch: true

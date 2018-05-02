@@ -19,17 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from .distance import (
-    string_difference,
-    string_similarity
-)
-from .humannames import (
-    format_name,
-    format_name_list,
-    strip_edited_by
-)
-from .patternmatching import (
-    find_edition,
-    RE_EDITION
-)
+from .chunker import TextChunker
+from .distance import string_difference
+from .distance import string_similarity
+from .humannames import format_name
+from .humannames import format_name_list
+from .humannames import strip_edited_by
+from .patternmatching import find_and_extract_edition
+from .regexcache import RegexCache
 from .transform import *

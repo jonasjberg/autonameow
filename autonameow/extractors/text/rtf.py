@@ -23,10 +23,8 @@ import subprocess
 
 import util
 from extractors import ExtractorError
-from extractors.text.common import (
-    AbstractTextExtractor,
-    decode_raw
-)
+from extractors.text.common import AbstractTextExtractor
+from extractors.text.common import decode_raw
 
 
 class RichTextFormatTextExtractor(AbstractTextExtractor):
@@ -34,12 +32,10 @@ class RichTextFormatTextExtractor(AbstractTextExtractor):
     IS_SLOW = False
 
     def extract_text(self, fileobject):
-        self.log.debug('Calling unrtf')
-        result = extract_text_with_unrtf(fileobject.abspath)
-        return result
+        return extract_text_with_unrtf(fileobject.abspath)
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return util.is_executable('unrtf')
 
 
@@ -50,12 +46,12 @@ def decode_ascii(string):
         return decode_raw(string)
 
 
-def extract_text_with_unrtf(file_path):
+def extract_text_with_unrtf(filepath):
     """
     Extract the plain text contents of a RTF document using "UnRTF".
 
     Args:
-        file_path: The path to the RTF file to extract text from.
+        filepath: The path to the RTF file to extract text from.
 
     Returns:
         Any textual content of the given RTF file, as Unicode strings.
@@ -66,7 +62,7 @@ def extract_text_with_unrtf(file_path):
     # NOTE(jonas): UnRTF outputs plain ASCII with '--text'.
     try:
         process = subprocess.Popen(
-            ['unrtf', '--text', file_path],
+            ['unrtf', '--text', filepath],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, stderr = process.communicate()

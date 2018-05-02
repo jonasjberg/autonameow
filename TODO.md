@@ -14,6 +14,26 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0187]` __Fix "clobbering" of analyzer results..__
+
+* `[TD0185]` __Rework the highest level data request handler interface.__
+
+    * Don't pass the `master_provider` as a module. Use new "controller" class?
+    * Fix both global and direct references used to access the `Registry` and
+      `master_provider` functions.  
+      Some places access module-level functions directly after importing the
+      module, while some get a reference to the module passed in as an argument
+      (emanating from `Autonameow.master_provider`. Incomplete and forgotten?)
+
+    * Look at possibly wrapping up the pairs of "runner" and "registry" classes
+      in a "facade"-like controller class. Alternatively, just try to clean up
+      the current messy accessing.
+      Related notes:  `notes/2018-03-24-rough-architecture-sketch.jpg`
+
+    * Allow setting up (instantiating) provider classes once, then re-use the
+      instances when processing files.
+      Related to `[TD0183]` on using one `exiftool` process in "batch mode".
+
 * `[TD0175]` __Handle requesting exactly one or multiple alternatives.__  
     The current high-level interface for fetching data might return a single
     piece of data or many alternatives. This means that "clients" have to
@@ -33,7 +53,7 @@ High Priority
 
 * `[TD0167]` Cleanup data storage in the `Repository`.
 
-* `[TD0166]` The analyzers should be able to set probabilities on the fly.
+* `[TD0166]` The analyzers should be able to set field map weights on the fly.
 
 * `[TD0157]` __Look into the analyzers `FIELD_LOOKUP` attribute.__  
     Does it make sense to keep this? Differences between "analyzers" and
@@ -70,7 +90,43 @@ High Priority
 Medium Priority
 ---------------
 
-* `[TD0180]` Add abstraction for file name composed of placeholder fields.
+* `[TD0190]` __Join/merge metadata "records" with missing field values__  
+    When de-duplicating and discarding "duplicate" sets of metadata
+    ("records"), check if the chosen metadata record has any missing or empty
+    field values that are present in the other metadata record.  If so, "join"
+    fields with missing values before discarding the "duplicate" record.
+
+* `[TD0189]` __Canonicalize metadata values with direct replacements.__  
+    Should probably store some kind of lookup tables in external files.
+    These should be used to reduce the space of possible values by doing
+    fixed-value replacements.
+
+    This would be a improved version of the template field "candidates",
+    currently not fully and/or poorly implemented.
+
+    Example configuration file section;
+
+    ```yaml
+    NAME_TEMPLATE_FIELDS:
+        publisher:
+            candidates:
+                FooBooks:
+                - Foo Books
+                - Foo Books Inc.
+                - Foo Books, Inc.
+                - FOO BOOKS PUBLISHERS
+                ProjectGutenberg:
+                - Gutenberg Project
+                - Project Gutenberg
+                - The Gutenberg Project
+    ```
+
+    I.E. replace variations and/or equivalent values of "foo books" with the
+    canonical values "FooBooks" and "ProjectGutenberg".
+
+* `[TD0188]` Consolidate access to active, global configuration.
+
+* `[TD0182]` Isolate third-party metadata services like `isbnlib`.
 
 * `[TD0174]` Do not do replacements in the NameTemplateField classes.
 
@@ -124,8 +180,6 @@ Medium Priority
                 foo: Gibson Rules
     ```
 
-* `[TD0134]` Consolidate splitting up text into "chunks".
-
 * `[TD0132]` Improve blacklisting data, prevent repeated bad requests to APIs.
 
 * `[TD0112]` __Handle merging "equivalent" data in the `Resolver`.__  
@@ -174,7 +228,7 @@ Medium Priority
       separators, assign field types to the parts and find a "best fit".
       Might have to try several times at different separators, re-evaluting
       partials after assuming that some part is a given type, etc.
-    * __This is a non-trivial problem__, I would rather not re-implment
+    * __This is a non-trivial problem__, I would rather not re-implement
       existing solutions poorly.
     * Look into how `guessit` does it or possibility of modifying
       `guessit` to identify custom fields.
@@ -221,6 +275,41 @@ Medium Priority
 
 Low Priority
 ------------
+
+* `[TD0192]` __Detect and extract editions from titles__  
+    This is already done in the `EbookAnalyzer` using functions in
+    `patternmatching.py` but this needs to be extracted into a separate system.
+
+    The resulting data might also include a confidence level; given a title
+    like `Head First autonameow`, the substring `First` might be assumed to be
+    an edition but it might also just be part of the title. So the resulting
+    data returned by the system could assign a low confidence level to the
+    transformation;
+
+    ```python
+    >>> yet_unimplemented_system('Head First autonameow')
+    {'edition': 1, 'confidence': 0.1, 'title': 'Head autonameow'}
+    ```
+
+* `[TD0191]` __Detect and extract subtitles from titles__  
+    ISBN metadata currently often contains titles on the form
+    `X Essentials - [Programming the X Framework]` and
+    `X Essentials - Programming the X Framework`.
+
+    This should be detected and split up into two parts, so that the `title`
+    field becomes `X Essentials` and a new `subtitle` field would get
+    `Programming the X Framework`.
+
+    This would include adding a new `subtitle` name template placeholder as
+    well as other representations like a "generic" field, etc.
+
+    If the concept of metadata "records" is to be used, this step of detecting
+    fields within fields should probably be done before storing results in the
+    repository somewhere when individual provider data are "wrapped"? *(?)*
+
+* `[TD0186]` Re-implement the `EpubMetadataExtractor`.
+
+* `[TD0184]` Clean up translation of `metainfo` to "internal format".
 
 * `[TD0181]` Use machine learning in ISBN metadata de-duplication.
 
@@ -346,8 +435,6 @@ Low Priority
     Related to `[TD0020]`. This functionality is provided by `guessit`!
 
 * `[TD0121]` Create a script for generating regression tests.
-
-* `[TD0118]` Improve robustness and refactor searching text for editions.
 
 * `[TD0114]` Improve the `EbookAnalyzer`.
 

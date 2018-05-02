@@ -23,12 +23,10 @@ import logging
 import time
 
 from core import constants as C
-from core import types
 from core.exceptions import AutonameowException
-from core.persistence.base import (
-    PersistenceError,
-    PicklePersistence
-)
+from core.persistence.base import PersistenceError
+from core.persistence.base import PicklePersistence
+from util import coercers
 
 
 log = logging.getLogger(__name__)
@@ -107,12 +105,12 @@ class BaseCache(object):
 
     @owner.setter
     def owner(self, value):
-        _owner = types.force_string(value)
-        if not _owner.strip():
+        str_value = coercers.force_string(value)
+        if not str_value.strip():
             raise CacheError(
                 'Argument "owner" must be a valid, non-empty/whitespace string'
             )
-        self._owner = _owner
+        self._owner = str_value
 
     def get(self, key):
         """

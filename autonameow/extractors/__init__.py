@@ -24,10 +24,8 @@ import logging
 import os
 import sys
 
-from .common import (
-    BaseExtractor,
-    ExtractorError,
-)
+from .common import BaseExtractor
+from .common import ExtractorError
 
 
 log = logging.getLogger(__name__)
@@ -37,13 +35,16 @@ log = logging.getLogger(__name__)
 AUTONAMEOW_EXTRACTOR_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_EXTRACTOR_PATH)
 
-EXTRACTOR_CLASS_PACKAGES = ['filesystem', 'metadata', 'text']
-EXTRACTOR_CLASS_PACKAGES_TEXT = ['text']
+EXTRACTOR_CLASS_PACKAGES_FILESYSTEM = ['filesystem']
 EXTRACTOR_CLASS_PACKAGES_METADATA = ['metadata']
+EXTRACTOR_CLASS_PACKAGES_TEXT = ['text']
+EXTRACTOR_CLASS_PACKAGES = (EXTRACTOR_CLASS_PACKAGES_FILESYSTEM
+                            + EXTRACTOR_CLASS_PACKAGES_METADATA
+                            + EXTRACTOR_CLASS_PACKAGES_TEXT)
 
 
 def _find_extractor_classes_in_packages(packages):
-    klasses = []
+    klasses = list()
     for package in packages:
         __import__(package)
         namespace = inspect.getmembers(sys.modules[package], inspect.isclass)
@@ -58,17 +59,17 @@ def _find_extractor_classes_in_packages(packages):
     return klasses
 
 
-def get_extractor_classes(packages):
+def _get_extractor_classes(packages):
     klasses = _find_extractor_classes_in_packages(packages)
 
-    out = []
+    excluded = list()
+    included = list()
     for klass in klasses:
-        if klass.check_dependencies():
-            out.append(klass)
-            log.debug('Registered extractor class: "{!s}"'.format(klass))
+        if klass.dependencies_satisfied():
+            included.append(klass)
         else:
-            log.info('Excluded extractor "{!s}" due to unmet dependencies'.format(klass))
-    return out
+            excluded.append(klass)
+    return included, excluded
 
 
 class ExtractorRegistry(object):
@@ -76,11 +77,24 @@ class ExtractorRegistry(object):
         self._all_providers = None
         self._text_providers = None
         self._metadata_providers = None
+        self._filesystem_providers = None
+        self._excluded_providers = set()
 
     def _get_cached_or_collect(self, self_attribute, packages):
         if getattr(self, self_attribute) is None:
-            setattr(self, self_attribute, set(get_extractor_classes(packages)))
+            self._collect_and_register(self_attribute, packages)
         return getattr(self, self_attribute)
+
+    def _collect_and_register(self, self_attribute, packages):
+        included, excluded = _get_extractor_classes(packages)
+
+        for included_klass in included:
+            log.debug('Included extractor "{!s}"'.format(included_klass))
+        for excluded_klass in excluded:
+            log.info('Excluded extractor "{!s}" due to unmet dependencies'.format(excluded_klass))
+
+        setattr(self, self_attribute, set(included))
+        self._excluded_providers.update(excluded)
 
     @property
     def all_providers(self):
@@ -96,6 +110,15 @@ class ExtractorRegistry(object):
     def metadata_providers(self):
         return self._get_cached_or_collect('_metadata_providers',
                                            EXTRACTOR_CLASS_PACKAGES_METADATA)
+
+    @property
+    def filesystem_providers(self):
+        return self._get_cached_or_collect('_filesystem_providers',
+                                           EXTRACTOR_CLASS_PACKAGES_FILESYSTEM)
+
+    @property
+    def excluded_providers(self):
+        return self._excluded_providers
 
 
 registry = ExtractorRegistry()

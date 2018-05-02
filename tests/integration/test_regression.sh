@@ -36,14 +36,6 @@ fi
 source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 
 
-assert_has_command()
-{
-    local -r _cmd_name="$1"
-    assert_true 'command -v "$_cmd_name"' \
-                "System provides executable command \"${_cmd_name}\""
-}
-
-
 
 # Test Cases
 # ____________________________________________________________________________

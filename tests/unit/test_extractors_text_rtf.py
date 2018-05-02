@@ -19,24 +19,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skipIf,
-    skip,
-    TestCase,
-)
+from unittest import skip, skipIf, TestCase
 
 import unit.utils as uu
 from extractors.text import RichTextFormatTextExtractor
-from extractors.text.rtf import extract_text_with_unrtf
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput,
-    CaseExtractorOutputTypes
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
+from unit.case_extractors import CaseExtractorOutputTypes
+
+
+UNMET_DEPENDENCIES = (
+    not RichTextFormatTextExtractor.dependencies_satisfied(),
+    'Extractor dependencies not satisfied'
 )
-
-
-UNMET_DEPENDENCIES = RichTextFormatTextExtractor.check_dependencies() is False
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
 
 # TODO: This will fail. Either normalize text before returning or skip this!
 TESTFILE_A = uu.abspath_testfile('ObjectCalisthenics.rtf')
@@ -58,16 +53,7 @@ This is a hard exercise, especially because many of these rules are not universa
 '''
 
 TESTFILE_B = uu.abspath_testfile('sample.rtf')
-TESTFILE_B_EXPECTED = '''Foo title
-bar text
-
-        
-meow list
-        
-cat list
-
-baz last line
-'''
+TESTFILE_B_EXPECTED = uu.get_expected_text_for_testfile('sample.rtf')
 
 
 class TestPrerequisites(TestCase):
@@ -77,14 +63,20 @@ class TestPrerequisites(TestCase):
     def test_test_file_exists_b(self):
         self.assertTrue(uu.file_exists(TESTFILE_B))
 
+    def test_expected_text_is_type_str_a(self):
+        self.assertIsInstance(TESTFILE_A_EXPECTED, str)
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+    def test_expected_text_is_type_str_b(self):
+        self.assertIsInstance(TESTFILE_B_EXPECTED, str)
+
+
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRichTextFormatTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
     EXTRACTOR_NAME = 'RichTextFormatTextExtractor'
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRichTextFormatTextExtractorOutputTypes(CaseExtractorOutputTypes,
                                                  TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
@@ -92,7 +84,7 @@ class TestRichTextFormatTextExtractorOutputTypes(CaseExtractorOutputTypes,
 
 
 @skip('TODO: Messy whitespace and unquoted control characters ..')
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRichTextFormatTextExtractorOutputTestFileA(CaseExtractorOutput,
                                                      TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
@@ -102,7 +94,7 @@ class TestRichTextFormatTextExtractorOutputTestFileA(CaseExtractorOutput,
     ]
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRichTextFormatTextExtractorOutputTestFileB(CaseExtractorOutput,
                                                      TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
@@ -112,20 +104,7 @@ class TestRichTextFormatTextExtractorOutputTestFileB(CaseExtractorOutput,
     ]
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
-class TestExtractTextWithUnrtf(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.actual = extract_text_with_unrtf(TESTFILE_B)
-
-    def test_returns_expected_type(self):
-        self.assertTrue(uu.is_internalstring(self.actual))
-
-    def test_returns_expected_text(self):
-        self.assertEqual(TESTFILE_B_EXPECTED, self.actual)
-
-
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestRichTextFormatTextExtractorInternals(TestCase):
     def setUp(self):
         self.maxDiff = None

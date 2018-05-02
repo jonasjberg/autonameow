@@ -21,7 +21,7 @@
 
 import itertools
 import re
-from unittest import TestCase, skipIf
+from unittest import skipIf, TestCase
 
 try:
     import unidecode
@@ -31,22 +31,23 @@ else:
     UNIDECODE_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
-from core.exceptions import EncodingBoundaryViolation
-from util.text.transform import (
-    collapse_whitespace,
-    html_unescape,
-    indent,
-    batch_regex_replace,
-    normalize_unicode,
-    remove_blacklisted_lines,
-    remove_nonbreaking_spaces,
-    remove_zerowidth_spaces,
-    simplify_unicode,
-    _strip_accents_homerolled,
-    _strip_accents_unidecode,
-    strip_ansiescape,
-    urldecode,
-)
+from util.text.transform import batch_regex_replace
+from util.text.transform import collapse_whitespace
+from util.text.transform import extract_digits
+from util.text.transform import html_unescape
+from util.text.transform import indent
+from util.text.transform import normalize_unicode
+from util.text.transform import normalize_whitespace
+from util.text.transform import remove_blacklisted_lines
+from util.text.transform import remove_blacklisted_re_lines
+from util.text.transform import remove_nonbreaking_spaces
+from util.text.transform import remove_zerowidth_spaces
+from util.text.transform import simplify_unicode
+from util.text.transform import strip_single_space_lines
+from util.text.transform import truncate_text
+from util.text.transform import urldecode
+from util.text.transform import _strip_accents_homerolled
+from util.text.transform import _strip_accents_unidecode
 
 
 class TestCollapseWhitespace(TestCase):
@@ -54,19 +55,19 @@ class TestCollapseWhitespace(TestCase):
         actual = collapse_whitespace(given)
         self.assertEqual(actual, expect)
 
-    def test_returns_empty_as_is(self):
+    def test_returns_empty_values_as_is(self):
         self._check('', '')
-
-        # Assumes that type-checks is handled elsewhere.
         self._check(None, None)
         self._check([], [])
 
     def test_raises_exception_given_non_string_types(self):
-        with self.assertRaises(TypeError):
-            _ = collapse_whitespace(['foo'])
-
-        with self.assertRaises(TypeError):
-            _ = collapse_whitespace(object())
+        for bad_input in [
+            object(),
+            b'foo',
+            ['foo'],
+        ]:
+            with self.assertRaises(AssertionError):
+                _ = collapse_whitespace(bad_input)
 
     def test_returns_string_without_whitespace_as_is(self):
         self._check('foo', 'foo')
@@ -184,21 +185,223 @@ class TestCollapseWhitespace(TestCase):
         self._check('\t\t\tfoo bar', ' foo bar')
 
 
+class TestStripSingleSpaceLines(TestCase):
+    def _assert_returns(self, expect, given):
+        actual = strip_single_space_lines(given)
+        self.assertEqual(expect, actual)
+
+    def test_returns_line_with_single_character_as_is(self):
+        self._assert_returns('A', given='A')
+
+    def test_returns_lines_with_one_character_per_line_as_is(self):
+        self._assert_returns('A\nB', given='A\nB')
+        self._assert_returns('A\nB\n', given='A\nB\n')
+
+    def test_removes_line_containing_single_space_only(self):
+        self._assert_returns('', given=' ')
+        self._assert_returns('\n', given=' \n')
+
+    def test_removes_lines_containing_single_space_only(self):
+        self._assert_returns('\n', given=' \n')
+
+    def test_removes_single_space_lines_and_returns_others_as_is(self):
+        self._assert_returns('\nA', given=' \nA')
+        self._assert_returns('\nA\n', given=' \nA\n')
+        self._assert_returns('A\n\nB\n', given='A\n \nB\n')
+        self._assert_returns('\nX\n', given=' \nX\n')
+
+
+class TestNormalizeWhitespace(TestCase):
+    def _assert_returns(self, expect, given):
+        actual = normalize_whitespace(given)
+        self.assertEqual(expect, actual)
+
+    def test_returns_empty_values_as_is(self):
+        for expect, given in [
+            ('', ''),
+
+            # Pass through empty/None/False values.
+            (None, None),
+            ([], []),
+        ]:
+            self._assert_returns(expect, given)
+
+    def test_raises_exception_given_non_string_types(self):
+        for bad_input in [
+            object(),
+            b'foo',
+            ['foo'],
+        ]:
+            with self.assertRaises(AssertionError):
+                _ = normalize_whitespace(bad_input)
+
+    def test_returns_string_without_whitespace_as_is(self):
+        self._assert_returns('foo', 'foo')
+
+    def test_does_not_strip_trailing_leading_whitespace(self):
+        for expected, given in [
+            ('foo ', 'foo '),
+            (' foo', ' foo'),
+            (' foo ', ' foo '),
+            (' foo bar', ' foo bar'),
+            (' foo bar ', ' foo bar ')
+        ]:
+            self._assert_returns(expected, given)
+
+    def test_does_not_change_single_newline(self):
+        for expected, given in [
+            ('foo\n', 'foo\n'),
+            ('\nfoo', '\nfoo'),
+            ('\nfoo\n', '\nfoo\n'),
+            ('\nfoo bar\n', '\nfoo bar\n'),
+            ('\nfoo\nbar\n', '\nfoo\nbar\n')
+        ]:
+            self._assert_returns(expected, given)
+
+    def test_does_not_change_single_newline_and_space(self):
+        for expected, given in [
+            ('foo\n ', 'foo\n '),
+            (' \nfoo', ' \nfoo'),
+            (' \nfoo\n ', ' \nfoo\n '),
+            (' \nfoo bar\n', ' \nfoo bar\n'),
+            (' \nfoo\nbar\n', ' \nfoo\nbar\n'),
+
+            ('\n foo', '\n foo'),
+            ('\n foo\n ', '\n foo\n '),
+            ('\n foo bar\n', '\n foo bar\n'),
+            ('\n foo\nbar\n', '\n foo\nbar\n'),
+        ]:
+            self._assert_returns(expected, given)
+
+    def test_does_not_change_newlines_and_space(self):
+        for expected, given in [
+            ('foo\n\n ', 'foo\n\n '),
+            (' \n\nfoo', ' \n\nfoo'),
+            (' \n\nfoo\n ', ' \n\nfoo\n '),
+            (' \n\nfoo bar\n', ' \n\nfoo bar\n'),
+            (' \n\nfoo\nbar\n', ' \n\nfoo\nbar\n'),
+
+            ('\n\n foo', '\n\n foo'),
+            ('\n\n foo\n ', '\n\n foo\n '),
+            ('\n\n foo bar\n', '\n\n foo bar\n'),
+            ('\n\n foo\nbar\n', '\n\n foo\nbar\n'),
+        ]:
+            self._assert_returns(expected, given)
+
+    def test_collapses_multiple_spaces(self):
+        self._assert_returns('foo ', given='foo  ')
+        self._assert_returns('foo ', given='foo   ')
+        self._assert_returns('foo ', given='foo    ')
+        self._assert_returns(' foo', given='  foo')
+        self._assert_returns(' foo', given='   foo')
+        self._assert_returns(' foo', given='    foo')
+        self._assert_returns('foo bar', given='foo  bar')
+        self._assert_returns('foo bar', given='foo   bar')
+        self._assert_returns('foo bar', given='foo    bar')
+        self._assert_returns('foo bar ', given='foo  bar  ')
+        self._assert_returns('foo bar ', given='foo   bar   ')
+        self._assert_returns('foo bar ', given='foo    bar    ')
+        self._assert_returns(' foo bar ', given='  foo  bar  ')
+        self._assert_returns(' foo bar ', given='   foo   bar   ')
+        self._assert_returns(' foo bar ', given='    foo    bar    ')
+
+    def test_collapses_multiple_spaces_with_newline(self):
+        self._assert_returns('foo \n', given='foo  \n')
+        self._assert_returns('foo \n', given='foo   \n')
+        self._assert_returns('foo \n', given='foo    \n')
+        self._assert_returns(' foo\n', given='  foo\n')
+        self._assert_returns(' foo\n', given='   foo\n')
+        self._assert_returns(' foo\n', given='    foo\n')
+        self._assert_returns('foo bar\n', given='foo  bar\n')
+        self._assert_returns('foo bar\n', given='foo   bar\n')
+        self._assert_returns('foo bar\n', given='foo    bar\n')
+        self._assert_returns('foo bar \n', given='foo  bar  \n')
+        self._assert_returns('foo bar \n', given='foo   bar   \n')
+        self._assert_returns('foo bar \n', given='foo    bar    \n')
+        self._assert_returns(' foo bar \n', given='  foo  bar  \n')
+        self._assert_returns(' foo bar \n', given='   foo   bar   \n')
+        self._assert_returns(' foo bar \n', given='    foo    bar    \n')
+
+    def test_collapses_multiple_spaces_with_newlines(self):
+        self._assert_returns('foo \n bar\n ', given='foo   \n   bar\n   ')
+        self._assert_returns('foo \n bar \n', given='foo   \n   bar   \n')
+
+    def test_replaces_single_tab_with_space(self):
+        self._assert_returns('foo ', given='foo\t')
+        self._assert_returns(' foo', given='\tfoo')
+        self._assert_returns(' foo ', given='\tfoo\t')
+
+    def test_replaces_single_tab_and_single_space_with_space(self):
+        self._assert_returns('foo ', given='foo \t')
+        self._assert_returns(' foo', given='\t foo')
+        self._assert_returns(' foo ', given='\t foo \t')
+
+    def test_replaces_tabs_and_spaces_with_single_space(self):
+        self._assert_returns('foo ', given='foo  \t')
+        self._assert_returns(' foo', given='\t  foo')
+        self._assert_returns(' foo ', given='\t  foo  \t')
+        self._assert_returns('foo ', given='foo \t\t')
+        self._assert_returns(' foo', given='\t\t foo')
+        self._assert_returns(' foo ', given='\t\t foo \t\t')
+
+        self._assert_returns('foo bar', given='foo  \t bar')
+        self._assert_returns('bar foo', given='bar\t  foo')
+        self._assert_returns('bar foo ', given='bar\t  foo  \t')
+        self._assert_returns('foo bar', given='foo \t\tbar')
+        self._assert_returns('bar foo', given='bar\t\t foo')
+        self._assert_returns('bar foo ', given='bar\t\t foo \t\t')
+
+    def test_collapses_multiple_tabs(self):
+        self._assert_returns('foo ', given='foo\t\t')
+        self._assert_returns('foo ', given='foo\t\t\t')
+        self._assert_returns(' foo', given='\t\tfoo')
+        self._assert_returns(' foo', given='\t\t\tfoo')
+
+        self._assert_returns('foo bar', given='foo\t\tbar')
+        self._assert_returns('foo bar', given='foo\t\t\tbar')
+        self._assert_returns(' foo bar', given='\t\tfoo bar')
+        self._assert_returns(' foo bar', given='\t\t\tfoo bar')
+
+    def test_replaces_tabs_and_spaces_with_single_space_keeps_newlines(self):
+        self._assert_returns('foo \n', given='foo  \t\n')
+        self._assert_returns(' foo\n', given='\t  foo\n')
+        self._assert_returns(' foo \n', given='\t  foo  \t\n')
+        self._assert_returns('foo \n', given='foo \t\t\n')
+        self._assert_returns(' foo\n', given='\t\t foo\n')
+        self._assert_returns(' foo \n', given='\t\t foo \t\t\n')
+
+        self._assert_returns('foo bar\n', given='foo  \t bar\n')
+        self._assert_returns('bar foo\n', given='bar\t  foo\n')
+        self._assert_returns('bar foo \n', given='bar\t  foo  \t\n')
+        self._assert_returns('foo bar\n', given='foo \t\tbar\n')
+        self._assert_returns('bar foo\n', given='bar\t\t foo\n')
+        self._assert_returns('bar foo \n', given='bar\t\t foo \t\t\n')
+
+    def test_collapses_multiple_tabs_keeps_newlines(self):
+        self._assert_returns('foo \n', given='foo\t\t\n')
+        self._assert_returns('foo \n', given='foo\t\t\t\n')
+        self._assert_returns(' foo\n', given='\t\tfoo\n')
+        self._assert_returns(' foo\n', given='\t\t\tfoo\n')
+
+        self._assert_returns('foo bar\n', given='foo\t\tbar\n')
+        self._assert_returns('foo bar\n', given='foo\t\t\tbar\n')
+        self._assert_returns(' foo bar\n', given='\t\tfoo bar\n')
+        self._assert_returns(' foo bar\n', given='\t\t\tfoo bar\n')
+
+
 class TestIndent(TestCase):
     def test_invalid_arguments_raises_exception(self):
-        def _assert_raises(exception_type, *args, **kwargs):
-            with self.assertRaises(exception_type):
+        def _assert_raises(*args, **kwargs):
+            with self.assertRaises(AssertionError):
                 _ = indent(*args, **kwargs)
 
-        _assert_raises(AssertionError, None)
-        _assert_raises(EncodingBoundaryViolation, b'')
-        _assert_raises(AssertionError, 'foo', columns=0)
-        _assert_raises(AssertionError, 'foo', columns=object())
-
-        # TODO: Should raise 'TypeError' when given 'padchar=1' (expects str)
-        _assert_raises(EncodingBoundaryViolation, 'foo', columns=2, padchar=1)
-        _assert_raises(EncodingBoundaryViolation, 'foo', columns=2, padchar=b'')
-        _assert_raises(EncodingBoundaryViolation, 'foo', padchar=b'')
+        _assert_raises(None)
+        _assert_raises(b'')
+        _assert_raises('foo', columns=0)
+        _assert_raises('foo', columns=object())
+        _assert_raises('foo', columns=2, padchar=1)
+        _assert_raises('foo', columns=2, padchar=b'')
+        _assert_raises('foo', padchar=b'')
 
     def test_indents_single_line(self):
         self.assertEqual('    foo', indent('foo'))
@@ -305,20 +508,23 @@ class TestNormalizeUnicode(TestCase):
         actual = normalize_unicode(test_input)
         self.assertEqual(actual, expected)
 
+    def test_returns_empty_values_as_is(self):
+        self._aE('', '')
+        self._aE(b'', b'')
+        self._aE(None, None)
+        self._aE([], [])
+        self._aE({}, {})
+
     def test_raises_exception_given_bad_input(self):
         def _aR(test_input):
-            with self.assertRaises(TypeError):
-                normalize_unicode(test_input)
+            with self.assertRaises(AssertionError):
+                _ = normalize_unicode(test_input)
 
-        _aR(None)
-        _aR([])
         _aR(['foo'])
-        _aR({})
         _aR({'foo': 'bar'})
         _aR(object())
         _aR(1)
         _aR(1.0)
-        _aR(b'')
         _aR(b'foo')
 
     def test_returns_expected(self):
@@ -385,15 +591,37 @@ class TestZeroWidthSpaces(TestCase):
         self.assertEqual('', actual)
 
 
-class TestStripAnsiEscape(TestCase):
-    def _aE(self, test_input, expected):
-        actual = strip_ansiescape(test_input)
-        self.assertEqual(actual, expected)
+class TestTruncateText(TestCase):
+    def _assert_that_it_returns(self, expected, given_text, **kwargs):
+        actual = truncate_text(given_text, **kwargs)
+        self.assertEqual(expected, actual)
 
-    def test_strips_ansi_escape_codes(self):
-        self._aE('', '')
-        self._aE('a', 'a')
-        self._aE('[30m[44mautonameow[49m[39m', 'autonameow')
+    def test_returns_empty_string_as_is(self):
+        self._assert_that_it_returns(expected='', given_text='')
+
+    def test_returns_text_shorter_than_max_as_is(self):
+        self._assert_that_it_returns(expected='abc',
+                                     given_text='abc',
+                                     maxlen=3)
+        self._assert_that_it_returns(expected='abc',
+                                     given_text='abc',
+                                     maxlen=5)
+
+    def test_truncates_text_if_given_text_is_longer_than_maxlen(self):
+        self._assert_that_it_returns(expected='abc',
+                                     given_text='abc def',
+                                     maxlen=3)
+        self._assert_that_it_returns(expected='abc d',
+                                     given_text='abc def',
+                                     maxlen=5)
+
+    def test_truncates_text_if_given_text_is_longer_than_maxlen_append_info(self):
+        self._assert_that_it_returns(expected='abc  (3/7 characters)',
+                                     given_text='abc def',
+                                     maxlen=3, append_info=True)
+        self._assert_that_it_returns(expected='abc d  (5/7 characters)',
+                                     given_text='abc def',
+                                     maxlen=5, append_info=True)
 
 
 class TestUrlDecode(TestCase):
@@ -580,7 +808,7 @@ class TestRemoveBlacklistedLines(TestCase):
         actual = remove_blacklisted_lines(given_text, given_blacklist)
         self.assertEqual(expected, actual)
 
-    def test_returns_empty_or_whitespace_text_as_is(self):
+    def test_returns_empty_values_or_whitespace_text_as_is(self):
         for text in ['', ' ', '\n', ' \n', ' \n ']:
             for blacklist in [[], ['a'], frozenset([]), frozenset(['a'])]:
                 with self.subTest(given=text, blacklist=blacklist):
@@ -714,3 +942,188 @@ MEOW
 ''',
             given_blacklist=frozenset(['MEOW', 'b', 'c'])
         )
+
+
+class TestRemoveBlacklistedReLines(TestCase):
+    def _assert_that_it_returns(self, expected, given_text, given_blacklist):
+        compiled_regexes = [re.compile(p) for p in given_blacklist]
+        actual = remove_blacklisted_re_lines(given_text, compiled_regexes)
+        self.assertEqual(expected, actual)
+
+    def test_returns_empty_or_whitespace_text_as_is(self):
+        for text in ['', ' ', '\n', ' \n', ' \n ']:
+            for blacklist in [[], [r'a'], frozenset([]), frozenset([r'a'])]:
+                with self.subTest(given=text, blacklist=blacklist):
+                    self._assert_that_it_returns(
+                        expected=text,
+                        given_text=text,
+                        given_blacklist=blacklist
+                    )
+
+    def test_returns_text_as_is_if_blacklist_is_empty_list(self):
+        self._assert_that_it_returns(
+            expected='foo\nbar',
+            given_text='foo\nbar',
+            given_blacklist=[]
+        )
+
+    def test_returns_text_as_is_if_blacklist_is_empty_frozenset(self):
+        self._assert_that_it_returns(
+            expected='foo\nbar',
+            given_text='foo\nbar',
+            given_blacklist=frozenset([])
+        )
+
+    def test_removes_one_matching_blacklisted_line(self):
+        self._assert_that_it_returns(
+            expected='''
+Foo Bar: A Modern Approach
+Foo Bar
+''',
+            given_text='''
+Foo Bar: A Modern Approach
+This page intentionally left blank
+Foo Bar
+''',
+            given_blacklist=frozenset([r'.*intentionally.*'])
+        )
+
+    def test_removes_single_matching_line_and_keeps_line_breaks(self):
+        self._assert_that_it_returns(
+            expected='''
+Foo Bar: A Modern Approach
+
+
+a
+
+b
+''',
+            given_text='''
+Foo Bar: A Modern Approach
+
+This page intentionally left blank
+
+a
+
+b
+''',
+            given_blacklist=frozenset(['.*intentionally.*'])
+        )
+
+    def test_removes_one_matching_line_with_one_blacklist_regex(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+b
+
+c
+''',
+            given_text='''
+a
+b
+MEOW
+
+c
+''',
+            given_blacklist=frozenset(['M..W'])
+        )
+
+    def test_removes_multiple_matching_lines_with_one_blacklist_regex(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+b
+
+c
+''',
+            given_text='''
+a
+MEOW
+MEOW
+b
+MEOW
+
+c
+MEOW
+''',
+            given_blacklist=frozenset(['M.*W'])
+        )
+
+    def test_removes_matching_lines_with_two_blacklist_regexes(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+
+c
+''',
+            given_text='''
+a
+MEOW
+
+c
+''',
+            given_blacklist=frozenset(['M.*W', 'b'])
+        )
+
+    def test_removes_matching_lines_with_multiple_blacklist_regexes(self):
+        self._assert_that_it_returns(
+            expected='''
+a MEOW
+
+''',
+            given_text='''
+a MEOW
+MEOW
+c
+MEOW
+b
+MEOW
+
+cat
+MEOW
+''',
+            given_blacklist=frozenset(['M.*', 'b', 'c.*'])
+        )
+
+
+class TestExtractDigits(TestCase):
+    def test_extract_digits_returns_empty_string_given_no_digits(self):
+        def _assert_empty(test_data):
+            actual = extract_digits(test_data)
+            self.assertEqual(actual, '')
+
+        _assert_empty('')
+        _assert_empty(' ')
+        _assert_empty('_')
+        _assert_empty('ö')
+        _assert_empty('foo')
+
+    def test_extract_digits_returns_digits(self):
+        def _assert_equal(test_data, expected):
+            actual = extract_digits(test_data)
+            self.assertTrue(uu.is_internalstring(actual))
+            self.assertEqual(actual, expected)
+
+        _assert_equal('0', '0')
+        _assert_equal('1', '1')
+        _assert_equal('1', '1')
+        _assert_equal('_1', '1')
+        _assert_equal('foo1', '1')
+        _assert_equal('foo1bar', '1')
+        _assert_equal('foo1bar2', '12')
+        _assert_equal('1a2b3c4d', '1234')
+        _assert_equal('  1a2b3c4d', '1234')
+        _assert_equal('  1a2b3c4d  _', '1234')
+        _assert_equal('1.0', '10')
+        _assert_equal('2.3', '23')
+
+    def test_raises_exception_given_bad_arguments(self):
+        def _assert_raises(test_data):
+            with self.assertRaises(AssertionError):
+                extract_digits(test_data)
+
+        _assert_raises(None)
+        _assert_raises([])
+        _assert_raises(1)
+        _assert_raises(b'foo')
+        _assert_raises(b'1')

@@ -22,22 +22,15 @@
 
 import os
 from unittest import TestCase
-from unittest.mock import (
-    MagicMock,
-    patch
-)
+from unittest.mock import MagicMock, patch
 
-from util.misc import (
-    count_dict_recursive,
-    flatten_sequence_type,
-    git_commit_hash,
-    is_executable,
-    multiset_count,
-    nested_dict_get,
-    nested_dict_set,
-    unique_identifier
-)
 import unit.utils as uu
+from util.misc import count_dict_recursive
+from util.misc import flatten_sequence_type
+from util.misc import git_commit_hash
+from util.misc import is_executable
+from util.misc import nested_dict_get
+from util.misc import nested_dict_set
 
 
 DUMMY_RESULTS_DICT = {
@@ -80,53 +73,6 @@ DUMMY_FLATTENED_RESULTS_DICT = {
     'B.B3.B3A': True,
     'B.B3.B3B': False,
 }
-
-
-class TestUniqueIdentifier(TestCase):
-    def test_unique_identifier_returns_not_none(self):
-        self.assertIsNotNone(unique_identifier())
-
-    def test_unique_identifier_returns_string(self):
-        uuid = unique_identifier()
-        self.assertTrue(uu.is_internalstring(uuid))
-
-    def test_unique_identifier_returns_100_unique_values(self):
-        seen = set()
-        count = 100
-
-        for i in range(0, count):
-            seen.add(unique_identifier())
-
-        self.assertEqual(len(seen), count)
-
-
-class TestMultisetCount(TestCase):
-    def test_list_duplicate_count_returns_empty_dict_for_empty_list(self):
-        self.assertEqual(multiset_count([]), {})
-
-    def test_list_duplicate_count_returns_none_for_none(self):
-        self.assertIsNone(multiset_count(None))
-
-    def _check(self, given, expect):
-        self.assertEqual(expect, multiset_count(given))
-
-    def test_list_duplicate_count_returns_expected_no_duplicates(self):
-        self._check(given=['a', 'b', 'c'], expect={'a': 1, 'b': 1, 'c': 1})
-
-    def test_list_duplicate_count_returns_expected_one_duplicate(self):
-        self._check(given=['a', 'a', 'c'], expect={'a': 2, 'c': 1})
-
-    def test_list_duplicate_count_returns_expected_only_duplicates(self):
-        self._check(given=['a', 'a', 'a'], expect={'a': 3})
-
-    def test_list_duplicate_count_returns_expected_no_duplicate_one_none(self):
-        self._check(given=['a', None, 'b'], expect={None: 1, 'a': 1, 'b': 1})
-
-    def test_list_duplicate_count_returns_expected_one_duplicate_one_none(self):
-        self._check(given=['b', None, 'b'], expect={None: 1, 'b': 2})
-
-    def test_list_duplicate_count_returns_expected_no_duplicate_two_none(self):
-        self._check(given=['a', None, 'b', None], expect={None: 2, 'a': 1, 'b': 1})
 
 
 class TestFlattenSequenceType(TestCase):

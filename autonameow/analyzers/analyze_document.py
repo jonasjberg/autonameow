@@ -22,13 +22,57 @@
 import re
 
 from analyzers import BaseAnalyzer
-from util import textutils
+from core.metadata.normalize import cleanup_full_title
+from util.text import collapse_whitespace
+from util.text import remove_blacklisted_lines
+from util.text import TextChunker
+from util.text.filter import RegexLineFilter
 from util.text.patternmatching import find_publisher_in_copyright_notice
 
 
 # TODO: [TD0094] Search text for DOIs and query external services
 # Example DOI: `10.1109/TPDS.2010.125`. Could be used to query external
 # services for publication metadata, as with ISBN-numbers.
+
+
+BLACKLISTED_TEXTLINES = frozenset([
+    'Advanced PDF Repair at http://www.datanumen.com/apdfr/',
+    'Brought to you by:',
+    'freepdf-books.com',
+    'Get More Refcardz! Visit refcardz.com',
+    'http://freepdf-books.com',
+    'www.itbookshub.com',
+    'Preface:',
+    'Table of Contents',
+    'This page intentionally left blank',
+    'Unknown',
+    'www.freepdf-books.com',
+    'www.allitebooks.com',
+    'www.it-ebooks.info',
+    'free ebooks wwwebook777com',
+    'free ebooks www.ebook777.com',
+    'free ebooks ==> www.ebook777.com',
+    'Free ebooks ==> www.ebook777.com',
+])
+
+
+title_filter = RegexLineFilter([
+    r'^\w$',
+    r'^[\.=-]+$',
+    r'.*cncmanual\.com.*',
+    r'matter material after the index\.? Please use the Bookmarks',
+    r'and Contents at a Glance links to access them\.?',
+    r'Contents at a Glance',
+    r'about the author.*',
+    r'about the technical reviewer.*',
+    r'acknowledgments.*',
+    r'for your convenience .* has placed some of the front',
+    r'.*freepdf-books\.com.*',
+    r'introduction.*',
+    r'index.?[0-9]+',
+    r'.*chapter ?[0-9]+.*',
+    r'.*www\.?ebook777\.?com.*',
+], ignore_case=True)
 
 
 class DocumentAnalyzer(BaseAnalyzer):
@@ -38,23 +82,23 @@ class DocumentAnalyzer(BaseAnalyzer):
         'title': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                # TODO: [TD0166] Set probabilities dynamically
-                {'WeightedMapping': {'field': 'Title', 'probability': '1'}},
+                # TODO: [TD0166] Set weights dynamically
+                {'WeightedMapping': {'field': 'Title', 'weight': '0.1'}},
             ],
             'generic_field': 'title'
         },
         'datetime': {
             'coercer': 'aw_timedate',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'DateTime', 'probability': '0.25'}},
-                {'WeightedMapping': {'field': 'Date', 'probability': '0.25'}},
+                {'WeightedMapping': {'field': 'DateTime', 'weight': '0.25'}},
+                {'WeightedMapping': {'field': 'Date', 'weight': '0.25'}},
             ],
             'generic_field': 'date_created',
         },
         'publisher': {
             'coercer': 'aw_string',
             'mapped_fields': [
-                {'WeightedMapping': {'field': 'Publisher', 'probability': '1'}},
+                {'WeightedMapping': {'field': 'Publisher', 'weight': '1'}},
             ],
             'generic_field': 'publisher',
         }
@@ -64,29 +108,36 @@ class DocumentAnalyzer(BaseAnalyzer):
         super().__init__(fileobject, config, request_data_callback)
 
         self.text = None
-        self.text_lines = 0
+        self.num_text_lines = 0
         self.candidate_publishers = {}
 
     def analyze(self):
-        _maybe_text = self.request_any_textual_content()
-        if not _maybe_text:
+        maybe_text = self.request_any_textual_content()
+        if not maybe_text:
             return
 
-        self.text = _maybe_text
-        self.text_lines = len(self.text.splitlines())
+        filtered_text = remove_blacklisted_lines(maybe_text, BLACKLISTED_TEXTLINES)
+        normalized_whitespace_text = collapse_whitespace(filtered_text)
+        self.text = normalized_whitespace_text
+        self.num_text_lines = len(self.text.splitlines())
 
         # Arbitrarily search the text in chunks of 10%
-        # TODO: [TD0134] Consolidate splitting up text into chunks.
-        text_chunk_1 = self._extract_leading_text_chunk(chunk_ratio=0.1)
+        text_chunks = TextChunker(self.text, chunk_to_text_ratio=0.1)
+        leading_text = text_chunks.leading
 
         # TODO: Search text for datetime information.
 
-        text_titles = [t for t, _ in find_titles_in_text(text_chunk_1)]
+        # TODO: [incomplete] Search more than 1 line! Handle multiple matches.
+        text_titles = [
+            t for t, _ in find_titles_in_text(leading_text, num_lines_to_search=1)
+        ]
         if text_titles:
             # TODO: Pass multiple possible titles with probabilities.
             #       (title is not "multivalued")
             maybe_text_title = text_titles[0]
-            self._add_intermediate_results('title', maybe_text_title)
+            clean_title = cleanup_full_title(maybe_text_title)
+            if clean_title:
+                self._add_intermediate_results('title', clean_title)
 
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
         if _options:
@@ -97,11 +148,11 @@ class DocumentAnalyzer(BaseAnalyzer):
             #       (publisher is not "multivalued")
             self._add_intermediate_results(
                 'publisher',
-                self._search_text_for_candidate_publisher(text_chunk_1)
+                self._search_text_for_candidate_publisher(leading_text)
             )
             self._add_intermediate_results(
                 'publisher',
-                self._search_text_for_copyright_publisher(text_chunk_1)
+                self._search_text_for_copyright_publisher(leading_text)
             )
 
     def _search_text_for_candidate_publisher(self, text):
@@ -119,42 +170,39 @@ class DocumentAnalyzer(BaseAnalyzer):
         result = find_publisher(possible_publishers, self.candidate_publishers)
         return result
 
-    def _extract_leading_text_chunk(self, chunk_ratio):
-        assert chunk_ratio >= 0, 'Argument chunk_ratio is negative'
-
-        # Chunk #1: from BEGINNING to (BEGINNING + CHUNK_SIZE)
-        _chunk1_start = 1
-        _chunk1_end = int(self.text_lines * chunk_ratio)
-        if _chunk1_end < 1:
-            _chunk1_end = 1
-        text = textutils.extract_lines(self.text, firstline=_chunk1_start,
-                                       lastline=_chunk1_end)
-        return text
-
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return True
 
 
-def find_titles_in_text(text):
+def find_titles_in_text(text, num_lines_to_search):
     # Add all lines that aren't all whitespace or all dashes, from the
-    # first to line number "MAX_LINES".
-    # The first line is assigned probability 1, probabilities decrease
-    # for each line until line number "MAX_LINES" with probability 0.
-    MAX_LINES = 1
+    # first to line number "num_lines_to_search".
+    # The first line is assigned weight 1, weights decrease for
+    # for each line until line number "num_lines_to_search" with weight 0.1.
+    assert isinstance(num_lines_to_search, int) and num_lines_to_search > 0
 
     titles = list()
-    for num, line in enumerate(text.splitlines()):
-        if num > MAX_LINES:
+    line_count = 0
+    for line in text.splitlines():
+        if line_count == num_lines_to_search:
             break
 
-        if line.strip() and line.replace('-', ''):
-            _prob = (MAX_LINES - num) / MAX_LINES
-            # TODO: Set probability dynamically ..
-            # self._add_intermediate_results(
-            #     'title', self._wrap_generic_title(line, _prob)
-            # )
-            titles.append((line, _prob))
+        if not line.strip():
+            continue
+
+        filtered_line = title_filter(line)
+        if not filtered_line:
+            continue
+
+        score = (num_lines_to_search - line_count) / num_lines_to_search
+        # TODO: Set weight dynamically ..
+        # self._add_intermediate_results(
+        #     'title', self._wrap_generic_title(line, score)
+        # )
+        titles.append((filtered_line, score))
+
+        line_count += 1
 
     return titles
 
@@ -162,8 +210,8 @@ def find_titles_in_text(text):
 def find_publisher(text, candidates):
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     text = text.lower()
-    for repl, patterns in candidates.items():
+    for replacement, patterns in candidates.items():
         for pattern in patterns:
             if re.search(pattern, text):
-                return repl
+                return replacement
     return None

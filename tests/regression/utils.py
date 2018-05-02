@@ -31,16 +31,12 @@ from collections import defaultdict
 import unit.constants as uuconst
 import unit.utils as uu
 from core import constants as C
+from core import exceptions
 from core.view import cli
-from core import (
-    exceptions,
-    types
-)
+from util import coercers
+from util import disk
 from util import encoding as enc
-from util import (
-    disk,
-    sanity
-)
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -61,12 +57,11 @@ def read_plaintext_file(file_path, ignore_errors=None):
         with open(file_path, 'r', encoding=C.DEFAULT_ENCODING) as fh:
             contents = fh.read()
     except (FileNotFoundError, UnicodeDecodeError) as e:
-        if ignore_errors:
-            return ''
-        else:
+        if not ignore_errors:
             raise RegressionTestError(e)
+        return ''
     else:
-        return contents
+        return coercers.force_string(contents)
 
 
 # Redefined print functions with disabled buffering.
@@ -78,8 +73,31 @@ class TerminalReporter(object):
     def __init__(self, verbose=False):
         self.verbose = verbose
 
-        self.MAX_DESCRIPTION_LENGTH = TERMINAL_WIDTH - 70
+        self.MAX_DESCRIPTION_LENGTH = TERMINAL_WIDTH - 75
         assert self.MAX_DESCRIPTION_LENGTH > 0, 'Terminal is not wide enough ..'
+
+        self.msg_label_pass = cli.colorize('PASS', fore='GREEN')
+        self.msg_label_fail = cli.colorize('FAIL', fore='RED')
+
+        # Unicode character "ballot box with check" (U+2611)
+        self.msg_mark_history_pass = cli.colorize('\u2611', fore='GREEN')
+        # Unicode character "ballot box with x" (U+2612)
+        self.msg_mark_history_fail = cli.colorize('\u2612', fore='RED')
+        # Unicode character "ballot box" (U+2610)
+        self.msg_mark_history_skip = cli.colorize('\u2610', fore='YELLOW')
+        self.msg_mark_history_unknown = self.msg_mark_history_skip
+
+    def msg(self, string):
+        if self.verbose:
+            _println(string)
+
+    def msg_run_test_success(self, string):
+        if self.verbose:
+            _println('{} {!s}'.format(self.msg_label_pass, string))
+
+    def msg_run_test_failure(self, string):
+        if self.verbose:
+            _println('{} {!s}'.format(self.msg_label_fail, string))
 
     def msg_test_success(self):
         _label = cli.colorize('[SUCCESS]', fore='GREEN')
@@ -95,6 +113,22 @@ class TerminalReporter(object):
         else:
             _print(' ' + _label + ' ')
 
+    def msg_test_history(self, history):
+        # TODO: [hack] Refactor ..
+        while len(history) < 5:
+            history.append('unknown')
+
+        # TODO: [hack] Refactor ..
+        for past_result in history[:5]:
+            if past_result == 'fail':
+                _print(self.msg_mark_history_fail)
+            elif past_result == 'pass':
+                _print(self.msg_mark_history_pass)
+            elif past_result == 'skip':
+                _print(self.msg_mark_history_skip)
+            else:
+                _print(self.msg_mark_history_unknown)
+
     @staticmethod
     def _center_with_fill(text):
         padded_text = '  ' + text + '  '
@@ -107,7 +141,8 @@ class TerminalReporter(object):
         ))
 
     def msg_overall_failure(self):
-        _println(cli.colorize(self._center_with_fill('SOME TESTS FAILED'),
+        _println(cli.colorize(
+            self._center_with_fill('SOME TESTS FAILED'),
             fore='RED', style='BRIGHT'
         ))
 
@@ -149,8 +184,7 @@ class TerminalReporter(object):
     def msg_test_start(self, shortname, description):
         if self.verbose:
             _desc = cli.colorize(description, style='DIM')
-            print()
-            _println('Running "{}"'.format(shortname))
+            _println('\nRunning "{}"'.format(shortname))
             _println(_desc)
         else:
             maxlen = self.MAX_DESCRIPTION_LENGTH
@@ -196,7 +230,7 @@ class TerminalReporter(object):
         _time_1 = '{:10.10s}'.format(_elapsed)
         _time_2 = '{:10.10s}'.format(_captured)
         if self.verbose:
-            _println(' ' * 10 + 'Runtime: {} (captured {}'.format(_time_1,_time_2))
+            _println(' ' * 10 + 'Runtime: {} (captured {}'.format(_time_1, _time_2))
         else:
             _println('  {} ({}'.format(_time_1, _time_2))
 
@@ -227,103 +261,151 @@ class TerminalReporter(object):
         _println(stdout)
 
 
+class RegressionTestSuite(object):
+    def __init__(self, abspath, dirname, asserts, options, skip, description=None):
+        assert isinstance(abspath, bytes)
+        assert isinstance(dirname, bytes)
+        self.abspath = abspath
+        self.dirname = dirname
+        self.asserts = asserts or dict()
+        self.options = options or dict()
+        self.should_skip = bool(skip)
+
+        if description:
+            self.description = coercers.force_string(description).strip()
+        else:
+            self.description = '(UNDESCRIBED)'
+
+    @property
+    def str_abspath(self):
+        return coercers.force_string(self.abspath)
+
+    @property
+    def str_dirname(self):
+        return coercers.force_string(self.dirname)
+
+    def __hash__(self):
+        return hash(
+            (self.abspath, self.dirname)
+        )
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return (
+            self.abspath == other.abspath
+            and self.asserts == other.asserts
+            and self.options == other.options
+            and self.should_skip == other.should_skip
+        )
+
+    def __lt__(self, other):
+        if isinstance(other, self.__class__):
+            return self.dirname < other.dirname
+        return False
+
+    def __gt__(self, other):
+        return not self < other
+
+
 class RegressionTestLoader(object):
+    # Optional description of the test.
     BASENAME_DESCRIPTION = b'description'
+    # The test is skipped if this file exists.
     BASENAME_SKIP = b'skip'
+    # Options like those passed to the main() entry points.
     BASENAME_YAML_OPTIONS = b'options.yaml'
+    # Test assertions.
     BASENAME_YAML_ASSERTS = b'asserts.yaml'
 
     def __init__(self, abspath):
         assert isinstance(abspath, bytes)
-        self.abspath = abspath
-        self.skiptest = False
+        self.test_abspath = abspath
+        self.test_dirname = os.path.basename(enc.syspath(abspath))
+
+    def load(self):
+        setup_dict = self._get_test_setup_dict_from_files()
+        loaded_regressiontest = RegressionTestSuite(
+            abspath=self.test_abspath,
+            dirname=self.test_dirname,
+            asserts=setup_dict['asserts'],
+            options=setup_dict['options'],
+            skip=setup_dict['skiptest'],
+            description=setup_dict['description']
+        )
+        return loaded_regressiontest
 
     def _get_test_setup_dict_from_files(self):
-        _abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
-        _description = read_plaintext_file(_abspath_desc, ignore_errors=True)
+        description = self._load_file_description()
+        assert isinstance(description, str)
 
-        _abspath_opts = self._joinpath(self.BASENAME_YAML_OPTIONS)
-        try:
-            _options = disk.load_yaml_file(_abspath_opts)
-        except exceptions.FilesystemError as e:
-            raise RegressionTestError(e)
+        options = self._load_file_options()
+        options = self._modify_options_input_paths(options)
+        options = self._modify_options_config_path(options)
+        assert isinstance(options, dict)
 
-        if not _options:
-            log.warning(
-                'Read empty options from file: "{!s}"'.format(_abspath_opts)
-            )
-            _options = dict()
-        _options = self._set_testfile_path(_options)
-        _options = self._set_config_path(_options)
+        asserts = self._load_file_asserts()
+        assert isinstance(asserts, dict)
 
-        _abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
-        try:
-            _asserts = disk.load_yaml_file(_abspath_asserts)
-        except exceptions.FilesystemError as e:
-            raise RegressionTestError(e)
+        should_skip = self._load_file_skip()
+        assert isinstance(should_skip, bool)
 
-        if not _asserts:
-            raise RegressionTestError(
-                'Read empty asserts from file: "{!s}"'.format(_abspath_asserts)
-            )
-
-        _abspath_skip = self._joinpath(self.BASENAME_SKIP)
-        if uu.file_exists(_abspath_skip):
-            _skiptest = True
-        else:
-            _skiptest = False
-
-        assert isinstance(_asserts, dict)
-        assert isinstance(_options, dict)
         return {
-            'asserts': _asserts,
-            'description': _description.strip() or '(description unavailable)',
-            'options': _options,
-            'skiptest': _skiptest
+            'asserts': asserts,
+            'description': description,
+            'options': options,
+            'skiptest': should_skip
         }
 
+    def _load_file_description(self):
+        abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
+        description = read_plaintext_file(abspath_desc, ignore_errors=True)
+        one_line_description = re.sub(r'\s+', ' ', description)
+        return one_line_description.strip()
+
+    def _load_file_asserts(self):
+        abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
+        try:
+            asserts = disk.load_yaml_file(abspath_asserts)
+        except exceptions.FilesystemError as e:
+            raise RegressionTestError('Error reading asserts from file: '
+                                      '"{!s}" :: {!s}'.format(abspath_asserts, e))
+
+        if not asserts:
+            log.warning('Read empty asserts from file: '
+                        '"{!s}"'.format(abspath_asserts))
+            asserts = dict()
+        return asserts
+
+    def _load_file_options(self):
+        abspath_opts = self._joinpath(self.BASENAME_YAML_OPTIONS)
+        try:
+            options = disk.load_yaml_file(abspath_opts)
+        except exceptions.FilesystemError as e:
+            raise RegressionTestError('Error reading options from file: '
+                                      '"{!s}" :: {!s}'.format(abspath_opts, e))
+        if not options:
+            log.warning('Read empty options from file: '
+                        '"{!s}"'.format(abspath_opts))
+            options = dict()
+        return options
+
+    def _load_file_skip(self):
+        _abspath_skip = self._joinpath(self.BASENAME_SKIP)
+        return bool(uu.file_exists(_abspath_skip))
+
     @staticmethod
-    def _set_testfile_path(options):
-        """
-        Replaces '$TESTFILES' with the full absolute path to the 'test_files'
-        directory.
-        For instance; '$TESTFILES/foo.txt' --> '$SRCROOT/test_files/foo.txt',
-        where '$SRCROOT' is the full absolute path to the autonameow sources.
-        """
+    def _modify_options_input_paths(options):
+        assert isinstance(options, dict)
         if 'input_paths' not in options:
             return options
 
-        _fixed_paths = []
-        for path in options['input_paths']:
-            if path == '$TESTFILES':
-                # Substitute "variable".
-                _abspath = uuconst.PATH_TEST_FILES
-            elif path.startswith('$TESTFILES/'):
-                # Substitute "variable".
-                _basename = path.replace('$TESTFILES/', '')
-                _abspath = uu.abspath_testfile(_basename)
-            else:
-                # Normalize path.
-                try:
-                    _abspath_bytes = types.AW_PATH.normalize(path)
-                except types.AWTypeError as e:
-                    raise RegressionTestError('Invalid path in "input_paths":'
-                                              '"{!s}" :: {!s}'.format(path, e))
-                else:
-                    # NOTE(jonas): Iffy ad-hoc string coercion..
-                    _abspath = types.force_string(_abspath_bytes)
+        input_paths = options['input_paths']
+        modified_options = dict(options)
+        modified_options['input_paths'] = _expand_input_paths_variables(input_paths)
+        return modified_options
 
-            # Allow non-existent but not empty paths.
-            if not _abspath.strip():
-                raise RegressionTestError(
-                    'Path is empty after processing: "{!s}"'.format(path)
-                )
-            _fixed_paths.append(_abspath)
-
-        options['input_paths'] = _fixed_paths
-        return options
-
-    def _set_config_path(self, options):
+    def _modify_options_config_path(self, options):
         """
         Modifies the 'config_path' entry in the options dict.
 
@@ -345,50 +427,85 @@ class RegressionTestLoader(object):
                    'config_path': '$THISTEST/config.yaml'
                --> 'config_path': 'self.abspath/config.yaml'
         """
-        _options = dict(options)
+        assert isinstance(options, dict)
 
-        _path = types.force_string(_options.get('config_path'))
-        if not _path:
+        config_path = coercers.force_string(options.get('config_path'))
+        if not config_path:
             # Use default config.
-            _abspath = uu.abspath_testconfig()
-        elif _path.startswith('$TESTFILES/'):
+            modified_path = uu.abspath_testconfig()
+        elif config_path.startswith('$TESTFILES/'):
             # Substitute "variable".
-            _basename = _path.replace('$TESTFILES/', '').strip()
-            _abspath = uu.abspath_testfile(_basename)
-        elif _path.startswith('$THISTEST/'):
+            config_path_basename = config_path.replace('$TESTFILES/', '').strip()
+            modified_path = uu.abspath_testfile(config_path_basename)
+        elif config_path.startswith('$THISTEST/'):
             # Substitute "variable".
-            _basename = _path.replace('$THISTEST/', '').strip()
+            config_path_basename = config_path.replace('$THISTEST/', '').strip()
             try:
-                _bytes_basename = types.AW_PATHCOMPONENT(_basename)
-            except types.AWTypeError as e:
+                bytestring_basename = coercers.AW_PATHCOMPONENT(config_path_basename)
+            except coercers.AWTypeError as e:
                 raise RegressionTestError(e)
-            _abspath = self._joinpath(_bytes_basename)
+
+            modified_path = self._joinpath(bytestring_basename)
         else:
             # Assume absolute path.
-            _abspath = _path
+            modified_path = config_path
 
-        if not uu.file_exists(_abspath):
+        if not uu.file_exists(modified_path):
             raise RegressionTestError(
-                'Invalid "config_path": "{!s}"'.format(_path)
+                'Invalid "config_path": "{!s}"'.format(config_path)
             )
 
-        log.debug('Set config_path "{!s}" to "{!s}"'.format(_path, _abspath))
-        _options['config_path'] = enc.normpath(_abspath)
-        return _options
+        log.debug('Set config_path "{!s}" to "{!s}"'.format(config_path, modified_path))
+        modified_options = dict(options)
+        modified_options['config_path'] = enc.normpath(modified_path)
+        return modified_options
 
     def _joinpath(self, leaf):
         assert isinstance(leaf, bytes)
         return os.path.join(
-            enc.syspath(self.abspath), enc.syspath(leaf)
+            enc.syspath(self.test_abspath), enc.syspath(leaf)
         )
 
-    def load(self):
-        _setup_dict = self._get_test_setup_dict_from_files()
-        _setup_dict['test_abspath'] = self.abspath
-        _setup_dict['test_dirname'] = os.path.basename(
-            enc.syspath(self.abspath)
-        )
-        return _setup_dict
+
+def _expand_input_paths_variables(input_paths):
+    """
+    Replaces '$TESTFILES' with the full absolute path to the 'test_files'
+    directory.
+    For instance; '$TESTFILES/foo.txt' --> '$SRCROOT/test_files/foo.txt',
+    where '$SRCROOT' is the full absolute path to the autonameow sources.
+    """
+    assert isinstance(input_paths, list)
+
+    results = list()
+    for path in input_paths:
+        if path == '$TESTFILES':
+            # Substitute "variable".
+            modified_path = uuconst.PATH_TEST_FILES
+        elif path.startswith('$TESTFILES/'):
+            # Substitute "variable".
+            path_basename = path.replace('$TESTFILES/', '')
+            modified_path = uu.abspath_testfile(path_basename)
+        else:
+            # Normalize path.
+            try:
+                bytestring_path = coercers.AW_PATH.normalize(path)
+            except coercers.AWTypeError as e:
+                raise RegressionTestError(
+                    'Invalid path: "{!s}" :: {!s}'.format(path, e)
+                )
+            else:
+                # NOTE(jonas): Iffy ad-hoc string coercion..
+                modified_path = coercers.force_string(bytestring_path)
+
+        # Allow non-existent but not empty paths.
+        if not modified_path.strip():
+            raise RegressionTestError(
+                'Path is empty after processing: "{!s}"'.format(path)
+            )
+
+        results.append(modified_path)
+
+    return results
 
 
 class MockUI(object):
@@ -409,6 +526,19 @@ class MockUI(object):
     NOTE(jonas): Would it be better to re-use library mocking functionality?
     """
     def __init__(self):
+        # Dictionary keyed by members 'ui' storing call arguments.
+        # Using a new MockUI once like this:
+        #
+        #     ui.msg('foo', bar=42)
+        #
+        # Stores the following:
+        #
+        #     mock_call_history == {
+        #         'msg': [
+        #             (('foo',), {'bar': 42})
+        #         ]
+        #     }
+        #
         self.mock_call_history = defaultdict(list)
 
     def __getattr__(self, item):
@@ -416,6 +546,12 @@ class MockUI(object):
         if item == 'ColumnFormatter':
             # TODO: [TD0171] Separate logic from user interface.
             return cli.ColumnFormatter
+        if item == 'colorize':
+            # Pass-through string unchanged.
+            return lambda x, **kwargs: x
+        if item == 'msg_columnate':
+            # TODO: [TD0171] Separate logic from user interface.
+            return cli.msg_columnate
 
         return lambda *args, **kwargs: self.mock_call_history[item].append((args, kwargs))
 
@@ -423,7 +559,10 @@ class MockUI(object):
 def fetch_mock_ui_messages(mock_ui):
     messages = list()
     for captured_msg_call in mock_ui.mock_call_history.get('msg', list()):
-        text = ''.join(captured_msg_call[0])
+        try:
+            text = ''.join(captured_msg_call[0])
+        except TypeError:
+            raise AssertionError(str(captured_msg_call))
         messages.append(text)
 
     return '\n'.join(messages)
@@ -457,8 +596,8 @@ class AutonameowWrapper(object):
     def mock_rename_file(self, from_path, new_basename):
         # TODO: [hack] Mocking is too messy to be reliable ..
         # NOTE(jonas): Iffy ad-hoc string coercion..
-        _from_basename = types.force_string(disk.basename(from_path))
-        _new_basename = types.force_string(new_basename)
+        _from_basename = coercers.force_string(disk.basename(from_path))
+        _new_basename = coercers.force_string(new_basename)
 
         # Check for collisions that might cause erroneous test results.
         if _from_basename in self.captured_renames:
@@ -524,48 +663,46 @@ def get_regressiontests_rootdir():
     return REGRESSIONTESTS_ROOT_ABSPATH
 
 
-def regtest_abspath(basename):
-    _root = get_regressiontests_rootdir()
+def _testsuite_abspath(suite_basename):
+    root_dir = get_regressiontests_rootdir()
     try:
-        _abspath = os.path.join(
-            enc.syspath(_root),
-            enc.syspath(basename)
+        suite_abspath = os.path.join(
+            enc.syspath(root_dir),
+            enc.syspath(suite_basename)
         )
-        _normalized_abspath = enc.normpath(_abspath)
+        normalized_suite_abspath = enc.normpath(suite_abspath)
     except Exception:
         raise AssertionError
 
-    assert disk.isdir(_normalized_abspath)
-    return _normalized_abspath
+    assert disk.isdir(normalized_suite_abspath)
+    return normalized_suite_abspath
 
 
 RE_REGRESSIONTEST_DIRNAME = re.compile(rb'\d{4}(_[\w]+)?')
 
 
-def get_regressiontest_dirs():
-    _tests_root_dir = get_regressiontests_rootdir()
-    _dirs = [
-        regtest_abspath(d)
-        for d in os.listdir(_tests_root_dir)
+def get_all_testsuite_dirpaths():
+    root_dir = get_regressiontests_rootdir()
+    return [
+        _testsuite_abspath(d)
+        for d in os.listdir(root_dir)
         if RE_REGRESSIONTEST_DIRNAME.match(d)
     ]
 
-    return _dirs
 
+def load_regression_testsuites():
+    all_loaded_tests = list()
 
-def load_regressiontests():
-    out = []
-
-    _paths = get_regressiontest_dirs()
-    for p in _paths:
+    testsuite_paths = get_all_testsuite_dirpaths()
+    for suite_path in testsuite_paths:
         try:
-            loaded_test = RegressionTestLoader(p).load()
+            loaded_test = RegressionTestLoader(suite_path).load()
         except RegressionTestError as e:
-            print('Unable to load test case :: ' + str(e))
+            print('Unable to load test suite :: ' + str(e), file=sys.stderr)
         else:
-            out.append(loaded_test)
+            all_loaded_tests.append(loaded_test)
 
-    return sorted(out, key=lambda x: x.get('test_dirname'))
+    return sorted(all_loaded_tests)
 
 
 def check_renames(actual, expected):
@@ -595,9 +732,9 @@ class RegexMatchingResult(object):
         self.regex = regex.pattern
 
 
-def _load_assertion_regexes(test_dict, filedescriptor, assert_type):
+def _load_assertion_regexes(asserts_dict, filedescriptor, assert_type):
     # TODO: Load and validate regexes before running the test!
-    expressions = test_dict['asserts'][filedescriptor].get(assert_type, []) or list()
+    expressions = asserts_dict[filedescriptor].get(assert_type, []) or list()
     if not isinstance(expressions, list):
         assert expressions, (
             'Expected non-empty assertion expressions. '
@@ -605,7 +742,7 @@ def _load_assertion_regexes(test_dict, filedescriptor, assert_type):
         )
         expressions = [expressions]
 
-    regexes = []
+    regexes = list()
     for expression in expressions:
         try:
             regexes.append(re.compile(expression, re.MULTILINE))
@@ -616,15 +753,15 @@ def _load_assertion_regexes(test_dict, filedescriptor, assert_type):
     return regexes
 
 
-def check_stdout_asserts(test, captured_stdout):
+def check_stdout_asserts(suite, captured_stdout):
     results = list()
-    if 'asserts' not in test:
+    if not suite.asserts:
         return results
-    if 'stdout' not in test['asserts']:
+    if 'stdout' not in suite.asserts:
         return results
 
     # TODO: Load and validate regexes before running the test!
-    should_match_regexes = _load_assertion_regexes(test, 'stdout', 'matches')
+    should_match_regexes = _load_assertion_regexes(suite.asserts, 'stdout', 'matches')
     for regexp in should_match_regexes:
         # Pass if there is a match
         if regexp.search(captured_stdout):
@@ -637,7 +774,7 @@ def check_stdout_asserts(test, captured_stdout):
             ))
 
     # TODO: Load and validate regexes before running the test!
-    should_not_match_regexes = _load_assertion_regexes(test, 'stdout', 'does_not_match')
+    should_not_match_regexes = _load_assertion_regexes(suite.asserts, 'stdout', 'does_not_match')
     for regexp in should_not_match_regexes:
         # Pass if there is NOT a match
         if not regexp.search(captured_stdout):
@@ -652,18 +789,18 @@ def check_stdout_asserts(test, captured_stdout):
     return results
 
 
-def _commandline_args_for_testcase(loaded_test):
+def _commandline_args_for_testsuite(suite):
     """
     Converts a regression test to a list of command-line arguments.
 
-    Given a loaded "regression test case", it returns command-line components
+    Given a loaded regression "test suite", it returns command-line components
     that would result in equivalent behaviour.
     The returned arguments would be used when invoking autonameow "manually"
     from the command-line.
 
     Args:
-        loaded_test: Regression "test case" returned from
-                     'load_regressiontests()', as type dict.
+        suite: Regression "test suite" returned from 'load_regression_testsuites()',
+               as an instance of 'RegressionTestSuite'.
 
     Returns:
         Command-line arguments as a list of Unicode strings.
@@ -681,56 +818,57 @@ def _commandline_args_for_testcase(loaded_test):
         'mode_batch': '--batch',
         'mode_interactive': '--interactive',
         'mode_timid': '--timid',
+        'mode_postprocess_only': '--postprocess-only',
         'quiet': '--quiet',
         'recurse_paths': '--recurse',
         'show_version': '--version',
         'verbose': '--verbose',
     }
 
-    arguments = []
-    loaded_options = loaded_test.get('options')
-    if loaded_options:
+    arguments = list()
+    suite_options = suite.options
+    if suite_options:
         for opt, arg in TESTOPTION_CMDARG_MAP.items():
-            if loaded_options.get(opt):
+            if suite_options.get(opt):
                 arguments.append(arg)
 
         # For more consistent output and easier testing, sort before adding
         # positional and "key-value"-type options.
         arguments = sorted(arguments)
 
-        _config_path = loaded_options.get('config_path')
-        if _config_path:
-            _str_config_path = types.force_string(_config_path)
-            assert _str_config_path != ''
-            arguments.append("--config-path '{}'".format(_str_config_path))
+        options_config_path = suite_options.get('config_path')
+        if options_config_path:
+            str_config_path = coercers.force_string(options_config_path)
+            assert str_config_path != ''
+            arguments.append("--config-path '{}'".format(str_config_path))
 
-        _input_paths = loaded_options.get('input_paths')
-        if _input_paths:
+        options_input_paths = suite_options.get('input_paths')
+        if options_input_paths:
             # Mark end of options, start of arguments (input paths)
             arguments.append('--')
-            for p in _input_paths:
+            for p in options_input_paths:
                 arguments.append("'{}'".format(p))
 
     return arguments
 
 
-def commandline_for_testcase(loaded_test):
+def commandline_for_testsuite(suite):
     """
     Converts a regression test to a equivalent command-line invocation string.
 
-    Given a loaded "regression test case", it returns a full command that
+    Given a loaded regression "test suite", it returns a full command that
     could be pasted into a terminal to produce  behaviour equivalent to the
-    given regression test case.
+    given regression test suite.
 
     Args:
-        loaded_test: Regression "test case" returned from
-                     'load_regressiontests()', as type dict.
+        suite: Regression "test suite" returned from 'load_regression_testsuites()',
+               as an instance of 'RegressionTestSuite'.
 
     Returns:
         Full equivalent command-line as a Unicode string.
     """
-    sanity.check_isinstance(loaded_test, dict)
-    arguments = _commandline_args_for_testcase(loaded_test)
+    sanity.check_isinstance(suite, RegressionTestSuite)
+    arguments = _commandline_args_for_testsuite(suite)
     argument_string = ' '.join(arguments)
     commandline = 'autonameow ' + argument_string
     return commandline.strip()
@@ -738,7 +876,7 @@ def commandline_for_testcase(loaded_test):
 
 def glob_filter(glob, bytestring):
     """
-    Evaluates if a string (test basename) matches a given "glob".
+    Evaluates if a string (suite basename) matches a given "glob".
 
     Matching is case-sensitive. The asterisk matches anything.
     If the glob starts with '!', the matching is negated.
@@ -759,8 +897,8 @@ def glob_filter(glob, bytestring):
         )
     try:
         # Coercing to "AW_PATHCOMPONENT" because there is no "AW_BYTES".
-        bytes_glob = types.AW_PATHCOMPONENT(glob)
-    except types.AWTypeError as e:
+        bytes_glob = coercers.AW_PATHCOMPONENT(glob)
+    except coercers.AWTypeError as e:
         raise RegressionTestError(e)
 
     regexp = bytes_glob.replace(b'*', b'.*')
@@ -773,7 +911,7 @@ def glob_filter(glob, bytestring):
 
 def regexp_filter(expression, bytestring):
     """
-    Evaluates if a string (test basename) matches a given regular expression.
+    Evaluates if a string (suite basename) matches a given regular expression.
     """
     if not isinstance(bytestring, bytes):
         raise RegressionTestError(
@@ -782,8 +920,8 @@ def regexp_filter(expression, bytestring):
         )
     try:
         # Coercing to "AW_PATHCOMPONENT" because there is no "AW_BYTES".
-        bytes_expr = types.AW_PATHCOMPONENT(expression)
-    except types.AWTypeError as e:
+        bytes_expr = coercers.AW_PATHCOMPONENT(expression)
+    except coercers.AWTypeError as e:
         raise RegressionTestError(e)
 
     try:
@@ -792,3 +930,14 @@ def regexp_filter(expression, bytestring):
         raise RegressionTestError(e)
 
     return bool(regexp.match(bytestring))
+
+
+def print_test_info(tests, verbose):
+    if verbose:
+        cf = cli.ColumnFormatter()
+        for t in tests:
+            cf.addrow(t.str_dirname, t.description)
+        print(cf)
+    else:
+        test_dirnames = [t.str_dirname for t in tests]
+        print('\n'.join(test_dirnames))

@@ -19,9 +19,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
 import unittest
 from unittest import TestCase, skipIf
+from unittest.mock import patch
 
 # TODO: Test behaviour when colorama is missing!
 #       (program still runs but output is not colored)
@@ -33,15 +33,14 @@ else:
     COLORAMA_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
-from core.view.cli.common import (
-    colorize,
-    colorize_quoted,
-    _colorize_string_diff,
-    ColumnFormatter,
-    msg,
-    msg_possible_rename,
-    msg_rename,
-)
+from core.view.cli.common import colorize
+from core.view.cli.common import colorize_quoted
+from core.view.cli.common import ColumnFormatter
+from core.view.cli.common import msg
+from core.view.cli.common import msg_columnate
+from core.view.cli.common import msg_possible_rename
+from core.view.cli.common import msg_rename
+from core.view.cli.common import _colorize_string_diff
 
 
 ANSI_RESET_FG = '\x1b[39m'
@@ -70,16 +69,6 @@ class TestMsg(TestCase):
 
         self.assertIn('text printed by msg() with style="info"',
                       out.getvalue().strip())
-
-    def test_msg_style_info_log_true(self):
-        with uu.capture_stdout() as out:
-            msg('text printed by msg() with style="info", add_info_log=True',
-                style='info', add_info_log=True)
-
-        self.assertIn(
-            'text printed by msg() with style="info", add_info_log=True',
-            out.getvalue().strip()
-        )
 
     def test_msg_style_color_quoted(self):
         with uu.capture_stdout() as out:
@@ -667,3 +656,45 @@ class TestColorizeQuoted(TestCase):
         __check(' "foo" "bar"', ' "{COL}foo{RES}" "{COL}bar{RES}"')
         __check(' "foo"" "bar"', ' "{COL}foo{RES}""{COL} {RES}"bar"')
         __check(' "a"" ""b"', ' "{COL}a{RES}""{COL} {RES}""{COL}b{RES}"')
+
+
+class TestMsgColumnate(TestCase):
+    def _assert_msg_called_with(self, expected, column_names, row_data):
+        with patch('core.view.cli.common.msg') as mock_msg:
+            _ = msg_columnate(column_names, row_data)
+        mock_msg.assert_called_once_with(expected)
+
+    def test_two_column_names_empty_row_data(self):
+        self._assert_msg_called_with(
+            'A  B\n',
+            column_names=['A', 'B'],
+            row_data=[]
+        )
+
+    def test_empty_column_names_one_row_of_two_columns(self):
+        self._assert_msg_called_with(
+            'a  b\n',
+            column_names=[],
+            row_data=[('a', 'b')]
+        )
+
+    def test_empty_column_names_two_rows_of_two_columns(self):
+        self._assert_msg_called_with(
+            'a  b\nc  d\n',
+            column_names=[],
+            row_data=[('a', 'b'), ('c', 'd')]
+        )
+
+    def test_two_column_names_one_row_of_two_columns(self):
+        self._assert_msg_called_with(
+            'A  B\na  b\n',
+            column_names=['A', 'B'],
+            row_data=[('a', 'b')]
+        )
+
+    def test_two_column_names_two_rows_of_two_columns(self):
+        self._assert_msg_called_with(
+            'A  B\na  b\nc  d\n',
+            column_names=['A', 'B'],
+            row_data=[('a', 'b'), ('c', 'd')]
+        )

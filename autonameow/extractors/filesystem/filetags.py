@@ -23,11 +23,9 @@ import re
 from collections import namedtuple
 
 from extractors import BaseExtractor
+from util import disk
 from util import encoding as enc
-from util import (
-    disk,
-    sanity
-)
+from util import sanity
 
 
 # TODO: [TD0043] Fetch values from the active configuration.
@@ -52,21 +50,18 @@ class FiletagsExtractor(BaseExtractor):
     def __init__(self):
         super().__init__()
 
-        self._timestamp = None
-        self._description = None
-        self._tags = None
-        self._extension = None
-        self._follows_filetags_convention = None
-
     def extract(self, fileobject, **kwargs):
-        result = self._partition_filename(fileobject.filename)
+        return self._get_metadata(fileobject.filename)
 
-        if 'tags' in result:
+    def _get_metadata(self, file_basename):
+        metadata = self._partition_filename(file_basename)
+
+        if 'tags' in metadata:
             # NOTE(jonas): Assume that consistent output by sorting outweigh
             #              users that would like to keep the order unchanged ..
-            result['tags'].sort()
+            metadata['tags'].sort()
 
-        return result
+        return metadata
 
     def _partition_filename(self, filename):
         parts = partition_basename(filename)
@@ -80,20 +75,24 @@ class FiletagsExtractor(BaseExtractor):
     def _to_internal_format(self, raw_metadata):
         coerced_metadata = dict()
 
-        for tag_name, value in raw_metadata.items():
-            coerced = self.coerce_field_value(tag_name, value)
+        for field, value in raw_metadata.items():
+            if value is None:
+                # Value of field "timestamp" is None if missing.
+                continue
+
+            coerced = self.coerce_field_value(field, value)
             if coerced is not None:
-                coerced_metadata[tag_name] = coerced
+                coerced_metadata[field] = coerced
 
         return coerced_metadata
 
     @classmethod
     def can_handle(cls, fileobject):
-        # Assume 'FileObject' has a basename.
-        return True
+        # File name should not be empty or only whitespace.
+        return bool(fileobject.filename.strip())
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return True
 
 
@@ -110,7 +109,7 @@ FILENAMEPART_TS_REGEX = re.compile(
 )
 
 
-def partition_basename(file_path):
+def partition_basename(filepath):
     """
     Splits a basename into parts as per the "filetags" naming convention.
 
@@ -131,7 +130,7 @@ def partition_basename(file_path):
         timestamp   description            tags       ext
 
     Args:
-        file_path: Path whose basename to split, as an "internal bytestring".
+        filepath: Path whose basename to split, as an "internal bytestring".
     Returns:
         Any identified parts as a tuple of 4 elements (quad);
             'timestamp', 'description', 'tags', 'extension', where 'tags' is a
@@ -139,7 +138,7 @@ def partition_basename(file_path):
     """
     sanity.check_internal_bytestring(FILENAME_TAG_SEPARATOR)
 
-    prefix, suffix = disk.split_basename(file_path)
+    prefix, suffix = disk.split_basename(filepath)
 
     timestamp = FILENAMEPART_TS_REGEX.match(prefix)
     if timestamp:
@@ -151,7 +150,7 @@ def partition_basename(file_path):
             description = prefix.strip()
         else:
             description = None
-        tags = []
+        tags = list()
     else:
         # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
         prefix_tags_list = re.split(FILENAME_TAG_SEPARATOR, prefix, 1)
@@ -159,22 +158,30 @@ def partition_basename(file_path):
         try:
             tags = prefix_tags_list[1].split(BETWEEN_TAG_SEPARATOR)
         except IndexError:
-            tags = []
+            tags = list()
         else:
             tags = [t.strip() for t in tags if t]
 
     # Encoding boundary;  Internal filename bytestring --> internal Unicode str
-    def decode_if_not_none_or_empty(bytestring_maybe):
+    def _decode_bytestring(bytestring_maybe):
         if bytestring_maybe:
             return enc.decode_(bytestring_maybe)
-        return None
+        return ''
 
-    timestamp = decode_if_not_none_or_empty(timestamp)
-    description = decode_if_not_none_or_empty(description)
-    tags = [decode_if_not_none_or_empty(t) for t in tags]
-    suffix = decode_if_not_none_or_empty(suffix)
+    if timestamp:
+        # Set timestamp to None instead of empty string here so that it can be
+        # detected and skipped when converting values to the "internal format".
+        # Coercing None with 'AW_TIMEDATE' raises a 'AWTypeError' exception,
+        # which would happen for every file that do not have a "timestamp"
+        # filetags part.
+        timestamp = _decode_bytestring(timestamp)
+    else:
+        timestamp = None
 
-    # return timestamp, description, tags or [], suffix
+    description = _decode_bytestring(description)
+    tags = [_decode_bytestring(t) for t in tags]
+    suffix = _decode_bytestring(suffix)
+
     return FiletagsParts(timestamp, description, tags, suffix)
 
 

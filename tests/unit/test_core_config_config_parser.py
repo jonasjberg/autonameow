@@ -21,10 +21,8 @@
 
 import re
 import sys
-from unittest import (
-    skipIf,
-    TestCase
-)
+from unittest import skipIf, TestCase
+from unittest.mock import Mock, patch
 
 try:
     import yaml
@@ -35,18 +33,23 @@ except ImportError:
           file=sys.stderr)
 
 import unit.utils as uu
+import unit.constants as uuconst
 from core import constants as C
-from core.config.config_parser import (
-    ConfigurationParser,
-    ConfigurationRuleParser,
-    ConfigurationOptionsParser,
-    INITIAL_CONFIGURATION_OPTIONS,
-    parse_versioning
-)
-from core.exceptions import (
-    ConfigurationSyntaxError,
-    EncodingBoundaryViolation,
-)
+from core.config.config_parser import ConfigurationOptionsParser
+from core.config.config_parser import ConfigurationParser
+from core.config.config_parser import ConfigurationRuleParser
+from core.config.config_parser import INITIAL_CONFIGURATION_OPTIONS
+from core.config.config_parser import parse_rule_conditions
+from core.config.config_parser import parse_rule_ranking_bias
+from core.config.config_parser import parse_versioning
+from core.config.default_config import DEFAULT_CONFIG
+from core.exceptions import ConfigError
+from core.exceptions import ConfigurationSyntaxError
+from core.exceptions import EncodingBoundaryViolation
+
+
+MOCK_REGISTRY = Mock()
+MOCK_REGISTRY.might_be_resolvable.return_value = True
 
 
 def yaml_unavailable():
@@ -54,152 +57,168 @@ def yaml_unavailable():
 
 
 class TestConfigurationParser(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        uu.init_provider_registry()
-
     def setUp(self):
         self.p = ConfigurationParser()
 
-    def test__load_reusable_nametemplates_returns_empty_if_missing(self):
-        config_dict = dict()
-        actual = self.p._load_reusable_nametemplates(config_dict)
-        expect = dict()
-        self.assertEqual(expect, actual)
+    @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
+    def test_parsed_default_config_is_not_none(self):
+        actual = self.p.parse(DEFAULT_CONFIG)
+        self.assertIsNotNone(actual)
 
-    def test__load_reusable_nametemplates_returns_empty_if_wrong_type(self):
-        config_dict = {'NAME_TEMPLATES': ['foo']}
-        actual = self.p._load_reusable_nametemplates(config_dict)
-        expect = dict()
-        self.assertEqual(expect, actual)
+    @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
+    def test_parsed_default_config_has_expected_options(self):
+        actual = self.p.parse(DEFAULT_CONFIG)
+        actual_options = actual.options
+        self.assertIsInstance(actual_options, dict)
+        for section in [
+            'DATETIME_FORMAT', 'FILESYSTEM', 'FILETAGS_OPTIONS',
+            'NAME_TEMPLATE_FIELDS', 'PERSISTENCE', 'POST_PROCESSING'
+        ]:
+            self.assertIn(section, actual_options)
+            self.assertIsInstance(actual_options[section], dict)
 
-    def test__load_reusable_nametemplates_returns_empty_if_none(self):
-        config_dict = {'NAME_TEMPLATES': None}
-        actual = self.p._load_reusable_nametemplates(config_dict)
-        expect = dict()
-        self.assertEqual(expect, actual)
 
-    def test__load_reusable_nametemplates_returns_empty_if_empty_dict(self):
-        config_dict = {'NAME_TEMPLATES': dict()}
-        actual = self.p._load_reusable_nametemplates(config_dict)
-        expect = dict()
-        self.assertEqual(expect, actual)
+class TestConfigurationParserLoadReusableNameTemplates(TestCase):
+    def setUp(self):
+        self.p = ConfigurationParser()
 
-    def test__load_reusable_nametemplates_returns_one_as_expected(self):
-        config_dict = {
-            'NAME_TEMPLATES': {
+    def _assert_returns(self, expected, given):
+        actual = self.p._load_reusable_name_templates(given)
+        self.assertEqual(expected, actual)
+
+    def test_returns_empty_if_given_config_dict_is_none(self):
+        self._assert_returns(dict(), given=dict())
+
+    def test_returns_empty_if_given_config_dict_is_empty_dict(self):
+        self._assert_returns(dict(), given=dict())
+
+    def test_returns_empty_if_given_name_templates_is_none(self):
+        self._assert_returns(dict(), given={'NAME_TEMPLATES': None})
+
+    def test_returns_empty_if_given_name_templates_dict_is_empty(self):
+        self._assert_returns(dict(), given={'NAME_TEMPLATES': dict()})
+
+    def test_raises_exception_if_given_name_templates_is_not_type_dict(self):
+        for given in [
+            object(),
+            [None], ['foo'], [1],
+            True,
+        ]:
+            with self.assertRaises(ConfigurationSyntaxError):
+                _ = self.p._load_reusable_name_templates({'NAME_TEMPLATES': given})
+
+    def test_returns_one_as_expected(self):
+        self._assert_returns(
+            expected={
                 'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}'
+            },
+            given={
+                'NAME_TEMPLATES': {
+                    'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}'
+                }
             }
-        }
-        actual = self.p._load_reusable_nametemplates(config_dict)
-        expect = {
-            'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}'
-        }
-        self.assertEqual(expect, actual)
+        )
 
-    def test__load_reusable_nametemplates_returns_two_as_expected(self):
-        config_dict = {
-            'NAME_TEMPLATES': {
+    def test_returns_two_as_expected(self):
+        self._assert_returns(
+            expected={
                 'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}',
                 'default_photo': '{datetime} {description} -- {tags}.{extension}'
+            },
+            given={
+                'NAME_TEMPLATES': {
+                    'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}',
+                    'default_photo': '{datetime} {description} -- {tags}.{extension}'
+                }
             }
-        }
-        actual = self.p._load_reusable_nametemplates(config_dict)
-        expect = {
-            'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}',
-            'default_photo': '{datetime} {description} -- {tags}.{extension}'
-        }
-        self.assertEqual(expect, actual)
+        )
 
-    def test__load_template_fields_returns_empty_if_missing(self):
-        config_dict = dict()
-        actual = self.p._load_template_fields(config_dict)
-        expect = dict()
-        self.assertEqual(expect, actual)
 
-    def test__load_template_fields_returns_empty_if_wrong_type(self):
-        config_dict = {'NAME_TEMPLATE_FIELDS': ['foo']}
-        actual = self.p._load_template_fields(config_dict)
-        expect = dict()
-        self.assertEqual(expect, actual)
+class TestConfigurationParserLoadPlaceholderFieldOptions(TestCase):
+    def setUp(self):
+        self.p = ConfigurationParser()
 
-    def test__load_template_fields_returns_empty_if_none(self):
-        config_dict = {'NAME_TEMPLATE_FIELDS': None}
-        actual = self.p._load_template_fields(config_dict)
-        expect = dict()
-        self.assertEqual(expect, actual)
+    def _assert_returns(self, expected, given):
+        actual = self.p._load_placeholder_field_options(given)
+        self.assertEqual(expected, actual)
 
-    def test__load_template_fields_returns_empty_if_empty_dict(self):
-        config_dict = {'NAME_TEMPLATE_FIELDS': dict()}
-        actual = self.p._load_template_fields(config_dict)
-        expect = dict()
-        self.assertEqual(expect, actual)
+    def test_returns_empty_if_missing(self):
+        self._assert_returns(dict(), given=dict())
 
-    def test__load_template_fields_returns_one_as_expected(self):
-        config_dict = {
-            'NAME_TEMPLATE_FIELDS': {
-                'publisher': {
-                    'candidates': {
-                        'FeedBooks': [
-                            'This book is brought to you by Feedbooks',
-                            'http://www.feedbooks.com'
-                        ]
+    def test_returns_empty_if_wrong_type(self):
+        self._assert_returns(dict(), given={'NAME_TEMPLATE_FIELDS': ['foo']})
+
+    def test_returns_empty_if_none(self):
+        self._assert_returns(dict(), given={'NAME_TEMPLATE_FIELDS': None})
+
+    def test_returns_empty_if_empty_dict(self):
+        self._assert_returns(dict(), given={'NAME_TEMPLATE_FIELDS': dict()})
+
+    def test_returns_one_as_expected(self):
+        self._assert_returns(
+            expected={
+                'NAME_TEMPLATE_FIELDS': {
+                    'publisher': {
+                            'candidates': {
+                                'FeedBooks': [
+                                    re.compile('This book is brought to you by Feedbooks', re.IGNORECASE),
+                                    re.compile('http://www.feedbooks.com', re.IGNORECASE)
+                                ]
+                            }
+                        }
+                    }
+                },
+            given={
+                'NAME_TEMPLATE_FIELDS': {
+                    'publisher': {
+                        'candidates': {
+                            'FeedBooks': [
+                                'This book is brought to you by Feedbooks',
+                                'http://www.feedbooks.com'
+                            ]
+                        }
                     }
                 }
             }
-        }
-        actual = self.p._load_template_fields(config_dict)
-        expect = {
-            'NAME_TEMPLATE_FIELDS': {
-                'publisher': {
-                    'candidates': {
-                        'FeedBooks': [
-                            re.compile('This book is brought to you by Feedbooks', re.IGNORECASE),
-                            re.compile('http://www.feedbooks.com', re.IGNORECASE)
-                        ]
-                    }
-                }
-            }
-        }
-        self.assertEqual(expect, actual)
+        )
 
-    def test__load_template_fields_returns_two_as_expected(self):
-        config_dict = {
-            'NAME_TEMPLATE_FIELDS': {
-                'publisher': {
-                    'candidates': {
-                        'FeedBooks': [
-                            'This book is brought to you by Feedbooks',
-                            'http://www.feedbooks.com'
-                        ],
-                        'ProjectGutenberg': [
-                            'Project Gutenberg',
-                            'www.gutenberg.net'
-                        ]
+    def test_returns_two_as_expected(self):
+        self._assert_returns(
+            expected={
+                'NAME_TEMPLATE_FIELDS': {
+                    'publisher': {
+                        'candidates': {
+                            'FeedBooks': [
+                                re.compile('This book is brought to you by Feedbooks', re.IGNORECASE),
+                                re.compile('http://www.feedbooks.com', re.IGNORECASE)
+                            ],
+                            'ProjectGutenberg': [
+                                re.compile('Project Gutenberg', re.IGNORECASE),
+                                re.compile('www.gutenberg.net', re.IGNORECASE)
+                            ]
+                        }
+                    }
+                }
+            },
+            given={
+                'NAME_TEMPLATE_FIELDS': {
+                    'publisher': {
+                        'candidates': {
+                            'FeedBooks': [
+                                'This book is brought to you by Feedbooks',
+                                'http://www.feedbooks.com'
+                            ],
+                            'ProjectGutenberg': [
+                                'Project Gutenberg',
+                                'www.gutenberg.net'
+                            ]
+                        }
                     }
                 }
             }
-        }
-        actual = self.p._load_template_fields(config_dict)
-        expect = {
-            'NAME_TEMPLATE_FIELDS': {
-                'publisher': {
-                    'candidates': {
-                        'FeedBooks': [
-                            re.compile('This book is brought to you by Feedbooks', re.IGNORECASE),
-                            re.compile('http://www.feedbooks.com', re.IGNORECASE)
-                        ],
-                        'ProjectGutenberg': [
-                            re.compile('Project Gutenberg', re.IGNORECASE),
-                            re.compile('www.gutenberg.net', re.IGNORECASE)
-                        ]
-                    }
-                }
-            }
-        }
-        self.assertEqual(expect, actual)
+        )
 
-    def test__load_template_fields_raises_exception_given_invalid_field(self):
+    def test_raises_exception_given_invalid_field(self):
         config_dict = {
             'NAME_TEMPLATE_FIELDS': {
                 '______': {
@@ -210,9 +229,9 @@ class TestConfigurationParser(TestCase):
             }
         }
         with self.assertRaises(ConfigurationSyntaxError):
-            _ = self.p._load_template_fields(config_dict)
+            _ = self.p._load_placeholder_field_options(config_dict)
 
-    def test__load_template_fields_raises_exception_given_bad_regex(self):
+    def test_raises_exception_given_bad_regex(self):
         config_dict = {
             'NAME_TEMPLATE_FIELDS': {
                 'title': {
@@ -223,40 +242,57 @@ class TestConfigurationParser(TestCase):
             }
         }
         with self.assertRaises(ConfigurationSyntaxError):
-            _ = self.p._load_template_fields(config_dict)
+            _ = self.p._load_placeholder_field_options(config_dict)
 
 
 @skipIf(*yaml_unavailable())
 class TestDefaultConfigFromFile(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.config_path_unicode = uu.abspath_testconfig()
+        cls.config_path_bytestring = uu.normpath(cls.config_path_unicode)
+
     def setUp(self):
         self.config_parser = ConfigurationParser()
 
-        self.config_path_unicode = uu.abspath_testconfig()
-        uu.file_exists(self.config_path_unicode)
-        uu.path_is_readable(self.config_path_unicode)
-        self.assertTrue(uu.is_internalstring(self.config_path_unicode))
+    def _assert_valid_existing_file(self, filepath):
+        self.assertTrue(uu.file_exists(filepath))
+        self.assertTrue(uu.path_is_readable(filepath))
 
-        self.config_path_bytestring = uu.normpath(self.config_path_unicode)
-        uu.file_exists(self.config_path_bytestring)
-        uu.path_is_readable(self.config_path_bytestring)
+    def test_setup(self):
+        self._assert_valid_existing_file(self.config_path_unicode)
+        self.assertTrue(uu.is_internalstring(self.config_path_unicode))
+        self._assert_valid_existing_file(self.config_path_bytestring)
         self.assertTrue(uu.is_internalbytestring(self.config_path_bytestring))
 
+    @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
     def test_loads_default_config_from_bytestring_path(self):
         config = self.config_parser.from_file(self.config_path_bytestring)
         self.assertIsNotNone(config)
 
-    def test_loading_unicode_path_raises_exception(self):
+    def test_raises_exception_given_unicode_path(self):
         with self.assertRaises(EncodingBoundaryViolation):
             _ = self.config_parser.from_file(self.config_path_unicode)
 
+    def test_raises_config_error_if_given_path_to_empty_file(self):
+        filepath_empty_file = uu.normpath(uu.abspath_testfile('empty'))
+        with self.assertRaises(ConfigError):
+            _ = self.config_parser.from_file(filepath_empty_file)
+
+    def test_raises_config_error_if_given_path_to_png_image_file(self):
+        filepath_empty_file = uu.normpath(uu.abspath_testfile('empty'))
+        with self.assertRaises(ConfigError):
+            _ = self.config_parser.from_file(filepath_empty_file)
+
 
 class TestConfigurationRuleParser(TestCase):
+    @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
     def test_parses_rules_from_default_config_given_all_nametemplates(self):
         from core.config.default_config import DEFAULT_CONFIG
         given_rules = DEFAULT_CONFIG.get('RULES')
         self.assertIsNotNone(given_rules)
 
-        reusable_nametemplates = {
+        reusable_name_templates = {
             'NAME_TEMPLATE_FIELDS': {
                 'publisher': {
                     'candidates': {
@@ -268,7 +304,7 @@ class TestConfigurationRuleParser(TestCase):
                 }
             }
         }
-        rule_parser = ConfigurationRuleParser(reusable_nametemplates)
+        rule_parser = ConfigurationRuleParser(reusable_name_templates)
         actual = rule_parser.parse(given_rules)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, list)
@@ -278,7 +314,7 @@ class TestConfigurationRuleParser(TestCase):
     def test_returns_expected_given_empty_dict(self):
         rule_parser = ConfigurationRuleParser()
         given_rules = dict()
-        expect = []
+        expect = list()
         self.assertEqual(expect, rule_parser.parse(given_rules))
 
     def test_raises_exception_given_non_dict(self):
@@ -411,12 +447,84 @@ class TestConfigurationOptionsParserTryLoadPersistenceOption(TestCase):
                expect=C.DEFAULT_PERSISTENCE_DIR_ABSPATH)
 
 
+class TestParseRuleConditions(TestCase):
+    def _assert_parsed_result(self, expect_uri, expect_expression, given):
+        actual = parse_rule_conditions(given)
+        self.assertEqual(expect_uri, actual[0].meowuri)
+        self.assertEqual(expect_expression, actual[0].expression)
+
+    def test_parse_condition_filesystem_pathname_is_valid(self):
+        raw_conditions = {
+            uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'
+        }
+        actual = parse_rule_conditions(raw_conditions)
+        self.assertEqual(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL,
+                         actual[0].meowuri)
+        self.assertEqual('~/.config',
+                         actual[0].expression)
+
+        self._assert_parsed_result(
+            expect_uri=uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL,
+            expect_expression='~/.config',
+            given={uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'}
+        )
+
+    def test_parse_condition_contents_mime_type_is_valid(self):
+        raw_conditions = {
+            uuconst.MEOWURI_FS_XPLAT_MIMETYPE: 'image/jpeg'
+        }
+        actual = parse_rule_conditions(raw_conditions)
+        self.assertEqual(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, actual[0].meowuri)
+        self.assertEqual('image/jpeg', actual[0].expression)
+
+    def test_parse_condition_contents_metadata_is_valid(self):
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
+        raw_conditions = {
+            uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL: 'Defined',
+        }
+        actual = parse_rule_conditions(raw_conditions)
+        self.assertEqual(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
+                         actual[0].meowuri)
+        self.assertEqual('Defined',
+                         actual[0].expression)
+
+    def test_parse_empty_conditions_is_allowed(self):
+        raw_conditions = dict()
+        _ = parse_rule_conditions(raw_conditions)
+
+
+class TestParseRuleRankingBias(TestCase):
+    def test_negative_value_raises_configuration_syntax_error(self):
+        for given in [-1, -0.1, -0.01, -0.0000000001]:
+            with self.assertRaises(ConfigurationSyntaxError):
+                _ = parse_rule_ranking_bias(given)
+
+    def test_value_greater_than_one_raises_configuration_syntax_error(self):
+        for given in [2, 1.1, 1.00000000001]:
+            with self.assertRaises(ConfigurationSyntaxError):
+                _ = parse_rule_ranking_bias(given)
+
+    def test_unexpected_type_value_raises_configuration_syntax_error(self):
+        for given in ['', object()]:
+            with self.assertRaises(ConfigurationSyntaxError):
+                _ = parse_rule_ranking_bias(given)
+
+    def test_none_value_returns_default_weight(self):
+        actual = parse_rule_ranking_bias(None)
+        self.assertEqual(C.DEFAULT_RULE_RANKING_BIAS, actual)
+
+    def test_value_within_range_zero_to_one_returns_value(self):
+        for given in [0, 0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 1]:
+            self.assertEqual(given, parse_rule_ranking_bias(given))
+
+
 class TestValidateVersionNumber(TestCase):
     def test_valid_version_number_returns_expected(self):
         def _assert_equal(test_input, expected):
             actual = parse_versioning(test_input)
             self.assertIsInstance(actual, tuple)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
 
         _assert_equal('0.0.0', (0, 0, 0))
         _assert_equal('0.4.6', (0, 4, 6))

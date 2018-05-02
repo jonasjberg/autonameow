@@ -24,18 +24,14 @@ import re
 import unicodedata
 from datetime import datetime
 
-from core import (
-    exceptions,
-    namebuilder,
-    types,
-)
+from core import exceptions
+from core import namebuilder
 from core.model import genericfields as gf
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
-from util import (
-    mimemagic,
-    sanity
-)
+from util import coercers
 from util import encoding as enc
+from util import mimemagic
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -83,7 +79,7 @@ class ConfigFieldParser(object):
     # part during comparison.
     #
     # Example:  ['filesystem.basename.*', 'filesystem.*.extension]
-    APPLIES_TO_MEOWURIS = []
+    APPLIES_TO_MEOWURIS = list()
 
     # Whether to allow multiple expressions or not.
     ALLOW_MULTIVALUED_EXPRESSION = None
@@ -192,8 +188,8 @@ class BooleanConfigFieldParser(ConfigFieldParser):
     @staticmethod
     def is_valid_boolean(expression):
         try:
-            types.AW_BOOLEAN(expression)
-        except types.AWTypeError:
+            coercers.AW_BOOLEAN(expression)
+        except coercers.AWTypeError:
             return False
         else:
             return True
@@ -201,9 +197,9 @@ class BooleanConfigFieldParser(ConfigFieldParser):
     @staticmethod
     def evaluate_boolean_operation(expression, test_data):
         try:
-            a = types.AW_BOOLEAN(expression)
-            b = types.AW_BOOLEAN(test_data)
-        except types.AWTypeError:
+            a = coercers.AW_BOOLEAN(expression)
+            b = coercers.AW_BOOLEAN(test_data)
+        except coercers.AWTypeError:
             # TODO: [TD0149] Make sure this case is handled properly.
             raise
         else:
@@ -313,13 +309,13 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         if not expression:
             return False
 
-        string_expr = types.force_string(expression)
-        if not string_expr:
+        str_expression = coercers.force_string(expression)
+        if not str_expression:
             return False
 
         try:
             # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
-            if re.match(r'^([a-z]+|\*)/([a-z0-9\-.+]+|\*)$', string_expr):
+            if re.match(r'^([a-z]+|\*)/([a-z0-9\-.+]+|\*)$', str_expression):
                 return True
         except TypeError:
             pass
@@ -403,7 +399,7 @@ NAMETEMPLATEFIELDS_DUMMYDATA = dict.fromkeys(
 
 class NameTemplateConfigFieldParser(ConfigFieldParser):
     # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
-    APPLIES_TO_MEOWURIS = []
+    APPLIES_TO_MEOWURIS = list()
     ALLOW_MULTIVALUED_EXPRESSION = False
 
     @staticmethod
@@ -440,18 +436,6 @@ def get_instantiated_field_parsers():
         A list of class instances, one per subclass of "ConfigFieldParser".
     """
     return [p() for p in globals()['ConfigFieldParser'].__subclasses__()]
-
-
-def available_field_parsers():
-    """
-    Get a list of all available field parser classes, I.E. all classes
-    that inherit from the 'ConfigFieldParser' class.
-
-    Returns:
-        A list of all field parser classes.
-    """
-    return [klass for klass in
-            globals()['ConfigFieldParser'].__subclasses__()]
 
 
 def suitable_field_parser_for(meowuri):

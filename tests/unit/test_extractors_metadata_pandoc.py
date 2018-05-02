@@ -19,29 +19,22 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skip,
-    skipIf,
-    TestCase,
-)
+from unittest import skip, skipIf, TestCase
 
 import unit.utils as uu
 from extractors.metadata import PandocMetadataExtractor
-from extractors.metadata.pandoc import (
-    convert_document_to_json_with_pandoc,
-    extract_document_metadata_with_pandoc,
-    parse_pandoc_json
+from extractors.metadata.pandoc import convert_document_to_json_with_pandoc
+from extractors.metadata.pandoc import extract_document_metadata_with_pandoc
+from extractors.metadata.pandoc import parse_pandoc_json
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
+from unit.case_extractors import CaseExtractorOutputTypes
+
+
+UNMET_DEPENDENCIES = (
+    not PandocMetadataExtractor.dependencies_satisfied(),
+    'Extractor dependencies not satisfied'
 )
-
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput,
-    CaseExtractorOutputTypes
-)
-
-
-unmet_dependencies = not PandocMetadataExtractor.check_dependencies()
-dependency_error = 'Extractor dependencies not satisfied'
 
 
 EXPECTED_PANDOC_JSON_FOR_SAMPLE_DOT_MD = [
@@ -91,20 +84,20 @@ EXPECTED_PANDOC_JSON_FOR_SAMPLE_DOT_MD = [
 ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPandocMetadataExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
     EXTRACTOR_NAME = 'PandocMetadataExtractor'
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPandocMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
                                              TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('sample.md')
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPandocMetadataExtractorOutputTestFileA(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
@@ -115,7 +108,7 @@ class TestPandocMetadataExtractorOutputTestFileA(CaseExtractorOutput,
     ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPandocMetadataExtractorOutputTestFileB(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
@@ -128,7 +121,7 @@ class TestPandocMetadataExtractorOutputTestFileB(CaseExtractorOutput,
     ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPandocMetadataExtractorOutputTestFileC(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor

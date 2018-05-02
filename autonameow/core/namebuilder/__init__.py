@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from .builder import (
-    build,
-    populate_name_template
-)
+from .builder import build
+from .builder import populate_name_template
+from .postprocess import FilenamePostprocessor

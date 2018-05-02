@@ -20,17 +20,21 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from collections import defaultdict
 
-from core.view.cli import ColumnFormatter
+from core import event
+from core import logs
 from util import encoding as enc
-from util import (
-    sanity,
-    textutils
-)
+from util import sanity
 from util.text import truncate_text
 
 
 log = logging.getLogger(__name__)
+
+
+def _get_column_formatter():
+    from core.view.cli import ColumnFormatter
+    return ColumnFormatter()
 
 
 class QueryResponseFailure(object):
@@ -41,17 +45,16 @@ class QueryResponseFailure(object):
 
     def __repr__(self):
         if self.fileobject:
-            fileobject_str = self.fileobject.hash_partial
+            str_fileobject = repr(self.fileobject)
         else:
-            fileobject_str = 'unknown FileObject'
+            str_fileobject = '(Unknown FileObject)'
 
         if self.msg:
             _msg = ' :: {!s}'.format(self.msg)
         else:
             _msg = ''
 
-        return '[{:8.8}]->[{!s}]{!s}'.format(
-            fileobject_str, self.uri, _msg)
+        return '{}->[{!s}]{!s}'.format(str_fileobject, self.uri, _msg)
 
     def __str__(self):
         return 'Failed query ' + repr(self)
@@ -92,15 +95,44 @@ class DataBundle(object):
                 return True
         return False
 
-    def field_mapping_probability(self, field):
+    def field_mapping_weight(self, field):
         if not self.maps_field(field):
             return 0.0
 
         for mapping in self.mapped_fields:
             if field == mapping.field:
-                return float(mapping.probability)
+                return float(mapping.weight)
 
         return 0.0
+
+    def __str__(self):
+        return '<{!s}({!s})>'.format(self.__class__.__name__, self.value)
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+
+        return bool(
+            self.value == other.value
+            and self.coercer == other.coercer
+            and self.source == other.source
+            and self.generic_field == other.generic_field
+            and self.mapped_fields == other.mapped_fields
+            and self.multivalued == other.multivalued
+        )
+
+    def __hash__(self):
+        hash_mapped_fields = sum(hash(f) for f in self.mapped_fields)
+
+        if isinstance(self.value, list):
+            hash_value = sum(hash(v) for v in self.value)
+        else:
+            hash_value = hash(self.value)
+
+        return hash(
+            (hash_value, self.coercer, self.source, self.generic_field,
+             hash_mapped_fields, self.multivalued)
+        )
 
 
 class Repository(object):
@@ -109,36 +141,52 @@ class Repository(object):
     of the program. The repository stores data per file, cataloguing the
     individual data elements using "MeowURIs".
 
+    The first level of the nested structure uses instances of 'FileObject'
+    as keys into containing structures keyed by instances of 'MeowURI'.
+    Actual data "values" are stored in these dictionary structures,
+    along with additional "metainfo" about the data "value".
+
     The internal storage structure is laid out like this:
 
             STORAGE = {
-                'fileobject_A': {
-                    'meowuri_a': 1
-                    'meowuri_b': 'foo'
-                    'meowuri_c': (...)
+                'fileObject_A': {
+                    'MeowURI_A': datadict()
+                    'MeowURI_B': datadict()
                 }
-                'fileobject_B': {
-                    'meowuri_a': ['bar']
-                    'meowuri_b': [2, 1]
+                'fileObject_B': {
+                    'MeowURI_A': datadict()
                 }
             }
 
-    The first level of the nested structure uses instances of 'fileobject' as
-    keys into containing structures that use instances of 'MeowURI' as keys.
-    Data is stored as dictionaries, with the actual data value along with
-    additional "metainfo".
+    And the inner 'datadict' dictionaries are laid out like this:
+
+            datadict = {
+                'coercer': <subclass of BaseCoercer>,
+                'generic_field': <subclass of GenericField>,
+                'mapped_fields: [
+                     <WeightedMapping>,
+                     <WeightedMapping>,
+                     ...
+                ],
+                'multivalued': False,
+                'source': source provider class name as a string,
+                'value': Actual data value, as a primitive type or 'datetime'
+            }
 
     NOTE: Data is passed in as dicts but returned as instances of 'DataBundle'!
     """
     def __init__(self):
-        self.data = dict()
-        self.log = logging.getLogger(
-            '{!s}.{!s}'.format(__name__, self.__module__)
-        )
+        self._data = dict()
+
+        # Stores references from "generic" to "explicit" URIs.
+        # Outer dict is keyed by instances of 'FileObject', storing
+        # defaultdicts keyed by "generic" URIs that in turn store sets
+        # of "explicit" URIs.
+        self._generic_to_explicit_uri_map = dict()
 
     def shutdown(self):
-        # TODO: Any shutdown tasks goes here ..
-        pass
+        self._data = dict()
+        self._generic_to_explicit_uri_map = dict()
 
     def store(self, fileobject, meowuri, data):
         """
@@ -148,84 +196,73 @@ class Repository(object):
         defined by the given 'meowuri'.
         """
         sanity.check_isinstance_meowuri(meowuri)
+        assert not meowuri.is_generic
 
         if not data:
             log.warning('Attempted to add empty data with meowURI'
                         ' "{!s}"'.format(meowuri))
             return
 
-        if isinstance(data, list):
-            data_sample = data[0]
-        else:
-            data_sample = data
-        sanity.check_isinstance(data_sample, dict)
-
+        sanity.check_isinstance(data, dict)
         self._store(fileobject, meowuri, data)
-        self._store_generic(fileobject, data)
+        self._store_generic(fileobject, meowuri, data)
 
-    def _store_generic(self, fileobject, data):
+    def _store_generic(self, fileobject, uri, data):
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
-        def __store(_data):
-            _generic_field = _data.get('generic_field')
-            if _generic_field:
-                assert not isinstance(_generic_field, str), str(_data)
-                _gen_uri = _data['generic_field'].uri()
-                self._store(fileobject, _gen_uri, _data)
-
-        if isinstance(data, list):
-            for d in data:
-                __store(d)
-        else:
-            __store(data)
+        data_generic_field = data.get('generic_field')
+        if data_generic_field:
+            assert hasattr(data_generic_field, 'uri')
+            assert callable(data_generic_field.uri)
+            generic_field_uri = data_generic_field.uri()
+            self._map_generic_to_explicit_uri(fileobject, generic_field_uri, uri)
 
     def _store(self, fileobject, meowuri, data):
-        if __debug__:
-            if meowuri.matchglobs(['generic.contents.text', 'extractor.text.*']):
-                _debugmsg_data = dict(data)
-                _truncated_value = truncate_text(_debugmsg_data['value'])
-                _debugmsg_data['value'] = _truncated_value
-            else:
-                _debugmsg_data = data
+        if logs.DEBUG:
+            _data_value = data.get('value')
+            if _is_full_text_meowuri(meowuri):
+                assert isinstance(_data_value, str), (
+                    'Expect data stored with this MeowURI to be type "str"'
+                )
+                _data_value = _truncate_text(_data_value)
 
-            log.debug('Storing [{:8.8}]->[{!s}] :: ({}) {!s}'.format(
-                fileobject.hash_partial,
-                meowuri,
-                type(_debugmsg_data.get('value')),
-                _debugmsg_data.get('value')
+            log.debug('Storing {!r}->[{!s}] :: {} {!s}'.format(
+                fileobject, meowuri, type(_data_value), _data_value
             ))
-        try:
-            any_existing = self.__get_data(fileobject, meowuri)
-        except KeyError:
-            pass
-        else:
-            if any_existing is not None:
-                if not isinstance(any_existing, list):
-                    any_existing = [any_existing]
-                if not isinstance(data, list):
-                    data = [data]
 
-                data = any_existing + data
+        any_existing = self.__get_data(fileobject, meowuri)
+        assert not any_existing, (
+            'Would have clobbered value for URI {!s}'.format(meowuri)
+        )
 
         self.__store_data(fileobject, meowuri, data)
 
-    def query_mapped(self, fileobject, field):
-        out = []
+    def _map_generic_to_explicit_uri(self, fileobject, generic_uri, explicit_uri):
+        if fileobject not in self._generic_to_explicit_uri_map:
+            self._generic_to_explicit_uri_map[fileobject] = defaultdict(set)
 
-        _data = self.data.get(fileobject)
-        for meowuri, data in _data.items():
-            if isinstance(data, list):
-                for d in data:
-                    if maps_field(d, field):
-                        # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
-                        out.append(
-                            (meowuri, DataBundle.from_dict(d))
-                        )
-            else:
-                if maps_field(data, field):
-                    # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
-                    out.append(
-                        (meowuri, DataBundle.from_dict(data))
-                    )
+        if logs.DEBUG:
+            log.debug('Mapping {!r} generic MeowURI {!s} -> {!s}'.format(
+                fileobject, generic_uri, explicit_uri
+            ))
+        self._generic_to_explicit_uri_map[fileobject][generic_uri].add(explicit_uri)
+
+    def _get_explicit_uris_from_generic_uri(self, fileobject, generic_uri):
+        if fileobject not in self._generic_to_explicit_uri_map:
+            return set()
+
+        return self._generic_to_explicit_uri_map[fileobject].get(generic_uri)
+
+    def query_mapped(self, fileobject, field):
+        out = list()
+
+        fileobject_data = self._data.get(fileobject)
+        for meowuri, datadict in fileobject_data.items():
+            assert isinstance(datadict, dict)
+            if maps_field(datadict, field):
+                # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
+                out.append(
+                    (meowuri, DataBundle.from_dict(datadict))
+                )
 
         return out
 
@@ -233,130 +270,183 @@ class Repository(object):
         if not meowuri:
             return QueryResponseFailure(msg='did not include a MeowURI')
 
-        if __debug__:
-            log.debug('Got query [{:8.8}]->[{!s}]'.format(
-                fileobject.hash_partial, meowuri
-            ))
+        log.debug('Got query {!r}->[{!s}]'.format(fileobject, meowuri))
 
-        data = self.__get_data(fileobject, meowuri)
+        meowuri_is_generic = meowuri.is_generic
+        if meowuri_is_generic:
+            data = self._query_generic(fileobject, meowuri)
+        else:
+            data = self._query_explicit(fileobject, meowuri)
+
         if data is None:
             return QueryResponseFailure()
 
-        # TODO: Store and query "generic" data separately?
-        #       Alternatively store "generic" only as "references"?
-        if isinstance(data, list):
+        if meowuri_is_generic:
+            assert isinstance(data, list)
             return [DataBundle.from_dict(d) for d in data]
+
+        assert isinstance(data, dict)
         return DataBundle.from_dict(data)
+
+    def _query_explicit(self, fileobject, uri):
+        return self.__get_data(fileobject, uri)
+
+    def _query_generic(self, fileobject, uri):
+        explicit_uris = self._get_explicit_uris_from_generic_uri(fileobject, uri)
+        if not explicit_uris:
+            return None
+
+        data_list = list()
+        for explicit_uri in explicit_uris:
+            d = self.__get_data(fileobject, explicit_uri)
+            if d:
+                data_list.append(d)
+
+        return data_list or None
 
     def remove(self, fileobject):
         # TODO: [TD0131] Limit repository size! Do not remove everything!
         # TODO: [TD0131] Keep all but very bulky data like extracted text.
-        self.data.pop(fileobject)
+        if fileobject in self._data:
+            self._data.pop(fileobject)
+        if fileobject in self._generic_to_explicit_uri_map:
+            self._generic_to_explicit_uri_map.pop(fileobject)
 
     def __get_data(self, fileobject, meowuri):
-        if fileobject in self.data:
-            return self.data[fileobject].get(meowuri)
+        if fileobject in self._data:
+            return self._data[fileobject].get(meowuri)
         return None
 
     def __store_data(self, fileobject, meowuri, data):
-        if fileobject not in self.data:
-            self.data[fileobject] = dict()
-        self.data[fileobject][meowuri] = data
+        if fileobject not in self._data:
+            self._data[fileobject] = dict()
+        self._data[fileobject][meowuri] = data
 
     def human_readable_contents(self):
-        out = []
-        for fileobject, fileobject_data in self.data.items():
+        out = list()
+        for fileobject, fileobject_data in self._data.items():
             out.append('FileObject basename: "{!s}"'.format(fileobject))
 
             _abspath = enc.displayable_path(fileobject.abspath)
             out.append('FileObject absolute path: "{!s}"'.format(_abspath))
 
             out.append('')
-            out.append(self._machine_readable_contents(fileobject_data))
+            out.append(self._prettyprint_fileobject_data(fileobject_data))
+            out.append('')
+            out.append(self._prettyprint_fileobject_generic_to_explicit_uri_map(fileobject))
             out.append('\n')
 
         return '\n'.join(out)
 
     @staticmethod
-    def _machine_readable_contents(data):
-        # First pass -- handle encoding and truncating extracted text.
-        temp = dict()
+    def _prettyprint_fileobject_data(data):
+        # First pass --- handle encoding and truncate extracted text.
+        first_pass = dict()
         for meowuri, datadict in sorted(data.items()):
             if isinstance(datadict, list):
-                log.debug('TODO: Improve robustness of handling this case')
-                temp_list = []
+                temp_list = list()
                 for d in datadict:
                     sanity.check_isinstance(d, dict)
-                    v = d.get('value')
-                    if isinstance(v, bytes):
-                        temp_list.append(enc.displayable_path(v))
-                    elif meowuri.matchglobs(['generic.contents.text',
-                                             'extractor.text.*']):
+                    str_v = _stringify_datadict_value(d.get('value'))
+                    if _is_full_text_meowuri(meowuri):
                         # Often *a lot* of text, trim to arbitrary size..
-                        _truncated = truncate_text(v)
-                        temp_list.append(_truncated)
+                        temp_list.append(_truncate_text(str_v))
                     else:
-                        temp_list.append(str(v))
+                        temp_list.append(str_v)
 
-                temp[meowuri] = temp_list
+                first_pass[meowuri] = temp_list
 
             else:
                 sanity.check_isinstance(datadict, dict)
-                v = datadict.get('value')
-                if isinstance(v, bytes):
-                    # TODO: Clean up converting ANY value to Unicode strings ..
-                    temp[meowuri] = enc.displayable_path(v)
-
-                elif meowuri.matchglobs(['generic.contents.text',
-                                         'extractor.text.*']):
+                str_v = _stringify_datadict_value(datadict.get('value'))
+                if _is_full_text_meowuri(meowuri):
                     # Often *a lot* of text, trim to arbitrary size..
-                    temp[meowuri] = truncate_text(v)
+                    first_pass[meowuri] = _truncate_text(str_v)
                 else:
-                    # TODO: Clean up converting ANY value to Unicode strings ..
-                    temp[meowuri] = str(v)
+                    first_pass[meowuri] = str_v
 
-        cf = ColumnFormatter()
+        # Second pass --- align in columns and add numbers to generic URIs.
+        cf = _get_column_formatter()
         COLUMN_DELIMITER = '::'
         MAX_VALUE_WIDTH = 80
 
-        def _add_row(str_meowuri, value):
-            str_value = str(value)
-            if len(str_value) > MAX_VALUE_WIDTH:
-                str_value = str_value[:MAX_VALUE_WIDTH]
-            cf.addrow(str_meowuri, COLUMN_DELIMITER, str_value)
+        def _add_row(_str_meowuri, _value):
+            _str_value = str(_value)
+            if len(_str_value) > MAX_VALUE_WIDTH:
+                _str_value = _str_value[:MAX_VALUE_WIDTH]
+            cf.addrow(_str_meowuri, COLUMN_DELIMITER, _str_value)
 
-        for meowuri, datadict in sorted(temp.items()):
-            _meowuri_str = str(meowuri)
-            if isinstance(datadict, list):
-                datadict_list = datadict
-                for n, v in enumerate(datadict_list, start=1):
-                    numbered_meowuri = '{} ({})'.format(_meowuri_str, n)
+        for meowuri, str_value in sorted(first_pass.items()):
+            str_meowuri = str(meowuri)
+
+            if isinstance(str_value, list):
+                str_values = str_value
+                for n, v in enumerate(str_values, start=1):
+                    numbered_meowuri = '{} ({})'.format(str_meowuri, n)
                     _add_row(numbered_meowuri, v)
+
                 continue
 
-            if meowuri.matchglobs(['generic.contents.text',
-                                   'extractor.text.*']):
-                _text = textutils.extract_lines(datadict, firstline=1, lastline=1)
-                _text = _text.rstrip('\n')
-                v = _text
-            else:
-                v = datadict
+            _add_row(str_meowuri, str_value)
 
-            _add_row(_meowuri_str, v)
+        return str(cf)
+
+    def _prettyprint_fileobject_generic_to_explicit_uri_map(self, fileobject):
+        cf = _get_column_formatter()
+        COLUMN_DELIMITER = '->'
+
+        for generic_uri, explicit_uris in sorted(self._generic_to_explicit_uri_map[fileobject].items()):
+            for n, explicit_uri in enumerate(sorted(explicit_uris), start=1):
+                str_number = '({})'.format(n)
+                str_generic_uri = str(generic_uri)
+                str_explicit_uri = str(explicit_uri)
+                cf.addrow(str_generic_uri, str_number, COLUMN_DELIMITER, str_explicit_uri)
 
         return str(cf)
 
     def __len__(self):
-        # TODO:  FIX THIS! Unverified after removing the 'ExtractedData' class.
-        # return util.count_dict_recursive(self.data)
-        return sum(len(v) for k, v in self.data.items())
+        """
+        Returns: Total number of (MeowURI, databundle) entries for all files.
+        """
+        return sum(len(v) for k, v in self._data.items())
 
     def __str__(self):
         return self.human_readable_contents()
 
-    # def __repr__(self):
-    #     # TODO: Implement this properly.
-    #     pass
+
+def _is_full_text_meowuri(uri):
+    return uri.matchglobs(['generic.contents.text', 'extractor.text.*'])
+
+
+def _truncate_text(text):
+    t = truncate_text(text, maxlen=20, append_info=True)
+    t = t.replace('\n', ' ')
+    return t
+
+
+def _stringify_datadict_value(datadict_value):
+    def __stringify_value(_value):
+        assert not isinstance(_value, (list, dict))
+
+        if isinstance(_value, bytes):
+            return enc.displayable_path(_value)
+        else:
+            return str(_value)
+
+    if isinstance(datadict_value, list):
+        values = datadict_value
+
+        str_values = list()
+        for value in values:
+            str_value = __stringify_value(value)
+            assert isinstance(str_value, str)
+            str_values.append(str_value)
+
+        return str(str_values)
+
+    str_value = __stringify_value(datadict_value)
+    assert isinstance(str_value, str)
+    return str_value
 
 
 def _create_repository():
@@ -397,31 +487,6 @@ class RepositoryPool(object):
         return len(self._repositories)
 
 
-def initialize(id_=None):
-    # Keep one global 'SessionRepository' per 'Autonameow' instance.
-    global Pool
-    Pool = RepositoryPool()
-    Pool.add(id_=id_)
-
-    global SessionRepository
-    SessionRepository = Pool.get(id_=id_)
-
-
-def shutdown(id_=None):
-    global Pool
-    if not Pool:
-        return
-
-    try:
-        r = Pool.get(id_=id_)
-    except KeyError as e:
-        log.error(
-            'Unable to retrieve repository with ID "{!s}"; {!s}'.format(id_, e)
-        )
-    else:
-        r.shutdown()
-
-
 def maps_field(datadict, field):
     # This might return a None, using a default dict value will not work.
     mapped_fields = datadict.get('mapped_fields')
@@ -434,5 +499,36 @@ def maps_field(datadict, field):
     return False
 
 
+def _initialize(*_, **kwargs):
+    # Keep one global 'SessionRepository' per 'Autonameow' instance.
+    # assert 'autonameow_instance' in kwargs
+    autonameow_instance = kwargs.get('autonameow_instance', None)
+
+    global Pool
+    Pool = RepositoryPool()
+    Pool.add(id_=autonameow_instance)
+
+    global SessionRepository
+    SessionRepository = Pool.get(autonameow_instance)
+
+
+def _shutdown(*_, **kwargs):
+    global Pool
+    if not Pool:
+        return
+
+    assert 'autonameow_instance' in kwargs
+    autonameow_instance = kwargs.get('autonameow_instance', None)
+    try:
+        r = Pool.get(autonameow_instance)
+    except KeyError as e:
+        log.critical('Unable to retrieve repository :: {!s}'.format(e))
+    else:
+        r.shutdown()
+
+
 Pool = None
 SessionRepository = None
+
+event.dispatcher.on_startup.add(_initialize)
+event.dispatcher.on_shutdown.add(_shutdown)

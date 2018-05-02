@@ -22,12 +22,10 @@
 import logging
 
 from core import constants as C
-from core import types
-from util import (
-    disk,
-    nested_dict_get,
-    text,
-)
+from util import coercers
+from util import disk
+from util import nested_dict_get
+from util import text
 
 
 log = logging.getLogger(__name__)
@@ -54,23 +52,17 @@ class Configuration(object):
                             'running {})'.format(self.version,
                                                  C.STRING_PROGRAM_VERSION))
                 log.info(
-                    'The current recommended procedure is to move the '
-                    'current config to a temporary location, re-run '
-                    'the program so that a new template config file is '
-                    'generated and then manually transfer rules to this file.'
+                    'The currently recommended way to migrate to a new version'
+                    'is to move the current config to a temporary location, '
+                    're-run the program so that a new template config file is '
+                    'generated and then manually merge the old rules back into '
+                    'the new file, while making any necessary adjustments to '
+                    'accommodate any changes in syntax, naming, etc.'
                 )
+                # TODO: Handle migrating between configuration versions?
 
-        self.referenced_meowuris = set()
-        for rule in self._rules:
-            # Keep track of all "meowURIs" referenced by rules.
-            self.referenced_meowuris.update(rule.referenced_meowuris())
-
-        # For Debugging/development only.
-        _referenced_meowuris = sorted(self.referenced_meowuris)
-        for uri in _referenced_meowuris:
-            log.debug(
-                'Configuration Rule referenced meowURI "{!s}"'.format(uri)
-            )
+        if not self._rules:
+            log.warning('Configuration does not contain any rules!')
 
     def get(self, key_list):
         try:
@@ -107,12 +99,6 @@ class Configuration(object):
     def reusable_nametemplates(self):
         return self._reusable_nametemplates
 
-    @property
-    def name_templates(self):
-        _rule_templates = [r.name_template for r in self.rules]
-        _reusable_templates = [t for t in self.reusable_nametemplates.values()]
-        return _rule_templates + _reusable_templates
-
     def __str__(self):
         # TODO: [cleanup][hack] This is pretty bad ..
         out = ['autonameow version {}\n\n'.format(self.version)]
@@ -133,4 +119,4 @@ class Configuration(object):
 
 
 def _yaml_format(data):
-    return types.force_string(disk.write_yaml(data))
+    return coercers.force_string(disk.write_yaml(data))

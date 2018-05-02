@@ -22,10 +22,8 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from core.renamer import (
-    FilenameDelta,
-    FileRenamer
-)
+from core.renamer import FilenameDelta
+from core.renamer import FileRenamer
 
 
 class TestFilenameDelta(TestCase):
@@ -70,7 +68,7 @@ class TestFilenameDelta(TestCase):
 
 class TestRenameFile(TestCase):
     @patch('core.autonameow.disk.rename_file')
-    def test_dry_run_true_will_not_call_diskutils_rename_file(
+    def test_disk_rename_file_should_not_be_called_when_dry_run_is_true(
             self, mock_disk_rename_file
     ):
         fr = FileRenamer(dry_run=True, timid=False)
@@ -78,7 +76,7 @@ class TestRenameFile(TestCase):
         mock_disk_rename_file.assert_not_called()
 
     @patch('core.autonameow.disk.rename_file')
-    def test_dry_run_false_calls_diskutils_rename_file(
+    def test_disk_rename_file_should_be_called_when_dry_run_is_false_(
             self, mock_disk_rename_file
     ):
         fr = FileRenamer(dry_run=False, timid=False)
@@ -87,19 +85,24 @@ class TestRenameFile(TestCase):
 
 
 class TestFileRenamer(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.dummy_bar_filepath = b'/tmp/foo/bar'
+        cls.dummy_bar_basename = 'bar'
+        cls.dummy_foo_basename = 'foo'
+        cls.dummy_foo_basename_bytes = b'foo'
+
     def setUp(self):
         self.fr = FileRenamer(dry_run=True, timid=False)
 
     def test_add_pending_with_equal_basenames_become_skipped(self):
-        dummy_source_path = b'/tmp/foo/bar'
-        dummy_new_basename = 'bar'
-        self.fr.add_pending(dummy_source_path, dummy_new_basename)
+        self.fr.add_pending(self.dummy_bar_filepath, self.dummy_bar_basename)
 
         actual_skipped = list(self.fr.skipped)
         self.assertEqual(1, len(actual_skipped))
-        # Check that iterator does not exhaust list
+        # Check that iterator exhausts list
         actual_skipped = list(self.fr.skipped)
-        self.assertEqual(1, len(actual_skipped))
+        self.assertEqual(0, len(actual_skipped))
 
         actual_pending = list(self.fr.pending)
         self.assertEqual(0, len(actual_pending))
@@ -107,9 +110,7 @@ class TestFileRenamer(TestCase):
         self.assertEqual(0, len(actual_to_be_confirmed))
 
     def test_add_pending_with_different_basenames_become_pending(self):
-        dummy_source_path = b'/tmp/foo/bar'
-        dummy_new_basename = 'baz'
-        self.fr.add_pending(dummy_source_path, dummy_new_basename)
+        self.fr.add_pending(self.dummy_bar_filepath, self.dummy_foo_basename)
 
         actual_skipped = list(self.fr.skipped)
         self.assertEqual(0, len(actual_skipped))
@@ -124,9 +125,7 @@ class TestFileRenamer(TestCase):
 
     def test_add_pending_with_different_basenames_must_be_confirmed(self):
         fr = FileRenamer(dry_run=True, timid=True)
-        dummy_source_path = b'/tmp/foo/bar'
-        dummy_new_basename = 'baz'
-        fr.add_pending(dummy_source_path, dummy_new_basename)
+        fr.add_pending(self.dummy_bar_filepath, self.dummy_foo_basename)
 
         actual_skipped = list(fr.skipped)
         self.assertEqual(0, len(actual_skipped))
@@ -140,24 +139,38 @@ class TestFileRenamer(TestCase):
         actual_to_be_confirmed = list(fr.needs_confirmation)
         self.assertEqual(1, len(actual_to_be_confirmed))
 
+    def test_rejecting_a_pending_file_removes_it_from_to_be_confirmed_list(self):
+        fr = FileRenamer(dry_run=True, timid=True)
+        fr.add_pending(self.dummy_bar_filepath, self.dummy_foo_basename)
+
+        to_be_confirmed = list(fr.needs_confirmation)
+        self.assertEqual(1, len(to_be_confirmed))
+        # Check that iterator does not exhaust list
+        to_be_confirmed = list(fr.needs_confirmation)
+        self.assertEqual(1, len(to_be_confirmed))
+
+        fr.reject(to_be_confirmed[0])
+        to_be_confirmed = list(fr.needs_confirmation)
+        self.assertEqual(0, len(to_be_confirmed))
+
     @patch('core.renamer.FileRenamer._rename_file')
     def test_rename_file_dry_run_true(self, mock__rename_file):
         fr = FileRenamer(dry_run=True, timid=False)
-        dummy_source_path = b'/tmp/foo/bar'
-        dummy_new_basename = 'baz'
-        fr.add_pending(dummy_source_path, dummy_new_basename)
+        fr.add_pending(self.dummy_bar_filepath, self.dummy_foo_basename)
+
         fr.do_renames()
-        mock__rename_file.assert_called_once_with(dummy_source_path, b'baz')
+        mock__rename_file.assert_called_once_with(self.dummy_bar_filepath,
+                                                  self.dummy_foo_basename_bytes)
         self.assertEqual(0, len(list(fr.pending)))
 
     @patch('core.renamer.FileRenamer._rename_file')
     def test_rename_file_dry_run_false(self, mock__rename_file):
         fr = FileRenamer(dry_run=False, timid=False)
-        dummy_source_path = b'/tmp/foo/bar'
-        dummy_new_basename = 'baz'
-        fr.add_pending(dummy_source_path, dummy_new_basename)
+        fr.add_pending(self.dummy_bar_filepath, self.dummy_foo_basename)
+
         fr.do_renames()
-        mock__rename_file.assert_called_once_with(dummy_source_path, b'baz')
+        mock__rename_file.assert_called_once_with(self.dummy_bar_filepath,
+                                                  self.dummy_foo_basename_bytes)
         self.assertEqual(0, len(list(fr.pending)))
 
     @patch('core.renamer.FileRenamer._rename_file')
@@ -165,49 +178,79 @@ class TestFileRenamer(TestCase):
             self, mock__rename_file
     ):
         fr = FileRenamer(dry_run=True, timid=True)
-        dummy_source_path = b'/tmp/foo/bar'
-        dummy_new_basename = 'baz'
-        fr.add_pending(dummy_source_path, dummy_new_basename)
+        fr.add_pending(self.dummy_bar_filepath, self.dummy_foo_basename)
+
         fr.do_renames()
         mock__rename_file.assert_not_called()
         self.assertEqual(0, len(list(fr.pending)))
+        self.assertEqual(1, len(list(fr.needs_confirmation)))
 
     @patch('core.renamer.FileRenamer._rename_file')
     def test_file_not_renamed_before_being_confirmed_dry_run_false(
             self, mock__rename_file
     ):
         fr = FileRenamer(dry_run=False, timid=True)
-        dummy_source_path = b'/tmp/foo/bar'
-        dummy_new_basename = 'baz'
-        fr.add_pending(dummy_source_path, dummy_new_basename)
+        fr.add_pending(self.dummy_bar_filepath, self.dummy_bar_basename)
+
         fr.do_renames()
         mock__rename_file.assert_not_called()
         self.assertEqual(0, len(list(fr.pending)))
+        self.assertEqual(0, len(list(fr.needs_confirmation)))
+
+    @patch('core.renamer.FileRenamer._rename_file')
+    def test_file_not_renamed_after_reject_dry_run_true(
+            self, mock__rename_file
+    ):
+        fr = FileRenamer(dry_run=True, timid=True)
+        fr.add_pending(self.dummy_bar_filepath, self.dummy_foo_basename)
+
+        to_be_confirmed = list(fr.needs_confirmation)
+        fr.reject(to_be_confirmed[0])
+
+        fr.do_renames()
+        mock__rename_file.assert_not_called()
+        self.assertEqual(0, len(list(fr.pending)))
+        self.assertEqual(0, len(list(fr.needs_confirmation)))
+
+    @patch('core.renamer.FileRenamer._rename_file')
+    def test_file_not_renamed_after_reject_dry_run_false(
+            self, mock__rename_file
+    ):
+        fr = FileRenamer(dry_run=False, timid=True)
+        fr.add_pending(self.dummy_bar_filepath, self.dummy_foo_basename)
+
+        to_be_confirmed = list(fr.needs_confirmation)
+        fr.reject(to_be_confirmed[0])
+
+        fr.do_renames()
+        mock__rename_file.assert_not_called()
+        self.assertEqual(0, len(list(fr.pending)))
+        self.assertEqual(0, len(list(fr.needs_confirmation)))
 
     @patch('core.renamer.FileRenamer._rename_file')
     def test_rename_file_after_confirm_dry_run_true(self, mock__rename_file):
         fr = FileRenamer(dry_run=True, timid=True)
-        dummy_source_path = b'/tmp/foo/bar'
-        dummy_new_basename = 'baz'
-        fr.add_pending(dummy_source_path, dummy_new_basename)
+        fr.add_pending(self.dummy_bar_filepath, self.dummy_foo_basename)
 
         to_be_confirmed = list(fr.needs_confirmation)
         fr.confirm(to_be_confirmed[0])
 
         fr.do_renames()
-        mock__rename_file.assert_called_once_with(dummy_source_path, b'baz')
+        mock__rename_file.assert_called_once_with(self.dummy_bar_filepath,
+                                                  self.dummy_foo_basename_bytes)
         self.assertEqual(0, len(list(fr.pending)))
+        self.assertEqual(0, len(list(fr.needs_confirmation)))
 
     @patch('core.renamer.FileRenamer._rename_file')
     def test_rename_file_after_confirm_dry_run_false(self, mock__rename_file):
         fr = FileRenamer(dry_run=False, timid=True)
-        dummy_source_path = b'/tmp/foo/bar'
-        dummy_new_basename = 'baz'
-        fr.add_pending(dummy_source_path, dummy_new_basename)
+        fr.add_pending(self.dummy_bar_filepath, self.dummy_foo_basename)
 
         to_be_confirmed = list(fr.needs_confirmation)
         fr.confirm(to_be_confirmed[0])
 
         fr.do_renames()
-        mock__rename_file.assert_called_once_with(dummy_source_path, b'baz')
+        mock__rename_file.assert_called_once_with(self.dummy_bar_filepath,
+                                                  self.dummy_foo_basename_bytes)
         self.assertEqual(0, len(list(fr.pending)))
+        self.assertEqual(0, len(list(fr.needs_confirmation)))

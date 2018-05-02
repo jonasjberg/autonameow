@@ -68,10 +68,7 @@ Example:
 
 import os
 import sys
-from unittest import (
-    skipIf,
-    TestCase
-)
+from unittest import skipIf, TestCase
 
 try:
     import yaml
@@ -115,17 +112,25 @@ from core import exceptions  #  3. Project-specific
 
 Statements with multiple clauses should be split up into separate lines, like this;
 ```python
-from unittest import (
-    skipIf,
-    TestCase
-)
+from core import exceptions
+from core import version
 ```
 __Not like this;__
 ```python
-from unittest import skipIf, TestCase
+from core import exceptions, version
+```
+And __not like this;__
+```python
+from core import (
+    exceptions,
+    version
+)
 ```
 
 This is motivated primarily by cleaner diffs and merges.
+Note that imports of testing functionality are exempt and can be written on a
+single line.
+
 
 
 ### Blank Lines
@@ -170,3 +175,16 @@ Bind shared utilities to shorthands;
 
 
 __TODO: INCOMPLETE!__
+
+
+Test Code
+---------
+
+### Assertions
+Calls to assertions with unordered parameters should pass the argument with the
+__expected value first__.
+
+Example:
+```python
+assertEqual(expect, actual)
+```

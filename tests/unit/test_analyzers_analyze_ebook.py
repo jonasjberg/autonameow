@@ -19,10 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 from unittest.mock import Mock
 
 try:
@@ -33,15 +30,11 @@ else:
     ISBNLIB_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
-from analyzers.analyze_ebook import (
-    deduplicate_isbns,
-    EbookAnalyzer,
-    extract_ebook_isbns_from_text,
-    extract_isbns_from_text,
-    filter_isbns,
-    ISBNMetadata,
-    validate_isbn
-)
+from analyzers.analyze_ebook import deduplicate_isbns
+from analyzers.analyze_ebook import EbookAnalyzer
+from analyzers.analyze_ebook import extract_ebook_isbns_from_text
+from analyzers.analyze_ebook import filter_isbns
+from analyzers.analyze_ebook import ISBNMetadata
 
 
 def get_ebook_analyzer(fileobject):
@@ -64,74 +57,6 @@ class TestEbookAnalyzer(TestCase):
     def test_setup(self):
         self.assertIsNotNone(self.fileobject)
         self.assertIsNotNone(self.analyzer)
-
-
-@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
-class TestExtractIsbnsFromText(TestCase):
-    def test_returns_expected_type(self):
-        text = 'fooo1-56592-306-5baar'
-        actual = extract_isbns_from_text(text)
-        self.assertIsInstance(actual, list)
-
-    def test_returns_expected_given_text_without_isbns(self):
-        text = 'fooo'
-        actual = extract_isbns_from_text(text)
-        self.assertEqual(len(actual), 0)
-
-    def test_returns_expected_given_only_isbn(self):
-        text = '1-56592-306-5'
-        actual = extract_isbns_from_text(text)
-        self.assertEqual(len(actual), 1)
-        self.assertIn('1565923065', actual)
-
-    def test_returns_expected_given_text_with_isbn(self):
-        text = '''
-Practical C Programming, 3rd Edition
-By Steve Oualline
-3rd Edition August 1997
-ISBN: 1-56592-306-5
-This new edition of "Practical C Programming" teaches users not only the mechanics or
-programming, but also how to create programs that are easy to read, maintain, and
-debug. It features more extensive examples and an introduction to graphical
-development environments. Programs conform to ANSI C.
-'''
-        actual = extract_isbns_from_text(text)
-        self.assertEqual(len(actual), 1)
-        self.assertIn('1565923065', actual)
-
-    def test_returns_expected_given_text_with_duplicate_isbn(self):
-        text = '''
-Practical C Programming, 3rd Edition
-By Steve Oualline
-3rd Edition August 1997
-ISBN: 1-56592-306-5
-This new edition of "Practical C Programming" teaches users not only the mechanics or
-programming, but also how to create programs that are easy to read, maintain, and
-debug. It features more extensive examples and an introduction to graphical
-development environments. Programs conform to ANSI C.
-ISBN: 1-56592-306-5
-'''
-        actual = extract_isbns_from_text(text)
-        self.assertEqual(len(actual), 2)
-        self.assertIn('1565923065', actual)
-
-
-@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
-class TestValidateISBN(TestCase):
-    def test_returns_valid_isbn_numbers(self):
-        sample_isbn = '1565923065'
-        self.assertEqual(validate_isbn(sample_isbn), sample_isbn)
-
-    def test_returns_none_for_invalid_isbn_numbers(self):
-        sample_invalid_isbns = [
-            None,
-            '',
-            ' ',
-            '123',
-            '1234567890'
-        ]
-        for sample_isbn in sample_invalid_isbns:
-            self.assertIsNone(validate_isbn(sample_isbn))
 
 
 class TestDeduplicateIsbns(TestCase):
@@ -171,7 +96,6 @@ class TestFilterISBN(TestCase):
 
     def test_returns_none_for_invalid_isbn_numbers(self):
         sample_invalid_isbns = [
-            None,
             [None],
             [''],
             ['1111111111'],
@@ -697,11 +621,41 @@ class TestISBNMetadataEquality(TestCase):
         unique_isbn_metadata.add(m11)
         self.assertEqual(12, len(unique_isbn_metadata))
 
+    def test_comparison_of_live_isbn_metadata_3(self):
+        m0 = ISBNMetadata(
+            authors=['Stephen G. Kochan'],
+            language='eng',
+            publisher='Addison-Wesley',
+            isbn10='0321967607',
+            isbn13='9780321967602',
+            title='Programming In Objective-C',
+            year='2014'
+        )
+        m1 = ISBNMetadata(
+            authors=['Stephen G. Kochan'],
+            language='eng',
+            publisher='Addison-Wesley',
+            isbn10='0321776410',
+            isbn13='9780321776419',
+            title='Programming In C',
+            year='2013'
+        )
+        self.assertNotEqual(m0, m1)
+        unique_isbn_metadata = set()
+        unique_isbn_metadata.add(m0)
+        unique_isbn_metadata.add(m1)
+        self.assertEqual(2, len(unique_isbn_metadata))
+
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestExtractEbookISBNsInText(TestCase):
-    def test_finds_expected(self):
-        text = '''Computational Intelligence
+    def _assert_returns(self, expected, given):
+        actual = extract_ebook_isbns_from_text(given)
+        self.assertEqual(expected, actual)
+
+    def test_finds_expected_in_multiline_text_with_two_isbn_numbers(self):
+        self._assert_returns(['9783540762881'],
+                             given='''Computational Intelligence
 
 Leszek Rutkowski
 
@@ -726,9 +680,20 @@ Originally published in Polish
 METODY I TECHNIKI SZTUCZNEJ INTELIGENCJI
 by Leszek Rutkowski, 2005 by Polish Scientific Publishers PWN
 c by Wydawnictwo Naukowe PWN SA, Warszawa 2005
-'''
-        actual = extract_ebook_isbns_from_text(text)
-        self.assertIn('9783540762881', actual)
+''')
+
+    def test_finds_expected_with_parenthesis_electronic_suffix(self):
+        self._assert_returns(['9781484233184'],
+                             given='ISBN (electronic): 978-1-4842-3318-4')
+
+    def test_finds_expected_in_multiline_text_with_parenthesis_electronic_suffix(self):
+        self._assert_returns(['9781484233184'],
+                             given='''ISBN-13 (pbk): 978-1-4842-3317-7
+https://doi.org/10.1007/978-1-4842-3318-4
+
+ISBN-13 (electronic): 978-1-4842-3318-4
+
+''')
 
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)

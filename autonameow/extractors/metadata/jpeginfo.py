@@ -22,12 +22,10 @@
 import re
 import subprocess
 
-from core import types
-from extractors import (
-    BaseExtractor,
-    ExtractorError
-)
 import util
+from extractors import BaseExtractor
+from extractors import ExtractorError
+from util import coercers
 
 
 class JpeginfoMetadataExtractor(BaseExtractor):
@@ -45,17 +43,15 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     }
 
     def extract(self, fileobject, **kwargs):
-        source = fileobject.abspath
-        metadata = self._get_metadata(source)
-        return metadata
+        return self._get_metadata(fileobject.abspath)
 
-    def _get_metadata(self, source):
-        out = dict()
+    def _get_metadata(self, filepath):
+        metadata = dict()
 
-        jpeginfo_output = _run_jpeginfo(source)
+        jpeginfo_output = _run_jpeginfo(filepath)
         if not jpeginfo_output:
             self.log.debug('Got empty output from jpeginfo')
-            return out
+            return metadata
 
         if 'not a jpeg file' in jpeginfo_output.lower():
             is_jpeg = False
@@ -69,30 +65,30 @@ class JpeginfoMetadataExtractor(BaseExtractor):
 
         coerced_health = self.coerce_field_value('health', health)
         if coerced_health is not None:
-            out['health'] = coerced_health
+            metadata['health'] = coerced_health
 
         coerced_is_jpeg = self.coerce_field_value('is_jpeg', is_jpeg)
         if coerced_is_jpeg is not None:
-            out['is_jpeg'] = coerced_is_jpeg
+            metadata['is_jpeg'] = coerced_is_jpeg
 
-        return out
+        return metadata
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return util.is_executable('jpeginfo')
 
 
-def _run_jpeginfo(source):
+def _run_jpeginfo(filepath):
     try:
         process = subprocess.Popen(
-            ['jpeginfo', '-c', source],
+            ['jpeginfo', '-c', filepath],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, _ = process.communicate()
     except (OSError, ValueError, TypeError, subprocess.SubprocessError) as e:
         raise ExtractorError(e)
 
-    result = types.force_string(stdout)
-    if not result:
+    str_stdout = coercers.force_string(stdout)
+    if not str_stdout:
         return ''
-    return result
+    return str_stdout

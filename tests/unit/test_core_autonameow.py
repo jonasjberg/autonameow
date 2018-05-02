@@ -20,15 +20,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from unittest import (
-    skipIf,
-    TestCase
-)
-from unittest.mock import (
-    MagicMock,
-    Mock,
-    patch
-)
+from unittest import skipIf, TestCase
+from unittest.mock import MagicMock, Mock, patch
 
 try:
     import prompt_toolkit
@@ -41,10 +34,8 @@ except ImportError:
     )
 
 from core import constants as C
-from core.autonameow import (
-    Autonameow,
-    check_option_combinations
-)
+from core.autonameow import Autonameow
+from core.autonameow import check_option_combinations
 
 
 def prompt_toolkit_unavailable():
@@ -73,8 +64,8 @@ class TestAutonameowWithoutOptions(TestCase):
         exit_program_mock.assert_not_called()
 
     # TODO: [cleanup] This much mocking indicates poor design choices ..
-    @patch('core.providers.initialize', MagicMock())
-    @patch('core.providers.Registry')
+    @patch('core.master_provider._initialize_master_data_provider', MagicMock())
+    @patch('core.master_provider.Registry')
     @patch('core.autonameow.Autonameow.exit_program')
     @patch('core.autonameow.master_provider', MagicMock())
     def test_exit_program_called_after_running_context(
@@ -98,105 +89,152 @@ class TestCheckOptionCombinations(TestCase):
 
     def test_valid_user_interaction_combination(self):
         self._check_options(
-            given={'mode_batch': False, 'mode_interactive': False},
-            expect={'mode_batch': False, 'mode_interactive': False}
+            given={'mode_batch': False,
+                   'mode_interactive': False},
+            expect={'mode_batch': False,
+                    'mode_interactive': False}
         )
         self._check_options(
-            given={'mode_batch': True, 'mode_interactive': False},
-            expect={'mode_batch': True, 'mode_interactive': False}
+            given={'mode_batch': True,
+                   'mode_interactive': False},
+            expect={'mode_batch': True,
+                    'mode_interactive': False}
         )
         self._check_options(
-            given={'mode_batch': False, 'mode_interactive': True},
-            expect={'mode_batch': False, 'mode_interactive': True}
+            given={'mode_batch': False,
+                   'mode_interactive': True},
+            expect={'mode_batch': False,
+                    'mode_interactive': True}
         )
 
     def test_illegal_user_interaction_combination(self):
-        # Expect "batch" to disable all requirements of user interaction.
+        # Only "batch" is a no-op
         self._check_options(
-            given={'mode_batch': True, 'mode_interactive': True,
+            given={'mode_batch': True,
+                   'mode_interactive': False,
                    'mode_timid': False},
-            expect={'mode_batch': True, 'mode_interactive': False,
+            expect={'mode_batch': True,
+                    'mode_interactive': False,
                     'mode_timid': False}
         )
+        # Mode "batch" disables "interactive"
         self._check_options(
-            given={'mode_batch': True, 'mode_interactive': False,
+            given={'mode_batch': True,
+                   'mode_interactive': True,
+                   'mode_timid': False},
+            expect={'mode_batch': True,
+                    'mode_interactive': False,
+                    'mode_timid': False}
+        )
+        # Mode "batch" should not affect "timid"
+        self._check_options(
+            given={'mode_batch': True,
+                   'mode_interactive': False,
                    'mode_timid': True},
-            expect={'mode_batch': True, 'mode_interactive': False,
-                    'mode_timid': False}
+            expect={'mode_batch': True,
+                    'mode_interactive': False,
+                    'mode_timid': True}
         )
         self._check_options(
-            given={'mode_batch': True, 'mode_interactive': True,
+            given={'mode_batch': True,
+                   'mode_interactive': True,
                    'mode_timid': True},
-            expect={'mode_batch': True, 'mode_interactive': False,
-                    'mode_timid': False}
+            expect={'mode_batch': True,
+                    'mode_interactive': False,
+                    'mode_timid': True}
         )
-
-        # Interactive is basically a superset of timid.
+        # Mode "interactive" is basically a superset of "timid"
         self._check_options(
-            given={'mode_batch': False, 'mode_interactive': True,
+            given={'mode_batch': False,
+                   'mode_interactive': True,
                    'mode_timid': True},
-            expect={'mode_batch': False, 'mode_interactive': True,
+            expect={'mode_batch': False,
+                    'mode_interactive': True,
                     'mode_timid': False}
-        )
-
-    def test_valid_operating_mode_combination(self):
-        self._check_options(
-            given={'mode_automagic': False, 'mode_rulematch': True},
-            expect={'mode_automagic': False, 'mode_rulematch': True}
-        )
-        self._check_options(
-            given={'mode_automagic': True, 'mode_rulematch': False},
-            expect={'mode_automagic': True, 'mode_rulematch': True}
-        )
-        self._check_options(
-            given={'mode_automagic': True, 'mode_rulematch': True},
-            expect={'mode_automagic': True, 'mode_rulematch': True}
-        )
-
-    def test_default_operating_mode_combination(self):
-        # Always enable rule-matching for now.
-        # TODO: Really enable options like this? Better to error out and exit?
-        self._check_options(
-            given={'mode_automagic': False, 'mode_rulematch': False},
-            expect={'mode_automagic': False, 'mode_rulematch': True}
         )
 
     def test_user_interaction_and_operating_mode_combination(self):
         self._check_options(
-            given={'mode_automagic': False, 'mode_rulematch': False,
+            given={'mode_automagic': False,
                    'mode_batch': False},
-            expect={'mode_automagic': False, 'mode_rulematch': True,
+            expect={'mode_automagic': False,
                     'mode_batch': False}
         )
         self._check_options(
-            given={'mode_automagic': False, 'mode_rulematch': True,
+            given={'mode_automagic': True,
                    'mode_batch': False},
-            expect={'mode_automagic': False, 'mode_rulematch': True,
+            expect={'mode_automagic': True,
                     'mode_batch': False}
         )
         self._check_options(
-            given={'mode_automagic': True, 'mode_rulematch': False,
-                   'mode_batch': False},
-            expect={'mode_automagic': True, 'mode_rulematch': True,
-                    'mode_batch': False}
+            given={'mode_automagic': False,
+                   'mode_batch': True},
+            expect={'mode_automagic': False,
+                    'mode_batch': True}
         )
 
-    def test_illegal_user_interaction_and_operating_mode_combination(self):
-        # Always enable rule-matching for now.
-        # TODO: Really enable options like this? Better to error out and exit?
+    def test_postprocess_only(self):
         self._check_options(
-            given={'mode_automagic': False, 'mode_rulematch': False,
-                   'mode_batch': True},
-            expect={'mode_automagic': False, 'mode_rulematch': True,
-                    'mode_batch': True}
+            given={
+                'mode_automagic': False,
+                'mode_batch': False,
+                'mode_postprocess_only': True
+            },
+            expect={
+                'mode_automagic': False,
+                'mode_batch': False,
+                'mode_postprocess_only': True
+            }
+        )
+
+    def test_postprocess_only_combined_with_batch_is_valid(self):
+        self._check_options(
+            given={
+                'mode_automagic': False,
+                'mode_batch': True,
+                'mode_postprocess_only': True
+            },
+            expect={
+                'mode_automagic': False,
+                'mode_batch': True,
+                'mode_postprocess_only': True
+            }
+        )
+
+    def test_illegal_postprocess_only_and_automagic_combination(self):
+        self._check_options(
+            given={
+                'mode_automagic': True,
+                'mode_batch': False,
+                'mode_postprocess_only': True
+            },
+            expect={
+                'mode_automagic': False,
+                'mode_batch': False,
+                'mode_postprocess_only': True
+            }
+        )
+
+    def test_illegal_batch_postprocess_only_and_automagic_combination(self):
+        self._check_options(
+            given={
+                'mode_automagic': True,
+                'mode_batch': True,
+                'mode_postprocess_only': True
+            },
+            expect={
+                'mode_automagic': False,
+                'mode_batch': True,
+                'mode_postprocess_only': True
+            }
         )
 
 
 class TestAutonameowContextManagementProtocol(TestCase):
     # TODO: [cleanup] This much mocking indicates poor design choices ..
     @patch('core.autonameow.master_provider', MagicMock())
-    @patch('core.providers.initialize', MagicMock())
-    @patch('core.providers.Registry')
+    @patch('core.master_provider._initialize_master_data_provider', MagicMock())
+    @patch('core.master_provider.Registry')
     def test_with_statement(self, mock_registry):
         mock_registry.might_be_resolvable.return_value = True
         Autonameow.exit_program = MagicMock()

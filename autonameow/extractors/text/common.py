@@ -22,20 +22,19 @@
 import logging
 import os
 
-from core import (
-    persistence,
-    types,
-)
 from core import constants as C
+from core import persistence
 from extractors import BaseExtractor
+from util import coercers
 from util import encoding as enc
 from util import sanity
-from util.text import (
-    normalize_unicode,
-    remove_blacklisted_lines,
-    remove_nonbreaking_spaces,
-    remove_zerowidth_spaces
-)
+from util.text import normalize_unicode
+from util.text import normalize_whitespace
+from util.text import remove_blacklisted_lines
+from util.text import remove_blacklisted_re_lines
+from util.text import remove_nonbreaking_spaces
+from util.text import remove_zerowidth_spaces
+from util.text import strip_single_space_lines
 
 
 log = logging.getLogger(__name__)
@@ -50,6 +49,7 @@ class AbstractTextExtractor(BaseExtractor):
 
         self.cache = None
         self.BLACKLISTED_TEXTLINES = frozenset(list())
+        self.BLACKLISTED_RE_TEXTLINES = frozenset(list())
 
     def extract(self, fileobject, **kwargs):
         text = self._get_text(fileobject)
@@ -121,7 +121,7 @@ class AbstractTextExtractor(BaseExtractor):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def init_cache(self):
@@ -142,16 +142,19 @@ class AbstractTextExtractor(BaseExtractor):
         sanity.check_internal_string(raw_text)
         text = raw_text
         text = normalize_unicode(text)
+        text = normalize_whitespace(text)
+        text = strip_single_space_lines(text)
         text = remove_nonbreaking_spaces(text)
         text = remove_zerowidth_spaces(text)
         text = remove_blacklisted_lines(text, self.BLACKLISTED_TEXTLINES)
+        text = remove_blacklisted_re_lines(text, self.BLACKLISTED_RE_TEXTLINES)
         return text if text else ''
 
 
 def decode_raw(raw_text):
     try:
-        text = types.AW_STRING(raw_text)
-    except types.AWTypeError:
+        text = coercers.AW_STRING(raw_text)
+    except coercers.AWTypeError:
         try:
             text = enc.autodetect_decode(raw_text)
         except ValueError:

@@ -25,29 +25,25 @@ import re
 
 import util
 from core import constants as C
-from core import types
 from core.config.configuration import Configuration
-from core.config.rules import (
-    get_valid_rule,
-    InvalidRuleError
-)
-from core.config.field_parsers import (
-    BooleanConfigFieldParser,
-    DateTimeConfigFieldParser,
-    NameTemplateConfigFieldParser,
-)
-from core.exceptions import (
-    ConfigurationSyntaxError,
-    ConfigError,
-    FilesystemError,
-)
+from core.config.field_parsers import BooleanConfigFieldParser
+from core.config.field_parsers import DateTimeConfigFieldParser
+from core.config.field_parsers import NameTemplateConfigFieldParser
+from core.config.rules import get_valid_rule
+from core.config.rules import InvalidRuleConditionError
+from core.config.rules import InvalidRuleError
+from core.config.rules import RuleCondition
+from core.exceptions import ConfigError
+from core.exceptions import ConfigurationSyntaxError
+from core.exceptions import FilesystemError
+from core.exceptions import InvalidMeowURIError
+from core.model import MeowURI
 from core.namebuilder.fields import is_valid_template_field
+from util import coercers
+from util import disk
 from util import encoding as enc
-from util import (
-    disk,
-    sanity,
-    text
-)
+from util import sanity
+from util import text
 
 
 log = logging.getLogger(__name__)
@@ -68,6 +64,7 @@ INITIAL_CONFIGURATION_OPTIONS = {
 
 
 # TODO: [TD0154] Add "incrementing counter" placeholder field
+# TODO: [cleanup][hack] This entire file is way too complicated and messy!
 
 
 class ConfigurationParser(object):
@@ -78,81 +75,77 @@ class ConfigurationParser(object):
         self._options = copy.deepcopy(INITIAL_CONFIGURATION_OPTIONS)
 
     def parse(self, config_dict):
-        _reusable_nametemplates = self._load_reusable_nametemplates(config_dict)
+        reusable_name_templates = self._load_reusable_name_templates(config_dict)
         self._options.update(
-            self._load_template_fields(config_dict)
+            self._load_placeholder_field_options(config_dict)
         )
 
-        rule_parser = ConfigurationRuleParser(_reusable_nametemplates)
-        _raw_rules = config_dict.get('RULES', dict())
-        _rules = rule_parser.parse(_raw_rules)
+        rule_parser = ConfigurationRuleParser(reusable_name_templates)
+        raw_rules = config_dict.get('RULES', dict())
+        valid_rules = rule_parser.parse(raw_rules)
 
         self._load_options(config_dict)
         version = self._load_version(config_dict)
 
         new_config = Configuration(
             options=self._options,
-            rules_=_rules,
-            reusable_nametemplates=_reusable_nametemplates,
+            rules_=valid_rules,
+            reusable_nametemplates=reusable_name_templates,
             version=version
         )
         return new_config
 
     @staticmethod
-    def _load_reusable_nametemplates(config_dict):
-        validated = dict()
-
+    def _load_reusable_name_templates(config_dict):
         raw_templates = config_dict.get('NAME_TEMPLATES', {})
+        if not raw_templates:
+            return dict()
+
         if not isinstance(raw_templates, dict):
-            log.warning('Configuration templates is not of type dict')
-            log.debug('Expected NAME_TEMPLATES to be of type "dict". '
-                      'Got {}'.format(type(raw_templates)))
-            return validated
-
-        for raw_name, raw_templ in raw_templates.items():
-            _error = 'Got invalid name template: "{!s}": {!s}"'.format(
-                raw_name, raw_templ
+            raise ConfigurationSyntaxError(
+                'Expected "NAME_TEMPLATES" to be of type dict. Got {}'.format(type(raw_templates))
             )
-            name = types.force_string(raw_name).strip()
-            templ = types.force_string(raw_templ)
-            if not name or not templ:
-                raise ConfigurationSyntaxError(_error)
 
-            # Remove any non-breaking spaces in the name template.
-            templ = text.remove_nonbreaking_spaces(templ)
+        validated = dict()
+        for raw_name, raw_format_string in raw_templates.items():
+            error = 'Invalid name template: "{!s}": {!s}"'.format(raw_name, raw_format_string)
+            str_name = _coerce_string(raw_name).strip()
+            str_format_string = _coerce_string(raw_format_string)
+            if not str_name or not str_format_string:
+                raise ConfigurationSyntaxError(error)
 
-            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(templ):
-                validated[name] = templ
+            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(str_format_string):
+                validated[str_name] = str_format_string
             else:
-                raise ConfigurationSyntaxError(_error)
+                raise ConfigurationSyntaxError(error)
 
         return validated
 
     @staticmethod
-    def _load_template_fields(config_dict):
+    def _load_placeholder_field_options(config_dict):
         # TODO: [TD0036] Allow per-field replacements and customization.
-        validated = dict()
-
-        raw_templatefields = config_dict.get('NAME_TEMPLATE_FIELDS')
-        if not raw_templatefields:
+        raw_name_template_fields = config_dict.get('NAME_TEMPLATE_FIELDS')
+        if not raw_name_template_fields:
             log.debug(
-                'Configuration does not contain name template field options'
+                'Configuration does not contain any name template field options'
             )
-            return validated
-        if not isinstance(raw_templatefields, dict):
-            log.warning('Name template field options is not of type dict')
-            return validated
+            return dict()
 
-        for raw_field, raw_options in raw_templatefields.items():
-            field = types.force_string(raw_field)
-            if not field or not is_valid_template_field(field):
+        if not isinstance(raw_name_template_fields, dict):
+            log.warning('Name template field options is not of type dict')
+            return dict()
+
+        validated = dict()
+        for raw_field, raw_options in raw_name_template_fields.items():
+            str_field = _coerce_string(raw_field)
+            if not is_valid_template_field(str_field):
                 raise ConfigurationSyntaxError(
                     'Invalid name template field: "{!s}"'.format(raw_field)
                 )
 
             # User-defined names with lists of patterns.
             for repl, pat_list in raw_options.get('candidates', {}).items():
-                _validated_candidates = []
+                _validated_candidates = list()
                 for _pat in pat_list:
                     try:
                         compiled_pat = re.compile(_pat, re.IGNORECASE)
@@ -170,48 +163,18 @@ class ConfigurationParser(object):
                 if _validated_candidates:
                     util.nested_dict_set(
                         validated,
-                        ['NAME_TEMPLATE_FIELDS', field, 'candidates', repl],
+                        ['NAME_TEMPLATE_FIELDS', str_field, 'candidates', repl],
                         _validated_candidates
                     )
 
         return validated
 
     def _load_options(self, config_dict):
-        def _try_load_postprocessing_replacements():
-            log.debug('Trying to load post-processing replacements')
+        options_parser = ConfigurationOptionsParser(
+            raw_options=config_dict,
+            initial_options=self._options
+        )
 
-            # TODO: [TD0141] Coerce raw values to a known type.
-            if 'POST_PROCESSING' not in config_dict:
-                log.debug('Did not find any post-processing options ..')
-                return
-
-            _reps = config_dict['POST_PROCESSING'].get('replacements')
-            if not _reps or not isinstance(_reps, dict):
-                log.warning('Unable to load post-processing replacements')
-                return
-
-            match_replace_pairs = []
-            for regex, replacement in _reps.items():
-                _match = types.force_string(regex)
-                _replace = types.force_string(replacement)
-                try:
-                    compiled_pat = re.compile(_match)
-                except re.error:
-                    log.warning('Malformed regular expression: '
-                                '"{!s}"'.format(_match))
-                    log.warning('Skipped bad replacement :: "{!s}": '
-                                '"{!s}"'.format(regex, replacement))
-                else:
-                    log.debug(
-                        'Added post-processing replacement :: Match: "{!s}"'
-                        ' Replace: "{!s}"'.format(regex, replacement)
-                    )
-                    match_replace_pairs.append((compiled_pat, _replace))
-
-            self._options['POST_PROCESSING']['replacements'] = match_replace_pairs
-
-        options_parser = ConfigurationOptionsParser(raw_options=config_dict,
-                                                    initial_options=self._options)
         options_parser.try_load_option(
             section='DATETIME_FORMAT',
             key='date',
@@ -278,14 +241,15 @@ class ConfigurationParser(object):
         )
 
         options_parser.try_load_persistence_option(
-            'cache_directory',
-            C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+            option='cache_directory',
+            default=C.DEFAULT_PERSISTENCE_DIR_ABSPATH
         )
         options_parser.try_load_persistence_option(
-            'history_file_path',
-            C.DEFAULT_HISTORY_FILE_ABSPATH
+            option='history_file_path',
+            default=C.DEFAULT_HISTORY_FILE_ABSPATH
         )
 
+        # TODO: [cleanup] This is way too complicated and not at all readable.
         self._options.update(options_parser.parsed)
 
         # Handle conflicting upper-case and lower-case options.
@@ -297,13 +261,49 @@ class ConfigurationParser(object):
             self._options['POST_PROCESSING']['uppercase_filename'] = False
 
         # TODO: [TD0137] Add rule-specific replacements.
-        _try_load_postprocessing_replacements()
+        self._try_load_postprocessing_replacements(config_dict)
 
+        self._try_load_filesystem_options(config_dict)
+
+    def _try_load_postprocessing_replacements(self, config_dict):
+        log.debug('Trying to load post-processing replacements')
+
+        # TODO: [TD0141] Coerce raw values to a known type.
+        if 'POST_PROCESSING' not in config_dict:
+            log.debug('Did not find any post-processing options ..')
+            return
+
+        raw_replacements = config_dict['POST_PROCESSING'].get('replacements')
+        if not raw_replacements or not isinstance(raw_replacements, dict):
+            log.warning('Unable to load post-processing replacements')
+            return
+
+        match_replace_pairs = list()
+        for regex, replacement in raw_replacements.items():
+            str_regex = _coerce_string(regex)
+            str_replacement = _coerce_string(replacement)
+            try:
+                compiled_pat = re.compile(str_regex)
+            except re.error:
+                log.warning('Malformed regular expression: '
+                            '"{!s}"'.format(str_regex))
+                log.warning('Skipped bad replacement :: "{!s}": '
+                            '"{!s}"'.format(regex, replacement))
+            else:
+                log.debug(
+                    'Added post-processing replacement :: Match: "{!s}"'
+                    ' Replace: "{!s}"'.format(regex, replacement)
+                )
+                match_replace_pairs.append((compiled_pat, str_replacement))
+
+        self._options['POST_PROCESSING']['replacements'] = match_replace_pairs
+
+    def _try_load_filesystem_options(self, config_dict):
         # Combine the default ignore patterns with any user-specified patterns.
         if 'FILESYSTEM_OPTIONS' in config_dict:
             _maybe_str_list = config_dict['FILESYSTEM_OPTIONS'].get('ignore')
             _user_ignores = [
-                s for s in types.force_stringlist(_maybe_str_list) if s.strip()
+                s for s in _coerce_stringlist(_maybe_str_list) if s.strip()
             ]
             if _user_ignores:
                 for s in _user_ignores:
@@ -320,12 +320,11 @@ class ConfigurationParser(object):
     @staticmethod
     def _load_version(config_dict):
         if 'COMPATIBILITY' in config_dict:
-            _raw_version = config_dict['COMPATIBILITY'].get('autonameow_version')
-            valid_version = parse_versioning(_raw_version)
+            raw_version = config_dict['COMPATIBILITY'].get('autonameow_version')
+            valid_version = parse_versioning(raw_version)
             if valid_version:
                 return valid_version
-            else:
-                log.debug('Read invalid version: "{!s}"'.format(_raw_version))
+            log.debug('Read invalid version: "{!s}"'.format(raw_version))
 
         log.error('Unable to read program version from configuration.')
         return None
@@ -342,21 +341,21 @@ class ConfigurationParser(object):
 
         Raises:
             EncodingBoundaryViolation: Argument "path" is not a bytestring.
-            ConfigError: The configuration file is empty.
+            ConfigError: The configuration file is empty or could not be parsed.
         """
         sanity.check_internal_bytestring(path)
 
         try:
-            _loaded_data = disk.load_yaml_file(path)
+            loaded_data = disk.load_yaml_file(path)
         except FilesystemError as e:
             raise ConfigError(e)
 
-        if not _loaded_data:
+        if not loaded_data:
             raise ConfigError('Read empty config: "{!s}"'.format(
                 enc.displayable_path(path)
             ))
 
-        return self.parse(_loaded_data)
+        return self.parse(loaded_data)
 
 
 class ConfigurationRuleParser(object):
@@ -370,32 +369,28 @@ class ConfigurationRuleParser(object):
         if not isinstance(rules_dict, dict):
             raise ConfigurationSyntaxError('Expected rules to be type "dict". '
                                            'Got {!s}'.format(type(rules_dict)))
+        return self._parse_rules(rules_dict)
 
-        validated = self._validate_rules(rules_dict)
-        return validated
+    def _parse_rules(self, rules_dict):
+        parsed_rules = list()
 
-    def _validate_name_template(self, _raw_name_template):
-        _template = types.force_string(_raw_name_template)
-        if not _template:
-            return None
+        for raw_rule_name, raw_rule_data in rules_dict.items():
+            str_rule_name = _coerce_string(raw_rule_name)
+            if not str_rule_name:
+                log.error('Skipped rule with bad name: "{!s}"'.format(raw_rule_name))
+                continue
 
-        # TODO: [TD0109] Allow arbitrary name template placeholder fields.
+            raw_rule_data.update({'description': str_rule_name})
+            log.debug('Validating rule "{!s}" ..'.format(str_rule_name))
+            try:
+                valid_rule = self._to_rule_instance(raw_rule_data)
+            except ConfigurationSyntaxError as e:
+                log.error('Validation failed for rule "{!s}" :: {!s}'.format(str_rule_name, e))
+            else:
+                log.debug('Validated rule "{!s}" .. OK!'.format(str_rule_name))
+                parsed_rules.append(valid_rule)
 
-        # First test if the field data is a valid name template entry,
-        if _template in self._reusable_nametemplates:
-            # If it is, use the format string defined in that entry.
-            return self._reusable_nametemplates.get(_template)
-        else:
-            # If not, check if it is a valid name template string.
-            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(_template):
-                # TODO: [TD0139] This currently passes just about everything.
-                # If the user intends to use a "reusable name template" but
-                # misspelled it slightly, it currently goes unnoticed.
-
-                # TODO: [TD0139] Warn if sources do not match placeholders?
-                return _template
-
-        return None
+        return parsed_rules
 
     def _to_rule_instance(self, raw_rule):
         """
@@ -409,58 +404,66 @@ class ConfigurationRuleParser(object):
             An instance of the 'Rule' class representing the given rule.
 
         Raises:
-            ConfigurationSyntaxError: The given rule contains bad data,
-                making instantiating a 'Rule' object impossible.
-                Note that the message will be used in the following sentence:
-                "Bad rule "x"; {message}"
+            ConfigurationSyntaxError: Validation of the raw rule data failed
+                                      could not be used to instantiate objects.
         """
-        if 'NAME_TEMPLATE' not in raw_rule:
-            raise ConfigurationSyntaxError(
-                'is missing name template'
-            )
-        valid_template = self._validate_name_template(raw_rule.get('NAME_TEMPLATE'))
-        if not valid_template:
-            raise ConfigurationSyntaxError(
-                'uses invalid name template format'
-            )
-        name_template = text.remove_nonbreaking_spaces(valid_template)
+        description = _coerce_string(raw_rule.get('description'))
+        format_string = self._parse_format_string(raw_rule.get('NAME_TEMPLATE'))
+        conditions = parse_rule_conditions(raw_rule.get('CONDITIONS'))
+        exact_match = parse_rule_exact_match(raw_rule.get('exact_match'))
+        ranking_bias = parse_rule_ranking_bias(raw_rule.get('ranking_bias'))
 
         try:
-            _rule = get_valid_rule(
-                description=raw_rule.get('description'),
-                exact_match=raw_rule.get('exact_match'),
-                ranking_bias=raw_rule.get('ranking_bias'),
-                name_template=name_template,
-                conditions=raw_rule.get('CONDITIONS'),
-                data_sources=raw_rule.get('DATA_SOURCES')
+            return get_valid_rule(
+                description=description,
+                exact_match=exact_match,
+                ranking_bias=ranking_bias,
+                format_string=format_string,
+                conditions=conditions,
+                raw_data_sources=raw_rule.get('DATA_SOURCES')
             )
         except InvalidRuleError as e:
             raise ConfigurationSyntaxError(e)
+
+    def _parse_format_string(self, raw_format_string):
+        str_format_string = _coerce_string(raw_format_string)
+        if not str_format_string:
+            raise ConfigurationSyntaxError('missing name template format string')
+
+        valid_format_string = self._lookup_name_template_format_string(str_format_string)
+        if not valid_format_string:
+            raise ConfigurationSyntaxError('bad name template format string')
+
+        return valid_format_string
+
+    def _lookup_name_template_format_string(self, str_template):
+        # TODO: [TD0109] Allow arbitrary name template placeholder fields.
+
+        # First test if the field data is a valid name template entry,
+        if str_template in self._reusable_nametemplates:
+            # If it is, use the format string defined in that entry.
+            return self._reusable_nametemplates.get(str_template)
         else:
-            return _rule
+            # If not, check if it is a valid name template string.
+            if NameTemplateConfigFieldParser.is_valid_nametemplate_string(str_template):
+                # TODO: [TD0139] This currently passes just about everything.
+                # If the user intends to use a "reusable name template" but
+                # misspelled it slightly, it currently goes unnoticed.
 
-    def _validate_rules(self, rules_dict):
-        validated = []
+                # TODO: [TD0139] Warn if sources do not match placeholders?
+                return str_template
 
-        for raw_name, raw_contents in rules_dict.items():
-            name = types.force_string(raw_name)
-            if not name:
-                log.error('Skipped rule with bad name: "{!s}"'.format(raw_name))
-                continue
+        return None
 
-            raw_contents.update({'description': name})
-            log.debug('Validating rule "{!s}" ..'.format(name))
-            try:
-                valid_rule = self._to_rule_instance(raw_contents)
-            except ConfigurationSyntaxError as e:
-                log.error('Bad rule "{!s}"; {!s}'.format(name, e))
-            else:
-                log.debug('Validated rule "{!s}" .. OK!'.format(name))
 
-                # Create and populate "Rule" objects with *validated* data.
-                validated.append(valid_rule)
+def _coerce_string(data):
+    str_data = coercers.force_string(data)
+    return text.remove_nonbreaking_spaces(str_data)
 
-        return validated
+
+def _coerce_stringlist(data_list):
+    str_data_list = coercers.force_stringlist(data_list)
+    return [text.remove_nonbreaking_spaces(s) for s in str_data_list]
 
 
 class ConfigurationOptionsParser(object):
@@ -488,14 +491,14 @@ class ConfigurationOptionsParser(object):
                 log.debug('Added {} option :: '
                           '{!s}: "{!s}"'.format(section, key, raw_value))
                 self.parsed[section][key] = raw_value
-                return  # OK!
+                # OK!
+                return
 
         # Use the default value.
-        if __debug__:
-            if not validation_func(default):
-                raise AssertionError(
-                    'Bad default "{!s}" value: "{!s}"'.format(key, default)
-                )
+        if not validation_func(default):
+            raise AssertionError(
+                'Bad default "{!s}" value: "{!s}"'.format(key, default)
+            )
         log.debug('Using default for {} option {!s}: "{!s}"'.format(
             key, section, default
         ))
@@ -511,26 +514,98 @@ class ConfigurationOptionsParser(object):
             raw_value = self.raw_options['PERSISTENCE'].get(option)
             if isinstance(raw_value, (str, bytes)) and raw_value.strip():
                 try:
-                    _bytes_path = types.AW_PATH.normalize(raw_value)
-                except types.AWTypeError as e:
-                    _dp = enc.displayable_path(raw_value)
-                    log.error('Bad value for option {}: "{!s}"'.format(option,
-                                                                       _dp))
+                    bytes_value = coercers.AW_PATH.normalize(raw_value)
+                except coercers.AWTypeError as e:
+                    log.error('Bad value for option {}: "{!s}"'.format(
+                        option, coercers.force_string(raw_value)
+                    ))
                     log.debug(str(e))
                 else:
                     log.debug('Added persistence option :: {!s}: {!s}'.format(
-                        option, enc.displayable_path(_bytes_path)
+                        option, enc.displayable_path(bytes_value)
                     ))
-                    self.parsed['PERSISTENCE'][option] = _bytes_path
+                    self.parsed['PERSISTENCE'][option] = bytes_value
+                    # OK!
                     return
 
-        _bytes_path = types.AW_PATH.normalize(default)
+        # Use the default value.
+        bytes_default = coercers.AW_PATH.normalize(default)
         log.debug(
             'Using default persistence option :: {!s}: {!s}'.format(
-                option, enc.displayable_path(_bytes_path)
+                option, enc.displayable_path(bytes_default)
             )
         )
-        self.parsed['PERSISTENCE'][option] = _bytes_path
+        self.parsed['PERSISTENCE'][option] = bytes_default
+
+
+def parse_rule_conditions(raw_conditions):
+    if not isinstance(raw_conditions, dict):
+        raise ConfigurationSyntaxError('Expected conditions of type "dict". '
+                                       'Got {!s}'.format(type(raw_conditions)))
+
+    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
+    passed = list()
+    for str_meowuri, raw_expression in raw_conditions.items():
+        try:
+            uri = MeowURI(str_meowuri)
+        except InvalidMeowURIError as e:
+            raise ConfigurationSyntaxError(e)
+        else:
+            try:
+                valid_condition = RuleCondition(uri, raw_expression)
+            except InvalidRuleConditionError as e:
+                raise ConfigurationSyntaxError(e)
+
+            passed.append(valid_condition)
+            log.debug('Validated condition: "{!s}"'.format(valid_condition))
+
+    log.debug(
+        'Returning {} (out of {}) valid conditions'.format(len(passed),
+                                                           len(raw_conditions))
+    )
+    return passed
+
+
+def parse_rule_exact_match(raw_exact_match):
+    try:
+        return coercers.AW_BOOLEAN(raw_exact_match)
+    except coercers.AWTypeError:
+        raise ConfigurationSyntaxError('bad value for "exact match"')
+
+
+def parse_rule_ranking_bias(value):
+    """
+    Validates data to be used as a "ranking_bias".
+
+    The value must be an integer or float between 0 and 1.
+    To allow for an unspecified bias, None values are allowed and substituted
+    with the default bias defined by "DEFAULT_RULE_RANKING_BIAS".
+
+    Args:
+        value: The "raw" value to parse.
+    Returns:
+        The specified value if the value is a number type in the range 0-1.
+        If the specified value is None, a default bias is returned.
+    Raises:
+        ConfigurationSyntaxError: The value is of an unexpected type or not
+                                  within the range 0-1.
+    """
+    if value is None:
+        return C.DEFAULT_RULE_RANKING_BIAS
+
+    try:
+        float_value = coercers.AW_FLOAT(value)
+    except coercers.AWTypeError:
+        raise ConfigurationSyntaxError(
+            'Expected float but got "{!s}" ({!s})'.format(value, type(value))
+        )
+    else:
+        if not 0.0 <= float_value <= 1.0:
+            raise ConfigurationSyntaxError(
+                'Expected float between 0.0 and 1.0. Got {} -- Using default: '
+                '{}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
+            )
+        return float_value
 
 
 def parse_versioning(semver_string):
@@ -547,21 +622,15 @@ def parse_versioning(semver_string):
         A tuple of three integers representing the "major", "minor" and
         "patch" version numbers.  Or None if the validation fails.
     """
-    if not semver_string or not isinstance(semver_string, str):
-        return None
-    if not semver_string.strip():
+    if not isinstance(semver_string, str) or not semver_string.strip():
         return None
 
     RE_VERSION_NUMBER = re.compile(r'v?(\d+)\.(\d+)\.(\d+)')
     match = RE_VERSION_NUMBER.search(semver_string)
     if match:
-        try:
-            major = int(match.group(1))
-            minor = int(match.group(2))
-            patch = int(match.group(3))
-        except TypeError:
-            pass
-        else:
-            return major, minor, patch
+        major = int(match.group(1))
+        minor = int(match.group(2))
+        patch = int(match.group(3))
+        return major, minor, patch
 
     return None

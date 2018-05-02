@@ -22,6 +22,7 @@
 import logging
 
 import extractors
+from core import event
 from core import logs
 from core.model import force_meowuri
 from core.persistence import PersistenceError
@@ -79,14 +80,16 @@ class ExtractorRunner(object):
             # Throw away the results. For testing, etc.
             self._add_results_callback = lambda *_: None
 
+        self._instance_pool = dict()
         self._available_extractors = set()
         self.exclude_slow = True
 
         self.register(extractors.registry.all_providers)
+        event.dispatcher.on_shutdown.add(self.shutdown_pooled_extractors)
 
     def register(self, extractor_klasses):
         self._available_extractors.update(extractor_klasses)
-        if __debug__:
+        if logs.DEBUG:
             log.debug('Initialized {!s} with {} available extractors'.format(
                 self.__class__.__name__, len(self._available_extractors)))
             for k in self._available_extractors:
@@ -113,37 +116,35 @@ class ExtractorRunner(object):
         Raises:
             AssertionError: A sanity check failed.
         """
-        log.debug(' Extractor Runner Started '.center(120, '='))
+        log.debug(logs.center_pad_log_entry('Extractor Runner Started'))
         sanity.check_isinstance_fileobject(fileobject)
 
         _request_all = bool(request_all)
 
         # Get only extractors suitable for the given file.
-        available = filter_able_to_handle(self._available_extractors,
-                                          fileobject)
+        extractors_for_file = filter_able_to_handle(
+            self._available_extractors, fileobject
+        )
         log.debug('Removed extractors that can not handle the current file. '
-                  'Remaining: {}'.format(len(available)))
+                  'Remaining: {}'.format(len(extractors_for_file)))
 
         selected = set()
         if _request_all:
             # Add all available extractors.
             log.debug('Requested all available extractors')
-            selected = available
+            selected = extractors_for_file
         elif request_extractors:
             # Add requested extractors.
             requested_klasses = set(request_extractors)
-            selected = self._select_from_available(available, requested_klasses)
+            selected = self._select_from_available(extractors_for_file, requested_klasses)
 
-        log.debug('Selected {} of {} available extractors'.format(
-            len(selected), len(self._available_extractors)))
-
-        if __debug__:
-            log.debug('Prepared {} extractors that can handle "{!s}"'.format(
-                len(selected), fileobject
+        if logs.DEBUG:
+            log.debug('Selected {} of {} available extractors'.format(
+                len(selected), len(self._available_extractors)
             ))
             for k in selected:
                 # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
-                log.debug('Prepared:  {!s}'.format(k.name()))
+                log.debug('Selected extractor:  {!s}'.format(k.name()))
 
         if selected:
             # Run all prepared extractors.
@@ -155,7 +156,7 @@ class ExtractorRunner(object):
             k for k in requested_klasses if k in available
         }
 
-        if __debug__:
+        if logs.DEBUG:
             def __format_string(_extractors):
                 # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
                 return ', '.join(k.name() for k in _extractors)
@@ -170,7 +171,7 @@ class ExtractorRunner(object):
 
         if self.exclude_slow:
             selected = filter_not_slow(selected, requested_klasses)
-            if __debug__:
+            if logs.DEBUG:
                 log.debug('Removed slow extractors. Remaining: {}'.format(
                     len(selected)
                 ))
@@ -179,29 +180,30 @@ class ExtractorRunner(object):
 
     def _run_extractors(self, fileobject, extractors_to_run):
         for klass in extractors_to_run:
-            _extractor_instance = klass()
-            if not _extractor_instance:
-                log.critical('Error instantiating "{!s}" (!!)'.format(klass))
+            extractor_instance = self._get_pooled_extractor_instance(klass)
+            if not extractor_instance:
+                log.critical('Unable to get an instance of "{!s}"'.format(klass))
                 continue
 
             try:
-                _metainfo = _extractor_instance.metainfo()
+                _metainfo = extractor_instance.metainfo()
             except (ExtractorError, PersistenceError, NotImplementedError) as e:
                 log.error('Unable to get meta info! Aborting extractor "{!s}":'
-                          ' {!s}'.format(_extractor_instance, e))
+                          ' {!s}'.format(extractor_instance, e))
+                # TODO: Remove extractor from instance pool?
                 continue
 
             try:
-                with logs.log_runtime(log, str(_extractor_instance)):
-                    _extracted_data = _extractor_instance.extract(fileobject)
+                with logs.log_runtime(log, str(extractor_instance)):
+                    _extracted_data = extractor_instance.extract(fileobject)
             except (ExtractorError, NotImplementedError) as e:
+                # TODO: Remove extractor from instance pool?
                 log.error('Unable to extract data! Aborting extractor "{!s}":'
-                          ' {!s}'.format(_extractor_instance, e))
+                          ' {!s}'.format(extractor_instance, e))
                 continue
 
             if not _extracted_data:
-                log.warning('Got empty data from extractor "{!s}"'.format(
-                    _extractor_instance))
+                log.warning('Got no data from extractor "{!s}"'.format(extractor_instance))
                 continue
 
             # TODO: [TD0034] Filter out known bad data.
@@ -209,6 +211,13 @@ class ExtractorRunner(object):
             _results = wrap_provider_results(_extracted_data, _metainfo, klass)
             _meowuri_prefix = klass.meowuri_prefix()
             self.store_results(fileobject, _meowuri_prefix, _results)
+
+    def _get_pooled_extractor_instance(self, klass):
+        instance = self._instance_pool.get(klass)
+        if not instance:
+            instance = klass()
+            self._instance_pool[klass] = instance
+        return instance
 
     def store_results(self, fileobject, meowuri_prefix, data):
         """
@@ -229,3 +238,15 @@ class ExtractorRunner(object):
                 continue
 
             self._add_results_callback(fileobject, uri, _data)
+
+    def shutdown_pooled_extractors(self, *_, **__):
+        log.debug('Shutting down {!s}'.format(self.__class__.__name__))
+        for instance in self._instance_pool.values():
+            if not hasattr(instance, 'shutdown'):
+                continue
+
+            assert callable(getattr(instance, 'shutdown')), (
+                'Expected callable extractor attribute "shutdown"'
+            )
+            log.debug('Shutting down extractor "{!s}" ..'.format(instance))
+            instance.shutdown()

@@ -113,6 +113,67 @@ __Open questions:__
 * What is practical and actually effective?
 
 
+### Named entity recognition
+Using some kind of universal text parser that converts multiple document
+formats to a single known format, with markup/semantics/structure intact, would
+probably be a lot easier.
+But this only works for source text that is structured and valid; as in
+´START_TITLE foo END_TITLE`, where *foo* might not actually be the title. The
+author might have used the markup to change the appearance, ignoring the
+structure *(E.G. typical mis-use of MS Word, etc..)*
+
+__Assuming that we'll work with unstructured text .._
+
+Given some raw, unstructred text:
+```
+A
+MEOW
+TITLE
+
+by Gibson
+Catson
+
+foo
+```
+
+We'd like to see this output when analyzing the text:
+
+```python
+results = {
+    'title': 'A MEOW TITLE',
+    'author': 'Gibson Catson'
+}
+```
+
+Could probably find a "very abstract" generalization of commonalitites between
+several heuristics.  Where a "heuristic" might be to assume a "entity" is
+always constrained to a single line.  Then, absolute line number as well as
+line number relative to other candidate entities could be the main features.
+
+
+Or maybe something along the lines of blocks, like so;
+
+```
+        .->   A                   Block A -->   A MEOW TITLE
+Block A |     MEOW
+        '->   TITLE
+                                  block C -->   foo
+Block B -->   by Gibson
+        '->   Catson              Block B -->   by Gibson Catson
+
+Block C -->   foo
+```
+
+Where the condition for termination a block is variable.
+Each block could be turned into simple feature vectors by word count, character
+count, capitalization, position, number of lnie breaks, etc.
+
+
+
+### Classification of file name substrings
+Like above, with a lot more constraints --- always a single line of text, etc.
+
+
 --------------------------------------------------------------------------------
 
 
@@ -155,8 +216,8 @@ these sources could possibly provide relevant evidence:
     >>> _ext = 'IFF.txt'.split('.')[-1]
     >>> _ext
     'txt'
-    >>> from core import types
-    >>> types.AW_MIMETYPE(_ext)
+    >>> from core import coercers
+    >>> coercers.AW_MIMETYPE(_ext)
     'text/plain'
     ```
 
@@ -469,10 +530,10 @@ Some contextual metadata should be kept along with each stored data item for;
       Example;
         ```python
         'PDF:Producer': ExtractedData(
-            wrapper=types.AW_STRING,
+            wrapper=coercers.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.publisher, probability=0.25),
-                fields.WeightedMapping(fields.author, probability=0.01)
+                fields.WeightedMapping(fields.publisher, weight=0.25),
+                fields.WeightedMapping(fields.author, weight=0.01)
             ]
         ```
     * ~~Alternatively, assigning semantic context and probabilities to the raw

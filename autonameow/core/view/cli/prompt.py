@@ -22,71 +22,73 @@
 import logging
 import sys
 
-try:
-    from prompt_toolkit import prompt
-    from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-    from prompt_toolkit.completion import (
-        Completer,
-        Completion
-    )
-    from prompt_toolkit.history import (
-        FileHistory,
-        InMemoryHistory
-    )
-    from prompt_toolkit.interface import AbortAction
-    from prompt_toolkit.shortcuts import confirm
-    from prompt_toolkit.validation import (
-        Validator,
-        ValidationError
-    )
-except ImportError:
-    raise SystemExit(
-        'Missing required module "prompt_toolkit". '
-        'Make sure "prompt_toolkit" is available before running this program.'
-    )
-
 from core import constants as C
-from core import (
-    config,
-    providers,
-)
+from core import event
+from core import master_provider
+from core.exceptions import DependencyError
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from core.view import cli
+from util import disk
 from util import encoding as enc
-from util import (
-    disk,
-    sanity
-)
+from util import sanity
+
+try:
+    from prompt_toolkit import prompt
+    from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+    from prompt_toolkit.completion import Completer
+    from prompt_toolkit.completion import Completion
+    from prompt_toolkit.history import FileHistory
+    from prompt_toolkit.history import InMemoryHistory
+    from prompt_toolkit.interface import AbortAction
+    from prompt_toolkit.shortcuts import confirm
+    from prompt_toolkit.validation import ValidationError
+    from prompt_toolkit.validation import Validator
+except ImportError:
+    raise DependencyError(missing_modules='prompt_toolkit')
 
 
 log = logging.getLogger(__name__)
 
 
-def get_config_history_path():
-    _active_config = config.ActiveConfig
-    if not _active_config:
-        return C.DEFAULT_HISTORY_FILE_ABSPATH
+class ConfigHistoryPathStore(object):
+    def __init__(self):
+        self._config_history_path = None
+        self.default_history_file_path = C.DEFAULT_HISTORY_FILE_ABSPATH
 
-    try:
-        _history_path = _active_config.get(['PERSISTENCE', 'history_file_path'])
-    except AttributeError:
-        _history_path = None
+    def update_from_config(self, active_config):
+        if not active_config:
+            return
 
-    if _history_path:
-        if disk.isfile(_history_path):
-            return _history_path
-        elif disk.isdir(_history_path):
+        history_filepath = active_config.get(['PERSISTENCE', 'history_file_path'])
+        if not history_filepath:
+            return
+
+        if disk.isfile(history_filepath):
+            self._config_history_path = history_filepath
+        elif disk.isdir(history_filepath):
             log.warning('Expected history path to include a file ..')
-            _fixed_path = disk.joinpaths(_history_path,
-                                         C.DEFAULT_HISTORY_FILE_BASENAME)
-            if _fixed_path:
-                log.warning('Using fixed history path: "{!s}"'.format(
-                    enc.displayable_path(_fixed_path)
+            fixed_history_filepath = disk.joinpaths(
+                history_filepath, C.DEFAULT_HISTORY_FILE_BASENAME
+            )
+            if fixed_history_filepath:
+                log.warning('Added default filename to history path: "{!s}"'.format(
+                    enc.displayable_path(fixed_history_filepath)
                 ))
-                return _fixed_path
+                self._config_history_path = fixed_history_filepath
 
-    return C.DEFAULT_HISTORY_FILE_ABSPATH
+    @property
+    def config_history_path(self):
+        # TODO [TD0188] Consolidate access to active, global configuration.
+        if not self._config_history_path:
+            log.debug('Using default history file path "{!s}"'.format(self.default_history_file_path))
+            return self.default_history_file_path
+
+        log.debug('Using history file path "{!s}"'.format(self._config_history_path))
+        return self._config_history_path
+
+
+_config_history_path_store = ConfigHistoryPathStore()
 
 
 class NumberSelectionValidator(Validator):
@@ -118,7 +120,8 @@ class MeowURIValidator(Validator):
 
 class MeowURICompleter(Completer):
     def __init__(self):
-        self.all_meowuris = list(providers.Registry.mapped_meowuris)
+        # TODO: [TD0185] Rework access to 'master_provider' functionality.
+        self.all_meowuris = list(master_provider.Registry.mapped_meowuris)
 
     # TODO: [TD0099] Split by MeowURI separators.
     def get_completions(self, document, complete_event):
@@ -144,11 +147,11 @@ def meowuri_prompt(message=None):
                      'AssertionError in "prompt_toolkit". ABORTING!')
         return None
 
-    _history_file_path = get_config_history_path()
-    if _history_file_path:
-        history = FileHistory(_history_file_path)
+    history_filepath = _config_history_path_store.config_history_path
+    if history_filepath:
+        history = FileHistory(history_filepath)
         log.debug('Prompt history file: "{!s}"'.format(
-            enc.displayable_path(_history_file_path)
+            enc.displayable_path(history_filepath)
         ))
     else:
         log.debug('Prompt history file: in-memory (volatile)')
@@ -206,6 +209,16 @@ def ask_confirm(message):
     # TODO: Test this!
     answer = confirm(message + ' ')
     return answer
+
+
+def _on_config_changed(*_, **kwargs):
+    active_config = kwargs.get('config')
+    assert active_config
+
+    _config_history_path_store.update_from_config(active_config)
+
+
+event.dispatcher.on_config_changed.add(_on_config_changed)
 
 
 if __name__ == '__main__':

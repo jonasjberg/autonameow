@@ -23,8 +23,8 @@
 import logging
 
 from core import view
-from util import sanity
 from util import encoding as enc
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -42,6 +42,7 @@ def select_field(fileobject, templatefield, candidates):
     view.msg('Candidates for unresolved field: {!s}'.format(
         templatefield.as_placeholder()))
 
+    # TODO: [TD0171][cleanup][hack] Do NOT prioritize candidates here!
     try:
         prioritized_candidates = sorted(candidates,
                                         key=lambda x: (x.probability, x.value),

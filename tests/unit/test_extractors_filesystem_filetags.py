@@ -21,37 +21,33 @@
 
 from collections import namedtuple
 from datetime import datetime
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 
 import unit.utils as uu
-from extractors.filesystem.filetags import (
-    FiletagsExtractor,
-    FiletagsParts,
-    follows_filetags_convention,
-    partition_basename
+from extractors.filesystem.filetags import FiletagsExtractor
+from extractors.filesystem.filetags import FiletagsParts
+from extractors.filesystem.filetags import follows_filetags_convention
+from extractors.filesystem.filetags import partition_basename
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
+
+
+UNMET_DEPENDENCIES = (
+    FiletagsExtractor.dependencies_satisfied() is False,
+    'Extractor dependencies not satisfied (!)'
 )
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput
+assert not UNMET_DEPENDENCIES[0], (
+    'Expected extractor to not have any dependencies (always satisfied)'
 )
 
 
-# This really shouldn't happen. Probably caused by an error if it does.
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied (!)'
-UNMET_DEPENDENCIES = FiletagsExtractor.check_dependencies() is False
-assert not UNMET_DEPENDENCIES
-
-
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestFiletagsExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = FiletagsExtractor
     EXTRACTOR_NAME = 'FiletagsExtractor'
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestFiletagsExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = FiletagsExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('2017-09-12T224820 filetags-style name -- tag2 a tag1.txt')
@@ -64,7 +60,7 @@ class TestFiletagsExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     ]
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestFiletagsExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = FiletagsExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('empty')
@@ -84,7 +80,7 @@ class TestPartitionBasename(TestCase):
         self.testdata_expected = [
             (b'2010-01-31_161251.jpg',
              Expect(timestamp='2010-01-31_161251',
-                    description=None,
+                    description='',
                     tags=[],
                     extension='jpg')),
 
@@ -158,7 +154,7 @@ class TestPartitionBasename(TestCase):
              Expect(timestamp=None,
                     description='.name',
                     tags=[],
-                    extension=None)),
+                    extension='')),
 
             (b'19920722 --Descriptive-- name -- firsttag tagtwo.txt',
              Expect(timestamp='19920722',

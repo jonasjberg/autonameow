@@ -24,37 +24,32 @@ from unittest.mock import Mock
 
 import unit.constants as uuconst
 import unit.utils as uu
-from core.evaluate.resolver import (
-    dedupe_list_of_databundles,
-    FieldDataCandidate,
-    sort_by_mapped_weights,
-    TemplateFieldDataResolver
-)
+from core.evaluate.resolver import dedupe_list_of_databundles
+from core.evaluate.resolver import FieldDataCandidate
+from core.evaluate.resolver import sort_by_mapped_weights
+from core.evaluate.resolver import TemplateFieldDataResolver
 
 
-@skip('TODO: Fix or remove')
 class TestDedupeListOfDatabundles(TestCase):
-    def _t(self, given, expect):
+    def _t(self, given, expected):
         from core.repository import DataBundle
 
         bundles = [DataBundle.from_dict(g) for g in given]
         actual = dedupe_list_of_databundles(bundles)
-        self.assertEqual(actual, expect)
+        expect = [DataBundle.from_dict(x) for x in expected]
+        self.assertEqual(expect, actual)
 
-    def test_returns_list_with_one_element_as_is(self):
-        self._t(given=['A'], expect=['A'])
-
-    def test_returns_list_of_only_unique_values_as_is(self):
-        self._t(given=['A', 'B'], expect=['A', 'B'])
-
-    def test_dedupes_two_equivalent_values(self):
-        self._t(given=['A', 'A'], expect=['A'])
-
-    def test_dedupes_three_equivalent_values(self):
-        self._t(given=['A', 'A', 'A'], expect=['A'])
-
-    def test_dedupes_two_duplicate_values_and_returns_one_as_is(self):
-        self._t(given=['A', 'B', 'A'], expect=['A', 'b'])
+    def test_dedupes_two_identical_generic_titles(self):
+        from core.model import genericfields as gf
+        databundle_a = {
+            'generic_field': gf.GenericTitle,
+            'value': 'Mysticism and Logic and Other Essays'
+        }
+        databundle_b = {
+            'generic_field': gf.GenericTitle,
+            'value': 'Mysticism and Logic and Other Essays'
+        }
+        self._t(given=[databundle_a, databundle_b], expected=[databundle_a])
 
 
 @skip('TODO: Fix or remove')
@@ -138,7 +133,7 @@ class TestTemplateFieldDataResolverTypeAssertions(TestCase):
     def setUpClass(cls):
         fo = uu.get_mock_fileobject()
         name_template = '{datetime} {title}.{extension}',
-        cls.tfdr = TemplateFieldDataResolver(fo, name_template)
+        cls.tfdr = TemplateFieldDataResolver(fo, name_template, None)
 
     def test_add_known_source_not_given_instance_of_meowuri(self):
         mock_field = Mock()
@@ -160,7 +155,6 @@ class TestFieldDataCandidate(TestCase):
             source='klass',
             probability=0.01,
             meowuri='meowuri',
-            coercer='coercer',
             generic_field='generic_field_klass'
         )
         actual = repr(fdc)
@@ -182,33 +176,33 @@ class TestSortDatadictsByMappingWeights(TestCase):
         # extractor.metadata.exiftool.XMP:Creator
         cls.d1 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Author, probability=0.5),
-                WeightedMapping(cls.fields_Creator, probability=1),
-                WeightedMapping(cls.fields_Publisher, probability=0.02),
-                WeightedMapping(cls.fields_Title, probability=0.01)
+                WeightedMapping(cls.fields_Author, weight=0.5),
+                WeightedMapping(cls.fields_Creator, weight=1),
+                WeightedMapping(cls.fields_Publisher, weight=0.02),
+                WeightedMapping(cls.fields_Title, weight=0.01)
             ]
         })
         # extractor.metadata.exiftool.XMP:CreatorFile-as
         cls.d2 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Author, probability=0.5),
-                WeightedMapping(cls.fields_Creator, probability=1),
-                WeightedMapping(cls.fields_Publisher, probability=0.03),
-                WeightedMapping(cls.fields_Title, probability=0.02)
+                WeightedMapping(cls.fields_Author, weight=0.5),
+                WeightedMapping(cls.fields_Creator, weight=1),
+                WeightedMapping(cls.fields_Publisher, weight=0.03),
+                WeightedMapping(cls.fields_Title, weight=0.02)
             ]
         })
         # extractor.metadata.exiftool.XMP:Contributor
         cls.d3 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Author, probability=0.75),
-                WeightedMapping(cls.fields_Creator, probability=0.5),
-                WeightedMapping(cls.fields_Publisher, probability=0.02),
+                WeightedMapping(cls.fields_Author, weight=0.75),
+                WeightedMapping(cls.fields_Creator, weight=0.5),
+                WeightedMapping(cls.fields_Publisher, weight=0.02),
             ]
         })
         # analyzer.filename.publisher
         cls.d4 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Publisher, probability=1),
+                WeightedMapping(cls.fields_Publisher, weight=1),
             ]
         })
 

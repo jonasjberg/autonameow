@@ -19,10 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 
 try:
     import PIL
@@ -33,27 +30,25 @@ else:
 
 import unit.utils as uu
 from extractors import ExtractorError
-from extractors.text import (
-    TesseractOCRTextExtractor,
-    tesseractocr
+from extractors.text import tesseractocr
+from extractors.text import TesseractOCRTextExtractor
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutputTypes
+
+
+UNMET_DEPENDENCIES = (
+    not TesseractOCRTextExtractor.dependencies_satisfied(),
+    'Extractor dependencies not satisfied'
 )
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutputTypes
-)
 
 
-UNMET_DEPENDENCIES = TesseractOCRTextExtractor.check_dependencies() is False
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
-
-
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestTesseractOCRTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = TesseractOCRTextExtractor
     EXTRACTOR_NAME = 'TesseractOCRTextExtractor'
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestTesseractOCRTextExtractorOutputTypes(CaseExtractorOutputTypes,
                                                TestCase):
     EXTRACTOR_CLASS = TesseractOCRTextExtractor
@@ -77,6 +72,7 @@ class TestTesseractOCRTextExtractorCanHandle(TestCase):
         self.assertFalse(self.e.can_handle(self.fo_pdf))
 
 
+@skipIf(*UNMET_DEPENDENCIES)
 class TestTesseractOCRTextExtractorWithImageFile(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -85,17 +81,14 @@ class TestTesseractOCRTextExtractorWithImageFile(TestCase):
         cls.TEST_IMAGE_FILE = uu.fileobject_testfile('2007-04-23_12-comments.png')
         cls.TEST_IMAGE_FILE_TEXT = 'Apr 23, 2007 - 12 Comments'
 
-    @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
     def test__get_raw_text_returns_expected_type(self):
         actual = self.e.extract_text(self.TEST_IMAGE_FILE)
         self.assertTrue(uu.is_internalstring(actual))
 
-    @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
     def test_method_extract_returns_expected_type(self):
         actual = self.e.extract(self.TEST_IMAGE_FILE)
         self.assertIsInstance(actual, dict)
 
-    @skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
     def test_method_extract_all_result_contains_expected(self):
         self.skipTest(
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'"
@@ -130,9 +123,3 @@ class TestTesseractWrapper(TestCase):
         for _test_file in _test_files:
             with self.assertRaises(ExtractorError):
                 _ = tesseractocr.pil_read_image(_test_file)
-
-        # def test_pil_read_image_raises_exception_for_invalid_images(self):
-        # _test_inputs = [
-        #     image_file = uu.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
-        # ]
-        # actual = ocr.pil_read_image(image_file)

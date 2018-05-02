@@ -19,21 +19,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 
 import unit.utils as uu
 from extractors.text import MarkdownTextExtractor
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput,
-    CaseExtractorOutputTypes
-)
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
+from unit.case_extractors import CaseExtractorOutputTypes
 
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied (!)'
-UNMET_DEPENDENCIES = MarkdownTextExtractor.check_dependencies() is False
+
+UNMET_DEPENDENCIES = (
+    MarkdownTextExtractor.dependencies_satisfied() is False,
+    'Extractor dependencies not satisfied (!)'
+)
 
 TESTFILE_A = uu.abspath_testfile('sample.md')
 TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('sample.md')
@@ -47,20 +45,20 @@ class TestPrerequisites(TestCase):
         self.assertIsNotNone(TESTFILE_A_EXPECTED)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestMarkdownTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = MarkdownTextExtractor
     EXTRACTOR_NAME = 'MarkdownTextExtractor'
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestMarkdownTextExtractorOutputTypes(CaseExtractorOutputTypes,
                                            TestCase):
     EXTRACTOR_CLASS = MarkdownTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestMarkdownTextExtractorOutputTestFileA(CaseExtractorOutput,
                                                TestCase):
     EXTRACTOR_CLASS = MarkdownTextExtractor
@@ -70,7 +68,7 @@ class TestMarkdownTextExtractorOutputTestFileA(CaseExtractorOutput,
     ]
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestMarkdownTextExtractorInternals(TestCase):
     def setUp(self):
         self.maxDiff = None

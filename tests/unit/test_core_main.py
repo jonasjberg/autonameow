@@ -21,12 +21,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
 from unittest import TestCase
-from unittest.mock import (
-    MagicMock,
-    patch
-)
+from unittest.mock import MagicMock, patch
 
 import unit.constants as uuconst
 import unit.utils as uu
@@ -54,7 +50,7 @@ class TestMainFileExistsAndIsExecutable(TestCase):
 
 
 class TestCliMain(TestCase):
-    EMPTY_COMMANDLINE_OPTIONS = []
+    EMPTY_COMMANDLINE_OPTIONS = list()
 
     # TODO: Calling 'init_logging()' here messes up other tests for some reason.
     # If only 'test_regression_utils.py' is executed, all tests pass.
@@ -63,11 +59,11 @@ class TestCliMain(TestCase):
     # 'test_regression_utils.py' to fail..
 
     # TODO: [cleanup] This much mocking indicates poor design choices ..
-    @patch('core.providers.Registry')
+    @patch('core.master_provider.Registry')
     @patch('core.main.sys.exit', MagicMock())
     @patch('core.logs.init_logging', MagicMock())
     @patch('core.autonameow.master_provider', MagicMock())
-    @patch('core.providers.initialize', MagicMock())
+    @patch('core.master_provider._initialize_master_data_provider', MagicMock())
     def test_prints_help_when_started_without_args(self, mock_registry):
         mock_registry.might_be_resolvable.return_value = True
 
@@ -80,10 +76,10 @@ class TestCliMain(TestCase):
     # TODO: [cleanup] This much mocking indicates poor design choices ..
     @patch('core.main.sys.exit')
     @patch('core.main.Autonameow.exit_program')
-    @patch('core.providers.Registry')
+    @patch('core.master_provider.Registry')
     @patch('core.logs.init_logging', MagicMock())
     @patch('core.autonameow.master_provider', MagicMock())
-    @patch('core.providers.initialize', MagicMock())
+    @patch('core.master_provider._initialize_master_data_provider', MagicMock())
     def test_exits_with_expected_return_code_when_started_without_args(
             self, mock_registry, mock_exit_program, mock_sys_exit):
         mock_registry.might_be_resolvable.return_value = True

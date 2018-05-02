@@ -21,6 +21,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
 
 
 _PATH_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -39,6 +40,9 @@ PATH_TEST_FILES = join_path_from_srcroot('test_files')
 PATH_TESTS_REGRESSION = join_path_from_srcroot('tests', 'regression')
 PATH_TESTS_UNIT = join_path_from_srcroot('tests', 'unit')
 PATH_AUTONAMEOW_SRCROOT = join_path_from_srcroot('autonameow')
+
+
+PATH_USER_HOME = os.path.expanduser('~')
 
 
 REGRESSIONTEST_DIR_BASENAMES = [
@@ -83,6 +87,7 @@ MEOWURI_GEN_METADATA_CREATOR = 'generic.metadata.creator'
 MEOWURI_GEN_METADATA_PRODUCER = 'generic.metadata.producer'
 MEOWURI_GEN_METADATA_SUBJECT = 'generic.metadata.subject'
 MEOWURI_GEN_METADATA_TAGS = 'generic.metadata.tags'
+MEOWURI_GEN_METADATA_TITLE = 'generic.metadata.title'
 MEOWURI_GEN_METADATA_DATECREATED = 'generic.metadata.date_created'
 MEOWURI_GEN_METADATA_DATEMODIFIED = 'generic.metadata.date_modified'
 
@@ -129,6 +134,7 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_GEN_METADATA_PRODUCER,
     MEOWURI_GEN_METADATA_SUBJECT,
     MEOWURI_GEN_METADATA_TAGS,
+    MEOWURI_GEN_METADATA_TITLE,
     MEOWURI_GEN_METADATA_DATECREATED,
     MEOWURI_GEN_METADATA_DATEMODIFIED,
     MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE,
@@ -281,3 +287,7 @@ DUMMY_RAW_RULE_DATA_SOURCES = [
 
 # Various test files (hopefully) included with the sources.
 DEFAULT_YAML_CONFIG_BASENAME = 'default.yaml'
+
+
+# This is not clearly defined otherwise.
+BUILTIN_REGEX_TYPE = type(re.compile(''))

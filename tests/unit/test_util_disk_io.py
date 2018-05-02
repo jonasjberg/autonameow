@@ -28,24 +28,22 @@ import unit.constants as uuconst
 import unit.utils as uu
 from core.exceptions import FilesystemError
 from util import encoding as enc
-from util.disk.io import (
-    delete,
-    dirname,
-    exists,
-    basename,
-    file_bytesize,
-    has_permissions,
-    isabs,
-    isdir,
-    isfile,
-    islink,
-    joinpaths,
-    listdir,
-    makedirs,
-    rename_file,
-    rmdir,
-    tempdir
-)
+from util.disk.io import basename
+from util.disk.io import delete
+from util.disk.io import dirname
+from util.disk.io import exists
+from util.disk.io import file_bytesize
+from util.disk.io import has_permissions
+from util.disk.io import isabs
+from util.disk.io import isdir
+from util.disk.io import isfile
+from util.disk.io import islink
+from util.disk.io import joinpaths
+from util.disk.io import listdir
+from util.disk.io import makedirs
+from util.disk.io import rename_file
+from util.disk.io import rmdir
+from util.disk.io import tempdir
 
 
 class TestRenameFile(TestCase):
@@ -99,6 +97,15 @@ class TestRenameFile(TestCase):
         expected_destpath = os.path.join(test_file_dir_path, b'baz')
         rename_file(test_file_path, b'baz')
         mock_rename.assert_called_once_with(test_file_path, expected_destpath)
+
+    def test_raises_expected_exception_when_filename_is_too_long(self):
+        test_file_path = uu.make_temporary_file()
+        too_long_destination_basename = 256 * b'X'
+        self.assertEqual(256, len(too_long_destination_basename))
+
+        with self.assertRaises(FilesystemError) as cm:
+            rename_file(test_file_path, too_long_destination_basename)
+        # self.assertEqual(cm.exception.error_code, 36)
 
 
 class TestDirname(TestCase):

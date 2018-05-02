@@ -23,15 +23,19 @@ from unittest import TestCase
 
 import unit.utils as uu
 from core import constants as C
-from extractors import (
-    AUTONAMEOW_EXTRACTOR_PATH,
-    EXTRACTOR_CLASS_PACKAGES,
-    EXTRACTOR_CLASS_PACKAGES_METADATA,
-    EXTRACTOR_CLASS_PACKAGES_TEXT,
-    _find_extractor_classes_in_packages,
-    get_extractor_classes,
-)
+from extractors import AUTONAMEOW_EXTRACTOR_PATH
+from extractors import EXTRACTOR_CLASS_PACKAGES
+from extractors import EXTRACTOR_CLASS_PACKAGES_FILESYSTEM
+from extractors import EXTRACTOR_CLASS_PACKAGES_METADATA
+from extractors import EXTRACTOR_CLASS_PACKAGES_TEXT
+from extractors import _find_extractor_classes_in_packages
+from extractors import _get_extractor_classes
 from extractors.common import BaseExtractor
+
+
+def get_extractor_classes(**kwargs):
+    packages = kwargs.get('packages', dict())
+    return _get_extractor_classes(packages)
 
 
 class TestExtractorsConstants(TestCase):
@@ -55,11 +59,14 @@ class TestExtractorsConstants(TestCase):
     def test_extractor_class_packages(self):
         self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES)
 
-    def test_extractor_class_packages_text(self):
-        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_TEXT)
+    def test_extractor_class_packages_filesystem(self):
+        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_FILESYSTEM)
 
     def test_extractor_class_packages_metadata(self):
         self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_METADATA)
+
+    def test_extractor_class_packages_text(self):
+        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_TEXT)
 
 
 class TestFindExtractorClassesInPackages(TestCase):
@@ -83,7 +90,7 @@ class TestFindExtractorClassesInPackages(TestCase):
 class TestGetImplementedExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual = get_extractor_classes(
+        cls.actual, _ = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
@@ -106,7 +113,7 @@ class TestGetImplementedExtractorClasses(TestCase):
 class TestGetTextExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual = get_extractor_classes(
+        cls.actual, _ = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES_TEXT,
         )
 
@@ -134,7 +141,7 @@ class TestGetTextExtractorClasses(TestCase):
 class TestGetMetadataExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual = get_extractor_classes(
+        cls.actual, _ = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES_METADATA,
         )
 
@@ -168,7 +175,7 @@ class TestGetMetadataExtractorClasses(TestCase):
 class TestNumberOfAvailableExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual = get_extractor_classes(
+        cls.actual, _ = get_extractor_classes(
             packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
@@ -187,7 +194,9 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
 class TestExtractorClassMeowURIs(TestCase):
     @classmethod
     def setUpClass(cls):
-        provider_klasses = get_extractor_classes(EXTRACTOR_CLASS_PACKAGES)
+        provider_klasses, _ = get_extractor_classes(
+            packages=EXTRACTOR_CLASS_PACKAGES
+        )
         # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
         cls.extractor_class_names = [e.name() for e in provider_klasses]
         cls.actual = [k.meowuri_prefix() for k in provider_klasses]
@@ -196,7 +205,7 @@ class TestExtractorClassMeowURIs(TestCase):
         from core.model import MeowURI
         for meowuri in self.actual:
             self.assertIsInstance(meowuri, MeowURI)
-            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
+            self.assertTrue(C.MEOWURI_UNDEFINED_PART not in meowuri)
 
     def test_returns_meowuris_for_extractors_assumed_always_available(self):
         def _assert_in(member):

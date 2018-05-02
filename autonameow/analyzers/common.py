@@ -22,17 +22,13 @@
 import logging
 
 from core import constants as C
-from core import providers
 from core.exceptions import AutonameowException
-from core.model import (
-    force_meowuri,
-    MeowURI
-)
+from core.model import force_meowuri
+from core.model import MeowURI
+from core.providers import ProviderMixin
 from core.providers import wrap_provider_results
-from util import (
-    mimemagic,
-    sanity
-)
+from util import mimemagic
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -42,7 +38,7 @@ class AnalyzerError(AutonameowException):
     """Irrecoverable error occurred when running a "analyzer" class."""
 
 
-class BaseAnalyzer(object):
+class BaseAnalyzer(ProviderMixin):
     """
     Top-level abstract base class for all content-specific analyzer classes.
 
@@ -61,7 +57,7 @@ class BaseAnalyzer(object):
     HANDLES_MIME_TYPES = None
 
     # Last part of the full MeowURI ('ebook', 'filename', ..)
-    MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
+    MEOWURI_LEAF = C.MEOWURI_UNDEFINED_PART
 
     # Set at first call to 'meowuri_prefix()'.
     _meowuri_prefix = None
@@ -70,9 +66,7 @@ class BaseAnalyzer(object):
     # the analyzer produces. Stores information on types, etc..
     FIELD_LOOKUP = dict()
 
-    # TODO: Hack ..
     # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
-    coerce_field_value = providers.ProviderMixin.coerce_field_value
 
     def __init__(self, fileobject, config, request_data_callback):
         self.config = config
@@ -83,7 +77,6 @@ class BaseAnalyzer(object):
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-        # self._intermediate_results = list()
         self._intermediate_results = dict()
 
     def run(self):
@@ -116,7 +109,7 @@ class BaseAnalyzer(object):
 
         Only raise the "AnalyzerError" exception for irrecoverable errors.
         Otherwise, implementers should strive to return empty values of the
-        expected type. The type coercers in 'types.py' could be useful here.
+        expected type. The type coercers in 'coercers.py' could be useful here.
 
         Raises:
             AnalyzerError: The extraction could not be completed successfully.
@@ -130,7 +123,8 @@ class BaseAnalyzer(object):
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
         # assert meowuri_leaf not in self._intermediate_results
         if meowuri_leaf in self._intermediate_results:
-            log.critical('Clobbered value with MeowURI leaf {!s}: "{!s}"'.format(meowuri_leaf, data))
+            # TODO: [TD0187] Fix clobbering of results
+            log.critical('[TD0187] Clobbered value with MeowURI leaf {!s}: "{!s}"'.format(meowuri_leaf, data))
         self._intermediate_results[meowuri_leaf] = data
 
     def _wrap_results(self):
@@ -245,7 +239,7 @@ class BaseAnalyzer(object):
             )
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         """
         Tests if the analyzer can be used.
 

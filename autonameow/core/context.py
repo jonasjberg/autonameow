@@ -21,36 +21,31 @@
 
 import logging
 
-
 from core import constants as C
-from core import (
-    interactive,
-    logs,
-    namebuilder,
-)
-from core.evaluate import (
-    RuleMatcher,
-    TemplateFieldDataResolver
-)
-from core.exceptions import (
-    AutonameowException,
-    NameBuilderError
-)
+from core import interactive
+from core import logs
+from core import namebuilder
+from core.evaluate import RuleMatcher
+from core.evaluate import TemplateFieldDataResolver
+from core.exceptions import AutonameowException
+from core.exceptions import NameBuilderError
 from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
 
 
-class FilesContext(object):
-    def __init__(self, autonameow_exit_code, options, active_config,
-                 master_provider):
+class FileContext(object):
+    def __init__(self, fileobject, ui, autonameow_exit_code, options, active_config,
+                 masterprovider):
+        self.fileobject = fileobject
+        self.ui = ui
         self.autonameow_exit_code = autonameow_exit_code
         self.opts = options
         self.active_config = active_config
-        self.master_provider = master_provider
+        self._masterprovider = masterprovider
 
-    def handle_file(self, current_file):
+    def find_new_name(self):
         #  Things to find:
         #
         #    * NAME TEMPLATE
@@ -66,94 +61,83 @@ class FilesContext(object):
         #
         #    * Matched Rule ---+--> Template
         #                      '--> Data Sources
-
+        #
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
-        active_rule = None
+        # TODO: [hack][cleanup] This is such a mess ..
         data_sources = None
         name_template = None
-        if self.opts.get('mode_rulematch'):
-            matcher = RuleMatcher(
-                self.active_config.rules,
-                self.master_provider,
-                current_file,
-                # TODO: [TD0171] Separate logic from user interface.
-                list_rulematch=self.opts.get('list_rulematch')
-            )
-            with logs.log_runtime(log, 'Rule-Matching'):
-                candidates = matcher.get_match_results()
 
-            log.debug('Matcher returned {} candidate rules'.format(len(candidates)))
-            if candidates:
-                active_rule = self._try_get_rule(current_file, candidates)
-
-        if active_rule:
-            log.info(
-                'Using rule: "{!s}"'.format(active_rule.description)
-            )
-            data_sources = active_rule.data_sources
-            name_template = active_rule.name_template
+        matched_rules = self._get_matched_rules()
+        log.debug('Matcher returned {} matched rules'.format(len(matched_rules)))
+        if matched_rules:
+            active_rule = self._pop_from_matched_rules(matched_rules)
+            if active_rule:
+                log.info('Using rule: "{!s}"'.format(active_rule))
+                data_sources = active_rule.data_sources
+                name_template = active_rule.name_template
 
         if not name_template:
             if self.opts.get('mode_batch'):
-                log.warning('Name template unknown! Aborting ..')
+                self._log_fail('Name template unknown. Running in batch mode -- Aborting')
+                self._log_unable_to_find_new_name()
                 return None
 
             # Have the user select a name template.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
-            # candidates = None
-            # choice = interactive.select_template(candidates)
-            # if choice != interactive.Choice.ABORT:
-            #     name_template = choice
-            # if not name_template:
-            #     log.warning('No valid name template chosen. Aborting ..')
-
-        if not name_template:
-            # User name template selection did not happen or failed.
-            log.warning('Name template unknown! Aborting ..')
+            self._log_fail('Name template unknown')
+            self._log_unable_to_find_new_name()
             return None
 
         if not data_sources:
+            # TODO: [hack][cleanup] This is such a mess ..
+            if not name_template.placeholders:
+                # No placeholders means we don't need any sources. Return as-is.
+                return str(name_template)
+
+            if self.opts.get('mode_batch'):
+                self._log_fail('Data sources unknown. Running in batch mode -- Aborting')
+                self._log_unable_to_find_new_name()
+                self.autonameow_exit_code = C.EXIT_WARNING
+                return None
+
             if self.opts.get('mode_automagic'):
                 # Try real hard to figure it out (?)
                 pass
 
-            if self.opts.get('mode_batch'):
-                log.warning('Data sources unknown! Aborting ..')
-                self.autonameow_exit_code = C.EXIT_WARNING
-                return None
-
             # Have the user select data sources.
             # TODO: [TD0024][TD0025] Implement Interactive mode.
+            self._log_fail('Data sources unknown')
+            self._log_unable_to_find_new_name()
+            return None
 
-        field_databundle_dict = self._try_resolve(current_file, name_template,
-                                                  data_sources)
+        field_databundle_dict = self._get_resolved_databundle_dict(name_template.placeholders, data_sources)
         if not field_databundle_dict:
             if not self.opts.get('mode_automagic'):
-                log.warning('Not in automagic mode. Unable to populate name.')
+                self._log_fail('Missing field data bundles. Not in automagic mode -- Aborting')
+                self._log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
-            while not field_databundle_dict and candidates:
+            while not field_databundle_dict:
                 # Try real hard to figure it out (?)
-                log.debug('Start of try-hard rule matching loop ..')
-                if not candidates:
-                    log.debug('No candidates! Exiting try-hard matching loop')
+                log.debug('Entering try-hard rule matching loop ..')
+                if not matched_rules:
+                    log.debug('No matched_rules! Exiting try-hard matching loop')
                     break
 
-                log.debug('Remaining candidates: {}'.format(len(candidates)))
-                active_rule = self._try_get_rule(current_file, candidates)
+                log.debug('Remaining matched_rules: {}'.format(len(matched_rules)))
+                active_rule = self._pop_from_matched_rules(matched_rules)
                 if active_rule:
-                    log.info(
-                        'Using rule: "{!s}"'.format(active_rule.description)
-                    )
+                    log.info('Using rule: "{!s}"'.format(active_rule))
                     data_sources = active_rule.data_sources
                     name_template = active_rule.name_template
-                    field_databundle_dict = self._try_resolve(current_file,
-                                                              name_template,
-                                                              data_sources)
+
+                    # New resolver with state derived from currently active rule.
+                    field_databundle_dict = self._get_resolved_databundle_dict(name_template.placeholders, data_sources)
 
         if not field_databundle_dict:
-            log.warning('Unable to populate name.')
+            self._log_fail('Missing data bundles for all fields')
+            self._log_unable_to_find_new_name()
             self.autonameow_exit_code = C.EXIT_WARNING
             return None
 
@@ -170,63 +154,85 @@ class FilesContext(object):
         log.info('New name: "{}"'.format(enc.displayable_path(new_name)))
         return new_name
 
-    def _try_get_rule(self, current_file, candidates):
-        active_rule = None
+    def _log_unable_to_find_new_name(self):
+        log.warning(
+            'Unable to find new name for ”{!s}".'.format(self.fileobject)
+        )
+
+    def _log_fail(self, msg):
+        log.info('("{!s}") {!s}'.format(self.fileobject, msg))
+
+    def _get_matched_rules(self):
+        matcher = RuleMatcher(
+            rules=self.active_config.rules,
+            masterprovider=self._masterprovider,
+            fileobject=self.fileobject,
+            ui=self.ui,
+            list_rulematch=self.opts.get('list_rulematch')
+        )
+        with logs.log_runtime(log, 'Rule-Matching'):
+            # Returns a list of 'MatchedRule' named tuples.
+            matched_rules = matcher.get_matched_rules()
+
+        return matched_rules
+
+    def _pop_from_matched_rules(self, _matched_rules):
+        if not _matched_rules:
+            return None
 
         if self.opts.get('mode_interactive'):
-            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
-
             # Have the user select a rule from any candidate matches.
-            # candidates = matcher.candidates()
-            if candidates:
-                log.warning('TODO: Implement interactive rule selection.')
-                # TODO: [TD0024][TD0025] Implement Interactive mode.
-                # choice = interactive.select_rule(candidates)
-                # if choice != interactive.Choice.ABORT:
-                #     active_rule = choice
-            else:
-                log.debug('There are no rules available for the user to '
-                          'choose from..')
+            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
+            log.warning('TODO: Implement interactive rule selection.')
+            # TODO: [TD0024][TD0025] Implement Interactive mode.
 
-        RULE_SCORE_CONFIRM_THRESHOLD = 0
-        if candidates and not active_rule:
-            # User rule selection did not happen or failed.
-            best_match = candidates.pop(0)
-            if best_match:
-                # Is the score of the best matched rule high enough?
-                rule = best_match.rule
-                score = best_match.score
-                description = best_match.rule.description
-                if score > RULE_SCORE_CONFIRM_THRESHOLD:
-                    active_rule = rule
-                else:
-                    # Best matched rule might be a bad fit.
-                    log.debug('Score {} is below threshold {} for rule "{!s}"'.format(score, RULE_SCORE_CONFIRM_THRESHOLD, description))
-                    log.debug('Need confirmation before using this rule..')
-                    ok_to_use_rule = self._confirm_apply_rule(current_file, rule)
-                    if ok_to_use_rule:
-                        log.debug('Positive response. Using rule "{!s}"'.format(description))
-                        active_rule = rule
-                    else:
-                        log.debug('Negative response. Will not use rule "{!s}"'.format(description))
-            else:
-                log.debug('Rule-matcher did not find a "best match" rule')
+        # User rule selection did not happen or failed ..
+        candidate_matched_rule = _matched_rules.pop(0)
+        assert candidate_matched_rule
+        candidate_rule = candidate_matched_rule.rule
+        candidate_score = candidate_matched_rule.score
 
-        return active_rule
+        # Is the score of the best matched rule high enough?
+        RULE_SCORE_CONFIRM_THRESHOLD = 0.0
+        if candidate_score > RULE_SCORE_CONFIRM_THRESHOLD:
+            return candidate_rule
 
-    def _try_resolve(self, current_file, name_template, data_sources):
-        resolver = TemplateFieldDataResolver(current_file, name_template)
+        # Best matched rule might be a bad fit.
+        log.debug('Score {} is below threshold {} for rule "{!s}"'.format(candidate_score, RULE_SCORE_CONFIRM_THRESHOLD, candidate_rule))
+        ok_to_use_rule = self._confirm_apply_rule(candidate_rule)
+        if ok_to_use_rule:
+            log.debug('Positive response. Using rule "{!s}"'.format(candidate_rule))
+            return candidate_rule
+
+        log.debug('Negative response. Will not use rule "{!s}"'.format(candidate_rule))
+        return None
+
+    def _confirm_apply_rule(self, rule):
+        if self.opts.get('mode_batch'):
+            log.info('Rule required confirmation but in batch mode -- '
+                     'Skipping file ..')
+            return False
+
+        user_response = interactive.ask_confirm_use_rule(self.fileobject, rule)
+        log.debug('User response: "{!s}"'.format(user_response))
+        return user_response
+
+    def _get_resolved_databundle_dict(self, placeholders, data_sources):
+        resolver = TemplateFieldDataResolver(
+            fileobject=self.fileobject,
+            name_template_fields=placeholders,
+            masterprovider=self._masterprovider,
+            config=self.active_config
+        )
         resolver.add_known_sources(data_sources)
 
         # TODO: Rework the rule matcher and this logic to try another candidate.
-        # if not resolver.mapped_all_template_fields():
-        #     if self.opts.get('mode_automagic'):
-        #         data_sources = matcher.candidates()[1]
 
         if not resolver.mapped_all_template_fields():
             if self.opts.get('mode_batch'):
-                log.error('Unable to resolve all name template fields. '
-                          'Running in batch mode -- Aborting..')
+                self._log_fail('Unable to resolve all name template fields. '
+                               'Running in batch mode -- Aborting')
+                self._log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
@@ -236,8 +242,9 @@ class FilesContext(object):
         if not resolver.collected_all():
             log.info('Resolver has not collected all fields ..')
             if self.opts.get('mode_batch'):
-                log.warning('Unable to populate name.')
-                # self.autonameow_exit_code = C.EXIT_WARNING
+                self._log_fail('Unable to resolve all name template fields. '
+                               'Running in batch mode -- Aborting')
+                self._log_unable_to_find_new_name()
                 return None
 
             # TODO: [TD0024][TD0025] Implement Interactive mode.
@@ -247,13 +254,9 @@ class FilesContext(object):
                 choice = None
                 if candidates:
                     # Returns instance of 'FieldDataCandidate' or 'Choice.ABORT'
-                    choice = interactive.select_field(current_file, field, candidates)
+                    choice = interactive.select_field(self.fileobject, field, candidates)
 
                 # TODO: [TD0024] Use MeowURI prompt in interactive mode?
-                # if choice is interactive.Choice.ABORT:
-                #     _m = 'Specify source for field {!s}'.format(field)
-                #     choice = interactive.meowuri_prompt(_m)
-
                 if choice is interactive.Choice.ABORT:
                     log.info('Aborting ..')
                     return None
@@ -269,18 +272,9 @@ class FilesContext(object):
         # Add automatically resolving missing sources from possible candidates.
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-            log.warning('Unable to populate name. Missing field data.')
+            self._log_fail('Resolver could not collect all field data')
+            self._log_unable_to_find_new_name()
             self.autonameow_exit_code = C.EXIT_WARNING
             return None
 
         return resolver.fields_data
-
-    def _confirm_apply_rule(self, current_file, rule):
-        if self.opts.get('mode_batch'):
-            log.info('Rule required confirmation but in batch mode -- '
-                     'Skipping file ..')
-            return False
-
-        user_response = interactive.ask_confirm_use_rule(current_file, rule)
-        log.debug('User response: "{!s}"'.format(user_response))
-        return user_response

@@ -1,0 +1,140 @@
+
+  pyexiftool/exiftool time complexity measurements
+  2018-03-16T200410
+
+  Each line below represents one "test".
+  
+  (A) One 'pyexiftool' context spins up a new exiftool instance for each
+      processed file in that test.
+  
+  (B) A single 'pyexiftool' context is used for all processed files during
+      that test.
+
+
+
+(A) 1 files Completed in 0.067685127 seconds
+(A) 2 files Completed in 0.136784792 seconds
+(A) 3 files Completed in 0.202760935 seconds
+(A) 4 files Completed in 0.273861885 seconds
+(A) 5 files Completed in 0.340682030 seconds
+(A) 6 files Completed in 0.404787540 seconds
+(A) 7 files Completed in 0.481467724 seconds
+(A) 8 files Completed in 0.543294668 seconds
+(A) 9 files Completed in 0.617711782 seconds
+(A) 10 files Completed in 0.683529139 seconds
+(A) 11 files Completed in 0.802122355 seconds
+(A) 12 files Completed in 0.864654064 seconds
+(A) 13 files Completed in 0.939862251 seconds
+(A) 14 files Completed in 1.006735563 seconds
+(A) 15 files Completed in 1.062947035 seconds
+(A) 16 files Completed in 1.156266451 seconds
+(A) 17 files Completed in 1.231355190 seconds
+(A) 18 files Completed in 1.309247494 seconds
+(A) 19 files Completed in 1.358553886 seconds
+(A) 20 files Completed in 1.433600664 seconds
+(A) 21 files Completed in 1.508558035 seconds
+(A) 22 files Completed in 1.637606621 seconds
+(A) 23 files Completed in 1.718230486 seconds
+(A) 24 files Completed in 1.800774813 seconds
+(A) 25 files Completed in 1.896453381 seconds
+(A) 26 files Completed in 1.975495577 seconds
+(A) 27 files Completed in 2.012248516 seconds
+(A) 28 files Completed in 2.094020128 seconds
+(A) 29 files Completed in 2.168992758 seconds
+(A) 30 files Completed in 2.244422674 seconds
+(A) 31 files Completed in 2.291897297 seconds
+(A) 32 files Completed in 2.375762224 seconds
+(A) 33 files Completed in 2.440156221 seconds
+(A) 34 files Completed in 2.510059834 seconds
+(A) 35 files Completed in 2.583618641 seconds
+(A) 36 files Completed in 2.657238007 seconds
+(A) 37 files Completed in 2.698920250 seconds
+(A) 38 files Completed in 2.772814035 seconds
+(A) 39 files Completed in 2.861641645 seconds
+(A) 40 files Completed in 2.918226719 seconds
+(A) 41 files Completed in 2.982190609 seconds
+(A) 42 files Completed in 3.037307978 seconds
+(A) 43 files Completed in 3.113875151 seconds
+(A) 44 files Completed in 3.205483198 seconds
+(A) 45 files Completed in 3.270166874 seconds
+(A) 46 files Completed in 3.348298311 seconds
+(A) 47 files Completed in 3.429012537 seconds
+(A) 48 files Completed in 3.631800652 seconds
+(A) 49 files Completed in 3.705233335 seconds
+(A) 50 files Completed in 3.786715746 seconds
+(A) 51 files Completed in 3.833412886 seconds
+(A) 52 files Completed in 3.906164646 seconds
+(A) 53 files Completed in 3.971696615 seconds
+(A) 54 files Completed in 4.041057825 seconds
+(A) 55 files Completed in 4.099881649 seconds
+(A) 56 files Completed in 4.233512402 seconds
+(A) 57 files Completed in 4.326047659 seconds
+(A) 58 files Completed in 4.406318903 seconds
+(A) 59 files Completed in 4.486573696 seconds
+(A) 60 files Completed in 4.568669081 seconds
+(A) 61 files Completed in 4.627510071 seconds
+(A) 62 files Completed in 4.712548018 seconds
+
+
+(B) 1 files Completed in 0.067897081 seconds
+(B) 2 files Completed in 0.069092989 seconds
+(B) 3 files Completed in 0.071295738 seconds
+(B) 4 files Completed in 0.073014259 seconds
+(B) 5 files Completed in 0.075258017 seconds
+(B) 6 files Completed in 0.074583769 seconds
+(B) 7 files Completed in 0.075589418 seconds
+(B) 8 files Completed in 0.080490828 seconds
+(B) 9 files Completed in 0.081240654 seconds
+(B) 10 files Completed in 0.091509819 seconds
+(B) 11 files Completed in 0.150648355 seconds
+(B) 12 files Completed in 0.143891573 seconds
+(B) 13 files Completed in 0.143146992 seconds
+(B) 14 files Completed in 0.145570993 seconds
+(B) 15 files Completed in 0.147505045 seconds
+(B) 16 files Completed in 0.154820919 seconds
+(B) 17 files Completed in 0.163428068 seconds
+(B) 18 files Completed in 0.160585403 seconds
+(B) 19 files Completed in 0.160395145 seconds
+(B) 20 files Completed in 0.162235022 seconds
+(B) 21 files Completed in 0.164991617 seconds
+(B) 22 files Completed in 0.215037823 seconds
+(B) 23 files Completed in 0.259218216 seconds
+(B) 24 files Completed in 0.255429745 seconds
+(B) 25 files Completed in 0.256731033 seconds
+(B) 26 files Completed in 0.256524801 seconds
+(B) 27 files Completed in 0.273169518 seconds
+(B) 28 files Completed in 0.268942118 seconds
+(B) 29 files Completed in 0.269317627 seconds
+(B) 30 files Completed in 0.272763968 seconds
+(B) 31 files Completed in 0.269829988 seconds
+(B) 32 files Completed in 0.268913031 seconds
+(B) 33 files Completed in 0.266927719 seconds
+(B) 34 files Completed in 0.280297279 seconds
+(B) 35 files Completed in 0.282132864 seconds
+(B) 36 files Completed in 0.281410694 seconds
+(B) 37 files Completed in 0.273369074 seconds
+(B) 38 files Completed in 0.283994198 seconds
+(B) 39 files Completed in 0.278252363 seconds
+(B) 40 files Completed in 0.278112650 seconds
+(B) 41 files Completed in 0.287879944 seconds
+(B) 42 files Completed in 0.283904076 seconds
+(B) 43 files Completed in 0.281935930 seconds
+(B) 44 files Completed in 0.279830217 seconds
+(B) 45 files Completed in 0.305613518 seconds
+(B) 46 files Completed in 0.302702427 seconds
+(B) 47 files Completed in 0.303134680 seconds
+(B) 48 files Completed in 0.445378780 seconds
+(B) 49 files Completed in 0.464306355 seconds
+(B) 50 files Completed in 0.465392113 seconds
+(B) 51 files Completed in 0.458875179 seconds
+(B) 52 files Completed in 0.458904266 seconds
+(B) 53 files Completed in 0.468786716 seconds
+(B) 54 files Completed in 0.487624407 seconds
+(B) 55 files Completed in 0.471940756 seconds
+(B) 56 files Completed in 0.474194765 seconds
+(B) 57 files Completed in 0.490484476 seconds
+(B) 58 files Completed in 0.494877100 seconds
+(B) 59 files Completed in 0.487927437 seconds
+(B) 60 files Completed in 0.485754728 seconds
+(B) 61 files Completed in 0.492839575 seconds
+(B) 62 files Completed in 0.496671438 seconds

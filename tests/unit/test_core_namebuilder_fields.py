@@ -21,8 +21,6 @@
 
 from unittest import TestCase
 
-import unit.utils as uu
-from core import types
 from core.namebuilder import fields
 
 
@@ -37,85 +35,6 @@ FIELDS_PUBLISHER = fields.Publisher
 FIELDS_TAGS = fields.Tags
 FIELDS_TIME = fields.Time
 FIELDS_TITLE = fields.Title
-
-
-class TestFormatStringPlaceholders(TestCase):
-    def _assert_contains(self, template, placeholders):
-        actual = fields.format_string_placeholders(template)
-        self.assertEqual(placeholders, actual)
-
-    def test_empty_or_whitespace(self):
-        self._assert_contains(template='', placeholders=[])
-        self._assert_contains(template=' ', placeholders=[])
-
-    def test_unexpected_input_raises_valueerror(self):
-        def _assert_raises(template):
-            with self.assertRaises(TypeError):
-                fields.format_string_placeholders(template)
-
-        _assert_raises(None)
-        _assert_raises(1)
-        _assert_raises(uu.str_to_datetime('2016-01-11 124132'))
-        _assert_raises(b'')
-        _assert_raises(b' ')
-        _assert_raises(b'foo')
-        _assert_raises(b'{foo}')
-
-    def test_no_placeholders(self):
-        self._assert_contains(template='abc',
-                              placeholders=[])
-        self._assert_contains(template='abc}',
-                              placeholders=[])
-        self._assert_contains(template='{abc',
-                              placeholders=[])
-        self._assert_contains(template='{abc {foo',
-                              placeholders=[])
-        self._assert_contains(template='{abc foo}',
-                              placeholders=[])
-
-    def test_one_placeholder(self):
-        self._assert_contains(template='abc {foo}',
-                              placeholders=['foo'])
-        self._assert_contains(template='abc {foo}',
-                              placeholders=['foo'])
-        self._assert_contains(template='{abc {foo}',
-                              placeholders=['foo'])
-        self._assert_contains(template='abc} {foo}',
-                              placeholders=['foo'])
-        self._assert_contains(template='{abc def} {foo}',
-                              placeholders=['foo'])
-        self._assert_contains(template='abc{ def} {foo}',
-                              placeholders=['foo'])
-
-    def test_two_unique_placeholders(self):
-        self._assert_contains(template='{abc} {foo}',
-                              placeholders=['abc', 'foo'])
-        self._assert_contains(template='{abc} abc {foo}',
-                              placeholders=['abc', 'foo'])
-        self._assert_contains(template='{abc} {{foo}',
-                              placeholders=['abc', 'foo'])
-        self._assert_contains(template='{abc} {abc {foo}',
-                              placeholders=['abc', 'foo'])
-        self._assert_contains(template='{abc} {abc }{foo}',
-                              placeholders=['abc', 'foo'])
-
-    def test_duplicateplaceholders(self):
-        self._assert_contains(template='{foo} {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} abc {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} {abc {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} abc} {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} {abc } {foo}',
-                              placeholders=['foo', 'foo'])
-        self._assert_contains(template='{foo} {abc} {foo}',
-                              placeholders=['foo', 'abc', 'foo'])
-        self._assert_contains(template='{abc} {abc} {foo}',
-                              placeholders=['abc', 'abc', 'foo'])
 
 
 class TestAvailableNametemplatefieldClasses(TestCase):
@@ -234,6 +153,7 @@ class TestIsValidTemplateField(TestCase):
             self.assertFalse(fields.is_valid_template_field(test_input))
 
         _aF(None)
+        _aF(False)
         _aF('')
         _aF('foo')
 
@@ -264,37 +184,14 @@ class TestNametemplatefieldClassFromString(TestCase):
         _aE('title', FIELDS_TITLE)
 
 
-class TestNametemplatefieldClassesInFormatstring(TestCase):
-    def _aC(self, string, nametemplate_field_list):
-        actual = fields.nametemplatefield_classes_in_formatstring(string)
-        for nametemplate_field in nametemplate_field_list:
-            self.assertIn(nametemplate_field, actual)
-
-    def test_contains_none(self):
-        self._aC('', [])
-        self._aC('foo', [])
-
-    def test_contains_expected_1(self):
-        self._aC('{title}', [FIELDS_TITLE])
-        self._aC('{title} foo', [FIELDS_TITLE])
-        self._aC('{title} title', [FIELDS_TITLE])
-
-    def test_contains_expected_2(self):
-        self._aC('{title} {author}',
-                 [FIELDS_TITLE, FIELDS_AUTHOR])
-        self._aC('{title} foo {author}',
-                 [FIELDS_TITLE, FIELDS_AUTHOR])
-        self._aC('{title} title {author} author',
-                 [FIELDS_TITLE, FIELDS_AUTHOR])
-
-    def test_contains_expected_3(self):
-        self._aC('{title} {author} {description}',
-                 [FIELDS_TITLE, FIELDS_AUTHOR, FIELDS_DESCRIPTION])
-        self._aC('foo {title} {author} - {description}.foo',
-                 [FIELDS_TITLE, FIELDS_AUTHOR, FIELDS_DESCRIPTION])
-
-
 class NameTemplateFieldCompatible(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from util import coercers
+        cls.coercers_AW_INTEGER = coercers.AW_INTEGER
+        cls.coercers_AW_STRING = coercers.AW_STRING
+        cls.coercers_AW_TIMEDATE = coercers.AW_TIMEDATE
+
     def _compatible(self, nametemplate_field, coercer_class):
         actual = nametemplate_field.type_compatible(coercer_class)
         self.assertTrue(actual)
@@ -304,17 +201,23 @@ class NameTemplateFieldCompatible(TestCase):
         self.assertFalse(actual)
 
     def test_compatible_with_name_template_field_description(self):
-        self._compatible(FIELDS_DESCRIPTION, types.AW_STRING)
-        self._compatible(FIELDS_DESCRIPTION, types.AW_INTEGER)
+        self._compatible(FIELDS_DESCRIPTION, self.coercers_AW_STRING)
+        self._compatible(FIELDS_DESCRIPTION, self.coercers_AW_INTEGER)
 
     def test_not_compatible_with_name_template_field_description(self):
-        self._incompatible(FIELDS_DESCRIPTION, types.AW_TIMEDATE)
-        self._incompatible(FIELDS_DESCRIPTION, types.listof(types.AW_STRING))
+        self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_TIMEDATE)
+
+        from util import coercers
+        self._incompatible(FIELDS_DESCRIPTION, coercers.listof(self.coercers_AW_STRING))
 
     def test_compatible_with_name_template_field_tags(self):
-        self._compatible(FIELDS_TAGS, types.AW_STRING)
-        self._compatible(FIELDS_TAGS, types.listof(types.AW_STRING))
+        self._compatible(FIELDS_TAGS, self.coercers_AW_STRING)
+
+        from util import coercers
+        self._compatible(FIELDS_TAGS, coercers.listof(self.coercers_AW_STRING))
 
     def test_not_compatible_with_name_template_field_tags(self):
-        self._incompatible(FIELDS_DESCRIPTION, types.AW_TIMEDATE)
-        self._incompatible(FIELDS_DESCRIPTION, types.listof(types.AW_TIMEDATE))
+        self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_TIMEDATE)
+
+        from util import coercers
+        self._incompatible(FIELDS_DESCRIPTION, coercers.listof(self.coercers_AW_TIMEDATE))

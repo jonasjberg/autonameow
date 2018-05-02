@@ -20,26 +20,167 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+from unittest.mock import Mock, patch
+
+import unit.utils as uu
+from regression.regression_runner import load_failed_testsuites
+from regression.regression_runner import RunResults
+from regression.regression_runner import RunResultsHistory
+from regression.regression_runner import write_failed_testsuites
+from regression.regression_runner import _get_persistence
+from regression.utils import RegressionTestSuite
 
 
-class TestTemporaryStuff(TestCase):
-    # def test_temporary_write_testdata(self):
-    #     from core.disk import write_yaml_file
-    #     _asserts = {
-    #         'exit_code': 0,
-    #         'renames': {
-    #             'gmail.pdf': '2016-01-11T124132 gmail.pdf',
-    #             'foo': 'bar'
-    #         }
-    #     }
-    #     write_yaml_file(b'/tmp/test_asserts.yaml', _asserts)
+class TestLoadAndWriteFailedTestsuites(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.TEMP_DIR = uu.make_temp_dir()
 
-    # def test_temporary_write_options(self):
-    #     from core.disk import write_yaml_file
-    #     _opts = {'debug': False, 'verbose': True, 'quiet': False, 'show_version': False, 'dump_config': False, 'dump_options': False, 'dump_meowuris': False, 'list_all': True, 'mode_batch': True, 'mode_automagic': True, 'mode_interactive': False, 'config_path': None, 'dry_run': True, 'recurse_paths': False, 'input_paths': ['/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf']}
-    #     write_yaml_file(b'/tmp/test_options.yaml', _opts)
+    def _mock_get_persistence(self):
+        return _get_persistence(file_prefix='test_regression_runner',
+                                persistence_dir_abspath=self.TEMP_DIR)
 
-    def test_noop(self):
-        self.assertTrue(True)
+    def test_write_failed_testsuites_empty_list(self):
+        suites = list()
+        with patch('regression.regression_runner._get_persistence',
+                   self._mock_get_persistence):
+            write_failed_testsuites(suites)
+
+    def test_write_and_read_with_two_actual_suites(self):
+        a = RegressionTestSuite(
+            abspath=b'/tmp/bar',
+            dirname=b'bar',
+            asserts=None,
+            options=None,
+            skip=False,
+            description='bar'
+        )
+        b = RegressionTestSuite(
+            abspath=b'/tmp/foo',
+            dirname=b'foo',
+            asserts=None,
+            options=None,
+            skip=False,
+            description='foo'
+        )
+        suites = [a, b]
+        with patch('regression.regression_runner._get_persistence',
+                   self._mock_get_persistence):
+            write_failed_testsuites(suites)
+            loaded = load_failed_testsuites()
+
+        self.assertEqual(len(loaded), len(suites))
+        self.assertEqual(sorted(loaded), sorted(suites))
 
 
+class TestRunResults(TestCase):
+    def _get_mock_test_suite(self):
+        return Mock()
+
+    def test_len_of_all_is_the_number_of_all_stored_test_suites(self):
+        def _assert_all_count(expect, _run_results):
+            self.assertEqual(expect, len(_run_results.all))
+            self.assertEqual(expect, len(_run_results))
+
+        mock_test_suite_failed_A = self._get_mock_test_suite()
+        mock_test_suite_failed_B = self._get_mock_test_suite()
+        mock_test_suite_passed = self._get_mock_test_suite()
+
+        run_results = RunResults()
+        _assert_all_count(0, run_results)
+
+        run_results.failed.add(mock_test_suite_failed_A)
+        _assert_all_count(1, run_results)
+
+        run_results.failed.add(mock_test_suite_failed_B)
+        _assert_all_count(2, run_results)
+        run_results.failed.add(mock_test_suite_failed_B)
+        _assert_all_count(2, run_results)
+
+        run_results.passed.add(mock_test_suite_passed)
+        _assert_all_count(3, run_results)
+
+    def test_all_returns_union_of_all_stored_test_suites(self):
+        run_results = RunResults()
+        self.assertFalse(run_results.all)
+
+        mock_test_suite_failed = self._get_mock_test_suite()
+        mock_test_suite_passed = self._get_mock_test_suite()
+        mock_test_suite_skipped = self._get_mock_test_suite()
+        run_results.failed.add(mock_test_suite_failed)
+        run_results.passed.add(mock_test_suite_passed)
+        run_results.skipped.add(mock_test_suite_skipped)
+
+        for test_suite in [
+            mock_test_suite_failed,
+            mock_test_suite_passed,
+            mock_test_suite_skipped
+        ]:
+            self.assertIn(test_suite, run_results.all)
+
+        # Make sure nothing has been unintentionally mutated.
+        self.assertNotIn(mock_test_suite_failed, run_results.passed)
+        self.assertNotIn(mock_test_suite_failed, run_results.skipped)
+        self.assertNotIn(mock_test_suite_passed, run_results.failed)
+        self.assertNotIn(mock_test_suite_passed, run_results.skipped)
+        self.assertNotIn(mock_test_suite_skipped, run_results.failed)
+        self.assertNotIn(mock_test_suite_skipped, run_results.passed)
+
+
+class TestRunResultsHistory(TestCase):
+    def _get_mock_test_suite(self):
+        return Mock()
+
+    def _get_run_results(self):
+        mock_test_suite_failed = self._get_mock_test_suite()
+        mock_test_suite_passed = self._get_mock_test_suite()
+        mock_test_suite_skipped = self._get_mock_test_suite()
+
+        run_results = RunResults()
+        run_results.failed.add(mock_test_suite_failed)
+        run_results.passed.add(mock_test_suite_passed)
+        run_results.skipped.add(mock_test_suite_skipped)
+        return run_results
+
+    def _get_run_results_history(self, *args, **kwargs):
+        return RunResultsHistory(*args, **kwargs)
+
+    def test_history_with_maxlen_five_contains_single_run_result(self):
+        run_results_history = self._get_run_results_history(maxlen=5)
+
+        run_results = self._get_run_results()
+        run_results_history.add(run_results)
+
+        self.assertEqual(1, len(run_results_history))
+
+    def test_history_with_maxlen_five_contains_five_run_results(self):
+        run_results_history = self._get_run_results_history(maxlen=5)
+
+        for _ in range(5):
+            run_results = self._get_run_results()
+            run_results_history.add(run_results)
+
+        self.assertEqual(5, len(run_results_history))
+
+    def test_history_with_maxlen_five_stores_at_most_five_run_results(self):
+        run_results_history = self._get_run_results_history(maxlen=5)
+
+        for _ in range(7):
+            run_results = self._get_run_results()
+            run_results_history.add(run_results)
+
+        self.assertEqual(5, len(run_results_history))
+
+    def test_run_results_is_in_chronological_order(self):
+        run_results_history = self._get_run_results_history(maxlen=2)
+
+        run_results_history.add('A')
+        self.assertEqual('A', run_results_history[0])
+
+        run_results_history.add('B')
+        self.assertEqual('B', run_results_history[0])
+        self.assertEqual('A', run_results_history[1])
+
+        run_results_history.add('C')
+        self.assertEqual('C', run_results_history[0])
+        self.assertEqual('B', run_results_history[1])

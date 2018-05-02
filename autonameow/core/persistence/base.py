@@ -22,20 +22,14 @@
 import logging
 import pickle
 
-from core import (
-    config,
-    types,
-)
-from core.exceptions import (
-    AutonameowException,
-    FilesystemError
-)
+from core import config
 from core import constants as C
+from core.exceptions import AutonameowException
+from core.exceptions import FilesystemError
+from util import coercers
+from util import disk
 from util import encoding as enc
-from util import (
-    disk,
-    sanity
-)
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -51,21 +45,22 @@ class PersistenceImplementationBackendError(PersistenceError):
 
 
 def get_config_persistence_path():
-    _active_config = config.ActiveConfig
-    if not _active_config:
+    # TODO [TD0188] Consolidate access to active, global configuration.
+    active_config = config.ActiveConfig
+    if not active_config:
         return C.DEFAULT_PERSISTENCE_DIR_ABSPATH
 
     try:
-        _path = _active_config.get(['PERSISTENCE', 'cache_directory'])
+        cache_dirpath = active_config.get(['PERSISTENCE', 'cache_directory'])
     except AttributeError:
-        _path = None
+        cache_dirpath = None
 
-    if not _path:
+    if not cache_dirpath:
         # TODO: Duplicate default setting! Already set in 'configuration.py'.
-        _path = C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+        cache_dirpath = C.DEFAULT_PERSISTENCE_DIR_ABSPATH
 
-    sanity.check_internal_bytestring(_path)
-    return _path
+    sanity.check_internal_bytestring(cache_dirpath)
+    return cache_dirpath
 
 
 class BasePersistence(object):
@@ -109,13 +104,13 @@ class BasePersistence(object):
         sanity.check_internal_bytestring(self._persistence_dir_abspath)
         assert disk.isabs(self._persistence_dir_abspath)
 
-        _prefix = types.force_string(file_prefix)
-        if not _prefix.strip():
+        str_file_prefix = coercers.force_string(file_prefix)
+        if not str_file_prefix.strip():
             raise ValueError(
                 'Argument "file_prefix" must be a valid string'
             )
         # TODO: Add hardcoded prefix to the prefix for arguably "safer" deletes?
-        self.persistencefile_prefix = _prefix
+        self.persistencefile_prefix = str_file_prefix
 
         self._dp = enc.displayable_path(self._persistence_dir_abspath)
         if not self.has_persistencedir():
@@ -273,13 +268,13 @@ class BasePersistence(object):
 
     def keys(self):
         # TODO: This is a major security vulnerability (!)
-        out = []
+        out = list()
         for bytestring_basename in disk.listdir(self._persistence_dir_abspath):
-            string_basename = types.force_string(bytestring_basename)
-            if not string_basename:
+            str_basename = coercers.force_string(bytestring_basename)
+            if not str_basename:
                 continue
 
-            key = _basename_as_key(string_basename, self.persistencefile_prefix,
+            key = _basename_as_key(str_basename, self.persistencefile_prefix,
                                    self.PERSISTENCE_FILE_PREFIX_SEPARATOR)
             if key:
                 out.append(key)
@@ -348,15 +343,15 @@ def _basename_as_key(str_basename, persistencefile_prefix,
 def _key_as_file_path(key, persistencefile_prefix,
                       persistence_file_prefix_separator,
                       persistence_dir_abspath):
-    string_key = types.force_string(key)
-    if not string_key.strip():
+    str_key = coercers.force_string(key)
+    if not str_key.strip():
         raise KeyError('Invalid key: "{!s}" ({!s})'.format(key, type(key)))
 
     basename = '{pre}{sep}{key}'.format(pre=persistencefile_prefix,
                                         sep=persistence_file_prefix_separator,
                                         key=key)
     bytestring_basename = enc.encode_(basename)
-    abspath = types.AW_PATH.normalize(
+    abspath = coercers.AW_PATH.normalize(
         disk.joinpaths(persistence_dir_abspath, bytestring_basename)
     )
     return abspath

@@ -4,10 +4,10 @@ ASF:CreationDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
     multivalued: false
 
 
@@ -45,10 +45,10 @@ EXIF:CreateDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
     multivalued: false
 
 EXIF:DateTimeDigitized:
@@ -57,10 +57,10 @@ EXIF:DateTimeDigitized:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
     multivalued: false
 
 EXIF:DateTimeOriginal:
@@ -69,10 +69,10 @@ EXIF:DateTimeOriginal:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
     multivalued: false
 
 EXIF:ExifImageHeight:
@@ -93,7 +93,8 @@ EXIF:GPSDateStamp:
     mapped_fields:
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 EXIF:GainControl:
     coercer: aw_integer
@@ -105,13 +106,14 @@ EXIF:ImageDescription:
     mapped_fields:
     -   WeightedMapping:
             field: Description
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Tags
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Title
-            probability: 0.25
+            weight: 0.25
+    multivalued: false
 
 EXIF:Make:
     coercer: aw_string
@@ -127,10 +129,11 @@ EXIF:ModifyDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.25
+            weight: 0.25
     -   WeightedMapping:
             field: Date
-            probability: 0.25
+            weight: 0.25
+    multivalued: false
 
 EXIF:Software:
     coercer: aw_string
@@ -142,10 +145,11 @@ EXIF:UserComment:
     mapped_fields:
     -   WeightedMapping:
             field: Description
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Tags
-            probability: 0.5
+            weight: 0.5
+    multivalued: false
 
 File:Comment:
     coercer: aw_string
@@ -153,13 +157,15 @@ File:Comment:
     mapped_fields:
     -   WeightedMapping:
             field: Description
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Tags
-            probability: 0.5
+            weight: 0.5
+    multivalued: false
 
 File:Directory:
     coercer: aw_path
+    multivalued: false
 
 File:FileAccessDate:
     coercer: aw_exiftooltimedate
@@ -167,10 +173,10 @@ File:FileAccessDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.01
+            weight: 0.01
     -   WeightedMapping:
             field: Date
-            probability: 0.01
+            weight: 0.01
     multivalued: false
 
 File:FileInodeChangeDate:
@@ -179,10 +185,10 @@ File:FileInodeChangeDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.01
+            weight: 0.01
     -   WeightedMapping:
             field: Date
-            probability: 0.01
+            weight: 0.01
     multivalued: false
 
 File:FileModifyDate:
@@ -191,10 +197,10 @@ File:FileModifyDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.25
+            weight: 0.25
     -   WeightedMapping:
             field: Date
-            probability: 0.25
+            weight: 0.25
     multivalued: false
 
 File:FileName:
@@ -231,7 +237,12 @@ File:MIMEType:
     mapped_fields:
     -   WeightedMapping:
             field: Extension
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
+
+FlashPix:AppVersion:
+    coercer: aw_float
+    multivalued: false
 
 FlashPix:Author:
     coercer: aw_string
@@ -239,8 +250,12 @@ FlashPix:Author:
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 1.0
+            weight: 1.0
     multivalued: true
+
+FlashPix:Bytes:
+    coercer: aw_integer
+    multivalued: false
 
 FlashPix:Characters:
     coercer: aw_integer
@@ -250,29 +265,47 @@ FlashPix:CharCountWithSpaces:
     coercer: aw_integer
     multivalued: false
 
+FlashPix:CodePage:
+    coercer: aw_integer
+    multivalued: false
+
 FlashPix:Comments:
     coercer: aw_string
     generic_field: description
     mapped_fields:
     -   WeightedMapping:
             field: Description
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Tags
-            probability: 0.5
+            weight: 0.5
+    multivalued: false
 
 FlashPix:Company:
     coercer: aw_string
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 0.6
+            weight: 0.6
     -   WeightedMapping:
             field: Publisher
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Creator
-            probability: 0.1
+            weight: 0.1
+    multivalued: false
+
+FlashPix:CompObjUserType:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:CompObjUserTypeLen:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:ContentTypeId:
+    coercer: aw_string
+    multivalued: false
 
 FlashPix:CreateDate:
     coercer: aw_timedate
@@ -280,10 +313,35 @@ FlashPix:CreateDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
+
+FlashPix:Description0:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:DocType:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:Group:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:Group0:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:HandleApprovalSignTable:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:HandleDefaultText:
+    coercer: aw_integer
+    multivalued: false
 
 FlashPix:HeadingPairs:
     # TODO: Needs cleanup ..
@@ -292,8 +350,56 @@ FlashPix:HeadingPairs:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 1.0
-    multivalued: True
+            weight: 1.0
+    multivalued: true
+
+FlashPix:Hyperlinks:
+    coercer: aw_string
+    multivalued: true
+
+FlashPix:HyperlinksChanged:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:IssueDate:
+    coercer: aw_date
+    generic_field: date_modified
+    mapped_fields:
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
+
+FlashPix:Issued0:
+    coercer: aw_date
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
+
+FlashPix:IssuedBy:
+    coercer: aw_string
+    generic_field: author
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            weight: 1.0
+    multivalued: false
+
+FlashPix:IssuedBy0:
+    coercer: aw_string
+    generic_field: author
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            weight: 1.0
+    multivalued: false
+
+FlashPix:Language:
+    coercer: aw_string
+    multivalued: false
 
 FlashPix:Keywords:
     coercer: aw_string
@@ -301,13 +407,14 @@ FlashPix:Keywords:
     mapped_fields:
     -   WeightedMapping:
             field: Tags
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Title
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Description
-            probability: 0.8
+            weight: 0.8
+    multivalued: true
 
 FlashPix:LastModifiedBy:
     coercer: aw_string
@@ -315,7 +422,7 @@ FlashPix:LastModifiedBy:
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 0.8
+            weight: 0.8
     multivalued: true
 
 FlashPix:LastPrinted:
@@ -324,12 +431,17 @@ FlashPix:LastPrinted:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.01
+            weight: 0.01
     -   WeightedMapping:
             field: Date
-            probability: 0.01
+            weight: 0.01
+    multivalued: false
 
 FlashPix:Lines:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:LinksUpToDate:
     coercer: aw_integer
     multivalued: false
 
@@ -339,10 +451,15 @@ FlashPix:ModifyDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.25
+            weight: 0.25
     -   WeightedMapping:
             field: Date
-            probability: 0.25
+            weight: 0.25
+    multivalued: false
+
+FlashPix:Order:
+    coercer: aw_float
+    multivalued: false
 
 FlashPix:Pages:
     coercer: aw_integer
@@ -352,7 +469,36 @@ FlashPix:Paragraphs:
     coercer: aw_integer
     multivalued: false
 
+FlashPix:PublishingStartDate:
+    coercer: aw_timedate
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
+
+FlashPix:PublishingExpirationDate:
+    coercer: aw_timedate
+    mapped_fields:
+    -   WeightedMapping:
+            field: Date
+            weight: 0.01
+    multivalued: false
+
 FlashPix:RevisionNumber:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:ScaleCrop:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:SharedDoc:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:Security:
     coercer: aw_integer
     multivalued: false
 
@@ -362,16 +508,49 @@ FlashPix:Software:
     mapped_fields:
     -   WeightedMapping:
             field: Creator
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Author
-            probability: 0.025
+            weight: 0.025
     -   WeightedMapping:
             field: Publisher
-            probability: 0.02
+            weight: 0.02
     -   WeightedMapping:
             field: Title
-            probability: 0.01
+            weight: 0.01
+    multivalued: false
+
+FlashPix:Template:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:TemplateConfidentiality:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:TemplateLanguage:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:TemplateUrl:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:TemplateVersion:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:Valid:
+    coercer: aw_integer
+    multivalued: false
+
+FlashPix:Xd_ProgID:
+    coercer: aw_string
+    multivalued: false
+
+FlashPix:Xd_Signature:
+    coercer: aw_string
+    multivalued: false
 
 FlashPix:Title:
     coercer: aw_string
@@ -379,7 +558,7 @@ FlashPix:Title:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 1.0
+            weight: 1.0
     multivalued: false
 
 FlashPix:TitleOfParts:
@@ -389,8 +568,8 @@ FlashPix:TitleOfParts:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 1.0
-    multivalued: false
+            weight: 1.0
+    multivalued: true
 
 FlashPix:Subject:
     coercer: aw_string
@@ -398,14 +577,14 @@ FlashPix:Subject:
     mapped_fields:
     -   WeightedMapping:
             field: Description
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Tags
-            probability: 0.8
+            weight: 0.8
     -   WeightedMapping:
             field: Title
-            probability: 0.5
-    multivalued: true
+            weight: 0.5
+    multivalued: false
 
 FlashPix:TotalEditTime:
     coercer: aw_integer
@@ -415,13 +594,214 @@ FlashPix:Words:
     coercer: aw_integer
     multivalued: false
 
+ICC_Profile:ProfileDateTime:
+    coercer: aw_exiftooltimedate
+    multivalued: false
+
+Palm:ASIN:
+    coercer: aw_string
+    multivalued: false
+
+Palm:Author:
+    coercer: aw_string
+    generic_field: author
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            weight: 1.0
+    multivalued: true
+
+Palm:BookName:
+    coercer: aw_string
+    generic_field: title
+    mapped_fields:
+    - WeightedMapping:
+        field: Title
+        weight: 1.0
+    multivalued: false
+
+
+Palm:CreatorSoftware:
+    coercer: aw_string
+    generic_field: creator
+    mapped_fields:
+    -   WeightedMapping:
+            field: Creator
+            weight: 1.0
+    -   WeightedMapping:
+            field: Author
+            weight: 0.025
+    -   WeightedMapping:
+            field: Publisher
+            weight: 0.02
+    -   WeightedMapping:
+            field: Title
+            weight: 0.01
+    multivalued: false
+
+Palm:CDEType:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:CodePage:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:Compression:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:Contributor:
+    coercer: aw_string
+    generic_field: author
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            weight: 0.5
+    -   WeightedMapping:
+            field: Creator
+            weight: 0.5
+    -   WeightedMapping:
+            field: Publisher
+            weight: 0.02
+    multivalued: true
+
+Palm:CreateDate:
+    coercer: aw_exiftooltimedate
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            weight: 1.0
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
+
+Palm:Description:
+    coercer: aw_string
+    generic_field: description
+    mapped_fields:
+    -   WeightedMapping:
+            field: Description
+            weight: 1.0
+    -   WeightedMapping:
+            field: Tags
+            weight: 0.5
+    multivalued: false
+
+Palm:DatabaseName:
+    coercer: aw_string
+    multivalued: false
+
+Palm:Encryption:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:KF8CoverURI:
+    coercer: aw_string
+    multivalued: false
+
+Palm:Language:
+    coercer: aw_string
+    multivalued: false
+
+Palm:LastBackupDate:
+    coercer: aw_exiftooltimedate
+    multivalued: false
+
+Palm:MinimumVersion:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:MobiType:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:MobiVersion:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:ModificationNumber:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:ModifyDate:
+    coercer: aw_exiftooltimedate
+    generic_field: date_modified
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            weight: 0.25
+    -   WeightedMapping:
+            field: Date
+            weight: 0.25
+    multivalued: false
+
+Palm:PalmFileType:
+    coercer: aw_string
+    multivalued: false
+
+Palm:PublishDate:
+    coercer: aw_exiftooltimedate
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            weight: 1.0
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
+
+Palm:Publisher:
+    coercer: aw_string
+    generic_field: publisher
+    mapped_fields:
+    -   WeightedMapping:
+            field: Publisher
+            weight: 1.0
+    -   WeightedMapping:
+            field: Author
+            weight: 0.25
+    -   WeightedMapping:
+            field: Creator
+            weight: 0.1
+    multivalued: false
+
+Palm:ResourceCount:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:Source:
+    coercer: aw_string
+    multivalued: false
+
+Palm:StartReading:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:Subject:
+    # Example: "COM051360 - COMPUTERS / Programming Languages / Python"
+    coercer: aw_string
+    multivalued: false
+
+Palm:UncompressedTextLength:
+    coercer: aw_integer
+    multivalued: false
+
+Palm:UpdatedTitle:
+    coercer: aw_string
+    generic_field: title
+    multivalued: false
+
 PDF:Author:
     coercer: aw_string
     generic_field: author
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 1.0
+            weight: 1.0
     multivalued: true
 
 PDF:CreateDate:
@@ -430,10 +810,11 @@ PDF:CreateDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 PDF:Creator:
     coercer: aw_string
@@ -441,16 +822,17 @@ PDF:Creator:
     mapped_fields:
     -   WeightedMapping:
             field: Creator
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Author
-            probability: 0.025
+            weight: 0.025
     -   WeightedMapping:
             field: Publisher
-            probability: 0.02
+            weight: 0.02
     -   WeightedMapping:
             field: Title
-            probability: 0.01
+            weight: 0.01
+    multivalued: false
 
 PDF:Keywords:
     coercer: aw_string
@@ -458,7 +840,7 @@ PDF:Keywords:
     mapped_fields:
     -   WeightedMapping:
             field: Tags
-            probability: 1.0
+            weight: 1.0
     multivalued: true
 
 PDF:Linearized:
@@ -471,10 +853,11 @@ PDF:ModifyDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.25
+            weight: 0.25
     -   WeightedMapping:
             field: Date
-            probability: 0.25
+            weight: 0.25
+    multivalued: false
 
 PDF:PDFVersion:
     coercer: aw_float
@@ -490,13 +873,23 @@ PDF:Producer:
     mapped_fields:
     -   WeightedMapping:
             field: Publisher
-            probability: 0.25
+            weight: 0.25
     -   WeightedMapping:
             field: Author
-            probability: 0.02
+            weight: 0.02
     -   WeightedMapping:
             field: Title
-            probability: 0.01
+            weight: 0.01
+    multivalued: false
+
+PDF:PTEX_Fullbanner:
+    coercer: aw_string
+    generic_field: creator
+    mapped_fields:
+    -   WeightedMapping:
+            field: Creator
+            weight: 1.0
+    multivalued: false
 
 PDF:Subject:
     coercer: aw_string
@@ -504,13 +897,14 @@ PDF:Subject:
     mapped_fields:
     -   WeightedMapping:
             field: Description
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Tags
-            probability: 0.8
+            weight: 0.8
     -   WeightedMapping:
             field: Title
-            probability: 0.5
+            weight: 0.5
+    multivalued: false
 
 PDF:Title:
     coercer: aw_string
@@ -518,11 +912,22 @@ PDF:Title:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 PDF:Trapped:
     coercer: aw_boolean
     multivalued: false
+
+
+Photoshop:ImageWidth:
+    coercer: aw_integer
+    multivalued: false
+
+Photoshop:ImageHeight:
+    coercer: aw_integer
+    multivalued: false
+
 
 QuickTime:CompatibleBrands:
     coercer: aw_string
@@ -534,10 +939,11 @@ QuickTime:CreateDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 QuickTime:CreationDate:
     coercer: aw_exiftooltimedate
@@ -545,10 +951,11 @@ QuickTime:CreationDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 QuickTime:CreationDate-und-SE:
     coercer: aw_exiftooltimedate
@@ -556,10 +963,11 @@ QuickTime:CreationDate-und-SE:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 QuickTime:MediaCreateDate:
     coercer: aw_exiftooltimedate
@@ -567,10 +975,11 @@ QuickTime:MediaCreateDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 QuickTime:MediaModifyDate:
     coercer: aw_exiftooltimedate
@@ -578,10 +987,11 @@ QuickTime:MediaModifyDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Date
-            probability: 0.5
+            weight: 0.5
+    multivalued: false
 
 QuickTime:ModifyDate:
     coercer: aw_exiftooltimedate
@@ -589,10 +999,11 @@ QuickTime:ModifyDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Date
-            probability: 0.5
+            weight: 0.5
+    multivalued: false
 
 QuickTime:TrackCreateDate:
     coercer: aw_exiftooltimedate
@@ -600,10 +1011,11 @@ QuickTime:TrackCreateDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 QuickTime:TrackModifyDate:
     coercer: aw_exiftooltimedate
@@ -611,10 +1023,11 @@ QuickTime:TrackModifyDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Date
-            probability: 0.5
+            weight: 0.5
+    multivalued: false
 
 RTF:Author:
     coercer: aw_string
@@ -622,10 +1035,10 @@ RTF:Author:
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Publisher
-            probability: 0.1
+            weight: 0.1
     multivalued: true
 
 RTF:Company:
@@ -633,13 +1046,14 @@ RTF:Company:
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 0.6
+            weight: 0.6
     -   WeightedMapping:
             field: Publisher
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Creator
-            probability: 0.1
+            weight: 0.1
+    multivalued: false
 
 RTF:CreateDate:
     coercer: aw_exiftooltimedate
@@ -647,10 +1061,11 @@ RTF:CreateDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 RTF:LastModifiedBy:
     coercer: aw_string
@@ -658,10 +1073,10 @@ RTF:LastModifiedBy:
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 0.8
+            weight: 0.8
     -   WeightedMapping:
             field: Publisher
-            probability: 0.1
+            weight: 0.1
     multivalued: true
 
 RTF:LastPrinted:
@@ -669,10 +1084,11 @@ RTF:LastPrinted:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.01
+            weight: 0.01
     -   WeightedMapping:
             field: Date
-            probability: 0.01
+            weight: 0.01
+    multivalued: false
 
 RTF:ModifyDate:
     coercer: aw_exiftooltimedate
@@ -680,10 +1096,11 @@ RTF:ModifyDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.25
+            weight: 0.25
     -   WeightedMapping:
             field: Date
-            probability: 0.25
+            weight: 0.25
+    multivalued: false
 
 RTF:Title:
     coercer: aw_string
@@ -691,7 +1108,8 @@ RTF:Title:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 SourceFile:
     coercer: aw_path
@@ -703,16 +1121,17 @@ XML:Application:
     mapped_fields:
     -   WeightedMapping:
             field: Creator
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Author
-            probability: 0.025
+            weight: 0.025
     -   WeightedMapping:
             field: Publisher
-            probability: 0.02
+            weight: 0.02
     -   WeightedMapping:
             field: Title
-            probability: 0.01
+            weight: 0.01
+    multivalued: false
 
 XML:Company:
     coercer: aw_string
@@ -720,13 +1139,13 @@ XML:Company:
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 0.6
+            weight: 0.6
     -   WeightedMapping:
             field: Publisher
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Creator
-            probability: 0.1
+            weight: 0.1
     multivalued: true
 
 XML:CreateDate:
@@ -735,10 +1154,11 @@ XML:CreateDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 XML:LastModifiedBy:
     coercer: aw_string
@@ -746,13 +1166,13 @@ XML:LastModifiedBy:
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 0.9
+            weight: 0.9
     -   WeightedMapping:
             field: Publisher
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Creator
-            probability: 0.1
+            weight: 0.1
     multivalued: true
 
 XML:ModifyDate:
@@ -761,21 +1181,23 @@ XML:ModifyDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 XML:TitlesOfParts:
     coercer: aw_string
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 0.7
+            weight: 0.7
     multivalued: true
 
 XMP:About:
     coercer: aw_string
+    multivalued: false
 
 XMP:Contributor:
     coercer: aw_string
@@ -783,13 +1205,13 @@ XMP:Contributor:
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Creator
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Publisher
-            probability: 0.02
+            weight: 0.02
     multivalued: true
 
 XMP:CreateDate:
@@ -798,10 +1220,11 @@ XMP:CreateDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 XMP:Creator:
     coercer: aw_string
@@ -809,16 +1232,13 @@ XMP:Creator:
     mapped_fields:
     -   WeightedMapping:
             field: Creator
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Author
-            probability: 0.75
+            weight: 0.75
     -   WeightedMapping:
             field: Publisher
-            probability: 0.02
-    -   WeightedMapping:
-            field: Title
-            probability: 0.01
+            weight: 0.02
     multivalued: true
 
 XMP:CreatorFile-as:
@@ -827,16 +1247,13 @@ XMP:CreatorFile-as:
     mapped_fields:
     -   WeightedMapping:
             field: Creator
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Author
-            probability: 0.75
+            weight: 0.75
     -   WeightedMapping:
             field: Publisher
-            probability: 0.03
-    -   WeightedMapping:
-            field: Title
-            probability: 0.02
+            weight: 0.03
     multivalued: true
 
 XMP:CreatorTool:
@@ -845,16 +1262,17 @@ XMP:CreatorTool:
     mapped_fields:
     -   WeightedMapping:
             field: Creator
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Author
-            probability: 0.025
+            weight: 0.025
     -   WeightedMapping:
             field: Publisher
-            probability: 0.02
+            weight: 0.02
     -   WeightedMapping:
             field: Title
-            probability: 0.01
+            weight: 0.01
+    multivalued: false
 
 XMP:Date:
     coercer: aw_exiftooltimedate
@@ -862,10 +1280,11 @@ XMP:Date:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
 
 XMP:Description:
     coercer: aw_string
@@ -873,10 +1292,11 @@ XMP:Description:
     mapped_fields:
     -   WeightedMapping:
             field: Description
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Tags
-            probability: 0.5
+            weight: 0.5
+    multivalued: false
 
 XMP:DocumentID:
     coercer: aw_string
@@ -888,16 +1308,13 @@ XMP:EntryAuthorName:
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Creator
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Publisher
-            probability: 0.02
-    -   WeightedMapping:
-            field: Title
-            probability: 0.01
+            weight: 0.02
     multivalued: true
 
 XMP:EntryIssued:
@@ -906,10 +1323,23 @@ XMP:EntryIssued:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
+
+XMP:EntryPublished:
+    coercer: aw_exiftooltimedate
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: DateTime
+            weight: 1.0
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    multivalued: false
 
 XMP:EntrySummary:
     coercer: aw_string
@@ -917,10 +1347,11 @@ XMP:EntrySummary:
     mapped_fields:
     -   WeightedMapping:
             field: Description
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Tags
-            probability: 0.5
+            weight: 0.5
+    multivalued: false
 
 XMP:EntryTitle:
     coercer: aw_string
@@ -928,7 +1359,16 @@ XMP:EntryTitle:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
+
+XMP:ExifImageHeight:
+    coercer: aw_integer
+    multivalued: false
+
+XMP:ExifImageWidth:
+    coercer: aw_integer
+    multivalued: false
 
 XMP:Format:
     coercer: aw_mimetype
@@ -936,7 +1376,8 @@ XMP:Format:
     mapped_fields:
     -   WeightedMapping:
             field: Extension
-            probability: 0.75
+            weight: 0.75
+    multivalued: false
 
 XMP:HistoryAction:
     coercer: aw_string
@@ -964,6 +1405,7 @@ XMP:HistoryWhen:
 
 XMP:Identifier:
     coercer: aw_string
+    multivalued: false
 
 XMP:Keywords:
     coercer: aw_string
@@ -971,13 +1413,14 @@ XMP:Keywords:
     mapped_fields:
     -   WeightedMapping:
             field: Tags
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Title
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Description
-            probability: 0.8
+            weight: 0.8
+    multivalued: false
 
 XMP:ManifestLinkForm:
     coercer: aw_string
@@ -997,10 +1440,11 @@ XMP:MetadataDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.25
+            weight: 0.25
     -   WeightedMapping:
             field: Date
-            probability: 0.25
+            weight: 0.25
+    multivalued: false
 
 XMP:ModifyDate:
     coercer: aw_exiftooltimedate
@@ -1008,10 +1452,11 @@ XMP:ModifyDate:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 0.25
+            weight: 0.25
     -   WeightedMapping:
             field: Date
-            probability: 0.25
+            weight: 0.25
+    multivalued: false
 
 XMP:Producer:
     coercer: aw_string
@@ -1019,13 +1464,23 @@ XMP:Producer:
     mapped_fields:
     -   WeightedMapping:
             field: Publisher
-            probability: 0.25
+            weight: 0.25
     -   WeightedMapping:
             field: Author
-            probability: 0.02
+            weight: 0.02
     -   WeightedMapping:
             field: Title
-            probability: 0.01
+            weight: 0.01
+    multivalued: false
+
+XMP:PTEXFullbanner:
+    coercer: aw_string
+    generic_field: creator
+    mapped_fields:
+    -   WeightedMapping:
+            field: Creator
+            weight: 1.0
+    multivalued: false
 
 XMP:Publisher:
     coercer: aw_string
@@ -1033,26 +1488,28 @@ XMP:Publisher:
     mapped_fields:
     -   WeightedMapping:
             field: Publisher
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Author
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Creator
-            probability: 0.2
+            weight: 0.2
     -   WeightedMapping:
             field: Title
-            probability: 0.01
+            weight: 0.01
+    multivalued: false
 
 XMP:Rights:
     coercer: aw_string
     mapped_fields:
     -   WeightedMapping:
             field: Publisher
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Author
-            probability: 0.5
+            weight: 0.5
+    multivalued: false
 
 XMP:Subject:
     coercer: aw_string
@@ -1060,13 +1517,13 @@ XMP:Subject:
     mapped_fields:
     -   WeightedMapping:
             field: Description
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Tags
-            probability: 0.8
+            weight: 0.8
     -   WeightedMapping:
             field: Title
-            probability: 0.5
+            weight: 0.5
     multivalued: true
 
 XMP:TagsList:
@@ -1075,13 +1532,14 @@ XMP:TagsList:
     mapped_fields:
     -   WeightedMapping:
             field: Tags
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Title
-            probability: 0.5
+            weight: 0.5
     -   WeightedMapping:
             field: Description
-            probability: 0.8
+            weight: 0.8
+    multivalued: true
 
 XMP:Title:
     coercer: aw_string
@@ -1089,7 +1547,12 @@ XMP:Title:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 1.0
+            weight: 1.0
+    multivalued: false
+
+XMP:Trapped:
+    coercer: aw_boolean
+    multivalued: false
 
 XMP:XMPToolkit:
     coercer: aw_string

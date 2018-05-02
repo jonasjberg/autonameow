@@ -23,34 +23,9 @@ import argparse
 import os
 
 from core import constants as C
-from core import types
 from core.view import cli
-from util import encoding as enc
 from util import disk
-
-
-def arg_is_year(arg):
-    """
-    Check if "value" is a year, here defined as consisting solely of 4 digits,
-    with a value in the range 0 >= year > 9999.
-
-    Args:
-        arg: The argument to validate.
-    Returns:
-        The given value as an integer between 0 and 9999.
-    Raises:
-        ArgumentTypeError: The given value could not be coerced into an integer
-                           or the integer values is not in range 0 >= x > 9999.
-    """
-    if arg:
-        try:
-            integer = types.AW_INTEGER(arg)
-        except types.AWTypeError:
-            pass
-        else:
-            if 0 <= integer <= 9999:
-                return '{:04d}'.format(integer)
-    raise argparse.ArgumentTypeError('"{}" is not a valid year'.format(arg))
+from util import encoding as enc
 
 
 def arg_is_readable_file(arg):
@@ -132,18 +107,6 @@ def init_argparser():
         description='Methods for resolving new file names.'
     )
     optgrp_mode_method.add_argument(
-        '--rulematch',
-        default=True,
-        dest='mode_rulematch',
-        action='store_true',
-        help='Enable RULE-MATCHING. (Default: ENABLED) '
-             'Try to perform renames without user interaction by matching the '
-             'given paths against available rules. '
-             'The user might still be asked to resolve any uncertainties. '
-             'Use the "--batch" option to force non-interactive mode and '
-             'skip paths with unresolved queries.'
-    )
-    optgrp_mode_method.add_argument(
         '--automagic',
         default=False,
         dest='mode_automagic',
@@ -159,6 +122,15 @@ def init_argparser():
              'Use the "--batch" option to force non-interactive mode and '
              'skip paths with unresolved queries.'
     )
+    optgrp_mode_method.add_argument(
+        '--postprocess-only',
+        default=False,
+        dest='mode_postprocess_only',
+        action='store_true',
+        help='Enable POST-PROCESSING ONLY (Default: DISABLED) '
+             'Do not construct new file names, only do post-processing '
+             'using any global post-processing settings.'
+    )
 
     optgrp_mode_interaction = parser.add_argument_group(
         'User interaction',
@@ -169,7 +141,7 @@ def init_argparser():
         default=False,
         dest='mode_timid',
         action='store_true',
-        help='Enable TIMID MODE. Ask user to confirm renames. '
+        help='Enable TIMID MODE. Have the user confirm each file before renaming. '
     )
     optgrp_mode_interaction.add_argument(
         '--interactive',
@@ -183,8 +155,9 @@ def init_argparser():
         default=False,
         dest='mode_batch',
         action='store_true',
-        help='Enable BATCH MODE. Abort instead of querying the user. Does not '
-             'require any user interaction and is suitable for scripting, etc.'
+        help='Enable BATCH MODE. Abort instead of querying the user, suitable '
+             'for scripting, etc. Disables all user interaction except TIMID '
+             'MODE file rename confirmations, if enabled.'
     )
 
     parser.add_argument(
@@ -249,8 +222,8 @@ def init_argparser():
         dest='dump_meowuris',
         action='store_true',
         help='Dump all MeowURIs registered to the "Repository" at startup. '
-             'NOTE: Some sources require explict inclusion and might therefore'
-             ' not be included.  Use "--debug" for more information.'
+             'Use "--debug" for detailed information and a list of providers '
+             'excluded due to unsatisfied dependencies.'
     )
 
     return parser

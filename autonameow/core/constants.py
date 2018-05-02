@@ -192,7 +192,10 @@ YEAR_UPPER_LIMIT = next_year()
 
 # TODO: [TD0043] Allow storing these in the configuration file.
 # Ignore all date/time-information for the specified year and years prior.
-YEAR_LOWER_LIMIT = datetime.datetime.strptime('1900', '%Y')
+#
+# Arbitrarily set to 1455 "The Gutenberg Bible (in Latin) was the first major
+# book printed in Europe with movable metal type by Johannes Gutenberg."
+YEAR_LOWER_LIMIT = datetime.datetime.strptime('1455', '%Y')
 
 
 # Exit code values returned to the executing shell or parent process.
@@ -207,7 +210,7 @@ EXIT_SANITYFAIL = 3  # Program failure due to failed sanity check.
 
 # Repository and internal data storage
 MEOWURI_NODE_GENERIC = 'generic'
-UNDEFINED_MEOWURI_PART = 'NULL'
+MEOWURI_UNDEFINED_PART = 'NULL'
 MEOWURI_SEPARATOR = '.'
 RE_ALLOWED_MEOWURI_PART_CHARS = r'[\w:-]'
 

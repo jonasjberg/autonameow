@@ -4,7 +4,7 @@ author:
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 1.0
+            weight: 1.0
     multivalued: true
 
 author-meta:
@@ -13,7 +13,7 @@ author-meta:
     mapped_fields:
     -   WeightedMapping:
             field: Author
-            probability: 1.0
+            weight: 1.0
     multivalued: true
 
 date:
@@ -22,10 +22,10 @@ date:
     mapped_fields:
     -   WeightedMapping:
             field: Date
-            probability: 1
+            weight: 1
     -   WeightedMapping:
             field: DateTime
-            probability: 1
+            weight: 1
     multivalued: false
 
 date-meta:
@@ -34,10 +34,10 @@ date-meta:
     mapped_fields:
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     multivalued: false
 
 pagetitle:
@@ -46,7 +46,7 @@ pagetitle:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 0.4
+            weight: 0.4
     multivalued: false
 
 subtitle:
@@ -55,7 +55,7 @@ subtitle:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 0.25
+            weight: 0.25
     multivalued: false
 
 table-of-contents:
@@ -68,7 +68,7 @@ tags:
     mapped_fields:
     -   WeightedMapping:
             field: Tags
-            probability: 1.0
+            weight: 1.0
     multivalued: true
 
 title:
@@ -77,7 +77,7 @@ title:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 1.0
+            weight: 1.0
     multivalued: false
 
 title-prefix:
@@ -86,5 +86,5 @@ title-prefix:
     mapped_fields:
     -   WeightedMapping:
             field: Title
-            probability: 0.5
+            weight: 0.5
     multivalued: false

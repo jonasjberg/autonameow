@@ -1,0 +1,15 @@
+exit_code: 0
+renames:
+    4123.epub: CONSTANT_NAME_B
+    4123.pdf: CONSTANT_NAME_B
+    empty: CONSTANT_NAME_B
+    magic_bmp.bmp: CONSTANT_NAME_B
+    magic_gif.gif: CONSTANT_NAME_B
+    magic_jpg.jpg: CONSTANT_NAME_B
+    magic_mp4.mp4: CONSTANT_NAME_B
+    magic_png.png: CONSTANT_NAME_B
+    magic_txt.md: CONSTANT_NAME_B
+    magic_txt.txt: CONSTANT_NAME_B
+    ObjectCalisthenics.rtf: CONSTANT_NAME_B
+    saved-webpage.html: CONSTANT_NAME_B
+    saved-webpage.mhtml: CONSTANT_NAME_B

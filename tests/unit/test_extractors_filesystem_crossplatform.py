@@ -20,26 +20,24 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 
 import unit.utils as uu
-from extractors.filesystem.crossplatform import (
-    CrossPlatformFileSystemExtractor,
-    datetime_from_timestamp
-)
+from extractors.filesystem.crossplatform import CrossPlatformFileSystemExtractor
+from extractors.filesystem.crossplatform import datetime_from_timestamp
 from unit.case_extractors import CaseExtractorBasics
 
 
-# This really shouldn't happen. Probably caused by an error if it does.
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied (!)'
-UNMET_DEPENDENCIES = CrossPlatformFileSystemExtractor.check_dependencies() is False
-assert not UNMET_DEPENDENCIES
+UNMET_DEPENDENCIES = (
+    not CrossPlatformFileSystemExtractor.dependencies_satisfied(),
+    'Extractor dependencies not satisfied'
+)
+assert not UNMET_DEPENDENCIES[0], (
+    'Expected extractor to not have any dependencies (always satisfied)'
+)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestCrossPlatformFileSystemExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = CrossPlatformFileSystemExtractor
     EXTRACTOR_NAME = 'CrossPlatformFileSystemExtractor'
@@ -72,10 +70,11 @@ class TestDatetimeFromTimestamp(TestCase):
 
 
 class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         _fo = uu.fileobject_testfile('magic_txt.txt')
         _extractor_instance = CrossPlatformFileSystemExtractor()
-        self.actual = _extractor_instance.extract(_fo)
+        cls.actual = _extractor_instance.extract(_fo)
 
     def test_extract_returns_expected_type(self):
         self.assertIsInstance(self.actual, dict)
@@ -110,10 +109,11 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
 
 
 class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         _fo = uu.fileobject_testfile('empty')
         _extractor_instance = CrossPlatformFileSystemExtractor()
-        self.actual = _extractor_instance.extract(_fo)
+        cls.actual = _extractor_instance.extract(_fo)
 
     def test_extract_returns_expected_type(self):
         self.assertIsInstance(self.actual, dict)
@@ -148,9 +148,10 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
 
 
 class TestCrossPlatformFileSystemExtractorMetainfo(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         _extractor_instance = CrossPlatformFileSystemExtractor()
-        self.actual = _extractor_instance.metainfo()
+        cls.actual = _extractor_instance.metainfo()
 
     def test_metainfo_returns_expected_type(self):
         self.assertIsInstance(self.actual, dict)
@@ -170,3 +171,33 @@ class TestCrossPlatformFileSystemExtractorMetainfo(TestCase):
 
             actual = _field_lookup_entry.get('multivalued')
             self.assertIsInstance(actual, (bool, type(None)))
+
+
+class TestFieldFileobjectAttributeMap(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.actual_map = CrossPlatformFileSystemExtractor.FIELD_FILEOBJECT_ATTRIBUTE_MAP
+        cls.fo = uu.get_mock_fileobject()
+
+    def test_map_field_names_are_non_empty_unicode_strings(self):
+        for field, _ in self.actual_map:
+            with self.subTest(field=field):
+                self.assertIsInstance(field, str)
+                self.assertGreater(len(field), 0)
+
+    def test_map_field_names_are_unique(self):
+        seen = set()
+        all_fields = [field for field, _ in self.actual_map]
+        all_fields_deduped = set(all_fields)
+        self.assertEqual(len(all_fields), len(all_fields_deduped))
+
+    def test_attributes_defined_in_map_are_all_part_of_actual_fileobject(self):
+        for _, attribute in self.actual_map:
+            with self.subTest(attribute=attribute):
+                self.assertTrue(hasattr(self.fo, attribute))
+
+    def test_attributes_defined_in_map_are_not_none_in_actual_fileobject(self):
+        for _, attribute in self.actual_map:
+            with self.subTest(attribute=attribute):
+                actual_attr_value = getattr(self.fo, attribute)
+                self.assertIsNotNone(actual_attr_value)

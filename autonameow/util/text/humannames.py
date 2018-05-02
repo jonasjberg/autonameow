@@ -22,31 +22,121 @@
 import re
 
 from thirdparty import nameparser
-from util import (
-    flatten_sequence_type,
-    sanity,
-)
+from util import sanity
+from util.text.regexcache import RegexCache
 
 
-RE_AUTHOR_ET_AL = re.compile(
-    r'[\[\(\{]?et.al\.?[\]\)\}]?', re.IGNORECASE
-)
-RE_EDITED_BY = re.compile(
-    r'ed(\.|ited) by', re.IGNORECASE
-)
+BLACKLISTED_HUMAN_NAMES = frozenset([
+    'author',
+    'contributing writers',
+    'dvd presenter',
+    'editor',
+    'foreword',
+    'inc',
+    'presenter',
+    'reviewer',
+    'technical editor',
+    'technical review',
+])
+
+
+def strip_contributions(string):
+    RE_CONTRIBUTIONS = r'(with )?contributions( by)? '
+    regex = RegexCache(RE_CONTRIBUTIONS, flags=re.IGNORECASE)
+    subbed_string = regex.sub('', string)
+    return subbed_string.strip()
 
 
 def strip_author_et_al(string):
     """
     Attempts to remove variations of "et al." from a Unicode string.
     """
-    _subbed = RE_AUTHOR_ET_AL.sub('', string).replace('...', '')
-    return _subbed.strip().rstrip(',').lstrip('.')
+    RE_AUTHOR_ET_AL = r'[\[\(\{]?et.al\.?[\]\)\}]?'
+    regex = RegexCache(RE_AUTHOR_ET_AL, flags=re.IGNORECASE)
+
+    subbed_string = regex.sub('', string).replace('...', '')
+    return subbed_string.strip().rstrip(',').lstrip('.')
 
 
 def strip_edited_by(string):
-    _subbed = RE_EDITED_BY.sub('', string)
-    return _subbed.strip()
+    RE_EDITED_BY = r'ed(\.|ited) by'
+    regex = RegexCache(RE_EDITED_BY, flags=re.IGNORECASE)
+    subbed_string = regex.sub('', string)
+    return subbed_string.strip()
+
+
+def strip_foreword_by(string):
+    RE_FOREWORD_BY = r'foreword( by)?:?'
+    regex = RegexCache(RE_FOREWORD_BY, flags=re.IGNORECASE)
+    subbed_string = regex.sub('', string)
+    return subbed_string.strip()
+
+
+def strip_author_prefix(string):
+    RE_AUTHOR_PREFIX = r'author:? '
+    regex = RegexCache(RE_AUTHOR_PREFIX, flags=re.IGNORECASE)
+    subbed_string = regex.sub('', string)
+    return subbed_string.strip()
+
+
+def strip_repeating_periods(string):
+    RE_REPEATING_PERIODS = r'\.\.+'
+    regex = RegexCache(RE_REPEATING_PERIODS, flags=re.IGNORECASE)
+    subbed_string = regex.sub('', string)
+    return subbed_string.strip()
+
+
+def strip_bad_author_substrings(string):
+    assert isinstance(string, str)
+    s = string
+    s = strip_repeating_periods(s)
+    s = strip_edited_by(s)
+    s = strip_foreword_by(s)
+    s = strip_author_prefix(s)
+    s = strip_author_et_al(s)
+    s = strip_contributions(s)
+
+    if s.lower().startswith('by '):
+        s = s[3:]
+
+    return s
+
+
+def _handle_letter_case_of_names_with_van(string):
+    def __lower_first_upper_second(_match):
+        _lowered_first = _match.group(1).lower()
+        _lowered_second = _match.group(2).upper()
+        return _lowered_first + _lowered_second
+
+    subbed = re.sub(r' Van ', ' van ', string)
+    subbed = re.sub(r'(Van)([\w])', __lower_first_upper_second, subbed)
+    return subbed
+
+
+def _handle_letter_case_of_names_with_von(string):
+    def __lower_first_upper_second(_match):
+        _lowered_first = _match.group(1).lower()
+        _lowered_second = _match.group(2).upper()
+        return _lowered_first + _lowered_second
+
+    subbed = re.sub(r' Von ', ' von ', string)
+    subbed = re.sub(r'(Von)([\w])', __lower_first_upper_second, subbed)
+    return subbed
+
+
+def _handle_special_cases_of_name_letter_case(string):
+    # TODO: [incomplete] Will probably need to handle more special cases.
+    modified_string = _handle_letter_case_of_names_with_van(string)
+    modified_string = _handle_letter_case_of_names_with_von(modified_string)
+    return modified_string
+
+
+def normalize_letter_case(string):
+    assert isinstance(string, str)
+
+    title_case_string = string.title()
+    title_case_name = _handle_special_cases_of_name_letter_case(title_case_string)
+    return title_case_name
 
 
 def _parse_name(human_name):
@@ -87,11 +177,6 @@ def _parse_name(human_name):
 
 
 class HumanNameParser(object):
-    # List of words to exclude from the output.
-    IGNORED_AUTHOR_WORDS = frozenset([
-        '',
-    ])
-
     def __call__(self, name):
         if name is None:
             return {}
@@ -107,32 +192,79 @@ class HumanNameParser(object):
 
     @classmethod
     def _check_bad_nameparser_result(cls, parsed_name):
-        # Check for bad handling of names like 'Regina O. Obe'
         original_parts = parsed_name.get('original', '').split(' ')
-        if len(original_parts) == 3 and re.match(r'[A-Z]\.', original_parts[1]):
-            if parsed_name.get('suffix', '') == original_parts[2]:
-                # Last name mistaken for suffix
-                # Middle name mistaken for last name
-                if not parsed_name.get('middle'):
-                    parsed_name['suffix'] = ''
-                    parsed_name['suffix_list'] = ['']
-                    parsed_name['middle'] = original_parts[1]
-                    parsed_name['middle_list'] = [original_parts[1]]
-                    parsed_name['last'] = original_parts[2]
-                    parsed_name['last_list'] = [original_parts[2]]
+        if len(original_parts) == 3:
+            # Correct for bad handling of names like 'Regina O. Obe'
+            if re.match(r'[A-Z]\.', original_parts[1]):
+                if parsed_name.get('suffix', '') == original_parts[2]:
+                    # Last name mistaken for suffix
+                    # Middle name mistaken for last name
+                    if not parsed_name.get('middle'):
+                        parsed_name['suffix'] = ''
+                        parsed_name['suffix_list'] = ['']
+                        parsed_name['middle'] = original_parts[1]
+                        parsed_name['middle_list'] = [original_parts[1]]
+                        parsed_name['last'] = original_parts[2]
+                        parsed_name['last_list'] = [original_parts[2]]
+
+            # Correct for bad handling of names like 'Le Minh Nguyen'.
+            elif (parsed_name['original'] == parsed_name['first']
+                  and parsed_name['last'] == ''
+                  and parsed_name['middle'] == ''
+                  and parsed_name['suffix'] == ''
+                  and parsed_name['title'] == ''):
+                parsed_name['first'] = original_parts[0]
+                parsed_name['first_list'] = [original_parts[0]]
+                parsed_name['middle'] = original_parts[1]
+                parsed_name['middle_list'] = [original_parts[1]]
+                parsed_name['last'] = original_parts[2]
+
+            # Correct for bad handling of names like 'Shiva Prasad K.M.'
+            elif re.match(r'([A-Z]\.)+', parsed_name['last']) and len(parsed_name['last_list']) == 1:
+                # Swap 'last' with 'middle' and 'last_list' with 'middle_list'.
+                misplaced_last = parsed_name['middle']
+                misplaced_last_list = parsed_name['middle_list']
+                misplaced_middle = parsed_name['last']
+                misplaced_middle_list = [
+                    s for s
+                    in parsed_name['last_list'][0].split('.')
+                    if s.strip()
+                ]
+                parsed_name['last'] = misplaced_last
+                parsed_name['last_list'] = misplaced_last_list
+                parsed_name['middle'] = misplaced_middle
+                parsed_name['middle_list'] = misplaced_middle_list
+
+        elif len(original_parts) == 2:
+            # Correct for bad handling of names like 'I.N. Bronsh'
+            if re.match(r'([A-Z]\.){2,}', original_parts[0]):
+                if (parsed_name['first'] == parsed_name['first_list'][0]
+                        and parsed_name['last'] == parsed_name['last_list'][0]
+                        and not parsed_name['middle']
+                        and not parsed_name['middle_list']
+                        and not parsed_name['suffix']
+                        and not parsed_name['title']
+                        and not parsed_name['title_list']):
+
+                    initials = [
+                        s for s in parsed_name['first'].split('.') if s.strip()
+                    ]
+                    try:
+                        first_initial = initials[0]
+                        remaining_initials = initials[1:]
+                        parsed_name['first'] = first_initial
+                        parsed_name['first_list'] = [first_initial]
+                        parsed_name['middle'] = remaining_initials[0]
+                        parsed_name['middle_list'] = remaining_initials
+                    except IndexError:
+                        print('älkjshdfg')
+                        raise
+
         return parsed_name
 
     @classmethod
     def _preprocess(cls, name):
-        if not name.strip():
-            return ''
-
-        for ignored_word in cls.IGNORED_AUTHOR_WORDS:
-            name = name.replace(ignored_word, '')
-
-        name = strip_author_et_al(name)
-        name = name.strip().rstrip(',').lstrip('.')
-        return name
+        return filter_name(name)
 
 
 class HumanNameFormatter(object):
@@ -157,19 +289,17 @@ class HumanNameFormatter(object):
             )
 
         _original_string = parsed_name.get('original', '')
-        if self._is_formatted(_original_string):
+        if self._original_name_is_already_formatted(_original_string):
             return _original_string
 
         return self.format(parsed_name)
 
     @classmethod
-    def _is_formatted(cls, name):
+    def _original_name_is_already_formatted(cls, name):
         """
         Return names that are already in the output format as-is.
         """
-        if cls.RE_FORMATTED_NAME.match(name):
-            return True
-        return False
+        return bool(cls.RE_FORMATTED_NAME.match(name))
 
     def format(self, name):
         """
@@ -278,11 +408,27 @@ def format_name(human_name, formatter=None):
     return formatter(_parsed_name)
 
 
+def remove_blacklisted_names(human_name):
+    if human_name.lower().strip() in BLACKLISTED_HUMAN_NAMES:
+        return ''
+    return human_name
+
+
 def split_multiple_names(list_of_names):
-    RE_NAME_SEPARATORS = r',| ?and'
+    # Local import to avoid circular imports within the 'util' module.
+    from util import flatten_sequence_type
+
+    RE_NAME_SEPARATORS = r',| ?\band| ?\+| ?& ?'
 
     result = list()
     flat_list_of_names = flatten_sequence_type(list_of_names)
+    if len(flat_list_of_names) == 1 and flat_list_of_names[0].startswith('edited by'):
+        # TODO: [hack] FIX THIS!
+        # TODO: Some cases require filtering out substrings, which is
+        #       currently typically done in a separate step after this
+        #       function..
+        return flat_list_of_names
+
     for name_or_names in flat_list_of_names:
         split_parts = re.split(RE_NAME_SEPARATORS, name_or_names)
         non_whitespace_parts = [p.strip() for p in split_parts if p]
@@ -291,4 +437,17 @@ def split_multiple_names(list_of_names):
 
 
 def filter_multiple_names(list_of_names):
-    return [n for n in list_of_names if len(n) > 1]
+    filter_output = list()
+    for name in list_of_names:
+        filtered_name = filter_name(name)
+        if filtered_name and len(filtered_name) > 1:
+            filter_output.append(filtered_name)
+
+    return filter_output
+
+
+def filter_name(human_name):
+    name = remove_blacklisted_names(human_name)
+    name = strip_bad_author_substrings(name)
+    name = normalize_letter_case(name)
+    return name

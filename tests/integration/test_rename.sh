@@ -131,7 +131,7 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-assert_true 'command -v python3' \
+assert_true 'command_exists python3' \
             'Python v3.x is available on the system'
 
 assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x

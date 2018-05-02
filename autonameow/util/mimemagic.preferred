@@ -1,5 +1,9 @@
 # Any custom overrides of the "extension to MIME-type"-mapping goes here.
 # I.E. you can specify your preferred extension for a given MIME-type.
+
+# Microsoft Office
+application/vnd.ms-excel: xls
+
 image/jpeg: jpg
 application/gzip: gz
 audio/midi: mid
@@ -7,6 +11,7 @@ video/quicktime: mov
 video/mp4: mp4
 text/plain: txt
 text/rtf: rtf
+text/x-java: java
 text/x-sh: sh
 text/x-shellscript: sh
 inode/x-empty:

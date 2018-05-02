@@ -193,6 +193,7 @@ Session.vim
 docs/test_results/.integrationlog.toreport
 docs/test_results/.unittestlog.toreport
 .regressionrunner_lastrun
+.regressionrunner_history
 
 # Documentation
 docs/test_results/

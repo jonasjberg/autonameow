@@ -38,6 +38,9 @@ Find which unit tests that covered which lines of source code using `smother`.
 Run autonameow with the given file(s) and the `--list-all` option and filters
 the output to display a lexicographically sorted list of unique MeowURIs.
 
+### `functions-rarely-called.sh`
+Very simple *and likely broken* search of unused functions and methods.
+
 ### `lint_bash.sh`
 Perform static analysis on all bash scripts using `shellcheck`.
 
@@ -46,6 +49,9 @@ Perform static analysis on all Python scripts using `pylint`.
 
 ### `list-imported-modules.sh`
 List modules imported by the specified Python program.
+
+### `run_command_on_git_revs.sh`
+Execute arbitrary shell commands over a range of git revisions.
 
 ### `todo_grep.sh`
 Simple `grep` wrapper for searching the sources for TODOs.

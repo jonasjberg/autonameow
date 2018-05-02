@@ -22,11 +22,9 @@
 from unittest import TestCase
 
 import unit.utils as uu
-from core.persistence.cache import (
-    BaseCache,
-    CacheError,
-    get_cache
-)
+from core.persistence.cache import BaseCache
+from core.persistence.cache import CacheError
+from core.persistence.cache import get_cache
 
 
 class TestBaseCache(TestCase):
@@ -71,7 +69,7 @@ class TestBaseCacheStorage(TestCase):
         self.assertIsNone(actual)
 
     def test_keys_initially_empty(self):
-        expect = []
+        expect = list()
         actual = self.c.keys()
         self.assertEqual(actual, expect)
 

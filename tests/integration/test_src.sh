@@ -56,10 +56,6 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-assert_true 'command -v python3' \
-            'Python v3.x is available on the system'
-
-
 # ______________________________________________________________________________
 #
 # Make sure that certain files have not been added to version control.
@@ -121,9 +117,35 @@ _check_committed_textfiles_exist_and_readable()
     done
     return 0
 }
-
 assert_true '_check_committed_textfiles_exist_and_readable' \
             'All committed files with MIME-type matching "text/*" exist and are readable'
+
+
+python_source_files=(
+    $(git ls-files | grep '\.py$' | grep -v -- 'junk\|local\|notes\|test_files\|thirdparty')
+)
+_check_python_source_files_exist_and_readable()
+{
+    for tf in "${python_source_files[@]}"
+    do
+        [ -r "$tf" ] || return 1
+    done
+    return 0
+}
+assert_true '_check_python_source_files_exist_and_readable' \
+            'All committed Python source files (some excluded, see test for details) exist and are readable'
+
+
+_check_python_source_files_do_not_use_grouped_imports()
+{
+    for tf in "${python_source_files[@]}"
+    do
+        grep -qE 'from [a-zA-Z0-9_\.]+ import \($' -- "$tf" && return 1
+    done
+    return 0
+}
+assert_true '_check_python_source_files_do_not_use_grouped_imports' \
+            'None of the committed Python source files (some excluded, see test for details) use grouped import statements'
 
 
 _whitespace_check_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check_whitespace.sh"
@@ -131,6 +153,17 @@ assert_bulk_test "$_whitespace_check_script_path" e x
 
 assert_true '$_whitespace_check_script_path' \
             'Whitespace conformance script checks pass ("check_whitespace.sh" returns 0)'
+
+
+# ______________________________________________________________________________
+#
+# Check spelling with external script.
+
+_check_spelling_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check-spelling.sh"
+assert_bulk_test "$_check_spelling_script_path" e x
+
+assert_true '$_check_spelling_script_path' \
+            'Spell-checker script checks pass ("check_whitespace.sh" returns 0)'
 
 
 

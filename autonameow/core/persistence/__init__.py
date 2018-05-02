@@ -19,12 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from .cache import (
-    CacheError,
-    get_cache
-)
-from .base import (
-    get_config_persistence_path,
-    get_persistence,
-    PersistenceError
-)
+from .base import get_config_persistence_path
+from .base import get_persistence
+from .base import PersistenceError
+from .cache import CacheError
+from .cache import get_cache
+from .config import DefaultConfigFilePath
+from .config import has_config_file
+from .config import load_config_from_file
+from .config import write_default_config

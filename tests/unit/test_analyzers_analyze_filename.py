@@ -21,24 +21,18 @@
 
 from collections import namedtuple
 from unittest import TestCase
-from unittest.mock import (
-    Mock,
-    patch
-)
+from unittest.mock import Mock, patch
 
 import unit.utils as uu
-from analyzers.analyze_filename import (
-    BASENAME_PROBABLE_EXT_LOOKUP,
-    FilenameAnalyzer,
-    FilenameTokenizer,
-    likely_extension,
-    _read_probable_extension_config_file,
-    _parse_mimetype_extension_suffixes_map_data,
-    PATH_PROBABLE_EXT_LOOKUP,
-    SubstringFinder
-)
+from analyzers.analyze_filename import BASENAME_PROBABLE_EXT_LOOKUP
+from analyzers.analyze_filename import FilenameAnalyzer
+from analyzers.analyze_filename import FilenameTokenizer
+from analyzers.analyze_filename import likely_extension
+from analyzers.analyze_filename import PATH_PROBABLE_EXT_LOOKUP
+from analyzers.analyze_filename import SubstringFinder
+from analyzers.analyze_filename import _parse_mimetype_extension_suffixes_map_data
+from analyzers.analyze_filename import _read_probable_extension_config_file
 from core.namebuilder import fields
-from core.types import NullMIMEType
 
 
 uu.init_session_repository()
@@ -58,6 +52,11 @@ class TestFieldGetterMethods(TestCase):
         }
 
         self.fna = FilenameAnalyzer(None, mock_config, None)
+
+    @classmethod
+    def setUpClass(cls):
+        from util.coercers import NULL_AW_MIMETYPE
+        cls.null_mimetype = NULL_AW_MIMETYPE
 
     def test__get_edition_returns_expected_given_basename_with_edition(self):
         self.fna._basename_prefix = 'foo 2nd Edition bar'
@@ -107,17 +106,17 @@ class TestFieldGetterMethods(TestCase):
         self.__assert_extension('jpg')
 
     def test__get_extension_returns_expected_given_suffix_null_mime_type(self):
-        self.fna._file_mimetype = NullMIMEType()
+        self.fna._file_mimetype = self.null_mimetype
         self.fna._basename_suffix = 'jpg'
         self.__assert_extension('jpg')
 
     def test__get_extension_returns_expected_given_empty_suffix_null_mime(self):
-        self.fna._file_mimetype = NullMIMEType()
+        self.fna._file_mimetype = self.null_mimetype
         self.fna._basename_suffix = ''
         self.__assert_extension('')
 
     def test__get_extension_returns_none_given_none_suffix_null_mime(self):
-        self.fna._file_mimetype = NullMIMEType()
+        self.fna._file_mimetype = self.null_mimetype
         self.fna._basename_suffix = None
         self.__assert_extension(None)
 
@@ -137,8 +136,6 @@ class TestLikelyExtension(TestCase):
              Given(suffix='alfredworkflow', mime='application/zip')),
             (Expect('azw3'),
              Given(suffix='azw3', mime='application/octet-stream')),
-            (Expect('bibtex'),
-             Given(suffix='bibtex', mime='text/plain')),
             (Expect('bin'),
              Given(suffix='bin', mime='application/octet-stream')),
             (Expect('bz2'),
@@ -146,12 +143,43 @@ class TestLikelyExtension(TestCase):
             (Expect('chm'),
              Given(suffix='chm', mime='application/octet-stream')),
 
+            # TeX/LaTeX
+            (Expect('aux'),
+             Given(suffix='aux', mime='text/plain')),
+            (Expect('bibtex'),
+             Given(suffix='bibtex', mime='text/plain')),
+            (Expect('bib'),
+             Given(suffix='bib', mime='text/plain')),
+            (Expect('bbl'),
+             Given(suffix='bbl', mime='text/plain')),
+            (Expect('bcf'),
+             Given(suffix='bcf', mime='text/xml')),
+            (Expect('blg'),
+             Given(suffix='blg', mime='text/plain')),
+            (Expect('dvi'),
+             Given(suffix='dvi', mime='application/x-dvi')),
+            (Expect('fdb_latexmk'),
+             Given(suffix='fdb_latexmk', mime='text/plain')),
+            (Expect('fls'),
+             Given(suffix='fls', mime='text/plain')),
+            (Expect('out'),
+             Given(suffix='out', mime='inode/x-empty')),
+            (Expect('log'),
+             Given(suffix='log', mime='text/x-tex')),
+
+            (Expect(''),
+             Given(suffix='', mime='text/plain')),
+
             (Expect('c'),
              Given(suffix='c', mime='text/x-c')),
             (Expect('c'),
              Given(suffix='txt', mime='text/x-c')),
             (Expect('c'),
              Given(suffix='c', mime='text/plain')),
+            (Expect('c'),
+             Given(suffix='c', mime='application/octet-stream')),
+            (Expect('conf'),
+             Given(suffix='conf', mime='text/plain')),
             (Expect('cpp'),
              Given(suffix='cpp', mime='text/x-c++')),
             (Expect('cpp'),
@@ -160,16 +188,43 @@ class TestLikelyExtension(TestCase):
              Given(suffix='c++', mime='text/x-c++')),
             (Expect('cpp'),
              Given(suffix='c++', mime='text/plain')),
+            (Expect('h'),
+             Given(suffix='h', mime='text/x-c')),
+            (Expect('h'),
+             Given(suffix='h', mime='application/octet-stream')),
 
+            # Incorrectly identified CSS
+            (Expect('css'),
+             Given(suffix='css', mime='text/x-asm')),
+
+            # Microsoft Office
             (Expect('doc'),
              Given(suffix='doc', mime='application/msword')),
+            (Expect('doc'),
+             Given(suffix='', mime='application/msword')),
+            (Expect('xls'),
+             Given(suffix='xls', mime='application/vnd.ms-excel')),
+            (Expect('xls'),
+             Given(suffix='', mime='application/vnd.ms-excel')),
+
             (Expect('eps'),
              Given(suffix='eps', mime='application/postscript')),
             (Expect('hex'),
              Given(suffix='hex', mime='application/octet-stream')),
 
+            (Expect('exe'),
+             Given(suffix='exe', mime='application/x-dosexec')),
+            (Expect('exe'),
+             Given(suffix='', mime='application/x-dosexec')),
+
+            (Expect('html'),
+             Given(suffix='htm', mime='text/xml')),
+            (Expect('html'),
+             Given(suffix='html', mime='text/xml')),
             (Expect('html'),
              Given(suffix='htm.gz', mime='text/html')),
+            (Expect('html.1'),
+             Given(suffix='html.1', mime='text/html')),
             (Expect('html'),
              Given(suffix='html.gz', mime='text/html')),
             (Expect('html.gz'),
@@ -181,10 +236,34 @@ class TestLikelyExtension(TestCase):
             (Expect('html.gz'),
              Given(suffix='html', mime='application/x-gzip')),
 
-            (Expect('log'),
-             Given(suffix='log', mime='text/x-tex')),
+            # Incorrectly identified JavaScript
+            (Expect('js'),
+             Given(suffix='js', mime='text/html')),
+
             (Expect('log'),
              Given(suffix='log', mime='text/plain')),
+            (Expect('log'),
+             Given(suffix='log', mime='application/octet-stream')),
+
+            # OpenOffice/LibreOffice
+            (Expect('odp'),
+             Given(suffix='odp', mime='application/vnd.oasis.opendocument.presentation')),
+            (Expect('odp'),
+             Given(suffix='', mime='application/vnd.oasis.opendocument.presentation')),
+            (Expect('ods'),
+             Given(suffix='ods', mime='application/vnd.oasis.opendocument.spreadsheet')),
+            (Expect('ods'),
+             Given(suffix='', mime='application/vnd.oasis.opendocument.spreadsheet')),
+            (Expect('odt'),
+             Given(suffix='odt', mime='application/vnd.oasis.opendocument.text')),
+            (Expect('odt'),
+             Given(suffix='', mime='application/vnd.oasis.opendocument.text')),
+
+            (Expect('deb'),
+             Given(suffix='deb', mime='application/vnd.debian.binary-package')),
+
+            (Expect('lc'),
+             Given(suffix='lc', mime='text/plain')),
 
             (Expect('mid'),
              Given(suffix='mid', mime='audio/midi')),
@@ -196,6 +275,33 @@ class TestLikelyExtension(TestCase):
              Given(suffix='markdown', mime='text/plain')),
             (Expect('mobi'),
              Given(suffix='mobi', mime='application/octet-stream')),
+
+            # Might be corrupt or misidentified mp4
+            (Expect('mp4'),
+             Given(suffix='mp4', mime='application/octet-stream')),
+
+            # National Instruments Multisim
+            (Expect('ms10'),
+             Given(suffix='ms10', mime='application/octet-stream')),
+            (Expect('ms10 (Security copy)'),
+             Given(suffix='ms10 (Security copy)', mime='application/octet-stream')),
+            (Expect('ms10 (Security copy)'),
+             Given(suffix='ms10-(Security-copy)', mime='application/octet-stream')),
+            (Expect('ms12'),
+             Given(suffix='ms12', mime='application/octet-stream')),
+            (Expect('ms12 (Security copy)'),
+             Given(suffix='ms12 (Security copy)', mime='application/octet-stream')),
+            (Expect('ms12 (Security copy)'),
+             Given(suffix='ms12-(Security-copy)', mime='application/octet-stream')),
+
+            # Texas Instruments calculator firmware
+            (Expect('89u'),
+             Given(suffix='89u', mime='application/octet-stream')),
+            (Expect('rom'),
+             Given(suffix='ROM', mime='application/octet-stream')),
+            (Expect('rom'),
+             Given(suffix='rom', mime='application/octet-stream')),
+
             (Expect('pdf'),
              Given(suffix='pdf', mime='application/pdf')),
             (Expect('pdf'),
@@ -260,6 +366,9 @@ class TestLikelyExtension(TestCase):
             (Expect('yaml'),
              Given(suffix='yaml', mime='text/plain')),
 
+            (Expect('xml'),
+             Given(suffix='xml', mime='text/plain')),
+
             (Expect('zip'),
              Given(suffix='zip', mime='application/zip')),
             (Expect('zip'),
@@ -268,6 +377,30 @@ class TestLikelyExtension(TestCase):
             # Chrome Save as "Webpage, Single File"
             (Expect('mhtml'),
              Given(suffix='mhtml', mime='message/rfc822')),
+
+            # Apple disk image
+            (Expect('dmg'),
+             Given(suffix='dmg', mime='application/x-iso9660-image')),
+            (Expect('dmg'),
+             Given(suffix='dmg', mime='application/x-bzip2')),
+            (Expect('dmg'),
+             Given(suffix='dmg', mime='application/octet-stream')),
+
+            # Adobe
+            (Expect('psd'),
+             Given(suffix='psd', mime='image/vnd.adobe.photoshop')),
+
+            # MacOS system report
+            (Expect('spx'),
+             Given(suffix='spx', mime='text/xml')),
+
+            # Microsoft paper specification file
+            (Expect('xps'),
+             Given(suffix='xps', mime='application/octet-stream')),
+
+            # Safari saved webpage
+            (Expect('webarchive'),
+             Given(suffix='webarchive', mime='application/octet-stream')),
         ]
 
     def test_returns_expected(self):

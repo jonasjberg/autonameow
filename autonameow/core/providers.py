@@ -21,13 +21,10 @@
 
 import logging
 
-from core import constants as C
-from core import types
-from core.model import (
-    genericfields,
-    WeightedMapping
-)
+from core.model import genericfields
+from core.model import WeightedMapping
 from core.namebuilder.fields import nametemplatefield_class_from_string
+from util import coercers
 from util import sanity
 
 
@@ -35,72 +32,104 @@ log = logging.getLogger(__name__)
 
 
 class ProviderMixin(object):
-    def __init__(self):
-        pass
-
     def coerce_field_value(self, field, value):
+        if value is None:
+            return None
+
         # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
         # TODO: [hack] This is very bad.
-        _field_lookup_entry = self.metainfo().get(field)
-        if not _field_lookup_entry:
+        field_metainfo = self.metainfo().get(field)
+        if not field_metainfo:
             self.log.debug(
-                'Field not in "FIELD_LOOKUP" (through "metainfo()" method); '
-                '"{!s}" with value: "{!s}" ({!s})'.format(field, value,
-                                                          type(value)))
+                'Field not in "metainfo"; "{!s}" with value: '
+                '"{!s}" ({!s})'.format(field, value, type(value))
+            )
             return None
 
         try:
-            coercer_string = _field_lookup_entry.get('coercer')
+            coercer_string = field_metainfo.get('coercer')
         except AttributeError:
-            # Might be case of malformed 'FIELD_LOOKUP'.
+            # Might be case of malformed "metainfo" ..
             coercer_string = None
 
         if not coercer_string:
-            self.log.warning('Coercer unspecified for field; "{!s}" with value:'
-                             ' "{!s}" ({!s})'.format(field, value, type(value)))
+            self.log.warning(
+                '"coercer" unspecified for field; "{!s}" with value: '
+                '"{!s}" ({!s})'.format(field, value, type(value))
+            )
             return None
 
         sanity.check_internal_string(coercer_string)
-        coercer = get_coercer_from_metainfo_string(coercer_string)
-        assert isinstance(coercer, (types.BaseType, types.MultipleTypes)), (
-            'Got ({!s}) "{!s}"'.format(type(coercer), coercer)
-        )
-
-        if 'multivalued' not in _field_lookup_entry:
-            self.log.debug(
-                'Multivalued unspecified for field; "{!s}" with value:'
-                ' "{!s}" ({!s})'.format(field, value, type(value))
+        coercer = get_coercer_for_metainfo_string(coercer_string)
+        if not isinstance(coercer, (coercers.BaseCoercer, coercers.MultipleTypes)):
+            msg = 'Expected coercer class. Got {} "{!s}" from coercer_string {!s} "{!s}"'.format(
+                type(coercer), coercer, type(coercer_string), coercer_string
             )
+            raise AssertionError(msg)
 
+        if 'multivalued' not in field_metainfo:
+            # Abort instead of using a default value. Many systems rely on this
+            # being correct --- make sure that the provider metainfo is correct.
+            self.log.warning(
+                '"multivalued" unspecified for field; "{!s}" with value: '
+                '"{!s}" ({!s})'.format(field, value, type(value))
+            )
+            return None
+
+        multivalued = bool(field_metainfo.get('multivalued'))
+        return self._coerce_field_value(field, value, coercer, multivalued)
+
+    def _coerce_field_value(self, field, value, coercer, multivalued):
+        """
+        Check whether types and multiplicities defined in "metainfo"
+        matches the actual data and do type coercions.
+        """
+        # Value is a list ("multivalued") --- coerce to list or abort
+        # if expecting a single value, can't do reliable conversion.
         if isinstance(value, list):
-            # Check "FIELD_LOOKUP" assumptions.
-            if not _field_lookup_entry.get('multivalued'):
-                self.log.warning(
-                    'Got list but "FIELD_LOOKUP" specifies a single value.'
-                    ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
-                )
-                return None
+            if multivalued:
+                return self._coerce_multiple_values(field, value, coercer)
 
-            try:
-                return types.listof(coercer)(value)
-            except types.AWTypeError as e:
-                self.log.debug('Coercing "{!s}" with value "{!s}" raised '
-                               'AWTypeError: {!s}'.format(field, value, e))
-                return None
-        else:
-            # Check "FIELD_LOOKUP" assumptions.
-            if _field_lookup_entry.get('multivalued'):
-                self.log.debug(
-                    'Got single value but "FIELD_LOOKUP" specifies multiple. '
-                    'Coercing to list. Tag: "{!s}" Value: "{!s}"'.format(field,
-                                                                         value)
-                )
-            try:
-                return coercer(value)
-            except types.AWTypeError as e:
-                self.log.debug('Coercing "{!s}" with value "{!s}" raised '
-                               'AWTypeError: {!s}'.format(field, value, e))
-                return None
+            # TODO: [incomplete] Handle mismatch somehow instead of skipping?
+            # Fields like "date created" is expected to be a single value,
+            # If an actual value is [1942, 2018] it should probably be handled
+            # as two separate possible fields.
+            # TODO: How would this fit into the concept of "records"?
+            self.log.debug(
+                'Got list but "metainfo" specifies a single value.'
+                ' Field: "{!s}" Value: "{!s}"'.format(field, value)
+            )
+            return None
+
+        # Value is not a list --- do single value coercion or coerce into list.
+        if multivalued:
+            self.log.debug(
+                'Got single value but "metainfo" specifies "multivalued"; '
+                'coercing to list. Field: "{!s}" Value: "{!s}"'.format(field, value)
+            )
+            return self._coerce_multiple_values(field, value, coercer)
+
+        return self._coerce_single_value(field, value, coercer)
+
+    def _coerce_single_value(self, field, value, coercer):
+        try:
+            return coercer(value)
+        except coercers.AWTypeError as e:
+            self.log.debug(
+                'Error while coercing field "{!s}" with value '
+                '"{!s}" :: {!s}'.format(field, value, e)
+            )
+            return None
+
+    def _coerce_multiple_values(self, field, values, coercer):
+        try:
+            return coercers.listof(coercer)(values)
+        except coercers.AWTypeError as e:
+            self.log.debug(
+                'Error while coercing field "{!s}" with values '
+                '"{!s}" :: {!s}'.format(field, values, e)
+            )
+            return None
 
 
 def wrap_provider_results(datadict, metainfo, source_klass):
@@ -118,12 +147,12 @@ def wrap_provider_results(datadict, metainfo, source_klass):
     """
     sanity.check_isinstance(metainfo, dict,
                             msg='Source provider: {!s}'.format(source_klass))
-    log.debug('Wrapping provider {!s} results (datadict len: {}) (metainfo len: {})'.format(source_klass, len(datadict), len(metainfo)))
+    log.debug('Wrapping provider {!s} results (datadict len: {}) (metainfo len: {})'.format(source_klass.name(), len(datadict), len(metainfo)))
 
     wrapped = dict()
 
     for field, value in datadict.items():
-        raw_field_metainfo = metainfo.get(field, {})
+        raw_field_metainfo = metainfo.get(field)
         if not raw_field_metainfo:
             log.warning('Missing metainfo for field "{!s}"'.format(field))
             log.debug('Field {} not in {!s}'.format(field, metainfo))
@@ -144,7 +173,7 @@ def _translate_field_metainfo_to_internal_format(field_metainfo):
     _field_metainfo = dict(field_metainfo)
     internal_field_metainfo = dict()
 
-    coercer_klass = get_coercer_from_metainfo_string(_field_metainfo.get('coercer'))
+    coercer_klass = get_coercer_for_metainfo_string(_field_metainfo.get('coercer'))
     if coercer_klass is None:
         # TODO: Improve robustness. Raise appropriate exception.
         # TODO: Improve robustness. Log provider with malformed metainfo entries.
@@ -189,26 +218,26 @@ def _wrap_provider_result_field(field_metainfo, source_klass, value):
 
 
 _METAINFO_STRING_COERCER_KLASS_MAP = {
-    'aw_path': types.AW_PATH,
-    'aw_pathcomponent': types.AW_PATHCOMPONENT,
-    'aw_timedate': types.AW_TIMEDATE,
-    'aw_mimetype': types.AW_MIMETYPE,
-    'aw_boolean': types.AW_BOOLEAN,
-    'aw_integer': types.AW_INTEGER,
-    'aw_date': types.AW_DATE,
-    'aw_exiftooltimedate': types.AW_EXIFTOOLTIMEDATE,
-    'aw_float': types.AW_FLOAT,
-    'aw_string': types.AW_STRING,
+    'aw_path': coercers.AW_PATH,
+    'aw_pathcomponent': coercers.AW_PATHCOMPONENT,
+    'aw_timedate': coercers.AW_TIMEDATE,
+    'aw_mimetype': coercers.AW_MIMETYPE,
+    'aw_boolean': coercers.AW_BOOLEAN,
+    'aw_integer': coercers.AW_INTEGER,
+    'aw_date': coercers.AW_DATE,
+    'aw_exiftooltimedate': coercers.AW_EXIFTOOLTIMEDATE,
+    'aw_float': coercers.AW_FLOAT,
+    'aw_string': coercers.AW_STRING,
 }
 
 
-def get_coercer_from_metainfo_string(string):
+def get_coercer_for_metainfo_string(string):
     return _METAINFO_STRING_COERCER_KLASS_MAP.get(string)
 
 
 def translate_metainfo_mappings(metainfo_mapped_fields):
-    # TODO: Improve robustness. Raise appropriate exception.
-    # TODO: Improve robustness. Log provider with malformed metainfo entries.
+    # TODO: [TD0184] Improve robustness. Raise appropriate exception.
+    # TODO: [TD0184] Log provider with malformed metainfo entries.
     translated = list()
     if not metainfo_mapped_fields:
         return translated
@@ -218,14 +247,15 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
             # TODO: [cleanup] Allow possible alternative future mapping types.
             if mapping_type == 'WeightedMapping':
                 param_field_str = mapping_params.get('field')
-                param_prob_str = mapping_params.get('probability')
-                # TODO: Improve robustness. Raise appropriate exception.
-                # TODO: Improve robustness. Log provider with malformed metainfo entries.
+                param_prob_str = mapping_params.get('weight')
+                # TODO: [TD0184] Improve robustness. Raise appropriate exception.
+                # TODO: [TD0184] Log provider with malformed metainfo entries.
+                # TODO: [TD0184] Clean up translation of 'metainfo' to "internal format".
                 assert param_field_str
                 assert param_prob_str
 
-                param_field = get_field_class_from_metainfo_string(param_field_str)
-                param_prob = types.AW_FLOAT(param_prob_str)
+                param_field = nametemplatefield_class_from_string(param_field_str)
+                param_prob = coercers.AW_FLOAT(param_prob_str)
                 # TODO: Improve robustness. Raise appropriate exception.
                 # TODO: Improve robustness. Log provider with malformed metainfo entries.
                 assert param_field
@@ -233,241 +263,10 @@ def translate_metainfo_mappings(metainfo_mapped_fields):
 
                 translated.append(WeightedMapping(
                     field=param_field,
-                    probability=param_prob
+                    weight=param_prob
                 ))
     return translated
 
 
 def translate_multivalued(multivalued_string):
-    return types.AW_BOOLEAN(multivalued_string)
-
-
-def get_field_class_from_metainfo_string(string):
-    return nametemplatefield_class_from_string(string)
-
-
-class ProviderRegistry(object):
-    def __init__(self, meowuri_source_map):
-        self.log = logging.getLogger(
-            '{!s}.{!s}'.format(__name__, self.__module__)
-        )
-
-        self.meowuri_sources = dict(meowuri_source_map)
-        self._debug_log_mapped_meowuri_sources()
-
-        # Set of all MeowURIs "registered" by extractors or analyzers.
-        self.mapped_meowuris = self.unique_map_meowuris(self.meowuri_sources)
-
-        # Providers declaring generic MeowURIs through 'metainfo()'.
-        self.generic_meowuri_sources = _map_generic_sources(
-            self.meowuri_sources
-        )
-
-        # VALID_SOURCE_ROOTS = set(C.MEOWURI_ROOTS_SOURCES)
-        # assert all(r in self.generic_meowuri_sources
-        #            for r in VALID_SOURCE_ROOTS)
-
-    def _debug_log_mapped_meowuri_sources(self):
-        if not __debug__:
-            return
-
-        for key in self.meowuri_sources.keys():
-            for meowuri, klass in self.meowuri_sources[key].items():
-                self.log.debug('Mapped MeowURI "{!s}" to "{!s}" ({!s})'.format(
-                    meowuri, klass, key))
-
-    def might_be_resolvable(self, uri):
-        if not uri:
-            return False
-
-        sanity.check_isinstance_meowuri(uri)
-        resolvable = list(self.mapped_meowuris)
-        uri_without_leaf = uri.stripleaf()
-        return any(m.matches_start(uri_without_leaf) for m in resolvable)
-
-    def providers_for_meowuri(self, requested_meowuri, includes=None):
-        """
-        Returns a set of classes that might store data under a given "MeowURI".
-
-        Note that the provider "MeowURI" is matched as a substring of the
-        requested "MeowURI".
-
-        Args:
-            requested_meowuri: The "MeowURI" of interest.
-            includes: Optional list of provider roots to include.
-                      Must be one of 'C.MEOWURI_ROOTS_SOURCES'.
-                      Default is to include all.
-
-        Returns:
-            A set of classes that "could" produce and store data under a
-            "MeowURI" that is a substring of the given "MeowURI".
-        """
-        found = set()
-        if not requested_meowuri:
-            log.error('"providers_for_meowuri()" got empty MeowURI!')
-            return found
-
-        if requested_meowuri.is_generic:
-            found = self._providers_for_generic_meowuri(requested_meowuri,
-                                                        includes)
-        else:
-            found = self._source_providers_for_meowuri(requested_meowuri,
-                                                       includes)
-
-        log.debug('{} returning {} providers for MeowURI {!s}'.format(
-            self.__class__.__name__, len(found), requested_meowuri))
-        return found
-
-    def _yield_included_roots(self, includes=None):
-        VALID_INCLUDES = set(C.MEOWURI_ROOTS_SOURCES)
-        if not includes:
-            # No includes specified -- search all ("valid includes") providers.
-            includes = VALID_INCLUDES
-        else:
-            # Search only specified providers.
-            if __debug__:
-                # Sanity-check 'includes' argument.
-                for include in includes:
-                    assert include in VALID_INCLUDES, (
-                        '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
-                    )
-
-        # Sort for more consistent behaviour.
-        for root in sorted(list(includes)):
-            yield root
-
-    def _providers_for_generic_meowuri(self, requested_meowuri, includes=None):
-        found = set()
-        for root in self._yield_included_roots(includes):
-            for klass, meowuris in self.generic_meowuri_sources[root].items():
-                if requested_meowuri in meowuris:
-                    found.add(klass)
-        return found
-
-    def _source_providers_for_meowuri(self, requested_meowuri, includes=None):
-        # 'uri' is shorter "root";
-        #     'extractor.metadata.epub'
-        # 'requested_meowuri' is full "source-specific";
-        #     'extractor.metadata.exiftool.EXIF:CreateDate'
-        found = set()
-        requested_meowuri_without_leaf = requested_meowuri.stripleaf()
-        for root in self._yield_included_roots(includes):
-            for uri in self.meowuri_sources[root].keys():
-                if uri.matches_start(requested_meowuri_without_leaf):
-                    found.add(self.meowuri_sources[root][uri])
-        return found
-
-    @staticmethod
-    def unique_map_meowuris(meowuri_class_map):
-        out = set()
-        # for root in ['extractors', 'analyzer'] ..
-        for root in meowuri_class_map.keys():
-            for uri in meowuri_class_map[root].keys():
-                out.add(uri)
-        return out
-
-
-def _get_meowuri_source_map():
-    def __get_meowuri_roots_for_providers(module_name):
-        """
-        Returns a dict mapping "MeowURIs" to provider classes.
-
-        Example return value: {
-            'extractor.filesystem.xplat': CrossPlatformFilesystemExtractor,
-            'extractor.metadata.exiftool': ExiftoolMetadataExtractor,
-            'extractor.text.pdf': PdfTextExtractor
-        }
-
-        Returns: Dictionary keyed by instances of the 'MeowURI' class,
-                 storing provider classes.
-        """
-        module_registry = getattr(module_name, 'registry')
-        klass_list = module_registry.all_providers
-
-        mapping = dict()
-        for klass in klass_list:
-            uri = klass.meowuri_prefix()
-            if not uri:
-                # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
-                log.critical('Got empty from '
-                             '"{!s}.meowuri_prefix()"'.format(klass.name()))
-                continue
-
-            assert uri not in mapping, (
-                'Provider MeowURI "{!s}" is already mapped'.format(uri)
-            )
-            mapping[uri] = klass
-        return mapping
-
-    import analyzers
-    import extractors
-    return {
-        'extractor': __get_meowuri_roots_for_providers(extractors),
-        'analyzer': __get_meowuri_roots_for_providers(analyzers),
-    }
-
-
-def _map_generic_sources(meowuri_class_map):
-    """
-    Returns a dict keyed by provider classes storing sets of "generic"
-    fields as Unicode strings.
-    """
-    out = dict()
-
-    # for root in ['extractors', 'analyzer'] ..
-    for root in sorted(list(C.MEOWURI_ROOTS_SOURCES)):
-        if root not in meowuri_class_map:
-            continue
-
-        out[root] = dict()
-        for _, klass in meowuri_class_map[root].items():
-            out[root][klass] = set()
-
-            # TODO: [TD0151] Fix inconsistent use of classes/instances.
-            # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
-            for _, field_metainfo in klass.metainfo().items():
-                _generic_field_string = field_metainfo.get('generic_field')
-                if not _generic_field_string:
-                    continue
-
-                sanity.check_internal_string(_generic_field_string)
-                _generic_field_klass = genericfields.get_field_for_uri_leaf(_generic_field_string)
-                if not _generic_field_klass:
-                    continue
-
-                assert issubclass(_generic_field_klass, genericfields.GenericField)
-                _generic_meowuri = _generic_field_klass.uri()
-                if not _generic_meowuri:
-                    continue
-
-                out[root][klass].add(_generic_meowuri)
-    return out
-
-
-def get_providers_for_meowuri(meowuri, include_roots=None):
-    sanity.check_isinstance_meowuri(meowuri)
-    return set(Registry.providers_for_meowuri(meowuri, include_roots))
-
-
-def get_providers_for_meowuris(meowuri_list, include_roots=None):
-    providers = set()
-    if not meowuri_list:
-        return providers
-
-    for uri in meowuri_list:
-        sanity.check_isinstance_meowuri(uri)
-        source_classes = Registry.providers_for_meowuri(uri, include_roots)
-        providers.update(source_classes)
-    return providers
-
-
-Registry = None
-
-
-def initialize():
-    # Keep one global 'ProviderRegistry' singleton per 'Autonameow' instance.
-    global Registry
-    if not Registry:
-        Registry = ProviderRegistry(
-            meowuri_source_map=_get_meowuri_source_map()
-        )
+    return coercers.AW_BOOLEAN(multivalued_string)

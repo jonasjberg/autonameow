@@ -45,7 +45,7 @@ TODO_IDENTIFIER_FORMAT = '[TD{:04d}]'
 RE_TODO_IDENTIFIER = re.compile(r'\[TD(\d{4})\]')
 RE_TODO_IGNORED = re.compile(r'[Rr]e(lated|fers?)')
 SOURCEFILE_EXTENSIONS = ['.py', '.sh']
-SOURCEFILE_IGNORED = ['test_todo_id.py', 'test_update_changelog.py']
+SOURCEFILE_IGNORED = ['test_todo_id.py', 'test_generate_changelog.py']
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
@@ -64,7 +64,7 @@ def is_readable_file(file_path):
 
 def get_source_files(paths):
     def _recurse(_path):
-        matches = []
+        matches = list()
         for root, dirnames, filenames in os.walk(_path):
             for filename in filenames:
                 if filename in SOURCEFILE_IGNORED:
@@ -81,7 +81,7 @@ def get_source_files(paths):
                         )
         return matches
 
-    files = []
+    files = list()
     for path in paths:
         if not os.path.exists(path):
             continue

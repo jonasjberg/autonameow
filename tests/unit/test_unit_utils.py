@@ -32,37 +32,6 @@ from core import FileObject
 from core.model import MeowURI
 
 
-class TestJoinPathFromSrcroot(TestCase):
-    def test_returns_absolute_path_from_unicode_string(self):
-        actual = uuconst.join_path_from_srcroot('autonameow')
-        self.assertTrue(os.path.isabs(actual))
-
-    def test_returns_absolute_path_from_two_unicode_strings(self):
-        actual = uuconst.join_path_from_srcroot('autonameow', 'core')
-        self.assertTrue(os.path.isabs(actual))
-
-
-class TestUnitUtilityConstants(TestCase):
-    def _check_directory_path(self, given_path):
-        self.assertIsNotNone(given_path)
-        self.assertTrue(os.path.exists(given_path))
-        self.assertTrue(os.path.isdir(given_path))
-        self.assertTrue(os.access(given_path, os.R_OK))
-        self.assertTrue(os.access(given_path, os.X_OK))
-
-    def test_constant_path_test_files(self):
-        self._check_directory_path(uuconst.PATH_TEST_FILES)
-
-    def test_constant_path_autonameow_srcroot(self):
-        self._check_directory_path(uuconst.PATH_AUTONAMEOW_SRCROOT)
-
-    def test_constant_path_tests_regression(self):
-        self._check_directory_path(uuconst.PATH_TESTS_REGRESSION)
-
-    def test_constant_path_tests_unit(self):
-        self._check_directory_path(uuconst.PATH_TESTS_UNIT)
-
-
 class TestUnitUtilityAbsPathTestFile(TestCase):
     def test_returns_expected_encoding(self):
         actual = uu.abspath_testfile('empty')
@@ -358,8 +327,9 @@ class TestUnitUtilityGetMockAnalyzer(TestCase):
 
     def test_get_mock_analyzer_returns_analyzers(self):
         import analyzers
+        registered, _ = analyzers.get_analyzer_classes()
         for a in uu.get_mock_analyzer():
-            self.assertIn(type(a), analyzers.get_analyzer_classes())
+            self.assertIn(type(a), registered)
 
 
 class TestUnitUtilityGetMockFileObject(TestCase):
@@ -692,3 +662,20 @@ cat list
 baz last line
 '''
         self.assertEqual(expect, actual)
+
+
+class RandomAsciiString(TestCase):
+    def test_returns_empty_string(self):
+        actual = uu.random_ascii_string(0)
+        self.assertIsInstance(actual, str)
+        self.assertEqual(0, len(actual))
+
+    def test_returns_ten_character_string(self):
+        actual = uu.random_ascii_string(10)
+        self.assertIsInstance(actual, str)
+        self.assertEqual(10, len(actual))
+
+    def test_returns_string_with_only_ascii_characters(self):
+        actual = uu.random_ascii_string(200)
+        all_chars_are_ascii = all(ord(c) < 128 for c in actual)
+        self.assertTrue(all_chars_are_ascii)

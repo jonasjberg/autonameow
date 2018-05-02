@@ -14,6 +14,18 @@ Unsorted notes on overall program operation and usability.
 * 2017-10-01 --- `jonasjberg` Initial
 * 2017-11-10 --- `jonasjberg` Redefine `automagic` vs. "default"
 * 2017-11-15 --- `jonasjberg` Add additional options
+* 2018-03-18 --- `jonasjberg` Allow combining "timid" and "batch"
+
+
+--------------------------------------------------------------------------------
+
+
+Current Plans
+=============
+TODO: Document current state ..
+
+
+--------------------------------------------------------------------------------
 
 
 Current Plans
@@ -143,8 +155,7 @@ Rule-matching is is currently always enabled.
 The "automagic" mode essentially means "try harder" --- enables using all
 available means to come up with *something*.
 
-* `--rulematch` --- (Default: ENABLED) Use rule-matching.
-* `--automagic` --- Try everything to come up with *something*.  
+* `--automagic` --- Try everything to come up with *something*.
   First do rule-matching, then do whatever else.
   Given at least one piece of candidate data per name template field,
   this should not fail.
@@ -154,9 +165,7 @@ available means to come up with *something*.
 | Started with command-line                | Rule-matching | Automagic Mode |
 |:-----------------------------------------|---------------|----------------|
 | `autonameow`                             | ENABLED       | Disabled       |
-| `autonameow --rulematch`                 | ENABLED       | Disabled       |
 | `autonameow --automagic`                 | ENABLED       | ENABLED        |
-| `autonameow --rulematch --automagic`     | ENABLED       | ENABLED        |
 
 
 "User Interaction"
@@ -203,16 +212,8 @@ with unambiguous candidate data.
 | Started with command-line                              | Rule-matching (`P=0%`) | Rule-matching (`P=100%`) | Automagic (`P=0%`) | Automagic (`P=100%`) |
 |:-------------------------------------------------------|------------------------|--------------------------|--------------------|----------------------|
 | `autonameow`                                           | Ask the user           | Use best matched rule    | *N/A*              | *N/A*                |
-| `autonameow --rulematch`                               | Ask the user           | Use best matched rule    | *N/A*              | *N/A*                |
 | `autonameow --automagic`                               | Try to resolve missing | Use best matched rule    | Ask the user       | Use most likely      |
-| `autonameow --rulematch --automagic`                   | Try to resolve missing | Use best matched rule    | Ask the user       | Use most likely      |
-| `autonameow --timid --rulematch`                       | Ask the user           | Use best matched rule    | *N/A*              | *N/A*                |
 | `autonameow --timid --automagic`                       | Try to resolve missing | Use best matched rule    | Ask the user       | Use most likely      |
-| `autonameow --timid --rulematch --automagic`           | Try to resolve missing | Use best matched rule    | Ask the user       | Use most likely      |
-| `autonameow --batch --rulematch`                       | ABORT                  | Use best matched rule    | *N/A*              | *N/A*                |
 | `autonameow --batch --automagic`                       | Try to resolve missing | Use best matched rule    | ABORT              | Use most likely      |
-| `autonameow --batch --rulematch --automagic`           | Try to resolve missing | Use best matched rule    | ABORT              | Use most likely      |
-| `autonameow --interactive --rulematch`                 | Ask the user           | Ask the user             | *N/A*              | *N/A*                |
 | `autonameow --interactive --automagic`                 | Ask the user           | Ask the user             | Ask the user       | Ask the user         |
-| `autonameow --interactive --rulematch --automagic`     | Ask the user           | Ask the user             | Ask the user       | Ask the user         |
 

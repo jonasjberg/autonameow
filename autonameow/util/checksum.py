@@ -36,44 +36,39 @@ PARTIAL_SIZE = 10 * KIBIBYTE**2  # ~10MB
 
 
 def hashlib_digest(file_path, algorithm=None, maxbytes=None):
-    def _bad_algorithm():
-        raise ValueError(
-            '"algorithm" must be one of {!s}'.format(AVAILABLE_ALGORITHMS)
-        )
-
     if algorithm is None:
         algorithm = 'sha256'
 
-    if algorithm not in AVAILABLE_ALGORITHMS:
-        _bad_algorithm()
+    assert algorithm in AVAILABLE_ALGORITHMS, (
+        'Argument "algorithm" must be one of "AVAILABLE_ALGORITHMS"'
+    )
 
-    _hash_function = getattr(hashlib, algorithm, None)
-    if not _hash_function:
-        _bad_algorithm()
+    _hashlib_attribute = getattr(hashlib, algorithm, None)
+    assert _hashlib_attribute, (
+        'Unable to get hashlib attribute for the given "algorithm"'
+    )
 
     if maxbytes is not None:
-        _msg_bad_maxbytes = 'Expected "maxbytes" to be a positive integer'
-        if not isinstance(maxbytes, int):
-            raise TypeError(_msg_bad_maxbytes)
-        if maxbytes <= 0:
-            raise ValueError(_msg_bad_maxbytes)
-    _maxbytes = maxbytes
+        assert isinstance(maxbytes, int) and maxbytes > 0, (
+            'Argument "maxbytes" must be a positive integer or None'
+        )
+    _num_bytes_read_limit = maxbytes
 
-    hasher = _hash_function()
+    hasher = _hashlib_attribute()
+    _num_bytes_read = 0
     try:
-        _bytesread = 0
         with open(file_path, 'rb', buffering=0) as fh:
             for b in iter(lambda: fh.read(CHUNK_SIZE), b''):
-                if _maxbytes:
-                    _bytesread += len(b)
-                    if _bytesread >= _maxbytes:
+                if _num_bytes_read_limit:
+                    _num_bytes_read += len(b)
+                    if _num_bytes_read >= _num_bytes_read_limit:
                         break
 
                 hasher.update(b)
 
             return hasher.hexdigest()
 
-    except OSError as e:
+    except (OSError, TypeError) as e:
         raise exceptions.FilesystemError(e)
 
 

@@ -102,6 +102,12 @@ class CaseExtractorBasics(object):
         assert cls.EXTRACTOR_NAME is not None
         cls.extractor = cls.EXTRACTOR_CLASS()
 
+    @classmethod
+    def tearDownClass(cls):
+        assert cls.extractor
+        if hasattr(cls.extractor, 'shutdown'):
+            cls.extractor.shutdown()
+
     def test_instance_metainfo_returns_expected_type(self):
         actual = self.extractor.metainfo()
         self.assertIsInstance(actual, dict)
@@ -208,15 +214,15 @@ class CaseExtractorBasics(object):
         expect = self.EXTRACTOR_NAME
         self.assertEqual(expect, actual)
 
-    def test_method_check_dependencies_returns_expected_type(self):
-        actual = self.extractor.check_dependencies()
+    def test_method_dependencies_satisfied_returns_expected_type(self):
+        actual = self.extractor.dependencies_satisfied()
         self.assertIsInstance(
             actual, bool,
             'Expected "bool". Got "{!s}"'.format(type(actual))
         )
 
     def test_method_can_handle_returns_expected_type(self):
-        actual_list = []
+        actual_list = list()
 
         for f in ALL_TESTFILES:
             actual = self.extractor.can_handle(f)
@@ -276,6 +282,12 @@ class CaseExtractorOutput(object):
 
         cls.extractor = cls.EXTRACTOR_CLASS()
         cls.actual_extracted = cls.extractor.extract(cls.SOURCE_FILEOBJECT)
+
+    @classmethod
+    def tearDownClass(cls):
+        assert cls.extractor
+        if hasattr(cls.extractor, 'shutdown'):
+            cls.extractor.shutdown()
 
     def test_extracted_data_is_not_none(self):
         self.assertIsNotNone(

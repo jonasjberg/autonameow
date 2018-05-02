@@ -23,32 +23,28 @@ import logging
 import os
 import sys
 import time
+from collections import deque
 
 from core import constants as C
-from core import types
-from core.view import cli
 from core.persistence import get_persistence
-from regression.utils import (
-    AutonameowWrapper,
-    check_renames,
-    check_stdout_asserts,
-    commandline_for_testcase,
-    glob_filter,
-    load_regressiontests,
-    regexp_filter,
-    TerminalReporter
-)
+from core.view import cli
+from regression.utils import AutonameowWrapper
+from regression.utils import check_renames
+from regression.utils import check_stdout_asserts
+from regression.utils import commandline_for_testsuite
+from regression.utils import glob_filter
+from regression.utils import load_regression_testsuites
+from regression.utils import print_test_info
+from regression.utils import TerminalReporter
+from util import coercers
 
 
-VERBOSE = False
 _this_dir = os.path.abspath(os.path.dirname(__file__))
-PERSISTENCE_DIR_ABSPATH = types.AW_PATH.normalize(_this_dir)
+PERSISTENCE_DIR_ABSPATH = coercers.AW_PATH.normalize(_this_dir)
 PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 
 
 log = logging.getLogger('regression_runner')
-msg_label_pass = cli.colorize('PASS', fore='GREEN')
-msg_label_fail = cli.colorize('FAIL', fore='RED')
 
 
 class TestResults(object):
@@ -60,12 +56,43 @@ class TestResults(object):
         self.captured_exception = captured_exception
 
 
-def run_test(test):
-    opts = test.get('options')
-    expect_exitcode = test['asserts'].get('exit_code', None)
-    expect_renames = test['asserts'].get('renames', {})
+class RunResults(object):
+    def __init__(self):
+        self.failed = set()
+        self.passed = set()
+        self.skipped = set()
 
-    aw = AutonameowWrapper(opts)
+    @property
+    def all(self):
+        return self.failed.union(self.passed).union(self.skipped)
+
+    def __len__(self):
+        return len(self.all)
+
+
+class RunResultsHistory(object):
+    # TODO: [hack] Refactor ..
+    # TODO: [cleanup][incomplete] This is not used!
+    def __init__(self, maxlen):
+        assert isinstance(maxlen, int)
+        self._run_results = deque(maxlen=maxlen)
+
+    def add(self, run_results):
+        self._run_results.appendleft(run_results)
+
+    def __len__(self):
+        return len(self._run_results)
+
+    def __getitem__(self, item):
+        run_results_list = list(self._run_results)
+        return run_results_list[item]
+
+
+def run_test(test, reporter):
+    expect_exitcode = test.asserts.get('exit_code', None)
+    expect_renames = test.asserts.get('renames', {})
+
+    aw = AutonameowWrapper(test.options)
     aw()
     if aw.captured_exception:
         exception_info = {
@@ -79,79 +106,69 @@ def run_test(test):
     captured_runtime = aw.captured_runtime_secs
     fail_count = 0
 
-    def _msg_run_test_failure(msg):
-        if VERBOSE:
-            print('{} {!s}'.format(msg_label_fail, msg))
-
-    def _msg_run_test_success(msg):
-        if VERBOSE:
-            print('{} {!s}'.format(msg_label_pass, msg))
-
-    def _msg(msg):
-        if VERBOSE:
-            print(msg)
-
     if expect_exitcode is not None:
         actual_exitcode = aw.captured_exitcode
         if actual_exitcode == expect_exitcode:
-            _msg_run_test_success('Exit code is {} as expected'.format(actual_exitcode))
+            reporter.msg_run_test_success(
+                'Exit code is {!s} as expected'.format(actual_exitcode)
+            )
         else:
-            _msg_run_test_failure(
-                'Expected exit code {!s} but got {!s}'.format(
-                    expect_exitcode, actual_exitcode
-                )
+            reporter.msg_run_test_failure(
+                'Expected exit code {!s} but got {!s}'.format(expect_exitcode, actual_exitcode)
             )
             fail_count += 1
 
-    actual_renames = aw.captured_renames
-    if check_renames(actual_renames, expect_renames):
-        _msg_run_test_success('Renamed {} files as expected'.format(len(actual_renames)))
+    # TODO: [cleanup] This is way too messy ..
+    def _report_differing_filenames(_expected, _actual):
+        reporter.msg_run_test_failure('New file name differs from expected file name.')
+        reporter.msg('     Expected: "{!s}"'.format(_expected))
+        reporter.msg('     Actual:   "{!s}"'.format(_actual))
 
-        for _in, _out in actual_renames.items():
-            _msg_run_test_success('Renamed "{!s}" -> "{!s}"'.format(_in, _out))
-    else:
-        fail_count += 1
-        _msg_run_test_failure(
-            'Renames differ. Expected {} files to be renamed. '
-            '{} files were renamed.'.format(len(expect_renames), len(actual_renames))
+    def _report_unexpected_rename(_old, _new):
+        reporter.msg_run_test_failure(
+            'Unexpected rename:  "{!s}" -> "{!s}"'.format(_old, _new)
         )
 
+    actual_renames = aw.captured_renames
+    if check_renames(actual_renames, expect_renames):
+        assert len(actual_renames) == len(expect_renames)
+        reporter.msg_run_test_success(
+            'Renamed {} files as expected'.format(len(expect_renames))
+        )
+        for actual_old, actual_new in actual_renames.items():
+            reporter.msg_run_test_success(
+                'Renamed "{!s}" -> "{!s}"'.format(actual_old, actual_new)
+            )
+    else:
+        # TODO: Keep count of individual rename assertions?
+        fail_count += 1
         if expect_renames:
             if not actual_renames:
-                _msg('  Expected {} files to be renamed but none were!'.format(len(expect_renames)))
-                for _in, _out in expect_renames.items():
-                    _msg('  Expected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
-            else:
-                # Expected renames and got renames.
-                for _expect_in, _expect_out in expect_renames.items():
-                    if _expect_in not in actual_renames:
-                        _msg('  Not renamed. Expected:  "{!s}" -> "{!s}"'.format(_expect_in, _expect_out))
-                    else:
-                        assert _expect_in in actual_renames
-                        _actual_out = actual_renames.get(_expect_in)
-                        if _actual_out != _expect_out:
-                            _msg('  New file name differs from expected file name.')
-                            _msg('  Expected: "{!s}"'.format(_expect_out))
-                            _msg('  Actual:   "{!s}"'.format(_actual_out))
+                reporter.msg_run_test_failure(
+                    'Expected {} files to be renamed but none were!'.format(len(expect_renames))
+                )
+            # Expected renames and got renames.
+            for expect_old, expect_new in expect_renames.items():
+                if expect_old not in actual_renames:
+                    reporter.msg_run_test_failure(
+                        'Not renamed. Expected:  "{!s}" -> "{!s}"'.format(expect_old, expect_new)
+                    )
+                else:
+                    actual_new = actual_renames.get(expect_old)
+                    if actual_new != expect_new:
+                        _report_differing_filenames(expect_new, actual_new)
 
-                for _actual_in, _actual_out in actual_renames.items():
-                    if _actual_in not in expect_renames:
-                        _msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_actual_in, _actual_out))
-                    else:
-                        assert _actual_in in expect_renames
-                        _expect_out = expect_renames.get(_actual_in)
-                        if _expect_out != _actual_out:
-                            _msg('  New file name differs from expected file name.')
-                            _msg('  Expected: "{!s}"'.format(_expect_out))
-                            _msg('  Actual:   "{!s}"'.format(_actual_out))
+            for actual_old, actual_new in actual_renames.items():
+                if actual_old not in expect_renames:
+                    _report_unexpected_rename(actual_old, actual_new)
+                else:
+                    expect_new = expect_renames.get(actual_old)
+                    if expect_new != actual_new:
+                        _report_differing_filenames(expect_new, actual_new)
         else:
             if actual_renames:
-                _msg('  Did not expect any files to be renamed but {} were!'.format(len(actual_renames)))
-                for _in, _out in actual_renames.items():
-                    _msg('  Unexpected rename:  "{!s}" -> "{!s}"'.format(_in, _out))
-            else:
-                # All good
-                pass
+                for actual_old, actual_new in actual_renames.items():
+                    _report_unexpected_rename(actual_old, actual_new)
 
     # TODO: [TD0158] Evaluate assertions of "skipped renames".
 
@@ -164,104 +181,143 @@ def run_test(test):
     for match_result in stdout_match_results:
         result_assert_type = str(match_result.assert_type)
         if result_assert_type == 'matches':
-            msg = 'Expected stdout to match "{!s}"'.format(match_result.regex)
-            if match_result.passed:
-                _msg_run_test_success(msg)
-            else:
-                fail_count += 1
-                _msg_run_test_failure(msg)
+            msg_template = 'Expected stdout to match "{!s}"'
         elif result_assert_type == 'does_not_match':
-            msg = 'Expected stdout to NOT match "{!s}"'.format(match_result.regex)
-            if match_result.passed:
-                _msg_run_test_success(msg)
-            else:
-                fail_count += 1
-                _msg_run_test_failure(msg)
+            msg_template = 'Expected stdout to NOT match "{!s}"'
         else:
             raise AssertionError('Unexpected RegexMatchingResult.assert_type: '
                                  '{!s}'.format(result_assert_type))
+
+        msg = msg_template.format(match_result.regex)
+        if match_result.passed:
+            reporter.msg_run_test_success(msg)
+        else:
+            fail_count += 1
+            reporter.msg_run_test_failure(msg)
 
     return TestResults(fail_count, captured_runtime, captured_stdout,
                        captured_stderr, captured_exception=None)
 
 
-def write_failed_tests(tests):
-    p = get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
-                        persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH)
-    if p:
-        p.set('lastrun', {'failed': tests})
+def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
+                     persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH):
+    storage_backend = get_persistence(file_prefix, persistence_dir_abspath)
+    if not storage_backend:
+        log.critical('Unable to get backend for persistent storage')
+    return storage_backend
 
 
-def load_failed_tests():
-    p = get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
-                        persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH)
-    if p:
+def load_history():
+    # TODO: [hack] Refactor ..
+    persistent_storage = _get_persistence()
+    if persistent_storage:
         try:
-            lastrun = p.get('lastrun')
+            history = persistent_storage.get('history')
         except KeyError:
             pass
         else:
-            if lastrun and isinstance(lastrun, dict):
+            if history:
+                assert isinstance(history, list)
+                return history
+    return []
+
+
+def load_testsuite_history(testsuite, history):
+    if history:
+        past_outcomes = list()
+        for run_results in history:
+            # TODO: [hack] Refactor ..
+            if testsuite in run_results.failed:
+                past_outcomes.append('fail')
+            elif testsuite in run_results.passed:
+                past_outcomes.append('pass')
+            elif testsuite in run_results.skipped:
+                past_outcomes.append('skip')
+            else:
+                past_outcomes.append('unknown')
+
+        return past_outcomes
+
+
+    # TODO: [hack] Refactor ..
+    return [None, None, None, None, None]
+
+
+def write_test_results_history(run_results):
+    # TODO: [hack] Refactor ..
+    history = load_history()
+    assert isinstance(history, list)
+
+    # TODO: [hack] Refactor ..
+    history.insert(0, run_results)
+    history = history[:5]
+
+    persistent_storage = _get_persistence()
+    if persistent_storage:
+        persistent_storage.set('history', history)
+
+
+def write_failed_testsuites(suites):
+    persistent_storage = _get_persistence()
+    if persistent_storage:
+        suites_list = list(suites)
+        persistent_storage.set('lastrun', {'failed': suites_list})
+
+
+def load_failed_testsuites():
+    persistent_storage = _get_persistence()
+    if persistent_storage:
+        try:
+            lastrun = persistent_storage.get('lastrun')
+        except KeyError:
+            pass
+        else:
+            if lastrun:
+                assert isinstance(lastrun, dict)
                 return lastrun.get('failed', [])
     return []
 
 
-def print_test_info(tests):
-    if VERBOSE:
-        cf = cli.ColumnFormatter()
-        for t in tests:
-            _test_dirname = types.force_string(t.get('test_dirname'))
-            _test_description = types.force_string(t.get('description'))
-            cf.addrow(_test_dirname, _test_description)
-        print(cf)
-    else:
-        _test_dirnames = [
-            types.force_string(t.get('test_dirname')) for t in tests
-        ]
-        print('\n'.join(_test_dirnames))
-
-
 def print_test_commandlines(tests):
     for test in tests:
-        test_dirname = types.force_string(test.get('test_dirname'))
-        arg_string = commandline_for_testcase(test)
-        print('# {!s}\n{!s}\n'.format(test_dirname, arg_string))
+        arg_string = commandline_for_testsuite(test)
+        print('# {!s}\n{!s}\n'.format(test.str_dirname, arg_string))
 
 
-def run_regressiontests(tests, print_stderr, print_stdout):
-    reporter = TerminalReporter(VERBOSE)
-    count_total = len(tests)
-    count_success = 0
-    count_failure = 0
-    count_skipped = 0
+def run_regressiontests(tests, verbose, print_stderr, print_stdout):
+    history = load_history()
+    reporter = TerminalReporter(verbose)
+    run_results = RunResults()
     should_abort = False
-
-    failed_tests = []
-
     global_start_time = time.time()
 
-    for test in tests:
+    for testsuite in tests:
         if should_abort:
-            count_skipped += count_total - count_success - count_failure
+            remaining = [t for t in tests if t not in run_results.all]
+            run_results.skipped.update(remaining)
             break
 
-        _dirname = types.force_string(test.get('test_dirname', '(?)'))
-        _description = test.get('description', '(UNDESCRIBED)')
-        if test.get('skiptest'):
-            reporter.msg_test_skipped(_dirname, _description)
+        if testsuite.should_skip:
+            reporter.msg_test_skipped(testsuite.str_dirname, testsuite.description)
+            run_results.skipped.add(testsuite)
+
+            # TODO: [hack] Refactor ..
+            testsuite_history = load_testsuite_history(testsuite, history)
+            assert isinstance(testsuite_history, list)
+            reporter.msg_test_history(testsuite_history)
+
             reporter.msg_test_runtime(None, None)
-            count_skipped += 1
             continue
 
-        reporter.msg_test_start(_dirname, _description)
+        reporter.msg_test_start(testsuite.str_dirname, testsuite.description)
 
         results = None
         start_time = time.time()
         try:
-            results = run_test(test)
+            results = run_test(testsuite, reporter)
         except KeyboardInterrupt:
             # Move cursor two characters back and print spaces over "^C".
-            print('\b\b  \n')
+            print('\b\b  \n', flush=True)
             log.critical('Received keyboard interrupt. Skipping remaining ..')
             should_abort = True
         elapsed_time = time.time() - start_time
@@ -277,20 +333,22 @@ def run_regressiontests(tests, print_stderr, print_stdout):
                 if print_stdout and captured_stdout:
                     reporter.msg_captured_stdout(captured_stdout)
 
-                # TODO: Fix formatting of failure due to top-level exception error.
-                count_failure += 1
-                failed_tests.append(test)
+                run_results.failed.add(testsuite)
                 continue
 
             failures = int(results.failure_count)
-            if failures == 0:
+            test_passed = failures == 0
+            if test_passed:
                 reporter.msg_test_success()
-                count_success += 1
-            elif failures > 0:
+                run_results.passed.add(testsuite)
+            else:
                 reporter.msg_test_failure()
-                count_failure += 1
-                failed_tests.append(test)
+                run_results.failed.add(testsuite)
 
+            # TODO: [hack] Refactor ..
+            testsuite_history = load_testsuite_history(testsuite, history)
+            assert isinstance(testsuite_history, list)
+            reporter.msg_test_history(testsuite_history)
             reporter.msg_test_runtime(elapsed_time, results.captured_runtime)
 
             if print_stderr and captured_stderr:
@@ -299,22 +357,28 @@ def run_regressiontests(tests, print_stderr, print_stdout):
                 reporter.msg_captured_stdout(captured_stdout)
 
     global_elapsed_time = time.time() - global_start_time
-    reporter.msg_overall_stats(count_total, count_skipped, count_success,
-                               count_failure, global_elapsed_time)
+    reporter.msg_overall_stats(
+        len(tests),
+        count_skipped=len(run_results.skipped),
+        count_success=len(run_results.passed),
+        count_failure=len(run_results.failed),
+        elapsed_time=global_elapsed_time
+    )
 
     if not should_abort:
         # Store failed tests only if all tests were executed.
         # Otherwise all tests would have to be re-run in order to "catch"
         # the failed tests, if re-running the failed tests and aborting
         # before completion..
-        write_failed_tests(failed_tests)
+        write_failed_testsuites(run_results.failed)
+        write_test_results_history(run_results)
 
-    return count_failure
+    return run_results
 
 
 def filter_tests(tests, filter_func, expr):
     assert callable(filter_func)
-    return [t for t in tests if filter_func(expr, t.get('test_dirname', b''))]
+    return [t for t in tests if filter_func(expr, t.dirname)]
 
 
 def main(args):
@@ -352,7 +416,7 @@ def main(args):
     )
     optgrp_select.add_argument(
         '-f', '--filter',
-        dest='filter_glob',
+        dest='filter_globs',
         metavar='GLOB',
         action='append',
         help='Select tests whose "TEST_NAME" (dirname) matches "GLOB". '
@@ -365,8 +429,8 @@ def main(args):
         dest='filter_lastfailed',
         action='store_true',
         default=False,
-        help='Select only the test cases that failed during the last completed '
-             'run. Selects all if none failed.'
+        help='Select only the test suites that failed during the last '
+             'completed run. Selects all if none failed.'
     )
 
     optgrp_action = parser.add_argument_group(
@@ -379,7 +443,7 @@ def main(args):
         action='store_true',
         default=False,
         help='Print the "short name" (directory basename) of the selected '
-             'test case(s) and exit. '
+             'test suite(s) and exit. '
              'Enable verbose mode for additional information.'
     )
     optgrp_action.add_argument(
@@ -388,11 +452,11 @@ def main(args):
         action='store_true',
         default=False,
         help='Print equivalent command-line invocations for the selected '
-             'test case(s) and exit. '
+             'test suite(s) and exit. '
              'If executed "manually", these would produce the same behaviour '
              'and results as the corresponding regression test. '
              'Each result is printed as two lines; first being "# TEST_NAME", '
-             'where "TEST_NAME" is the directory basename of the test case. '
+             'where "TEST_NAME" is the directory basename of the test suite. '
              'The second line is the equivalent command-line. '
              'Use "test selection" options to narrow down the results.'
     )
@@ -401,7 +465,7 @@ def main(args):
         dest='run_tests',
         action='store_true',
         default=True,
-        help='Run the selected test case(s). (DEFAULT: True)'
+        help='Run the selected test suite(s). (DEFAULT: True)'
     )
 
     opts = parser.parse_args(args)
@@ -410,49 +474,47 @@ def main(args):
     formatter = logging.Formatter('%(name)s %(levelname)-9.9s %(message)s')
     handler.setFormatter(formatter)
     log.addHandler(handler)
-    global VERBOSE
-    if opts.verbose:
-        VERBOSE = True
+    verbose = bool(opts.verbose)
+    if verbose:
         log.setLevel(logging.INFO)
     else:
-        VERBOSE = False
         log.setLevel(logging.WARNING)
 
-    loaded_tests = load_regressiontests()
+    loaded_tests = load_regression_testsuites()
     log.info('Loaded {} regression test(s) ..'.format(len(loaded_tests)))
     if not loaded_tests:
         return
 
     # Start test selection based on any criteria given with the options.
-    if opts.filter_glob:
+    if opts.filter_globs:
         all_filtered = list()
         tests_to_filter = list(loaded_tests)
-        for filter_expression in opts.filter_glob:
+        for filter_expression in opts.filter_globs:
             filtered = filter_tests(tests_to_filter, glob_filter,
                                     expr=filter_expression)
-            log.info('Filter expression "{!s}" matched {} test case(s)'.format(
+            log.info('Filter expression "{!s}" matched {} test suite(s)'.format(
                 filter_expression, len(filtered)))
             tests_to_filter = filtered
             all_filtered = filtered
-        log.info('Filtering selected {} test case(s)'.format(len(all_filtered)))
+        log.info('Filtering selected {} test suite(s)'.format(len(all_filtered)))
         selected_tests = all_filtered
     else:
         selected_tests = loaded_tests
 
     if opts.filter_lastfailed:
-        _failed_lastrun = load_failed_tests()
-        if _failed_lastrun:
-            # TODO: Improve comparing regression test cases.
+        failed_lastrun = load_failed_testsuites()
+        if failed_lastrun:
+            # TODO: Improve comparing regression test suites.
             # Fails if any option is modified. Compare only directory basenames?
-            selected_tests = [t for t in selected_tests if t in _failed_lastrun]
-            log.info('Selected {} of {} test case(s) that failed during the '
+            selected_tests = [t for t in selected_tests if t in failed_lastrun]
+            log.info('Selected {} of {} test suite(s) that failed during the '
                      'last completed run ..'.format(len(selected_tests),
-                                                    len(_failed_lastrun)))
+                                                    len(failed_lastrun)))
         else:
-            log.info('Selected all {} test case(s) as None failed during the '
+            log.info('Selected all {} test suite(s) as None failed during the '
                      'last completed run ..'.format(len(selected_tests)))
 
-    log.info('Selected {} of {} test case(s) ..'.format(len(selected_tests),
+    log.info('Selected {} of {} test suite(s) ..'.format(len(selected_tests),
                                                         len(loaded_tests)))
     # End of test selection.
     if not selected_tests:
@@ -460,7 +522,7 @@ def main(args):
 
     # Perform actions on the selected tests.
     if opts.list_tests:
-        print_test_info(selected_tests)
+        print_test_info(selected_tests, verbose)
         return C.EXIT_SUCCESS
 
     if opts.get_cmd:
@@ -468,21 +530,30 @@ def main(args):
         return C.EXIT_SUCCESS
 
     if opts.run_tests:
-        failed = run_regressiontests(selected_tests,
-                                     print_stderr=bool(opts.print_stderr),
-                                     print_stdout=bool(opts.print_stdout))
-        if failed:
+        run_results = run_regressiontests(
+            selected_tests, verbose,
+            print_stderr=bool(opts.print_stderr),
+            print_stdout=bool(opts.print_stdout)
+        )
+        if run_results.failed:
             return C.EXIT_WARNING
 
     return C.EXIT_SUCCESS
 
 
 def print_traceback():
-    DELIM = '_' * 80
-    print(DELIM + '\n', file=sys.stderr)
+    def _print_separator():
+        print('_' * 80 + '\n', file=sys.stderr)
+
+    _print_separator()
     import traceback
     traceback.print_exc(file=sys.stderr, limit=None, chain=True)
-    print(DELIM + '\n', file=sys.stderr)
+    _print_separator()
+
+
+def print_exception_error(message, exception):
+    print('\n\n{!s}'.format(message), file=sys.stderr)
+    print(str(exception), file=sys.stderr)
 
 
 if __name__ == '__main__':
@@ -492,13 +563,15 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('\nReceived keyboard interrupt. Exiting ..')
     except AssertionError as e:
-        print('\n\nCaught AssertionError in regression_runner.__main__()', file=sys.stderr)
-        print(str(e), file=sys.stderr)
+        print_exception_error(
+            'Caught AssertionError in regression_runner.__main__()', e
+        )
         print_traceback()
         exit_code = C.EXIT_SANITYFAIL
     except Exception as e:
-        print('\n\nUnhandled exception reached regression_runner.__main__()', file=sys.stderr)
-        print(str(e), file=sys.stderr)
+        print_exception_error(
+            'Unhandled exception reached regression_runner.__main__()', e
+        )
         print_traceback()
         exit_code = C.EXIT_ERROR
     finally:

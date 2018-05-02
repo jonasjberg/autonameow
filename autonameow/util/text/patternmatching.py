@@ -21,14 +21,9 @@
 
 import re
 
-from core import types
+from util import coercers
 from util.text.transform import collapse_whitespace
 
-
-RE_EDITION = re.compile(
-    r'([0-9])+\s?((st|nd|rd|th)\s?|(e|ed.?|edition))\b',
-    re.IGNORECASE
-)
 
 # Like '\w' but without numbers (Unicode letters): '[^\W\d]'
 _re_copyright_name = r'(?P<name>[^\W\d]+[\D\.]+)'
@@ -48,7 +43,7 @@ RE_COPYRIGHT_NOTICE_A = re.compile(
     ), re.IGNORECASE
 )
 RE_COPYRIGHT_NOTICE_B = re.compile(
-    r'({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?{name}[,\ ]+?({year}|{years})'.format(
+    r'({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?{name}[, ]+?({year}|{years})'.format(
         copyright=_re_copyright_text,
         symbol=_re_copyright_symbol,
         year=_re_copyright_year,
@@ -57,41 +52,43 @@ RE_COPYRIGHT_NOTICE_B = re.compile(
     ), re.IGNORECASE
 )
 
+RE_EDITION = re.compile(
+    r'([0-9])+\s?(e\b|ed\.?|edition)',
+    re.IGNORECASE
+)
 
 # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-
-
-__ordinal_number_patterns = [
-    (1, r'1st|first'),
-    (2, r'2nd|second'),
-    (3, r'3rd|third'),
-    (4, r'4th|fourth'),
-    (5, r'5th|fifth'),
-    (6, r'6th|sixth'),
-    (7, r'7th|seventh'),
-    (8, r'8th|eighth'),
-    (9, r'9th|ninth'),
-    (10, r'10th|tenth'),
-    (11, r'11th|eleventh'),
-    (12, r'12th|twelfth'),
-    (13, r'13th|thirteenth'),
-    (14, r'14th|fourteenth'),
-    (15, r'15th|fifteenth'),
-    (16, r'16th|sixteenth'),
-    (17, r'17th|seventeenth'),
-    (18, r'18th|eighteenth'),
-    (19, r'19th|nineteenth'),
-    (20, r'20th|twentieth'),
-    (21, r'21th|twenty-?first'),
-    (22, r'22th|twenty-?second'),
-    (23, r'23th|twenty-?third'),
-    (24, r'24th|twenty-?fourth'),
-    (25, r'25th|twenty-?fifth'),
-    (26, r'26th|twenty-?sixth'),
-    (27, r'27th|twenty-?seventh'),
-    (28, r'28th|twenty-?eighth'),
-    (29, r'29th|twenty-?ninth'),
-    (30, r'30th|thirtieth'),
+_ORDINAL_NUMBER_PATTERNS = [
+    r'(1st|first)',
+    r'(2nd|second)',
+    r'(3rd|third)',
+    r'(4th|fourth)',
+    r'(5th|fifth)',
+    r'(6th|sixth)',
+    r'(7th|seventh)',
+    r'(8th|eighth)',
+    r'(9th|ninth)',
+    r'(10th|tenth)',
+    r'(11th|eleventh)',
+    r'(12th|twelfth)',
+    r'(13th|thirteenth)',
+    r'(14th|fourteenth)',
+    r'(15th|fifteenth)',
+    r'(16th|sixteenth)',
+    r'(17th|seventeenth)',
+    r'(18th|eighteenth)',
+    r'(19th|nineteenth)',
+    r'(20th|twentieth)',
+    r'(21th|twenty-?first)',
+    r'(22th|twenty-?second)',
+    r'(23th|twenty-?third)',
+    r'(24th|twenty-?fourth)',
+    r'(25th|twenty-?fifth)',
+    r'(26th|twenty-?sixth)',
+    r'(27th|twenty-?seventh)',
+    r'(28th|twenty-?eighth)',
+    r'(29th|twenty-?ninth)',
+    r'(30th|thirtieth)',
 ]
 
 
@@ -99,54 +96,91 @@ RE_ORDINALS = dict()
 
 
 def compiled_ordinal_regexes():
-    """
-    Returns:
-        Dictionary of compiled regular expressions keyed by positive integers,
-        each storing patterns for matching ordinal strings of that number.
-    """
     global RE_ORDINALS
     if not RE_ORDINALS:
-        for _number, _patterns in __ordinal_number_patterns:
-            RE_ORDINALS[_number] = re.compile(_patterns, re.IGNORECASE)
+        for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
+            compiled_regex = re.compile(regexp, re.IGNORECASE)
+            RE_ORDINALS[number] = compiled_regex
     return RE_ORDINALS
 
 
-def find_edition(text):
+RE_ORDINAL_EDITION = dict()
+
+
+def compiled_ordinal_edition_regexes():
+    global RE_ORDINAL_EDITION
+    if not RE_ORDINAL_EDITION:
+        for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
+            ordinal_edition_pattern = regexp + r' ?(edition|ed\.?|e)'
+            compiled_regex = re.compile(ordinal_edition_pattern, re.IGNORECASE)
+            RE_ORDINAL_EDITION[number] = compiled_regex
+    return RE_ORDINAL_EDITION
+
+
+def find_and_extract_edition(string):
     """
-    Extract an "edition", like "1st Edition", from a Unicode text string.
+    Extracts any "edition-like" substrings from a string.
+
+    Searches the given text for any "edition-like" substrings and returns a
+    tuple with the match as an integer and the given string *without* the match.
+
+    Example:
+
+        edition, modified_string = find_and_extract_edition('foo 1st bar')
+        assert edition == 1
+        assert modified_string == 'foo  bar'
 
     Args:
-        text: Unicode string to search.
+        string (str): Text to search as a Unicode string.
 
     Returns:
-        Any found edition as an integer or None if no edition was found.
-    """
-    # TODO: [TD0118] Refactor and improve robustness.
-    text = text.replace('_', ' ')
-    text = text.replace('-', ' ')
+        Any found edition and modified text as a (int, str) tuple.
 
-    matches = []
-    for _num, _re_pattern in compiled_ordinal_regexes().items():
-        m = _re_pattern.search(text)
-        if m:
-            matches.append(_num)
+    Raises:
+        AssertionError: Given text is not an instance of 'str'.
+    """
+    # TODO: [TD0192] Detect and extract editions from titles
+    if not string:
+        return None, string
+
+    assert isinstance(string, str)
+
+    def _find_editions(ordinal_regexes):
+        _matches = list()
+        for number, regex in ordinal_regexes.items():
+            m = regex.search(string)
+            if m:
+                _matches.append((number, regex))
+
+        return _matches
+
+    matches = _find_editions(compiled_ordinal_edition_regexes())
+    if not matches:
+        # Try again with less "specific" regexes.
+        matches = _find_editions(compiled_ordinal_regexes())
 
     if matches:
         # Handle case where "25th" matches "5th" and returns 5.
-        # Store all matches and return the highest matched number.
-        matches = sorted(matches, reverse=True)
-        return matches[0]
+        # Use the highest matched number.
+        matches = sorted(matches, key=lambda x: x[0], reverse=True)
+        match_to_use = matches[0]
+        matched_number, matched_regex = match_to_use
+        modified_text = re.sub(matched_regex, '', string)
+        return matched_number, modified_text
 
-    match = RE_EDITION.search(text)
+    # Try a third approach.
+    match = RE_EDITION.search(string)
     if match:
-        e = match.group(1)
+        ed = match.group(1)
         try:
-            edition = types.AW_INTEGER(e)
-            return edition
-        except types.AWTypeError:
+            edition = coercers.AW_INTEGER(ed)
+        except coercers.AWTypeError:
             pass
+        else:
+            modified_text = re.sub(RE_EDITION, '', string)
+            return edition, modified_text
 
-    return None
+    return None, string
 
 
 def find_publisher_in_copyright_notice(string):

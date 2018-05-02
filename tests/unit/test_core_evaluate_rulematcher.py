@@ -20,19 +20,13 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import (
-    MagicMock,
-    Mock,
-    patch
-)
+from unittest.mock import MagicMock, Mock, patch
 
 import unit.utils as uu
 from core import constants as C
-from core.evaluate.rulematcher import (
-    prioritize_rules,
-    RuleConditionEvaluator,
-    RuleMatcher
-)
+from core.evaluate.rulematcher import prioritize_rules
+from core.evaluate.rulematcher import RuleConditionEvaluator
+from core.evaluate.rulematcher import RuleMatcher
 
 
 uu.init_session_repository()
@@ -46,7 +40,10 @@ def _get_rulematcher(**kwargs):
     rules = kwargs.get('rules', None)
     provider = kwargs.get('provider', None)
     list_rulematch = kwargs.get('list_rulematch', None)
-    return RuleMatcher(rules, provider, SHARED_FILEOBJECT, list_rulematch)
+    mock_view = Mock()
+    return RuleMatcher(
+        rules, provider, SHARED_FILEOBJECT, mock_view, list_rulematch
+    )
 
 
 def _init_master_data_provider(active_config):
@@ -73,8 +70,8 @@ class TestRuleMatcherMatching(TestCase):
 
     def test_returns_empty_list_if_no_rules_are_available(self):
         matcher = _get_rulematcher(rules=[])
-        actual = matcher.get_match_results()
-        expect = []
+        actual = matcher.get_matched_rules()
+        expect = list()
         self.assertEqual(expect, actual)
 
     @staticmethod
@@ -85,7 +82,7 @@ class TestRuleMatcherMatching(TestCase):
         rule.number_conditions = int(num_conditions)
         rule.ranking_bias = float(bias)
 
-        _conditions = []
+        _conditions = list()
         for _ in range(num_conditions):
             rule_condition = Mock()
             _conditions.append(rule_condition)
@@ -95,7 +92,7 @@ class TestRuleMatcherMatching(TestCase):
 
     def _check_matcher_result(self, given, expect):
         matcher = _get_rulematcher(rules=given, provider=None)
-        actual = matcher.get_match_results()
+        actual = matcher.get_matched_rules()
         self.assertEqual(expect, actual)
 
     @patch('core.evaluate.rulematcher.RuleConditionEvaluator.passed')
@@ -105,9 +102,9 @@ class TestRuleMatcherMatching(TestCase):
             exact_match=False, num_conditions=3, bias=0.5
         )
         # 0 conditions met
-        mock_passed.return_value = []
+        mock_passed.return_value = list()
         matcher = _get_rulematcher(rules=[rule], provider=None)
-        actual = matcher.get_match_results()
+        actual = matcher.get_matched_rules()
         expect = [(rule, 0.0, 1.0)]
         self.assertEqual(actual, expect)
 
@@ -126,7 +123,7 @@ class TestRuleMatcherMatching(TestCase):
         mock_passed.return_value = ['a', 'b', 'c']
 
         matcher = _get_rulematcher(rules=[rule], provider=None)
-        actual = matcher.get_match_results()
+        actual = matcher.get_matched_rules()
         expect = [(rule, 1.0, 1.0)]
         self.assertEqual(expect, actual)
 
@@ -143,7 +140,7 @@ class TestRuleMatcherMatching(TestCase):
         mock_passed.return_value = ['a', 'b', 'c']
 
         matcher = _get_rulematcher(rules=[rule1, rule2], provider=None)
-        actual = matcher.get_match_results()
+        actual = matcher.get_matched_rules()
         expect = [(rule1, 1.0, 1.0), (rule2, 1.0, 1.0)]
         self.assertEqual(expect, actual)
 
@@ -161,7 +158,7 @@ class TestRuleMatcherMatching(TestCase):
         mock_passed.side_effect = [['a', 'b'], ['a', 'b', 'c', 'd', 'e']]
 
         matcher = _get_rulematcher(rules=[rule1, rule2], provider=None)
-        actual = matcher.get_match_results()
+        actual = matcher.get_matched_rules()
         expect = [(rule2, 1.0, 1.0), (rule1, 1.0, 0.4)]
         self.assertEqual(expect, actual)
 

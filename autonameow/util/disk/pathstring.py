@@ -21,8 +21,8 @@
 
 import os
 
-from util import sanity
 from util import encoding as enc
+from util import sanity
 
 
 def split_basename(file_path):
@@ -147,7 +147,7 @@ def path_ancestry(path):
            Source file: 'beets/util/__init__.py'
            Commit hash: b38f34b2c06255f1c51e8714c8af6962e297a3c5
     """
-    out = []
+    out = list()
 
     last_path = None
     while path:
@@ -175,7 +175,7 @@ def path_components(path):
            Source file: 'beets/util/__init__.py'
            Commit hash: b38f34b2c06255f1c51e8714c8af6962e297a3c5
     """
-    out = []
+    out = list()
 
     ancestors = path_ancestry(path)
     for anc in ancestors:

@@ -23,48 +23,19 @@
 import inspect
 import io
 import os
+import random
+import string
 import sys
 import tempfile
-import unittest
 from contextlib import contextmanager
 from datetime import datetime
+from unittest.mock import MagicMock, Mock
 
 import unit.constants as uuconst
 from core import FileObject
-from core.config import rules
-from core.config.config_parser import ConfigurationParser
-from core.exceptions import InvalidMeowURIError
-from core.model import MeowURI
 from util import encoding as enc
-from util import (
-    nested_dict_get,
-    nested_dict_set
-)
-
-
-# class TestCase(unittest.TestCase):
-#     # TODO: Use this to get rid of duplicate self.maxDiff settings, etc.
-#     def setUp(self):
-#         pass
-#
-#     def tearDown(self):
-#         pass
-
-
-def ok_(expr, msg=None):
-    """
-    Shorthand for assert
-    """
-    if not expr:
-        raise AssertionError(msg)
-
-
-def eq_(a, b, msg=None):
-    """
-    Shorthand for 'assert a == b, "{!r} != {!r}".format(a, b)'
-    """
-    if not a == b:
-        raise AssertionError(msg or '{!r} != {!r}'.format(a, b))
+from util import nested_dict_get
+from util import nested_dict_set
 
 
 def abspath_testfile(testfile_basename):
@@ -107,12 +78,12 @@ def abspath_testconfig(testconfig_basename=None):
     )
 
 
-def encode(string):
-    return enc.encode_(string)
+def encode(s):
+    return enc.encode_(s)
 
 
-def decode(string):
-    return enc.decode_(string)
+def decode(s):
+    return enc.decode_(s)
 
 
 def bytestring_path(path):
@@ -148,7 +119,7 @@ def file_exists(file_path):
         True if the file exists, else False.
     """
     try:
-        return os.path.isfile(enc.syspath(file_path))
+        return bool(os.path.isfile(enc.syspath(file_path)))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -165,7 +136,7 @@ def dir_exists(dir_path):
     """
     _path = enc.syspath(dir_path)
     try:
-        return os.path.exists(_path) and os.path.isdir(_path)
+        return bool(os.path.exists(_path) and os.path.isdir(_path))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -182,7 +153,7 @@ def path_is_readable(file_path):
         False for any other case, including errors.
     """
     try:
-        return os.access(enc.syspath(file_path), os.R_OK)
+        return bool(os.access(enc.syspath(file_path), os.R_OK))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -199,7 +170,7 @@ def is_abspath(path):
         False for any other case, including errors.
     """
     try:
-        return os.path.isabs(enc.syspath(path))
+        return bool(os.path.isabs(enc.syspath(path)))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -314,31 +285,9 @@ def mock_request_data_callback(fileobject, label):
         cached_data = MOCK_SESSION_DATA_POOLS[fileobject] = d
 
     try:
-        d = nested_dict_get(cached_data, [fileobject, label])
+        return nested_dict_get(cached_data, [fileobject, label])
     except KeyError:
         return None
-    else:
-        return d
-
-
-def load_repository_dump(file_path):
-    """
-    Loads pickled repository contents from file at "file_path".
-    NOTE: Debugging/testing experiment --- TO BE REMOVED!
-    """
-    if not file_path or not file_exists(file_path):
-        return
-
-    import pickle
-    with open(enc.syspath(file_path), 'rb') as fh:
-        _data = pickle.load(fh, encoding='bytes')
-
-    if not _data:
-        return
-
-    from core import repository
-    repository.initialize()
-    repository.SessionRepository.data = _data
 
 
 def mock_session_data_pool(fileobject):
@@ -564,56 +513,15 @@ def get_instantiated_analyzers():
     #       problem and is surely not very pretty.
     # TODO: [hack][cleanup] Mock properly! Remove?
     import analyzers
-    return [klass(None, None, None) for klass in
-            analyzers.get_analyzer_classes()]
-
-
-def get_dummy_rules_to_examine():
-    # TODO: [hack][cleanup] Mock properly! Remove?
-    _raw_conditions = get_dummy_parsed_conditions()
-    _raw_sources = get_dummy_raw_data_sources()
-
-    out = []
-    out.append(rules.Rule(
-        description='test_files Gmail print-to-pdf',
-        exact_match=True,
-        ranking_bias=0.5,
-        name_template='{datetime} {title}.{extension}',
-        conditions=_raw_conditions[0],
-        data_sources=_raw_sources[0]
-    ))
-    out.append(rules.Rule(
-        description='test_files smulan.jpg',
-        exact_match=True,
-        ranking_bias=1.0,
-        name_template='{datetime} {description}.{extension}',
-        conditions=_raw_conditions[1],
-        data_sources=_raw_sources[1]
-    ))
-    out.append(rules.Rule(
-        description='Sample Entry for Photos with strict rules',
-        exact_match=True,
-        ranking_bias=1.0,
-        name_template='{datetime} {description} -- {tags}.{extension}',
-        conditions=_raw_conditions[2],
-        data_sources=_raw_sources[2]
-    ))
-    out.append(rules.Rule(
-        description='Sample Entry for EPUB e-books',
-        exact_match=True,
-        ranking_bias=1.0,
-        name_template='{publisher} {title} {edition} - {author} {date}.{extension}',
-        conditions=_raw_conditions[3],
-        data_sources=_raw_sources[3]
-    ))
-
-    return out
+    registered, _ = analyzers.get_analyzer_classes()
+    return [klass(None, None, None) for klass in registered]
 
 
 def get_dummy_rulecondition_instances():
     # TODO: [hack][cleanup] Mock properly! Remove?
+    from core.config.rules import RuleCondition
     return [
-        rules.RuleCondition(MeowURI(meowuri_string), expression)
+        RuleCondition(as_meowuri(meowuri_string), expression)
         for meowuri_string, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS
     ]
 
@@ -631,20 +539,23 @@ def get_dummy_raw_data_sources():
 
 def get_dummy_parsed_conditions():
     # TODO: [hack][cleanup] Mock properly! Remove?
-    _raw_conditions = get_dummy_raw_conditions()
-    conditions = [rules.parse_conditions(c) for c in _raw_conditions]
-    return conditions
+    _dummy_raw_conditions = get_dummy_raw_conditions()
+
+    from core.config.config_parser import parse_rule_conditions
+    return [parse_rule_conditions(c) for c in _dummy_raw_conditions]
 
 
 def get_dummy_rule():
     # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
-    _valid_conditions = get_dummy_parsed_conditions()
-    return rules.Rule(
+    _dummy_parsed_conditions = get_dummy_parsed_conditions()
+
+    from core.config.rules import Rule
+    return Rule(
         description='dummy',
         exact_match=False,
         ranking_bias=0.5,
         name_template='dummy',
-        conditions=_valid_conditions[0],
+        conditions=_dummy_parsed_conditions[0],
         data_sources=get_dummy_raw_data_sources()[0]
     )
 
@@ -653,23 +564,25 @@ def is_class_instance(thing):
     """
     Tests whether a given object is a instance of a class.
 
+    Note that primitives or builtins are not considered class instances.
+    This function is intended for verifying user-defined classes.
+
     Args:
         thing: The object to test.
 
     Returns:
-        True if the given object is an instance of a class, otherwise False.
+        True if the given object is an instance of a class that is not a
+        builtin or primitive, otherwise False.
     """
     if not thing:
         return False
-    if isinstance(thing,
-                  (type, bool, str, bytes, int, float, list, set, tuple)):
+
+    if isinstance(thing, (type, bool, str, bytes, int, float, list, set, tuple)):
         return False
 
     if hasattr(thing, '__class__'):
         return True
 
-    # Make sure to always return boolean. Catches case where "thing" is a
-    # built-in/primitive not included in the messy "isinstance"-check ..
     return False
 
 
@@ -683,7 +596,7 @@ def is_class(thing):
     Returns:
         True if the given object is a class, otherwise False.
     """
-    return inspect.isclass(thing)
+    return bool(inspect.isclass(thing))
 
 
 def str_to_datetime(yyyy_mm_ddthhmmss, tz=None):
@@ -722,17 +635,17 @@ def is_importable(module_name):
 def init_session_repository():
     # TODO: [hack][cleanup] Mock properly! Remove?
     from core import repository
-    repository.initialize()
+    repository._initialize()
 
 
 def init_provider_registry():
-    from core import providers
-    providers.initialize()
+    from core import master_provider
+    master_provider._initialize_provider_registry()
 
 
 def init_master_data_provider(active_config):
     from core import master_provider
-    master_provider.initialize(active_config)
+    master_provider._initialize_master_data_provider(active_config)
 
 
 def is_internalstring(thing):
@@ -754,6 +667,7 @@ def get_default_config():
     _config_path = normpath(abspath_testconfig())
     assert isinstance(_config_path, bytes)
 
+    from core.config.config_parser import ConfigurationParser
     config_parser = ConfigurationParser()
     return config_parser.from_file(_config_path)
 
@@ -766,12 +680,13 @@ def mock_cache_path():
     return b'/tmp/autonameow_cache'
 
 
-def as_meowuri(string):
+def as_meowuri(s):
+    from core.model import MeowURI
+    from core.exceptions import InvalidMeowURIError
     try:
-        meowuri = MeowURI(string)
+        return MeowURI(s)
     except InvalidMeowURIError as e:
         raise AssertionError(e)
-    return meowuri
 
 
 def get_expected_text_for_testfile(testfile_basename):
@@ -800,3 +715,16 @@ def get_expected_text_for_testfile(testfile_basename):
         return None
     except (OSError, UnicodeDecodeError):
         raise
+
+
+def get_mock_provider():
+    mock_provider = Mock()
+    mock_provider.metainfo = MagicMock(return_value=dict())
+    mock_provider.name.return_value = 'MockProvider'
+    return mock_provider
+
+
+def random_ascii_string(num_chars):
+    assert isinstance(num_chars, int)
+    ASCII_CHARS = string.ascii_lowercase + string.ascii_uppercase
+    return ''.join(random.choice(ASCII_CHARS) for _ in range(num_chars))

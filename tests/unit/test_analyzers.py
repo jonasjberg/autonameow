@@ -21,19 +21,13 @@
 
 import os
 from unittest import TestCase
-from unittest.mock import (
-    Mock,
-    patch,
-    PropertyMock
-)
+from unittest.mock import Mock, patch, PropertyMock
 
-import unit.utils as uu
 import unit.constants as uuconst
-from analyzers import (
-    BaseAnalyzer,
-    find_analyzer_files,
-    get_analyzer_classes,
-)
+import unit.utils as uu
+from analyzers import BaseAnalyzer
+from analyzers import find_analyzer_files
+from analyzers import get_analyzer_classes
 from core import constants as C
 
 
@@ -43,12 +37,9 @@ EXPECT_ANALYZER_CLASSES = [
     'analyzers.analyze_document.DocumentAnalyzer',
     'analyzers.analyze_ebook.EbookAnalyzer'
 ]
-EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
-                                    for c in EXPECT_ANALYZER_CLASSES]
-
-
-def subclasses_base_analyzer(klass):
-    return uu.is_class(klass) and issubclass(klass, BaseAnalyzer)
+EXPECT_ANALYZER_CLASSES_BASENAME = [
+    c.split('.')[-1] for c in EXPECT_ANALYZER_CLASSES
+]
 
 
 class TestBaseAnalyzer(TestCase):
@@ -119,11 +110,12 @@ class TestFindAnalyzerSourceFiles(TestCase):
 class TestGetAnalyzerClasses(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.klasses = get_analyzer_classes()
+        self.klasses, _ = get_analyzer_classes()
 
     def test_get_analyzer_classes_returns_expected_type(self):
         self.assertIsInstance(self.klasses, list)
         for klass in self.klasses:
+            uu.is_class(klass)
             self.assertTrue(issubclass(klass, BaseAnalyzer))
 
     def test_get_analyzer_classes_does_not_include_abstract_classes(self):
@@ -140,7 +132,7 @@ class TestGetAnalyzerClasses(TestCase):
 
 class TestNumberOfAvailableAnalyzerClasses(TestCase):
     def setUp(self):
-        self.actual = get_analyzer_classes()
+        self.actual, _ = get_analyzer_classes()
 
     def test_get_analyzer_classes_returns_expected_number_of_analyzers(self):
         expected = len([
@@ -169,7 +161,7 @@ class TestAnalyzerClassMeowURIs(TestCase):
         from core.model import MeowURI
         for meowuri in self.actual:
             self.assertIsInstance(meowuri, MeowURI)
-            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
+            self.assertTrue(C.MEOWURI_UNDEFINED_PART not in meowuri)
 
     def test_returns_meowuris_for_analyzers_assumed_always_available(self):
         def _assert_in(member):

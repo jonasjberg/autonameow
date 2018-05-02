@@ -19,21 +19,16 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    SkipTest,
-    TestCase
-)
+from unittest import SkipTest, TestCase
 
 try:
     from hypothesis import given
-    from hypothesis.strategies import (
-        binary,
-        characters,
-        lists,
-        sampled_from,
-        text,
-        tuples
-    )
+    from hypothesis.strategies import binary
+    from hypothesis.strategies import characters
+    from hypothesis.strategies import lists
+    from hypothesis.strategies import sampled_from
+    from hypothesis.strategies import text
+    from hypothesis.strategies import tuples
 except ImportError:
     raise SkipTest('Unable to import "hypothesis". Skipping ..')
 

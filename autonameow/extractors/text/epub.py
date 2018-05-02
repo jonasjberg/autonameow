@@ -19,8 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-
 try:
     from bs4 import BeautifulSoup
 except ImportError:
@@ -37,9 +35,6 @@ from util import encoding as enc
 from util import sanity
 
 
-log = logging.getLogger(__name__)
-
-
 class EpubTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
     IS_SLOW = False
@@ -50,32 +45,37 @@ class EpubTextExtractor(AbstractTextExtractor):
         self.init_cache()
 
     def extract_text(self, fileobject):
-        self.log.debug('Extracting raw text from EPUB file ..')
-        result = extract_text_with_ebooklib(fileobject.abspath)
-        return result
+        return extract_text_with_ebooklib(fileobject.abspath)
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return all(m is not None for m in (epub, BeautifulSoup))
 
 
-def extract_text_with_ebooklib(file_path):
+def extract_text_with_ebooklib(filepath):
     assert epub, 'Missing required module "epub"'
     assert BeautifulSoup, 'Missing required module "BeautifulSoup"'
 
-    unicode_file_path = enc.decode_(file_path)
-    sanity.check_internal_string(unicode_file_path)
+    unicode_filepath = enc.decode_(filepath)
+    sanity.check_internal_string(unicode_filepath)
 
     try:
-        book = epub.read_epub(unicode_file_path)
+        book = epub.read_epub(unicode_filepath)
     except epub.EpubException as e:
         raise ExtractorError(e)
 
-    result = ''
+    # TODO: The epub text extractor repeats a lot of text.
+    # NOTE: Books produced by 'calibre' are messy. Seems to use tables for
+    # formatting and classes "calibreN" with N being just about any number..
+    text_lines = list()
     for id_, _ in book.spine:
         item = book.get_item_with_id(id_)
         soup = BeautifulSoup(item.content, 'lxml')
-        for child in soup.find_all(['title', 'p', 'div', 'h1', 'h2', 'h3',
-                                    'h4']):
-            result = result + child.text + '\n'
+        for child in soup.find_all(['div', 'h1', 'h2', 'h3', 'h4', 'title', 'p', 'td']):
+            child_text = child.text
+            child_text = child_text.strip()
+            if child_text:
+                text_lines.append(child_text)
+
+    result = '\n'.join(text_lines)
     return result

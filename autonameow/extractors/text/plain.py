@@ -40,20 +40,17 @@ class PlainTextExtractor(AbstractTextExtractor):
     IS_SLOW = False
 
     def extract_text(self, fileobject):
-        self.log.debug('Extracting raw text from plain text file ..')
-        source = fileobject.abspath
-        result = read_entire_text_file(source)
-        return result
+        return read_entire_text_file(fileobject.abspath)
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return True
 
 
-def read_entire_text_file(file_path):
+def read_entire_text_file(filepath):
     contents = None
     try:
-        with open(file_path, 'r', encoding=C.DEFAULT_ENCODING) as fh:
+        with open(filepath, 'r', encoding=C.DEFAULT_ENCODING) as fh:
             contents = fh.readlines()
     except FileNotFoundError as e:
         raise ExtractorError(e)
@@ -64,24 +61,24 @@ def read_entire_text_file(file_path):
                 'Unable to decode text with {} encoding. Reading as bytes and '
                 'trying to auto-detect the encoding.'.format(C.DEFAULT_ENCODING)
             )
-            contents = _read_entire_text_file_autodetect_encoding(file_path)
+            contents = _read_entire_text_file_autodetect_encoding(filepath)
 
     if not contents:
-        log.debug('Read NOTHING from file "{!s}"'.format(file_path))
+        log.debug('Read NOTHING from file "{!s}"'.format(filepath))
         return ''
 
-    log.debug('Read {} bytes from "{!s}"'.format(len(contents), file_path))
+    log.debug('Read {} bytes from "{!s}"'.format(len(contents), filepath))
     text = ''.join(contents)
     sanity.check_internal_string(text)
     return text
 
 
-def _read_entire_text_file_autodetect_encoding(file_path):
-    _encoding = autodetect_encoding(file_path)
+def _read_entire_text_file_autodetect_encoding(filepath):
+    _encoding = autodetect_encoding(filepath)
     if _encoding:
         log.debug('Auto-detected encoding: {!s}'.format(_encoding))
         try:
-            with open(file_path, 'r', encoding=_encoding) as fh:
+            with open(filepath, 'r', encoding=_encoding) as fh:
                 return fh.readlines()
         except (UnicodeDecodeError, ValueError) as e:
             raise ExtractorError(
@@ -90,10 +87,10 @@ def _read_entire_text_file_autodetect_encoding(file_path):
     return None
 
 
-def autodetect_encoding(file_path):
+def autodetect_encoding(filepath):
     assert chardet, 'Missing required module "chardet"'
     try:
-        with open(file_path, 'rb') as fh:
+        with open(filepath, 'rb') as fh:
             detected_encoding = chardet.detect(fh.read())
     except (OSError, TypeError) as e:
         log.error('Error while auto-detecting encoding; {!s}'.format(e))

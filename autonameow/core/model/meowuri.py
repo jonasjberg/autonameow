@@ -23,9 +23,9 @@ import logging
 import re
 from collections import namedtuple
 
-from core import types
 from core import constants as C
 from core.exceptions import InvalidMeowURIError
+from util import coercers
 from util import sanity
 from util.misc import flatten_sequence_type
 
@@ -47,7 +47,7 @@ class MeowURIParser(object):
         args_list = list(flattened)
 
         # Normalize into a list of period-separated Unicode words ..
-        raw_parts = []
+        raw_parts = list()
         for arg in args_list:
             if isinstance(arg, (MeowURI, MeowURIChild, MeowURIRoot, MeowURILeaf)):
                 # TODO: [performance] This is probably extremely inefficient ..
@@ -91,7 +91,7 @@ class MeowURIParser(object):
             _leaf = None
 
         # Remaining elements are children
-        _children = []
+        _children = list()
         if raw_parts:
             _children = [MeowURIChild(n) for n in raw_parts]
 
@@ -129,19 +129,19 @@ class MeowURI(object):
     def root(self):
         if self._root:
             return str(self._root)
-        return C.UNDEFINED_MEOWURI_PART
+        return C.MEOWURI_UNDEFINED_PART
 
     @property
     def children(self):
         if self._children:
             return [str(n) for n in self._children]
-        return C.UNDEFINED_MEOWURI_PART
+        return C.MEOWURI_UNDEFINED_PART
 
     @property
     def leaf(self):
         if self._leaf:
             return str(self._leaf)
-        return C.UNDEFINED_MEOWURI_PART
+        return C.MEOWURI_UNDEFINED_PART
 
     @property
     def parts(self):
@@ -240,11 +240,11 @@ class MeowURI(object):
 
 
 class MeowURIChild(object):
-    def __init__(self, raw_string):
-        string = _normalize_string(raw_string)
-        self._validate(string)
-
-        self._value = string
+    def __init__(self, raw_value):
+        str_value = coercers.force_string(raw_value)
+        normalized_str_value = _normalize_string(str_value)
+        self._validate(normalized_str_value)
+        self._value = normalized_str_value
 
     def _validate(self, string):
         if not string:
@@ -259,11 +259,10 @@ class MeowURIChild(object):
 
 
 class MeowURILeaf(object):
-    def __init__(self, raw_string):
-        string = raw_string.strip()
-        self._validate(string)
-
-        self._value = string
+    def __init__(self, raw_value):
+        str_value = coercers.force_string(raw_value)
+        self._validate(str_value)
+        self._value = str_value
 
     def _validate(self, string):
         if not string:
@@ -278,13 +277,11 @@ class MeowURILeaf(object):
 
 
 class MeowURIRoot(object):
-    def __init__(self, raw_string):
-        string = types.force_string(raw_string)
-        if string:
-            string = _normalize_string(raw_string)
-
-        self._validate(string)
-        self._value = string
+    def __init__(self, raw_value):
+        str_value = coercers.force_string(raw_value)
+        normalized_str_value = _normalize_string(str_value)
+        self._validate(normalized_str_value)
+        self._value = normalized_str_value
 
     def _validate(self, string):
         if not string:

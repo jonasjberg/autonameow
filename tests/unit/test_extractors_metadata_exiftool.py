@@ -20,50 +20,37 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 
 import unit.utils as uu
-import unit.constants as uuconst
-from extractors import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor
-from extractors.metadata.exiftool import (
-    _filter_coerced_value,
-    _get_exiftool_data,
-    is_bad_metadata
+from extractors.metadata.exiftool import is_bad_metadata
+from extractors.metadata.exiftool import _filter_coerced_value
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
+from unit.case_extractors import CaseExtractorOutputTypes
+
+
+UNMET_DEPENDENCIES = (
+    not ExiftoolMetadataExtractor.dependencies_satisfied(),
+    'Extractor dependencies not satisfied'
 )
 
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput,
-    CaseExtractorOutputTypes
-)
 
-
-unmet_dependencies = not ExiftoolMetadataExtractor.check_dependencies()
-dependency_error = 'Extractor dependencies not satisfied'
-
-
-temp_fileobject = uu.get_mock_fileobject()
-temp_file = uu.make_temporary_file()
-
-
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestExiftoolMetadataExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     EXTRACTOR_NAME = 'ExiftoolMetadataExtractor'
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestExiftoolMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
                                                TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
@@ -80,7 +67,7 @@ class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput,
     ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
@@ -99,32 +86,13 @@ class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput,
     ]
 
 
-@skipIf(unmet_dependencies, dependency_error)
-class TestExiftoolMetadataExtractorInternals(TestCase):
-    def setUp(self):
-        self.e = ExiftoolMetadataExtractor()
-
-    def test__get_metadata_raises_expected_exceptions(self):
-        with self.assertRaises(ExtractorError):
-            e = ExiftoolMetadataExtractor()
-            e._get_metadata(None)
-
-        with self.assertRaises(ExtractorError):
-            f = ExiftoolMetadataExtractor()
-            f._get_metadata(uuconst.ASSUMED_NONEXISTENT_BASENAME)
-
-    def test_get_exiftool_data_raises_expected_exception(self):
-        with self.assertRaises(ExtractorError):
-            _ = ExiftoolMetadataExtractor()
-            _get_exiftool_data(None)
-
-        with self.assertRaises(ExtractorError):
-            _ = ExiftoolMetadataExtractor()
-            _get_exiftool_data(uuconst.ASSUMED_NONEXISTENT_BASENAME)
-
-
 class TestIsBadMetadata(TestCase):
-    def test_good_tags_values_return_true(self):
+    def _assert_bad(self, tag, value):
+        actual = is_bad_metadata(tag, value)
+        self.assertTrue(actual)
+        self.assertIsInstance(actual, bool)
+
+    def test_good_tags_values_return_false(self):
         def _aT(tag, value):
             actual = is_bad_metadata(tag, value)
             self.assertFalse(actual)
@@ -138,35 +106,35 @@ class TestIsBadMetadata(TestCase):
         _aT('XMP:Subject', ['Non-Fiction', 'Human Science', 'Philosophy',
                             'Religion', 'Science and Technics', 'Science'])
 
-    def test_bad_tags_values_return_false(self):
-        def _aF(tag, value):
-            actual = is_bad_metadata(tag, value)
-            self.assertTrue(actual)
-            self.assertIsInstance(actual, bool)
+    def test_bad_tags_values_return_true(self):
+        self._assert_bad('PDF:Subject', 'Subject')
+        self._assert_bad('PDF:Author', 'Author')
+        self._assert_bad('PDF:Title', 'Title')
+        self._assert_bad('XMP:Author', 'Author')
+        self._assert_bad('XMP:Creator', 'Author')
+        self._assert_bad('XMP:Creator', 'Creator')
+        self._assert_bad('XMP:Description', 'Subject')
+        self._assert_bad('XMP:Description', 'Description')
+        self._assert_bad('XMP:Subject', 'Subject')
+        self._assert_bad('XMP:Title', 'Title')
+        self._assert_bad('XMP:Subject', ['Subject'])
+        self._assert_bad('XMP:Subject', ['Science', 'Subject'])
+        self._assert_bad('XMP:Subject', ['Title', 'Subject'])
 
-        _aF('PDF:Subject', 'Subject')
-        _aF('PDF:Author', 'Author')
-        _aF('PDF:Title', 'Title')
-        _aF('XMP:Author', 'Author')
-        _aF('XMP:Creator', 'Author')
-        _aF('XMP:Creator', 'Creator')
-        _aF('XMP:Description', 'Subject')
-        _aF('XMP:Description', 'Description')
-        _aF('XMP:Subject', 'Subject')
-        _aF('XMP:Title', 'Title')
-        _aF('XMP:Subject', ['Subject'])
-        _aF('XMP:Subject', ['Science', 'Subject'])
-        _aF('XMP:Subject', ['Title', 'Subject'])
+        self._assert_bad('PDF:Author', 'Unknown')
+        self._assert_bad('PDF:Subject', 'Unknown')
+        self._assert_bad('PDF:Title', 'Unknown')
+        self._assert_bad('XMP:Author', 'Unknown')
+        self._assert_bad('XMP:Creator', 'Unknown')
+        self._assert_bad('XMP:Description', 'Unknown')
+        self._assert_bad('XMP:Subject', 'Unknown')
+        self._assert_bad('XMP:Subject', ['Unknown'])
+        self._assert_bad('XMP:Title', 'Unknown')
 
-        _aF('PDF:Author', 'Unknown')
-        _aF('PDF:Subject', 'Unknown')
-        _aF('PDF:Title', 'Unknown')
-        _aF('XMP:Author', 'Unknown')
-        _aF('XMP:Creator', 'Unknown')
-        _aF('XMP:Description', 'Unknown')
-        _aF('XMP:Subject', 'Unknown')
-        _aF('XMP:Subject', ['Unknown'])
-        _aF('XMP:Title', 'Unknown')
+    def test_certain_bad_values_return_true_for_any_tag(self):
+        self._assert_bad('PDF:Creator', 'www.allitebooks.com')
+        self._assert_bad('PDF:Producer', 'www.allitebooks.com')
+        self._assert_bad('PDF:Subject', 'www.allitebooks.com')
 
 
 class TestFilterCoercedValue(TestCase):

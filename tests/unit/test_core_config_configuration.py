@@ -21,10 +21,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from unittest import (
-    skipIf,
-    TestCase
-)
+from unittest import skipIf, TestCase
 
 try:
     import yaml
@@ -84,6 +81,3 @@ class TestConfigurationDataAccess(TestCase):
     def test_rules_returns_expected_rule_count(self):
         # TODO: [hardcoded] Rework or remove ..
         self.assertGreaterEqual(len(self.configuration.rules), 3)
-
-    def test_name_templates_returns_expected_type(self):
-        self.assertIsInstance(self.configuration.name_templates, list)

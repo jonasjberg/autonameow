@@ -29,10 +29,8 @@ except ImportError:
 import util
 from core import constants as C
 from extractors import ExtractorError
-from extractors.text.common import (
-    AbstractTextExtractor,
-    decode_raw
-)
+from extractors.text.common import AbstractTextExtractor
+from extractors.text.common import decode_raw
 
 
 class MarkdownTextExtractor(AbstractTextExtractor):
@@ -40,9 +38,7 @@ class MarkdownTextExtractor(AbstractTextExtractor):
     IS_SLOW = False
 
     def extract_text(self, fileobject):
-        self.log.debug('Extracting raw text from markdown text file ..')
-        result = get_plaintext_from_markdown_file_with_pandoc(fileobject.abspath)
-        return result
+        return get_plaintext_from_markdown_file_with_pandoc(fileobject.abspath)
 
     @classmethod
     def can_handle(cls, fileobject):
@@ -52,16 +48,16 @@ class MarkdownTextExtractor(AbstractTextExtractor):
         )
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return util.is_executable('pandoc')
 
 
-def get_plaintext_from_markdown_file_with_pandoc(file_path):
+def get_plaintext_from_markdown_file_with_pandoc(filepath):
     # TODO: Convert non-UTF8 source text to UTF-8.
     #       pandoc does not handle non-UTF8 input.
     try:
         process = subprocess.Popen(
-            ['pandoc', '--from', 'markdown', '--to', 'plain', '--', file_path],
+            ['pandoc', '--from', 'markdown', '--to', 'plain', '--', filepath],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, stderr = process.communicate()

@@ -20,65 +20,15 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import re
 
-from core import (
-    exceptions,
-    view,
-)
-from core.namebuilder.fields import NameTemplateField
+from core import exceptions
+from util import disk
 from util import encoding as enc
-from util import (
-    disk,
-    sanity,
-    text
-)
+from util import sanity
 
 
 log = logging.getLogger(__name__)
-
-
-class FilenamePostprocessor(object):
-    def __init__(self, lowercase_filename=None, uppercase_filename=None,
-                 regex_replacements=None, simplify_unicode=None):
-        self.lowercase_filename = lowercase_filename or False
-        self.uppercase_filename = uppercase_filename or False
-        self.simplify_unicode = simplify_unicode or False
-
-        # List of tuples containing a compiled regex and a unicode string.
-        self.regex_replacements = regex_replacements or []
-
-    def __call__(self, filename):
-        _filename = filename
-
-        # TODO: [TD0137] Add rule-specific replacements.
-        # Do replacements first as the regular expressions are case-sensitive.
-        if self.regex_replacements:
-            _filename = self._do_replacements(_filename,
-                                              self.regex_replacements)
-
-        # Convert to lower-case if both upper- and lower- are enabled.
-        if self.lowercase_filename:
-            _filename = _filename.lower()
-        elif self.uppercase_filename:
-            _filename = _filename.upper()
-
-        if self.simplify_unicode:
-            _filename = self._do_simplify_unicode(_filename)
-
-        return _filename
-
-    @staticmethod
-    def _do_replacements(filename, regex_replacement_tuples):
-        before = filename
-        after = text.batch_regex_replace(regex_replacement_tuples, filename)
-        if before != after:
-            # TODO: [TD0171] Separate logic from user interface.
-            view.msg_filename_replacement(before, after)
-        return after
-
-    @staticmethod
-    def _do_simplify_unicode(filename):
-        return text.simplify_unicode(filename)
 
 
 def build(config, name_template, field_databundle_dict):
@@ -86,27 +36,44 @@ def build(config, name_template, field_databundle_dict):
     Constructs a new filename given a name template and a dict mapping
     name template fields to data to be populated in each field.
     """
-    log.debug('Using name template: "{}"'.format(name_template))
+
+    # NOTE(jonas): Internal object representations to Unicode string boundary.
+    # Learning techniques will need to keep track of a lot of details on
+    # successful renames --- when a file is renamed (especially after being
+    # explicitly confirmed by the user) whatever future learning systems might
+    # be used need to receive this notification in a manner that allows looking
+    # up detailed information on individual field values.
+    #
+    # Defer conversion from objects to strings for as long as possible.
+    # TODO: Look into interactions between the renamer, builder and resolver.
+    # TODO: [TD0092] Track file names accepted/used, suggested, discarded, etc.
 
     if not field_databundle_dict:
-        log.error('Name builder got empty data map! This should not happen ..')
-        raise exceptions.NameBuilderError('Unable to assemble basename')
+        raise exceptions.NameBuilderError(
+            'Unexpectedly empty or None field/databundle dict'
+        )
+
+    # TODO: [cleanup] Remove this check once boundaries are defined.
+    _assert_is_expected_types(field_databundle_dict)
 
     # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
     formatted_fields = pre_assemble_format(field_databundle_dict, config)
 
     # TODO: Move to use name template field classes as keys.
-    data = _with_simple_string_keys(formatted_fields)
+    str_fields_values = _with_simple_string_keys(formatted_fields)
 
     log.debug('After pre-assembly formatting;')
-    log.debug(str(data))
+    for str_field, str_value in str_fields_values.items():
+        log.debug('Pre-assembly formatted field "{!s}": "{!s}"'.format(str_field, str_value))
 
     # Construct the new file name
+    str_name_template = str(name_template)
+    log.debug('Populating name template "{}"'.format(str_name_template))
     try:
-        new_name = populate_name_template(name_template, **data)
+        new_name = populate_name_template(str_name_template, **str_fields_values)
     except (exceptions.NameTemplateSyntaxError, TypeError) as e:
-        log.debug('Unable to assemble basename with template "{!s}" and '
-                  'data: {!s}'.format(name_template, data))
+        log.debug('Unable to assemble basename with name template "{!s}" '
+                  'and data: {!s}'.format(name_template, str_fields_values))
         raise exceptions.NameBuilderError(
             'Unable to assemble basename: {!s}'.format(e)
         )
@@ -129,53 +96,44 @@ def build(config, name_template, field_databundle_dict):
     else:
         log.debug('Skipped sanitizing filename')
 
-    # Do any case-transformations.
-    postprocessor = FilenamePostprocessor(
-        lowercase_filename=config.get(['POST_PROCESSING',
-                                       'lowercase_filename']),
-        uppercase_filename=config.get(['POST_PROCESSING',
-                                       'uppercase_filename']),
-        regex_replacements=config.get(['POST_PROCESSING',
-                                       'replacements']),
-        simplify_unicode=config.get(['POST_PROCESSING',
-                                     'simplify_unicode'])
-    )
-    new_name = postprocessor(new_name)
-
     # TODO: [TD0036] Allow per-field replacements and customization.
     return new_name
 
 
-def pre_assemble_format(field_databundle_dict, config):
-    out = dict()
+def _assert_is_expected_types(field_databundle_dict):
+    # TODO: [cleanup] Remove these assertions once boundaries are defined.
+    from core.namebuilder.fields import NameTemplateField
+    from core.repository import DataBundle
 
-    for field, data in field_databundle_dict.items():
-        log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))
+    for field, databundle in field_databundle_dict.items():
         assert field and isinstance(field, NameTemplateField)
-        from core.repository import DataBundle
-        assert data and isinstance(data, DataBundle)
+        assert databundle and isinstance(databundle, DataBundle)
+
+
+def pre_assemble_format(field_databundle_dict, config):
+    formatted_values = dict()
+
+    for field, databundle in field_databundle_dict.items():
+        log.debug('pre_assemble_format({!s}, {!s})'.format(field, databundle))
 
         # TODO: [TD0115] Clear up uncertainties about data multiplicities
-        if data.multivalued:
+        if databundle.multivalued:
             if not field.MULTIVALUED:
-                log.critical(
-                    'Template field {!s} expects a single value. Got '
-                    'multivalued data'.format(field)
-                )
                 raise exceptions.NameBuilderError(
-                    'Template field {!s} expects a single value. '
-                    'Got {} values'.format(field, len(data))
+                    'Name template field {!s} expects a single value but got '
+                    'databundle with {} values'.format(field, len(databundle))
                 )
 
-        _formatted = field.format(data, config=config)
-        if _formatted is not None:
-            out[field] = _formatted
-        else:
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        formatted_value = field.format(databundle, config=config)
+        if formatted_value is None:
             raise exceptions.NameBuilderError(
                 'Unable to format name template field "{!s}"'.format(field)
             )
+        sanity.check_internal_string(formatted_value)
+        formatted_values[field] = formatted_value
 
-    return out
+    return formatted_values
 
 
 def _with_simple_string_keys(data_dict):
@@ -183,16 +141,23 @@ def _with_simple_string_keys(data_dict):
 
 
 def post_assemble_format(new_name):
+    # TODO: [TD0043][TD0036] Remove hardcoded behaviour and settings.
     return new_name.rstrip('.')
 
 
-def populate_name_template(name_template, **kwargs):
+def _remove_single_and_double_quotes(string):
+    # TODO: [TD0043][TD0036] Remove hardcoded behaviour and settings.
+    return re.sub(r'[\'"]+', '', string)
+
+
+def populate_name_template(format_string, **kwargs):
     """
-    Assembles a basename string from a given "name_template" filename format
+    Assembles a basename string from a given "format_string" filename format
     string that is populated with an arbitrary number of keyword arguments.
 
     Args:
-        name_template: The filename format string to populate and return.
+        format_string: The filename format string to populate and return,
+                       as a Unicode string.
         **kwargs: An arbitrary number of keyword arguments used to fill out
                   the filename format string.
 
@@ -201,24 +166,20 @@ def populate_name_template(name_template, **kwargs):
         with values from the given argument keywords.
 
     Raises:
-        NameTemplateSyntaxError: Error due to either an invalid "name_template"
+        NameTemplateSyntaxError: Error due to either an invalid "format_string"
                                  or insufficient/invalid keyword arguments.
     """
-    if not isinstance(name_template, str):
-        raise TypeError('"name_template" must be of type "str"')
+    if not isinstance(format_string, str):
+        raise TypeError('Argument "format_string" must be of type "str"')
 
-    if "'" or '"' in name_template:
-        log.debug('Removing single and double quotes from template: '
-                  '"{!s}"'.format(name_template))
-    while "'" in name_template:
-        name_template = name_template.replace("'", '')
-    while '"' in name_template:
-        name_template = name_template.replace('"', '')
+    if "'" or '"' in format_string:
+        # TODO: [TD0043][TD0036] Remove hardcoded behaviour and settings.
+        log.debug('Removing single and double quotes from format string '
+                  '"{!s}"'.format(format_string))
+        format_string = _remove_single_and_double_quotes(format_string)
 
-    # NOTE: Used to validate name template strings in the configuration file.
+    # NOTE: Used to validate format strings in the configuration file.
     try:
-        out = name_template.format(**kwargs)
+        return format_string.format(**kwargs)
     except (TypeError, KeyError, ValueError) as e:
         raise exceptions.NameTemplateSyntaxError(e)
-    else:
-        return out

@@ -19,10 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 
 import unit.utils as uu
 from util import checksum
@@ -47,23 +44,34 @@ TESTFILE_MAGICPNG_SHA1 = '63679a1a5a1f177effbc58cf1cd0dfabc5bd5120'
 TESTFILE_MAGICPNG_SHA256 = '9c138627d827a2efd5ab835098ea3363cc8e13ec6d1745b94663b41e810a6448'
 
 
-def really_big_testfile_unavailable():
-    _file_ok = (
-        uu.file_exists(TESTFILE_REALLY_BIG_FILE) and
-        uu.path_is_readable(TESTFILE_REALLY_BIG_FILE)
-    )
-    return not _file_ok, 'TESTFILE_REALLY_BIG_FILE is not set'
+REALLY_BIG_TESTFILE_UNAVAILABLE = (
+    not (uu.file_exists(TESTFILE_REALLY_BIG_FILE)
+         and uu.path_is_readable(TESTFILE_REALLY_BIG_FILE)),
+    'TESTFILE_REALLY_BIG_FILE is not set'
+)
 
 
 class TestHashlibDigest(TestCase):
-    def test_raises_value_error_given_bad_algorithm(self):
+    def test_raises_assertion_error_given_bad_algorithm(self):
         def _aR(algorithm):
-            with self.assertRaises(ValueError):
-                checksum.hashlib_digest(TESTFILE_MAGICTXT, algorithm)
+            with self.assertRaises(AssertionError):
+                _ = checksum.hashlib_digest(TESTFILE_MAGICTXT, algorithm)
 
         _aR('')
         _aR('sha529')
         _aR('mja003')
+
+    def test_raises_filesystem_error_given_bad_file(self):
+        from core.exceptions import FilesystemError
+
+        for bad_file in [
+            None,
+            object(),
+            '',
+            b''
+        ]:
+            with self.assertRaises(FilesystemError):
+                _ = checksum.hashlib_digest(bad_file)
 
 
 class TestSha256Digest(TestCase):
@@ -96,7 +104,7 @@ class TestSha256Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @skipIf(*really_big_testfile_unavailable())
+    @skipIf(*REALLY_BIG_TESTFILE_UNAVAILABLE)
     def test_big_file(self):
         a = checksum.sha256digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))
@@ -132,7 +140,7 @@ class TestSha1Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @skipIf(*really_big_testfile_unavailable())
+    @skipIf(*REALLY_BIG_TESTFILE_UNAVAILABLE)
     def test_big_file(self):
         a = checksum.sha1digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))
@@ -168,7 +176,7 @@ class TestMD5Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @skipIf(*really_big_testfile_unavailable())
+    @skipIf(*REALLY_BIG_TESTFILE_UNAVAILABLE)
     def test_big_file(self):
         a = checksum.md5digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))
@@ -204,7 +212,7 @@ class TestPartialSha256Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @skipIf(*really_big_testfile_unavailable())
+    @skipIf(*REALLY_BIG_TESTFILE_UNAVAILABLE)
     def test_big_file(self):
         a = checksum.partial_sha256digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))
@@ -240,7 +248,7 @@ class TestPartialSha1Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @skipIf(*really_big_testfile_unavailable())
+    @skipIf(*REALLY_BIG_TESTFILE_UNAVAILABLE)
     def test_big_file(self):
         a = checksum.partial_sha1digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))
@@ -276,7 +284,7 @@ class TestPartialMD5Digest(TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
-    @skipIf(*really_big_testfile_unavailable())
+    @skipIf(*REALLY_BIG_TESTFILE_UNAVAILABLE)
     def test_big_file(self):
         a = checksum.partial_md5digest(TESTFILE_REALLY_BIG_FILE)
         self.assertTrue(uu.is_internalstring(a))

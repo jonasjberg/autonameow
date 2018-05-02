@@ -22,33 +22,69 @@
 MIMETYPE application/octet-stream
     EXTENSION BLANK
     - BLANK
+    EXTENSION 89u           # Texas Instruments calculator firmware
+    - 89u
     EXTENSION azw3
     - azw3
     EXTENSION bin
     - bin
     - binary
+    EXTENSION c
+    - c
     EXTENSION chm
     - chm
+    EXTENSION dmg           # Apple disk images
+    - dmg
+    EXTENSION fc            # FirstClass settings
+    - fc
+    EXTENSION fcd           # FirstClass settings
+    - fcd
     EXTENSION gz.sig
     - gz.sig
+    EXTENSION h
+    - h
     EXTENSION hex
     - hex
+    EXTENSION log
+    - log
     EXTENSION mobi
     - mobi
+    EXTENSION mp4
+    - mp4
+
+    # National Instruments Multisim
+    EXTENSION ms10
+    - ms10
+    EXTENSION ms10 (Security copy)
+    - ms10 (Security copy)
+    - ms10-(Security-copy)
+    EXTENSION ms12
+    - ms12
+    EXTENSION ms12 (Security copy)
+    - ms12 (Security copy)
+    - ms12-(Security-copy)
+
     EXTENSION pdf
     - pdf
     EXTENSION prc
     - prc
+    EXTENSION rom
+    - rom
+    - ROM
     EXTENSION scpt
     - scpt
     EXTENSION sig
     - sig
-    EXTENSION sln       # Visual Studio Solution
+    EXTENSION sln           # Visual Studio Solution
     - sln
     EXTENSION tar.gz.sig
     - tar.gz.sig
     EXTENSION txt
     - txt
+    EXTENSION webarchive    # Safari saved webpage
+    - webarchive
+    EXTENSION xps           # Microsoft paper specification file
+    - xps
 
 MIMETYPE application/gzip
     EXTENSION gz
@@ -56,9 +92,18 @@ MIMETYPE application/gzip
     EXTENSION tar.gz
     - tar.gz
 
+
+# Microsoft Office
 MIMETYPE application/msword
     EXTENSION doc
     - doc
+    - BLANK
+
+MIMETYPE application/vnd.ms-excel
+    EXTENSION xls
+    - xls
+    - BLANK
+
 
 MIMETYPE application/postscript
     EXTENSION eps
@@ -73,6 +118,12 @@ MIMETYPE application/vnd.ms-powerpoint
 MIMETYPE application/x-bzip2
     EXTENSION tar.bz2
     - tar.bz2
+    EXTENSION dmg       # Apple disk images
+    - dmg
+
+MIMETYPE application/x-iso9660-image
+    EXTENSION dmg       # Apple disk images
+    - dmg
 
 MIMETYPE application/x-gzip
     EXTENSION html.gz
@@ -101,6 +152,8 @@ MIMETYPE application/zip
     - alfredworkflow
     EXTENSION epub
     - epub
+    EXTENSION tdesktop-theme  # Telegram messenger theme
+    - tdesktop-theme
     EXTENSION zip
     - zip
 
@@ -108,26 +161,62 @@ MIMETYPE audio/mpeg
     EXTENSION mp3
     - mp3
 
+MIMETYPE inode/x-empty
+    EXTENSION out
+    - out
+
 MIMETYPE message/rfc822
     EXTENSION mhtml     # Chrome Save as "Webpage, Single File"
     - mhtml
 
 MIMETYPE text/html
-    EXTENSION html      # Not actually gzipped HTML
-    - htm.gz
+    EXTENSION html
+    - htm.gz            # Not actually gzipped HTML
     - html
-    - html.gz
+    - html.gz           # Not actually gzipped HTML
     - htm
+    EXTENSION html.1
+    - htm.1
+    - html.1
+    EXTENSION java
+    - java
+    EXTENSION js
+    - js
     EXTENSION mhtml
     - mhtml
     EXTENSION txt
     - txt
 
 MIMETYPE text/plain
+    EXTENSION BLANK
+    - BLANK
+
+    # Telegram messenger theme files
+    EXTENSION attheme
+    - attheme
+    EXTENSION tdesktop-palette
+    - tdesktop-palette
+
+    # TeX/LaTeX bibliographies/references, makefiles, ..
+    EXTENSION aux
+    - aux
+    EXTENSION bib
+    - bib
+    EXTENSION bbl
+    - bbl
+    EXTENSION blg
+    - blg
     EXTENSION bibtex
     - bibtex
+    EXTENSION fdb_latexmk
+    - fdb_latexmk
+    EXTENSION fls
+    - fls
+
     EXTENSION c
     - c
+    EXTENSION conf
+    - conf
     EXTENSION cpp
     - cpp
     - c++
@@ -150,6 +239,8 @@ MIMETYPE text/plain
     - json
     EXTENSION key
     - key
+    EXTENSION lc
+    - lc
     EXTENSION log
     - log
     EXTENSION md
@@ -173,6 +264,12 @@ MIMETYPE text/plain
     - txt.gz
     EXTENSION yaml
     - yaml
+    EXTENSION xml
+    - xml
+
+MIMETYPE text/x-asm
+    EXTENSION css       # Incorrectly identified css
+    - css
 
 MIMETYPE text/x-c
     EXTENSION c
@@ -212,15 +309,30 @@ MIMETYPE text/x-shellscript
     - sh
 
 MIMETYPE text/x-tex
-    # LaTeX-related
+    # TeX/LaTeX-related
+    EXTENSION aux
+    - aux
+    EXTENSION bak0
+    - bak0
+    EXTENSION bbl
+    - bbl
+    EXTENSION cls
+    - cls
     EXTENSION log
     - log
     EXTENSION tex
     - tex
 
 MIMETYPE text/xml
+    EXTENSION bcf         # TeX/LaTeX-related
+    - bcf
     EXTENSION cbp
     - cbp
+    EXTENSION spx         # MacOS system report
+    - spx
+    EXTENSION html
+    - htm
+    - html
     EXTENSION workspace   # Intellij IDE project metadata
     - workspace
 

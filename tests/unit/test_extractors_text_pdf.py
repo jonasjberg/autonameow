@@ -20,23 +20,20 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
-from unittest import (
-    skipIf,
-    TestCase,
-)
+from unittest import skipIf, TestCase
 
 import unit.utils as uu
 from extractors.text import PdfTextExtractor
 from extractors.text.pdf import extract_pdf_content_with_pdftotext
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput,
-    CaseExtractorOutputTypes
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
+from unit.case_extractors import CaseExtractorOutputTypes
+
+
+UNMET_DEPENDENCIES = (
+    PdfTextExtractor.dependencies_satisfied() is False,
+    'Extractor dependencies not satisfied'
 )
-
-
-UNMET_DEPENDENCIES = PdfTextExtractor.check_dependencies() is False
-DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
 
 # NOTE: It seems that pdftotext strips trailing whitespace on MacOS (v0.57.0)
 #       but not on Linux (v0.41.0) --- gives inconsistent test results (?)
@@ -55,20 +52,26 @@ class TestPrerequisites(TestCase):
     def test_test_file_exists_b(self):
         self.assertTrue(uu.file_exists(TESTFILE_B))
 
+    def test_expected_text_is_type_str_a(self):
+        self.assertIsInstance(TESTFILE_A_EXPECTED, str)
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+    def test_expected_text_is_type_str_b(self):
+        self.assertIsInstance(TESTFILE_B_EXPECTED, str)
+
+
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     EXTRACTOR_NAME = 'PdfTextExtractor'
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorOutputTypes(CaseExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
@@ -77,7 +80,7 @@ class TestPdfTextExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     ]
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_B)
@@ -86,7 +89,7 @@ class TestPdfTextExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
     ]
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestCachingRuntime(TestCase):
     """
     These will likely fail on some systems. The idea is to make sure that
@@ -146,7 +149,7 @@ class TestCachingRuntime(TestCase):
         self.__assert_runtime_improvement(0.010)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestExtractPdfContentWithPdftotext(TestCase):
     def setUp(self):
         self.maxDiff = None
@@ -159,7 +162,7 @@ class TestExtractPdfContentWithPdftotext(TestCase):
         self.assertEqual(TESTFILE_A_EXPECTED, self.actual)
 
 
-@skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorInternals(TestCase):
     def setUp(self):
         self.test_fileobject = uu.fileobject_testfile('gmail.pdf')

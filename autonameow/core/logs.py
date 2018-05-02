@@ -20,14 +20,14 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import shutil
 import time
 from contextlib import contextmanager
 from functools import wraps
 
-from core.view import cli
-
 
 LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+TERMINAL_WIDTH, TERMINAL_HEIGHT = shutil.get_terminal_size(fallback=(80, 24))
 
 
 # TODO: Fix global logging state making testing tedious.
@@ -46,6 +46,11 @@ def init_logging(opts):
     if _logging_initialized:
         # TODO: Fix global logging state making testing tedious.
         return
+
+    # This module is likely imported from a lot of places. The "lazy" import
+    # below is intended to prevent prematurely importing third-party modules
+    # that might be missing, like 'prompt_toolkit'.
+    from core.view import cli
 
     # NOTE(jonas): This is probably a bad idea, but seems to work good enough.
     # TODO: [hardcoded] Remove spaces after labels, used for alignment.
@@ -137,9 +142,76 @@ def unsilence():
 global_logged_runtime = list()
 
 
-def _decorate_log_entry_section(string):
-    MAX_WIDTH = 120
-    return ' {!s} '.format(string).center(MAX_WIDTH, '=')
+def center_pad(string, maxwidth, fillchar):
+    """
+    Centers the given string and fills all but two padding spaces with
+    'fillchar' so that the returned string is 'maxwidth' characters wide.
+
+    The string is returned as-is if its length exceeds 'width'.
+
+    Args:
+        string: Unicode string to center.
+        maxwidth: Number of characters to fill, as an integer.
+        fillchar: Unicode character used to fill any left over space.
+
+    Returns:
+        The given string, padded with two spaces and surrounded by
+        'fillchar' so that the total number of characters is 'maxwidth'.
+    """
+    assert isinstance(string, str)
+    assert isinstance(fillchar, str)
+    assert isinstance(maxwidth, int)
+    if maxwidth < 0:
+        maxwidth = 0
+
+    string_len = len(string)
+    if string_len + 1 == maxwidth:
+        # Pad with one leading space char to match the width.
+        return ' ' + string
+    if string_len + 2 > maxwidth:
+        # Padding with one space on either side would exceed the width.
+        return string
+
+    # Add one space on either space, fill any remaining with 'fillchar'.
+    return ' {!s} '.format(string).center(maxwidth, fillchar)
+
+
+def center_pad_log_entry(string):
+    """
+    Uses max width tailored to work well in a debug log message.
+    """
+    assert isinstance(string, str)
+    return center_pad(string, maxwidth=TERMINAL_WIDTH - 80, fillchar='=')
+
+
+@contextmanager
+def report_runtime(reporter_function, description, decorate=True):
+    """
+    Context manager that reports the time taken for the context to complete.
+
+    Args:
+        reporter_function: Callable that accepts Unicode string messages.
+        description: Name of thing being measured for use in the log entry.
+        decorate: Whether to center and pad the string passed to the reporter.
+    """
+    assert callable(reporter_function)
+    assert isinstance(description, str)
+
+    def _report(message):
+        if decorate:
+            _msg = center_pad(message, maxwidth=TERMINAL_WIDTH, fillchar='=')
+        else:
+            _msg = message
+        reporter_function(_msg)
+
+    _report('{} Started'.format(description))
+    start_time = time.time()
+    try:
+        yield
+    finally:
+        elapsed_time = time.time() - start_time
+        completed_msg = '{} Completed in {:.9f} seconds'.format(description, elapsed_time)
+        _report(completed_msg)
 
 
 @contextmanager
@@ -149,10 +221,13 @@ def log_runtime(logger, description, log_level=None):
 
     Args:
         logger: Logger instance that is used to log the results.
-        description: Name of thing being measured for use in the log entry.
+        description: Name of thing being measured for use in the log entry,
+                     as a Unicode string.
         log_level: Log level to call the logger instance with, as a string
                    or integer. Refer to 'logging.getLevelName()'.
     """
+    assert isinstance(description, str)
+
     if not log_level:
         # Include log level 'NOTSET' (0)
         log_level = 'DEBUG'
@@ -161,7 +236,7 @@ def log_runtime(logger, description, log_level=None):
     _log_level = logging.getLevelName(log_level)
 
     def _log(message):
-        decorated_message = _decorate_log_entry_section(message)
+        decorated_message = center_pad_log_entry(message)
         logger.log(_log_level, decorated_message)
 
     global global_logged_runtime
@@ -190,9 +265,6 @@ def log_func_runtime(logger):
 
     """
     def decorator(func):
-        if not __debug__:
-            return func
-
         @wraps(func)
         def log_runtime_wrapper(*args, **kwds):
             _start_time = time.time()
@@ -212,3 +284,6 @@ def log_previously_logged_runtimes(logger):
     global global_logged_runtime
     for entry in global_logged_runtime:
         logger.debug(entry)
+
+
+DEBUG = bool(__debug__)

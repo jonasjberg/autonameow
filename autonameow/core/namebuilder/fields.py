@@ -21,22 +21,18 @@
 
 import datetime
 import logging
-import re
 
-from core import (
-    exceptions,
-    types,
-)
-from util import (
-    sanity,
-    text
-)
+from core import exceptions
+from util import coercers
+from util import sanity
+from util import text
 
 
 log = logging.getLogger(__name__)
 
 
 # TODO: [TD0154] Add "incrementing counter" placeholder field
+# TODO: [TD0191] Add new 'subtitle' placeholder field.
 
 
 class NameTemplateField(object):
@@ -50,7 +46,7 @@ class NameTemplateField(object):
 
     @classmethod
     def type_compatible(cls, type_class):
-        if isinstance(type_class, types.MultipleTypes):
+        if isinstance(type_class, coercers.MultipleTypes):
             if not cls.MULTIVALUED:
                 return False
             return type_class.coercer in cls.COMPATIBLE_TYPES
@@ -74,310 +70,303 @@ class NameTemplateField(object):
 
 
 class _Title(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER)
     MULTIVALUED = False
 
     @classmethod
-    def format(cls, data, *args, **kwargs):
-        # TODO: [TD0036] Allow per-field replacements and customization.
+    def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
-        if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
-            string = types.force_string(data.value)
-            if not string:
+        value = databundle.value
+        if databundle.coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
+            str_value = coercers.force_string(value)
+            if not str_value:
                 raise exceptions.NameBuilderError(
-                    'Unicode string conversion failed for "{!r}"'.format(data)
+                    'Unicode string conversion failed for "{!r}"'.format(databundle)
                 )
-        elif data.coercer == types.AW_STRING:
-            string = data.value
+        elif databundle.coercer == coercers.AW_STRING:
+            str_value = databundle.value
         else:
-            string = data.value
+            str_value = databundle.value
 
-        sanity.check_internal_string(string)
-        string = string.strip(',.:;-_ ')
-        return string
+        sanity.check_internal_string(str_value)
+        formatted_value = str_value.strip(',.:;-_ ')
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        return formatted_value
 
 
 class _Edition(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER)
     MULTIVALUED = False
 
     @classmethod
-    def format(cls, data, *args, **kwargs):
-        # TODO: [TD0036] Allow per-field replacements and customization.
+    def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
-        if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
-            string = types.force_string(data.value)
-            if not string:
+        value = databundle.value
+
+        if databundle.coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
+            str_value = coercers.force_string(value)
+            if not str_value:
                 raise exceptions.NameBuilderError(
-                    'Unicode string conversion failed for "{!r}"'.format(data)
+                    'Unicode string conversion failed for "{!r}"'.format(databundle)
                 )
-        elif data.coercer in (types.AW_STRING, types.AW_INTEGER):
-            string = types.force_string(data.value)
+        elif databundle.coercer in (coercers.AW_STRING, coercers.AW_INTEGER):
+            str_value = coercers.force_string(databundle.value)
         else:
             raise exceptions.NameBuilderError(
-                'Got incompatible data: {!r}'.format(data)
+                'Got incompatible data: {!r}'.format(databundle)
             )
 
-        sanity.check_internal_string(string)
-        return '{}E'.format(string)
+        sanity.check_internal_string(str_value)
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        formatted_value = '{}E'.format(str_value)
+        return formatted_value
 
 
 class _Extension(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_MIMETYPE)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_MIMETYPE)
     MULTIVALUED = False
 
     @classmethod
-    def format(cls, data, *args, **kwargs):
+    def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
-        value = data.value
-        coercer = data.coercer
+        value = databundle.value
+        coercer = databundle.coercer
 
         if not value:
             # Might be 'NullMIMEType', which evaluates False here.
             return ''
 
         if coercer:
-            string = coercer.format(value)
+            formatted_value = coercer.format(value)
         else:
             log.warning('{!s} coercer unknown for "{!s}"'.format(cls, value))
-            string = types.force_string(value)
+            formatted_value = coercers.force_string(value)
 
-        if string is None:
+        if formatted_value is None:
             raise exceptions.NameBuilderError(
-                'Unicode string conversion failed for "{!r}"'.format(data)
+                'Unicode string conversion failed for "{!r}"'.format(databundle)
             )
-        return string
+        return formatted_value
 
 
 class _Author(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING)
     MULTIVALUED = True
 
     @classmethod
-    def format(cls, data, *args, **kwargs):
+    def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
-        _d_coercer = data.coercer
-        sanity.check_isinstance(_d_coercer, types.BaseType)
+        databundle_coercer = databundle.coercer
+        sanity.check_isinstance(databundle_coercer, coercers.BaseCoercer)
 
-        _d_value = data.value
+        value = databundle.value
         # TODO: Coercer references that are passed around are class INSTANCES!
-        # TODO: [hack] Fix 'types.listof()' expects classes!
-        coercer = types.listof(_d_coercer)
-        list_of_str_authors = coercer(_d_value)
-        sanity.check_isinstance(list_of_str_authors, list)
+        # TODO: [hack] Fix 'coercers.listof()' expects classes!
+        coercer = coercers.listof(databundle_coercer)
+        str_list_value = coercer(value)
+        sanity.check_isinstance(str_list_value, list)
 
         # TODO: [TD0129] Data validation at this point should be made redundant
-        if any(not s.strip() for s in list_of_str_authors):
+        if any(not s.strip() for s in str_list_value):
             raise exceptions.NameBuilderError(
                 'Unicode string coercion resulted in empty (or whitespace) '
-                'string for data "{!r}"'.format(data)
+                'string for data "{!r}"'.format(databundle)
             )
-        _formatted = []
-        for author in list_of_str_authors:
+        formatted_names = list()
+        for author in str_list_value:
             sanity.check_internal_string(author)
-            _formatted.append(text.format_name(author))
+            formatted_names.append(text.format_name(author))
 
-        return ' '.join(sorted(_formatted))
+        formatted_value = ' '.join(sorted(formatted_names))
+        return formatted_value
 
 
 class _Creator(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER,
-                        types.AW_FLOAT)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER,
+                        coercers.AW_FLOAT)
     MULTIVALUED = True
 
 
 class _DateTime(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_DATE,
-                        types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE)
+    COMPATIBLE_TYPES = (coercers.AW_DATE,
+                        coercers.AW_TIMEDATE,
+                        coercers.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod
-    def format(cls, data, *args, **kwargs):
+    def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
-        _value = data.value
-        if not _value:
+        value = databundle.value
+        if not value:
             raise exceptions.NameBuilderError(
                 '{!s}.format() got empty data'.format(cls)
             )
 
-        if not isinstance(_value, datetime.datetime):
+        if not isinstance(value, datetime.datetime):
             raise exceptions.NameBuilderError(
                 '{!s}.format() expected data of type "datetime". '
-                'Got "{!s}" with value "{!s}"'.format(cls, type(_value), _value)
+                'Got "{!s}" with value "{!s}"'.format(cls, type(value), value)
             )
 
         c = kwargs.get('config')
         if c:
-            _format = c.options['DATETIME_FORMAT']['datetime']
-            return formatted_datetime(_value, _format)
+            datetime_format = c.options['DATETIME_FORMAT']['datetime']
+            formatted_value = formatted_datetime(value, datetime_format)
+            return formatted_value
         else:
             raise exceptions.NameBuilderError('Unknown "datetime" format')
 
 
 class _Date(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_DATE,
-                        types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE)
+    COMPATIBLE_TYPES = (coercers.AW_DATE,
+                        coercers.AW_TIMEDATE,
+                        coercers.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod
-    def format(cls, data, *args, **kwargs):
+    def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
-        _value = data.value
-        if not _value:
+        value = databundle.value
+        if not value:
             raise exceptions.NameBuilderError(
                 '{!s}.format() got empty data'.format(cls)
             )
 
-        if not isinstance(_value, datetime.datetime):
+        if not isinstance(value, datetime.datetime):
             raise exceptions.NameBuilderError(
                 '{!s}.format() expected data of type "datetime". '
-                'Got "{!s}" with value "{!s}"'.format(cls, type(_value), _value)
+                'Got "{!s}" with value "{!s}"'.format(cls, type(value), value)
             )
 
         c = kwargs.get('config')
         if c:
             datetime_format = c.options['DATETIME_FORMAT']['date']
-            return formatted_datetime(_value, datetime_format)
+            formatted_value = formatted_datetime(value, datetime_format)
+            return formatted_value
         else:
             raise exceptions.NameBuilderError('Unknown "date" format')
 
 
 class _Description(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER,
-                        types.AW_FLOAT)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER,
+                        coercers.AW_FLOAT)
     MULTIVALUED = False
 
     @classmethod
-    def format(cls, data, *args, **kwargs):
-        value = data.value
-        return types.force_string(value)
+    def format(cls, databundle, *args, **kwargs):
+        value = databundle.value
+        formatted_value = coercers.force_string(value)
+        return formatted_value
 
 
 class _Publisher(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER)
     MULTIVALUED = False
 
     @classmethod
-    def format(cls, data, *args, **kwargs):
+    def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
 
-        _candidates = dict()
+        candidates = dict()
 
-        # TODO: [TD0174] Don't do this here ..
+        # TODO: [TD0174] Don't do field value replacements here!
         c = kwargs.get('config')
         if c:
-            _options = c.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
-            if _options:
-                _candidates = _options.get('candidates', {})
+            name_template_field_options = c.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
+            if name_template_field_options:
+                candidates = name_template_field_options.get('candidates', {})
 
         # TODO: [TD0152] Fix too many replacements applied? Stop after first?
-        _formatted = data.value
-        sanity.check_internal_string(_formatted)
-        for repl, patterns in _candidates.items():
-            for pattern in patterns:
-                _formatted = pattern.sub(repl, _formatted)
+        value = databundle.value
+        sanity.check_internal_string(value)
 
-        return _formatted
+        formatted_value = value
+        for replacement, patterns in candidates.items():
+            for pattern in patterns:
+                formatted_value = pattern.sub(replacement, formatted_value)
+
+        return formatted_value
 
 
 class _Tags(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
-                        types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER)
+    COMPATIBLE_TYPES = (coercers.AW_PATHCOMPONENT,
+                        coercers.AW_PATH,
+                        coercers.AW_STRING,
+                        coercers.AW_INTEGER)
     MULTIVALUED = True
 
     @classmethod
-    def format(cls, data, *args, **kwargs):
-        _value = data.value
-        _tag_list = types.listof(types.AW_STRING)(_value)
+    def format(cls, databundle, *args, **kwargs):
+        value = databundle.value
+        str_list_value = coercers.listof(coercers.AW_STRING)(value)
 
         # TODO: [TD0129] Is this kind of double-double-check really necessary..?
-        sanity.check_isinstance(_tag_list, list)
-        for t in _tag_list:
+        sanity.check_isinstance(str_list_value, list)
+        for t in str_list_value:
             sanity.check_isinstance(t, str)
 
-        if len(_tag_list) == 1:
+        if len(str_list_value) == 1:
             # Single tag doesn't need to be joined.
-            return _tag_list[0]
+            return str_list_value[0]
 
         c = kwargs.get('config')
         if c:
             sep = c.options['FILETAGS_OPTIONS']['between_tag_separator']
             sanity.check_internal_string(sep)
-            return sep.join(_tag_list)
+            formatted_value = sep.join(str_list_value)
+            return formatted_value
         else:
             raise exceptions.NameBuilderError('Unknown "between_tag_separator"')
 
 
 class _Time(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE)
+    COMPATIBLE_TYPES = (coercers.AW_TIMEDATE,
+                        coercers.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod
-    def format(cls, data, *args, **kwargs):
-        _value = data.value
+    def format(cls, databundle, *args, **kwargs):
+        value = databundle.value
         c = kwargs.get('config')
         if c:
             datetime_format = c.options['DATETIME_FORMAT']['time']
-            return formatted_datetime(_value, datetime_format)
+            formatted_value = formatted_datetime(value, datetime_format)
+            return formatted_value
         else:
             raise exceptions.NameBuilderError('Unknown "time" format')
 
 
 class _Year(NameTemplateField):
-    COMPATIBLE_TYPES = (types.AW_DATE,
-                        types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE)
+    COMPATIBLE_TYPES = (coercers.AW_DATE,
+                        coercers.AW_TIMEDATE,
+                        coercers.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod
-    def format(cls, data, *args, **kwargs):
+    def format(cls, databundle, *args, **kwargs):
         datetime_format = '%Y'
-        return formatted_datetime(data.value, datetime_format)
-
-
-def format_string_placeholders(format_string):
-    """
-    Gets the format string placeholder fields from a text string.
-
-    The text "{foo} mjao baz {bar}" would return ['foo', 'bar'].
-
-    Args:
-        format_string: Format string to get placeholders from.
-
-    Returns:
-        Any format string placeholder fields as a list of unicode strings.
-    """
-    if not isinstance(format_string, str):
-        raise TypeError('Expected "format_string" to be of type str')
-    if not format_string.strip():
-        return []
-
-    return re.findall(r'{(\w+)}', format_string)
+        formatted_value = formatted_datetime(databundle.value, datetime_format)
+        return formatted_value
 
 
 def available_nametemplatefield_classes():
@@ -398,19 +387,6 @@ NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS = [
 ]
 
 
-def is_valid_template_field(template_field):
-    """
-    Checks whether the given string is a legal name template placeholder field.
-
-    Args:
-        template_field: The field to test as type str.
-
-    Returns:
-        True if the given string is a legal name template field, else False.
-    """
-    return nametemplatefield_class_from_string(template_field) is not None
-
-
 def nametemplatefield_class_from_string(string):
     """
     Get a name template field class from a Unicode string.
@@ -429,25 +405,17 @@ def nametemplatefield_class_from_string(string):
     return None
 
 
-def nametemplatefield_classes_in_formatstring(format_string):
+def is_valid_template_field(template_field):
     """
-    Gets any name template field classes from format string.
+    Checks whether the given string is a legal name template placeholder field.
 
     Args:
-        format_string: The format string to search as a Unicode string.
-                       Example: "[{datetime}] foo -- {author} bar.{extension}"
+        template_field: The field to test as type str.
 
     Returns:
-        Any name template field classes contained in the string as a list of
-        classes, or an empty list if none are found.
+        True if the given string is a legal name template field, else False.
     """
-    if not format_string or not isinstance(format_string, str):
-        return []
-    if not format_string.strip():
-        return []
-
-    placeholders = format_string_placeholders(format_string)
-    return [nametemplatefield_class_from_string(p) for p in placeholders]
+    return nametemplatefield_class_from_string(template_field) is not None
 
 
 def formatted_datetime(datetime_object, format_string):

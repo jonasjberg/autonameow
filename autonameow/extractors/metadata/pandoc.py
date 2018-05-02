@@ -20,27 +20,21 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
-import logging
 import os
 import subprocess
 
 import util
 from core import constants as C
-from core import types
-from extractors import (
-    BaseExtractor,
-    ExtractorError
-)
+from extractors import BaseExtractor
+from extractors import ExtractorError
 from extractors.text.common import decode_raw
+from util import coercers
 from util import disk
 
-_PATH_THIS_DIR = types.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
-BASENAME_PANDOC_TEMPLATE = types.AW_PATHCOMPONENT('pandoc_template.plain')
+_PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
+BASENAME_PANDOC_TEMPLATE = coercers.AW_PATHCOMPONENT('pandoc_template.plain')
 PATH_CUSTOM_PANDOC_TEMPLATE = disk.joinpaths(_PATH_THIS_DIR,
                                              BASENAME_PANDOC_TEMPLATE)
-
-
-log = logging.getLogger(__name__)
 
 
 class PandocMetadataExtractor(BaseExtractor):
@@ -53,21 +47,16 @@ class PandocMetadataExtractor(BaseExtractor):
     IS_SLOW = False
 
     def extract(self, fileobject, **kwargs):
-        self.log.debug('{!s}: Starting extraction'.format(self))
-        source = fileobject.abspath
+        return self._get_metadata(fileobject.abspath)
 
-        _metadata = self._get_metadata(source)
-
-        self.log.debug('{!s}: Completed extraction'.format(self))
-        return _metadata
-
-    def _get_metadata(self, source):
-        _raw_metadata = extract_document_metadata_with_pandoc(source)
+    def _get_metadata(self, filepath):
+        _raw_metadata = extract_document_metadata_with_pandoc(filepath)
         if _raw_metadata:
             _filtered_metadata = self._filter_raw_data(_raw_metadata)
 
-            # Internal data format boundary.  Wrap "raw" data with type classes.
             metadata = self._to_internal_format(_filtered_metadata)
+            # TODO: [TD0034] Filter out known bad data.
+            # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
             return metadata
 
         return dict()
@@ -141,12 +130,12 @@ class PandocMetadataExtractor(BaseExtractor):
         )
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
         return (util.is_executable('pandoc')
                 and disk.isfile(PATH_CUSTOM_PANDOC_TEMPLATE))
 
 
-def extract_document_metadata_with_pandoc(file_path):
+def extract_document_metadata_with_pandoc(filepath):
     # TODO: [TD0173] Parse JSON output or output of custom template?
     if not disk.isfile(PATH_CUSTOM_PANDOC_TEMPLATE):
         raise ExtractorError('Missing custom pandoc template file: '
@@ -157,7 +146,7 @@ def extract_document_metadata_with_pandoc(file_path):
     try:
         process = subprocess.Popen(
             ['pandoc', '--to', 'plain', '--template',
-             PATH_CUSTOM_PANDOC_TEMPLATE, '--', file_path],
+             PATH_CUSTOM_PANDOC_TEMPLATE, '--', filepath],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, stderr = process.communicate()
@@ -187,13 +176,13 @@ def parse_pandoc_json(json_dict):
     pass
 
 
-def convert_document_to_json_with_pandoc(file_path):
+def convert_document_to_json_with_pandoc(filepath):
     # TODO: [TD0173] Parse JSON output or output of custom template?
     # TODO: Convert non-UTF8 source text to UTF-8.
     #       pandoc does not handle non-UTF8 input.
     try:
         process = subprocess.Popen(
-            ['pandoc', '--to', 'json', '--', file_path],
+            ['pandoc', '--to', 'json', '--', filepath],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, stderr = process.communicate()

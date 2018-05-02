@@ -19,12 +19,15 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import zipfile
+try:
+    import ebooklib
+except ImportError:
+    ebooklib = None
 
-from extractors import (
-    BaseExtractor,
-    ExtractorError
-)
+from extractors import BaseExtractor
+from extractors import ExtractorError
+from util import encoding as enc
+from util import sanity
 
 
 class EpubMetadataExtractor(BaseExtractor):
@@ -32,26 +35,46 @@ class EpubMetadataExtractor(BaseExtractor):
     IS_SLOW = False
 
     def extract(self, fileobject, **kwargs):
-        _raw_metadata = _get_epub_metadata(fileobject.abspath)
-        if _raw_metadata:
-            # Internal data format boundary.  Wrap "raw" data with type classes.
-            metadata = self._to_internal_format(_raw_metadata)
-            return metadata
+        return self._get_metadata(fileobject.abspath)
 
+    def _get_metadata(self, filepath):
+        raw_metadata = _get_epub_metadata(filepath)
+        if raw_metadata:
+            metadata = self._to_internal_format(raw_metadata)
+            return metadata
         return dict()
 
     def _to_internal_format(self, raw_metadata):
-        # TODO: Re-implement epub metadata extractor
+        # TODO: [TD0186] Re-implement epub metadata extractor
         return raw_metadata
 
     @classmethod
-    def check_dependencies(cls):
+    def dependencies_satisfied(cls):
+        # TODO: [TD0186] Re-implement epub metadata extractor
         return False
 
 
-def _get_epub_metadata(source):
+def _get_epub_metadata(filepath):
+    assert ebooklib, 'Missing required module "ebooklib"'
+    assert hasattr(ebooklib, 'epub')
+
+    unicode_filepath = enc.decode_(filepath)
+    sanity.check_internal_string(unicode_filepath)
+
     try:
-        # TODO: Re-implement epub metadata extractor
-        raise ExtractorError('TODO: Reimplement epub metadata extraction')
-    except (zipfile.BadZipFile, OSError) as e:
-        raise ExtractorError('Unable to open epub file; "{!s}"'.format(e))
+        epub_book = ebooklib.epub.read_epub(unicode_filepath)
+    except ebooklib.epub.EpubException as e:
+        raise ExtractorError(e)
+
+    raw_metadata = dict()
+
+    all_namespaces = ebooklib.epub.NAMESPACES
+    for namespace in all_namespaces:
+        namespace_metadata = epub_book.metadata.get(namespace)
+        if namespace_metadata:
+            for field, value in namespace_metadata.items():
+                absolute_key = '{!s}:{!s}'.format(namespace, field)
+                raw_metadata[absolute_key] = value
+
+    # TODO: [TD0186][incomplete] Re-implement epub metadata extractor
+    return raw_metadata

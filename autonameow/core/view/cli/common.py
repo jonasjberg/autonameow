@@ -32,11 +32,9 @@ except ImportError:
     colorama = None
 
 from core import constants as C
-from core import types
-from util import (
-    git_commit_hash,
-    sanity
-)
+from util import coercers
+from util import git_commit_hash
+from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -158,7 +156,7 @@ def colorize(text, fore=None, back=None, style=None):
     if not (fore or back or style) or not colorama:
         return text
 
-    buffer = []
+    buffer = list()
 
     if fore:
         fore = fore.upper()
@@ -189,7 +187,7 @@ def colorize(text, fore=None, back=None, style=None):
 
 
 def colorize_re_match(text, regex, color=None):
-    _re_type = types.BUILTIN_REGEX_TYPE
+    _re_type = coercers.BUILTIN_REGEX_TYPE
     assert regex and isinstance(regex, _re_type), (
         'Expected type {!s}. Got {!s}'.format(type(_re_type), type(regex))
     )
@@ -199,7 +197,7 @@ def colorize_re_match(text, regex, color=None):
     else:
         _color = 'LIGHTGREEN_EX'
 
-    replacements = []
+    replacements = list()
     match_iter = regex.findall(text)
     if not match_iter:
         return text
@@ -251,15 +249,15 @@ def print_stdout(string):
         pass
 
 
-def msg(message, style=None, add_info_log=False, ignore_quiet=False):
+def msg(message, style=None, ignore_quiet=False):
     """
     Displays a message to the user optionally using preset formatting options.
 
     Args:
         message: The raw text message to print as a Unicode string.
         style: Optional message type as a Unicode string.
-               Should be one of 'info', 'heading', 'section' or 'color_quoted'.
-        add_info_log: Displays and logs the message if True. Defaults to False.
+               Should be one of 'info', 'heading', 'section', 'color_quoted'
+               or 'highlight'.
         ignore_quiet: Whether to ignore the global quiet ('--quiet') option.
 
     Raises:
@@ -285,13 +283,9 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
 
     if not style:
         _print_default_msg(message)
-        if add_info_log:
-            log.info(message)
 
     elif style == 'info':
         _print_info_msg(message)
-        if add_info_log:
-            log.info(message)
 
     elif style == 'heading':
         heading_underline = C.CLI_MSG_HEADING_CHAR * len(message.strip())
@@ -306,11 +300,13 @@ def msg(message, style=None, add_info_log=False, ignore_quiet=False):
     elif style == 'color_quoted':
         print_stdout(colorize_quoted(message, color='LIGHTGREEN_EX'))
 
+    elif style == 'highlight':
+        colored_message = colorize(message, fore='LIGHTWHITE_EX')
+        print_stdout(colored_message)
+
     else:
         log.warning('Unknown message style "{!s}"'.format(style))
         _print_default_msg(message)
-        if add_info_log:
-            log.info(message)
 
 
 def msg_rename(from_basename, dest_basename, dry_run):
@@ -386,8 +382,8 @@ def _colorize_string_diff(a, b, color, secondary_color, colorize_=None):
     else:
         assert callable(colorize_)
 
-    a_out = []
-    b_out = []
+    a_out = list()
+    b_out = list()
 
     from difflib import SequenceMatcher
     matcher = SequenceMatcher(lambda x: False, a, b)
@@ -467,10 +463,10 @@ class ColumnFormatter(object):
 
     def __init__(self, align='left'):
         self._column_count = 0
-        self._data = []
-        self._column_widths = []
+        self._data = list()
+        self._column_widths = list()
         self._default_align = self.ALIGNMENT_STRINGS.get(align, 'ljust')
-        self._column_align = []
+        self._column_align = list()
 
     def setalignment(self, *args):
         maybe_strings = list(args)
@@ -478,7 +474,7 @@ class ColumnFormatter(object):
         if not strings:
             return
 
-        _column_alignment = []
+        _column_alignment = list()
         for i in range(0, self.number_columns):
             if i < len(strings) and [s in self.ALIGNMENT_STRINGS.keys() for s in strings]:
                 _column_alignment.append(self.ALIGNMENT_STRINGS.get(strings[i]))
@@ -490,7 +486,7 @@ class ColumnFormatter(object):
     @property
     def alignment(self):
         if not self._column_align:
-            out = []
+            out = list()
             out.extend(self._default_align for _ in range(self.number_columns))
             return out
         return self._column_align
@@ -553,7 +549,7 @@ class ColumnFormatter(object):
 
     @staticmethod
     def _check_types_replace_none(maybe_strings):
-        out = []
+        out = list()
 
         if not maybe_strings:
             return out
@@ -575,7 +571,7 @@ class ColumnFormatter(object):
 
         padding = self.PADDING_CHAR * self.COLUMN_PADDING
 
-        lines = []
+        lines = list()
         for row in self._data:
             lines.append(
                 padding.join(
@@ -587,6 +583,21 @@ class ColumnFormatter(object):
             )
 
         return '\n'.join(l.rstrip() for l in lines)
+
+
+def msg_columnate(column_names, row_data, alignment=None):
+    cf = ColumnFormatter()
+    if alignment:
+        # cf.setalignment('right', 'left')
+        cf.setalignment(*alignment)
+
+    if column_names:
+        cf.addrow(*column_names)
+
+    for data in row_data:
+        cf.addrow(*data)
+
+    msg(str(cf) + '\n')
 
 
 def silence():

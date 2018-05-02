@@ -29,96 +29,164 @@ try:
 except ImportError:
     unidecode = None
 
-from util import sanity
+from util.text.regexcache import RegexCache
 
 
 __all__ = [
     'collapse_whitespace',
+    'extract_digits',
     'html_unescape',
     'indent',
     'batch_regex_replace',
     'normalize_unicode',
+    'normalize_whitespace',
     'simplify_unicode',
     'remove_blacklisted_lines',
+    'remove_blacklisted_re_lines',
     'remove_nonbreaking_spaces',
     'remove_zerowidth_spaces',
-    'strip_ansiescape',
+    'strip_single_space_lines',
     'truncate_text',
     'urldecode'
 ]
 
 
-# Attempt at matching ANSI escape sequences. Likely incomplete.
-RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-
-# Matches sequentially repeating whitespace, except newlines.
-#
-# Inverting the following classes solves the problem of matching whitespace
-# Unicode characters included in the '\s' class but NOT newlines,
-# which is also included in '\s'.
-#
-#   \S   Any character which is not a Unicode whitespace character.
-#   \r   ASCII Carriage Return (CR)
-#   \n   ASCII ASCII Linefeed (LF)
-#
-RE_WHITESPACE_EXCEPT_NEWLINE = re.compile(r'[^\S\r\n]{2,}')
-
-
-def collapse_whitespace(string):
+def collapse_whitespace(text):
     """
-    Replaces repeating whitespace, except newlines, with a single space.
+    Replaces all repeating whitespace except newlines with a single space.
 
     Does not remove leading or trailing whitespace.
     Does not change linefeeds or carriage returns.
     Handles Unicode whitespace characters.
 
+    NOTE: Assumes type-checks is handled elsewhere.
+          "Empty" values like None, [], {}, etc. are passed through as-is.
+
     Args:
-        string: Unicode String to transform.
+        text (str): Unicode text to transform.
 
     Returns:
-        Transformed text as a Unicode string.
-    """
-    #  Assume type-checks is handled elsewhere. Pass through None, [], {}, etc.
-    if not string:
-        return string
-    if not isinstance(string, str):
-        raise TypeError('Expected argument "string" to be a Unicode str')
+        str: Transformed text as a Unicode string.
 
-    collapsed = re.sub(RE_WHITESPACE_EXCEPT_NEWLINE, ' ', string)
+    Raises:
+        AssertionError: Given text is not an instance of 'str'.
+    """
+    if not text:
+        return text
+
+    assert isinstance(text, str)
+
+    # Matches whitespace that repeats at least once, except newlines.
+    # I.E. a single space is NOT matched but two consecutive spaces is.
+    #
+    # Inverting the following classes solves the problem of matching whitespace
+    # Unicode characters included in the '\s' class but NOT newlines,
+    # which is also included in '\s'.
+    #
+    #   \S   Any character which is not a Unicode whitespace character.
+    #   \r   ASCII Carriage Return (CR)
+    #   \n   ASCII ASCII Linefeed (LF)
+    #
+    re_repeated_whitespace_except_newline = RegexCache(r'[^\S\r\n]{2,}')
+    collapsed = re.sub(re_repeated_whitespace_except_newline, ' ', text)
     return collapsed
+
+
+def strip_single_space_lines(text):
+    """
+    Like 'str.strip()' but restricted to lines that only contain a single space.
+
+    Args:
+        text (str): Unicode text to transform.
+
+    Returns:
+        str: The given text with any lines containing only a single space
+             replaced by an empty line.
+
+    Raises:
+        AssertionError: Given text is not an instance of 'str'.
+    """
+    if not text:
+        return text
+
+    assert isinstance(text, str)
+
+    re_single_space_lines = RegexCache(r'^ $', re.MULTILINE)
+    without_single_space_lines = re.sub(re_single_space_lines, '', text)
+    return without_single_space_lines
+
+
+def normalize_whitespace(text):
+    """
+    Replaces all whitespace except newlines with a single space.
+
+    Does not remove leading or trailing whitespace.
+    Does not change linefeeds or carriage returns.
+    Handles Unicode whitespace characters.
+
+    NOTE: Assumes type-checks is handled elsewhere.
+          "Empty" values like None, [], {}, etc. are passed through as-is.
+
+    Args:
+        text (str): Unicode text to transform.
+
+    Returns:
+        str: The given text with all whitespace replaced with a single space.
+
+    Raises:
+        AssertionError: Given text is not an instance of 'str'.
+    """
+    if not text:
+        return text
+
+    assert isinstance(text, str)
+
+    # Matches any number of whitespace characters, except newlines.
+    #
+    # Inverting the following classes solves the problem of matching whitespace
+    # Unicode characters included in the '\s' class but NOT newlines,
+    # which is also included in '\s'.
+    #
+    #   \S   Any character which is not a Unicode whitespace character.
+    #   \r   ASCII Carriage Return (CR)
+    #   \n   ASCII ASCII Linefeed (LF)
+    #
+    re_whitespace_except_newline = RegexCache(r'[^\S\r\n]+')
+    normalized = re.sub(re_whitespace_except_newline, ' ', text)
+    return normalized
+
+
+DEFAULT_INDENT_AMOUNT = 4
+DEFAULT_INDENT_PADCHAR = ' '
 
 
 def indent(text, columns=None, padchar=None):
     """
     Indents (multi-line) text by a specified amount.
 
-    Shifts text right by a given "amount" (default: 4) using the character
-    "ch" for padding (defaults to ' ').
-
-    Based on this post; https://stackoverflow.com/a/8348914/7802196
+    Shifts text right by a given "amount" (default: DEFAULT_INDENT_AMOUNT)
+    using the character "ch" for padding (default: DEFAULT_INDENT_PADCHAR).
 
     Args:
-        text: Single or multi-line text to indent, as a Unicode str.
-        columns: Optional padding character ('ch') multiple, as an integer.
-        padchar: Optional character to use for padding.
+        text (str): Single or multi-line text to indent.
+        columns (int)(optional): Padding character ('ch') multiple.
+        padchar (str)(optional): Character to use for padding.
 
     Returns:
-        An indented version of the given text as an Unicode str.
+        str: An indented version of the given text as a Unicode str.
+
     Raises:
-        ValueError: Given 'text' is None or a optional argument is set to None.
+        AssertionError: Any argument has an unexpected type or value.
     """
-    DEFAULT_AMOUNT = 4
-    DEFAULT_PADDING = ' '
+    assert isinstance(text, str)
 
     if columns is None:
-        columns = DEFAULT_AMOUNT
-    assert isinstance(columns, int)
-    assert columns > 0
+        columns = DEFAULT_INDENT_AMOUNT
+    assert isinstance(columns, int) and columns > 0
 
     if padchar is None:
-        padchar = DEFAULT_PADDING
-    sanity.check_internal_string(padchar)
-    sanity.check_internal_string(text)
+        padchar = DEFAULT_INDENT_PADCHAR
+    assert isinstance(padchar, str)
 
     padding = columns * padchar
     return ''.join(padding + line for line in text.splitlines(True))
@@ -154,7 +222,7 @@ RE_UNICODE_OVERLINES = re.compile(
 
 # \u06D4 Arabic full stop
 # \u2024 One dot leader
-# \uFF0E Fullwidth full stop
+# \uFF0E Full-width full stop
 RE_UNICODE_PERIODS = re.compile(
     '[\u06d4\u2024\uff0e]'
 )
@@ -190,7 +258,7 @@ RE_UNICODE_TILDES = re.compile(
 # \u2019 Right single quotation mark
 # \uA78B Latin capital letter saltillo
 # \uA78C Latin small letter saltillo
-# \uFF07 Fullwidth apostrophe
+# \uFF07 Full-width apostrophe
 RE_UNICODE_APOSTROPHES = re.compile(
     '[\u0027\u055a\u2019\ua78b\ua78c\uff07]'
 )
@@ -215,14 +283,10 @@ RE_UNICODE_DOUBLE_QUOTES = re.compile(
 
 
 def normalize_unicode(text):
-    # Normalization Form KC (NFKC)
-    # Compatibility Decomposition, followed by Canonical Composition.
-    # http://unicode.org/reports/tr15/
-    NORMALIZATION_FORM = 'NFKC'
+    if not text:
+        return text
 
-    if not isinstance(text, str):
-        raise TypeError('Expected "text" to be a Unicode str')
-
+    assert isinstance(text, str)
     text = re.sub(RE_UNICODE_DASHES_HYPHENS, '-', text)
     text = re.sub(RE_UNICODE_MINUSES, '-', text)
     text = re.sub(RE_UNICODE_OVERLINES, '-', text)
@@ -234,25 +298,30 @@ def normalize_unicode(text):
     text = re.sub(RE_UNICODE_SINGLE_QUOTES, "'", text)
     text = re.sub(RE_UNICODE_DOUBLE_QUOTES, '"', text)
 
-    return unicodedata.normalize(NORMALIZATION_FORM, text)
+    # Normalization Form KC (NFKC)
+    # Compatibility Decomposition, followed by Canonical Composition.
+    # http://unicode.org/reports/tr15/
+    NORMALIZATION_FORM = 'NFKC'
+    normalized = unicodedata.normalize(NORMALIZATION_FORM, text)
+    return normalized
 
 
-def simplify_unicode(string):
+def simplify_unicode(text):
     """
-    Strips accents or diacritics from a Unicode string.
+    Strips accents or diacritics from Unicode text.
 
     Based on this post:  https://stackoverflow.com/a/17069876
     """
-    if not string:
-        return string
+    if not text:
+        return text
 
+    assert isinstance(text, str)
     if unidecode:
-        return _strip_accents_unidecode(string)
-    return _strip_accents_homerolled(string)
+        return _strip_accents_unidecode(text)
+    return _strip_accents_homerolled(text)
 
 
 def _strip_accents_homerolled(string):
-    sanity.check_internal_string(string)
     nkfd_form = unicodedata.normalize('NFKD', string)
     return ''.join([c for c in nkfd_form if not unicodedata.combining(c)])
 
@@ -270,17 +339,17 @@ def remove_zerowidth_spaces(text):
     return text.replace('\u200B', '')
 
 
-def strip_ansiescape(string):
-    stripped = re.sub(RE_ANSI_ESCAPE, '', string)
-    return stripped
+def truncate_text(text, maxlen=500, append_info=False):
+    assert isinstance(text, str)
+    assert isinstance(maxlen, int)
 
-
-def truncate_text(text, number_chars=500):
-    msg = '  (.. TRUNCATED to {}/{} characters)'.format(number_chars, len(text))
-
-    if len(text) <= number_chars:
+    if len(text) <= maxlen:
         return text
-    return text[0:number_chars] + msg
+
+    truncated = text[0:maxlen]
+    if not append_info:
+        return truncated
+    return truncated + '  ({}/{} characters)'.format(maxlen, len(text))
 
 
 def urldecode(string):
@@ -292,6 +361,11 @@ def html_unescape(string):
 
 
 def batch_regex_replace(regex_replacement_tuples, string):
+    if not string:
+        return string
+
+    assert isinstance(string, str)
+
     matches = list()
     for regex, replacement in regex_replacement_tuples:
         match = re.search(regex, string)
@@ -321,7 +395,7 @@ def remove_blacklisted_lines(text, blacklist):
         The given text with any lines matching those in 'blacklist' removed,
         as a Unicode string.
     """
-    out = []
+    out = list()
 
     blacklisted_lines = set(blacklist)
     for line in text.splitlines(keepends=True):
@@ -329,3 +403,39 @@ def remove_blacklisted_lines(text, blacklist):
             out.append(line)
 
     return ''.join(out)
+
+
+def remove_blacklisted_re_lines(text, compiled_regexes):
+    """
+    Removes any text lines that matches any regular expression in 'blacklist'.
+
+    Any line separators are removed from each line before evaluating
+    the regular expressions.
+
+    Args:
+        text: The text to process as a Unicode string.
+        compiled_regexes: Regular expressions matching lines to blacklist.
+
+    Returns:
+        The given text with any lines matching any of the given regular
+        expressions removed, as a Unicode string.
+    """
+    regexes = set(compiled_regexes)
+    out = list()
+    for line in text.splitlines(keepends=True):
+        stripped_line = line.strip()
+        if any(regex.match(stripped_line) for regex in regexes):
+            continue
+        out.append(line)
+
+    return ''.join(out)
+
+
+def extract_digits(string):
+    """
+    Extracts and returns digits from a Unicode string, as a Unicode string.
+    """
+    assert isinstance(string, str)
+
+    digits = ''.join(c for c in string if c.isdigit())
+    return digits if digits.strip() else ''

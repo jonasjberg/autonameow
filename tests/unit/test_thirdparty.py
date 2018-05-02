@@ -20,11 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
 from unittest import TestCase
 
-import unit.utils as uu
 import unit.constants as uuconst
+import unit.utils as uu
 
 
 THIRDPARTY_ROOT_DIR = os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'thirdparty')

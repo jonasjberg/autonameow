@@ -20,18 +20,12 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import (
-    Mock,
-    PropertyMock,
-    patch
-)
+from unittest.mock import Mock, PropertyMock, patch
 
 import unit.utils as uu
 from core import constants as C
-from extractors.common import (
-    BaseExtractor,
-    _fieldmeta_filepath_from_extractor_source_filepath,
-)
+from extractors.common import BaseExtractor
+from extractors.common import _fieldmeta_filepath_from_extractor_source_filepath
 
 
 class TestBaseExtractor(TestCase):
@@ -66,9 +60,9 @@ class TestBaseExtractor(TestCase):
         self.assertNotEqual(first, second)
         self.assertNotIn('foo', second)
 
-    def test_check_dependencies_raises_not_implemented_error(self):
+    def test_dependencies_satisfied_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            _ = self.e.check_dependencies()
+            _ = self.e.dependencies_satisfied()
 
     def test_str_is_defined_and_reachable(self):
         self.assertIsNotNone(str(self.e))
@@ -85,10 +79,10 @@ class TestBaseExtractor(TestCase):
         self.assertIsNone(self.e.HANDLES_MIME_TYPES)
 
     def test_abstract_class_does_not_specify_meowuri_node(self):
-        self.assertEqual(self.e.MEOWURI_CHILD, C.UNDEFINED_MEOWURI_PART)
+        self.assertEqual(self.e.MEOWURI_CHILD, C.MEOWURI_UNDEFINED_PART)
 
     def test_abstract_class_does_not_specify_meowuri_leaf(self):
-        self.assertEqual(self.e.MEOWURI_LEAF, C.UNDEFINED_MEOWURI_PART)
+        self.assertEqual(self.e.MEOWURI_LEAF, C.MEOWURI_UNDEFINED_PART)
 
     def test__meowuri_node_from_module_name(self):
         actual = self.e._meowuri_node_from_module_name()
@@ -107,9 +101,9 @@ class TestBaseExtractorClassMethods(TestCase):
 
         self.e = BaseExtractor
 
-    def test_unimplemented_check_dependencies(self):
+    def test_unimplemented_dependencies_satisfied(self):
         with self.assertRaises(NotImplementedError):
-            _ = self.e.check_dependencies()
+            _ = self.e.dependencies_satisfied()
 
     def test_can_handle_raises_exception_if_handles_mime_types_is_none(self):
         with self.assertRaises(NotImplementedError):
@@ -135,7 +129,5 @@ class TestFieldmetaFilepathFromExtractorSourceFilepath(TestCase):
         actual = _fieldmeta_filepath_from_extractor_source_filepath(
             '/tmp/autonameow.git/autonameow/extractors/metadata/exiftool.py'
         )
-        self.assertEqual(
-            '/tmp/autonameow.git/autonameow/extractors/metadata/exiftool_fieldmeta.yaml',
-            actual
-        )
+        # Result may be '/private/tmp/autonameow...' on MacOS, instead of just '/tmp/autonameow...'
+        self.assertTrue(actual.endswith('/tmp/autonameow.git/autonameow/extractors/metadata/exiftool_fieldmeta.yaml'))

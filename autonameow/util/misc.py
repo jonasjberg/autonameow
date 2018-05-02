@@ -36,11 +36,9 @@ __all__ = [
     'flatten_sequence_type',
     'git_commit_hash',
     'is_executable',
-    'multiset_count',
     'nested_dict_get',
     'nested_dict_set',
     'process_id',
-    'unique_identifier',
 ]
 
 
@@ -48,60 +46,6 @@ log = logging.getLogger(__name__)
 
 
 __counter_generator_function = itertools.count(0)
-
-
-def unique_identifier():
-    """
-    Returns a (practically unique) identifier string.
-
-    The numeric part of the identifier is incremented at each function call.
-
-    Numbers are unique even after as much as 10^6 function calls, which I doubt
-    will be used up during a single program invocation.
-
-    Returns:
-        A (pretty much unique) identifier text string.
-    """
-    n = next(__counter_generator_function)
-    if n % 3 == 0:
-        _prefix = 'M3'
-    else:
-        _prefix = 'ME'
-    if n % 2 == 0:
-        _postfix = 'OW'
-    else:
-        _postfix = '0W'
-    return '{}{:03d}{}'.format(_prefix, n, _postfix)
-
-
-def multiset_count(list_data):
-    """
-    Counts duplicate entries in a list and returns a dictionary of frequencies.
-
-    keyed by entries,
-    with the entry count as value.
-
-    Args:
-        list_data: A list of data to count.
-
-    Returns:
-        A dictionary with unique list entries as keys and the corresponding
-        value is the frequency of that entry in the given "list_data".
-    """
-    if list_data is None:
-        return None
-
-    entry_counter = dict()
-    if not list_data:
-        return entry_counter
-
-    for entry in list_data:
-        if entry in entry_counter:
-            entry_counter[entry] += 1
-        else:
-            entry_counter[entry] = 1
-
-    return entry_counter
 
 
 def flatten_sequence_type(container):
@@ -283,10 +227,10 @@ def git_commit_hash():
         # NOTE(jonas): git returns 128 for the "fatal: Not a git repository.."
         # error. Substring matching is redundant but probably won't hurt either.
         if process.returncode == 0:
-            from core import types
-            string = types.force_string(stdout).strip()
-            if string and 'fatal: Not a git repository' not in string:
-                return string
+            from util import coercers
+            str_stdout = coercers.force_string(stdout).strip()
+            if str_stdout and 'fatal: Not a git repository' not in str_stdout:
+                return str_stdout
         return None
     finally:
         os.chdir(_old_pwd)

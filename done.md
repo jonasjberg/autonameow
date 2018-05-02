@@ -10,6 +10,76 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-04-02
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0183]` __Look into `exiftool` time-complexity.__  
+>     There is a kind of "batch" option in `exiftool` that starts a single
+>     process which can then be fed multiple files in a streaming-like fashion.
+>     This is probably faster, as it avoids the perl interpreter startup
+>     overhead.
+>     But the question is how much faster it is for smaller number of files.
+>     It should be pretty trivial to get approximate values empirically.
+>     time-complexity of he single process batched mode as well as the "simpler"
+>     method currently used by the `ExiftoolMetadataExtractor`, I.E. separate
+>     perl process per file.
+>
+>     * ~~__Measure time-complexity of single process exiftool__~~
+>     * ~~__Measure time-complexity of one exiftool process per file__~~
+>
+>     __UPDATE: Measurement Results__  
+>     Runtimes averaged from consecutive 10 runs for each batch of n files.
+>
+>     ```
+>     (A) Processing each file in a new 'pyexiftool' context that spins up
+>         a separate exiftool process for each processed file in that test.
+>
+>     (B) All files batch-processed in the same 'pyexiftool' context, using
+>         a single exiftool process per context.
+>
+>             # Files     Runtime (seconds)
+>                         A               B
+>              1     0.067685127     0.067897081
+>              5     0.340682030     0.075258017
+>             10     0.683529139     0.091509819
+>             15     1.062947035     0.147505045
+>             20     1.433600664     0.162235022
+>             30     2.244422674     0.272763968
+>             40     2.918226719     0.278112650
+>             50     3.786715746     0.465392113
+>     ```
+>
+>     It is clearly worth using the batch-processing even for a small number of
+>     files.
+>
+>     The `ExiftoolMetadataExtractor` should be reworked to be instantiated once
+>     at first use and then remain available for re-use for any additional
+>     extraction. Make sure it is properly closed at program exit to prevent any
+>     kind of resource leaks.
+
+### 2018-03-29
+
+> Low Priority
+> ------------
+>
+> * `[TD0118]` Improve robustness and refactor searching text for editions.
+
+### 2018-03-15
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0180]` Add abstraction for file name composed of placeholder fields.
+
+### 2018-03-10
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0134]` Consolidate splitting up text into "chunks".
+
 ### 2018-03-04
 
 > Low Priority

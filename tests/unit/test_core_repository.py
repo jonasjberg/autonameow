@@ -22,15 +22,12 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-import unit.utils as uu
 import unit.constants as uuconst
-from core import exceptions
-from core.repository import (
-    DataBundle,
-    QueryResponseFailure,
-    Repository,
-    RepositoryPool,
-)
+import unit.utils as uu
+from core.repository import DataBundle
+from core.repository import QueryResponseFailure
+from core.repository import Repository
+from core.repository import RepositoryPool
 
 
 class TestRepositoryRetrieval(TestCase):
@@ -58,7 +55,8 @@ class TestRepositoryStorage(TestCase):
         self.fileobject = uu.get_mock_fileobject(mime_type='text/plain')
 
     def test_repository_init_in_expected_state(self):
-        self.assertIsInstance(self.r.data, dict)
+        self.assertIsInstance(self.r._data, dict)
+        self.assertIsInstance(self.r._generic_to_explicit_uri_map, dict)
         self.assertEqual(len(self.r), 0)
 
     def test_storing_data_increments_len(self):
@@ -101,27 +99,35 @@ class TestRepositoryStorage(TestCase):
 
         self.assertEqual(len(self.r), 2)
 
-    def test_adding_list_of_two_results_increments_len_twice(self):
-        self.skipTest('TODO: Reimplement "Repository.__len__()"')
-        _field_one = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        _result_one = {'value': ['foo', 'bar']}
-        self.r.store(self.fileobject, _field_one, _result_one)
+    def test_adding_one_result_for_two_files_increments_len_twice(self):
+        _field = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        _results = {'value': 'foo'}
+
+        fo_A = self.fileobject
+        fo_B = uu.get_mock_fileobject(mime_type='image/jpeg')
+        self.r.store(fo_A, _field, _results)
+        self.r.store(fo_B, _field, _results)
 
         self.assertEqual(len(self.r), 2)
 
-    def test_adding_two_lists_of_two_results_increments_len_twice(self):
-        self.skipTest('TODO: Reimplement "Repository.__len__()"')
+    def test_adding_two_results_for_two_files_increments_len_four_times(self):
         _field_one = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        _result_one = {'value_A': ['foo', 'bar']}
-        _result_two = {'value_B': ['baz', 'BLA']}
-        self.r.store(self.fileobject, _field_one, _result_one)
-        self.r.store(self.fileobject, _field_one, _result_two)
+        _field_two = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        _result_one = {'value': 'foo'}
+        _result_two = {'value': 'bar'}
 
-        self.assertEqual(len(self.r), 2)
+        fo_A = self.fileobject
+        fo_B = uu.get_mock_fileobject(mime_type='image/jpeg')
+        self.r.store(fo_A, _field_one, _result_one)
+        self.r.store(fo_A, _field_two, _result_two)
+        self.r.store(fo_B, _field_one, _result_one)
+        self.r.store(fo_B, _field_two, _result_two)
+
+        self.assertEqual(len(self.r), 4)
 
     def test_add_empty_does_not_increment_len(self):
         _field = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        _results = []
+        _results = list()
         self.r.store(self.fileobject, _field, _results)
 
         self.assertEqual(len(self.r), 0)
@@ -143,38 +149,49 @@ class TestRepositoryStorage(TestCase):
             self.r.store(self.fileobject, valid_uri, {'value': 'foo'})
 
     def test_valid_meowuri_returns_expected_data(self):
-        self.skipTest('TODO: Reimplement "Repository.__len__()"')
         valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, valid_uri, 'expected_data')
+        self.r.store(self.fileobject, valid_uri, {'value': 'expected_data'})
 
         response = self.r.query(self.fileobject, valid_uri)
-        self.assertEqual(response, 'expected_data')
+        self.assertEqual(response.value, 'expected_data')
 
-    def test_none_meowuri_raises_exception(self):
-        self.skipTest('TODO: Reimplement "Repository.__len__()"')
+    def test_none_meowuri_returns_query_response_failure(self):
         valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, valid_uri, 'expected_data')
+        self.r.store(self.fileobject, valid_uri, {'value': 'foo'})
 
-        with self.assertRaises(exceptions.InvalidMeowURIError):
-            self.r.query(self.fileobject, None)
+        response = self.r.query(self.fileobject, None)
+        self.assertFalse(response)
+        self.assertIsInstance(response, QueryResponseFailure)
 
-    def test_valid_meowuri_returns_expected_data_multiple_entries(self):
-        self.skipTest('TODO: Reimplement "Repository.__len__()"')
-        valid_uri = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        self.r.store(self.fileobject, valid_uri, 'expected_data_a')
-        self.r.store(self.fileobject, valid_uri, 'expected_data_b')
+    def test_valid_meowuris_returns_expected_data(self):
+        uri_A = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        uri_B = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_TITLE)
+        self.r.store(self.fileobject, uri_A, {'value': 'foo'})
+        self.r.store(self.fileobject, uri_B, {'value': 'bar'})
 
-        response = self.r.query(self.fileobject, valid_uri)
-        self.assertIn('expected_data_a', response)
-        self.assertIn('expected_data_b', response)
+        response_A = self.r.query(self.fileobject, uri_A)
+        self.assertEqual('foo', response_A.value)
+        response_B = self.r.query(self.fileobject, uri_B)
+        self.assertEqual('bar', response_B.value)
 
 
-class TestRepositoryGenericStorage(TestCase):
+class TestRepositoryGenericToExplicMeowURIMapping(TestCase):
     def setUp(self):
         self.r = Repository()
+        self.fo = uu.get_mock_fileobject(mime_type='text/plain')
 
-    def test_todo(self):
-        self.skipTest('TODO: Add tests for storing "generic fields" ..')
+    def test_storing_data_with_explicit_uri_is_returned_with_generic_query(self):
+        from core.model.genericfields import GenericTitle
+        data = {
+            'value': 'MEow MEOW',
+            'generic_field': GenericTitle(),
+        }
+        explicit_uri = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE)
+        self.r.store(self.fo, explicit_uri, data)
+
+        generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
+        response = self.r.query(self.fo, generic_uri)
+        self.assertEqual('MEow MEOW', response[0].value)
 
 
 class TestRepositoryPool(TestCase):
@@ -229,6 +246,11 @@ class TestRepositoryPool(TestCase):
 
 
 class TestQueryResponseFailure(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.mock_fo = uu.get_mock_fileobject()
+        cls.mock_uri = uu.get_meowuri()
+
     def test_evaluates_false(self):
         response = QueryResponseFailure()
         self.assertFalse(response)
@@ -242,97 +264,101 @@ class TestQueryResponseFailure(TestCase):
         actual = str(response)
         self.assertIsInstance(actual, str)
         # Ignore the middle part with the FileObject hash.
-        self.assertTrue(actual.startswith(expect_start))
-        self.assertTrue(actual.endswith(expect_end))
+        self.assertTrue(
+            actual.startswith(expect_start),
+            '”{!s}" does not start with "{!s}"'.format(actual, expect_start)
+        )
+        self.assertTrue(
+            actual.endswith(expect_end),
+            '”{!s}" does not end with "{!s}"'.format(actual, expect_end)
+        )
 
     def test___str__with_arg_fileobject(self):
-        response = QueryResponseFailure(fileobject=uu.get_mock_fileobject())
-        self._check_str(response,
-                        expect_start='Failed query [',
-                        expect_end=']->[unspecified MeowURI]')
+        self._check_str(
+            QueryResponseFailure(fileobject=self.mock_fo),
+            expect_start='Failed query ',
+            expect_end='->[unspecified MeowURI]'
+        )
 
     def test___str__with_arg_uri(self):
-        uri = uu.get_meowuri()
-        response = QueryResponseFailure(uri=uri)
-        self._check_str(response,
-                        expect_start='Failed query [',
-                        expect_end=']->[{!s}]'.format(uri))
+        self._check_str(
+            QueryResponseFailure(uri=self.mock_uri),
+            expect_start='Failed query (Unknown FileObject',
+            expect_end='->[{!s}]'.format(self.mock_uri)
+        )
 
     def test___str__with_arg_msg(self):
-        response = QueryResponseFailure(msg='foo Bar')
-        self._check_str(response,
-                        expect_start='Failed query [',
-                        expect_end=']->[unspecified MeowURI] :: foo Bar')
+        self._check_str(
+            QueryResponseFailure(msg='foo Bar'),
+            expect_start='Failed query (Unknown FileObject',
+            expect_end='->[unspecified MeowURI] :: foo Bar'
+        )
 
     def test___str__with_args_fileobject_uri(self):
-        uri = uu.get_meowuri()
-        response = QueryResponseFailure(fileobject=uu.get_mock_fileobject(),
-                                        uri=uri)
-        self._check_str(response,
-                        expect_start='Failed query [',
-                        expect_end=']->[{!s}]'.format(uri))
+        self._check_str(
+            QueryResponseFailure(fileobject=self.mock_fo, uri=self.mock_uri),
+            expect_start='Failed query ',
+            expect_end='->[{!s}]'.format(self.mock_uri)
+        )
 
     def test___str__with_args_fileobject_msg(self):
-        response = QueryResponseFailure(fileobject=uu.get_mock_fileobject(),
-                                        msg='foo Bar')
-        self._check_str(response,
-                        expect_start='Failed query [',
-                        expect_end=']->[unspecified MeowURI] :: foo Bar')
+        self._check_str(
+            QueryResponseFailure(fileobject=self.mock_fo, msg='foo Bar'),
+            expect_start='Failed query ',
+            expect_end='->[unspecified MeowURI] :: foo Bar'
+        )
 
     def test___str__with_args_uri_msg(self):
-        uri = uu.get_meowuri()
-        response = QueryResponseFailure(uri=uri, msg='foo Bar')
-        self._check_str(response,
-                        expect_start='Failed query [',
-                        expect_end=']->[{!s}] :: foo Bar'.format(uri))
+        self._check_str(
+            QueryResponseFailure(uri=self.mock_uri, msg='foo Bar'),
+            expect_start='Failed query (Unknown FileObject',
+            expect_end='->[{!s}] :: foo Bar'.format(self.mock_uri)
+        )
 
-    def _check_repr(self, response, expect_start, expect_end):
+    def _check_repr(self, response, expect_end):
         actual = repr(response)
         self.assertIsInstance(actual, str)
-        # Ignore the middle part with the FileObject hash.
-        self.assertTrue(actual.startswith(expect_start))
-        self.assertTrue(actual.endswith(expect_end))
+        # Ignore the part with the FileObject hash.
+        self.assertTrue(
+            actual.endswith(expect_end),
+            '"{!s}" does not end with "{!s}"'.format(actual, expect_end)
+        )
 
     def test___repr__with_arg_fileobject(self):
-        response = QueryResponseFailure(fileobject=uu.get_mock_fileobject())
-        self._check_repr(response,
-                         expect_start='[',
-                         expect_end=']->[unspecified MeowURI]')
+        self._check_repr(
+            QueryResponseFailure(fileobject=self.mock_fo),
+            expect_end='->[unspecified MeowURI]'
+        )
 
     def test___repr__with_arg_uri(self):
-        uri = uu.get_meowuri()
-        response = QueryResponseFailure(uri=uri)
-        self._check_repr(response,
-                         expect_start='[',
-                         expect_end=']->[{!s}]'.format(uri))
+        self._check_repr(
+            QueryResponseFailure(uri=self.mock_uri),
+            expect_end='->[{!s}]'.format(self.mock_uri)
+        )
 
     def test___repr__with_arg_msg(self):
-        response = QueryResponseFailure(msg='foo Bar')
-        self._check_repr(response,
-                         expect_start='[',
-                         expect_end=']->[unspecified MeowURI] :: foo Bar')
+        self._check_repr(
+            QueryResponseFailure(msg='foo Bar'),
+            expect_end='->[unspecified MeowURI] :: foo Bar'
+        )
 
     def test___repr__with_args_fileobject_uri(self):
-        uri = uu.get_meowuri()
-        response = QueryResponseFailure(fileobject=uu.get_mock_fileobject(),
-                                        uri=uri)
-        self._check_repr(response,
-                         expect_start='[',
-                         expect_end=']->[{!s}]'.format(uri))
+        self._check_repr(
+            QueryResponseFailure(fileobject=self.mock_fo, uri=self.mock_uri),
+            expect_end='->[{!s}]'.format(self.mock_uri)
+        )
 
     def test___repr__with_args_fileobject_msg(self):
-        response = QueryResponseFailure(fileobject=uu.get_mock_fileobject(),
-                                        msg='foo Bar')
-        self._check_repr(response,
-                         expect_start='[',
-                         expect_end=']->[unspecified MeowURI] :: foo Bar')
+        self._check_repr(
+            QueryResponseFailure(fileobject=self.mock_fo, msg='foo Bar'),
+            expect_end='->[unspecified MeowURI] :: foo Bar'
+        )
 
     def test___repr__with_args_uri_msg(self):
-        uri = uu.get_meowuri()
-        response = QueryResponseFailure(uri=uri, msg='foo Bar')
-        self._check_repr(response,
-                         expect_start='[',
-                         expect_end=']->[{!s}] :: foo Bar'.format(uri))
+        self._check_repr(
+            QueryResponseFailure(uri=self.mock_uri, msg='foo Bar'),
+            expect_end='->[{!s}] :: foo Bar'.format(self.mock_uri)
+        )
 
 
 class TestDataBundle(TestCase):
@@ -349,16 +375,16 @@ class TestDataBundle(TestCase):
         # analyzer.filename.publisher
         cls.d1 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Publisher, probability=1),
+                WeightedMapping(cls.fields_Publisher, weight=1),
             ]
         })
         # extractor.metadata.exiftool.XMP:Creator
         cls.d2 = DataBundle.from_dict({
             'mapped_fields': [
-                WeightedMapping(cls.fields_Author, probability=0.5),
-                WeightedMapping(cls.fields_Creator, probability=1),
-                WeightedMapping(cls.fields_Publisher, probability=0.02),
-                WeightedMapping(cls.fields_Title, probability=0.01)
+                WeightedMapping(cls.fields_Author, weight=0.5),
+                WeightedMapping(cls.fields_Creator, weight=1),
+                WeightedMapping(cls.fields_Publisher, weight=0.02),
+                WeightedMapping(cls.fields_Title, weight=0.01)
             ]
         })
 
@@ -370,32 +396,83 @@ class TestDataBundle(TestCase):
 
         self.assertTrue(self.d2.maps_field(self.fields_Publisher))
 
-    def test_field_mapping_probability_returns_default_value(self):
-        self.assertEqual(0.0, self.d1.field_mapping_probability(None))
-        self.assertEqual(0.0, self.d1.field_mapping_probability(False))
-        self.assertEqual(0.0, self.d1.field_mapping_probability(list()))
+    def test_field_mapping_weight_returns_default_value(self):
+        self.assertEqual(0.0, self.d1.field_mapping_weight(None))
+        self.assertEqual(0.0, self.d1.field_mapping_weight(False))
+        self.assertEqual(0.0, self.d1.field_mapping_weight(list()))
 
-    def test_field_mapping_probability_d1(self):
+    def test_field_mapping_weight_d1(self):
         for field in (self.fields_Author, self.fields_Creator,
                       self.fields_Title):
             with self.subTest(field=str(field)):
-                actual = self.d1.field_mapping_probability(field)
+                actual = self.d1.field_mapping_weight(field)
                 self.assertEqual(0.0, actual)
 
         self.assertEqual(
-            1.0, self.d1.field_mapping_probability(self.fields_Publisher)
+            1.0, self.d1.field_mapping_weight(self.fields_Publisher)
         )
 
-    def test_field_mapping_probability_d2(self):
+    def test_field_mapping_weight_d2(self):
         self.assertEqual(
-            0.5, self.d2.field_mapping_probability(self.fields_Author)
+            0.5, self.d2.field_mapping_weight(self.fields_Author)
         )
         self.assertEqual(
-            1, self.d2.field_mapping_probability(self.fields_Creator)
+            1, self.d2.field_mapping_weight(self.fields_Creator)
         )
         self.assertEqual(
-            0.02, self.d2.field_mapping_probability(self.fields_Publisher)
+            0.02, self.d2.field_mapping_weight(self.fields_Publisher)
         )
         self.assertEqual(
-            0.01, self.d2.field_mapping_probability(self.fields_Title)
+            0.01, self.d2.field_mapping_weight(self.fields_Title)
         )
+
+
+class TestDataBundleComparison(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        mock_coercer = Mock()
+        mock_source = Mock()
+        mock_generic_field = Mock()
+        mock_mapped_field = Mock()
+        cls.databundle_dict = {
+            'value': 'foo',
+            'coercer': mock_coercer,
+            'source': mock_source,
+            'generic_field': mock_generic_field,
+            'mapped_fields': [mock_mapped_field],
+            'multivalued': False
+        }
+
+    def _databundle_from_dict(self, datadict):
+        return DataBundle.from_dict(datadict)
+
+    def test_comparison_with_databundle_created_from_same_source_dict(self):
+        databundle_dict = dict(self.databundle_dict)
+        a = self._databundle_from_dict(databundle_dict)
+        b = self._databundle_from_dict(databundle_dict)
+        self.assertEqual(a, b)
+
+    def test_comparison_with_databundle_that_has_different_value(self):
+        databundle_dict = dict(self.databundle_dict)
+        a = self._databundle_from_dict(databundle_dict)
+
+        databundle_dict['value'] = 'BAR'
+        b = self._databundle_from_dict(databundle_dict)
+        self.assertNotEqual(a, b)
+
+    def test_membership(self):
+        databundle_dict = dict(self.databundle_dict)
+
+        container = set()
+        a = self._databundle_from_dict(databundle_dict)
+        container.add(a)
+        self.assertEqual(1, len(container))
+
+        b = self._databundle_from_dict(databundle_dict)
+        container.add(b)
+        self.assertEqual(1, len(container))
+
+        databundle_dict['value'] = 'BAR'
+        c = self._databundle_from_dict(databundle_dict)
+        container.add(c)
+        self.assertEqual(2, len(container))

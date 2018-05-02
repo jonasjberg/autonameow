@@ -22,11 +22,9 @@
 import logging
 
 import analyzers
-from core import (
-    logs,
-    master_provider,
-    repository
-)
+from core import logs
+from core import master_provider
+from core import repository
 from core.config.configuration import Configuration
 from core.exceptions import AutonameowException
 from core.model import force_meowuri
@@ -83,6 +81,7 @@ def request_global_data(fileobject, uri_string):
 
     # Pass a "tie-breaker" to resolve cases where we only want one item?
     # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
+    # TODO: [TD0185] Rework access to 'master_provider' functionality.
     response = master_provider.request(fileobject, uri)
     if response:
         if isinstance(response, list):
@@ -161,7 +160,7 @@ def _start(fileobject, config, analyzers_to_run=None):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
-    log.debug(' Analysis Preparation Started '.center(120, '='))
+    log.debug(logs.center_pad_log_entry('Analysis Preparation Started'))
 
     # TODO: [TD0126] Remove assertions once "boundaries" are cleaned up.
     sanity.check_isinstance_fileobject(fileobject)
@@ -181,7 +180,7 @@ def _start(fileobject, config, analyzers_to_run=None):
         log.debug('None of the analyzers can handle the current file')
         return
 
-    analyzer_queue = []
+    analyzer_queue = list()
     for a in _instantiate_analyzers(fileobject, klasses, config):
         if a not in analyzer_queue:
             analyzer_queue.insert(0, a)
@@ -189,7 +188,7 @@ def _start(fileobject, config, analyzers_to_run=None):
             log.error('Attempted to enqueue queued analyzer: "{!s}"'.format(a))
 
     def _prettyprint(list_):
-        out = []
+        out = list()
         for pos, item in enumerate(list_):
             out.append('{:02d}: {!s}'.format(pos, item))
         return ', '.join(out)

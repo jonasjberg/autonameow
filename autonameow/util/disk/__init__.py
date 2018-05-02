@@ -19,24 +19,18 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from .collector import (
-    normpaths_from_opts,
-    PathCollector
-)
+from .collector import normpaths_from_opts
+from .collector import PathCollector
 from .io import *
-from .pathstring import (
-    basename_prefix,
-    basename_suffix,
-    compare_basenames,
-    path_ancestry,
-    path_components,
-    split_basename
-)
+from .pathstring import basename_prefix
+from .pathstring import basename_suffix
+from .pathstring import compare_basenames
+from .pathstring import path_ancestry
+from .pathstring import path_components
+from .pathstring import split_basename
 from .sanitize import sanitize_filename
-from .yaml import (
-    load_yaml,
-    load_yaml_file,
-    write_yaml,
-    write_yaml_file,
-    YamlLoadError
-)
+from .yaml import load_yaml
+from .yaml import load_yaml_file
+from .yaml import write_yaml
+from .yaml import write_yaml_file
+from .yaml import YamlLoadError

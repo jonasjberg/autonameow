@@ -19,4 +19,4 @@ RULES:
         exact_match: false
         ranking_bias: 0.01
 COMPATIBILITY:
-    autonameow_version: v0.5.6
+    autonameow_version: v0.5.7

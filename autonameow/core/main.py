@@ -23,9 +23,9 @@ import sys
 
 from core import constants as C
 from core import logs
-from core.view import cli
 from core.autonameow import Autonameow
 from core.exceptions import AWAssertionError
+from core.view import cli
 
 
 # Default options passed to the main 'Autonameow' class instance.
@@ -45,8 +45,8 @@ DEFAULT_OPTIONS = {
     'mode_automagic': False,
     'mode_batch': False,
     'mode_interactive': True,
-    'mode_rulematch': True,
     'mode_timid': False,
+    'mode_postprocess_only': False,
 
     'config_path': None,
 
@@ -85,7 +85,13 @@ def real_main(options=None):
 
     # Main program entry point.
     with Autonameow(opts, ui=cli) as ameow:
-        ameow.run()
+        try:
+            ameow.run()
+        except KeyboardInterrupt:
+            # TODO: [incomplete] Handle this properly!
+            ameow.exit_program(C.EXIT_SUCCESS)
+
+    logs.deinit_logging()
 
 
 def print_error(message):
@@ -174,8 +180,8 @@ def cli_main(argv=None):
         'mode_automagic': opts.mode_automagic,
         'mode_batch': opts.mode_batch,
         'mode_interactive': opts.mode_interactive,
-        'mode_rulematch': opts.mode_rulematch,
         'mode_timid': opts.mode_timid,
+        'mode_postprocess_only': opts.mode_postprocess_only,
 
         'config_path': opts.config_path,
 

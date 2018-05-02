@@ -23,8 +23,9 @@ import logging
 import mimetypes
 import os
 
-from core import types
 from core.exceptions import AutonameowException
+from core.exceptions import DependencyError
+from util import coercers
 from util import sanity
 
 
@@ -54,18 +55,15 @@ def _build_magic():
     'file-magic'      https://github.com/file/file/tree/master/python
     'python-magic'    https://github.com/ahupp/python-magic
 
-    Notes on versions used on my (jonas) development boxes:
+    Notes on installing versions used on my (jonas) active development boxes:
 
-        MacOS   Seems like this is the version currently in use on MacOS?
-                https://pypi.python.org/pypi/file-magic/0.3.0
-                https://github.com/file/file
-
-                Requires 'libmagic'! Install by running;
+        MacOS   Requires 'libmagic'. Install by running;
                 $ brew install libmagic
                 $ pip3 install file-magic
 
         Linux   Install 'python3-magic' from the repositories on Linux.
-                For Debian-likes using apt:  'apt install python3-magic'
+                For Debian-likes using apt:
+                $ apt install python3-magic
 
     Returns:
         Callable the returns a MIME-type read from magic header bytes of the
@@ -78,11 +76,7 @@ def _build_magic():
     try:
         import magic
     except ImportError:
-        raise SystemExit(
-            'Missing required module "magic".  Make sure a "magic" module and '
-            'possibly additional required files (DLLs, magic definitions, ..) '
-            'is available before running this program.'
-        )
+        raise DependencyError(missing_modules='magic')
     # pylint: disable=unexpected-keyword-arg,no-value-for-parameter,no-member
     _magic = None
     try:
@@ -103,6 +97,7 @@ def _build_magic():
             # To identify with mime type, rather than a textual description,
             # pass the magic.MAGIC_MIME_TYPE flag when creating the magic.Magic
             # instance.
+            # NOTE(jonas): This one is used on both MacOS and Linux devboxes.
             m = magic.Magic(flags=magic.MAGIC_MIME_TYPE)
             _magic = m.id_filename
     else:
@@ -129,7 +124,7 @@ def _build_magic():
 MY_MAGIC = None
 
 
-def filetype(file_path):
+def file_mimetype(file_path):
     """
     Determine file type by reading "magic" header bytes.
 
@@ -141,9 +136,9 @@ def filetype(file_path):
 
     Returns:
         The MIME type of the file at the given path ('application/pdf') or
-        an instance of 'NullMIMEType' if the MIME type can not be determined.
+        a "null" class instance if the MIME type can not be determined.
     """
-    unknown_mime_type = types.NullMIMEType()
+    unknown_mime_type = coercers.NULL_AW_MIMETYPE
     if not file_path:
         return unknown_mime_type
 
@@ -197,13 +192,13 @@ def eval_glob(mime_to_match, glob_list):
         return False
 
     # Unknown MIME-type evaluates True if a glob matches anything, else False.
-    if mime_to_match == types.NULL_AW_MIMETYPE:
+    if mime_to_match == coercers.NULL_AW_MIMETYPE:
         if '*/*' in glob_list:
             return True
         return False
 
     if not mime_to_match:
-        # Test again after the case above because NullMIMEType evaluates False.
+        # Test again after the case above because 'NullMIMEType' evaluates False.
         return False
 
     if not isinstance(mime_to_match, str):
@@ -245,6 +240,8 @@ def eval_glob(mime_to_match, glob_list):
 
 class MimeExtensionMapper(object):
     def __init__(self):
+        self.unknown_mime_type = coercers.NULL_AW_MIMETYPE
+
         # Stores sets.
         self._mime_to_ext = dict()
         self._ext_to_mime = dict()
@@ -308,14 +305,21 @@ class MimeExtensionMapper(object):
         Returns:
             A single MIME-type mapped to the given extension, as a Unicode
             string. See the "get_candidates"-method for info on prioritization.
-            An instance of 'NullMIMEType' is returned if no MIME-type is found.
+            If no MIME-type is found, a "null" class instance is returned.
         """
-        if extension and extension.strip():
+        if isinstance(extension, str) and extension.strip():
             candidates = self.get_candidate_mimetypes(extension)
             if candidates:
+                if len(candidates) > 1:
+                    # If more than one candidate MIME-type, use any candidate
+                    # found in the preferred extension mapping.
+                    for candidate in candidates:
+                        if candidate in self._mime_to_preferred_ext:
+                            return candidate
+                # Use the first of the (arbitrarily sorted) candidates.
                 return candidates[0]
 
-        return types.NullMIMEType()
+        return self.unknown_mime_type
 
     def get_candidate_extensions(self, mimetype):
         """
@@ -389,19 +393,20 @@ def _read_mimetype_extension_mapping_file(mapfile_basename, callback):
         return
 
     for n, line in enumerate(lines, start=1):
-        if line.startswith('#'):
+        line = line.strip()
+        if not line or line.startswith('#'):
             continue
         try:
             mime_type, extension = line.strip().split(':')
         except ValueError:
             log.error('Error parsing "{!s}" line {}'.format(mapfile, n))
         else:
-            mime_type = types.force_string(mime_type).strip()
-            extension = types.force_string(extension).strip().lstrip('.')
-            if not mime_type:
+            str_mime_type = coercers.force_string(mime_type).strip()
+            str_extension = coercers.force_string(extension).strip().lstrip('.')
+            if not str_mime_type:
                 continue
 
-            callback(mime_type, extension)
+            callback(str_mime_type, str_extension)
 
 
 def _load_mimemagic_mappings():
@@ -437,4 +442,5 @@ def get_mimetype(extension):
 
 
 def get_extension(mimetype):
+    assert isinstance(mimetype, str)
     return MAPPER.get_extension(mimetype)

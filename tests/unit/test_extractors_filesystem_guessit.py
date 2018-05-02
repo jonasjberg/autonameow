@@ -22,19 +22,17 @@
 from unittest import TestCase, skipIf
 
 import unit.utils as uu
-from extractors.filesystem.guessit import (
-    GuessitExtractor,
-    run_guessit
-)
-from unit.case_extractors import (
-    CaseExtractorBasics,
-    CaseExtractorOutput
-)
+from extractors.filesystem.guessit import get_lazily_imported_guessit_module
+from extractors.filesystem.guessit import GuessitExtractor
+from extractors.filesystem.guessit import reset_lazily_imported_guessit_module
+from extractors.filesystem.guessit import run_guessit
+from unit.case_extractors import CaseExtractorBasics
+from unit.case_extractors import CaseExtractorOutput
 
 
 UNMET_DEPENDENCIES = (
-    GuessitExtractor.check_dependencies() is False,
-    'Extractor dependencies ("guessit") are not available'
+    not GuessitExtractor.dependencies_satisfied(),
+    'Extractor dependencies ("guessit") not satified'
 )
 
 
@@ -46,12 +44,19 @@ class TestGuessitExtractor(CaseExtractorBasics, TestCase):
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestRunGuessit(TestCase):
+    def setUp(self):
+        self.guessit_module = get_lazily_imported_guessit_module()
+
+    def tearDown(self):
+        self.guessit_module = None
+        reset_lazily_imported_guessit_module()
+
     def test_run_guessit_no_options_returns_expected_type(self):
-        actual = run_guessit('foo', options=None)
+        actual = run_guessit('foo', self.guessit_module, options=None)
         self.assertIsInstance(actual, dict)
 
     def test_run_guessit_using_default_options_returns_expected_type(self):
-        actual = run_guessit('foo')
+        actual = run_guessit('foo', self.guessit_module)
         self.assertIsInstance(actual, dict)
 
 
@@ -69,9 +74,14 @@ class TestRunGuessitWithDummyData(TestCase):
     def setUp(self):
         # NOTE: Below file name was copied from the guessit tests.
         self.data = 'Fear.and.Loathing.in.Las.Vegas.FRENCH.ENGLISH.720p.HDDVD.DTS.x264-ESiR.mkv'
+        self.guessit_module = get_lazily_imported_guessit_module()
+
+    def tearDown(self):
+        self.guessit_module = None
+        reset_lazily_imported_guessit_module()
 
     def test_run_guessit_no_options_returns_expected(self):
-        actual = run_guessit(self.data, options=None)
+        actual = run_guessit(self.data, self.guessit_module, options=None)
 
         field_expected = [('title', 'Fear and Loathing in Las Vegas'),
                           ('type', 'movie'),

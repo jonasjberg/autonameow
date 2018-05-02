@@ -23,11 +23,9 @@ import os
 from unittest import TestCase
 
 import unit.utils as uu
-from util.disk.collector import (
-    get_files_gen,
-    PathCollector,
-    path_matches_any_glob
-)
+from util.disk.collector import get_files_gen
+from util.disk.collector import PathCollector
+from util.disk.collector import path_matches_any_glob
 
 
 def shorten_path(abs_path):

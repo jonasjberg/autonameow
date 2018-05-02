@@ -4,10 +4,10 @@ datetime:
     mapped_fields:
     -   WeightedMapping:
             field: DateTime
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Date
-            probability: 1.0
+            weight: 1.0
     multivalued: false
 
 description:
@@ -16,10 +16,10 @@ description:
     mapped_fields:
     -   WeightedMapping:
             field: Description
-            probability: 1.0
+            weight: 1.0
     -   WeightedMapping:
             field: Title
-            probability: 0.5
+            weight: 0.5
     multivalued: false
 
 extension:
@@ -27,7 +27,7 @@ extension:
     mapped_fields:
     -   WeightedMapping:
             field: Extension
-            probability: 1.0
+            weight: 1.0
     multivalued: false
 
 follows_filetags_convention:
@@ -40,5 +40,5 @@ tags:
     mapped_fields:
     -   WeightedMapping:
             field: Tags
-            probability: 1.0
+            weight: 1.0
     multivalued: true

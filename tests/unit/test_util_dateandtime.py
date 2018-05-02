@@ -23,18 +23,14 @@ from datetime import datetime
 from unittest import TestCase
 
 import unit.utils as uu
-from util.dateandtime import (
-    date_is_probable,
-    find_isodate_like,
-    hyphenate_date,
-    is_datetime_instance,
-    match_any_unix_timestamp,
-    match_special_case,
-    match_special_case_no_date,
-    naive_to_timezone_aware,
-    timezone_aware_to_naive,
-    _year_is_probable
-)
+from util.dateandtime import date_is_probable
+from util.dateandtime import find_isodate_like
+from util.dateandtime import is_datetime_instance
+from util.dateandtime import match_any_unix_timestamp
+from util.dateandtime import match_special_case
+from util.dateandtime import match_special_case_no_date
+from util.dateandtime import naive_to_timezone_aware
+from util.dateandtime import timezone_aware_to_naive
 
 
 class TestIsDatetimeInstance(TestCase):
@@ -75,6 +71,7 @@ class TestDateIsProbable(TestCase):
         self._assert_probable(False, '4875-01-01 000000')
 
     def test_returns_true_given_probable_dates(self):
+        self._assert_probable(True, '1500-02-13 123456')
         self._assert_probable(True, '1975-02-13 123456')
         self._assert_probable(True, '2001-01-01 000000')
         self._assert_probable(True, '2017-01-01 000000')
@@ -82,42 +79,6 @@ class TestDateIsProbable(TestCase):
         self._assert_probable(True, '2017-01-01 135959')
         self._assert_probable(True, '2018-01-01 000000')
         self._assert_probable(True, '2018-01-01 135959')
-
-
-class TestYearIsProbable(TestCase):
-    def _assert_probable(self, expect, given):
-        actual = _year_is_probable(given)
-        self.assertEqual(expect, actual)
-
-    def test_returns_false_given_improbable_dates(self):
-        self._assert_probable(False, 20)  # 1920 or 2020
-        self._assert_probable(False, 30)  # 1930 or 2030
-        self._assert_probable(False, 40)  # 1940 or 2040
-        self._assert_probable(False, 100)  # Below lower or above upper limit
-        self._assert_probable(False, 455)  # Below lower or above upper limit
-        self._assert_probable(False, 1890)  # Below lower limit
-        self._assert_probable(False, 2200)  # Above upper limit
-        self._assert_probable(False, 4875)  # Above upper limit
-        self._assert_probable(False, 9999)  # Above upper limit
-
-    def test_returns_true_given_probable_dates(self):
-        self._assert_probable(True, 0)  # might be 2000
-        self._assert_probable(True, 1)  # might be 2001
-        self._assert_probable(True, 10)  # might be 2010
-        self._assert_probable(True, 50)  # might be 1950 or 2050
-        self._assert_probable(True, 90)  # might be 1990
-        self._assert_probable(True, 1975)
-        self._assert_probable(True, 1900)
-        self._assert_probable(True, 2001)
-        self._assert_probable(True, 2017)
-        self._assert_probable(True, 2018)
-
-
-class TestDateAndTime(TestCase):
-    def test_hyphenate_date(self):
-        self.assertEqual('2016-12-24', hyphenate_date('20161224'))
-        self.assertEqual('20161224T121314', hyphenate_date('20161224T121314'))
-        self.assertEqual('return as-is', hyphenate_date('return as-is'))
 
 
 class TestMatchUnixTimestamp(TestCase):
@@ -147,7 +108,6 @@ class TestMatchUnixTimestamp(TestCase):
         __check('date --date="@1461786010" --rfc-3339=seconds')
 
     def test_returns_none_as_expected(self):
-        self.assertIsNone(match_any_unix_timestamp(None))
         self.assertIsNone(match_any_unix_timestamp(''))
         self.assertIsNone(match_any_unix_timestamp(' '))
         self.assertIsNone(match_any_unix_timestamp('abc'))
@@ -162,10 +122,10 @@ class TestMatchSpecialCase(TestCase):
     def _assert_match(self, given):
         actual = match_special_case(given)
         self.assertIsNotNone(actual)
-        self.assertEqual(self.expect, actual)
+        self.assertEqual(self.expect, actual, given)
 
     def _assert_no_match(self, given):
-        self.assertIsNone(match_special_case(given))
+        self.assertIsNone(match_special_case(given), given)
 
     def test_match_special_case_1st_variation(self):
         self._assert_match('2016-07-22_131730')
@@ -179,78 +139,99 @@ class TestMatchSpecialCase(TestCase):
     def test_match_special_case_4th_variation(self):
         self._assert_match('20160722T131730')
 
+    def test_match_special_case_5th_variation(self):
+        self._assert_match('2016-07-22_13-17-30')
+
+    def test_does_not_match_empty_strings(self):
+        for given in ['', ' ']:
+            self._assert_no_match(given)
+
     def test_does_not_match_strings_without_iso_like_dates(self):
-        self._assert_no_match('')
-        self._assert_no_match(' ')
-        self._assert_no_match('foo')
-        self._assert_no_match('2018')
+        for given in [
+            'foo',
+            '2018'
+            'aaaa bb cc',
+            'aaaa-bb-cc'
+            'aaaa-bb-cc-dd-ee-ff',
+            'aaaa-bb-cc-ddeeff',
+            'aaaabbcc-ddeeff',
+        ]:
+            self._assert_no_match(given)
 
     def test_does_not_match_improbable_dates_and_or_times(self):
-        self._assert_no_match('0000-00-00T000000')
-        self._assert_no_match('1111-22-33T445566')
-        self._assert_no_match('9999-99-99T999999')
-        self._assert_no_match('1234-56-78T890123')
-        self._assert_no_match('8765-43-21T132456')
-
-        self._assert_no_match('00000000T000000')
-        self._assert_no_match('11112233T445566')
-        self._assert_no_match('99999999T999999')
-        self._assert_no_match('12345678T890123')
-        self._assert_no_match('87654321T132456')
-
-    def test_returns_none_for_non_strings(self):
-        self._assert_no_match(None)
+        for given in [
+            '0000-00-00T000000',
+            '1111-22-33T445566',
+            '9999-99-99T999999',
+            '1234-56-78T890123',
+            '8765-43-21T132456',
+            '00000000T000000',
+            '11112233T445566',
+            '99999999T999999',
+            '12345678T890123',
+            '87654321T132456'
+        ]:
+            self._assert_no_match(given)
 
 
 class TestMatchSpecialCaseNoDate(TestCase):
     def _assert_match(self, given):
         actual = match_special_case_no_date(given)
-        self.assertIsInstance(actual, datetime,
-                              'Given string: {!s}'.format(given))
+        self.assertIsInstance(actual, datetime, given)
 
     def _assert_no_match(self, given):
         actual = match_special_case_no_date(given)
-        self.assertIsNone(actual)
+        self.assertIsNone(actual, given)
 
     def test_returns_datetime_instances_for_iso_like_strings(self):
-        self._assert_match('2018-02-13')
-        self._assert_match('2018-02-13          ')
-        self._assert_match('2018-02-13foo')
-        self._assert_match('2018-02-13        foo')
-        self._assert_match('1986-01-02')
+        for given in [
+            '2018-02-13',
+            '2018-02-13          ',
+            '2018-02-13foo',
+            '2018-02-13        foo',
+            '1986-01-02',
+            '20180213',
+            '20180213          ',
+            '20180213foo',
+            '20180213        foo',
+            '19860102',
+        ]:
+            self._assert_match(given)
 
-        self._assert_match('20180213')
-        self._assert_match('20180213          ')
-        self._assert_match('20180213foo')
-        self._assert_match('20180213        foo')
-        self._assert_match('19860102')
+    def test_does_not_match_empty_strings(self):
+        for given in ['', ' ']:
+            self._assert_no_match(given)
+
+    def test_does_not_match_strings_without_valid_iso_like_dates(self):
+        for given in [
+            'foo',
+            '2018',
+            'aaaabbcc',
+            'aaaa bb cc',
+            'aaaa-bb-cc'
+        ]:
+            self._assert_no_match(given)
+
+    def test_does_not_match_improbable_iso_like_dates(self):
+        for given in [
+            '0000-00-00',
+            '1111-22-33',
+            '9999-99-99',
+            '1234-56-78',
+            '8765-43-21',
+
+            '00000000',
+            '11112233',
+            '99999999',
+            '12345678',
+            '87654321'
+        ]:
+            self._assert_no_match(given)
 
     def test_returns_datetime_instance_with_expected_date(self):
         expect = datetime.strptime('20180213', '%Y%m%d')
         actual = match_special_case_no_date('2018-02-13')
         self.assertEqual(expect, actual)
-
-    def test_does_not_match_strings_without_iso_like_dates(self):
-        self._assert_no_match('')
-        self._assert_no_match(' ')
-        self._assert_no_match('foo')
-        self._assert_no_match('2018')
-
-    def test_does_not_match_improbable_dates(self):
-        self._assert_no_match('0000-00-00')
-        self._assert_no_match('1111-22-33')
-        self._assert_no_match('9999-99-99')
-        self._assert_no_match('1234-56-78')
-        self._assert_no_match('8765-43-21')
-
-        self._assert_no_match('00000000')
-        self._assert_no_match('11112233')
-        self._assert_no_match('99999999')
-        self._assert_no_match('12345678')
-        self._assert_no_match('87654321')
-
-    def test_returns_none_for_non_strings(self):
-        self._assert_no_match(None)
 
 
 class TestNaiveToTimezoneAware(TestCase):
