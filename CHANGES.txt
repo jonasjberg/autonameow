@@ -1,3 +1,1167 @@
+2018-05-02  [autonameow v0.5.7]
+            Primarily architectural and performance improvements.
+            Adds a event dispatch system to handle initialization, shutdown
+            and other application-wide event signaling and data passing.
+            Improved text parsing, filtering and searching.
+            Removed dead code and other miscellaneous cleanups.
+
+            Additions
+            - Add a new file 'event.py' with a event/messaging system.
+
+              Uses classes 'EventHandler' and 'EventDispatcher'.  Both act as simple
+              container for callables and instances of 'EventHandler', respectively.
+
+            - Use event system to control provider registry.
+              Adds controlling provider registry init/exit with the event dispatcher.
+
+            - Register to event dispatcher from the repository.
+              Moves registering repository init/exit functions from the "source".
+
+              Makes little sense to keep this in the main 'Autonameow' class.
+              The whole point is to decouple components by using the 'EventDispatcher'
+              as a common shared "message broker".
+
+            - Use event system to control repository init/exit.
+              Adds using the event dispatcher to control the repository.
+
+              This currently does not provide any real benefits over simply
+              calling the functions directly. But I'm pretty sure the added
+              complexity and indirection will pay off when more systems are
+              modified to use the event system.
+
+            - Continue integrating the 'EventDispatcher'.
+              Replaces direct calls with using the event dispatch system.
+
+            - Adds integration test that checks for the previous style of imports.
+
+            - Add 'devscripts/functions-rarely-called.sh'.
+              Adds simple script for listing rarely called functions/methods.
+
+            - Add unit test utility 'random_ascii_string()'.
+              Adds function that produces random N character strings.
+
+            - Add top-level catching of 'KeyboardInterrupt'.
+              Catches user-generated interrupts around top-level 'run()' call.
+              This might not solve this problem in a sound way or even at all..
+              All handling of exceptions and signals should be looked at properly
+              and implemented so that any and all shutdown/cleanup is handled
+              before exiting.
+
+            - Add regular expression caching 'regexcache.py'.
+              Adds a new source file with a singleton class for regex caching.
+
+              Intended to replace compiling module-global regular expressions
+              when loading source files with compiling once at first use and
+              then re-use the same cached compiled regular expression objects.
+
+            - Add (WIP) regression test suite history.
+              Adds a first implementation of regression test history.
+
+              A new column is added to the regression runner output.
+              This displays the results of the previous five runs for each
+              "test suite". I.E. whether it failed, passed or skipped.
+
+              NOTE: Very messy and ineffective and must be cleaned up!
+
+            - Add (WIP) changes to 'EpubMetadataExtractor'.
+              Adds incomplete additions to 'EpubMetadataExtractor'.
+
+              References [TD0186] on re-implementing the epub metadata extraction.
+
+            - Add (WIP) field value canonicalization.
+              References TODO-list item [TD0189].
+
+            - Add handling human names with 'von'.
+
+            - Add MIME-type to extension mappings.
+            - Add MIME-type extension mapping for 'dmg' files.
+            - Add MIME-mapping for possibly corrupt 'mp4'.
+            - Add probable extensions for Telegram theme files.
+            - Add extension mappings for MIME-type 'x-java'.
+            - Add MIME-type mapping. Add resolving candidates.
+
+            - Add unit tests for "opendocument" MIME-types.
+
+            - Add 'strip_foreword_by()' to 'humannames.py'.
+
+            - Add 'run_command_on_git_revs.sh' to version control.
+
+            - Add 'normalize_letter_case()' to 'humannames.py'.
+
+            - Add integration test utility functions and tests.
+
+            - Add 'setup.cfg' with 'pytest' options.
+
+            - Add MS Office metadata to 'exiftool_fieldmeta.yaml'.
+
+            - Implement '{Metadata,Text}ExtractionResult.__repr__()'.
+
+            - Implement 'DataBundle.__{eq,hash}__()'.
+
+            - Add fields to 'exiftool_fieldmeta.yaml'.
+
+            - Add method for finding "probable" ISBN metadata.
+              Adds a first attempt at finding most probable ISBN metadata.
+
+              This is very hacky and mostly a proof of concept that should
+              be handled by some separate system.
+              This will most likely work with the yet unimplemented concept
+              of "records" storing collection of "fields".
+
+              Selection of a "reference" field to use for determining the
+              "probability" of a (ISBN metadata) record must be more flexible.
+
+            - Add constant 'BLACKLISTED_HUMAN_NAMES'.
+
+            - Add utility function 'strip_repeating_periods()'.
+
+            - Add function 'strip_single_space_lines()'.
+              Adds utility text transformation function 'strip_single_space_lines()'.
+
+              Like 'str.strip()' limited to lines that only contain a single space.
+              Returns the given text with any lines containing only a single space
+              replaced by an empty line.
+
+            - Add type assertions. Rename unit test.
+
+            - Add checking that master provider is not None.
+
+            - Add filesystem providers to the 'ExtractorRegistry'.
+
+            - Add option '--skip-hypothesis' to unit test runner.
+              Adds option '--skip-hypothesis' to the "alternative" unit test runner.
+
+            - Add 'CrossPlatformFileSystemExtractor' unit tests.
+              Adds unit tests that verify the 'FileObject' property map.
+
+              Also includes various other minor changes in naming to match other
+              extractors.
+
+            - Add blacklisted lines in the 'DocumentAnalyzer'.
+
+            - Add function 'msg_columnate()'.
+              Adds function for displaying columnated strings.
+
+              Intended to prevent direct use of the 'ColumnFormatter' class.
+
+            - Add new 'msg()' style 'highlight'.
+
+            - Add underline prefix to 'get_extractor_classes()'.
+
+            - Add sketch on possible architectural changes.
+
+            - Add new file 'util/debug.py'.
+              Adds new file with function 'print_callstack_names()'.
+
+              Decorator that prints the call stack leading up to the
+              decorated functions, going back max 'stack_size' items.
+
+              Modified version of  https://stackoverflow.com/a/31796710
+
+            - Add field to exiftool field meta information.
+
+            - Add notes on "records" and "fields".
+
+            - Add functions to coercing and removing non-break..
+              Adds functions to handle both str coercion and non-breaking spaces.
+
+            - Add 'report_runtime()' string formatting flag.
+
+            - Add hack filtering of titles in 'DocumentAnalyzer'.
+
+            - Add 'RegexLineFilter' class and 'ignore_case' arg.
+              Adds a 'RegexFilter' subclass for filtering multi-line strings.
+
+              Also adds a optional argument 'ignore_case' that is passed to
+              're.compile()' when compiling the regexes passed to the filter
+              class init.
+
+            - Implement option '--postprocess-only'.
+              Adds initial implementation of '--postprocess-only'.
+
+              Pass option argument '--postprocess-only' to enable POST-PROCESSING ONLY
+              Do not construct new file names, only do post-processing on the current
+              file name using global post-processing settings.
+
+            - Add regression tests for rules without placeholders.
+
+            - Add 'name_template.py'. Move function.
+              Adds a (WIP) 'NameTemplate' class in new file 'name_template.py'.
+
+              Moves function 'format_string_placeholders()' from
+              'namebuilder/fields.py' to 'model/name_template.py'.
+
+              References TODO [TD0180].
+
+            - Add new class 'RegexFilter'.
+              Adds class for filtering text with multiple regular expressions.
+
+              Example usage:
+
+                  >>> fa = RegexFilter(r'[fF]oo')
+                  >>> fa('bar')
+                  'bar'
+                  >>> fa('Foo')
+                  >>> fa(['foo', 'bar', 'Foo'])
+                  ['bar']
+                  >>> fb = RegexFilter([r'[fF]oo', '.*'])
+                  >>> fb('bar')
+                  >>> fb(['Foo', 'bar'])
+                  []
+
+            - Add unit tests for stand-alone extraction.
+
+            - Add 'requirements.txt'. Fix 'magic' module info.
+
+            - Add 'providers.shutdown()'.
+              Adds function for removing the global 'ProviderRegistry' at exit.
+
+            - Add new integration test suite.
+              Adds a new "Dependencies" integration test suite.
+
+              Contains parts of the "Test Suite" test suite as well as pretty
+              terrible testing that required Python modules are available to the
+              system Python 3 interpreter.This really does not work with package
+              managers, etc.  but will have to do for now.
+
+            - Add method 'Autonameow._dump_options()'.
+
+            - Add 'MasterDataProvider.request_one()'.
+              Adds method for requesting exactly one result.
+
+              Just like 'request()' but returns a failed query response if
+              the request would return a list of results.
+
+              References TODO-list item [TD0175].
+
+            - Add function 'find_and_extract_edition()'.
+              Adds function for extracting "editions" substrings from strings.
+
+              Extracts any "edition-like" substrings from a string.
+
+              Searches the given text for any "edition-like" substrings and
+              returns a tuple with the match as an integer and the given string
+              *without* the match.
+
+              Example:
+
+                edition, modified_string = find_and_extract_edition('foo 1st bar')
+                assert edition == 1
+                assert modified_string == 'foo  bar'
+
+              Returns any found edition and modified text as a (int, str) tuple.
+
+              References TODO-list item [TD0118].
+
+            - Add filtering lines in the 'DocumentAnalyzer'.
+
+            - Add 'TextChunker' class.
+              Adds a new 'TextChunker' class that splits text into even chunks.
+
+              Splits multi-line text into smaller chunks.
+
+              Example usage:
+
+                  chunker = _get_text_chunker('A\nB\nC\nD\nE\n', 0.5)
+                  assert chunker[0] == 'A\nB\n'
+                  assert chunker[1] == 'C\n'
+                  assert chunker[2] == 'D\nE\n'
+                  assert chunker.leading == 'A\nB\n'
+                  assert chunker.trailing == 'D\nE\n'
+                  assert len(chunker) == 3
+
+              The chunk sizes (number of text lines in each chunk) is calculated from
+              the chunk to text ratio as CHUNK_SIZE = LINES_IN_TEXT * CHUNK_RATIO
+
+              The number of lines in the first and last chunks should match the chunk
+              size exactly, while the number of lines in the center chunks might vary
+              a bit so that the total number of chunks is more predictable.
+
+              References TODO-list item [TD0134].
+
+            - Add regular expression filtering in text extractors.
+              Adds filtering lines matching regular expressions in text extractors.
+
+              Similar to 'BLACKLISTED_TEXTLINES' but using compiled regular
+              expressions instead of exact string comparison.
+
+              Currently only used by the 'PdftotextTextExtractor' to remove
+              warnings and errors produced by 'pdftotext'.
+
+            - Add text utility function 'normalize_whitespace()'.
+              Adds function for normalizing all whitespace.
+
+              Similar to 'collapse_whitespace()' but replaces all whitespace
+              expect line-separators with a single space.
+
+            - Add function 'remove_blacklisted_re_lines()'.
+              Adds text utility function 'remove_blacklisted_re_lines()'.
+
+              Like 'remove_blacklisted_lines()' but takes a list of compiled
+              regular expressions instead of a list of strings to match against
+              the lines in the given text.
+
+            - Add new option flag '--postprocess-only'.
+
+            Changes
+            - Add lazy importing of 'guessit'.
+              Fixes very slow import of the 'guessit' module.
+
+              Profiling revealed that importing the 'guessit' module is one of the
+              very slowest operations performed for any set of inputs and options.
+
+              This commit adds lazily importing the 'guessit' just before it is
+              used instead of importing when loading the extractor source file
+              'autonameow/extractors/filesystem/guessit.py'.
+
+            - Add constant 'logs.DEBUG'.
+              Replaces '__debug__' with 'logs.DEBUG' to silence PyCharm warnings..
+
+            - Rename 'filetype()' to 'file_mimetype()'.
+
+            - Rewrite all import statements.
+              Rewrites all import statements to not use groups.
+
+              Grouping imports results in additional noise in diffs when
+              adding a import to an existing group.That is, going from this;
+
+                  from foo import bar
+
+              To this, after adding 'baz';
+
+                  from foo import (
+                      bar,
+                      baz
+                  )
+
+              .. adds noise to diffs by changing unrelated lines to add the
+              parenthesis.
+              This commit modifies all imports to use a full explicit form
+              with each import on a separate line. This will reduce future
+              noise in diffs by only changing the affected lines.
+
+            - Rename 'master_provider' arguments.
+              Renames arguments 'master_provider' to not shadow module name.
+
+              Makes it easier to spot differences between references to the module
+              and arguments and/or instance member attributes, especially important
+              considering that the module itself is the value being passed around..
+
+            - Remove "fine-grained" delegation memory.
+              Removes duplicated remembering of delegation in the 'ProviderRunner'.
+
+              Remember delegations based only on combinations of fileobjects and
+              providers.
+
+            - Rework string value canonicalization.
+              Various rework related to the 'StringValueCanonicalizer'.
+
+              Modifies the format of the config yaml file.
+              Patterns are now either literal strings or regular expressions.
+
+              Example yaml config section:
+
+                  CanonicalValue:
+                      match_any_regex:
+                      - regex pattern 1
+                      - regex pattern 2
+                      match_any_literal:
+                      - string pattern 1
+                      - string pattern 2
+
+              Any value that matches either 'CanonicalValue', any of the
+              regular expressions or any of the literal strings is replaced
+              with 'CanonicalValue'.
+
+              The "parsing" of the regular expressions and literals is moved
+              to a separate class 'CanonicalizerConfigParser' so that the
+              'StringValueCanonicalizer' class can be passed plain dicts keyed
+              by canonical values, storing lists of either literal strings or
+              compiled regular expressions.
+
+              This also adds handling of matching multiple regular expressions,
+              in which case the canonical value whose regular expression produced
+              the longest matched substring is used.
+
+            - Modify format of regression runner history.
+
+            - Call 'logs.deinit_logging()' just before exiting.
+              This is mostly to put this function to use instead of removing it.
+
+            - Rework 'StringValueCanonicalizer' to not do I/O.
+              Removes loading yaml files from the 'StringValueCanonicalizer'.
+
+              Adds separate "builder" function that handles loading files from disk.
+              The 'StringValueCanonicalizer' class now takes a plain dict instead of
+              a yaml file basename.
+
+            - Remove unused function 'strip_ansiescape()'.
+
+            - Remove unused function '_year_is_probable()'.
+
+            - Remove unused function 'multiset_count()'.
+
+            - Remove unused function 'unique_identifier()'.
+
+            - Rename arguments shadowing 'string'.
+
+            - Remove unused function 'arg_is_year()'.
+              Removes unused argument validator function 'arg_is_year()'.
+
+            - Remove unused function 'available_field_parsers()'.
+
+            - Strip contributor text from author names.
+              Adds removing variations of contributor texts from human names.
+
+            - Fix failing assertions. Pad missing entries.
+              Removes bad asserts. Pads missing entries to maintain fixed width.
+
+            - Use Unicode characters in regression test history.
+
+            - Log failure to get persistence backend.
+
+            - Rework storing test results in regression runner.
+              Adds using the 'RunResults' class to store test results.
+
+              Stores the actual 'RegressionTestSuite' instances instead of
+              counts of passed/failed/skipped tests.
+              This should make it easier to keep track of and persisting results
+              from the last N runs.
+
+            - Rework storing test results in regression runner.
+              Adds using the 'TestRunResults' class to store test results.
+
+              Stores the actual 'RegressionTestSuite' instances instead of
+              counts of passed/failed/skipped tests.
+              This should make it easier to keep track of and persisting results
+              from the last N runs.
+
+            - Replaces 'foo = list()' with 'foo = []'.
+              Prefer more verbose instantiation of empty lists.
+
+            - Various fixes and clean up in 'dateandtime.py'.
+              Removes logging, shadowing 'string'. Fixes argument validation.
+
+            - Modify constant 'YEAR_LOWER_LIMIT'.
+              Lower 'YEAR_LOWER_LIMIT' from 1900 to 1455.
+
+              Also minor fixes to 'date_is_probable()'.
+
+            - Remove unused function 'regex_search_str()'.
+
+            - Rename "public" function in 'dateandtime.py'.
+
+            - Remove unused function 'hyphenate_date()'.
+
+            - Remove unused function 'bruteforce_str()'.
+
+            - Consolidate imports from same module.
+
+            - Move 'model/normalize.py' to 'metadata/normalize.py'.
+              Moves 'core/model/normalize.py' to 'core/metadata/normalize.py'.
+
+            - Remove known source after gathering data.
+              Adds removing source after successfully gathering data in the resolver.
+
+            - Handle 'BrokenPipeError' at 'exiftool' shutdown.
+              Adds catching 'BrokenPipeError' in 'ExiftoolMetadataExtractor'.
+
+              This might happen when exiting with CTRL-C and 'pyexiftool'
+              attempts to flush 'stdin' that has already closed.
+
+            - Remove unused 'IGNORED_AUTHOR_WORDS'.
+
+            - Use double quotes in 'pandoc_template.plain'.
+              Replaces single quotes with double quotes in pandoc template.
+
+              Seems to prevent pandoc errors when fields contain single quotes.
+              Not sure whether this works with fields containing double quotes.
+
+            - Modify search patterns for editions.
+
+            - Modify regression test assertion.
+
+            - Skip non-existent files like broken symlinks.
+
+            - Factor out resolving 'DataBundle' dict.
+
+            - Rework 'FilesContext' to handle single files.
+              Renames 'FilesContext' to 'FileContext'.
+
+              Modify to work better with how it is actually used, I.E. being passed a
+              single file at a time.
+
+            - Remove dead (commented) code.
+
+            - Factor out getting rules from the 'RuleMatcher'.
+
+            - Remove option '--rulematch'.
+              Removes redundant, always enabled option '--rulematch'.
+
+            - Rename methods and variables for readability.
+
+            - Debug log 'ISBNMetadata' attribute setters.
+
+            - Increase amount of text to search for ISBN numbers.
+
+            - Handle splitting human names separated by '&'.
+
+            - Make cleaning up titles less aggressive.
+              Modifies 'cleanup_full_title()' and 'normalize_full_title()'.
+
+              Moves removing all characters that are not letters or numbers
+              from the cleanup function to the normalization function.
+
+            - Modify 'ExiftoolMetadataExtractor' field meta.
+
+            - Modify filtering titles in 'EbookAnalyzer'.
+              Removes lacking local 'EbookAnalyzer' filtering.
+
+              This is replaced by 'cleanup_full_title()' from 'normalize.py'.
+
+            - Modify 'DocumentAnalyzer' title extraction.
+              Decrease mapping weight and improve filtering.
+
+            - Improve finding e-book ISBNs in text.
+
+            - Normalize letter case of human names.
+              Adds normalizing case of names in primary function 'filter_name()'.
+
+              Replaces brute force method of trying to match substrings of
+              decreasing length in a loop with getting the length and then
+              looking up a suitable format string for that length.
+
+            - Rename unit test namedtuple attributes.
+
+            - Rename 'check_dependencies' to 'dependencies_satisfied'.
+
+            - Use the "regex cache" in 'text/transform.py'.
+
+            - Use the "regex cache" in 'analyze_ebook.py'.
+
+            - Refactor 'RegexCache' unit tests.
+
+            - Move 'BUILTIN_REGEX_TYPE' to unit test constants.
+
+            - Rename 'UNDEFINED_MEOWURI_PART' to 'MEOWURI_UNDEFINED_PART'.
+
+            - Do not fall back to 'unittest' if 'pytest' is missing.
+              Require 'pytest' in the unit test runner script 'run_unit_tests.sh'.
+
+              Removes using 'unittest' if 'pytest' is missing.
+              Start of reworking the unit tests to use 'pytest' features.
+
+            - Remove duplicate functions. Integrate 'utils.sh'.
+
+            - Remove unused function in 'test_regression.sh'.
+
+            - Remove redundant tests. Use "bulk" assertions.
+
+            - Remove unused bash function 'log_system_info()'.
+
+            - Use the "regex cache" in 'humannames.py'.
+
+            - Handle kindle ebooks with 'ExiftoolMetadataExtractor'.
+
+            - Mock logging and "view" in unit tests.
+              Adds mocks to reduce noise in the test runner output.
+
+            - Remove empty string values in 'ExiftoolMetadataExtractor'.
+              Adds filtering empty string values before coercion.
+
+              Skip empty or whitespace only strings before coercion to avoid
+              raising exceptions when failing coercion to "datetime-types".
+
+            - Modify 'EpubTextExtractor' to catch missed text.
+
+            - Prepend underline to 'Repository.data'.
+
+            - Remove unused 'Repository.log'.
+
+            - Always return data from "generic" queries as lists.
+
+            - Assume that 'Repository' stores unique URIs.
+              Starts removing some of the "flexibility" in 'Repository' storage.
+
+              Adds asserting that a fileobject and "explicit" MeowURI should only
+              be stored once. Storing it a second time is no longer handled by
+              converting the data to a list of data. Instead, it is considered an
+              error enforced by assertions.
+
+            - Store references to "generic" data in 'Repository'.
+              Reworks the 'Repository' to store references to "generic" data.
+
+              Previous implementation stored all data in duplicates, both under the
+              "explicit" full MeowURI as well as under the "generic" MeowURI, if any.
+
+              This commit adds mapping generic URIs to explicit URIs. When storing
+              data with 'generic_field' in the "metainfo", the generic field is added
+              in a fileobject-specific lookup table.
+              When handling a query with a "generic" MeowURI, any corresponding
+              "explicit" URIs is retrieved from the lookup table and used to retrieve
+              the data.
+
+            - Rename '_master_provider' to '_provider'.
+              Renames '_master_provider' to '_provider' for consistency.
+
+            - Move contents and remove 'util/textutils.py'.
+              Moves the last function out of 'textutils.py' and removes the module
+
+              Moves 'extract_digits()' to from 'util/textutils.py' to
+              'util/text/transform.py' and makes necessary adjustments to callers.
+
+            - Improve variable names in the 'TextChunker' class.
+
+            - Remove unused text utility 'extract_lines()'.
+
+            - Remove unused text utility 'extractlines_do()'.
+
+            - Remove de-duplication of list 'databundle.value'.
+
+            - Remove unused 'Configuration.name_templates'.
+
+            - Remove unused 'special_datetime_ocr_search()'.
+
+            - Make extractor 'shutdown()' optional.
+              Removes enforcing extractors to implement a 'shutdown()' method.
+
+              Adds checking that the attribute exists and then asserting that it is
+              callable before calling it.
+              Extractors that setup any external processes or other resources that
+              should be released must implement a 'shutdown()' method.
+
+            - Remove 'if __debug__' conditionals.
+
+            - Update 'Repository' class docstrings.
+
+            - Clear 'Repository' data in the 'shutdown()' method.
+
+            - Use '_' for unused parameters.
+              Replaces unused '*args' and '**kwargs' with '*_' and '*__'.
+
+            - Move 'core/coercers.py' to 'util/coercers.py'.
+
+            - Rename 'types.py' to 'coercers.py'.
+              Renames source files and classes related to type coercion.
+
+              The module 'core.types' is renamed to 'core.coercers' and the
+              base coercer class 'BaseType' has been renamed to 'BaseCoercer'.
+
+            - Do local import of 'ColumnFormatter'.
+
+            - Simplify dict access in 'TemplateFieldDataResolver'.
+              Makes 'TemplateFieldDataResolver.data_sources' a 'defaultdict'.
+
+            - Make sure to reset singletons from 'exit_program()'.
+              Moves de-initialization to new method 'Autonameow._shutdown()'.
+
+              This should be called whenever the program exits; when the context
+              manager calls '__exit__()' and also when calling 'exit_program()'.
+
+            - Handle additional case in 'filter_multiple_names()'.
+
+            - Improve 'find_and_extract_edition()'.
+              Adds handling special cases in 'find_and_extract_edition()'.
+
+              Uses increasingly "loose" pattens when matching to avoid some
+              false positives.
+
+            - Skip probable-routine for only one ISBN metadata.
+
+            - Small refactor of the 'TemplateFieldDataResolver'.
+
+            - Use function for padding debug log sections.
+
+            - Modify filtering/modifying names in 'humannames.py'.
+
+            - Modify 'FiletagsExtractor.can_handle()'.
+              Handle files with a non-empty or not only whitespace filename.
+
+            - Modify wordlist spellchecker script.
+
+            - Skip coercion of missing filetags "timestamps".
+              Adds checking if "timestamp" is None to prevent failed coercions.
+
+              Set timestamp to None instead of empty string here so that it can be
+              detected and skipped when converting values to the "internal format".
+              Coercing None with 'AW_TIMEDATE' raises a 'AWTypeError' exception,
+              which would happen for every file that do not have a "timestamp"
+              filetags part.
+
+            - Improve pattern-matching edition strings.
+              Improves extracting "editions" from strings in 'patternmatching.py'.
+
+              Completes TODO-list item [TD0118].
+
+            - Modify filtering names in 'humannames.py'.
+
+            - Use a single shared 'exiftool' process.
+              Modifies extractors to be able to re-use a single external process.
+
+              References TODO-list item [TD0183].
+              Still not robust enough to be considered completed.
+
+              This now requires all extractors to implement a 'shutdown()' method
+              which is actually only relevant for the 'ExiftoolMetadataExtractor'.
+              Other extractors do not keep any such state to "de-initialize".
+
+            - Modify prioritization of candidate rules.
+
+            - Re-use extractor instances in the 'ExtractorRunner'.
+              Adds a "pool" of instantiated extractors for re-use.
+
+              This avoids loading extractor caches before running each extractor.
+              The extractors (and caches) are now set up once during the lifetime
+              of the 'MasterDataProvider', I.E. once per program invocation.
+
+            - Remove 'ExiftoolMetadataExtractor' try/except.
+              Removes redundant (hopefully) exception handling.
+
+              Also adds minor fixes to match conventions used in other extractors.
+
+            - Have 'EpubMetadataExtractor' match other extractors.
+
+            - Remove unused 'FiletagsExtractor' instance variables.
+              Also minor changes to naming to match other extractors.
+
+            - Modify filtering human names.
+              Filter out 'edited by' from the start of a name.
+
+              Uses 'filter_name()' to handle a single name, which is called
+              by 'filter_multiple_names()' when handling multiple names.
+
+            - Filter exiftool metadata values for any tags.
+              Adds filtering exiftool metadata values for any tags.
+
+            - Pass a 'ui' (view) to the 'RuleMatcher'.
+              References TODO [TD0171] on separating logic from UI.
+
+            - Pass reference to 'master_provider' to resolver.
+              References TODO [TD0185] on the high-level data provider interface.
+
+            - Remove function 'get_providers_for_meowuri()'.
+              Removes getter-function, accesses are now from within the module.
+
+            - Remove empty skeleton 'core/filter.py'.
+
+            - Modify package versions to work on MacOS.
+              Removes versions for 'pillow' and 'pytz'.
+
+            - Minor refactoring of the 'ProviderMixin' class.
+
+            - Move all provider handling to 'master_provider.py'.
+              Moves the 'ProviderRegistry' class and related functionality.
+
+              This arguably makes more sense and allows further refactoring
+              of the high-level interaction between the master data provider,
+              provider/extractor/analyzer runners and registries.
+
+            - Rename 'extract.{py,sh}' to 'meowxtract.{py,sh}'.
+              Renames the stand-alone extractor runner.
+
+            - Update [TD0183] with exiftool runtime measurements.
+
+            - Handle None values. Modify 'FiletagsExtractor'.
+              Use empty strings instead of None for missing file name parts.
+
+            - Inherit from the 'ProviderMixin'.
+              Makes 'BaseAnalyzer' and 'BaseExtractor' subclass 'ProviderMixin'.
+
+              Compared to the previous patching of a single method, this allows
+              refactoring the 'ProviderMixin' class by adding separate method,
+              which would have been inaccessible with the old way of connecting
+              up the provider base classes with the common mixin.
+
+            - Modify coercing provider result values.
+              Adds skipping values with unknown (None) 'multivalued'.
+
+              Instead of implicitly defaulting to 'multivalued' being False when
+              unspecified/malformed/None, skip the coercion of the value.
+              This means that the value will not be included in the final results
+              stored in the repository.
+              A lot of problems are related to the confusion around whether values
+              are lists of single values; a single value which *IS* a list and there
+              consists of multiple values, or multiple values that each contain
+              multiple values.
+              Makes sense to remove as much ambiguity as possible until this is less
+              of a total mess ..
+
+              Also other minor fixes.
+
+            - Modify 'check-spelling.sh'. Use external wordlist.
+              Add 'check-spelling.sh' to the "Source Code" integration tests.
+
+            - Rename 'WeightedMapping' 'probability' to 'weight'.
+              Renames namedtuple 'WeightedMapping' member 'probability' to 'weight'.
+
+            - Show excluded providers with '--dump-meowuris'.
+              Adds listing excluded providers with '--dump-meowuris --debug'.
+
+              Shows which providers were excluded due to unmet dependencies.
+
+            - Minor fixes in unit test utilities.
+              Move imports to local scope when possible and other minor changes.
+
+              Removes unused function 'load_repository_dump()'.
+
+            - Rework config parsing and rule class validation.
+              Moves validation of rule and rule condition data to config parser.
+
+              This is still very messy but this arguably improves it somewhat.
+
+            - Simplify 'Rule' and 'RuleCondition' validation.
+              Simplifies validation of data used to construct rule classes.
+
+              Moves validation out of them classes to constructing functions.
+              Also other various minor fixes and cleanups.
+
+            - Remove unused 'referenced_meowuris'.
+              Removes keeping track of MeowURIs referenced by rule conditions.
+
+              Left behind from commit b9b9063c9069e0eb204604b4bc68131ef939a1b0
+              This is now handled dynamically by the 'MasterDataProvider'.
+
+            - Minor refactoring and cleanup in 'builder.py'.
+              Remove duplicated error logs and exceptions. Add notes/TODOs.
+
+            - Minor 'CrossPlatformFileSystemExtractor' refactor.
+              Rewrites fileobject property accesses for less duplication.
+
+            - Modify "special case" date/time pattern matching.
+              Adds another variation and simplifies the matching.
+
+            - Modify interaction of "timid mode" and "batch mode".
+              Allows combining the "timid" and "batch" mode options.
+
+              This allows running non-interactively while still controlling
+              whether each individual file is actually renamed or not.
+
+            - Move config I/O functions to a separate file.
+              Moves functions for writing/loading configuration files.
+
+              Functionality for reading and writing configuration files and default
+              configuration file paths is moved from 'core/config/__init__.py' to a
+              new file 'core/persistence/config.py'.
+
+              Also various minor renaming and cleanups where these functions are
+              accessed. Replaces really bad unit test dependencies with mocking.
+
+            - Move 'FilenamePostprocessor' to outer scope.
+              Moves the 'FilenamePostprocessor' from the name builder.
+
+              This was the fastest way to bypass the 'TemplateFieldDataResolver'
+              when the name template of the used rule does not contain any
+              placeholder fields.
+
+              Adds new regression test suites with a single rule with a "static"
+              name template, I.E. no placeholder fields and also no data sources.
+
+            - Start using the 'NameTemplate' class.
+              Integrates the new 'NameTemplate' class.
+
+              Name templates should be instances of this class from now on.
+              Also does some minor modifications to the name builder functions.
+
+              Completes TODO-list item [TD0180].
+
+            - Modify the 'Rule' class and rule validation.
+              Moves validation out of the 'Rule' class. Cleans up tests.
+
+              This simplifies testing the 'Rule' class a lot and is just plain
+              better with overall less messy code.
+
+              Modifies rule comparison and hashing to ignore the descriptions.
+
+            - Minor refactoring regression rename assertions.
+
+            - Refactor the regression runner and utilities.
+              Replace ad-hoc dicts with a new class 'RegressionTestSuite'.
+
+              Various minor fixes such as renames. One regression "test" is now
+              called a "suite", as it contains multiple assertions that each
+              constitute individual tests.
+
+            - Remove 'msg()' function argument 'add_info_log'.
+
+            - Refactor loading options in 'RegressionTestLoader'.
+              Cleans up loading of 'options.yaml' files. Adds tests.
+
+            - Refactor the regression test runner.
+              Moves all printing of results to the 'TerminalReporter'.
+
+              Replaces global 'VERBOSE' with passing flags to relevant functions.
+
+            - Move import to local function scope.
+              Moves importing a possibly missing module to the using function.
+
+              This module is likely imported from a lot of places.
+              The "lazy" import is intended to prevent prematurely importing
+              third-party modules that might be missing, like 'prompt_toolkit'.
+
+            - Pass in a user interface to the name builder.
+              Adds passing the active 'view' or 'ui' to the name builder functions.
+
+              References [TD0171] on separating the views from pure logic.
+
+            - Move non-documentation from 'docs' to 'notes'.
+
+            - Use 'DependencyError' exception instead of exiting.
+              Adds a new exception class 'DependencyError'.
+
+              Raising 'SystemExit' with a non-zero exit status when a required
+              module import raises an 'ImportError' does not work well with the
+              regression tests.
+
+              This caused the regression test runner to seemingly mysteriously
+              stop and skip any remaining text without providing any information.
+              The new exception should probably be caught at the outer-most entry
+              points to display a more user-friendly error message, possibly with
+              instructions on how to install the missing dependencies, or at the
+              very least provide a link to relevant documentation.
+
+            - Revert modified 'pg38145-images.epub_expected.txt'.
+
+            - Modify 'FileObject.__repr__()'. Simplify logging.
+              Modifies 'FileObject.__repr__()' to include the partial hash.
+
+              Allows simplifying a lot of logging calls and other string
+              formatting that use this representation.
+
+            - Use 'find_and_extract_edition()'.
+              Replaces 'find_edition()' with 'find_and_extract_edition()'.
+
+              Solves issues related to [TD0130] in the 'EbookAnalyzer'.
+
+            - Refactor the 'TextChunker' class for readability.
+
+            - Use 'TextChunker' in the 'DocumentAnalyzer'.
+              Refactor text chunking in the 'DocumentAnalyzer'.
+
+              Replaces ad-hoc text chunking with the 'TextChunker' class.
+
+              Completes TODO-list item [TD0134] on consolidating splitting
+              up text into "chunks".
+
+            - Refactor text chunking in the 'EbookAnalyzer'.
+              Replaces ad-hoc text chunking with the 'TextChunker' class.
+
+              Factors out extracting ISBN numbers from text into a separate method.
+
+              References TODO-list item [TD0134].
+
+            - Factor out 'isbnlib' functionality to new module.
+              Adds a new module 'services' in the source root.
+
+              This module should contain third-party services for querying APIs.
+
+              Most of the 'isbnlib' functionality is moved from 'analyze_ebook.py'
+              to a new file 'services/isbn.py'.
+
+              This should be cleaned up and designed as to provide an interface
+              to *any* ISBN metadata service provider, not just 'isbnlib'.
+              The interface should also handle take care of verifying that the
+              services are available and other service-specific details such as
+              rate-limiting, etc.
+
+              References TODO-list item [TD0182].
+
+            - Rework 'find_titles_in_text()'. Add unit tests.
+
+            - Rename 'text_lines' to 'num_text_lines'.
+
+            - Modify exceptions raised in 'collapse_whitespace()'.
+              Prefer 'AssertionError' over 'TypeError' for internal functions.
+
+
+            Fixes
+            - Fix repeating queries and messages on renames.
+              Removes repeating rename confirmation prompts and messages.
+
+              Modified the 'FileRenamer' to clear out skipped, "rejected" (opposite
+              of confirmed) and renamed files. This prevents the same prompts and
+              messages from re-appearing for every processed file in the outer-most
+              main program loop.
+
+            - Various clean up of 'builder.py'.
+              Fix inconsistencies. Implement 'DataBundle.__str__()'.
+
+            - Prevent duplicated delegations.
+              Adds temporary fix along with some notes on possible solutions.
+
+            - Add unit test constant 'PATH_USER_HOME'. Fixes.
+              Removes duplicated code and unused functions. Moves misplaced tests.
+
+            - Various minor changes in the 'Autonameow' class.
+              Adds method '_collect_path_from_opts()' and minor fixes.
+
+            - Fix 'exiftool_fieldmeta.yaml'. Modify assertion.
+
+            - Add handling special case human name format.
+              Fixes incorrect 'nameparser' results for names like 'A.B. Lastname'.
+
+            - Fix 'datetime' format not passed to field format.
+
+            - Minor fixes. Make local logging functions methods.
+
+            - Fixes to the mess that is 'FilesContext'.
+
+            - Fix crashing if mismatched candidate and field.
+              Fixes crashing due to formatting fields with incompatible value.
+
+              Fixes crashing when attempting to format field candidate with a
+              placeholder field that are not both either "multivalued" or not.
+
+              Fixed by checking that the placeholder field is compatible with the
+              field candidate before calling the 'format()' method which raised a
+              assertion error exception.
+
+            - Fix 'lookup_candidates()' used wrong field coercer.
+              Fixes not using "list of string"-coercer for "multi-valued" fields.
+
+            - Fix inconsistent assertion argument ordering.
+              Prefer 'assert(expected, actual)' over 'assert(actual, expected)'.
+
+              Adds notes on this to 'conventions.md' for future reference.
+
+            - Fix inconsistent conditional skipping of unit tests.
+
+            - Fix stand-alone extractor swallowing exceptions.
+              Adds back crashing where crashing is to be expected.
+
+            - Fix 'Repository.__len__()' and unit tests.
+              Various fixes to the 'Repository' class and related unit tests.
+
+            - Fix undefined variable used in log message.
+
+            - Various fixes in 'resolver.py'.
+              Fixes for readability. Modify de-duplication. Still incomplete.
+
+            - Fix splitting human names containing 'and'.
+              Fixes incorrectly splitting human names containing 'and'.
+
+            - Fix resolver not reset when using new rule.
+              Fixes bug where the resolver was not properly reset "between rules".
+
+              After trying and failing to apply a given rule the resolver state was
+              kept, which led to attempts to gather data for placeholder fields that
+              were present in the rule active previously but not present in the
+              currently active rule.
+
+              This part of the code is all just a total mess, I'm surprised it
+              works as "well" as it does..
+
+            - Fix asymmetric regression runner test reporting.
+              Display message when 'check_renames()' succeeds as well as fails.
+
+            - Fix inconsistent variable naming in extractors.
+
+            - Fix inconsistent naming in 'meowxtract.py'.
+
+            - Various minor largely non-functional fixes.
+
+            - Fix unit test breaking depending on terminal size.
+
+            - Fix unit tests breakage due to global state.
+              Running the tests on a new MacBook Pro all of a sudden breaks tests.
+
+              This has somehow not been a problem on any other system I've tried so
+              far. Fixed by resetting global state after the offending tests, which
+              then seems to not affect other unit tests.
+
+            - Various fixes and additions to 'logs.py'.
+              Factors out string formatting. Adds new runtime reporter.
+
+            - Miscellaneous fixes in 'autonameow.py'.
+              Rename variables, modify logging. Fix inconsistent messages.
+
+            - Fix inconsistent naming in 'master_provider.py'.
+              Prefer 'uri' over 'meowuri' to avoid potential module name clashes.
+
+            - Various minor fixes in 'analyze_ebook.py'.
+              Modify debug logging. Clean up 'filter_isbns()'.
+
+            - Fix crashing due to accessing renamed method.
+
+            - Fix unit test failing on MacOS.
+
+            - Fix inconsistent return statements.
+
+            - Fix inconsistent naming of string values.
+              Adds 'str_' prefix to result of calling 'types.force_string()'.
+
+            - Clean up unit tests.
+            - Clean up 'config_parser.py' and related unit tests.
+            - Clean up 'truncate_text()'. Add unit tests.
+            - Clean up string coercion in MeowURI classes.
+            - Clean up and add missing 'FileObject' unit tests.
+            - Clean up 'simplify_unicode()'.
+            - Clean up 'normalize_unicode()'.
+            - Clean up 'indent()'.
+            - Clean up 'normalize_whitespace()' and tests.
+            - Clean up 'collapse_whitespace()' and tests.
+            - Clean up string field value normalization.
+            - Clean up 'test_util_mimemagic.py'.
+            - Clean up unit test imports. Remove commented code.
+            - Clean up 'checksum.py' and related unit tests.
+
+            - Clean up exception handling. Catch too long names.
+              Modifies exception handling around 'rename_file()'.
+              Adds handling failing due to destination path being too long.
+
+            - Clean up the regression runner.
+              Various fixes, remove redundancies, rename variables, etc.
+
+            - Clean up the regression runner and utilities.
+              Refactor for readability. Update 'tests/README.md'.
+
+            - Clean up 'RegressionTestLoader' config paths.
+              Cleans up reading config paths from regression tests options.
+
+            - Clean up unit tests for 'field_parsers.py'.
+
+            - Clean up datetime string matching functions.
+              Reworks matching "special cases" of ISO-like dates in strings.
+
+            - Clean up 'Repository._machine_readable_contents()'.
+              Attempt at improving the string representation of stored data.
+
+            - Inline redundant variables, fix duplicated logging.
+              Adds various minor fixes.
+
+            - Removes/inlines unnecessary variables.
+            - Fixes some inconsistent naming.
+            - Removes logging starting and completion in individual extractors
+              which duplicates logging produced by the 'log_runtime()' context
+              handler in the calling 'ExtractorRunner'.
+
+            - Add workaround for bad 'nameparser' results.
+              Adds fix for invalid parsing of names like 'Le Minh Nguyen'.
+
+            - Add fix for circular imports in 'humannames.py'.
+              Fixes error when importing 'checksum.py' from interactive prompt.
+
+            - Add underline prefix to type coercion classes.
+              Indicates private scope. Users should call module-level singletons.
+
+            - Add hack fix to 'split_multiple_names()'.
+              Adds hack fix to handle special case in 'split_multiple_names()'.
+
+            - Minor fixes. Add TODO [TD0184].
+              Adds TODO [TD0184] on fixing 'metainfo' translation.
+
+              Renames variables/arguments in 'providers.py'.
+
+            - Add partial resolver-related fixes in 'context.py'.
+
+            - Minor refactoring in 'repository.py'.
+
+            - Ignore empty/whitespace lines when parsing mappings.
+
+            - Remove unused extractor 'shutdown()' methods.
+
+            - Remove empty file 'test_util_text.py'.
+
+
 2018-03-08  [autonameow v0.5.6]
             Removed the plugin system.
             The 'MicrosoftVisionPlugin' is removed and the 'GuessitPlugin' is
