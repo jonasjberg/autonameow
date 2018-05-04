@@ -74,6 +74,7 @@ def load_yaml_file(file_path):
         FilesystemError: The configuration file could not be read and/or loaded.
     """
     if not file_path:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(
             'Missing required argument "file_path"'
         )
@@ -82,6 +83,7 @@ def load_yaml_file(file_path):
                   encoding=C.DEFAULT_ENCODING) as fh:
             return load_yaml(fh)
     except (OSError, YamlLoadError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -114,10 +116,12 @@ def write_yaml_file(dest_filepath, datadict):
         FilesystemError: The yaml file could not be written.
     """
     if not dest_filepath:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(
             'Missing required argument "dest_path"'
         )
     if not disk.has_permissions(disk.dirname(dest_filepath), 'w'):
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(dest_filepath, 'Insufficient permissions')
 
     try:
@@ -125,4 +129,5 @@ def write_yaml_file(dest_filepath, datadict):
                   encoding=C.DEFAULT_ENCODING) as fh:
             write_yaml(datadict, fh)
     except (OSError, UnicodeEncodeError, yaml.YAMLError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(dest_filepath, e)

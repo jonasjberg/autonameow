@@ -68,6 +68,7 @@ class NameBuilderError(AutonameowException):
 class FilesystemError(AutonameowException):
     """Errors occurred while reading/writing files on disk. Should be used by
     the filesystem abstraction layer as a catch-all for failed operations."""
+    # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
 
 
 class InvalidMeowURIError(ConfigError):

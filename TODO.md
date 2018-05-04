@@ -276,6 +276,33 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0193]` __Clean up arguments passed to `FilesystemError`__  
+    Fix inconsistent usage of the `FilesystemError` exception class.
+
+    Two calls in `util/disk/yaml.py` pass additional information;
+    ```python
+    raise FilesystemError(dest_filepath, e)
+    ```
+
+    While other calls look like;
+    ```python
+    try:
+        foo()
+    except FooError as e:
+        raise FilesystemError(e)
+    ```
+
+    Might be worthwhile to add class attribute constants.
+    So that something like;
+    ```python
+    raise FilesystemError(dest_filepath, 'Insufficient permissions')
+    ```
+
+    Would become something more along the lines of;
+    ```python
+    raise FilesystemError(dest_filepath, FilesystemError.ERROR_PERMISSION)
+    ```
+
 * `[TD0192]` __Detect and extract editions from titles__  
     This is already done in the `EbookAnalyzer` using functions in
     `patternmatching.py` but this needs to be extracted into a separate system.
