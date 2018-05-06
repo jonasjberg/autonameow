@@ -175,8 +175,13 @@ def is_blacklisted(entry):
                 or _subject_match(r'Trivial.*')
                 or _subject_match(r'Minor (changes?|fix|fixes) .*')
                 or _subject_match(r'Whitespace fixes')
+                or _subject_match(r'.*trailing whitespace.*')
                 or _subject_match(r'Rename variables')
                 or _subject_match(r'Rename function \'.*\'')
+                or _subject_match(r'Fix( broken)?( unit)? tests?$')
+                or _subject_match(r'Minor refactor.*assert(ions)?')
+                or _subject_match(r'Fix variable shadowing .*')
+                or _subject_match(r'Remove unused .* argument.*')
                 or _subject_match(r'.*[sS]pelling.*')):
             return True
 

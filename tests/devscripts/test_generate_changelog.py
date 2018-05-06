@@ -143,6 +143,11 @@ class TestIsBlacklisted(TestCase):
     # Trivial and uninformative commits
     def test_blacklists_trivial_uninformative_fix(self):
         self._assert_blacklists(
+            subject='Fix variable shadowing argument.',
+            body='',
+        )
+
+        self._assert_blacklists(
             subject='Fix unit tests.',
             body='',
         )
@@ -156,6 +161,48 @@ class TestIsBlacklisted(TestCase):
     def test_does_not_blacklist_fix_mention(self):
         self._assert_not_blacklisted(
             subject='Fix testing for capitalized "Usage".',
+            body='',
+        )
+
+    def test_blacklists_trivial_test_fixes(self):
+        self._assert_blacklists(
+            subject='Fix unit tests.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject='Fix broken unit test.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject='Fix broken tests.',
+            body='',
+        )
+
+    def test_blacklists_trivial_refactorings(self):
+        self._assert_blacklists(
+            subject='Minor refactoring regression rename assertions.',
+            body='',
+        )
+
+    def test_blacklists_trivial_removals(self):
+        self._assert_blacklists(
+            subject="Remove unused 'FilesContext' argument 'ui'.",
+            body='',
+        )
+
+    def test_blacklists_whitespace_changes(self):
+        self._assert_blacklists(
+            subject='Whitespace fixes.',
+            body='',
+        )
+        self._assert_blacklists(
+            subject='Remove trailing whitespace.',
+            body='',
+        )
+
+    def test_does_not_blacklist_arguably_less_trivial_test_fixes(self):
+        self._assert_not_blacklisted(
+            subject='Fix unit test failing on MacOS.',
             body='',
         )
 
