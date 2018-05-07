@@ -46,6 +46,12 @@ class CaseExtractorOutputTypes(object):
         cls.extractor = cls.EXTRACTOR_CLASS()
         cls.actual_extracted = cls.extractor.extract(cls.SOURCE_FILEOBJECT)
 
+    @classmethod
+    def tearDownClass(cls):
+        assert cls.extractor
+        if hasattr(cls.extractor, 'shutdown'):
+            cls.extractor.shutdown()
+
     def test_instantiated_extractor_is_not_none(self):
         actual = self.extractor
         self.assertIsNotNone(
