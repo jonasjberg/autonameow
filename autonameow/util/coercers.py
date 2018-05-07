@@ -865,6 +865,11 @@ class MultipleTypes(object):
             return item == self.coercer
         return False
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.coercer == other.coercer
+        return False
+
 
 def listof(coercer):
     return MultipleTypes(coercer)

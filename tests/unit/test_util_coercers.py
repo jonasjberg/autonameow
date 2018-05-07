@@ -1824,6 +1824,35 @@ class TestMultipleTypes(TestCase):
                 self.assertIsNotNone(actual[0])
                 self.assertEqual(1, len(actual))
 
+    def test_comparison_is_based_on_contained_coercers(self):
+        a = coercers.MultipleTypes(coercers.AW_STRING)
+        b = coercers.MultipleTypes(coercers.AW_BOOLEAN)
+        c = coercers.MultipleTypes(coercers.AW_STRING)
+        self.assertNotEqual(a, b)
+        self.assertEqual(a, c)
+        self.assertNotEqual(b, c)
+        self.assertEqual(c, a)
+
+    def test_comparison_from_output_of_listof_function(self):
+        A1 = coercers.listof(coercers.AW_STRING)
+        A2 = coercers.listof(coercers.AW_STRING)
+        B = coercers.listof(coercers.AW_BOOLEAN)
+        self.assertNotEqual(A1, B)
+        self.assertEqual(A1, A2)
+        self.assertNotEqual(B, A2)
+
+    def test_comparison_with_listof_function_and_multipletypes_class(self):
+        A1 = coercers.listof(coercers.AW_STRING)
+        A2 = coercers.MultipleTypes(coercers.AW_STRING)
+        B1 = coercers.listof(coercers.AW_BOOLEAN)
+        B2 = coercers.MultipleTypes(coercers.AW_BOOLEAN)
+        self.assertNotEqual(A1, B1)
+        self.assertNotEqual(A1, B2)
+        self.assertNotEqual(A2, B2)
+        self.assertEqual(A1, A2)
+        self.assertNotEqual(B1, A2)
+        self.assertEqual(B1, B2)
+
 
 class TestListofComparison(TestCase):
     def test_expect_coercer_klass_in_multipletypes(self):

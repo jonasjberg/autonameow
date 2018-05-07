@@ -138,8 +138,12 @@ class TemplateFieldDataResolver(object):
                     _candidate_probability = mapping.weight
                     break
 
-            if not field.type_compatible(candidate.coercer):
+            field_candidate_types_compatible = field.type_compatible(candidate.coercer, candidate.multivalued)
+            if not field_candidate_types_compatible:
+                log.debug('Type of field {!s} is NOT compatible with candidate {!s}'.format(field, candidate))
                 continue
+            else:
+                log.debug('Type of field {!s} is compatible with candidate {!s}'.format(field, candidate))
 
             _formatted_value = field.format(candidate, config=self.config)
             assert _formatted_value is not None
@@ -288,7 +292,7 @@ class TemplateFieldDataResolver(object):
     def _verify_type(self, field, databundle):
         log.debug('Verifying type of field {!s} with data :: {!s}'.format(
             field, databundle.value))
-        if field.type_compatible(databundle.coercer):
+        if field.type_compatible(databundle.coercer, databundle.multivalued):
             log.debug('Field-Data type compatible')
         else:
             self.fields_data[field] = None

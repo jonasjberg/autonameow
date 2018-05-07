@@ -81,6 +81,7 @@ class DocumentAnalyzer(BaseAnalyzer):
     FIELD_LOOKUP = {
         'title': {
             'coercer': 'aw_string',
+            'multivalued': 'false',
             'mapped_fields': [
                 # TODO: [TD0166] Set weights dynamically
                 {'WeightedMapping': {'field': 'Title', 'weight': '0.1'}},
@@ -89,6 +90,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         },
         'datetime': {
             'coercer': 'aw_timedate',
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'DateTime', 'weight': '0.25'}},
                 {'WeightedMapping': {'field': 'Date', 'weight': '0.25'}},
@@ -97,6 +99,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         },
         'publisher': {
             'coercer': 'aw_string',
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Publisher', 'weight': '1'}},
             ],

@@ -173,15 +173,6 @@ def _translate_field_metainfo_to_internal_format(field_metainfo):
     _field_metainfo = dict(field_metainfo)
     internal_field_metainfo = dict()
 
-    coercer_klass = get_coercer_for_metainfo_string(_field_metainfo.get('coercer'))
-    if coercer_klass is None:
-        # TODO: Improve robustness. Raise appropriate exception.
-        # TODO: Improve robustness. Log provider with malformed metainfo entries.
-        # Fail by returning None if coercer is missing.
-        return None
-
-    internal_field_metainfo['coercer'] = coercer_klass
-
     mapped_fields_strings = _field_metainfo.get('mapped_fields')
     if mapped_fields_strings:
         translated_mapped_fields = translate_metainfo_mappings(mapped_fields_strings)
@@ -196,10 +187,16 @@ def _translate_field_metainfo_to_internal_format(field_metainfo):
             internal_field_metainfo['generic_field'] = generic_field_klass
 
     multivalued_string = _field_metainfo.get('multivalued')
-    if multivalued_string is not None:
-        translated_multivalued = translate_multivalued(multivalued_string)
-        if translated_multivalued is not None:
-            internal_field_metainfo['multivalued'] = translated_multivalued
+    if multivalued_string is None:
+        raise AssertionError('TODO: Handle missing "multivalued" metainfo entry in {!s}'.format(field_metainfo))
+
+    translated_multivalued = translate_multivalued(multivalued_string)
+    assert translated_multivalued is not None
+    internal_field_metainfo['multivalued'] = translated_multivalued
+
+    coercer_klass = get_coercer_for_metainfo_string(_field_metainfo.get('coercer'))
+    assert coercer_klass is not None
+    internal_field_metainfo['coercer'] = coercer_klass
 
     return internal_field_metainfo
 
