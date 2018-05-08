@@ -41,12 +41,12 @@ BAD_EXIFTOOL_METADATA = {
     'Palm:Contributor': {'calibre (3.6.0) [https://calibre-ebook.com]'},
     'PDF:Author': {'Author', 'Unknown'},
     'PDF:Subject': {'Subject', 'Unknown'},
-    'PDF:Title': {'Title', 'Unknown'},
+    'PDF:Title': {'Title', 'Unknown', 'DjVu Document'},
     'XMP:Author': {'Author', 'Creator', 'Unknown'},
     'XMP:Creator': {'Author', 'Creator', 'Unknown'},
     'XMP:Description': {'Subject', 'Description', 'Unknown'},
     'XMP:Subject': {'Subject', 'Description', 'Unknown'},
-    'XMP:Title': {'Title', 'Unknown'}
+    'XMP:Title': {'Title', 'Unknown', 'DjVu Document'}
 }
 
 # Metadata to ignore in all fields.

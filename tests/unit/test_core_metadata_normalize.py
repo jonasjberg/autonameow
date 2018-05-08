@@ -66,6 +66,10 @@ class TestNormalizeFullTitle(TestCase):
         for given, expect in TESTDATA_GIVEN_EXPECT:
             self._assert_normalized_title(expect, given)
 
+    def test_removes_trailing_file_extension(self):
+        self._assert_normalized_title('probability theory', 'Probability Theory.djvu')
+        self._assert_normalized_title('probability theory', 'Probability Theory.epub')
+
 
 class TestCleanupFullTitle(TestCase):
     def _assert_cleaned_up_title(self, expected, given):
@@ -99,3 +103,7 @@ class TestCleanupFullTitle(TestCase):
 
     def test_replaces_non_breaking_spaces(self):
         self._assert_cleaned_up_title('foo', '\xa0foo')
+
+    def test_removes_trailing_file_extension(self):
+        self._assert_cleaned_up_title('Probability Theory', 'Probability Theory.djvu')
+        self._assert_cleaned_up_title('Probability Theory', 'Probability Theory.epub')

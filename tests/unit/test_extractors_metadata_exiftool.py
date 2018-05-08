@@ -124,12 +124,14 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad('PDF:Author', 'Unknown')
         self._assert_bad('PDF:Subject', 'Unknown')
         self._assert_bad('PDF:Title', 'Unknown')
+        self._assert_bad('PDF:Title', 'DjVu Document')
         self._assert_bad('XMP:Author', 'Unknown')
         self._assert_bad('XMP:Creator', 'Unknown')
         self._assert_bad('XMP:Description', 'Unknown')
         self._assert_bad('XMP:Subject', 'Unknown')
         self._assert_bad('XMP:Subject', ['Unknown'])
         self._assert_bad('XMP:Title', 'Unknown')
+        self._assert_bad('XMP:Title', 'DjVu Document')
 
     def test_certain_bad_values_return_true_for_any_tag(self):
         self._assert_bad('PDF:Creator', 'www.allitebooks.com')
