@@ -265,8 +265,8 @@ class ProviderRunner(object):
 
     def delegate_to_providers(self, fileobject, uri):
         possible_providers = set(Registry.providers_for_meowuri(uri))
-        log.debug('Got {} possible providers'.format(len(possible_providers)))
         if not possible_providers:
+            log.debug('Got no possible providers for delegation {!s}'.format(uri))
             return
 
         # TODO: [TD0161] Translate from specific to "generic" MeowURI?
@@ -276,8 +276,11 @@ class ProviderRunner(object):
 
         prepared_analyzers = set()
         prepared_extractors = set()
-        for provider in possible_providers:
-            log.debug('Looking at possible provider: {!s}'.format(provider))
+        num_possible_providers = len(possible_providers)
+        for n, provider in enumerate(possible_providers, start=1):
+            log.debug('Looking at possible provider ({}/{}): {!s}'.format(
+                n, num_possible_providers, provider
+            ))
 
             if self._previously_delegated_provider(fileobject, provider):
                 log.debug('Skipping previously delegated provider {!s}'.format(provider))
