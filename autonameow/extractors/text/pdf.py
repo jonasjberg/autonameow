@@ -65,7 +65,7 @@ def extract_pdf_content_with_pdftotext(filepath):
     """
     try:
         process = subprocess.Popen(
-            ['pdftotext', '-nopgbrk', '-enc', 'UTF-8', filepath, '-'],
+            ['pdftotext', '-q', '-nopgbrk', '-enc', 'UTF-8', filepath, '-'],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, stderr = process.communicate()
