@@ -54,6 +54,10 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Addison Wesley',
         'addison wesley',
     ],
+    'AthenaScientific': [
+        'AthenaScientific',
+        'Athena Scientific',
+    ],
     'AtlantisPress': [
         'Atlantis Press',
         'AtlantisPress',
@@ -219,12 +223,23 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'PragmaticBookshelf',
         'The Pragmatic Bookshelf',
         'The Pragmatic Programmers, LLC.',
+        'The Pragmatic Programmers LLC',
+        'The Pragmatic Programmers',
     ],
     'PrenticeHall': [
         'Prentice Hall',
         'PrenticeHall',
         'PRENTICE HALL',
         'Prentice Hall PTR',
+    ],
+    'PublishOrPerish': [
+        'Publish or Perish',
+        'Publish or Perish Inc',
+        'Publish or Perish Inc.',
+        'Publish or Perish, Inc.',
+        'Publish or Perish inc',
+        'Publish or Perish inc.',
+        'Publish or Perish, inc.',
     ],
     'Sams': [
         'Sams',
@@ -253,6 +268,13 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Taylor and Francis',
         'Taylor & Francis',
     ],
+    'WellesleyCambridgePress': [
+        'WellesleyCambridgePress',
+        'Wellesley Cambridge',
+        'Wellesley Cambridge Press',
+        'Wellesley-Cambridge',
+        'Wellesley-Cambridge Press',
+    ],
     'Westview': [
         'Westview',
     ],
@@ -266,6 +288,7 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Wiley Pub.',
         'wiley & Sons',
         'wiley',
+        'Wiley-Interscience',
     ],
     'Wordware': [
         'Wordware',

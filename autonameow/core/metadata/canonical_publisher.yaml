@@ -5,6 +5,9 @@ AcademicPress:
 ArtechHouse:
     match_any_literal:
     - Artech House
+AthenaScientific:
+    match_any_literal:
+    - Athena Scientific
 AtlantisPress:
     match_any_literal:
     - Atlantis Press
@@ -145,12 +148,19 @@ Pearson:
 PragmaticBookshelf:
     match_any_literal:
     - The Pragmatic Bookshelf
-    - The Pragmatic Programmers, LLC.
+    - The Pragmatic Programmers
+    match_any_regex:
+    - The Pragmatic Programmers,? LLC\.?
 PrenticeHall:
     match_any_literal:
     - Prentice Hall
     - PRENTICE HALL
     - Prentice Hall PTR
+PublishOrPerish:
+    match_any_literal:
+    - Publish or Perish
+    match_any_regex:
+    - Publish or Perish,? Inc\.?
 Sams:
     match_any_literal:
     - Sams Publishing
@@ -175,20 +185,23 @@ Syngress:
 TaylorFrancis:
     match_any_regex:
     - Taylor (&|and) Francis
+WellesleyCambridgePress:
+    match_any_regex:
+    - Wellesley.Cambridge( Press)?
 Westview:
     match_any_literal:
     - Westview
 Wiley:
     match_any_literal:
-    - John Wiley & Sons, Inc.
-    - John Wiley & Sons Inc
-    - John Wiley & Sons
     - John Wiley
     - J. Wiley
     - Wiley Pub., Inc.
     - Wiley Pub.
     - wiley & Sons
     - wiley
+    - Wiley-Interscience
+    match_any_regex:
+    - John Wiley (&|and) Sons,?( Inc\.?)?
 Wordware:
     match_any_regex:
     - Wordware Pub(lishing)?
