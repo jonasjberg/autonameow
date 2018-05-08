@@ -38,9 +38,6 @@ class PdfTextExtractor(AbstractTextExtractor):
         self.BLACKLISTED_TEXTLINES = frozenset([
             'Syntax Warning: Invalid Font Weight',
         ])
-        self.BLACKLISTED_RE_TEXTLINES = frozenset([
-            re.compile(r'^Syntax Error:? .*'),
-        ])
         self.init_cache()
 
     def extract_text(self, fileobject):

@@ -30,8 +30,6 @@ from util import encoding as enc
 from util import sanity
 from util.text import normalize_unicode
 from util.text import normalize_whitespace
-from util.text import remove_blacklisted_lines
-from util.text import remove_blacklisted_re_lines
 from util.text import remove_nonbreaking_spaces
 from util.text import remove_zerowidth_spaces
 from util.text import strip_single_space_lines
@@ -49,7 +47,6 @@ class AbstractTextExtractor(BaseExtractor):
 
         self.cache = None
         self.BLACKLISTED_TEXTLINES = frozenset(list())
-        self.BLACKLISTED_RE_TEXTLINES = frozenset(list())
 
     def extract(self, fileobject, **kwargs):
         text = self._get_text(fileobject)
@@ -147,7 +144,6 @@ class AbstractTextExtractor(BaseExtractor):
         text = remove_nonbreaking_spaces(text)
         text = remove_zerowidth_spaces(text)
         text = remove_blacklisted_lines(text, self.BLACKLISTED_TEXTLINES)
-        text = remove_blacklisted_re_lines(text, self.BLACKLISTED_RE_TEXTLINES)
         return text if text else ''
 
 
