@@ -46,7 +46,6 @@ class AbstractTextExtractor(BaseExtractor):
         super().__init__()
 
         self.cache = None
-        self.BLACKLISTED_TEXTLINES = frozenset(list())
 
     def extract(self, fileobject, **kwargs):
         text = self._get_text(fileobject)
@@ -143,7 +142,6 @@ class AbstractTextExtractor(BaseExtractor):
         text = strip_single_space_lines(text)
         text = remove_nonbreaking_spaces(text)
         text = remove_zerowidth_spaces(text)
-        text = remove_blacklisted_lines(text, self.BLACKLISTED_TEXTLINES)
         return text if text else ''
 
 
