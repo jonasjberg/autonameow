@@ -734,7 +734,7 @@ class TestBatchRegexReplace(TestCase):
             (re.compile(r'Foo'), 'Mjao')
         ]
         self._check_call(given='Foo Bar', expect='Mjao Bar',
-                          regex_replacements=reps)
+                         regex_replacements=reps)
 
     def test_two_replacements(self):
         reps = [
@@ -742,7 +742,7 @@ class TestBatchRegexReplace(TestCase):
             (re.compile(r' '), 'X'),
         ]
         self._check_call(given='Foo Bar', expect='MjaoXBar',
-                          regex_replacements=reps)
+                         regex_replacements=reps)
 
     def test_three_replacements(self):
         reps = [
@@ -751,7 +751,7 @@ class TestBatchRegexReplace(TestCase):
             (re.compile(r'(bar){2,}'), 'bar'),
         ]
         self._check_call(given='Foo barbar Bar', expect='MjaoXbarXBar',
-                          regex_replacements=reps)
+                         regex_replacements=reps)
 
     def test_perform_longer_replacements_first(self):
         reps = [
@@ -763,8 +763,8 @@ class TestBatchRegexReplace(TestCase):
         for reps_order in itertools.permutations(reps):
             with self.subTest(replacements=reps_order):
                 self._check_call(given='The Cat In A Hat',
-                                  expect='the Cat in a Hat',
-                                  regex_replacements=reps_order)
+                                 expect='the Cat in a Hat',
+                                 regex_replacements=reps_order)
 
     def test_perform_longer_replacements_first_with_word_boundaries(self):
         reps = [
@@ -776,8 +776,8 @@ class TestBatchRegexReplace(TestCase):
         for reps_order in itertools.permutations(reps):
             with self.subTest(replacements=reps_order):
                 self._check_call(given='The Cat In A Hat InA The FlAt',
-                                  expect='the Cat in a Hat InA the FlAt',
-                                  regex_replacements=reps_order)
+                                 expect='the Cat in a Hat InA the FlAt',
+                                 regex_replacements=reps_order)
 
     def test_does_not_exhibit_inconsistent_behaviour(self):
         reps = [
@@ -790,16 +790,16 @@ class TestBatchRegexReplace(TestCase):
         for reps_order in itertools.permutations(reps):
             with self.subTest(replacements=reps_order):
                 self._check_call(given='a cat And a Dog In A thing in The HAT',
-                                  expect='a cat and a Dog in a thing in the HAT',
-                                  regex_replacements=reps_order)
+                                 expect='a cat and a Dog in a thing in the HAT',
+                                 regex_replacements=reps_order)
 
     def test_replaces_single_quote(self):
         self._check_call(given='Foo\'s Bar', expect='Foos Bar',
-                          regex_replacements=[(re.compile(r'[\']'), '')])
+                         regex_replacements=[(re.compile(r'[\']'), '')])
         self._check_call(given='Foo\'s Bar', expect='Foos Bar',
-                          regex_replacements=[(re.compile(r"'"), '')])
+                         regex_replacements=[(re.compile(r"'"), '')])
         self._check_call(given='Foo\'s Bar', expect='Foos Bar',
-                          regex_replacements=[(re.compile("'"), '')])
+                         regex_replacements=[(re.compile("'"), '')])
 
 
 class TestRemoveBlacklistedLines(TestCase):
