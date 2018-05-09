@@ -171,12 +171,10 @@ class TerminalReporter(object):
             # Make the failed count red if any test failed.
             _failure = cli.colorize(_failure, fore='RED')
 
-        _runtime = '{:.6f}s'.format(elapsed_time)
-
+        _runtime = '{:.6f} seconds'.format(elapsed_time)
         _stats = 'Regression Test Summary:  {} total, {}, {} passed, {}  ' \
-                 'in {} seconds'.format(count_total, _skipped,
-                                        count_success, _failure, _runtime)
-
+                 'in {}'.format(count_total, _skipped, count_success,
+                                _failure, _runtime)
         _println()
         _println(_stats)
         _println('_' * TERMINAL_WIDTH)
