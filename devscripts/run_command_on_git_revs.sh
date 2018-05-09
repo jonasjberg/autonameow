@@ -28,7 +28,7 @@ if [ "$#" -ne '3' ]
 then
     cat >&2 <<EOF
 
-  USAGE:  ${SELF_BASENAME} [HASH_OLDEST] [HASH_NEWEST] [COMMAND]
+  USAGE:  ${SELF_BASENAME} [HASH_NEWEST] [HASH_OLDEST] [COMMAND]
 
   Checks out git revisions from HASH_OLDEST to HASH_NEWEST and executes
   COMMAND for each checked out revision.
@@ -46,8 +46,8 @@ EOF
     exit 0
 fi
 
-HASH_OLDEST="$1" # older revision
-HASH_NEWEST="$2"  # most recent revision
+HASH_NEWEST="$1"  # most recent revision
+HASH_OLDEST="$2"  # older revision
 COMMAND="$3"
 
 
