@@ -30,15 +30,17 @@ then
 
   USAGE:  ${SELF_BASENAME} [HASH_NEWEST] [HASH_OLDEST] [COMMAND]
 
-  Checks out git revisions from HASH_OLDEST to HASH_NEWEST and executes
-  COMMAND for each checked out revision.
-  Note that revision HASH_NEWEST should be more recent than HASH_OLDEST.
+  Checks out git revisions from HASH_NEWEST to HASH_OLDEST (inclusive)
+  in sequence and executes COMMAND after checking out each revision.
+  Note that revision HASH_NEWEST must be more recent than HASH_OLDEST.
 
-  This script exits if COMMAND returns non-zero.
+  This script exits if COMMAND returns non-zero . The repository might
+  be left in a "detached HEAD" state if COMMAND returns non-zero or is
+  terminated by SIGINT (ctrl-c) or any other signal.
+
   Primary usage for this script is to pass a test runner as COMMAND,
   which allows finding revisions that fail the tests and leaves this
   revision checked out for further examination.
-
   Prefer using 'git bisect' if the use case doesn't require checking
   out all revisions sequentially!
 
@@ -90,7 +92,7 @@ read -rsp $'  Press ANY key to continue or ctrl-c to abort\n\n' -n 1 key
 
 
 # Get revision hashes within range.
-revisions=$(git rev-list --reverse ${HASH_OLDEST}..${HASH_NEWEST})
+revisions=$(git rev-list ${HASH_OLDEST}..${HASH_NEWEST})
 if [ -z "$revisions" ]
 then
     printf 'Got no revisions for range %s..%s\n' "$HASH_OLDEST" "$HASH_NEWEST"
@@ -106,13 +108,13 @@ checkout_revision_and_eval_command()
     eval "$COMMAND"
 }
 
-# Range does not include this revision.
-checkout_revision_and_eval_command "$HASH_OLDEST"
-
 # Iterate over revisions.
 for rev in $revisions
 do
     checkout_revision_and_eval_command "$rev"
 done
+
+# Range does not include this revision.
+checkout_revision_and_eval_command "$HASH_OLDEST"
 
 git checkout --quiet $initial_branch
