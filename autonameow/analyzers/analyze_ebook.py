@@ -30,6 +30,7 @@ except ImportError:
 
 from analyzers import BaseAnalyzer
 from core import persistence
+from core.metadata.canonicalize import canonicalize_publisher
 from core.metadata.normalize import cleanup_full_title
 from core.metadata.normalize import normalize_full_human_name
 from core.metadata.normalize import normalize_full_title
@@ -39,6 +40,7 @@ from util import coercers
 from util.text import find_and_extract_edition
 from util.text import html_unescape
 from util.text import normalize_unicode
+from util.text import normalize_whitespace
 from util.text import RegexCache
 from util.text import remove_blacklisted_lines
 from util.text import string_similarity
@@ -588,8 +590,10 @@ class ISBNMetadata(object):
         # TODO: [TD0189] Canonicalize metadata values by direct replacements.
         if value and isinstance(value, str):
             str_value = normalize_unicode(html_unescape(value)).strip()
-            self._publisher = str_value
-            self._normalized_publisher = str_value.lower()
+            str_value = normalize_whitespace(str_value)
+            canonical_publisher = canonicalize_publisher(str_value)
+            self._publisher = canonical_publisher
+            self._normalized_publisher = canonical_publisher.lower()
 
     @property
     def normalized_publisher(self):
