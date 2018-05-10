@@ -56,7 +56,6 @@ class TestRepositoryStorage(TestCase):
 
     def test_repository_init_in_expected_state(self):
         self.assertIsInstance(self.r._data, dict)
-        self.assertIsInstance(self.r._generic_to_explicit_uri_map, dict)
         self.assertEqual(len(self.r), 0)
 
     def test_storing_data_increments_len(self):
@@ -176,15 +175,19 @@ class TestRepositoryStorage(TestCase):
 
 
 class TestRepositoryGenericToExplicitMeowURIMapping(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from core.model.genericfields import GenericTitle
+        cls.generic_title = GenericTitle
+
     def setUp(self):
         self.r = Repository()
         self.fo = uu.get_mock_fileobject(mime_type='text/plain')
 
     def test_storing_data_with_explicit_uri_is_returned_with_generic_query(self):
-        from core.model.genericfields import GenericTitle
         data = {
             'value': 'MEow MEOW',
-            'generic_field': GenericTitle(),
+            'generic_field': self.generic_title(),
         }
         explicit_uri = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE)
         self.r.store(self.fo, explicit_uri, data)
@@ -192,6 +195,28 @@ class TestRepositoryGenericToExplicitMeowURIMapping(TestCase):
         generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
         response = self.r.query(self.fo, generic_uri)
         self.assertEqual('MEow MEOW', response[0].value)
+
+    def test_all_stored_data_with_explicit_uris_is_returned_with_generic_query(self):
+        data_A = {
+            'value': 'MEOW',
+            'generic_field': self.generic_title(),
+        }
+        explicit_uri_A = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE)
+        self.r.store(self.fo, explicit_uri_A, data_A)
+
+        data_B = {
+            'value': 'Gibson RULES ..meow',
+            'generic_field': self.generic_title(),
+        }
+        explicit_uri_B = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_PDFTITLE)
+        self.r.store(self.fo, explicit_uri_B, data_B)
+
+        generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
+        response = self.r.query(self.fo, generic_uri)
+        response_values = [databundle.value for databundle in response]
+        self.assertEqual(2, len(response_values))
+        self.assertIn('MEOW', response_values)
+        self.assertIn('Gibson RULES ..meow', response_values)
 
 
 class TestRepositoryRetrievalWithGenericLeafAlias(TestCase):
@@ -234,6 +259,7 @@ class TestRepositoryRetrievalWithGenericLeafAlias(TestCase):
         leaf_alias_uri = uu.as_meowuri('extractor.metadata.exiftool.title')
         response = self.r.query(self.fo, leaf_alias_uri)
         response_values = [databundle.value for databundle in response]
+        self.assertEqual(2, len(response_values))
         self.assertIn('meow', response_values)
         self.assertIn('gibson rules', response_values)
 

@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from collections import defaultdict
 
 from core import event
 from core import logs
@@ -179,15 +178,8 @@ class Repository(object):
     def __init__(self):
         self._data = dict()
 
-        # Stores references from "generic" to "explicit" URIs.
-        # Outer dict is keyed by instances of 'FileObject', storing
-        # defaultdicts keyed by "generic" URIs that in turn store sets
-        # of "explicit" URIs.
-        self._generic_to_explicit_uri_map = dict()
-
     def shutdown(self):
         self._data = dict()
-        self._generic_to_explicit_uri_map = dict()
 
     def store(self, fileobject, meowuri, data):
         """
@@ -217,6 +209,9 @@ class Repository(object):
 
             data_generic_field_uri = data_generic_field.uri()
 
+            # Store mapping between full "explicit" and "generic" URIs.
+            meowuri_mapper.generic.map(fileobject, uri, data_generic_field_uri)
+
             # Store mapping between this full "explicit" URI and a version of
             # the full URI with its leaf replaced by the leaf of the generic
             # field URI.  This is utilized in the 'query()' method.
@@ -241,22 +236,6 @@ class Repository(object):
         )
 
         self.__store_data(fileobject, meowuri, data)
-
-    def _map_generic_to_explicit_uri(self, fileobject, generic_uri, explicit_uri):
-        if fileobject not in self._generic_to_explicit_uri_map:
-            self._generic_to_explicit_uri_map[fileobject] = defaultdict(set)
-
-        if logs.DEBUG:
-            log.debug('Mapping {!r} generic MeowURI {!s} -> {!s}'.format(
-                fileobject, generic_uri, explicit_uri
-            ))
-        self._generic_to_explicit_uri_map[fileobject][generic_uri].add(explicit_uri)
-
-    def _get_explicit_uris_from_generic_uri(self, fileobject, generic_uri):
-        if fileobject not in self._generic_to_explicit_uri_map:
-            return set()
-
-        return self._generic_to_explicit_uri_map[fileobject].get(generic_uri)
 
     def query_mapped(self, fileobject, field):
         out = list()
@@ -308,7 +287,7 @@ class Repository(object):
         return self.__get_data(fileobject, uri)
 
     def _query_generic(self, fileobject, uri):
-        explicit_uris = self._get_explicit_uris_from_generic_uri(fileobject, uri)
+        explicit_uris = meowuri_mapper.generic.fetch(fileobject, uri)
         if not explicit_uris:
             return None
 
@@ -334,8 +313,6 @@ class Repository(object):
         # TODO: [TD0131] Keep all but very bulky data like extracted text.
         if fileobject in self._data:
             self._data.pop(fileobject)
-        if fileobject in self._generic_to_explicit_uri_map:
-            self._generic_to_explicit_uri_map.pop(fileobject)
 
     def __get_data(self, fileobject, meowuri):
         if fileobject in self._data:
@@ -420,7 +397,8 @@ class Repository(object):
         cf = _get_column_formatter()
         COLUMN_DELIMITER = '->'
 
-        for generic_uri, explicit_uris in sorted(self._generic_to_explicit_uri_map[fileobject].items()):
+        mapped = meowuri_mapper.generic._generic_to_explicit_uri_map[fileobject].items()
+        for generic_uri, explicit_uris in sorted(mapped):
             for n, explicit_uri in enumerate(sorted(explicit_uris), start=1):
                 str_number = '({})'.format(n)
                 str_generic_uri = str(generic_uri)

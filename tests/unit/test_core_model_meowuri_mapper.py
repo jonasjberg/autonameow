@@ -20,8 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+from unittest.mock import Mock
 
+import unit.constants as uuconst
 import unit.utils as uu
+from core.model.meowuri_mapper import GenericMeowUriMapper
 from core.model.meowuri_mapper import MeowUriLeafMapper
 from core.model.genericfields import GenericPublisher
 from core.model.genericfields import GenericTitle
@@ -63,3 +66,29 @@ class TestMeowUriLeafMapper(TestCase):
         actual = mapper.fetch(aliased_leaf_uri)
         self.assertIn(explicit_uri_A, actual)
         self.assertIn(explicit_uri_B, actual)
+
+
+class TestGenericMeowUriMapper(TestCase):
+    def setUp(self):
+        self.fo = Mock()
+
+    def test_instantiated_mapper_is_not_none(self):
+        mapper = GenericMeowUriMapper()
+        self.assertIsNotNone(mapper)
+
+    def test_not_yet_mapped_generic_uri_returns_empty_set(self):
+        mapper = GenericMeowUriMapper()
+
+        generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
+        actual = mapper.fetch(self.fo, generic_uri)
+        self.assertEqual(set(), actual)
+
+    def test_explicit_uri_mapped_to_generic_uri_can_be_retrieved_with_generic_uri(self):
+        mapper = GenericMeowUriMapper()
+
+        generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
+        explicit_uri = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE)
+        mapper.map(self.fo, explicit_uri, generic_uri)
+
+        actual = mapper.fetch(self.fo, generic_uri)
+        self.assertIn(explicit_uri, actual)
