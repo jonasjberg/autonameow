@@ -66,9 +66,9 @@ class MeowURIMapper(object):
         explicit_uri_without_leaf = explicit_uri.stripleaf()
 
         leaf_alias_uri = MeowURI(explicit_uri_without_leaf, generic_field_leaf)
-        self._aliased_leaf_to_explicit_uri_map[leaf_alias_uri] = explicit_uri
+        self._aliased_leaf_to_explicit_uri_map[leaf_alias_uri].add(explicit_uri)
 
 
-mapper = MeowURIMapper(
+leaves = MeowURIMapper(
     all_generic_field_uri_leaves=genericfields.get_all_generic_field_uri_leaves()
 )
