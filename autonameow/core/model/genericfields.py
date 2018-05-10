@@ -168,3 +168,8 @@ def _get_field_uri_leaf_to_klass_mapping():
 def get_field_for_uri_leaf(string):
     leaf_to_klass_map = _get_field_uri_leaf_to_klass_mapping()
     return leaf_to_klass_map.get(string)
+
+
+def get_all_generic_field_uri_leaves():
+    """Returns a list of all generic field URI leaves as strings."""
+    return [klass.uri().leaf for klass in get_all_generic_field_klasses()]

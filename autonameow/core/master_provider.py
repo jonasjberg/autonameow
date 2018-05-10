@@ -22,7 +22,6 @@
 import logging
 from collections import defaultdict
 
-from core import analysis
 from core import constants as C
 from core import event
 from core import logs
@@ -253,15 +252,14 @@ class ProviderRegistry(object):
 
 
 class ProviderRunner(object):
-    def __init__(self, config):
+    def __init__(self, config, extractor_runner, run_analysis_func):
         self.config = config
+        self._extractor_runner = extractor_runner
+        self._run_analysis = run_analysis_func
 
-        from core.extraction import ExtractorRunner
-        self.extractor_runner = ExtractorRunner(
-            add_results_callback=repository.SessionRepository.store
-        )
         self.debug_stats = defaultdict(dict)
         self._provider_delegation_history = defaultdict(set)
+        self._delegate_every_possible_meowuri_history = set()
 
     def delegate_to_providers(self, fileobject, uri):
         possible_providers = set(Registry.providers_for_meowuri(uri))
@@ -301,6 +299,9 @@ class ProviderRunner(object):
             self._delegate_to_analyzers(fileobject, prepared_analyzers)
 
     def _previously_delegated_provider(self, fileobject, provider):
+        if fileobject in self._delegate_every_possible_meowuri_history:
+            return True
+
         return bool(
             fileobject in self._provider_delegation_history
             and provider in self._provider_delegation_history[fileobject]
@@ -311,30 +312,32 @@ class ProviderRunner(object):
 
     def _delegate_to_extractors(self, fileobject, extractors_to_run):
         try:
-            self.extractor_runner.start(fileobject, extractors_to_run)
+            self._extractor_runner.start(fileobject, extractors_to_run)
         except AutonameowException as e:
             # TODO: [TD0164] Tidy up throwing/catching of exceptions.
             log.critical('Extraction FAILED: {!s}'.format(e))
             raise
 
     def _delegate_to_analyzers(self, fileobject, analyzers_to_run):
-        analysis.run_analysis(
+        self._run_analysis(
             fileobject,
             self.config,
             analyzers_to_run=analyzers_to_run
         )
 
     def delegate_every_possible_meowuri(self, fileobject):
+        self._delegate_every_possible_meowuri_history.add(fileobject)
+
         # Run all extractors
         try:
-            self.extractor_runner.start(fileobject, request_all=True)
+            self._extractor_runner.start(fileobject, request_all=True)
         except AutonameowException as e:
             # TODO: [TD0164] Tidy up throwing/catching of exceptions.
             log.critical('Extraction FAILED: {!s}'.format(e))
             raise
 
         # Run all analyzers
-        analysis.run_analysis(fileobject, self.config)
+        self._run_analysis(fileobject, self.config)
 
 
 def _provider_is_extractor(provider):
@@ -369,8 +372,28 @@ class MasterDataProvider(object):
     def __init__(self, config):
         self.config = config
 
+        # Import class instance and function to be DI'd into 'ProviderRunner'.
+        from core import analysis
+        run_analysis_func = analysis.run_analysis
+        assert callable(run_analysis_func), (
+            'Expected dependency injected "run_analysis" to be callable'
+        )
+
+        from core.extraction import ExtractorRunner
+        extractor_runner = ExtractorRunner(
+            add_results_callback=repository.SessionRepository.store
+        )
+        assert hasattr(extractor_runner, 'start'), (
+            'Expected attribute "start" in dependency injected ExtractorRunner'
+        )
+
+        self.provider_runner = ProviderRunner(
+            self.config,
+            extractor_runner,
+            run_analysis_func
+        )
+
         self.debug_stats = defaultdict(dict)
-        self.provider_runner = ProviderRunner(self.config)
 
     def delegate_every_possible_meowuri(self, fileobject):
         log.debug('Running all available providers for {!r}'.format(fileobject))

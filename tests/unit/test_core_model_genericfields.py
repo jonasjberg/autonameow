@@ -35,6 +35,7 @@ from core.model.genericfields import GenericProducer
 from core.model.genericfields import GenericSubject
 from core.model.genericfields import GenericTags
 from core.model.genericfields import get_all_generic_field_klasses
+from core.model.genericfields import get_all_generic_field_uri_leaves
 from core.model.genericfields import get_field_for_uri_leaf
 
 
@@ -157,3 +158,33 @@ class TestGetFieldForUriLeaf(TestCase):
         for string in EXPECTED_MAPPING.keys():
             actual = get_field_for_uri_leaf(string)
             self.assertEqual(EXPECTED_MAPPING[string], actual)
+
+
+class TestGetAllGenericFieldUriLeaves(TestCase):
+    def test_returns_non_empty_value(self):
+        actual = get_all_generic_field_uri_leaves()
+        self.assertIsNotNone(actual)
+        self.assertTrue(actual)
+
+    def test_returns_expected_type(self):
+        actual = get_all_generic_field_uri_leaves()
+        self.assertIsInstance(actual, list)
+
+        for element in actual:
+            self.assertIsInstance(element, str)
+
+    def test_returns_expected_leaves(self):
+        actual = get_all_generic_field_uri_leaves()
+        self.assertIn('author', actual)
+        self.assertIn('creator', actual)
+        self.assertIn('date_created', actual)
+        self.assertIn('date_modified', actual)
+        self.assertIn('description', actual)
+        self.assertIn('edition', actual)
+        self.assertIn('mime_type', actual)
+        self.assertIn('producer', actual)
+        self.assertIn('publisher', actual)
+        self.assertIn('subject', actual)
+        self.assertIn('tags', actual)
+        self.assertIn('text', actual)
+        self.assertIn('title', actual)

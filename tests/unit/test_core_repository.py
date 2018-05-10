@@ -175,7 +175,7 @@ class TestRepositoryStorage(TestCase):
         self.assertEqual('bar', response_B.value)
 
 
-class TestRepositoryGenericToExplicMeowURIMapping(TestCase):
+class TestRepositoryGenericToExplicitMeowURIMapping(TestCase):
     def setUp(self):
         self.r = Repository()
         self.fo = uu.get_mock_fileobject(mime_type='text/plain')
@@ -192,6 +192,50 @@ class TestRepositoryGenericToExplicMeowURIMapping(TestCase):
         generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
         response = self.r.query(self.fo, generic_uri)
         self.assertEqual('MEow MEOW', response[0].value)
+
+
+class TestRepositoryRetrievalWithGenericLeafAlias(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from core.model.genericfields import GenericTitle
+        cls.generic_title = GenericTitle
+
+    def setUp(self):
+        self.r = Repository()
+        self.fo = uu.get_mock_fileobject(mime_type='text/plain')
+
+    def test_stored_data_with_explicit_uri_retrieved_with_leaf_alias(self):
+        data = {
+            'value': 'meow',
+            'generic_field': self.generic_title(),
+        }
+        explicit_uri = uu.as_meowuri('extractor.metadata.exiftool.XMP-dc:Title')
+        self.r.store(self.fo, explicit_uri, data)
+
+        leaf_alias_uri = uu.as_meowuri('extractor.metadata.exiftool.title')
+        response = self.r.query(self.fo, leaf_alias_uri)
+        self.assertEqual('meow', response[0].value)
+
+    def test_all_stored_data_with_explicit_uris_retrieved_with_leaf_alias(self):
+        data_A = {
+            'value': 'meow',
+            'generic_field': self.generic_title(),
+        }
+        explicit_uri_A = uu.as_meowuri('extractor.metadata.exiftool.XMP-dc:Title')
+        self.r.store(self.fo, explicit_uri_A, data_A)
+
+        data_B = {
+            'value': 'gibson rules',
+            'generic_field': self.generic_title(),
+        }
+        explicit_uri_B = uu.as_meowuri('extractor.metadata.exiftool.PDF:Title')
+        self.r.store(self.fo, explicit_uri_B, data_B)
+
+        leaf_alias_uri = uu.as_meowuri('extractor.metadata.exiftool.title')
+        response = self.r.query(self.fo, leaf_alias_uri)
+        response_values = [databundle.value for databundle in response]
+        self.assertIn('meow', response_values)
+        self.assertIn('gibson rules', response_values)
 
 
 class TestRepositoryPool(TestCase):
