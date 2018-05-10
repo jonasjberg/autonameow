@@ -33,9 +33,6 @@ from util.misc import flatten_sequence_type
 log = logging.getLogger(__name__)
 
 
-# TODO: [TD0125] Add aliases (generics) for MeowURI leafs
-
-
 MeowURIParts = namedtuple('MeowURIParts', 'root children leaf')
 
 

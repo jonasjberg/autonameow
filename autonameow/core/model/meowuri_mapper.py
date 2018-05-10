@@ -25,11 +25,12 @@ from core.model import genericfields
 from core.model import MeowURI
 
 
-# TODO: [TD0125] Add aliases (generics) for MeowURI leafs
-
-
 class MeowUriLeafMapper(object):
     def __init__(self, all_generic_field_uri_leaves):
+        """
+        Provides aliases (generics) for MeowURI leafs
+        """
+        # Used to validate leaves of incoming 'generic_uri'.
         self._all_generic_field_uri_leaves = set(all_generic_field_uri_leaves)
 
         # Stores references from URIs with "aliased" leaves to "explicit" URIs.

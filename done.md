@@ -10,6 +10,41 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-05-10
+
+> Low Priority
+> ------------
+>
+> * `[TD0125]` __Add aliases (generics) for MeowURI leafs__  
+>   Should probably provide a consistent internal alternative field name when
+>   specifying extractor-specific MeowURIs, not only with "generic".
+>
+>   Example of equivalent MeowURIs with the "alias" or "generic":
+>
+>     ```
+>     extractor.metadata.exiftool.PDF:CreateDate
+>     extractor.metadata.exiftool.date_created
+>     ```
+>
+>   Another example:
+>
+>     ```
+>     extractor.metadata.exiftool.EXIF:DateTimeOriginal
+>     extractor.metadata.exiftool.date_created
+>     ```
+>   The examples illustrate that multiple provider-specific fields would have to
+>   share a single "alias" or "generic", because there will always be fewer of
+>   them. If these were not based on the subclasses of `GenericField`, they could
+>   simply be made to map directly with the provider fields, maybe only with a
+>   slight transformation like converting to lower-case.
+>
+>   Example of alternative using simple transformations:
+>
+>     ```
+>     extractor.metadata.exiftool.EXIF:DateTimeOriginal
+>     extractor.metadata.exiftool.exif_datetimeoriginal
+>     ```
+
 ### 2018-04-02
 
 > Medium Priority

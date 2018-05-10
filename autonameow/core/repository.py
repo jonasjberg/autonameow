@@ -24,6 +24,7 @@ from collections import defaultdict
 
 from core import event
 from core import logs
+from core.model import meowuri_mapper
 from util import encoding as enc
 from util import sanity
 from util.text import truncate_text
@@ -216,6 +217,11 @@ class Repository(object):
             generic_field_uri = data_generic_field.uri()
             self._map_generic_to_explicit_uri(fileobject, generic_field_uri, uri)
 
+            # Store mapping between this full "explicit" URI and a version of
+            # the full URI with its leaf replaced by the leaf of the generic
+            # field URI.  This is utilized in the 'query()' method.
+            meowuri_mapper.leaves.map(uri, data_generic_field)
+
     def _store(self, fileobject, meowuri, data):
         if logs.DEBUG:
             _data_value = data.get('value')
@@ -272,20 +278,30 @@ class Repository(object):
 
         log.debug('Got query {!r}->[{!s}]'.format(fileobject, meowuri))
 
+        uri_was_mapped = False
         meowuri_is_generic = meowuri.is_generic
         if meowuri_is_generic:
             data = self._query_generic(fileobject, meowuri)
         else:
-            data = self._query_explicit(fileobject, meowuri)
+            mapped_uri = meowuri_mapper.leaves.fetch(meowuri)
+            uri_was_mapped = mapped_uri != meowuri
+            if uri_was_mapped:
+                data = self._query_explicit_mapped(fileobject, mapped_uri)
+            else:
+                data = self._query_explicit(fileobject, mapped_uri)
 
         if data is None:
             return QueryResponseFailure()
 
-        if meowuri_is_generic:
-            assert isinstance(data, list)
+        if meowuri_is_generic or uri_was_mapped:
+            assert isinstance(data, list), (
+                'Generic and "mapped" URIs should return one or more results'
+            )
             return [DataBundle.from_dict(d) for d in data]
 
-        assert isinstance(data, dict)
+        assert isinstance(data, dict), (
+            'Full "explicit" URIs should return a single result.'
+        )
         return DataBundle.from_dict(data)
 
     def _query_explicit(self, fileobject, uri):
@@ -299,6 +315,15 @@ class Repository(object):
         data_list = list()
         for explicit_uri in explicit_uris:
             d = self.__get_data(fileobject, explicit_uri)
+            if d:
+                data_list.append(d)
+
+        return data_list or None
+
+    def _query_explicit_mapped(self, fileobject, uris):
+        data_list = list()
+        for uri in uris:
+            d = self.__get_data(fileobject, uri)
             if d:
                 data_list.append(d)
 
