@@ -29,33 +29,35 @@ from core.model.genericfields import GenericTitle
 
 class TestMeowUriLeafMapper(TestCase):
     def test_instantiated_mapper_is_not_none(self):
-        mapper = MeowUriLeafMapper(all_generic_field_uri_leaves=[])
+        mapper = MeowUriLeafMapper(valid_generic_field_uri_leaves=[])
         self.assertIsNotNone(mapper)
 
     def test_not_yet_mapped_explicit_uri_is_returned_as_is(self):
-        mapper = MeowUriLeafMapper(all_generic_field_uri_leaves=['publisher'])
+        mapper = MeowUriLeafMapper(valid_generic_field_uri_leaves=['publisher'])
 
         explicit_uri = uu.as_meowuri('extractor.metadata.exiftool.XMP-dc:Publisher')
         actual = mapper.fetch(explicit_uri)
         self.assertEqual(explicit_uri, actual)
 
     def test_explicit_uri_mapped_to_leaf_alias_can_be_retrieved_with_alias(self):
-        mapper = MeowUriLeafMapper(all_generic_field_uri_leaves=['publisher'])
+        mapper = MeowUriLeafMapper(valid_generic_field_uri_leaves=['publisher'])
 
+        generic_uri = GenericPublisher.uri()
         explicit_uri = uu.as_meowuri('extractor.metadata.exiftool.XMP-dc:Publisher')
-        mapper.map(explicit_uri, GenericPublisher)
+        mapper.map(explicit_uri, generic_uri)
 
         aliased_leaf_uri = uu.as_meowuri('extractor.metadata.exiftool.publisher')
         actual = mapper.fetch(aliased_leaf_uri)
         self.assertIn(explicit_uri, actual)
 
     def test_all_explicit_uris_mapped_to_leaf_alias_can_be_retrieved_with_alias(self):
-        mapper = MeowUriLeafMapper(all_generic_field_uri_leaves=['title'])
+        mapper = MeowUriLeafMapper(valid_generic_field_uri_leaves=['title'])
 
+        generic_uri = GenericTitle.uri()
         explicit_uri_A = uu.as_meowuri('extractor.metadata.exiftool.XMP:Title')
-        mapper.map(explicit_uri_A, GenericTitle)
         explicit_uri_B = uu.as_meowuri('extractor.metadata.exiftool.PDF:Title')
-        mapper.map(explicit_uri_B, GenericTitle)
+        mapper.map(explicit_uri_A, generic_uri)
+        mapper.map(explicit_uri_B, generic_uri)
 
         aliased_leaf_uri = uu.as_meowuri('extractor.metadata.exiftool.title')
         actual = mapper.fetch(aliased_leaf_uri)

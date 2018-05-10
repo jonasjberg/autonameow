@@ -214,13 +214,13 @@ class Repository(object):
         if data_generic_field:
             assert hasattr(data_generic_field, 'uri')
             assert callable(data_generic_field.uri)
-            generic_field_uri = data_generic_field.uri()
-            self._map_generic_to_explicit_uri(fileobject, generic_field_uri, uri)
+
+            data_generic_field_uri = data_generic_field.uri()
 
             # Store mapping between this full "explicit" URI and a version of
             # the full URI with its leaf replaced by the leaf of the generic
             # field URI.  This is utilized in the 'query()' method.
-            meowuri_mapper.leaves.map(uri, data_generic_field)
+            meowuri_mapper.leaves.map(uri, data_generic_field_uri)
 
     def _store(self, fileobject, meowuri, data):
         if logs.DEBUG:

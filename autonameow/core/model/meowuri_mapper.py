@@ -26,12 +26,12 @@ from core.model import MeowURI
 
 
 class MeowUriLeafMapper(object):
-    def __init__(self, all_generic_field_uri_leaves):
+    def __init__(self, valid_generic_field_uri_leaves):
         """
         Provides aliases (generics) for MeowURI leafs
         """
         # Used to validate leaves of incoming 'generic_uri'.
-        self._all_generic_field_uri_leaves = set(all_generic_field_uri_leaves)
+        self._valid_generic_field_uri_leaves = set(valid_generic_field_uri_leaves)
 
         # Stores references from URIs with "aliased" leaves to "explicit" URIs.
         # I.E. URIs like; 'extractor.metadata.exiftool.publisher'
@@ -59,17 +59,17 @@ class MeowUriLeafMapper(object):
         return uri
 
     def _map_generic_leaf_alias_if_possible(self, uri, generic_uri):
-        generic_uri_leaf = generic_uri.uri().leaf
-        if generic_uri_leaf in self._all_generic_field_uri_leaves:
+        generic_uri_leaf = generic_uri.leaf
+        if generic_uri_leaf in self._valid_generic_field_uri_leaves:
             self._map_generic_leaf_alias(generic_uri_leaf, uri)
 
-    def _map_generic_leaf_alias(self, generic_field_leaf, explicit_uri):
+    def _map_generic_leaf_alias(self, generic_uri_leaf, explicit_uri):
         explicit_uri_without_leaf = explicit_uri.stripleaf()
 
-        leaf_alias_uri = MeowURI(explicit_uri_without_leaf, generic_field_leaf)
+        leaf_alias_uri = MeowURI(explicit_uri_without_leaf, generic_uri_leaf)
         self._aliased_leaf_to_explicit_uri_map[leaf_alias_uri].add(explicit_uri)
 
 
 leaves = MeowUriLeafMapper(
-    all_generic_field_uri_leaves=genericfields.get_all_generic_field_uri_leaves()
+    valid_generic_field_uri_leaves=genericfields.get_all_generic_field_uri_leaves()
 )
