@@ -77,33 +77,27 @@ class MeowUriLeafMapper(object):
 
 class GenericMeowUriMapper(object):
     def __init__(self):
-        # Stores references from "generic" to "explicit" URIs.
-        # Outer dict is keyed by instances of 'FileObject', storing
-        # defaultdicts keyed by "generic" URIs that in turn store sets
-        # of "explicit" URIs.
-        self._generic_to_explicit_uri_map = dict()
+        """Stores mapping from "generic" to "explicit" URIs."""
+        self._generic_to_explicit_uri_map = defaultdict(set)
 
-    def map(self, fileobject, uri, generic_uri):
-        self._map_generic_to_explicit_uri(fileobject, generic_uri, uri)
+    def map(self, uri, generic_uri):
+        self._map_generic_to_explicit_uri(generic_uri, uri)
 
-    def fetch(self, fileobject, generic_uri):
-        return self._get_explicit_uris_from_generic_uri(fileobject, generic_uri)
+    def fetch(self, generic_uri):
+        return self._get_explicit_uris_from_generic_uri(generic_uri)
 
-    def _map_generic_to_explicit_uri(self, fileobject, generic_uri, explicit_uri):
-        if fileobject not in self._generic_to_explicit_uri_map:
-            self._generic_to_explicit_uri_map[fileobject] = defaultdict(set)
+    def _map_generic_to_explicit_uri(self, generic_uri, explicit_uri):
+        if explicit_uri in self._generic_to_explicit_uri_map[generic_uri]:
+            return
 
         if logs.DEBUG:
-            log.debug('Mapping {!r} generic MeowURI {!s} -> {!s}'.format(
-                fileobject, generic_uri, explicit_uri
+            log.debug('Mapping generic MeowURI {!s} to {!s}'.format(
+                generic_uri, explicit_uri
             ))
-        self._generic_to_explicit_uri_map[fileobject][generic_uri].add(explicit_uri)
+        self._generic_to_explicit_uri_map[generic_uri].add(explicit_uri)
 
-    def _get_explicit_uris_from_generic_uri(self, fileobject, generic_uri):
-        if fileobject not in self._generic_to_explicit_uri_map:
-            return set()
-
-        return self._generic_to_explicit_uri_map[fileobject].get(generic_uri)
+    def _get_explicit_uris_from_generic_uri(self, generic_uri):
+        return self._generic_to_explicit_uri_map.get(generic_uri, set())
 
 
 leaves = MeowUriLeafMapper(

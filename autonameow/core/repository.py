@@ -198,9 +198,9 @@ class Repository(object):
 
         sanity.check_isinstance(data, dict)
         self._store(fileobject, meowuri, data)
-        self._map_generic_field_if_present_in_data(fileobject, meowuri, data)
+        self._map_generic_field_if_present_in_data(meowuri, data)
 
-    def _map_generic_field_if_present_in_data(self, fileobject, uri, data):
+    def _map_generic_field_if_present_in_data(self, uri, data):
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
         data_generic_field = data.get('generic_field')
         if data_generic_field:
@@ -208,11 +208,10 @@ class Repository(object):
                     and callable(data_generic_field.uri)), (
                 'Expected generic field to have a callable attribute "uri"'
             )
-
             data_generic_field_uri = data_generic_field.uri()
 
             # Store mapping between full "explicit" and "generic" URIs.
-            meowuri_mapper.generic.map(fileobject, uri, data_generic_field_uri)
+            meowuri_mapper.generic.map(uri, data_generic_field_uri)
 
             # Store mapping between this full "explicit" URI and a version of
             # the full URI with its leaf replaced by the leaf of the generic
@@ -289,7 +288,7 @@ class Repository(object):
         return self.__get_data(fileobject, uri)
 
     def _query_generic(self, fileobject, uri):
-        explicit_uris = meowuri_mapper.generic.fetch(fileobject, uri)
+        explicit_uris = meowuri_mapper.generic.fetch(uri)
         if not explicit_uris:
             return None
 
@@ -337,7 +336,7 @@ class Repository(object):
             out.append('')
             out.append(self._prettyprint_fileobject_data(fileobject_data))
             out.append('')
-            out.append(self._prettyprint_fileobject_generic_to_explicit_uri_map(fileobject))
+            out.append(self._human_readable_generic_to_explicit_uri_map())
             out.append('\n')
 
         return '\n'.join(out)
@@ -395,11 +394,11 @@ class Repository(object):
 
         return str(cf)
 
-    def _prettyprint_fileobject_generic_to_explicit_uri_map(self, fileobject):
+    def _human_readable_generic_to_explicit_uri_map(self):
         cf = _get_column_formatter()
         COLUMN_DELIMITER = '->'
 
-        mapped = meowuri_mapper.generic._generic_to_explicit_uri_map[fileobject].items()
+        mapped = meowuri_mapper.generic._generic_to_explicit_uri_map.items()
         for generic_uri, explicit_uris in sorted(mapped):
             for n, explicit_uri in enumerate(sorted(explicit_uris), start=1):
                 str_number = '({})'.format(n)

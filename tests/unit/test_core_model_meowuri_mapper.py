@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import Mock
 
 import unit.constants as uuconst
 import unit.utils as uu
@@ -69,9 +68,6 @@ class TestMeowUriLeafMapper(TestCase):
 
 
 class TestGenericMeowUriMapper(TestCase):
-    def setUp(self):
-        self.fo = Mock()
-
     def test_instantiated_mapper_is_not_none(self):
         mapper = GenericMeowUriMapper()
         self.assertIsNotNone(mapper)
@@ -80,7 +76,7 @@ class TestGenericMeowUriMapper(TestCase):
         mapper = GenericMeowUriMapper()
 
         generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
-        actual = mapper.fetch(self.fo, generic_uri)
+        actual = mapper.fetch(generic_uri)
         self.assertEqual(set(), actual)
 
     def test_explicit_uri_mapped_to_generic_uri_can_be_retrieved_with_generic_uri(self):
@@ -88,7 +84,7 @@ class TestGenericMeowUriMapper(TestCase):
 
         generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
         explicit_uri = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE)
-        mapper.map(self.fo, explicit_uri, generic_uri)
+        mapper.map(explicit_uri, generic_uri)
 
-        actual = mapper.fetch(self.fo, generic_uri)
+        actual = mapper.fetch(generic_uri)
         self.assertIn(explicit_uri, actual)
