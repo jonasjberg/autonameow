@@ -198,14 +198,16 @@ class Repository(object):
 
         sanity.check_isinstance(data, dict)
         self._store(fileobject, meowuri, data)
-        self._store_generic_if_possible(fileobject, meowuri, data)
+        self._map_generic_field_if_present_in_data(fileobject, meowuri, data)
 
-    def _store_generic_if_possible(self, fileobject, uri, data):
+    def _map_generic_field_if_present_in_data(self, fileobject, uri, data):
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
         data_generic_field = data.get('generic_field')
         if data_generic_field:
-            assert hasattr(data_generic_field, 'uri')
-            assert callable(data_generic_field.uri)
+            assert (hasattr(data_generic_field, 'uri')
+                    and callable(data_generic_field.uri)), (
+                'Expected generic field to have a callable attribute "uri"'
+            )
 
             data_generic_field_uri = data_generic_field.uri()
 
