@@ -28,7 +28,7 @@ from core.model import MeowURI
 # TODO: [TD0125] Add aliases (generics) for MeowURI leafs
 
 
-class MeowURIMapper(object):
+class MeowUriLeafMapper(object):
     def __init__(self, all_generic_field_uri_leaves):
         self._all_generic_field_uri_leaves = set(all_generic_field_uri_leaves)
 
@@ -69,6 +69,6 @@ class MeowURIMapper(object):
         self._aliased_leaf_to_explicit_uri_map[leaf_alias_uri].add(explicit_uri)
 
 
-leaves = MeowURIMapper(
+leaves = MeowUriLeafMapper(
     all_generic_field_uri_leaves=genericfields.get_all_generic_field_uri_leaves()
 )

@@ -22,25 +22,25 @@
 from unittest import TestCase
 
 import unit.utils as uu
-from core.model.meowuri_mapper import MeowURIMapper
+from core.model.meowuri_mapper import MeowUriLeafMapper
 from core.model.genericfields import GenericPublisher
 from core.model.genericfields import GenericTitle
 
 
-class TestMeowURIMapper(TestCase):
+class TestMeowUriLeafMapper(TestCase):
     def test_instantiated_mapper_is_not_none(self):
-        mapper = MeowURIMapper(all_generic_field_uri_leaves=[])
+        mapper = MeowUriLeafMapper(all_generic_field_uri_leaves=[])
         self.assertIsNotNone(mapper)
 
     def test_not_yet_mapped_explicit_uri_is_returned_as_is(self):
-        mapper = MeowURIMapper(all_generic_field_uri_leaves=['publisher'])
+        mapper = MeowUriLeafMapper(all_generic_field_uri_leaves=['publisher'])
 
         explicit_uri = uu.as_meowuri('extractor.metadata.exiftool.XMP-dc:Publisher')
         actual = mapper.fetch(explicit_uri)
         self.assertEqual(explicit_uri, actual)
 
     def test_explicit_uri_mapped_to_leaf_alias_can_be_retrieved_with_alias(self):
-        mapper = MeowURIMapper(all_generic_field_uri_leaves=['publisher'])
+        mapper = MeowUriLeafMapper(all_generic_field_uri_leaves=['publisher'])
 
         explicit_uri = uu.as_meowuri('extractor.metadata.exiftool.XMP-dc:Publisher')
         mapper.map(explicit_uri, GenericPublisher)
@@ -50,7 +50,7 @@ class TestMeowURIMapper(TestCase):
         self.assertIn(explicit_uri, actual)
 
     def test_all_explicit_uris_mapped_to_leaf_alias_can_be_retrieved_with_alias(self):
-        mapper = MeowURIMapper(all_generic_field_uri_leaves=['title'])
+        mapper = MeowUriLeafMapper(all_generic_field_uri_leaves=['title'])
 
         explicit_uri_A = uu.as_meowuri('extractor.metadata.exiftool.XMP:Title')
         mapper.map(explicit_uri_A, GenericTitle)
