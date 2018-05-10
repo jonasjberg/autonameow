@@ -276,11 +276,23 @@ class TestProvidersForMeowURI(TestCase):
 
 
 class TestProviderRunner(TestCase):
+    @staticmethod
+    def _get_provider_runner(*args, **kwargs):
+        test_config = kwargs.get('config')
+        test_extractor_runner = kwargs.get('extractor_runner')
+        test_run_analysis_func = kwargs.get('run_analysis_func')
+        kwargs.update({
+            'config': test_config,
+            'extractor_runner': test_extractor_runner,
+            'run_analysis_func': test_run_analysis_func
+        })
+        return ProviderRunner(*args, **kwargs)
+
     @patch('core.repository.SessionRepository', MagicMock())
     def test_instantiated_provider_runner_is_not_none(
             self
     ):
-        provider_runner = ProviderRunner(config=None)
+        provider_runner = self._get_provider_runner()
         self.assertIsNotNone(provider_runner)
 
     # TODO: [cleanup] This much mocking indicates poor design choices ..
@@ -293,7 +305,7 @@ class TestProviderRunner(TestCase):
             mock__delegate_to_extractors, mock_providers_for_meowuri
     ):
         mock_providers_for_meowuri.return_value = set()
-        provider_runner = ProviderRunner(config=None)
+        provider_runner = self._get_provider_runner()
 
         fo = uu.get_mock_fileobject(mime_type='text/plain')
         uri = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
@@ -311,7 +323,7 @@ class TestProviderRunner(TestCase):
             self, mock__delegate_to_analyzers,
             mock__delegate_to_extractors, mock_providers_for_meowuri
     ):
-        provider_runner = ProviderRunner(config=None)
+        provider_runner = self._get_provider_runner()
 
         from extractors.filesystem import CrossPlatformFileSystemExtractor
         provider_For_meowuri = set([CrossPlatformFileSystemExtractor])
@@ -337,7 +349,7 @@ class TestProviderRunner(TestCase):
             self, mock__delegate_to_analyzers,
             mock__delegate_to_extractors, mock_providers_for_meowuri
     ):
-        provider_runner = ProviderRunner(config=None)
+        provider_runner = self._get_provider_runner()
 
         from analyzers.analyze_ebook import EbookAnalyzer
         provider_For_meowuri = set([EbookAnalyzer])
@@ -355,18 +367,13 @@ class TestProviderRunner(TestCase):
         mock__delegate_to_extractors.assert_not_called()
 
     @patch('core.repository.SessionRepository', MagicMock())
-    def test_delegation_history_methods(
-            self
-    ):
+    def test_delegation_history_methods(self):
         fo1 = MagicMock()
-        uri1 = MagicMock()
-        provider1 = MagicMock()
-
         fo2 = MagicMock()
-        uri2 = MagicMock()
+        provider1 = MagicMock()
         provider2 = MagicMock()
 
-        provider_runner = ProviderRunner(config=None)
+        provider_runner = self._get_provider_runner()
         self.assertFalse(provider_runner._previously_delegated_provider(fo1, provider1))
         self.assertFalse(provider_runner._previously_delegated_provider(fo2, provider1))
         self.assertFalse(provider_runner._previously_delegated_provider(fo1, provider2))
