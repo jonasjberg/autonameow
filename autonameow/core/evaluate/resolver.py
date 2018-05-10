@@ -251,6 +251,9 @@ class TemplateFieldDataResolver(object):
                             log.debug('[TD0112] Field {!s} candidate {:03d} :: "{!s}"'.format(field, i, d.value))
 
                         return False
+                else:
+                    # Might be "aliased leaf" URI that expanded to multiple..
+                    return False
 
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
         sanity.check_isinstance(databundle, DataBundle)
