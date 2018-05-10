@@ -205,9 +205,9 @@ class Repository(object):
 
         sanity.check_isinstance(data, dict)
         self._store(fileobject, meowuri, data)
-        self._store_generic(fileobject, meowuri, data)
+        self._store_generic_if_possible(fileobject, meowuri, data)
 
-    def _store_generic(self, fileobject, uri, data):
+    def _store_generic_if_possible(self, fileobject, uri, data):
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
         data_generic_field = data.get('generic_field')
         if data_generic_field:
