@@ -58,10 +58,8 @@ class MeowUriLeafMapper(object):
 
     def fetch(self, uri):
         """Translates a URI with an "aliased" leaf to a full "explicit" URI."""
-        if uri in self._aliased_leaf_to_explicit_uri_map:
-            return self._aliased_leaf_to_explicit_uri_map[uri]
-
-        return uri
+        result = self._aliased_leaf_to_explicit_uri_map.get(uri)
+        return result or set()
 
     def _map_generic_leaf_alias_if_possible(self, uri, generic_uri):
         generic_uri_leaf = generic_uri.leaf
@@ -84,7 +82,8 @@ class GenericMeowUriMapper(object):
         self._map_generic_to_explicit_uri(generic_uri, uri)
 
     def fetch(self, generic_uri):
-        return self._get_explicit_uris_from_generic_uri(generic_uri)
+        result = self._get_explicit_uris_from_generic_uri(generic_uri)
+        return result or set()
 
     def _map_generic_to_explicit_uri(self, generic_uri, explicit_uri):
         if explicit_uri in self._generic_to_explicit_uri_map[generic_uri]:
@@ -97,7 +96,7 @@ class GenericMeowUriMapper(object):
         self._generic_to_explicit_uri_map[generic_uri].add(explicit_uri)
 
     def _get_explicit_uris_from_generic_uri(self, generic_uri):
-        return self._generic_to_explicit_uri_map.get(generic_uri, set())
+        return self._generic_to_explicit_uri_map.get(generic_uri)
 
 
 leaves = MeowUriLeafMapper(

@@ -258,22 +258,21 @@ class Repository(object):
 
         log.debug('Got query {!r}->[{!s}]'.format(fileobject, meowuri))
 
-        uri_was_mapped = False
+        mapped_uri = None
         meowuri_is_generic = meowuri.is_generic
         if meowuri_is_generic:
             data = self._query_generic(fileobject, meowuri)
         else:
             mapped_uri = meowuri_mapper.leaves.fetch(meowuri)
-            uri_was_mapped = mapped_uri != meowuri
-            if uri_was_mapped:
+            if mapped_uri:
                 data = self._query_explicit_mapped(fileobject, mapped_uri)
             else:
-                data = self._query_explicit(fileobject, mapped_uri)
+                data = self._query_explicit(fileobject, meowuri)
 
         if data is None:
             return QueryResponseFailure()
 
-        if meowuri_is_generic or uri_was_mapped:
+        if meowuri_is_generic or mapped_uri:
             assert isinstance(data, list), (
                 'Generic and "mapped" URIs should return one or more results'
             )

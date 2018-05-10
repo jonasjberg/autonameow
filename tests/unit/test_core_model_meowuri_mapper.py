@@ -34,12 +34,13 @@ class TestMeowUriLeafMapper(TestCase):
         mapper = MeowUriLeafMapper(valid_generic_field_uri_leaves=[])
         self.assertIsNotNone(mapper)
 
-    def test_not_yet_mapped_explicit_uri_is_returned_as_is(self):
+    def test_not_yet_mapped_explicit_uri_returns_empty_set(self):
         mapper = MeowUriLeafMapper(valid_generic_field_uri_leaves=['publisher'])
 
         explicit_uri = uu.as_meowuri('extractor.metadata.exiftool.XMP-dc:Publisher')
         actual = mapper.fetch(explicit_uri)
-        self.assertEqual(explicit_uri, actual)
+        self.assertEqual(0, len(actual))
+        self.assertEqual(set(), actual)
 
     def test_explicit_uri_mapped_to_leaf_alias_can_be_retrieved_with_alias(self):
         mapper = MeowUriLeafMapper(valid_generic_field_uri_leaves=['publisher'])
@@ -50,6 +51,7 @@ class TestMeowUriLeafMapper(TestCase):
 
         aliased_leaf_uri = uu.as_meowuri('extractor.metadata.exiftool.publisher')
         actual = mapper.fetch(aliased_leaf_uri)
+        self.assertEqual(1, len(actual))
         self.assertIn(explicit_uri, actual)
 
     def test_all_explicit_uris_mapped_to_leaf_alias_can_be_retrieved_with_alias(self):
@@ -63,6 +65,7 @@ class TestMeowUriLeafMapper(TestCase):
 
         aliased_leaf_uri = uu.as_meowuri('extractor.metadata.exiftool.title')
         actual = mapper.fetch(aliased_leaf_uri)
+        self.assertEqual(2, len(actual))
         self.assertIn(explicit_uri_A, actual)
         self.assertIn(explicit_uri_B, actual)
 
@@ -77,6 +80,7 @@ class TestGenericMeowUriMapper(TestCase):
 
         generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
         actual = mapper.fetch(generic_uri)
+        self.assertEqual(0, len(actual))
         self.assertEqual(set(), actual)
 
     def test_explicit_uri_mapped_to_generic_uri_can_be_retrieved_with_generic_uri(self):
@@ -87,4 +91,19 @@ class TestGenericMeowUriMapper(TestCase):
         mapper.map(explicit_uri, generic_uri)
 
         actual = mapper.fetch(generic_uri)
+        self.assertEqual(1, len(actual))
         self.assertIn(explicit_uri, actual)
+
+    def test_all_explicit_uris_mapped_to_generic_uri_can_be_retrieved_with_generic_uri(self):
+        mapper = GenericMeowUriMapper()
+
+        generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
+        explicit_uri_A = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE)
+        explicit_uri_B = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_TITLE)
+        mapper.map(explicit_uri_A, generic_uri)
+        mapper.map(explicit_uri_B, generic_uri)
+
+        actual = mapper.fetch(generic_uri)
+        self.assertEqual(2, len(actual))
+        self.assertIn(explicit_uri_A, actual)
+        self.assertIn(explicit_uri_B, actual)
