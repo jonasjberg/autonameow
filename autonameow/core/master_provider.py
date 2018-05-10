@@ -259,6 +259,7 @@ class ProviderRunner(object):
 
         self.debug_stats = defaultdict(dict)
         self._provider_delegation_history = defaultdict(set)
+        self._delegate_every_possible_meowuri_history = set()
 
     def delegate_to_providers(self, fileobject, uri):
         possible_providers = set(Registry.providers_for_meowuri(uri))
@@ -298,6 +299,9 @@ class ProviderRunner(object):
             self._delegate_to_analyzers(fileobject, prepared_analyzers)
 
     def _previously_delegated_provider(self, fileobject, provider):
+        if fileobject in self._delegate_every_possible_meowuri_history:
+            return True
+
         return bool(
             fileobject in self._provider_delegation_history
             and provider in self._provider_delegation_history[fileobject]
@@ -322,6 +326,8 @@ class ProviderRunner(object):
         )
 
     def delegate_every_possible_meowuri(self, fileobject):
+        self._delegate_every_possible_meowuri_history.add(fileobject)
+
         # Run all extractors
         try:
             self._extractor_runner.start(fileobject, request_all=True)

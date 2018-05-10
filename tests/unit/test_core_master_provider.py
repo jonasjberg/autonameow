@@ -398,6 +398,45 @@ class TestProviderRunner(TestCase):
         self.assertTrue(provider_runner._previously_delegated_provider(fo1, provider2))
         self.assertTrue(provider_runner._previously_delegated_provider(fo2, provider2))
 
+    def test_delegation_history_includes_delegation_of_every_possible_uri(self):
+        fo1 = MagicMock()
+        fo2 = MagicMock()
+        provider1 = MagicMock()
+        provider2 = MagicMock()
+
+        mock_extractor_runner = MagicMock()
+        mock_run_analysis = MagicMock()
+        provider_runner = self._get_provider_runner(
+            extractor_runner=mock_extractor_runner,
+            run_analysis_func=mock_run_analysis
+        )
+        provider_runner._extractor_runner.start = mock_extractor_runner
+        self.assertFalse(provider_runner._previously_delegated_provider(fo1, provider1))
+        self.assertFalse(provider_runner._previously_delegated_provider(fo2, provider1))
+        self.assertFalse(provider_runner._previously_delegated_provider(fo1, provider2))
+        self.assertFalse(provider_runner._previously_delegated_provider(fo2, provider2))
+
+        mock_run_analysis.assert_not_called()
+        mock_extractor_runner.start.assert_not_called()
+
+        provider_runner.delegate_every_possible_meowuri(fo1)
+        self.assertEqual(1, mock_run_analysis.call_count)
+        self.assertEqual(1, mock_extractor_runner.start.call_count)
+
+        self.assertTrue(provider_runner._previously_delegated_provider(fo1, provider1))
+        self.assertFalse(provider_runner._previously_delegated_provider(fo2, provider1))
+        self.assertTrue(provider_runner._previously_delegated_provider(fo1, provider2))
+        self.assertFalse(provider_runner._previously_delegated_provider(fo2, provider2))
+
+        provider_runner.delegate_every_possible_meowuri(fo2)
+        self.assertEqual(2, mock_run_analysis.call_count)
+        self.assertEqual(2, mock_extractor_runner.start.call_count)
+
+        self.assertTrue(provider_runner._previously_delegated_provider(fo1, provider1))
+        self.assertTrue(provider_runner._previously_delegated_provider(fo2, provider1))
+        self.assertTrue(provider_runner._previously_delegated_provider(fo1, provider2))
+        self.assertTrue(provider_runner._previously_delegated_provider(fo2, provider2))
+
 
 def _get_mock_config():
     return Mock()
