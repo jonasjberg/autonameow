@@ -191,6 +191,7 @@ def indent(text, columns=None, padchar=None):
     return ''.join(padding + line for line in text.splitlines(True))
 
 
+# \u00AD Soft hyphen
 # \u002D Hyphen-minus
 # \u05BE Hebrew punctuation MAQAF
 # \u2010 Hyphen
@@ -202,7 +203,7 @@ def indent(text, columns=None, padchar=None):
 # \u2043 Hyphen bullet
 # \u30FB Katakana middle dot
 RE_UNICODE_DASHES_HYPHENS = re.compile(
-    '[\u002d\u05be\u2010\u2011\u2012\u2013\u2014\u2015\u2043\u30fb]'
+    '[\u00AD\u002d\u05be\u2010\u2011\u2012\u2013\u2014\u2015\u2043\u30fb]'
 )
 
 # \u002D Hyphen-minus

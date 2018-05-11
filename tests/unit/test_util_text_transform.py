@@ -550,6 +550,20 @@ class TestNormalizeUnicode(TestCase):
         self._aE('\u0305', '-')
         self._aE('\u203e', '-')
 
+    def test_replaces_hyphens(self):
+        self._aE('\u002D', '-')
+        self._aE('\u00AD', '-')
+        self._aE('\u00AD', '-')
+        self._aE('\u05BE', '-')
+        self._aE('\u2010', '-')
+        self._aE('\u2011', '-')
+        self._aE('\u2012', '-')
+        self._aE('\u2013', '-')
+        self._aE('\u2014', '-')
+        self._aE('\u2015', '-')
+        self._aE('\u2043', '-')
+        self._aE('\u30FB', '-')
+
 
 class TestRemoveNonBreakingSpaces(TestCase):
     def test_remove_non_breaking_spaces_removes_expected(self):
