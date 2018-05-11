@@ -92,6 +92,30 @@ class TestIsBadMetadata(TestCase):
         self.assertTrue(actual)
         self.assertIsInstance(actual, bool)
 
+    def _assert_bad_any_tag(self, value):
+        for arbitrary_tag in [
+            'File:FileModifyDate',
+            'File:FileName',
+            'File:FileSize',
+            'File:FileType',
+            'PDF:Author',
+            'PDF:Subject',
+            'PDF:Title',
+            'XMP:Author',
+            'XMP:Creator',
+            'XMP:Creator',
+            'XMP:Description',
+            'XMP:Description',
+            'XMP:Subject',
+            'XMP:Subject',
+            'XMP:Subject',
+            'XMP:Subject',
+            'XMP:Title',
+        ]:
+            actual = is_bad_metadata(arbitrary_tag, value)
+            self.assertTrue(actual)
+            self.assertIsInstance(actual, bool)
+
     def test_good_tags_values_return_false(self):
         def _aT(tag, value):
             actual = is_bad_metadata(tag, value)
@@ -107,36 +131,48 @@ class TestIsBadMetadata(TestCase):
                             'Religion', 'Science and Technics', 'Science'])
 
     def test_bad_tags_values_return_true(self):
-        self._assert_bad('PDF:Subject', 'Subject')
         self._assert_bad('PDF:Author', 'Author')
+        self._assert_bad('PDF:Subject', 'Subject')
         self._assert_bad('PDF:Title', 'Title')
         self._assert_bad('XMP:Author', 'Author')
         self._assert_bad('XMP:Creator', 'Author')
         self._assert_bad('XMP:Creator', 'Creator')
-        self._assert_bad('XMP:Description', 'Subject')
         self._assert_bad('XMP:Description', 'Description')
+        self._assert_bad('XMP:Description', 'Subject')
         self._assert_bad('XMP:Subject', 'Subject')
-        self._assert_bad('XMP:Title', 'Title')
-        self._assert_bad('XMP:Subject', ['Subject'])
         self._assert_bad('XMP:Subject', ['Science', 'Subject'])
+        self._assert_bad('XMP:Subject', ['Subject'])
         self._assert_bad('XMP:Subject', ['Title', 'Subject'])
+        self._assert_bad('XMP:Title', 'Title')
 
         self._assert_bad('PDF:Author', 'Unknown')
         self._assert_bad('PDF:Subject', 'Unknown')
-        self._assert_bad('PDF:Title', 'Unknown')
         self._assert_bad('PDF:Title', 'DjVu Document')
+        self._assert_bad('PDF:Title', 'Unknown')
         self._assert_bad('XMP:Author', 'Unknown')
         self._assert_bad('XMP:Creator', 'Unknown')
         self._assert_bad('XMP:Description', 'Unknown')
         self._assert_bad('XMP:Subject', 'Unknown')
         self._assert_bad('XMP:Subject', ['Unknown'])
-        self._assert_bad('XMP:Title', 'Unknown')
         self._assert_bad('XMP:Title', 'DjVu Document')
+        self._assert_bad('XMP:Title', 'Unknown')
 
     def test_certain_bad_values_return_true_for_any_tag(self):
-        self._assert_bad('PDF:Creator', 'www.allitebooks.com')
+        self._assert_bad('PDF:Creator',  'www.allitebooks.com')
         self._assert_bad('PDF:Producer', 'www.allitebooks.com')
-        self._assert_bad('PDF:Subject', 'www.allitebooks.com')
+        self._assert_bad('PDF:Subject',  'www.allitebooks.com')
+        self._assert_bad_any_tag('-|-  this layout: dynstab  -|-')
+        self._assert_bad_any_tag('0101:01:01 00:00:00+00:00')
+        self._assert_bad_any_tag('Advanced PDF Repair at http://www.datanumen.com/apdfr/')
+        self._assert_bad_any_tag('http://cncmanual.com/')
+        self._assert_bad_any_tag('http://freepdf-books.com')
+        self._assert_bad_any_tag('Toolkit http://www.activepdf.com')
+        self._assert_bad_any_tag('Toolkit http://www.activepdf.com(Infix)')
+        self._assert_bad_any_tag('www.allitebooks.com')
+        self._assert_bad_any_tag('www.allitebooks.com')
+        self._assert_bad_any_tag('www.ebook777.com')
+        self._assert_bad_any_tag('www.it-ebooks.info')
+        self._assert_bad_any_tag('www.itbookshub.com')
 
 
 class TestFilterCoercedValue(TestCase):
