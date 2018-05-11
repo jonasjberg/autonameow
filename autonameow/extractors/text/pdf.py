@@ -28,6 +28,9 @@ from extractors.text.common import AbstractTextExtractor
 from extractors.text.common import decode_raw
 
 
+# TODO: [TD0194] Handle (seemingly empty) pdfs without "overlay" text
+
+
 class PdfTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
     IS_SLOW = False

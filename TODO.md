@@ -276,6 +276,12 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0194]` __Handle pdfs without "overlay" text__  
+    Detect when pdf documents do not contain any text that can be extracted
+    with `pdftotext` and run do OCR text extraction instead.
+    Each page of the PDF document must first be converted to some suitable
+    image format that can be passed on to OCR text extraction.
+
 * `[TD0193]` __Clean up arguments passed to `FilesystemError`__  
     Fix inconsistent usage of the `FilesystemError` exception class.
 

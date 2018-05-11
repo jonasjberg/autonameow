@@ -44,6 +44,9 @@ TESSERACT_COMMAND = 'tesseract'
 TESSERACT_ARGS = None
 
 
+# TODO: [TD0194] Handle (seemingly empty) pdfs without "overlay" text
+
+
 class TesseractOCRTextExtractor(AbstractTextExtractor):
     # NOTE(jonas): Can't do 'image/*' because it includes 'image/vnd.djvu' ..
     HANDLES_MIME_TYPES = ['image/bmp', 'image/gif', 'image/jpeg', 'image/png']
