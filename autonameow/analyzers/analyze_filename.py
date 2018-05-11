@@ -193,7 +193,9 @@ class FilenameAnalyzer(BaseAnalyzer):
             return None
 
         _candidates = _options.get('candidates', {})
+        self.log.debug('Searching for publisher in basename prefix with {} candidates'.format(len(_candidates)))
         result = find_publisher(self._basename_prefix, _candidates)
+        self.log.debug('Search for publisher in basename prefix found "{!s}"'.format(result))
         return result
 
     @classmethod
@@ -532,8 +534,14 @@ def get_most_likely_datetime_from_string(string):
 
 def find_publisher(text, candidates):
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
+    lowercase_text = text.lower()
+
     for repl, patterns in candidates.items():
+        if repl.lower() in lowercase_text:
+            return repl
+
         for pattern in patterns:
             if re.search(pattern, text):
                 return repl
+
     return None
