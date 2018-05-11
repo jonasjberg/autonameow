@@ -45,6 +45,8 @@ class FileContext(object):
         self.active_config = active_config
         self._masterprovider = masterprovider
 
+        self._active_rule = None
+
     def find_new_name(self):
         #  Things to find:
         #
@@ -73,6 +75,7 @@ class FileContext(object):
             active_rule = self._pop_from_matched_rules(matched_rules)
             if active_rule:
                 log.info('Using rule: "{!s}"'.format(active_rule))
+                self._active_rule = active_rule
                 data_sources = active_rule.data_sources
                 name_template = active_rule.name_template
 
@@ -129,6 +132,7 @@ class FileContext(object):
                 active_rule = self._pop_from_matched_rules(matched_rules)
                 if active_rule:
                     log.info('Using rule: "{!s}"'.format(active_rule))
+                    self._active_rule = active_rule
                     data_sources = active_rule.data_sources
                     name_template = active_rule.name_template
 
@@ -155,9 +159,9 @@ class FileContext(object):
         return new_name
 
     def _log_unable_to_find_new_name(self):
-        log.warning(
-            'Unable to find new name for ”{!s}".'.format(self.fileobject)
-        )
+        log.warning('Unable to find new name for "{!s}" using rule "{!s}"'.format(
+            self.fileobject, self._active_rule
+        ))
 
     def _log_fail(self, msg):
         log.info('("{!s}") {!s}'.format(self.fileobject, msg))
