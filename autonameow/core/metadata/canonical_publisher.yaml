@@ -27,9 +27,10 @@ Apress:
     match_any_literal:
     - www.apress.com
 BigNerdRanch:
+    match_any_regex:
+    - Big Nerd Ranch,?( Inc\.?|Incorporated)
     match_any_literal:
     - Big Nerd Ranch
-    - Big Nerd Ranch, Inc.
     - www.bignerdranch.com
 CambridgeUP:
     match_any_literal:
@@ -59,6 +60,9 @@ Elsevier:
 ExelixisMedia:
     match_any_literal:
     - Exelixis Media P.C.
+FranklinBeedle:
+    match_any_regex:
+    - Franklin,? Beedle,? (&|and) Associates
 HoughtonMifflin:
     match_any_literal:
     - Houghton Mifflin
@@ -76,6 +80,9 @@ JonesBartlett:
     - Jones and Bartlett Publishers
     - Jones and Bartlett
     - www.jbpub.com
+Leanpub:
+    match_any_literal:
+    - LeanPub
 LuLu:
     match_any_literal:
     - Lulu Press
@@ -107,19 +114,27 @@ MorganKaufmann:
     match_any_literal:
     - Morgan Kaufmann Publishers
     - Morgan Kaufmann
+Murachs:
+    match_any_literal:
+    - murachs
 NewAgeInt:
     match_any_literal:
     - New Age International
-NoStarchPress:
+NewRiders:
     match_any_literal:
-    - No Starch Press, Inc.
-    - No Starch Press Inc.
+    - New Riders
+NoStarchPress:
+    match_any_regex:
+    - No ?Starch ?Press,?( Inc\.?| Incorporated)
+    match_any_literal:
     - No Starch Press
     - NoStarchPress Inc.
     - www.nostarch.com
 OReilly:
+    match_any_regex:
+    - O.?reilly (&|and) Associates
+    - "O.?Reilly Media,?"
     match_any_literal:
-    - "O'Reilly Media"
     - "O'Reilly"
     - "O\u2019Reilly Media, Inc."
     - "O'Reilly & Associates"
@@ -169,6 +184,8 @@ SimpleProgrammer:
     match_any_literal:
     - Simple Programmer
 Springer:
+    match_any_regex:
+    - Springer-Verlag
     match_any_literal:
     - springer
     - Springer Berlin
@@ -178,8 +195,10 @@ StanfordUP:
     match_any_literal:
     - Stanford University Press
 Syngress:
+    match_any_regex:
+    - Syngress (Pub\.?|Publishing)
+    - Syngress Media (Inc\.?|Incorporated)
     match_any_literal:
-    - Syngress Media Inc
     - Syngress Pub.
     - www.syngress.com
 TaylorFrancis:
@@ -192,16 +211,15 @@ Westview:
     match_any_literal:
     - Westview
 Wiley:
+    match_any_regex:
+    - ^wiley (&|and) Sons
+    - ^Wiley Pub\.?
+    - ^Wiley Pub\..? (Inc\.?|Incorporated)
+    - ^John Wiley (&|and) Sons,?( Inc\.?)?
+    - Wiley.Interscience
     match_any_literal:
     - John Wiley
     - J. Wiley
-    - Wiley Pub., Inc.
-    - Wiley Pub.
-    - wiley & Sons
-    - wiley
-    - Wiley-Interscience
-    match_any_regex:
-    - John Wiley (&|and) Sons,?( Inc\.?)?
 Wordware:
     match_any_regex:
     - Wordware Pub(lishing)?
@@ -210,6 +228,14 @@ WorldScientific:
     - WorldSci(entific)?
     - World Scientific
 Wrox:
+    # match_any_regex:
+    # - Wrox/Wiley
+    # - Wrox/Wiley (&|and) Sons
+    # - Wrox/John Wiley (&|and) Sons
     match_any_literal:
+    - wrox
+    - Wrox/Wiley & Sons
+    - Wrox/Wiley and Sons
     - Wrox/John Wiley & Sons
+    - Wrox/John Wiley and Sons
     - www.wrox.com
