@@ -12,6 +12,9 @@
 Various utility scripts related to `autonameow` development.
 
 
+### `average_runtime_regression_tests.sh`
+Calculates the average runtime of the regression runner.
+
 ### `analyze-available-data.sh`
 Experimental script for finding expected field values in the output of
 `autonameow --list-all`.
