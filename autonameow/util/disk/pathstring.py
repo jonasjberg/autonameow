@@ -25,41 +25,62 @@ from util import encoding as enc
 from util import sanity
 
 
+COMPOUND_SUFFIX_LAST_PARTS = [
+    b'.7z',
+    b'.bz2',
+    b'.gz',
+    b'.lz',
+    b'.lzma',
+    b'.lzo',
+    b'.sig',
+    b'.tbz',
+    b'.tbz2',
+    b'.tgz',
+    b'.xz',
+    b'.z',
+    b'.zip',
+    b'.zipx',
+]
+
+
 def split_basename(file_path):
     """
-    Splits the basename of the specified path in two parts.
+    Splits the basename of the specified path into two parts.
 
-    Does almost the same thing as 'os.path.splitext', but handles "compound"
-    file extensions, such as 'foo.tar.gz' differently.
+    Does almost the same thing as 'os.path.splitext', but handles
+    "compound" file extensions, such as 'foo.tar.gz' differently.
 
       Input File Path:  'foo.tar'       Return Value:  ('foo', 'tar')
       Input File Path:  'foo.tar.gz'    Return Value:  ('foo', 'tar.gz')
+
+    The "compound" extension is called the "suffix" and the remaining
+    leftmost part (basename) is called the "prefix".
 
     Args:
         file_path: The path name to split as an "internal bytestring".
 
     Returns:
         The basename of the given path split into two parts,
-            as a tuple of bytestrings.
+        as a tuple of bytestrings.
+
     Raises:
-        EncodingBoundaryViolation: Got arguments of unexpected types.
+        EncodingBoundaryViolation: Given arguments are not bytestrings.
     """
     sanity.check_internal_bytestring(file_path)
 
-    base, ext = os.path.splitext(os.path.basename(enc.syspath(file_path)))
-    base = enc.bytestring_path(base)
-    ext = enc.bytestring_path(ext)
+    prefix, suffix = os.path.splitext(os.path.basename(enc.syspath(file_path)))
+    prefix = enc.bytestring_path(prefix)
+    suffix = enc.bytestring_path(suffix)
 
-    # Split "base" twice to make compound suffix out of the two extensions.
-    if ext.lower() in [b'.bz2', b'.gz', b'.lz', b'.lzma', b'.lzo', b'.xz',
-                       b'.z', b'.sig']:
-        ext = os.path.splitext(base)[1] + ext
-        base = os.path.splitext(base)[0]
+    # Split "prefix" twice to make compound suffix out of the two extensions.
+    if suffix.lower() in COMPOUND_SUFFIX_LAST_PARTS:
+        suffix = os.path.splitext(prefix)[1] + suffix
+        prefix = os.path.splitext(prefix)[0]
 
-    ext = ext.lstrip(b'.')
-    if ext and ext.strip():
-        return base, ext
-    return base, None
+    suffix = suffix.lstrip(b'.')
+    if suffix and suffix.strip():
+        return prefix, suffix
+    return prefix, None
 
 
 def basename_suffix(file_path, make_lowercase=True):

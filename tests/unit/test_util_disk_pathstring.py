@@ -33,40 +33,53 @@ from util.disk.pathstring import split_basename
 
 
 class TestSplitBasename(TestCase):
-    def _assert_splits(self, expected, test_input):
-        actual = split_basename(test_input)
-        self.assertEqual(actual, expected)
+    def _assert_splits(self, expected_prefix, expected_suffix, given):
+        actual_prefix, actual_suffix = split_basename(given)
+        self.assertEqual(expected_prefix, actual_prefix)
+        self.assertEqual(expected_suffix, actual_suffix)
 
     def test_returns_bytestrings(self):
-        c, d = split_basename(b'c.d')
-        self.assertTrue(uu.is_internalbytestring(c))
-        self.assertTrue(uu.is_internalbytestring(d))
+        actual = split_basename(b'c.d')
+        for part in actual:
+            self.assertTrue(uu.is_internalbytestring(part))
 
-    def test_passing_unicode_strings_raises_assertion_error(self):
+    def test_raises_assertion_error_given_unicode_strings(self):
         with self.assertRaises(EncodingBoundaryViolation):
             _, _ = split_basename('a.b')
 
     def test_split_no_name(self):
-        self.assertIsNone(None, split_basename(b''))
+        self._assert_splits(b'', None, b'')
 
     def test_split_no_extension(self):
-        self._assert_splits((b'foo', None), b'foo')
-        self._assert_splits((b'.foo', None), b'.foo')
+        self._assert_splits(b'foo',  None, b'foo')
+        self._assert_splits(b'.foo', None, b'.foo')
 
     def test_split_one_extension(self):
-        self._assert_splits((b'foo', b'bar'), b'foo.bar')
-        self._assert_splits((b'.foo', b'bar'), b'.foo.bar')
+        self._assert_splits(b'foo',  b'bar', b'foo.bar')
+        self._assert_splits(b'.foo', b'bar', b'.foo.bar')
 
     def test_split_multiple_extensions(self):
-        self._assert_splits((b'.foo.bar', b'foo'), b'.foo.bar.foo')
-        self._assert_splits((b'foo.bar', b'foo'), b'foo.bar.foo')
-        self._assert_splits((b'.foo.bar', b'tar'), b'.foo.bar.tar')
-        self._assert_splits((b'foo.bar', b'tar'), b'foo.bar.tar')
+        self._assert_splits(b'.foo.bar', b'foo',    b'.foo.bar.foo')
+        self._assert_splits(b'foo.bar',  b'foo',    b'foo.bar.foo')
+        self._assert_splits(b'.foo.bar', b'tar',    b'.foo.bar.tar')
+        self._assert_splits(b'foo.bar',  b'tar',    b'foo.bar.tar')
+        self._assert_splits(b'foo.bar',  b'tar.gz', b'foo.bar.tar.gz')
 
-        # TODO: This case still fails, but it is such a hassle to deal with
-        #       and is a really weird way to name files anyway.
-        # self.assertEqual(('foo.bar', 'tar.gz'),
-        #                  split_filename('foo.bar.tar.gz'))
+    def test_split_certain_compounded_extensions(self):
+        self._assert_splits(b'foo.bar', b'tar.7z',   b'foo.bar.tar.7z')
+        self._assert_splits(b'foo.bar', b'tar.bz2',  b'foo.bar.tar.bz2')
+        self._assert_splits(b'foo.bar', b'tar.gz',   b'foo.bar.tar.gz')
+        self._assert_splits(b'foo.bar', b'tar.lz',   b'foo.bar.tar.lz')
+        self._assert_splits(b'foo.bar', b'tar.lzma', b'foo.bar.tar.lzma')
+        self._assert_splits(b'foo.bar', b'tar.lzo',  b'foo.bar.tar.lzo')
+        self._assert_splits(b'foo.bar', b'tar.sig',  b'foo.bar.tar.sig')
+        self._assert_splits(b'foo.bar', b'tar.tbz',  b'foo.bar.tar.tbz')
+        self._assert_splits(b'foo.bar', b'tar.tbz2', b'foo.bar.tar.tbz2')
+        self._assert_splits(b'foo.bar', b'tar.tgz',  b'foo.bar.tar.tgz')
+        self._assert_splits(b'foo.bar', b'tar.xz',   b'foo.bar.tar.xz')
+        self._assert_splits(b'foo.bar', b'tar.z',    b'foo.bar.tar.z')
+        self._assert_splits(b'foo.bar', b'tar.zip',  b'foo.bar.tar.zip')
+        self._assert_splits(b'foo.bar', b'tar.zipx', b'foo.bar.tar.zipx')
 
 
 class TestBasenameSuffix(TestCase):
