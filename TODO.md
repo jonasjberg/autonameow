@@ -276,6 +276,9 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0195]` __Handle malformed metadata with duplicated authors__  
+    Detect and filter duplicated authors like `['Gibson Sjöberg', 'Gibson']`
+
 * `[TD0194]` __Handle pdfs without "overlay" text__  
     Detect when pdf documents do not contain any text that can be extracted
     with `pdftotext` and run do OCR text extraction instead.

@@ -26,6 +26,10 @@ from util import sanity
 from util.text.regexcache import RegexCache
 
 
+# TODO: [TD0195] Handle malformed metadata with duplicated authors
+#       Detect and filter duplicated authors like ['Gibson Sjöberg', 'Gibson']
+
+
 BLACKLISTED_HUMAN_NAMES = frozenset([
     'author',
     'contributing writers',
