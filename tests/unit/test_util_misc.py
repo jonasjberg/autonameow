@@ -364,6 +364,8 @@ class TestGitCommitHash(TestCase):
             stdout=b'fatal: Not a git repository (or any of the parent directories): .git\n',
             stderr=None
         )
+        # Call 'cache_clear()' added by the 'functools.lru_cache' decorator.
+        git_commit_hash.cache_clear()
 
         actual = git_commit_hash()
         self.assertIsNone(actual)

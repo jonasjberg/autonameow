@@ -28,6 +28,7 @@ import logging
 import os
 import shutil
 import subprocess
+from functools import lru_cache
 
 from core import constants as C
 
@@ -209,6 +210,7 @@ def process_id():
     return os.getpid()
 
 
+@lru_cache(maxsize=1)
 def git_commit_hash():
     if not is_executable('git'):
         return None
