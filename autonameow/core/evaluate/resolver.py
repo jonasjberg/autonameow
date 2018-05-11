@@ -409,13 +409,22 @@ def get_one_from_many_generic_values(databundle_list, uri):
         The "best suited" bundle, based on weighted mapping probabilities
         for the name template field related to the MeowURI "leaf".
     """
-    if uri.leaf == 'author':
+    uri_leaf = uri.leaf
+    if uri_leaf == 'author':
         prioritized = sort_by_mapped_weights(databundle_list,
                                              primary_field=fields.Author)
         return prioritized[0]
-    elif uri.leaf == 'title':
+    elif uri_leaf == 'title':
         prioritized = sort_by_mapped_weights(databundle_list,
                                              primary_field=fields.Title)
         return prioritized[0]
+    elif uri_leaf == 'date_created':
+        prioritized = sort_by_mapped_weights(databundle_list,
+                                             primary_field=fields.DateTime)
+        return prioritized[0]
+
+    else:
+        log.debug('[TD0112] Unhandled uri.leaf: "{!s}"'.format(uri_leaf))
+
     # TODO: [TD0112] Handle ranking candidates.
     return None
