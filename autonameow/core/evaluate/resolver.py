@@ -232,27 +232,24 @@ class TemplateFieldDataResolver(object):
                 log.debug('Deduplicated list of databundles still has multiple elements')
 
                 # TODO: [TD0112] Handle this properly!
-                if uri.is_generic:
-                    maybe_one = get_one_from_many_generic_values(databundles, uri)
-                    if maybe_one:
-                        assert isinstance(maybe_one, DataBundle)
-                        databundle = maybe_one
-                        log.debug('Using value "{!s}" from {} value(s); {!s}'.format(
-                            databundle.value,
-                            len(databundles),
-                            ', '.join('"{!s}"'.format(d.value) for d in databundles)
-                        ))
-                    else:
-                        log.warning(
-                            '[TD0112] Not sure what data to use for field '
-                            '{!s}..'.format(field)
-                        )
-                        for i, d in enumerate(databundles):
-                            log.debug('[TD0112] Field {!s} candidate {:03d} :: "{!s}"'.format(field, i, d.value))
-
-                        return False
+                # Might be "generic" URI or URI with an "aliased leaf".
+                maybe_one = get_one_from_many_generic_values(databundles, uri)
+                if maybe_one:
+                    assert isinstance(maybe_one, DataBundle)
+                    databundle = maybe_one
+                    log.debug('Using value "{!s}" from {} value(s); {!s}'.format(
+                        databundle.value,
+                        len(databundles),
+                        ', '.join('"{!s}"'.format(d.value) for d in databundles)
+                    ))
                 else:
-                    # Might be "aliased leaf" URI that expanded to multiple..
+                    log.warning(
+                        '[TD0112] Not sure what data to use for field '
+                        '{!s}..'.format(field)
+                    )
+                    for i, d in enumerate(databundles):
+                        log.debug('[TD0112] Field {!s} candidate {:03d} :: "{!s}"'.format(field, i, d.value))
+
                     return False
 
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
