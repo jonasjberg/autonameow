@@ -36,6 +36,10 @@ TITLE_REPLACEMENTS = {
 }
 
 
+def _strip_trailing_junk(s):
+    return re.sub(r'[\s_-]+$', '', s)
+
+
 def normalize_full_human_name(string):
     normalized_name = cleanup_full_human_name(string)
     return normalized_name.lower()
@@ -67,7 +71,7 @@ def cleanup_full_title(string):
     for pattern, replacement in TITLE_REPLACEMENTS.items():
         title = title.replace(pattern, replacement)
 
-    title = title.strip()
+    title = _strip_trailing_junk(title).strip()
     return title
 
 

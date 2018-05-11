@@ -70,6 +70,9 @@ class TestNormalizeFullTitle(TestCase):
         self._assert_normalized_title('probability theory', 'Probability Theory.djvu')
         self._assert_normalized_title('probability theory', 'Probability Theory.epub')
 
+    def test_samples_from_actual_usage(self):
+        self._assert_normalized_title('practical data analysis', 'Practical Data Analysis - ')
+
 
 class TestCleanupFullTitle(TestCase):
     def _assert_cleaned_up_title(self, expected, given):
@@ -107,3 +110,15 @@ class TestCleanupFullTitle(TestCase):
     def test_removes_trailing_file_extension(self):
         self._assert_cleaned_up_title('Probability Theory', 'Probability Theory.djvu')
         self._assert_cleaned_up_title('Probability Theory', 'Probability Theory.epub')
+
+    def test_samples_from_actual_usage(self):
+        for given in [
+            'Practical Data Analysis-',
+            'Practical Data Analysis -',
+            'Practical Data Analysis - ',
+            'Practical Data Analysis--',
+            'Practical Data Analysis --',
+            'Practical Data Analysis -- ',
+        ]:
+            with self.subTest(given=given):
+                self._assert_cleaned_up_title('Practical Data Analysis', given)
