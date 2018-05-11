@@ -132,11 +132,17 @@ class TestIsBadMetadata(TestCase):
 
     def test_bad_tags_values_return_true(self):
         self._assert_bad('PDF:Author', 'Author')
+        self._assert_bad('PDF:Author', 'First Edition')
+        self._assert_bad('PDF:Author', 'Second Edition')
+        self._assert_bad('PDF:Author', 'Third Edition')
         self._assert_bad('PDF:Subject', 'Subject')
         self._assert_bad('PDF:Title', 'Title')
         self._assert_bad('XMP:Author', 'Author')
         self._assert_bad('XMP:Creator', 'Author')
         self._assert_bad('XMP:Creator', 'Creator')
+        self._assert_bad('XMP:Creator', 'First Edition')
+        self._assert_bad('XMP:Creator', 'Second Edition')
+        self._assert_bad('XMP:Creator', 'Third Edition')
         self._assert_bad('XMP:Description', 'Description')
         self._assert_bad('XMP:Description', 'Subject')
         self._assert_bad('XMP:Subject', 'Subject')

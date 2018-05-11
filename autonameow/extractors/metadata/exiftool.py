@@ -40,16 +40,60 @@ IGNORED_EXIFTOOL_TAGNAMES = frozenset([
 
 # Metadata to ignore per field. Note that the values are set literals.
 BAD_EXIFTOOL_METADATA = {
-    'Palm:Author': {'Unknown'},
-    'Palm:Contributor': {'calibre (3.6.0) [https://calibre-ebook.com]'},
-    'PDF:Author': {'Author', 'Unknown'},
-    'PDF:Subject': {'Subject', 'Unknown'},
-    'PDF:Title': {'Title', 'Unknown', 'DjVu Document'},
-    'XMP:Author': {'Author', 'Creator', 'Unknown'},
-    'XMP:Creator': {'Author', 'Creator', 'Unknown'},
-    'XMP:Description': {'Subject', 'Description', 'Unknown'},
-    'XMP:Subject': {'Subject', 'Description', 'Unknown'},
-    'XMP:Title': {'Title', 'Unknown', 'DjVu Document'}
+    'Palm:Author': {
+        'Author',
+        'Unknown',
+    },
+    'Palm:Contributor': {
+        'calibre (3.6.0) [https://calibre-ebook.com]',
+    },
+    'PDF:Author': {
+        'Author',
+        'First Edition',
+        'Second Edition',
+        'Third Edition',
+        'Unknown',
+    },
+    'PDF:Subject': {
+        'Subject',
+        'Unknown',
+    },
+    'PDF:Title': {
+        'DjVu Document',
+        'Title',
+        'Unknown',
+    },
+    'XMP:Author': {
+        'Author',
+        'Creator',
+        'First Edition',
+        'Second Edition',
+        'Third Edition',
+        'Unknown',
+    },
+    'XMP:Creator': {
+        'Author',
+        'Creator',
+        'First Edition',
+        'Second Edition',
+        'Third Edition',
+        'Unknown',
+    },
+    'XMP:Description': {
+        'Description',
+        'Subject',
+        'Unknown',
+    },
+    'XMP:Subject': {
+        'Description',
+        'Subject',
+        'Unknown',
+    },
+    'XMP:Title': {
+        'DjVu Document',
+        'Title',
+        'Unknown',
+    },
 }
 
 # Metadata to ignore in all fields.
