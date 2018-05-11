@@ -193,6 +193,7 @@ def nested_dict_set(dictionary, list_of_keys, value):
         raise KeyError('Caught TypeError (would have clobbered existing value)')
 
 
+@lru_cache(maxsize=128)
 def is_executable(command):
     """
     Checks if the given command would be executable.
