@@ -144,6 +144,8 @@ OxfordUP:
     match_any_literal:
     - Oxford University Press
 Packt:
+    match_any_regex:
+    - Packt Publ?\.?(ishing)? ?(Limited|Ltd)?
     match_any_literal:
     - Packt Publishing Limited
     - Packt Publishing
