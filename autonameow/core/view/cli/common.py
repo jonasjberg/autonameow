@@ -413,11 +413,6 @@ def _colorize_string_diff(a, b, color, secondary_color, colorize_=None):
     return ''.join(a_out), ''.join(b_out)
 
 
-def _colorize_replacement(original, replacement, regex, color):
-    _colored_replacement = colorize(replacement, fore=color)
-    return re.sub(regex, _colored_replacement, original)
-
-
 def msg_filename_replacement(before, after):
     _old, _new = _colorize_string_diff(
         before, after,
