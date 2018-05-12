@@ -253,16 +253,12 @@ class HumanNameParser(object):
                     initials = [
                         s for s in parsed_name['first'].split('.') if s.strip()
                     ]
-                    try:
-                        first_initial = initials[0]
-                        remaining_initials = initials[1:]
-                        parsed_name['first'] = first_initial
-                        parsed_name['first_list'] = [first_initial]
-                        parsed_name['middle'] = remaining_initials[0]
-                        parsed_name['middle_list'] = remaining_initials
-                    except IndexError:
-                        print('älkjshdfg')
-                        raise
+                    first_initial = initials[0]
+                    remaining_initials = initials[1:]
+                    parsed_name['first'] = first_initial
+                    parsed_name['first_list'] = [first_initial]
+                    parsed_name['middle'] = remaining_initials[0]
+                    parsed_name['middle_list'] = remaining_initials
 
         return parsed_name
 
