@@ -507,62 +507,117 @@ class TestNormalizeUnicode(TestCase):
         actual = normalize_unicode(test_input)
         self.assertEqual(actual, expected)
 
+    def _assert_unchanged(self, given_unicode):
+        self._aE(given_unicode, given_unicode)
+
+    def _assert_replaces_variations(self, given_unicode, replacement):
+        def _format(template):
+            return template.format(g=given_unicode, r=replacement)
+
+        self._aE(given_unicode, replacement)
+        self._aE(_format('{g}'),      _format('{r}'))
+        self._aE(_format('{g} '),     _format('{r} '))
+        self._aE(_format(' {g}'),     _format(' {r}'))
+        self._aE(_format(' {g} '),    _format(' {r} '))
+
+        self._aE(_format('{g}{g}'),   _format('{r}{r}'))
+        self._aE(_format('{g}{g} '),  _format('{r}{r} '))
+        self._aE(_format(' {g}{g}'),  _format(' {r}{r}'))
+        self._aE(_format(' {g}{g} '), _format(' {r}{r} '))
+
+        self._aE(_format('{g} {g}'),   _format('{r} {r}'))
+        self._aE(_format('{g} {g} '),  _format('{r} {r} '))
+        self._aE(_format(' {g} {g}'),  _format(' {r} {r}'))
+        self._aE(_format(' {g} {g} '), _format(' {r} {r} '))
+
+        self._aE(_format('ö{g}'),      _format('ö{r}'))
+        self._aE(_format('{g}ö'),      _format('{r}ö'))
+        self._aE(_format('å{g}'),      _format('å{r}'))
+        self._aE(_format('{g}å'),      _format('{r}å'))
+        self._aE(_format('ä{g}'),      _format('ä{r}'))
+        self._aE(_format('{g}ä'),      _format('{r}ä'))
+        self._aE(_format('Ö{g}'),      _format('Ö{r}'))
+        self._aE(_format('{g}Ö'),      _format('{r}Ö'))
+        self._aE(_format('Å{g}'),      _format('Å{r}'))
+        self._aE(_format('{g}Å'),      _format('{r}Å'))
+        self._aE(_format('Ä{g}'),      _format('Ä{r}'))
+        self._aE(_format('{g}Ä'),      _format('{r}Ä'))
+
     def test_returns_empty_values_as_is(self):
-        self._aE('', '')
-        self._aE(b'', b'')
-        self._aE(None, None)
-        self._aE([], [])
-        self._aE({}, {})
+        self._assert_unchanged('')
+        self._assert_unchanged(b'')
+        self._assert_unchanged(None)
+        self._assert_unchanged([])
+        self._assert_unchanged({})
 
     def test_raises_exception_given_bad_input(self):
-        def _aR(test_input):
+        for bad_value in [
+            ['foo'],
+            {'foo': 'bar'},
+            object(),
+            1,
+            1.0,
+            b'foo',
+        ]:
             with self.assertRaises(AssertionError):
-                _ = normalize_unicode(test_input)
+                _ = normalize_unicode(bad_value)
 
-        _aR(['foo'])
-        _aR({'foo': 'bar'})
-        _aR(object())
-        _aR(1)
-        _aR(1.0)
-        _aR(b'foo')
+    def test_returns_values_as_is(self):
+        for given_and_expected in [
+            '',
+            ' ',
+            'foo',
+            '...',
+            'båt',
+            'sär',
+            'hög',
+            'söt',
+            'åäö',
+        ]:
+            with self.subTest(given_and_expected=given_and_expected):
+                self._assert_unchanged(given_and_expected)
 
-    def test_returns_expected(self):
-        self._aE('', '')
-        self._aE(' ', ' ')
-        self._aE('foo', 'foo')
-        self._aE('...', '...')
+    def test_replaces_ellipsis_with_three_periods(self):
+        self._assert_replaces_variations('…', '...')
+        self.assertEqual('…', '\u2026')
+        self._assert_replaces_variations('\u2026', '...')
 
-    def test_simplifies_three_periods(self):
-        self._aE('…', '...')
-        self._aE(' …', ' ...')
-        self._aE(' … ', ' ... ')
+    def test_replaces_dashes_with_dash(self):
+        REPLACEMENT = '-'
+        for given_unicode_char in [
+            '\u2212',
+            '\u2013',
+            '\u2014',
+        ]:
+            with self.subTest(given=given_unicode_char, expected=REPLACEMENT):
+                self._assert_replaces_variations(given_unicode_char, REPLACEMENT)
 
-    def test_replaces_dashes(self):
-        self._aE('\u2212', '-')
-        self._aE('\u2013', '-')
-        self._aE('\u2014', '-')
-        self._aE('\u05be', '-')
-        self._aE('\u2010', '-')
-        self._aE('\u2015', '-')
-        self._aE('\u30fb', '-')
+    def test_replaces_dots_and_overlines_and_bars_and_punctuation_with_dash(self):
+        REPLACEMENT = '-'
+        for given_unicode_char in [
+            '\u30fb',
+            '\u2015',
+            '\u0305',
+            '\u203e',
+            '\u05be',
+        ]:
+            with self.subTest(given=given_unicode_char, expected=REPLACEMENT):
+                self._assert_replaces_variations(given_unicode_char, REPLACEMENT)
 
-    def test_replaces_overlines(self):
-        self._aE('\u0305', '-')
-        self._aE('\u203e', '-')
+    def test_replaces_hyphens_with_dash(self):
+        REPLACEMENT = '-'
+        for given_unicode_char in [
+            '\u002D',
+            '\u00AD',
+            '\u2010',
+            '\u2011',
+            '\u2012',
+            '\u2043',
+        ]:
+            with self.subTest(given=given_unicode_char, expected=REPLACEMENT):
+                self._assert_replaces_variations(given_unicode_char, REPLACEMENT)
 
-    def test_replaces_hyphens(self):
-        self._aE('\u002D', '-')
-        self._aE('\u00AD', '-')
-        self._aE('\u00AD', '-')
-        self._aE('\u05BE', '-')
-        self._aE('\u2010', '-')
-        self._aE('\u2011', '-')
-        self._aE('\u2012', '-')
-        self._aE('\u2013', '-')
-        self._aE('\u2014', '-')
-        self._aE('\u2015', '-')
-        self._aE('\u2043', '-')
-        self._aE('\u30FB', '-')
+        self._assert_replaces_variations('\xad', REPLACEMENT)
 
 
 class TestRemoveNonBreakingSpaces(TestCase):
