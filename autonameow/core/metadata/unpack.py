@@ -26,6 +26,11 @@ import re
 # TODO: [TD0192] Detect and extract editions from titles
 
 
+# TODO: Handle incorrect metadata with authors embedded in title;
+#       Title   : Student Solutions Manual [To] Introduction To Statistics & Data Analysis, , Roxy Peck, Jay Devore
+#       Authors : ['Roxy Peck', 'Michael Allwood', 'Jay L. Devore']
+
+
 def unpack_field_value(todo):
     #
     #   URI:  extractor.metadata.exiftool.XMP:Rights
