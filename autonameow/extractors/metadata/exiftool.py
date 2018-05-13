@@ -119,11 +119,13 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     Extracts various types of metadata using "exiftool".
     """
     HANDLES_MIME_TYPES = [
-        'video/*', 'text/*', 'image/*',
         'application/epub+zip',
-        'application/pdf',
         'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/*',
+        'text/*',
+        'video/*',
     ]
     IS_SLOW = False
 
