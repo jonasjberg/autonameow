@@ -269,23 +269,44 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             self._add_intermediate_results('edition', maybe_edition)
 
     def _find_most_probable_isbn_metadata(self):
+        # TODO: [TD0185] Rework access to 'master_provider' functionality.
+        def _untangle_response(_response):
+            if not response:
+                return None
+
+            if isinstance(_response, str):
+                return _response
+
+            # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
+            if isinstance(_response, list):
+                if len(_response) == 1:
+                    first_and_only_element = _response[0]
+                    if isinstance(first_and_only_element, str):
+                        return first_and_only_element
+
+            return None
+
         # TODO: [TD0187] Fix clobbering of results.
         # TODO: [TD0114] Improve the EbookAnalyzer.
-        # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
         # TODO: [TD0185] Rework access to 'master_provider' functionality.
         response = self.request_data(self.fileobject, 'generic.metadata.description')
-        if not response or not isinstance(response, str):
+        ok_response = _untangle_response(response)
+        if not ok_response:
             self.log.debug('Reference metadata title "generic.metadata.description" unavailable.')
 
             # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
             # TODO: [TD0185] Rework access to 'master_provider' functionality.
             response = self.request_data(self.fileobject, 'generic.metadata.title')
-            if not response or not isinstance(response, str):
+            ok_response = _untangle_response(response)
+            if not ok_response:
                 self.log.debug('Reference metadata title "generic.metadata.title" unavailable. Unable to find most probable ISBN metadata..')
                 return None
 
         # TODO: [TD0192] Detect and extract editions from titles
-        _, ref_title = find_and_extract_edition(response)
+        # TODO: The reference title might be 'Meow for All (4th, 2018)'
+        # TODO: Detect and extract other contained fields in the reference.
+        #       .. Better yet; pull it from a source that already did it!
+        _, ref_title = find_and_extract_edition(ok_response)
         reference_title = normalize_full_title(ref_title)
         self.log.debug('Using reference metadata title "{!s}"'.format(reference_title))
         # response = self.request_data(self.fileobject, 'generic.contents.text')
@@ -298,14 +319,20 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                 continue
 
             title_similarity = string_similarity(metadata_title, reference_title)
-            self.log.debug('Metadata/reference title similarity {} ("{!s}"/"{!s}")'.format(title_similarity, metadata_title, reference_title))
             candidates.append((title_similarity, metadata))
 
         if candidates:
             sorted_candidates = sorted(candidates, key=lambda x: x[0], reverse=True)
+
+            # Debug logging ..
+            for n, scored_candidate in enumerate(sorted_candidates, start=1):
+                score, candidate = scored_candidate
+                self.log.debug('Candidate ({}/{}) Score {:.6f}  Title "{!s}"'.format(
+                    n, len(sorted_candidates), score, candidate.normalized_title))
+
             # Return first metadata from list of (title_similarity, metadata) tuples
             most_probable = sorted_candidates[0][1]
-            self.log.debug('Most probable metadata has title "{!s}"'.format(most_probable.title))
+            self.log.debug('Using most probable metadata with title "{!s}"'.format(most_probable.title))
             return most_probable
 
         return None
