@@ -179,6 +179,9 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad_any_tag('www.ebook777.com')
         self._assert_bad_any_tag('www.it-ebooks.info')
         self._assert_bad_any_tag('www.itbookshub.com')
+        self._assert_bad_any_tag('ÿþ')
+        self._assert_bad_any_tag('ÿþA')
+        self._assert_bad_any_tag('ÿþS')
 
 
 class TestFilterCoercedValue(TestCase):

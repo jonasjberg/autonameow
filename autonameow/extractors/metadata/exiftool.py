@@ -110,6 +110,7 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'www.it-ebooks.info',
     'www.itbookshub.com',
     'ÿþ',
+    'ÿþA',
     'ÿþS',
 ])
 
