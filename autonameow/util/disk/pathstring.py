@@ -121,15 +121,15 @@ def basename_prefix(file_path):
     or extension, not to be included in the output.
 
     Args:
-        file_path: Path to the file from which to get the "prefix", I.E.
-            the basename without the extension ("suffix").
+        file_path (bytes): Path to the file from which to get the "prefix",
+                           I.E. the basename without the extension ("suffix").
 
     Returns:
         The basename of the specified path, without any extension ("suffix"),
         as a "internal bytestring".  None is returned if it is not present.
     """
-    base, _ = split_basename(file_path)
-    return base if base else None
+    prefix, _ = split_basename(file_path)
+    return prefix if prefix else None
 
 
 def compare_basenames(basename_one, basename_two):
