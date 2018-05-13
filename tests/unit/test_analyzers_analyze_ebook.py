@@ -83,6 +83,16 @@ class TestDeduplicateIsbns(TestCase):
             given=['9780596802301']
         )
 
+    def test_deduplicates_equivalent_isbn13_and_isbn10_numbers(self):
+        self._assert_that_it(
+            returns=['9780387303031'],
+            given=['0387303030', '9780387303031']
+        )
+        self._assert_that_it(
+            returns=['9783540762881', '9783540762874'],
+            given=['3540762884', '3540762876', '9783540762881', '9783540762874']
+        )
+
 
 class TestFilterISBN(TestCase):
     BLACKLISTED_ISBN_NUMBERS = ['0000000000', '1111111111', '2222222222',

@@ -459,7 +459,23 @@ def extract_isbns_from_text(text):
 
 
 def deduplicate_isbns(isbn_list):
-    return list(set(isbn_list))
+    """
+    De-duplicate a list of ISBN numbers.
+
+    NOTE: Any ISBN-10 numbers will be converted to ISBN-13.
+    """
+    # TODO: [hack] This conversion to ISBN-13 is way too non-obvious..
+    # TODO: [cleanup] Fix "principle of least astonishment" violation!
+    deduplicated_isbns = set()
+
+    for number in isbn_list:
+        if isbnlib.is_isbn10(number):
+            isbn13 = isbnlib.to_isbn13(number)
+            deduplicated_isbns.add(isbn13)
+        else:
+            deduplicated_isbns.add(number)
+
+    return list(deduplicated_isbns)
 
 
 def filter_isbns(isbn_list, isbn_blacklist):
