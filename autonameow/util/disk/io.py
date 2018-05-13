@@ -182,10 +182,8 @@ def delete(path, ignore_missing=False):
     Deletes the file at "path".
 
     Args:
-        path: The path to delete as an "internal bytestring".
-        ignore_missing: Controls whether to ignore non-existent paths.
-                        False: Non-existent paths raises 'FilesystemError'.
-                        True: Non-existent paths are silently ignored.
+        path (bytes): The path to delete as an "internal bytestring".
+        ignore_missing (bool): Controls whether to ignore non-existent paths.
 
     Raises:
         EncodingBoundaryViolation: Argument "path" is not of type 'bytes'.
@@ -213,10 +211,8 @@ def rmdir(path, ignore_missing=False):
     Deletes the directory at "path".
 
     Args:
-        path: The path to delete as an "internal bytestring".
-        ignore_missing: Controls whether to ignore non-existent paths.
-                        False: Non-existent paths raises 'FilesystemError'.
-                        True: Non-existent paths are silently ignored.
+        path (bytes): The path to delete as an "internal bytestring".
+        ignore_missing (bool): Controls whether to ignore non-existent paths.
 
     Raises:
         EncodingBoundaryViolation: Argument "path" is not of type 'bytes'.

@@ -42,8 +42,8 @@ def get_files_gen(search_path, recurse=False):
         NOTE: Does not currently handle symlinks.
 
     Args:
-        search_path: The path from which to collect files.
-        recurse: Whether to traverse the path recursively or not.
+        search_path (bytes): The path from which to collect files.
+        recurse (bool): Whether to traverse the path recursively or not.
 
     Returns:
         Absolute paths to files in the specified path, as a generator object.

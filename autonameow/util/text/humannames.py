@@ -308,7 +308,7 @@ class HumanNameFormatter(object):
           NOTE: This method __MUST__ be implemented by inheriting classes!
 
         Args:
-            name: The human name to format as a Unicode string.
+            name (str): The human name to format as a Unicode string.
 
         Returns:
             A formatted version of the given name as a Unicode string.

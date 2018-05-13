@@ -57,7 +57,7 @@ def split_basename(file_path):
     leftmost part (basename) is called the "prefix".
 
     Args:
-        file_path: The path name to split as an "internal bytestring".
+        file_path (bytes): The path name to split as an "internal bytestring".
 
     Returns:
         The basename of the given path split into two parts,
@@ -137,11 +137,12 @@ def compare_basenames(basename_one, basename_two):
     Compares to file basenames in the "internal byte string" format.
 
     Args:
-        basename_one: The first basename to compare as a bytestring.
-        basename_two: The second basename to compare as a bytestring.
+        basename_one (bytes): The first basename to compare.
+        basename_two (bytes): The second basename to compare.
 
-    Returns:
+    Returns (bool):
         True if the basenames are equal, otherwise False.
+
     Raises:
         ValueError: Any of the arguments is None.
         EncodingBoundaryViolation: Any argument is not of type bytes.
