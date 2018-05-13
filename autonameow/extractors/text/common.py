@@ -149,9 +149,11 @@ def decode_raw(raw_text):
     try:
         text = coercers.AW_STRING(raw_text)
     except coercers.AWTypeError:
+        log.error('Text extractor "decode_raw()" failed to coerce raw text, '
+                  'attempting auto-detection of text encoding..')
         try:
             text = enc.autodetect_decode(raw_text)
         except ValueError:
-            log.warning('Unable to decode raw text')
+            log.warning('Unable to decode raw text by encoding auto-detection')
             return ''
     return text
