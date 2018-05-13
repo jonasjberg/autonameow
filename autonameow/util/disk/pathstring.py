@@ -90,27 +90,26 @@ def basename_suffix(file_path, make_lowercase=True):
     The file path can be of any type, relative, absolute, etc.
 
     NOTE: On non-standard behaviour;
-    Compound file extensions like 'foo.tar.gz' will return the (full "suffix")
-    'tar.gz' and not just the conventional file extension 'gz'.
+          Compound file extensions like 'foo.tar.gz' will return the full
+          "suffix", 'tar.gz' and not just the conventional extension 'gz'.
 
     Args:
-        file_path: Path from which to get the full "suffix", I.E. the file
-            extension part of the basename, with special treatment of
-            compound file extensions, like 'repo_backup.git.tar.lzma'.
+        file_path (bytes): Path from which to get the full "suffix", I.E.
+                           the file extension part of the basename, with special
+                           treatment of compound file extensions.
 
-        make_lowercase: Whether to convert the suffix to lower case before
-            returning it. Defaults to True.
+        make_lowercase (bool): Whether to convert the suffix to lower case
+                               before returning it. Defaults to True.
 
     Returns:
         The "suffix" or compound file extension for the given path as a
         "internal bytestring".  None is returned if it is not present.
     """
-    _, ext = split_basename(file_path)
+    _, suffix = split_basename(file_path)
+    if suffix and make_lowercase:
+        suffix = suffix.lower()
 
-    if ext and make_lowercase:
-        ext = ext.lower()
-
-    return ext
+    return suffix if suffix else None
 
 
 def basename_prefix(file_path):
