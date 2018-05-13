@@ -75,6 +75,9 @@ IABooks:
 ImperialCollegePress:
     match_any_literal:
     - Imperial College Press
+JohnsHopkinsUP:
+    match_any_regex:
+    - 'Johns Hopkins Uni'
 JonesBartlett:
     match_any_literal:
     - Jones and Bartlett Publishers
@@ -206,9 +209,11 @@ Syngress:
 TaylorFrancis:
     match_any_regex:
     - Taylor (&|and) Francis
-WellesleyCambridgePress:
+WellesleyCambridge:
     match_any_regex:
     - Wellesley.Cambridge( Press)?
+    match_any_literal:
+    - WellesleyCambridgePress
 Westview:
     match_any_literal:
     - Westview

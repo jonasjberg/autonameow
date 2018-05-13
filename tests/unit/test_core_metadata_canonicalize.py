@@ -149,6 +149,18 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'ImperialCollegePress',
         'Imperial College Press',
     ],
+    'JohnsHopkinsUP': [
+        'Johns Hopkins University Press Ltd',
+        'Johns Hopkins University Press Ltd. London',
+        'Johns Hopkins University Press Ltd.',
+        'Johns Hopkins University Press Ltd., London',
+        'Johns Hopkins University Press',
+        'The Johns Hopkins University Press Ltd',
+        'The Johns Hopkins University Press Ltd. London',
+        'The Johns Hopkins University Press Ltd.',
+        'The Johns Hopkins University Press Ltd., London',
+        'The Johns Hopkins University Press',
+    ],
     'JonesBartlett': [
         'Jones and Bartlett Publishers',
         'Jones and Bartlett',
@@ -326,7 +338,7 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Taylor and Francis',
         'TaylorFrancis',
     ],
-    'WellesleyCambridgePress': [
+    'WellesleyCambridge': [
         'Wellesley Cambridge Press',
         'Wellesley Cambridge',
         'Wellesley-Cambridge Press',
@@ -576,7 +588,6 @@ class TestCanonicalizerConfigParser(TestCase):
              ])
         }
         self.assertEqual(expect_parsed_regex_lookup, parser.parsed_regex_lookup)
-
 
 
 class TestBuildStringValueCanonicalizer(TestCase):
