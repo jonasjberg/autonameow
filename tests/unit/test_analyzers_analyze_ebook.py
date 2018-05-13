@@ -30,6 +30,7 @@ else:
     ISBNLIB_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
+from analyzers.analyze_ebook import calculate_authors_similarity
 from analyzers.analyze_ebook import deduplicate_isbns
 from analyzers.analyze_ebook import EbookAnalyzer
 from analyzers.analyze_ebook import extract_ebook_isbns_from_text
@@ -646,6 +647,31 @@ class TestISBNMetadataEquality(TestCase):
         unique_isbn_metadata.add(m1)
         self.assertEqual(2, len(unique_isbn_metadata))
 
+    def test_comparison_of_live_isbn_metadata_4(self):
+        m0 = ISBNMetadata(
+            authors=['Gilbert Strang'],
+            language='eng',
+            publisher='WellesleyCambridge',
+            isbn10='0980232740',
+            isbn13='9780980232745',
+            title='Calculus',
+            year='2010'
+        )
+        m1 = ISBNMetadata(
+            authors=['Gilbert Strang', 'Truong Nguyen'],
+            language='eng',
+            publisher='WellesleyCambridge',
+            isbn10='0961408871',
+            isbn13='9780961408879',
+            title='Wavelets And Filter Banks',
+            year='1997'
+        )
+        self.assertNotEqual(m0, m1)
+        unique_isbn_metadata = set()
+        unique_isbn_metadata.add(m0)
+        unique_isbn_metadata.add(m1)
+        self.assertEqual(2, len(unique_isbn_metadata))
+
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestExtractEbookISBNsInText(TestCase):
@@ -741,3 +767,49 @@ class TestMalformedISBNMetadata(TestCase):
         )
         self.assertEqual(expect, actual)
         self.assertEqual(_expected_authors, actual.authors)
+
+
+class TestCalculateAuthorsSimilarity(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.LOW_SIMILARITY_THRESHOLD = 0.25
+        cls.HIGH_SIMILARITY_THRESHOLD = 0.75
+
+    def _assert_similarity(self, expected, authors_a, authors_b):
+        actual = calculate_authors_similarity(authors_a, authors_b)
+        self.assertEqual(expected, actual)
+
+    def _assert_low_similarity(self, authors_a, authors_b):
+        actual = calculate_authors_similarity(authors_a, authors_b)
+        self.assertLessEqual(actual, self.LOW_SIMILARITY_THRESHOLD)
+
+    def _assert_high_similarity(self, authors_a, authors_b):
+        actual = calculate_authors_similarity(authors_a, authors_b)
+        self.assertGreaterEqual(actual, self.HIGH_SIMILARITY_THRESHOLD)
+
+    def test_expect_maximum_similarity_for_identical_authors(self):
+        self._assert_similarity(1.0, ['foo bar'], ['foo bar'])
+        self._assert_similarity(1.0, ['foo'], ['foo'])
+
+    def test_expect_high_similarity_for_similar_authors(self):
+        self._assert_high_similarity(['Foo Bar'], ['Fo Bar'])
+        self._assert_high_similarity(['foo bar'], ['foo barr'])
+        self._assert_high_similarity(['nietzsche'], ['nietzsche f'])
+        self._assert_high_similarity(['nietzsche'], ['f. nietzsche'])
+
+    def test_identical_authors_but_different_counts_should_be_similar(self):
+        self._assert_high_similarity(['gilbert strang'],
+                                     ['gilbert strang', 'truong nguyen'])
+        self._assert_high_similarity(['gilbert strang'],
+                                     ['truong nguyen', 'gilbert strang'])
+        self._assert_high_similarity(['gilbert strang', 'truong nguyen'],
+                                     ['gilbert strang'])
+        self._assert_high_similarity(['truong nguyen', 'gilbert strang'],
+                                     ['gilbert strang'])
+
+    def test_expect_low_similarity_for_completely_different_authors(self):
+        self._assert_low_similarity(['aaa bbb'], ['zzz xxx'])
+        self._assert_low_similarity(['aaa'], ['xxx'])
+        self._assert_low_similarity(['gibson'], ['smulan'])
+        self._assert_low_similarity(['gibson smulan'], ['nietzsche kant'])
+        self._assert_low_similarity(['nietzsche'], ['kant'])

@@ -747,14 +747,14 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
                     return True
         else:
             if _sim_authors == 1:
-                if _sim_title > 0.5:
+                if _sim_title > 0.8:
                     return True
-                if _sim_publisher > 0.5:
+                if _sim_publisher == 0.8:
                     return True
-            elif _sim_authors > 0.5:
-                if _sim_title > 0.7:
+            elif _sim_authors > 0.7:
+                if _sim_title == 1.0:
                     return True
-                if _sim_publisher > 0.7:
+                if _sim_publisher > 0.9:
                     return True
             elif _sim_authors > 0.2:
                 if _sim_title > 0.9:
@@ -796,3 +796,22 @@ m{} = ISBNMetadata(
 
 def is_epub_ebook(fileobject):
     return fileobject.mime_type == 'application/epub+zip'
+
+
+def calculate_authors_similarity(authors_a, authors_b):
+    def _case_insensitive_sort(s):
+        return sorted(s, key=lambda c: c.lower())
+
+    sorted_authors_a = _case_insensitive_sort(authors_a)
+    sorted_authors_b = _case_insensitive_sort(authors_b)
+
+    # Because 'zip' stops when the shortest iterable is exhausted.
+    num_string_similarities_averaged = min(len(authors_a), len(authors_b))
+
+    similarity = float(
+        sum(
+            string_similarity(a, b)
+            for a, b in zip(sorted_authors_a, sorted_authors_b)
+        ) / num_string_similarities_averaged
+    )
+    return similarity
