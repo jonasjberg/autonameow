@@ -35,6 +35,10 @@ BigNerdRanch:
 CambridgeUP:
     match_any_literal:
     - Cambridge University Press
+Cengage:
+    match_any_regex:
+    - Cengage
+    - Course.?Technology
 ChelseaHouse:
     match_any_literal:
     - Chelsea House
@@ -43,13 +47,6 @@ CRCPress:
     - Chapman & Hall/CRC
     - CRC Press
     - www.crcpress.com
-CourseTechnology:
-    match_any_literal:
-    - Course Technology/Cengage Learning
-    - Cengage Learning
-    - Course Technology
-    - Course Technology PTR
-    - Course Technology U.S.
 DennisPub:
     match_any_literal:
     - Dennis Pub.
@@ -95,11 +92,8 @@ Manning:
     match_any_literal:
     - Manning Publications
 McGrawHill:
-    match_any_literal:
-    - McGraw Hill Professional
-    - McGraw-Hill
-    - McGraw Hill
-    - The McGraw-Hill Companies
+    match_any_regex:
+    - McGraw.?Hill
 MicrosoftPress:
     match_any_literal:
     - Microsoft Press
@@ -181,6 +175,12 @@ PublishOrPerish:
     - Publish or Perish
     match_any_regex:
     - Publish or Perish,? Inc\.?
+Routledge:
+    match_any_regex:
+    - Routledge
+    match_any_literal:
+    - Routledge Taylor & Francis Group
+    - Routledge Taylor and Francis Group
 Sams:
     match_any_literal:
     - Sams Publishing
@@ -190,7 +190,7 @@ SimpleProgrammer:
     - Simple Programmer
 Springer:
     match_any_regex:
-    - Springer-Verlag
+    - Springer.Verlag
     match_any_literal:
     - springer
     - Springer Berlin
