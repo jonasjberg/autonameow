@@ -86,6 +86,7 @@ assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- ".*${current_gi
             'Output should contain a string matching the previously retrieved git commit hash when started with "--version -v"'
 
 
+# Get version string defined in the sources
 _version_file="${AUTONAMEOW_ROOT_DIR}/autonameow/core/version.py"
 assert_bulk_test "$_version_file" e f r
 
@@ -93,17 +94,24 @@ AUTONAMEOW_SOURCE_VERSION="$(grep -- '__version_info__ = ' "$_version_file" | gr
 assert_false '[ -z "$AUTONAMEOW_SOURCE_VERSION" ]' \
              "This test script should be able to retrieve the version from \"${_version_file}\"."
 
+_autonameow_source_version_linecount="$(wc -l <<< "$AUTONAMEOW_SOURCE_VERSION")"
+assert_true '[ "$_autonameow_source_version_linecount" -eq "1" ]' \
+            "The matched \"${_version_file}\" file version should be a single line, I.E. contains one version string"
 
+
+# Get version reported by running 'autonameow --version'
 AUTONAMEOW_VERSION="$( ( "$AUTONAMEOW_RUNNER" --version 2>&1 ) | grep -o -- "v[0-9]\.[0-9]\.[0-9]" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
 assert_false '[ -z "$AUTONAMEOW_VERSION" ]' \
              'This test script should be able to retrieve the program version.'
 
+_autonameow_version_linecount="$(wc -l <<< "$AUTONAMEOW_VERSION")"
+assert_true '[ "$_autonameow_version_linecount" -eq "1" ]' \
+            'The matched program version should be a single line, I.E. contains one version string'
+
+
+# Get the version of the configuration file that is used when running the program
 assert_true '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -o -- "Using configuration: \".*\"$"' \
             'The output should include the currently used configuration file when started with "--verbose"'
-
-assert_true '[ "$AUTONAMEOW_SOURCE_VERSION" = "$AUTONAMEOW_VERSION" ]' \
-            "The version in \"${_version_file}\" should equal the program version"
-
 
 AUTONAMEOW_CONFIG_PATH="$( ( "$AUTONAMEOW_RUNNER" --verbose 2>&1 ) | grep -o -- "Using configuration: \".*\"$" | grep -o -- "\".*\"")"
 assert_false '[ -z "$AUTONAMEOW_CONFIG_PATH" ]' \
@@ -119,6 +127,15 @@ assert_true 'grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAME
 CONFIG_FILE_VERSION="$(grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
 assert_false '[ -z "$CONFIG_FILE_VERSION" ]' \
              'This test script should be able to retrieve the configuration file version.'
+
+_config_file_version_linecount="$(wc -l <<< "$CONFIG_FILE_VERSION")"
+assert_true '[ "$_config_file_version_linecount" -eq "1" ]' \
+            'The matched configuration file version should be a single line, I.E. contains one version string'
+
+
+# Check that all gathered version strings are the same.
+assert_true '[ "$AUTONAMEOW_SOURCE_VERSION" = "$AUTONAMEOW_VERSION" ]' \
+            "The version in \"${_version_file}\" should equal the program version"
 
 assert_true '[ "$AUTONAMEOW_VERSION" = "$CONFIG_FILE_VERSION" ]' \
             'The configuration file version should equal the program version'
