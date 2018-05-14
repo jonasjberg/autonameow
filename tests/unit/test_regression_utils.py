@@ -512,6 +512,7 @@ class TestAutonameowWrapperWithDefaultOptions(TestCase):
         self.assertEqual(actual, C.EXIT_SUCCESS)
 
     def test_stderr_contains_no_input_files_specified(self):
+        self.skipTest('TODO: False negative on MacOS and Windows WSL')
         actual = self.aw.captured_stderr
         self.assertIn('No input files specified', actual)
 
