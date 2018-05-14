@@ -816,6 +816,9 @@ class TestCalculateAuthorsSimilarity(TestCase):
                                      ['gilbert strang'])
         self._assert_high_similarity(['truong nguyen', 'gilbert strang'],
                                      ['gilbert strang'])
+        self._assert_high_similarity(['meemaw'], ['MEEMAW'])
+        self._assert_high_similarity(['Meemaw'], ['Meemaw'])
+        self._assert_high_similarity(['Meemaw'], ['Meeoaw'])
 
     def test_expect_low_similarity_for_completely_different_authors(self):
         self._assert_low_similarity(['aaa bbb'], ['zzz xxx'])
@@ -823,3 +826,4 @@ class TestCalculateAuthorsSimilarity(TestCase):
         self._assert_low_similarity(['gibson'], ['smulan'])
         self._assert_low_similarity(['gibson smulan'], ['nietzsche kant'])
         self._assert_low_similarity(['nietzsche'], ['kant'])
+        self._assert_low_similarity(['Meemaw'], ['grandmother'])

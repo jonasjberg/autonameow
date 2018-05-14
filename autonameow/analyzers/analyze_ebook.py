@@ -815,11 +815,13 @@ def is_epub_ebook(fileobject):
 
 
 def calculate_authors_similarity(authors_a, authors_b):
-    def _case_insensitive_sort(s):
-        return sorted(s, key=lambda c: c.lower())
+    def _to_lower(strings):
+        return [s.lower() for s in strings]
 
-    sorted_authors_a = _case_insensitive_sort(authors_a)
-    sorted_authors_b = _case_insensitive_sort(authors_b)
+    lowercase_authors_a = _to_lower(authors_a)
+    lowercase_authors_b = _to_lower(authors_b)
+    sorted_authors_a = sorted(lowercase_authors_a)
+    sorted_authors_b = sorted(lowercase_authors_b)
 
     # Because 'zip' stops when the shortest iterable is exhausted.
     num_string_similarities_averaged = min(len(authors_a), len(authors_b))
