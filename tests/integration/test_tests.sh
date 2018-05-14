@@ -115,6 +115,7 @@ assert_true 'man sed | grep -- "^ \+.*-i\b"' \
             'System sed supports the "-i" option, required by some integration tests'
 
 assert_has_command 'time'
+assert_has_command 'aspell'  # devscripts/check-spelling.sh
 
 
 # ______________________________________________________________________________
