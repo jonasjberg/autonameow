@@ -35,6 +35,8 @@ MIMETYPE application/octet-stream
     - chm
     EXTENSION dmg           # Apple disk images
     - dmg
+    EXTENSION mp3
+    - mp3
     EXTENSION fc            # FirstClass settings
     - fc
     EXTENSION fcd           # FirstClass settings
@@ -160,6 +162,11 @@ MIMETYPE application/zip
 MIMETYPE audio/mpeg
     EXTENSION mp3
     - mp3
+
+MIMETYPE audio/x-wav
+    EXTENSION wav
+    - wav
+    - BLANK
 
 MIMETYPE inode/x-empty
     EXTENSION out
@@ -343,3 +350,7 @@ MIMETYPE video/mpeg
     - mpeg
     EXTENSION vob
     - vob
+
+MIMETYPE video/x-ms-asf
+    EXTENSION wma
+    - wma

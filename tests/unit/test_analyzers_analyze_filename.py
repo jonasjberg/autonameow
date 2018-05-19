@@ -401,6 +401,18 @@ class TestLikelyExtension(TestCase):
             # Safari saved webpage
             (Expect('webarchive'),
              Given(suffix='webarchive', mime='application/octet-stream')),
+
+            # Audio
+            (Expect('mp3'),
+             Given(suffix='mp3', mime='application/octet-stream')),
+            (Expect('mp3'),
+             Given(suffix='mp3', mime='audio/mpeg')),
+            (Expect('wav'),
+             Given(suffix='wav', mime='audio/x-wav')),
+            (Expect('wav'),
+             Given(suffix='', mime='audio/x-wav')),
+            (Expect('wma'),
+             Given(suffix='wma', mime='video/x-ms-asf')),
         ]
 
     def test_returns_expected(self):
