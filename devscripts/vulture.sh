@@ -55,5 +55,5 @@ fi
 
 (
     cd "$AUTONAMEOW_ROOT_DIR" || exit 1
-    vulture --exclude=autonameow/thirdparty autonameow tests
+    vulture --min-confidence=90 --exclude=autonameow/thirdparty autonameow
 )
