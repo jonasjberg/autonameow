@@ -826,32 +826,37 @@ class TestCalculateAuthorsSimilarity(TestCase):
         self.assertGreaterEqual(actual, self.HIGH_SIMILARITY_THRESHOLD)
 
     def test_expect_maximum_similarity_for_identical_authors(self):
-        self._assert_similarity(1.0, ['foo bar'], ['foo bar'])
-        self._assert_similarity(1.0, ['foo'], ['foo'])
+        for authors_names_A, authors_names_B in [
+            (['a'],       ['a']),
+            (['A'],       ['a']),
+            (['a'],       ['A']),
+            (['foo'],     ['foo']),
+            (['foo'],     ['Foo']),
+            (['foo bar'], ['foo bar']),
+            (['foo bar'], ['Foo bar']),
+            (['foo bar'], ['Foo Bar']),
+        ]:
+            self._assert_similarity(1.0, authors_names_A, authors_names_B)
 
     def test_expect_high_similarity_for_similar_authors(self):
-        self._assert_high_similarity(['Foo Bar'], ['Fo Bar'])
-        self._assert_high_similarity(['foo bar'], ['foo barr'])
+        self._assert_high_similarity(['Foo Bar'],   ['Fo Bar'])
+        self._assert_high_similarity(['foo bar'],   ['foo barr'])
         self._assert_high_similarity(['nietzsche'], ['nietzsche f'])
         self._assert_high_similarity(['nietzsche'], ['f. nietzsche'])
+        self._assert_high_similarity(['meemaw'],    ['MEEMAW'])
+        self._assert_high_similarity(['Meemaw'],    ['Meemaw'])
+        self._assert_high_similarity(['Meemaw'],    ['Meeoaw'])
 
     def test_identical_authors_but_different_counts_should_be_similar(self):
-        self._assert_high_similarity(['gilbert strang'],
-                                     ['gilbert strang', 'truong nguyen'])
-        self._assert_high_similarity(['gilbert strang'],
-                                     ['truong nguyen', 'gilbert strang'])
-        self._assert_high_similarity(['gilbert strang', 'truong nguyen'],
-                                     ['gilbert strang'])
-        self._assert_high_similarity(['truong nguyen', 'gilbert strang'],
-                                     ['gilbert strang'])
-        self._assert_high_similarity(['meemaw'], ['MEEMAW'])
-        self._assert_high_similarity(['Meemaw'], ['Meemaw'])
-        self._assert_high_similarity(['Meemaw'], ['Meeoaw'])
+        self._assert_high_similarity(['gilbert strang'],                  ['gilbert strang', 'truong nguyen'])
+        self._assert_high_similarity(['gilbert strang'],                  ['truong nguyen', 'gilbert strang'])
+        self._assert_high_similarity(['gilbert strang', 'truong nguyen'], ['gilbert strang'])
+        self._assert_high_similarity(['truong nguyen', 'gilbert strang'], ['gilbert strang'])
 
     def test_expect_low_similarity_for_completely_different_authors(self):
-        self._assert_low_similarity(['aaa bbb'], ['zzz xxx'])
-        self._assert_low_similarity(['aaa'], ['xxx'])
-        self._assert_low_similarity(['gibson'], ['smulan'])
+        self._assert_low_similarity(['aaa bbb'],       ['zzz xxx'])
+        self._assert_low_similarity(['aaa'],           ['xxx'])
+        self._assert_low_similarity(['gibson'],        ['smulan'])
         self._assert_low_similarity(['gibson smulan'], ['nietzsche kant'])
-        self._assert_low_similarity(['nietzsche'], ['kant'])
-        self._assert_low_similarity(['Meemaw'], ['grandmother'])
+        self._assert_low_similarity(['nietzsche'],     ['kant'])
+        self._assert_low_similarity(['Meemaw'],        ['grandmother'])
