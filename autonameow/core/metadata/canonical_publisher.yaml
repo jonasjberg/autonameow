@@ -94,6 +94,8 @@ Manning:
 McGrawHill:
     match_any_regex:
     - McGraw.?Hill
+    match_any_literal:
+    - McGraw-Hill Education TAB
 MicrosoftPress:
     match_any_literal:
     - Microsoft Press
@@ -124,6 +126,7 @@ NoStarchPress:
     match_any_regex:
     - No ?Starch ?Press,?( Inc\.?| Incorporated)
     match_any_literal:
+    - No Starch
     - No Starch Press
     - NoStarchPress Inc.
     - www.nostarch.com
