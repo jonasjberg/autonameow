@@ -40,7 +40,7 @@ set -o nounset
 MIN_USAGE_COUNT=1
 
 
-grep_own_python() { grep -hrE --exclude-dir "thirdparty" --include "*.py" "$@" "$SEARCHDIR" ; }
+grep_own_python() { grep -hrE --exclude-dir={devscripts,thirdparty,tests} --include "*.py" "$@" "$SEARCHDIR" ; }
 
 
 grep_own_python -o '^def [a-zA-Z0-9_]+' | cut -f2 -d' ' | while read -r def_name
