@@ -34,6 +34,7 @@ from analyzers.analyze_ebook import calculate_authors_similarity
 from analyzers.analyze_ebook import deduplicate_isbns
 from analyzers.analyze_ebook import EbookAnalyzer
 from analyzers.analyze_ebook import extract_ebook_isbns_from_text
+from analyzers.analyze_ebook import extract_isbns_from_text
 from analyzers.analyze_ebook import filter_isbns
 from analyzers.analyze_ebook import ISBNMetadata
 
@@ -684,7 +685,7 @@ class TestISBNMetadataEquality(TestCase):
 
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
-class TestExtractEbookISBNsInText(TestCase):
+class TestExtractEbookISBNsFromText(TestCase):
     def _assert_returns(self, expected, given):
         actual = extract_ebook_isbns_from_text(given)
         self.assertEqual(expected, actual)
@@ -729,6 +730,33 @@ https://doi.org/10.1007/978-1-4842-3318-4
 
 ISBN-13 (electronic): 978-1-4842-3318-4
 
+''')
+
+
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
+class TestExtractISBNsFromText(TestCase):
+    def _assert_returns(self, expected, given):
+        actual = extract_isbns_from_text(given)
+        self.assertEqual(expected, actual)
+
+    def test_find_expected_in_ocr_text_with_one_invalid_character(self):
+        self.skipTest('TODO: Clean up invalid characters in OCR text')
+        self._assert_returns(['0486650383'],
+                             given='''I. Mathematical analysis. I. Title.
+QAaOO.R63 1986
+516
+86-25300
+ISBN 0-486-6&038-3 (pbk.)
+''')
+
+    def test_find_expected_in_ocr_text_with_multiple_invalid_characters(self):
+        self.skipTest('TODO: Detect and replace 0488 should be 0486 ')
+        self._assert_returns(['0486650383'],
+                             given='''I. Mathematical analysis. I. Title.
+QAaOO.R63 1986
+516
+86-25300
+ISBN 0-488-6&038-3 (pbk.)
 ''')
 
 
