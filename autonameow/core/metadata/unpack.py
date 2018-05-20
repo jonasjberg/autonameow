@@ -37,6 +37,14 @@ def unpack_field_value(todo):
     # VALUE:  ""Copyright © 2012 "
     #
     # Should unpack to a "date_created" (or similar) with value 2012.
+    #
+    #   URI:  any title or maybe not specified?
+    # VALUE:  "Python Data Science Essentials: Become an efficient data science practitioner by understanding Python's key concepts 2nd Edition.pdf"
+    # Should unpack to unpacked = {
+    #     'edition': '2',
+    #     'title': 'Python Data Science Essentials',
+    #     'subtitle': "Become an efficient data science practitioner by understanding Python's key concepts",
+    # }
     pass
 
 
