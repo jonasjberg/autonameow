@@ -82,3 +82,8 @@ class TestSplitTitleSubtitle(TestCase):
                 title='Meowing for Computations - MEOW',
                 subtitle='A Gentle Introduction to Numerical Simulation with Gibson'
             )
+            self._assert_splits(
+                'Programming the BBC micro:bit: Getting Started with MicroPython',
+                title='Programming the BBC micro:bit',
+                subtitle='Getting Started with MicroPython'
+            )
