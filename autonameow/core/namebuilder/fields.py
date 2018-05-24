@@ -33,6 +33,8 @@ log = logging.getLogger(__name__)
 
 # TODO: [TD0154] Add "incrementing counter" placeholder field
 # TODO: [TD0191] Add new 'subtitle' placeholder field.
+# TODO: [TD0196] Allow user to define maximum lengths for new names.
+# TODO: [TD0197] Template field-specific length limits and trimming.
 
 
 class NameTemplateField(object):

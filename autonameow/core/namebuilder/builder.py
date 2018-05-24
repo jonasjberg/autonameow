@@ -66,6 +66,9 @@ def build(config, name_template, field_databundle_dict):
     for str_field, str_value in str_fields_values.items():
         log.debug('Pre-assembly formatted field "{!s}": "{!s}"'.format(str_field, str_value))
 
+    # TODO: [TD0196] Allow user to define maximum lengths for new names.
+    # TODO: [TD0197] Template field-specific length limits and trimming.
+
     # Construct the new file name
     str_name_template = str(name_template)
     log.debug('Populating name template "{}"'.format(str_name_template))

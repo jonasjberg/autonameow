@@ -90,6 +90,23 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0196]` Allow user to define maximum lengths for new names.
+
+* `[TD0197]` Template field-specific length limits and trimming.  
+    When populating the final name, check the total length of the final new
+    file name. If the total length of the file name exceeds a user-defined max
+    length or if any of the individual placeholder fields exceed their specific
+    max lengths, trim field lengths until the individual field limits are no
+    longer exceeded.
+
+    If the total length of the new name still exceeds the total length limit,
+    trim individual fields in some yet unknown way.
+
+    If the name template is `{title} {subtitle}`, possibly trim or remove the
+    subtitle, etc. This behaviour should be made field- and/or data-specific.
+
+    Related to TODO `[TD0196]` on allowing user-defined max length.
+
 * `[TD0190]` __Join/merge metadata "records" with missing field values__  
     When de-duplicating and discarding "duplicate" sets of metadata
     ("records"), check if the chosen metadata record has any missing or empty
