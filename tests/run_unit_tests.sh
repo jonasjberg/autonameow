@@ -192,9 +192,7 @@ then
     printf 'Wrote unit test HTML log file: "%s"\n' "$_unittest_log"
 
     # Write log file name to temporary file, used by other scripts.
-    set +o noclobber
-    echo "${_unittest_log}" > "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
-    set -o noclobber
+    echo "${_unittest_log}" >| "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
 fi
 
 
