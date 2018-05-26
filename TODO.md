@@ -14,6 +14,21 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0198]` __Separate repositories for "provider" and "internal" data__  
+    One repository would store data for URIs like
+    `extractor.metadata.exiftool.PDF:Author` and "aliased leaf" URIs like
+    `extractor.metadata.exiftool.author`.
+    This would be the raw unprocessed data, straight from the `exiftool`
+    provider.
+
+    Another repository stores data, for URIs like `generic.metadata.author`.
+    Data returned from this repository will have been processed, cleaned,
+    "unpacked", etc.
+    This allows lazily processing data as required, serves to clean up the
+    current repository implementation, as well as helping separation of data
+    processing and allows accessing the various forms the data at various
+    stage.
+
 * `[TD0187]` __Fix "clobbering" of analyzer results..__
 
 * `[TD0185]` __Rework the highest level data request handler interface.__

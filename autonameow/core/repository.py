@@ -32,6 +32,9 @@ from util.text import truncate_text
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0198] Separate repositories for "raw" vs. "processed" data.
+
+
 def _get_column_formatter():
     from core.view.cli import ColumnFormatter
     return ColumnFormatter()
