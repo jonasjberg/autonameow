@@ -873,7 +873,7 @@ PDF:Producer:
     mapped_fields:
     -   WeightedMapping:
             field: Publisher
-            weight: 0.25
+            weight: 0.03
     -   WeightedMapping:
             field: Author
             weight: 0.02
@@ -1464,7 +1464,7 @@ XMP:Producer:
     mapped_fields:
     -   WeightedMapping:
             field: Publisher
-            weight: 0.25
+            weight: 0.03
     -   WeightedMapping:
             field: Author
             weight: 0.02
