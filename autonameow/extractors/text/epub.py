@@ -63,6 +63,8 @@ def extract_text_with_ebooklib(filepath):
         book = epub.read_epub(unicode_filepath)
     except epub.EpubException as e:
         raise ExtractorError(e)
+    except KeyError as e:
+        raise ExtractorError('Unhandled exception in "ebooklib": {!s}'.format(e))
 
     # TODO: The epub text extractor repeats a lot of text.
     # NOTE: Books produced by 'calibre' are messy. Seems to use tables for
