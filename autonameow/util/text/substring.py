@@ -50,7 +50,7 @@ PREFERRED_FILENAME_CHAR_SEPARATOR = '_'
 Separator = collections.namedtuple('Separator', 'value count')
 
 
-def separator_counts(s, max_count=5):
+def find_separators(s):
     assert isinstance(s, str)
 
     RE_UNICODE_WORDS = r'[^\W_]'
@@ -58,6 +58,13 @@ def separator_counts(s, max_count=5):
 
     non_words = regex.split(s)
     seps = [w for w in non_words if w is not None and len(w) >= 1]
+    return seps
+
+
+def separator_counts(s, max_count=5):
+    assert isinstance(s, str)
+
+    seps = find_separators(s)
 
     sep_chars = list()
     for sep in seps:

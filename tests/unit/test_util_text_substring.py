@@ -21,8 +21,40 @@
 
 from unittest import TestCase
 
+from util.text.substring import find_separators
 from util.text.substring import main_separator
 from util.text.substring import separator_counts
+
+
+class TestFindSeparators(TestCase):
+    def _assert_separators(self, given_string, *expect_separators):
+        assert all(isinstance(x, str) for x in expect_separators)
+        actual = find_separators(given_string)
+        self.assertEqual(sorted(expect_separators), sorted(actual))
+
+    def test_finds_separator_period(self):
+        self._assert_separators('foo.bar', '.')
+        self._assert_separators('foo.bar.baz', '.', '.')
+
+    def test_finds_separator_dash(self):
+        self._assert_separators('foo-bar', '-')
+        self._assert_separators('foo-bar-baz', '-', '-')
+
+    def test_finds_separator_underline(self):
+        self._assert_separators('foo_bar', '_')
+        self._assert_separators('foo_bar_baz', '_', '_')
+
+    def test_finds_periods_and_dashes(self):
+        self._assert_separators('foo.bar-baz', '.', '-')
+
+    def test_finds_periods_and_underlines(self):
+        self._assert_separators('foo.bar_baz', '.', '_')
+
+    def test_finds_dashes_and_underlines(self):
+        self._assert_separators('foo-bar_baz', '-', '_')
+
+    def test_finds_periods_and_dashes_and_underlines(self):
+        self._assert_separators('foo-bar_baz.meow', '-', '_', '.')
 
 
 class TestSeparatorCounts(TestCase):
