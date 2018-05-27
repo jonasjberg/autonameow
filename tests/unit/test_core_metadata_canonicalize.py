@@ -66,6 +66,18 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'ArtechHouse',
         'Artech House',
     ],
+    'Barrons': [
+        "Barron's Educational Series Inc",
+        "Barron's Educational Series Inc.",
+        "Barron's Educational Series",
+        "Barron's Educational Series, Inc",
+        "Barron's Educational Series, Inc.",
+        "Barron\u2019s Educational Series Inc",
+        "Barron\u2019s Educational Series Inc.",
+        "Barron\u2019s Educational Series",
+        "Barron\u2019s Educational Series, Inc",
+        "Barron\u2019s Educational Series, Inc.",
+    ],
     'FeedBooks': [
         'FeedBooks',
         'This book is brought to you by Feedbooks',
@@ -100,6 +112,9 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
     ],
     'CRCPress': [
         'Chapman & Hall/CRC',
+        'Chapman and Hall/CRC',
+        'Chapman & Hall/CRC Press',
+        'Chapman and Hall/CRCPress',
         'CRCPress',
         'CRC Press',
         'www.crcpress.com',
@@ -148,6 +163,10 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Indo American Books',
         'sales@iabooks.com',
         'www.iabooks.com',
+    ],
+    'IGIGlobal': [
+        'IGIGlobal',
+        'IGI Global',
     ],
     'ImperialCollegePress': [
         'ImperialCollegePress',
