@@ -622,42 +622,52 @@ class TestNormalizeUnicode(TestCase):
 
 
 class TestRemoveNonBreakingSpaces(TestCase):
+    def _assert_given_expect(self, given, expect):
+        actual = remove_nonbreaking_spaces(given)
+        self.assertEqual(expect, actual)
+
+    def _assert_unchanged(self, given):
+        self._assert_given_expect(given, given)
+
     def test_remove_non_breaking_spaces_removes_expected(self):
         non_breaking_space = '\xa0'
-        actual = remove_nonbreaking_spaces(
-            'foo' + uu.decode(non_breaking_space) + 'bar'
-        )
-        expected = 'foo bar'
-        self.assertEqual(expected, actual)
+        given = 'foo' + uu.decode(non_breaking_space) + 'bar'
+        self._assert_given_expect(given, 'foo bar')
 
     def test_remove_non_breaking_spaces_removes_expected_2(self):
-        actual = remove_nonbreaking_spaces('foo\u00A0bar')
-        self.assertEqual('foo bar', actual)
+        self._assert_given_expect('foo\u00A0bar', 'foo bar')
+        self._assert_given_expect('böö\u00A0äå', 'böö äå')
+        self._assert_given_expect('BÖÖ\u00A0ÄÅ', 'BÖÖ ÄÅ')
 
-    def test_remove_non_breaking_spaces_returns_expected(self):
-        expected = 'foo bar'
-        actual = remove_nonbreaking_spaces('foo bar')
-        self.assertEqual(actual, expected)
+    def test_strings_without_non_breaking_spaces_are_passed_through_as_is(self):
+        self._assert_unchanged('foo bar')
+        self._assert_unchanged('åäö')
+        self._assert_unchanged('ÅÄÖ')
 
-    def test_remove_non_breaking_spaces_handles_empty_string(self):
-        expected = ''
-        actual = remove_nonbreaking_spaces('')
-        self.assertEqual(actual, expected)
+    def test_empty_strings_are_passed_through_as_is(self):
+        self._assert_unchanged('')
 
 
-class TestZeroWidthSpaces(TestCase):
+class TestRemoveZeroWidthSpaces(TestCase):
+    def _assert_given_expect(self, given, expect):
+        actual = remove_zerowidth_spaces(given)
+        self.assertEqual(expect, actual)
+
+    def _assert_unchanged(self, given):
+        self._assert_given_expect(given, given)
+
     def test_removes_expected(self):
-        actual = remove_zerowidth_spaces('foo\u200Bbar')
-        self.assertEqual('foobar', actual)
+        self._assert_given_expect('foo\u200Bbar', 'foobar')
+        self._assert_given_expect('böö\u200Bääå', 'bööääå')
+        self._assert_given_expect('BÖÖ\u200BÄÄÅ', 'BÖÖÄÄÅ')
 
-    def test_passthrough(self):
-        expected = 'foo bar'
-        actual = remove_zerowidth_spaces('foo bar')
-        self.assertEqual(expected, actual)
+    def test_strings_without_zero_width_spaces_are_passed_through_as_is(self):
+        self._assert_unchanged('foo bar')
+        self._assert_unchanged('åäö')
+        self._assert_unchanged('ÅÄÖ')
 
-    def test_handles_empty_string(self):
-        actual = remove_zerowidth_spaces('')
-        self.assertEqual('', actual)
+    def test_empty_strings_are_passed_through_as_is(self):
+        self._assert_unchanged('')
 
 
 class TestRemoveControlCharacters(TestCase):
@@ -674,6 +684,8 @@ class TestRemoveControlCharacters(TestCase):
     def test_strings_without_control_characters_are_passed_through_as_is(self):
         self._assert_unchanged('A')
         self._assert_unchanged('foo bar')
+        self._assert_unchanged('åäö')
+        self._assert_unchanged('ÅÄÖ')
 
     def test_strings_with_new_lines_are_passed_through_as_is(self):
         for given_string in [
