@@ -167,6 +167,7 @@ PragmaticBookshelf:
     - The Pragmatic Bookshelf
     - The Pragmatic Programmers
     match_any_regex:
+    - Pragmatic Bookshelf
     - The Pragmatic Programmers,? LLC\.?
 PrenticeHall:
     match_any_literal:
