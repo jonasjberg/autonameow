@@ -688,6 +688,41 @@ class TestSplitMultipleNames(TestCase):
             ]
         )
 
+    def test_splits_three_names_separated_by_semicolons(self):
+        self._assert_that_it_returns(
+            expected=['Romano, Ray', 'Philips, Dusty', 'Hatten, Rick van'],
+            given_any_of=[
+                ['Romano, Ray;  Philips, Dusty;  Hatten, Rick van'],
+                ['Romano, Ray; Philips, Dusty; Hatten, Rick van'],
+                ['Romano, Ray;Philips, Dusty;Hatten, Rick van'],
+                ['Romano, Ray;;  Philips, Dusty;;  Hatten, Rick van'],
+                ['Romano, Ray;; Philips, Dusty;; Hatten, Rick van'],
+                ['Romano, Ray;;Philips, Dusty;;Hatten, Rick van'],
+            ]
+        )
+        self._assert_that_it_returns(
+            expected=['Romano,Ray', 'Philips,Dusty', 'Hatten,Rick van'],
+            given_any_of=[
+                ['Romano,Ray;  Philips,Dusty;  Hatten,Rick van'],
+                ['Romano,Ray; Philips,Dusty; Hatten,Rick van'],
+                ['Romano,Ray;Philips,Dusty;Hatten,Rick van'],
+                ['Romano,Ray;;  Philips,Dusty;;  Hatten,Rick van'],
+                ['Romano,Ray;; Philips,Dusty;; Hatten,Rick van'],
+                ['Romano,Ray;;Philips,Dusty;;Hatten,Rick van'],
+            ]
+        )
+        self._assert_that_it_returns(
+            expected=['Romano Ray', 'Philips Dusty', 'Hatten Rick van'],
+            given_any_of=[
+                ['Romano Ray;  Philips Dusty;  Hatten Rick van'],
+                ['Romano Ray; Philips Dusty; Hatten Rick van'],
+                ['Romano Ray;Philips Dusty;Hatten Rick van'],
+                ['Romano Ray;;  Philips Dusty;;  Hatten Rick van'],
+                ['Romano Ray;; Philips Dusty;; Hatten Rick van'],
+                ['Romano Ray;;Philips Dusty;;Hatten Rick van'],
+            ]
+        )
+
     def test_based_on_live_data_a(self):
         self._assert_that_it_returns(
             expected=['Stuart K. Rassel', 'Pitr Narval', 'Arnest Dawid'],

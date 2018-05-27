@@ -24,6 +24,7 @@ import re
 from thirdparty import nameparser
 from util import sanity
 from util.text.regexcache import RegexCache
+from util.text import substring
 
 
 # TODO: [TD0195] Handle malformed metadata with duplicated authors
@@ -418,9 +419,8 @@ def split_multiple_names(list_of_names):
     # Local import to avoid circular imports within the 'util' module.
     from util import flatten_sequence_type
 
-    RE_NAME_SEPARATORS = r',| ?\band| ?\+| ?& ?'
+    RE_NAME_SEPARATORS = r';|,| ?\band| ?\+| ?& ?'
 
-    result = list()
     flat_list_of_names = flatten_sequence_type(list_of_names)
     if len(flat_list_of_names) == 1 and flat_list_of_names[0].startswith('edited by'):
         # TODO: [hack] FIX THIS!
@@ -429,9 +429,23 @@ def split_multiple_names(list_of_names):
         #       function..
         return flat_list_of_names
 
+    if len(flat_list_of_names) == 1:
+        name_or_names = flat_list_of_names[0]
+        separator_chars = substring.find_separators(name_or_names)
+
+        # Make a string from the unique non-whitespace separator-chars.
+        stripped_separator_chars = ''.join(set(c.strip() for c in separator_chars))
+        if ';' in stripped_separator_chars and ',' in stripped_separator_chars:
+            # TODO: [hack] Clean up adding/removing from 'RE_NAME_SEPARATORS'!
+
+            # The point of this is to remove ',' from 'RE_NAME_SEPARATORS'
+            # when both ',' and ';' are potential separator characters.
+            RE_NAME_SEPARATORS = r';| ?\band| ?\+| ?& ?'
+
+    result = list()
     for name_or_names in flat_list_of_names:
         split_parts = re.split(RE_NAME_SEPARATORS, name_or_names)
-        non_whitespace_parts = [p.strip() for p in split_parts if p]
+        non_whitespace_parts = [p.strip() for p in split_parts if p.strip()]
         result.extend(non_whitespace_parts)
     return result
 
