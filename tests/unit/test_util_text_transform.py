@@ -39,6 +39,7 @@ from util.text.transform import indent
 from util.text.transform import normalize_unicode
 from util.text.transform import normalize_whitespace
 from util.text.transform import remove_blacklisted_lines
+from util.text.transform import remove_ascii_control_characters
 from util.text.transform import remove_nonbreaking_spaces
 from util.text.transform import remove_zerowidth_spaces
 from util.text.transform import simplify_unicode
@@ -657,6 +658,88 @@ class TestZeroWidthSpaces(TestCase):
     def test_handles_empty_string(self):
         actual = remove_zerowidth_spaces('')
         self.assertEqual('', actual)
+
+
+class TestRemoveControlCharacters(TestCase):
+    def _assert_given_expect(self, given, expect):
+        actual = remove_ascii_control_characters(given)
+        self.assertEqual(expect, actual)
+
+    def _assert_unchanged(self, given):
+        self._assert_given_expect(given, given)
+
+    def test_empty_strings_are_passed_through_as_is(self):
+        self._assert_unchanged('')
+
+    def test_strings_without_control_characters_are_passed_through_as_is(self):
+        self._assert_unchanged('A')
+        self._assert_unchanged('foo bar')
+
+    def test_strings_with_new_lines_are_passed_through_as_is(self):
+        for given_string in [
+            '\n',
+            '\n\n',
+            'A\n',
+            'A\nB',
+            'A\nB\n',
+            'foo\n bar',
+            'foo\n bar \n',
+            'A\n\n',
+            'A\n\nB',
+            'A\n\nB\n\n',
+            'foo\n\n bar',
+            'foo\n\n bar \n\n',
+        ]:
+            self._assert_unchanged(given_string)
+
+    def test_strings_with_tabs_are_passed_through_as_is(self):
+        for given_string in [
+            '\t',
+            '\t\t',
+            'A\t',
+            'A\tB',
+            'A\tB\t',
+            'foo\t bar',
+            'foo\t bar \t',
+            'A\t\t',
+            'A\t\tB',
+            'A\t\tB\t\t',
+            'foo\t\t bar',
+            'foo\t\t bar \t\t',
+        ]:
+            self._assert_unchanged(given_string)
+
+    def test_removes_control_character_bell(self):
+        self._assert_given_expect('\a', '')
+        self._assert_given_expect('\a\a', '')
+        self._assert_given_expect('A\a', 'A')
+        self._assert_given_expect('A\aB', 'AB')
+        self._assert_given_expect('A\aB\a', 'AB')
+        self._assert_given_expect('\aA\a', 'A')
+        self._assert_given_expect('\aA\aB', 'AB')
+        self._assert_given_expect('\aA\aB\a', 'AB')
+        self._assert_given_expect('\aA\a\a', 'A')
+        self._assert_given_expect('\aA\a\aB', 'AB')
+        self._assert_given_expect('\aA\a\aB\a', 'AB')
+
+    def test_removes_control_character_backspace(self):
+        self._assert_given_expect('\x08', '')
+        self._assert_given_expect('\x08\x08', '')
+        self._assert_given_expect('A\x08', 'A')
+        self._assert_given_expect('A\x08B', 'AB')
+        self._assert_given_expect('A\x08B\x08', 'AB')
+        self._assert_given_expect('\x08A\x08', 'A')
+        self._assert_given_expect('\x08A\x08B', 'AB')
+        self._assert_given_expect('\x08A\x08B\x08', 'AB')
+        self._assert_given_expect('\x08A\x08\x08', 'A')
+        self._assert_given_expect('\x08A\x08\x08B', 'AB')
+        self._assert_given_expect('\x08A\x08\x08B\x08', 'AB')
+
+    def test_removes_only_control_character_bell(self):
+        self._assert_given_expect('foo\x07\nbaz\n\n\x07m\x07ä\x07ö\x07w', 'foo\nbaz\n\nmäöw')
+
+    def test_removes_only_control_character_backspace(self):
+        self._assert_given_expect('foo\x08\nbaz\n\n\x08m\x08ä\x08ö\x08w', 'foo\nbaz\n\nmäöw')
 
 
 class TestTruncateText(TestCase):

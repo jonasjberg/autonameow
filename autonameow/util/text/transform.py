@@ -41,6 +41,7 @@ __all__ = [
     'normalize_unicode',
     'normalize_whitespace',
     'simplify_unicode',
+    'remove_ascii_control_characters',
     'remove_blacklisted_lines',
     'remove_nonbreaking_spaces',
     'remove_zerowidth_spaces',
@@ -336,6 +337,18 @@ def remove_nonbreaking_spaces(text):
 
 def remove_zerowidth_spaces(text):
     return text.replace('\u200B', '')
+
+
+def remove_ascii_control_characters(s):
+    """
+    Removes "generally undesirable" ASCII control characters from strings.
+
+        0x07  BEL  (^G)  ASCII and Unicode 07
+        0x08  BS   (^H)  Modern systems ASCII and Unicode 0x7F (?)
+
+    """
+    assert isinstance(s, str)
+    return s.replace('\x07', '').replace('\x08', '')
 
 
 def truncate_text(text, maxlen=500, append_info=False):
