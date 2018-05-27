@@ -19,11 +19,14 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import itertools
 from unittest import TestCase
 
+from util.text.substring import _get_top_tied_counts
 from util.text.substring import find_separators
 from util.text.substring import main_separator
 from util.text.substring import separator_counts
+from util.text.substring import smart_split
 
 
 class TestFindSeparators(TestCase):
@@ -32,20 +35,56 @@ class TestFindSeparators(TestCase):
         actual = find_separators(given_string)
         self.assertEqual(sorted(expect_separators), sorted(actual))
 
+    def test_finds_separator_semicolon(self):
+        self._assert_separators('foo;bar', ';')
+        self._assert_separators('foo;bar;baz', ';', ';')
+
+    def test_finds_separator_semicolon_with_spaces(self):
+        self._assert_separators('foo; bar', '; ')
+        self._assert_separators('foo; bar; baz', '; ', '; ')
+        self._assert_separators('foo; bar;baz', '; ', ';')
+
     def test_finds_separator_period(self):
         self._assert_separators('foo.bar', '.')
         self._assert_separators('foo.bar.baz', '.', '.')
+
+    def test_finds_separator_period_with_spaces(self):
+        self._assert_separators('foo. bar', '. ')
+        self._assert_separators('foo. bar. baz', '. ', '. ')
+        self._assert_separators('foo. bar.baz', '. ', '.')
+        self._assert_separators('foo .bar', ' .')
+        self._assert_separators('foo .bar. baz', ' .', '. ')
+        self._assert_separators('foo .bar.baz', ' .', '.')
 
     def test_finds_separator_dash(self):
         self._assert_separators('foo-bar', '-')
         self._assert_separators('foo-bar-baz', '-', '-')
 
+    def test_finds_separator_dash_with_spaces(self):
+        self._assert_separators('foo- bar', '- ')
+        self._assert_separators('foo- bar- baz', '- ', '- ')
+        self._assert_separators('foo-bar- baz', '-', '- ')
+        self._assert_separators('foo -bar', ' -')
+        self._assert_separators('foo -bar -baz', ' -', ' -')
+        self._assert_separators('foo-bar -baz', '-', ' -')
+
     def test_finds_separator_underline(self):
         self._assert_separators('foo_bar', '_')
         self._assert_separators('foo_bar_baz', '_', '_')
 
+    def test_finds_separator_underline_with_spaces(self):
+        self._assert_separators('foo_ bar', '_ ')
+        self._assert_separators('foo_ bar_ baz', '_ ', '_ ')
+        self._assert_separators('foo_bar_ baz', '_', '_ ')
+        self._assert_separators('foo _bar', ' _')
+        self._assert_separators('foo _bar _baz', ' _', ' _')
+        self._assert_separators('foo_bar _baz', '_', ' _')
+
     def test_finds_periods_and_dashes(self):
         self._assert_separators('foo.bar-baz', '.', '-')
+
+    def test_finds_periods_and_semicolons(self):
+        self._assert_separators('foo.bar;baz', '.', ';')
 
     def test_finds_periods_and_underlines(self):
         self._assert_separators('foo.bar_baz', '.', '_')
@@ -53,42 +92,45 @@ class TestFindSeparators(TestCase):
     def test_finds_dashes_and_underlines(self):
         self._assert_separators('foo-bar_baz', '-', '_')
 
-    def test_finds_periods_and_dashes_and_underlines(self):
+    def test_finds_dashes_and_semicolons(self):
+        self._assert_separators('foo-bar;baz', '-', ';')
+
+    def test_finds_underlines_and_semicolons(self):
+        self._assert_separators('foo_bar;baz', '_', ';')
+
+    def test_finds_all_separators_in_string(self):
         self._assert_separators('foo-bar_baz.meow', '-', '_', '.')
+        self._assert_separators('foo-bar_baz;meow', '-', '_', ';')
+        self._assert_separators('foo-bar_baz;meow.com', '-', '_', ';', '.')
+        self._assert_separators('foo bar_baz;meow.com', ' ', '_', ';', '.')
+        self._assert_separators('foo bar_baz;meow com', ' ', '_', ';', ' ')
 
 
 class TestSeparatorCounts(TestCase):
-    def _assert_separator_counts(self, given_string, expect_separators):
+    def _assert_counts(self, given_string, *expect_separators):
         actual = separator_counts(given_string, max_count=5)
         self.assertEqual(sorted(expect_separators), sorted(actual))
 
     def test_find_separators_all_periods(self):
-        self._assert_separator_counts('foo.bar.1234.baz',
-                                      [('.', 3)])
+        self._assert_counts('foo.bar.1234.baz', ('.', 3))
 
     def test_find_separators_periods_and_brackets(self):
-        self._assert_separator_counts('foo.bar.[1234].baz',
-                                      [('.', 3), ('[', 1), (']', 1)])
+        self._assert_counts('foo.bar.[1234].baz', ('.', 3), ('[', 1), (']', 1))
 
     def test_find_separators_underlines(self):
-        self._assert_separator_counts('foo_bar_1234_baz',
-                                      [('_', 3)])
+        self._assert_counts('foo_bar_1234_baz', ('_', 3))
 
     def test_find_separators_dashes(self):
-        self._assert_separator_counts('foo-bar-1234-baz',
-                                      [('-', 3)])
+        self._assert_counts('foo-bar-1234-baz', ('-', 3))
 
     def test_find_separators_spaces(self):
-        self._assert_separator_counts('foo bar 1234 baz',
-                                      [(' ', 3)])
+        self._assert_counts('foo bar 1234 baz', (' ', 3))
 
     def test_find_separators_underlines_and_dashes(self):
-        self._assert_separator_counts('foo-bar_1234_baz',
-                                      [('_', 2), ('-', 1)])
+        self._assert_counts('foo-bar_1234_baz', ('_', 2), ('-', 1))
 
     def test_find_separators_underlines_dashes(self):
-        self._assert_separator_counts('a-b c_d',
-                                      [(' ', 1), ('-', 1), ('_', 1)])
+        self._assert_counts('a-b c_d', (' ', 1), ('-', 1), ('_', 1))
 
 
 class TestMainSeparator(TestCase):
@@ -111,60 +153,97 @@ class TestMainSeparator(TestCase):
     def test_find_separators_spaces(self):
         self._assert_main_separator('foo bar 1234 baz', ' ')
 
-    def test_find_separators_underlines_and_dashes(self):
-        self._assert_main_separator('foo-bar_1234_baz', '_')
-
-    def test_find_separators_underlines_dashes(self):
-        self._assert_main_separator('a-b c_d', ' ')
-
-    def test_find_main_separator(self):
+    def test_uses_only_available_separator(self):
         self._assert_main_separator('a b', ' ')
-        self._assert_main_separator('a-b-c_d', '-')
         self._assert_main_separator('a-b', '-')
         self._assert_main_separator('a_b', '_')
+
+        self._assert_main_separator('a  b', ' ')
         self._assert_main_separator('a--b', '-')
         self._assert_main_separator('a__b', '_')
 
-        self._assert_main_separator('a b', ' ')
+    def test_uses_separator_with_highest_number_of_occurences(self):
+        self._assert_main_separator('foo-bar_1234_baz', '_')
+        self._assert_main_separator('a_b_c_d_c', '_')
+        self._assert_main_separator('a-b_c_d_c', '_')
+        self._assert_main_separator('a_b-c_d_c', '_')
+        self._assert_main_separator('a-b-c-d_c', '-')
+        self._assert_main_separator('a-b-c-d-c', '-')
+        self._assert_main_separator('a_b-c-d-c', '-')
+
+        self._assert_main_separator('a_b c_d', '_')
+        self._assert_main_separator('a_b c_d', '_')
+        self._assert_main_separator('a-b c-d', '-')
+        self._assert_main_separator('a_b-c-d', '-')
+        self._assert_main_separator('a b-c-d', '-')
+        self._assert_main_separator('a-b-c d', '-')
+
+    def test_uses_hardcoded_preferred_separator_when_tied(self):
+        self._assert_main_separator('a-b c_d', ' ')
+        self._assert_main_separator('a_b c-d', ' ')
+        self._assert_main_separator('a b_c-d', ' ')
+        self._assert_main_separator('a b-c_d', ' ')
+
+        self._assert_main_separator('a_bb-cc-dd_c', '_')
+        self._assert_main_separator('a bb-cc-dd c', ' ')
+        self._assert_main_separator('a bb_cc_dd c', ' ')
+
+    def test_finds_main_separator(self):
         self._assert_main_separator('shell-scripts.github', '-')
         self._assert_main_separator('Unison-OS-X-2.48.15.zip', '-')
 
         # TODO: Are we looking for field- or word-separator_counts..? (!?)
         self._assert_main_separator('2012-02-18-14-18_Untitled-meeting.log', '-')
 
-    def test_resolve_tied_counts(self):
-        assume_preferred_separator = '_'
 
-        self._assert_main_separator('a-b c', ' ')
-        self._assert_main_separator('a_b c', ' ')
-        self._assert_main_separator('-a b', ' ')
-        self._assert_main_separator('_a b', ' ')
-        self._assert_main_separator('a-b c_d', ' ')
-        self._assert_main_separator('a_b c-d', ' ')
-        self._assert_main_separator('-a b_d', ' ')
-        self._assert_main_separator('_a b-d', ' ')
+class TestGotTopTiedCounts(TestCase):
+    def _assert_top_tied(self, given_counted_seps, expected):
+        actual = _get_top_tied_counts(given_counted_seps)
+        self.assertEqual(sorted(expected), sorted(actual))
 
-        for given_string in [
-            'a-b_c',
-            'a_b-c',
-            'a_-b',
-            'a-_b',
-            'a-b_c-d_e',
-            'a_b-c_d-e',
-            'a_-b-_c',
-            'a-_b_-c',
-            'a-_b',
-            'a_-b',
-        ]:
-            self._assert_main_separator(given_string, assume_preferred_separator)
+        for counted_seps_perm in itertools.permutations(given_counted_seps):
+            actual = _get_top_tied_counts(counted_seps_perm)
+            self.assertEqual(sorted(expected), sorted(actual))
 
-    # def test_get_seps_with_tied_counts(self):
-    #     def _assert_separator_counts(test_input, expect):
-    #         actual = FilenameTokenizer.get_seps_with_tied_counts(test_input)
-    #         self.assertEqual(expect, actual)
-    #
-    #     _assert_separator_counts([('a', 2), ('b', 1)], expect=[])
-    #     _assert_separator_counts([('a', 2), ('b', 2)], expect=['a', 'b'])
-    #     _assert_separator_counts([('a', 2), ('b', 1), ('c', 1)], expect=['b', 'c'])
-    #     _assert_separator_counts([('a', 2), ('b', 1), ('c', 1), ('d', 2)], expect=['a', 'b', 'c', 'd'])
-    #     _assert_separator_counts([('a', 2), ('b', 1), ('c', 1), ('d', 1)], expect=['b', 'c', 'd'])
+    def test_returns_single_separator_with_highest_count(self):
+        counted_seps = [
+            (' ', 3),
+            ('-', 2),
+            ('_', 1),
+        ]
+        self._assert_top_tied(counted_seps, [' '])
+
+    def test_returns_values_of_two_tied_separators(self):
+        counted_seps = [
+            (' ', 2),
+            ('-', 2),
+            ('_', 1),
+        ]
+        self._assert_top_tied(counted_seps, [' ', '-'])
+
+        for counted_seps_perm in itertools.permutations(counted_seps):
+            self._assert_top_tied(counted_seps_perm, [' ', '-'])
+
+    def test_returns_values_of_three_tied_separators(self):
+        counted_seps = [
+            (' ', 2),
+            ('-', 2),
+            ('_', 2),
+            ('x', 1),
+        ]
+        self._assert_top_tied(counted_seps, [' ', '-', '_'])
+
+        for counted_seps_perm in itertools.permutations(counted_seps):
+            self._assert_top_tied(counted_seps_perm, [' ', '-', '_'])
+
+
+class TestSmartSplit(TestCase):
+    def _assert_splits(self, given, expect):
+        assert isinstance(given, str)
+        actual = smart_split(given)
+        self.assertEqual(expect, actual)
+
+    def test_splits_string_by_whitespace(self):
+        self._assert_splits('a',     ['a'])
+        self._assert_splits('a b',   ['a', 'b'])
+        self._assert_splits('a b c', ['a', 'b', 'c'])

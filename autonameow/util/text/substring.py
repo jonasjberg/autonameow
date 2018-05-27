@@ -85,45 +85,82 @@ def separator_counts(s, max_count=5):
 
 
 def main_separator(s):
+    assert isinstance(s, str)
+
     counted_separators = separator_counts(s)
     if not counted_separators:
         return None
 
-    # Detect if first- and second-most common separator_counts have an equal
-    # number of occurrences and resolve any tied count separately.
-    if len(counted_separators) >= 2:
-        if counted_separators[0].count == counted_separators[1].count:
-            separator_first = counted_separators[0].value
-            separator_second = counted_separators[1].value
-            return _resolve_tied_count([separator_first, separator_second])
+    # Sort from highest to lowest number of occurrences.
+    counted_separators.sort(key=lambda x: x.count, reverse=True)
 
-    if counted_separators:
-        try:
-            return counted_separators[0].value
-        except IndexError:
-            return ''
+    # Detect if multiple separators are tied for most number of occurrences.
+    if len(counted_separators) > 1:
+        most_common_separator_chars = _get_top_tied_counts(counted_separators)
+        if len(most_common_separator_chars) > 1:
+           preferred_separator = _resolve_tied_count(most_common_separator_chars)
+           if preferred_separator:
+               return preferred_separator
+
+    try:
+        return counted_separators[0].value
+    except IndexError:
+        return ''
 
     return None
 
 
-def _resolve_tied_count(candidate_separators):
-    if not candidate_separators:
-        return list()
+def _get_top_tied_counts(counted_separators):
+    """
+    Given a list of tuples like;
 
-    # Prefer to use the single space.
+        counted_separators = [
+            ('_', 3),
+            ('-', 3),
+            (' ', 1),
+        ]
+
+    Returns a list of the separator values with the most count
+    or all separators values with top tied counts; ['_', '-']
+    """
+    sorted_counted_separators = sorted(counted_separators)
+
+    highest_count = sorted_counted_separators[0][1]
+    assert isinstance(highest_count, int)
+
+    tied_separator_values = set()
+    for value, count in sorted_counted_separators:
+        assert isinstance(count, int)
+
+        if count != highest_count:
+            break
+
+        tied_separator_values.add(value)
+        highest_count = count
+
+    return list(tied_separator_values)
+
+
+def _resolve_tied_count(candidate_separators):
     if ' ' in candidate_separators:
+        # Prefer to use the single space.
         return ' '
+
     elif PREFERRED_FILENAME_CHAR_SEPARATOR in candidate_separators:
         # Use hardcoded preferred main separator character.
         return PREFERRED_FILENAME_CHAR_SEPARATOR
+
     elif PREFERRED_FILENAME_CHAR_SPACE in candidate_separators:
         # Use hardcoded preferred space separator character.
         return PREFERRED_FILENAME_CHAR_SPACE
 
-    # Last resort arbitrarily uses first value after sorting.
+    # Arbitrarily use first value after sorting as a last resort.
     return sorted(candidate_separators, key=lambda x: x[0])[0]
 
 
-def split_smart(s):
+def smart_split(s):
     # TODO: ..
-    pass
+    if ' ' in s:
+        return s.split(' ')
+
+    return [s]
