@@ -54,17 +54,14 @@ class MeowUriLeafMapper(object):
         Future calls to 'fetch()' with 'extractor.metadata.exiftool.publisher'
         will return 'extractor.metadata.exiftool.XMP-dc:Publisher'.
         """
-        self._map_generic_leaf_alias_if_possible(uri, generic_uri)
+        generic_uri_leaf = generic_uri.leaf
+        if generic_uri_leaf in self._valid_generic_field_uri_leaves:
+            self._map_generic_leaf_alias(generic_uri_leaf, uri)
 
     def fetch(self, uri):
         """Translates a URI with an "aliased" leaf to a full "explicit" URI."""
         result = self._aliased_leaf_to_explicit_uri_map.get(uri)
         return result or set()
-
-    def _map_generic_leaf_alias_if_possible(self, uri, generic_uri):
-        generic_uri_leaf = generic_uri.leaf
-        if generic_uri_leaf in self._valid_generic_field_uri_leaves:
-            self._map_generic_leaf_alias(generic_uri_leaf, uri)
 
     def _map_generic_leaf_alias(self, generic_uri_leaf, explicit_uri):
         explicit_uri_without_leaf = explicit_uri.stripleaf()
