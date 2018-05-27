@@ -442,11 +442,43 @@ def split_multiple_names(list_of_names):
             # when both ',' and ';' are potential separator characters.
             RE_NAME_SEPARATORS = r';| ?\band| ?\+| ?& ?'
 
+        elif re.match(r'\w+, \w', name_or_names):
+            # Detect cases like ['Paul, Baz'] and return as-is.
+            return [name_or_names]
+
+    elif len(flat_list_of_names) > 1:
+        if all(re.match(r'\w+, \w', p) for p in flat_list_of_names):
+            # Detect cases like ['Foobar, S.', 'Paul, Baz', 'Gibson, N.']
+            # where ',' should NOT be used as a separator.
+            return flat_list_of_names
+
     result = list()
     for name_or_names in flat_list_of_names:
         split_parts = re.split(RE_NAME_SEPARATORS, name_or_names)
         non_whitespace_parts = [p.strip() for p in split_parts if p.strip()]
         result.extend(non_whitespace_parts)
+
+    if len(flat_list_of_names) == len(result):
+        # Splitting by various separators had no effect.
+        if len(flat_list_of_names) > 2:
+            if any(re.match(r'\w\.', p) for p in flat_list_of_names):
+                # At least of the names is something like 'X.'
+                # Assume the list of names should actually be put back together
+                # rather than split.. Join parts in groups of two.
+                # TODO: [hack] This is just terrible and shameful ..
+                joined_names = list()
+                grouped_parts = list()
+                for part in flat_list_of_names:
+                    grouped_parts.append(part)
+                    if len(grouped_parts) == 2:
+                        joined_names.append(' '.join(grouped_parts))
+                        grouped_parts = list()
+
+                if grouped_parts:
+                    joined_names.append(' '.join(grouped_parts))
+
+                return joined_names
+
     return result
 
 

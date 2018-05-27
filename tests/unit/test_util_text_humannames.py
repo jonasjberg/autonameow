@@ -584,7 +584,9 @@ class TestSplitMultipleNames(TestCase):
         self.assertEqual(given, actual)
 
     def test_does_not_split_single_name(self):
-        self._assert_unchanged(['Anandra Mitra'])
+        self._assert_unchanged(['Enandra Mitra'])
+        self._assert_unchanged(['Foobar, S.'])
+        self._assert_unchanged(['Paul, Baz'])
 
     def test_does_not_split_single_name_comma_between_surname_lastname(self):
         self._assert_unchanged(['edited by Ludlow, David'])
@@ -676,6 +678,11 @@ class TestSplitMultipleNames(TestCase):
             ]
         )
 
+    def test_does_not_split_names_with_name_parts_separated_by_comma(self):
+        self._assert_unchanged(['Foobar, S.', 'Paul, Baz', 'Gibson, N.'])
+        self._assert_unchanged(['Foobar, S.', 'Paul, Baz'])
+        self._assert_unchanged(['Paul, Baz', 'Gibson, N.'])
+
     def test_splits_two_names_separated_by_ampersand(self):
         self._assert_that_it_returns(
             expected=[
@@ -720,6 +727,26 @@ class TestSplitMultipleNames(TestCase):
                 ['Romano Ray;;  Philips Dusty;;  Hatten Rick van'],
                 ['Romano Ray;; Philips Dusty;; Hatten Rick van'],
                 ['Romano Ray;;Philips Dusty;;Hatten Rick van'],
+            ]
+        )
+
+    def test_handle_malformed_metadata_from_external_provider(self):
+        self._assert_that_it_returns(
+            expected=['Carthik S.', 'Paul Enand'],
+            given_any_of=[
+                ['Carthik', 'S.', 'Paul', 'Enand'],
+            ]
+        )
+        self._assert_that_it_returns(
+            expected=['Carthik S.', 'Karthikayen N.'],
+            given_any_of=[
+                ['Carthik', 'S.', 'Karthikayen', 'N.'],
+            ]
+        )
+        self._assert_that_it_returns(
+            expected=['Carthik S.', 'Paul Enand', 'Karthikayen N.'],
+            given_any_of=[
+                ['Carthik', 'S.', 'Paul', 'Enand', 'Karthikayen', 'N.'],
             ]
         )
 
