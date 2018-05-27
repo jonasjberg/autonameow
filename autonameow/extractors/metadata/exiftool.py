@@ -245,7 +245,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
 def is_kindle_ebook(fileobject):
     return bool(
         fileobject.mime_type == 'application/octet-stream'
-        and fileobject.basename_suffix == b'azw3'
+        and fileobject.basename_suffix in (b'azw3', b'azw4')
     )
 
 

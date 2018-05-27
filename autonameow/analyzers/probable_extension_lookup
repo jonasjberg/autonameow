@@ -26,6 +26,8 @@ MIMETYPE application/octet-stream
     - 89u
     EXTENSION azw3
     - azw3
+    EXTENSION azw4
+    - azw4
     EXTENSION bin
     - bin
     - binary
