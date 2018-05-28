@@ -170,17 +170,17 @@ class BaseAnalyzer(ProviderMixin):
         text = None
         if isinstance(response, list):
             for r in response:
-                sanity.check_isinstance(r, str)
                 if r:
+                    sanity.check_isinstance(r, str)
                     text = r
                     break
         else:
             sanity.check_isinstance(response, str)
-            if response:
-                text = response
+            text = response
 
         if text is None:
             self.log.info('Requested data unavailable: "generic.contents.text"')
+
         return text
 
     @classmethod
