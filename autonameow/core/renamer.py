@@ -226,6 +226,16 @@ class FileRenamer(object):
             # TODO: Failure count not handled by the regression test mock!
             self.stats['failed'] += 1
             raise
+        except FileExistsError as e:
+            # TODO: Failure count not handled by the regression test mock!
+            # TODO: [TD0164][TD0193] Clean this up!
+            self.stats['failed'] += 1
+            raise FilesystemError(e)
+        except FileNotFoundError as e:
+            # TODO: Failure count not handled by the regression test mock!
+            # TODO: [TD0164][TD0193] Clean this up!
+            self.stats['failed'] += 1
+            raise FilesystemError(e)
         else:
             self.stats['renamed'] += 1
 
