@@ -358,8 +358,8 @@ class RegressionTestLoader(object):
     def _load_file_description(self):
         abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
         description = read_plaintext_file(abspath_desc, ignore_errors=True)
-        one_line_description = re.sub(r'\s+', ' ', description)
-        return one_line_description.strip()
+        one_line_description = collapse_all_whitespace(description)
+        return one_line_description
 
     def _load_file_asserts(self):
         abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
@@ -463,6 +463,12 @@ class RegressionTestLoader(object):
         return os.path.join(
             enc.syspath(self.test_abspath), enc.syspath(leaf)
         )
+
+
+def collapse_all_whitespace(s):
+    assert isinstance(s, str)
+    normalized_string = re.sub(r'\s+', ' ', s)
+    return normalized_string.strip()
 
 
 def _expand_input_paths_variables(input_paths):

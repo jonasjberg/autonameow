@@ -29,6 +29,7 @@ import unit.utils as uu
 from core import constants as C
 from regression.utils import AutonameowWrapper
 from regression.utils import check_renames
+from regression.utils import collapse_all_whitespace
 from regression.utils import commandline_for_testsuite
 from regression.utils import fetch_mock_ui_messages
 from regression.utils import get_all_testsuite_dirpaths
@@ -288,6 +289,37 @@ class TestRegressionTestLoaderGetTestSetupDictFromFiles(TestCase):
 
         expect = uuconst.REGRESSIONTEST_DIR_BASENAMES[1]
         self.assertEqual(actual, expect)
+
+
+class TestCollapseAllWhitespace(TestCase):
+    def _assert_returns(self, expected, given):
+        actual = collapse_all_whitespace(given)
+        self.assertEqual(expected, actual)
+
+    def _assert_unchanged(self, given):
+        self._assert_returns(given, given)
+
+    def test_returns_strngs_without_whitespace_as_is(self):
+        self._assert_unchanged('')
+        self._assert_unchanged('foo')
+
+    def test_returns_strngs_with_only_single_spaces_as_is(self):
+        self._assert_unchanged('foo bar')
+
+    def test_collapses_repeating_spaces(self):
+        self._assert_returns('foo bar', 'foo  bar')
+        self._assert_returns('foo bar', 'foo     bar')
+
+    def test_replaces_tabs_with_spaces(self):
+        self._assert_returns('foo bar', 'foo\t\tbar')
+        self._assert_returns('foo bar', 'foo\tbar')
+
+    def test_replaces_newlines_with_spaces(self):
+        self._assert_returns('foo bar', 'foo\nbar')
+        self._assert_returns('foo bar', 'foo\n\nbar')
+
+    def test_strips_trailing_and_leading_whitespace(self):
+        self._assert_returns('foo bar baz', '\n  foo \t\t bar  \n   baz')
 
 
 class TestExpandInputPathsVariables(TestCase):
