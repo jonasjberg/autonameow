@@ -136,7 +136,13 @@ class FileContext(object):
                     data_sources = active_rule.data_sources
                     name_template = active_rule.name_template
 
-                    # New resolver with state derived from currently active rule.
+                    if not data_sources:
+                        # TODO: [hack][cleanup] This is such a mess ..
+                        if not name_template.placeholders:
+                            # No placeholders means we don't need any sources. Return as-is.
+                            return str(name_template)
+
+                    # Uses new resolver instance with state derived from the currently active rule.
                     field_databundle_dict = self._get_resolved_databundle_dict(name_template.placeholders, data_sources)
 
         if not field_databundle_dict:

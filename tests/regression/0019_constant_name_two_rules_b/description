@@ -1,0 +1,16 @@
+Expect a first rule to fail so that a rule with a constant file name is used.
+
+This should happen even when the second rule does not contain any conditions.
+
+This tests that rules are evaluated and prioritized as expected.
+The rule with one data sources should be prioritized higher as it does contain
+a single data source and the second rule does not.
+
+First, the rule with a data source is expected to fail
+(the data source provided for {author} is __assumed__ to be unavailable)
+
+Second, expect the other rule with a constant file name, I.E. the template does
+not contain placeholders, to be used.
+
+Note: Requires the "automagic mode" to be enabled,
+      otherwise files are skipped when the first rule fails!
