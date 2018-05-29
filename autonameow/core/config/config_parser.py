@@ -539,6 +539,9 @@ class ConfigurationOptionsParser(object):
 
 
 def parse_rule_conditions(raw_conditions):
+    if not raw_conditions:
+        return list()
+
     if not isinstance(raw_conditions, dict):
         raise ConfigurationSyntaxError('Expected conditions of type "dict". '
                                        'Got {!s}'.format(type(raw_conditions)))
