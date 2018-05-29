@@ -471,6 +471,33 @@ def collapse_all_whitespace(s):
     return normalized_string.strip()
 
 
+def normalize_description_whitespace(s):
+    """
+    Fixes up whitespace in  multi-line text.
+
+    Intended to be used to clean up test suite descriptions.
+    Removes messy whitespace, such as tabs. Replaces single line breaks (E.G.
+    hard wrapped column width) with spaces.
+    Replaces more than two consecutive new lines with a single new line, to
+    keep some of the spacing from the original text.
+    """
+    assert isinstance(s, str)
+
+    def _replace_single_linebreak(_match):
+        _match_group = _match.group()
+        _match_first = _match_group[0]
+        _match_last = _match_group[-1]
+        if '\n' not in (_match_first, _match_last):
+            _match_without_newline = _match_first + ' ' + _match_last
+            return _match_without_newline
+
+    cleaned = re.sub(r'[ \t\r\f\v]', ' ', s)
+    removed_linebreaks = re.sub(r'.\n.', _replace_single_linebreak, cleaned)
+    collapsed_newlines = re.sub(r'\n{2,}', '\n', removed_linebreaks, re.MULTILINE)
+    normalized = collapsed_newlines.replace('  ', ' ').strip()
+    return normalized
+
+
 def _expand_input_paths_variables(input_paths):
     """
     Replaces '$TESTFILES' with the full absolute path to the 'test_files'

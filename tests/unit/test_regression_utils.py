@@ -37,6 +37,7 @@ from regression.utils import get_regressiontests_rootdir
 from regression.utils import glob_filter
 from regression.utils import load_regression_testsuites
 from regression.utils import MockUI
+from regression.utils import normalize_description_whitespace
 from regression.utils import regexp_filter
 from regression.utils import RegressionTestError
 from regression.utils import RegressionTestLoader
@@ -320,6 +321,39 @@ class TestCollapseAllWhitespace(TestCase):
 
     def test_strips_trailing_and_leading_whitespace(self):
         self._assert_returns('foo bar baz', '\n  foo \t\t bar  \n   baz')
+
+
+class TestNormalizeDescriptionWhitespace(TestCase):
+    def _assert_returns(self, expected, given):
+        actual = normalize_description_whitespace(given)
+        self.assertEqual(expected, actual)
+
+    def _assert_unchanged(self, given):
+        self._assert_returns(given, given)
+
+    def test_foo(self):
+        self._assert_returns('foo', 'foo')
+        self._assert_returns('foo', 'foo')
+        self._assert_returns('foo\nbar', 'foo\n\nbar')
+        self._assert_returns('foo\nbar', 'foo\n\n\nbar')
+        self._assert_returns('foo bar', 'foo\nbar')
+
+    def test_returns_strings_without_whitespace_as_is(self):
+        self._assert_unchanged('')
+        self._assert_unchanged('foo')
+
+    def test_joins_line_breaks_by_replacing_single_newlines_with_space(self):
+        self._assert_returns('foo bar', 'foo\nbar')
+        self._assert_returns('foo bar baz', 'foo\n bar baz\n')
+
+    def test_replaceS_blank_lines_separating_sections_with_newline(self):
+        self._assert_returns('foo foo\nbar bar' ,
+'''foo
+foo
+
+bar
+bar''')
+        self._assert_returns('foo\nbar baz', 'foo\n\nbar\nbaz')
 
 
 class TestExpandInputPathsVariables(TestCase):
