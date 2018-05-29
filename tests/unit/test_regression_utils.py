@@ -300,11 +300,11 @@ class TestCollapseAllWhitespace(TestCase):
     def _assert_unchanged(self, given):
         self._assert_returns(given, given)
 
-    def test_returns_strngs_without_whitespace_as_is(self):
+    def test_returns_strings_without_whitespace_as_is(self):
         self._assert_unchanged('')
         self._assert_unchanged('foo')
 
-    def test_returns_strngs_with_only_single_spaces_as_is(self):
+    def test_returns_strings_with_only_single_spaces_as_is(self):
         self._assert_unchanged('foo bar')
 
     def test_collapses_repeating_spaces(self):

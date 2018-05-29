@@ -179,40 +179,48 @@ class TerminalReporter(object):
         _println(_stats)
         _println('_' * TERMINAL_WIDTH)
 
-    def msg_test_start(self, shortname, description):
-        if self.verbose:
-            _desc = cli.colorize(description, style='DIM')
-            _println('\nRunning "{}"'.format(shortname))
-            _println(_desc)
-        else:
-            maxlen = self.MAX_DESCRIPTION_LENGTH
-            _desc_len = len(description)
-            if _desc_len > maxlen:
-                _desc = description[0:maxlen] + '..'
-            else:
-                _desc = description + ' '*(2 + maxlen - _desc_len)
+    def _format_description(self, description):
+        def __colorize(s):
+            return cli.colorize(s, style='DIM')
 
-            _colordesc = cli.colorize(_desc, style='DIM')
-            _print('{:30.30s} {!s} '.format(shortname, _colordesc))
+        if self.verbose:
+            normalized_description = normalize_description_whitespace(description)
+            return __colorize(normalized_description)
+
+        else:
+            single_line_description = collapse_all_whitespace(description)
+            MAXLEN = self.MAX_DESCRIPTION_LENGTH
+
+            description_len = len(single_line_description)
+            if description_len > MAXLEN:
+                fixed_width_description = single_line_description[0:MAXLEN] + '..'
+            else:
+                padding_len = 2 + MAXLEN - description_len
+                fixed_width_description = single_line_description + ' ' * padding_len
+
+            return __colorize(fixed_width_description)
+
+    def msg_test_start(self, shortname, description):
+        formatted_description = self._format_description(description)
+
+        if self.verbose:
+            formatted_description = self._format_description(description)
+            _println('\nRunning "{}"'.format(shortname))
+            _println(formatted_description)
+        else:
+            _print('{:30.30s} {!s} '.format(shortname, formatted_description))
 
     def msg_test_skipped(self, shortname, description):
+        formatted_description = self._format_description(description)
+
         if self.verbose:
             _println()
             _label = cli.colorize('[SKIPPED]', fore='YELLOW')
-            _desc = cli.colorize(description, style='DIM')
             _println('{} "{!s}"'.format(_label, shortname))
-            _println(_desc)
+            _println(formatted_description)
         else:
-            maxlen = self.MAX_DESCRIPTION_LENGTH
-            _desc_len = len(description)
-            if _desc_len > maxlen:
-                _desc = description[0:maxlen] + '..'
-            else:
-                _desc = description + ' '*(2 + maxlen - _desc_len)
-
-            _colordesc = cli.colorize(_desc, style='DIM')
             _label = cli.colorize('[SKIPPED]', fore='YELLOW')
-            _print('{:30.30s} {!s}  {} '.format(shortname, _colordesc, _label))
+            _print('{:30.30s} {!s}  {} '.format(shortname, formatted_description, _label))
 
     def msg_test_runtime(self, elapsed_time, captured_time):
         if captured_time:
@@ -358,8 +366,7 @@ class RegressionTestLoader(object):
     def _load_file_description(self):
         abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
         description = read_plaintext_file(abspath_desc, ignore_errors=True)
-        one_line_description = collapse_all_whitespace(description)
-        return one_line_description
+        return description.strip()
 
     def _load_file_asserts(self):
         abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
