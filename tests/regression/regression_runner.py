@@ -298,8 +298,10 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
             break
 
         if testsuite.should_skip:
-            reporter.msg_test_skipped(testsuite.str_dirname, testsuite.description)
+            reporter.msg_test_skipping(testsuite.str_dirname, testsuite.description)
             run_results.skipped.add(testsuite)
+
+            reporter.msg_test_skipped()
 
             # TODO: [hack] Refactor ..
             testsuite_history = load_testsuite_history(testsuite, history)

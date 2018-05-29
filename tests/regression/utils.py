@@ -102,24 +102,36 @@ class TerminalReporter(object):
     def msg_test_success(self):
         _label = cli.colorize('[SUCCESS]', fore='GREEN')
         if self.verbose:
-            _println('{} All assertions passed!'.format(_label))
+            _print(_label + ' ')
         else:
             _print(' ' + _label + ' ')
 
     def msg_test_failure(self):
         _label = cli.colorize('[FAILURE]', fore='RED')
         if self.verbose:
-            _println('{} One or more assertions FAILED!'.format(_label))
+            _print(_label + ' ')
+        else:
+            _print(' ' + _label + ' ')
+
+    def msg_test_skipped(self):
+        _label = cli.colorize('[SKIPPED]', fore='YELLOW')
+        if self.verbose:
+            _print(_label + ' ')
         else:
             _print(' ' + _label + ' ')
 
     def msg_test_history(self, history):
         # TODO: [hack] Refactor ..
-        while len(history) < 5:
+        if self.verbose:
+            NUM_HISTORY_ENTRIES = 10
+        else:
+            NUM_HISTORY_ENTRIES = 5
+
+        while len(history) < NUM_HISTORY_ENTRIES:
             history.append('unknown')
 
         # TODO: [hack] Refactor ..
-        for past_result in history[:5]:
+        for past_result in history[:NUM_HISTORY_ENTRIES]:
             if past_result == 'fail':
                 _print(self.msg_mark_history_fail)
             elif past_result == 'pass':
@@ -205,22 +217,24 @@ class TerminalReporter(object):
 
         if self.verbose:
             formatted_description = self._format_description(description)
-            _println('\nRunning "{}"'.format(shortname))
+            message = '\nRunning "{}"'.format(shortname)
+            colorized_message = cli.colorize(message, style='BRIGHT')
+            _println(colorized_message)
             _println(formatted_description)
         else:
             _print('{:30.30s} {!s} '.format(shortname, formatted_description))
 
-    def msg_test_skipped(self, shortname, description):
+    def msg_test_skipping(self, shortname, description):
         formatted_description = self._format_description(description)
 
         if self.verbose:
-            _println()
-            _label = cli.colorize('[SKIPPED]', fore='YELLOW')
-            _println('{} "{!s}"'.format(_label, shortname))
+            formatted_description = self._format_description(description)
+            message = '\nSkipping "{}"'.format(shortname)
+            colorized_message = cli.colorize(message, style='BRIGHT')
+            _println(colorized_message)
             _println(formatted_description)
         else:
-            _label = cli.colorize('[SKIPPED]', fore='YELLOW')
-            _print('{:30.30s} {!s}  {} '.format(shortname, formatted_description, _label))
+            _print('{:30.30s} {!s} '.format(shortname, formatted_description))
 
     def msg_test_runtime(self, elapsed_time, captured_time):
         if captured_time:
