@@ -76,12 +76,12 @@ class TemplateFieldDataResolver(object):
         return all(field in self.data_sources for field in self._fields)
 
     def add_known_sources(self, source_dict):
-        for field, uri in source_dict.items():
-            if isinstance(uri, list):
-                for m in uri:
+        for field, one_or_many_uris in source_dict.items():
+            if isinstance(one_or_many_uris, list):
+                for m in one_or_many_uris:
                     self.add_known_source(field, m)
             else:
-                self.add_known_source(field, uri)
+                self.add_known_source(field, one_or_many_uris)
 
     def add_known_source(self, field, uri):
         sanity.check_isinstance_meowuri(
