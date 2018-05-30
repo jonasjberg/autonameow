@@ -46,6 +46,25 @@ class TestPlainTextExtractor(CaseExtractorBasics, TestCase):
     EXTRACTOR_NAME = 'PlainTextExtractor'
 
 
+class TestPlainTextExtractorCanHandle(TestCase):
+    def setUp(self):
+        self.e = PlainTextExtractor()
+
+        class DummyFileObject(object):
+            def __init__(self, mime):
+                self.mime_type = mime
+        self.fo_image = DummyFileObject(mime='image/jpeg')
+        self.fo_pdf = DummyFileObject(mime='application/pdf')
+        self.fo_text = DummyFileObject(mime='text/plain')
+
+    def test_class_method_can_handle_returns_false(self):
+        self.assertFalse(self.e.can_handle(self.fo_image))
+        self.assertFalse(self.e.can_handle(self.fo_pdf))
+
+    def test_class_method_can_handle_returns_true(self):
+        self.assertTrue(self.e.can_handle(self.fo_text))
+
+
 class TestReadEntireTextFileA(TestCase):
     @classmethod
     def setUpClass(cls):
