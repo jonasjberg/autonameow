@@ -609,5 +609,5 @@ Wishlist
 Windows-compatibility *(Very Low Priority)*
 -------------------------------------------
 
-* Bundle `python-magic` dependencies?
-  https://github.com/ahupp/python-magic#dependencies
+* `[TD0199]` Bundle `python-magic` dependencies?
+    https://github.com/ahupp/python-magic#dependencies
