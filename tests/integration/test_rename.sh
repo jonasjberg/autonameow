@@ -183,6 +183,92 @@ test_automagic_rename 'Fix incorrect extensions Method 2 test_files/magic_txt.md
 test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
 
 
+# ==============================================================================
+ACTIVE_CONFIG="$(abspath_testfile "configs/default.yaml")"
+assert_bulk_test "$ACTIVE_CONFIG" n e r
+
+
+assert_unable_to_find_new_name()
+{
+    local -r _test_name="Expect unable to find new name for \"${1}\""
+    local -r _sample_file="$(abspath_testfile "${1}")"
+
+    assert_bulk_test "$_sample_file" e f r
+
+    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
+                "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run\""
+
+    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}"' \
+                "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run --verbose\""
+
+    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "${_sample_file}"' \
+                "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run --debug\""
+
+    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --quiet -- "${_sample_file}"' \
+                "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run --quiet\""
+
+    assert_true '[ -f "${_sample_file}" ]' \
+                "(${_test_name}) The sample file should still exist, I.E. not have been renamed."
+}
+
+assert_unable_to_find_new_name '2007-04-23_12-comments.png'
+assert_unable_to_find_new_name '2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
+assert_unable_to_find_new_name '2017-11-20T020738 filetags-style name -- tag1.txt'
+assert_unable_to_find_new_name '4123.epub'
+assert_unable_to_find_new_name '4123.pdf'
+assert_unable_to_find_new_name 'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi'
+assert_unable_to_find_new_name 'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf'
+assert_unable_to_find_new_name 'UTF-8-demo.txt'
+assert_unable_to_find_new_name 'empty'
+assert_unable_to_find_new_name 'gmail.pdf'
+assert_unable_to_find_new_name 'magic_bmp.bmp'
+assert_unable_to_find_new_name 'magic_gif.gif'
+assert_unable_to_find_new_name 'magic_jpg.jpg'
+assert_unable_to_find_new_name 'magic_mp4.mp4'
+assert_unable_to_find_new_name 'magic_pdf.pdf'
+assert_unable_to_find_new_name 'magic_png.png'
+assert_unable_to_find_new_name 'magic_txt'
+assert_unable_to_find_new_name 'magic_txt.md'
+assert_unable_to_find_new_name 'magic_txt.txt'
+assert_unable_to_find_new_name 'ObjectCalisthenics.rtf'
+assert_unable_to_find_new_name 'pg38145-images.epub'
+assert_unable_to_find_new_name 'pg38145-images.epub_expected.txt'
+assert_unable_to_find_new_name 'sample.md'
+assert_unable_to_find_new_name 'sample.md_expected.txt'
+assert_unable_to_find_new_name 'sample.rtf'
+assert_unable_to_find_new_name 'sample.rtf_expected.txt'
+assert_unable_to_find_new_name 'saved-webpage.html'
+assert_unable_to_find_new_name 'saved-webpage.mhtml'
+assert_unable_to_find_new_name 'simple-lexical-analysis'
+assert_unable_to_find_new_name 'simplest_pdf.md.pdf'
+assert_unable_to_find_new_name 'simplest_pdf.md.pdf_expected.txt'
+assert_unable_to_find_new_name 'simplest_pdf.md.pdf.txt'
+assert_unable_to_find_new_name 'smulan.jpg'
+assert_unable_to_find_new_name 'text_alnum_ascii.txt'
+assert_unable_to_find_new_name 'text_alnum_cp1252.txt'
+assert_unable_to_find_new_name 'text_alnum_cp437.txt'
+assert_unable_to_find_new_name 'text_alnum_cp858.txt'
+assert_unable_to_find_new_name 'text_alnum_iso-8859-1.txt'
+assert_unable_to_find_new_name 'text_alnum_macroman.txt'
+assert_unable_to_find_new_name 'text_alnum_utf-16.txt'
+assert_unable_to_find_new_name 'text_alnum_utf-8.txt'
+assert_unable_to_find_new_name 'text_git_euc-jp.txt'
+assert_unable_to_find_new_name 'text_git_iso-2022-jp.txt'
+assert_unable_to_find_new_name 'text_git_iso88591.txt'
+assert_unable_to_find_new_name 'text_git_utf-8_1.txt'
+assert_unable_to_find_new_name 'text_git_utf-8_2.txt'
+assert_unable_to_find_new_name 'text_git_utf16.txt'
+assert_unable_to_find_new_name 'text_sample_ascii.txt'
+assert_unable_to_find_new_name 'text_sample_cp1252.txt'
+assert_unable_to_find_new_name 'text_sample_cp437.txt'
+assert_unable_to_find_new_name 'text_sample_cp858.txt'
+assert_unable_to_find_new_name 'text_sample_iso-8859-1.txt'
+assert_unable_to_find_new_name 'text_sample_macroman.txt'
+assert_unable_to_find_new_name 'text_sample_utf-16.txt'
+assert_unable_to_find_new_name 'text_sample_utf-8.txt'
+
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
