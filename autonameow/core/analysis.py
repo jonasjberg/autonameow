@@ -64,8 +64,8 @@ def _execute_run_queue(analyzer_queue):
 
         # TODO: [TD0126] Clean up boundaries/interface to the 'analyzers' package.
         fileobject = analyzer_instance.fileobject
-        for _uri, _data in results.items():
-            store_results(fileobject, _uri, _data)
+        for uri, wrapped_data in results.items():
+            store_results(fileobject, uri, wrapped_data)
 
         log.debug('Finished running "{!s}"'.format(analyzer_instance))
 
@@ -96,20 +96,10 @@ def store_results(fileobject, meowuri_prefix, data):
     """
     Collects analyzer results to store in the session repository.
 
-    If argument "data" is a dictionary, it is "flattened" here.
-    Example:
-
-      Incoming arguments:
-        MeowURI: 'extractor.metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
-
-      Would be "flattened" to:
-        MeowURI: 'extractor.metadata.exiftool.a'   DATA: 'b'
-        MeowURI: 'extractor.metadata.exiftool.c'   DATA: 'd'
-
     Args:
         fileobject: Instance of 'FileObject' that produced the data to add.
         meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
-        data: The data to add, as any type or container.
+        data: The data to add as dicts (or lists of dicts..)
     """
     uri = force_meowuri(meowuri_prefix)
     if not uri:
