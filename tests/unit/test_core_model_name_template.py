@@ -21,8 +21,8 @@
 
 from unittest import TestCase
 
-from core.model.name_template import format_string_placeholders
 from core.model.name_template import NameTemplate
+from core.model.name_template import template_placeholder_substrings
 
 
 def _get_nametemplate(*args, **kwargs):
@@ -67,10 +67,10 @@ class TestFormatStringPlaceholders(TestCase):
         ]:
             with self.subTest(given=bad_arg):
                 with self.assertRaises(AssertionError):
-                    format_string_placeholders(bad_arg)
+                    template_placeholder_substrings(bad_arg)
 
     def _assert_template(self, template, placeholders):
-        actual = format_string_placeholders(template)
+        actual = template_placeholder_substrings(template)
         self.assertEqual(placeholders, actual)
 
     def test_returns_no_placeholders_if_template_is_empty_or_whitespace(self):
