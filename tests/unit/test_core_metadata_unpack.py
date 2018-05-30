@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
+from unittest import expectedFailure, TestCase
 
 from core.metadata.unpack import split_title_subtitle
 
@@ -77,13 +77,23 @@ class TestSplitTitleSubtitle(TestCase):
             )
 
     def test_splits_full_title_containing_two_possible_separators(self):
-            self._assert_splits(
-                'Meowing for Computations - MEOW: A Gentle Introduction to Numerical Simulation with Gibson',
-                title='Meowing for Computations - MEOW',
-                subtitle='A Gentle Introduction to Numerical Simulation with Gibson'
-            )
-            self._assert_splits(
-                'Programming the BBC micro:bit: Getting Started with MicroPython',
-                title='Programming the BBC micro:bit',
-                subtitle='Getting Started with MicroPython'
-            )
+        self._assert_splits(
+            'Meowing for Computations - MEOW: A Gentle Introduction to Numerical Simulation with Gibson',
+            title='Meowing for Computations - MEOW',
+            subtitle='A Gentle Introduction to Numerical Simulation with Gibson'
+        )
+        self._assert_splits(
+            'Programming the KIBBLE micro:bit: Getting Started with MicroFoodz',
+            title='Programming the KIBBLE micro:bit',
+            subtitle='Getting Started with MicroFoodz'
+        )
+
+    @expectedFailure
+    def test_splits_full_title_containing_multiple_possible_separators(self):
+        self._assert_splits(
+            'Beginning MEOW Pets: From Novice To Professional ; [The Complete Guide To MEOW Pets - Everything You Need To Get Up And Running ; Included DVD Contains Full Version Of MEOW 9.1 Professional Edition]',
+            title='Beginning MEOW Pets',
+            # TODO: Maybe allow multiple subtitles, stored in a list?
+            # subtitle='From Novice To Professional ; [The Complete Guide To MEOW Pets - Everything You Need To Get Up And Running ; Included DVD Contains Full Version Of MEOW 9.1 Professional Edition]'
+            subtitle='From Novice To Professional'
+        )

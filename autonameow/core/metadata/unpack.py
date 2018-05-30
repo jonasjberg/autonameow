@@ -45,10 +45,26 @@ def unpack_field_value(todo):
     #     'title': 'Python Data Science Essentials',
     #     'subtitle': "Become an efficient data science practitioner by understanding Python's key concepts",
     # }
+    #
+    #   URI:  extractor.metadata.exiftool.XMP:Rights
+    # VALUE:  "Copyright © 2018 by Gibson Publishing Inc."
+    # Should unpack to unpacked = {
+    #     'date_created': '2018',
+    #     'publisher': 'Gibson Publishing Inc.',
+    # }
+    #
+    #   URI:  extractor.metadata.exiftool.XMP:Title
+    # VALUE:  "Essential K# 7.0, Sixth Edition"
+    # Should unpack to unpacked = {
+    #     'edition': '6',
+    #     'title': 'Essential K# 7.0',
+    # }
+
     pass
 
 
 def split_title_subtitle(full_title):
+    # TODO: Maybe allow multiple subtitles, stored in a list?
     assert isinstance(full_title, str)
 
     RE_SEPARATORS = r'[;:-]'
