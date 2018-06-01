@@ -71,6 +71,12 @@ BAD_EXIFTOOL_METADATA = {
         'Third Edition',
         'Unknown',
     },
+    'XMP:Contributor': {
+        'eCore v0.9.5.630 [ http://www.epubor.com/ecore.html ]',
+        'Epubor',
+        'http://www.epubor.com',
+        'Ultimate',
+    },
     'XMP:Creator': {
         'Author',
         'Creator',
@@ -104,6 +110,7 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'free-ebooks.net',
     'http://cncmanual.com/',
     'http://freepdf-books.com',
+    'http://www.epubor.com',
     'Toolkit http://www.activepdf.com',
     'Toolkit http://www.activepdf.com(Infix)',
     'UNKNOWN',

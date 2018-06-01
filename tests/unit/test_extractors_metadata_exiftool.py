@@ -102,6 +102,7 @@ class TestIsBadMetadata(TestCase):
             'PDF:Subject',
             'PDF:Title',
             'XMP:Author',
+            'XMP:Contributor',
             'XMP:Creator',
             'XMP:Creator',
             'XMP:Description',
@@ -138,6 +139,12 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad('PDF:Subject', 'Subject')
         self._assert_bad('PDF:Title', 'Title')
         self._assert_bad('XMP:Author', 'Author')
+        self._assert_bad('XMP:Contributor', 'Epubor')
+        self._assert_bad(
+            'XMP:Contributor',
+            ['Epubor', 'Ultimate', 'eCore v0.9.5.630 [ http://www.epubor.com/ecore.html ]', 'http://www.epubor.com']
+        )
+        self._assert_bad('XMP:Contributor', 'http://www.epubor.com')
         self._assert_bad('XMP:Creator', 'Author')
         self._assert_bad('XMP:Creator', 'Creator')
         self._assert_bad('XMP:Creator', 'First Edition')
@@ -174,6 +181,7 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad_any_tag('http://cncmanual.com/')
         self._assert_bad_any_tag('http://freepdf-books.com')
         self._assert_bad_any_tag('http://freepdf-books.com')
+        self._assert_bad_any_tag('http://www.epubor.com')
         self._assert_bad_any_tag('Toolkit http://www.activepdf.com')
         self._assert_bad_any_tag('Toolkit http://www.activepdf.com(Infix)')
         self._assert_bad_any_tag('UNKNOWN')
