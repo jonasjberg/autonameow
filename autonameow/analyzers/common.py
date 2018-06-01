@@ -27,6 +27,7 @@ from core.model import force_meowuri
 from core.model import MeowURI
 from core.providers import ProviderMixin
 from core.providers import wrap_provider_results
+from extractors import text_provider
 from util import mimemagic
 from util import sanity
 
@@ -162,25 +163,12 @@ class BaseAnalyzer(ProviderMixin):
         return data_full_meowuris
 
     def request_any_textual_content(self):
-        # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
-        response = self.request_data(self.fileobject, 'generic.contents.text')
-        if not response:
+        text = text_provider.get_plain_text(self.fileobject)
+        if not text:
+            self.log.info('Request for any textual content failed')
             return None
 
-        text = None
-        if isinstance(response, list):
-            for r in response:
-                if r:
-                    sanity.check_isinstance(r, str)
-                    text = r
-                    break
-        else:
-            sanity.check_isinstance(response, str)
-            text = response
-
-        if text is None:
-            self.log.info('Requested data unavailable: "generic.contents.text"')
-
+        sanity.check_internal_string(text)
         return text
 
     @classmethod

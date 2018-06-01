@@ -23,20 +23,21 @@ import subprocess
 
 import util
 from extractors import ExtractorError
-from extractors.text.common import AbstractTextExtractor
-from extractors.text.common import decode_raw
+from extractors.text.base import BaseTextExtractor
+from extractors.text.base import decode_raw
 
 
-class RichTextFormatTextExtractor(AbstractTextExtractor):
-    HANDLES_MIME_TYPES = ['text/rtf']
-    IS_SLOW = False
-
-    def extract_text(self, fileobject):
+class RichTextFormatTextExtractor(BaseTextExtractor):
+    def _extract_text(self, fileobject):
         return extract_text_with_unrtf(fileobject.abspath)
 
     @classmethod
     def dependencies_satisfied(cls):
         return util.is_executable('unrtf')
+
+    @classmethod
+    def can_handle(cls, fileobject):
+        return fileobject.mime_type == 'text/rtf'
 
 
 def decode_ascii(string):

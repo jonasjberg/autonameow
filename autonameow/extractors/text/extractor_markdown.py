@@ -29,27 +29,24 @@ except ImportError:
 import util
 from core import constants as C
 from extractors import ExtractorError
-from extractors.text.common import AbstractTextExtractor
-from extractors.text.common import decode_raw
+from extractors.text.base import BaseTextExtractor
+from extractors.text.base import decode_raw
 
 
-class MarkdownTextExtractor(AbstractTextExtractor):
-    HANDLES_MIME_TYPES = ['text/plain']
-    IS_SLOW = False
-
-    def extract_text(self, fileobject):
+class MarkdownTextExtractor(BaseTextExtractor):
+    def _extract_text(self, fileobject):
         return get_plaintext_from_markdown_file_with_pandoc(fileobject.abspath)
-
-    @classmethod
-    def can_handle(cls, fileobject):
-        return bool(
-            cls._evaluate_mime_type_glob(fileobject)
-            and fileobject.basename_suffix in C.MARKDOWN_BASENAME_SUFFIXES
-        )
 
     @classmethod
     def dependencies_satisfied(cls):
         return util.is_executable('pandoc')
+
+    @classmethod
+    def can_handle(cls, fileobject):
+        return bool(
+            fileobject.mime_type == 'text/plain'
+            and fileobject.basename_suffix in C.MARKDOWN_BASENAME_SUFFIXES
+        )
 
 
 def get_plaintext_from_markdown_file_with_pandoc(filepath):

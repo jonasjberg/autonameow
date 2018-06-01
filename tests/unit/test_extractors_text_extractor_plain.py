@@ -23,10 +23,10 @@ import os
 from unittest import skipIf, TestCase
 
 import unit.utils as uu
-from extractors.text.plain import autodetect_encoding
-from extractors.text.plain import PlainTextExtractor
-from extractors.text.plain import read_entire_text_file
-from unit.case_extractors import CaseExtractorBasics
+from extractors.text.extractor_plain import autodetect_encoding
+from extractors.text.extractor_plain import PlainTextExtractor
+from extractors.text.extractor_plain import read_entire_text_file
+from unit.case_extractors_text import CaseTextExtractorBasics
 
 
 UNMET_DEPENDENCIES = (
@@ -41,7 +41,7 @@ print(UNMET_DEPENDENCIES)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestPlainTextExtractor(CaseExtractorBasics, TestCase):
+class TestPlainTextExtractor(CaseTextExtractorBasics, TestCase):
     EXTRACTOR_CLASS = PlainTextExtractor
     EXTRACTOR_NAME = 'PlainTextExtractor'
 
@@ -51,11 +51,16 @@ class TestPlainTextExtractorCanHandle(TestCase):
         self.e = PlainTextExtractor()
 
         class DummyFileObject(object):
-            def __init__(self, mime):
+            def __init__(self, mime, basename_suffix):
                 self.mime_type = mime
-        self.fo_image = DummyFileObject(mime='image/jpeg')
-        self.fo_pdf = DummyFileObject(mime='application/pdf')
-        self.fo_text = DummyFileObject(mime='text/plain')
+                self.basename_suffix = basename_suffix
+
+        self.fo_image = DummyFileObject(mime='image/jpeg',
+                                        basename_suffix=b'jpg')
+        self.fo_pdf = DummyFileObject(mime='application/pdf',
+                                      basename_suffix=b'pdf')
+        self.fo_text = DummyFileObject(mime='text/plain',
+                                       basename_suffix=b'txt')
 
     def test_class_method_can_handle_returns_false(self):
         self.assertFalse(self.e.can_handle(self.fo_image))

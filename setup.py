@@ -58,7 +58,6 @@ setup(
             'extractors/metadata/exiftool_fieldmeta.yaml',
             'extractors/metadata/jpeginfo_fieldmeta.yaml',
             'extractors/metadata/pandoc_fieldmeta.yaml',
-            'extractors/text/common_fieldmeta.yaml',
             'util/mimemagic.mappings',
             'util/mimemagic.preferred',
         ],

@@ -26,7 +26,6 @@ from core import logs
 from core.model import meowuri_mapper
 from util import encoding as enc
 from util import sanity
-from util.text import truncate_text
 
 
 log = logging.getLogger(__name__)
@@ -224,12 +223,6 @@ class Repository(object):
     def _store(self, fileobject, meowuri, data):
         if logs.DEBUG:
             _data_value = data.get('value')
-            if _is_full_text_meowuri(meowuri):
-                assert isinstance(_data_value, str), (
-                    'Expect data stored with this MeowURI to be type "str"'
-                )
-                _data_value = _truncate_text(_data_value)
-
             log.debug('Storing {!r}->[{!s}] :: {} {!s}'.format(
                 fileobject, meowuri, type(_data_value), _data_value
             ))
@@ -353,22 +346,14 @@ class Repository(object):
                 for d in datadict:
                     sanity.check_isinstance(d, dict)
                     str_v = _stringify_datadict_value(d.get('value'))
-                    if _is_full_text_meowuri(meowuri):
-                        # Often *a lot* of text, trim to arbitrary size..
-                        temp_list.append(_truncate_text(str_v))
-                    else:
-                        temp_list.append(str_v)
+                    temp_list.append(str_v)
 
                 first_pass[meowuri] = temp_list
 
             else:
                 sanity.check_isinstance(datadict, dict)
                 str_v = _stringify_datadict_value(datadict.get('value'))
-                if _is_full_text_meowuri(meowuri):
-                    # Often *a lot* of text, trim to arbitrary size..
-                    first_pass[meowuri] = _truncate_text(str_v)
-                else:
-                    first_pass[meowuri] = str_v
+                first_pass[meowuri] = str_v
 
         # Second pass --- align in columns and add numbers to generic URIs.
         cf = _get_column_formatter()
@@ -418,16 +403,6 @@ class Repository(object):
 
     def __str__(self):
         return self.human_readable_contents()
-
-
-def _is_full_text_meowuri(uri):
-    return uri.matchglobs(['generic.contents.text', 'extractor.text.*'])
-
-
-def _truncate_text(text):
-    t = truncate_text(text, maxlen=20, append_info=True)
-    t = t.replace('\n', ' ')
-    return t
 
 
 def _stringify_datadict_value(datadict_value):

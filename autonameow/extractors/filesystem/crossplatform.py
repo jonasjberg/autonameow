@@ -22,10 +22,10 @@
 import os
 from datetime import datetime
 
-from extractors import BaseExtractor
+from extractors import BaseMetadataExtractor
 
 
-class CrossPlatformFileSystemExtractor(BaseExtractor):
+class CrossPlatformFileSystemExtractor(BaseMetadataExtractor):
     HANDLES_MIME_TYPES = ['*/*']
     MEOWURI_LEAF = 'xplat'
     IS_SLOW = False

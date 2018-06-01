@@ -25,9 +25,9 @@ import subprocess
 
 import util
 from core import constants as C
-from extractors import BaseExtractor
+from extractors import BaseMetadataExtractor
 from extractors import ExtractorError
-from extractors.text.common import decode_raw
+from extractors.text.base import decode_raw
 from util import coercers
 from util import disk
 
@@ -37,7 +37,7 @@ PATH_CUSTOM_PANDOC_TEMPLATE = disk.joinpaths(_PATH_THIS_DIR,
                                              BASENAME_PANDOC_TEMPLATE)
 
 
-class PandocMetadataExtractor(BaseExtractor):
+class PandocMetadataExtractor(BaseMetadataExtractor):
     """
     Extracts various types of metadata using "pandoc".
     """

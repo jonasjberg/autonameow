@@ -24,7 +24,7 @@ import os
 import unit.utils as uu
 from core import constants as C
 from core.model import MeowURI
-from extractors import BaseExtractor
+from extractors import BaseMetadataExtractor
 
 
 """
@@ -72,7 +72,7 @@ class CaseExtractorOutputTypes(object):
     def test_instantiated_extractor_is_subclass_of_base_extractor(self):
         actual = self.extractor
         self.assertTrue(
-            issubclass(actual.__class__, BaseExtractor),
+            issubclass(actual.__class__, BaseMetadataExtractor),
             'Instantiated extractor is not a subclass of "BaseExtractor": '
             '"{!s}" ({!s})'.format(actual, type(actual))
         )
@@ -190,7 +190,7 @@ class CaseExtractorBasics(object):
     def test_instantiated_extractor_is_subclass_of_base_extractor(self):
         actual = self.extractor
         self.assertTrue(
-            issubclass(actual.__class__, BaseExtractor),
+            issubclass(actual.__class__, BaseMetadataExtractor),
             'Instantiated extractor is not a subclass of "BaseExtractor": '
             '"{!s}" ({!s})'.format(actual, type(actual))
         )

@@ -30,29 +30,30 @@ except ImportError:
     epub = None
 
 from extractors import ExtractorError
-from extractors.text.common import AbstractTextExtractor
+from extractors.text.base import BaseTextExtractor
 from util import encoding as enc
 from util import sanity
 
 
-class EpubTextExtractor(AbstractTextExtractor):
-    HANDLES_MIME_TYPES = ['application/epub+zip']
-    IS_SLOW = False
-
+class EpubTextExtractor(BaseTextExtractor):
     def __init__(self):
         super().__init__()
 
         self.init_cache()
 
-    def extract_text(self, fileobject):
-        return extract_text_with_ebooklib(fileobject.abspath)
+    def _extract_text(self, fileobject):
+        return _extract_text_with_ebooklib(fileobject.abspath)
 
     @classmethod
     def dependencies_satisfied(cls):
         return all(m is not None for m in (epub, BeautifulSoup))
 
+    @classmethod
+    def can_handle(cls, fileobject):
+        return fileobject.mime_type == 'application/epub+zip'
 
-def extract_text_with_ebooklib(filepath):
+
+def _extract_text_with_ebooklib(filepath):
     assert epub, 'Missing required module "epub"'
     assert BeautifulSoup, 'Missing required module "BeautifulSoup"'
 

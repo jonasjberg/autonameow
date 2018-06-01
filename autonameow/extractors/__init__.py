@@ -24,7 +24,7 @@ import logging
 import os
 import sys
 
-from .common import BaseExtractor
+from .common import BaseMetadataExtractor
 from .common import ExtractorError
 
 
@@ -37,10 +37,8 @@ sys.path.insert(0, AUTONAMEOW_EXTRACTOR_PATH)
 
 EXTRACTOR_CLASS_PACKAGES_FILESYSTEM = ['filesystem']
 EXTRACTOR_CLASS_PACKAGES_METADATA = ['metadata']
-EXTRACTOR_CLASS_PACKAGES_TEXT = ['text']
 EXTRACTOR_CLASS_PACKAGES = (EXTRACTOR_CLASS_PACKAGES_FILESYSTEM
-                            + EXTRACTOR_CLASS_PACKAGES_METADATA
-                            + EXTRACTOR_CLASS_PACKAGES_TEXT)
+                            + EXTRACTOR_CLASS_PACKAGES_METADATA)
 
 
 def _find_extractor_classes_in_packages(packages):
@@ -49,9 +47,9 @@ def _find_extractor_classes_in_packages(packages):
         __import__(package)
         namespace = inspect.getmembers(sys.modules[package], inspect.isclass)
         for _obj_name, _obj_type in namespace:
-            if not issubclass(_obj_type, BaseExtractor):
+            if not issubclass(_obj_type, BaseMetadataExtractor):
                 continue
-            if _obj_type == BaseExtractor:
+            if _obj_type == BaseMetadataExtractor:
                 continue
             if _obj_name.startswith('Abstract'):
                 continue
@@ -59,7 +57,7 @@ def _find_extractor_classes_in_packages(packages):
     return klasses
 
 
-def _get_extractor_classes(packages):
+def collect_included_excluded_extractors(packages):
     klasses = _find_extractor_classes_in_packages(packages)
 
     excluded = list()
@@ -75,7 +73,6 @@ def _get_extractor_classes(packages):
 class ExtractorRegistry(object):
     def __init__(self):
         self._all_providers = None
-        self._text_providers = None
         self._metadata_providers = None
         self._filesystem_providers = None
         self._excluded_providers = set()
@@ -86,7 +83,7 @@ class ExtractorRegistry(object):
         return getattr(self, self_attribute)
 
     def _collect_and_register(self, self_attribute, packages):
-        included, excluded = _get_extractor_classes(packages)
+        included, excluded = collect_included_excluded_extractors(packages)
 
         for included_klass in included:
             log.debug('Included extractor "{!s}"'.format(included_klass))
@@ -100,11 +97,6 @@ class ExtractorRegistry(object):
     def all_providers(self):
         return self._get_cached_or_collect('_all_providers',
                                            EXTRACTOR_CLASS_PACKAGES)
-
-    @property
-    def text_providers(self):
-        return self._get_cached_or_collect('_text_providers',
-                                           EXTRACTOR_CLASS_PACKAGES_TEXT)
 
     @property
     def metadata_providers(self):

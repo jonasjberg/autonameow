@@ -80,7 +80,6 @@ def _get_meowuri_source_map():
         Example return value: {
             'extractor.filesystem.xplat': CrossPlatformFilesystemExtractor,
             'extractor.metadata.exiftool': ExiftoolMetadataExtractor,
-            'extractor.text.pdf': PdfTextExtractor
         }
 
         Returns: Dictionary keyed by instances of the 'MeowURI' class,
@@ -343,8 +342,8 @@ class ProviderRunner(object):
 def _provider_is_extractor(provider):
     # TODO: [hack] Fix circular import problems when running new unit test runner.
     #       $ PYTHONPATH=autonameow:tests python3 -m unit --skip-slow
-    from extractors import BaseExtractor
-    return issubclass(provider, BaseExtractor)
+    from extractors import BaseMetadataExtractor
+    return issubclass(provider, BaseMetadataExtractor)
 
 
 def _provider_is_analyzer(provider):

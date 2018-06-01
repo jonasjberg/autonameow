@@ -310,7 +310,6 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
         _, ref_title = find_and_extract_edition(ok_response)
         reference_title = normalize_full_title(ref_title)
         self.log.debug('Using reference metadata title "{!s}"'.format(reference_title))
-        # response = self.request_data(self.fileobject, 'generic.contents.text')
 
         candidates = list()
         for metadata in self._isbn_metadata:

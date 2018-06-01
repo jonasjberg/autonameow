@@ -961,8 +961,6 @@ class TestTypePathComponent(TestCase, CaseCoercers):
             (b'a.b.c', b'a.b.c'),
             ('extractor.filesystem.xplat', b'extractor.filesystem.xplat'),
             (b'extractor.filesystem.xplat', b'extractor.filesystem.xplat'),
-            ('extractor.text.common', b'extractor.text.common'),
-            (b'extractor.text.common', b'extractor.text.common'),
 
             # With tilde user home
             (b'~', b'~'),

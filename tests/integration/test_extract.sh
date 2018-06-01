@@ -222,17 +222,17 @@ sample_md_file_basename="$(basename -- "${SAMPLE_MD_FILE}")"
 
 # From the MarkdownTextExtractor
 assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "ON MEOW"' \
-            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"ON MEOW\""
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"ON MEOW\" from the MarkdownTextExtractor"
 
 assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "- meow list"' \
-            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"- meow list\""
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"- meow list\" from the MarkdownTextExtractor"
 
 # From the PlainTextExtractor
-assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "On Meow"' \
-            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"On Meow\""
+assert_false '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "On Meow"' \
+             "Expect text extracted from \"${sample_md_file_basename}\" to NOT contain \"On Meow\" from the PlainTextExtractor"
 
-assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "* meow list"' \
-            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"* meow list\""
+assert_false '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "* meow list"' \
+             "Expect text extracted from \"${sample_md_file_basename}\" to NOT contain \"* meow list\" from the PlainTextExtractor"
 
 
 

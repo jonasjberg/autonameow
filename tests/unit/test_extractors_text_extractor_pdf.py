@@ -23,11 +23,11 @@ import time
 from unittest import skipIf, TestCase
 
 import unit.utils as uu
-from extractors.text import PdfTextExtractor
-from extractors.text.pdf import extract_pdf_content_with_pdftotext
-from unit.case_extractors import CaseExtractorBasics
-from unit.case_extractors import CaseExtractorOutput
-from unit.case_extractors import CaseExtractorOutputTypes
+from extractors.text.extractor_pdf import extract_pdf_content_with_pdftotext
+from extractors.text.extractor_pdf import PdfTextExtractor
+from unit.case_extractors_text import CaseTextExtractorBasics
+from unit.case_extractors_text import CaseTextExtractorOutput
+from unit.case_extractors_text import CaseTextExtractorOutputTypes
 
 
 UNMET_DEPENDENCIES = (
@@ -60,33 +60,29 @@ class TestPrerequisites(TestCase):
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestPdfTextExtractor(CaseExtractorBasics, TestCase):
+class TestPdfTextExtractor(CaseTextExtractorBasics, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
     EXTRACTOR_NAME = 'PdfTextExtractor'
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestPdfTextExtractorOutputTypes(CaseExtractorOutputTypes, TestCase):
+class TestPdfTextExtractorOutputTypes(CaseTextExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestPdfTextExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
+class TestPdfTextExtractorOutputTestFileA(CaseTextExtractorOutput, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
-    EXPECTED_FIELD_TYPE_VALUE = [
-        ('full', str, TESTFILE_A_EXPECTED),
-    ]
+    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    EXPECTED_TEXT = TESTFILE_A_EXPECTED
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestPdfTextExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
+class TestPdfTextExtractorOutputTestFileB(CaseTextExtractorOutput, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_B)
-    EXPECTED_FIELD_TYPE_VALUE = [
-        ('full', str, TESTFILE_B_EXPECTED),
-    ]
+    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_B)
+    EXPECTED_TEXT = TESTFILE_B_EXPECTED
 
 
 @skipIf(*UNMET_DEPENDENCIES)
@@ -101,8 +97,8 @@ class TestCachingRuntime(TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        source_a = uu.fileobject_testfile(TESTFILE_A)
-        source_b = uu.fileobject_testfile(TESTFILE_B)
+        source_a = uu.as_fileobject(TESTFILE_A)
+        source_b = uu.as_fileobject(TESTFILE_B)
 
         # Patch to disable caching.
         # "Should" be equivalent to not calling 'init_cache()' in '__init__()'.
@@ -110,8 +106,8 @@ class TestCachingRuntime(TestCase):
         e_no_cache.cache = None
 
         start_time = time.time()
-        _ = e_no_cache.extract(source_a)
-        _ = e_no_cache.extract(source_b)
+        _ = e_no_cache.extract_text(source_a)
+        _ = e_no_cache.extract_text(source_b)
         cls.runtime_cache_disabled = time.time() - start_time
 
         # Enable caching.
@@ -119,8 +115,8 @@ class TestCachingRuntime(TestCase):
         e_cached.init_cache()
 
         start_time = time.time()
-        _ = e_cached.extract(source_a)
-        _ = e_cached.extract(source_b)
+        _ = e_cached.extract_text(source_a)
+        _ = e_cached.extract_text(source_b)
         cls.runtime_cache_enabled = time.time() - start_time
 
     def test_sanity_check_runtime_cache_disabled(self):
@@ -169,19 +165,15 @@ class TestPdfTextExtractorInternals(TestCase):
         self.e = PdfTextExtractor()
 
     def test__get_text_returns_something(self):
-        actual = self.e.extract_text(self.test_fileobject)
+        actual = self.e._extract_text(self.test_fileobject)
         self.assertIsNotNone(actual)
 
     def test__get_text_returns_expected_type(self):
-        actual = self.e.extract_text(self.test_fileobject)
+        actual = self.e._extract_text(self.test_fileobject)
         self.assertIsInstance(actual, str)
 
     def test_method_extract_returns_something(self):
-        self.assertIsNotNone(self.e.extract(self.test_fileobject))
-
-    def test_method_extract_returns_expected_type(self):
-        actual = self.e.extract(self.test_fileobject)
-        self.assertIsInstance(actual, dict)
+        self.assertIsNotNone(self.e.extract_text(self.test_fileobject))
 
 
 class TestPdfTextExtractorCanHandle(TestCase):

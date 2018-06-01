@@ -33,6 +33,7 @@ from core import extraction
 from core import FileObject
 from core import logs
 from core import view
+from extractors import text_provider
 from util import disk
 from util import encoding as enc
 
@@ -86,30 +87,19 @@ def _decode_any_bytestring(value):
 
 
 def do_extract_text(fileobject):
-    all_text_extraction_results = list()
+    any_text_extraction_results = list()
 
-    def _collect_results_callback(fileobject_, meowuri, data):
-        log.debug('_collect_results_callback(%s, %s, %s)', fileobject_, meowuri, data)
-
-        assert isinstance(data, dict)
-        _value = data.get('value')
-        assert isinstance(_value, str)
-        _extractor = data.get('source', '(unknown extractor)')
-
-        all_text_extraction_results.append(TextExtractionResult(
-            fulltext=_value, provider=_extractor
-        ))
-
-    runner = extraction.ExtractorRunner(
-        add_results_callback=_collect_results_callback
-    )
     try:
-        runner.start(fileobject,
-                     request_extractors=extractors.registry.text_providers)
+        text = text_provider.get_plain_text(fileobject)
+        if text:
+            assert isinstance(text, str)
+            any_text_extraction_results.append(
+                TextExtractionResult(fulltext=text, provider='(unknown extractor)')
+            )
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
-    else:
-        return all_text_extraction_results
+
+    return any_text_extraction_results
 
 
 def do_extract_metadata(fileobject):

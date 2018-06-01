@@ -35,9 +35,10 @@ except ImportError:
 
 import util
 from extractors import ExtractorError
-from extractors.text.common import AbstractTextExtractor
-from extractors.text.common import decode_raw
+from extractors.text.base import BaseTextExtractor
+from extractors.text.base import decode_raw
 from util import encoding as enc
+from util import mimemagic
 
 
 TESSERACT_COMMAND = 'tesseract'
@@ -47,17 +48,13 @@ TESSERACT_ARGS = None
 # TODO: [TD0194] Handle (seemingly empty) pdfs without "overlay" text
 
 
-class TesseractOCRTextExtractor(AbstractTextExtractor):
-    # NOTE(jonas): Can't do 'image/*' because it includes 'image/vnd.djvu' ..
-    HANDLES_MIME_TYPES = ['image/bmp', 'image/gif', 'image/jpeg', 'image/png']
-    IS_SLOW = True
-
+class TesseractOCRTextExtractor(BaseTextExtractor):
     def __init__(self):
         super().__init__()
 
         self.init_cache()
 
-    def extract_text(self, fileobject):
+    def _extract_text(self, fileobject):
         # NOTE: Tesseract behaviour will likely need tweaking depending
         #       on the image contents. Will need to pass "tesseract_args"
         #       somehow. I'm starting to think image OCR does not belong
@@ -71,6 +68,12 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
     def dependencies_satisfied(cls):
         # Requires tesseract and PIL.Image.
         return util.is_executable(TESSERACT_COMMAND) and Image is not None
+
+    @classmethod
+    def can_handle(cls, fileobject):
+        # NOTE(jonas): Can't do 'image/*' because it includes 'image/vnd.djvu'.
+        ok_mime_types = ['image/bmp', 'image/gif', 'image/jpeg', 'image/png']
+        return mimemagic.eval_glob(fileobject.mime_type, ok_mime_types)
 
 
 def pil_read_image(filepath):

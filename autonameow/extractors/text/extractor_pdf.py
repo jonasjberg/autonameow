@@ -23,27 +23,29 @@ import subprocess
 
 import util
 from extractors import ExtractorError
-from extractors.text.common import AbstractTextExtractor
-from extractors.text.common import decode_raw
+from extractors.text.base import BaseTextExtractor
+from extractors.text.base import decode_raw
 
 
 # TODO: [TD0194] Handle (seemingly empty) pdfs without "overlay" text
 
 
-class PdfTextExtractor(AbstractTextExtractor):
-    HANDLES_MIME_TYPES = ['application/pdf']
-    IS_SLOW = False
-
+class PdfTextExtractor(BaseTextExtractor):
     def __init__(self):
         super().__init__()
+
         self.init_cache()
 
-    def extract_text(self, fileobject):
+    def _extract_text(self, fileobject):
         return extract_pdf_content_with_pdftotext(fileobject.abspath)
 
     @classmethod
     def dependencies_satisfied(cls):
         return util.is_executable('pdftotext')
+
+    @classmethod
+    def can_handle(cls, fileobject):
+        return fileobject.mime_type == 'application/pdf'
 
 
 def extract_pdf_content_with_pdftotext(filepath):

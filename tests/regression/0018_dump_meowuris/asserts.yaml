@@ -9,6 +9,7 @@ stdout:
     - 'extractor.filesystem.xplat'
     - 'extractor.metadata.exiftool'
     - 'extractor.metadata.jpeginfo'
+    does_not_match:
     - 'extractor.text.epub'
     - 'extractor.text.markdown'
     - 'extractor.text.pdf'

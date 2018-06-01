@@ -514,7 +514,7 @@ class TestIsValidSourceSpecification(TestCase):
     def test_returns_true_given_valid_source(self):
         for given_str in [
             # Generic sources
-            uuconst.MEOWURI_GEN_CONTENTS_TEXT,
+            uuconst.MEOWURI_GEN_METADATA_TITLE,
             uuconst.MEOWURI_GEN_METADATA_AUTHOR,
 
             # Extractor sources

@@ -28,22 +28,32 @@ except ImportError:
 
 from core import constants as C
 from extractors import ExtractorError
-from extractors.text.common import AbstractTextExtractor
+from extractors.text.base import BaseTextExtractor
 from util import sanity
 
 
 log = logging.getLogger(__name__)
 
 
-class PlainTextExtractor(AbstractTextExtractor):
-    HANDLES_MIME_TYPES = ['text/plain']
-    IS_SLOW = False
-
-    def extract_text(self, fileobject):
+class PlainTextExtractor(BaseTextExtractor):
+    def _extract_text(self, fileobject):
         return read_entire_text_file(fileobject.abspath)
 
     @classmethod
     def dependencies_satisfied(cls):
+        return True
+
+    @classmethod
+    def can_handle(cls, fileobject):
+        if fileobject.mime_type != 'text/plain':
+            return False
+
+        if fileobject.basename_suffix in C.MARKDOWN_BASENAME_SUFFIXES:
+            # Prefer the 'MarkdownTextExtractor' to handle this file.
+            from extractors.text.extractor_markdown import MarkdownTextExtractor
+            if MarkdownTextExtractor.can_handle(fileobject):
+                return False
+
         return True
 
 

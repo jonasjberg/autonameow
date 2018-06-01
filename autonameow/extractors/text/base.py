@@ -20,11 +20,9 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import os
 
 from core import constants as C
 from core import persistence
-from extractors import BaseExtractor
 from util import coercers
 from util import encoding as enc
 from util import sanity
@@ -39,66 +37,24 @@ from util.text import strip_single_space_lines
 log = logging.getLogger(__name__)
 
 
-class AbstractTextExtractor(BaseExtractor):
+class BaseTextExtractor(object):
     def __init__(self):
         """
         # NOTE: Call 'self.init_cache()' in subclasses init to enable caching.
         """
-        super().__init__()
-
+        self.log = logging.getLogger(
+            '{!s}.{!s}'.format(__name__, self.__module__)
+        )
         self.cache = None
 
-    def extract(self, fileobject, **kwargs):
-        text = self._get_text(fileobject)
+    def extract_text(self, fileobject):
+        text = self._check_cache_and_do_extraction(fileobject)
         sanity.check_internal_string(text)
 
-        # TODO: [TD0172] Extend the text extractors with additional fields.
         # TODO: [TD0173] Use 'pandoc' to extract information from documents.
-        return {
-            'full': text,
-            # 'title': title
-        }
+        return text
 
-    def _get_text(self, fileobject):
-        cached_text = self._get_cached_text(fileobject)
-        if cached_text:
-            return cached_text
-
-        text = self.extract_text(fileobject)
-        if not text:
-            return ''
-
-        clean_text = self.cleanup(text)
-        self._set_cached_text(fileobject, clean_text)
-        return clean_text
-
-    def _get_cached_text(self, fileobject):
-        if not self.cache:
-            return None
-        try:
-            cached_text = self.cache.get(fileobject)
-        except persistence.PersistenceError as e:
-            self.log.critical('Unable to read {!s} cache :: {!s}'.format(self, e))
-        else:
-            if cached_text:
-                self.log.info('Using cached text for: {!r}'.format(fileobject))
-                return cached_text
-        return None
-
-    def _set_cached_text(self, fileobject, text):
-        if not self.cache:
-            return
-        try:
-            self.cache.set(fileobject, text)
-        except persistence.PersistenceError as e:
-            self.log.critical('Unable to write {!s} cache :: {!s}'.format(self, e))
-
-    @classmethod
-    def python_source_filepath(cls):
-        # NOTE(jonas): Subclasses of this class use a shared field meta yaml.
-        return os.path.realpath(__file__)
-
-    def extract_text(self, fileobject):
+    def _extract_text(self, fileobject):
         """
         Extracts any unstructured textual contents from the given file.
 
@@ -121,7 +77,27 @@ class AbstractTextExtractor(BaseExtractor):
     def dependencies_satisfied(cls):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
+    @classmethod
+    def can_handle(cls, fileobject):
+        """
+        Tests if a specific extractor class can handle a given file object.
+
+        Inheriting extractor classes must override this method in order to
+        determine if they can handle a given file object.
+
+        Args:
+            fileobject: The file to test as an instance of 'FileObject'.
+
+        Returns:
+            True if the extractor class can extract data from the given file,
+            else False.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
     def init_cache(self):
+        """
+        Called by subclasses to enable caching.
+        """
         _cache = persistence.get_cache(
             str(self),
             max_filesize=C.TEXT_EXTRACTOR_CACHE_MAX_FILESIZE
@@ -132,19 +108,50 @@ class AbstractTextExtractor(BaseExtractor):
             log.debug('Failed to initialize {!s} cache'.format(self))
             self.cache = None
 
-    def cleanup(self, raw_text):
-        if not raw_text:
+    def _check_cache_and_do_extraction(self, fileobject):
+        if self.cache:
+            cached_text = self._get_cached_text(fileobject)
+            if cached_text:
+                return cached_text
+
+        text = self._extract_text(fileobject)
+        if not text:
             return ''
 
-        sanity.check_internal_string(raw_text)
-        text = raw_text
-        text = normalize_unicode(text)
-        text = normalize_whitespace(text)
-        text = strip_single_space_lines(text)
-        text = remove_nonbreaking_spaces(text)
-        text = remove_zerowidth_spaces(text)
-        text = remove_ascii_control_characters(text)
-        return text if text else ''
+        clean_text = cleanup(text)
+
+        if self.cache:
+            self._set_cached_text(fileobject, clean_text)
+
+        return clean_text
+
+    def _get_cached_text(self, fileobject):
+        try:
+            cached_text = self.cache.get(fileobject)
+        except persistence.PersistenceError as e:
+            self.log.critical('Unable to read {!s} cache :: {!s}'.format(self, e))
+        else:
+            if cached_text:
+                self.log.info('Using cached text for: {!r}'.format(fileobject))
+                return cached_text
+        return None
+
+    def _set_cached_text(self, fileobject, text):
+        try:
+            self.cache.set(fileobject, text)
+        except persistence.PersistenceError as e:
+            self.log.critical('Unable to write {!s} cache :: {!s}'.format(self, e))
+
+    @classmethod
+    def name(cls):
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        return cls.__name__
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def __repr__(self):
+        return '<{}>'.format(self.__class__.__name__)
 
 
 def decode_raw(raw_text):
@@ -159,3 +166,19 @@ def decode_raw(raw_text):
             log.warning('Unable to decode raw text by encoding auto-detection')
             return ''
     return text
+
+
+def cleanup(raw_text):
+    if not raw_text:
+        return ''
+
+    sanity.check_internal_string(raw_text)
+    text = raw_text
+    text = normalize_unicode(text)
+    text = normalize_whitespace(text)
+    text = strip_single_space_lines(text)
+    text = remove_nonbreaking_spaces(text)
+    text = remove_zerowidth_spaces(text)
+    text = remove_ascii_control_characters(text)
+    return text if text else ''
+

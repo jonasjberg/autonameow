@@ -208,11 +208,11 @@ class TestMeowURIEquality(TestCase):
 
     def test_compare_with_string(self):
         self.assertEqual(self.m, uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        self.assertNotEqual(self.m, uuconst.MEOWURI_GEN_CONTENTS_TEXT)
+        self.assertNotEqual(self.m, uuconst.MEOWURI_GEN_METADATA_AUTHOR)
         self.assertNotEqual(self.m, uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
 
         self.assertEqual(self.a, uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
-        self.assertNotEqual(self.a, uuconst.MEOWURI_GEN_CONTENTS_TEXT)
+        self.assertNotEqual(self.a, uuconst.MEOWURI_GEN_METADATA_AUTHOR)
         self.assertNotEqual(self.a, uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
 
     def test_compare_with_other_class_instances(self):
@@ -765,7 +765,6 @@ class TestMeowURIIsGeneric(TestCase):
             self.assertTrue(actual)
 
         _assert_meowuri_true(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        _assert_meowuri_true(uuconst.MEOWURI_GEN_CONTENTS_TEXT)
         _assert_meowuri_true(uuconst.MEOWURI_GEN_METADATA_AUTHOR)
         _assert_meowuri_true(uuconst.MEOWURI_GEN_METADATA_CREATOR)
         _assert_meowuri_true(uuconst.MEOWURI_GEN_METADATA_PRODUCER)
@@ -832,8 +831,8 @@ class TestDifferentCombinationsOfStringAndMeowURIArgs(TestCase):
 
     def test_one_string_argument_with_one_part_and_one_meowuri_instance(self):
         self._assert_meowuri_str(
-            'extractor.text.plain.full',
-            uu.as_meowuri('extractor.text.plain'), 'full'
+            'extractor.metadata.exiftool.author',
+            uu.as_meowuri('extractor.metadata.exiftool'), 'author'
         )
         self._assert_meowuri_str(
             'extractor.filesystem.xplat.date_created',
@@ -865,14 +864,14 @@ class TestDifferentNumberOfStringArgs(TestCase):
     def test_valid_meowuri_a(self):
         def _check(*args):
             actual = MeowURI(*args)
-            self.assertEqual(str(actual), 'generic.contents.text')
+            self.assertEqual('generic.metadata.author', str(actual))
             actual_two = MeowURI(args)
-            self.assertEqual(str(actual_two), 'generic.contents.text')
+            self.assertEqual(str(actual_two), 'generic.metadata.author')
 
-        _check('generic.contents.text')
-        _check('generic.contents', 'text')
-        _check('generic', 'contents.text')
-        _check('generic', 'contents', 'text')
+        _check('generic.metadata.author')
+        _check('generic.metadata', 'author')
+        _check('generic', 'metadata.author')
+        _check('generic', 'metadata', 'author')
 
     def test_valid_meowuri_b(self):
         def _check(*args):
@@ -1028,10 +1027,10 @@ class TestForceMeowURI(TestCase):
         self._assert_valid(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
     def test_returns_meowuri_given_valid_string_and_meowuri(self):
-        self._assert_valid(uu.as_meowuri('extractor.text.plain'), 'full')
+        self._assert_valid(uu.as_meowuri('extractor.metadata.exiftool'), 'author')
 
     def test_returns_meowuri_given_meowuri(self):
-        self._assert_valid(uu.as_meowuri('extractor.text.plain.full'))
+        self._assert_valid(uu.as_meowuri('extractor.metadata.exiftool.author'))
 
     def test_returns_none_given_none(self):
         self._assert_invalid(None)

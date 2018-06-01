@@ -22,10 +22,10 @@
 from unittest import skipIf, TestCase
 
 import unit.utils as uu
-from extractors.text import MarkdownTextExtractor
-from unit.case_extractors import CaseExtractorBasics
-from unit.case_extractors import CaseExtractorOutput
-from unit.case_extractors import CaseExtractorOutputTypes
+from extractors.text.extractor_markdown import MarkdownTextExtractor
+from unit.case_extractors_text import CaseTextExtractorBasics
+from unit.case_extractors_text import CaseTextExtractorOutput
+from unit.case_extractors_text import CaseTextExtractorOutputTypes
 
 
 UNMET_DEPENDENCIES = (
@@ -41,54 +41,45 @@ class TestPrerequisites(TestCase):
     def test_test_file_exists_a(self):
         self.assertTrue(uu.file_exists(TESTFILE_A))
 
-    def test_expected_test_is_loaded(self):
+    def test_expected_text_is_loaded(self):
         self.assertIsNotNone(TESTFILE_A_EXPECTED)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestMarkdownTextExtractor(CaseExtractorBasics, TestCase):
+class TestMarkdownTextExtractor(CaseTextExtractorBasics, TestCase):
     EXTRACTOR_CLASS = MarkdownTextExtractor
     EXTRACTOR_NAME = 'MarkdownTextExtractor'
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestMarkdownTextExtractorOutputTypes(CaseExtractorOutputTypes,
+class TestMarkdownTextExtractorOutputTypes(CaseTextExtractorOutputTypes,
                                            TestCase):
     EXTRACTOR_CLASS = MarkdownTextExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestMarkdownTextExtractorOutputTestFileA(CaseExtractorOutput,
+class TestMarkdownTextExtractorOutputTestFileA(CaseTextExtractorOutput,
                                                TestCase):
     EXTRACTOR_CLASS = MarkdownTextExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile(TESTFILE_A)
-    EXPECTED_FIELD_TYPE_VALUE = [
-        ('full', str, TESTFILE_A_EXPECTED),
-    ]
+    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    EXPECTED_TEXT = TESTFILE_A_EXPECTED
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestMarkdownTextExtractorInternals(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.test_fileobject = uu.fileobject_testfile('sample.md')
+        self.test_fileobject = uu.as_fileobject(TESTFILE_A)
         self.e = MarkdownTextExtractor()
 
     def test__get_text_returns_something(self):
-        actual = self.e.extract_text(self.test_fileobject)
+        actual = self.e._extract_text(self.test_fileobject)
         self.assertIsNotNone(actual)
 
     def test__get_text_returns_expected_type(self):
-        actual = self.e.extract_text(self.test_fileobject)
+        actual = self.e._extract_text(self.test_fileobject)
         self.assertIsInstance(actual, str)
-
-    def test_method_extract_returns_something(self):
-        self.assertIsNotNone(self.e.extract(self.test_fileobject))
-
-    def test_method_extract_returns_expected_type(self):
-        actual = self.e.extract(self.test_fileobject)
-        self.assertIsInstance(actual, dict)
 
 
 class TestMarkdownTextExtractorCanHandle(TestCase):
@@ -99,7 +90,7 @@ class TestMarkdownTextExtractorCanHandle(TestCase):
         self.fo_pdf = uu.get_mock_fileobject(mime_type='application/pdf')
         self.fo_rtf = uu.get_mock_fileobject(mime_type='text/rtf')
         self.fo_txt = uu.get_mock_fileobject(mime_type='text/plain')
-        self.fo_md = uu.fileobject_testfile('sample.md')
+        self.fo_md = uu.as_fileobject(TESTFILE_A)
 
     def test_class_method_can_handle_returns_expected(self):
         self.assertFalse(self.e.can_handle(self.fo_image))

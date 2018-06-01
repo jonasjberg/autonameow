@@ -19,12 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from .epub import EpubTextExtractor
-from .tesseractocr import TesseractOCRTextExtractor
-from .pdf import PdfTextExtractor
-from .plain import PlainTextExtractor
-from .rtf import RichTextFormatTextExtractor
-from .markdown import MarkdownTextExtractor
-
-# TODO: [TD0027] Add text extractor for Word Documents.
-# TODO: [TD0064] Add text extractor for DjVu E-books ('djvutxt'?)
+# Imported to be picked up by 'text_provider._find_text_extractor_classes()'.
+from .extractor_epub import EpubTextExtractor
+from .extractor_markdown import MarkdownTextExtractor
+from .extractor_pdf import PdfTextExtractor
+from .extractor_plain import PlainTextExtractor
+from .extractor_rtf import RichTextFormatTextExtractor
+from .extractor_ocr import TesseractOCRTextExtractor

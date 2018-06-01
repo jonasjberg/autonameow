@@ -81,7 +81,6 @@ MEOWURI_FS_XPLAT_PATHNAME_FULL = 'extractor.filesystem.xplat.pathname_full'
 MEOWURI_FS_XPLAT_PATHNAME_PARENT = 'extractor.filesystem.xplat.pathname_parent'
 
 MEOWURI_GEN_CONTENTS_MIMETYPE = 'generic.contents.mime_type'
-MEOWURI_GEN_CONTENTS_TEXT = 'generic.contents.text'
 MEOWURI_GEN_METADATA_AUTHOR = 'generic.metadata.author'
 MEOWURI_GEN_METADATA_CREATOR = 'generic.metadata.creator'
 MEOWURI_GEN_METADATA_PRODUCER = 'generic.metadata.producer'
@@ -129,7 +128,6 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_FS_XPLAT_PATHNAME_FULL,
     MEOWURI_FS_XPLAT_PATHNAME_PARENT,
     MEOWURI_GEN_CONTENTS_MIMETYPE,
-    MEOWURI_GEN_CONTENTS_TEXT,
     MEOWURI_GEN_METADATA_AUTHOR,
     MEOWURI_GEN_METADATA_CREATOR,
     MEOWURI_GEN_METADATA_PRODUCER,
@@ -206,10 +204,7 @@ DUMPED_MEOWURIS = frozenset([
     'extractor.metadata.exiftool.PDF:PageCount',
     'extractor.metadata.exiftool.PDF:Producer',
     'extractor.metadata.exiftool.SourceFile',
-    'extractor.text.epub.full',
-    'extractor.text.pdf.full',
     'generic.contents.mime_type',
-    'generic.contents.text',
     'generic.metadata.author',
     'generic.metadata.creator',
     'generic.metadata.date_created',
@@ -233,9 +228,6 @@ DUMMY_MAPPED_MEOWURIS = list({
     'extractor.filesystem.guessit',
     'extractor.metadata.exiftool',
     'extractor.metadata.jpeginfo',
-    'extractor.text.pdf',
-    'extractor.text.plain',
-    'extractor.text.tesseractocr',
 })
 
 

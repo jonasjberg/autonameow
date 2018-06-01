@@ -24,21 +24,21 @@ from unittest.mock import Mock, PropertyMock, patch
 
 import unit.utils as uu
 from core import constants as C
-from extractors.common import BaseExtractor
+from extractors.common import BaseMetadataExtractor
 from extractors.common import _fieldmeta_filepath_from_extractor_source_filepath
 
 
-class TestBaseExtractor(TestCase):
+class TestBaseMetadataExtractor(TestCase):
     def setUp(self):
         self.test_file = uu.make_temporary_file()
-        self.e = BaseExtractor()
+        self.e = BaseMetadataExtractor()
 
         self.fo = uu.fileobject_testfile('magic_jpg.jpg')
 
-    def test_base_extractor_class_is_available(self):
-        self.assertIsNotNone(BaseExtractor)
+    def test_base_metadata_extractor_class_is_available(self):
+        self.assertIsNotNone(BaseMetadataExtractor)
 
-    def test_base_extractor_class_can_be_instantiated(self):
+    def test_instantiated_base_class_is_not_none(self):
         self.assertIsNotNone(self.e)
 
     def test_calling_extract_raises_not_implemented_error(self):
@@ -49,7 +49,7 @@ class TestBaseExtractor(TestCase):
         actual = self.e.metainfo()
         self.assertIsInstance(actual, dict)
 
-    def test_abstract_class_does_not_specify_metainfo(self):
+    def test_base_class_does_not_specify_metainfo(self):
         actual = self.e.metainfo()
         self.assertEqual(len(actual), 0)
 
@@ -73,33 +73,33 @@ class TestBaseExtractor(TestCase):
         self.assertTrue(uu.is_internalstring(str(self.e.__str__)))
 
     def test_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'BaseExtractor')
+        self.assertEqual('BaseMetadataExtractor', str(self.e))
 
-    def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
+    def test_base_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.HANDLES_MIME_TYPES)
 
-    def test_abstract_class_does_not_specify_meowuri_node(self):
-        self.assertEqual(self.e.MEOWURI_CHILD, C.MEOWURI_UNDEFINED_PART)
+    def test_base_class_does_not_specify_meowuri_node(self):
+        self.assertEqual(C.MEOWURI_UNDEFINED_PART, self.e.MEOWURI_CHILD)
 
-    def test_abstract_class_does_not_specify_meowuri_leaf(self):
-        self.assertEqual(self.e.MEOWURI_LEAF, C.MEOWURI_UNDEFINED_PART)
+    def test_base_class_does_not_specify_meowuri_leaf(self):
+        self.assertEqual(C.MEOWURI_UNDEFINED_PART, self.e.MEOWURI_LEAF)
 
     def test__meowuri_node_from_module_name(self):
         actual = self.e._meowuri_node_from_module_name()
-        self.assertEqual(actual, C.MEOWURI_ROOT_SOURCE_EXTRACTORS)
+        self.assertEqual(C.MEOWURI_ROOT_SOURCE_EXTRACTORS, actual)
 
     def test__meowuri_leaf_from_module_name(self):
         actual = self.e._meowuri_leaf_from_module_name()
         expect = 'common'
-        self.assertEqual(actual, expect)
+        self.assertEqual(expect, actual)
 
 
-class TestBaseExtractorClassMethods(TestCase):
+class TestBaseMetadataExtractorClassMethods(TestCase):
     def setUp(self):
         self.mock_fileobject = Mock()
         self.mock_fileobject.mime_type = 'image/jpeg'
 
-        self.e = BaseExtractor
+        self.e = BaseMetadataExtractor
 
     def test_unimplemented_dependencies_satisfied(self):
         with self.assertRaises(NotImplementedError):
@@ -109,17 +109,17 @@ class TestBaseExtractorClassMethods(TestCase):
         with self.assertRaises(NotImplementedError):
             _ = self.e.can_handle(self.mock_fileobject)
 
-    @patch('extractors.BaseExtractor.HANDLES_MIME_TYPES',
+    @patch('extractors.BaseMetadataExtractor.HANDLES_MIME_TYPES',
            new_callable=PropertyMock, return_value=['text/plain'])
     def test_can_handle_returns_false(self, mock_attribute):
-        e = BaseExtractor()
+        e = BaseMetadataExtractor()
         actual = e.can_handle(self.mock_fileobject)
         self.assertFalse(actual)
 
-    @patch('extractors.BaseExtractor.HANDLES_MIME_TYPES',
+    @patch('extractors.BaseMetadataExtractor.HANDLES_MIME_TYPES',
            new_callable=PropertyMock, return_value=['image/jpeg'])
     def test_can_handle_returns_true(self, mock_attribute):
-        e = BaseExtractor()
+        e = BaseMetadataExtractor()
         actual = e.can_handle(self.mock_fileobject)
         self.assertTrue(actual)
 

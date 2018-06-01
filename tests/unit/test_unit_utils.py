@@ -80,6 +80,28 @@ class TestUnitUtilityAbsPathTestConfig(TestCase):
         self.assertTrue(os.path.isfile(self.actual_default))
 
 
+class TestUnitUtilityAsFileObject(TestCase):
+    def test_returns_fileobject_given_unicode_string_path(self):
+        filepath = uu.abspath_testfile('empty')
+        self.assertIsInstance(filepath, str)
+        self.assertTrue(os.path.exists(filepath))
+
+        actual = uu.as_fileobject(filepath)
+        self.assertIsInstance(actual, FileObject)
+        self.assertTrue(os.path.isabs(actual.abspath))
+
+    def test_returns_fileobject_given_bytes_path(self):
+        filepath = uu.abspath_testfile('empty')
+
+        bytes_filepath = uu.bytestring_path(filepath)
+        self.assertIsInstance(bytes_filepath, bytes)
+        self.assertTrue(os.path.exists(bytes_filepath))
+
+        actual = uu.as_fileobject(bytes_filepath)
+        self.assertIsInstance(actual, FileObject)
+        self.assertTrue(os.path.isabs(actual.abspath))
+
+
 class TestUnitUtilityFileObjectTestFile(TestCase):
     def test_returns_expected_type(self):
         actual = uu.fileobject_testfile('empty')

@@ -19,11 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from extractors import BaseExtractor
+from extractors import BaseMetadataExtractor
 from extractors import ExtractorError
 
 
-class GuessitExtractor(BaseExtractor):
+class GuessitExtractor(BaseMetadataExtractor):
     HANDLES_MIME_TYPES = ['video/*']
 
     def __init__(self):

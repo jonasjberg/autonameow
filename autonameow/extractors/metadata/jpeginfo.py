@@ -23,12 +23,12 @@ import re
 import subprocess
 
 import util
-from extractors import BaseExtractor
+from extractors import BaseMetadataExtractor
 from extractors import ExtractorError
 from util import coercers
 
 
-class JpeginfoMetadataExtractor(BaseExtractor):
+class JpeginfoMetadataExtractor(BaseMetadataExtractor):
     """
     Extracts jpeg/jfif image metadata using "jpeginfo".
     """

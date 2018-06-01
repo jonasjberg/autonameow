@@ -22,7 +22,7 @@
 import re
 from collections import namedtuple
 
-from extractors import BaseExtractor
+from extractors import BaseMetadataExtractor
 from util import disk
 from util import encoding as enc
 from util import sanity
@@ -43,7 +43,7 @@ FiletagsParts = namedtuple('FiletagsParts',
                            'datetime description tags extension')
 
 
-class FiletagsExtractor(BaseExtractor):
+class FiletagsExtractor(BaseMetadataExtractor):
     HANDLES_MIME_TYPES = ['*/*']
     IS_SLOW = False
 

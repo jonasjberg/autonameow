@@ -20,7 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import util
-from extractors import BaseExtractor
+from extractors import BaseMetadataExtractor
 from extractors import ExtractorError
 from thirdparty import pyexiftool
 
@@ -118,7 +118,7 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
 ])
 
 
-class ExiftoolMetadataExtractor(BaseExtractor):
+class ExiftoolMetadataExtractor(BaseMetadataExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """

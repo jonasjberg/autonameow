@@ -89,7 +89,6 @@ assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/guessi
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/exiftool_fieldmeta.yaml" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/jpeginfo_fieldmeta.yaml" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/pandoc_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/common_fieldmeta.yaml" e f r
 
 
 # ______________________________________________________________________________

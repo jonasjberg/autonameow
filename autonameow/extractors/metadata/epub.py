@@ -24,13 +24,13 @@ try:
 except ImportError:
     ebooklib = None
 
-from extractors import BaseExtractor
+from extractors import BaseMetadataExtractor
 from extractors import ExtractorError
 from util import encoding as enc
 from util import sanity
 
 
-class EpubMetadataExtractor(BaseExtractor):
+class EpubMetadataExtractor(BaseMetadataExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
     IS_SLOW = False
 
