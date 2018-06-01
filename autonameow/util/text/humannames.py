@@ -465,18 +465,11 @@ def split_multiple_names(list_of_names):
                 # At least of the names is something like 'X.'
                 # Assume the list of names should actually be put back together
                 # rather than split.. Join parts in groups of two.
-                # TODO: [hack] This is just terrible and shameful ..
-                joined_names = list()
-                grouped_parts = list()
-                for part in flat_list_of_names:
-                    grouped_parts.append(part)
-                    if len(grouped_parts) == 2:
-                        joined_names.append(' '.join(grouped_parts))
-                        grouped_parts = list()
-
-                if grouped_parts:
-                    joined_names.append(' '.join(grouped_parts))
-
+                groups_of_two = (
+                    flat_list_of_names[i:i+2]
+                    for i in range(0, len(flat_list_of_names), 2)
+                )
+                joined_names = [' '.join(part) for part in groups_of_two]
                 return joined_names
 
     return result
