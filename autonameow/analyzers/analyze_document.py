@@ -135,8 +135,13 @@ class DocumentAnalyzer(BaseAnalyzer):
             t for t, _ in find_titles_in_text(leading_text, num_lines_to_search=1)
         ]
         if text_titles:
-            # TODO: Pass multiple possible titles with probabilities.
-            #       (title is not "multivalued")
+            # TODO: [TD0190] Bundle single fields like this into "records".
+            # When attempting to find a "more likely" field value among
+            # multiple possible candidate values, operate on the records. This
+            # should help with comparing the candidate values against values
+            # from other sources and also with other methods that look at
+            # relationships between fields within a single record and also
+            # betweeen multiple records.
             maybe_text_title = text_titles[0]
             clean_title = cleanup_full_title(maybe_text_title)
             if clean_title:
