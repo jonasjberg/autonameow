@@ -98,16 +98,11 @@ def main_separator(s):
     if len(counted_separators) > 1:
         most_common_separator_chars = _get_top_tied_counts(counted_separators)
         if len(most_common_separator_chars) > 1:
-           preferred_separator = _resolve_tied_count(most_common_separator_chars)
-           if preferred_separator:
-               return preferred_separator
+            preferred_separator = _resolve_tied_count(most_common_separator_chars)
+            if preferred_separator:
+                return preferred_separator
 
-    try:
-        return counted_separators[0].value
-    except IndexError:
-        return ''
-
-    return None
+    return counted_separators[0].value
 
 
 def _get_top_tied_counts(counted_separators):
