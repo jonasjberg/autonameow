@@ -1254,7 +1254,7 @@ XMP:CreatorFile-as:
     -   WeightedMapping:
             field: Publisher
             weight: 0.03
-    multivalued: true
+    multivalued: true   # TODO: This should be a single primary author!
 
 XMP:CreatorTool:
     coercer: aw_string
