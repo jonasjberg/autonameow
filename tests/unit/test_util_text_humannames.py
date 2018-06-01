@@ -209,6 +209,9 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
        expect=['Bronsh I.N.', 'Musiol G.', 'Mühlig S.', 'Semandyayev K.']),
     TD(given=['I. Bronsh', 'K. Semandyayev', 'Gert Musiol', 'Steiner Mühlig'],
        expect=['Bronsh I.', 'Musiol G.', 'Mühlig S.', 'Semandyayev K.']),
+
+    TD(given=['Johnson, Dean R.', 'Paymer, Carol A.', 'Chamberlain, Aaron P.'],
+       expect=['Chamberlain A.P.', 'Johnson D.R.', 'Paymer C.A.']),
 ]
 
 
@@ -879,6 +882,12 @@ class TestFilterMultipleNames(TestCase):
         self._assert_filter_returns(
             expected=['Ricard Dahl', 'William Z. Longdon', 'Nichlas H. Bee', 'Carl K. Soze'],
             given=['Ricard Dahl', 'William Z. Longdon', 'Nichlas H. Bee', 'With Contributions By Carl K. Soze']
+        )
+
+    def test_based_on_live_data_i(self):
+        self._assert_filter_returns(
+            expected=['Johnson, Dean R.', 'Paymer, Carol A.', 'Chamberlain, Aaron P.'],
+            given=['Johnson, Dean R.', 'Paymer, Carol A.', 'Chamberlain, Aaron P.']
         )
 
 
