@@ -46,24 +46,24 @@ def could_get_plain_text_from(fileobject):
 def get_plain_text(fileobject):
     result = None
 
-    suitable_providers = could_get_plain_text_from(fileobject)
-    for provider in suitable_providers:
-        provider_instance = provider()
+    suitable_extractors = could_get_plain_text_from(fileobject)
+    for extractor in suitable_extractors:
+        extractor_instance = extractor()
 
-        with logs.log_runtime(log, str(provider)):
+        with logs.log_runtime(log, str(extractor)):
             try:
-                result = provider_instance.extract_text(fileobject)
+                result = extractor_instance.extract_text(fileobject)
             except (ExtractorError, NotImplementedError) as e:
                 log.error('Text extraction failed! Aborting extractor "{!s}":'
-                          ' {!s}'.format(provider_instance, e))
+                          ' {!s}'.format(extractor_instance, e))
                 continue
 
+        # TODO: Make sure that the text is not empty or only whitespace.
         if result:
-            # TODO: Make sure that the text is not empty or only whitespace.
-            log.debug('Using result provided by "{!s}"'.format(provider_instance))
+            log.debug('Using text returned by {!s}'.format(extractor_instance))
             break
         else:
-            log.debug('Did not get anything from "{!s}"'.format(provider_instance))
+            log.debug('Got empty result from {!s}'.format(extractor_instance))
             continue
 
     return result
