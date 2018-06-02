@@ -40,6 +40,9 @@ class CaseTextExtractorOutputTypes(object):
         assert cls.SOURCE_FILEOBJECT is not None
 
         cls.extractor = cls.EXTRACTOR_CLASS()
+        # Disable the cache
+        cls.extractor.cache = None
+
         cls.actual_extracted = cls.extractor.extract_text(cls.SOURCE_FILEOBJECT)
 
     @classmethod
@@ -187,6 +190,9 @@ class CaseTextExtractorOutput(object):
         assert cls.EXPECTED_TEXT is not None
 
         cls.extractor = cls.EXTRACTOR_CLASS()
+        # Disable the cache
+        cls.extractor.cache = None
+
         cls.actual_text = cls.extractor.extract_text(cls.SOURCE_FILEOBJECT)
 
     @classmethod

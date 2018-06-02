@@ -162,7 +162,10 @@ class TestExtractPdfContentWithPdftotext(TestCase):
 class TestPdfTextExtractorInternals(TestCase):
     def setUp(self):
         self.test_fileobject = uu.fileobject_testfile('gmail.pdf')
+
         self.e = PdfTextExtractor()
+        # Disable the cache
+        self.e.cache = None
 
     def test__get_text_returns_something(self):
         actual = self.e._extract_text(self.test_fileobject)

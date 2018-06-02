@@ -90,7 +90,10 @@ class TestRichTextFormatTextExtractorInternals(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.test_fileobject = uu.as_fileobject(TESTFILE_A)
+
         self.e = RichTextFormatTextExtractor()
+        # Disable the cache
+        self.e.cache = None
 
     def test__get_text_returns_something(self):
         actual = self.e._extract_text(self.test_fileobject)
