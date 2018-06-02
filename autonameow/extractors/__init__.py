@@ -43,17 +43,21 @@ EXTRACTOR_CLASS_PACKAGES = (EXTRACTOR_CLASS_PACKAGES_FILESYSTEM
 
 def _find_extractor_classes_in_packages(packages):
     klasses = list()
+
     for package in packages:
         __import__(package)
         namespace = inspect.getmembers(sys.modules[package], inspect.isclass)
+
         for _obj_name, _obj_type in namespace:
             if not issubclass(_obj_type, BaseMetadataExtractor):
                 continue
+
             if _obj_type == BaseMetadataExtractor:
+                # Ignore the base class.
                 continue
-            if _obj_name.startswith('Abstract'):
-                continue
+
             klasses.append(_obj_type)
+
     return klasses
 
 
