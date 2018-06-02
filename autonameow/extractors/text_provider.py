@@ -50,13 +50,13 @@ def get_plain_text(fileobject):
     for provider in suitable_providers:
         provider_instance = provider()
 
-        try:
-            with logs.log_runtime(log, str(provider)):
+        with logs.log_runtime(log, str(provider)):
+            try:
                 result = provider_instance.extract_text(fileobject)
-        except (ExtractorError, NotImplementedError) as e:
-            log.error('Unable to extract data! Aborting extractor "{!s}":'
-                      ' {!s}'.format(provider_instance, e))
-            continue
+            except (ExtractorError, NotImplementedError) as e:
+                log.error('Text extraction failed! Aborting extractor "{!s}":'
+                          ' {!s}'.format(provider_instance, e))
+                continue
 
         if result:
             # TODO: Make sure that the text is not empty or only whitespace.
