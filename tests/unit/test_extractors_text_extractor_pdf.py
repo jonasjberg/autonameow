@@ -85,6 +85,10 @@ class TestPdfTextExtractorOutputTestFileB(CaseTextExtractorOutput, TestCase):
     EXPECTED_TEXT = TESTFILE_B_EXPECTED
 
 
+def _get_current_time():
+    return time.time()
+
+
 @skipIf(*UNMET_DEPENDENCIES)
 class TestCachingRuntime(TestCase):
     """
@@ -105,19 +109,24 @@ class TestCachingRuntime(TestCase):
         e_no_cache = PdfTextExtractor()
         e_no_cache.cache = None
 
-        start_time = time.time()
+        # Measure runtime with caching disabled.
+        start_time = _get_current_time()
         _ = e_no_cache.extract_text(source_a)
         _ = e_no_cache.extract_text(source_b)
-        cls.runtime_cache_disabled = time.time() - start_time
+        cls.runtime_cache_disabled = _get_current_time() - start_time
 
         # Enable caching.
         e_cached = PdfTextExtractor()
         e_cached.init_cache()
-
-        start_time = time.time()
+        # Run once to make sure the cache contains these files during the timed run.
         _ = e_cached.extract_text(source_a)
         _ = e_cached.extract_text(source_b)
-        cls.runtime_cache_enabled = time.time() - start_time
+
+        # Measure runtime with caching enabled.
+        start_time = _get_current_time()
+        _ = e_cached.extract_text(source_a)
+        _ = e_cached.extract_text(source_b)
+        cls.runtime_cache_enabled = _get_current_time() - start_time
 
     def test_sanity_check_runtime_cache_disabled(self):
         self.assertGreater(self.runtime_cache_disabled, 0.0)
