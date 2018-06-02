@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from .exiftool import ExiftoolMetadataExtractor
-from .jpeginfo import JpeginfoMetadataExtractor
-from .epub import EpubMetadataExtractor
-from .pandoc import PandocMetadataExtractor
+from .extractor_epub import EpubMetadataExtractor
+from .extractor_exiftool import ExiftoolMetadataExtractor
+from .extractor_jpeginfo import JpeginfoMetadataExtractor
+from .extractor_pandoc import PandocMetadataExtractor

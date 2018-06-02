@@ -32,7 +32,7 @@ from util import coercers
 from util import disk
 
 _PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
-BASENAME_PANDOC_TEMPLATE = coercers.AW_PATHCOMPONENT('pandoc_template.plain')
+BASENAME_PANDOC_TEMPLATE = coercers.AW_PATHCOMPONENT('extractor_pandoc_template.plain')
 PATH_CUSTOM_PANDOC_TEMPLATE = disk.joinpaths(_PATH_THIS_DIR,
                                              BASENAME_PANDOC_TEMPLATE)
 

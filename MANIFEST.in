@@ -5,9 +5,9 @@ include autonameow/analyzers/probable_extension_lookup
 include autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml
 include autonameow/extractors/filesystem/filetags_fieldmeta.yaml
 include autonameow/extractors/filesystem/guessit_fieldmeta.yaml
-include autonameow/extractors/metadata/exiftool_fieldmeta.yaml
-include autonameow/extractors/metadata/jpeginfo_fieldmeta.yaml
-include autonameow/extractors/metadata/pandoc_fieldmeta.yaml
-include autonameow/extractors/metadata/pandoc_template.plain
+include autonameow/extractors/metadata/extractor_exiftool_fieldmeta.yaml
+include autonameow/extractors/metadata/extractor_jpeginfo_fieldmeta.yaml
+include autonameow/extractors/metadata/extractor_pandoc_fieldmeta.yaml
+include autonameow/extractors/metadata/extractor_pandoc_template.plain
 include autonameow/util/mimemagic.mappings
 include autonameow/util/mimemagic.preferred

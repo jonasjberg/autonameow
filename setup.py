@@ -51,7 +51,7 @@ setup(
     package_data={
         'autonameow': [
             'analyzers/probable_extension_lookup',
-            'extractors/metadata/pandoc_template.plain',
+            'extractors/metadata/extractor_pandoc_template.plain',
             'extractors/filesystem/crossplatform_fieldmeta.yaml',
             'extractors/filesystem/filetags_fieldmeta.yaml',
             'extractors/filesystem/guessit_fieldmeta.yaml',

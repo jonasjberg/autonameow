@@ -23,9 +23,9 @@ from unittest import skip, skipIf, TestCase
 
 import unit.utils as uu
 from extractors.metadata import PandocMetadataExtractor
-from extractors.metadata.pandoc import convert_document_to_json_with_pandoc
-from extractors.metadata.pandoc import extract_document_metadata_with_pandoc
-from extractors.metadata.pandoc import parse_pandoc_json
+from extractors.metadata.extractor_pandoc import convert_document_to_json_with_pandoc
+from extractors.metadata.extractor_pandoc import extract_document_metadata_with_pandoc
+from extractors.metadata.extractor_pandoc import parse_pandoc_json
 from unit.case_extractors import CaseExtractorBasics
 from unit.case_extractors import CaseExtractorOutput
 from unit.case_extractors import CaseExtractorOutputTypes

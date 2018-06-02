@@ -119,9 +119,18 @@ class BaseMetadataExtractor(ProviderMixin):
     @classmethod
     def _meowuri_leaf_from_module_name(cls):
         try:
-            return cls.__module__.split('.')[-1]
+            top_level_module_name = cls.__module__.split('.')[-1]
         except LookupError:
             return C.MEOWURI_UNDEFINED_PART
+        else:
+            if top_level_module_name.startswith('extractor_'):
+                # Remove the leading 'extractor_' part.
+                leaf = top_level_module_name[10:]
+            else:
+                leaf = top_level_module_name
+
+            assert leaf, 'Empty MeowURI leaf: {} {!s}'.format(type(leaf), leaf)
+            return leaf
 
     @classmethod
     def can_handle(cls, fileobject):

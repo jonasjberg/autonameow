@@ -24,8 +24,8 @@ from unittest import skipIf, TestCase
 
 import unit.utils as uu
 from extractors.metadata import ExiftoolMetadataExtractor
-from extractors.metadata.exiftool import is_bad_metadata
-from extractors.metadata.exiftool import _filter_coerced_value
+from extractors.metadata.extractor_exiftool import is_bad_metadata
+from extractors.metadata.extractor_exiftool import _filter_coerced_value
 from unit.case_extractors import CaseExtractorBasics
 from unit.case_extractors import CaseExtractorOutput
 from unit.case_extractors import CaseExtractorOutputTypes
