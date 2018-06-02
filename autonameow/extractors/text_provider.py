@@ -48,7 +48,7 @@ def get_plain_text(fileobject):
 
     suitable_extractors = could_get_plain_text_from(fileobject)
     for extractor in suitable_extractors:
-        extractor_instance = extractor()
+        extractor_instance = _get_pooled_instance(extractor)
 
         with logs.log_runtime(log, str(extractor)):
             try:
@@ -100,3 +100,16 @@ def collect_included_excluded_text_extractors():
             excluded.add(klass)
 
     return included, excluded
+
+
+# Instantiate each extractor only once and then re-use the instances.
+# Prevents needlessly re-creating caches and their underlying persistence.
+_INSTANCE_POOL = dict()
+
+
+def _get_pooled_instance(klass):
+    instance = _INSTANCE_POOL.get(klass)
+    if not instance:
+        instance = klass()
+        _INSTANCE_POOL[klass] = instance
+    return instance
