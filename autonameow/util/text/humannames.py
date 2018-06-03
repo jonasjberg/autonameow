@@ -64,7 +64,7 @@ def strip_author_et_al(string):
 
 
 def strip_edited_by(string):
-    RE_EDITED_BY = r'ed(\.|ited) by'
+    RE_EDITED_BY = r'\(?ed(\.|ited|itor)( by)?\)?|\(ed\)'
     regex = RegexCache(RE_EDITED_BY, flags=re.IGNORECASE)
     subbed_string = regex.sub('', string)
     return subbed_string.strip()
