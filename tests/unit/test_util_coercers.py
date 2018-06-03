@@ -744,11 +744,23 @@ class TestTypeDate(TestCase, CaseCoercers):
         ]
         cls.TESTDATA_COERCE_FAIL = [
             None,
-            '',
-            'foo',
             [],
-            [''],
+            {},
+            '',
+            ' ',
             [None],
+            [[]],
+            [{}],
+            [''],
+            [' '],
+            'foo',
+            1,
+            1.0,
+            b' ',
+            b'',
+            b'1',
+            b'1.0',
+            b'foo',
         ]
         cls.TESTDATA_FORMAT = [
             ('2017:02:03', '2017-02-03'),
@@ -810,11 +822,23 @@ class TestTypeExiftoolTimeDate(TestCase, CaseCoercers):
         ]
         cls.TESTDATA_COERCE_FAIL = [
             None,
-            '',
-            'foo',
+            {},
             [],
-            [''],
+            [[]],
+            [{}],
+            '',
+            ' ',
+            'foo',
             [None],
+            [''],
+            [' '],
+            1,
+            1.0,
+            b' ',
+            b'',
+            b'1',
+            b'1.0',
+            b'foo',
             '0000:00:00 00:00:00',
             '0000:00:00 00:00:00Z',
             '1234:56:78 90:00:00',
@@ -1373,19 +1397,10 @@ class TestTryParseDate(TestCase):
             with self.assertRaises(ValueError):
                 _ = coercers.try_parse_date(test_data)
 
-        _assert_raises(None)
-        _assert_raises([])
-        _assert_raises({})
-        _assert_raises(1)
-        _assert_raises(1.0)
         _assert_raises('')
         _assert_raises(' ')
         _assert_raises('foo')
         _assert_raises('1')
-        _assert_raises(b'')
-        _assert_raises(b' ')
-        _assert_raises(b'foo')
-        _assert_raises(b'1')
 
 
 class TestTryParseDateTime(TestCase):

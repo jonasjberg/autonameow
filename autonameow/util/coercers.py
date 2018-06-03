@@ -522,11 +522,15 @@ class _Date(BaseCoercer):
             string_value = AW_STRING(value)
         except AWTypeError as e:
             return self._fail_coercion(value, msg=e)
-        else:
-            try:
-                return try_parse_date(string_value)
-            except ValueError as e:
-                self._fail_coercion(value, msg=e)
+
+        string_value = string_value.strip()
+        if not string_value:
+            return self._fail_coercion(value, msg='string is empty or whitespace')
+
+        try:
+            return try_parse_date(string_value)
+        except ValueError as e:
+            self._fail_coercion(value, msg=e)
 
     def normalize(self, value):
         value = self.__call__(value)
@@ -758,27 +762,40 @@ def try_parse_datetime(s):
     raise ValueError('Unable to parse datetime from string "{!s}"'.format(s))
 
 
-def try_parse_date(string):
-    _error_msg = 'Unable to parse date: "{!s}" ({})'.format(string,
-                                                            type(string))
+def try_parse_date(s):
+    """
+    Attempt to parse get a 'datetime' object from a Unicode string.
 
-    if not string:
-        raise ValueError(_error_msg)
-    if not isinstance(string, str):
-        raise ValueError(_error_msg)
+    First attempts to parse a "normalized" version of string.
+    If this fails, the second approach is a brute force method that
+    also assumes that the date is a variation of the form "YYYY-mm-dd".
+    If the string cannot be parsed, a 'ValueError' exception is raised.
 
-    match = normalize_date(string)
+    Args:
+        s (str): Unicode string to parse.
+
+    Returns:
+        The given string parsed into an instance of 'datetime',
+        without any time-information.
+
+    Raises:
+        ValueError: The given string could not be parsed.
+        AssertionError: The given string is not a Unicode string.
+    """
+    assert isinstance(s, str)
+
+    match = normalize_date(s)
     if match:
         try:
             return datetime.strptime(match, '%Y-%m-%d')
         except (ValueError, TypeError):
             pass
 
-    # Alternative, bruteforce method. Extract digits.
+    # Alternative, brute force method. Extract digits.
     # Assumes year, month, day is in ISO-date-like order.
-    digits = textutils.extract_digits(string)
+    digits = textutils.extract_digits(s)
     if digits:
-        sanity.check_internal_string(digits)
+        assert isinstance(digits, str)
 
         # TODO: [hack] This is not good ..
         MATCH_PATTERNS = [('%Y%m%d', 8),
@@ -789,7 +806,7 @@ def try_parse_date(string):
         if match:
             return match
 
-    raise ValueError(_error_msg)
+    raise ValueError('Unable to parse date from string "{!s}"'.format(s))
 
 
 def force_string(raw_value):
