@@ -131,10 +131,16 @@ class TestLikelyExtension(TestCase):
              Given(suffix='7z', mime='application/x-7z-compressed')),
             (Expect('alfredworkflow'),
              Given(suffix='alfredworkflow', mime='application/zip')),
+
             (Expect('azw3'),
              Given(suffix='azw3', mime='application/octet-stream')),
+            (Expect('azw3'),
+             Given(suffix='azw3', mime='application/x-mobipocket-ebook')),
             (Expect('azw4'),
              Given(suffix='azw4', mime='application/octet-stream')),
+            (Expect('azw4'),
+             Given(suffix='azw4', mime='application/x-mobipocket-ebook')),
+
             (Expect('bin'),
              Given(suffix='bin', mime='application/octet-stream')),
             (Expect('bz2'),

@@ -151,6 +151,14 @@ MIMETYPE application/x-lzma
     EXTENSION tar.lzma
     - tar.lzma
 
+MIMETYPE application/x-mobipocket-ebook
+    EXTENSION azw3
+    - azw3
+    - BLANK
+    EXTENSION azw4
+    - azw4
+    - BLANK
+
 MIMETYPE application/zip
     EXTENSION alfredworkflow
     - alfredworkflow

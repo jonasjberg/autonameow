@@ -42,3 +42,4 @@ text/x-tex: tex
 video/x-matroska: mkv
 video/x-ms-asf: wma
 application/x-iso9660-image: dmg
+application/x-mobipocket-ebook: azw3

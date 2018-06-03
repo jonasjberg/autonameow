@@ -1162,6 +1162,7 @@ class TestTypeMimeType(TestCase, CaseCoercers):
 
         null = coercers.AW_MIMETYPE.NULL
         cls.TESTDATA_COERCE = [
+            ('azw3', 'application/x-mobipocket-ebook'),
             ('pdf', 'application/pdf'),
             ('.pdf', 'application/pdf'),
             ('PDF', 'application/pdf'),
@@ -1271,6 +1272,7 @@ class TestTypeMimeType(TestCase, CaseCoercers):
             (b'application/epub+zip', 'epub'),
             ('text/plain', 'txt'),
             ('inode/x-empty', ''),
+            ('application/x-mobipocket-ebook', 'azw3'),
         ]
 
     def test_null(self):
