@@ -576,9 +576,13 @@ class _TimeDate(BaseCoercer):
         except AWTypeError as e:
             return self._fail_coercion(value, msg=e)
 
+        string_value = string_value.strip()
+        if not string_value:
+            return self._fail_coercion(value, msg='string is empty or whitespace')
+
         try:
             dt = try_parse_datetime(string_value)
-        except (TypeError, ValueError) as e:
+        except ValueError as e:
             return self._fail_coercion(value, msg=e)
         else:
             # TODO: [TD0054] Represent datetime as UTC within autonameow.
@@ -617,21 +621,28 @@ class _TimeDate(BaseCoercer):
 class _ExifToolTimeDate(_TimeDate):
     def coerce(self, value):
         try:
-            if re.match(r'.*0000:00:00 00:00:00.*', value):
-                return self._fail_coercion(value)
-        except TypeError:
-            return self._fail_coercion(value)
+            string_value = AW_STRING(value)
+        except AWTypeError as e:
+            return self._fail_coercion(value, msg=e)
 
-        try:
-            return try_parse_datetime(value)
-        except ValueError:
-            pass
-        try:
-            return try_parse_date(value)
-        except ValueError:
-            pass
+        string_value = string_value.strip()
+        if not string_value:
+            return self._fail_coercion(value, msg='string is empty or whitespace')
 
-        return self._fail_coercion(value)
+        if re.match(r'.*0000:00:00 00:00:00.*', string_value):
+            return self._fail_coercion(value, msg='date and time is all zeroes')
+
+        last_exception = None
+        try:
+            return try_parse_datetime(string_value)
+        except ValueError as e:
+            last_exception = e
+        try:
+            return try_parse_date(string_value)
+        except ValueError as e:
+            last_exception = e
+
+        return self._fail_coercion(value, msg=last_exception)
 
 
 _pat_loose_date = '{year}{sep}{month}{sep}{day}'.format(
@@ -706,48 +717,46 @@ def normalize_datetime_with_microseconds(string):
     return None
 
 
-def try_parse_datetime(string):
-    _error_msg = 'Unable to parse datetime: "{!s}" ({})'.format(string,
-                                                                type(string))
 
-    if not string:
-        raise ValueError(_error_msg)
-    if not isinstance(string, str):
-        raise ValueError(_error_msg)
+def try_parse_datetime(s):
+    """
+    Attempt to parse get a 'datetime' object from a Unicode string.
 
-    # Handles malformed dates produced by "Mac OS X 10.11.5 Quartz PDFContext".
-    if string.endswith('Z'):
-        string = string[:-1]
+    Tries various patterns in turn and returns the first successfully
+    parsed 'datetime' object.
+    If the string cannot be parsed, a 'ValueError' exception is raised.
 
-    match = normalize_datetime_with_microseconds_and_timezone(string)
-    if match:
-        try:
-            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S.%f%z')
-        except (ValueError, TypeError):
-            pass
+    Args:
+        s (str): Unicode string to parse.
 
-    match = normalize_datetime_with_timezone(string)
-    if match:
-        try:
-            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S%z')
-        except (ValueError, TypeError):
-            pass
+    Returns:
+        The given string parsed into an instance of 'datetime'.
 
-    match = normalize_datetime_with_microseconds(string)
-    if match:
-        try:
-            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S.%f')
-        except (ValueError, TypeError):
-            pass
+    Raises:
+        ValueError: The given string could not be parsed.
+        AssertionError: The given string is not a Unicode string.
+    """
+    assert isinstance(s, str)
 
-    match = normalize_datetime(string)
-    if match:
-        try:
-            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S')
-        except (ValueError, TypeError):
-            pass
+    # Handle "malformed" (?) dates produced by "Mac OS X 10.11.5 Quartz PDFContext".
+    if s.endswith('Z'):
+        s = s[:-1]
 
-    raise ValueError(_error_msg)
+    for normalization_func, strptime_pattern in [
+        (normalize_datetime_with_microseconds_and_timezone, '%Y-%m-%dT%H:%M:%S.%f%z'),
+        (normalize_datetime_with_timezone, '%Y-%m-%dT%H:%M:%S%z'),
+        (normalize_datetime_with_microseconds, '%Y-%m-%dT%H:%M:%S.%f'),
+        (normalize_datetime, '%Y-%m-%dT%H:%M:%S'),
+    ]:
+        normalized_s = normalization_func(s)
+        if normalized_s:
+            assert isinstance(normalized_s, str)
+            try:
+                return datetime.strptime(normalized_s, strptime_pattern)
+            except ValueError:
+                pass
+
+    raise ValueError('Unable to parse datetime from string "{!s}"'.format(s))
 
 
 def try_parse_date(string):
