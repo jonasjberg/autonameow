@@ -773,6 +773,18 @@ Palm:ResourceCount:
     coercer: aw_integer
     multivalued: false
 
+Palm:Rights:
+    coercer: aw_string
+    generic_field: publisher
+    mapped_fields:
+    -   WeightedMapping:
+            field: Publisher
+            weight: 0.75
+    -   WeightedMapping:
+            field: Author
+            weight: 0.25
+    multivalued: false
+
 Palm:Source:
     coercer: aw_string
     multivalued: false
