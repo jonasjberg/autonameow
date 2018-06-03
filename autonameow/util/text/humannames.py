@@ -107,33 +107,39 @@ def strip_bad_author_substrings(string):
     return s
 
 
-def _handle_letter_case_of_names_with_van(string):
+def _handle_letter_case_of_nobiliary_particle(s, particle):
+    """
+    Undoes a title-case transformation of certain parts of a full name.
+
+    Returns the given string "s" with the first letter of "particle"
+    lower-cased.
+    Example usage:
+
+    >>> _handle_letter_case_of_nobiliary_particle('Gibson Von Cheese', 'Von')
+    'Gibson von Cheese'
+    """
+    assert isinstance(s, str)
+    assert isinstance(particle, str)
+
     def __lower_first_upper_second(_match):
         _lowered_first = _match.group(1).lower()
         _lowered_second = _match.group(2).upper()
         return _lowered_first + _lowered_second
 
-    subbed = re.sub(r' Van ', ' van ', string)
-    subbed = re.sub(r'(Van)([\w])', __lower_first_upper_second, subbed)
+    pattern_with_spaces_match = ' {} '.format(particle)
+    pattern_with_spaces_replace = pattern_with_spaces_match.lower()
+    subbed = re.sub(pattern_with_spaces_match, pattern_with_spaces_replace, s)
+
+    pattern_match = '({})([\w])'.format(particle)
+    subbed = re.sub(pattern_match, __lower_first_upper_second, subbed)
     return subbed
 
 
-def _handle_letter_case_of_names_with_von(string):
-    def __lower_first_upper_second(_match):
-        _lowered_first = _match.group(1).lower()
-        _lowered_second = _match.group(2).upper()
-        return _lowered_first + _lowered_second
+def _handle_special_cases_of_name_letter_case(s):
+    for particle in ('Von', 'Van'):
+        s = _handle_letter_case_of_nobiliary_particle(s, particle)
 
-    subbed = re.sub(r' Von ', ' von ', string)
-    subbed = re.sub(r'(Von)([\w])', __lower_first_upper_second, subbed)
-    return subbed
-
-
-def _handle_special_cases_of_name_letter_case(string):
-    # TODO: [incomplete] Will probably need to handle more special cases.
-    modified_string = _handle_letter_case_of_names_with_van(string)
-    modified_string = _handle_letter_case_of_names_with_von(modified_string)
-    return modified_string
+    return s
 
 
 def normalize_letter_case(string):
