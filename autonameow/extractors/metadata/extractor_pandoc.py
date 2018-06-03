@@ -135,7 +135,10 @@ class PandocMetadataExtractor(BaseMetadataExtractor):
 
 
 def extract_document_metadata_with_pandoc(filepath):
-    # TODO: [TD0173] Parse JSON output or output of custom template?
+    """
+    Custom pandoc template uses '$meta-json$' to output a
+    "JSON representation of all of the document's metadata".
+    """
     if not disk.isfile(PATH_CUSTOM_PANDOC_TEMPLATE):
         raise ExtractorError('Missing custom pandoc template file: '
                              '"{!s}"'.format(PATH_CUSTOM_PANDOC_TEMPLATE))
@@ -158,48 +161,13 @@ def extract_document_metadata_with_pandoc(filepath):
                 process.returncode, stderr)
         )
 
-    yaml_text = decode_raw(stdout)
+    json_string = decode_raw(stdout)
+    return _parse_pandoc_output(json_string)
 
-    # Custom pandoc template generates output in YAML format.
+def _parse_pandoc_output(json_string):
     try:
-        result = disk.load_yaml(yaml_text)
-    except disk.YamlLoadError as e:
-        raise ExtractorError('Unable to load custom pandoc template text '
-                             'output as yaml :: {!s}'.format(e))
-
-    return result if result else dict()
-
-
-def parse_pandoc_json(json_dict):
-    # TODO: [TD0173] Parse JSON output or output of custom template?
-    pass
-
-
-def convert_document_to_json_with_pandoc(filepath):
-    # TODO: [TD0173] Parse JSON output or output of custom template?
-    # TODO: Convert non-UTF8 source text to UTF-8.
-    #       pandoc does not handle non-UTF8 input.
-    try:
-        process = subprocess.Popen(
-            ['pandoc', '--to', 'json', '--', filepath],
-            shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-        )
-        stdout, stderr = process.communicate()
-    except (OSError, ValueError, subprocess.SubprocessError) as e:
-        raise ExtractorError(e)
-
-    if process.returncode != 0:
-        raise ExtractorError(
-            'pandoc returned {!s} with STDERR: "{!s}"'.format(
-                process.returncode, stderr)
-        )
-
-    json_text = decode_raw(stdout)
-
-    # Custom pandoc template generates output in YAML format.
-    try:
-        result = json.loads(json_text)
+        result = json.loads(json_string)
     except json.JSONDecodeError as e:
-        raise ExtractorError('Unable to parse pandoc json output :: {!s}'.format(e))
-
-    return result if result else dict()
+        raise ExtractorError('Error loading pandoc JSON output: {!s}'.format(e))
+    else:
+        return result
