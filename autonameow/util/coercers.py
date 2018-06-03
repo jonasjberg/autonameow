@@ -674,48 +674,47 @@ RE_LOOSE_DATETIME_US_TZ = re.compile(
 
 def normalize_date(string):
     match = RE_LOOSE_DATE.search(string)
-    if match:
-        _normalized = re.sub(RE_LOOSE_DATE, r'\1-\2-\3', string)
-        return _normalized
-    return None
+    if not match:
+        return None
+
+    normalized = re.sub(RE_LOOSE_DATE, r'\1-\2-\3', string)
+    return normalized
 
 
 def normalize_datetime_with_microseconds_and_timezone(string):
     match = RE_LOOSE_DATETIME_US_TZ.search(string)
-    if match:
-        _normalized = re.sub(RE_LOOSE_DATETIME_US_TZ,
-                             r'\1-\2-\3T\4:\5:\6.\7 \8\9\10',
-                             string)
-        return _normalized.replace(' ', '')
-    return None
+    if not match:
+        return None
+
+    normalized = re.sub(RE_LOOSE_DATETIME_US_TZ, r'\1-\2-\3T\4:\5:\6.\7 \8\9\10', string)
+    return normalized.replace(' ', '')
 
 
 def normalize_datetime_with_timezone(string):
     match = RE_LOOSE_DATETIME_TZ.search(string)
-    if match:
-        _normalized = re.sub(RE_LOOSE_DATETIME_TZ,
-                             r'\1-\2-\3T\4:\5:\6 \7\8\9',
-                             string)
-        return _normalized.replace(' ', '')
-    return None
+    if not match:
+        return None
+
+    normalized = re.sub(RE_LOOSE_DATETIME_TZ, r'\1-\2-\3T\4:\5:\6 \7\8\9', string)
+    return normalized.replace(' ', '')
 
 
 def normalize_datetime(string):
     match = RE_LOOSE_DATETIME.search(string)
-    if match:
-        _normalized = re.sub(RE_LOOSE_DATETIME, r'\1-\2-\3T\4:\5:\6', string)
-        return _normalized.replace(' ', '')
-    return None
+    if not match:
+        return None
+
+    normalized = re.sub(RE_LOOSE_DATETIME, r'\1-\2-\3T\4:\5:\6', string)
+    return normalized.replace(' ', '')
 
 
 def normalize_datetime_with_microseconds(string):
     match = RE_LOOSE_DATETIME_US.search(string)
-    if match:
-        _normalized = re.sub(RE_LOOSE_DATETIME_US, r'\1-\2-\3T\4:\5:\6.\7',
-                             string)
-        return _normalized
-    return None
+    if not match:
+        return None
 
+    normalized = re.sub(RE_LOOSE_DATETIME_US, r'\1-\2-\3T\4:\5:\6.\7', string)
+    return normalized
 
 
 def try_parse_datetime(s):
