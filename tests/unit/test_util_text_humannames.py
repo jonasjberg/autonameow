@@ -120,6 +120,7 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     TD(given='Ding W.', expect='Ding W.'),
     TD(given='Russell B.', expect='Russell B.'),
     TD(given='Simchi-Levi D.', expect='Simchi-Levi D.'),
+    TD(given='DeDecker B.', expect='Dedecker B.'),
 
     # Multiple authors; et al.
     TD(given='Steve Anson ... [et al.]', expect='Anson S.'),
@@ -140,6 +141,8 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     TD(given='I.N. Bronsh', expect='Bronsh I.N.'),
     TD(given='Bronsh I.', expect='Bronsh I.'),
     TD(given='Bronsh I.N.', expect='Bronsh I.N.'),
+    TD(given='Bart de Decker', expect='deDecker B.'),
+    TD(given='Bart De Decker', expect='deDecker B.'),
 ]
 
 TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
@@ -220,27 +223,39 @@ def nameparser_unavailable():
 
 
 class TeststripAuthorEtAl(TestCase):
-    def test_strips_et_al_variations(self):
-        def _t(test_input):
-            actual = strip_author_et_al(test_input)
-            expect = 'Gibson Catberg'
-            self.assertEqual(expect, actual)
+    def test_strips_trailing_variations_of_et_al(self):
+        EXPECTED = 'Gibson Catberg'
+        for given in [
+            'Gibson Catberg, et al.',
+            'Gibson Catberg, et al',
+            'Gibson Catberg et al',
+            'Gibson Catberg [et al]',
+            'Gibson Catberg [et al.]',
+            'Gibson Catberg {et al}',
+            'Gibson Catberg {et al.}',
+            'Gibson Catberg, ... et al.',
+            'Gibson Catberg, ... et al',
+            'Gibson Catberg ... et al',
+            'Gibson Catberg ... [et al]',
+            'Gibson Catberg ... [et al.]',
+            'Gibson Catberg ... {et al}',
+            'Gibson Catberg ... {et al.}',
+            'Gibson Catberg ... [et al.]',
+        ]:
+            with self.subTest(given=given, expected=EXPECTED):
+                actual = strip_author_et_al(given)
+                self.assertEqual(EXPECTED, actual)
 
-        _t('Gibson Catberg, et al.')
-        _t('Gibson Catberg, et al')
-        _t('Gibson Catberg et al')
-        _t('Gibson Catberg [et al]')
-        _t('Gibson Catberg [et al.]')
-        _t('Gibson Catberg {et al}')
-        _t('Gibson Catberg {et al.}')
-        _t('Gibson Catberg, ... et al.')
-        _t('Gibson Catberg, ... et al')
-        _t('Gibson Catberg ... et al')
-        _t('Gibson Catberg ... [et al]')
-        _t('Gibson Catberg ... [et al.]')
-        _t('Gibson Catberg ... {et al}')
-        _t('Gibson Catberg ... {et al.}')
-        _t('Gibson Catberg ... [et al.]')
+    def test_strips_trailing_variations_of_et_al_seen_in_live_data(self):
+        def _assert_returns(expected, given):
+            actual = strip_author_et_al(given)
+            self.assertEqual(expected, actual)
+
+        _assert_returns('Bart de Decker', 'Bart de Decker ... [et al.]')
+        _assert_returns('Frederick Gallegos', 'Frederick Gallegos...[et al.]')
+        _assert_returns('Eric Oberg', 'Eric Oberg ... [et al.]')
+        _assert_returns('Steven Hanson', 'Steven Hanson ... [et al.]')
+        _assert_returns('Jim L. Weaver', 'Jim L. Weaver ... [et al.]')
 
 
 class TestStripEditedBy(TestCase):
@@ -368,6 +383,19 @@ class TestNormalizeLetterCase(TestCase):
     def test_normalizes_names_with_mixed_case_last_name(self):
         for given in ['Gibson SjÖbErG', 'Gibson sJöBeRg']:
             self._assert_returns('Gibson Sjöberg', given)
+
+    def test_normalizes_names_with_nobiliary_particles(self):
+        for testdata in [
+            TD(given='Gibson von Sjöberg', expect='Gibson von Sjöberg'),
+            TD(given='Gibson Von Sjöberg', expect='Gibson von Sjöberg'),
+            TD(given='Gibson van Sjöberg', expect='Gibson van Sjöberg'),
+            TD(given='Gibson Van Sjöberg', expect='Gibson van Sjöberg'),
+            TD(given='Gibson von Sjöberg', expect='Gibson von Sjöberg'),
+            TD(given='Gibson de Sjöberg', expect='Gibson de Sjöberg'),
+            TD(given='Gibson De Sjöberg', expect='Gibson de Sjöberg'),
+        ]:
+            with self.subTest():
+                self._assert_returns(testdata.expect, testdata.given)
 
 
 class TestNameParser(TestCase):
@@ -908,6 +936,19 @@ class TestFilterMultipleNames(TestCase):
         ]:
             with self.subTest(given=given):
                 self._assert_filter_returns(expected=['Petra Werner'], given=given)
+
+    def test_handles_apparent_list_in_string_with_leading_by_and_trailing_et_al(self):
+        self._assert_filter_returns(
+            expected=['Eric Oberg'],
+            given=['[by Eric Oberg ... et al.]']
+        )
+
+    def test_handles_single_name_with_leading_edited_by_and_trailing_et_al(self):
+        self.skipTest('TODO')
+        self._assert_filter_returns(
+            expected=['Bart de Decker'],
+            given=['edited by Bart de Decker ... [et al.]']
+        )
 
     def test_based_on_live_data_a(self):
         self._assert_filter_returns(

@@ -101,8 +101,13 @@ def strip_bad_author_substrings(string):
     s = strip_author_et_al(s)
     s = strip_contributions(s)
 
-    if s.lower().startswith('by '):
-        s = s[3:]
+    for leading_substring in [
+        '[',
+        'by ',
+    ]:
+        if s.startswith(leading_substring):
+            leading_chars_to_strip = len(leading_substring)
+            s = s[leading_chars_to_strip:]
 
     return s
 
@@ -136,9 +141,10 @@ def _handle_letter_case_of_nobiliary_particle(s, particle):
 
 
 def _handle_special_cases_of_name_letter_case(s):
-    for particle in ('Von', 'Van'):
+    for particle in ('Van', 'Von'):
         s = _handle_letter_case_of_nobiliary_particle(s, particle)
 
+    s = s.replace(' De ', ' de ')
     return s
 
 
