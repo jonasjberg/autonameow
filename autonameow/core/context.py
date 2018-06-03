@@ -161,6 +161,9 @@ class FileContext(object):
             log.critical('Name assembly FAILED: {!s}'.format(e))
             raise AutonameowException
 
+        log.info('Found new name for "{!s}" using rule "{!s}"'.format(
+            self.fileobject, self._active_rule
+        ))
         log.info('New name: "{}"'.format(enc.displayable_path(new_name)))
         return new_name
 
