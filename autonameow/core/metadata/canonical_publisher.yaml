@@ -11,9 +11,18 @@ AthenaScientific:
 AtlantisPress:
     match_any_literal:
     - Atlantis Press
+AZElitePub:
+    match_any_literal:
+    - AZ Elite
+    match_any_regex:
+    - AZ ?Elite ?Pub(\.|l\.|ishing)?
 Barrons:
     match_any_regex:
     - Barron.s Educational
+CyberPunkUni:
+    match_any_literal:
+    - Cyberpunk University
+    - University, Cyberpunk
 FeedBooks:
     match_any_literal:
     - This book is brought to you by Feedbooks
@@ -79,6 +88,9 @@ IGIGlobal:
 ImperialCollegePress:
     match_any_literal:
     - Imperial College Press
+ITAcademy:
+    match_any_literal:
+    - IT Academy
 JohnsHopkinsUP:
     match_any_regex:
     - 'Johns Hopkins Uni'
@@ -87,6 +99,12 @@ JonesBartlett:
     - Jones and Bartlett Publishers
     - Jones and Bartlett
     - www.jbpub.com
+LCFPub:
+    match_any_regex:
+    - LCF.?.?Publishing
+    - Publishing.?.?LCF
+    match_any_literal:
+    - Learn Coding Fast
 Leanpub:
     match_any_literal:
     - LeanPub
@@ -168,6 +186,7 @@ Pearson:
     match_any_literal:
     - Pearson/PrenticeHall
     - Pearson/AddisonWesley
+    match_any_regex:
     - Pearson Education
 PragmaticBookshelf:
     match_any_literal:

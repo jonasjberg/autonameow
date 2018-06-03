@@ -93,6 +93,14 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'apress',
         'www.apress.com',
     ],
+    'AZElitePub': [
+        'AZ Elite',
+        'AZ Elite Pub',
+        'AZ Elite Pub.',
+        'AZ Elite Publ',
+        'AZ Elite Publ.',
+        'AZ Elite Publishing',
+    ],
     'BigNerdRanch': [
         'Big Nerd Ranch Inc.',
         'Big Nerd Ranch Incorporated',
@@ -130,6 +138,11 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Course Technology',
         'Course Technology/Cengage Learning',
         'CourseTechnology',
+    ],
+    'CyberPunkUni': [
+        'Cyberpunk University',
+        'CyberPunkUni',
+        'University, Cyberpunk',
     ],
     'DennisPub': [
         'Dennis Pub.',
@@ -172,6 +185,10 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'ImperialCollegePress',
         'Imperial College Press',
     ],
+    'ITAcademy': [
+        'ITAcademy',
+        'IT Academy',
+    ],
     'JohnsHopkinsUP': [
         'Johns Hopkins University Press Ltd',
         'Johns Hopkins University Press Ltd. London',
@@ -189,6 +206,14 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Jones and Bartlett',
         'JonesBartlett',
         'www.jbpub.com',
+    ],
+    'LCFPub': [
+        'LCF Publishing',
+        'LCFPub',
+        'LCFPublishing',
+        'Learn Coding Fast',
+        'Publishing LCF',
+        'Publishing, LCF',
     ],
     'Leanpub': [
         'Leanpub',
@@ -312,10 +337,16 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'peachpit.com',
     ],
     'Pearson': [
+        'Pearson Education Inc',
+        'Pearson Education Inc.',
+        'Pearson Education Incorporated',
+        'Pearson Education',
+        'Pearson Education, Inc',
+        'Pearson Education, Inc.',
+        'Pearson Education, Incorporated',
         'Pearson',
         'Pearson/AddisonWesley',
         'Pearson/PrenticeHall',
-        'Pearson Education',
     ],
     'PragmaticBookshelf': [
         'Pragmatic Bookshelf',
