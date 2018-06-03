@@ -50,16 +50,15 @@ class PandocMetadataExtractor(BaseMetadataExtractor):
         return self._get_metadata(fileobject.abspath)
 
     def _get_metadata(self, filepath):
-        _raw_metadata = extract_document_metadata_with_pandoc(filepath)
-        if _raw_metadata:
-            _filtered_metadata = self._filter_raw_data(_raw_metadata)
+        raw_metadata = extract_document_metadata_with_pandoc(filepath)
+        if not raw_metadata:
+            return dict()
 
-            metadata = self._to_internal_format(_filtered_metadata)
-            # TODO: [TD0034] Filter out known bad data.
-            # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-            return metadata
-
-        return dict()
+        filtered_metadata = self._filter_raw_data(raw_metadata)
+        metadata = self._to_internal_format(filtered_metadata)
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
+        return metadata
 
     def _filter_raw_data(self, raw_metadata):
         # TODO: [TD0034] Filter out known bad data.

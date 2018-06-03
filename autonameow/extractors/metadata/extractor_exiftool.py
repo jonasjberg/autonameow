@@ -203,14 +203,14 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
 
     def _get_metadata(self, filepath):
         raw_metadata = self._get_exiftool_data(filepath)
-        if raw_metadata:
-            filtered_metadata = self._filter_raw_data(raw_metadata)
-            metadata = self._to_internal_format(filtered_metadata)
-            # TODO: [TD0034] Filter out known bad data.
-            # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-            return metadata
+        if not raw_metadata:
+            return dict()
 
-        return dict()
+        filtered_metadata = self._filter_raw_data(raw_metadata)
+        metadata = self._to_internal_format(filtered_metadata)
+        # TODO: [TD0034] Filter out known bad data.
+        # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
+        return metadata
 
     def _filter_raw_data(self, raw_metadata):
         # TODO: [TD0034] Filter out known bad data.

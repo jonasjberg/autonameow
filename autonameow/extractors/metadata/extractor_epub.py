@@ -39,10 +39,11 @@ class EpubMetadataExtractor(BaseMetadataExtractor):
 
     def _get_metadata(self, filepath):
         raw_metadata = _get_epub_metadata(filepath)
-        if raw_metadata:
-            metadata = self._to_internal_format(raw_metadata)
-            return metadata
-        return dict()
+        if not raw_metadata:
+            return dict()
+
+        metadata = self._to_internal_format(raw_metadata)
+        return metadata
 
     def _to_internal_format(self, raw_metadata):
         # TODO: [TD0186] Re-implement epub metadata extractor

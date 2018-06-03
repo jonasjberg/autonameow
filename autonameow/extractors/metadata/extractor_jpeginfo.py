@@ -46,12 +46,9 @@ class JpeginfoMetadataExtractor(BaseMetadataExtractor):
         return self._get_metadata(fileobject.abspath)
 
     def _get_metadata(self, filepath):
-        metadata = dict()
-
         jpeginfo_output = _run_jpeginfo(filepath)
         if not jpeginfo_output:
-            self.log.debug('Got empty output from jpeginfo')
-            return metadata
+            return dict()
 
         if 'not a jpeg file' in jpeginfo_output.lower():
             is_jpeg = False
@@ -63,6 +60,7 @@ class JpeginfoMetadataExtractor(BaseMetadataExtractor):
             status = match.group(1) if match else 'UNKNOWN'
             health = self._HEALTH.get(status, self._HEALTH.get('UNKNOWN'))
 
+        metadata = dict()
         coerced_health = self.coerce_field_value('health', health)
         if coerced_health is not None:
             metadata['health'] = coerced_health
