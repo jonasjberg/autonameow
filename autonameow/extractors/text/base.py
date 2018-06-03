@@ -132,7 +132,7 @@ class BaseTextExtractor(object):
             self.log.critical('Unable to read {!s} cache :: {!s}'.format(self, e))
         else:
             if cached_text:
-                self.log.info('Using cached text for: {!r}'.format(fileobject))
+                self.log.debug('Using cached text for: {!r}'.format(fileobject))
                 return cached_text
         return None
 

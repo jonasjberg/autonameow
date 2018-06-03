@@ -136,6 +136,9 @@ class EbookAnalyzer(BaseAnalyzer):
             _cached_isbn_metadata = self.cache.get(CACHE_KEY_ISBNMETA)
             if _cached_isbn_metadata:
                 self._cached_isbn_metadata = _cached_isbn_metadata
+                self.log.debug('Read {} cached ISBN metadata entries'.format(
+                    len(_cached_isbn_metadata)
+                ))
 
             _blacklisted_isbn_numbers = self.cache.get(CACHE_KEY_ISBNBLACKLIST)
             if _blacklisted_isbn_numbers:
@@ -225,7 +228,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                     # for n, m in enumerate(self._isbn_metadata):
                     #     print_copy_pasteable_isbn_metadata(n, m)
 
-            self.log.info('Got {} instances of ISBN metadata'.format(
+            self.log.debug('Got {} instances of ISBN metadata'.format(
                 len(self._isbn_metadata)
             ))
             for n, metadata in enumerate(self._isbn_metadata):
@@ -377,7 +380,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
     def _get_isbn_metadata(self, isbn_number):
         if isbn_number in self._cached_isbn_metadata:
-            self.log.info(
+            self.log.debug(
                 'Using cached metadata for ISBN: {!s}'.format(isbn_number)
             )
             return self._cached_isbn_metadata.get(isbn_number)
@@ -385,7 +388,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
         self.log.debug('Querying external service for ISBN: {!s}'.format(isbn_number))
         metadata = fetch_isbn_metadata(isbn_number)
         if metadata:
-            self.log.info(
+            self.log.debug(
                 'Caching metadata for ISBN: {!s}'.format(isbn_number)
             )
 
