@@ -28,11 +28,11 @@ SELF="$(basename "$0")"
 # Get the full absolute path to this file.
 # Also handles case where the script being sourced.
 _self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
-SELF_DIR="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
+SELF_DIRPATH="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
 
 
 # Get absolute path to the test results directory and make sure it is valid.
-AUTONAMEOW_TESTRESULTS_DIR="$( ( cd "$SELF_DIR" && realpath -e -- "../docs/test_results/" ) )"
+AUTONAMEOW_TESTRESULTS_DIR="$( ( cd "$SELF_DIRPATH" && realpath -e -- "../docs/test_results/" ) )"
 
 if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ]
 then

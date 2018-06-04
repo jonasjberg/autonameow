@@ -45,12 +45,12 @@ EOF
 fi
 
 
-SELF_DIR="$(realpath -e "$(dirname "$0")")"
+SELF_DIRPATH="$(realpath -e "$(dirname "$0")")"
 
 # Get absolute path to the autonameow source root.
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
-    AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIR" && realpath -e -- ".." ) )"
+    AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIRPATH" && realpath -e -- ".." ) )"
 fi
 
 if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
@@ -61,7 +61,7 @@ fi
 
 
 # Check that a wordlist exists.
-wordlist_filepath="${SELF_DIR}/check-spelling-wordlist.txt"
+wordlist_filepath="${SELF_DIRPATH}/check-spelling-wordlist.txt"
 [ -f "$wordlist_filepath" ] || { printf '[ERROR] Wordlist not found at "%s"\n' "$wordlist_filepath" ; exit 1 ; }
 
 
