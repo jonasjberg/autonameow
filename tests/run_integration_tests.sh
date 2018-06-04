@@ -27,13 +27,13 @@ declare -r EXIT_FAILURE=1
 declare -r EXIT_CRITICAL=2
 
 SELF_BASENAME="$(basename "$0")"
-SELF_DIRNAME="$(realpath -e "$(dirname "$0")")"
+SELF_DIRPATH="$(realpath -e "$(dirname "$0")")"
 
-if ! source "${SELF_DIRNAME}/setup_environment.sh"
+if ! source "${SELF_DIRPATH}/setup_environment.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${SELF_DIRNAME}/setup_environment.sh"
+[ERROR] Unable to source "${SELF_DIRPATH}/setup_environment.sh"
         Environment variable setup script is missing. Aborting ..
 
 EOF
@@ -118,7 +118,7 @@ time_start="$(current_unix_time)"
 
 initialize_logging
 initialize_global_stats
-search_dir="${SELF_DIRNAME}/integration"
+search_dir="${SELF_DIRPATH}/integration"
 logmsg "Started integration test runner \"${SELF_BASENAME}\""
 logmsg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
 
