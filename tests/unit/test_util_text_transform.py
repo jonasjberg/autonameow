@@ -216,18 +216,13 @@ class TestNormalizeHorizontalWhitespace(TestCase):
         actual = normalize_horizontal_whitespace(given)
         self.assertEqual(expect, actual)
 
-    def test_returns_empty_values_as_is(self):
-        for expect, given in [
-            ('', ''),
-
-            # Pass through empty/None/False values.
-            (None, None),
-            ([], []),
-        ]:
-            self._assert_returns(expect, given)
-
     def test_raises_exception_given_non_string_types(self):
         for bad_input in [
+            None,
+            [],
+            {},
+            False,
+            True,
             object(),
             b'foo',
             ['foo'],
@@ -235,10 +230,14 @@ class TestNormalizeHorizontalWhitespace(TestCase):
             with self.assertRaises(AssertionError):
                 _ = normalize_horizontal_whitespace(bad_input)
 
-    def test_returns_string_without_whitespace_as_is(self):
-        self._assert_returns('foo', 'foo')
+    def test_returns_strings_without_whitespace_as_is(self):
+        for given_and_expected in [
+            '',
+            'foo',
+        ]:
+            self._assert_returns(given_and_expected, given_and_expected)
 
-    def test_does_not_strip_trailing_leading_whitespace(self):
+    def test_does_not_strip_trailing_or_leading_whitespace(self):
         for expected, given in [
             ('foo ', 'foo '),
             (' foo', ' foo'),

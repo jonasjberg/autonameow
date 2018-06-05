@@ -120,12 +120,9 @@ def normalize_horizontal_whitespace(text):
     """
     Replaces all whitespace except newlines with a single space.
 
-    Does not remove leading or trailing whitespace.
-    Does not change linefeeds or carriage returns.
-    Handles Unicode whitespace characters.
-
-    NOTE: Assumes type-checks is handled elsewhere.
-          "Empty" values like None, [], {}, etc. are passed through as-is.
+    Removes Unicode whitespace characters.
+    Will *NOT* remove leading or trailing whitespace and does not modify any
+    linefeeds or carriage returns.
 
     Args:
         text (str): Unicode text to transform.
@@ -136,10 +133,9 @@ def normalize_horizontal_whitespace(text):
     Raises:
         AssertionError: Given text is not an instance of 'str'.
     """
+    assert isinstance(text, str)
     if not text:
         return text
-
-    assert isinstance(text, str)
 
     # Matches any number of whitespace characters, except newlines.
     #
@@ -148,8 +144,8 @@ def normalize_horizontal_whitespace(text):
     # which is also included in '\s'.
     #
     #   \S   Any character which is not a Unicode whitespace character.
-    #   \r   ASCII Carriage Return (CR)
-    #   \n   ASCII ASCII Linefeed (LF)
+    #   \r   ASCII Carriage Return  CR  0x0D
+    #   \n   ASCII Linefeed         LF  0x0A
     #
     re_whitespace_except_newline = RegexCache(r'[^\S\r\n]+')
     normalized = re.sub(re_whitespace_except_newline, ' ', text)
