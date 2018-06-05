@@ -37,7 +37,7 @@ from util.text.transform import extract_digits
 from util.text.transform import html_unescape
 from util.text.transform import indent
 from util.text.transform import normalize_unicode
-from util.text.transform import normalize_whitespace
+from util.text.transform import normalize_horizontal_whitespace
 from util.text.transform import remove_blacklisted_lines
 from util.text.transform import remove_ascii_control_characters
 from util.text.transform import remove_nonbreaking_spaces
@@ -211,9 +211,9 @@ class TestStripSingleSpaceLines(TestCase):
         self._assert_returns('\nX\n', given=' \nX\n')
 
 
-class TestNormalizeWhitespace(TestCase):
+class TestNormalizeHorizontalWhitespace(TestCase):
     def _assert_returns(self, expect, given):
-        actual = normalize_whitespace(given)
+        actual = normalize_horizontal_whitespace(given)
         self.assertEqual(expect, actual)
 
     def test_returns_empty_values_as_is(self):
@@ -233,7 +233,7 @@ class TestNormalizeWhitespace(TestCase):
             ['foo'],
         ]:
             with self.assertRaises(AssertionError):
-                _ = normalize_whitespace(bad_input)
+                _ = normalize_horizontal_whitespace(bad_input)
 
     def test_returns_string_without_whitespace_as_is(self):
         self._assert_returns('foo', 'foo')

@@ -27,7 +27,7 @@ from util import coercers
 from util import encoding as enc
 from util import sanity
 from util.text import normalize_unicode
-from util.text import normalize_whitespace
+from util.text import normalize_horizontal_whitespace
 from util.text import remove_ascii_control_characters
 from util.text import remove_nonbreaking_spaces
 from util.text import remove_zerowidth_spaces
@@ -175,10 +175,9 @@ def cleanup(raw_text):
     sanity.check_internal_string(raw_text)
     text = raw_text
     text = normalize_unicode(text)
-    text = normalize_whitespace(text)
+    text = normalize_horizontal_whitespace(text)
     text = strip_single_space_lines(text)
     text = remove_nonbreaking_spaces(text)
     text = remove_zerowidth_spaces(text)
     text = remove_ascii_control_characters(text)
     return text if text else ''
-

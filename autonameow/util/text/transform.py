@@ -39,7 +39,7 @@ __all__ = [
     'indent',
     'batch_regex_replace',
     'normalize_unicode',
-    'normalize_whitespace',
+    'normalize_horizontal_whitespace',
     'simplify_unicode',
     'remove_ascii_control_characters',
     'remove_blacklisted_lines',
@@ -116,7 +116,7 @@ def strip_single_space_lines(text):
     return without_single_space_lines
 
 
-def normalize_whitespace(text):
+def normalize_horizontal_whitespace(text):
     """
     Replaces all whitespace except newlines with a single space.
 

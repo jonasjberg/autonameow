@@ -23,7 +23,7 @@ import re
 
 from util.text import html_unescape
 from util.text import normalize_unicode
-from util.text import normalize_whitespace
+from util.text import normalize_horizontal_whitespace
 from util.text import strip_edited_by
 
 
@@ -51,7 +51,7 @@ def cleanup_full_human_name(string):
 
     assert isinstance(string, str)
     name = normalize_unicode(string)
-    name = normalize_whitespace(name)
+    name = normalize_horizontal_whitespace(name)
     name = strip_edited_by(name)
     name = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', name)
     name = name.strip()
@@ -65,7 +65,7 @@ def cleanup_full_title(string):
     assert isinstance(string, str)
     title = normalize_unicode(string)
     title = html_unescape(title)
-    title = normalize_whitespace(title)
+    title = normalize_horizontal_whitespace(title)
 
     # Replace potentially valuable characters before the next step.
     for pattern, replacement in TITLE_REPLACEMENTS.items():
