@@ -23,6 +23,7 @@ from unittest import TestCase
 
 import unit.utils as uu
 from extractors.text.base import BaseTextExtractor
+from extractors.text.base import cleanup
 
 
 class TestBaseTextExtractor(TestCase):
@@ -67,3 +68,15 @@ class TestBaseTextExtractor(TestCase):
     def test_base_class_does_not_implement_dependencies_satisfied(self):
         with self.assertRaises(NotImplementedError):
             self.e.dependencies_satisfied()
+
+
+class TestCleanup(TestCase):
+    def _assert_returns(self, expected, given):
+        actual = cleanup(given)
+        self.assertEqual(expected, actual)
+
+    def test_cleanup_removes_carriage_returns(self):
+        text_with_carriage_returns = 'foo\nbar\rbaz\r\n'
+        actual = cleanup(text_with_carriage_returns)
+        self.assertNotIn('\r', actual)
+        self.assertEqual('foo\nbarbaz\n', actual)
