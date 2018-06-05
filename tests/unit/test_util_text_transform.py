@@ -38,6 +38,7 @@ from util.text.transform import html_unescape
 from util.text.transform import indent
 from util.text.transform import normalize_unicode
 from util.text.transform import normalize_horizontal_whitespace
+from util.text.transform import normalize_vertical_whitespace
 from util.text.transform import remove_blacklisted_lines
 from util.text.transform import remove_ascii_control_characters
 from util.text.transform import remove_nonbreaking_spaces
@@ -386,6 +387,63 @@ class TestNormalizeHorizontalWhitespace(TestCase):
         self._assert_returns('foo bar\n', given='foo\t\t\tbar\n')
         self._assert_returns(' foo bar\n', given='\t\tfoo bar\n')
         self._assert_returns(' foo bar\n', given='\t\t\tfoo bar\n')
+
+
+class TestNormalizeVerticalWhitespace(TestCase):
+    def _assert_returns(self, expect, given):
+        actual = normalize_vertical_whitespace(given)
+        self.assertEqual(expect, actual)
+
+    def _assert_unchanged(self, given):
+        actual = normalize_vertical_whitespace(given)
+        self.assertEqual(given, actual)
+
+    def test_raises_exception_given_non_string_types(self):
+        for bad_input in [
+            None,
+            [],
+            {},
+            False,
+            True,
+            object(),
+            b'foo',
+            ['foo'],
+        ]:
+            with self.assertRaises(AssertionError):
+                _ = normalize_vertical_whitespace(bad_input)
+
+    def test_returns_strings_without_vertical_whitespace_as_is(self):
+        for given in [
+            '',
+            'foo',
+            '\t',
+            'foo\t',
+            'foo\tbar',
+            'foo \t',
+            'foo\t bar',
+        ]:
+            self._assert_unchanged(given)
+
+    def test_returns_single_newline_as_is(self):
+        self._assert_unchanged('\n')
+
+    def test_removes_linefeeds(self):
+        self._assert_returns('', '\r')
+
+    def test_removes_linefeeds_and_keeps_single_newline(self):
+        for given in [
+            '\n\r',
+            '\r\n'
+        ]:
+            self._assert_returns('\n', given)
+
+    def test_removes_linefeeds_and_keeps_newlines(self):
+        for given in [
+            '\n\r\n',
+            '\n\r\n\r',
+            '\r\n\r\n'
+        ]:
+            self._assert_returns('\n\n', given)
 
 
 class TestIndent(TestCase):

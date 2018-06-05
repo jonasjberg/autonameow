@@ -40,6 +40,7 @@ __all__ = [
     'batch_regex_replace',
     'normalize_unicode',
     'normalize_horizontal_whitespace',
+    'normalize_vertical_whitespace',
     'simplify_unicode',
     'remove_ascii_control_characters',
     'remove_blacklisted_lines',
@@ -150,6 +151,27 @@ def normalize_horizontal_whitespace(text):
     re_whitespace_except_newline = RegexCache(r'[^\S\r\n]+')
     normalized = re.sub(re_whitespace_except_newline, ' ', text)
     return normalized
+
+
+def normalize_vertical_whitespace(text):
+    """
+    Returns the given text with any linefeeds removed.
+
+    Args:
+        text (str): Unicode text to transform.
+
+    Returns:
+        str: The given text with any linefeeds removed.
+
+    Raises:
+        AssertionError: Given text is not an instance of 'str'.
+    """
+    assert isinstance(text, str)
+    if not text:
+        return text
+
+    text_without_linefeeds = text.replace('\r', '')
+    return text_without_linefeeds
 
 
 DEFAULT_INDENT_AMOUNT = 4
