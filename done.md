@@ -56,6 +56,13 @@ Completed TODO-list Entries
 >     extractor.metadata.exiftool.exif_datetimeoriginal
 >     ```
 
+### 2018-04-21
+
+> Low Priority
+> ------------
+>
+> * `[TD0091]` Take a look at old code in `util/dateandtime.py`.
+
 ### 2018-04-02
 
 > Medium Priority
