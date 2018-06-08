@@ -217,10 +217,14 @@ class TestLikelyExtension(TestCase):
             (Expect('hex'),
              Given(suffix='hex', mime='application/octet-stream')),
 
+            (Expect('dll'),
+             Given(suffix='dll', mime='application/x-dosexec')),
             (Expect('exe'),
              Given(suffix='exe', mime='application/x-dosexec')),
             (Expect('exe'),
              Given(suffix='', mime='application/x-dosexec')),
+            (Expect('pyd'),
+             Given(suffix='pyd', mime='application/x-dosexec')),
 
             (Expect('html'),
              Given(suffix='htm', mime='text/xml')),
@@ -313,14 +317,22 @@ class TestLikelyExtension(TestCase):
              Given(suffix='pdf', mime='application/octet-stream')),
             (Expect('ps'),
              Given(suffix='ps', mime='application/postscript')),
+
+            (Expect('bat'),
+             Given(suffix='bat', mime='text/x-msdos-batch')),
+            (Expect('bat'),
+             Given(suffix='', mime='text/x-msdos-batch')),
+
+            (Expect('egg'),
+             Given(suffix='egg', mime='text/x-shellscript')),
+
             (Expect('py'),
              Given(suffix='py', mime='text/x-shellscript')),
             (Expect('py'),
              Given(suffix='py', mime='text/x-python')),
             (Expect('py'),
              Given(suffix='', mime='text/x-python')),
-            (Expect('scpt'),
-             Given(suffix='scpt', mime='application/octet-stream')),
+
             (Expect('sh'),
              Given(suffix='sh', mime='text/plain')),
             (Expect('sh'),
@@ -329,6 +341,9 @@ class TestLikelyExtension(TestCase):
              Given(suffix='txt', mime='text/x-shellscript')),
             (Expect('sh'),
              Given(suffix='sh', mime='text/x-env')),
+
+            (Expect('scpt'),
+             Given(suffix='scpt', mime='application/octet-stream')),
 
             # Visual Studio Solution
             (Expect('sln'),
@@ -347,6 +362,23 @@ class TestLikelyExtension(TestCase):
              Given(suffix='tex', mime='text/x-tex')),
             (Expect('tex'),
              Given(suffix='tex', mime='application/x-tex')),
+
+            (Expect('ps1'),
+             Given(suffix='ps1', mime='text/plain')),
+
+            # "Easy Install" package listing ('easy-install.pth')
+            (Expect('pth'),
+             Given(suffix='pth', mime='text/plain')),
+
+            (Expect('rst'),
+             Given(suffix='rst', mime='text/plain')),
+            (Expect('rst'),
+             Given(suffix='rst', mime='text/html')),
+            (Expect('rst'),
+             Given(suffix='rst', mime='text/x-python')),
+
+            (Expect('tcl'),
+             Given(suffix='tcl', mime='text/plain')),
 
             (Expect('txt'),
              Given(suffix='txt', mime='text/plain')),

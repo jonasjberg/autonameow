@@ -90,6 +90,12 @@ MIMETYPE application/octet-stream
     EXTENSION xps           # Microsoft paper specification file
     - xps
 
+MIMETYPE application/x-dosexec
+    EXTENSION dll
+    - dll
+    EXTENSION pyd
+    - pyd
+
 MIMETYPE application/gzip
     EXTENSION gz
     - gz
@@ -201,6 +207,8 @@ MIMETYPE text/html
     - js
     EXTENSION mhtml
     - mhtml
+    EXTENSION rst
+    - rst
     EXTENSION txt
     - txt
 
@@ -266,16 +274,24 @@ MIMETYPE text/plain
     - mkd
     EXTENSION puml
     - puml
+    EXTENSION ps1
+    - ps1
+    EXTENSION pth   # "Easy Install" package listing ('easy-install.pth')
+    - pth
     EXTENSION py
     - py
     - python
-    EXTENSION rake
+    EXTENSION rake  # Ruby rake "Makefiles"
     - rake
+    EXTENSION rst
+    - rst
     EXTENSION sh
     - bash
     - sh
     EXTENSION spec
     - spec
+    EXTENSION tcl
+    - tcl
     EXTENSION txt
     - txt
     - txt.gz
@@ -317,7 +333,20 @@ MIMETYPE text/x-makefile
     EXTENSION asm   # Incorrect MIME-type
     - asm
 
+MIMETYPE text/x-msdos-batch
+    EXTENSION bat
+    - BLANK
+    - bat
+
+MIMETYPE text/x-python
+    EXTENSION py
+    - py
+    EXTENSION rst
+    - rst
+
 MIMETYPE text/x-shellscript
+    EXTENSION egg
+    - egg
     EXTENSION py
     - py
     EXTENSION sh
