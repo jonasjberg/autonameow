@@ -18,6 +18,32 @@
 # Alternatively, 'bin' is used if the file extension is either 'bin' or 'binary'.
 # If the file extension is something else, another entry is evaluated.
 
+# TODO: [TD0200] Improve system for finding probable file extensions.
+# TODO: [TD0200] Redesign this file format so that multiple "clauses" can be
+#                "chained" while maintaining somewhat terse syntax.
+#                E.G. EXTENSION applies if X and Y and either of Z1, Z2Z3 ..
+#
+#
+#                    Evaluated against a given FileObject          output
+#              ,______________________________________________, ,__________,
+#              |                                              | |          |
+#              '                 BASENAME   BASENAME   PATH   ' ' PROBABLE '
+#               MIME-TYPE          SUFFIX     PREFIX    PARENT    EXTENSION
+#       ===================================================================
+#       application/octet-stream   BLANK        *         *       BLANK
+#       application/octet-stream   BLANK        *         *       BLANK
+#       application/postscript     eps          *         *       eps
+#       application/postscript     ps           *         *       ps
+#       text/html                  htm          *         *       html
+#       text/html                  htm.gz       *         *       html
+#       text/html                  html         *         *       html
+#       text/html                  html.gz      *         *       html
+#       application/x-gzip         tgz          *         *       tar.gz
+#       application/x-gzip         tgz          *         *       tgz
+#       application/x-gzip         tgz          *         *       tgz
+#       text/*                     BLANK        TEMPLATE  *       BLANK
+
+
 # Note that all of these might be corrupt files.
 MIMETYPE application/octet-stream
     EXTENSION BLANK

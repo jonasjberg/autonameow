@@ -105,6 +105,17 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0200]` __Improve system for finding probable file extensions.__  
+    The system for finding a "probable" extension should accept additional
+    input data in order to make better decisions about certain files.
+    For instance, all files named `METADATA`, with MIME-types `text/*`
+    should probably return an empty extension as the most probable.
+
+    This requires at least passing in the "basename prefix" to the
+    `likely_extension()` function in `analyze_filename.py`.
+    But things like the parent directory name should also prove useful
+    in order to produce better results.
+
 * `[TD0196]` Allow user to define maximum lengths for new names.
 
 * `[TD0197]` Template field-specific length limits and trimming.  

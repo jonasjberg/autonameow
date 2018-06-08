@@ -300,6 +300,11 @@ def _read_probable_extension_config_file(filepath):
 
 
 def likely_extension(basename_suffix, mime_type):
+    # TODO: [TD0200] Improve system for finding probable file extensions.
+    #                Use additional information, like the "basename prefix".
+    #                Should be able to handle files without extensions with a
+    #                certain name like 'METADATA', having any of a list of
+    #                MIME-types, so that the probable extension is empty, etc.
     if mime_type and basename_suffix is not None:
         sanity.check_internal_string(mime_type)
 
