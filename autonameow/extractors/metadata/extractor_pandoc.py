@@ -63,9 +63,12 @@ class PandocMetadataExtractor(BaseMetadataExtractor):
     def _filter_raw_data(self, raw_metadata):
         # TODO: [TD0034] Filter out known bad data.
         # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
+        def _is_empty_string(v):
+            return isinstance(v, str) and not v.strip()
+
         return {
             tag: value for tag, value in raw_metadata.items()
-            if value is not None
+            if value and not _is_empty_string(value)
         }
 
     def _to_internal_format(self, raw_metadata):
