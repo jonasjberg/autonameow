@@ -69,17 +69,17 @@ class BasePersistence(object):
 
     Example initialization and storage:
 
-        p = AutonameowPersistence('meow-persistence')
-        p.set('meow-data', {'a': 1, 'b': 2})
+        p = AutonameowPersistence('meowmeow')
+        p.set('kibble', {'a': 1, 'b': 2})
 
     This will cache the data in memory by storing in a class instance dict,
     and also write the data to disk using the path:
 
-        "PERSISTENCE_DIR_ABSPATH/meow-persistence_meow-data"
+        "PERSISTENCE_DIR_ABSPATH/meowmeow_kibble"
 
     Example retrieval:
 
-        stored_data = p.get('meow-data')
+        stored_data = p.get('kibble')
         assert stored_data == {'a': 1, 'b': 2}
 
     The idea is to keep many smaller files instead of a single shared file
@@ -166,12 +166,15 @@ class BasePersistence(object):
         """
         Returns data from the persistent data storage.
 
+        The key is used as the last part of the basename of file storing
+        the data on disk.
+
         Args:
             key (str): The key of the data to retrieve.
-                       Postfix of the persistence file that is written to disk.
 
         Returns:
             Any data stored with the given key, as any serializable type.
+
         Raises:
             KeyError: The given 'key' is not a valid non-empty string, was not
                       found in the persistent data or the read failed.
@@ -395,13 +398,33 @@ def get_persistence(file_prefix, persistence_dir_abspath=None):
     Callers should not be concerned with how (if) files are written to disk.
     This provides a common interface for using "some" persistent storage.
 
+    >>> from autonameow.core.persistence import get_persistence
+    >>> p = get_persistence('FOOBAR')
+    >>> p.persistence_dir_abspath
+    b'/tmp/autonameow_cache'
+
+    No file has been written to '/tmp/autonameow_cache' at this point.
+    The call to 'set()' in the following line writes the data to the
+    file '/tmp/autonameow_cache/FOOBAR_TESTKEY', which is created if it
+    does not already exist.
+
+    >>> p.set('TESTKEY', 'TESTVALUE')
+    >>> p.get('TESTKEY')
+    'TESTVALUE'
+
+                                                    file_prefix
+                                                       |____|
+    Path in the above example:  '/tmp/autonameow_cache/FOOBAR_TESTKEY'
+                                 |___________________|        |_____|
+                                persistence_dir_abspath        "key"
+
     Args:
         file_prefix: Used as the first part of the storage file basename.
                      The second part is the "key" used when calling 'set()'.
         persistence_dir_abspath: Optional absolute bytestring path to the
                                  directory to use when storing persistent data.
 
-    Returns: An instance of a 'BasePersistence' subclass.
+    Returns: A class instance that implements the 'BasePersistence' interface.
     """
     try:
         return PicklePersistence(file_prefix, persistence_dir_abspath)

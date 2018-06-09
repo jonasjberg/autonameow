@@ -201,10 +201,10 @@ def run_test(test, reporter):
 
 def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
                      persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH):
-    storage_backend = get_persistence(file_prefix, persistence_dir_abspath)
-    if not storage_backend:
-        log.critical('Unable to get backend for persistent storage')
-    return storage_backend
+    persistence_mechanism = get_persistence(file_prefix, persistence_dir_abspath)
+    if not persistence_mechanism:
+        log.critical('Unable to retrieve any mechanism for persistent storage')
+    return persistence_mechanism
 
 
 def load_history():

@@ -99,12 +99,12 @@ class BaseTextExtractor(object):
         """
         Called by subclasses to enable caching.
         """
-        _cache = persistence.get_cache(
+        any_caching_mechanism = persistence.get_cache(
             str(self),
             max_filesize=C.TEXT_EXTRACTOR_CACHE_MAX_FILESIZE
         )
-        if _cache:
-            self.cache = _cache
+        if any_caching_mechanism:
+            self.cache = any_caching_mechanism
         else:
             log.debug('Failed to initialize {!s} cache'.format(self))
             self.cache = None
