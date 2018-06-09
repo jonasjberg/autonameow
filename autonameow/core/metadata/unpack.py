@@ -59,7 +59,21 @@ def unpack_field_value(todo):
     #     'edition': '6',
     #     'title': 'Essential K# 7.0',
     # }
-
+    #
+    #   URI:  extractor.metadata.exiftool.XMP:Creator
+    # VALUE:  ['Cats Publishing', 'Jamie Forests']
+    # Should unpack to unpacked = {
+    #     'author': 'Jamie Forests',
+    #     'publisher': 'Cats Publishing',
+    # }
+    #
+    #   URI:  extractor.metadata.exiftool.Palm:Rights
+    # VALUE:  "Copyright &#169; 2017 Gibson Education, Inc."
+    # Should unpack to unpacked = {
+    #     'date_created': '2017',
+    #     'publisher': 'Gibson',
+    # }
+    #
     pass
 
 
