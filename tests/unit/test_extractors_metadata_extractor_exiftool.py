@@ -158,10 +158,14 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad('XMP:Subject', ['Title', 'Subject'])
         self._assert_bad('XMP:Title', 'Title')
 
+        self._assert_bad('PDF:Author', '\x104<8=8AB@0B>@')
+        self._assert_bad('PDF:Author', ['\x104<8=8AB@0B>@'])
         self._assert_bad('PDF:Author', 'Unknown')
         self._assert_bad('PDF:Subject', 'Unknown')
         self._assert_bad('PDF:Title', 'DjVu Document')
         self._assert_bad('PDF:Title', 'Unknown')
+        self._assert_bad('XMP:Author', '\x104<8=8AB@0B>@')
+        self._assert_bad('XMP:Author', ['\x104<8=8AB@0B>@'])
         self._assert_bad('XMP:Author', 'Unknown')
         self._assert_bad('XMP:Creator', 'Unknown')
         self._assert_bad('XMP:Description', 'Unknown')
@@ -193,6 +197,7 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad_any_tag('ÿþ')
         self._assert_bad_any_tag('ÿþA')
         self._assert_bad_any_tag('ÿþS')
+        self._assert_bad_any_tag('\x104<8=8AB@0B>@')
 
 
 class TestFilterCoercedValue(TestCase):

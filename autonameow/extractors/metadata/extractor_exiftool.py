@@ -122,6 +122,7 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'ÿþ',
     'ÿþA',
     'ÿþS',
+    '\x104<8=8AB@0B>@',
 ])
 
 
