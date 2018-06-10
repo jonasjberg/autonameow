@@ -277,7 +277,7 @@ class TestStripEditedBy(TestCase):
             'Thomas Edison',
         ]:
             actual = strip_edited_by(given_and_expected)
-            self.assertEqual(given_and_expected, given_and_expected)
+            self.assertEqual(given_and_expected, actual)
 
     def test_strips_leading_variations_of_edited_by(self):
         EXPECTED = 'Gibson Catberg'
