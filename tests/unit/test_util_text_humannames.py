@@ -840,6 +840,33 @@ class TestSplitMultipleNames(TestCase):
             ]
         )
 
+    def test_based_on_live_data_c(self):
+        self._assert_that_it_returns(
+            expected=['Prastant Natarojan', 'John Q. Frienzal', 'Deitlev I. Saltz'],
+            given_any_of=[
+                ['Prastant Natarojan', 'John Q. Frienzal and Deitlev I. Saltz'],
+                ['Prastant Natarojan', 'John Q. Frienzal, and Deitlev I. Saltz'],
+            ]
+        )
+        self._assert_that_it_returns(
+            expected=['Andreas D. Müllör', 'Farah Guido'],
+            given_any_of=[
+                ['Andreas D. Müllör and Farah Guido'],
+                ['Andreas D. Müllör, and Farah Guido'],
+            ]
+        )
+
+    def test_based_on_live_data_d(self):
+        self._assert_that_it_returns(
+            expected=['Ashok N. Srivasaduva', 'Ramarena Nemaniskt', 'Kirsten KleinSteinhaeuser'],
+            given_any_of=[
+                ['Ashok N. Srivasaduva,Ramarena Nemaniskt,Kirsten KleinSteinhaeuser'],
+                ['Ashok N. Srivasaduva, Ramarena Nemaniskt,Kirsten KleinSteinhaeuser'],
+                ['Ashok N. Srivasaduva,Ramarena Nemaniskt, Kirsten KleinSteinhaeuser'],
+                ['Ashok N. Srivasaduva, Ramarena Nemaniskt, Kirsten KleinSteinhaeuser'],
+            ]
+        )
+
 
 class TestFilterMultipleNames(TestCase):
     def _assert_filter_output_contains(self, expected, given):
