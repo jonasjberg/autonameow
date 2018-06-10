@@ -20,8 +20,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import util
-from extractors import BaseMetadataExtractor
 from extractors import ExtractorError
+from extractors.common import BaseMetadataExtractor
 from thirdparty import pyexiftool
 
 

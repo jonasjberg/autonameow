@@ -109,14 +109,14 @@ class TestBaseMetadataExtractorClassMethods(TestCase):
         with self.assertRaises(NotImplementedError):
             _ = self.e.can_handle(self.mock_fileobject)
 
-    @patch('extractors.BaseMetadataExtractor.HANDLES_MIME_TYPES',
+    @patch('extractors.common.BaseMetadataExtractor.HANDLES_MIME_TYPES',
            new_callable=PropertyMock, return_value=['text/plain'])
     def test_can_handle_returns_false(self, mock_attribute):
         e = BaseMetadataExtractor()
         actual = e.can_handle(self.mock_fileobject)
         self.assertFalse(actual)
 
-    @patch('extractors.BaseMetadataExtractor.HANDLES_MIME_TYPES',
+    @patch('extractors.common.BaseMetadataExtractor.HANDLES_MIME_TYPES',
            new_callable=PropertyMock, return_value=['image/jpeg'])
     def test_can_handle_returns_true(self, mock_attribute):
         e = BaseMetadataExtractor()

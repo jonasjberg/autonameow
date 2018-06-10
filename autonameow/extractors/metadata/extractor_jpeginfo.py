@@ -23,7 +23,7 @@ import re
 import subprocess
 
 import util
-from extractors import BaseMetadataExtractor
+from extractors.common import BaseMetadataExtractor
 from extractors import ExtractorError
 from util import coercers
 

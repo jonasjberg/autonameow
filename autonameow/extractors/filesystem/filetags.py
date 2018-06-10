@@ -22,7 +22,7 @@
 import re
 from collections import namedtuple
 
-from extractors import BaseMetadataExtractor
+from extractors.common import BaseMetadataExtractor
 from util import disk
 from util import encoding as enc
 from util import sanity
