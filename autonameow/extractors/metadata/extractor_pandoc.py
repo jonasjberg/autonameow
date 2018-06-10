@@ -26,7 +26,7 @@ import subprocess
 import util
 from core import constants as C
 from extractors import ExtractorError
-from extractors.common import BaseMetadataExtractor
+from extractors.metadata.base import BaseMetadataExtractor
 from extractors.text.base import decode_raw
 from util import coercers
 from util import disk

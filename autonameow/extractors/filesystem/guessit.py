@@ -20,7 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from extractors import ExtractorError
-from extractors.common import BaseMetadataExtractor
+from extractors.metadata.base import BaseMetadataExtractor
 
 
 class GuessitExtractor(BaseMetadataExtractor):

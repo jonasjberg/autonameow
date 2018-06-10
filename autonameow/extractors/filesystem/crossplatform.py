@@ -22,7 +22,7 @@
 import os
 from datetime import datetime
 
-from extractors.common import BaseMetadataExtractor
+from extractors.metadata.base import BaseMetadataExtractor
 
 
 class CrossPlatformFileSystemExtractor(BaseMetadataExtractor):

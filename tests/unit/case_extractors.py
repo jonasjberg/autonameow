@@ -24,7 +24,7 @@ import os
 import unit.utils as uu
 from core import constants as C
 from core.model import MeowURI
-from extractors.common import BaseMetadataExtractor
+from extractors.metadata.base import BaseMetadataExtractor
 
 
 """

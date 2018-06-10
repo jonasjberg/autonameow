@@ -21,7 +21,7 @@
 
 import util
 from extractors import ExtractorError
-from extractors.common import BaseMetadataExtractor
+from extractors.metadata.base import BaseMetadataExtractor
 from thirdparty import pyexiftool
 
 
