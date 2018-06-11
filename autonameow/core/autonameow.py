@@ -125,10 +125,8 @@ class Autonameow(object):
             log.critical('Unable to load configuration --- Aborting ..')
             self.exit_program(C.EXIT_ERROR)
 
-        # Set globally accessible configuration instance.
-        # TODO [TD0188] Consolidate access to active, global configuration.
+        # Dispatch configuration change event.
         config.set_global_configuration(self.config)
-        event.dispatcher.on_config_changed(config=self.config)
 
         if self.opts.get('dump_options'):
             self._dump_options()

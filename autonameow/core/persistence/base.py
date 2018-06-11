@@ -24,6 +24,7 @@ import pickle
 
 from core import config
 from core import constants as C
+from core import event
 from core.exceptions import AutonameowException
 from core.exceptions import FilesystemError
 from util import coercers
@@ -42,25 +43,6 @@ class PersistenceError(AutonameowException):
 class PersistenceImplementationBackendError(PersistenceError):
     """Error while reading/writing using a specific backend. Should only be
     raised from the '_load()' and '_dump()' methods by implementing classes."""
-
-
-def get_config_persistence_path():
-    # TODO [TD0188] Consolidate access to active, global configuration.
-    active_config = config.ActiveConfig
-    if not active_config:
-        return C.DEFAULT_PERSISTENCE_DIR_ABSPATH
-
-    try:
-        cache_dirpath = active_config.get(['PERSISTENCE', 'cache_directory'])
-    except AttributeError:
-        cache_dirpath = None
-
-    if not cache_dirpath:
-        # TODO: Duplicate default setting! Already set in 'configuration.py'.
-        cache_dirpath = C.DEFAULT_PERSISTENCE_DIR_ABSPATH
-
-    sanity.check_internal_bytestring(cache_dirpath)
-    return cache_dirpath
 
 
 class BasePersistence(object):
@@ -431,3 +413,76 @@ def get_persistence(file_prefix, persistence_dir_abspath=None):
     except PersistenceError as e:
         log.error('Persistence unavailable :: {!s}'.format(e))
         return None
+
+
+class PersistencePathStore(object):
+    def __init__(self):
+        self._config_persistence_path = None
+        self.default_persistence_dirpath = C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+
+    def update_from_config(self, active_config):
+        if not active_config:
+            return
+
+        cache_dirpath = active_config.get(['PERSISTENCE', 'cache_directory'])
+        if not cache_dirpath:
+            return
+
+        if disk.isdir(cache_dirpath):
+            self._config_persistence_path = cache_dirpath
+            return
+
+        if disk.exists(cache_dirpath):
+            log.warning(
+                'Configuration persistence cache directory already exists '
+                'and is not a directory: "{!s}"'.format(enc.displayable_path(cache_dirpath))
+            )
+            return
+
+        try:
+            disk.makedirs(cache_dirpath)
+        except FilesystemError as e:
+            log.error(
+                'Unable to create persistence directory path specified in the '
+                'configuration: "{!s}"'.format(enc.displayable_path(cache_dirpath))
+            )
+            log.error(str(e))
+            return
+
+        if disk.isdir(cache_dirpath):
+            self._config_persistence_path = cache_dirpath
+
+    @property
+    def config_persistence_path(self):
+        if not self._config_persistence_path:
+            log.info('Using DEFAULT persistence file path "{!s}"'.format(
+                self.default_persistence_dirpath
+            ))
+            return self.default_persistence_dirpath
+
+        log.debug('Using persistence path specified in the config "{!s}"'.format(
+            self._config_persistence_path
+        ))
+        return self._config_persistence_path
+
+
+_persistence_path_store = PersistencePathStore()
+
+
+def _on_config_changed(*_, **kwargs):
+    """
+    Called whenever the global configuration changes.
+    """
+    active_config = kwargs.get('config')
+    assert active_config
+
+    _persistence_path_store.update_from_config(active_config)
+
+
+event.dispatcher.on_config_changed.add(_on_config_changed)
+
+
+def get_config_persistence_path():
+    cache_dirpath = _persistence_path_store.config_persistence_path
+    sanity.check_internal_bytestring(cache_dirpath)
+    return cache_dirpath

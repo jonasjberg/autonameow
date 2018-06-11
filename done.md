@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 Completed TODO-list Entries
 ===========================
 
+### 2018-06-11
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0188]` Consolidate access to active, global configuration.
+
 ### 2018-05-30
 
 > Medium Priority

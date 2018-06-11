@@ -167,8 +167,6 @@ Medium Priority
     I.E. replace variations and/or equivalent values of "foo books" with the
     canonical values "FooBooks" and "ProjectGutenberg".
 
-* `[TD0188]` Consolidate access to active, global configuration.
-
 * `[TD0182]` Isolate third-party metadata services like `isbnlib`.
 
 * `[TD0174]` Do not do replacements in the NameTemplateField classes.

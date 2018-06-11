@@ -79,7 +79,6 @@ class ConfigHistoryPathStore(object):
 
     @property
     def config_history_path(self):
-        # TODO [TD0188] Consolidate access to active, global configuration.
         if not self._config_history_path:
             log.debug('Using default history file path "{!s}"'.format(self.default_history_file_path))
             return self.default_history_file_path
@@ -212,6 +211,9 @@ def ask_confirm(message):
 
 
 def _on_config_changed(*_, **kwargs):
+    """
+    Called whenever the global configuration changes.
+    """
     active_config = kwargs.get('config')
     assert active_config
 
