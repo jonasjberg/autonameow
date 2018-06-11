@@ -130,19 +130,24 @@ class ConfigFieldParser(object):
             True if expression is valid, else False.
         """
         validation_func = self.get_validation_function()
-        if self.ALLOW_MULTIVALUED_EXPRESSION is True:
-            if not isinstance(expression, list):
-                expression = [expression]
-
-            # All expressions must pass validation.
-            for expr in expression:
-                if not validation_func(expr):
-                    return False
-            return True
-        else:
+        if not self.ALLOW_MULTIVALUED_EXPRESSION:
             if isinstance(expression, list):
+                # Instant fail for unexpectedly "multivalued" expression.
                 return False
+
             return validation_func(expression)
+
+        # Multivalued expressions ARE allowed, turn all expressions into lists.
+        expressions = expression
+        if not isinstance(expressions, list):
+            expressions = [expressions]
+
+        # All expressions must pass validation.
+        for expr in expressions:
+            if not validation_func(expr):
+                return False
+
+        return True
 
     def evaluate(self, expression, data):
         """
