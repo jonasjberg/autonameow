@@ -430,44 +430,6 @@ def _stringify_datadict_value(datadict_value):
     return str_value
 
 
-def _create_repository():
-    repository = Repository()
-    return repository
-
-
-class RepositoryPool(object):
-    DEFAULT_SESSION_ID = 'SINGLETON_SESSION'
-
-    def __init__(self):
-        self._repositories = dict()
-
-    def get(self, id_=None):
-        if id_ is None:
-            id_ = self.DEFAULT_SESSION_ID
-
-        if id_ not in self._repositories:
-            raise KeyError('{} does not contain ID "{!s}'.format(self, id_))
-
-        return self._repositories.get(id_)
-
-    def add(self, repository=None, id_=None):
-        if id_ is None:
-            id_ = self.DEFAULT_SESSION_ID
-
-        if id_ in self._repositories:
-            raise KeyError('{} already contains ID "{!s}'.format(self, id_))
-
-        if repository is None:
-            _repo = _create_repository()
-        else:
-            _repo = repository
-
-        self._repositories[id_] = _repo
-
-    def __len__(self):
-        return len(self._repositories)
-
-
 def maps_field(datadict, field):
     # This might return a None, using a default dict value will not work.
     mapped_fields = datadict.get('mapped_fields')
@@ -480,36 +442,26 @@ def maps_field(datadict, field):
     return False
 
 
-def _initialize(*_, **kwargs):
-    # Keep one global 'SessionRepository' per 'Autonameow' instance.
-    # assert 'autonameow_instance' in kwargs
-    autonameow_instance = kwargs.get('autonameow_instance', None)
+SessionRepository = None
 
-    global Pool
-    Pool = RepositoryPool()
-    Pool.add(id_=autonameow_instance)
+
+def _initialize(*_, **kwargs):
+    instance = kwargs.get('autonameow_instance', '(UNKNOWN)')
+    log.debug('Repository initializing (autonameow instance {!s})'.format(instance))
 
     global SessionRepository
-    SessionRepository = Pool.get(autonameow_instance)
+    SessionRepository = Repository()
 
 
 def _shutdown(*_, **kwargs):
-    global Pool
-    if not Pool:
-        return
+    instance = kwargs.get('autonameow_instance', '(UNKNOWN)')
 
-    assert 'autonameow_instance' in kwargs
-    autonameow_instance = kwargs.get('autonameow_instance', None)
-    try:
-        r = Pool.get(autonameow_instance)
-    except KeyError as e:
-        log.critical('Unable to retrieve repository :: {!s}'.format(e))
-    else:
-        r.shutdown()
+    global SessionRepository
+    if SessionRepository:
+        log.debug('Repository shutting down (autonameow instance {!s})'.format(instance))
+        SessionRepository.shutdown()
+        SessionRepository = None
 
-
-Pool = None
-SessionRepository = None
 
 event.dispatcher.on_startup.add(_initialize)
 event.dispatcher.on_shutdown.add(_shutdown)
