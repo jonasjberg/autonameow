@@ -207,7 +207,26 @@ def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
     return persistence_mechanism
 
 
-def load_history():
+def load_testsuite_history(testsuite, history):
+    if not history:
+        return list()
+
+    past_outcomes = list()
+    for run_results in history:
+        # TODO: [hack] Refactor ..
+        if testsuite in run_results.failed:
+            past_outcomes.append('fail')
+        elif testsuite in run_results.passed:
+            past_outcomes.append('pass')
+        elif testsuite in run_results.skipped:
+            past_outcomes.append('skip')
+        else:
+            past_outcomes.append('unknown')
+
+    return past_outcomes
+
+
+def load_run_results_history():
     # TODO: [hack] Refactor ..
     persistent_storage = _get_persistence()
     if persistent_storage:
@@ -219,38 +238,19 @@ def load_history():
             if history:
                 assert isinstance(history, list)
                 return history
-    return []
+    return list()
 
 
-def load_testsuite_history(testsuite, history):
-    if history:
-        past_outcomes = list()
-        for run_results in history:
-            # TODO: [hack] Refactor ..
-            if testsuite in run_results.failed:
-                past_outcomes.append('fail')
-            elif testsuite in run_results.passed:
-                past_outcomes.append('pass')
-            elif testsuite in run_results.skipped:
-                past_outcomes.append('skip')
-            else:
-                past_outcomes.append('unknown')
-
-        return past_outcomes
-
+def write_run_results_history(run_results, max_entry_count=10):
+    assert isinstance(max_entry_count, int)
 
     # TODO: [hack] Refactor ..
-    return [None, None, None, None, None]
-
-
-def write_test_results_history(run_results):
-    # TODO: [hack] Refactor ..
-    history = load_history()
+    history = load_run_results_history()
     assert isinstance(history, list)
 
     # TODO: [hack] Refactor ..
     history.insert(0, run_results)
-    history = history[:5]
+    history = history[:max_entry_count]
 
     persistent_storage = _get_persistence()
     if persistent_storage:
@@ -274,8 +274,8 @@ def load_failed_testsuites():
         else:
             if lastrun:
                 assert isinstance(lastrun, dict)
-                return lastrun.get('failed', [])
-    return []
+                return lastrun.get('failed', list())
+    return list()
 
 
 def print_test_commandlines(tests):
@@ -285,7 +285,7 @@ def print_test_commandlines(tests):
 
 
 def run_regressiontests(tests, verbose, print_stderr, print_stdout):
-    history = load_history()
+    history = load_run_results_history()
     reporter = TerminalReporter(verbose)
     run_results = RunResults()
     should_abort = False
@@ -373,7 +373,7 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
         # the failed tests, if re-running the failed tests and aborting
         # before completion..
         write_failed_testsuites(run_results.failed)
-        write_test_results_history(run_results)
+        write_run_results_history(run_results)
 
     return run_results
 
