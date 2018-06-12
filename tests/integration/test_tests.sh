@@ -205,9 +205,9 @@ assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e w x
 assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e x
 
 
-_temporary_file='.___temporary__file__'
+_temporary_file='___temporary_file___'
 [ -f "$_temporary_file" ] || touch "$_temporary_file"
-assert_true '[ -e "${_temporary_file}" ]' \
+assert_true '[ -f "${_temporary_file}" ]' \
             'Reference dummy temporary was created'
 
 assert_bulk_test "$_temporary_file"
@@ -228,9 +228,8 @@ assert_bulk_test "$_temporary_file" f r
 assert_bulk_test "$_temporary_file" f r w
 assert_bulk_test "$_temporary_file" f w
 
-rm "$_temporary_file"
-assert_false '[ -e "${_temporary_file}" ]' \
-             'Reference dummy temporary file was deleted'
+assert_true '[ -f "${_temporary_file}" ] && rm "$_temporary_file"' \
+            'Reference dummy temporary file was deleted'
 
 
 # ______________________________________________________________________________
