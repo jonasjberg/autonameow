@@ -99,14 +99,24 @@ class FiletagsExtractor(BaseMetadataExtractor):
 # TODO: [TD0037] Allow further customizing of "filetags" options.
 # TODO: [TD0043] Allow further customizing of "filetags" options.
 
-DATE_SEP = rb'[:\-._ ]?'
-TIME_SEP = rb'[:\-._ T]?'
-DATE_REGEX = rb'[12]\d{3}' + DATE_SEP + rb'[01]\d' + DATE_SEP + rb'[0123]\d'
-TIME_REGEX = (rb'[012]\d' + TIME_SEP + rb'[012345]\d' + TIME_SEP
-              + rb'[012345]\d(.[012345]\d)?')
-FILENAMEPART_TS_REGEX = re.compile(
-    DATE_REGEX + rb'([T_ -]?' + TIME_REGEX + rb')?'
-)
+
+RE_FILENAMEPART_ISODATE = re.compile(rb'''
+[12]\d{3}       # YYYY  year
+[:\-._ ]?       # separator
+[01]\d          # MM    months
+[:\-._ ]?       # separator
+[0123]\d        # DD    days
+
+(               # Begin optional time group
+[T_ -]?         # Separator between date and time
+[012]\d         # HH    hours
+[:\-._ T]?      # separator
+[012345]\d      # MM    minutes
+[:\-._ T]?      # separator
+[012345]\d      # SS    seconds
+(.[012345]\d)?  # ss    nanoseconds (?)
+)?              # End optional time group
+''', re.VERBOSE)
 
 
 def partition_basename(filepath):
@@ -140,7 +150,7 @@ def partition_basename(filepath):
 
     prefix, suffix = disk.split_basename(filepath)
 
-    timestamp = FILENAMEPART_TS_REGEX.match(prefix)
+    timestamp = RE_FILENAMEPART_ISODATE.match(prefix)
     if timestamp:
         timestamp = timestamp.group(0)
         prefix = prefix.lstrip(timestamp)
