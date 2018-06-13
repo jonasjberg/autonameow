@@ -31,6 +31,7 @@ from core import constants as C
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor
 from extractors.text.base import decode_raw
+from util import process
 
 
 class MarkdownTextExtractor(BaseTextExtractor):
@@ -53,20 +54,12 @@ def get_plaintext_from_markdown_file_with_pandoc(filepath):
     # TODO: Convert non-UTF8 source text to UTF-8.
     #       pandoc does not handle non-UTF8 input.
     try:
-        process = subprocess.Popen(
-            ['pandoc', '--from', 'markdown', '--to', 'plain', '--', filepath],
-            shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        stdout = process.blocking_read_stdout(
+            'pandoc', '--from', 'markdown', '--to', 'plain', '--', filepath
         )
-        stdout, stderr = process.communicate()
-    except (OSError, ValueError, subprocess.SubprocessError) as e:
+    except (process.ChildProcessError) as e:
         raise ExtractorError(e)
 
-    if process.returncode != 0:
-        raise ExtractorError(
-            'pandoc returned {!s} with STDERR: "{!s}"'.format(
-                process.returncode, stderr)
-        )
-
-    # pandoc uses UTF-8 characters encoding for both input and output
+    # NOTE(jonas): pandoc uses UTF-8 encoding for both input and output
     result = decode_raw(stdout)
     return result.strip() if result else ''

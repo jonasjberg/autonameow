@@ -25,6 +25,7 @@ import util
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor
 from extractors.text.base import decode_raw
+from util import process
 
 
 # TODO: [TD0194] Handle (seemingly empty) pdfs without "overlay" text
@@ -61,19 +62,11 @@ def extract_pdf_content_with_pdftotext(filepath):
         ExtractorError: The extraction failed and could not be completed.
     """
     try:
-        process = subprocess.Popen(
-            ['pdftotext', '-q', '-nopgbrk', '-enc', 'UTF-8', filepath, '-'],
-            shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        stdout = process.blocking_read_stdout(
+            'pdftotext', '-q', '-nopgbrk', '-enc', 'UTF-8', filepath, '-'
         )
-        stdout, stderr = process.communicate()
-    except (OSError, ValueError, subprocess.SubprocessError) as e:
+    except (process.ChildProcessError) as e:
         raise ExtractorError(e)
-
-    if process.returncode != 0:
-        raise ExtractorError(
-            'pdftotext returned {!s} with STDERR: "{!s}"'.format(
-                process.returncode, stderr)
-        )
 
     result = decode_raw(stdout)
     return result.strip() if result else ''

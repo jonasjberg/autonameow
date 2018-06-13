@@ -30,6 +30,7 @@ from extractors.metadata.base import BaseMetadataExtractor
 from extractors.text.base import decode_raw
 from util import coercers
 from util import disk
+from util import process
 
 _PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
 BASENAME_PANDOC_TEMPLATE = coercers.AW_PATHCOMPONENT('extractor_pandoc_template.plain')
@@ -149,20 +150,12 @@ def extract_document_metadata_with_pandoc(filepath):
     # TODO: Convert non-UTF8 source text to UTF-8.
     #       pandoc does not handle non-UTF8 input.
     try:
-        process = subprocess.Popen(
-            ['pandoc', '--to', 'plain', '--template',
-             PATH_CUSTOM_PANDOC_TEMPLATE, '--', filepath],
-            shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        stdout = process.blocking_read_stdout(
+            'pandoc', '--to', 'plain', '--template',
+            PATH_CUSTOM_PANDOC_TEMPLATE, '--', filepath
         )
-        stdout, stderr = process.communicate()
-    except (OSError, ValueError, subprocess.SubprocessError) as e:
+    except (process.ChildProcessError) as e:
         raise ExtractorError(e)
-
-    if process.returncode != 0:
-        raise ExtractorError(
-            'pandoc returned {!s} with STDERR: "{!s}"'.format(
-                process.returncode, stderr)
-        )
 
     json_string = decode_raw(stdout)
     return _parse_pandoc_output(json_string)

@@ -25,6 +25,7 @@ import util
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor
 from extractors.text.base import decode_raw
+from util import process
 
 
 class RichTextFormatTextExtractor(BaseTextExtractor):
@@ -60,16 +61,14 @@ def extract_text_with_unrtf(filepath):
     Raises:
         ExtractorError: The extraction failed and could not be completed.
     """
-    # NOTE(jonas): UnRTF outputs plain ASCII with '--text'.
     try:
-        process = subprocess.Popen(
-            ['unrtf', '--text', filepath],
-            shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        stdout = process.blocking_read_stdout(
+            'unrtf', '--text', filepath
         )
-        stdout, stderr = process.communicate()
-    except (OSError, ValueError, subprocess.SubprocessError) as e:
+    except (process.ChildProcessError) as e:
         raise ExtractorError(e)
 
+    # NOTE(jonas): UnRTF outputs plain ASCII with '--text'.
     decoded_output = decode_ascii(stdout)
 
     # First part is a header with UnRTF version and any metadata.
