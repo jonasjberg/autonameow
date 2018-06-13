@@ -20,7 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from unittest import skipIf, TestCase
+from unittest import expectedFailure, skipIf, TestCase
 
 import unit.utils as uu
 from extractors.text.extractor_plain import autodetect_encoding
@@ -166,8 +166,8 @@ class TestAutodetectEncoding(TestCase):
         actual = autodetect_encoding(sample)
         self.assertEqual(actual, 'ascii')
 
+    @expectedFailure
     def test_detects_utf8(self):
-        self.skipTest('file says: "test_files/README.txt: UTF-8 Unicode text"')
         sample = uu.abspath_testfile('README.txt')
         self.assertTrue(uu.file_exists(sample))
         actual = autodetect_encoding(sample)
@@ -199,8 +199,8 @@ class TestAutodetectEncoding(TestCase):
 
             self.assertEqual(actual, expected_encoding)
 
+    @expectedFailure
     def test_returns_none_for_non_text_files(self):
-        self.skipTest('Assume non-textfiles are detected and skipped prior?')
         for test_file in ['magic_jpg.jpg', 'magic_png.png']:
             sample = uu.abspath_testfile(test_file)
             self.assertTrue(uu.file_exists(sample))
@@ -231,8 +231,9 @@ class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
         self.assertTrue(uu.is_internalstring(e)
                         for _, e in self.testfile_encoding)
 
+    @expectedFailure
     def test_detects_encodings(self):
-        self.skipTest('TODO: Improve auto-detecting encodings ..')
+        # TODO: Improve auto-detecting encodings ..')
         for testfile, expected_encoding in self.testfile_encoding:
             if expected_encoding == 'cp1252':
                 # TODO: Improve encoding detection! (or not, for these samples)
