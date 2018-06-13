@@ -54,6 +54,13 @@ Metadata
   DCC Digital Curation Reference Manual. ISSN 1747-1524.
   Duff W. vanBallegooie M. 2006.
 
+* [Deduplication of metadata harvested from Open Archives Initiative
+  repositories][10]  
+  Interdisciplinary Centre for Mathematical and Computational Modelling,
+  University of Warsaw, ul. Prosta 69, 00-838 Warsaw, Poland.
+  Wendykier P. 2013.
+  IOS Press. DOI 10.3233/ISU-130695.
+
 
 Implementing Plugin Systems
 --------------------------------------------------------------------------------
@@ -83,3 +90,4 @@ Implementing Plugin Systems
 [7]: https://eli.thegreenplace.net/2012/08/07/fundamental-concepts-of-plugin-infrastructures
 [8]: http://www.dcc.ac.uk/sites/default/files/documents/dcc_amg_final.pdf
 [9]: http://www.dcc.ac.uk/sites/default/files/documents/resource/curation-manual/chapters/archival-metadata/archival-metadata.pdf
+[10]: https://content.iospress.com/download/information-services-and-use/isu695?id=information-services-and-use/isu695
