@@ -733,7 +733,7 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
 
         # TODO: [TD0181] Use machine learning in ISBN metadata de-duplication.
         # TODO: Arbitrary threshold values..
-        # Solving "properly" requires machine learning techniques; HMM? Bayes?
+        # TODO: [TD0181] Replace this with decision tree classifier.
         log.debug('Comparing {!s} to {!s} ..'.format(self, other))
         log.debug('Difference Year: {}'.format(_year_diff))
         log.debug('Similarity Authors: {}'.format(_sim_authors))
