@@ -215,6 +215,25 @@ def is_blacklisted(entry):
     return False
 
 
+def git_changelog_entries_for_range(hash_first, hash_second):
+    git_log = git_log_for_range(hash_first, hash_second)
+    parsed_git_log = parse_git_log(git_log)
+
+    log_entries = list()
+    for commit in parsed_git_log:
+        subject = commit.get('subject', '').strip()
+        body = commit.get('body', '').strip()
+
+        if not subject:
+            continue
+
+        cle = ChangelogEntry(subject, body)
+        if cle not in log_entries and not is_blacklisted(cle):
+            log_entries.append(cle)
+
+    return log_entries
+
+
 def parse_git_log(git_log_string):
     log = str(git_log_string)
     log = log.strip('\n' + GIT_LOG_SEP_RECORD).split(GIT_LOG_SEP_RECORD)
@@ -245,27 +264,6 @@ def get_commit_for_tag(tag_name):
     return coercers.force_string(stdout.strip())
 
 
-def transform_fixes_to_fix(string):
-    """
-    Returns "fix the thing" given "fixes the thing".
-    """
-    # TODO: Implement properly or remove.
-    first_word = string.split()[0]
-    if not first_word.endswith('es'):
-        return string
-
-    present_first_word = first_word[:-2]
-    return ' '.join([present_first_word] + string.split()[1:])
-
-
-def consolidate_almost_equal(_subject, _body):
-    # TODO: Implement properly or remove.
-    _fixes_to_fix_body = transform_fixes_to_fix(_body)
-    if _fixes_to_fix_body == _subject:
-        # Body test is too similar to the subject; remove it.
-        return ''
-
-
 def is_readable_file(file_path):
     return os.path.isfile(file_path) and os.access(file_path, os.R_OK)
 
@@ -286,8 +284,6 @@ if __name__ == '__main__':
         prog=SELFNAME,
         epilog='"{}" -- Change log utility.'.format(SELFNAME)
     )
-
-    argument_group_actions = parser.add_mutually_exclusive_group()
     opts = parser.parse_args(sys.argv[1:])
 
     # Make sure that the changelog file exists.
@@ -306,50 +302,32 @@ if __name__ == '__main__':
     header = get_changelog_header_line()
     print(header)
 
-    _prev_tag = get_previous_version_tag()
-    _prev_tag_hash = get_commit_for_tag(_prev_tag)
-    _current_hash = util.git_commit_hash()
-    # print('Previous version tag: {!s}'.format(_prev_tag))
-    # print('Previous version tag commit hash: {!s}'.format(_prev_tag_hash))
-    # print('Current commit hash: {!s}'.format(_current_hash))
+    prev_tag = get_previous_version_tag()
+    prev_tag_hash = get_commit_for_tag(prev_tag)
+    current_hash = util.git_commit_hash()
+    # print('Previous version tag: {!s}'.format(prev_tag))
+    # print('Previous version tag commit hash: {!s}'.format(prev_tag_hash))
+    # print('Current commit hash: {!s}'.format(current_hash))
 
-    _git_log = git_log_for_range(_prev_tag_hash, _current_hash)
+    log_entries = git_changelog_entries_for_range(prev_tag_hash, current_hash)
 
-    parsed_git_log = parse_git_log(_git_log)
-    log_entries = list()
-    for commit in parsed_git_log:
-        _subject = commit.get('subject', '').strip()
-        _body = commit.get('body', '').strip()
-
-        if not _subject:
-            continue
-
-        # TODO: Implement properly or remove.
-        # if _body:
-        #     _body = consolidate_almost_equal(_subject, _body)
-
-        cle = ChangelogEntry(_subject, _body)
-        if cle not in log_entries and not is_blacklisted(cle):
-            log_entries.append(cle)
-
-    section_entries = {
+    SECTION_ENTRIES = {
         'Additions': list(),
         'Changes': list(),
         'Fixes': list()
     }
-
     for entry in log_entries:
         if ChangelogEntryClassifier.is_change(entry):
-            section_entries['Changes'].append(entry)
+            SECTION_ENTRIES['Changes'].append(entry)
         elif ChangelogEntryClassifier.is_addition(entry):
-            section_entries['Additions'].append(entry)
+            SECTION_ENTRIES['Additions'].append(entry)
         elif ChangelogEntryClassifier.is_fix(entry):
-            section_entries['Fixes'].append(entry)
+            SECTION_ENTRIES['Fixes'].append(entry)
         else:
             # TODO: Handle undetermined entry better?
-            section_entries['Changes'].append(entry)
+            SECTION_ENTRIES['Changes'].append(entry)
 
-    for section, entries in sorted(section_entries.items()):
+    for section, entries in sorted(SECTION_ENTRIES.items()):
         print('\n' + text.indent(section, columns=12))
 
         for entry in entries:
