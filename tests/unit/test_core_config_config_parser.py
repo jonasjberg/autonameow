@@ -449,46 +449,33 @@ class TestConfigurationOptionsParserTryLoadPersistenceOption(TestCase):
 
 
 class TestParseRuleConditions(TestCase):
-    def _assert_parsed_result(self, expect_uri, expect_expression, given):
+    def _assert_parsed_result(self, given, expect_uri, expect_expression):
         actual = parse_rule_conditions(given)
         self.assertEqual(expect_uri, actual[0].meowuri)
         self.assertEqual(expect_expression, actual[0].expression)
 
     def test_parse_condition_filesystem_pathname_is_valid(self):
-        raw_conditions = {
-            uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'
-        }
-        actual = parse_rule_conditions(raw_conditions)
-        self.assertEqual(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL,
-                         actual[0].meowuri)
-        self.assertEqual('~/.config',
-                         actual[0].expression)
-
         self._assert_parsed_result(
+            given={uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'},
             expect_uri=uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL,
             expect_expression='~/.config',
-            given={uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'}
         )
 
     def test_parse_condition_contents_mime_type_is_valid(self):
-        raw_conditions = {
-            uuconst.MEOWURI_FS_XPLAT_MIMETYPE: 'image/jpeg'
-        }
-        actual = parse_rule_conditions(raw_conditions)
-        self.assertEqual(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, actual[0].meowuri)
-        self.assertEqual('image/jpeg', actual[0].expression)
+        self._assert_parsed_result(
+            given={uuconst.MEOWURI_FS_XPLAT_MIMETYPE: 'image/jpeg'},
+            expect_uri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expect_expression='image/jpeg',
+        )
 
     def test_parse_condition_contents_metadata_is_valid(self):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        raw_conditions = {
-            uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL: 'Defined',
-        }
-        actual = parse_rule_conditions(raw_conditions)
-        self.assertEqual(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
-                         actual[0].meowuri)
-        self.assertEqual('Defined',
-                         actual[0].expression)
+        self._assert_parsed_result(
+            given={uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL: 'Defined'},
+            expect_uri=uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
+            expect_expression='Defined',
+        )
 
     def test_parse_empty_conditions_is_allowed(self):
         raw_conditions = dict()
@@ -554,57 +541,58 @@ class TestValidateVersionNumber(TestCase):
         _assert_equal('v1337.1337.1337', (1337, 1337, 1337))
 
     def test_invalid_version_number_returns_none(self):
-        def _assert_none(test_data):
-            actual = parse_versioning(test_data)
-            self.assertIsNone(actual)
-
-        _assert_none(None)
-        _assert_none([])
-        _assert_none({})
-        _assert_none('')
-        _assert_none(b'')
-        _assert_none(' ')
-        _assert_none(b' ')
-        _assert_none('0.0')
-        _assert_none('1.2')
-        _assert_none('1.2.x')
-        _assert_none('1.2 x')
-        _assert_none('1.2 3')
-        _assert_none('1 2.3')
-        _assert_none('1 2 3')
-        _assert_none('€.2.3')
-        _assert_none('€.%.3')
-        _assert_none('€.%.&')
-        _assert_none(b'0.0')
-        _assert_none(b'1.2')
-        _assert_none(b'1.2.x')
-        _assert_none(b'1.2 x')
-        _assert_none(b'1.2 3')
-        _assert_none(b'1 2.3')
-        _assert_none(b'1 2 3')
-        _assert_none('€.2.3'.encode(C.DEFAULT_ENCODING))
-        _assert_none('€.%.3'.encode(C.DEFAULT_ENCODING))
-        _assert_none('€.%.&'.encode(C.DEFAULT_ENCODING))
-        _assert_none('v0.0')
-        _assert_none('v1.2')
-        _assert_none('v1.2.x')
-        _assert_none('v1.2 x')
-        _assert_none('v1.2 3')
-        _assert_none('v1 2.3')
-        _assert_none('v1 2 3')
-        _assert_none('v€.2.3')
-        _assert_none('v€.%.3')
-        _assert_none('v€.%.&')
-        _assert_none(b'v0.0')
-        _assert_none(b'v1.2')
-        _assert_none(b'v1.2.x')
-        _assert_none(b'v1.2 x')
-        _assert_none(b'v1.2 3')
-        _assert_none(b'v1 2.3')
-        _assert_none(b'v1 2 3')
-        _assert_none('v€.2.3'.encode(C.DEFAULT_ENCODING))
-        _assert_none('v€.%.3'.encode(C.DEFAULT_ENCODING))
-        _assert_none('v€.%.&'.encode(C.DEFAULT_ENCODING))
+        for given in [
+            None,
+            [],
+            {},
+            '',
+            b'',
+            ' ',
+            b' ',
+            '0.0',
+            '1.2',
+            '1.2.x',
+            '1.2 x',
+            '1.2 3',
+            '1 2.3',
+            '1 2 3',
+            '€.2.3',
+            '€.%.3',
+            '€.%.&',
+            b'0.0',
+            b'1.2',
+            b'1.2.x',
+            b'1.2 x',
+            b'1.2 3',
+            b'1 2.3',
+            b'1 2 3',
+            '€.2.3'.encode(C.DEFAULT_ENCODING),
+            '€.%.3'.encode(C.DEFAULT_ENCODING),
+            '€.%.&'.encode(C.DEFAULT_ENCODING),
+            'v0.0',
+            'v1.2',
+            'v1.2.x',
+            'v1.2 x',
+            'v1.2 3',
+            'v1 2.3',
+            'v1 2 3',
+            'v€.2.3',
+            'v€.%.3',
+            'v€.%.&',
+            b'v0.0',
+            b'v1.2',
+            b'v1.2.x',
+            b'v1.2 x',
+            b'v1.2 3',
+            b'v1 2.3',
+            b'v1 2 3',
+            'v€.2.3'.encode(C.DEFAULT_ENCODING),
+            'v€.%.3'.encode(C.DEFAULT_ENCODING),
+            'v€.%.&'.encode(C.DEFAULT_ENCODING),
+        ]:
+            with self.subTest(given=given):
+                actual = parse_versioning(given)
+                self.assertIsNone(actual)
 
 
 class TestNestedDictSet(TestCase):
