@@ -39,14 +39,11 @@ from analyzers.analyze_ebook import filter_isbns
 from analyzers.analyze_ebook import ISBNMetadata
 
 
-def get_ebook_analyzer(fileobject):
-    mock_config = Mock()
-
-    # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
+def _get_ebook_analyzer(fileobject):
     return EbookAnalyzer(
-        fileobject,
-        mock_config,
-        request_data_callback=uu.mock_request_data_callback
+        fileobject=fileobject,
+        config=Mock(),
+        request_data_callback=Mock()
     )
 
 
@@ -54,7 +51,7 @@ def get_ebook_analyzer(fileobject):
 class TestEbookAnalyzer(TestCase):
     def setUp(self):
         self.fileobject = uu.get_named_fileobject('2010-01-31_161251.jpg')
-        self.analyzer = get_ebook_analyzer(self.fileobject)
+        self.analyzer = _get_ebook_analyzer(self.fileobject)
 
     def test_setup(self):
         self.assertIsNotNone(self.fileobject)

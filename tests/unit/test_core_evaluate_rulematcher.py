@@ -256,15 +256,8 @@ class TestPrioritizeRules(TestCase):
 class TestRuleConditionEvaluator(TestCase):
     @classmethod
     def setUpClass(cls):
-        def _mock_request_data_function(fileobject, meowuri):
-            response = uu.mock_request_data_callback(fileobject, meowuri)
-            if response:
-                return response.get('value')
-            else:
-                return None
-
         # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
-        cls._mock_request_data_function = _mock_request_data_function
+        cls._mock_request_data_function = lambda _, __: None
 
     def test_init(self):
         _ = RuleConditionEvaluator(self._mock_request_data_function)
