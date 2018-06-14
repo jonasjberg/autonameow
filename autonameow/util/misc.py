@@ -37,8 +37,6 @@ __all__ = [
     'flatten_sequence_type',
     'git_commit_hash',
     'is_executable',
-    'nested_dict_get',
-    'nested_dict_set',
     'process_id',
 ]
 
@@ -108,89 +106,6 @@ def count_dict_recursive(dictionary, count=0):
                 count += 1
 
     return count
-
-
-def nested_dict_get(dictionary, list_of_keys):
-    """
-    Retrieves a value from a given nested dictionary structure.
-
-    The structure is traversed by accessing each key in the given list of keys
-    in order.
-
-    Based on this post:  https://stackoverflow.com/a/37704379/7802196
-
-    Args:
-        dictionary: The dictionary structure to traverse.
-        list_of_keys: List of keys to use during the traversal.
-
-    Returns:
-        The value in the nested structure, if successful.
-
-    Raises:
-        KeyError: Failed to retrieve any value with the given list of keys.
-    """
-    if not list_of_keys or not isinstance(list_of_keys, list):
-        raise TypeError('Expected "list_of_keys" to be a list of strings')
-
-    for k in list_of_keys:
-        try:
-            dictionary = dictionary[k]
-        except TypeError:
-            raise KeyError('Thing is not subscriptable (traversed too deep?)')
-    return dictionary
-
-
-def nested_dict_set(dictionary, list_of_keys, value):
-    """
-    Sets a value in a nested dictionary structure.
-
-    The structure is traversed using the given list of keys and the destination
-    dictionary is set to the given value, unless the traversal fails by
-    attempting to overwrite an already existing value with a new dictionary
-    entry.
-
-    The list of keys can not contain any None or whitespace-only items.
-
-    Note that the dictionary is modified IN PLACE.
-
-    Based on this post:  https://stackoverflow.com/a/37704379/7802196
-
-    Args:
-        dictionary: The dictionary from which to retrieve a value.
-        list_of_keys: List of keys to the value to set, as any hashable type.
-        value: The new value that will be set in the given dictionary.
-    Raises:
-        TypeError: Arg 'list_of_keys' evaluates None or isn't a list.
-        ValueError: Arg 'list_of_keys' contains None or whitespace-only string.
-        KeyError: Existing value would have been clobbered.
-    """
-    if not list_of_keys or not isinstance(list_of_keys, list):
-        raise TypeError('Expected "list_of_keys" to be a list of strings')
-
-    if (None in list_of_keys or
-            any(k.strip() == '' for k in list_of_keys if isinstance(k, str))):
-        raise ValueError(
-            'Expected "list_of_keys" to not contain any None/"empty" items'
-        )
-
-    for key in list_of_keys[:-1]:
-        dictionary = dictionary.setdefault(key, {})
-
-    try:
-        dictionary[list_of_keys[-1]] = value
-    except TypeError:
-        # TODO: Add keyword-argument to allow overwriting any existing.
-        # This happens when the dictionary contains a non-dict item where one
-        # of the keys would go. For example;
-        #
-        #    example_dict = {'a': 2,
-        #                    'b': {'c': 4,
-        #                          'foo': 6}})
-        #
-        # Calling "nested_dict_set(example_dict, ['a', 'foo'], 1])" would
-        # fail because 'a' stores the integer "2" where we would like to
-        # create the new dict;  "{'foo': 6}"
-        raise KeyError('Caught TypeError (would have clobbered existing value)')
 
 
 @lru_cache(maxsize=128)

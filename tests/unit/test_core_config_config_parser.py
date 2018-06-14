@@ -35,6 +35,7 @@ except ImportError:
 import unit.utils as uu
 import unit.constants as uuconst
 from core import constants as C
+from core.config.config_parser import _nested_dict_set
 from core.config.config_parser import ConfigurationOptionsParser
 from core.config.config_parser import ConfigurationParser
 from core.config.config_parser import ConfigurationRuleParser
@@ -604,3 +605,141 @@ class TestValidateVersionNumber(TestCase):
         _assert_none('v€.2.3'.encode(C.DEFAULT_ENCODING))
         _assert_none('v€.%.3'.encode(C.DEFAULT_ENCODING))
         _assert_none('v€.%.&'.encode(C.DEFAULT_ENCODING))
+
+
+class TestNestedDictSet(TestCase):
+    def _assert_sets(self, dictionary, list_of_keys, value, expected):
+        _ = _nested_dict_set(dictionary, list_of_keys, value)
+        self.assertIsNone(_)
+        self.assertDictEqual(dictionary, expected)
+        self.assertTrue(key in dictionary for key in expected.keys())
+
+    def test_set_value_in_empty_dictionary(self):
+        self._assert_sets(
+            dictionary={},
+            list_of_keys=['a'],
+            value=1,
+            expected={'a': 1}
+        )
+        self._assert_sets(
+            dictionary={},
+            list_of_keys=['a', 'b'],
+            value=2,
+            expected={'a': {'b': 2}}
+        )
+        self._assert_sets(
+            dictionary={},
+            list_of_keys=['a', 'b', 'c'],
+            value=3,
+            expected={'a': {'b': {'c': 3}}}
+        )
+
+    def test_set_value_in_empty_dictionary_with_fileobject_key(self):
+        keys = [uu.get_mock_fileobject()]
+        self._assert_sets(
+            dictionary={},
+            list_of_keys=keys,
+            value=1,
+            expected={keys[0]: 1}
+        )
+
+        keys = [uu.get_mock_fileobject(), uu.get_mock_fileobject()]
+        self._assert_sets(
+            dictionary={},
+            list_of_keys=keys,
+            value='foo',
+            expected={keys[0]: {keys[1]: 'foo'}}
+        )
+
+    def test_set_value_modifies_dictionary_in_place(self):
+        d = {'a': 1}
+        self._assert_sets(
+            dictionary=d,
+            list_of_keys=['a'],
+            value=2,
+            expected={'a': 2}
+        )
+        self._assert_sets(
+            dictionary=d,
+            list_of_keys=['b'],
+            value={},
+            expected={'a': 2,
+                      'b': {}}
+        )
+        self._assert_sets(
+            dictionary=d,
+            list_of_keys=['b', 'c'],
+            value=4,
+            expected={'a': 2,
+                      'b': {'c': 4}}
+        )
+        self._assert_sets(
+            dictionary=d,
+            list_of_keys=['b', 'foo'],
+            value=6,
+            expected={'a': 2,
+                      'b': {'c': 4,
+                            'foo': 6}}
+        )
+        self._assert_sets(
+            dictionary=d,
+            list_of_keys=['b', 'foo'],
+            value=8,
+            expected={'a': 2,
+                      'b': {'c': 4,
+                            'foo': 8}}
+        )
+
+    def test_attempting_to_set_occupied_value_raises_key_error(self):
+        with self.assertRaises(KeyError):
+            self._assert_sets(
+                dictionary={'a': 1},
+                list_of_keys=['a', 'b'],
+                value=5,
+                expected={'a': 2}
+            )
+
+    def test_passing_invalid_list_of_keys_raises_assertion_error(self):
+        for given_key_list in [
+            '',
+            None,
+            (),
+            {},
+            {'a': None},
+            {'a': 'b'},
+        ]:
+            with self.assertRaises(AssertionError):
+                self._assert_sets(
+                    dictionary={'a': 1},
+                    list_of_keys=given_key_list,
+                    value=2,
+                    expected={'expect_exception': 0}
+                )
+
+    def test_passing_empty_list_raises_value_error(self):
+        for given_key_list in [
+            [''],
+            [None],
+            [None, ''],
+            ['', None],
+            [None, 'foo'],
+            ['foo', None],
+            ['foo', ''],
+            ['', 'foo'],
+            [None, 'foo', ''],
+            [None, '', 'foo'],
+            ['foo', None, ''],
+            ['', None, 'foo'],
+            ['foo', None, '', None],
+            ['', None, 'foo', None],
+            ['foo', None, 'a', 'b'],
+            ['', 'a', 'b', None],
+            ['', 'a', 'b', 'foo'],
+        ]:
+            with self.assertRaises(ValueError):
+                self._assert_sets(
+                    dictionary={'a': 1},
+                    list_of_keys=given_key_list,
+                    value=2,
+                    expected={'expect_exception': 0}
+                )

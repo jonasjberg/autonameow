@@ -34,8 +34,6 @@ from unittest.mock import MagicMock, Mock
 import unit.constants as uuconst
 from core import FileObject
 from util import encoding as enc
-from util import nested_dict_get
-from util import nested_dict_set
 
 
 def abspath_testfile(testfile_basename):
