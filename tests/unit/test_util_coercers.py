@@ -416,7 +416,7 @@ class TestTypeInteger(TestCase, CaseCoercers):
 
     def test_format_raises_exception_for_invalid_format_strings(self):
         def _assert_raises(test_data, format_string):
-            with self.assertRaises(coercers.AWTypeError):
+            with self.assertRaises(AssertionError):
                 _ = coercers.AW_INTEGER.format(test_data, format_string=format_string)
 
         _assert_raises(1, None)

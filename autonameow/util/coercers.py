@@ -219,10 +219,8 @@ class _Path(BaseCoercer):
 
     def coerce(self, value):
         if value:
-            try:
+            with exceptions.ignored(ValueError, TypeError):
                 return enc.bytestring_path(value)
-            except (ValueError, TypeError):
-                pass
 
         return self._fail_coercion(value)
 
@@ -290,21 +288,17 @@ class _Boolean(BaseCoercer):
         if value is None:
             return self.null()
 
-        try:
-            string_value = AW_STRING(value)
-        except AWTypeError:
-            pass
-        else:
-            _maybe_bool = self.string_to_bool(string_value)
-            if _maybe_bool is not None:
-                return _maybe_bool
+        bool_as_str = None
+        with exceptions.ignored(AWTypeError):
+            bool_as_str = AW_STRING(value)
 
-        try:
-            float_value = AW_FLOAT(value)
-        except AWTypeError:
-            pass
-        else:
-            return bool(float_value > 0)
+        if bool_as_str:
+            str_as_bool = self.string_to_bool(bool_as_str)
+            if str_as_bool is not None:
+                return str_as_bool
+
+        with exceptions.ignored(AWTypeError):
+            return bool(AW_FLOAT(value) > 0)
 
         if hasattr(value, '__bool__'):
             try:
@@ -332,18 +326,11 @@ class _Integer(BaseCoercer):
         # If casting to int directly fails, try first converting to float,
         # then from float to int. Casting string to int handles "1.5" but
         # "-1.5" fails. The two step approach fixes the negative numbers.
-        try:
+        with exceptions.ignored(ValueError, TypeError):
             return int(value)
-        except (ValueError, TypeError):
-            try:
-                float_value = float(value)
-            except (ValueError, TypeError):
-                pass
-            else:
-                try:
-                    return int(float_value)
-                except (ValueError, TypeError):
-                    pass
+
+        with exceptions.ignored(ValueError, TypeError):
+            return int(float(value))
 
         return self._fail_coercion(value)
 
@@ -361,10 +348,8 @@ class _Integer(BaseCoercer):
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 
-            try:
+            with exceptions.ignored(TypeError):
                 return format_string.format(value)
-            except TypeError:
-                pass
 
         raise AWTypeError(
             'Invalid "format_string": "{!s}"'.format(format_string)
@@ -414,10 +399,8 @@ class _Float(BaseCoercer):
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 
-            try:
+            with exceptions.ignored(TypeError):
                 return format_string.format(value)
-            except TypeError:
-                pass
 
         raise AWTypeError(
             'Invalid "format_string": "{!s}"'.format(format_string)
@@ -440,10 +423,8 @@ class _String(BaseCoercer):
                 return self.null()
 
         if self.coercible(value):
-            try:
+            with exceptions.ignored(ValueError, TypeError):
                 return str(value)
-            except (ValueError, TypeError):
-                pass
 
         return self._fail_coercion(value)
 
@@ -548,10 +529,8 @@ class _Date(BaseCoercer):
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 
-            try:
+            with exceptions.ignored(TypeError):
                 return datetime.strftime(value, format_string)
-            except TypeError:
-                pass
 
         raise AWTypeError(
             'Invalid "format_string": "{!s}"'.format(format_string)
@@ -612,10 +591,8 @@ class _TimeDate(BaseCoercer):
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 
-            try:
+            with exceptions.ignored(TypeError):
                 return datetime.strftime(value, format_string)
-            except TypeError:
-                pass
 
         raise AWTypeError(
             'Invalid "format_string": "{!s}"'.format(format_string)
@@ -754,10 +731,8 @@ def try_parse_datetime(s):
         normalized_s = normalization_func(s)
         if normalized_s:
             assert isinstance(normalized_s, str)
-            try:
+            with exceptions.ignored(ValueError):
                 return datetime.strptime(normalized_s, strptime_pattern)
-            except ValueError:
-                pass
 
     raise ValueError('Unable to parse datetime from string "{!s}"'.format(s))
 
@@ -786,10 +761,8 @@ def try_parse_date(s):
 
     match = normalize_date(s)
     if match:
-        try:
+        with exceptions.ignored(ValueError, TypeError):
             return datetime.strptime(match, '%Y-%m-%d')
-        except (ValueError, TypeError):
-            pass
 
     # Alternative, brute force method. Extract digits.
     # Assumes year, month, day is in ISO-date-like order.
