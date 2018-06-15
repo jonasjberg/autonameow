@@ -23,7 +23,6 @@ import logging
 import os
 import sys
 import time
-from collections import deque
 
 from core import constants as C
 from core.persistence import get_persistence
@@ -35,6 +34,7 @@ from regression.utils import commandline_for_testsuite
 from regression.utils import glob_filter
 from regression.utils import load_regression_testsuites
 from regression.utils import print_test_info
+from regression.utils import RunResultsHistory
 from regression.utils import TerminalReporter
 from util import coercers
 
@@ -68,24 +68,6 @@ class RunResults(object):
 
     def __len__(self):
         return len(self.all)
-
-
-class RunResultsHistory(object):
-    # TODO: [hack] Refactor ..
-    # TODO: [cleanup][incomplete] This is not used!
-    def __init__(self, maxlen):
-        assert isinstance(maxlen, int)
-        self._run_results = deque(maxlen=maxlen)
-
-    def add(self, run_results):
-        self._run_results.appendleft(run_results)
-
-    def __len__(self):
-        return len(self._run_results)
-
-    def __getitem__(self, item):
-        run_results_list = list(self._run_results)
-        return run_results_list[item]
 
 
 def run_test(test, reporter):
@@ -208,20 +190,20 @@ def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
 
 
 def load_testsuite_history(testsuite, history):
-    if not history:
-        return list()
-
+    """
+    Returns a list of historical test results for a given testsuite.
+    """
     past_outcomes = list()
+
     for run_results in history:
-        # TODO: [hack] Refactor ..
         if testsuite in run_results.failed:
-            past_outcomes.append('fail')
+            past_outcomes.append(RunResultsHistory.RESULT_FAIL)
         elif testsuite in run_results.passed:
-            past_outcomes.append('pass')
+            past_outcomes.append(RunResultsHistory.RESULT_PASS)
         elif testsuite in run_results.skipped:
-            past_outcomes.append('skip')
+            past_outcomes.append(RunResultsHistory.RESULT_SKIP)
         else:
-            past_outcomes.append('unknown')
+            past_outcomes.append(RunResultsHistory.RESULT_UNKNOWN)
 
     return past_outcomes
 

@@ -27,6 +27,7 @@ import shutil
 import sys
 import traceback
 from collections import defaultdict
+from collections import deque
 
 import unit.constants as uuconst
 import unit.utils as uu
@@ -121,24 +122,28 @@ class TerminalReporter(object):
             _print(' ' + _label + ' ')
 
     def msg_test_history(self, history):
-        # TODO: [hack] Refactor ..
         if self.verbose:
             NUM_HISTORY_ENTRIES = 10
         else:
             NUM_HISTORY_ENTRIES = 5
 
-        while len(history) < NUM_HISTORY_ENTRIES:
-            history.append('unknown')
+        padded_history = list(history)
+        while len(padded_history) < NUM_HISTORY_ENTRIES:
+            padded_history.append(RunResultsHistory.RESULT_UNKNOWN)
 
-        # TODO: [hack] Refactor ..
-        for past_result in history[:NUM_HISTORY_ENTRIES]:
-            if past_result == 'fail':
+        for result in padded_history[:NUM_HISTORY_ENTRIES]:
+            if result == RunResultsHistory.RESULT_FAIL:
                 _print(self.msg_mark_history_fail)
-            elif past_result == 'pass':
+            elif result == RunResultsHistory.RESULT_PASS:
                 _print(self.msg_mark_history_pass)
-            elif past_result == 'skip':
+            elif result == RunResultsHistory.RESULT_SKIP:
                 _print(self.msg_mark_history_skip)
+            elif result == RunResultsHistory.RESULT_UNKNOWN:
+                _print(self.msg_mark_history_unknown)
             else:
+                log.warning(
+                    'Invalid testuite history result: {!s}'.format(result)
+                )
                 _print(self.msg_mark_history_unknown)
 
     @staticmethod
@@ -993,3 +998,27 @@ def print_test_info(tests, verbose):
     else:
         test_dirnames = [t.str_dirname for t in tests]
         print('\n'.join(test_dirnames))
+
+
+class RunResultsHistory(object):
+    # Enum-like
+    RESULT_PASS = 'pass'
+    RESULT_SKIP = 'skip'
+    RESULT_FAIL = 'fail'
+    RESULT_UNKNOWN = 'unknown'
+
+    # TODO: [hack][cleanup] Refactor ..
+    # TODO: [incomplete] Only the "Enum-like" is used!
+    def __init__(self, maxlen):
+        assert isinstance(maxlen, int)
+        self._run_results = deque(maxlen=maxlen)
+
+    def add(self, run_results):
+        self._run_results.appendleft(run_results)
+
+    def __len__(self):
+        return len(self._run_results)
+
+    def __getitem__(self, item):
+        run_results_list = list(self._run_results)
+        return run_results_list[item]
