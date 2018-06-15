@@ -19,6 +19,20 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from contextlib import contextmanager
+
+
+@contextmanager
+def ignored(*exceptions):
+    """
+    Context manager for silently ignoring one or many exceptions.
+    If the exception is raised, any following code will be skipped.
+    """
+    try:
+        yield
+    except exceptions:
+        pass
+
 
 class AWAssertionError(AssertionError):
     """Error due to incorrect assumptions about internal interactions.
