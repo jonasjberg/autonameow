@@ -270,8 +270,9 @@ class TerminalReporter(object):
             )
             _println('Captured traceback:\n' + traceback_str)
         else:
-            _println(' ' + cli.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ',
-                                        back='RED'))
+            _println(' '
+                     + cli.colorize('      CAUGHT TOP-LEVEL EXCEPTION       ',
+                                    back='RED'))
 
     @staticmethod
     def msg_captured_stderr(stderr):
