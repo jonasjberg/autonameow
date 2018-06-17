@@ -42,12 +42,6 @@ class CaseCoercers(object):
                 'BaseType default "null" value must be overridden'
             )
 
-    def test_normalizes_coercible_or_equivalent_values(self):
-        for given, expect in self.TESTDATA_NORMALIZE:
-            with self.subTest(expected=expect, given=given):
-                actual = self.COERCER.normalize(given)
-                self.assertEqual(expect, actual)
-
     def test_coerces_coercible_or_equivalent_values(self):
         for given, expect in self.TESTDATA_COERCE:
             with self.subTest(expected=expect, given=given):
@@ -76,10 +70,6 @@ class TestBaseCoercer(TestCase):
         self.assertEqual(self.base_type.NULL, coercers.BaseNullValue())
         self.assertFalse(self.base_type.NULL)
         self.assertFalse(self.base_type.null())
-
-    def test_normalize(self):
-        with self.assertRaises(NotImplementedError):
-            _ = self.base_type.normalize(None)
 
     def test_base_type_call(self):
         self.assertEqual('foo', self.base_type('foo'))
@@ -218,39 +208,6 @@ class TestTypeBoolean(TestCase, CaseCoercers):
     @classmethod
     def setUpClass(cls):
         cls.COERCER = coercers.AW_BOOLEAN
-        cls.TESTDATA_NORMALIZE = [
-            (True, True),
-            (False, False),
-            (-1, False),
-            (0, False),
-            (1, True),
-            (-1.5, False),
-            (-1.0001, False),
-            (-1.0, False),
-            (-0.05, False),
-            (-0.0, False),
-            (0.0, False),
-            (0.05, True),
-            (1.0, True),
-            (1.0001, True),
-            (1.5, True),
-            ('true', True),
-            ('True', True),
-            ('yes', True),
-            ('Yes', True),
-            ('no', False),
-            ('No', False),
-            ('false', False),
-            ('False', False),
-            (b'true', True),
-            (b'True', True),
-            (b'yes', True),
-            (b'Yes', True),
-            (b'no', False),
-            (b'No', False),
-            (b'false', False),
-            (b'False', False),
-        ]
         cls.TESTDATA_COERCE = [
             (None, False),
             (True, True),
@@ -353,12 +310,6 @@ class TestTypeInteger(TestCase, CaseCoercers):
     @classmethod
     def setUpClass(cls):
         cls.COERCER = coercers.AW_INTEGER
-        cls.TESTDATA_NORMALIZE = [
-            (None, coercers.AW_INTEGER.NULL),
-            (-1, -1),
-            (0, 0),
-            (1, 1),
-        ]
         cls.TESTDATA_COERCE = [
             (None, 0),
             (-1, -1),
@@ -430,12 +381,6 @@ class TestTypeFloat(TestCase, CaseCoercers):
     @classmethod
     def setUpClass(cls):
         cls.COERCER = coercers.AW_FLOAT
-        cls.TESTDATA_NORMALIZE = [
-            (None, coercers.AW_FLOAT.NULL),
-            (-1, -1),
-            (0, 0),
-            (1, 1),
-        ]
         cls.TESTDATA_COERCE = [
             (None, 0.0),
             (-1, -1.0),
@@ -624,9 +569,6 @@ class TestTypeTimeDate(TestCase, CaseCoercers):
     @classmethod
     def setUpClass(cls):
         cls.COERCER = coercers.AW_TIMEDATE
-        cls.TESTDATA_NORMALIZE = [
-            ('2017-07-12T20:50:15.641659', datetime(2017, 7, 12, 20, 50, 15)),
-        ]
 
         expect = datetime(2017, 7, 12, 20, 50, 15)
         cls.TESTDATA_COERCE = [
@@ -672,15 +614,6 @@ class TestTypeTimeDate(TestCase, CaseCoercers):
         with self.assertRaises(coercers.AWTypeError):
             _ = coercers.AW_TIMEDATE(None)
 
-    def test_compare_normalized(self):
-        with_usecs = coercers.AW_TIMEDATE.normalize('2017-07-12T20:50:15.641659')
-        without_usecs = coercers.AW_TIMEDATE.normalize('2017-07-12T20:50:15')
-        self.assertEqual(with_usecs, without_usecs)
-
-        another_day = coercers.AW_TIMEDATE.normalize('2017-07-11T20:50:15')
-        self.assertNotEqual(with_usecs, another_day)
-        self.assertNotEqual(without_usecs, another_day)
-
     def test_call_with_none(self):
         with self.assertRaises(coercers.AWTypeError):
             _ = coercers.AW_TIMEDATE(None)
@@ -702,15 +635,6 @@ class TestTypeDate(TestCase, CaseCoercers):
     @classmethod
     def setUpClass(cls):
         cls.COERCER = coercers.AW_DATE
-        expected = datetime(2017, 7, 12, 0, 0, 0)
-        cls.TESTDATA_NORMALIZE = [
-            (expected, expected),
-            ('2017-07-12', expected),
-            ('2017 07 12', expected),
-            ('2017_07_12', expected),
-            ('2017:07:12', expected),
-            ('20170712', expected),
-        ]
 
         expected_YMD = datetime(2017, 7, 12, 0, 0, 0)
         expected_YM = datetime.strptime('2017-07', '%Y-%m')
@@ -794,8 +718,6 @@ class TestTypeExiftoolTimeDate(TestCase, CaseCoercers):
     @classmethod
     def setUpClass(cls):
         cls.COERCER = coercers.AW_EXIFTOOLTIMEDATE
-        cls.TESTDATA_NORMALIZE = [
-        ]
 
         def _as_datetime(string):
             return datetime.strptime(string, '%Y-%m-%dT%H:%M:%S%z')
@@ -883,27 +805,6 @@ class TestTypePath(TestCase, CaseCoercers):
     def setUpClass(cls):
         cls.COERCER = coercers.AW_PATH
 
-        relative_home_foo = uu.normpath(os.path.join(os.path.curdir, 'home/foo'))
-        cls.TESTDATA_NORMALIZE = [
-            # Expands tilde to user home directory
-            ('~', uu.encode(uuconst.PATH_USER_HOME)),
-            ('~/', uu.encode(uuconst.PATH_USER_HOME)),
-            ('~/foo', uu.normpath(os.path.join(uuconst.PATH_USER_HOME, 'foo'))),
-
-            # Collapses repeating path separators
-            ('/home/foo', b'/home/foo'),
-            ('/home//foo', b'/home/foo'),
-            ('///home/foo', b'/home/foo'),
-            ('////home/foo', b'/home/foo'),
-            ('////home//foo', b'/home/foo'),
-            ('////home////foo', b'/home/foo'),
-            ('//home//foo', b'//home/foo'),
-
-            # Normalizes relative path
-            ('home/foo', relative_home_foo),
-            ('home//foo', relative_home_foo),
-            ('home///foo', relative_home_foo),
-        ]
         cls.TESTDATA_COERCE = [
             ('/tmp', b'/tmp'),
             ('/tmp/foo', b'/tmp/foo'),
@@ -937,36 +838,12 @@ class TestTypePath(TestCase, CaseCoercers):
         with self.assertRaises(coercers.AWTypeError):
             _ = coercers.AW_PATH(None)
 
-    def test_normalize_invalid_value(self):
-        def _assert_raises(test_data):
-            with self.assertRaises(coercers.AWTypeError):
-                _ = coercers.AW_PATH.normalize(test_data)
-
-        _assert_raises(None)
-        _assert_raises('')
-        _assert_raises(b'')
-
 
 class TestTypePathComponent(TestCase, CaseCoercers):
     @classmethod
     def setUpClass(cls):
         cls.COERCER = coercers.AW_PATHCOMPONENT
 
-        relative_home_foo = uu.normpath(os.path.join(os.path.curdir, 'home/foo'))
-        cls.TESTDATA_NORMALIZE = [
-            # Path with user home
-            ('~', uu.encode(uuconst.PATH_USER_HOME)),
-            ('~/', uu.encode(uuconst.PATH_USER_HOME)),
-            ('~/foo', uu.normpath(os.path.join(uuconst.PATH_USER_HOME, 'foo'))),
-
-            # Normalizes path components
-            ('/', b'/'),
-            ('/foo', b'/foo'),
-            ('/foo/', b'/foo'),
-            ('foo/', b'foo'),
-            ('foo', b'foo'),
-            ('a.pdf', b'a.pdf'),
-        ]
         cls.TESTDATA_COERCE = [
             ('', b''),
             (None, b''),
@@ -1024,44 +901,11 @@ class TestTypePathComponent(TestCase, CaseCoercers):
         self.assertEqual(coercers.AW_PATHCOMPONENT(None),
                          coercers.AW_PATHCOMPONENT.NULL)
 
-    def test_normalize_invalid_value(self):
-        with self.assertRaises(coercers.AWTypeError):
-            _ = coercers.AW_PATHCOMPONENT.normalize('')
-
 
 class TestTypeString(TestCase, CaseCoercers):
     @classmethod
     def setUpClass(cls):
         cls.COERCER = coercers.AW_STRING
-        cls.TESTDATA_NORMALIZE = [
-            (None, ''),
-            ('', ''),
-            (' ', ''),
-            ('  ', ''),
-            (b'', ''),
-            (b' ', ''),
-            (b'  ', ''),
-            (-1, '-1'),
-            (0, '0'),
-            (1, '1'),
-            (-1.5, '-1.5'),
-            (-1.0, '-1.0'),
-            (1.0, '1.0'),
-            (1.5, '1.5'),
-            ('foo', 'foo'),
-            ('foo ', 'foo'),
-            (' foo', 'foo'),
-            (' foo ', 'foo'),
-            ('f foo ', 'f foo'),
-            (b'foo', 'foo'),
-            (b'foo ', 'foo'),
-            (b' foo', 'foo'),
-            (b' foo ', 'foo'),
-            (b'f foo ', 'f foo'),
-            (None, ''),
-            (False, 'False'),
-            (True, 'True'),
-        ]
         cls.TESTDATA_COERCE = [
             ('', ''),
             (' ', ' '),
@@ -1123,42 +967,6 @@ class TestTypeMimeType(TestCase, CaseCoercers):
     @classmethod
     def setUpClass(cls):
         cls.COERCER = coercers.AW_MIMETYPE
-        cls.TESTDATA_NORMALIZE = [
-            ('asm', 'text/x-asm'),
-            ('gz', 'application/gzip'),
-            ('pdf', 'application/pdf'),
-            ('.pdf', 'application/pdf'),
-            ('PDF', 'application/pdf'),
-            ('.PDF', 'application/pdf'),
-            ('application/pdf', 'application/pdf'),
-            ('APPLICATION/pdf', 'application/pdf'),
-            ('application/PDF', 'application/pdf'),
-            ('APPLICATION/PDF', 'application/pdf'),
-            (b'pdf', 'application/pdf'),
-            (b'.pdf', 'application/pdf'),
-            (b'PDF', 'application/pdf'),
-            (b'.PDF', 'application/pdf'),
-            (b'application/pdf', 'application/pdf'),
-            (b'APPLICATION/pdf', 'application/pdf'),
-            (b'application/PDF', 'application/pdf'),
-            (b'APPLICATION/PDF', 'application/pdf'),
-            ('epub', 'application/epub+zip'),
-            ('.epub', 'application/epub+zip'),
-            ('EPUB', 'application/epub+zip'),
-            ('.EPUB', 'application/epub+zip'),
-            ('application/epub+zip', 'application/epub+zip'),
-            ('APPLICATION/epub+zip', 'application/epub+zip'),
-            ('application/EPUB+ZIP', 'application/epub+zip'),
-            ('APPLICATION/EPUB+ZIP', 'application/epub+zip'),
-            (b'epub', 'application/epub+zip'),
-            (b'.epub', 'application/epub+zip'),
-            (b'EPUB', 'application/epub+zip'),
-            (b'.EPUB', 'application/epub+zip'),
-            (b'application/epub+zip', 'application/epub+zip'),
-            (b'APPLICATION/epub+zip', 'application/epub+zip'),
-            (b'application/EPUB+ZIP', 'application/epub+zip'),
-            (b'APPLICATION/EPUB+ZIP', 'application/epub+zip'),
-        ]
 
         null = coercers.AW_MIMETYPE.NULL
         cls.TESTDATA_COERCE = [
@@ -2048,3 +1856,73 @@ class TestListofIntegers(TestCase):
         actual = coercers.listof(coercers.AW_INTEGER)([1.0, 2.0])
         expect = [1, 2]
         self.assertEqual(expect, actual)
+
+
+class TestCoerceToNormalizedPath(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        relative_home_foo = uu.normpath(os.path.join(os.path.curdir, 'home/foo'))
+        cls.TESTDATA_NORMALIZE = [
+            # Expands tilde to user home directory
+            ('~', uu.encode(uuconst.PATH_USER_HOME)),
+            ('~/', uu.encode(uuconst.PATH_USER_HOME)),
+            ('~/foo', uu.normpath(os.path.join(uuconst.PATH_USER_HOME, 'foo'))),
+
+            # Collapses repeating path separators
+            ('/home/foo', b'/home/foo'),
+            ('/home//foo', b'/home/foo'),
+            ('///home/foo', b'/home/foo'),
+            ('////home/foo', b'/home/foo'),
+            ('////home//foo', b'/home/foo'),
+            ('////home////foo', b'/home/foo'),
+            ('//home//foo', b'//home/foo'),
+
+            # Normalizes relative path
+            ('home/foo', relative_home_foo),
+            ('home//foo', relative_home_foo),
+            ('home///foo', relative_home_foo),
+        ]
+
+    def test_normalizes_coercible_or_equivalent_values(self):
+        for given, expect in self.TESTDATA_NORMALIZE:
+            with self.subTest(expected=expect, given=given):
+                actual = coercers.coerce_to_normalized_path(given)
+                self.assertEqual(expect, actual)
+
+    def test_normalize_invalid_value(self):
+        def _assert_raises(test_data):
+            with self.assertRaises(coercers.AWTypeError):
+                _ = coercers.coerce_to_normalized_path(test_data)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises(b'')
+
+
+class TestCoerceToNormalizedPathcomponent(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.TESTDATA_NORMALIZE = [
+            # Path with user home
+            ('~', uu.encode(uuconst.PATH_USER_HOME)),
+            ('~/', uu.encode(uuconst.PATH_USER_HOME)),
+            ('~/foo', uu.normpath(os.path.join(uuconst.PATH_USER_HOME, 'foo'))),
+
+            # Normalizes path components
+            ('/', b'/'),
+            ('/foo', b'/foo'),
+            ('/foo/', b'/foo'),
+            ('foo/', b'foo'),
+            ('foo', b'foo'),
+            ('a.pdf', b'a.pdf'),
+        ]
+
+    def test_normalizes_coercible_or_equivalent_values(self):
+        for given, expect in self.TESTDATA_NORMALIZE:
+            with self.subTest(expected=expect, given=given):
+                actual = coercers.coerce_to_normalized_pathcomponent(given)
+                self.assertEqual(expect, actual)
+
+    def test_normalize_invalid_value(self):
+        with self.assertRaises(coercers.AWTypeError):
+            _ = coercers.coerce_to_normalized_pathcomponent('')

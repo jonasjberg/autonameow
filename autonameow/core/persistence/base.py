@@ -336,7 +336,7 @@ def _key_as_file_path(key, persistencefile_prefix,
                                         sep=persistence_file_prefix_separator,
                                         key=key)
     bytestring_basename = enc.encode_(basename)
-    abspath = coercers.AW_PATH.normalize(
+    abspath = coercers.coerce_to_normalized_path(
         disk.joinpaths(persistence_dir_abspath, bytestring_basename)
     )
     return abspath

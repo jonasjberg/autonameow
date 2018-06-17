@@ -546,7 +546,7 @@ def _expand_input_paths_variables(input_paths):
         else:
             # Normalize path.
             try:
-                bytestring_path = coercers.AW_PATH.normalize(path)
+                bytestring_path = coercers.coerce_to_normalized_path(path)
             except coercers.AWTypeError as e:
                 raise RegressionTestError(
                     'Invalid path: "{!s}" :: {!s}'.format(path, e)

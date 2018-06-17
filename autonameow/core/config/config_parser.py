@@ -514,7 +514,7 @@ class ConfigurationOptionsParser(object):
             raw_value = self.raw_options['PERSISTENCE'].get(option)
             if isinstance(raw_value, (str, bytes)) and raw_value.strip():
                 try:
-                    bytes_value = coercers.AW_PATH.normalize(raw_value)
+                    bytes_value = coercers.coerce_to_normalized_path(raw_value)
                 except coercers.AWTypeError as e:
                     log.error('Bad value for option {}: "{!s}"'.format(
                         option, coercers.force_string(raw_value)
@@ -529,7 +529,7 @@ class ConfigurationOptionsParser(object):
                     return
 
         # Use the default value.
-        bytes_default = coercers.AW_PATH.normalize(default)
+        bytes_default = coercers.coerce_to_normalized_path(default)
         log.debug(
             'Using default persistence option :: {!s}: {!s}'.format(
                 option, enc.displayable_path(bytes_default)

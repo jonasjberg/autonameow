@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Custom data types, used internally by autonameow.
 Coerces incoming data with unreliable or unknown types to primitives.
 Provides "NULL" values and additional type-specific functionality.
 
@@ -42,8 +41,7 @@ of the coercion _IS_ relevant for some of the usages..
 The best way to get a grip on what these classes are doing is to look at the
 tests in 'tests/unit/test_util_coercers.py'.
 
-Note that the behaviours of for instance 'format()' and 'normalize()' vary
-a lot between classes.
+Note that the behaviour of 'format()' vary a lot between classes.
 
 # TODO: [cleanup] This should probably be cleaned up at some point ..
 """
@@ -150,35 +148,8 @@ class BaseCoercer(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def normalize(self, value):
-        """
-        Processes the given value to a form suitable for serialization/storage.
-
-        Calling this method should be equivalent to calling 'coerce' followed
-        by some processing that produces a "simplified" representation of
-        the value.  Strings might be converted to lower-case, etc.
-
-        Args:
-            value: The value to coerce as any type, including None.
-
-        Returns:
-            A "normalized" version of the given value if the value can be
-            coerced and normalized, or the class "null" value.
-
-        Raises:
-            AWTypeError: The value could not be coerced and/or normalized.
-        """
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
     def format(self, value, **kwargs):
         raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def _fail_normalization(self, value, msg=None):
-        error_msg = 'Unable to normalize "{!s}" into {!r}'.format(value, self)
-        if msg is not None:
-            error_msg = '{}; {!s}'.format(error_msg, msg)
-
-        raise AWTypeError(error_msg)
 
     def _fail_coercion(self, value, msg=None):
         error_msg = 'Unable to coerce "{!s}" into {!r}'.format(value, self)
@@ -224,16 +195,9 @@ class _Path(BaseCoercer):
 
         return self._fail_coercion(value)
 
-    def normalize(self, value):
-        value = self.__call__(value)
-        if value:
-            return enc.normpath(value)
-
-        return self._fail_normalization(value)
-
     def format(self, value, **kwargs):
-        _normalized = self.normalize(value)
-        return enc.displayable_path(_normalized)
+        normalized_path = coerce_to_normalized_path(value)
+        return enc.displayable_path(normalized_path)
 
 
 class _PathComponent(BaseCoercer):
@@ -246,16 +210,6 @@ class _PathComponent(BaseCoercer):
             return enc.bytestring_path(value)
         except (ValueError, TypeError):
             return self._fail_coercion(value)
-
-    def normalize(self, value):
-        value = self.__call__(value)
-        if value:
-            # Expand user home directory if present.
-            return os.path.normpath(
-                os.path.expanduser(enc.syspath(value))
-            )
-
-        return self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         _coerced = self.__call__(value)
@@ -309,9 +263,6 @@ class _Boolean(BaseCoercer):
 
         return self.null()
 
-    def normalize(self, value):
-        return self.__call__(value)
-
     def format(self, value, **kwargs):
         value = self.__call__(value)
         return self.bool_to_string(value)
@@ -333,9 +284,6 @@ class _Integer(BaseCoercer):
             return int(float(value))
 
         return self._fail_coercion(value)
-
-    def normalize(self, value):
-        return self.__call__(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -366,9 +314,6 @@ class _Float(BaseCoercer):
             return float(value)
         except (ValueError, TypeError):
             return self._fail_coercion(value)
-
-    def normalize(self, value):
-        return self.__call__(value)
 
     def bounded(self, value, low=None, high=None):
         _value = self.__call__(value)
@@ -428,9 +373,6 @@ class _String(BaseCoercer):
 
         return self._fail_coercion(value)
 
-    def normalize(self, value):
-        return self.__call__(value).strip()
-
     def format(self, value, **kwargs):
         value = self.__call__(value)
         return value
@@ -468,9 +410,6 @@ class _MimeType(BaseCoercer):
                 return _mime
 
         return self.null()
-
-    def normalize(self, value):
-        return self.__call__(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -512,13 +451,6 @@ class _Date(BaseCoercer):
             return try_parse_date(string_value)
         except ValueError as e:
             self._fail_coercion(value, msg=e)
-
-    def normalize(self, value):
-        value = self.__call__(value)
-        if isinstance(value, datetime):
-            return value.replace(microsecond=0)
-
-        return self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -574,13 +506,6 @@ class _TimeDate(BaseCoercer):
 
             # TODO: [cleanup] Really OK to just drop the microseconds?
             return naive_dt.replace(microsecond=0)
-
-    def normalize(self, value):
-        value = self.__call__(value)
-        if isinstance(value, datetime):
-            return value.replace(microsecond=0)
-
-        return self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -890,3 +815,24 @@ NULL_AW_MIMETYPE = _NullMIMEType()
 
 # This is not clearly defined otherwise.
 BUILTIN_REGEX_TYPE = type(re.compile(''))
+
+
+def coerce_to_normalized_path(value):
+    coerced_value = AW_PATH(value)
+    if coerced_value:
+        return enc.normpath(coerced_value)
+
+    error_msg = 'Unable to normalize "{!s}" into {!r}'.format(value, AW_PATH)
+    raise AWTypeError(error_msg)
+
+
+def coerce_to_normalized_pathcomponent(value):
+    coerced_value = AW_PATHCOMPONENT(value)
+    if coerced_value:
+        # Expand user home directory if present.
+        return os.path.normpath(
+            os.path.expanduser(enc.syspath(coerced_value))
+        )
+
+    error_msg = 'Unable to normalize "{!s}" into {!r}'.format(value, AW_PATHCOMPONENT)
+    raise AWTypeError(error_msg)

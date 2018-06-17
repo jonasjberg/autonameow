@@ -40,7 +40,7 @@ from util import coercers
 
 
 _this_dir = os.path.abspath(os.path.dirname(__file__))
-PERSISTENCE_DIR_ABSPATH = coercers.AW_PATH.normalize(_this_dir)
+PERSISTENCE_DIR_ABSPATH = coercers.coerce_to_normalized_path(_this_dir)
 PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 
 
