@@ -424,6 +424,10 @@ def get_one_from_many_generic_values(databundle_list, uri):
         prioritized = sort_by_mapped_weights(databundle_list,
                                              primary_field=fields.DateTime)
         return prioritized[0]
+    elif uri_leaf == 'publisher':
+        prioritized = sort_by_mapped_weights(databundle_list,
+                                             primary_field=fields.Publisher)
+        return prioritized[0]
 
     else:
         log.debug('[TD0112] Unhandled uri.leaf: "{!s}"'.format(uri_leaf))
