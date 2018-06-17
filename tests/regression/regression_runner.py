@@ -499,7 +499,7 @@ def main(args):
                      'last completed run ..'.format(len(selected_tests)))
 
     log.info('Selected {} of {} test suite(s) ..'.format(len(selected_tests),
-                                                        len(loaded_tests)))
+                                                         len(loaded_tests)))
     # End of test selection.
     if not selected_tests:
         log.warning('None of the loaded tests were selected ..')
