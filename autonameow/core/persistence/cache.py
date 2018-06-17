@@ -227,8 +227,8 @@ def get_cache(owner, max_filesize=None):
     Args:
         owner (str): Some kind of identifier of this specific cache.
                      Used to derive file names for caches persisted on disk.
-        persistence_dir_abspath (bytes): Optional absolute path to a directory
-                                         to use when any data is stored on disk.
+        max_filesize (int): Optional maximum file size in bytes for caches
+                            persisted on disk.
 
     Returns: A class instance that implements the 'BaseCache' interface.
     """

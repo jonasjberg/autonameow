@@ -45,12 +45,15 @@ def date_is_probable(date,
                      year_max=C.YEAR_UPPER_LIMIT.year,
                      year_min=C.YEAR_LOWER_LIMIT.year):
     """
-    Check if date is "probable", meaning greater than 1900 and
-    not in the future, I.E. greater than the year of todays date.
-    That is, simply: 1900 < date < today
+    Checks if the year of a given date is "probable".
+
+    Very simple probability test checks if the date lies between a lowest
+    threshold year, 'year_min' and a highest threshold year, 'year_max'.
 
     Args:
-        date: The date to test as an instance of 'datetime'.
+        date (datetime): The date to test as an instance of 'datetime'.
+        year_max (int): Optional maximum threshold for probable years.
+        year_min (int): Optional minimum threshold for probable years.
 
     Returns:
         True if the date is "probable", else False.
