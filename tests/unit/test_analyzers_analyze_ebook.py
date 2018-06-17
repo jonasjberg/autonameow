@@ -857,3 +857,17 @@ class TestCalculateAuthorsSimilarity(TestCase):
         self._assert_low_similarity(['gibson smulan'], ['nietzsche kant'])
         self._assert_low_similarity(['nietzsche'],     ['kant'])
         self._assert_low_similarity(['Meemaw'],        ['grandmother'])
+
+    def test_expect_high_similarity_for_same_authors_in_different_order(self):
+        self._assert_high_similarity(
+            ['Jan Reesch', 'Grayham Murroy', 'Vadin Ogievetsky', 'Joe Lawnery'],
+            ['Jan Reesch', 'Grayham Murroy', 'Joe Lawnery', 'Vadin Ogievetsky']
+        )
+        self._assert_high_similarity(
+            ['Grayham Murroy', 'Jan Reesch', 'Vadin Ogievetsky', 'Joe Lawnery'],
+            ['Jan Reesch', 'Grayham Murroy', 'Joe Lawnery', 'Vadin Ogievetsky']
+        )
+        self._assert_high_similarity(
+            ['Grayham Murroy', 'Jan Reesch', 'Vadin Ogievetsky', 'Joe Lawnery'],
+            ['Joe Lawnery', 'Grayham Murroy', 'Vadin Ogievetsky', 'Jan Reesch']
+        )

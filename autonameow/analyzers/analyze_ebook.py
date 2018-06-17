@@ -717,12 +717,9 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
         if not self.normalized_authors or not other.normalized_authors:
             _sim_authors = FIELDS_MISSING_SIMILARITY
         else:
-            _sim_authors = float(
-                sum(
-                    string_similarity(a, b)
-                    for a, b in zip(self.normalized_authors,
-                                    other.normalized_authors)
-                ) / len(self.normalized_authors)
+            _sim_authors = calculate_authors_similarity(
+                self.normalized_authors,
+                other.normalized_authors
             )
 
         if self.normalized_publisher and other.normalized_publisher:
