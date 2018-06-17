@@ -256,7 +256,6 @@ class ProviderRunner(object):
         self._extractor_runner = extractor_runner
         self._run_analysis = run_analysis_func
 
-        self.debug_stats = defaultdict(dict)
         self._provider_delegation_history = defaultdict(set)
         self._delegate_every_possible_meowuri_history = set()
 
@@ -392,8 +391,6 @@ class MasterDataProvider(object):
             run_analysis_func
         )
 
-        self.debug_stats = defaultdict(dict)
-
     def delegate_every_possible_meowuri(self, fileobject):
         log.debug('Running all available providers for {!r}'.format(fileobject))
         self.provider_runner.delegate_every_possible_meowuri(fileobject)
@@ -411,17 +408,6 @@ class MasterDataProvider(object):
         as the return value.
         None is returned if nothing turns up.
         """
-        if uri not in self.debug_stats[fileobject]:
-            self.debug_stats[fileobject][uri] = dict()
-            self.debug_stats[fileobject][uri]['queries'] = 1
-            self.debug_stats[fileobject][uri]['repository_queries'] = 0
-            self.debug_stats[fileobject][uri]['delegated'] = 0
-        else:
-            self.debug_stats[fileobject][uri]['queries'] += 1
-
-        # TODO: Provide means of toggling on/off or remove.
-        # self._print_debug_stats()
-
         log.debug('Got request {!r}->[{!s}]'.format(fileobject, uri))
 
         # First try the repository for previously gathered data
@@ -459,29 +445,10 @@ class MasterDataProvider(object):
 
     def _delegate_to_providers(self, fileobject, uri):
         log.debug('Delegating request to providers: {!r}->[{!s}]'.format(fileobject, uri))
-        self.debug_stats[fileobject][uri]['delegated'] += 1
         self.provider_runner.delegate_to_providers(fileobject, uri)
 
     def _query_repository(self, fileobject, uri):
-        self.debug_stats[fileobject][uri]['repository_queries'] += 1
         return repository.SessionRepository.query(fileobject, uri)
-
-    def _print_debug_stats(self):
-        if not logs.DEBUG:
-            return
-
-        stats_strings = list()
-        for fileobject, uris in self.debug_stats.items():
-            for uri, _counters in uris.items():
-                uri_stats = [
-                    '{}: {}'.format(stat, count) for stat, count in _counters.items()
-                ]
-                stats = '{!r}->{!s:60.60} {!s}'.format(fileobject, uri, ' '.join(uri_stats))
-                stats_strings.append(stats)
-
-        log.debug('{!s} debug stats:'.format(self.__class__.__name__))
-        for stat_string in sorted(stats_strings):
-            log.debug(stat_string)
 
 
 _MASTER_DATA_PROVIDER = None
