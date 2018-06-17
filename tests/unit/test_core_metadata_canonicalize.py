@@ -362,6 +362,10 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'PRENTICE HALL',
         'Prentice Hall PTR',
     ],
+    'PrincetonUP': [
+        'PrincetonUP',
+        'Princeton University Press',
+    ],
     'PublishOrPerish': [
         'Publish or Perish Inc',
         'Publish or Perish inc',
@@ -383,6 +387,13 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Sams',
         'Sams Publishing',
         'samspublishing.com',
+    ],
+    'SitePoint': [
+        'SitePoint',
+        'SitePoint Ltd',
+        'SitePoint Ltd.',
+        'SitePoint Pty Ltd',
+        'SitePoint Pty. Ltd.',
     ],
     'Springer': [
         'Springer Berlin',
@@ -468,6 +479,12 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         # 'Wrox/Wiley & Sons',
         # 'Wrox/Wiley and Sons',
         'www.wrox.com',
+        'Wrox Pr Inc',
+        'Wrox Pr. Inc',
+        'Wrox Pr. Inc.',
+        'Wrox Press Inc',
+        'Wrox Press Inc.',
+        'Wrox Press',
     ]
 }
 

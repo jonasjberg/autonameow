@@ -200,6 +200,9 @@ PrenticeHall:
     - Prentice Hall
     - PRENTICE HALL
     - Prentice Hall PTR
+PrincetonUP:
+    match_any_literal:
+    - Princeton University Press
 PublishOrPerish:
     match_any_literal:
     - Publish or Perish
@@ -218,6 +221,9 @@ Sams:
 SimpleProgrammer:
     match_any_literal:
     - Simple Programmer
+SitePoint:
+    match_any_regex:
+    - SitePoint
 Springer:
     match_any_regex:
     - Springer.Verlag
@@ -265,12 +271,10 @@ WorldScientific:
     - WorldSci(entific)?
     - World Scientific
 Wrox:
-    # match_any_regex:
-    # - Wrox/Wiley
-    # - Wrox/Wiley (&|and) Sons
-    # - Wrox/John Wiley (&|and) Sons
+    match_any_regex:
+    - Wrox Pr(\.|ess)?( Inc\.?)?
     match_any_literal:
-    - wrox
+    - Wrox
     - Wrox/Wiley & Sons
     - Wrox/Wiley and Sons
     - Wrox/John Wiley & Sons
