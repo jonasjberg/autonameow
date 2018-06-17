@@ -253,11 +253,11 @@ class _Boolean(BaseCoercer):
             return bool(float_value > 0)
 
         if hasattr(value, '__bool__'):
-            try:
+            with exceptions.ignored(AttributeError, LookupError,
+                                    NotImplementedError, TypeError, ValueError):
                 return bool(value)
-            except (AttributeError, LookupError, NotImplementedError,
-                    TypeError, ValueError):
-                return self._fail_coercion(value)
+
+            return self._fail_coercion(value)
 
         return self.null()
 
