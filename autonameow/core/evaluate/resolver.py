@@ -196,7 +196,7 @@ class TemplateFieldDataResolver(object):
         )
         response = self._request_data(self.fileobject, uri)
         if not response:
-            return False
+            return None
 
         # Response is either a DataBundle or a list of DataBundles
         databundle = response
@@ -250,14 +250,13 @@ class TemplateFieldDataResolver(object):
                     for i, d in enumerate(databundles):
                         log.debug('[TD0112] Field {!s} candidate {:03d} :: "{!s}"'.format(field, i, d.value))
 
-                    return False
+                    return None
 
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
         sanity.check_isinstance(databundle, DataBundle)
 
         log.debug('Updated data for field {!s} :: {!s}'.format(field, databundle.value))
-        self.fields_data[field] = databundle
-        return True
+        return databundle
 
     def _gather_data(self):
         for field, field_data_source_uris in self.data_sources.items():
@@ -267,7 +266,10 @@ class TemplateFieldDataResolver(object):
 
             field_data_source_uris_copy = field_data_source_uris.copy()
             for uri in field_data_source_uris:
-                if self._gather_data_for_template_field(field, uri):
+                gathered_databundle = self._gather_data_for_template_field(field, uri)
+                if gathered_databundle:
+                    self.fields_data[field] = gathered_databundle
+
                     # Remove used known source.
                     field_data_source_uris_copy.remove(uri)
                     break
