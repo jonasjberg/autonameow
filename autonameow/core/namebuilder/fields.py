@@ -93,9 +93,9 @@ class _Title(NameTemplateField):
                     'Unicode string conversion failed for "{!r}"'.format(databundle)
                 )
         elif coercer == coercers.AW_STRING:
-            str_value = databundle.value
+            str_value = value
         else:
-            str_value = databundle.value
+            str_value = value
 
         sanity.check_internal_string(str_value)
         formatted_value = str_value.strip(',.:;-_ ')
@@ -124,7 +124,7 @@ class _Edition(NameTemplateField):
                     'Unicode string conversion failed for "{!r}"'.format(databundle)
                 )
         elif coercer in (coercers.AW_STRING, coercers.AW_INTEGER):
-            str_value = coercers.force_string(databundle.value)
+            str_value = coercers.force_string(value)
         else:
             raise exceptions.NameBuilderError(
                 'Got incompatible data: {!r}'.format(databundle)
@@ -374,7 +374,8 @@ class _Year(NameTemplateField):
     @classmethod
     def format(cls, databundle, *args, **kwargs):
         datetime_format = '%Y'
-        formatted_value = formatted_datetime(databundle.value, datetime_format)
+        value = databundle.value
+        formatted_value = formatted_datetime(value, datetime_format)
         return formatted_value
 
 
