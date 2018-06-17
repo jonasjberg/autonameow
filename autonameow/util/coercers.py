@@ -536,17 +536,16 @@ class _ExifToolTimeDate(_TimeDate):
         if re.match(r'.*0000:00:00 00:00:00.*', string_value):
             return self._fail_coercion(value, msg='date and time is all zeroes')
 
-        last_exception = None
-        try:
+        with exceptions.ignored(ValueError):
             return try_parse_datetime(string_value)
-        except ValueError as e:
-            last_exception = e
-        try:
-            return try_parse_date(string_value)
-        except ValueError as e:
-            last_exception = e
 
-        return self._fail_coercion(value, msg=last_exception)
+        with exceptions.ignored(ValueError):
+            return try_parse_date(string_value)
+
+        return self._fail_coercion(
+            value,
+            msg='error parsing date/datetime from "{!s}"'.format(string_value)
+        )
 
 
 _pat_loose_date = '{year}{sep}{month}{sep}{day}'.format(
