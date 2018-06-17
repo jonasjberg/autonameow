@@ -242,17 +242,15 @@ class _Boolean(BaseCoercer):
         if value is None:
             return self.null()
 
-        bool_as_str = None
         with exceptions.ignored(AWTypeError):
-            bool_as_str = AW_STRING(value)
-
-        if bool_as_str:
-            str_as_bool = self.string_to_bool(bool_as_str)
+            str_value = AW_STRING(value)
+            str_as_bool = self.string_to_bool(str_value)
             if str_as_bool is not None:
                 return str_as_bool
 
         with exceptions.ignored(AWTypeError):
-            return bool(AW_FLOAT(value) > 0)
+            float_value = AW_FLOAT(value)
+            return bool(float_value > 0)
 
         if hasattr(value, '__bool__'):
             try:
