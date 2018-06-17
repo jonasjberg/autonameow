@@ -21,7 +21,6 @@
 
 import json
 import os
-import subprocess
 
 import util
 from core import constants as C

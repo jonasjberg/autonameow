@@ -19,8 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import subprocess
-
 import util
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor

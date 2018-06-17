@@ -22,7 +22,6 @@
 import logging
 import pickle
 
-from core import config
 from core import constants as C
 from core import event
 from core.exceptions import AutonameowException

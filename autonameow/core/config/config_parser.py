@@ -23,7 +23,6 @@ import copy
 import logging
 import re
 
-import util
 from core import constants as C
 from core.config.configuration import Configuration
 from core.config.field_parsers import BooleanConfigFieldParser
