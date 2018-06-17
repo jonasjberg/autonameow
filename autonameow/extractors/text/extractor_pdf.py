@@ -63,7 +63,7 @@ def extract_pdf_content_with_pdftotext(filepath):
         stdout = process.blocking_read_stdout(
             'pdftotext', '-q', '-nopgbrk', '-enc', 'UTF-8', filepath, '-'
         )
-    except (process.ChildProcessError) as e:
+    except process.ChildProcessError as e:
         raise ExtractorError(e)
 
     result = decode_raw(stdout)

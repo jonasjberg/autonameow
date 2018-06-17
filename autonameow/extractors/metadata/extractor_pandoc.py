@@ -153,11 +153,12 @@ def extract_document_metadata_with_pandoc(filepath):
             'pandoc', '--to', 'plain', '--template',
             PATH_CUSTOM_PANDOC_TEMPLATE, '--', filepath
         )
-    except (process.ChildProcessError) as e:
+    except process.ChildProcessError as e:
         raise ExtractorError(e)
 
     json_string = decode_raw(stdout)
     return _parse_pandoc_output(json_string)
+
 
 def _parse_pandoc_output(json_string):
     try:

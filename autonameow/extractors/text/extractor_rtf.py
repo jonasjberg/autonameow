@@ -63,7 +63,7 @@ def extract_text_with_unrtf(filepath):
         stdout = process.blocking_read_stdout(
             'unrtf', '--text', filepath
         )
-    except (process.ChildProcessError) as e:
+    except process.ChildProcessError as e:
         raise ExtractorError(e)
 
     # NOTE(jonas): UnRTF outputs plain ASCII with '--text'.

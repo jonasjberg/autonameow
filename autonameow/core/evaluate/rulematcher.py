@@ -186,8 +186,9 @@ class RuleMatcher(object):
             self.ui.msg(si + '\n')
 
             rows = list()
+
             def _addrow(*data):
-                rows.append((data))
+                rows.append(tuple(data))
 
             msg_label_pass = self.ui.colorize('PASSED', fore='GREEN')
             msg_label_fail = self.ui.colorize('FAILED', fore='RED')
