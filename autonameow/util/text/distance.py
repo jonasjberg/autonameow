@@ -34,7 +34,7 @@ def levenshtein(string_a, string_b):
             add, delete = previous[j] + 1, current[j - 1] + 1
             change = previous[j - 1]
             if string_a[j - 1] != string_b[i - 1]:
-                change = change + 1
+                change += 1
             current[j] = min(add, delete, change)
 
     return current[n]
