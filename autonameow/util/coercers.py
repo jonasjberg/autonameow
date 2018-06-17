@@ -212,8 +212,8 @@ class _PathComponent(BaseCoercer):
             return self._fail_coercion(value)
 
     def format(self, value, **kwargs):
-        _coerced = self.__call__(value)
-        return enc.displayable_path(_coerced)
+        coerced_value = self.__call__(value)
+        return enc.displayable_path(coerced_value)
 
 
 class _Boolean(BaseCoercer):
@@ -314,7 +314,7 @@ class _Float(BaseCoercer):
             return self._fail_coercion(value)
 
     def bounded(self, value, low=None, high=None):
-        _value = self.__call__(value)
+        coerced_value = self.__call__(value)
 
         if low is not None:
             low = float(low)
@@ -325,11 +325,11 @@ class _Float(BaseCoercer):
             if low > high:
                 raise ValueError('Expected "low" < "high"')
 
-        if low is not None and _value <= low:
+        if low is not None and coerced_value <= low:
             return low
-        elif high is not None and _value >= high:
+        elif high is not None and coerced_value >= high:
             return high
-        return _value
+        return coerced_value
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -396,16 +396,16 @@ class _MimeType(BaseCoercer):
         string_value = string_value.lstrip('.').strip().lower()
 
         if string_value:
-            _ext = mimemagic.get_extension(string_value)
-            if _ext is not None:
+            extension = mimemagic.get_extension(string_value)
+            if extension is not None:
                 # The value is a MIME-type.
                 # Note that an empty string is considered a valid extension.
                 return string_value
 
-            _mime = mimemagic.get_mimetype(string_value)
-            if _mime:
+            mimetype = mimemagic.get_mimetype(string_value)
+            if mimetype:
                 # The value is an extension. Return mapped MIME-type.
-                return _mime
+                return mimetype
 
         return self.null()
 
@@ -746,39 +746,39 @@ class MultipleTypes(object):
         sanity.check_isinstance(coercer, BaseCoercer)
         self.coercer = coercer
 
-    def __call__(self, value):
-        if value is None:
+    def __call__(self, values):
+        if values is None:
             return [self.coercer.null()]
 
-        if not isinstance(value, list):
-            value = [value]
+        if not isinstance(values, list):
+            values = [values]
 
-        out = list()
-        for v in value:
-            _coerced = self.coercer(v)
-            if _coerced is None:
+        coerced_values = list()
+        for value in values:
+            coerced_value = self.coercer(value)
+            if coerced_value is None:
                 continue
 
-            out.append(_coerced)
+            coerced_values.append(coerced_value)
 
-        return out
+        return coerced_values
 
-    def format(self, value):
-        if value is None:
+    def format(self, values):
+        if values is None:
             return [self.coercer.null()]
 
-        if not isinstance(value, list):
-            value = [value]
+        if not isinstance(values, list):
+            values = [values]
 
-        out = list()
-        for v in value:
-            _formatted = self.coercer.format(v)
-            if _formatted is None:
+        formatted_values = list()
+        for value in values:
+            formatted_value = self.coercer.format(value)
+            if formatted_value is None:
                 continue
 
-            out.append(_formatted)
+            formatted_values.append(formatted_value)
 
-        return out
+        return formatted_values
 
     def __contains__(self, item):
         if isinstance(item, BaseCoercer):
