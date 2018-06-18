@@ -100,28 +100,28 @@ class TerminalReporter(object):
         if self.verbose:
             _println('{} {!s}'.format(self.msg_label_fail, string))
 
-    def msg_test_success(self):
+    def msg_testsuite_success(self):
         _label = cli.colorize('[SUCCESS]', fore='GREEN')
         if self.verbose:
             _print(_label + ' ')
         else:
             _print(' ' + _label + ' ')
 
-    def msg_test_failure(self):
+    def msg_testsuite_failure(self):
         _label = cli.colorize('[FAILURE]', fore='RED')
         if self.verbose:
             _print(_label + ' ')
         else:
             _print(' ' + _label + ' ')
 
-    def msg_test_skipped(self):
+    def msg_testsuite_skipped(self):
         _label = cli.colorize('[SKIPPED]', fore='YELLOW')
         if self.verbose:
             _print(_label + ' ')
         else:
             _print(' ' + _label + ' ')
 
-    def msg_test_history(self, history):
+    def msg_testsuite_history(self, history):
         if self.verbose:
             NUM_HISTORY_ENTRIES = 10
         else:
@@ -217,7 +217,7 @@ class TerminalReporter(object):
 
             return __colorize(fixed_width_description)
 
-    def msg_test_start(self, shortname, description):
+    def msg_testsuite_start(self, shortname, description):
         formatted_description = self._format_description(description)
 
         if self.verbose:
@@ -241,7 +241,7 @@ class TerminalReporter(object):
         else:
             _print('{:30.30s} {!s} '.format(shortname, formatted_description))
 
-    def msg_test_runtime(self, elapsed_time, captured_time):
+    def msg_testsuite_runtime(self, elapsed_time, captured_time):
         if captured_time:
             _captured = '{:.6f}s)'.format(captured_time)
         else:

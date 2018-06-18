@@ -70,7 +70,7 @@ class RunResults(object):
         return len(self.all)
 
 
-def run_test(test, reporter):
+def run_testsuite(test, reporter):
     expect_exitcode = test.asserts.get('exit_code', None)
     expect_renames = test.asserts.get('renames', {})
 
@@ -283,22 +283,22 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
             reporter.msg_test_skipping(testsuite.str_dirname, testsuite.description)
             run_results.skipped.add(testsuite)
 
-            reporter.msg_test_skipped()
+            reporter.msg_testsuite_skipped()
 
             # TODO: [hack] Refactor ..
             testsuite_history = load_testsuite_history(testsuite, history)
             assert isinstance(testsuite_history, list)
-            reporter.msg_test_history(testsuite_history)
+            reporter.msg_testsuite_history(testsuite_history)
 
-            reporter.msg_test_runtime(None, None)
+            reporter.msg_testsuite_runtime(None, None)
             continue
 
-        reporter.msg_test_start(testsuite.str_dirname, testsuite.description)
+        reporter.msg_testsuite_start(testsuite.str_dirname, testsuite.description)
 
         results = None
         start_time = time.time()
         try:
-            results = run_test(testsuite, reporter)
+            results = run_testsuite(testsuite, reporter)
         except KeyboardInterrupt:
             # Move cursor two characters back and print spaces over "^C".
             print('\b\b  \n', flush=True)
@@ -321,19 +321,19 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
                 continue
 
             failures = int(results.failure_count)
-            test_passed = failures == 0
-            if test_passed:
-                reporter.msg_test_success()
+            testsuite_passed = failures == 0
+            if testsuite_passed:
+                reporter.msg_testsuite_success()
                 run_results.passed.add(testsuite)
             else:
-                reporter.msg_test_failure()
+                reporter.msg_testsuite_failure()
                 run_results.failed.add(testsuite)
 
             # TODO: [hack] Refactor ..
             testsuite_history = load_testsuite_history(testsuite, history)
             assert isinstance(testsuite_history, list)
-            reporter.msg_test_history(testsuite_history)
-            reporter.msg_test_runtime(elapsed_time, results.captured_runtime)
+            reporter.msg_testsuite_history(testsuite_history)
+            reporter.msg_testsuite_runtime(elapsed_time, results.captured_runtime)
 
             if print_stderr and captured_stderr:
                 reporter.msg_captured_stderr(captured_stderr)
