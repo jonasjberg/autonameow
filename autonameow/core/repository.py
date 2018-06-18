@@ -240,7 +240,7 @@ class Repository(object):
         fileobject_data = self._data.get(fileobject)
         for meowuri, datadict in fileobject_data.items():
             assert isinstance(datadict, dict)
-            if maps_field(datadict, field):
+            if datadict_maps_field(datadict, field):
                 # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
                 out.append(
                     (meowuri, DataBundle.from_dict(datadict))
@@ -430,7 +430,7 @@ def _stringify_datadict_value(datadict_value):
     return str_value
 
 
-def maps_field(datadict, field):
+def datadict_maps_field(datadict, field):
     # This might return a None, using a default dict value will not work.
     mapped_fields = datadict.get('mapped_fields')
     if not mapped_fields:
