@@ -86,7 +86,7 @@ class DataBundle(object):
             multivalued=data.get('multivalued')
         )
 
-    def maps_field(self, field):
+    def _maps_field(self, field):
         # TODO: Duplicates functionality of function with the same name!
         # This might return a None, using a default dict value will not work.
         if not self.mapped_fields or not field:
@@ -98,7 +98,7 @@ class DataBundle(object):
         return False
 
     def field_mapping_weight(self, field):
-        if not self.maps_field(field):
+        if not self._maps_field(field):
             return 0.0
 
         for mapping in self.mapped_fields:

@@ -406,13 +406,13 @@ class TestDataBundle(TestCase):
             ]
         })
 
-    def test_maps_field(self):
-        self.assertTrue(self.d1.maps_field(self.fields_Publisher))
-        self.assertFalse(self.d1.maps_field(self.fields_Author))
-        self.assertFalse(self.d1.maps_field(self.fields_Creator))
-        self.assertFalse(self.d1.maps_field(self.fields_Title))
+    def test__maps_field(self):
+        self.assertTrue(self.d1._maps_field(self.fields_Publisher))
+        self.assertFalse(self.d1._maps_field(self.fields_Author))
+        self.assertFalse(self.d1._maps_field(self.fields_Creator))
+        self.assertFalse(self.d1._maps_field(self.fields_Title))
 
-        self.assertTrue(self.d2.maps_field(self.fields_Publisher))
+        self.assertTrue(self.d2._maps_field(self.fields_Publisher))
 
     def test_field_mapping_weight_returns_default_value(self):
         self.assertEqual(0.0, self.d1.field_mapping_weight(None))
