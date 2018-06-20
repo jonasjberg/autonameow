@@ -49,26 +49,23 @@ ANSI_RESET_BG = '\x1b[49m'
 
 @skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestMsg(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        unittest.util._MAX_LENGTH = 2000
+    def _check_msg(self, *args, **kwargs):
+        expected = kwargs.pop('expected')
+        with uu.capture_stdout() as captured_stdout:
+            msg(*args, **kwargs)
+        self.assertIn(expected, captured_stdout.getvalue())
 
     def test_raises_exception_given_byte_string_message(self):
         with self.assertRaises(AssertionError):
             msg(b'foo')
 
     def test_msg_no_keyword_arguments(self):
-        with uu.capture_stdout() as out:
-            msg('text printed by msg()')
-
-        self.assertIn('text printed by msg()', out.getvalue().strip())
+        self._check_msg('text printed by msg()',
+                        expected='text printed by msg()')
 
     def test_msg_style_info(self):
-        with uu.capture_stdout() as out:
-            msg('text printed by msg() with style="info"', style='info')
-
-        self.assertIn('text printed by msg() with style="info"',
-                      out.getvalue().strip())
+        self._check_msg('text printed by msg() with style="info"', style='info',
+                        expected='text printed by msg() with style="info"')
 
     def test_msg_style_color_quoted(self):
         with uu.capture_stdout() as out:
@@ -88,12 +85,8 @@ class TestMsg(TestCase):
         def __check_color_quoted_msg(given, expect):
             assert isinstance(given, str)
             assert isinstance(expect, str)
-            with uu.capture_stdout() as _stdout:
-                msg(given, style='color_quoted')
-                self.assertEqual(
-                    expect.format(COL=ANSI_COLOR, RES=ANSI_RESET_FG),
-                    _stdout.getvalue()
-                )
+            expected_with_ansi_escapes = expect.format(COL=ANSI_COLOR, RES=ANSI_RESET_FG)
+            self._check_msg(given, style='color_quoted', expected=expected_with_ansi_escapes)
 
         __check_color_quoted_msg(
             given='msg() text with style="color_quoted" no "yes" no',
@@ -121,26 +114,18 @@ class TestMsg(TestCase):
         )
 
     def test_msg_style_heading(self):
-        with uu.capture_stdout() as out:
-            msg('text printed by msg() with style="heading"', style='heading')
-
-        expect = '''
+        self._check_msg('text printed by msg() with style="heading"', style='heading',
+                        expected='''
 
 [1mtext printed by msg() with style="heading"[0m
 [2m==========================================[0m
-'''
-        actual = out.getvalue()
-        self.assertEqual(expect, actual)
+''')
 
     def test_msg_style_section(self):
-        with uu.capture_stdout() as out:
-            msg('text printed by msg() with style="section"', style='section')
-
-        expect = '''
+        self._check_msg('text printed by msg() with style="section"', style='section',
+                        expected='''
 [1mtext printed by msg() with style="section"[0m
-'''
-        actual = out.getvalue()
-        self.assertEqual(expect, actual)
+''')
 
 
 # NOTE(jonas): This will likely fail on some platforms!
@@ -171,9 +156,8 @@ class TestColorize(TestCase):
         self.assertEqual(actual, _expected)
 
     def test_colorize_pass_through_with_no_fore_no_back_no_style(self):
-        self.assertEqual(colorize(''), '')
-        self.assertEqual(colorize(' '), ' ')
-        self.assertEqual(colorize('foo'), 'foo')
+        for given in ['', ' ', 'foo']:
+            self.assertEqual(given, colorize(given))
 
     def test_colorize_returns_expected_with_fore_red(self):
         self.__check_colorize(text='foo',
@@ -278,7 +262,7 @@ class TestMsgRename(TestCase):
                 with uu.capture_stdout() as _:
                     msg_rename('foo', 'bar', _dry_run_enabled)
 
-    def __check_raises_exception(self, given_from, given_dest):
+    def _assert_raises(self, given_from, given_dest):
         for _dry_run_enabled in (True, False):
             with self.subTest(dry_run=_dry_run_enabled):
                 with uu.capture_stdout() as _:
@@ -286,13 +270,13 @@ class TestMsgRename(TestCase):
                         msg_rename(given_from, given_dest, _dry_run_enabled)
 
     def test_raises_exception_if_called_with_bytes_string_dest(self):
-        self.__check_raises_exception('foo', b'bar')
+        self._assert_raises('foo', b'bar')
 
     def test_raises_exception_if_called_with_bytes_string_from(self):
-        self.__check_raises_exception(b'foo', 'bar')
+        self._assert_raises(b'foo', 'bar')
 
     def test_raises_exception_if_called_with_bytes_strings_dest_and_from(self):
-        self.__check_raises_exception(b'foo', b'bar')
+        self._assert_raises(b'foo', b'bar')
 
     def __check_msg_rename(self, given_from, given_dest, dry_run, expect):
         with uu.capture_stdout() as out:
@@ -326,23 +310,23 @@ class TestMsgPossibleRename(TestCase):
         with uu.capture_stdout() as _:
             msg_possible_rename('foo', 'bar')
 
-    def __check_raises_exception(self, given_from, given_dest):
+    def _assert_raises(self, given_from, given_dest):
         with uu.capture_stdout() as _:
             with self.assertRaises(AssertionError):
                 msg_possible_rename(given_from, given_dest)
 
     def test_raises_exception_if_called_with_bytes_string_dest(self):
-        self.__check_raises_exception('foo', b'bar')
+        self._assert_raises('foo', b'bar')
 
     def test_raises_exception_if_called_with_bytes_string_from(self):
-        self.__check_raises_exception(b'foo', 'bar')
+        self._assert_raises(b'foo', 'bar')
 
     def test_raises_exception_if_called_with_bytes_strings_dest_and_from(self):
-        self.__check_raises_exception(b'foo', b'bar')
+        self._assert_raises(b'foo', b'bar')
 
 
 class TestColorizeStringDiff(TestCase):
-    def _assert_colorized_diff(self, expect, given):
+    def _assert_given(self, given, expect):
         expect_a, expect_b = expect
         given_a, given_b = given
 
@@ -361,25 +345,22 @@ class TestColorizeStringDiff(TestCase):
         self.assertEqual(expect_b, actual_b, 'Given B: "{}"'.format(given_b))
 
     def test_returns_empty_strings_as_is(self):
-        expect = ['', '']
-        given = ['', '']
-        self._assert_colorized_diff(expect, given)
+        self._assert_given(['', ''], expect=['', ''])
 
     def test_returns_whitespace_strings_as_is(self):
-        self._assert_colorized_diff(expect=(' ', ' '), given=(' ', ' '))
+        self._assert_given((' ', ' '), expect=(' ', ' '))
 
     def test_returns_identical_strings_as_is(self):
-        self._assert_colorized_diff(expect=['a', 'a'], given=['a', 'a'])
+        self._assert_given(['a', 'a'], expect=['a', 'a'])
 
     def test_colorizes_one_character_difference(self):
-        self._assert_colorized_diff(expect=['C1aCR', 'C1bCR'], given=['a', 'b'])
+        self._assert_given(['a', 'b'], expect=['C1aCR', 'C1bCR'])
 
     def test_colorizes_case_difference_with_secondary_color(self):
-        self._assert_colorized_diff(expect=['C2aCR', 'C2ACR'], given=['a', 'A'])
+        self._assert_given(['a', 'A'], expect=['C2aCR', 'C2ACR'])
 
     def test_colorizes_both_case_difference_and_character_difference(self):
-        self._assert_colorized_diff(expect=['C1fooCR C2aCR', 'C1barCR C2ACR'],
-                                    given=['foo a', 'bar A'])
+        self._assert_given(['foo a', 'bar A'], expect=['C1fooCR C2aCR', 'C1barCR C2ACR'])
 
 
 class _CaseColumnFormatter(object):
