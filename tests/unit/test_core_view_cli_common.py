@@ -382,222 +382,180 @@ class TestColorizeStringDiff(TestCase):
                                     given=['foo a', 'bar A'])
 
 
-class TestColumnFormatter(TestCase):
+class _CaseColumnFormatter(object):
     def setUp(self):
-        self.padding = (ColumnFormatter.PADDING_CHAR
-                        * ColumnFormatter.COLUMN_PADDING)
+        self.cf = ColumnFormatter()
+        self.padding = self.cf.PADDING_CHAR * self.cf.COLUMN_PADDING
+        assert isinstance(self.padding, str), 'sanity check'
 
+    def _addrow(self, *args):
+        self.cf.addrow(*args)
+
+    def _setalignment(self, *args):
+        self.cf.setalignment(*args)
+
+    def _assert_column_widths(self, *expected):
+        self.assertEqual(list(expected), self.cf.column_widths)
+
+    def _assert_number_of_columns(self, expected):
+        assert isinstance(expected, int), 'sanity check'
+        self.assertEqual(expected, self.cf.number_columns)
+
+    def _assert_formatted_output(self, expected):
+        assert isinstance(expected, str), 'sanity check'
+        expected_with_padding = expected.format(p=self.padding)
+
+        actual = str(self.cf)
+        self.assertIsInstance(actual, str)
+        self.assertEqual(expected_with_padding, actual)
+
+
+class TestColumnFormatter(_CaseColumnFormatter, TestCase):
     def test_column_counter(self):
-        cf = ColumnFormatter()
-        self.assertEqual(cf.number_columns, 0)
-
-        cf.addrow('foo')
-        self.assertEqual(cf.number_columns, 1)
-        cf.addrow('foo')
-        self.assertEqual(cf.number_columns, 1)
-        cf.addrow('foo', 'bar')
-        self.assertEqual(cf.number_columns, 2)
-        cf.addrow('foo')
-        self.assertEqual(cf.number_columns, 2)
-        cf.addrow('foo', 'bar', 'baz')
-        self.assertEqual(cf.number_columns, 3)
+        self._assert_number_of_columns(0)
+        self._addrow('foo')
+        self._assert_number_of_columns(1)
+        self._addrow('foo')
+        self._assert_number_of_columns(1)
+        self._addrow('foo', 'bar')
+        self._assert_number_of_columns(2)
+        self._addrow('foo')
+        self._assert_number_of_columns(2)
+        self._addrow('foo', 'bar', 'baz')
+        self._assert_number_of_columns(3)
 
     def test_column_widths(self):
-        cf = ColumnFormatter()
-        self.assertEqual(cf.column_widths, [])
+        self._assert_column_widths()
+        self._addrow('foo')
+        self._assert_column_widths(3)
+        self._addrow('foo')
+        self._assert_column_widths(3)
+        self._addrow('foo', 'bar')
+        self._assert_column_widths(3, 3)
+        self._addrow('oof', 'rab')
+        self._assert_column_widths(3, 3)
+        self._addrow('AAAAHH')
+        self._assert_column_widths(6, 3)
+        self._addrow('foo', 'bar', 'baz')
+        self._assert_column_widths(6, 3, 3)
+        self._addrow('a', 'b', 'MJAOOOOAJM')
+        self._assert_column_widths(6, 3, 10)
 
-        cf.addrow('foo')
-        self.assertEqual(cf.column_widths, [3])
-        cf.addrow('foo')
-        self.assertEqual(cf.column_widths, [3])
-        cf.addrow('foo', 'bar')
-        self.assertEqual(cf.column_widths, [3, 3])
-        cf.addrow('AAAAHH')
-        self.assertEqual(cf.column_widths, [6, 3])
-        cf.addrow('foo', 'bar', 'baz')
-        self.assertEqual(cf.column_widths, [6, 3, 3])
-        cf.addrow('a', 'b', 'MJAOOOOAJM')
-        self.assertEqual(cf.column_widths, [6, 3, 10])
 
-
-class TestColumnFormatterOneColumn(TestCase):
-    def setUp(self):
-        self.padding = (ColumnFormatter.PADDING_CHAR
-                        * ColumnFormatter.COLUMN_PADDING)
-
+class TestColumnFormatterOneColumn(_CaseColumnFormatter, TestCase):
     def test_formats_single_column(self):
-        cf = ColumnFormatter()
-        cf.addrow('foo')
-        cf.addrow('bar')
-        cf.addrow('baz')
-
-        actual = str(cf)
-        expected = 'foo\nbar\nbaz'
-        self.assertEqual(actual, expected)
+        self._addrow('foo')
+        self._addrow('bar')
+        self._addrow('baz')
+        self._assert_formatted_output('foo\nbar\nbaz')
 
     def test_formats_single_column_with_empty_strings(self):
-        cf = ColumnFormatter()
-        cf.addrow('foo')
-        cf.addrow(' ')
-        cf.addrow('baz')
-
-        actual = str(cf)
-        expected = 'foo\n\nbaz'.format(p=self.padding)
-        self.assertEqual(actual, expected)
+        self._addrow('foo')
+        self._addrow(' ')
+        self._addrow('baz')
+        self._assert_formatted_output('foo\n\nbaz')
 
     def test_formats_single_column_with_none_elements(self):
-        cf = ColumnFormatter()
-        cf.addrow('foo')
-        cf.addrow(None)
-        cf.addrow('baz')
-
-        actual = str(cf)
-        expected = 'foo\n\nbaz'.format(p=self.padding)
-        self.assertEqual(actual, expected)
+        self._addrow('foo')
+        self._addrow(None)
+        self._addrow('baz')
+        self._assert_formatted_output('foo\n\nbaz')
 
 
-class TestColumnFormatterTwoColumns(TestCase):
-    def setUp(self):
-        self.padding = (ColumnFormatter.PADDING_CHAR
-                        * ColumnFormatter.COLUMN_PADDING)
-
+class TestColumnFormatterTwoColumns(_CaseColumnFormatter, TestCase):
     def test_formats_two_columns(self):
-        cf = ColumnFormatter()
-        cf.addrow('foo_A', 'foo_B')
-        cf.addrow('bar_A', 'bar_B')
-        cf.addrow('baz_A', 'baz_B')
-
-        actual = str(cf)
-        expect = 'foo_A{p}foo_B\nbar_A{p}bar_B\nbaz_A{p}baz_B'.format(
-            p=self.padding
-        )
-        self.assertEqual(actual, expect)
+        self._addrow('foo_A', 'foo_B')
+        self._addrow('bar_A', 'bar_B')
+        self._addrow('baz_A', 'baz_B')
+        self._assert_formatted_output('foo_A{p}foo_B\nbar_A{p}bar_B\nbaz_A{p}baz_B')
 
     def test_format_two_columns_expands_width(self):
-        cf = ColumnFormatter()
-        cf.addrow('A')
-        cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
-        cf.addrow('OOOOOOOOOOAAAAJM', 'B')
-        actual = str(cf)
-
-        expected = '''
+        self._addrow('A')
+        self._addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        self._addrow('OOOOOOOOOOAAAAJM', 'B')
+        self._assert_formatted_output('''
 A
 tuna            {p}MJAAAAOOOOOOOOOO
-OOOOOOOOOOAAAAJM{p}B'''.format(p=self.padding).lstrip('\n')
-        self.assertEqual(actual, expected)
+OOOOOOOOOOAAAAJM{p}B'''.lstrip('\n'))
 
     def test_format_two_columns_align_all_left(self):
-        cf = ColumnFormatter()
-        cf.addrow('a',    'bbb')
-        cf.addrow('cccc', 'd')
-        cf.setalignment('left', 'left', 'left')
-        actual = str(cf)
-
-        expected = 'a   {p}bbb\ncccc{p}d'.format(p=self.padding)
-        self.assertEqual(actual, expected)
+        self._addrow('a',    'bbb')
+        self._addrow('cccc', 'd')
+        self._setalignment('left', 'left', 'left')
+        self._assert_formatted_output('a   {p}bbb\ncccc{p}d')
 
     def test_format_two_columns_align_all_right(self):
-        cf = ColumnFormatter()
-        cf.addrow('A',    'B')
-        cf.addrow('a',    'bbb')
-        cf.addrow('cccc', 'd')
-        cf.setalignment('right', 'right', 'right')
-        actual = str(cf)
-
-        expected = '''
+        self._addrow('A',    'B')
+        self._addrow('a',    'bbb')
+        self._addrow('cccc', 'd')
+        self._setalignment('right', 'right', 'right')
+        self._assert_formatted_output('''
    A{p}  B
    a{p}bbb
-cccc{p}  d'''.format(p=self.padding).lstrip('\n')
-        self.assertEqual(actual, expected)
+cccc{p}  d'''.lstrip('\n'))
 
 
-class TestColumnFormatterThreeColumns(TestCase):
-    def setUp(self):
-        self.padding = (ColumnFormatter.PADDING_CHAR
-                        * ColumnFormatter.COLUMN_PADDING)
-
+class TestColumnFormatterThreeColumns(_CaseColumnFormatter, TestCase):
     def test_format_three_columns(self):
-        cf = ColumnFormatter()
-        cf.addrow('A1', 'BB1', 'CC11')
-        cf.addrow('A2', 'BB2', 'CC22')
-        cf.addrow('A3', 'BB3', 'CC33')
-        actual = str(cf)
-
-        expected = 'A1{p}BB1{p}CC11\nA2{p}BB2{p}CC22\nA3{p}BB3{p}CC33'.format(
-            p=self.padding
-        )
-        self.assertEqual(actual, expected)
+        self._addrow('A1', 'BB1', 'CC11')
+        self._addrow('A2', 'BB2', 'CC22')
+        self._addrow('A3', 'BB3', 'CC33')
+        self._assert_formatted_output('A1{p}BB1{p}CC11\nA2{p}BB2{p}CC22\nA3{p}BB3{p}CC33')
 
     def test_format_three_columns_expands_width(self):
-        cf = ColumnFormatter()
-        cf.addrow('A')
-        cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
-        cf.addrow('OOOOOOOOOOAAAAJM', 'B')
-        cf.addrow('42', '0x4E4F4F42')
-        cf.addrow('C', 'D', 'E')
-        actual = str(cf)
-
-        expected = '''
+        self._addrow('A')
+        self._addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        self._addrow('OOOOOOOOOOAAAAJM', 'B')
+        self._addrow('42', '0x4E4F4F42')
+        self._addrow('C', 'D', 'E')
+        self._assert_formatted_output('''
 A
 tuna            {p}MJAAAAOOOOOOOOOO
 OOOOOOOOOOAAAAJM{p}B
 42              {p}0x4E4F4F42
-C               {p}D               {p}E'''.format(p=self.padding).lstrip('\n')
-        self.assertEqual(actual, expected)
+C               {p}D               {p}E'''.lstrip('\n'))
 
     def test_format_three_columns_align_all_left(self):
-        cf = ColumnFormatter()
-        cf.addrow('A')
-        cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
-        cf.addrow('OOOOOOOOOOAAAAJM', 'B')
-        cf.addrow('42', '0x4E4F4F42')
-        cf.addrow('C', 'D', 'E')
-        cf.setalignment('left', 'left', 'left')
-        actual = str(cf)
-
-        expected = '''
+        self._addrow('A')
+        self._addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        self._addrow('OOOOOOOOOOAAAAJM', 'B')
+        self._addrow('42', '0x4E4F4F42')
+        self._addrow('C', 'D', 'E')
+        self._setalignment('left', 'left', 'left')
+        self._assert_formatted_output('''
 A
 tuna            {p}MJAAAAOOOOOOOOOO
 OOOOOOOOOOAAAAJM{p}B
 42              {p}0x4E4F4F42
-C               {p}D               {p}E'''.format(p=self.padding).lstrip('\n')
-        self.assertEqual(actual, expected)
+C               {p}D               {p}E'''.lstrip('\n'))
 
     def test_format_three_columns_align_all_right(self):
-        cf = ColumnFormatter()
-        cf.addrow('A')
-        cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
-        cf.addrow('OOOOOOOOOOAAAAJM', 'B')
-        cf.addrow('42', '0x4E4F4F42')
-        cf.addrow('C', 'D', 'E')
-        cf.setalignment('right', 'right', 'right')
-        actual = str(cf)
-
-        expected = '''
+        self._addrow('A')
+        self._addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        self._addrow('OOOOOOOOOOAAAAJM', 'B')
+        self._addrow('42', '0x4E4F4F42')
+        self._addrow('C', 'D', 'E')
+        self._setalignment('right', 'right', 'right')
+        self._assert_formatted_output('''
                A
             tuna{p}MJAAAAOOOOOOOOOO
 OOOOOOOOOOAAAAJM{p}               B
               42{p}      0x4E4F4F42
-               C{p}               D{p}E'''.format(p=self.padding).lstrip('\n')
-        self.assertEqual(actual, expected)
+               C{p}               D{p}E'''.lstrip('\n'))
 
     def test_format_three_columns_align_mixed(self):
-        cf = ColumnFormatter()
-        cf.addrow('A')
-        cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
-        cf.addrow('OOOOOOOOOOAAAAJM', 'B')
-        cf.addrow('42', '0x4E4F4F42')
-        cf.addrow('C', 'D', 'E')
-        cf.setalignment('right', 'left', 'right')
-        actual = str(cf)
-
-        expected = '''
+        self._addrow('A')
+        self._addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        self._addrow('OOOOOOOOOOAAAAJM', 'B')
+        self._addrow('42', '0x4E4F4F42')
+        self._addrow('C', 'D', 'E')
+        self._setalignment('right', 'left', 'right')
+        self._assert_formatted_output('''
                A
             tuna{p}MJAAAAOOOOOOOOOO
 OOOOOOOOOOAAAAJM{p}B
               42{p}0x4E4F4F42
-               C{p}D               {p}E'''.format(p=self.padding).lstrip('\n')
-        self.assertEqual(actual, expected)
+               C{p}D               {p}E'''.lstrip('\n'))
 
 
 # NOTE(jonas): This will likely fail on some platforms!
