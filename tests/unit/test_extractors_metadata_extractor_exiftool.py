@@ -89,7 +89,7 @@ class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput,
 class TestIsBadMetadata(TestCase):
     def _assert_bad(self, tag, value):
         actual = is_bad_metadata(tag, value)
-        self.assertTrue(actual)
+        self.assertTrue(actual, 'Expected tag {!s} value "{!s}" to be bad'.format(tag, value))
         self.assertIsInstance(actual, bool)
 
     def _assert_bad_any_tag(self, value):
@@ -145,6 +145,8 @@ class TestIsBadMetadata(TestCase):
             ['Epubor', 'Ultimate', 'eCore v0.9.5.630 [ http://www.epubor.com/ecore.html ]', 'http://www.epubor.com']
         )
         self._assert_bad('XMP:Contributor', 'http://www.epubor.com')
+        self._assert_bad('XMP:Contributor', 'calibre (2.85.1) [https://calibre-ebook.com]')
+        self._assert_bad('XMP:Contributor', 'calibre (3.6.0) [https://calibre-ebook.com]')
         self._assert_bad('XMP:Creator', 'Author')
         self._assert_bad('XMP:Creator', 'Creator')
         self._assert_bad('XMP:Creator', 'First Edition')
@@ -157,6 +159,9 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad('XMP:Subject', ['Subject'])
         self._assert_bad('XMP:Subject', ['Title', 'Subject'])
         self._assert_bad('XMP:Title', 'Title')
+
+        self._assert_bad('Palm:Contributor', 'calibre (2.85.1) [https://calibre-ebook.com]')
+        self._assert_bad('Palm:Contributor', 'calibre (3.6.0) [https://calibre-ebook.com]')
 
         self._assert_bad('PDF:Author', '\x104<8=8AB@0B>@')
         self._assert_bad('PDF:Author', ['\x104<8=8AB@0B>@'])

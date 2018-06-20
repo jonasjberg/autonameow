@@ -46,6 +46,7 @@ BAD_EXIFTOOL_METADATA = {
         'Unknown',
     },
     'Palm:Contributor': {
+        'calibre (2.85.1) [https://calibre-ebook.com]',
         'calibre (3.6.0) [https://calibre-ebook.com]',
     },
     'PDF:Author': {
@@ -73,6 +74,8 @@ BAD_EXIFTOOL_METADATA = {
         'Unknown',
     },
     'XMP:Contributor': {
+        'calibre (2.85.1) [https://calibre-ebook.com]',
+        'calibre (3.6.0) [https://calibre-ebook.com]',
         'eCore v0.9.5.630 [ http://www.epubor.com/ecore.html ]',
         'Epubor',
         'http://www.epubor.com',
