@@ -447,18 +447,24 @@ class TestColumnFormatterOneColumn(_CaseColumnFormatter, TestCase):
         self._addrow('foo')
         self._addrow('bar')
         self._addrow('baz')
+        self._assert_number_of_columns(1)
+        self._assert_column_widths(3)
         self._assert_formatted_output('foo\nbar\nbaz')
 
     def test_formats_single_column_with_empty_strings(self):
         self._addrow('foo')
         self._addrow(' ')
         self._addrow('baz')
+        self._assert_number_of_columns(1)
+        self._assert_column_widths(3)
         self._assert_formatted_output('foo\n\nbaz')
 
     def test_formats_single_column_with_none_elements(self):
         self._addrow('foo')
         self._addrow(None)
         self._addrow('baz')
+        self._assert_number_of_columns(1)
+        self._assert_column_widths(3)
         self._assert_formatted_output('foo\n\nbaz')
 
 
@@ -467,12 +473,17 @@ class TestColumnFormatterTwoColumns(_CaseColumnFormatter, TestCase):
         self._addrow('foo_A', 'foo_B')
         self._addrow('bar_A', 'bar_B')
         self._addrow('baz_A', 'baz_B')
+        self._assert_number_of_columns(2)
+        self._assert_column_widths(5, 5)
         self._assert_formatted_output('foo_A{p}foo_B\nbar_A{p}bar_B\nbaz_A{p}baz_B')
 
     def test_format_two_columns_expands_width(self):
         self._addrow('A')
+        self._assert_column_widths(1)
         self._addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        self._assert_column_widths(4, 16)
         self._addrow('OOOOOOOOOOAAAAJM', 'B')
+        self._assert_column_widths(16, 16)
         self._assert_formatted_output('''
 A
 tuna            {p}MJAAAAOOOOOOOOOO
@@ -500,12 +511,17 @@ class TestColumnFormatterThreeColumns(_CaseColumnFormatter, TestCase):
         self._addrow('A1', 'BB1', 'CC11')
         self._addrow('A2', 'BB2', 'CC22')
         self._addrow('A3', 'BB3', 'CC33')
+        self._assert_number_of_columns(3)
+        self._assert_column_widths(2, 3, 4)
         self._assert_formatted_output('A1{p}BB1{p}CC11\nA2{p}BB2{p}CC22\nA3{p}BB3{p}CC33')
 
     def test_format_three_columns_expands_width(self):
         self._addrow('A')
+        self._assert_column_widths(1)
         self._addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        self._assert_column_widths(4, 16)
         self._addrow('OOOOOOOOOOAAAAJM', 'B')
+        self._assert_column_widths(16, 16)
         self._addrow('42', '0x4E4F4F42')
         self._addrow('C', 'D', 'E')
         self._assert_formatted_output('''
