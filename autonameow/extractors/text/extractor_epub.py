@@ -73,6 +73,9 @@ def _extract_text_with_ebooklib(filepath):
     text_lines = list()
     for id_, _ in book.spine:
         item = book.get_item_with_id(id_)
+        if not item:
+            continue
+
         soup = BeautifulSoup(item.content, 'lxml')
         for child in soup.find_all(['div', 'h1', 'h2', 'h3', 'h4', 'title', 'p', 'td']):
             child_text = child.text
