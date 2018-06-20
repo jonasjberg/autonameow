@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import itertools
+import unittest
 from collections import namedtuple
 from unittest import skipIf, TestCase
 
@@ -215,6 +216,25 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
 
     TD(given=['Johnson, Dean R.', 'Paymer, Carol A.', 'Chamberlain, Aaron P.'],
        expect=['Chamberlain A.P.', 'Johnson D.R.', 'Paymer C.A.']),
+
+    TD(given=['Ivan Nunes Da Silva', 'Danilo Hernane Spatti',
+              'Rogerio Andrade Flauzino', 'Luisa Helena Bartocci Liboni',
+              'Silas Franco Dos Reis Alves'],
+       expect=['Alves S.F.D.R.', 'DaSilva I.N.', 'Flauzino R.A.',
+               'Liboni L.H.B.', 'Spatti D.H.']),
+
+    TD(given=['Danilo P. Mandic'],
+       expect=['Mandic D.P.']),
+    # TD(given=['Vanessa Su Lee Goh'],
+    #    expect=['Goh V.S.L.']),
+    # TD(given=['Danilo P. Mandic', 'Vanessa Su Lee Goh'],
+    #    expect=['Goh V.S.L.', 'Mandic D.P.']),
+
+    TD(given=['M. N. S. Swamy'],
+       expect=['Swamy M.N.S.']),
+    TD(given=['Swamy M.N.S.'],
+       expect=['Swamy M.N.S.']),
+
 ]
 
 
@@ -397,6 +417,10 @@ class TestNormalizeLetterCase(TestCase):
             with self.subTest():
                 self._assert_returns(testdata.expect, testdata.given)
 
+    @unittest.expectedFailure
+    def test_returns_name_with_van_as_is(self):
+        self._assert_returns('Vanessa Su Lee Goh', 'Vanessa Su Lee Goh')
+
 
 class TestNameParser(TestCase):
     def test_thirdparty_nameparser_is_available(self):
@@ -494,6 +518,22 @@ class TestHumanNameParser(TestCase):
                    'middle': 'A',
                    'middle_list': ['A'],
                    'original': 'K.A. Semandyayev'}),
+        TD(given='Ke-Lin Du',
+           expect={'first': 'Ke-Lin',
+                   'first_list': ['Ke-Lin'],
+                   'last': 'Du',
+                   'last_list': ['Du'],
+                   'middle': '',
+                   'middle_list': [],
+                   'original': 'Ke-Lin Du'}),
+        TD(given='M. N. S. Swamy',
+           expect={'first': 'M.',
+                   'first_list': ['M.'],
+                   'last': 'Swamy',
+                   'last_list': ['Swamy'],
+                   'middle': 'N. S.',
+                   'middle_list': ['N.', 'S.'],
+                   'original': 'M. N. S. Swamy'}),
     ]
 
     def setUp(self):
@@ -867,6 +907,14 @@ class TestSplitMultipleNames(TestCase):
             ]
         )
 
+    def test_based_on_live_data_e(self):
+        self._assert_that_it_returns(
+            expected=['Danilo P. Mandic', 'Vanessa Su Lee Goh'],
+            given_any_of=[
+                ['Danilo P. Mandic, Vanessa Su Lee Goh'],
+            ]
+        )
+
 
 class TestFilterMultipleNames(TestCase):
     def _assert_filter_output_contains(self, expected, given):
@@ -1081,3 +1129,7 @@ class TestFilterName(TestCase):
     def test_returns_empty_string_given_name_foreword(self):
         self._assert_filter_does_not_pass('foreword')
         self._assert_filter_does_not_pass('Foreword')
+
+    @unittest.expectedFailure
+    def test_returns_name_with_van_as_is(self):
+        self._assert_filter_returns('Vanessa Su Lee Goh', 'Vanessa Su Lee Goh')
