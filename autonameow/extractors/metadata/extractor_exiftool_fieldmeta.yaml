@@ -10,7 +10,6 @@ ASF:CreationDate:
             weight: 1.0
     multivalued: false
 
-
 ASF:ImageHeight:
     coercer: aw_integer
     multivalued: false
@@ -37,6 +36,10 @@ Composite:ImageSize:
 
 Composite:Megapixels:
     coercer: aw_float
+    multivalued: false
+
+EXIF:ColorSpace:
+    coercer: aw_integer
     multivalued: false
 
 EXIF:CreateDate:
@@ -87,6 +90,10 @@ EXIF:ExifVersion:
     coercer: aw_integer
     multivalued: false
 
+EXIF:FlashpixVersion:
+    coercer: aw_string
+    multivalued: false
+
 EXIF:GPSDateStamp:
     coercer: aw_exiftooltimedate
     generic_field: date_created
@@ -135,6 +142,18 @@ EXIF:ModifyDate:
             weight: 0.25
     multivalued: false
 
+EXIF:Orientation:
+    coercer: aw_integer
+    multivalued: false
+
+EXIF:ProcessingSoftware:
+    coercer: aw_string
+    multivalued: false
+
+EXIF:ResolutionUnit:
+    coercer: aw_integer
+    multivalued: false
+
 EXIF:Software:
     coercer: aw_string
     multivalued: false
@@ -151,6 +170,22 @@ EXIF:UserComment:
             weight: 0.5
     multivalued: false
 
+EXIF:XResolution:
+    coercer: aw_integer
+    multivalued: false
+
+EXIF:YResolution:
+    coercer: aw_integer
+    multivalued: false
+
+File:BitsPerSample:
+    coercer: aw_integer
+    multivalued: false
+
+File:ColorComponents:
+    coercer: aw_integer
+    multivalued: false
+
 File:Comment:
     coercer: aw_string
     generic_field: description
@@ -163,8 +198,16 @@ File:Comment:
             weight: 0.5
     multivalued: false
 
+File:CurrentIPTCDigest:
+    coercer: aw_string
+    multivalued: false
+
 File:Directory:
     coercer: aw_path
+    multivalued: false
+
+File:EncodingProcess:
+    coercer: aw_integer
     multivalued: false
 
 File:FileAccessDate:
@@ -238,6 +281,10 @@ File:MIMEType:
     -   WeightedMapping:
             field: Extension
             weight: 1.0
+    multivalued: false
+
+File:YCbCrSubSampling:
+    coercer: aw_string
     multivalued: false
 
 FlashPix:AppVersion:
@@ -596,6 +643,45 @@ FlashPix:Words:
 
 ICC_Profile:ProfileDateTime:
     coercer: aw_exiftooltimedate
+    multivalued: false
+
+IPTC:CodedCharacterSet:
+    coercer: aw_string
+    multivalued: false
+
+IPTC:Keywords:
+    coercer: aw_string
+    generic_field: tags
+    mapped_fields:
+    -   WeightedMapping:
+            field: Tags
+            weight: 1.0
+    multivalued: true
+
+IPTC:OriginatingProgram:
+    # Program name without version information. Example: "digikam"
+    coercer: aw_string
+    multivalued: false
+
+IPTC:ProgramVersion:
+    # Program version without name. Example: "4.12.0"
+    coercer: aw_string
+    multivalued: false
+
+JFIF:JFIFVersion:
+    coercer: aw_string
+    multivalued: false
+
+JFIF:ResolutionUnit:
+    coercer: aw_integer
+    multivalued: false
+
+JFIF:XResolution:
+    coercer: aw_integer
+    multivalued: false
+
+JFIF:YResolution:
+    coercer: aw_integer
     multivalued: false
 
 Palm:ASIN:
@@ -1211,6 +1297,73 @@ XMP:About:
     coercer: aw_string
     multivalued: false
 
+XMP:CatalogSets:
+    # Hierarchical structure of tags
+    # Example probably (!) written by digikam-4.12.0:
+    # ['pet|cat', 'pet|cat|gibson', 'pet|cat|smulan', 'foodz|kibble', 'location|kitchen', 'foodz']
+    coercer: aw_string
+    generic_field: tags
+    mapped_fields:
+    -   WeightedMapping:
+            field: Tags
+            weight: 1.0
+    multivalued: true
+
+XMP:Categories:
+    # Hierarchical structure of tags
+    # Example probably (!) written by digikam-4.12.0:
+    # <Categories><Category Assigned="0">cat<Category Assigned="1">cat<Category Assigned="1">gibson</Category><Category Assigned="1">smulan<Category Assigned="1">tops</Category></Category></Category></Category><Category Assigned="1">foodz<Category Assigned="1">kibble</Category></Category><Category Assigned="0">location<Category Assigned="1">kitchen</Category></Category></Categories>
+    #
+    # Same example data, indented:
+    # <Categories>
+    #     <Category Assigned="0">
+    #         cat
+    #         <Category Assigned="1">
+    #             cat
+    #             <Category Assigned="1">
+    #                 gibson
+    #             </Category>
+    #             <Category Assigned="1">
+    #                 smulan
+    #                 <Category Assigned="1">
+    #                     tops
+    #                 </Category>
+    #             </Category>
+    #         </Category>
+    #     </Category>
+    #     <Category Assigned="1">
+    #         foodz
+    #         <Category Assigned="1">
+    #             kibble
+    #         </Category>
+    #     </Category>
+    #     <Category Assigned="0">
+    #         location
+    #         <Category Assigned="1">
+    #             kitchen
+    #         </Category>
+    #     </Category>
+    # </Categories>
+    coercer: aw_string
+    generic_field: tags
+    mapped_fields:
+    -   WeightedMapping:
+            field: Tags
+            weight: 1.0
+    multivalued: false
+
+XMP:HierarchicalSubject:
+    # Hierarchical structure of (tags) subjects
+    # Example probably (!) written by digikam-4.12.0:
+    # ['pet|cat', 'pet|cat|gibson', 'pet|cat|smulan', 'foodz|kibble', 'location|kitchen', 'foodz']
+    coercer: aw_string
+    generic_field: tags
+    mapped_fields:
+    -   WeightedMapping:
+            field: Tags
+            weight: 1.0
+    multivalued: true
+
 XMP:Contributor:
     coercer: aw_string
     generic_field: author
@@ -1434,6 +1587,18 @@ XMP:Keywords:
             weight: 0.8
     multivalued: false
 
+XMP:LastKeywordXMP:
+    # Hierarchical structure of (tags) keywords
+    # Example probably (!) written by digikam-4.12.0:
+    # ['pet/cat', 'pet/cat/gibson', 'pet/cat/smulan', 'foodz/kibble', 'location/kitchen', 'foodz']
+    coercer: aw_string
+    generic_field: tags
+    mapped_fields:
+    -   WeightedMapping:
+            field: Tags
+            weight: 1.0
+    multivalued: true
+
 XMP:ManifestLinkForm:
     coercer: aw_string
     multivalued: true
@@ -1468,6 +1633,10 @@ XMP:ModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 0.25
+    multivalued: false
+
+XMP:Orientation:
+    coercer: aw_integer
     multivalued: false
 
 XMP:Producer:
@@ -1523,6 +1692,10 @@ XMP:Rights:
             weight: 0.5
     multivalued: false
 
+XMP:Software:
+    coercer: aw_string
+    multivalued: false
+
 XMP:Subject:
     coercer: aw_string
     generic_field: subject
@@ -1532,7 +1705,7 @@ XMP:Subject:
             weight: 1.0
     -   WeightedMapping:
             field: Tags
-            weight: 0.8
+            weight: 0.9
     -   WeightedMapping:
             field: Title
             weight: 0.5

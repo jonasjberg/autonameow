@@ -27,6 +27,7 @@ from thirdparty import pyexiftool
 
 IGNORED_EXIFTOOL_TAGNAMES = frozenset([
     'ExifTool:ExifToolVersion',
+    'ExifTool:Warning',
     'Palm:CreatorBuildNumber',
     'Palm:CreatorBuildNumber2',
     'Palm:CreatorMajorVersion',
