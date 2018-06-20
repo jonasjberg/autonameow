@@ -44,6 +44,9 @@ BigNerdRanch:
     match_any_literal:
     - Big Nerd Ranch
     - www.bignerdranch.com
+BleedingEdgePress:
+    match_any_regex:
+    - Bleeding Edge Press
 CambridgeUP:
     match_any_literal:
     - Cambridge University Press
@@ -54,6 +57,17 @@ Cengage:
 ChelseaHouse:
     match_any_literal:
     - Chelsea House
+ClydeBank:
+    match_any_regex:
+    - ClydeBank
+    match_any_literal:
+    - www.clydebankmedia.com
+CodeWellAcademy:
+    match_any_regex:
+    - Code Well Academy
+CreateSpace:
+    match_any_regex:
+    - Createspace
 CRCPress:
     match_any_regex:
     - Chapman (&|and) Hall
@@ -73,6 +87,12 @@ ExelixisMedia:
 FranklinBeedle:
     match_any_regex:
     - Franklin,? Beedle,? (&|and) Associates
+HeatonResearch:
+    match_any_regex:
+    - Heaton Research
+HodderStoughton:
+    match_any_regex:
+    - Hodder (&|and) Stoughton
 HoughtonMifflin:
     match_any_literal:
     - Houghton Mifflin
@@ -245,6 +265,9 @@ Syngress:
 TaylorFrancis:
     match_any_regex:
     - Taylor (&|and) Francis
+WalterdeGruyter:
+    match_any_regex:
+    - Walter de Gruyter
 WellesleyCambridge:
     match_any_regex:
     - Wellesley.Cambridge( Press)?

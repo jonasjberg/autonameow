@@ -78,6 +78,26 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         "Barron\u2019s Educational Series, Inc",
         "Barron\u2019s Educational Series, Inc.",
     ],
+    'BleedingEdgePress': [
+        'BleedingEdgePress',
+        'Bleeding Edge Press',
+    ],
+    'ClydeBank': [
+        'ClydeBank',
+        'ClydeBank Media',
+        'ClydeBank Media LLC',
+        'ClydeBank Technology',
+        'www.clydebankmedia.com',
+    ],
+    'CodeWellAcademy': [
+        'CodeWellAcademy',
+        'Code Well Academy',
+    ],
+    'CreateSpace': [
+        'Createspace',
+        'CreateSpace',
+        'Createspace Independent Publishing Platform',
+    ],
     'FeedBooks': [
         'FeedBooks',
         'This book is brought to you by Feedbooks',
@@ -169,6 +189,21 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Franklin, Beedle & Associates Incorporated',
         'Franklin, Beedle and Associates Incorporated',
         'Franklin, Beedle, and Associates Incorporated',
+    ],
+    'HeatonResearch': [
+        'HeatonResearch',
+        'Heaton Research',
+        'Heaton Research Inc',
+        'Heaton Research Inc.',
+        'Heaton Research Incorporated.',
+        'Heaton Research, Inc',
+        'Heaton Research, Inc.',
+        'Heaton Research, Incorporated.',
+    ],
+    'HodderStoughton': [
+        'Hodder & Stoughton',
+        'Hodder and Stoughton',
+        'HodderStoughton',
     ],
     'IABooks': [
         'IA Books',
@@ -427,6 +462,12 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Taylor & Francis',
         'Taylor and Francis',
         'TaylorFrancis',
+    ],
+    'WalterdeGruyter': [
+        'WalterdeGruyter',
+        'Walter de Gruyter',
+        'Walter de Gruyter GmbH & Co KG',
+        'Walter de Gruyter GmbH and Co KG',
     ],
     'WellesleyCambridge': [
         'Wellesley Cambridge Press',
