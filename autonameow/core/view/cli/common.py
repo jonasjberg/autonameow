@@ -463,6 +463,7 @@ class ColumnFormatter(object):
         self._data = list()
         self._column_widths = list()
         self._column_align = list()
+        self.max_total_width = None
 
     def setalignment(self, *args):
         maybe_strings = list(args)
@@ -565,19 +566,57 @@ class ColumnFormatter(object):
             return ''
 
         padding = self.PADDING_CHAR * self.COLUMN_PADDING
+        adjusted_column_widths = list(self.column_widths)
 
-        lines = list()
+        # Truncate column widths if 'self.max_total_width' is not None.
+        if self.max_total_width:
+            assert isinstance(self.max_total_width, int)
+
+            # Padding between all but the last column.
+            total_padding_width = len(padding) * (self.number_columns - 1)
+
+            def _get_total_width():
+                total_column_width = sum(adjusted_column_widths)
+                return total_column_width + total_padding_width
+
+            iteration_count = 0
+            total_width = _get_total_width()
+            while total_width > self.max_total_width:
+                widest_column_width = max(w for w in adjusted_column_widths)
+
+                width_decrement = ((total_width - self.max_total_width) // 5) or 1
+
+                for i in range(0, self.number_columns):
+                    if adjusted_column_widths[i] == widest_column_width:
+                        adjusted_column_widths[i] -= width_decrement
+                        break
+
+                iteration_count += 1
+                if iteration_count > 100:
+                    break
+
+                total_width = _get_total_width()
+
+        output_lines = list()
         for row in self._data:
-            lines.append(
-                padding.join(
-                    getattr(word, align)(width)
-                    for word, width, align in zip(
-                        row, self._column_widths, self.alignment
-                    )
-                )
-            )
+            row_columns = list()
+            for row_column, column_width, column_alignment in zip(
+                row, adjusted_column_widths, self.alignment
+            ):
+                aligned_row_column = getattr(row_column, column_alignment)(column_width)
 
-        return '\n'.join(l.rstrip() for l in lines)
+                if column_alignment == 'ljust':
+                    truncated_row_column = aligned_row_column[:column_width]
+                elif column_alignment == 'rjust':
+                    truncated_row_column = aligned_row_column[:column_width]
+                else:
+                    truncated_row_column = aligned_row_column
+
+                row_columns.append(truncated_row_column)
+
+            output_lines.append(padding.join(row_columns))
+
+        return '\n'.join(line.rstrip() for line in output_lines)
 
 
 def msg_columnate(column_names, row_data, alignment=None):

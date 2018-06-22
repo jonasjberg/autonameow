@@ -390,6 +390,9 @@ class _CaseColumnFormatter(object):
         self.assertIsInstance(actual, str)
         self.assertEqual(expected_with_padding, actual)
 
+    def _set_max_total_width(self, max_width):
+        self.cf.max_total_width = max_width
+
 
 class TestColumnFormatter(_CaseColumnFormatter, TestCase):
     def test_column_counter(self):
@@ -448,6 +451,23 @@ class TestColumnFormatterOneColumn(_CaseColumnFormatter, TestCase):
         self._assert_column_widths(3)
         self._assert_formatted_output('foo\n\nbaz')
 
+    def test_limits_width_of_single_line(self):
+        self._addrow('123456')
+        self._set_max_total_width(3)
+        self._assert_formatted_output('123')
+
+    def test_limits_width_of_two_lines_of_equal_length(self):
+        self._addrow('123456')
+        self._addrow('abcdef')
+        self._set_max_total_width(3)
+        self._assert_formatted_output('123\nabc')
+
+    def test_truncates_longest_of_two_lines(self):
+        self._addrow('123456789')
+        self._addrow('abcdef')
+        self._set_max_total_width(6)
+        self._assert_formatted_output('123456\nabcdef')
+
 
 class TestColumnFormatterTwoColumns(_CaseColumnFormatter, TestCase):
     def test_formats_two_columns(self):
@@ -485,6 +505,31 @@ OOOOOOOOOOAAAAJM{p}B'''.lstrip('\n'))
    A{p}  B
    a{p}bbb
 cccc{p}  d'''.lstrip('\n'))
+
+    def test_limits_width_of_single_line_columns_equal_width(self):
+        self._addrow('1234567890', 'abcdefghij')
+        # Expect 2 character padding: '1234567890  abcdefghij'  (22 chars wide)
+        self._set_max_total_width(20)
+        self._assert_formatted_output('123456789  abcdefghi')
+
+    def test_limits_width_of_two_lines_of_equal_length(self):
+        self._addrow('123456', 'abcdef')
+        self._addrow('XXzzzz', 'YYzzzz')
+        self._set_max_total_width(6)
+        self._assert_formatted_output('12  ab\nXX  YY')
+
+    def test_truncates_longest_of_two_lines(self):
+        self._addrow('123456789', 'a')
+        self._addrow('b', 'abcdef')
+        self._set_max_total_width(6)
+        self._assert_formatted_output('12  a\nb   ab')
+
+    def test_truncates_longest_of_three_lines(self):
+        self._addrow('123456789', 'a')
+        self._addrow('b', 'abcdef')
+        self._addrow('cc', '1234567')
+        self._set_max_total_width(6)
+        self._assert_formatted_output('12  a\nb   ab\ncc  12')
 
 
 class TestColumnFormatterThreeColumns(_CaseColumnFormatter, TestCase):
