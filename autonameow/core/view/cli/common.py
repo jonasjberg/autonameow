@@ -457,10 +457,11 @@ class ColumnFormatter(object):
     }
 
     def __init__(self, align='left'):
+        self._default_align = self.ALIGNMENT_STRINGS.get(align, 'ljust')
+
         self._column_count = 0
         self._data = list()
         self._column_widths = list()
-        self._default_align = self.ALIGNMENT_STRINGS.get(align, 'ljust')
         self._column_align = list()
 
     def setalignment(self, *args):
@@ -490,17 +491,15 @@ class ColumnFormatter(object):
     def number_columns(self):
         return self._column_count
 
-    def _update_number_columns(self, strings):
-        count = len(strings)
-        if count > self._column_count:
-            self._column_count = count
+    def _update_column_count(self, strings):
+        self._column_count = max(self._column_count, len(strings))
 
     def addrow(self, *args):
         maybe_strings = list(args)
 
         strings = self._check_types_replace_none(maybe_strings)
 
-        self._update_number_columns(strings)
+        self._update_column_count(strings)
         self._update_column_widths(strings)
         self._data.append(strings)
 
@@ -549,14 +548,15 @@ class ColumnFormatter(object):
         if not maybe_strings:
             return out
 
-        for _element in maybe_strings:
-            if _element is None:
+        for element in maybe_strings:
+            if element is None:
                 out.append('')
-            elif not isinstance(_element, str):
-                _msg = 'Expected Unicode str. Got "{!s}"'.format(type(_element))
-                raise TypeError(_msg)
+            elif not isinstance(element, str):
+                raise TypeError(
+                    'Expected Unicode str. Got {!s}'.format(type(element))
+                )
             else:
-                out.append(_element.strip())
+                out.append(element.strip())
 
         return out
 
