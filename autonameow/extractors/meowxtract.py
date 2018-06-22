@@ -22,6 +22,7 @@
 
 import argparse
 import logging
+import shutil
 import sys
 from collections import defaultdict
 
@@ -41,8 +42,13 @@ from util import encoding as enc
 log = logging.getLogger(__name__)
 
 
-def _column_formatter():
-    return view.ColumnFormatter()
+TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120, 48))
+
+
+def _get_column_formatter():
+    cf = view.ColumnFormatter()
+    cf.max_total_width = TERMINAL_WIDTH
+    return cf
 
 
 class TextExtractionResult(object):
@@ -158,7 +164,7 @@ def display_text_extraction_result(fileobject, text_extraction_result):
 
 def display_metadata_extraction_result(results):
     _results = list(results)
-    cf = _column_formatter()
+    cf = _get_column_formatter()
     for metadata_extraction_result in _results:
         provider = str(metadata_extraction_result.provider)
         for uri, data in metadata_extraction_result.metadata.items():
@@ -174,7 +180,7 @@ def display_summary_metadata_stats(all_processed_files, metadata_results):
     files_not_in_results = [f for f in all_processed_files
                             if not metadata_results[f]]
 
-    cf = _column_formatter()
+    cf = _get_column_formatter()
     cf.addrow('PROCESSED FILE', '# METADATA FIELDS', 'PROVIDER')
     cf.addrow('==============', '=================', '========')
     for f, metadata_extraction_results in sorted(metadata_results.items()):
@@ -198,7 +204,7 @@ def display_summary_text_stats(all_processed_files, text_results):
     files_not_in_results = [f for f in all_processed_files
                             if f not in text_results]
 
-    cf = _column_formatter()
+    cf = _get_column_formatter()
     cf.addrow('PROCESSED FILE', '# LINES', 'PROVIDER')
     cf.addrow('==============', '=======', '========')
     for f, text_extraction_results in sorted(text_results.items()):
