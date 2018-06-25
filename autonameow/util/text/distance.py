@@ -41,20 +41,26 @@ def levenshtein(string_a, string_b):
 
 
 def normalized_levenshtein(string_a, string_b):
-    _diff = levenshtein(string_a, string_b)
-    _normdiff = _diff / max(1, max(len(string_a), len(string_b)))
-    return _normdiff
+    lev_dist = levenshtein(string_a, string_b)
+    normalized_dist = lev_dist / max(1, max(len(string_a), len(string_b)))
+    return normalized_dist
 
 
 def string_difference(string_a, string_b):
+    assert isinstance(string_a, str)
+    assert isinstance(string_b, str)
+
     return normalized_levenshtein(string_a, string_b)
 
 
 def string_similarity(string_a, string_b):
-    _diff = levenshtein(string_a, string_b)
-    _normdiff = _diff / max(1, max(len(string_a), len(string_b)))
-    _normalized_similarity = 1 - _normdiff
-    return _normalized_similarity
+    assert isinstance(string_a, str)
+    assert isinstance(string_b, str)
+
+    lev_dist = levenshtein(string_a, string_b)
+    denominator = max(1, max(len(string_a), len(string_b)))
+    normalized_similarity = 1 - (lev_dist / denominator)
+    return normalized_similarity
 
 
 if __name__ == '__main__':
@@ -68,10 +74,6 @@ if __name__ == '__main__':
     arg_combinations = list(itertools.combinations(args, 2))
     results = list()
     for a, b in arg_combinations:
-        # Trivial canonicalization
-        # a = a.lower().replace('.', '').strip()
-        # b = b.lower().replace('.', '').strip()
-
         s = string_similarity(a, b)
         d = string_difference(a, b)
         results.append((a, b, s, d))
