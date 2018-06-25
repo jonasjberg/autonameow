@@ -1,0 +1,20 @@
+config_path: $THISTEST/config.yaml
+debug: false
+dry_run: true
+dump_config: false
+dump_meowuris: false
+dump_options: false
+input_paths:
+- '$TESTFILES/gmail.pdf'
+- '$TESTFILES/Screen Shot 2018-06-25 at 21.43.07.png'
+- '$TESTFILES/2007-04-23_12-comments.png'
+list_all: false
+list_rulematch: false
+mode_automagic: false
+mode_batch: true
+mode_interactive: false
+mode_timid: false
+quiet: false
+recurse_paths: false
+show_version: false
+verbose: false
