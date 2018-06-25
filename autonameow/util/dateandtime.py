@@ -187,6 +187,26 @@ def match_special_case_no_date(s):
     return _parse_datetime_and_check_if_probable(modified_string, pattern)
 
 
+def match_macos_screenshot(s):
+    """
+    Matches date/time strings in default MacOS screenshot filenames.
+
+    Args:
+        s: Unicode string to attempt to extract a datetime object from.
+
+    Returns: Any date/time as an instance of 'datetime' or None.
+    """
+    assert isinstance(s, str)
+
+    modified_string = s.replace('Screen Shot', '').replace('.png', '').strip()
+    try:
+        return datetime.strptime(modified_string, '%Y-%m-%d at %H.%M.%S')
+    except (ValueError, TypeError):
+        pass
+
+    return None
+
+
 def match_android_messenger_filename(text):
     """
     Test if text (file name) matches that of Android messenger.

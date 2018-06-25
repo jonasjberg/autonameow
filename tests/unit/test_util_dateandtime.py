@@ -27,6 +27,7 @@ from util.dateandtime import date_is_probable
 from util.dateandtime import find_isodate_like
 from util.dateandtime import is_datetime_instance
 from util.dateandtime import match_any_unix_timestamp
+from util.dateandtime import match_macos_screenshot
 from util.dateandtime import match_special_case
 from util.dateandtime import match_special_case_no_date
 from util.dateandtime import naive_to_timezone_aware
@@ -112,6 +113,40 @@ class TestMatchUnixTimestamp(TestCase):
         self.assertIsNone(match_any_unix_timestamp(' '))
         self.assertIsNone(match_any_unix_timestamp('abc'))
         self.assertIsNone(match_any_unix_timestamp('123456'))
+
+
+class TestMatchMacOsScreenshot(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.expect = datetime(2018, 6, 25, 21, 1, 23)
+
+    def _assert_match(self, given):
+        actual = match_macos_screenshot(given)
+        with self.subTest(given=given):
+            self.assertEqual(self.expect, actual)
+
+    def _assert_no_match(self, given):
+        with self.subTest(given=given):
+            self.assertIsNone(match_macos_screenshot(given))
+
+    def test_matches_macos_sierra_version_10_13_5_screenshot_filename(self):
+        self._assert_match('Screen Shot 2018-06-25 at 21.01.23.png')
+
+    def test_matches_only_date_and_time_separated_by_at(self):
+        self._assert_match('2018-06-25 at 21.01.23')
+
+    def test_does_not_match_empty_strings(self):
+        for given in ['', ' ']:
+            self._assert_no_match(given)
+
+    def test_does_not_match_strings_without_iso_like_dates(self):
+        for given in [
+            'foo',
+            'aaaa bb cc',
+            '2018',
+            '2018-06-25 21 01 23'
+        ]:
+            self._assert_no_match(given)
 
 
 class TestMatchSpecialCase(TestCase):
