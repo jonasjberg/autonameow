@@ -320,6 +320,12 @@ class TestStripEditedBy(TestCase):
             'Gibson Catberg (Ed.)',
             'Gibson Catberg (Edited by)',
             'Gibson Catberg (Editor)',
+            'Gibson Catberg (Technical Ed.)',
+            'Gibson Catberg,Technical Ed.',
+            'Gibson Catberg, Technical Ed.',
+            'Gibson Catberg (Technical Editor)',
+            'Gibson Catberg,Technical Editor',
+            'Gibson Catberg, Technical Editor',
         ]:
             with self.subTest(given=given, expected=EXPECTED):
                 actual = strip_edited_by(given)
@@ -1085,6 +1091,16 @@ class TestFilterMultipleNames(TestCase):
             given=['Johnson, Dean R.', 'Paymer, Carol A.', 'Chamberlain, Aaron P.']
         )
 
+    def test_based_on_live_data_j(self):
+        self._assert_filter_returns(
+            expected=['Lauren F. Hanter', 'Rubert K. Shimanski'],
+            given=['Lauren F. Hanter ... [et al.]', 'Rubert K. Shimanski, technical editor']
+        )
+        self._assert_filter_returns(
+            expected=['Bran Barbit', 'Mårten Gräsdal'],
+            given=['Bran Barbit ... [et al.]', 'Mårten Gräsdal, technical editor'],
+        )
+
 
 class TestFilterName(TestCase):
     def _assert_filter_returns(self, expected, given):
@@ -1137,9 +1153,17 @@ class TestFilterName(TestCase):
 
 
 class PreProcessNames(TestCase):
-    def _assert_preprocess_names_returns(self, expected, given):
-        actual = preprocess_names(given)
-        self.assertEqual(expected, actual)
+    def _assert_preprocess_names_returns(self, expected, given=None, given_any_of=None):
+        assert given or given_any_of
+
+        if given:
+            actual = preprocess_names(given)
+            self.assertEqual(expected, actual)
+
+        if given_any_of:
+            for given_ in given_any_of:
+                actual_ = preprocess_names(given_)
+                self.assertEqual(expected, actual_)
 
     def test_returns_expected(self):
         self._assert_preprocess_names_returns(
@@ -1148,17 +1172,32 @@ class PreProcessNames(TestCase):
         )
         self._assert_preprocess_names_returns(
             expected=['Lauren F. Hanter', 'Rubert K. Shimanski'],
-            given=['Lauren F. Hanter ... [et al.]', 'Rubert K. Shimanski, technical editor']
-        )
-        self._assert_preprocess_names_returns(
-            expected=['Lauren F. Hanter', 'Rubert K. Shimanski'],
-            given=['Lauren F. Hanter ... [et al.], Rubert K. Shimanski, technical editor']
-        )
-        self._assert_preprocess_names_returns(
-            expected=['Bran Barbit', 'Mårten Gräsdal'],
-            given=['Bran Barbit ... [et al.]', 'Mårten Gräsdal, technical editor'],
+            given_any_of=[
+                ['Lauren F. Hanter ... [et al.]', 'Rubert K. Shimanski, technical editor'],
+                ['Lauren F. Hanter ... [et al.], Rubert K. Shimanski, technical editor'],
+            ]
         )
         self._assert_preprocess_names_returns(
             expected=['Bran Barbit', 'Mårten Gräsdal'],
-            given=['Bran Barbit ... [et al.], Mårten Gräsdal, technical editor'],
+            given_any_of=[
+                ['Bran Barbit ... [et al.]', 'Mårten Gräsdal, technical editor'],
+                ['Bran Barbit ... [et al.]', 'Mårten Gräsdal technical editor'],
+                ['Bran Barbit ... [et al.], Mårten Gräsdal, technical editor'],
+                ['Bran Barbit ... [et al.], Mårten Gräsdal', 'technical editor'],
+            ]
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Graham Nash', 'John L. Wright Jr.', 'Niclas Hammel'],
+            given_any_of=[
+                ['Graham Nash, John L. Wright Jr., Niclas Hammel'],
+                ['Graham Nash, John L. Wright Jr.,Niclas Hammel']
+            ]
+        )
+        self._assert_preprocess_names_returns(
+            expected=['E. Galenbe', 'L. Kaiser'],
+            given=['Edited by E. Galenbe and L. Kaiser'],
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Norris L. Johnson', 'Robert J. Shimonski'],
+            given=['Norris L. Johnson', 'Jr.', 'Robert J. Shimonski'],
         )

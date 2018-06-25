@@ -38,6 +38,7 @@ BLACKLISTED_HUMAN_NAMES = frozenset([
     'editor',
     'foreword',
     'inc',
+    'jr.',
     'presenter',
     'reviewer',
     'technical editor',
@@ -64,7 +65,7 @@ def strip_author_et_al(string):
 
 
 def strip_edited_by(string):
-    RE_EDITED_BY = r'\(?ed(\.|ited|itor)( by)?\)?|\(ed\)'
+    RE_EDITED_BY = r'\(?,? ?(technical.)?ed(\.|ited|itor)( by)?\)?|\(ed\)'
     regex = RegexCache(RE_EDITED_BY, flags=re.IGNORECASE)
     subbed_string = regex.sub('', string)
     return subbed_string.strip()
@@ -108,6 +109,13 @@ def strip_bad_author_substrings(string):
         if s.startswith(leading_substring):
             leading_chars_to_strip = len(leading_substring)
             s = s[leading_chars_to_strip:]
+
+    for trailing_substring in [
+        ']',
+    ]:
+        if s.endswith(trailing_substring):
+            trailing_chars_to_strip = len(trailing_substring)
+            s = s[:-trailing_chars_to_strip]
 
     return s
 
@@ -431,7 +439,7 @@ def split_multiple_names(list_of_names):
     # Local import to avoid circular imports within the 'util' module.
     from util import flatten_sequence_type
 
-    RE_NAME_SEPARATORS = r';|,| ?\band| ?\+| ?& ?'
+    RE_NAME_SEPARATORS = r';|,| ?\b[aA]nd | ?\+| ?& ?'
 
     flat_list_of_names = flatten_sequence_type(list_of_names)
     if len(flat_list_of_names) == 1 and flat_list_of_names[0].startswith('edited by'):
