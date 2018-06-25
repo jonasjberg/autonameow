@@ -23,8 +23,6 @@
 Miscellaneous utility functions.
 """
 
-import itertools
-import logging
 import os
 
 
@@ -33,12 +31,6 @@ __all__ = [
     'flatten_sequence_type',
     'process_id',
 ]
-
-
-log = logging.getLogger(__name__)
-
-
-__counter_generator_function = itertools.count(0)
 
 
 def flatten_sequence_type(container):
