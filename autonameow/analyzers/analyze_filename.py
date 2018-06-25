@@ -131,6 +131,11 @@ class FilenameAnalyzer(BaseAnalyzer):
             self.log.debug('Found "most likely" date/time in the basename')
             return match
 
+        match = dateandtime.match_macos_screenshot(basename_prefix)
+        if match:
+            self.log.debug('Found "MacOS Screenshot" date/time in the basename')
+            return match
+
         match = dateandtime.match_android_messenger_filename(basename_prefix)
         if match:
             self.log.debug('Found "android messenger timestamp" date/time in the basename')
