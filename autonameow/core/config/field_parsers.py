@@ -226,6 +226,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
         '*.XMP-dc:Title', '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher',
         '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.extension',
+        '*.abspath_full',
         '*.basename_full',
         '*.basename_prefix',
         '*.basename_suffix',

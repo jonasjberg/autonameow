@@ -520,10 +520,12 @@ class TestSuitableFieldParserFor(TestCase):
 
         self.__expect_parser_for('DateTimeConfigFieldParser',
                                  uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE)
-        self.__expect_parser_for(
-            'DateTimeConfigFieldParser',
-            uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL
-        )
+        self.__expect_parser_for('DateTimeConfigFieldParser',
+                                 uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL)
+        self.__expect_parser_for('DateTimeConfigFieldParser',
+                                 uuconst.MEOWURI_GEN_METADATA_DATECREATED)
+        self.__expect_parser_for('DateTimeConfigFieldParser',
+                                 uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED)
 
     def test_expect_regex_field_parser(self):
         self.__expect_parser_for('RegexConfigFieldParser',
@@ -532,16 +534,14 @@ class TestSuitableFieldParserFor(TestCase):
                                  uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
         self.__expect_parser_for('RegexConfigFieldParser',
                                  uuconst.MEOWURI_FS_XPLAT_EXTENSION)
-        self.__expect_parser_for('DateTimeConfigFieldParser',
-                                 uuconst.MEOWURI_GEN_METADATA_DATECREATED)
-        self.__expect_parser_for('DateTimeConfigFieldParser',
-                                 uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED)
-        self.__expect_parser_for('MimeTypeConfigFieldParser',
-                                 uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
+        self.__expect_parser_for('RegexConfigFieldParser',
+                                 uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
 
     def test_expect_mime_type_field_parser(self):
         self.__expect_parser_for('MimeTypeConfigFieldParser',
                                  uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        self.__expect_parser_for('MimeTypeConfigFieldParser',
+                                 uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
 
     def test_raises_exception_given_none_meowuri(self):
         with self.assertRaises(AssertionError):
