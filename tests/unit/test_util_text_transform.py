@@ -804,11 +804,37 @@ class TestRemoveControlCharacters(TestCase):
         self._assert_given_expect('\x08A\x08\x08B', 'AB')
         self._assert_given_expect('\x08A\x08\x08B\x08', 'AB')
 
+    def test_removes_control_character_start_of_header(self):
+        self._assert_given_expect('\x01', '')
+        self._assert_given_expect('\x01\x01', '')
+        self._assert_given_expect('A\x01', 'A')
+        self._assert_given_expect('A\x01B', 'AB')
+        self._assert_given_expect('A\x01B\x01', 'AB')
+        self._assert_given_expect('\x01A\x01', 'A')
+        self._assert_given_expect('\x01A\x01B', 'AB')
+        self._assert_given_expect('\x01A\x01B\x01', 'AB')
+        self._assert_given_expect('\x01A\x01\x01', 'A')
+        self._assert_given_expect('\x01A\x01\x01B', 'AB')
+        self._assert_given_expect('\x01A\x01\x01B\x01', 'AB')
+
+    def test_removes_control_character_start_of_text(self):
+        self._assert_given_expect('\x02', '')
+        self._assert_given_expect('\x02\x02', '')
+        self._assert_given_expect('A\x02', 'A')
+        self._assert_given_expect('A\x02B', 'AB')
+        self._assert_given_expect('A\x02B\x02', 'AB')
+
     def test_removes_only_control_character_bell(self):
         self._assert_given_expect('foo\x07\nbaz\n\n\x07m\x07ä\x07ö\x07w', 'foo\nbaz\n\nmäöw')
 
     def test_removes_only_control_character_backspace(self):
         self._assert_given_expect('foo\x08\nbaz\n\n\x08m\x08ä\x08ö\x08w', 'foo\nbaz\n\nmäöw')
+
+    def test_removes_only_control_character_start_of_header(self):
+        self._assert_given_expect('foo\x01\nbaz\n\n\x01m\x01ä\x01ö\x01w', 'foo\nbaz\n\nmäöw')
+
+    def test_removes_only_control_character_start_of_text(self):
+        self._assert_given_expect('foo\x02\nbaz\n\n\x02m\x02ä\x02ö\x02w', 'foo\nbaz\n\nmäöw')
 
 
 class TestTruncateText(TestCase):

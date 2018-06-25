@@ -360,13 +360,19 @@ def remove_zerowidth_spaces(text):
 def remove_ascii_control_characters(s):
     """
     Removes "generally undesirable" ASCII control characters from strings.
-
-        0x07  BEL  (^G)  ASCII and Unicode 07
-        0x08  BS   (^H)  Modern systems ASCII and Unicode 0x7F (?)
-
     """
     assert isinstance(s, str)
-    return s.replace('\x07', '').replace('\x08', '')
+
+    modified_string = s
+    for character_to_remove in [
+        '\x01',  # 0x01  SOH  (^A)  Start of Header/Heading
+        '\x02',  # 0x02  STX  (^B)  Start of Text
+        '\x07',  # 0x07  BEL  (^G)  ASCII and Unicode 07
+        '\x08',  # 0x08  BS   (^H)  Modern systems ASCII and Unicode 0x7F (?)
+    ]:
+        modified_string = modified_string.replace(character_to_remove, '')
+
+    return modified_string
 
 
 def truncate_text(text, maxlen=500, append_info=False):
