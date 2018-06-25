@@ -115,6 +115,7 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'http://cncmanual.com/',
     'http://freepdf-books.com',
     'http://www.epubor.com',
+    'test',
     'Toolkit http://www.activepdf.com',
     'Toolkit http://www.activepdf.com(Infix)',
     'UNKNOWN',

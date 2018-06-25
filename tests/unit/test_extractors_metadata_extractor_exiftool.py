@@ -191,6 +191,7 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad_any_tag('http://freepdf-books.com')
         self._assert_bad_any_tag('http://freepdf-books.com')
         self._assert_bad_any_tag('http://www.epubor.com')
+        self._assert_bad_any_tag('test')
         self._assert_bad_any_tag('Toolkit http://www.activepdf.com')
         self._assert_bad_any_tag('Toolkit http://www.activepdf.com(Infix)')
         self._assert_bad_any_tag('UNKNOWN')
