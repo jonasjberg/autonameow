@@ -2,6 +2,9 @@ AcademicPress:
     match_any_literal:
     - Academic Press
     - Academic Press is an imprint of Elsevier
+AKPeters:
+    match_any_regex:
+    - AK Peters
 ArtechHouse:
     match_any_literal:
     - Artech House
@@ -33,7 +36,7 @@ ProjectGutenberg:
     - www.gutenberg.net
 AddisonWesley:
     match_any_regex:
-    - addison.wesley professional
+    - addison.wesley prof.?essional
     - addison.wesley
 Apress:
     match_any_literal:
@@ -47,6 +50,9 @@ BigNerdRanch:
 BleedingEdgePress:
     match_any_regex:
     - Bleeding Edge Press
+BookBoon:
+    match_any_regex:
+    - bookboon
 CambridgeUP:
     match_any_literal:
     - Cambridge University Press
@@ -87,6 +93,10 @@ ExelixisMedia:
 FranklinBeedle:
     match_any_regex:
     - Franklin,? Beedle,? (&|and) Associates
+GrinPub:
+    match_any_regex:
+    - GRIN Publishing
+    - GRIN Verlag
 HeatonResearch:
     match_any_regex:
     - Heaton Research
@@ -102,12 +112,19 @@ IABooks:
     - IA Books
     - sales@iabooks.com
     - www.iabooks.com
+IdeaGroup:
+    match_any_regex:
+    - Idea group
 IGIGlobal:
     match_any_literal:
     - IGI Global
 ImperialCollegePress:
     match_any_literal:
     - Imperial College Press
+IBMITSO:
+    match_any_regex:
+    - IBM Red ?books
+    - International Technical Support Organization
 ITAcademy:
     match_any_literal:
     - IT Academy
@@ -234,6 +251,9 @@ Routledge:
     match_any_literal:
     - Routledge Taylor & Francis Group
     - Routledge Taylor and Francis Group
+RecursiveBooks:
+    match_any_regex:
+    - Recursive Books
 Sams:
     match_any_literal:
     - Sams Publishing
@@ -246,7 +266,7 @@ SitePoint:
     - SitePoint
 Springer:
     match_any_regex:
-    - Springer.Verlag
+    - Springer(.Verlag)?
     match_any_literal:
     - springer
     - Springer Berlin
@@ -283,6 +303,7 @@ Wiley:
     - ^Wiley Pub\..? (Inc\.?|Incorporated)
     - ^John Wiley (&|and) Sons,?( Inc\.?)?
     - Wiley.Interscience
+    - Wiley Technology
     match_any_literal:
     - John Wiley
     - J. Wiley
