@@ -23,10 +23,12 @@
 Utility functions for controlling and interacting with system processes.
 """
 
+import os
 import shutil
 import subprocess
 from functools import lru_cache
 
+from core import constants as C
 from core.exceptions import AutonameowException
 
 
@@ -83,3 +85,31 @@ def is_executable(command):
         True if the command would be executable, otherwise False.
     """
     return bool(shutil.which(command) is not None)
+
+
+@lru_cache(maxsize=1)
+def git_commit_hash():
+    if not is_executable('git'):
+        return None
+
+    _old_pwd = os.path.curdir
+    try:
+        os.chdir(C.AUTONAMEOW_SRCROOT_DIR)
+        process = subprocess.Popen(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
+        stdout, _ = process.communicate()
+    except (OSError, ValueError, TypeError, subprocess.SubprocessError):
+        return None
+    else:
+        # NOTE(jonas): git returns 128 for the "fatal: Not a git repository.."
+        # error. Substring matching is redundant but probably won't hurt either.
+        if process.returncode == 0:
+            from util import coercers
+            str_stdout = coercers.force_string(stdout).strip()
+            if str_stdout and 'fatal: Not a git repository' not in str_stdout:
+                return str_stdout
+        return None
+    finally:
+        os.chdir(_old_pwd)

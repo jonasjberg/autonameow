@@ -20,11 +20,14 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+import unit.utils as uu
 from util.process import blocking_read_stdout
 from util.process import ChildProcessError
+from util.process import git_commit_hash
 from util.process import is_executable
 
 
@@ -64,3 +67,42 @@ class TestIsExecutable(TestCase):
 
     def test_returns_false_for_bogus_commands(self):
         self.assertFalse(is_executable('thisisntexecutablesurely'))
+
+
+class TestGitCommitHash(TestCase):
+    def test_returns_expected_type(self):
+        actual = git_commit_hash()
+        self.assertTrue(uu.is_internalstring(actual))
+
+    def test_resets_curdir(self):
+        curdir_before = os.path.curdir
+        _ = git_commit_hash()
+        curdir_after = os.path.curdir
+
+        self.assertEqual(curdir_before, curdir_after)
+
+    def _setup_mock_popen(self, mock_popen, return_code=None, stdout=None, stderr=None):
+        def __communicate():
+            return stdout, stderr
+
+        if return_code is None:
+            return_code = 0
+        if stdout is None:
+            stdout = b''
+
+        mock_popen.return_value = MagicMock(returncode=return_code)
+        mock_popen_instance = mock_popen.return_value
+        mock_popen_instance.communicate = __communicate
+
+    @patch('util.process.subprocess.Popen')
+    def test_returns_none_if_repository_not_found(self, mock_popen):
+        self._setup_mock_popen(
+            mock_popen,
+            stdout=b'fatal: Not a git repository (or any of the parent directories): .git\n',
+            stderr=None
+        )
+        # Call 'cache_clear()' added by the 'functools.lru_cache' decorator.
+        git_commit_hash.cache_clear()
+
+        actual = git_commit_hash()
+        self.assertIsNone(actual)

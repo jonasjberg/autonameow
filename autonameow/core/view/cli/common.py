@@ -33,7 +33,7 @@ except ImportError:
 
 from core import constants as C
 from util import coercers
-from util import git_commit_hash
+from util import process
 from util import sanity
 
 
@@ -49,7 +49,7 @@ def print_version_info(verbose):
         return colorize('-' * length, fore='LIGHTBLACK_EX', style='DIM')
 
     if verbose:
-        _commit_info = git_commit_hash()
+        _commit_info = process.git_commit_hash()
         if _commit_info:
             # NOTE(jonas): git rev-parse --short HEAD returns different length.
             # Hash string is one extra character on MacOS (git version 2.15.1)

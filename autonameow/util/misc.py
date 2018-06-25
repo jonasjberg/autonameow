@@ -26,15 +26,11 @@ Miscellaneous utility functions.
 import itertools
 import logging
 import os
-import subprocess
-from functools import lru_cache
 
-from core import constants as C
 
 __all__ = [
     'count_dict_recursive',
     'flatten_sequence_type',
-    'git_commit_hash',
     'process_id',
 ]
 
@@ -108,28 +104,3 @@ def count_dict_recursive(dictionary, count=0):
 
 def process_id():
     return os.getpid()
-
-
-@lru_cache(maxsize=1)
-def git_commit_hash():
-    _old_pwd = os.path.curdir
-    try:
-        os.chdir(C.AUTONAMEOW_SRCROOT_DIR)
-        process = subprocess.Popen(
-            ['git', 'rev-parse', '--short', 'HEAD'],
-            shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-        )
-        stdout, _ = process.communicate()
-    except (OSError, ValueError, TypeError, subprocess.SubprocessError):
-        return None
-    else:
-        # NOTE(jonas): git returns 128 for the "fatal: Not a git repository.."
-        # error. Substring matching is redundant but probably won't hurt either.
-        if process.returncode == 0:
-            from util import coercers
-            str_stdout = coercers.force_string(stdout).strip()
-            if str_stdout and 'fatal: Not a git repository' not in str_stdout:
-                return str_stdout
-        return None
-    finally:
-        os.chdir(_old_pwd)

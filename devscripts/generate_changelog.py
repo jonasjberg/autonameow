@@ -26,7 +26,6 @@ import re
 import subprocess
 import sys
 
-import util
 from core import version
 from util import coercers
 from util import process
@@ -305,7 +304,7 @@ if __name__ == '__main__':
 
     prev_tag = get_previous_version_tag()
     prev_tag_hash = get_commit_for_tag(prev_tag)
-    current_hash = util.git_commit_hash()
+    current_hash = process.git_commit_hash()
     # print('Previous version tag: {!s}'.format(prev_tag))
     # print('Previous version tag commit hash: {!s}'.format(prev_tag_hash))
     # print('Current commit hash: {!s}'.format(current_hash))
