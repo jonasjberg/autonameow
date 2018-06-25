@@ -33,6 +33,7 @@ from util.text.humannames import HumanNameFormatter
 from util.text.humannames import HumanNameParser
 from util.text.humannames import LastNameInitialsFormatter
 from util.text.humannames import normalize_letter_case
+from util.text.humannames import preprocess_names
 from util.text.humannames import split_multiple_names
 from util.text.humannames import strip_author_et_al
 from util.text.humannames import strip_edited_by
@@ -1133,3 +1134,31 @@ class TestFilterName(TestCase):
     @unittest.expectedFailure
     def test_returns_name_with_van_as_is(self):
         self._assert_filter_returns('Vanessa Su Lee Goh', 'Vanessa Su Lee Goh')
+
+
+class PreProcessNames(TestCase):
+    def _assert_preprocess_names_returns(self, expected, given):
+        actual = preprocess_names(given)
+        self.assertEqual(expected, actual)
+
+    def test_returns_expected(self):
+        self._assert_preprocess_names_returns(
+            expected=['John V. Shindler', 'Monica Littlejohn Shindler', 'Mårtin Gräsdal'],
+            given=['[John V. Shindler, Monica Littlejohn Shindler', 'Mårtin Gräsdal, technical ed.]']
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Lauren F. Hanter', 'Rubert K. Shimanski'],
+            given=['Lauren F. Hanter ... [et al.]', 'Rubert K. Shimanski, technical editor']
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Lauren F. Hanter', 'Rubert K. Shimanski'],
+            given=['Lauren F. Hanter ... [et al.], Rubert K. Shimanski, technical editor']
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Bran Barbit', 'Mårten Gräsdal'],
+            given=['Bran Barbit ... [et al.]', 'Mårten Gräsdal, technical editor'],
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Bran Barbit', 'Mårten Gräsdal'],
+            given=['Bran Barbit ... [et al.], Mårten Gräsdal, technical editor'],
+        )

@@ -502,3 +502,16 @@ def filter_name(human_name):
     name = strip_bad_author_substrings(name)
     name = normalize_letter_case(name)
     return name
+
+
+def preprocess_names(list_of_names):
+    """
+    Primary "public" filtering/cleanup function for incoming raw names.
+
+    Intended to process lists of strings of names from any kind of source.
+    Wraps all other filtering functionality provided by this module.
+    """
+    assert isinstance(list_of_names, list)
+    assert all(isinstance(s, str) for s in list_of_names)
+
+    return split_multiple_names(filter_multiple_names(list_of_names))
