@@ -45,8 +45,7 @@ from util.text import RegexCache
 from util.text import remove_blacklisted_lines
 from util.text import string_similarity
 from util.text import TextChunker
-from util.text.humannames import filter_multiple_names
-from util.text.humannames import split_multiple_names
+from util.text.humannames import preprocess_names
 
 
 log = logging.getLogger(__name__)
@@ -558,13 +557,15 @@ class ISBNMetadata(object):
                 _author_list.append(author)
 
         stripped_author_list = [a.strip() for a in _author_list if a]
-        fixed_author_list = split_multiple_names(stripped_author_list)
-        filtered_author_list = filter_multiple_names(fixed_author_list)
+        preprocessed_author_list = preprocess_names(stripped_author_list)
 
-        self._log_attribute_setter('author', filtered_author_list, values)
-        self._authors = filtered_author_list
+        self._log_attribute_setter('author', preprocessed_author_list, values)
+        self._authors = preprocessed_author_list
+
+        # TODO: Do "real" human name parsing here instead.
+        #       For improved author comparisons and reduced duplicate code.
         self._normalized_authors = [
-            normalize_full_human_name(a) for a in filtered_author_list if a
+            normalize_full_human_name(a) for a in preprocessed_author_list if a
         ]
 
     @property
