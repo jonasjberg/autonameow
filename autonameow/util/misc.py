@@ -23,13 +23,9 @@
 Miscellaneous utility functions.
 """
 
-import os
-
-
 __all__ = [
     'count_dict_recursive',
     'flatten_sequence_type',
-    'process_id',
 ]
 
 
@@ -92,7 +88,3 @@ def count_dict_recursive(dictionary, count=0):
                 count += 1
 
     return count
-
-
-def process_id():
-    return os.getpid()

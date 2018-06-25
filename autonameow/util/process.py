@@ -113,3 +113,10 @@ def git_commit_hash():
         return None
     finally:
         os.chdir(_old_pwd)
+
+
+def current_process_id():
+    """
+    Returns the current process ID as an integer.
+    """
+    return os.getpid()

@@ -27,6 +27,7 @@ from unittest.mock import MagicMock, patch
 import unit.utils as uu
 from util.process import blocking_read_stdout
 from util.process import ChildProcessError
+from util.process import current_process_id
 from util.process import git_commit_hash
 from util.process import is_executable
 
@@ -106,3 +107,8 @@ class TestGitCommitHash(TestCase):
 
         actual = git_commit_hash()
         self.assertIsNone(actual)
+
+
+class TestCurrentProcessId(TestCase):
+    def test_returns_expected_type(self):
+        self.assertIsInstance(current_process_id(), int)

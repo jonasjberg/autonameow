@@ -24,7 +24,6 @@ import logging
 import sys
 import time
 
-import util
 from core import config
 from core import constants as C
 from core import event
@@ -40,6 +39,7 @@ from core.namebuilder import FilenamePostprocessor
 from core.renamer import FileRenamer
 from util import disk
 from util import encoding as enc
+from util import process
 
 
 log = logging.getLogger(__name__)
@@ -420,7 +420,7 @@ class Autonameow(object):
             self._exit_code = value
 
     def __hash__(self):
-        return hash((util.process_id(), self.start_time))
+        return hash((process.current_process_id(), self.start_time))
 
 
 def check_option_combinations(options):
