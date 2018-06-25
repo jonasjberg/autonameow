@@ -33,12 +33,12 @@ try:
 except ImportError:
     Image = None
 
-import util
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor
 from extractors.text.base import decode_raw
 from util import encoding as enc
 from util import mimemagic
+from util import process
 
 
 TESSERACT_COMMAND = 'tesseract'
@@ -67,7 +67,7 @@ class TesseractOCRTextExtractor(BaseTextExtractor):
     @classmethod
     def dependencies_satisfied(cls):
         # Requires tesseract and PIL.Image.
-        return util.is_executable(TESSERACT_COMMAND) and Image is not None
+        return process.is_executable(TESSERACT_COMMAND) and Image is not None
 
     @classmethod
     def can_handle(cls, fileobject):

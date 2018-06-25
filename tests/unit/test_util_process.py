@@ -23,8 +23,9 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from util.process import ChildProcessError
 from util.process import blocking_read_stdout
+from util.process import ChildProcessError
+from util.process import is_executable
 
 
 class TestBlockingReadStdout(TestCase):
@@ -55,3 +56,11 @@ class TestBlockingReadStdout(TestCase):
             _ = blocking_read_stdout(given_args)
 
         self.assertIn(given_args, mock_popen.call_args[0][0])
+
+
+class TestIsExecutable(TestCase):
+    def test_returns_true_for_executable_commands(self):
+        self.assertTrue(is_executable('python'))
+
+    def test_returns_false_for_bogus_commands(self):
+        self.assertFalse(is_executable('thisisntexecutablesurely'))

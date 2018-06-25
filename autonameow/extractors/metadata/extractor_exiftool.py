@@ -19,10 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import util
 from extractors import ExtractorError
 from extractors.metadata.base import BaseMetadataExtractor
 from thirdparty import pyexiftool
+from util import process
 
 
 IGNORED_EXIFTOOL_TAGNAMES = frozenset([
@@ -251,7 +251,7 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
 
     @classmethod
     def dependencies_satisfied(cls):
-        return util.is_executable('exiftool') and pyexiftool is not None
+        return process.is_executable('exiftool') and pyexiftool is not None
 
 
 def is_kindle_ebook(fileobject):

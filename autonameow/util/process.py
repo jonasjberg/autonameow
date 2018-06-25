@@ -23,7 +23,9 @@
 Utility functions for controlling and interacting with system processes.
 """
 
+import shutil
 import subprocess
+from functools import lru_cache
 
 from core.exceptions import AutonameowException
 
@@ -67,3 +69,17 @@ def blocking_read_stdout(*args):
             'Process returned {!s}. stderr:\n{!s}'.format(returncode, stderr)
         )
     return stdout or b''
+
+
+@lru_cache(maxsize=128)
+def is_executable(command):
+    """
+    Checks if the given command is executable.
+
+    Args:
+        command: The command to test.
+
+    Returns:
+        True if the command would be executable, otherwise False.
+    """
+    return bool(shutil.which(command) is not None)

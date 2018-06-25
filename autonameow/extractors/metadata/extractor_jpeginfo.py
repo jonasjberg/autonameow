@@ -22,10 +22,10 @@
 import re
 import subprocess
 
-import util
 from extractors.metadata.base import BaseMetadataExtractor
 from extractors import ExtractorError
 from util import coercers
+from util import process
 
 
 class JpeginfoMetadataExtractor(BaseMetadataExtractor):
@@ -73,7 +73,7 @@ class JpeginfoMetadataExtractor(BaseMetadataExtractor):
 
     @classmethod
     def dependencies_satisfied(cls):
-        return util.is_executable('jpeginfo')
+        return process.is_executable('jpeginfo')
 
 
 def _run_jpeginfo(filepath):

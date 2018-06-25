@@ -26,7 +26,6 @@ Miscellaneous utility functions.
 import itertools
 import logging
 import os
-import shutil
 import subprocess
 from functools import lru_cache
 
@@ -36,7 +35,6 @@ __all__ = [
     'count_dict_recursive',
     'flatten_sequence_type',
     'git_commit_hash',
-    'is_executable',
     'process_id',
 ]
 
@@ -108,29 +106,12 @@ def count_dict_recursive(dictionary, count=0):
     return count
 
 
-@lru_cache(maxsize=128)
-def is_executable(command):
-    """
-    Checks if the given command would be executable.
-
-    Args:
-        command: The command to test.
-
-    Returns:
-        True if the command would be executable, otherwise False.
-    """
-    return shutil.which(command) is not None
-
-
 def process_id():
     return os.getpid()
 
 
 @lru_cache(maxsize=1)
 def git_commit_hash():
-    if not is_executable('git'):
-        return None
-
     _old_pwd = os.path.curdir
     try:
         os.chdir(C.AUTONAMEOW_SRCROOT_DIR)

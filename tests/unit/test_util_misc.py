@@ -28,7 +28,6 @@ import unit.utils as uu
 from util.misc import count_dict_recursive
 from util.misc import flatten_sequence_type
 from util.misc import git_commit_hash
-from util.misc import is_executable
 
 
 class TestFlattenSequenceType(TestCase):
@@ -125,14 +124,6 @@ class TestCountDictRecursive(TestCase):
         _assert_count_is(4, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['']})
         _assert_count_is(5, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['g']})
         _assert_count_is(6, given={'a': 'foo', 'b': ['c', 'd', 'e'], 'foo': ['g', 'h']})
-
-
-class TestWhichExecutable(TestCase):
-    def test_returns_true_for_executable_commands(self):
-        self.assertTrue(is_executable('python'))
-
-    def test_returns_false_for_bogus_commands(self):
-        self.assertFalse(is_executable('thisisntexecutablesurely'))
 
 
 class TestGitCommitHash(TestCase):

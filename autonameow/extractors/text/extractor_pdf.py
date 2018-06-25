@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import util
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor
 from extractors.text.base import decode_raw
@@ -40,7 +39,7 @@ class PdfTextExtractor(BaseTextExtractor):
 
     @classmethod
     def dependencies_satisfied(cls):
-        return util.is_executable('pdftotext')
+        return process.is_executable('pdftotext')
 
     @classmethod
     def can_handle(cls, fileobject):

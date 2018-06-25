@@ -22,7 +22,6 @@
 import json
 import os
 
-import util
 from core import constants as C
 from extractors import ExtractorError
 from extractors.metadata.base import BaseMetadataExtractor
@@ -133,7 +132,7 @@ class PandocMetadataExtractor(BaseMetadataExtractor):
 
     @classmethod
     def dependencies_satisfied(cls):
-        return (util.is_executable('pandoc')
+        return (process.is_executable('pandoc')
                 and disk.isfile(PATH_CUSTOM_PANDOC_TEMPLATE))
 
 

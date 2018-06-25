@@ -24,7 +24,6 @@ try:
 except ImportError:
     chardet = None
 
-import util
 from core import constants as C
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor
@@ -38,7 +37,7 @@ class MarkdownTextExtractor(BaseTextExtractor):
 
     @classmethod
     def dependencies_satisfied(cls):
-        return util.is_executable('pandoc')
+        return process.is_executable('pandoc')
 
     @classmethod
     def can_handle(cls, fileobject):

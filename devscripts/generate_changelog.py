@@ -29,6 +29,7 @@ import sys
 import util
 from core import version
 from util import coercers
+from util import process
 from util import text
 
 '''
@@ -292,7 +293,7 @@ if __name__ == '__main__':
               file=sys.stderr)
         sys.exit(EXIT_FAILURE)
 
-    if not util.is_executable('git'):
+    if not process.is_executable('git'):
         print('This script requires "qit" to run. Exiting ..',
               file=sys.stderr)
         sys.exit(EXIT_FAILURE)
