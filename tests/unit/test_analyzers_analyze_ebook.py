@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from itertools import permutations
 from unittest import skipIf, TestCase
 from unittest.mock import Mock
 
@@ -871,3 +872,24 @@ class TestCalculateAuthorsSimilarity(TestCase):
             ['Grayham Murroy', 'Jan Reesch', 'Vadin Ogievetsky', 'Joe Lawnery'],
             ['Joe Lawnery', 'Grayham Murroy', 'Vadin Ogievetsky', 'Jan Reesch']
         )
+
+    def test_high_similarity_for_same_author_with_swapped_first_last_name(self):
+        self._assert_high_similarity(['Lu, Chun-Shien'], ['Chun-Shien Lu'])
+        self._assert_high_similarity(['Chun-Shien Lu'], ['Lu, Chun-Shien'])
+
+    def test_high_similarity_for_authors_with_swapped_first_last_names(self):
+        self._assert_high_similarity(
+            ['Reesch J.', 'Murroy G.', 'Ogievetsky V.', 'Lawnery J.'],
+            ['J. Reesch', 'G. Murroy', 'V. Ogievetsky', 'J. Lawnery']
+        )
+        self._assert_high_similarity(
+            ['Reesch J.', 'Murroy G.', 'Ogievetsky V.', 'Lawnery J.'],
+            ['Reesch J.', 'G. Murroy', 'Ogievetsky V.', 'J. Lawnery']
+        )
+
+    def test_high_similarity_for_authors_with_swapped_first_last_names_any_order(self):
+        for given_authors_A, given_authors_B in zip(
+            permutations(['Reesch J.', 'Murroy G.', 'Ogievetsky V.', 'Lawnery J.'], 4),
+            permutations(['J. Reesch', 'G. Murroy', 'V. Ogievetsky', 'J. Lawnery'], 4)
+        ):
+            self._assert_high_similarity(given_authors_A, given_authors_B)

@@ -818,10 +818,16 @@ def calculate_authors_similarity(authors_a, authors_b):
     def _to_lower(strings):
         return [s.lower() for s in strings]
 
-    lowercase_authors_a = _to_lower(authors_a)
-    lowercase_authors_b = _to_lower(authors_b)
-    sorted_authors_a = sorted(lowercase_authors_a)
-    sorted_authors_b = sorted(lowercase_authors_b)
+    def _sort_substrings(strings):
+        return [' '.join(sorted(s.split(' '))) for s in strings]
+
+    def _preprocess(strings):
+        return _sort_substrings(_to_lower(strings))
+
+    preprocessed_authors_a = _preprocess(authors_a)
+    preprocessed_authors_b = _preprocess(authors_b)
+    sorted_authors_a = sorted(preprocessed_authors_a)
+    sorted_authors_b = sorted(preprocessed_authors_b)
 
     # Because 'zip' stops when the shortest iterable is exhausted.
     num_string_similarities_averaged = min(len(authors_a), len(authors_b))
