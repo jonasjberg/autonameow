@@ -40,6 +40,15 @@
     Copyright : Public Domain
     Published : 1872
 
+* 'Critique_of_Pure_Reason.djvu'
+
+    "Critique Of Pure Reason"
+    Source    : https://archive.org/details/CritiqueOfPureReason_201304
+    Author    : Kant, Immanuel
+    Title     : Critique Of Pure Reason
+    Copyright : Public Domain
+    Published : 1781
+
 * 'empty'
 * 'empty.symlink'
 * 'gmail.pdf'

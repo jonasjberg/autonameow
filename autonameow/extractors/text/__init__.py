@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 # Imported to be picked up by 'text_provider._find_text_extractor_classes()'.
+from .extractor_djvu import DjvuTextExtractor
 from .extractor_epub import EpubTextExtractor
 from .extractor_markdown import MarkdownTextExtractor
 from .extractor_pdf import PdfTextExtractor
