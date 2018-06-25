@@ -49,36 +49,46 @@ class StringValueCanonicalizer(object):
         self.canonical_value_literals = literal_lookup_dict
         self.canonical_value_regexes = regex_lookup_dict
 
-    def __call__(self, string):
+        # Store tuple of (LOWERCASED CANONICAL, CANONICAL) so that values
+        # can be compared to the lowercased canonical and still return the
+        # canonical value with its original letter case as the result.
+        all_canonical_values = set(self.canonical_value_regexes.keys())
+        all_canonical_values.update(self.canonical_value_literals.keys())
+        self.all_canonical_values = set(
+            (s.lower(), s) for s in all_canonical_values
+        )
+
+    def __call__(self, s):
         """
         Returns a canonical representation if the given value if found.
         If no canonical value is found, the given value is returned as-is.
         """
-        canonical_value = self._find_canonical_value(string)
+        assert isinstance(s, str)
+
+        canonical_value = self._find_canonical_value(s)
         if canonical_value is None:
-            return string
+            return s
+
         return canonical_value
 
-    def _find_canonical_value(self, string):
+    def _find_canonical_value(self, s):
         # Check if the given value is equal to any canonical value when
         # disregarding differences in letter case.
-        all_canonical_values = set(self.canonical_value_regexes.keys())
-        all_canonical_values.update(self.canonical_value_literals.keys())
-        matched_canonical_value = self._ignored_case_matches_any(string, all_canonical_values)
+        matched_canonical_value = self._find_exact_canonical_match(s)
         if matched_canonical_value:
             return matched_canonical_value
 
         # Do literal string comparison.
-        for canonical_value, literals in self.canonical_value_literals.items():
-            if any(string == lit for lit in literals):
+        for canonical_value, literal_patterns in self.canonical_value_literals.items():
+            if s in literal_patterns:
                 return canonical_value
 
         # Do regex matching.
         # Use canonical form with longest total length of matched substrings.
         matches = defaultdict(int)
-        for canonical_value, regexes in self.canonical_value_regexes.items():
-            for regex in regexes:
-                matchiter = re.finditer(regex, string)
+        for canonical_value, regex_patterns in self.canonical_value_regexes.items():
+            for regex in regex_patterns:
+                matchiter = re.finditer(regex, s)
                 for match in matchiter:
                     matched_substring = match.group(0)
                     matches[canonical_value] += len(matched_substring)
@@ -89,11 +99,11 @@ class StringValueCanonicalizer(object):
 
         return None
 
-    def _ignored_case_matches_any(self, value, canonical_values):
-        lowercase_value = value.lower()
+    def _find_exact_canonical_match(self, s):
+        lowercase_string = s.lower()
 
-        for canonical_value in canonical_values:
-            if lowercase_value == canonical_value.lower():
+        for lowercase_canonical_value, canonical_value in self.all_canonical_values:
+            if lowercase_string == lowercase_canonical_value:
                 return canonical_value
 
         return None
