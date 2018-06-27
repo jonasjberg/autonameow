@@ -2,9 +2,17 @@ AcademicPress:
     match_any_literal:
     - Academic Press
     - Academic Press is an imprint of Elsevier
-AKPeters:
+AddisonWesley:
     match_any_regex:
+    - addison.wesley prof.?essional
+    - addison.wesley
+AKPeters:
+    match_any_literal:
     - AK Peters
+    - A K Peters
+Apress:
+    match_any_literal:
+    - www.apress.com
 ArtechHouse:
     match_any_literal:
     - Artech House
@@ -22,25 +30,9 @@ AZElitePub:
 Barrons:
     match_any_regex:
     - Barron.s Educational
-CyberPunkUni:
-    match_any_literal:
-    - Cyberpunk University
-    - University, Cyberpunk
-FeedBooks:
-    match_any_literal:
-    - This book is brought to you by Feedbooks
-    - http://www.feedbooks.com
-ProjectGutenberg:
-    match_any_literal:
-    - Project Gutenberg
-    - www.gutenberg.net
-AddisonWesley:
+BonsaiReads:
     match_any_regex:
-    - addison.wesley prof.?essional
-    - addison.wesley
-Apress:
-    match_any_literal:
-    - www.apress.com
+    - Bonsai Reads
 BigNerdRanch:
     match_any_regex:
     - Big Nerd Ranch,?( Inc\.?|Incorporated)
@@ -80,6 +72,10 @@ CRCPress:
     match_any_literal:
     - CRC Press
     - www.crcpress.com
+CyberPunkUni:
+    match_any_literal:
+    - Cyberpunk University
+    - University, Cyberpunk
 DennisPub:
     match_any_literal:
     - Dennis Pub.
@@ -90,6 +86,10 @@ Elsevier:
 ExelixisMedia:
     match_any_literal:
     - Exelixis Media P.C.
+FeedBooks:
+    match_any_literal:
+    - This book is brought to you by Feedbooks
+    - http://www.feedbooks.com
 FranklinBeedle:
     match_any_regex:
     - Franklin,? Beedle,? (&|and) Associates
@@ -97,21 +97,28 @@ GrinPub:
     match_any_regex:
     - GRIN Publishing
     - GRIN Verlag
-HeatonResearch:
-    match_any_regex:
-    - Heaton Research
 HodderStoughton:
     match_any_regex:
     - Hodder (&|and) Stoughton
+HeatonResearch:
+    match_any_regex:
+    - Heaton Research
 HoughtonMifflin:
     match_any_literal:
     - Houghton Mifflin
+HunanCartographic:
+    match_any_regex:
+    - Hunan Cartographic
 IABooks:
     match_any_literal:
     - Indo American Books
     - IA Books
     - sales@iabooks.com
     - www.iabooks.com
+IBMITSO:
+    match_any_regex:
+    - IBM Red ?books
+    - International Technical Support Organization
 IdeaGroup:
     match_any_regex:
     - Idea group
@@ -121,10 +128,6 @@ IGIGlobal:
 ImperialCollegePress:
     match_any_literal:
     - Imperial College Press
-IBMITSO:
-    match_any_regex:
-    - IBM Red ?books
-    - International Technical Support Organization
 ITAcademy:
     match_any_literal:
     - IT Academy
@@ -145,19 +148,27 @@ LCFPub:
 Leanpub:
     match_any_literal:
     - LeanPub
+LondonPub:
+    match_any_literal:
+    - London Publishing Partnership
 LuLu:
     match_any_literal:
-    - Lulu Press
+    - lulu.com
+    - Lulu.com
     match_any_regex:
+    - Lulu Press
     - '.?Lulu Press.?, lulu.com'
+MakerMedia:
+    match_any_regex:
+    - Maker Media
 Manning:
-    match_any_literal:
-    - Manning Publications
+    match_any_regex:
+    - Manning
 McGrawHill:
+    match_any_literal:
+    - McGraw
     match_any_regex:
     - McGraw.?Hill
-    match_any_literal:
-    - McGraw-Hill Education TAB
 MicrosoftPress:
     match_any_literal:
     - Microsoft Press
@@ -181,6 +192,10 @@ Murachs:
 NewAgeInt:
     match_any_literal:
     - New Age International
+NewEnglishReview:
+    match_any_regex:
+    - New English Review Press
+    - World Encounter Institute
 NewRiders:
     match_any_literal:
     - New Riders
@@ -192,6 +207,9 @@ NoStarchPress:
     - No Starch Press
     - NoStarchPress Inc.
     - www.nostarch.com
+OhmBooks:
+    match_any_regex:
+    - Ohm Books
 OReilly:
     match_any_regex:
     - O.?reilly (&|and) Associates
@@ -225,6 +243,12 @@ Pearson:
     - Pearson/AddisonWesley
     match_any_regex:
     - Pearson Education
+PeepPress:
+    match_any_regex:
+    - Peep.? Press
+PenguinRandomHouse:
+    match_any_regex:
+    - Penguin Random House
 PragmaticBookshelf:
     match_any_literal:
     - The Pragmatic Bookshelf
@@ -240,6 +264,10 @@ PrenticeHall:
 PrincetonUP:
     match_any_literal:
     - Princeton University Press
+ProjectGutenberg:
+    match_any_literal:
+    - Project Gutenberg
+    - www.gutenberg.net
 PublishOrPerish:
     match_any_literal:
     - Publish or Perish
@@ -264,6 +292,9 @@ SimpleProgrammer:
 SitePoint:
     match_any_regex:
     - SitePoint
+SkriptKuhnel:
+    match_any_regex:
+    - Skript-Verl.?g? K[üu]hnel
 Springer:
     match_any_regex:
     - Springer(.Verlag)?
@@ -278,13 +309,21 @@ StanfordUP:
 Syngress:
     match_any_regex:
     - Syngress (Pub\.?|Publishing)
-    - Syngress Media (Inc\.?|Incorporated)
+    - Syngress Media
     match_any_literal:
     - Syngress Pub.
     - www.syngress.com
 TaylorFrancis:
     match_any_regex:
     - Taylor (&|and) Francis
+TuttlePub:
+    match_any_regex:
+    - Tuttle ?Pub
+    match_any_literal:
+    - Tuttle
+UnitedComputerGeeks:
+    match_any_regex:
+    - United Computer Geeks
 WalterdeGruyter:
     match_any_regex:
     - Walter de Gruyter
@@ -298,6 +337,7 @@ Westview:
     - Westview
 Wiley:
     match_any_regex:
+    - Wiley.Blackwell
     - ^wiley (&|and) Sons
     - ^Wiley Pub\.?
     - ^Wiley Pub\..? (Inc\.?|Incorporated)

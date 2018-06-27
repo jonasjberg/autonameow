@@ -82,6 +82,7 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
     'AKPeters': [
         'AKPeters',
         'AK Peters',
+        'A K Peters',
     ],
     'AthenaScientific': [
         'AthenaScientific',
@@ -110,6 +111,10 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
     'BleedingEdgePress': [
         'BleedingEdgePress',
         'Bleeding Edge Press',
+    ],
+    'BonsaiReads': [
+        'BonsaiReads',
+        'Bonsai Reads',
     ],
     'BookBoon': [
         'BookBoon',
@@ -250,6 +255,18 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Hodder and Stoughton',
         'HodderStoughton',
     ],
+    'HoughtonMifflin': [
+        'HoughtonMifflin',
+        'Houghton Mifflin',
+    ],
+    'HunanCartographic': [
+        'Hunan Cartographic Pub',
+        'Hunan Cartographic Pub.',
+        'Hunan Cartographic Publ',
+        'Hunan Cartographic Publ.',
+        'Hunan Cartographic Publishing',
+        'Hunan Cartographic Publishing House',
+    ],
     'IABooks': [
         'IA Books',
         'IABooks',
@@ -311,23 +328,65 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Leanpub',
         'leanpub',
     ],
+    'LondonPub': [
+        'LondonPub',
+        'London Publishing Partnership',
+    ],
     'LuLu': [
+        'Lulu',
         '[Lulu Press], lulu.com',
         'Lulu Press',
+        'lulu.com',
+        'Lulu.com',
+    ],
+    'MakerMedia': [
+        'MakerMedia',
+        'Maker Media Inc',
+        'Maker Media Inc.',
+        'Maker Media Incorporated',
+        'Maker Media, Inc',
+        'Maker Media, Inc.',
+        'Maker Media, Incorporated',
     ],
     'Manning': [
-        'Manning Publications',
         'Manning',
+        'Manning Pub Company',
+        'Manning Pub',
+        'Manning Pub. Company',
+        'Manning Pub.',
+        'Manning Publ Company',
+        'Manning Publ',
+        'Manning Publ. Company',
+        'Manning Publ.',
+        'Manning Publications Company',
+        'Manning Publications',
     ],
     'McGrawHill': [
-        'McGraw Hill Irwin',
-        'McGraw Hill Professional',
-        'McGraw Hill',
-        'McGraw-Hill Education TAB',
-        'McGraw-Hill Irwin',
-        'McGraw-Hill',
-        'McGrawHill Irwin',
+        'McGraw',
         'McGrawHill',
+        'McGraw Hill',
+        'McGraw Hill Education TAB',
+        'McGraw Hill Education',
+        'McGraw Hill Irwin',
+        'McGraw Hill Osborne',
+        'McGraw Hill Professional',
+        'McGraw Hill/Irwin',
+        'McGraw Hill/Osborne',
+        'McGraw-Hill Education TAB',
+        'McGraw-Hill Education',
+        'McGraw-Hill Irwin',
+        'McGraw-Hill Osborne',
+        'McGraw-Hill',
+        'Mcgraw-Hill',
+        'McGraw-Hill/Irwin',
+        'McGraw-Hill/Osborne',
+        'McGrawHill Education TAB',
+        'McGrawHill Education',
+        'McGrawHill Irwin',
+        'McGrawHill Osborne',
+        'McGrawHill/Irwin',
+        'McGrawHill/Osborne',
+        'The McGraw Hill Companies',
         'The McGraw-Hill Companies',
     ],
     'MicrosoftPress': [
@@ -350,9 +409,16 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Morgan & Claypool Publishers',
         'Morgan and Claypool Publishers'
     ],
+    'Murachs': [
+        'Murachs',
+    ],
     'NewAgeInt': [
         'NewAgeInt',
         'New Age International',
+    ],
+    'NewRiders': [
+        'NewRiders',
+        'New Riders',
     ],
     'NoStarchPress': [
         'No Starch Press Inc.',
@@ -367,6 +433,10 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'NoStarchPress, Inc.',
         'NoStarchPress, Incorporated',
         'www.nostarch.com',
+    ],
+    'OhmBooks': [
+        'OhmBooks',
+        'Ohm Books',
     ],
     'OReilly':  [
         "O'Reilly & Associates",
@@ -440,6 +510,15 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Pearson/AddisonWesley',
         'Pearson/PrenticeHall',
     ],
+    'PeepPress': [
+        'PeepPress',
+        'Peep Press',
+        'Peep! Press',
+    ],
+    'PenguinRandomHouse': [
+        'Penguin Random House',
+        'Penguin Random House India',
+    ],
     'PragmaticBookshelf': [
         'Pragmatic Bookshelf',
         'PragmaticBookshelf',
@@ -484,12 +563,25 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Sams Publishing',
         'samspublishing.com',
     ],
+    'SimpleProgrammer': [
+        'SimpleProgrammer',
+        'Simple Programmer',
+    ],
     'SitePoint': [
         'SitePoint',
         'SitePoint Ltd',
         'SitePoint Ltd.',
         'SitePoint Pty Ltd',
         'SitePoint Pty. Ltd.',
+    ],
+    'SkriptKuhnel': [
+        'SkriptKuhnel',
+        'Skript-Verl. Kühnel',
+        'Skript-Verl Kühnel',
+        'Skript-Verlag Kühnel',
+        'Skript-Verl. Kuhnel',
+        'Skript-Verl Kuhnel',
+        'Skript-Verlag Kuhnel',
     ],
     'Springer': [
         'Springer',
@@ -514,6 +606,7 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Stanford University Press',
     ],
     'Syngress': [
+        'Syngress Media',
         'Syngress Media Inc',
         'Syngress Media Inc.',
         'Syngress Media Incorporated',
@@ -528,6 +621,19 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Taylor & Francis',
         'Taylor and Francis',
         'TaylorFrancis',
+    ],
+    'TuttlePub': [
+        'TuttlePublishing',
+        'Tuttle',
+        'Tuttle Pub',
+        'Tuttle Pub.',
+        'Tuttle Publ',
+        'Tuttle Publ.',
+        'Tuttle Publishing',
+    ],
+    'UnitedComputerGeeks': [
+        'UnitedComputerGeeks',
+        'United Computer Geeks',
     ],
     'WalterdeGruyter': [
         'WalterdeGruyter',
@@ -548,6 +654,8 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
     'Wiley': [
         'Wiley',
         'wiley',
+        'Wiley-Blackwell',
+        'Wiley/Blackwell',
         'J. Wiley',
         'John Wiley & Sons Inc',
         'John Wiley & Sons Incorporated',
@@ -578,6 +686,11 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Wordware Publ',
         'Wordware Publishing',
         'Wordware',
+    ],
+    'NewEnglishReview': [
+        'New English Review Press',
+        'World Encounter Institute',
+        'World Encounter Institute/New English Review Press',
     ],
     'WorldScientific': [
         'WorldSci',
@@ -817,6 +930,18 @@ class TestCanonicalizePublisher(TestCase):
                 with self.subTest(given_expected=(equivalent_value, canonical)):
                     actual = _canonicalize_publisher(equivalent_value)
                     self.assertEqual(canonical, actual)
+
+    def test_does_not_canonicalize_non_publishers(self):
+        for given_non_publisher in [
+            '',
+            'foo',
+            'then press real hard',
+            'publishing is a thing',
+            'the academic press probably applies academical weight',
+        ]:
+            with self.subTest(given=given_non_publisher):
+                actual = _canonicalize_publisher(given_non_publisher)
+                self.assertEqual(given_non_publisher, actual)
 
 
 class TestStringValueCanonicalizer(TestCase):
