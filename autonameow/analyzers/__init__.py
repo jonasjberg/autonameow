@@ -85,16 +85,16 @@ def get_analyzer_classes():
     """
     klasses = _get_implemented_analyzer_classes(analyzer_source_files)
 
-    registered = list()
+    included = list()
     excluded = list()
     for klass in klasses:
         if klass.dependencies_satisfied():
-            registered.append(klass)
-            log.debug('Registered analyzer "{!s}"'.format(klass))
+            included.append(klass)
+            log.debug('Included analyzer {!s}'.format(klass))
         else:
             excluded.append(klass)
-            log.debug('Excluding analyzer "{!s}" due to unmet dependencies'.format(klass))
-    return registered, excluded
+            log.debug('Excluded analyzer {!s} due to unmet dependencies'.format(klass))
+    return included, excluded
 
 
 class AnalyzerRegistry(object):
@@ -105,8 +105,8 @@ class AnalyzerRegistry(object):
     @property
     def all_providers(self):
         if self._all_providers is None:
-            registered, excluded = get_analyzer_classes()
-            self._all_providers = set(registered)
+            included, excluded = get_analyzer_classes()
+            self._all_providers = set(included)
             self._excluded_providers.update(excluded)
         return self._all_providers
 
