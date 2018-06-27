@@ -671,6 +671,7 @@ class ISBNMetadata(object):
     @title.setter
     def title(self, value):
         if value and isinstance(value, str):
+            # TODO: [TD0191] Detect and extract subtitles from titles.
             # TODO: [TD0192] Detect and extract editions from titles
             edition, modified_value = find_and_extract_edition(value)
             if edition:
