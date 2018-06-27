@@ -261,7 +261,8 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             self._add_intermediate_results('title', maybe_title)
 
             maybe_authors = metadata.authors
-            self._add_intermediate_results('author', maybe_authors)
+            if maybe_authors:
+                self._add_intermediate_results('author', maybe_authors)
 
             maybe_publisher = self._filter_publisher(metadata.publisher)
             self._add_intermediate_results('publisher', maybe_publisher)
