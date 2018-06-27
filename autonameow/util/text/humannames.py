@@ -481,7 +481,7 @@ def split_multiple_names(list_of_names):
     if len(flat_list_of_names) == len(result):
         # Splitting by various separators had no effect.
         if len(flat_list_of_names) > 2:
-            if any(re.match(r'\w\.', p) for p in flat_list_of_names):
+            if any(re.match(r'^\w\.$', p) for p in flat_list_of_names):
                 # At least of the names is something like 'X.'
                 # Assume the list of names should actually be put back together
                 # rather than split.. Join parts in groups of two.

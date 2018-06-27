@@ -1201,3 +1201,17 @@ class PreProcessNames(TestCase):
             expected=['Norris L. Johnson', 'Robert J. Shimonski'],
             given=['Norris L. Johnson', 'Jr.', 'Robert J. Shimonski'],
         )
+        self._assert_preprocess_names_returns(
+            expected=['Ludlow, David'],
+            given=['edited by Ludlow, David'],
+        )
+
+    def test_failed_cases(self):
+        self._assert_preprocess_names_returns(
+            expected=['H. S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth'],
+            given=['H. S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth']
+        )
+        self._assert_preprocess_names_returns(
+            expected=['H.S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth'],
+            given=['H.S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth']
+        )
