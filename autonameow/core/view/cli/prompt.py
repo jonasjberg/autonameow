@@ -188,12 +188,15 @@ def field_selection_prompt(candidates):
         return None
 
     _candidate_numbers = list(candidates.keys())
-    text = prompt(
-        'Enter #: ',
-        on_abort=AbortAction.RETURN_NONE,
-        validator=NumberSelectionValidator(candidates=_candidate_numbers)
-    )
-    return text
+    try:
+        return prompt(
+            'Enter #: ',
+            on_abort=AbortAction.RETURN_NONE,
+            validator=NumberSelectionValidator(candidates=_candidate_numbers)
+        )
+    except EOFError:
+        # Might be that user pressed ctrl-d
+        return None
 
 
 def ask_confirm(message):
