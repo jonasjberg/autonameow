@@ -197,60 +197,6 @@ class TestProvidersForMeowURI(TestCase):
                 actual = self.registry.providers_for_meowuri(uri)
                 self._check_returned_providers(actual, expected_providers)
 
-    def test_maps_meowuris_to_expected_provider_include_analyzers(self):
-        for meowuris, expected_providers in self._mapping_meowuris_analyzers:
-            for uri in meowuris:
-                actual = self.registry.providers_for_meowuri(
-                    uri, includes=['analyzer']
-                )
-                self._check_returned_providers(actual, expected_providers)
-
-    def test_maps_none_given_extractor_meowuris_but_includes_analyzers(self):
-        for meowuris, _ in self._mapping_meowuris_extractors:
-            for uri in meowuris:
-                actual = self.registry.providers_for_meowuri(
-                    uri, includes=['analyzer']
-                )
-                self.assertEqual(0, len(actual))
-
-    def test_maps_meowuris_to_expected_provider_include_extractors(self):
-        for meowuris, expected_providers in self._mapping_meowuris_extractors:
-            for uri in meowuris:
-                actual = self.registry.providers_for_meowuri(
-                    uri, includes=['extractor']
-                )
-                self._check_returned_providers(actual, expected_providers)
-
-    def test_maps_none_given_analyzer_meowuris_but_includes_extractors(self):
-        for meowuris, _ in self._mapping_meowuris_analyzers:
-            for uri in meowuris:
-                actual = self.registry.providers_for_meowuri(
-                    uri, includes=['extractor']
-                )
-                self.assertEqual(0, len(actual))
-
-    def test_maps_generic_meowuri_mimetype_to_expected_extractors(self):
-        meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        actual = self.registry.providers_for_meowuri(
-            meowuri, includes=['extractor']
-        )
-        self._check_returned_providers(
-            actual,
-            expected_provider_names=[
-                'CrossPlatformFileSystemExtractor',
-                'ExiftoolMetadataExtractor'
-            ]
-        )
-
-    def test_maps_generic_meowuri_mimetype_to_extractors_analyzers(self):
-        meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        actual = self.registry.providers_for_meowuri(
-            meowuri, includes=['extractor', 'analyzer']
-        )
-        expected = ['CrossPlatformFileSystemExtractor',
-                    'ExiftoolMetadataExtractor']
-        self._check_returned_providers(actual, expected)
-
     def test_maps_generic_meowuri_mimetype_to_expected_providers(self):
         meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         actual = self.registry.providers_for_meowuri(
@@ -258,20 +204,6 @@ class TestProvidersForMeowURI(TestCase):
         )
         expected = ['CrossPlatformFileSystemExtractor',
                     'ExiftoolMetadataExtractor']
-        self._check_returned_providers(actual, expected)
-
-    def test_maps_generic_meowuri_datecreated_to_expected_extractors(self):
-        meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_DATECREATED)
-        actual = self.registry.providers_for_meowuri(
-            meowuri, includes=['extractor']
-        )
-        expected = [
-            'CrossPlatformFileSystemExtractor',
-            'FiletagsExtractor',
-            'GuessitExtractor',
-            'ExiftoolMetadataExtractor',
-            'PandocMetadataExtractor'
-        ]
         self._check_returned_providers(actual, expected)
 
 

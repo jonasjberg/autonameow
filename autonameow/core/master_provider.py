@@ -145,19 +145,37 @@ class ProviderRegistry(object):
         self.generic_meowuri_sources = _map_generic_sources(
             self.meowuri_sources
         )
+        self._debug_log_mapped_generic_meowuri_sources()
 
-        # VALID_SOURCE_ROOTS = set(C.MEOWURI_ROOTS_SOURCES)
-        # assert all(r in self.generic_meowuri_sources
-        #            for r in VALID_SOURCE_ROOTS)
+        VALID_SOURCE_ROOTS = set(C.MEOWURI_ROOTS_SOURCES)
+        assert all(
+            r in VALID_SOURCE_ROOTS for r in self.generic_meowuri_sources.keys()
+        ), 'Unexpected MeowURI root in ProviderRegistry generic MeowURI sources'
+        assert all(
+            r in VALID_SOURCE_ROOTS for r in self.meowuri_sources.keys()
+        ), 'Unexpected MeowURI root in ProviderRegistry MeowURI sources'
 
     def _debug_log_mapped_meowuri_sources(self):
         if not logs.DEBUG:
             return
 
         for key in self.meowuri_sources.keys():
-            for meowuri, klass in self.meowuri_sources[key].items():
-                self.log.debug('Mapped MeowURI "{!s}" to "{!s}" ({!s})'.format(
-                    meowuri, klass, key))
+            for uri, klass in sorted(self.meowuri_sources[key].items()):
+                self.log.debug(
+                    'Mapped MeowURI "{!s}" to {!s}'.format(uri, klass.name())
+                )
+
+    def _debug_log_mapped_generic_meowuri_sources(self):
+        if not logs.DEBUG:
+            return
+
+        for key in self.generic_meowuri_sources.keys():
+            for klass, uris in self.generic_meowuri_sources[key].items():
+                klass_name = klass.name()
+                for uri in sorted(uris):
+                    self.log.debug(
+                        'Mapped generic MeowURI "{!s}" to {!s}'.format(uri, klass_name)
+                    )
 
     def might_be_resolvable(self, uri):
         if not uri:
@@ -168,7 +186,7 @@ class ProviderRegistry(object):
         uri_without_leaf = uri.stripleaf()
         return any(m.matches_start(uri_without_leaf) for m in resolvable)
 
-    def providers_for_meowuri(self, requested_meowuri, includes=None):
+    def providers_for_meowuri(self, requested_meowuri):
         """
         Returns a set of classes that might store data under a given "MeowURI".
 
@@ -177,9 +195,6 @@ class ProviderRegistry(object):
 
         Args:
             requested_meowuri: The "MeowURI" of interest.
-            includes: Optional list of provider roots to include.
-                      Must be one of 'C.MEOWURI_ROOTS_SOURCES'.
-                      Default is to include all.
 
         Returns:
             A set of classes that "could" produce and store data under a
@@ -187,54 +202,43 @@ class ProviderRegistry(object):
         """
         found = set()
         if not requested_meowuri:
-            log.error('"providers_for_meowuri()" got empty MeowURI!')
+            self.log.error('"providers_for_meowuri()" got empty MeowURI!')
             return found
 
         if requested_meowuri.is_generic:
-            found = self._providers_for_generic_meowuri(requested_meowuri,
-                                                        includes)
+            found = self._providers_for_generic_meowuri(requested_meowuri)
         else:
-            found = self._source_providers_for_meowuri(requested_meowuri,
-                                                       includes)
+            found = self._source_providers_for_meowuri(requested_meowuri)
 
-        log.debug('{} returning {} providers for MeowURI {!s}'.format(
+        self.log.debug('{} returning {} providers for MeowURI {!s}'.format(
             self.__class__.__name__, len(found), requested_meowuri))
         return found
 
-    @staticmethod
-    def _yield_included_roots(includes=None):
-        VALID_INCLUDES = set(C.MEOWURI_ROOTS_SOURCES)
-        if not includes:
-            # No includes specified -- search all ("valid includes") providers.
-            includes = VALID_INCLUDES
-        else:
-            # Search only specified providers.
-            # Sanity-check 'includes' argument.
-            for include in includes:
-                assert include in VALID_INCLUDES, (
-                    '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
-                )
+    def _providers_for_generic_meowuri(self, requested_meowuri):
+        # TODO: [cleanup] Remove this once cleaned up!
+        VALID_SOURCE_ROOTS = set(C.MEOWURI_ROOTS_SOURCES)
+        assert sorted(list(VALID_SOURCE_ROOTS)) == sorted(list(self.generic_meowuri_sources.keys()))
 
-        # Sort for more consistent behaviour.
-        for root in sorted(list(includes)):
-            yield root
-
-    def _providers_for_generic_meowuri(self, requested_meowuri, includes=None):
         found = set()
-        for root in self._yield_included_roots(includes):
+        for root in VALID_SOURCE_ROOTS:
             for klass, meowuris in self.generic_meowuri_sources[root].items():
                 if requested_meowuri in meowuris:
                     found.add(klass)
         return found
 
-    def _source_providers_for_meowuri(self, requested_meowuri, includes=None):
+    def _source_providers_for_meowuri(self, requested_meowuri):
         # 'uri' is shorter "root";
         #     'extractor.metadata.epub'
         # 'requested_meowuri' is full "source-specific";
         #     'extractor.metadata.exiftool.EXIF:CreateDate'
+
+        # TODO: [cleanup] Remove this once cleaned up!
+        VALID_SOURCE_ROOTS = set(C.MEOWURI_ROOTS_SOURCES)
+        assert sorted(list(VALID_SOURCE_ROOTS)) == sorted(list(self.meowuri_sources.keys()))
+
         found = set()
         requested_meowuri_without_leaf = requested_meowuri.stripleaf()
-        for root in self._yield_included_roots(includes):
+        for root in self.meowuri_sources.keys():
             for uri in self.meowuri_sources[root].keys():
                 if uri.matches_start(requested_meowuri_without_leaf):
                     found.add(self.meowuri_sources[root][uri])
