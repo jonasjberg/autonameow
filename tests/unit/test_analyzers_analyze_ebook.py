@@ -32,6 +32,7 @@ else:
 
 import unit.utils as uu
 from analyzers.analyze_ebook import calculate_authors_similarity
+from analyzers.analyze_ebook import calculate_title_similarity
 from analyzers.analyze_ebook import deduplicate_isbns
 from analyzers.analyze_ebook import EbookAnalyzer
 from analyzers.analyze_ebook import extract_ebook_isbns_from_text
@@ -681,6 +682,98 @@ class TestISBNMetadataEquality(TestCase):
         unique_isbn_metadata.add(m1)
         self.assertEqual(2, len(unique_isbn_metadata))
 
+    def test_comparison_of_live_isbn_metadata_5(self):
+        mx = ISBNMetadata(
+            authors=['Robert Shimonski', 'Will Schmied'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836884',
+            isbn13='9781931836883',
+            title='Building DMZs For Enterprise Networks: [Design, Deploy, And Maintain A Secure DMZ On Your Network ; Build DMZ Segments Using Cisco PIX Firewalls, Check Point NG, Nokia, And Microsoft ISA Server 2000 ; Learn DMZ Security Measures: Reconnaissance, Penetration Testing, DMZ Hardening, And More ; Plan And Design A Wireless DMZ ; Bonus Chapter On IIS Web Server Hardening Available From Syngress.Com]',
+            year='2003'
+        )
+        m0 = ISBNMetadata(
+            authors=['Doug Maxwell'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836701',
+            isbn13='9781931836708',
+            title='Nokia Network Security Solutions Handbook',
+            year='2002'
+        )
+        m1 = ISBNMetadata(
+            authors=['Syngress'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836841',
+            isbn13='9781931836845',
+            title='MCSE/MCSA Implementing & Administering Security In A Windows 2000 Network (Exam 70-214): Study Guide And DVD Training System',
+            year='2003'
+        )
+        m2 = ISBNMetadata(
+            authors=['Melissa Craft'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1928994601',
+            isbn13='9781928994602',
+            title='Windows 2000 Active Directory',
+            year='2001'
+        )
+        m3 = ISBNMetadata(
+            authors=['Drew Simonis'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1928994741',
+            isbn13='9781928994749',
+            title='Check Point NG: Next Generation Security Administration ; [Bonus Coverage Of CCSA NG Exam 156-210 Objectives]',
+            year='2002'
+        )
+        m4 = ISBNMetadata(
+            authors=['Robert J. Shimonski', 'Wally Eaton', 'Umer Khan'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836574',
+            isbn13='9781931836579',
+            title='Sniffer Pro Network Optimization & Troubleshooting Handbook',
+            year='2002'
+        )
+        m5 = ISBNMetadata(
+            authors=['Thomas W. Shinder', 'Debra Littlejohn Shinder', 'Martin Grasdal'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836663',
+            isbn13='9781931836661',
+            title='ISA Server And Beyond Real World Security Solutions For Microsoft Enterprise Networks',
+            year='2002'
+        )
+        m6 = ISBNMetadata(
+            authors=['Norris L. Johnson', 'Jr.', 'Robert J. Shimonski'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836728',
+            isbn13='9781931836722',
+            title='Security+: Study Guide & DVD Training System',
+            year='2002'
+        )
+        unique_isbn_metadata = set()
+        unique_isbn_metadata.add(mx)
+        unique_isbn_metadata.add(m0)
+        unique_isbn_metadata.add(m1)
+        unique_isbn_metadata.add(m2)
+        unique_isbn_metadata.add(m3)
+        unique_isbn_metadata.add(m4)
+        unique_isbn_metadata.add(m5)
+        unique_isbn_metadata.add(m6)
+        self.assertEqual(8, len(unique_isbn_metadata))
+
+        self.assertNotEqual(mx, m0)
+        self.assertNotEqual(mx, m1)
+        self.assertNotEqual(mx, m2)
+        self.assertNotEqual(mx, m3)
+        self.assertNotEqual(mx, m4)
+        self.assertNotEqual(mx, m5)
+        self.assertNotEqual(mx, m6)
+
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestExtractEbookISBNsFromText(TestCase):
@@ -893,3 +986,77 @@ class TestCalculateAuthorsSimilarity(TestCase):
             permutations(['J. Reesch', 'G. Murroy', 'V. Ogievetsky', 'J. Lawnery'], 4)
         ):
             self._assert_high_similarity(given_authors_A, given_authors_B)
+
+
+class TestCalculateTitleSimilarity(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.LOW_SIMILARITY_THRESHOLD = 0.4
+        cls.HIGH_SIMILARITY_THRESHOLD = 0.6
+        cls.SAMPLE_TITLES = [
+            'isa server and beyond real world security solutions for microsoft enterprise networks',
+            'hack proofing your network',
+            'windows 2000 active directory',
+            'configuring isa 2000 server building firewalls for windows 2000',
+            'sniffer pro network optimization and troubleshooting handbook',
+            'mcsemcsa implementing and administering security in a windows 2000 network exam 70214 study guide and dvd training system',
+            'cisco security specialists guide to pix firewalls',
+            'check point ng next generation security administration  bonus coverage of ccsa ng exam 156210 objectives',
+            'hack proofing sun solaris 8',
+            'nokia network security solutions handbook',
+            'hack proofing windows 2000 server',
+            'sscp study guide and dvd training system',
+        ]
+        long_title_parts = 'building dmzs for enterprise networks| design deploy and maintain a secure dmz on your network|  build dmz segments using cisco pix firewalls check point ng nokia and microsoft isa server 2000|  learn dmz security measures reconnaissance penetration testing dmz hardening and more|  plan and design a wireless dmz'.split('|')
+        cls.INCREASINGLY_LONG_TITLE = list()
+        for num_parts in range(0, len(long_title_parts)):
+            long_title = ''.join(long_title_parts[:num_parts + 1])
+            cls.INCREASINGLY_LONG_TITLE.append(long_title)
+
+    def _assert_similarity(self, expected, title_a, title_b):
+        actual = calculate_title_similarity(title_a, title_b)
+        self.assertEqual(expected, actual)
+
+    def _assert_low_similarity(self, title_a, title_b):
+        actual = calculate_title_similarity(title_a, title_b)
+        self.assertLessEqual(actual, self.LOW_SIMILARITY_THRESHOLD)
+
+    def _assert_high_similarity(self, title_a, title_b):
+        actual = calculate_title_similarity(title_a, title_b)
+        self.assertGreaterEqual(actual, self.HIGH_SIMILARITY_THRESHOLD)
+
+    def test_expect_maximum_similarity_for_identical_titles(self):
+        for given_title in [
+            'a',
+            'foo',
+            'foo bar',
+            'foo bar baz',
+            self.INCREASINGLY_LONG_TITLE[0],
+        ]:
+            self._assert_similarity(1.0, given_title, given_title)
+
+    def test_expect_low_similarity_for_different_titles(self):
+        for given_title in self.SAMPLE_TITLES:
+            with self.subTest(given_title=given_title):
+                self._assert_low_similarity(self.INCREASINGLY_LONG_TITLE[0], given_title)
+
+    def test_expect_low_similarity_when_comparing_all_sample_titles(self):
+        for given_title_A, given_title_B in permutations(self.SAMPLE_TITLES, 2):
+            self.assertNotEqual(given_title_A, given_title_B)
+            with self.subTest(given_title_A=given_title_A, given_title_B=given_title_B):
+                self._assert_low_similarity(given_title_A, given_title_B)
+
+    def test_expect_high_similarity_for_similar_titles(self):
+        self.assertEqual(self.INCREASINGLY_LONG_TITLE[0], 'building dmzs for enterprise networks')
+        for given_title in self.INCREASINGLY_LONG_TITLE:
+            with self.subTest(given_title=given_title):
+                self._assert_high_similarity(self.INCREASINGLY_LONG_TITLE[0], given_title)
+
+    def test_expect_titles_with_common_substring_to_be_considered_more_similar(self):
+        reference = 'building dmzs for enterprise networks'
+        for given_title_B in self.SAMPLE_TITLES:
+            for given_title_C in self.INCREASINGLY_LONG_TITLE:
+                sim_bad = calculate_title_similarity(reference, given_title_B)
+                sim_good = calculate_title_similarity(reference, given_title_C)
+                with self.subTest(given_title_B=given_title_B, given_title_C=given_title_C):
+                    self.assertGreater(sim_good, sim_bad)

@@ -45,6 +45,7 @@ from util.text import RegexCache
 from util.text import remove_blacklisted_lines
 from util.text import string_similarity
 from util.text import TextChunker
+from util.text.distance import longest_common_substring_length
 from util.text.humannames import preprocess_names
 
 
@@ -320,7 +321,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                 self.log.debug('Skipped ISBN metadata with missing or empty normalized title')
                 continue
 
-            title_similarity = string_similarity(metadata_title, reference_title)
+            title_similarity = calculate_title_similarity(metadata_title, reference_title)
             candidates.append((title_similarity, metadata))
 
         if candidates:
@@ -704,8 +705,8 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
         FIELDS_MISSING_SIMILARITY = 0.001
 
         if self.normalized_title and other.normalized_title:
-            _sim_title = string_similarity(self.normalized_title,
-                                           other.normalized_title)
+            _sim_title = calculate_title_similarity(self.normalized_title,
+                                                    other.normalized_title)
         else:
             _sim_title = FIELDS_MISSING_SIMILARITY
 
@@ -733,10 +734,11 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
         # TODO: Arbitrary threshold values..
         # TODO: [TD0181] Replace this with decision tree classifier.
         log.debug('Comparing {!s} to {!s} ..'.format(self, other))
-        log.debug('Difference Year: {}'.format(_year_diff))
-        log.debug('Similarity Authors: {}'.format(_sim_authors))
-        log.debug('Similarity Publisher: {}'.format(_sim_publisher))
-        log.debug('Similarity Title: {}'.format(_sim_title))
+        log.debug('     Difference Year: {}'.format(_year_diff))
+        log.debug('  Similarity Authors: {:.3f}  ({!s} -- {!s})'.format(_sim_authors, self.normalized_authors, other.normalized_authors))
+        log.debug('Similarity Publisher: {:.3f}  ({!s} -- {!s})'.format(_sim_publisher, self.normalized_publisher, other.normalized_publisher))
+        log.debug('    Similarity Title: {:.3f}  ({!s} -- {!s})'.format(_sim_title, self.normalized_title, other.normalized_title))
+
         if _year_diff == 0:
             if _sim_title > 0.95:
                 if _sim_publisher > 0.5:
@@ -748,34 +750,29 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
                 else:
                     if _sim_authors > 0.9:
                         return True
-        if _year_diff < 2:
+        if _year_diff == 1:
             if _sim_authors > 0.7:
                 if _sim_title > 0.9:
                     return True
-                if _sim_publisher > 0.7 and _sim_title > 0.7:
-                    return True
             elif _sim_authors > 0.5:
-                if _sim_title > 0.7:
-                    return True
-                if _sim_publisher > 0.7:
+                if _sim_publisher > 0.9 and _sim_title > 0.8:
                     return True
             elif _sim_authors > 0.25:
                 if _sim_title >= 0.99:
                     return True
-        else:
-            if _sim_authors == 1:
-                if _sim_title > 0.8:
-                    return True
-                if _sim_publisher == 0.8:
+        if _year_diff > 1:
+            if _sim_authors > 0.9:
+                if _sim_publisher > 0.8 and _sim_title > 0.8:
                     return True
             elif _sim_authors > 0.7:
-                if _sim_title == 1.0:
+                if _sim_title > 0.9:
                     return True
                 if _sim_publisher > 0.9:
                     return True
             elif _sim_authors > 0.2:
                 if _sim_title > 0.9:
                     return True
+
         return False
 
     def _log_attribute_setter(self, attribute, raw_value, value):
@@ -796,6 +793,11 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
 
     def __hash__(self):
         return hash((self.isbn10, self.isbn13))
+
+    def __repr__(self):
+        return '<{!s}(isbn10={!s}), isbn13={!s})>'.format(
+            self.__class__.__name__, self.isbn10, self.isbn13
+        )
 
 
 def print_copy_pasteable_isbn_metadata(n, m):
@@ -840,3 +842,18 @@ def calculate_authors_similarity(authors_a, authors_b):
         ) / num_string_similarities_averaged
     )
     return similarity
+
+
+def calculate_title_similarity(title_a, title_b):
+    # NOTE(jonas): Titles passed in here should have been suitably
+    #              "pre-processed" (lowercased, etc.)
+
+    # Chop to equal length to work around very long titles with a lot of words
+    # that might be mistakingly considered similar to a lot of unrelated titles
+    # due to the fact that many word and/or substrings might match even though
+    # the titles are very different.
+    shortest_title_length = min(len(title_a), len(title_b))
+    a = title_a[:shortest_title_length]
+    b = title_b[:shortest_title_length]
+    substring_bonus = longest_common_substring_length(a, b) / shortest_title_length
+    return string_similarity(a, b) * substring_bonus
