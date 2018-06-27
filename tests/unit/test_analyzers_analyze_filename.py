@@ -132,6 +132,8 @@ class TestLikelyExtension(TestCase):
             (Expect('alfredworkflow'),
              Given(suffix='alfredworkflow', mime='application/zip')),
 
+            (Expect('azw'),
+             Given(suffix='azw', mime='application/octet-stream')),
             (Expect('azw3'),
              Given(suffix='azw3', mime='application/octet-stream')),
             (Expect('azw3'),

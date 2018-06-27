@@ -50,6 +50,8 @@ MIMETYPE application/octet-stream
     - BLANK
     EXTENSION 89u           # Texas Instruments calculator firmware
     - 89u
+    EXTENSION azw
+    - azw
     EXTENSION azw3
     - azw3
     EXTENSION azw4
@@ -184,6 +186,8 @@ MIMETYPE application/x-lzma
     - tar.lzma
 
 MIMETYPE application/x-mobipocket-ebook
+    EXTENSION azw
+    - azw
     EXTENSION azw3
     - azw3
     - BLANK
