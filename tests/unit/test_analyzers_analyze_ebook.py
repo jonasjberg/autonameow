@@ -51,6 +51,34 @@ def _get_ebook_analyzer(fileobject):
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestEbookAnalyzer(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        class DummyFileObject(object):
+            def __init__(self, mime, basename_suffix):
+                self.mime_type = mime
+                self.basename_suffix = basename_suffix
+
+            def __repr__(self):
+                return '<DummyFileObject({!s}, {!s})>'.format(
+                    self.mime_type, self.basename_suffix
+                )
+
+        cls.file_objects_not_handled = [
+            DummyFileObject('application/octet-stream', 'o'),
+            DummyFileObject('application/octet-stream', 'exe'),
+            DummyFileObject('image/jpeg', 'jpg'),
+            DummyFileObject('text/plain', 'txt'),
+        ]
+        cls.file_objects_handled = [
+            DummyFileObject('application/epub+zip', b'epub'),
+            DummyFileObject('application/octet-stream', b'azw'),
+            DummyFileObject('application/octet-stream', b'azw3'),
+            DummyFileObject('application/octet-stream', b'azw4'),
+            DummyFileObject('application/octet-stream', b'mobi'),
+            DummyFileObject('application/pdf', b'pdf'),
+            DummyFileObject('image/vnd.djvu', b'djvu'),
+        ]
+
     def setUp(self):
         self.fileobject = uu.get_named_fileobject('2010-01-31_161251.jpg')
         self.analyzer = _get_ebook_analyzer(self.fileobject)
@@ -58,6 +86,16 @@ class TestEbookAnalyzer(TestCase):
     def test_setup(self):
         self.assertIsNotNone(self.fileobject)
         self.assertIsNotNone(self.analyzer)
+
+    def test_can_handle_returns_false_as_expected(self):
+        for dummy_file_object in self.file_objects_not_handled:
+            with self.subTest(fo=dummy_file_object):
+                self.assertFalse(self.analyzer.can_handle(dummy_file_object))
+
+    def test_can_handle_returns_true_as_expected(self):
+        for dummy_file_object in self.file_objects_handled:
+            with self.subTest(fo=dummy_file_object):
+                self.assertTrue(self.analyzer.can_handle(dummy_file_object))
 
 
 class TestDeduplicateIsbns(TestCase):

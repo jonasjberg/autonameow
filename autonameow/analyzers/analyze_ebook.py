@@ -434,12 +434,11 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
     @classmethod
     def can_handle(cls, fileobject):
-        mime_type_ok = cls._evaluate_mime_type_glob(fileobject)
-        if (mime_type_ok
-                or fileobject.basename_suffix == b'mobi'
-                and fileobject.mime_type == 'application/octet-stream'):
-            return True
-        return False
+        return bool(
+            cls._evaluate_mime_type_glob(fileobject)
+            or fileobject.mime_type == 'application/octet-stream'
+            and fileobject.basename_suffix in (b'mobi', b'azw', b'azw3', b'azw4')
+        )
 
     @classmethod
     def dependencies_satisfied(cls):
