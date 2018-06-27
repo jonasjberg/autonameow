@@ -931,6 +931,10 @@ PDF:Keywords:
             weight: 1.0
     multivalued: true
 
+PDF:Language:
+    coercer: aw_string
+    multivalued: false
+
 PDF:Linearized:
     coercer: aw_boolean
     multivalued: false
@@ -1287,6 +1291,15 @@ XMP:About:
     coercer: aw_string
     multivalued: false
 
+XMP:Author_sort:
+    coercer: aw_string
+    generic_field: author
+    mapped_fields:
+    -   WeightedMapping:
+            field: Author
+            weight: 0.5
+    multivalued: true
+
 XMP:CatalogSets:
     # Hierarchical structure of tags
     # Example probably (!) written by digikam-4.12.0:
@@ -1577,6 +1590,10 @@ XMP:Keywords:
             weight: 0.8
     multivalued: false
 
+XMP:Language:
+    coercer: aw_string
+    multivalued: false
+
 XMP:LastKeywordXMP:
     # Hierarchical structure of (tags) keywords
     # Example probably (!) written by digikam-4.12.0:
@@ -1717,6 +1734,15 @@ XMP:TagsList:
     multivalued: true
 
 XMP:Title:
+    coercer: aw_string
+    generic_field: title
+    mapped_fields:
+    -   WeightedMapping:
+            field: Title
+            weight: 1.0
+    multivalued: false
+
+XMP:Title_sort:
     coercer: aw_string
     generic_field: title
     mapped_fields:
