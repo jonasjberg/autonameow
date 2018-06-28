@@ -25,12 +25,17 @@ from unittest import TestCase
 import unit.utils as uu
 from core.metadata.canonicalize import build_string_value_canonicalizer
 from core.metadata.canonicalize import CanonicalizerConfigParser
+from core.metadata.canonicalize import canonicalize_language
 from core.metadata.canonicalize import canonicalize_publisher
 from core.metadata.canonicalize import StringValueCanonicalizer
 
 
 def _canonicalize_publisher(given):
     return canonicalize_publisher(given)
+
+
+def _canonicalize_language(given):
+    return canonicalize_language(given)
 
 
 def _build_string_value_canonicalizer(*args, **kwargs):
@@ -713,6 +718,27 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
     ]
 }
 
+LANGUAGE_CANONICAL_EQUIVALENTS = {
+    'ENGLISH': [
+        'EN',
+        'en',
+        'ENG',
+        'eng',
+        'ENGLISH',
+        'english',
+    ],
+    'SWEDISH': [
+        'SV',
+        'sv',
+        'SWE',
+        'swe',
+        'SWEDISH',
+        'swedish',
+        'svenska',
+        'SVENSKA',
+    ],
+}
+
 
 class TestCanonicalizerConfigParser(TestCase):
     @classmethod
@@ -942,6 +968,29 @@ class TestCanonicalizePublisher(TestCase):
             with self.subTest(given=given_non_publisher):
                 actual = _canonicalize_publisher(given_non_publisher)
                 self.assertEqual(given_non_publisher, actual)
+
+
+class TestCanonicalizeLanguage(TestCase):
+    def test_canonicalize_language(self):
+        for canonical, equivalent_values in LANGUAGE_CANONICAL_EQUIVALENTS.items():
+            for equivalent_value in equivalent_values:
+                with self.subTest(given_expected=(equivalent_value, canonical)):
+                    actual = _canonicalize_language(equivalent_value)
+                    self.assertEqual(canonical, actual)
+
+    def test_does_not_canonicalize_non_languages(self):
+        for given_non_language in [
+            '',
+            'foo',
+            'en katt slickade på osten',
+            'ovanstående text är på svenska',
+            'det var en svensk katt',
+            'new english review',
+            'english is a language',
+        ]:
+            with self.subTest(given=given_non_language):
+                actual = _canonicalize_language(given_non_language)
+                self.assertEqual(given_non_language, actual)
 
 
 class TestStringValueCanonicalizer(TestCase):

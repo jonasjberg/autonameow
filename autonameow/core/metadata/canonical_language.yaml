@@ -1,0 +1,18 @@
+ENGLISH:
+    match_any_regex:
+    - ^en(g|glish)$
+    - ^EN(G|GLISH)$
+    match_any_literal:
+    - en
+    - EN
+SWEDISH:
+    match_any_regex:
+    - ^swe(dish)?$
+    - ^SWE(DISH)?$
+    match_any_literal:
+    - sv
+    - SV
+    - se
+    - SE
+    - SVENSKA
+    - svenska
