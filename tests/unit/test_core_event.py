@@ -91,6 +91,19 @@ class TestEventHandler(TestCase):
         self.assertIsInstance(actual, str)
         self.assertEqual('EventHandler', actual)
 
+    def test_all_callables_are_called_even_after_uncaught_exception(self):
+        handler = _get_event_handler()
+        mock_callable_a = Mock()
+        broken_callable = lambda _: 1 / 0
+        mock_callable_c = Mock()
+
+        handler.add(mock_callable_a)
+        handler.add(broken_callable)
+        handler.add(mock_callable_c)
+        handler('foo')
+        mock_callable_a.assert_called_once_with('foo')
+        mock_callable_c.assert_called_once_with('foo')
+
 
 class TestEventDispatcher(TestCase):
     def test_instantiated_event_dispatcher_is_not_none(self):
@@ -179,3 +192,16 @@ class TestEventDispatcher(TestCase):
         actual = str(dispatcher)
         self.assertIsInstance(actual, str)
         self.assertEqual('EventDispatcher', actual)
+
+    def test_calls_following_uncaught_exception_are_dispatched(self):
+        dispatcher = _get_event_dispatcher()
+        mock_callable_A = Mock()
+        broken_callable = lambda _: 1 / 0
+        mock_callable_c = Mock()
+
+        dispatcher.on_shutdown.add(mock_callable_A)
+        dispatcher.on_shutdown.add(broken_callable)
+        dispatcher.on_shutdown.add(mock_callable_c)
+        dispatcher.on_shutdown('foo')
+        mock_callable_A.assert_called_once_with('foo')
+        mock_callable_c.assert_called_once_with('foo')

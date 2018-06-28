@@ -27,6 +27,9 @@ log = logging.getLogger(__name__)
 
 
 class EventHandler(object):
+    """
+    Stores callables and forwards calls to all stored callables.
+    """
     def __init__(self):
         self.callables = set()
 
@@ -39,7 +42,16 @@ class EventHandler(object):
             '{!s} called with args {!s} kwargs {!s}'.format(self, args, kwargs)
         )
         for func in self.callables:
-            func(*args, **kwargs)
+            # Make sure all callables are called in case of an unhandled
+            # exception. This really "should" NOT happen, it is assumed that
+            # bound callables will responsibly handle any exceptions locally.
+            try:
+                func(*args, **kwargs)
+            except Exception as e:
+                log.critical(
+                    '{!s} caught exception when called with args {!s} '
+                    'kwargs {!s} :: {!s}'.format(self, args, kwargs, e)
+                )
 
     def __str__(self):
         return self.__class__.__name__
