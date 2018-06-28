@@ -93,29 +93,30 @@ class TestIsBadMetadata(TestCase):
         self.assertIsInstance(actual, bool)
 
     def _assert_bad_any_tag(self, value):
-        for arbitrary_tag in [
-            'File:FileModifyDate',
-            'File:FileName',
-            'File:FileSize',
-            'File:FileType',
-            'PDF:Author',
-            'PDF:Subject',
-            'PDF:Title',
-            'XMP:Author',
-            'XMP:Contributor',
-            'XMP:Creator',
-            'XMP:Creator',
-            'XMP:Description',
-            'XMP:Description',
-            'XMP:Subject',
-            'XMP:Subject',
-            'XMP:Subject',
-            'XMP:Subject',
-            'XMP:Title',
-        ]:
-            actual = is_bad_metadata(arbitrary_tag, value)
-            self.assertTrue(actual)
-            self.assertIsInstance(actual, bool)
+        with self.subTest(bad_value=value):
+            for arbitrary_tag in [
+                'File:FileModifyDate',
+                'File:FileName',
+                'File:FileSize',
+                'File:FileType',
+                'PDF:Author',
+                'PDF:Subject',
+                'PDF:Title',
+                'XMP:Author',
+                'XMP:Contributor',
+                'XMP:Creator',
+                'XMP:Creator',
+                'XMP:Description',
+                'XMP:Description',
+                'XMP:Subject',
+                'XMP:Subject',
+                'XMP:Subject',
+                'XMP:Subject',
+                'XMP:Title',
+            ]:
+                actual = is_bad_metadata(arbitrary_tag, value)
+                self.assertTrue(actual)
+                self.assertIsInstance(actual, bool)
 
     def test_good_tags_values_return_false(self):
         def _aT(tag, value):
@@ -183,8 +184,17 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad('PDF:Creator',  'www.allitebooks.com')
         self._assert_bad('PDF:Producer', 'www.allitebooks.com')
         self._assert_bad('PDF:Subject',  'www.allitebooks.com')
+        self._assert_bad_any_tag(' 4<8=8AB@0B>@')
+        self._assert_bad_any_tag('()'),
+        self._assert_bad_any_tag('--=--'),
+        self._assert_bad_any_tag('-=-'),
+        self._assert_bad_any_tag('-=--'),
         self._assert_bad_any_tag('-|-  this layout: dynstab  -|-')
+        self._assert_bad_any_tag('.'),
         self._assert_bad_any_tag('0101:01:01 00:00:00+00:00')
+        self._assert_bad_any_tag('4<8=8AB@0B>@')
+        self._assert_bad_any_tag('\376\377\000A\000b\000D\000o'),
+        self._assert_bad_any_tag('\x104<8=8AB@0B>@')
         self._assert_bad_any_tag('Advanced PDF Repair at http://www.datanumen.com/apdfr/')
         self._assert_bad_any_tag('free-ebooks.net')
         self._assert_bad_any_tag('http://cncmanual.com/')
@@ -203,7 +213,7 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad_any_tag('ÿþ')
         self._assert_bad_any_tag('ÿþA')
         self._assert_bad_any_tag('ÿþS')
-        self._assert_bad_any_tag('\x104<8=8AB@0B>@')
+        self._assert_bad_any_tag('박상현'),
 
 
 class TestFilterCoercedValue(TestCase):

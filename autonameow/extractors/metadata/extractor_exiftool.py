@@ -109,8 +109,17 @@ BAD_EXIFTOOL_METADATA = {
 
 # Metadata to ignore in all fields.
 BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
+    ' 4<8=8AB@0B>@',
+    '()',
+    '--=--',
+    '-=-',
+    '-=--',
     '-|-  this layout: dynstab  -|-',
+    '.',
     '0101:01:01 00:00:00+00:00',
+    '4<8=8AB@0B>@',
+    '\376\377\000A\000b\000D\000o',
+    '\x104<8=8AB@0B>@',
     'Advanced PDF Repair at http://www.datanumen.com/apdfr/',
     'free-ebooks.net',
     'http://cncmanual.com/',
@@ -128,7 +137,7 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'ÿþ',
     'ÿþA',
     'ÿþS',
-    '\x104<8=8AB@0B>@',
+    '박상현',
 ])
 
 
