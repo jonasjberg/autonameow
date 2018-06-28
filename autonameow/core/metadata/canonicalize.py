@@ -173,6 +173,10 @@ class CanonicalizerConfigParser(object):
             if not regexes_to_match:
                 continue
 
+            if not all(isinstance(s, str) for s in regexes_to_match):
+                log.error('Bad syntax in "{!s}"'.format(self.str_lookup_dict_filepath))
+                continue
+
             non_empty_regex_patterns = [s for s in regexes_to_match if s and s.strip()]
             if non_empty_regex_patterns:
                 compiled_regexes = set()
