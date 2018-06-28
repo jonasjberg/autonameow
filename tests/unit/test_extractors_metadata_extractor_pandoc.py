@@ -26,6 +26,7 @@ import unit.utils as uu
 from extractors.metadata import PandocMetadataExtractor
 from extractors.metadata.extractor_pandoc import _parse_pandoc_output
 from extractors.metadata.extractor_pandoc import extract_document_metadata_with_pandoc
+from extractors.metadata.extractor_pandoc import is_bad_metadata
 from unit.case_extractors import CaseExtractorBasics
 from unit.case_extractors import CaseExtractorOutput
 from unit.case_extractors import CaseExtractorOutputTypes
@@ -269,3 +270,29 @@ class TestParsePandocOutput(TestCase):
         self.assertIsInstance(actual, dict)
         self.assertIn('author', actual)
         self.assertEqual('Friedrich Wilhelm Nietzsche', actual['author'])
+
+
+class TestIsBadMetadata(TestCase):
+    def _assert_bad(self, tag, value):
+        actual = is_bad_metadata(tag, value)
+        self.assertTrue(actual, 'Expected tag {!s} value "{!s}" to be bad'.format(tag, value))
+        self.assertIsInstance(actual, bool)
+
+    def _assert_bad_any_tag(self, value):
+        for arbitrary_tag in [
+            'author',
+            'contributor',
+            'coverage',
+            'date',
+            'description',
+            'identifier',
+            'language',
+            'publisher',
+            'rights',
+            'source',
+            'subject',
+            'title',
+        ]:
+            actual = is_bad_metadata(arbitrary_tag, value)
+            self.assertTrue(actual)
+            self.assertIsInstance(actual, bool)

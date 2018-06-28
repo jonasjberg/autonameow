@@ -35,6 +35,12 @@ BASENAME_PANDOC_TEMPLATE = coercers.AW_PATHCOMPONENT('extractor_pandoc_template.
 PATH_CUSTOM_PANDOC_TEMPLATE = disk.joinpaths(_PATH_THIS_DIR,
                                              BASENAME_PANDOC_TEMPLATE)
 
+# Metadata to ignore in all fields.
+BAD_PANDOC_METADATA_ANY_TAG = frozenset([
+    'UNKNOWN',
+    'Unknown',
+])
+
 
 class PandocMetadataExtractor(BaseMetadataExtractor):
     """
@@ -68,6 +74,7 @@ class PandocMetadataExtractor(BaseMetadataExtractor):
         return {
             tag: value for tag, value in raw_metadata.items()
             if value and not _is_empty_string(value)
+            and not is_bad_metadata(value)
         }
 
     def _to_internal_format(self, raw_metadata):
@@ -166,3 +173,11 @@ def _parse_pandoc_output(json_string):
         raise ExtractorError('Error loading pandoc JSON output: {!s}'.format(e))
     else:
         return result
+
+
+def is_bad_metadata(value):
+    if isinstance(value, list):
+        return bool(any(
+            v in BAD_PANDOC_METADATA_ANY_TAG for v in value
+        ))
+    return bool(value in BAD_PANDOC_METADATA_ANY_TAG)
