@@ -32,7 +32,7 @@ from core.master_provider import ProviderRunner
 
 def _get_provider_registry(**kwargs):
     meowuri_source_map = kwargs.get('meowuri_source_map', dict())
-    excluded_providers = kwargs.get('excluded_providers', dict())
+    excluded_providers = kwargs.get('excluded_providers', set())
     return ProviderRegistry(meowuri_source_map, excluded_providers)
 
 
@@ -41,14 +41,10 @@ class TestProviderRegistryMightBeResolvable(TestCase):
     def setUpClass(cls):
         mock_provider = uu.get_mock_provider()
         dummy_source_map = {
-            'analyzer': {
-                uu.as_meowuri('analyzer.filename'): mock_provider
-            },
-            'extractor': {
-                uu.as_meowuri('extractor.metadata.exiftool'): mock_provider,
-                uu.as_meowuri('extractor.filesystem.xplat'): mock_provider,
-                uu.as_meowuri('extractor.filesystem.guessit'): mock_provider,
-            }
+            uu.as_meowuri('analyzer.filename'): mock_provider,
+            uu.as_meowuri('extractor.metadata.exiftool'): mock_provider,
+            uu.as_meowuri('extractor.filesystem.xplat'): mock_provider,
+            uu.as_meowuri('extractor.filesystem.guessit'): mock_provider,
         }
         cls.p = _get_provider_registry(meowuri_source_map=dummy_source_map)
 
@@ -97,9 +93,7 @@ class TestProviderRegistryMightBeResolvable(TestCase):
     def test_with_meowuri_and_single_mapped_meowuri(self):
         mock_provider = uu.get_mock_provider()
         dummy_source_map = {
-            'extractor': {
-                uu.as_meowuri('extractor.filesystem.guessit'): mock_provider
-            }
+            uu.as_meowuri('extractor.filesystem.guessit'): mock_provider
         }
         p = _get_provider_registry(meowuri_source_map=dummy_source_map)
 

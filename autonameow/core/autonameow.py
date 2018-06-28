@@ -210,20 +210,11 @@ class Autonameow(object):
             cf_registered = self.ui.ColumnFormatter()
             cf_excluded = self.ui.ColumnFormatter()
 
-            for _type in C.MEOWURI_ROOTS_SOURCES:
-                # Separate "root sections" by blank lines.
-                cf_registered.addemptyrow()
-                cf_excluded.addemptyrow()
+            for uri, klass in sorted(master_provider.Registry.meowuri_sources.items()):
+                cf_registered.addrow(str(uri), str(klass))
 
-                sourcemap = master_provider.Registry.meowuri_sources.get(_type, {})
-                # Sorted by MeowURI within "root sections".
-                for uri, klass in sorted(sourcemap.items(), key=lambda x: str(x[0])):
-                    cf_registered.addrow(str(uri), str(klass))
-
-                excluded = master_provider.Registry.excluded_providers.get(_type, set())
-                str_excluded = [str(k) for k in excluded]
-                for klass in sorted(str_excluded):
-                    cf_excluded.addrow(str(klass))
+            for klass in sorted(master_provider.Registry.excluded_providers):
+                cf_excluded.addrow(str(klass))
 
             str_registered_providers = str(cf_registered)
             str_excluded_providers = str(cf_excluded)
