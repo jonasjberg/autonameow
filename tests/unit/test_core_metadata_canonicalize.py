@@ -146,6 +146,7 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'Bookboon.com',
         'Bookboon.com Ltd',
         'Bookboon.com Ltd.',
+        'Bookboon.com Limited',
     ],
     'ClydeBank': [
         'ClydeBank',
@@ -167,6 +168,7 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'FeedBooks',
         'This book is brought to you by Feedbooks',
         'http://www.feedbooks.com',
+        'www.feedbooks.com',
     ],
     'GrinPub': [
         'GrinPub',
@@ -323,15 +325,21 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'IT Academy',
     ],
     'JohnsHopkinsUP': [
+        'JohnsHopkinsUP',
         'Johns Hopkins University Press Ltd',
         'Johns Hopkins University Press Ltd. London',
         'Johns Hopkins University Press Ltd.',
         'Johns Hopkins University Press Ltd., London',
+        'Johns Hopkins University Press Limited, London',
+        'Johns Hopkins University Press Limited London',
         'Johns Hopkins University Press',
         'The Johns Hopkins University Press Ltd',
+        'The Johns Hopkins University Press Limited',
         'The Johns Hopkins University Press Ltd. London',
+        'The Johns Hopkins University Press Limited London',
         'The Johns Hopkins University Press Ltd.',
         'The Johns Hopkins University Press Ltd., London',
+        'The Johns Hopkins University Press Limited, London',
         'The Johns Hopkins University Press',
     ],
     'JonesBartlett': [
@@ -597,6 +605,9 @@ PUBLISHER_CANONICAL_EQUIVALENTS = {
         'SitePoint Ltd.',
         'SitePoint Pty Ltd',
         'SitePoint Pty. Ltd.',
+        'SitePoint Proprietary Ltd.',
+        'SitePoint Proprietary Ltd',
+        'SitePoint Proprietary Limited',
     ],
     'SkriptKuhnel': [
         'SkriptKuhnel',

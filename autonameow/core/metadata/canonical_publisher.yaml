@@ -27,6 +27,9 @@ AZElitePub:
     - AZ Elite
     match_any_regex:
     - AZ ?Elite ?Pub(\.|l\.|ishing)?
+BackupBrain:
+    match_any_regex:
+    - Backup ?Brain
 Barrons:
     match_any_regex:
     - Barron.s Educational
@@ -87,9 +90,10 @@ ExelixisMedia:
     match_any_literal:
     - Exelixis Media P.C.
 FeedBooks:
+    match_any_regex:
+    - www\.feedbooks\.com
     match_any_literal:
     - This book is brought to you by Feedbooks
-    - http://www.feedbooks.com
 FranklinBeedle:
     match_any_regex:
     - Franklin,? Beedle,? (&|and) Associates
