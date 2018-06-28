@@ -240,7 +240,7 @@ class TestISBNMetadata(TestCase):
         self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
         self.assertEqual(isbn_metadata.authors, ['George F. Luger', 'William A. Stubblefield'])
         self.assertEqual(isbn_metadata.year, '2009')
-        self.assertEqual(isbn_metadata.language, 'eng')
+        self.assertEqual(isbn_metadata.language, 'ENGLISH')
         self.assertEqual(isbn_metadata.isbn10, self.ISBN10_A)
         self.assertEqual(isbn_metadata.isbn13, self.ISBN13_A)
 
@@ -249,7 +249,7 @@ class TestISBNMetadata(TestCase):
         self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
         self.assertEqual(isbn_metadata.authors, ['George F. Luger', 'William A. Stubblefield'])
         self.assertEqual(isbn_metadata.year, '2009')
-        self.assertEqual(isbn_metadata.language, 'eng')
+        self.assertEqual(isbn_metadata.language, 'ENGLISH')
         self.assertEqual(isbn_metadata.isbn10, self.ISBN10_A)
         self.assertEqual(isbn_metadata.isbn13, self.ISBN13_A)
 

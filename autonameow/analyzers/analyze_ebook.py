@@ -30,6 +30,7 @@ except ImportError:
 
 from analyzers import BaseAnalyzer
 from core import persistence
+from core.metadata.canonicalize import canonicalize_language
 from core.metadata.canonicalize import canonicalize_publisher
 from core.metadata.normalize import cleanup_full_title
 from core.metadata.normalize import normalize_full_human_name
@@ -100,6 +101,11 @@ class EbookAnalyzer(BaseAnalyzer):
                 {'WeightedMapping': {'field': 'Edition', 'weight': '1'}},
             ],
             'generic_field': 'edition'
+        },
+        'language': {
+            'coercer': 'aw_string',
+            'multivalued': 'false',
+            'generic_field': 'language'
         },
         'publisher': {
             'coercer': 'aw_string',
@@ -272,6 +278,10 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
             maybe_edition = self._filter_edition(metadata.edition)
             self._add_intermediate_results('edition', maybe_edition)
+
+            maybe_language = metadata.language
+            if maybe_language:
+                self._add_intermediate_results('language', maybe_language)
 
     def _find_most_probable_isbn_metadata(self):
         # TODO: [TD0185] Rework access to 'master_provider' functionality.
@@ -622,8 +632,9 @@ class ISBNMetadata(object):
     @language.setter
     def language(self, value):
         if value and isinstance(value, str):
-            self._language = value
-            self._normalized_language = value.lower().strip()
+            canonical_language = canonicalize_language(value)
+            self._language = canonical_language
+            self._normalized_language = canonical_language.lower()
 
     @property
     def normalized_language(self):
