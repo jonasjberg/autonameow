@@ -330,6 +330,8 @@ check_testfiles_file      'subdir/subsubdir_B/file_A3'
 check_testfiles_file      'subdir/subsubdir_B/file_B1'
 check_testfiles_file      'subdir/subsubdir_B/file_B2'
 
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_publisher.yaml" e f r
+
 
 
 
