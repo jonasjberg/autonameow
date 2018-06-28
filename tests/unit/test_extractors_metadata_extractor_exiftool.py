@@ -80,9 +80,9 @@ class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput,
         ('File:MIMEType', str, 'application/pdf'),
         ('PDF:CreateDate', datetime, _dt('2016-05-24 144711', tz='+0200')),
         ('PDF:ModifyDate', datetime, _dt('2016-05-24 144711', tz='+0200')),
-        ('PDF:Creator', str, 'LaTeX with hyperref package'),
+        ('PDF:Creator', str, 'LaTeX'),
         ('PDF:PageCount', int, 1),
-        ('PDF:Producer', str, 'pdfTeX-1.40.16')
+        ('PDF:Producer', str, 'pdfTeX')
     ]
 
 

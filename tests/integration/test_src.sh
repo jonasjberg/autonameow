@@ -89,6 +89,7 @@ assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extracto
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_pandoc_fieldmeta.yaml" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_pandoc_template.plain" e f r
 
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/metadata/canonical_creatortool.yaml" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/metadata/canonical_language.yaml" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/metadata/canonical_publisher.yaml" e f r
 

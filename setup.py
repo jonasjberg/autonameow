@@ -51,6 +51,7 @@ setup(
     package_data={
         'autonameow': [
             'analyzers/probable_extension_lookup',
+            'core/metadata/canonical_creatortool.yaml',
             'core/metadata/canonical_language.yaml',
             'core/metadata/canonical_publisher.yaml',
             'extractors/metadata/extractor_pandoc_template.plain',

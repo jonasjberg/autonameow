@@ -205,6 +205,7 @@ def build_string_value_canonicalizer(yaml_config_filename):
 
 _CANONICALIZER_PUBLISHER = build_string_value_canonicalizer(b'canonical_publisher.yaml')
 _CANONICALIZER_LANGUAGE = build_string_value_canonicalizer(b'canonical_language.yaml')
+_CANONICALIZER_CREATORTOOL = build_string_value_canonicalizer(b'canonical_creatortool.yaml')
 
 
 def canonicalize_publisher(string):
@@ -213,3 +214,7 @@ def canonicalize_publisher(string):
 
 def canonicalize_language(string):
     return _CANONICALIZER_LANGUAGE(string)
+
+
+def canonicalize_creatortool(string):
+    return _CANONICALIZER_CREATORTOOL(string)

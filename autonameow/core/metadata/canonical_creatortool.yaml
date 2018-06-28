@@ -1,0 +1,279 @@
+Adobe Acrobat:
+    match_any_literal:
+    - Acrobat
+    match_any_regex:
+    - Acrobat \d+\.\d+(\.\d+)?
+    - 'Acrobat:'
+    - Acrobat Pro
+    - Acrobat pictwpstops
+    - Adobe Acrobat
+    - Quite Imposing
+Adobe Acrobat Distiller:
+    match_any_regex:
+    - Acrobat Distiller
+    - ADOBEPS.\.DRV
+    - AdobePS.\.dll
+Adobe Acrobat PDFMaker:
+    match_any_regex:
+    - Acrobat PDFMaker$
+Adobe FrameMaker:
+    match_any_regex:
+    - Adobe FrameMaker
+    - FrameMaker
+Adobe Illustrator:
+    match_any_regex:
+    - Adobe Illustrator
+Adobe InDesign:
+    match_any_regex:
+    - InDesign
+Adobe LiveCycle Designer:
+    match_any_regex:
+    - Adobe LiveCycle
+Adobe PageMaker:
+    match_any_regex:
+    - Adobe.? PageMaker
+Adobe PDF Library:
+    match_any_regex:
+    - Adobe PDF Library
+Adobe Photoshop:
+    match_any_regex:
+    - (Adobe )?Photoshop
+AdobePS:
+    match_any_regex:
+    - AdobePS
+    - Adobe PostScript printer driver
+Advanced PDF Repair:
+    match_any_regex:
+    - (Advanced|DataNumen) PDF Repair
+    - www\.datanumen\.com/apdfr/
+    - www\.pdf-repair\.com
+    match_any_literal:
+    - DPDFR
+Antenna House:
+    match_any_regex:
+    - Antenna House
+Arbortext:
+    match_any_regex:
+    - Arbortext
+AH CSS Formatter:
+    match_any_regex:
+    - AH CSS Formatter
+AH XSL Formatter:
+    match_any_regex:
+    - (AH )?XSL Formatter
+Apache FOP:
+    match_any_regex:
+    - Apache FOP
+A-PDF Merger:
+    match_any_regex:
+    - A-PDF Merger
+Apple iBooks:
+    match_any_regex:
+    - iBooks
+    - Apple iBooks
+Apple Keynote:
+    match_any_regex:
+    - Apple Keynote
+BCL PostScript Driver:
+    match_any_regex:
+    - BCL PostScript Driver
+Boxoft Image To PDF:
+    match_any_regex:
+    - Boxoft Image To PDF
+Brother Printer:
+    match_any_regex:
+    - TW-Brother
+Cairo:
+    match_any_regex:
+    - cairo \d+.\d+.\d+
+    - \(https?://cairographics\.org\)
+Calibre:
+    match_any_regex:
+    - calibre \(?\d+.\d+.\d+\)?
+    - \[?https?://calibre-ebook\.com\]?
+Chromium:
+    match_any_regex:
+    - Chromium
+DocBook:
+    match_any_regex:
+    - DocBook
+dvips:
+    match_any_regex:
+    - dvips
+Epson Printer:
+    match_any_regex:
+    - Epson
+FinePrint pdfFactory:
+    match_any_regex:
+    - FinePrint pdfFactory
+FineReader:
+    match_any_regex:
+    - FINEREADER
+Foxit:
+    match_any_regex:
+    - Foxit
+Fujitsu Printer:
+    match_any_regex:
+    - ScanSnap Manager
+Ghostscript:
+    match_any_regex:
+    - Ghostscript
+groff:
+    match_any_regex:
+    - groff
+gscan2pdf:
+    match_any_regex:
+    - gscan2pdf
+HTML Tidy:
+    match_any_regex:
+    - HTML Tidy
+HP Printer:
+    match_any_regex:
+    - WIA-HP psc
+Image2PDF:
+    match_any_regex:
+    - Image2PDF
+Infix Pdf Editor:
+    match_any_regex:
+    - ^.?Infix Pro.?$
+    - Infix Pdf Editor
+    - Iceni
+iText:
+    match_any_regex:
+    - iText
+Kingsoft WPS Office:
+    match_any_regex:
+    - (KS|Kingsoft|WPS) ?Office
+LaTeX:
+    match_any_regex:
+    - LaTeX
+Mozilla PostScript:
+    match_any_regex:
+    - Mozilla PostScript
+Microsoft PowerPoint:
+    match_any_regex:
+    - Adobe Acrobat.* for PowerPoint
+    - PowerPoint
+Microsoft Publisher:
+    match_any_regex:
+    - Microsoft.? Publisher
+Microsoft Trident:
+    match_any_regex:
+    - MSHTML
+Microsoft Word:
+    match_any_regex:
+    - Acrobat.* for Word
+    - WINWORD\.EXE
+    - Microsoft.?( Office)? Word
+PaperPort:
+    match_any_regex:
+    - PaperPort
+    - www\.scansoft\.com
+PDFBox:
+    match_any_regex:
+    - PDFBox
+PdfCompressor:
+    match_any_regex:
+    - PdfCompressor
+PDF Creator:
+    match_any_regex:
+    - PDF ?Creator
+    - www\.peernet\.com
+PDFelement:
+    match_any_regex:
+    - PDFelement
+PDFium:
+    match_any_regex:
+    - PDFium
+PDFMerge:
+    match_any_regex:
+    - PDFMerge
+PDF Nomad:
+    match_any_regex:
+    - PDF Nomad
+pdfresizer:
+    match_any_regex:
+    - pdfresizer\.com
+PDFsam:
+    match_any_regex:
+    - PDFsam
+PDFsharp:
+    match_any_regex:
+    - PDFsharp
+pdfTeX:
+    match_any_regex:
+    - pdfTeX
+pdftk:
+    match_any_regex:
+    - pdftk
+PDFWriters:
+    match_any_regex:
+    - PDFWriters
+PowerPDF:
+    match_any_regex:
+    - PowerPDF
+PrimoPDF:
+    match_any_regex:
+    - PrimoPDF
+Print2PDF:
+    match_any_regex:
+    - Print2PDF
+PScript:
+    match_any_regex:
+    - PScript5
+    - PScript\.(DLL|DRV)
+PrinceXML:
+    match_any_literal:
+    - Prince
+    match_any_regex:
+    - Prince \d+(\.\d+)
+    - www\.princexml\.com
+QuarkXPress:
+    match_any_regex:
+    - QuarkXPress
+    - quark\d+user
+ScanToPDF:
+    match_any_regex:
+    - ScanToPDF
+SkiaPDF:
+    match_any_regex:
+    - Skia.?PDF
+TeX:
+    match_any_literal:
+    - TeX
+    match_any_regex:
+    - ^ ?TeX output
+tiff2ps:
+    match_any_regex:
+    - tiff2ps
+ToPDF.com:
+    match_any_regex:
+    - ToPDF.com
+TopLeaf:
+    match_any_regex:
+    - TopLeaf
+    - Turn-Key Systems
+Tracker PDF-Tools:
+    match_any_regex:
+    - Tracker.?.? PDF-Tools
+UNKNOWN:
+    match_any_literal:
+    - UnknownApplication
+VTeX PDF Tools:
+    match_any_literal:
+    - VTeX PDF Tools
+Win2PDF:
+    match_any_regex:
+    - Win2PDF
+    - www\.daneprairie\.com
+wpCubed wPDF:
+    match_any_regex:
+    - wPDF by wpCubed
+    match_any_literal:
+    - wPDF
+XEP:
+    match_any_regex:
+    - XEP
+XeTeX:
+    match_any_regex:
+    - XeTeX

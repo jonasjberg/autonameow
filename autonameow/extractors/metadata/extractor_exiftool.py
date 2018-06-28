@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from core.metadata.canonicalize import canonicalize_creatortool
 from extractors import ExtractorError
 from extractors.metadata.base import BaseMetadataExtractor
 from thirdparty import pyexiftool

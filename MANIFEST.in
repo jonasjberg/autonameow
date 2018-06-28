@@ -2,6 +2,7 @@ include CHANGES.txt
 include LICENSE.txt
 include README.md
 include autonameow/analyzers/probable_extension_lookup
+include autonameow/core/metadata/canonical_creatortool.yaml
 include autonameow/core/metadata/canonical_language.yaml
 include autonameow/core/metadata/canonical_publisher.yaml
 include autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml
