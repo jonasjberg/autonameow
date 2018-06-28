@@ -69,6 +69,7 @@ identifier:
 # Example: "en"
 language:
     coercer: aw_string
+    generic_field: language
     multivalued: false
 
 pagetitle:

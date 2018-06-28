@@ -446,6 +446,7 @@ FlashPix:IssuedBy0:
 
 FlashPix:Language:
     coercer: aw_string
+    generic_field: language
     multivalued: false
 
 FlashPix:Keywords:
@@ -780,6 +781,7 @@ Palm:KF8CoverURI:
 
 Palm:Language:
     coercer: aw_string
+    generic_field: language
     multivalued: false
 
 Palm:LastBackupDate:
@@ -933,6 +935,7 @@ PDF:Keywords:
 
 PDF:Language:
     coercer: aw_string
+    generic_field: language
     multivalued: false
 
 PDF:Linearized:
@@ -1592,6 +1595,7 @@ XMP:Keywords:
 
 XMP:Language:
     coercer: aw_string
+    generic_field: language
     multivalued: false
 
 XMP:LastKeywordXMP:
