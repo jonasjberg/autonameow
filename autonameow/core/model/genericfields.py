@@ -96,6 +96,11 @@ class GenericHealth(GenericField):
     meowuri_leaf = 'health'
 
 
+class GenericLanguage(GenericField):
+    meowuri_child = 'metadata'
+    meowuri_leaf = 'language'
+
+
 class GenericMimeType(GenericField):
     meowuri_child = 'contents'
     meowuri_leaf = 'Mime_Type'
@@ -144,7 +149,8 @@ def get_datetime_fields():
 def get_string_fields():
     return [
         GenericSubject, GenericText, GenericProducer, GenericDescription,
-        GenericCreator, GenericAuthor, GenericPublisher, GenericTitle
+        GenericCreator, GenericAuthor, GenericPublisher, GenericTitle,
+        GenericLanguage,
     ]
 
 

@@ -30,6 +30,7 @@ from core.model.genericfields import GenericCreator
 from core.model.genericfields import GenericDateCreated
 from core.model.genericfields import GenericDateModified
 from core.model.genericfields import GenericField
+from core.model.genericfields import GenericLanguage
 from core.model.genericfields import GenericMimeType
 from core.model.genericfields import GenericProducer
 from core.model.genericfields import GenericSubject
@@ -67,6 +68,7 @@ class TestGenericFieldStr(TestCase):
             (GenericCreator, uuconst.MEOWURI_GEN_METADATA_CREATOR),
             (GenericDateCreated, uuconst.MEOWURI_GEN_METADATA_DATECREATED),
             (GenericDateModified, uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED),
+            (GenericLanguage, uuconst.MEOWURI_GEN_METADATA_LANGUAGE),
             (GenericMimeType, uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE),
             (GenericProducer, uuconst.MEOWURI_GEN_METADATA_PRODUCER),
             (GenericSubject, uuconst.MEOWURI_GEN_METADATA_SUBJECT),
@@ -120,6 +122,7 @@ class TestGetFieldForUriLeaf(TestCase):
             'date_modified': 'GenericDateModified',
             'description': 'GenericDescription',
             'edition': 'GenericEdition',
+            'language': 'GenericLanguage',
             'mime_type': 'GenericMimeType',
             'producer': 'GenericProducer',
             'publisher': 'GenericPublisher',
@@ -147,6 +150,7 @@ class TestGetFieldForUriLeaf(TestCase):
             'date_modified': GenericDateModified,
             'description': GenericDescription,
             'edition': GenericEdition,
+            'language': GenericLanguage,
             'mime_type': GenericMimeType,
             'producer': GenericProducer,
             'publisher': GenericPublisher,
@@ -181,6 +185,7 @@ class TestGetAllGenericFieldUriLeaves(TestCase):
         self.assertIn('date_modified', actual)
         self.assertIn('description', actual)
         self.assertIn('edition', actual)
+        self.assertIn('language', actual)
         self.assertIn('mime_type', actual)
         self.assertIn('producer', actual)
         self.assertIn('publisher', actual)
