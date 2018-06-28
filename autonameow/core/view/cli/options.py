@@ -222,8 +222,8 @@ def init_argparser():
         dest='dump_meowuris',
         action='store_true',
         help='Dump all MeowURIs registered to the "Repository" at startup. '
-             'Use "--debug" for detailed information and a list of providers '
-             'excluded due to unsatisfied dependencies.'
+             'Use "--verbose" for detailed information with a list of '
+             'providers excluded due to unsatisfied dependencies.'
     )
 
     return parser

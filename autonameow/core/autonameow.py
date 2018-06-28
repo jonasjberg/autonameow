@@ -206,15 +206,15 @@ class Autonameow(object):
         self.exit_program(C.EXIT_SUCCESS)
 
     def _dump_registered_meowuris(self):
-        if self.opts.get('debug'):
+        if self.opts.get('verbose'):
             cf_registered = self.ui.ColumnFormatter()
             cf_excluded = self.ui.ColumnFormatter()
 
             for uri, klass in sorted(master_provider.Registry.meowuri_sources.items()):
-                cf_registered.addrow(str(uri), str(klass))
+                cf_registered.addrow(str(uri), str(klass.name()))
 
             for klass in sorted(master_provider.Registry.excluded_providers):
-                cf_excluded.addrow(str(klass))
+                cf_excluded.addrow(str(klass.name()))
 
             str_registered_providers = str(cf_registered)
             str_excluded_providers = str(cf_excluded)
