@@ -132,19 +132,30 @@ class TestMatchMacOsScreenshot(TestCase):
     def test_matches_macos_sierra_version_10_13_5_screenshot_filename(self):
         self._assert_match('Screen Shot 2018-06-25 at 21.01.23.png')
 
+    def test_matches_screenshot_filename_with_added_filetags(self):
+        self._assert_match('Screen Shot 2018-06-25 at 21.01.23 -- wow such tag.png')
+
     def test_matches_only_date_and_time_separated_by_at(self):
         self._assert_match('2018-06-25 at 21.01.23')
+
+    def test_matches_date_and_time_separated_by_at_with_any_leading_text(self):
+        self._assert_match('foo 2018-06-25 at 21.01.23')
+
+    def test_matches_date_and_time_separated_by_at_with_any_trailing_text(self):
+        self._assert_match('2018-06-25 at 21.01.23 foo')
 
     def test_does_not_match_empty_strings(self):
         for given in ['', ' ']:
             self._assert_no_match(given)
 
-    def test_does_not_match_strings_without_iso_like_dates(self):
+    def test_does_not_match_strings_without_datetime_or_with_different_format(self):
         for given in [
             'foo',
             'aaaa bb cc',
             '2018',
-            '2018-06-25 21 01 23'
+            '2018-06-25 21 01 23',
+            '2018-06-25 21.01.23',
+            '2018-06-25    21.01.23',
         ]:
             self._assert_no_match(given)
 

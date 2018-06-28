@@ -198,11 +198,12 @@ def match_macos_screenshot(s):
     """
     assert isinstance(s, str)
 
-    modified_string = s.replace('Screen Shot', '').replace('.png', '').strip()
-    try:
-        return datetime.strptime(modified_string, '%Y-%m-%d at %H.%M.%S')
-    except (ValueError, TypeError):
-        pass
+    match = re.search('(\d{4}-\d\d-\d\d at \d\d\.\d\d\.\d\d)', s)
+    if match:
+        try:
+            return datetime.strptime(match.group(1), '%Y-%m-%d at %H.%M.%S')
+        except (ValueError, TypeError):
+            pass
 
     return None
 
