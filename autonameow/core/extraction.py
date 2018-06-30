@@ -186,7 +186,7 @@ class ExtractorRunner(object):
                 continue
 
             try:
-                _metainfo = extractor_instance.metainfo()
+                metainfo = extractor_instance.metainfo()
             except (ExtractorError, PersistenceError, NotImplementedError) as e:
                 log.error('Unable to get meta info! Aborting extractor "{!s}":'
                           ' {!s}'.format(extractor_instance, e))
@@ -195,22 +195,21 @@ class ExtractorRunner(object):
 
             try:
                 with logs.log_runtime(log, str(extractor_instance)):
-                    _extracted_data = extractor_instance.extract(fileobject)
+                    extracted_data = extractor_instance.extract(fileobject)
             except (ExtractorError, NotImplementedError) as e:
                 # TODO: Remove extractor from instance pool?
                 log.error('Unable to extract data! Aborting extractor "{!s}":'
                           ' {!s}'.format(extractor_instance, e))
                 continue
 
-            if not _extracted_data:
+            if not extracted_data:
                 log.warning('Got no data from extractor "{!s}"'.format(extractor_instance))
                 continue
 
             # TODO: [TD0034] Filter out known bad data.
             # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-            _results = wrap_provider_results(_extracted_data, _metainfo, klass)
-            _meowuri_prefix = klass.meowuri_prefix()
-            self.store_results(fileobject, _meowuri_prefix, _results)
+            wrapped_results = wrap_provider_results(extracted_data, metainfo, klass)
+            self.store_results(fileobject, klass.meowuri_prefix(), wrapped_results)
 
     def _get_pooled_extractor_instance(self, klass):
         instance = self._instance_pool.get(klass)
