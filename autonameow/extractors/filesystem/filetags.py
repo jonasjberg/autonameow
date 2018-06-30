@@ -40,7 +40,7 @@ FILENAME_TAG_SEPARATOR = enc.bytestring_path(' -- ')
 
 
 FiletagsParts = namedtuple('FiletagsParts',
-                           'datetime description tags extension')
+                           'timestamp description tags extension')
 
 
 class FiletagsExtractor(BaseMetadataExtractor):
@@ -69,6 +69,12 @@ class FiletagsExtractor(BaseMetadataExtractor):
 
         parts_dict = dict(parts._asdict())
         parts_dict['follows_filetags_convention'] = follows_convention
+
+        # TODO: [hack] The 'timestamp' can be either only a date or a date AND
+        #       time.. For now just copy the same value to both places and let
+        #       the coercion fail for one of them ..
+        parts_dict['date'] = parts_dict['timestamp']
+        parts_dict['datetime'] = parts_dict['timestamp']
         result = self._to_internal_format(parts_dict)
         return result
 
@@ -204,15 +210,15 @@ def follows_filetags_convention(filetags_parts):
                                 VV         V
       20160722 Descriptive name -- firsttag tagtwo.txt
       |______| |______________|    |_____________| |_|
-        date     description            tags       ext
+      timestamp  description            tags       ext
 
-    Filename parts 'date', 'description' and 'tags' must be present.
+    Filename parts 'timestamp', 'description' and 'tags' must be present.
 
     Returns:
         True if the parts probably came from a file name in the "filetags"
         format. Otherwise False.
     """
     return bool(
-        filetags_parts.datetime and filetags_parts.description
+        filetags_parts.timestamp and filetags_parts.description
         and filetags_parts.tags
     )

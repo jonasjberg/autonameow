@@ -22,6 +22,7 @@
 from collections import namedtuple
 from datetime import datetime
 from unittest import skipIf, TestCase
+from unittest.mock import Mock
 
 import unit.utils as uu
 from extractors.filesystem.filetags import FiletagsExtractor
@@ -68,6 +69,38 @@ class TestFiletagsExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
         ('description', str, 'empty'),
         ('tags', list, []),
         ('extension', str, ''),
+        ('follows_filetags_convention', bool, False)
+    ]
+
+
+def _get_mock_fileobject(filename):
+    mock_fileobject = Mock()
+    mock_fileobject.filename = filename
+    return mock_fileobject
+
+
+@skipIf(*UNMET_DEPENDENCIES)
+class TestFiletagsExtractorOutputTestFileC(CaseExtractorOutput, TestCase):
+    EXTRACTOR_CLASS = FiletagsExtractor
+    SOURCE_FILEOBJECT = _get_mock_fileobject(b'2018-06-29 kunskapsmatris sprak.xlsx')
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('date', datetime, datetime(2018, 6, 29)),
+        ('description', str, 'kunskapsmatris sprak'),
+        ('tags', list, []),
+        ('extension', str, 'xlsx'),
+        ('follows_filetags_convention', bool, False)
+    ]
+
+
+@skipIf(*UNMET_DEPENDENCIES)
+class TestFiletagsExtractorOutputTestFileD(CaseExtractorOutput, TestCase):
+    EXTRACTOR_CLASS = FiletagsExtractor
+    SOURCE_FILEOBJECT = _get_mock_fileobject(b'2007-04-23_12-comments.png')
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('date', datetime, datetime(2007, 4, 23)),
+        ('description', str, '_12-comments'),
+        ('tags', list, []),
+        ('extension', str, 'png'),
         ('follows_filetags_convention', bool, False)
     ]
 
@@ -246,46 +279,62 @@ class TestPartitionBasename(TestCase):
                     description='Advanced Data Science and Machine Learning for Cats - Paws-on Machine Learning',
                     tags=[],
                     extension='djvu')),
+
+            (b'2018-06-29 kunskapsmatris sprak.xlsx',
+             Expect(timestamp='2018-06-29',
+                    description='kunskapsmatris sprak',
+                    tags=[],
+                    extension='xlsx')),
         ]
 
     def test_partitions_basenames(self):
         for test_data, expected in self.testdata_expected:
-            actual = partition_basename(test_data)
-            self.assertEqual(expected, actual)
+            with self.subTest():
+                actual = partition_basename(test_data)
+                self.assertEqual(expected, actual)
 
 
 class TestFollowsFiletagsConvention(TestCase):
     # TODO: Clean up this mess!
     def _assert(self, expect, given):
         assert isinstance(expect, bool)
-        empty = {'datetime': '',
+        empty = {'timestamp': '',
                  'description': '',
                  'tags': [],
                  'extension': ''}
         empty.update(given)
-        parts = FiletagsParts(empty['datetime'], empty['description'], empty['tags'], empty['extension'])
-        actual = follows_filetags_convention(parts)
+
+        filetags_parts = FiletagsParts(
+            timestamp=empty['timestamp'],
+            description=empty['description'],
+            tags=empty['tags'],
+            extension=empty['extension']
+        )
+        actual = follows_filetags_convention(filetags_parts)
         self.assertEqual(expect, actual)
 
     def test_filetags_name_with_all_parts(self):
-        self._assert(True, given={'datetime': '2018-02-11',
+        self._assert(True, given={'timestamp': '2018-02-11',
                                   'description': 'foo',
                                   'tags': ['a', 'b'],
                                   'extension': 'txt'})
 
-    def test_filetags_name_with_datetime_description_tags(self):
-        self._assert(True, given={'datetime': '2018-02-11',
+    def test_filetags_name_with_timestamp_description_tags(self):
+        self._assert(True, given={'timestamp': '2018-02-11',
                                   'description': 'foo',
                                   'tags': ['a', 'b']})
 
-    def test_filetags_name_with_datetime_description_extension(self):
-        self._assert(False, given={'datetime': '2018-02-11',
+    def test_filetags_name_with_timestamp_description_extension(self):
+        self._assert(False, given={'timestamp': '2018-02-11',
                                    'description': 'foo',
                                    'extension': 'txt'})
+        self._assert(False, given={'timestamp': '2018-06-29',
+                                   'description': 'kunskapsmatris sprak',
+                                   'extension': 'xlsx'})
 
-    def test_filetags_name_with_datetime_description(self):
-        self._assert(False, given={'datetime': '2018-02-11',
+    def test_filetags_name_with_timestamp_description(self):
+        self._assert(False, given={'timestamp': '2018-02-11',
                                    'description': 'foo'})
 
-    def test_filetags_name_with_datetime(self):
-        self._assert(False, given={'datetime': '2018-02-11'})
+    def test_filetags_name_with_timestamp(self):
+        self._assert(False, given={'timestamp': '2018-02-11'})
