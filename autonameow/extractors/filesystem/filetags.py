@@ -19,6 +19,50 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Extracts information from file names following the "filetags" naming
+convention.
+
+Based on the work and original ideas expressed by Karl Voit.
+Refer to his online resources for additional information:
+
+  PhD thesis:  http://karl-voit.at/tagstore/downloads/Voit2012b.pdf
+   Blog post:  http://karl-voit.at/managing-digital-photographs/
+      GitHub:  https://github.com/novoid/
+
+The original 'filetags' program is written by Karl Voit and is available
+on his GitHub page:  https://github.com/novoid/filetags
+This extractor is intended to extract information from files whose names
+follow the naming convention proposed by Karl:
+
+(<ISO date/time stamp>)? <descriptive file name> -- <list of tags separated by spaces>.<file extension>
+
+
+The following is the standard used within autonameow.
+A "filetags filename" is composed of the following parts:
+
+  timestamp   Either a date ("YYYY-mm-dd") or a date with time ("YYYY-mm-ddTHHMMSS")
+description   Descriptive file name
+       tags   List of tags separated by 'BETWEEN_TAG_SEPARATOR'.
+              A 'FILENAME_TAG_SEPARATOR' marks the start of tags.
+  extension   The "compound file extension" or "basename suffix".
+              E.G. the file name 'foo.tar.gz' extension is 'tar.gz',
+              not just the conventional(/proper) extension 'gz'.
+              A period following the tags marks the start of the extension.
+
+Example with filename '20160722 Descriptive name -- firsttag tagtwo.txt':
+
+                                .------------ FILENAME_TAG_SEPARATOR
+                              .||.        .-- BETWEEN_TAG_SEPARATOR
+                              ||||        |
+     20160722 Descriptive name -- firsttag tagtwo.txt
+     |______| |______________|    |_____________| |_|
+    timestamp   description            tags       extension
+
+File names that contain all 'timestamp', 'description' and 'tags' parts are
+considered to follow the filetags convention, with 'extension' being optional.
+"""
+
 import re
 from collections import namedtuple
 
@@ -129,28 +173,12 @@ def partition_basename(filepath):
     """
     Splits a basename into parts as per the "filetags" naming convention.
 
-    Does "filename partitioning" -- split the file name into four parts:
-
-    * timestamp     Date-/timestamp.
-    * description   Descriptive text.
-    * tags          List of tags created within the "filetags" workflow.
-    * extension     File extension (really the "compound suffix").
-
-    Example basename '20160722 Descriptive name -- firsttag tagtwo.txt':
-
-                                    .------------ FILENAME_TAG_SEPARATOR
-                                   ||         .-- BETWEEN_TAG_SEPARATOR
-                                   VV         V
-         20160722 Descriptive name -- firsttag tagtwo.txt
-         |______| |______________|    |_____________| |_|
-        timestamp   description            tags       ext
-
     Args:
         filepath: Path whose basename to split, as an "internal bytestring".
     Returns:
-        Any identified parts as a tuple of 4 elements (quad);
-            'timestamp', 'description', 'tags', 'extension', where 'tags' is a
-            list of Unicode strings, and the others are plain Unicode strings.
+        Any identified parts as a named tuple with 4 elements;
+        'timestamp', 'description', 'tags', 'extension', where 'tags' is a
+        list of Unicode strings, and the others are plain Unicode strings.
     """
     sanity.check_internal_bytestring(FILENAME_TAG_SEPARATOR)
 
@@ -203,20 +231,13 @@ def partition_basename(filepath):
 
 def follows_filetags_convention(filetags_parts):
     """
-    Check if given parts indicate that a filename is in "filetags format".
-
-                                 .------------ FILENAME_TAG_SEPARATOR
-                                ||         .-- BETWEEN_TAG_SEPARATOR
-                                VV         V
-      20160722 Descriptive name -- firsttag tagtwo.txt
-      |______| |______________|    |_____________| |_|
-      timestamp  description            tags       ext
+    Checks if the given parts constitute a proper "filetags" name.
 
     Filename parts 'timestamp', 'description' and 'tags' must be present.
 
     Returns:
-        True if the parts probably came from a file name in the "filetags"
-        format. Otherwise False.
+        Whether the name parts could make up a name following the "filetags"
+        naming convention, as a boolean.
     """
     return bool(
         filetags_parts.timestamp and filetags_parts.description
