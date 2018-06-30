@@ -37,6 +37,10 @@ from core.model.meowuri import MeowURIRoot
 
 
 class TestIsOneMeowURIPart(TestCase):
+    def tearDown(self):
+        # Call 'cache_clear()' added by the 'functools.lru_cache' decorator.
+        meowuri_list.cache_clear()
+
     def test_returns_true_given_valid_meowuri_parts(self):
         def _assert_meowuri_part(test_input):
             actual = is_one_meowuri_part(test_input)
@@ -55,7 +59,7 @@ class TestIsOneMeowURIPart(TestCase):
             self.assertIsInstance(actual, bool)
             self.assertFalse(actual)
 
-        for _bad_input in [None, b'', b'foo', 1, {}, [], object()]:
+        for _bad_input in [None, b'', b'foo', 1, object()]:
             _assert_not_meowuri_part(_bad_input)
 
         _assert_not_meowuri_part('')
@@ -74,6 +78,10 @@ class TestIsOneMeowURIPart(TestCase):
 
 
 class TestIsMeowURIParts(TestCase):
+    def tearDown(self):
+        # Call 'cache_clear()' added by the 'functools.lru_cache' decorator.
+        is_meowuri_parts.cache_clear()
+
     def _assert_meowuri_parts(self, given):
         actual = is_meowuri_parts(given)
         self.assertIsInstance(actual, bool)
@@ -98,7 +106,7 @@ class TestIsMeowURIParts(TestCase):
             self.assertIsInstance(actual, bool)
             self.assertFalse(actual)
 
-        for _bad_input in [None, b'', b'foo', 1, {}, [], object()]:
+        for _bad_input in [None, b'', b'foo', 1, object()]:
             _assert_not_meowuri_parts(_bad_input)
 
         _assert_not_meowuri_parts('')
@@ -689,6 +697,10 @@ class TestMeowURIMatchesEnd(TestCase):
 
 
 class TestMeowURIList(TestCase):
+    def tearDown(self):
+        # Call 'cache_clear()' added by the 'functools.lru_cache' decorator.
+        meowuri_list.cache_clear()
+
     def test_raises_exception_for_none_argument(self):
         with self.assertRaises(InvalidMeowURIError):
             self.assertIsNone(meowuri_list(None))
