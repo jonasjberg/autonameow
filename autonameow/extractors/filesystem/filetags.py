@@ -60,31 +60,22 @@ Example with filename '20160722 Descriptive name -- firsttag tagtwo.txt':
     timestamp   description            tags       extension
 
 File names that contain all 'timestamp', 'description' and 'tags' parts are
-considered to follow the filetags convention, with 'extension' being optional.
+considered to follow the filetags convention. The 'extension' is optional.
 """
 
 import re
 from collections import namedtuple
 
 from extractors.metadata.base import BaseMetadataExtractor
-from util import disk
-from util import encoding as enc
-from util import sanity
+from util import coercers
 
 
 # TODO: [TD0043] Fetch values from the active configuration.
-# BETWEEN_TAG_SEPARATOR = enc.bytestring_path(
-#     opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
-# )
-BETWEEN_TAG_SEPARATOR = enc.bytestring_path(' ')
-# FILENAME_TAG_SEPARATOR = enc.bytestring_path(
-#     opts.options['FILETAGS_OPTIONS'].get('filename_tag_separator')
-# )
-FILENAME_TAG_SEPARATOR = enc.bytestring_path(' -- ')
+BETWEEN_TAG_SEPARATOR = ' '
+FILENAME_TAG_SEPARATOR = ' -- '
 
 
-FiletagsParts = namedtuple('FiletagsParts',
-                           'timestamp description tags extension')
+FiletagsParts = namedtuple('FiletagsParts', 'timestamp description tags')
 
 
 class FiletagsExtractor(BaseMetadataExtractor):
@@ -95,11 +86,16 @@ class FiletagsExtractor(BaseMetadataExtractor):
         super().__init__()
 
     def extract(self, fileobject, **kwargs):
-        return self._get_metadata(fileobject.filename)
+        return self._get_metadata(fileobject)
 
-    def _get_metadata(self, file_basename):
-        metadata = self._partition_filename(file_basename)
+    def _get_metadata(self, fileobject):
+        prefix = coercers.force_string(fileobject.basename_prefix)
+        raw_metadata = self._get_raw_metadata(prefix)
 
+        suffix = coercers.force_string(fileobject.basename_suffix)
+        raw_metadata['extension'] = suffix
+
+        metadata = self._to_internal_format(raw_metadata)
         if 'tags' in metadata:
             # NOTE(jonas): Assume that consistent output by sorting outweigh
             #              users that would like to keep the order unchanged ..
@@ -107,27 +103,26 @@ class FiletagsExtractor(BaseMetadataExtractor):
 
         return metadata
 
-    def _partition_filename(self, filename):
-        parts = partition_basename(filename)
+    def _get_raw_metadata(self, basename_prefix):
+        parts = split_basename_prefix_into_filetags_parts(basename_prefix)
         follows_convention = follows_filetags_convention(parts)
 
-        parts_dict = dict(parts._asdict())
-        parts_dict['follows_filetags_convention'] = follows_convention
+        raw_metadata = dict(parts._asdict())
+        raw_metadata['follows_filetags_convention'] = follows_convention
 
         # TODO: [hack] The 'timestamp' can be either only a date or a date AND
         #       time.. For now just copy the same value to both places and let
         #       the coercion fail for one of them ..
-        parts_dict['date'] = parts_dict['timestamp']
-        parts_dict['datetime'] = parts_dict['timestamp']
-        result = self._to_internal_format(parts_dict)
-        return result
+        raw_metadata['date'] = raw_metadata['timestamp']
+        raw_metadata['datetime'] = raw_metadata['timestamp']
+        return raw_metadata
 
     def _to_internal_format(self, raw_metadata):
         coerced_metadata = dict()
 
         for field, value in raw_metadata.items():
             if value is None:
-                # Value of field "timestamp" is None if missing.
+                # Values of 'timestamp' and 'description' are None if missing.
                 continue
 
             coerced = self.coerce_field_value(field, value)
@@ -150,7 +145,7 @@ class FiletagsExtractor(BaseMetadataExtractor):
 # TODO: [TD0043] Allow further customizing of "filetags" options.
 
 
-RE_FILENAMEPART_ISODATE = re.compile(rb'''
+RE_FILENAMEPART_ISODATE = re.compile(r'''
 [12]\d{3}       # YYYY  year
 [:\-._ ]?       # separator
 [01]\d          # MM    months
@@ -169,64 +164,59 @@ RE_FILENAMEPART_ISODATE = re.compile(rb'''
 ''', re.VERBOSE)
 
 
-def partition_basename(filepath):
+def split_basename_prefix_into_filetags_parts(
+        basename_prefix,
+        sep_between_tags=BETWEEN_TAG_SEPARATOR,
+        sep_tags_start=FILENAME_TAG_SEPARATOR
+    ):
     """
-    Splits a basename into parts as per the "filetags" naming convention.
+    Splits a "basename prefix" into "filetags" parts.
 
     Args:
-        filepath: Path whose basename to split, as an "internal bytestring".
+        basename_prefix (str): Basename without any file extensions.
+        sep_between_tags (str): Separator between individual tags.
+        sep_tags_start (str): Separator between description and tags.
+
     Returns:
         Any identified parts as a named tuple with 4 elements;
-        'timestamp', 'description', 'tags', 'extension', where 'tags' is a
-        list of Unicode strings, and the others are plain Unicode strings.
+        'timestamp', 'description', 'tags', where 'tags' is a
+        list of Unicode strings, others plain Unicode strings.
     """
-    sanity.check_internal_bytestring(FILENAME_TAG_SEPARATOR)
+    assert isinstance(basename_prefix, str)
+    assert isinstance(sep_tags_start, str)
+    assert isinstance(sep_between_tags, str)
 
-    prefix, suffix = disk.split_basename(filepath)
-
-    timestamp = RE_FILENAMEPART_ISODATE.match(prefix)
+    timestamp = RE_FILENAMEPART_ISODATE.match(basename_prefix)
     if timestamp:
         timestamp = timestamp.group(0)
-        prefix = prefix.lstrip(timestamp)
+        basename_prefix = basename_prefix.lstrip(timestamp)
 
-    if not re.findall(FILENAME_TAG_SEPARATOR, prefix):
-        if prefix:
-            description = prefix.strip()
+    if not re.findall(sep_tags_start, basename_prefix):
+        if basename_prefix:
+            description = basename_prefix.strip()
         else:
             description = None
         tags = list()
     else:
-        # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
-        prefix_tags_list = re.split(FILENAME_TAG_SEPARATOR, prefix, 1)
+        # NOTE: Handle case with multiple "sep_between_tags" better?
+        prefix_tags_list = re.split(sep_tags_start, basename_prefix, 1)
         description = prefix_tags_list[0].strip()
         try:
-            tags = prefix_tags_list[1].split(BETWEEN_TAG_SEPARATOR)
+            tags = prefix_tags_list[1].split(sep_between_tags)
         except IndexError:
             tags = list()
         else:
             tags = [t.strip() for t in tags if t]
 
-    # Encoding boundary;  Internal filename bytestring --> internal Unicode str
-    def _decode_bytestring(bytestring_maybe):
-        if bytestring_maybe:
-            return enc.decode_(bytestring_maybe)
-        return ''
-
-    if timestamp:
+    if not timestamp:
         # Set timestamp to None instead of empty string here so that it can be
         # detected and skipped when converting values to the "internal format".
         # Coercing None with 'AW_TIMEDATE' raises a 'AWTypeError' exception,
         # which would happen for every file that do not have a "timestamp"
         # filetags part.
-        timestamp = _decode_bytestring(timestamp)
-    else:
         timestamp = None
 
-    description = _decode_bytestring(description)
-    tags = [_decode_bytestring(t) for t in tags]
-    suffix = _decode_bytestring(suffix)
-
-    return FiletagsParts(timestamp, description, tags, suffix)
+    return FiletagsParts(timestamp, description, tags)
 
 
 def follows_filetags_convention(filetags_parts):
