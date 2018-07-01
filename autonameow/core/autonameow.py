@@ -65,19 +65,17 @@ class Autonameow(object):
         self.start_time = time.time()
 
         self.config = None
-        self.renamer = None
         self.postprocessor = None
-
-        self._exit_code = C.EXIT_SUCCESS
-
-    def __enter__(self):
-        self._dispatch_event_on_startup()
 
         self.renamer = FileRenamer(
             dry_run=self.opts.get('dry_run'),
             timid=self.opts.get('mode_timid')
         )
 
+        self._exit_code = C.EXIT_SUCCESS
+
+    def __enter__(self):
+        self._dispatch_event_on_startup()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
