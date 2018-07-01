@@ -1,14 +1,3 @@
-AKPeters:
-- AKPeters
-- AK Peters
-- A K Peters
-AZElitePub:
-- AZ Elite
-- AZ Elite Pub
-- AZ Elite Pub.
-- AZ Elite Publ
-- AZ Elite Publ.
-- AZ Elite Publishing
 AcademicPress:
 - AcademicPress
 - Academic Press
@@ -44,10 +33,20 @@ AddisonWesley:
 - Addison-Wesley Publishing Co.
 - Addison-Wesley Publishing Company
 - Addison-Wesley
+AKPeters:
+- AKPeters
+- AK Peters
+- A K Peters
+- A K Peters Ltd
 Apress:
 - Apress
+- Apress L.P
 - apress
+- Appress  # bad entry
+- https://www.apress.com
+- http://www.apress.com
 - www.apress.com
+- apress.com
 ArtechHouse:
 - ArtechHouse
 - Artech House
@@ -57,6 +56,18 @@ AthenaScientific:
 AtlantisPress:
 - Atlantis Press
 - AtlantisPress
+- 'Imprint: Atlantis Press'
+Auerbach:
+- Auerbach
+- Auerbach Publications
+- Auerbach [u.a.]
+AZElitePub:
+- AZ Elite
+- AZ Elite Pub
+- AZ Elite Pub.
+- AZ Elite Publ
+- AZ Elite Publ.
+- AZ Elite Publishing
 BackupBrain:
 - backupbrain
 - backupbrain pub
@@ -71,6 +82,10 @@ BackupBrain:
 - backup brain publ.
 - backup brain publishing
 Barrons:
+- Barrons
+- Barrons Test Prep
+- "Barron\u2019s Test Prep"
+- Barron's Test Prep
 - Barron's Educational Series Inc
 - Barron's Educational Series Inc.
 - Barron's Educational Series
@@ -81,6 +96,9 @@ Barrons:
 - "Barron\u2019s Educational Series"
 - "Barron\u2019s Educational Series, Inc"
 - "Barron\u2019s Educational Series, Inc."
+BenBella:
+- BenBella
+- BenBella Books
 BigNerdRanch:
 - Big Nerd Ranch Inc.
 - Big Nerd Ranch Incorporated
@@ -88,7 +106,15 @@ BigNerdRanch:
 - Big Nerd Ranch, Inc.
 - Big Nerd Ranch, Incorporated
 - BigNerdRanch
+- https://www.bignerdranch.com
+- http://www.bignerdranch.com
 - www.bignerdranch.com
+- bignerdranch.com
+Birkhauser:
+- Birkhauser
+- Birkhäuser
+- Birkhauser Boston
+- Birkhäuser Boston
 BleedingEdgePress:
 - BleedingEdgePress
 - Bleeding Edge Press
@@ -102,62 +128,138 @@ BookBoon:
 - Bookboon.com Ltd
 - Bookboon.com Ltd.
 - Bookboon.com Limited
+- https://www.bookboon.com
+- http://www.bookboon.com
+- www.bookboon.com
+- bookboon.com
+CaliforniaUP:
+- CaliforniaUP
+- University Of California Pr.
+- University Of California Pr
+- University of California Press
+- University of California Press
+- U of California Press
 CRCPress:
 - Chapman & Hall/CRC
 - Chapman and Hall/CRC
 - Chapman & Hall/CRC Press
 - Chapman and Hall/CRCPress
+- CRC
 - CRCPress
 - CRC Press
+- CRC Press/Taylor & Francis
+- CRC Press/Taylor and Francis
+- https://www.crcpress.com
+- http://www.crcpress.com
 - www.crcpress.com
+- crcpress.com
 CambridgeUP:
 - CambridgeUP
+- Cambridge Uni Pr
+- Cambridge Uni Pr.
+- Cambridge Uni Press
+- Cambridge Uni. Pr
+- Cambridge Uni. Pr.
+- Cambridge Uni. Press
+- Cambridge Univ Pr
+- Cambridge Univ Pr.
+- Cambridge Univ Press
+- Cambridge Univ. Pr
+- Cambridge Univ. Pr.
+- Cambridge Univ. Press
 - Cambridge University Press
+- U of Cambridge Press
+- University of Cambridge Press
 Cengage:
 - Brooks/Cole Cengage Learning
 - Brooks/Cole Cengage
 - Brooks/Cole, Cengage Learning
 - Cengage Learning
+- Cengage Learning Ptr
 - Cengage
+- Charles River Media Course Technology
+- Charles River Media, Course Technology
+- Charles River Media/Cengage Technology
+- Course Technology
+- Course Technology Cengage Learning
 - Course Technology PTR
 - Course Technology U.S.
-- Course Technology
+- Course Technology/Cengage learning
 - Course Technology/Cengage Learning
 - CourseTechnology
+- Thomson Learning  # Prior to 2007
+- Thomson Course Technology
+- Thomson/Course Technology
+- Thomson Delmar Learning
+- Thomson Foobar Learning
 ChelseaHouse:
 - Chelsea House
 - ChelseaHouse
+CherryLake:
+- Cherry Lake
+- Cherry Lake Pub
+- Cherry Lake Pub.
+- Cherry Lake Publishing
+- https://www.cherrylakepublishing.com
+- http://www.cherrylakepublishing.com
+- www.cherrylakepublishing.com
+- cherrylakepublishing.com
+Cisco:
+- Cisco
+- Cisco Press
 ClydeBank:
 - ClydeBank
 - ClydeBank Media
 - ClydeBank Media LLC
 - ClydeBank Technology
+- https://www.clydebankmedia.com
+- http://www.clydebankmedia.com
 - www.clydebankmedia.com
+- clydebankmedia.com
 CodeWellAcademy:
 - CodeWellAcademy
 - Code Well Academy
 CreateSpace:
 - Createspace
 - CreateSpace
+- Createspace Independent Publishing
+- CreateSpace Independent Publishing
 - Createspace Independent Publishing Platform
+- CreateSpace Independent Publishing Platform
 CyberPunkUni:
 - Cyberpunk University
 - CyberPunkUni
 - University, Cyberpunk
+CyberTechPub:
+- CyberTechPub
+- CyberTech Pub
+- CyberTech Pub.
+- CyberTech Publishing
+DelacortePress:
+- DelacortePress
+- Delacorte Press
 DennisPub:
 - Dennis Pub.
 - DennisPub
 Elsevier:
-- Elsevier/Morgan Kaufmann
-- Elsevier Science
 - Elsevier
+- Elsevier Morgan Kaufmann
+- Elsevier Newnes
+- Elsevier Science
+- Elsevier/ AP
+  #- Elsevier/ Newnes
+- Elsevier/AP
+- Elsevier/Morgan Kaufmann
+- Elsevier/Newnes
 ExelixisMedia:
 - Exelixis Media P.C.
 FeedBooks:
 - FeedBooks
 - This book is brought to you by Feedbooks
+- https://www.feedbooks.com
 - http://www.feedbooks.com
 - www.feedbooks.com
+- feedbooks.com
 FranklinBeedle:
 - Franklin, Beedle & Associates
 - Franklin, Beedle and Associates
@@ -171,6 +273,9 @@ FranklinBeedle:
 - Franklin, Beedle & Associates Incorporated
 - Franklin, Beedle and Associates Incorporated
 - Franklin, Beedle, and Associates Incorporated
+Greenwood:
+- Greenwood
+- Greenwood Press
 GrinPub:
 - GrinPub
 - GRIN Publishing
@@ -179,6 +284,13 @@ GrinPub:
 - GRIN Verlag Open Publishing
 - GRIN Verlag, Open Publishing GmbH
 - GRIN Verlag, Open Publishing
+HarperBusiness:
+- HarperBusiness
+- Harper Business
+- https://www.harperbusiness.com
+- http://www.harperbusiness.com
+- www.harperbusiness.com
+- harperbusiness.com
 HeatonResearch:
 - HeatonResearch
 - Heaton Research
@@ -207,26 +319,71 @@ IABooks:
 - IABooks
 - Indo American Books
 - sales@iabooks.com
+- https://www.iabooks.com
+- http://www.iabooks.com
 - www.iabooks.com
+- iabooks.com
 IBMITSO:
 - IBMITSO
 - IBM International Technical Support Organization
 - IBM Red Books
 - IBM Redbooks
 - International Technical Support Organization
-IGIGlobal:
-- IGIGlobal
-- IGI Global
 ITAcademy:
 - ITAcademy
 - IT Academy
 IdeaGroup:
 - IdeaGroup
+- Idea
 - Idea Group
 - Idea group
+- Idea Group Pub
+- Idea Group Pub.
+IDG:
+- IDG
+- IDG Books
+- IDG Books Wordwide
+- IDG Books Wordwide Inc
+- IDG Books Wordwide Inc.
+- IDG Books Wordwide Incorporated
+- IDG Books Wordwide, Inc
+- IDG Books Wordwide, Inc.
+- IDG Books Wordwide, Incorporated
+- https://www.idgbooks.com
+- http://www.idgbooks.com
+- www.idgbooks.com
+- idgbooks.com
+IGIGlobal:
+- IGI Global
+- IGI Pub
+- IGI Pub.
+- IGI Publishing
+- https://www.igi-pub.com
+- http://www.igi-pub.com
+- www.igi-pub.com
+- igi-pub.com
+- IGIGlobal
+- IGIPub
+- IGIPub.
+- IGIPublishing
+- https://www.igi-global.com
+- http://www.igi-global.com
+- www.igi-global.com
+- igi-global.com
 ImperialCollegePress:
 - ImperialCollegePress
+- Imperial College Pr
+- Imperial College Pr.
 - Imperial College Press
+IndustrialPress:
+- IndustrialPress
+- Industrial Press
+- Industrial Pr.
+InfinityScience:
+- InfinityScience
+- Infinity Science Pr
+- Infinity Science Pr.
+- Infinity Science Press
 JohnsHopkinsUP:
 - JohnsHopkinsUP
 - Johns Hopkins University Press Ltd
@@ -245,13 +402,23 @@ JohnsHopkinsUP:
 - The Johns Hopkins University Press Limited, London
 - The Johns Hopkins University Press
 JonesBartlett:
+- JonesBartlett
 - Jones and Bartlett Publishers
 - Jones and Bartlett
-- JonesBartlett
+- https://www.jbpub.com
+- http://www.jbpub.com
 - www.jbpub.com
+- jbpub.com
+Kluwer:
+- Kluwer
+- Kluwer Academic Publishers
+- Kluwer Academic Pub
+- Kluwer Academic Pub.
+- Kluwer Academic Publ
+- Kluwer Academic Publ.
 LCFPub:
-- LCF Publishing
 - LCFPub
+- LCF Publishing
 - LCFPublishing
 - Learn Coding Fast
 - Publishing LCF
@@ -259,6 +426,10 @@ LCFPub:
 Leanpub:
 - Leanpub
 - leanpub
+LinuxJournalPress:
+- Linux Journal Pr
+- Linux Journal Pr.
+- Linux Journal Press
 LondonPub:
 - LondonPub
 - London Publishing Partnership
@@ -266,15 +437,26 @@ LuLu:
 - Lulu
 - '[Lulu Press], lulu.com'
 - Lulu Press
+- https://www.lulu.com
+- http://www.lulu.com
+- www.lulu.com
 - lulu.com
 - Lulu.com
 MITPress:
-- MIT Press
 - MITPress
-- mitpress.mit.edu
+- MIT Pr
+- MIT Pr.
+- MIT Press
+- M I T Pr
+- M I T Pr.
 - M I T Press
+- https://www.mitpress.mit.edu
+- http://www.mitpress.mit.edu
+- www.mitpress.mit.edu
+- mitpress.mit.edu
 MakerMedia:
 - MakerMedia
+- Maker Media
 - Maker Media Inc
 - Maker Media Inc.
 - Maker Media Incorporated
@@ -297,33 +479,39 @@ McGrawHill:
 - McGraw
 - McGrawHill
 - McGraw Hill
-- McGraw Hill Education TAB
 - McGraw Hill Education
+- McGraw Hill Education TAB
 - McGraw Hill Irwin
 - McGraw Hill Osborne
 - McGraw Hill Professional
+- McGraw Hill Professional
 - McGraw Hill/Irwin
 - McGraw Hill/Osborne
-- McGraw-Hill Education TAB
-- McGraw-Hill Education
-- McGraw-Hill Irwin
-- McGraw-Hill Osborne
 - McGraw-Hill
 - Mcgraw-Hill
+- McGraw-Hill Education
+- McGraw-Hill Education TAB
+- McGraw-Hill Irwin
+- McGraw-Hill Osborne
 - McGraw-Hill/Irwin
 - McGraw-Hill/Osborne
-- McGrawHill Education TAB
+- McGraw-Hill/Osborne
 - McGrawHill Education
+- McGrawHill Education TAB
 - McGrawHill Irwin
 - McGrawHill Osborne
 - McGrawHill/Irwin
 - McGrawHill/Osborne
+- Mc Graw Hill
+- Osborne
+- Osborne McGraw-Hill
 - The McGraw Hill Companies
 - The McGraw-Hill Companies
 MicrosoftPress:
-- Microsoft Press
 - MicrosoftPress
 - Microsoft Pr
+- Microsoft Pr.
+- Microsoft Press
 MorganClaypool:
 - Morgan & Claypool Publishers
 - Morgan and Claypool Publishers
@@ -333,13 +521,22 @@ MorganKaufmann:
 - MorganKaufmann
 Murachs:
 - Murachs
+NebraskaUP:
+- Nebraska University Pr.
+- Nebraska University Press
+- University of Nebraska Press
+- U of Nebraska Press
 NewAgeInt:
 - NewAgeInt
 - New Age International
 NewEnglishReview:
+- NewEnglishReview
+- New English Review Pr.
 - New English Review Press
 - World Encounter Institute
 - World Encounter Institute/New English Review Press
+Newnes:
+- Newnes
 NewRiders:
 - NewRiders
 - New Riders
@@ -355,65 +552,91 @@ NoStarchPress:
 - NoStarchPress
 - NoStarchPress, Inc.
 - NoStarchPress, Incorporated
+- https://www.nostarch.com
+- http://www.nostarch.com
 - www.nostarch.com
+- nostarch.com
+ObjectSource:
+- ObjectSource
+- ObjectSource LLC
 OReilly:
-- O'Reilly & Associates
-- O'Reilly and Associates
-- O'Reilly Media Inc
-- O'Reilly Media Inc.
-- O'Reilly Media
-- O'Reilly Media, Inc
-- O'Reilly Media, Inc.
-- O'Reilly
-- OReilly Media Inc
-- OReilly Media Inc.
-- OReilly Media, Inc
-- OReilly Media, Inc.
 - "O\u2019Reilly Media Inc"
 - "O\u2019Reilly Media Inc."
 - "O\u2019Reilly Media Incorporated"
 - "O\u2019Reilly Media, Inc"
 - "O\u2019Reilly Media, Inc."
 - "O\u2019Reilly Media, Incorporated"
+- O'Reilly
+- O'Reilly
+- O'Reilly & Associates
+- O'Reilly and Associates
+- O'Reilly Media
+- O'Reilly Media
+- O'Reilly Media Inc
+- O'Reilly Media Inc.
+- O'Reilly Media, Inc
+- O'Reilly Media, Inc, USA
+- O'Reilly Media, Inc.
+- OReilly
+- oreilly
+- Oreilly
+- Oreilly & Associates
 - Oreilly & Associates Inc
 - Oreilly & Associates Incorporated
-- Oreilly & Associates
 - Oreilly & Associates, Inc
 - Oreilly & Associates, Incorporated
+- Oreilly and Associates
 - Oreilly and Associates Inc
 - Oreilly and Associates Inc.
 - Oreilly and Associates Incorporated
-- Oreilly and Associates
 - Oreilly and Associates, Inc
 - Oreilly and Associates, Inc.
 - Oreilly and Associates, Incorporated
-- OReilly
-- oreilly
+- OReilly Media Inc
+- OReilly Media Inc.
+- OReilly Media, Inc
+- OReilly Media, Inc.
 OhmBooks:
 - OhmBooks
 - Ohm Books
 OxfordUP:
 - OxfordUP
+- Oxford Univ Pr
+- Oxford Univ Pr.
+- Oxford Univ. Pr
+- Oxford Univ. Pr.
+- Oxford Univ. Press
+- Oxford University Pr
+- Oxford University Pr.
 - Oxford University Press
+- U of Oxford Press
+- University of Oxford Press
 Packt:
+- Packt
+- PACKT pub.
+- Packt Pub.
 - Packt Pub. Limited
 - Packt Pub. Ltd
 - Packt Pub. Ltd.
-- Packt Pub.
+- Packt Publ.
 - Packt Publ. Limited
 - Packt Publ. Ltd
 - Packt Publ. Ltd.
-- Packt Publ.
+- Packt Publishing
 - Packt Publishing Limited
 - Packt Publishing Ltd
 - Packt Publishing Ltd.
-- Packt Publishing
-- Packt
 - Published by Packt Publishing Ltd.
+- https://www.packtpub.com
+- http://www.packtpub.com
 - www.packtpub.com
+- packtpub.com
 PeachpitPress:
 - PeachpitPress
 - Peachpit Press
+- https://www.peachpit.com
+- http://www.peachpit.com
+- www.peachpit.com
 - peachpit.com
 Pearson:
 - Pearson Education Inc
@@ -426,6 +649,10 @@ Pearson:
 - Pearson
 - Pearson/AddisonWesley
 - Pearson/PrenticeHall
+- https://www.pearson.com
+- http://www.pearson.com
+- www.pearson.com
+- pearson.com
 PeepPress:
 - PeepPress
 - Peep Press
@@ -433,6 +660,12 @@ PeepPress:
 PenguinRandomHouse:
 - Penguin Random House
 - Penguin Random House India
+Polgrove:
+- Palgrave
+- Palgrave Macmillan
+- Palgrave Pivot
+- Palgrave/Macmillan
+- Palgrave/Pivot
 PragmaticBookshelf:
 - Pragmatic Bookshelf
 - PragmaticBookshelf
@@ -440,18 +673,34 @@ PragmaticBookshelf:
 - The Pragmatic Programmers LLC
 - The Pragmatic Programmers
 - The Pragmatic Programmers, LLC.
+- https://www.pragprog.com
+- http://www.pragprog.com
+- www.pragprog.com
+- pragprog.com
+PremierPress:
+- PremierPress
+- Premier Press
 PrenticeHall:
 - Prentice Hall
 - PrenticeHall
 - PRENTICE HALL
 - Prentice Hall PTR
+- https://www.prenticehall.com
+- http://www.prenticehall.com
+- www.prenticehall.com
+- prenticehall.com
 PrincetonUP:
 - PrincetonUP
 - Princeton University Press
+- U of Princeton Press
+- University of Princeton Press
 ProjectGutenberg:
 - ProjectGutenberg
 - Project Gutenberg
+- https://www.gutenberg.net
+- http://www.gutenberg.net
 - www.gutenberg.net
+- gutenberg.net
 PublishOrPerish:
 - Publish or Perish Inc
 - Publish or Perish inc
@@ -462,69 +711,119 @@ PublishOrPerish:
 - Publish or Perish, Inc.
 - Publish or Perish, inc.
 - Publish or Perish, Incorporated
+QuePub:
+- Que
+- Que Pub
+- Que Pub.
+- Que Publishing
 RecursiveBooks:
 - RecursiveBooks
 - Recursive Books
 Routledge:
+- Ashgate  # Part of Routledge since 2016
 - Routledge Publishing
 - Routledge Taylor & Francis Group
 - Routledge Taylor and Francis Group
 - Routledge
 Sams:
 - Sams
+- Sams Pub
+- Sams Pub.
+- Sams Publ
+- Sams Publ.
 - Sams Publishing
+- http://www.samspublishing.com
+- https://www.samspublishing.com
+- www.samspublishing.com
 - samspublishing.com
 SimpleProgrammer:
 - SimpleProgrammer
 - Simple Programmer
 SitePoint:
 - SitePoint
+- Sitepoint
 - SitePoint Ltd
 - SitePoint Ltd.
+- SitePoint Proprietary Limited
+- SitePoint Proprietary Ltd
+- SitePoint Proprietary Ltd.
+- Sitepoint Pty Limited
 - SitePoint Pty Ltd
 - SitePoint Pty. Ltd.
-- SitePoint Proprietary Ltd.
-- SitePoint Proprietary Ltd
-- SitePoint Proprietary Limited
 SkriptKuhnel:
-- SkriptKuhnel
-- "Skript-Verl. K\xFChnel"
 - "Skript-Verl K\xFChnel"
+- "Skript-Verl. K\xFChnel"
 - "Skript-Verlag K\xFChnel"
-- Skript-Verl. Kuhnel
 - Skript-Verl Kuhnel
+- Skript-Verl. Kuhnel
+- Skript-Verl. Kühnel
 - Skript-Verlag Kuhnel
+- SkriptKuhnel
 Springer:
-- Springer
-- Imprint Springer
 - 'Imprint: Springer'
+- Imprint Springer
+- Springer
+- springer
 - Springer Berlin
+- Springer Berlin Heidelberg
+- Springer International Publishing
 - Springer London
+- Springer London Limited
+- Springer London Ltd
+- Springer London Ltd.
 - Springer New York
+- Springer New York Limited
+- Springer New York Ltd
+- Springer New York Ltd.
+- Springer Pub. Co.
+- Springer Science + Business Media, Inc.
+- Springer Science+Business Media B.V.
+- Springer Science+Business Media Inc
+- Springer Science+Business Media Inc.
+- Springer Science+Business Media Incorporated
+- Springer Science+Business Media, Inc
+- Springer Science+Business Media, Inc.
+- Springer US
+- Springer Verlag
 - SPRINGER VERLAG (NY/NJ)
 - Springer Verlag New York Inc
 - Springer Verlag New York Inc.
 - Springer Verlag New York Incorporated
-- Springer Verlag
-- springer
+- Springer Vienna
+- Springer-Verlag
+- Springer-Verlag Berlin Heidelberg
 - Springer-Verlag New York Inc
 - Springer-Verlag New York Inc.
 - Springer-Verlag New York Incorporated
-- Springer-Verlag
+- Springer-Verlag US
 StanfordUP:
 - StanfordUP
 - Stanford University Press
+- U of Stanford Press
+- University of Stanford Press
+Sybex:
+- Sybex
+- SYBEX
+- Sybex Inc
+- Sybex Inc.
+- Sybex Incorporated
 Syngress:
+- Syngress
+- syngress
+- Syngress
 - Syngress Media
 - Syngress Media Inc
 - Syngress Media Inc.
 - Syngress Media Incorporated
+- SYNGRESS MEDIA INC (MA)
 - Syngress Pub
 - Syngress Pub.
+- Syngress Publ.
 - Syngress Publishing
-- Syngress
-- syngress
+- https://www.syngress.com
+- http://www.syngress.com
 - www.syngress.com
+- syngress.com
 TaylorFrancis:
 - Taylor & Francis
 - Taylor and Francis
@@ -559,9 +858,15 @@ Wiley:
 - Wiley-Blackwell
 - Wiley/Blackwell
 - J. Wiley
+- J. Wiley & Sons
+- J. Wiley and Sons
+- John Wiley & Sons
+- John Wiley & Sons (Asia)
+- John Wiley & Sons (Australia)
+- John Wiley & Sons Asia
+- John Wiley & Sons Australia
 - John Wiley & Sons Inc
 - John Wiley & Sons Incorporated
-- John Wiley & Sons
 - John Wiley & Sons, Inc.
 - John Wiley & Sons, Incorporated
 - John Wiley and Sons Inc
@@ -593,11 +898,15 @@ WorldScientific:
 - World Scientific
 Wrox:
 - Wrox
-- Wrox/John Wiley & Sons
-- www.wrox.com
 - Wrox Pr Inc
+- Wrox Pr Inc.
 - Wrox Pr. Inc
 - Wrox Pr. Inc.
+- Wrox Press
 - Wrox Press Inc
 - Wrox Press Inc.
-- Wrox Press
+- Wrox/John Wiley & Sons
+- https://www.wrox.com
+- http://www.wrox.com
+- www.wrox.com
+- wrox.com

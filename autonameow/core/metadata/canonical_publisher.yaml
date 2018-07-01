@@ -7,12 +7,14 @@ AddisonWesley:
     - addison.wesley prof.?essional
     - addison.wesley
 AKPeters:
-    match_any_literal:
-    - AK Peters
-    - A K Peters
+    match_any_regex:
+    - A ?K Peters
 Apress:
+    match_any_regex:
+    - Apress
+    - (www\.)?apress\.com
     match_any_literal:
-    - www.apress.com
+    - Appress
 ArtechHouse:
     match_any_literal:
     - Artech House
@@ -20,8 +22,11 @@ AthenaScientific:
     match_any_literal:
     - Athena Scientific
 AtlantisPress:
-    match_any_literal:
-    - Atlantis Press
+    match_any_regex:
+    - Atlantis Pr(.?|ess)
+Auerbach:
+    match_any_regex:
+    - Auerbach
 AZElitePub:
     match_any_literal:
     - AZ Elite
@@ -32,37 +37,54 @@ BackupBrain:
     - Backup ?Brain
 Barrons:
     match_any_regex:
-    - Barron.s Educational
+    - Barron.?s (Educational|Test Prep)
+BenBella:
+    match_any_regex:
+    - BenBella
+Birkhauser:
+    match_any_regex:
+    - Birkh.user
 BonsaiReads:
     match_any_regex:
     - Bonsai Reads
 BigNerdRanch:
     match_any_regex:
     - Big Nerd Ranch,?( Inc\.?|Incorporated)
+    - (www\.)?bignerdranch\.com
     match_any_literal:
     - Big Nerd Ranch
-    - www.bignerdranch.com
 BleedingEdgePress:
     match_any_regex:
-    - Bleeding Edge Press
+    - Bleeding Edge Pr(.?|ess)
 BookBoon:
     match_any_regex:
     - bookboon
+CaliforniaUP:
+    match_any_regex:
+    - U(niversity)? of California Pr(\.?|ess)
 CambridgeUP:
-    match_any_literal:
-    - Cambridge University Press
+    match_any_regex:
+    - Cambridge Uni
+    - U(niversity)? of Cambridge Pr(.?|ess)
 Cengage:
     match_any_regex:
     - Cengage
     - Course.?Technology
+    - Thomson (\w+ )?Learning
 ChelseaHouse:
     match_any_literal:
     - Chelsea House
+CherryLake:
+    match_any_regex:
+    - Cherry Lake
+    - (www\.)?cherrylakepublishing\.com
+Cisco:
+    match_any_regex:
+    - Cisco
 ClydeBank:
     match_any_regex:
     - ClydeBank
-    match_any_literal:
-    - www.clydebankmedia.com
+    - (www\.)?clydebankmedia\.com
 CodeWellAcademy:
     match_any_regex:
     - Code Well Academy
@@ -70,37 +92,52 @@ CreateSpace:
     match_any_regex:
     - Createspace
 CRCPress:
-    match_any_regex:
-    - Chapman (&|and) Hall
     match_any_literal:
-    - CRC Press
-    - www.crcpress.com
+    - CRC
+    match_any_regex:
+    - CRC Pr(.?|ess)
+    - Chapman (&|and) Hall
+    - (www\.)?crcpress\.com
 CyberPunkUni:
     match_any_literal:
     - Cyberpunk University
     - University, Cyberpunk
+CyberTechPub:
+    match_any_regex:
+    - CyberTech Pub
+DelacortePress:
+    match_any_regex:
+    - Delacorte Pr(.?|ess)
 DennisPub:
     match_any_literal:
     - Dennis Pub.
 Elsevier:
+    match_any_regex:
+    - Elsevier.(.?AP|Morgan Kaufmann|Newnes)
     match_any_literal:
-    - Elsevier/Morgan Kaufmann
     - Elsevier Science
 ExelixisMedia:
     match_any_literal:
     - Exelixis Media P.C.
 FeedBooks:
     match_any_regex:
-    - www\.feedbooks\.com
+    - (www\.)?feedbooks\.com
     match_any_literal:
     - This book is brought to you by Feedbooks
 FranklinBeedle:
     match_any_regex:
     - Franklin,? Beedle,? (&|and) Associates
+Greenwood:
+    match_any_regex:
+    - Greenwood
 GrinPub:
     match_any_regex:
     - GRIN Publishing
     - GRIN Verlag
+HarperBusiness:
+    match_any_regex:
+    - Harper Business
+    - (www\.)?harperbusiness\.com
 HodderStoughton:
     match_any_regex:
     - Hodder (&|and) Stoughton
@@ -114,11 +151,16 @@ HunanCartographic:
     match_any_regex:
     - Hunan Cartographic
 IABooks:
+    match_any_regex:
+    - (www\.)?iabooks\.com
     match_any_literal:
     - Indo American Books
     - IA Books
     - sales@iabooks.com
-    - www.iabooks.com
+IDG:
+    match_any_regex:
+    - IDG Books
+    - (www\.)?idgbooks\.com
 IBMITSO:
     match_any_regex:
     - IBM Red ?books
@@ -126,12 +168,23 @@ IBMITSO:
 IdeaGroup:
     match_any_regex:
     - Idea group
+    match_any_literal:
+    - Idea
 IGIGlobal:
-    match_any_literal:
-    - IGI Global
+    match_any_regex:
+    - IGI ?Pub
+    - IGI ?Global
+    - (www\.)?igi-global\.com
+    - (www\.)?igi-pub\.com
 ImperialCollegePress:
-    match_any_literal:
-    - Imperial College Press
+    match_any_regex:
+    - Imperial College Pr(.?|ess)
+IndustrialPress:
+    match_any_regex:
+    - Industrial Pr(.|ess)
+InfinityScience:
+    match_any_regex:
+    - Infinity Science
 ITAcademy:
     match_any_literal:
     - IT Academy
@@ -139,10 +192,14 @@ JohnsHopkinsUP:
     match_any_regex:
     - 'Johns Hopkins Uni'
 JonesBartlett:
+    match_any_regex:
+    - (www\.)?jbpub\.com
     match_any_literal:
     - Jones and Bartlett Publishers
     - Jones and Bartlett
-    - www.jbpub.com
+Kluwer:
+    match_any_regex:
+    - Kluwer
 LCFPub:
     match_any_regex:
     - LCF.?.?Publishing
@@ -152,16 +209,21 @@ LCFPub:
 Leanpub:
     match_any_literal:
     - LeanPub
+LinuxJournalPress:
+    match_any_regex:
+    - Linux Journal Pr(.?|ess)
 LondonPub:
     match_any_literal:
     - London Publishing Partnership
 LuLu:
-    match_any_literal:
-    - lulu.com
-    - Lulu.com
     match_any_regex:
-    - Lulu Press
+    - (www\.)?lulu\.com
+    - Lulu Pr(.?|ess)
     - '.?Lulu Press.?, lulu.com'
+NebraskaUP:
+    match_any_regex:
+    - Nebraska Uni(\.?|versity)
+    - U(niversity)? of Nebraska Pr(.?|ess)
 MakerMedia:
     match_any_regex:
     - Maker Media
@@ -171,17 +233,19 @@ Manning:
 McGrawHill:
     match_any_literal:
     - McGraw
+    - Mc Graw Hill
+    - Osborne
     match_any_regex:
     - McGraw.?Hill
 MicrosoftPress:
     match_any_literal:
-    - Microsoft Press
-    - Microsoft Pr
+    - Microsoft
+    match_any_regex:
+    - Microsoft (Pr.?|ess)
 MITPress:
-    match_any_literal:
-    - M I T Press
-    - MIT Press
-    - mitpress.mit.edu
+    match_any_regex:
+    - M ?I ?T Pr(.?|ess)
+    - (www\.)?mitpress\.mit\.edu
 MorganClaypool:
     match_any_literal:
     - Morgan and Claypool Publishers
@@ -198,19 +262,25 @@ NewAgeInt:
     - New Age International
 NewEnglishReview:
     match_any_regex:
-    - New English Review Press
+    - New English Review Pr(.?|ess)
     - World Encounter Institute
+Newnes:
+    match_any_regex:
+    - Newnes
 NewRiders:
     match_any_literal:
     - New Riders
 NoStarchPress:
     match_any_regex:
     - No ?Starch ?Press,?( Inc\.?| Incorporated)
+    - (www\.)?nostarch\.com
     match_any_literal:
     - No Starch
     - No Starch Press
     - NoStarchPress Inc.
-    - www.nostarch.com
+ObjectSource:
+    match_any_regex:
+    - ObjectSource
 OhmBooks:
     match_any_regex:
     - Ohm Books
@@ -220,76 +290,74 @@ OReilly:
     - "O.?Reilly Media,?"
     match_any_literal:
     - "O'Reilly"
-    - "O\u2019Reilly Media, Inc."
-    - "O'Reilly & Associates"
-    - Oreilly & Associates Inc
-    - Oreilly & Associates
 OxfordUP:
-    match_any_literal:
-    - Oxford University Press
+    match_any_regex:
+    - Oxford Uni(\.?|versity)
+    - U(niversity)? of Oxford Pr(.?|ess)
 Packt:
     match_any_regex:
     - Packt Publ?\.?(ishing)? ?(Limited|Ltd)?
-    match_any_literal:
-    - Packt Publishing Limited
-    - Packt Publishing
-    - Packt Publ.
-    - Packt Pub.
-    - Published by Packt Publishing Ltd.
-    - www.packtpub.com
+    - (www\.)?packtpub\.com
 PeachpitPress:
-    match_any_literal:
-    - Peachpit Press
-    - peachpit.com
+    match_any_regex:
+    - Peachpit Pr(.?|ess)
+    - (www\.)?peachpit\.com
 Pearson:
     match_any_literal:
     - Pearson/PrenticeHall
     - Pearson/AddisonWesley
     match_any_regex:
     - Pearson Education
+    - (www\.)?pearson\.com
 PeepPress:
     match_any_regex:
-    - Peep.? Press
+    - Peep.? Pr(.?|ess)
 PenguinRandomHouse:
     match_any_regex:
     - Penguin Random House
+Polgrove:
+    match_any_regex:
+    - Palgrave
 PragmaticBookshelf:
-    match_any_literal:
-    - The Pragmatic Bookshelf
-    - The Pragmatic Programmers
     match_any_regex:
     - Pragmatic Bookshelf
-    - The Pragmatic Programmers,? LLC\.?
+    - The Pragmatic Programmers
+    - (www\.)?pragprog\.com
+PremierPress:
+    match_any_regex:
+    - Premier Pr(.?|ess)
 PrenticeHall:
-    match_any_literal:
+    match_any_regex:
     - Prentice Hall
-    - PRENTICE HALL
-    - Prentice Hall PTR
+    - (www\.)?prenticehall\.com
 PrincetonUP:
-    match_any_literal:
-    - Princeton University Press
+    match_any_regex:
+    - Princeton University Pr(.?|ess)
+    - U(niversity)? of Princeton Pr(.?|ess)
 ProjectGutenberg:
+    match_any_regex:
+    - (www\.)?gutenberg\.net
     match_any_literal:
     - Project Gutenberg
-    - www.gutenberg.net
 PublishOrPerish:
-    match_any_literal:
-    - Publish or Perish
     match_any_regex:
-    - Publish or Perish,? Inc\.?
+    - Publish or Perish
+QuePub:
+    match_any_literal:
+    - Que
+    match_any_regex:
+    - Que Pub
 Routledge:
     match_any_regex:
-    - Routledge
-    match_any_literal:
-    - Routledge Taylor & Francis Group
-    - Routledge Taylor and Francis Group
+    - Ashgate
+    - Routledge( Taylor (&|and) Francis Group)?
 RecursiveBooks:
     match_any_regex:
     - Recursive Books
 Sams:
-    match_any_literal:
-    - Sams Publishing
-    - samspublishing.com
+    match_any_regex:
+    - Sams Pub
+    - (www\.)?samspublishing\.com
 SimpleProgrammer:
     match_any_literal:
     - Simple Programmer
@@ -302,29 +370,23 @@ SkriptKuhnel:
 Springer:
     match_any_regex:
     - Springer(.Verlag)?
-    match_any_literal:
-    - springer
-    - Springer Berlin
-    - Springer-Verlag New York Inc
-    - Springer-Verlag
 StanfordUP:
-    match_any_literal:
-    - Stanford University Press
+    match_any_regex:
+    - Stanford University Pr(.?|ess)
+    - U(niversity)? of Stanford Pr(.?|ess)
+Sybex:
+    match_any_regex:
+    - Sybex
 Syngress:
     match_any_regex:
-    - Syngress (Pub\.?|Publishing)
-    - Syngress Media
-    match_any_literal:
-    - Syngress Pub.
-    - www.syngress.com
+    - Syngress (Media|Pub\.?|Publishing)
+    - (www\.)?syngress\.com
 TaylorFrancis:
     match_any_regex:
-    - Taylor (&|and) Francis
+    - ^Taylor (&|and) Francis
 TuttlePub:
     match_any_regex:
-    - Tuttle ?Pub
-    match_any_literal:
-    - Tuttle
+    - Tuttle(.?Pub)?
 UnitedComputerGeeks:
     match_any_regex:
     - United Computer Geeks
@@ -344,27 +406,20 @@ Wiley:
     - Wiley.Blackwell
     - ^wiley (&|and) Sons
     - ^Wiley Pub\.?
-    - ^Wiley Pub\..? (Inc\.?|Incorporated)
-    - ^John Wiley (&|and) Sons,?( Inc\.?)?
-    - Wiley.Interscience
-    - Wiley Technology
+    - ^J(\.|ohn) Wiley (&|and) Sons,?( Inc\.?)?
+    - Wiley.(Interscience|Technology)
     match_any_literal:
     - John Wiley
     - J. Wiley
 Wordware:
     match_any_regex:
-    - Wordware Pub(lishing)?
+    - Wordware
 WorldScientific:
     match_any_regex:
-    - WorldSci(entific)?
-    - World Scientific
+    - World ?Sci(entific)?
 Wrox:
     match_any_regex:
     - Wrox Pr(\.|ess)?( Inc\.?)?
-    match_any_literal:
-    - Wrox
-    - Wrox/Wiley & Sons
-    - Wrox/Wiley and Sons
-    - Wrox/John Wiley & Sons
-    - Wrox/John Wiley and Sons
-    - www.wrox.com
+    - (www\.)?wrox\.com
+    - Wrox/Wiley (&|and) Sons
+    - Wrox/John Wiley (&|and) Sons
