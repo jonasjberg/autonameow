@@ -25,9 +25,6 @@ Check text file style violations, whitespace, line separators and tabs.
 ### `cloc.sh`
 Generate statistics on the project source code using `cloc`.
 
-### `convert-html-to.pdf.sh`
-Convert all HTML test reports to PDF.
-
 ### `ctags.sh`
 Generate `.tags` file with `ctags`.
 
