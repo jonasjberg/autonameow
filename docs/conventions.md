@@ -1,6 +1,6 @@
 `autonameow`
 ============
-*Copyright(c) 2016-2018 Jonas Sjöberg*  
+*Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>*  
 <https://github.com/jonasjberg/autonameow>  
 <http://www.jonasjberg.com>  
 
