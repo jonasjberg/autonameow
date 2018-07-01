@@ -48,7 +48,7 @@ class Autonameow(object):
     Main class to manage a running "autonameow" instance.
     """
 
-    def __init__(self, opts, ui):
+    def __init__(self, opts, ui, file_renamer=FileRenamer):
         """
         Main program entry point.  Initializes a autonameow instance/session.
 
@@ -67,7 +67,7 @@ class Autonameow(object):
         self.config = None
         self.postprocessor = None
 
-        self.renamer = FileRenamer(
+        self.renamer = file_renamer(
             dry_run=self.opts.get('dry_run'),
             timid=self.opts.get('mode_timid')
         )
