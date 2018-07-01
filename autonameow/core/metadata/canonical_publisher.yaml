@@ -113,7 +113,8 @@ DennisPub:
     - Dennis Pub.
 Elsevier:
     match_any_regex:
-    - Elsevier.(.?AP|Morgan Kaufmann|Newnes)
+    - Elsevier..?(.?AP|Morgan Kaufmann|Newnes)
+    - Elsevier.? (Inc|LTD)
     match_any_literal:
     - Elsevier Science
 ExelixisMedia:
@@ -246,6 +247,10 @@ MITPress:
     match_any_regex:
     - M ?I ?T Pr(.?|ess)
     - (www\.)?mitpress\.mit\.edu
+MonashUP:
+    match_any_regex:
+    - Monash Uni
+    - (www\.)?publishing.monash.edu
 MorganClaypool:
     match_any_literal:
     - Morgan and Claypool Publishers
@@ -306,15 +311,25 @@ Pearson:
     match_any_literal:
     - Pearson/PrenticeHall
     - Pearson/AddisonWesley
+    - Pearson IT Certification
     match_any_regex:
     - Pearson Education
+    - Pearson Australia
     - (www\.)?pearson\.com
 PeepPress:
     match_any_regex:
     - Peep.? Pr(.?|ess)
+PenguinBooks:
+    match_any_regex:
+    - Penguin Books
+    - Penguin Publishing Group
+    - (www\.)?penguin\.com
 PenguinRandomHouse:
     match_any_regex:
+    - Penguin Group
+    - Penguin Publishing
     - Penguin Random House
+    - (www\.)?penguinrandomhouse\.com
 Polgrove:
     match_any_regex:
     - Palgrave
@@ -326,6 +341,7 @@ PragmaticBookshelf:
 PremierPress:
     match_any_regex:
     - Premier Pr(.?|ess)
+    - (www\.)?premierpress\.com
 PrenticeHall:
     match_any_regex:
     - Prentice Hall

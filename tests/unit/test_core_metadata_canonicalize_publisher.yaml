@@ -40,13 +40,22 @@ AKPeters:
 - A K Peters Ltd
 Apress:
 - Apress
-- Apress L.P
 - apress
-- Appress  # bad entry
-- https://www.apress.com
-- http://www.apress.com
-- www.apress.com
+- Apress L.P
+- Apress Berkeley CA
+- Apress Berkeley California
+- Apress Berkeley, CA
+- Apress Berkeley, California
+- Apress, Berkeley CA
+- Apress, Berkeley California
+- Apress, Berkeley, CA
+- Apress, Berkeley, California
 - apress.com
+- Apress®
+- Appress  # bad entry
+- http://www.apress.com
+- https://www.apress.com
+- www.apress.com
 ArtechHouse:
 - ArtechHouse
 - Artech House
@@ -147,8 +156,16 @@ CRCPress:
 - CRC
 - CRCPress
 - CRC Press
+- CRC Press (CAM)
+- CRC Press LLC
+- CRC Press, Taylor & Francis
+- CRC Press, Taylor & Francis Group
+- CRC Press, Taylor and Francis
+- CRC Press, Taylor and Francis Group
 - CRC Press/Taylor & Francis
+- CRC Press/Taylor & Francis group
 - CRC Press/Taylor and Francis
+- CRC Press/Taylor and Francis group
 - https://www.crcpress.com
 - http://www.crcpress.com
 - www.crcpress.com
@@ -243,11 +260,16 @@ DennisPub:
 - DennisPub
 Elsevier:
 - Elsevier
+- Elsevier Inc.
+- Elsevier Ltd.
+- Elsevier LTD.
 - Elsevier Morgan Kaufmann
 - Elsevier Newnes
 - Elsevier Science
+- Elsevier Science
+- Elsevier, Inc.
 - Elsevier/ AP
-  #- Elsevier/ Newnes
+- Elsevier/ Newnes
 - Elsevier/AP
 - Elsevier/Morgan Kaufmann
 - Elsevier/Newnes
@@ -512,6 +534,17 @@ MicrosoftPress:
 - Microsoft Pr
 - Microsoft Pr.
 - Microsoft Press
+MonashUP:
+- MonashUP
+- Monash University Pub.
+- Monash University Pub
+- Monash University Publ.
+- Monash University Publ
+- Monash University Publishing
+- https://www.publishing.monash.edu
+- http://www.publishing.monash.edu
+- www.publishing.monash.edu
+- publishing.monash.edu
 MorganClaypool:
 - Morgan & Claypool Publishers
 - Morgan and Claypool Publishers
@@ -626,6 +659,8 @@ Packt:
 - Packt Publishing Limited
 - Packt Publishing Ltd
 - Packt Publishing Ltd.
+- Packt Publishing ebooks Account
+- Packt Publishing - ebooks Account
 - Published by Packt Publishing Ltd.
 - https://www.packtpub.com
 - http://www.packtpub.com
@@ -639,14 +674,25 @@ PeachpitPress:
 - www.peachpit.com
 - peachpit.com
 Pearson:
+- Pearson
+- Pearson Australia Pty Ltd
+- Pearson Australia Pty Ltd.
+- Pearson Australia Pty. Ltd
+- Pearson Australia Pty. Ltd.
+- Pearson Education
 - Pearson Education Inc
 - Pearson Education Inc.
 - Pearson Education Incorporated
-- Pearson Education
+- Pearson Education Ltd
+- Pearson Education Ltd.
+- Pearson Education Limited
+- Pearson Education Ltd (US titles)
+- Pearson Education Ltd. (US titles)
+- Pearson Education Limited (US titles)
 - Pearson Education, Inc
 - Pearson Education, Inc.
 - Pearson Education, Incorporated
-- Pearson
+- Pearson IT Certification
 - Pearson/AddisonWesley
 - Pearson/PrenticeHall
 - https://www.pearson.com
@@ -657,9 +703,32 @@ PeepPress:
 - PeepPress
 - Peep Press
 - Peep! Press
+PenguinBooks:
+- PenguinBooks
+- Penguin Books
+- https://www.penguin.com
+- http://www.penguin.com
+- www.penguin.com
+- penguin.com
 PenguinRandomHouse:
+- PenguinRandomHouse
+- Penguin Group Inc
+- Penguin Group Inc.
+- Penguin Group Incorporated
+- Penguin Group USA Inc
+- Penguin Group USA Inc.
+- Penguin Group USA Incorporated
+- Penguin Group USA, Inc
+- Penguin Group USA, Inc.
+- Penguin Group USA, Incorporated
 - Penguin Random House
 - Penguin Random House India
+- Penguin Random House LLC
+- Penguin Random House LLC (Publisher Services)
+- https://penguinrandomhouse.com
+- http://penguinrandomhouse.com
+- www.penguinrandomhouse.com
+- penguinrandomhouse.com
 Polgrove:
 - Palgrave
 - Palgrave Macmillan
@@ -680,6 +749,10 @@ PragmaticBookshelf:
 PremierPress:
 - PremierPress
 - Premier Press
+- https://www.premierpress.com
+- http://www.premierpress.com
+- www.premierpress.com
+- premierpress.com
 PrenticeHall:
 - Prentice Hall
 - PrenticeHall
@@ -766,35 +839,60 @@ Springer:
 - springer
 - Springer Berlin
 - Springer Berlin Heidelberg
+- Springer Berlin Heidelberg, Berlin, Heidelberg
+- Springer Fachmedien Wiesbaden, Wiesbaden
 - Springer International Publishing
+- Springer International Publishing Cham
+- Springer International Publishing, Cham
+- Springer Japan, Tokyo
 - Springer London
 - Springer London Limited
 - Springer London Ltd
 - Springer London Ltd.
+- Springer London London
+- Springer London, London
+- Springer Netherlands Dordrecht
+- Springer Netherlands, Dordrecht
 - Springer New York
 - Springer New York Limited
 - Springer New York Ltd
 - Springer New York Ltd.
 - Springer Pub. Co.
+- Springer Science & Business Media B.V.
+- Springer Science + Business Media Inc
+- Springer Science + Business Media Inc.
+- Springer Science + Business Media Incorporated
+- Springer Science + Business Media, Inc
 - Springer Science + Business Media, Inc.
+- Springer Science + Business Media, Incorporated
 - Springer Science+Business Media B.V.
 - Springer Science+Business Media Inc
 - Springer Science+Business Media Inc.
 - Springer Science+Business Media Incorporated
 - Springer Science+Business Media, Inc
 - Springer Science+Business Media, Inc.
+- Springer Science+Business Media, Incorporated
+- Springer Singapore
+- Springer Singapore, Singapore
 - Springer US
+- Springer US, Boston, MA
 - Springer Verlag
 - SPRINGER VERLAG (NY/NJ)
 - Springer Verlag New York Inc
 - Springer Verlag New York Inc.
 - Springer Verlag New York Incorporated
+- Springer Verlag New York, Inc
+- Springer Verlag New York, Inc.
+- Springer Verlag New York, Incorporated
 - Springer Vienna
 - Springer-Verlag
 - Springer-Verlag Berlin Heidelberg
 - Springer-Verlag New York Inc
 - Springer-Verlag New York Inc.
 - Springer-Verlag New York Incorporated
+- Springer-Verlag New York, Inc
+- Springer-Verlag New York, Inc.
+- Springer-Verlag New York, Incorporated
 - Springer-Verlag US
 StanfordUP:
 - StanfordUP
