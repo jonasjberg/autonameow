@@ -211,6 +211,10 @@ class TestLikelyExtension(TestCase):
              Given(suffix='xls', mime='application/vnd.ms-excel')),
             (Expect('xls'),
              Given(suffix='', mime='application/vnd.ms-excel')),
+            (Expect('xlsx'),
+             Given(suffix='xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')),
+            (Expect('xlsx'),
+             Given(suffix='', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')),
 
             (Expect('eps'),
              Given(suffix='eps', mime='application/postscript')),

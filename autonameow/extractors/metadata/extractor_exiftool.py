@@ -32,9 +32,20 @@ IGNORED_EXIFTOOL_TAGNAMES = frozenset([
     'Palm:CreatorMajorVersion',
     'Palm:CreatorMinorVersion',
     'Palm:Watermark',
+    'XML:CustomBooleanPropertyNameNo',  # not useful
+    'XML:CustomBooleanPropertyNameYes',  # not useful
+    'XML:CustomDateProperty1-1-2001',  # invalid or non-standard
+    'XML:CustomNumberProperty42',  # not useful
+    'XML:CustomTextPropertyValue',  # could be anything
+    'XML:MyCustomBoolean',  # could be anything
+    'XML:MyCustomNumber',  # could be anything
+    'XML:MyCustomString',  # could be anything
     'XMP:Extracted-textStoriesNFKC_UTF8_Zlib_Base64',
     'XMP:PageImage',
     'XMP:ProfileBlob',
+    'ZIP:ZipBitFlag',
+    'ZIP:ZipCompression',
+    'ZIP:ZipRequiredVersion',
 ])
 
 
@@ -123,10 +134,12 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'http://cncmanual.com/',
     'http://freepdf-books.com',
     'http://www.epubor.com',
+    'MyStringValue',
     'test',
     'Toolkit http://www.activepdf.com',
     'Toolkit http://www.activepdf.com(Infix)',
     'UNKNOWN',
+    'Value',
     'www.allitebooks.com',
     'www.ebook777.com',
     'www.free-ebooks.net',
@@ -147,6 +160,7 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
         'application/epub+zip',
         'application/msword',
         'application/pdf',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'image/*',
         'text/*',
