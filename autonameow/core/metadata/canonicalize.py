@@ -167,6 +167,10 @@ class CanonicalizerConfigParser(object):
             if not canonical_form.strip():
                 continue
 
+            if not isinstance(sections, dict):
+                log.error('Invalid entry "{!s}" in "{!s}"'.format(sections, self.str_lookup_dict_filepath))
+                continue
+
             regexes_to_match = sections.get(self.CONFIG_SECTION_MATCH_ANY_REGEX)
             if not regexes_to_match:
                 continue
