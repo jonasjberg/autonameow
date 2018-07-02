@@ -68,7 +68,7 @@ class FilenameDelta(object):
 
 
 class FileRenamer(object):
-    def __init__(self, dry_run, timid):
+    def __init__(self, dry_run, timid, rename_func=disk.rename_file):
         """
         Creates a new renamer instance for use by one program instance.
 
@@ -94,6 +94,8 @@ class FileRenamer(object):
         """
         self.dry_run = bool(dry_run)
         self.timid = bool(timid)
+        assert callable(rename_func)
+        self._rename_func = rename_func
 
         self.stats = {
             'failed': 0,
@@ -219,7 +221,7 @@ class FileRenamer(object):
             return
 
         try:
-            disk.rename_file(from_path, dest_basename)
+            self._rename_func(from_path, dest_basename)
         except FilesystemError:
             # TODO: Failure count not handled by the regression test mock!
             self.stats['failed'] += 1
