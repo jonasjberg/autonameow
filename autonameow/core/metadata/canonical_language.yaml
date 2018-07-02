@@ -1,3 +1,32 @@
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
+#
+#   This file is part of autonameow.
+#
+#   autonameow is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation.
+#
+#   autonameow is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
+
+# Fixed patterns for canonicalization of string values.
+# This file is read by a 'StringValueCanonicalizer' instance that performs
+# matching on metadata string values.
+#
+# References
+# * Internet Engineering Task Force (IETF) Tags for Identifying Languages
+#   https://tools.ietf.org/html/rfc5646
+# * Common Locale Data Repository
+#   http://cldr.unicode.org
+# * SIL International ISO 639-3
+#   https://iso639-3.sil.org
+
 AFRIKAANS:
     match_any_regex_ignorecase:
     # ISO 639-1 standard language codes
