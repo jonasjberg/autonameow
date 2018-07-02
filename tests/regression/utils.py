@@ -649,21 +649,21 @@ class AutonameowWrapper(object):
     def mock_exit_program(self, exitcode):
         self.captured_exitcode = exitcode
 
-    def mock_rename_file(self, from_path, new_basename):
+    def mock_rename_file(self, from_path, dest_basename):
         # TODO: [hack] Mocking is too messy to be reliable ..
         # NOTE(jonas): Iffy ad-hoc string coercion..
-        _from_basename = coercers.force_string(disk.basename(from_path))
-        _new_basename = coercers.force_string(new_basename)
+        str_from_basename = coercers.force_string(disk.basename(from_path))
+        str_dest_basename = coercers.force_string(dest_basename)
 
         # Check for collisions that might cause erroneous test results.
-        if _from_basename in self.captured_renames:
-            _existing_new_basename = self.captured_renames[_from_basename]
+        if str_from_basename in self.captured_renames:
+            existing_dest_basename = self.captured_renames[str_from_basename]
             raise RegressionTestError(
                 'Already captured rename: "{!s}" -> "{!s}" (Now "{!s}")'.format(
-                    _from_basename, _existing_new_basename, _new_basename
+                    str_from_basename, existing_dest_basename, str_dest_basename
                 )
             )
-        self.captured_renames[_from_basename] = _new_basename
+        self.captured_renames[str_from_basename] = str_dest_basename
 
     def __call__(self):
         # TODO: [TD0158] Evaluate assertions of "skipped renames".
@@ -677,7 +677,9 @@ class AutonameowWrapper(object):
         with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
             try:
                 with Autonameow(self.opts, ui=mock_ui) as ameow:
-                    # TODO: Mock 'FileRenamer' class instead of single method
+                    # TODO: [hack] Mocking is too messy to be reliable ..
+                    # TODO: Mock 'FileRenamer' class instead of single method?
+                    #       Requires reworking the 'FileRenamer' class.
                     assert hasattr(ameow, 'renamer')
                     assert hasattr(ameow.renamer, '_rename_file')
                     assert callable(ameow.renamer._rename_file)
