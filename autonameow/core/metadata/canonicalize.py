@@ -41,6 +41,27 @@ def _relative_absolute_path(basename):
 
 
 class StringValueCanonicalizer(object):
+    """
+    Uses any or more fixed patterns do string value canonicalization.
+    Search patterns used by this class is typically loaded from YAML files.
+
+    The matching works as follows:
+
+    1) All canonical values are matched against the incoming value,
+       ignoring any differences in letter case. This means that all letter
+       case variations of an incoming value 'english' will be replaced with
+       the canonical form 'ENGLISH', even if these variations are not listed
+       explicitly in any of the passed in search patterns.
+    2) Then the 'match_any_literal' entries are matched against the value.
+       This matching is case-sensitive and includes whitespace, etc.
+    3) And finally, any regex entries are matched against the value.
+       In case of conflicting matches, the canonical form with the longest
+       total match length is used.
+
+    The canonical form of the first successful match is used, which probably
+    means that listing common patterns as literal values *might* possibly be
+    more efficient than only using the regular expressions.
+    """
     def __init__(self, literal_lookup_dict, regex_lookup_dict):
         assert isinstance(literal_lookup_dict, dict)
         assert isinstance(regex_lookup_dict, dict)
