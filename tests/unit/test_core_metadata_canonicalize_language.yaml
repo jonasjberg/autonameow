@@ -24,7 +24,9 @@ ARABIC:
 - Arabic
 - arabic
 # ISO 639-1 standard language codes
-- ar
+- ar            # Arabic
+- Ar
+- AR
 - ar-ae         # Arabic (U.A.E.)
 - ar-AE
 - ar-bh         # Arabic (Bahrain)
@@ -57,11 +59,16 @@ ARABIC:
 - ar-TN
 - ar-ye         # Arabic (Yemen)
 - ar-YE
+# ISO 639-2 standard language codes
+- ara           # Generic Arabic
+# ISO 639-3 standard language codes
+- arb           # Standard Arabic
 
 AZERI:
 - AZERI
 - Azeri
 - azeri
+# ISO 639-1 standard language codes
 - az            # Azeri (Latin)
 - az-AZ         # Azeri (Latin) (Azerbaijan)
                 # Azeri (Cyrillic) (Azerbaijan)
@@ -72,8 +79,10 @@ BASQUE:
 - Basque
 - basque
 # ISO 639-1 standard language codes
-- eu
+- eu            # Basque
 - EU
+- eu-ES         # Basque (Spain)
+- EU-ES
 
 BELARUSIAN:
 - BELARUSIAN
@@ -85,6 +94,14 @@ BELARUSIAN:
 - be-BY         # Belarusian (Belarus)
 - BE-BY
 - be-by
+
+BOSNIAN:
+- BOSNIAN
+- Bosnian
+- bosnian
+# ISO 639-1 standard language codes
+- bs            # Bosnian
+- bs-BA         # Bosnian (Bosnia and Herzegovina)
 
 BULGARIAN:
 - BULGARIAN
@@ -139,7 +156,14 @@ CROATIAN:
 - Croatian
 - croatian
 # ISO 639-1 standard language codes
-- hr
+- hr            # Croatian
+- Hr
+- HR
+- hr-BA         # Croatian (Bosnia and Herzegovina)
+- hr-ba
+- hr-HR         # Croatian (Croatia)
+- hr-hr
+- HR-HR
 
 CZECH:
 - CZECH
@@ -179,11 +203,20 @@ DUTCH:
 - nl-be         # Dutch (Belgium)
 
 ENGLISH:
-- ENG
-- eng
 - ENGLISH
 - English
 - english
+- AMERICAN
+- American
+- american
+- AMERICAN ENGLISH
+- American English
+- American english
+- american english
+- ENGLISH LANGUAGE
+- English Language
+- English language
+- english language
 - Engelska
 - engelska
 # ISO 639-1 standard language codes
@@ -208,6 +241,9 @@ ENGLISH:
 - en-IE         # English (Ireland)
 - en-ie
 - EN-IE
+- en-IN         # English (India)
+- en-in
+- EN-IN
 - en-JM         # English (Jamaica)
 - en-jm
 - EN-JM
@@ -217,6 +253,9 @@ ENGLISH:
 - en-PH         # English (Republic of the Philippines)
 - en-ph
 - EN-PH
+- en-SG         # English (Singapore)
+- en-sg
+- EN-SG
 - en-TT         # English (Trinidad (and Tobago))
 - en-tt
 - EN-TT
@@ -227,27 +266,43 @@ ENGLISH:
 - en-za
 - EN-ZA
 - en-ZW         # English (Zimbabwe)
+# ISO 639-2 and ISO 639-3 standard language codes
+- eng
+- Eng
+- ENG
+
+ESPERANTO:
+- ESPERANTO
+- Esperanto
+- esperanto
+# ISO 639-1 standard language codes
+- eo            # Esperanto
 
 ESTONIAN:
 - ESTONIAN
 - Estonian
 - estonian
 # ISO 639-1 standard language codes
-- et
+- et            # Estonian
+- et-EE         # Estonian (Estonia)
+- et-ee
+- ET-EE
 
 FAEROESE:
 - FAEROESE
 - Faeroese
 - faeroese
 # ISO 639-1 standard language codes
-- fo
+- fo            # Faroese
+- fo-FO         # Faroese (Faroe Islands)
 
 FARSI:
 - FARSI
 - Farsi
 - farsi
 # ISO 639-1 standard language codes
-- fa
+- fa            # Farsi
+- fa-IR         # Farsi (Iran)
 
 FINNISH:
 - FINNISH
@@ -257,7 +312,11 @@ FINNISH:
 - suomen kieli
 - suomi
 # ISO 639-1 standard language codes
-- fi
+- fi            # Finnish
+- FI
+- fi-FI         # Finnish (Finland)
+- fi-fi
+- FI-FI
 
 FRENCH:
 - FRENCH
@@ -269,11 +328,26 @@ FRENCH:
 - Franska
 - franska
 # ISO 639-1 standard language codes
-- fr            # French
-- fr-be         # French (Belgium)
-- fr-ca         # French (Canada)
-- fr-ch         # French (Switzerland)
-- fr-lu         # French (Luxembourg)
+- FR            # French
+- fr
+- fr-BE         # French (Belgium)
+- fr-be
+- FR-BE
+- fr-CA         # French (Canada)
+- fr-ca
+- FR-CA
+- fr-CH         # French (Switzerland)
+- fr-ch
+- FR-CH
+- fr-FR         # French (France)
+- fr-fr
+- FR-FR
+- fr-LU         # French (Luxembourg)
+- fr-lu
+- FR-LU
+- fr-MC         # French (Principality of Monaco)
+- fr-mc
+- FR-MC
 
 GAELIC:  # (Scotland)
 - GAELIC
@@ -281,6 +355,14 @@ GAELIC:  # (Scotland)
 - gaelic
 # ISO 639-1 standard language codes
 - gd
+
+GALICIAN:
+- GALICIAN
+- Galician
+- galician
+# ISO 639-1 standard language codes
+- gl            # Galician
+- gl-ES         # Galician (Spain)
 
 GERMAN:
 - GERMAN
@@ -300,6 +382,12 @@ GERMAN:
 - de-LI
 - de-lu         # German (Luxembourg)
 - de-LU
+# ISO 639-2 standard language codes
+- deu
+- ger
+- ger/deu
+# ISO 639-3 standard language codes
+- deu
 
 GREEK:
 - GREEK
@@ -309,12 +397,21 @@ GREEK:
 - el            # Greek
 - el-GR         # Greek (Greece)
 
+GUJARATI:
+- GUJARATI
+- Gujarati
+- gujarati
+# ISO 639-1 standard language codes
+- gu            # Gujarati
+- gu-IN         # Gujarati (India)
+
 HEBREW:
 - HEBREW
 - Hebrew
 - hebrew
 # ISO 639-1 standard language codes
-- he
+- he            # Hebrew
+- he-IL         # Hebrew (Israel)
 
 HINDI:
 - HINDI
@@ -511,6 +608,10 @@ RUSSIAN:
 - RUSSIAN
 - Russian
 - russian
+- russkiy yazyk
+- русский язык
+- rússkiy yazýk
+- ryska
 # ISO 639-1 standard language codes
 - ru            # Russian
 - ru-RU         # Russian (Russia)
@@ -519,6 +620,10 @@ RUSSIAN:
 - ru-MD         # Russian (Republic of Moldova)
 - ru-md
 - RU-MD
+# ISO 639-2 and ISO 639-3 standard language codes
+- rus
+- Rus
+- RUS
 
 SAMI:
 - SAMI
@@ -593,7 +698,6 @@ SPANISH:
 - SPANISH
 - Spanish
 - spanish
-- spanska
 - CASTILIAN
 - Castilian
 - castilian
@@ -603,12 +707,19 @@ SPANISH:
 - ESPAÑOL
 - Español
 - español
+- spanska
+- spanskt
+- spansk
 # ISO 639-1 standard language codes
-- es            # Spanish (Spain)
+- es            # Spanish
 - es-ar         # Spanish (Argentina)
 - es-AR
 - es-bo         # Spanish (Bolivia)
 - es-BO
+- es-es         # Spanish (Castilian)
+                # Spanish (Spain)
+- es-ES
+- ES-ES
 - es-cl         # Spanish (Chile)
 - es-CL
 - es-co         # Spanish (Colombia)
@@ -653,23 +764,41 @@ SWAHILI:
 - SW-KE
 
 SWEDISH:
-- SV
-- sv
-- SWE
-- swe
 - SWEDISH
+- Swedish
 - swedish
-- svensk
+- SWE
+- Swe
+- swe
 - SVENSK
-- svenska
+- Svensk
+- svensk
 - SVENSKA
-- svenskt
+- Svenska
+- svenska
+- SvenskSpråkig
+- Svenskspråkig
+- svenskspråkig
+- SvenskSpråkigt
+- Svenskspråkigt
+- svenskspråkigt
 - SVENSKT
+- Svenskt
+- svenskt
+- SVENSKT SPRÅK
+- Svenskt Språk
+- Svenskt språk
+- svenskt språk
 # ISO 639-1 standard language codes
-- sv-fi         # Swedish (Finland)
+- sv            # Swedish
+- Sv
+- SV
 - sv-FI         # Swedish (Finland)
-- sv-se         # Swedish (Sweden)
+- sv-fi
+- SV-FI
 - sv-SE         # Swedish (Sweden)
+- sv-se
+- SV-SE
 
 SYRIAC:
 - SYRIAC
@@ -785,7 +914,7 @@ UZBEK:
 # ISO 639-1 standard language codes
 - uz            # Uzbek (Latin)
 - uz-UZ         # Uzbek (Latin) (Uzbekistan)
-- uz-UZ         # Uzbek (Cyrillic) (Uzbekistan)
+                # Uzbek (Cyrillic) (Uzbekistan)
 
 VENDA:
 - VENDA
@@ -815,7 +944,8 @@ WELSH:
 - Welsh
 - welsh
 # ISO 639-1 standard language codes
-- cy
+- cy            # Welsh
+- cy-GB         # Welsh (United Kingdom)
 
 YIDDISH:
 - YIDDISH
@@ -829,4 +959,5 @@ ZULU:
 - Zulu
 - zulu
 # ISO 639-1 standard language codes
-- zu
+- zu            # Zulu
+- zu-ZA         # Zulu (South Africa)

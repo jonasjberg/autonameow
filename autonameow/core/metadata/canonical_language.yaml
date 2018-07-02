@@ -12,6 +12,11 @@ ARABIC:
     match_any_regex_ignorecase:
     # ISO 639-1 standard language codes
     - ^ar(-[abdeijklmoqsty][abeghmnoqwyz])?$
+    match_any_literal:
+    # ISO 639-2 standard language codes
+    - ara
+    # ISO 639-3 standard language codes
+    - arb
 
 AZERI:
     match_any_regex_ignorecase:
@@ -19,15 +24,19 @@ AZERI:
     - ^az(-az)?$
 
 BASQUE:
-    match_any_literal:
-    # ISO 639-1 standard language code
-    - eu
-    - EU
+    match_any_regex_ignorecase:
+    # ISO 639-1 standard language codes
+    - ^eu(-es)?$
 
 BELARUSIAN:
     match_any_regex_ignorecase:
     # ISO 639-1 standard language codes
     - ^be(-by)?$
+
+BOSNIAN:
+    match_any_regex_ignorecase:
+    # ISO 639-1 standard language codes
+    - ^bs(-ba)?$
 
 BULGARIAN:
     match_any_regex_ignorecase:
@@ -55,9 +64,9 @@ CHINESE:
     - ^zh(-[chmst][gknow])?$
 
 CROATIAN:
-    match_any_literal:
-    # ISO 639-1 standard language code
-    - hr
+    match_any_regex_ignorecase:
+    # ISO 639-1 standard language codes
+    - ^hr(-[bh][ar])?$
 
 CZECH:
     match_any_literal:
@@ -68,7 +77,7 @@ CZECH:
 DANISH:
     match_any_regex_ignorecase:
     - danska?
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - ^da(-dk)?$
 
 DIVEHI:
@@ -86,85 +95,116 @@ ENGLISH:
     match_any_regex_ignorecase:
     - ^en(g|glish)$
     - ^engelska?$
+    - ^american( english)?$
+    - english language
     # ISO 639-1 standard language codes
-    - ^en(-[abcgijnptuz][abehmstuwz])?$
+    - ^en(-[abcgijnpstuz][abeghmnstuwz])?$
+    match_any_literal:
+    # ISO 639-2 and ISO 639-3 standard language codes
+    - eng
+    - Eng
+    - ENG
+
+ESPERANTO:
+    match_any_literal:
+    # ISO 639-1 standard language codes
+    - eo
 
 ESTONIAN:
-    match_any_literal:
-    # ISO 639-1 standard language code
-    - et
+    match_any_regex_ignorecase:
+    # ISO 639-1 standard language codes
+    - ^et(-ee)?$
 
 FAEROESE:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - fo
+    - fo-FO
 
 FARSI:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - fa
+    - fa-IR
 
 FINNISH:
     match_any_regex_ignorecase:
     - suomen kieli
     - ^suomi$
+    # ISO 639-1 standard language codes
+    - ^fi(-fi)?$
     match_any_literal:
     - finska
-    # ISO 639-1 standard language code
-    - fi
 
 FRENCH:
     match_any_regex_ignorecase:
     - français
     - ^franska$
     # ISO 639-1 standard language codes
-    - ^fr(-[bcl][eahu])?$
+    - ^fr(-[bcflm][acehru])?$
 
 GAELIC:  # (Scotland)
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - gd
+
+GALICIAN:
+    match_any_regex_ignorecase:
+    # ISO 639-1 standard language codes
+    - ^gl(-es)?$
 
 GERMAN:
     match_any_regex_ignorecase:
     - '^deutsch$'
     # ISO 639-1 standard language codes
     - ^de(-[acl][thiu])?$
+    match_any_literal:
+    # ISO 639-2 standard language codes
+    - deu
+    - ger
+    - ger/deu
+    # ISO 639-3 standard language codes
+    - deu
 
 GREEK:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - el
     - el-GR
 
+GUJARATI:
+    match_any_regex_ignorecase:
+    # ISO 639-1 standard language codes
+    - ^gu(-in)?$
+
 HEBREW:
-    match_any_literal:
-    # ISO 639-1 standard language code
-    - he
+    match_any_regex_ignorecase:
+    # ISO 639-1 standard language codes
+    - ^he(-il)?$
 
 HINDI:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - hi
 
 HUNGARIAN:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - hu
 
 ICELANDIC:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - is
 
 INDONESIAN:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - id
 
 IRISH:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - ga
 
 ITALIAN:
@@ -174,7 +214,7 @@ ITALIAN:
 
 JAPANESE:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - ja
 
 KOREAN:
@@ -184,37 +224,37 @@ KOREAN:
 
 KURDISH:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - ku
 
 LITHUANIAN:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - lt
 
 LATVIAN:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - lv
 
 MACEDONIAN:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - mk
 
 MALAYALAM:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - ml
 
 MALAYSIAN:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - ms
 
 MALTESE:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - mt
 
 NORWEGIAN:
@@ -235,7 +275,7 @@ PORTUGUESE:
 
 PUNJABI:
     match_any_regex_ignorecase:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - ^pa(-in)?$
 
 QUECHUA:
@@ -247,7 +287,7 @@ RHAETOROMANIC:
     match_any_regex_ignorecase:
     - RHAETO-?ROMANIC
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - rm
 
 ROMANIAN:
@@ -257,8 +297,15 @@ ROMANIAN:
 
 RUSSIAN:
     match_any_regex_ignorecase:
+    - russkiy yazyk
+    - русский язык
+    - rússkiy yazýk
     # ISO 639-1 standard language codes
     - ^ru(-[mr][du])?$
+    # ISO 639-2 ISO 639-3 standard language codes
+    - ^rus$
+    match_any_literal:
+    - ryska
 
 SAMI:
     match_any_regex_ignorecase:
@@ -287,26 +334,30 @@ SLOVENIAN:
 
 SORBIAN:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - sb
 
 SPANISH:
     match_any_regex_ignorecase:
-    - ^spanska$
+    - ^spansk[at]?$
     - ^castilian$
     - ^castellano$
     - ^español$
     # ISO 639-1 standard language codes
-    - ^es(-[ABCDEGHMNPSUV][ACEILNORTVXY])?$
+    - ^es(-[abcdeghmnpsuv][aceilnorstvxy])?$
 
 SWAHILI:
     match_any_regex_ignorecase:
+    # ISO 639-1 standard language codes
     - ^sw(-ke)?$
 
 SWEDISH:
     match_any_regex_ignorecase:
     - ^swe(dish)?$
-    - ^svensk(a|t)?$
+    - ^svenska?$
+    - svenskt( språk)?
+    - svenskspråkigt?
+    # ISO 639-1 standard language codes
     - ^sv(-[fs][ie])?$
 
 SYRIAC:
@@ -341,7 +392,7 @@ THAI:
 
 TSONGA:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - ts
 
 TSWANA:
@@ -371,7 +422,7 @@ UZBEK:
 
 VENDA:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - ve
 
 VIETNAMESE:
@@ -387,16 +438,17 @@ XHOSA:
     - xh-ZA
 
 WELSH:
-    match_any_literal:
-    # ISO 639-1 standard language code
-    - cy
+    match_any_regex_ignorecase:
+    # ISO 639-1 standard language codes
+    - ^cy(-gb)?$
 
 YIDDISH:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - ji
 
 ZULU:
     match_any_literal:
-    # ISO 639-1 standard language code
+    # ISO 639-1 standard language codes
     - zu
+    - zu-ZA
