@@ -111,8 +111,11 @@ class FiletagsExtractor(BaseMetadataExtractor):
         # TODO: [hack] The 'timestamp' can be either only a date or a date AND
         #       time.. For now just copy the same value to both places and let
         #       the coercion fail for one of them ..
-        raw_metadata['date'] = raw_metadata['timestamp']
-        raw_metadata['datetime'] = raw_metadata['timestamp']
+        if 'timestamp' in raw_metadata:
+            raw_metadata['date'] = raw_metadata['timestamp']
+            raw_metadata['datetime'] = raw_metadata['timestamp']
+            del raw_metadata['timestamp']
+
         return raw_metadata
 
     def _to_internal_format(self, raw_metadata):
