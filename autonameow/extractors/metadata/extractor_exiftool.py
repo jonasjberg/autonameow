@@ -18,6 +18,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from core.metadata.canonicalize import canonicalize_creatortool
+from core.metadata.canonicalize import canonicalize_language
 from extractors import ExtractorError
 from extractors.metadata.base import BaseMetadataExtractor
 from thirdparty import pyexiftool
@@ -246,6 +247,16 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
     def _to_internal_format(self, raw_metadata):
         coerced_metadata = dict()
 
+        def _canonicalize(field, _value_or_values, canonicalizer):
+            # TODO: [hack][cleanup][TD0189] Do this properly!
+            assert callable(canonicalizer)
+            if isinstance(_value_or_values, list):
+                coerced_metadata[field] = list()
+                for v in _value_or_values:
+                    coerced_metadata[field].append(canonicalizer(v))
+            else:
+                coerced_metadata[field] = canonicalizer(_value_or_values)
+
         for field, value in raw_metadata.items():
             coerced = self.coerce_field_value(field, value)
             # Empty strings are being passed through. But if we test with
@@ -254,7 +265,14 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
             if coerced is not None:
                 filtered = _filter_coerced_value(coerced)
                 if filtered is not None:
-                    coerced_metadata[field] = filtered
+                    # TODO: [hack][cleanup][TD0189] Do this properly!
+                    # TODO: [TD0189] Canonicalize metadata values by direct replacements.
+                    if 'Producer' in field or 'Creator' in field:
+                        _canonicalize(field, filtered, canonicalize_creatortool)
+                    elif ':Language' in field:
+                        _canonicalize(field, filtered, canonicalize_language)
+                    else:
+                        coerced_metadata[field] = filtered
 
         return coerced_metadata
 

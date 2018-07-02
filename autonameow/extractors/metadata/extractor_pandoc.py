@@ -21,6 +21,7 @@ import json
 import os
 
 from core import constants as C
+from core.metadata.canonicalize import canonicalize_language
 from extractors import ExtractorError
 from extractors.metadata.base import BaseMetadataExtractor
 from extractors.text.base import decode_raw
@@ -86,7 +87,12 @@ class PandocMetadataExtractor(BaseMetadataExtractor):
             # 'if coerced', any False booleans, 0, etc. would be discarded.
             # Filtering must be field-specific.
             if coerced is not None:
-                coerced_metadata[field] = coerced
+                if field == 'language':
+                    # TODO: [hack][cleanup][TD0189] Do this properly!
+                    # TODO: [TD0189] Canonicalize metadata values by direct replacements.
+                    coerced_metadata[field] = canonicalize_language(coerced)
+                else:
+                    coerced_metadata[field] = coerced
 
         return coerced_metadata
 
