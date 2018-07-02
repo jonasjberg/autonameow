@@ -630,7 +630,8 @@ class ISBNMetadata(object):
     @language.setter
     def language(self, value):
         if value and isinstance(value, str):
-            canonical_language = canonicalize_language(value)
+            str_value = normalize_horizontal_whitespace(value).strip()
+            canonical_language = canonicalize_language(str_value)
             self._language = canonical_language
             self._normalized_language = canonical_language.lower()
 
@@ -646,8 +647,8 @@ class ISBNMetadata(object):
     def publisher(self, value):
         # TODO: [TD0189] Canonicalize metadata values by direct replacements.
         if value and isinstance(value, str):
-            str_value = normalize_unicode(html_unescape(value)).strip()
-            str_value = normalize_horizontal_whitespace(str_value)
+            str_value = normalize_unicode(html_unescape(value))
+            str_value = normalize_horizontal_whitespace(str_value).strip()
             canonical_publisher = canonicalize_publisher(str_value)
             self._publisher = canonical_publisher
             self._normalized_publisher = canonical_publisher.lower()
