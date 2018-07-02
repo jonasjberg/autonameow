@@ -72,6 +72,13 @@ def unpack_field_value(todo):
     #     'publisher': 'Gibson',
     # }
     #
+    #   URI:  Ebook Metadata Title
+    # VALUE:  'Practical Kibble Sight With CatVision / Gibson Sjöberg, ... [Et Al.]'
+    # Should unpack to unpacked = {
+    #     'author': 'Gibson Sjöberg',
+    #     'title': 'Practical Kibble Sight With CatVision',
+    # }
+    #
     pass
 
 
