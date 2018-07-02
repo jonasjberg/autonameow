@@ -203,6 +203,7 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad_any_tag('test')
         self._assert_bad_any_tag('Toolkit http://www.activepdf.com')
         self._assert_bad_any_tag('Toolkit http://www.activepdf.com(Infix)')
+        self._assert_bad_any_tag('Unknown')
         self._assert_bad_any_tag('UNKNOWN')
         self._assert_bad_any_tag('Value')
         self._assert_bad_any_tag('www.allitebooks.com')

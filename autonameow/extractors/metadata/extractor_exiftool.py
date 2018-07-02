@@ -64,16 +64,13 @@ BAD_EXIFTOOL_METADATA = {
         'First Edition',
         'Second Edition',
         'Third Edition',
-        'Unknown',
     },
     'PDF:Subject': {
         'Subject',
-        'Unknown',
     },
     'PDF:Title': {
         'DjVu Document',
         'Title',
-        'Unknown',
     },
     'XMP:Author': {
         'Author',
@@ -81,7 +78,6 @@ BAD_EXIFTOOL_METADATA = {
         'First Edition',
         'Second Edition',
         'Third Edition',
-        'Unknown',
     },
     'XMP:Contributor': {
         'calibre (2.85.1) [https://calibre-ebook.com]',
@@ -97,22 +93,18 @@ BAD_EXIFTOOL_METADATA = {
         'First Edition',
         'Second Edition',
         'Third Edition',
-        'Unknown',
     },
     'XMP:Description': {
         'Description',
         'Subject',
-        'Unknown',
     },
     'XMP:Subject': {
         'Description',
         'Subject',
-        'Unknown',
     },
     'XMP:Title': {
         'DjVu Document',
         'Title',
-        'Unknown',
     },
 }
 
@@ -138,6 +130,7 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'test',
     'Toolkit http://www.activepdf.com',
     'Toolkit http://www.activepdf.com(Infix)',
+    'Unknown',
     'UNKNOWN',
     'Value',
     'www.allitebooks.com',
