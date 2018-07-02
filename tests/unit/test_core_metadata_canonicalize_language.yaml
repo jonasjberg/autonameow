@@ -1,10 +1,657 @@
+AFRIKAANS:
+- AFRIKAANS
+- Afrikaans
+- afrikaans
+# ISO 639-1 standard language codes
+- af            # Afrikaans
+- AF
+- af-za         # Afrikaans (South Africa)
+- AF-ZA
+
+ALBANIAN:
+- ALBANIAN
+- Albanian
+- albanian
+# ISO 639-1 standard language codes
+- sq            # Albanian
+- SQ
+- sq-AL         # Albanian (Albania)
+- sq-al
+- SQ-AL
+
+ARABIC:
+- ARABIC
+- Arabic
+- arabic
+# ISO 639-1 standard language codes
+- ar
+- ar-ae         # Arabic (U.A.E.)
+- ar-AE
+- ar-bh         # Arabic (Bahrain)
+- ar-BH
+- ar-dz         # Arabic (Algeria)
+- ar-DZ
+- ar-eg         # Arabic (Egypt)
+- ar-EG
+- ar-iq         # Arabic (Iraq)
+- ar-IQ
+- ar-jo         # Arabic (Jordan)
+- ar-JO
+- ar-kw         # Arabic (Kuwait)
+- ar-KW
+- ar-lb         # Arabic (Lebanon)
+- ar-LB
+- ar-ly         # Arabic (Libya)
+- ar-LY
+- ar-ma         # Arabic (Morocco)
+- ar-MA
+- ar-om         # Arabic (Oman)
+- ar-OM
+- ar-qa         # Arabic (Qatar)
+- ar-QA
+- ar-sa         # Arabic (Saudi Arabia)
+- ar-SA
+- ar-sy         # Arabic (Syria)
+- ar-SY
+- ar-tn         # Arabic (Tunisia)
+- ar-TN
+- ar-ye         # Arabic (Yemen)
+- ar-YE
+
+AZERI:
+- AZERI
+- Azeri
+- azeri
+- az            # Azeri (Latin)
+- az-AZ         # Azeri (Latin) (Azerbaijan)
+                # Azeri (Cyrillic) (Azerbaijan)
+- az-az
+
+BASQUE:
+- BASQUE
+- Basque
+- basque
+# ISO 639-1 standard language codes
+- eu
+- EU
+
+BELARUSIAN:
+- BELARUSIAN
+- Belarusian
+- belarusian
+# ISO 639-1 standard language codes
+- be            # Belarusian
+- BE
+- be-BY         # Belarusian (Belarus)
+- BE-BY
+- be-by
+
+BULGARIAN:
+- BULGARIAN
+- Bulgarian
+- bulgarian
+# ISO 639-1 standard language codes
+- bg            # Bulgarian
+- BG
+- bg-BG         # Bulgarian (Bulgaria)
+- BG-BG
+- bg-bg
+
+CATALAN:
+- CATALAN
+- Catalan
+- catalan
+# ISO 639-1 standard language codes
+- ca            # Catalan
+- CA
+- ca-ES         # Catalan (Spain)
+- CA-ES
+- ca-es
+
+CHINESE:
+- CHINESE
+- Chinese
+- chinese
+- 汉语          # "Chinese language" in simplified Chinese
+- 漢語          # "Chinese language" in traditional Chinese
+- HÀNYǓ         # "Chinese language" in pinyin
+- Hànyǔ
+- hànyǔ
+- 中文          # "Chinese writing" in Chinese
+- ZHŌNGWÉN      # "Chinese writing" in pinyin
+- Zhōngwén
+- zhōngwén
+# ISO 639-1 standard language codes
+- zh            # Chinese
+- zh-CN         # Chinese (PRC/S)
+- zh-cn
+- zh-HK         # Chinese (Hong Kong)
+- zh-hk
+- zh-MO         # Chinese (Macau)
+- zh-mo
+- zh-SG         # Chinese (Singapore)
+- zh-sg
+- zh-TW         # Chinese (Taiwan)
+- zh-tw
+
+CROATIAN:
+- CROATIAN
+- Croatian
+- croatian
+# ISO 639-1 standard language codes
+- hr
+
+CZECH:
+- CZECH
+- Czech
+- czech
+# ISO 639-1 standard language codes
+- cs            # Czech
+- cs-CZ         # Czech (Czech Republic)
+
+DANISH:
+- DANISH
+- Danish
+- danish
+- dansk
+- danska
+# ISO 639-1 standard language codes
+- da            # Danish
+- DA
+- da-DK         # Danish (Denmark)
+- da-dk
+- DA-DK
+
+DIVEHI:
+- DIVEHI
+- Divehi
+- divehi
+# ISO 639-1 standard language codes
+- dv            # Divehi
+- dv-MV         # Divehi (Maldives)
+
+DUTCH:
+- DUTCH
+- Dutch
+- dutch
+# ISO 639-1 standard language codes
+- nl            # Dutch
+- nl-be         # Dutch (Belgium)
+
 ENGLISH:
-- EN
-- en
 - ENG
 - eng
 - ENGLISH
+- English
 - english
+- Engelska
+- engelska
+# ISO 639-1 standard language codes
+- en            # English
+- En
+- EN
+- en-AU         # English (Australia)
+- en-au
+- EN-AU
+- en-BZ         # English (Belize)
+- en-bz
+- EN-BZ
+- en-CA         # English (Canada)
+- en-ca
+- EN-CA
+- en-CB         # English (Caribbean)
+- en-cb
+- EN-CB
+- en-GB         # English (United Kingdom)
+- en-gb
+- EN-GB
+- en-IE         # English (Ireland)
+- en-ie
+- EN-IE
+- en-JM         # English (Jamaica)
+- en-jm
+- EN-JM
+- en-NZ         # English (New Zealand)
+- en-nz
+- EN-NZ
+- en-PH         # English (Republic of the Philippines)
+- en-ph
+- EN-PH
+- en-TT         # English (Trinidad (and Tobago))
+- en-tt
+- EN-TT
+- en-US         # English (United States)
+- en-us
+- EN-US
+- en-ZA         # English (South Africa)
+- en-za
+- EN-ZA
+- en-ZW         # English (Zimbabwe)
+
+ESTONIAN:
+- ESTONIAN
+- Estonian
+- estonian
+# ISO 639-1 standard language codes
+- et
+
+FAEROESE:
+- FAEROESE
+- Faeroese
+- faeroese
+# ISO 639-1 standard language codes
+- fo
+
+FARSI:
+- FARSI
+- Farsi
+- farsi
+# ISO 639-1 standard language codes
+- fa
+
+FINNISH:
+- FINNISH
+- Finnish
+- finnish
+- finska
+- suomen kieli
+- suomi
+# ISO 639-1 standard language codes
+- fi
+
+FRENCH:
+- FRENCH
+- French
+- french
+- FRANÇAIS
+- Français
+- français
+- Franska
+- franska
+# ISO 639-1 standard language codes
+- fr            # French
+- fr-be         # French (Belgium)
+- fr-ca         # French (Canada)
+- fr-ch         # French (Switzerland)
+- fr-lu         # French (Luxembourg)
+
+GAELIC:  # (Scotland)
+- GAELIC
+- Gaelic
+- gaelic
+# ISO 639-1 standard language codes
+- gd
+
+GERMAN:
+- GERMAN
+- German
+- german
+- deutsch
+- Deutsch
+- DEUTSCH
+# ISO 639-1 standard language codes
+- de            # German
+- DE
+- de-at         # German (Austria)
+- de-AT
+- de-ch         # German (Switzerland)
+- de-CH
+- de-li         # German (Liechtenstein)
+- de-LI
+- de-lu         # German (Luxembourg)
+- de-LU
+
+GREEK:
+- GREEK
+- Greek
+- greek
+# ISO 639-1 standard language codes
+- el            # Greek
+- el-GR         # Greek (Greece)
+
+HEBREW:
+- HEBREW
+- Hebrew
+- hebrew
+# ISO 639-1 standard language codes
+- he
+
+HINDI:
+- HINDI
+- Hindi
+- hindi
+# ISO 639-1 standard language codes
+- hi
+
+HUNGARIAN:
+- HUNGARIAN
+- Hungarian
+- hungarian
+# ISO 639-1 standard language codes
+- hu
+
+ICELANDIC:
+- ICELANDIC
+- Icelandic
+- icelandic
+# ISO 639-1 standard language codes
+- is
+
+INDONESIAN:
+- INDONESIAN
+- Indonesian
+- indonesian
+# ISO 639-1 standard language codes
+- id
+
+IRISH:
+- IRISH
+- Irish
+- irish
+# ISO 639-1 standard language codes
+- ga
+
+ITALIAN:
+- ITALIAN
+- Italian
+- italian
+# ISO 639-1 standard language codes
+- it            # Italian
+- it-ch         # Italian (Switzerland)
+
+JAPANESE:
+- JAPANESE
+- Japanese
+- japanese
+# ISO 639-1 standard language codes
+- ja
+
+KOREAN:
+- KOREAN
+- Korean
+- korean
+# ISO 639-1 standard language codes
+- ko            # Korean (Johab)
+- ko-KR         # Korean (Korea)
+- ko-kr
+
+KURDISH:
+- KURDISH
+- Kurdish
+- kurdish
+# ISO 639-1 standard language codes
+- ku
+
+LITHUANIAN:
+- LITHUANIAN
+- Lithuanian
+- lithuanian
+# ISO 639-1 standard language codes
+- lt
+
+LATVIAN:
+- LATVIAN
+- Latvian
+- latvian
+# ISO 639-1 standard language codes
+- lv
+
+MACEDONIAN:
+- MACEDONIAN
+- Macedonian
+- macedonian
+# ISO 639-1 standard language codes
+- mk
+
+MALAYALAM:
+- MALAYALAM
+- Malayalam
+- malayalam
+# ISO 639-1 standard language codes
+- ml
+
+MALAYSIAN:
+- MALAYSIAN
+- Malaysian
+- malaysian
+# ISO 639-1 standard language codes
+- ms
+
+MALTESE:
+- MALTESE
+- Maltese
+- maltese
+# ISO 639-1 standard language codes
+- mt
+
+NORWEGIAN:
+- NORWEGIAN
+- Norwegian
+- norwegian
+- norsk
+- norska
+# ISO 639-1 standard language codes
+# NOTE: yaml makes the 'no' below a boolean False (!) unless quoted
+- 'no'          # Norwegian
+- nb            # Norwegian (Bokmål)
+- nb-NO         # Norwegian (Bokmål Norway)
+- nn            # Norwegian (Nynorsk)
+- nn-NO         # Norwegian (Nynorsk Norway)
+
+POLISH:
+- POLISH
+- Polish
+- polish
+# ISO 639-1 standard language codes
+- pl            # Polish
+- pl-PL         # Polish (Poland)
+- pl-pl
+- PL-PL
+
+PORTUGUESE:
+- PORTUGUESE
+- Portuguese
+- portuguese
+# ISO 639-1 standard language codes
+- pt            # Portuguese
+- pt-BR         # Portuguese (Brazil)
+- pt-br
+- PT-BR
+- pt-PT         # Portuguese (Portugal)
+- pt-pt
+- PT-PT
+
+PUNJABI:
+- PUNJABI
+- Punjabi
+- punjabi
+# ISO 639-1 standard language codes
+- pa
+- pa-IN         # Punjabi (India)
+
+QUECHUA:
+- QUECHUA
+- Quechua
+- quechua
+# ISO 639-1 standard language codes
+- qu            # Quechua
+- qu-BO         # Quechua (Bolivia)
+- qu-EC         # Quechua (Ecuador)
+- qu-PE         # Quechua (Peru)
+
+RHAETOROMANIC:
+- RHAETOROMANIC
+- RhaetoRomanic
+- rhaetoRomanic
+- Rhaetoromanic
+- rhaetoromanic
+- RHAETO-ROMANIC
+- RHAETO-Romanic
+- RHAETO-romanic
+- Rhaeto-ROMANIC
+- rhaeto-ROMANIC
+- rhaeto-romanic
+# ISO 639-1 standard language codes
+- rm
+
+ROMANIAN:
+- ROMANIAN
+- Romanian
+- romanian
+# ISO 639-1 standard language codes
+- ro            # Romanian
+- ro-RO         # Romanian (Romania)
+- ro-ro
+- RO-RO
+- ro-MD         # Romanian (Republic of Moldova)
+- ro-md
+- RO-MD
+
+RUSSIAN:
+- RUSSIAN
+- Russian
+- russian
+# ISO 639-1 standard language codes
+- ru            # Russian
+- ru-RU         # Russian (Russia)
+- ru-RU
+- RU-RU
+- ru-MD         # Russian (Republic of Moldova)
+- ru-md
+- RU-MD
+
+SAMI:
+- SAMI
+- Sami
+- sami
+# ISO 639-1 standard language codes
+- se            # Sami (Northern)
+- se-FI         # Sami (Northern) (Finland)
+                # Sami (Skolt) (Finland)
+                # Sami (Inari) (Finland)
+- se-NO         # Sami (Northern) (Norway)
+                # Sami (Lule) (Norway)
+                # Sami (Southern) (Norway)
+- se-SE         # Sami (Northern) (Sweden)
+                # Sami (Lule) (Sweden)
+                # Sami (Southern) (Sweden)
+
+SANSKRIT:
+- SANSKRIT
+- Sanskrit
+- sanskrit
+# ISO 639-1 standard language codes
+- sa            # Sanskrit
+- sa-IN         # Sanskrit (India)
+- sa-in
+- SA-IN
+
+SERBIAN:
+- SERBIAN
+- Serbian
+- serbian
+# ISO 639-1 standard language codes
+- sr            # Serbian
+- SR
+- sr-BA         # Serbian (Latin) (Bosnia and Herzegovina)
+                # Serbian (Cyrillic) (Bosnia and Herzegovina)
+- sr-ba
+- SR-BA
+- sr-SP         # Serbian (Latin) (Serbia and Montenegro)
+                # Serbian (Cyrillic) (Serbia and Montenegro)
+- sr-sp
+- SR-SP
+
+SLOVAK:
+- SLOVAK
+- Slovak
+- slovak
+# ISO 639-1 standard language codes
+- sk            # Slovak
+- sk-SK         # Slovak (Slovakia)
+- sk-sk
+- SK-SK
+
+SLOVENIAN:
+- SLOVENIAN
+- Slovenian
+- slovenian
+# ISO 639-1 standard language codes
+- sl            # Slovenian
+- sl-SL         # Slovenian (Slovenia)
+- sl-sl
+- SL-SL
+
+SORBIAN:
+- SORBIAN
+- Sorbian
+- sorbian
+# ISO 639-1 standard language codes
+- sb
+
+SPANISH:
+- SPANISH
+- Spanish
+- spanish
+- spanska
+- CASTILIAN
+- Castilian
+- castilian
+- CASTELLANO
+- Castellano
+- castellano
+- ESPAÑOL
+- Español
+- español
+# ISO 639-1 standard language codes
+- es            # Spanish (Spain)
+- es-ar         # Spanish (Argentina)
+- es-AR
+- es-bo         # Spanish (Bolivia)
+- es-BO
+- es-cl         # Spanish (Chile)
+- es-CL
+- es-co         # Spanish (Colombia)
+- es-CO
+- es-cr         # Spanish (Costa Rica)
+- es-CR
+- es-do         # Spanish (Dominican Republic)
+- es-DO
+- es-ec         # Spanish (Ecuador)
+- es-EC
+- es-gt         # Spanish (Guatemala)
+- es-GT
+- es-hn         # Spanish (Honduras)
+- es-HN
+- es-mx         # Spanish (Mexico)
+- es-MX
+- es-ni         # Spanish (Nicaragua)
+- es-NI
+- es-pa         # Spanish (Panama)
+- es-PA
+- es-pe         # Spanish (Peru)
+- es-PE
+- es-pr         # Spanish (Puerto Rico)
+- es-PR
+- es-py         # Spanish (Paraguay)
+- es-PY
+- es-sv         # Spanish (El Salvador)
+- es-SV
+- es-uy         # Spanish (Uruguay)
+- es-UY
+- es-ve         # Spanish (Venezuela)
+- es-VE
+
+SWAHILI:
+- SWAHILI
+- Swahili
+- swahili
+# ISO 639-1 standard language codes
+- sw            # Swahili
+- sw-KE         # Swahili (Kenya)
+- sw-ke
+- SW-KE
+
 SWEDISH:
 - SV
 - sv
@@ -12,5 +659,174 @@ SWEDISH:
 - swe
 - SWEDISH
 - swedish
+- svensk
+- SVENSK
 - svenska
 - SVENSKA
+- svenskt
+- SVENSKT
+# ISO 639-1 standard language codes
+- sv-fi         # Swedish (Finland)
+- sv-FI         # Swedish (Finland)
+- sv-se         # Swedish (Sweden)
+- sv-SE         # Swedish (Sweden)
+
+SYRIAC:
+- SYRIAC
+- Syriac
+- syriac
+# ISO 639-1 standard language codes
+- syr           # Syriac
+- syr-SY        # Syriac (Syria)
+- syr-sy
+- SYR-SY
+
+TAGALOG:
+- TAGALOG
+- Tagalog
+- tagalog
+# ISO 639-1 standard language codes
+- tl            # Tagalog
+- tl-PH         # Tagalog (Philippines)
+- tl-ph
+- TL-PH
+
+TAMIL:
+- TAMIL
+- Tamil
+- tamil
+# ISO 639-1 standard language codes
+- ta            # Tamil
+- ta-IN         # Tamil (India)
+- ta-in
+- TA-IN
+
+TATAR:
+- TATAR
+- Tatar
+- tatar
+# ISO 639-1 standard language codes
+- tt            # Tatar
+- tt-RU         # Tatar (Russia)
+- tt-ru
+- TT-RU
+
+TELUGU:
+- TELUGU
+- Telugu
+- telugu
+# ISO 639-1 standard language codes
+- te            # Telugu
+- te-IN         # Telugu (India)
+- te-in
+- TE-IN
+
+THAI:
+- THAI
+- Thai
+- thai
+# ISO 639-1 standard language codes
+- th            # Thai
+- th-TH         # Thai (Thailand)
+- th-th
+- TH-TH
+
+TSONGA:
+- TSONGA
+- Tsonga
+- tsonga
+# ISO 639-1 standard language codes
+- ts
+
+TSWANA:
+- TSWANA
+- Tswana
+- tswana
+# ISO 639-1 standard language codes
+- tn            # Tswana
+- tn-ZA         # Tswana (South Africa)
+- tn-za
+- TN-ZA
+
+TURKISH:
+- TURKISH
+- Turkish
+- turkish
+# ISO 639-1 standard language codes
+- tr            # Turkish
+- tr-TR         # Turkish (Turkey)
+- tr-tr
+- TR-TR
+
+UKRAINIAN:
+- UKRAINIAN
+- Ukrainian
+- ukrainian
+# ISO 639-1 standard language codes
+- uk            # Ukrainian
+- uk-UA         # Ukrainian (Ukraine)
+- uk-ua
+- UK-UA
+
+URDU:
+- URDU
+- Urdu
+- urdu
+# ISO 639-1 standard language codes
+- ur            # Urdu
+- ur-PK         # Urdu (Islamic Republic of Pakistan)
+- ur-pk
+- UR-PK
+
+UZBEK:
+- UZBEK
+- Uzbek
+- uzbek
+# ISO 639-1 standard language codes
+- uz            # Uzbek (Latin)
+- uz-UZ         # Uzbek (Latin) (Uzbekistan)
+- uz-UZ         # Uzbek (Cyrillic) (Uzbekistan)
+
+VENDA:
+- VENDA
+- Venda
+- venda
+# ISO 639-1 standard language codes
+- ve
+
+VIETNAMESE:
+- VIETNAMESE
+- Vietnamese
+- vietnamese
+# ISO 639-1 standard language codes
+- vi            # Vietnamese
+- vi-VN         # Vietnamese (Viet Nam)
+
+XHOSA:
+- XHOSA
+- Xhosa
+- xhosa
+# ISO 639-1 standard language codes
+- xh            # Xhosa
+- xh-ZA         # Xhosa (South Africa)
+
+WELSH:
+- WELSH
+- Welsh
+- welsh
+# ISO 639-1 standard language codes
+- cy
+
+YIDDISH:
+- YIDDISH
+- Yiddish
+- yiddish
+# ISO 639-1 standard language codes
+- ji
+
+ZULU:
+- ZULU
+- Zulu
+- zulu
+# ISO 639-1 standard language codes
+- zu

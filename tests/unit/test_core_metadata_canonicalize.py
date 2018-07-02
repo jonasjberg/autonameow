@@ -318,12 +318,16 @@ class TestCanonicalizePublisher(CaseCanonicalizers, TestCase):
 class TestCanonicalizeLanguage(CaseCanonicalizers, TestCase):
     FILENAME_TESTDATA = 'test_core_metadata_canonicalize_language.yaml'
 
-    def test_canonicalize_language(self):
+    def test_canonicalizes_languages(self):
         for canonical, equivalent_values in self.TESTDATA.items():
             for equivalent_value in equivalent_values:
+                actual = _canonicalize_language(equivalent_value)
+
                 with self.subTest(given_expected=(equivalent_value, canonical)):
-                    actual = _canonicalize_language(equivalent_value)
                     self.assertEqual(canonical, actual)
+
+                with self.subTest(actual=actual):
+                    self.assertTrue(actual.isupper(), 'Expected upper-case canonical form')
 
     def test_does_not_canonicalize_non_languages(self):
         for given_non_language in [

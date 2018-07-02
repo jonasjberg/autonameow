@@ -1,18 +1,402 @@
+AFRIKAANS:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^af(-za)?$
+
+ALBANIAN:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^sq(-al)?$
+
+ARABIC:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^ar(-[abdeijklmoqsty][abeghmnoqwyz])?$
+
+AZERI:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^az(-az)?$
+
+BASQUE:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - eu
+    - EU
+
+BELARUSIAN:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^be(-by)?$
+
+BULGARIAN:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^bg(-bg)?$
+
+CATALAN:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^ca(-es)?$
+
+CHINESE:
+    match_any_literal:
+    - 汉语      # "Chinese language" in simplified Chinese
+    - 漢語      # "Chinese language" in traditional Chinese
+    - HÀNYǓ     # "Chinese language" in pinyin
+    - Hànyǔ
+    - hànyǔ
+    - 中文      # "Chinese writing" in Chinese
+    - ZHŌNGWÉN  # "Chinese writing" in pinyin
+    - Zhōngwén
+    - zhōngwén
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^zh(-[chmst][gknow])?$
+
+CROATIAN:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - hr
+
+CZECH:
+    match_any_literal:
+    # ISO 639-1 standard language codes
+    - cs
+    - cs-CZ
+
+DANISH:
+    match_any_regex:
+    - danska?
+    # ISO 639-1 standard language code
+    - ^da(-dk)?$
+
+DIVEHI:
+    match_any_literal:
+    # ISO 639-1 standard language codes
+    - dv
+    - dv-MV
+
+DUTCH:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^nl(-be)?$
+
 ENGLISH:
     match_any_regex:
     - ^en(g|glish)$
-    - ^EN(G|GLISH)$
+    - ^engelska?$
+    # ISO 639-1 standard language codes
+    - ^en(-[abcgijnptuz][abehmstuwz])?$
+
+ESTONIAN:
     match_any_literal:
-    - en
-    - EN
+    # ISO 639-1 standard language code
+    - et
+
+FAEROESE:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - fo
+
+FARSI:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - fa
+
+FINNISH:
+    match_any_regex:
+    - suomen kieli
+    - ^suomi$
+    match_any_literal:
+    - finska
+    # ISO 639-1 standard language code
+    - fi
+
+FRENCH:
+    match_any_regex:
+    - français
+    - ^franska$
+    # ISO 639-1 standard language codes
+    - ^fr(-[bcl][eahu])?$
+
+GAELIC:  # (Scotland)
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - gd
+
+GERMAN:
+    match_any_regex:
+    - '^deutsch$'
+    # ISO 639-1 standard language codes
+    - ^de(-[acl][thiu])?$
+
+GREEK:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - el
+    - el-GR
+
+HEBREW:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - he
+
+HINDI:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - hi
+
+HUNGARIAN:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - hu
+
+ICELANDIC:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - is
+
+INDONESIAN:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - id
+
+IRISH:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - ga
+
+ITALIAN:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^it(-ch)?$
+
+JAPANESE:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - ja
+
+KOREAN:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^ko(-kr)?$
+
+KURDISH:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - ku
+
+LITHUANIAN:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - lt
+
+LATVIAN:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - lv
+
+MACEDONIAN:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - mk
+
+MALAYALAM:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - ml
+
+MALAYSIAN:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - ms
+
+MALTESE:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - mt
+
+NORWEGIAN:
+    match_any_regex:
+    - ^norska?$
+    # ISO 639-1 standard language codes
+    - ^n[bno](-no)?$
+
+POLISH:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^pl(-pl)?$
+
+PORTUGUESE:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^pt(-[bp][rt])?$
+
+PUNJABI:
+    match_any_regex:
+    # ISO 639-1 standard language code
+    - ^pa(-in)?$
+
+QUECHUA:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^qu(-[bep][ceo])?$
+
+RHAETOROMANIC:
+    match_any_regex:
+    - RHAETO-?ROMANIC
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - rm
+
+ROMANIAN:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^ro(-[mr][do])?$
+
+RUSSIAN:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^ru(-[mr][du])?$
+
+SAMI:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^se(-[fns][eio])?$
+
+SANSKRIT:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^sa(-in)?$
+
+SERBIAN:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^sr(-[bs][ap])?$
+
+SLOVAK:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^sk(-sk)?$
+
+SLOVENIAN:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^sl(-sl)?$
+
+SORBIAN:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - sb
+
+SPANISH:
+    match_any_regex:
+    - ^spanska$
+    - ^castilian$
+    - ^castellano$
+    - ^español$
+    # ISO 639-1 standard language codes
+    - ^es(-[ABCDEGHMNPSUV][ACEILNORTVXY])?$
+
+SWAHILI:
+    match_any_regex:
+    - ^sw(-ke)?$
+
 SWEDISH:
     match_any_regex:
     - ^swe(dish)?$
-    - ^SWE(DISH)?$
+    - ^svensk(a|t)?$
+    - ^sv(-[fs][ie])?$
+
+SYRIAC:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^syr(-sy)?$
+
+TAGALOG:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^tl(-ph)?$
+
+TAMIL:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^ta(-in)?$
+
+TATAR:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^tt(-ru)?$
+
+TELUGU:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^te(-in)?$
+
+THAI:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^th(-th)?$
+
+TSONGA:
     match_any_literal:
-    - sv
-    - SV
-    - se
-    - SE
-    - SVENSKA
-    - svenska
+    # ISO 639-1 standard language code
+    - ts
+
+TSWANA:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^tn(-za)?$
+
+TURKISH:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^tr(-tr)?$
+
+UKRAINIAN:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^uk(-ua)?$
+
+URDU:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^ur(-pk)?$
+
+UZBEK:
+    match_any_regex:
+    # ISO 639-1 standard language codes
+    - ^uz(-uz)?$
+
+VENDA:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - ve
+
+VIETNAMESE:
+    match_any_literal:
+    # ISO 639-1 standard language codes
+    - vi
+    - vi-VN
+
+XHOSA:
+    match_any_literal:
+    # ISO 639-1 standard language codes
+    - xh
+    - xh-ZA
+
+WELSH:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - cy
+
+YIDDISH:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - ji
+
+ZULU:
+    match_any_literal:
+    # ISO 639-1 standard language code
+    - zu
