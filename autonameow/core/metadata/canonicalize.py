@@ -109,7 +109,7 @@ class StringValueCanonicalizer(object):
 
 class CanonicalizerConfigParser(object):
     CONFIG_SECTION_MATCH_ANY_LITERAL = 'match_any_literal'
-    CONFIG_SECTION_MATCH_ANY_REGEX = 'match_any_regex'
+    CONFIG_SECTION_MATCH_ANY_REGEX = 'match_any_regex_ignorecase'
 
     def __init__(self, config_datadict, lookup_dict_filepath=None):
         assert isinstance(config_datadict, dict)
