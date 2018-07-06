@@ -18,6 +18,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+from functools import lru_cache
 
 from util import coercers
 from util.text.transform import collapse_whitespace
@@ -90,16 +91,13 @@ _ORDINAL_NUMBER_PATTERNS = [
 ]
 
 
-RE_ORDINALS = dict()
-
-
+@lru_cache()
 def compiled_ordinal_regexes():
-    global RE_ORDINALS
-    if not RE_ORDINALS:
-        for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
-            compiled_regex = re.compile(regexp, re.IGNORECASE)
-            RE_ORDINALS[number] = compiled_regex
-    return RE_ORDINALS
+    re_ordinals = dict()
+    for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
+        compiled_regex = re.compile(regexp, re.IGNORECASE)
+        re_ordinals[number] = compiled_regex
+    return re_ordinals
 
 
 RE_ORDINAL_EDITION = dict()
