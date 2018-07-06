@@ -84,6 +84,11 @@ class TestCompiledOrdinalEditionRegexes(TestCase):
         cls.builtin_regex_type = coercers.BUILTIN_REGEX_TYPE
         cls.actual_compiled_regexes = compiled_ordinal_edition_regexes()
 
+    @classmethod
+    def tearDownClass(cls):
+        # Call 'cache_clear()' added by the 'functools.lru_cache' decorator.
+        compiled_ordinal_edition_regexes.cache_clear()
+
     def test_returns_expected_type(self):
         self.assertIsNotNone(self.actual_compiled_regexes)
         self.assertIsInstance(self.actual_compiled_regexes, dict)

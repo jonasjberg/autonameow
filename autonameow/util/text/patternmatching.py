@@ -100,17 +100,14 @@ def compiled_ordinal_regexes():
     return re_ordinals
 
 
-RE_ORDINAL_EDITION = dict()
-
-
+@lru_cache()
 def compiled_ordinal_edition_regexes():
-    global RE_ORDINAL_EDITION
-    if not RE_ORDINAL_EDITION:
-        for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
-            ordinal_edition_pattern = regexp + r' ?(edition|ed\.?|e)'
-            compiled_regex = re.compile(ordinal_edition_pattern, re.IGNORECASE)
-            RE_ORDINAL_EDITION[number] = compiled_regex
-    return RE_ORDINAL_EDITION
+    re_ordinal_edition = dict()
+    for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
+        ordinal_edition_pattern = regexp + r' ?(edition|ed\.?|e)'
+        compiled_regex = re.compile(ordinal_edition_pattern, re.IGNORECASE)
+        re_ordinal_edition[number] = compiled_regex
+    return re_ordinal_edition
 
 
 def find_and_extract_edition(string):
