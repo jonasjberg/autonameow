@@ -53,8 +53,9 @@ def init_argparser():
     """
     parser = cli.get_argparser(
         prog='autonameow',
-        description='{} {}'.format(C.STRING_PROGRAM_NAME,
-                                   C.STRING_PROGRAM_VERSION),
+        description='{} {} <{}>'.format(C.STRING_PROGRAM_NAME,
+                                        C.STRING_PROGRAM_VERSION,
+                                        C.STRING_AUTHOR_EMAIL),
         epilog='Automatic renaming of files from analysis of '
                'several sources of information.'
                '\n Project website:  {}'.format(C.STRING_URL_REPO),
