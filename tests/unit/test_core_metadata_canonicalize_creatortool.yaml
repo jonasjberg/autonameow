@@ -26,10 +26,10 @@ Adobe Acrobat:
 - Acrobat Pro DC 17.9.20058
 - Acrobat Pro DC 18.11.20038
 - Acrobat Pro DC 18.9.20050
-- 'Acrobat: pictwpstops filter 1.(Infix Pro(Infix Pro(Infix Pro(Infix Pro)'
-- 'Acrobat: pictwpstops filter 1.0'
-- 'Acrobat: pictwpstops filter 1.0(Infix Pro)'
-- 'Acrobat: pictwpstops filter 1.0(Infix)'
+- "Acrobat: pictwpstops filter 1.(Infix Pro(Infix Pro(Infix Pro(Infix Pro)"
+- "Acrobat: pictwpstops filter 1.0"
+- "Acrobat: pictwpstops filter 1.0(Infix Pro)"
+- "Acrobat: pictwpstops filter 1.0(Infix)"
 - Adobe Acrobat 10.1.1
 - Adobe Acrobat 10.1.8
 - Adobe Acrobat 11.0.1
@@ -111,8 +111,8 @@ Adobe FrameMaker:
 - FrameMaker 5.5.6p145
 - FrameMaker 5.5P4f
 - FrameMaker 6.0
-- 'FrameMaker 6.0: AdobePS 8.6 (219)'
-- 'FrameMaker 6.0: AdobePS 8.8.0 (301)'
+- "FrameMaker 6.0: AdobePS 8.6 (219)"
+- "FrameMaker 6.0: AdobePS 8.8.0 (301)"
 - FrameMaker 7.0
 - FrameMaker 7.1
 - FrameMaker 7.2
@@ -178,7 +178,7 @@ Adobe InDesign:
 - Adobe InDesign CS5.5 (7.5.3)
 - Adobe InDesign CS6 (Macintosh)
 - Adobe InDesign CS6 (Windows)
-- 'InDesign: pictwpstops filter 1.0'
+- "InDesign: pictwpstops filter 1.0"
 Adobe LiveCycle Designer:
 - Adobe LiveCycle Designer
 - Adobe LiveCycle Designer ES 8.2
@@ -206,11 +206,11 @@ AdobePS:
 - PostScript(R) Printer Driver AdobePS
 - PostScript(R) Printer Driver AdobePS(R) 8.5.1
 - PostScript(R) Printer Driver AdobePS(R)
-- 'Textures.: AdobePS'
+- "Textures.: AdobePS"
 - "Textures\xAE: AdobePS"
-- 'Textures.: AdobePS 8.5.1'
+- "Textures.: AdobePS 8.5.1"
 - "Textures\xAE: AdobePS 8.7.3 (301)"
-- 'Textures.: AdobePS 8.5.1'
+- "Textures.: AdobePS 8.5.1"
 - "Textures\xAE: AdobePS 8.7.3"
 - Textures. AdobePS
 - "Textures\xAE AdobePS"
@@ -221,7 +221,7 @@ AdobePS:
 Advanced PDF Repair:
 - Advanced PDF Repair
 - Advanced PDF Repair at http://www.datanumen.com/apdfr/
-- 'Advanced PDF Repair: http://www.pdf-repair.com'
+- "Advanced PDF Repair: http://www.pdf-repair.com"
 - DataNumen PDF Repair v2.1
 - DataNumen PDF Repair
 - DPDFR
@@ -232,18 +232,18 @@ A-PDF Merger:
 AH CSS Formatter:
 - AH CSS Formatter
 - AH CSS Formatter V1.0
-- 'AH CSS Formatter V6.0 MR2 for Linux64 : 6.0.2.5372 (2012/05/16 18:26JST)'
-- 'AH CSS Formatter V6.1 R1 for Linux64 : 6.1.5.11330 (2013/05/23 13:33JST)'
-- 'AH CSS Formatter V6.2 MR3 for Linux64 : 6.2.5.18171 (2014/08/04 16:28JST)'
-- 'AH CSS Formatter V6.2 MR4 for Linux64 : 6.2.6.18551 (2014/09/24 15:00JST)'
-- 'AH CSS Formatter V6.2 R1 for Linux64 : 6.2.2.15776 (2014/02/27 18:51JST)'
-- 'AH CSS Formatter V6.2 R1 for Linux64 : 6.2.2.15776 (2014/02/27 18:51JST)'
+- "AH CSS Formatter V6.0 MR2 for Linux64 : 6.0.2.5372 (2012/05/16 18:26JST)"
+- "AH CSS Formatter V6.1 R1 for Linux64 : 6.1.5.11330 (2013/05/23 13:33JST)"
+- "AH CSS Formatter V6.2 MR3 for Linux64 : 6.2.5.18171 (2014/08/04 16:28JST)"
+- "AH CSS Formatter V6.2 MR4 for Linux64 : 6.2.6.18551 (2014/09/24 15:00JST)"
+- "AH CSS Formatter V6.2 R1 for Linux64 : 6.2.2.15776 (2014/02/27 18:51JST)"
+- "AH CSS Formatter V6.2 R1 for Linux64 : 6.2.2.15776 (2014/02/27 18:51JST)"
 AH XSL Formatter:
 - AH XSL Formatter
 - AH XSL Formatter V1.0
 - AH XSL Formatter V6.0 MR5a for Windows
-- 'AH XSL Formatter V6.0 MR5a for Windows : 6.0.6.7873'
-- 'AH XSL Formatter V6.0 MR5a for Windows : 6.0.6.7873 (2012/10/30 11:18JST)'
+- "AH XSL Formatter V6.0 MR5a for Windows : 6.0.6.7873"
+- "AH XSL Formatter V6.0 MR5a for Windows : 6.0.6.7873 (2012/10/30 11:18JST)"
 - XSL Formatter V3.2 MR3
 - XSL Formatter V3.4 MR3 (3,4,2006,0314) for Windows
 - XSL Formatter V3.4 MR3 (3,4,2006,0314) for Windows(Infix)
@@ -370,8 +370,8 @@ Calibre:
 - calibre 2.83.0
 - calibre 3.2.0 [http://calibre-ebook.com]
 - calibre 3.2.0 [https://calibre-ebook.com]
-- '[https://calibre-ebook.com]'
-- '[http://calibre-ebook.com]'
+- "[https://calibre-ebook.com]"
+- "[http://calibre-ebook.com]"
 - https://calibre-ebook.com
 - http://calibre-ebook.com
 Chromium:
@@ -381,20 +381,33 @@ DocBook:
 - DocBook XSL Stylesheets V1.77.1
 dvips:
 - dvips
+- dvips + AFPL Ghostscript 8.51 / PDF PT 2.37 (pdf-tools.com)
+- dvips + AFPL Ghostscript 8.54 / PDF PT 2.37 (pdf-tools.com)
+- dvips + Distiller
+- dvips + Distiller; modified using iTextSharp 5.0.0 (c) 1T3XT BVBA
+- dvips + GPL Ghostscript 9.16
 - dvips 5.83 Copyright 1998 Radical Eye Software
+- dvips(k)
 - dvips(k) 5.86 Copyright 1999 Radical Eye Software
 - dvips(k) 5.86d Copyright 1999 Radical Eye Software
 - dvips(k) 5.92b Copyright 2002 Radical Eye Software
 - dvips(k) 5.95a Copyright 2005 Radical Eye Software
 - dvips(k) 5.95b Copyright 2005 Radical Eye Software
 - dvips(k) 5.96.1 Copyright 2007 Radical Eye Software
+- dvips(k) 5.96dev Copyright 2007 Radical Eye Software
 - dvips(k) 5.99 Copyright 2010 Radical Eye Software
+- dvips(k) 5.991 Copyright 2011 Radical Eye Software
+- dvips(k) 5.992 Copyright 2012 Radical Eye Software
 - dvips(k) 5.993 Copyright 2013 Radical Eye Software
-- dvips(k)
+- dvips(k) 5.994 Copyright 2014 Radical Eye Software
+- dvips(k) 5.995 Copyright 2015 Radical Eye Software
+- dvips(k) 5.996 Copyright 2016 Radical Eye Software
 - dvipsk 5.58f Copyright 1986, 1994 Radical Eye Software
 - DVIPSONE 2.2.4  http://www.YandY.com
 Epson Printer:
 - Epson Printer
+- Epson Scan
+- EPSON Scan
 - EPSON CX5900/CX6000/DX6000
 - EPSON NX410/SX410/TX410
 - EPSON Perfection 3170
@@ -410,8 +423,8 @@ Foxit:
 Fujitsu Printer:
 - Fujitsu Printer
 - ScanSnap Manager
-- 'ScanSnap Manager #iX500'
-- 'ScanSnap Manager #S1300'
+- "ScanSnap Manager #iX500"
+- "ScanSnap Manager #S1300"
 Ghostscript:
 - Ghostscript
 - GPL Ghostscript
@@ -419,6 +432,11 @@ Ghostscript:
 - GPL Ghostscript 9.07
 - GPL Ghostscript 1.2
 - GPL Ghostscript 1.2.3
+gnuplot:
+- gnuplot
+- gnuplot 4.2 patchlevel 3
+- "gnuplot 4.2 patchlevel 3 "
+- gnuplot 4.7 patchlevel 0
 groff:
 - groff
 - groff version 1.18
@@ -464,27 +482,40 @@ Kingsoft WPS Office:
 - WPS Office
 - "WPS Office \u4E2A\u4EBA\u7248"
 LaTeX:
+- DBLaTeX
+- DBLaTeX-0.3.4
 - latex
 - LaTeX
 - LaTeX with hyperref package
+- LaTeX with hyperref package + hypdvips
+- PDFLaTeX
+- PDF LaTeX
+- STM LaTeX
+- STM LaTeX and Word Typesetting
 Microsoft PowerPoint:
-- PowerPoint
+- PowerPoint - [meow meow]
+- "Microsoft\xAE Office PowerPoint"
+- "Microsoft\xAE Office PowerPoint\xAE 2007"
+- "Microsoft\xAE PowerPoint\xAE 2013"
+- "PowerPoint cgpdftops CUPS filter"
+- "PowerPoint: cgpdftops CUPS filter"
 - Acrobat PDFMaker 6.0 for PowerPoint
 - Acrobat PDFMaker 7.0.5 for PowerPoint
 - Acrobat PDFMaker 8.1 for PowerPoint
 - Adobe Acrobat PDFMaker 6.0 for PowerPoint
 - Adobe Acrobat PDFMaker 7.0.5 for PowerPoint
 - Adobe Acrobat PDFMaker 8.1 for PowerPoint
-- Microsoft Office PowerPoint 2007
 - Microsoft Office PowerPoint
+- Microsoft Office PowerPoint 2007
+- Microsoft PowerPoint
 - Microsoft PowerPoint - [hack_3.ppt]
 - Microsoft PowerPoint - [meow meow]
 - Microsoft PowerPoint - [WM4]
-- Microsoft PowerPoint
-- Microsoft PowerPoint
-- "Microsoft\xAE Office PowerPoint"
-- "Microsoft\xAE Office PowerPoint\xAE 2007"
-- "Microsoft\xAE PowerPoint\xAE 2013"
+- Microsoft® Office PowerPoint® 2007
+- Microsoft® Office PowerPoint® 2007 Trial
+- Microsoft® PowerPoint® 2010
+- Microsoft® PowerPoint® 2013
+- Microsoft® PowerPoint® 2016
 Microsoft Publisher:
 - Microsoft Publisher
 - "Microsoft\xAE Publisher"
@@ -529,7 +560,7 @@ Microsoft Word:
 - Microsoft Word 2000/2002
 - Microsoft Word 9.0
 - Microsoft Word
-- 'Microsoft Word: cgpdftops CUPS filter(Infix Pro)'
+- "Microsoft Word: cgpdftops CUPS filter(Infix Pro)"
 - "Microsoft\xAE Office Word 2007 (Beta)"
 - "Microsoft\xAE Office Word 2007"
 - "Microsoft\xAE Word 2010 Trial"
@@ -539,6 +570,30 @@ Microsoft Word:
 - "Microsoft\xAE Word Starter 2010"
 - Socket_quickref - Microsoft Word
 - WINWORD.EXE
+MikTex:
+- dvips + MiKTeX GPL Ghostscript  9.0
+- dvips + MiKTeX GPL Ghostscript 9.05
+- MikTex
+- MiKTeX GPL Ghostscript 9.05
+- MiKTeX pdfTeX-1.21a
+- MiKTeX pdfTeX-1.40.10
+- MiKTeX pdfTeX-1.40.11
+- MiKTeX pdfTeX-1.40.12
+- MiKTeX pdfTeX-1.40.13
+- MiKTeX pdfTeX-1.40.17
+- MiKTeX pdfTeX-1.40.18; modified using iText® 5.5.6 ©2000-2015 iText Group NV (AGPL-version)
+- MiKTeX-xdvipdfmx (20160619)
+- This is MiKTeX-pdfTeX 2.8.3563 (1.40.10)
+- This is MiKTeX-pdfTeX 2.8.3759 (1.40.10)
+- This is MiKTeX-pdfTeX 2.9.3962 (1.40.11)
+- This is MiKTeX-pdfTeX 2.9.4052 (1.40.11)
+- This is MiKTeX-pdfTeX 2.9.4225 (1.40.12)
+- This is MiKTeX-pdfTeX 2.9.4487 (1.40.12)
+- This is MiKTeX-pdfTeX 2.9.4902 (1.40.14)
+- This is MiKTeX-pdfTeX 2.9.5900 (1.40.17)
+- This is MiKTeX-pdfTeX 2.9.6000 (1.40.17)
+- This is MiKTeX-pdfTeX 2.9.6211 (1.40.17)
+- This is pdfTeX, Version 3.141592-1.20b (MiKTeX 2.4.1862)
 Mozilla PostScript:
 - Mozilla PostScript
 - Mozilla PostScript module
@@ -682,7 +737,7 @@ QuarkXPress:
 - "QuarkXPress\xAA: LaserWriter 8 8.6.5"
 - "QuarkXPress\xE2\u2014\xA2: LaserWriter 8 8.7.1"
 - "QuarkXPress Passport\xAA: PSPrinter 8.3.1"
-- 'QuarkXPress: pictwpstops filter 1.0'
+- "QuarkXPress: pictwpstops filter 1.0"
 - QuarkXPress(tm) 4.1
 - QuarkXPress(tm) 6.0
 - QuarkXPress(tm) 6.5
@@ -706,9 +761,9 @@ TeX:
 - TeX output 2003.02.20:0404
 - TeX output 2005.08.28:1646
 - TeX output 2008.06.18:1321
-- ' TeX output 2003.02.20:0404'
-- ' TeX output 2005.08.28:1646'
-- ' TeX output 2008.06.18:1321'
+- " TeX output 2003.02.20:0404"
+- " TeX output 2005.08.28:1646"
+- " TeX output 2008.06.18:1321"
 tiff2ps:
 - tiff2ps
 ToPDF.com:
@@ -739,6 +794,16 @@ UNKNOWN:
 - UNKNOWN
 - Unknown
 - UnknownApplication
+- ()
+- 0000.tif
+- 0022.tif
+- 0100.tif
+- 0104.tif
+- 0128.tif
+- 0384.tif
+- 9999.tif
+- 0000.foo
+- 9999.foo
 VTeX PDF Tools:
 - VTeX PDF Tools
 Win2PDF:
@@ -758,6 +823,16 @@ XEP:
 - XEP 4.5 build 20060313
 XeTeX:
 - XeTeX
+- XeTeX 0.99992
+- XeTeX 0.99996
+- XeTeX 0.99998
 - XeTeX output
 - XeTeX output 2011.11.24:1058
-- ' XeTeX output 2011.11.24:1058'
+- XeTeX output 2015.11.16:1916
+- XeTeX output 2017.05.08:1638
+- XeTeX output 2018.01.24:1710
+- " XeTeX output"
+- " XeTeX output 2011.11.24:1058"
+- " XeTeX output 2015.11.16:1916"
+- " XeTeX output 2017.05.08:1638"
+- " XeTeX output 2018.01.24:1710"

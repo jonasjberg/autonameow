@@ -25,8 +25,7 @@ Adobe Acrobat:
     match_any_regex_ignorecase:
     - Acrobat \d+\.\d+(\.\d+)?
     - 'Acrobat:'
-    - Acrobat Pro
-    - Acrobat pictwpstops
+    - Acrobat (pictwpstops|Pro)
     - Adobe Acrobat
     - Quite Imposing
 Adobe Acrobat Distiller:
@@ -120,7 +119,7 @@ DocBook:
     - DocBook
 dvips:
     match_any_regex_ignorecase:
-    - dvips
+    - \bdvips
 Epson Printer:
     match_any_regex_ignorecase:
     - Epson
@@ -138,7 +137,10 @@ Fujitsu Printer:
     - ScanSnap Manager
 Ghostscript:
     match_any_regex_ignorecase:
-    - Ghostscript
+    - ^(GPL )?Ghostscript
+gnuplot:
+    match_any_regex_ignorecase:
+    - gnuplot
 groff:
     match_any_regex_ignorecase:
     - groff
@@ -161,13 +163,17 @@ Infix Pdf Editor:
     - Iceni
 iText:
     match_any_regex_ignorecase:
-    - iText
+    - ^iText\b
 Kingsoft WPS Office:
     match_any_regex_ignorecase:
     - (KS|Kingsoft|WPS) ?Office
 LaTeX:
     match_any_regex_ignorecase:
     - LaTeX
+MikTex:
+    match_any_regex_ignorecase:
+    - MikTex
+    - \(MikTex.*\)
 Mozilla PostScript:
     match_any_regex_ignorecase:
     - Mozilla PostScript
@@ -223,7 +229,7 @@ PDFsharp:
     - PDFsharp
 pdfTeX:
     match_any_regex_ignorecase:
-    - pdfTeX
+    - ^(This is )?pdfTeX
 pdftk:
     match_any_regex_ignorecase:
     - pdftk
@@ -279,7 +285,10 @@ Tracker PDF-Tools:
     - Tracker.?.? PDF-Tools
 UNKNOWN:
     match_any_literal:
+    - ()
     - UnknownApplication
+    match_any_regex_ignorecase:
+    - ^\d+\.[a-z]{3}$
 VTeX PDF Tools:
     match_any_literal:
     - VTeX PDF Tools
