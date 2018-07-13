@@ -132,14 +132,22 @@ class TestIsBadMetadata(TestCase):
 
     def test_bad_tags_values_return_true(self):
         self._assert_bad('PDF:Author', 'Author')
+        self._assert_bad('PDF:Author', 'Owner')
+        self._assert_bad('PDF:Author', 'root')
+        self._assert_bad('PDF:Author', 'Unknown')
         self._assert_bad('PDF:Author', 'First Edition')
         self._assert_bad('PDF:Author', 'Second Edition')
         self._assert_bad('PDF:Author', 'Third Edition')
+        self._assert_bad('PDF:Author', '\x104<8=8AB@0B>@')
+        self._assert_bad('PDF:Author', ['\x104<8=8AB@0B>@'])
         self._assert_bad('PDF:Language', 'Language')
         self._assert_bad('PDF:Language', '3¹')
         self._assert_bad('PDF:Language', '×¹')
         self._assert_bad('PDF:Subject', 'Subject')
+        self._assert_bad('PDF:Subject', 'Unknown')
+        self._assert_bad('PDF:Title', 'DjVu Document')
         self._assert_bad('PDF:Title', 'Title')
+        self._assert_bad('PDF:Title', 'Unknown')
         self._assert_bad('XMP:Author', 'Author')
         self._assert_bad('XMP:Contributor', 'Epubor')
         self._assert_bad(
@@ -165,14 +173,10 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad('Palm:Contributor', 'calibre (2.85.1) [https://calibre-ebook.com]')
         self._assert_bad('Palm:Contributor', 'calibre (3.6.0) [https://calibre-ebook.com]')
 
-        self._assert_bad('PDF:Author', '\x104<8=8AB@0B>@')
-        self._assert_bad('PDF:Author', ['\x104<8=8AB@0B>@'])
-        self._assert_bad('PDF:Author', 'Unknown')
-        self._assert_bad('PDF:Subject', 'Unknown')
-        self._assert_bad('PDF:Title', 'DjVu Document')
-        self._assert_bad('PDF:Title', 'Unknown')
         self._assert_bad('XMP:Author', '\x104<8=8AB@0B>@')
         self._assert_bad('XMP:Author', ['\x104<8=8AB@0B>@'])
+        self._assert_bad('XMP:Author', 'Owner')
+        self._assert_bad('XMP:Author', 'root')
         self._assert_bad('XMP:Author', 'Unknown')
         self._assert_bad('XMP:Creator', 'Unknown')
         self._assert_bad('XMP:Description', 'Unknown')
@@ -187,6 +191,7 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad('PDF:Subject',  'www.allitebooks.com')
         self._assert_bad_any_tag(' 4<8=8AB@0B>@')
         self._assert_bad_any_tag('()'),
+        self._assert_bad_any_tag('-'),
         self._assert_bad_any_tag('--=--'),
         self._assert_bad_any_tag('-=-'),
         self._assert_bad_any_tag('-=--'),
@@ -194,7 +199,9 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad_any_tag('.'),
         self._assert_bad_any_tag('0101:01:01 00:00:00+00:00')
         self._assert_bad_any_tag('4<8=8AB@0B>@')
+        self._assert_bad_any_tag('[Your book description]'),
         self._assert_bad_any_tag('\376\377\000A\000b\000D\000o'),
+        self._assert_bad_any_tag('\u0000')
         self._assert_bad_any_tag('\x01')
         self._assert_bad_any_tag('\x01]')
         self._assert_bad_any_tag('\x02')
@@ -212,12 +219,15 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad_any_tag('http://freepdf-books.com')
         self._assert_bad_any_tag('http://freepdf-books.com')
         self._assert_bad_any_tag('http://www.epubor.com')
+        self._assert_bad_any_tag('IT eBooks')
         self._assert_bad_any_tag('MyStringValue')
         self._assert_bad_any_tag('test')
         self._assert_bad_any_tag('Toolkit http://www.activepdf.com')
         self._assert_bad_any_tag('Toolkit http://www.activepdf.com(Infix)')
         self._assert_bad_any_tag('Unknown')
         self._assert_bad_any_tag('UNKNOWN')
+        self._assert_bad_any_tag('UNREGISTERD VERSION')
+        self._assert_bad_any_tag('UNREGISTERED VERSION')
         self._assert_bad_any_tag('Value')
         self._assert_bad_any_tag('www.allitebooks.com')
         self._assert_bad_any_tag('www.allitebooks.com')
