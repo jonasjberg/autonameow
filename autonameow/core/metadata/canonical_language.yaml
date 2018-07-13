@@ -127,7 +127,7 @@ ENGLISH:
     - ^american( english)?$
     - english language
     # ISO 639-1 standard language codes
-    - ^en(-[abcgijnpstuz][abeghmnstuwz])?$
+    - ^en(-[abcgijnpstuz][abeghkmnstuwz])?$
     match_any_literal:
     # ISO 639-2 and ISO 639-3 standard language codes
     - eng
