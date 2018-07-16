@@ -61,6 +61,8 @@ def init_argparser():
                '\n Project website:  {}'.format(C.STRING_URL_REPO),
     )
 
+    default_value_template = 'DEFAULT: %(default)s'
+
     optgrp_output = parser.add_mutually_exclusive_group()
     optgrp_output.add_argument(
         '--debug',
@@ -107,9 +109,9 @@ def init_argparser():
     )
     optgrp_mode_method.add_argument(
         '--automagic',
-        default=False,
         dest='mode_automagic',
         action='store_true',
+        default=False,
         help='Enable AUTOMAGIC MODE. Try to perform renames without user '
              'interaction, first by matching the given paths against available'
              ' rules. Information provided by the highest ranked rule is used '
@@ -119,16 +121,18 @@ def init_argparser():
              'to come up with suitable alternatives. '
              'The user might still be asked to resolve any uncertainties. '
              'Use the "--batch" option to force non-interactive mode and '
-             'skip paths with unresolved queries.'
+             'skip paths with unresolved queries. '
+             + default_value_template
     )
     optgrp_mode_method.add_argument(
         '--postprocess-only',
-        default=False,
         dest='mode_postprocess_only',
         action='store_true',
-        help='Enable POST-PROCESSING ONLY (Default: DISABLED) '
+        default=False,
+        help='Enable POST-PROCESSING ONLY.'
              'Do not construct new file names, only do post-processing '
-             'using any global post-processing settings.'
+             'using any global post-processing settings. '
+             + default_value_template
     )
 
     optgrp_mode_interaction = parser.add_argument_group(
@@ -137,26 +141,32 @@ def init_argparser():
     )
     optgrp_mode_interaction.add_argument(
         '--timid',
-        default=False,
         dest='mode_timid',
         action='store_true',
-        help='Enable TIMID MODE. Have the user confirm each file before renaming. '
+        default=False,
+        help='Enable TIMID MODE. '
+             'Have the user confirm each file before renaming. '
+             + default_value_template
     )
     optgrp_mode_interaction.add_argument(
         '--interactive',
-        default=False,
         dest='mode_interactive',
         action='store_true',
-        help='Enable INTERACTIVE MODE. Have the user weigh in on all decisions.'
+        default=False,
+        help='Enable INTERACTIVE MODE. '
+             'Have the user weigh in on all decisions. '
+             + default_value_template
     )
     optgrp_mode_interaction.add_argument(
         '--batch',
-        default=False,
         dest='mode_batch',
         action='store_true',
-        help='Enable BATCH MODE. Abort instead of querying the user, suitable '
+        default=False,
+        help='Enable BATCH MODE. '
+             'Abort instead of querying the user, suitable '
              'for scripting, etc. Disables all user interaction except TIMID '
-             'MODE file rename confirmations, if enabled.'
+             'MODE file rename confirmations, if enabled. '
+             + default_value_template
     )
 
     parser.add_argument(
@@ -175,13 +185,16 @@ def init_argparser():
         '-d', '--dry-run',
         dest='dry_run',
         action='store_true',
+        default=False,
         help='Simulate what would happen but do not actually write any '
-             'changes to disk.'
+             'changes to disk. '
+             + default_value_template
     )
     parser.add_argument(
         '--version',
         dest='show_version',
         action='store_true',
+        default=False,
         help='Print program version and exit.'
     )
     parser.add_argument(
@@ -190,7 +203,7 @@ def init_argparser():
         metavar='CONFIG_PATH',
         type=arg_is_readable_file,
         help='Use configuration file at CONFIG_PATH instead of the default '
-             'configuration file.'
+             'configuration file path.'
     )
     parser.add_argument(
         '-r', '--recurse',
@@ -201,6 +214,7 @@ def init_argparser():
              'recursively. The default behaviour is to only act on the files '
              'in the specified directory. This flag enables acting on files '
              'in all subdirectories of the specified directory. '
+             + default_value_template
     )
 
     optgrp_debug = parser.add_argument_group('Debug/developer options')
@@ -208,18 +222,21 @@ def init_argparser():
         '--dump-options',
         dest='dump_options',
         action='store_true',
+        default=False,
         help='Dump options to stdout.'
     )
     optgrp_debug.add_argument(
         '--dump-config',
         dest='dump_config',
         action='store_true',
+        default=False,
         help='Dump active configuration to stdout.'
     )
     optgrp_debug.add_argument(
         '--dump-meowuris',
         dest='dump_meowuris',
         action='store_true',
+        default=False,
         help='Dump all MeowURIs registered to the "Repository" at startup. '
              'Use "--verbose" for detailed information with a list of '
              'providers excluded due to unsatisfied dependencies.'
