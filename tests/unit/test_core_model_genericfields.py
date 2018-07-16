@@ -109,31 +109,6 @@ class TestGetFieldForUriLeaf(TestCase):
             with self.subTest(given=given):
                 self.assertIsNone(get_field_for_uri_leaf(given))
 
-    @patch('core.model.genericfields._get_field_uri_leaf_to_klass_mapping')
-    def test_returns_expected_given_generic_field_class_leaf(
-            self, mock__get_field_uri_leaf_to_klass_mapping
-    ):
-        DUMMY_MAPPING = {
-            'author': 'GenericAuthor',
-            'creator': 'GenericCreator',
-            'date_created': 'GenericDateCreated',
-            'date_modified': 'GenericDateModified',
-            'description': 'GenericDescription',
-            'edition': 'GenericEdition',
-            'language': 'GenericLanguage',
-            'mime_type': 'GenericMimeType',
-            'producer': 'GenericProducer',
-            'publisher': 'GenericPublisher',
-            'subject': 'GenericSubject',
-            'tags': 'GenericTags',
-            'text': 'GenericText',
-            'title': 'GenericTitle',
-        }
-        mock__get_field_uri_leaf_to_klass_mapping.return_value = dict(DUMMY_MAPPING)
-        for string in DUMMY_MAPPING.keys():
-            actual = get_field_for_uri_leaf(string)
-            self.assertEqual(DUMMY_MAPPING[string], actual)
-
     def test_returns_expected(self):
         # TODO: [hardcoded] Must be updated when modifying generic fields ..
         from core.model.genericfields import GenericDescription

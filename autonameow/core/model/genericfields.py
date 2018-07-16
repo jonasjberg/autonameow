@@ -17,6 +17,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from functools import lru_cache
+
 from core import constants as C
 from core.model import MeowURI
 
@@ -152,6 +154,7 @@ def get_string_fields():
     ]
 
 
+@lru_cache(maxsize=1)
 def _build_field_uri_leaf_to_klass_mapping():
     return {
         klass.uri().leaf: klass
@@ -159,18 +162,8 @@ def _build_field_uri_leaf_to_klass_mapping():
     }
 
 
-_URI_LEAF_TO_KLASS_MAPPING = None
-
-
-def _get_field_uri_leaf_to_klass_mapping():
-    global _URI_LEAF_TO_KLASS_MAPPING
-    if _URI_LEAF_TO_KLASS_MAPPING is None:
-        _URI_LEAF_TO_KLASS_MAPPING = _build_field_uri_leaf_to_klass_mapping()
-    return _URI_LEAF_TO_KLASS_MAPPING
-
-
 def get_field_for_uri_leaf(string):
-    leaf_to_klass_map = _get_field_uri_leaf_to_klass_mapping()
+    leaf_to_klass_map = _build_field_uri_leaf_to_klass_mapping()
     return leaf_to_klass_map.get(string)
 
 
