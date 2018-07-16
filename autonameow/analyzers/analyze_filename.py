@@ -227,6 +227,13 @@ class MimetypeExtensionMapParser(object):
         text = re.sub(r'#.*', '', text)
 
         parsed = {}
+
+        # Set to None to silence warnings on variables potentially being
+        # referenced before assignment. This "should not" happen; both variables
+        # are expected to be set before use, which is verified with assertions.
+        use_extension_value = None
+        mimetype_value = None
+
         for line in text.splitlines():
             line = line.strip()
             if not line or line.startswith('#'):
@@ -242,12 +249,14 @@ class MimetypeExtensionMapParser(object):
             if self.state == self.STATE_MIMETYPE_BLOCK:
                 use_extension_value = self._match_extension_list_start(line)
                 if use_extension_value is not None:
+                    assert mimetype_value is not None, 'Invalid state'
                     parsed[mimetype_value][use_extension_value] = set()
                     self.state = self.STATE_LIST_BLOCK
 
             elif self.state == self.STATE_LIST_BLOCK:
                 m = self._match_extension_list_item(line)
                 if m is not None:
+                    assert use_extension_value is not None, 'Invalid state'
                     parsed[mimetype_value][use_extension_value].add(m)
                 else:
                     use_extension_value = self._match_extension_list_start(line)
