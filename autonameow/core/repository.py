@@ -183,8 +183,7 @@ class Repository(object):
         assert not meowuri.is_generic
 
         if not data:
-            log.warning('Attempted to add empty data with meowURI'
-                        ' "{!s}"'.format(meowuri))
+            log.warning('Attempt to add empty data with MeowURI "%s"', meowuri)
             return
 
         sanity.check_isinstance(data, dict)
@@ -212,9 +211,8 @@ class Repository(object):
     def _store(self, fileobject, meowuri, data):
         if logs.DEBUG:
             _data_value = data.get('value')
-            log.debug('Storing {!r}->[{!s}] :: {} {!s}'.format(
-                fileobject, meowuri, type(_data_value), _data_value
-            ))
+            log.debug('Storing %r->[%s] :: %s %s',
+                      fileobject, meowuri, type(_data_value), _data_value)
 
         any_existing = self.__get_data(fileobject, meowuri)
         assert not any_existing, (
@@ -241,7 +239,7 @@ class Repository(object):
         if not meowuri:
             return QueryResponseFailure(msg='did not include a MeowURI')
 
-        log.debug('Got query {!r}->[{!s}]'.format(fileobject, meowuri))
+        log.debug('Got query %r->[&s]', fileobject, meowuri)
 
         mapped_uri = None
         meowuri_is_generic = meowuri.is_generic
@@ -436,7 +434,7 @@ SessionRepository = None
 
 def _initialize(*_, **kwargs):
     instance = kwargs.get('autonameow_instance', '(UNKNOWN)')
-    log.debug('Repository initializing (autonameow instance {!s})'.format(instance))
+    log.debug('Repository initializing (autonameow instance %s)', instance)
 
     global SessionRepository
     SessionRepository = Repository()
@@ -447,7 +445,7 @@ def _shutdown(*_, **kwargs):
 
     global SessionRepository
     if SessionRepository:
-        log.debug('Repository shutting down (autonameow instance {!s})'.format(instance))
+        log.debug('Repository shutting down (autonameow instance %s)', instance)
         SessionRepository.shutdown()
         SessionRepository = None
 

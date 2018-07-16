@@ -39,8 +39,8 @@ class ProviderMixin(object):
         field_metainfo = self.metainfo().get(field)
         if not field_metainfo:
             self.log.debug(
-                'Field not in "metainfo"; "{!s}" with value: '
-                '"{!s}" ({!s})'.format(field, value, type(value))
+                '"metainfo" does not contain field "%s" with value "%s" (%s)',
+                field, value, type(value)
             )
             return None
 
@@ -52,8 +52,8 @@ class ProviderMixin(object):
 
         if not coercer_string:
             self.log.warning(
-                '"coercer" unspecified for field; "{!s}" with value: '
-                '"{!s}" ({!s})'.format(field, value, type(value))
+                '"coercer" unspecified for field "%s" with value "%s" (%s)',
+                field, value, type(value)
             )
             return None
 
@@ -69,8 +69,8 @@ class ProviderMixin(object):
             # Abort instead of using a default value. Many systems rely on this
             # being correct --- make sure that the provider metainfo is correct.
             self.log.warning(
-                '"multivalued" unspecified for field; "{!s}" with value: '
-                '"{!s}" ({!s})'.format(field, value, type(value))
+                '"multivalued" unspecified for field "%s" with value "%s" (%s)',
+                field, value, type(value)
             )
             return None
 
@@ -94,8 +94,8 @@ class ProviderMixin(object):
             # as two separate possible fields.
             # TODO: How would this fit into the concept of "records"?
             self.log.debug(
-                'Got list but "metainfo" specifies a single value.'
-                ' Field: "{!s}" Value: "{!s}"'.format(field, value)
+                'Got list but "metainfo" specifies a single value for field '
+                '"%s" with value "%s" (%s)', field, value, type(value)
             )
             return None
 
@@ -103,7 +103,8 @@ class ProviderMixin(object):
         if multivalued:
             self.log.debug(
                 'Got single value but "metainfo" specifies "multivalued"; '
-                'coercing to list. Field: "{!s}" Value: "{!s}"'.format(field, value)
+                'coercing to list. Field "%s" with value "%s" (%s)',
+                field, value, type(value)
             )
             return self._coerce_multiple_values(field, value, coercer)
 
@@ -113,20 +114,16 @@ class ProviderMixin(object):
         try:
             return coercer(value)
         except coercers.AWTypeError as e:
-            self.log.debug(
-                'Error while coercing field "{!s}" with value '
-                '"{!s}" :: {!s}'.format(field, value, e)
-            )
+            self.log.debug('Error coercing field "%s" with value "%s" :: %s',
+                           field, value, e)
             return None
 
     def _coerce_multiple_values(self, field, values, coercer):
         try:
             return coercers.listof(coercer)(values)
         except coercers.AWTypeError as e:
-            self.log.debug(
-                'Error while coercing field "{!s}" with values '
-                '"{!s}" :: {!s}'.format(field, values, e)
-            )
+            self.log.debug('Error coercing field "%s" with values "%s" :: %s',
+                           field, values, e)
             return None
 
 
@@ -145,20 +142,22 @@ def wrap_provider_results(datadict, metainfo, source_klass):
     """
     sanity.check_isinstance(metainfo, dict,
                             msg='Source provider: {!s}'.format(source_klass))
-    log.debug('Wrapping provider {!s} results (datadict len: {}) (metainfo len: {})'.format(source_klass.name(), len(datadict), len(metainfo)))
+    log.debug('Wrapping %s results (datadict len: %s) (metainfo len: %s)',
+              source_klass.name(), len(datadict), len(metainfo))
 
     wrapped = dict()
 
     for field, value in datadict.items():
         raw_field_metainfo = metainfo.get(field)
         if not raw_field_metainfo:
-            log.warning('Missing metainfo for field "{!s}"'.format(field))
-            log.debug('Field {} not in {!s}'.format(field, metainfo))
+            log.warning('Missing metainfo for field "%s"', field)
+            log.debug('Field %s not in %s', field, metainfo)
             continue
 
         field_metainfo = _translate_field_metainfo_to_internal_format(raw_field_metainfo)
         if not field_metainfo:
-            log.warning('Translation of metainfo to internal format failed for provider {!s} field "{!s}"'.format(source_klass, field))
+            log.warning('Translation of metainfo to internal format failed for '
+                        'provider %s field "%s"', source_klass, field)
             continue
 
         wrapped[field] = _wrap_provider_result_field(field_metainfo, source_klass, value)

@@ -36,9 +36,7 @@ class EventHandler(object):
         self.callables.add(func)
 
     def __call__(self, *args, **kwargs):
-        log.debug(
-            '{!s} called with args {!s} kwargs {!s}'.format(self, args, kwargs)
-        )
+        log.debug('%s called with args %s kwargs %s', self, args, kwargs)
         for func in self.callables:
             # Make sure all callables are called in case of an unhandled
             # exception. This really "should" NOT happen, it is assumed that
@@ -47,8 +45,8 @@ class EventHandler(object):
                 func(*args, **kwargs)
             except Exception as e:
                 log.critical(
-                    '{!s} caught exception when called with args {!s} '
-                    'kwargs {!s} :: {!s}'.format(self, args, kwargs, e)
+                    '%s caught exception when called with args %s '
+                    'kwargs %s :: %s', self, args, kwargs, e
                 )
 
     def __str__(self):
@@ -84,12 +82,10 @@ class EventDispatcher(object):
     def _get_event_handlers(self, name):
         event_handlers = self._event_handlers.get(name)
         if event_handlers:
-            self.log.debug('{!s} returning event handler "{!s}"'.format(self, name))
+            self.log.debug('%s returning event handler "%s"', self, name)
             return event_handlers
 
-        msg = '{!s} get called with nonexistent event handler "{!s}"'.format(self, name)
-        self.log.critical(msg)
-        raise AssertionError(msg)
+        raise AssertionError('Invalid event handler: "{!s}"'.format(name))
 
     def __getattr__(self, item):
         return self._get_event_handlers(item)

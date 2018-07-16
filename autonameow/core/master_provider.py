@@ -126,9 +126,7 @@ class ProviderRegistry(object):
             return
 
         for uri, klass in sorted(self.meowuri_sources.items()):
-            self.log.debug(
-                'Mapped MeowURI "{!s}" to {!s}'.format(uri, klass.name())
-            )
+            self.log.debug('Mapped MeowURI "%s" to %s', uri, klass.name())
 
     def _debug_log_mapped_generic_meowuri_sources(self):
         if not logs.DEBUG:
@@ -137,9 +135,7 @@ class ProviderRegistry(object):
         for klass, uris in self.generic_meowuri_sources.items():
             klass_name = klass.name()
             for uri in sorted(uris):
-                self.log.debug(
-                    'Mapped generic MeowURI "{!s}" to {!s}'.format(uri, klass_name)
-                )
+                self.log.debug('Mapped generic MeowURI "%s" to %s', uri, klass_name)
 
     def might_be_resolvable(self, uri):
         if not uri:
@@ -174,8 +170,8 @@ class ProviderRegistry(object):
         else:
             found = self._source_providers_for_meowuri(requested_meowuri)
 
-        self.log.debug('{} returning {} providers for MeowURI {!s}'.format(
-            self.__class__.__name__, len(found), requested_meowuri))
+        self.log.debug('%s returning %s providers for MeowURI %s',
+                       self.__class__.__name__, len(found), requested_meowuri)
         return found
 
     def _providers_for_generic_meowuri(self, requested_meowuri):
@@ -217,7 +213,7 @@ class ProviderRunner(object):
     def delegate_to_providers(self, fileobject, uri):
         possible_providers = set(Registry.providers_for_meowuri(uri))
         if not possible_providers:
-            log.debug('Got no possible providers for delegation {!s}'.format(uri))
+            log.debug('Got no possible providers for delegation %s', uri)
             return
 
         # TODO: [TD0161] Translate from specific to "generic" MeowURI?
@@ -229,12 +225,11 @@ class ProviderRunner(object):
         prepared_extractors = set()
         num_possible_providers = len(possible_providers)
         for n, provider in enumerate(possible_providers, start=1):
-            log.debug('Looking at possible provider ({}/{}): {!s}'.format(
-                n, num_possible_providers, provider
-            ))
+            log.debug('Looking at possible provider (%s/%s): %s',
+                      n, num_possible_providers, provider)
 
             if self._previously_delegated_provider(fileobject, provider):
-                log.debug('Skipping previously delegated provider {!s}'.format(provider))
+                log.debug('Skipping previously delegated provider %s', provider)
                 continue
 
             self._remember_provider_delegation(fileobject, provider)
@@ -245,10 +240,10 @@ class ProviderRunner(object):
                 prepared_analyzers.add(provider)
 
         if prepared_extractors:
-            log.debug('Delegating {!s} to extractors: {!s}'.format(uri, prepared_extractors))
+            log.debug('Delegating %s to extractors: %s', uri, prepared_extractors)
             self._delegate_to_extractors(fileobject, prepared_extractors)
         if prepared_analyzers:
-            log.debug('Delegating {!s} to analyzers: {!s}'.format(uri, prepared_analyzers))
+            log.debug('Delegating %s to analyzers: %s', uri, prepared_analyzers)
             self._delegate_to_analyzers(fileobject, prepared_analyzers)
 
     def _previously_delegated_provider(self, fileobject, provider):
@@ -268,7 +263,7 @@ class ProviderRunner(object):
             self._extractor_runner.start(fileobject, extractors_to_run)
         except AutonameowException as e:
             # TODO: [TD0164] Tidy up throwing/catching of exceptions.
-            log.critical('Extraction FAILED: {!s}'.format(e))
+            log.critical('Extraction FAILED: %s', e)
             raise
 
     def _delegate_to_analyzers(self, fileobject, analyzers_to_run):
@@ -286,7 +281,7 @@ class ProviderRunner(object):
             self._extractor_runner.start(fileobject, request_all=True)
         except AutonameowException as e:
             # TODO: [TD0164] Tidy up throwing/catching of exceptions.
-            log.critical('Extraction FAILED: {!s}'.format(e))
+            log.critical('Extraction FAILED: %s', e)
             raise
 
         # Run all analyzers
@@ -347,7 +342,7 @@ class MasterDataProvider(object):
         )
 
     def delegate_every_possible_meowuri(self, fileobject):
-        log.debug('Running all available providers for {!r}'.format(fileobject))
+        log.debug('Running all available providers for %r', fileobject)
         self.provider_runner.delegate_every_possible_meowuri(fileobject)
 
     def request(self, fileobject, uri):
@@ -363,7 +358,7 @@ class MasterDataProvider(object):
         as the return value.
         None is returned if nothing turns up.
         """
-        log.debug('Got request {!r}->[{!s}]'.format(fileobject, uri))
+        log.debug('Got request %r->[%s]', fileobject, uri)
 
         # First try the repository for previously gathered data
         response = self._query_repository(fileobject, uri)
@@ -399,7 +394,7 @@ class MasterDataProvider(object):
         return response
 
     def _delegate_to_providers(self, fileobject, uri):
-        log.debug('Delegating request to providers: {!r}->[{!s}]'.format(fileobject, uri))
+        log.debug('Delegating request to providers: %r->[%s]', fileobject, uri)
         self.provider_runner.delegate_to_providers(fileobject, uri)
 
     def _query_repository(self, fileobject, uri):

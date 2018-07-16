@@ -150,7 +150,7 @@ class Autonameow(object):
 
         # Path name encoding boundary. Returns list of paths in internal format.
         files_to_process = self._collect_paths_from_opts()
-        log.info('Got {} files to process'.format(len(files_to_process)))
+        log.info('Got %s files to process', len(files_to_process))
 
         # Handle any input paths/files.
         self._handle_files(files_to_process)
@@ -181,7 +181,7 @@ class Autonameow(object):
         try:
             self.config = persistence.load_config_from_file(path)
         except exceptions.ConfigError as e:
-            log.critical('Unable to load configuration --- {!s}'.format(e))
+            log.critical('Unable to load configuration --- %s', e)
 
     def _dump_options(self):
         filepath_config = persistence.get_config_persistence_path()
@@ -227,7 +227,7 @@ class Autonameow(object):
 
     def _load_config_from_path(self, filepath):
         str_filepath = enc.displayable_path(filepath)
-        log.info('Using configuration: "{}"'.format(str_filepath))
+        log.info('Using configuration: "%s"', str_filepath)
         self.load_config(filepath)
 
     def _load_config_from_options_config_path(self):
@@ -240,7 +240,7 @@ class Autonameow(object):
             persistence.write_default_config()
         except exceptions.ConfigError as e:
             log.critical('Unable to write template configuration file to path: '
-                         '"{!s}" --- {!s}'.format(str_filepath, e))
+                         '"%s" --- %s', str_filepath, e)
             self.exit_program(C.EXIT_ERROR)
 
         message = 'Wrote default configuration file to "{!s}"'.format(str_filepath)
@@ -258,15 +258,13 @@ class Autonameow(object):
 
         for file_path in file_paths:
             str_file_path = enc.displayable_path(file_path)
-            log.info('Processing: "{!s}"'.format(str_file_path))
+            log.info('Processing: "%s"', str_file_path)
 
             try:
                 current_file = FileObject(file_path)
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
-                log.warning(
-                    '{!s} --- SKIPPING: "{!s}"'.format(e, str_file_path)
-                )
+                log.warning('{%s} --- SKIPPING: "%s"', e, str_file_path)
                 continue
 
             if should_list_all:
@@ -287,9 +285,7 @@ class Autonameow(object):
                 try:
                     new_name = context.find_new_name()
                 except exceptions.AutonameowException as e:
-                    log.critical(
-                        '{!s} --- SKIPPING: "{!s}"'.format(e, str_file_path)
-                    )
+                    log.critical('%s --- SKIPPING: "%s"', e, str_file_path)
                     self.exit_code = C.EXIT_WARNING
                     continue
 
@@ -331,7 +327,7 @@ class Autonameow(object):
             try:
                 self.renamer.do_renames()
             except exceptions.FilesystemError as e:
-                log.error('Rename FAILED: {!s}'.format(e))
+                log.error('Rename FAILED: %s', e)
 
             # TODO: [TD0131] Hack!
             aggregate_repository_contents.append(str(repository.SessionRepository))
@@ -376,8 +372,8 @@ class Autonameow(object):
             self.ui.print_exit_info(self.exit_code, elapsed_time)
 
         logs.log_previously_logged_runtimes(log)
-        log.debug('Exiting with exit code: {}'.format(self.exit_code))
-        log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
+        log.debug('Exiting with exit code: %s', self.exit_code)
+        log.debug('Total execution time: %.6f seconds', elapsed_time)
 
         self._dispatch_event_on_shutdown()
         sys.exit(self.exit_code)
@@ -403,7 +399,7 @@ class Autonameow(object):
                    the values in 'constants.py' prefixed 'EXIT_'.
         """
         if isinstance(value, int) and value > self._exit_code:
-            log.debug('Exit code updated: {} -> {}'.format(self._exit_code, value))
+            log.debug('Exit code updated: %s -> %s', self._exit_code, value)
             self._exit_code = value
 
     def __hash__(self):

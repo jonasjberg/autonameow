@@ -163,8 +163,8 @@ class FileRenamer(object):
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = enc.bytestring_path(new_basename)
         sanity.check_internal_bytestring(dest_basename)
-        log.debug('Destination basename (bytestring): "{!s}"'.format(
-            enc.displayable_path(dest_basename)))
+        log.debug('Destination basename (bytestring): "%s"',
+                  enc.displayable_path(dest_basename))
 
         from_basename = disk.basename(from_path)
         sanity.check_internal_bytestring(from_basename)
