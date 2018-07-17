@@ -87,6 +87,9 @@ CambridgeUP:
     match_any_regex_ignorecase:
     - Cambridge Uni
     - U(niversity)? of Cambridge Pr(.?|ess)
+CastaliaHouse:
+    match_any_regex_ignorecase:
+    - Castalia House
 Cengage:
     match_any_regex_ignorecase:
     - Cengage
@@ -376,6 +379,9 @@ ProjectGutenberg:
     - (www\.)?gutenberg\.net
     match_any_literal:
     - Project Gutenberg
+PrometheusBooks:
+    match_any_regex_ignorecase:
+    - Prometheus Books
 PublishOrPerish:
     match_any_regex_ignorecase:
     - Publish or Perish
