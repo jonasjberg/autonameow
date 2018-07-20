@@ -25,6 +25,7 @@ from unittest import skipIf, TestCase
 import unit.utils as uu
 from extractors.text.extractor_pdf import extract_pdf_content_with_pdftotext
 from extractors.text.extractor_pdf import PdfTextExtractor
+from extractors.text.extractor_pdf import remove_intercharacter_spaces
 from unit.case_extractors_text import CaseTextExtractorBasics
 from unit.case_extractors_text import CaseTextExtractorOutput
 from unit.case_extractors_text import CaseTextExtractorOutputTypes
@@ -203,3 +204,41 @@ class TestPdfTextExtractorCanHandle(TestCase):
     def test_class_method_can_handle_returns_expected(self):
         self.assertFalse(self.e.can_handle(self.fo_image))
         self.assertTrue(self.e.can_handle(self.fo_pdf))
+
+
+class TestRemoveIntercharacterSpaces(TestCase):
+    def _assert_equals(self, given, expect):
+        with self.subTest(given=given, expect=expect):
+            actual = remove_intercharacter_spaces(given)
+            self.assertEqual(expect, actual)
+
+    def test_returns_text_without_intercharacter_spaces_as_is(self):
+        for given_and_expected in [
+            '',
+            ' ',
+            'foo',
+            'foo bar',
+        ]:
+            self._assert_equals(given_and_expected, given_and_expected)
+
+    # def test_removes_spaces_from_single_word(self):
+    #     self._assert_equals(
+    #         given='L i n e a r',
+    #         expect='Linear'
+    #     )
+    #     self._assert_equals(
+    #         given='l i n e a r',
+    #         expect='linear'
+    #     )
+
+    # def test_removes_extra_spaces_from_one_of_two_words(self):
+    #     self._assert_equals(
+    #         given='T h i r d Pass',
+    #         expect='Third Pass'
+    #     )
+
+    # def test_removes_spaces_from_single_word(self):
+    #     self._assert_equals(
+    #         given='A L i n e a r O b s e r v e d T i m e S t a t i s t i c a l P a r s e r',
+    #         expect='ALinearObservedTimeStatisticalParser'
+    #     )
