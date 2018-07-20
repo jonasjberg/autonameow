@@ -41,8 +41,8 @@ class TestRecord(TestCase):
         record = _get_record()
 
         def _assert_does_not_contain_field(field):
-            actual = getattr(record, field)
-            self.assertIsNone(actual)
+            self.assertIsNone(getattr(record, field))
+            self.assertFalse(field in record)
 
         _assert_does_not_contain_field('author')
         _assert_does_not_contain_field('isbn')
