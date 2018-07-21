@@ -217,9 +217,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                 for line in metadata.as_string().splitlines():
                     self.log.debug('ISBNMetadata ' + line)
 
-                # Duplicates are removed here. When both ISBN-10 and ISBN-13
-                # text is found and two queries are made, the two metadata
-                # results are "joined" when being added to this set.
+                # Duplicates are removed here.
                 if metadata not in self._isbn_metadata:
                     self.log.debug('Added metadata for ISBN: {}'.format(isbn_number))
                     self._isbn_metadata.append(metadata)
