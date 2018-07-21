@@ -239,7 +239,7 @@ class Repository(object):
         if not meowuri:
             return QueryResponseFailure(msg='did not include a MeowURI')
 
-        log.debug('Got query %r->[&s]', fileobject, meowuri)
+        log.debug('Got query %r->[%s]', fileobject, meowuri)
 
         mapped_uri = None
         meowuri_is_generic = meowuri.is_generic
