@@ -142,8 +142,8 @@ Elsevier:
     match_any_literal:
     - Elsevier Science
 ExelixisMedia:
-    match_any_literal:
-    - Exelixis Media P.C.
+    match_any_regex_ignorecase:
+    - Exelixis
 FeedBooks:
     match_any_regex_ignorecase:
     - (www\.)?feedbooks\.com
@@ -276,9 +276,8 @@ MonashUP:
     - Monash Uni
     - (www\.)?publishing.monash.edu
 MorganClaypool:
-    match_any_literal:
-    - Morgan and Claypool Publishers
-    - Morgan & Claypool Publishers
+    match_any_regex_ignorecase:
+    - Morgan (&|and) Claypool
 MorganKaufmann:
     match_any_literal:
     - Morgan Kaufmann Publishers

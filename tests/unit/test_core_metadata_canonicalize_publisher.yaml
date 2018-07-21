@@ -77,19 +77,21 @@ AZElitePub:
 - AZ Elite Publ
 - AZ Elite Publ.
 - AZ Elite Publishing
+- AZElitePub
 BackupBrain:
-- backupbrain
-- backupbrain pub
-- backupbrain pub.
-- backupbrain publ
-- backupbrain publ.
-- backupbrain publishing
 - backup brain
 - backup brain pub
 - backup brain pub.
 - backup brain publ
 - backup brain publ.
 - backup brain publishing
+- BackupBrain
+- backupbrain
+- backupbrain pub
+- backupbrain pub.
+- backupbrain publ
+- backupbrain publ.
+- backupbrain publishing
 Barrons:
 - Barrons
 - Barrons Test Prep
@@ -220,6 +222,7 @@ CherryLake:
 - Cherry Lake Pub
 - Cherry Lake Pub.
 - Cherry Lake Publishing
+- CherryLake
 - https://www.cherrylakepublishing.com
 - http://www.cherrylakepublishing.com
 - www.cherrylakepublishing.com
@@ -242,6 +245,7 @@ CodeWellAcademy:
 CreateSpace:
 - Createspace
 - CreateSpace
+- Createspace Independent Pub
 - Createspace Independent Publishing
 - CreateSpace Independent Publishing
 - Createspace Independent Publishing Platform
@@ -277,6 +281,8 @@ Elsevier:
 - Elsevier/Morgan Kaufmann
 - Elsevier/Newnes
 ExelixisMedia:
+- ExelixisMedia
+- Exelixis Media
 - Exelixis Media P.C.
 FeedBooks:
 - FeedBooks
@@ -286,18 +292,19 @@ FeedBooks:
 - www.feedbooks.com
 - feedbooks.com
 FranklinBeedle:
-- Franklin, Beedle & Associates
-- Franklin, Beedle and Associates
-- Franklin, Beedle, and Associates
 - Franklin Beedle & Associates
 - Franklin Beedle and Associates
 - Franklin Beedle, and Associates
+- Franklin, Beedle & Associates
 - Franklin, Beedle & Associates Inc.
-- Franklin, Beedle and Associates Inc.
-- Franklin, Beedle, and Associates Inc.
 - Franklin, Beedle & Associates Incorporated
+- Franklin, Beedle and Associates
+- Franklin, Beedle and Associates Inc.
 - Franklin, Beedle and Associates Incorporated
+- Franklin, Beedle, and Associates
+- Franklin, Beedle, and Associates Inc.
 - Franklin, Beedle, and Associates Incorporated
+- FranklinBeedle
 Greenwood:
 - Greenwood
 - Greenwood Press
@@ -339,6 +346,7 @@ HunanCartographic:
 - Hunan Cartographic Publ.
 - Hunan Cartographic Publishing
 - Hunan Cartographic Publishing House
+- HunanCartographic
 IABooks:
 - IA Books
 - IABooks
@@ -549,8 +557,11 @@ MonashUP:
 - www.publishing.monash.edu
 - publishing.monash.edu
 MorganClaypool:
+- Morgan & Claypool
 - Morgan & Claypool Publishers
+- Morgan and Claypool
 - Morgan and Claypool Publishers
+- MorganClaypool
 MorganKaufmann:
 - Morgan Kaufmann Publishers
 - Morgan Kaufmann
@@ -558,6 +569,7 @@ MorganKaufmann:
 Murachs:
 - Murachs
 NebraskaUP:
+- NebraskaUP
 - Nebraska University Pr.
 - Nebraska University Press
 - University of Nebraska Press
@@ -750,24 +762,26 @@ PragmaticBookshelf:
 - www.pragprog.com
 - pragprog.com
 PremierPress:
-- PremierPress
 - Premier Press
+- PremierPress
 - https://www.premierpress.com
 - http://www.premierpress.com
 - www.premierpress.com
 - premierpress.com
 PrenticeHall:
+- Pearson Prentice Hall
+- pearson prentice hall
 - Prentice Hall
-- PrenticeHall
 - PRENTICE HALL
 - Prentice Hall PTR
+- PrenticeHall
 - https://www.prenticehall.com
 - http://www.prenticehall.com
 - www.prenticehall.com
 - prenticehall.com
 PrincetonUP:
-- PrincetonUP
 - Princeton University Press
+- PrincetonUP
 - U of Princeton Press
 - University of Princeton Press
 ProjectGutenberg:
@@ -781,20 +795,22 @@ PrometheusBooks:
 - PrometheusBooks
 - Prometheus Books
 PublishOrPerish:
+- Publish or Perish
 - Publish or Perish Inc
 - Publish or Perish inc
 - Publish or Perish Inc.
 - Publish or Perish inc.
 - Publish or Perish Incorporated
-- Publish or Perish
 - Publish or Perish, Inc.
 - Publish or Perish, inc.
 - Publish or Perish, Incorporated
+- PublishOrPerish
 QuePub:
 - Que
 - Que Pub
 - Que Pub.
 - Que Publishing
+- QuePub
 RecursiveBooks:
 - RecursiveBooks
 - Recursive Books
@@ -821,6 +837,7 @@ SimpleProgrammer:
 SitePoint:
 - SitePoint
 - Sitepoint
+- SitePoint Limited
 - SitePoint Ltd
 - SitePoint Ltd.
 - SitePoint Proprietary Limited
@@ -828,6 +845,9 @@ SitePoint:
 - SitePoint Proprietary Ltd.
 - Sitepoint Pty Limited
 - SitePoint Pty Ltd
+- SitePoint Pty Ltd.
+- Sitepoint Pty. Limited
+- SitePoint Pty. Ltd
 - SitePoint Pty. Ltd.
 SkriptKuhnel:
 - "Skript-Verl K\xFChnel"
@@ -933,13 +953,14 @@ TaylorFrancis:
 - Taylor and Francis
 - TaylorFrancis
 TuttlePub:
-- TuttlePublishing
 - Tuttle
 - Tuttle Pub
 - Tuttle Pub.
 - Tuttle Publ
 - Tuttle Publ.
 - Tuttle Publishing
+- TuttlePub
+- TuttlePublishing
 UnitedComputerGeeks:
 - UnitedComputerGeeks
 - United Computer Geeks
@@ -949,10 +970,11 @@ WalterdeGruyter:
 - Walter de Gruyter GmbH & Co KG
 - Walter de Gruyter GmbH and Co KG
 WellesleyCambridge:
-- Wellesley Cambridge Press
 - Wellesley Cambridge
-- Wellesley-Cambridge Press
+- Wellesley Cambridge Press
 - Wellesley-Cambridge
+- Wellesley-Cambridge Press
+- WellesleyCambridge
 - WellesleyCambridgePress
 Westview:
 - Westview
