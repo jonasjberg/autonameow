@@ -15,6 +15,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+
 # Fixed patterns for canonicalization of string values.
 # This file is read by a 'StringValueCanonicalizer' instance that performs
 # matching on metadata string values.
@@ -26,6 +27,7 @@
 #   http://cldr.unicode.org
 # * SIL International ISO 639-3
 #   https://iso639-3.sil.org
+
 
 AFRIKAANS:
     match_any_regex_ignorecase:
