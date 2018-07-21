@@ -129,6 +129,28 @@ class TestDeduplicateIsbns(TestCase):
             given=['3540762884', '3540762876', '9783540762881', '9783540762874']
         )
 
+    def test_deduplicates_isbn13_and_masked_isbn(self):
+        self._assert_that_it(
+            returns=['9780131435063'],
+            given=['9780131435063', '013143506X']
+        )
+        self._assert_that_it(
+            returns=['9780131435063'],
+            given=['013143506X', '9780131435063']
+        )
+
+    def test_returns_isbn13_given_single_masked_isbn(self):
+        self._assert_that_it(
+            returns=['9789811082573'],
+            given=['981108257X']
+        )
+
+    def test_deduplicates_isbn13_and_shortened_isbn(self):
+        self._assert_that_it(
+            returns=['9780387788807'],
+            given=['0387788808', '9780387788807']
+        )
+
 
 class TestFilterISBN(TestCase):
     BLACKLISTED_ISBN_NUMBERS = ['0000000000', '1111111111', '2222222222',
