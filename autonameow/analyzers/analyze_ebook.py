@@ -501,6 +501,7 @@ def filter_isbns(isbn_list, isbn_blacklist):
 
 class ISBNMetadata(object):
     NORMALIZED_YEAR_UNKNOWN = 1337
+    UNKNOWN_PUBLISHER = 'UNKNOWN'
 
     def __init__(self, authors=None, language=None, publisher=None,
                  isbn10=None, isbn13=None, title=None, year=None, edition=None):
@@ -644,7 +645,7 @@ class ISBNMetadata(object):
 
     @property
     def publisher(self):
-        return self._publisher or ''
+        return self._publisher or self.UNKNOWN_PUBLISHER
 
     @publisher.setter
     def publisher(self, value):
@@ -658,7 +659,7 @@ class ISBNMetadata(object):
 
     @property
     def normalized_publisher(self):
-        return self._normalized_publisher or ''
+        return self._normalized_publisher or self.UNKNOWN_PUBLISHER
 
     @property
     def year(self):
