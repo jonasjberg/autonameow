@@ -977,6 +977,19 @@ TuttlePub:
 UnitedComputerGeeks:
 - UnitedComputerGeeks
 - United Computer Geeks
+UNKNOWN:
+- EMPTY
+- Empty
+- empty
+- NONE
+- None
+- none
+- 'NULL'  # quoted to get string, not a Python None
+- 'Null'
+- 'null'
+- UNKNOWN
+- Unknown
+- unknown
 WalterdeGruyter:
 - WalterdeGruyter
 - Walter de Gruyter

@@ -547,6 +547,10 @@ UnitedComputerGeeks:
     match_any_regex_ignorecase:
     - United Computer Geeks
 
+UNKNOWN:
+    match_any_regex_ignorecase:
+    - ^(unknown|null|empty|none)$
+
 WalterdeGruyter:
     match_any_regex_ignorecase:
     - Walter de Gruyter
