@@ -170,7 +170,12 @@ class EbookAnalyzer(BaseAnalyzer):
             isbn_numbers = filter_isbns(isbn_numbers, self._isbn_num_blacklist)
             self.log.debug('Prepared {} ISBN numbers'.format(len(isbn_numbers)))
 
-            for isbn_number in isbn_numbers:
+            # Sort the dictionaries for more deterministic behaviour.
+            # TODO: [hack] Sorting is reversed so that earlier releases, as in
+            #       lower values in the 'year' field, are processed first.
+            #       This applies only when all other fields are identical.
+            # TODO: [hack] Fix failing regression test 9017 properly!
+            for isbn_number in sorted(isbn_numbers, reverse=True):
                 self.log.debug('Processing ISBN: {!s}'.format(isbn_number))
 
                 metadata_dict = self._get_isbn_metadata(isbn_number)
