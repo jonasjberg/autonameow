@@ -395,6 +395,7 @@ OReilly:
     match_any_regex_ignorecase:
     - O.?reilly (&|and) Associates
     - "O.?Reilly Media,?"
+    - Microsoft.O.?Reilly
     match_any_literal:
     - "O'Reilly"
 
@@ -532,6 +533,11 @@ Syngress:
 TaylorFrancis:
     match_any_regex_ignorecase:
     - ^Taylor (&|and) Francis
+
+Transaction:
+    match_any_regex_ignorecase:
+    - ^Transaction
+    - (www\.)?transactionpub\.com
 
 TuttlePub:
     match_any_regex_ignorecase:
