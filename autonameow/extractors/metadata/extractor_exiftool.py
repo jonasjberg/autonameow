@@ -65,11 +65,12 @@ BAD_EXIFTOOL_METADATA = {
         'Author Unknown',
         'author unknown',
         'Author',
+        'I am the Author',
         'Owner',
         'root',
+        'System Administrator',
         'User',
         'user',
-        'System Administrator',
         # TODO: [TD0192] Detect and extract editions from titles
         'First Edition',
         'Second Edition',
@@ -90,6 +91,7 @@ BAD_EXIFTOOL_METADATA = {
     'XMP:Author': {
         'Author',
         'Creator',
+        'I am the Author',
         'Owner',
         'root',
         'User',
@@ -111,6 +113,7 @@ BAD_EXIFTOOL_METADATA = {
         'author unknown',
         'Author',
         'Creator',
+        'I am the Author',
         # TODO: [TD0192] Detect and extract editions from titles
         'First Edition',
         'Second Edition',

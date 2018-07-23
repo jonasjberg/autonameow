@@ -132,6 +132,7 @@ class TestIsBadMetadata(TestCase):
 
     def test_bad_tags_values_return_true(self):
         self._assert_bad('PDF:Author', 'Author')
+        self._assert_bad('PDF:Author', 'I am the Author')
         self._assert_bad('PDF:Author', 'Owner')
         self._assert_bad('PDF:Author', 'root')
         self._assert_bad('PDF:Author', 'Unknown')
@@ -149,6 +150,7 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad('PDF:Title', 'Title')
         self._assert_bad('PDF:Title', 'Unknown')
         self._assert_bad('XMP:Author', 'Author')
+        self._assert_bad('XMP:Author', 'I am the Author')
         self._assert_bad('XMP:Contributor', 'Epubor')
         self._assert_bad(
             'XMP:Contributor',
@@ -159,6 +161,7 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad('XMP:Contributor', 'calibre (3.6.0) [https://calibre-ebook.com]')
         self._assert_bad('XMP:Creator', 'Author')
         self._assert_bad('XMP:Creator', 'Creator')
+        self._assert_bad('XMP:Creator', 'I am the Author')
         self._assert_bad('XMP:Creator', 'First Edition')
         self._assert_bad('XMP:Creator', 'Second Edition')
         self._assert_bad('XMP:Creator', 'Third Edition')
