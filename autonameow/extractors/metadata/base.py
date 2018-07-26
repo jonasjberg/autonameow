@@ -20,6 +20,7 @@
 import logging
 import os
 import sys
+from functools import lru_cache
 
 from core import constants as C
 from core.exceptions import FilesystemError
@@ -177,6 +178,7 @@ class BaseMetadataExtractor(ProviderMixin):
         )
 
     @classmethod
+    @lru_cache()
     def metainfo_from_yaml_file(cls):
         filepath_fieldmeta = cls.fieldmeta_filepath()
         try:

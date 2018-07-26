@@ -109,6 +109,10 @@ class CaseExtractorBasics(object):
     @classmethod
     def tearDownClass(cls):
         assert cls.extractor
+
+        # Call 'cache_clear()' added by the 'functools.lru_cache' decorator.
+        cls.extractor.metainfo_from_yaml_file.cache_clear()
+
         if hasattr(cls.extractor, 'shutdown'):
             cls.extractor.shutdown()
 
