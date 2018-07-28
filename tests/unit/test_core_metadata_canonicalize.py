@@ -68,7 +68,7 @@ class TestCanonicalizerConfigParser(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.SECTION_MATCH_ANY_LITERAL = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_LITERAL
-        cls.SECTION_MATCH_ANY_REGEX = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_REGEX
+        cls.SECTION_MATCH_ANY_REGEX_IGNORECASE = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_REGEX_IGNORECASE
 
     def _get_parser_from_empty_config(self):
         empty_config = dict()
@@ -184,12 +184,12 @@ class TestCanonicalizerConfigParser(TestCase):
     def test_parsed_regex_lookup_is_empty_when_given_only_empty_strings(self):
         parser = self._get_parser_from_config({
             'FooPub': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     '',
                 ]
             },
             'BarPub': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     ' ',
                     '  ',
                 ]
@@ -200,12 +200,12 @@ class TestCanonicalizerConfigParser(TestCase):
     def test_parsed_regex_lookup_is_empty_when_given_empty_regex(self):
         parser = self._get_parser_from_config({
             '': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     'foo',
                 ]
             },
             '  ': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     'bar',
                 ]
             }
@@ -215,7 +215,7 @@ class TestCanonicalizerConfigParser(TestCase):
     def test_returns_expected_parsed_regex_lookup_given_config_with_one_entry(self):
         parser = self._get_parser_from_config({
             'FooPub': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     'Foo',
                     'foo pub',
                     'Foo',  # Duplicate that should be removed
@@ -235,14 +235,14 @@ class TestCanonicalizerConfigParser(TestCase):
     def test_returns_expected_parsed_regex_lookup_given_config_with_two_entries(self):
         parser = self._get_parser_from_config({
             'FooPub': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     'Foo',
                     'foo pub',
                     'Foo',  # Duplicate that should be removed
                 ]
              },
             'BarPub': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     'Bar Publishers Inc.',
                     'bar pub.',
                     '\n',  # Whitespace that should be ignored

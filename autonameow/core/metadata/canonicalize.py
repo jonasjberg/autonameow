@@ -130,7 +130,7 @@ class StringValueCanonicalizer(object):
 
 class CanonicalizerConfigParser(object):
     CONFIG_SECTION_MATCH_ANY_LITERAL = 'match_any_literal'
-    CONFIG_SECTION_MATCH_ANY_REGEX = 'match_any_regex_ignorecase'
+    CONFIG_SECTION_MATCH_ANY_REGEX_IGNORECASE = 'match_any_regex_ignorecase'
 
     def __init__(self, config_datadict, lookup_dict_filepath=None):
         assert isinstance(config_datadict, dict)
@@ -192,7 +192,7 @@ class CanonicalizerConfigParser(object):
                 log.error('Invalid entry "{!s}" in "{!s}"'.format(sections, self.str_lookup_dict_filepath))
                 continue
 
-            regexes_to_match = sections.get(self.CONFIG_SECTION_MATCH_ANY_REGEX)
+            regexes_to_match = sections.get(self.CONFIG_SECTION_MATCH_ANY_REGEX_IGNORECASE)
             if not regexes_to_match:
                 continue
 
