@@ -223,13 +223,14 @@ class TestCanonicalizerConfigParser(TestCase):
                 ]
              }
         })
-        expect_parsed_regex_lookup = {
+        expect_parsed_regex_lookup = sorted({
             'FooPub': set([
                 self._compile_regex('Foo'),
                 self._compile_regex('foo pub')
              ])
-        }
-        self.assertEqual(expect_parsed_regex_lookup, parser.parsed_regex_lookup)
+        })
+        actual = sorted(parser.parsed_regex_lookup)
+        self.assertEqual(expect_parsed_regex_lookup, actual)
 
     def test_returns_expected_parsed_regex_lookup_given_config_with_two_entries(self):
         parser = self._get_parser_from_config({
@@ -248,7 +249,7 @@ class TestCanonicalizerConfigParser(TestCase):
                 ]
              }
         })
-        expect_parsed_regex_lookup = {
+        expect_parsed_regex_lookup = sorted({
             'FooPub': set([
                 self._compile_regex('Foo'),
                 self._compile_regex('foo pub')
@@ -257,8 +258,9 @@ class TestCanonicalizerConfigParser(TestCase):
                 self._compile_regex('Bar Publishers Inc.'),
                 self._compile_regex('bar pub.')
              ])
-        }
-        self.assertEqual(expect_parsed_regex_lookup, parser.parsed_regex_lookup)
+        })
+        actual = sorted(parser.parsed_regex_lookup)
+        self.assertEqual(expect_parsed_regex_lookup, actual)
 
 
 class TestBuildStringValueCanonicalizer(TestCase):

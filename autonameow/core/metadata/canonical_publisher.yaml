@@ -31,6 +31,11 @@ AddisonWesley:
     - addison.wesley prof.?essional
     - addison.wesley
 
+AdobePress:
+    match_any_regex_ignorecase:
+    - Adobe Press
+    - (www\.)?adobepress\.com
+
 AKPeters:
     match_any_regex_ignorecase:
     - A ?K Peters
@@ -80,10 +85,6 @@ Birkhauser:
     match_any_regex_ignorecase:
     - Birkh.user
 
-BonsaiReads:
-    match_any_regex_ignorecase:
-    - Bonsai Reads
-
 BigNerdRanch:
     match_any_regex_ignorecase:
     - Big Nerd Ranch,?( Inc\.?|Incorporated)
@@ -95,9 +96,17 @@ BleedingEdgePress:
     match_any_regex_ignorecase:
     - Bleeding Edge Pr(.?|ess)
 
+BonsaiReads:
+    match_any_regex_ignorecase:
+    - Bonsai Reads
+
 BookBoon:
     match_any_regex_ignorecase:
     - bookboon
+
+BPBPub:
+    match_any_regex_ignorecase:
+    - BPB Pub(lications)?
 
 CaliforniaUP:
     match_any_regex_ignorecase:
@@ -111,6 +120,10 @@ CambridgeUP:
 CastaliaHouse:
     match_any_regex_ignorecase:
     - Castalia House
+
+CedarFort:
+    match_any_regex_ignorecase:
+    - Cedar Fort
 
 Cengage:
     match_any_regex_ignorecase:
@@ -139,6 +152,15 @@ ClydeBank:
 CodeWellAcademy:
     match_any_regex_ignorecase:
     - Code Well Academy
+
+CoolSpringsPress:
+    match_any_regex_ignorecase:
+    - Cool.Springs.Press
+    - (www\.)?quartoknows\.com/Cool-Springs-Press
+
+CrackingPub:
+    match_any_regex_ignorecase:
+    - Cracking Pub
 
 CreateSpace:
     match_any_regex_ignorecase:
@@ -186,6 +208,14 @@ FeedBooks:
     match_any_literal:
     - This book is brought to you by Feedbooks
 
+Fernwood:
+    match_any_regex_ignorecase:
+    - Fernwood
+
+FocalPress:
+    match_any_regex_ignorecase:
+    - Focal Press
+
 FranklinBeedle:
     match_any_regex_ignorecase:
     - Franklin,? Beedle,? (&|and) Associates
@@ -204,13 +234,22 @@ HarperBusiness:
     - Harper Business
     - (www\.)?harperbusiness\.com
 
+HeatonResearch:
+    match_any_regex_ignorecase:
+    - Heaton Research
+
+HodderGibson:
+    match_any_regex_ignorecase:
+    - Hodder ?(Education|Gibson)
+    - (www\.)?hoddereducation\.co\.uk
+
 HodderStoughton:
     match_any_regex_ignorecase:
     - Hodder (&|and) Stoughton
 
-HeatonResearch:
+HolyMacroBooks:
     match_any_regex_ignorecase:
-    - Heaton Research
+    - Holy Macro.?
 
 HoughtonMifflin:
     match_any_literal:
@@ -251,6 +290,10 @@ IGIGlobal:
     - (www\.)?igi-global\.com
     - (www\.)?igi-pub\.com
 
+ImpacktPub:
+    match_any_regex_ignorecase:
+    - Impackt
+
 ImperialCollegePress:
     match_any_regex_ignorecase:
     - Imperial College Pr(.?|ess)
@@ -266,6 +309,10 @@ InfinityScience:
 ITAcademy:
     match_any_literal:
     - IT Academy
+
+IzzardInk:
+    match_any_regex_ignorecase:
+    - Izzard Ink
 
 JohnsHopkinsUP:
     match_any_regex_ignorecase:
@@ -406,12 +453,13 @@ OxfordUP:
 
 Packt:
     match_any_regex_ignorecase:
-    - Packt Publ?\.?(ishing)? ?(Limited|Ltd)?
+    - ^Packt Publ?\.?(ishing)? ?(Limited|Ltd)?
+    - Published by Packt
     - (www\.)?packtpub\.com
 
 PeachpitPress:
     match_any_regex_ignorecase:
-    - Peachpit Pr(.?|ess)
+    - Peachpit
     - (www\.)?peachpit\.com
 
 Pearson:
@@ -440,6 +488,11 @@ PenguinRandomHouse:
     - Penguin Publishing
     - Penguin Random House
     - (www\.)?penguinrandomhouse\.com
+
+PlutoPress:
+    match_any_regex_ignorecase:
+    - Pluto Press
+    - (www\.)?plutobooks\.com
 
 Polgrove:
     match_any_regex_ignorecase:
@@ -500,6 +553,11 @@ Sams:
     - Sams Pub
     - (www\.)?samspublishing\.com
 
+SecurePlanet:
+    match_any_regex_ignorecase:
+    - Secure Planet
+    - (www\.)?securepla\.net
+
 SimpleProgrammer:
     match_any_literal:
     - Simple Programmer
@@ -511,6 +569,14 @@ SitePoint:
 SkriptKuhnel:
     match_any_regex_ignorecase:
     - Skript-Verl.?g? K[üu]hnel
+
+Skyhorse:
+    match_any_regex_ignorecase:
+    - Skyhorse
+
+Soundlikeyourself:
+    match_any_regex_ignorecase:
+    - Soundlikeyourself
 
 Springer:
     match_any_regex_ignorecase:
@@ -550,6 +616,12 @@ UnitedComputerGeeks:
 UNKNOWN:
     match_any_regex_ignorecase:
     - ^(unknown|null|empty|none)$
+
+UrbanLandInstitute:
+    match_any_regex_ignorecase:
+    - Urban Land Institute
+    match_any_literal:
+    - ULI
 
 WalterdeGruyter:
     match_any_regex_ignorecase:
