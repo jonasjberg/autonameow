@@ -26,6 +26,12 @@ AcademicPress:
     - Academic Press
     - Academic Press is an imprint of Elsevier
 
+ACBlack:
+    # Acquired by Bloomsbury in 2000
+    match_any_regex_ignorecase:
+    - ^A ?(and|&)? ?C Black
+    - (www\.)?acblack\.com
+
 AddisonWesley:
     match_any_regex_ignorecase:
     - addison.wesley prof.?essional
@@ -81,6 +87,10 @@ BenBella:
     match_any_regex_ignorecase:
     - BenBella
 
+Bertelsmann:
+    match_any_regex_ignorecase:
+    - Bertelsmann
+
 Birkhauser:
     match_any_regex_ignorecase:
     - Birkh.user
@@ -95,6 +105,11 @@ BigNerdRanch:
 BleedingEdgePress:
     match_any_regex_ignorecase:
     - Bleeding Edge Pr(.?|ess)
+
+Bloomsbury:
+    match_any_regex_ignorecase:
+    - Bloomsbury
+    - (www\.)?Bloomsbury\.com
 
 BonsaiReads:
     match_any_regex_ignorecase:
@@ -229,10 +244,19 @@ GrinPub:
     - GRIN Publishing
     - GRIN Verlag
 
+Hachette:
+    match_any_regex_ignorecase:
+    - Hachette
+
 HarperBusiness:
     match_any_regex_ignorecase:
     - Harper Business
     - (www\.)?harperbusiness\.com
+
+HarperCollins:
+    match_any_regex_ignorecase:
+    - HarperCollins
+    - (www\.)?harpercollins\.com
 
 HeatonResearch:
     match_any_regex_ignorecase:
@@ -325,9 +349,10 @@ JonesBartlett:
     - Jones and Bartlett Publishers
     - Jones and Bartlett
 
-Kluwer:
+LaurenceKing:
     match_any_regex_ignorecase:
-    - Kluwer
+    - Laurence King
+    - (www\.)?laurenceking\.com
 
 LCFPub:
     match_any_regex_ignorecase:
@@ -359,6 +384,11 @@ NebraskaUP:
     - Nebraska Uni(\.?|versity)
     - U(niversity)? of Nebraska Pr(.?|ess)
 
+Macmillan:
+    match_any_regex_ignorecase:
+    - ^(The )?Macmillan
+    - (www\.)?macmillan\.com
+
 MakerMedia:
     match_any_regex_ignorecase:
     - Maker Media
@@ -374,6 +404,11 @@ McGrawHill:
     - Osborne
     match_any_regex_ignorecase:
     - McGraw.?Hill
+
+MCPress:
+    match_any_regex_ignorecase:
+    - MC Press
+    - (www\.)?mc-store\.com
 
 MicrosoftPress:
     match_any_literal:
@@ -396,8 +431,7 @@ MorganClaypool:
     - Morgan (&|and) Claypool
 
 MorganKaufmann:
-    match_any_literal:
-    - Morgan Kaufmann Publishers
+    match_any_regex_ignorecase:
     - Morgan Kaufmann
 
 Murachs:
@@ -558,6 +592,11 @@ SecurePlanet:
     - Secure Planet
     - (www\.)?securepla\.net
 
+SimonSchuster:
+    match_any_regex_ignorecase:
+    - Simon (&|and) Schuster
+    - (www\.)?simonandschuster\.com
+
 SimpleProgrammer:
     match_any_literal:
     - Simple Programmer
@@ -599,6 +638,10 @@ Syngress:
 TaylorFrancis:
     match_any_regex_ignorecase:
     - ^Taylor (&|and) Francis
+
+ThomsonReuters:
+    match_any_regex_ignorecase:
+    - Thomson (Corporation|Reuters)
 
 Transaction:
     match_any_regex_ignorecase:
@@ -647,6 +690,11 @@ Wiley:
     match_any_literal:
     - John Wiley
     - J. Wiley
+
+WoltersKluwer:
+    match_any_regex_ignorecase:
+    - Wolters
+    - Kluwer
 
 Wordware:
     match_any_regex_ignorecase:
