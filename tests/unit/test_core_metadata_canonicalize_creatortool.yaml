@@ -92,6 +92,7 @@ Adobe Acrobat:
 - Quite Imposing 1.5d (EN)
 - Quite Imposing 1.5d (EN)(Infix Pro)
 - Quite Imposing 2.9b
+
 Adobe Acrobat Distiller:
 - Acrobat Distiller
 - Acrobat Distiller 10.0.0 (Windows)
@@ -101,8 +102,10 @@ Adobe Acrobat Distiller:
 - AdobePS5.dll Version 5.2
 - AdobePS5.dll Version 5.2.2
 - AdobePS5.dll
+
 Adobe Acrobat PDFMaker:
 - Adobe Acrobat PDFMaker
+
 Adobe FrameMaker:
 - Adobe FrameMaker
 - FrameMaker 2017.0.2
@@ -120,6 +123,7 @@ Adobe FrameMaker:
 - FrameMaker 8.0(Foxit Advanced PDF Editor)
 - FrameMaker xm5.5.3L15a
 - FrameMaker+SGML 5.5.6p145
+
 Adobe Illustrator:
 - Adobe Illustrator
 - Adobe Illustrator CS2
@@ -127,6 +131,7 @@ Adobe Illustrator:
 - Adobe Illustrator CS5
 - Adobe Illustrator CS6
 - Adobe Illustrator CS6 (Windows)
+
 Adobe InDesign:
 - Adobe InDesign
 - Adobe InDesign 2.0 CE
@@ -179,25 +184,30 @@ Adobe InDesign:
 - Adobe InDesign CS6 (Macintosh)
 - Adobe InDesign CS6 (Windows)
 - "InDesign: pictwpstops filter 1.0"
+
 Adobe LiveCycle Designer:
 - Adobe LiveCycle Designer
 - Adobe LiveCycle Designer ES 8.2
+
 Adobe PageMaker:
 - Adobe PageMaker
 - Adobe PageMaker 6.52
 - Adobe PageMaker 7.0
 - "Adobe\xAE PageMaker\xAE 6.0"
+
 Adobe PDF Library:
 - Adobe PDF Library
 - Adobe PDF Library 8.0 modified using iText 5.0.3_SNAPSHOT (c) 1T3XT BVBA
 - Adobe PDF Library 8.0 modified using iText 5.0.3_SNAPSHOT
 - Adobe PDF Library 8.0; modified using iText 5.0.3_SNAPSHOT (c) 1T3XT BVBA
 - Adobe PDF Library 9.9
+
 Adobe Photoshop:
 - Adobe Photoshop
 - Adobe Photoshop 7.0
 - Photoshop PDF Plug-in
 - Photoshop PDF Plug-in 1.0
+
 AdobePS:
 - AdobePS
 - Adobe PostScript printer driver
@@ -218,6 +228,7 @@ AdobePS:
 - "Textures\xAE AdobePS 8.7.3 (301)"
 - Textures. AdobePS 8.5.1
 - "Textures\xAE AdobePS 8.7.3"
+
 Advanced PDF Repair:
 - Advanced PDF Repair
 - Advanced PDF Repair at http://www.datanumen.com/apdfr/
@@ -227,8 +238,10 @@ Advanced PDF Repair:
 - DPDFR
 - www.pdf-repair.com
 - www.datanumen.com/apdfr/
+
 A-PDF Merger:
 - A-PDF Merger
+
 AH CSS Formatter:
 - AH CSS Formatter
 - AH CSS Formatter V1.0
@@ -238,6 +251,7 @@ AH CSS Formatter:
 - "AH CSS Formatter V6.2 MR4 for Linux64 : 6.2.6.18551 (2014/09/24 15:00JST)"
 - "AH CSS Formatter V6.2 R1 for Linux64 : 6.2.2.15776 (2014/02/27 18:51JST)"
 - "AH CSS Formatter V6.2 R1 for Linux64 : 6.2.2.15776 (2014/02/27 18:51JST)"
+
 AH XSL Formatter:
 - AH XSL Formatter
 - AH XSL Formatter V1.0
@@ -249,23 +263,28 @@ AH XSL Formatter:
 - XSL Formatter V3.4 MR3 (3,4,2006,0314) for Windows(Infix)
 - XSL Formatter V4.3 R1 (4,3,2008,0424) for Linux
 - XSL Formatter V4.3 R1 (4,3,2008,0424) for Linux(Infix Pro)
+
 Antenna House:
 - Antenna House
 - Antenna House PDF Output Library
 - Antenna House PDF Output Library 6.2.469
 - Antenna House PDF Output Library 6.2.469 (Linux64)
+
 Apache FOP:
 - Apache FOP
 - Apache FOP Version 1.0
+
 Apple Keynote:
 - Apple Keynote
 - Apple Keynote 3.0.2
 - Apple Keynote 4.0.1
 - Apple Keynote 5.0
+
 Apple iBooks:
 - Apple iBooks
 - iBooks
 - iBooks Author
+
 Arbortext:
 - Arbortext
 - Arbortext Advanced Print Publisher
@@ -277,15 +296,19 @@ Arbortext:
 - Arbortext Advanced Print Publisher 9.1.405/W Unicode
 - Arbortext Advanced Print Publisher 9.1.406/W Unicode
 - Arbortext Advanced Print Publisher 9.1.500/W Unicode(Infix Pro)
+
 BCL PostScript Driver:
 - BCL PostScript driver
 - BCL PostScript Driver
+
 Boxoft Image To PDF:
 - Boxoft Image To PDF
+
 Brother Printer:
 - Brother Printer
 - TW-Brother
 - TW-Brother DCP-7040
+
 Cairo:
 - Cairo
 - cairo 1.10.0 (http://cairographics.org)
@@ -308,6 +331,7 @@ Cairo:
 - cairo 11.22.3
 - cairo 11.22.33 (http://cairographics.org)
 - cairo 11.22.33
+
 Calibre:
 - calibre
 - CALIBRE
@@ -374,11 +398,14 @@ Calibre:
 - "[http://calibre-ebook.com]"
 - https://calibre-ebook.com
 - http://calibre-ebook.com
+
 Chromium:
 - Chromium
+
 DocBook:
 - DocBook XSL Stylesheets V1.71.1
 - DocBook XSL Stylesheets V1.77.1
+
 dvips:
 - dvips
 - dvips + AFPL Ghostscript 8.51 / PDF PT 2.37 (pdf-tools.com)
@@ -404,6 +431,7 @@ dvips:
 - dvips(k) 5.996 Copyright 2016 Radical Eye Software
 - dvipsk 5.58f Copyright 1986, 1994 Radical Eye Software
 - DVIPSONE 2.2.4  http://www.YandY.com
+
 Epson Printer:
 - Epson Printer
 - Epson Scan
@@ -411,20 +439,25 @@ Epson Printer:
 - EPSON CX5900/CX6000/DX6000
 - EPSON NX410/SX410/TX410
 - EPSON Perfection 3170
+
 FinePrint pdfFactory:
 - FinePrint pdfFactory
+
 FineReader:
 - FINEREADER
+
 Foxit:
 - Foxit
 - (Foxit Advanced PDF Editor)
 - Foxit Advanced PDF Editor
 - "\xFF\xFEM(Foxit Advanced PDF Editor)"
+
 Fujitsu Printer:
 - Fujitsu Printer
 - ScanSnap Manager
 - "ScanSnap Manager #iX500"
 - "ScanSnap Manager #S1300"
+
 Ghostscript:
 - Ghostscript
 - GPL Ghostscript
@@ -432,22 +465,27 @@ Ghostscript:
 - GPL Ghostscript 9.07
 - GPL Ghostscript 1.2
 - GPL Ghostscript 1.2.3
+
 gnuplot:
 - gnuplot
 - gnuplot 4.2 patchlevel 3
 - "gnuplot 4.2 patchlevel 3 "
 - gnuplot 4.7 patchlevel 0
+
 groff:
 - groff
 - groff version 1.18
 - groff version 1.18.1
+
 gscan2pdf:
 - gscan2pdf
 - gscan2pdf v1.0.1
+
 HP Printer:
 - HP Printer
 - WIA-HP psc
 - WIA-HP psc 1300
+
 HTML Tidy:
 - HTML Tidy
 - HTML Tidy for FreeBSD
@@ -456,15 +494,18 @@ HTML Tidy:
 - HTML Tidy for Mac OS X
 - HTML Tidy for Mac OS X (vers 1st December 2004)
 - HTML Tidy for Mac OS X (vers 1st December 2004), see www.w3.org
+
 Image2PDF:
 - Image2PDF
 - Image2PDF Command Line software
+
 Infix Pdf Editor:
 - Infix Pdf Editor
 - Infix Pro
 - (Infix Pro)
 - Iceni Technology Products
 - Iceni Technology
+
 iText:
 - iText
 - iText 4.2.0 by 1T3XT
@@ -475,12 +516,14 @@ iText:
 - iText 11.2.33 by 1T3XT
 - iText 11.22.3 by 1T3XT
 - iText 11.22.33 by 1T3XT
+
 Kingsoft WPS Office:
 - KSOffice
 - Kingsoft Office
 - Kingsoft WPS Office
 - WPS Office
 - "WPS Office \u4E2A\u4EBA\u7248"
+
 LaTeX:
 - DBLaTeX
 - DBLaTeX-0.3.4
@@ -492,6 +535,7 @@ LaTeX:
 - PDF LaTeX
 - STM LaTeX
 - STM LaTeX and Word Typesetting
+
 Microsoft PowerPoint:
 - PowerPoint - [meow meow]
 - "Microsoft\xAE Office PowerPoint"
@@ -516,13 +560,16 @@ Microsoft PowerPoint:
 - Microsoft® PowerPoint® 2010
 - Microsoft® PowerPoint® 2013
 - Microsoft® PowerPoint® 2016
+
 Microsoft Publisher:
 - Microsoft Publisher
 - "Microsoft\xAE Publisher"
 - "Microsoft\xAE Publisher 2010"
+
 Microsoft Trident:
 - MSHTML 5.00.3502.5390
 - MSHTML 6.00.2800.1126
+
 Microsoft Word:
 - Microsoft Word
 - Acrobat PDFMaker 10.0 for Word
@@ -570,6 +617,7 @@ Microsoft Word:
 - "Microsoft\xAE Word Starter 2010"
 - Socket_quickref - Microsoft Word
 - WINWORD.EXE
+
 MikTex:
 - dvips + MiKTeX GPL Ghostscript  9.0
 - dvips + MiKTeX GPL Ghostscript 9.05
@@ -594,21 +642,26 @@ MikTex:
 - This is MiKTeX-pdfTeX 2.9.6000 (1.40.17)
 - This is MiKTeX-pdfTeX 2.9.6211 (1.40.17)
 - This is pdfTeX, Version 3.141592-1.20b (MiKTeX 2.4.1862)
+
 Mozilla PostScript:
 - Mozilla PostScript
 - Mozilla PostScript module
 - Mozilla PostScript module (rv:1.7.12/2005092000)
+
 PDF Creator:
 - PDF Creator Pilot 3.9.1094.0
 - PDF Creator Pilot  program
 - PDF Creator Plus 4.0 - http://www.peernet.com
 - PDFCreator Version 0.9.3
 - www.peernet.com
+
 PDF Nomad:
 - PDF Nomad
+
 PDFBox:
 - PDFBox
 - PDFBox.org
+
 PDFMerge:
 - PDFMerge
 - PDFMerge!
@@ -617,10 +670,12 @@ PDFMerge:
 - PDFMerge (http://www.pdfmerge.com)
 - PDFMerge http://www.pdfmerge.com
 - www.pdfmerge.com
+
 pdfresizer:
 - pdfresizer
 - pdfresizer.com
 - Edited with pdfresizer.com
+
 pdfTeX:
 - pdfTeX
 - pdftex
@@ -636,6 +691,7 @@ pdfTeX:
 - This is pdfTeX Version 3.14159265-2.6-1.4
 - This is pdfTeX, Version 3.14
 - This is pdfTeX, Version 3.14159265-2.6-1.4
+
 pdftk:
 - pdftk 1.41 - www.pdftk.com
 - pdftk 1.41
@@ -647,15 +703,19 @@ pdftk:
 - pdftk 2.02
 - pdftk
 - www.pdftk.com
+
 PDFWriters:
 - PDFWriters
 - PDFWriters Suite
+
 PDFelement:
 - PDFelement
 - PDFelement 6
 - PDFelement 6 Professional
+
 PDFium:
 - PDFium
+
 PDFsam:
 - PDFsam
 - PDFsam Basic v3.1.0.RELEASE
@@ -669,6 +729,7 @@ PDFsam:
 - pdfsam-console (Ver. 2.4.0e)
 - pdfsam-console (Ver. 2.4.1e)
 - pdfsam-console
+
 PDFsharp:
 - PDFsharp
 - PDFsharp 1.2.1269-g
@@ -678,6 +739,7 @@ PDFsharp:
 - PDFsharp 1.31.1789-g (www.pdfsharp.com)
 - PDFsharp 1.32.2608-g (www.pdfsharp.net)
 - www.pdfsharp.net
+
 PScript:
 - PScript5
 - Pscript.dll Version 5.0
@@ -694,20 +756,25 @@ PScript:
 - PScript5.dll Version 5.2.2
 - PScript5.dll Version 5.2.2(Infix Pro)
 - PScript5.dll
+
 PaperPort:
 - PaperPort
 - PaperPort http://www.scansoft.com
 - http://www.scansoft.com
 - www.scansoft.com
+
 PdfCompressor:
 - PdfCompressor 3.1.34
+
 PowerPDF:
 - PowerPDF
+
 PrimoPDF:
 - PrimoPDF
 - PrimoPDF http://www.primopdf.com
 - http://www.primopdf.com
 - www.primopdf.com
+
 PrinceXML:
 - PrinceXML
 - Prince 1.22 (www.princexml.com)
@@ -723,10 +790,12 @@ PrinceXML:
 - Prince 6.0 www.princexml.com
 - Prince 6.0
 - www.princexml.com
+
 Print2PDF:
 - Print2PDF
 - Print2PDF 5.0.06.0426
 - Print2PDF 5.0.06.0426 by Software602
+
 QuarkXPress:
 - QuarkXPress
 - "QuarkXPress\u2122"
@@ -745,16 +814,19 @@ QuarkXPress:
 - quark1user
 - quark10user
 - quark65user
+
 ScanToPDF:
 - ScanToPDF
 - ScanToPDF 3.1.4.0
 - ScanToPDF 3.1.4.0 (http://www.scantopdf.co.uk)
 - www.scantopdf.co.uk
+
 SkiaPDF:
 - SkiaPDF
 - skiapdf
 - Skia/PDF
 - Skia PDF
+
 TeX:
 - tex
 - TeX
@@ -764,11 +836,14 @@ TeX:
 - " TeX output 2003.02.20:0404"
 - " TeX output 2005.08.28:1646"
 - " TeX output 2008.06.18:1321"
+
 tiff2ps:
 - tiff2ps
+
 ToPDF.com:
 - ToPDF.com
 - topdf.com
+
 TopLeaf:
 - TopLeaf
 - TopLeaf 8.0.0
@@ -786,10 +861,12 @@ TopLeaf:
 - Turn-Key Systems TopLeaf XML 8.0.0
 - Turn-Key Systems TopLeaf XML 8.0.017
 - Turn-Key Systems TopLeaf XML
+
 Tracker PDF-Tools:
 - Tracker PDF-Tools
 - Trackers PDF-Tools
 - Tracker's PDF-Tools
+
 UNKNOWN:
 - UNKNOWN
 - Unknown
@@ -804,23 +881,28 @@ UNKNOWN:
 - 9999.tif
 - 0000.foo
 - 9999.foo
+
 VTeX PDF Tools:
 - VTeX PDF Tools
+
 Win2PDF:
 - Win2PDF
 - Win2PDF 2.80
 - Win2PDF 2.80 http://www.daneprairie.com
 - http://www.daneprairie.com
 - www.daneprairie.com
+
 wpCubed wPDF:
 - wpCubed wPDF
 - wPDF
 - wPDF by wpCubed
 - wPDF by wpCubed GmbH
+
 XEP:
 - XEP
 - XEP 4.5
 - XEP 4.5 build 20060313
+
 XeTeX:
 - XeTeX
 - XeTeX 0.99992
