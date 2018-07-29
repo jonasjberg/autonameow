@@ -1,3 +1,15 @@
+ACDSee:
+- ACDSee
+- ACDSee v1.2
+- ACDSee v1.2.3
+- ACDSee v3.1
+- ACDSee v3.1 - CBook
+
+ActivePDF Toolkit:
+- ActivePDF Toolkit
+- Toolkit http://www.activepdf.com
+- Toolkit http://www.activepdf.com(Infix)
+
 Adobe Acrobat:
 - Acrobat
 - Adobe Acrobat
@@ -131,6 +143,12 @@ Adobe Illustrator:
 - Adobe Illustrator CS5
 - Adobe Illustrator CS6
 - Adobe Illustrator CS6 (Windows)
+- Illustrator
+- Illustrator CS2
+- Illustrator CS3
+- Illustrator CS5
+- Illustrator CS6
+- Illustrator CS6 (Windows)
 
 Adobe InDesign:
 - Adobe InDesign
@@ -194,6 +212,8 @@ Adobe PageMaker:
 - Adobe PageMaker 6.52
 - Adobe PageMaker 7.0
 - "Adobe\xAE PageMaker\xAE 6.0"
+- PageMaker 5.0
+- PageMaker 7.0
 
 Adobe PDF Library:
 - Adobe PDF Library
@@ -274,16 +294,50 @@ Apache FOP:
 - Apache FOP
 - Apache FOP Version 1.0
 
+Apple iBooks:
+- Apple iBooks
+- iBooks
+- iBooks Author
+
 Apple Keynote:
 - Apple Keynote
 - Apple Keynote 3.0.2
 - Apple Keynote 4.0.1
 - Apple Keynote 5.0
+- Keynote
+- Keynote 3.0.2
+- Keynote 4.0.1
+- Keynote 5.0
 
-Apple iBooks:
-- Apple iBooks
-- iBooks
-- iBooks Author
+Apple LaserWriter:
+- Apple Laserwriter
+- Apple LaserWriter II
+- Apple LaserWriter II NT
+- Apple LaserWriter II NTX
+- Apple LaserWriter IIf
+- Apple LaserWriter IIg
+- Apple LaserWriter IINT
+- Apple LaserWriter IINTX
+- Apple LaserWriter IISC
+- LaserWriter
+- LaserWriter II
+- LaserWriter II NT
+- LaserWriter II NTX
+- LaserWriter IIf
+- LaserWriter IIg
+- LaserWriter IINT
+- LaserWriter IINTX
+- LaserWriter IISC
+- 'Textures.-2.4: LaserWriter 8 8.6.5'
+- 'Textures¨: LaserWriter 8 Z1-8.7.1'
+- 'Textures®: LaserWriter 8 8.7.1(Infix Pro)'
+
+Apple Pages:
+- Pages
+
+Appligent pdfHarmony:
+- Appligent pdfHarmony
+- Appligent pdfHarmony 2.0
 
 Arbortext:
 - Arbortext
@@ -296,6 +350,11 @@ Arbortext:
 - Arbortext Advanced Print Publisher 9.1.405/W Unicode
 - Arbortext Advanced Print Publisher 9.1.406/W Unicode
 - Arbortext Advanced Print Publisher 9.1.500/W Unicode(Infix Pro)
+- 3B2 Arbortext Advanced Print Publisher
+- 3B2 Total Publishing System
+- 3B2 Total Publishing System 7.51a/W
+- 3B2 Total Publishing System 7.51d/W
+- 3B2 Total Publishing System 8.06a/W
 
 BCL PostScript Driver:
 - BCL PostScript driver
@@ -399,8 +458,17 @@ Calibre:
 - https://calibre-ebook.com
 - http://calibre-ebook.com
 
+Canon Printer:
+- Canon
+- Canon Printer
+
 Chromium:
 - Chromium
+
+CorelDRAW:
+- CorelDRAW
+- CorelDRAW Version 1.2
+- CorelDRAW Version 11.0
 
 DocBook:
 - DocBook XSL Stylesheets V1.71.1
@@ -457,6 +525,22 @@ Fujitsu Printer:
 - ScanSnap Manager
 - "ScanSnap Manager #iX500"
 - "ScanSnap Manager #S1300"
+- FUJITSU fi-5120Cdj
+
+Fuji Printer:
+- Fuji Printer
+- Fuji Xerox
+- Fuji Xerox 4127
+- Fuji Xerox 4112
+- Fuji Xerox 4112/4127
+
+Genius Printer:
+- Genius Printer
+- ColorPage-HR6
+- ColorPage-HR6 V2 USB
+- Genius ColorPage HR7X Slim
+- Genius ColorPage HR8
+- Genius ColorPage SF600
 
 Ghostscript:
 - Ghostscript
@@ -481,6 +565,9 @@ gscan2pdf:
 - gscan2pdf
 - gscan2pdf v1.0.1
 
+HELIOS pdfcat:
+- HELIOS pdfcat
+
 HP Printer:
 - HP Printer
 - WIA-HP psc
@@ -495,14 +582,22 @@ HTML Tidy:
 - HTML Tidy for Mac OS X (vers 1st December 2004)
 - HTML Tidy for Mac OS X (vers 1st December 2004), see www.w3.org
 
+IBM Printer:
+- SYSTEM400
+- SYSTEM400 Rev 1
+- SYSTEM400 Rev 1.2
+- SYSTEM400 Rev 14.08
+
 Image2PDF:
 - Image2PDF
 - Image2PDF Command Line software
 
 Infix Pdf Editor:
 - Infix Pdf Editor
+- Infix
 - Infix Pro
 - (Infix Pro)
+- (Infix)
 - Iceni Technology Products
 - Iceni Technology
 
@@ -524,6 +619,28 @@ Kingsoft WPS Office:
 - WPS Office
 - "WPS Office \u4E2A\u4EBA\u7248"
 
+Konica Printer:
+- Konica Printer
+- bizhub PRESS C7000
+- bizhub PRESS C70hc
+- bizhub PRESS C8000
+- Konica bizhub PRESS C7000
+- Konica bizhub PRESS C70hc
+- Konica bizhub PRESS C8000
+- KONICA MINOLTA
+- Konica Minolta
+- KONICA MINOLTA bizhub
+- Konica Minolta bizhub
+- KONICA MINOLTA bizhub PRO
+- Konica Minolta bizhub PRO
+- KONICA MINOLTA bizhub PRO 1200
+- Konica Minolta bizhub PRO 1200
+- Konica pagepro
+- Konica pagepro 1500W
+- Konica pagepro 1590MF
+- pagepro 1500W
+- pagepro 1590MF
+
 LaTeX:
 - DBLaTeX
 - DBLaTeX-0.3.4
@@ -535,6 +652,16 @@ LaTeX:
 - PDF LaTeX
 - STM LaTeX
 - STM LaTeX and Word Typesetting
+
+MacOS Quartz:
+- MacOS Quartz
+- MacOS X Quartz
+- Mac OS X Quartz
+- Mac OS X 10.11.3 Quartz PDFContext
+- Mac OS X 1.2.3 Quartz PDFContext
+- Mac OS X Quartz PDFContext
+- Mac OS Quartz PDFContext
+- Mac OS Quartz
 
 Microsoft PowerPoint:
 - PowerPoint - [meow meow]
@@ -603,10 +730,13 @@ Microsoft Word:
 - G:\ProgramFiles\Microsoft Office\OFFICE10\WINWORD.EXE
 - G:\ProgramFiles\Microsoft Office\OFFICE11\WINWORD.EXE
 - G:\ProgramFiles\Microsoft Office\OFFICE12\WINWORD.EXE
+- MergerPdf.dll
 - Microsoft Word - Check Out The Most Amazing Wallpapers.doc
 - Microsoft Word 2000/2002
 - Microsoft Word 9.0
 - Microsoft Word
+- 'MicrosoftÂ® Word 2010'
+- 'MicrosoftÃ‚Â® Word 2016'
 - "Microsoft Word: cgpdftops CUPS filter(Infix Pro)"
 - "Microsoft\xAE Office Word 2007 (Beta)"
 - "Microsoft\xAE Office Word 2007"
@@ -647,6 +777,23 @@ Mozilla PostScript:
 - Mozilla PostScript
 - Mozilla PostScript module
 - Mozilla PostScript module (rv:1.7.12/2005092000)
+
+Nitro:
+- Nitro PDF
+- Nitro PDF Professional
+- Nitro PDF Professional 6
+- Nitro Pro
+- Nitro Pro 10
+
+Nuance OmniPage:
+- OmniPage
+- OmniPage CSDK
+- OmniPage CSDK 16
+- OmniPage CSDK 18
+
+PDF24:
+- PDF24
+- PDF24 Creator
 
 PDF Creator:
 - PDF Creator Pilot 3.9.1094.0
@@ -757,6 +904,13 @@ PScript:
 - PScript5.dll Version 5.2.2(Infix Pro)
 - PScript5.dll
 
+OneVision Asura:
+- OneVision Asura
+- Asura Version 1
+- Asura Version 6.1
+- Asura Version 6.1 (SR 3)
+- Asura Version 8.5
+
 PaperPort:
 - PaperPort
 - PaperPort http://www.scansoft.com
@@ -837,6 +991,13 @@ TeX:
 - " TeX output 2005.08.28:1646"
 - " TeX output 2008.06.18:1321"
 
+TeXShop:
+- TeXShop
+- 'TeXShop: cgpdftops CUPS filter'
+
+Texterity:
+- Texterity
+
 tiff2ps:
 - tiff2ps
 
@@ -882,6 +1043,12 @@ UNKNOWN:
 - 0000.foo
 - 9999.foo
 
+VivaPress:
+- 'VivaPress Professional 3.2 Build 2303'
+- 'VivaPress Professional 3.2'
+- 'VivaPress Professional'
+- 'VivaPressÂ¨ Professional 3.2 Build 2303'
+
 VTeX PDF Tools:
 - VTeX PDF Tools
 
@@ -903,6 +1070,16 @@ XEP:
 - XEP 4.5
 - XEP 4.5 build 20060313
 
+Xerox Printer:
+- Xerox Phaser
+- Xerox Phaser 6510
+- Xerox VERSALINK
+- Xerox Versalink
+- Xerox VERSALINK C405
+- Xerox Versalink C405
+- Xerox WorkCentre
+- Xerox WorkCentre 7535
+
 XeTeX:
 - XeTeX
 - XeTeX 0.99992
@@ -918,3 +1095,15 @@ XeTeX:
 - " XeTeX output 2015.11.16:1916"
 - " XeTeX output 2017.05.08:1638"
 - " XeTeX output 2018.01.24:1710"
+
+XyEnterprise:
+- XyEnterprise
+- XML Professional Publisher
+- XML Professional Publisher (XPP)
+- XyEnterprise XML Professional Publisher
+- XyEnterprise XML Professional Publisher (XPP)
+- XyEnterprise XPP
+- XyEnterprise XPP 8.2
+- XyEnterprise XPP 8.2C.1
+- 'XyEnterprise XPP 8.2C.1  Patch #1'
+- 'XyEnterprise XPP 8.2C.1 Patch #1'

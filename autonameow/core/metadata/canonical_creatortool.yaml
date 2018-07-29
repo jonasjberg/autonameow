@@ -21,6 +21,14 @@
 # matching on metadata string values.
 
 
+ACDSee:
+    match_any_regex_ignorecase:
+    - ACDSee
+
+ActivePDF Toolkit:
+    match_any_regex_ignorecase:
+    - activepdf\.com
+
 Adobe Acrobat:
     match_any_literal:
     - Acrobat
@@ -48,7 +56,7 @@ Adobe FrameMaker:
 
 Adobe Illustrator:
     match_any_regex_ignorecase:
-    - Adobe Illustrator
+    - (Adobe )?Illustrator
 
 Adobe InDesign:
     match_any_regex_ignorecase:
@@ -60,7 +68,7 @@ Adobe LiveCycle Designer:
 
 Adobe PageMaker:
     match_any_regex_ignorecase:
-    - Adobe.? PageMaker
+    - (Adobe.? )?PageMaker
 
 Adobe PDF Library:
     match_any_regex_ignorecase:
@@ -90,6 +98,7 @@ Antenna House:
 Arbortext:
     match_any_regex_ignorecase:
     - Arbortext
+    - ^3B2
 
 AH CSS Formatter:
     match_any_regex_ignorecase:
@@ -114,7 +123,20 @@ Apple iBooks:
 
 Apple Keynote:
     match_any_regex_ignorecase:
-    - Apple Keynote
+    - (Apple )?Keynote
+
+Apple LaserWriter:
+    match_any_regex_ignorecase:
+    - ^(Apple )?LaserWriter
+    - Textures.*LaserWriter
+
+Apple Pages:
+    match_any_literal:
+    - Pages
+
+Appligent pdfHarmony:
+    match_any_regex_ignorecase:
+    - Appligent pdfHarmony
 
 BCL PostScript Driver:
     match_any_regex_ignorecase:
@@ -138,9 +160,17 @@ Calibre:
     - calibre \(?\d+.\d+.\d+\)?
     - \[?https?://calibre-ebook\.com\]?
 
+Canon Printer:
+    match_any_regex_ignorecase:
+    - Canon
+
 Chromium:
     match_any_regex_ignorecase:
     - Chromium
+
+CorelDRAW:
+    match_any_regex_ignorecase:
+    - CorelDRAW
 
 DocBook:
     match_any_regex_ignorecase:
@@ -169,6 +199,16 @@ Foxit:
 Fujitsu Printer:
     match_any_regex_ignorecase:
     - ScanSnap Manager
+    - Fujitsu
+
+Fuji Printer:
+    match_any_regex_ignorecase:
+    - Fuji Xerox
+
+Genius Printer:
+    match_any_regex_ignorecase:
+    - ^Genius
+    - ColorPage-\w+\d?
 
 Ghostscript:
     match_any_regex_ignorecase:
@@ -186,6 +226,10 @@ gscan2pdf:
     match_any_regex_ignorecase:
     - gscan2pdf
 
+HELIOS pdfcat:
+    match_any_literal:
+    - HELIOS pdfcat
+
 HTML Tidy:
     match_any_regex_ignorecase:
     - HTML Tidy
@@ -194,11 +238,19 @@ HP Printer:
     match_any_regex_ignorecase:
     - WIA-HP psc
 
+IBM Printer:
+    match_any_regex_ignorecase:
+    - SYSTEM400
+
 Image2PDF:
     match_any_regex_ignorecase:
     - Image2PDF
 
 Infix Pdf Editor:
+    match_any_literal:
+    - (Infix)
+    - Infix
+
     match_any_regex_ignorecase:
     - ^.?Infix Pro.?$
     - Infix Pdf Editor
@@ -212,18 +264,18 @@ Kingsoft WPS Office:
     match_any_regex_ignorecase:
     - (KS|Kingsoft|WPS) ?Office
 
+Konica Printer:
+    match_any_regex_ignorecase:
+    - (Konica|bizhub)
+    - pagepro \d+
+
 LaTeX:
     match_any_regex_ignorecase:
     - LaTeX
 
-MikTex:
+MacOS Quartz:
     match_any_regex_ignorecase:
-    - MikTex
-    - \(MikTex.*\)
-
-Mozilla PostScript:
-    match_any_regex_ignorecase:
-    - Mozilla PostScript
+    - Mac ?OS.* Quartz
 
 Microsoft PowerPoint:
     match_any_regex_ignorecase:
@@ -239,15 +291,43 @@ Microsoft Trident:
     - MSHTML
 
 Microsoft Word:
+    match_any_literal:
+    - MergerPdf.dll
+
     match_any_regex_ignorecase:
     - Acrobat.* for Word
     - WINWORD\.EXE
-    - Microsoft.?( Office)? Word
+    - Microsoft.?.?.?.?( Office)? Word
+
+MikTex:
+    match_any_regex_ignorecase:
+    - MikTex
+    - \(MikTex.*\)
+
+Mozilla PostScript:
+    match_any_regex_ignorecase:
+    - Mozilla PostScript
+
+Nitro:
+    match_any_regex_ignorecase:
+    - Nitro (PDF|Pro)
+
+Nuance OmniPage:
+    match_any_regex_ignorecase:
+    - OmniPage
+
+OneVision Asura:
+    match_any_regex_ignorecase:
+    - Asura
 
 PaperPort:
     match_any_regex_ignorecase:
     - PaperPort
     - www\.scansoft\.com
+
+PDF24:
+    match_any_regex_ignorecase:
+    - PDF24( Creator)?
 
 PDFBox:
     match_any_regex_ignorecase:
@@ -344,6 +424,14 @@ TeX:
     match_any_regex_ignorecase:
     - ^ ?TeX output
 
+TeXShop:
+    match_any_regex_ignorecase:
+    - TeXShop
+
+Texterity:
+    match_any_regex_ignorecase:
+    - Texterity
+
 tiff2ps:
     match_any_regex_ignorecase:
     - tiff2ps
@@ -368,6 +456,10 @@ UNKNOWN:
     match_any_regex_ignorecase:
     - ^\d+\.[a-z]{3}$
 
+VivaPress:
+    match_any_regex_ignorecase:
+    - VivaPress
+
 VTeX PDF Tools:
     match_any_literal:
     - VTeX PDF Tools
@@ -387,6 +479,18 @@ XEP:
     match_any_regex_ignorecase:
     - XEP
 
+Xerox Printer:
+    match_any_regex_ignorecase:
+    - ^Xerox \w+
+
 XeTeX:
     match_any_regex_ignorecase:
     - XeTeX
+
+XyEnterprise:
+    match_any_literal:
+    - XML Professional Publisher
+    - XML Professional Publisher (XPP)
+
+    match_any_regex_ignorecase:
+    - XyEnterprise
