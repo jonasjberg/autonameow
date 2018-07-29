@@ -143,6 +143,10 @@ class TemplateFieldDataResolver(object):
             else:
                 log.debug('Type of field {!s} is compatible with candidate {!s}'.format(field, candidate))
 
+            if candidate.value == 'UNKNOWN':
+                log.debug('Value of field {!s} is UNKNOWN ..'.format(field))
+                continue
+
             _formatted_value = field.format(candidate, config=self.config)
             assert _formatted_value is not None
 
@@ -252,6 +256,10 @@ class TemplateFieldDataResolver(object):
 
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
         sanity.check_isinstance(databundle, DataBundle)
+
+        if databundle.value == 'UNKNOWN':
+            log.debug('Value of field {!s} is UNKNOWN ..'.format(field))
+            return None
 
         log.debug('Updated data for field {!s} :: {!s}'.format(field, databundle.value))
         return databundle
