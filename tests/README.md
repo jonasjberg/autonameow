@@ -258,7 +258,7 @@ This script accepts optional argument flags, as described in the usage text;
 Usage: regression_runner.py [-h] [-v] [--stderr] [--stdout] [-f GLOB]
                             [--last-failed] [--list] [--get-cmd] [--run]
 
-autonameow v0.5.5 -- regression test suite runner
+autonameow v0.5.8 -- regression test suite runner
 
 Optional arguments:
   -h, --help            Show this help message and exit.
@@ -276,25 +276,25 @@ Test Selection:
                         matches anything and if "GLOB" begins with "!", the
                         matching is inverted. Give this option more than once
                         to chain the filters.
-  --last-failed         Select only the test cases that failed during the last
-                        completed run. Selects all if none failed.
+  --last-failed         Select only the test suites that failed during the
+                        last completed run. Selects all if none failed.
 
 Actions to Perform:
   Only the first active option is used, ordered as per this listing.
 
   --list                Print the "short name" (directory basename) of the
-                        selected test case(s) and exit. Enable verbose mode
+                        selected test suite(s) and exit. Enable verbose mode
                         for additional information.
   --get-cmd             Print equivalent command-line invocations for the
-                        selected test case(s) and exit. If executed
+                        selected test suite(s) and exit. If executed
                         "manually", these would produce the same behaviour and
                         results as the corresponding regression test. Each
                         result is printed as two lines; first being "#
                         TEST_NAME", where "TEST_NAME" is the directory
-                        basename of the test case. The second line is the
+                        basename of the test suite. The second line is the
                         equivalent command-line. Use "test selection" options
                         to narrow down the results.
-  --run                 Run the selected test case(s). (DEFAULT: True)
+  --run                 Run the selected test suite(s). (DEFAULT: True)
 
 Project website: www.github.com/jonasjberg/autonameow
 ```
