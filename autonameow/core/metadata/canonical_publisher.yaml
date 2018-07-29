@@ -235,6 +235,11 @@ FranklinBeedle:
     match_any_regex_ignorecase:
     - Franklin,? Beedle,? (&|and) Associates
 
+FuturePub:
+    match_any_regex_ignorecase:
+    - Future Pub
+    - (www\.)?futureplc\.com
+
 Greenwood:
     match_any_regex_ignorecase:
     - Greenwood
@@ -243,6 +248,12 @@ GrinPub:
     match_any_regex_ignorecase:
     - GRIN Publishing
     - GRIN Verlag
+
+GrupoPlaneta:
+    match_any_regex_ignorecase:
+    - Grupo Planeta
+    - Planeta (Corporaci.n|Group)
+    - (www\.)?planeta\.es
 
 Hachette:
     match_any_regex_ignorecase:
@@ -314,6 +325,11 @@ IGIGlobal:
     - (www\.)?igi-global\.com
     - (www\.)?igi-pub\.com
 
+ImaginePub:
+    match_any_regex_ignorecase:
+    - Imagine Pub
+    - (www\.)?imagine-publishing\.co\.uk
+
 ImpacktPub:
     match_any_regex_ignorecase:
     - Impackt
@@ -333,6 +349,11 @@ InfinityScience:
 ITAcademy:
     match_any_literal:
     - IT Academy
+
+ITRevolution:
+    match_any_regex_ignorecase:
+    - IT Revolution
+    - (www\.)?itrevolution\.com
 
 IzzardInk:
     match_any_regex_ignorecase:
@@ -383,6 +404,10 @@ NebraskaUP:
     match_any_regex_ignorecase:
     - Nebraska Uni(\.?|versity)
     - U(niversity)? of Nebraska Pr(.?|ess)
+
+NovaScience:
+    match_any_regex_ignorecase:
+    - Nova Science
 
 Macmillan:
     match_any_regex_ignorecase:
@@ -490,6 +515,10 @@ Packt:
     - ^Packt Publ?\.?(ishing)? ?(Limited|Ltd)?
     - Published by Packt
     - (www\.)?packtpub\.com
+
+Pavilion:
+    match_any_regex_ignorecase:
+    - Pavilion
 
 PeachpitPress:
     match_any_regex_ignorecase:
@@ -658,7 +687,7 @@ UnitedComputerGeeks:
 
 UNKNOWN:
     match_any_regex_ignorecase:
-    - ^(unknown|null|empty|none)$
+    - ^(unknown|null|empty|none|test)$
 
 UrbanLandInstitute:
     match_any_regex_ignorecase:
