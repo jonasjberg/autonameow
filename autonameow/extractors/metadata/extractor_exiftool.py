@@ -19,6 +19,7 @@
 
 from core.metadata.canonicalize import canonicalize_creatortool
 from core.metadata.canonicalize import canonicalize_language
+from core.metadata.canonicalize import canonicalize_publisher
 from extractors import ExtractorError
 from extractors.metadata.base import BaseMetadataExtractor
 from thirdparty import pyexiftool
@@ -344,6 +345,8 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
                         _canonicalize(field, filtered, canonicalize_creatortool)
                     elif ':Language' in field:
                         _canonicalize(field, filtered, canonicalize_language)
+                    elif 'Publisher' in field:
+                        _canonicalize(field, filtered, canonicalize_publisher)
                     else:
                         coerced_metadata[field] = filtered
 
