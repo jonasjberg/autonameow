@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -45,6 +43,8 @@ class FileContext(object):
         self.active_config = active_config
         self._masterprovider = masterprovider
 
+        self._active_rule = None
+
     def find_new_name(self):
         #  Things to find:
         #
@@ -68,11 +68,12 @@ class FileContext(object):
         name_template = None
 
         matched_rules = self._get_matched_rules()
-        log.debug('Matcher returned {} matched rules'.format(len(matched_rules)))
+        log.debug('Matcher returned %s matched rules', len(matched_rules))
         if matched_rules:
             active_rule = self._pop_from_matched_rules(matched_rules)
             if active_rule:
-                log.info('Using rule: "{!s}"'.format(active_rule))
+                log.info('Using rule: "%s"', active_rule)
+                self._active_rule = active_rule
                 data_sources = active_rule.data_sources
                 name_template = active_rule.name_template
 
@@ -125,14 +126,21 @@ class FileContext(object):
                     log.debug('No matched_rules! Exiting try-hard matching loop')
                     break
 
-                log.debug('Remaining matched_rules: {}'.format(len(matched_rules)))
+                log.debug('Remaining matched_rules: %s', len(matched_rules))
                 active_rule = self._pop_from_matched_rules(matched_rules)
                 if active_rule:
-                    log.info('Using rule: "{!s}"'.format(active_rule))
+                    log.info('Using rule: "%s"', active_rule)
+                    self._active_rule = active_rule
                     data_sources = active_rule.data_sources
                     name_template = active_rule.name_template
 
-                    # New resolver with state derived from currently active rule.
+                    if not data_sources:
+                        # TODO: [hack][cleanup] This is such a mess ..
+                        if not name_template.placeholders:
+                            # No placeholders means we don't need any sources. Return as-is.
+                            return str(name_template)
+
+                    # Uses new resolver instance with state derived from the currently active rule.
                     field_databundle_dict = self._get_resolved_databundle_dict(name_template.placeholders, data_sources)
 
         if not field_databundle_dict:
@@ -148,19 +156,20 @@ class FileContext(object):
                 field_databundle_dict=field_databundle_dict
             )
         except NameBuilderError as e:
-            log.critical('Name assembly FAILED: {!s}'.format(e))
+            log.critical('Name assembly FAILED: %s', e)
             raise AutonameowException
 
-        log.info('New name: "{}"'.format(enc.displayable_path(new_name)))
+        log.info('Found new name for "%s" using rule "%s"',
+                 self.fileobject, self._active_rule)
+        log.info('New name: "%s"', enc.displayable_path(new_name))
         return new_name
 
     def _log_unable_to_find_new_name(self):
-        log.warning(
-            'Unable to find new name for ”{!s}".'.format(self.fileobject)
-        )
+        log.warning('Unable to find new name for "%s" using rule "%s"',
+                    self.fileobject, self._active_rule)
 
     def _log_fail(self, msg):
-        log.info('("{!s}") {!s}'.format(self.fileobject, msg))
+        log.info('("%s") %s', self.fileobject, msg)
 
     def _get_matched_rules(self):
         matcher = RuleMatcher(
@@ -198,13 +207,14 @@ class FileContext(object):
             return candidate_rule
 
         # Best matched rule might be a bad fit.
-        log.debug('Score {} is below threshold {} for rule "{!s}"'.format(candidate_score, RULE_SCORE_CONFIRM_THRESHOLD, candidate_rule))
+        log.debug('Score %s is below threshold %s for rule "%s"',
+                  candidate_score, RULE_SCORE_CONFIRM_THRESHOLD, candidate_rule)
         ok_to_use_rule = self._confirm_apply_rule(candidate_rule)
         if ok_to_use_rule:
-            log.debug('Positive response. Using rule "{!s}"'.format(candidate_rule))
+            log.debug('Positive response. Using rule "%s"', candidate_rule)
             return candidate_rule
 
-        log.debug('Negative response. Will not use rule "{!s}"'.format(candidate_rule))
+        log.debug('Negative response. Will not use rule "%s"', candidate_rule)
         return None
 
     def _confirm_apply_rule(self, rule):
@@ -214,7 +224,7 @@ class FileContext(object):
             return False
 
         user_response = interactive.ask_confirm_use_rule(self.fileobject, rule)
-        log.debug('User response: "{!s}"'.format(user_response))
+        log.debug('User response: "%s"', user_response)
         return user_response
 
     def _get_resolved_databundle_dict(self, placeholders, data_sources):
@@ -250,7 +260,7 @@ class FileContext(object):
             # TODO: [TD0024][TD0025] Implement Interactive mode.
             for field in resolver.unresolved:
                 candidates = resolver.lookup_candidates(field)
-                log.info('Found {} candidates for field {!s}'.format(len(candidates), field))
+                log.info('Found %s candidates for field %s', len(candidates), field)
                 choice = None
                 if candidates:
                     # Returns instance of 'FieldDataCandidate' or 'Choice.ABORT'
@@ -262,7 +272,7 @@ class FileContext(object):
                     return None
 
                 if choice:
-                    log.debug('User selected {!r}'.format(choice))
+                    log.debug('User selected %s', choice)
                     # TODO: Translate generic 'choice.meowuri' to not generic..
                     resolver.add_known_source(field, choice.meowuri)
 

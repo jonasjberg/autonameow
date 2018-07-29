@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -30,6 +28,8 @@ except ImportError:
 
 from analyzers import BaseAnalyzer
 from core import persistence
+from core.metadata.canonicalize import canonicalize_language
+from core.metadata.canonicalize import canonicalize_publisher
 from core.metadata.normalize import cleanup_full_title
 from core.metadata.normalize import normalize_full_human_name
 from core.metadata.normalize import normalize_full_title
@@ -39,12 +39,13 @@ from util import coercers
 from util.text import find_and_extract_edition
 from util.text import html_unescape
 from util.text import normalize_unicode
+from util.text import normalize_horizontal_whitespace
 from util.text import RegexCache
 from util.text import remove_blacklisted_lines
 from util.text import string_similarity
 from util.text import TextChunker
-from util.text.humannames import filter_multiple_names
-from util.text.humannames import split_multiple_names
+from util.text.distance import longest_common_substring_length
+from util.text.humannames import preprocess_names
 
 
 log = logging.getLogger(__name__)
@@ -55,7 +56,8 @@ BLACKLISTED_ISBN_NUMBERS = [
     '0000000000', '1111111111', '2222222222', '3333333333', '4444444444',
     '5555555555', '6666666666', '7777777777', '8888888888', '9999999999',
     '0123456789', '1101111100', '0111111110', '0111111110', '0000110000',
-    '1101100001'
+    '1101100001',
+    '9780000000002',  # Title: "De Plattduitsche Baibel: et Aule Testament: ne Psalmeniutwahl"
 ]
 
 BLACKLISTED_TEXTLINES = frozenset([
@@ -98,6 +100,11 @@ class EbookAnalyzer(BaseAnalyzer):
             ],
             'generic_field': 'edition'
         },
+        'language': {
+            'coercer': 'aw_string',
+            'multivalued': 'false',
+            'generic_field': 'language'
+        },
         'publisher': {
             'coercer': 'aw_string',
             'multivalued': 'false',
@@ -133,6 +140,9 @@ class EbookAnalyzer(BaseAnalyzer):
             _cached_isbn_metadata = self.cache.get(CACHE_KEY_ISBNMETA)
             if _cached_isbn_metadata:
                 self._cached_isbn_metadata = _cached_isbn_metadata
+                self.log.debug('Read {} cached ISBN metadata entries'.format(
+                    len(_cached_isbn_metadata)
+                ))
 
             _blacklisted_isbn_numbers = self.cache.get(CACHE_KEY_ISBNBLACKLIST)
             if _blacklisted_isbn_numbers:
@@ -160,7 +170,12 @@ class EbookAnalyzer(BaseAnalyzer):
             isbn_numbers = filter_isbns(isbn_numbers, self._isbn_num_blacklist)
             self.log.debug('Prepared {} ISBN numbers'.format(len(isbn_numbers)))
 
-            for isbn_number in isbn_numbers:
+            # Sort the dictionaries for more deterministic behaviour.
+            # TODO: [hack] Sorting is reversed so that earlier releases, as in
+            #       lower values in the 'year' field, are processed first.
+            #       This applies only when all other fields are identical.
+            # TODO: [hack] Fix failing regression test 9017 properly!
+            for isbn_number in sorted(isbn_numbers, reverse=True):
                 self.log.debug('Processing ISBN: {!s}'.format(isbn_number))
 
                 metadata_dict = self._get_isbn_metadata(isbn_number)
@@ -202,9 +217,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                 for line in metadata.as_string().splitlines():
                     self.log.debug('ISBNMetadata ' + line)
 
-                # Duplicates are removed here. When both ISBN-10 and ISBN-13
-                # text is found and two queries are made, the two metadata
-                # results are "joined" when being added to this set.
+                # Duplicates are removed here.
                 if metadata not in self._isbn_metadata:
                     self.log.debug('Added metadata for ISBN: {}'.format(isbn_number))
                     self._isbn_metadata.append(metadata)
@@ -222,7 +235,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                     # for n, m in enumerate(self._isbn_metadata):
                     #     print_copy_pasteable_isbn_metadata(n, m)
 
-            self.log.info('Got {} instances of ISBN metadata'.format(
+            self.log.debug('Got {} instances of ISBN metadata'.format(
                 len(self._isbn_metadata)
             ))
             for n, metadata in enumerate(self._isbn_metadata):
@@ -255,7 +268,8 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             self._add_intermediate_results('title', maybe_title)
 
             maybe_authors = metadata.authors
-            self._add_intermediate_results('author', maybe_authors)
+            if maybe_authors:
+                self._add_intermediate_results('author', maybe_authors)
 
             maybe_publisher = self._filter_publisher(metadata.publisher)
             self._add_intermediate_results('publisher', maybe_publisher)
@@ -266,27 +280,51 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             maybe_edition = self._filter_edition(metadata.edition)
             self._add_intermediate_results('edition', maybe_edition)
 
+            maybe_language = metadata.language
+            if maybe_language:
+                self._add_intermediate_results('language', maybe_language)
+
     def _find_most_probable_isbn_metadata(self):
+        # TODO: [TD0185] Rework access to 'master_provider' functionality.
+        def _untangle_response(_response):
+            if not response:
+                return None
+
+            if isinstance(_response, str):
+                return _response
+
+            # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
+            if isinstance(_response, list):
+                if len(_response) == 1:
+                    first_and_only_element = _response[0]
+                    if isinstance(first_and_only_element, str):
+                        return first_and_only_element
+
+            return None
+
         # TODO: [TD0187] Fix clobbering of results.
         # TODO: [TD0114] Improve the EbookAnalyzer.
-        # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
         # TODO: [TD0185] Rework access to 'master_provider' functionality.
         response = self.request_data(self.fileobject, 'generic.metadata.description')
-        if not response or not isinstance(response, str):
+        ok_response = _untangle_response(response)
+        if not ok_response:
             self.log.debug('Reference metadata title "generic.metadata.description" unavailable.')
 
             # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
             # TODO: [TD0185] Rework access to 'master_provider' functionality.
             response = self.request_data(self.fileobject, 'generic.metadata.title')
-            if not response or not isinstance(response, str):
+            ok_response = _untangle_response(response)
+            if not ok_response:
                 self.log.debug('Reference metadata title "generic.metadata.title" unavailable. Unable to find most probable ISBN metadata..')
                 return None
 
         # TODO: [TD0192] Detect and extract editions from titles
-        _, ref_title = find_and_extract_edition(response)
+        # TODO: The reference title might be 'Meow for All (4th, 2018)'
+        # TODO: Detect and extract other contained fields in the reference.
+        #       .. Better yet; pull it from a source that already did it!
+        _, ref_title = find_and_extract_edition(ok_response)
         reference_title = normalize_full_title(ref_title)
         self.log.debug('Using reference metadata title "{!s}"'.format(reference_title))
-        # response = self.request_data(self.fileobject, 'generic.contents.text')
 
         candidates = list()
         for metadata in self._isbn_metadata:
@@ -295,15 +333,21 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
                 self.log.debug('Skipped ISBN metadata with missing or empty normalized title')
                 continue
 
-            title_similarity = string_similarity(metadata_title, reference_title)
-            self.log.debug('Metadata/reference title similarity {} ("{!s}"/"{!s}")'.format(title_similarity, metadata_title, reference_title))
+            title_similarity = calculate_title_similarity(metadata_title, reference_title)
             candidates.append((title_similarity, metadata))
 
         if candidates:
             sorted_candidates = sorted(candidates, key=lambda x: x[0], reverse=True)
+
+            # Debug logging ..
+            for n, scored_candidate in enumerate(sorted_candidates, start=1):
+                score, candidate = scored_candidate
+                self.log.debug('Candidate ({}/{}) Score {:.6f}  Title "{!s}"'.format(
+                    n, len(sorted_candidates), score, candidate.normalized_title))
+
             # Return first metadata from list of (title_similarity, metadata) tuples
             most_probable = sorted_candidates[0][1]
-            self.log.debug('Most probable metadata has title "{!s}"'.format(most_probable.title))
+            self.log.debug('Using most probable metadata with title "{!s}"'.format(most_probable.title))
             return most_probable
 
         return None
@@ -321,7 +365,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             # Use bigger chunks for epub text in order to catch ISBNs.
             CHUNK_PERCENTAGE = 0.05
         else:
-            CHUNK_PERCENTAGE = 0.05
+            CHUNK_PERCENTAGE = 0.025
 
         text_chunks = TextChunker(self.text, CHUNK_PERCENTAGE)
         leading_text = text_chunks.leading
@@ -348,7 +392,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
     def _get_isbn_metadata(self, isbn_number):
         if isbn_number in self._cached_isbn_metadata:
-            self.log.info(
+            self.log.debug(
                 'Using cached metadata for ISBN: {!s}'.format(isbn_number)
             )
             return self._cached_isbn_metadata.get(isbn_number)
@@ -356,7 +400,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
         self.log.debug('Querying external service for ISBN: {!s}'.format(isbn_number))
         metadata = fetch_isbn_metadata(isbn_number)
         if metadata:
-            self.log.info(
+            self.log.debug(
                 'Caching metadata for ISBN: {!s}'.format(isbn_number)
             )
 
@@ -401,12 +445,11 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
     @classmethod
     def can_handle(cls, fileobject):
-        mime_type_ok = cls._evaluate_mime_type_glob(fileobject)
-        if (mime_type_ok
-                or fileobject.basename_suffix == b'mobi'
-                and fileobject.mime_type == 'application/octet-stream'):
-            return True
-        return False
+        return bool(
+            cls._evaluate_mime_type_glob(fileobject)
+            or fileobject.mime_type == 'application/octet-stream'
+            and fileobject.basename_suffix in (b'mobi', b'azw', b'azw3', b'azw4')
+        )
 
     @classmethod
     def dependencies_satisfied(cls):
@@ -430,7 +473,23 @@ def extract_isbns_from_text(text):
 
 
 def deduplicate_isbns(isbn_list):
-    return list(set(isbn_list))
+    """
+    De-duplicate a list of ISBN numbers.
+
+    NOTE: Any ISBN-10 numbers will be converted to ISBN-13.
+    """
+    # TODO: [hack] This conversion to ISBN-13 is way too non-obvious..
+    # TODO: [cleanup] Fix "principle of least astonishment" violation!
+    deduplicated_isbns = set()
+
+    for number in isbn_list:
+        if isbnlib.is_isbn10(number):
+            isbn13 = isbnlib.to_isbn13(number)
+            deduplicated_isbns.add(isbn13)
+        else:
+            deduplicated_isbns.add(number)
+
+    return list(deduplicated_isbns)
 
 
 def filter_isbns(isbn_list, isbn_blacklist):
@@ -442,6 +501,7 @@ def filter_isbns(isbn_list, isbn_blacklist):
 
 class ISBNMetadata(object):
     NORMALIZED_YEAR_UNKNOWN = 1337
+    UNKNOWN_PUBLISHER = 'UNKNOWN'
 
     def __init__(self, authors=None, language=None, publisher=None,
                  isbn10=None, isbn13=None, title=None, year=None, edition=None):
@@ -510,13 +570,15 @@ class ISBNMetadata(object):
                 _author_list.append(author)
 
         stripped_author_list = [a.strip() for a in _author_list if a]
-        fixed_author_list = split_multiple_names(stripped_author_list)
-        filtered_author_list = filter_multiple_names(fixed_author_list)
+        preprocessed_author_list = preprocess_names(stripped_author_list)
 
-        self._log_attribute_setter('author', filtered_author_list, values)
-        self._authors = filtered_author_list
+        self._log_attribute_setter('author', preprocessed_author_list, values)
+        self._authors = preprocessed_author_list
+
+        # TODO: Do "real" human name parsing here instead.
+        #       For improved author comparisons and reduced duplicate code.
         self._normalized_authors = [
-            normalize_full_human_name(a) for a in filtered_author_list if a
+            normalize_full_human_name(a) for a in preprocessed_author_list if a
         ]
 
     @property
@@ -572,8 +634,10 @@ class ISBNMetadata(object):
     @language.setter
     def language(self, value):
         if value and isinstance(value, str):
-            self._language = value
-            self._normalized_language = value.lower().strip()
+            str_value = normalize_horizontal_whitespace(value).strip()
+            canonical_language = canonicalize_language(str_value)
+            self._language = canonical_language
+            self._normalized_language = canonical_language.lower()
 
     @property
     def normalized_language(self):
@@ -581,19 +645,21 @@ class ISBNMetadata(object):
 
     @property
     def publisher(self):
-        return self._publisher or ''
+        return self._publisher or self.UNKNOWN_PUBLISHER
 
     @publisher.setter
     def publisher(self, value):
         # TODO: [TD0189] Canonicalize metadata values by direct replacements.
         if value and isinstance(value, str):
-            str_value = normalize_unicode(html_unescape(value)).strip()
-            self._publisher = str_value
-            self._normalized_publisher = str_value.lower()
+            str_value = normalize_unicode(html_unescape(value))
+            str_value = normalize_horizontal_whitespace(str_value).strip()
+            canonical_publisher = canonicalize_publisher(str_value)
+            self._publisher = canonical_publisher
+            self._normalized_publisher = canonical_publisher.lower()
 
     @property
     def normalized_publisher(self):
-        return self._normalized_publisher or ''
+        return self._normalized_publisher or self.UNKNOWN_PUBLISHER
 
     @property
     def year(self):
@@ -619,6 +685,7 @@ class ISBNMetadata(object):
     @title.setter
     def title(self, value):
         if value and isinstance(value, str):
+            # TODO: [TD0191] Detect and extract subtitles from titles.
             # TODO: [TD0192] Detect and extract editions from titles
             edition, modified_value = find_and_extract_edition(value)
             if edition:
@@ -653,8 +720,8 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
         FIELDS_MISSING_SIMILARITY = 0.001
 
         if self.normalized_title and other.normalized_title:
-            _sim_title = string_similarity(self.normalized_title,
-                                           other.normalized_title)
+            _sim_title = calculate_title_similarity(self.normalized_title,
+                                                    other.normalized_title)
         else:
             _sim_title = FIELDS_MISSING_SIMILARITY
 
@@ -667,12 +734,9 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
         if not self.normalized_authors or not other.normalized_authors:
             _sim_authors = FIELDS_MISSING_SIMILARITY
         else:
-            _sim_authors = float(
-                sum(
-                    string_similarity(a, b)
-                    for a, b in zip(self.normalized_authors,
-                                    other.normalized_authors)
-                ) / len(self.normalized_authors)
+            _sim_authors = calculate_authors_similarity(
+                self.normalized_authors,
+                other.normalized_authors
             )
 
         if self.normalized_publisher and other.normalized_publisher:
@@ -683,12 +747,13 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
 
         # TODO: [TD0181] Use machine learning in ISBN metadata de-duplication.
         # TODO: Arbitrary threshold values..
-        # Solving "properly" requires machine learning techniques; HMM? Bayes?
+        # TODO: [TD0181] Replace this with decision tree classifier.
         log.debug('Comparing {!s} to {!s} ..'.format(self, other))
-        log.debug('Difference Year: {}'.format(_year_diff))
-        log.debug('Similarity Authors: {}'.format(_sim_authors))
-        log.debug('Similarity Publisher: {}'.format(_sim_publisher))
-        log.debug('Similarity Title: {}'.format(_sim_title))
+        log.debug('     Difference Year: {}'.format(_year_diff))
+        log.debug('  Similarity Authors: {:.3f}  ({!s} -- {!s})'.format(_sim_authors, self.normalized_authors, other.normalized_authors))
+        log.debug('Similarity Publisher: {:.3f}  ({!s} -- {!s})'.format(_sim_publisher, self.normalized_publisher, other.normalized_publisher))
+        log.debug('    Similarity Title: {:.3f}  ({!s} -- {!s})'.format(_sim_title, self.normalized_title, other.normalized_title))
+
         if _year_diff == 0:
             if _sim_title > 0.95:
                 if _sim_publisher > 0.5:
@@ -700,34 +765,29 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
                 else:
                     if _sim_authors > 0.9:
                         return True
-        if _year_diff < 2:
+        if _year_diff == 1:
             if _sim_authors > 0.7:
                 if _sim_title > 0.9:
                     return True
-                if _sim_publisher > 0.7 and _sim_title > 0.7:
-                    return True
             elif _sim_authors > 0.5:
-                if _sim_title > 0.7:
-                    return True
-                if _sim_publisher > 0.7:
+                if _sim_publisher > 0.9 and _sim_title > 0.8:
                     return True
             elif _sim_authors > 0.25:
                 if _sim_title >= 0.99:
                     return True
-        else:
-            if _sim_authors == 1:
-                if _sim_title > 0.5:
+        if _year_diff > 1:
+            if _sim_authors > 0.9:
+                if _sim_publisher > 0.8 and _sim_title > 0.8:
                     return True
-                if _sim_publisher > 0.5:
+            elif _sim_authors > 0.7:
+                if _sim_title > 0.9:
                     return True
-            elif _sim_authors > 0.5:
-                if _sim_title > 0.7:
-                    return True
-                if _sim_publisher > 0.7:
+                if _sim_publisher > 0.9:
                     return True
             elif _sim_authors > 0.2:
                 if _sim_title > 0.9:
                     return True
+
         return False
 
     def _log_attribute_setter(self, attribute, raw_value, value):
@@ -749,6 +809,11 @@ ISBN-13   : {}'''.format(self.title, self.authors, self.publisher, self.year,
     def __hash__(self):
         return hash((self.isbn10, self.isbn13))
 
+    def __repr__(self):
+        return '<{!s}(isbn10={!s}), isbn13={!s})>'.format(
+            self.__class__.__name__, self.isbn10, self.isbn13
+        )
+
 
 def print_copy_pasteable_isbn_metadata(n, m):
     print('''
@@ -765,3 +830,45 @@ m{} = ISBNMetadata(
 
 def is_epub_ebook(fileobject):
     return fileobject.mime_type == 'application/epub+zip'
+
+
+def calculate_authors_similarity(authors_a, authors_b):
+    def _to_lower(strings):
+        return [s.lower() for s in strings]
+
+    def _sort_substrings(strings):
+        return [' '.join(sorted(s.split(' '))) for s in strings]
+
+    def _preprocess(strings):
+        return _sort_substrings(_to_lower(strings))
+
+    preprocessed_authors_a = _preprocess(authors_a)
+    preprocessed_authors_b = _preprocess(authors_b)
+    sorted_authors_a = sorted(preprocessed_authors_a)
+    sorted_authors_b = sorted(preprocessed_authors_b)
+
+    # Because 'zip' stops when the shortest iterable is exhausted.
+    num_string_similarities_averaged = min(len(authors_a), len(authors_b))
+
+    similarity = float(
+        sum(
+            string_similarity(a, b)
+            for a, b in zip(sorted_authors_a, sorted_authors_b)
+        ) / num_string_similarities_averaged
+    )
+    return similarity
+
+
+def calculate_title_similarity(title_a, title_b):
+    # NOTE(jonas): Titles passed in here should have been suitably
+    #              "pre-processed" (lowercased, etc.)
+
+    # Chop to equal length to work around very long titles with a lot of words
+    # that might be mistakingly considered similar to a lot of unrelated titles
+    # due to the fact that many word and/or substrings might match even though
+    # the titles are very different.
+    shortest_title_length = min(len(title_a), len(title_b))
+    a = title_a[:shortest_title_length]
+    b = title_b[:shortest_title_length]
+    substring_bonus = longest_common_substring_length(a, b) / shortest_title_length
+    return string_similarity(a, b) * substring_bonus

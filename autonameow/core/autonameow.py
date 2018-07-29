@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -24,7 +22,6 @@ import logging
 import sys
 import time
 
-import util
 from core import config
 from core import constants as C
 from core import event
@@ -40,6 +37,7 @@ from core.namebuilder import FilenamePostprocessor
 from core.renamer import FileRenamer
 from util import disk
 from util import encoding as enc
+from util import process
 
 
 log = logging.getLogger(__name__)
@@ -50,7 +48,7 @@ class Autonameow(object):
     Main class to manage a running "autonameow" instance.
     """
 
-    def __init__(self, opts, ui):
+    def __init__(self, opts, ui, file_renamer=FileRenamer):
         """
         Main program entry point.  Initializes a autonameow instance/session.
 
@@ -67,19 +65,17 @@ class Autonameow(object):
         self.start_time = time.time()
 
         self.config = None
-        self.renamer = None
         self.postprocessor = None
+
+        self.renamer = file_renamer(
+            dry_run=self.opts.get('dry_run'),
+            timid=self.opts.get('mode_timid')
+        )
 
         self._exit_code = C.EXIT_SUCCESS
 
     def __enter__(self):
         self._dispatch_event_on_startup()
-
-        self.renamer = FileRenamer(
-            dry_run=self.opts.get('dry_run'),
-            timid=self.opts.get('mode_timid')
-        )
-
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -125,10 +121,8 @@ class Autonameow(object):
             log.critical('Unable to load configuration --- Aborting ..')
             self.exit_program(C.EXIT_ERROR)
 
-        # Set globally accessible configuration instance.
-        # TODO [TD0188] Consolidate access to active, global configuration.
+        # Dispatch configuration change event.
         config.set_global_configuration(self.config)
-        event.dispatcher.on_config_changed(config=self.config)
 
         if self.opts.get('dump_options'):
             self._dump_options()
@@ -156,7 +150,7 @@ class Autonameow(object):
 
         # Path name encoding boundary. Returns list of paths in internal format.
         files_to_process = self._collect_paths_from_opts()
-        log.info('Got {} files to process'.format(len(files_to_process)))
+        log.info('Got %s files to process', len(files_to_process))
 
         # Handle any input paths/files.
         self._handle_files(files_to_process)
@@ -187,7 +181,7 @@ class Autonameow(object):
         try:
             self.config = persistence.load_config_from_file(path)
         except exceptions.ConfigError as e:
-            log.critical('Unable to load configuration --- {!s}'.format(e))
+            log.critical('Unable to load configuration --- %s', e)
 
     def _dump_options(self):
         filepath_config = persistence.get_config_persistence_path()
@@ -208,24 +202,15 @@ class Autonameow(object):
         self.exit_program(C.EXIT_SUCCESS)
 
     def _dump_registered_meowuris(self):
-        if self.opts.get('debug'):
+        if self.opts.get('verbose'):
             cf_registered = self.ui.ColumnFormatter()
             cf_excluded = self.ui.ColumnFormatter()
 
-            for _type in C.MEOWURI_ROOTS_SOURCES:
-                # Separate "root sections" by blank lines.
-                cf_registered.addemptyrow()
-                cf_excluded.addemptyrow()
+            for uri, klass in sorted(master_provider.Registry.meowuri_sources.items()):
+                cf_registered.addrow(str(uri), str(klass.name()))
 
-                sourcemap = master_provider.Registry.meowuri_sources.get(_type, {})
-                # Sorted by MeowURI within "root sections".
-                for uri, klass in sorted(sourcemap.items(), key=lambda x: str(x[0])):
-                    cf_registered.addrow(str(uri), str(klass))
-
-                excluded = master_provider.Registry.excluded_providers.get(_type, set())
-                str_excluded = [str(k) for k in excluded]
-                for klass in sorted(str_excluded):
-                    cf_excluded.addrow(str(klass))
+            for klass in sorted(master_provider.Registry.excluded_providers):
+                cf_excluded.addrow(str(klass.name()))
 
             str_registered_providers = str(cf_registered)
             str_excluded_providers = str(cf_excluded)
@@ -242,7 +227,7 @@ class Autonameow(object):
 
     def _load_config_from_path(self, filepath):
         str_filepath = enc.displayable_path(filepath)
-        log.info('Using configuration: "{}"'.format(str_filepath))
+        log.info('Using configuration: "%s"', str_filepath)
         self.load_config(filepath)
 
     def _load_config_from_options_config_path(self):
@@ -255,7 +240,7 @@ class Autonameow(object):
             persistence.write_default_config()
         except exceptions.ConfigError as e:
             log.critical('Unable to write template configuration file to path: '
-                         '"{!s}" --- {!s}'.format(str_filepath, e))
+                         '"%s" --- %s', str_filepath, e)
             self.exit_program(C.EXIT_ERROR)
 
         message = 'Wrote default configuration file to "{!s}"'.format(str_filepath)
@@ -273,15 +258,13 @@ class Autonameow(object):
 
         for file_path in file_paths:
             str_file_path = enc.displayable_path(file_path)
-            log.info('Processing: "{!s}"'.format(str_file_path))
+            log.info('Processing: "%s"', str_file_path)
 
             try:
                 current_file = FileObject(file_path)
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
-                log.warning(
-                    '{!s} --- SKIPPING: "{!s}"'.format(e, str_file_path)
-                )
+                log.warning('{%s} --- SKIPPING: "%s"', e, str_file_path)
                 continue
 
             if should_list_all:
@@ -302,9 +285,7 @@ class Autonameow(object):
                 try:
                     new_name = context.find_new_name()
                 except exceptions.AutonameowException as e:
-                    log.critical(
-                        '{!s} --- SKIPPING: "{!s}"'.format(e, str_file_path)
-                    )
+                    log.critical('%s --- SKIPPING: "%s"', e, str_file_path)
                     self.exit_code = C.EXIT_WARNING
                     continue
 
@@ -346,7 +327,7 @@ class Autonameow(object):
             try:
                 self.renamer.do_renames()
             except exceptions.FilesystemError as e:
-                log.error('Rename FAILED: {!s}'.format(e))
+                log.error('Rename FAILED: %s', e)
 
             # TODO: [TD0131] Hack!
             aggregate_repository_contents.append(str(repository.SessionRepository))
@@ -391,8 +372,8 @@ class Autonameow(object):
             self.ui.print_exit_info(self.exit_code, elapsed_time)
 
         logs.log_previously_logged_runtimes(log)
-        log.debug('Exiting with exit code: {}'.format(self.exit_code))
-        log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
+        log.debug('Exiting with exit code: %s', self.exit_code)
+        log.debug('Total execution time: %.6f seconds', elapsed_time)
 
         self._dispatch_event_on_shutdown()
         sys.exit(self.exit_code)
@@ -418,11 +399,11 @@ class Autonameow(object):
                    the values in 'constants.py' prefixed 'EXIT_'.
         """
         if isinstance(value, int) and value > self._exit_code:
-            log.debug('Exit code updated: {} -> {}'.format(self._exit_code, value))
+            log.debug('Exit code updated: %s -> %s', self._exit_code, value)
             self._exit_code = value
 
     def __hash__(self):
-        return hash((util.process_id(), self.start_time))
+        return hash((process.current_process_id(), self.start_time))
 
 
 def check_option_combinations(options):

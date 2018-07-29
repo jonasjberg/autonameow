@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -77,6 +75,7 @@ def rename_file(source_path, new_basename):
     try:
         os.rename(bytestring_source_path, bytestring_dest_path)
     except OSError as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
     else:
         log.debug('Renamed "{!s}" to "{!s}"'.format(_dp_source, _dp_dest))
@@ -86,6 +85,7 @@ def dirname(path):
     try:
         return os.path.dirname(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -93,6 +93,7 @@ def exists(path):
     try:
         return os.path.exists(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -100,6 +101,7 @@ def isabs(path):
     try:
         return os.path.isabs(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -107,6 +109,7 @@ def isdir(path):
     try:
         return os.path.isdir(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -114,6 +117,7 @@ def isfile(path):
     try:
         return os.path.isfile(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -121,6 +125,7 @@ def islink(path):
     try:
         return os.path.islink(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -129,6 +134,7 @@ def joinpaths(*paths):
     try:
         return os.path.normpath(os.path.join(*syspath_encoded_paths))
     except (OSError, TypeError, ValueError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -136,6 +142,7 @@ def listdir(path):
     try:
         return os.listdir(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -151,6 +158,7 @@ def tempdir():
     try:
         return enc.normpath(tempfile.mkdtemp())
     except OSError as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -163,6 +171,7 @@ def makedirs(path):
     try:
         os.makedirs(enc.syspath(path))
     except (OSError, ValueError, TypeError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -171,10 +180,8 @@ def delete(path, ignore_missing=False):
     Deletes the file at "path".
 
     Args:
-        path: The path to delete as an "internal bytestring".
-        ignore_missing: Controls whether to ignore non-existent paths.
-                        False: Non-existent paths raises 'FilesystemError'.
-                        True: Non-existent paths are silently ignored.
+        path (bytes): The path to delete as an "internal bytestring".
+        ignore_missing (bool): Controls whether to ignore non-existent paths.
 
     Raises:
         EncodingBoundaryViolation: Argument "path" is not of type 'bytes'.
@@ -193,6 +200,7 @@ def delete(path, ignore_missing=False):
     try:
         os.remove(enc.syspath(path))
     except OSError as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -201,10 +209,8 @@ def rmdir(path, ignore_missing=False):
     Deletes the directory at "path".
 
     Args:
-        path: The path to delete as an "internal bytestring".
-        ignore_missing: Controls whether to ignore non-existent paths.
-                        False: Non-existent paths raises 'FilesystemError'.
-                        True: Non-existent paths are silently ignored.
+        path (bytes): The path to delete as an "internal bytestring".
+        ignore_missing (bool): Controls whether to ignore non-existent paths.
 
     Raises:
         EncodingBoundaryViolation: Argument "path" is not of type 'bytes'.
@@ -219,6 +225,7 @@ def rmdir(path, ignore_missing=False):
     try:
         os.rmdir(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -226,6 +233,7 @@ def basename(file_path):
     try:
         return os.path.basename(enc.syspath(file_path))
     except (OSError, TypeError, ValueError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
 
 
@@ -279,6 +287,7 @@ def has_permissions(path, permissions):
         try:
             ok = os.access(enc.syspath(path), CHAR_PERMISSION_LOOKUP[char])
         except OSError as e:
+            # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
             raise FilesystemError(e)
         else:
             if not ok:
@@ -302,4 +311,5 @@ def file_bytesize(path):
     try:
         return os.path.getsize(enc.syspath(path))
     except (OSError, TypeError, ValueError) as e:
+        # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)

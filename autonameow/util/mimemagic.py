@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -77,6 +75,12 @@ def _build_magic():
         import magic
     except ImportError:
         raise DependencyError(missing_modules='magic')
+    except TypeError as e:
+        # Triggered on Windows 10 machine.
+        # Possibly due to bug and/or unmet magic dependency.. ?
+        # TODO: [TD0199] Bundle `python-magic` dependencies?
+        #       https://github.com/ahupp/python-magic#dependencies
+        raise AutonameowException('Unable to "import magic" --- {!s}'.format(e))
     # pylint: disable=unexpected-keyword-arg,no-value-for-parameter,no-member
     _magic = None
     try:

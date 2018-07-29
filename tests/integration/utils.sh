@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -66,9 +64,7 @@ initialize_global_stats()
     export AUTONAMEOW_INTEGRATION_STATS
 
     # Set total, passed and failed to 0
-    set +o noclobber
-    echo '0 0 0' > "$AUTONAMEOW_INTEGRATION_STATS"
-    set -o noclobber
+    echo '0 0 0' >| "$AUTONAMEOW_INTEGRATION_STATS"
 }
 
 # Print message to stdout and append message to AUTONAMEOW_INTEGRATION_LOG.
@@ -172,9 +168,7 @@ update_global_test_results()
         _total_failed="$((_fail + suite_tests_failed))"
     done < "$AUTONAMEOW_INTEGRATION_STATS"
 
-    set +o noclobber
-    echo "${_total_count} ${_total_passed} ${_total_failed}" > "$AUTONAMEOW_INTEGRATION_STATS"
-    set -o noclobber
+    echo "${_total_count} ${_total_passed} ${_total_failed}" >| "$AUTONAMEOW_INTEGRATION_STATS"
 }
 
 
@@ -236,9 +230,7 @@ convert_raw_log_to_html()
             rm -- "$AUTONAMEOW_INTEGRATION_LOG"
 
             # Write log file name to temporary file, used by other scripts.
-            set +o noclobber
-            echo "${_html_integration_log}" > "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport"
-            set -o noclobber
+            echo "${_html_integration_log}" >| "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport"
         fi
     else
         logmsg 'FAILED to write HTML log file!'

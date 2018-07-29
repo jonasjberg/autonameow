@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -24,7 +22,7 @@ import os
 import unit.utils as uu
 from core import constants as C
 from core.model import MeowURI
-from extractors import BaseExtractor
+from extractors.metadata.base import BaseMetadataExtractor
 
 
 """
@@ -46,6 +44,12 @@ class CaseExtractorOutputTypes(object):
         cls.extractor = cls.EXTRACTOR_CLASS()
         cls.actual_extracted = cls.extractor.extract(cls.SOURCE_FILEOBJECT)
 
+    @classmethod
+    def tearDownClass(cls):
+        assert cls.extractor
+        if hasattr(cls.extractor, 'shutdown'):
+            cls.extractor.shutdown()
+
     def test_instantiated_extractor_is_not_none(self):
         actual = self.extractor
         self.assertIsNotNone(
@@ -66,7 +70,7 @@ class CaseExtractorOutputTypes(object):
     def test_instantiated_extractor_is_subclass_of_base_extractor(self):
         actual = self.extractor
         self.assertTrue(
-            issubclass(actual.__class__, BaseExtractor),
+            issubclass(actual.__class__, BaseMetadataExtractor),
             'Instantiated extractor is not a subclass of "BaseExtractor": '
             '"{!s}" ({!s})'.format(actual, type(actual))
         )
@@ -105,6 +109,10 @@ class CaseExtractorBasics(object):
     @classmethod
     def tearDownClass(cls):
         assert cls.extractor
+
+        # Call 'cache_clear()' added by the 'functools.lru_cache' decorator.
+        cls.extractor.metainfo_from_yaml_file.cache_clear()
+
         if hasattr(cls.extractor, 'shutdown'):
             cls.extractor.shutdown()
 
@@ -184,7 +192,7 @@ class CaseExtractorBasics(object):
     def test_instantiated_extractor_is_subclass_of_base_extractor(self):
         actual = self.extractor
         self.assertTrue(
-            issubclass(actual.__class__, BaseExtractor),
+            issubclass(actual.__class__, BaseMetadataExtractor),
             'Instantiated extractor is not a subclass of "BaseExtractor": '
             '"{!s}" ({!s})'.format(actual, type(actual))
         )

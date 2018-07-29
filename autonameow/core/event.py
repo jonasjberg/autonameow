@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -27,6 +25,9 @@ log = logging.getLogger(__name__)
 
 
 class EventHandler(object):
+    """
+    Stores callables and forwards calls to all stored callables.
+    """
     def __init__(self):
         self.callables = set()
 
@@ -35,11 +36,18 @@ class EventHandler(object):
         self.callables.add(func)
 
     def __call__(self, *args, **kwargs):
-        log.debug(
-            '{!s} called with args {!s} kwargs {!s}'.format(self, args, kwargs)
-        )
+        log.debug('%s called with args %s kwargs %s', self, args, kwargs)
         for func in self.callables:
-            func(*args, **kwargs)
+            # Make sure all callables are called in case of an unhandled
+            # exception. This really "should" NOT happen, it is assumed that
+            # bound callables will responsibly handle any exceptions locally.
+            try:
+                func(*args, **kwargs)
+            except Exception as e:
+                log.critical(
+                    '%s caught exception when called with args %s '
+                    'kwargs %s :: %s', self, args, kwargs, e
+                )
 
     def __str__(self):
         return self.__class__.__name__
@@ -74,12 +82,10 @@ class EventDispatcher(object):
     def _get_event_handlers(self, name):
         event_handlers = self._event_handlers.get(name)
         if event_handlers:
-            self.log.debug('{!s} returning event handler "{!s}"'.format(self, name))
+            self.log.debug('%s returning event handler "%s"', self, name)
             return event_handlers
 
-        msg = '{!s} get called with nonexistent event handler "{!s}"'.format(self, name)
-        self.log.critical(msg)
-        raise AssertionError(msg)
+        raise AssertionError('Invalid event handler: "{!s}"'.format(name))
 
     def __getattr__(self, item):
         return self._get_event_handlers(item)

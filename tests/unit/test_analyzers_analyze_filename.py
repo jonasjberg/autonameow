@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -26,13 +24,10 @@ from unittest.mock import Mock, patch
 import unit.utils as uu
 from analyzers.analyze_filename import BASENAME_PROBABLE_EXT_LOOKUP
 from analyzers.analyze_filename import FilenameAnalyzer
-from analyzers.analyze_filename import FilenameTokenizer
 from analyzers.analyze_filename import likely_extension
 from analyzers.analyze_filename import PATH_PROBABLE_EXT_LOOKUP
-from analyzers.analyze_filename import SubstringFinder
 from analyzers.analyze_filename import _parse_mimetype_extension_suffixes_map_data
 from analyzers.analyze_filename import _read_probable_extension_config_file
-from core.namebuilder import fields
 
 
 uu.init_session_repository()
@@ -134,8 +129,18 @@ class TestLikelyExtension(TestCase):
              Given(suffix='7z', mime='application/x-7z-compressed')),
             (Expect('alfredworkflow'),
              Given(suffix='alfredworkflow', mime='application/zip')),
+
+            (Expect('azw'),
+             Given(suffix='azw', mime='application/octet-stream')),
             (Expect('azw3'),
              Given(suffix='azw3', mime='application/octet-stream')),
+            (Expect('azw3'),
+             Given(suffix='azw3', mime='application/x-mobipocket-ebook')),
+            (Expect('azw4'),
+             Given(suffix='azw4', mime='application/octet-stream')),
+            (Expect('azw4'),
+             Given(suffix='azw4', mime='application/x-mobipocket-ebook')),
+
             (Expect('bin'),
              Given(suffix='bin', mime='application/octet-stream')),
             (Expect('bz2'),
@@ -206,16 +211,24 @@ class TestLikelyExtension(TestCase):
              Given(suffix='xls', mime='application/vnd.ms-excel')),
             (Expect('xls'),
              Given(suffix='', mime='application/vnd.ms-excel')),
+            (Expect('xlsx'),
+             Given(suffix='xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')),
+            (Expect('xlsx'),
+             Given(suffix='', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')),
 
             (Expect('eps'),
              Given(suffix='eps', mime='application/postscript')),
             (Expect('hex'),
              Given(suffix='hex', mime='application/octet-stream')),
 
+            (Expect('dll'),
+             Given(suffix='dll', mime='application/x-dosexec')),
             (Expect('exe'),
              Given(suffix='exe', mime='application/x-dosexec')),
             (Expect('exe'),
              Given(suffix='', mime='application/x-dosexec')),
+            (Expect('pyd'),
+             Given(suffix='pyd', mime='application/x-dosexec')),
 
             (Expect('html'),
              Given(suffix='htm', mime='text/xml')),
@@ -308,14 +321,22 @@ class TestLikelyExtension(TestCase):
              Given(suffix='pdf', mime='application/octet-stream')),
             (Expect('ps'),
              Given(suffix='ps', mime='application/postscript')),
+
+            (Expect('bat'),
+             Given(suffix='bat', mime='text/x-msdos-batch')),
+            (Expect('bat'),
+             Given(suffix='', mime='text/x-msdos-batch')),
+
+            (Expect('egg'),
+             Given(suffix='egg', mime='text/x-shellscript')),
+
             (Expect('py'),
              Given(suffix='py', mime='text/x-shellscript')),
             (Expect('py'),
              Given(suffix='py', mime='text/x-python')),
             (Expect('py'),
              Given(suffix='', mime='text/x-python')),
-            (Expect('scpt'),
-             Given(suffix='scpt', mime='application/octet-stream')),
+
             (Expect('sh'),
              Given(suffix='sh', mime='text/plain')),
             (Expect('sh'),
@@ -324,6 +345,9 @@ class TestLikelyExtension(TestCase):
              Given(suffix='txt', mime='text/x-shellscript')),
             (Expect('sh'),
              Given(suffix='sh', mime='text/x-env')),
+
+            (Expect('scpt'),
+             Given(suffix='scpt', mime='application/octet-stream')),
 
             # Visual Studio Solution
             (Expect('sln'),
@@ -342,6 +366,23 @@ class TestLikelyExtension(TestCase):
              Given(suffix='tex', mime='text/x-tex')),
             (Expect('tex'),
              Given(suffix='tex', mime='application/x-tex')),
+
+            (Expect('ps1'),
+             Given(suffix='ps1', mime='text/plain')),
+
+            # "Easy Install" package listing ('easy-install.pth')
+            (Expect('pth'),
+             Given(suffix='pth', mime='text/plain')),
+
+            (Expect('rst'),
+             Given(suffix='rst', mime='text/plain')),
+            (Expect('rst'),
+             Given(suffix='rst', mime='text/html')),
+            (Expect('rst'),
+             Given(suffix='rst', mime='text/x-python')),
+
+            (Expect('tcl'),
+             Given(suffix='tcl', mime='text/plain')),
 
             (Expect('txt'),
              Given(suffix='txt', mime='text/plain')),
@@ -401,6 +442,18 @@ class TestLikelyExtension(TestCase):
             # Safari saved webpage
             (Expect('webarchive'),
              Given(suffix='webarchive', mime='application/octet-stream')),
+
+            # Audio
+            (Expect('mp3'),
+             Given(suffix='mp3', mime='application/octet-stream')),
+            (Expect('mp3'),
+             Given(suffix='mp3', mime='audio/mpeg')),
+            (Expect('wav'),
+             Given(suffix='wav', mime='audio/x-wav')),
+            (Expect('wav'),
+             Given(suffix='', mime='audio/x-wav')),
+            (Expect('wma'),
+             Given(suffix='wma', mime='video/x-ms-asf')),
         ]
 
     def test_returns_expected(self):
@@ -410,219 +463,6 @@ class TestLikelyExtension(TestCase):
                 expect.expected, actual, input_args
             )
             self.assertEqual(expect.expected, actual, _m)
-
-
-class TestIdentifyFields(TestCase):
-    def test__substrings(self):
-        f = SubstringFinder()
-
-        def _assert_splits(test_data, expected):
-            actual = f.substrings(test_data)
-            self.assertEqual(expected, actual)
-
-        _assert_splits('a', ['a'])
-        _assert_splits('a b', ['a', 'b'])
-        _assert_splits('a b ', ['a', 'b'])
-        _assert_splits(' a b ', ['a', 'b'])
-        _assert_splits('a b a', ['a', 'b', 'a'])
-
-        _assert_splits('a-b', ['a', 'b'])
-        _assert_splits('a-b c', ['a-b', 'c'])
-        _assert_splits('a b-c', ['a', 'b-c'])
-        _assert_splits(' a-b ', ['a-b'])
-        _assert_splits('a_b_a', ['a', 'b', 'a'])
-
-        _assert_splits('TheBeatles - PaperbackWriter',
-                       ['TheBeatles', '-', 'PaperbackWriter'])
-        _assert_splits('TheBeatles PaperbackWriter',
-                       ['TheBeatles', 'PaperbackWriter'])
-
-    def test_identifies_fields(self):
-        self.skipTest('TODO: ..')
-
-        test_input = 'TheBeatles - PaperbackWriter.flac'
-
-        f = SubstringFinder()
-        # f.add_context('TheBeatles - ItsGettingBetter.flac')
-        actual = f.identify_fields(test_input, [fields.Creator, fields.Title])
-
-        self.assertIsInstance(actual.get(fields.Creator), list)
-        self.assertEqual('TheBeatles', actual.get(fields.Creator)[0])
-        self.assertEqual('PaperbackWriter', actual.get(fields.Creator)[1])
-        self.assertNotIn('.flac', actual.get(fields.Creator))
-        self.assertNotIn('flac', actual.get(fields.Creator))
-        self.assertNotIn('-', actual.get(fields.Creator))
-
-        self.assertIsInstance(actual.get(fields.Title), list)
-        self.assertEqual('PaperbackWriter', actual.get(fields.Title)[0])
-        self.assertEqual('TheBeatles', actual.get(fields.Title)[1])
-        self.assertNotIn('.flac', actual.get(fields.Title))
-        self.assertNotIn('flac', actual.get(fields.Title))
-        self.assertNotIn('-', actual.get(fields.Title))
-
-    def test_uses_constraints(self):
-        pass
-        # add_constraint(fields.Author, matches=r'[\w]+')
-        # add_constraint(fields.Title, matches=r'[\w]+')
-        # result = identify_fields(string, [fields.Creator, fields.Title])
-
-        # assert result[fields.Author] == ['The Beatles', 'Paperback Writer',
-        #                                   'flac']
-        # assert result[fields.Title] == ['Paperback Writer', 'The Beatles',
-        #                                 'flac']
-
-
-class TestFilenameTokenizerSeparators(TestCase):
-    def _t(self, filename, separators, main_separator):
-        tokenizer = FilenameTokenizer(filename)
-        self.assertEqual(separators, tokenizer.separators)
-        self.assertEqual(main_separator, tokenizer.main_separator)
-        tokenizer = None
-
-    def test_find_separators_all_periods(self):
-        self._t(
-            filename='foo.bar.1234.baz',
-            separators=[('.', 3)],
-            main_separator='.'
-        )
-
-    def test_find_separators_periods_and_brackets(self):
-        self._t(
-            filename='foo.bar.[1234].baz',
-            separators=[('.', 3), ('[', 1), (']', 1)],
-            main_separator='.'
-        )
-
-    def test_find_separators_underlines(self):
-        self._t(
-            filename='foo_bar_1234_baz',
-            separators=[('_', 3)],
-            main_separator='_'
-        )
-
-    def test_find_separators_dashes(self):
-        self._t(
-            filename='foo-bar-1234-baz',
-            separators=[('-', 3)],
-            main_separator='-'
-        )
-
-    def test_find_separators_spaces(self):
-        self._t(
-            filename='foo bar 1234 baz',
-            separators=[(' ', 3)],
-            main_separator=' '
-        )
-
-    def test_find_separators_underlines_and_dashes(self):
-        self._t(
-            filename='foo-bar_1234_baz',
-            separators=[('_', 2), ('-', 1)],
-            main_separator='_'
-        )
-
-    def test_find_separators_darwin(self):
-        self.skipTest('TODO: Fix inconsistent test results!')
-        self._t(
-            filename='Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi',
-            separators=[(' ', 9), ('-', 1), ('%', 1)],
-            main_separator=' '
-        )
-
-    def test_find_separators_html_encoded(self):
-        self._t(
-            filename='A%20Quick%20Introduction%20to%20IFF.txt',
-            separators=[(' ', 4), ('.', 1)],
-            main_separator=' '
-        )
-
-    def test_find_separators_underlines_dashes(self):
-        self.skipTest('TODO: Fix inconsistent test results!')
-        self._t(
-            filename='a-b c_d',
-            separators=[(' ', 1), ('-', 1), ('_', 1)],
-            main_separator=' '
-        )
-
-    def test_find_main_separator(self):
-        def _aE(filename, main_separator):
-            tokenizer = FilenameTokenizer(filename)
-            self.assertEqual(main_separator, tokenizer.main_separator)
-            tokenizer = None
-
-        _aE('a b', ' ')
-        _aE('a-b-c_d', '-')
-        _aE('a-b', '-')
-        _aE('a_b', '_')
-        _aE('a--b', '-')
-        _aE('a__b', '_')
-
-        _aE('a b', ' ')
-        _aE('shell-scripts.github', '-')
-        _aE('Unison-OS-X-2.48.15.zip', '-')
-
-        # TODO: Are we looking for field- or word-separators..? (!?)
-        _aE('2012-02-18-14-18_Untitled-meeting.log', '-')
-
-    def test_resolve_tied_counts(self):
-        self.skipTest('TODO: Fix inconsistent test results!')
-        assume_preferred_separator = '_'
-
-        def _aE(filename, main_separator):
-            tokenizer = FilenameTokenizer(filename)
-            self.assertEqual(main_separator, tokenizer.main_separator)
-            tokenizer = None
-
-        _aE('a-b c', ' ')
-        _aE('a_b c', ' ')
-        _aE('-a b', ' ')
-        _aE('_a b', ' ')
-        _aE('a-b c_d', ' ')
-        _aE('a_b c-d', ' ')
-        _aE('-a b_d', ' ')
-        _aE('_a b-d', ' ')
-
-        _aE('a-b_c', assume_preferred_separator)
-        _aE('a_b-c', assume_preferred_separator)
-        _aE('a_-b', assume_preferred_separator)
-        _aE('a-_b', assume_preferred_separator)
-        _aE('a-b_c-d_e', assume_preferred_separator)
-        _aE('a_b-c_d-e', assume_preferred_separator)
-        _aE('a_-b-_c', assume_preferred_separator)
-        _aE('a-_b_-c', assume_preferred_separator)
-
-        _aE('a-_b', assume_preferred_separator)
-        _aE('a_-b', assume_preferred_separator)
-
-    def test_get_seps_with_tied_counts(self):
-        def _aE(test_input, expect):
-            actual = FilenameTokenizer.get_seps_with_tied_counts(test_input)
-            self.assertEqual(expect, actual)
-
-        _aE([('a', 2), ('b', 1)],
-            expect=[])
-        _aE([('a', 2), ('b', 2)],
-            expect=['a', 'b'])
-        _aE([('a', 2), ('b', 1), ('c', 1)],
-            expect=['b', 'c'])
-        _aE([('a', 2), ('b', 1), ('c', 1), ('d', 2)],
-            expect=['a', 'b', 'c', 'd'])
-        _aE([('a', 2), ('b', 1), ('c', 1), ('d', 1)],
-            expect=['b', 'c', 'd'])
-
-
-class TestFilenameTokenizerTokens(TestCase):
-    def _t(self, filename, tokens):
-        tokenizer = FilenameTokenizer(filename)
-        self.assertEqual(tokens, tokenizer.tokens)
-
-    def test_only_spaces(self):
-        self._t(filename='foo bar 1234 baz',
-                tokens=['foo', 'bar', '1234', 'baz'])
-
-    def test_html_encoded(self):
-        self._t(filename='A%20Quick%20Introduction%20to%20IFF.txt',
-                tokens=['A', 'Quick', 'Introduction', 'to', 'IFF.txt'])
 
 
 class TestParseMimetypeExtensionSuffixesMapData(TestCase):

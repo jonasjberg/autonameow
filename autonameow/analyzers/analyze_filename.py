@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -22,7 +20,6 @@
 import logging
 import os
 import re
-from collections import Counter
 
 from analyzers import AnalyzerError
 from analyzers import BaseAnalyzer
@@ -32,7 +29,6 @@ from util import dateandtime
 from util import disk
 from util import sanity
 from util.text import find_and_extract_edition
-from util.text import urldecode
 
 
 _PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
@@ -42,25 +38,8 @@ PATH_PROBABLE_EXT_LOOKUP = disk.joinpaths(_PATH_THIS_DIR, BASENAME_PROBABLE_EXT_
 log = logging.getLogger(__name__)
 
 
-# Use two different types of separators;  "SPACE" and "SEPARATOR".
-#
-# Example filename:   "The-Artist_01_Great-Tune.mp4"
-#                         ^      ^  ^     ^
-#                     space   separators  space
-#
-# Splitting the filename by "SEPARATOR" gives some arbitrary "fields".
-#
-#                     "The-Artist"   "01"   "Great-Tune"
-#                       Field #1      #2      Field #3
-#
-# Splitting the filename by "SPACE" typically gives words.
-#
-#                     "The"   "Artist"   "01"   "Great"   "Tune"
-
-# TODO: Let the user specify this in the configuration file.
-PREFERRED_FILENAME_CHAR_SPACE = '-'
-PREFERRED_FILENAME_CHAR_SEPARATOR = '_'
-
+# TODO: [TD0020] Identify data fields in file names.
+# TODO: [TD0130] Implement general-purpose substring matching/extraction.
 # TODO: [TD0153] Detect and clean up incrementally numbered files
 
 
@@ -150,6 +129,11 @@ class FilenameAnalyzer(BaseAnalyzer):
             self.log.debug('Found "most likely" date/time in the basename')
             return match
 
+        match = dateandtime.match_macos_screenshot(basename_prefix)
+        if match:
+            self.log.debug('Found "MacOS Screenshot" date/time in the basename')
+            return match
+
         match = dateandtime.match_android_messenger_filename(basename_prefix)
         if match:
             self.log.debug('Found "android messenger timestamp" date/time in the basename')
@@ -193,7 +177,9 @@ class FilenameAnalyzer(BaseAnalyzer):
             return None
 
         _candidates = _options.get('candidates', {})
+        self.log.debug('Searching for publisher in basename prefix with {} candidates'.format(len(_candidates)))
         result = find_publisher(self._basename_prefix, _candidates)
+        self.log.debug('Search for publisher in basename prefix found "{!s}"'.format(result))
         return result
 
     @classmethod
@@ -241,6 +227,13 @@ class MimetypeExtensionMapParser(object):
         text = re.sub(r'#.*', '', text)
 
         parsed = {}
+
+        # Set to None to silence warnings on variables potentially being
+        # referenced before assignment. This "should not" happen; both variables
+        # are expected to be set before use, which is verified with assertions.
+        use_extension_value = None
+        mimetype_value = None
+
         for line in text.splitlines():
             line = line.strip()
             if not line or line.startswith('#'):
@@ -256,12 +249,14 @@ class MimetypeExtensionMapParser(object):
             if self.state == self.STATE_MIMETYPE_BLOCK:
                 use_extension_value = self._match_extension_list_start(line)
                 if use_extension_value is not None:
+                    assert mimetype_value is not None, 'Invalid state'
                     parsed[mimetype_value][use_extension_value] = set()
                     self.state = self.STATE_LIST_BLOCK
 
             elif self.state == self.STATE_LIST_BLOCK:
                 m = self._match_extension_list_item(line)
                 if m is not None:
+                    assert use_extension_value is not None, 'Invalid state'
                     parsed[mimetype_value][use_extension_value].add(m)
                 else:
                     use_extension_value = self._match_extension_list_start(line)
@@ -317,6 +312,11 @@ def _read_probable_extension_config_file(filepath):
 
 
 def likely_extension(basename_suffix, mime_type):
+    # TODO: [TD0200] Improve system for finding probable file extensions.
+    #                Use additional information, like the "basename prefix".
+    #                Should be able to handle files without extensions with a
+    #                certain name like 'METADATA', having any of a list of
+    #                MIME-types, so that the probable extension is empty, etc.
     if mime_type and basename_suffix is not None:
         sanity.check_internal_string(mime_type)
 
@@ -349,169 +349,6 @@ def likely_extension(basename_suffix, mime_type):
     return None
 
 
-# TODO: [TD0020] Identify data fields in file names.
-class SubstringFinder(object):
-    # TODO: (?) Implement or remove ..
-
-    def identify_fields(self, string, field_list):
-        substrings = self.substrings(string)
-
-    def substrings(self, string):
-        _splitchar = FilenameTokenizer(string).main_separator
-        s = string.split(_splitchar)
-        return list(filter(None, s))
-
-
-# TODO: [TD0130] Implement general-purpose substring matching/extraction.
-class FilenamePreprocessor(object):
-    def __init__(self):
-        pass
-
-    @classmethod
-    def __call__(cls, filename):
-        _processed = cls.preprocess(filename)
-        return _processed
-
-    @classmethod
-    def preprocess(cls, filename):
-        # Very simple heuristic for finding URL-encoded file names.
-        #
-        #   HTML 4.01 Specification
-        #   17.13.4 Form content types
-        #   application/x-www-form-urlencoded
-        #   https://www.w3.org/TR/html4/interact/forms.html#h-17.13.4.1
-        #
-        # Spaces are represented as either '%20' or '+'.
-        if ' ' not in filename:
-            _decoded = None
-
-            if '%20' in filename:
-                _decoded = urldecode(filename)
-            elif '+' in filename:
-                _decoded = filename.replace('+', ' ')
-
-            if _decoded and _decoded.strip():
-                filename = _decoded
-
-        return filename
-
-
-# TODO: [TD0130] Implement general-purpose substring matching/extraction.
-class FilenameTokenizer(object):
-    RE_UNICODE_WORDS = re.compile(r'[^\W_]')
-
-    def __init__(self, filename):
-        self.filename = FilenamePreprocessor()(filename)
-
-    @property
-    def tokens(self):
-        _sep = self.main_separator
-        if _sep:
-            return self.filename.split(_sep)
-        return None
-
-    @property
-    def separators(self, maxcount=None):
-        if not maxcount:
-            maxcount = 3
-
-        _seps = self._find_separators(self.filename)
-        if not _seps:
-            return []
-
-        if len(_seps) == 1:
-            return _seps
-
-        _tied_seps = self.get_seps_with_tied_counts(_seps)
-        if _tied_seps:
-            # Remove tied separators.
-            _not_tied_seps = [s for s in _seps if s[0] not in _tied_seps]
-
-            # Get preferred separator as a single character.
-            _preferred = self.resolve_tied_count(_tied_seps)
-            if _preferred:
-                # Add back (sep, count)-tuple from preferred single char.
-                _not_tied_seps.extend([s for s in _seps if s[0] == _preferred])
-
-                # Add back the rest.
-                _not_tied_seps.extend([s for s in _seps if s[0] != _preferred
-                                       and s not in _not_tied_seps])
-
-            _seps = _not_tied_seps
-
-        return _seps[:maxcount]
-
-    @property
-    def main_separator(self):
-        _seps = self._find_separators(self.filename)
-        if not _seps:
-            return None
-
-        # Detect if first- and second-most common separators have an equal
-        # number of occurrences and resolve any tied count separately.
-        if len(_seps) >= 2:
-            _first_count = _seps[0][1]
-            _second_count = _seps[1][1]
-            if _first_count == _second_count:
-                return self.resolve_tied_count([_seps[0][0], _seps[1][0]])
-
-        if _seps:
-            try:
-                return _seps[0][0]
-            except IndexError:
-                return ''
-
-        return None
-
-    @classmethod
-    def get_seps_with_tied_counts(cls, separator_counts):
-        seen = set()
-        dupes = set()
-        for _sep, _count in separator_counts:
-            if _count in seen:
-                dupes.add(_count)
-            seen.add(_count)
-
-        return [s[0] for s in separator_counts if s[1] in dupes]
-
-    @classmethod
-    def resolve_tied_count(cls, candidates):
-        if not candidates:
-            return []
-
-        # Prefer to use the single space.
-        if ' ' in candidates:
-            return ' '
-        elif PREFERRED_FILENAME_CHAR_SEPARATOR in candidates:
-            # Use hardcoded preferred main separator character.
-            return PREFERRED_FILENAME_CHAR_SEPARATOR
-        elif PREFERRED_FILENAME_CHAR_SPACE in candidates:
-            # Use hardcoded preferred space separator character.
-            return PREFERRED_FILENAME_CHAR_SPACE
-
-        # Last resort uses arbitrary value, sorted for consistency.
-        return sorted(candidates, key=lambda x: x[0])[0]
-
-    @classmethod
-    def _find_separators(cls, string):
-        non_words = cls.RE_UNICODE_WORDS.split(string)
-        seps = [s for s in non_words if s is not None and len(s) >= 1]
-
-        sep_chars = list()
-        for sep in seps:
-            if len(sep) > 1:
-                sep_chars.extend(list(sep))
-            else:
-                sep_chars.append(sep)
-
-        if not sep_chars:
-            return None
-
-        counts = Counter(sep_chars)
-        _most_common = counts.most_common(5)
-        return _most_common
-
-
 def get_most_likely_datetime_from_string(string):
     """
     Tries to extract the "most likely" date/time.
@@ -532,8 +369,14 @@ def get_most_likely_datetime_from_string(string):
 
 def find_publisher(text, candidates):
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
+    lowercase_text = text.lower()
+
     for repl, patterns in candidates.items():
+        if repl.lower() in lowercase_text:
+            return repl
+
         for pattern in patterns:
             if re.search(pattern, text):
                 return repl
+
     return None

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -45,12 +43,15 @@ def date_is_probable(date,
                      year_max=C.YEAR_UPPER_LIMIT.year,
                      year_min=C.YEAR_LOWER_LIMIT.year):
     """
-    Check if date is "probable", meaning greater than 1900 and
-    not in the future, I.E. greater than the year of todays date.
-    That is, simply: 1900 < date < today
+    Checks if the year of a given date is "probable".
+
+    Very simple probability test checks if the date lies between a lowest
+    threshold year, 'year_min' and a highest threshold year, 'year_max'.
 
     Args:
-        date: The date to test as an instance of 'datetime'.
+        date (datetime): The date to test as an instance of 'datetime'.
+        year_max (int): Optional maximum threshold for probable years.
+        year_min (int): Optional minimum threshold for probable years.
 
     Returns:
         True if the date is "probable", else False.
@@ -182,6 +183,27 @@ def match_special_case_no_date(s):
         return None
 
     return _parse_datetime_and_check_if_probable(modified_string, pattern)
+
+
+def match_macos_screenshot(s):
+    """
+    Matches date/time strings in default MacOS screenshot filenames.
+
+    Args:
+        s: Unicode string to attempt to extract a datetime object from.
+
+    Returns: Any date/time as an instance of 'datetime' or None.
+    """
+    assert isinstance(s, str)
+
+    match = re.search('(\d{4}-\d\d-\d\d at \d\d\.\d\d\.\d\d)', s)
+    if match:
+        try:
+            return datetime.strptime(match.group(1), '%Y-%m-%d at %H.%M.%S')
+        except (ValueError, TypeError):
+            pass
+
+    return None
 
 
 def match_android_messenger_filename(text):

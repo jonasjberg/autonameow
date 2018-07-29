@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -18,6 +16,20 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
+
+from contextlib import contextmanager
+
+
+@contextmanager
+def ignored(*exceptions):
+    """
+    Context manager for silently ignoring one or many exceptions.
+    If the exception is raised, any following code will be skipped.
+    """
+    try:
+        yield
+    except exceptions:
+        pass
 
 
 class AWAssertionError(AssertionError):
@@ -68,6 +80,7 @@ class NameBuilderError(AutonameowException):
 class FilesystemError(AutonameowException):
     """Errors occurred while reading/writing files on disk. Should be used by
     the filesystem abstraction layer as a catch-all for failed operations."""
+    # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
 
 
 class InvalidMeowURIError(ConfigError):

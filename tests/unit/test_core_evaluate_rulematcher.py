@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -81,6 +79,7 @@ class TestRuleMatcherMatching(TestCase):
         rule.exact_match = bool(exact_match)
         rule.number_conditions = int(num_conditions)
         rule.ranking_bias = float(bias)
+        rule.data_sources = list()
 
         _conditions = list()
         for _ in range(num_conditions):
@@ -167,6 +166,7 @@ class DummyRule(object):
     def __init__(self, exact_match):
         self.exact_match = exact_match
         self.ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
+        self.data_sources = list()
 
 
 class TestPrioritizeRules(TestCase):
@@ -228,19 +228,34 @@ class TestPrioritizeRules(TestCase):
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)
 
+    def test_prioritization_based_solely_on_number_of_data_sources(self):
+        r_a = DummyRule(exact_match=False)
+        r_a.data_sources = ['a']
+        s_a = {'score': 0, 'weight': 0.0}
+        r_b = DummyRule(exact_match=False)
+        r_b.data_sources = ['a', 'b']
+        s_b = {'score': 0, 'weight': 0.0}
+        expected = [r_b, r_a]
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
+
+    def test_rules_without_data_sources_are_deprioritized_when_otherwise_tied(self):
+        r_a = DummyRule(exact_match=False)
+        r_a.data_sources = ['a']
+        s_a = {'score': 2, 'weight': 0.5}
+        r_b = DummyRule(exact_match=False)
+        r_b.data_sources = []
+        s_b = {'score': 2, 'weight': 0.5}
+        expected = [r_a, r_b]
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
+
 
 class TestRuleConditionEvaluator(TestCase):
     @classmethod
     def setUpClass(cls):
-        def _mock_request_data_function(fileobject, meowuri):
-            response = uu.mock_request_data_callback(fileobject, meowuri)
-            if response:
-                return response.get('value')
-            else:
-                return None
-
         # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
-        cls._mock_request_data_function = _mock_request_data_function
+        cls._mock_request_data_function = lambda _, __: None
 
     def test_init(self):
         _ = RuleConditionEvaluator(self._mock_request_data_function)

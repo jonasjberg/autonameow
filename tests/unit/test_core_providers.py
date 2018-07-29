@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -38,7 +36,9 @@ class TestWrapProviderResults(TestCase):
         cls.coercers_AW_MIMETYPE = coercers.AW_MIMETYPE
         cls.coercers_AW_PATHCOMPONENT = coercers.AW_PATHCOMPONENT
         cls.coercers_AW_PATH = coercers.AW_PATH
+        cls.coercers_AW_STRING = coercers.AW_STRING
         cls.coercers_AW_TIMEDATE = coercers.AW_TIMEDATE
+        cls.coercers_MULTIPLETYPES = coercers.MultipleTypes
 
         import datetime
         cls.EXAMPLE_FIELD_LOOKUP = {
@@ -95,7 +95,11 @@ class TestWrapProviderResults(TestCase):
                     {'WeightedMapping': {'field': 'DateTime', 'weight': '0.25'}},
                 ],
                 'generic_field': 'date_modified'
-            }
+            },
+            'tags': {
+                'coercer': 'aw_string',
+                'multivalued': 'true',
+            },
         }
         cls.EXAMPLE_DATADICT = {
             'extension': b'pdf', 'mime_type': 'application/pdf',
@@ -106,7 +110,8 @@ class TestWrapProviderResults(TestCase):
             'basename_prefix': b'foo.bar',
             'pathname_full': b'/tank/temp/to-be-sorted/aw',
             'basename_full': b'foo.bar.pdf',
-            'date_modified': datetime.datetime(2017, 11, 5, 15, 33, 50)
+            'date_modified': datetime.datetime(2017, 11, 5, 15, 33, 50),
+            'tags': ['tag_foo', 'tag_bar']
         }
 
         from core.model import WeightedMapping
@@ -116,8 +121,8 @@ class TestWrapProviderResults(TestCase):
             'date_created': {
                 'coercer': cls.coercers_AW_TIMEDATE,
                 'mapped_fields': [
-                    WeightedMapping(field=fields.Date, weight=1),
-                    WeightedMapping(field=fields.DateTime, weight=1)
+                    WeightedMapping(field=fields.Date, weight=1.0),
+                    WeightedMapping(field=fields.DateTime, weight=1.0)
                 ],
                 'multivalued': False,
                 'source': 'CrossPlatformFileSystemExtractor',
@@ -128,7 +133,7 @@ class TestWrapProviderResults(TestCase):
                 'coercer': cls.coercers_AW_PATHCOMPONENT,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'mapped_fields': [
-                    WeightedMapping(field=fields.Extension, weight=1)
+                    WeightedMapping(field=fields.Extension, weight=1.0)
                 ],
                 'multivalued': False,
                 'value': b'pdf'
@@ -166,7 +171,7 @@ class TestWrapProviderResults(TestCase):
                 'coercer': cls.coercers_AW_PATHCOMPONENT,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'mapped_fields': [
-                    WeightedMapping(field=fields.Extension, weight=1)
+                    WeightedMapping(field=fields.Extension, weight=1.0)
                 ],
                 'multivalued': False,
                 'value': b'pdf'
@@ -186,13 +191,19 @@ class TestWrapProviderResults(TestCase):
             'mime_type': {
                 'coercer': cls.coercers_AW_MIMETYPE,
                 'mapped_fields': [
-                    WeightedMapping(field=fields.Extension, weight=1)
+                    WeightedMapping(field=fields.Extension, weight=1.0)
                 ],
                 'multivalued': False,
                 'source': 'CrossPlatformFileSystemExtractor',
                 'value': 'application/pdf',
                 'generic_field': GenericMimeType
-            }
+            },
+            'tags': {
+                'coercer': cls.coercers_AW_STRING,
+                'multivalued': True,
+                'source': 'CrossPlatformFileSystemExtractor',
+                'value': ['tag_foo', 'tag_bar']
+            },
         }
 
     def test_wraps_actual_crossplatform_filesystem_extractor_results(self):
@@ -207,6 +218,7 @@ class TestWrapProviderResults(TestCase):
         )
         for key in self.EXPECTED_WRAPPED.keys():
             self.assertIn(key, actual)
+
         self.assertEqual(self.EXPECTED_WRAPPED, actual)
 
     def test_translates_arbitrary_datadict_metainfo_and_source_class(self):
@@ -314,6 +326,31 @@ class TestWrapProviderResults(TestCase):
                 'value': False,
                 'coercer': self.coercers_AW_BOOLEAN,
                 'multivalued': False,
+                'source': 'MockProvider'
+            }
+        }
+        self.assertEqual(expect, actual)
+
+    def test_wraps_example_results_with_multivalued_true(self):
+        actual = wrap_provider_results(
+            datadict={
+                'is_jpeg': False,
+            },
+            metainfo={
+                'is_jpeg': {
+                    'coercer': 'aw_boolean',
+                    'multivalued': 'true',
+                    'mapped_fields': None,
+                    'generic_field': None
+                }
+            },
+            source_klass=uu.get_mock_provider()
+        )
+        expect = {
+            'is_jpeg': {
+                'value': False,
+                'coercer': self.coercers_AW_BOOLEAN,
+                'multivalued': True,
                 'source': 'MockProvider'
             }
         }

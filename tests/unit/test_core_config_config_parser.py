@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -35,6 +33,7 @@ except ImportError:
 import unit.utils as uu
 import unit.constants as uuconst
 from core import constants as C
+from core.config.config_parser import _nested_dict_set
 from core.config.config_parser import ConfigurationOptionsParser
 from core.config.config_parser import ConfigurationParser
 from core.config.config_parser import ConfigurationRuleParser
@@ -448,46 +447,33 @@ class TestConfigurationOptionsParserTryLoadPersistenceOption(TestCase):
 
 
 class TestParseRuleConditions(TestCase):
-    def _assert_parsed_result(self, expect_uri, expect_expression, given):
+    def _assert_parsed_result(self, given, expect_uri, expect_expression):
         actual = parse_rule_conditions(given)
         self.assertEqual(expect_uri, actual[0].meowuri)
         self.assertEqual(expect_expression, actual[0].expression)
 
     def test_parse_condition_filesystem_pathname_is_valid(self):
-        raw_conditions = {
-            uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'
-        }
-        actual = parse_rule_conditions(raw_conditions)
-        self.assertEqual(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL,
-                         actual[0].meowuri)
-        self.assertEqual('~/.config',
-                         actual[0].expression)
-
         self._assert_parsed_result(
+            given={uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'},
             expect_uri=uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL,
             expect_expression='~/.config',
-            given={uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'}
         )
 
     def test_parse_condition_contents_mime_type_is_valid(self):
-        raw_conditions = {
-            uuconst.MEOWURI_FS_XPLAT_MIMETYPE: 'image/jpeg'
-        }
-        actual = parse_rule_conditions(raw_conditions)
-        self.assertEqual(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, actual[0].meowuri)
-        self.assertEqual('image/jpeg', actual[0].expression)
+        self._assert_parsed_result(
+            given={uuconst.MEOWURI_FS_XPLAT_MIMETYPE: 'image/jpeg'},
+            expect_uri=uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            expect_expression='image/jpeg',
+        )
 
     def test_parse_condition_contents_metadata_is_valid(self):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        raw_conditions = {
-            uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL: 'Defined',
-        }
-        actual = parse_rule_conditions(raw_conditions)
-        self.assertEqual(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
-                         actual[0].meowuri)
-        self.assertEqual('Defined',
-                         actual[0].expression)
+        self._assert_parsed_result(
+            given={uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL: 'Defined'},
+            expect_uri=uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
+            expect_expression='Defined',
+        )
 
     def test_parse_empty_conditions_is_allowed(self):
         raw_conditions = dict()
@@ -553,54 +539,193 @@ class TestValidateVersionNumber(TestCase):
         _assert_equal('v1337.1337.1337', (1337, 1337, 1337))
 
     def test_invalid_version_number_returns_none(self):
-        def _assert_none(test_data):
-            actual = parse_versioning(test_data)
-            self.assertIsNone(actual)
+        for given in [
+            None,
+            [],
+            {},
+            '',
+            b'',
+            ' ',
+            b' ',
+            '0.0',
+            '1.2',
+            '1.2.x',
+            '1.2 x',
+            '1.2 3',
+            '1 2.3',
+            '1 2 3',
+            '€.2.3',
+            '€.%.3',
+            '€.%.&',
+            b'0.0',
+            b'1.2',
+            b'1.2.x',
+            b'1.2 x',
+            b'1.2 3',
+            b'1 2.3',
+            b'1 2 3',
+            '€.2.3'.encode(C.DEFAULT_ENCODING),
+            '€.%.3'.encode(C.DEFAULT_ENCODING),
+            '€.%.&'.encode(C.DEFAULT_ENCODING),
+            'v0.0',
+            'v1.2',
+            'v1.2.x',
+            'v1.2 x',
+            'v1.2 3',
+            'v1 2.3',
+            'v1 2 3',
+            'v€.2.3',
+            'v€.%.3',
+            'v€.%.&',
+            b'v0.0',
+            b'v1.2',
+            b'v1.2.x',
+            b'v1.2 x',
+            b'v1.2 3',
+            b'v1 2.3',
+            b'v1 2 3',
+            'v€.2.3'.encode(C.DEFAULT_ENCODING),
+            'v€.%.3'.encode(C.DEFAULT_ENCODING),
+            'v€.%.&'.encode(C.DEFAULT_ENCODING),
+        ]:
+            with self.subTest(given=given):
+                actual = parse_versioning(given)
+                self.assertIsNone(actual)
 
-        _assert_none(None)
-        _assert_none([])
-        _assert_none({})
-        _assert_none('')
-        _assert_none(b'')
-        _assert_none(' ')
-        _assert_none(b' ')
-        _assert_none('0.0')
-        _assert_none('1.2')
-        _assert_none('1.2.x')
-        _assert_none('1.2 x')
-        _assert_none('1.2 3')
-        _assert_none('1 2.3')
-        _assert_none('1 2 3')
-        _assert_none('€.2.3')
-        _assert_none('€.%.3')
-        _assert_none('€.%.&')
-        _assert_none(b'0.0')
-        _assert_none(b'1.2')
-        _assert_none(b'1.2.x')
-        _assert_none(b'1.2 x')
-        _assert_none(b'1.2 3')
-        _assert_none(b'1 2.3')
-        _assert_none(b'1 2 3')
-        _assert_none('€.2.3'.encode(C.DEFAULT_ENCODING))
-        _assert_none('€.%.3'.encode(C.DEFAULT_ENCODING))
-        _assert_none('€.%.&'.encode(C.DEFAULT_ENCODING))
-        _assert_none('v0.0')
-        _assert_none('v1.2')
-        _assert_none('v1.2.x')
-        _assert_none('v1.2 x')
-        _assert_none('v1.2 3')
-        _assert_none('v1 2.3')
-        _assert_none('v1 2 3')
-        _assert_none('v€.2.3')
-        _assert_none('v€.%.3')
-        _assert_none('v€.%.&')
-        _assert_none(b'v0.0')
-        _assert_none(b'v1.2')
-        _assert_none(b'v1.2.x')
-        _assert_none(b'v1.2 x')
-        _assert_none(b'v1.2 3')
-        _assert_none(b'v1 2.3')
-        _assert_none(b'v1 2 3')
-        _assert_none('v€.2.3'.encode(C.DEFAULT_ENCODING))
-        _assert_none('v€.%.3'.encode(C.DEFAULT_ENCODING))
-        _assert_none('v€.%.&'.encode(C.DEFAULT_ENCODING))
+
+class TestNestedDictSet(TestCase):
+    def _assert_sets(self, dictionary, list_of_keys, value, expected):
+        _ = _nested_dict_set(dictionary, list_of_keys, value)
+        self.assertIsNone(_)
+        self.assertDictEqual(dictionary, expected)
+        self.assertTrue(key in dictionary for key in expected.keys())
+
+    def test_set_value_in_empty_dictionary(self):
+        self._assert_sets(
+            dictionary={},
+            list_of_keys=['a'],
+            value=1,
+            expected={'a': 1}
+        )
+        self._assert_sets(
+            dictionary={},
+            list_of_keys=['a', 'b'],
+            value=2,
+            expected={'a': {'b': 2}}
+        )
+        self._assert_sets(
+            dictionary={},
+            list_of_keys=['a', 'b', 'c'],
+            value=3,
+            expected={'a': {'b': {'c': 3}}}
+        )
+
+    def test_set_value_in_empty_dictionary_with_fileobject_key(self):
+        keys = [uu.get_mock_fileobject()]
+        self._assert_sets(
+            dictionary={},
+            list_of_keys=keys,
+            value=1,
+            expected={keys[0]: 1}
+        )
+
+        keys = [uu.get_mock_fileobject(), uu.get_mock_fileobject()]
+        self._assert_sets(
+            dictionary={},
+            list_of_keys=keys,
+            value='foo',
+            expected={keys[0]: {keys[1]: 'foo'}}
+        )
+
+    def test_set_value_modifies_dictionary_in_place(self):
+        d = {'a': 1}
+        self._assert_sets(
+            dictionary=d,
+            list_of_keys=['a'],
+            value=2,
+            expected={'a': 2}
+        )
+        self._assert_sets(
+            dictionary=d,
+            list_of_keys=['b'],
+            value={},
+            expected={'a': 2,
+                      'b': {}}
+        )
+        self._assert_sets(
+            dictionary=d,
+            list_of_keys=['b', 'c'],
+            value=4,
+            expected={'a': 2,
+                      'b': {'c': 4}}
+        )
+        self._assert_sets(
+            dictionary=d,
+            list_of_keys=['b', 'foo'],
+            value=6,
+            expected={'a': 2,
+                      'b': {'c': 4,
+                            'foo': 6}}
+        )
+        self._assert_sets(
+            dictionary=d,
+            list_of_keys=['b', 'foo'],
+            value=8,
+            expected={'a': 2,
+                      'b': {'c': 4,
+                            'foo': 8}}
+        )
+
+    def test_attempting_to_set_occupied_value_raises_key_error(self):
+        with self.assertRaises(KeyError):
+            self._assert_sets(
+                dictionary={'a': 1},
+                list_of_keys=['a', 'b'],
+                value=5,
+                expected={'a': 2}
+            )
+
+    def test_passing_invalid_list_of_keys_raises_assertion_error(self):
+        for given_key_list in [
+            '',
+            None,
+            (),
+            {},
+            {'a': None},
+            {'a': 'b'},
+        ]:
+            with self.assertRaises(AssertionError):
+                self._assert_sets(
+                    dictionary={'a': 1},
+                    list_of_keys=given_key_list,
+                    value=2,
+                    expected={'expect_exception': 0}
+                )
+
+    def test_passing_empty_list_raises_value_error(self):
+        for given_key_list in [
+            [''],
+            [None],
+            [None, ''],
+            ['', None],
+            [None, 'foo'],
+            ['foo', None],
+            ['foo', ''],
+            ['', 'foo'],
+            [None, 'foo', ''],
+            [None, '', 'foo'],
+            ['foo', None, ''],
+            ['', None, 'foo'],
+            ['foo', None, '', None],
+            ['', None, 'foo', None],
+            ['foo', None, 'a', 'b'],
+            ['', 'a', 'b', None],
+            ['', 'a', 'b', 'foo'],
+        ]:
+            with self.assertRaises(ValueError):
+                self._assert_sets(
+                    dictionary={'a': 1},
+                    list_of_keys=given_key_list,
+                    value=2,
+                    expected={'expect_exception': 0}
+                )

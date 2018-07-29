@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -22,8 +20,8 @@
 import logging
 import pickle
 
-from core import config
 from core import constants as C
+from core import event
 from core.exceptions import AutonameowException
 from core.exceptions import FilesystemError
 from util import coercers
@@ -44,42 +42,23 @@ class PersistenceImplementationBackendError(PersistenceError):
     raised from the '_load()' and '_dump()' methods by implementing classes."""
 
 
-def get_config_persistence_path():
-    # TODO [TD0188] Consolidate access to active, global configuration.
-    active_config = config.ActiveConfig
-    if not active_config:
-        return C.DEFAULT_PERSISTENCE_DIR_ABSPATH
-
-    try:
-        cache_dirpath = active_config.get(['PERSISTENCE', 'cache_directory'])
-    except AttributeError:
-        cache_dirpath = None
-
-    if not cache_dirpath:
-        # TODO: Duplicate default setting! Already set in 'configuration.py'.
-        cache_dirpath = C.DEFAULT_PERSISTENCE_DIR_ABSPATH
-
-    sanity.check_internal_bytestring(cache_dirpath)
-    return cache_dirpath
-
-
 class BasePersistence(object):
     """
     Abstract base class for all file-based data persistence implementations.
 
     Example initialization and storage:
 
-        p = AutonameowPersistence('meow-persistence')
-        p.set('meow-data', {'a': 1, 'b': 2})
+        p = AutonameowPersistence('meowmeow')
+        p.set('kibble', {'a': 1, 'b': 2})
 
     This will cache the data in memory by storing in a class instance dict,
     and also write the data to disk using the path:
 
-        "PERSISTENCE_DIR_ABSPATH/meow-persistence_meow-data"
+        "PERSISTENCE_DIR_ABSPATH/meowmeow_kibble"
 
     Example retrieval:
 
-        stored_data = p.get('meow-data')
+        stored_data = p.get('kibble')
         assert stored_data == {'a': 1, 'b': 2}
 
     The idea is to keep many smaller files instead of a single shared file
@@ -166,12 +145,15 @@ class BasePersistence(object):
         """
         Returns data from the persistent data storage.
 
+        The key is used as the last part of the basename of file storing
+        the data on disk.
+
         Args:
             key (str): The key of the data to retrieve.
-                       Postfix of the persistence file that is written to disk.
 
         Returns:
             Any data stored with the given key, as any serializable type.
+
         Raises:
             KeyError: The given 'key' is not a valid non-empty string, was not
                       found in the persistent data or the read failed.
@@ -351,7 +333,7 @@ def _key_as_file_path(key, persistencefile_prefix,
                                         sep=persistence_file_prefix_separator,
                                         key=key)
     bytestring_basename = enc.encode_(basename)
-    abspath = coercers.AW_PATH.normalize(
+    abspath = coercers.coerce_to_normalized_path(
         disk.joinpaths(persistence_dir_abspath, bytestring_basename)
     )
     return abspath
@@ -395,16 +377,109 @@ def get_persistence(file_prefix, persistence_dir_abspath=None):
     Callers should not be concerned with how (if) files are written to disk.
     This provides a common interface for using "some" persistent storage.
 
+    >>> from autonameow.core.persistence import get_persistence
+    >>> p = get_persistence('FOOBAR')
+    >>> p.persistence_dir_abspath
+    b'/tmp/autonameow_cache'
+
+    No file has been written to '/tmp/autonameow_cache' at this point.
+    The call to 'set()' in the following line writes the data to the
+    file '/tmp/autonameow_cache/FOOBAR_TESTKEY', which is created if it
+    does not already exist.
+
+    >>> p.set('TESTKEY', 'TESTVALUE')
+    >>> p.get('TESTKEY')
+    'TESTVALUE'
+
+                                                    file_prefix
+                                                       |____|
+    Path in the above example:  '/tmp/autonameow_cache/FOOBAR_TESTKEY'
+                                 |___________________|        |_____|
+                                persistence_dir_abspath        "key"
+
     Args:
         file_prefix: Used as the first part of the storage file basename.
                      The second part is the "key" used when calling 'set()'.
         persistence_dir_abspath: Optional absolute bytestring path to the
                                  directory to use when storing persistent data.
 
-    Returns: An instance of a 'BasePersistence' subclass.
+    Returns: A class instance that implements the 'BasePersistence' interface.
     """
     try:
         return PicklePersistence(file_prefix, persistence_dir_abspath)
     except PersistenceError as e:
         log.error('Persistence unavailable :: {!s}'.format(e))
         return None
+
+
+class PersistencePathStore(object):
+    def __init__(self):
+        self._config_persistence_path = None
+        self.default_persistence_dirpath = C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+
+    def update_from_config(self, active_config):
+        if not active_config:
+            return
+
+        cache_dirpath = active_config.get(['PERSISTENCE', 'cache_directory'])
+        if not cache_dirpath:
+            return
+
+        if disk.isdir(cache_dirpath):
+            self._config_persistence_path = cache_dirpath
+            return
+
+        if disk.exists(cache_dirpath):
+            log.warning(
+                'Configuration persistence cache directory already exists '
+                'and is not a directory: "{!s}"'.format(enc.displayable_path(cache_dirpath))
+            )
+            return
+
+        try:
+            disk.makedirs(cache_dirpath)
+        except FilesystemError as e:
+            log.error(
+                'Unable to create persistence directory path specified in the '
+                'configuration: "{!s}"'.format(enc.displayable_path(cache_dirpath))
+            )
+            log.error(str(e))
+            return
+
+        if disk.isdir(cache_dirpath):
+            self._config_persistence_path = cache_dirpath
+
+    @property
+    def config_persistence_path(self):
+        if not self._config_persistence_path:
+            log.info('Using DEFAULT persistence file path "{!s}"'.format(
+                self.default_persistence_dirpath
+            ))
+            return self.default_persistence_dirpath
+
+        log.debug('Using persistence path specified in the config "{!s}"'.format(
+            self._config_persistence_path
+        ))
+        return self._config_persistence_path
+
+
+_persistence_path_store = PersistencePathStore()
+
+
+def _on_config_changed(*_, **kwargs):
+    """
+    Called whenever the global configuration changes.
+    """
+    active_config = kwargs.get('config')
+    assert active_config
+
+    _persistence_path_store.update_from_config(active_config)
+
+
+event.dispatcher.on_config_changed.add(_on_config_changed)
+
+
+def get_config_persistence_path():
+    cache_dirpath = _persistence_path_store.config_persistence_path
+    sanity.check_internal_bytestring(cache_dirpath)
+    return cache_dirpath

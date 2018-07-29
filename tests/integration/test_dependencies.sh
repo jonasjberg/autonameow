@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -125,6 +123,7 @@ assert_has_command 'pandoc'  # MarkdownTextExtractor
 assert_has_command 'pdftotext'
 assert_has_command 'tesseract'
 assert_has_command 'unrtf'
+assert_has_command 'djvutxt'
 
 
 

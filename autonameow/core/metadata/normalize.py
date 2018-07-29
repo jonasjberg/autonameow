@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -23,7 +21,7 @@ import re
 
 from util.text import html_unescape
 from util.text import normalize_unicode
-from util.text import normalize_whitespace
+from util.text import normalize_horizontal_whitespace
 from util.text import strip_edited_by
 
 
@@ -31,7 +29,13 @@ RE_NOT_LETTER_NUMBER_WHITESPACE = re.compile(r'[^\w\d\s]')
 
 TITLE_REPLACEMENTS = {
     '&': 'and',
+    '.epub': '',
+    '.djvu': '',
 }
+
+
+def _strip_trailing_junk(s):
+    return re.sub(r'[\s_-]+$', '', s)
 
 
 def normalize_full_human_name(string):
@@ -45,7 +49,7 @@ def cleanup_full_human_name(string):
 
     assert isinstance(string, str)
     name = normalize_unicode(string)
-    name = normalize_whitespace(name)
+    name = normalize_horizontal_whitespace(name)
     name = strip_edited_by(name)
     name = RE_NOT_LETTER_NUMBER_WHITESPACE.sub('', name)
     name = name.strip()
@@ -59,13 +63,13 @@ def cleanup_full_title(string):
     assert isinstance(string, str)
     title = normalize_unicode(string)
     title = html_unescape(title)
-    title = normalize_whitespace(title)
+    title = normalize_horizontal_whitespace(title)
 
     # Replace potentially valuable characters before the next step.
     for pattern, replacement in TITLE_REPLACEMENTS.items():
         title = title.replace(pattern, replacement)
 
-    title = title.strip()
+    title = _strip_trailing_junk(title).strip()
     return title
 
 

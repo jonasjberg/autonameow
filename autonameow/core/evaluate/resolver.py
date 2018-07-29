@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -76,12 +74,12 @@ class TemplateFieldDataResolver(object):
         return all(field in self.data_sources for field in self._fields)
 
     def add_known_sources(self, source_dict):
-        for field, uri in source_dict.items():
-            if isinstance(uri, list):
-                for m in uri:
+        for field, one_or_many_uris in source_dict.items():
+            if isinstance(one_or_many_uris, list):
+                for m in one_or_many_uris:
                     self.add_known_source(field, m)
             else:
-                self.add_known_source(field, uri)
+                self.add_known_source(field, one_or_many_uris)
 
     def add_known_source(self, field, uri):
         sanity.check_isinstance_meowuri(
@@ -138,8 +136,12 @@ class TemplateFieldDataResolver(object):
                     _candidate_probability = mapping.weight
                     break
 
-            if not field.type_compatible(candidate.coercer):
+            field_candidate_types_compatible = field.type_compatible(candidate.coercer, candidate.multivalued)
+            if not field_candidate_types_compatible:
+                log.debug('Type of field {!s} is NOT compatible with candidate {!s}'.format(field, candidate))
                 continue
+            else:
+                log.debug('Type of field {!s} is compatible with candidate {!s}'.format(field, candidate))
 
             _formatted_value = field.format(candidate, config=self.config)
             assert _formatted_value is not None
@@ -192,7 +194,7 @@ class TemplateFieldDataResolver(object):
         )
         response = self._request_data(self.fileobject, uri)
         if not response:
-            return False
+            return None
 
         # Response is either a DataBundle or a list of DataBundles
         databundle = response
@@ -228,32 +230,31 @@ class TemplateFieldDataResolver(object):
                 log.debug('Deduplicated list of databundles still has multiple elements')
 
                 # TODO: [TD0112] Handle this properly!
-                if uri.is_generic:
-                    maybe_one = get_one_from_many_generic_values(databundles, uri)
-                    if maybe_one:
-                        assert isinstance(maybe_one, DataBundle)
-                        databundle = maybe_one
-                        log.debug('Using value "{!s}" from {} value(s); {!s}'.format(
-                            databundle.value,
-                            len(databundles),
-                            ', '.join('"{!s}"'.format(d.value) for d in databundles)
-                        ))
-                    else:
-                        log.warning(
-                            '[TD0112] Not sure what data to use for field '
-                            '{!s}..'.format(field)
-                        )
-                        for i, d in enumerate(databundles):
-                            log.debug('[TD0112] Field {!s} candidate {:03d} :: "{!s}"'.format(field, i, d.value))
+                # Might be "generic" URI or URI with an "aliased leaf".
+                maybe_one = get_one_from_many_generic_values(databundles, uri)
+                if maybe_one:
+                    assert isinstance(maybe_one, DataBundle)
+                    databundle = maybe_one
+                    log.debug('Using value "{!s}" from {} value(s); {!s}'.format(
+                        databundle.value,
+                        len(databundles),
+                        ', '.join('"{!s}"'.format(d.value) for d in databundles)
+                    ))
+                else:
+                    log.warning(
+                        '[TD0112] Not sure what data to use for field '
+                        '{!s}..'.format(field)
+                    )
+                    for i, d in enumerate(databundles):
+                        log.debug('[TD0112] Field {!s} candidate {:03d} :: "{!s}"'.format(field, i, d.value))
 
-                        return False
+                    return None
 
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
         sanity.check_isinstance(databundle, DataBundle)
 
         log.debug('Updated data for field {!s} :: {!s}'.format(field, databundle.value))
-        self.fields_data[field] = databundle
-        return True
+        return databundle
 
     def _gather_data(self):
         for field, field_data_source_uris in self.data_sources.items():
@@ -263,7 +264,10 @@ class TemplateFieldDataResolver(object):
 
             field_data_source_uris_copy = field_data_source_uris.copy()
             for uri in field_data_source_uris:
-                if self._gather_data_for_template_field(field, uri):
+                gathered_databundle = self._gather_data_for_template_field(field, uri)
+                if gathered_databundle:
+                    self.fields_data[field] = gathered_databundle
+
                     # Remove used known source.
                     field_data_source_uris_copy.remove(uri)
                     break
@@ -288,7 +292,7 @@ class TemplateFieldDataResolver(object):
     def _verify_type(self, field, databundle):
         log.debug('Verifying type of field {!s} with data :: {!s}'.format(
             field, databundle.value))
-        if field.type_compatible(databundle.coercer):
+        if field.type_compatible(databundle.coercer, databundle.multivalued):
             log.debug('Field-Data type compatible')
         else:
             self.fields_data[field] = None
@@ -405,13 +409,26 @@ def get_one_from_many_generic_values(databundle_list, uri):
         The "best suited" bundle, based on weighted mapping probabilities
         for the name template field related to the MeowURI "leaf".
     """
-    if uri.leaf == 'author':
+    uri_leaf = uri.leaf
+    if uri_leaf == 'author':
         prioritized = sort_by_mapped_weights(databundle_list,
                                              primary_field=fields.Author)
         return prioritized[0]
-    elif uri.leaf == 'title':
+    elif uri_leaf == 'title':
         prioritized = sort_by_mapped_weights(databundle_list,
                                              primary_field=fields.Title)
         return prioritized[0]
+    elif uri_leaf == 'date_created':
+        prioritized = sort_by_mapped_weights(databundle_list,
+                                             primary_field=fields.DateTime)
+        return prioritized[0]
+    elif uri_leaf == 'publisher':
+        prioritized = sort_by_mapped_weights(databundle_list,
+                                             primary_field=fields.Publisher)
+        return prioritized[0]
+
+    else:
+        log.debug('[TD0112] Unhandled uri.leaf: "{!s}"'.format(uri_leaf))
+
     # TODO: [TD0112] Handle ranking candidates.
     return None

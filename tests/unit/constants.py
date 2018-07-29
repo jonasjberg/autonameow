@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -81,9 +79,9 @@ MEOWURI_FS_XPLAT_PATHNAME_FULL = 'extractor.filesystem.xplat.pathname_full'
 MEOWURI_FS_XPLAT_PATHNAME_PARENT = 'extractor.filesystem.xplat.pathname_parent'
 
 MEOWURI_GEN_CONTENTS_MIMETYPE = 'generic.contents.mime_type'
-MEOWURI_GEN_CONTENTS_TEXT = 'generic.contents.text'
 MEOWURI_GEN_METADATA_AUTHOR = 'generic.metadata.author'
 MEOWURI_GEN_METADATA_CREATOR = 'generic.metadata.creator'
+MEOWURI_GEN_METADATA_LANGUAGE = 'generic.metadata.language'
 MEOWURI_GEN_METADATA_PRODUCER = 'generic.metadata.producer'
 MEOWURI_GEN_METADATA_SUBJECT = 'generic.metadata.subject'
 MEOWURI_GEN_METADATA_TAGS = 'generic.metadata.tags'
@@ -97,6 +95,7 @@ MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE = 'extractor.metadata.exiftool.PDF:CreateDate
 MEOWURI_EXT_EXIFTOOL_PDFCREATOR = 'extractor.metadata.exiftool.PDF:Creator'
 MEOWURI_EXT_EXIFTOOL_PDFMODIFYDATE = 'extractor.metadata.exiftool.PDF:ModifyDate'
 MEOWURI_EXT_EXIFTOOL_PDFPRODUCER = 'extractor.metadata.exiftool.PDF:Producer'
+MEOWURI_EXT_EXIFTOOL_PDFTITLE = 'extractor.metadata.exiftool.PDF:Title'
 MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR = 'extractor.metadata.exiftool.XMP-dc:Creator'
 MEOWURI_EXT_EXIFTOOL_XMPDCCREATORFILEAS = 'extractor.metadata.exiftool.XMP-dc:CreatorFile-as'
 MEOWURI_EXT_EXIFTOOL_XMPDCDATE = 'extractor.metadata.exiftool.XMP-dc:Date'
@@ -128,9 +127,9 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_FS_XPLAT_PATHNAME_FULL,
     MEOWURI_FS_XPLAT_PATHNAME_PARENT,
     MEOWURI_GEN_CONTENTS_MIMETYPE,
-    MEOWURI_GEN_CONTENTS_TEXT,
     MEOWURI_GEN_METADATA_AUTHOR,
     MEOWURI_GEN_METADATA_CREATOR,
+    MEOWURI_GEN_METADATA_LANGUAGE,
     MEOWURI_GEN_METADATA_PRODUCER,
     MEOWURI_GEN_METADATA_SUBJECT,
     MEOWURI_GEN_METADATA_TAGS,
@@ -143,6 +142,7 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_EXT_EXIFTOOL_PDFCREATOR,
     MEOWURI_EXT_EXIFTOOL_PDFMODIFYDATE,
     MEOWURI_EXT_EXIFTOOL_PDFPRODUCER,
+    MEOWURI_EXT_EXIFTOOL_PDFTITLE,
     MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR,
     MEOWURI_EXT_EXIFTOOL_XMPDCCREATORFILEAS,
     MEOWURI_EXT_EXIFTOOL_XMPDCDATE,
@@ -204,10 +204,7 @@ DUMPED_MEOWURIS = frozenset([
     'extractor.metadata.exiftool.PDF:PageCount',
     'extractor.metadata.exiftool.PDF:Producer',
     'extractor.metadata.exiftool.SourceFile',
-    'extractor.text.epub.full',
-    'extractor.text.pdf.full',
     'generic.contents.mime_type',
-    'generic.contents.text',
     'generic.metadata.author',
     'generic.metadata.creator',
     'generic.metadata.date_created',
@@ -231,9 +228,6 @@ DUMMY_MAPPED_MEOWURIS = list({
     'extractor.filesystem.guessit',
     'extractor.metadata.exiftool',
     'extractor.metadata.jpeginfo',
-    'extractor.text.pdf',
-    'extractor.text.plain',
-    'extractor.text.tesseractocr',
 })
 
 

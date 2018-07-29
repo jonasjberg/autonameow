@@ -1,8 +1,7 @@
 `autonameow`
 ============
-*Copyright(c) 2016-2018 Jonas Sjöberg*  
-<https://github.com/jonasjberg/autonameow>  
-<http://www.jonasjberg.com>  
+*Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>*  
+Source repository: <https://github.com/jonasjberg/autonameow>
 
 --------------------------------------------------------------------------------
 
@@ -33,7 +32,7 @@ Related to the above notes on how URIs would be increasingly specific when longe
 Currently, a MeowURI like `extractor.metadata.exiftool.PDF:Title` might return
 `MILLER & FREUND’S PROBABILITY AND STATISTICS FOR ENGINEERS; NINTH EDITION Global Edition`.
 
-I.E. a query with an URI like `èxtractor.metadata.exiftool.PDF:Title` that should
+I.E. a query with an URI like `extractor.metadata.exiftool.PDF:Title` that should
 return a value `{title}` actually returned `{publisher} {title} {edition} {edition}`.
 
 ```
@@ -374,7 +373,7 @@ Maybe it would be helpful to add a prefix to the extractor URIs.
 
 Usability and Generic Fields
 ============================
-Currently, the available identifiers strings, a.k.a. "meowURIs" use
+Currently, the available identifiers strings, a.k.a. "MeowURIs" use
 extractor-specific "leaf-nodes", I.E. last period-separated part.
 
 For instance;
@@ -396,7 +395,7 @@ higher-level interface to fields.
 
 For example;
 ```
-Extractor-specific "meowURIs", references specific fields:
+Extractor-specific "MeowURIs", references specific fields:
     metadata.pypdf.CreationDate
     metadata.exiftool.PDF:CreateDate
 

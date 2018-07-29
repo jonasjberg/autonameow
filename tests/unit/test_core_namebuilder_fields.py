@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -22,6 +20,7 @@
 from unittest import TestCase
 
 from core.namebuilder import fields
+from util import coercers
 
 
 FIELDS_AUTHOR = fields.Author
@@ -187,37 +186,46 @@ class TestNametemplatefieldClassFromString(TestCase):
 class NameTemplateFieldCompatible(TestCase):
     @classmethod
     def setUpClass(cls):
-        from util import coercers
         cls.coercers_AW_INTEGER = coercers.AW_INTEGER
         cls.coercers_AW_STRING = coercers.AW_STRING
         cls.coercers_AW_TIMEDATE = coercers.AW_TIMEDATE
 
-    def _compatible(self, nametemplate_field, coercer_class):
-        actual = nametemplate_field.type_compatible(coercer_class)
+    def _compatible(self, nametemplate_field, coercer_class, multivalued):
+        actual = nametemplate_field.type_compatible(coercer_class, multivalued)
         self.assertTrue(actual)
 
-    def _incompatible(self, nametemplate_field, coercer_class):
-        actual = nametemplate_field.type_compatible(coercer_class)
+    def _incompatible(self, nametemplate_field, coercer_class, multivalued):
+        actual = nametemplate_field.type_compatible(coercer_class, multivalued)
         self.assertFalse(actual)
 
     def test_compatible_with_name_template_field_description(self):
-        self._compatible(FIELDS_DESCRIPTION, self.coercers_AW_STRING)
-        self._compatible(FIELDS_DESCRIPTION, self.coercers_AW_INTEGER)
+        self._compatible(FIELDS_DESCRIPTION, self.coercers_AW_STRING, multivalued=False)
+
+        self._compatible(FIELDS_DESCRIPTION, self.coercers_AW_INTEGER, multivalued=False)
 
     def test_not_compatible_with_name_template_field_description(self):
-        self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_TIMEDATE)
+        self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_STRING, multivalued=True)
+        self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_INTEGER, multivalued=True)
 
-        from util import coercers
-        self._incompatible(FIELDS_DESCRIPTION, coercers.listof(self.coercers_AW_STRING))
+        self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_TIMEDATE, multivalued=True)
+        self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_TIMEDATE, multivalued=False)
 
     def test_compatible_with_name_template_field_tags(self):
-        self._compatible(FIELDS_TAGS, self.coercers_AW_STRING)
-
-        from util import coercers
-        self._compatible(FIELDS_TAGS, coercers.listof(self.coercers_AW_STRING))
+        self._compatible(FIELDS_TAGS, self.coercers_AW_STRING, multivalued=True)
 
     def test_not_compatible_with_name_template_field_tags(self):
-        self._incompatible(FIELDS_DESCRIPTION, self.coercers_AW_TIMEDATE)
+        self._incompatible(FIELDS_TAGS, self.coercers_AW_STRING, multivalued=False)
 
-        from util import coercers
-        self._incompatible(FIELDS_DESCRIPTION, coercers.listof(self.coercers_AW_TIMEDATE))
+        self._incompatible(FIELDS_TAGS, self.coercers_AW_TIMEDATE, multivalued=False)
+        self._incompatible(FIELDS_TAGS, self.coercers_AW_TIMEDATE, multivalued=True)
+
+    def test_compatible_with_name_template_field_title(self):
+        self._compatible(FIELDS_TITLE, self.coercers_AW_STRING, multivalued=False)
+
+        self._compatible(FIELDS_TITLE, self.coercers_AW_INTEGER, multivalued=False)
+
+    def test_not_compatible_with_name_template_field_title(self):
+        self._incompatible(FIELDS_TITLE, self.coercers_AW_STRING, multivalued=True)
+
+        self._incompatible(FIELDS_TITLE, self.coercers_AW_INTEGER, multivalued=True)
+

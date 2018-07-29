@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -19,7 +17,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from .exiftool import ExiftoolMetadataExtractor
-from .jpeginfo import JpeginfoMetadataExtractor
-from .epub import EpubMetadataExtractor
-from .pandoc import PandocMetadataExtractor
+from .extractor_epub import EpubMetadataExtractor
+from .extractor_exiftool import ExiftoolMetadataExtractor
+from .extractor_jpeginfo import JpeginfoMetadataExtractor
+from .extractor_pandoc import PandocMetadataExtractor

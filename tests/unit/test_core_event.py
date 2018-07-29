@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -90,6 +88,19 @@ class TestEventHandler(TestCase):
         actual = str(handler)
         self.assertIsInstance(actual, str)
         self.assertEqual('EventHandler', actual)
+
+    def test_all_callables_are_called_even_after_uncaught_exception(self):
+        handler = _get_event_handler()
+        mock_callable_a = Mock()
+        broken_callable = lambda _: 1 / 0
+        mock_callable_c = Mock()
+
+        handler.add(mock_callable_a)
+        handler.add(broken_callable)
+        handler.add(mock_callable_c)
+        handler('foo')
+        mock_callable_a.assert_called_once_with('foo')
+        mock_callable_c.assert_called_once_with('foo')
 
 
 class TestEventDispatcher(TestCase):
@@ -179,3 +190,16 @@ class TestEventDispatcher(TestCase):
         actual = str(dispatcher)
         self.assertIsInstance(actual, str)
         self.assertEqual('EventDispatcher', actual)
+
+    def test_calls_following_uncaught_exception_are_dispatched(self):
+        dispatcher = _get_event_dispatcher()
+        mock_callable_A = Mock()
+        broken_callable = lambda _: 1 / 0
+        mock_callable_c = Mock()
+
+        dispatcher.on_shutdown.add(mock_callable_A)
+        dispatcher.on_shutdown.add(broken_callable)
+        dispatcher.on_shutdown.add(mock_callable_c)
+        dispatcher.on_shutdown('foo')
+        mock_callable_A.assert_called_once_with('foo')
+        mock_callable_c.assert_called_once_with('foo')

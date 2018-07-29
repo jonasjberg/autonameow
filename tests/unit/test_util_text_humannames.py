@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -20,6 +18,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import itertools
+import unittest
 from collections import namedtuple
 from unittest import skipIf, TestCase
 
@@ -32,6 +31,7 @@ from util.text.humannames import HumanNameFormatter
 from util.text.humannames import HumanNameParser
 from util.text.humannames import LastNameInitialsFormatter
 from util.text.humannames import normalize_letter_case
+from util.text.humannames import preprocess_names
 from util.text.humannames import split_multiple_names
 from util.text.humannames import strip_author_et_al
 from util.text.humannames import strip_edited_by
@@ -120,6 +120,7 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     TD(given='Ding W.', expect='Ding W.'),
     TD(given='Russell B.', expect='Russell B.'),
     TD(given='Simchi-Levi D.', expect='Simchi-Levi D.'),
+    TD(given='DeDecker B.', expect='Dedecker B.'),
 
     # Multiple authors; et al.
     TD(given='Steve Anson ... [et al.]', expect='Anson S.'),
@@ -140,6 +141,8 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     TD(given='I.N. Bronsh', expect='Bronsh I.N.'),
     TD(given='Bronsh I.', expect='Bronsh I.'),
     TD(given='Bronsh I.N.', expect='Bronsh I.N.'),
+    TD(given='Bart de Decker', expect='deDecker B.'),
+    TD(given='Bart De Decker', expect='deDecker B.'),
 ]
 
 TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
@@ -209,6 +212,28 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
        expect=['Bronsh I.N.', 'Musiol G.', 'Mühlig S.', 'Semandyayev K.']),
     TD(given=['I. Bronsh', 'K. Semandyayev', 'Gert Musiol', 'Steiner Mühlig'],
        expect=['Bronsh I.', 'Musiol G.', 'Mühlig S.', 'Semandyayev K.']),
+
+    TD(given=['Johnson, Dean R.', 'Paymer, Carol A.', 'Chamberlain, Aaron P.'],
+       expect=['Chamberlain A.P.', 'Johnson D.R.', 'Paymer C.A.']),
+
+    TD(given=['Ivan Nunes Da Silva', 'Danilo Hernane Spatti',
+              'Rogerio Andrade Flauzino', 'Luisa Helena Bartocci Liboni',
+              'Silas Franco Dos Reis Alves'],
+       expect=['Alves S.F.D.R.', 'DaSilva I.N.', 'Flauzino R.A.',
+               'Liboni L.H.B.', 'Spatti D.H.']),
+
+    TD(given=['Danilo P. Mandic'],
+       expect=['Mandic D.P.']),
+    # TD(given=['Vanessa Su Lee Goh'],
+    #    expect=['Goh V.S.L.']),
+    # TD(given=['Danilo P. Mandic', 'Vanessa Su Lee Goh'],
+    #    expect=['Goh V.S.L.', 'Mandic D.P.']),
+
+    TD(given=['M. N. S. Swamy'],
+       expect=['Swamy M.N.S.']),
+    TD(given=['Swamy M.N.S.'],
+       expect=['Swamy M.N.S.']),
+
 ]
 
 
@@ -217,40 +242,92 @@ def nameparser_unavailable():
 
 
 class TeststripAuthorEtAl(TestCase):
-    def test_strips_et_al_variations(self):
-        def _t(test_input):
-            actual = strip_author_et_al(test_input)
-            expect = 'Gibson Catberg'
-            self.assertEqual(expect, actual)
+    def test_strips_trailing_variations_of_et_al(self):
+        EXPECTED = 'Gibson Catberg'
+        for given in [
+            'Gibson Catberg, et al.',
+            'Gibson Catberg, et al',
+            'Gibson Catberg et al',
+            'Gibson Catberg [et al]',
+            'Gibson Catberg [et al.]',
+            'Gibson Catberg {et al}',
+            'Gibson Catberg {et al.}',
+            'Gibson Catberg, ... et al.',
+            'Gibson Catberg, ... et al',
+            'Gibson Catberg ... et al',
+            'Gibson Catberg ... [et al]',
+            'Gibson Catberg ... [et al.]',
+            'Gibson Catberg ... {et al}',
+            'Gibson Catberg ... {et al.}',
+            'Gibson Catberg ... [et al.]',
+        ]:
+            with self.subTest(given=given, expected=EXPECTED):
+                actual = strip_author_et_al(given)
+                self.assertEqual(EXPECTED, actual)
 
-        _t('Gibson Catberg, et al.')
-        _t('Gibson Catberg, et al')
-        _t('Gibson Catberg et al')
-        _t('Gibson Catberg [et al]')
-        _t('Gibson Catberg [et al.]')
-        _t('Gibson Catberg {et al}')
-        _t('Gibson Catberg {et al.}')
-        _t('Gibson Catberg, ... et al.')
-        _t('Gibson Catberg, ... et al')
-        _t('Gibson Catberg ... et al')
-        _t('Gibson Catberg ... [et al]')
-        _t('Gibson Catberg ... [et al.]')
-        _t('Gibson Catberg ... {et al}')
-        _t('Gibson Catberg ... {et al.}')
-        _t('Gibson Catberg ... [et al.]')
+    def test_strips_trailing_variations_of_et_al_seen_in_live_data(self):
+        def _assert_returns(expected, given):
+            actual = strip_author_et_al(given)
+            self.assertEqual(expected, actual)
+
+        _assert_returns('Bart de Decker', 'Bart de Decker ... [et al.]')
+        _assert_returns('Frederick Gallegos', 'Frederick Gallegos...[et al.]')
+        _assert_returns('Eric Oberg', 'Eric Oberg ... [et al.]')
+        _assert_returns('Steven Hanson', 'Steven Hanson ... [et al.]')
+        _assert_returns('Jim L. Weaver', 'Jim L. Weaver ... [et al.]')
 
 
 class TestStripEditedBy(TestCase):
-    def test_strips_edited_by_variations(self):
-        def _t(test_input):
-            actual = strip_edited_by(test_input)
-            expect = 'Gibson Catberg'
-            self.assertEqual(expect, actual)
+    def test_returns_names_without_edited_by_variations_as_is(self):
+        for given_and_expected in [
+            'Armstrong, Edwin',
+            'Byrd, Richard E.',
+            'Cavell, Edith',
+            'Edison, Thomas Alva',
+            'Edite French',
+            'Edite',
+            'Edith Cavell',
+            'Edith Piaf',
+            'Edith',
+            'Edith, P.',
+            'Piaf, Edith',
+            'Richard E. Byrd',
+            'Thomas Alva Edison',
+            'Thomas Edison',
+        ]:
+            actual = strip_edited_by(given_and_expected)
+            self.assertEqual(given_and_expected, actual)
 
-        _t('ed. by Gibson Catberg')
-        _t('Ed. by Gibson Catberg')
-        _t('edited by Gibson Catberg')
-        _t('Edited by Gibson Catberg')
+    def test_strips_leading_variations_of_edited_by(self):
+        EXPECTED = 'Gibson Catberg'
+        for given in [
+            'ed. by Gibson Catberg',
+            'Ed. by Gibson Catberg',
+            'edited by Gibson Catberg',
+            'Edited by Gibson Catberg',
+            'Edited by Gibson Catberg',
+        ]:
+            with self.subTest(given=given, expected=EXPECTED):
+                actual = strip_edited_by(given)
+                self.assertEqual(EXPECTED, actual)
+
+    def test_strips_trailing_variations_of_edited_by(self):
+        EXPECTED = 'Gibson Catberg'
+        for given in [
+            'Gibson Catberg (Ed)',
+            'Gibson Catberg (Ed.)',
+            'Gibson Catberg (Edited by)',
+            'Gibson Catberg (Editor)',
+            'Gibson Catberg (Technical Ed.)',
+            'Gibson Catberg,Technical Ed.',
+            'Gibson Catberg, Technical Ed.',
+            'Gibson Catberg (Technical Editor)',
+            'Gibson Catberg,Technical Editor',
+            'Gibson Catberg, Technical Editor',
+        ]:
+            with self.subTest(given=given, expected=EXPECTED):
+                actual = strip_edited_by(given)
+                self.assertEqual(EXPECTED, actual)
 
 
 class TestStripForewordBy(TestCase):
@@ -331,6 +408,23 @@ class TestNormalizeLetterCase(TestCase):
     def test_normalizes_names_with_mixed_case_last_name(self):
         for given in ['Gibson SjÖbErG', 'Gibson sJöBeRg']:
             self._assert_returns('Gibson Sjöberg', given)
+
+    def test_normalizes_names_with_nobiliary_particles(self):
+        for testdata in [
+            TD(given='Gibson von Sjöberg', expect='Gibson von Sjöberg'),
+            TD(given='Gibson Von Sjöberg', expect='Gibson von Sjöberg'),
+            TD(given='Gibson van Sjöberg', expect='Gibson van Sjöberg'),
+            TD(given='Gibson Van Sjöberg', expect='Gibson van Sjöberg'),
+            TD(given='Gibson von Sjöberg', expect='Gibson von Sjöberg'),
+            TD(given='Gibson de Sjöberg', expect='Gibson de Sjöberg'),
+            TD(given='Gibson De Sjöberg', expect='Gibson de Sjöberg'),
+        ]:
+            with self.subTest():
+                self._assert_returns(testdata.expect, testdata.given)
+
+    @unittest.expectedFailure
+    def test_returns_name_with_van_as_is(self):
+        self._assert_returns('Vanessa Su Lee Goh', 'Vanessa Su Lee Goh')
 
 
 class TestNameParser(TestCase):
@@ -429,6 +523,22 @@ class TestHumanNameParser(TestCase):
                    'middle': 'A',
                    'middle_list': ['A'],
                    'original': 'K.A. Semandyayev'}),
+        TD(given='Ke-Lin Du',
+           expect={'first': 'Ke-Lin',
+                   'first_list': ['Ke-Lin'],
+                   'last': 'Du',
+                   'last_list': ['Du'],
+                   'middle': '',
+                   'middle_list': [],
+                   'original': 'Ke-Lin Du'}),
+        TD(given='M. N. S. Swamy',
+           expect={'first': 'M.',
+                   'first_list': ['M.'],
+                   'last': 'Swamy',
+                   'last_list': ['Swamy'],
+                   'middle': 'N. S.',
+                   'middle_list': ['N.', 'S.'],
+                   'original': 'M. N. S. Swamy'}),
     ]
 
     def setUp(self):
@@ -584,7 +694,9 @@ class TestSplitMultipleNames(TestCase):
         self.assertEqual(given, actual)
 
     def test_does_not_split_single_name(self):
-        self._assert_unchanged(['Anandra Mitra'])
+        self._assert_unchanged(['Enandra Mitra'])
+        self._assert_unchanged(['Foobar, S.'])
+        self._assert_unchanged(['Paul, Baz'])
 
     def test_does_not_split_single_name_comma_between_surname_lastname(self):
         self._assert_unchanged(['edited by Ludlow, David'])
@@ -676,6 +788,11 @@ class TestSplitMultipleNames(TestCase):
             ]
         )
 
+    def test_does_not_split_names_with_name_parts_separated_by_comma(self):
+        self._assert_unchanged(['Foobar, S.', 'Paul, Baz', 'Gibson, N.'])
+        self._assert_unchanged(['Foobar, S.', 'Paul, Baz'])
+        self._assert_unchanged(['Paul, Baz', 'Gibson, N.'])
+
     def test_splits_two_names_separated_by_ampersand(self):
         self._assert_that_it_returns(
             expected=[
@@ -685,6 +802,61 @@ class TestSplitMultipleNames(TestCase):
                 ["Larry O'Brien & Bruce Eckel"],
                 ["Larry O'Brien &  Bruce Eckel"],
                 ["Larry O'Brien  &  Bruce Eckel"]
+            ]
+        )
+
+    def test_splits_three_names_separated_by_semicolons(self):
+        self._assert_that_it_returns(
+            expected=['Romano, Ray', 'Philips, Dusty', 'Hatten, Rick van'],
+            given_any_of=[
+                ['Romano, Ray;  Philips, Dusty;  Hatten, Rick van'],
+                ['Romano, Ray; Philips, Dusty; Hatten, Rick van'],
+                ['Romano, Ray;Philips, Dusty;Hatten, Rick van'],
+                ['Romano, Ray;;  Philips, Dusty;;  Hatten, Rick van'],
+                ['Romano, Ray;; Philips, Dusty;; Hatten, Rick van'],
+                ['Romano, Ray;;Philips, Dusty;;Hatten, Rick van'],
+            ]
+        )
+        self._assert_that_it_returns(
+            expected=['Romano,Ray', 'Philips,Dusty', 'Hatten,Rick van'],
+            given_any_of=[
+                ['Romano,Ray;  Philips,Dusty;  Hatten,Rick van'],
+                ['Romano,Ray; Philips,Dusty; Hatten,Rick van'],
+                ['Romano,Ray;Philips,Dusty;Hatten,Rick van'],
+                ['Romano,Ray;;  Philips,Dusty;;  Hatten,Rick van'],
+                ['Romano,Ray;; Philips,Dusty;; Hatten,Rick van'],
+                ['Romano,Ray;;Philips,Dusty;;Hatten,Rick van'],
+            ]
+        )
+        self._assert_that_it_returns(
+            expected=['Romano Ray', 'Philips Dusty', 'Hatten Rick van'],
+            given_any_of=[
+                ['Romano Ray;  Philips Dusty;  Hatten Rick van'],
+                ['Romano Ray; Philips Dusty; Hatten Rick van'],
+                ['Romano Ray;Philips Dusty;Hatten Rick van'],
+                ['Romano Ray;;  Philips Dusty;;  Hatten Rick van'],
+                ['Romano Ray;; Philips Dusty;; Hatten Rick van'],
+                ['Romano Ray;;Philips Dusty;;Hatten Rick van'],
+            ]
+        )
+
+    def test_handle_malformed_metadata_from_external_provider(self):
+        self._assert_that_it_returns(
+            expected=['Carthik S.', 'Paul Enand'],
+            given_any_of=[
+                ['Carthik', 'S.', 'Paul', 'Enand'],
+            ]
+        )
+        self._assert_that_it_returns(
+            expected=['Carthik S.', 'Karthikayen N.'],
+            given_any_of=[
+                ['Carthik', 'S.', 'Karthikayen', 'N.'],
+            ]
+        )
+        self._assert_that_it_returns(
+            expected=['Carthik S.', 'Paul Enand', 'Karthikayen N.'],
+            given_any_of=[
+                ['Carthik', 'S.', 'Paul', 'Enand', 'Karthikayen', 'N.'],
             ]
         )
 
@@ -713,11 +885,47 @@ class TestSplitMultipleNames(TestCase):
             ]
         )
 
+    def test_based_on_live_data_c(self):
+        self._assert_that_it_returns(
+            expected=['Prastant Natarojan', 'John Q. Frienzal', 'Deitlev I. Saltz'],
+            given_any_of=[
+                ['Prastant Natarojan', 'John Q. Frienzal and Deitlev I. Saltz'],
+                ['Prastant Natarojan', 'John Q. Frienzal, and Deitlev I. Saltz'],
+            ]
+        )
+        self._assert_that_it_returns(
+            expected=['Andreas D. Müllör', 'Farah Guido'],
+            given_any_of=[
+                ['Andreas D. Müllör and Farah Guido'],
+                ['Andreas D. Müllör, and Farah Guido'],
+            ]
+        )
+
+    def test_based_on_live_data_d(self):
+        self._assert_that_it_returns(
+            expected=['Ashok N. Srivasaduva', 'Ramarena Nemaniskt', 'Kirsten KleinSteinhaeuser'],
+            given_any_of=[
+                ['Ashok N. Srivasaduva,Ramarena Nemaniskt,Kirsten KleinSteinhaeuser'],
+                ['Ashok N. Srivasaduva, Ramarena Nemaniskt,Kirsten KleinSteinhaeuser'],
+                ['Ashok N. Srivasaduva,Ramarena Nemaniskt, Kirsten KleinSteinhaeuser'],
+                ['Ashok N. Srivasaduva, Ramarena Nemaniskt, Kirsten KleinSteinhaeuser'],
+            ]
+        )
+
+    def test_based_on_live_data_e(self):
+        self._assert_that_it_returns(
+            expected=['Danilo P. Mandic', 'Vanessa Su Lee Goh'],
+            given_any_of=[
+                ['Danilo P. Mandic, Vanessa Su Lee Goh'],
+            ]
+        )
+
 
 class TestFilterMultipleNames(TestCase):
     def _assert_filter_output_contains(self, expected, given):
-        actual = filter_multiple_names(given)
-        self.assertEqual(sorted(expected), sorted(actual))
+        for name_ordering in itertools.permutations(given):
+            actual = filter_multiple_names(name_ordering)
+            self.assertEqual(sorted(expected), sorted(actual))
 
     def _assert_filter_returns(self, expected, given):
         actual = filter_multiple_names(given)
@@ -739,31 +947,87 @@ class TestFilterMultipleNames(TestCase):
             given=['Ankur Ankan', 'Abinash P', 'a']
         )
 
-    def test_removes_edited_by_from_start_of_a_name(self):
-        for given_names in [
-            ['edited by Gibson Sjöberg', 'Achim Weckar',         'Tomáš Navasod'],
-            ['ed. by Gibson Sjöberg',    'Achim Weckar',         'Tomáš Navasod'],
-            ['Edited by Gibson Sjöberg', 'Achim Weckar',         'Tomáš Navasod'],
-            ['Ed. by Gibson Sjöberg',    'Achim Weckar',         'Tomáš Navasod'],
-            ['Edited by Gibson Sjöberg', 'author Achim Weckar',  'Tomáš Navasod'],
-            ['Ed. by Gibson Sjöberg',    'author Achim Weckar',  'Tomáš Navasod'],
-            ['edited by Gibson Sjöberg', 'author: Achim Weckar', 'Tomáš Navasod'],
-            ['ed. by Gibson Sjöberg',    'author: Achim Weckar', 'Tomáš Navasod'],
-            ['Edited by Gibson Sjöberg', 'Author Achim Weckar',  'Tomáš Navasod'],
-            ['Ed. by Gibson Sjöberg',    'Author Achim Weckar',  'Tomáš Navasod'],
-            ['edited by Gibson Sjöberg', 'Author: Achim Weckar', 'Tomáš Navasod'],
-            ['ed. by Gibson Sjöberg',    'Author: Achim Weckar', 'Tomáš Navasod'],
+    def test_removes_variations_of_edited_by_from_any_name_in_list_of_names(self):
+        for given in [
+            ['ed. by Gibson Sjöberg', 'Achim Weckar', 'Tomáš Navasod'],
+            ['Ed. by Gibson Sjöberg', 'Achim Weckar', 'Tomáš Navasod'],
+            ['edited by Gibson Sjöberg', 'Achim Weckar', 'Tomáš Navasod'],
+            ['Edited by Gibson Sjöberg', 'Achim Weckar', 'Tomáš Navasod'],
+            ['Gibson Sjöberg', 'ed. by Achim Weckar', 'Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Ed. by Achim Weckar', 'Tomáš Navasod'],
+            ['Gibson Sjöberg', 'edited by Achim Weckar', 'Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Edited by Achim Weckar', 'Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Achim Weckar', 'ed. by Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Achim Weckar', 'Ed. by Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Achim Weckar', 'edited by Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Achim Weckar', 'Edited by Tomáš Navasod'],
         ]:
-            for name_ordering in itertools.permutations(given_names):
+            with self.subTest(given=given):
                 self._assert_filter_output_contains(
                     expected=['Gibson Sjöberg', 'Achim Weckar', 'Tomáš Navasod'],
-                    given=name_ordering
+                    given=given
                 )
 
-    def test_removes_editor_from_list_of_names(self):
+    def test_removes_variations_of_author_from_any_name_in_list_of_names(self):
+        for given in [
+            ['author Gibson Sjöberg', 'Achim Weckar', 'Tomáš Navasod'],
+            ['Author Gibson Sjöberg', 'Achim Weckar', 'Tomáš Navasod'],
+            ['author: Gibson Sjöberg', 'Achim Weckar', 'Tomáš Navasod'],
+            ['Author: Gibson Sjöberg', 'Achim Weckar', 'Tomáš Navasod'],
+            ['Gibson Sjöberg', 'author Achim Weckar', 'Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Author Achim Weckar', 'Tomáš Navasod'],
+            ['Gibson Sjöberg', 'author: Achim Weckar', 'Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Author: Achim Weckar', 'Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Achim Weckar', 'author Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Achim Weckar', 'Author Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Achim Weckar', 'author: Tomáš Navasod'],
+            ['Gibson Sjöberg', 'Achim Weckar', 'Author: Tomáš Navasod'],
+        ]:
+            with self.subTest(given=given):
+                self._assert_filter_output_contains(
+                    expected=['Gibson Sjöberg', 'Achim Weckar', 'Tomáš Navasod'],
+                    given=given
+                )
+
+    def test_removes_editor_element_from_list_with_one_actual_name(self):
+        for given in [
+            ['(Ed)', 'John P. Vecca'],
+            ['(ed)', 'John P. Vecca'],
+            ['(Ed.)', 'John P. Vecca'],
+            ['(ed.)', 'John P. Vecca'],
+            ['(Editor)', 'John P. Vecca'],
+            ['(editor)', 'John P. Vecca'],
+            ['editor', 'John P. Vecca'],
+            ['Editor', 'John P. Vecca'],
+        ]:
+            with self.subTest(given=given):
+                self._assert_filter_returns(expected=['John P. Vecca'], given=given)
+
+    def test_removes_variations_of_editor_from_list_with_one_name(self):
+        for given in [
+            ['Petra Werner (ed)'],
+            ['Petra Werner (Ed)'],
+            ['Petra Werner (ed.)'],
+            ['Petra Werner (Ed.)'],
+            ['Petra Werner (Editor)'],
+            ['Petra Werner (editor)'],
+            ['Petra Werner editor'],
+            ['Petra Werner Editor'],
+        ]:
+            with self.subTest(given=given):
+                self._assert_filter_returns(expected=['Petra Werner'], given=given)
+
+    def test_handles_apparent_list_in_string_with_leading_by_and_trailing_et_al(self):
         self._assert_filter_returns(
-            expected=['John P. Vecca'],
-            given=['editor', 'John P. Vecca']
+            expected=['Eric Oberg'],
+            given=['[by Eric Oberg ... et al.]']
+        )
+
+    def test_handles_single_name_with_leading_edited_by_and_trailing_et_al(self):
+        self.skipTest('TODO')
+        self._assert_filter_returns(
+            expected=['Bart de Decker'],
+            given=['edited by Bart de Decker ... [et al.]']
         )
 
     def test_based_on_live_data_a(self):
@@ -819,6 +1083,22 @@ class TestFilterMultipleNames(TestCase):
             given=['Ricard Dahl', 'William Z. Longdon', 'Nichlas H. Bee', 'With Contributions By Carl K. Soze']
         )
 
+    def test_based_on_live_data_i(self):
+        self._assert_filter_returns(
+            expected=['Johnson, Dean R.', 'Paymer, Carol A.', 'Chamberlain, Aaron P.'],
+            given=['Johnson, Dean R.', 'Paymer, Carol A.', 'Chamberlain, Aaron P.']
+        )
+
+    def test_based_on_live_data_j(self):
+        self._assert_filter_returns(
+            expected=['Lauren F. Hanter', 'Rubert K. Shimanski'],
+            given=['Lauren F. Hanter ... [et al.]', 'Rubert K. Shimanski, technical editor']
+        )
+        self._assert_filter_returns(
+            expected=['Bran Barbit', 'Mårten Gräsdal'],
+            given=['Bran Barbit ... [et al.]', 'Mårten Gräsdal, technical editor'],
+        )
+
 
 class TestFilterName(TestCase):
     def _assert_filter_returns(self, expected, given):
@@ -864,3 +1144,72 @@ class TestFilterName(TestCase):
     def test_returns_empty_string_given_name_foreword(self):
         self._assert_filter_does_not_pass('foreword')
         self._assert_filter_does_not_pass('Foreword')
+
+    @unittest.expectedFailure
+    def test_returns_name_with_van_as_is(self):
+        self._assert_filter_returns('Vanessa Su Lee Goh', 'Vanessa Su Lee Goh')
+
+
+class PreProcessNames(TestCase):
+    def _assert_preprocess_names_returns(self, expected, given=None, given_any_of=None):
+        assert given or given_any_of
+
+        if given:
+            actual = preprocess_names(given)
+            self.assertEqual(expected, actual)
+
+        if given_any_of:
+            for given_ in given_any_of:
+                actual_ = preprocess_names(given_)
+                self.assertEqual(expected, actual_)
+
+    def test_returns_expected(self):
+        self._assert_preprocess_names_returns(
+            expected=['John V. Shindler', 'Monica Littlejohn Shindler', 'Mårtin Gräsdal'],
+            given=['[John V. Shindler, Monica Littlejohn Shindler', 'Mårtin Gräsdal, technical ed.]']
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Lauren F. Hanter', 'Rubert K. Shimanski'],
+            given_any_of=[
+                ['Lauren F. Hanter ... [et al.]', 'Rubert K. Shimanski, technical editor'],
+                ['Lauren F. Hanter ... [et al.], Rubert K. Shimanski, technical editor'],
+            ]
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Bran Barbit', 'Mårten Gräsdal'],
+            given_any_of=[
+                ['Bran Barbit ... [et al.]', 'Mårten Gräsdal, technical editor'],
+                ['Bran Barbit ... [et al.]', 'Mårten Gräsdal technical editor'],
+                ['Bran Barbit ... [et al.], Mårten Gräsdal, technical editor'],
+                ['Bran Barbit ... [et al.], Mårten Gräsdal', 'technical editor'],
+            ]
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Graham Nash', 'John L. Wright Jr.', 'Niclas Hammel'],
+            given_any_of=[
+                ['Graham Nash, John L. Wright Jr., Niclas Hammel'],
+                ['Graham Nash, John L. Wright Jr.,Niclas Hammel']
+            ]
+        )
+        self._assert_preprocess_names_returns(
+            expected=['E. Galenbe', 'L. Kaiser'],
+            given=['Edited by E. Galenbe and L. Kaiser'],
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Norris L. Johnson', 'Robert J. Shimonski'],
+            given=['Norris L. Johnson', 'Jr.', 'Robert J. Shimonski'],
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Ludlow, David'],
+            given=['edited by Ludlow, David'],
+        )
+
+    def test_failed_cases(self):
+        self._assert_preprocess_names_returns(
+            expected=['H. S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth'],
+            given=['H. S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth']
+        )
+        self._assert_preprocess_names_returns(
+            expected=['H.S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth'],
+            given=['H.S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth']
+        )

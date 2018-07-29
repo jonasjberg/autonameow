@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -45,24 +43,24 @@ EOF
 fi
 
 
-SELF_DIR="$(realpath -e "$(dirname "$0")")"
+SELF_DIRPATH="$(realpath -e "$(dirname "$0")")"
 
 # Get absolute path to the autonameow source root.
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
-    AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIR" && realpath -e -- ".." ) )"
+    AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIRPATH" && realpath -e -- ".." ) )"
 fi
 
 if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
 then
-    printf '[ERROR] Not a directory: "%s" .. Aborting\n' "$AUTONAMEOW_ROOT_DIR" >&2
+    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIR" >&2
     exit 1
 fi
 
 
 # Check that a wordlist exists.
-wordlist_filepath="${SELF_DIR}/check-spelling-wordlist.txt"
-[ -f "$wordlist_filepath" ] || { printf 'Wordlist not found at "%s"\n' "$wordlist_filepath" ; exit 1 ; }
+wordlist_filepath="${SELF_DIRPATH}/check-spelling-wordlist.txt"
+[ -f "$wordlist_filepath" ] || { printf '[ERROR] Wordlist not found at "%s"\n' "$wordlist_filepath" ; exit 1 ; }
 
 
 declare -i exitstatus
@@ -82,7 +80,9 @@ do
         exitstatus=1
     fi
 
-done < <(find "${AUTONAMEOW_ROOT_DIR}" -xdev -type f -not -path "*/thirdparty/*/*" \( -name "*.md" -or -name "*.py" \) -print0 | sort -z)
+done < <(find "${AUTONAMEOW_ROOT_DIR}" -xdev -type f \
+         -not -path "*/thirdparty/*/*" \( -name "*.md" -or -name "*.py" \) \
+         -print0 | sort -z)
 
 
 # # Check comments with aspell. Lists misspelled words.

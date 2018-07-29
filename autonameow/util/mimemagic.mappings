@@ -24,6 +24,7 @@ application/x-rar: rar
 application/x-tex: tex
 audio/midi: mid
 audio/x-flac: flac
+audio/x-wav: wav
 image/vnd.adobe.photoshop: psd
 image/vnd.djvu: djvu
 inode/x-empty:
@@ -39,4 +40,6 @@ text/x-shellscript: sh
 text/x-shellscript: bash
 text/x-tex: tex
 video/x-matroska: mkv
+video/x-ms-asf: wma
 application/x-iso9660-image: dmg
+application/x-mobipocket-ebook: azw3

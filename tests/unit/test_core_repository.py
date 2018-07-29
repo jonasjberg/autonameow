@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -27,7 +25,6 @@ import unit.utils as uu
 from core.repository import DataBundle
 from core.repository import QueryResponseFailure
 from core.repository import Repository
-from core.repository import RepositoryPool
 
 
 class TestRepositoryRetrieval(TestCase):
@@ -56,7 +53,6 @@ class TestRepositoryStorage(TestCase):
 
     def test_repository_init_in_expected_state(self):
         self.assertIsInstance(self.r._data, dict)
-        self.assertIsInstance(self.r._generic_to_explicit_uri_map, dict)
         self.assertEqual(len(self.r), 0)
 
     def test_storing_data_increments_len(self):
@@ -175,16 +171,20 @@ class TestRepositoryStorage(TestCase):
         self.assertEqual('bar', response_B.value)
 
 
-class TestRepositoryGenericToExplicMeowURIMapping(TestCase):
+class TestRepositoryGenericToExplicitMeowURIMapping(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from core.model.genericfields import GenericTitle
+        cls.generic_title = GenericTitle
+
     def setUp(self):
         self.r = Repository()
         self.fo = uu.get_mock_fileobject(mime_type='text/plain')
 
     def test_storing_data_with_explicit_uri_is_returned_with_generic_query(self):
-        from core.model.genericfields import GenericTitle
         data = {
             'value': 'MEow MEOW',
-            'generic_field': GenericTitle(),
+            'generic_field': self.generic_title(),
         }
         explicit_uri = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE)
         self.r.store(self.fo, explicit_uri, data)
@@ -193,56 +193,72 @@ class TestRepositoryGenericToExplicMeowURIMapping(TestCase):
         response = self.r.query(self.fo, generic_uri)
         self.assertEqual('MEow MEOW', response[0].value)
 
+    def test_all_stored_data_with_explicit_uris_is_returned_with_generic_query(self):
+        data_A = {
+            'value': 'MEOW',
+            'generic_field': self.generic_title(),
+        }
+        explicit_uri_A = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE)
+        self.r.store(self.fo, explicit_uri_A, data_A)
 
-class TestRepositoryPool(TestCase):
-    DUMMY_REPOSITORY = 'IamRepository'
-    DUMMY_ID_1 = 'IDOne'
-    DUMMY_ID_2 = 'IDTwo'
+        data_B = {
+            'value': 'Gibson RULES ..meow',
+            'generic_field': self.generic_title(),
+        }
+        explicit_uri_B = uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_PDFTITLE)
+        self.r.store(self.fo, explicit_uri_B, data_B)
 
-    def test_initially_empty(self):
-        p = RepositoryPool()
-        self.assertEqual(len(p), 0)
+        generic_uri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_TITLE)
+        response = self.r.query(self.fo, generic_uri)
+        response_values = [databundle.value for databundle in response]
+        self.assertEqual(2, len(response_values))
+        self.assertIn('MEOW', response_values)
+        self.assertIn('Gibson RULES ..meow', response_values)
 
-    def test_get_on_empty_pool_raises_keyerror(self):
-        p = RepositoryPool()
 
-        for _id in [None, 'foo', 1, object()]:
-            with self.assertRaises(KeyError):
-                p.get(_id)
+class TestRepositoryRetrievalWithGenericLeafAlias(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from core.model.genericfields import GenericTitle
+        cls.generic_title = GenericTitle
 
-    def test_add_repository(self):
-        p = RepositoryPool()
-        p.add(repository=self.DUMMY_REPOSITORY, id_=self.DUMMY_ID_1)
+    def setUp(self):
+        self.r = Repository()
+        self.fo = uu.get_mock_fileobject(mime_type='text/plain')
 
-        self.assertEqual(len(p), 1)
+    def test_stored_data_with_explicit_uri_retrieved_with_leaf_alias(self):
+        data = {
+            'value': 'meow',
+            'generic_field': self.generic_title(),
+        }
+        explicit_uri = uu.as_meowuri('extractor.metadata.exiftool.XMP-dc:Title')
+        self.r.store(self.fo, explicit_uri, data)
 
-        actual = p.get(self.DUMMY_ID_1)
-        self.assertEqual(actual, self.DUMMY_REPOSITORY)
+        leaf_alias_uri = uu.as_meowuri('extractor.metadata.exiftool.title')
+        response = self.r.query(self.fo, leaf_alias_uri)
+        self.assertEqual('meow', response[0].value)
 
-    def test_uses_default_id_if_unspecified(self):
-        p = RepositoryPool()
-        p.add(repository=self.DUMMY_REPOSITORY)
+    def test_all_stored_data_with_explicit_uris_retrieved_with_leaf_alias(self):
+        data_A = {
+            'value': 'meow',
+            'generic_field': self.generic_title(),
+        }
+        explicit_uri_A = uu.as_meowuri('extractor.metadata.exiftool.XMP-dc:Title')
+        self.r.store(self.fo, explicit_uri_A, data_A)
 
-        self.assertEqual(len(p), 1)
+        data_B = {
+            'value': 'gibson rules',
+            'generic_field': self.generic_title(),
+        }
+        explicit_uri_B = uu.as_meowuri('extractor.metadata.exiftool.PDF:Title')
+        self.r.store(self.fo, explicit_uri_B, data_B)
 
-        actual = p.get()
-        self.assertEqual(actual, self.DUMMY_REPOSITORY)
-
-        actual = p.get(id_=None)
-        self.assertEqual(actual, self.DUMMY_REPOSITORY)
-
-    def test_get_with_bad_id_raises_keyerror(self):
-        p = RepositoryPool()
-        p.add(repository=self.DUMMY_REPOSITORY, id_=self.DUMMY_ID_1)
-
-        self.assertEqual(len(p), 1)
-
-        with self.assertRaises(KeyError):
-            _ = p.get(self.DUMMY_ID_2)
-
-        for _id in [None, 'foo', 1, object()]:
-            with self.assertRaises(KeyError):
-                p.get(_id)
+        leaf_alias_uri = uu.as_meowuri('extractor.metadata.exiftool.title')
+        response = self.r.query(self.fo, leaf_alias_uri)
+        response_values = [databundle.value for databundle in response]
+        self.assertEqual(2, len(response_values))
+        self.assertIn('meow', response_values)
+        self.assertIn('gibson rules', response_values)
 
 
 class TestQueryResponseFailure(TestCase):
@@ -387,14 +403,6 @@ class TestDataBundle(TestCase):
                 WeightedMapping(cls.fields_Title, weight=0.01)
             ]
         })
-
-    def test_maps_field(self):
-        self.assertTrue(self.d1.maps_field(self.fields_Publisher))
-        self.assertFalse(self.d1.maps_field(self.fields_Author))
-        self.assertFalse(self.d1.maps_field(self.fields_Creator))
-        self.assertFalse(self.d1.maps_field(self.fields_Title))
-
-        self.assertTrue(self.d2.maps_field(self.fields_Publisher))
 
     def test_field_mapping_weight_returns_default_value(self):
         self.assertEqual(0.0, self.d1.field_mapping_weight(None))

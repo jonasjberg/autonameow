@@ -1,0 +1,392 @@
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
+#
+#   This file is part of autonameow.
+#
+#   autonameow is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation.
+#
+#   autonameow is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# Fixed patterns for canonicalization of string values.
+# This file is read by a 'StringValueCanonicalizer' instance that performs
+# matching on metadata string values.
+
+
+Adobe Acrobat:
+    match_any_literal:
+    - Acrobat
+    match_any_regex_ignorecase:
+    - Acrobat \d+\.\d+(\.\d+)?
+    - 'Acrobat:'
+    - Acrobat (pictwpstops|Pro)
+    - Adobe Acrobat
+    - Quite Imposing
+
+Adobe Acrobat Distiller:
+    match_any_regex_ignorecase:
+    - Acrobat Distiller
+    - ADOBEPS.\.DRV
+    - AdobePS.\.dll
+
+Adobe Acrobat PDFMaker:
+    match_any_regex_ignorecase:
+    - Acrobat PDFMaker$
+
+Adobe FrameMaker:
+    match_any_regex_ignorecase:
+    - Adobe FrameMaker
+    - FrameMaker
+
+Adobe Illustrator:
+    match_any_regex_ignorecase:
+    - Adobe Illustrator
+
+Adobe InDesign:
+    match_any_regex_ignorecase:
+    - InDesign
+
+Adobe LiveCycle Designer:
+    match_any_regex_ignorecase:
+    - Adobe LiveCycle
+
+Adobe PageMaker:
+    match_any_regex_ignorecase:
+    - Adobe.? PageMaker
+
+Adobe PDF Library:
+    match_any_regex_ignorecase:
+    - Adobe PDF Library
+
+Adobe Photoshop:
+    match_any_regex_ignorecase:
+    - (Adobe )?Photoshop
+
+AdobePS:
+    match_any_regex_ignorecase:
+    - AdobePS
+    - Adobe PostScript printer driver
+
+Advanced PDF Repair:
+    match_any_regex_ignorecase:
+    - (Advanced|DataNumen) PDF Repair
+    - www\.datanumen\.com/apdfr/
+    - www\.pdf-repair\.com
+    match_any_literal:
+    - DPDFR
+
+Antenna House:
+    match_any_regex_ignorecase:
+    - Antenna House
+
+Arbortext:
+    match_any_regex_ignorecase:
+    - Arbortext
+
+AH CSS Formatter:
+    match_any_regex_ignorecase:
+    - AH CSS Formatter
+
+AH XSL Formatter:
+    match_any_regex_ignorecase:
+    - (AH )?XSL Formatter
+
+Apache FOP:
+    match_any_regex_ignorecase:
+    - Apache FOP
+
+A-PDF Merger:
+    match_any_regex_ignorecase:
+    - A-PDF Merger
+
+Apple iBooks:
+    match_any_regex_ignorecase:
+    - iBooks
+    - Apple iBooks
+
+Apple Keynote:
+    match_any_regex_ignorecase:
+    - Apple Keynote
+
+BCL PostScript Driver:
+    match_any_regex_ignorecase:
+    - BCL PostScript Driver
+
+Boxoft Image To PDF:
+    match_any_regex_ignorecase:
+    - Boxoft Image To PDF
+
+Brother Printer:
+    match_any_regex_ignorecase:
+    - TW-Brother
+
+Cairo:
+    match_any_regex_ignorecase:
+    - cairo \d+.\d+.\d+
+    - \(https?://cairographics\.org\)
+
+Calibre:
+    match_any_regex_ignorecase:
+    - calibre \(?\d+.\d+.\d+\)?
+    - \[?https?://calibre-ebook\.com\]?
+
+Chromium:
+    match_any_regex_ignorecase:
+    - Chromium
+
+DocBook:
+    match_any_regex_ignorecase:
+    - DocBook
+
+dvips:
+    match_any_regex_ignorecase:
+    - \bdvips
+
+Epson Printer:
+    match_any_regex_ignorecase:
+    - Epson
+
+FinePrint pdfFactory:
+    match_any_regex_ignorecase:
+    - FinePrint pdfFactory
+
+FineReader:
+    match_any_regex_ignorecase:
+    - FINEREADER
+
+Foxit:
+    match_any_regex_ignorecase:
+    - Foxit
+
+Fujitsu Printer:
+    match_any_regex_ignorecase:
+    - ScanSnap Manager
+
+Ghostscript:
+    match_any_regex_ignorecase:
+    - ^(GPL )?Ghostscript
+
+gnuplot:
+    match_any_regex_ignorecase:
+    - gnuplot
+
+groff:
+    match_any_regex_ignorecase:
+    - groff
+
+gscan2pdf:
+    match_any_regex_ignorecase:
+    - gscan2pdf
+
+HTML Tidy:
+    match_any_regex_ignorecase:
+    - HTML Tidy
+
+HP Printer:
+    match_any_regex_ignorecase:
+    - WIA-HP psc
+
+Image2PDF:
+    match_any_regex_ignorecase:
+    - Image2PDF
+
+Infix Pdf Editor:
+    match_any_regex_ignorecase:
+    - ^.?Infix Pro.?$
+    - Infix Pdf Editor
+    - Iceni
+
+iText:
+    match_any_regex_ignorecase:
+    - ^iText\b
+
+Kingsoft WPS Office:
+    match_any_regex_ignorecase:
+    - (KS|Kingsoft|WPS) ?Office
+
+LaTeX:
+    match_any_regex_ignorecase:
+    - LaTeX
+
+MikTex:
+    match_any_regex_ignorecase:
+    - MikTex
+    - \(MikTex.*\)
+
+Mozilla PostScript:
+    match_any_regex_ignorecase:
+    - Mozilla PostScript
+
+Microsoft PowerPoint:
+    match_any_regex_ignorecase:
+    - Adobe Acrobat.* for PowerPoint
+    - PowerPoint
+
+Microsoft Publisher:
+    match_any_regex_ignorecase:
+    - Microsoft.? Publisher
+
+Microsoft Trident:
+    match_any_regex_ignorecase:
+    - MSHTML
+
+Microsoft Word:
+    match_any_regex_ignorecase:
+    - Acrobat.* for Word
+    - WINWORD\.EXE
+    - Microsoft.?( Office)? Word
+
+PaperPort:
+    match_any_regex_ignorecase:
+    - PaperPort
+    - www\.scansoft\.com
+
+PDFBox:
+    match_any_regex_ignorecase:
+    - PDFBox
+
+PdfCompressor:
+    match_any_regex_ignorecase:
+    - PdfCompressor
+
+PDF Creator:
+    match_any_regex_ignorecase:
+    - PDF ?Creator
+    - www\.peernet\.com
+
+PDFelement:
+    match_any_regex_ignorecase:
+    - PDFelement
+
+PDFium:
+    match_any_regex_ignorecase:
+    - PDFium
+
+PDFMerge:
+    match_any_regex_ignorecase:
+    - PDFMerge
+
+PDF Nomad:
+    match_any_regex_ignorecase:
+    - PDF Nomad
+pdfresizer:
+    match_any_regex_ignorecase:
+    - pdfresizer\.com
+
+PDFsam:
+    match_any_regex_ignorecase:
+    - PDFsam
+
+PDFsharp:
+    match_any_regex_ignorecase:
+    - PDFsharp
+
+pdfTeX:
+    match_any_regex_ignorecase:
+    - ^(This is )?pdfTeX
+
+pdftk:
+    match_any_regex_ignorecase:
+    - pdftk
+
+PDFWriters:
+    match_any_regex_ignorecase:
+    - PDFWriters
+
+PowerPDF:
+    match_any_regex_ignorecase:
+    - PowerPDF
+
+PrimoPDF:
+    match_any_regex_ignorecase:
+    - PrimoPDF
+
+Print2PDF:
+    match_any_regex_ignorecase:
+    - Print2PDF
+
+PScript:
+    match_any_regex_ignorecase:
+    - PScript5
+    - PScript\.(DLL|DRV)
+
+PrinceXML:
+    match_any_literal:
+    - Prince
+    match_any_regex_ignorecase:
+    - Prince \d+(\.\d+)
+    - www\.princexml\.com
+
+QuarkXPress:
+    match_any_regex_ignorecase:
+    - QuarkXPress
+    - quark\d+user
+
+ScanToPDF:
+    match_any_regex_ignorecase:
+    - ScanToPDF
+
+SkiaPDF:
+    match_any_regex_ignorecase:
+    - Skia.?PDF
+
+TeX:
+    match_any_literal:
+    - TeX
+    match_any_regex_ignorecase:
+    - ^ ?TeX output
+
+tiff2ps:
+    match_any_regex_ignorecase:
+    - tiff2ps
+
+ToPDF.com:
+    match_any_regex_ignorecase:
+    - ToPDF.com
+
+TopLeaf:
+    match_any_regex_ignorecase:
+    - TopLeaf
+    - Turn-Key Systems
+
+Tracker PDF-Tools:
+    match_any_regex_ignorecase:
+    - Tracker.?.? PDF-Tools
+
+UNKNOWN:
+    match_any_literal:
+    - ()
+    - UnknownApplication
+    match_any_regex_ignorecase:
+    - ^\d+\.[a-z]{3}$
+
+VTeX PDF Tools:
+    match_any_literal:
+    - VTeX PDF Tools
+
+Win2PDF:
+    match_any_regex_ignorecase:
+    - Win2PDF
+    - www\.daneprairie\.com
+
+wpCubed wPDF:
+    match_any_regex_ignorecase:
+    - wPDF by wpCubed
+    match_any_literal:
+    - wPDF
+
+XEP:
+    match_any_regex_ignorecase:
+    - XEP
+
+XeTeX:
+    match_any_regex_ignorecase:
+    - XeTeX

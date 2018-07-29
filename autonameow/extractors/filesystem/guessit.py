@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -19,11 +17,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from extractors import BaseExtractor
 from extractors import ExtractorError
+from extractors.metadata.base import BaseMetadataExtractor
 
 
-class GuessitExtractor(BaseExtractor):
+class GuessitExtractor(BaseMetadataExtractor):
     HANDLES_MIME_TYPES = ['video/*']
 
     def __init__(self):

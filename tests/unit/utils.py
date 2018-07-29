@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -34,8 +32,6 @@ from unittest.mock import MagicMock, Mock
 import unit.constants as uuconst
 from core import FileObject
 from util import encoding as enc
-from util import nested_dict_get
-from util import nested_dict_set
 
 
 def abspath_testfile(testfile_basename):
@@ -263,170 +259,17 @@ def get_meowuri():
     return as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
 
+def as_fileobject(filepath):
+    bytestring_filepath = bytestring_path(filepath)
+    return FileObject(bytestring_filepath)
+
+
 def fileobject_testfile(testfile_basename):
     """
     Like 'abspath_testfile' but wraps the result in a 'FileObject' instance.
     """
     _f = normpath(abspath_testfile(testfile_basename))
     return FileObject(_f)
-
-
-MOCK_SESSION_DATA_POOLS = dict()
-
-
-def mock_request_data_callback(fileobject, label):
-    # TODO: [hack][cleanup] This does not behave as the "mocked" systems.
-    # TODO: Integrate successful/failed query response objects.
-    global MOCK_SESSION_DATA_POOLS
-
-    cached_data = MOCK_SESSION_DATA_POOLS.get(fileobject)
-    if not cached_data:
-        d = mock_session_data_pool_with_extractor_and_analysis_data(fileobject)
-        cached_data = MOCK_SESSION_DATA_POOLS[fileobject] = d
-
-    try:
-        return nested_dict_get(cached_data, [fileobject, label])
-    except KeyError:
-        return None
-
-
-def mock_session_data_pool(fileobject):
-    """
-    Returns: Mock session data pool with typical extractor data.
-    """
-    data = dict()
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL],
-        b'gmail.pdf'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_EXTENSION],
-        b'pdf.pdf'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX],
-        b'pdf.pdf'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_PATHNAME_PARENT],
-        b'test_files'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_MIMETYPE],
-        'application/pdf'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR],
-        'Chromium'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, 'extractor.metadata.exiftool'],
-        {'File:MIMEType': 'application/bar'}
-    )
-
-    return data
-
-
-def mock_session_data_pool_empty_analysis_data(fileobject):
-    data = dict()
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILENAME_DATETIME],
-        []
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
-        []
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
-        []
-    )
-    return data
-
-
-def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
-    # TODO: [hack][cleanup] Mock properly! Remove?
-    data = dict()
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL],
-        b'gmail.pdf'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_EXTENSION],
-        b'pdf.pdf'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX],
-        b'pdf.pdf'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_PATHNAME_PARENT],
-        b'test_files'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_XPLAT_MIMETYPE],
-        'application/pdf'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR],
-        'Chromium'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, 'extractor.metadata.exiftool'],
-        {'File:MIMEType': 'application/bar'}
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
-        [{'source': 'filenamepart_tags',
-          'value': ['tagfoo', 'tagbar'],
-          'weight': 1}]
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_FILETAGS_TAGS],
-        []
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_FILETAGS_DESCRIPTION],
-        'gmail'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_FILETAGS_EXTENSION],
-        'pdf'
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_FS_FILETAGS_DATETIME],
-        None
-    )
-    nested_dict_set(
-        data,
-        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
-        [{'source': 'filenamepart_base',
-          'value': 'gmail',
-          'weight': 0.25}]
-    )
-    return data
 
 
 def get_mock_analyzer():

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -22,6 +20,48 @@
 from unittest import TestCase
 
 from core.exceptions import DependencyError
+from core.exceptions import ignored
+
+
+class TestIgnored(TestCase):
+    def setUp(self):
+        self.original_value = 'original value'
+        self.modified_value = 'modified value'
+
+    def test_code_before_ignored_exception_is_executed(self):
+        a = 'original_value'
+
+        with ignored(ValueError):
+            a = self.modified_value
+            _ = int('x')
+
+        self.assertEqual(self.modified_value, a)
+
+    def test_code_after_ignored_exception_is_not_executed(self):
+        a = self.original_value
+
+        with ignored(ValueError):
+            _ = int('x')
+            a = self.modified_value
+
+        self.assertEqual(self.original_value, a)
+
+    def test_only_one_specified_exception_are_ignored(self):
+        with ignored(TypeError):
+            _ = float([])
+
+        with self.assertRaises(ValueError):
+            with ignored(TypeError):
+                _ = int('x')
+
+    def test_all_of_the_specified_exceptions_are_ignored(self):
+        with ignored(TypeError, ValueError):
+            _ = float([])
+            _ = int('x')
+
+        with self.assertRaises(ZeroDivisionError):
+            with ignored(TypeError, ValueError):
+                _ = 1 / 0
 
 
 def _raise_and_capture_dependency_error(*args, **kwargs):

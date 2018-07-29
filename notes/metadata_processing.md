@@ -1,8 +1,7 @@
 `autonameow`
 ============
-*Copyright(c) 2016-2018 Jonas Sjöberg*  
-<https://github.com/jonasjberg/autonameow>  
-<http://www.jonasjberg.com>  
+*Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>*  
+Source repository: <https://github.com/jonasjberg/autonameow>
 
 --------------------------------------------------------------------------------
 

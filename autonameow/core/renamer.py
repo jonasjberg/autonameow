@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -70,7 +68,7 @@ class FilenameDelta(object):
 
 
 class FileRenamer(object):
-    def __init__(self, dry_run, timid):
+    def __init__(self, dry_run, timid, rename_func=disk.rename_file):
         """
         Creates a new renamer instance for use by one program instance.
 
@@ -96,6 +94,8 @@ class FileRenamer(object):
         """
         self.dry_run = bool(dry_run)
         self.timid = bool(timid)
+        assert callable(rename_func)
+        self._rename_func = rename_func
 
         self.stats = {
             'failed': 0,
@@ -163,8 +163,8 @@ class FileRenamer(object):
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = enc.bytestring_path(new_basename)
         sanity.check_internal_bytestring(dest_basename)
-        log.debug('Destination basename (bytestring): "{!s}"'.format(
-            enc.displayable_path(dest_basename)))
+        log.debug('Destination basename (bytestring): "%s"',
+                  enc.displayable_path(dest_basename))
 
         from_basename = disk.basename(from_path)
         sanity.check_internal_bytestring(from_basename)
@@ -221,11 +221,21 @@ class FileRenamer(object):
             return
 
         try:
-            disk.rename_file(from_path, dest_basename)
+            self._rename_func(from_path, dest_basename)
         except FilesystemError:
             # TODO: Failure count not handled by the regression test mock!
             self.stats['failed'] += 1
             raise
+        except FileExistsError as e:
+            # TODO: Failure count not handled by the regression test mock!
+            # TODO: [TD0164][TD0193] Clean this up!
+            self.stats['failed'] += 1
+            raise FilesystemError(e)
+        except FileNotFoundError as e:
+            # TODO: Failure count not handled by the regression test mock!
+            # TODO: [TD0164][TD0193] Clean this up!
+            self.stats['failed'] += 1
+            raise FilesystemError(e)
         else:
             self.stats['renamed'] += 1
 

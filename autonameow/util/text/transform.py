@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -39,10 +37,11 @@ __all__ = [
     'indent',
     'batch_regex_replace',
     'normalize_unicode',
-    'normalize_whitespace',
+    'normalize_horizontal_whitespace',
+    'normalize_vertical_whitespace',
     'simplify_unicode',
+    'remove_ascii_control_characters',
     'remove_blacklisted_lines',
-    'remove_blacklisted_re_lines',
     'remove_nonbreaking_spaces',
     'remove_zerowidth_spaces',
     'strip_single_space_lines',
@@ -116,16 +115,13 @@ def strip_single_space_lines(text):
     return without_single_space_lines
 
 
-def normalize_whitespace(text):
+def normalize_horizontal_whitespace(text):
     """
     Replaces all whitespace except newlines with a single space.
 
-    Does not remove leading or trailing whitespace.
-    Does not change linefeeds or carriage returns.
-    Handles Unicode whitespace characters.
-
-    NOTE: Assumes type-checks is handled elsewhere.
-          "Empty" values like None, [], {}, etc. are passed through as-is.
+    Removes Unicode whitespace characters.
+    Will *NOT* remove leading or trailing whitespace and does not modify any
+    linefeeds or carriage returns.
 
     Args:
         text (str): Unicode text to transform.
@@ -136,10 +132,9 @@ def normalize_whitespace(text):
     Raises:
         AssertionError: Given text is not an instance of 'str'.
     """
+    assert isinstance(text, str)
     if not text:
         return text
-
-    assert isinstance(text, str)
 
     # Matches any number of whitespace characters, except newlines.
     #
@@ -148,12 +143,33 @@ def normalize_whitespace(text):
     # which is also included in '\s'.
     #
     #   \S   Any character which is not a Unicode whitespace character.
-    #   \r   ASCII Carriage Return (CR)
-    #   \n   ASCII ASCII Linefeed (LF)
+    #   \r   ASCII Carriage Return  CR  0x0D
+    #   \n   ASCII Linefeed         LF  0x0A
     #
     re_whitespace_except_newline = RegexCache(r'[^\S\r\n]+')
     normalized = re.sub(re_whitespace_except_newline, ' ', text)
     return normalized
+
+
+def normalize_vertical_whitespace(text):
+    """
+    Returns the given text with any linefeeds removed.
+
+    Args:
+        text (str): Unicode text to transform.
+
+    Returns:
+        str: The given text with any linefeeds removed.
+
+    Raises:
+        AssertionError: Given text is not an instance of 'str'.
+    """
+    assert isinstance(text, str)
+    if not text:
+        return text
+
+    text_without_linefeeds = text.replace('\r', '')
+    return text_without_linefeeds
 
 
 DEFAULT_INDENT_AMOUNT = 4
@@ -192,7 +208,7 @@ def indent(text, columns=None, padchar=None):
     return ''.join(padding + line for line in text.splitlines(True))
 
 
-# \u002D Hyphen-minus
+# \u00AD Soft hyphen (Python escape version '\xad')
 # \u05BE Hebrew punctuation MAQAF
 # \u2010 Hyphen
 # \u2011 Non-breaking hyphen
@@ -203,7 +219,7 @@ def indent(text, columns=None, padchar=None):
 # \u2043 Hyphen bullet
 # \u30FB Katakana middle dot
 RE_UNICODE_DASHES_HYPHENS = re.compile(
-    '[\u002d\u05be\u2010\u2011\u2012\u2013\u2014\u2015\u2043\u30fb]'
+    r'[\xad\u05be\u2010\u2011\u2012\u2013\u2014\u2015\u2043\u30fb]'
 )
 
 # \u002D Hyphen-minus
@@ -339,6 +355,24 @@ def remove_zerowidth_spaces(text):
     return text.replace('\u200B', '')
 
 
+def remove_ascii_control_characters(s):
+    """
+    Removes "generally undesirable" ASCII control characters from strings.
+    """
+    assert isinstance(s, str)
+
+    modified_string = s
+    for character_to_remove in [
+        '\x01',  # 0x01  SOH  (^A)  Start of Header/Heading
+        '\x02',  # 0x02  STX  (^B)  Start of Text
+        '\x07',  # 0x07  BEL  (^G)  ASCII and Unicode 07
+        '\x08',  # 0x08  BS   (^H)  Modern systems ASCII and Unicode 0x7F (?)
+    ]:
+        modified_string = modified_string.replace(character_to_remove, '')
+
+    return modified_string
+
+
 def truncate_text(text, maxlen=500, append_info=False):
     assert isinstance(text, str)
     assert isinstance(maxlen, int)
@@ -401,32 +435,6 @@ def remove_blacklisted_lines(text, blacklist):
     for line in text.splitlines(keepends=True):
         if not any(line.strip() == bad_line for bad_line in blacklisted_lines):
             out.append(line)
-
-    return ''.join(out)
-
-
-def remove_blacklisted_re_lines(text, compiled_regexes):
-    """
-    Removes any text lines that matches any regular expression in 'blacklist'.
-
-    Any line separators are removed from each line before evaluating
-    the regular expressions.
-
-    Args:
-        text: The text to process as a Unicode string.
-        compiled_regexes: Regular expressions matching lines to blacklist.
-
-    Returns:
-        The given text with any lines matching any of the given regular
-        expressions removed, as a Unicode string.
-    """
-    regexes = set(compiled_regexes)
-    out = list()
-    for line in text.splitlines(keepends=True):
-        stripped_line = line.strip()
-        if any(regex.match(stripped_line) for regex in regexes):
-            continue
-        out.append(line)
 
     return ''.join(out)
 

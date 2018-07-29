@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -215,6 +213,8 @@ sample_rtf_file_basename="$(basename -- "${SAMPLE_RTF_FILE}")"
 assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_RTF_FILE" | grep -- "baz last line"' \
             "Expect text extracted from \"${sample_rtf_file_basename}\" to contain \"baz last line\""
 
+
+# Test file to extract from.
 SAMPLE_MD_FILE="$(abspath_testfile "sample.md")"
 assert_bulk_test "$SAMPLE_MD_FILE" e r
 
@@ -222,17 +222,27 @@ sample_md_file_basename="$(basename -- "${SAMPLE_MD_FILE}")"
 
 # From the MarkdownTextExtractor
 assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "ON MEOW"' \
-            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"ON MEOW\""
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"ON MEOW\" from the MarkdownTextExtractor"
 
 assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "- meow list"' \
-            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"- meow list\""
+            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"- meow list\" from the MarkdownTextExtractor"
 
 # From the PlainTextExtractor
-assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "On Meow"' \
-            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"On Meow\""
+assert_false '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "On Meow"' \
+             "Expect text extracted from \"${sample_md_file_basename}\" to NOT contain \"On Meow\" from the PlainTextExtractor"
 
-assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "* meow list"' \
-            "Expect text extracted from \"${sample_md_file_basename}\" to contain \"* meow list\""
+assert_false '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "* meow list"' \
+             "Expect text extracted from \"${sample_md_file_basename}\" to NOT contain \"* meow list\" from the PlainTextExtractor"
+
+
+# Test file to extract from.
+SAMPLE_DJVU_FILE="$(abspath_testfile "Critique_of_Pure_Reason.djvu")"
+assert_bulk_test "$SAMPLE_DJVU_FILE" e r
+
+sample_djvu_file_basename="$(basename -- "${SAMPLE_DJVU_FILE}")"
+
+assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_DJVU_FILE" | grep -- "Immanuel Kant"' \
+            "Expect text extracted from \"${sample_djvu_file_basename}\" to contain \"Immanuel Kant\""
 
 
 

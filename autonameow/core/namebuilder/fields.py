@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -33,6 +31,8 @@ log = logging.getLogger(__name__)
 
 # TODO: [TD0154] Add "incrementing counter" placeholder field
 # TODO: [TD0191] Add new 'subtitle' placeholder field.
+# TODO: [TD0196] Allow user to define maximum lengths for new names.
+# TODO: [TD0197] Template field-specific length limits and trimming.
 
 
 class NameTemplateField(object):
@@ -45,13 +45,14 @@ class NameTemplateField(object):
         log.warning('Called unimplemented "{!s}.format()"'.format(cls.__name__))
 
     @classmethod
-    def type_compatible(cls, type_class):
-        if isinstance(type_class, coercers.MultipleTypes):
-            if not cls.MULTIVALUED:
-                return False
-            return type_class.coercer in cls.COMPATIBLE_TYPES
-        else:
-            return type_class in cls.COMPATIBLE_TYPES
+    def type_compatible(cls, coercer, multivalued):
+        assert not isinstance(coercer, coercers.MultipleTypes), (
+            'Used in confused old (incomplete) implementation'
+        )
+        return bool(
+            multivalued == cls.MULTIVALUED
+            and coercer in cls.COMPATIBLE_TYPES
+        )
 
     def as_placeholder(self):
         return self.__class__.__name__.lower().lstrip('_')
@@ -80,16 +81,19 @@ class _Title(NameTemplateField):
     def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = databundle.value
-        if databundle.coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
+        coercer = databundle.coercer
+        sanity.check_isinstance(coercer, coercers.BaseCoercer)
+
+        if coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
             str_value = coercers.force_string(value)
             if not str_value:
                 raise exceptions.NameBuilderError(
                     'Unicode string conversion failed for "{!r}"'.format(databundle)
                 )
-        elif databundle.coercer == coercers.AW_STRING:
-            str_value = databundle.value
+        elif coercer == coercers.AW_STRING:
+            str_value = value
         else:
-            str_value = databundle.value
+            str_value = value
 
         sanity.check_internal_string(str_value)
         formatted_value = str_value.strip(',.:;-_ ')
@@ -108,15 +112,17 @@ class _Edition(NameTemplateField):
     def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = databundle.value
+        coercer = databundle.coercer
+        sanity.check_isinstance(coercer, coercers.BaseCoercer)
 
-        if databundle.coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
+        if coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
             str_value = coercers.force_string(value)
             if not str_value:
                 raise exceptions.NameBuilderError(
                     'Unicode string conversion failed for "{!r}"'.format(databundle)
                 )
-        elif databundle.coercer in (coercers.AW_STRING, coercers.AW_INTEGER):
-            str_value = coercers.force_string(databundle.value)
+        elif coercer in (coercers.AW_STRING, coercers.AW_INTEGER):
+            str_value = coercers.force_string(value)
         else:
             raise exceptions.NameBuilderError(
                 'Got incompatible data: {!r}'.format(databundle)
@@ -140,6 +146,7 @@ class _Extension(NameTemplateField):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = databundle.value
         coercer = databundle.coercer
+        sanity.check_isinstance(coercer, coercers.BaseCoercer)
 
         if not value:
             # Might be 'NullMIMEType', which evaluates False here.
@@ -167,13 +174,13 @@ class _Author(NameTemplateField):
     @classmethod
     def format(cls, databundle, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
-        databundle_coercer = databundle.coercer
-        sanity.check_isinstance(databundle_coercer, coercers.BaseCoercer)
-
         value = databundle.value
+        coercer = databundle.coercer
+        sanity.check_isinstance(coercer, coercers.BaseCoercer)
+
         # TODO: Coercer references that are passed around are class INSTANCES!
         # TODO: [hack] Fix 'coercers.listof()' expects classes!
-        coercer = coercers.listof(databundle_coercer)
+        coercer = coercers.listof(coercer)
         str_list_value = coercer(value)
         sanity.check_isinstance(str_list_value, list)
 
@@ -365,7 +372,8 @@ class _Year(NameTemplateField):
     @classmethod
     def format(cls, databundle, *args, **kwargs):
         datetime_format = '%Y'
-        formatted_value = formatted_datetime(databundle.value, datetime_format)
+        value = databundle.value
+        formatted_value = formatted_datetime(value, datetime_format)
         return formatted_value
 
 

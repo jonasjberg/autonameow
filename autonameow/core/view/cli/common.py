@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -33,7 +31,7 @@ except ImportError:
 
 from core import constants as C
 from util import coercers
-from util import git_commit_hash
+from util import process
 from util import sanity
 
 
@@ -49,7 +47,7 @@ def print_version_info(verbose):
         return colorize('-' * length, fore='LIGHTBLACK_EX', style='DIM')
 
     if verbose:
-        _commit_info = git_commit_hash()
+        _commit_info = process.git_commit_hash()
         if _commit_info:
             # NOTE(jonas): git rev-parse --short HEAD returns different length.
             # Hash string is one extra character on MacOS (git version 2.15.1)
@@ -413,11 +411,6 @@ def _colorize_string_diff(a, b, color, secondary_color, colorize_=None):
     return ''.join(a_out), ''.join(b_out)
 
 
-def _colorize_replacement(original, replacement, regex, color):
-    _colored_replacement = colorize(replacement, fore=color)
-    return re.sub(regex, _colored_replacement, original)
-
-
 def msg_filename_replacement(before, after):
     _old, _new = _colorize_string_diff(
         before, after,
@@ -462,11 +455,13 @@ class ColumnFormatter(object):
     }
 
     def __init__(self, align='left'):
+        self._default_align = self.ALIGNMENT_STRINGS.get(align, 'ljust')
+
         self._column_count = 0
         self._data = list()
         self._column_widths = list()
-        self._default_align = self.ALIGNMENT_STRINGS.get(align, 'ljust')
         self._column_align = list()
+        self.max_total_width = None
 
     def setalignment(self, *args):
         maybe_strings = list(args)
@@ -495,17 +490,15 @@ class ColumnFormatter(object):
     def number_columns(self):
         return self._column_count
 
-    def _update_number_columns(self, strings):
-        count = len(strings)
-        if count > self._column_count:
-            self._column_count = count
+    def _update_column_count(self, strings):
+        self._column_count = max(self._column_count, len(strings))
 
     def addrow(self, *args):
         maybe_strings = list(args)
 
         strings = self._check_types_replace_none(maybe_strings)
 
-        self._update_number_columns(strings)
+        self._update_column_count(strings)
         self._update_column_widths(strings)
         self._data.append(strings)
 
@@ -554,14 +547,15 @@ class ColumnFormatter(object):
         if not maybe_strings:
             return out
 
-        for _element in maybe_strings:
-            if _element is None:
+        for element in maybe_strings:
+            if element is None:
                 out.append('')
-            elif not isinstance(_element, str):
-                _msg = 'Expected Unicode str. Got "{!s}"'.format(type(_element))
-                raise TypeError(_msg)
+            elif not isinstance(element, str):
+                raise TypeError(
+                    'Expected Unicode str. Got {!s}'.format(type(element))
+                )
             else:
-                out.append(_element.strip())
+                out.append(element.strip())
 
         return out
 
@@ -570,19 +564,57 @@ class ColumnFormatter(object):
             return ''
 
         padding = self.PADDING_CHAR * self.COLUMN_PADDING
+        adjusted_column_widths = list(self.column_widths)
 
-        lines = list()
+        # Truncate column widths if 'self.max_total_width' is not None.
+        if self.max_total_width:
+            assert isinstance(self.max_total_width, int)
+
+            # Padding between all but the last column.
+            total_padding_width = len(padding) * (self.number_columns - 1)
+
+            def _get_total_width():
+                total_column_width = sum(adjusted_column_widths)
+                return total_column_width + total_padding_width
+
+            iteration_count = 0
+            total_width = _get_total_width()
+            while total_width > self.max_total_width:
+                widest_column_width = max(w for w in adjusted_column_widths)
+
+                width_decrement = ((total_width - self.max_total_width) // 5) or 1
+
+                for i in range(0, self.number_columns):
+                    if adjusted_column_widths[i] == widest_column_width:
+                        adjusted_column_widths[i] -= width_decrement
+                        break
+
+                iteration_count += 1
+                if iteration_count > 100:
+                    break
+
+                total_width = _get_total_width()
+
+        output_lines = list()
         for row in self._data:
-            lines.append(
-                padding.join(
-                    getattr(word, align)(width)
-                    for word, width, align in zip(
-                        row, self._column_widths, self.alignment
-                    )
-                )
-            )
+            row_columns = list()
+            for row_column, column_width, column_alignment in zip(
+                row, adjusted_column_widths, self.alignment
+            ):
+                aligned_row_column = getattr(row_column, column_alignment)(column_width)
 
-        return '\n'.join(l.rstrip() for l in lines)
+                if column_alignment == 'ljust':
+                    truncated_row_column = aligned_row_column[:column_width]
+                elif column_alignment == 'rjust':
+                    truncated_row_column = aligned_row_column[:column_width]
+                else:
+                    truncated_row_column = aligned_row_column
+
+                row_columns.append(truncated_row_column)
+
+            output_lines.append(padding.join(row_columns))
+
+        return '\n'.join(line.rstrip() for line in output_lines)
 
 
 def msg_columnate(column_names, row_data, alignment=None):

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -186,8 +184,9 @@ class RuleMatcher(object):
             self.ui.msg(si + '\n')
 
             rows = list()
+
             def _addrow(*data):
-                rows.append((data))
+                rows.append(tuple(data))
 
             msg_label_pass = self.ui.colorize('PASSED', fore='GREEN')
             msg_label_fail = self.ui.colorize('FAILED', fore='RED')
@@ -241,6 +240,11 @@ def prioritize_rules(rules):
         the number of conditions in other rules.
       * By "ranking bias", a float between 0-1.
         Optional user-specified biasing of rule prioritization.
+      * Finally, sort by number of data sources, prioritizing rules
+        with higher number of data sources. Rules without data sources
+        might assumingly be less interesting and more "general".
+        This assumption might not hold. Either way, this makes the results
+        deterministic when values used by the preceding sorting criteria are equal.
 
     This means that a rule that met all conditions will be ranked lower than
     another rule that also met all conditions but *did* require an exact match.
@@ -261,7 +265,8 @@ def prioritize_rules(rules):
                        d[1]['score'] * d[1]['weight'],
                        d[1]['score'],
                        d[1]['weight'],
-                       d[0].ranking_bias)
+                       d[0].ranking_bias,
+                       len(d[0].data_sources))
     )
     return [rule[0] for rule in prioritized_rules]
 

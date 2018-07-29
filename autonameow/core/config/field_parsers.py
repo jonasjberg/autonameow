@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -130,19 +128,24 @@ class ConfigFieldParser(object):
             True if expression is valid, else False.
         """
         validation_func = self.get_validation_function()
-        if self.ALLOW_MULTIVALUED_EXPRESSION is True:
-            if not isinstance(expression, list):
-                expression = [expression]
-
-            # All expressions must pass validation.
-            for expr in expression:
-                if not validation_func(expr):
-                    return False
-            return True
-        else:
+        if not self.ALLOW_MULTIVALUED_EXPRESSION:
             if isinstance(expression, list):
+                # Instant fail for unexpectedly "multivalued" expression.
                 return False
+
             return validation_func(expression)
+
+        # Multivalued expressions ARE allowed, turn all expressions into lists.
+        expressions = expression
+        if not isinstance(expressions, list):
+            expressions = [expressions]
+
+        # All expressions must pass validation.
+        for expr in expressions:
+            if not validation_func(expr):
+                return False
+
+        return True
 
     def evaluate(self, expression, data):
         """
@@ -221,6 +224,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
         '*.XMP-dc:Title', '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher',
         '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.extension',
+        '*.abspath_full',
         '*.basename_full',
         '*.basename_prefix',
         '*.basename_suffix',

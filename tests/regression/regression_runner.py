@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -23,7 +21,6 @@ import logging
 import os
 import sys
 import time
-from collections import deque
 
 from core import constants as C
 from core.persistence import get_persistence
@@ -35,12 +32,13 @@ from regression.utils import commandline_for_testsuite
 from regression.utils import glob_filter
 from regression.utils import load_regression_testsuites
 from regression.utils import print_test_info
+from regression.utils import RunResultsHistory
 from regression.utils import TerminalReporter
 from util import coercers
 
 
 _this_dir = os.path.abspath(os.path.dirname(__file__))
-PERSISTENCE_DIR_ABSPATH = coercers.AW_PATH.normalize(_this_dir)
+PERSISTENCE_DIR_ABSPATH = coercers.coerce_to_normalized_path(_this_dir)
 PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 
 
@@ -70,25 +68,7 @@ class RunResults(object):
         return len(self.all)
 
 
-class RunResultsHistory(object):
-    # TODO: [hack] Refactor ..
-    # TODO: [cleanup][incomplete] This is not used!
-    def __init__(self, maxlen):
-        assert isinstance(maxlen, int)
-        self._run_results = deque(maxlen=maxlen)
-
-    def add(self, run_results):
-        self._run_results.appendleft(run_results)
-
-    def __len__(self):
-        return len(self._run_results)
-
-    def __getitem__(self, item):
-        run_results_list = list(self._run_results)
-        return run_results_list[item]
-
-
-def run_test(test, reporter):
+def run_testsuite(test, reporter):
     expect_exitcode = test.asserts.get('exit_code', None)
     expect_renames = test.asserts.get('renames', {})
 
@@ -201,13 +181,32 @@ def run_test(test, reporter):
 
 def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
                      persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH):
-    storage_backend = get_persistence(file_prefix, persistence_dir_abspath)
-    if not storage_backend:
-        log.critical('Unable to get backend for persistent storage')
-    return storage_backend
+    persistence_mechanism = get_persistence(file_prefix, persistence_dir_abspath)
+    if not persistence_mechanism:
+        log.critical('Unable to retrieve any mechanism for persistent storage')
+    return persistence_mechanism
 
 
-def load_history():
+def load_testsuite_history(testsuite, history):
+    """
+    Returns a list of historical test results for a given testsuite.
+    """
+    past_outcomes = list()
+
+    for run_results in history:
+        if testsuite in run_results.failed:
+            past_outcomes.append(RunResultsHistory.RESULT_FAIL)
+        elif testsuite in run_results.passed:
+            past_outcomes.append(RunResultsHistory.RESULT_PASS)
+        elif testsuite in run_results.skipped:
+            past_outcomes.append(RunResultsHistory.RESULT_SKIP)
+        else:
+            past_outcomes.append(RunResultsHistory.RESULT_UNKNOWN)
+
+    return past_outcomes
+
+
+def load_run_results_history():
     # TODO: [hack] Refactor ..
     persistent_storage = _get_persistence()
     if persistent_storage:
@@ -219,38 +218,19 @@ def load_history():
             if history:
                 assert isinstance(history, list)
                 return history
-    return []
+    return list()
 
 
-def load_testsuite_history(testsuite, history):
-    if history:
-        past_outcomes = list()
-        for run_results in history:
-            # TODO: [hack] Refactor ..
-            if testsuite in run_results.failed:
-                past_outcomes.append('fail')
-            elif testsuite in run_results.passed:
-                past_outcomes.append('pass')
-            elif testsuite in run_results.skipped:
-                past_outcomes.append('skip')
-            else:
-                past_outcomes.append('unknown')
-
-        return past_outcomes
-
+def write_run_results_history(run_results, max_entry_count=10):
+    assert isinstance(max_entry_count, int)
 
     # TODO: [hack] Refactor ..
-    return [None, None, None, None, None]
-
-
-def write_test_results_history(run_results):
-    # TODO: [hack] Refactor ..
-    history = load_history()
+    history = load_run_results_history()
     assert isinstance(history, list)
 
     # TODO: [hack] Refactor ..
     history.insert(0, run_results)
-    history = history[:5]
+    history = history[:max_entry_count]
 
     persistent_storage = _get_persistence()
     if persistent_storage:
@@ -274,8 +254,8 @@ def load_failed_testsuites():
         else:
             if lastrun:
                 assert isinstance(lastrun, dict)
-                return lastrun.get('failed', [])
-    return []
+                return lastrun.get('failed', list())
+    return list()
 
 
 def print_test_commandlines(tests):
@@ -285,7 +265,7 @@ def print_test_commandlines(tests):
 
 
 def run_regressiontests(tests, verbose, print_stderr, print_stdout):
-    history = load_history()
+    history = load_run_results_history()
     reporter = TerminalReporter(verbose)
     run_results = RunResults()
     should_abort = False
@@ -298,23 +278,25 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
             break
 
         if testsuite.should_skip:
-            reporter.msg_test_skipped(testsuite.str_dirname, testsuite.description)
+            reporter.msg_test_skipping(testsuite.str_dirname, testsuite.description)
             run_results.skipped.add(testsuite)
+
+            reporter.msg_testsuite_skipped()
 
             # TODO: [hack] Refactor ..
             testsuite_history = load_testsuite_history(testsuite, history)
             assert isinstance(testsuite_history, list)
-            reporter.msg_test_history(testsuite_history)
+            reporter.msg_testsuite_history(testsuite_history)
 
-            reporter.msg_test_runtime(None, None)
+            reporter.msg_testsuite_runtime(None, None)
             continue
 
-        reporter.msg_test_start(testsuite.str_dirname, testsuite.description)
+        reporter.msg_testsuite_start(testsuite.str_dirname, testsuite.description)
 
         results = None
         start_time = time.time()
         try:
-            results = run_test(testsuite, reporter)
+            results = run_testsuite(testsuite, reporter)
         except KeyboardInterrupt:
             # Move cursor two characters back and print spaces over "^C".
             print('\b\b  \n', flush=True)
@@ -337,19 +319,19 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
                 continue
 
             failures = int(results.failure_count)
-            test_passed = failures == 0
-            if test_passed:
-                reporter.msg_test_success()
+            testsuite_passed = failures == 0
+            if testsuite_passed:
+                reporter.msg_testsuite_success()
                 run_results.passed.add(testsuite)
             else:
-                reporter.msg_test_failure()
+                reporter.msg_testsuite_failure()
                 run_results.failed.add(testsuite)
 
             # TODO: [hack] Refactor ..
             testsuite_history = load_testsuite_history(testsuite, history)
             assert isinstance(testsuite_history, list)
-            reporter.msg_test_history(testsuite_history)
-            reporter.msg_test_runtime(elapsed_time, results.captured_runtime)
+            reporter.msg_testsuite_history(testsuite_history)
+            reporter.msg_testsuite_runtime(elapsed_time, results.captured_runtime)
 
             if print_stderr and captured_stderr:
                 reporter.msg_captured_stderr(captured_stderr)
@@ -371,7 +353,7 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
         # the failed tests, if re-running the failed tests and aborting
         # before completion..
         write_failed_testsuites(run_results.failed)
-        write_test_results_history(run_results)
+        write_run_results_history(run_results)
 
     return run_results
 
@@ -515,7 +497,7 @@ def main(args):
                      'last completed run ..'.format(len(selected_tests)))
 
     log.info('Selected {} of {} test suite(s) ..'.format(len(selected_tests),
-                                                        len(loaded_tests)))
+                                                         len(loaded_tests)))
     # End of test selection.
     if not selected_tests:
         log.warning('None of the loaded tests were selected ..')

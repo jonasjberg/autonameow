@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -22,10 +20,10 @@
 import os
 from datetime import datetime
 
-from extractors import BaseExtractor
+from extractors.metadata.base import BaseMetadataExtractor
 
 
-class CrossPlatformFileSystemExtractor(BaseExtractor):
+class CrossPlatformFileSystemExtractor(BaseMetadataExtractor):
     HANDLES_MIME_TYPES = ['*/*']
     MEOWURI_LEAF = 'xplat'
     IS_SLOW = False

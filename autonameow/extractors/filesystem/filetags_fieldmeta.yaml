@@ -1,3 +1,18 @@
+# NOTE: Either none or either of 'date' and 'datetime' will be used
+#       depending on whether the timestamp exists and if it contains
+#       a date (YYYY-mm-dd) or both date and time (YYYY-mm-ddTHHMMSS)
+date:
+    coercer: aw_date
+    generic_field: date_created
+    mapped_fields:
+    -   WeightedMapping:
+            field: Date
+            weight: 1.0
+    -   WeightedMapping:
+            field: DateTime
+            weight: 1.0
+    multivalued: false
+
 datetime:
     coercer: aw_timedate
     generic_field: date_created

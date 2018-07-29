@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -23,7 +21,6 @@ import copy
 import logging
 import re
 
-import util
 from core import constants as C
 from core.config.configuration import Configuration
 from core.config.field_parsers import BooleanConfigFieldParser
@@ -161,10 +158,10 @@ class ConfigurationParser(object):
                     _validated_candidates.append(compiled_pat)
 
                 if _validated_candidates:
-                    util.nested_dict_set(
-                        validated,
-                        ['NAME_TEMPLATE_FIELDS', str_field, 'candidates', repl],
-                        _validated_candidates
+                    _nested_dict_set(
+                        dictionary=validated,
+                        list_of_keys=['NAME_TEMPLATE_FIELDS', str_field, 'candidates', repl],
+                        value=_validated_candidates
                     )
 
         return validated
@@ -514,7 +511,7 @@ class ConfigurationOptionsParser(object):
             raw_value = self.raw_options['PERSISTENCE'].get(option)
             if isinstance(raw_value, (str, bytes)) and raw_value.strip():
                 try:
-                    bytes_value = coercers.AW_PATH.normalize(raw_value)
+                    bytes_value = coercers.coerce_to_normalized_path(raw_value)
                 except coercers.AWTypeError as e:
                     log.error('Bad value for option {}: "{!s}"'.format(
                         option, coercers.force_string(raw_value)
@@ -529,7 +526,7 @@ class ConfigurationOptionsParser(object):
                     return
 
         # Use the default value.
-        bytes_default = coercers.AW_PATH.normalize(default)
+        bytes_default = coercers.coerce_to_normalized_path(default)
         log.debug(
             'Using default persistence option :: {!s}: {!s}'.format(
                 option, enc.displayable_path(bytes_default)
@@ -539,6 +536,9 @@ class ConfigurationOptionsParser(object):
 
 
 def parse_rule_conditions(raw_conditions):
+    if not raw_conditions:
+        return list()
+
     if not isinstance(raw_conditions, dict):
         raise ConfigurationSyntaxError('Expected conditions of type "dict". '
                                        'Got {!s}'.format(type(raw_conditions)))
@@ -634,3 +634,56 @@ def parse_versioning(semver_string):
         return major, minor, patch
 
     return None
+
+
+def _nested_dict_set(dictionary, list_of_keys, value):
+    """
+    Sets a value in a nested dictionary structure.
+
+    The structure is traversed using the given list of keys and the destination
+    dictionary is set to the given value, unless the traversal fails by
+    attempting to overwrite an already existing value with a new dictionary
+    entry.
+
+    The list of keys can not contain any None or whitespace-only items.
+
+    Note that the dictionary is modified IN PLACE.
+
+    Based on this post:  https://stackoverflow.com/a/37704379/7802196
+
+    Args:
+        dictionary: The dictionary from which to retrieve a value.
+        list_of_keys: List of keys to the value to set, as any hashable type.
+        value: The new value that will be set in the given dictionary.
+    Raises:
+        ValueError: Arg 'list_of_keys' contains None or whitespace-only string.
+        KeyError: Existing value would have been clobbered.
+    """
+    assert list_of_keys and isinstance(list_of_keys, list), (
+        'Expected "list_of_keys" to be a list of strings'
+    )
+
+    if (None in list_of_keys or
+            any(k.strip() == '' for k in list_of_keys if isinstance(k, str))):
+        raise ValueError(
+            'Expected "list_of_keys" to not contain any None/"empty" items'
+        )
+
+    for key in list_of_keys[:-1]:
+        dictionary = dictionary.setdefault(key, {})
+
+    try:
+        dictionary[list_of_keys[-1]] = value
+    except TypeError:
+        # TODO: Add keyword-argument to allow overwriting any existing.
+        # This happens when the dictionary contains a non-dict item where one
+        # of the keys would go. For example;
+        #
+        #    example_dict = {'a': 2,
+        #                    'b': {'c': 4,
+        #                          'foo': 6}})
+        #
+        # Calling "_nested_dict_set(example_dict, ['a', 'foo'], 1])" would
+        # fail because 'a' stores the integer "2" where we would like to
+        # create the new dict;  "{'foo': 6}"
+        raise KeyError('Caught TypeError (would have clobbered existing value)')

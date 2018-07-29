@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -88,11 +86,6 @@ class TestRegexFilter(TestCase):
     def test_len_matches_number_of_unique_compiled_regexes(self):
         f = _get_regex_filter([r'[fF]oo', r'.*', r'.*'])
         self.assertEqual(2, len(f))
-
-    def test_call_returns_expected_when_called_with_unicode_strings(self):
-        f = _get_regex_filter(r'...')
-        actual = f('foo ...')
-        self.assertEqual('foo', actual)
 
     def test_call_returns_expected_when_called_with_unicode_strings(self):
         f = _get_regex_filter(r'X?fo.*')
@@ -188,3 +181,128 @@ aaa
 BBB
 '''
         self.assertEqual(expected, actual)
+
+
+class TestRegexLineFilterTestsStolenFromRemoveBlacklistedReLines(TestCase):
+    def _assert_that_it_returns(self, expected, given_text, expressions):
+        f = _get_regex_line_filter(expressions)
+        actual = f(given_text)
+        self.assertEqual(expected, actual)
+
+    def test_returns_text_as_is_if_blacklist_is_empty_list(self):
+        self._assert_that_it_returns(
+            expected='foo\nbar',
+            given_text='foo\nbar',
+            expressions=[]
+        )
+
+    def test_removes_one_matching_blacklisted_line(self):
+        self._assert_that_it_returns(
+            expected='''
+Foo Bar: A Modern Approach
+Foo Bar
+''',
+            given_text='''
+Foo Bar: A Modern Approach
+This page intentionally left blank
+Foo Bar
+''',
+            expressions=[r'.*intentionally.*']
+        )
+
+    def test_removes_single_matching_line_and_keeps_line_breaks(self):
+        self._assert_that_it_returns(
+            expected='''
+Foo Bar: A Modern Approach
+
+
+a
+
+b
+''',
+            given_text='''
+Foo Bar: A Modern Approach
+
+This page intentionally left blank
+
+a
+
+b
+''',
+            expressions=['.*intentionally.*']
+        )
+
+    def test_removes_one_matching_line_with_one_blacklist_regex(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+b
+
+c
+''',
+            given_text='''
+a
+b
+MEOW
+
+c
+''',
+            expressions=['M..W']
+        )
+
+    def test_removes_multiple_matching_lines_with_one_blacklist_regex(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+b
+
+c
+''',
+            given_text='''
+a
+MEOW
+MEOW
+b
+MEOW
+
+c
+MEOW
+''',
+            expressions=['M.*W']
+        )
+
+    def test_removes_matching_lines_with_two_blacklist_regexes(self):
+        self._assert_that_it_returns(
+            expected='''
+a
+
+c
+''',
+            given_text='''
+a
+MEOW
+
+c
+''',
+            expressions=['M.*W', 'b']
+        )
+
+    def test_removes_matching_lines_with_multiple_blacklist_regexes(self):
+        self._assert_that_it_returns(
+            expected='''
+a MEOW
+
+''',
+            given_text='''
+a MEOW
+MEOW
+c
+MEOW
+b
+MEOW
+
+cat
+MEOW
+''',
+            expressions=['M.*', 'b', 'c.*']
+        )

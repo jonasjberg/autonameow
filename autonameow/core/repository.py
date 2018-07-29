@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -20,16 +18,18 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from collections import defaultdict
 
 from core import event
 from core import logs
+from core.model import meowuri_mapper
 from util import encoding as enc
 from util import sanity
-from util.text import truncate_text
 
 
 log = logging.getLogger(__name__)
+
+
+# TODO: [TD0198] Separate repositories for "raw" vs. "processed" data.
 
 
 def _get_column_formatter():
@@ -84,26 +84,17 @@ class DataBundle(object):
             multivalued=data.get('multivalued')
         )
 
-    def maps_field(self, field):
-        # TODO: Duplicates functionality of function with the same name!
-        # This might return a None, using a default dict value will not work.
-        if not self.mapped_fields or not field:
-            return False
-
-        for mapping in self.mapped_fields:
-            if field == mapping.field:
-                return True
-        return False
-
     def field_mapping_weight(self, field):
-        if not self.maps_field(field):
-            return 0.0
+        unknown_mapping_weight = 0.0
+
+        if not self.mapped_fields or not field:
+            return unknown_mapping_weight
 
         for mapping in self.mapped_fields:
             if field == mapping.field:
                 return float(mapping.weight)
 
-        return 0.0
+        return unknown_mapping_weight
 
     def __str__(self):
         return '<{!s}({!s})>'.format(self.__class__.__name__, self.value)
@@ -178,15 +169,8 @@ class Repository(object):
     def __init__(self):
         self._data = dict()
 
-        # Stores references from "generic" to "explicit" URIs.
-        # Outer dict is keyed by instances of 'FileObject', storing
-        # defaultdicts keyed by "generic" URIs that in turn store sets
-        # of "explicit" URIs.
-        self._generic_to_explicit_uri_map = dict()
-
     def shutdown(self):
         self._data = dict()
-        self._generic_to_explicit_uri_map = dict()
 
     def store(self, fileobject, meowuri, data):
         """
@@ -199,35 +183,36 @@ class Repository(object):
         assert not meowuri.is_generic
 
         if not data:
-            log.warning('Attempted to add empty data with meowURI'
-                        ' "{!s}"'.format(meowuri))
+            log.warning('Attempt to add empty data with MeowURI "%s"', meowuri)
             return
 
         sanity.check_isinstance(data, dict)
         self._store(fileobject, meowuri, data)
-        self._store_generic(fileobject, meowuri, data)
+        self._map_generic_field_if_present_in_data(meowuri, data)
 
-    def _store_generic(self, fileobject, uri, data):
+    def _map_generic_field_if_present_in_data(self, uri, data):
         # TODO: [TD0146] Rework "generic fields". Possibly bundle in "records".
         data_generic_field = data.get('generic_field')
         if data_generic_field:
-            assert hasattr(data_generic_field, 'uri')
-            assert callable(data_generic_field.uri)
-            generic_field_uri = data_generic_field.uri()
-            self._map_generic_to_explicit_uri(fileobject, generic_field_uri, uri)
+            assert (hasattr(data_generic_field, 'uri')
+                    and callable(data_generic_field.uri)), (
+                'Expected generic field to have a callable attribute "uri"'
+            )
+            data_generic_field_uri = data_generic_field.uri()
+
+            # Store mapping between full "explicit" and "generic" URIs.
+            meowuri_mapper.generic.map(uri, data_generic_field_uri)
+
+            # Store mapping between this full "explicit" URI and a version of
+            # the full URI with its leaf replaced by the leaf of the generic
+            # field URI.  This is utilized in the 'query()' method.
+            meowuri_mapper.leaves.map(uri, data_generic_field_uri)
 
     def _store(self, fileobject, meowuri, data):
         if logs.DEBUG:
             _data_value = data.get('value')
-            if _is_full_text_meowuri(meowuri):
-                assert isinstance(_data_value, str), (
-                    'Expect data stored with this MeowURI to be type "str"'
-                )
-                _data_value = _truncate_text(_data_value)
-
-            log.debug('Storing {!r}->[{!s}] :: {} {!s}'.format(
-                fileobject, meowuri, type(_data_value), _data_value
-            ))
+            log.debug('Storing %r->[%s] :: %s %s',
+                      fileobject, meowuri, type(_data_value), _data_value)
 
         any_existing = self.__get_data(fileobject, meowuri)
         assert not any_existing, (
@@ -236,29 +221,13 @@ class Repository(object):
 
         self.__store_data(fileobject, meowuri, data)
 
-    def _map_generic_to_explicit_uri(self, fileobject, generic_uri, explicit_uri):
-        if fileobject not in self._generic_to_explicit_uri_map:
-            self._generic_to_explicit_uri_map[fileobject] = defaultdict(set)
-
-        if logs.DEBUG:
-            log.debug('Mapping {!r} generic MeowURI {!s} -> {!s}'.format(
-                fileobject, generic_uri, explicit_uri
-            ))
-        self._generic_to_explicit_uri_map[fileobject][generic_uri].add(explicit_uri)
-
-    def _get_explicit_uris_from_generic_uri(self, fileobject, generic_uri):
-        if fileobject not in self._generic_to_explicit_uri_map:
-            return set()
-
-        return self._generic_to_explicit_uri_map[fileobject].get(generic_uri)
-
     def query_mapped(self, fileobject, field):
         out = list()
 
         fileobject_data = self._data.get(fileobject)
         for meowuri, datadict in fileobject_data.items():
             assert isinstance(datadict, dict)
-            if maps_field(datadict, field):
+            if datadict_maps_field(datadict, field):
                 # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
                 out.append(
                     (meowuri, DataBundle.from_dict(datadict))
@@ -270,29 +239,38 @@ class Repository(object):
         if not meowuri:
             return QueryResponseFailure(msg='did not include a MeowURI')
 
-        log.debug('Got query {!r}->[{!s}]'.format(fileobject, meowuri))
+        log.debug('Got query %r->[%s]', fileobject, meowuri)
 
+        mapped_uri = None
         meowuri_is_generic = meowuri.is_generic
         if meowuri_is_generic:
             data = self._query_generic(fileobject, meowuri)
         else:
-            data = self._query_explicit(fileobject, meowuri)
+            mapped_uri = meowuri_mapper.leaves.fetch(meowuri)
+            if mapped_uri:
+                data = self._query_explicit_mapped(fileobject, mapped_uri)
+            else:
+                data = self._query_explicit(fileobject, meowuri)
 
         if data is None:
             return QueryResponseFailure()
 
-        if meowuri_is_generic:
-            assert isinstance(data, list)
+        if meowuri_is_generic or mapped_uri:
+            assert isinstance(data, list), (
+                'Generic and "mapped" URIs should return one or more results'
+            )
             return [DataBundle.from_dict(d) for d in data]
 
-        assert isinstance(data, dict)
+        assert isinstance(data, dict), (
+            'Full "explicit" URIs should return a single result.'
+        )
         return DataBundle.from_dict(data)
 
     def _query_explicit(self, fileobject, uri):
         return self.__get_data(fileobject, uri)
 
     def _query_generic(self, fileobject, uri):
-        explicit_uris = self._get_explicit_uris_from_generic_uri(fileobject, uri)
+        explicit_uris = meowuri_mapper.generic.fetch(uri)
         if not explicit_uris:
             return None
 
@@ -304,13 +282,20 @@ class Repository(object):
 
         return data_list or None
 
+    def _query_explicit_mapped(self, fileobject, uris):
+        data_list = list()
+        for uri in uris:
+            d = self.__get_data(fileobject, uri)
+            if d:
+                data_list.append(d)
+
+        return data_list or None
+
     def remove(self, fileobject):
         # TODO: [TD0131] Limit repository size! Do not remove everything!
         # TODO: [TD0131] Keep all but very bulky data like extracted text.
         if fileobject in self._data:
             self._data.pop(fileobject)
-        if fileobject in self._generic_to_explicit_uri_map:
-            self._generic_to_explicit_uri_map.pop(fileobject)
 
     def __get_data(self, fileobject, meowuri):
         if fileobject in self._data:
@@ -333,7 +318,7 @@ class Repository(object):
             out.append('')
             out.append(self._prettyprint_fileobject_data(fileobject_data))
             out.append('')
-            out.append(self._prettyprint_fileobject_generic_to_explicit_uri_map(fileobject))
+            out.append(self._human_readable_generic_to_explicit_uri_map())
             out.append('\n')
 
         return '\n'.join(out)
@@ -348,22 +333,14 @@ class Repository(object):
                 for d in datadict:
                     sanity.check_isinstance(d, dict)
                     str_v = _stringify_datadict_value(d.get('value'))
-                    if _is_full_text_meowuri(meowuri):
-                        # Often *a lot* of text, trim to arbitrary size..
-                        temp_list.append(_truncate_text(str_v))
-                    else:
-                        temp_list.append(str_v)
+                    temp_list.append(str_v)
 
                 first_pass[meowuri] = temp_list
 
             else:
                 sanity.check_isinstance(datadict, dict)
                 str_v = _stringify_datadict_value(datadict.get('value'))
-                if _is_full_text_meowuri(meowuri):
-                    # Often *a lot* of text, trim to arbitrary size..
-                    first_pass[meowuri] = _truncate_text(str_v)
-                else:
-                    first_pass[meowuri] = str_v
+                first_pass[meowuri] = str_v
 
         # Second pass --- align in columns and add numbers to generic URIs.
         cf = _get_column_formatter()
@@ -391,11 +368,12 @@ class Repository(object):
 
         return str(cf)
 
-    def _prettyprint_fileobject_generic_to_explicit_uri_map(self, fileobject):
+    def _human_readable_generic_to_explicit_uri_map(self):
         cf = _get_column_formatter()
         COLUMN_DELIMITER = '->'
 
-        for generic_uri, explicit_uris in sorted(self._generic_to_explicit_uri_map[fileobject].items()):
+        mapped = meowuri_mapper.generic._generic_to_explicit_uri_map.items()
+        for generic_uri, explicit_uris in sorted(mapped):
             for n, explicit_uri in enumerate(sorted(explicit_uris), start=1):
                 str_number = '({})'.format(n)
                 str_generic_uri = str(generic_uri)
@@ -412,16 +390,6 @@ class Repository(object):
 
     def __str__(self):
         return self.human_readable_contents()
-
-
-def _is_full_text_meowuri(uri):
-    return uri.matchglobs(['generic.contents.text', 'extractor.text.*'])
-
-
-def _truncate_text(text):
-    t = truncate_text(text, maxlen=20, append_info=True)
-    t = t.replace('\n', ' ')
-    return t
 
 
 def _stringify_datadict_value(datadict_value):
@@ -449,45 +417,7 @@ def _stringify_datadict_value(datadict_value):
     return str_value
 
 
-def _create_repository():
-    repository = Repository()
-    return repository
-
-
-class RepositoryPool(object):
-    DEFAULT_SESSION_ID = 'SINGLETON_SESSION'
-
-    def __init__(self):
-        self._repositories = dict()
-
-    def get(self, id_=None):
-        if id_ is None:
-            id_ = self.DEFAULT_SESSION_ID
-
-        if id_ not in self._repositories:
-            raise KeyError('{} does not contain ID "{!s}'.format(self, id_))
-
-        return self._repositories.get(id_)
-
-    def add(self, repository=None, id_=None):
-        if id_ is None:
-            id_ = self.DEFAULT_SESSION_ID
-
-        if id_ in self._repositories:
-            raise KeyError('{} already contains ID "{!s}'.format(self, id_))
-
-        if repository is None:
-            _repo = _create_repository()
-        else:
-            _repo = repository
-
-        self._repositories[id_] = _repo
-
-    def __len__(self):
-        return len(self._repositories)
-
-
-def maps_field(datadict, field):
+def datadict_maps_field(datadict, field):
     # This might return a None, using a default dict value will not work.
     mapped_fields = datadict.get('mapped_fields')
     if not mapped_fields:
@@ -499,36 +429,26 @@ def maps_field(datadict, field):
     return False
 
 
-def _initialize(*_, **kwargs):
-    # Keep one global 'SessionRepository' per 'Autonameow' instance.
-    # assert 'autonameow_instance' in kwargs
-    autonameow_instance = kwargs.get('autonameow_instance', None)
+SessionRepository = None
 
-    global Pool
-    Pool = RepositoryPool()
-    Pool.add(id_=autonameow_instance)
+
+def _initialize(*_, **kwargs):
+    instance = kwargs.get('autonameow_instance', '(UNKNOWN)')
+    log.debug('Repository initializing (autonameow instance %s)', instance)
 
     global SessionRepository
-    SessionRepository = Pool.get(autonameow_instance)
+    SessionRepository = Repository()
 
 
 def _shutdown(*_, **kwargs):
-    global Pool
-    if not Pool:
-        return
+    instance = kwargs.get('autonameow_instance', '(UNKNOWN)')
 
-    assert 'autonameow_instance' in kwargs
-    autonameow_instance = kwargs.get('autonameow_instance', None)
-    try:
-        r = Pool.get(autonameow_instance)
-    except KeyError as e:
-        log.critical('Unable to retrieve repository :: {!s}'.format(e))
-    else:
-        r.shutdown()
+    global SessionRepository
+    if SessionRepository:
+        log.debug('Repository shutting down (autonameow instance %s)', instance)
+        SessionRepository.shutdown()
+        SessionRepository = None
 
-
-Pool = None
-SessionRepository = None
 
 event.dispatcher.on_startup.add(_initialize)
 event.dispatcher.on_shutdown.add(_shutdown)

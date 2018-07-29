@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -22,6 +20,7 @@
 import logging
 import re
 from collections import namedtuple
+from functools import lru_cache
 
 from core import constants as C
 from core.exceptions import InvalidMeowURIError
@@ -31,9 +30,6 @@ from util.misc import flatten_sequence_type
 
 
 log = logging.getLogger(__name__)
-
-
-# TODO: [TD0125] Add aliases (generics) for MeowURI leafs
 
 
 MeowURIParts = namedtuple('MeowURIParts', 'root children leaf')
@@ -308,6 +304,7 @@ RE_MEOWURI_PARTS = re.compile(
 )
 
 
+@lru_cache()
 def is_one_meowuri_part(raw_string):
     """
     Safely check if an unknown (string) argument is a valid MeowURI part.
@@ -325,6 +322,7 @@ def is_one_meowuri_part(raw_string):
         return False
 
 
+@lru_cache()
 def is_meowuri_parts(string):
     try:
         return bool(RE_MEOWURI_PARTS.match(string))
@@ -332,48 +330,87 @@ def is_meowuri_parts(string):
         return False
 
 
-def meowuri_list(meowuri):
+@lru_cache(maxsize=512)
+def meowuri_list(meowuri_string, sep=str(C.MEOWURI_SEPARATOR)):
     """
-    Converts a "meowURI" to a list suited for traversing nested dicts.
+    Splits a "MeowURI" string with parts separated by 'sep' into a list.
 
     Example meowURI:    'extractor.metadata.exiftool.createdate'
     Resulting output:   ['extractor', 'metadata', 'exiftool', 'createdate']
 
     Args:
-        meowuri: The "meowURI" to convert.
+        meowuri_string (str): The "MeowURI" string to split.
+        sep (str): Separator between parts.
 
-    Returns: The components of the given "meowURI" as a list.
+    Returns: The components of the given "MeowURI" string as a list.
     """
-    if not isinstance(meowuri, str):
-        raise InvalidMeowURIError('MeowURI must be of type "str"')
-    else:
-        uri = meowuri.strip()
-    if not uri:
-        raise InvalidMeowURIError('Got empty meowURI')
+    if not isinstance(meowuri_string, str):
+        raise InvalidMeowURIError('MeowURI string must be of type "str"')
 
-    sep = str(C.MEOWURI_SEPARATOR)
-    if sep in uri:
+    meowuri_string = meowuri_string.strip()
+    if not meowuri_string:
+        raise InvalidMeowURIError('Got empty MeowURI string')
+
+    if sep in meowuri_string:
         # Remove any leading/trailing separators.
-        if uri.startswith(sep):
-            uri = uri.lstrip(sep)
-        if uri.endswith(sep):
-            uri = uri.rstrip(sep)
+        if meowuri_string.startswith(sep):
+            meowuri_string = meowuri_string.lstrip(sep)
+        if meowuri_string.endswith(sep):
+            meowuri_string = meowuri_string.rstrip(sep)
 
         # Collapse any repeating separators.
         repeated_separators = 2 * sep
-        while repeated_separators in uri:
-            uri = uri.replace(repeated_separators, sep)
+        while repeated_separators in meowuri_string:
+            meowuri_string = meowuri_string.replace(repeated_separators, sep)
 
         # Check if input is all separators.
-        stripped_period = str(uri).replace(sep, '')
-        if not stripped_period.strip():
-            raise InvalidMeowURIError('Invalid meowURI')
+        if not meowuri_string.replace(sep, '').strip():
+            raise InvalidMeowURIError('Invalid MeowURI string')
 
-    parts = uri.split(sep)
-    return [p for p in parts if p is not None]
+    parts = meowuri_string.split(sep)
+    return [p for p in parts if p]
 
 
-def evaluate_meowuri_globs(meowuri_string, glob_list):
+@lru_cache(maxsize=512)
+def _evaluate_glob(glob, meowuri_string, sep):
+    glob_parts = glob.split(sep)
+
+    # All wildcards match anything.
+    if len([gp for gp in glob_parts if gp == '*']) == len(glob_parts):
+        return True
+
+    # No wildcards, do direct comparison.
+    if '*' not in glob_parts:
+        if glob == meowuri_string:
+            return True
+        return None
+
+    if glob.startswith('*'+sep) and glob.endswith(sep+'*'):
+        # Check if the center piece is a match.
+        literal_glob_parts = [g for g in glob_parts if g != '*']
+        for literal_glob_part in literal_glob_parts:
+            # Put back periods to match whole parts and not substrings.
+            glob_center_part = '{sep}{lit}{sep}'.format(sep=sep, lit=literal_glob_part)
+            if glob_center_part in meowuri_string:
+                return True
+
+    # First part doesn't matter, check if trailing pieces match.
+    if glob.startswith('*'+sep):
+        stripped_glob = re.sub(r'^\*', '', glob)
+        if meowuri_string.endswith(stripped_glob):
+            return True
+
+    # Last part doesn't matter, check if leading pieces match.
+    if glob.endswith(sep+'*'):
+        stripped_glob = re.sub(r'\*$', '', glob)
+        if meowuri_string.startswith(stripped_glob):
+            return True
+
+    return None
+
+
+def evaluate_meowuri_globs(meowuri_string, glob_list,
+                           sep=str(C.MEOWURI_SEPARATOR)):
     """
     Evaluates a "MeowURI" string against a list of "globs".
 
@@ -391,8 +428,9 @@ def evaluate_meowuri_globs(meowuri_string, glob_list):
     Note that the separator (currently a period) is defined in 'constants.py'.
 
     Args:
-        meowuri_string: A string representation of a MeowURI.
+        meowuri_string (str): A string representation of a MeowURI.
         glob_list: A list of globs as strings.
+        sep (str): Separator between parts.
 
     Returns:
         True if any of the given globs matches, else False.
@@ -410,47 +448,15 @@ def evaluate_meowuri_globs(meowuri_string, glob_list):
             )
 
     # Convert elements (either instances of 'MeowURI' or str) to strings.
-    _string_globs = [str(g) for g in glob_list]
-    glob_list = _string_globs
+    glob_list = [str(g) for g in glob_list]
 
     if meowuri_string in glob_list:
         return True
 
-    sep = str(C.MEOWURI_SEPARATOR)
     for glob in glob_list:
-        glob_parts = glob.split(sep)
-
-        # All wildcards match anything.
-        if len([gp for gp in glob_parts if gp == '*']) == len(glob_parts):
-            return True
-
-        # No wildcards, do direct comparison.
-        if '*' not in glob_parts:
-            if glob == meowuri_string:
-                return True
-            else:
-                continue
-
-        if glob.startswith('*'+sep) and glob.endswith(sep+'*'):
-            # Check if the center piece is a match.
-            literal_glob_parts = [g for g in glob_parts if g != '*']
-            for literal_glob_part in literal_glob_parts:
-                # Put back periods to match whole parts and not substrings.
-                glob_center_part = '{sep}{lit}{sep}'.format(sep=sep, lit=literal_glob_part)
-                if glob_center_part in meowuri_string:
-                    return True
-
-        # First part doesn't matter, check if trailing pieces match.
-        if glob.startswith('*'+sep):
-            stripped_glob = re.sub(r'^\*', '', glob)
-            if meowuri_string.endswith(stripped_glob):
-                return True
-
-        # Last part doesn't matter, check if leading pieces match.
-        if glob.endswith(sep+'*'):
-            stripped_glob = re.sub(r'\*$', '', glob)
-            if meowuri_string.startswith(stripped_glob):
-                return True
+        result = _evaluate_glob(glob, meowuri_string, sep)
+        if result is not None:
+            return result
 
     return False
 

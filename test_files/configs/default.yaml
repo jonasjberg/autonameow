@@ -1,5 +1,5 @@
 COMPATIBILITY:
-    autonameow_version: v0.5.7
+    autonameow_version: v0.5.8
 DATETIME_FORMAT:
     date: '%Y-%m-%d'
     datetime: '%Y-%m-%dT%H%M%S'

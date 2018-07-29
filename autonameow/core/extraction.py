@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -89,12 +87,13 @@ class ExtractorRunner(object):
 
     def register(self, extractor_klasses):
         self._available_extractors.update(extractor_klasses)
+
         if logs.DEBUG:
-            log.debug('Initialized {!s} with {} available extractors'.format(
-                self.__class__.__name__, len(self._available_extractors)))
+            log.debug('Initialized %s with %s available extractors',
+                      self.__class__.__name__, len(self._available_extractors))
             for k in self._available_extractors:
                 # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
-                log.debug('Available: {!s}'.format(k.name()))
+                log.debug('Available: %s', k.name())
 
     def start(self, fileobject, request_extractors=None, request_all=None):
         """
@@ -126,7 +125,7 @@ class ExtractorRunner(object):
             self._available_extractors, fileobject
         )
         log.debug('Removed extractors that can not handle the current file. '
-                  'Remaining: {}'.format(len(extractors_for_file)))
+                  'Remaining: %s', len(extractors_for_file))
 
         selected = set()
         if _request_all:
@@ -139,12 +138,11 @@ class ExtractorRunner(object):
             selected = self._select_from_available(extractors_for_file, requested_klasses)
 
         if logs.DEBUG:
-            log.debug('Selected {} of {} available extractors'.format(
-                len(selected), len(self._available_extractors)
-            ))
+            log.debug('Selected %s of %s available extractors',
+                      len(selected), len(self._available_extractors))
             for k in selected:
                 # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
-                log.debug('Selected extractor:  {!s}'.format(k.name()))
+                log.debug('Selected extractor:  %s', k.name())
 
         if selected:
             # Run all prepared extractors.
@@ -157,60 +155,57 @@ class ExtractorRunner(object):
         }
 
         if logs.DEBUG:
-            def __format_string(_extractors):
+            def _format_string(_extractors):
                 # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
                 return ', '.join(k.name() for k in _extractors)
 
             if not requested_klasses.issubset(available):
                 na = requested_klasses.difference(available)
-                log.debug('Requested {} unavailable extractors: {}'.format(
-                    len(na), __format_string(na)))
+                log.debug('Requested %s unavailable extractors: %s',
+                          len(na), _format_string(na))
 
-            log.debug('Selected {} requested extractors: {}'.format(
-                len(selected), __format_string(selected)))
+            log.debug('Selected %s requested extractors: %s',
+                      len(selected), _format_string(selected))
 
         if self.exclude_slow:
             selected = filter_not_slow(selected, requested_klasses)
             if logs.DEBUG:
-                log.debug('Removed slow extractors. Remaining: {}'.format(
-                    len(selected)
-                ))
-
+                log.debug('Removed slow extractors. Remaining: %s',
+                          len(selected))
         return selected
 
     def _run_extractors(self, fileobject, extractors_to_run):
         for klass in extractors_to_run:
             extractor_instance = self._get_pooled_extractor_instance(klass)
             if not extractor_instance:
-                log.critical('Unable to get an instance of "{!s}"'.format(klass))
+                log.critical('Unable to get an instance of "%s"', klass)
                 continue
 
             try:
-                _metainfo = extractor_instance.metainfo()
+                metainfo = extractor_instance.metainfo()
             except (ExtractorError, PersistenceError, NotImplementedError) as e:
-                log.error('Unable to get meta info! Aborting extractor "{!s}":'
-                          ' {!s}'.format(extractor_instance, e))
+                log.error('Unable to get meta info! Aborting extractor "%s": %s',
+                          extractor_instance, e)
                 # TODO: Remove extractor from instance pool?
                 continue
 
             try:
                 with logs.log_runtime(log, str(extractor_instance)):
-                    _extracted_data = extractor_instance.extract(fileobject)
+                    extracted_data = extractor_instance.extract(fileobject)
             except (ExtractorError, NotImplementedError) as e:
                 # TODO: Remove extractor from instance pool?
-                log.error('Unable to extract data! Aborting extractor "{!s}":'
-                          ' {!s}'.format(extractor_instance, e))
+                log.error('Unable to extract data! Aborting extractor "%s": %s',
+                          extractor_instance, e)
                 continue
 
-            if not _extracted_data:
-                log.warning('Got no data from extractor "{!s}"'.format(extractor_instance))
+            if not extracted_data:
+                log.warning('Got no data from extractor "%s"', extractor_instance)
                 continue
 
             # TODO: [TD0034] Filter out known bad data.
             # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
-            _results = wrap_provider_results(_extracted_data, _metainfo, klass)
-            _meowuri_prefix = klass.meowuri_prefix()
-            self.store_results(fileobject, _meowuri_prefix, _results)
+            wrapped_results = wrap_provider_results(extracted_data, metainfo, klass)
+            self.store_results(fileobject, klass.meowuri_prefix(), wrapped_results)
 
     def _get_pooled_extractor_instance(self, klass):
         instance = self._instance_pool.get(klass)
@@ -232,15 +227,14 @@ class ExtractorRunner(object):
         for _uri_leaf, _data in data.items():
             uri = force_meowuri(meowuri_prefix, _uri_leaf)
             if not uri:
-                log.error('Unable to construct full extractor result MeowURI'
-                          'from prefix "{!s}" and leaf "{!s}"'.format(
-                              meowuri_prefix, _uri_leaf))
+                log.error('Unable to construct full extractor result MeowURI '
+                          'from prefix "%s" and leaf "%s"', meowuri_prefix, _uri_leaf)
                 continue
 
             self._add_results_callback(fileobject, uri, _data)
 
     def shutdown_pooled_extractors(self, *_, **__):
-        log.debug('Shutting down {!s}'.format(self.__class__.__name__))
+        log.debug('Shutting down %s', self.__class__.__name__)
         for instance in self._instance_pool.values():
             if not hasattr(instance, 'shutdown'):
                 continue
@@ -248,5 +242,5 @@ class ExtractorRunner(object):
             assert callable(getattr(instance, 'shutdown')), (
                 'Expected callable extractor attribute "shutdown"'
             )
-            log.debug('Shutting down extractor "{!s}" ..'.format(instance))
+            log.debug('Shutting down extractor "%s" ..', instance)
             instance.shutdown()

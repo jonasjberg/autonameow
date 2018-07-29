@@ -1,5 +1,5 @@
 config_path: $TESTFILES/configs/default.yaml
-debug: true
+debug: false
 dry_run: true
 dump_config: false
 dump_meowuris: true
@@ -11,4 +11,4 @@ mode_interactive: false
 quiet: false
 recurse_paths: false
 show_version: false
-verbose: false
+verbose: true

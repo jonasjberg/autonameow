@@ -6,7 +6,6 @@ stdout:
     - 'analyzer.filename'
     - 'extractor.filesystem.filetags'
     - 'extractor.filesystem.xplat'
-    - 'extractor.text.plain'
     does_not_match:
     - '.*class.*'
     - '.*NULL.*'
@@ -14,3 +13,4 @@ stdout:
     - 'analyzer.filetags'
     - 'None.None'
     - 'foo.bar'
+    - 'extractor.text.plain'

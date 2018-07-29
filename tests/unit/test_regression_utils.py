@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -22,13 +20,14 @@
 import inspect
 import os
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import unit.constants as uuconst
 import unit.utils as uu
 from core import constants as C
 from regression.utils import AutonameowWrapper
 from regression.utils import check_renames
+from regression.utils import collapse_all_whitespace
 from regression.utils import commandline_for_testsuite
 from regression.utils import fetch_mock_ui_messages
 from regression.utils import get_all_testsuite_dirpaths
@@ -36,10 +35,12 @@ from regression.utils import get_regressiontests_rootdir
 from regression.utils import glob_filter
 from regression.utils import load_regression_testsuites
 from regression.utils import MockUI
+from regression.utils import normalize_description_whitespace
 from regression.utils import regexp_filter
 from regression.utils import RegressionTestError
 from regression.utils import RegressionTestLoader
 from regression.utils import RegressionTestSuite
+from regression.utils import RunResultsHistory
 from regression.utils import _commandline_args_for_testsuite
 from regression.utils import _expand_input_paths_variables
 from regression.utils import _testsuite_abspath
@@ -290,6 +291,70 @@ class TestRegressionTestLoaderGetTestSetupDictFromFiles(TestCase):
         self.assertEqual(actual, expect)
 
 
+class TestCollapseAllWhitespace(TestCase):
+    def _assert_returns(self, expected, given):
+        actual = collapse_all_whitespace(given)
+        self.assertEqual(expected, actual)
+
+    def _assert_unchanged(self, given):
+        self._assert_returns(given, given)
+
+    def test_returns_strings_without_whitespace_as_is(self):
+        self._assert_unchanged('')
+        self._assert_unchanged('foo')
+
+    def test_returns_strings_with_only_single_spaces_as_is(self):
+        self._assert_unchanged('foo bar')
+
+    def test_collapses_repeating_spaces(self):
+        self._assert_returns('foo bar', 'foo  bar')
+        self._assert_returns('foo bar', 'foo     bar')
+
+    def test_replaces_tabs_with_spaces(self):
+        self._assert_returns('foo bar', 'foo\t\tbar')
+        self._assert_returns('foo bar', 'foo\tbar')
+
+    def test_replaces_newlines_with_spaces(self):
+        self._assert_returns('foo bar', 'foo\nbar')
+        self._assert_returns('foo bar', 'foo\n\nbar')
+
+    def test_strips_trailing_and_leading_whitespace(self):
+        self._assert_returns('foo bar baz', '\n  foo \t\t bar  \n   baz')
+
+
+class TestNormalizeDescriptionWhitespace(TestCase):
+    def _assert_returns(self, expected, given):
+        actual = normalize_description_whitespace(given)
+        self.assertEqual(expected, actual)
+
+    def _assert_unchanged(self, given):
+        self._assert_returns(given, given)
+
+    def test_foo(self):
+        self._assert_returns('foo', 'foo')
+        self._assert_returns('foo', 'foo')
+        self._assert_returns('foo\nbar', 'foo\n\nbar')
+        self._assert_returns('foo\nbar', 'foo\n\n\nbar')
+        self._assert_returns('foo bar', 'foo\nbar')
+
+    def test_returns_strings_without_whitespace_as_is(self):
+        self._assert_unchanged('')
+        self._assert_unchanged('foo')
+
+    def test_joins_line_breaks_by_replacing_single_newlines_with_space(self):
+        self._assert_returns('foo bar', 'foo\nbar')
+        self._assert_returns('foo bar baz', 'foo\n bar baz\n')
+
+    def test_replaceS_blank_lines_separating_sections_with_newline(self):
+        self._assert_returns('foo foo\nbar bar' ,
+'''foo
+foo
+
+bar
+bar''')
+        self._assert_returns('foo\nbar baz', 'foo\n\nbar\nbaz')
+
+
 class TestExpandInputPathsVariables(TestCase):
     def _assert_that_it_returns(self, expected, given):
         actual = _expand_input_paths_variables(given)
@@ -512,6 +577,7 @@ class TestAutonameowWrapperWithDefaultOptions(TestCase):
         self.assertEqual(actual, C.EXIT_SUCCESS)
 
     def test_stderr_contains_no_input_files_specified(self):
+        self.skipTest('TODO: False negative on MacOS and Windows WSL')
         actual = self.aw.captured_stderr
         self.assertIn('No input files specified', actual)
 
@@ -777,3 +843,63 @@ class TestRegexpFilter(TestCase):
         self._assert_match(True, b'fooxbar', expression='foo*x.*')
         self._assert_match(True, b'fooxbar', expression='foox[abr]+')
         self._assert_match(True, b'Fooxbar', expression='[fF]oox(bar|foo)')
+
+
+class TestRunResultsHistory(TestCase):
+    def _get_mock_test_suite(self):
+        return Mock()
+
+    def _get_run_results(self):
+        mock_test_suite_failed = self._get_mock_test_suite()
+        mock_test_suite_passed = self._get_mock_test_suite()
+        mock_test_suite_skipped = self._get_mock_test_suite()
+
+        from regression.regression_runner import RunResults
+        run_results = RunResults()
+        run_results.failed.add(mock_test_suite_failed)
+        run_results.passed.add(mock_test_suite_passed)
+        run_results.skipped.add(mock_test_suite_skipped)
+        return run_results
+
+    def _get_run_results_history(self, *args, **kwargs):
+        return RunResultsHistory(*args, **kwargs)
+
+    def test_history_with_maxlen_five_contains_single_run_result(self):
+        run_results_history = self._get_run_results_history(maxlen=5)
+
+        run_results = self._get_run_results()
+        run_results_history.add(run_results)
+
+        self.assertEqual(1, len(run_results_history))
+
+    def test_history_with_maxlen_five_contains_five_run_results(self):
+        run_results_history = self._get_run_results_history(maxlen=5)
+
+        for _ in range(5):
+            run_results = self._get_run_results()
+            run_results_history.add(run_results)
+
+        self.assertEqual(5, len(run_results_history))
+
+    def test_history_with_maxlen_five_stores_at_most_five_run_results(self):
+        run_results_history = self._get_run_results_history(maxlen=5)
+
+        for _ in range(7):
+            run_results = self._get_run_results()
+            run_results_history.add(run_results)
+
+        self.assertEqual(5, len(run_results_history))
+
+    def test_run_results_is_in_chronological_order(self):
+        run_results_history = self._get_run_results_history(maxlen=2)
+
+        run_results_history.add('A')
+        self.assertEqual('A', run_results_history[0])
+
+        run_results_history.add('B')
+        self.assertEqual('B', run_results_history[0])
+        self.assertEqual('A', run_results_history[1])
+
+        run_results_history.add('C')
+        self.assertEqual('C', run_results_history[0])
+        self.assertEqual('B', run_results_history[1])

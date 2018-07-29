@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -24,6 +22,11 @@ import re
 from thirdparty import nameparser
 from util import sanity
 from util.text.regexcache import RegexCache
+from util.text import substring
+
+
+# TODO: [TD0195] Handle malformed metadata with duplicated authors
+#       Detect and filter duplicated authors like ['Gibson Sjöberg', 'Gibson']
 
 
 BLACKLISTED_HUMAN_NAMES = frozenset([
@@ -33,6 +36,7 @@ BLACKLISTED_HUMAN_NAMES = frozenset([
     'editor',
     'foreword',
     'inc',
+    'jr.',
     'presenter',
     'reviewer',
     'technical editor',
@@ -59,7 +63,7 @@ def strip_author_et_al(string):
 
 
 def strip_edited_by(string):
-    RE_EDITED_BY = r'ed(\.|ited) by'
+    RE_EDITED_BY = r'\(?,? ?(technical.)?ed(\.|ited|itor)( by)?\)?|\(ed\)'
     regex = RegexCache(RE_EDITED_BY, flags=re.IGNORECASE)
     subbed_string = regex.sub('', string)
     return subbed_string.strip()
@@ -96,39 +100,58 @@ def strip_bad_author_substrings(string):
     s = strip_author_et_al(s)
     s = strip_contributions(s)
 
-    if s.lower().startswith('by '):
-        s = s[3:]
+    for leading_substring in [
+        '[',
+        'by ',
+    ]:
+        if s.startswith(leading_substring):
+            leading_chars_to_strip = len(leading_substring)
+            s = s[leading_chars_to_strip:]
+
+    for trailing_substring in [
+        ']',
+    ]:
+        if s.endswith(trailing_substring):
+            trailing_chars_to_strip = len(trailing_substring)
+            s = s[:-trailing_chars_to_strip]
 
     return s
 
 
-def _handle_letter_case_of_names_with_van(string):
+def _handle_letter_case_of_nobiliary_particle(s, particle):
+    """
+    Undoes a title-case transformation of certain parts of a full name.
+
+    Returns the given string "s" with the first letter of "particle"
+    lower-cased.
+    Example usage:
+
+    >>> _handle_letter_case_of_nobiliary_particle('Gibson Von Cheese', 'Von')
+    'Gibson von Cheese'
+    """
+    assert isinstance(s, str)
+    assert isinstance(particle, str)
+
     def __lower_first_upper_second(_match):
         _lowered_first = _match.group(1).lower()
         _lowered_second = _match.group(2).upper()
         return _lowered_first + _lowered_second
 
-    subbed = re.sub(r' Van ', ' van ', string)
-    subbed = re.sub(r'(Van)([\w])', __lower_first_upper_second, subbed)
+    pattern_with_spaces_match = ' {} '.format(particle)
+    pattern_with_spaces_replace = pattern_with_spaces_match.lower()
+    subbed = re.sub(pattern_with_spaces_match, pattern_with_spaces_replace, s)
+
+    pattern_match = '({})([\w])'.format(particle)
+    subbed = re.sub(pattern_match, __lower_first_upper_second, subbed)
     return subbed
 
 
-def _handle_letter_case_of_names_with_von(string):
-    def __lower_first_upper_second(_match):
-        _lowered_first = _match.group(1).lower()
-        _lowered_second = _match.group(2).upper()
-        return _lowered_first + _lowered_second
+def _handle_special_cases_of_name_letter_case(s):
+    for particle in ('Van', 'Von'):
+        s = _handle_letter_case_of_nobiliary_particle(s, particle)
 
-    subbed = re.sub(r' Von ', ' von ', string)
-    subbed = re.sub(r'(Von)([\w])', __lower_first_upper_second, subbed)
-    return subbed
-
-
-def _handle_special_cases_of_name_letter_case(string):
-    # TODO: [incomplete] Will probably need to handle more special cases.
-    modified_string = _handle_letter_case_of_names_with_van(string)
-    modified_string = _handle_letter_case_of_names_with_von(modified_string)
-    return modified_string
+    s = s.replace(' De ', ' de ')
+    return s
 
 
 def normalize_letter_case(string):
@@ -249,16 +272,12 @@ class HumanNameParser(object):
                     initials = [
                         s for s in parsed_name['first'].split('.') if s.strip()
                     ]
-                    try:
-                        first_initial = initials[0]
-                        remaining_initials = initials[1:]
-                        parsed_name['first'] = first_initial
-                        parsed_name['first_list'] = [first_initial]
-                        parsed_name['middle'] = remaining_initials[0]
-                        parsed_name['middle_list'] = remaining_initials
-                    except IndexError:
-                        print('älkjshdfg')
-                        raise
+                    first_initial = initials[0]
+                    remaining_initials = initials[1:]
+                    parsed_name['first'] = first_initial
+                    parsed_name['first_list'] = [first_initial]
+                    parsed_name['middle'] = remaining_initials[0]
+                    parsed_name['middle_list'] = remaining_initials
 
         return parsed_name
 
@@ -308,7 +327,7 @@ class HumanNameFormatter(object):
           NOTE: This method __MUST__ be implemented by inheriting classes!
 
         Args:
-            name: The human name to format as a Unicode string.
+            name (str): The human name to format as a Unicode string.
 
         Returns:
             A formatted version of the given name as a Unicode string.
@@ -418,9 +437,8 @@ def split_multiple_names(list_of_names):
     # Local import to avoid circular imports within the 'util' module.
     from util import flatten_sequence_type
 
-    RE_NAME_SEPARATORS = r',| ?\band| ?\+| ?& ?'
+    RE_NAME_SEPARATORS = r';|,| ?\b[aA]nd | ?\+| ?& ?'
 
-    result = list()
     flat_list_of_names = flatten_sequence_type(list_of_names)
     if len(flat_list_of_names) == 1 and flat_list_of_names[0].startswith('edited by'):
         # TODO: [hack] FIX THIS!
@@ -429,10 +447,49 @@ def split_multiple_names(list_of_names):
         #       function..
         return flat_list_of_names
 
+    if len(flat_list_of_names) == 1:
+        name_or_names = flat_list_of_names[0]
+        separator_chars = substring.find_separators(name_or_names)
+
+        # Make a string from the unique non-whitespace separator-chars.
+        stripped_separator_chars = ''.join(set(c.strip() for c in separator_chars))
+        if ';' in stripped_separator_chars and ',' in stripped_separator_chars:
+            # TODO: [hack] Clean up adding/removing from 'RE_NAME_SEPARATORS'!
+
+            # The point of this is to remove ',' from 'RE_NAME_SEPARATORS'
+            # when both ',' and ';' are potential separator characters.
+            RE_NAME_SEPARATORS = r';| ?\band| ?\+| ?& ?'
+
+        elif re.match(r'\w+, \w', name_or_names):
+            # Detect cases like ['Paul, Baz'] and return as-is.
+            return [name_or_names]
+
+    elif len(flat_list_of_names) > 1:
+        if all(re.match(r'\w+, \w', p) for p in flat_list_of_names):
+            # Detect cases like ['Foobar, S.', 'Paul, Baz', 'Gibson, N.']
+            # where ',' should NOT be used as a separator.
+            return flat_list_of_names
+
+    result = list()
     for name_or_names in flat_list_of_names:
         split_parts = re.split(RE_NAME_SEPARATORS, name_or_names)
-        non_whitespace_parts = [p.strip() for p in split_parts if p]
+        non_whitespace_parts = [p.strip() for p in split_parts if p.strip()]
         result.extend(non_whitespace_parts)
+
+    if len(flat_list_of_names) == len(result):
+        # Splitting by various separators had no effect.
+        if len(flat_list_of_names) > 2:
+            if any(re.match(r'^\w\.$', p) for p in flat_list_of_names):
+                # At least of the names is something like 'X.'
+                # Assume the list of names should actually be put back together
+                # rather than split.. Join parts in groups of two.
+                groups_of_two = (
+                    flat_list_of_names[i:i+2]
+                    for i in range(0, len(flat_list_of_names), 2)
+                )
+                joined_names = [' '.join(part) for part in groups_of_two]
+                return joined_names
+
     return result
 
 
@@ -451,3 +508,16 @@ def filter_name(human_name):
     name = strip_bad_author_substrings(name)
     name = normalize_letter_case(name)
     return name
+
+
+def preprocess_names(list_of_names):
+    """
+    Primary "public" filtering/cleanup function for incoming raw names.
+
+    Intended to process lists of strings of names from any kind of source.
+    Wraps all other filtering functionality provided by this module.
+    """
+    assert isinstance(list_of_names, list)
+    assert all(isinstance(s, str) for s in list_of_names)
+
+    return split_multiple_names(filter_multiple_names(list_of_names))

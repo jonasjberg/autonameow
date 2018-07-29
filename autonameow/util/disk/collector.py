@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -42,8 +40,8 @@ def get_files_gen(search_path, recurse=False):
         NOTE: Does not currently handle symlinks.
 
     Args:
-        search_path: The path from which to collect files.
-        recurse: Whether to traverse the path recursively or not.
+        search_path (bytes): The path from which to collect files.
+        recurse (bool): Whether to traverse the path recursively or not.
 
     Returns:
         Absolute paths to files in the specified path, as a generator object.

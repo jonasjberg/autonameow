@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -115,6 +113,7 @@ assert_true 'man sed | grep -- "^ \+.*-i\b"' \
             'System sed supports the "-i" option, required by some integration tests'
 
 assert_has_command 'time'
+assert_has_command 'aspell'  # devscripts/check-spelling.sh
 
 
 # ______________________________________________________________________________
@@ -204,9 +203,9 @@ assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e w x
 assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e x
 
 
-_temporary_file='.___temporary__file__'
+_temporary_file='___temporary_file___'
 [ -f "$_temporary_file" ] || touch "$_temporary_file"
-assert_true '[ -e "${_temporary_file}" ]' \
+assert_true '[ -f "${_temporary_file}" ]' \
             'Reference dummy temporary was created'
 
 assert_bulk_test "$_temporary_file"
@@ -227,9 +226,8 @@ assert_bulk_test "$_temporary_file" f r
 assert_bulk_test "$_temporary_file" f r w
 assert_bulk_test "$_temporary_file" f w
 
-rm "$_temporary_file"
-assert_false '[ -e "${_temporary_file}" ]' \
-             'Reference dummy temporary file was deleted'
+assert_true '[ -f "${_temporary_file}" ] && rm "$_temporary_file"' \
+            'Reference dummy temporary file was deleted'
 
 
 # ______________________________________________________________________________
@@ -243,6 +241,8 @@ check_testfiles_file      '4123.epub'
 check_testfiles_file      '4123.pdf'
 check_testfiles_file      'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi'
 check_testfiles_file      'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf'
+check_testfiles_file      'Critique_of_Pure_Reason.djvu'
+check_testfiles_file      'Critique_of_Pure_Reason.djvu_expected.txt'
 check_testfiles_file      'UTF-8-demo.txt'
 check_testfiles_file      'empty'
 check_testfiles_symlink   'empty.symlink'
@@ -257,6 +257,7 @@ check_testfiles_file      'magic_txt'
 check_testfiles_file      'magic_txt.md'
 check_testfiles_file      'magic_txt.txt'
 check_testfiles_file      'ObjectCalisthenics.rtf'
+check_testfiles_file      'ObjectCalisthenics.rtf_expected.txt'
 check_testfiles_file      'pg38145-images.epub'
 check_testfiles_file      'pg38145-images.epub_expected.txt'
 check_testfiles_file      'sample.md'
@@ -265,6 +266,7 @@ check_testfiles_file      'sample.rtf'
 check_testfiles_file      'sample.rtf_expected.txt'
 check_testfiles_file      'saved-webpage.html'
 check_testfiles_file      'saved-webpage.mhtml'
+check_testfiles_file      'Screen Shot 2018-06-25 at 21.43.07.png'
 check_testfiles_file      'simple-lexical-analysis'
 check_testfiles_file      'simplest_pdf.md.pdf'
 check_testfiles_file      'simplest_pdf.md.pdf_expected.txt'
@@ -325,6 +327,10 @@ check_testfiles_directory 'subdir/subsubdir_B'
 check_testfiles_file      'subdir/subsubdir_B/file_A3'
 check_testfiles_file      'subdir/subsubdir_B/file_B1'
 check_testfiles_file      'subdir/subsubdir_B/file_B2'
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_creatortool.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_language.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_publisher.yaml" e f r
 
 
 

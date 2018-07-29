@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -81,6 +79,7 @@ class DocumentAnalyzer(BaseAnalyzer):
     FIELD_LOOKUP = {
         'title': {
             'coercer': 'aw_string',
+            'multivalued': 'false',
             'mapped_fields': [
                 # TODO: [TD0166] Set weights dynamically
                 {'WeightedMapping': {'field': 'Title', 'weight': '0.1'}},
@@ -89,6 +88,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         },
         'datetime': {
             'coercer': 'aw_timedate',
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'DateTime', 'weight': '0.25'}},
                 {'WeightedMapping': {'field': 'Date', 'weight': '0.25'}},
@@ -97,6 +97,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         },
         'publisher': {
             'coercer': 'aw_string',
+            'multivalued': 'false',
             'mapped_fields': [
                 {'WeightedMapping': {'field': 'Publisher', 'weight': '1'}},
             ],
@@ -132,8 +133,13 @@ class DocumentAnalyzer(BaseAnalyzer):
             t for t, _ in find_titles_in_text(leading_text, num_lines_to_search=1)
         ]
         if text_titles:
-            # TODO: Pass multiple possible titles with probabilities.
-            #       (title is not "multivalued")
+            # TODO: [TD0190] Bundle single fields like this into "records".
+            # When attempting to find a "more likely" field value among
+            # multiple possible candidate values, operate on the records. This
+            # should help with comparing the candidate values against values
+            # from other sources and also with other methods that look at
+            # relationships between fields within a single record and also
+            # betweeen multiple records.
             maybe_text_title = text_titles[0]
             clean_title = cleanup_full_title(maybe_text_title)
             if clean_title:

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -20,6 +18,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+from functools import lru_cache
 
 from util import coercers
 from util.text.transform import collapse_whitespace
@@ -92,29 +91,23 @@ _ORDINAL_NUMBER_PATTERNS = [
 ]
 
 
-RE_ORDINALS = dict()
-
-
+@lru_cache()
 def compiled_ordinal_regexes():
-    global RE_ORDINALS
-    if not RE_ORDINALS:
-        for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
-            compiled_regex = re.compile(regexp, re.IGNORECASE)
-            RE_ORDINALS[number] = compiled_regex
-    return RE_ORDINALS
+    re_ordinals = dict()
+    for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
+        compiled_regex = re.compile(regexp, re.IGNORECASE)
+        re_ordinals[number] = compiled_regex
+    return re_ordinals
 
 
-RE_ORDINAL_EDITION = dict()
-
-
+@lru_cache()
 def compiled_ordinal_edition_regexes():
-    global RE_ORDINAL_EDITION
-    if not RE_ORDINAL_EDITION:
-        for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
-            ordinal_edition_pattern = regexp + r' ?(edition|ed\.?|e)'
-            compiled_regex = re.compile(ordinal_edition_pattern, re.IGNORECASE)
-            RE_ORDINAL_EDITION[number] = compiled_regex
-    return RE_ORDINAL_EDITION
+    re_ordinal_edition = dict()
+    for number, regexp in enumerate(_ORDINAL_NUMBER_PATTERNS, start=1):
+        ordinal_edition_pattern = regexp + r' ?(edition|ed\.?|e)'
+        compiled_regex = re.compile(ordinal_edition_pattern, re.IGNORECASE)
+        re_ordinal_edition[number] = compiled_regex
+    return re_ordinal_edition
 
 
 def find_and_extract_edition(string):

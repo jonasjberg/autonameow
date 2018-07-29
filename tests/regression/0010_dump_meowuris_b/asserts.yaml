@@ -1,14 +1,20 @@
 exit_code: 0
 stdout:
     matches:
-    - 'analyzer.document'
-    - 'analyzer.ebook'
-    - 'analyzer.filename'
-    - 'extractor.filesystem.filetags'
-    - 'extractor.filesystem.xplat'
-    - 'extractor.text.plain'
-    - 'class .*DocumentAnalyzer'
+    - 'analyzer.document.*DocumentAnalyzer'
+    - 'analyzer.ebook.*EbookAnalyzer'
+    - 'analyzer.filename.*FilenameAnalyzer'
+    - 'extractor.filesystem.filetags.*FiletagsExtractor'
+    - 'extractor.filesystem.guessit.*GuessitExtractor'
+    - 'extractor.filesystem.xplat.*CrossPlatformFileSystemExtractor'
+    - 'extractor.metadata.exiftool.*ExiftoolMetadataExtractor'
+    - 'extractor.metadata.jpeginfo.*JpeginfoMetadataExtractor'
+    - 'extractor.metadata.pandoc.*PandocMetadataExtractor'
     does_not_match:
+    - '.*class.*'
+    - '.*NULL.*'
+    - '.*generic.*'
     - 'analyzer.filetags'
     - 'None.None'
     - 'foo.bar'
+    - 'extractor.text.plain'

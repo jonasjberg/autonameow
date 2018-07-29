@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -79,7 +77,6 @@ class ConfigHistoryPathStore(object):
 
     @property
     def config_history_path(self):
-        # TODO [TD0188] Consolidate access to active, global configuration.
         if not self._config_history_path:
             log.debug('Using default history file path "{!s}"'.format(self.default_history_file_path))
             return self.default_history_file_path
@@ -189,12 +186,15 @@ def field_selection_prompt(candidates):
         return None
 
     _candidate_numbers = list(candidates.keys())
-    text = prompt(
-        'Enter #: ',
-        on_abort=AbortAction.RETURN_NONE,
-        validator=NumberSelectionValidator(candidates=_candidate_numbers)
-    )
-    return text
+    try:
+        return prompt(
+            'Enter #: ',
+            on_abort=AbortAction.RETURN_NONE,
+            validator=NumberSelectionValidator(candidates=_candidate_numbers)
+        )
+    except EOFError:
+        # Might be that user pressed ctrl-d
+        return None
 
 
 def ask_confirm(message):
@@ -212,6 +212,9 @@ def ask_confirm(message):
 
 
 def _on_config_changed(*_, **kwargs):
+    """
+    Called whenever the global configuration changes.
+    """
     active_config = kwargs.get('config')
     assert active_config
 

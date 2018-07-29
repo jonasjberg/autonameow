@@ -1,9 +1,7 @@
 `autonameow`
 ------------
-*Copyright(c) 2016-2018 Jonas Sjöberg*  
-<https://github.com/jonasjberg>  
-<http://www.jonasjberg.com>  
-University mail: `js224eh[a]student.lnu.se`  
+Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>  
+Source repository: <https://github.com/jonasjberg/autonameow>
 
 --------------------------------------------------------------------------------
 
@@ -28,6 +26,7 @@ critical `TODO`-list item.
 >     * `pdftotext`
 >     * `unrtf`
 >     * `jpeginfo`
+>     * `djvutxt`
 >
 > 2. Install these Python modules:
 >
@@ -111,7 +110,7 @@ install the non-Python dependencies.
 
 Install the dependencies by running the following commands in a terminal:
 ```bash
-brew install libmagic exiftool tesseract unrtf pandoc jpeginfo
+brew install libmagic exiftool tesseract unrtf pandoc jpeginfo djvulibre
 brew install poppler # pdftotext
 pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib
 ```
@@ -121,7 +120,7 @@ pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs
 Install the dependencies by running the following commands in a terminal:
 
 ```bash
-sudo apt install exiftool tesseract-ocr pdftotext unrtf pandoc jpeginfo
+sudo apt install exiftool tesseract-ocr pdftotext unrtf pandoc jpeginfo djvutxt
 pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib
 ```
 

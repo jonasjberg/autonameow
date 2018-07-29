@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -20,7 +18,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from core.renamer import FilenameDelta
 from core.renamer import FileRenamer
@@ -67,21 +65,18 @@ class TestFilenameDelta(TestCase):
 
 
 class TestRenameFile(TestCase):
-    @patch('core.autonameow.disk.rename_file')
-    def test_disk_rename_file_should_not_be_called_when_dry_run_is_true(
-            self, mock_disk_rename_file
-    ):
-        fr = FileRenamer(dry_run=True, timid=False)
-        fr._rename_file(b'/tmp/dummy/foo', b'mjao')
-        mock_disk_rename_file.assert_not_called()
+    def setUp(self):
+        self.mock_rename_func = Mock()
 
-    @patch('core.autonameow.disk.rename_file')
-    def test_disk_rename_file_should_be_called_when_dry_run_is_false_(
-            self, mock_disk_rename_file
-    ):
-        fr = FileRenamer(dry_run=False, timid=False)
+    def test_rename_func_should_not_be_called_when_dry_run_is_true(self):
+        fr = FileRenamer(dry_run=True, timid=False, rename_func=self.mock_rename_func)
         fr._rename_file(b'/tmp/dummy/foo', b'mjao')
-        mock_disk_rename_file.assert_called_with(b'/tmp/dummy/foo', b'mjao')
+        self.mock_rename_func.assert_not_called()
+
+    def test_rename_func_should_be_called_when_dry_run_is_false_(self):
+        fr = FileRenamer(dry_run=False, timid=False, rename_func=self.mock_rename_func)
+        fr._rename_file(b'/tmp/dummy/foo', b'mjao')
+        self.mock_rename_func.assert_called_with(b'/tmp/dummy/foo', b'mjao')
 
 
 class TestFileRenamer(TestCase):

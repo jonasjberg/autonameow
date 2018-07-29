@@ -1,9 +1,7 @@
 `autonameow`
 ============
-*Copyright(c) 2016-2018 Jonas Sjöberg*  
-<https://github.com/jonasjberg>  
-<http://www.jonasjberg.com>  
-University mail: `js224eh[a]student.lnu.se`  
+Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>  
+Source repository: <https://github.com/jonasjberg/autonameow>
 
 --------------------------------------------------------------------------------
 
@@ -13,6 +11,21 @@ University mail: `js224eh[a]student.lnu.se`
 
 High Priority
 -------------
+
+* `[TD0198]` __Separate repositories for "provider" and "internal" data__  
+    One repository would store data for URIs like
+    `extractor.metadata.exiftool.PDF:Author` and "aliased leaf" URIs like
+    `extractor.metadata.exiftool.author`.
+    This would be the raw unprocessed data, straight from the `exiftool`
+    provider.
+
+    Another repository stores data, for URIs like `generic.metadata.author`.
+    Data returned from this repository will have been processed, cleaned,
+    "unpacked", etc.
+    This allows lazily processing data as required, serves to clean up the
+    current repository implementation, as well as helping separation of data
+    processing and allows accessing the various forms the data at various
+    stage.
 
 * `[TD0187]` __Fix "clobbering" of analyzer results..__
 
@@ -90,6 +103,34 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0200]` __Improve system for finding probable file extensions.__  
+    The system for finding a "probable" extension should accept additional
+    input data in order to make better decisions about certain files.
+    For instance, all files named `METADATA`, with MIME-types `text/*`
+    should probably return an empty extension as the most probable.
+
+    This requires at least passing in the "basename prefix" to the
+    `likely_extension()` function in `analyze_filename.py`.
+    But things like the parent directory name should also prove useful
+    in order to produce better results.
+
+* `[TD0196]` Allow user to define maximum lengths for new names.
+
+* `[TD0197]` Template field-specific length limits and trimming.  
+    When populating the final name, check the total length of the final new
+    file name. If the total length of the file name exceeds a user-defined max
+    length or if any of the individual placeholder fields exceed their specific
+    max lengths, trim field lengths until the individual field limits are no
+    longer exceeded.
+
+    If the total length of the new name still exceeds the total length limit,
+    trim individual fields in some yet unknown way.
+
+    If the name template is `{title} {subtitle}`, possibly trim or remove the
+    subtitle, etc. This behaviour should be made field- and/or data-specific.
+
+    Related to TODO `[TD0196]` on allowing user-defined max length.
+
 * `[TD0190]` __Join/merge metadata "records" with missing field values__  
     When de-duplicating and discarding "duplicate" sets of metadata
     ("records"), check if the chosen metadata record has any missing or empty
@@ -124,17 +165,9 @@ Medium Priority
     I.E. replace variations and/or equivalent values of "foo books" with the
     canonical values "FooBooks" and "ProjectGutenberg".
 
-* `[TD0188]` Consolidate access to active, global configuration.
-
 * `[TD0182]` Isolate third-party metadata services like `isbnlib`.
 
 * `[TD0174]` Do not do replacements in the NameTemplateField classes.
-
-* `[TD0172]` __Extend the text extractors with additional fields.__  
-    Currently text extractors only collect a single field `full`, containing
-    the full plain text.  Some file formats contain information on which parts
-    are titles, heading, etc.  Text extractors should provide this when
-    possible.
 
 * `[TD0161]` Handle mapping/translation between "generic"/specific MeowURIs.
 
@@ -276,6 +309,42 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0195]` __Handle malformed metadata with duplicated authors__  
+    Detect and filter duplicated authors like `['Gibson Sjöberg', 'Gibson']`
+
+* `[TD0194]` __Handle pdfs without "overlay" text__  
+    Detect when pdf documents do not contain any text that can be extracted
+    with `pdftotext` and run do OCR text extraction instead.
+    Each page of the PDF document must first be converted to some suitable
+    image format that can be passed on to OCR text extraction.
+
+* `[TD0193]` __Clean up arguments passed to `FilesystemError`__  
+    Fix inconsistent usage of the `FilesystemError` exception class.
+
+    Two calls in `util/disk/yaml.py` pass additional information;
+    ```python
+    raise FilesystemError(dest_filepath, e)
+    ```
+
+    While other calls look like;
+    ```python
+    try:
+        foo()
+    except FooError as e:
+        raise FilesystemError(e)
+    ```
+
+    Might be worthwhile to add class attribute constants.
+    So that something like;
+    ```python
+    raise FilesystemError(dest_filepath, 'Insufficient permissions')
+    ```
+
+    Would become something more along the lines of;
+    ```python
+    raise FilesystemError(dest_filepath, FilesystemError.ERROR_PERMISSION)
+    ```
+
 * `[TD0192]` __Detect and extract editions from titles__  
     This is already done in the `EbookAnalyzer` using functions in
     `patternmatching.py` but this needs to be extracted into a separate system.
@@ -389,36 +458,6 @@ Low Priority
 
 * `[TD0139]` Warn if data sources does not match name template placeholders?
 
-* `[TD0125]` __Add aliases (generics) for MeowURI leafs__  
-  Should probably provide a consistent internal alternative field name when
-  specifying extractor-specific MeowURIs, not only with "generic".
-
-  Example of equivalent MeowURIs with the "alias" or "generic":
-
-    ```
-    extractor.metadata.exiftool.PDF:CreateDate
-    extractor.metadata.exiftool.date_created
-    ```
-
-  Another example:
-
-    ```
-    extractor.metadata.exiftool.EXIF:DateTimeOriginal
-    extractor.metadata.exiftool.date_created
-    ```
-  The examples illustrate that multiple provider-specific fields would have to
-  share a single "alias" or "generic", because there will always be fewer of
-  them. If these were not based on the subclasses of `GenericField`, they could
-  simply be made to map directly with the provider fields, maybe only with a
-  slight transformation like converting to lower-case.
-
-  Example of alternative using simple transformations:
-
-    ```
-    extractor.metadata.exiftool.EXIF:DateTimeOriginal
-    extractor.metadata.exiftool.exif_datetimeoriginal
-    ```
-
 * `[TD0130]` __Implement general-purpose matching/extraction of substrings.__  
     Primary purpose is to provide matching and also removal of matched parts.
 
@@ -464,8 +503,6 @@ Low Priority
     This could be solved by either adding `{season}` and `{episode}` as new
     template fields or by allowing arbitrary placeholder fields with some
     simple format like `{a}`, `{b}`, etc.
-
-* `[TD0091]` Take a look at old code in `util/dateandtime.py`.
 
 * `[TD0068]` Let the user specify which languages to use for OCR.
 
@@ -571,5 +608,5 @@ Wishlist
 Windows-compatibility *(Very Low Priority)*
 -------------------------------------------
 
-* Bundle `python-magic` dependencies?
-  https://github.com/ahupp/python-magic#dependencies
+* `[TD0199]` Bundle `python-magic` dependencies?
+    https://github.com/ahupp/python-magic#dependencies

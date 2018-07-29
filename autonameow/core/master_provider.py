@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -22,8 +20,6 @@
 import logging
 from collections import defaultdict
 
-from core import analysis
-from core import constants as C
 from core import event
 from core import logs
 from core import repository
@@ -41,92 +37,71 @@ def _map_generic_sources(meowuri_class_map):
     Returns a dict keyed by provider classes storing sets of "generic"
     fields as Unicode strings.
     """
-    out = dict()
+    klass_generic_meowuris_map = defaultdict(set)
+    for _, klass in meowuri_class_map.items():
+        # TODO: [TD0151] Fix inconsistent use of classes/instances.
+        # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
+        for _, field_metainfo in klass.metainfo().items():
+            generic_field_string = field_metainfo.get('generic_field')
+            if not generic_field_string:
+                continue
 
-    # for root in ['extractors', 'analyzer'] ..
-    for root in sorted(list(C.MEOWURI_ROOTS_SOURCES)):
-        if root not in meowuri_class_map:
-            continue
+            sanity.check_internal_string(generic_field_string)
+            generic_field_klass = genericfields.get_field_for_uri_leaf(generic_field_string)
+            if not generic_field_klass:
+                continue
 
-        out[root] = dict()
-        for _, klass in meowuri_class_map[root].items():
-            out[root][klass] = set()
+            assert issubclass(generic_field_klass, genericfields.GenericField)
+            generic_meowuri = generic_field_klass.uri()
+            if not generic_meowuri:
+                continue
 
-            # TODO: [TD0151] Fix inconsistent use of classes/instances.
-            # TODO: [TD0157] Look into analyzers 'FIELD_LOOKUP' attributes.
-            for _, field_metainfo in klass.metainfo().items():
-                _generic_field_string = field_metainfo.get('generic_field')
-                if not _generic_field_string:
-                    continue
+            klass_generic_meowuris_map[klass].add(generic_meowuri)
 
-                sanity.check_internal_string(_generic_field_string)
-                _generic_field_klass = genericfields.get_field_for_uri_leaf(_generic_field_string)
-                if not _generic_field_klass:
-                    continue
-
-                assert issubclass(_generic_field_klass, genericfields.GenericField)
-                _generic_meowuri = _generic_field_klass.uri()
-                if not _generic_meowuri:
-                    continue
-
-                out[root][klass].add(_generic_meowuri)
-    return out
+    return klass_generic_meowuris_map
 
 
 def _get_meowuri_source_map():
-    def __get_meowuri_roots_for_providers(module_name):
-        """
-        Returns a dict mapping "MeowURIs" to provider classes.
+    """
+    Returns a dict mapping "MeowURIs" to provider classes.
 
-        Example return value: {
-            'extractor.filesystem.xplat': CrossPlatformFilesystemExtractor,
-            'extractor.metadata.exiftool': ExiftoolMetadataExtractor,
-            'extractor.text.pdf': PdfTextExtractor
-        }
+    Example return value: {
+        'extractor.filesystem.xplat': CrossPlatformFilesystemExtractor,
+        'extractor.metadata.exiftool': ExiftoolMetadataExtractor,
+    }
 
-        Returns: Dictionary keyed by instances of the 'MeowURI' class,
-                 storing provider classes.
-        """
+    Returns: Dictionary keyed by instances of the 'MeowURI' class,
+             storing provider classes.
+    """
+    import analyzers
+    import extractors
+
+    mapping = dict()
+    for module_name in (analyzers, extractors):
         module_registry = getattr(module_name, 'registry')
         klass_list = module_registry.all_providers
 
-        mapping = dict()
         for klass in klass_list:
             uri = klass.meowuri_prefix()
-            if not uri:
-                # TODO: [TD0151] Fix inconsistent use of classes/instances.
-                log.critical('Got empty from '
-                             '"{!s}.meowuri_prefix()"'.format(klass.name()))
-                continue
-
-            assert uri not in mapping, (
-                'Provider MeowURI "{!s}" is already mapped'.format(uri)
-            )
+            assert uri, 'Got empty "meowuri_prefix" from {!s}'.format(klass)
+            assert uri not in mapping, 'URI "{!s}" already mapped'.format(uri)
             mapping[uri] = klass
-        return mapping
 
-    import analyzers
-    import extractors
-    return {
-        'extractor': __get_meowuri_roots_for_providers(extractors),
-        'analyzer': __get_meowuri_roots_for_providers(analyzers),
-    }
+    return mapping
 
 
 def _get_excluded_sources():
     """
-    Returns a dict of provider classes excluded due to unmet dependencies.
+    Returns a set of provider classes excluded due to unmet dependencies.
     """
-    def __get_excluded_providers(module_name):
-        module_registry = getattr(module_name, 'registry')
-        return module_registry.excluded_providers
-
     import extractors
     import analyzers
-    return {
-        'extractor': __get_excluded_providers(extractors),
-        'analyzer': __get_excluded_providers(analyzers),
-    }
+
+    all_excluded = set()
+    for module_name in (analyzers, extractors):
+        module_registry = getattr(module_name, 'registry')
+        all_excluded.update(module_registry.excluded_providers)
+    return all_excluded
 
 
 class ProviderRegistry(object):
@@ -137,29 +112,30 @@ class ProviderRegistry(object):
 
         self.meowuri_sources = dict(meowuri_source_map)
         self._debug_log_mapped_meowuri_sources()
-
         self.excluded_providers = excluded_providers
 
         # Set of all MeowURIs "registered" by extractors or analyzers.
         self.mapped_meowuris = self.unique_map_meowuris(self.meowuri_sources)
 
         # Providers declaring generic MeowURIs through 'metainfo()'.
-        self.generic_meowuri_sources = _map_generic_sources(
-            self.meowuri_sources
-        )
-
-        # VALID_SOURCE_ROOTS = set(C.MEOWURI_ROOTS_SOURCES)
-        # assert all(r in self.generic_meowuri_sources
-        #            for r in VALID_SOURCE_ROOTS)
+        self.generic_meowuri_sources = _map_generic_sources(self.meowuri_sources)
+        self._debug_log_mapped_generic_meowuri_sources()
 
     def _debug_log_mapped_meowuri_sources(self):
         if not logs.DEBUG:
             return
 
-        for key in self.meowuri_sources.keys():
-            for meowuri, klass in self.meowuri_sources[key].items():
-                self.log.debug('Mapped MeowURI "{!s}" to "{!s}" ({!s})'.format(
-                    meowuri, klass, key))
+        for uri, klass in sorted(self.meowuri_sources.items()):
+            self.log.debug('Mapped MeowURI "%s" to %s', uri, klass.name())
+
+    def _debug_log_mapped_generic_meowuri_sources(self):
+        if not logs.DEBUG:
+            return
+
+        for klass, uris in self.generic_meowuri_sources.items():
+            klass_name = klass.name()
+            for uri in sorted(uris):
+                self.log.debug('Mapped generic MeowURI "%s" to %s', uri, klass_name)
 
     def might_be_resolvable(self, uri):
         if not uri:
@@ -170,7 +146,7 @@ class ProviderRegistry(object):
         uri_without_leaf = uri.stripleaf()
         return any(m.matches_start(uri_without_leaf) for m in resolvable)
 
-    def providers_for_meowuri(self, requested_meowuri, includes=None):
+    def providers_for_meowuri(self, requested_meowuri):
         """
         Returns a set of classes that might store data under a given "MeowURI".
 
@@ -179,9 +155,6 @@ class ProviderRegistry(object):
 
         Args:
             requested_meowuri: The "MeowURI" of interest.
-            includes: Optional list of provider roots to include.
-                      Must be one of 'C.MEOWURI_ROOTS_SOURCES'.
-                      Default is to include all.
 
         Returns:
             A set of classes that "could" produce and store data under a
@@ -189,84 +162,58 @@ class ProviderRegistry(object):
         """
         found = set()
         if not requested_meowuri:
-            log.error('"providers_for_meowuri()" got empty MeowURI!')
+            self.log.error('"providers_for_meowuri()" got empty MeowURI!')
             return found
 
         if requested_meowuri.is_generic:
-            found = self._providers_for_generic_meowuri(requested_meowuri,
-                                                        includes)
+            found = self._providers_for_generic_meowuri(requested_meowuri)
         else:
-            found = self._source_providers_for_meowuri(requested_meowuri,
-                                                       includes)
+            found = self._source_providers_for_meowuri(requested_meowuri)
 
-        log.debug('{} returning {} providers for MeowURI {!s}'.format(
-            self.__class__.__name__, len(found), requested_meowuri))
+        self.log.debug('%s returning %s providers for MeowURI %s',
+                       self.__class__.__name__, len(found), requested_meowuri)
         return found
 
-    @staticmethod
-    def _yield_included_roots(includes=None):
-        VALID_INCLUDES = set(C.MEOWURI_ROOTS_SOURCES)
-        if not includes:
-            # No includes specified -- search all ("valid includes") providers.
-            includes = VALID_INCLUDES
-        else:
-            # Search only specified providers.
-            # Sanity-check 'includes' argument.
-            for include in includes:
-                assert include in VALID_INCLUDES, (
-                    '"{!s}" is not one of {!s}'.format(include, VALID_INCLUDES)
-                )
-
-        # Sort for more consistent behaviour.
-        for root in sorted(list(includes)):
-            yield root
-
-    def _providers_for_generic_meowuri(self, requested_meowuri, includes=None):
+    def _providers_for_generic_meowuri(self, requested_meowuri):
         found = set()
-        for root in self._yield_included_roots(includes):
-            for klass, meowuris in self.generic_meowuri_sources[root].items():
-                if requested_meowuri in meowuris:
-                    found.add(klass)
+        for klass, meowuris in self.generic_meowuri_sources.items():
+            if requested_meowuri in meowuris:
+                found.add(klass)
         return found
 
-    def _source_providers_for_meowuri(self, requested_meowuri, includes=None):
-        # 'uri' is shorter "root";
-        #     'extractor.metadata.epub'
-        # 'requested_meowuri' is full "source-specific";
-        #     'extractor.metadata.exiftool.EXIF:CreateDate'
-        found = set()
+    def _source_providers_for_meowuri(self, requested_meowuri):
+        # Argument 'requested_meowuri' is a full "source-specific" MeowURI,
+        # like 'extractor.metadata.exiftool.EXIF:CreateDate'
         requested_meowuri_without_leaf = requested_meowuri.stripleaf()
-        for root in self._yield_included_roots(includes):
-            for uri in self.meowuri_sources[root].keys():
-                if uri.matches_start(requested_meowuri_without_leaf):
-                    found.add(self.meowuri_sources[root][uri])
+
+        found = set()
+        for uri in self.meowuri_sources.keys():
+            # 'uri' is a "MeowURI root" ('extractor.metadata.epub')
+            if uri.matches_start(requested_meowuri_without_leaf):
+                found.add(self.meowuri_sources[uri])
         return found
 
     @staticmethod
     def unique_map_meowuris(meowuri_class_map):
-        out = set()
-        # for root in ['extractors', 'analyzer'] ..
-        for root in meowuri_class_map.keys():
-            for uri in meowuri_class_map[root].keys():
-                out.add(uri)
-        return out
+        unique_meowuris = set()
+        for uri in meowuri_class_map.keys():
+            unique_meowuris.add(uri)
+        return unique_meowuris
 
 
 class ProviderRunner(object):
-    def __init__(self, config):
+    def __init__(self, config, extractor_runner, run_analysis_func):
         self.config = config
+        self._extractor_runner = extractor_runner
+        self._run_analysis = run_analysis_func
 
-        from core.extraction import ExtractorRunner
-        self.extractor_runner = ExtractorRunner(
-            add_results_callback=repository.SessionRepository.store
-        )
-        self.debug_stats = defaultdict(dict)
         self._provider_delegation_history = defaultdict(set)
+        self._delegate_every_possible_meowuri_history = set()
 
     def delegate_to_providers(self, fileobject, uri):
         possible_providers = set(Registry.providers_for_meowuri(uri))
-        log.debug('Got {} possible providers'.format(len(possible_providers)))
         if not possible_providers:
+            log.debug('Got no possible providers for delegation %s', uri)
             return
 
         # TODO: [TD0161] Translate from specific to "generic" MeowURI?
@@ -276,11 +223,13 @@ class ProviderRunner(object):
 
         prepared_analyzers = set()
         prepared_extractors = set()
-        for provider in possible_providers:
-            log.debug('Looking at possible provider: {!s}'.format(provider))
+        num_possible_providers = len(possible_providers)
+        for n, provider in enumerate(possible_providers, start=1):
+            log.debug('Looking at possible provider (%s/%s): %s',
+                      n, num_possible_providers, provider)
 
             if self._previously_delegated_provider(fileobject, provider):
-                log.debug('Skipping previously delegated provider {!s}'.format(provider))
+                log.debug('Skipping previously delegated provider %s', provider)
                 continue
 
             self._remember_provider_delegation(fileobject, provider)
@@ -291,13 +240,16 @@ class ProviderRunner(object):
                 prepared_analyzers.add(provider)
 
         if prepared_extractors:
-            log.debug('Delegating {!s} to extractors: {!s}'.format(uri, prepared_extractors))
+            log.debug('Delegating %s to extractors: %s', uri, prepared_extractors)
             self._delegate_to_extractors(fileobject, prepared_extractors)
         if prepared_analyzers:
-            log.debug('Delegating {!s} to analyzers: {!s}'.format(uri, prepared_analyzers))
+            log.debug('Delegating %s to analyzers: %s', uri, prepared_analyzers)
             self._delegate_to_analyzers(fileobject, prepared_analyzers)
 
     def _previously_delegated_provider(self, fileobject, provider):
+        if fileobject in self._delegate_every_possible_meowuri_history:
+            return True
+
         return bool(
             fileobject in self._provider_delegation_history
             and provider in self._provider_delegation_history[fileobject]
@@ -308,37 +260,39 @@ class ProviderRunner(object):
 
     def _delegate_to_extractors(self, fileobject, extractors_to_run):
         try:
-            self.extractor_runner.start(fileobject, extractors_to_run)
+            self._extractor_runner.start(fileobject, extractors_to_run)
         except AutonameowException as e:
             # TODO: [TD0164] Tidy up throwing/catching of exceptions.
-            log.critical('Extraction FAILED: {!s}'.format(e))
+            log.critical('Extraction FAILED: %s', e)
             raise
 
     def _delegate_to_analyzers(self, fileobject, analyzers_to_run):
-        analysis.run_analysis(
+        self._run_analysis(
             fileobject,
             self.config,
             analyzers_to_run=analyzers_to_run
         )
 
     def delegate_every_possible_meowuri(self, fileobject):
+        self._delegate_every_possible_meowuri_history.add(fileobject)
+
         # Run all extractors
         try:
-            self.extractor_runner.start(fileobject, request_all=True)
+            self._extractor_runner.start(fileobject, request_all=True)
         except AutonameowException as e:
             # TODO: [TD0164] Tidy up throwing/catching of exceptions.
-            log.critical('Extraction FAILED: {!s}'.format(e))
+            log.critical('Extraction FAILED: %s', e)
             raise
 
         # Run all analyzers
-        analysis.run_analysis(fileobject, self.config)
+        self._run_analysis(fileobject, self.config)
 
 
 def _provider_is_extractor(provider):
     # TODO: [hack] Fix circular import problems when running new unit test runner.
     #       $ PYTHONPATH=autonameow:tests python3 -m unit --skip-slow
-    from extractors import BaseExtractor
-    return issubclass(provider, BaseExtractor)
+    from extractors.metadata.base import BaseMetadataExtractor
+    return issubclass(provider, BaseMetadataExtractor)
 
 
 def _provider_is_analyzer(provider):
@@ -366,11 +320,29 @@ class MasterDataProvider(object):
     def __init__(self, config):
         self.config = config
 
-        self.debug_stats = defaultdict(dict)
-        self.provider_runner = ProviderRunner(self.config)
+        # Import class instance and function to be DI'd into 'ProviderRunner'.
+        from core import analysis
+        run_analysis_func = analysis.run_analysis
+        assert callable(run_analysis_func), (
+            'Expected dependency injected "run_analysis" to be callable'
+        )
+
+        from core.extraction import ExtractorRunner
+        extractor_runner = ExtractorRunner(
+            add_results_callback=repository.SessionRepository.store
+        )
+        assert hasattr(extractor_runner, 'start'), (
+            'Expected attribute "start" in dependency injected ExtractorRunner'
+        )
+
+        self.provider_runner = ProviderRunner(
+            self.config,
+            extractor_runner,
+            run_analysis_func
+        )
 
     def delegate_every_possible_meowuri(self, fileobject):
-        log.debug('Running all available providers for {!r}'.format(fileobject))
+        log.debug('Running all available providers for %r', fileobject)
         self.provider_runner.delegate_every_possible_meowuri(fileobject)
 
     def request(self, fileobject, uri):
@@ -386,18 +358,7 @@ class MasterDataProvider(object):
         as the return value.
         None is returned if nothing turns up.
         """
-        if uri not in self.debug_stats[fileobject]:
-            self.debug_stats[fileobject][uri] = dict()
-            self.debug_stats[fileobject][uri]['queries'] = 1
-            self.debug_stats[fileobject][uri]['repository_queries'] = 0
-            self.debug_stats[fileobject][uri]['delegated'] = 0
-        else:
-            self.debug_stats[fileobject][uri]['queries'] += 1
-
-        # TODO: Provide means of toggling on/off or remove.
-        # self._print_debug_stats()
-
-        log.debug('Got request {!r}->[{!s}]'.format(fileobject, uri))
+        log.debug('Got request %r->[%s]', fileobject, uri)
 
         # First try the repository for previously gathered data
         response = self._query_repository(fileobject, uri)
@@ -433,30 +394,11 @@ class MasterDataProvider(object):
         return response
 
     def _delegate_to_providers(self, fileobject, uri):
-        log.debug('Delegating request to providers: {!r}->[{!s}]'.format(fileobject, uri))
-        self.debug_stats[fileobject][uri]['delegated'] += 1
+        log.debug('Delegating request to providers: %r->[%s]', fileobject, uri)
         self.provider_runner.delegate_to_providers(fileobject, uri)
 
     def _query_repository(self, fileobject, uri):
-        self.debug_stats[fileobject][uri]['repository_queries'] += 1
         return repository.SessionRepository.query(fileobject, uri)
-
-    def _print_debug_stats(self):
-        if not logs.DEBUG:
-            return
-
-        stats_strings = list()
-        for fileobject, uris in self.debug_stats.items():
-            for uri, _counters in uris.items():
-                uri_stats = [
-                    '{}: {}'.format(stat, count) for stat, count in _counters.items()
-                ]
-                stats = '{!r}->{!s:60.60} {!s}'.format(fileobject, uri, ' '.join(uri_stats))
-                stats_strings.append(stats)
-
-        log.debug('{!s} debug stats:'.format(self.__class__.__name__))
-        for stat_string in sorted(stats_strings):
-            log.debug(stat_string)
 
 
 _MASTER_DATA_PROVIDER = None

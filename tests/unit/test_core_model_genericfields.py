@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -30,11 +28,13 @@ from core.model.genericfields import GenericCreator
 from core.model.genericfields import GenericDateCreated
 from core.model.genericfields import GenericDateModified
 from core.model.genericfields import GenericField
+from core.model.genericfields import GenericLanguage
 from core.model.genericfields import GenericMimeType
 from core.model.genericfields import GenericProducer
 from core.model.genericfields import GenericSubject
 from core.model.genericfields import GenericTags
 from core.model.genericfields import get_all_generic_field_klasses
+from core.model.genericfields import get_all_generic_field_uri_leaves
 from core.model.genericfields import get_field_for_uri_leaf
 
 
@@ -66,6 +66,7 @@ class TestGenericFieldStr(TestCase):
             (GenericCreator, uuconst.MEOWURI_GEN_METADATA_CREATOR),
             (GenericDateCreated, uuconst.MEOWURI_GEN_METADATA_DATECREATED),
             (GenericDateModified, uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED),
+            (GenericLanguage, uuconst.MEOWURI_GEN_METADATA_LANGUAGE),
             (GenericMimeType, uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE),
             (GenericProducer, uuconst.MEOWURI_GEN_METADATA_PRODUCER),
             (GenericSubject, uuconst.MEOWURI_GEN_METADATA_SUBJECT),
@@ -108,30 +109,6 @@ class TestGetFieldForUriLeaf(TestCase):
             with self.subTest(given=given):
                 self.assertIsNone(get_field_for_uri_leaf(given))
 
-    @patch('core.model.genericfields._get_field_uri_leaf_to_klass_mapping')
-    def test_returns_expected_given_generic_field_class_leaf(
-            self, mock__get_field_uri_leaf_to_klass_mapping
-    ):
-        DUMMY_MAPPING = {
-            'author': 'GenericAuthor',
-            'creator': 'GenericCreator',
-            'date_created': 'GenericDateCreated',
-            'date_modified': 'GenericDateModified',
-            'description': 'GenericDescription',
-            'edition': 'GenericEdition',
-            'mime_type': 'GenericMimeType',
-            'producer': 'GenericProducer',
-            'publisher': 'GenericPublisher',
-            'subject': 'GenericSubject',
-            'tags': 'GenericTags',
-            'text': 'GenericText',
-            'title': 'GenericTitle',
-        }
-        mock__get_field_uri_leaf_to_klass_mapping.return_value = dict(DUMMY_MAPPING)
-        for string in DUMMY_MAPPING.keys():
-            actual = get_field_for_uri_leaf(string)
-            self.assertEqual(DUMMY_MAPPING[string], actual)
-
     def test_returns_expected(self):
         # TODO: [hardcoded] Must be updated when modifying generic fields ..
         from core.model.genericfields import GenericDescription
@@ -146,6 +123,7 @@ class TestGetFieldForUriLeaf(TestCase):
             'date_modified': GenericDateModified,
             'description': GenericDescription,
             'edition': GenericEdition,
+            'language': GenericLanguage,
             'mime_type': GenericMimeType,
             'producer': GenericProducer,
             'publisher': GenericPublisher,
@@ -157,3 +135,34 @@ class TestGetFieldForUriLeaf(TestCase):
         for string in EXPECTED_MAPPING.keys():
             actual = get_field_for_uri_leaf(string)
             self.assertEqual(EXPECTED_MAPPING[string], actual)
+
+
+class TestGetAllGenericFieldUriLeaves(TestCase):
+    def test_returns_non_empty_value(self):
+        actual = get_all_generic_field_uri_leaves()
+        self.assertIsNotNone(actual)
+        self.assertTrue(actual)
+
+    def test_returns_expected_type(self):
+        actual = get_all_generic_field_uri_leaves()
+        self.assertIsInstance(actual, list)
+
+        for element in actual:
+            self.assertIsInstance(element, str)
+
+    def test_returns_expected_leaves(self):
+        actual = get_all_generic_field_uri_leaves()
+        self.assertIn('author', actual)
+        self.assertIn('creator', actual)
+        self.assertIn('date_created', actual)
+        self.assertIn('date_modified', actual)
+        self.assertIn('description', actual)
+        self.assertIn('edition', actual)
+        self.assertIn('language', actual)
+        self.assertIn('mime_type', actual)
+        self.assertIn('producer', actual)
+        self.assertIn('publisher', actual)
+        self.assertIn('subject', actual)
+        self.assertIn('tags', actual)
+        self.assertIn('text', actual)
+        self.assertIn('title', actual)

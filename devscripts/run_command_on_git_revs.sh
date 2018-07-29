@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -28,17 +26,19 @@ if [ "$#" -ne '3' ]
 then
     cat >&2 <<EOF
 
-  USAGE:  ${SELF_BASENAME} [HASH_OLDEST] [HASH_NEWEST] [COMMAND]
+  USAGE:  ${SELF_BASENAME} [HASH_NEWEST] [HASH_OLDEST] [COMMAND]
 
-  Checks out git revisions from HASH_OLDEST to HASH_NEWEST and executes
-  COMMAND for each checked out revision.
-  Note that revision HASH_NEWEST should be more recent than HASH_OLDEST.
+  Checks out git revisions from HASH_NEWEST to HASH_OLDEST (inclusive)
+  in sequence and executes COMMAND after checking out each revision.
+  Note that revision HASH_NEWEST must be more recent than HASH_OLDEST.
 
-  This script exits if COMMAND returns non-zero.
+  This script exits if COMMAND returns non-zero . The repository might
+  be left in a "detached HEAD" state if COMMAND returns non-zero or is
+  terminated by SIGINT (ctrl-c) or any other signal.
+
   Primary usage for this script is to pass a test runner as COMMAND,
   which allows finding revisions that fail the tests and leaves this
   revision checked out for further examination.
-
   Prefer using 'git bisect' if the use case doesn't require checking
   out all revisions sequentially!
 
@@ -46,8 +46,8 @@ EOF
     exit 0
 fi
 
-HASH_OLDEST="$1" # older revision
-HASH_NEWEST="$2"  # most recent revision
+HASH_NEWEST="$1"  # most recent revision
+HASH_OLDEST="$2"  # older revision
 COMMAND="$3"
 
 

@@ -2,10 +2,8 @@
 
 # 'autonameow.sh' -- autonameow launcher script
 # =============================================
-# Copyright(c) 2016-2018 Jonas Sjöberg
-# https://github.com/jonasjberg
-# http://www.jonasjberg.com
-# University mail: js224eh[a]student.lnu.se
+# Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+# Source repository: https://github.com/jonasjberg/autonameow
 # _____________________________________________________________________________
 #
 #   This file is part of autonameow.
@@ -60,12 +58,12 @@ esac
 if realpath --version 2>/dev/null | grep -q 'GNU coreutils'
 then
     # Using GNU coreutils version of readlink.
-    self_dir="$(dirname "$(realpath -e -- "$0")")"
-    AUTONAMEOW_PATH="$( ( cd "$self_dir" && realpath -e -- ".." ) )"
+    self_abspath="$(dirname "$(realpath -e -- "$0")")"
+    AUTONAMEOW_PATH="$( ( cd "$self_abspath" && realpath -e -- ".." ) )"
 else
     # Not using GNU coreutils readlink or readlink is not available.
-    _abs_self_path="$(python -c "import os; print(os.path.realpath(os.path.join(\"$0\", os.pardir)))")"
-    AUTONAMEOW_PATH="$(dirname -- "${_abs_self_path}")"
+    self_abspath="$(python -c "import os; print(os.path.realpath(os.path.join(\"$0\", os.pardir)))")"
+    AUTONAMEOW_PATH="$(dirname -- "${self_abspath}")"
 fi
 
 

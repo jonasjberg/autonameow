@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -19,19 +17,18 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from core import event
 
-def set_global_configuration(config):
+
+def set_global_configuration(active_config):
     """
-    Sets the "global" configuration, potentially used by anybody from anywhere.
+    Sets the currently active configuration by dispatching an event.
+
+    Passes 'active_config' to all callables that has been added to the
+    'on_config_changed' event handler.  It is up to these callables to
+    keep local state in sync with any changes to the configuration.
 
     Args:
-        config: The new global config as an instance of 'Configuration'.
+        active_config: The new global config as an instance of 'Configuration'.
     """
-    # TODO: [cleanup][hack] Manage global state properly ..
-    # TODO [TD0188] Consolidate access to active, global configuration.
-    global ActiveConfig
-    ActiveConfig = config
-
-
-# Variables listed here are intended for public, global use.
-ActiveConfig = None
+    event.dispatcher.on_config_changed(config=active_config)

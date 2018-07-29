@@ -18,14 +18,44 @@
 # Alternatively, 'bin' is used if the file extension is either 'bin' or 'binary'.
 # If the file extension is something else, another entry is evaluated.
 
+# TODO: [TD0200] Improve system for finding probable file extensions.
+# TODO: [TD0200] Redesign this file format so that multiple "clauses" can be
+#                "chained" while maintaining somewhat terse syntax.
+#                E.G. EXTENSION applies if X and Y and either of Z1, Z2Z3 ..
+#
+#
+#                    Evaluated against a given FileObject          output
+#              ,______________________________________________, ,__________,
+#              |                                              | |          |
+#              '                 BASENAME   BASENAME   PATH   ' ' PROBABLE '
+#               MIME-TYPE          SUFFIX     PREFIX    PARENT    EXTENSION
+#       ===================================================================
+#       application/octet-stream   BLANK        *         *       BLANK
+#       application/octet-stream   BLANK        *         *       BLANK
+#       application/postscript     eps          *         *       eps
+#       application/postscript     ps           *         *       ps
+#       text/html                  htm          *         *       html
+#       text/html                  htm.gz       *         *       html
+#       text/html                  html         *         *       html
+#       text/html                  html.gz      *         *       html
+#       application/x-gzip         tgz          *         *       tar.gz
+#       application/x-gzip         tgz          *         *       tgz
+#       application/x-gzip         tgz          *         *       tgz
+#       text/*                     BLANK        TEMPLATE  *       BLANK
+
+
 # Note that all of these might be corrupt files.
 MIMETYPE application/octet-stream
     EXTENSION BLANK
     - BLANK
     EXTENSION 89u           # Texas Instruments calculator firmware
     - 89u
+    EXTENSION azw
+    - azw
     EXTENSION azw3
     - azw3
+    EXTENSION azw4
+    - azw4
     EXTENSION bin
     - bin
     - binary
@@ -35,6 +65,8 @@ MIMETYPE application/octet-stream
     - chm
     EXTENSION dmg           # Apple disk images
     - dmg
+    EXTENSION mp3
+    - mp3
     EXTENSION fc            # FirstClass settings
     - fc
     EXTENSION fcd           # FirstClass settings
@@ -85,6 +117,12 @@ MIMETYPE application/octet-stream
     - webarchive
     EXTENSION xps           # Microsoft paper specification file
     - xps
+
+MIMETYPE application/x-dosexec
+    EXTENSION dll
+    - dll
+    EXTENSION pyd
+    - pyd
 
 MIMETYPE application/gzip
     EXTENSION gz
@@ -147,6 +185,16 @@ MIMETYPE application/x-lzma
     EXTENSION tar.lzma
     - tar.lzma
 
+MIMETYPE application/x-mobipocket-ebook
+    EXTENSION azw
+    - azw
+    EXTENSION azw3
+    - azw3
+    - BLANK
+    EXTENSION azw4
+    - azw4
+    - BLANK
+
 MIMETYPE application/zip
     EXTENSION alfredworkflow
     - alfredworkflow
@@ -160,6 +208,11 @@ MIMETYPE application/zip
 MIMETYPE audio/mpeg
     EXTENSION mp3
     - mp3
+
+MIMETYPE audio/x-wav
+    EXTENSION wav
+    - wav
+    - BLANK
 
 MIMETYPE inode/x-empty
     EXTENSION out
@@ -184,6 +237,8 @@ MIMETYPE text/html
     - js
     EXTENSION mhtml
     - mhtml
+    EXTENSION rst
+    - rst
     EXTENSION txt
     - txt
 
@@ -249,16 +304,24 @@ MIMETYPE text/plain
     - mkd
     EXTENSION puml
     - puml
+    EXTENSION ps1
+    - ps1
+    EXTENSION pth   # "Easy Install" package listing ('easy-install.pth')
+    - pth
     EXTENSION py
     - py
     - python
-    EXTENSION rake
+    EXTENSION rake  # Ruby rake "Makefiles"
     - rake
+    EXTENSION rst
+    - rst
     EXTENSION sh
     - bash
     - sh
     EXTENSION spec
     - spec
+    EXTENSION tcl
+    - tcl
     EXTENSION txt
     - txt
     - txt.gz
@@ -300,7 +363,20 @@ MIMETYPE text/x-makefile
     EXTENSION asm   # Incorrect MIME-type
     - asm
 
+MIMETYPE text/x-msdos-batch
+    EXTENSION bat
+    - BLANK
+    - bat
+
+MIMETYPE text/x-python
+    EXTENSION py
+    - py
+    EXTENSION rst
+    - rst
+
 MIMETYPE text/x-shellscript
+    EXTENSION egg
+    - egg
     EXTENSION py
     - py
     EXTENSION sh
@@ -343,3 +419,7 @@ MIMETYPE video/mpeg
     - mpeg
     EXTENSION vob
     - vob
+
+MIMETYPE video/x-ms-asf
+    EXTENSION wma
+    - wma

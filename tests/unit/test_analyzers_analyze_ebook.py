@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -19,6 +17,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from itertools import permutations
 from unittest import skipIf, TestCase
 from unittest.mock import Mock
 
@@ -30,33 +29,71 @@ else:
     ISBNLIB_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
+from analyzers.analyze_ebook import calculate_authors_similarity
+from analyzers.analyze_ebook import calculate_title_similarity
 from analyzers.analyze_ebook import deduplicate_isbns
 from analyzers.analyze_ebook import EbookAnalyzer
 from analyzers.analyze_ebook import extract_ebook_isbns_from_text
+from analyzers.analyze_ebook import extract_isbns_from_text
 from analyzers.analyze_ebook import filter_isbns
 from analyzers.analyze_ebook import ISBNMetadata
 
 
-def get_ebook_analyzer(fileobject):
-    mock_config = Mock()
-
-    # TODO: [hack][cleanup] Does this behave as the "mocked" systems? (!)
+def _get_ebook_analyzer(fileobject):
     return EbookAnalyzer(
-        fileobject,
-        mock_config,
-        request_data_callback=uu.mock_request_data_callback
+        fileobject=fileobject,
+        config=Mock(),
+        request_data_callback=Mock()
     )
 
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestEbookAnalyzer(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        class DummyFileObject(object):
+            def __init__(self, mime, basename_suffix):
+                self.mime_type = mime
+                self.basename_suffix = basename_suffix
+
+            def __repr__(self):
+                return '<DummyFileObject({!s}, {!s})>'.format(
+                    self.mime_type, self.basename_suffix
+                )
+
+        cls.file_objects_not_handled = [
+            DummyFileObject('application/octet-stream', 'o'),
+            DummyFileObject('application/octet-stream', 'exe'),
+            DummyFileObject('image/jpeg', 'jpg'),
+            DummyFileObject('text/plain', 'txt'),
+        ]
+        cls.file_objects_handled = [
+            DummyFileObject('application/epub+zip', b'epub'),
+            DummyFileObject('application/octet-stream', b'azw'),
+            DummyFileObject('application/octet-stream', b'azw3'),
+            DummyFileObject('application/octet-stream', b'azw4'),
+            DummyFileObject('application/octet-stream', b'mobi'),
+            DummyFileObject('application/pdf', b'pdf'),
+            DummyFileObject('image/vnd.djvu', b'djvu'),
+        ]
+
     def setUp(self):
         self.fileobject = uu.get_named_fileobject('2010-01-31_161251.jpg')
-        self.analyzer = get_ebook_analyzer(self.fileobject)
+        self.analyzer = _get_ebook_analyzer(self.fileobject)
 
     def test_setup(self):
         self.assertIsNotNone(self.fileobject)
         self.assertIsNotNone(self.analyzer)
+
+    def test_can_handle_returns_false_as_expected(self):
+        for dummy_file_object in self.file_objects_not_handled:
+            with self.subTest(fo=dummy_file_object):
+                self.assertFalse(self.analyzer.can_handle(dummy_file_object))
+
+    def test_can_handle_returns_true_as_expected(self):
+        for dummy_file_object in self.file_objects_handled:
+            with self.subTest(fo=dummy_file_object):
+                self.assertTrue(self.analyzer.can_handle(dummy_file_object))
 
 
 class TestDeduplicateIsbns(TestCase):
@@ -80,6 +117,38 @@ class TestDeduplicateIsbns(TestCase):
         self._assert_that_it(
             returns=['9780596802301'],
             given=['9780596802301']
+        )
+
+    def test_deduplicates_equivalent_isbn13_and_isbn10_numbers(self):
+        self._assert_that_it(
+            returns=['9780387303031'],
+            given=['0387303030', '9780387303031']
+        )
+        self._assert_that_it(
+            returns=['9783540762881', '9783540762874'],
+            given=['3540762884', '3540762876', '9783540762881', '9783540762874']
+        )
+
+    def test_deduplicates_isbn13_and_masked_isbn(self):
+        self._assert_that_it(
+            returns=['9780131435063'],
+            given=['9780131435063', '013143506X']
+        )
+        self._assert_that_it(
+            returns=['9780131435063'],
+            given=['013143506X', '9780131435063']
+        )
+
+    def test_returns_isbn13_given_single_masked_isbn(self):
+        self._assert_that_it(
+            returns=['9789811082573'],
+            given=['981108257X']
+        )
+
+    def test_deduplicates_isbn13_and_shortened_isbn(self):
+        self._assert_that_it(
+            returns=['9780387788807'],
+            given=['0387788808', '9780387788807']
         )
 
 
@@ -191,7 +260,7 @@ class TestISBNMetadata(TestCase):
         self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
         self.assertEqual(isbn_metadata.authors, ['George F. Luger', 'William A. Stubblefield'])
         self.assertEqual(isbn_metadata.year, '2009')
-        self.assertEqual(isbn_metadata.language, 'eng')
+        self.assertEqual(isbn_metadata.language, 'ENGLISH')
         self.assertEqual(isbn_metadata.isbn10, self.ISBN10_A)
         self.assertEqual(isbn_metadata.isbn13, self.ISBN13_A)
 
@@ -200,7 +269,7 @@ class TestISBNMetadata(TestCase):
         self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
         self.assertEqual(isbn_metadata.authors, ['George F. Luger', 'William A. Stubblefield'])
         self.assertEqual(isbn_metadata.year, '2009')
-        self.assertEqual(isbn_metadata.language, 'eng')
+        self.assertEqual(isbn_metadata.language, 'ENGLISH')
         self.assertEqual(isbn_metadata.isbn10, self.ISBN10_A)
         self.assertEqual(isbn_metadata.isbn13, self.ISBN13_A)
 
@@ -646,9 +715,126 @@ class TestISBNMetadataEquality(TestCase):
         unique_isbn_metadata.add(m1)
         self.assertEqual(2, len(unique_isbn_metadata))
 
+    def test_comparison_of_live_isbn_metadata_4(self):
+        m0 = ISBNMetadata(
+            authors=['Gilbert Strang'],
+            language='eng',
+            publisher='WellesleyCambridge',
+            isbn10='0980232740',
+            isbn13='9780980232745',
+            title='Calculus',
+            year='2010'
+        )
+        m1 = ISBNMetadata(
+            authors=['Gilbert Strang', 'Truong Nguyen'],
+            language='eng',
+            publisher='WellesleyCambridge',
+            isbn10='0961408871',
+            isbn13='9780961408879',
+            title='Wavelets And Filter Banks',
+            year='1997'
+        )
+        self.assertNotEqual(m0, m1)
+        unique_isbn_metadata = set()
+        unique_isbn_metadata.add(m0)
+        unique_isbn_metadata.add(m1)
+        self.assertEqual(2, len(unique_isbn_metadata))
+
+    def test_comparison_of_live_isbn_metadata_5(self):
+        mx = ISBNMetadata(
+            authors=['Robert Shimonski', 'Will Schmied'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836884',
+            isbn13='9781931836883',
+            title='Building DMZs For Enterprise Networks: [Design, Deploy, And Maintain A Secure DMZ On Your Network ; Build DMZ Segments Using Cisco PIX Firewalls, Check Point NG, Nokia, And Microsoft ISA Server 2000 ; Learn DMZ Security Measures: Reconnaissance, Penetration Testing, DMZ Hardening, And More ; Plan And Design A Wireless DMZ ; Bonus Chapter On IIS Web Server Hardening Available From Syngress.Com]',
+            year='2003'
+        )
+        m0 = ISBNMetadata(
+            authors=['Doug Maxwell'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836701',
+            isbn13='9781931836708',
+            title='Nokia Network Security Solutions Handbook',
+            year='2002'
+        )
+        m1 = ISBNMetadata(
+            authors=['Syngress'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836841',
+            isbn13='9781931836845',
+            title='MCSE/MCSA Implementing & Administering Security In A Windows 2000 Network (Exam 70-214): Study Guide And DVD Training System',
+            year='2003'
+        )
+        m2 = ISBNMetadata(
+            authors=['Melissa Craft'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1928994601',
+            isbn13='9781928994602',
+            title='Windows 2000 Active Directory',
+            year='2001'
+        )
+        m3 = ISBNMetadata(
+            authors=['Drew Simonis'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1928994741',
+            isbn13='9781928994749',
+            title='Check Point NG: Next Generation Security Administration ; [Bonus Coverage Of CCSA NG Exam 156-210 Objectives]',
+            year='2002'
+        )
+        m4 = ISBNMetadata(
+            authors=['Robert J. Shimonski', 'Wally Eaton', 'Umer Khan'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836574',
+            isbn13='9781931836579',
+            title='Sniffer Pro Network Optimization & Troubleshooting Handbook',
+            year='2002'
+        )
+        m5 = ISBNMetadata(
+            authors=['Thomas W. Shinder', 'Debra Littlejohn Shinder', 'Martin Grasdal'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836663',
+            isbn13='9781931836661',
+            title='ISA Server And Beyond Real World Security Solutions For Microsoft Enterprise Networks',
+            year='2002'
+        )
+        m6 = ISBNMetadata(
+            authors=['Norris L. Johnson', 'Jr.', 'Robert J. Shimonski'],
+            language='eng',
+            publisher='Syngress',
+            isbn10='1931836728',
+            isbn13='9781931836722',
+            title='Security+: Study Guide & DVD Training System',
+            year='2002'
+        )
+        unique_isbn_metadata = set()
+        unique_isbn_metadata.add(mx)
+        unique_isbn_metadata.add(m0)
+        unique_isbn_metadata.add(m1)
+        unique_isbn_metadata.add(m2)
+        unique_isbn_metadata.add(m3)
+        unique_isbn_metadata.add(m4)
+        unique_isbn_metadata.add(m5)
+        unique_isbn_metadata.add(m6)
+        self.assertEqual(8, len(unique_isbn_metadata))
+
+        self.assertNotEqual(mx, m0)
+        self.assertNotEqual(mx, m1)
+        self.assertNotEqual(mx, m2)
+        self.assertNotEqual(mx, m3)
+        self.assertNotEqual(mx, m4)
+        self.assertNotEqual(mx, m5)
+        self.assertNotEqual(mx, m6)
+
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
-class TestExtractEbookISBNsInText(TestCase):
+class TestExtractEbookISBNsFromText(TestCase):
     def _assert_returns(self, expected, given):
         actual = extract_ebook_isbns_from_text(given)
         self.assertEqual(expected, actual)
@@ -697,6 +883,33 @@ ISBN-13 (electronic): 978-1-4842-3318-4
 
 
 @skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
+class TestExtractISBNsFromText(TestCase):
+    def _assert_returns(self, expected, given):
+        actual = extract_isbns_from_text(given)
+        self.assertEqual(expected, actual)
+
+    def test_find_expected_in_ocr_text_with_one_invalid_character(self):
+        self.skipTest('TODO: Clean up invalid characters in OCR text')
+        self._assert_returns(['0486650383'],
+                             given='''I. Mathematical analysis. I. Title.
+QAaOO.R63 1986
+516
+86-25300
+ISBN 0-486-6&038-3 (pbk.)
+''')
+
+    def test_find_expected_in_ocr_text_with_multiple_invalid_characters(self):
+        self.skipTest('TODO: Detect and replace 0488 should be 0486 ')
+        self._assert_returns(['0486650383'],
+                             given='''I. Mathematical analysis. I. Title.
+QAaOO.R63 1986
+516
+86-25300
+ISBN 0-488-6&038-3 (pbk.)
+''')
+
+
+@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestMalformedISBNMetadata(TestCase):
     def test_malformed_author_field_list_of_lists(self):
         actual = ISBNMetadata(
@@ -741,3 +954,167 @@ class TestMalformedISBNMetadata(TestCase):
         )
         self.assertEqual(expect, actual)
         self.assertEqual(_expected_authors, actual.authors)
+
+
+class TestCalculateAuthorsSimilarity(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.LOW_SIMILARITY_THRESHOLD = 0.25
+        cls.HIGH_SIMILARITY_THRESHOLD = 0.75
+
+    def _assert_similarity(self, expected, authors_a, authors_b):
+        actual = calculate_authors_similarity(authors_a, authors_b)
+        self.assertEqual(expected, actual)
+
+    def _assert_low_similarity(self, authors_a, authors_b):
+        actual = calculate_authors_similarity(authors_a, authors_b)
+        self.assertLessEqual(actual, self.LOW_SIMILARITY_THRESHOLD)
+
+    def _assert_high_similarity(self, authors_a, authors_b):
+        actual = calculate_authors_similarity(authors_a, authors_b)
+        self.assertGreaterEqual(actual, self.HIGH_SIMILARITY_THRESHOLD)
+
+    def test_expect_maximum_similarity_for_identical_authors(self):
+        for authors_names_A, authors_names_B in [
+            (['a'],       ['a']),
+            (['A'],       ['a']),
+            (['a'],       ['A']),
+            (['foo'],     ['foo']),
+            (['foo'],     ['Foo']),
+            (['foo bar'], ['foo bar']),
+            (['foo bar'], ['Foo bar']),
+            (['foo bar'], ['Foo Bar']),
+        ]:
+            self._assert_similarity(1.0, authors_names_A, authors_names_B)
+
+    def test_expect_high_similarity_for_similar_authors(self):
+        self._assert_high_similarity(['Foo Bar'],   ['Fo Bar'])
+        self._assert_high_similarity(['foo bar'],   ['foo barr'])
+        self._assert_high_similarity(['nietzsche'], ['nietzsche f'])
+        self._assert_high_similarity(['nietzsche'], ['f. nietzsche'])
+        self._assert_high_similarity(['meemaw'],    ['MEEMAW'])
+        self._assert_high_similarity(['Meemaw'],    ['Meemaw'])
+        self._assert_high_similarity(['Meemaw'],    ['Meeoaw'])
+
+    def test_identical_authors_but_different_counts_should_be_similar(self):
+        self._assert_high_similarity(['gilbert strang'],                  ['gilbert strang', 'truong nguyen'])
+        self._assert_high_similarity(['gilbert strang'],                  ['truong nguyen', 'gilbert strang'])
+        self._assert_high_similarity(['gilbert strang', 'truong nguyen'], ['gilbert strang'])
+        self._assert_high_similarity(['truong nguyen', 'gilbert strang'], ['gilbert strang'])
+
+    def test_expect_low_similarity_for_completely_different_authors(self):
+        self._assert_low_similarity(['aaa bbb'],       ['zzz xxx'])
+        self._assert_low_similarity(['aaa'],           ['xxx'])
+        self._assert_low_similarity(['gibson'],        ['smulan'])
+        self._assert_low_similarity(['gibson smulan'], ['nietzsche kant'])
+        self._assert_low_similarity(['nietzsche'],     ['kant'])
+        self._assert_low_similarity(['Meemaw'],        ['grandmother'])
+
+    def test_expect_high_similarity_for_same_authors_in_different_order(self):
+        self._assert_high_similarity(
+            ['Jan Reesch', 'Grayham Murroy', 'Vadin Ogievetsky', 'Joe Lawnery'],
+            ['Jan Reesch', 'Grayham Murroy', 'Joe Lawnery', 'Vadin Ogievetsky']
+        )
+        self._assert_high_similarity(
+            ['Grayham Murroy', 'Jan Reesch', 'Vadin Ogievetsky', 'Joe Lawnery'],
+            ['Jan Reesch', 'Grayham Murroy', 'Joe Lawnery', 'Vadin Ogievetsky']
+        )
+        self._assert_high_similarity(
+            ['Grayham Murroy', 'Jan Reesch', 'Vadin Ogievetsky', 'Joe Lawnery'],
+            ['Joe Lawnery', 'Grayham Murroy', 'Vadin Ogievetsky', 'Jan Reesch']
+        )
+
+    def test_high_similarity_for_same_author_with_swapped_first_last_name(self):
+        self._assert_high_similarity(['Lu, Chun-Shien'], ['Chun-Shien Lu'])
+        self._assert_high_similarity(['Chun-Shien Lu'], ['Lu, Chun-Shien'])
+
+    def test_high_similarity_for_authors_with_swapped_first_last_names(self):
+        self._assert_high_similarity(
+            ['Reesch J.', 'Murroy G.', 'Ogievetsky V.', 'Lawnery J.'],
+            ['J. Reesch', 'G. Murroy', 'V. Ogievetsky', 'J. Lawnery']
+        )
+        self._assert_high_similarity(
+            ['Reesch J.', 'Murroy G.', 'Ogievetsky V.', 'Lawnery J.'],
+            ['Reesch J.', 'G. Murroy', 'Ogievetsky V.', 'J. Lawnery']
+        )
+
+    def test_high_similarity_for_authors_with_swapped_first_last_names_any_order(self):
+        for given_authors_A, given_authors_B in zip(
+            permutations(['Reesch J.', 'Murroy G.', 'Ogievetsky V.', 'Lawnery J.'], 4),
+            permutations(['J. Reesch', 'G. Murroy', 'V. Ogievetsky', 'J. Lawnery'], 4)
+        ):
+            self._assert_high_similarity(given_authors_A, given_authors_B)
+
+
+class TestCalculateTitleSimilarity(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.LOW_SIMILARITY_THRESHOLD = 0.4
+        cls.HIGH_SIMILARITY_THRESHOLD = 0.6
+        cls.SAMPLE_TITLES = [
+            'isa server and beyond real world security solutions for microsoft enterprise networks',
+            'hack proofing your network',
+            'windows 2000 active directory',
+            'configuring isa 2000 server building firewalls for windows 2000',
+            'sniffer pro network optimization and troubleshooting handbook',
+            'mcsemcsa implementing and administering security in a windows 2000 network exam 70214 study guide and dvd training system',
+            'cisco security specialists guide to pix firewalls',
+            'check point ng next generation security administration  bonus coverage of ccsa ng exam 156210 objectives',
+            'hack proofing sun solaris 8',
+            'nokia network security solutions handbook',
+            'hack proofing windows 2000 server',
+            'sscp study guide and dvd training system',
+        ]
+        long_title_parts = 'building dmzs for enterprise networks| design deploy and maintain a secure dmz on your network|  build dmz segments using cisco pix firewalls check point ng nokia and microsoft isa server 2000|  learn dmz security measures reconnaissance penetration testing dmz hardening and more|  plan and design a wireless dmz'.split('|')
+        cls.INCREASINGLY_LONG_TITLE = list()
+        for num_parts in range(0, len(long_title_parts)):
+            long_title = ''.join(long_title_parts[:num_parts + 1])
+            cls.INCREASINGLY_LONG_TITLE.append(long_title)
+
+    def _assert_similarity(self, expected, title_a, title_b):
+        actual = calculate_title_similarity(title_a, title_b)
+        self.assertEqual(expected, actual)
+
+    def _assert_low_similarity(self, title_a, title_b):
+        actual = calculate_title_similarity(title_a, title_b)
+        self.assertLessEqual(actual, self.LOW_SIMILARITY_THRESHOLD)
+
+    def _assert_high_similarity(self, title_a, title_b):
+        actual = calculate_title_similarity(title_a, title_b)
+        self.assertGreaterEqual(actual, self.HIGH_SIMILARITY_THRESHOLD)
+
+    def test_expect_maximum_similarity_for_identical_titles(self):
+        for given_title in [
+            'a',
+            'foo',
+            'foo bar',
+            'foo bar baz',
+            self.INCREASINGLY_LONG_TITLE[0],
+        ]:
+            self._assert_similarity(1.0, given_title, given_title)
+
+    def test_expect_low_similarity_for_different_titles(self):
+        for given_title in self.SAMPLE_TITLES:
+            with self.subTest(given_title=given_title):
+                self._assert_low_similarity(self.INCREASINGLY_LONG_TITLE[0], given_title)
+
+    def test_expect_low_similarity_when_comparing_all_sample_titles(self):
+        for given_title_A, given_title_B in permutations(self.SAMPLE_TITLES, 2):
+            self.assertNotEqual(given_title_A, given_title_B)
+            with self.subTest(given_title_A=given_title_A, given_title_B=given_title_B):
+                self._assert_low_similarity(given_title_A, given_title_B)
+
+    def test_expect_high_similarity_for_similar_titles(self):
+        self.assertEqual(self.INCREASINGLY_LONG_TITLE[0], 'building dmzs for enterprise networks')
+        for given_title in self.INCREASINGLY_LONG_TITLE:
+            with self.subTest(given_title=given_title):
+                self._assert_high_similarity(self.INCREASINGLY_LONG_TITLE[0], given_title)
+
+    def test_expect_titles_with_common_substring_to_be_considered_more_similar(self):
+        reference = 'building dmzs for enterprise networks'
+        for given_title_B in self.SAMPLE_TITLES:
+            for given_title_C in self.INCREASINGLY_LONG_TITLE:
+                sim_bad = calculate_title_similarity(reference, given_title_B)
+                sim_good = calculate_title_similarity(reference, given_title_C)
+                with self.subTest(given_title_B=given_title_B, given_title_C=given_title_C):
+                    self.assertGreater(sim_good, sim_bad)

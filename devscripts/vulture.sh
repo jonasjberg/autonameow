@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -42,8 +40,8 @@ fi
 # Get absolute path to the autonameow source root.
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
-    SELF_DIR="$(realpath -e "$(dirname "$0")")"
-    AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIR" && realpath -e -- ".." ) )"
+    self_dirpath="$(realpath -e "$(dirname "$0")")"
+    AUTONAMEOW_ROOT_DIR="$( ( cd "$self_dirpath" && realpath -e -- ".." ) )"
 fi
 
 if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
@@ -55,5 +53,5 @@ fi
 
 (
     cd "$AUTONAMEOW_ROOT_DIR" || exit 1
-    vulture --exclude=autonameow/thirdparty autonameow tests
+    vulture --min-confidence=90 --exclude=autonameow/thirdparty autonameow
 )

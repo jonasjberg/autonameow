@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -24,7 +22,6 @@ import logging
 from core import constants as C
 from util import coercers
 from util import disk
-from util import nested_dict_get
 from util import text
 
 
@@ -65,10 +62,10 @@ class Configuration(object):
             log.warning('Configuration does not contain any rules!')
 
     def get(self, key_list):
+        assert isinstance(key_list, list)
         try:
-            return nested_dict_get(self._options, key_list)
+            return _nested_dict_get(self._options, *key_list)
         except KeyError:
-            log.debug('Get raised KeyError: ' + '.'.join(key_list))
             return None
 
     @property
@@ -120,3 +117,31 @@ class Configuration(object):
 
 def _yaml_format(data):
     return coercers.force_string(disk.write_yaml(data))
+
+
+def _nested_dict_get(dictionary, *keys):
+    """
+    Retrieves a value from a given nested dictionary structure.
+
+    The structure is traversed by accessing each key in the given list
+    of keys in order.
+
+    Args:
+        dictionary: The dictionary structure to traverse.
+        keys: Iterable of keys to use during the traversal.
+
+    Returns:
+        The value in the nested structure, if successful.
+
+    Raises:
+        KeyError: Failed to retrieve any value with the given list of keys.
+    """
+    assert isinstance(dictionary, dict)
+
+    for key in keys:
+        try:
+            dictionary = dictionary[key]
+        except TypeError:
+            raise KeyError('Thing is not subscriptable (traversed too deep?)')
+
+    return dictionary

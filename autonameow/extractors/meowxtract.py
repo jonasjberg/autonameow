@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -22,6 +20,7 @@
 
 import argparse
 import logging
+import shutil
 import sys
 from collections import defaultdict
 
@@ -33,6 +32,7 @@ from core import extraction
 from core import FileObject
 from core import logs
 from core import view
+from extractors import text_provider
 from util import disk
 from util import encoding as enc
 
@@ -40,8 +40,13 @@ from util import encoding as enc
 log = logging.getLogger(__name__)
 
 
-def _column_formatter():
-    return view.ColumnFormatter()
+TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120, 48))
+
+
+def _get_column_formatter():
+    cf = view.ColumnFormatter()
+    cf.max_total_width = TERMINAL_WIDTH
+    return cf
 
 
 class TextExtractionResult(object):
@@ -86,30 +91,19 @@ def _decode_any_bytestring(value):
 
 
 def do_extract_text(fileobject):
-    all_text_extraction_results = list()
+    any_text_extraction_results = list()
 
-    def _collect_results_callback(fileobject_, meowuri, data):
-        log.debug('_collect_results_callback(%s, %s, %s)', fileobject_, meowuri, data)
-
-        assert isinstance(data, dict)
-        _value = data.get('value')
-        assert isinstance(_value, str)
-        _extractor = data.get('source', '(unknown extractor)')
-
-        all_text_extraction_results.append(TextExtractionResult(
-            fulltext=_value, provider=_extractor
-        ))
-
-    runner = extraction.ExtractorRunner(
-        add_results_callback=_collect_results_callback
-    )
     try:
-        runner.start(fileobject,
-                     request_extractors=extractors.registry.text_providers)
+        text = text_provider.get_plain_text(fileobject)
+        if text:
+            assert isinstance(text, str)
+            any_text_extraction_results.append(
+                TextExtractionResult(fulltext=text, provider='(unknown extractor)')
+            )
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
-    else:
-        return all_text_extraction_results
+
+    return any_text_extraction_results
 
 
 def do_extract_metadata(fileobject):
@@ -168,7 +162,7 @@ def display_text_extraction_result(fileobject, text_extraction_result):
 
 def display_metadata_extraction_result(results):
     _results = list(results)
-    cf = _column_formatter()
+    cf = _get_column_formatter()
     for metadata_extraction_result in _results:
         provider = str(metadata_extraction_result.provider)
         for uri, data in metadata_extraction_result.metadata.items():
@@ -184,7 +178,7 @@ def display_summary_metadata_stats(all_processed_files, metadata_results):
     files_not_in_results = [f for f in all_processed_files
                             if not metadata_results[f]]
 
-    cf = _column_formatter()
+    cf = _get_column_formatter()
     cf.addrow('PROCESSED FILE', '# METADATA FIELDS', 'PROVIDER')
     cf.addrow('==============', '=================', '========')
     for f, metadata_extraction_results in sorted(metadata_results.items()):
@@ -208,7 +202,7 @@ def display_summary_text_stats(all_processed_files, text_results):
     files_not_in_results = [f for f in all_processed_files
                             if f not in text_results]
 
-    cf = _column_formatter()
+    cf = _get_column_formatter()
     cf.addrow('PROCESSED FILE', '# LINES', 'PROVIDER')
     cf.addrow('==============', '=======', '========')
     for f, text_extraction_results in sorted(text_results.items()):

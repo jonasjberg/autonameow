@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -32,7 +30,7 @@ from core.master_provider import ProviderRunner
 
 def _get_provider_registry(**kwargs):
     meowuri_source_map = kwargs.get('meowuri_source_map', dict())
-    excluded_providers = kwargs.get('excluded_providers', dict())
+    excluded_providers = kwargs.get('excluded_providers', set())
     return ProviderRegistry(meowuri_source_map, excluded_providers)
 
 
@@ -41,14 +39,10 @@ class TestProviderRegistryMightBeResolvable(TestCase):
     def setUpClass(cls):
         mock_provider = uu.get_mock_provider()
         dummy_source_map = {
-            'analyzer': {
-                uu.as_meowuri('analyzer.filename'): mock_provider
-            },
-            'extractor': {
-                uu.as_meowuri('extractor.metadata.exiftool'): mock_provider,
-                uu.as_meowuri('extractor.filesystem.xplat'): mock_provider,
-                uu.as_meowuri('extractor.filesystem.guessit'): mock_provider,
-            }
+            uu.as_meowuri('analyzer.filename'): mock_provider,
+            uu.as_meowuri('extractor.metadata.exiftool'): mock_provider,
+            uu.as_meowuri('extractor.filesystem.xplat'): mock_provider,
+            uu.as_meowuri('extractor.filesystem.guessit'): mock_provider,
         }
         cls.p = _get_provider_registry(meowuri_source_map=dummy_source_map)
 
@@ -97,9 +91,7 @@ class TestProviderRegistryMightBeResolvable(TestCase):
     def test_with_meowuri_and_single_mapped_meowuri(self):
         mock_provider = uu.get_mock_provider()
         dummy_source_map = {
-            'extractor': {
-                uu.as_meowuri('extractor.filesystem.guessit'): mock_provider
-            }
+            uu.as_meowuri('extractor.filesystem.guessit'): mock_provider
         }
         p = _get_provider_registry(meowuri_source_map=dummy_source_map)
 
@@ -197,60 +189,6 @@ class TestProvidersForMeowURI(TestCase):
                 actual = self.registry.providers_for_meowuri(uri)
                 self._check_returned_providers(actual, expected_providers)
 
-    def test_maps_meowuris_to_expected_provider_include_analyzers(self):
-        for meowuris, expected_providers in self._mapping_meowuris_analyzers:
-            for uri in meowuris:
-                actual = self.registry.providers_for_meowuri(
-                    uri, includes=['analyzer']
-                )
-                self._check_returned_providers(actual, expected_providers)
-
-    def test_maps_none_given_extractor_meowuris_but_includes_analyzers(self):
-        for meowuris, _ in self._mapping_meowuris_extractors:
-            for uri in meowuris:
-                actual = self.registry.providers_for_meowuri(
-                    uri, includes=['analyzer']
-                )
-                self.assertEqual(0, len(actual))
-
-    def test_maps_meowuris_to_expected_provider_include_extractors(self):
-        for meowuris, expected_providers in self._mapping_meowuris_extractors:
-            for uri in meowuris:
-                actual = self.registry.providers_for_meowuri(
-                    uri, includes=['extractor']
-                )
-                self._check_returned_providers(actual, expected_providers)
-
-    def test_maps_none_given_analyzer_meowuris_but_includes_extractors(self):
-        for meowuris, _ in self._mapping_meowuris_analyzers:
-            for uri in meowuris:
-                actual = self.registry.providers_for_meowuri(
-                    uri, includes=['extractor']
-                )
-                self.assertEqual(0, len(actual))
-
-    def test_maps_generic_meowuri_mimetype_to_expected_extractors(self):
-        meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        actual = self.registry.providers_for_meowuri(
-            meowuri, includes=['extractor']
-        )
-        self._check_returned_providers(
-            actual,
-            expected_provider_names=[
-                'CrossPlatformFileSystemExtractor',
-                'ExiftoolMetadataExtractor'
-            ]
-        )
-
-    def test_maps_generic_meowuri_mimetype_to_extractors_analyzers(self):
-        meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        actual = self.registry.providers_for_meowuri(
-            meowuri, includes=['extractor', 'analyzer']
-        )
-        expected = ['CrossPlatformFileSystemExtractor',
-                    'ExiftoolMetadataExtractor']
-        self._check_returned_providers(actual, expected)
-
     def test_maps_generic_meowuri_mimetype_to_expected_providers(self):
         meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         actual = self.registry.providers_for_meowuri(
@@ -260,27 +198,25 @@ class TestProvidersForMeowURI(TestCase):
                     'ExiftoolMetadataExtractor']
         self._check_returned_providers(actual, expected)
 
-    def test_maps_generic_meowuri_datecreated_to_expected_extractors(self):
-        meowuri = uu.as_meowuri(uuconst.MEOWURI_GEN_METADATA_DATECREATED)
-        actual = self.registry.providers_for_meowuri(
-            meowuri, includes=['extractor']
-        )
-        expected = [
-            'CrossPlatformFileSystemExtractor',
-            'FiletagsExtractor',
-            'GuessitExtractor',
-            'ExiftoolMetadataExtractor',
-            'PandocMetadataExtractor'
-        ]
-        self._check_returned_providers(actual, expected)
-
 
 class TestProviderRunner(TestCase):
+    @staticmethod
+    def _get_provider_runner(*args, **kwargs):
+        test_config = kwargs.get('config')
+        test_extractor_runner = kwargs.get('extractor_runner')
+        test_run_analysis_func = kwargs.get('run_analysis_func')
+        kwargs.update({
+            'config': test_config,
+            'extractor_runner': test_extractor_runner,
+            'run_analysis_func': test_run_analysis_func
+        })
+        return ProviderRunner(*args, **kwargs)
+
     @patch('core.repository.SessionRepository', MagicMock())
     def test_instantiated_provider_runner_is_not_none(
             self
     ):
-        provider_runner = ProviderRunner(config=None)
+        provider_runner = self._get_provider_runner()
         self.assertIsNotNone(provider_runner)
 
     # TODO: [cleanup] This much mocking indicates poor design choices ..
@@ -293,7 +229,7 @@ class TestProviderRunner(TestCase):
             mock__delegate_to_extractors, mock_providers_for_meowuri
     ):
         mock_providers_for_meowuri.return_value = set()
-        provider_runner = ProviderRunner(config=None)
+        provider_runner = self._get_provider_runner()
 
         fo = uu.get_mock_fileobject(mime_type='text/plain')
         uri = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
@@ -311,7 +247,7 @@ class TestProviderRunner(TestCase):
             self, mock__delegate_to_analyzers,
             mock__delegate_to_extractors, mock_providers_for_meowuri
     ):
-        provider_runner = ProviderRunner(config=None)
+        provider_runner = self._get_provider_runner()
 
         from extractors.filesystem import CrossPlatformFileSystemExtractor
         provider_For_meowuri = set([CrossPlatformFileSystemExtractor])
@@ -337,7 +273,7 @@ class TestProviderRunner(TestCase):
             self, mock__delegate_to_analyzers,
             mock__delegate_to_extractors, mock_providers_for_meowuri
     ):
-        provider_runner = ProviderRunner(config=None)
+        provider_runner = self._get_provider_runner()
 
         from analyzers.analyze_ebook import EbookAnalyzer
         provider_For_meowuri = set([EbookAnalyzer])
@@ -355,18 +291,13 @@ class TestProviderRunner(TestCase):
         mock__delegate_to_extractors.assert_not_called()
 
     @patch('core.repository.SessionRepository', MagicMock())
-    def test_delegation_history_methods(
-            self
-    ):
+    def test_delegation_history_methods(self):
         fo1 = MagicMock()
-        uri1 = MagicMock()
-        provider1 = MagicMock()
-
         fo2 = MagicMock()
-        uri2 = MagicMock()
+        provider1 = MagicMock()
         provider2 = MagicMock()
 
-        provider_runner = ProviderRunner(config=None)
+        provider_runner = self._get_provider_runner()
         self.assertFalse(provider_runner._previously_delegated_provider(fo1, provider1))
         self.assertFalse(provider_runner._previously_delegated_provider(fo2, provider1))
         self.assertFalse(provider_runner._previously_delegated_provider(fo1, provider2))
@@ -386,6 +317,45 @@ class TestProviderRunner(TestCase):
 
         provider_runner._remember_provider_delegation(fo1, provider2)
         provider_runner._remember_provider_delegation(fo2, provider2)
+        self.assertTrue(provider_runner._previously_delegated_provider(fo1, provider1))
+        self.assertTrue(provider_runner._previously_delegated_provider(fo2, provider1))
+        self.assertTrue(provider_runner._previously_delegated_provider(fo1, provider2))
+        self.assertTrue(provider_runner._previously_delegated_provider(fo2, provider2))
+
+    def test_delegation_history_includes_delegation_of_every_possible_uri(self):
+        fo1 = MagicMock()
+        fo2 = MagicMock()
+        provider1 = MagicMock()
+        provider2 = MagicMock()
+
+        mock_extractor_runner = MagicMock()
+        mock_run_analysis = MagicMock()
+        provider_runner = self._get_provider_runner(
+            extractor_runner=mock_extractor_runner,
+            run_analysis_func=mock_run_analysis
+        )
+        provider_runner._extractor_runner.start = mock_extractor_runner
+        self.assertFalse(provider_runner._previously_delegated_provider(fo1, provider1))
+        self.assertFalse(provider_runner._previously_delegated_provider(fo2, provider1))
+        self.assertFalse(provider_runner._previously_delegated_provider(fo1, provider2))
+        self.assertFalse(provider_runner._previously_delegated_provider(fo2, provider2))
+
+        mock_run_analysis.assert_not_called()
+        mock_extractor_runner.start.assert_not_called()
+
+        provider_runner.delegate_every_possible_meowuri(fo1)
+        self.assertEqual(1, mock_run_analysis.call_count)
+        self.assertEqual(1, mock_extractor_runner.start.call_count)
+
+        self.assertTrue(provider_runner._previously_delegated_provider(fo1, provider1))
+        self.assertFalse(provider_runner._previously_delegated_provider(fo2, provider1))
+        self.assertTrue(provider_runner._previously_delegated_provider(fo1, provider2))
+        self.assertFalse(provider_runner._previously_delegated_provider(fo2, provider2))
+
+        provider_runner.delegate_every_possible_meowuri(fo2)
+        self.assertEqual(2, mock_run_analysis.call_count)
+        self.assertEqual(2, mock_extractor_runner.start.call_count)
+
         self.assertTrue(provider_runner._previously_delegated_provider(fo1, provider1))
         self.assertTrue(provider_runner._previously_delegated_provider(fo2, provider1))
         self.assertTrue(provider_runner._previously_delegated_provider(fo1, provider2))

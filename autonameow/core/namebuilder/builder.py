@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -65,6 +63,9 @@ def build(config, name_template, field_databundle_dict):
     log.debug('After pre-assembly formatting;')
     for str_field, str_value in str_fields_values.items():
         log.debug('Pre-assembly formatted field "{!s}": "{!s}"'.format(str_field, str_value))
+
+    # TODO: [TD0196] Allow user to define maximum lengths for new names.
+    # TODO: [TD0197] Template field-specific length limits and trimming.
 
     # Construct the new file name
     str_name_template = str(name_template)

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -27,6 +25,7 @@ import shutil
 import sys
 import traceback
 from collections import defaultdict
+from collections import deque
 
 import unit.constants as uuconst
 import unit.utils as uu
@@ -99,34 +98,50 @@ class TerminalReporter(object):
         if self.verbose:
             _println('{} {!s}'.format(self.msg_label_fail, string))
 
-    def msg_test_success(self):
+    def msg_testsuite_success(self):
         _label = cli.colorize('[SUCCESS]', fore='GREEN')
         if self.verbose:
-            _println('{} All assertions passed!'.format(_label))
+            _print(_label + ' ')
         else:
             _print(' ' + _label + ' ')
 
-    def msg_test_failure(self):
+    def msg_testsuite_failure(self):
         _label = cli.colorize('[FAILURE]', fore='RED')
         if self.verbose:
-            _println('{} One or more assertions FAILED!'.format(_label))
+            _print(_label + ' ')
         else:
             _print(' ' + _label + ' ')
 
-    def msg_test_history(self, history):
-        # TODO: [hack] Refactor ..
-        while len(history) < 5:
-            history.append('unknown')
+    def msg_testsuite_skipped(self):
+        _label = cli.colorize('[SKIPPED]', fore='YELLOW')
+        if self.verbose:
+            _print(_label + ' ')
+        else:
+            _print(' ' + _label + ' ')
 
-        # TODO: [hack] Refactor ..
-        for past_result in history[:5]:
-            if past_result == 'fail':
+    def msg_testsuite_history(self, history):
+        if self.verbose:
+            NUM_HISTORY_ENTRIES = 10
+        else:
+            NUM_HISTORY_ENTRIES = 5
+
+        padded_history = list(history)
+        while len(padded_history) < NUM_HISTORY_ENTRIES:
+            padded_history.append(RunResultsHistory.RESULT_UNKNOWN)
+
+        for result in padded_history[:NUM_HISTORY_ENTRIES]:
+            if result == RunResultsHistory.RESULT_FAIL:
                 _print(self.msg_mark_history_fail)
-            elif past_result == 'pass':
+            elif result == RunResultsHistory.RESULT_PASS:
                 _print(self.msg_mark_history_pass)
-            elif past_result == 'skip':
+            elif result == RunResultsHistory.RESULT_SKIP:
                 _print(self.msg_mark_history_skip)
+            elif result == RunResultsHistory.RESULT_UNKNOWN:
+                _print(self.msg_mark_history_unknown)
             else:
+                log.warning(
+                    'Invalid testuite history result: {!s}'.format(result)
+                )
                 _print(self.msg_mark_history_unknown)
 
     @staticmethod
@@ -171,52 +186,60 @@ class TerminalReporter(object):
             # Make the failed count red if any test failed.
             _failure = cli.colorize(_failure, fore='RED')
 
-        _runtime = '{:.6f}s'.format(elapsed_time)
-
+        _runtime = '{:.6f} seconds'.format(elapsed_time)
         _stats = 'Regression Test Summary:  {} total, {}, {} passed, {}  ' \
-                 'in {} seconds'.format(count_total, _skipped,
-                                        count_success, _failure, _runtime)
-
+                 'in {}'.format(count_total, _skipped, count_success,
+                                _failure, _runtime)
         _println()
         _println(_stats)
         _println('_' * TERMINAL_WIDTH)
 
-    def msg_test_start(self, shortname, description):
+    def _format_description(self, description):
+        def __colorize(s):
+            return cli.colorize(s, style='DIM')
+
         if self.verbose:
-            _desc = cli.colorize(description, style='DIM')
-            _println('\nRunning "{}"'.format(shortname))
-            _println(_desc)
+            normalized_description = normalize_description_whitespace(description)
+            return __colorize(normalized_description)
+
         else:
-            maxlen = self.MAX_DESCRIPTION_LENGTH
-            _desc_len = len(description)
-            if _desc_len > maxlen:
-                _desc = description[0:maxlen] + '..'
+            single_line_description = collapse_all_whitespace(description)
+            MAXLEN = self.MAX_DESCRIPTION_LENGTH
+
+            description_len = len(single_line_description)
+            if description_len > MAXLEN:
+                fixed_width_description = single_line_description[0:MAXLEN] + '..'
             else:
-                _desc = description + ' '*(2 + maxlen - _desc_len)
+                padding_len = 2 + MAXLEN - description_len
+                fixed_width_description = single_line_description + ' ' * padding_len
 
-            _colordesc = cli.colorize(_desc, style='DIM')
-            _print('{:30.30s} {!s} '.format(shortname, _colordesc))
+            return __colorize(fixed_width_description)
 
-    def msg_test_skipped(self, shortname, description):
+    def msg_testsuite_start(self, shortname, description):
+        formatted_description = self._format_description(description)
+
         if self.verbose:
-            _println()
-            _label = cli.colorize('[SKIPPED]', fore='YELLOW')
-            _desc = cli.colorize(description, style='DIM')
-            _println('{} "{!s}"'.format(_label, shortname))
-            _println(_desc)
+            formatted_description = self._format_description(description)
+            message = '\nRunning "{}"'.format(shortname)
+            colorized_message = cli.colorize(message, style='BRIGHT')
+            _println(colorized_message)
+            _println(formatted_description)
         else:
-            maxlen = self.MAX_DESCRIPTION_LENGTH
-            _desc_len = len(description)
-            if _desc_len > maxlen:
-                _desc = description[0:maxlen] + '..'
-            else:
-                _desc = description + ' '*(2 + maxlen - _desc_len)
+            _print('{:30.30s} {!s} '.format(shortname, formatted_description))
 
-            _colordesc = cli.colorize(_desc, style='DIM')
-            _label = cli.colorize('[SKIPPED]', fore='YELLOW')
-            _print('{:30.30s} {!s}  {} '.format(shortname, _colordesc, _label))
+    def msg_test_skipping(self, shortname, description):
+        formatted_description = self._format_description(description)
 
-    def msg_test_runtime(self, elapsed_time, captured_time):
+        if self.verbose:
+            formatted_description = self._format_description(description)
+            message = '\nSkipping "{}"'.format(shortname)
+            colorized_message = cli.colorize(message, style='BRIGHT')
+            _println(colorized_message)
+            _println(formatted_description)
+        else:
+            _print('{:30.30s} {!s} '.format(shortname, formatted_description))
+
+    def msg_testsuite_runtime(self, elapsed_time, captured_time):
         if captured_time:
             _captured = '{:.6f}s)'.format(captured_time)
         else:
@@ -245,8 +268,9 @@ class TerminalReporter(object):
             )
             _println('Captured traceback:\n' + traceback_str)
         else:
-            _println(' ' + cli.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ',
-                                        back='RED'))
+            _println(' '
+                     + cli.colorize('      CAUGHT TOP-LEVEL EXCEPTION       ',
+                                    back='RED'))
 
     @staticmethod
     def msg_captured_stderr(stderr):
@@ -360,8 +384,7 @@ class RegressionTestLoader(object):
     def _load_file_description(self):
         abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
         description = read_plaintext_file(abspath_desc, ignore_errors=True)
-        one_line_description = re.sub(r'\s+', ' ', description)
-        return one_line_description.strip()
+        return description.strip()
 
     def _load_file_asserts(self):
         abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
@@ -467,6 +490,39 @@ class RegressionTestLoader(object):
         )
 
 
+def collapse_all_whitespace(s):
+    assert isinstance(s, str)
+    normalized_string = re.sub(r'\s+', ' ', s)
+    return normalized_string.strip()
+
+
+def normalize_description_whitespace(s):
+    """
+    Fixes up whitespace in  multi-line text.
+
+    Intended to be used to clean up test suite descriptions.
+    Removes messy whitespace, such as tabs. Replaces single line breaks (E.G.
+    hard wrapped column width) with spaces.
+    Replaces more than two consecutive new lines with a single new line, to
+    keep some of the spacing from the original text.
+    """
+    assert isinstance(s, str)
+
+    def _replace_single_linebreak(_match):
+        _match_group = _match.group()
+        _match_first = _match_group[0]
+        _match_last = _match_group[-1]
+        if '\n' not in (_match_first, _match_last):
+            _match_without_newline = _match_first + ' ' + _match_last
+            return _match_without_newline
+
+    cleaned = re.sub(r'[ \t\r\f\v]', ' ', s)
+    removed_linebreaks = re.sub(r'.\n.', _replace_single_linebreak, cleaned)
+    collapsed_newlines = re.sub(r'\n{2,}', '\n', removed_linebreaks, re.MULTILINE)
+    normalized = collapsed_newlines.replace('  ', ' ').strip()
+    return normalized
+
+
 def _expand_input_paths_variables(input_paths):
     """
     Replaces '$TESTFILES' with the full absolute path to the 'test_files'
@@ -488,7 +544,7 @@ def _expand_input_paths_variables(input_paths):
         else:
             # Normalize path.
             try:
-                bytestring_path = coercers.AW_PATH.normalize(path)
+                bytestring_path = coercers.coerce_to_normalized_path(path)
             except coercers.AWTypeError as e:
                 raise RegressionTestError(
                     'Invalid path: "{!s}" :: {!s}'.format(path, e)
@@ -593,21 +649,21 @@ class AutonameowWrapper(object):
     def mock_exit_program(self, exitcode):
         self.captured_exitcode = exitcode
 
-    def mock_rename_file(self, from_path, new_basename):
+    def mock_rename_file(self, from_path, dest_basename):
         # TODO: [hack] Mocking is too messy to be reliable ..
         # NOTE(jonas): Iffy ad-hoc string coercion..
-        _from_basename = coercers.force_string(disk.basename(from_path))
-        _new_basename = coercers.force_string(new_basename)
+        str_from_basename = coercers.force_string(disk.basename(from_path))
+        str_dest_basename = coercers.force_string(dest_basename)
 
         # Check for collisions that might cause erroneous test results.
-        if _from_basename in self.captured_renames:
-            _existing_new_basename = self.captured_renames[_from_basename]
+        if str_from_basename in self.captured_renames:
+            existing_dest_basename = self.captured_renames[str_from_basename]
             raise RegressionTestError(
                 'Already captured rename: "{!s}" -> "{!s}" (Now "{!s}")'.format(
-                    _from_basename, _existing_new_basename, _new_basename
+                    str_from_basename, existing_dest_basename, str_dest_basename
                 )
             )
-        self.captured_renames[_from_basename] = _new_basename
+        self.captured_renames[str_from_basename] = str_dest_basename
 
     def __call__(self):
         # TODO: [TD0158] Evaluate assertions of "skipped renames".
@@ -621,7 +677,9 @@ class AutonameowWrapper(object):
         with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
             try:
                 with Autonameow(self.opts, ui=mock_ui) as ameow:
-                    # TODO: Mock 'FileRenamer' class instead of single method
+                    # TODO: [hack] Mocking is too messy to be reliable ..
+                    # TODO: Mock 'FileRenamer' class instead of single method?
+                    #       Requires reworking the 'FileRenamer' class.
                     assert hasattr(ameow, 'renamer')
                     assert hasattr(ameow.renamer, '_rename_file')
                     assert callable(ameow.renamer._rename_file)
@@ -941,3 +999,27 @@ def print_test_info(tests, verbose):
     else:
         test_dirnames = [t.str_dirname for t in tests]
         print('\n'.join(test_dirnames))
+
+
+class RunResultsHistory(object):
+    # Enum-like
+    RESULT_PASS = 'pass'
+    RESULT_SKIP = 'skip'
+    RESULT_FAIL = 'fail'
+    RESULT_UNKNOWN = 'unknown'
+
+    # TODO: [hack][cleanup] Refactor ..
+    # TODO: [incomplete] Only the "Enum-like" is used!
+    def __init__(self, maxlen):
+        assert isinstance(maxlen, int)
+        self._run_results = deque(maxlen=maxlen)
+
+    def add(self, run_results):
+        self._run_results.appendleft(run_results)
+
+    def __len__(self):
+        return len(self._run_results)
+
+    def __getitem__(self, item):
+        run_results_list = list(self._run_results)
+        return run_results_list[item]

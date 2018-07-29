@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -18,6 +16,8 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
+
+from difflib import SequenceMatcher
 
 
 def levenshtein(string_a, string_b):
@@ -34,27 +34,51 @@ def levenshtein(string_a, string_b):
             add, delete = previous[j] + 1, current[j - 1] + 1
             change = previous[j - 1]
             if string_a[j - 1] != string_b[i - 1]:
-                change = change + 1
+                change += 1
             current[j] = min(add, delete, change)
 
     return current[n]
 
 
 def normalized_levenshtein(string_a, string_b):
-    _diff = levenshtein(string_a, string_b)
-    _normdiff = _diff / max(1, max(len(string_a), len(string_b)))
-    return _normdiff
+    lev_dist = levenshtein(string_a, string_b)
+    normalized_dist = lev_dist / max(1, max(len(string_a), len(string_b)))
+    return normalized_dist
+
+
+def longest_common_substring_length(string_a, string_b):
+    assert isinstance(string_a, str) and isinstance(string_b, str)
+
+    matcher = SequenceMatcher(None, string_a, string_b, autojunk=False)
+    match = matcher.find_longest_match(0, len(string_a), 0, len(string_b))
+    return int(match.size)
+
+
+def total_common_substring_length(string_a, string_b):
+    assert isinstance(string_a, str), (type(string_a), str(string_a))
+    assert isinstance(string_b, str), (type(string_b), str(string_b))
+
+    matcher = SequenceMatcher(None, string_a, string_b, autojunk=False)
+    matches = matcher.get_matching_blocks()
+    total_matched_length = sum(m.size for m in matches)
+    return total_matched_length
 
 
 def string_difference(string_a, string_b):
+    assert isinstance(string_a, str)
+    assert isinstance(string_b, str)
+
     return normalized_levenshtein(string_a, string_b)
 
 
 def string_similarity(string_a, string_b):
-    _diff = levenshtein(string_a, string_b)
-    _normdiff = _diff / max(1, max(len(string_a), len(string_b)))
-    _normalized_similarity = 1 - _normdiff
-    return _normalized_similarity
+    assert isinstance(string_a, str)
+    assert isinstance(string_b, str)
+
+    lev_dist = levenshtein(string_a, string_b)
+    denominator = max(1, max(len(string_a), len(string_b)))
+    normalized_similarity = 1 - (lev_dist / denominator)
+    return normalized_similarity
 
 
 if __name__ == '__main__':
@@ -68,20 +92,18 @@ if __name__ == '__main__':
     arg_combinations = list(itertools.combinations(args, 2))
     results = list()
     for a, b in arg_combinations:
-        # Trivial canonicalization
-        # a = a.lower().replace('.', '').strip()
-        # b = b.lower().replace('.', '').strip()
-
         s = string_similarity(a, b)
         d = string_difference(a, b)
-        results.append((a, b, s, d))
+        lcsl = longest_common_substring_length(a, b)
+        tcsl = total_common_substring_length(a, b)
+        results.append((a, b, s, d, lcsl, tcsl))
 
     from core.view.cli.common import ColumnFormatter
     cf = ColumnFormatter()
-    cf.addrow('String A', 'String B', 'Similarity', 'Difference')
-    cf.addrow('========', '========', '==========', '==========')
+    cf.addrow('String A', 'String B', 'Similarity', 'Difference', 'LCSL', 'TCSL')
+    cf.addrow('========', '========', '==========', '==========', '====', '====')
     _float = '{:.2f}'
-    for a, b, s, d in sorted(results, key=lambda x: x[2], reverse=True):
-        cf.addrow(a, b, _float.format(s), _float.format(d))
+    for a, b, s, d, lcsl, tcsl in sorted(results, key=lambda x: x[2], reverse=True):
+        cf.addrow(a[:40], b[:40], _float.format(s), _float.format(d), str(lcsl), str(tcsl))
 
     print(str(cf))

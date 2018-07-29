@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -40,7 +38,7 @@ set -o nounset
 MIN_USAGE_COUNT=1
 
 
-grep_own_python() { grep -hrE --exclude-dir "thirdparty" --include "*.py" "$@" "$SEARCHDIR" ; }
+grep_own_python() { grep -hrE --exclude-dir={devscripts,thirdparty,tests} --include "*.py" "$@" "$SEARCHDIR" ; }
 
 
 grep_own_python -o '^def [a-zA-Z0-9_]+' | cut -f2 -d' ' | while read -r def_name

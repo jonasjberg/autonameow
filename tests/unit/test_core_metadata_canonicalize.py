@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -19,18 +17,29 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import re
 from unittest import TestCase
 
 import unit.utils as uu
 from core.metadata.canonicalize import build_string_value_canonicalizer
 from core.metadata.canonicalize import CanonicalizerConfigParser
+from core.metadata.canonicalize import canonicalize_creatortool
+from core.metadata.canonicalize import canonicalize_language
 from core.metadata.canonicalize import canonicalize_publisher
 from core.metadata.canonicalize import StringValueCanonicalizer
 
 
 def _canonicalize_publisher(given):
     return canonicalize_publisher(given)
+
+
+def _canonicalize_language(given):
+    return canonicalize_language(given)
+
+
+def _canonicalize_creatortool(given):
+    return canonicalize_creatortool(given)
 
 
 def _build_string_value_canonicalizer(*args, **kwargs):
@@ -41,257 +50,25 @@ def _get_canonicalizer_config_parser(*args, **kwargs):
     return CanonicalizerConfigParser(*args, **kwargs)
 
 
-PUBLISHER_CANONICAL_EQUIVALENTS = {
-    'AcademicPress': [
-        'AcademicPress',
-        'Academic Press',
-        'Academic Press is an imprint of Elsevier',
-    ],
-    'AddisonWesley': [
-        'AddisonWesley',
-        'Addison-Wesley Professional',
-        'Addison-Wesley',
-        'Addison Wesley',
-        'addison wesley',
-    ],
-    'AtlantisPress': [
-        'Atlantis Press',
-        'AtlantisPress',
-    ],
-    'ArtechHouse': [
-        'ArtechHouse',
-        'Artech House',
-    ],
-    'FeedBooks': [
-        'FeedBooks',
-        'This book is brought to you by Feedbooks',
-        'http://www.feedbooks.com',
-    ],
-    'ProjectGutenberg': [
-        'ProjectGutenberg',
-        'Project Gutenberg',
-        'www.gutenberg.net',
-    ],
-    'Apress': [
-        'Apress',
-        'apress',
-        'www.apress.com',
-    ],
-    'BigNerdRanch': [
-        'BigNerdRanch',
-        'Big Nerd Ranch',
-        'Big Nerd Ranch, Inc.',
-        'www.bignerdranch.com',
-    ],
-    'CambridgeUP': [
-        'CambridgeUP',
-        'Cambridge University Press',
-    ],
-    'ChelseaHouse': [
-        'Chelsea House',
-        'ChelseaHouse',
-    ],
-    'CRCPress': [
-        'Chapman & Hall/CRC',
-        'CRCPress',
-        'CRC Press',
-        'www.crcpress.com',
-    ],
-    'CourseTechnology': [
-        'Course Technology/Cengage Learning',
-        'Cengage Learning',
-        'CourseTechnology',
-        'Course Technology',
-        'Course Technology PTR',
-        'Course Technology U.S.',
-    ],
-    'DennisPub': [
-        'Dennis Pub.',
-        'DennisPub',
-    ],
-    'Elsevier': [
-        'Elsevier/Morgan Kaufmann',
-        'Elsevier Science',
-        'Elsevier',
-    ],
-    'ExelixisMedia': [
-        'Exelixis Media P.C.',
-    ],
-    'IABooks': [
-        'Indo American Books',
-        'IA Books',
-        'IABooks',
-        'sales@iabooks.com',
-        'www.iabooks.com',
-    ],
-    'ImperialCollegePress': [
-        'ImperialCollegePress',
-        'Imperial College Press',
-    ],
-    'JonesBartlett': [
-        'JonesBartlett',
-        'Jones and Bartlett Publishers',
-        'Jones and Bartlett',
-        'www.jbpub.com',
-    ],
-    'LuLu': [
-        'Lulu Press',
-        '[Lulu Press], lulu.com',
-    ],
-    'Manning': [
-        'Manning Publications',
-        'Manning',
-    ],
-    'McGrawHill': [
-        'McGraw Hill Professional',
-        'McGraw-Hill',
-        'McGrawHill',
-        'McGraw Hill',
-        'The McGraw-Hill Companies',
-    ],
-    'MicrosoftPress': [
-        'Microsoft Press',
-        'MicrosoftPress',
-        'Microsoft Pr',
-    ],
-    'MITPress': [
-        'MIT Press',
-        'MITPress',
-        'mitpress.mit.edu',
-        'M I T Press',
-    ],
-    'MorganKaufmann': [
-        'Morgan Kaufmann Publishers',
-        'Morgan Kaufmann',
-        'MorganKaufmann',
-    ],
-    'MorganClaypool': [
-        'Morgan & Claypool Publishers',
-        'Morgan and Claypool Publishers'
-    ],
-    'NewAgeInt': [
-        'NewAgeInt',
-        'New Age International',
-    ],
-    'NoStarchPress': [
-        'No Starch Press, Inc.',
-        'No Starch Press Inc.',
-        'No Starch Press',
-        'NoStarchPress Inc.',
-        'NoStarchPress',
-        'www.nostarch.com',
-    ],
-    'OReilly':  [
-        'OReilly',
-        'oreilly',
-        "O'Reilly Media",
-        "O'Reilly",
-        'O\u2019Reilly Media, Inc.',
-        "O'Reilly & Associates",
-        'Oreilly & Associates Inc',
-        'Oreilly & Associates',
-    ],
-    'OxfordUP': [
-        'OxfordUP',
-        'Oxford University Press',
-    ],
-    'Packt': [
-        'Packt',
-        'Packt Publishing Limited',
-        'Packt Publishing',
-        'Packt Publ.',
-        'Packt Pub.',
-        'Published by Packt Publishing Ltd.',
-        'www.packtpub.com',
-    ],
-    'PeachpitPress': [
-        'PeachpitPress',
-        'Peachpit Press',
-        'peachpit.com',
-    ],
-    'Pearson': [
-        'Pearson',
-        'Pearson/AddisonWesley',
-        'Pearson/PrenticeHall',
-        'Pearson Education',
-    ],
-    'PragmaticBookshelf': [
-        'PragmaticBookshelf',
-        'The Pragmatic Bookshelf',
-        'The Pragmatic Programmers, LLC.',
-    ],
-    'PrenticeHall': [
-        'Prentice Hall',
-        'PrenticeHall',
-        'PRENTICE HALL',
-        'Prentice Hall PTR',
-    ],
-    'Sams': [
-        'Sams',
-        'Sams Publishing',
-        'samspublishing.com',
-    ],
-    'Springer': [
-        'springer',
-        'Springer Berlin',
-        'Springer-Verlag New York Inc',
-        'Springer-Verlag',
-    ],
-    'StanfordUP': [
-        'StanfordUP',
-        'Stanford University Press',
-    ],
-    'Syngress': [
-        'Syngress',
-        'syngress',
-        'Syngress Media Inc',
-        'Syngress Pub.',
-        'www.syngress.com',
-    ],
-    'TaylorFrancis': [
-        'TaylorFrancis',
-        'Taylor and Francis',
-        'Taylor & Francis',
-    ],
-    'Westview': [
-        'Westview',
-    ],
-    'Wiley': [
-        'John Wiley & Sons, Inc.',
-        'John Wiley & Sons Inc',
-        'John Wiley & Sons',
-        'John Wiley',
-        'J. Wiley',
-        'Wiley Pub., Inc.',
-        'Wiley Pub.',
-        'wiley & Sons',
-        'wiley',
-    ],
-    'Wordware': [
-        'Wordware',
-        'Wordware Pub',
-        'Wordware Pub.',
-        'Wordware Publ',
-        'Wordware Publishing',
-    ],
-    'WorldScientific': [
-        'WorldSci',
-        'WorldScientific',
-        'World Scientific',
-    ],
-    'Wrox': [
-        'Wrox',
-        'Wrox/John Wiley & Sons',
-        'www.wrox.com',
-    ]
-}
+def _load_test_data_from_yaml_file(filename):
+    from util import coercers
+    from util import disk
+    ABSPATH_THIS_DIR = coercers.coerce_to_normalized_path(
+        os.path.abspath(os.path.dirname(__file__))
+    )
+    bytes_basename = coercers.AW_PATHCOMPONENT(filename)
+    abspath_yaml_file = disk.joinpaths(ABSPATH_THIS_DIR, bytes_basename)
+    assert disk.isfile(abspath_yaml_file), (
+        'File does not exist: {!s}'.format(abspath_yaml_file)
+    )
+    return disk.load_yaml_file(abspath_yaml_file)
 
 
 class TestCanonicalizerConfigParser(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.SECTION_MATCH_ANY_LITERAL = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_LITERAL
-        cls.SECTION_MATCH_ANY_REGEX = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_REGEX
+        cls.SECTION_MATCH_ANY_REGEX_IGNORECASE = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_REGEX_IGNORECASE
 
     def _get_parser_from_empty_config(self):
         empty_config = dict()
@@ -407,12 +184,12 @@ class TestCanonicalizerConfigParser(TestCase):
     def test_parsed_regex_lookup_is_empty_when_given_only_empty_strings(self):
         parser = self._get_parser_from_config({
             'FooPub': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     '',
                 ]
             },
             'BarPub': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     ' ',
                     '  ',
                 ]
@@ -423,12 +200,12 @@ class TestCanonicalizerConfigParser(TestCase):
     def test_parsed_regex_lookup_is_empty_when_given_empty_regex(self):
         parser = self._get_parser_from_config({
             '': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     'foo',
                 ]
             },
             '  ': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     'bar',
                 ]
             }
@@ -438,7 +215,7 @@ class TestCanonicalizerConfigParser(TestCase):
     def test_returns_expected_parsed_regex_lookup_given_config_with_one_entry(self):
         parser = self._get_parser_from_config({
             'FooPub': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     'Foo',
                     'foo pub',
                     'Foo',  # Duplicate that should be removed
@@ -446,32 +223,33 @@ class TestCanonicalizerConfigParser(TestCase):
                 ]
              }
         })
-        expect_parsed_regex_lookup = {
+        expect_parsed_regex_lookup = sorted({
             'FooPub': set([
                 self._compile_regex('Foo'),
                 self._compile_regex('foo pub')
              ])
-        }
-        self.assertEqual(expect_parsed_regex_lookup, parser.parsed_regex_lookup)
+        })
+        actual = sorted(parser.parsed_regex_lookup)
+        self.assertEqual(expect_parsed_regex_lookup, actual)
 
     def test_returns_expected_parsed_regex_lookup_given_config_with_two_entries(self):
         parser = self._get_parser_from_config({
             'FooPub': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     'Foo',
                     'foo pub',
                     'Foo',  # Duplicate that should be removed
                 ]
              },
             'BarPub': {
-                self.SECTION_MATCH_ANY_REGEX: [
+                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
                     'Bar Publishers Inc.',
                     'bar pub.',
                     '\n',  # Whitespace that should be ignored
                 ]
              }
         })
-        expect_parsed_regex_lookup = {
+        expect_parsed_regex_lookup = sorted({
             'FooPub': set([
                 self._compile_regex('Foo'),
                 self._compile_regex('foo pub')
@@ -480,9 +258,9 @@ class TestCanonicalizerConfigParser(TestCase):
                 self._compile_regex('Bar Publishers Inc.'),
                 self._compile_regex('bar pub.')
              ])
-        }
-        self.assertEqual(expect_parsed_regex_lookup, parser.parsed_regex_lookup)
-
+        })
+        actual = sorted(parser.parsed_regex_lookup)
+        self.assertEqual(expect_parsed_regex_lookup, actual)
 
 
 class TestBuildStringValueCanonicalizer(TestCase):
@@ -497,13 +275,95 @@ class TestBuildStringValueCanonicalizer(TestCase):
         self.assertEqual('Manning', actual)
 
 
-class TestCanonicalizePublisher(TestCase):
+class CaseCanonicalizers(object):
+    """
+    Common functionality for classes that load test data from YAML files.
+    """
+    FILENAME_TESTDATA = None
+
+    @classmethod
+    def setUpClass(cls):
+        assert cls.FILENAME_TESTDATA, (
+            'Inheriting classes must specify the filename of an existing yaml '
+            'file located in the same directory as this file.'
+        )
+        cls.TESTDATA = _load_test_data_from_yaml_file(cls.FILENAME_TESTDATA)
+
+    def test_loaded_test_data_is_ok(self):
+        self.assertIsInstance(self.TESTDATA, dict)
+        self.assertGreater(len(self.TESTDATA), 1)
+
+
+class TestCanonicalizePublisher(CaseCanonicalizers, TestCase):
+    FILENAME_TESTDATA = 'test_core_metadata_canonicalize_publisher.yaml'
+
     def test_canonicalize_publisher(self):
-        for canonical, equivalent_values in PUBLISHER_CANONICAL_EQUIVALENTS.items():
+        for canonical, equivalent_values in self.TESTDATA.items():
             for equivalent_value in equivalent_values:
                 with self.subTest(given_expected=(equivalent_value, canonical)):
                     actual = _canonicalize_publisher(equivalent_value)
                     self.assertEqual(canonical, actual)
+
+    def test_does_not_canonicalize_non_publishers(self):
+        for given_non_publisher in [
+            '',
+            'foo',
+            'then press real hard',
+            'publishing is a thing',
+            'the academic press probably applies academical weight',
+        ]:
+            with self.subTest(given=given_non_publisher):
+                actual = _canonicalize_publisher(given_non_publisher)
+                self.assertEqual(given_non_publisher, actual)
+
+
+class TestCanonicalizeLanguage(CaseCanonicalizers, TestCase):
+    FILENAME_TESTDATA = 'test_core_metadata_canonicalize_language.yaml'
+
+    def test_canonicalizes_languages(self):
+        for canonical, equivalent_values in self.TESTDATA.items():
+            for equivalent_value in equivalent_values:
+                actual = _canonicalize_language(equivalent_value)
+
+                with self.subTest(given_expected=(equivalent_value, canonical)):
+                    self.assertEqual(canonical, actual)
+
+                with self.subTest(actual=actual):
+                    self.assertTrue(actual.isupper(), 'Expected upper-case canonical form')
+
+    def test_does_not_canonicalize_non_languages(self):
+        for given_non_language in [
+            '',
+            'foo',
+            'en katt slickade på osten',
+            'ovanstående text är på svenska',
+            'det var en svensk katt',
+            'new english review',
+            'english is a language',
+        ]:
+            with self.subTest(given=given_non_language):
+                actual = _canonicalize_language(given_non_language)
+                self.assertEqual(given_non_language, actual)
+
+
+class TestCanonicalizeCreatortool(CaseCanonicalizers, TestCase):
+    FILENAME_TESTDATA = 'test_core_metadata_canonicalize_creatortool.yaml'
+
+    def test_canonicalize_creatortool(self):
+        for canonical, equivalent_values in self.TESTDATA.items():
+            for equivalent_value in equivalent_values:
+                with self.subTest(given_expected=(equivalent_value, canonical)):
+                    actual = _canonicalize_creatortool(equivalent_value)
+                    self.assertEqual(canonical, actual)
+
+    def test_does_not_canonicalize_non_creatortools(self):
+        for given_non_creatortool in [
+            '',
+            'foo',
+        ]:
+            with self.subTest(given=given_non_creatortool):
+                actual = _canonicalize_language(given_non_creatortool)
+                self.assertEqual(given_non_creatortool, actual)
 
 
 class TestStringValueCanonicalizer(TestCase):

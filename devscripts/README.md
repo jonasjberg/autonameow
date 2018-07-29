@@ -1,8 +1,7 @@
 `autonameow`
 ============
-*Copyright(c) 2016-2018 Jonas Sjöberg*  
-<https://github.com/jonasjberg>  
-<http://www.jonasjberg.com>  
+*Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>*  
+Source repository: <https://github.com/jonasjberg/autonameow>
 
 --------------------------------------------------------------------------------
 
@@ -11,6 +10,9 @@
 ============
 Various utility scripts related to `autonameow` development.
 
+
+### `average_runtime_regression_tests.sh`
+Calculates the average runtime of the regression runner.
 
 ### `analyze-available-data.sh`
 Experimental script for finding expected field values in the output of
@@ -21,9 +23,6 @@ Check text file style violations, whitespace, line separators and tabs.
 
 ### `cloc.sh`
 Generate statistics on the project source code using `cloc`.
-
-### `convert-html-to.pdf.sh`
-Convert all HTML test reports to PDF.
 
 ### `ctags.sh`
 Generate `.tags` file with `ctags`.

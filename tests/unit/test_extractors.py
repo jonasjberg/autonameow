@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -22,20 +20,18 @@
 from unittest import TestCase
 
 import unit.utils as uu
-from core import constants as C
 from extractors import AUTONAMEOW_EXTRACTOR_PATH
 from extractors import EXTRACTOR_CLASS_PACKAGES
 from extractors import EXTRACTOR_CLASS_PACKAGES_FILESYSTEM
 from extractors import EXTRACTOR_CLASS_PACKAGES_METADATA
-from extractors import EXTRACTOR_CLASS_PACKAGES_TEXT
 from extractors import _find_extractor_classes_in_packages
-from extractors import _get_extractor_classes
-from extractors.common import BaseExtractor
+from extractors import collect_included_excluded_extractors
+from extractors.metadata.base import BaseMetadataExtractor
 
 
-def get_extractor_classes(**kwargs):
+def _collect_included_excluded_extractors(**kwargs):
     packages = kwargs.get('packages', dict())
-    return _get_extractor_classes(packages)
+    return collect_included_excluded_extractors(packages)
 
 
 class TestExtractorsConstants(TestCase):
@@ -65,9 +61,6 @@ class TestExtractorsConstants(TestCase):
     def test_extractor_class_packages_metadata(self):
         self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_METADATA)
 
-    def test_extractor_class_packages_text(self):
-        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_TEXT)
-
 
 class TestFindExtractorClassesInPackages(TestCase):
     @classmethod
@@ -81,16 +74,16 @@ class TestFindExtractorClassesInPackages(TestCase):
         for klass in self.actual:
             with self.subTest(klass):
                 self.assertTrue(uu.is_class(klass))
-                self.assertTrue(issubclass(klass, BaseExtractor))
+                self.assertTrue(issubclass(klass, BaseMetadataExtractor))
 
     def test_does_not_include_base_extractor(self):
-        self.assertNotIn(BaseExtractor, self.actual)
+        self.assertNotIn(BaseMetadataExtractor, self.actual)
 
 
-class TestGetImplementedExtractorClasses(TestCase):
+class TestCollectAndCheckExtractorClassesIncluded(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual, _ = get_extractor_classes(
+        cls.actual, _ = _collect_included_excluded_extractors(
             packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
@@ -100,48 +93,20 @@ class TestGetImplementedExtractorClasses(TestCase):
     def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
         for klass in self.actual:
             self.assertTrue(uu.is_class(klass))
-            self.assertTrue(issubclass(klass, BaseExtractor))
+            self.assertTrue(issubclass(klass, BaseMetadataExtractor))
 
     def test_get_extractor_classes_does_not_include_base_extractor(self):
-        self.assertNotIn(BaseExtractor, self.actual)
+        self.assertNotIn(BaseMetadataExtractor, self.actual)
 
     def test_get_extractor_classes_does_not_include_abstract_extractors(self):
-        from extractors.text.common import AbstractTextExtractor
-        self.assertNotIn(AbstractTextExtractor, self.actual)
+        from extractors.text.base import BaseTextExtractor
+        self.assertNotIn(BaseTextExtractor, self.actual)
 
 
-class TestGetTextExtractorClasses(TestCase):
+class TestCollectAndCheckMetadataExtractorClassesIncluded(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual, _ = get_extractor_classes(
-            packages=EXTRACTOR_CLASS_PACKAGES_TEXT,
-        )
-
-    def test_get_extractor_classes_returns_expected_type(self):
-        self.assertIsInstance(self.actual, list)
-
-    def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
-        for klass in self.actual:
-            self.assertTrue(uu.is_class(klass))
-            self.assertTrue(issubclass(klass, BaseExtractor))
-
-    def test_get_extractor_classes_does_not_include_base_extractor(self):
-        self.assertNotIn(BaseExtractor, self.actual)
-
-    def test_get_extractor_classes_does_not_include_abstract_extractors(self):
-        from extractors.text.common import AbstractTextExtractor
-        self.assertNotIn(AbstractTextExtractor, self.actual)
-
-    def test_returns_text_extractors(self):
-        from extractors.text.common import AbstractTextExtractor
-        for klass in self.actual:
-            self.assertTrue(issubclass(klass, AbstractTextExtractor))
-
-
-class TestGetMetadataExtractorClasses(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.actual, _ = get_extractor_classes(
+        cls.actual, _ = _collect_included_excluded_extractors(
             packages=EXTRACTOR_CLASS_PACKAGES_METADATA,
         )
 
@@ -151,14 +116,14 @@ class TestGetMetadataExtractorClasses(TestCase):
     def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
         for klass in self.actual:
             self.assertTrue(uu.is_class(klass))
-            self.assertTrue(issubclass(klass, BaseExtractor))
+            self.assertTrue(issubclass(klass, BaseMetadataExtractor))
 
     def test_get_extractor_classes_does_not_include_base_extractor(self):
-        self.assertNotIn(BaseExtractor, self.actual)
+        self.assertNotIn(BaseMetadataExtractor, self.actual)
 
     def test_get_extractor_classes_does_not_include_abstract_extractors(self):
-        from extractors.text.common import AbstractTextExtractor
-        self.assertNotIn(AbstractTextExtractor, self.actual)
+        from extractors.text.base import BaseTextExtractor
+        self.assertNotIn(BaseTextExtractor, self.actual)
 
     def test_returns_metadata_extractors_verified_by_name(self):
         for klass in self.actual:
@@ -172,10 +137,27 @@ class TestGetMetadataExtractorClasses(TestCase):
             self.assertTrue(_meowuri_prefix.startswith('extractor.metadata'))
 
 
+class TestExtractorClassMeowURIs(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        provider_klasses, _ = _collect_included_excluded_extractors(
+            packages=EXTRACTOR_CLASS_PACKAGES
+        )
+        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
+        cls.extractor_class_names = [e.name() for e in provider_klasses]
+
+    def _assert_collected_included(self, extractor_name):
+        self.assertIn(extractor_name, self.extractor_class_names)
+
+    def test_collects_assumedly_available_extractors(self):
+        self._assert_collected_included('CrossPlatformFileSystemExtractor')
+        self._assert_collected_included('ExiftoolMetadataExtractor')
+
+
 class TestNumberOfAvailableExtractorClasses(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual, _ = get_extractor_classes(
+        cls.actual, _ = _collect_included_excluded_extractors(
             packages=EXTRACTOR_CLASS_PACKAGES,
         )
 
@@ -189,45 +171,3 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
 
     def test_get_extractor_classes_returns_at_least_three_extractors(self):
         self.assertGreaterEqual(len(self.actual), 3)
-
-
-class TestExtractorClassMeowURIs(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        provider_klasses, _ = get_extractor_classes(
-            packages=EXTRACTOR_CLASS_PACKAGES
-        )
-        # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
-        cls.extractor_class_names = [e.name() for e in provider_klasses]
-        cls.actual = [k.meowuri_prefix() for k in provider_klasses]
-
-    def test_returns_expected_type(self):
-        from core.model import MeowURI
-        for meowuri in self.actual:
-            self.assertIsInstance(meowuri, MeowURI)
-            self.assertTrue(C.MEOWURI_UNDEFINED_PART not in meowuri)
-
-    def test_returns_meowuris_for_extractors_assumed_always_available(self):
-        def _assert_in(member):
-            self.assertIn(member, self.actual)
-
-        _assert_in('extractor.filesystem.xplat')
-        _assert_in('extractor.text.plain')
-
-    def test_returns_meowuris_for_available_extractors(self):
-        def _conditional_assert_in(klass, member):
-            if klass in self.extractor_class_names:
-                self.assertIn(member, self.actual)
-
-        _conditional_assert_in('CrossPlatformFileSystemExtractor',
-                               'extractor.filesystem.xplat')
-        _conditional_assert_in('ExiftoolMetadataExtractor',
-                               'extractor.metadata.exiftool')
-        _conditional_assert_in('PdfTextExtractor',
-                               'extractor.text.pdf')
-        _conditional_assert_in('TesseractOCRTextExtractor',
-                               'extractor.text.tesseractocr')
-        _conditional_assert_in('RichTextFormatTextExtractor',
-                               'extractor.text.rtf')
-        _conditional_assert_in('MarkdownTextExtractor',
-                               'extractor.text.markdown')

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -18,6 +16,8 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
+
+from functools import lru_cache
 
 from core import constants as C
 from core.model import MeowURI
@@ -96,6 +96,11 @@ class GenericHealth(GenericField):
     meowuri_leaf = 'health'
 
 
+class GenericLanguage(GenericField):
+    meowuri_child = 'metadata'
+    meowuri_leaf = 'language'
+
+
 class GenericMimeType(GenericField):
     meowuri_child = 'contents'
     meowuri_leaf = 'Mime_Type'
@@ -144,10 +149,12 @@ def get_datetime_fields():
 def get_string_fields():
     return [
         GenericSubject, GenericText, GenericProducer, GenericDescription,
-        GenericCreator, GenericAuthor, GenericPublisher, GenericTitle
+        GenericCreator, GenericAuthor, GenericPublisher, GenericTitle,
+        GenericLanguage,
     ]
 
 
+@lru_cache(maxsize=1)
 def _build_field_uri_leaf_to_klass_mapping():
     return {
         klass.uri().leaf: klass
@@ -155,16 +162,11 @@ def _build_field_uri_leaf_to_klass_mapping():
     }
 
 
-_URI_LEAF_TO_KLASS_MAPPING = None
-
-
-def _get_field_uri_leaf_to_klass_mapping():
-    global _URI_LEAF_TO_KLASS_MAPPING
-    if _URI_LEAF_TO_KLASS_MAPPING is None:
-        _URI_LEAF_TO_KLASS_MAPPING = _build_field_uri_leaf_to_klass_mapping()
-    return _URI_LEAF_TO_KLASS_MAPPING
-
-
 def get_field_for_uri_leaf(string):
-    leaf_to_klass_map = _get_field_uri_leaf_to_klass_mapping()
+    leaf_to_klass_map = _build_field_uri_leaf_to_klass_mapping()
     return leaf_to_klass_map.get(string)
+
+
+def get_all_generic_field_uri_leaves():
+    """Returns a list of all generic field URI leaves as strings."""
+    return [klass.uri().leaf for klass in get_all_generic_field_klasses()]

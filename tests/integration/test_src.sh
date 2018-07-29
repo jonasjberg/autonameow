@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -81,15 +79,17 @@ assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.preferred" e 
 
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/analyzers/probable_extension_lookup" e f r
 
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/pandoc_template.plain" e f r
-
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/filetags_fieldmeta.yaml" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/guessit_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/exiftool_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/jpeginfo_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/pandoc_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/text/common_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_exiftool_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_jpeginfo_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_pandoc_fieldmeta.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_pandoc_template.plain" e f r
+
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/metadata/canonical_creatortool.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/metadata/canonical_language.yaml" e f r
+assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/metadata/canonical_publisher.yaml" e f r
 
 
 # ______________________________________________________________________________

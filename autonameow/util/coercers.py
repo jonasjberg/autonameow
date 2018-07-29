@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -20,7 +18,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Custom data types, used internally by autonameow.
 Coerces incoming data with unreliable or unknown types to primitives.
 Provides "NULL" values and additional type-specific functionality.
 
@@ -42,8 +39,7 @@ of the coercion _IS_ relevant for some of the usages..
 The best way to get a grip on what these classes are doing is to look at the
 tests in 'tests/unit/test_util_coercers.py'.
 
-Note that the behaviours of for instance 'format()' and 'normalize()' vary
-a lot between classes.
+Note that the behaviour of 'format()' vary a lot between classes.
 
 # TODO: [cleanup] This should probably be cleaned up at some point ..
 """
@@ -150,35 +146,8 @@ class BaseCoercer(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def normalize(self, value):
-        """
-        Processes the given value to a form suitable for serialization/storage.
-
-        Calling this method should be equivalent to calling 'coerce' followed
-        by some processing that produces a "simplified" representation of
-        the value.  Strings might be converted to lower-case, etc.
-
-        Args:
-            value: The value to coerce as any type, including None.
-
-        Returns:
-            A "normalized" version of the given value if the value can be
-            coerced and normalized, or the class "null" value.
-
-        Raises:
-            AWTypeError: The value could not be coerced and/or normalized.
-        """
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
     def format(self, value, **kwargs):
         raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def _fail_normalization(self, value, msg=None):
-        error_msg = 'Unable to normalize "{!s}" into {!r}'.format(value, self)
-        if msg is not None:
-            error_msg = '{}; {!s}'.format(error_msg, msg)
-
-        raise AWTypeError(error_msg)
 
     def _fail_coercion(self, value, msg=None):
         error_msg = 'Unable to coerce "{!s}" into {!r}'.format(value, self)
@@ -219,23 +188,14 @@ class _Path(BaseCoercer):
 
     def coerce(self, value):
         if value:
-            try:
+            with exceptions.ignored(ValueError, TypeError):
                 return enc.bytestring_path(value)
-            except (ValueError, TypeError):
-                pass
 
         return self._fail_coercion(value)
 
-    def normalize(self, value):
-        value = self.__call__(value)
-        if value:
-            return enc.normpath(value)
-
-        return self._fail_normalization(value)
-
     def format(self, value, **kwargs):
-        _normalized = self.normalize(value)
-        return enc.displayable_path(_normalized)
+        normalized_path = coerce_to_normalized_path(value)
+        return enc.displayable_path(normalized_path)
 
 
 class _PathComponent(BaseCoercer):
@@ -249,19 +209,9 @@ class _PathComponent(BaseCoercer):
         except (ValueError, TypeError):
             return self._fail_coercion(value)
 
-    def normalize(self, value):
-        value = self.__call__(value)
-        if value:
-            # Expand user home directory if present.
-            return os.path.normpath(
-                os.path.expanduser(enc.syspath(value))
-            )
-
-        return self._fail_normalization(value)
-
     def format(self, value, **kwargs):
-        _coerced = self.__call__(value)
-        return enc.displayable_path(_coerced)
+        coerced_value = self.__call__(value)
+        return enc.displayable_path(coerced_value)
 
 
 class _Boolean(BaseCoercer):
@@ -290,33 +240,24 @@ class _Boolean(BaseCoercer):
         if value is None:
             return self.null()
 
-        try:
-            string_value = AW_STRING(value)
-        except AWTypeError:
-            pass
-        else:
-            _maybe_bool = self.string_to_bool(string_value)
-            if _maybe_bool is not None:
-                return _maybe_bool
+        with exceptions.ignored(AWTypeError):
+            str_value = AW_STRING(value)
+            str_as_bool = self.string_to_bool(str_value)
+            if str_as_bool is not None:
+                return str_as_bool
 
-        try:
+        with exceptions.ignored(AWTypeError):
             float_value = AW_FLOAT(value)
-        except AWTypeError:
-            pass
-        else:
             return bool(float_value > 0)
 
         if hasattr(value, '__bool__'):
-            try:
+            with exceptions.ignored(AttributeError, LookupError,
+                                    NotImplementedError, TypeError, ValueError):
                 return bool(value)
-            except (AttributeError, LookupError, NotImplementedError,
-                    TypeError, ValueError):
-                return self._fail_coercion(value)
+
+            return self._fail_coercion(value)
 
         return self.null()
-
-    def normalize(self, value):
-        return self.__call__(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -332,23 +273,13 @@ class _Integer(BaseCoercer):
         # If casting to int directly fails, try first converting to float,
         # then from float to int. Casting string to int handles "1.5" but
         # "-1.5" fails. The two step approach fixes the negative numbers.
-        try:
+        with exceptions.ignored(ValueError, TypeError):
             return int(value)
-        except (ValueError, TypeError):
-            try:
-                float_value = float(value)
-            except (ValueError, TypeError):
-                pass
-            else:
-                try:
-                    return int(float_value)
-                except (ValueError, TypeError):
-                    pass
+
+        with exceptions.ignored(ValueError, TypeError):
+            return int(float(value))
 
         return self._fail_coercion(value)
-
-    def normalize(self, value):
-        return self.__call__(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -361,10 +292,8 @@ class _Integer(BaseCoercer):
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 
-            try:
+            with exceptions.ignored(TypeError):
                 return format_string.format(value)
-            except TypeError:
-                pass
 
         raise AWTypeError(
             'Invalid "format_string": "{!s}"'.format(format_string)
@@ -382,11 +311,8 @@ class _Float(BaseCoercer):
         except (ValueError, TypeError):
             return self._fail_coercion(value)
 
-    def normalize(self, value):
-        return self.__call__(value)
-
     def bounded(self, value, low=None, high=None):
-        _value = self.__call__(value)
+        coerced_value = self.__call__(value)
 
         if low is not None:
             low = float(low)
@@ -397,11 +323,11 @@ class _Float(BaseCoercer):
             if low > high:
                 raise ValueError('Expected "low" < "high"')
 
-        if low is not None and _value <= low:
+        if low is not None and coerced_value <= low:
             return low
-        elif high is not None and _value >= high:
+        elif high is not None and coerced_value >= high:
             return high
-        return _value
+        return coerced_value
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -414,10 +340,8 @@ class _Float(BaseCoercer):
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 
-            try:
+            with exceptions.ignored(TypeError):
                 return format_string.format(value)
-            except TypeError:
-                pass
 
         raise AWTypeError(
             'Invalid "format_string": "{!s}"'.format(format_string)
@@ -440,15 +364,10 @@ class _String(BaseCoercer):
                 return self.null()
 
         if self.coercible(value):
-            try:
+            with exceptions.ignored(ValueError, TypeError):
                 return str(value)
-            except (ValueError, TypeError):
-                pass
 
         return self._fail_coercion(value)
-
-    def normalize(self, value):
-        return self.__call__(value).strip()
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -475,21 +394,18 @@ class _MimeType(BaseCoercer):
         string_value = string_value.lstrip('.').strip().lower()
 
         if string_value:
-            _ext = mimemagic.get_extension(string_value)
-            if _ext is not None:
+            extension = mimemagic.get_extension(string_value)
+            if extension is not None:
                 # The value is a MIME-type.
                 # Note that an empty string is considered a valid extension.
                 return string_value
 
-            _mime = mimemagic.get_mimetype(string_value)
-            if _mime:
+            mimetype = mimemagic.get_mimetype(string_value)
+            if mimetype:
                 # The value is an extension. Return mapped MIME-type.
-                return _mime
+                return mimetype
 
         return self.null()
-
-    def normalize(self, value):
-        return self.__call__(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -522,18 +438,15 @@ class _Date(BaseCoercer):
             string_value = AW_STRING(value)
         except AWTypeError as e:
             return self._fail_coercion(value, msg=e)
-        else:
-            try:
-                return try_parse_date(string_value)
-            except ValueError as e:
-                self._fail_coercion(value, msg=e)
 
-    def normalize(self, value):
-        value = self.__call__(value)
-        if isinstance(value, datetime):
-            return value.replace(microsecond=0)
+        string_value = string_value.strip()
+        if not string_value:
+            return self._fail_coercion(value, msg='string is empty or whitespace')
 
-        return self._fail_normalization(value)
+        try:
+            return try_parse_date(string_value)
+        except ValueError as e:
+            self._fail_coercion(value, msg=e)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -544,10 +457,8 @@ class _Date(BaseCoercer):
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 
-            try:
+            with exceptions.ignored(TypeError):
                 return datetime.strftime(value, format_string)
-            except TypeError:
-                pass
 
         raise AWTypeError(
             'Invalid "format_string": "{!s}"'.format(format_string)
@@ -576,9 +487,13 @@ class _TimeDate(BaseCoercer):
         except AWTypeError as e:
             return self._fail_coercion(value, msg=e)
 
+        string_value = string_value.strip()
+        if not string_value:
+            return self._fail_coercion(value, msg='string is empty or whitespace')
+
         try:
             dt = try_parse_datetime(string_value)
-        except (TypeError, ValueError) as e:
+        except ValueError as e:
             return self._fail_coercion(value, msg=e)
         else:
             # TODO: [TD0054] Represent datetime as UTC within autonameow.
@@ -587,13 +502,6 @@ class _TimeDate(BaseCoercer):
 
             # TODO: [cleanup] Really OK to just drop the microseconds?
             return naive_dt.replace(microsecond=0)
-
-    def normalize(self, value):
-        value = self.__call__(value)
-        if isinstance(value, datetime):
-            return value.replace(microsecond=0)
-
-        return self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -604,10 +512,8 @@ class _TimeDate(BaseCoercer):
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 
-            try:
+            with exceptions.ignored(TypeError):
                 return datetime.strftime(value, format_string)
-            except TypeError:
-                pass
 
         raise AWTypeError(
             'Invalid "format_string": "{!s}"'.format(format_string)
@@ -617,21 +523,27 @@ class _TimeDate(BaseCoercer):
 class _ExifToolTimeDate(_TimeDate):
     def coerce(self, value):
         try:
-            if re.match(r'.*0000:00:00 00:00:00.*', value):
-                return self._fail_coercion(value)
-        except TypeError:
-            return self._fail_coercion(value)
+            string_value = AW_STRING(value)
+        except AWTypeError as e:
+            return self._fail_coercion(value, msg=e)
 
-        try:
-            return try_parse_datetime(value)
-        except ValueError:
-            pass
-        try:
-            return try_parse_date(value)
-        except ValueError:
-            pass
+        string_value = string_value.strip()
+        if not string_value:
+            return self._fail_coercion(value, msg='string is empty or whitespace')
 
-        return self._fail_coercion(value)
+        if re.match(r'.*0000:00:00 00:00:00.*', string_value):
+            return self._fail_coercion(value, msg='date and time is all zeroes')
+
+        with exceptions.ignored(ValueError):
+            return try_parse_datetime(string_value)
+
+        with exceptions.ignored(ValueError):
+            return try_parse_date(string_value)
+
+        return self._fail_coercion(
+            value,
+            msg='error parsing date/datetime from "{!s}"'.format(string_value)
+        )
 
 
 _pat_loose_date = '{year}{sep}{month}{sep}{day}'.format(
@@ -663,114 +575,120 @@ RE_LOOSE_DATETIME_US_TZ = re.compile(
 
 def normalize_date(string):
     match = RE_LOOSE_DATE.search(string)
-    if match:
-        _normalized = re.sub(RE_LOOSE_DATE, r'\1-\2-\3', string)
-        return _normalized
-    return None
+    if not match:
+        return None
+
+    normalized = re.sub(RE_LOOSE_DATE, r'\1-\2-\3', string)
+    return normalized
 
 
 def normalize_datetime_with_microseconds_and_timezone(string):
     match = RE_LOOSE_DATETIME_US_TZ.search(string)
-    if match:
-        _normalized = re.sub(RE_LOOSE_DATETIME_US_TZ,
-                             r'\1-\2-\3T\4:\5:\6.\7 \8\9\10',
-                             string)
-        return _normalized.replace(' ', '')
-    return None
+    if not match:
+        return None
+
+    normalized = re.sub(RE_LOOSE_DATETIME_US_TZ, r'\1-\2-\3T\4:\5:\6.\7 \8\9\10', string)
+    return normalized.replace(' ', '')
 
 
 def normalize_datetime_with_timezone(string):
     match = RE_LOOSE_DATETIME_TZ.search(string)
-    if match:
-        _normalized = re.sub(RE_LOOSE_DATETIME_TZ,
-                             r'\1-\2-\3T\4:\5:\6 \7\8\9',
-                             string)
-        return _normalized.replace(' ', '')
-    return None
+    if not match:
+        return None
+
+    normalized = re.sub(RE_LOOSE_DATETIME_TZ, r'\1-\2-\3T\4:\5:\6 \7\8\9', string)
+    return normalized.replace(' ', '')
 
 
 def normalize_datetime(string):
     match = RE_LOOSE_DATETIME.search(string)
-    if match:
-        _normalized = re.sub(RE_LOOSE_DATETIME, r'\1-\2-\3T\4:\5:\6', string)
-        return _normalized.replace(' ', '')
-    return None
+    if not match:
+        return None
+
+    normalized = re.sub(RE_LOOSE_DATETIME, r'\1-\2-\3T\4:\5:\6', string)
+    return normalized.replace(' ', '')
 
 
 def normalize_datetime_with_microseconds(string):
     match = RE_LOOSE_DATETIME_US.search(string)
+    if not match:
+        return None
+
+    normalized = re.sub(RE_LOOSE_DATETIME_US, r'\1-\2-\3T\4:\5:\6.\7', string)
+    return normalized
+
+
+def try_parse_datetime(s):
+    """
+    Attempt to parse get a 'datetime' object from a Unicode string.
+
+    Tries various patterns in turn and returns the first successfully
+    parsed 'datetime' object.
+    If the string cannot be parsed, a 'ValueError' exception is raised.
+
+    Args:
+        s (str): Unicode string to parse.
+
+    Returns:
+        The given string parsed into an instance of 'datetime'.
+
+    Raises:
+        ValueError: The given string could not be parsed.
+        AssertionError: The given string is not a Unicode string.
+    """
+    assert isinstance(s, str)
+
+    # Handle "malformed" (?) dates produced by "Mac OS X 10.11.5 Quartz PDFContext".
+    if s.endswith('Z'):
+        s = s[:-1]
+
+    for normalization_func, strptime_pattern in [
+        (normalize_datetime_with_microseconds_and_timezone, '%Y-%m-%dT%H:%M:%S.%f%z'),
+        (normalize_datetime_with_timezone, '%Y-%m-%dT%H:%M:%S%z'),
+        (normalize_datetime_with_microseconds, '%Y-%m-%dT%H:%M:%S.%f'),
+        (normalize_datetime, '%Y-%m-%dT%H:%M:%S'),
+    ]:
+        normalized_s = normalization_func(s)
+        if normalized_s:
+            assert isinstance(normalized_s, str)
+            with exceptions.ignored(ValueError):
+                return datetime.strptime(normalized_s, strptime_pattern)
+
+    raise ValueError('Unable to parse datetime from string "{!s}"'.format(s))
+
+
+def try_parse_date(s):
+    """
+    Attempt to parse get a 'datetime' object from a Unicode string.
+
+    First attempts to parse a "normalized" version of string.
+    If this fails, the second approach is a brute force method that
+    also assumes that the date is a variation of the form "YYYY-mm-dd".
+    If the string cannot be parsed, a 'ValueError' exception is raised.
+
+    Args:
+        s (str): Unicode string to parse.
+
+    Returns:
+        The given string parsed into an instance of 'datetime',
+        without any time-information.
+
+    Raises:
+        ValueError: The given string could not be parsed.
+        AssertionError: The given string is not a Unicode string.
+    """
+    assert isinstance(s, str)
+
+    match = normalize_date(s)
     if match:
-        _normalized = re.sub(RE_LOOSE_DATETIME_US, r'\1-\2-\3T\4:\5:\6.\7',
-                             string)
-        return _normalized
-    return None
-
-
-def try_parse_datetime(string):
-    _error_msg = 'Unable to parse datetime: "{!s}" ({})'.format(string,
-                                                                type(string))
-
-    if not string:
-        raise ValueError(_error_msg)
-    if not isinstance(string, str):
-        raise ValueError(_error_msg)
-
-    # Handles malformed dates produced by "Mac OS X 10.11.5 Quartz PDFContext".
-    if string.endswith('Z'):
-        string = string[:-1]
-
-    match = normalize_datetime_with_microseconds_and_timezone(string)
-    if match:
-        try:
-            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S.%f%z')
-        except (ValueError, TypeError):
-            pass
-
-    match = normalize_datetime_with_timezone(string)
-    if match:
-        try:
-            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S%z')
-        except (ValueError, TypeError):
-            pass
-
-    match = normalize_datetime_with_microseconds(string)
-    if match:
-        try:
-            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S.%f')
-        except (ValueError, TypeError):
-            pass
-
-    match = normalize_datetime(string)
-    if match:
-        try:
-            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S')
-        except (ValueError, TypeError):
-            pass
-
-    raise ValueError(_error_msg)
-
-
-def try_parse_date(string):
-    _error_msg = 'Unable to parse date: "{!s}" ({})'.format(string,
-                                                            type(string))
-
-    if not string:
-        raise ValueError(_error_msg)
-    if not isinstance(string, str):
-        raise ValueError(_error_msg)
-
-    match = normalize_date(string)
-    if match:
-        try:
+        with exceptions.ignored(ValueError, TypeError):
             return datetime.strptime(match, '%Y-%m-%d')
-        except (ValueError, TypeError):
-            pass
 
-    # Alternative, bruteforce method. Extract digits.
+    # Alternative, brute force method. Extract digits.
     # Assumes year, month, day is in ISO-date-like order.
-    digits = textutils.extract_digits(string)
+    digits = textutils.extract_digits(s)
     if digits:
-        sanity.check_internal_string(digits)
+        assert isinstance(digits, str)
 
         # TODO: [hack] This is not good ..
         MATCH_PATTERNS = [('%Y%m%d', 8),
@@ -781,7 +699,7 @@ def try_parse_date(string):
         if match:
             return match
 
-    raise ValueError(_error_msg)
+    raise ValueError('Unable to parse date from string "{!s}"'.format(s))
 
 
 def force_string(raw_value):
@@ -826,43 +744,48 @@ class MultipleTypes(object):
         sanity.check_isinstance(coercer, BaseCoercer)
         self.coercer = coercer
 
-    def __call__(self, value):
-        if value is None:
+    def __call__(self, values):
+        if values is None:
             return [self.coercer.null()]
 
-        if not isinstance(value, list):
-            value = [value]
+        if not isinstance(values, list):
+            values = [values]
 
-        out = list()
-        for v in value:
-            _coerced = self.coercer(v)
-            if _coerced is None:
+        coerced_values = list()
+        for value in values:
+            coerced_value = self.coercer(value)
+            if coerced_value is None:
                 continue
 
-            out.append(_coerced)
+            coerced_values.append(coerced_value)
 
-        return out
+        return coerced_values
 
-    def format(self, value):
-        if value is None:
+    def format(self, values):
+        if values is None:
             return [self.coercer.null()]
 
-        if not isinstance(value, list):
-            value = [value]
+        if not isinstance(values, list):
+            values = [values]
 
-        out = list()
-        for v in value:
-            _formatted = self.coercer.format(v)
-            if _formatted is None:
+        formatted_values = list()
+        for value in values:
+            formatted_value = self.coercer.format(value)
+            if formatted_value is None:
                 continue
 
-            out.append(_formatted)
+            formatted_values.append(formatted_value)
 
-        return out
+        return formatted_values
 
     def __contains__(self, item):
         if isinstance(item, BaseCoercer):
             return item == self.coercer
+        return False
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.coercer == other.coercer
         return False
 
 
@@ -887,3 +810,24 @@ NULL_AW_MIMETYPE = _NullMIMEType()
 
 # This is not clearly defined otherwise.
 BUILTIN_REGEX_TYPE = type(re.compile(''))
+
+
+def coerce_to_normalized_path(value):
+    coerced_value = AW_PATH(value)
+    if coerced_value:
+        return enc.normpath(coerced_value)
+
+    error_msg = 'Unable to normalize "{!s}" into {!r}'.format(value, AW_PATH)
+    raise AWTypeError(error_msg)
+
+
+def coerce_to_normalized_pathcomponent(value):
+    coerced_value = AW_PATHCOMPONENT(value)
+    if coerced_value:
+        # Expand user home directory if present.
+        return os.path.normpath(
+            os.path.expanduser(enc.syspath(coerced_value))
+        )
+
+    error_msg = 'Unable to normalize "{!s}" into {!r}'.format(value, AW_PATHCOMPONENT)
+    raise AWTypeError(error_msg)

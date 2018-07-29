@@ -1,8 +1,7 @@
 `autonameow`
 ============
-*Copyright(c) 2016-2018 Jonas Sjöberg*  
-<https://github.com/jonasjberg>  
-<http://www.jonasjberg.com>  
+Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>  
+Source repository: <https://github.com/jonasjberg/autonameow>
 
 --------------------------------------------------------------------------------
 
@@ -41,17 +40,23 @@ Current Features
     * Rules are ranked by score, weight and a "bias"
     * Rules can be set to allow failed conditions, which allows powerful
       layering of more or less "targeted" rules
-* __Text extraction__ from plain text, epub, pdf and rtf files
-* __Metadata extraction from a lot of file formats__ (using [exiftool][2])
+* __Text extraction__
+    * From various text formats; `epub`, markdown, `pdf`, `rtf`, `txt`, etc.
+    * From images using [tesseract][6] to do OCR
+    * Filtering and miscellaneous processing of extracted text
+* __Metadata extraction from a lot of file formats__
+    * Uses various third-party binaries such as [exiftool][2], [pandoc][7], [jpeginfo][8], ..
+    * Filtering and miscellaneous processing of raw metadata
+    * Collected metadata is made accessible through a common mechanism
 * Metadata extraction from textual contents
     * Fuzzy extraction of date/time-information, possible titles, etc.
+* Metadata extraction from file names
 * __ISBN number extraction and metadata lookup__
     * Facilitates powerful renaming of ebooks
     * Combines information from several sources to determine possible candidate data
     * Extract ISBN numbers from various ebooks and query metadata APIs
     * Fuzzy de-duplication of ISBN metadata
 * Robust extraction of information from file names following the __[filetags][1] naming scheme__
-* Metadata extraction from file names
 * __Caching__ of slow operations, like querying third-party servers or extracting large amounts of text
 * __Batch mode__ for completely hands-off operation, suitable for scripting
 * __Timid mode__ prompts prior to renaming files with a preview
@@ -145,3 +150,6 @@ Also available [here](https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt).
 [3]: https://github.com/jonasjberg/autonameow/blob/master/TODO.md
 [4]: https://github.com/jonasjberg/autonameow/blob/master/done.md
 [5]: https://github.com/jonasjberg/autonameow/blob/master/tests/README.md
+[6]: https://github.com/tesseract-ocr
+[7]: https://pandoc.org
+[8]: https://github.com/tjko/jpeginfo

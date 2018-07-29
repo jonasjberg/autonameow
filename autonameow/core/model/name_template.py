@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -36,7 +34,7 @@ class NameTemplate(object):
     @property
     def str_placeholders(self):
         if self._str_placeholders is None:
-            self._str_placeholders = format_string_placeholders(self._format_string)
+            self._str_placeholders = template_placeholder_substrings(self._format_string)
         return self._str_placeholders
 
     @property
@@ -51,17 +49,17 @@ class NameTemplate(object):
         return self._format_string
 
 
-def format_string_placeholders(format_string):
+def template_placeholder_substrings(format_string):
     """
-    Gets the format string placeholder fields from a text string.
+    Returns the format string placeholder fields from a text string.
 
     The text "{foo} mjao baz {bar}" would return ['foo', 'bar'].
 
     Args:
-        format_string: Format string from which to get placeholders,
-                       as a Unicode string.
+        format_string (str): Name template to search for placeholder substrings.
+
     Returns:
-        Any format string placeholder fields as a list of Unicode strings.
+        Any name template placeholder fields as a list of Unicode strings.
     """
     sanity.check_internal_string(format_string)
     if not format_string.strip():

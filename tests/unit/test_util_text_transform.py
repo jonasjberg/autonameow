@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -37,9 +35,10 @@ from util.text.transform import extract_digits
 from util.text.transform import html_unescape
 from util.text.transform import indent
 from util.text.transform import normalize_unicode
-from util.text.transform import normalize_whitespace
+from util.text.transform import normalize_horizontal_whitespace
+from util.text.transform import normalize_vertical_whitespace
 from util.text.transform import remove_blacklisted_lines
-from util.text.transform import remove_blacklisted_re_lines
+from util.text.transform import remove_ascii_control_characters
 from util.text.transform import remove_nonbreaking_spaces
 from util.text.transform import remove_zerowidth_spaces
 from util.text.transform import simplify_unicode
@@ -211,34 +210,33 @@ class TestStripSingleSpaceLines(TestCase):
         self._assert_returns('\nX\n', given=' \nX\n')
 
 
-class TestNormalizeWhitespace(TestCase):
+class TestNormalizeHorizontalWhitespace(TestCase):
     def _assert_returns(self, expect, given):
-        actual = normalize_whitespace(given)
+        actual = normalize_horizontal_whitespace(given)
         self.assertEqual(expect, actual)
-
-    def test_returns_empty_values_as_is(self):
-        for expect, given in [
-            ('', ''),
-
-            # Pass through empty/None/False values.
-            (None, None),
-            ([], []),
-        ]:
-            self._assert_returns(expect, given)
 
     def test_raises_exception_given_non_string_types(self):
         for bad_input in [
+            None,
+            [],
+            {},
+            False,
+            True,
             object(),
             b'foo',
             ['foo'],
         ]:
             with self.assertRaises(AssertionError):
-                _ = normalize_whitespace(bad_input)
+                _ = normalize_horizontal_whitespace(bad_input)
 
-    def test_returns_string_without_whitespace_as_is(self):
-        self._assert_returns('foo', 'foo')
+    def test_returns_strings_without_whitespace_as_is(self):
+        for given_and_expected in [
+            '',
+            'foo',
+        ]:
+            self._assert_returns(given_and_expected, given_and_expected)
 
-    def test_does_not_strip_trailing_leading_whitespace(self):
+    def test_does_not_strip_trailing_or_leading_whitespace(self):
         for expected, given in [
             ('foo ', 'foo '),
             (' foo', ' foo'),
@@ -389,6 +387,63 @@ class TestNormalizeWhitespace(TestCase):
         self._assert_returns(' foo bar\n', given='\t\t\tfoo bar\n')
 
 
+class TestNormalizeVerticalWhitespace(TestCase):
+    def _assert_returns(self, expect, given):
+        actual = normalize_vertical_whitespace(given)
+        self.assertEqual(expect, actual)
+
+    def _assert_unchanged(self, given):
+        actual = normalize_vertical_whitespace(given)
+        self.assertEqual(given, actual)
+
+    def test_raises_exception_given_non_string_types(self):
+        for bad_input in [
+            None,
+            [],
+            {},
+            False,
+            True,
+            object(),
+            b'foo',
+            ['foo'],
+        ]:
+            with self.assertRaises(AssertionError):
+                _ = normalize_vertical_whitespace(bad_input)
+
+    def test_returns_strings_without_vertical_whitespace_as_is(self):
+        for given in [
+            '',
+            'foo',
+            '\t',
+            'foo\t',
+            'foo\tbar',
+            'foo \t',
+            'foo\t bar',
+        ]:
+            self._assert_unchanged(given)
+
+    def test_returns_single_newline_as_is(self):
+        self._assert_unchanged('\n')
+
+    def test_removes_linefeeds(self):
+        self._assert_returns('', '\r')
+
+    def test_removes_linefeeds_and_keeps_single_newline(self):
+        for given in [
+            '\n\r',
+            '\r\n'
+        ]:
+            self._assert_returns('\n', given)
+
+    def test_removes_linefeeds_and_keeps_newlines(self):
+        for given in [
+            '\n\r\n',
+            '\n\r\n\r',
+            '\r\n\r\n'
+        ]:
+            self._assert_returns('\n\n', given)
+
+
 class TestIndent(TestCase):
     def test_invalid_arguments_raises_exception(self):
         def _assert_raises(*args, **kwargs):
@@ -508,87 +563,276 @@ class TestNormalizeUnicode(TestCase):
         actual = normalize_unicode(test_input)
         self.assertEqual(actual, expected)
 
+    def _assert_unchanged(self, given_unicode):
+        self._aE(given_unicode, given_unicode)
+
+    def _assert_replaces_variations(self, given_unicode, replacement):
+        def _format(template):
+            return template.format(g=given_unicode, r=replacement)
+
+        self._aE(given_unicode, replacement)
+        self._aE(_format('{g}'),      _format('{r}'))
+        self._aE(_format('{g} '),     _format('{r} '))
+        self._aE(_format(' {g}'),     _format(' {r}'))
+        self._aE(_format(' {g} '),    _format(' {r} '))
+
+        self._aE(_format('{g}{g}'),   _format('{r}{r}'))
+        self._aE(_format('{g}{g} '),  _format('{r}{r} '))
+        self._aE(_format(' {g}{g}'),  _format(' {r}{r}'))
+        self._aE(_format(' {g}{g} '), _format(' {r}{r} '))
+
+        self._aE(_format('{g} {g}'),   _format('{r} {r}'))
+        self._aE(_format('{g} {g} '),  _format('{r} {r} '))
+        self._aE(_format(' {g} {g}'),  _format(' {r} {r}'))
+        self._aE(_format(' {g} {g} '), _format(' {r} {r} '))
+
+        self._aE(_format('ö{g}'),      _format('ö{r}'))
+        self._aE(_format('{g}ö'),      _format('{r}ö'))
+        self._aE(_format('å{g}'),      _format('å{r}'))
+        self._aE(_format('{g}å'),      _format('{r}å'))
+        self._aE(_format('ä{g}'),      _format('ä{r}'))
+        self._aE(_format('{g}ä'),      _format('{r}ä'))
+        self._aE(_format('Ö{g}'),      _format('Ö{r}'))
+        self._aE(_format('{g}Ö'),      _format('{r}Ö'))
+        self._aE(_format('Å{g}'),      _format('Å{r}'))
+        self._aE(_format('{g}Å'),      _format('{r}Å'))
+        self._aE(_format('Ä{g}'),      _format('Ä{r}'))
+        self._aE(_format('{g}Ä'),      _format('{r}Ä'))
+
     def test_returns_empty_values_as_is(self):
-        self._aE('', '')
-        self._aE(b'', b'')
-        self._aE(None, None)
-        self._aE([], [])
-        self._aE({}, {})
+        self._assert_unchanged('')
+        self._assert_unchanged(b'')
+        self._assert_unchanged(None)
+        self._assert_unchanged([])
+        self._assert_unchanged({})
 
     def test_raises_exception_given_bad_input(self):
-        def _aR(test_input):
+        for bad_value in [
+            ['foo'],
+            {'foo': 'bar'},
+            object(),
+            1,
+            1.0,
+            b'foo',
+        ]:
             with self.assertRaises(AssertionError):
-                _ = normalize_unicode(test_input)
+                _ = normalize_unicode(bad_value)
 
-        _aR(['foo'])
-        _aR({'foo': 'bar'})
-        _aR(object())
-        _aR(1)
-        _aR(1.0)
-        _aR(b'foo')
+    def test_returns_values_as_is(self):
+        for given_and_expected in [
+            '',
+            ' ',
+            'foo',
+            '...',
+            'båt',
+            'sär',
+            'hög',
+            'söt',
+            'åäö',
+        ]:
+            with self.subTest(given_and_expected=given_and_expected):
+                self._assert_unchanged(given_and_expected)
 
-    def test_returns_expected(self):
-        self._aE('', '')
-        self._aE(' ', ' ')
-        self._aE('foo', 'foo')
-        self._aE('...', '...')
+    def test_replaces_ellipsis_with_three_periods(self):
+        self._assert_replaces_variations('…', '...')
+        self.assertEqual('…', '\u2026')
+        self._assert_replaces_variations('\u2026', '...')
 
-    def test_simplifies_three_periods(self):
-        self._aE('…', '...')
-        self._aE(' …', ' ...')
-        self._aE(' … ', ' ... ')
+    def test_replaces_dashes_with_dash(self):
+        REPLACEMENT = '-'
+        for given_unicode_char in [
+            '\u2212',
+            '\u2013',
+            '\u2014',
+        ]:
+            with self.subTest(given=given_unicode_char, expected=REPLACEMENT):
+                self._assert_replaces_variations(given_unicode_char, REPLACEMENT)
 
-    def test_replaces_dashes(self):
-        self._aE('\u2212', '-')
-        self._aE('\u2013', '-')
-        self._aE('\u2014', '-')
-        self._aE('\u05be', '-')
-        self._aE('\u2010', '-')
-        self._aE('\u2015', '-')
-        self._aE('\u30fb', '-')
+    def test_replaces_dots_and_overlines_and_bars_and_punctuation_with_dash(self):
+        REPLACEMENT = '-'
+        for given_unicode_char in [
+            '\u30fb',
+            '\u2015',
+            '\u0305',
+            '\u203e',
+            '\u05be',
+        ]:
+            with self.subTest(given=given_unicode_char, expected=REPLACEMENT):
+                self._assert_replaces_variations(given_unicode_char, REPLACEMENT)
 
-    def test_replaces_overlines(self):
-        self._aE('\u0305', '-')
-        self._aE('\u203e', '-')
+    def test_replaces_hyphens_with_dash(self):
+        REPLACEMENT = '-'
+        for given_unicode_char in [
+            '\u002D',
+            '\u00AD',
+            '\u2010',
+            '\u2011',
+            '\u2012',
+            '\u2043',
+        ]:
+            with self.subTest(given=given_unicode_char, expected=REPLACEMENT):
+                self._assert_replaces_variations(given_unicode_char, REPLACEMENT)
+
+        self._assert_replaces_variations('\xad', REPLACEMENT)
 
 
 class TestRemoveNonBreakingSpaces(TestCase):
+    def _assert_given_expect(self, given, expect):
+        actual = remove_nonbreaking_spaces(given)
+        self.assertEqual(expect, actual)
+
+    def _assert_unchanged(self, given):
+        self._assert_given_expect(given, given)
+
     def test_remove_non_breaking_spaces_removes_expected(self):
         non_breaking_space = '\xa0'
-        actual = remove_nonbreaking_spaces(
-            'foo' + uu.decode(non_breaking_space) + 'bar'
-        )
-        expected = 'foo bar'
-        self.assertEqual(expected, actual)
+        given = 'foo' + uu.decode(non_breaking_space) + 'bar'
+        self._assert_given_expect(given, 'foo bar')
 
     def test_remove_non_breaking_spaces_removes_expected_2(self):
-        actual = remove_nonbreaking_spaces('foo\u00A0bar')
-        self.assertEqual('foo bar', actual)
+        self._assert_given_expect('foo\u00A0bar', 'foo bar')
+        self._assert_given_expect('böö\u00A0äå', 'böö äå')
+        self._assert_given_expect('BÖÖ\u00A0ÄÅ', 'BÖÖ ÄÅ')
 
-    def test_remove_non_breaking_spaces_returns_expected(self):
-        expected = 'foo bar'
-        actual = remove_nonbreaking_spaces('foo bar')
-        self.assertEqual(actual, expected)
+    def test_strings_without_non_breaking_spaces_are_passed_through_as_is(self):
+        self._assert_unchanged('foo bar')
+        self._assert_unchanged('åäö')
+        self._assert_unchanged('ÅÄÖ')
 
-    def test_remove_non_breaking_spaces_handles_empty_string(self):
-        expected = ''
-        actual = remove_nonbreaking_spaces('')
-        self.assertEqual(actual, expected)
+    def test_empty_strings_are_passed_through_as_is(self):
+        self._assert_unchanged('')
 
 
-class TestZeroWidthSpaces(TestCase):
+class TestRemoveZeroWidthSpaces(TestCase):
+    def _assert_given_expect(self, given, expect):
+        actual = remove_zerowidth_spaces(given)
+        self.assertEqual(expect, actual)
+
+    def _assert_unchanged(self, given):
+        self._assert_given_expect(given, given)
+
     def test_removes_expected(self):
-        actual = remove_zerowidth_spaces('foo\u200Bbar')
-        self.assertEqual('foobar', actual)
+        self._assert_given_expect('foo\u200Bbar', 'foobar')
+        self._assert_given_expect('böö\u200Bääå', 'bööääå')
+        self._assert_given_expect('BÖÖ\u200BÄÄÅ', 'BÖÖÄÄÅ')
 
-    def test_passthrough(self):
-        expected = 'foo bar'
-        actual = remove_zerowidth_spaces('foo bar')
-        self.assertEqual(expected, actual)
+    def test_strings_without_zero_width_spaces_are_passed_through_as_is(self):
+        self._assert_unchanged('foo bar')
+        self._assert_unchanged('åäö')
+        self._assert_unchanged('ÅÄÖ')
 
-    def test_handles_empty_string(self):
-        actual = remove_zerowidth_spaces('')
-        self.assertEqual('', actual)
+    def test_empty_strings_are_passed_through_as_is(self):
+        self._assert_unchanged('')
+
+
+class TestRemoveControlCharacters(TestCase):
+    def _assert_given_expect(self, given, expect):
+        actual = remove_ascii_control_characters(given)
+        self.assertEqual(expect, actual)
+
+    def _assert_unchanged(self, given):
+        self._assert_given_expect(given, given)
+
+    def test_empty_strings_are_passed_through_as_is(self):
+        self._assert_unchanged('')
+
+    def test_strings_without_control_characters_are_passed_through_as_is(self):
+        self._assert_unchanged('A')
+        self._assert_unchanged('foo bar')
+        self._assert_unchanged('åäö')
+        self._assert_unchanged('ÅÄÖ')
+
+    def test_strings_with_new_lines_are_passed_through_as_is(self):
+        for given_string in [
+            '\n',
+            '\n\n',
+            'A\n',
+            'A\nB',
+            'A\nB\n',
+            'foo\n bar',
+            'foo\n bar \n',
+            'A\n\n',
+            'A\n\nB',
+            'A\n\nB\n\n',
+            'foo\n\n bar',
+            'foo\n\n bar \n\n',
+        ]:
+            self._assert_unchanged(given_string)
+
+    def test_strings_with_tabs_are_passed_through_as_is(self):
+        for given_string in [
+            '\t',
+            '\t\t',
+            'A\t',
+            'A\tB',
+            'A\tB\t',
+            'foo\t bar',
+            'foo\t bar \t',
+            'A\t\t',
+            'A\t\tB',
+            'A\t\tB\t\t',
+            'foo\t\t bar',
+            'foo\t\t bar \t\t',
+        ]:
+            self._assert_unchanged(given_string)
+
+    def test_removes_control_character_bell(self):
+        self._assert_given_expect('\a', '')
+        self._assert_given_expect('\a\a', '')
+        self._assert_given_expect('A\a', 'A')
+        self._assert_given_expect('A\aB', 'AB')
+        self._assert_given_expect('A\aB\a', 'AB')
+        self._assert_given_expect('\aA\a', 'A')
+        self._assert_given_expect('\aA\aB', 'AB')
+        self._assert_given_expect('\aA\aB\a', 'AB')
+        self._assert_given_expect('\aA\a\a', 'A')
+        self._assert_given_expect('\aA\a\aB', 'AB')
+        self._assert_given_expect('\aA\a\aB\a', 'AB')
+
+    def test_removes_control_character_backspace(self):
+        self._assert_given_expect('\x08', '')
+        self._assert_given_expect('\x08\x08', '')
+        self._assert_given_expect('A\x08', 'A')
+        self._assert_given_expect('A\x08B', 'AB')
+        self._assert_given_expect('A\x08B\x08', 'AB')
+        self._assert_given_expect('\x08A\x08', 'A')
+        self._assert_given_expect('\x08A\x08B', 'AB')
+        self._assert_given_expect('\x08A\x08B\x08', 'AB')
+        self._assert_given_expect('\x08A\x08\x08', 'A')
+        self._assert_given_expect('\x08A\x08\x08B', 'AB')
+        self._assert_given_expect('\x08A\x08\x08B\x08', 'AB')
+
+    def test_removes_control_character_start_of_header(self):
+        self._assert_given_expect('\x01', '')
+        self._assert_given_expect('\x01\x01', '')
+        self._assert_given_expect('A\x01', 'A')
+        self._assert_given_expect('A\x01B', 'AB')
+        self._assert_given_expect('A\x01B\x01', 'AB')
+        self._assert_given_expect('\x01A\x01', 'A')
+        self._assert_given_expect('\x01A\x01B', 'AB')
+        self._assert_given_expect('\x01A\x01B\x01', 'AB')
+        self._assert_given_expect('\x01A\x01\x01', 'A')
+        self._assert_given_expect('\x01A\x01\x01B', 'AB')
+        self._assert_given_expect('\x01A\x01\x01B\x01', 'AB')
+
+    def test_removes_control_character_start_of_text(self):
+        self._assert_given_expect('\x02', '')
+        self._assert_given_expect('\x02\x02', '')
+        self._assert_given_expect('A\x02', 'A')
+        self._assert_given_expect('A\x02B', 'AB')
+        self._assert_given_expect('A\x02B\x02', 'AB')
+
+    def test_removes_only_control_character_bell(self):
+        self._assert_given_expect('foo\x07\nbaz\n\n\x07m\x07ä\x07ö\x07w', 'foo\nbaz\n\nmäöw')
+
+    def test_removes_only_control_character_backspace(self):
+        self._assert_given_expect('foo\x08\nbaz\n\n\x08m\x08ä\x08ö\x08w', 'foo\nbaz\n\nmäöw')
+
+    def test_removes_only_control_character_start_of_header(self):
+        self._assert_given_expect('foo\x01\nbaz\n\n\x01m\x01ä\x01ö\x01w', 'foo\nbaz\n\nmäöw')
+
+    def test_removes_only_control_character_start_of_text(self):
+        self._assert_given_expect('foo\x02\nbaz\n\n\x02m\x02ä\x02ö\x02w', 'foo\nbaz\n\nmäöw')
 
 
 class TestTruncateText(TestCase):
@@ -735,7 +979,7 @@ class TestBatchRegexReplace(TestCase):
             (re.compile(r'Foo'), 'Mjao')
         ]
         self._check_call(given='Foo Bar', expect='Mjao Bar',
-                          regex_replacements=reps)
+                         regex_replacements=reps)
 
     def test_two_replacements(self):
         reps = [
@@ -743,7 +987,7 @@ class TestBatchRegexReplace(TestCase):
             (re.compile(r' '), 'X'),
         ]
         self._check_call(given='Foo Bar', expect='MjaoXBar',
-                          regex_replacements=reps)
+                         regex_replacements=reps)
 
     def test_three_replacements(self):
         reps = [
@@ -752,7 +996,7 @@ class TestBatchRegexReplace(TestCase):
             (re.compile(r'(bar){2,}'), 'bar'),
         ]
         self._check_call(given='Foo barbar Bar', expect='MjaoXbarXBar',
-                          regex_replacements=reps)
+                         regex_replacements=reps)
 
     def test_perform_longer_replacements_first(self):
         reps = [
@@ -764,8 +1008,8 @@ class TestBatchRegexReplace(TestCase):
         for reps_order in itertools.permutations(reps):
             with self.subTest(replacements=reps_order):
                 self._check_call(given='The Cat In A Hat',
-                                  expect='the Cat in a Hat',
-                                  regex_replacements=reps_order)
+                                 expect='the Cat in a Hat',
+                                 regex_replacements=reps_order)
 
     def test_perform_longer_replacements_first_with_word_boundaries(self):
         reps = [
@@ -777,8 +1021,8 @@ class TestBatchRegexReplace(TestCase):
         for reps_order in itertools.permutations(reps):
             with self.subTest(replacements=reps_order):
                 self._check_call(given='The Cat In A Hat InA The FlAt',
-                                  expect='the Cat in a Hat InA the FlAt',
-                                  regex_replacements=reps_order)
+                                 expect='the Cat in a Hat InA the FlAt',
+                                 regex_replacements=reps_order)
 
     def test_does_not_exhibit_inconsistent_behaviour(self):
         reps = [
@@ -791,16 +1035,16 @@ class TestBatchRegexReplace(TestCase):
         for reps_order in itertools.permutations(reps):
             with self.subTest(replacements=reps_order):
                 self._check_call(given='a cat And a Dog In A thing in The HAT',
-                                  expect='a cat and a Dog in a thing in the HAT',
-                                  regex_replacements=reps_order)
+                                 expect='a cat and a Dog in a thing in the HAT',
+                                 regex_replacements=reps_order)
 
     def test_replaces_single_quote(self):
         self._check_call(given='Foo\'s Bar', expect='Foos Bar',
-                          regex_replacements=[(re.compile(r'[\']'), '')])
+                         regex_replacements=[(re.compile(r'[\']'), '')])
         self._check_call(given='Foo\'s Bar', expect='Foos Bar',
-                          regex_replacements=[(re.compile(r"'"), '')])
+                         regex_replacements=[(re.compile(r"'"), '')])
         self._check_call(given='Foo\'s Bar', expect='Foos Bar',
-                          regex_replacements=[(re.compile("'"), '')])
+                         regex_replacements=[(re.compile("'"), '')])
 
 
 class TestRemoveBlacklistedLines(TestCase):
@@ -941,148 +1185,6 @@ c
 MEOW
 ''',
             given_blacklist=frozenset(['MEOW', 'b', 'c'])
-        )
-
-
-class TestRemoveBlacklistedReLines(TestCase):
-    def _assert_that_it_returns(self, expected, given_text, given_blacklist):
-        compiled_regexes = [re.compile(p) for p in given_blacklist]
-        actual = remove_blacklisted_re_lines(given_text, compiled_regexes)
-        self.assertEqual(expected, actual)
-
-    def test_returns_empty_or_whitespace_text_as_is(self):
-        for text in ['', ' ', '\n', ' \n', ' \n ']:
-            for blacklist in [[], [r'a'], frozenset([]), frozenset([r'a'])]:
-                with self.subTest(given=text, blacklist=blacklist):
-                    self._assert_that_it_returns(
-                        expected=text,
-                        given_text=text,
-                        given_blacklist=blacklist
-                    )
-
-    def test_returns_text_as_is_if_blacklist_is_empty_list(self):
-        self._assert_that_it_returns(
-            expected='foo\nbar',
-            given_text='foo\nbar',
-            given_blacklist=[]
-        )
-
-    def test_returns_text_as_is_if_blacklist_is_empty_frozenset(self):
-        self._assert_that_it_returns(
-            expected='foo\nbar',
-            given_text='foo\nbar',
-            given_blacklist=frozenset([])
-        )
-
-    def test_removes_one_matching_blacklisted_line(self):
-        self._assert_that_it_returns(
-            expected='''
-Foo Bar: A Modern Approach
-Foo Bar
-''',
-            given_text='''
-Foo Bar: A Modern Approach
-This page intentionally left blank
-Foo Bar
-''',
-            given_blacklist=frozenset([r'.*intentionally.*'])
-        )
-
-    def test_removes_single_matching_line_and_keeps_line_breaks(self):
-        self._assert_that_it_returns(
-            expected='''
-Foo Bar: A Modern Approach
-
-
-a
-
-b
-''',
-            given_text='''
-Foo Bar: A Modern Approach
-
-This page intentionally left blank
-
-a
-
-b
-''',
-            given_blacklist=frozenset(['.*intentionally.*'])
-        )
-
-    def test_removes_one_matching_line_with_one_blacklist_regex(self):
-        self._assert_that_it_returns(
-            expected='''
-a
-b
-
-c
-''',
-            given_text='''
-a
-b
-MEOW
-
-c
-''',
-            given_blacklist=frozenset(['M..W'])
-        )
-
-    def test_removes_multiple_matching_lines_with_one_blacklist_regex(self):
-        self._assert_that_it_returns(
-            expected='''
-a
-b
-
-c
-''',
-            given_text='''
-a
-MEOW
-MEOW
-b
-MEOW
-
-c
-MEOW
-''',
-            given_blacklist=frozenset(['M.*W'])
-        )
-
-    def test_removes_matching_lines_with_two_blacklist_regexes(self):
-        self._assert_that_it_returns(
-            expected='''
-a
-
-c
-''',
-            given_text='''
-a
-MEOW
-
-c
-''',
-            given_blacklist=frozenset(['M.*W', 'b'])
-        )
-
-    def test_removes_matching_lines_with_multiple_blacklist_regexes(self):
-        self._assert_that_it_returns(
-            expected='''
-a MEOW
-
-''',
-            given_text='''
-a MEOW
-MEOW
-c
-MEOW
-b
-MEOW
-
-cat
-MEOW
-''',
-            given_blacklist=frozenset(['M.*', 'b', 'c.*'])
         )
 
 

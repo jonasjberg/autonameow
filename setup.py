@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -51,14 +49,16 @@ setup(
     package_data={
         'autonameow': [
             'analyzers/probable_extension_lookup',
-            'extractors/metadata/pandoc_template.plain',
+            'core/metadata/canonical_creatortool.yaml',
+            'core/metadata/canonical_language.yaml',
+            'core/metadata/canonical_publisher.yaml',
+            'extractors/metadata/extractor_pandoc_template.plain',
             'extractors/filesystem/crossplatform_fieldmeta.yaml',
             'extractors/filesystem/filetags_fieldmeta.yaml',
             'extractors/filesystem/guessit_fieldmeta.yaml',
             'extractors/metadata/exiftool_fieldmeta.yaml',
             'extractors/metadata/jpeginfo_fieldmeta.yaml',
             'extractors/metadata/pandoc_fieldmeta.yaml',
-            'extractors/text/common_fieldmeta.yaml',
             'util/mimemagic.mappings',
             'util/mimemagic.preferred',
         ],

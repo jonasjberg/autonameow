@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -192,9 +190,7 @@ then
     printf 'Wrote unit test HTML log file: "%s"\n' "$_unittest_log"
 
     # Write log file name to temporary file, used by other scripts.
-    set +o noclobber
-    echo "${_unittest_log}" > "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
-    set -o noclobber
+    echo "${_unittest_log}" >| "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
 fi
 
 

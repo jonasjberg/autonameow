@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -36,7 +34,7 @@ class CacheError(AutonameowException):
     """Irrecoverable error while reading or writing to caches."""
 
 
-def _get_persistence_backend(file_prefix, persistence_dir_abspath):
+def _get_persistence_mechanism(file_prefix, persistence_dir_abspath):
     # NOTE: Passing 'persistence_dir_abspath' only to simplify unit testing.
     try:
         return PicklePersistence(file_prefix,
@@ -78,7 +76,7 @@ class BaseCache(object):
         self._owner = None
         self.owner = owner
 
-        self._persistence = _get_persistence_backend(
+        self._persistence = _get_persistence_mechanism(
             file_prefix=self.CACHE_PERSISTENCE_FILE_PREFIX,
             persistence_dir_abspath=cache_dir_abspath
         )
@@ -215,6 +213,23 @@ class BaseCache(object):
 
 
 def get_cache(owner, max_filesize=None):
+    """
+    Main "public" interface for retrieving a caching mechanism.
+
+    Callers should not be concerned with how (if) files are written to disk.
+    Returns a general-purpose cache that behaves like a dict named "owner".
+
+    Each instance of this class is passed a "owner", which could be an
+    Extractor or any type of string-like identifier.
+
+    Args:
+        owner (str): Some kind of identifier of this specific cache.
+                     Used to derive file names for caches persisted on disk.
+        max_filesize (int): Optional maximum file size in bytes for caches
+                            persisted on disk.
+
+    Returns: A class instance that implements the 'BaseCache' interface.
+    """
     try:
         return BaseCache(owner, max_filesize=max_filesize)
     except (CacheError, PersistenceError) as e:

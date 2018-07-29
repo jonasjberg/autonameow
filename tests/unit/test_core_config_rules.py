@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg
-#   Personal site:   http://www.jonasjberg.com
-#   GitHub:          https://github.com/jonasjberg
-#   University mail: js224eh[a]student.lnu.se
+#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
 #
@@ -514,7 +512,7 @@ class TestIsValidSourceSpecification(TestCase):
     def test_returns_true_given_valid_source(self):
         for given_str in [
             # Generic sources
-            uuconst.MEOWURI_GEN_CONTENTS_TEXT,
+            uuconst.MEOWURI_GEN_METADATA_TITLE,
             uuconst.MEOWURI_GEN_METADATA_AUTHOR,
 
             # Extractor sources
