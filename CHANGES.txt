@@ -1,3 +1,1196 @@
+2018-07-29  [autonameow v0.5.8]
+            Mostly refactoring and fixes.
+            Improves canonicalization of 'publisher' field values.
+            Adds canonicalization of 'creatortool' and 'language' values.
+            Adds new text extractor for extracting plain text from djvu files.
+
+            Additions
+            - Add/modify canonical publisher patterns and tests.
+
+            - Add/modify language canonicalization patterns.
+
+            - Add/modify canonical language patterns and tests.
+
+            - Add/modify creatortool canonicalization patterns.
+
+            - Add/modify canonical publisher patterns and tests.
+              Also fixes suddenly failing unit tests by sorting compared dicts.
+
+            - Add 'lru_cache' to 'metainfo_from_yaml_file()'.
+              Adds caching the class method for reading metainfo YAML files.
+
+              Although, this should probably only ever be called once anyway
+              since the 'ExtractorRunner' class keeps instantiated extractors
+              in a "instance pool" cache as to not re-instantiate extractors
+              for each run.
+
+            - Add a 'UNKNOWN' canonical publisher.
+
+            - Add additional 'deduplicate_isbns()' unit tests.
+
+            - Add assertions in 'MimetypeExtensionMapParser'.
+              Adds checks related to unexpected state and unassigned variables.
+
+            - Add e-mail address to the '--help' text.
+
+            - Add doc string to 'StringValueCanonicalizer'.
+
+            - Add license headers to 'canonical_*.yaml' files.
+
+            - Add entries to exiftool field value blacklists.
+
+            - Add (WIP) string value canonicalization.
+              Adds canonicalization of "creator tool" and "language".
+
+              First hack testing of canonicalization of values in the
+              'ExiftoolMetadataExtractor' and 'PandocMetadataExtractor'.
+
+              References TODO [TD0189] on canonicalizing metadata values by
+              direct and regular expression replacements.
+
+            - Add support for 'xlsx' file metadata.
+              Enables 'ExiftoolMetadataExtractor' for 'xlsx' files.
+
+              Enables extracting metadata from files with MIME-type
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+              Adds exiftool field meta for unhandled fields discovered from doing
+              metadata extraction from a large number of arbitrary sample files.
+
+            - Add note on 'unpack_field_value()' behaviour.
+
+            - Add caching to functions in 'meowuri.py'.
+              Adds various fixes and wraps functions with 'lru_cache'.
+
+            - Add filtering bad PandocMetadataExtractor metadata.
+              Adds function 'is_bad_metadata()' to 'extractor_pandoc.py'.
+
+              Basically same as the function with the same name in
+              'extractor_exiftool.py'.
+
+              TODO: Both these implementations are poor ..
+                    If any single value in a list of values is deemed "bad", all
+                    values are discarded. Only the bad value should be removed!
+
+            - Add "creator tool" canonicalization.
+              Adds functionality for getting a canonical form of "creator tools".
+
+              These are names of software used to create a file or document.
+              The 'XMP:CreatorTool' tag should be the only tag that contains these
+              kind of fields but in practice, just about any field can contain this
+              information given a large enough dataset.
+              Especially the 'XMP:Creator' and other variations like 'PDF:Creator',
+              etc., and 'XMP:Producer' seems to contain mostly author names,
+              publishers and creator tools.
+
+              Keeping track of known creator tools in some way will aid in sifting
+              through the mixed up metadata and properly categorize values.
+
+            - Add generic language to extractors field meta.
+              Adds generic field "language" to exiftool and pandoc extractors meta.
+
+            - Add new generic field "language".
+
+            - Add language canonicalization.
+              Adds functionality for getting a canonical form of language strings.
+
+            - Add 'canonical_publisher.yaml' metadata and tests.
+              Adds missing packaging metadata 'canonical_publisher.yaml' entry.
+
+              Also adds checking that this file exists in the "Source Code"
+              integration test suite.
+
+            - Add MIME mapping for extension 'azw'.
+
+            - Add common substring length functions.
+              Adds functions for calculating lengths of common substrings.
+
+            - Add new regression test case and test file.
+              Adds new regression test '0022_macos_screenshot'.
+
+              Adds test file 'Screen Shot 2018-06-25 at 21.43.07.png'.
+
+              This regression test checks both evaluation of the
+              'extractor.filesystem.xplat.abspath_full' MeowURI as well as the
+              'FilenameAnalyzer' functionality for matching the date/time in the
+              screenshot basename. Previously not sufficiently covered by tests.
+
+            - Add missing parsing of '*.abspath_full' MeowURIs.
+              Adds missing 'RegexConfigFieldParser' association to MeowURI glob.
+
+            - Add function 'match_macos_screenshot()'.
+              Adds function for extracting 'datetime' objects from filenames.
+
+              Matches date/time strings in default MacOS Sierra (v10.13.5)
+              screenshot filenames, typically stored at ~/Desktop by default.
+
+            - Add unit tests and minor fixes to 'text/distance.py'.
+
+            - Add entry to exiftool metadata blacklist.
+
+            - Add new text extractor 'DjvuTextExtractor'.
+              Adds new text extractor for extracting plain text from djvu files.
+
+              Requires 'djvutxt' to be installed on the system.
+
+              Also adds additional test files 'Critique_of_Pure_Reason.djvu' and
+              'Critique_of_Pure_Reason.djvu_expected.txt'.
+
+            - Add new function 'preprocess_names()'.
+              Adds function 'preprocess_names()' to 'humannames.py'.
+
+              This simply wraps functions 'split_multiple_names()' and
+              'filter_multiple_names()'. Intended to be the new "public"
+              function for cleaning up lists of names from various sources.
+
+            - Add ability to set 'ColumnFormatter' width limit.
+              Adds ability to set a maximum total width of formatted output.
+
+              If 'max_total_width' is set before calling 'str()' on the
+              'ColumnFormatter' instance, the width of fields will be truncated
+              until the total width is less than the set 'max_total_width'.
+
+              This is not used by default, so the default behaviour is unchanged.
+
+            - Add unit test cases for human name parsing.
+
+            - Add entries to exiftool metadata blacklist.
+
+            - Add additional 'ColumnFormatter' unit tests.
+
+            - Add context manager for ignoring exceptions.
+              Adds arguably useful and/or convenient context manager 'ignored'.
+
+              Context manager for silently ignoring one or many exceptions.
+              If the exception is raised, any following code will be skipped.
+
+            - Add new file 'util/process.py'.
+              Adds new file for utility functions related to system processes.
+
+              Contains 'blocking_read_stdout()' that wraps 'subprocess.Popen()'.
+
+            - Add unit test cases for 'split_multiple_names()'.
+
+            - Add blacklisted exiftool field data.
+
+            - Add notes on 'unpack_field_value()' behaviour.
+
+            - Add MIME-type to extension mappings.
+
+            - Add function 'normalize_vertical_whitespace()'.
+              Adds text transformation function to remove line feeds from strings.
+
+              One might expect this function to also collapse multiple repeating
+              line separators, based on the naming and behaviour of
+              'normalize_horizontal_whitespace()' ..
+
+              This solves an immediate problem but will probably have to be
+              extended later on.
+
+            - Add extension mappings for 'x-mobipocket-ebook'.
+
+            - Add 'Palm:Rights' to exiftool field meta.
+
+            - Improve removing non-name human names. Add tests.
+
+            - Add missing file with "expected" rtf text.
+
+            - Add unit test case for parsing human names.
+
+            - Add note on 'XMP:CreatorFile-as' being single item.
+
+            - Add unit test of 'PlainTextExtractor.can_handle()'.
+
+            - Add (WIP) 'Record' class.
+
+            - Add additional integration tests.
+              Adds tests using the default configuration and all test files.
+
+            - Add function 'normalize_description_whitespace()'.
+              Adds yet to be used regression test string utility function.
+
+            - Add [TD0196][TD0197] on limiting file name length.
+
+            - Add (WIP) utility functions for handling substrings.
+              Adds functionality related to finding "separators" in strings.
+
+              Mostly modified versions of code removed from 'analyze_filename.py'
+              in commit d2ad99e211a3cfc53d38a05f897e0dc14c75fdc0
+
+            - Add unit test for splitting subtitles.
+
+            - Add note with example on "unpacking" field values.
+
+            - Add unit tests for extracting e-book ISBNs.
+
+            - Add types to docstrings.
+
+            - Add checking that 'aspell' is installed.
+              Verify 'aspell', required by 'devscripts/check-spelling.sh'.
+
+            - Add additional test cases in 'test_compat.sh'.
+              Adds additional integration testing of version strings.
+
+              Make sure that the compared version strings are single lines,
+              I.E.  something like '0.5.7', rather than '0.5.7\n0.5.7'.
+
+              Reorder and clean up existing tests. Add comments.
+
+            - Add (WIP) file 'core/metadata/unpack.py' and tests.
+              Adds (WIP) functionality for handling titles with embedded subtitle.
+
+              References TODO [TD0191] on detecting and extracting subtitles.
+
+            - Add replacing Unicode hyphen and unit tests.
+
+            - Add 'average_runtime_regression_tests.sh'.
+              Adds script for calculating the average regression runner runtime.
+
+            - Add blacklisted exiftool field data. Reformatting.
+
+            - Add additional unit tests of 'RegexLineFilter'.
+
+            - Add 5 regression test suites with generic leaves.
+
+            - Add aliases (generics) for MeowURI leafs.
+              Adds ability to use generic field names as leaves in URIs.
+
+              A "full" explicit URI like this;
+
+                  extractor.metadata.exiftool.PDF:CreateDate
+
+              Can now also be written like this;
+
+                  extractor.metadata.exiftool.date_created
+
+              Note however that a query with new form will most likely to map
+              to more than one "full" explicit URI. I.E. the URI above will
+              expand to many full URIs;
+
+                  extractor.metadata.exiftool.FlashPix:Issued0
+                  extractor.metadata.exiftool.FlashPix:PublishingStartDate
+                  extractor.metadata.exiftool.Palm:CreateDate
+                  extractor.metadata.exiftool.Palm:PublishDate
+                  extractor.metadata.exiftool.PDF:CreateDate
+                  extractor.metadata.exiftool.QuickTime:CreateDate
+                  extractor.metadata.exiftool.QuickTime:CreationDate
+                  extractor.metadata.exiftool.RTF:CreateDate
+
+              This is controlled by the 'generic_field' entry in each providers
+              "fieldmeta" (yaml file).
+
+              Completes TODO-list item [TD0125] on adding aliases (generics) for
+              MeowURI leaves.
+
+            - Add new 'MeowURIMapper' class.
+              Adds a new class for translating URIs with "aliased" leaves.
+
+              Stores a mapping between a "explicit" URI and a "generic" URI for
+              translation from "explicit" URIs with "generic" (aliased) leaves.
+
+              That is, given URI: 'extractor.metadata.exiftool.XMP-dc:Publisher'
+                 and generic URI: 'generic.metadata.publisher' (GenericPublisher)
+
+              Future calls to 'fetch()' with 'extractor.metadata.exiftool.publisher'
+              will then return 'extractor.metadata.exiftool.XMP-dc:Publisher'.
+
+              References TODO-list item [TD0125].
+
+            - Add function 'get_all_generic_field_uri_leaves()'.
+              Adds function for getting all generic field leaves as strings.
+
+            - Add canonical publisher replacements.
+
+            - Add patterns to exiftool metadata filtering.
+
+
+            Changes
+            - Rework extractors, primarily text extractors.
+              Simplifies the extractor class hierarchy, collection, etc.
+
+              Splits the inheritance hierarchy into two separate parts.
+
+              Previous inheritance hierarchy:
+
+                  (base)  @ BaseExtractor
+                          |
+                  (base)  +----@ AbstractTextExtractor
+                          |    |
+                          |    +-- EpubTextExtractor
+                          |    +-- MarkdownTextExtractor
+                          |    +-- PdfTextExtractor
+                          |    +-- PlainTextExtractor
+                          |    +-- RichTextFormatTextExtractor
+                          |    '-- TesseractOCRTextExtractor
+                          |
+                          +-- EpubMetadataExtractor
+                          +-- ExiftoolMetadataExtractor
+                          +-- JpeginfoMetadataExtractor
+                          '-- PandocMetadataExtractor
+
+              Inheritance hierarchy introduced in this commit:
+
+                  (base)  @ BaseMetaDataExtractor
+                          |
+                          +-- EpubMetadataExtractor
+                          +-- ExiftoolMetadataExtractor
+                          +-- JpeginfoMetadataExtractor
+                          '-- PandocMetadataExtractor
+
+                  (base)  @ AbstractTextExtractor
+                          |
+                          +-- EpubTextExtractor
+                          +-- MarkdownTextExtractor
+                          +-- PdfTextExtractor
+                          +-- PlainTextExtractor
+                          +-- RichTextFormatTextExtractor
+                          '-- TesseractOCRTextExtractor
+
+              The text extractor data is no longer available through the repository
+              and master data provider through URIs like 'generic.content.text',
+              'extractor.text.plain', etc.
+              A "service"-like interface in 'text_provider.py' should be used instead.
+              This removes a lot of unnecessary complexity and makes further
+              refactoring and cleanup of old code a lot easier.
+
+              Class attributes 'IS_SLOW' and 'HANDLES_MIME_TYPES' are also removed.
+
+              This commit also includes "various other somewhat related" changes that
+              made this transition easier ..
+
+              Completes TODO-list item [TD0172] on extending the text extractors with
+              additional fields.
+
+            - Improve 'FiletagsExtractor' handling of dates.
+              Adds handling "filetags file names" containing dates without time.
+
+              Various fixes to the 'FiletagsExtractor' to highlight the fact that a
+              valid filetags "timestamp" can be either just a date (~"YYYY-mm-dd")
+              or both date and time (~"YYYY-mm-ddTHHMMSS").
+
+              Yet again the choices made when designing the system with "field meta"
+              it too rigid and inflexible. In this case, when a timestamp can be
+              either a date or a datetime, there is no clean way to declare this in
+              the YAML meta info file and no non-hacky ways to workaround the type
+              coercion system.
+              So, currently either none or either of 'date' and 'datetime' will be
+              used depending on whether the timestamp exists and if it contains a
+              date or both date and time __BUT__ this will raise an error which will
+              be debug logged most of the time, even though it is not really an
+              error..
+
+            - Modify blacklisted exiftool field values.
+
+            - Modify empty 'ISBNMetadata' publisher.
+              Return 'UNKNOWN' instead of empty string for missing publishers.
+
+            - Decrease chunk of lines searched for ISBN numbers.
+
+            - Sort ISBN dicts for deterministic behaviour.
+
+            - Reformat 'canonical_*.yaml' files for consistency.
+
+            - Use lazy logging in 'core/*.py'.
+              Replaces 'format' calls with "printf style" formatting.
+
+              Avoids doing any unnecessary work if the called logging
+              level is not active.
+
+              Squashed commits:
+
+              * Use lazy logging in 'core/providers.py'.
+              * Use lazy logging in 'core/autonameow.py'.
+              * Use lazy logging in 'core/context.py'.
+              * Use lazy logging in 'core/event.py'.
+              * Use lazy logging in 'core/analysis.py'.
+              * Use lazy logging in 'core/extraction.py'.
+              * Use lazy logging in 'core/master_provider.py'.
+              * Use lazy logging in 'core/renamer.py'.
+              * Use lazy logging in 'core/repository.py'.
+
+            - Simplify mapping field URIs to generic leaves.
+              Simplifies the caching and functions used in 'genericfields.py'.
+
+              * Replace module-level global with 'lru_cache' decorator.
+              * Remove function '_get_field_uri_leaf_to_klass_mapping()'.
+
+            - Rework argument option defaults and '--help' text.
+              Adds using the '%(default)s' placeholder to insert defaults.
+
+              * Add explicit default settings for some options.
+              * Minor rewrites and fixes to the help text.
+              * Reorder arguments passed to the argument parsers.
+
+            - Remove module-level global. Use 'lru_cache' decorator.
+
+            - Handle bad syntax in canonicalizer YAML files.
+              Prevent crashes if expecting section and value is not type dict.
+
+            - Modify 'ISBNMetadata' canonicalization.
+              Minor changes that seem to make a bit more sense.
+
+            - Append '_ignore_case' to 'match_any_regex'.
+              Modifies the syntax of the canonicalizer YAML files.
+
+              Changes 'match_any_regex' to 'match_any_regex_ignore_case' to make
+              it clear that regular expressions listed here are not case-sensitive,
+              compared to the 'match_any_literal' sections that ARE case-sensitive.
+
+            - Remove filetags 'timestamp' after copying.
+              Fixes bug introduced in commit a832807714d629e3ec5174271a343def82e
+
+              Removes the 'timestamp' from the "raw metadata" dict after copying
+              its value to both 'date' and 'datetime'.
+              Fixes logging debug warnings:  Field not in "metainfo"; "timestamp"
+
+            - Pass in the rename function to 'FileRenamer'.
+              Adds optional kwarg 'rename_func' to 'FileRenamer.__init__()'.
+
+              Originally part of failed attempt at refactoring the regression
+              runner mocking of the 'FileRenamer._rename_file()' method, which
+              has been reverted. Some changes that simplified the unit tests
+              somewhat was kept and constitutes this commit.
+
+            - Pass in 'FileRenamer' to 'Autonameow.__init__()'.
+
+            - Instantiate 'FileRenamer()' in 'Autonameow' constructor.
+
+            - Modify file header comments. Add new e-mail.
+              Modifies all top-level file header comments. Use new project e-mail.
+
+              * Remove link to personal website in all comments.
+              * Add source repository URL to all comment headers.
+              * Remove university e-mail from all comments.
+              * Use new project email adress 'autonameow@jonasjberg.com'.
+
+            - Remove 'devscripts/convert-html-to.pdf.sh'.
+
+            - Clean up encoding boundary in 'FiletagsExtractor'.
+              Refactors the 'FiletagsExtractor' to do less string encoding.
+
+              Various clean up and renames.
+              Simplify splitting a basename into filetags parts by not passing
+              the extension or "basename suffix" which was never used and only
+              added to the messy decoding/encoding of strings.
+
+            - Add blacklisted exiftool field values. Modify tests.
+
+            - Handle bad syntax in canonicalizer YAML files.
+              Prevent crashes if list item contains extra trailing colon.
+
+            - Move unit test data to separate YAML file.
+              Moves data used by the creatortool canonicalization unit tests.
+              Adds new file 'test_core_metadata_canonicalize_creatortool.yaml'.
+
+            - Move unit test data to separate YAML file.
+              Moves data used by the publisher canonicalization unit tests.
+              Adds new file 'test_core_metadata_canonicalize_publisher.yaml'.
+
+            - Make sure all bound callables are called.
+              Adds broad try/except block around calls to bound callables.
+
+              Make sure all callables are called in case of an unhandled
+              exception. This really "should" NOT happen, it is assumed that
+              bound callables will responsibly handle any exceptions locally.
+
+            - Return 'language' from the 'EbookAnalyzer'.
+              Adds returning canonicalized language from ISBN metadata.
+
+            - Increase "tolerance" of 'match_macos_screenshot()'.
+              Modifies the 'match_macos_screenshot()' to catch additional strings.
+
+            - Modify the '--dump-meowuris' option.
+              Changes interaction with verbosity options. Modifies output.
+
+              Replaces using '--debug' with '--verbose' to get additional
+              information.  Modifies the output to use the plain provider
+              names instead of the default class strings.
+
+            - Simplify 'ProviderRegistry' functionality.
+              Continued refactoring of the 'ProviderRegistry'.
+
+              Simplifies data structures created by the 'ProviderRegistry'.
+              Removes one level of nesting from dicts storing MeowURIs and classes.
+              Previously, these contained a first level of top-level module names
+              'extractor' and 'analyzer', which was never actually used and made
+              the code more difficult to read and comprehend.
+
+            - Remove unused 'ProviderRegistry' functionality.
+              Removes unused filtering functionality in the 'ProviderRegistry'.
+
+              The optional 'includes' argument of method 'providers_for_meowuri()'
+              was never actually used. This is now removed, which also meant that
+              additional related methods and tests could be removed.
+
+              This commit also includes other minor changes related to these
+              changes, with some intended to make way for additional refactoring.
+
+            - Handle special case in human name processing.
+              Adds handling splitting names like 'G. C. Sjöberg'.
+
+            - Modify exiftool fieldmeta.
+
+            - Modify which files are handled by 'EbookAnalyzer'.
+              Adds additional file types to be handled by the 'EbookAnalyzer'.
+
+              Adds 'azw3' variations. Also adds previously missing unit tests.
+
+            - Prevent adding empty authors in 'EbookAnalyzer'.
+
+            - Various changes to ISBN metadata comparisons.
+              Adds various changes to how ISBN metadata objects are compared.
+
+              Modify title comparison to use a new separate function
+              'calculate_title_similarity()' that uses a ad-hoc experimentally
+              devised function that uses both a Levenshtein string distance as
+              well as a "normalized" longest common substring to arrive at a
+              total similarity.
+
+              Modifies the weights of the "hardcoded decision tree".
+
+              Improves logging by adding additional debug information as well
+              as implementing 'ISBNMetadata.__repr__()'.
+
+            - Match MacOS screenshot date/time in 'FilenameAnalyzer'.
+
+            - Improve filtering human names.
+              Improves matching of regular expression in 'strip_edited_by()'.
+              Also adds splitting names separated by 'and' as well as 'And'.
+
+            - Move and rename 'process_id()'.
+              Moves 'misc.process_id()' to 'process.current_process_id()'.
+
+            - Move 'git_commit_hash()' to 'process.py'.
+              Moves 'git_commit_hash()' from 'util/misc.py' to 'util/process.py'.
+
+            - Move 'is_executable()' to 'process.py'.
+              Moves 'is_executable()' from 'util/misc.py' to 'util/process.py'.
+
+            - Use 'preprocess_names()' in 'analyze_ebook.py'.
+
+            - Modify 'EbookAnalyzer' author similarity function.
+              Adds sorting space-separated substrings before doing comparisons.
+
+              This improves results for cases where a name like 'Gibson S.' is
+              compared to 'S. Gibson'.
+
+            - Modify 'remove_ascii_control_characters()'.
+              Adds removing additional ASCII control characters ^A and ^B.
+
+            - Catch all exceptions whens calling 'ebooklib'.
+              Handle all exceptions to ensure not crashing due to 'ebooklib' bugs.
+
+              Various AttributeError and KeyError exceptions are raised for some
+              epub files. Happens infrequently but results in a hard crash if not
+              properly handled.
+              Instead of listing all possible uncaught exceptions that is not not
+              caught and re-raised as 'EpubException' by 'ebooklib', it is more
+              practical and safer to simply catch all exceptions.
+
+            - Truncate output of stand-alone metadata extraction.
+
+            - Refactor 'ColumnFormatter' unit tests.
+
+            - Remove redundant method 'DataBundle._maps_field()'.
+              Merges parts of '_maps_field()' into 'field_mapping_weight()'.
+
+            - Rename function 'maps_field()'.
+              Renames function 'maps_field()' to 'datadict_maps_field()'.
+
+            - Rename 'DataBundle.maps_field()'.
+              Adds underline prefix to method 'maps_field'.
+
+            - Renames for readability in the regression runner.
+
+            - Modify 'get_one_from_many_generic_values()'.
+              Adds handling 'publisher' to incomplete function.
+
+            - Return value instead of both setting and returning.
+
+            - Use 'calculate_authors_similarity()'.
+              Adds using 'calculate_authors_similarity()' in 'ISBNMetadata'.
+
+            - Simplify incrementing integer.
+
+            - Use 'exceptions.ignored()' in '_Boolean.coerce()'.
+
+            - Simplify '_ExifToolTimeDate.coerce()'.
+
+            - Minor rewrite of '_Boolean.coerce()'.
+
+            - Remove unused 'debug_stats' in 'master_provider.py'.
+
+            - Remove 'normalize()' method from all type coercer classes.
+              Removes method 'normalize()' from coercers. Rework path normalization.
+
+              Even though all coercer classes implemented this method, very few of
+              them actually did anything useful.  Most implemented something arbitrary
+              simply to conform to the signature of the 'BaseCoercer' base class.
+
+              Only 'AW_PATH.normalize()' and possibly 'AW_PATHCOMPONENT.normalize()'
+              is actually currently being used.
+              The functionality of these have been reworked into two new functions
+              'coerce_to_normalized_path()' and 'coerce_to_normalized_pathcomponent()'
+              respectively.
+
+            - Minor adjustment to regression runner output.
+
+            - Various fixes and minor refactoring.
+              Removes incomplete and unused functions and adds various minor fixes.
+
+            - Use 'exceptions.ignored()' context handler.
+
+            - Minor cleanup in the regression test runner.
+              Moves 'RunResultsHistory' to 'regression/utils.py'.
+
+            - Rewrite ISO-like date/time regex in verbose form.
+
+            - Clean up 'test_core_config_config_parser.py'.
+
+            - Clean up functions 'nested_dict_{set,get}()'.
+              Rework and clean up utility functions for modifying dictionaries.
+
+              Moves 'nested_dict_get()' and 'nested_dict_set()' from 'util/misc.py'
+              to what has become the single places where they are actually used.
+
+              This isolates the mess and reduces needless indirection.
+              Also cleans up the interface to be less "generic", instead expect
+              these to only be used "internally".
+
+              Adds various fixes to a lot of unit tests.
+
+            - Remove old "dummy" data used by unit tests.
+              Removes old and likely incorrect "mock" test utility functions.
+
+            - Modify TODO-note on ISBN de-duplication.
+
+            - Mark skipped unit tests as expected failures.
+
+            - Use 'process.blocking_read_stdout()' in extractors.
+              Removes duplicated code in extractors by using utility function.
+
+            - Minor improvement to deletion of temporary file.
+
+            - Modify and comment 'ConfigFieldParser.validate()'.
+
+            - Remove 'RepositoryPool'.
+              Removes 'RepositoryPool' and modifies repository (de-)initialization.
+
+              The original intent was to always keep one 'Repository' instance linked
+              to one running instance, represented as an instance of the 'Autonameow'
+              class.
+
+              This worked in some respects, but the manner in which the module-level
+              attribute 'SessionRepository' was accessed, this extra complexity
+              actually provided no real benefits as the access did not take either
+              multiple parallell repositories or autonameow instances into account.
+
+              The 'SessionRepository' is now a simple global that is instantiated,
+              "initialized" and finally "de-initialized" through the 'on_startup'
+              and 'on_shutdown' event handlers, respectively.
+
+              Note that this always makes the 'autonameow_instance' passed to the
+              event handlers completely pointless apart from the debug logging.
+
+            - Consolidate access to active, global configuration.
+              Reworks how the currently active configuration instance is accessed.
+
+              Removes accessing through the module constant 'ActiveConfig'.
+              Adds using only the event dispatcher to pass the configuration
+              instance through the 'on_config_changed' event handler whenever
+              the configuration is changed.
+
+              Completes TODO-list item [TD0188].
+
+            - Move 'extractors/common.py' contents to new file.
+              Moves 'extractors/common.py' to 'extractors/metadata/base.py'.
+
+              This file is now only relevant to metadata extractors and *NOT*
+              common to all types of extractors.
+
+            - Move 'ExtractorError' class and modify imports.
+              Moves the 'ExtractorError' class to 'extractors/__init__.py'.
+
+              Removes importing the 'BaseMetadataExtractor' into the 'extractors'
+              module to avoid circular imports after having moved 'ExtractorError'.
+
+              This is all to simplify splitting up the 'extractors/common.py' and
+              moving everything specific to metadata extractors into a new file,
+              potentially called something like 'extractors/metadata/base.py'.
+
+            - Hack fix 'PandocMetadataExtractor' filtering.
+              Adds hack fix of too much being removed in the "raw data filter".
+
+            - Remove completed ("orphaned") TODO [TD0091].
+
+            - Remove line feeds from all extracted text.
+              Removes line feeds from all text returned by text extractors.
+
+              Some PDF documents created in MS PowerPoint contain seemingly
+              useless line feeds in the middle of text lines and also as per
+              usual, at the end of line along with a newline.
+
+            - Simplify 'normalize_horizontal_whitespace()'.
+              Simplifies 'normalize_horizontal_whitespace()' invariants.
+
+              Expect only Unicode strings, do not return "falsy" values as-is.
+
+            - Rename 'normalize_whitespace' to 'normalize_horizontal_whitespace'.
+
+            - Rename path variables in 'devscripts/*.sh'.
+
+            - Rename path variables in stand-alone wrapper scripts.
+
+            - Rename 'SELF_DIRNAME' to 'SELF_DIRPATH' in test runners.
+
+            - Rework the 'PandocMetadataExtractor'.
+              Removes incomplete code and adds an alternative approach to using 'pandoc'.
+
+              Instead of manually trying to list all conceivable variables that could
+              be set by pandoc in the template 'extractor_pandoc_template.plain', now
+              the template only contains '$meta-json$', which is described as;
+              "JSON representation of all of the document's metadata".
+
+              This does not result in the same metadata being returned by the
+              'PandocMetadataExtractor'. There are some complications with some metadata,
+              like 'datetime' not fitting into the assumptions made about how the metadata
+              extractors should work. Specifically, the "field meta" does not provide a
+              means of specifying that a metadata item might occur more than once without
+              being "multivalued".
+
+              Solves part of [TD0173] on whether to parse pandoc JSON output or the output
+              of the custom plain text template. Parsing the JSON output might provide more
+              flexibility, but requires parsing the internal pandoc abstract syntax tree..
+
+            - Refactor lower-casing names with "Von" and "Van".
+
+            - Log which rule was used to find a new name.
+
+            - Decrease log level for debug-like messages.
+
+            - Invert logic for testing if metadata is empty.
+
+            - Remove old leftover code. Non-functional changes.
+
+            - Rename all metadata extractor files.
+              Adds prefix 'extractor_' to all metadata extractors and unit tests.
+
+              This also required some fixes to maintain the current MeowURI leafs
+              and also required renaming the "fieldmeta" YAML files as the paths
+              are derived from the extractor module names.
+
+            - Remove deleted file from 'MANIFEST.in'.
+              Removes file deleted in commit 3bb810cc8084a6d3743bdb1b62d5502e139
+
+            - Make sure cache is populated when testing runtime.
+
+            - Disable text extractor caches in unit tests.
+
+            - Re-use text extractor instances.
+              Adds "pooling" instances of text extractors.
+
+              Instantiate each extractor only once and then re-use the instances.
+              Prevents needlessly re-creating caches and in turn also setting up
+              the underlying persistence mechanism used by the caches.
+
+              This restores the earlier behaviour when text extractors were
+              started from the 'ExtractorRunner' in 'extraction.py'.
+
+            - Move 'log_runtime' context out of try/except block.
+
+            - Blacklist metadata in 'ExiftoolMetadataExtractor'.
+            - Simplify pairing list of names in 'humannames.py'.
+
+            - Rename local method variable.
+
+            - Minor fixes. Remove outdated comments.
+
+            - Use 'https' URLs in '.gitmodules'.
+              Avoids unnecessarily failing when SSH credentials are missing/bad.
+
+            - Fix silently skipping integration test assertions.
+              Reworks existing integration tests for less duplication.
+
+              Also modifies how bad "preconditions" are handled.
+              If a precondition such as a sample file existing was not met,
+              functions that contained several assertions returned 127.
+              This was never handled by anyone else, so assertions following
+              a failed precondition check was silently skipped.
+
+              Now the precondition test is embedded within the assertion, such
+              that failing preconditions also fails the dependent assertions.
+
+            - Allow rules without condition in the parser.
+              Removes raising 'ConfigurationSyntaxError' when conditions is None.
+
+            - Skip regression test '0019_constant_name_two_rules_b'.
+              This test needs the regression tests to bypass the rule confirmation.
+
+              The regression runner must be able to override the user confirmation
+              prompt in order to evaluate this case.
+              I.E. mock/patch the function 'interactive.ask_confirm_use_rule()' to
+              always return a positive response.
+
+            - Modify to the regression runner output format.
+              Adds various changes to the regression runner output format.
+
+              Show more history results symbols in verbose mode.
+              Fixes to make the output more consistent when tests are skipped.
+              Color the "starting" text line of each suite to stand out more.
+
+            - Prioritize rules also by number of data sources.
+              Adds number of specified data sources in rules to prioritization.
+
+              Rules without data sources might assumingly be less interesting
+              and more "general".  This assumption might not hold. Either way,
+              this makes the results deterministic when values used by the
+              preceding sorting criteria are equal.
+
+            - Factor out function 'collapse_all_whitespace()'.
+
+            - Move assertions. Remove redundant if-statement.
+
+            - Handle uncaught exceptions when renaming files.
+              Adds handling of uncaught exceptions raised when renaming files.
+
+              Pretty amazing that this has gone unnoticed for so long ..
+              Remember to add tests for this as soon as possible!
+
+            - Use '>|' to disregard 'noclobber'.
+              Replaces temporarily modifying 'noclobber' with '>|' redirection.
+
+            - Handle special cases in 'split_multiple_names()'.
+
+            - Remove control characters from extracted text.
+
+            - Add 'remove_ascii_control_characters()'.
+              Adds text utility function 'remove_ascii_control_characters()'.
+
+              Removes "generally undesirable" ASCII control characters from strings.
+
+            - Handle special case in 'split_multiple_names()'.
+              Adds handling both ';' and ',' separators in string of names.
+
+            - Catch 'KeyError' raised by 'ebooklib'.
+              Handles 'KeyError' raised by 'ebooklib'. Probably bug in 'ebooklib'.
+
+            - Modify 'exiftool' field mapping weights.
+
+            - Remove unused, incomplete file name substring handling.
+              Removes incomplete and unused classes in 'analyze_filename.py'.
+
+              Removes classes 'SubstringFinder', 'FilenamePreprocessor',
+              'FilenameTokenizer' and related unit tests.
+
+            - Modify 'vulture' settings. Add threshold.
+
+            - Ignore case in 'calculate_authors_similarity()'.
+
+            - Skip failing unit test on MacOS and Windows WSL.
+
+            - Modify 'deduplicate_isbns()'.
+              Adds converting ISBN-10 numbers to ISBN-13.
+
+              This gives much better de-duplication but is horribly
+              non-obvious and should be cleaned up to not violate the
+              "principle of least astonishment" ..
+
+            - Various hack changes to ISBN metadata comparison.
+              Adjustments, minor clean up and adds additional unit tests.
+
+            - Rework finding most probable ISBN metadata.
+              Reworks finding probable ISBN metadata by comparing titles.
+
+              Adds hack fix for handling query response values being lists,
+              which is very likely since the changes to how "generic" URIs
+              and URIs with "aliased" leaves are resolved and always return
+              lists, even if it is a single item.
+
+            - Clean up Unicode replacements and unit tests.
+
+            - Iterate revisions in reverse.
+              This makes a lot more sense when tracking down regressions.
+
+              Some error has probably been introduced recently, and the goal is
+              to find what commit introduced the regression. Because the script
+              stops whenever the executed command returns non-zero; going from
+              most recent, backwards will cause it to halt at once.
+
+            - Remove unused function '_colorize_replacement()'.
+
+            - Clean up 'test_util_text_patternmatching.py'.
+              Adds additional tests. Refactor existing tests.
+
+            - Improve cleanup and normalization of titles.
+              Adds stripping "junk" trailing characters from titles.
+              Add additional unit tests.
+
+            - Improve results of 'find_publisher()'.
+              Adds also searching the "canonical" forms of publishers.
+
+              The 'FilenameAnalyzer' uses this "old" method of using
+              "known good" field values specified in the user configuration
+              to find publishers in unstructured text.
+
+              This should be replaced with something related to the newer
+              systems related to 'autonameow/core/metadata/canonicalize.py'.
+              Something new probably needs to be added to separate the fuzzy
+              searching patterns from the canonical replacement patterns as
+              they likely will have to be different for optimal results.
+
+            - Wrap 'is_executable()' with 'lru_cache' decorator.
+
+            - Decorate 'git_commit_hash()' with 'lru_cache'.
+              Wraps 'git_commit_hash()' with the 'lru_cache' decorator.
+
+              This should work even if a running autonameow process is left
+              running for a long time and the currently checked out code changes.
+              The running code should not be reloaded from disk, so the only
+              thing that cause confusion is if files other than Python sources;
+              such as yaml configuration files, etc., are changed during runtime.
+
+            - Modify 'get_one_from_many_generic_values()'.
+              Adds handling 'date_created' to incomplete function.
+
+            - Rework de-duplication hack in the resolver.
+              Removes check if URI is "generic" prior to special handling.
+
+              Do de-deduplication hacks any time there are multiple possible URIs
+              to choose from. This will (probably always (?)) only happen (!) when
+              the URI is either "generic" like 'generic.metadata.author', or when
+              it has an "aliased" leaf, like 'extractor.metadata.exiftool.author'.
+
+            - Clean up 'split_basename()' and unit tests.
+              Various minor fixes. Add additional "compounded" extensions.
+
+            - Canonicalize 'ISBNMetadata' publishers.
+              Do string replacement canonicalization of ISBN metadata publishers.
+
+            - Remove unnecessary 'fileobject' arguments.
+              Removes unnecessarily passing files to MeowURI mapping routines.
+
+              This is not at all related to the URIs and has probably been left
+              behind and forgotten since some previous implementation.
+
+            - Factor out mapping "generic" URIs to new class.
+              Moves mapping "generic" URIs to a new class 'GenericMeowUriMapper'.
+
+              Decent improvement of the mess that is the 'Repository' class ..
+
+            - Rename 'MeowURIMapper' to 'MeowUriLeafMapper'.
+
+            - Use dependency injection in 'ProviderRunner'.
+              Provide 'ProviderRunner' dependencies through the constructor.
+
+            - Remove unused and incomplete fields and records.
+              Removes unused and incomplete 'fields.py', 'record.py' and tests.
+
+            - Reverse order of revisions checked out.
+              Reverses order of revisions in 'run_command_on_git_revs.sh'.
+
+              Revisions are now checked out in order starting with 'HASH_NEWEST'
+              ($1) and going backwards through older revisions up until and
+              including 'HASH_OLDEST' ($2).
+
+            - Remove 'remove_blacklisted_lines()' from extractors.
+              Removes text extractor unused functionality for filtering text lines.
+
+              Refer to related commit 167736b59a255e2ccbe7e7d8961a3c728768fad6
+
+            - Remove function 'remove_blacklisted_re_lines()'.
+              Removes now unused function 'remove_blacklisted_re_lines()'.
+
+              This function was made available to all subclasses of
+              'AbstractTextExtractor' but was only used by the
+              'PdftotextTextExtractor' to filter out errors.  This is no longer
+              necessary after adding the '-q' flag to the call to 'pdftotext'.
+
+              Instead of leaving yet another unused piece of functionality be,
+              any future references to this should look into using equivalent
+              functionality from 'util/text/filter.py' instead.
+
+            - Remove redeclared unit test method.
+
+            - Use 'pdftotext' option '-q'.
+              Adds the '-q' flag to the 'pdftotext' call to suppress any errors.
+
+            - Clean up unit tests.
+
+            - Fix duplicated unit in regression runner summary.
+              Removes duplicate runtime time unit in regression runner summary.
+
+            - Swap position of oldest and newest hash parameters.
+
+
+            Fixes
+            - Handle failed import of 'magic' in 'mimemagic.py'.
+              Catches 'TypeError' that can be raised by 'magic.py'.
+
+              Traceback from Windows 10 without magic DLLS, etc;
+
+                  Error
+                  Traceback (most recent call last):
+                    File "C:\Users\josg\PycharmProjects\autonameow\autonameow\util\mimemagic.py", line 77, in _build_magic
+                      import magic
+                    File "C:\Users\josg\PycharmProjects\autonameow\venv\lib\site-packages\magic.py", line 23, in <module>
+                      _libraries['magic'] = _init()
+                    File "C:\Users\josg\PycharmProjects\autonameow\venv\lib\site-packages\magic.py", line 20, in _init
+                      return ctypes.cdll.LoadLibrary(find_library('magic'))
+                    File "C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\lib\ctypes\__init__.py", line 426, in LoadLibrary
+                      return self._dlltype(name)
+                    File "C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\lib\ctypes\__init__.py", line 348, in __init__
+                      self._handle = _dlopen(self._name, mode)
+                  TypeError: LoadLibrary() argument 1 must be str, not None
+
+              Adds ID to "Very Low Priority" TODO-item.
+
+            - Fix variable not named properly.
+              Renames variable to match case-specific config section.
+
+              Should have been part of commit 6a2a10dfa9812645c9afaa48cab8119c1a
+
+            - Fix crashing when sending EOF to prompts.
+              Adds handling EOF (ctrl-d) in interactive prompts.
+
+            - Various fixes to the 'StringValueCanonicalizer'.
+              Fixes set of canonical values re-built for every comparison.
+
+              Build and store the set of all canonical values once at instantiation.
+              Includes various additional fixes and clean up.
+
+            - Minor fixes in the 'ColumnFormatter' class.
+              Renames and minor rewrites for readability.
+
+            - Fix crashing when reading some epub files.
+              Fixes crashing when extracting text with 'ebooklib'.
+
+            - Fixes and refactoring of 'test_core_view_cli_common.py'.
+
+            - Fix incorrect docstrings.
+
+            - Minor fixes in name template field methods.
+              Fixes inconsistent accessing and use of DataBundle attributes.
+
+            - Various fixes in 'regression_runner.py'.
+
+            - Fix bad unit tests.
+
+            - Various fixes to naming and comments.
+              Fixes comments and naming related to persistence and caching.
+
+            - Various fixes to human name parsing.
+              Refactor existing and add handling additional special cases.
+
+            - Various fixes to 'try_parse_date()'.
+              Adds various fixes to 'try_parse_date()' and "Date" coercers.
+
+            - Various fixes to 'try_parse_datetime()'.
+              Adds various fixes to 'try_parse_datetime()' and "TimeDate" coercers.
+
+            - Fix skipping some templates without placeholders.
+              Fixes a bug in the horrible code in 'context.py'.
+
+              If there are no data sources available but the name template does not
+              include any placeholder fields, the name template can simply be used
+              as-is, without having to modify it further.
+
+              This was only checked for the first evaluated rule, which meant that
+              when additional rules are tried ("automagic mode") only the first rule
+              was properly handled.  When any following rules were tried, they were
+              skipped because the data sources was wrongly assumed required and also
+              not specified in that rule.
+
+              Also adds regression tests that would have triggered this bug.
+
+            - Fix verbose regression test output formatting.
+              Fixes formatting of the verbose regression test runner output.
+
+              Adds fixes to normalization of test suite descriptions, as well
+              as various minor refactorings of the 'TerminalReporter' class.
+
+            - Various (WIP) fixes to 'substring.py' and tests.
+              Fixes the 'main_separator()' function and related code. Cleans up tests.
+
+            - Fix regression in replacement of Unicode hyphens.
+              Fixes bug introduced in eeaf4866a123970f23f0ad6db7ee0e0c36878a35
+
+              This commit added replacing Unicode '\u00AD' with '-', which also
+              caused unintentional replacements of 'ö' characters.
+
+              This is now fixed by using the Python escape '\xad' in place of
+              '\u00AD' for "soft hyphens".
+
+            - Fix crash due to unexpected sections in yaml.
+              Fixes crashing when reading a canonical replacement YAML config.
+
+              Adds skipping invalid "sections" which are currently expected to be
+              a dictionary containing 'match_any_regex' or 'match_any_literal'.
+
+            - Fix failed assertion in resolver.
+              Fixes triggering assertion error in the resolver.
+
+              This happened when the response contained multiple entries but the
+              URI was not "generic", which could not happen previously when the
+              "leaf aliases" was still not implemented.
+
+              Now however, a URI with a "generic" leaf could expand to multiple
+              explicit URIs and return multiple results, which was not handle by
+              the mess of if-else-statements in the resolver.
+
+              This is now "fixed" by aborting when this happens ..
+
+                  NOTE: This should really be fixed properly!
+                        See TODO-list item [TD0112]
+
+            - Fix inconsistent behaviour of MeowURI mappers.
+              Makes both mappers return empty sets when nothing is mapped.
+
+            - Minor non-functional fixes in the 'Repository'.
+
+            - Various fixes and clean up of 'MeowUriLeafMapper'.
+              Renames, reworked arguments and other minor fixes.
+
+            - Fix 'MeowURIMapper' not storing all explicit URIs.
+              Fixes bug that led to only storing the most recently mapped URI.
+
+              The mapping of a "generic" (or "aliased") URI leaf is not symmetrical,
+              there will almost always be more than one full "explicit" URI mapped
+              to one URI with a "generic" leaf.
+
+              These are now stored in a set and the value returned by calling
+              'fetch()' will always be a set, even if it only contains a single
+              element. This should be sorted out somewhere else (repository) ..
+
+            - Fix repeated provider delegation bug.
+              Fixes repeated delegation of providers when running all providers.
+
+              The 'ProviderRunner' checks if a provider has already been delegated
+              and skips the provider to prevent unnecessarily running extractors or
+              analyzers more than once times and subsequently storing duplicate data.
+
+              This check did not account for calls to the runner to delegate to all
+              possible providers through 'delegate_every_possible_meowuri()', which
+              triggered an assertion;
+
+                  AssertionError: Would have clobbered value for URI
+                  extractor.metadata.exiftool.File:FileSize
+
+              This is now fixed by keeping track of the files that are passed to
+              'delegate_every_possible_meowuri()' and skipping any delegations with
+              those files.
+
+            - Fix 'exiftool' process left running by unit test.
+
+            - Fix bug in name template field 'type_compatible()'.
+              Fixes crashing caused by bad validation in 'type_compatible()'.
+
+              The bad check assumed that coercer classes would be wrapped in
+              'MultipleTypes' instances if "multivalued" when in fact this
+              never happened.
+
+              This commit fixes this by explicitly passing in the 'multivalued'
+              boolean from the 'DataBundle' to the 'type_compatible()' method.
+
+
 2018-05-02  [autonameow v0.5.7]
             Primarily architectural and performance improvements.
             Adds a event dispatch system to handle initialization, shutdown
