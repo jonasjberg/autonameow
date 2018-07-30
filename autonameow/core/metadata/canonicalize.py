@@ -135,7 +135,10 @@ class StringValueCanonicalizer(object):
 
 
 class CanonicalizerConfigParser(object):
-    CONFIG_SECTION_MATCH_ANY_LITERAL = 'match_any_literal'
+    CONFIG_SECTION_MATCH_ANY_LITERAL_CASESENSITIVE = 'match_any_literal'
+    CONFIG_SECTION_MATCH_ANY_LITERAL_IGNORECASE = 'match_any_literal_ignorecase'
+    # TODO: Implement 'match_any_literal_ignorecase'!
+    CONFIG_SECTION_MATCH_ANY_REGEX_CASESENSITIVE = 'match_any_regex'
     CONFIG_SECTION_MATCH_ANY_REGEX_IGNORECASE = 'match_any_regex_ignorecase'
 
     def __init__(self, config_datadict, lookup_dict_filepath=None):
@@ -167,20 +170,24 @@ class CanonicalizerConfigParser(object):
     def _parse_literal_lookup(self):
         literal_lookup = dict()
 
+        # All patterns are stored with the 'canonical_form' as keys.
         for canonical_form, sections in self._datadict.items():
             assert isinstance(canonical_form, str)
             if not canonical_form.strip():
                 continue
 
             if not isinstance(sections, dict):
-                log.error('Invalid entry "{!s}" in "{!s}"'.format(sections, self.str_lookup_dict_filepath))
+                log.error('Invalid entry "%s" in "%s"', sections, self.str_lookup_dict_filepath)
                 continue
 
-            literals_to_match = sections.get(self.CONFIG_SECTION_MATCH_ANY_LITERAL)
+            literals_to_match = sections.get(self.CONFIG_SECTION_MATCH_ANY_LITERAL_CASESENSITIVE)
             if not literals_to_match:
                 continue
 
-            valid_literals_to_match = [s for s in literals_to_match if s and s.strip()]
+            valid_literals_to_match = [
+                s for s in literals_to_match
+                if s and isinstance(s, str) and s.strip()
+            ]
             if valid_literals_to_match:
                 literal_lookup[canonical_form] = set(valid_literals_to_match)
 
@@ -189,39 +196,64 @@ class CanonicalizerConfigParser(object):
     def _parse_regex_lookup(self):
         regex_lookup = dict()
 
+        # All patterns are stored with the 'canonical_form' as keys.
         for canonical_form, sections in self._datadict.items():
             assert isinstance(canonical_form, str)
             if not canonical_form.strip():
                 continue
 
             if not isinstance(sections, dict):
-                log.error('Invalid entry "{!s}" in "{!s}"'.format(sections, self.str_lookup_dict_filepath))
+                log.error('Invalid entry "%s" in "%s"', sections, self.str_lookup_dict_filepath)
                 continue
 
-            regexes_to_match = sections.get(self.CONFIG_SECTION_MATCH_ANY_REGEX_IGNORECASE)
-            if not regexes_to_match:
-                continue
+            all_compiled_regexes = set()
 
-            if not all(isinstance(s, str) for s in regexes_to_match):
-                log.error('Bad syntax in "{!s}"'.format(self.str_lookup_dict_filepath))
-                continue
+            def _process_patterns(_patterns, ignore_case):
+                if not _patterns:
+                    return
 
-            non_empty_regex_patterns = [s for s in regexes_to_match if s and s.strip()]
-            if non_empty_regex_patterns:
-                compiled_regexes = set()
-                for pattern in non_empty_regex_patterns:
-                    try:
-                        regex = re.compile(pattern, re.IGNORECASE)
-                    except re.error as e:
-                        log.error('Invalid regex pattern "{!s}" in "{!s}" :: '
-                                  '{!s}'.format(pattern, self.str_lookup_dict_filepath, e))
-                        continue
-                    compiled_regexes.add(regex)
+                assert isinstance(_patterns, list)
+                _filtered_patterns = self._filter_non_empty_str(maybe_ignorecase_patterns)
+                if not _filtered_patterns:
+                    return
 
-                if compiled_regexes:
-                    regex_lookup[canonical_form] = compiled_regexes
+                _regexes = self._compile_regexes(_filtered_patterns, ignore_case)
+                all_compiled_regexes.update(_regexes)
+
+            maybe_ignorecase_patterns = sections.get(self.CONFIG_SECTION_MATCH_ANY_REGEX_IGNORECASE)
+            _process_patterns(maybe_ignorecase_patterns, ignore_case=True)
+
+            maybe_casesensitive_patterns = sections.get(self.CONFIG_SECTION_MATCH_ANY_REGEX_CASESENSITIVE)
+            _process_patterns(maybe_casesensitive_patterns, ignore_case=True)
+
+            if all_compiled_regexes:
+                regex_lookup[canonical_form] = all_compiled_regexes
 
         return regex_lookup
+
+    @staticmethod
+    def _filter_non_empty_str(maybe_strings):
+        return [
+            s for s in maybe_strings
+            if s and isinstance(s, str) and s.strip()
+        ]
+
+    def _compile_regexes(self, pattern_strings, ignore_case=False):
+        re_flags = 0
+        if ignore_case:
+            re_flags |= re.IGNORECASE
+
+        compiled_regexes = set()
+        for pattern in pattern_strings:
+            try:
+                regex = re.compile(pattern, re_flags)
+            except re.error as e:
+                log.error('Invalid regex pattern "%s" in "%s" --- %s',
+                          pattern, self.str_lookup_dict_filepath, e)
+                continue
+            compiled_regexes.add(regex)
+
+        return compiled_regexes
 
 
 def build_string_value_canonicalizer(yaml_config_filename):

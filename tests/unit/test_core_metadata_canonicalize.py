@@ -65,9 +65,11 @@ def _load_test_data_from_yaml_file(filename):
 
 
 class TestCanonicalizerConfigParser(TestCase):
+    # TODO: Implement 'match_any_literal_ignorecase'!
     @classmethod
     def setUpClass(cls):
-        cls.SECTION_MATCH_ANY_LITERAL = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_LITERAL
+        cls.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_LITERAL_CASESENSITIVE
+        cls.SECTION_MATCH_ANY_LITERAL_IGNORECASE = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_LITERAL_IGNORECASE
         cls.SECTION_MATCH_ANY_REGEX_IGNORECASE = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_REGEX_IGNORECASE
 
     def _get_parser_from_empty_config(self):
@@ -105,12 +107,15 @@ class TestCanonicalizerConfigParser(TestCase):
     def test_parsed_literal_lookup_is_empty_when_given_only_empty_strings(self):
         parser = self._get_parser_from_config({
             'FooPub': {
-                self.SECTION_MATCH_ANY_LITERAL: [
+                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
+                    '',
+                ],
+                self.SECTION_MATCH_ANY_LITERAL_IGNORECASE: [
                     '',
                 ]
             },
             'BarPub': {
-                self.SECTION_MATCH_ANY_LITERAL: [
+                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
                     ' ',
                     '  ',
                 ]
@@ -121,12 +126,12 @@ class TestCanonicalizerConfigParser(TestCase):
     def test_parsed_literal_lookup_is_empty_when_given_empty_literals(self):
         parser = self._get_parser_from_config({
             '': {
-                self.SECTION_MATCH_ANY_LITERAL: [
+                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
                     'foo',
                 ]
             },
             '  ': {
-                self.SECTION_MATCH_ANY_LITERAL: [
+                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
                     'bar',
                 ]
             }
@@ -136,7 +141,7 @@ class TestCanonicalizerConfigParser(TestCase):
     def test_returns_expected_parsed_literal_lookup_given_config_with_one_entry(self):
         parser = self._get_parser_from_config({
             'FooPub': {
-                self.SECTION_MATCH_ANY_LITERAL: [
+                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
                     'Foo',
                     'foo pub',
                     'Foo',  # Duplicate that should be removed
@@ -145,24 +150,21 @@ class TestCanonicalizerConfigParser(TestCase):
              }
         })
         expect_parsed_literal_lookup = {
-            'FooPub': set([
-                'Foo',
-                'foo pub'
-             ])
+            'FooPub': {'Foo', 'foo pub'}
         }
         self.assertEqual(expect_parsed_literal_lookup, parser.parsed_literal_lookup)
 
     def test_returns_expected_parsed_literal_lookup_given_config_with_two_entries(self):
         parser = self._get_parser_from_config({
             'FooPub': {
-                self.SECTION_MATCH_ANY_LITERAL: [
+                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
                     'Foo',
                     'foo pub',
                     'Foo',  # Duplicate that should be removed
                 ]
              },
             'BarPub': {
-                self.SECTION_MATCH_ANY_LITERAL: [
+                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
                     'Bar Publishers Inc.',
                     'bar pub.',
                     '\n',  # Whitespace that should be ignored
@@ -170,14 +172,8 @@ class TestCanonicalizerConfigParser(TestCase):
              }
         })
         expect_parsed_literal_lookup = {
-            'FooPub': set([
-                'Foo',
-                'foo pub'
-             ]),
-            'BarPub': set([
-                'Bar Publishers Inc.',
-                'bar pub.'
-             ])
+            'FooPub': {'Foo', 'foo pub'},  # set literal
+            'BarPub': {'Bar Publishers Inc.', 'bar pub.'}
         }
         self.assertEqual(expect_parsed_literal_lookup, parser.parsed_literal_lookup)
 
@@ -224,10 +220,8 @@ class TestCanonicalizerConfigParser(TestCase):
              }
         })
         expect_parsed_regex_lookup = sorted({
-            'FooPub': set([
-                self._compile_regex('Foo'),
-                self._compile_regex('foo pub')
-             ])
+            'FooPub': {self._compile_regex('Foo'),
+                       self._compile_regex('foo pub')}
         })
         actual = sorted(parser.parsed_regex_lookup)
         self.assertEqual(expect_parsed_regex_lookup, actual)
@@ -250,14 +244,10 @@ class TestCanonicalizerConfigParser(TestCase):
              }
         })
         expect_parsed_regex_lookup = sorted({
-            'FooPub': set([
-                self._compile_regex('Foo'),
-                self._compile_regex('foo pub')
-             ]),
-            'BarPub': set([
-                self._compile_regex('Bar Publishers Inc.'),
-                self._compile_regex('bar pub.')
-             ])
+            'FooPub': {self._compile_regex('Foo'),
+                       self._compile_regex('foo pub')},
+            'BarPub': {self._compile_regex('Bar Publishers Inc.'),
+                       self._compile_regex('bar pub.')}
         })
         actual = sorted(parser.parsed_regex_lookup)
         self.assertEqual(expect_parsed_regex_lookup, actual)
