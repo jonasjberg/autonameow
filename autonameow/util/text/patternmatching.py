@@ -91,6 +91,32 @@ _ORDINAL_NUMBER_PATTERNS = [
 ]
 
 
+def ordinal_indicator(number):
+    """
+    Returns the "ordinal indicator" suffix for a given cardinal number.
+
+    E.G. returns 'st' given the number 1, which could be used to make '1st'.
+
+    Args:
+        number: Cardinal number as a type that can be converted to type int.
+
+    Returns:
+        The ordinal suffix for the given number as a Unicode string.
+
+    Raises:
+        ValueError: The given number could not be converted to type int.
+    """
+    number = abs(int(number))
+    if number % 100 in (11, 12, 13):
+        return 'th'
+
+    return {
+        1: 'st',
+        2: 'nd',
+        3: 'rd',
+    }.get(number % 10, 'th')
+
+
 @lru_cache()
 def compiled_ordinal_regexes():
     re_ordinals = dict()
