@@ -68,14 +68,22 @@ class StringValueCanonicalizer(object):
         self.canonical_value_literals = literal_lookup_dict
         self.canonical_value_regexes = regex_lookup_dict
 
-        # Store tuple of (LOWERCASED CANONICAL, CANONICAL) so that values
-        # can be compared to the lowercased canonical and still return the
-        # canonical value with its original letter case as the result.
+        # Store all canonical values in a dict keyed by lower-case canonical
+        # values, each storing the original letter case version of itself.
+        #
+        #     all_canonical_values_lowercase_keys = {
+        #         'foo bar': 'Foo Bar',
+        #         'baz': 'BAZ',
+        #     }
+        #
+        # This is to be able to compare incoming lower-cased values to the
+        # lowercased canonical form but still return the canonical value with
+        # its original letter case as the result.
         all_canonical_values = set(self.canonical_value_regexes.keys())
         all_canonical_values.update(self.canonical_value_literals.keys())
-        self.all_canonical_values = set(
-            (s.lower(), s) for s in all_canonical_values
-        )
+        self.all_canonical_values_lowercase_keys = {
+            v.lower(): v for v in all_canonical_values
+        }
 
     def __call__(self, s):
         """
@@ -93,7 +101,7 @@ class StringValueCanonicalizer(object):
     def _find_canonical_value(self, s):
         # Check if the given value is equal to any canonical value when
         # disregarding differences in letter case.
-        matched_canonical_value = self._find_exact_canonical_match(s)
+        matched_canonical_value = self._find_literal_ignorecase_match(s)
         if matched_canonical_value:
             return matched_canonical_value
 
@@ -118,14 +126,12 @@ class StringValueCanonicalizer(object):
 
         return None
 
-    def _find_exact_canonical_match(self, s):
+    def _find_literal_ignorecase_match(self, s):
         lowercase_string = s.lower()
+        if lowercase_string not in self.all_canonical_values_lowercase_keys:
+            return None
 
-        for lowercase_canonical_value, canonical_value in self.all_canonical_values:
-            if lowercase_string == lowercase_canonical_value:
-                return canonical_value
-
-        return None
+        return self.all_canonical_values_lowercase_keys[lowercase_string]
 
 
 class CanonicalizerConfigParser(object):
