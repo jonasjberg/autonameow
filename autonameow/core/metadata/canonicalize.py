@@ -208,12 +208,12 @@ class CanonicalizerConfigParser(object):
 
             all_compiled_regexes = set()
 
-            def _process_patterns(_patterns, ignore_case):
-                if not _patterns:
+            def _process_patterns(_patterns_list, ignore_case):
+                if not _patterns_list:
                     return
 
-                assert isinstance(_patterns, list)
-                _filtered_patterns = self._filter_non_empty_str(maybe_ignorecase_patterns)
+                assert isinstance(_patterns_list, list)
+                _filtered_patterns = self._filter_non_empty_str(_patterns_list)
                 if not _filtered_patterns:
                     return
 
@@ -224,7 +224,7 @@ class CanonicalizerConfigParser(object):
             _process_patterns(maybe_ignorecase_patterns, ignore_case=True)
 
             maybe_casesensitive_patterns = sections.get(self.CONFIG_SECTION_MATCH_ANY_REGEX_CASESENSITIVE)
-            _process_patterns(maybe_casesensitive_patterns, ignore_case=True)
+            _process_patterns(maybe_casesensitive_patterns, ignore_case=False)
 
             if all_compiled_regexes:
                 regex_lookup[canonical_form] = all_compiled_regexes
