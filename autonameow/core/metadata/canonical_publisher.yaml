@@ -56,6 +56,11 @@ Apress:
 ArtechHouse:
     match_any_literal:
     - Artech House
+    - Artech House Publishers
+
+Ashgate:
+    match_any_regex_ignorecase:
+    - Ashgate
 
 AthenaScientific:
     match_any_literal:
@@ -64,6 +69,10 @@ AthenaScientific:
 AtlantisPress:
     match_any_regex_ignorecase:
     - Atlantis Pr(.?|ess)
+
+AtriaBooks:
+    match_any_literal:
+    - Atria Books
 
 Auerbach:
     match_any_regex_ignorecase:
@@ -86,6 +95,10 @@ Barrons:
 BenBella:
     match_any_regex_ignorecase:
     - BenBella
+
+BenthamScience:
+    match_any_regex_ignorecase:
+    - Bentham Science
 
 Bertelsmann:
     match_any_regex_ignorecase:
@@ -115,6 +128,10 @@ BonsaiReads:
     match_any_regex_ignorecase:
     - Bonsai Reads
 
+BookBaby:
+    match_any_literal:
+    - BookBaby
+
 BookBoon:
     match_any_regex_ignorecase:
     - bookboon
@@ -122,6 +139,11 @@ BookBoon:
 BPBPub:
     match_any_regex_ignorecase:
     - BPB Pub(lications)?
+
+BritannicaEducational:
+    match_any_literal:
+    - Britannica Educational
+    - Britannica Educational Publishing
 
 CaliforniaUP:
     match_any_regex_ignorecase:
@@ -155,9 +177,17 @@ CherryLake:
     - Cherry Lake
     - (www\.)?cherrylakepublishing\.com
 
+ChronicleBooks:
+    match_any_regex_ignorecase:
+    - Chronicle Books
+
 Cisco:
     match_any_regex_ignorecase:
     - Cisco
+
+CleisPress:
+    match_any_literal:
+    - Cleis Press
 
 ClydeBank:
     match_any_regex_ignorecase:
@@ -206,6 +236,10 @@ DennisPub:
     match_any_literal:
     - Dennis Pub.
 
+DiplomicaVerlag:
+    match_any_regex_ignorecase:
+    - Diplomica Verlag
+
 Elsevier:
     match_any_regex_ignorecase:
     - Elsevier..?(.?AP|Morgan Kaufmann|Newnes)
@@ -240,6 +274,20 @@ FuturePub:
     - Future Pub
     - (www\.)?futureplc\.com
 
+GardenCity:
+    match_any_regex_ignorecase:
+    - Garden City
+
+GeorgetownUP:
+    match_any_literal:
+    - Georgetown University Press
+    - University of Georgetown Press
+
+GeorgiaUP:
+    match_any_literal:
+    - Georgia University Press
+    - University of Georgia Press
+
 Greenwood:
     match_any_regex_ignorecase:
     - Greenwood
@@ -268,6 +316,11 @@ HarperCollins:
     match_any_regex_ignorecase:
     - HarperCollins
     - (www\.)?harpercollins\.com
+
+HarvardUP:
+    match_any_literal:
+    - Harvard University Press
+    - University of Harvard Press
 
 HeatonResearch:
     match_any_regex_ignorecase:
@@ -338,6 +391,11 @@ ImperialCollegePress:
     match_any_regex_ignorecase:
     - Imperial College Pr(.?|ess)
 
+IndianaUP:
+    match_any_literal:
+    - Indiana University Press
+    - University of Indiana Press
+
 IndustrialPress:
     match_any_regex_ignorecase:
     - Industrial Pr(.|ess)
@@ -345,6 +403,10 @@ IndustrialPress:
 InfinityScience:
     match_any_regex_ignorecase:
     - Infinity Science
+
+IOSPress:
+    match_any_regex_ignorecase:
+    - IOS Press
 
 ITAcademy:
     match_any_literal:
@@ -365,10 +427,8 @@ JohnsHopkinsUP:
 
 JonesBartlett:
     match_any_regex_ignorecase:
+    - Jones (&|and) Bartlett
     - (www\.)?jbpub\.com
-    match_any_literal:
-    - Jones and Bartlett Publishers
-    - Jones and Bartlett
 
 LaurenceKing:
     match_any_regex_ignorecase:
@@ -602,19 +662,30 @@ QuePub:
     match_any_regex_ignorecase:
     - Que Pub
 
+Rockport:
+    match_any_regex_ignorecase:
+    - Rockport
+
 Routledge:
     match_any_regex_ignorecase:
-    - Ashgate
     - Routledge( Taylor (&|and) Francis Group)?
 
 RecursiveBooks:
     match_any_regex_ignorecase:
     - Recursive Books
 
+RowmanLittlefield:
+    match_any_regex_ignorecase:
+    - rowman (&|and) littlefield
+
 Sams:
     match_any_regex_ignorecase:
     - Sams Pub
     - (www\.)?samspublishing\.com
+
+SagePub:
+    match_any_regex_ignorecase:
+    - sage pub
 
 SecurePlanet:
     match_any_regex_ignorecase:
@@ -646,6 +717,10 @@ Soundlikeyourself:
     match_any_regex_ignorecase:
     - Soundlikeyourself
 
+SourceBooks:
+    match_any_regex_ignorecase:
+    - sourcebooks
+
 Springer:
     match_any_regex_ignorecase:
     - Springer(.Verlag)?
@@ -667,6 +742,11 @@ Syngress:
 TaylorFrancis:
     match_any_regex_ignorecase:
     - ^Taylor (&|and) Francis
+
+TempleUP:
+    match_any_literal:
+    - Temple University Press
+    - University of Temple Press
 
 ThomsonReuters:
     match_any_regex_ignorecase:
@@ -695,9 +775,13 @@ UrbanLandInstitute:
     match_any_literal:
     - ULI
 
+WalkerBooks:
+    match_any_literal:
+    - Walker Books
+
 WalterdeGruyter:
     match_any_regex_ignorecase:
-    - Walter de Gruyter
+    - (Walter )?de Gruyter
 
 WellesleyCambridge:
     match_any_regex_ignorecase:
@@ -711,11 +795,7 @@ Westview:
 
 Wiley:
     match_any_regex_ignorecase:
-    - Wiley.Blackwell
-    - ^wiley (&|and) Sons
-    - ^Wiley Pub\.?
-    - ^J(\.|ohn) Wiley (&|and) Sons,?( Inc\.?)?
-    - Wiley.(Interscience|Technology)
+    - Wiley
     match_any_literal:
     - John Wiley
     - J. Wiley
@@ -739,3 +819,7 @@ Wrox:
     - (www\.)?wrox\.com
     - Wrox/Wiley (&|and) Sons
     - Wrox/John Wiley (&|and) Sons
+
+YaleUP:
+    match_any_literal:
+    - Yale University Press

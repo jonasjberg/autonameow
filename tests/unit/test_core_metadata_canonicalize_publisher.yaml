@@ -66,6 +66,8 @@ ACBlack:
 
 AddisonWesley:
 - AddisonWesley
+- Addison Wesley
+- Addison Wesley Longman
 - Addison Wesley Professional
 - Addison Wesley Profressional
 - Addison Wesley Pub Co
@@ -79,8 +81,8 @@ AddisonWesley:
 - Addison Wesley Publishing Co
 - Addison Wesley Publishing Co.
 - Addison Wesley Publishing Company
-- addison wesley
-- Addison Wesley
+- Addison-Wesley
+- Addison-Wesley Longman
 - Addison-Wesley Professional
 - Addison-Wesley Profressional
 - Addison-Wesley Pub Co
@@ -94,7 +96,7 @@ AddisonWesley:
 - Addison-Wesley Publishing Co
 - Addison-Wesley Publishing Co.
 - Addison-Wesley Publishing Company
-- Addison-Wesley
+- addison wesley
 
 AdobePress:
 - AdobePress
@@ -140,6 +142,14 @@ Apress:
 ArtechHouse:
 - ArtechHouse
 - Artech House
+- Artech House Publishers
+
+Ashgate:
+- Ashgate  # Part of Routledge since 2016
+- Ashgate Publishing
+- Ashgate Publishing Limited
+- Ashgate Publishing Ltd.
+- Ashgate Publishing Ltd
 
 AthenaScientific:
 - AthenaScientific
@@ -149,6 +159,10 @@ AtlantisPress:
 - Atlantis Press
 - AtlantisPress
 - 'Imprint: Atlantis Press'
+
+AtriaBooks:
+- AtriaBooks
+- Atria Books
 
 Auerbach:
 - Auerbach
@@ -189,6 +203,7 @@ Barrons:
 - Barron's Educational Series
 - Barron's Educational Series, Inc
 - Barron's Educational Series, Inc.
+- "Barron's Educational Series"
 - "Barron\u2019s Educational Series Inc"
 - "Barron\u2019s Educational Series Inc."
 - "Barron\u2019s Educational Series"
@@ -198,6 +213,14 @@ Barrons:
 BenBella:
 - BenBella
 - BenBella Books
+- BenBella Books, Inc.
+
+BenthamScience:
+- BenthamScience
+- Bentham Science Publishers
+- Bentham Science Publishers Limited
+- Bentham Science Publishers Ltd
+- Bentham Science Publishers Ltd.
 
 Bertelsmann:
 - Bertelsmann
@@ -247,6 +270,11 @@ BleedingEdgePress:
 
 Bloomsbury:
 - Bloomsbury
+- Bloomsbury A & C Black
+- Bloomsbury A and C Black
+- Bloomsbury A&C Black
+- Bloomsbury AC Black
+- Bloomsbury AandC Black
 - Bloomsbury Pub
 - Bloomsbury Pub.
 - Bloomsbury Publ
@@ -256,16 +284,13 @@ Bloomsbury:
 - Bloomsbury Publishing Company Ltd
 - Bloomsbury Publishing Company Ltd.
 - Bloomsbury Publishing plc
-- Bloomsbury A & C Black
-- Bloomsbury A and C Black
-- Bloomsbury A&C Black
-- Bloomsbury AandC Black
-- Bloomsbury AC Black
+- Bloomsbury UK
+- Bloomsbury USA
 - Bloomsbury, A & C Black
 - Bloomsbury, A and C Black
 - Bloomsbury, A&C Black
-- Bloomsbury, AandC Black
 - Bloomsbury, AC Black
+- Bloomsbury, AandC Black
 - https://www.bloomsbury.com/
 - http://www.bloomsbury.com/
 - www.bloomsbury.com/
@@ -278,6 +303,9 @@ Bloomsbury:
 BonsaiReads:
 - BonsaiReads
 - Bonsai Reads
+
+BookBaby:
+- BookBaby
 
 BookBoon:
 - BookBoon
@@ -305,6 +333,10 @@ BPBPub:
 - BPB PUBLICATIONS
 - BPB Publications INDIA
 - BPB Publications, INDIA
+
+BritannicaEducational:
+- Britannica Educational
+- Britannica Educational Publishing
 
 CaliforniaUP:
 - CaliforniaUP
@@ -383,12 +415,14 @@ CedarFort:
 - Cedar Fort Publishing
 
 Cengage:
-- Brooks/Cole Cengage Learning
 - Brooks/Cole Cengage
+- Brooks/Cole Cengage Learning
 - Brooks/Cole, Cengage Learning
-- Cengage Learning
-- Cengage Learning Ptr
 - Cengage
+- Cengage Learning
+- CENGAGE Learning
+- Cengage Learning Ptr
+- CENGAGE LERNING TextBooks
 - Charles River Media Course Technology
 - Charles River Media, Course Technology
 - Charles River Media/Cengage Technology
@@ -399,11 +433,11 @@ Cengage:
 - Course Technology/Cengage learning
 - Course Technology/Cengage Learning
 - CourseTechnology
-- Thomson Learning  # Prior to 2007
 - Thomson Course Technology
-- Thomson/Course Technology
 - Thomson Delmar Learning
 - Thomson Foobar Learning
+- Thomson Learning  # Prior to 2007
+- Thomson/Course Technology
 
 ChelseaHouse:
 - ChelseaHouse
@@ -424,9 +458,18 @@ CherryLake:
 - www.cherrylakepublishing.com
 - cherrylakepublishing.com
 
+ChronicleBooks:
+- ChronicleBooks
+- Chronicle Books
+- Chronicle Books LLC
+
 Cisco:
 - Cisco
 - Cisco Press
+
+CleisPress:
+- CleisPress
+- Cleis Press
 
 ClydeBank:
 - ClydeBank
@@ -489,17 +532,23 @@ DennisPub:
 - Dennis Pub.
 - DennisPub
 
+DiplomicaVerlag:
+- DiplomicaVerlag
+- Diplomica Verlag
+- Diplomica Verlag GmbH
+
 Elsevier:
 - Elsevier
 - Elsevier Inc.
 - Elsevier Ltd.
 - Elsevier LTD.
+- Elsevier Ltd.
 - Elsevier Morgan Kaufmann
 - Elsevier Newnes
 - Elsevier Science
-- Elsevier Science
 - Elsevier, Inc.
 - Elsevier/ AP
+- Elsevier/ Morgan Kaufmann
 - Elsevier/ Newnes
 - Elsevier/AP
 - Elsevier/Morgan Kaufmann
@@ -579,6 +628,32 @@ FuturePub:
 - http://www.futureplc.com
 - www.futureplc.com
 - futureplc.com
+
+GardenCity:
+- GardenCity
+- Garden City
+- Garden City NY Doubleday
+- Garden City NY Doubleday & Co
+- Garden City NY Doubleday and Co
+- Garden City, N.Y. Doubleday
+- Garden City, N.Y. Doubleday & Co
+- Garden City, N.Y. Doubleday and Co
+- Garden City, N.Y., Doubleday
+- Garden City, N.Y., Doubleday & Co
+- Garden City, N.Y., Doubleday and Co
+- Garden City, NY Doubleday
+- Garden City, NY Doubleday & Co
+- Garden City, NY Doubleday and Co
+
+GeorgetownUP:
+- GeorgetownUP
+- Georgetown University Press
+- University of Georgetown Press
+
+GeorgiaUP:
+- GeorgiaUP
+- Georgia University Press
+- University of Georgia Press
 
 Greenwood:
 - Greenwood
@@ -683,6 +758,11 @@ HarperCollins:
 - http://www.harpercollins.com
 - www.harpercollins.com
 - harpercollins.com
+
+HarvardUP:
+- HarvardUP
+- Harvard University Press
+- University of Harvard Press
 
 HeatonResearch:
 - HeatonResearch
@@ -878,6 +958,11 @@ ImperialCollegePress:
 - Imperial College Pr.
 - Imperial College Press
 
+IndianaUP:
+- IndianaUP
+- Indiana University Press
+- University of Indiana Press
+
 IndustrialPress:
 - IndustrialPress
 - Industrial Press
@@ -888,6 +973,16 @@ InfinityScience:
 - Infinity Science Pr
 - Infinity Science Pr.
 - Infinity Science Press
+
+IOSPress:
+- IOSPress
+- IOS Press
+- IOS Press Inc
+- IOS Press Inc.
+- IOS Press Incorporated
+- IOS Press, Inc
+- IOS Press, Inc.
+- IOS Press, Incorporated
 
 ITAcademy:
 - ITAcademy
@@ -937,8 +1032,22 @@ JohnsHopkinsUP:
 
 JonesBartlett:
 - JonesBartlett
-- Jones and Bartlett Publishers
+- Jones & Bartlett Learning
+- Jones & Bartlett Publishers Inc
+- Jones & Bartlett Publishers Inc.
+- Jones & Bartlett Publishers Incorporated
+- Jones & Bartlett Publishers, Inc
+- Jones & Bartlett Publishers, Inc.
+- Jones & Bartlett Publishers, Incorporated
 - Jones and Bartlett
+- Jones and Bartlett Learning
+- Jones and Bartlett Publishers
+- Jones and Bartlett Publishers Inc
+- Jones and Bartlett Publishers Inc.
+- Jones and Bartlett Publishers Incorporated
+- Jones and Bartlett Publishers, Inc
+- Jones and Bartlett Publishers, Inc.
+- Jones and Bartlett Publishers, Incorporated
 - https://www.jbpub.com/
 - http://www.jbpub.com/
 - www.jbpub.com/
@@ -1503,16 +1612,48 @@ QuePub:
 - Que Publishing
 - QuePub
 
+Rockport:
+- Rockport
+- Rockport Pub
+- Rockport Pub.
+- Rockport Publ
+- Rockport Publ.
+- Rockport Publishers
+
+RowmanLittlefield:
+- RowmanLittlefield
+- Rowman & Littlefield Publishers
+- Rowman & Littlefield Publishing Group Inc
+- Rowman & Littlefield Publishing Group Inc.
+- Rowman & Littlefield Publishing Group Incorporated
+- Rowman & Littlefield Publishing Group, Inc
+- Rowman & Littlefield Publishing Group, Inc.
+- Rowman & Littlefield Publishing Group, Incorporated
+- Rowman and Littlefield Publishers
+- Rowman and Littlefield Publishing Group Inc
+- Rowman and Littlefield Publishing Group Inc.
+- Rowman and Littlefield Publishing Group Incorporated
+- Rowman and Littlefield Publishing Group, Inc
+- Rowman and Littlefield Publishing Group, Inc.
+- Rowman and Littlefield Publishing Group, Incorporated
+
 RecursiveBooks:
 - RecursiveBooks
 - Recursive Books
 
 Routledge:
-- Ashgate  # Part of Routledge since 2016
 - Routledge Publishing
 - Routledge Taylor & Francis Group
 - Routledge Taylor and Francis Group
 - Routledge
+
+SagePub:
+- SagePub
+- Sage Publications Limited
+- Sage Publications Ltd
+- Sage Publications, Limited
+- Sage Publications, Ltd
+- Sage Publications, Ltd.
 
 Sams:
 - Sams
@@ -1615,6 +1756,15 @@ Soundlikeyourself:
 - Soundlikeyourself Publishing
 - Soundlikeyourself Publishing LLC
 - Soundlikeyourself Publishing, LLC
+
+SourceBooks:
+- SourceBooks
+- Sourcebooks Inc
+- Sourcebooks Inc.
+- Sourcebooks Incorporated
+- Sourcebooks, Inc
+- Sourcebooks, Inc.
+- Sourcebooks, Incorporated
 
 Springer:
 - 'Imprint: Springer'
@@ -1723,6 +1873,11 @@ TaylorFrancis:
 - Taylor and Francis (CAM)
 - Taylor and Francis CAM
 
+TempleUP:
+- TempleUP
+- Temple University Press
+- University of Temple Press
+
 ThomsonReuters:
 - ThomsonReuters
 - Thomson Reuters
@@ -1781,7 +1936,13 @@ UrbanLandInstitute:
 - Urban Land Institute
 - UrbanLandInstitute
 
+WalkerBooks:
+- WalkerBooks
+- Walker Books
+
 WalterdeGruyter:
+- de Gruyter
+- De Gruyter
 - WalterdeGruyter
 - Walter de Gruyter
 - Walter de Gruyter GmbH & Co KG
@@ -1800,12 +1961,10 @@ Westview:
 
 Wiley:
 - Wiley
-- wiley
-- Wiley-Blackwell
-- Wiley/Blackwell
 - J. Wiley
 - J. Wiley & Sons
 - J. Wiley and Sons
+- John Wiley
 - John Wiley & Sons
 - John Wiley & Sons (Asia)
 - John Wiley & Sons (Australia)
@@ -1815,23 +1974,49 @@ Wiley:
 - John Wiley & Sons Incorporated
 - John Wiley & Sons, Inc.
 - John Wiley & Sons, Incorporated
+- John Wiley and Sons
 - John Wiley and Sons Inc
 - John Wiley and Sons Incorporated
-- John Wiley and Sons
 - John Wiley and Sons, Inc.
 - John Wiley and Sons, Incorporated
-- John Wiley
+- wiley
 - wiley & Sons
 - wiley and Sons
+- Wiley John & Sons Inc
+- Wiley John & Sons Incorporated
+- Wiley John & Sons, Inc
+- Wiley John & Sons, Inc.
+- Wiley John & Sons, Incorporated
+- Wiley John and Sons Inc
+- Wiley John and Sons Incorporated
+- Wiley John and Sons, Inc
+- Wiley John and Sons, Inc.
+- Wiley John and Sons, Incorporated
 - Wiley Pub
+- Wiley Pub, Inc.
+- Wiley Pub, Incorporated
 - Wiley Pub.
 - Wiley Pub., Inc.
 - Wiley Pub., Incorporated
+- Wiley Technology
 - Wiley Technology Pub
 - Wiley Technology Pub.
 - Wiley Technology Publishing
-- Wiley Technology
+- WILEY TextBooks
+- Wiley TextBooks
+- Wiley, John & Sons Inc
+- Wiley, John & Sons Incorporated
+- Wiley, John & Sons, Inc
+- Wiley, John & Sons, Inc.
+- Wiley, John & Sons, Incorporated
+- Wiley, John and Sons Inc
+- Wiley, John and Sons Incorporated
+- Wiley, John and Sons, Inc
+- Wiley, John and Sons, Inc.
+- Wiley, John and Sons, Incorporated
+- Wiley-Blackwell
 - Wiley-Interscience
+- Wiley/Blackwell
 
 WoltersKluwer:
 - Kluwer
@@ -1893,3 +2078,7 @@ Wrox:
 - http://www.wrox.com
 - www.wrox.com
 - wrox.com
+
+YaleUP:
+- YaleUP
+- Yale University Press
