@@ -176,6 +176,10 @@ DocBook:
     match_any_regex_ignorecase:
     - DocBook
 
+dvipdfm:
+    match_any_regex_ignorecase:
+    - ^dvipdfm
+
 dvips:
     match_any_regex_ignorecase:
     - \bdvips
@@ -213,6 +217,7 @@ Genius Printer:
 Ghostscript:
     match_any_regex_ignorecase:
     - ^(GPL )?Ghostscript
+    - Aladdin Ghostscript
 
 gnuplot:
     match_any_regex_ignorecase:
@@ -271,7 +276,7 @@ Konica Printer:
 
 LaTeX:
     match_any_regex_ignorecase:
-    - LaTeX
+    - (LaTeX|pdfeTeX)
 
 MacOS Quartz:
     match_any_regex_ignorecase:
@@ -432,9 +437,9 @@ Texterity:
     match_any_regex_ignorecase:
     - Texterity
 
-tiff2ps:
+libtiff:
     match_any_regex_ignorecase:
-    - tiff2ps
+    - (libtiff|tiff2ps)
 
 ToPDF.com:
     match_any_regex_ignorecase:

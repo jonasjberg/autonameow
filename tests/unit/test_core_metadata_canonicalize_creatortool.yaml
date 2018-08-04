@@ -474,6 +474,23 @@ DocBook:
 - DocBook XSL Stylesheets V1.71.1
 - DocBook XSL Stylesheets V1.77.1
 
+dvipdfm:
+- dvipdfm
+- dvipdfm 0.13.2
+- dvipdfm 0.13.2 Copyright (c) 1998
+- dvipdfm 0.13.2 Copyright (c) 1998 by Mark A. Wicks
+- dvipdfm 0.13.2 Copyright © 1998
+- dvipdfm 0.13.2 Copyright © 1998 by Mark A. Wicks
+- dvipdfm 0.13.2, Copyright (c) 1998
+- dvipdfm 0.13.2, Copyright (c) 1998, by Mark A. Wicks
+- dvipdfm 0.13.2, Copyright © 1998
+- dvipdfm 0.13.2, Copyright © 1998, by Mark A. Wicks
+- dvipdfm 0.13.2c
+- dvipdfm 0.13.2c, Copyright (c) 1998
+- dvipdfm 0.13.2c, Copyright (c) 1998, by Mark A. Wicks
+- dvipdfm 0.13.2c, Copyright © 1998
+- dvipdfm 0.13.2c, Copyright © 1998, by Mark A. Wicks
+
 dvips:
 - dvips
 - dvips + AFPL Ghostscript 8.51 / PDF PT 2.37 (pdf-tools.com)
@@ -544,6 +561,9 @@ Genius Printer:
 
 Ghostscript:
 - Ghostscript
+- Aladdin Ghostscript
+- Aladdin Ghostscript 6.01
+- Aladdin Ghostscript 1.2.3
 - GPL Ghostscript
 - GPL Ghostscript 9.10
 - GPL Ghostscript 9.07
@@ -648,8 +668,12 @@ LaTeX:
 - LaTeX
 - LaTeX with hyperref package
 - LaTeX with hyperref package + hypdvips
-- PDFLaTeX
 - PDF LaTeX
+- PDFLaTeX
+- pdfeTeX
+- pdfeTeX-1.2.3
+- pdfeTeX-1.21
+- pdfeTeX-1.21a
 - STM LaTeX
 - STM LaTeX and Word Typesetting
 
@@ -998,8 +1022,13 @@ TeXShop:
 Texterity:
 - Texterity
 
-tiff2ps:
+libtiff:
+- libtiff
 - tiff2ps
+- libtiff / tiff2pdf
+- libtiff/tiff2pdf
+- "libtiff / tiff2pdf - 20060323"  # TODO: Unpack create date?
+- "libtiff/tiff2pdf - 20060323"  # TODO: Unpack create date?
 
 ToPDF.com:
 - ToPDF.com
