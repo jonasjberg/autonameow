@@ -24,7 +24,7 @@ from util.text.patternmatching import compiled_ordinal_regexes
 from util.text.patternmatching import find_and_extract_edition
 from util.text.patternmatching import find_publisher_in_copyright_notice
 from util.text.patternmatching import ordinal_indicator
-from util.text.patternmatching import ordinalize
+# from util.text.patternmatching import ordinalize
 
 
 class TestOrdinalIndicator(TestCase):
