@@ -920,6 +920,15 @@ class TestSplitMultipleNames(TestCase):
             ]
         )
 
+    def test_refactored_handles_ad_hoc_isbn_metadata_cleanup(self):
+        self._assert_that_it_returns(
+            expected=['Stephen Wynkoop', 'Chris Lester'],
+            given_any_of=[
+                ['Stephen Wynkoop [Chris Lester]'],
+                ['Stephen Wynkoop [and Chris Lester]'],
+            ]
+        )
+
 
 class TestFilterMultipleNames(TestCase):
     def _assert_filter_output_contains(self, expected, given):
@@ -1212,4 +1221,37 @@ class PreProcessNames(TestCase):
         self._assert_preprocess_names_returns(
             expected=['H.S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth'],
             given=['H.S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth']
+        )
+
+    def test_refactored_handles_ad_hoc_isbn_metadata_cleanup(self):
+        self._assert_preprocess_names_returns(
+            expected=['Stephen Wynkoop', 'Chris Lester'],
+            given_any_of=[
+                ['Stephen Wynkoop [Chris Lester]'],
+                ['Stephen Wynkoop [and Chris Lester]'],
+            ]
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Jose Argudo Blanco', 'David Upton'],
+            given_any_of=[
+                ['Jose Argudo Blanco and David Upton'],
+                ['Jose Argudo Blanco, and David Upton'],
+                ['Jose Argudo Blanco, David Upton'],
+            ]
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Michael Dory', 'Adam Parrish', 'Brendan Berg'],
+            given_any_of=[
+                ['Michael Dory, Adam Parrish and Brendan Berg'],
+                ['Michael Dory, Adam Parrish, and Brendan Berg'],
+                ['Michael Dory, Adam Parrish, Brendan Berg'],
+            ]
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Micha Gorelick', 'Andy R. Terrel'],
+            given=['Micha Gorelick, Andy R. Terrel']
+        )
+        self._assert_preprocess_names_returns(
+            expected=['David Astolfo'],
+            given=['David Astolfo ... Technical reviewers: Mario Ferrari ...']
         )

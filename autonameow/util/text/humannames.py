@@ -437,7 +437,7 @@ def split_multiple_names(list_of_names):
     # Local import to avoid circular imports within the 'util' module.
     from util import flatten_sequence_type
 
-    RE_NAME_SEPARATORS = r';|,| ?\b[aA]nd | ?\+| ?& ?'
+    RE_NAME_SEPARATORS = r';|,| ?\b[aA]nd | ?\+| ?& ?|[\[\]]'
 
     flat_list_of_names = flatten_sequence_type(list_of_names)
     if len(flat_list_of_names) == 1 and flat_list_of_names[0].startswith('edited by'):
@@ -498,15 +498,28 @@ def filter_multiple_names(list_of_names):
     for name in list_of_names:
         filtered_name = filter_name(name)
         if filtered_name and len(filtered_name) > 1:
+            # TODO: [cleanup][hack]: Deals with a single very special case ..
+            # Given a filtered name like this:
+            # 'Gibson Ford ... Technical reviewers: Smulan Ferrari ...',
+            # only the first name, 'Gibson Ford' is returned.
+            m = re.match(r'^([\w ]+)( Technical Reviewers: .*)', filtered_name)
+            if m:
+                filtered_name = m.group(1).strip()
+
             filter_output.append(filtered_name)
 
     return filter_output
 
 
 def filter_name(human_name):
-    name = remove_blacklisted_names(human_name)
-    name = strip_bad_author_substrings(name)
-    name = normalize_letter_case(name)
+    assert isinstance(human_name, str)
+
+    name = human_name.strip()
+    if name:
+        name = remove_blacklisted_names(name)
+        name = strip_bad_author_substrings(name)
+        name = normalize_letter_case(name)
+
     return name
 
 

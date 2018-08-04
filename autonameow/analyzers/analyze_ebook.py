@@ -541,36 +541,12 @@ class ISBNMetadata(object):
             return
 
         values = value
-        if not isinstance(value, list):
+        if not isinstance(values, list):
             values = [values]
 
         # TODO: [TD0112] Add some sort of system for normalizing entities.
         # TODO: It is not uncommon that the publisher is listed as an author..
-        # Fix any malformed entries.
-        # Handle this like ['David Astolfo ... Technical reviewers: Mario Ferrari ...']
-        _author_list = list()
-        for author in values:
-            # Handle strings like 'Foo Bar [and Gibson Meow]'
-            if re.match(r'.*\[.*\].*', author):
-                _splits = author.split('[')
-                _cleaned_splits = [
-                    re.sub(r'[\[\]]', '', s)
-                    for s in _splits
-                ]
-                _cleaned_splits = [
-                    re.sub(r'^and ', '', s)
-                    for s in _cleaned_splits
-                ]
-                _cleaned_splits = [
-                    re.sub(r'^[Ww]ritten by ', '', s)
-                    for s in _cleaned_splits
-                ]
-                _author_list.extend(_cleaned_splits)
-            else:
-                _author_list.append(author)
-
-        stripped_author_list = [a.strip() for a in _author_list if a]
-        preprocessed_author_list = preprocess_names(stripped_author_list)
+        preprocessed_author_list = preprocess_names(values)
 
         self._log_attribute_setter('author', preprocessed_author_list, values)
         self._authors = preprocessed_author_list
