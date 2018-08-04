@@ -165,91 +165,93 @@ class EbookAnalyzer(BaseAnalyzer):
         # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier', "XMP:Subject"
         isbn_numbers = self._extract_isbn_numbers_from_text()
         self.log.debug('Extracted {} ISBN numbers'.format(len(isbn_numbers)))
-        if isbn_numbers:
-            isbn_numbers = deduplicate_isbns(isbn_numbers)
-            isbn_numbers = filter_isbns(isbn_numbers, self._isbn_num_blacklist)
-            self.log.debug('Prepared {} ISBN numbers'.format(len(isbn_numbers)))
+        if not isbn_numbers:
+            return
 
-            # Sort the dictionaries for more deterministic behaviour.
-            # TODO: [hack] Sorting is reversed so that earlier releases, as in
-            #       lower values in the 'year' field, are processed first.
-            #       This applies only when all other fields are identical.
-            # TODO: [hack] Fix failing regression test 9017 properly!
-            for isbn_number in sorted(isbn_numbers, reverse=True):
-                self.log.debug('Processing ISBN: {!s}'.format(isbn_number))
+        isbn_numbers = deduplicate_isbns(isbn_numbers)
+        isbn_numbers = filter_isbns(isbn_numbers, self._isbn_num_blacklist)
+        self.log.debug('Prepared {} ISBN numbers'.format(len(isbn_numbers)))
 
-                metadata_dict = self._get_isbn_metadata(isbn_number)
-                if not metadata_dict:
-                    self.log.warning(
-                        'Unable to get metadata for ISBN: "{}"'.format(isbn_number)
-                    )
+        # Sort the dictionaries for more deterministic behaviour.
+        # TODO: [hack] Sorting is reversed so that earlier releases, as in
+        #       lower values in the 'year' field, are processed first.
+        #       This applies only when all other fields are identical.
+        # TODO: [hack] Fix failing regression test 9017 properly!
+        for isbn_number in sorted(isbn_numbers, reverse=True):
+            self.log.debug('Processing ISBN: {!s}'.format(isbn_number))
 
-                    # TODO: [TD0132] Improve blacklisting failed requests..
-                    # TODO: [TD0132] Prevent hammering APIs with bad request.
-                    self.log.debug('Blacklisting ISBN: "{}"'.format(isbn_number))
-                    self._isbn_num_blacklist.add(isbn_number)
-                    if self.cache:
-                        self.cache.set(CACHE_KEY_ISBNBLACKLIST,
-                                       self._isbn_num_blacklist)
-                    continue
+            metadata_dict = self._get_isbn_metadata(isbn_number)
+            if not metadata_dict:
+                self.log.warning(
+                    'Unable to get metadata for ISBN: "{}"'.format(isbn_number)
+                )
 
-                authors = metadata_dict.get('Authors')
-                language = metadata_dict.get('Language')
-                publisher = metadata_dict.get('Publisher')
-                isbn10 = metadata_dict.get('ISBN-10')
-                isbn13 = metadata_dict.get('ISBN-13')
-                title = metadata_dict.get('Title')
-                year = metadata_dict.get('Year')
-                self.log.debug('ISBN metadata dict for ISBN {}:'.format(isbn_number))
-                str_metadata_dict = '''Title     : {!s}
+                # TODO: [TD0132] Improve blacklisting failed requests..
+                # TODO: [TD0132] Prevent hammering APIs with bad request.
+                self.log.debug('Blacklisting ISBN: "{}"'.format(isbn_number))
+                self._isbn_num_blacklist.add(isbn_number)
+                if self.cache:
+                    self.cache.set(CACHE_KEY_ISBNBLACKLIST,
+                                   self._isbn_num_blacklist)
+                continue
+
+            authors = metadata_dict.get('Authors')
+            language = metadata_dict.get('Language')
+            publisher = metadata_dict.get('Publisher')
+            isbn10 = metadata_dict.get('ISBN-10')
+            isbn13 = metadata_dict.get('ISBN-13')
+            title = metadata_dict.get('Title')
+            year = metadata_dict.get('Year')
+            self.log.debug('ISBN metadata dict for ISBN {}:'.format(isbn_number))
+            str_metadata_dict = '''Title     : {!s}
 Authors   : {!s}
 Publisher : {!s}
 Year      : {!s}
 Language  : {!s}
 ISBN-10   : {!s}
 ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, isbn13)
-                for line in str_metadata_dict.splitlines():
-                    self.log.debug('metadata_dict ' + line)
+            for line in str_metadata_dict.splitlines():
+                self.log.debug('metadata_dict ' + line)
 
-                metadata = ISBNMetadata(authors, language, publisher,
-                                        isbn10, isbn13, title, year)
-                self.log.debug('ISBNMetadata object for ISBN {}'.format(isbn_number))
-                for line in metadata.as_string().splitlines():
-                    self.log.debug('ISBNMetadata ' + line)
+            metadata = ISBNMetadata(authors, language, publisher,
+                                    isbn10, isbn13, title, year)
+            self.log.debug('ISBNMetadata object for ISBN {}'.format(isbn_number))
+            for line in metadata.as_string().splitlines():
+                self.log.debug('ISBNMetadata ' + line)
 
-                # Duplicates are removed here.
-                if metadata not in self._isbn_metadata:
-                    self.log.debug('Added metadata for ISBN: {}'.format(isbn_number))
-                    self._isbn_metadata.append(metadata)
-                else:
-                    # TODO: [TD0190] Join/merge metadata "records" with missing values.
-                    # TODO: If the ISBN metadata record that is considered duplicate
-                    #       contains a field value that is missing/empty in the kept
-                    #       metadata record, copy it to the kept record before
-                    #       discarding the "duplicate" record.
-
-                    self.log.debug('Metadata for ISBN {} considered duplicate and skipped'.format(isbn_number))
-                    # print('Skipped metadata considered a duplicate:')
-                    # print_copy_pasteable_isbn_metadata('x', metadata)
-                    # print('Previously Stored metadata:')
-                    # for n, m in enumerate(self._isbn_metadata):
-                    #     print_copy_pasteable_isbn_metadata(n, m)
-
-            self.log.debug('Got {} instances of ISBN metadata'.format(
-                len(self._isbn_metadata)
-            ))
-            for n, metadata in enumerate(self._isbn_metadata):
-                for line in metadata.as_string().splitlines():
-                    self.log.debug('ISBNMetadata {} :: {!s}'.format(n, line))
-
-            if len(self._isbn_metadata) > 1:
-                # TODO: [TD0187] Fix clobbering of results
-                self.log.debug('Attempting to find most probable ISBN metadata..')
-                most_probable_isbn_metadata = self._find_most_probable_isbn_metadata()
-                if most_probable_isbn_metadata:
-                    self._add_intermediate_results_from_metadata([most_probable_isbn_metadata])
+            # Duplicates are removed here.
+            if metadata not in self._isbn_metadata:
+                self.log.debug('Added metadata for ISBN: {}'.format(isbn_number))
+                self._isbn_metadata.append(metadata)
             else:
-                self._add_intermediate_results_from_metadata(self._isbn_metadata)
+                # TODO: [TD0190] Join/merge metadata "records" with missing values.
+                # TODO: If the ISBN metadata record that is considered duplicate
+                #       contains a field value that is missing/empty in the kept
+                #       metadata record, copy it to the kept record before
+                #       discarding the "duplicate" record.
+
+                self.log.debug('Metadata for ISBN {} considered duplicate and skipped'.format(isbn_number))
+                # print('Skipped metadata considered a duplicate:')
+                # print_copy_pasteable_isbn_metadata('x', metadata)
+                # print('Previously Stored metadata:')
+                # for n, m in enumerate(self._isbn_metadata):
+                #     print_copy_pasteable_isbn_metadata(n, m)
+
+        self.log.debug('Got {} instances of ISBN metadata'.format(
+            len(self._isbn_metadata)
+        ))
+        for n, metadata in enumerate(self._isbn_metadata):
+            for line in metadata.as_string().splitlines():
+                self.log.debug('ISBNMetadata {} :: {!s}'.format(n, line))
+
+        if len(self._isbn_metadata) > 1:
+            # TODO: [TD0187] Fix clobbering of results
+            self.log.debug('Attempting to find most probable ISBN metadata..')
+            most_probable_isbn_metadata = self._find_most_probable_isbn_metadata()
+            if most_probable_isbn_metadata:
+                self._add_intermediate_results_from_metadata([most_probable_isbn_metadata])
+        else:
+            self._add_intermediate_results_from_metadata(self._isbn_metadata)
 
     def _add_intermediate_results_from_metadata(self, isbn_metadata):
         for n, metadata in enumerate(isbn_metadata):
