@@ -92,6 +92,7 @@ def strip_repeating_periods(string):
 
 def strip_bad_author_substrings(string):
     assert isinstance(string, str)
+
     s = string
     s = strip_repeating_periods(s)
     s = strip_edited_by(s)
@@ -100,20 +101,16 @@ def strip_bad_author_substrings(string):
     s = strip_author_et_al(s)
     s = strip_contributions(s)
 
-    for leading_substring in [
-        '[',
-        'by ',
-    ]:
-        if s.startswith(leading_substring):
-            leading_chars_to_strip = len(leading_substring)
-            s = s[leading_chars_to_strip:]
+    leading_trailing_substring_regexes = [
+        # Leading substrings to remove
+        r'^[\[({]',
+        r'^(written )?(by )?',
 
-    for trailing_substring in [
-        ']',
-    ]:
-        if s.endswith(trailing_substring):
-            trailing_chars_to_strip = len(trailing_substring)
-            s = s[:-trailing_chars_to_strip]
+        # Trailing substrings to remove
+        r'[\])}]$',
+    ]
+    for pattern in leading_trailing_substring_regexes:
+        s = re.sub(pattern, '', s, flags=re.IGNORECASE)
 
     return s
 

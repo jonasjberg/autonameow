@@ -1212,6 +1212,16 @@ class PreProcessNames(TestCase):
             expected=['Ludlow, David'],
             given=['edited by Ludlow, David'],
         )
+        self._assert_preprocess_names_returns(
+            expected=['Jonathan J. Burns'],
+            given_any_of=[
+                ['by Jonathan J. Burns'],
+                ['By Jonathan J. Burns'],
+                ['written by Jonathan J. Burns'],
+                ['Written by Jonathan J. Burns'],
+                ['Written By Jonathan J. Burns'],
+            ]
+        )
 
     def test_failed_cases(self):
         self._assert_preprocess_names_returns(
@@ -1254,4 +1264,41 @@ class PreProcessNames(TestCase):
         self._assert_preprocess_names_returns(
             expected=['David Astolfo'],
             given=['David Astolfo ... Technical reviewers: Mario Ferrari ...']
+        )
+
+    def test_post_refactor_leading_substring_regex(self):
+        self._assert_preprocess_names_returns(
+            expected=['Gibson Catberg'],
+            given_any_of=[
+                ['Gibson Catberg'],
+                ['(Gibson Catberg'],
+                ['[Gibson Catberg'],
+                ['{Gibson Catberg'],
+                ['(By Gibson Catberg'],
+                ['(by Gibson Catberg'],
+                ['[By Gibson Catberg'],
+                ['[by Gibson Catberg'],
+                ['{By Gibson Catberg'],
+                ['{by Gibson Catberg'],
+                ['(Written By Gibson Catberg'],
+                ['(Written by Gibson Catberg'],
+                ['(written by Gibson Catberg'],
+                ['[Written By Gibson Catberg'],
+                ['[Written by Gibson Catberg'],
+                ['[written by Gibson Catberg'],
+                ['{Written By Gibson Catberg'],
+                ['{Written by Gibson Catberg'],
+                ['{written by Gibson Catberg'],
+            ]
+        )
+
+    def test_post_refactor_trailing_substring_regex(self):
+        self._assert_preprocess_names_returns(
+            expected=['Gibson Catberg'],
+            given_any_of=[
+                ['Gibson Catberg'],
+                ['Gibson Catberg]'],
+                ['Gibson Catberg)'],
+                ['Gibson Catberg}'],
+            ]
         )
