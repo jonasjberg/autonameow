@@ -228,6 +228,10 @@ class FileContext(object):
         return user_response
 
     def _get_resolved_databundle_dict(self, placeholders, data_sources):
+        log.debug('Setting up new TemplateFieldDataResolver to get '
+                  'resolved databundle dict for {} placeholders from {} '
+                  'data sources'.format(len(placeholders), len(data_sources)))
+
         resolver = TemplateFieldDataResolver(
             fileobject=self.fileobject,
             name_template_fields=placeholders,
