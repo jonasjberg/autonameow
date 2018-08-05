@@ -117,6 +117,24 @@ def ordinal_indicator(number):
     }.get(number % 10, 'th')
 
 
+def ordinalize(number):
+    """
+    Returns the ordinal string version of a given cardinal number.
+
+    E.G. returns '1st' given the number 1.
+
+    Args:
+        number: Cardinal number as a type that can be converted to type int.
+
+    Returns:
+        The given number as a Unicode string ordinal.
+
+    Raises:
+        ValueError: The given number could not be converted to type int.
+    """
+    return '{!s}{!s}'.format(number, ordinal_indicator(number))
+
+
 @lru_cache()
 def compiled_ordinal_regexes():
     re_ordinals = dict()

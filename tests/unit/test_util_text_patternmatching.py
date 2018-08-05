@@ -24,7 +24,7 @@ from util.text.patternmatching import compiled_ordinal_regexes
 from util.text.patternmatching import find_and_extract_edition
 from util.text.patternmatching import find_publisher_in_copyright_notice
 from util.text.patternmatching import ordinal_indicator
-# from util.text.patternmatching import ordinalize
+from util.text.patternmatching import ordinalize
 
 
 class TestOrdinalIndicator(TestCase):
@@ -58,6 +58,36 @@ class TestOrdinalIndicator(TestCase):
         self._assert_ordinal_indicator('st', 1001)
         self._assert_ordinal_indicator('nd', 1002)
         self._assert_ordinal_indicator('rd', 1003)
+
+
+class TestOrdinalize(TestCase):
+    def test_returns_expected(self):
+        for given, expect in [
+            (0, '0th'),
+            (1, '1st'),
+            (2, '2nd'),
+            (3, '3rd'),
+            (4, '4th'),
+            (5, '5th'),
+            (6, '6th'),
+            (7, '7th'),
+            (33, '33rd'),
+            (1002, '1002nd'),
+            (1003, '1003rd'),
+            (-0, '0th'),
+            (-1, '-1st'),
+            (-2, '-2nd'),
+            (-3, '-3rd'),
+            (-4, '-4th'),
+            (-5, '-5th'),
+            (-6, '-6th'),
+            (-7, '-7th'),
+            (-33, '-33rd'),
+            (-1002, '-1002nd'),
+            (-1003, '-1003rd'),
+        ]:
+            with self.subTest(given=given, expect=expect):
+                self.assertEqual(expect, ordinalize(given))
 
 
 class TestCompiledOrdinalRegexes(TestCase):
