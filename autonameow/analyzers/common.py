@@ -72,10 +72,10 @@ class BaseAnalyzer(ProviderMixin):
         self.fileobject = fileobject
         self.request_data = request_data_callback
 
-        self.log = logging.getLogger(
-            '{!s}.{!s}'.format(__name__, self.__module__)
-        )
-
+        # Add prefix to the logger name so that log messages emitted by
+        # inheriting classes will use E.G. 'analyzers.analyze_filename'
+        # instead of 'analyzers.common.analyze_filename', used previously.
+        self.log = logging.getLogger('{}.{}'.format('analyzers', self.__module__))
         self._intermediate_results = dict()
 
     def run(self):
