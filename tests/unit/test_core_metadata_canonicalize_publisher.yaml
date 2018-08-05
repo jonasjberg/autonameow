@@ -1057,6 +1057,13 @@ JonesBartlett:
 - www.jbpub.com
 - jbpub.com
 
+KendallHunt:
+- KendallHunt
+- KendallHunt Publishing Company
+- KendallHunt publishing company
+- Kendall Hunt Publishing Company
+- Kendall Hunt publishing company
+
 LaurenceKing:
 - LaurenceKing
 - Laurence King
@@ -1107,6 +1114,12 @@ LuLu:
 - www.lulu.com
 - lulu.com
 - Lulu.com
+
+TMAoA:
+- MAA
+- TMAoA
+- Mathematical Association of America
+- The Mathematical Association of America
 
 Macmillan:
 - Macmillan
@@ -1161,6 +1174,7 @@ McGrawHill:
 - McGraw Hill Professional
 - McGraw Hill/Irwin
 - McGraw Hill/Osborne
+- McGraw HillOsborne
 - McGraw-Hill
 - Mcgraw-Hill
 - McGraw-Hill Education
@@ -1170,12 +1184,14 @@ McGrawHill:
 - McGraw-Hill/Irwin
 - McGraw-Hill/Osborne
 - McGraw-Hill/Osborne
+- McGraw-HillOsborne
 - McGrawHill Education
 - McGrawHill Education TAB
 - McGrawHill Irwin
 - McGrawHill Osborne
 - McGrawHill/Irwin
 - McGrawHill/Osborne
+- McGrawHillOsborne
 - Mc Graw Hill
 - Osborne
 - Osborne McGraw-Hill
@@ -1560,12 +1576,20 @@ PremierPress:
 - premierpress.com
 
 PrenticeHall:
+- PrenticeHall
 - Pearson Prentice Hall
 - pearson prentice hall
 - Prentice Hall
 - PRENTICE HALL
 - Prentice Hall PTR
-- PrenticeHall
+- Prentice-Hall Inc
+- Prentice-Hall Inc.
+- Prentice-Hall Incorporated
+- Prentice-Hall, Inc
+- Prentice-Hall, Inc.
+- PRENTICE-HALL, INC.
+- PRENTICE-HALL, INC., Englewood Cliffs, New Jersey
+- Prentice-Hall, Incorporated
 - https://www.prenticehall.com/
 - http://www.prenticehall.com/
 - www.prenticehall.com/

@@ -430,6 +430,10 @@ JonesBartlett:
     - Jones (&|and) Bartlett
     - (www\.)?jbpub\.com
 
+KendallHunt:
+    match_any_regex_ignorecase:
+    - Kendall ?Hunt
+
 LaurenceKing:
     match_any_regex_ignorecase:
     - Laurence King
@@ -468,6 +472,12 @@ NebraskaUP:
 NovaScience:
     match_any_regex_ignorecase:
     - Nova Science
+
+TMAoA:
+    match_any_literal:
+    - MAA
+    - Mathematical Association of America
+    - The Mathematical Association of America
 
 Macmillan:
     match_any_regex_ignorecase:
@@ -634,7 +644,7 @@ PremierPress:
 
 PrenticeHall:
     match_any_regex_ignorecase:
-    - Prentice Hall
+    - Prentice[ -]Hall
     - (www\.)?prenticehall\.com
 
 PrincetonUP:
