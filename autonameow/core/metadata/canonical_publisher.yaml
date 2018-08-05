@@ -48,7 +48,7 @@ AKPeters:
 
 Apress:
     match_any_regex_ignorecase:
-    - Apress
+    - ^apress
     - (www\.)?apress\.com
     match_any_literal:
     - Appress
@@ -240,6 +240,10 @@ DiplomicaVerlag:
     match_any_regex_ignorecase:
     - Diplomica Verlag
 
+DSharpMedia:
+    match_any_literal:
+    - D# Media
+
 Elsevier:
     match_any_regex_ignorecase:
     - Elsevier..?(.?AP|Morgan Kaufmann|Newnes)
@@ -268,6 +272,10 @@ FocalPress:
 FranklinBeedle:
     match_any_regex_ignorecase:
     - Franklin,? Beedle,? (&|and) Associates
+
+FriendsOfED:
+    match_any_regex_ignorecase:
+    - ^friends of ed(, an apress company)?
 
 FuturePub:
     match_any_regex_ignorecase:
@@ -342,6 +350,10 @@ HolyMacroBooks:
 HoughtonMifflin:
     match_any_literal:
     - Houghton Mifflin
+
+HOWBooks:
+    match_any_literal:
+    - HOW Books
 
 HunanCartographic:
     match_any_regex_ignorecase:
