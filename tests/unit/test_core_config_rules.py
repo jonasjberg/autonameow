@@ -495,11 +495,19 @@ class TestGetValidRuleCondition(TestCase):
 
 
 class TestIsValidSourceSpecification(TestCase):
-    def test_returns_false_given_none_or_empty_source(self):
-        for given in [None, '']:
+    def _assert_valid(self, given):
+        with self.subTest(given=given):
+            self.assertTrue(is_valid_source(given))
+
+    def _assert_invalid(self, given):
+        with self.subTest(given=given):
             self.assertFalse(is_valid_source(given))
 
-    def test_returns_false_given_invalid_source(self):
+    def test_returns_false_given_none_or_empty_source(self):
+        for given in [None, '']:
+            self._assert_invalid(given)
+
+    def test_returns_false_given_invalid_sources(self):
         for given in [
             ' ',
             'not.a.valid.source.surely',
@@ -507,7 +515,19 @@ class TestIsValidSourceSpecification(TestCase):
             'foo.bar',
             'foo.bar.baz.',
         ]:
-            self.assertFalse(is_valid_source(given))
+            self._assert_invalid(given)
+
+    def test_returns_false_given_pre_version_v0_5_5_sources(self):
+        # The analyzer 'FiletagsAnalyzer' was reworked into extractor
+        # 'FiletagsExtractor' in commit de9b6b34cd6255dfc9c1d945f12d612e89
+        for given in [
+            'analyzer.filesystem.filetags.datetime',
+            'analyzer.filesystem.filetags.description',
+            'analyzer.filesystem.filetags.extension',
+            'analyzer.filesystem.filetags.follows_filetags_convention',
+            'analyzer.filesystem.filetags.tags',
+        ]:
+            self._assert_invalid(given)
 
     def test_returns_true_given_valid_source(self):
         for given_str in [
@@ -518,8 +538,9 @@ class TestIsValidSourceSpecification(TestCase):
             # Extractor sources
             uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
             uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
-            uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+            uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            uuconst.MEOWURI_FS_FILETAGS_TAGS,
         ]:
             with self.subTest(given=given_str):
                 given = uu.as_meowuri(given_str)
-                self.assertTrue(is_valid_source(given))
+                self._assert_valid(given)
