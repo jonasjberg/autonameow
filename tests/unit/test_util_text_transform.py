@@ -43,6 +43,7 @@ from util.text.transform import remove_nonbreaking_spaces
 from util.text.transform import remove_zerowidth_spaces
 from util.text.transform import simplify_unicode
 from util.text.transform import strip_single_space_lines
+from util.text.transform import transliterascii_unicode
 from util.text.transform import truncate_text
 from util.text.transform import urldecode
 from util.text.transform import _strip_accents_homerolled
@@ -918,6 +919,38 @@ class TestSimplifyUnicode(TestCase):
     def test_strips_accents(self):
         self._assert_strips(given='Mère, Françoise, noël, 889',
                             expect='Mere, Francoise, noel, 889')
+
+
+class TestTransliterasciiUnicode(TestCase):
+    def _assert_returns(self, expect, given):
+        actual = transliterascii_unicode(given)
+        self.assertEqual(expect, actual)
+
+    def _assert_unchanged(self, given):
+        self._assert_returns(given, given)
+
+    def test_returns_simple_unicode_strings_as_is(self):
+        self._assert_unchanged('a')
+        self._assert_unchanged('foo 123 bar _-')
+
+    def test_strips_accents_from_swedish_characters(self):
+        self._assert_returns('aaAAaa', 'ååÅÅåå')
+        self._assert_returns('aaAAaa', 'ääÄÄää')
+        self._assert_returns('ooOOoo', 'ööÖÖöö')
+
+    def test_strips_accent(self):
+        self._assert_returns('c', given='ç')
+        self._assert_returns('Foocalbar', given='Fooçalbar')
+        self._assert_returns('Montreal', given='Montréal')
+        self._assert_returns(' uber, 12.89', given=' über, 12.89')
+
+    def test_strips_accents(self):
+        self._assert_returns('Mere, Francoise, noel, 889',
+                             'Mère, Françoise, noël, 889')
+
+    def test_error_handling(self):
+        self._assert_returns('', '\x9F\x93\x83')
+        self._assert_returns('foo', 'foo\x9F\x93\x83')
 
 
 class TestStripAccentsHomeRolled(TestCase):

@@ -337,6 +337,24 @@ def simplify_unicode(text):
     return _strip_accents_homerolled(text)
 
 
+def transliterascii_unicode(text):
+    """
+    Unicode text normalization.
+
+    Possibly improved, alternative implementation of the "strip accents"
+    functionality.  That is, simplify Unicode text by removing accents and
+    normalizing characters to a much smaller range of possible characters.
+    """
+    assert isinstance(text, str)
+
+    normalized = unicodedata.normalize('NFKD', text)
+
+    # Round-trip "str -> bytes -> string"
+    bytes_text = normalized.encode('ascii', errors='ignore')
+    # NOTE: Whatever junk that is not handled is left as-is and is returned.
+    return bytes_text.decode('ascii', errors='ignore')
+
+
 def _strip_accents_homerolled(string):
     nkfd_form = unicodedata.normalize('NFKD', string)
     return ''.join([c for c in nkfd_form if not unicodedata.combining(c)])
