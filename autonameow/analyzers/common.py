@@ -30,9 +30,6 @@ from util import mimemagic
 from util import sanity
 
 
-log = logging.getLogger(__name__)
-
-
 class AnalyzerError(AutonameowException):
     """Irrecoverable error occurred when running a "analyzer" class."""
 
@@ -123,15 +120,15 @@ class BaseAnalyzer(ProviderMixin):
         # assert meowuri_leaf not in self._intermediate_results
         if meowuri_leaf in self._intermediate_results:
             # TODO: [TD0187] Fix clobbering of results
-            log.critical('[TD0187] Clobbered value with MeowURI leaf {!s}: "{!s}"'.format(meowuri_leaf, data))
+            self.log.critical('[TD0187] Clobbered value with MeowURI leaf {!s}: "{!s}"'.format(meowuri_leaf, data))
         self._intermediate_results[meowuri_leaf] = data
 
     def _wrap_results(self):
         try:
             _metainfo = self.metainfo()
         except NotImplementedError as e:
-            log.critical('Unable to get meta info! Aborting analyzer "{!s}":'
-                         ' {!s}'.format(self, e))
+            self.log.critical('Unable to get meta info! Aborting analyzer "{!s}":'
+                              ' {!s}'.format(self, e))
             raise AnalyzerError(e)
 
         # TODO: [TD0034] Filter out known bad data.
