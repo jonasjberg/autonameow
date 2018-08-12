@@ -142,6 +142,8 @@ BAD_EXIFTOOL_METADATA = {
         'Profile_creator',
         'Profile_creator_version',
         'ProfileCreator',
+        'User',
+        'user',
         # TODO: [TD0192] Detect and extract editions from titles
         'First Edition',
         'Second Edition',
