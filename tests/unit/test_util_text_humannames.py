@@ -1274,6 +1274,7 @@ class PreProcessNames(TestCase):
                 ['(Gibson Catberg'],
                 ['[Gibson Catberg'],
                 ['{Gibson Catberg'],
+                [';Gibson Catberg'],
                 ['(By Gibson Catberg'],
                 ['(by Gibson Catberg'],
                 ['[By Gibson Catberg'],
@@ -1300,5 +1301,26 @@ class PreProcessNames(TestCase):
                 ['Gibson Catberg]'],
                 ['Gibson Catberg)'],
                 ['Gibson Catberg}'],
+                ['Gibson Catberg;'],
+            ]
+        )
+
+    def test_names_separated_by_semicolons_in_single_string(self):
+        self._assert_preprocess_names_returns(
+            expected=['Kubasiek, John R.', 'Morrissey, Steven.', 'Basilone, John.'],
+            given_any_of=[
+                ['Kubasiek, John R.; Morrissey, Steven.; Basilone, John.'],
+                ['Kubasiek, John R.;Morrissey, Steven.;Basilone, John.'],
+                ['Kubasiek, John R. ;Morrissey, Steven. ;Basilone, John.'],
+                ['Kubasiek, John R.;Morrissey, Steven.;Basilone, John.'],
+            ]
+        )
+
+    def test_names_separated_by_semicolons_in_separate_strings(self):
+        self._assert_preprocess_names_returns(
+            expected=['Kubasiek, John R.', 'Morrissey, Steven.', 'Basilone, John.'],
+            given_any_of=[
+                ['Kubasiek, John R.;', 'Morrissey, Steven.;', 'Basilone, John.'],
+                ['Kubasiek, John R.', ';Morrissey, Steven.', ';Basilone, John.'],
             ]
         )

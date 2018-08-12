@@ -103,11 +103,11 @@ def strip_bad_author_substrings(string):
 
     leading_trailing_substring_regexes = [
         # Leading substrings to remove
-        r'^[\[({]',
+        r'^[\[({;]',
         r'^(written )?(by )?',
 
         # Trailing substrings to remove
-        r'[\])}]$',
+        r'[\])};]$',
     ]
     for pattern in leading_trailing_substring_regexes:
         s = re.sub(pattern, '', s, flags=re.IGNORECASE)
