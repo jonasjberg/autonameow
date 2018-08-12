@@ -316,7 +316,7 @@ QUECHUA:
 
 RHAETOROMANIC:
     match_any_regex_ignorecase:
-    - RHAETO-?ROMANIC
+    - rhaeto-?romanic
     match_any_literal:
     # ISO 639-1 standard language codes
     - rm
