@@ -24,6 +24,7 @@ from extractors import ExtractorError
 from extractors.metadata.base import BaseMetadataExtractor
 from thirdparty import pyexiftool
 from util import process
+from util.text.humannames import preprocess_names
 
 
 IGNORED_EXIFTOOL_TAGNAMES = frozenset([
@@ -331,6 +332,10 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
             else:
                 coerced_metadata[field] = canonicalizer(_value_or_values)
 
+            self.log.debug('Canonicalized {!s} value :: {!s} -> {!s}'.format(
+                field, _value_or_values, coerced_metadata[field]
+            ))
+
         for field, value in raw_metadata.items():
             coerced = self.coerce_field_value(field, value)
             # Empty strings are being passed through. But if we test with
@@ -341,12 +346,23 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
                 if filtered is not None:
                     # TODO: [hack][cleanup][TD0189] Do this properly!
                     # TODO: [TD0189] Canonicalize metadata values by direct replacements.
-                    if 'Producer' in field or 'Creator' in field:
+                    if 'Producer' in field or 'Creator' in field or 'CreatorTool' in field:
+                        # TODO: 'XMP:Producer' could be either "creatortool" or human names ..
+                        # TODO: Look at 'XMP:CreatorId' or 'XMP:CreatorRole' to
+                        #       determine possible contents of the 'XMP:Creator' field.
+                        #       Could be "creatortool", publisher, human names, etc.
                         _canonicalize(field, filtered, canonicalize_creatortool)
                     elif ':Language' in field:
                         _canonicalize(field, filtered, canonicalize_language)
                     elif 'Publisher' in field:
                         _canonicalize(field, filtered, canonicalize_publisher)
+                    elif 'Author' in field:
+                        self.log.debug(
+                            'Attempting preprocessing of assumed human names '
+                            'in field {!s} :: "{!s}"'.format(field, filtered)
+                        )
+                        assert isinstance(filtered, list)
+                        coerced_metadata[field] = preprocess_names(filtered)
                     else:
                         coerced_metadata[field] = filtered
 
