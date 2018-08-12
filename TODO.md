@@ -103,6 +103,20 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0201]` __Implement "unpacking" field values__  
+    Add proper system to detect and process field values that actually contain
+    multiple separate values potentially belonging to different fields.
+
+    Example:
+    ```
+      URI:  Ebook Metadata Title
+    VALUE:  'Practical Kibble Sight With CatVision / Gibson Sjöberg, ... [Et Al.]'
+    Should unpack to unpacked = {
+        'author': 'Gibson Sjöberg',
+        'title': 'Practical Kibble Sight With CatVision',
+    }
+    ```
+
 * `[TD0200]` __Improve system for finding probable file extensions.__  
     The system for finding a "probable" extension should accept additional
     input data in order to make better decisions about certain files.

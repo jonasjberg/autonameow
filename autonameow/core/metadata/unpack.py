@@ -90,6 +90,17 @@ def unpack_field_value(todo):
     pass
 
 
+def unpack_title(value):
+    # TODO: [TD0201] Implement "unpacking" field values.
+    # TODO: [TD0201] Add some functionality for describing a "schema".
+    # Probably needs to return some kind of entity more sophisticated than
+    # tuples of simple types like strings, etc., to provide more information
+    # back to the caller about which fields the result values should be
+    # assigned to, when maybe adding this "unpacked" information back to the
+    # originating record of the incoming value.
+    return split_title_subtitle(value)
+
+
 def split_title_subtitle(full_title):
     # TODO: Maybe allow multiple subtitles, stored in a list?
     assert isinstance(full_title, str)
