@@ -22,6 +22,7 @@ import re
 
 # TODO: [TD0191] Detect and extract subtitles from titles
 # TODO: [TD0192] Detect and extract editions from titles
+# Use lexing in combination with something like a "blackboard pattern"?
 
 
 # TODO: Handle incorrect metadata with authors embedded in title;
@@ -77,6 +78,13 @@ def unpack_field_value(todo):
     # Should unpack to unpacked = {
     #     'author': 'Gibson Sjöberg',
     #     'title': 'Practical Kibble Sight With CatVision',
+    # }
+    #
+    #   URI:  extractor.metadata.exiftool.XMP:Rights
+    # VALUE:  '© Text 2014 Cats Coates and Fuhr Warms'
+    # Should unpack to unpacked = {
+    #     'author': ['Cats Coates', 'Fuhr Warms']',
+    #     'date_created': '2014',
     # }
     #
     pass
