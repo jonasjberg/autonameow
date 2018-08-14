@@ -225,7 +225,7 @@ class TerminalReporter(object):
             _println(colorized_message)
             _println(formatted_description)
         else:
-            _print('{:30.30s} {!s} '.format(shortname, formatted_description))
+            _print('{:28.28s} {!s} '.format(shortname, formatted_description))
 
     def msg_test_skipping(self, shortname, description):
         formatted_description = self._format_description(description)
@@ -237,25 +237,47 @@ class TerminalReporter(object):
             _println(colorized_message)
             _println(formatted_description)
         else:
-            _print('{:30.30s} {!s} '.format(shortname, formatted_description))
+            _print('{:28.28s} {!s} '.format(shortname, formatted_description))
 
-    def msg_testsuite_runtime(self, elapsed_time, captured_time):
+    def msg_testsuite_runtime(self, elapsed_time, captured_time, time_delta_ms=None):
         if captured_time:
-            str_captured = '{:.6f}s)'.format(captured_time)
+            str_captured = '{:.3f}s)'.format(captured_time)
         else:
             str_captured = 'N/A)'
 
         if elapsed_time:
-            str_elapsed = '{:.6f}s'.format(elapsed_time)
+            str_elapsed = '{:.3f}s'.format(elapsed_time)
         else:
             str_elapsed = 'N/A'
 
-        str_time_1 = '{:10.10s}'.format(str_elapsed)
-        str_time_2 = '{:10.10s}'.format(str_captured)
-        if self.verbose:
-            _println(' ' * 10 + 'Runtime: {} (captured {}'.format(str_time_1, str_time_2))
+        if time_delta_ms is not None:
+            assert isinstance(time_delta_ms, float)
+
+            # Positive time delta means this run was slower.
+            if time_delta_ms > 0:
+                time_delta_color = 'RED'
+            else:
+                time_delta_color = 'GREEN'
+
+            formatted_time_delta = _format_ms_time_delta(time_delta_ms)
+            if abs(time_delta_ms) > 50:
+                # Huge difference, highlight color to stand out.
+                str_delta = cli.colorize(formatted_time_delta, fore=time_delta_color, style='BRIGHT')
+            elif abs(time_delta_ms) > 25:
+                # Noticeably different, use normal color.
+                str_delta = cli.colorize(formatted_time_delta, fore=time_delta_color)
+            else:
+                str_delta = cli.colorize(formatted_time_delta, fore=time_delta_color, style='DIM')
         else:
-            _println('  {} ({}'.format(str_time_1, str_time_2))
+            str_delta = cli.colorize('   N/A', style='DIM')
+
+        str_time_1 = '{:6.6s}'.format(str_elapsed)
+        str_time_2 = '{:7.7s}'.format(str_captured)
+        str_time_3 = '{:>s}'.format(str_delta)
+        if self.verbose:
+            _println(' ' * 10 + 'Runtime: {} (captured {} Delta: {}'.format(str_time_1, str_time_2, str_time_3))
+        else:
+            _println('  {} ({} {}'.format(str_time_1, str_time_2, str_time_3))
 
     def msg_captured_exception(self, exception_info):
         assert isinstance(exception_info, dict)
@@ -283,6 +305,23 @@ class TerminalReporter(object):
     def msg_captured_stdout(stdout):
         _println('\nCaptured stdout:')
         _println(stdout)
+
+
+def _format_ms_time_delta(time_delta):
+    time_delta = float(time_delta)
+
+    if abs(time_delta) >= 1000:
+        # Above or equal to 1 second
+        str_delta = '{:.2f} s'.format(time_delta / 1000)
+    else:
+        # Milliseconds
+        str_delta = '{:.2f}ms'.format(time_delta)
+
+    if time_delta > 0:
+        str_delta = '+' + str_delta
+
+    result = '{0: >9}'.format(str(str_delta))
+    return result
 
 
 class RegressionTestSuite(object):

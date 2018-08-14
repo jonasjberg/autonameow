@@ -187,6 +187,38 @@ def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
     return persistence_mechanism
 
 
+def write_captured_runtime(testsuite, runtime):
+    # TODO: [hack] Refactor ..
+    assert isinstance(runtime, float)
+    persistent_storage = _get_persistence()
+    if not persistent_storage:
+        return
+
+    try:
+        captured_runtimes = persistent_storage.get('captured_runtimes')
+    except KeyError:
+        pass
+    if not captured_runtimes:
+        return
+
+    captured_runtimes[testsuite] = runtime
+    persistent_storage.set('captured_runtimes', captured_runtimes)
+
+
+def load_captured_runtime(testsuite):
+    # TODO: [hack] Refactor ..
+    persistent_storage = _get_persistence()
+    if persistent_storage:
+        try:
+            captured_runtimes = persistent_storage.get('captured_runtimes')
+        except KeyError:
+            pass
+        else:
+            if captured_runtimes:
+                assert isinstance(captured_runtimes, dict)
+                return captured_runtimes.get(testsuite)
+
+
 def load_testsuite_history(testsuite, history):
     """
     Returns a list of historical test results for a given testsuite.
@@ -331,7 +363,12 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
             testsuite_history = load_testsuite_history(testsuite, history)
             assert isinstance(testsuite_history, list)
             reporter.msg_testsuite_history(testsuite_history)
-            reporter.msg_testsuite_runtime(elapsed_time, results.captured_runtime)
+
+            captured_runtime = results.captured_runtime
+            previous_runtime = load_captured_runtime(testsuite)
+            write_captured_runtime(testsuite, captured_runtime)
+            time_delta_ms = (captured_runtime - previous_runtime) * 1000
+            reporter.msg_testsuite_runtime(elapsed_time, captured_runtime, time_delta_ms)
 
             if print_stderr and captured_stderr:
                 reporter.msg_captured_stderr(captured_stderr)

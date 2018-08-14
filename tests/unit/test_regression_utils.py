@@ -43,6 +43,7 @@ from regression.utils import RegressionTestSuite
 from regression.utils import RunResultsHistory
 from regression.utils import _commandline_args_for_testsuite
 from regression.utils import _expand_input_paths_variables
+from regression.utils import _format_ms_time_delta
 from regression.utils import _testsuite_abspath
 from util import encoding as enc
 
@@ -127,6 +128,46 @@ class TestRegressionTestSuite(TestCase):
         )
         self.assertGreater(b, a)
         self.assertLess(a, b)
+
+
+class TestFormatMsTimeDelta(TestCase):
+    def _assert_formatted(self, expect, given):
+        actual = _format_ms_time_delta(given)
+        with self.subTest(given=given, expect=expect):
+            self.assertEqual(expect, actual)
+
+    def test_returns_expected_positive_milliseconds(self):
+        self._assert_formatted('  +1.00ms', 1.0)
+        self._assert_formatted('  +1.20ms', 1.2)
+        self._assert_formatted('  +1.03ms', 1.03)
+        self._assert_formatted('  +6.46ms', 6.461234)
+        self._assert_formatted(' +64.61ms', 64.61234)
+
+    def test_returns_expected_positive_seconds(self):
+        self._assert_formatted('  +6.46 s', 6461.234)
+        self._assert_formatted(' +16.46 s', 16461.234)
+
+    def test_returns_expected_positive_seconds_hundreds(self):
+        self._assert_formatted('+164.61 s', 164612.34)
+        self._assert_formatted('+164.61 s', 164612.00)
+        self._assert_formatted('+164.61 s', 164610.00)
+        self._assert_formatted('+164.60 s', 164600.00)
+        self._assert_formatted('+164.00 s', 164000.00)
+
+    def test_returns_expected_negative_milliseconds(self):
+        self._assert_formatted('  -6.46ms', -6.461234)
+        self._assert_formatted(' -64.61ms', -64.61234)
+
+    def test_returns_expected_negative_seconds(self):
+        self._assert_formatted('  -6.46 s', -6461.234)
+        self._assert_formatted(' -16.46 s', -16461.234)
+
+    def test_returns_expected_negative_seconds_hundreds(self):
+        self._assert_formatted('-164.61 s', -164612.34)
+        self._assert_formatted('-164.61 s', -164612.00)
+        self._assert_formatted('-164.61 s', -164610.00)
+        self._assert_formatted('-164.60 s', -164600.00)
+        self._assert_formatted('-164.00 s', -164000.00)
 
 
 class TestRegressionTestLoaderModifyOptionsInputPaths(TestCase):
