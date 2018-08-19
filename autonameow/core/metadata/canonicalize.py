@@ -22,8 +22,10 @@ import os
 import re
 from collections import defaultdict
 
+from core import exceptions
 from util import coercers
 from util import disk
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -258,7 +260,15 @@ class CanonicalizerConfigParser(object):
 
 def build_string_value_canonicalizer(yaml_config_filename):
     yaml_config_filepath = _relative_absolute_path(yaml_config_filename)
-    config_data = disk.load_yaml_file(yaml_config_filepath)
+    try:
+        config_data = disk.load_yaml_file(yaml_config_filepath)
+    except (exceptions.FilesystemError, disk.YamlLoadError) as e:
+        # TODO: [TD0164] Fix mismatched throwing/catching of exceptions ..
+        log.critical(
+            'Error while loading string canonicalizer YAML file "{!s}" :: {!s}',
+            enc.displayable_path(yaml_config_filepath), str(e)
+        )
+        return None
 
     parser = CanonicalizerConfigParser(config_data, yaml_config_filepath)
     literal_lookup_dict = parser.parsed_literal_lookup
