@@ -366,7 +366,6 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
 
             captured_runtime = results.captured_runtime
             assert captured_runtime is not None
-            write_captured_runtime(testsuite, captured_runtime)
 
             previous_runtime = load_captured_runtime(testsuite)
             if previous_runtime is not None:
@@ -374,6 +373,9 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
             else:
                 time_delta_ms = None
             reporter.msg_testsuite_runtime(elapsed_time, captured_runtime, time_delta_ms)
+
+            # TODO: [hack] Refactor .. Clean up persistence.
+            write_captured_runtime(testsuite, captured_runtime)
 
             if print_stderr and captured_stderr:
                 reporter.msg_captured_stderr(captured_stderr)
