@@ -20,7 +20,6 @@
 import re
 
 from core.namebuilder.fields import nametemplatefield_class_from_string
-from util import sanity
 
 
 class NameTemplate(object):
@@ -61,7 +60,7 @@ def template_placeholder_substrings(format_string):
     Returns:
         Any name template placeholder fields as a list of Unicode strings.
     """
-    sanity.check_internal_string(format_string)
+    assert isinstance(format_string, str)
     if not format_string.strip():
         return list()
 
