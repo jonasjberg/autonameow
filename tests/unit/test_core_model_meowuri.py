@@ -30,6 +30,7 @@ from core.model.meowuri import is_one_meowuri_part
 from core.model.meowuri import meowuri_list
 from core.model.meowuri import MeowURILeaf
 from core.model.meowuri import MeowURIChild
+from core.model.meowuri import MeowURINode
 from core.model.meowuri import MeowURIParser
 from core.model.meowuri import MeowURIRoot
 
@@ -975,6 +976,23 @@ class TestMeowURIParser(TestCase):
         self.assertEqual(str(b[1][0]), 'metadata')
         self.assertEqual(str(b[1][1]), 'exiftool')
         self.assertEqual(str(b[2]), 'File:MIMEType')
+
+
+class TestMeowURINode(TestCase):
+    def test_instantiated_class_is_not_none(self):
+        node = MeowURINode(None)
+        self.assertIsNotNone(node)
+
+    def test_new_instance_has_expected_name(self):
+        node = MeowURINode('foo')
+        self.assertEqual('foo', node.name)
+
+    def test_make_absolute_traverses_all_parents(self):
+        a = MeowURINode('A')
+        b = MeowURINode('B', parent=a)
+        c = MeowURINode('C', parent=b)
+        absolute_c = c.make_absolute()
+        self.assertEqual('A.B.C', absolute_c)
 
 
 class TestRoundtripsFromStringToMeowURIToString(TestCase):

@@ -235,6 +235,28 @@ class MeowURI(object):
         return '<{}({!s})>'.format(self.__class__.__name__, self)
 
 
+class MeowURINode(object):
+    # TODO: [cleanup] Currently unused!
+    def __init__(self, name, parent=None):
+        self.name = name
+        self.parent = parent
+        self.children = list()
+
+    def _get_self_and_all_parents(self):
+        traversed_nodes = [self]
+        node = self
+        while node.parent is not None:
+            node = node.parent
+            traversed_nodes.append(node)
+
+        traversed_nodes.reverse()
+        return traversed_nodes
+
+    def make_absolute(self):
+        resolved_nodes = self._get_self_and_all_parents()
+        return C.MEOWURI_SEPARATOR.join([n.name for n in resolved_nodes])
+
+
 class MeowURIChild(object):
     def __init__(self, raw_value):
         str_value = coercers.force_string(raw_value)
