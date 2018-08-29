@@ -190,6 +190,7 @@ def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
 def write_captured_runtime(testsuite, runtime):
     # TODO: [hack] Refactor ..
     assert isinstance(runtime, float)
+
     persistent_storage = _get_persistence()
     if not persistent_storage:
         return
@@ -197,10 +198,9 @@ def write_captured_runtime(testsuite, runtime):
     try:
         captured_runtimes = persistent_storage.get('captured_runtimes')
     except KeyError:
-        pass
-    if not captured_runtimes:
-        return
+        captured_runtimes = dict()
 
+    assert isinstance(captured_runtimes, dict)
     captured_runtimes[testsuite] = runtime
     persistent_storage.set('captured_runtimes', captured_runtimes)
 
