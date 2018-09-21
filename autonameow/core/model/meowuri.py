@@ -55,7 +55,7 @@ class MeowURIParser(object):
                 )
 
             if is_meowuri_parts(arg):
-                # Split the "meowURI" by periods to a list of strings.
+                # Split the "MeowURI" by periods to a list of strings.
                 parts_list = meowuri_list(arg)
                 raw_parts.extend(parts_list)
             elif is_one_meowuri_part(arg):
@@ -357,7 +357,7 @@ def meowuri_list(meowuri_string, sep=str(C.MEOWURI_SEPARATOR)):
     """
     Splits a "MeowURI" string with parts separated by 'sep' into a list.
 
-    Example meowURI:    'extractor.metadata.exiftool.createdate'
+    Example MeowURI:    'extractor.metadata.exiftool.createdate'
     Resulting output:   ['extractor', 'metadata', 'exiftool', 'createdate']
 
     Args:

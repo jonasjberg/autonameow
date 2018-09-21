@@ -47,14 +47,14 @@ class ConfigFieldParser(object):
 
     The field parser classes each handle different types of "keys" in the
     "key-value pairs" that make up configuration entries.
-    The "key" is a "meowURI" that represent a location or provider of some data.
+    The "key" is a "MeowURI" that represent a location or provider of some data.
     The "value" is some kind of expression.
 
-    The "meowURI" (key) determines which parser class is to be used by
-    matching the "meowURI" against class variables 'APPLIES_TO_MEOWURIS'.
+    The "MeowURI" (key) determines which parser class is to be used by
+    matching the "MeowURI" against class variables 'APPLIES_TO_MEOWURIS'.
     This is handled with the 'eval_meowuri_glob' function, which supports
     "globs"/wildcards. Parser classes whose 'APPLIES_TO_MEOWURIS' attribute
-    evaluates True for a given "meowURI" is used to parse the associated value.
+    evaluates True for a given "MeowURI" is used to parse the associated value.
 
     * The 'validate' methods
       The 'Configuration' class uses the field parser classes primarily for
@@ -444,14 +444,14 @@ def get_instantiated_field_parsers():
 
 def suitable_field_parser_for(meowuri):
     """
-    Returns field parser instances that can handle the given "meowURI".
+    Returns field parser instances that can handle the given "MeowURI".
 
     Args:
         meowuri: Resource identifier to match against a RuleParser class,
                  as an instance of 'MeowURI'.
 
     Returns:
-        A list of instantiated field parsers suited for the given "meowURI".
+        A list of instantiated field parsers suited for the given "MeowURI".
     """
     log.debug('suitable_field_parser_for("{!s}")'.format(meowuri))
     sanity.check_isinstance_meowuri(meowuri)

@@ -84,7 +84,7 @@ class FilesystemError(AutonameowException):
 
 
 class InvalidMeowURIError(ConfigError):
-    """An error caused by an invalid "meowURI"."""
+    """An error caused by an invalid "MeowURI"."""
 
 
 class NameTemplateSyntaxError(ConfigError):
