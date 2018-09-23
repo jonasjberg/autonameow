@@ -46,8 +46,10 @@ def _get_rule(*args, **kwargs):
 
 MOCK_CONDITIONS_A = ['a']
 MOCK_CONDITIONS_B = ['b']
+MOCK_CONDITIONS_C = ['c', 'd']
 MOCK_DATA_SOURCES_A = {'a': 'foo'}
 MOCK_DATA_SOURCES_B = {'b': 'bar'}
+MOCK_DATA_SOURCES_C = {'c': 'bar', 'd': 'baz'}
 
 
 class TestRule(TestCase):
@@ -206,6 +208,39 @@ class TestRuleComparison(TestCase):
         self.assertNotEqual(c, f)
         self.assertNotEqual(d, e)
         self.assertNotEqual(d, f)
+
+
+class TestRuleOrdering(TestCase):
+    def setUp(self):
+        self.rule_with_zero_conditions_and_sources = _get_rule()
+        self.rule_with_one_condition_and_source = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
+            data_sources=MOCK_DATA_SOURCES_A,
+        )
+        self.rule_with_two_conditions_and_sources = _get_rule(
+            conditions=MOCK_CONDITIONS_C,
+            data_sources=MOCK_DATA_SOURCES_C,
+        )
+
+    def test_rules_are_sorted_by_number_of_conditions_and_sources_a(self):
+        unsorted_rules = [
+            self.rule_with_zero_conditions_and_sources,
+            self.rule_with_one_condition_and_source,
+        ]
+        sorted_rules = sorted(unsorted_rules)
+        self.assertEqual(self.rule_with_zero_conditions_and_sources, sorted_rules[0])
+        self.assertEqual(self.rule_with_one_condition_and_source, sorted_rules[1])
+
+    def test_rules_are_sorted_by_number_of_conditions_and_sources_b(self):
+        unsorted_rules = [
+            self.rule_with_zero_conditions_and_sources,
+            self.rule_with_one_condition_and_source,
+            self.rule_with_two_conditions_and_sources,
+        ]
+        sorted_rules = sorted(unsorted_rules)
+        self.assertEqual(self.rule_with_zero_conditions_and_sources, sorted_rules[0])
+        self.assertEqual(self.rule_with_one_condition_and_source, sorted_rules[1])
+        self.assertEqual(self.rule_with_two_conditions_and_sources, sorted_rules[2])
 
 
 class TestDummyRule(TestCase):

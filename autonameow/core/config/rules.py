@@ -253,6 +253,14 @@ class Rule(object):
             self.ranking_bias == other.ranking_bias
         )
 
+    def __gt__(self, other):
+        # Sort by arbitrary attributes to get repeatable rule evaluation results.
+        return (
+            self.number_conditions > other.number_conditions
+            and len(self.data_sources) > len(other.data_sources)
+            and self.ranking_bias > other.ranking_bias
+        )
+
     def __hash__(self):
         # NOTE(jonas): This assumes instances of 'RuleCondition' are immutable!
         if not self.__cached_hash:

@@ -81,6 +81,10 @@ class TestRuleMatcherMatching(TestCase):
         rule.ranking_bias = float(bias)
         rule.data_sources = list()
 
+        # NOTE(jonas): Prevent 'TypeError: unorderable types: Mock() < Mock()'
+        #              when sorting rules in 'get_matched_rules()'.
+        rule.__gt__ = lambda _, other: 0
+
         _conditions = list()
         for _ in range(num_conditions):
             rule_condition = Mock()

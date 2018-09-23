@@ -62,7 +62,7 @@ class RuleMatcher(object):
             log.info('No rules available for matching!')
             return []
 
-        all_rules = list(self._rules)
+        all_rules = sorted(self._rules)
 
         total_rule_count = len(all_rules)
         log.debug('Examining {} rules ..'.format(total_rule_count))
