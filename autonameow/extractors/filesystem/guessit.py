@@ -42,16 +42,12 @@ class GuessitExtractor(BaseMetadataExtractor):
 
     def _get_metadata(self, file_basename):
         if not file_basename:
-            self.log.debug(
-                '{!s} aborting --- file basename is not available'.format(self)
-            )
+            self.log.debug('%s aborting --- unable to get file basename', self)
             return None
 
         guessit_output = run_guessit(file_basename, self._guessit_module)
         if not guessit_output:
-            self.log.debug(
-                '{!s} aborting --- got not data from guessit'.format(self)
-            )
+            self.log.debug('%s aborting --- got nothing from guessit', self)
             return None
 
         metadata = self._to_internal_format(guessit_output)

@@ -63,9 +63,7 @@ class CrossPlatformFileSystemExtractor(BaseMetadataExtractor):
             create_time = _get_create_time(filepath)
             modify_time = _get_modify_time(filepath)
         except OSError as e:
-            self.log.error(
-                'Unable to get filesystem timestamps: {!s}'.format(e)
-            )
+            self.log.error('Unable to get filesystem timestamps: %s', e)
             return timestamps
 
         coerced_t_access = self.coerce_field_value('date_accessed', access_time)

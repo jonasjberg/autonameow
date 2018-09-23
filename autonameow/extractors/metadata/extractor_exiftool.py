@@ -334,9 +334,8 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
             else:
                 coerced_metadata[field] = canonicalizer(_value_or_values)
 
-            self.log.debug('Canonicalized {!s} value :: {!s} -> {!s}'.format(
-                field, _value_or_values, coerced_metadata[field]
-            ))
+            self.log.debug('Canonicalized %s value :: %s -> %s',
+                           field, _value_or_values, coerced_metadata[field])
 
         for field, value in raw_metadata.items():
             coerced = self.coerce_field_value(field, value)
@@ -361,7 +360,7 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
                     elif 'Author' in field:
                         self.log.debug(
                             'Attempting preprocessing of assumed human names '
-                            'in field {!s} :: "{!s}"'.format(field, filtered)
+                            'in field %s :: "%s"', field, filtered
                         )
                         assert isinstance(filtered, list)
                         coerced_metadata[field] = preprocess_names(filtered)

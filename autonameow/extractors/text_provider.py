@@ -52,16 +52,16 @@ def get_plain_text(fileobject):
             try:
                 result = extractor_instance.extract_text(fileobject)
             except (ExtractorError, NotImplementedError) as e:
-                log.error('Text extraction failed! Aborting extractor "{!s}":'
-                          ' {!s}'.format(extractor_instance, e))
+                log.error('Text extraction failed! Aborting %s :: %s',
+                          extractor_instance, e)
                 continue
 
         # TODO: Make sure that the text is not empty or only whitespace.
         if result:
-            log.debug('Using text returned by {!s}'.format(extractor_instance))
+            log.debug('Using text returned by %s', extractor_instance)
             break
         else:
-            log.debug('Got empty result from {!s}'.format(extractor_instance))
+            log.debug('Got empty result from %s', extractor_instance)
             continue
 
     return result
