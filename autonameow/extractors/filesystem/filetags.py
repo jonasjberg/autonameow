@@ -187,35 +187,37 @@ def split_basename_prefix_into_filetags_parts(
     assert isinstance(sep_tags_start, str)
     assert isinstance(sep_between_tags, str)
 
-    timestamp = RE_FILENAMEPART_ISODATE.match(basename_prefix)
-    if timestamp:
-        timestamp = timestamp.group(0)
-        basename_prefix = basename_prefix.lstrip(timestamp)
+    # This is the filename *WITHOUT* any file extension(s).
+    filename = basename_prefix.strip()
 
-    if not re.findall(sep_tags_start, basename_prefix):
-        if basename_prefix:
-            description = basename_prefix.strip()
-        else:
-            description = None
-        tags = list()
-    else:
-        # NOTE: Handle case with multiple "sep_between_tags" better?
-        prefix_tags_list = re.split(sep_tags_start, basename_prefix, 1)
-        description = prefix_tags_list[0].strip()
+    # Set timestamp to None instead of empty string here so that it can be
+    # detected and skipped when converting values to the "internal format".
+    # Coercing None with 'AW_TIMEDATE' raises a 'AWTypeError' exception,
+    # which would happen for every file that do not have a "timestamp"
+    # filetags part.
+    timestamp = None
+    tags = list()
+    description = ''
+
+    matched_isodate_part = RE_FILENAMEPART_ISODATE.match(filename)
+    if matched_isodate_part:
+        timestamp = matched_isodate_part.group(0)
+        filename = filename.lstrip(timestamp)
+
+    if re.findall(sep_tags_start, filename):
+        # TODO(jonas): Handle case with multiple "sep_between_tags" better?
+        split_by_sep_tags_start = re.split(sep_tags_start, filename, 1)
+        description = split_by_sep_tags_start[0].strip()
         try:
-            tags = prefix_tags_list[1].split(sep_between_tags)
+            tags_part = split_by_sep_tags_start[1]
         except IndexError:
-            tags = list()
+            pass
         else:
-            tags = [t.strip() for t in tags if t]
-
-    if not timestamp:
-        # Set timestamp to None instead of empty string here so that it can be
-        # detected and skipped when converting values to the "internal format".
-        # Coercing None with 'AW_TIMEDATE' raises a 'AWTypeError' exception,
-        # which would happen for every file that do not have a "timestamp"
-        # filetags part.
-        timestamp = None
+            tags = [t.strip() for t in tags_part.split(sep_between_tags) if t]
+    else:
+        # Did not find any tag separator.
+        if filename:
+            description = filename.strip()
 
     return FiletagsParts(timestamp, description, tags)
 

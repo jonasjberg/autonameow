@@ -117,7 +117,7 @@ class TestSplitBasenamePrefixIntoFiletagsParts(TestCase):
         self.testdata_expected = [
             ('2010-01-31_161251',
              Expect(timestamp='2010-01-31_161251',
-                    description=None,
+                    description='',
                     tags=[])),
 
             ('2016-08-01_104304_p.n.edu oyepa - Linux tag fs -- wk pim',
@@ -185,6 +185,16 @@ class TestSplitBasenamePrefixIntoFiletagsParts(TestCase):
                     description='Descriptive name',
                     tags=[])),
 
+            ('20180923 -- foo bar',
+             Expect(timestamp='20180923',
+                    description='',
+                    tags=['foo', 'bar'])),
+
+            ('2018-09-23 -- foo bar',
+             Expect(timestamp='2018-09-23',
+                    description='',
+                    tags=['foo', 'bar'])),
+
             ('2017-09-29_06-04-15 Running autonameow on a lot of files with empty caches -- dev projects',
              Expect(timestamp='2017-09-29_06-04-15',
                     description='Running autonameow on a lot of files with empty caches',
@@ -199,6 +209,18 @@ class TestSplitBasenamePrefixIntoFiletagsParts(TestCase):
              Expect(timestamp='2017-09-12T224820',
                     description='filetags-style name',
                     tags=['tag2', 'a', 'tag1'])),
+
+            # Extra space before the tag separator
+            ('2017-11-16T001411 Windows 10 VM PowerShell  -- dev screenshot skylake ',
+             Expect(timestamp='2017-11-16T001411',
+                    description='Windows 10 VM PowerShell',
+                    tags=['dev', 'screenshot', 'skylake'])),
+
+            # Extra space before the description
+            ('2017-11-16T001411  Windows 10 VM PowerShell -- dev screenshot skylake ',
+             Expect(timestamp='2017-11-16T001411',
+                    description='Windows 10 VM PowerShell',
+                    tags=['dev', 'screenshot', 'skylake'])),
 
             # Extra spaces after the last tag
             ('2017-11-16T001411 Windows 10 VM PowerShell -- dev screenshot skylake ',
