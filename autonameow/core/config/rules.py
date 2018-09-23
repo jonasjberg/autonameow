@@ -237,10 +237,6 @@ class Rule(object):
     def conditions(self):
         return list(self._conditions)
 
-    @property
-    def number_conditions(self):
-        return len(self.conditions)
-
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
@@ -256,7 +252,7 @@ class Rule(object):
     def __gt__(self, other):
         # Sort by arbitrary attributes to get repeatable rule evaluation results.
         return (
-            self.number_conditions > other.number_conditions
+            len(self.conditions) > len(other.conditions)
             and len(self.data_sources) > len(other.data_sources)
             and self.ranking_bias > other.ranking_bias
         )

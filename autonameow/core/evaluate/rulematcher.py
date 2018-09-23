@@ -89,7 +89,7 @@ class RuleMatcher(object):
 
         # Calculate score and weight for each rule, store the results in a
         # new local dict keyed by the 'Rule' class instances.
-        max_condition_count = max(rule.number_conditions
+        max_condition_count = max(len(rule.conditions)
                                   for rule in remaining_rules)
         scored_rules = dict()
         for rule in remaining_rules:
@@ -115,7 +115,7 @@ class RuleMatcher(object):
 
     def _score_rule(self, max_condition_count, rule):
         met_conditions = len(self.condition_evaluator.passed(rule))
-        num_conditions = rule.number_conditions
+        num_conditions = len(rule.conditions)
 
         # Ratio of met conditions to the total number of conditions
         # for a single rule.

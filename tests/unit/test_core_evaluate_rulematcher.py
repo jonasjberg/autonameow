@@ -77,7 +77,6 @@ class TestRuleMatcherMatching(TestCase):
         rule = Mock()
         rule.description = 'Mock Rule'
         rule.exact_match = bool(exact_match)
-        rule.number_conditions = int(num_conditions)
         rule.ranking_bias = float(bias)
         rule.data_sources = list()
 
