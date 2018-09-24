@@ -19,6 +19,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import traceback
 
 
 log = logging.getLogger(__name__)
@@ -47,6 +48,9 @@ class EventHandler(object):
                 log.critical(
                     '%s caught exception when called with args %s '
                     'kwargs %s :: %s', self, args, kwargs, e
+                )
+                log.critical(
+                    '%s caught exception %s', self, traceback.format_exc()
                 )
 
     def __str__(self):
