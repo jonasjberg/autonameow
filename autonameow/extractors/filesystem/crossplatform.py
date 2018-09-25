@@ -59,6 +59,8 @@ class CrossPlatformFileSystemExtractor(BaseMetadataExtractor):
     def _collect_filesystem_timestamps(self, filepath):
         timestamps = dict()
         try:
+            # TODO: Should these be passed through the "syspath" function like
+            #       other paths passed to the OS? Seems to work fine anyway (!)
             access_time = _get_access_time(filepath)
             create_time = _get_create_time(filepath)
             modify_time = _get_modify_time(filepath)
