@@ -26,6 +26,10 @@ Composite:Aperture:
     coercer: aw_float
     multivalued: false
 
+Composite:AvgBitrate:
+    coercer: aw_integer
+    multivalued: false
+
 Composite:HyperfocalDistance:
     coercer: aw_float
     multivalued: false
@@ -36,6 +40,10 @@ Composite:ImageSize:
 
 Composite:Megapixels:
     coercer: aw_float
+    multivalued: false
+
+Composite:Rotation:
+    coercer: aw_integer
     multivalued: false
 
 EXIF:ColorSpace:
@@ -1024,9 +1032,21 @@ Photoshop:ImageHeight:
     multivalued: false
 
 
+QuickTime:BitDepth:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:ComAndroidVersion:
+    coercer: aw_string
+    multivalued: false
+
 QuickTime:CompatibleBrands:
     coercer: aw_string
     multivalued: true
+
+QuickTime:CompressorID:
+    coercer: aw_string
+    multivalued: false
 
 QuickTime:CreateDate:
     coercer: aw_exiftooltimedate
@@ -1064,6 +1084,44 @@ QuickTime:CreationDate-und-SE:
             weight: 1.0
     multivalued: false
 
+QuickTime:CurrentTime:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:Duration:
+    coercer: aw_float
+    multivalued: false
+
+QuickTime:GraphicsMode:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:HandlerType:
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:HandlerDescription:
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:ImageHeight:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:ImageWidth:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:MajorBrand:
+    # Example: "mp42"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:MatrixStructure:
+    # Example: "0 1 0 -1 0 0 0 0 1"
+    coercer: aw_string
+    multivalued: false
+
 QuickTime:MediaCreateDate:
     coercer: aw_exiftooltimedate
     generic_field: date_created
@@ -1074,6 +1132,14 @@ QuickTime:MediaCreateDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
+
+QuickTime:MediaDuration:
+    coercer: aw_float
+    multivalued: false
+
+QuickTime:MediaHeaderVersion:
+    coercer: aw_integer
     multivalued: false
 
 QuickTime:MediaModifyDate:
@@ -1088,6 +1154,15 @@ QuickTime:MediaModifyDate:
             weight: 0.5
     multivalued: false
 
+QuickTime:MediaTimeScale:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:MinorVersion:
+    # Example: "0.0.0"
+    coercer: aw_string
+    multivalued: false
+
 QuickTime:ModifyDate:
     coercer: aw_exiftooltimedate
     generic_field: date_modified
@@ -1098,6 +1173,60 @@ QuickTime:ModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 0.5
+    multivalued: false
+
+QuickTime:MovieDataOffset:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:MovieDataSize:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:MovieHeaderVersion:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:OpColor:
+    # Example: "0 0 0"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:PixelAspectRatio:
+    # Example: "65536:65536"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:PosterTime:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:PreferredRate:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:PreviewTime:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:SelectionDuration:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:SelectionTime:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:SourceImageHeight:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:SourceImageWidth:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:TimeScale:
+    coercer: aw_integer
     multivalued: false
 
 QuickTime:TrackCreateDate:
@@ -1112,6 +1241,22 @@ QuickTime:TrackCreateDate:
             weight: 1.0
     multivalued: false
 
+QuickTime:TrackDuration:
+    coercer: aw_float
+    multivalued: false
+
+QuickTime:TrackHeaderVersion:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:TrackID:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:TrackLayer:
+    coercer: aw_integer
+    multivalued: false
+
 QuickTime:TrackModifyDate:
     coercer: aw_exiftooltimedate
     generic_field: date_modified
@@ -1123,6 +1268,24 @@ QuickTime:TrackModifyDate:
             field: Date
             weight: 0.5
     multivalued: false
+
+QuickTime:TrackVolume:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:VideoFrameRate:
+    # Example: "11.5838054054415"
+    coercer: aw_float
+    multivalued: false
+
+QuickTime:XResolution:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:YResolution:
+    coercer: aw_integer
+    multivalued: false
+
 
 RTF:Author:
     coercer: aw_string
