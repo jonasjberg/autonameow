@@ -50,6 +50,7 @@ INITIAL_CONFIGURATION_OPTIONS = {
     'DATETIME_FORMAT': dict(),
 
     # Default ignores to be combined with any user-specified patterns.
+    # TODO: [cleanup] Merge these in with the user options at a later stage?
     'FILESYSTEM': {
         'ignore': C.DEFAULT_FILESYSTEM_IGNORE
     },
