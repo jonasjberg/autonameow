@@ -83,16 +83,13 @@ class EventDispatcher(object):
             'on_config_changed': EventHandler()
         }
 
-    def _get_event_handlers(self, name):
-        event_handlers = self._event_handlers.get(name)
-        if event_handlers:
-            self.log.debug('%s returning event handler "%s"', self, name)
-            return event_handlers
-
-        raise AssertionError('Invalid event handler: "{!s}"'.format(name))
-
     def __getattr__(self, item):
-        return self._get_event_handlers(item)
+        event_handler = self._event_handlers.get(item)
+        if event_handler:
+            self.log.debug('%s returning event handler "%s"', self, item)
+            return event_handler
+
+        raise AssertionError('Invalid event handler: "{!s}"'.format(item))
 
     def __str__(self):
         return self.__class__.__name__
