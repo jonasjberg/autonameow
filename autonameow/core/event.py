@@ -63,7 +63,7 @@ class EventDispatcher(object):
     Example usage:
 
     >>> from core.event import EventDispatcher
-    >>> d = EventDispatcher()
+    >>> d = EventDispatcher({'on_startup': EventHandler()})
     >>> def _on_event_func(*args, **kwargs):
     ...     arg_foo = kwargs.get('foo')
     ...     print(*args, arg_foo)
@@ -75,13 +75,11 @@ class EventDispatcher(object):
     >>> d.on_startup(1337, foo='bar')
     1337 bar
     """
-    def __init__(self):
+    def __init__(self, event_handlers):
+        assert isinstance(event_handlers, dict)
+        self._event_handlers = event_handlers
+
         self.log = logging.getLogger('{}.{!s}'.format(__name__, self))
-        self._event_handlers = {
-            'on_startup': EventHandler(),
-            'on_shutdown': EventHandler(),
-            'on_config_changed': EventHandler()
-        }
 
     def __getattr__(self, item):
         event_handler = self._event_handlers.get(item)
@@ -95,4 +93,10 @@ class EventDispatcher(object):
         return self.__class__.__name__
 
 
-dispatcher = EventDispatcher()
+dispatcher = EventDispatcher(
+    event_handlers={
+        'on_startup': EventHandler(),
+        'on_shutdown': EventHandler(),
+        'on_config_changed': EventHandler(),
+    }
+)

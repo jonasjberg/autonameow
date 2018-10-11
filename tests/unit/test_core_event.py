@@ -23,7 +23,13 @@ from unittest.mock import Mock
 
 def _get_event_dispatcher():
     from core.event import EventDispatcher
-    return EventDispatcher()
+    return EventDispatcher(
+        event_handlers={
+            'on_startup': _get_event_handler(),
+            'on_shutdown': _get_event_handler(),
+            'on_config_changed': _get_event_handler(),
+        }
+    )
 
 
 def _get_event_handler():
@@ -122,13 +128,13 @@ class TestEventDispatcher(TestCase):
             'Expected attribute {} to be callable'.format(attribute_name)
         )
 
-    def test_dispatcher_has_attribute_on_startup(self):
+    def test_dispatcher_has_default_hardcoded_attribute_on_startup(self):
         self._assert_has_callable_attribute('on_startup')
 
-    def test_dispatcher_has_attribute_on_shutdown(self):
+    def test_dispatcher_has_default_hardcoded_attribute_on_shutdown(self):
         self._assert_has_callable_attribute('on_shutdown')
 
-    def test_dispatcher_has_attribute_on_config_changed(self):
+    def test_dispatcher_has_default_hardcoded_attribute_on_config_changed(self):
         self._assert_has_callable_attribute('on_config_changed')
 
     def test_raises_assertion_error_if_handler_does_not_exist(self):
