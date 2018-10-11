@@ -80,8 +80,6 @@ class EventDispatcher(object):
         self._event_handlers = dict()
         self._register_event_handlers(event_handlers)
 
-        self.log = logging.getLogger('{}.{!s}'.format(__name__, self))
-
     def _register_event_handlers(self, event_handlers):
         for event_handler in event_handlers:
             self._event_handlers[event_handler.name] = event_handler
@@ -89,7 +87,7 @@ class EventDispatcher(object):
     def __getattr__(self, item):
         event_handler = self._event_handlers.get(item)
         if event_handler:
-            self.log.debug('%s returning event handler "%s"', self, item)
+            log.debug('%s returning event handler "%s"', self, event_handler)
             return event_handler
 
         raise AssertionError('Invalid event handler: "{!s}"'.format(item))
