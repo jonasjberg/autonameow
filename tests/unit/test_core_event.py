@@ -24,11 +24,9 @@ from unittest.mock import Mock
 def _get_event_dispatcher():
     from core.event import EventDispatcher
     return EventDispatcher(
-        event_handlers={
-            'on_startup': _get_event_handler(),
-            'on_shutdown': _get_event_handler(),
-            'on_config_changed': _get_event_handler(),
-        }
+        _get_event_handler(name='on_startup'),
+        _get_event_handler(name='on_shutdown'),
+        _get_event_handler(name='on_config_changed'),
     )
 
 
@@ -144,7 +142,7 @@ class TestEventDispatcher(TestCase):
             with self.assertRaises(AssertionError):
                 _ = getattr(dispatcher, bad_arg)
 
-    def test_calls_are_dispatched_to_added_callables(self):
+    def test_calls_are_dispatched_to_added_callable(self):
         dispatcher = _get_event_dispatcher()
         mock_callable_a = Mock()
         mock_callable_b = Mock()

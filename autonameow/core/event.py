@@ -60,11 +60,11 @@ class EventHandler(object):
 
 class EventDispatcher(object):
     """
-    Provides access to predefined event handlers to any part of the program.
+    Provides any part of the program with access to registered event handlers.
     Example usage:
 
     >>> from core.event import EventDispatcher
-    >>> d = EventDispatcher({'on_startup': EventHandler()})
+    >>> d = EventDispatcher(EventHandler('on_startup'))
     >>> def _on_event_func(*args, **kwargs):
     ...     arg_foo = kwargs.get('foo')
     ...     print(*args, arg_foo)
@@ -76,11 +76,15 @@ class EventDispatcher(object):
     >>> d.on_startup(1337, foo='bar')
     1337 bar
     """
-    def __init__(self, event_handlers):
-        assert isinstance(event_handlers, dict)
-        self._event_handlers = event_handlers
+    def __init__(self, *event_handlers):
+        self._event_handlers = dict()
+        self._register_event_handlers(event_handlers)
 
         self.log = logging.getLogger('{}.{!s}'.format(__name__, self))
+
+    def _register_event_handlers(self, event_handlers):
+        for event_handler in event_handlers:
+            self._event_handlers[event_handler.name] = event_handler
 
     def __getattr__(self, item):
         event_handler = self._event_handlers.get(item)
@@ -95,9 +99,7 @@ class EventDispatcher(object):
 
 
 dispatcher = EventDispatcher(
-    event_handlers={
-        'on_startup': EventHandler('on_startup'),
-        'on_shutdown': EventHandler('on_shutdown'),
-        'on_config_changed': EventHandler('on_config_changed'),
-    }
+    EventHandler('on_startup'),
+    EventHandler('on_shutdown'),
+    EventHandler('on_config_changed'),
 )
