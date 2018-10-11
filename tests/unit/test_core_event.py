@@ -32,9 +32,9 @@ def _get_event_dispatcher():
     )
 
 
-def _get_event_handler():
+def _get_event_handler(name=None):
     from core.event import EventHandler
-    return EventHandler()
+    return EventHandler(name or 'UNNAMED')
 
 
 class TestEventHandler(TestCase):
@@ -90,10 +90,8 @@ class TestEventHandler(TestCase):
         self._assert_calls_all_added_callables_with('A', 'B', x='C', y='D')
 
     def test___str__(self):
-        handler = _get_event_handler()
-        actual = str(handler)
-        self.assertIsInstance(actual, str)
-        self.assertEqual('EventHandler', actual)
+        handler = _get_event_handler(name='foo')
+        self.assertEqual('<EventHandler(foo)>', str(handler))
 
     def test_all_callables_are_called_even_after_uncaught_exception(self):
         handler = _get_event_handler()

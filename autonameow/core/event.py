@@ -29,7 +29,8 @@ class EventHandler(object):
     """
     Stores callables and forwards calls to all stored callables.
     """
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self.callables = set()
 
     def add(self, func):
@@ -54,7 +55,7 @@ class EventHandler(object):
                 )
 
     def __str__(self):
-        return self.__class__.__name__
+        return '<{!s}({!s})>'.format(self.__class__.__name__, self.name)
 
 
 class EventDispatcher(object):
@@ -95,8 +96,8 @@ class EventDispatcher(object):
 
 dispatcher = EventDispatcher(
     event_handlers={
-        'on_startup': EventHandler(),
-        'on_shutdown': EventHandler(),
-        'on_config_changed': EventHandler(),
+        'on_startup': EventHandler('on_startup'),
+        'on_shutdown': EventHandler('on_shutdown'),
+        'on_config_changed': EventHandler('on_config_changed'),
     }
 )
