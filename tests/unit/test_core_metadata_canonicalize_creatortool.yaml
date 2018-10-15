@@ -236,18 +236,16 @@ AdobePS:
 - PostScript(R) Printer Driver AdobePS
 - PostScript(R) Printer Driver AdobePS(R) 8.5.1
 - PostScript(R) Printer Driver AdobePS(R)
+- "Textures.: AdobePS 8.5.1"
 - "Textures.: AdobePS"
-- "Textures\xAE: AdobePS"
-- "Textures.: AdobePS 8.5.1"
-- "Textures\xAE: AdobePS 8.7.3 (301)"
-- "Textures.: AdobePS 8.5.1"
-- "Textures\xAE: AdobePS 8.7.3"
-- Textures. AdobePS
-- "Textures\xAE AdobePS"
-- Textures. AdobePS 8.5.1
 - "Textures\xAE AdobePS 8.7.3 (301)"
-- Textures. AdobePS 8.5.1
 - "Textures\xAE AdobePS 8.7.3"
+- "Textures\xAE AdobePS"
+- "Textures\xAE: AdobePS 8.7.3 (301)"
+- "Textures\xAE: AdobePS 8.7.3"
+- "Textures\xAE: AdobePS"
+- Textures. AdobePS
+- Textures. AdobePS 8.5.1
 
 Advanced PDF Repair:
 - Advanced PDF Repair
@@ -269,7 +267,6 @@ AH CSS Formatter:
 - "AH CSS Formatter V6.1 R1 for Linux64 : 6.1.5.11330 (2013/05/23 13:33JST)"
 - "AH CSS Formatter V6.2 MR3 for Linux64 : 6.2.5.18171 (2014/08/04 16:28JST)"
 - "AH CSS Formatter V6.2 MR4 for Linux64 : 6.2.6.18551 (2014/09/24 15:00JST)"
-- "AH CSS Formatter V6.2 R1 for Linux64 : 6.2.2.15776 (2014/02/27 18:51JST)"
 - "AH CSS Formatter V6.2 R1 for Linux64 : 6.2.2.15776 (2014/02/27 18:51JST)"
 
 AH XSL Formatter:
@@ -379,7 +376,6 @@ Cairo:
 - cairo 1.22.3
 - cairo 1.22.33 (http://cairographics.org)
 - cairo 1.22.33
-- cairo 1.9.5 (http://cairographics.org)
 - cairo 1.9.5 (http://cairographics.org)
 - cairo 1.9.5
 - cairo 11.2.3 (http://cairographics.org)
@@ -722,7 +718,6 @@ Microsoft Trident:
 - MSHTML 6.00.2800.1126
 
 Microsoft Word:
-- Microsoft Word
 - Acrobat PDFMaker 10.0 for Word
 - Acrobat PDFMaker 10.1 for Word
 - Acrobat PDFMaker 11 for Word

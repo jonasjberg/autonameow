@@ -343,7 +343,6 @@ CaliforniaUP:
 - University Of California Pr.
 - University Of California Pr
 - University of California Press
-- University of California Press
 - U of California Press
 
 CrackingPub:
@@ -556,7 +555,6 @@ DSharpMedia:
 Elsevier:
 - Elsevier
 - Elsevier Inc.
-- Elsevier Ltd.
 - Elsevier LTD.
 - Elsevier Ltd.
 - Elsevier Morgan Kaufmann
@@ -750,7 +748,7 @@ Hachette:
 - https://www.hachettebooks.com
 - http://www.hachettebooks.com
 - www.hachettebooks.com
-- hachettebooks.com/
+- hachettebooks.com
 
 HarperBusiness:
 - HarperBusiness
@@ -1160,7 +1158,6 @@ Macmillan:
 - the Macmillan Group
 - The Macmillan Group
 - Macmillan Group
-- Macmillan Group
 - https://macmillan.com/
 - http://macmillan.com/
 - macmillan.com/
@@ -1200,7 +1197,6 @@ McGrawHill:
 - McGraw Hill Irwin
 - McGraw Hill Osborne
 - McGraw Hill Professional
-- McGraw Hill Professional
 - McGraw Hill/Irwin
 - McGraw Hill/Osborne
 - McGraw HillOsborne
@@ -1211,7 +1207,6 @@ McGrawHill:
 - McGraw-Hill Irwin
 - McGraw-Hill Osborne
 - McGraw-Hill/Irwin
-- McGraw-Hill/Osborne
 - McGraw-Hill/Osborne
 - McGraw-HillOsborne
 - McGrawHill Education
@@ -1386,10 +1381,8 @@ OReilly:
 - "O\u2019Reilly Media, Inc."
 - "O\u2019Reilly Media, Incorporated"
 - O'Reilly
-- O'Reilly
 - O'Reilly & Associates
 - O'Reilly and Associates
-- O'Reilly Media
 - O'Reilly Media
 - O'Reilly Media Inc
 - O'Reilly Media Inc.
@@ -1898,7 +1891,6 @@ Sybex:
 Syngress:
 - Syngress
 - syngress
-- Syngress
 - Syngress Media
 - Syngress Media Inc
 - Syngress Media Inc.
