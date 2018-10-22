@@ -163,7 +163,7 @@ def display_metadata_extraction_result(results):
     cf = _get_column_formatter()
     for metadata_extraction_result in _results:
         provider = str(metadata_extraction_result.provider)
-        for uri, data in metadata_extraction_result.metadata.items():
+        for uri, data in sorted(metadata_extraction_result.metadata.items()):
             cf.addrow(str(uri), str(data), provider)
 
     # TODO: [TD0171] Separate logic from user interface.
