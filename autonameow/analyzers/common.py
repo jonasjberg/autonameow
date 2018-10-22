@@ -120,15 +120,14 @@ class BaseAnalyzer(ProviderMixin):
         # assert meowuri_leaf not in self._intermediate_results
         if meowuri_leaf in self._intermediate_results:
             # TODO: [TD0187] Fix clobbering of results
-            self.log.critical('[TD0187] Clobbered value with MeowURI leaf {!s}: "{!s}"'.format(meowuri_leaf, data))
+            self.log.critical('[TD0187] Clobbered value with MeowURI leaf %s: "%s"', meowuri_leaf, data)
         self._intermediate_results[meowuri_leaf] = data
 
     def _wrap_results(self):
         try:
             _metainfo = self.metainfo()
         except NotImplementedError as e:
-            self.log.critical('Unable to get meta info! Aborting analyzer "{!s}":'
-                              ' {!s}'.format(self, e))
+            self.log.critical('Unable to get meta info! Aborting analyzer "%s": %s', self, e)
             raise AnalyzerError(e)
 
         # TODO: [TD0034] Filter out known bad data.
@@ -141,10 +140,8 @@ class BaseAnalyzer(ProviderMixin):
         for meowuri_leaf, data in wrapped.items():
             uri = force_meowuri(meowuri_prefix, meowuri_leaf)
             if not uri:
-                self.log.error(
-                    'Unable to construct full MeowURI from prefix "{!s}" '
-                    'and leaf "{!s}"'.format(meowuri_prefix, meowuri_leaf)
-                )
+                self.log.error('Unable to construct full MeowURI from prefix "%s" and leaf "%s"',
+                               meowuri_prefix, meowuri_leaf)
                 continue
 
             assert uri not in data_full_meowuris, (
