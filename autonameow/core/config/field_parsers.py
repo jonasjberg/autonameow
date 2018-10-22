@@ -127,6 +127,7 @@ class ConfigFieldParser(object):
         Returns:
             True if expression is valid, else False.
         """
+        # TODO: [cleanup] THIS IS SUCH A MESS! Decouple parsing from evaluation!
         validation_func = self.get_validation_function()
         if not self.ALLOW_MULTIVALUED_EXPRESSION:
             if isinstance(expression, list):
@@ -160,6 +161,7 @@ class ConfigFieldParser(object):
             False if the evaluation was unsuccessful. Otherwise, the return
             type is some "truthy" value whose type depends on the field parser.
         """
+        # TODO: [cleanup] THIS IS SUCH A MESS! Decouple parsing from evaluation!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
         evaluation_func = self.get_evaluation_function()
@@ -221,8 +223,12 @@ class RegexConfigFieldParser(ConfigFieldParser):
     # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     # NOTE: Globs does not include all possible extractor globs.
     APPLIES_TO_MEOWURIS = [
+        '*.EXIF:Model',
+        '*.ICC_Profile:DeviceManufacturer',
+        '*.ICC_Profile:ProfileCreator',
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
         '*.XMP-dc:Title', '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher',
+        '*.XMP:UserComment',
         '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.extension',
         '*.abspath_full',
         '*.basename_full',
