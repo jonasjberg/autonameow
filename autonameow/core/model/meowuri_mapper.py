@@ -20,7 +20,6 @@
 import logging
 from collections import defaultdict
 
-from core import logs
 from core.model import genericfields
 from core.model import MeowURI
 
@@ -65,6 +64,8 @@ class MeowUriLeafMapper(object):
         explicit_uri_without_leaf = explicit_uri.stripleaf()
 
         leaf_alias_uri = MeowURI(explicit_uri_without_leaf, generic_uri_leaf)
+        log.debug('Mapping aliased leaf MeowURI %s to explicit MeowURI %s',
+                  leaf_alias_uri, explicit_uri)
         self._aliased_leaf_to_explicit_uri_map[leaf_alias_uri].add(explicit_uri)
 
 
@@ -84,10 +85,8 @@ class GenericMeowUriMapper(object):
         if explicit_uri in self._generic_to_explicit_uri_map[generic_uri]:
             return
 
-        if logs.DEBUG:
-            log.debug('Mapping generic MeowURI {!s} to {!s}'.format(
-                generic_uri, explicit_uri
-            ))
+        log.debug('Mapping generic MeowURI %s to explicit MeowURI %s',
+                  generic_uri, explicit_uri)
         self._generic_to_explicit_uri_map[generic_uri].add(explicit_uri)
 
     def _get_explicit_uris_from_generic_uri(self, generic_uri):
