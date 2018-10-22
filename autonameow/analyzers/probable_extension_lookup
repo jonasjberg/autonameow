@@ -153,6 +153,13 @@ MIMETYPE application/vnd.ms-powerpoint
     EXTENSION ppt
     - ppt
 
+MIMETYPE application/xml
+    # iPhone 8 image plist file
+    EXTENSION AAE
+    - AAE
+    EXTENSION aae
+    - aae
+
 MIMETYPE application/x-bzip2
     EXTENSION tar.bz2
     - tar.bz2

@@ -427,6 +427,12 @@ class TestLikelyExtension(TestCase):
             (Expect('dmg'),
              Given(suffix='dmg', mime='application/octet-stream')),
 
+            # Apple metadata
+            (Expect('AAE'),
+             Given(suffix='AAE', mime='application/xml')),
+            (Expect('aae'),
+             Given(suffix='aae', mime='application/xml')),
+
             # Adobe
             (Expect('psd'),
              Given(suffix='psd', mime='image/vnd.adobe.photoshop')),
