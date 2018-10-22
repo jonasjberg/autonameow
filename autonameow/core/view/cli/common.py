@@ -99,11 +99,10 @@ def print_start_info():
                  style='DIM')
     print_stdout(i)
 
-    log.debug('Started {} version {}'.format(C.STRING_PROGRAM_NAME,
-                                             C.STRING_PROGRAM_VERSION))
-    log.debug('Running on Python {}'.format(C.STRING_PYTHON_VERSION))
-    log.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
-    log.debug('Process ID: {}'.format(os.getpid()))
+    log.debug('Started %s version %s', C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION)
+    log.debug('Running on Python %s', C.STRING_PYTHON_VERSION)
+    log.debug('Hostname: %s', ' '.join(platform.uname()[:3]))
+    log.debug('Process ID: %s', os.getpid())
 
 
 def print_exit_info(exit_code, elapsed_time):
@@ -303,7 +302,7 @@ def msg(message, style=None, ignore_quiet=False):
         print_stdout(colored_message)
 
     else:
-        log.warning('Unknown message style "{!s}"'.format(style))
+        log.warning('Unknown message style "%s"', style)
         _print_default_msg(message)
 
 
