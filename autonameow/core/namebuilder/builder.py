@@ -62,26 +62,26 @@ def build(config, name_template, field_databundle_dict):
 
     log.debug('After pre-assembly formatting;')
     for str_field, str_value in str_fields_values.items():
-        log.debug('Pre-assembly formatted field "{!s}": "{!s}"'.format(str_field, str_value))
+        log.debug('Pre-assembly formatted field "%s": "%s"', str_field, str_value)
 
     # TODO: [TD0196] Allow user to define maximum lengths for new names.
     # TODO: [TD0197] Template field-specific length limits and trimming.
 
     # Construct the new file name
     str_name_template = str(name_template)
-    log.debug('Populating name template "{}"'.format(str_name_template))
+    log.debug('Populating name template "%s"', str_name_template)
     try:
         new_name = populate_name_template(str_name_template, **str_fields_values)
     except (exceptions.NameTemplateSyntaxError, TypeError) as e:
-        log.debug('Unable to assemble basename with name template "{!s}" '
-                  'and data: {!s}'.format(name_template, str_fields_values))
+        log.debug('Unable to assemble basename with template "%s" and data %s',
+                  name_template, str_fields_values)
         raise exceptions.NameBuilderError(
             'Unable to assemble basename: {!s}'.format(e)
         )
 
     sanity.check_internal_string(new_name)
     new_name = post_assemble_format(new_name)
-    log.debug('Assembled basename: "{!s}"'.format(new_name))
+    log.debug('Assembled basename: "%s"', new_name)
 
     # Do any file name "sanitation".
     if config.get(['POST_PROCESSING', 'sanitize_filename']):
@@ -92,8 +92,7 @@ def build(config, name_template, field_databundle_dict):
             log.debug('Sanitizing filename')
             new_name = disk.sanitize_filename(new_name)
 
-        log.debug('Sanitized basename (unicode): '
-                  '"{!s}"'.format(enc.displayable_path(new_name)))
+        log.debug('Sanitized basename (unicode): "%s"', enc.displayable_path(new_name))
     else:
         log.debug('Skipped sanitizing filename')
 
@@ -115,7 +114,7 @@ def pre_assemble_format(field_databundle_dict, config):
     formatted_values = dict()
 
     for field, databundle in field_databundle_dict.items():
-        log.debug('pre_assemble_format({!s}, {!s})'.format(field, databundle))
+        log.debug('pre_assemble_format(%s, %s)', field, databundle)
 
         # TODO: [TD0115] Clear up uncertainties about data multiplicities
         if databundle.multivalued:
@@ -175,8 +174,8 @@ def populate_name_template(format_string, **kwargs):
 
     if "'" or '"' in format_string:
         # TODO: [TD0043][TD0036] Remove hardcoded behaviour and settings.
-        log.debug('Removing single and double quotes from format string '
-                  '"{!s}"'.format(format_string))
+        log.debug('Removing single and double quotes from format string "%s"',
+                  format_string)
         format_string = _remove_single_and_double_quotes(format_string)
 
     # NOTE: Used to validate format strings in the configuration file.
