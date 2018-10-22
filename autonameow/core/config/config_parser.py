@@ -152,10 +152,8 @@ class ConfigurationParser(object):
                             'Malformed regular expression: "{!s}"'.format(_pat)
                         )
 
-                    log.debug(
-                        'Added name template field pattern :: Match: "{!s}"'
-                        ' Replace: "{!s}"'.format(_pat, repl)
-                    )
+                    log.debug('Added name template field pattern :: '
+                              'Match: "%s" Replace: "%s"', _pat, repl)
                     _validated_candidates.append(compiled_pat)
 
                 if _validated_candidates:
@@ -283,15 +281,11 @@ class ConfigurationParser(object):
             try:
                 compiled_pat = re.compile(str_regex)
             except re.error:
-                log.warning('Malformed regular expression: '
-                            '"{!s}"'.format(str_regex))
-                log.warning('Skipped bad replacement :: "{!s}": '
-                            '"{!s}"'.format(regex, replacement))
+                log.warning('Malformed regular expression: "%s"', str_regex)
+                log.warning('Skipped bad replacement :: "%s": "%s"', regex, replacement)
             else:
-                log.debug(
-                    'Added post-processing replacement :: Match: "{!s}"'
-                    ' Replace: "{!s}"'.format(regex, replacement)
-                )
+                log.debug('Added post-processing replacement :: Match: "%s"'
+                          ' Replace: "%s"', regex, replacement)
                 match_replace_pairs.append((compiled_pat, str_replacement))
 
         self._options['POST_PROCESSING']['replacements'] = match_replace_pairs
@@ -305,14 +299,12 @@ class ConfigurationParser(object):
             ]
             if _user_ignores:
                 for s in _user_ignores:
-                    log.debug('Added filesystem option :: '
-                              '{!s}: {!s}'.format('user ignore', s))
+                    log.debug('Added filesystem option :: %s: %s', 'user ignore', s)
 
                 _defaults = self._options['FILESYSTEM']['ignore']
                 _combined = _defaults.union(frozenset(_user_ignores))
-                log.debug('Loaded {} filesystem ignore patterns ({} default + '
-                          '{} user)'.format(len(_combined), len(_defaults),
-                                            len(_user_ignores)))
+                log.debug('Loaded %d filesystem ignore patterns (%d default + %d user)',
+                          len(_combined), len(_defaults), len(_user_ignores))
                 self._options['FILESYSTEM']['ignore'] = _combined
 
     @staticmethod
@@ -322,7 +314,7 @@ class ConfigurationParser(object):
             valid_version = parse_versioning(raw_version)
             if valid_version:
                 return valid_version
-            log.debug('Read invalid version: "{!s}"'.format(raw_version))
+            log.debug('Read invalid version: "%s"', raw_version)
 
         log.error('Unable to read program version from configuration.')
         return None
@@ -375,17 +367,17 @@ class ConfigurationRuleParser(object):
         for raw_rule_name, raw_rule_data in rules_dict.items():
             str_rule_name = _coerce_string(raw_rule_name)
             if not str_rule_name:
-                log.error('Skipped rule with bad name: "{!s}"'.format(raw_rule_name))
+                log.error('Skipped rule with bad name: "%s"', raw_rule_name)
                 continue
 
             raw_rule_data.update({'description': str_rule_name})
-            log.debug('Validating rule "{!s}" ..'.format(str_rule_name))
+            log.debug('Validating rule "%s" ..', str_rule_name)
             try:
                 valid_rule = self._to_rule_instance(raw_rule_data)
             except ConfigurationSyntaxError as e:
-                log.error('Validation failed for rule "{!s}" :: {!s}'.format(str_rule_name, e))
+                log.error('Validation failed for rule "%s" :: %s', str_rule_name, e)
             else:
-                log.debug('Validated rule "{!s}" .. OK!'.format(str_rule_name))
+                log.debug('Validated rule "%s" .. OK!', str_rule_name)
                 parsed_rules.append(valid_rule)
 
         return parsed_rules
@@ -486,8 +478,7 @@ class ConfigurationOptionsParser(object):
             raw_value = self.raw_options[section].get(key, None)
             if raw_value is not None and validation_func(raw_value):
                 # TODO: [TD0141] Coerce raw values to a known type.
-                log.debug('Added {} option :: '
-                          '{!s}: "{!s}"'.format(section, key, raw_value))
+                log.debug('Added %s option :: %s: "%s"', section, key, raw_value)
                 self.parsed[section][key] = raw_value
                 # OK!
                 return
@@ -497,9 +488,7 @@ class ConfigurationOptionsParser(object):
             raise AssertionError(
                 'Bad default "{!s}" value: "{!s}"'.format(key, default)
             )
-        log.debug('Using default for {} option {!s}: "{!s}"'.format(
-            key, section, default
-        ))
+        log.debug('Using default %s option :: %s: "%s"', section, key, default)
         self.parsed[section][key] = default
 
     def try_load_persistence_option(self, option, default):
@@ -514,25 +503,20 @@ class ConfigurationOptionsParser(object):
                 try:
                     bytes_value = coercers.coerce_to_normalized_path(raw_value)
                 except coercers.AWTypeError as e:
-                    log.error('Bad value for option {}: "{!s}"'.format(
-                        option, coercers.force_string(raw_value)
-                    ))
+                    log.error('Bad value for option %s: "%s"',
+                              option, coercers.force_string(raw_value))
                     log.debug(str(e))
                 else:
-                    log.debug('Added persistence option :: {!s}: {!s}'.format(
-                        option, enc.displayable_path(bytes_value)
-                    ))
+                    log.debug('Added persistence option :: %s: %s',
+                              option, enc.displayable_path(bytes_value))
                     self.parsed['PERSISTENCE'][option] = bytes_value
                     # OK!
                     return
 
         # Use the default value.
         bytes_default = coercers.coerce_to_normalized_path(default)
-        log.debug(
-            'Using default persistence option :: {!s}: {!s}'.format(
-                option, enc.displayable_path(bytes_default)
-            )
-        )
+        log.debug('Using default persistence option :: %s: %s',
+                  option, enc.displayable_path(bytes_default))
         self.parsed['PERSISTENCE'][option] = bytes_default
 
 
@@ -544,7 +528,7 @@ def parse_rule_conditions(raw_conditions):
         raise ConfigurationSyntaxError('Expected conditions of type "dict". '
                                        'Got {!s}'.format(type(raw_conditions)))
 
-    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
+    log.debug('Parsing %d raw conditions ..', len(raw_conditions))
     passed = list()
     for str_meowuri, raw_expression in raw_conditions.items():
         try:
@@ -558,12 +542,10 @@ def parse_rule_conditions(raw_conditions):
                 raise ConfigurationSyntaxError(e)
 
             passed.append(valid_condition)
-            log.debug('Validated condition: "{!s}"'.format(valid_condition))
+            log.debug('Validated condition: "%s"', valid_condition)
 
-    log.debug(
-        'Returning {} (out of {}) valid conditions'.format(len(passed),
-                                                           len(raw_conditions))
-    )
+    log.debug('Returning %d (out of %d) valid conditions',
+              len(passed), len(raw_conditions))
     return passed
 
 
