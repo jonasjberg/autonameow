@@ -323,8 +323,7 @@ class RuleConditionEvaluator(object):
     @staticmethod
     def _evaluate_condition(condition, data):
         if data is None:
-            log.warning('Unable to evaluate condition due to missing data "%s"',
-                        condition)
+            log.debug('Missing data to evaluate condition "%s"', condition)
             return False
 
         # TODO: [TD0015] Handle expression in 'condition_value'
