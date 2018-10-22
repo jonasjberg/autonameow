@@ -65,9 +65,9 @@ class RuleMatcher(object):
         all_rules = sorted(self._rules)
 
         total_rule_count = len(all_rules)
-        log.debug('Examining {} rules ..'.format(total_rule_count))
+        log.debug('Examining %d rules ..', total_rule_count)
         for i, rule in enumerate(all_rules, start=1):
-            log.debug('Evaluating rule {}/{}: {!s}'.format(i, total_rule_count, rule))
+            log.debug('Evaluating rule %d/%d: %s', i, total_rule_count, rule)
             self.condition_evaluator.evaluate(rule)
 
         # Remove rules that require an exact match and contains a condition
@@ -84,8 +84,8 @@ class RuleMatcher(object):
                       'exact match and failed evaluation of any condition ..')
             return []
 
-        log.debug('{} rules remain after discarding those that require an '
-                  'exact match and failed evaluation.'.format(num_rules_remain))
+        log.debug('%d rules remain after discarding those that require an '
+                  'exact match and failed evaluation.', num_rules_remain)
 
         # Calculate score and weight for each rule, store the results in a
         # new local dict keyed by the 'Rule' class instances.
@@ -95,9 +95,7 @@ class RuleMatcher(object):
         for rule in remaining_rules:
             scored_rules[rule] = self._score_rule(max_condition_count, rule)
 
-        log.debug(
-            'Prioritizing remaining {} candidates ..'.format(num_rules_remain)
-        )
+        log.debug('Prioritizing remaining %d candidates ..', num_rules_remain)
         prioritized_rules = prioritize_rules(scored_rules)
 
         discarded_rules = [r for r in all_rules if r not in remaining_rules]
@@ -313,10 +311,10 @@ class RuleConditionEvaluator(object):
             condition_data_uri = condition.meowuri
             data = self.data_query_function(condition_data_uri)
             if self._evaluate_condition(condition, data):
-                log.debug('{}PASS: "{!s}"'.format(log_strprefix, condition))
+                log.debug('%sPASS: "%s"', log_strprefix, condition)
                 self._passed[rule].append(condition)
             else:
-                log.debug('{}FAIL: "{!s}"'.format(log_strprefix, condition))
+                log.debug('%sFAIL: "%s"', log_strprefix, condition)
                 self._failed[rule].append(condition)
 
             assert condition not in self._evaluated.get(rule, {})
@@ -325,8 +323,8 @@ class RuleConditionEvaluator(object):
     @staticmethod
     def _evaluate_condition(condition, data):
         if data is None:
-            log.warning('Unable to evaluate condition due to missing data:'
-                        ' "{!s}"'.format(condition))
+            log.warning('Unable to evaluate condition due to missing data "%s"',
+                        condition)
             return False
 
         # TODO: [TD0015] Handle expression in 'condition_value'
