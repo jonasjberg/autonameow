@@ -70,18 +70,19 @@ class ConfigHistoryPathStore(object):
                 history_filepath, C.DEFAULT_HISTORY_FILE_BASENAME
             )
             if fixed_history_filepath:
-                log.warning('Added default filename to history path: "{!s}"'.format(
-                    enc.displayable_path(fixed_history_filepath)
-                ))
+                log.warning('Added default filename to history path "%s"',
+                            enc.displayable_path(fixed_history_filepath))
                 self._config_history_path = fixed_history_filepath
 
     @property
     def config_history_path(self):
         if not self._config_history_path:
-            log.debug('Using default history file path "{!s}"'.format(self.default_history_file_path))
+            log.debug('Using default history file path "%s"',
+                      enc.displayable_path(self.default_history_file_path))
             return self.default_history_file_path
 
-        log.debug('Using history file path "{!s}"'.format(self._config_history_path))
+        log.debug('Using history file path "%s"',
+                  enc.displayable_path(self._config_history_path))
         return self._config_history_path
 
 
@@ -147,9 +148,8 @@ def meowuri_prompt(message=None):
     history_filepath = _config_history_path_store.config_history_path
     if history_filepath:
         history = FileHistory(history_filepath)
-        log.debug('Prompt history file: "{!s}"'.format(
-            enc.displayable_path(history_filepath)
-        ))
+        log.debug('Prompt history file: "%s"',
+                  enc.displayable_path(history_filepath))
     else:
         log.debug('Prompt history file: in-memory (volatile)')
         history = InMemoryHistory()
