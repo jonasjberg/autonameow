@@ -650,6 +650,29 @@ FlashPix:Words:
     coercer: aw_integer
     multivalued: false
 
+ICC_Profile:DeviceManufacturer:
+    # Example:  "APPL"
+    coercer: aw_string
+    multivalued: false
+
+ICC_Profile:PrimaryPlatform:
+    # Device Manufacturer (?)
+    # Example: "Apple Computer Inc."
+    coercer: aw_string
+    multivalued: false
+
+ICC_Profile:ProfileCMMType:
+    # Device Manufacturer (?)
+    # Example: "appl"
+    coercer: aw_string
+    multivalued: false
+
+ICC_Profile:ProfileCreator:
+    # Device Manufacturer (?)
+    # Example: "appl"
+    coercer: aw_string
+    multivalued: false
+
 ICC_Profile:ProfileDateTime:
     coercer: aw_exiftooltimedate
     multivalued: false
@@ -2018,6 +2041,11 @@ XMP:Title_sort:
 
 XMP:Trapped:
     coercer: aw_boolean
+    multivalued: false
+
+XMP:UserComment:
+    # Example (iPhone 8 screenshots PNGs): "Screenshot"
+    coercer: aw_string
     multivalued: false
 
 XMP:XMPToolkit:
