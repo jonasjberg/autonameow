@@ -45,9 +45,8 @@ class Configuration(object):
         if self.version:
             if self.version != C.STRING_PROGRAM_VERSION:
                 log.warning('Possible configuration compatibility mismatch!')
-                log.warning('Loaded configuration created by {} (currently '
-                            'running {})'.format(self.version,
-                                                 C.STRING_PROGRAM_VERSION))
+                log.warning('Loaded configuration created by %s (currently running %s)',
+                            self.version, C.STRING_PROGRAM_VERSION)
                 log.info(
                     'The currently recommended way to migrate to a new version'
                     'is to move the current config to a temporary location, '

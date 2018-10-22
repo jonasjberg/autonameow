@@ -176,8 +176,7 @@ class ConfigFieldParser(object):
             return False
         else:
             if isinstance(expression, list):
-                log.error('Unexpectedly got "multi-valued" expression; '
-                          '"{!s}"'.format(expression))
+                log.error('Unexpected "multi-valued" expression: "%s"', expression)
                 return False
             return evaluation_func(expression, data)
 
@@ -265,12 +264,8 @@ class RegexConfigFieldParser(ConfigFieldParser):
         test_data = enc.encode_(test_data)
         expression = enc.encode_(expression)
 
-        # log.debug('test_data: "{!s}" ({})"'.format(test_data,
-        #                                            type(test_data)))
-        # log.debug('expression: "{!s}" ({})"'.format(expression,
-        #                                            type(expression)))
-        _match = re.match(expression, test_data)
-        return _match if _match else False
+        match = re.match(expression, test_data)
+        return match if match else False
 
     @classmethod
     def get_validation_function(cls):
@@ -339,9 +334,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         try:
             evaluates_true = mimemagic.eval_glob(mime_to_match, expression)
         except (TypeError, ValueError) as e:
-            log.error(
-                'Error evaluating expression "{!s}"; {!s}'.format(expression, e)
-            )
+            log.error('Error evaluating expression "%s"; %s', expression, e)
             return False
         return evaluates_true
 
@@ -378,7 +371,7 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         try:
             _ = datetime.today().strftime(expression)
         except (ValueError, TypeError) as e:
-            log.debug('Bad datetime expression: "{!s}"'.format(expression))
+            log.debug('Bad datetime expression: "%s"', expression)
             log.debug(str(e))
             return False
         else:
@@ -459,7 +452,7 @@ def suitable_field_parser_for(meowuri):
     Returns:
         A list of instantiated field parsers suited for the given "MeowURI".
     """
-    log.debug('suitable_field_parser_for("{!s}")'.format(meowuri))
+    log.debug('suitable_field_parser_for("%s")', meowuri)
     sanity.check_isinstance_meowuri(meowuri)
 
     candidates = [p for p in FieldParserInstances
