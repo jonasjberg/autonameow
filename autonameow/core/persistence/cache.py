@@ -185,12 +185,12 @@ class BaseCache(object):
         # TODO: [TD0144] Avoid enforcing cache file size too frequently.
         size = self.filesize()
         if size >= self.max_filesize:
-            log.debug('Cache filesize {!s} bytes exceeds {!s} '
-                      'byte limit'.format(size, self.max_filesize))
+            log.debug('Cache filesize %d bytes exceeds %d byte limit',
+                      size, self.max_filesize)
             self._prune_oldest()
 
             size = self.filesize()
-            log.debug('Cache filesize {!s} bytes after prune'.format(size))
+            log.debug('Cache filesize %d bytes after prune', size)
 
     def _prune_oldest(self):
         """
@@ -207,9 +207,8 @@ class BaseCache(object):
         for key, _ in sorted_by_timestamp[:number_items_to_remove]:
             self._data.pop(key)
 
-        log.debug('Cache pruned {!s} oldest items (was {!s} total)'.format(
-            number_items_to_remove, number_data_items
-        ))
+        log.debug('Cache pruned %d oldest items (was %d total)',
+                  number_items_to_remove, number_data_items)
 
 
 def get_cache(owner, max_filesize=None):
@@ -233,5 +232,5 @@ def get_cache(owner, max_filesize=None):
     try:
         return BaseCache(owner, max_filesize=max_filesize)
     except (CacheError, PersistenceError) as e:
-        log.error('Failed to get cache for owner {!s} :: {!s}'.format(owner, e))
+        log.error('Failed to get cache for owner %s :: %s', owner, e)
         return None
