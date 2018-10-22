@@ -18,7 +18,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from extractors import ExtractorError
-from extractors.metadata.base import BaseMetadataExtractor
+from extractors.base import BaseMetadataExtractor
 
 
 class GuessitExtractor(BaseMetadataExtractor):

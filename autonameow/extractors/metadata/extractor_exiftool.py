@@ -21,7 +21,7 @@ from core.metadata.canonicalize import canonicalize_creatortool
 from core.metadata.canonicalize import canonicalize_language
 from core.metadata.canonicalize import canonicalize_publisher
 from extractors import ExtractorError
-from extractors.metadata.base import BaseMetadataExtractor
+from extractors.base import BaseMetadataExtractor
 from thirdparty import pyexiftool
 from util import process
 from util.text.humannames import preprocess_names

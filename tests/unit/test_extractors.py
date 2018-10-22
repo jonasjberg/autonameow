@@ -26,7 +26,7 @@ from extractors import EXTRACTOR_CLASS_PACKAGES_FILESYSTEM
 from extractors import EXTRACTOR_CLASS_PACKAGES_METADATA
 from extractors import _find_extractor_classes_in_packages
 from extractors import collect_included_excluded_extractors
-from extractors.metadata.base import BaseMetadataExtractor
+from extractors.base import BaseMetadataExtractor
 
 
 def _collect_included_excluded_extractors(**kwargs):

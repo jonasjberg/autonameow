@@ -24,7 +24,7 @@ from core import constants as C
 from core.metadata.canonicalize import canonicalize_language
 from core.metadata.canonicalize import canonicalize_publisher
 from extractors import ExtractorError
-from extractors.metadata.base import BaseMetadataExtractor
+from extractors.base import BaseMetadataExtractor
 from extractors.text.base import decode_raw
 from util import coercers
 from util import disk

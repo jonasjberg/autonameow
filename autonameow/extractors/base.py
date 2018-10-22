@@ -34,7 +34,7 @@ from util import sanity
 
 class BaseMetadataExtractor(ProviderMixin):
     """
-    Top-level abstract base class for all filetype-specific metadata extractors.
+    Top-level abstract base class for all metadata extractors.
 
     All metadata extractors must inherit from the 'BaseExtractor' class in
     order to be picked up by the registration mechanism.
