@@ -38,7 +38,6 @@ try:
     from prompt_toolkit.completion import Completion
     from prompt_toolkit.history import FileHistory
     from prompt_toolkit.history import InMemoryHistory
-    from prompt_toolkit.interface import AbortAction
     from prompt_toolkit.shortcuts import confirm
     from prompt_toolkit.validation import ValidationError
     from prompt_toolkit.validation import Validator
@@ -166,16 +165,18 @@ def meowuri_prompt(message=None):
     )
     cli.msg('\n', ignore_quiet=True)
 
-    text = prompt(
-        'Enter MeowURI: ',
-        history=history,
-        auto_suggest=AutoSuggestFromHistory(),
-        completer=meowuri_completer,
-        enable_history_search=True,
-        on_abort=AbortAction.RETURN_NONE,
-        validator=MeowURIValidator()
-    )
-    return text
+    try:
+        response = prompt(
+            'Enter MeowURI: ',
+            history=history,
+            auto_suggest=AutoSuggestFromHistory(),
+            completer=meowuri_completer,
+            enable_history_search=True,
+            validator=MeowURIValidator()
+        )
+        return response
+    except (EOFError, KeyboardInterrupt):
+        return None
 
 
 def field_selection_prompt(candidates):
@@ -187,13 +188,12 @@ def field_selection_prompt(candidates):
 
     _candidate_numbers = list(candidates.keys())
     try:
-        return prompt(
+        response = prompt(
             'Enter #: ',
-            on_abort=AbortAction.RETURN_NONE,
             validator=NumberSelectionValidator(candidates=_candidate_numbers)
         )
-    except EOFError:
-        # Might be that user pressed ctrl-d
+        return response
+    except (EOFError, KeyboardInterrupt):
         return None
 
 
