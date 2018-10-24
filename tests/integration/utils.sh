@@ -118,7 +118,6 @@ log_total_results_summary()
     local -r _tests_failed="$4"
     local _highlight_red
 
-    logmsg "Reading global statistics from file: \"${AUTONAMEOW_INTEGRATION_STATS}\""
     logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     _highlight_red=''
