@@ -1007,6 +1007,10 @@ class TestBatchRegexReplace(TestCase):
         actual = batch_regex_replace(regex_replacements, given)
         self.assertEqual(expect, actual)
 
+    def _check_call_ignorecase(self, given, expect, regex_replacements):
+        actual = batch_regex_replace(regex_replacements, given, ignore_case=True)
+        self.assertEqual(expect, actual)
+
     def test_one_replacement(self):
         reps = [
             (re.compile(r'Foo'), 'Mjao')
@@ -1057,6 +1061,19 @@ class TestBatchRegexReplace(TestCase):
                                  expect='the Cat in a Hat InA the FlAt',
                                  regex_replacements=reps_order)
 
+    def test_longer_replacements_first_with_word_boundaries_string_patterns(self):
+        reps = [
+            (r'\bIn A\b', 'in a'),
+            (r'\bIn\b', 'in'),
+            (r'\bA\b', 'a'),
+            (r'\bThe\b', 'the'),
+        ]
+        for reps_order in itertools.permutations(reps):
+            with self.subTest(replacements=reps_order):
+                self._check_call(given='The Cat In A Hat InA The FlAt',
+                                 expect='the Cat in a Hat InA the FlAt',
+                                 regex_replacements=reps_order)
+
     def test_does_not_exhibit_inconsistent_behaviour(self):
         reps = [
             (re.compile(r'\bThe\b'), 'the'),
@@ -1071,6 +1088,20 @@ class TestBatchRegexReplace(TestCase):
                                  expect='a cat and a Dog in a thing in the HAT',
                                  regex_replacements=reps_order)
 
+    def test_does_not_exhibit_inconsistent_behaviour_given_string_patterns(self):
+        reps = [
+            (r'\bThe\b', 'the'),
+            (r'\bAnd\b', 'and'),
+            (r'\bIn\b', 'in'),
+            (r'\bOf\b', 'of'),
+            (r'\bIn A\b', 'in a'),
+        ]
+        for reps_order in itertools.permutations(reps):
+            with self.subTest(replacements=reps_order):
+                self._check_call(given='a cat And a Dog In A thing in The HAT',
+                                 expect='a cat and a Dog in a thing in the HAT',
+                                 regex_replacements=reps_order)
+
     def test_replaces_single_quote(self):
         self._check_call(given='Foo\'s Bar', expect='Foos Bar',
                          regex_replacements=[(re.compile(r'[\']'), '')])
@@ -1078,6 +1109,15 @@ class TestBatchRegexReplace(TestCase):
                          regex_replacements=[(re.compile(r"'"), '')])
         self._check_call(given='Foo\'s Bar', expect='Foos Bar',
                          regex_replacements=[(re.compile("'"), '')])
+
+    def test_replaces_publisher_substring(self):
+        self._check_call_ignorecase(
+            given='Foo publications',
+            expect='Foo PUBLISHING',
+            regex_replacements=[
+                (r'Publ?(\.|i(cations|sh(ers|ing)))?$', 'PUBLISHING'),
+            ]
+        )
 
 
 class TestRemoveBlacklistedLines(TestCase):

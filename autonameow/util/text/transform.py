@@ -412,15 +412,18 @@ def html_unescape(string):
     return html.unescape(string)
 
 
-def batch_regex_replace(regex_replacement_tuples, string):
+def batch_regex_replace(regex_replacement_tuples, string, ignore_case=False):
     if not string:
         return string
-
     assert isinstance(string, str)
+
+    re_flags = 0
+    if ignore_case:
+        re_flags |= re.IGNORECASE
 
     matches = list()
     for regex, replacement in regex_replacement_tuples:
-        match = re.search(regex, string)
+        match = re.search(regex, string, re_flags)
         if match:
             matches.append((regex, replacement))
 
@@ -428,7 +431,7 @@ def batch_regex_replace(regex_replacement_tuples, string):
         matches, key=lambda x: len(x[1]), reverse=True
     )
     for regex, replacement in sorted_by_longest_replacement:
-        string = re.sub(regex, replacement, string)
+        string = re.sub(regex, replacement, string, flags=re_flags)
 
     return string
 
