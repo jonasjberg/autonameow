@@ -110,8 +110,6 @@ def do_extract_metadata(fileobject):
     provider_results = defaultdict(dict)
 
     def _collect_results_callback(fileobject_, meowuri, data):
-        log.debug('_collect_results_callback(%s, %s, %s)', fileobject_, meowuri, data)
-
         assert isinstance(data, dict)
         _value = data.get('value')
         _str_value = _decode_any_bytestring(_value)
