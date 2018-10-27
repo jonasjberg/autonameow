@@ -102,7 +102,7 @@ class BasePersistence(object):
                 raise PersistenceError('Unable to create persistence directory'
                                        ' "{!s}": {!s}'.format(self._dp, e))
             else:
-                log.info('Created persistence directory: "%s"', self._dp)
+                log.info('Created persistence directory "%s"', self._dp)
 
         if not self.has_persistencedir_permissions():
             raise PersistenceError('Persistence directory requires '
@@ -172,7 +172,7 @@ class BasePersistence(object):
                 key_file_data = self._load(key_file_path)
             except PersistenceImplementationBackendError as e:
                 _dp = enc.displayable_path(key_file_path)
-                log.error('Error while reading key "%s" from file "%s"; %s',
+                log.error('Error while reading key "%s" from file "%s" :: %s',
                           key, _dp, e)
 
                 # Is it a good idea to delete files that could not be read?
@@ -183,7 +183,7 @@ class BasePersistence(object):
             except Exception as e:
                 _dp = enc.displayable_path(key_file_path)
                 log.critical('Caught top-level exception reading key "%s" from '
-                             'persistence file "%s"; %s', key, _dp, e)
+                             'persistence file "%s" :: %s', key, _dp, e)
                 raise PersistenceError(
                     'Error while reading persistence; {!s}'.format(e)
                 )
@@ -209,7 +209,7 @@ class BasePersistence(object):
         except OSError as e:
             _dp = enc.displayable_path(key_file_path)
             log.error('Error while trying to write key "%s" with value "%s" to '
-                      'persistence file "%s"; %s', key, value, _dp, e)
+                      'persistence file "%s" :: %s', key, value, _dp, e)
 
     def delete(self, key):
         try:
@@ -284,7 +284,7 @@ class BasePersistence(object):
         except FilesystemError as e:
             _dp = enc.displayable_path(key_file_path)
             log.error('Error when getting file size for persistence file "%s" '
-                      'from key "%s"; %s', _dp, key, e)
+                      'from key "%s" :: %s', _dp, key, e)
             raise PersistenceError(e)
 
     def _load(self, file_path):

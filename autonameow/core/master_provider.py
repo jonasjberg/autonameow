@@ -170,7 +170,7 @@ class ProviderRegistry(object):
         else:
             found = self._source_providers_for_meowuri(requested_meowuri)
 
-        self.log.debug('%s returning %s providers for MeowURI %s',
+        self.log.debug('%s returning %d providers for MeowURI %s',
                        self.__class__.__name__, len(found), requested_meowuri)
         return found
 
@@ -229,7 +229,7 @@ class ProviderRunner(object):
         prepared_extractors = set()
         num_possible_providers = len(possible_providers)
         for n, provider in enumerate(possible_providers, start=1):
-            log.debug('Looking at possible provider (%s/%s): %s',
+            log.debug('Looking at possible provider (%d/%d): %s',
                       n, num_possible_providers, provider)
 
             if self._previously_delegated_provider(fileobject, provider):

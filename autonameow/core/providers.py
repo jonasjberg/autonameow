@@ -142,7 +142,7 @@ def wrap_provider_results(datadict, metainfo, source_klass):
     """
     sanity.check_isinstance(metainfo, dict,
                             msg='Source provider: {!s}'.format(source_klass))
-    log.debug('Wrapping %s results (datadict len: %s) (metainfo len: %s)',
+    log.debug('Wrapping %s results (datadict len: %d) (metainfo len: %d)',
               source_klass.name(), len(datadict), len(metainfo))
 
     wrapped = dict()

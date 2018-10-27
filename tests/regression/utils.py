@@ -139,9 +139,7 @@ class TerminalReporter(object):
             elif result == RunResultsHistory.RESULT_UNKNOWN:
                 _print(self.msg_mark_history_unknown)
             else:
-                log.warning(
-                    'Invalid testuite history result: {!s}'.format(result)
-                )
+                log.warning('Invalid testuite history result: %s', result)
                 _print(self.msg_mark_history_unknown)
 
     @staticmethod
@@ -434,8 +432,7 @@ class RegressionTestLoader(object):
                                       '"{!s}" :: {!s}'.format(abspath_asserts, e))
 
         if not asserts:
-            log.warning('Read empty asserts from file: '
-                        '"{!s}"'.format(abspath_asserts))
+            log.warning('Read empty asserts from file: "%s"', abspath_asserts)
             asserts = dict()
         return asserts
 
@@ -447,8 +444,7 @@ class RegressionTestLoader(object):
             raise RegressionTestError('Error reading options from file: '
                                       '"{!s}" :: {!s}'.format(abspath_opts, e))
         if not options:
-            log.warning('Read empty options from file: '
-                        '"{!s}"'.format(abspath_opts))
+            log.warning('Read empty options from file: "%s"', abspath_opts)
             options = dict()
         return options
 
@@ -517,7 +513,7 @@ class RegressionTestLoader(object):
                 'Invalid "config_path": "{!s}"'.format(config_path)
             )
 
-        log.debug('Set config_path "{!s}" to "{!s}"'.format(config_path, modified_path))
+        log.debug('Set config_path "%s" to "%s"', config_path, modified_path)
         modified_options = dict(options)
         modified_options['config_path'] = enc.normpath(modified_path)
         return modified_options

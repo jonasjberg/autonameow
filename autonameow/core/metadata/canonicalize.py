@@ -265,7 +265,7 @@ def build_string_value_canonicalizer(yaml_config_filename):
     except (exceptions.FilesystemError, disk.YamlLoadError) as e:
         # TODO: [TD0164] Fix mismatched throwing/catching of exceptions ..
         log.critical(
-            'Error while loading string canonicalizer YAML file "{!s}" :: {!s}',
+            'Error while loading string canonicalizer YAML file "%s" :: %s',
             enc.displayable_path(yaml_config_filepath), str(e)
         )
         return None

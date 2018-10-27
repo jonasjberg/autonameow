@@ -507,7 +507,7 @@ def main(args):
         log.setLevel(logging.WARNING)
 
     loaded_tests = load_regression_testsuites()
-    log.info('Loaded {} regression test(s) ..'.format(len(loaded_tests)))
+    log.info('Loaded %d regression test(s) ..', len(loaded_tests))
     if not loaded_tests:
         return
 
@@ -518,11 +518,11 @@ def main(args):
         for filter_expression in opts.filter_globs:
             filtered = filter_tests(tests_to_filter, glob_filter,
                                     expr=filter_expression)
-            log.info('Filter expression "{!s}" matched {} test suite(s)'.format(
-                filter_expression, len(filtered)))
+            log.info('Filter expression "%s" matched %d test suite(s)',
+                     filter_expression, len(filtered))
             tests_to_filter = filtered
             all_filtered = filtered
-        log.info('Filtering selected {} test suite(s)'.format(len(all_filtered)))
+        log.info('Filtering selected %d test suite(s)', len(all_filtered))
         selected_tests = all_filtered
     else:
         selected_tests = loaded_tests
@@ -533,15 +533,15 @@ def main(args):
             # TODO: Improve comparing regression test suites.
             # Fails if any option is modified. Compare only directory basenames?
             selected_tests = [t for t in selected_tests if t in failed_lastrun]
-            log.info('Selected {} of {} test suite(s) that failed during the '
-                     'last completed run ..'.format(len(selected_tests),
-                                                    len(failed_lastrun)))
+            log.info('Selected %d of %d test suite(s) that failed during the '
+                     'last completed run ..', len(selected_tests),
+                     len(failed_lastrun))
         else:
-            log.info('Selected all {} test suite(s) as None failed during the '
-                     'last completed run ..'.format(len(selected_tests)))
+            log.info('Selected all %d test suite(s) as None failed during the '
+                     'last completed run ..', len(selected_tests))
 
-    log.info('Selected {} of {} test suite(s) ..'.format(len(selected_tests),
-                                                         len(loaded_tests)))
+    log.info('Selected %d of %d test suite(s) ..', len(selected_tests),
+             len(loaded_tests))
     # End of test selection.
     if not selected_tests:
         log.warning('None of the loaded tests were selected ..')

@@ -402,7 +402,7 @@ def _read_mimetype_extension_mapping_file(mapfile_basename, callback):
         try:
             mime_type, extension = line.strip().split(':')
         except ValueError:
-            log.error('Error parsing "%s" line %s', mapfile, n)
+            log.error('Error parsing "%s" line %d', mapfile, n)
         else:
             str_mime_type = coercers.force_string(mime_type).strip()
             str_extension = coercers.force_string(extension).strip().lstrip('.')

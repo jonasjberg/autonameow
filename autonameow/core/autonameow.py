@@ -150,7 +150,7 @@ class Autonameow(object):
 
         # Path name encoding boundary. Returns list of paths in internal format.
         files_to_process = self._collect_paths_from_opts()
-        log.info('Got %s files to process', len(files_to_process))
+        log.info('Got %d files to process', len(files_to_process))
 
         # Handle any input paths/files.
         self._handle_files(files_to_process)
@@ -264,7 +264,7 @@ class Autonameow(object):
                 current_file = FileObject(file_path)
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
-                log.warning('{%s} --- SKIPPING: "%s"', e, str_file_path)
+                log.warning('%s --- SKIPPING: "%s"', e, str_file_path)
                 continue
 
             if should_list_all:
@@ -372,7 +372,7 @@ class Autonameow(object):
             self.ui.print_exit_info(self.exit_code, elapsed_time)
 
         logs.log_previously_logged_runtimes(log)
-        log.debug('Exiting with exit code: %s', self.exit_code)
+        log.debug('Exiting with exit code: %d', self.exit_code)
         log.debug('Total execution time: %.6f seconds', elapsed_time)
 
         self._dispatch_event_on_shutdown()
@@ -399,7 +399,7 @@ class Autonameow(object):
                    the values in 'constants.py' prefixed 'EXIT_'.
         """
         if isinstance(value, int) and value > self._exit_code:
-            log.debug('Exit code updated: %s -> %s', self._exit_code, value)
+            log.debug('Exit code updated: %d -> %d', self._exit_code, value)
             self._exit_code = value
 
     def __hash__(self):
