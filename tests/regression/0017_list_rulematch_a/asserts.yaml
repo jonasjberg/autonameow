@@ -5,9 +5,9 @@ stdout:
     matches:
     - 'Remaining.*prioritized rules'
     - 'Discarded rules'
-    - 'Exact: Yes.*Score: N/A.*Weight: N/A.*Bias: 1.0'
-    - 'Exact: Yes.*Score: 1.00.*Weight: 1.00.*Bias: 0.5'
-    - 'Exact: No.*Score: 1.00.*Weight: 0.67  Bias: 0.1'
+    - 'Exact: Yes.*Score: N/A.*Relative Score: N/A.*Bias: 1.0'
+    - 'Exact: Yes.*Score: 1.00.*Relative Score: 1.00.*Bias: 0.5'
+    - 'Exact: No.*Score: 1.00.*Relative Score: 0.67  Bias: 0.1'
     - 'FAILED.*extractor.filesystem.xplat.mime_type'
     - 'FAILED.*extractor.filesystem.xplat.pathname_full'
     - 'FAILED.*extractor.filesystem.xplat.extension'

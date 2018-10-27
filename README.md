@@ -37,7 +37,7 @@ Current Features
       suitable data
     * __Sources__ specifies which data is used to populate which placeholder
       fields in the name template
-    * Rules are ranked by score, weight and a "bias"
+    * Rules are ranked by score, relative score and a "bias"
     * Rules can be set to allow failed conditions, which allows powerful
       layering of more or less "targeted" rules
 * __Text extraction__
