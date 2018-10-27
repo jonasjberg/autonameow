@@ -130,32 +130,27 @@ class RuleMatcher(object):
         if log.getEffectiveLevel() < logging.INFO:
             return
 
-        FMT_DISCARDED = 'Rule #{} (Exact: {}  Score: N/A   Relative Score: N/A   Bias: {}) {}'
         FMT_PRIORITIZED = 'Rule #{} (Exact: {}  Score: {:.2f}  Relative Score: {:.2f}  Bias: {:.2f}) {}'
-
-        def _prettyprint_prioritized_rule(n, exact, score, relative_score, bias, desc):
-            _exact = 'Yes' if exact else 'No '
-            log.info(
-                FMT_PRIORITIZED.format(n, _exact, score, relative_score, bias, desc)
-            )
-
-        def _prettyprint_discarded_rule(n, exact, bias, desc):
-            _exact = 'Yes' if exact else 'No '
-            log.info(FMT_DISCARDED.format(n, _exact, bias, desc))
-
         log.info('Remaining, prioritized rules:')
-        for i, rule in enumerate(prioritized_rules, start=1):
-            _prettyprint_prioritized_rule(
-                i, rule.exact_match, scored_rules[rule]['score'],
-                scored_rules[rule]['relative_score'], rule.ranking_bias,
-                rule.description
-            )
+        for n, rule in enumerate(prioritized_rules, start=1):
+            log.info(FMT_PRIORITIZED.format(
+                n,
+                'Yes' if rule.exact_match else 'No ',
+                scored_rules[rule]['score'],
+                scored_rules[rule]['relative_score'],
+                rule.ranking_bias,
+                rule.description,
+            ))
 
+        FMT_DISCARDED = 'Rule #{} (Exact: {}  Score: N/A   Relative Score: N/A   Bias: {}) {}'
         log.info('Discarded rules:')
-        for i, rule in enumerate(discarded_rules, start=1):
-            _prettyprint_discarded_rule(
-                i, rule.exact_match, rule.ranking_bias, rule.description
-            )
+        for n, rule in enumerate(discarded_rules, start=1):
+            log.info(FMT_DISCARDED.format(
+                n,
+                'Yes' if rule.exact_match else 'No ',
+                rule.ranking_bias,
+                rule.description,
+            ))
 
     def _display_details(self, prioritized_rules, scored_rules, discarded_rules):
         def _prettyprint_rule_details(n, _rule, _bias, _score=None, _relative_score=None):
