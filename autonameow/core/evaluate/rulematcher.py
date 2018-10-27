@@ -66,8 +66,8 @@ class RuleMatcher(object):
 
         total_rule_count = len(all_rules)
         log.debug('Examining %d rules ..', total_rule_count)
-        for i, rule in enumerate(all_rules, start=1):
-            log.debug('Evaluating rule %d/%d: %s', i, total_rule_count, rule)
+        for n, rule in enumerate(all_rules, start=1):
+            log.debug('Evaluating rule %d/%d: %s', n, total_rule_count, rule)
             self.condition_evaluator.evaluate(rule)
 
         # Remove rules that require an exact match and contains a condition
@@ -155,26 +155,24 @@ class RuleMatcher(object):
     def _display_details(self, prioritized_rules, scored_rules, discarded_rules):
         def _prettyprint_rule_details(n, _rule, _bias, _score=None, _relative_score=None):
             # TODO: [TD0171] Separate logic from user interface.
-            conditions_passed = self.condition_evaluator.passed(_rule)
-            conditions_failed = self.condition_evaluator.failed(_rule)
-
             UNAVAILABLE = 'N/A '
             FMT_DECIMAL = '{:.2f}'
-            if _score is None:
-                _str_score = UNAVAILABLE
-            else:
+
+            _str_score = UNAVAILABLE
+            if _score is not None:
                 _str_score = FMT_DECIMAL.format(_score)
-            if _relative_score is None:
-                _str_relative_score = UNAVAILABLE
-            else:
+
+            _str_relative_score = UNAVAILABLE
+            if _relative_score is not None:
                 _str_relative_score = FMT_DECIMAL.format(_relative_score)
 
             _str_exact = 'Yes' if rule.exact_match else 'No '
-            sr = 'Rule #{:02d}  {!s}'.format(n, _rule.description)
-            self.ui.msg(sr, style='highlight')
+            self.ui.msg('Rule #{:02d}  {!s}'.format(n, _rule.description),
+                        style='highlight')
 
-            si = 'Exact: {}  Score: {}  Relative Score: {}  Bias: {}'.format(_str_exact, _str_score, _str_relative_score, _bias)
-            self.ui.msg(si + '\n')
+            self.ui.msg('Exact: {}  Score: {}  Relative Score: {}  Bias: {}\n'.format(
+                _str_exact, _str_score, _str_relative_score, _bias
+            ))
 
             rows = list()
 
@@ -185,6 +183,7 @@ class RuleMatcher(object):
             msg_label_fail = self.ui.colorize('FAILED', fore='RED')
             msg_label_padding = self.ui.colorize('      ', fore='BLACK')
 
+            conditions_passed = self.condition_evaluator.passed(_rule)
             for c in conditions_passed:
                 d = self.condition_evaluator.evaluated(_rule, c)
 
@@ -192,6 +191,7 @@ class RuleMatcher(object):
                 _addrow(msg_label_padding, 'Expression:', str(c.expression))
                 _addrow(msg_label_padding, 'Evaluated Data:', str(d))
 
+            conditions_failed = self.condition_evaluator.failed(_rule)
             for c in conditions_failed:
                 d = self.condition_evaluator.evaluated(_rule, c)
                 _addrow(msg_label_fail, str(c.meowuri))
