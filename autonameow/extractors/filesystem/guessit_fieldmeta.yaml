@@ -2,6 +2,11 @@ audio_codec:
     coercer: aw_string
     multivalued: false
 
+container:
+    # Example: "b'MOV'"
+    coercer: aw_string
+    multivalued: false
+
 date:
     coercer: aw_timedate
     generic_field: date_created
@@ -19,6 +24,11 @@ episode:
     multivalued: false
 
 format:
+    coercer: aw_string
+    multivalued: false
+
+mimetype:
+    # Example: "b'video/quicktime'"
     coercer: aw_string
     multivalued: false
 
