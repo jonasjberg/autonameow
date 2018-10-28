@@ -222,7 +222,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
     # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     # NOTE: Globs does not include all possible extractor globs.
     APPLIES_TO_MEOWURIS = [
-        '*.EXIF:Model',
+        '*.EXIF:Model', '*.QuickTime:Model',
         '*.ICC_Profile:DeviceManufacturer',
         '*.ICC_Profile:ProfileCreator',
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
