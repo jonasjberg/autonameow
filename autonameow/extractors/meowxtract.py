@@ -158,11 +158,20 @@ def display_text_extraction_result(fileobject, text_extraction_result):
 
 def display_metadata_extraction_result(results):
     _results = list(results)
-    cf = _get_column_formatter()
+
+    lines_to_display = list()
     for metadata_extraction_result in _results:
         provider = str(metadata_extraction_result.provider)
         for uri, data in sorted(metadata_extraction_result.metadata.items()):
-            cf.addrow(str(uri), str(data), provider)
+            lines_to_display.append((str(uri), str(data), provider))
+
+    # TODO: [cleanup] Refactor data structures passed to this function.
+    # Output is built in two passes like this in order to get the output sorted
+    # by MeowURIS. The 'MetadataExtractionResult' objects passed in here are not
+    # designed very well. Should have written the usage code first..
+    cf = _get_column_formatter()
+    for uri, data, provider in sorted(lines_to_display):
+        cf.addrow(str(uri), str(data), provider)
 
     # TODO: [TD0171] Separate logic from user interface.
     view.msg('Extracted Metadata', style='section')
