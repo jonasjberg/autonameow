@@ -285,6 +285,16 @@ class TestMeowURIComparison(TestCase):
         b = MeowURI('extractor.filesystem.xplat.basename_full')
         self.assertTrue(a > b)
 
+    def test_alphabetical_ordering(self):
+        a = MeowURI('extractor.filesystem.filetags.description')
+        b = MeowURI('extractor.filesystem.filetags.tags')
+        c = MeowURI('extractor.filesystem.xplat.abspath_full')
+        self.assertTrue(a < b)
+        self.assertTrue(a < c)
+        self.assertTrue(b < c)
+        self.assertTrue(c > a)
+        self.assertTrue(c > b)
+
     def test_comparison_with_other_types_raises_valueerror(self):
         a = MeowURI('extractor.filesystem.xplat.basename_full')
         b = object()
