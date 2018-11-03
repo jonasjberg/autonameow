@@ -93,4 +93,5 @@ class TestRunGuessitWithDummyData(TestCase):
                           ('mimetype', 'video/x-matroska')]
 
         for _field, _expected in field_expected:
-            self.assertEqual(_expected, actual.get(_field))
+            with self.subTest():
+                self.assertEqual(_expected, actual.get(_field))
