@@ -69,37 +69,151 @@ The New System
 --------------
 Instead of having the single static linear flow through the process, the new
 system would break down every action into atomic changes, similar to how humans
-perform renaming tasks manually. Examples follow.
+perform renaming tasks manually.
 
-### Example 1
-Starting with these filenames;
+### Possibly beneficial effects of using this kind of system
+
+* Might make future integration of machine learning techniques less messy.
+* Reasoning about all changes in this way could simplify "collaboration"
+  between parts of the program.
+* Future multi-threading/parallelism might work better with some common
+  abstract "chunk of work" that can be queued, awaited, etc.
+
+
+### Illustrative Examples
+
+#### Ill-defined Manipulation of Filename Substrings
+Common scenario that we should be able to handle.
+
+I would probably attempt to split the filename with some (trained?) tokenizer
+and then attempt to detect any "named entities" *"name template field values"*
+among the substrings, followed by performing some abstract and likely very
+context-specific changes to finally arrive at some ill-defined desired result.
+
+I've been thinking that this might be suitable for machine learning techniques
+that picks up on *some* characteristics of the given file(s) and determines the
+most likely changes to perform.
+
+Assume none of these files contain meaningful content or metadata to work with:
+```
+~/example/foo.txt
+~/example/foo (1).txt
+~/example/2_foo.txt
+```
+
+Assume we do not populate a name template and that the only available
+information is the full file paths.
+
+We might use some machine learning technique that looks at a set of
+characteristics. For simplicity, assume it only cares about parent directory
+basename "`example`" .
+When we tell `autonameow` to rename `~/example/*.txt`, it has never seen the
+`example` signifier before and does not know what to do. Maybe it asks the user
+for what the desired outcome should be and the user somehow responds that the
+desired outcome looks like this:
 
 ```
-foo_01.txt
-foo_02.txt
-03_foo.txt
+~/example/foo.txt      ->  ~/example/0_foo.txt
+~/example/foo (1).txt  ->  ~/example/1_foo.txt
+~/example/2_foo.txt    ->  ~/example/2_foo.txt
 ```
 
-We might want to end up with this;
+Tokenizing the original filenames, with extensions left as-is:
+```
+foo.txt      ->  WORD.txt
+foo (1).txt  ->  WORD PARENTHESIS NUMBER PARENTHESIS.txt
+2_foo.txt    ->  NUMBER DELIMITER WORD.txt
+```
+
+The __"change operations" would represent this "filename delta" as a number of
+"atomic" changes__, I.E. a number of steps performed to transform the original
+filename to the desired filename.
+
+Then the transformation of one the file names, `foo (1).txt  ->  1_foo.txt`,
+would be described using "change operations" similar to this:
+
+0. Starting with the original filename (ignoring the extension)
+    ```
+    basename : "foo (1)"
+      tokens : WORD PARENTHESIS NUMBER PARENTHESIS
+    ```
+
+1. Perform "swap substrings" operation
+    ```
+    basename : "(1) foo"
+      tokens : PARENTHESIS NUMBER PARENTHESIS WORD
+    ```
+
+2. Perform "remove substring(PARENTHESIS)" operation
+    ```
+    basename : "1 foo"
+      tokens : NUMBER WORD
+    ```
+
+3. Perform "join by delimiter (`_`)" operation
+    ```
+    basename : "1_foo"
+      tokens : NUMBER DELIMITER WORD
+    ```
+
+For each signifier, the machine learning system learns one example of change
+operations per file matching that signifier.
+Files that match a certain signifier might all use the exact same sequence of
+change operations, some small variation of operations, or require completely
+different sequence of change operations to arrive at the desired outcome.
+Choice of signifier(s) would play a huge part in how well this would work.
+
+Hopefully, accuracy would improve with time as `autonameow` renames files in
+`~/example/` and the system homes in on the appropriate change operations.
+
+Then when we tell `autonameow` to rename `~/example/*.txt` again with a new set
+of files (assumed to be "similar" to the first batch, I.E. good choice of
+signifier), the system has some idea on which change operations work because it
+has learned from three different examples.
 
 ```
-foo_01.txt
-foo_02.txt
-foo_03.txt
+~/example/bar.txt      ->  ~/example/0_bar.txt
+~/example/bar (1).txt  ->  ~/example/1_bar.txt
+~/example/2_bar.txt    ->  ~/example/2_bar.txt
 ```
 
-Which could be described as splitting the filenames into parts using `_` as a
-delimiter, followed by shifting the `03` to the left; I.E. `['03', 'foo']`
-becomes `['foo', '03']`, which is the joined with `_` which gives the result
-`foo_03.txt`.
+1. `~/example/bar.txt  ->  ~/example/0_bar.txt`
 
-Should be possible to integrate machine learning techniques with this kind of thing.
+    ```
+    "bar"        ->  "0_bar"
+    WORD         ->  NUMBER DELIMITER WORD
+    ```
+    Change operations:
+    1. Insert "template field"/substring NUMBER at position 0
+    2. Populate NUMBER *(sub-task modeled in the same way!)*
+    2. Join by delimiter
+
+2. `~/example/bar (1).txt  ->  ~/example/1_bar.txt`
+
+    ```
+    "bar (1)"                            ->  "1_bar"
+    WORD PARENTHESIS NUMBER PARENTHESIS  ->  NUMBER DELIMITER WORD
+    ```
+    Change operations:
+    1. Swap substrings
+    2. Remove substring(PARENTHESIS)
+    3. Join by delimiter (`_`)
+
+3. `~/example/2_bar.txt  ->  ~/example/2_bar.txt`
+
+    ```
+    "2_bar"                ->  "2_bar"
+    NUMBER DELIMITER WORD  ->  NUMBER DELIMITER WORD
+    ```
+    Change operations:
+    0. None are required!
+
 
 
 ### Example 2
-Letter case lowering operation on the entire filename would turn `MEOW.docx` into `meow.docx`.
+Single "letter case lowering operation" acting on the entire filename would
+turn `MEOW.docx` into `meow.docx`.
 
 
 ### Example n
 <!-- TODO: .. -->
-
