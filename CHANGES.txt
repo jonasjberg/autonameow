@@ -1,3 +1,311 @@
+2018-11-06  [autonameow v0.5.9]
+            Various bug fixes and minor improvements.
+            Fixes 'prompt_toolkit' 2.0 breakage.
+
+            Additions
+            - Include priorities in '--list' output.
+              Adds TODO priorities to the output of 'todo_id.py --list'.
+
+            - Add notes on "change operations".
+
+            - Add additional 'MeowURI' unit tests.
+
+            - Add entries to exiftool fieldmeta.
+
+            - Add MeowURI glob to 'RegexConfigFieldParser'.
+
+            - Add entries to 'guessit' fieldmeta.
+
+            - Add 'ignore_case' option to 'batch_regex_replace()'.
+
+            - Add MIME-type to extension mapping for '*.AAE'.
+
+            - Ad-hoc changes to config field parser. Add TODOs.
+
+            - Add 'ExiftoolMetadataExtractor' field meta entries.
+
+            - Add/modify default ignored MacOS files.
+              Ignores '*/._.DS_Store' by default. Minor unit test cleanup.
+
+            - Add (WIP) script for grepping multi-line comments.
+
+            - Add unused class 'MeowURINode'.
+              Adds what might become a new base class for URI nodes.
+
+            - Add/modify canonical publisher patterns and tests.
+
+            - Add time deltas to the regression runner output.
+              Adds displaying relative run times in the regression runner.
+
+              Write the "captured" (reported) timing measurement to disk after
+              each test suite.  The stored, previous runtime is then compared
+              to the current runtime and displayed in the right-most column of
+              the (non-verbose) regressioner runner output.
+
+              The time deltas are color coded to highlight bigger changes.
+
+            - Add (WIP) canonicalization of exiftool metadata.
+              Adds canonicalization of human names in "*Author*" field values.
+
+              Still very much a work in progress. Refer to added TODOs.
+
+            - Add note on 'unpack_field_value()' behaviour.
+
+            - Add text utility function 'transliterascii_unicode()'.
+
+            - Add unit tests for config MeowURI data source validation.
+              Adds additional unit tests for validating pre-v0.5.5 data sources.
+
+            - Add utility string function 'ordinalize()'.
+              Adds function to get a ordinal string from a cardinal number.
+
+            - Add/modify creatortool canonicalization patterns.
+
+            - Add early return to decrease conditional nesting.
+
+            - Add (WIP) changes to 'canonicalize.py' and tests.
+
+            - Add (WIP) "publisher" value canonicalization.
+              Adds canonicalization of pandoc and exiftool "publisher" values.
+
+              References TODO [TD0189] on canonicalizing metadata values by
+              direct and regular expression replacements.
+
+            - Add hack fixes to skip 'UNKNOWN' values.
+
+            - Implement 'Record.__contains__()'.
+
+            - Add incomplete 'remove_intercharacter_spaces()'.
+              Adds (WIP) removal of somewhat common PDF text formatting.
+
+              Intended to fix text like 'F O O B A R' in text extractor by
+              the 'PdfTextExtractor'.
+              This seems to be pretty common in older (?) PDFs and/or PDFs
+              created from postscript-sources (?)
+              I suspect this is some kind of formatting hack often used to
+              horizontally align titles and other headings.
+
+
+            Changes
+            - Refer to a rule "weight" as its "relative score".
+              Rename 'weight' to 'relative_score' in code.
+
+              The score of a rule is the ratio of conditions met to the number
+              of conditions.
+              The "relative score" is the ratio of conditions met to the number
+              of conditions in the rule with the _maximum_ number of conditions,
+              among the rules that was evaluated at the same time.
+
+            - Use unittest subtest for parameterized test.
+            - Inline 'RuleMatcher._log_results()' functions.
+            - Use bold text for integration test results.
+            - Do not warn when missing data to be evaluated.
+            - Modify exiftool fieldmeta.
+            - Sort stand-alone 'meowxtract' metadata results.
+
+            - Use lazy logging in 'extractors/*/*.py'.
+              Replaces 'format' calls with "printf style" formatting.
+
+              Avoids doing any unnecessary work if the called logging level is not active.
+              Squashed commits:
+
+              * use lazy logging in 'extractors/filesystem/crossplatform.py'.
+              * use lazy logging in 'extractors/filesystem/guessit.py'.
+              * use lazy logging in 'extractors/meowxtract.py'.
+              * use lazy logging in 'extractors/metadata/extractor_exiftool.py'.
+              * use lazy logging in 'extractors/text_provider.py'.
+              * use lazy logging in 'extractors/__init__.py'.
+              * use lazy logging in 'extractors/text/base.py'.
+              * use lazy logging in 'extractors/text/extractor_plain.py'.
+
+            - Use lazy logging in 'util/disk/*.py'.
+              Replaces 'format' calls with "printf style" formatting.
+
+              Avoids doing any unnecessary work if the called logging level is not active.
+
+            - Use lazy logging in 'analyzers/__init__.py'.
+            - Use lazy logging in 'analyzers/analyze_ebook.py'.
+            - Use lazy logging in 'analyzers/analyze_filename.py'.
+            - Use lazy logging in 'analyzers/common.py'.
+            - Use lazy logging in 'core/config/config_parser.py'.
+            - Use lazy logging in 'core/config/configuration.py'.
+            - Use lazy logging in 'core/config/field_parsers.py'.
+            - Use lazy logging in 'core/config/rules.py'.
+            - Use lazy logging in 'core/evaluate/resolver.py'.
+            - Use lazy logging in 'core/evaluate/rulematcher.py'.
+            - Use lazy logging in 'core/model/meowuri_mapper.py'.
+            - Use lazy logging in 'core/namebuilder/builder.py'.
+            - Use lazy logging in 'core/namebuilder/fields.py'.
+            - Use lazy logging in 'core/persistence/base.py'.
+            - Use lazy logging in 'core/persistence/cache.py'.
+            - Use lazy logging in 'core/view/cli/common.py'.
+            - Use lazy logging in 'core/view/cli/prompt.py'.
+            - Use lazy logging in 'util/mimemagic.py'.
+
+            - Lazy logging fixes.
+              Converts remaining logging to be lazily evaluated. Various fixes.
+
+            - Minor refactoring of inter-class dependencies.
+              Clean up. Pass 'run_analysis_func' to 'MasterDataProvider' init.
+
+            - Move source file containing extractor base class.
+              Moves 'extractors/metadata/base.py' to 'extractors/base.py'.
+
+              Makes a lot more sense to keep this file under a shared parent
+              directory since the functionality in 'base.py' is inherited by
+              extractors classes stored in both 'extractors/filesystem/' and
+              'extractors/metadata/'.
+
+            - Simplify logging in 'autonameow/core/event.py'.
+
+            - Rework passing event handlers to the dispatcher.
+              Minor cleanup of interaction between 'Event{Dispatcher,Handler}'.
+
+              When storing instances of 'EventHandler' in the 'EventDispatcher',
+              use the 'name' attribute of the event handler as the "key" instead
+              of passing in a pre-built dictionary.
+
+            - Pass names to instances of 'EventHandler'.
+
+            - Pass event handlers to the event dispatcher.
+              Passes instances of 'EventHandler' to 'EventDispatcher.__init__()'.
+
+            - Inline 'EventDispatcher._get_event_handlers()'.
+
+            - Log event handler exception traceback.
+
+            - Fix 'split_basename_prefix_into_filetags_parts()'.
+              Modifies 'split_basename_prefix_into_filetags_parts()'.
+
+              Various refactoring for readability as well as changes to the
+              behaviour of function used by the 'FiletagsExtractor' to split
+              a basename without extension into separate "filetags parts".
+
+              This now always returns the description as a Unicode string.
+              When there is no "filetags description" present, the description
+              is returned as an empty string.
+
+              Adds additional test cases that verify this improved behaviour.
+
+            - Remove redundant property 'Rule.number_conditions'.
+              Simplifies the 'Rule' class interface and makes it more coherent.
+
+            - Ignore stored regression test runner data.
+              Adds persisted regression runner files to '.gitignore'.
+
+            - Ignore any empty strings in 'find_separators()'.
+            - Clean up naming in 'tests/regression/utils.py'.
+            - Modify blacklisted exiftool field values and tests.
+            - Lower-case regular expressions that ignore case.
+
+            - Modify 'preprocess_names()' and related unit test.
+              Adds stripping leading/trailing semicolons and additional tests.
+
+            - Refactor removing substrings from human names.
+              Replaces literal string replacements with regular expressions.
+
+            - Modify analyzer logger name.
+              Modifies the logger name used for all analyzers for readability.
+
+              Adds hardcoded 'analyzers' prefix to better match convention used
+              elsewhere.  Previously the 'FilenameAnalyzer' logger would be named
+              'analyzers.common.analyze_filename'.  This commit changes this into
+              'analyzers.analyze_filename'.
+
+            - Use utility string function 'ordinal_indicator()'.
+              Returns the "ordinal indicator" suffix for a given cardinal number.
+
+            - Improve speed of lower-case canonical value search.
+              Modifies the initial string comparison to be constant time.
+
+            - Modify blacklisted exiftool field values.
+
+
+            Fixes
+            - Fix 'prompt_toolkit' 2.0 breakage.
+              Fixes dependency error due to changed 'prompt_toolkit' API.
+
+              From './docs/pages/upgrading.rst' in the 'prompt_toolkit' repo;
+
+                Upgrading to prompt_toolkit 2.0
+                ===============================
+
+                Prompt_toolkit 2.0 is not compatible with 1.0, however you want to upgrade
+                your applications. This page explains why we have these differences and how
+                to upgrade.
+
+                `AbortAction` has been removed
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                Prompt_toolkit 1.0 had an argument ``abort_action`` for both the
+                ``Application`` class as well as for the ``prompt`` function. This has been
+                removed. The recommended way to handle this now is by capturing
+                ``KeyboardInterrupt`` and ``EOFError`` manually.
+
+            - Fix crashing on loading bad YAML files.
+              Adds catching exceptions causing crashes when reading bad YAML.
+
+            - Fix bug in storage of test case runtime.
+              Fixes bug when storing regression test case runtime.
+
+              The previous runtime was overwritten before it was actually used
+              in the delta calculation, resulting in comparing the just written,
+              current runtime with itself, leading to always-zero runtime delta.
+
+            - Fix bug in time delta calculation.
+              Fixes crashing caused by missing None-check before doing math.
+
+              Adds assertion to check assumption that the function providing
+              the other value used in the calculation will not return None.
+
+            - Fix inconsistent import statement.
+
+            - Sort stand-alone extractor metadata results.
+              Fixes inconsistent sorting metadata extraction results.
+
+              Now sorts by the full MeowURIs in order to get repeatable
+              sorting of results lines across program runs.
+
+            - Various minor fixes in 'rulematcher.py'.
+
+            - Fix broken 'current_unix_time()' on MacOS.
+              Assumed system Python interpreter was version 2.x.
+
+            - Various fixes to 'devscripts/find_todo_comments.py'.
+
+            - Sort rules before evaluating them.
+              Fixes inconsistent results by sorting rules by arbitrary attribute.
+
+              Sorting rules by arbitrary rule attributes makes results (more but
+              not entirely) consistent and repeatable, when evaluating rules and
+              two or more rules are "tied" for the number one position.
+
+            - Fix inconsistent 'MeowURI' capitalization.
+
+            - Fix regression runner crash.
+              Fixes crash if persisted regression test runtime file is missing.
+
+            - Fix inconsistent string assertion.
+
+            - Fix inconsistent analyzer logging.
+              Fixes inconsistent use of module-level and class instance loggers.
+
+            - Fix bad commit added unimplemented import.
+              Added by mistake in commit be397ce4147923aad0d8e0d1e3413efc70b9e
+
+            - Move ad-hoc human name fixes from 'ISBNMetadata'.
+              Integrates human name string handling into main name subsystem.
+
+              Moves some specific string handling in the 'ISBNMetadata' class
+              when setting the author attribute, to the human name processing
+              subsystem in 'util/text/humannames.py'.
+
+              Also adds handling some previously unhandled and/or failed cases.
+
+            - Fix parsing of case sensitive canonicalization patterns.
+              Adds various fixes to the (WIP) parsing of case sensitive patterns.
+
+
 2018-07-29  [autonameow v0.5.8]
             Mostly refactoring and fixes.
             Improves canonicalization of 'publisher' field values.
