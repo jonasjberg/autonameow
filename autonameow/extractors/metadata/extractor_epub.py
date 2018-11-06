@@ -23,7 +23,7 @@ except ImportError:
     ebooklib = None
 
 from extractors import ExtractorError
-from extractors.metadata.base import BaseMetadataExtractor
+from extractors.base import BaseMetadataExtractor
 from util import encoding as enc
 from util import sanity
 

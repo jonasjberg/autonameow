@@ -314,18 +314,18 @@ class TestPathCollector(TestCase):
         self.assertEqual(3, len(actual))
 
 
-class UnitTestIgnorePaths(TestCase):
-    def setUp(self):
-        _paths = [
-            '~/dummy/foo.txt',
-            '~/dummy/d/foo.txt',
-            '~/dummy/bar.jpg',
-            '~/dummy/.DS_Store',
-            '~/foo/bar',
-            '~/foo/.DS_Store'
-        ]
-        self.input_paths = [
-            uu.normpath(p) for p in _paths
+class TestPathCollectorIgnoresPathsA(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.input_paths = [
+            uu.normpath(p) for p in [
+                '~/dummy/foo.txt',
+                '~/dummy/d/foo.txt',
+                '~/dummy/bar.jpg',
+                '~/dummy/.DS_Store',
+                '~/foo/bar',
+                '~/foo/.DS_Store'
+            ]
         ]
 
     def test_setup(self):
@@ -342,7 +342,7 @@ class UnitTestIgnorePaths(TestCase):
     def _assert_filters(self, ignore_globs, remain, missing):
         # Sanity check arguments.
         total = len(remain) + len(missing)
-        self.assertEqual(len(self.input_paths), total)
+        self.assertEqual(total, len(self.input_paths))
         for path in missing + remain:
             with self.subTest():
                 self.assertIn(uu.normpath(path), self.input_paths)
@@ -402,6 +402,56 @@ class UnitTestIgnorePaths(TestCase):
             missing=['~/dummy/.DS_Store', '~/dummy/bar.jpg', '~/dummy/foo.txt',
                      '~/dummy/d/foo.txt']
         )
+
+
+class TestPathCollectorIgnoresPathsB(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.dummy_input_paths = [
+            uu.normpath(p) for p in [
+                '/Users/gibson/Space Time Continuum/Space Time Continuum Files/Main Board Layout',
+                '/Users/gibson/Space Time Continuum/Space Time Continuum Files/Main Board Layout.gif',
+                '/Users/gibson/Space Time Continuum/Space Time Continuum Files/Read me.txt',
+                '/Users/gibson/Space Time Continuum/Space Time Continuum Files/Schematic',
+                '/Users/gibson/Space Time Continuum/Space Time Continuum Files/Schematic.pdf',
+                '/Users/gibson/Space Time Continuum/__MACOSX/Space Time Continuum Files/._.DS_Store',
+                '/Users/gibson/Space Time Continuum/__MACOSX/Space Time Continuum Files/._Main Board Layout',
+                '/Users/gibson/Space Time Continuum/__MACOSX/Space Time Continuum Files/._Main Board Layout.gif',
+                '/Users/gibson/Space Time Continuum/__MACOSX/Space Time Continuum Files/._Read me.txt',
+                '/Users/gibson/Space Time Continuum/__MACOSX/Space Time Continuum Files/._Schematic',
+            ]
+        ]
+
+        cls._DEFAULT_FILESYSTEM_IGNORE_DARWIN = frozenset([
+            # OSX Metadata.
+            '*/.DS_Store',
+            '*/._*',
+
+            # Resource fork directory found in zip files created on OSX.
+            '*/__MACOSX',
+        ])
+
+    def test_removes_hfs_resource_forks_from_zip_archive_created_on_osx(self):
+        pc = PathCollector(ignore_globs=self._DEFAULT_FILESYSTEM_IGNORE_DARWIN)
+        actual = pc.filter_paths(self.dummy_input_paths)
+
+        def _assert_removed(p):
+            self.assertNotIn(uu.normpath(p), actual)
+
+        def _assert_passed(p):
+            self.assertIn(uu.normpath(p), actual)
+
+        _assert_removed('/Users/gibson/Space Time Continuum/__MACOSX/Space Time Continuum Files/._.DS_Store')
+        _assert_removed('/Users/gibson/Space Time Continuum/__MACOSX/Space Time Continuum Files/._.DS_Store')
+        _assert_removed('/Users/gibson/Space Time Continuum/__MACOSX/Space Time Continuum Files/._Main Board Layout')
+        _assert_removed('/Users/gibson/Space Time Continuum/__MACOSX/Space Time Continuum Files/._Main Board Layout.gif')
+        _assert_removed('/Users/gibson/Space Time Continuum/__MACOSX/Space Time Continuum Files/._Read me.txt')
+        _assert_removed('/Users/gibson/Space Time Continuum/__MACOSX/Space Time Continuum Files/._Schematic')
+        _assert_passed('/Users/gibson/Space Time Continuum/Space Time Continuum Files/Main Board Layout')
+        _assert_passed('/Users/gibson/Space Time Continuum/Space Time Continuum Files/Main Board Layout.gif')
+        _assert_passed('/Users/gibson/Space Time Continuum/Space Time Continuum Files/Read me.txt')
+        _assert_passed('/Users/gibson/Space Time Continuum/Space Time Continuum Files/Schematic')
+        _assert_passed('/Users/gibson/Space Time Continuum/Space Time Continuum Files/Schematic.pdf')
 
 
 class TestPathMatchesAnyGlob(TestCase):

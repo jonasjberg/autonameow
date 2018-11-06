@@ -105,9 +105,7 @@ class ISBNMetadataService(object):
         try:
             return _isbnlib_meta(isbn_number)
         except _isbnlib_NotValidISBNError as e:
-            log.error(
-                'Metadata query FAILED for ISBN: "{}"'.format(isbn_number)
-            )
+            log.error('Metadata query FAILED for ISBN "%s"', isbn_number)
             log.debug(str(e))
         except Exception as e:
             # TODO: [TD0132] Improve blacklisting failed requests..

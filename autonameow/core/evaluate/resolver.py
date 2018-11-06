@@ -87,8 +87,8 @@ class TemplateFieldDataResolver(object):
             msg='TODO: Fix collecting/verifying data from sources.'
         )
         if field not in self._fields:
-            log.debug('Attempted to add source for unused name template field '
-                      '"{!s}": {!s}'.format(field, uri))
+            log.debug('Attempted to add source for unused name template field "%s": %s',
+                      field, uri)
             return
 
         self._add_known_source(field, uri)
@@ -96,7 +96,7 @@ class TemplateFieldDataResolver(object):
     def _add_known_source(self, field, uri):
         self.data_sources[field].append(uri)
         n = len(self.data_sources[field])
-        log.debug('Added known source (#{}) for field {!s} :: {!s}'.format(n, field, uri))
+        log.debug('Added known source (#%d) for field %s :: %s', n, field, uri)
 
     @property
     def unresolved(self):
@@ -115,10 +115,10 @@ class TemplateFieldDataResolver(object):
 
     def lookup_candidates(self, field):
         # TODO: [TD0024][TD0025] Implement Interactive mode.
-        log.debug('Resolver is looking up candidates for field {!s} ..'.format(field))
+        log.debug('Resolver is looking up candidates for field %s ..', field)
 
         candidates = repository.SessionRepository.query_mapped(self.fileobject, field)
-        log.debug('Resolver got {} candidates for field {!s}'.format(len(candidates), field))
+        log.debug('Resolver got %d candidates for field %s', len(candidates), field)
 
         field_data_candidate_list = list()
         for uri, candidate in candidates:
@@ -138,24 +138,28 @@ class TemplateFieldDataResolver(object):
 
             field_candidate_types_compatible = field.type_compatible(candidate.coercer, candidate.multivalued)
             if not field_candidate_types_compatible:
-                log.debug('Type of field {!s} is NOT compatible with candidate {!s}'.format(field, candidate))
+                log.debug('Type of field %s is NOT compatible with candidate %s', field, candidate)
                 continue
             else:
-                log.debug('Type of field {!s} is compatible with candidate {!s}'.format(field, candidate))
+                log.debug('Type of field %s is compatible with candidate %s', field, candidate)
+
+            if candidate.value == 'UNKNOWN':
+                log.debug('Value of field %s is UNKNOWN ..', field)
+                continue
 
             _formatted_value = field.format(candidate, config=self.config)
             assert _formatted_value is not None
 
             _candidate_source = candidate.source
             if not _candidate_source:
-                log.warning('Unknown source: {!s}'.format(candidate))
+                log.warning('Unknown source: %s', candidate)
                 _candidate_source = '(unknown source)'
 
             _candidate_generic_field = candidate.generic_field
 
             # TODO: Translate generic 'choice.meowuri' to not generic..
             if uri.is_generic:
-                log.error('Added generic candidate MeowURI {!s}'.format(uri))
+                log.error('Added generic candidate MeowURI %s', uri)
 
             field_data_candidate_list.append(FieldDataCandidate(
                 string_value=_formatted_value,
@@ -174,12 +178,12 @@ class TemplateFieldDataResolver(object):
         missing_fields = [f for f in self._fields if f not in self.fields_data.keys()]
         if missing_fields:
             str_missing_fields = ' '.join([str(f) for f in missing_fields])
-            log.debug('Gathered data does not contain field(s) {!s}'.format(str_missing_fields))
+            log.debug('Gathered data does not contain field(s) %s', str_missing_fields)
 
         none_data_fields = [f for f in self._fields if self.fields_data.get(f, '_') is None]
         if none_data_fields:
             str_none_data_fields = ' '.join([str(f) for f in none_data_fields])
-            log.debug('Gathered data is None for field(s) {!s}'.format(str_none_data_fields))
+            log.debug('Gathered data is None for field(s) %s', str_none_data_fields)
 
         if missing_fields or none_data_fields:
             return False
@@ -188,10 +192,8 @@ class TemplateFieldDataResolver(object):
         return True
 
     def _gather_data_for_template_field(self, field, uri):
-        log.debug(
-            'Gathering data for template field {!s} from {!r}->'
-            '[{!s}]'.format(field, self.fileobject, uri)
-        )
+        log.debug('Gathering data for template field %s from %r->[%s]',
+                  field, self.fileobject, uri)
         response = self._request_data(self.fileobject, uri)
         if not response:
             return None
@@ -205,15 +207,12 @@ class TemplateFieldDataResolver(object):
 
             databundles = response
             num_databundles = len(databundles)
-            log.debug(
-                'Got list of data. Attempting de-duplication of '
-                '{} databundles'.format(num_databundles)
-            )
+            log.debug('Got list of data. Attempting de-duplication of %d databundles',
+                      num_databundles)
             deduped_databundles = dedupe_list_of_databundles(databundles)
             num_deduped_databundles = len(deduped_databundles)
-            log.debug('De-duplication returned {} of {} databundles'.format(
-                num_deduped_databundles, num_databundles
-            ))
+            log.debug('De-duplication returned %d of %d databundles',
+                      num_deduped_databundles, num_databundles)
             if num_deduped_databundles < num_databundles:
                 # TODO: [TD0112] FIX THIS HORRIBLE MESS!
                 # Use the deduplicated list
@@ -221,11 +220,10 @@ class TemplateFieldDataResolver(object):
 
             if len(databundles) == 1:
                 databundle = databundles[0]
-                log.debug('Using value "{!s}" from {} value(s); {!s}'.format(
-                    databundle.value,
-                    len(databundles),
-                    ', '.join('"{!s}"'.format(d.value) for d in databundles)
-                ))
+                log.debug('Using value "%s" from %d value(s); %s',
+                          databundle.value,
+                          len(databundles),
+                          ', '.join('"{!s}"'.format(d.value) for d in databundles))
             else:
                 log.debug('Deduplicated list of databundles still has multiple elements')
 
@@ -235,31 +233,31 @@ class TemplateFieldDataResolver(object):
                 if maybe_one:
                     assert isinstance(maybe_one, DataBundle)
                     databundle = maybe_one
-                    log.debug('Using value "{!s}" from {} value(s); {!s}'.format(
-                        databundle.value,
-                        len(databundles),
-                        ', '.join('"{!s}"'.format(d.value) for d in databundles)
-                    ))
+                    log.debug('Using value "%s" from %d value(s); %s',
+                              databundle.value,
+                              len(databundles),
+                              ', '.join('"{!s}"'.format(d.value) for d in databundles))
                 else:
-                    log.warning(
-                        '[TD0112] Not sure what data to use for field '
-                        '{!s}..'.format(field)
-                    )
+                    log.warning('[TD0112] Not sure what data to use for field %s..', field)
                     for i, d in enumerate(databundles):
-                        log.debug('[TD0112] Field {!s} candidate {:03d} :: "{!s}"'.format(field, i, d.value))
+                        log.debug('[TD0112] Field %s candidate %03d :: "%s"', field, i, d.value)
 
                     return None
 
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
         sanity.check_isinstance(databundle, DataBundle)
 
-        log.debug('Updated data for field {!s} :: {!s}'.format(field, databundle.value))
+        if databundle.value == 'UNKNOWN':
+            log.debug('Value of field %s is UNKNOWN ..', field)
+            return None
+
+        log.debug('Updated data for field %s :: %s', field, databundle.value)
         return databundle
 
     def _gather_data(self):
         for field, field_data_source_uris in self.data_sources.items():
             if self.fields_data.get(field) is not None:
-                log.debug('Skipping previously gathered field {!s}"'.format(field))
+                log.debug('Skipping previously gathered field %s', field)
                 continue
 
             field_data_source_uris_copy = field_data_source_uris.copy()
@@ -290,8 +288,8 @@ class TemplateFieldDataResolver(object):
                 self.fields_data.pop(field)
 
     def _verify_type(self, field, databundle):
-        log.debug('Verifying type of field {!s} with data :: {!s}'.format(
-            field, databundle.value))
+        log.debug('Verifying type of field %s with data :: %s',
+                  field, databundle.value)
         if field.type_compatible(databundle.coercer, databundle.multivalued):
             log.debug('Field-Data type compatible')
         else:
@@ -299,7 +297,7 @@ class TemplateFieldDataResolver(object):
             log.debug('Field-Data type INCOMPATIBLE')
 
     def _request_data(self, fileobject, uri):
-        log.debug('{!s} requesting {!r}->[{!s}]'.format(self, fileobject, uri))
+        log.debug('%s requesting %r->[%s]', self, fileobject, uri)
 
         # Pass a "tie-breaker" to resolve cases where we only want one item?
         # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
@@ -307,7 +305,7 @@ class TemplateFieldDataResolver(object):
         response = self._masterprovider.request(fileobject, uri)
         if response:
             return response
-        log.debug('Resolver got no data from query {!r}'.format(response))
+        log.debug('Resolver got no data from query %r', response)
         return None
 
     def __str__(self):
@@ -428,7 +426,7 @@ def get_one_from_many_generic_values(databundle_list, uri):
         return prioritized[0]
 
     else:
-        log.debug('[TD0112] Unhandled uri.leaf: "{!s}"'.format(uri_leaf))
+        log.debug('[TD0112] Unhandled uri.leaf: "%s"', uri_leaf)
 
     # TODO: [TD0112] Handle ranking candidates.
     return None

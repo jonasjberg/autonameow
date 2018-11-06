@@ -93,8 +93,8 @@ class BasePersistence(object):
 
         self._dp = enc.displayable_path(self._persistence_dir_abspath)
         if not self.has_persistencedir():
-            log.debug('Directory for persistent storage does not exist:'
-                      ' "{!s}"'.format(self._dp))
+            log.debug('Directory for persistent storage does not exist: "%s"',
+                      self._dp)
 
             try:
                 disk.makedirs(self._persistence_dir_abspath)
@@ -102,17 +102,13 @@ class BasePersistence(object):
                 raise PersistenceError('Unable to create persistence directory'
                                        ' "{!s}": {!s}'.format(self._dp, e))
             else:
-                log.info(
-                    'Created persistence directory: "{!s}"'.format(self._dp)
-                )
+                log.info('Created persistence directory "%s"', self._dp)
 
         if not self.has_persistencedir_permissions():
             raise PersistenceError('Persistence directory requires '
                                    'RWX-permissions: "{!s}'.format(self._dp))
 
-        log.debug(
-            '{!s} using persistence directory "{!s}"'.format(self, self._dp)
-        )
+        log.debug('%s using persistence directory "%s"', self, self._dp)
 
     @property
     def persistence_dir_abspath(self):
@@ -176,22 +172,21 @@ class BasePersistence(object):
                 key_file_data = self._load(key_file_path)
             except PersistenceImplementationBackendError as e:
                 _dp = enc.displayable_path(key_file_path)
-                log.error('Error while reading key "{!s}" from file "{!s}"; '
-                          '{!s}'.format(key, _dp, e))
+                log.error('Error while reading key "%s" from file "%s" :: %s',
+                          key, _dp, e)
 
                 # Is it a good idea to delete files that could not be read?
-                log.error('Deleting failed read key "{!s}"'.format(key))
+                log.error('Deleting failed read key "%s"', key)
                 self.delete(key)
 
                 raise KeyError(e)
             except Exception as e:
                 _dp = enc.displayable_path(key_file_path)
-                log.critical(
-                    'Caught top-level exception reading key "{!s}" from'
-                    'persistence file "{!s}"; {!s}'.format(key, _dp, e)
+                log.critical('Caught top-level exception reading key "%s" from '
+                             'persistence file "%s" :: %s', key, _dp, e)
+                raise PersistenceError(
+                    'Error while reading persistence; {!s}'.format(e)
                 )
-                raise PersistenceError('Error while reading persistence; '
-                                       '{!s}'.format(e))
             else:
                 self._data[key] = key_file_data
 
@@ -213,10 +208,8 @@ class BasePersistence(object):
             self._dump(value, key_file_path)
         except OSError as e:
             _dp = enc.displayable_path(key_file_path)
-            log.error(
-                'Error while trying to write key "{!s}" with value "{!s}" to '
-                'persistence file "{!s}"; {!s}'.format(key, value, _dp, e)
-            )
+            log.error('Error while trying to write key "%s" with value "%s" to '
+                      'persistence file "%s" :: %s', key, value, _dp, e)
 
     def delete(self, key):
         try:
@@ -226,7 +219,7 @@ class BasePersistence(object):
 
         _p = self._persistence_file_abspath(key)
         _dp = enc.displayable_path(_p)
-        log.debug('Deleting persistence file "{!s}"'.format(_dp))
+        log.debug('Deleting persistence file "%s"', _dp)
         try:
             disk.delete(_p, ignore_missing=True)
         except FilesystemError as e:
@@ -236,7 +229,7 @@ class BasePersistence(object):
         else:
             # Computed path should always be cached at this point.
             del self._persistence_file_abspath_cache[key]
-            log.debug('Deleted persistence file "{!s}"'.format(_dp))
+            log.debug('Deleted persistence file "%s"', _dp)
 
     def has(self, key):
         if key in self._data:
@@ -290,10 +283,8 @@ class BasePersistence(object):
             return size
         except FilesystemError as e:
             _dp = enc.displayable_path(key_file_path)
-            log.error(
-                'Error when getting file size for persistence file "{!s}"'
-                ' from key "{!s}"; {!s}'.format(_dp, key, e)
-            )
+            log.error('Error when getting file size for persistence file "%s" '
+                      'from key "%s" :: %s', _dp, key, e)
             raise PersistenceError(e)
 
     def _load(self, file_path):
@@ -408,7 +399,7 @@ def get_persistence(file_prefix, persistence_dir_abspath=None):
     try:
         return PicklePersistence(file_prefix, persistence_dir_abspath)
     except PersistenceError as e:
-        log.error('Persistence unavailable :: {!s}'.format(e))
+        log.error('Persistence unavailable :: %s', e)
         return None
 
 
@@ -432,7 +423,7 @@ class PersistencePathStore(object):
         if disk.exists(cache_dirpath):
             log.warning(
                 'Configuration persistence cache directory already exists '
-                'and is not a directory: "{!s}"'.format(enc.displayable_path(cache_dirpath))
+                'and is not a directory: "%s"', enc.displayable_path(cache_dirpath)
             )
             return
 
@@ -441,7 +432,7 @@ class PersistencePathStore(object):
         except FilesystemError as e:
             log.error(
                 'Unable to create persistence directory path specified in the '
-                'configuration: "{!s}"'.format(enc.displayable_path(cache_dirpath))
+                'configuration: "%s"', enc.displayable_path(cache_dirpath)
             )
             log.error(str(e))
             return
@@ -452,14 +443,12 @@ class PersistencePathStore(object):
     @property
     def config_persistence_path(self):
         if not self._config_persistence_path:
-            log.info('Using DEFAULT persistence file path "{!s}"'.format(
-                self.default_persistence_dirpath
-            ))
+            log.info('Using DEFAULT persistence file path "%s"',
+                     self.default_persistence_dirpath)
             return self.default_persistence_dirpath
 
-        log.debug('Using persistence path specified in the config "{!s}"'.format(
-            self._config_persistence_path
-        ))
+        log.debug('Using persistence path specified in the config "%s"',
+                  self._config_persistence_path)
         return self._config_persistence_path
 
 

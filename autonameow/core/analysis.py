@@ -48,7 +48,7 @@ def _execute_run_queue(analyzer_queue):
     Executes analyzers in the analyzer run queue.
     """
     for i, analyzer_instance in enumerate(analyzer_queue):
-        log.debug('Executing queue item %s/%s: %s',
+        log.debug('Executing queue item %d/%d: %s',
                   i + 1, len(analyzer_queue), analyzer_instance)
 
         log.debug('Running Analyzer "%s"', analyzer_instance)

@@ -42,7 +42,7 @@ class NameTemplateField(object):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: Implement in inheriting classes ..
-        log.warning('Called unimplemented "{!s}.format()"'.format(cls.__name__))
+        log.warning('Called unimplemented "%s.format()"', cls.__name__)
 
     @classmethod
     def type_compatible(cls, coercer, multivalued):
@@ -155,7 +155,7 @@ class _Extension(NameTemplateField):
         if coercer:
             formatted_value = coercer.format(value)
         else:
-            log.warning('{!s} coercer unknown for "{!s}"'.format(cls, value))
+            log.warning('%s coercer unknown for "%s"', cls, value)
             formatted_value = coercers.force_string(value)
 
         if formatted_value is None:

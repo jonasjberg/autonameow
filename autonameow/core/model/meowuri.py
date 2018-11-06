@@ -55,7 +55,7 @@ class MeowURIParser(object):
                 )
 
             if is_meowuri_parts(arg):
-                # Split the "meowURI" by periods to a list of strings.
+                # Split the "MeowURI" by periods to a list of strings.
                 parts_list = meowuri_list(arg)
                 raw_parts.extend(parts_list)
             elif is_one_meowuri_part(arg):
@@ -235,6 +235,28 @@ class MeowURI(object):
         return '<{}({!s})>'.format(self.__class__.__name__, self)
 
 
+class MeowURINode(object):
+    # TODO: [cleanup] Currently unused!
+    def __init__(self, name, parent=None):
+        self.name = name
+        self.parent = parent
+        self.children = list()
+
+    def _get_self_and_all_parents(self):
+        traversed_nodes = [self]
+        node = self
+        while node.parent is not None:
+            node = node.parent
+            traversed_nodes.append(node)
+
+        traversed_nodes.reverse()
+        return traversed_nodes
+
+    def make_absolute(self):
+        resolved_nodes = self._get_self_and_all_parents()
+        return C.MEOWURI_SEPARATOR.join([n.name for n in resolved_nodes])
+
+
 class MeowURIChild(object):
     def __init__(self, raw_value):
         str_value = coercers.force_string(raw_value)
@@ -335,7 +357,7 @@ def meowuri_list(meowuri_string, sep=str(C.MEOWURI_SEPARATOR)):
     """
     Splits a "MeowURI" string with parts separated by 'sep' into a list.
 
-    Example meowURI:    'extractor.metadata.exiftool.createdate'
+    Example MeowURI:    'extractor.metadata.exiftool.createdate'
     Resulting output:   ['extractor', 'metadata', 'exiftool', 'createdate']
 
     Args:

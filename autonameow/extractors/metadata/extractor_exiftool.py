@@ -19,10 +19,12 @@
 
 from core.metadata.canonicalize import canonicalize_creatortool
 from core.metadata.canonicalize import canonicalize_language
+from core.metadata.canonicalize import canonicalize_publisher
 from extractors import ExtractorError
-from extractors.metadata.base import BaseMetadataExtractor
+from extractors.base import BaseMetadataExtractor
 from thirdparty import pyexiftool
 from util import process
+from util.text.humannames import preprocess_names
 
 
 IGNORED_EXIFTOOL_TAGNAMES = frozenset([
@@ -113,7 +115,35 @@ BAD_EXIFTOOL_METADATA = {
         'author unknown',
         'Author',
         'Creator',
+        'CreatorAddress',
+        'CreatorBuildNumber',
+        'CreatorBuildNumber2',
+        'CreatorCity',
+        'CreatorCreatorIdentifierId',
+        'CreatorCreatorLanguage',
+        'CreatorFile-as',
+        'CreatorId',
+        'CreatorMajorVersion',
+        'CreatorMinorVersion',
+        'CreatorPostalCode',
+        'CreatorRegion',
+        'CreatorRole',
+        'CreatorSoftware',
+        'CreatorTool',
+        'CreatorVersion',
+        'CreatorXmlns',
         'I am the Author',
+        'MetadataCreator',
+        'MetadataCreatorFile-as',
+        'MetadataCreatorRole',
+        'PackageMetadataCreator',
+        'PackageMetadataCreatorRole',
+        'Private',
+        'Profile_creator',
+        'Profile_creator_version',
+        'ProfileCreator',
+        'User',
+        'user',
         # TODO: [TD0192] Detect and extract editions from titles
         'First Edition',
         'Second Edition',
@@ -142,6 +172,8 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     '-=-',
     '-=--',
     '-|-  this layout: dynstab  -|-',
+    '-|-  this layout: dynstabx  -|-',
+    '-|-  this layout: pidus  -|-',
     '.',
     '0101:01:01 00:00:00+00:00',
     '4<8=8AB@0B>@',
@@ -177,6 +209,7 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'UNREGISTERED VERSION',
     'Value',
     'www.allitebooks.com',
+    'www.ebook3000.com',
     'www.ebook777.com',
     'www.free-ebooks.net',
     'www.it-ebooks.info',
@@ -301,6 +334,9 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
             else:
                 coerced_metadata[field] = canonicalizer(_value_or_values)
 
+            self.log.debug('Canonicalized %s value :: %s -> %s',
+                           field, _value_or_values, coerced_metadata[field])
+
         for field, value in raw_metadata.items():
             coerced = self.coerce_field_value(field, value)
             # Empty strings are being passed through. But if we test with
@@ -311,10 +347,23 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
                 if filtered is not None:
                     # TODO: [hack][cleanup][TD0189] Do this properly!
                     # TODO: [TD0189] Canonicalize metadata values by direct replacements.
-                    if 'Producer' in field or 'Creator' in field:
+                    if 'Producer' in field or 'Creator' in field or 'CreatorTool' in field:
+                        # TODO: 'XMP:Producer' could be either "creatortool" or human names ..
+                        # TODO: Look at 'XMP:CreatorId' or 'XMP:CreatorRole' to
+                        #       determine possible contents of the 'XMP:Creator' field.
+                        #       Could be "creatortool", publisher, human names, etc.
                         _canonicalize(field, filtered, canonicalize_creatortool)
                     elif ':Language' in field:
                         _canonicalize(field, filtered, canonicalize_language)
+                    elif 'Publisher' in field:
+                        _canonicalize(field, filtered, canonicalize_publisher)
+                    elif 'Author' in field:
+                        self.log.debug(
+                            'Attempting preprocessing of assumed human names '
+                            'in field %s :: "%s"', field, filtered
+                        )
+                        assert isinstance(filtered, list)
+                        coerced_metadata[field] = preprocess_names(filtered)
                     else:
                         coerced_metadata[field] = filtered
 

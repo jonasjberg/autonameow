@@ -46,8 +46,10 @@ def _get_rule(*args, **kwargs):
 
 MOCK_CONDITIONS_A = ['a']
 MOCK_CONDITIONS_B = ['b']
+MOCK_CONDITIONS_C = ['c', 'd']
 MOCK_DATA_SOURCES_A = {'a': 'foo'}
 MOCK_DATA_SOURCES_B = {'b': 'bar'}
+MOCK_DATA_SOURCES_C = {'c': 'bar', 'd': 'baz'}
 
 
 class TestRule(TestCase):
@@ -206,6 +208,39 @@ class TestRuleComparison(TestCase):
         self.assertNotEqual(c, f)
         self.assertNotEqual(d, e)
         self.assertNotEqual(d, f)
+
+
+class TestRuleOrdering(TestCase):
+    def setUp(self):
+        self.rule_with_zero_conditions_and_sources = _get_rule()
+        self.rule_with_one_condition_and_source = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
+            data_sources=MOCK_DATA_SOURCES_A,
+        )
+        self.rule_with_two_conditions_and_sources = _get_rule(
+            conditions=MOCK_CONDITIONS_C,
+            data_sources=MOCK_DATA_SOURCES_C,
+        )
+
+    def test_rules_are_sorted_by_number_of_conditions_and_sources_a(self):
+        unsorted_rules = [
+            self.rule_with_zero_conditions_and_sources,
+            self.rule_with_one_condition_and_source,
+        ]
+        sorted_rules = sorted(unsorted_rules)
+        self.assertEqual(self.rule_with_zero_conditions_and_sources, sorted_rules[0])
+        self.assertEqual(self.rule_with_one_condition_and_source, sorted_rules[1])
+
+    def test_rules_are_sorted_by_number_of_conditions_and_sources_b(self):
+        unsorted_rules = [
+            self.rule_with_zero_conditions_and_sources,
+            self.rule_with_one_condition_and_source,
+            self.rule_with_two_conditions_and_sources,
+        ]
+        sorted_rules = sorted(unsorted_rules)
+        self.assertEqual(self.rule_with_zero_conditions_and_sources, sorted_rules[0])
+        self.assertEqual(self.rule_with_one_condition_and_source, sorted_rules[1])
+        self.assertEqual(self.rule_with_two_conditions_and_sources, sorted_rules[2])
 
 
 class TestDummyRule(TestCase):
@@ -495,11 +530,19 @@ class TestGetValidRuleCondition(TestCase):
 
 
 class TestIsValidSourceSpecification(TestCase):
-    def test_returns_false_given_none_or_empty_source(self):
-        for given in [None, '']:
+    def _assert_valid(self, given):
+        with self.subTest(given=given):
+            self.assertTrue(is_valid_source(given))
+
+    def _assert_invalid(self, given):
+        with self.subTest(given=given):
             self.assertFalse(is_valid_source(given))
 
-    def test_returns_false_given_invalid_source(self):
+    def test_returns_false_given_none_or_empty_source(self):
+        for given in [None, '']:
+            self._assert_invalid(given)
+
+    def test_returns_false_given_invalid_sources(self):
         for given in [
             ' ',
             'not.a.valid.source.surely',
@@ -507,7 +550,19 @@ class TestIsValidSourceSpecification(TestCase):
             'foo.bar',
             'foo.bar.baz.',
         ]:
-            self.assertFalse(is_valid_source(given))
+            self._assert_invalid(given)
+
+    def test_returns_false_given_pre_version_v0_5_5_sources(self):
+        # The analyzer 'FiletagsAnalyzer' was reworked into extractor
+        # 'FiletagsExtractor' in commit de9b6b34cd6255dfc9c1d945f12d612e89
+        for given in [
+            'analyzer.filesystem.filetags.datetime',
+            'analyzer.filesystem.filetags.description',
+            'analyzer.filesystem.filetags.extension',
+            'analyzer.filesystem.filetags.follows_filetags_convention',
+            'analyzer.filesystem.filetags.tags',
+        ]:
+            self._assert_invalid(given)
 
     def test_returns_true_given_valid_source(self):
         for given_str in [
@@ -518,8 +573,9 @@ class TestIsValidSourceSpecification(TestCase):
             # Extractor sources
             uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
             uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
-            uuconst.MEOWURI_FS_XPLAT_MIMETYPE
+            uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            uuconst.MEOWURI_FS_FILETAGS_TAGS,
         ]:
             with self.subTest(given=given_str):
                 given = uu.as_meowuri(given_str)
-                self.assertTrue(is_valid_source(given))
+                self._assert_valid(given)

@@ -104,7 +104,7 @@ class BaseTextExtractor(object):
         if any_caching_mechanism:
             self.cache = any_caching_mechanism
         else:
-            log.debug('Failed to initialize {!s} cache'.format(self))
+            log.debug('Failed to initialize %s cache', self)
             self.cache = None
 
     def _check_cache_and_do_extraction(self, fileobject):
@@ -128,10 +128,10 @@ class BaseTextExtractor(object):
         try:
             cached_text = self.cache.get(fileobject)
         except persistence.PersistenceError as e:
-            self.log.critical('Unable to read {!s} cache :: {!s}'.format(self, e))
+            self.log.critical('Unable to read %s cache :: %s', self, e)
         else:
             if cached_text:
-                self.log.debug('Using cached text for: {!r}'.format(fileobject))
+                self.log.debug('Using cached text for %r', fileobject)
                 return cached_text
         return None
 
@@ -139,7 +139,7 @@ class BaseTextExtractor(object):
         try:
             self.cache.set(fileobject, text)
         except persistence.PersistenceError as e:
-            self.log.critical('Unable to write {!s} cache :: {!s}'.format(self, e))
+            self.log.critical('Unable to write %s cache :: %s', self, e)
 
     @classmethod
     def name(cls):

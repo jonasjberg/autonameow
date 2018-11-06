@@ -22,8 +22,9 @@ import os
 
 from core import constants as C
 from core.metadata.canonicalize import canonicalize_language
+from core.metadata.canonicalize import canonicalize_publisher
 from extractors import ExtractorError
-from extractors.metadata.base import BaseMetadataExtractor
+from extractors.base import BaseMetadataExtractor
 from extractors.text.base import decode_raw
 from util import coercers
 from util import disk
@@ -91,6 +92,10 @@ class PandocMetadataExtractor(BaseMetadataExtractor):
                     # TODO: [hack][cleanup][TD0189] Do this properly!
                     # TODO: [TD0189] Canonicalize metadata values by direct replacements.
                     coerced_metadata[field] = canonicalize_language(coerced)
+                elif field == 'publisher':
+                    # TODO: [hack][cleanup][TD0189] Do this properly!
+                    # TODO: [TD0189] Canonicalize metadata values by direct replacements.
+                    coerced_metadata[field] = canonicalize_publisher(coerced)
                 else:
                     coerced_metadata[field] = coerced
 

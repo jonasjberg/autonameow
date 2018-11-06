@@ -22,6 +22,7 @@ import re
 
 # TODO: [TD0191] Detect and extract subtitles from titles
 # TODO: [TD0192] Detect and extract editions from titles
+# Use lexing in combination with something like a "blackboard pattern"?
 
 
 # TODO: Handle incorrect metadata with authors embedded in title;
@@ -79,7 +80,25 @@ def unpack_field_value(todo):
     #     'title': 'Practical Kibble Sight With CatVision',
     # }
     #
+    #   URI:  extractor.metadata.exiftool.XMP:Rights
+    # VALUE:  '© Text 2014 Cats Coates and Fuhr Warms'
+    # Should unpack to unpacked = {
+    #     'author': ['Cats Coates', 'Fuhr Warms']',
+    #     'date_created': '2014',
+    # }
+    #
     pass
+
+
+def unpack_title(value):
+    # TODO: [TD0201] Implement "unpacking" field values.
+    # TODO: [TD0201] Add some functionality for describing a "schema".
+    # Probably needs to return some kind of entity more sophisticated than
+    # tuples of simple types like strings, etc., to provide more information
+    # back to the caller about which fields the result values should be
+    # assigned to, when maybe adding this "unpacked" information back to the
+    # originating record of the incoming value.
+    return split_title_subtitle(value)
 
 
 def split_title_subtitle(full_title):

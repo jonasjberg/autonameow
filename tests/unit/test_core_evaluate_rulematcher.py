@@ -77,9 +77,12 @@ class TestRuleMatcherMatching(TestCase):
         rule = Mock()
         rule.description = 'Mock Rule'
         rule.exact_match = bool(exact_match)
-        rule.number_conditions = int(num_conditions)
         rule.ranking_bias = float(bias)
         rule.data_sources = list()
+
+        # NOTE(jonas): Prevent 'TypeError: unorderable types: Mock() < Mock()'
+        #              when sorting rules in 'get_matched_rules()'.
+        rule.__gt__ = lambda _, other: 0
 
         _conditions = list()
         for _ in range(num_conditions):
@@ -95,7 +98,7 @@ class TestRuleMatcherMatching(TestCase):
         self.assertEqual(expect, actual)
 
     @patch('core.evaluate.rulematcher.RuleConditionEvaluator.passed')
-    def test_non_exact_matched_rule_has_zero_score_one_weight(self, mock_passed):
+    def test_non_exact_matched_rule_has_zero_score_one_relscore(self, mock_passed):
         self.skipTest('TODO: Fix bad mocking ..')
         rule = self._get_mock_rule(
             exact_match=False, num_conditions=3, bias=0.5
@@ -114,7 +117,7 @@ class TestRuleMatcherMatching(TestCase):
 
     @patch('core.evaluate.rulematcher.RuleConditionEvaluator.evaluate', MagicMock())
     @patch('core.evaluate.rulematcher.RuleConditionEvaluator.passed')
-    def test_exact_matched_rule_has_one_score_one_weight(self, mock_passed):
+    def test_exact_matched_rule_has_one_score_one_relscore(self, mock_passed):
         rule = self._get_mock_rule(
             exact_match=True, num_conditions=3, bias=0.5
         )
@@ -128,7 +131,7 @@ class TestRuleMatcherMatching(TestCase):
 
     @patch('core.evaluate.rulematcher.RuleConditionEvaluator.evaluate', MagicMock())
     @patch('core.evaluate.rulematcher.RuleConditionEvaluator.passed')
-    def test_one_exact_rule_one_not_exact_rule_same_score_and_weight(self, mock_passed):
+    def test_one_exact_rule_one_not_exact_rule_same_score_and_relscore(self, mock_passed):
         rule1 = self._get_mock_rule(
             exact_match=True, num_conditions=3, bias=0.5
         )
@@ -145,7 +148,7 @@ class TestRuleMatcherMatching(TestCase):
 
     @patch('core.evaluate.rulematcher.RuleConditionEvaluator.evaluate', MagicMock())
     @patch('core.evaluate.rulematcher.RuleConditionEvaluator.passed')
-    def test_both_exact_different_weight(self, mock_passed):
+    def test_both_exact_different_relscore(self, mock_passed):
         # 2/2 conditions met
         rule1 = self._get_mock_rule(
             exact_match=False, num_conditions=2, bias=0.5
@@ -175,55 +178,55 @@ class TestPrioritizeRules(TestCase):
             prioritize_rules([None, None])
             prioritize_rules([None])
 
-    def test_prioritize_rules_returns_expected_based_on_score_same_weight(self):
+    def test_prioritize_rules_returns_expected_based_on_score_same_relscore(self):
         r_a = DummyRule(exact_match=False)
-        s_a = {'score': 3, 'weight': 0.5}
+        s_a = {'score': 3, 'relative_score': 0.5}
         r_b = DummyRule(exact_match=False)
-        s_b = {'score': 0, 'weight': 0.5}
+        s_b = {'score': 0, 'relative_score': 0.5}
         expected = [r_a, r_b]
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)
 
         r_a = DummyRule(exact_match=False)
-        s_a = {'score': 0, 'weight': 0.5}
+        s_a = {'score': 0, 'relative_score': 0.5}
 
         r_b = DummyRule(exact_match=False)
-        s_b = {'score': 3, 'weight': 0.5}
+        s_b = {'score': 3, 'relative_score': 0.5}
         expected = [r_b, r_a]
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)
 
-    def test_prioritize_rules_returns_expected_based_on_score_diff_weight(self):
+    def test_prioritize_rules_returns_expected_based_on_score_diff_relscore(self):
         r_a = DummyRule(exact_match=False)
-        s_a = {'score': 3, 'weight': 1}
+        s_a = {'score': 3, 'relative_score': 1}
         r_b = DummyRule(exact_match=False)
-        s_b = {'score': 2, 'weight': 0}
+        s_b = {'score': 2, 'relative_score': 0}
         expected = [r_a, r_b]
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)
 
         r_a = DummyRule(exact_match=False)
-        s_a = {'score': 1, 'weight': 0.1}
+        s_a = {'score': 1, 'relative_score': 0.1}
         r_b = DummyRule(exact_match=False)
-        s_b = {'score': 3, 'weight': 0.0}
+        s_b = {'score': 3, 'relative_score': 0.0}
         expected = [r_a, r_b]
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)
 
-    def test_prioritize_rules_returns_expected_based_on_weight_same_score(self):
+    def test_prioritize_rules_returns_expected_based_on_relscore_same_score(self):
         r_a = DummyRule(exact_match=False)
-        s_a = {'score': 3, 'weight': 0.0}
+        s_a = {'score': 3, 'relative_score': 0.0}
         r_b = DummyRule(exact_match=False)
-        s_b = {'score': 3, 'weight': 1.0}
+        s_b = {'score': 3, 'relative_score': 1.0}
         expected = [r_b, r_a]
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)
 
-    def test_prioritize_rules_returns_expected_based_on_weight_zero_score(self):
+    def test_prioritize_rules_returns_expected_based_on_relscore_zero_score(self):
         r_a = DummyRule(exact_match=False)
-        s_a = {'score': 0, 'weight': 0.1}
+        s_a = {'score': 0, 'relative_score': 0.1}
         r_b = DummyRule(exact_match=False)
-        s_b = {'score': 0, 'weight': 0.5}
+        s_b = {'score': 0, 'relative_score': 0.5}
         expected = [r_b, r_a]
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)
@@ -231,10 +234,10 @@ class TestPrioritizeRules(TestCase):
     def test_prioritization_based_solely_on_number_of_data_sources(self):
         r_a = DummyRule(exact_match=False)
         r_a.data_sources = ['a']
-        s_a = {'score': 0, 'weight': 0.0}
+        s_a = {'score': 0, 'relative_score': 0.0}
         r_b = DummyRule(exact_match=False)
         r_b.data_sources = ['a', 'b']
-        s_b = {'score': 0, 'weight': 0.0}
+        s_b = {'score': 0, 'relative_score': 0.0}
         expected = [r_b, r_a]
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)
@@ -242,10 +245,10 @@ class TestPrioritizeRules(TestCase):
     def test_rules_without_data_sources_are_deprioritized_when_otherwise_tied(self):
         r_a = DummyRule(exact_match=False)
         r_a.data_sources = ['a']
-        s_a = {'score': 2, 'weight': 0.5}
+        s_a = {'score': 2, 'relative_score': 0.5}
         r_b = DummyRule(exact_match=False)
         r_b.data_sources = []
-        s_b = {'score': 2, 'weight': 0.5}
+        s_b = {'score': 2, 'relative_score': 0.5}
         expected = [r_a, r_b]
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)

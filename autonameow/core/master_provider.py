@@ -170,7 +170,7 @@ class ProviderRegistry(object):
         else:
             found = self._source_providers_for_meowuri(requested_meowuri)
 
-        self.log.debug('%s returning %s providers for MeowURI %s',
+        self.log.debug('%s returning %d providers for MeowURI %s',
                        self.__class__.__name__, len(found), requested_meowuri)
         return found
 
@@ -205,6 +205,10 @@ class ProviderRunner(object):
     def __init__(self, config, extractor_runner, run_analysis_func):
         self.config = config
         self._extractor_runner = extractor_runner
+
+        assert callable(run_analysis_func), (
+            'Expected dependency-injected "run_analysis" to be callable'
+        )
         self._run_analysis = run_analysis_func
 
         self._provider_delegation_history = defaultdict(set)
@@ -225,7 +229,7 @@ class ProviderRunner(object):
         prepared_extractors = set()
         num_possible_providers = len(possible_providers)
         for n, provider in enumerate(possible_providers, start=1):
-            log.debug('Looking at possible provider (%s/%s): %s',
+            log.debug('Looking at possible provider (%d/%d): %s',
                       n, num_possible_providers, provider)
 
             if self._previously_delegated_provider(fileobject, provider):
@@ -291,7 +295,7 @@ class ProviderRunner(object):
 def _provider_is_extractor(provider):
     # TODO: [hack] Fix circular import problems when running new unit test runner.
     #       $ PYTHONPATH=autonameow:tests python3 -m unit --skip-slow
-    from extractors.metadata.base import BaseMetadataExtractor
+    from extractors.base import BaseMetadataExtractor
     return issubclass(provider, BaseMetadataExtractor)
 
 
@@ -317,22 +321,18 @@ class MasterDataProvider(object):
     This is intended to be a "dynamic" or "reactive" data retrieval interface
     for use by any part of the application.
     """
-    def __init__(self, config):
+    def __init__(self, config, run_analysis_func):
         self.config = config
 
-        # Import class instance and function to be DI'd into 'ProviderRunner'.
-        from core import analysis
-        run_analysis_func = analysis.run_analysis
-        assert callable(run_analysis_func), (
-            'Expected dependency injected "run_analysis" to be callable'
+        assert repository.SessionRepository is not None, (
+            'Expected Repository to be initialized at this point'
         )
-
         from core.extraction import ExtractorRunner
         extractor_runner = ExtractorRunner(
             add_results_callback=repository.SessionRepository.store
         )
         assert hasattr(extractor_runner, 'start'), (
-            'Expected attribute "start" in dependency injected ExtractorRunner'
+            'Expected "ExtractorRunner" to have an attribute "start"'
         )
 
         self.provider_runner = ProviderRunner(
@@ -402,21 +402,25 @@ class MasterDataProvider(object):
 
 
 _MASTER_DATA_PROVIDER = None
-Registry = None
 
 
 def _initialize_master_data_provider(*_, **kwargs):
-    # assert 'config' in kwargs
     active_config = kwargs.get('config')
+
+    from core import analysis
+    run_analysis_func = analysis.run_analysis
 
     # Keep one global 'MasterDataProvider' singleton per 'Autonameow' instance.
     global _MASTER_DATA_PROVIDER
-    _MASTER_DATA_PROVIDER = MasterDataProvider(active_config)
+    _MASTER_DATA_PROVIDER = MasterDataProvider(active_config, run_analysis_func)
 
 
 def _shutdown_master_data_provider(*_, **__):
     global _MASTER_DATA_PROVIDER
     _MASTER_DATA_PROVIDER = None
+
+
+Registry = None
 
 
 def _initialize_provider_registry(*_, **__):

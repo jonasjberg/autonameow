@@ -26,6 +26,9 @@ class Record(object):
     def __getattr__(self, item):
         return self._fields.get(item)
 
+    def __contains__(self, item):
+        return item in self._fields
+
 
 def bundle(fields_dict):
     """

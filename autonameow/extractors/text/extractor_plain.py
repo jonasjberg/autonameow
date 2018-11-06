@@ -66,16 +66,16 @@ def read_entire_text_file(filepath):
         log.debug(str(e))
         if chardet is not None:
             log.debug(
-                'Unable to decode text with {} encoding. Reading as bytes and '
-                'trying to auto-detect the encoding.'.format(C.DEFAULT_ENCODING)
+                'Unable to decode text using %s encoding. Reading as bytes and '
+                'trying to auto-detect the encoding.', C.DEFAULT_ENCODING
             )
             contents = _read_entire_text_file_autodetect_encoding(filepath)
 
     if not contents:
-        log.debug('Read NOTHING from file "{!s}"'.format(filepath))
+        log.debug('Read NOTHING from file "%s"', filepath)
         return ''
 
-    log.debug('Read {} bytes from "{!s}"'.format(len(contents), filepath))
+    log.debug('Read %s bytes from file "%s"', len(contents), filepath)
     text = ''.join(contents)
     sanity.check_internal_string(text)
     return text
@@ -84,7 +84,7 @@ def read_entire_text_file(filepath):
 def _read_entire_text_file_autodetect_encoding(filepath):
     _encoding = autodetect_encoding(filepath)
     if _encoding:
-        log.debug('Auto-detected encoding: {!s}'.format(_encoding))
+        log.debug('Auto-detected encoding: %s', _encoding)
         try:
             with open(filepath, 'r', encoding=_encoding) as fh:
                 return fh.readlines()
@@ -101,7 +101,7 @@ def autodetect_encoding(filepath):
         with open(filepath, 'rb') as fh:
             detected_encoding = chardet.detect(fh.read())
     except (OSError, TypeError) as e:
-        log.error('Error while auto-detecting encoding; {!s}'.format(e))
+        log.error('Error while auto-detecting encoding: %s', e)
         return None
     else:
         return detected_encoding.get('encoding', None)

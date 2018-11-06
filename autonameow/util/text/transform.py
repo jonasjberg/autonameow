@@ -337,6 +337,24 @@ def simplify_unicode(text):
     return _strip_accents_homerolled(text)
 
 
+def transliterascii_unicode(text):
+    """
+    Unicode text normalization.
+
+    Possibly improved, alternative implementation of the "strip accents"
+    functionality.  That is, simplify Unicode text by removing accents and
+    normalizing characters to a much smaller range of possible characters.
+    """
+    assert isinstance(text, str)
+
+    normalized = unicodedata.normalize('NFKD', text)
+
+    # Round-trip "str -> bytes -> string"
+    bytes_text = normalized.encode('ascii', errors='ignore')
+    # NOTE: Whatever junk that is not handled is left as-is and is returned.
+    return bytes_text.decode('ascii', errors='ignore')
+
+
 def _strip_accents_homerolled(string):
     nkfd_form = unicodedata.normalize('NFKD', string)
     return ''.join([c for c in nkfd_form if not unicodedata.combining(c)])
@@ -394,15 +412,18 @@ def html_unescape(string):
     return html.unescape(string)
 
 
-def batch_regex_replace(regex_replacement_tuples, string):
+def batch_regex_replace(regex_replacement_tuples, string, ignore_case=False):
     if not string:
         return string
-
     assert isinstance(string, str)
+
+    re_flags = 0
+    if ignore_case:
+        re_flags |= re.IGNORECASE
 
     matches = list()
     for regex, replacement in regex_replacement_tuples:
-        match = re.search(regex, string)
+        match = re.search(regex, string, re_flags)
         if match:
             matches.append((regex, replacement))
 
@@ -410,7 +431,7 @@ def batch_regex_replace(regex_replacement_tuples, string):
         matches, key=lambda x: len(x[1]), reverse=True
     )
     for regex, replacement in sorted_by_longest_replacement:
-        string = re.sub(regex, replacement, string)
+        string = re.sub(regex, replacement, string, flags=re_flags)
 
     return string
 

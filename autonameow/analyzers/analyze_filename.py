@@ -161,11 +161,11 @@ class FilenameAnalyzer(BaseAnalyzer):
 
     def _get_extension(self):
         self.log.debug(
-            'Attempting to get likely extension for MIME-type: "{!s}"  Basename'
-            ' suffix: "{!s}"'.format(self._file_mimetype, self._basename_suffix)
+            'Attempting to get likely extension for MIME-type: "%s"  Basename'
+            ' suffix: "%s"', self._file_mimetype, self._basename_suffix
         )
         result = likely_extension(self._basename_suffix, self._file_mimetype)
-        self.log.debug('Likely extension: "{!s}"'.format(result))
+        self.log.debug('Likely extension: "%s"', result)
         return result
 
     def _get_publisher(self):
@@ -177,9 +177,9 @@ class FilenameAnalyzer(BaseAnalyzer):
             return None
 
         _candidates = _options.get('candidates', {})
-        self.log.debug('Searching for publisher in basename prefix with {} candidates'.format(len(_candidates)))
+        self.log.debug('Searching for publisher in basename prefix with %d candidates', len(_candidates))
         result = find_publisher(self._basename_prefix, _candidates)
-        self.log.debug('Search for publisher in basename prefix found "{!s}"'.format(result))
+        self.log.debug('Search for publisher in basename prefix found "%s"', result)
         return result
 
     @classmethod
@@ -332,8 +332,7 @@ def likely_extension(basename_suffix, mime_type):
     # NOTE(jonas): Calling 'format()' returns a extension as a Unicode string.
     _coerced_mime = coercers.AW_MIMETYPE(mime_type)
     if _coerced_mime:
-        log.debug('Passing coerced MIME "{!s}" to '
-                  'AW_MIMETYPE.format()'.format(_coerced_mime))
+        log.debug('Passing coerced MIME "%s" to AW_MIMETYPE.format()', _coerced_mime)
         return coercers.AW_MIMETYPE.format(_coerced_mime)
 
     if basename_suffix == '':
@@ -342,8 +341,7 @@ def likely_extension(basename_suffix, mime_type):
 
     _coerced_suffix = coercers.AW_MIMETYPE(basename_suffix)
     if _coerced_suffix:
-        log.debug('Passing coerced suffix "{!s}" to '
-                  'AW_MIMETYPE.format()'.format(_coerced_suffix))
+        log.debug('Passing coerced suffix "%s" to AW_MIMETYPE.format()', _coerced_suffix)
         return coercers.AW_MIMETYPE.format(_coerced_suffix)
 
     return None

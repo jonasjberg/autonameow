@@ -17,6 +17,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
+
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor
 from extractors.text.base import decode_raw
@@ -65,3 +67,15 @@ def extract_pdf_content_with_pdftotext(filepath):
 
     result = decode_raw(stdout)
     return result.strip() if result else ''
+
+
+def remove_intercharacter_spaces(s):
+    assert isinstance(s, str)
+
+    match = re.match(r'(\S\s){5}', s)
+    if match:
+        matched_string = match.group(0)
+        fixed_matched_string = ''.join(matched_string.split())
+        return fixed_matched_string
+
+    return s

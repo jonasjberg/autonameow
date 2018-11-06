@@ -187,6 +187,38 @@ def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
     return persistence_mechanism
 
 
+def write_captured_runtime(testsuite, runtime):
+    # TODO: [hack] Refactor ..
+    assert isinstance(runtime, float)
+
+    persistent_storage = _get_persistence()
+    if not persistent_storage:
+        return
+
+    try:
+        captured_runtimes = persistent_storage.get('captured_runtimes')
+    except KeyError:
+        captured_runtimes = dict()
+
+    assert isinstance(captured_runtimes, dict)
+    captured_runtimes[testsuite] = runtime
+    persistent_storage.set('captured_runtimes', captured_runtimes)
+
+
+def load_captured_runtime(testsuite):
+    # TODO: [hack] Refactor ..
+    persistent_storage = _get_persistence()
+    if persistent_storage:
+        try:
+            captured_runtimes = persistent_storage.get('captured_runtimes')
+        except KeyError:
+            pass
+        else:
+            if captured_runtimes:
+                assert isinstance(captured_runtimes, dict)
+                return captured_runtimes.get(testsuite)
+
+
 def load_testsuite_history(testsuite, history):
     """
     Returns a list of historical test results for a given testsuite.
@@ -331,7 +363,19 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
             testsuite_history = load_testsuite_history(testsuite, history)
             assert isinstance(testsuite_history, list)
             reporter.msg_testsuite_history(testsuite_history)
-            reporter.msg_testsuite_runtime(elapsed_time, results.captured_runtime)
+
+            captured_runtime = results.captured_runtime
+            assert captured_runtime is not None
+
+            previous_runtime = load_captured_runtime(testsuite)
+            if previous_runtime is not None:
+                time_delta_ms = (captured_runtime - previous_runtime) * 1000
+            else:
+                time_delta_ms = None
+            reporter.msg_testsuite_runtime(elapsed_time, captured_runtime, time_delta_ms)
+
+            # TODO: [hack] Refactor .. Clean up persistence.
+            write_captured_runtime(testsuite, captured_runtime)
 
             if print_stderr and captured_stderr:
                 reporter.msg_captured_stderr(captured_stderr)
@@ -463,7 +507,7 @@ def main(args):
         log.setLevel(logging.WARNING)
 
     loaded_tests = load_regression_testsuites()
-    log.info('Loaded {} regression test(s) ..'.format(len(loaded_tests)))
+    log.info('Loaded %d regression test(s) ..', len(loaded_tests))
     if not loaded_tests:
         return
 
@@ -474,11 +518,11 @@ def main(args):
         for filter_expression in opts.filter_globs:
             filtered = filter_tests(tests_to_filter, glob_filter,
                                     expr=filter_expression)
-            log.info('Filter expression "{!s}" matched {} test suite(s)'.format(
-                filter_expression, len(filtered)))
+            log.info('Filter expression "%s" matched %d test suite(s)',
+                     filter_expression, len(filtered))
             tests_to_filter = filtered
             all_filtered = filtered
-        log.info('Filtering selected {} test suite(s)'.format(len(all_filtered)))
+        log.info('Filtering selected %d test suite(s)', len(all_filtered))
         selected_tests = all_filtered
     else:
         selected_tests = loaded_tests
@@ -489,15 +533,15 @@ def main(args):
             # TODO: Improve comparing regression test suites.
             # Fails if any option is modified. Compare only directory basenames?
             selected_tests = [t for t in selected_tests if t in failed_lastrun]
-            log.info('Selected {} of {} test suite(s) that failed during the '
-                     'last completed run ..'.format(len(selected_tests),
-                                                    len(failed_lastrun)))
+            log.info('Selected %d of %d test suite(s) that failed during the '
+                     'last completed run ..', len(selected_tests),
+                     len(failed_lastrun))
         else:
-            log.info('Selected all {} test suite(s) as None failed during the '
-                     'last completed run ..'.format(len(selected_tests)))
+            log.info('Selected all %d test suite(s) as None failed during the '
+                     'last completed run ..', len(selected_tests))
 
-    log.info('Selected {} of {} test suite(s) ..'.format(len(selected_tests),
-                                                         len(loaded_tests)))
+    log.info('Selected %d of %d test suite(s) ..', len(selected_tests),
+             len(loaded_tests))
     # End of test selection.
     if not selected_tests:
         log.warning('None of the loaded tests were selected ..')

@@ -75,8 +75,11 @@ class TerminalReporter(object):
         self.MAX_DESCRIPTION_LENGTH = TERMINAL_WIDTH - 75
         assert self.MAX_DESCRIPTION_LENGTH > 0, 'Terminal is not wide enough ..'
 
-        self.msg_label_pass = cli.colorize('PASS', fore='GREEN')
-        self.msg_label_fail = cli.colorize('FAIL', fore='RED')
+        self.msg_label_assert_pass = cli.colorize('PASS', fore='GREEN')
+        self.msg_label_assert_fail = cli.colorize('FAIL', fore='RED')
+        self.msg_label_suite_success = cli.colorize('[SUCCESS]', fore='GREEN')
+        self.msg_label_suite_failure = cli.colorize('[FAILURE]', fore='RED')
+        self.msg_label_suite_skipped = cli.colorize('[SKIPPED]', fore='YELLOW')
 
         # Unicode character "ballot box with check" (U+2611)
         self.msg_mark_history_pass = cli.colorize('\u2611', fore='GREEN')
@@ -86,38 +89,35 @@ class TerminalReporter(object):
         self.msg_mark_history_skip = cli.colorize('\u2610', fore='YELLOW')
         self.msg_mark_history_unknown = self.msg_mark_history_skip
 
-    def msg(self, string):
+    def msg(self, strng):
         if self.verbose:
-            _println(string)
+            _println(strng)
 
-    def msg_run_test_success(self, string):
+    def msg_run_test_success(self, strng):
         if self.verbose:
-            _println('{} {!s}'.format(self.msg_label_pass, string))
+            _println('{} {!s}'.format(self.msg_label_assert_pass, strng))
 
-    def msg_run_test_failure(self, string):
+    def msg_run_test_failure(self, strng):
         if self.verbose:
-            _println('{} {!s}'.format(self.msg_label_fail, string))
+            _println('{} {!s}'.format(self.msg_label_assert_fail, strng))
 
     def msg_testsuite_success(self):
-        _label = cli.colorize('[SUCCESS]', fore='GREEN')
         if self.verbose:
-            _print(_label + ' ')
+            _print(self.msg_label_suite_success + ' ')
         else:
-            _print(' ' + _label + ' ')
+            _print(' ' + self.msg_label_suite_success + ' ')
 
     def msg_testsuite_failure(self):
-        _label = cli.colorize('[FAILURE]', fore='RED')
         if self.verbose:
-            _print(_label + ' ')
+            _print(self.msg_label_suite_failure + ' ')
         else:
-            _print(' ' + _label + ' ')
+            _print(' ' + self.msg_label_suite_failure + ' ')
 
     def msg_testsuite_skipped(self):
-        _label = cli.colorize('[SKIPPED]', fore='YELLOW')
         if self.verbose:
-            _print(_label + ' ')
+            _print(self.msg_label_suite_skipped + ' ')
         else:
-            _print(' ' + _label + ' ')
+            _print(' ' + self.msg_label_suite_skipped + ' ')
 
     def msg_testsuite_history(self, history):
         if self.verbose:
@@ -139,9 +139,7 @@ class TerminalReporter(object):
             elif result == RunResultsHistory.RESULT_UNKNOWN:
                 _print(self.msg_mark_history_unknown)
             else:
-                log.warning(
-                    'Invalid testuite history result: {!s}'.format(result)
-                )
+                log.warning('Invalid testuite history result: %s', result)
                 _print(self.msg_mark_history_unknown)
 
     @staticmethod
@@ -171,11 +169,11 @@ class TerminalReporter(object):
                           count_failure, elapsed_time):
         _println('\n')
 
-        _skipped = '{} skipped'.format(count_skipped)
+        str_skipped = '{} skipped'.format(count_skipped)
         if count_skipped > 0:
-            _skipped = cli.colorize(_skipped, fore='YELLOW')
+            str_skipped = cli.colorize(str_skipped, fore='YELLOW')
 
-        _failure = '{} failed'.format(count_failure)
+        str_failure = '{} failed'.format(count_failure)
         if count_failure == 0:
             if count_total == 0:
                 self.msg_overall_noop()
@@ -184,14 +182,14 @@ class TerminalReporter(object):
         else:
             self.msg_overall_failure()
             # Make the failed count red if any test failed.
-            _failure = cli.colorize(_failure, fore='RED')
+            str_failure = cli.colorize(str_failure, fore='RED')
 
-        _runtime = '{:.6f} seconds'.format(elapsed_time)
-        _stats = 'Regression Test Summary:  {} total, {}, {} passed, {}  ' \
-                 'in {}'.format(count_total, _skipped, count_success,
-                                _failure, _runtime)
+        str_runtime = '{:.6f} seconds'.format(elapsed_time)
+        str_stats = 'Regression Test Summary:  {} total, {}, {} passed, {}  ' \
+                    'in {}'.format(count_total, str_skipped, count_success,
+                                   str_failure, str_runtime)
         _println()
-        _println(_stats)
+        _println(str_stats)
         _println('_' * TERMINAL_WIDTH)
 
     def _format_description(self, description):
@@ -225,7 +223,7 @@ class TerminalReporter(object):
             _println(colorized_message)
             _println(formatted_description)
         else:
-            _print('{:30.30s} {!s} '.format(shortname, formatted_description))
+            _print('{:28.28s} {!s} '.format(shortname, formatted_description))
 
     def msg_test_skipping(self, shortname, description):
         formatted_description = self._format_description(description)
@@ -237,25 +235,47 @@ class TerminalReporter(object):
             _println(colorized_message)
             _println(formatted_description)
         else:
-            _print('{:30.30s} {!s} '.format(shortname, formatted_description))
+            _print('{:28.28s} {!s} '.format(shortname, formatted_description))
 
-    def msg_testsuite_runtime(self, elapsed_time, captured_time):
+    def msg_testsuite_runtime(self, elapsed_time, captured_time, time_delta_ms=None):
         if captured_time:
-            _captured = '{:.6f}s)'.format(captured_time)
+            str_captured = '{:.3f}s)'.format(captured_time)
         else:
-            _captured = 'N/A)'
+            str_captured = 'N/A)'
 
         if elapsed_time:
-            _elapsed = '{:.6f}s'.format(elapsed_time)
+            str_elapsed = '{:.3f}s'.format(elapsed_time)
         else:
-            _elapsed = 'N/A'
+            str_elapsed = 'N/A'
 
-        _time_1 = '{:10.10s}'.format(_elapsed)
-        _time_2 = '{:10.10s}'.format(_captured)
-        if self.verbose:
-            _println(' ' * 10 + 'Runtime: {} (captured {}'.format(_time_1, _time_2))
+        if time_delta_ms is not None:
+            assert isinstance(time_delta_ms, float)
+
+            # Positive time delta means this run was slower.
+            if time_delta_ms > 0:
+                time_delta_color = 'RED'
+            else:
+                time_delta_color = 'GREEN'
+
+            formatted_time_delta = _format_ms_time_delta(time_delta_ms)
+            if abs(time_delta_ms) > 50:
+                # Huge difference, highlight color to stand out.
+                str_delta = cli.colorize(formatted_time_delta, fore=time_delta_color, style='BRIGHT')
+            elif abs(time_delta_ms) > 25:
+                # Noticeably different, use normal color.
+                str_delta = cli.colorize(formatted_time_delta, fore=time_delta_color)
+            else:
+                str_delta = cli.colorize(formatted_time_delta, fore=time_delta_color, style='DIM')
         else:
-            _println('  {} ({}'.format(_time_1, _time_2))
+            str_delta = cli.colorize('   N/A', style='DIM')
+
+        str_time_1 = '{:6.6s}'.format(str_elapsed)
+        str_time_2 = '{:7.7s}'.format(str_captured)
+        str_time_3 = '{:>s}'.format(str_delta)
+        if self.verbose:
+            _println(' ' * 10 + 'Runtime: {} (captured {} Delta: {}'.format(str_time_1, str_time_2, str_time_3))
+        else:
+            _println('  {} ({} {}'.format(str_time_1, str_time_2, str_time_3))
 
     def msg_captured_exception(self, exception_info):
         assert isinstance(exception_info, dict)
@@ -283,6 +303,23 @@ class TerminalReporter(object):
     def msg_captured_stdout(stdout):
         _println('\nCaptured stdout:')
         _println(stdout)
+
+
+def _format_ms_time_delta(time_delta):
+    time_delta = float(time_delta)
+
+    if abs(time_delta) >= 1000:
+        # Above or equal to 1 second
+        str_delta = '{:.2f} s'.format(time_delta / 1000)
+    else:
+        # Milliseconds
+        str_delta = '{:.2f}ms'.format(time_delta)
+
+    if time_delta > 0:
+        str_delta = '+' + str_delta
+
+    result = '{0: >9}'.format(str(str_delta))
+    return result
 
 
 class RegressionTestSuite(object):
@@ -395,8 +432,7 @@ class RegressionTestLoader(object):
                                       '"{!s}" :: {!s}'.format(abspath_asserts, e))
 
         if not asserts:
-            log.warning('Read empty asserts from file: '
-                        '"{!s}"'.format(abspath_asserts))
+            log.warning('Read empty asserts from file: "%s"', abspath_asserts)
             asserts = dict()
         return asserts
 
@@ -408,8 +444,7 @@ class RegressionTestLoader(object):
             raise RegressionTestError('Error reading options from file: '
                                       '"{!s}" :: {!s}'.format(abspath_opts, e))
         if not options:
-            log.warning('Read empty options from file: '
-                        '"{!s}"'.format(abspath_opts))
+            log.warning('Read empty options from file: "%s"', abspath_opts)
             options = dict()
         return options
 
@@ -478,7 +513,7 @@ class RegressionTestLoader(object):
                 'Invalid "config_path": "{!s}"'.format(config_path)
             )
 
-        log.debug('Set config_path "{!s}" to "{!s}"'.format(config_path, modified_path))
+        log.debug('Set config_path "%s" to "%s"', config_path, modified_path)
         modified_options = dict(options)
         modified_options['config_path'] = enc.normpath(modified_path)
         return modified_options
@@ -934,7 +969,7 @@ def commandline_for_testsuite(suite):
 
 def glob_filter(glob, bytestring):
     """
-    Evaluates if a string (suite basename) matches a given "glob".
+    Evaluates if a bytestring (suite basename) matches a given "glob".
 
     Matching is case-sensitive. The asterisk matches anything.
     If the glob starts with '!', the matching is negated.
@@ -969,7 +1004,7 @@ def glob_filter(glob, bytestring):
 
 def regexp_filter(expression, bytestring):
     """
-    Evaluates if a string (suite basename) matches a given regular expression.
+    Evaluates a bytestring (suite basename) against a given regular expression.
     """
     if not isinstance(bytestring, bytes):
         raise RegressionTestError(

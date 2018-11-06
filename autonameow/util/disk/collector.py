@@ -72,7 +72,7 @@ def get_files_gen(search_path, recurse=False):
         for entry in _dir_listing:
             entry_path = disk.joinpaths(search_path, entry)
             if not disk.exists(entry_path):
-                log.warning('Skipped non-existing path "{!s}"'.format(enc.displayable_path(entry_path)))
+                log.warning('Skipped non-existing path "%s"', enc.displayable_path(entry_path))
                 continue
 
             if disk.isfile(entry_path):

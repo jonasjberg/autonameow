@@ -89,7 +89,7 @@ class ExtractorRunner(object):
         self._available_extractors.update(extractor_klasses)
 
         if logs.DEBUG:
-            log.debug('Initialized %s with %s available extractors',
+            log.debug('Initialized %s with %d available extractors',
                       self.__class__.__name__, len(self._available_extractors))
             for k in self._available_extractors:
                 # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
@@ -125,7 +125,7 @@ class ExtractorRunner(object):
             self._available_extractors, fileobject
         )
         log.debug('Removed extractors that can not handle the current file. '
-                  'Remaining: %s', len(extractors_for_file))
+                  'Remaining: %d', len(extractors_for_file))
 
         selected = set()
         if _request_all:
@@ -138,7 +138,7 @@ class ExtractorRunner(object):
             selected = self._select_from_available(extractors_for_file, requested_klasses)
 
         if logs.DEBUG:
-            log.debug('Selected %s of %s available extractors',
+            log.debug('Selected %d of %d available extractors',
                       len(selected), len(self._available_extractors))
             for k in selected:
                 # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
@@ -161,16 +161,16 @@ class ExtractorRunner(object):
 
             if not requested_klasses.issubset(available):
                 na = requested_klasses.difference(available)
-                log.debug('Requested %s unavailable extractors: %s',
+                log.debug('Requested %d unavailable extractors: %s',
                           len(na), _format_string(na))
 
-            log.debug('Selected %s requested extractors: %s',
+            log.debug('Selected %d requested extractors: %s',
                       len(selected), _format_string(selected))
 
         if self.exclude_slow:
             selected = filter_not_slow(selected, requested_klasses)
             if logs.DEBUG:
-                log.debug('Removed slow extractors. Remaining: %s',
+                log.debug('Removed slow extractors. Remaining: %d',
                           len(selected))
         return selected
 

@@ -204,7 +204,7 @@ class TestProviderRunner(TestCase):
     def _get_provider_runner(*args, **kwargs):
         test_config = kwargs.get('config')
         test_extractor_runner = kwargs.get('extractor_runner')
-        test_run_analysis_func = kwargs.get('run_analysis_func')
+        test_run_analysis_func = kwargs.get('run_analysis_func', lambda x: True)
         kwargs.update({
             'config': test_config,
             'extractor_runner': test_extractor_runner,
@@ -366,16 +366,20 @@ def _get_mock_config():
     return Mock()
 
 
+def _get_master_data_provider():
+    return MasterDataProvider(config=_get_mock_config(), run_analysis_func=lambda x: True)
+
+
 class TestMasterDataProvider(TestCase):
     @patch('core.repository.SessionRepository', MagicMock())
     def test_instantiated_master_data_provider_is_not_none(self):
-        p = MasterDataProvider(config=_get_mock_config())
+        p = _get_master_data_provider()
         self.assertIsNotNone(p)
 
     @patch('core.repository.SessionRepository', MagicMock())
     @patch('core.master_provider.ProviderRunner.delegate_every_possible_meowuri')
     def test_delegate_every_possible_meowuri(self, mock_delegate_every_possible_meowuri):
-        p = MasterDataProvider(config=_get_mock_config())
+        p = _get_master_data_provider()
 
         mock_fileobject = Mock()
         p.delegate_every_possible_meowuri(mock_fileobject)
@@ -390,7 +394,7 @@ class TestMasterDataProvider(TestCase):
         mock_fileobject = Mock()
         mock_meowuri = Mock()
 
-        p = MasterDataProvider(config=_get_mock_config())
+        p = _get_master_data_provider()
         response = p.request(mock_fileobject, mock_meowuri)
 
         self.assertTrue(response)
@@ -406,7 +410,7 @@ class TestMasterDataProvider(TestCase):
         mock_fileobject = Mock()
         mock_meowuri = Mock()
 
-        p = MasterDataProvider(config=_get_mock_config())
+        p = _get_master_data_provider()
         response = p.request(mock_fileobject, mock_meowuri)
 
         self.assertFalse(response)  # Mock returns False every time ..

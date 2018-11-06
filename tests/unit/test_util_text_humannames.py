@@ -920,6 +920,15 @@ class TestSplitMultipleNames(TestCase):
             ]
         )
 
+    def test_refactored_handles_ad_hoc_isbn_metadata_cleanup(self):
+        self._assert_that_it_returns(
+            expected=['Stephen Wynkoop', 'Chris Lester'],
+            given_any_of=[
+                ['Stephen Wynkoop [Chris Lester]'],
+                ['Stephen Wynkoop [and Chris Lester]'],
+            ]
+        )
+
 
 class TestFilterMultipleNames(TestCase):
     def _assert_filter_output_contains(self, expected, given):
@@ -1203,6 +1212,16 @@ class PreProcessNames(TestCase):
             expected=['Ludlow, David'],
             given=['edited by Ludlow, David'],
         )
+        self._assert_preprocess_names_returns(
+            expected=['Jonathan J. Burns'],
+            given_any_of=[
+                ['by Jonathan J. Burns'],
+                ['By Jonathan J. Burns'],
+                ['written by Jonathan J. Burns'],
+                ['Written by Jonathan J. Burns'],
+                ['Written By Jonathan J. Burns'],
+            ]
+        )
 
     def test_failed_cases(self):
         self._assert_preprocess_names_returns(
@@ -1212,4 +1231,96 @@ class PreProcessNames(TestCase):
         self._assert_preprocess_names_returns(
             expected=['H.S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth'],
             given=['H.S. Seini', 'Ricky Soyal', 'Sandep Singh Rawth']
+        )
+
+    def test_refactored_handles_ad_hoc_isbn_metadata_cleanup(self):
+        self._assert_preprocess_names_returns(
+            expected=['Stephen Wynkoop', 'Chris Lester'],
+            given_any_of=[
+                ['Stephen Wynkoop [Chris Lester]'],
+                ['Stephen Wynkoop [and Chris Lester]'],
+            ]
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Jose Argudo Blanco', 'David Upton'],
+            given_any_of=[
+                ['Jose Argudo Blanco and David Upton'],
+                ['Jose Argudo Blanco, and David Upton'],
+                ['Jose Argudo Blanco, David Upton'],
+            ]
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Michael Dory', 'Adam Parrish', 'Brendan Berg'],
+            given_any_of=[
+                ['Michael Dory, Adam Parrish and Brendan Berg'],
+                ['Michael Dory, Adam Parrish, and Brendan Berg'],
+                ['Michael Dory, Adam Parrish, Brendan Berg'],
+            ]
+        )
+        self._assert_preprocess_names_returns(
+            expected=['Micha Gorelick', 'Andy R. Terrel'],
+            given=['Micha Gorelick, Andy R. Terrel']
+        )
+        self._assert_preprocess_names_returns(
+            expected=['David Astolfo'],
+            given=['David Astolfo ... Technical reviewers: Mario Ferrari ...']
+        )
+
+    def test_post_refactor_leading_substring_regex(self):
+        self._assert_preprocess_names_returns(
+            expected=['Gibson Catberg'],
+            given_any_of=[
+                ['Gibson Catberg'],
+                ['(Gibson Catberg'],
+                ['[Gibson Catberg'],
+                ['{Gibson Catberg'],
+                [';Gibson Catberg'],
+                ['(By Gibson Catberg'],
+                ['(by Gibson Catberg'],
+                ['[By Gibson Catberg'],
+                ['[by Gibson Catberg'],
+                ['{By Gibson Catberg'],
+                ['{by Gibson Catberg'],
+                ['(Written By Gibson Catberg'],
+                ['(Written by Gibson Catberg'],
+                ['(written by Gibson Catberg'],
+                ['[Written By Gibson Catberg'],
+                ['[Written by Gibson Catberg'],
+                ['[written by Gibson Catberg'],
+                ['{Written By Gibson Catberg'],
+                ['{Written by Gibson Catberg'],
+                ['{written by Gibson Catberg'],
+            ]
+        )
+
+    def test_post_refactor_trailing_substring_regex(self):
+        self._assert_preprocess_names_returns(
+            expected=['Gibson Catberg'],
+            given_any_of=[
+                ['Gibson Catberg'],
+                ['Gibson Catberg]'],
+                ['Gibson Catberg)'],
+                ['Gibson Catberg}'],
+                ['Gibson Catberg;'],
+            ]
+        )
+
+    def test_names_separated_by_semicolons_in_single_string(self):
+        self._assert_preprocess_names_returns(
+            expected=['Kubasiek, John R.', 'Morrissey, Steven.', 'Basilone, John.'],
+            given_any_of=[
+                ['Kubasiek, John R.; Morrissey, Steven.; Basilone, John.'],
+                ['Kubasiek, John R.;Morrissey, Steven.;Basilone, John.'],
+                ['Kubasiek, John R. ;Morrissey, Steven. ;Basilone, John.'],
+                ['Kubasiek, John R.;Morrissey, Steven.;Basilone, John.'],
+            ]
+        )
+
+    def test_names_separated_by_semicolons_in_separate_strings(self):
+        self._assert_preprocess_names_returns(
+            expected=['Kubasiek, John R.', 'Morrissey, Steven.', 'Basilone, John.'],
+            given_any_of=[
+                ['Kubasiek, John R.;', 'Morrissey, Steven.;', 'Basilone, John.'],
+                ['Kubasiek, John R.', ';Morrissey, Steven.', ';Basilone, John.'],
+            ]
         )

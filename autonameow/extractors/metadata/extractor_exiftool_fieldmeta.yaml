@@ -26,6 +26,55 @@ Composite:Aperture:
     coercer: aw_float
     multivalued: false
 
+Composite:AvgBitrate:
+    coercer: aw_integer
+    multivalued: false
+
+Composite:CircleOfConfusion:
+    # Example: "0.00428159213961349"
+    coercer: aw_float
+    multivalued: false
+
+Composite:FocalLength35efl:
+    # Example: "28"
+    coercer: aw_integer
+    multivalued: false
+
+Composite:FOV:
+    # Example: "65.4705078447874"
+    coercer: aw_float
+    multivalued: false
+
+Composite:GPSAltitude:
+    # Example: "11.02012825"
+    coercer: aw_float
+    multivalued: false
+
+Composite:GPSAltitudeRef:
+    # Example: "0"
+    coercer: aw_integer
+    multivalued: false
+
+Composite:GPSDateTime:
+    # Example: "2018:10:10 04:48:35Z"
+    coercer: aw_string
+    multivalued: false
+
+Composite:GPSLatitude:
+    # Example: "60.6663055555556"
+    coercer: aw_float
+    multivalued: false
+
+Composite:GPSLongitude:
+    # Example: "17.1544083333333"
+    coercer: aw_float
+    multivalued: false
+
+Composite:GPSPosition:
+    # Example: "60.6663055555556 17.1544083333333"
+    coercer: aw_string
+    multivalued: false
+
 Composite:HyperfocalDistance:
     coercer: aw_float
     multivalued: false
@@ -34,7 +83,51 @@ Composite:ImageSize:
     coercer: aw_string
     multivalued: false
 
+Composite:LightValue:
+    # Example: "6.42731284417825"
+    coercer: aw_float
+    multivalued: false
+
 Composite:Megapixels:
+    coercer: aw_float
+    multivalued: false
+
+Composite:Rotation:
+    coercer: aw_integer
+    multivalued: false
+
+Composite:RunTimeSincePowerUp:
+    # Example: "137140.689389"
+    multivalued: false
+    coercer: aw_float
+
+Composite:ScaleFactor35efl:
+    # Example: "7.01754385964912"
+    coercer: aw_float
+    multivalued: false
+
+Composite:ShutterSpeed:
+    # Example: "0.05882352941"
+    coercer: aw_float
+    multivalued: false
+
+Composite:SubSecCreateDate:
+    # Example: "2018:10:10 06:48:39.007"
+    coercer: aw_string
+    multivalued: false
+
+Composite:SubSecDateTimeOriginal:
+    # Example: "2018:10:10 06:48:39.007"
+    coercer: aw_string
+    multivalued: false
+
+EXIF:ApertureValue:
+    # Example: "1.79999999993144"
+    coercer: aw_float
+    multivalued: false
+
+EXIF:BrightnessValue:
+    # Example: "2.12524773"
     coercer: aw_float
     multivalued: false
 
@@ -94,6 +187,16 @@ EXIF:FlashpixVersion:
     coercer: aw_string
     multivalued: false
 
+EXIF:GPSAltitudeRef:
+    # Example: "0"
+    coercer: aw_integer
+    multivalued: false
+
+EXIF:GPSAltitude:
+    # Example: "11.02012825"
+    coercer: aw_float
+    multivalued: false
+
 EXIF:GPSDateStamp:
     coercer: aw_exiftooltimedate
     generic_field: date_created
@@ -101,6 +204,66 @@ EXIF:GPSDateStamp:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
+
+EXIF:GPSDestBearingRef:
+    # Example: "T"
+    coercer: aw_string
+    multivalued: false
+
+EXIF:GPSDestBearing:
+    # Example: "0.3232421875"
+    coercer: aw_float
+    multivalued: false
+
+EXIF:GPSHPositioningError:
+    # Example: "65"
+    coercer: aw_integer
+    multivalued: false
+
+EXIF:GPSImgDirectionRef:
+    # Example: "T"
+    coercer: aw_string
+    multivalued: false
+
+EXIF:GPSImgDirection:
+    # Example: "0.3232421875"
+    coercer: aw_float
+    multivalued: false
+
+EXIF:GPSLatitudeRef:
+    # Example: "N"
+    coercer: aw_string
+    multivalued: false
+
+EXIF:GPSLatitude:
+    # Example: "60.6663055555556"
+    coercer: aw_float
+    multivalued: false
+
+EXIF:GPSLongitudeRef:
+    # Example: "E"
+    coercer: aw_string
+    multivalued: false
+
+EXIF:GPSLongitude:
+    # Example: "17.1544083333333"
+    coercer: aw_float
+    multivalued: false
+
+EXIF:GPSSpeedRef:
+    # Example: "K"
+    coercer: aw_string
+    multivalued: false
+
+EXIF:GPSSpeed:
+    # Example: "0"
+    coercer: aw_integer
+    multivalued: false
+
+EXIF:GPSTimeStamp:
+    # Example: "04:48:35"
+    coercer: aw_string
     multivalued: false
 
 EXIF:GainControl:
@@ -120,6 +283,16 @@ EXIF:ImageDescription:
     -   WeightedMapping:
             field: Title
             weight: 0.25
+    multivalued: false
+
+EXIF:LensMake:
+    # Example: "Apple"
+    coercer: aw_string
+    multivalued: false
+
+EXIF:LensModel:
+    # Example: "iPhone 8 back camera 3.99mm f/1.8"
+    coercer: aw_string
     multivalued: false
 
 EXIF:Make:
@@ -642,6 +815,29 @@ FlashPix:Words:
     coercer: aw_integer
     multivalued: false
 
+ICC_Profile:DeviceManufacturer:
+    # Example:  "APPL"
+    coercer: aw_string
+    multivalued: false
+
+ICC_Profile:PrimaryPlatform:
+    # Device Manufacturer (?)
+    # Example: "Apple Computer Inc."
+    coercer: aw_string
+    multivalued: false
+
+ICC_Profile:ProfileCMMType:
+    # Device Manufacturer (?)
+    # Example: "appl"
+    coercer: aw_string
+    multivalued: false
+
+ICC_Profile:ProfileCreator:
+    # Device Manufacturer (?)
+    # Example: "appl"
+    coercer: aw_string
+    multivalued: false
+
 ICC_Profile:ProfileDateTime:
     coercer: aw_exiftooltimedate
     multivalued: false
@@ -1024,9 +1220,61 @@ Photoshop:ImageHeight:
     multivalued: false
 
 
+QuickTime:AudioBitsPerSample:
+    # Example: "16"
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:AudioChannels:
+    # Example: "1"
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:AudioFormat:
+    # Example: "mp4a"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:AudioSampleRate:
+    # Example: "44100"
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:Balance:
+    # Example: "0"
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:BitDepth:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:CleanApertureDimensions:
+    # Example: "1920 1080"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:ComAndroidVersion:
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:ComApplePhotosOriginatingSignature:
+    # Example: "Ac8knmNVYpAPpD7Gm975512lQpYl"
+    coercer: aw_string
+    multivalued: false
+
 QuickTime:CompatibleBrands:
     coercer: aw_string
     multivalued: true
+
+QuickTime:CompressorName:
+    # Example: "H.264"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:CompressorID:
+    coercer: aw_string
+    multivalued: false
 
 QuickTime:CreateDate:
     coercer: aw_exiftooltimedate
@@ -1064,6 +1312,94 @@ QuickTime:CreationDate-und-SE:
             weight: 1.0
     multivalued: false
 
+QuickTime:CurrentTime:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:Duration:
+    coercer: aw_float
+    multivalued: false
+
+QuickTime:EncodedPixelsDimensions:
+    # Example: "1920 1080"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:GenBalance:
+    # Example: "0"
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:GenFlags:
+    # Example: "0 0 0"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:GenGraphicsMode:
+    # Example: "64"
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:GenMediaVersion:
+    # Example: "0"
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:GenOpColor:
+    # Example: "32768 32768 32768"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:GPSCoordinates:
+    # Example: "60.5462 17.5294 26"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:GraphicsMode:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:HandlerClass:
+    # Example: "dhlr"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:HandlerDescription:
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:HandlerType:
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:HandlerVendorID:
+    # Example: "appl"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:ImageHeight:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:ImageWidth:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:MajorBrand:
+    # Example: "mp42"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:Make:
+    # Example: "Apple"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:MatrixStructure:
+    # Example: "0 1 0 -1 0 0 0 0 1"
+    coercer: aw_string
+    multivalued: false
+
 QuickTime:MediaCreateDate:
     coercer: aw_exiftooltimedate
     generic_field: date_created
@@ -1074,6 +1410,19 @@ QuickTime:MediaCreateDate:
     -   WeightedMapping:
             field: Date
             weight: 1.0
+    multivalued: false
+
+QuickTime:MediaDuration:
+    coercer: aw_float
+    multivalued: false
+
+QuickTime:MediaHeaderVersion:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:MediaLanguageCode:
+    # Example: "und"
+    coercer: aw_string
     multivalued: false
 
 QuickTime:MediaModifyDate:
@@ -1088,6 +1437,20 @@ QuickTime:MediaModifyDate:
             weight: 0.5
     multivalued: false
 
+QuickTime:MediaTimeScale:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:MinorVersion:
+    # Example: "0.0.0"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:Model:
+    # Example: "iPhone 8"
+    coercer: aw_string
+    multivalued: false
+
 QuickTime:ModifyDate:
     coercer: aw_exiftooltimedate
     generic_field: date_modified
@@ -1098,6 +1461,95 @@ QuickTime:ModifyDate:
     -   WeightedMapping:
             field: Date
             weight: 0.5
+    multivalued: false
+
+QuickTime:MovieDataOffset:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:MovieDataSize:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:MovieHeaderVersion:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:NextTrackID:
+    # Example: "5"
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:OpColor:
+    # Example: "0 0 0"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:OtherFormat:
+    # Example: "mebx"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:PixelAspectRatio:
+    # Example: "65536:65536"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:PosterTime:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:PreferredRate:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:PreferredVolume:
+    # Example: "1"
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:PreviewDuration:
+    # Example: "0"
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:PreviewTime:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:ProductionApertureDimensions:
+    # Example: "1920 1080"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:PurchaseFileFormat:
+    # Example: "mp4a"
+    coercer: aw_string
+    multivalued: false
+
+QuickTime:SelectionDuration:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:SelectionTime:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:Software:
+    # Example: "11.4"
+    coercer: aw_float
+    multivalued: false
+
+QuickTime:SourceImageHeight:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:SourceImageWidth:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:TimeScale:
+    coercer: aw_integer
     multivalued: false
 
 QuickTime:TrackCreateDate:
@@ -1112,6 +1564,22 @@ QuickTime:TrackCreateDate:
             weight: 1.0
     multivalued: false
 
+QuickTime:TrackDuration:
+    coercer: aw_float
+    multivalued: false
+
+QuickTime:TrackHeaderVersion:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:TrackID:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:TrackLayer:
+    coercer: aw_integer
+    multivalued: false
+
 QuickTime:TrackModifyDate:
     coercer: aw_exiftooltimedate
     generic_field: date_modified
@@ -1123,6 +1591,24 @@ QuickTime:TrackModifyDate:
             field: Date
             weight: 0.5
     multivalued: false
+
+QuickTime:TrackVolume:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:VideoFrameRate:
+    # Example: "11.5838054054415"
+    coercer: aw_float
+    multivalued: false
+
+QuickTime:XResolution:
+    coercer: aw_integer
+    multivalued: false
+
+QuickTime:YResolution:
+    coercer: aw_integer
+    multivalued: false
+
 
 RTF:Author:
     coercer: aw_string
@@ -1855,6 +2341,11 @@ XMP:Title_sort:
 
 XMP:Trapped:
     coercer: aw_boolean
+    multivalued: false
+
+XMP:UserComment:
+    # Example (iPhone 8 screenshots PNGs): "Screenshot"
+    coercer: aw_string
     multivalued: false
 
 XMP:XMPToolkit:

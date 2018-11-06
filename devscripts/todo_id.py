@@ -87,24 +87,69 @@ def get_source_files(paths):
     return files
 
 
-def find_todo_ids_in_line(string):
-    matches = list()
+def find_todo_ids_in_line(strng):
+    assert isinstance(strng, str)
 
-    if re.search(RE_TODO_IGNORED, string):
+    matches = list()
+    if re.search(RE_TODO_IGNORED, strng):
         return matches
 
-    for match in re.finditer(RE_TODO_IDENTIFIER, string):
-        todo_text = re.split(RE_TODO_IDENTIFIER, string)[-1:][0]
-        matches.append({'id': match.group(1),
-                        'text': todo_text.strip()})
+    for match in re.finditer(RE_TODO_IDENTIFIER, strng):
+        todo_text = re.split(RE_TODO_IDENTIFIER, strng)[-1:][0]
+        todo_text = todo_text.replace('`', '').strip()
+        matches.append({
+            'id': match.group(1),
+            'text': todo_text,
+        })
     return matches
 
 
-def find_todo_ids_in_file(file_path):
+class TodoPriority:
+    UNKNOWN = None
+    HIGH = 'High Priority'
+    MEDIUM = 'Medium Priority'
+    LOW = 'Low Priority'
+
+
+def find_todo_ids_in_lines(lines):
     found_ids = list()
-    for line in open(file_path, 'r', encoding='utf8'):
-        found_ids.extend(find_todo_ids_in_line(line))
+
+    if not lines:
+        return found_ids
+
+    current_priority_heading = TodoPriority.UNKNOWN
+
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+
+        if line == 'High Priority':
+            current_priority_heading = TodoPriority.HIGH
+        elif line == 'Medium Priority':
+            current_priority_heading = TodoPriority.MEDIUM
+        elif line == 'Low Priority':
+            current_priority_heading = TodoPriority.LOW
+        elif 'Very Low Priority' in line:
+            current_priority_heading = TodoPriority.LOW
+
+        results = find_todo_ids_in_line(line)
+        if not results:
+            continue
+
+        for result in results:
+            result.update({'priority': current_priority_heading})
+
+        found_ids.extend(results)
+
     return found_ids
+
+
+def find_todo_ids_in_file(file_path):
+    with open(file_path, 'r', encoding='utf8') as fh:
+        file_contents = fh.readlines()
+
+    return find_todo_ids_in_lines(file_contents)
 
 
 def find_todo_ids_in_source_files():
@@ -125,6 +170,33 @@ def find_todos_in_source_files():
         if todos:
             file_todos[_file] = todos
     return file_todos
+
+
+def find_todo_id_priorities():
+    todos = find_todo_ids_in_file(TODO_PATH)
+    # unique_todo_ids = set(todo_id for todo_id in todos['id'])
+
+    result = dict()
+    for todo in todos:
+        todo_id = todo['id']
+
+        if todo_id in result:
+            # Originally an assertion that kept failing due to references to
+            # IDs with another priority in the text.
+            # For now, just keep the highest seen priority.
+            seen_todo_id_priority = result[todo_id]
+            this_todo_id_priority = todo['priority']
+
+            if seen_todo_id_priority is TodoPriority.HIGH:
+                continue
+            elif (seen_todo_id_priority is TodoPriority.MEDIUM
+                  and this_todo_id_priority is TodoPriority.LOW):
+                result[todo_id] = TodoPriority.MEDIUM
+                continue
+
+        result[todo_id] = todo['priority']
+
+    return result
 
 
 def find_todo_ids_in_todo_file():
@@ -251,25 +323,29 @@ Found {} IDs in the TODO-list that are not in the sources:
 
 def list_todos_in_sources():
     """
-    Prints TODOs in the source files, along with any text and the file path,
-    sorted by the id.
+    Prints TODOs in the source files, along with any text, the file path
+    and priority, sorted by the IDs.
     """
     files_todos = find_todos_in_source_files()
     if not files_todos:
         return
 
-    result_lines = list()
-    for _filepath, _todos in files_todos.items():
-        for t in _todos:
-            result_lines.append((_filepath, t['id'], t['text']))
+    todo_id_priorities = find_todo_id_priorities()
 
-    _common_path_prefix = os.path.commonprefix([p for p, _, _ in result_lines])
+    result_lines = list()
+    for filepath, todos in files_todos.items():
+        for t in todos:
+            t_id = t['id']
+            t_priority = todo_id_priorities.get(t_id)
+            result_lines.append((filepath, t_id, t['text'], t_priority))
+
+    common_path_prefix = os.path.commonprefix([p for p, _, _, _ in result_lines])
 
     cf = ColumnFormatter()
     for line in sorted(result_lines, key=lambda x: x[1]):
-        _filepath, _id, _text = line
-        _short_filepath = _filepath.split(_common_path_prefix)[1]
-        cf.addrow(_id, _short_filepath, _text)
+        filepath, todo_id, text, priority = line
+        short_filepath = filepath.split(common_path_prefix)[1]
+        cf.addrow(todo_id, priority, short_filepath, text)
 
     print(str(cf))
 

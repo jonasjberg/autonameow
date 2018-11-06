@@ -92,6 +92,7 @@ def strip_repeating_periods(string):
 
 def strip_bad_author_substrings(string):
     assert isinstance(string, str)
+
     s = string
     s = strip_repeating_periods(s)
     s = strip_edited_by(s)
@@ -100,20 +101,16 @@ def strip_bad_author_substrings(string):
     s = strip_author_et_al(s)
     s = strip_contributions(s)
 
-    for leading_substring in [
-        '[',
-        'by ',
-    ]:
-        if s.startswith(leading_substring):
-            leading_chars_to_strip = len(leading_substring)
-            s = s[leading_chars_to_strip:]
+    leading_trailing_substring_regexes = [
+        # Leading substrings to remove
+        r'^[\[({;]',
+        r'^(written )?(by )?',
 
-    for trailing_substring in [
-        ']',
-    ]:
-        if s.endswith(trailing_substring):
-            trailing_chars_to_strip = len(trailing_substring)
-            s = s[:-trailing_chars_to_strip]
+        # Trailing substrings to remove
+        r'[\])};]$',
+    ]
+    for pattern in leading_trailing_substring_regexes:
+        s = re.sub(pattern, '', s, flags=re.IGNORECASE)
 
     return s
 
@@ -437,7 +434,7 @@ def split_multiple_names(list_of_names):
     # Local import to avoid circular imports within the 'util' module.
     from util import flatten_sequence_type
 
-    RE_NAME_SEPARATORS = r';|,| ?\b[aA]nd | ?\+| ?& ?'
+    RE_NAME_SEPARATORS = r';|,| ?\b[aA]nd | ?\+| ?& ?|[\[\]]'
 
     flat_list_of_names = flatten_sequence_type(list_of_names)
     if len(flat_list_of_names) == 1 and flat_list_of_names[0].startswith('edited by'):
@@ -498,15 +495,28 @@ def filter_multiple_names(list_of_names):
     for name in list_of_names:
         filtered_name = filter_name(name)
         if filtered_name and len(filtered_name) > 1:
+            # TODO: [cleanup][hack]: Deals with a single very special case ..
+            # Given a filtered name like this:
+            # 'Gibson Ford ... Technical reviewers: Smulan Ferrari ...',
+            # only the first name, 'Gibson Ford' is returned.
+            m = re.match(r'^([\w ]+)( Technical Reviewers: .*)', filtered_name)
+            if m:
+                filtered_name = m.group(1).strip()
+
             filter_output.append(filtered_name)
 
     return filter_output
 
 
 def filter_name(human_name):
-    name = remove_blacklisted_names(human_name)
-    name = strip_bad_author_substrings(name)
-    name = normalize_letter_case(name)
+    assert isinstance(human_name, str)
+
+    name = human_name.strip()
+    if name:
+        name = remove_blacklisted_names(name)
+        name = strip_bad_author_substrings(name)
+        name = normalize_letter_case(name)
+
     return name
 
 

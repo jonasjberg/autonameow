@@ -47,14 +47,14 @@ class ConfigFieldParser(object):
 
     The field parser classes each handle different types of "keys" in the
     "key-value pairs" that make up configuration entries.
-    The "key" is a "meowURI" that represent a location or provider of some data.
+    The "key" is a "MeowURI" that represent a location or provider of some data.
     The "value" is some kind of expression.
 
-    The "meowURI" (key) determines which parser class is to be used by
-    matching the "meowURI" against class variables 'APPLIES_TO_MEOWURIS'.
+    The "MeowURI" (key) determines which parser class is to be used by
+    matching the "MeowURI" against class variables 'APPLIES_TO_MEOWURIS'.
     This is handled with the 'eval_meowuri_glob' function, which supports
     "globs"/wildcards. Parser classes whose 'APPLIES_TO_MEOWURIS' attribute
-    evaluates True for a given "meowURI" is used to parse the associated value.
+    evaluates True for a given "MeowURI" is used to parse the associated value.
 
     * The 'validate' methods
       The 'Configuration' class uses the field parser classes primarily for
@@ -127,6 +127,7 @@ class ConfigFieldParser(object):
         Returns:
             True if expression is valid, else False.
         """
+        # TODO: [cleanup] THIS IS SUCH A MESS! Decouple parsing from evaluation!
         validation_func = self.get_validation_function()
         if not self.ALLOW_MULTIVALUED_EXPRESSION:
             if isinstance(expression, list):
@@ -160,6 +161,7 @@ class ConfigFieldParser(object):
             False if the evaluation was unsuccessful. Otherwise, the return
             type is some "truthy" value whose type depends on the field parser.
         """
+        # TODO: [cleanup] THIS IS SUCH A MESS! Decouple parsing from evaluation!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
         evaluation_func = self.get_evaluation_function()
@@ -174,8 +176,7 @@ class ConfigFieldParser(object):
             return False
         else:
             if isinstance(expression, list):
-                log.error('Unexpectedly got "multi-valued" expression; '
-                          '"{!s}"'.format(expression))
+                log.error('Unexpected "multi-valued" expression: "%s"', expression)
                 return False
             return evaluation_func(expression, data)
 
@@ -221,8 +222,12 @@ class RegexConfigFieldParser(ConfigFieldParser):
     # TODO: [TD0177] Refactor the 'ConfigFieldParser' classes.
     # NOTE: Globs does not include all possible extractor globs.
     APPLIES_TO_MEOWURIS = [
+        '*.EXIF:Model', '*.QuickTime:Model',
+        '*.ICC_Profile:DeviceManufacturer',
+        '*.ICC_Profile:ProfileCreator',
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
         '*.XMP-dc:Title', '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher',
+        '*.XMP:UserComment',
         '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.extension',
         '*.abspath_full',
         '*.basename_full',
@@ -259,12 +264,8 @@ class RegexConfigFieldParser(ConfigFieldParser):
         test_data = enc.encode_(test_data)
         expression = enc.encode_(expression)
 
-        # log.debug('test_data: "{!s}" ({})"'.format(test_data,
-        #                                            type(test_data)))
-        # log.debug('expression: "{!s}" ({})"'.format(expression,
-        #                                            type(expression)))
-        _match = re.match(expression, test_data)
-        return _match if _match else False
+        match = re.match(expression, test_data)
+        return match if match else False
 
     @classmethod
     def get_validation_function(cls):
@@ -333,9 +334,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         try:
             evaluates_true = mimemagic.eval_glob(mime_to_match, expression)
         except (TypeError, ValueError) as e:
-            log.error(
-                'Error evaluating expression "{!s}"; {!s}'.format(expression, e)
-            )
+            log.error('Error evaluating expression "%s"; %s', expression, e)
             return False
         return evaluates_true
 
@@ -372,7 +371,7 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         try:
             _ = datetime.today().strftime(expression)
         except (ValueError, TypeError) as e:
-            log.debug('Bad datetime expression: "{!s}"'.format(expression))
+            log.debug('Bad datetime expression: "%s"', expression)
             log.debug(str(e))
             return False
         else:
@@ -444,16 +443,16 @@ def get_instantiated_field_parsers():
 
 def suitable_field_parser_for(meowuri):
     """
-    Returns field parser instances that can handle the given "meowURI".
+    Returns field parser instances that can handle the given "MeowURI".
 
     Args:
         meowuri: Resource identifier to match against a RuleParser class,
                  as an instance of 'MeowURI'.
 
     Returns:
-        A list of instantiated field parsers suited for the given "meowURI".
+        A list of instantiated field parsers suited for the given "MeowURI".
     """
-    log.debug('suitable_field_parser_for("{!s}")'.format(meowuri))
+    log.debug('suitable_field_parser_for("%s")', meowuri)
     sanity.check_isinstance_meowuri(meowuri)
 
     candidates = [p for p in FieldParserInstances

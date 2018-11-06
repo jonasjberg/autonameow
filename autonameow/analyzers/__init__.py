@@ -88,10 +88,10 @@ def get_analyzer_classes():
     for klass in klasses:
         if klass.dependencies_satisfied():
             included.append(klass)
-            log.debug('Included analyzer {!s}'.format(klass))
+            log.debug('Included analyzer %s', klass)
         else:
             excluded.append(klass)
-            log.debug('Excluded analyzer {!s} due to unmet dependencies'.format(klass))
+            log.debug('Excluded analyzer %s due to unmet dependencies', klass)
     return included, excluded
 
 

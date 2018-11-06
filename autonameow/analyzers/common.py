@@ -30,9 +30,6 @@ from util import mimemagic
 from util import sanity
 
 
-log = logging.getLogger(__name__)
-
-
 class AnalyzerError(AutonameowException):
     """Irrecoverable error occurred when running a "analyzer" class."""
 
@@ -72,10 +69,10 @@ class BaseAnalyzer(ProviderMixin):
         self.fileobject = fileobject
         self.request_data = request_data_callback
 
-        self.log = logging.getLogger(
-            '{!s}.{!s}'.format(__name__, self.__module__)
-        )
-
+        # Add prefix to the logger name so that log messages emitted by
+        # inheriting classes will use E.G. 'analyzers.analyze_filename'
+        # instead of 'analyzers.common.analyze_filename', used previously.
+        self.log = logging.getLogger('{}.{}'.format('analyzers', self.__module__))
         self._intermediate_results = dict()
 
     def run(self):
@@ -123,15 +120,14 @@ class BaseAnalyzer(ProviderMixin):
         # assert meowuri_leaf not in self._intermediate_results
         if meowuri_leaf in self._intermediate_results:
             # TODO: [TD0187] Fix clobbering of results
-            log.critical('[TD0187] Clobbered value with MeowURI leaf {!s}: "{!s}"'.format(meowuri_leaf, data))
+            self.log.critical('[TD0187] Clobbered value with MeowURI leaf %s: "%s"', meowuri_leaf, data)
         self._intermediate_results[meowuri_leaf] = data
 
     def _wrap_results(self):
         try:
             _metainfo = self.metainfo()
         except NotImplementedError as e:
-            log.critical('Unable to get meta info! Aborting analyzer "{!s}":'
-                         ' {!s}'.format(self, e))
+            self.log.critical('Unable to get meta info! Aborting analyzer "%s": %s', self, e)
             raise AnalyzerError(e)
 
         # TODO: [TD0034] Filter out known bad data.
@@ -144,10 +140,8 @@ class BaseAnalyzer(ProviderMixin):
         for meowuri_leaf, data in wrapped.items():
             uri = force_meowuri(meowuri_prefix, meowuri_leaf)
             if not uri:
-                self.log.error(
-                    'Unable to construct full MeowURI from prefix "{!s}" '
-                    'and leaf "{!s}"'.format(meowuri_prefix, meowuri_leaf)
-                )
+                self.log.error('Unable to construct full MeowURI from prefix "%s" and leaf "%s"',
+                               meowuri_prefix, meowuri_leaf)
                 continue
 
             assert uri not in data_full_meowuris, (

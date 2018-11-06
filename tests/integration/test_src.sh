@@ -68,6 +68,9 @@ check_git_ls_files_does_not_match 'junk/'
 check_git_ls_files_does_not_match 'local/'
 check_git_ls_files_does_not_match '__pycache__'
 check_git_ls_files_does_not_match 'docs/test_results'
+check_git_ls_files_does_not_match '.regressionrunner_captured_runtimes'
+check_git_ls_files_does_not_match '.regressionrunner_history'
+check_git_ls_files_does_not_match '.regressionrunner_lastrun'
 
 
 # ______________________________________________________________________________

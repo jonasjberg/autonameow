@@ -55,7 +55,7 @@ def find_separators(s):
     regex = RegexCache(RE_UNICODE_WORDS)
 
     non_words = regex.split(s)
-    seps = [w for w in non_words if w is not None and len(w) >= 1]
+    seps = [w for w in non_words if w and len(w) >= 1]
     return seps
 
 

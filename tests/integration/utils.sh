@@ -22,6 +22,7 @@ set -o noclobber -o nounset -o pipefail
 
 C_RED="$(tput setaf 1)"
 C_GREEN="$(tput setaf 2)"
+C_BOLD="$(tput bold)"
 C_RESET="$(tput sgr0)"
 
 
@@ -96,15 +97,15 @@ log_test_suite_results_summary()
     _highlight_red=''
     if [ "$suite_tests_failed" -eq "0" ]
     then
-        logmsg "${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
+        logmsg "${C_BOLD}${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
     else
-        logmsg "${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
+        logmsg "${C_BOLD}${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
         _highlight_red="${C_RED}"
     fi
 
-    logmsg "$(printf "Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
+    logmsg "$(printf "${C_BOLD}Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$suite_tests_count" "$suite_tests_passed" "$suite_tests_failed")"
-    logmsg "Completed the ${_name} test suite tests in ${_execution_time} ms"
+    logmsg "${C_BOLD}Completed the ${_name} test suite tests in ${_execution_time} ms${C_RESET}"
     logmsg "======================================================================"
 }
 
@@ -117,15 +118,14 @@ log_total_results_summary()
     local -r _tests_failed="$4"
     local _highlight_red
 
-    logmsg "Reading global statistics from file: \"${AUTONAMEOW_INTEGRATION_STATS}\""
     logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     _highlight_red=''
     if [ "$_tests_failed" -eq "0" ]
     then
-        logmsg "${C_GREEN}[ ALL TEST SUITE(S) TESTS PASSED ]${C_RESET}"
+        logmsg "${C_BOLD}${C_GREEN}[ ALL TEST SUITE(S) TESTS PASSED ]${C_RESET}"
     else
-        logmsg "${C_RED}[ SOME TEST SUITE(S) TESTS FAILED ]${C_RESET}"
+        logmsg "${C_BOLD}${C_RED}[ SOME TEST SUITE(S) TESTS FAILED ]${C_RESET}"
         _highlight_red="${C_RED}"
     fi
 
@@ -137,9 +137,9 @@ log_total_results_summary()
                $((_seconds % 3600 / 60))      \
                $((_seconds % 60)))"
 
-    logmsg "$(printf "Total Test Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
+    logmsg "$(printf "${C_BOLD}Total Test Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$_tests_count" "$_tests_passed" "$_tests_failed")"
-    logmsg "Completed all tests in ${_duration}  (${_execution_time} ms)"
+    logmsg "${C_BOLD}Completed all tests in ${_duration}  (${_execution_time} ms)${C_RESET}"
     logmsg "======================================================================"
 }
 
@@ -256,7 +256,7 @@ current_unix_time()
     #       Lets just assume we're mostly interested in relative measurements.
 
     case "$OSTYPE" in
-        darwin*) python -c 'import time ; t="%.9f"%time.time() ; print t.replace(".","")';;
+        darwin*) python3 -c 'import time ; t="%.9f"%time.time() ; print(t.replace(".",""))';;
          linux*) date "+%s%N" ;;
            msys) date "+%s%N" ;; # NOTE: Not a target OS!
               *) { echo 'ERROR: Unsupported Operating System!' 1>&2 ; exit 1 ; } ;;

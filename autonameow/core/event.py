@@ -19,6 +19,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import traceback
 
 
 log = logging.getLogger(__name__)
@@ -28,7 +29,8 @@ class EventHandler(object):
     """
     Stores callables and forwards calls to all stored callables.
     """
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self.callables = set()
 
     def add(self, func):
@@ -48,18 +50,21 @@ class EventHandler(object):
                     '%s caught exception when called with args %s '
                     'kwargs %s :: %s', self, args, kwargs, e
                 )
+                log.critical(
+                    '%s caught exception %s', self, traceback.format_exc()
+                )
 
     def __str__(self):
-        return self.__class__.__name__
+        return '<{!s}({!s})>'.format(self.__class__.__name__, self.name)
 
 
 class EventDispatcher(object):
     """
-    Provides access to predefined event handlers to any part of the program.
+    Provides any part of the program with access to registered event handlers.
     Example usage:
 
     >>> from core.event import EventDispatcher
-    >>> d = EventDispatcher()
+    >>> d = EventDispatcher(EventHandler('on_startup'))
     >>> def _on_event_func(*args, **kwargs):
     ...     arg_foo = kwargs.get('foo')
     ...     print(*args, arg_foo)
@@ -71,27 +76,28 @@ class EventDispatcher(object):
     >>> d.on_startup(1337, foo='bar')
     1337 bar
     """
-    def __init__(self):
-        self.log = logging.getLogger('{}.{!s}'.format(__name__, self))
-        self._event_handlers = {
-            'on_startup': EventHandler(),
-            'on_shutdown': EventHandler(),
-            'on_config_changed': EventHandler()
-        }
+    def __init__(self, *event_handlers):
+        self._event_handlers = dict()
+        self._register_event_handlers(event_handlers)
 
-    def _get_event_handlers(self, name):
-        event_handlers = self._event_handlers.get(name)
-        if event_handlers:
-            self.log.debug('%s returning event handler "%s"', self, name)
-            return event_handlers
-
-        raise AssertionError('Invalid event handler: "{!s}"'.format(name))
+    def _register_event_handlers(self, event_handlers):
+        for event_handler in event_handlers:
+            self._event_handlers[event_handler.name] = event_handler
 
     def __getattr__(self, item):
-        return self._get_event_handlers(item)
+        event_handler = self._event_handlers.get(item)
+        if event_handler:
+            log.debug('%s returning event handler "%s"', self, event_handler)
+            return event_handler
+
+        raise AssertionError('Invalid event handler: "{!s}"'.format(item))
 
     def __str__(self):
         return self.__class__.__name__
 
 
-dispatcher = EventDispatcher()
+dispatcher = EventDispatcher(
+    EventHandler('on_startup'),
+    EventHandler('on_shutdown'),
+    EventHandler('on_config_changed'),
+)

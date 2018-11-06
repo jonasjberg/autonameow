@@ -23,6 +23,71 @@ from util.text.patternmatching import compiled_ordinal_edition_regexes
 from util.text.patternmatching import compiled_ordinal_regexes
 from util.text.patternmatching import find_and_extract_edition
 from util.text.patternmatching import find_publisher_in_copyright_notice
+from util.text.patternmatching import ordinal_indicator
+from util.text.patternmatching import ordinalize
+
+
+class TestOrdinalIndicator(TestCase):
+    def _assert_ordinal_indicator(self, expect_suffix, given_cardinal):
+        with self.subTest(integer=given_cardinal):
+            actual_ordinal = ordinal_indicator(given_cardinal)
+            self.assertEqual(expect_suffix, actual_ordinal)
+
+    def test_returns_expected(self):
+        self._assert_ordinal_indicator('st', 1)
+        self._assert_ordinal_indicator('nd', 2)
+        self._assert_ordinal_indicator('rd', 3)
+
+        for n in range(4, 20):
+            self._assert_ordinal_indicator('th', n)
+
+        self._assert_ordinal_indicator('st', 21)
+        self._assert_ordinal_indicator('nd', 22)
+        self._assert_ordinal_indicator('rd', 23)
+
+        for n in range(24, 30):
+            self._assert_ordinal_indicator('th', n)
+
+        self._assert_ordinal_indicator('st', 31)
+        self._assert_ordinal_indicator('nd', 32)
+        self._assert_ordinal_indicator('rd', 33)
+
+        for n in range(34, 40):
+            self._assert_ordinal_indicator('th', n)
+
+        self._assert_ordinal_indicator('st', 1001)
+        self._assert_ordinal_indicator('nd', 1002)
+        self._assert_ordinal_indicator('rd', 1003)
+
+
+class TestOrdinalize(TestCase):
+    def test_returns_expected(self):
+        for given, expect in [
+            (0, '0th'),
+            (1, '1st'),
+            (2, '2nd'),
+            (3, '3rd'),
+            (4, '4th'),
+            (5, '5th'),
+            (6, '6th'),
+            (7, '7th'),
+            (33, '33rd'),
+            (1002, '1002nd'),
+            (1003, '1003rd'),
+            (-0, '0th'),
+            (-1, '-1st'),
+            (-2, '-2nd'),
+            (-3, '-3rd'),
+            (-4, '-4th'),
+            (-5, '-5th'),
+            (-6, '-6th'),
+            (-7, '-7th'),
+            (-33, '-33rd'),
+            (-1002, '-1002nd'),
+            (-1003, '-1003rd'),
+        ]:
+            with self.subTest(given=given, expect=expect):
+                self.assertEqual(expect, ordinalize(given))
 
 
 class TestCompiledOrdinalRegexes(TestCase):

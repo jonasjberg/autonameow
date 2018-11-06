@@ -85,6 +85,7 @@ DEFAULT_DATETIME_FORMAT_TIME = '%H-%M-%S'
 DEFAULT_FILESYSTEM_IGNORE_DARWIN = frozenset([
     # Metadata
     '*/.DS_Store',
+    '*/._.DS_Store',
     '*/.AppleDouble',
     '*/.LSOverride',
 
@@ -105,7 +106,10 @@ DEFAULT_FILESYSTEM_IGNORE_DARWIN = frozenset([
     '*/.AppleDesktop',
     '*/Network Trash Folder',
     '*/Temporary Items',
-    '*/.apdisk'
+    '*/.apdisk',
+
+    # Resource fork directory found in zip files created on OSX.
+    '*/__MACOSX',
 ])
 
 DEFAULT_FILESYSTEM_IGNORE_LINUX = frozenset([
@@ -121,7 +125,8 @@ DEFAULT_FILESYSTEM_IGNORE_LINUX = frozenset([
     # Trash directories found at partition/disk roots
     '*/.Trash-*',
 
-    # Created by NFS when an open file is removed but is still being accessed
+    # Renamed by NFS to emulate support for the "delete on last close" technique
+    # traditionally used by UNIX programs.  http://nfs.sourceforge.net/#faq_d2
     '*/.nfs*'
 ])
 

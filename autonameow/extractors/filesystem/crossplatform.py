@@ -20,7 +20,7 @@
 import os
 from datetime import datetime
 
-from extractors.metadata.base import BaseMetadataExtractor
+from extractors.base import BaseMetadataExtractor
 
 
 class CrossPlatformFileSystemExtractor(BaseMetadataExtractor):
@@ -59,13 +59,13 @@ class CrossPlatformFileSystemExtractor(BaseMetadataExtractor):
     def _collect_filesystem_timestamps(self, filepath):
         timestamps = dict()
         try:
+            # TODO: Should these be passed through the "syspath" function like
+            #       other paths passed to the OS? Seems to work fine anyway (!)
             access_time = _get_access_time(filepath)
             create_time = _get_create_time(filepath)
             modify_time = _get_modify_time(filepath)
         except OSError as e:
-            self.log.error(
-                'Unable to get filesystem timestamps: {!s}'.format(e)
-            )
+            self.log.error('Unable to get filesystem timestamps: %s', e)
             return timestamps
 
         coerced_t_access = self.coerce_field_value('date_accessed', access_time)

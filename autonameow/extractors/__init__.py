@@ -44,7 +44,7 @@ class ExtractorError(AutonameowException):
 
 def _find_extractor_classes_in_packages(packages):
     klasses = list()
-    from extractors.metadata.base import BaseMetadataExtractor
+    from extractors.base import BaseMetadataExtractor
 
     for package in packages:
         __import__(package)
@@ -92,9 +92,9 @@ class ExtractorRegistry(object):
         included, excluded = collect_included_excluded_extractors(packages)
 
         for included_klass in included:
-            log.debug('Included extractor {!s}'.format(included_klass))
+            log.debug('Included extractor %s', included_klass)
         for excluded_klass in excluded:
-            log.info('Excluded extractor {!s} due to unmet dependencies'.format(excluded_klass))
+            log.info('Excluded extractor %s due to unmet dependencies', excluded_klass)
 
         setattr(self, self_attribute, set(included))
         self._excluded_providers.update(excluded)

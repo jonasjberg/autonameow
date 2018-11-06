@@ -20,7 +20,7 @@
 import re
 import subprocess
 
-from extractors.metadata.base import BaseMetadataExtractor
+from extractors.base import BaseMetadataExtractor
 from extractors import ExtractorError
 from util import coercers
 from util import process

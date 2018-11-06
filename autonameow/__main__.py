@@ -36,7 +36,7 @@ import sys
 
 if __package__ is None and not hasattr(sys, 'frozen'):
     # It is a direct call to this file ('__main__.py')
-    import os.path
+    import os
     SELF_ABSPATH = os.path.realpath(os.path.abspath(__file__))
     sys.path.insert(0, os.path.dirname(os.path.dirname(SELF_ABSPATH)))
 

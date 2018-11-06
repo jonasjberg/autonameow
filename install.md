@@ -35,6 +35,7 @@ critical `TODO`-list item.
 >     * `colorama`
 >     * `ebooklib`
 >     * `guessit`
+>     * `isbnlib`
 >     * `unidecode`
 >     * `prompt_toolkit`
 >     * `file-magic`
@@ -112,7 +113,7 @@ Install the dependencies by running the following commands in a terminal:
 ```bash
 brew install libmagic exiftool tesseract unrtf pandoc jpeginfo djvulibre
 brew install poppler # pdftotext
-pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib
+pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib isbnlib
 ```
 
 
@@ -121,7 +122,7 @@ Install the dependencies by running the following commands in a terminal:
 
 ```bash
 sudo apt install exiftool tesseract-ocr pdftotext unrtf pandoc jpeginfo djvutxt
-pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib
+pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib isbnlib
 ```
 
 Alternatively, search the repositories for the packages with `apt-search`.

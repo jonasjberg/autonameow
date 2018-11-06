@@ -101,7 +101,7 @@ def do_extract_text(fileobject):
                 TextExtractionResult(fulltext=text, provider='(unknown extractor)')
             )
     except exceptions.AutonameowException as e:
-        log.critical('Extraction FAILED: {!s}'.format(e))
+        log.critical('Extraction FAILED: %s', e)
 
     return any_text_extraction_results
 
@@ -110,8 +110,6 @@ def do_extract_metadata(fileobject):
     provider_results = defaultdict(dict)
 
     def _collect_results_callback(fileobject_, meowuri, data):
-        log.debug('_collect_results_callback(%s, %s, %s)', fileobject_, meowuri, data)
-
         assert isinstance(data, dict)
         _value = data.get('value')
         _str_value = _decode_any_bytestring(_value)
@@ -127,7 +125,7 @@ def do_extract_metadata(fileobject):
     try:
         runner.start(fileobject, request_extractors)
     except exceptions.AutonameowException as e:
-        log.critical('Extraction FAILED: {!s}'.format(e))
+        log.critical('Extraction FAILED: %s', e)
     else:
         all_metadata_extraction_results = list()
         for provider, metadata in provider_results.items():
@@ -140,13 +138,11 @@ def do_extract_metadata(fileobject):
 def display_file_processing_starting(fileobject, num, total_fileobject_num):
     # TODO: [TD0171] Separate logic from user interface.
     view.msg('{!s}'.format(fileobject), style='heading')
-    log.info('Processing ({}/{}) "{!s}" ..'.format(
-        num, total_fileobject_num, fileobject))
+    log.info('Processing (%s/%s) "%s" ..', num, total_fileobject_num, fileobject)
 
 
 def display_file_processing_ended(fileobject, num, total_fileobject_num):
-    log.info('Finished processing ({}/{}) "{!s}"'.format(
-        num, total_fileobject_num, fileobject))
+    log.info('Finished processing (%s/%s) "%s"', num, total_fileobject_num, fileobject)
 
 
 def display_text_extraction_result(fileobject, text_extraction_result):
@@ -157,16 +153,25 @@ def display_text_extraction_result(fileobject, text_extraction_result):
         view.msg('Text Extracted by {!s}:'.format(provider), style='section')
         view.msg(text)
     else:
-        log.info('{!s} was unable to extract text from "{!s}"'.format(provider, fileobject))
+        log.info('%s was unable to extract text from "%s"', provider, fileobject)
 
 
 def display_metadata_extraction_result(results):
     _results = list(results)
-    cf = _get_column_formatter()
+
+    lines_to_display = list()
     for metadata_extraction_result in _results:
         provider = str(metadata_extraction_result.provider)
-        for uri, data in metadata_extraction_result.metadata.items():
-            cf.addrow(str(uri), str(data), provider)
+        for uri, data in sorted(metadata_extraction_result.metadata.items()):
+            lines_to_display.append((str(uri), str(data), provider))
+
+    # TODO: [cleanup] Refactor data structures passed to this function.
+    # Output is built in two passes like this in order to get the output sorted
+    # by MeowURIS. The 'MetadataExtractionResult' objects passed in here are not
+    # designed very well. Should have written the usage code first..
+    cf = _get_column_formatter()
+    for uri, data, provider in sorted(lines_to_display):
+        cf.addrow(str(uri), str(data), provider)
 
     # TODO: [TD0171] Separate logic from user interface.
     view.msg('Extracted Metadata', style='section')
@@ -273,7 +278,7 @@ def main(options=None):
     )
 
     num_files_total = len(files_to_process)
-    log.info('Got {} files to process'.format(num_files_total))
+    log.info('Got %s files to process', num_files_total)
 
     summary_results = {
         'text': defaultdict(list),
@@ -285,8 +290,7 @@ def main(options=None):
             current_file = FileObject(filepath)
         except (exceptions.InvalidFileArgumentError,
                 exceptions.FilesystemError) as e:
-            log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                e, enc.displayable_path(filepath)))
+            log.warning('%s --- SKIPPING: "%s"', e, enc.displayable_path(filepath))
             continue
 
         all_processed_files.append(current_file)

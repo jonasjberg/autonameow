@@ -124,7 +124,7 @@ class RuleCondition(object):
             raise InvalidRuleConditionError(
                 'Invalid expression: "{!s}"'.format(raw_expression)
             )
-        log.debug('Validated expression: "{!s}"'.format(raw_expression))
+        log.debug('Validated expression: "%s"', raw_expression)
         self._expression = raw_expression
 
     def _validate_expression(self, raw_expression):
@@ -154,8 +154,7 @@ class RuleCondition(object):
         #                ('Defined', '> 2017', etc)
         if not self._parser:
             log.critical('Unimplemented condition evaluation -- MeowURI: '
-                         '"{!s}" expression: "{!s}"'.format(self.meowuri,
-                                                            self.expression))
+                         '"%s" expression: "%s"', self.meowuri, self.expression)
             return False
 
         result = self._parser.evaluate(self.expression, data)
@@ -237,10 +236,6 @@ class Rule(object):
     def conditions(self):
         return list(self._conditions)
 
-    @property
-    def number_conditions(self):
-        return len(self.conditions)
-
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
@@ -251,6 +246,14 @@ class Rule(object):
             self.exact_match == other.exact_match and
             self.name_template == other.name_template and
             self.ranking_bias == other.ranking_bias
+        )
+
+    def __gt__(self, other):
+        # Sort by arbitrary attributes to get repeatable rule evaluation results.
+        return (
+            len(self.conditions) > len(other.conditions)
+            and len(self.data_sources) > len(other.data_sources)
+            and self.ranking_bias > other.ranking_bias
         )
 
     def __hash__(self):
@@ -346,7 +349,7 @@ def parse_data_sources(raw_sources):
         # Allow empty/None data sources.
         raw_sources = dict()
 
-    log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
+    log.debug('Parsing %d raw sources ..', len(raw_sources))
     if not isinstance(raw_sources, dict):
         raise ConfigurationSyntaxError(
             'Expected sources to be of type dict'
@@ -356,7 +359,7 @@ def parse_data_sources(raw_sources):
     for raw_templatefield, raw_meowuri_strings in raw_sources.items():
         if not fields.is_valid_template_field(raw_templatefield):
             log.warning('Skipped source with invalid name template field '
-                        '(MeowURI: "{!s}")'.format(raw_meowuri_strings))
+                        '(MeowURI: "%s")', raw_meowuri_strings)
             continue
 
         tf = fields.nametemplatefield_class_from_string(raw_templatefield)
@@ -371,7 +374,7 @@ def parse_data_sources(raw_sources):
 
         if not raw_meowuri_strings:
             log.debug('Skipped source with empty MeowURI(s) '
-                      '(template field: "{!s}")'.format(raw_templatefield))
+                      '(template field: "%s")', raw_templatefield)
             continue
 
         if not isinstance(raw_meowuri_strings, list):
@@ -382,22 +385,20 @@ def parse_data_sources(raw_sources):
                 uri = MeowURI(meowuri_string)
             except InvalidMeowURIError as e:
                 log.warning('Skipped source with invalid MeowURI: '
-                            '"{!s}"; {!s}'.format(meowuri_string, e))
+                            '"%s"; %s', meowuri_string, e)
                 continue
 
             if is_valid_source(uri):
-                log.debug('Validated field {!s} source: {!s}'.format(tf, uri))
+                log.debug('Validated field %s source: %s', tf, uri)
                 if not parsed_data_sources.get(tf):
                     parsed_data_sources[tf] = [uri]
                 else:
                     parsed_data_sources[tf] += [uri]
             else:
-                log.debug('Invalid field {!s} source: {!s}'.format(tf, uri))
+                log.debug('Invalid field %s source: %s', tf, uri)
 
-    log.debug(
-        'Returning {} (out of {}) valid sources'.format(len(parsed_data_sources),
-                                                        len(raw_sources))
-    )
+    log.debug('Returning %d (out of %d) valid sources',
+              len(parsed_data_sources), len(raw_sources))
     return parsed_data_sources
 
 

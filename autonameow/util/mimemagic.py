@@ -214,9 +214,8 @@ def eval_glob(mime_to_match, glob_list):
     if not isinstance(glob_list, list):
         glob_list = [glob_list]
 
-    # log.debug('Evaluating MIME. MimeToMatch: "{!s}" Globs: {!s}'.format(
-    #     mime_to_match, glob_list
-    # ))
+    # log.debug('Evaluating MIME. MimeToMatch: "%s" Globs: %s',
+    #           mime_to_match, glob_list)
     mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
     for glob in glob_list:
         sanity.check_internal_string(glob)
@@ -403,7 +402,7 @@ def _read_mimetype_extension_mapping_file(mapfile_basename, callback):
         try:
             mime_type, extension = line.strip().split(':')
         except ValueError:
-            log.error('Error parsing "{!s}" line {}'.format(mapfile, n))
+            log.error('Error parsing "%s" line %d', mapfile, n)
         else:
             str_mime_type = coercers.force_string(mime_type).strip()
             str_extension = coercers.force_string(extension).strip().lstrip('.')

@@ -258,7 +258,7 @@ This script accepts optional argument flags, as described in the usage text;
 Usage: regression_runner.py [-h] [-v] [--stderr] [--stdout] [-f GLOB]
                             [--last-failed] [--list] [--get-cmd] [--run]
 
-autonameow v0.5.8 -- regression test suite runner
+autonameow v0.5.9 -- regression test suite runner
 
 Optional arguments:
   -h, --help            Show this help message and exit.
