@@ -95,6 +95,7 @@ that picks up on *some* characteristics of the given file(s) and determines the
 most likely changes to perform.
 
 Assume none of these files contain meaningful content or metadata to work with:
+
 ```
 ~/example/foo.txt
 ~/example/foo (1).txt
@@ -119,6 +120,7 @@ desired outcome looks like this:
 ```
 
 Tokenizing the original filenames, with extensions left as-is:
+
 ```
 foo.txt      ->  WORD.txt
 foo (1).txt  ->  WORD PARENTHESIS NUMBER PARENTHESIS.txt
@@ -133,24 +135,28 @@ Then the transformation of one the file names, `foo (1).txt  ->  1_foo.txt`,
 would be described using "change operations" similar to this:
 
 0. Starting with the original filename (ignoring the extension)
+
     ```
     basename : "foo (1)"
       tokens : WORD PARENTHESIS NUMBER PARENTHESIS
     ```
 
 1. Perform "swap substrings" operation
+
     ```
     basename : "(1) foo"
       tokens : PARENTHESIS NUMBER PARENTHESIS WORD
     ```
 
 2. Perform "remove substring(PARENTHESIS)" operation
+
     ```
     basename : "1 foo"
       tokens : NUMBER WORD
     ```
 
 3. Perform "join by delimiter (`_`)" operation
+
     ```
     basename : "1_foo"
       tokens : NUMBER DELIMITER WORD
@@ -184,6 +190,7 @@ has learned from three different examples.
     WORD         ->  NUMBER DELIMITER WORD
     ```
     Change operations:
+
     1. Insert "template field"/substring NUMBER at position 0
     2. Populate NUMBER *(sub-task modeled in the same way!)*
     2. Join by delimiter
@@ -195,6 +202,7 @@ has learned from three different examples.
     WORD PARENTHESIS NUMBER PARENTHESIS  ->  NUMBER DELIMITER WORD
     ```
     Change operations:
+
     1. Swap substrings
     2. Remove substring(PARENTHESIS)
     3. Join by delimiter (`_`)
@@ -206,6 +214,7 @@ has learned from three different examples.
     NUMBER DELIMITER WORD  ->  NUMBER DELIMITER WORD
     ```
     Change operations:
+
     0. None are required!
 
 
