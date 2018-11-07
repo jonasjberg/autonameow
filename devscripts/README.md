@@ -33,10 +33,6 @@ Delete all `*.pyc` files and `__pycache__` directories.
 ### `find_unit_test_visits.sh`
 Find which unit tests that covered which lines of source code using `smother`.
 
-### `filter_list-all_meowuris.sh`
-Run autonameow with the given file(s) and the `--list-all` option and filters
-the output to display a lexicographically sorted list of unique MeowURIs.
-
 ### `functions-rarely-called.sh`
 Very simple *and likely broken* search of unused functions and methods.
 
