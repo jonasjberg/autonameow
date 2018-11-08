@@ -42,7 +42,7 @@ fi
 export AUTONAMEOW_ROOT_DIR
 
 # Absolute path to the main executable for running autonameow.
-AUTONAMEOW_RUNNER="${AUTONAMEOW_ROOT_DIR}/bin/autonameow.sh"
+AUTONAMEOW_RUNNER="${AUTONAMEOW_ROOT_DIR}/bin/autonameow"
 if [ ! -f "$AUTONAMEOW_RUNNER" ]
 then
     error_msg_exit 'Not a file' "$AUTONAMEOW_RUNNER"
