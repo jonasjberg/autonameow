@@ -24,6 +24,7 @@ from core import exceptions
 from util import disk
 from util import encoding as enc
 from util import sanity
+from util.text import remove_zerowidth_spaces
 
 
 log = logging.getLogger(__name__)
@@ -142,7 +143,9 @@ def _with_simple_string_keys(data_dict):
 
 def post_assemble_format(new_name):
     # TODO: [TD0043][TD0036] Remove hardcoded behaviour and settings.
-    return new_name.rstrip('.')
+    modified_name = remove_zerowidth_spaces(new_name)
+    modified_name = modified_name.rstrip('.')
+    return modified_name
 
 
 def _remove_single_and_double_quotes(string):

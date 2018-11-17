@@ -370,6 +370,12 @@ def remove_nonbreaking_spaces(text):
 
 
 def remove_zerowidth_spaces(text):
+    """
+    Removes "zero width space" characters with Unicode code point U+200B.
+
+    UTF-8 hex 0xE2808B
+    Octal Escape Sequence \342\200\213
+    """
     return text.replace('\u200B', '')
 
 
