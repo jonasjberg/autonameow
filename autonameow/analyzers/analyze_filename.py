@@ -92,14 +92,14 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._file_mimetype = None
 
     def analyze(self):
-        basename_prefix = self.fileobject.basename_prefix
-        self._basename_prefix = coercers.force_string(basename_prefix)
+        self._basename_prefix = coercers.force_string(
+            self.fileobject.basename_prefix
+        )
+        self._basename_suffix = coercers.force_string(
+            self.fileobject.basename_suffix
+        )
+        self._file_mimetype = self.fileobject.mime_type or coercers.NULL_AW_MIMETYPE
 
-        basename_suffix = self.fileobject.basename_suffix
-        self._basename_suffix = coercers.force_string(basename_suffix)
-
-        file_mimetype = self.fileobject.mime_type
-        self._file_mimetype = file_mimetype or coercers.NULL_AW_MIMETYPE
         self._add_intermediate_results('datetime', self._get_datetime())
         self._add_intermediate_results('edition', self._get_edition())
         self._add_intermediate_results('extension', self._get_extension())
