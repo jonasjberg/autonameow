@@ -49,12 +49,12 @@ class TestSplitBasename(TestCase):
         with self.assertRaises(EncodingBoundaryViolation):
             _, _ = split_basename('a.b')
 
-    def test_split_no_name(self):
-        self._assert_splits(b'', None, b'')
+    def test_empty_filenames(self):
+        self._assert_splits(b'', b'', b'')
 
-    def test_split_no_extension(self):
-        self._assert_splits(b'foo',  None, b'foo')
-        self._assert_splits(b'.foo', None, b'.foo')
+    def test_filenames_without_any_extension(self):
+        self._assert_splits(b'foo',  b'', b'foo')
+        self._assert_splits(b'.foo', b'', b'.foo')
 
     def test_split_one_extension(self):
         self._assert_splits(b'foo',  b'bar', b'foo.bar')
@@ -99,16 +99,16 @@ class TestSplitBasename(TestCase):
 
 class TestBasenameSuffix(TestCase):
     def _assert_suffix(self, expected, given):
-        with self.subTest(given=given, expected='None'):
+        with self.subTest(given=given, expected=b''):
             actual = basename_suffix(given)
             self.assertEqual(expected, actual)
 
     def _assert_no_suffix(self, given):
-        with self.subTest(given=given, expected='None'):
+        with self.subTest(given=given, expected=b''):
             actual = basename_suffix(given)
-            self.assertIsNone(actual)
+            self.assertEqual(b'', actual)
 
-    def test_no_name(self):
+    def test_empty_or_practically_empty_filenames(self):
         for given in [
             b'',
             b' ',
@@ -121,7 +121,7 @@ class TestBasenameSuffix(TestCase):
         ]:
             self._assert_no_suffix(given)
 
-    def test_no_extension(self):
+    def test_filenames_without_any_extension(self):
         for given in [
             b'filename',
             b'file name',
@@ -130,16 +130,16 @@ class TestBasenameSuffix(TestCase):
         ]:
             self._assert_no_suffix(given)
 
-    def test_one_extension(self):
+    def test_filenames_with_one_extension(self):
         self._assert_suffix(b'jpg', b'filename.jpg')
         self._assert_suffix(b'jpg', b'filename.JPG')
 
-    def test_one_extension_make_lowercase(self):
+    def test_filenames_with_one_extension_make_lowercase(self):
         self.assertEqual(
             b'JPG', basename_suffix(b'filename.JPG', make_lowercase=False)
         )
 
-    def test_hidden_file(self):
+    def test_hidden_unix_filenames_with_leading_periods(self):
         self._assert_suffix(b'jpg', b'.hiddenfile.jpg')
         self._assert_suffix(b'jpg', b'.hiddenfile.JPG')
 
@@ -148,7 +148,7 @@ class TestBasenameSuffix(TestCase):
             b'JPG', basename_suffix(b'.hiddenfile.JPG', make_lowercase=False)
         )
 
-    def test_many_suffixes(self):
+    def test_filenames_with_many_suffixes(self):
         for expect, given in [
             (b'tar', b'filename.tar'),
             (b'gz', b'filename.gz'),
@@ -179,8 +179,13 @@ class TestBasenamePrefix(TestCase):
             actual = basename_prefix(given)
             self.assertEqual(expected, actual)
 
-    def test_no_name(self):
-        self.assertIsNone(basename_prefix(b''))
+    def _assert_no_prefix(self, given):
+        with self.subTest(given=given, expected=b''):
+            actual = basename_prefix(given)
+            self.assertEqual(b'', actual)
+
+    def test_empty_or_practically_empty_filenames(self):
+        self._assert_no_prefix(b'')
 
         for expect, given in [
             (b' ', b' '),
@@ -189,7 +194,7 @@ class TestBasenamePrefix(TestCase):
         ]:
             self._assert_prefix(expect, given)
 
-    def test_no_extension(self):
+    def test_filenames_without_any_extension(self):
         for expect, given in [
             (b'filename', b'filename'),
             (b'file name', b'file name'),
@@ -198,21 +203,21 @@ class TestBasenamePrefix(TestCase):
         ]:
             self._assert_prefix(expect, given)
 
-    def test_one_extension(self):
+    def test_filenames_with_one_extension(self):
         for given in [
             b'filename', b'filename.jpg',
             b'filename', b'filename.JPG',
         ]:
             self._assert_prefix(b'filename', given)
 
-    def test_hidden_file(self):
+    def test_hidden_unix_filenames_with_leading_periods(self):
         for given in [
             b'.hiddenfile.jpg',
             b'.hiddenfile.JPG',
         ]:
             self._assert_prefix(b'.hiddenfile', given)
 
-    def test_many_suffixes(self):
+    def test_filenames_with_many_suffixes(self):
         for given in [
             b'filename.tar',
             b'filename.gz',

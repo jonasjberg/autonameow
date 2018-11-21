@@ -23,7 +23,7 @@ from util import encoding as enc
 from util import sanity
 
 
-COMPOUND_SUFFIX_LAST_PARTS = [
+COMPOUND_SUFFIX_TAILS = frozenset([
     b'.7z',
     b'.bz2',
     b'.gz',
@@ -38,7 +38,9 @@ COMPOUND_SUFFIX_LAST_PARTS = [
     b'.z',
     b'.zip',
     b'.zipx',
-]
+])
+
+EMPTY_FILENAME_PART = b''
 
 
 def split_basename(file_path):
@@ -58,8 +60,8 @@ def split_basename(file_path):
         file_path (bytes): The path name to split as an "internal bytestring".
 
     Returns:
-        The basename of the given path split into two parts,
-        as a tuple of bytestrings.
+        The basename of the given path split into two parts, as a tuple of
+        bytestrings. Empty parts are substituted with EMPTY_FILENAME_PART.
 
     Raises:
         EncodingBoundaryViolation: Given arguments are not bytestrings.
@@ -71,14 +73,15 @@ def split_basename(file_path):
     suffix = enc.bytestring_path(suffix)
 
     # Split "prefix" twice to make compound suffix out of the two extensions.
-    if suffix.lower() in COMPOUND_SUFFIX_LAST_PARTS:
+    if suffix.lower() in COMPOUND_SUFFIX_TAILS:
         suffix = os.path.splitext(prefix)[1] + suffix
         prefix = os.path.splitext(prefix)[0]
 
-    suffix = suffix.lstrip(b'.')
-    if suffix and suffix.strip():
+    suffix = suffix.lstrip(b'.').strip()
+    if suffix:
         return prefix, suffix
-    return prefix, None
+
+    return prefix, EMPTY_FILENAME_PART
 
 
 def basename_suffix(file_path, make_lowercase=True):
@@ -101,13 +104,13 @@ def basename_suffix(file_path, make_lowercase=True):
 
     Returns:
         The "suffix" or compound file extension for the given path as a
-        "internal bytestring".  None is returned if it is not present.
+        "internal bytestring" or EMPTY_FILENAME_PART if it is not present.
     """
     _, suffix = split_basename(file_path)
     if suffix and make_lowercase:
         suffix = suffix.lower()
 
-    return suffix if suffix else None
+    return suffix if suffix else EMPTY_FILENAME_PART
 
 
 def basename_prefix(file_path):
@@ -124,10 +127,10 @@ def basename_prefix(file_path):
 
     Returns:
         The basename of the specified path, without any extension ("suffix"),
-        as a "internal bytestring".  None is returned if it is not present.
+        as a "internal bytestring" or EMPTY_FILENAME_PART if it is not present.
     """
     prefix, _ = split_basename(file_path)
-    return prefix if prefix else None
+    return prefix if prefix else EMPTY_FILENAME_PART
 
 
 def compare_basenames(basename_one, basename_two):
