@@ -24,9 +24,10 @@ ITERATIONS=10
 
 run_local_regression_tests_get_runtime()
 {
-    tests/run_regression_tests.sh -f '!*LOCAL*' \
-        | grep 'Regression Test Summary' | grep -o '  in .* seconds$' \
-        | cut -f4 -d' '
+    tests/run_regression_tests.sh -f '!*LOCAL*' |
+        grep 'Regression Test Summary' |
+        grep -o '  in .* seconds$' |
+        cut -f4 -d' '
 }
 
 

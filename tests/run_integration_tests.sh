@@ -121,8 +121,9 @@ logmsg "Started integration test runner \"${SELF_BASENAME}\""
 logmsg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
-find "$search_dir" -mindepth 1 -maxdepth 1 -type f -name "test_*.sh" \
-| sort -r | while IFS=$'\n' read -r testscript
+find "$search_dir" -mindepth 1 -maxdepth 1 -type f -name "test_*.sh" |
+sort -r |
+while IFS=$'\n' read -r testscript
 do
     if [ ! -x "$testscript" ]
     then

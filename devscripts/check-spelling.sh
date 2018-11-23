@@ -22,9 +22,9 @@
 # Searches the sources for previously and/or commonly misspelled words.
 # These are based on searching the git history with something like this;
 #
-#     git log --all -p -- *.py | grep -- '^-.*#.*' | grep -v '^-$' \
-#     | grep -oi -- '[[:alpha:]]\+' | tr '[:upper:]' '[:lower:]' | sort -u \
-#     | aspell list -a
+#     git log --all -p -- *.py | grep -- '^-.*#.*' | grep -v '^-$' |
+#     grep -oi -- '[[:alpha:]]\+' | tr '[:upper:]' '[:lower:]' | sort -u |
+#     aspell list -a
 # ______________________________________________________________________________
 
 set -o nounset -o pipefail
@@ -72,9 +72,9 @@ do
 
     # Skip lines that are empty or contain only whitespace
     # Remove all leading whitespace.
-    if grep -v -- '^[[:space:]]\?$' "$filepath" \
-        | sed -e 's/^[[:space:]]*//' \
-        | grep --ignore-case --fixed-strings --file="$wordlist_filepath"
+    if grep -v -- '^[[:space:]]\?$' "$filepath" |
+       sed -e 's/^[[:space:]]*//' |
+       grep --ignore-case --fixed-strings --file="$wordlist_filepath"
     then
         printf '%s\n\n' "$filepath"
         exitstatus=1

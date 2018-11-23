@@ -34,6 +34,7 @@ fi
 
 
 (
-cd "$AUTONAMEOW_ROOT_DIR" \
-&& PYTHONPATH=autonameow:tests python3 tests/regression/regression_runner.py "$@"
+    cd "$AUTONAMEOW_ROOT_DIR" &&
+    PYTHONPATH=autonameow:tests \
+    python3 tests/regression/regression_runner.py "$@"
 )

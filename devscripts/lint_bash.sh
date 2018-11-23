@@ -54,13 +54,16 @@ fi
 #
 # SC2016: Expressions don't expand in single quotes, use double quotes for that.
 #
-find "${AUTONAMEOW_ROOT_DIR}/tests/integration" -type f -name '*.sh' -print0 \
-    | sort -z | xargs -0 shellcheck -s bash -e 'SC2016' --
+find "${AUTONAMEOW_ROOT_DIR}/tests/integration" \
+    -type f -name '*.sh' -print0 |
+    sort -z |
+    xargs -0 shellcheck -s bash -e 'SC2016' --
 
 
 # Find all other shell scripts.
 find "${AUTONAMEOW_ROOT_DIR}/tests" "${AUTONAMEOW_ROOT_DIR}/bin" "${AUTONAMEOW_ROOT_DIR}/devscripts" \
-    -type f -name '*.sh' -not -path '*/tests/integration/*' -print0 \
-    | sort -z | xargs -0 shellcheck -s bash --
+    -type f -name '*.sh' -not -path '*/tests/integration/*' -print0 |
+    sort -z |
+    xargs -0 shellcheck -s bash --
 
 

@@ -211,8 +211,8 @@ convert_raw_log_to_html()
         exit 1
     fi
 
-    if [ -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] \
-    || [ ! -f "$AUTONAMEOW_INTEGRATION_LOG" ]
+    if [ -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] ||
+       [ ! -f "$AUTONAMEOW_INTEGRATION_LOG" ]
     then
         echo "Logging has not been initialized. Aborting .." 1>&2
         return 1

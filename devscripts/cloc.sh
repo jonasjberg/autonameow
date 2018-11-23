@@ -53,7 +53,7 @@ fi
 
 
 (
-    cd "$AUTONAMEOW_ROOT_DIR" && \
+    cd "$AUTONAMEOW_ROOT_DIR" &&
     cloc --exclude-dir="$IGNORE_DIRS" .
 )
 

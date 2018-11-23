@@ -61,5 +61,4 @@ grep --color=auto \
      --line-number \
      --binary-file=without-match \
      -H \
-     -- "TODO: .*${1}.*" "$AUTONAMEOW_ROOT_DIR" 2>/dev/null \
-| sort
+     -- "TODO: .*${1}.*" "$AUTONAMEOW_ROOT_DIR" 2>/dev/null | sort
