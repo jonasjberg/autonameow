@@ -24,7 +24,7 @@ set -o nounset
 IGNORE_DIRS='test_files,thirdparty,license,docs,notes,.idea,.cache'
 
 
-if ! command -v cloc >/dev/null 2>&1
+if ! command -v cloc &>/dev/null
 then
     cat >&2 <<EOF
 

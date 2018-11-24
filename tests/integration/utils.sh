@@ -177,7 +177,7 @@ update_global_test_results()
 # Calls 'test_pass' if the expression returns zero.
 assert_true()
 {
-    ( eval "${1}" >/dev/null 2>&1 ) >/dev/null
+    ( eval "${1}" &>/dev/null ) >/dev/null
     if [ "$?" -ne "0" ]
     then
         shift ; test_fail "$*"
@@ -191,7 +191,7 @@ assert_true()
 # Calls 'test_fail' if the expression returns zero.
 assert_false()
 {
-    ( eval "${1}" >/dev/null 2>&1 ) >/dev/null
+    ( eval "${1}" &>/dev/null ) >/dev/null
     if [ "$?" -ne "0" ]
     then
         shift ; test_pass "$*"
@@ -204,7 +204,7 @@ assert_false()
 # available.  Executed at the end of a test run by 'run_integration_tests.sh'.
 convert_raw_log_to_html()
 {
-    if ! command -v "aha" >/dev/null 2>&1
+    if ! command -v "aha" &>/dev/null
     then
         logmsg "The executable \"aha\" is not available on this system"
         logmsg "Skipping converting raw logfiles to HTML .."
@@ -325,7 +325,7 @@ command_exists()
 {
     for arg in "$@"
     do
-        if ! command -v "$arg" >/dev/null 2>&1
+        if ! command -v "$arg" &>/dev/null
         then
             return 1
         fi

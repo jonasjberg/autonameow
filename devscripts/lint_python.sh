@@ -21,7 +21,7 @@
 
 set -o nounset -o pipefail
 
-if ! command -v pylint >/dev/null 2>&1
+if ! command -v pylint &>/dev/null
 then
     cat >&2 <<EOF
 

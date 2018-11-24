@@ -162,7 +162,7 @@ do
     then
         source "${testscript}"
     else
-        source "${testscript}" >/dev/null 2>&1
+        source "${testscript}" &>/dev/null
     fi
     logmsg "Finished \"${_testscript_base}\""
 done

@@ -54,7 +54,7 @@ exit_with_error_message_if_missing_command()
 {
     local -r _cmdname="$1"
 
-    if ! command -v "${_cmdname}" >/dev/null 2>&1
+    if ! command -v "${_cmdname}" &>/dev/null
     then
         cat >&2 <<EOF
 

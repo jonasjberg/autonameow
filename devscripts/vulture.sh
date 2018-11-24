@@ -22,8 +22,7 @@
 set -o nounset
 
 
-
-if ! command -v vulture >/dev/null 2>&1
+if ! command -v vulture &>/dev/null
 then
     cat >&2 <<EOF
 

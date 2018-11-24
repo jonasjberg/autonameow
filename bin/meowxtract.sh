@@ -24,7 +24,7 @@
 set -o nounset -o pipefail
 
 # Make sure that Python 3 is available.
-if ! command -v python3 >/dev/null 2>&1
+if ! command -v python3 &>/dev/null
 then
     cat >&2 <<EOF
 

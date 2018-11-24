@@ -273,7 +273,7 @@ assert_true '[ "$_number_files_in_temp_persistence_dir" -eq "0" ]' \
             'Temporary persistence directory should initially not contain any files'
 
 # Arbitrary execution just to do *something* with the persistence directory.
-"$AUTONAMEOW_RUNNER" --quiet --dry-run --batch --config-path "$TEMPLATED_DEFAULT_CONFIG" -- "${AUTONAMEOW_TESTFILES_DIR}" >/dev/null 2>&1
+"$AUTONAMEOW_RUNNER" --quiet --dry-run --batch --config-path "$TEMPLATED_DEFAULT_CONFIG" -- "${AUTONAMEOW_TESTFILES_DIR}" &>/dev/null
 
 _number_files_in_temp_persistence_dir="$(find "$TEMP_PERSISTENCE_DIR" -type f -mindepth 1 -type f | wc -l)"
 assert_true '[ "$_number_files_in_temp_persistence_dir" -ge "1" ]' \

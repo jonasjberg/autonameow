@@ -22,7 +22,7 @@
 set -o nounset
 
 
-if ! command -v ctags >/dev/null 2>&1
+if ! command -v ctags &>/dev/null
 then
     cat >&2 <<EOF
 

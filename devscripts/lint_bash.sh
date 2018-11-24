@@ -21,7 +21,7 @@
 
 set -o nounset -o pipefail
 
-if ! command -v shellcheck >/dev/null 2>&1
+if ! command -v shellcheck &>/dev/null
 then
     cat >&2 <<EOF
 

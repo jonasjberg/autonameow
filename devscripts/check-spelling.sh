@@ -30,7 +30,7 @@
 set -o nounset -o pipefail
 
 
-if ! command -v aspell >/dev/null 2>&1
+if ! command -v aspell &>/dev/null
 then
     cat >&2 <<EOF
 
