@@ -19,8 +19,8 @@
 
 set -o nounset
 
-SELF_BASENAME="$(basename "$0")"
-SELF_DIR="$(realpath -e "$(dirname "$0")")"
+SELF_BASENAME="$(basename -- "$0")"
+SELF_DIRPATH="$(realpath -e -- "$(dirname -- "$0")")"
 
 
 # Default configuration.
@@ -63,12 +63,12 @@ fi
 
 
 printf 'Currently skipped regression tests:\n'
-( cd "$SELF_DIR" && find . -xdev -type f -name 'skip' -printf '%P\n' | sed 's/\/skip//' )
+( cd "$SELF_DIRPATH" && find . -xdev -type f -name 'skip' -printf '%P\n' | sed 's/\/skip//' )
 
 if [ "$option_clear_all_skipped" == 'true' ]
 then
     printf '\nClearing all skipped tests .. '
-    if ( cd "$SELF_DIR" && find . -xdev -type f -name 'skip' -delete )
+    if ( cd "$SELF_DIRPATH" && find . -xdev -type f -name 'skip' -delete )
     then
         printf '[SUCCESS]\n'
     else

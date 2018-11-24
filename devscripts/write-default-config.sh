@@ -20,13 +20,18 @@
 set -o noclobber -o nounset -o pipefail
 
 
-SELF_DIR="$(realpath -e "$(dirname "$0")")"
+SELF_DIRPATH="$(realpath -e -- "$(dirname -- "$0")")"
 
 # Get absolute path to the autonameow source root.
-AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIR" && realpath -e -- ".." ) )"
+if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+then
+    AUTONAMEOW_ROOT_DIR="$(realpath -e -- "${SELF_DIRPATH}/..")"
+fi
+
 if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
 then
-    echo "Not a directory: \"${AUTONAMEOW_ROOT_DIR}\" .. Aborting" >&2
+    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIR"   >&2
+    printf '        Unable to set "AUTONAMEOW_ROOT_DIR". Aborting.\n' >&2
     exit 1
 fi
 

@@ -22,13 +22,13 @@
 set -o nounset
 
 
-SELFNAME="$(basename "$0")"
+SELF_BASENAME="$(basename -- "$0")"
 
 # Get absolute path to the autonameow source root.
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
-    self_dirpath="$(realpath -e "$(dirname "$0")")"
-    AUTONAMEOW_ROOT_DIR="$( ( cd "$self_dirpath" && realpath -e -- ".." ) )"
+    self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
+    AUTONAMEOW_ROOT_DIR="$(realpath -e -- "${self_dirpath}/..")"
 fi
 
 if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
@@ -43,7 +43,7 @@ if [ "$#" -ne "1" ]
 then
     cat <<EOF
 
-USAGE:  $SELFNAME [PATTERN]
+USAGE:  $SELF_BASENAME [PATTERN]
         Where [PATTERN] is inserted in "TODO: .*[PATTERN].*",
         which is passed to grep along with other options.
 

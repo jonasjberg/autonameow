@@ -20,7 +20,7 @@
 set -o nounset -o pipefail -o errexit
 
 
-SELF_BASENAME="$(basename "$0")"
+SELF_BASENAME="$(basename -- "$0")"
 
 if [ "$#" -ne '3' ]
 then

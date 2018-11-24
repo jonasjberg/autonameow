@@ -43,17 +43,18 @@ EOF
 fi
 
 
-SELF_DIRPATH="$(realpath -e "$(dirname "$0")")"
+SELF_DIRPATH="$(realpath -e -- "$(dirname -- "$0")")"
 
 # Get absolute path to the autonameow source root.
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
-    AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIRPATH" && realpath -e -- ".." ) )"
+    AUTONAMEOW_ROOT_DIR="$(realpath -e -- "${SELF_DIRPATH}/..")"
 fi
 
 if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
 then
     printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIR" >&2
+    printf '        Unable to set "AUTONAMEOW_ROOT_DIR". Aborting.\n' >&2
     exit 1
 fi
 

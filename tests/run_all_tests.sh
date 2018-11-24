@@ -24,8 +24,8 @@ declare -r EXIT_SUCCESS=0
 declare -r EXIT_FAILURE=1
 declare -r EXIT_CRITICAL=2
 
-SELF_BASENAME="$(basename "$0")"
-SELF_DIRPATH="$(realpath -e "$(dirname "$0")")"
+SELF_BASENAME="$(basename -- "$0")"
+SELF_DIRPATH="$(realpath -e -- "$(dirname -- "$0")")"
 
 if ! source "${SELF_DIRPATH}/setup_environment.sh"
 then

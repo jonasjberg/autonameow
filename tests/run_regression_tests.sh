@@ -19,7 +19,7 @@
 
 set -o nounset
 
-SELF_DIRPATH="$(realpath -e "$(dirname "$0")")"
+SELF_DIRPATH="$(realpath -e -- "$(dirname -- "$0")")"
 
 if ! source "${SELF_DIRPATH}/setup_environment.sh"
 then
