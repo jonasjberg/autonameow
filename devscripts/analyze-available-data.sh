@@ -163,11 +163,11 @@ for arg in "$@"
 do
     if [ ! -f "$arg" ]
     then
-        echo "Not a file: \"${arg}\""
+        printf 'Not a file: "%s"\n' "$arg"
         continue
     elif [ ! -r "$arg" ]
     then
-        echo "Not a readable file: \"${arg}\""
+        printf 'Not a readable file: "%s"\n' "$arg"
         continue
     else
         main "$arg"
@@ -176,5 +176,3 @@ done
 
 
 exit $?
-
-
