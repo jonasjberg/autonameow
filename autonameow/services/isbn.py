@@ -18,6 +18,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import time
 
 try:
     import isbnlib
@@ -113,6 +114,8 @@ class ISBNMetadataService(object):
             # We should handle 'ISBNLibHTTPError' ("with code 403 [Forbidden]")
             log.error(e)
         finally:
+            # Tiny sleep to maybe avoid getting blocked by the service ..
+            time.sleep(0.2)
             logging.disable(logging.NOTSET)
 
         return None
