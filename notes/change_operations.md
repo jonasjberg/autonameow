@@ -11,6 +11,7 @@ Ideas on a possible new abstract high-level model of assembling a new filename.
 
 #### Revisions
 * 2018-11-04 --- `jonasjberg` Initial.
+* 2018-12-02 --- `jonasjberg` Add another example.
 
 
 Motivation
@@ -82,7 +83,7 @@ perform renaming tasks manually.
 
 ### Illustrative Examples
 
-#### Ill-defined Manipulation of Filename Substrings
+#### Example 1: Ill-defined Manipulation of Filename Substrings
 Common scenario that we should be able to handle.
 
 I would probably attempt to split the filename with some (trained?) tokenizer
@@ -219,9 +220,48 @@ has learned from three different examples.
 
 
 
-### Example 2
+#### Example 2
 Single "letter case lowering operation" acting on the entire filename would
 turn `MEOW.docx` into `meow.docx`.
+
+
+
+#### Example 3
+*Potentially ill-advised system for describing changes across systems, "levels
+of abstraction" and concerns..*
+
+Something like "split/join name template fields". Maybe split a single name
+template placeholder field `{date}` into two separate fields `{date}{time}`,
+possibly with constraints on whether some value(s) must remain compatible with
+the placeholder field after the field has been split.
+
+Given something like this:
+```
+Original filename  : 'MEOW Gibson.docx'
+Name Template      : '{date} {title}.{extension}'
+```
+It may be reasonable to "tokenize" the original filename `MEOW Gibson.docx`
+into some representation based on some kind of substring-fields that can be
+processed as variants of name template fields at a later stage.
+
+E.G. the original filename `MEOW Gibson.docx` could be represented as:
+
+```
+{substring("MEOW")} {substring("Gibson")}.{extension("docx")}
+```
+
+Which could then be joined/merged into the name template, by a sequence of
+actions represented as change operations;
+
+```
+Tokenized filename : '{substring("MEOW")} {substring("Gibson")}.{extension("docx")}'
+Name Template      : '{date} {title}.{extension}'
+```
+
+Again, this is also motivated by easier serialization of the performed actions
+and also possibly being able to plug in some kind of supervised learning system
+to offer better suggestions in the future.
+
 
 
 ### Example n
