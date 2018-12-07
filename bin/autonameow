@@ -26,11 +26,11 @@ import os
 import sys
 
 _self_abspath = os.path.realpath(os.path.abspath(__file__))
-AUTONAMEOW_PACKAGE_PATH = os.path.join(
+AUTONAMEOW_PACKAGE_PATH = os.path.normpath(os.path.join(
     os.path.dirname(_self_abspath),
     os.path.pardir,
     'autonameow'
-)
+))
 sys.path.insert(0, AUTONAMEOW_PACKAGE_PATH)
 
 from core.main import cli_main
