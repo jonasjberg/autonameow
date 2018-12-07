@@ -166,7 +166,7 @@ _check_spelling_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check-spelling.sh
 assert_bulk_test "$_check_spelling_script_path" e x
 
 assert_true '$_check_spelling_script_path' \
-            'Spell-checker script checks pass ("check_whitespace.sh" returns 0)'
+            'Spell-checker script checks pass ("check-spelling.sh" returns 0)'
 
 
 
