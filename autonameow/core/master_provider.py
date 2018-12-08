@@ -112,7 +112,7 @@ class ProviderRegistry(object):
 
         self.meowuri_sources = dict(meowuri_source_map)
         self._debug_log_mapped_meowuri_sources()
-        self.excluded_providers = excluded_providers
+        self._excluded_providers = excluded_providers
 
         # Set of all MeowURIs "registered" by extractors or analyzers.
         self.mapped_meowuris = self.unique_map_meowuris(self.meowuri_sources)
@@ -120,6 +120,13 @@ class ProviderRegistry(object):
         # Providers declaring generic MeowURIs through 'metainfo()'.
         self.generic_meowuri_sources = _map_generic_sources(self.meowuri_sources)
         self._debug_log_mapped_generic_meowuri_sources()
+
+    @property
+    def excluded_providers(self):
+        # Sort here so that callers won't have to work around the possibility
+        # of excluded providers not having a common base class and thus being
+        # unorderable.
+        return sorted(self._excluded_providers, key=lambda x: x.__name__)
 
     def _debug_log_mapped_meowuri_sources(self):
         if not logs.DEBUG:
