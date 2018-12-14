@@ -33,20 +33,22 @@ fi
 # Resets test suite counter variables.
 source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 
+vendor_dirpath="${AUTONAMEOW_ROOT_DIR}/autonameow/vendor"
+echo $vendor_dirpath
 
 assert_can_import_python_module()
 {
     local -r _module_name="$1"
-    assert_true 'python3 -c "import ${_module_name}"' \
-                "System python3 can import required module \"${_module_name}\""
+    assert_true 'python3 -c "import sys ; sys.path.insert(0, \"${vendor_dirpath}\") ; import ${_module_name}"' \
+                "python3 can import required module \"${_module_name}\""
 }
 
 assert_can_import_python_module_member()
 {
     local -r _module_name="$1"
     local -r _member_name="$2"
-    assert_true 'python3 -c "from ${_module_name} import ${_member_name}"' \
-                "System python3 can import required module \"${_module_name}\" member \"${_member_name}\""
+    assert_true 'python3 -c "import sys ; sys.path.insert(0, \"${vendor_dirpath}\") ; from ${_module_name} import ${_member_name}"' \
+                "python3 can import required module \"${_module_name}\" member \"${_member_name}\""
 }
 
 
@@ -94,7 +96,7 @@ assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
 
 # ______________________________________________________________________________
 #
-# Verify Python dependencies by running imports with system python3.
+# Verify Python dependencies by running imports with python3.
 
 assert_can_import_python_module 'bs4'
 assert_can_import_python_module_member 'bs4' 'BeautifulSoup'
@@ -115,7 +117,7 @@ assert_can_import_python_module 'yaml'  # pyyaml
 
 # ______________________________________________________________________________
 #
-# Make sure that system binary dependencies are available.
+# Make sure that binary dependencies are available.
 
 assert_has_command 'exiftool'
 assert_has_command 'jpeginfo'
