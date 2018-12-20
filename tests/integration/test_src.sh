@@ -125,7 +125,7 @@ assert_true '_check_committed_textfiles_exist_and_readable' \
 
 
 python_source_files=(
-    $(git ls-files | grep '\.py$' | grep -v -- 'junk\|local\|notes\|test_files\|thirdparty')
+    $(git ls-files '*.py' | grep -v -- 'junk\|local\|notes\|test_files\|thirdparty\|vendor')
 )
 _check_python_source_files_exist_and_readable()
 {
