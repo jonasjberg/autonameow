@@ -365,6 +365,9 @@ Brother Printer:
 - TW-Brother
 - TW-Brother DCP-7040
 
+Cadence Design Systems:
+- Cadence Design Systems
+
 Cairo:
 - Cairo
 - cairo 1.10.0 (http://cairographics.org)
@@ -560,6 +563,17 @@ Ghostscript:
 - Aladdin Ghostscript
 - Aladdin Ghostscript 6.01
 - Aladdin Ghostscript 1.2.3
+
+# 2018-12-20 Below copied from https://www.ghostscript.com/Ghostscript.html
+# > Releases made prior to 2004 were part of the GNU project and were titled
+# > GNU Ghostscript; that project now maintains a fork
+# > (http://www.gnu.org/software/ghostscript/). Versions prior to 8.54 were
+# > released first under a more restrictive license as AFPL Ghostscript.
+- AFPL Ghostscript
+- AFPL Ghostscript 8.0
+- AFPL Ghostscript 8.33 beta release
+- AFPL Ghostscript 9.26
+
 - GPL Ghostscript
 - GPL Ghostscript 9.10
 - GPL Ghostscript 9.07

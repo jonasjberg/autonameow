@@ -150,6 +150,10 @@ Brother Printer:
     match_any_regex_ignorecase:
     - tw-brother
 
+Cadence Design Systems:
+    match_any_literal:
+    - Cadence Design Systems
+
 Cairo:
     match_any_regex_ignorecase:
     - cairo \d+.\d+.\d+
@@ -216,8 +220,7 @@ Genius Printer:
 
 Ghostscript:
     match_any_regex_ignorecase:
-    - ^(gpl )?ghostscript
-    - aladdin ghostscript
+    - ^(afpl |aladdin |gpl )?ghostscript
 
 gnuplot:
     match_any_regex_ignorecase:
