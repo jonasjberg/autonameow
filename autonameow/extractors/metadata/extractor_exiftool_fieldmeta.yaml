@@ -1120,6 +1120,15 @@ PDF:Creator:
             weight: 0.01
     multivalued: false
 
+PDF:Encryption:
+    # Example: "Standard V4.4 (128-bit)"
+    coercer: aw_string
+    multivalued: false
+
+PDF:HasXFA:
+    coercer: aw_boolean
+    multivalued: false
+
 PDF:Keywords:
     coercer: aw_string
     generic_field: tags
@@ -1150,12 +1159,18 @@ PDF:ModifyDate:
             weight: 0.25
     multivalued: false
 
-PDF:PDFVersion:
-    coercer: aw_float
-    multivalued: false
-
 PDF:PageCount:
     coercer: aw_integer
+    multivalued: false
+
+PDF:PageMode:
+    # Example value written by Adobe InDesign CS3 (5.0):
+    # "UseOutlines"
+    coercer: aw_string
+    multivalued: false
+
+PDF:PDFVersion:
+    coercer: aw_float
     multivalued: false
 
 PDF:Producer:
@@ -1208,6 +1223,11 @@ PDF:Title:
 
 PDF:Trapped:
     coercer: aw_boolean
+    multivalued: false
+
+PDF:UserAccess:
+    # Example: "2580"
+    coercer: aw_integer
     multivalued: false
 
 
@@ -2041,6 +2061,18 @@ XMP:Date:
             weight: 1.0
     multivalued: false
 
+XMP:DerivedFromDocumentID:
+    # Example value written by Adobe InDesign CS3 (5.0):
+    # "adobe:docid:indd:4e75c08e-1014-11dc-9c71-c6c59684e8d0"
+    coercer: aw_string
+    multivalued: false
+
+XMP:DerivedFromInstanceID:
+    # Example value written by Adobe InDesign CS3 (5.0):
+    # "315cf2fc-142d-11dc-a748-e002bce9e11e"
+    coercer: aw_string
+    multivalued: false
+
 XMP:Description:
     coercer: aw_string
     generic_field: description
@@ -2162,6 +2194,11 @@ XMP:Identifier:
     coercer: aw_string
     multivalued: false
 
+XMP:InstanceID:
+    # Example: "uuid:8af5d569-920e-4643-9a53-994eceb6bb27"
+    coercer: aw_string
+    multivalued: false
+
 XMP:Keywords:
     coercer: aw_string
     generic_field: tags
@@ -2175,6 +2212,13 @@ XMP:Keywords:
     -   WeightedMapping:
             field: Description
             weight: 0.8
+    multivalued: false
+
+XMP:Label:
+    # Example value written by Adobe InDesign CS3 (5.0):
+    # "Initial Draft Done"
+    coercer: aw_string
+    generic_field: description
     multivalued: false
 
 XMP:Language:
@@ -2276,6 +2320,12 @@ XMP:Publisher:
             weight: 0.01
     multivalued: false
 
+XMP:RenditionClass:
+    # Example value written by Adobe InDesign CS3 (5.0):
+    # "proof:pdf"
+    coercer: aw_string
+    multivalued: false
+
 XMP:Rights:
     coercer: aw_string
     mapped_fields:
@@ -2320,6 +2370,20 @@ XMP:TagsList:
             field: Description
             weight: 0.8
     multivalued: true
+
+XMP:ThumbnailFormat:
+    # Example value written by Adobe InDesign CS3 (5.0):
+    # "JPEG"
+    coercer: aw_string
+    multivalued: false
+
+XMP:ThumbnailHeight:
+    coercer: aw_integer
+    multivalued: false
+
+XMP:ThumbnailWidth:
+    coercer: aw_integer
+    multivalued: false
 
 XMP:Title:
     coercer: aw_string

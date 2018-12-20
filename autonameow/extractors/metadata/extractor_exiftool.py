@@ -41,6 +41,9 @@ IGNORED_EXIFTOOL_TAGNAMES = frozenset([
     'XML:CustomDateProperty1-1-2001',  # invalid or non-standard
     'XML:CustomNumberProperty42',  # not useful
     'XML:CustomTextPropertyValue',  # could be anything
+    'XMP:ManifestPlacedXResolution',  # Adobe InDesign
+    'XMP:ManifestPlacedYResolution',  # Adobe InDesign
+    'XMP:ManifestPlacedResolutionUnit',  # Adobe InDesign
     'XML:MyCustomBoolean',  # could be anything
     'XML:MyCustomNumber',  # could be anything
     'XML:MyCustomString',  # could be anything
