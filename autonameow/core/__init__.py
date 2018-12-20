@@ -26,6 +26,9 @@ _self_dirpath = os.path.abspath(
 VENDOR_DIRPATH = os.path.normpath(os.path.join(
     _self_dirpath, os.path.pardir, 'vendor'
 ))
+assert os.access(VENDOR_DIRPATH, os.R_OK | os.X_OK), (
+    'Expected readable directory at path "{}"'.format(VENDOR_DIRPATH)
+)
 sys.path.insert(0, VENDOR_DIRPATH)
 
 from . import version
