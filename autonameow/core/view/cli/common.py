@@ -23,11 +23,7 @@ import platform
 import re
 from datetime import datetime
 
-try:
-    import colorama
-    colorama.init()
-except ImportError:
-    colorama = None
+import colorama
 
 from core import constants as C
 from util import coercers
@@ -35,7 +31,9 @@ from util import process
 from util import sanity
 
 
+colorama.init()
 log = logging.getLogger(__name__)
+
 BE_QUIET = False
 
 
@@ -125,32 +123,28 @@ def colorize(text, fore=None, back=None, style=None):
     """
     Adds ANSI formatting to text strings with "colorama".
 
-    The text is returned as-is if the top-level import of "colorama" failed.
-
-    Refer the "colorama" library documentation for additional information;
-        https://pypi.python.org/pypi/colorama
+    The text is returned as-is if no options are specified.
 
     Args:
         text: The text to colorize.
-        fore: Optional foreground color as a string. Available options;
+        fore: Optional foreground color as a string. Available options:
               BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE,
               LIGHTBLACK_EX, LIGHTRED_EX, LIGHTGREEN_EX, LIGHTYELLOW_EX
               LIGHTBLUE_EX, LIGHTMAGENTA_EX, LIGHTCYAN_EX, LIGHTWHITE_EX
-        back: Optional background color as a string. Available options;
+        back: Optional background color as a string. Available options:
               BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE,
               LIGHTBLACK_EX, LIGHTRED_EX LIGHTGREEN_EX, LIGHTYELLOW_EX,
               LIGHTBLUE_EX, LIGHTMAGENTA_EX, LIGHTCYAN_EX, LIGHTWHITE_EX
-        style: Optional style settings as a string. Available options;
+        style: Optional style settings as a string. Available options:
                DIM, NORMAL, BRIGHT, RESET_ALL
 
     Returns:
         The given string with the specified coloring and style options applied.
-        If no options are specified or if "colorama" is not available, the
-        text is returned as-is. If "text" is None, an empty string is returned.
+        An empty string is returned if "text" is None.
     """
     if text is None:
         return ''
-    if not (fore or back or style) or not colorama:
+    if not (fore or back or style):
         return text
 
     buffer = list()

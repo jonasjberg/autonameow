@@ -125,7 +125,7 @@ assert_true '_check_committed_textfiles_exist_and_readable' \
 
 
 python_source_files=(
-    $(git ls-files | grep '\.py$' | grep -v -- 'junk\|local\|notes\|test_files\|thirdparty')
+    $(git ls-files '*.py' | grep -v -- 'junk\|local\|notes\|test_files\|thirdparty\|vendor')
 )
 _check_python_source_files_exist_and_readable()
 {
@@ -166,7 +166,7 @@ _check_spelling_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check-spelling.sh
 assert_bulk_test "$_check_spelling_script_path" e x
 
 assert_true '$_check_spelling_script_path' \
-            'Spell-checker script checks pass ("check_whitespace.sh" returns 0)'
+            'Spell-checker script checks pass ("check-spelling.sh" returns 0)'
 
 
 

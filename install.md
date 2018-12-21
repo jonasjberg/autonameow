@@ -28,21 +28,7 @@ critical `TODO`-list item.
 >     * `jpeginfo`
 >     * `djvutxt`
 >
-> 2. Install these Python modules:
->
->     * `bs4`
->     * `chardet`
->     * `colorama`
->     * `ebooklib`
->     * `guessit`
->     * `isbnlib`
->     * `unidecode`
->     * `prompt_toolkit`
->     * `file-magic`
->     * `pytz`
->     * `pyyaml`
->
-> 3. Make sure to fetch all Git submodules:
+> 2. Make sure to fetch all Git submodules:
 >
 >     ```bash
 >     git submodule update --init --recursive
@@ -113,7 +99,6 @@ Install the dependencies by running the following commands in a terminal:
 ```bash
 brew install libmagic exiftool tesseract unrtf pandoc jpeginfo djvulibre
 brew install poppler # pdftotext
-pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib isbnlib
 ```
 
 
@@ -122,7 +107,6 @@ Install the dependencies by running the following commands in a terminal:
 
 ```bash
 sudo apt install exiftool tesseract-ocr pdftotext unrtf pandoc jpeginfo djvutxt
-pip3 install chardet colorama unidecode prompt_toolkit file-magic pytz pyyaml bs4 guessit ebooklib isbnlib
 ```
 
 Alternatively, search the repositories for the packages with `apt-search`.
