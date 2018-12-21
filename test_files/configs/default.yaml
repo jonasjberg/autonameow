@@ -15,15 +15,6 @@ NAME_TEMPLATES:
     default_book: '{publisher} {title} {edition} - {author} {year}.{extension}'
     default_document: '{title} - {author} {datetime}.{extension}'
     default_photo: '{datetime} {description} -- {tags}.{extension}'
-NAME_TEMPLATE_FIELDS:
-    publisher:
-        candidates:
-            FeedBooks:
-            - This book is brought to you by Feedbooks
-            - http://www.feedbooks.com
-            ProjectGutenberg:
-            - Project Gutenberg
-            - www.gutenberg.net
 PERSISTENCE:
     cache_directory: null
     history_file_path: null

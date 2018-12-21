@@ -35,7 +35,6 @@ from core.exceptions import ConfigurationSyntaxError
 from core.exceptions import FilesystemError
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
-from core.namebuilder.fields import is_valid_template_field
 from util import coercers
 from util import disk
 from util import encoding as enc
@@ -74,9 +73,6 @@ class ConfigurationParser(object):
 
     def parse(self, config_dict):
         reusable_name_templates = self._load_reusable_name_templates(config_dict)
-        self._options.update(
-            self._load_placeholder_field_options(config_dict)
-        )
 
         rule_parser = ConfigurationRuleParser(reusable_name_templates)
         raw_rules = config_dict.get('RULES', dict())
@@ -116,52 +112,6 @@ class ConfigurationParser(object):
                 validated[str_name] = str_format_string
             else:
                 raise ConfigurationSyntaxError(error)
-
-        return validated
-
-    @staticmethod
-    def _load_placeholder_field_options(config_dict):
-        # TODO: [TD0036] Allow per-field replacements and customization.
-        raw_name_template_fields = config_dict.get('NAME_TEMPLATE_FIELDS')
-        if not raw_name_template_fields:
-            log.debug(
-                'Configuration does not contain any name template field options'
-            )
-            return dict()
-
-        if not isinstance(raw_name_template_fields, dict):
-            log.warning('Name template field options is not of type dict')
-            return dict()
-
-        validated = dict()
-        for raw_field, raw_options in raw_name_template_fields.items():
-            str_field = _coerce_string(raw_field)
-            if not is_valid_template_field(str_field):
-                raise ConfigurationSyntaxError(
-                    'Invalid name template field: "{!s}"'.format(raw_field)
-                )
-
-            # User-defined names with lists of patterns.
-            for repl, pat_list in raw_options.get('candidates', {}).items():
-                _validated_candidates = list()
-                for _pat in pat_list:
-                    try:
-                        compiled_pat = re.compile(_pat, re.IGNORECASE)
-                    except re.error:
-                        raise ConfigurationSyntaxError(
-                            'Malformed regular expression: "{!s}"'.format(_pat)
-                        )
-
-                    log.debug('Added name template field pattern :: '
-                              'Match: "%s" Replace: "%s"', _pat, repl)
-                    _validated_candidates.append(compiled_pat)
-
-                if _validated_candidates:
-                    _nested_dict_set(
-                        dictionary=validated,
-                        list_of_keys=['NAME_TEMPLATE_FIELDS', str_field, 'candidates', repl],
-                        value=_validated_candidates
-                    )
 
         return validated
 

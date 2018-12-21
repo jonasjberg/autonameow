@@ -292,27 +292,11 @@ class _Publisher(NameTemplateField):
 
     @classmethod
     def format(cls, databundle, *args, **kwargs):
-        # TODO: [TD0036] Allow per-field replacements and customization.
-
-        candidates = dict()
-
-        # TODO: [TD0174] Don't do field value replacements here!
-        c = kwargs.get('config')
-        if c:
-            name_template_field_options = c.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
-            if name_template_field_options:
-                candidates = name_template_field_options.get('candidates', {})
-
-        # TODO: [TD0152] Fix too many replacements applied? Stop after first?
         value = databundle.value
         sanity.check_internal_string(value)
 
-        formatted_value = value
-        for replacement, patterns in candidates.items():
-            for pattern in patterns:
-                formatted_value = pattern.sub(replacement, formatted_value)
-
-        return formatted_value
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        return value
 
 
 class _Tags(NameTemplateField):

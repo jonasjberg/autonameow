@@ -20,6 +20,7 @@
 import re
 
 from analyzers import BaseAnalyzer
+from core.truths import known_data_loader
 from core.metadata.normalize import cleanup_full_title
 from util.text import collapse_whitespace
 from util.text import remove_blacklisted_lines
@@ -110,7 +111,6 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         self.text = None
         self.num_text_lines = 0
-        self.candidate_publishers = {}
 
     def analyze(self):
         maybe_text = self.request_any_textual_content()
@@ -145,35 +145,45 @@ class DocumentAnalyzer(BaseAnalyzer):
             if clean_title:
                 self._add_intermediate_results('title', clean_title)
 
-        _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
-        if _options:
-            self.candidate_publishers = _options.get('candidates', {})
-
-        if self.candidate_publishers:
+        regex_lookup_dict = known_data_loader.regex_lookup_dict('publisher')
+        if regex_lookup_dict:
             # TODO: Pass multiple possible publishers with probabilities.
             #       (publisher is not "multivalued")
             self._add_intermediate_results(
                 'publisher',
-                self._search_text_for_candidate_publisher(leading_text)
+                self._search_text_for_candidate_publisher(leading_text, regex_lookup_dict)
             )
             self._add_intermediate_results(
                 'publisher',
-                self._search_text_for_copyright_publisher(leading_text)
+                self._search_text_for_copyright_publisher(leading_text, regex_lookup_dict)
             )
 
-    def _search_text_for_candidate_publisher(self, text):
+        literal_lookup_dict = known_data_loader.literal_lookup_dict('publisher')
+        if literal_lookup_dict:
+            # TODO: Pass multiple possible publishers with probabilities.
+            #       (publisher is not "multivalued")
+            self._add_intermediate_results(
+                'publisher',
+                self._search_text_for_candidate_publisher(leading_text, literal_lookup_dict)
+            )
+            self._add_intermediate_results(
+                'publisher',
+                self._search_text_for_copyright_publisher(leading_text, literal_lookup_dict)
+            )
+
+    def _search_text_for_candidate_publisher(self, text, patterns):
         # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-        result = find_publisher(text, self.candidate_publishers)
+        result = find_publisher(text, patterns)
         return result
 
-    def _search_text_for_copyright_publisher(self, text):
+    def _search_text_for_copyright_publisher(self, text, patterns):
         # TODO: [TD0130] Implement general-purpose substring matching/extraction.
         possible_publishers = find_publisher_in_copyright_notice(text)
         if not possible_publishers:
             return None
 
         # TODO: [cleanup] ..
-        result = find_publisher(possible_publishers, self.candidate_publishers)
+        result = find_publisher(possible_publishers, patterns)
         return result
 
     @classmethod

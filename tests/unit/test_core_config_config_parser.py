@@ -17,7 +17,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
 import sys
 from unittest import skipIf, TestCase
 from unittest.mock import Mock, patch
@@ -69,10 +68,13 @@ class TestConfigurationParser(TestCase):
         actual = self.p.parse(DEFAULT_CONFIG)
         actual_options = actual.options
         self.assertIsInstance(actual_options, dict)
-        for section in [
-            'DATETIME_FORMAT', 'FILESYSTEM', 'FILETAGS_OPTIONS',
-            'NAME_TEMPLATE_FIELDS', 'PERSISTENCE', 'POST_PROCESSING'
-        ]:
+        for section in (
+            'DATETIME_FORMAT',
+            'FILESYSTEM',
+            'FILETAGS_OPTIONS',
+            'PERSISTENCE',
+            'POST_PROCESSING'
+        ):
             self.assertIn(section, actual_options)
             self.assertIsInstance(actual_options[section], dict)
 
@@ -133,117 +135,6 @@ class TestConfigurationParserLoadReusableNameTemplates(TestCase):
         )
 
 
-class TestConfigurationParserLoadPlaceholderFieldOptions(TestCase):
-    def setUp(self):
-        self.p = ConfigurationParser()
-
-    def _assert_returns(self, expected, given):
-        actual = self.p._load_placeholder_field_options(given)
-        self.assertEqual(expected, actual)
-
-    def test_returns_empty_if_missing(self):
-        self._assert_returns(dict(), given=dict())
-
-    def test_returns_empty_if_wrong_type(self):
-        self._assert_returns(dict(), given={'NAME_TEMPLATE_FIELDS': ['foo']})
-
-    def test_returns_empty_if_none(self):
-        self._assert_returns(dict(), given={'NAME_TEMPLATE_FIELDS': None})
-
-    def test_returns_empty_if_empty_dict(self):
-        self._assert_returns(dict(), given={'NAME_TEMPLATE_FIELDS': dict()})
-
-    def test_returns_one_as_expected(self):
-        self._assert_returns(
-            expected={
-                'NAME_TEMPLATE_FIELDS': {
-                    'publisher': {
-                            'candidates': {
-                                'FeedBooks': [
-                                    re.compile('This book is brought to you by Feedbooks', re.IGNORECASE),
-                                    re.compile('http://www.feedbooks.com', re.IGNORECASE)
-                                ]
-                            }
-                        }
-                    }
-                },
-            given={
-                'NAME_TEMPLATE_FIELDS': {
-                    'publisher': {
-                        'candidates': {
-                            'FeedBooks': [
-                                'This book is brought to you by Feedbooks',
-                                'http://www.feedbooks.com'
-                            ]
-                        }
-                    }
-                }
-            }
-        )
-
-    def test_returns_two_as_expected(self):
-        self._assert_returns(
-            expected={
-                'NAME_TEMPLATE_FIELDS': {
-                    'publisher': {
-                        'candidates': {
-                            'FeedBooks': [
-                                re.compile('This book is brought to you by Feedbooks', re.IGNORECASE),
-                                re.compile('http://www.feedbooks.com', re.IGNORECASE)
-                            ],
-                            'ProjectGutenberg': [
-                                re.compile('Project Gutenberg', re.IGNORECASE),
-                                re.compile('www.gutenberg.net', re.IGNORECASE)
-                            ]
-                        }
-                    }
-                }
-            },
-            given={
-                'NAME_TEMPLATE_FIELDS': {
-                    'publisher': {
-                        'candidates': {
-                            'FeedBooks': [
-                                'This book is brought to you by Feedbooks',
-                                'http://www.feedbooks.com'
-                            ],
-                            'ProjectGutenberg': [
-                                'Project Gutenberg',
-                                'www.gutenberg.net'
-                            ]
-                        }
-                    }
-                }
-            }
-        )
-
-    def test_raises_exception_given_invalid_field(self):
-        config_dict = {
-            'NAME_TEMPLATE_FIELDS': {
-                '______': {
-                    'candidates': {
-                        'foo': ['bar']
-                    }
-                }
-            }
-        }
-        with self.assertRaises(ConfigurationSyntaxError):
-            _ = self.p._load_placeholder_field_options(config_dict)
-
-    def test_raises_exception_given_bad_regex(self):
-        config_dict = {
-            'NAME_TEMPLATE_FIELDS': {
-                'title': {
-                    'candidates': {
-                        'bad_regex': ['[[[']
-                    }
-                }
-            }
-        }
-        with self.assertRaises(ConfigurationSyntaxError):
-            _ = self.p._load_placeholder_field_options(config_dict)
-
-
 @skipIf(*yaml_unavailable())
 class TestDefaultConfigFromFile(TestCase):
     @classmethod
@@ -285,31 +176,6 @@ class TestDefaultConfigFromFile(TestCase):
 
 
 class TestConfigurationRuleParser(TestCase):
-    @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
-    def test_parses_rules_from_default_config_given_all_nametemplates(self):
-        from core.config.default_config import DEFAULT_CONFIG
-        given_rules = DEFAULT_CONFIG.get('RULES')
-        self.assertIsNotNone(given_rules)
-
-        reusable_name_templates = {
-            'NAME_TEMPLATE_FIELDS': {
-                'publisher': {
-                    'candidates': {
-                        'FeedBooks': [
-                            re.compile('This book is brought to you by Feedbooks', re.IGNORECASE),
-                            re.compile('http://www.feedbooks.com', re.IGNORECASE)
-                        ]
-                    }
-                }
-            }
-        }
-        rule_parser = ConfigurationRuleParser(reusable_name_templates)
-        actual = rule_parser.parse(given_rules)
-        self.assertIsNotNone(actual)
-        self.assertIsInstance(actual, list)
-        self.assertGreater(len(actual), 1)
-        self.assertEqual(len(given_rules), len(actual))
-
     def test_returns_expected_given_empty_dict(self):
         rule_parser = ConfigurationRuleParser()
         given_rules = dict()

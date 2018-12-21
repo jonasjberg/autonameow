@@ -24,6 +24,7 @@ import re
 from analyzers import AnalyzerError
 from analyzers import BaseAnalyzer
 from core import constants as C
+from core.truths import known_metadata
 from util import coercers
 from util import dateandtime
 from util import disk
@@ -172,14 +173,17 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not self._basename_prefix:
             return None
 
-        _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
-        if not _options:
+        known_publisher_values = known_metadata.canonical_values('publisher')
+        if not known_publisher_values:
             return None
 
-        _candidates = _options.get('candidates', {})
-        self.log.debug('Searching for publisher in basename prefix with %d candidates', len(_candidates))
-        result = find_publisher(self._basename_prefix, _candidates)
-        self.log.debug('Search for publisher in basename prefix found "%s"', result)
+        self.log.debug(
+            'Searching basename prefix for %d known publisher values',
+            len(known_publisher_values)
+        )
+        result = find_publisher(self._basename_prefix, known_publisher_values)
+        self.log.debug('Search for publisher in basename prefix found "%s"',
+                       result)
         return result
 
     @classmethod
@@ -365,16 +369,12 @@ def get_most_likely_datetime_from_string(string):
     return match
 
 
-def find_publisher(text, candidates):
+def find_publisher(text, known_publishers):
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     lowercase_text = text.lower()
 
-    for repl, patterns in candidates.items():
-        if repl.lower() in lowercase_text:
-            return repl
-
-        for pattern in patterns:
-            if re.search(pattern, text):
-                return repl
+    for publisher in known_publishers:
+        if publisher.lower() in lowercase_text:
+            return publisher
 
     return None
