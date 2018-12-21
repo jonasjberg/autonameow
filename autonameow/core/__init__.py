@@ -17,5 +17,16 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import sys
+
+_self_dirpath = os.path.abspath(
+    os.path.dirname(os.path.realpath(__file__))
+)
+VENDOR_DIRPATH = os.path.normpath(os.path.join(
+    _self_dirpath, os.path.pardir, 'vendor'
+))
+sys.path.insert(0, VENDOR_DIRPATH)
+
 from . import version
 from .fileobject import FileObject
