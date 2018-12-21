@@ -16,9 +16,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Fixed patterns for canonicalization of string values.
-# This file is read by a 'StringValueCanonicalizer' instance that performs
-# matching on metadata string values.
+# Fixed known patterns for transforming string values.
 
 
 ACDSee:

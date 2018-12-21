@@ -52,9 +52,9 @@ setup(
     package_data={
         'autonameow': [
             'analyzers/probable_extension_lookup',
-            'core/metadata/canonical_creatortool.yaml',
-            'core/metadata/canonical_language.yaml',
-            'core/metadata/canonical_publisher.yaml',
+            'core/truths/data/creatortool.yaml',
+            'core/truths/data/language.yaml',
+            'core/truths/data/publisher.yaml',
             'extractors/filesystem/crossplatform_fieldmeta.yaml',
             'extractors/filesystem/filetags_fieldmeta.yaml',
             'extractors/filesystem/guessit_fieldmeta.yaml',
