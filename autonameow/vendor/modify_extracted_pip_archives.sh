@@ -109,6 +109,9 @@ BS4_BASEDIR='beautifulsoup4-4.4.1'
     mv -v rebulk-1.0.0/LICENSE rebulk_LICENSE.txt &&
     mv -v rebulk-1.0.0/rebulk/ rebulk &&
     rm -rv rebulk-1.0.0
+
+    # Remove tests.
+    rm -rv rebulk/test
 }
 
 [ -d 'six-1.11.0' ] && {
@@ -127,4 +130,7 @@ BS4_BASEDIR='beautifulsoup4-4.4.1'
     mv -v wcwidth-0.1.7/LICENSE.txt wcwidth_LICENSE.txt &&
     mv -v wcwidth-0.1.7/wcwidth/ wcwidth &&
     rm -rv wcwidth-0.1.7
+
+    # Remove tests.
+    rm -rv wcwidth/tests
 }
