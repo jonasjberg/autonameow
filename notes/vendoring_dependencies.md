@@ -11,6 +11,7 @@ Notes on attempt at including all dependencies in the main repository.
 
 #### Revisions
 * 2018-12-07 --- `jonasjberg` Initial.
+* 2018-12-21 --- `jonasjberg` Updates.
 
 
 
@@ -29,3 +30,13 @@ Extract downloaded `.tar.gz`-files:
 ```bash
 cd DESTDIR && for f in *.tar.gz ; do [ -d "${f%.tar.gz}" ] && continue ; tar -xf "$f" ; done
 ```
+
+Then run ad-hoc hack script `modify_extracted_pip_archives.sh`.
+
+
+
+See also
+--------
+
+- <https://github.com/pypa/pip/blob/master/src/pip/_vendor/README.rst>
+- <https://github.com/pypa/pip/blob/master/tasks/vendoring/__init__.py>
