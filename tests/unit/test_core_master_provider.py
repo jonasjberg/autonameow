@@ -34,17 +34,20 @@ def _get_provider_registry(**kwargs):
     return ProviderRegistry(meowuri_source_map, excluded_providers)
 
 
+def _get_dummy_source_map():
+    mock_provider = uu.get_mock_provider()
+    return {
+        uu.as_meowuri('analyzer.filename'): mock_provider,
+        uu.as_meowuri('extractor.metadata.exiftool'): mock_provider,
+        uu.as_meowuri('extractor.filesystem.xplat'): mock_provider,
+        uu.as_meowuri('extractor.filesystem.guessit'): mock_provider,
+    }
+
+
 class TestProviderRegistryMightBeResolvable(TestCase):
     @classmethod
     def setUpClass(cls):
-        mock_provider = uu.get_mock_provider()
-        dummy_source_map = {
-            uu.as_meowuri('analyzer.filename'): mock_provider,
-            uu.as_meowuri('extractor.metadata.exiftool'): mock_provider,
-            uu.as_meowuri('extractor.filesystem.xplat'): mock_provider,
-            uu.as_meowuri('extractor.filesystem.guessit'): mock_provider,
-        }
-        cls.p = _get_provider_registry(meowuri_source_map=dummy_source_map)
+        cls.p = _get_provider_registry(meowuri_source_map=_get_dummy_source_map())
 
     def test_empty_meowuri_returns_false(self):
         self.assertFalse(self.p.might_be_resolvable(None))

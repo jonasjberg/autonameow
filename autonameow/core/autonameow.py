@@ -209,7 +209,7 @@ class Autonameow(object):
             for uri, klass in sorted(master_provider.Registry.meowuri_sources.items()):
                 cf_registered.addrow(str(uri), str(klass.name()))
 
-            for klass in sorted(master_provider.Registry.excluded_providers):
+            for klass in master_provider.Registry.excluded_providers:
                 cf_excluded.addrow(str(klass.name()))
 
             str_registered_providers = str(cf_registered)
