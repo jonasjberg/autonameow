@@ -74,6 +74,11 @@ BS4_BASEDIR='beautifulsoup4-4.4.1'
     mv -v lxml-4.2.5/LICENSES.txt lxml_LICENSES.txt &&
     mv -v lxml-4.2.5/src/lxml/ lxml &&
     rm -rv lxml-4.2.5
+
+    # Remove tests.
+    rm -v lxml/doctestcompare.py
+    rm -v lxml/html/usedoctest.py
+    rm -v lxml/usedoctest.py
 }
 
 # TODO: Pillow-5.3.0
