@@ -16,8 +16,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Fixed known patterns for transforming string values.
-#
+# Fixed known "canonical" values with associated search patterns.
+
 # References
 # * Internet Engineering Task Force (IETF) Tags for Identifying Languages
 #   https://tools.ietf.org/html/rfc5646
