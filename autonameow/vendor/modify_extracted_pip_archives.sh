@@ -11,7 +11,7 @@ exit 1
     mv -v -- babelfish-?.?.?/babelfish babelfish &&
     rm -rv -- babelfish-?.?.?
 
-	# Remove tests and test-only data
+	# Remove tests and test-only data.
 	rm -v 'babelfish/tests.py'
 	rm -v 'babelfish/data/opensubtitles_languages.txt'
 }
@@ -22,6 +22,8 @@ BS4_BASEDIR='beautifulsoup4-4.4.1'
 	  ./convert-py3k &&
 	  find . -xdev -type f -name "*.bak" -delete) &&
       mv -v -- COPYING.txt ../bs4_COPYING.txt &&
+
+      # Remove tests.
       rm -rv -- py3k/bs4/tests py3k/bs4/testing.py &&
       mv -v -- py3k/bs4/ ../bs4
     ) && rm -rv -- "$BS4_BASEDIR"
@@ -80,6 +82,9 @@ BS4_BASEDIR='beautifulsoup4-4.4.1'
     mv -v python-dateutil-2.7.5/LICENSE dateutil_LICENSE.txt &&
     mv -v python-dateutil-2.7.5/dateutil/ dateutil &&
     rm -rv python-dateutil-2.7.5
+
+    # Delete tests.
+    rm -rv dateutil/test
 }
 
 [ -d 'pytz-2018.7' ] && {
