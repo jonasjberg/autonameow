@@ -89,7 +89,7 @@ BS4_BASEDIR='beautifulsoup4-4.4.1'
     mv -v python-dateutil-2.7.5/dateutil/ dateutil &&
     rm -rv python-dateutil-2.7.5
 
-    # Delete tests.
+    # Remove tests.
     rm -rv dateutil/test
 }
 
@@ -97,6 +97,9 @@ BS4_BASEDIR='beautifulsoup4-4.4.1'
     mv -v pytz-2018.7/LICENSE.txt pytz_LICENSE.txt &&
     mv -v pytz-2018.7/pytz/ pytz &&
     rm -rv pytz-2018.7
+
+    # Remove tests.
+    rm -rv pytz/tests
 }
 
 [ -d 'PyYAML-3.11' ] && {
