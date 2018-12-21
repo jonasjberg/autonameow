@@ -21,9 +21,10 @@ BS4_BASEDIR='beautifulsoup4-4.4.1'
 	( cd "$BS4_BASEDIR" &&
 	  ./convert-py3k &&
 	  find . -xdev -type f -name "*.bak" -delete) &&
-      mv -v COPYING.txt ../bs4_COPYING.txt &&
-      mv -v py3k/bs4/ ../bs4
-    ) && rm -rv "$BS4_BASEDIR"
+      mv -v -- COPYING.txt ../bs4_COPYING.txt &&
+      rm -rv -- py3k/bs4/tests py3k/bs4/testing.py &&
+      mv -v -- py3k/bs4/ ../bs4
+    ) && rm -rv -- "$BS4_BASEDIR"
 }
 
 [ -d 'chardet-2.3.0' ] && {
