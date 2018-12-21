@@ -19,7 +19,7 @@
 
 import re
 
-from thirdparty import nameparser
+import nameparser
 from util import sanity
 from util.text.regexcache import RegexCache
 from util.text import substring
@@ -170,30 +170,30 @@ def _parse_name(human_name):
 
     Returns:
         A dict of data returned by the 'HumanName' class or an empty dict if
-        "nameparser" is unavailable or the parsing returns non-True.
+        the parsing returns non-True.
     """
-    if nameparser:
-        parsed = nameparser.HumanName(human_name)
-        if parsed:
-            # Some first names are misinterpreted as titles.
-            if not parsed.first:
-                _first_list = parsed.title_list
-            else:
-                _first_list = parsed.first_list
+    parsed = nameparser.HumanName(human_name)
+    if not parsed:
+        return dict()
 
-            return {
-                'first': parsed.first or '',
-                'first_list': _first_list or [],
-                'last': parsed.last.replace(' ', '') or '',
-                'last_list': parsed.last_list or [],
-                'middle': parsed.middle or '',
-                'middle_list': parsed.middle_list or [],
-                'original': parsed.original or '',
-                'suffix': parsed.suffix or '',
-                'title': parsed.title or '',
-                'title_list': parsed.title_list or [],
-            }
-    return {}
+    # Some first names are misinterpreted as titles.
+    if not parsed.first:
+        _first_list = parsed.title_list
+    else:
+        _first_list = parsed.first_list
+
+    return {
+        'first': parsed.first or '',
+        'first_list': _first_list or [],
+        'last': parsed.last.replace(' ', '') or '',
+        'last_list': parsed.last_list or [],
+        'middle': parsed.middle or '',
+        'middle_list': parsed.middle_list or [],
+        'original': parsed.original or '',
+        'suffix': parsed.suffix or '',
+        'title': parsed.title or '',
+        'title_list': parsed.title_list or [],
+    }
 
 
 class HumanNameParser(object):

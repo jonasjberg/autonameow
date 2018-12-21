@@ -18,7 +18,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import sys
 
 """
 Interface to third-party code stored under the 'thirdparty' directory.
@@ -36,16 +35,3 @@ try:
 except ImportError:
     pyexiftool = None
 
-
-MODULE_NAMEPARSER_DIR = 'nameparser'
-_nameparser_path = os.path.join(THIRDPARTY_ROOT_DIR, MODULE_NAMEPARSER_DIR)
-
-if os.path.isdir(_nameparser_path):
-    sys.path.insert(0, _nameparser_path)
-
-    try:
-        import nameparser
-    except ImportError:
-        nameparser = None
-else:
-    nameparser = None

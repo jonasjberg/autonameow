@@ -81,6 +81,12 @@ BS4_BASEDIR='beautifulsoup4-4.4.1'
     rm -v lxml/usedoctest.py
 }
 
+[ -d 'nameparser-1.0.2' ] && {
+    mv -v nameparser-1.0.2/LICENSE nameparser_LICENSE.txt &&
+    mv -v nameparser-1.0.2/nameparser nameparser &&
+    rm -vr nameparser-1.0.2
+}
+
 # TODO: Pillow-5.3.0
 
 [ -d 'prompt_toolkit-1.0.15' ] && {
