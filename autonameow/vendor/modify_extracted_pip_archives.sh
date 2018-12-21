@@ -10,13 +10,20 @@ exit 1
     mv -v -- babelfish-?.?.?/LICENSE babelfish_LICENSE.txt &&
     mv -v -- babelfish-?.?.?/babelfish babelfish &&
     rm -rv -- babelfish-?.?.?
+
+	# Remove tests and test-only data
+	rm -v 'babelfish/tests.py'
+	rm -v 'babelfish/data/opensubtitles_languages.txt'
 }
 
-[ -d 'beautifulsoup4-4.4.1' ] && {
-    ( cd 'beautifulsoup4-4.4.1' && ./convert-py3k ) &&
-    mv -v beautifulsoup4-4.4.1/COPYING.txt bs4_COPYING.txt &&
-    mv -v beautifulsoup4-4.4.1/py3k/bs4/ bs4 &&
-    rm -rv beautifulsoup4-4.4.1
+BS4_BASEDIR='beautifulsoup4-4.4.1'
+[ -d "$BS4_BASEDIR" ] && {
+	( cd "$BS4_BASEDIR" &&
+	  ./convert-py3k &&
+	  find . -xdev -type f -name "*.bak" -delete) &&
+      mv -v COPYING.txt ../bs4_COPYING.txt &&
+      mv -v py3k/bs4/ ../bs4
+    ) && rm -rv "$BS4_BASEDIR"
 }
 
 [ -d 'chardet-2.3.0' ] && {
