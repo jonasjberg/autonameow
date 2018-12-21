@@ -56,6 +56,9 @@ BS4_BASEDIR='beautifulsoup4-4.4.1'
     mv -v guessit-2.1.0/LICENSE guessit_LICENSE.txt &&
     mv -v guessit-2.1.0/guessit guessit &&
     rm -rv guessit-2.1.0
+
+    # Remove tests.
+    rm -rv guessit/test
 }
 
 [ -d 'isbnlib-3.5.6' ] && {
