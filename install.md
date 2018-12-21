@@ -28,11 +28,10 @@ critical `TODO`-list item.
 >     * `jpeginfo`
 >     * `djvutxt`
 >
-> 2. Make sure to fetch all Git submodules:
->
->     ```bash
->     git submodule update --init --recursive
->     ```
+> 2. Run `bin/autonameow --help`
+> 3. Run `bin/meowxtract.sh --help`
+> 4. Run `bin/autonameow --dry-run --timid --verbose PATH/TO/FILE.txt`
+> 5. Be *NOT VERY HAPPY* about lack of documentation; offer to help out somehow, __or wait for v1.0.0__
 
 
 Getting the sources
