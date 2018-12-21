@@ -11,16 +11,16 @@ exit 1
     mv -v -- babelfish-?.?.?/babelfish babelfish &&
     rm -rv -- babelfish-?.?.?
 
-	# Remove tests and test-only data.
-	rm -v 'babelfish/tests.py'
-	rm -v 'babelfish/data/opensubtitles_languages.txt'
+    # Remove tests and test-only data.
+    rm -v 'babelfish/tests.py'
+    rm -v 'babelfish/data/opensubtitles_languages.txt'
 }
 
 BS4_BASEDIR='beautifulsoup4-4.4.1'
 [ -d "$BS4_BASEDIR" ] && {
-	( cd "$BS4_BASEDIR" &&
-	  ./convert-py3k &&
-	  find . -xdev -type f -name "*.bak" -delete) &&
+    ( cd "$BS4_BASEDIR" &&
+      ./convert-py3k &&
+      find . -xdev -type f -name "*.bak" -delete) &&
       mv -v -- COPYING.txt ../bs4_COPYING.txt &&
 
       # Remove tests.
@@ -65,6 +65,9 @@ BS4_BASEDIR='beautifulsoup4-4.4.1'
     mv -v isbnlib-3.5.6/README.rst isbnlib_README.rst &&
     mv -v isbnlib-3.5.6/isbnlib/ isbnlib &&
     rm -rv isbnlib-3.5.6
+
+    # Remove tests.
+    rm -rv isbnlib/test
 }
 
 [ -d 'lxml-4.2.5' ] && {
