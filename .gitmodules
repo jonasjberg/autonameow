@@ -1,3 +1,0 @@
-[submodule "autonameow/thirdparty/pyexiftool"]
-	path = autonameow/thirdparty/pyexiftool
-	url = https://github.com/smarnach/pyexiftool.git
