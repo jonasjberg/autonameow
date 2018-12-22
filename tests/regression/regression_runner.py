@@ -525,20 +525,19 @@ def main(args):
         return C.EXIT_WARNING
 
     # Start test selection based on any criteria given with the options.
+    selected_testsuites = loaded_testsuites
+
     if opts.filter_globs:
-        all_filtered = list()
-        testsuites_to_filter = list(loaded_testsuites)
         for filter_expression in opts.filter_globs:
-            filtered = filter_testsuites(testsuites_to_filter, glob_filter,
-                                         expr=filter_expression)
+            selected_testsuites = filter_testsuites(
+                testsuites=selected_testsuites,
+                filter_func=glob_filter,
+                expr=filter_expression
+            )
             log.info('Filter expression "%s" matched %d test suite(s)',
-                     filter_expression, len(filtered))
-            testsuites_to_filter = filtered
-            all_filtered = filtered
-        log.info('Filtering selected %d test suite(s)', len(all_filtered))
-        selected_testsuites = all_filtered
-    else:
-        selected_testsuites = loaded_testsuites
+                     filter_expression, len(selected_testsuites))
+
+        log.info('Filtering selected %d test suite(s)', len(selected_testsuites))
 
     if opts.filter_lastfailed:
         lastfailed_testsuites = load_failed_testsuites()
