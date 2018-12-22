@@ -8,6 +8,13 @@ Source repository: <https://github.com/jonasjberg/autonameow>
 Completed TODO-list Entries
 ===========================
 
+### 2018-12-21
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0174]` Do not do replacements in the NameTemplateField classes.
+
 ### 2018-06-11
 
 > Medium Priority

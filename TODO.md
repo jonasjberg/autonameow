@@ -181,8 +181,6 @@ Medium Priority
 
 * `[TD0182]` Isolate third-party metadata services like `isbnlib`.
 
-* `[TD0174]` Do not do replacements in the NameTemplateField classes.
-
 * `[TD0161]` Handle mapping/translation between "generic"/specific MeowURIs.
 
 * `[TD0158]` Evaluate regression test assertions of "skipped renames".
