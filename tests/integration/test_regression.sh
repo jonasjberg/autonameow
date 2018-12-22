@@ -83,7 +83,11 @@ assert_true '"$_regression_runner_path" --help' \
 #
 # Check listing of regression test suites.
 
-_regression_test_listing="$("$_regression_runner_path" --list)"
+_regression_test_listing="$("$_regression_runner_path" --list 2>/dev/null)"
+_exit_status=$?
+assert_true '[ $_exit_status -eq 0 ]' \
+            "Expect exit code 0 when running \"${_regression_runner_basename} --list\""
+
 assert_true '[ -n "$_regression_test_listing" ]' \
             "Output of \"${_regression_runner_basename} --list\" is captured by the integration test"
 
@@ -126,6 +130,88 @@ assert_true '[ "$("$_regression_runner_path" -f 0000_unittest_dummy -f 0000_unit
 
 assert_false '"$_regression_runner_path" -f 0000_unittest_dummy -f '!0000_unittest_dummy' --list | grep -- 0000_unittest_dummy' \
              'Filtering is ANDed, tests matched by previous filter is removed by the same inverted expression, and not included in the listing'
+
+
+# ______________________________________________________________________________
+#
+# Check verbose listing of regression test suites.
+
+_regression_test_verbose_listing="$("$_regression_runner_path" --list --verbose 2>/dev/null)"
+_exit_status=$?
+assert_true '[ $_exit_status -eq 0 ]' \
+            "Expect exit code 0 when running \"${_regression_runner_basename} --list --verbose\""
+
+assert_true '[ -n "$_regression_test_verbose_listing" ]' \
+            "Output of \"${_regression_runner_basename} --list --verbose\" is captured by the integration test"
+
+_regression_test_verbose_listing_line_count="$(wc -l <<< "$_regression_test_verbose_listing")"
+assert_true '[ "$_regression_test_verbose_listing_line_count" -gt "1" ]' \
+            "Expect \"${_regression_runner_basename} --list --verbose\" to print at least 1 line"
+
+assert_true '[ "$_regression_test_verbose_listing_line_count" -gt "10" ]' \
+            "Expect \"${_regression_runner_basename} --list --verbose\" to print at least 10 lines"
+
+assert_true '[ "$_regression_test_verbose_listing_line_count" -gt "20" ]' \
+            "Expect \"${_regression_runner_basename} --list --verbose\" to print at least 20 lines"
+
+assert_true '[ "$_regression_test_verbose_listing_line_count" -gt "30" ]' \
+            "Expect \"${_regression_runner_basename} --list --verbose\" to print at least 30 lines"
+
+assert_true 'grep -- 0000_unittest_dummy <<< "$_regression_test_verbose_listing"' \
+            "Output of \"${_regression_runner_basename} --list --verbose\" should contain 0000_unittest_dummy"
+
+assert_false '"$_regression_runner_path" -f "!0000_unittest_dummy" --list --verbose | grep -- 0000_unittest_dummy' \
+             'Filtering with an inverted expression should not include tests matching that expression in the listing (--verbose)'
+
+assert_false '"$_regression_runner_path" -f "!0000" --list --verbose | grep -- 0000_unittest_dummy' \
+             'Filtering with an inverted expression should not include tests partially matching that expression in the listing (--verbose)'
+
+assert_false '"$_regression_runner_path" -f "!*0000_unittest_dummy*" --list --verbose | grep -- 0000_unittest_dummy' \
+             'Filtering with an inverted expression containing wildcards should not include tests matching that expression in the listing (--verbose)'
+
+assert_false '"$_regression_runner_path" -f "!*0000*" --list --verbose | grep -- 0000_unittest_dummy' \
+             'Filtering with an inverted expression containing wildcards should not include tests partially matching that expression in the listing (--verbose)'
+
+assert_true 'grep -- 0001 <<< "$_regression_test_verbose_listing"' \
+            "Output of \"${_regression_runner_basename} --list --verbose\" should contain 0001"
+
+assert_true '"$_regression_runner_path" -f "!0000" --list --verbose | grep -- 0001' \
+            'Filtering using a inverted match should pass through another arbitrary test to the output (--verbose)'
+
+assert_true '[ "$("$_regression_runner_path" -f 0000_unittest_dummy -f 0000_unittest_dummy --list --verbose | grep 0000_unittest_dummy | wc -l)" -eq "1" ]' \
+            'Filtering should not produce duplicate results in the listing when repeating the same filter expression (--verbose)'
+
+assert_false '"$_regression_runner_path" -f 0000_unittest_dummy -f '!0000_unittest_dummy' --list --verbose | grep -- 0000_unittest_dummy' \
+             'Filtering is ANDed, tests matched by previous filter is removed by the same inverted expression, and not included in the listing (--verbose)'
+
+
+# ______________________________________________________________________________
+#
+# Smoke-test the '--get-cmd' option
+
+_regression_test_get_cmd_stdout="$("$_regression_runner_path" --get-cmd 2>/dev/null)"
+_exit_status=$?
+assert_true '[ $_exit_status -eq 0 ]' \
+            "Expect exit code 0 when running \"${_regression_runner_basename} --get-cmd\""
+
+assert_true '[ -n "$_regression_test_get_cmd_stdout" ]' \
+            "Output of \"${_regression_runner_basename} --get-cmd\" is captured by the integration test"
+
+_regression_test_get_cmd_stdout_line_count="$(wc -l <<< "$_regression_test_get_cmd_stdout")"
+assert_true '[ "$_regression_test_get_cmd_stdout_line_count" -gt "1" ]' \
+            "Expect \"${_regression_runner_basename} --get-cmd\" to print at least 1 line"
+
+assert_true '[ "$_regression_test_get_cmd_stdout_line_count" -gt "10" ]' \
+            "Expect \"${_regression_runner_basename} --get-cmd\" to print at least 10 lines"
+
+assert_true '[ "$_regression_test_get_cmd_stdout_line_count" -gt "20" ]' \
+            "Expect \"${_regression_runner_basename} --get-cmd\" to print at least 20 lines"
+
+assert_true '[ "$_regression_test_get_cmd_stdout_line_count" -gt "30" ]' \
+            "Expect \"${_regression_runner_basename} --get-cmd\" to print at least 30 lines"
+
+assert_true 'grep -- "autonameow --automagic --batch --dry-run --config-path" <<< "$_regression_test_get_cmd_stdout"' \
+            "Output of \"${_regression_runner_basename} --get-cmd\" should contain 0000_unittest_dummy arguments \"autonameow --automagic --batch --dry-run --config-path\""
 
 
 

@@ -20,9 +20,11 @@
 import functools
 import logging
 import os
+import pprint
 import re
 import shutil
 import sys
+import textwrap
 import traceback
 from collections import defaultdict
 from collections import deque
@@ -1026,15 +1028,48 @@ def regexp_filter(expression, bytestring):
     return bool(regexp.match(bytestring))
 
 
-def print_testsuite_info(tests, verbose):
+def print_testsuite_info(testsuites, verbose):
+    textwrapper = textwrap.TextWrapper(
+        width=TERMINAL_WIDTH,
+        initial_indent="  ",
+        subsequent_indent="",
+        expand_tabs=True,
+        replace_whitespace=True,
+        fix_sentence_endings=True,
+        break_long_words=True,
+        drop_whitespace=True,
+        break_on_hyphens=True,
+        tabsize=4,
+    )
+
+    def _bold(s):
+        return cli.colorize(s, style='BRIGHT')
+
+    def _stringify_dict(d):
+        return pprint.pformat(
+            d,
+            indent=2,
+            compact=False,
+            width=TERMINAL_WIDTH,
+        )
+
+    lines = list()
+
     if verbose:
-        cf = cli.ColumnFormatter()
-        for t in tests:
-            cf.addrow(t.str_dirname, t.description)
-        print(cf)
+        for testsuite in testsuites:
+            lines.append(_bold('  TESTSUITE: ') + testsuite.str_dirname)
+            lines.append(_bold('    SKIPPED: ') + ('Yes' if testsuite.should_skip else 'No'))
+            lines.append(_bold('DESCRIPTION:'))
+            lines.append('\n'.join(textwrapper.wrap(testsuite.description)))
+            lines.append(_bold('    ASSERTS:'))
+            lines.append(_stringify_dict(testsuite.asserts))
+            lines.append(_bold('    OPTIONS:'))
+            lines.append(_stringify_dict(testsuite.options))
+            lines.append('\n')
     else:
-        test_dirnames = [t.str_dirname for t in tests]
-        print('\n'.join(test_dirnames))
+        lines = [t.str_dirname for t in testsuites]
+
+    print('\n'.join(lines))
 
 
 class RunResultsHistory(object):
