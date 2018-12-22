@@ -56,7 +56,7 @@ Helper utility for listing and verifying TODO-list item identifiers.
 ### `vulture.sh`
 Find unused code using `vulture`.
 
-### `write-default-config.sh`
+### `write_default_config.sh`
 Write `default_config.py` as configuration files used by tests.
 
 ### `write_sample_textfiles.py`
