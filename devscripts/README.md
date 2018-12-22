@@ -26,7 +26,7 @@ Generate statistics on the project source code using `cloc`.
 ### `ctags.sh`
 Generate `.tags` file with `ctags`.
 
-### `delete-python-caches.sh`
+### `delete_python_caches.sh`
 Delete all `*.pyc` files and `__pycache__` directories.
 
 ### `find_unit_test_visits.sh`
