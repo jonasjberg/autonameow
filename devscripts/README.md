@@ -32,7 +32,7 @@ Delete all `*.pyc` files and `__pycache__` directories.
 ### `find_unit_test_visits.sh`
 Find which unit tests that covered which lines of source code using `smother`.
 
-### `functions-rarely-called.sh`
+### `functions_rarely_called.sh`
 Very simple *and likely broken* search of unused functions and methods.
 
 ### `lint_bash.sh`
