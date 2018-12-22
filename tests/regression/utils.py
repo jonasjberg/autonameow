@@ -338,11 +338,7 @@ class RegressionTestSuite(object):
         self.asserts = asserts or dict()
         self.options = options or dict()
         self.should_skip = bool(skip)
-
-        if description:
-            self.description = coercers.force_string(description).strip()
-        else:
-            self.description = '(UNDESCRIBED)'
+        self.description = description or '(UNDESCRIBED)'
 
     @property
     def str_abspath(self):
@@ -950,7 +946,7 @@ def _commandline_args_for_testsuite(suite):
     return arguments
 
 
-def commandline_for_testsuite(suite):
+def commandline_for_testsuite(testsuite):
     """
     Converts a regression test to a equivalent command-line invocation string.
 
@@ -959,16 +955,16 @@ def commandline_for_testsuite(suite):
     given regression test suite.
 
     Args:
-        suite: Regression "test suite" returned from 'load_regression_testsuites()',
-               as an instance of 'RegressionTestSuite'.
+        testsuite: A "test suite" returned from 'load_regression_testsuites()',
+                   as an instance of 'RegressionTestSuite'.
 
     Returns:
         Full equivalent command-line as a Unicode string.
     """
-    sanity.check_isinstance(suite, RegressionTestSuite)
-    arguments = _commandline_args_for_testsuite(suite)
-    argument_string = ' '.join(arguments)
-    commandline = 'autonameow ' + argument_string
+    sanity.check_isinstance(testsuite, RegressionTestSuite)
+
+    arguments = _commandline_args_for_testsuite(testsuite)
+    commandline = 'autonameow ' + ' '.join(arguments)
     return commandline.strip()
 
 
@@ -1030,7 +1026,7 @@ def regexp_filter(expression, bytestring):
     return bool(regexp.match(bytestring))
 
 
-def print_test_info(tests, verbose):
+def print_testsuite_info(tests, verbose):
     if verbose:
         cf = cli.ColumnFormatter()
         for t in tests:

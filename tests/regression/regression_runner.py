@@ -31,7 +31,7 @@ from regression.utils import check_stdout_asserts
 from regression.utils import commandline_for_testsuite
 from regression.utils import glob_filter
 from regression.utils import load_regression_testsuites
-from regression.utils import print_test_info
+from regression.utils import print_testsuite_info
 from regression.utils import RunResultsHistory
 from regression.utils import TerminalReporter
 from util import coercers
@@ -303,7 +303,7 @@ def load_failed_testsuites():
     return list()
 
 
-def print_test_commandlines(testsuites):
+def print_testsuite_commandlines(testsuites):
     for testsuite in testsuites:
         arg_string = commandline_for_testsuite(testsuite)
         print('# {!s}\n{!s}\n'.format(testsuite.str_dirname, arg_string))
@@ -396,13 +396,12 @@ def run_regression_testsuites(testsuites, reporter):
         if captured_stdout:
             reporter.msg_captured_stdout(captured_stdout)
 
-    global_elapsed_time = time.time() - global_start_time
     reporter.msg_overall_stats(
-        len(testsuites),
+        count_total=len(testsuites),
         count_skipped=len(run_results.skipped),
         count_success=len(run_results.passed),
         count_failure=len(run_results.failed),
-        elapsed_time=global_elapsed_time
+        elapsed_time=time.time() - global_start_time
     )
 
     if not should_abort:
@@ -488,7 +487,7 @@ def main(args):
     )
     optgrp_action.add_argument(
         '--get-cmd',
-        dest='get_cmd',
+        dest='get_testsuite_cmdline',
         action='store_true',
         default=False,
         help='Print equivalent command-line invocations for the selected '
@@ -542,31 +541,32 @@ def main(args):
         selected_testsuites = loaded_testsuites
 
     if opts.filter_lastfailed:
-        failed_lastrun = load_failed_testsuites()
-        if failed_lastrun:
+        lastfailed_testsuites = load_failed_testsuites()
+        if lastfailed_testsuites:
             # TODO: Improve comparing regression test suites.
             # Fails if any option is modified. Compare only directory basenames?
-            selected_testsuites = [t for t in selected_testsuites if t in failed_lastrun]
+            selected_testsuites = [
+                t for t in selected_testsuites if t in lastfailed_testsuites
+            ]
             log.info('Selected %d of %d test suite(s) that failed during the '
-                     'last completed run ..', len(selected_testsuites),
-                     len(failed_lastrun))
+                     'last completed run ..',
+                     len(selected_testsuites), len(lastfailed_testsuites))
         else:
             log.info('Selected all %d test suite(s) as None failed during the '
                      'last completed run ..', len(selected_testsuites))
 
-    log.info('Selected %d of %d test suite(s) ..', len(selected_testsuites),
-             len(loaded_testsuites))
-    # End of test selection.
+    log.info('Selected %d of %d test suite(s) ..',
+             len(selected_testsuites), len(loaded_testsuites))
+
     if not selected_testsuites:
         log.warning('None of the loaded tests were selected ..')
 
-    # Perform actions on the selected tests.
     if opts.list_testsuites:
-        print_test_info(selected_testsuites, verbose_mode)
+        print_testsuite_info(selected_testsuites, verbose_mode)
         return C.EXIT_SUCCESS
 
-    if opts.get_cmd:
-        print_test_commandlines(selected_testsuites)
+    if opts.get_testsuite_cmdline:
+        print_testsuite_commandlines(selected_testsuites)
         return C.EXIT_SUCCESS
 
     if opts.run_testsuites:
