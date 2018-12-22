@@ -14,6 +14,15 @@ Completed TODO-list Entries
 > ---------------
 >
 > * `[TD0174]` Do not do replacements in the NameTemplateField classes.
+>
+> Low Priority
+> ------------
+>
+> * `[TD0152]` __Fix invalid name template field replacements.__  
+>     Replacements in the `Publisher` class in `fields.py` are always applied if
+>     any substring matches, which might cause undesired results.  Might be
+>     better to stop after the first replacement has been applied, or do the
+>     replacements ordered by the number of matched characters to be replaced.
 
 ### 2018-06-11
 

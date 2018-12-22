@@ -447,12 +447,6 @@ Low Priority
         foo.TXT       ->  foo.TXT
         ```
 
-* `[TD0152]` __Fix invalid name template field replacements.__  
-    Replacements in the `Publisher` class in `fields.py` are always applied if
-    any substring matches, which might cause undesired results.  Might be
-    better to stop after the first replacement has been applied, or do the
-    replacements ordered by the number of matched characters to be replaced.
-
 * `[TD0149]` Handle exceptions raised in `evaluate_boolean_operation()`.
 
 * `[TD0148]` Fix `!!python/object` in `--dump-config` output.
