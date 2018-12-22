@@ -184,6 +184,16 @@ def _get_known_data_file_parser(yaml_config_filename):
     return parser
 
 
+def _try_parse_data_and_populate_lookup_cache(fieldname):
+    parser = _get_known_data_file_parser(fieldname)
+    if parser:
+        _LOOKUP_CACHE[fieldname]['regex'] = parser.parsed_regex_lookup
+        _LOOKUP_CACHE[fieldname]['literal'] = parser.parsed_literal_lookup
+        return True
+
+    return False
+
+
 def literal_lookup_dict(fieldname):
     """
     Returns a dictionary with canonical values of the given field name storing
@@ -201,11 +211,10 @@ def literal_lookup_dict(fieldname):
     if fieldname in _LOOKUP_CACHE:
         return _LOOKUP_CACHE[fieldname]['literal']
 
-    parser = _get_known_data_file_parser(fieldname)
-    _LOOKUP_CACHE[fieldname]['regex'] = parser.parsed_regex_lookup
-    _LOOKUP_CACHE[fieldname]['literal'] = parser.parsed_literal_lookup
+    if _try_parse_data_and_populate_lookup_cache(fieldname):
+        return _LOOKUP_CACHE[fieldname]['literal']
 
-    return _LOOKUP_CACHE[fieldname]['literal']
+    return dict()
 
 
 def regex_lookup_dict(fieldname):
@@ -225,11 +234,10 @@ def regex_lookup_dict(fieldname):
     if fieldname in _LOOKUP_CACHE:
         return _LOOKUP_CACHE[fieldname]['regex']
 
-    parser = _get_known_data_file_parser(fieldname)
-    _LOOKUP_CACHE[fieldname]['regex'] = parser.parsed_regex_lookup
-    _LOOKUP_CACHE[fieldname]['literal'] = parser.parsed_literal_lookup
+    if _try_parse_data_and_populate_lookup_cache(fieldname):
+        return _LOOKUP_CACHE[fieldname]['regex']
 
-    return _LOOKUP_CACHE[fieldname]['regex']
+    return dict()
 
 
 def lookup_values(fieldname):
@@ -246,18 +254,15 @@ def lookup_values(fieldname):
     Returns:
         A set of all known canonical values for the given field name.
     """
-    def _merge_all_keys(_fieldname):
+    def _merge_all_lookup_cache_keys(_fieldname):
         regex_lookup_keys = set(_LOOKUP_CACHE[_fieldname]['regex'].keys())
         literal_lookup_keys = set(_LOOKUP_CACHE[_fieldname]['literal'].keys())
         return set(regex_lookup_keys | literal_lookup_keys)
 
     if fieldname in _LOOKUP_CACHE:
-        return _merge_all_keys(fieldname)
+        return _merge_all_lookup_cache_keys(fieldname)
 
-    parser = _get_known_data_file_parser(fieldname)
-    if not parser:
-        return set()
+    if _try_parse_data_and_populate_lookup_cache(fieldname):
+        return _merge_all_lookup_cache_keys(fieldname)
 
-    _LOOKUP_CACHE[fieldname]['regex'] = parser.parsed_regex_lookup
-    _LOOKUP_CACHE[fieldname]['literal'] = parser.parsed_literal_lookup
-    return _merge_all_keys(fieldname)
+    return set()
