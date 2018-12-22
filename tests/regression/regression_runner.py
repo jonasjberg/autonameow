@@ -253,7 +253,7 @@ def load_run_results_history():
     return list()
 
 
-def write_run_results_history(run_results, max_entry_count=10):
+def write_run_results_history(run_results, max_entry_count=59):
     assert isinstance(max_entry_count, int)
 
     # TODO: [hack] Refactor ..
@@ -356,7 +356,7 @@ def run_regressiontests(tests, verbose, print_stderr, print_stdout):
                 reporter.msg_testsuite_success()
                 run_results.passed.add(testsuite)
             else:
-                reporter.msg_testsuite_failure()
+                reporter.msg_testsuite_failure(failure_count=failures)
                 run_results.failed.add(testsuite)
 
             # TODO: [hack] Refactor ..

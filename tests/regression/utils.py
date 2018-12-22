@@ -103,31 +103,34 @@ class TerminalReporter(object):
 
     def msg_testsuite_success(self):
         if self.verbose:
-            _print(self.msg_label_suite_success + ' ')
+            _print(self.msg_label_suite_success + ' Suite passed all assertions')
         else:
             _print(' ' + self.msg_label_suite_success + ' ')
 
-    def msg_testsuite_failure(self):
+    def msg_testsuite_failure(self, failure_count):
         if self.verbose:
-            _print(self.msg_label_suite_failure + ' ')
+            _print(self.msg_label_suite_failure + ' Suite failed {} assertions'.format(failure_count))
         else:
             _print(' ' + self.msg_label_suite_failure + ' ')
 
     def msg_testsuite_skipped(self):
         if self.verbose:
-            _print(self.msg_label_suite_skipped + ' ')
+            _print(self.msg_label_suite_skipped)
         else:
             _print(' ' + self.msg_label_suite_skipped + ' ')
 
     def msg_testsuite_history(self, history):
         if self.verbose:
-            NUM_HISTORY_ENTRIES = 10
+            NUM_HISTORY_ENTRIES = 59
         else:
             NUM_HISTORY_ENTRIES = 5
 
         padded_history = list(history)
         while len(padded_history) < NUM_HISTORY_ENTRIES:
             padded_history.append(RunResultsHistory.RESULT_UNKNOWN)
+
+        if self.verbose:
+            _print('\nHistory: ')
 
         for result in padded_history[:NUM_HISTORY_ENTRIES]:
             if result == RunResultsHistory.RESULT_FAIL:
@@ -271,7 +274,7 @@ class TerminalReporter(object):
         str_time_2 = '{:7.7s}'.format(str_captured)
         str_time_3 = '{:>s}'.format(str_delta)
         if self.verbose:
-            _println(' ' * 10 + 'Runtime: {} (captured {} Delta: {}'.format(str_time_1, str_time_2, str_time_3))
+            _println('\nRuntime: {} (captured {}  Previous runtime delta: {}'.format(str_time_1, str_time_2, str_time_3))
         else:
             _println('  {} ({} {}'.format(str_time_1, str_time_2, str_time_3))
 
