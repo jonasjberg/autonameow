@@ -1,4 +1,4 @@
 exit_code: 0
-skiped:
+skipped:
     'saved-webpage.html': 'saved-webpage.html'
     'saved-webpage.mhtml': 'saved-webpage.mhtml'
