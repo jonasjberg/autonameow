@@ -309,9 +309,8 @@ def print_test_commandlines(testsuites):
         print('# {!s}\n{!s}\n'.format(testsuite.str_dirname, arg_string))
 
 
-def run_regression_testsuites(testsuites, verbose, print_stderr, print_stdout):
+def run_regression_testsuites(testsuites, print_stderr, print_stdout, reporter):
     history = load_run_results_history()
-    reporter = TerminalReporter(verbose)
     run_results = RunResults()
     should_abort = False
     global_start_time = time.time()
@@ -572,9 +571,10 @@ def main(args):
 
     if opts.run_testsuites:
         run_results = run_regression_testsuites(
-            selected_testsuites, verbose,
+            testsuites=selected_testsuites,
             print_stderr=bool(opts.print_stderr),
-            print_stdout=bool(opts.print_stdout)
+            print_stdout=bool(opts.print_stdout),
+            reporter=TerminalReporter(verbose),
         )
         if run_results.failed:
             return C.EXIT_WARNING
