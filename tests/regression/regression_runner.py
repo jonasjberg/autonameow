@@ -522,7 +522,7 @@ def main(args):
     loaded_testsuites = load_regression_testsuites()
     log.info('Loaded %d regression test suite(s) ..', len(loaded_testsuites))
     if not loaded_testsuites:
-        return
+        return C.EXIT_WARNING
 
     # Start test selection based on any criteria given with the options.
     if opts.filter_globs:
@@ -560,6 +560,7 @@ def main(args):
 
     if not selected_testsuites:
         log.warning('None of the loaded tests were selected ..')
+        return C.EXIT_SUCCESS
 
     if opts.list_testsuites:
         print_testsuite_info(selected_testsuites, verbose_mode)
