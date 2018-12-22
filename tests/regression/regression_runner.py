@@ -347,53 +347,55 @@ def run_regression_testsuites(testsuites, verbose, print_stderr, print_stdout):
             print('\b\b  \n', flush=True)
             log.critical('Received keyboard interrupt. Skipping remaining ..')
             should_abort = True
+
         elapsed_time = time.time() - start_time
+        if not results:
+            continue
 
-        if results:
-            captured_stdout = results.captured_stdout
-            captured_stderr = results.captured_stderr
-            if results.captured_exception:
-                reporter.msg_captured_exception(results.captured_exception)
-
-                if print_stderr and captured_stderr:
-                    reporter.msg_captured_stderr(captured_stderr)
-                if print_stdout and captured_stdout:
-                    reporter.msg_captured_stdout(captured_stdout)
-
-                run_results.failed.add(testsuite)
-                continue
-
-            failures = int(results.failure_count)
-            testsuite_passed = failures == 0
-            if testsuite_passed:
-                reporter.msg_testsuite_success()
-                run_results.passed.add(testsuite)
-            else:
-                reporter.msg_testsuite_failure(failure_count=failures)
-                run_results.failed.add(testsuite)
-
-            # TODO: [hack] Refactor ..
-            testsuite_history = load_testsuite_history(testsuite, history)
-            assert isinstance(testsuite_history, list)
-            reporter.msg_testsuite_history(testsuite_history)
-
-            captured_runtime = results.captured_runtime
-            assert captured_runtime is not None
-
-            previous_runtime = load_captured_runtime(testsuite)
-            if previous_runtime is not None:
-                time_delta_ms = (captured_runtime - previous_runtime) * 1000
-            else:
-                time_delta_ms = None
-            reporter.msg_testsuite_runtime(elapsed_time, captured_runtime, time_delta_ms)
-
-            # TODO: [hack] Refactor .. Clean up persistence.
-            write_captured_runtime(testsuite, captured_runtime)
+        captured_stdout = results.captured_stdout
+        captured_stderr = results.captured_stderr
+        if results.captured_exception:
+            reporter.msg_captured_exception(results.captured_exception)
 
             if print_stderr and captured_stderr:
                 reporter.msg_captured_stderr(captured_stderr)
             if print_stdout and captured_stdout:
                 reporter.msg_captured_stdout(captured_stdout)
+
+            run_results.failed.add(testsuite)
+            continue
+
+        failures = int(results.failure_count)
+        testsuite_passed = failures == 0
+        if testsuite_passed:
+            reporter.msg_testsuite_success()
+            run_results.passed.add(testsuite)
+        else:
+            reporter.msg_testsuite_failure(failure_count=failures)
+            run_results.failed.add(testsuite)
+
+        # TODO: [hack] Refactor ..
+        testsuite_history = load_testsuite_history(testsuite, history)
+        assert isinstance(testsuite_history, list)
+        reporter.msg_testsuite_history(testsuite_history)
+
+        captured_runtime = results.captured_runtime
+        assert captured_runtime is not None
+
+        previous_runtime = load_captured_runtime(testsuite)
+        if previous_runtime is not None:
+            time_delta_ms = (captured_runtime - previous_runtime) * 1000
+        else:
+            time_delta_ms = None
+        reporter.msg_testsuite_runtime(elapsed_time, captured_runtime, time_delta_ms)
+
+        # TODO: [hack] Refactor .. Clean up persistence.
+        write_captured_runtime(testsuite, captured_runtime)
+
+        if print_stderr and captured_stderr:
+            reporter.msg_captured_stderr(captured_stderr)
+        if print_stdout and captured_stdout:
+            reporter.msg_captured_stdout(captured_stdout)
 
     global_elapsed_time = time.time() - global_start_time
     reporter.msg_overall_stats(
