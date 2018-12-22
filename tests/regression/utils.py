@@ -217,7 +217,6 @@ class TerminalReporter(object):
         formatted_description = self._format_description(description)
 
         if self.verbose:
-            formatted_description = self._format_description(description)
             message = '\nRunning "{}"'.format(shortname)
             colorized_message = cli.colorize(message, style='BRIGHT')
             _println(colorized_message)
@@ -229,7 +228,6 @@ class TerminalReporter(object):
         formatted_description = self._format_description(description)
 
         if self.verbose:
-            formatted_description = self._format_description(description)
             message = '\nSkipping "{}"'.format(shortname)
             colorized_message = cli.colorize(message, style='BRIGHT')
             _println(colorized_message)
