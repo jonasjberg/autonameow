@@ -309,7 +309,7 @@ def print_test_commandlines(testsuites):
         print('# {!s}\n{!s}\n'.format(testsuite.str_dirname, arg_string))
 
 
-def run_regression_testsuites(testsuites, print_stderr, print_stdout, reporter):
+def run_regression_testsuites(testsuites, reporter):
     history = load_run_results_history()
     run_results = RunResults()
     should_abort = False
@@ -356,9 +356,9 @@ def run_regression_testsuites(testsuites, print_stderr, print_stdout, reporter):
         if results.captured_exception:
             reporter.msg_captured_exception(results.captured_exception)
 
-            if print_stderr and captured_stderr:
+            if captured_stderr:
                 reporter.msg_captured_stderr(captured_stderr)
-            if print_stdout and captured_stdout:
+            if captured_stdout:
                 reporter.msg_captured_stdout(captured_stdout)
 
             run_results.failed.add(testsuite)
@@ -391,9 +391,9 @@ def run_regression_testsuites(testsuites, print_stderr, print_stdout, reporter):
         # TODO: [hack] Refactor .. Clean up persistence.
         write_captured_runtime(testsuite, captured_runtime)
 
-        if print_stderr and captured_stderr:
+        if captured_stderr:
             reporter.msg_captured_stderr(captured_stderr)
-        if print_stdout and captured_stdout:
+        if captured_stdout:
             reporter.msg_captured_stdout(captured_stdout)
 
     global_elapsed_time = time.time() - global_start_time
@@ -514,8 +514,8 @@ def main(args):
     formatter = logging.Formatter('%(name)s %(levelname)-9.9s %(message)s')
     handler.setFormatter(formatter)
     log.addHandler(handler)
-    verbose = bool(opts.verbose)
-    if verbose:
+    verbose_mode = bool(opts.verbose)
+    if verbose_mode:
         log.setLevel(logging.INFO)
     else:
         log.setLevel(logging.WARNING)
@@ -562,7 +562,7 @@ def main(args):
 
     # Perform actions on the selected tests.
     if opts.list_testsuites:
-        print_test_info(selected_testsuites, verbose)
+        print_test_info(selected_testsuites, verbose_mode)
         return C.EXIT_SUCCESS
 
     if opts.get_cmd:
@@ -572,9 +572,11 @@ def main(args):
     if opts.run_testsuites:
         run_results = run_regression_testsuites(
             testsuites=selected_testsuites,
-            print_stderr=bool(opts.print_stderr),
-            print_stdout=bool(opts.print_stdout),
-            reporter=TerminalReporter(verbose),
+            reporter=TerminalReporter(
+                verbose=verbose_mode,
+                print_stdout=bool(opts.print_stdout),
+                print_stderr=bool(opts.print_stderr),
+            ),
         )
         if run_results.failed:
             return C.EXIT_WARNING

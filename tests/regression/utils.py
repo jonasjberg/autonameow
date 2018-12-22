@@ -69,8 +69,10 @@ _print = functools.partial(print, flush=True, end='')
 
 
 class TerminalReporter(object):
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=False, print_stdout=False, print_stderr=False):
         self.verbose = verbose
+        self.print_stdout = print_stdout
+        self.print_stderr = print_stderr
 
         self.MAX_DESCRIPTION_LENGTH = TERMINAL_WIDTH - 75
         assert self.MAX_DESCRIPTION_LENGTH > 0, 'Terminal is not wide enough ..'
@@ -293,15 +295,19 @@ class TerminalReporter(object):
                      + cli.colorize('      CAUGHT TOP-LEVEL EXCEPTION       ',
                                     back='RED'))
 
-    @staticmethod
-    def msg_captured_stderr(stderr):
+    def msg_captured_stderr(self, stderr):
+        if not self.print_stderr:
+            return
+
         _header = cli.colorize('Captured stderr:', fore='RED')
         _stderr = cli.colorize(stderr, fore='RED')
         _println('\n' + _header)
         _println(_stderr)
 
-    @staticmethod
-    def msg_captured_stdout(stdout):
+    def msg_captured_stdout(self, stdout):
+        if not self.print_stdout:
+            return
+
         _println('\nCaptured stdout:')
         _println(stdout)
 
