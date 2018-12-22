@@ -60,10 +60,10 @@ fi
 
 
 # Check that a wordlist exists.
-wordlist_filepath="${SELF_DIRPATH}/check-spelling-wordlist.txt"
+wordlist_filepath="${SELF_DIRPATH}/check_spelling_wordlist.txt"
 if [ ! -f "$wordlist_filepath" ]
 then
-    printf '[ERROR] Wordlist not found at "%s"\n' "$wordlist_filepath"
+    printf '[ERROR] Wordlist not found at "%s"\n' "$wordlist_filepath" >&2
     exit 1
 fi
 

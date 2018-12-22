@@ -14,6 +14,9 @@ Various utility scripts related to `autonameow` development.
 ### `average_runtime_regression_tests.sh`
 Calculates the average runtime of the regression runner.
 
+### `check_spelling.sh`
+Searches the sources for previously and/or commonly misspelled words.
+
 ### `check_whitespace.sh`
 Check text file style violations, whitespace, line separators and tabs.
 

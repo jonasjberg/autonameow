@@ -113,7 +113,7 @@ assert_true 'man sed | grep -- "^ \+.*-i\b"' \
             'System sed supports the "-i" option, required by some integration tests'
 
 assert_has_command 'time'
-assert_has_command 'aspell'  # devscripts/check-spelling.sh
+assert_has_command 'aspell'  # devscripts/check_spelling.sh
 
 
 # ______________________________________________________________________________
@@ -160,10 +160,10 @@ assert_true '"${_todo_helper_script_path}" --help' \
 _whitespace_check_script_path="${_devscripts_path}/check_whitespace.sh"
 assert_bulk_test "$_whitespace_check_script_path" n e f r x
 
-_check_spelling_script_path="${_devscripts_path}/check-spelling.sh"
+_check_spelling_script_path="${_devscripts_path}/check_spelling.sh"
 assert_bulk_test "$_check_spelling_script_path" n e f r x
 
-_check_spelling_script_wordlist_path="${_devscripts_path}/check-spelling-wordlist.txt"
+_check_spelling_script_wordlist_path="${_devscripts_path}/check_spelling_wordlist.txt"
 assert_bulk_test "$_check_spelling_script_wordlist_path" n e f r
 
 
