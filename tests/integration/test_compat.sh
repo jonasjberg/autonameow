@@ -287,6 +287,7 @@ assert_true '[ -f "$templated_default_config_backup" ] && mv -- "$templated_defa
 
 
 
+
 # Calculate total execution time.
 time_end="$(current_unix_time)"
 total_time="$(calculate_execution_time "$time_start" "$time_end")"
