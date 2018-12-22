@@ -638,7 +638,7 @@ class TestRenames(TestCase):
 
     def test_raises_exception_given_bad_arguments(self):
         def _fail(actual, expect):
-            with self.assertRaises(RegressionTestError):
+            with self.assertRaises(AssertionError):
                 _ = check_renames(actual, expect)
 
         _fail(None, None)

@@ -799,16 +799,14 @@ def load_regression_testsuites():
 
 
 def check_renames(actual, expected):
-    if not isinstance(actual, dict):
-        raise RegressionTestError('Expected argument "actual" of type dict')
-    if not isinstance(expected, dict):
-        raise RegressionTestError('Expected argument "expected" of type dict')
+    assert isinstance(actual, dict)
+    assert isinstance(expected, dict)
 
     if not actual and not expected:
         # Did not expect anything and nothing happened.
         return True
     elif actual and not expected:
-        # Something unexpected happened.
+        # Something unexpectedly happened.
         return False
     elif expected and not actual:
         # Expected something to happen but it didn't.
