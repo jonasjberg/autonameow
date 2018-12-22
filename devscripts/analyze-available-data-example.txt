@@ -1,3 +1,0 @@
-/home/jonas/dev/projects/autonameow.git/test_files/4123.pdf,feedbooks,Mysticism and Logic and Other Essays,1,Bertrand Russell,1918
-/Users/jonas/PycharmProjects/autonameow.git/test_files/4123.pdf,feedbooks,Mysticism and Logic and Other Essays,1,Bertrand Russell,1918
-/home/jonas/dev/projects/autonameow.git/test_files/Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf,feedbooks,On the Origin of Species,6,Charles Darwin,1872
