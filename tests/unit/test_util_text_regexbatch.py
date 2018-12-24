@@ -22,6 +22,7 @@ import re
 from unittest import TestCase
 
 from util.text.regexbatch import replace
+from util.text.regexbatch import find_longest_match
 
 
 class TestBatchRegexReplace(TestCase):
@@ -140,3 +141,38 @@ class TestBatchRegexReplace(TestCase):
                 (r'Publ?(\.|i(cations|sh(ers|ing)))?$', 'PUBLISHING'),
             ]
         )
+
+
+class TestFindLongestMatch(TestCase):
+    def _t(self, given, expect, regexes):
+        actual = find_longest_match(regexes, given, ignore_case=False)
+        self.assertEqual(expect, actual)
+
+    def test_one_regex_when_string_does_not_match(self):
+        regexes = [
+            re.compile(r'Fo+'),
+        ]
+        self._t(given='Bar Baz', expect=None, regexes=regexes)
+
+    def test_one_regex_when_string_matches(self):
+        regexes = [
+            re.compile(r'Fo+'),
+        ]
+        self._t(given='Foo Bar', expect='Foo', regexes=regexes)
+        self._t(given='Foo Fooo Bar', expect='Fooo', regexes=regexes)
+
+    def test_two_regexes_when_string_does_not_match(self):
+        regexes = [
+            re.compile(r'Fo+'),
+            re.compile(r'Ba+'),
+        ]
+        self._t(given='meow meow', expect=None, regexes=regexes)
+
+    def test_two_regexes_when_string_matches(self):
+        regexes = [
+            re.compile(r'Fo+'),
+            re.compile(r'Bar+'),
+        ]
+        self._t(given='Foo Bar', expect='Foo', regexes=regexes)
+        self._t(given='Foo Fooo Barrrrr', expect='Barrrrr', regexes=regexes)
+        self._t(given='Foo Fooo Barrrrr', expect='Barrrrr', regexes=reversed(regexes))

@@ -42,3 +42,41 @@ def replace(regex_replacement_tuples, strng, ignore_case=False):
         strng = re.sub(regex, replacement, strng, flags=re_flags)
 
     return strng
+
+
+def find_longest_match(regexes, strng, ignore_case=False):
+    """
+    Searches a string with a list of regular expressions for the longest match.
+
+    NOTE: Does not handle groups!
+
+    Args:
+        regexes: List or set of regular expressions as Unicode strings or
+                 compiled regular expressions.
+        strng (str): The string to search.
+        ignore_case: Whether to ignore letter case.
+
+    Returns:
+        The longest match found when searching the string with all given
+        regular expressions, as a Unicode string.
+    """
+    assert isinstance(strng, str)
+
+    if not strng:
+        return None
+
+    re_flags = 0
+    if ignore_case:
+        re_flags |= re.IGNORECASE
+
+    matches = list()
+    for regex in regexes:
+        matches.extend(re.findall(regex, strng, re_flags))
+
+    if matches:
+        sorted_by_longest_match = sorted(
+            matches, key=lambda x: len(x), reverse=True
+        )
+        return sorted_by_longest_match[0]
+
+    return None
