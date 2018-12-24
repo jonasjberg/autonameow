@@ -161,15 +161,15 @@ def match_special_case_no_date(s):
                  or possibly "learned" patterns ..
 
     Args:
-        s: Unicode string to attempt to extract a datetime object from.
+        s (str): Unicode string to attempt to extract a datetime object from.
 
     Returns: A "probable" date as an instance of 'datetime' or None.
     """
     assert isinstance(s, str)
-    if not s.strip():
-        return None
 
     modified_string = re.sub(r'[^\d]+', '', s).strip()
+    if not modified_string:
+        return None
 
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     # TODO: [TD0043] Allow the user to tweak hardcoded settings.
@@ -196,7 +196,7 @@ def match_macos_screenshot(s):
     """
     assert isinstance(s, str)
 
-    match = re.search('(\d{4}-\d\d-\d\d at \d\d\.\d\d\.\d\d)', s)
+    match = re.search(r'(\d{4}-\d\d-\d\d at \d\d\.\d\d\.\d\d)', s)
     if match:
         try:
             return datetime.strptime(match.group(1), '%Y-%m-%d at %H.%M.%S')
@@ -230,10 +230,10 @@ def match_android_messenger_filename(text):
     results = list()
     for _, dt_str, _ in re.findall(dt_pattern, text):
         try:
-            microsecond = int(dt_str[13:])
-            ms = microsecond % 1000 * 1000
+            microseconds = int(dt_str[13:])
+            ms = microseconds % 1000 * 1000
             dt = datetime.utcfromtimestamp(ms // 1000).replace(microsecond=ms)
-        except ValueError as e:
+        except ValueError:
             pass
         else:
             if date_is_probable(dt):
