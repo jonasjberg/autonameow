@@ -35,7 +35,6 @@ __all__ = [
     'extract_digits',
     'html_unescape',
     'indent',
-    'batch_regex_replace',
     'normalize_unicode',
     'normalize_horizontal_whitespace',
     'normalize_vertical_whitespace',
@@ -416,30 +415,6 @@ def urldecode(string):
 
 def html_unescape(string):
     return html.unescape(string)
-
-
-def batch_regex_replace(regex_replacement_tuples, string, ignore_case=False):
-    if not string:
-        return string
-    assert isinstance(string, str)
-
-    re_flags = 0
-    if ignore_case:
-        re_flags |= re.IGNORECASE
-
-    matches = list()
-    for regex, replacement in regex_replacement_tuples:
-        match = re.search(regex, string, re_flags)
-        if match:
-            matches.append((regex, replacement))
-
-    sorted_by_longest_replacement = sorted(
-        matches, key=lambda x: len(x[1]), reverse=True
-    )
-    for regex, replacement in sorted_by_longest_replacement:
-        string = re.sub(regex, replacement, string, flags=re_flags)
-
-    return string
 
 
 def remove_blacklisted_lines(text, blacklist):

@@ -18,6 +18,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from util import text
+from util.text import regexbatch
 
 
 class FilenamePostprocessor(object):
@@ -52,7 +53,7 @@ class FilenamePostprocessor(object):
 
     @staticmethod
     def _do_replacements(filename, regex_replacement_tuples):
-        return text.batch_regex_replace(regex_replacement_tuples, filename)
+        return regexbatch.replace(regex_replacement_tuples, filename)
 
     @staticmethod
     def _do_simplify_unicode(filename):
