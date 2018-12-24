@@ -243,9 +243,13 @@ def match_android_messenger_filename(text):
 
 def match_any_unix_timestamp(text):
     """
-    Match text against UNIX "seconds since epoch" timestamp.
-    :param text: text to extract date/time from
-    :return: datetime if found otherwise None
+    Searches a string for UNIX "seconds since epoch" timestamps.
+
+    Args:
+        text (str): String to search for UNIX timestamp.
+
+    Returns:
+        The first "valid" date/time as an instance of 'datetime' or None.
     """
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     assert isinstance(text, str)
@@ -253,9 +257,6 @@ def match_any_unix_timestamp(text):
         return None
 
     match_iter = re.finditer(r'(\d{10,13})', text)
-    if not match_iter:
-        # Probably not a UNIX timestamp, expected 10-13 consecutive digits.
-        return None
 
     for match in match_iter:
         digits = match.group(0)
@@ -263,19 +264,18 @@ def match_any_unix_timestamp(text):
         # Example Android phone file name: 1461786010455.jpg
         # Remove last 3 digits to be able to convert using GNU date:
         # $ date --date ='@1461786010'
-        #   ons 27 apr 2016 21:40:10 CEST
+        # ons 27 apr 2016 21:40:10 CEST
         if len(digits) == 13:
             digits = digits[:10]
 
-        # TODO: [TD0010] Returns at first "probable" date, should test all.
         try:
-            digits = float(digits)
-            dt = datetime.fromtimestamp(digits)
+            dt = datetime.fromtimestamp(float(digits))
         except (TypeError, ValueError):
             pass
         else:
             if date_is_probable(dt):
                 return dt
+
     return None
 
 

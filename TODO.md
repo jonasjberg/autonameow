@@ -578,10 +578,6 @@ Low Priority
 
 * `[TD0045]` Add ability to rename directories.
 
-* `[TD0010]` Think about how data might need to be processed in multiple
-  consecutive runs.
-  In relation to future weighting and prioritizing of analysis results.
-
 * `[TD0094]` __Search text for DOIs and query external services__  
   Similar to ISBN-numbers. Could be used as primary identifier/key in records
   and to query external services for publication metadata.

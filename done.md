@@ -8,6 +8,15 @@ Source repository: <https://github.com/jonasjberg/autonameow>
 Completed TODO-list Entries
 ===========================
 
+### 2018-12-24
+
+> Low Priority
+> ------------
+>
+> * `[TD0010]` Think about how data might need to be processed in multiple
+>   consecutive runs.
+>   In relation to future weighting and prioritizing of analysis results.
+
 ### 2018-12-21
 
 > Medium Priority
