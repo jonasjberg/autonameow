@@ -21,12 +21,12 @@ import logging
 from collections import defaultdict
 
 from core import logs
-from core import repository
+from core.datastore import repository
+from core.datastore.repository import DataBundle
 from core.metadata.normalize import normalize_full_human_name
 from core.metadata.normalize import normalize_full_title
 from core.model import genericfields as gf
 from core.namebuilder import fields
-from core.repository import DataBundle
 from util import sanity
 
 

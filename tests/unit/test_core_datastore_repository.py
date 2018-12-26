@@ -22,9 +22,9 @@ from unittest.mock import Mock
 
 import unit.constants as uuconst
 import unit.utils as uu
-from core.repository import DataBundle
-from core.repository import QueryResponseFailure
-from core.repository import Repository
+from core.datastore.repository import DataBundle
+from core.datastore.repository import QueryResponseFailure
+from core.datastore.repository import Repository
 
 
 class TestRepositoryRetrieval(TestCase):

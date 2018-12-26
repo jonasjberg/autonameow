@@ -166,7 +166,7 @@ class TestProvidersForMeowURI(TestCase):
 
         # NOTE: This depends on actual extractors, analyzers.
         from core import master_provider
-        with patch('core.repository.SessionRepository', MagicMock()):
+        with patch('core.datastore.repository.SessionRepository', MagicMock()):
             master_provider._initialize_master_data_provider(_get_mock_config())
             cls.registry = master_provider.Registry
 
@@ -212,7 +212,7 @@ class TestProviderRunner(TestCase):
         })
         return ProviderRunner(*args, **kwargs)
 
-    @patch('core.repository.SessionRepository', MagicMock())
+    @patch('core.datastore.repository.SessionRepository', MagicMock())
     def test_instantiated_provider_runner_is_not_none(
             self
     ):
@@ -221,7 +221,7 @@ class TestProviderRunner(TestCase):
 
     # TODO: [cleanup] This much mocking indicates poor design choices ..
     @patch('core.master_provider.Registry.providers_for_meowuri')
-    @patch('core.repository.SessionRepository', MagicMock())
+    @patch('core.datastore.repository.SessionRepository', MagicMock())
     @patch('core.master_provider.ProviderRunner._delegate_to_extractors')
     @patch('core.master_provider.ProviderRunner._delegate_to_analyzers')
     def test_does_not_delegate_when_no_providers_are_available_for_meowuri(
@@ -240,7 +240,7 @@ class TestProviderRunner(TestCase):
 
     # # TODO: [cleanup] This much mocking indicates poor design choices ..
     @patch('core.master_provider.Registry.providers_for_meowuri')
-    @patch('core.repository.SessionRepository', MagicMock())
+    @patch('core.datastore.repository.SessionRepository', MagicMock())
     @patch('core.master_provider.ProviderRunner._delegate_to_extractors')
     @patch('core.master_provider.ProviderRunner._delegate_to_analyzers')
     def test_delegates_once_to_expected_provider_filesystem_extractor(
@@ -266,7 +266,7 @@ class TestProviderRunner(TestCase):
 
     # # TODO: [cleanup] This much mocking indicates poor design choices ..
     @patch('core.master_provider.Registry.providers_for_meowuri')
-    @patch('core.repository.SessionRepository', MagicMock())
+    @patch('core.datastore.repository.SessionRepository', MagicMock())
     @patch('core.master_provider.ProviderRunner._delegate_to_extractors')
     @patch('core.master_provider.ProviderRunner._delegate_to_analyzers')
     def test_delegates_once_to_expected_provider_ebook_analyzer(
@@ -290,7 +290,7 @@ class TestProviderRunner(TestCase):
         mock__delegate_to_analyzers.assert_called_once_with(fo, provider_For_meowuri)
         mock__delegate_to_extractors.assert_not_called()
 
-    @patch('core.repository.SessionRepository', MagicMock())
+    @patch('core.datastore.repository.SessionRepository', MagicMock())
     def test_delegation_history_methods(self):
         fo1 = MagicMock()
         fo2 = MagicMock()
@@ -371,12 +371,12 @@ def _get_master_data_provider():
 
 
 class TestMasterDataProvider(TestCase):
-    @patch('core.repository.SessionRepository', MagicMock())
+    @patch('core.datastore.repository.SessionRepository', MagicMock())
     def test_instantiated_master_data_provider_is_not_none(self):
         p = _get_master_data_provider()
         self.assertIsNotNone(p)
 
-    @patch('core.repository.SessionRepository', MagicMock())
+    @patch('core.datastore.repository.SessionRepository', MagicMock())
     @patch('core.master_provider.ProviderRunner.delegate_every_possible_meowuri')
     def test_delegate_every_possible_meowuri(self, mock_delegate_every_possible_meowuri):
         p = _get_master_data_provider()
@@ -385,7 +385,7 @@ class TestMasterDataProvider(TestCase):
         p.delegate_every_possible_meowuri(mock_fileobject)
         mock_delegate_every_possible_meowuri.assert_called_with(mock_fileobject)
 
-    @patch('core.repository.SessionRepository')
+    @patch('core.datastore.repository.SessionRepository')
     @patch('core.master_provider.MasterDataProvider._delegate_to_providers')
     def test_request_when_data_is_already_stored_in_the_repository(
             self, mock__delegate_to_providers, mock_session_repository
@@ -401,7 +401,7 @@ class TestMasterDataProvider(TestCase):
         mock_session_repository.query.assert_called_once_with(mock_fileobject, mock_meowuri)
         mock__delegate_to_providers.assert_not_called()
 
-    @patch('core.repository.SessionRepository')
+    @patch('core.datastore.repository.SessionRepository')
     @patch('core.master_provider.MasterDataProvider._delegate_to_providers')
     def test_request_delegates_to_providers_when_data_is_not_stored_in_the_repository(
             self, mock__delegate_to_providers, mock_session_repository

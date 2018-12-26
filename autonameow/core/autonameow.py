@@ -31,8 +31,8 @@ from core import interactive
 from core import logs
 from core import master_provider
 from core import persistence
-from core import repository
 from core.context import FileContext
+from core.datastore import repository
 from core.namebuilder import FilenamePostprocessor
 from core.renamer import FileRenamer
 from util import disk

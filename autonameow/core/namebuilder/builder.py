@@ -103,8 +103,8 @@ def build(config, name_template, field_databundle_dict):
 
 def _assert_is_expected_types(field_databundle_dict):
     # TODO: [cleanup] Remove these assertions once boundaries are defined.
+    from core.datastore.repository import DataBundle
     from core.namebuilder.fields import NameTemplateField
-    from core.repository import DataBundle
 
     for field, databundle in field_databundle_dict.items():
         assert field and isinstance(field, NameTemplateField)

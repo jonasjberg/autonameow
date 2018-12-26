@@ -22,10 +22,10 @@ from collections import defaultdict
 
 from core import event
 from core import logs
-from core import repository
+from core.datastore import repository
+from core.datastore.repository import QueryResponseFailure
 from core.exceptions import AutonameowException
 from core.model import genericfields
-from core.repository import QueryResponseFailure
 from util import sanity
 
 
