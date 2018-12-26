@@ -53,6 +53,9 @@ Simple `grep` wrapper for searching the sources for TODOs.
 ### `todo_id.py`
 Helper utility for listing and verifying TODO-list item identifiers.
 
+### `unit_test_badness_metrics.py`
+Calculates metrics from CSV-file produced by `smother`.
+
 ### `vulture.sh`
 Find unused code using `vulture`.
 
