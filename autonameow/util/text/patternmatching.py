@@ -25,11 +25,6 @@ from util.text.regexcache import RegexCache
 from util.text.transform import collapse_whitespace
 
 
-RE_EDITION = re.compile(
-    r'([0-9])+\s?(e\b|ed\.?|edition)',
-    re.IGNORECASE
-)
-
 # TODO: [TD0130] Implement general-purpose substring matching/extraction.
 _ORDINAL_NUMBER_PATTERNS = [
     r'(1st|first)',
@@ -179,8 +174,10 @@ def find_and_extract_edition(string):
         modified_text = re.sub(matched_regex, '', string)
         return matched_number, modified_text
 
+    re_edition = RegexCache(r'([0-9])+\s?(e\b|ed\.?|edition)', re.IGNORECASE)
+
     # Try a third approach.
-    match = RE_EDITION.search(string)
+    match = re_edition.search(string)
     if match:
         ed = match.group(1)
         try:
@@ -188,7 +185,7 @@ def find_and_extract_edition(string):
         except coercers.AWTypeError:
             pass
         else:
-            modified_text = re.sub(RE_EDITION, '', string)
+            modified_text = re.sub(re_edition, '', string)
             return edition, modified_text
 
     return None, string
