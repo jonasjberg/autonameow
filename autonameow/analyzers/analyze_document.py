@@ -17,12 +17,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
-
 from analyzers import BaseAnalyzer
 from core.truths import known_data_loader
 from core.metadata.normalize import cleanup_full_title
 from util.text import collapse_whitespace
+from util.text import regexbatch
 from util.text import remove_blacklisted_lines
 from util.text import TextChunker
 from util.text.filter import RegexLineFilter
@@ -224,10 +223,8 @@ def find_titles_in_text(text, num_lines_to_search):
 
 
 def find_publisher(text, candidates):
-    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-    text = text.lower()
-    for replacement, patterns in candidates.items():
-        for pattern in patterns:
-            if re.search(pattern, text):
-                return replacement
+    replacement = regexbatch.find_replacement_value(candidates, text)
+    if replacement:
+        return replacement
+
     return None
