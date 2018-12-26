@@ -20,13 +20,39 @@
 import inspect
 
 
-def print_callstack_names(stack_size=100):
+def _tmp_file_writer():
+    # NOTE(jonas): [hack] Resource-leak! File descriptor is never closed.
+    fh = open('/tmp/callstack_names.txt', 'w', encoding='utf8')
+
+    def _writelines(t):
+        fh.writelines(t)
+
+    return _writelines
+
+
+def print_callstack_names(stack_size=100, printer=print):
     """
     Decorator that prints the call stack leading up to the decorated functions,
-    going back max 'stack_size' items.
+    going back at most 'stack_size' items.
 
     Modified version of this:  https://stackoverflow.com/a/31796710
+
+    Example usage:
+
+        from util.debug import print_callstack_names
+
+        @print_callstack_names()
+        def foo(x):
+            return x
+
+    Args:
+        stack_size (int): Maximum number of stack frames to traverse; backwards
+                          up the call chain, from the decorated callable.
+        printer: Callable that will display the results, use 'print' to print
+                 to stdout or '_tmp_file_writer()' to write to a file.
     """
+    assert stack_size > 0
+
     def wrapper(fn):
         def inner(*args, **kwargs):
             stack = inspect.stack()
@@ -46,7 +72,6 @@ def print_callstack_names(stack_size=100):
                 s.format(index='level', module='module', name='name'),
                 '-' * 50
             ]
-
             for index, module in modules:
                 callers.append(s.format(
                     index=index,
@@ -60,7 +85,7 @@ def print_callstack_names(stack_size=100):
                 name=fn.__name__
             ))
             callers.append('')
-            print('\n'.join(callers))
+            printer('\n'.join(callers))
 
             return fn(*args, **kwargs)
         return inner
