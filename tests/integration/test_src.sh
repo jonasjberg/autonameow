@@ -82,17 +82,50 @@ assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.preferred" e 
 
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/analyzers/probable_extension_lookup" e f r
 
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/filetags_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/guessit_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_exiftool_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_jpeginfo_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_pandoc_fieldmeta.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_pandoc_template.plain" e f r
+declare -a _FIELDMETA_YAML_FILES=(
+    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/filetags_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/guessit_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_exiftool_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_jpeginfo_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_pandoc_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_pandoc_template.plain"
+)
+for fieldmeta_file in "${_FIELDMETA_YAML_FILES[@]}"
+do
+    assert_bulk_test "$fieldmeta_file" e f r
+done
 
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/creatortool.yaml" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/language.yaml" e f r
 assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/publisher.yaml" e f r
+
+
+# ______________________________________________________________________________
+#
+# Check field meta file contents. The 'generic_field' values are case-sensitive.
+
+for fieldmeta_file in "${_FIELDMETA_YAML_FILES[@]}"
+do
+    _fieldmeta_basename="$(basename -- "$fieldmeta_file")"
+
+    assert_false 'grep -qE -- "generic_field: [A-Z]+" "$fieldmeta_file"' \
+                 "Fieldmeta YAML-file \"${_fieldmeta_basename}\" does not capitalize any \"generic_field\" value"
+
+    if grep -q -- 'generic_field' "$fieldmeta_file"
+    then
+        _expr='grep -qE -- "generic_field: [a-z_]+( +?#.*)?$" "$fieldmeta_file"'
+    else
+        # File does not contain any "generic_field" entry but is included
+        # like this (shame.. shame..) to keep the number of tests constant.
+        _expr='true'
+    fi
+    assert_true "${_expr}" \
+                "Fieldmeta YAML-file \"${_fieldmeta_basename}\" uses only ASCII letters and underlines in any and all \"generic_field\" values"
+
+    assert_false 'grep -qE -- "weight: [0-9]+$" "$fieldmeta_file"' \
+                 "Fieldmeta YAML-file \"${_fieldmeta_basename}\" uses floats for all \"weight\" values (1.0 rather than 1)"
+done
 
 
 # ______________________________________________________________________________
@@ -167,14 +200,6 @@ assert_bulk_test "$_check_spelling_script_path" e x
 
 assert_true '$_check_spelling_script_path' \
             'Spell-checker script checks pass ("check_spelling.sh" returns 0)'
-
-
-# ______________________________________________________________________________
-#
-# Check field meta file contents. The 'generic_field' values are case-sensitive.
-
-assert_false 'grep -Er --include "*_fieldmeta.yaml" -- "generic_field: [A-Z]+" "$AUTONAMEOW_ROOT_DIR"' \
-             'None of the "*_fieldmeta.yaml" files capitalize any "generic_field" value'
 
 
 
