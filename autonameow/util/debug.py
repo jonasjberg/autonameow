@@ -18,6 +18,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import inspect
+from collections import namedtuple
 
 
 def _tmp_file_writer():
@@ -28,6 +29,9 @@ def _tmp_file_writer():
         fh.writelines(t)
 
     return _writelines
+
+
+CallstackEntry = namedtuple('CallstackEntry', ('index', 'module', 'name'))
 
 
 def print_callstack_names(stack_size=100, printer=print):
@@ -89,4 +93,63 @@ def print_callstack_names(stack_size=100, printer=print):
 
             return fn(*args, **kwargs)
         return inner
+
+    return wrapper
+
+
+def collect_callstack_entries(results_list, stack_size=100):
+    """
+    Decorator to collect call stack information leading up to the decorated
+    callable, going back at most 'stack_size' items.
+
+    Nothing is returned! Results are stored in the given 'results_list'.
+
+    Example usage:
+
+        from util.debug import collect_callstack_entries
+
+        results_list = list()
+
+        @collect_callstack_entries(results_list)
+        def foo(x):
+            return x
+
+        for result in results_list:
+            print(result)
+
+    Args:
+        results_list (list): Results will be appended to this list.
+        stack_size (int): Maximum number of stack frames to traverse; backwards
+                          up the call chain, from the decorated callable.
+    """
+    assert isinstance(results_list, list)
+    assert stack_size > 0
+
+    def wrapper(fn):
+        def inner(*args, **kwargs):
+            stack = inspect.stack()
+
+            stack_index_min = 1
+            stack_index_max = min(stack_size, len(stack))
+
+            modules = [
+                (index, inspect.getmodule(stack[index][0]))
+                for index in reversed(range(stack_index_min, stack_index_max))
+            ]
+            for index, module in modules:
+                results_list.append(CallstackEntry(
+                    index=index,
+                    module=module.__name__,
+                    name=stack[index][3]
+                ))
+
+            results_list.append(CallstackEntry(
+                index=0,
+                module=fn.__module__,
+                name=fn.__name__
+            ))
+
+            return fn(*args, **kwargs)
+        return inner
+
     return wrapper
