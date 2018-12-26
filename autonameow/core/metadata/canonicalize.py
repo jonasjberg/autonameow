@@ -17,10 +17,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
-from collections import defaultdict
-
 from core.truths import known_data_loader
+from util.text import regexbatch
 
 
 # TODO: [TD0189] Canonicalize metadata values with direct replacements
@@ -76,8 +74,6 @@ class StringValueCanonicalizer(object):
         Returns a canonical representation if the given value if found.
         If no canonical value is found, the given value is returned as-is.
         """
-        assert isinstance(s, str)
-
         canonical_value = self._find_canonical_value(s)
         if canonical_value is None:
             return s
@@ -85,6 +81,8 @@ class StringValueCanonicalizer(object):
         return canonical_value
 
     def _find_canonical_value(self, s):
+        assert isinstance(s, str)
+
         # Check if the given value is equal to any canonical value when
         # disregarding differences in letter case.
         matched_canonical_value = self._find_literal_ignorecase_match(s)
@@ -97,18 +95,12 @@ class StringValueCanonicalizer(object):
                 return canonical_value
 
         # Do regex matching.
-        # Use canonical form with longest total length of matched substrings.
-        matches = defaultdict(int)
-        for canonical_value, regex_patterns in self.canonical_value_regexes.items():
-            for regex in regex_patterns:
-                matchiter = re.finditer(regex, s)
-                for match in matchiter:
-                    matched_substring = match.group(0)
-                    matches[canonical_value] += len(matched_substring)
-
-        if matches:
-            canonical_form_of_longest_match = max(matches, key=matches.get)
-            return canonical_form_of_longest_match
+        canonical_form = regexbatch.find_replacement_value(
+            value_regexes=self.canonical_value_regexes,
+            strng=s,
+        )
+        if canonical_form:
+            return canonical_form
 
         return None
 
