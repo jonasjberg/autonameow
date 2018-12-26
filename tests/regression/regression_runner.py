@@ -18,13 +18,12 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import os
 import sys
 import time
 
 from core import constants as C
-from core.persistence import get_persistence
 from core.view import cli
+from regression import history
 from regression.utils import AutonameowWrapper
 from regression.utils import check_renames
 from regression.utils import check_stdout_asserts
@@ -34,12 +33,6 @@ from regression.utils import load_regression_testsuites
 from regression.utils import print_testsuite_info
 from regression.utils import RunResultsHistory
 from regression.utils import TerminalReporter
-from util import coercers
-
-
-_this_dir = os.path.abspath(os.path.dirname(__file__))
-PERSISTENCE_DIR_ABSPATH = coercers.coerce_to_normalized_path(_this_dir)
-PERSISTENCE_BASENAME_PREFIX = '.regressionrunner'
 
 
 log = logging.getLogger('regression_runner')
@@ -188,55 +181,13 @@ def run_testsuite(testsuite, reporter):
     )
 
 
-def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
-                     persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH):
-    persistence_mechanism = get_persistence(file_prefix, persistence_dir_abspath)
-    if not persistence_mechanism:
-        log.critical('Unable to retrieve any mechanism for persistent storage')
-    return persistence_mechanism
-
-
-def write_captured_runtime(testsuite, runtime):
-    # TODO: [hack] Refactor ..
-    assert isinstance(runtime, float)
-
-    persistent_storage = _get_persistence()
-    if not persistent_storage:
-        return
-
-    try:
-        captured_runtimes = persistent_storage.get('captured_runtimes')
-    except KeyError:
-        captured_runtimes = dict()
-
-    assert isinstance(captured_runtimes, dict)
-    captured_runtimes[testsuite] = runtime
-    persistent_storage.set('captured_runtimes', captured_runtimes)
-
-
-def load_captured_runtime(testsuite):
-    # TODO: [hack] Refactor ..
-    persistent_storage = _get_persistence()
-    if persistent_storage:
-        try:
-            captured_runtimes = persistent_storage.get('captured_runtimes')
-        except KeyError:
-            pass
-        else:
-            if captured_runtimes:
-                assert isinstance(captured_runtimes, dict)
-                return captured_runtimes.get(testsuite)
-
-    return None
-
-
-def load_testsuite_history(testsuite, history):
+def load_testsuite_history(testsuite, previous_runs):
     """
     Returns a list of historical test results for a given testsuite.
     """
     past_outcomes = list()
 
-    for run_results in history:
+    for run_results in previous_runs:
         if testsuite in run_results.failed:
             past_outcomes.append(RunResultsHistory.RESULT_FAIL)
         elif testsuite in run_results.passed:
@@ -249,60 +200,6 @@ def load_testsuite_history(testsuite, history):
     return past_outcomes
 
 
-def load_run_results_history():
-    # TODO: [hack] Refactor ..
-    persistent_storage = _get_persistence()
-    if persistent_storage:
-        try:
-            history = persistent_storage.get('history')
-        except KeyError:
-            pass
-        else:
-            if history:
-                assert isinstance(history, list)
-                return history
-
-    return list()
-
-
-def write_run_results_history(run_results, max_entry_count=59):
-    assert isinstance(max_entry_count, int)
-
-    # TODO: [hack] Refactor ..
-    history = load_run_results_history()
-    assert isinstance(history, list)
-
-    # TODO: [hack] Refactor ..
-    history.insert(0, run_results)
-    history = history[:max_entry_count]
-
-    persistent_storage = _get_persistence()
-    if persistent_storage:
-        persistent_storage.set('history', history)
-
-
-def write_failed_testsuites(suites):
-    persistent_storage = _get_persistence()
-    if persistent_storage:
-        suites_list = list(suites)
-        persistent_storage.set('lastrun', {'failed': suites_list})
-
-
-def load_failed_testsuites():
-    persistent_storage = _get_persistence()
-    if persistent_storage:
-        try:
-            lastrun = persistent_storage.get('lastrun')
-        except KeyError:
-            pass
-        else:
-            if lastrun:
-                assert isinstance(lastrun, dict)
-                return lastrun.get('failed', list())
-
-    return list()
-
-
 def print_testsuite_commandlines(testsuites):
     for testsuite in testsuites:
         arg_string = commandline_for_testsuite(testsuite)
@@ -310,7 +207,7 @@ def print_testsuite_commandlines(testsuites):
 
 
 def run_regression_testsuites(testsuites, reporter):
-    history = load_run_results_history()
+    run_results_history = history.load_run_results_history()
     run_results = RunResults()
     should_abort = False
     global_start_time = time.time()
@@ -328,7 +225,7 @@ def run_regression_testsuites(testsuites, reporter):
             reporter.msg_testsuite_skipped()
 
             # TODO: [hack] Refactor ..
-            testsuite_history = load_testsuite_history(testsuite, history)
+            testsuite_history = load_testsuite_history(testsuite, run_results_history)
             assert isinstance(testsuite_history, list)
             reporter.msg_testsuite_history(testsuite_history)
 
@@ -374,14 +271,14 @@ def run_regression_testsuites(testsuites, reporter):
             run_results.failed.add(testsuite)
 
         # TODO: [hack] Refactor ..
-        testsuite_history = load_testsuite_history(testsuite, history)
+        testsuite_history = load_testsuite_history(testsuite, run_results_history)
         assert isinstance(testsuite_history, list)
         reporter.msg_testsuite_history(testsuite_history)
 
         captured_runtime = results.captured_runtime
         assert captured_runtime is not None
 
-        previous_runtime = load_captured_runtime(testsuite)
+        previous_runtime = history.load_captured_runtime(testsuite)
         if previous_runtime is not None:
             time_delta_ms = (captured_runtime - previous_runtime) * 1000
         else:
@@ -389,7 +286,7 @@ def run_regression_testsuites(testsuites, reporter):
         reporter.msg_testsuite_runtime(elapsed_time, captured_runtime, time_delta_ms)
 
         # TODO: [hack] Refactor .. Clean up persistence.
-        write_captured_runtime(testsuite, captured_runtime)
+        history.write_captured_runtime(testsuite, captured_runtime)
 
         if captured_stderr:
             reporter.msg_captured_stderr(captured_stderr)
@@ -409,8 +306,8 @@ def run_regression_testsuites(testsuites, reporter):
         # Otherwise all tests would have to be re-run in order to "catch"
         # the failed tests, if re-running the failed tests and aborting
         # before completion..
-        write_failed_testsuites(run_results.failed)
-        write_run_results_history(run_results)
+        history.write_failed_testsuites(run_results.failed)
+        history.write_run_results_history(run_results)
 
     return run_results
 
@@ -540,16 +437,16 @@ def main(args):
         log.info('Filtering selected %d test suite(s)', len(selected_testsuites))
 
     if opts.filter_lastfailed:
-        lastfailed_testsuites = load_failed_testsuites()
-        if lastfailed_testsuites:
+        testsuites_failed_last_run = history.load_failed_testsuites()
+        if testsuites_failed_last_run:
             # TODO: Improve comparing regression test suites.
             # Fails if any option is modified. Compare only directory basenames?
             selected_testsuites = [
-                t for t in selected_testsuites if t in lastfailed_testsuites
+                t for t in selected_testsuites if t in testsuites_failed_last_run
             ]
             log.info('Selected %d of %d test suite(s) that failed during the '
                      'last completed run ..',
-                     len(selected_testsuites), len(lastfailed_testsuites))
+                     len(selected_testsuites), len(testsuites_failed_last_run))
         else:
             log.info('Selected all %d test suite(s) as None failed during the '
                      'last completed run ..', len(selected_testsuites))

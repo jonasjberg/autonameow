@@ -18,56 +18,9 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
-import unit.utils as uu
-from regression.regression_runner import load_failed_testsuites
 from regression.regression_runner import RunResults
-from regression.regression_runner import write_failed_testsuites
-from regression.regression_runner import _get_persistence
-from regression.utils import RegressionTestSuite
-
-
-class TestLoadAndWriteFailedTestsuites(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.TEMP_DIR = uu.make_temp_dir()
-
-    def _mock_get_persistence(self):
-        return _get_persistence(file_prefix='test_regression_runner',
-                                persistence_dir_abspath=self.TEMP_DIR)
-
-    def test_write_failed_testsuites_empty_list(self):
-        suites = list()
-        with patch('regression.regression_runner._get_persistence',
-                   self._mock_get_persistence):
-            write_failed_testsuites(suites)
-
-    def test_write_and_read_with_two_actual_suites(self):
-        a = RegressionTestSuite(
-            abspath=b'/tmp/bar',
-            dirname=b'bar',
-            asserts=None,
-            options=None,
-            skip=False,
-            description='bar'
-        )
-        b = RegressionTestSuite(
-            abspath=b'/tmp/foo',
-            dirname=b'foo',
-            asserts=None,
-            options=None,
-            skip=False,
-            description='foo'
-        )
-        suites = [a, b]
-        with patch('regression.regression_runner._get_persistence',
-                   self._mock_get_persistence):
-            write_failed_testsuites(suites)
-            loaded = load_failed_testsuites()
-
-        self.assertEqual(len(loaded), len(suites))
-        self.assertEqual(sorted(loaded), sorted(suites))
 
 
 class TestRunResults(TestCase):
