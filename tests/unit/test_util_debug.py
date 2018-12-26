@@ -18,13 +18,13 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def test_collect_callstack_entries():
-    from util.debug import collect_callstack_entries
+def test_collect_callstack_info_to_results_list():
+    from util.debug import collect_callstack_info
 
     results = list()
     stack_size = 3
 
-    @collect_callstack_entries(results_list=results, stack_size=stack_size)
+    @collect_callstack_info(results_list=results, stack_size=stack_size)
     def _dummy_func_c(x):
         return x + 101
 
@@ -46,3 +46,35 @@ def test_collect_callstack_entries():
     assert results[2].index == 0
     assert results[2].module == 'unit.test_util_debug'
     assert results[2].name == '_dummy_func_c'
+
+
+def test_collect_callstack_info_with_printer():
+    from util.debug import collect_callstack_info
+
+    results = list()
+    stack_size = 3
+    printer_called_with = list()
+
+    def _printer(s):
+        printer_called_with.append(s)
+
+    @collect_callstack_info(results, printer=_printer, stack_size=stack_size)
+    def _dummy_func_c(x):
+        return x + 101
+
+    def _dummy_func_b(x):
+        return _dummy_func_c(x)
+
+    def _dummy_func_a():
+        return _dummy_func_b(565)
+
+    _dummy_func_a()
+
+    assert len(printer_called_with) == 1
+    assert printer_called_with[0] == """
+LEVEL :          MODULE          : NAME
+--------------------------------------------------
+    2 :   unit.test_util_debug   : _dummy_func_a
+    1 :   unit.test_util_debug   : _dummy_func_b
+    0 :   unit.test_util_debug   : _dummy_func_c
+"""
