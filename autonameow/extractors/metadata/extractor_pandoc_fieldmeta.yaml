@@ -26,10 +26,10 @@ date:
     mapped_fields:
     -   WeightedMapping:
             field: Date
-            weight: 1
+            weight: 1.0
     -   WeightedMapping:
             field: DateTime
-            weight: 1
+            weight: 1.0
 
     # TODO: This is WRONG! multivalued should be false
     # Expect more than one *different* dates, but never any
