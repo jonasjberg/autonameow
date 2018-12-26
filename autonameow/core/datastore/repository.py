@@ -21,6 +21,7 @@ import logging
 
 from core import event
 from core import logs
+from core.datastore.query import QueryResponseFailure
 from core.model import meowuri_mapper
 from util import encoding as enc
 from util import sanity
@@ -35,32 +36,6 @@ log = logging.getLogger(__name__)
 def _get_column_formatter():
     from core.view.cli import ColumnFormatter
     return ColumnFormatter()
-
-
-class QueryResponseFailure(object):
-    def __init__(self, fileobject=None, uri=None, msg=None):
-        self.fileobject = fileobject
-        self.uri = uri or 'unspecified MeowURI'
-        self.msg = msg or ''
-
-    def __repr__(self):
-        if self.fileobject:
-            str_fileobject = repr(self.fileobject)
-        else:
-            str_fileobject = '(Unknown FileObject)'
-
-        if self.msg:
-            _msg = ' :: {!s}'.format(self.msg)
-        else:
-            _msg = ''
-
-        return '{}->[{!s}]{!s}'.format(str_fileobject, self.uri, _msg)
-
-    def __str__(self):
-        return 'Failed query ' + repr(self)
-
-    def __bool__(self):
-        return False
 
 
 class DataBundle(object):

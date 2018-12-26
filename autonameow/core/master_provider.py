@@ -23,7 +23,7 @@ from collections import defaultdict
 from core import event
 from core import logs
 from core.datastore import repository
-from core.datastore.repository import QueryResponseFailure
+from core.datastore.query import QueryResponseFailure
 from core.exceptions import AutonameowException
 from core.model import genericfields
 from util import sanity
