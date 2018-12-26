@@ -83,7 +83,7 @@ pagetitle:
 
 publisher:
     coercer: aw_string
-    generic_field: Publisher
+    generic_field: publisher
     mapped_fields:
     -   WeightedMapping:
             field: Publisher
@@ -107,10 +107,10 @@ subject:
     generic_field: tags
     mapped_fields:
     -   WeightedMapping:
-            field: tags
+            field: Tags
             weight: 1.0
     -   WeightedMapping:
-            field: title
+            field: Title
             weight: 0.1
     multivalued: true
 

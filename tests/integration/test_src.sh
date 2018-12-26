@@ -169,6 +169,14 @@ assert_true '$_check_spelling_script_path' \
             'Spell-checker script checks pass ("check_spelling.sh" returns 0)'
 
 
+# ______________________________________________________________________________
+#
+# Check field meta file contents. The 'generic_field' values are case-sensitive.
+
+assert_false 'grep -Er --include "*_fieldmeta.yaml" -- "generic_field: [A-Z]+" "$AUTONAMEOW_ROOT_DIR"' \
+             'None of the "*_fieldmeta.yaml" files capitalize any "generic_field" value'
+
+
 
 
 # Calculate total execution time.
