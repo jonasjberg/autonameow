@@ -34,34 +34,38 @@ log = logging.getLogger('regression_runner')
 
 def _get_persistence(file_prefix=PERSISTENCE_BASENAME_PREFIX,
                      persistence_dir_abspath=PERSISTENCE_DIR_ABSPATH):
-    persistence_mechanism = get_persistence(file_prefix, persistence_dir_abspath)
+    persistence_mechanism = get_persistence(file_prefix,
+                                            persistence_dir_abspath)
     if not persistence_mechanism:
         log.critical('Unable to retrieve any mechanism for persistent storage')
+
     return persistence_mechanism
 
 
-def write_captured_runtime(testsuite, runtime):
+# Stores various persisted regression runner data. Set to None to disable.
+DATASTORE = _get_persistence()
+
+
+def write_captured_runtime(testsuite, runtime, datastore=DATASTORE):
     assert isinstance(runtime, float)
 
-    persistent_storage = _get_persistence()
-    if not persistent_storage:
+    if not datastore:
         return
 
     try:
-        captured_runtimes = persistent_storage.get('captured_runtimes')
+        captured_runtimes = datastore.get('captured_runtimes')
     except KeyError:
         captured_runtimes = dict()
 
     assert isinstance(captured_runtimes, dict)
     captured_runtimes[testsuite] = runtime
-    persistent_storage.set('captured_runtimes', captured_runtimes)
+    datastore.set('captured_runtimes', captured_runtimes)
 
 
-def load_captured_runtime(testsuite):
-    persistent_storage = _get_persistence()
-    if persistent_storage:
+def load_captured_runtime(testsuite, datastore=DATASTORE):
+    if datastore:
         try:
-            captured_runtimes = persistent_storage.get('captured_runtimes')
+            captured_runtimes = datastore.get('captured_runtimes')
         except KeyError:
             pass
         else:
@@ -72,11 +76,10 @@ def load_captured_runtime(testsuite):
     return None
 
 
-def load_run_results_history():
-    persistent_storage = _get_persistence()
-    if persistent_storage:
+def load_run_results_history(datastore=DATASTORE):
+    if datastore:
         try:
-            run_results = persistent_storage.get('history')
+            run_results = datastore.get('history')
         except KeyError:
             pass
         else:
@@ -87,31 +90,32 @@ def load_run_results_history():
     return list()
 
 
-def write_run_results_history(run_results, max_entry_count=59):
+def write_run_results_history(run_results, max_entry_count=59,
+                              datastore=DATASTORE):
     assert isinstance(max_entry_count, int)
+
+    if not datastore:
+        return
 
     run_results_history = load_run_results_history()
     assert isinstance(run_results_history, list)
 
     run_results_history.insert(0, run_results)
     run_results_history = run_results_history[:max_entry_count]
-
-    persistent_storage = _get_persistence()
-    if persistent_storage:
-        persistent_storage.set('history', run_results_history)
+    datastore.set('history', run_results_history)
 
 
-def write_failed_testsuites(testsuites):
-    persistent_storage = _get_persistence()
-    if persistent_storage:
-        persistent_storage.set('lastrun', {'failed': list(testsuites)})
+def write_failed_testsuites(testsuites, datastore=DATASTORE):
+    if not datastore:
+        return
+
+    datastore.set('lastrun', {'failed': list(testsuites)})
 
 
-def load_failed_testsuites():
-    persistent_storage = _get_persistence()
-    if persistent_storage:
+def load_failed_testsuites(datastore=DATASTORE):
+    if datastore:
         try:
-            lastrun = persistent_storage.get('lastrun')
+            lastrun = datastore.get('lastrun')
         except KeyError:
             pass
         else:
