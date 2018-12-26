@@ -260,7 +260,6 @@ class RegexConfigFieldParser(ConfigFieldParser):
         if not test_data:
             return False
 
-        # test_data = _normalize(test_data)
         test_data = enc.encode_(test_data)
         expression = enc.encode_(expression)
 
@@ -279,29 +278,6 @@ class RegexConfigFieldParser(ConfigFieldParser):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
         return cls.evaluate_regex
-
-    @staticmethod
-    def _normalize(unicode_string):
-        """
-        Normalizes unwieldy text, (hopefully) making matching more intuitive.
-
-            Return the normal form form for the Unicode string unistr.
-
-            For each character, there are two normal forms: normal form C and
-            normal form D. Normal form D (NFD) is also known as canonical
-            decomposition, and translates each character into its decomposed
-            form. Normal form C (NFC) first applies a canonical decomposition,
-            then composes pre-combined characters again.
-
-            Source:  https://docs.python.org/3.5/library/unicodedata.html
-
-        Args:
-            unicode_string: The unicode string to normalize.
-
-        Returns:
-            A normalized version of the given string.
-        """
-        return unicodedata.normalize('NFC', unicode_string)
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
