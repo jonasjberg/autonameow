@@ -392,16 +392,12 @@ def _stringify_datadict_value(datadict_value):
     return str_value
 
 
-def datadict_maps_field(datadict, field):
-    # This might return a None, using a default dict value will not work.
+def datadict_maps_field(datadict, wanted_field):
     mapped_fields = datadict.get('mapped_fields')
     if not mapped_fields:
         return False
 
-    for mapping in mapped_fields:
-        if field == mapping.field:
-            return True
-    return False
+    return any(wanted_field == mapping.field for mapping in mapped_fields)
 
 
 SessionRepository = None
