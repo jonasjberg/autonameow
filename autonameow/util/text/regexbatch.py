@@ -18,6 +18,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+from collections import defaultdict
 
 
 def replace(regex_replacement_tuples, strng, ignore_case=False):
@@ -79,5 +80,44 @@ def find_longest_match(regexes, strng, ignore_case=False):
             matches, key=lambda x: len(x), reverse=True
         )
         return sorted_by_longest_match[0]
+
+    return None
+
+
+def find_replacement_value(value_regexes, strng, flags=0):
+    """
+    Returns a value associated with one or more regular expressions.
+
+    The value whose associated regular expressions produced the longest total
+    substring match is returned.
+
+    NOTE: Do not pass 'flags' ff the regular expressions are already compiled.
+
+    Args:
+        value_regexes (dict): Dictionary keyed by any values, each storing
+                              lists/tuples of regular expression patterns.
+        strng (str): The text to search.
+        flags: Regular expression flags applied to all regular expressions.
+
+    Returns:
+        The "best" matched key in the "value_regexes" dict, or None.
+    """
+    assert isinstance(strng, str)
+
+    if not strng:
+        return strng
+
+    # Use canonical form with longest total length of matched substrings.
+    value_match_lengths = defaultdict(int)
+    for value, regexes in value_regexes.items():
+        for regex in regexes:
+            matches = re.finditer(regex, strng, flags)
+            for match in matches:
+                value_match_lengths[value] += len(match.group(0))
+
+    if value_match_lengths:
+        value_associated_with_longest_match = max(value_match_lengths,
+                                                  key=value_match_lengths.get)
+        return value_associated_with_longest_match
 
     return None

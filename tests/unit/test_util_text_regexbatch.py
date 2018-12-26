@@ -21,7 +21,10 @@ import itertools
 import re
 from unittest import TestCase
 
+import pytest
+
 from util.text.regexbatch import replace
+from util.text.regexbatch import find_replacement_value
 from util.text.regexbatch import find_longest_match
 
 
@@ -176,3 +179,87 @@ class TestFindLongestMatch(TestCase):
         self._t(given='Foo Bar', expect='Foo', regexes=regexes)
         self._t(given='Foo Fooo Barrrrr', expect='Barrrrr', regexes=regexes)
         self._t(given='Foo Fooo Barrrrr', expect='Barrrrr', regexes=reversed(regexes))
+
+
+class TestFindReplacementValue(object):
+    def _check(self, given_value_regexes, given_string, expect):
+        actual = find_replacement_value(given_value_regexes, given_string)
+        assert actual == expect
+
+    def test_single_value_with_one_regex_does_not_match(self):
+        self._check({'foo': ('f.*', )}, 'baz', expect=None)
+
+    def test_single_value_with_one_regex_matches(self):
+        self._check({'foo': ('f.*', )}, 'f00bar', expect='foo')
+
+    def test_two_values_with_one_regex_each_where_none_matches(self):
+        self._check(
+            {'foo': ('f.*', ),
+             'bar': ('b.*', )},
+            'meow', expect=None
+        )
+
+    def test_two_values_with_one_regex_each_where_one_value_matches(self):
+        self._check(
+            {'foo': ('f.*', ),
+             'bar': ('b.*', )},
+            'f00bar', expect='foo'
+        )
+
+    def test_value_with_greediest_regex_always_wins(self):
+        self._check(
+            {'foo': ('f.', ),
+             'bar': ('f.*', )},
+            'f00bar', expect='bar'
+        )
+        self._check(
+            {'foo': ('f', 'f.*', ),
+             'bar': ('b', 'b.', )},
+            'f00bar', expect='foo'
+        )
+
+    @pytest.mark.parametrize('value_regexes,strng,expect', [
+        ({'foo': ('f00bar', ),
+          'bar': ('f00', )},
+         'f00bar',
+         'foo'),
+        ({'foo': ('f00', ),
+          'bar': ('f0', )},
+         'f00bar',
+         'foo'),
+        ({'foo': ('f00', ),
+          'bar': ('f00bar', )},
+         'f00bar',
+         'bar'),
+        ({'foo': (r'^00', ),
+          'bar': (r'^0000', )},
+         '0000000000',
+         'bar'),
+        ({'bar': (r'^0000', ),
+          'foo': (r'^00', )},
+         '0000000000',
+         'bar'),
+    ])
+    def test_two_values_with_one_regex_each_where_both_values_match(
+            self, value_regexes, strng, expect
+    ):
+        self._check(value_regexes, strng, expect)
+
+    @pytest.mark.parametrize('value_regexes,expect', [
+        ({'foo': ('gibson', 'gibson still rules'),
+          'bar': ('meow meow', )},
+         'foo'),
+        ({'foo': ('gibson still rules', 'gibson'),
+          'bar': ('meow meow', )},
+         'foo'),
+        ({'foo': ('gibson', 'still rules'),
+          'bar': ('meow meow', 'meow meow gibson')},
+         'bar'),
+        ({'foo': ('still rules', 'gibson'),
+          'bar': ('meow meow gibson', 'meow meow')},
+         'bar'),
+    ])
+    def test_two_values_with_two_regexes_each_where_both_values_match(
+            self, value_regexes, expect
+    ):
+        self._check(value_regexes, 'gibson still rules meow meow gibson meow', expect)
