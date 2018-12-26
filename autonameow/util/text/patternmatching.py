@@ -21,6 +21,7 @@ import re
 from functools import lru_cache
 
 from util import coercers
+from util.text.regexcache import RegexCache
 from util.text.transform import collapse_whitespace
 
 
@@ -193,50 +194,48 @@ def find_and_extract_edition(string):
     return None, string
 
 
-_re_copyright_symbol_text_combos = r'({SYM}{SEP}{TXT}|{TXT}{SEP}{SYM}|{SYM}{SEP})'.format(
+_re_symbol_text_combos = r'({SYM}{SEP}{TXT}|{TXT}{SEP}{SYM}|{SYM}{SEP})'.format(
     SYM=r'\(c\)',
     TXT=r'copyright',
     SEP=' ?',
 )
 _re_copyright_year = r'(?P<year>\d{4})'
-_re_copyright_years = r'(?P<year_range>\d{4}[- ,]+\d{4})'
+_re_copyright_years = r'(?P<year_range>\d{4}[- ]+\d{4})'
 
 # Like '\w' but without numbers (Unicode letters): '[^\W\d]'
 _re_copyright_name = r'(?P<name>[^\W\d]+[\D\.]+)'
 
-RE_COPYRIGHT_NOTICE_A = re.compile(
-    r'{symbol_text_combos} ?({year}|{years})[, ]+?{name}'.format(
-        symbol_text_combos=_re_copyright_symbol_text_combos,
-        year=_re_copyright_year,
-        years=_re_copyright_years,
-        name=_re_copyright_name
-    ), re.IGNORECASE
+_RE_COPYRIGHT_NOTICE_A = r'{symbol_text_combos} ?({year}|{years}) ?{name}'.format(
+    symbol_text_combos=_re_symbol_text_combos,
+    year=_re_copyright_year,
+    years=_re_copyright_years,
+    name=_re_copyright_name
 )
-RE_COPYRIGHT_NOTICE_B = re.compile(
-    r'{symbol_text_combos} ?{name}[, ]+?({year}|{years})'.format(
-        symbol_text_combos=_re_copyright_symbol_text_combos,
-        year=_re_copyright_year,
-        years=_re_copyright_years,
-        name=_re_copyright_name
-    ), re.IGNORECASE
+_RE_COPYRIGHT_NOTICE_B = r'{symbol_text_combos} ?{name} ?({year}|{years})'.format(
+    symbol_text_combos=_re_symbol_text_combos,
+    year=_re_copyright_year,
+    years=_re_copyright_years,
+    name=_re_copyright_name
 )
 
 
 def find_publisher_in_copyright_notice(strng):
     assert isinstance(strng, str)
 
-    text = collapse_whitespace(strng)
+    text = strng
     text = text.replace(',', ' ')
     text = text.replace('©', '(c)')
-    text = text.strip()
+    text = collapse_whitespace(text).strip()
     if not text:
         return None
 
-    matches = RE_COPYRIGHT_NOTICE_A.search(text)
-    if not matches:
-        matches = RE_COPYRIGHT_NOTICE_B.search(text)
-        if not matches:
-            return None
+    for regex in (_RE_COPYRIGHT_NOTICE_A, _RE_COPYRIGHT_NOTICE_B):
+        matches = RegexCache(regex, re.IGNORECASE).search(text)
+        if matches:
+            break
 
-    match = matches.group('name')
-    return match.strip()
+    if not matches:
+        return None
+
+    publisher_name = matches.group('name')
+    return publisher_name.strip()
