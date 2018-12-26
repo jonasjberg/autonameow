@@ -21,9 +21,10 @@ import re
 
 
 def replace(regex_replacement_tuples, strng, ignore_case=False):
+    assert isinstance(strng, str)
+
     if not strng:
         return strng
-    assert isinstance(strng, str)
 
     re_flags = 0
     if ignore_case:
