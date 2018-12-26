@@ -24,12 +24,14 @@ import re
 from analyzers import AnalyzerError
 from analyzers import BaseAnalyzer
 from core import constants as C
+from core.truths import known_data_loader
 from core.truths import known_metadata
 from util import coercers
 from util import dateandtime
 from util import disk
 from util import sanity
 from util.text import find_and_extract_edition
+from util.text import regexbatch
 
 
 _PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
@@ -181,10 +183,20 @@ class FilenameAnalyzer(BaseAnalyzer):
             'Searching basename prefix for %d known publisher values',
             len(known_publisher_values)
         )
-        result = find_publisher(self._basename_prefix, known_publisher_values)
-        self.log.debug('Search for publisher in basename prefix found "%s"',
-                       result)
-        return result
+        result = find_known_publisher(self._basename_prefix, known_publisher_values)
+        if result:
+            self.log.debug('Found known publisher in basename prefix "%s"',
+                           result)
+            return result
+
+        regex_lookup_dict = known_data_loader.regex_lookup_dict('publisher')
+        result = find_publishers(self._basename_prefix, regex_lookup_dict)
+        if result:
+            self.log.debug('Found possible publisher in basename prefix "%s"',
+                           result)
+            return result
+
+        return None
 
     @classmethod
     def dependencies_satisfied(cls):
@@ -369,8 +381,7 @@ def get_most_likely_datetime_from_string(string):
     return match
 
 
-def find_publisher(text, known_publishers):
-    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
+def find_known_publisher(text, known_publishers):
     lowercase_text = text.lower()
 
     for publisher in known_publishers:
@@ -378,3 +389,8 @@ def find_publisher(text, known_publishers):
             return publisher
 
     return None
+
+
+def find_publishers(text, candidates):
+    match = regexbatch.find_replacement_value(candidates, text)
+    return match or None

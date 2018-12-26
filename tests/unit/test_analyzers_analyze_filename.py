@@ -63,7 +63,7 @@ class TestFieldGetterMethods(TestCase):
         actual = self.fna._get_edition()
         self.assertIsNone(actual)
 
-    @patch('analyzers.analyze_filename.find_publisher')
+    @patch('analyzers.analyze_filename.find_known_publisher')
     def test__get_publisher_returns_expected_given_basename_with_publisher(
             self, mock_find_publisher
     ):
@@ -72,7 +72,7 @@ class TestFieldGetterMethods(TestCase):
         actual = self.fna._get_publisher()
         self.assertEqual('Foo Pub', actual)
 
-    @patch('analyzers.analyze_filename.find_publisher')
+    @patch('analyzers.analyze_filename.find_known_publisher')
     def test__get_publisher_returns_expected_given_basename_without_publisher(
             self, mock_find_publisher
     ):
