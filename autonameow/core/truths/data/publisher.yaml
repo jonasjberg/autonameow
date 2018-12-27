@@ -59,6 +59,13 @@ Apress:
     - matter material after the index. Please use the Bookmarks
     - and Contents at a Glance links to access them.
 
+ArcadePub:
+    match_any_literal:
+    - arcade@skyhorsepublishing.com
+    match_any_regex_ignorecase:
+    - Arcade Publishing( New York)?
+    - (www\.)?arcadepub\.com
+
 ArtechHouse:
     match_any_literal:
     - Artech House
@@ -585,8 +592,8 @@ OhmBooks:
 
 OReilly:
     match_any_regex_ignorecase:
-    - o.?reilly (&|and) associates
-    - "o.?reilly media,?"
+    - o(.?|&#39;)reilly (&|and) associates
+    - o(.?|&#39;)reilly media,?
     - microsoft.o.?reilly
     match_any_literal:
     - "O'Reilly"
@@ -736,8 +743,10 @@ SkriptKuhnel:
     - skript-verl.?g? k[üu]hnel
 
 Skyhorse:
+    match_any_literal:
+    - skyhorsepublishing.com
     match_any_regex_ignorecase:
-    - skyhorse
+    - skyhorse( pub..shing)?
 
 Soundlikeyourself:
     match_any_regex_ignorecase:

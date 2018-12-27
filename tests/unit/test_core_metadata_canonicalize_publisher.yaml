@@ -139,6 +139,20 @@ Apress:
 - www.apress.com
 - apress.com
 
+ArcadePub:
+- ArcadePub
+- Arcade Publishing
+- Arcade Publishing New York
+- arcade@skyhorsepublishing.com
+- https://www.arcadepub.com
+- http://www.arcadepub.com
+- www.arcadepub.com
+- arcadepub.com
+- https://www.arcadepub.com/
+- http://www.arcadepub.com/
+- www.arcadepub.com/
+- arcadepub.com/
+
 ArtechHouse:
 - ArtechHouse
 - Artech House
@@ -1373,6 +1387,13 @@ ObjectSource:
 OReilly:
 - Microsoft/O'Reilly
 - Microsoft/OReilly
+- "O&#39;Reilly Media"
+- "O&#39;Reilly Media Inc"
+- "O&#39;Reilly Media Inc."
+- "O&#39;Reilly Media Incorporated"
+- "O&#39;Reilly Media, Inc"
+- "O&#39;Reilly Media, Inc."
+- "O&#39;Reilly Media, Incorporated"
 - "O\u2019Reilly Media Inc"
 - "O\u2019Reilly Media Inc."
 - "O\u2019Reilly Media Incorporated"
@@ -1388,6 +1409,9 @@ OReilly:
 - O'Reilly Media, Inc
 - O'Reilly Media, Inc, USA
 - O'Reilly Media, Inc.
+- O'Reilly Media, Inc. USA
+- O'Reilly Media, Incorporated USA
+- O'Reilly Media, Incorporated, USA
 - OReilly
 - oreilly
 - Oreilly
@@ -1790,6 +1814,7 @@ Skyhorse:
 - Skyhorse Publ
 - Skyhorse Publ.
 - Skyhorse Publishing
+- skyhorsepublishing.com
 
 Soundlikeyourself:
 - Soundlikeyourself
