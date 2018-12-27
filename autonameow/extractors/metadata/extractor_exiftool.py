@@ -204,7 +204,9 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'http://freepdf-books.com',
     'http://www.epubor.com',
     'IT eBooks',
+    'ModDate',
     'MyStringValue',
+    'null',
     'test',
     'Toolkit http://www.activepdf.com',
     'Toolkit http://www.activepdf.com(Infix)',
@@ -327,82 +329,101 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
                 and not is_bad_metadata(tag, value)}
 
     def _to_internal_format(self, raw_metadata):
+        # TODO: [hack][cleanup][TD0189] Do this properly!
         coerced_metadata = dict()
 
         def _canonicalize(_field, _value_or_values, _canonicalizer):
             # TODO: [hack][cleanup][TD0189] Do this properly!
             assert callable(_canonicalizer)
 
+            self.log.debug(
+                'Attempting %s canonicalization of %s value(s) :: "%s"',
+                _canonicalizer.__name__, _field, _value_or_values
+            )
             if isinstance(_value_or_values, list):
                 _result = [_canonicalizer(v) for v in _value_or_values]
             else:
                 _result = _canonicalizer(_value_or_values)
 
-            self.log.debug('Canonicalized %s value :: %s -> %s',
+            self.log.debug('Canonicalized %s value(s) :: %s -> %s',
                            _field, _value_or_values, _result)
             return _result
 
         def _preprocess_human_names(_field, _values):
+            # TODO: [hack][cleanup][TD0189] Do this properly!
             self.log.debug(
                 'Attempting canonicalization of assumed human names '
                 'in field %s :: "%s"', _field, _values
             )
             assert isinstance(_values, list)
-            return preprocess_names(_values)
+            _result = preprocess_names(_values)
+            self.log.debug('Canonicalized %s values :: %s -> %s',
+                           _field, _values, _result)
+            return _result
 
         known_creatortool_values = known_metadata.canonical_values('creatortool')
+        known_publisher_values = known_metadata.canonical_values('publisher')
 
-        for field, value in raw_metadata.items():
-            coerced = self.coerce_field_value(field, value)
-
+        for field, raw_value in raw_metadata.items():
             # Empty strings are being passed through. But if we test with
-            # 'if coerced', any False booleans, 0, etc. would be discarded.
+            # 'if coerced_value', any False booleans, 0, etc. would be discarded.
             # Filtering must be field-specific.
-            if coerced is not None:
-                filtered = _filter_coerced_value(coerced)
-                if filtered is None:
-                    continue
+            coerced_value = self.coerce_field_value(field, raw_value)
+            if coerced_value is None:
+                continue
 
-                # TODO: [hack][cleanup][TD0189] Do this properly!
-                # TODO: [TD0189] Canonicalize metadata values by direct replacements.
-                if 'CreatorFile-as' in field:
-                    coerced_metadata[field] = _preprocess_human_names(field, filtered)
-                elif 'CreatorTool' in field:
-                    coerced_metadata[field] = _canonicalize(field, filtered, canonicalize_creatortool)
-                elif 'Producer' in field:
-                    # TODO: 'XMP:Producer' could be either "creatortool" or human names ..
-                    #       Although seems to be "creatortool" most of the time, maybe.
-                    coerced_metadata[field] = _canonicalize(field, filtered, canonicalize_creatortool)
-                elif 'Creator' in field:
-                    # TODO: Look at 'XMP:CreatorId' or 'XMP:CreatorRole' to
-                    #       determine possible contents of the 'XMP:Creator' field.
-                    #       Could be "creatortool", publisher, human names, etc.
-                    self.log.debug(
-                        'Attempting to deal with field %s value "%s"', field, filtered
-                    )
-                    if isinstance(filtered, list):
-                        if len(filtered) == 1:
-                            # Multiple "creatortool" values seems to be pretty rare.
-                            result = _canonicalize(field, filtered[0], canonicalize_creatortool)
-                            if result in known_creatortool_values:
-                                self.log.debug(
-                                    'Canonicalized %s value :: %s -> %s',
-                                    field, filtered[0], result
-                                )
-                                coerced_metadata[field] = result
-                                continue
+            value = _filter_coerced_value(coerced_value)
+            if value is None:
+                continue
 
-                        # Maybe this was a author and not a creatortool?
-                        coerced_metadata[field] = _preprocess_human_names(field, filtered)
+            # TODO: [hack][cleanup][TD0189] Do this properly!
+            # TODO: [TD0189] Canonicalize metadata values by direct replacements.
+            if 'CreatorFile-as' in field:
+                coerced_metadata[field] = _preprocess_human_names(field, value)
 
-                elif ':Language' in field:
-                    coerced_metadata[field] = _canonicalize(field, filtered, canonicalize_language)
-                elif 'Publisher' in field:
-                    coerced_metadata[field] = _canonicalize(field, filtered, canonicalize_publisher)
-                elif 'Author' in field:
-                    coerced_metadata[field] = _preprocess_human_names(field, filtered)
+            elif 'CreatorTool' in field:
+                coerced_metadata[field] = _canonicalize(field, value, canonicalize_creatortool)
+
+            elif 'Producer' in field:
+                # TODO: 'XMP:Producer' could be either "creatortool" or human names ..
+                #       Although seems to be "creatortool" most of the time, maybe.
+                if value in known_publisher_values:
+                    coerced_metadata[field] = value
                 else:
-                    coerced_metadata[field] = filtered
+                    coerced_metadata[field] = _canonicalize(field, value, canonicalize_creatortool)
+
+            elif 'Creator' in field:
+                # TODO: Look at 'XMP:CreatorId' or 'XMP:CreatorRole' to
+                #       determine possible contents of the 'XMP:Creator' field.
+                #       Could be "creatortool", publisher, human names, etc.
+                if isinstance(value, list):
+                    if len(value) == 1:
+                        # Lists of multiple "creatortool" values seem to be rare.
+                        result = _canonicalize(field, value[0], canonicalize_creatortool)
+                        if result in known_creatortool_values:
+                            self.log.debug(
+                                'Canonicalized %s value into previously known '
+                                'value :: %s -> %s', field, value[0], result
+                            )
+                            coerced_metadata[field] = result
+                            continue
+
+                    # Maybe this was a author and not a creatortool?
+                    coerced_metadata[field] = _preprocess_human_names(field, value)
+                else:
+                    coerced_metadata[field] = _canonicalize(field, value, canonicalize_creatortool)
+
+            elif ':Language' in field:
+                coerced_metadata[field] = _canonicalize(field, value, canonicalize_language)
+
+            elif 'Publisher' in field:
+                coerced_metadata[field] = _canonicalize(field, value, canonicalize_publisher)
+
+            elif 'Author' in field:
+                coerced_metadata[field] = _preprocess_human_names(field, value)
+
+            else:
+                coerced_metadata[field] = value
 
         return coerced_metadata
 
