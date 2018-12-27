@@ -122,7 +122,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         self.num_text_lines = len(self.text.splitlines())
 
         # Arbitrarily search the text in chunks of 10%
-        text_chunks = TextChunker(self.text, chunk_to_text_ratio=0.1)
+        text_chunks = TextChunker(self.text, chunk_to_text_ratio=0.02)
         leading_text = text_chunks.leading
 
         # TODO: Search text for datetime information.
@@ -144,31 +144,29 @@ class DocumentAnalyzer(BaseAnalyzer):
             if clean_title:
                 self._add_intermediate_results('title', clean_title)
 
-        regex_lookup_dict = known_data_loader.regex_lookup_dict('publisher')
-        if regex_lookup_dict:
-            # TODO: Pass multiple possible publishers with probabilities.
-            #       (publisher is not "multivalued")
-            self._add_intermediate_results(
-                'publisher',
-                self._search_text_for_candidate_publisher(leading_text, regex_lookup_dict)
-            )
-            self._add_intermediate_results(
-                'publisher',
-                self._search_text_for_copyright_publisher(leading_text, regex_lookup_dict)
-            )
-
         literal_lookup_dict = known_data_loader.literal_lookup_dict('publisher')
         if literal_lookup_dict:
             # TODO: Pass multiple possible publishers with probabilities.
             #       (publisher is not "multivalued")
-            self._add_intermediate_results(
-                'publisher',
-                self._search_text_for_candidate_publisher(leading_text, literal_lookup_dict)
-            )
-            self._add_intermediate_results(
-                'publisher',
-                self._search_text_for_copyright_publisher(leading_text, literal_lookup_dict)
-            )
+            result = self._search_text_for_copyright_publisher(leading_text, literal_lookup_dict)
+            if result:
+                self._add_intermediate_results('publisher', result)
+            else:
+                result = self._search_text_for_candidate_publisher(leading_text, literal_lookup_dict)
+                if result:
+                    self._add_intermediate_results('publisher', result)
+                else:
+                    regex_lookup_dict = known_data_loader.regex_lookup_dict('publisher')
+                    if regex_lookup_dict:
+                        # TODO: Pass multiple possible publishers with probabilities.
+                        #       (publisher is not "multivalued")
+                        result = self._search_text_for_copyright_publisher(leading_text, regex_lookup_dict)
+                        if result:
+                            self._add_intermediate_results('publisher', result)
+                        else:
+                            result = self._search_text_for_candidate_publisher(leading_text, regex_lookup_dict)
+                            if result:
+                                self._add_intermediate_results('publisher', result)
 
     def _search_text_for_candidate_publisher(self, text, patterns):
         # TODO: [TD0130] Implement general-purpose substring matching/extraction.
