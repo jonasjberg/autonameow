@@ -179,8 +179,6 @@ Medium Priority
     I.E. replace variations and/or equivalent values of "foo books" with the
     canonical values "FooBooks" and "ProjectGutenberg".
 
-* `[TD0182]` Isolate third-party metadata services like `isbnlib`.
-
 * `[TD0161]` Handle mapping/translation between "generic"/specific MeowURIs.
 
 * `[TD0158]` Evaluate regression test assertions of "skipped renames".

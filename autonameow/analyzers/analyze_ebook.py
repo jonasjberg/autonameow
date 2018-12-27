@@ -20,12 +20,6 @@
 import logging
 import re
 
-# TODO: [TD0182] Isolate third-party metadata services like 'isbnlib'.
-try:
-    import isbnlib
-except ImportError:
-    isbnlib = None
-
 from analyzers import BaseAnalyzer
 from core import persistence
 from core.metadata.canonicalize import canonicalize_language
@@ -33,19 +27,19 @@ from core.metadata.canonicalize import canonicalize_publisher
 from core.metadata.normalize import cleanup_full_title
 from core.metadata.normalize import normalize_full_human_name
 from core.metadata.normalize import normalize_full_title
-from services.isbn import extract_isbnlike_from_text
-from services.isbn import fetch_isbn_metadata
+from services import ISBN_METADATA_SERVICE
 from util import coercers
 from util.text import find_and_extract_edition
 from util.text import html_unescape
-from util.text import normalize_unicode
 from util.text import normalize_horizontal_whitespace
+from util.text import normalize_unicode
 from util.text import RegexCache
 from util.text import remove_blacklisted_lines
 from util.text import string_similarity
 from util.text import TextChunker
 from util.text.distance import longest_common_substring_length
 from util.text.humannames import preprocess_names
+from vendor import isbnlib
 
 
 log = logging.getLogger(__name__)
@@ -387,11 +381,11 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
             if not isbn_numbers:
                 self.log.debug('Searching leading %d text lines for *any* ISBNs', leading_text_linecount)
-                isbn_numbers = extract_isbns_from_text(leading_text)
+                isbn_numbers = extract_isbnlike_from_text(leading_text)
 
                 if not isbn_numbers:
                     self.log.debug('Searching trailing %d text lines for *any* ISBNs', trailing_text_linecount)
-                    isbn_numbers = extract_isbns_from_text(trailing_text)
+                    isbn_numbers = extract_isbnlike_from_text(trailing_text)
 
         return isbn_numbers
 
@@ -401,7 +395,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             return self._cached_isbn_metadata.get(isbn_number)
 
         self.log.debug('Querying external service for ISBN: %s', isbn_number)
-        metadata = fetch_isbn_metadata(isbn_number)
+        metadata = ISBN_METADATA_SERVICE.query(isbn_number)
         if metadata:
             self.log.debug('Caching metadata for ISBN: %s', isbn_number)
             self._cached_isbn_metadata.update({isbn_number: metadata})
@@ -453,7 +447,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
     @classmethod
     def dependencies_satisfied(cls):
-        return isbnlib is not None
+        return bool(ISBN_METADATA_SERVICE.available)
 
 
 def extract_ebook_isbns_from_text(text):
@@ -461,14 +455,31 @@ def extract_ebook_isbns_from_text(text):
                               flags=re.MULTILINE)
     match = regex_e_isbn.search(text)
     if match:
-        return extract_isbns_from_text(match.group(0))
+        return extract_isbnlike_from_text(match.group(0))
     return list()
 
 
-def extract_isbns_from_text(text):
-    possible_isbns = extract_isbnlike_from_text(text)
+def validate_isbn(possible_isbn):
+    if not possible_isbn:
+        return None
+
+    isbn_number = isbnlib.clean(possible_isbn)
+    if not isbn_number or isbnlib.notisbn(isbn_number):
+        return None
+
+    return isbn_number
+
+
+def extract_isbnlike_from_text(text):
+    assert isinstance(text, str)
+
+    possible_isbns = isbnlib.get_isbnlike(text)
     if possible_isbns:
-        return possible_isbns
+        return [
+            isbnlib.get_canonical_isbn(i) for i in possible_isbns
+            if validate_isbn(i)
+        ]
+
     return list()
 
 

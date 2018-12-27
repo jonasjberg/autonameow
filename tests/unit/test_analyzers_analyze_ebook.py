@@ -18,15 +18,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from itertools import permutations
-from unittest import skipIf, TestCase
+from unittest import TestCase
 from unittest.mock import Mock
-
-try:
-    import isbnlib
-except ImportError:
-    ISBNLIB_IS_NOT_AVAILABLE = True, 'Missing (failed to import) required module "isbnlib"'
-else:
-    ISBNLIB_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
 from analyzers.analyze_ebook import calculate_authors_similarity
@@ -34,9 +27,10 @@ from analyzers.analyze_ebook import calculate_title_similarity
 from analyzers.analyze_ebook import deduplicate_isbns
 from analyzers.analyze_ebook import EbookAnalyzer
 from analyzers.analyze_ebook import extract_ebook_isbns_from_text
-from analyzers.analyze_ebook import extract_isbns_from_text
+from analyzers.analyze_ebook import extract_isbnlike_from_text
 from analyzers.analyze_ebook import filter_isbns
 from analyzers.analyze_ebook import ISBNMetadata
+from analyzers.analyze_ebook import validate_isbn
 
 
 def _get_ebook_analyzer(fileobject):
@@ -47,7 +41,6 @@ def _get_ebook_analyzer(fileobject):
     )
 
 
-@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestEbookAnalyzer(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -96,7 +89,7 @@ class TestEbookAnalyzer(TestCase):
                 self.assertTrue(self.analyzer.can_handle(dummy_file_object))
 
 
-class TestDeduplicateIsbns(TestCase):
+class TestDeduplicateISBNs(TestCase):
     def _assert_that_it(self, returns, given):
         actual = deduplicate_isbns(given)
         self.assertEqual(sorted(returns), sorted(actual))
@@ -175,7 +168,6 @@ class TestFilterISBN(TestCase):
             self.assertEqual(actual, [])
 
 
-@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestISBNMetadata(TestCase):
     ISBN13_A = '9780136070474'
     ISBN10_A = '0136070477'
@@ -305,7 +297,6 @@ class TestISBNMetadata(TestCase):
         self.assertEqual(m.edition, '2')
 
 
-@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestISBNMetadataEquality(TestCase):
     ISBN10_A = '3540762884'
     ISBN10_B = '3540762876'
@@ -833,7 +824,6 @@ class TestISBNMetadataEquality(TestCase):
         self.assertNotEqual(mx, m6)
 
 
-@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
 class TestExtractEbookISBNsFromText(TestCase):
     def _assert_returns(self, expected, given):
         actual = extract_ebook_isbns_from_text(given)
@@ -882,10 +872,9 @@ ISBN-13 (electronic): 978-1-4842-3318-4
 ''')
 
 
-@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
-class TestExtractISBNsFromText(TestCase):
+class TestExtractISBNLikeFromTextA(TestCase):
     def _assert_returns(self, expected, given):
-        actual = extract_isbns_from_text(given)
+        actual = extract_isbnlike_from_text(given)
         self.assertEqual(expected, actual)
 
     def test_find_expected_in_ocr_text_with_one_invalid_character(self):
@@ -909,7 +898,72 @@ ISBN 0-488-6&038-3 (pbk.)
 ''')
 
 
-@skipIf(*ISBNLIB_IS_NOT_AVAILABLE)
+class TestExtractISBNLikeFromTextB(TestCase):
+    def test_returns_expected_type(self):
+        text = 'fooo1-56592-306-5baar'
+        actual = extract_isbnlike_from_text(text)
+        self.assertIsInstance(actual, list)
+
+    def test_returns_expected_given_text_without_isbns(self):
+        text = 'fooo'
+        actual = extract_isbnlike_from_text(text)
+        self.assertEqual(len(actual), 0)
+
+    def test_returns_expected_given_only_isbn(self):
+        text = '1-56592-306-5'
+        actual = extract_isbnlike_from_text(text)
+        self.assertEqual(len(actual), 1)
+        self.assertIn('1565923065', actual)
+
+    def test_returns_expected_given_text_with_isbn(self):
+        text = '''
+Practical C Programming, 3rd Edition
+By Steve Oualline
+3rd Edition August 1997
+ISBN: 1-56592-306-5
+This new edition of "Practical C Programming" teaches users not only the mechanics or
+programming, but also how to create programs that are easy to read, maintain, and
+debug. It features more extensive examples and an introduction to graphical
+development environments. Programs conform to ANSI C.
+'''
+        actual = extract_isbnlike_from_text(text)
+        self.assertEqual(len(actual), 1)
+        self.assertIn('1565923065', actual)
+
+    def test_returns_expected_given_text_with_duplicate_isbn(self):
+        text = '''
+Practical C Programming, 3rd Edition
+By Steve Oualline
+3rd Edition August 1997
+ISBN: 1-56592-306-5
+This new edition of "Practical C Programming" teaches users not only the mechanics or
+programming, but also how to create programs that are easy to read, maintain, and
+debug. It features more extensive examples and an introduction to graphical
+development environments. Programs conform to ANSI C.
+ISBN: 1-56592-306-5
+'''
+        actual = extract_isbnlike_from_text(text)
+        self.assertEqual(len(actual), 2)
+        self.assertIn('1565923065', actual)
+
+
+class TestValidateISBN(TestCase):
+    def test_returns_valid_isbn_numbers(self):
+        sample_isbn = '1565923065'
+        self.assertEqual(validate_isbn(sample_isbn), sample_isbn)
+
+    def test_returns_none_for_invalid_isbn_numbers(self):
+        sample_invalid_isbns = [
+            None,
+            '',
+            ' ',
+            '123',
+            '1234567890'
+        ]
+        for sample_isbn in sample_invalid_isbns:
+            self.assertIsNone(validate_isbn(sample_isbn))
+
+
 class TestMalformedISBNMetadata(TestCase):
     def test_malformed_author_field_list_of_lists(self):
         actual = ISBNMetadata(

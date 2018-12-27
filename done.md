@@ -8,6 +8,13 @@ Source repository: <https://github.com/jonasjberg/autonameow>
 Completed TODO-list Entries
 ===========================
 
+### 2018-12-28
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0182]` Isolate third-party metadata services like `isbnlib`.
+
 ### 2018-12-24
 
 > Low Priority

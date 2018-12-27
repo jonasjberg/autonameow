@@ -20,92 +20,29 @@
 import logging
 import time
 
-try:
-    import isbnlib
-except ImportError:
-    isbnlib = None
-    # TODO: [hack] Handle missing 'isbnlib' module properly!
-    _isbnlib_NotValidISBNError = Exception
-else:
-    _isbnlib_NotValidISBNError = isbnlib.NotValidISBNError
-
-from util import sanity
+from vendor import isbnlib
 
 
 log = logging.getLogger(__name__)
 
 
-# TODO: [TD0182] Isolate third-party metadata services like 'isbnlib'.
-
-
-def _isbnlib_meta(isbnlike):
-    assert isbnlib
-    # TODO: [TD0182] Clean this up. Handle missing 'isbnlib' properly.
-    return isbnlib.meta(isbnlike)
-
-
-def _isbnlib_get_isbnlike(text):
-    assert isbnlib
-    # TODO: [TD0182] Clean this up. Handle missing 'isbnlib' properly.
-    return isbnlib.get_isbnlike(text)
-
-
-def _isbnlib_get_canonical_isbn(isbnlike):
-    assert isbnlib
-    # TODO: [TD0182] Clean this up. Handle missing 'isbnlib' properly.
-    return isbnlib.get_canonical_isbn(isbnlike)
-
-
-def _isbnlib_clean(isbnlike):
-    assert isbnlib
-    # TODO: [TD0182] Clean this up. Handle missing 'isbnlib' properly.
-    return isbnlib.clean(isbnlike)
-
-
-def _isbnlib_notisbn(isbnlike):
-    assert isbnlib
-    # TODO: [TD0182] Clean this up. Handle missing 'isbnlib' properly.
-    return isbnlib.notisbn(isbnlike)
-
-
-def extract_isbnlike_from_text(text):
-    sanity.check_internal_string(text)
-
-    possible_isbns = _isbnlib_get_isbnlike(text)
-    if possible_isbns:
-        return [_isbnlib_get_canonical_isbn(i)
-                for i in possible_isbns if validate_isbn(i)]
-    return list()
-
-
-def validate_isbn(possible_isbn):
-    if not possible_isbn:
-        return None
-
-    sanity.check_internal_string(possible_isbn)
-
-    isbn_number = _isbnlib_clean(possible_isbn)
-    if not isbn_number or _isbnlib_notisbn(isbn_number):
-        return None
-    return isbn_number
-
-
 class ISBNMetadataService(object):
     def __init__(self):
-        # TODO: [TD0182] Clean this up. Handle missing 'isbnlib' properly.
-        self.available = bool(isbnlib)
+        # TODO: Limit number of requests within fixed time windows.
+        self.available = True
 
     def query(self, isbn_number):
         if not self.available:
             return None
+
         return self._query(isbn_number)
 
     def _query(self, isbn_number):
         logging.disable(logging.DEBUG)
 
         try:
-            return _isbnlib_meta(isbn_number)
-        except _isbnlib_NotValidISBNError as e:
+            return isbnlib.meta(isbn_number)
+        except isbnlib.NotValidISBNError as e:
             log.error('Metadata query FAILED for ISBN "%s"', isbn_number)
             log.debug(str(e))
         except Exception as e:
@@ -121,6 +58,4 @@ class ISBNMetadataService(object):
         return None
 
 
-def fetch_isbn_metadata(isbn_number):
-    isbn_metadata_service = ISBNMetadataService()
-    return isbn_metadata_service.query(isbn_number)
+ISBN_METADATA_SERVICE = ISBNMetadataService()
