@@ -136,7 +136,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             # should help with comparing the candidate values against values
             # from other sources and also with other methods that look at
             # relationships between fields within a single record and also
-            # betweeen multiple records.
+            # between multiple records.
             maybe_text_title = text_titles[0]
             clean_title = cleanup_full_title(maybe_text_title)
             if clean_title:
