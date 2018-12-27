@@ -50,6 +50,9 @@ Apress:
     - (www\.)?apress\.com
     match_any_literal:
     - Appress
+    - For your convenience Apress has placed some of the front
+    - matter material after the index. Please use the Bookmarks
+    - and Contents at a Glance links to access them.
 
 ArtechHouse:
     match_any_literal:
@@ -378,8 +381,6 @@ IBMITSO:
 IdeaGroup:
     match_any_regex_ignorecase:
     - idea group
-    match_any_literal:
-    - Idea
 
 IGIGlobal:
     match_any_regex_ignorecase:
@@ -755,6 +756,8 @@ Sybex:
     - sybex
 
 Syngress:
+    match_any_literal:
+    - Syngress Press
     match_any_regex_ignorecase:
     - syngress (media|pub\.?|publishing)
     - (www\.)?syngress\.com
