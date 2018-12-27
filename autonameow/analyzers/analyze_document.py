@@ -108,9 +108,6 @@ class DocumentAnalyzer(BaseAnalyzer):
     def __init__(self, fileobject, config, request_data_callback):
         super().__init__(fileobject, config, request_data_callback)
 
-        self.text = None
-        self.num_text_lines = 0
-
     def analyze(self):
         maybe_text = self.request_any_textual_content()
         if not maybe_text:
@@ -118,11 +115,12 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         filtered_text = remove_blacklisted_lines(maybe_text, BLACKLISTED_TEXTLINES)
         normalized_whitespace_text = collapse_whitespace(filtered_text)
-        self.text = normalized_whitespace_text
-        self.num_text_lines = len(self.text.splitlines())
 
         # Arbitrarily search the text in chunks of 10%
-        text_chunks = TextChunker(self.text, chunk_to_text_ratio=0.02)
+        text_chunks = TextChunker(
+            text=normalized_whitespace_text,
+            chunk_to_text_ratio=0.02
+        )
         leading_text = text_chunks.leading
 
         # TODO: Search text for datetime information.
