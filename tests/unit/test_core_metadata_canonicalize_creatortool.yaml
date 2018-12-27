@@ -1,3 +1,23 @@
+3-Heights PDF:
+- 3-Heights PDF
+- 3-Heights(TM) PDF Optimization API 4.5.19.0 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Optimization API 4.5.19.0 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Optimization API 4.9.25.1 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Optimization Shell 4.6.23.0 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Optimization Shell 4.7.19.0 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Optimization Shell 4.8.25.2 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Optimization Shell 4.8.25.2 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Producer 2.1.15.0 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Producer 4.2.26.0 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Producer 4.2.26.0 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Producer 4.2.26.0 (http://www.pdf-tools.com); modified using iTextSharp 4.1.6 by 1T3XT
+- 3-Heights(TM) PDF Producer 4.4.14.0 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Producer 4.4.41.0 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Security Shell 4.5.24.1 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Security Shell 4.5.24.6 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Security Shell 4.8.25.2 (http://www.pdf-tools.com)
+- 3-Heights(TM) PDF Security Shell 4.8.25.2 (http://www.pdf-tools.com)
+
 ACDSee:
 - ACDSee
 - ACDSee v1.2
@@ -687,6 +707,15 @@ LaTeX:
 - STM LaTeX
 - STM LaTeX and Word Typesetting
 
+LibreOffice:
+- LibreOffice
+- LibreOffice 3.6
+- LibreOffice 4.2
+- LibreOffice 5.0
+- LibreOffice 5.1
+- LibreOffice 5.2
+- LibreOffice 5.3
+
 MacOS Quartz:
 - MacOS Quartz
 - MacOS X Quartz
@@ -764,10 +793,17 @@ Microsoft Word:
 - G:\ProgramFiles\Microsoft Office\OFFICE11\WINWORD.EXE
 - G:\ProgramFiles\Microsoft Office\OFFICE12\WINWORD.EXE
 - MergerPdf.dll
+- Microsoft Word
 - Microsoft Word - Check Out The Most Amazing Wallpapers.doc
 - Microsoft Word 2000/2002
 - Microsoft Word 9.0
-- Microsoft Word
+- Microsoft® Office Word 2007
+- Microsoft® Office Word 2007 (Beta)
+- Microsoft® Word 2010
+- Microsoft® Word 2010 Trial
+- Microsoft® Word 2013
+- Microsoft® Word 2016
+- Microsoft® Word Starter 2010
 - 'MicrosoftÂ® Word 2010'
 - 'MicrosoftÃ‚Â® Word 2016'
 - "Microsoft Word: cgpdftops CUPS filter(Infix Pro)"
@@ -823,6 +859,30 @@ Nuance OmniPage:
 - OmniPage CSDK
 - OmniPage CSDK 16
 - OmniPage CSDK 18
+
+OneVision Asura:
+  - OneVision Asura
+  - Asura Version 1
+  - Asura Version 6.1
+  - Asura Version 6.1 (SR 3)
+  - Asura Version 8.5
+
+OpenOffice:
+- OpenOffice
+- OpenOffice 4.0.0
+- OpenOffice.org 1.1.0
+- OpenOffice.org 1.1.1
+- OpenOffice.org 1.1.2
+- OpenOffice.org 1.1.2
+- OpenOffice.org 1.9.79
+- OpenOffice.org 2.0
+- OpenOffice.org 2.2
+- OpenOffice.org 2.3
+- OpenOffice.org 2.4
+- OpenOffice.org 3.0
+- OpenOffice.org 3.1
+- OpenOffice.org 3.2
+- OpenOffice.org 3.4.1
 
 PDF24:
 - PDF24
@@ -936,13 +996,6 @@ PScript:
 - PScript5.dll Version 5.2.2
 - PScript5.dll Version 5.2.2(Infix Pro)
 - PScript5.dll
-
-OneVision Asura:
-- OneVision Asura
-- Asura Version 1
-- Asura Version 6.1
-- Asura Version 6.1 (SR 3)
-- Asura Version 8.5
 
 PaperPort:
 - PaperPort

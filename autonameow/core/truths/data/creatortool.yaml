@@ -19,6 +19,10 @@
 # Fixed known "canonical" values with associated search patterns.
 
 
+3-Heights PDF:
+    match_any_regex_ignorecase:
+    - 3-Heights.*
+
 ACDSee:
     match_any_regex_ignorecase:
     - acdsee
@@ -279,6 +283,10 @@ LaTeX:
     match_any_regex_ignorecase:
     - (latex|pdfetex)
 
+LibreOffice:
+    match_any_regex:
+    - LibreOffice( \d\.\d)?
+
 MacOS Quartz:
     match_any_regex_ignorecase:
     - mac ?os.* quartz
@@ -325,6 +333,10 @@ Nuance OmniPage:
 OneVision Asura:
     match_any_regex_ignorecase:
     - asura
+
+OpenOffice:
+    match_any_regex_ignorecase:
+    - OpenOffice(\.org)?(\d\.\d)?(\.\d+)?
 
 PaperPort:
     match_any_regex_ignorecase:
