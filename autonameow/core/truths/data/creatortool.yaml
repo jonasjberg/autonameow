@@ -17,6 +17,11 @@
 
 
 # Fixed known "canonical" values with associated search patterns.
+#
+# Conditionals:
+# 'match_any_literal'           literal string match
+# 'match_any_regex_ignorecase'  case-insensitive regular expression match
+# 'match_any_regex'             regular expression match
 
 
 3-Heights PDF:

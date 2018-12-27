@@ -17,8 +17,13 @@
 
 
 # Fixed known "canonical" values with associated search patterns.
-
-# References
+#
+# Conditionals:
+# 'match_any_literal'           literal string match
+# 'match_any_regex_ignorecase'  case-insensitive regular expression match
+# 'match_any_regex'             regular expression match
+#
+# References:
 # * Internet Engineering Task Force (IETF) Tags for Identifying Languages
 #   https://tools.ietf.org/html/rfc5646
 # * Common Locale Data Repository
