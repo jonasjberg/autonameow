@@ -40,12 +40,7 @@
 import os
 import sys
 from contextlib import contextmanager
-from unittest import expectedFailure, skipIf, TestCase
-
-try:
-    import chardet
-except ImportError:
-    chardet = None
+from unittest import expectedFailure, TestCase
 
 import unit.utils as uu
 from util.encoding import arg_encoding
@@ -161,7 +156,6 @@ def system_mock(name):
         platform.system = old_system
 
 
-@skipIf(chardet is None, 'Unable to import required module "chardet"')
 class TestAutodetectDecode(TestCase):
     def _assert_encodes(self, encoding, string):
         _encoded_text = string.encode(encoding)
