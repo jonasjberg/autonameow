@@ -843,14 +843,11 @@ def is_epub_ebook(fileobject):
 
 
 def calculate_authors_similarity(authors_a, authors_b):
-    def _to_lower(strings):
-        return [s.lower() for s in strings]
+    def _sort_substrings(_strngs):
+        return [' '.join(sorted(s.split(' '))) for s in _strngs]
 
-    def _sort_substrings(strings):
-        return [' '.join(sorted(s.split(' '))) for s in strings]
-
-    def _preprocess(strings):
-        return _sort_substrings(_to_lower(strings))
+    def _preprocess(_strngs):
+        return _sort_substrings([s.lower() for s in _strngs])
 
     preprocessed_authors_a = _preprocess(authors_a)
     preprocessed_authors_b = _preprocess(authors_b)
