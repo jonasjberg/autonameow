@@ -222,6 +222,7 @@ def find_publisher_in_copyright_notice(strng):
     text = strng
     text = text.replace(',', ' ')
     text = text.replace('©', '(c)')
+    text = text.replace('&#169;', '(c)')
     text = collapse_whitespace(text).strip()
     if not text:
         return None
