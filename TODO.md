@@ -151,34 +151,6 @@ Medium Priority
     field values that are present in the other metadata record.  If so, "join"
     fields with missing values before discarding the "duplicate" record.
 
-* `[TD0189]` __Canonicalize metadata values with direct replacements.__  
-    Should probably store some kind of lookup tables in external files.
-    These should be used to reduce the space of possible values by doing
-    fixed-value replacements.
-
-    This would be a improved version of the template field "candidates",
-    currently not fully and/or poorly implemented.
-
-    Example configuration file section;
-
-    ```yaml
-    NAME_TEMPLATE_FIELDS:
-        publisher:
-            candidates:
-                FooBooks:
-                - Foo Books
-                - Foo Books Inc.
-                - Foo Books, Inc.
-                - FOO BOOKS PUBLISHERS
-                ProjectGutenberg:
-                - Gutenberg Project
-                - Project Gutenberg
-                - The Gutenberg Project
-    ```
-
-    I.E. replace variations and/or equivalent values of "foo books" with the
-    canonical values "FooBooks" and "ProjectGutenberg".
-
 * `[TD0161]` Handle mapping/translation between "generic"/specific MeowURIs.
 
 * `[TD0158]` Evaluate regression test assertions of "skipped renames".

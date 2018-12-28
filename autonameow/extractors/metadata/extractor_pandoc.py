@@ -29,6 +29,7 @@ from extractors.text.base import decode_raw
 from util import coercers
 from util import disk
 from util import process
+from util.text.humannames import preprocess_names
 
 _PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
 BASENAME_PANDOC_TEMPLATE = coercers.AW_PATHCOMPONENT('extractor_pandoc_template.plain')
@@ -80,24 +81,37 @@ class PandocMetadataExtractor(BaseMetadataExtractor):
     def _to_internal_format(self, raw_metadata):
         coerced_metadata = dict()
 
+        def _preprocess_human_names(_field, _values):
+            # TODO: [hack][cleanup] Do this properly!
+            self.log.debug(
+                'Attempting canonicalization of assumed human names '
+                'in field %s :: "%s"', _field, _values
+            )
+            assert isinstance(_values, list)
+            _result = preprocess_names(_values)
+            self.log.debug('Canonicalized %s values :: %s -> %s',
+                           _field, _values, _result)
+            return _result
+
         for field, value in raw_metadata.items():
-            coerced = self.coerce_field_value(field, value)
+            coerced_value = self.coerce_field_value(field, value)
             # TODO: [TD0034] Filter out known bad data.
             # TODO: [TD0035] Use per-extractor, per-field, etc., blacklists?
+
             # Empty strings are being passed through. But if we test with
-            # 'if coerced', any False booleans, 0, etc. would be discarded.
+            # 'if coerced_value', any False booleans, 0, etc. would be discarded.
             # Filtering must be field-specific.
-            if coerced is not None:
+            if coerced_value is not None:
                 if field == 'language':
-                    # TODO: [hack][cleanup][TD0189] Do this properly!
-                    # TODO: [TD0189] Canonicalize metadata values by direct replacements.
-                    coerced_metadata[field] = canonicalize_language(coerced)
+                    # TODO: [hack][cleanup] Do this properly!
+                    coerced_metadata[field] = canonicalize_language(coerced_value)
                 elif field == 'publisher':
-                    # TODO: [hack][cleanup][TD0189] Do this properly!
-                    # TODO: [TD0189] Canonicalize metadata values by direct replacements.
-                    coerced_metadata[field] = canonicalize_publisher(coerced)
+                    # TODO: [hack][cleanup] Do this properly!
+                    coerced_metadata[field] = canonicalize_publisher(coerced_value)
+                elif field == 'author':
+                    coerced_metadata[field] = _preprocess_human_names(field, coerced_value)
                 else:
-                    coerced_metadata[field] = coerced
+                    coerced_metadata[field] = coerced_value
 
         return coerced_metadata
 

@@ -662,7 +662,6 @@ class ISBNMetadata(object):
 
     @publisher.setter
     def publisher(self, value):
-        # TODO: [TD0189] Canonicalize metadata values by direct replacements.
         if value and isinstance(value, str):
             str_value = normalize_unicode(html_unescape(value))
             str_value = normalize_horizontal_whitespace(str_value).strip()

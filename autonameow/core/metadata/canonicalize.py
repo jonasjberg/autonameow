@@ -21,9 +21,6 @@ from core.truths import known_data_loader
 from util.text import regexbatch
 
 
-# TODO: [TD0189] Canonicalize metadata values with direct replacements
-
-
 class StringValueCanonicalizer(object):
     """
     Uses any or more fixed patterns do string value canonicalization.

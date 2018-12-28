@@ -35,9 +35,6 @@ _PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
 _LOOKUP_CACHE = defaultdict(dict)
 
 
-# TODO: [TD0189] Canonicalize metadata values with direct replacements
-
-
 def _resolve_abspath_from_datafile_basename(basename):
     bytestring_basename = coercers.AW_PATHCOMPONENT(basename)
     if not bytestring_basename.endswith(b'.yaml'):

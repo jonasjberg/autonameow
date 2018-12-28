@@ -329,11 +329,11 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
                 and not is_bad_metadata(tag, value)}
 
     def _to_internal_format(self, raw_metadata):
-        # TODO: [hack][cleanup][TD0189] Do this properly!
+        # TODO: [hack][cleanup] Do this properly!
         coerced_metadata = dict()
 
         def _canonicalize(_field, _value_or_values, _canonicalizer):
-            # TODO: [hack][cleanup][TD0189] Do this properly!
+            # TODO: [hack][cleanup] Do this properly!
             assert callable(_canonicalizer)
 
             self.log.debug(
@@ -350,7 +350,7 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
             return _result
 
         def _preprocess_human_names(_field, _values):
-            # TODO: [hack][cleanup][TD0189] Do this properly!
+            # TODO: [hack][cleanup] Do this properly!
             self.log.debug(
                 'Attempting canonicalization of assumed human names '
                 'in field %s :: "%s"', _field, _values
@@ -376,8 +376,7 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
             if value is None:
                 continue
 
-            # TODO: [hack][cleanup][TD0189] Do this properly!
-            # TODO: [TD0189] Canonicalize metadata values by direct replacements.
+            # TODO: [hack][cleanup] Do this properly!
             if 'CreatorFile-as' in field:
                 coerced_metadata[field] = _preprocess_human_names(field, value)
 
