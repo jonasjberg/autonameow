@@ -33,10 +33,10 @@ kill_running_task()
 # Runs a "task" (evaluates an expression) and prints messages.
 #
 # 1. First argument controls message printing and supression of expression
-#    output. Everything but 'true' results in passing all output.
+#    output. Either boolean true or false.
 # 2. Second argument is a message that describes the task being performed.
 #    Message formatting is controlled by the first argument. If 'quiet' is
-#    'true', a single line is printed for each task. Otherwise, the same
+#    true, a single line is printed for each task. Otherwise, the same
 #    line is printed before running the tasks and then again after.
 # 3. Third argument is an arbitrary expression to evalute.
 #    If the expression evaluates to 0 the task is considered to have succeeded,
@@ -48,7 +48,7 @@ run_task()
     local -r _cmd="$3"
 
     # Print tasks is starting message.
-    if [ "$_opt_quiet" = 'true' ]
+    if $_opt_quiet
     then
         printf '%s ..' "$_msg"
     else
@@ -59,12 +59,12 @@ run_task()
     trap kill_running_task SIGHUP SIGINT SIGTERM
 
     # Run task and check exit code.
-    if [ "$_opt_quiet" != 'true' ]
+    if $_opt_quiet
     then
-        eval "${_cmd}" &
+        eval "${_cmd}" >/dev/null 2>&1 &
         TASK_PID="$!"
     else
-        eval "${_cmd}" >/dev/null 2>&1 &
+        eval "${_cmd}" &
         TASK_PID="$!"
     fi
     wait "$TASK_PID"
@@ -81,7 +81,7 @@ run_task()
     #     130   -- ABORTED (Terminated by Control-C)
     #     other -- ERROR
     #
-    [ "$_opt_quiet" = 'true' ] || printf '%s ..' "$_msg"
+    $_opt_quiet || printf '%s ..' "$_msg"
     if [ "$_retcode" -eq '0' ]
     then
         # Success

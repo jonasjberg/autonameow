@@ -51,8 +51,8 @@ fi
 
 
 # Default configuration.
-option_write_reports='false'
-option_verbose='false'
+option_write_reports=false
+option_verbose=false
 
 
 print_usage_info()
@@ -88,10 +88,6 @@ EOF
 }
 
 
-
-# Set options to 'true' here and invert logic as necessary when testing (use
-# "if not true"). Motivated by hopefully reducing bugs and weird behaviour
-# caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
     printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
@@ -100,18 +96,19 @@ else
     do
         case "$opt" in
             h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
-            v) option_verbose='true' ;;
-            w) option_write_reports='true' ;;
+            v) option_verbose=true ;;
+            w) option_write_reports=true ;;
         esac
     done
 
     shift $(( OPTIND - 1 ))
 fi
 
-[ "$option_verbose" != 'true' ] && option_quiet='true' || option_quiet='false'
+option_quiet=true
+$option_verbose && option_quiet=false
 
-runner_opts='-w'
-[ "$option_write_reports" != 'true' ] && runner_opts=''
+runner_opts=''
+$option_write_reports && runner_opts='-w'
 
 declare -i COUNT_FAIL=0
 run_task "$option_quiet" 'Running unit test runner'        '${SELF_DIRPATH}/run_unit_tests.sh ${runner_opts}'

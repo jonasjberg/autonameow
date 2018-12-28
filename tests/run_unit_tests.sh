@@ -105,9 +105,6 @@ EOF
 }
 
 
-# Set options to 'true' here and invert logic as necessary when testing (use
-# "if not true"). Motivated by hopefully reducing bugs and weird behaviour
-# caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
     printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
@@ -119,7 +116,7 @@ else
             h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
             l) option_run_last_failed=true ;;
             w) option_write_report=true ;;
-            q) option_quiet='true' ;;
+            q) option_quiet=true ;;
         esac
     done
 

@@ -50,8 +50,8 @@ EOF
 fi
 
 # Default configuration.
-option_write_report='false'
-option_quiet='false'
+option_write_report=false
+option_quiet=false
 optionarg_filter=''
 
 
@@ -84,9 +84,7 @@ print_usage_info()
 EOF
 }
 
-# Set options to 'true' here and invert logic as necessary when testing (use
-# "if not true"). Motivated by hopefully reducing bugs and weird behaviour
-# caused by users setting the default option variables to unexpected values.
+
 if [ "$#" -eq "0" ]
 then
     printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "${SELF_BASENAME}"
@@ -101,11 +99,10 @@ else
                    exit "$EXIT_CRITICAL"
                fi ;;
             h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
-            w) option_write_report='true' ;;
-            q) option_quiet='true' ;;
+            w) option_write_report=true ;;
+            q) option_quiet=true ;;
         esac
     done
-
 
     shift $(( OPTIND - 1 ))
 fi
@@ -121,8 +118,7 @@ logmsg "Started integration test runner \"${SELF_BASENAME}\""
 logmsg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
-find "$search_dir" -mindepth 1 -maxdepth 1 -type f -name "test_*.sh" |
-sort -r |
+find "$search_dir" -maxdepth 1 -type f -name "test_*.sh" | sort -r |
 while IFS=$'\n' read -r testscript
 do
     if [ ! -x "$testscript" ]
@@ -147,22 +143,22 @@ do
     # !! trap kill_running_task SIGHUP SIGINT SIGTERM
     # !!
     # !! # Run task and check exit code.
-    # !! if [ "$option_quiet" != 'true' ]
+    # !! if $option_quiet
     # !! then
-    # !!     eval "${testscript}" &
+    # !!     eval "${testscript}" 2>&1 >/dev/null &
     # !!     TASK_PID="$!"
     # !! else
-    # !!     eval "${testscript}" 2>&1 >/dev/null &
+    # !!     eval "${testscript}" &
     # !!     TASK_PID="$!"
     # !! fi
     # !! wait "$TASK_PID"
 
     logmsg "Starting \"${_testscript_base}\" .."
-    if [ "$option_quiet" != 'true' ]
+    if $option_quiet
     then
-        source "${testscript}"
-    else
         source "${testscript}" &>/dev/null
+    else
+        source "${testscript}"
     fi
     logmsg "Finished \"${_testscript_base}\""
 done
@@ -186,7 +182,7 @@ log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_tota
 
 # NOTE: Requires "aha" to be installed in order to convert the "raw"
 #       (containing ANSI escape codes) log files to HTML.
-# if [ ! "$option_write_report" != 'true' ]
+# if $option_write_report
 # then
 #     run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
 # fi
