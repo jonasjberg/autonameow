@@ -50,7 +50,7 @@ from vendor import chardet
 __all__ = [
     'arg_encoding',
     'autodetect_decode',
-    'autodetect_encoding',
+    'detect_encoding',
     'bytestring_path',
     'convert_command_args',
     'decode_',
@@ -307,7 +307,7 @@ def autodetect_decode(strng):
     return strng
 
 
-def autodetect_encoding(filepath):
+def detect_encoding(filepath):
     try:
         with open(filepath, 'rb') as fh:
             detected_encoding = chardet.detect(fh.read())

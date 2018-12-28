@@ -50,7 +50,7 @@ except ImportError:
 import unit.utils as uu
 from util.encoding import arg_encoding
 from util.encoding import autodetect_decode
-from util.encoding import autodetect_encoding
+from util.encoding import detect_encoding
 from util.encoding import bytestring_path
 from util.encoding import convert_command_args
 from util.encoding import normpath
@@ -219,18 +219,18 @@ class TestAutodetectDecode(TestCase):
         self._assert_encodes('utf-8', 'foo \n ')
 
 
-class TestAutodetectEncoding(TestCase):
+class TestDetectEncoding(TestCase):
     def test_detects_ascii(self):
         sample = uu.abspath_testfile('magic_txt.txt')
         self.assertTrue(uu.file_exists(sample))
-        actual = autodetect_encoding(sample)
+        actual = detect_encoding(sample)
         self.assertEqual(actual, 'ascii')
 
     @expectedFailure
     def test_detects_utf8(self):
         sample = uu.abspath_testfile('README.txt')
         self.assertTrue(uu.file_exists(sample))
-        actual = autodetect_encoding(sample)
+        actual = detect_encoding(sample)
         self.assertEqual('utf-8', actual)
 
     def test_detects_encodings(self):
@@ -241,7 +241,7 @@ class TestAutodetectEncoding(TestCase):
                         for _, e in testfile_encoding)
 
         for testfile, expected_encoding in testfile_encoding:
-            actual = autodetect_encoding(testfile).lower()
+            actual = detect_encoding(testfile).lower()
 
             # Two of the sample files are utf-8, remove trailing "_n".
             if expected_encoding in ('utf-8_1', 'utf-8_2'):
@@ -264,19 +264,19 @@ class TestAutodetectEncoding(TestCase):
         for test_file in ['magic_jpg.jpg', 'magic_png.png']:
             sample = uu.abspath_testfile(test_file)
             self.assertTrue(uu.file_exists(sample))
-            actual = autodetect_encoding(sample)
+            actual = detect_encoding(sample)
             self.assertIsNone(actual)
 
     def test_returns_none_for_empty_files(self):
         sample = uu.abspath_testfile('empty')
         self.assertTrue(uu.file_exists(sample))
-        actual = autodetect_encoding(sample)
+        actual = detect_encoding(sample)
         self.assertIsNone(actual)
 
     def test_returns_none_for_non_existing_files(self):
         sample = '/tmp/this_isnt_a_file_right_or_huh'
         self.assertFalse(uu.file_exists(sample))
-        actual = autodetect_encoding(sample)
+        actual = detect_encoding(sample)
         self.assertIsNone(actual)
 
 
@@ -296,7 +296,7 @@ def get_sample_text_files(prefix, suffix='.txt'):
     return samplefile_expectedencoding
 
 
-class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
+class TestDetectsEncodingFromAlphaNumerics(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.testfile_encoding = get_sample_text_files(prefix='text_alnum_')
@@ -315,11 +315,11 @@ class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
                 # TODO: Improve encoding detection! (or not, for these samples)
                 continue
 
-            actual = autodetect_encoding(testfile)
+            actual = detect_encoding(testfile)
             self.assertEqual(actual, expected_encoding)
 
 
-class TestAutoDetectsEncodingFromSampleText(TestCase):
+class TestDetectsEncodingFromSampleText(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.testfile_encoding = get_sample_text_files(prefix='text_sample_')
@@ -332,7 +332,7 @@ class TestAutoDetectsEncodingFromSampleText(TestCase):
 
     def test_detects_encodings(self):
         for testfile, expected_encoding in self.testfile_encoding:
-            actual = autodetect_encoding(testfile).lower()
+            actual = detect_encoding(testfile).lower()
 
             if actual == 'iso-8859-1' and expected_encoding == 'cp1252':
                 # TODO: TODO: Improve auto-detecting encodings ..
