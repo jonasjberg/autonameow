@@ -14,6 +14,11 @@ Completed TODO-list Entries
 > ---------------
 >
 > * `[TD0182]` Isolate third-party metadata services like `isbnlib`.
+>
+> Low Priority
+> ------------
+>
+> * `[TD0114]` Improve the `EbookAnalyzer`.
 
 ### 2018-12-24
 

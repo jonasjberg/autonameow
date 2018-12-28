@@ -29,6 +29,7 @@ from core.metadata.normalize import normalize_full_human_name
 from core.metadata.normalize import normalize_full_title
 from services import ISBN_METADATA_SERVICE
 from util import coercers
+from util.misc import flatten_sequence_type
 from util.text import find_and_extract_edition
 from util.text import html_unescape
 from util.text import normalize_horizontal_whitespace
@@ -153,10 +154,14 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self.text = remove_blacklisted_lines(_maybe_text, BLACKLISTED_TEXTLINES)
 
-        # TODO: [TD0114] Check metadata for ISBNs.
-        # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier', "XMP:Subject"
         isbn_numbers = self._extract_isbn_numbers_from_text()
-        self.log.debug('Extracted %d ISBN numbers', len(isbn_numbers))
+        self.log.debug('Extracted %d ISBN numbers from text',
+                       len(isbn_numbers))
+        if not isbn_numbers:
+            isbn_numbers = self._extract_isbn_numbers_from_metadata()
+            self.log.debug('Extracted %d ISBN numbers from metadata',
+                           len(isbn_numbers))
+
         if not isbn_numbers:
             return
 
@@ -300,7 +305,6 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             return None
 
         # TODO: [TD0187] Fix clobbering of results.
-        # TODO: [TD0114] Improve the EbookAnalyzer.
         # TODO: [TD0185] Rework access to 'master_provider' functionality.
         response = self.request_data(self.fileobject, 'generic.metadata.description')
         ok_response = _untangle_response(response)
@@ -389,6 +393,27 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
         return isbn_numbers
 
+    def _extract_isbn_numbers_from_metadata(self):
+        data = self.request_data(self.fileobject, 'generic.metadata.identifier')
+        self.log.debug('Got "generic.metadata.identifier" data "%s"', data)
+
+        found_isbn_numbers = list()
+
+        if data:
+            # Values could be a list of lists because of how "generic" are
+            # collected and returned from the repository.
+            values = flatten_sequence_type(data)
+
+            for value in values:
+                value = value.lower()
+                if value.startswith('urn:') or value.startswith('isbn'):
+                    identifier = value
+                    isbn_numbers = extract_isbnlike_from_text(identifier)
+                    if isbn_numbers:
+                        found_isbn_numbers.extend(isbn_numbers)
+
+        return found_isbn_numbers
+
     def _get_isbn_metadata(self, isbn_number):
         if isbn_number in self._cached_isbn_metadata:
             self.log.debug('Using cached metadata for ISBN: %s', isbn_number)
@@ -456,6 +481,7 @@ def extract_ebook_isbns_from_text(text):
     match = regex_e_isbn.search(text)
     if match:
         return extract_isbnlike_from_text(match.group(0))
+
     return list()
 
 

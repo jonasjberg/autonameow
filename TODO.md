@@ -479,8 +479,6 @@ Low Priority
 
 * `[TD0121]` Create a script for generating regression tests.
 
-* `[TD0114]` Improve the `EbookAnalyzer`.
-
 * `[TD0109]` __Allow arbitrary name template placeholder fields.__  
     It is currently difficult to use a rule similar to this:
 
