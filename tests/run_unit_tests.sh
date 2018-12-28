@@ -70,10 +70,10 @@ exit_with_error_message_if_missing_command 'pytest'
 
 
 # Default configuration.
-option_write_report='false'
-option_quiet='false'
-option_enable_coverage='false'
-option_run_last_failed='false'
+option_write_report=false
+option_quiet=false
+option_enable_coverage=false
+option_run_last_failed=false
 
 print_usage_info()
 {
@@ -115,10 +115,10 @@ else
     while getopts chlwq opt
     do
         case "$opt" in
-            c) option_enable_coverage='true' ;;
+            c) option_enable_coverage=true ;;
             h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
-            l) option_run_last_failed='true' ;;
-            w) option_write_report='true' ;;
+            l) option_run_last_failed=true ;;
+            w) option_write_report=true ;;
             q) option_quiet='true' ;;
         esac
     done
@@ -130,7 +130,7 @@ fi
 # Workaround for pytest crashing when writing something other than stdout ..
 captured_pytest_help="$(pytest --help 2>&1)"
 
-if [ "$option_write_report" == 'true' ]
+if $option_write_report
 then
     if ! grep -q -- '--html' <<< "$captured_pytest_help"
     then
@@ -140,7 +140,7 @@ then
     fi
 fi
 
-if [ "$option_enable_coverage" == 'true' ]
+if $option_enable_coverage
 then
     if ! grep -q -- '--cov' <<< "$captured_pytest_help"
     then
@@ -162,21 +162,14 @@ fi
 
 run_pytest()
 {
-    _pytest_report_opts=''
-    [ "$option_write_report" != 'true' ] || _pytest_report_opts="--self-contained-html --html=\"${_unittest_log}\""
-
-    _pytest_coverage_opts=''
-    [ "$option_enable_coverage" != 'true' ] || _pytest_coverage_opts="--cov=autonameow --cov-report=term"
-
-    _pytest_misc_opts=''
-    [ "$option_run_last_failed" != 'true' ] || _pytest_misc_opts='--last-failed'
-
+    declare -a _pytest_opts=('')
+    $option_write_report    && _pytest_opts+="--self-contained-html --html="${_unittest_log}""
+    $option_enable_coverage && _pytest_opts+='--cov=autonameow --cov-report=term '
+    $option_run_last_failed && _pytest_opts+='--last-failed '
 
     (
-      cd "$AUTONAMEOW_ROOT_DIR" || return 1
-      PYTHONPATH=autonameow:tests \
-      pytest ${_pytest_report_opts} ${_pytest_coverage_opts} ${_pytest_misc_opts} \
-      tests/unit/test_*.py
+        cd "$AUTONAMEOW_ROOT_DIR" || return 1
+        PYTHONPATH=autonameow:tests pytest ${_pytest_opts[@]} tests/unit/test_*.py
     )
 }
 
