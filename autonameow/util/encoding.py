@@ -44,15 +44,11 @@ import sys
 
 from core import constants as C
 from util import sanity
-
-try:
-    import chardet
-except ImportError:
-    chardet = None
+from vendor import chardet
 
 
 __all__ = [
-    'arg_encoding', 'autodetect_decode', 'bytestring_path',
+    'arg_encoding', 'autodetect_decode', 'autodetect_encoding', 'bytestring_path',
     'convert_command_args', 'decode_', 'displayable_path', 'encode_',
     'normpath', 'syspath'
 ]
@@ -279,22 +275,16 @@ def autodetect_decode(string):
         The given string decoded to an ("internal") Unicode string.
     Raises:
         ValueError: Autodetection and/or decoding was unsuccessful because
-                    the given string is None or not a string type,
-                    or the "chardet" module is not available.
+                    the given string is None or not a string type.
     """
     if isinstance(string, str):
         return string
 
-    # Guard against chardet "expects a bytes object, not a unicode object".
-    # Although this check probably only applies if given a non-string arg.
     if not isinstance(string, bytes):
         raise TypeError('Module "chardet" expects bytestrings')
 
     if string == b'':
         return ''
-
-    if chardet is None:
-        raise ValueError('Required module "chardet" is not available!')
 
     detected_encoding = chardet.detect(string)
     if detected_encoding and 'encoding' in detected_encoding:
@@ -305,3 +295,13 @@ def autodetect_decode(string):
 
     sanity.check_internal_string(string)
     return string
+
+
+def autodetect_encoding(filepath):
+    try:
+        with open(filepath, 'rb') as fh:
+            detected_encoding = chardet.detect(fh.read())
+    except (OSError, TypeError):
+        return None
+    else:
+        return detected_encoding.get('encoding', None)

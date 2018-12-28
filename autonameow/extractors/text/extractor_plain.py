@@ -19,14 +19,10 @@
 
 import logging
 
-try:
-    import chardet
-except ImportError:
-    chardet = None
-
 from core import constants as C
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor
+from util import encoding as enc
 from util import sanity
 
 
@@ -64,12 +60,11 @@ def read_entire_text_file(filepath):
         raise ExtractorError(e)
     except UnicodeDecodeError as e:
         log.debug(str(e))
-        if chardet is not None:
-            log.debug(
-                'Unable to decode text using %s encoding. Reading as bytes and '
-                'trying to auto-detect the encoding.', C.DEFAULT_ENCODING
-            )
-            contents = _read_entire_text_file_autodetect_encoding(filepath)
+        log.debug(
+            'Unable to decode text using %s encoding. Reading as bytes and '
+            'trying to auto-detect the encoding.', C.DEFAULT_ENCODING
+        )
+        contents = _read_entire_text_file_autodetect_encoding(filepath)
 
     if not contents:
         log.debug('Read NOTHING from file "%s"', filepath)
@@ -82,7 +77,7 @@ def read_entire_text_file(filepath):
 
 
 def _read_entire_text_file_autodetect_encoding(filepath):
-    _encoding = autodetect_encoding(filepath)
+    _encoding = enc.autodetect_encoding(filepath)
     if _encoding:
         log.debug('Auto-detected encoding: %s', _encoding)
         try:
@@ -93,15 +88,3 @@ def _read_entire_text_file_autodetect_encoding(filepath):
                 'Unable to use auto-detected encoding; {!s}'.format(e)
             )
     return None
-
-
-def autodetect_encoding(filepath):
-    assert chardet, 'Missing required module "chardet"'
-    try:
-        with open(filepath, 'rb') as fh:
-            detected_encoding = chardet.detect(fh.read())
-    except (OSError, TypeError) as e:
-        log.error('Error while auto-detecting encoding: %s', e)
-        return None
-    else:
-        return detected_encoding.get('encoding', None)
