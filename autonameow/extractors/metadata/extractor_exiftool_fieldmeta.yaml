@@ -971,6 +971,11 @@ Palm:Encryption:
     coercer: aw_integer
     multivalued: false
 
+Palm:ISBN:
+  coercer: aw_string
+  multivalued: true
+  generic_field: identifier
+
 Palm:KF8CoverURI:
     coercer: aw_string
     multivalued: false
@@ -1119,6 +1124,11 @@ PDF:Creator:
             field: Title
             weight: 0.01
     multivalued: false
+
+PDF:Doi:
+  coercer: aw_string
+  multivalued: true
+  generic_field: identifier
 
 PDF:Encryption:
     # Example: "Standard V4.4 (128-bit)"
@@ -2089,6 +2099,11 @@ XMP:DocumentID:
     coercer: aw_string
     multivalued: false
 
+XMP:Doi:
+  coercer: aw_string
+  multivalued: true
+  generic_field: identifier
+
 XMP:EntryAuthorName:
     coercer: aw_string
     generic_field: author
@@ -2192,12 +2207,23 @@ XMP:HistoryWhen:
 
 XMP:Identifier:
     coercer: aw_string
-    multivalued: false
+    multivalued: true
+    generic_field: identifier
 
 XMP:InstanceID:
     # Example: "uuid:8af5d569-920e-4643-9a53-994eceb6bb27"
     coercer: aw_string
     multivalued: false
+
+XMP:ISBN:
+  coercer: aw_string
+  multivalued: true
+  generic_field: identifier
+
+XMP:Isbn:
+  coercer: aw_string
+  multivalued: true
+  generic_field: identifier
 
 XMP:Keywords:
     coercer: aw_string
@@ -2340,6 +2366,11 @@ XMP:Rights:
 XMP:Software:
     coercer: aw_string
     multivalued: false
+
+XMP:Source:
+  coercer: aw_string
+  multivalued: true
+  generic_field: identifier
 
 XMP:Subject:
     coercer: aw_string

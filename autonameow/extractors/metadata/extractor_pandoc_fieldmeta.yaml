@@ -65,6 +65,7 @@ description:
 identifier:
     coercer: aw_string
     multivalued: true
+    generic_field: identifier
 
 # Example: "en"
 language:

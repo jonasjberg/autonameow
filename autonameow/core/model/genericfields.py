@@ -96,6 +96,14 @@ class GenericHealth(GenericField):
     meowuri_leaf = 'health'
 
 
+class GenericIdentifier(GenericField):
+    """
+    Unique identifiers like CID, CRID, DOI, GUID, ISBN, ISRC, ISWC, .., etc.
+    """
+    meowuri_child = 'metadata'
+    meowuri_leaf = 'identifier'
+
+
 class GenericLanguage(GenericField):
     meowuri_child = 'metadata'
     meowuri_leaf = 'language'
