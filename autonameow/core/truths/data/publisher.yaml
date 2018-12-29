@@ -487,15 +487,6 @@ LuLu:
     - lulu pr(.?|ess)
     - .?lulu press.?, lulu.com
 
-NebraskaUP:
-    match_any_regex_ignorecase:
-    - nebraska uni(\.?|versity)
-    - u(niversity)? of nebraska pr(.?|ess)
-
-NovaScience:
-    match_any_regex_ignorecase:
-    - nova science
-
 TMAoA:
     match_any_literal:
     - MAA
@@ -556,6 +547,11 @@ Murachs:
     match_any_literal:
     - murachs
 
+NebraskaUP:
+    match_any_regex_ignorecase:
+        - nebraska uni(\.?|versity)
+        - u(niversity)? of nebraska pr(.?|ess)
+
 NewAgeInt:
     match_any_literal:
     - New Age International
@@ -573,6 +569,10 @@ NewRiders:
     match_any_literal:
     - New Riders
 
+NinjaAcquisitions:
+    match_any_regex_ignorecase:
+    - ninja acquisitions,?( limited| ltd\.?)?
+
 NoStarchPress:
     match_any_regex_ignorecase:
     - no ?starch ?press,?( inc\.?| incorporated)
@@ -581,6 +581,11 @@ NoStarchPress:
     - No Starch
     - No Starch Press
     - NoStarchPress Inc.
+
+
+NovaScience:
+    match_any_regex_ignorecase:
+        - nova science
 
 ObjectSource:
     match_any_regex_ignorecase:
@@ -695,6 +700,10 @@ QuePub:
     match_any_regex_ignorecase:
     - que pub
 
+RiverTigris:
+    match_any_regex_ignorecase:
+    - river tigris(,? LLC\.?)?
+
 Rockport:
     match_any_regex_ignorecase:
     - rockport
@@ -784,6 +793,13 @@ TempleUP:
     match_any_literal:
     - Temple University Press
     - University of Temple Press
+
+TenSpeedPress:
+    match_any_literal:
+    - Ten Speed Press
+    - Potter/TenSpeed/Harmony
+    match_any_regex_ignorecase:
+    - (www\.)?tenspeed\.com
 
 ThomsonReuters:
     match_any_regex_ignorecase:
