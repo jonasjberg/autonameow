@@ -802,21 +802,22 @@ def _as_testsuite(datadict):
 
 
 class TestCommandlineArgsForTestSuite(TestCase):
-    def test_returns_expected_command_for_test_0000(self):
-        expected_options = [
+    def _assert_commandline_args_for_testsuite(self, testsuite_dict, expect):
+        actual = _commandline_args_for_testsuite(_as_testsuite(testsuite_dict))
+        self.assertEqual(len(expect), len(actual))
+        for option in expect:
+            self.assertIn(option, actual)
+
+    def test_returns_expected_arguments_for_testsuite_0000(self):
+        self._assert_commandline_args_for_testsuite(SAMPLE_TESTSUITE_0000, [
             '--dry-run',
             '--automagic',
             '--batch',
-            "--config-path 'foo/test_files/configs/default.yaml'"
-        ]
-        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0000)
-        actual = _commandline_args_for_testsuite(testsuite)
-        self.assertEqual(len(expected_options), len(actual))
-        for expect_option in expected_options:
-            self.assertIn(expect_option, actual)
+            "--config-path 'foo/test_files/configs/default.yaml'",
+        ])
 
-    def test_returns_expected_command_for_test_0006(self):
-        expected_options = [
+    def test_returns_expected_arguments_for_testsuite_0006(self):
+        self._assert_commandline_args_for_testsuite(SAMPLE_TESTSUITE_0006, [
             '--dry-run',
             '--automagic',
             '--batch',
@@ -824,16 +825,11 @@ class TestCommandlineArgsForTestSuite(TestCase):
             "--config-path 'foo/test_files/configs/default.yaml'",
             '--',
             "'foo/test_files/smulan.jpg'",
-            "'foo/test_files/magic_jpg.jpg'"
-        ]
-        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0006)
-        actual = _commandline_args_for_testsuite(testsuite)
-        self.assertEqual(len(expected_options), len(actual))
-        for expect_option in expected_options:
-            self.assertIn(expect_option, actual)
+            "'foo/test_files/magic_jpg.jpg'",
+        ])
 
-    def test_returns_expected_command_for_test_0022(self):
-        expected_options = [
+    def test_returns_expected_arguments_for_testsuite_0022(self):
+        self._assert_commandline_args_for_testsuite(SAMPLE_TESTSUITE_0022, [
             '--batch',
             '--dry-run',
             '--verbose',
@@ -842,12 +838,7 @@ class TestCommandlineArgsForTestSuite(TestCase):
             "'foo/gmail.pdf'",
             "'foo/Screen Shot 2018-06-25 at 21.43.07.png'",
             "'foo/2007-04-23_12-comments.png'",
-        ]
-        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0022)
-        actual = _commandline_args_for_testsuite(testsuite)
-        self.assertEqual(len(expected_options), len(actual))
-        for expect_option in expected_options:
-            self.assertIn(expect_option, actual)
+        ])
 
 
 class TestCommandlineForTestSuite(TestCase):
@@ -861,26 +852,29 @@ class TestCommandlineForTestSuite(TestCase):
             description=None
         )
         actual = commandline_for_testsuite(testsuite)
-        expect = 'autonameow'
-        self.assertEqual(actual, expect)
+        self.assertEqual('autonameow', actual)
+
+    def _assert_commandline_for_testsuite(self, testsuite_dict, expect):
+        actual = commandline_for_testsuite(_as_testsuite(testsuite_dict))
+        self.assertEqual(expect, actual)
 
     def test_returns_expected_for_sample_testsuite_0000(self):
-        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0000)
-        actual = commandline_for_testsuite(testsuite)
-        expect = "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/configs/default.yaml'"
-        self.assertEqual(actual, expect)
+        self._assert_commandline_for_testsuite(
+            SAMPLE_TESTSUITE_0000,
+            "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/configs/default.yaml'",
+        )
 
     def test_returns_expected_for_sample_testsuite_0006(self):
-        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0006)
-        actual = commandline_for_testsuite(testsuite)
-        expect = "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/configs/default.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'"
-        self.assertEqual(actual, expect)
+        self._assert_commandline_for_testsuite(
+            SAMPLE_TESTSUITE_0006,
+            "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/configs/default.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'",
+        )
 
     def test_returns_expected_for_sample_testsuite_0022(self):
-        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0022)
-        actual = commandline_for_testsuite(testsuite)
-        expect = "autonameow --batch --dry-run --verbose --config-path 'foo/tests/regression/0022_macos_screenshot/config.yaml' -- 'foo/gmail.pdf' 'foo/Screen Shot 2018-06-25 at 21.43.07.png' 'foo/2007-04-23_12-comments.png'"
-        self.assertEqual(actual, expect)
+        self._assert_commandline_for_testsuite(
+            SAMPLE_TESTSUITE_0022,
+            "autonameow --batch --dry-run --verbose --config-path 'foo/tests/regression/0022_macos_screenshot/config.yaml' -- 'foo/gmail.pdf' 'foo/Screen Shot 2018-06-25 at 21.43.07.png' 'foo/2007-04-23_12-comments.png'",
+        )
 
 
 class TestGlobFilter(TestCase):
