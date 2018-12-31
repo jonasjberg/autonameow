@@ -387,8 +387,8 @@ class TestNormalizeDescriptionWhitespace(TestCase):
         self._assert_returns('foo bar baz', 'foo\n bar baz\n')
 
     def test_replaceS_blank_lines_separating_sections_with_newline(self):
-        self._assert_returns('foo foo\nbar bar' ,
-'''foo
+        self._assert_returns('foo foo\nbar bar',
+                             '''foo
 foo
 
 bar
@@ -695,7 +695,7 @@ class TestRenames(TestCase):
         self._fail(actual={'A': 'A', 'C': 'D'}, expect={'B': 'A', 'C': 'C'})
 
 
-SAMPLE_TESTCASE_0000 = {
+SAMPLE_TESTSUITE_0000 = {
     'asserts': {
         'exit_code': 0
     },
@@ -722,7 +722,7 @@ SAMPLE_TESTCASE_0000 = {
     'test_abspath': b'foo/tests/regression/0000_unittest_dummy',
     'test_dirname': b'0000_unittest_dummy'
 }
-SAMPLE_TESTCASE_0006 = {
+SAMPLE_TESTSUITE_0006 = {
     'asserts': {
         'exit_code': 0
     },
@@ -774,7 +774,7 @@ class TestCommandlineArgsForTestSuite(TestCase):
             '--batch',
             "--config-path 'foo/test_files/configs/default.yaml'"
         ]
-        suite = _as_testsuite(SAMPLE_TESTCASE_0000)
+        suite = _as_testsuite(SAMPLE_TESTSUITE_0000)
         actual = _commandline_args_for_testsuite(suite)
         self.assertEqual(len(expected_options), len(actual))
         for expect_option in expected_options:
@@ -791,15 +791,15 @@ class TestCommandlineArgsForTestSuite(TestCase):
             "'foo/test_files/smulan.jpg'",
             "'foo/test_files/magic_jpg.jpg'"
         ]
-        suite = _as_testsuite(SAMPLE_TESTCASE_0006)
+        suite = _as_testsuite(SAMPLE_TESTSUITE_0006)
         actual = _commandline_args_for_testsuite(suite)
         self.assertEqual(len(expected_options), len(actual))
         for expect_option in expected_options:
             self.assertIn(expect_option, actual)
 
 
-class TestCommandlineForTestcase(TestCase):
-    def test_returns_expected_for_empty_testcase(self):
+class TestCommandlineForTestSuite(TestCase):
+    def test_returns_expected_for_empty_testsuite(self):
         suite = RegressionTestSuite(
             abspath=b'/tmp/bar',
             dirname=b'bar',
@@ -812,14 +812,14 @@ class TestCommandlineForTestcase(TestCase):
         expect = 'autonameow'
         self.assertEqual(actual, expect)
 
-    def test_returns_expected_for_testcase_0000(self):
-        suite = _as_testsuite(SAMPLE_TESTCASE_0000)
+    def test_returns_expected_for_sample_testsuite_0000(self):
+        suite = _as_testsuite(SAMPLE_TESTSUITE_0000)
         actual = commandline_for_testsuite(suite)
         expect = "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/configs/default.yaml'"
         self.assertEqual(actual, expect)
 
-    def test_returns_expected_for_testcase_0006(self):
-        suite = _as_testsuite(SAMPLE_TESTCASE_0006)
+    def test_returns_expected_for_sample_testsuite_0006(self):
+        suite = _as_testsuite(SAMPLE_TESTSUITE_0006)
         actual = commandline_for_testsuite(suite)
         expect = "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/configs/default.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'"
         self.assertEqual(actual, expect)
