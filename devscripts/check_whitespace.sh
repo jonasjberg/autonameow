@@ -23,9 +23,16 @@
 set -o nounset -o noclobber
 
 
-C_RED="$(tput setaf 1)"
-C_GREEN="$(tput setaf 2)"
-C_RESET="$(tput sgr0)"
+if [ -n "$TERM" ] && command -v tput &>/dev/null
+then
+    C_GREEN="$(tput setaf 2)"
+    C_RED="$(tput setaf 1)"
+    C_RESET="$(tput sgr0)"
+fi
+# Set to empty string if unset or empty.
+C_GREEN="${C_GREEN:+"$C_GREEN"}"
+C_RED="${C_RED:+"$C_RED"}"
+C_RESET="${C_RESET:+"$C_RESET"}"
 
 
 # Get absolute path to the autonameow source root.
