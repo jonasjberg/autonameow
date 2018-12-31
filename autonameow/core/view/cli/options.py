@@ -299,24 +299,46 @@ def prettyprint_options(opts, extra_opts):
     cli.msg(str(cf))
 
 
-def get_gnu_style_optionals_from_argparser():
+def get_optional_argparser_options(parser=None):
     """
-    Grabs options of interest by introspecting an instance of 'ArgumentParser'.
+    Grabs information *options of interest for the regression runner* by
+    introspecting an instance of 'ArgumentParser'.
+
+    Intended to be used primarily (solely) by the regression tests so that
+    options only need to be defined in this file as compared to manually
+    keeping changes in sync.
+    Returns *options of interest for the regression runner* as tuples of three
+    strings; [SHORT] [GNU] [DEST]:
+
+        SHORT  Short form of the command-line option ("-h")
+         LONG  Longer "GNU-style" form of the command-line option ("--help")
+         DEST  Name of the attribute that stores the option value.
+
+    Args:
+        parser: Optional Instance of 'ArgumentParser' to grab options from.
+                Creates a new default parser if unspecified.
 
     Returns:
-        Long "GNU-style" command-line options as a set of Unicode strings.
+        Information on command-line options as a set of Unicode string tuples.
     """
-    parser = init_argparser()
+    if not parser:
+        parser = init_argparser()
 
-    options = set()
+    option_tuples = set()
     for _, action in parser._optionals._option_string_actions.items():
         if action.__class__.__name__ == '_StoreAction':
             # Skip options that accept arguments, such as "--color always".
             continue
 
-        # Compare string lengths to get the "GNU-style" form '--help', not '-h'.
+        # Compare string lengths to get "GNU-style" '--help' and short form '-h'.
         gnu_style_option_string = max(action.option_strings, key=len)
-        assert isinstance(gnu_style_option_string, str)
-        options.add(gnu_style_option_string)
+        short_option_string = min(action.option_strings, key=len)
+        if short_option_string == gnu_style_option_string:
+            # Option has no short form.
+            short_option_string = ''
 
-    return options
+        option_tuples.add(
+            (short_option_string, gnu_style_option_string, action.dest)
+        )
+
+    return option_tuples

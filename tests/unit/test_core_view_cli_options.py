@@ -23,7 +23,7 @@ from unittest import TestCase
 import unit.constants as uuconst
 from core.view.cli.options import arg_is_readable_file
 from core.view.cli.options import cli_parse_args
-from core.view.cli.options import get_gnu_style_optionals_from_argparser
+from core.view.cli.options import get_optional_argparser_options
 from core.view.cli.options import init_argparser
 
 
@@ -122,36 +122,54 @@ class TestArgParse(TestCase):
         self._assert_valid_argument('--dump-meowuris')
 
 
-class TestGetGnuStyleOptionalsFromArgparser(TestCase):
+class TestGetOptionalArgparserOptions(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.expected_options = (
-            '--automagic',
-            '--batch',
-            '--debug',
-            '--dry-run',
-            '--dump-config',
-            '--dump-meowuris',
-            '--dump-options',
-            '--help',
-            '--interactive',
-            '--list-all',
-            '--list-rulematch',
-            '--postprocess-only',
-            '--quiet',
-            '--recurse',
-            '--timid',
-            '--verbose',
-            '--version',
+            ('',   '--automagic',        'automagic'),
+            ('',   '--batch',            'batch'),
+            ('',   '--debug',            'debug'),
+            ('',   '--dump-config',      'dump_config'),
+            ('',   '--dump-meowuris',    'dump_meowuris'),
+            ('',   '--dump-options',     'dump_options'),
+            ('',   '--interactive',      'interactive'),
+            ('',   '--list-all',         'list_all'),
+            ('',   '--list-rulematch',   'list_rulematch'),
+            ('',   '--postprocess-only', 'postprocess_only'),
+            ('',   '--timid',            'timid'),
+            ('',   '--version',          'show_version'),
+            ('-d', '--dry-run',          'dry_run'),
+            ('-h', '--help',             'help'),
+            ('-q', '--quiet',            'quiet'),
+            ('-r', '--recurse',          'recurse_paths'),
+            ('-v', '--verbose',          'verbose'),
         )
 
     def _get_actual(self):
-        return get_gnu_style_optionals_from_argparser()
+        return get_optional_argparser_options()
+
+    def test_result_contains_expected_number_of_options(self):
+        self.assertEqual(len(self.expected_options), len(self._get_actual()))
 
     def test_result_contains_all_expected_options(self):
         actual = self._get_actual()
         for option in self.expected_options:
             self.assertIn(option, actual)
 
-    def test_result_contains_expected_number_of_options(self):
-        self.assertEqual(len(self.expected_options), len(self._get_actual()))
+    def test_result_contains_all_short_style_options(self):
+        actual = self._get_actual()
+        all_actual_shortstyle_options = [x[0] for x in actual]
+        for shortstyle, _, _ in self.expected_options:
+            self.assertIn(shortstyle, all_actual_shortstyle_options)
+
+    def test_result_contains_all_gnu_style_options(self):
+        actual = self._get_actual()
+        all_actual_gnustyle_options = [x[1] for x in actual]
+        for _, gnustyle, _ in self.expected_options:
+            self.assertIn(gnustyle, all_actual_gnustyle_options)
+
+    def test_result_contains_all_option_destinations(self):
+        actual = self._get_actual()
+        all_actual_option_dests = [x[2] for x in actual]
+        for _, _, dest in self.expected_options:
+            self.assertIn(dest, all_actual_option_dests)
