@@ -297,3 +297,26 @@ def prettyprint_options(opts, extra_opts):
 
     cli.msg('Current Options', style='heading')
     cli.msg(str(cf))
+
+
+def get_gnu_style_optionals_from_argparser():
+    """
+    Grabs options of interest by introspecting an instance of 'ArgumentParser'.
+
+    Returns:
+        Long "GNU-style" command-line options as a set of Unicode strings.
+    """
+    parser = init_argparser()
+
+    options = set()
+    for _, action in parser._optionals._option_string_actions.items():
+        if action.__class__.__name__ == '_StoreAction':
+            # Skip options that accept arguments, such as "--color always".
+            continue
+
+        # Compare string lengths to get the "GNU-style" form '--help', not '-h'.
+        gnu_style_option_string = max(action.option_strings, key=len)
+        assert isinstance(gnu_style_option_string, str)
+        options.add(gnu_style_option_string)
+
+    return options

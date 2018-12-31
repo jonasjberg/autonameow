@@ -23,6 +23,7 @@ from unittest import TestCase
 import unit.constants as uuconst
 from core.view.cli.options import arg_is_readable_file
 from core.view.cli.options import cli_parse_args
+from core.view.cli.options import get_gnu_style_optionals_from_argparser
 from core.view.cli.options import init_argparser
 
 
@@ -119,3 +120,38 @@ class TestArgParse(TestCase):
 
     def test_cli_parse_args_accepts_argument_dump_meowuris(self):
         self._assert_valid_argument('--dump-meowuris')
+
+
+class TestGetGnuStyleOptionalsFromArgparser(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.expected_options = (
+            '--automagic',
+            '--batch',
+            '--debug',
+            '--dry-run',
+            '--dump-config',
+            '--dump-meowuris',
+            '--dump-options',
+            '--help',
+            '--interactive',
+            '--list-all',
+            '--list-rulematch',
+            '--postprocess-only',
+            '--quiet',
+            '--recurse',
+            '--timid',
+            '--verbose',
+            '--version',
+        )
+
+    def _get_actual(self):
+        return get_gnu_style_optionals_from_argparser()
+
+    def test_result_contains_all_expected_options(self):
+        actual = self._get_actual()
+        for option in self.expected_options:
+            self.assertIn(option, actual)
+
+    def test_result_contains_expected_number_of_options(self):
+        self.assertEqual(len(self.expected_options), len(self._get_actual()))
