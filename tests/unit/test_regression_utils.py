@@ -701,21 +701,21 @@ SAMPLE_TESTSUITE_0000 = {
     },
     'description': 'Dummy test used by regression runner and utilities unit tests',
     'options': {
+        'automagic': True,
+        'batch': True,
         'config_path': b'foo/test_files/configs/default.yaml',
         'debug': False,
         'dry_run': True,
         'dump_config': False,
         'dump_meowuris': False,
         'dump_options': False,
+        'interactive': False,
         'list_all': False,
         'list_rulematch': False,
-        'automagic': True,
-        'batch': True,
-        'interactive': False,
-        'timid': False,
         'quiet': False,
         'recurse_paths': False,
         'show_version': False,
+        'timid': False,
         'verbose': False,
     },
     'skiptest': False,
@@ -734,24 +734,59 @@ SAMPLE_TESTSUITE_0006 = {
         'dump_config': False,
         'dump_meowuris': False,
         'dump_options': False,
+        'automagic': True,
+        'batch': True,
         'input_paths': [
             'foo/test_files/smulan.jpg',
             'foo/test_files/magic_jpg.jpg'
         ],
+        'interactive': False,
         'list_all': False,
         'list_rulematch': False,
-        'automagic': True,
-        'batch': True,
-        'interactive': False,
-        'timid': False,
         'quiet': True,
         'recurse_paths': False,
         'show_version': False,
+        'timid': False,
         'verbose': False,
     },
     'skiptest': False,
     'test_abspath': b'foo/tests/regression/0006_all_testfiles',
     'test_dirname': b'0006_all_testfiles'
+}
+SAMPLE_TESTSUITE_0022 = {
+    'asserts': {
+        'exit_code': 0,
+        'renames': {
+            'Screen Shot 2018-06-25 at 21.43.07.png': '2018-06-25T214307 -- macbookpro screenshot.png'
+        },
+    },
+    'description': 'Match only the MacOS screenshot file and use the date/time from its filename.',
+    'options': {
+        'automagic': False,
+        'batch': True,
+        'config_path': b'foo/tests/regression/0022_macos_screenshot/config.yaml',
+        'debug': False,
+        'dry_run': True,
+        'dump_config': False,
+        'dump_meowuris': False,
+        'dump_options': False,
+        'input_paths': [
+            'foo/gmail.pdf',
+            'foo/Screen Shot 2018-06-25 at 21.43.07.png',
+            'foo/2007-04-23_12-comments.png',
+        ],
+        'interactive': False,
+        'list_all': False,
+        'list_rulematch': False,
+        'quiet': False,
+        'recurse_paths': False,
+        'show_version': False,
+        'timid': False,
+        'verbose': True,
+    },
+    'skiptest': False,
+    'test_abspath': b'foo/tests/regression/0022_macos_screenshot',
+    'test_dirname': b'0022_macos_screenshot',
 }
 
 
@@ -774,8 +809,8 @@ class TestCommandlineArgsForTestSuite(TestCase):
             '--batch',
             "--config-path 'foo/test_files/configs/default.yaml'"
         ]
-        suite = _as_testsuite(SAMPLE_TESTSUITE_0000)
-        actual = _commandline_args_for_testsuite(suite)
+        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0000)
+        actual = _commandline_args_for_testsuite(testsuite)
         self.assertEqual(len(expected_options), len(actual))
         for expect_option in expected_options:
             self.assertIn(expect_option, actual)
@@ -791,8 +826,25 @@ class TestCommandlineArgsForTestSuite(TestCase):
             "'foo/test_files/smulan.jpg'",
             "'foo/test_files/magic_jpg.jpg'"
         ]
-        suite = _as_testsuite(SAMPLE_TESTSUITE_0006)
-        actual = _commandline_args_for_testsuite(suite)
+        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0006)
+        actual = _commandline_args_for_testsuite(testsuite)
+        self.assertEqual(len(expected_options), len(actual))
+        for expect_option in expected_options:
+            self.assertIn(expect_option, actual)
+
+    def test_returns_expected_command_for_test_0022(self):
+        expected_options = [
+            '--batch',
+            '--dry-run',
+            '--verbose',
+            "--config-path 'foo/tests/regression/0022_macos_screenshot/config.yaml'",
+            '--',
+            "'foo/gmail.pdf'",
+            "'foo/Screen Shot 2018-06-25 at 21.43.07.png'",
+            "'foo/2007-04-23_12-comments.png'",
+        ]
+        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0022)
+        actual = _commandline_args_for_testsuite(testsuite)
         self.assertEqual(len(expected_options), len(actual))
         for expect_option in expected_options:
             self.assertIn(expect_option, actual)
@@ -800,7 +852,7 @@ class TestCommandlineArgsForTestSuite(TestCase):
 
 class TestCommandlineForTestSuite(TestCase):
     def test_returns_expected_for_empty_testsuite(self):
-        suite = RegressionTestSuite(
+        testsuite = RegressionTestSuite(
             abspath=b'/tmp/bar',
             dirname=b'bar',
             asserts=None,
@@ -808,20 +860,26 @@ class TestCommandlineForTestSuite(TestCase):
             skip=False,
             description=None
         )
-        actual = commandline_for_testsuite(suite)
+        actual = commandline_for_testsuite(testsuite)
         expect = 'autonameow'
         self.assertEqual(actual, expect)
 
     def test_returns_expected_for_sample_testsuite_0000(self):
-        suite = _as_testsuite(SAMPLE_TESTSUITE_0000)
-        actual = commandline_for_testsuite(suite)
+        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0000)
+        actual = commandline_for_testsuite(testsuite)
         expect = "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/configs/default.yaml'"
         self.assertEqual(actual, expect)
 
     def test_returns_expected_for_sample_testsuite_0006(self):
-        suite = _as_testsuite(SAMPLE_TESTSUITE_0006)
-        actual = commandline_for_testsuite(suite)
+        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0006)
+        actual = commandline_for_testsuite(testsuite)
         expect = "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/configs/default.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'"
+        self.assertEqual(actual, expect)
+
+    def test_returns_expected_for_sample_testsuite_0022(self):
+        testsuite = _as_testsuite(SAMPLE_TESTSUITE_0022)
+        actual = commandline_for_testsuite(testsuite)
+        expect = "autonameow --batch --dry-run --verbose --config-path 'foo/tests/regression/0022_macos_screenshot/config.yaml' -- 'foo/gmail.pdf' 'foo/Screen Shot 2018-06-25 at 21.43.07.png' 'foo/2007-04-23_12-comments.png'"
         self.assertEqual(actual, expect)
 
 

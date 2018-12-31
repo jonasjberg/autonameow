@@ -28,6 +28,7 @@ import textwrap
 import traceback
 from collections import defaultdict
 from collections import deque
+from functools import lru_cache
 
 import unit.constants as uuconst
 import unit.utils as uu
@@ -885,65 +886,58 @@ def check_stdout_asserts(suite, captured_stdout):
     return results
 
 
-def _commandline_args_for_testsuite(suite):
-    """
-    Converts a regression test to a list of command-line arguments.
-
-    Given a loaded regression "test suite", it returns command-line components
-    that would result in equivalent behaviour.
-    The returned arguments would be used when invoking autonameow "manually"
-    from the command-line.
-
-    Args:
-        suite: Regression "test suite" returned from 'load_regression_testsuites()',
-               as an instance of 'RegressionTestSuite'.
-
-    Returns:
-        Command-line arguments as a list of Unicode strings.
-    """
-    # TODO: [hardcoded] Generate from 'autonameow/core/view/cli/options.py'.
-    TESTOPTION_CMDARG_MAP = {
-        'debug': '--debug',
-        'dry_run': '--dry-run',
-        'dump_config': '--dump-config',
-        'dump_meowuris': '--dump-meowuris',
-        'dump_options': '--dump-options',
-        'list_all': '--list-all',
-        'list_rulematch': '--list-rulematch',
-        'automagic': '--automagic',
-        'batch': '--batch',
-        'interactive': '--interactive',
-        'timid': '--timid',
-        'postprocess_only': '--postprocess-only',
-        'quiet': '--quiet',
-        'recurse_paths': '--recurse',
-        'show_version': '--version',
-        'verbose': '--verbose',
+@lru_cache()
+def _suite_option_to_cli_option_mapping():
+    from core.view.cli.options import get_optional_argparser_options
+    argparser_options = get_optional_argparser_options()
+    return {
+        option.dest: option.long for option in argparser_options
     }
 
-    arguments = list()
-    suite_options = suite.options
-    if suite_options:
-        for opt, arg in TESTOPTION_CMDARG_MAP.items():
-            if suite_options.get(opt):
-                arguments.append(arg)
 
-        # For more consistent output and easier testing, sort before adding
-        # positional and "key-value"-type options.
-        arguments = sorted(arguments)
+def _commandline_args_for_testsuite(testsuite):
+    """
+    Converts a regression testsuite to a list of command-line arguments.
 
-        options_config_path = suite_options.get('config_path')
-        if options_config_path:
-            str_config_path = coercers.force_string(options_config_path)
-            assert str_config_path != ''
-            arguments.append("--config-path '{}'".format(str_config_path))
+    Returns positional command-line argument strings that would result in
+    equivalent behaviour as the given regression test suite, if used when
+    executing autonameow from the command-line.
 
-        options_input_paths = suite_options.get('input_paths')
-        if options_input_paths:
-            # Mark end of options, start of arguments (input paths)
-            arguments.append('--')
-            for p in options_input_paths:
-                arguments.append("'{}'".format(p))
+    Args:
+        testsuite: Testsuite from which to produce equivalent command-line
+                   arguments, as an instance of 'RegressionTestSuite'.
+
+    Returns:
+        Positional command-line arguments as a list of Unicode strings.
+    """
+    testsuite_options = testsuite.options
+    assert isinstance(testsuite_options, dict)
+    if not testsuite_options:
+        return list()
+
+    # NOTE(jonas): Assumes all options are booleans --- any undefined options
+    #              are treated as if they were defined with the value False.
+    arguments = [
+        argument
+        for option, argument in _suite_option_to_cli_option_mapping().items()
+        if testsuite_options.get(option)
+    ]
+
+    # For more consistent output and easier testing, sort before adding
+    # positional and "key-value"-type options.
+    arguments = sorted(arguments)
+
+    config_path = testsuite_options.get('config_path')
+    if config_path:
+        str_config_path = coercers.force_string(config_path)
+        assert str_config_path, repr(config_path)
+        arguments.append("--config-path '{}'".format(str_config_path))
+
+    input_paths = testsuite_options.get('input_paths')
+    if input_paths:
+        # Mark end of options, start of arguments (input paths)
+        arguments.append('--')
+        arguments.extend("'{}'".format(p) for p in input_paths)
 
     return arguments
 
