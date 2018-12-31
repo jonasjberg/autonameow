@@ -10,10 +10,10 @@ input_paths:
 - '$TESTFILES/2007-04-23_12-comments.png'
 list_all: false
 list_rulematch: false
-mode_automagic: false
-mode_batch: true
-mode_interactive: false
-mode_timid: false
+automagic: false
+batch: true
+interactive: false
+timid: false
 quiet: false
 recurse_paths: false
 show_version: false

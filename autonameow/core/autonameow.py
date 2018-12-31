@@ -69,7 +69,7 @@ class Autonameow(object):
 
         self.renamer = file_renamer(
             dry_run=self.opts.get('dry_run'),
-            timid=self.opts.get('mode_timid')
+            timid=self.opts.get('timid')
         )
 
         self._exit_code = C.EXIT_SUCCESS
@@ -271,7 +271,7 @@ class Autonameow(object):
                 log.debug('Calling provider.delegate_every_possible_meowuri()')
                 master_provider.delegate_every_possible_meowuri(current_file)
 
-            if self.opts.get('mode_postprocess_only'):
+            if self.opts.get('postprocess_only'):
                 new_name = str(current_file)
             else:
                 context = FileContext(
@@ -411,34 +411,34 @@ def check_option_combinations(options):
 
     # TODO: [cleanup] This is pretty messy ..
     # Check legality of option combinations.
-    if opts.get('mode_automagic') and opts.get('mode_interactive'):
+    if opts.get('automagic') and opts.get('interactive'):
         log.warning('Operating mode must be either one of "automagic" or '
                     '"interactive", not both. Reverting to default: '
                     '[interactive mode].')
-        opts['mode_automagic'] = False
-        opts['mode_interactive'] = True
+        opts['automagic'] = False
+        opts['interactive'] = True
 
-    if opts.get('mode_batch'):
-        if opts.get('mode_interactive'):
+    if opts.get('batch'):
+        if opts.get('interactive'):
             log.warning('Operating mode "batch" can not be used with '
                         '"interactive".  Disabling "interactive"..')
-            opts['mode_interactive'] = False
+            opts['interactive'] = False
 
-    if opts.get('mode_interactive'):
-        if opts.get('mode_timid'):
+    if opts.get('interactive'):
+        if opts.get('timid'):
             log.warning('Operating mode "interactive" implies "timid". '
                         'Disabling "timid"..')
-            opts['mode_timid'] = False
+            opts['timid'] = False
 
-    if opts.get('mode_postprocess_only'):
+    if opts.get('postprocess_only'):
         # Do not figure out a new name; do "post-processing" on existing.
-        if opts.get('mode_automagic'):
+        if opts.get('automagic'):
             log.warning('Operating mode "automagic" can not be used with '
                         '"post-process only". Disabling "automagic".')
-            opts['mode_automagic'] = False
-        if opts.get('mode_interactive'):
+            opts['automagic'] = False
+        if opts.get('interactive'):
             log.warning('Operating mode "interactive" can not be used with '
                         '"post-process only". Disabling "interactive".')
-            opts['mode_interactive'] = False
+            opts['interactive'] = False
 
     return opts

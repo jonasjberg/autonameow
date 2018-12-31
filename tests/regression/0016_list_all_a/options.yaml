@@ -7,9 +7,9 @@ dump_options: false
 input_paths:
 - '$TESTFILES/2017-11-20T020738 filetags-style name -- tag1.txt'
 list_all: true
-mode_automagic: false
-mode_batch: true
-mode_interactive: false
+automagic: false
+batch: true
+interactive: false
 quiet: false
 recurse_paths: false
 show_version: false

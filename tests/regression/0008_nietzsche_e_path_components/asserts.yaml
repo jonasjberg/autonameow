@@ -1,0 +1,19 @@
+exit_code: 0
+
+renames:
+- file: pg38145-images.epub
+  new_name:
+      matches_literal: 'Nietzsche F.W. Human All Too Human A Book for Free Spirits.epub'
+
+# renames:
+# -   file: gmail.pdf
+#     new_name:
+#         matches_literal: 2016-01-11T124132 gmail.pdf
+# -   file: foo.bar
+#     new_name:
+#         endswith: bar
+#         startswith: foo
+# -   file: whatever DUDE
+#     new_name:
+#         contains: ' '
+#         matches_ignorecase: dude

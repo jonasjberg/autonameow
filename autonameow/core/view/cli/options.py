@@ -109,7 +109,7 @@ def init_argparser():
     )
     optgrp_mode_method.add_argument(
         '--automagic',
-        dest='mode_automagic',
+        dest='automagic',
         action='store_true',
         default=False,
         help='Enable AUTOMAGIC MODE. Try to perform renames without user '
@@ -126,7 +126,7 @@ def init_argparser():
     )
     optgrp_mode_method.add_argument(
         '--postprocess-only',
-        dest='mode_postprocess_only',
+        dest='postprocess_only',
         action='store_true',
         default=False,
         help='Enable POST-PROCESSING ONLY.'
@@ -141,7 +141,7 @@ def init_argparser():
     )
     optgrp_mode_interaction.add_argument(
         '--timid',
-        dest='mode_timid',
+        dest='timid',
         action='store_true',
         default=False,
         help='Enable TIMID MODE. '
@@ -150,7 +150,7 @@ def init_argparser():
     )
     optgrp_mode_interaction.add_argument(
         '--interactive',
-        dest='mode_interactive',
+        dest='interactive',
         action='store_true',
         default=False,
         help='Enable INTERACTIVE MODE. '
@@ -159,7 +159,7 @@ def init_argparser():
     )
     optgrp_mode_interaction.add_argument(
         '--batch',
-        dest='mode_batch',
+        dest='batch',
         action='store_true',
         default=False,
         help='Enable BATCH MODE. '

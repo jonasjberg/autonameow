@@ -20,10 +20,10 @@ input_paths:
 - $TESTFILES/saved-webpage.mhtml
 list_all: false
 list_rulematch: false
-mode_automagic: true
-mode_batch: true
-mode_interactive: false
-mode_timid: false
+automagic: true
+batch: true
+interactive: false
+timid: false
 quiet: false
 recurse_paths: false
 show_version: false

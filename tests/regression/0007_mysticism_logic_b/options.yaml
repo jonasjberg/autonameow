@@ -14,9 +14,9 @@ input_paths:
 - $TESTFILES/magic_pdf.pdf
 - $TESTFILES/simplest_pdf.md.pdf
 list_all: false
-mode_automagic: true
-mode_batch: true
-mode_interactive: false
+automagic: true
+batch: true
+interactive: false
 quiet: true
 recurse_paths: false
 show_version: false

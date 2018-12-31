@@ -7,9 +7,9 @@ dump_options: false
 input_paths:
 - '$TESTFILES/sample.md'
 list_all: true
-mode_automagic: false
-mode_batch: true
-mode_interactive: false
+automagic: false
+batch: true
+interactive: false
 quiet: false
 recurse_paths: false
 show_version: false

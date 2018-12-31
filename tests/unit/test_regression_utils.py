@@ -179,8 +179,8 @@ class TestRegressionTestLoaderModifyOptionsInputPaths(TestCase):
     def test_options_without_input_paths_is_passed_through_as_is(self):
         input_options = {
             'verbose': True,
-            'mode_batch': True,
-            'mode_interactive': False,
+            'batch': True,
+            'interactive': False,
             'dry_run': True,
             'recurse_paths': False,
         }
@@ -206,12 +206,12 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
     def test_uses_default_config_if_config_path_unspecified(self):
         input_options = {
             'verbose': True,
-            'mode_batch': True,
+            'batch': True,
         }
         expected = {
             'verbose': True,
             'config_path': self._default_config_path,
-            'mode_batch': True,
+            'batch': True,
         }
         self._check(input_options, expected)
 
@@ -219,12 +219,12 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
         input_options = {
             'verbose': True,
             'config_path': None,
-            'mode_batch': True,
+            'batch': True,
         }
         expected = {
             'verbose': True,
             'config_path': self._default_config_path,
-            'mode_batch': True,
+            'batch': True,
         }
         self._check(input_options, expected)
 
@@ -232,12 +232,12 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
         input_options = {
             'verbose': True,
             'config_path': '$TESTFILES/configs/default.yaml',
-            'mode_batch': True,
+            'batch': True,
         }
         expected = {
             'verbose': True,
             'config_path': self._default_config_path,
-            'mode_batch': True,
+            'batch': True,
         }
         self._check(input_options, expected)
 
@@ -245,7 +245,7 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
         input_options = {
             'verbose': True,
             'config_path': '$THISTEST/config.yaml',
-            'mode_batch': True,
+            'batch': True,
         }
 
         _expect_path = os.path.join(
@@ -257,7 +257,7 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
         expected = {
             'verbose': True,
             'config_path': _expect_path,
-            'mode_batch': True,
+            'batch': True,
         }
         self._check(input_options, expected)
 
@@ -287,9 +287,9 @@ class TestRegressionTestLoaderGetTestSetupDictFromFiles(TestCase):
             'dump_options': False,
             'dump_meowuris': False,
             'list_all': True,
-            'mode_batch': True,
-            'mode_automagic': True,
-            'mode_interactive': False,
+            'batch': True,
+            'automagic': True,
+            'interactive': False,
             'dry_run': True,
             'recurse_paths': False,
         }
@@ -709,10 +709,10 @@ SAMPLE_TESTCASE_0000 = {
         'dump_options': False,
         'list_all': False,
         'list_rulematch': False,
-        'mode_automagic': True,
-        'mode_batch': True,
-        'mode_interactive': False,
-        'mode_timid': False,
+        'automagic': True,
+        'batch': True,
+        'interactive': False,
+        'timid': False,
         'quiet': False,
         'recurse_paths': False,
         'show_version': False,
@@ -740,10 +740,10 @@ SAMPLE_TESTCASE_0006 = {
         ],
         'list_all': False,
         'list_rulematch': False,
-        'mode_automagic': True,
-        'mode_batch': True,
-        'mode_interactive': False,
-        'mode_timid': False,
+        'automagic': True,
+        'batch': True,
+        'interactive': False,
+        'timid': False,
         'quiet': True,
         'recurse_paths': False,
         'show_version': False,

@@ -8,9 +8,9 @@ input_paths:
 - $TESTFILES/smulan.jpg
 - $TESTFILES/magic_jpg.jpg
 list_all: false
-mode_automagic: false
-mode_batch: true
-mode_interactive: false
+automagic: false
+batch: true
+interactive: false
 quiet: true
 recurse_paths: false
 show_version: false

@@ -7,9 +7,9 @@ dump_options: false
 input_paths:
 - $TESTFILES/simplest_pdf.md.pdf
 list_all: true
-mode_automagic: true
-mode_batch: true
-mode_interactive: false
+automagic: true
+batch: true
+interactive: false
 quiet: false
 recurse_paths: false
 show_version: false

@@ -196,9 +196,11 @@ The directory contains the following files:
         - '$TESTFILES/2017-11-20 bar -- tag1.txt'
         - '/tmp/foo/bar.txt'
         list_all: false
-        mode_automagic: true
-        mode_batch: true
-        mode_interactive: false
+        automagic: true
+        batch: true
+        interactive: false
+        postprocess_only: false
+        timid: false
         quiet: false
         recurse_paths: false
         show_version: false

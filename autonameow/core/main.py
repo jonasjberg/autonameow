@@ -40,11 +40,11 @@ DEFAULT_OPTIONS = {
     'list_all': False,
     'list_rulematch': False,
 
-    'mode_automagic': False,
-    'mode_batch': False,
-    'mode_interactive': True,
-    'mode_timid': False,
-    'mode_postprocess_only': False,
+    'automagic': False,
+    'batch': False,
+    'interactive': True,
+    'timid': False,
+    'postprocess_only': False,
 
     'config_path': None,
 
@@ -175,11 +175,11 @@ def cli_main(argv=None):
         'list_all': opts.list_all,
         'list_rulematch': opts.list_rulematch,
 
-        'mode_automagic': opts.mode_automagic,
-        'mode_batch': opts.mode_batch,
-        'mode_interactive': opts.mode_interactive,
-        'mode_timid': opts.mode_timid,
-        'mode_postprocess_only': opts.mode_postprocess_only,
+        'automagic': opts.automagic,
+        'batch': opts.batch,
+        'interactive': opts.interactive,
+        'timid': opts.timid,
+        'postprocess_only': opts.postprocess_only,
 
         'config_path': opts.config_path,
 

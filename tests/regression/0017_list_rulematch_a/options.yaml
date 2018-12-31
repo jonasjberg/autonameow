@@ -8,9 +8,9 @@ input_paths:
 - '$TESTFILES/gmail.pdf'
 list_all: false
 list_rulematch: true
-mode_automagic: false
-mode_batch: true
-mode_interactive: false
+automagic: false
+batch: true
+interactive: false
 quiet: false
 recurse_paths: false
 show_version: false

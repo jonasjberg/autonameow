@@ -12,9 +12,9 @@ input_paths:
 - $TESTFILES/magic_txt.md
 - $TESTFILES/magic_txt
 list_all: false
-mode_automagic: true
-mode_batch: true
-mode_interactive: false
+automagic: true
+batch: true
+interactive: false
 quiet: false
 recurse_paths: false
 show_version: false

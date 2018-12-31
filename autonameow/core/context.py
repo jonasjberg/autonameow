@@ -78,7 +78,7 @@ class FileContext(object):
                 name_template = active_rule.name_template
 
         if not name_template:
-            if self.opts.get('mode_batch'):
+            if self.opts.get('batch'):
                 self._log_fail('Name template unknown. Running in batch mode -- Aborting')
                 self._log_unable_to_find_new_name()
                 return None
@@ -95,13 +95,13 @@ class FileContext(object):
                 # No placeholders means we don't need any sources. Return as-is.
                 return str(name_template)
 
-            if self.opts.get('mode_batch'):
+            if self.opts.get('batch'):
                 self._log_fail('Data sources unknown. Running in batch mode -- Aborting')
                 self._log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
                 return None
 
-            if self.opts.get('mode_automagic'):
+            if self.opts.get('automagic'):
                 # Try real hard to figure it out (?)
                 pass
 
@@ -113,7 +113,7 @@ class FileContext(object):
 
         field_databundle_dict = self._get_resolved_databundle_dict(name_template.placeholders, data_sources)
         if not field_databundle_dict:
-            if not self.opts.get('mode_automagic'):
+            if not self.opts.get('automagic'):
                 self._log_fail('Missing field data bundles. Not in automagic mode -- Aborting')
                 self._log_unable_to_find_new_name()
                 self.autonameow_exit_code = C.EXIT_WARNING
@@ -189,7 +189,7 @@ class FileContext(object):
         if not _matched_rules:
             return None
 
-        if self.opts.get('mode_interactive'):
+        if self.opts.get('interactive'):
             # Have the user select a rule from any candidate matches.
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
             log.warning('TODO: Implement interactive rule selection.')
@@ -218,7 +218,7 @@ class FileContext(object):
         return None
 
     def _confirm_apply_rule(self, rule):
-        if self.opts.get('mode_batch'):
+        if self.opts.get('batch'):
             log.info('Rule required confirmation but in batch mode -- '
                      'Skipping file ..')
             return False
@@ -243,7 +243,7 @@ class FileContext(object):
         # TODO: Rework the rule matcher and this logic to try another candidate.
 
         if not resolver.mapped_all_template_fields():
-            if self.opts.get('mode_batch'):
+            if self.opts.get('batch'):
                 self._log_fail('Unable to resolve all name template fields. '
                                'Running in batch mode -- Aborting')
                 self._log_unable_to_find_new_name()
@@ -255,7 +255,7 @@ class FileContext(object):
         # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         if not resolver.collected_all():
             log.info('Resolver has not collected all fields ..')
-            if self.opts.get('mode_batch'):
+            if self.opts.get('batch'):
                 self._log_fail('Unable to resolve all name template fields. '
                                'Running in batch mode -- Aborting')
                 self._log_unable_to_find_new_name()

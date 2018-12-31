@@ -8,9 +8,9 @@ input_paths:
 - $TESTFILES/4123.epub
 - $TESTFILES/4123.pdf
 list_all: false
-mode_automagic: true
-mode_batch: true
-mode_interactive: false
+automagic: true
+batch: true
+interactive: false
 quiet: false
 recurse_paths: false
 show_version: false
