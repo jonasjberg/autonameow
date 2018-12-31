@@ -19,6 +19,7 @@
 
 import argparse
 import os
+from collections import namedtuple
 
 from core import constants as C
 from core.view import cli
@@ -299,6 +300,9 @@ def prettyprint_options(opts, extra_opts):
     cli.msg(str(cf))
 
 
+ArgparserOption = namedtuple('ArgparserOption', ('short', 'long', 'dest'))
+
+
 def get_optional_argparser_options(parser=None):
     """
     Grabs information *options of interest for the regression runner* by
@@ -337,8 +341,10 @@ def get_optional_argparser_options(parser=None):
             # Option has no short form.
             short_option_string = ''
 
-        option_tuples.add(
-            (short_option_string, gnu_style_option_string, action.dest)
-        )
+        option_tuples.add(ArgparserOption(
+            short=short_option_string,
+            long=gnu_style_option_string,
+            dest=action.dest,
+        ))
 
     return option_tuples

@@ -157,19 +157,16 @@ class TestGetOptionalArgparserOptions(TestCase):
             self.assertIn(option, actual)
 
     def test_result_contains_all_short_style_options(self):
-        actual = self._get_actual()
-        all_actual_shortstyle_options = [x[0] for x in actual]
-        for shortstyle, _, _ in self.expected_options:
-            self.assertIn(shortstyle, all_actual_shortstyle_options)
+        all_actual_short_options = [x.short for x in self._get_actual()]
+        for short, _, _ in self.expected_options:
+            self.assertIn(short, all_actual_short_options)
 
     def test_result_contains_all_gnu_style_options(self):
-        actual = self._get_actual()
-        all_actual_gnustyle_options = [x[1] for x in actual]
-        for _, gnustyle, _ in self.expected_options:
-            self.assertIn(gnustyle, all_actual_gnustyle_options)
+        all_actual_long_options = [x.long for x in self._get_actual()]
+        for _, long, _ in self.expected_options:
+            self.assertIn(long, all_actual_long_options)
 
     def test_result_contains_all_option_destinations(self):
-        actual = self._get_actual()
-        all_actual_option_dests = [x[2] for x in actual]
+        all_actual_option_dests = [x.dest for x in self._get_actual()]
         for _, _, dest in self.expected_options:
             self.assertIn(dest, all_actual_option_dests)
