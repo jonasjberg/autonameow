@@ -110,11 +110,27 @@ AdobePress:
 - www.adobepress.com
 - adobepress.com
 
+AEIPress:
+- AEIPress
+- AEI Press
+
+AirUP:
+- AirUP
+- Air University Press
+
+AlgoraPub:
+- AlgoraPub
+- Algora Publishing
+
 AKPeters:
 - AKPeters
 - AK Peters
 - A K Peters
 - A K Peters Ltd
+
+AMACOM:
+- AMACOM
+- AMACOM Books
 
 Apress:
 - Apress
@@ -152,6 +168,10 @@ ArcadePub:
 - http://www.arcadepub.com/
 - www.arcadepub.com/
 - arcadepub.com/
+
+ArgentUP:
+- ArgentUP
+- Argent University Press
 
 ArtechHouse:
 - ArtechHouse
@@ -441,17 +461,19 @@ CedarFort:
 - Cedar Fort Publishing
 
 Cengage:
+- Cengage
 - Brooks/Cole Cengage
 - Brooks/Cole Cengage Learning
 - Brooks/Cole, Cengage Learning
-- Cengage
 - Cengage Learning
 - CENGAGE Learning
 - Cengage Learning Ptr
 - CENGAGE LERNING TextBooks
+- cengage_learning
 - Charles River Media Course Technology
 - Charles River Media, Course Technology
 - Charles River Media/Cengage Technology
+- Course Technolgy
 - Course Technology
 - Course Technology Cengage Learning
 - Course Technology PTR
@@ -464,6 +486,19 @@ Cengage:
 - Thomson Foobar Learning
 - Thomson Learning  # Prior to 2007
 - Thomson/Course Technology
+
+CertitrekPub:
+- CertitrekPub
+- Certitrek Publishing
+- Certitrek Group
+- https://www.certitrek.com/
+- http://www.certitrek.com/
+- www.certitrek.com/
+- certitrek.com/
+- https://www.certitrek.com
+- http://www.certitrek.com
+- www.certitrek.com
+- certitrek.com
 
 ChelseaHouse:
 - ChelseaHouse
@@ -563,8 +598,22 @@ DiplomicaVerlag:
 - Diplomica Verlag
 - Diplomica Verlag GmbH
 
+DoverPub:
+- DoverPub
+- Dover Publications
+- Dover Publications Inc
+- Dover Publications Incorporated
+- Dover Publications, Inc
+- Dover Publications, Incorporated
+
 DSharpMedia:
 - D# Media
+
+Eduonix:
+- Eduonix
+- Eduonix Learning
+- Eduonix Learning Solution
+- Eduonix Learning Solution Pvt. Ltd
 
 Elsevier:
 - Elsevier
@@ -581,6 +630,11 @@ Elsevier:
 - Elsevier/AP
 - Elsevier/Morgan Kaufmann
 - Elsevier/Newnes
+
+EMCEducationServices:
+- EMCEducationServices
+- EMC Education
+- EMC Education Services
 
 ExelixisMedia:
 - ExelixisMedia
@@ -606,6 +660,10 @@ Fernwood:
 - Fernwood Publ
 - Fernwood Publ.
 - Fernwood Publishing
+
+FloridaUP:
+- FloridaUP
+- University Press of Florida
 
 FocalPress:
 - FocalPress
@@ -869,12 +927,21 @@ IABooks:
 - www.iabooks.com
 - iabooks.com
 
+IBM:
+- IBM
+
 IBMITSO:
 - IBMITSO
 - IBM International Technical Support Organization
 - IBM Red Books
 - IBM Redbooks
 - International Technical Support Organization
+
+IconBooks:
+- IconBooks
+- Icon Books
+- Icon Books Ltd
+- Icon Books Limited
 
 IdeaGroup:
 - IdeaGroup
@@ -1201,6 +1268,10 @@ Manning:
 - Manning Publications Company
 - Manning Publications
 
+MasseyUP:
+- MasseyUP
+- Massey University Press
+
 McGrawHill:
 - McGraw
 - McGrawHill
@@ -1255,6 +1326,10 @@ MicrosoftPress:
 - Microsoft Pr
 - Microsoft Pr.
 - Microsoft Press
+
+MinnesotaUP:
+- MinnesotaUP
+- University of Minnesota Press
 
 MITPress:
 - MITPress
@@ -1439,6 +1514,21 @@ OReilly:
 - OReilly Media Inc.
 - OReilly Media, Inc
 - OReilly Media, Inc.
+- O’Reilly
+- O’Reilly & Associates
+- O’Reilly and Associates
+- O’Reilly Media
+- O’Reilly Media
+- O’Reilly Media Inc
+- O’Reilly Media Inc
+- O’Reilly Media Inc.
+- O’Reilly Media Inc.
+- O’Reilly Media, Inc
+- O’Reilly Media, Inc, USA
+- O’Reilly Media, Inc.
+- O’Reilly Media, Inc. USA
+- O’Reilly Media, Incorporated USA
+- O’Reilly Media, Incorporated, USA
 
 OhmBooks:
 - OhmBooks
@@ -1488,6 +1578,13 @@ Pavilion:
 - Pavilion
 - PavilionBooks
 - Pavilion Books
+
+PayloadMedia:
+- PayloadMedia
+- Payload Media Inc
+- Payload Media Inc.
+- Payload Media, Inc
+- Payload Media, Inc.
 
 PeachpitPress:
 - PeachpitPress
@@ -1581,6 +1678,10 @@ PenguinRandomHouse:
 - www.penguinrandomhouse.com
 - penguinrandomhouse.com
 
+PennsylvaniaUP:
+- PennsylvaniaUP
+- University of Pennsylvania Press
+
 PlutoPress:
 - PlutoPress
 - Pluto Press
@@ -1607,6 +1708,10 @@ PragmaticBookshelf:
 - The Pragmatic Programmers LLC
 - The Pragmatic Programmers
 - The Pragmatic Programmers, LLC.
+- The Pragmatic Bookshelf (17326)
+- The Pragmatic Bookshelf(Infix Pro)
+- The Pragmatic Programmers, LLC (#nx000x)
+- The Pragmatic Programmers, LLC (#nx001x)
 - https://www.pragprog.com/
 - http://www.pragprog.com/
 - www.pragprog.com/
@@ -1682,6 +1787,10 @@ PublishOrPerish:
 - Publish or Perish, Incorporated
 - PublishOrPerish
 
+PurdueUP:
+- PurdueUP
+- Purdue University Press
+
 QuePub:
 - Que
 - Que Pub
@@ -1739,6 +1848,7 @@ SagePub:
 - Sage Publications, Limited
 - Sage Publications, Ltd
 - Sage Publications, Ltd.
+- SAGE Publications
 
 Sams:
 - Sams
@@ -2181,3 +2291,7 @@ Wrox:
 YaleUP:
 - YaleUP
 - Yale University Press
+
+ZhejiangUP:
+- ZhejiangUP
+- Zhejiang University Press

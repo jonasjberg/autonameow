@@ -45,9 +45,25 @@ AdobePress:
     - adobe press
     - (www\.)?adobepress\.com
 
+AEIPress:
+    match_any_literal:
+    - AEI Press
+
+AirUP:
+    match_any_literal:
+    - Air University Press
+
+AlgoraPub:
+    match_any_literal:
+    - Algora Publishing
+
 AKPeters:
     match_any_regex_ignorecase:
     - a ?k peters
+
+AMACOM:
+    match_any_literal:
+    - AMACOM Books
 
 Apress:
     match_any_regex_ignorecase:
@@ -58,6 +74,10 @@ Apress:
     - For your convenience Apress has placed some of the front
     - matter material after the index. Please use the Bookmarks
     - and Contents at a Glance links to access them.
+
+ArgentUP:
+    match_any_literal:
+    - Argent University Press
 
 ArcadePub:
     match_any_literal:
@@ -164,7 +184,7 @@ CaliforniaUP:
 
 CambridgeUP:
     match_any_regex_ignorecase:
-    - cambridge uni
+    - cambridge uni(versity press)?
     - u(niversity)? of cambridge pr(.?|ess)
 
 CastaliaHouse:
@@ -177,9 +197,20 @@ CedarFort:
 
 Cengage:
     match_any_regex_ignorecase:
-    - cengage
-    - course.?technology
+    - (brooks/cole,? )?cengage( learning)?( ptr)?
     - thomson (\w+ )?learning
+    - course technology[/ ]cengage learning
+    - (Thomson/)?course ?technology( ptr| u\.s\.)?
+    - Charles River Media.?( Course Technology|/Cengage Technology)
+    match_any_literal:
+    - CENGAGE LERNING TextBooks
+    - cengage_learning
+    - Course Technolgy
+
+CertitrekPub:
+    match_any_regex_ignorecase:
+    - certitrek (group|publishing)
+    - (www\.)?certitrek\.com
 
 ChelseaHouse:
     match_any_literal:
@@ -253,9 +284,19 @@ DiplomicaVerlag:
     match_any_regex_ignorecase:
     - diplomica verlag
 
+DoverPub:
+    match_any_literal:
+    - Dover Publications
+    match_any_regex_ignorecase:
+    - dover publications,? (inc\.?|incorporated)
+
 DSharpMedia:
     match_any_literal:
     - D# Media
+
+Eduonix:
+    match_any_regex_ignorecase:
+    - eduonix learning( solution)?( pvt. ltd)?
 
 Elsevier:
     match_any_regex_ignorecase:
@@ -263,6 +304,10 @@ Elsevier:
     - elsevier.? (inc|ltd)
     match_any_literal:
     - Elsevier Science
+
+EMCEducationServices:
+    match_any_regex_ignorecase:
+    - emc education( services)?
 
 ExelixisMedia:
     match_any_regex_ignorecase:
@@ -277,6 +322,10 @@ FeedBooks:
 Fernwood:
     match_any_regex_ignorecase:
     - fernwood
+
+FloridaUP:
+    match_any_literal:
+    - University Press of Florida
 
 FocalPress:
     match_any_regex_ignorecase:
@@ -385,10 +434,18 @@ IDG:
     - idg books
     - (www\.)?idgbooks\.com
 
+IBM:
+    match_any_literal:
+    - IBM
+
 IBMITSO:
     match_any_regex_ignorecase:
     - ibm red ?books
     - international technical support organization
+
+IconBooks:
+    match_any_regex_ignorecase:
+    - Icon Books( Ltd| Limited)?
 
 IdeaGroup:
     match_any_regex_ignorecase:
@@ -506,6 +563,10 @@ Manning:
     match_any_regex_ignorecase:
     - manning
 
+MasseyUP:
+    match_any_literal:
+    - Massey University Press
+
 McGrawHill:
     match_any_literal:
     - McGraw
@@ -524,6 +585,10 @@ MicrosoftPress:
     - Microsoft
     match_any_regex_ignorecase:
     - microsoft (pr.?|ess)
+
+MinnesotaUP:
+    match_any_literal:
+    - University of Minnesota Press
 
 MITPress:
     match_any_regex_ignorecase:
@@ -599,6 +664,7 @@ OReilly:
     match_any_regex_ignorecase:
     - o(.?|&#39;)reilly (&|and) associates
     - o(.?|&#39;)reilly media,?
+    - o.reilly
     - microsoft.o.?reilly
     match_any_literal:
     - "O'Reilly"
@@ -617,6 +683,10 @@ Packt:
 Pavilion:
     match_any_regex_ignorecase:
     - pavilion
+
+PayloadMedia:
+    match_any_regex_ignorecase:
+    - Payload Media( Inc\.?)?
 
 PeachpitPress:
     match_any_regex_ignorecase:
@@ -649,6 +719,10 @@ PenguinRandomHouse:
     - penguin publishing
     - penguin random house
     - (www\.)?penguinrandomhouse\.com
+
+PennsylvaniaUP:
+    match_any_literal:
+    - University of Pennsylvania Press
 
 PlutoPress:
     match_any_regex_ignorecase:
@@ -693,6 +767,10 @@ PrometheusBooks:
 PublishOrPerish:
     match_any_regex_ignorecase:
     - publish or perish
+
+PurdueUP:
+    match_any_literal:
+    - Purdue University Press
 
 QuePub:
     match_any_literal:
@@ -876,3 +954,7 @@ Wrox:
 YaleUP:
     match_any_literal:
     - Yale University Press
+
+ZhejiangUP:
+    match_any_literal:
+    - Zhejiang University Press
