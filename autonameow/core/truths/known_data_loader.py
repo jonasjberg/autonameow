@@ -32,7 +32,6 @@ log = logging.getLogger(__name__)
 
 
 _PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
-_LOOKUP_CACHE = defaultdict(dict)
 
 
 def _resolve_abspath_from_datafile_basename(basename):
@@ -163,6 +162,18 @@ class KnownDataFileParser(object):
             compiled_regexes.add(regex)
 
         return compiled_regexes
+
+
+def _get_lookup_cache():
+    return defaultdict(dict)
+
+
+def clear_lookup_cache():
+    global _LOOKUP_CACHE
+    _LOOKUP_CACHE = _get_lookup_cache()
+
+
+_LOOKUP_CACHE = _get_lookup_cache()
 
 
 def _get_known_data_file_parser(yaml_config_filename):

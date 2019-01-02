@@ -22,9 +22,10 @@ import re
 from unittest import TestCase
 
 import unit.utils as uu
+from core.truths.known_data_loader import clear_lookup_cache
 from core.truths.known_data_loader import KnownDataFileParser
-from core.truths.known_data_loader import lookup_values
 from core.truths.known_data_loader import literal_lookup_dict
+from core.truths.known_data_loader import lookup_values
 from core.truths.known_data_loader import regex_lookup_dict
 
 
@@ -262,25 +263,99 @@ class TestKnownDataFileParser(TestCase):
         self.assertEqual(expect_parsed_regex_lookup, actual)
 
 
+VALID_LOOKUP_FIELD_NAMES = ['creatortool', 'language', 'publisher']
+BAD_LOOKUP_FIELD_NAMES = ['foobar']
+
+
+class TestLiteralLookupDict(TestCase):
+    def setUp(self):
+        clear_lookup_cache()
+
+    def test_returns_type_dict(self):
+        for fieldname in VALID_LOOKUP_FIELD_NAMES + BAD_LOOKUP_FIELD_NAMES:
+            actual = literal_lookup_dict(fieldname)
+            self.assertIsInstance(actual, dict)
+
+    def test_returns_empty_given_invalid_field_name(self):
+        for fieldname in BAD_LOOKUP_FIELD_NAMES:
+            actual = literal_lookup_dict(fieldname)
+            self.assertEqual(len(actual), 0)
+
+    def test_returns_dict_given_valid_field_name(self):
+        for fieldname in VALID_LOOKUP_FIELD_NAMES:
+            actual = literal_lookup_dict(fieldname)
+            self.assertIsInstance(actual, dict)
+
+    def test_returns_greater_than_arbitrary_amount_given_valid_field_name(self):
+        for fieldname in VALID_LOOKUP_FIELD_NAMES:
+            entry_count = len(literal_lookup_dict(fieldname))
+            self.assertGreater(entry_count, 6,
+                               'Expect greater than arbitrary non-zero count')
+
+    def test_returns_all_keys_also_returned_from_lookup_values(self):
+        for fieldname in VALID_LOOKUP_FIELD_NAMES:
+            keys = set(literal_lookup_dict(fieldname).keys())
+            all_lookup_values = lookup_values(fieldname)
+            self.assertTrue(all(k in all_lookup_values for k in keys))
+
+
+class TestRegexLookupDict(TestCase):
+    def setUp(self):
+        clear_lookup_cache()
+
+    def test_returns_type_dict(self):
+        for fieldname in VALID_LOOKUP_FIELD_NAMES + BAD_LOOKUP_FIELD_NAMES:
+            with self.subTest(fieldname=fieldname):
+                actual = regex_lookup_dict(fieldname)
+                self.assertIsInstance(actual, dict)
+
+    def test_returns_empty_given_invalid_field_name(self):
+        for fieldname in BAD_LOOKUP_FIELD_NAMES:
+            with self.subTest(fieldname=fieldname):
+                actual = regex_lookup_dict(fieldname)
+                self.assertEqual(len(actual), 0)
+
+    def test_returns_greater_than_arbitrary_amount_given_valid_field_name(self):
+        for fieldname in VALID_LOOKUP_FIELD_NAMES:
+            with self.subTest(fieldname=fieldname):
+                entry_count = len(regex_lookup_dict(fieldname))
+                self.assertGreater(entry_count, 13,
+                                   'Expect greater than arbitrary non-zero count')
+
+    def test_returns_all_keys_also_returned_from_lookup_values(self):
+        for fieldname in VALID_LOOKUP_FIELD_NAMES:
+            with self.subTest(fieldname=fieldname):
+                keys = set(regex_lookup_dict(fieldname).keys())
+                all_lookup_values = lookup_values(fieldname)
+                self.assertTrue(all(k in all_lookup_values for k in keys))
+
+
 class TestLookupValues(TestCase):
-    def test_returns_all_keys_present_in_the_regex_lookup_dict(self):
-        for fieldname in ('creatortool', 'language', 'publisher'):
-            regex_lookup_dict_keys = set(regex_lookup_dict(fieldname).keys())
-            self.assertGreater(len(regex_lookup_dict_keys), 13,
-                               'Assume greater than arbitrary non-zero count')
+    def setUp(self):
+        clear_lookup_cache()
 
-            actual = lookup_values(fieldname)
-            self.assertGreaterEqual(len(actual), len(regex_lookup_dict_keys),
-                                    'Expect sum of regex and literal keys')
-            self.assertTrue(all(v in actual for v in regex_lookup_dict_keys))
+    def test_returns_non_empty_given_valid_field_name(self):
+        for fieldname in VALID_LOOKUP_FIELD_NAMES:
+            with self.subTest(fieldname=fieldname):
+                actual = lookup_values(fieldname)
+                self.assertIsNotNone(actual)
+                self.assertGreater(len(actual), 0)
 
-    def test_returns_all_keys_present_in_the_literal_lookup_dict(self):
-        for fieldname in ('creatortool', 'language', 'publisher'):
-            literal_lookup_dict_keys = set(literal_lookup_dict(fieldname).keys())
-            self.assertGreater(len(literal_lookup_dict_keys), 6,
-                               'Assume greater than arbitrary non-zero count')
+    def test_lookup_values_includes_keys_from_all_lookups(self):
+        for fieldname in VALID_LOOKUP_FIELD_NAMES:
+            with self.subTest(fieldname=fieldname):
+                num_literal_keys = len(literal_lookup_dict(fieldname).keys())
+                num_regex_keys = len(regex_lookup_dict(fieldname).keys())
+                num_lookup_values = len(lookup_values(fieldname))
 
-            actual = lookup_values(fieldname)
-            self.assertGreaterEqual(len(actual), len(literal_lookup_dict_keys),
-                                    'Expect sum of regex and literal keys')
-            self.assertTrue(all(v in actual for v in literal_lookup_dict_keys))
+                msg = ('Because lookup_values returns the sum of keys from '
+                       'both the regex and literal lookups, it should always '
+                       'be greater when both lookups return non-zero')
+                if num_regex_keys:
+                    self.assertGreaterEqual(
+                        num_lookup_values, num_literal_keys, msg
+                    )
+                if num_literal_keys:
+                    self.assertGreaterEqual(
+                        num_lookup_values, num_regex_keys, msg
+                    )
