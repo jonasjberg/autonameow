@@ -21,6 +21,7 @@ import logging
 import os
 import re
 from collections import defaultdict
+from functools import lru_cache
 
 from core import exceptions
 from util import coercers
@@ -32,14 +33,6 @@ log = logging.getLogger(__name__)
 
 
 _PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
-
-
-def _resolve_abspath_from_datafile_basename(basename):
-    bytestring_basename = coercers.AW_PATHCOMPONENT(basename)
-    if not bytestring_basename.endswith(b'.yaml'):
-        bytestring_basename += b'.yaml'
-
-    return disk.joinpaths(_PATH_THIS_DIR, b'data', bytestring_basename)
 
 
 class KnownDataFileParser(object):
@@ -176,30 +169,42 @@ def clear_lookup_cache():
 _LOOKUP_CACHE = _get_lookup_cache()
 
 
-def _get_known_data_file_parser(yaml_config_filename):
-    yaml_config_filepath = _resolve_abspath_from_datafile_basename(yaml_config_filename)
+@lru_cache()
+def _resolve_abspath_from_datafile_basename(filename):
+    bytestring_basename = coercers.AW_PATHCOMPONENT(filename)
+    if not bytestring_basename.endswith(b'.yaml'):
+        bytestring_basename += b'.yaml'
+
+    return disk.joinpaths(_PATH_THIS_DIR, b'data', bytestring_basename)
+
+
+def _get_known_data_file_parser(yaml_filepath):
     try:
-        config_data = disk.load_yaml_file(yaml_config_filepath)
+        config_data = disk.load_yaml_file(yaml_filepath)
     except (exceptions.FilesystemError, disk.YamlLoadError) as e:
         # TODO: [TD0164] Fix mismatched throwing/catching of exceptions ..
         log.critical(
             'Error while loading string canonicalizer YAML file "%s" :: %s',
-            enc.displayable_path(yaml_config_filepath), str(e)
+            enc.displayable_path(yaml_filepath), str(e)
         )
         return None
 
-    parser = KnownDataFileParser(config_data, yaml_config_filepath)
+    parser = KnownDataFileParser(config_data, yaml_filepath)
     return parser
 
 
 def _try_parse_data_and_populate_lookup_cache(fieldname):
-    parser = _get_known_data_file_parser(fieldname)
-    if parser:
-        _LOOKUP_CACHE[fieldname]['regex'] = parser.parsed_regex_lookup
-        _LOOKUP_CACHE[fieldname]['literal'] = parser.parsed_literal_lookup
-        return True
+    yaml_filepath = _resolve_abspath_from_datafile_basename(fieldname)
+    if not disk.isfile(yaml_filepath):
+        return False
 
-    return False
+    parser = _get_known_data_file_parser(yaml_filepath)
+    if not parser:
+        return False
+
+    _LOOKUP_CACHE[fieldname]['regex'] = parser.parsed_regex_lookup
+    _LOOKUP_CACHE[fieldname]['literal'] = parser.parsed_literal_lookup
+    return True
 
 
 def literal_lookup_dict(fieldname):
@@ -262,15 +267,16 @@ def lookup_values(fieldname):
     Returns:
         A set of all known canonical values for the given field name.
     """
-    def _merge_all_lookup_cache_keys(_fieldname):
-        regex_lookup_keys = set(_LOOKUP_CACHE[_fieldname]['regex'].keys())
-        literal_lookup_keys = set(_LOOKUP_CACHE[_fieldname]['literal'].keys())
+    def _merge_all_cached_lookup_keys(_fieldname):
+        cached_lookups = _LOOKUP_CACHE[_fieldname]
+        regex_lookup_keys = set(cached_lookups['regex'].keys())
+        literal_lookup_keys = set(cached_lookups['literal'].keys())
         return set(regex_lookup_keys | literal_lookup_keys)
 
     if fieldname in _LOOKUP_CACHE:
-        return _merge_all_lookup_cache_keys(fieldname)
+        return _merge_all_cached_lookup_keys(fieldname)
 
     if _try_parse_data_and_populate_lookup_cache(fieldname):
-        return _merge_all_lookup_cache_keys(fieldname)
+        return _merge_all_cached_lookup_keys(fieldname)
 
     return set()

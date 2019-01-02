@@ -263,44 +263,49 @@ class TestKnownDataFileParser(TestCase):
         self.assertEqual(expect_parsed_regex_lookup, actual)
 
 
-VALID_LOOKUP_FIELD_NAMES = ['creatortool', 'language', 'publisher']
-BAD_LOOKUP_FIELD_NAMES = ['foobar']
+VALID_LOOKUP_FIELD_NAMES = [
+    'creatortool',
+    'language',
+    'publisher'
+]
+BAD_LOOKUP_FIELD_NAMES = [None, '', ' ', 'foo']
 
 
 class TestLiteralLookupDict(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         clear_lookup_cache()
 
     def test_returns_type_dict(self):
         for fieldname in VALID_LOOKUP_FIELD_NAMES + BAD_LOOKUP_FIELD_NAMES:
-            actual = literal_lookup_dict(fieldname)
-            self.assertIsInstance(actual, dict)
+            with self.subTest(fieldname=fieldname):
+                actual = literal_lookup_dict(fieldname)
+                self.assertIsInstance(actual, dict)
 
     def test_returns_empty_given_invalid_field_name(self):
         for fieldname in BAD_LOOKUP_FIELD_NAMES:
-            actual = literal_lookup_dict(fieldname)
-            self.assertEqual(len(actual), 0)
-
-    def test_returns_dict_given_valid_field_name(self):
-        for fieldname in VALID_LOOKUP_FIELD_NAMES:
-            actual = literal_lookup_dict(fieldname)
-            self.assertIsInstance(actual, dict)
+            with self.subTest(fieldname=fieldname):
+                actual = literal_lookup_dict(fieldname)
+                self.assertEqual(len(actual), 0)
 
     def test_returns_greater_than_arbitrary_amount_given_valid_field_name(self):
         for fieldname in VALID_LOOKUP_FIELD_NAMES:
-            entry_count = len(literal_lookup_dict(fieldname))
-            self.assertGreater(entry_count, 6,
-                               'Expect greater than arbitrary non-zero count')
+            with self.subTest(fieldname=fieldname):
+                entry_count = len(literal_lookup_dict(fieldname))
+                self.assertGreater(entry_count, 6,
+                                   'Expect greater than arbitrary non-zero count')
 
     def test_returns_all_keys_also_returned_from_lookup_values(self):
         for fieldname in VALID_LOOKUP_FIELD_NAMES:
-            keys = set(literal_lookup_dict(fieldname).keys())
-            all_lookup_values = lookup_values(fieldname)
-            self.assertTrue(all(k in all_lookup_values for k in keys))
+            with self.subTest(fieldname=fieldname):
+                keys = set(literal_lookup_dict(fieldname).keys())
+                all_lookup_values = lookup_values(fieldname)
+                self.assertTrue(all(k in all_lookup_values for k in keys))
 
 
 class TestRegexLookupDict(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         clear_lookup_cache()
 
     def test_returns_type_dict(self):
@@ -331,8 +336,16 @@ class TestRegexLookupDict(TestCase):
 
 
 class TestLookupValues(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         clear_lookup_cache()
+
+    def test_returns_set_of_unicode_strings(self):
+        for fieldname in VALID_LOOKUP_FIELD_NAMES + BAD_LOOKUP_FIELD_NAMES:
+            with self.subTest(fieldname=fieldname):
+                actual = lookup_values(fieldname)
+                self.assertIsInstance(actual, set)
+                self.assertTrue(all(isinstance(v, str) for v in actual))
 
     def test_returns_non_empty_given_valid_field_name(self):
         for fieldname in VALID_LOOKUP_FIELD_NAMES:
