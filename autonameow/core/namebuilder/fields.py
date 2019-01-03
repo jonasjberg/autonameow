@@ -19,6 +19,7 @@
 
 import datetime
 import logging
+import re
 
 from core import exceptions
 from util import coercers
@@ -96,8 +97,10 @@ class _Title(NameTemplateField):
             str_value = value
 
         sanity.check_internal_string(str_value)
-        formatted_value = str_value.strip(',.:;-_ ')
         # TODO: [TD0036] Allow per-field replacements and customization.
+        # TODO: [TD0043] Allow the user to tweak hardcoded settings.
+        formatted_value = str_value.strip(',.:;-_ ')
+        formatted_value = re.sub(r'\.', '', formatted_value)
         return formatted_value
 
 
