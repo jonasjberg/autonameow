@@ -35,6 +35,10 @@ ACBlack:
     - ^a ?(and|&)? ?c black
     - (www\.)?acblack\.com
 
+AcuteBooks:
+    match_any_literal:
+    - Acute Books
+
 AddisonWesley:
     match_any_regex_ignorecase:
     - addison.wesley prof.?essional
@@ -65,6 +69,22 @@ AMACOM:
     match_any_literal:
     - AMACOM Books
 
+AmericanBarAssociation:
+    match_any_literal:
+    - American Bar Association
+
+AmericanGraphicsInstitute:
+    match_any_literal:
+    - American Graphics Institute
+
+AmericanMathematicalSociety:
+    match_any_literal:
+    - American Mathematical Society
+
+AmericanSocietyOfCivilEngineers:
+    match_any_literal:
+    - American Society of Civil Engineers
+
 Apress:
     match_any_regex_ignorecase:
     - ^apress
@@ -83,13 +103,22 @@ ArcadePub:
     match_any_literal:
     - arcade@skyhorsepublishing.com
     match_any_regex_ignorecase:
-    - Arcade Publishing( New York)?
+    - arcade publishing( new york)?
     - (www\.)?arcadepub\.com
 
 ArtechHouse:
     match_any_literal:
     - Artech House
     - Artech House Publishers
+
+ASA:
+    match_any_regex:
+    - \bASA\b
+    match_any_regex_ignorecase:
+    - aviation supplies and academics(,? (incorporated|inc\.?))?
+    - aviation training and research(,? (incorporated|inc\.?))?
+    match_any_literal:
+    - Aviation Seminars of America
 
 Ashgate:
     match_any_regex_ignorecase:
@@ -121,13 +150,32 @@ BackupBrain:
     match_any_regex_ignorecase:
     - backup ?brain
 
+BakerPub:
+    match_any_literal:
+    - Baker Publishing Group
+    match_any_regex_ignorecase:
+    - (www\.)?bakerpublishinggroup\.com
+
 BannerBooks:
     match_any_regex_ignorecase:
-    - Banner Books(, Inc\.)?
+    - banner books(, inc\.)?
 
 Barrons:
     match_any_regex_ignorecase:
     - barron.?s (educational|test prep)
+
+BasicBooks:
+    match_any_literal:
+    - Basic Books
+
+BCS:
+    match_any_regex:
+    - \bBCS\b
+    match_any_regex_ignorecase:
+    - bcs learning (&|and) development(,? (limited|ltd\.?))?
+    - (www\.)?bcs\.org
+    match_any_literal:
+    - British Computer Society
 
 BenBella:
     match_any_regex_ignorecase:
@@ -140,6 +188,12 @@ BenthamScience:
 Bertelsmann:
     match_any_regex_ignorecase:
     - bertelsmann
+
+BetterLifePub:
+    match_any_regex_ignorecase:
+    - (www\.)?betterlifepublishers\.nl
+    match_any_literal:
+    - Better Life Publishers
 
 Birkhauser:
     match_any_regex_ignorecase:
@@ -161,6 +215,12 @@ Bloomsbury:
     - bloomsbury
     - (www\.)?bloomsbury\.com
 
+Booklocker:
+    match_any_regex_ignorecase:
+    - booklocker\.com
+    - booklocker\.com,? (incorporated|inc\.?)
+    - (www\.)?booklocker\.com
+
 BonsaiReads:
     match_any_regex_ignorecase:
     - bonsai reads
@@ -172,6 +232,12 @@ BookBaby:
 BookBoon:
     match_any_regex_ignorecase:
     - bookboon
+
+BottomLinePub:
+    match_any_regex_ignorecase:
+    - bottom line,? (incorporated|inc\.?|publications)
+    - boardroom,? (incorporated|inc\.?|publications)
+    - (www\.)?bottomlineinc\.com(/publications)?
 
 BPBPub:
     match_any_regex_ignorecase:
@@ -186,10 +252,28 @@ CaliforniaUP:
     match_any_regex_ignorecase:
     - u(niversity)? of california pr(\.?|ess)
 
+CambriaPress:
+    match_any_literal:
+    - Cambria Press
+    match_any_regex_ignorecase:
+    - (www\.)?cambriapress\.com
+
 CambridgeUP:
     match_any_regex_ignorecase:
     - cambridge uni(versity press)?
     - u(niversity)? of cambridge pr(.?|ess)
+
+Canongate:
+    match_any_literal:
+    - Canongate Books
+    match_any_regex_ignorecase:
+    - canongate\.co\.uk
+
+CasematePub:
+    match_any_regex_ignorecase:
+    - casemate publishers
+    - casemate publishers (&|and) book distributors(,? llc)?
+    - (www\.)?casematepublishers\.com
 
 CastaliaHouse:
     match_any_regex_ignorecase:
@@ -204,11 +288,12 @@ Cengage:
     - (brooks/cole,? )?cengage( learning)?( ptr)?
     - thomson (\w+ )?learning
     - course technology[/ ]cengage learning
-    - (Thomson/)?course ?technology( ptr| u\.s\.)?
-    - Charles River Media.?( Course Technology|/Cengage Technology)
+    - (thomson/)?course ?technology( ptr| u\.s\.)?
+    - charles river media.?( course technology|/cengage technology)
     match_any_literal:
     - CENGAGE LERNING TextBooks
     - cengage_learning
+    - Charles River Media
     - Course Technolgy
 
 CertitrekPub:
@@ -246,6 +331,10 @@ CodeWellAcademy:
     match_any_regex_ignorecase:
     - code well academy
 
+ConsultingSecurityEngineer:
+    match_any_regex_ignorecase:
+    - consulting security engineer(,? llc)?
+
 CoolSpringsPress:
     match_any_regex_ignorecase:
     - cool.springs.press
@@ -257,6 +346,7 @@ CrackingPub:
 
 CreateSpace:
     match_any_regex_ignorecase:
+    - booksurge( publishing)?
     - createspace
 
 CRCPress:
@@ -266,6 +356,17 @@ CRCPress:
     - ^crc(-| )pr(.?|ess)
     - chapman (&|and) hall
     - (www\.)?crcpress\.com
+
+CrownPub:
+    match_any_literal:
+    - Crown Publishing
+    - Crown Publishing Group
+    match_any_regex_ignorecase:
+    - (www\.)?crownpublishing\.com
+
+CyberPunkBooks:
+    match_any_regex_ignorecase:
+    - cyberpunk (architects|books)
 
 CyberPunkUni:
     match_any_literal:
@@ -449,7 +550,7 @@ IBMITSO:
 
 IconBooks:
     match_any_regex_ignorecase:
-    - Icon Books( Ltd| Limited)?
+    - icon books( ltd| limited)?
 
 IdeaGroup:
     match_any_regex_ignorecase:
@@ -474,6 +575,10 @@ ImpacktPub:
 ImperialCollegePress:
     match_any_regex_ignorecase:
     - imperial college pr(.?|ess)
+
+IndependentPubGroup:
+    match_any_literal:
+    - Independent Publishers Group
 
 IndianaUP:
     match_any_literal:
@@ -517,6 +622,17 @@ JonesBartlett:
 KendallHunt:
     match_any_regex_ignorecase:
     - kendall ?hunt
+
+Kidware:
+    match_any_regex_ignorecase:
+    - \bkidware\b
+    - kidware software(,? llc\.?)?
+
+KoganPage:
+    match_any_literal:
+    - Kogan Page
+    match_any_regex_ignorecase:
+    - (www\.)?koganpage\.com
 
 LaurenceKing:
     match_any_regex_ignorecase:
@@ -618,8 +734,8 @@ Murachs:
 
 NebraskaUP:
     match_any_regex_ignorecase:
-        - nebraska uni(\.?|versity)
-        - u(niversity)? of nebraska pr(.?|ess)
+    - nebraska uni(\.?|versity)
+    - u(niversity)? of nebraska pr(.?|ess)
 
 NewAgeInt:
     match_any_literal:
@@ -654,7 +770,7 @@ NoStarchPress:
 
 NovaScience:
     match_any_regex_ignorecase:
-        - nova science
+    - nova science
 
 ObjectSource:
     match_any_regex_ignorecase:
@@ -677,6 +793,7 @@ OxfordUP:
     match_any_regex_ignorecase:
     - oxford uni(\.?|versity)
     - u(niversity)? of oxford pr(.?|ess)
+    - \boup oxford\b
 
 Packt:
     match_any_regex_ignorecase:
@@ -690,7 +807,7 @@ Pavilion:
 
 PayloadMedia:
     match_any_regex_ignorecase:
-    - Payload Media( Inc\.?)?
+    - payload media( inc\.?)?
 
 PeachpitPress:
     match_any_regex_ignorecase:
@@ -703,8 +820,7 @@ Pearson:
     - Pearson/AddisonWesley
     - Pearson IT Certification
     match_any_regex_ignorecase:
-    - pearson education
-    - pearson australia
+    - pearson (australia|education)
     - (www\.)?pearson\.com
 
 PeepPress:
@@ -719,14 +835,20 @@ PenguinBooks:
 
 PenguinRandomHouse:
     match_any_regex_ignorecase:
-    - penguin group
-    - penguin publishing
     - penguin random house
+    - penguin (group|publishing)
+    - random house,? (incorporated|inc\.?)
+    - random house children.?s books
     - (www\.)?penguinrandomhouse\.com
+    - (www\.)?rhcbooks\.com
 
 PennsylvaniaUP:
     match_any_literal:
     - University of Pennsylvania Press
+
+PEPress:
+    match_any_literal:
+    - PE Press
 
 PlutoPress:
     match_any_regex_ignorecase:
@@ -782,6 +904,10 @@ QuePub:
     match_any_regex_ignorecase:
     - que pub
 
+ReferencePointPress:
+    match_any_literal:
+    - ReferencePoint Press
+
 RiverTigris:
     match_any_regex_ignorecase:
     - river tigris(,? LLC\.?)?
@@ -802,14 +928,24 @@ RowmanLittlefield:
     match_any_regex_ignorecase:
     - rowman (&|and) littlefield
 
+SagePub:
+    match_any_regex_ignorecase:
+    - sage pub
+
 Sams:
     match_any_regex_ignorecase:
     - sams pub
     - (www\.)?samspublishing\.com
 
-SagePub:
+SASInstitute:
+    match_any_regex:
+    - \bSAS\b
     match_any_regex_ignorecase:
-    - sage pub
+    - sas institute
+
+SASPub:
+    match_any_literal:
+    - SAS Publishing
 
 SecurePlanet:
     match_any_regex_ignorecase:
@@ -855,6 +991,10 @@ StanfordUP:
     match_any_regex_ignorecase:
     - stanford university pr(.?|ess)
     - u(niversity)? of stanford pr(.?|ess)
+
+StMartinsPress:
+    match_any_regex_ignorecase:
+    - st\.? martin.?s press
 
 Sybex:
     match_any_regex_ignorecase:
@@ -902,13 +1042,16 @@ UnitedComputerGeeks:
 
 UNKNOWN:
     match_any_regex_ignorecase:
-    - ^(unknown|null|empty|none|test)$
+    - ^(empty|en_publisher|none|null|test|unknown)$
 
 UrbanLandInstitute:
     match_any_regex_ignorecase:
     - urban land institute
+    - \bULI\b
+
+VMwarePress:
     match_any_literal:
-    - ULI
+    - VMware Press
 
 WalkerBooks:
     match_any_literal:
@@ -934,6 +1077,7 @@ Wiley:
     match_any_literal:
     - John Wiley
     - J. Wiley
+    - For Dummies
 
 WoltersKluwer:
     match_any_regex_ignorecase:
