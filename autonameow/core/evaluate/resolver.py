@@ -119,43 +119,32 @@ class TemplateFieldDataResolver(object):
 
         candidates = repository.SessionRepository.query_mapped(self.fileobject, field)
         log.debug('Resolver got %d candidates for field %s', len(candidates), field)
+        if not candidates:
+            return list()
 
         field_data_candidate_list = list()
-        for uri, candidate in candidates:
+        for mapping_weight, uri, databundle in candidates:
             sanity.check_isinstance_meowuri(uri)
-            sanity.check_isinstance(candidate, DataBundle)
+            sanity.check_isinstance(databundle, DataBundle)
 
-            candidate_mapped_fields = candidate.mapped_fields
-            if not candidate_mapped_fields:
-                continue
-
-            # TODO: How does this behave if the same generic field is mapped more than once with different probabilities?
-            _candidate_probability = 0.0
-            for mapping in candidate_mapped_fields:
-                if mapping.field == field:
-                    _candidate_probability = mapping.weight
-                    break
-
-            field_candidate_types_compatible = field.type_compatible(candidate.coercer, candidate.multivalued)
+            field_candidate_types_compatible = field.type_compatible(databundle.coercer, databundle.multivalued)
             if not field_candidate_types_compatible:
-                log.debug('Type of field %s is NOT compatible with candidate %s', field, candidate)
+                log.debug('Type of field %s is NOT compatible with candidate %s', field, databundle)
                 continue
             else:
-                log.debug('Type of field %s is compatible with candidate %s', field, candidate)
+                log.debug('Type of field %s is compatible with candidate %s', field, databundle)
 
-            if candidate.value == 'UNKNOWN':
+            if databundle.value == 'UNKNOWN':
                 log.debug('Value of field %s is UNKNOWN ..', field)
                 continue
 
-            _formatted_value = field.format(candidate, config=self.config)
+            _formatted_value = field.format(databundle, config=self.config)
             assert _formatted_value is not None
 
-            _candidate_source = candidate.source
+            _candidate_source = databundle.source
             if not _candidate_source:
-                log.warning('Unknown source: %s', candidate)
+                log.warning('Unknown source: %s', databundle)
                 _candidate_source = '(unknown source)'
-
-            _candidate_generic_field = candidate.generic_field
 
             # TODO: Translate generic 'choice.meowuri' to not generic..
             if uri.is_generic:
@@ -164,9 +153,9 @@ class TemplateFieldDataResolver(object):
             field_data_candidate_list.append(FieldDataCandidate(
                 string_value=_formatted_value,
                 source=_candidate_source,
-                probability=str(_candidate_probability),
+                probability=str(mapping_weight),
                 meowuri=uri,
-                generic_field=_candidate_generic_field
+                generic_field=databundle.generic_field
             ))
 
         # TODO: [TD0104] Merge candidates and re-normalize probabilities.

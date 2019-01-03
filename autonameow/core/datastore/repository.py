@@ -196,17 +196,22 @@ class Repository(object):
 
         self.__store_data(fileobject, meowuri, data)
 
-    def query_mapped(self, fileobject, field):
+    def query_mapped(self, fileobject, wanted_field):
         out = list()
 
         fileobject_data = self._data.get(fileobject)
         for meowuri, datadict in fileobject_data.items():
             assert isinstance(datadict, dict)
-            if datadict_maps_field(datadict, field):
-                # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
-                out.append(
-                    (meowuri, DataBundle.from_dict(datadict))
-                )
+            mapped_fields = datadict.get('mapped_fields')
+            if not mapped_fields:
+                continue
+
+            # TODO: [TD0167] MeowURIs in databundles only needed by resolver!
+            for mapping in mapped_fields:
+                if mapping.field == wanted_field:
+                    out.append(
+                        (mapping.weight, meowuri, DataBundle.from_dict(datadict))
+                    )
 
         return out
 
@@ -390,14 +395,6 @@ def _stringify_datadict_value(datadict_value):
     str_value = __stringify_value(datadict_value)
     assert isinstance(str_value, str)
     return str_value
-
-
-def datadict_maps_field(datadict, wanted_field):
-    mapped_fields = datadict.get('mapped_fields')
-    if not mapped_fields:
-        return False
-
-    return any(wanted_field == mapping.field for mapping in mapped_fields)
 
 
 SessionRepository = None
