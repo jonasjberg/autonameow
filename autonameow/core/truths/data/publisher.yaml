@@ -767,7 +767,6 @@ NoStarchPress:
     - No Starch Press
     - NoStarchPress Inc.
 
-
 NovaScience:
     match_any_regex_ignorecase:
     - nova science

@@ -539,7 +539,7 @@ def collapse_all_whitespace(s):
 
 def normalize_description_whitespace(s):
     """
-    Fixes up whitespace in  multi-line text.
+    Fixes up whitespace in multi-line text.
 
     Intended to be used to clean up test suite descriptions.
     Removes messy whitespace, such as tabs. Replaces single line breaks (E.G.
