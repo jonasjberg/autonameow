@@ -17,7 +17,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
+from unittest import expectedFailure, TestCase
 
 import unit.utils as uu
 from core import constants as C
@@ -60,6 +60,14 @@ class TestSplitBasename(TestCase):
         self._assert_splits(b'foo',  b'bar', b'foo.bar')
         self._assert_splits(b'.foo', b'bar', b'.foo.bar')
         self._assert_splits(b'foo', b'txt', b'foo.txt')
+
+    @expectedFailure
+    def test_unhandled_case(self):
+        self._assert_splits(
+            b'Resuming Ancient K# and .MET Development',
+            b'.zip',
+            b'Resuming Ancient K# and .MET Development.zip'
+        )
 
     def test_split_multiple_extensions(self):
         for expect_prefix, expect_suffix, given in [
