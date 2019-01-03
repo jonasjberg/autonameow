@@ -121,6 +121,10 @@ BackupBrain:
     match_any_regex_ignorecase:
     - backup ?brain
 
+BannerBooks:
+    match_any_regex_ignorecase:
+    - Banner Books(, Inc\.)?
+
 Barrons:
     match_any_regex_ignorecase:
     - barron.?s (educational|test prep)
