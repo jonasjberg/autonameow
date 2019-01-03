@@ -27,6 +27,7 @@ from core.metadata.normalize import normalize_full_human_name
 from core.metadata.normalize import normalize_full_title
 from core.model import genericfields as gf
 from core.namebuilder import fields
+from core.truths import known_metadata
 from util import sanity
 
 
@@ -134,9 +135,11 @@ class TemplateFieldDataResolver(object):
             else:
                 log.debug('Type of field %s is compatible with candidate %s', field, databundle)
 
-            if databundle.value == 'UNKNOWN':
-                log.debug('Value of field %s is UNKNOWN ..', field)
-                continue
+            if isinstance(databundle.value, str):
+                if is_known_bad_string_value(field, databundle.value):
+                    log.critical('Skipped known bad value for field %s: "%s"',
+                                 field, databundle.value)
+                    continue
 
             _formatted_value = field.format(databundle, config=self.config)
             assert _formatted_value is not None
@@ -236,9 +239,11 @@ class TemplateFieldDataResolver(object):
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
         sanity.check_isinstance(databundle, DataBundle)
 
-        if databundle.value == 'UNKNOWN':
-            log.debug('Value of field %s is UNKNOWN ..', field)
-            return None
+        if isinstance(databundle.value, str):
+            if is_known_bad_string_value(field, databundle.value):
+                log.critical('Skipped known bad value for field %s: "%s"',
+                             field, databundle.value)
+                return None
 
         log.debug('Updated data for field %s :: %s', field, databundle.value)
         return databundle
@@ -299,6 +304,18 @@ class TemplateFieldDataResolver(object):
 
     def __str__(self):
         return self.__class__.__name__
+
+
+def is_known_bad_string_value(field, value):
+    sanity.check_isinstance(field, fields.NameTemplateField)
+    sanity.check_internal_string(value)
+
+    if value == 'UNKNOWN':
+        return True
+
+    fieldname = field.as_placeholder()
+    known_bad_values = known_metadata.incorrect_values(fieldname)
+    return value in known_bad_values
 
 
 def dedupe_list_of_databundles(databundle_list):
