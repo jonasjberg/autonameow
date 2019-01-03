@@ -786,6 +786,13 @@ class TestSplitMultipleNames(TestCase):
         self._assert_unchanged(['Foobar, S.', 'Paul, Baz', 'Gibson, N.'])
         self._assert_unchanged(['Foobar, S.', 'Paul, Baz'])
         self._assert_unchanged(['Paul, Baz', 'Gibson, N.'])
+        self._assert_unchanged(['Sullivan, Jonathan, Jewett, Carl, Hibbs, Kurt'])
+
+    @unittest.expectedFailure
+    def test_does_not_split_names_with_some_name_parts_separated_by_comma(self):
+        self._assert_unchanged(['Sullivan, Jonathan, Jewett, Carl, Hibbs, Kurt',
+                                'Carl Jewett',
+                                'Jonathan Sullivan'])
 
     def test_splits_two_names_separated_by_ampersand(self):
         self._assert_that_it_returns(
@@ -1316,5 +1323,17 @@ class PreProcessNames(TestCase):
             given_any_of=[
                 ['Kubasiek, John R.;', 'Morrissey, Steven.;', 'Basilone, John.'],
                 ['Kubasiek, John R.', ';Morrissey, Steven.', ';Basilone, John.'],
+            ]
+        )
+
+    @unittest.expectedFailure
+    def test_duplicate_names(self):
+        # TODO: Improve splitting and/or remove duplicates.
+        self._assert_preprocess_names_returns(
+            expected=['Sullivan J.', 'Jewett C.', 'Hibbs K.'],
+            given=[
+                'Sullivan, Jonathan, Jewett, Carl, Hibbs, Kurt',
+                'Carl Jewett',
+                'Jonathan Sullivan',
             ]
         )
