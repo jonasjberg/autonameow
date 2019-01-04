@@ -160,7 +160,7 @@ fi
 run_pytest()
 {
     declare -a _pytest_opts=('')
-    $option_write_report    && _pytest_opts+="--self-contained-html --html="${_unittest_log}""
+    $option_write_report    && _pytest_opts+="--self-contained-html --html="${_unittest_log}" "
     $option_enable_coverage && _pytest_opts+='--cov=autonameow --cov-report=term '
     $option_run_last_failed && _pytest_opts+='--last-failed '
 
