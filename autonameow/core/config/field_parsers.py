@@ -19,7 +19,6 @@
 
 import logging
 import re
-import unicodedata
 from datetime import datetime
 
 from core import exceptions
