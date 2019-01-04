@@ -20,4 +20,3 @@
 from .mapping import WeightedMapping
 from .meowuri import force_meowuri
 from .meowuri import MeowURI
-from .name_template import NameTemplate

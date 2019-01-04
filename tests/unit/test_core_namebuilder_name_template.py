@@ -19,8 +19,8 @@
 
 from unittest import TestCase
 
-from core.model.name_template import NameTemplate
-from core.model.name_template import template_placeholder_substrings
+from core.namebuilder.name_template import NameTemplate
+from core.namebuilder.name_template import template_placeholder_substrings
 
 
 def _get_nametemplate(*args, **kwargs):

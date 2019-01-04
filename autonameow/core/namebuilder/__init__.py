@@ -19,4 +19,5 @@
 
 from .builder import build
 from .builder import populate_name_template
+from .name_template import NameTemplate
 from .postprocess import FilenamePostprocessor
