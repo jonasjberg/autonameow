@@ -27,7 +27,7 @@ from core.exceptions import ConfigurationSyntaxError
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from core.namebuilder import fields
-from core.namebuilder import NameTemplate
+from core.namebuilder.template import NameTemplate
 
 
 log = logging.getLogger(__name__)
