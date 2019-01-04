@@ -41,7 +41,7 @@ def extract_text_with_djvutxt(filepath):
         stdout = process.blocking_read_stdout(
             'djvutxt', filepath,
         )
-    except process.ChildProcessError as e:
+    except process.ChildProcessFailure as e:
         raise ExtractorError(e)
 
     result = decode_raw(stdout)

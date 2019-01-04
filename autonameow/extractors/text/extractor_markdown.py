@@ -47,7 +47,7 @@ def get_plaintext_from_markdown_file_with_pandoc(filepath):
         stdout = process.blocking_read_stdout(
             'pandoc', '--from', 'markdown', '--to', 'plain', '--', filepath
         )
-    except process.ChildProcessError as e:
+    except process.ChildProcessFailure as e:
         raise ExtractorError(e)
 
     # NOTE(jonas): pandoc uses UTF-8 encoding for both input and output

@@ -30,7 +30,7 @@ from core import constants as C
 from core.exceptions import AutonameowException
 
 
-class ChildProcessError(AutonameowException):
+class ChildProcessFailure(AutonameowException):
     """Child process was not successfully executed."""
 
 
@@ -38,8 +38,8 @@ def blocking_read_stdout(*args):
     """
     Executes a child process and returns its standard output.
 
-    Catches all exceptions and re-raising a 'ChildProcessError'.
-    The 'ChildProcessError' exception is also raised if the child
+    Catches all exceptions and re-raising a 'ChildProcessFailure'.
+    The 'ChildProcessFailure' exception is also raised if the child
     process returns a non-zero exit code.
 
     Args:
@@ -50,7 +50,7 @@ def blocking_read_stdout(*args):
         Standard output of the executed child process as a bytestring.
 
     Raises:
-        ChildProcessError: Process returned non-zero or any other error.
+        ChildProcessFailure: Process returned non-zero or any other error.
     """
     try:
         process = subprocess.Popen(
@@ -61,11 +61,11 @@ def blocking_read_stdout(*args):
         )
         stdout, stderr = process.communicate()
     except (OSError, ValueError, subprocess.SubprocessError) as e:
-        raise ChildProcessError(e)
+        raise ChildProcessFailure(e)
 
     returncode = process.returncode
     if returncode != 0:
-        raise ChildProcessError(
+        raise ChildProcessFailure(
             'Process returned {!s}. stderr:\n{!s}'.format(returncode, stderr)
         )
     return stdout or b''
