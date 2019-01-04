@@ -295,11 +295,10 @@ class _Publisher(NameTemplateField):
 
     @classmethod
     def format(cls, databundle, *args, **kwargs):
-        value = databundle.value
-        sanity.check_internal_string(value)
+        formatted_value = coercers.force_string(databundle.value)
 
         # TODO: [TD0036] Allow per-field replacements and customization.
-        return value
+        return formatted_value
 
 
 class _Tags(NameTemplateField):
