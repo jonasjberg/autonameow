@@ -137,8 +137,8 @@ class TemplateFieldDataResolver(object):
 
             if isinstance(databundle.value, str):
                 if is_known_bad_string_value(field, databundle.value):
-                    log.critical('Skipped known bad value for field %s: "%s"',
-                                 field, databundle.value)
+                    log.debug('Skipped known bad value for field %s: "%s"',
+                              field, databundle.value)
                     continue
 
             _formatted_value = field.format(databundle, config=self.config)
@@ -241,8 +241,8 @@ class TemplateFieldDataResolver(object):
 
         if isinstance(databundle.value, str):
             if is_known_bad_string_value(field, databundle.value):
-                log.critical('Skipped known bad value for field %s: "%s"',
-                             field, databundle.value)
+                log.debug('Skipped known bad value for field %s: "%s"',
+                          field, databundle.value)
                 return None
 
         log.debug('Updated data for field %s :: %s', field, databundle.value)
