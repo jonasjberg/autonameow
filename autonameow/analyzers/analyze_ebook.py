@@ -348,7 +348,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
         if candidates:
             sorted_candidates = sorted(candidates, key=lambda x: x[0], reverse=True)
 
-            if self.log.getEffectiveLevel() >= logging.DEBUG:
+            if self.log.getEffectiveLevel() == logging.DEBUG:
                 for n, scored_candidate in enumerate(sorted_candidates, start=1):
                     score, candidate = scored_candidate
                     self.log.debug(
