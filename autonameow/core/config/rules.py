@@ -357,25 +357,18 @@ def parse_data_sources(raw_sources):
 
     parsed_data_sources = dict()
     for raw_templatefield, raw_meowuri_strings in raw_sources.items():
+        if not raw_meowuri_strings:
+            log.debug('Skipped source with empty MeowURI(s) '
+                      '(template field: "%s")', raw_templatefield)
+            continue
+
         if not fields.is_valid_template_field(raw_templatefield):
             log.warning('Skipped source with invalid name template field '
                         '(MeowURI: "%s")', raw_meowuri_strings)
             continue
 
         tf = fields.nametemplatefield_class_from_string(raw_templatefield)
-        if not tf:
-            log.critical(
-                'Failed to convert template field string to class instance. '
-                'This should not happen as the prior validation passed!'
-            )
-            continue
-
         assert isinstance(tf, fields.NameTemplateField), type(tf)
-
-        if not raw_meowuri_strings:
-            log.debug('Skipped source with empty MeowURI(s) '
-                      '(template field: "%s")', raw_templatefield)
-            continue
 
         if not isinstance(raw_meowuri_strings, list):
             raw_meowuri_strings = [raw_meowuri_strings]
@@ -416,10 +409,11 @@ def is_valid_source(uri):
     Returns:
         True if the source is valid, otherwise False.
     """
-    if isinstance(uri, MeowURI):
-        if uri.is_generic:
-            return True
-        # TODO: [TD0185] Rework access to 'master_provider' functionality.
-        if master_provider.Registry.might_be_resolvable(uri):
-            return True
-    return False
+    if not isinstance(uri, MeowURI):
+        return False
+
+    if uri.is_generic:
+        return True
+    # TODO: [TD0185] Rework access to 'master_provider' functionality.
+    if master_provider.Registry.might_be_resolvable(uri):
+        return True
