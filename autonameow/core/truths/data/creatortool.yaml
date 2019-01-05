@@ -342,6 +342,7 @@ OneVision Asura:
 OpenOffice:
     match_any_regex_ignorecase:
     - OpenOffice(\.org)?(\d\.\d)?(\.\d+)?
+    - ^Writer$
 
 PaperPort:
     match_any_regex_ignorecase:

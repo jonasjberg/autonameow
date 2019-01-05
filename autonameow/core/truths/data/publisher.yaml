@@ -597,6 +597,14 @@ IOSPress:
     match_any_regex_ignorecase:
     - ios press
 
+IRMPress:
+    match_any_regex:
+    - ^Irm Pr$
+    match_any_regex_ignorecase:
+    - irm press
+    - \birm press \(?an imprint of idea group inc.\)?
+    - (www\.)?irm-press\.com
+
 ITAcademy:
     match_any_literal:
     - IT Academy

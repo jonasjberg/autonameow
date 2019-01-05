@@ -1162,9 +1162,15 @@ IconBooks:
 IdeaGroup:
 - IdeaGroup
 - Idea Group
-- Idea group
+- Idea Group Inc
+- Idea Group Inc.
+- Idea Group Incorporated
 - Idea Group Pub
 - Idea Group Pub.
+- Idea Group, Inc
+- Idea Group, Inc.
+- Idea Group, Incorporated
+- Idea group
 
 IDG:
 - IDG
@@ -1310,6 +1316,21 @@ IOSPress:
 - IOS Press, Inc
 - IOS Press, Inc.
 - IOS Press, Incorporated
+
+IRMPress:
+- IRMPress
+- IRM Press
+- IRM Press (an imprint of Idea Group Inc.)
+- IRM Press an imprint of Idea Group Inc.
+- Irm Pr
+- https://www.irm-press.com/
+- http://www.irm-press.com/
+- www.irm-press.com/
+- irm-press.com/
+- https://www.irm-press.com
+- http://www.irm-press.com
+- www.irm-press.com
+- irm-press.com
 
 ITAcademy:
 - ITAcademy
