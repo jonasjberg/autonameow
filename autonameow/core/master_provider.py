@@ -46,7 +46,7 @@ def _map_generic_sources(meowuri_class_map):
             if not generic_field_string:
                 continue
 
-            sanity.check_internal_string(generic_field_string)
+            assert isinstance(generic_field_string, str)
             generic_field_klass = genericfields.get_field_for_uri_leaf(generic_field_string)
             if not generic_field_klass:
                 continue

@@ -23,7 +23,6 @@ import re
 
 from core import exceptions
 from util import coercers
-from util import sanity
 from util import text
 
 
@@ -96,7 +95,7 @@ class _Title(NameTemplateField):
         else:
             str_value = value
 
-        sanity.check_internal_string(str_value)
+        assert isinstance(str_value, str)
         # TODO: [TD0036] Allow per-field replacements and customization.
         # TODO: [TD0043] Allow the user to tweak hardcoded settings.
         formatted_value = str_value.strip(',.:;-_ ')
@@ -131,7 +130,7 @@ class _Edition(NameTemplateField):
                 'Got incompatible data: {!r}'.format(databundle)
             )
 
-        sanity.check_internal_string(str_value)
+        assert isinstance(str_value, str)
         # TODO: [TD0036] Allow per-field replacements and customization.
         formatted_value = '{}E'.format(str_value)
         return formatted_value
@@ -195,7 +194,7 @@ class _Author(NameTemplateField):
             )
         formatted_names = list()
         for author in str_list_value:
-            sanity.check_internal_string(author)
+            assert isinstance(author, str)
             formatted_names.append(text.format_name(author))
 
         formatted_value = ' '.join(sorted(formatted_names))
@@ -325,7 +324,7 @@ class _Tags(NameTemplateField):
         c = kwargs.get('config')
         if c:
             sep = c.options['FILETAGS_OPTIONS']['between_tag_separator']
-            sanity.check_internal_string(sep)
+            assert isinstance(sep, str)
             formatted_value = sep.join(str_list_value)
             return formatted_value
         else:

@@ -24,7 +24,6 @@ import os
 from core.exceptions import AutonameowException
 from core.exceptions import DependencyError
 from util import coercers
-from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -218,7 +217,7 @@ def eval_glob(mime_to_match, glob_list):
     #           mime_to_match, glob_list)
     mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
     for glob in glob_list:
-        sanity.check_internal_string(glob)
+        assert isinstance(glob, str)
 
         if glob == mime_to_match:
             return True

@@ -20,7 +20,6 @@
 import re
 
 import nameparser
-from util import sanity
 from util.text.regexcache import RegexCache
 from util.text import substring
 
@@ -200,7 +199,7 @@ class HumanNameParser(object):
     def __call__(self, name):
         if name is None:
             return {}
-        sanity.check_internal_string(name)
+        assert isinstance(name, str)
 
         preprocessed_name = self._preprocess(name)
         parsed_name = _parse_name(preprocessed_name)

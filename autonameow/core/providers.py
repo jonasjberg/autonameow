@@ -23,7 +23,6 @@ from core.model import genericfields
 from core.model import WeightedMapping
 from core.namebuilder.fields import nametemplatefield_class_from_string
 from util import coercers
-from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -57,7 +56,7 @@ class ProviderMixin(object):
             )
             return None
 
-        sanity.check_internal_string(coercer_string)
+        assert isinstance(coercer_string, str)
         coercer = get_coercer_for_metainfo_string(coercer_string)
         if not isinstance(coercer, (coercers.BaseCoercer, coercers.MultipleTypes)):
             msg = 'Expected coercer class. Got {} "{!s}" from coercer_string {!s} "{!s}"'.format(

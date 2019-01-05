@@ -308,7 +308,7 @@ class TemplateFieldDataResolver(object):
 
 def is_known_bad_string_value(field, value):
     assert isinstance(field, fields.NameTemplateField)
-    sanity.check_internal_string(value)
+    assert isinstance(value, str)
 
     if value == 'UNKNOWN':
         return True

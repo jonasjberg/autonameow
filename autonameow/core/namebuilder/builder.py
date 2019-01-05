@@ -23,7 +23,6 @@ import re
 from core import exceptions
 from util import disk
 from util import encoding as enc
-from util import sanity
 from util.text import remove_zerowidth_spaces
 
 
@@ -80,7 +79,7 @@ def build(config, name_template, field_databundle_dict):
             'Unable to assemble basename: {!s}'.format(e)
         )
 
-    sanity.check_internal_string(new_name)
+    assert isinstance(new_name, str)
     new_name = post_assemble_format(new_name)
     log.debug('Assembled basename: "%s"', new_name)
 
@@ -131,7 +130,7 @@ def pre_assemble_format(field_databundle_dict, config):
             raise exceptions.NameBuilderError(
                 'Unable to format name template field "{!s}"'.format(field)
             )
-        sanity.check_internal_string(formatted_value)
+        assert isinstance(formatted_value, str)
         formatted_values[field] = formatted_value
 
     return formatted_values

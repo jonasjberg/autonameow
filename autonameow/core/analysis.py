@@ -70,7 +70,7 @@ def _execute_run_queue(analyzer_queue):
 
 def request_global_data(fileobject, uri_string):
     # NOTE(jonas): String to MeowURI conversion boundary.
-    sanity.check_internal_string(uri_string)
+    assert isinstance(uri_string, str)
 
     uri = force_meowuri(uri_string)
     if not uri:

@@ -43,7 +43,6 @@ import os
 import sys
 
 from core import constants as C
-from util import sanity
 from vendor import chardet
 
 
@@ -303,7 +302,7 @@ def autodetect_decode(strng):
         except ValueError:
             raise ValueError('Unable to autodetect encoding and decode string')
 
-    sanity.check_internal_string(strng)
+    assert isinstance(strng, str)
     return strng
 
 

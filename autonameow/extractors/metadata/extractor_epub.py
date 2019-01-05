@@ -25,7 +25,6 @@ except ImportError:
 from extractors import ExtractorError
 from extractors.base import BaseMetadataExtractor
 from util import encoding as enc
-from util import sanity
 
 
 class EpubMetadataExtractor(BaseMetadataExtractor):
@@ -58,7 +57,7 @@ def _get_epub_metadata(filepath):
     assert hasattr(ebooklib, 'epub')
 
     unicode_filepath = enc.decode_(filepath)
-    sanity.check_internal_string(unicode_filepath)
+    assert isinstance(unicode_filepath, str)
 
     try:
         epub_book = ebooklib.epub.read_epub(unicode_filepath)

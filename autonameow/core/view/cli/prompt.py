@@ -29,7 +29,6 @@ from core.model import MeowURI
 from core.view import cli
 from util import disk
 from util import encoding as enc
-from util import sanity
 
 try:
     from prompt_toolkit import prompt
@@ -204,7 +203,7 @@ def ask_confirm(message):
                      'AssertionError in "prompt_toolkit". ABORTING!')
         return False
 
-    sanity.check_internal_string(message)
+    assert isinstance(message, str)
 
     # TODO: Test this!
     answer = confirm(message + ' ')

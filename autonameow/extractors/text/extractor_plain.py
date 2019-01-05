@@ -23,7 +23,6 @@ from core import constants as C
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor
 from util import encoding as enc
-from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -72,7 +71,6 @@ def read_entire_text_file(filepath):
 
     log.debug('Read %s lines from file "%s"', len(contents), filepath)
     text = ''.join(contents)
-    sanity.check_internal_string(text)
     return text
 
 

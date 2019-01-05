@@ -29,7 +29,6 @@ from core.truths import known_metadata
 from util import coercers
 from util import dateandtime
 from util import disk
-from util import sanity
 from util.text import find_and_extract_edition
 from util.text import regexbatch
 
@@ -334,7 +333,7 @@ def likely_extension(basename_suffix, mime_type):
     #                certain name like 'METADATA', having any of a list of
     #                MIME-types, so that the probable extension is empty, etc.
     if mime_type and basename_suffix is not None:
-        sanity.check_internal_string(mime_type)
+        assert isinstance(mime_type, str)
 
         # For each MIME-type; use the file extension in the dict key if the
         # current file extension is any of the dict values stored under that key.

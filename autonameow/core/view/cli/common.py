@@ -28,7 +28,6 @@ import colorama
 from core import constants as C
 from util import coercers
 from util import process
-from util import sanity
 
 
 colorama.init()
@@ -268,7 +267,7 @@ def msg(message, style=None, ignore_quiet=False):
         colored_text = colorize(text)
         print_stdout(prefix + ' ' + colored_text)
 
-    sanity.check_internal_string(message)
+    assert isinstance(message, str)
     if not message:
         return
 
@@ -314,8 +313,8 @@ def msg_rename(from_basename, dest_basename, dry_run):
     Raises:
         EncodingBoundaryViolation: Given message is not a Unicode string.
     """
-    sanity.check_internal_string(from_basename)
-    sanity.check_internal_string(dest_basename)
+    assert isinstance(from_basename, str)
+    assert isinstance(dest_basename, str)
 
     _name_old = colorize_quoted('"{!s}"'.format(from_basename),
                                 color='WHITE')
@@ -346,8 +345,8 @@ def msg_possible_rename(from_basename, dest_basename):
     Raises:
         EncodingBoundaryViolation: Given message is not a Unicode string.
     """
-    sanity.check_internal_string(from_basename)
-    sanity.check_internal_string(dest_basename)
+    assert isinstance(from_basename, str)
+    assert isinstance(dest_basename, str)
 
     _name_old = colorize_quoted('"{!s}"'.format(from_basename),
                                 color='WHITE')

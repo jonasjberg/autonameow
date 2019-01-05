@@ -41,25 +41,6 @@ def check_internal_bytestring(value):
         raise exceptions.EncodingBoundaryViolation(_msg)
 
 
-def check_internal_string(value):
-    """
-    Checks that a given value is an "internal string", I.E. Unicode str.
-
-    Intended for sanity checking, in place of assertions.
-
-    Args:
-        value: The value to test.
-    Raises:
-        EncodingBoundaryViolation: The given value is not a Unicode str.
-    """
-    if not __debug__:
-        return
-    if not isinstance(value, str):
-        _msg = 'Expected a Unicode string.  Got {!s}:\n{!s}'.format(
-            type(value), pprint.pformat(value))
-        raise exceptions.EncodingBoundaryViolation(_msg)
-
-
 def check_isinstance(thing, expected_type, msg=None):
     """
     Checks that a given "thing" is an instance of "expected_type".

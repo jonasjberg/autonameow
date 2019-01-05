@@ -158,7 +158,7 @@ class FileRenamer(object):
         # TODO: [TD0143] Add option to execute "hooks" at certain events.
         # TODO: [TD0092] Add storing history and ability to "undo" renames.
         sanity.check_internal_bytestring(from_path)
-        sanity.check_internal_string(new_basename)
+        assert isinstance(new_basename, str)
 
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = enc.bytestring_path(new_basename)

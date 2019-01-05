@@ -19,8 +19,6 @@
 
 import re
 
-from util import sanity
-
 
 # TODO: [TD0034] All filtering must be (re-)designed.
 
@@ -86,7 +84,8 @@ class RegexFilter(object):
 
         regexes = set()
         for expression in expressions:
-            sanity.check_internal_string(expression)
+            assert isinstance(expression, str)
+
             if expression in self._seen_expressions:
                 # Can't do de-duplication by adding compiled regexes to a set ..
                 continue

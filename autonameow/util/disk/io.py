@@ -274,7 +274,7 @@ def has_permissions(path, permissions):
         AssertionError: Path is not a Unicode or bytes string.
         FilesystemError: Unable to look up permissions for the path.
     """
-    sanity.check_internal_string(permissions)
+    assert isinstance(permissions, str)
     if not isinstance(path, (bytes, str)):
         raise AssertionError('Expected "path" to be a string type')
 
