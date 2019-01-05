@@ -427,7 +427,6 @@ def get_one_from_many_generic_values(databundle_list, uri):
         'title': {
             'primary_field': fields.Title,
             'secondary_field': fields.Description,
-
         },
         'date_created': {
             'primary_field': fields.DateTime,
