@@ -348,13 +348,13 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
         if candidates:
             sorted_candidates = sorted(candidates, key=lambda x: x[0], reverse=True)
 
-            # Debug logging ..
-            for n, scored_candidate in enumerate(sorted_candidates, start=1):
-                score, candidate = scored_candidate
-                self.log.debug(
-                    'Candidate (%d/%d) Score %.6f  Title "%s"',
-                    n, len(sorted_candidates), score, candidate.normalized_title
-                )
+            if self.log.getEffectiveLevel() >= logging.DEBUG:
+                for n, scored_candidate in enumerate(sorted_candidates, start=1):
+                    score, candidate = scored_candidate
+                    self.log.debug(
+                        'Candidate (%d/%d) Score %.6f  Title "%s"',
+                        n, len(sorted_candidates), score, candidate.normalized_title
+                    )
 
             # Return first metadata from list of (title_similarity, metadata) tuples
             most_probable = sorted_candidates[0][1]
