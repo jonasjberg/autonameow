@@ -28,6 +28,7 @@ from core.metadata.normalize import normalize_full_title
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from core.truths import known_metadata
+from util import coercers
 from util import sanity
 
 
@@ -364,6 +365,8 @@ def dedupe_list_of_databundles(databundle_list):
             seen_values.add(normalized_author)
 
         elif databundle.generic_field is gf.GenericTitle:
+            if not isinstance(value, str):
+                value = coercers.force_string(value)
             normalized_title = normalize_full_title(value)
             if normalized_title in seen_values:
                 continue

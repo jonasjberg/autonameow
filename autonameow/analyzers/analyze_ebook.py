@@ -295,13 +295,21 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             if isinstance(_response, str):
                 return _response
 
+            if isinstance(_response, bytes):
+                _str_response = coercers.force_string(_response)
+                if _str_response:
+                    return _str_response
+
             # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
             if isinstance(_response, list):
-                if len(_response) == 1:
-                    first_and_only_element = _response[0]
-                    if isinstance(first_and_only_element, str):
-                        return first_and_only_element
+                unique_string_values = set(
+                    filter(None, [coercers.force_string(v) for v in _response])
+                )
+                if len(unique_string_values) == 1:
+                    return unique_string_values.pop()
 
+            self.log.debug('Unable to untangle response (%s) %r',
+                           type(_response), _response)
             return None
 
         # TODO: [TD0187] Fix clobbering of results.

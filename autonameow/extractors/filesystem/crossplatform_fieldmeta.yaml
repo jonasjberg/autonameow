@@ -8,6 +8,11 @@ basename_full:
 
 basename_prefix:
     coercer: aw_pathcomponent
+    generic_field: title
+    mapped_fields:
+      -   WeightedMapping:
+            field: Title
+            weight: 0.1
     multivalued: false
 
 basename_suffix:
