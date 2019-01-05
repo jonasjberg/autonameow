@@ -414,25 +414,31 @@ def get_one_from_many_generic_values(databundle_list, uri):
         for the name template field related to the MeowURI "leaf".
     """
     uri_leaf = uri.leaf
-    if uri_leaf == 'author':
-        prioritized = sort_by_mapped_weights(databundle_list,
-                                             primary_field=fields.Author)
-        return prioritized[0]
-    elif uri_leaf == 'title':
-        prioritized = sort_by_mapped_weights(databundle_list,
-                                             primary_field=fields.Title)
-        return prioritized[0]
-    elif uri_leaf == 'date_created':
-        prioritized = sort_by_mapped_weights(databundle_list,
-                                             primary_field=fields.DateTime)
-        return prioritized[0]
-    elif uri_leaf == 'publisher':
-        prioritized = sort_by_mapped_weights(databundle_list,
-                                             primary_field=fields.Publisher)
-        return prioritized[0]
-
-    else:
-        log.debug('[TD0112] Unhandled uri.leaf: "%s"', uri_leaf)
 
     # TODO: [TD0112] Handle ranking candidates.
-    return None
+    uri_leaf_mapping_fields = {
+        'author': {
+            'primary_field': fields.Author,
+            'secondary_field': fields.Creator,
+        },
+        'title': {
+            'primary_field': fields.Title,
+            'secondary_field': fields.Description,
+
+        },
+        'date_created': {
+            'primary_field': fields.DateTime,
+            'secondary_field': fields.Date
+        },
+        'publisher': {
+            'primary_field': fields.Publisher,
+        },
+    }
+
+    if uri_leaf not in uri_leaf_mapping_fields:
+        log.debug('[TD0112] Unhandled uri.leaf: "%s"', uri_leaf)
+        return None
+
+    prioritized = sort_by_mapped_weights(databundle_list,
+                                         **uri_leaf_mapping_fields[uri_leaf])
+    return prioritized[0]
