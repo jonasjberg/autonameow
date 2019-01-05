@@ -223,7 +223,7 @@ class ExtractorRunner(object):
             meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
             data: Data to add, as a dict containing the data and meta-information.
         """
-        sanity.check_isinstance(data, dict)
+        assert isinstance(data, dict)
         for _uri_leaf, _data in data.items():
             uri = force_meowuri(meowuri_prefix, _uri_leaf)
             if not uri:

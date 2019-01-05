@@ -83,7 +83,7 @@ class _Title(NameTemplateField):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = databundle.value
         coercer = databundle.coercer
-        sanity.check_isinstance(coercer, coercers.BaseCoercer)
+        assert isinstance(coercer, coercers.BaseCoercer)
 
         if coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
             str_value = coercers.force_string(value)
@@ -116,7 +116,7 @@ class _Edition(NameTemplateField):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = databundle.value
         coercer = databundle.coercer
-        sanity.check_isinstance(coercer, coercers.BaseCoercer)
+        assert isinstance(coercer, coercers.BaseCoercer)
 
         if coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
             str_value = coercers.force_string(value)
@@ -149,7 +149,7 @@ class _Extension(NameTemplateField):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = databundle.value
         coercer = databundle.coercer
-        sanity.check_isinstance(coercer, coercers.BaseCoercer)
+        assert isinstance(coercer, coercers.BaseCoercer)
 
         if not value:
             # Might be 'NullMIMEType', which evaluates False here.
@@ -179,13 +179,13 @@ class _Author(NameTemplateField):
         # TODO: [TD0036] Allow per-field replacements and customization.
         value = databundle.value
         coercer = databundle.coercer
-        sanity.check_isinstance(coercer, coercers.BaseCoercer)
+        assert isinstance(coercer, coercers.BaseCoercer)
 
         # TODO: Coercer references that are passed around are class INSTANCES!
         # TODO: [hack] Fix 'coercers.listof()' expects classes!
         coercer = coercers.listof(coercer)
         str_list_value = coercer(value)
-        sanity.check_isinstance(str_list_value, list)
+        assert isinstance(str_list_value, list)
 
         # TODO: [TD0129] Data validation at this point should be made redundant
         if any(not s.strip() for s in str_list_value):
@@ -314,9 +314,9 @@ class _Tags(NameTemplateField):
         str_list_value = coercers.listof(coercers.AW_STRING)(value)
 
         # TODO: [TD0129] Is this kind of double-double-check really necessary..?
-        sanity.check_isinstance(str_list_value, list)
+        assert isinstance(str_list_value, list)
         for t in str_list_value:
-            sanity.check_isinstance(t, str)
+            assert isinstance(t, str)
 
         if len(str_list_value) == 1:
             # Single tag doesn't need to be joined.
@@ -413,7 +413,7 @@ def is_valid_template_field(template_field):
 
 
 def formatted_datetime(datetime_object, format_string):
-    sanity.check_isinstance(datetime_object, datetime.datetime)
+    assert isinstance(datetime_object, datetime.datetime)
     return datetime_object.strftime(format_string)
 
 

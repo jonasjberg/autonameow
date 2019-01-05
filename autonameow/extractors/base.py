@@ -29,7 +29,6 @@ from core.providers import ProviderMixin
 from extractors import ExtractorError
 from util import disk
 from util import mimemagic
-from util import sanity
 
 
 class BaseMetadataExtractor(ProviderMixin):
@@ -154,7 +153,8 @@ class BaseMetadataExtractor(ProviderMixin):
                 'Classes without class attribute "HANDLES_MIME_TYPES" must '
                 'implement (override) class method "can_handle"!'
             )
-        sanity.check_isinstance(cls.HANDLES_MIME_TYPES, list)
+
+        assert isinstance(cls.HANDLES_MIME_TYPES, list)
         return cls._evaluate_mime_type_glob(fileobject)
 
     @classmethod

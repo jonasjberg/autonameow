@@ -126,7 +126,7 @@ class TemplateFieldDataResolver(object):
         field_data_candidate_list = list()
         for mapping_weight, uri, databundle in candidates:
             sanity.check_isinstance_meowuri(uri)
-            sanity.check_isinstance(databundle, DataBundle)
+            assert isinstance(databundle, DataBundle)
 
             field_candidate_types_compatible = field.type_compatible(databundle.coercer, databundle.multivalued)
             if not field_candidate_types_compatible:
@@ -237,7 +237,7 @@ class TemplateFieldDataResolver(object):
                     return None
 
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
-        sanity.check_isinstance(databundle, DataBundle)
+        assert isinstance(databundle, DataBundle)
 
         if isinstance(databundle.value, str):
             if is_known_bad_string_value(field, databundle.value):
@@ -307,7 +307,7 @@ class TemplateFieldDataResolver(object):
 
 
 def is_known_bad_string_value(field, value):
-    sanity.check_isinstance(field, fields.NameTemplateField)
+    assert isinstance(field, fields.NameTemplateField)
     sanity.check_internal_string(value)
 
     if value == 'UNKNOWN':
@@ -385,9 +385,9 @@ def sort_by_mapped_weights(databundles, primary_field, secondary_field=None):
     """
     Sorts bundles by their "weighted mapping" probabilities for given fields.
     """
-    sanity.check_isinstance(primary_field, fields.NameTemplateField)
+    assert isinstance(primary_field, fields.NameTemplateField)
     if secondary_field is not None:
-        sanity.check_isinstance(secondary_field, fields.NameTemplateField)
+        assert isinstance(secondary_field, fields.NameTemplateField)
 
     databundles.sort(
         key=lambda b: (b.field_mapping_weight(primary_field),

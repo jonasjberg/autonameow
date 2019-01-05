@@ -957,7 +957,7 @@ def commandline_for_testsuite(testsuite):
     Returns:
         Full equivalent command-line as a Unicode string.
     """
-    sanity.check_isinstance(testsuite, RegressionTestSuite)
+    assert isinstance(testsuite, RegressionTestSuite)
 
     arguments = _commandline_args_for_testsuite(testsuite)
     commandline = 'autonameow ' + ' '.join(arguments)

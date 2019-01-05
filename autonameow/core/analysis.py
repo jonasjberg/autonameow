@@ -152,7 +152,7 @@ def _start(fileobject, config, analyzers_to_run=None):
 
     # TODO: [TD0126] Remove assertions once "boundaries" are cleaned up.
     sanity.check_isinstance_fileobject(fileobject)
-    sanity.check_isinstance(config, Configuration)
+    assert isinstance(config, Configuration)
 
     all_available_analyzers = analyzers.registry.all_providers
 

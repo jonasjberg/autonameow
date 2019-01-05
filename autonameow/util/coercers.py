@@ -53,7 +53,6 @@ from core import constants as C
 from core import exceptions
 from util import encoding as enc
 from util import mimemagic
-from util import sanity
 
 
 class AWTypeError(exceptions.AutonameowException):
@@ -741,7 +740,7 @@ class MultipleTypes(object):
         formatted_list = coercers.listof(coercers.AW_STRING).format(raw_list)
     """
     def __init__(self, coercer):
-        sanity.check_isinstance(coercer, BaseCoercer)
+        assert isinstance(coercer, BaseCoercer)
         self.coercer = coercer
 
     def __call__(self, values):

@@ -161,7 +161,7 @@ class Repository(object):
             log.warning('Attempt to add empty data with MeowURI "%s"', meowuri)
             return
 
-        sanity.check_isinstance(data, dict)
+        assert isinstance(data, dict)
         self._store(fileobject, meowuri, data)
         self._map_generic_field_if_present_in_data(meowuri, data)
 
@@ -311,14 +311,14 @@ class Repository(object):
             if isinstance(datadict, list):
                 temp_list = list()
                 for d in datadict:
-                    sanity.check_isinstance(d, dict)
+                    assert isinstance(d, dict)
                     str_v = _stringify_datadict_value(d.get('value'))
                     temp_list.append(str_v)
 
                 first_pass[meowuri] = temp_list
 
             else:
-                sanity.check_isinstance(datadict, dict)
+                assert isinstance(datadict, dict)
                 str_v = _stringify_datadict_value(datadict.get('value'))
                 first_pass[meowuri] = str_v
 
