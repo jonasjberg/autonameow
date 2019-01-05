@@ -25,7 +25,6 @@ from core import exceptions
 from util import disk
 from util import encoding as enc
 from util import mimemagic
-from util import sanity
 
 
 class FileObject(object):
@@ -41,7 +40,7 @@ class FileObject(object):
             path: The absolute normalized path to the file, as an
                   "internal filename bytestring", I.E. bytes.
         """
-        sanity.check_internal_bytestring(path)
+        assert isinstance(path, bytes)
         _validate_path_argument(path)
         self.abspath = path
 

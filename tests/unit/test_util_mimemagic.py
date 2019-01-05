@@ -20,7 +20,6 @@
 from unittest import TestCase
 
 import unit.utils as uu
-from core.exceptions import EncodingBoundaryViolation
 from util import coercers
 from util.mimemagic import eval_glob
 from util.mimemagic import file_mimetype
@@ -104,15 +103,15 @@ class TestEvalMagicGlob(TestCase):
         _assert_raises(TypeError, b'application', ['*/*'])
         _assert_raises(ValueError, '1', ['*/*'])
         _assert_raises(TypeError, b'1', ['*/*'])
-        _assert_raises(EncodingBoundaryViolation,
+        _assert_raises(AssertionError,
                        'image/jpeg', [b'*/jpeg'])
-        _assert_raises(EncodingBoundaryViolation,
+        _assert_raises(AssertionError,
                        'image/jpeg', [b'*/jpeg', 'image/*'])
 
         # TODO: Raising the encoding boundary exception here isn't right!
-        _assert_raises(EncodingBoundaryViolation,
+        _assert_raises(AssertionError,
                        'image/jpeg', [1])
-        _assert_raises(EncodingBoundaryViolation,
+        _assert_raises(AssertionError,
                        'image/jpeg', [1, 'image/jpeg'])
 
         _assert_raises(ValueError, 'application', ['*a'])

@@ -633,7 +633,6 @@ def try_parse_datetime(s):
 
     Raises:
         ValueError: The given string could not be parsed.
-        AssertionError: The given string is not a Unicode string.
     """
     assert isinstance(s, str)
 
@@ -674,7 +673,6 @@ def try_parse_date(s):
 
     Raises:
         ValueError: The given string could not be parsed.
-        AssertionError: The given string is not a Unicode string.
     """
     assert isinstance(s, str)
 

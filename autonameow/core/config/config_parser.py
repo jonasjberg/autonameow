@@ -38,7 +38,6 @@ from core.model import MeowURI
 from util import coercers
 from util import disk
 from util import encoding as enc
-from util import sanity
 from util import text
 
 
@@ -280,10 +279,9 @@ class ConfigurationParser(object):
             An instance of 'Configuration', created from the data at "path".
 
         Raises:
-            EncodingBoundaryViolation: Argument "path" is not a bytestring.
             ConfigError: The configuration file is empty or could not be parsed.
         """
-        sanity.check_internal_bytestring(path)
+        assert isinstance(path, bytes)
 
         try:
             loaded_data = disk.load_yaml_file(path)

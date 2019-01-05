@@ -20,27 +20,8 @@
 from unittest import TestCase
 
 import unit.utils as uu
-from core.exceptions import EncodingBoundaryViolation
 from unit import constants as uuconst
 from util import sanity
-
-
-class TestSanityCheckInternalBytestring(TestCase):
-    def test_check_passes(self):
-        def _assert_valid(test_input):
-            sanity.check_internal_bytestring(test_input)
-
-        _assert_valid(b'')
-        _assert_valid(b'foo')
-
-    def test_raises_exception_for_non_bytes_values(self):
-        def _assert_raises(test_input):
-            with self.assertRaises(EncodingBoundaryViolation):
-                sanity.check_internal_bytestring(test_input)
-
-        _assert_raises(None)
-        _assert_raises('')
-        _assert_raises('foo')
 
 
 class TestCheckIsinstanceMeowuri(TestCase):

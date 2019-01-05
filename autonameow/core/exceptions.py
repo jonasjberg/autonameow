@@ -61,10 +61,6 @@ class DependencyError(AutonameowException):
         return msg
 
 
-class EncodingBoundaryViolation(AWAssertionError):
-    """Error due to unexpected string encoding."""
-
-
 class InvalidFileArgumentError(AutonameowException):
     """The argument (file) is not suited for processing."""
 

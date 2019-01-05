@@ -111,9 +111,6 @@ class ExtractorRunner(object):
             fileobject: The file object to extract data from.
             request_extractors: List of extractor classes that must be included.
             request_all: Whether all data extractors should be included.
-
-        Raises:
-            AssertionError: A sanity check failed.
         """
         log.debug(logs.center_pad_log_entry('Extractor Runner Started'))
         sanity.check_isinstance_fileobject(fileobject)

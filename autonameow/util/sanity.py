@@ -19,27 +19,6 @@
 
 import pprint
 
-from core import exceptions
-
-
-def check_internal_bytestring(value):
-    """
-    Checks that a given value is an "internal bytestring", I.E. bytes.
-
-    Intended for sanity checking, in place of assertions.
-
-    Args:
-        value: The value to test.
-    Raises:
-        EncodingBoundaryViolation: The given value is not a bytestring.
-    """
-    if not __debug__:
-        return
-    if not isinstance(value, bytes):
-        _msg = 'Expected a "internal" bytestring.  Got {!s}:\n{!s}'.format(
-            type(value), pprint.pformat(value))
-        raise exceptions.EncodingBoundaryViolation(_msg)
-
 
 def check_isinstance(thing, expected_type, msg=None):
     """

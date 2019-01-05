@@ -65,9 +65,6 @@ def collapse_whitespace(text):
 
     Returns:
         str: Transformed text as a Unicode string.
-
-    Raises:
-        AssertionError: Given text is not an instance of 'str'.
     """
     if not text:
         return text
@@ -100,9 +97,6 @@ def strip_single_space_lines(text):
     Returns:
         str: The given text with any lines containing only a single space
              replaced by an empty line.
-
-    Raises:
-        AssertionError: Given text is not an instance of 'str'.
     """
     if not text:
         return text
@@ -127,9 +121,6 @@ def normalize_horizontal_whitespace(text):
 
     Returns:
         str: The given text with all whitespace replaced with a single space.
-
-    Raises:
-        AssertionError: Given text is not an instance of 'str'.
     """
     assert isinstance(text, str)
     if not text:
@@ -159,9 +150,6 @@ def normalize_vertical_whitespace(text):
 
     Returns:
         str: The given text with any linefeeds removed.
-
-    Raises:
-        AssertionError: Given text is not an instance of 'str'.
     """
     assert isinstance(text, str)
     if not text:
@@ -189,9 +177,6 @@ def indent(text, columns=None, padchar=None):
 
     Returns:
         str: An indented version of the given text as a Unicode str.
-
-    Raises:
-        AssertionError: Any argument has an unexpected type or value.
     """
     assert isinstance(text, str)
 

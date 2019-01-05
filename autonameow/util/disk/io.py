@@ -22,7 +22,6 @@ import os
 import tempfile
 
 from core.exceptions import FilesystemError
-from util import sanity
 from util import encoding as enc
 
 __all__ = [
@@ -49,8 +48,8 @@ log = logging.getLogger(__name__)
 
 
 def rename_file(source_path, new_basename):
-    sanity.check_internal_bytestring(source_path)
-    sanity.check_internal_bytestring(new_basename)
+    assert isinstance(source_path, bytes)
+    assert isinstance(new_basename, bytes)
     assert isabs(source_path), (
         'Expected source path to be a full absolute path. '
         'Got "{!s}"'.format(enc.displayable_path(source_path))
@@ -184,13 +183,13 @@ def delete(path, ignore_missing=False):
         ignore_missing (bool): Controls whether to ignore non-existent paths.
 
     Raises:
-        EncodingBoundaryViolation: Argument "path" is not of type 'bytes'.
         FilesystemError: The path could not be removed; the path does not
                          exist and "ignore_missing" is False or the path
                          is a directory.
         ValueError: Argument "path" is empty or only whitespace.
     """
-    sanity.check_internal_bytestring(path)
+    assert isinstance(path, bytes)
+
     if not path or not path.strip():
         raise ValueError('Argument "path" is empty or only whitespace')
 
@@ -213,11 +212,10 @@ def rmdir(path, ignore_missing=False):
         ignore_missing (bool): Controls whether to ignore non-existent paths.
 
     Raises:
-        EncodingBoundaryViolation: Argument "path" is not of type 'bytes'.
         FilesystemError: The path could not be removed, or the path does not
                          exist and "ignore_missing" is False.
     """
-    sanity.check_internal_bytestring(path)
+    assert isinstance(path, bytes)
 
     if ignore_missing and not exists(path):
         return
@@ -270,8 +268,6 @@ def has_permissions(path, permissions):
         True if the given path has the given permissions, else False.
 
     Raises:
-        EncodingBoundaryViolation: Permissions in not a Unicode string.
-        AssertionError: Path is not a Unicode or bytes string.
         FilesystemError: Unable to look up permissions for the path.
     """
     assert isinstance(permissions, str)

@@ -27,7 +27,6 @@ from core.exceptions import FilesystemError
 from util import coercers
 from util import disk
 from util import encoding as enc
-from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -80,7 +79,7 @@ class BasePersistence(object):
             self._persistence_dir_abspath = get_config_persistence_path()
         else:
             self._persistence_dir_abspath = persistence_dir_abspath
-        sanity.check_internal_bytestring(self._persistence_dir_abspath)
+        assert isinstance(self._persistence_dir_abspath, bytes)
         assert disk.isabs(self._persistence_dir_abspath)
 
         str_file_prefix = coercers.force_string(file_prefix)
@@ -470,5 +469,5 @@ event.dispatcher.on_config_changed.add(_on_config_changed)
 
 def get_config_persistence_path():
     cache_dirpath = _persistence_path_store.config_persistence_path
-    sanity.check_internal_bytestring(cache_dirpath)
+    assert isinstance(cache_dirpath, bytes)
     return cache_dirpath

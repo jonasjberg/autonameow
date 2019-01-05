@@ -20,7 +20,6 @@
 import os
 
 from util import encoding as enc
-from util import sanity
 
 
 COMPOUND_SUFFIX_TAILS = frozenset([
@@ -62,11 +61,8 @@ def split_basename(file_path):
     Returns:
         The basename of the given path split into two parts, as a tuple of
         bytestrings. Empty parts are substituted with EMPTY_FILENAME_PART.
-
-    Raises:
-        EncodingBoundaryViolation: Given arguments are not bytestrings.
     """
-    sanity.check_internal_bytestring(file_path)
+    assert isinstance(file_path, bytes)
 
     prefix, suffix = os.path.splitext(os.path.basename(enc.syspath(file_path)))
     prefix = enc.bytestring_path(prefix)
@@ -143,16 +139,9 @@ def compare_basenames(basename_one, basename_two):
 
     Returns (bool):
         True if the basenames are equal, otherwise False.
-
-    Raises:
-        ValueError: Any of the arguments is None.
-        EncodingBoundaryViolation: Any argument is not of type bytes.
     """
-    if None in (basename_one, basename_two):
-        raise ValueError('Expected two non-None bytestrings')
-
-    sanity.check_internal_bytestring(basename_one)
-    sanity.check_internal_bytestring(basename_two)
+    assert all(x is not None and isinstance(x, bytes)
+               for x in (basename_one, basename_two))
     return bool(basename_one == basename_two)
 
 

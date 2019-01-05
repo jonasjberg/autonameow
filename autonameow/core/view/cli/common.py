@@ -249,9 +249,6 @@ def msg(message, style=None, ignore_quiet=False):
                Should be one of 'info', 'heading', 'section', 'color_quoted'
                or 'highlight'.
         ignore_quiet: Whether to ignore the global quiet ('--quiet') option.
-
-    Raises:
-        EncodingBoundaryViolation: Given message is not a Unicode string.
     """
     if not ignore_quiet:
         global BE_QUIET
@@ -309,9 +306,6 @@ def msg_rename(from_basename, dest_basename, dry_run):
         dest_basename: New basename of the file to be renamed, as a Unicode
                        string.
         dry_run: True if the operation was a "dry run"/simulation.
-
-    Raises:
-        EncodingBoundaryViolation: Given message is not a Unicode string.
     """
     assert isinstance(from_basename, str)
     assert isinstance(dest_basename, str)
@@ -341,9 +335,6 @@ def msg_possible_rename(from_basename, dest_basename):
                        as a Unicode string.
         dest_basename: New basename of the file that might renamed, as a
                        Unicode string.
-
-    Raises:
-        EncodingBoundaryViolation: Given message is not a Unicode string.
     """
     assert isinstance(from_basename, str)
     assert isinstance(dest_basename, str)

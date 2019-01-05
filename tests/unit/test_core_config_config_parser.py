@@ -43,7 +43,6 @@ from core.config.config_parser import parse_versioning
 from core.config.default_config import DEFAULT_CONFIG
 from core.exceptions import ConfigError
 from core.exceptions import ConfigurationSyntaxError
-from core.exceptions import EncodingBoundaryViolation
 
 
 MOCK_REGISTRY = Mock()
@@ -161,7 +160,7 @@ class TestDefaultConfigFromFile(TestCase):
         self.assertIsNotNone(config)
 
     def test_raises_exception_given_unicode_path(self):
-        with self.assertRaises(EncodingBoundaryViolation):
+        with self.assertRaises(AssertionError):
             _ = self.config_parser.from_file(self.config_path_unicode)
 
     def test_raises_config_error_if_given_path_to_empty_file(self):

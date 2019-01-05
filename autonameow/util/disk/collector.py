@@ -23,7 +23,6 @@ import logging
 from core.exceptions import FilesystemError
 from util import disk
 from util import encoding as enc
-from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -58,14 +57,14 @@ def get_files_gen(search_path, recurse=False):
     if not search_path.strip():
         raise FileNotFoundError('Search path is all whitespace')
 
-    sanity.check_internal_bytestring(search_path)
+    assert isinstance(search_path, bytes)
 
     if not disk.isfile(search_path) and not disk.isdir(search_path):
         dp = enc.displayable_path(search_path)
         raise FileNotFoundError('Path not a file or directory: "{!s}"'.format(dp))
 
     if disk.isfile(search_path):
-        sanity.check_internal_bytestring(search_path)
+        assert isinstance(search_path, bytes)
         yield search_path
     elif disk.isdir(search_path):
         _dir_listing = disk.listdir(search_path)
@@ -76,11 +75,11 @@ def get_files_gen(search_path, recurse=False):
                 continue
 
             if disk.isfile(entry_path):
-                sanity.check_internal_bytestring(entry_path)
+                assert isinstance(entry_path, bytes)
                 yield entry_path
             elif recurse and disk.isdir(entry_path):
                 for f in get_files_gen(entry_path, recurse=recurse):
-                    sanity.check_internal_bytestring(f)
+                    assert isinstance(f, bytes)
                     yield f
 
 

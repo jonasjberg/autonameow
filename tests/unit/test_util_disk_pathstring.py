@@ -21,7 +21,6 @@ from unittest import expectedFailure, TestCase
 
 import unit.utils as uu
 from core import constants as C
-from core.exceptions import EncodingBoundaryViolation
 from util.disk.pathstring import basename_prefix
 from util.disk.pathstring import basename_suffix
 from util.disk.pathstring import compare_basenames
@@ -46,7 +45,7 @@ class TestSplitBasename(TestCase):
             self.assertTrue(uu.is_internalbytestring(part))
 
     def test_raises_assertion_error_given_unicode_strings(self):
-        with self.assertRaises(EncodingBoundaryViolation):
+        with self.assertRaises(AssertionError):
             _, _ = split_basename('a.b')
 
     def test_empty_filenames(self):
@@ -251,27 +250,27 @@ class TestBasenamePrefix(TestCase):
 
 
 class TestCompareBasenames(TestCase):
-    def test_compare_basenames_raises_exceptions_given_invalid_input(self):
-        def _assert_raises(exception_, a, b):
-            with self.assertRaises(exception_):
+    def test_raises_exception_given_invalid_input(self):
+        for a, b in [
+            (None, None),
+            (None, None),
+            (None, []),
+            ([], None),
+            (1, 2),
+            ([], []),
+            (object(), object()),
+            ('a', 'b'),
+            ('a', []),
+            ('', ''),
+            ('', ' '),
+            ('_', ''),
+            ('a', 2),
+            (1, 'b'),
+            ('a', b'a'),
+            (b'a', 'a'),
+        ]:
+            with self.assertRaises(AssertionError):
                 compare_basenames(a, b)
-
-        _assert_raises(ValueError, None, None)
-        _assert_raises(ValueError, None, None)
-        _assert_raises(ValueError, None, [])
-        _assert_raises(ValueError, [], None)
-        _assert_raises(EncodingBoundaryViolation, 1, 2)
-        _assert_raises(EncodingBoundaryViolation, [], [])
-        _assert_raises(EncodingBoundaryViolation, object(), object())
-        _assert_raises(EncodingBoundaryViolation, 'a', 'b')
-        _assert_raises(EncodingBoundaryViolation, 'a', [])
-        _assert_raises(EncodingBoundaryViolation, '', '')
-        _assert_raises(EncodingBoundaryViolation, '', ' ')
-        _assert_raises(EncodingBoundaryViolation, '_', '')
-        _assert_raises(EncodingBoundaryViolation, 'a', 2)
-        _assert_raises(EncodingBoundaryViolation, 1, 'b')
-        _assert_raises(EncodingBoundaryViolation, 'a', b'a')
-        _assert_raises(EncodingBoundaryViolation, b'a', 'a')
 
     def test_comparing_equal_basenames_returns_true(self):
         def _assert_true(first, second):
