@@ -30,6 +30,7 @@ from util.text.humannames import preprocess_names
 
 
 IGNORED_EXIFTOOL_TAGNAMES = frozenset([
+    'ExifTool:Error',
     'ExifTool:ExifToolVersion',
     'ExifTool:Warning',
     'Palm:CreatorBuildNumber',
