@@ -12,6 +12,7 @@ Ideas on a possible new abstract high-level model of assembling a new filename.
 #### Revisions
 * 2018-11-04 --- `jonasjberg` Initial.
 * 2018-12-02 --- `jonasjberg` Add another example.
+* 2019-02-05 --- `jonasjberg` Additional examples.
 
 
 Motivation
@@ -175,8 +176,8 @@ Hopefully, accuracy would improve with time as `autonameow` renames files in
 
 Then when we tell `autonameow` to rename `~/example/*.txt` again with a new set
 of files (assumed to be "similar" to the first batch, I.E. good choice of
-signifier), the system has some idea on which change operations work because it
-has learned from three different examples.
+signifier), the system has some idea about which change operations work because
+it has previously learned from three different examples.
 
 ```
 ~/example/bar.txt      ->  ~/example/0_bar.txt
@@ -220,13 +221,22 @@ has learned from three different examples.
 
 
 
-#### Example 2
+#### Example 2: Post-processing
 Single "letter case lowering operation" acting on the entire filename would
 turn `MEOW.docx` into `meow.docx`.
 
+Most importantly, by treating the "post-processing"- and
+"custom replacements"-steps as abstract "change operations"; their sequential
+order can be made arbitrary and multiple "post-processing" steps can be
+performed at different steps of a sequence containing various types of change
+operations.
+
+Applying the user-customizable "custom replacements" often results in a result
+that really should be revisited and given another look.
 
 
-#### Example 3
+
+#### Example 3: Bridging "Name Template" and "Field" Abstractions
 *Potentially ill-advised system for describing changes across systems, "levels
 of abstraction" and concerns..*
 
@@ -261,6 +271,21 @@ Name Template      : '{date} {title}.{extension}'
 Again, this is also motivated by easier serialization of the performed actions
 and also possibly being able to plug in some kind of supervised learning system
 to offer better suggestions in the future.
+
+
+
+#### Example 4: Undo/Redo
+The "change operations" would probably work well with the "command pattern"
+or similar solution of wrapping up changes of interest in a way that could be
+easily stored in a stack of operations. Undo/redo-functionality would be added
+by simply traversing the stack and calling something like `do()` and `undo()`
+methods.
+
+
+
+#### Example 5: Visualization of Changes
+Each change operation might could have an associated "view" that could be
+hooked into the UI-layer to render the various partial steps as they happen.
 
 
 
