@@ -106,8 +106,12 @@ class Autonameow(object):
         # If a specific config path was not passed in with the options
         # and no config file is found in the OS-specific default paths,
         # write the default "example" config, tell the user and exit.
-        if self.opts.get('config_path'):
-            self._load_config_from_options_config_path()
+
+        # TODO: This is broken! Instead, always use the default config and then
+        #       merge and override with settings from the user-provided config.
+        opts_config_path = self.opts.get('config_path')
+        if opts_config_path:
+            self._load_config_from_path(opts_config_path)
         else:
             filepath_default_config = persistence.DefaultConfigFilePath
             if persistence.has_config_file():
@@ -229,10 +233,6 @@ class Autonameow(object):
         str_filepath = enc.displayable_path(filepath)
         log.info('Using configuration: "%s"', str_filepath)
         self.load_config(filepath)
-
-    def _load_config_from_options_config_path(self):
-        filepath = self.opts.get('config_path')
-        self._load_config_from_path(filepath)
 
     def _write_example_config_to_path(self, filepath):
         str_filepath = enc.displayable_path(filepath)
