@@ -39,6 +39,8 @@ text/x-sh: sh
 text/x-shellscript: sh
 text/x-shellscript: bash
 text/x-tex: tex
+video/ogg: ogv
+video/x-ogg: ogv
 video/x-matroska: mkv
 video/x-ms-asf: wma
 application/x-iso9660-image: dmg

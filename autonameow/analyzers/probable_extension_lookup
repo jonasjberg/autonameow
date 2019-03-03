@@ -427,6 +427,14 @@ MIMETYPE video/mpeg
     EXTENSION vob
     - vob
 
+MIMETYPE video/ogg
+    EXTENSION ogv
+    - ogv
+
+MIMETYPE video/x-ogg
+    EXTENSION ogv
+    - ogv
+
 MIMETYPE video/x-ms-asf
     EXTENSION wma
     - wma

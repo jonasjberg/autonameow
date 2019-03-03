@@ -333,6 +333,12 @@ class TestMimemagicGetExtension(TestCase):
     def test_maps_mime_type_application_x_mobipocket_ebook_to_extension_azw3(self):
         self._assert_returns_extension('azw3', given='application/x-mobipocket-ebook')
 
+    def test_maps_mime_type_video_ogg_to_extension_ogv(self):
+        self._assert_returns_extension('ogv', given='video/ogg')
+
+    def test_maps_mime_type_video_x_ogg_to_extension_ogv(self):
+        self._assert_returns_extension('ogv', given='video/x-ogg')
+
 
 class TestMimemagicGetMimetype(TestCase):
     def _assert_returns_mime(self, expect, given):
@@ -387,3 +393,9 @@ class TestMimemagicGetMimetype(TestCase):
 
     def test_maps_extension_azw3_to_mime_type_application_x_mobipocket_ebook(self):
         self._assert_returns_mime('application/x-mobipocket-ebook', 'azw3')
+
+    def test_maps_extension_ogv_to_mime_type_video_ogg(self):
+        self._assert_returns_mime('video/ogg', 'ogv')
+
+    def test_maps_extension_ogv_to_mime_type_video_x_ogg(self):
+        self._assert_returns_mime('video/x-ogg', 'ogv')
