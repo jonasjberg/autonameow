@@ -396,6 +396,3 @@ class TestMimemagicGetMimetype(TestCase):
 
     def test_maps_extension_ogv_to_mime_type_video_ogg(self):
         self._assert_returns_mime('video/ogg', 'ogv')
-
-    def test_maps_extension_ogv_to_mime_type_video_x_ogg(self):
-        self._assert_returns_mime('video/x-ogg', 'ogv')
