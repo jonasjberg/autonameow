@@ -97,11 +97,10 @@ This script accepts optional argument flags, as described in the usage text;
                           expression are skipped.
                -h         Display usage information and exit.
                -q         Suppress output from test suites.
-               -w         Write HTML test reports to disk.
-                          Note: The "raw" log file is always written.
 
   All options are optional. Default behaviour is to print the test
   results to stdout/stderr in real-time.
+  Note: The "raw" log file is always written.
 
   EXIT CODES:   0         All tests/assertions passed.
                 1         Any tests/assertions FAILED.

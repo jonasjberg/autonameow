@@ -90,7 +90,6 @@ assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
             'Module "pytest-html" is available on the system'
 
 # assert_has_command 'vulture'
-# assert_has_command 'aha'
 # assert_has_command 'pylint'
 
 

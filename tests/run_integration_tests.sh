@@ -50,7 +50,6 @@ EOF
 fi
 
 # Default configuration.
-option_write_report=false
 option_quiet=false
 optionarg_filter=''
 
@@ -69,11 +68,10 @@ print_usage_info()
                           expression are skipped.
                -h         Display usage information and exit.
                -q         Suppress output from test suites.
-               -w         Write HTML test reports to disk.
-                          Note: The "raw" log file is always written.
 
   All options are optional. Default behaviour is to print the test
   results to stdout/stderr in real-time.
+  Note: The "raw" log file is always written.
 
   EXIT CODES:   ${EXIT_SUCCESS}         All tests/assertions passed.
                 ${EXIT_FAILURE}         Any tests/assertions FAILED.
@@ -89,7 +87,7 @@ if [ "$#" -eq "0" ]
 then
     printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "${SELF_BASENAME}"
 else
-    while getopts f:hwq opt
+    while getopts f:hq opt
     do
         case "$opt" in
             f) optionarg_filter="${OPTARG:-}"
@@ -99,7 +97,6 @@ else
                    exit "$EXIT_CRITICAL"
                fi ;;
             h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
-            w) option_write_report=true ;;
             q) option_quiet=true ;;
         esac
     done
@@ -178,15 +175,6 @@ do
 done < "$AUTONAMEOW_INTEGRATION_STATS"
 
 log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_total_failed"
-
-
-# NOTE: Requires "aha" to be installed in order to convert the "raw"
-#       (containing ANSI escape codes) log files to HTML.
-# if $option_write_report
-# then
-#     run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
-# fi
-
 log_msg_timestamped "Exiting integration test runner \"${SELF_BASENAME}\""
 
 if [ "$_total_failed" -eq "0" ]

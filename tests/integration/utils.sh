@@ -226,40 +226,6 @@ assert_false()
     fi
 }
 
-# Converts the integration test log file to HTML using executable 'aha' if
-# available.  Executed at the end of a test run by 'run_integration_tests.sh'.
-convert_raw_log_to_html()
-{
-    if ! command -v "aha" &>/dev/null
-    then
-        log_msg 'The executable "aha" is not available on this system'
-        log_msg 'Skipping converting raw logfiles to HTML ..'
-        exit 1
-    fi
-
-    if [ -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] ||
-       [ ! -f "$AUTONAMEOW_INTEGRATION_LOG" ]
-    then
-        echo "Logging has not been initialized. Aborting .." 1>&2
-        return 1
-    fi
-
-    _html_integration_log="${AUTONAMEOW_INTEGRATION_LOG%.*}.html"
-    _html_title="autonameow Integration Test Log ${AUTONAMEOW_INTEGRATION_TIMESTAMP}"
-
-    if aha --title "$_html_title" \
-        < "$AUTONAMEOW_INTEGRATION_LOG" | sed 's///g' > "$_html_integration_log"
-    then
-        if [ -s "$_html_integration_log" ]
-        then
-            log_msg "Wrote integration test log HTML file: \"${_html_integration_log}\""
-            rm -- "$AUTONAMEOW_INTEGRATION_LOG"
-
-            # Write log file name to temporary file, used by other scripts.
-            echo "${_html_integration_log}" >| "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport"
-        fi
-    else
-        log_msg 'FAILED to write HTML log file!'
     fi
 }
 
