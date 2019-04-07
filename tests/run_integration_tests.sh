@@ -114,8 +114,8 @@ time_start="$(current_unix_time)"
 initialize_logging
 initialize_global_stats
 search_dir="${SELF_DIRPATH}/integration"
-logmsg "Started integration test runner \"${SELF_BASENAME}\""
-logmsg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
+log_msg_timestamped "Started integration test runner \"${SELF_BASENAME}\""
+log_msg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
 find "$search_dir" -maxdepth 1 -type f -name "test_*.sh" | sort -r |
@@ -123,7 +123,7 @@ while IFS=$'\n' read -r testscript
 do
     if [ ! -x "$testscript" ]
     then
-        logmsg "Missing execute permission: \"${testscript}\" .. SKIPPING"
+        log_msg "Missing execute permission: \"${testscript}\" .. SKIPPING"
         continue
     fi
 
@@ -133,7 +133,7 @@ do
     then
         if ! grep -q -- "$optionarg_filter" <<< "${_testscript_base}"
         then
-            logmsg "Skipped \"${_testscript_base}\" (filter expression \"${optionarg_filter}\")"
+            log_msg "Skipped \"${_testscript_base}\" (filter expression \"${optionarg_filter}\")"
             continue
         fi
     fi
@@ -153,21 +153,21 @@ do
     # !! fi
     # !! wait "$TASK_PID"
 
-    logmsg "Starting \"${_testscript_base}\" .."
+    log_msg_timestamped "Starting \"${_testscript_base}\" .."
     if $option_quiet
     then
         source "${testscript}" &>/dev/null
     else
         source "${testscript}"
     fi
-    logmsg "Finished \"${_testscript_base}\""
+    log_msg_timestamped "Finished \"${_testscript_base}\""
 done
 
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
 total_time="$(((time_end - time_start) / 1000000))"
-logmsg "Total execution time: ${total_time} ms"
+log_msg "Total execution time: ${total_time} ms"
 
 
 while read -r _count _pass _fail
@@ -187,6 +187,7 @@ log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_tota
 #     run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
 # fi
 
+log_msg_timestamped "Exiting integration test runner \"${SELF_BASENAME}\""
 
 if [ "$_total_failed" -eq "0" ]
 then

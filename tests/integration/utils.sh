@@ -58,7 +58,7 @@ initialize_logging()
     AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/integration_log_${AUTONAMEOW_INTEGRATION_TIMESTAMP}.raw"
     export AUTONAMEOW_INTEGRATION_LOG
 
-    logmsg "Logging to file: \"${AUTONAMEOW_INTEGRATION_LOG}\""
+    log_msg "Logging to file: \"${AUTONAMEOW_INTEGRATION_LOG}\""
 }
 
 initialize_global_stats()
@@ -69,7 +69,7 @@ initialize_global_stats()
         exit 1
     fi
 
-    logmsg "Writing global statistics to file: \"${AUTONAMEOW_INTEGRATION_STATS}\""
+    log_msg "Writing global statistics to file: \"${AUTONAMEOW_INTEGRATION_STATS}\""
     export AUTONAMEOW_INTEGRATION_STATS
 
     # Set total, passed and failed to 0
@@ -84,7 +84,7 @@ initialize_global_stats()
 # skipped. In this case no log file is written do disk.
 #
 # shellcheck disable=SC2015
-logmsg()
+log_msg_timestamped()
 {
     local _timestamp
     _timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
@@ -93,6 +93,24 @@ logmsg()
     ( [ ! -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] && tee -a "$AUTONAMEOW_INTEGRATION_LOG" || cat )
 }
 
+log_msg()
+{
+    printf '%s\n' "$*" | (
+        [ -n "${AUTONAMEOW_INTEGRATION_LOG:-}" ] && tee -a "$AUTONAMEOW_INTEGRATION_LOG" || cat
+    )
+}
+
+log_msg_separator()
+{
+    log_msg "$(printf '=%.0s' {1..80})"
+}
+
+log_msg_separator_thin()
+{
+    log_msg "$(printf '~%.0s' {1..80})"
+}
+
+
 # Prints out a summary of test results for the currently sourcing script.
 log_test_suite_results_summary()
 {
@@ -100,21 +118,21 @@ log_test_suite_results_summary()
     local -r _execution_time="$2"
     local _highlight_red
 
-    logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    log_msg_separator_thin
 
     _highlight_red=''
     if [ "$suite_tests_failed" -eq "0" ]
     then
-        logmsg "${C_BOLD}${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
+        log_msg "${C_BOLD}${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
     else
-        logmsg "${C_BOLD}${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
+        log_msg "${C_BOLD}${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
         _highlight_red="${C_RED}"
     fi
 
-    logmsg "$(printf "${C_BOLD}Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
+    log_msg "$(printf "${C_BOLD}Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$suite_tests_count" "$suite_tests_passed" "$suite_tests_failed")"
-    logmsg "${C_BOLD}Completed the ${_name} test suite tests in ${_execution_time} ms${C_RESET}"
-    logmsg "======================================================================"
+    log_msg "${C_BOLD}Completed the ${_name} test suite tests in ${_execution_time} ms${C_RESET}"
+    log_msg_separator
 }
 
 # Prints out a total test results ummary for all tests.
@@ -126,14 +144,14 @@ log_total_results_summary()
     local -r _tests_failed="$4"
     local _highlight_red
 
-    logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    log_msg_separator_thin
 
     _highlight_red=''
     if [ "$_tests_failed" -eq "0" ]
     then
-        logmsg "${C_BOLD}${C_GREEN}[ ALL TEST SUITE(S) TESTS PASSED ]${C_RESET}"
+        log_msg "${C_BOLD}${C_GREEN}[ ALL TEST SUITE(S) TESTS PASSED ]${C_RESET}"
     else
-        logmsg "${C_BOLD}${C_RED}[ SOME TEST SUITE(S) TESTS FAILED ]${C_RESET}"
+        log_msg "${C_BOLD}${C_RED}[ SOME TEST SUITE(S) TESTS FAILED ]${C_RESET}"
         _highlight_red="${C_RED}"
     fi
 
@@ -145,16 +163,16 @@ log_total_results_summary()
                $((_seconds % 3600 / 60))      \
                $((_seconds % 60)))"
 
-    logmsg "$(printf "${C_BOLD}Total Test Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
+    log_msg "$(printf "${C_BOLD}Total Test Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$_tests_count" "$_tests_passed" "$_tests_failed")"
-    logmsg "${C_BOLD}Completed all tests in ${_duration}  (${_execution_time} ms)${C_RESET}"
-    logmsg "======================================================================"
+    log_msg "${C_BOLD}Completed all tests in ${_duration}  (${_execution_time} ms)${C_RESET}"
+    log_msg_separator
 }
 
 # Logs a test failure message and increments counters.
 test_fail()
 {
-    logmsg "${C_RED}[FAILED]${C_RESET} " "$*"
+    log_msg "${C_RED}[FAIL]${C_RESET}" "$*"
     suite_tests_failed="$((suite_tests_failed + 1))"
     suite_tests_count="$((suite_tests_count + 1))"
 }
@@ -162,7 +180,7 @@ test_fail()
 # Logs a test success message and increments counters.
 test_pass()
 {
-    logmsg "${C_GREEN}[PASSED]${C_RESET} " "$*"
+    log_msg "${C_GREEN}[PASS]${C_RESET}" "$*"
     suite_tests_passed="$((suite_tests_passed + 1))"
     suite_tests_count="$((suite_tests_count + 1))"
 }
@@ -214,8 +232,8 @@ convert_raw_log_to_html()
 {
     if ! command -v "aha" &>/dev/null
     then
-        logmsg "The executable \"aha\" is not available on this system"
-        logmsg "Skipping converting raw logfiles to HTML .."
+        log_msg 'The executable "aha" is not available on this system'
+        log_msg 'Skipping converting raw logfiles to HTML ..'
         exit 1
     fi
 
@@ -234,14 +252,14 @@ convert_raw_log_to_html()
     then
         if [ -s "$_html_integration_log" ]
         then
-            logmsg "Wrote integration test log HTML file: \"${_html_integration_log}\""
+            log_msg "Wrote integration test log HTML file: \"${_html_integration_log}\""
             rm -- "$AUTONAMEOW_INTEGRATION_LOG"
 
             # Write log file name to temporary file, used by other scripts.
             echo "${_html_integration_log}" >| "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport"
         fi
     else
-        logmsg 'FAILED to write HTML log file!'
+        log_msg 'FAILED to write HTML log file!'
     fi
 }
 
@@ -364,11 +382,11 @@ assert_has_command()
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
 then
-    logmsg "Starting self-tests .."
+    log_msg "Starting self-tests .."
     assert_true  '[ "0" -eq "0" ]' '(Internal Test) Expect success ..'
     assert_true  '[ "1" -eq "0" ]' '(Internal Test) Expect failure ..'
     assert_false '[ "1" -eq "0" ]' '(Internal Test) Expect success ..'
     assert_false '[ "1" -ne "0" ]' '(Internal Test) Expect failure ..'
-    logmsg "Finished self-tests!"
+    log_msg "Finished self-tests!"
 fi
 
