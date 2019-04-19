@@ -48,13 +48,13 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 DOC_PATH="$( ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e "./docs/" ) )"
 doc_path_basename="$(basename -- "$DOC_PATH")"
-assert_true '[ -d "$DOC_PATH" ]' \
+aw_utils.assert_true '[ -d "$DOC_PATH" ]' \
             "Documentation directory \"${doc_path_basename}\" should exist"
 
 _srcroot_readme="${AUTONAMEOW_ROOT_DIR}/README.md"
 assert_bulk_test "$_srcroot_readme" n e f r
 
-assert_true '[ -f "$_srcroot_readme" ]' \
+aw_utils.assert_true '[ -f "$_srcroot_readme" ]' \
             'The root source directory should contain a "README.md"'
 
 

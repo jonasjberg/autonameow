@@ -120,7 +120,7 @@ do
         # like this (shame.. shame..) to keep the number of tests constant.
         _expr='true'
     fi
-    assert_true "${_expr}" \
+    aw_utils.assert_true "${_expr}" \
                 "Fieldmeta YAML-file \"${_fieldmeta_basename}\" uses only ASCII letters and underlines in any and all \"generic_field\" values"
 
     assert_false 'grep -qE -- "weight: [0-9]+$" "$fieldmeta_file"' \
@@ -134,7 +134,7 @@ done
 
 _todo_helper_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/todo_id.py"
 
-assert_true '"${_todo_helper_script_path}"' \
+aw_utils.assert_true '"${_todo_helper_script_path}"' \
             'TODO-list utility script checks pass ("todo_id.py --check" returns 0)'
 
 
@@ -153,7 +153,7 @@ _check_committed_textfiles_exist_and_readable()
     done
     return 0
 }
-assert_true '_check_committed_textfiles_exist_and_readable' \
+aw_utils.assert_true '_check_committed_textfiles_exist_and_readable' \
             'All committed files with MIME-type matching "text/*" exist and are readable'
 
 
@@ -168,7 +168,7 @@ _check_python_source_files_exist_and_readable()
     done
     return 0
 }
-assert_true '_check_python_source_files_exist_and_readable' \
+aw_utils.assert_true '_check_python_source_files_exist_and_readable' \
             'All committed Python source files (some excluded, see test for details) exist and are readable'
 
 
@@ -180,14 +180,14 @@ _check_python_source_files_do_not_use_grouped_imports()
     done
     return 0
 }
-assert_true '_check_python_source_files_do_not_use_grouped_imports' \
+aw_utils.assert_true '_check_python_source_files_do_not_use_grouped_imports' \
             'None of the committed Python source files (some excluded, see test for details) use grouped import statements'
 
 
 _whitespace_check_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check_whitespace.sh"
 assert_bulk_test "$_whitespace_check_script_path" e x
 
-assert_true '$_whitespace_check_script_path' \
+aw_utils.assert_true '$_whitespace_check_script_path' \
             'Whitespace conformance script checks pass ("check_whitespace.sh" returns 0)'
 
 
@@ -198,7 +198,7 @@ assert_true '$_whitespace_check_script_path' \
 _check_spelling_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check_spelling.sh"
 assert_bulk_test "$_check_spelling_script_path" e x
 
-assert_true '$_check_spelling_script_path' \
+aw_utils.assert_true '$_check_spelling_script_path' \
             'Spell-checker script checks pass ("check_spelling.sh" returns 0)'
 
 

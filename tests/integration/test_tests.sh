@@ -63,8 +63,8 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-assert_true  '[ "0" -eq "0" ]' 'Expect success .. (true positive)'
-#assert_true  '[ "1" -eq "0" ]' 'Expect failure .. (false negative)'
+aw_utils.assert_true  '[ "0" -eq "0" ]' 'Expect success .. (true positive)'
+#aw_utils.assert_true  '[ "1" -eq "0" ]' 'Expect failure .. (false negative)'
 assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
 #assert_false '[ "1" -ne "0" ]' 'Expect failure .. (false negative)'
 
@@ -109,7 +109,7 @@ assert_has_command 'mktemp'
 assert_has_command 'realpath'
 
 assert_has_command 'sed'
-assert_true 'man sed | grep -- "^ \+.*-i\b"' \
+aw_utils.assert_true 'man sed | grep -- "^ \+.*-i\b"' \
             'System sed supports the "-i" option, required by some integration tests'
 
 assert_has_command 'time'
@@ -123,21 +123,21 @@ assert_has_command 'aspell'  # devscripts/check_spelling.sh
 _integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_integration_tests.sh"
 assert_bulk_test "$_integration_runner_path" n e r x
 
-assert_true '"$_integration_runner_path" -h' \
+aw_utils.assert_true '"$_integration_runner_path" -h' \
             "Expect exit code 0 when running \"${_integration_runner_path} -h\""
 
 
 _unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_unit_tests.sh"
 assert_bulk_test "$_unit_runner_path" n e r x
 
-assert_true '"$_unit_runner_path" -h' \
+aw_utils.assert_true '"$_unit_runner_path" -h' \
             "Expect exit code 0 when running \"${_unit_runner_path} -h\""
 
 
 _regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_regression_tests.sh"
 assert_bulk_test "$_regression_runner_path" n e r x
 
-assert_true '"$_regression_runner_path" -h' \
+aw_utils.assert_true '"$_regression_runner_path" -h' \
             "Expect exit code 0 when running \"${_regression_runner_path} -h\""
 
 
@@ -151,10 +151,10 @@ assert_bulk_test "$_devscripts_path" n e d r w x
 _todo_helper_script_path="${_devscripts_path}/todo_id.py"
 assert_bulk_test "$_todo_helper_script_path" n e f r x
 
-assert_true '"${_todo_helper_script_path}"' \
+aw_utils.assert_true '"${_todo_helper_script_path}"' \
             'TODO-list utility script returns exit code 0 when started without arguments'
 
-assert_true '"${_todo_helper_script_path}" --help' \
+aw_utils.assert_true '"${_todo_helper_script_path}" --help' \
             'TODO-list utility script returns exit code 0 when started with argument "--help"'
 
 _whitespace_check_script_path="${_devscripts_path}/check_whitespace.sh"
@@ -179,10 +179,10 @@ assert_bulk_test "$_abspath_testfile_subdir" n e d
 
 assert_bash_function 'calculate_execution_time'
 
-assert_true '[ "$(calculate_execution_time 1501987087187088013 1501987087942286968)" -eq "755" ]' \
+aw_utils.assert_true '[ "$(calculate_execution_time 1501987087187088013 1501987087942286968)" -eq "755" ]' \
             'calculate_execution_time returns expected (755ms)'
 
-assert_true '[ "$(calculate_execution_time 1501987193168368101 1501987208094155073)" -eq "14925" ]' \
+aw_utils.assert_true '[ "$(calculate_execution_time 1501987193168368101 1501987208094155073)" -eq "14925" ]' \
             'calculate_execution_time returns expected (14925ms)'
 
 assert_bulk_test "$AUTONAMEOW_ROOT_DIR"
@@ -205,7 +205,7 @@ assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e x
 
 _temporary_file='___temporary_file___'
 [ -f "$_temporary_file" ] || touch "$_temporary_file"
-assert_true '[ -f "${_temporary_file}" ]' \
+aw_utils.assert_true '[ -f "${_temporary_file}" ]' \
             'Reference dummy temporary was created'
 
 assert_bulk_test "$_temporary_file"
@@ -226,7 +226,7 @@ assert_bulk_test "$_temporary_file" f r
 assert_bulk_test "$_temporary_file" f r w
 assert_bulk_test "$_temporary_file" f w
 
-assert_true '[ -f "${_temporary_file}" ] && rm "$_temporary_file"' \
+aw_utils.assert_true '[ -f "${_temporary_file}" ] && rm "$_temporary_file"' \
             'Reference dummy temporary file was deleted'
 
 

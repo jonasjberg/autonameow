@@ -55,10 +55,10 @@ assert_bulk_test "$_integration_utils_path" e r x
 
 source "$_integration_utils_path"
 
-assert_true 'type -t command_exists' \
+aw_utils.assert_true 'type -t command_exists' \
             '"command_exists" is defined after sourcing the common integration test utilities'
 
-assert_true 'type -t assert_bash_function' \
+aw_utils.assert_true 'type -t assert_bash_function' \
             '"assert_bash_function" is defined after sourcing the common integration test utilities'
 
 
@@ -77,7 +77,7 @@ assert_bash_function '__func_always_false'
 #
 # Test function 'command_exists()'
 
-assert_true 'command_exists cd' \
+aw_utils.assert_true 'command_exists cd' \
             'Expect command_exists to return success when given "cd"'
 
 assert_false 'command_exists this_is_not_a_command_surely' \

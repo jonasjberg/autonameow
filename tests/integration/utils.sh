@@ -201,7 +201,7 @@ update_global_test_results()
 # Evaluates an expression, given as the first argument.
 # Calls 'test_fail' if the expression returns NON-zero.
 # Calls 'test_pass' if the expression returns zero.
-assert_true()
+aw_utils.assert_true()
 {
     ( eval "${1}" &>/dev/null ) >/dev/null
     if [ "$?" -ne "0" ]
@@ -290,7 +290,7 @@ assert_bulk_test()
 
         [ -n "$_exp" ] || { printf '\nINTERNAL ERROR! Aborting..\n' ; exit 1 ; }
         [ -n "$_msg" ] || { printf '\nINTERNAL ERROR! Aborting..\n' ; exit 1 ; }
-        assert_true '[ "$_exp" "$_file" ]' "Path \"${_file}\" ${_msg}"
+        aw_utils.assert_true '[ "$_exp" "$_file" ]' "Path \"${_file}\" ${_msg}"
     done
 }
 
@@ -299,7 +299,7 @@ assert_bulk_test()
 assert_bash_function()
 {
     local -r _func_name="$1"
-    assert_true '[ "$(type -t "${_func_name}")" = "function" ]' \
+    aw_utils.assert_true '[ "$(type -t "${_func_name}")" = "function" ]' \
                 "${_func_name} is a bash function"
 }
 
@@ -321,7 +321,7 @@ command_exists()
 assert_has_command()
 {
     local -r _cmd_name="$1"
-    assert_true 'command_exists "$_cmd_name"' \
+    aw_utils.assert_true 'command_exists "$_cmd_name"' \
                 "System provides executable command \"${_cmd_name}\""
 }
 
@@ -341,8 +341,8 @@ assert_has_command()
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
 then
     aw_utils.log_msg "Starting self-tests .."
-    assert_true  '[ "0" -eq "0" ]' '(Internal Test) Expect success ..'
-    assert_true  '[ "1" -eq "0" ]' '(Internal Test) Expect failure ..'
+    aw_utils.assert_true  '[ "0" -eq "0" ]' '(Internal Test) Expect success ..'
+    aw_utils.assert_true  '[ "1" -eq "0" ]' '(Internal Test) Expect failure ..'
     assert_false '[ "1" -eq "0" ]' '(Internal Test) Expect success ..'
     assert_false '[ "1" -ne "0" ]' '(Internal Test) Expect failure ..'
     aw_utils.log_msg "Finished self-tests!"

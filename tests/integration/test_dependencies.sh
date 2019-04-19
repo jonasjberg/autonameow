@@ -39,7 +39,7 @@ echo $vendor_dirpath
 assert_can_import_python_module()
 {
     local -r _module_name="$1"
-    assert_true 'python3 -c "import sys ; sys.path.insert(0, \"${vendor_dirpath}\") ; import ${_module_name}"' \
+    aw_utils.assert_true 'python3 -c "import sys ; sys.path.insert(0, \"${vendor_dirpath}\") ; import ${_module_name}"' \
                 "python3 can import required module \"${_module_name}\""
 }
 
@@ -47,7 +47,7 @@ assert_can_import_python_module_member()
 {
     local -r _module_name="$1"
     local -r _member_name="$2"
-    assert_true 'python3 -c "import sys ; sys.path.insert(0, \"${vendor_dirpath}\") ; from ${_module_name} import ${_member_name}"' \
+    aw_utils.assert_true 'python3 -c "import sys ; sys.path.insert(0, \"${vendor_dirpath}\") ; from ${_module_name} import ${_member_name}"' \
                 "python3 can import required module \"${_module_name}\" member \"${_member_name}\""
 }
 
@@ -68,25 +68,25 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 #
 # Verify that required commands are available.
 
-assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
+aw_utils.assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
 
 assert_false '[ -z "$TERM" ]' \
              'Environment variable "$TERM" should be set'
 
 assert_has_command 'python3'
-assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
+aw_utils.assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
             'System python3 is version v3.5.0 or newer'
 
 assert_has_command 'git'
-assert_true 'git --version | grep "git version 2\..*"' \
+aw_utils.assert_true 'git --version | grep "git version 2\..*"' \
             'System git version is newer than v2.x.x'
 
 
 # Developer scripts and testing dependencies.
 assert_has_command 'pytest'
 _pytesthelp="$(pytest --help 2>&1)"
-assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
+aw_utils.assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
             'Module "pytest-html" is available on the system'
 
 # assert_has_command 'vulture'

@@ -61,16 +61,16 @@ test_automagic_rename()
     _expected_name="${_temp_dir}/${_expected_basename}"
     _temp_file="${_temp_dir}/${_sample_file_basename}"
 
-    assert_true 'cp -n -- "${_sample_file}" "${_temp_file}"' \
+    aw_utils.assert_true 'cp -n -- "${_sample_file}" "${_temp_file}"' \
                 "(${_test_name}) Test setup should succeed in copying the sample file to a temporary directory"
 
-    assert_true '[ -f "${_temp_file}" ]' \
+    aw_utils.assert_true '[ -f "${_temp_file}" ]' \
                 "(${_test_name}) A copy of the sample file must exit in the temporary directory"
 
-    assert_true '[ -f "$_temp_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic -- "${_temp_file}" && [ -e "$_expected_name" ]' \
+    aw_utils.assert_true '[ -f "$_temp_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic -- "${_temp_file}" && [ -e "$_expected_name" ]' \
                 "(${_test_name}) Should be renamed to \"${_expected_basename}\""
 
-    assert_true '[ -f "${_temp_file}" ] && rm -- "${_temp_file}" ; [ -f "$_expected_name" ] && rm -- "$_expected_name" || true' \
+    aw_utils.assert_true '[ -f "${_temp_file}" ] && rm -- "${_temp_file}" ; [ -f "$_expected_name" ] && rm -- "$_expected_name" || true' \
                 "(${_test_name}) Test teardown should succeed in deleting temporary files"
 }
 
@@ -89,22 +89,22 @@ test_automagic_dryrun()
 
     assert_bulk_test "$_sample_file" e f r
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
                 "(${_test_name}) returns exit code 0 when started with \"--automagic --dry-run\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}"' \
                 "(${_test_name}) returns exit code 0 when started with \"--automagic --dry-run --verbose\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "${_sample_file}"' \
                 "(${_test_name}) returns exit code 0 when started with \"--automagic --dry-run --debug\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}" | grep -- "${_expected_basename}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}" | grep -- "${_expected_basename}"' \
                 "(${_test_name}) output should include \"${_expected_basename}\" when started with \"--dry-run\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null | grep -- "${_expected_basename}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null | grep -- "${_expected_basename}"' \
                 "(${_test_name}) output should include \"${_expected_basename}\" when started with \"--dry-run --verbose\""
 
-    assert_true '[ -f "${_sample_file}" ]' \
+    aw_utils.assert_true '[ -f "${_sample_file}" ]' \
                 "(${_test_name}) The sample file should still exist, I.E. not have been renamed."
 }
 
@@ -120,7 +120,7 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-assert_true 'command_exists python3' \
+aw_utils.assert_true 'command_exists python3' \
             'Python v3.x is available on the system'
 
 assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
@@ -193,19 +193,19 @@ assert_unable_to_find_new_name()
 
     assert_bulk_test "$_sample_file" e f r
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
                 "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}"' \
                 "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run --verbose\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "${_sample_file}"' \
                 "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run --debug\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --quiet -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --quiet -- "${_sample_file}"' \
                 "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run --quiet\""
 
-    assert_true '[ -f "${_sample_file}" ]' \
+    aw_utils.assert_true '[ -f "${_sample_file}" ]' \
                 "(${_test_name}) The sample file should still exist, I.E. not have been renamed."
 }
 

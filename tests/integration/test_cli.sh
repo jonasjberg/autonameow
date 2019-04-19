@@ -46,7 +46,7 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-assert_true 'command_exists python3' \
+aw_utils.assert_true 'command_exists python3' \
             'Python v3.x is available on the system'
 
 ACTIVE_CONFIG="$(abspath_testfile "configs/default.yaml")"
@@ -54,20 +54,20 @@ assert_bulk_test "$ACTIVE_CONFIG" n e f r
 
 assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
-assert_true '"$AUTONAMEOW_RUNNER"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER"' \
             'The autonameow launcher script can be started with no arguments'
 
-assert_true '"$AUTONAMEOW_RUNNER" 2>&1 | grep -- "--help"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" 2>&1 | grep -- "--help"' \
             '[TC005] autonameow should print how to get help when started with no arguments'
 
 
-assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | head -n 1 | grep -- "Usage"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | head -n 1 | grep -- "Usage"' \
             '[TC005] autonameow should display usage information when started with "--help"'
 
-assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -- "dry-run"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -- "dry-run"' \
             '[TC001] autonameow should provide a "--dry-run" option'
 
-assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -- "--interactive"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -- "--interactive"' \
             '[TC013] autonameow should provide a "--interactive" option'
 
 
@@ -75,22 +75,22 @@ assert_true '"$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -- "--interactive"' \
 #
 # Check exit codes for trivival use-cases.
 
-assert_true '"$AUTONAMEOW_RUNNER" --interactive -- ' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --interactive -- ' \
             '[TC013] autonameow should return 0 when started with "--interactive" without specifying files'
 
-assert_true '"$AUTONAMEOW_RUNNER" --interactive --verbose -- ' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --interactive --verbose -- ' \
             '[TC013] autonameow should return 0 when started with "--interactive" and "--verbose" without specifying files'
 
-assert_true '"$AUTONAMEOW_RUNNER" --interactive --debug -- ' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --interactive --debug -- ' \
             '[TC013] autonameow should return 0 when started with "--interactive" and "--debug" without specifying files'
 
-assert_true '"$AUTONAMEOW_RUNNER" --automagic -- ' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --automagic -- ' \
             'autonameow should return 0 when started with "--automagic" without specifying files'
 
-assert_true '"$AUTONAMEOW_RUNNER" --automagic --verbose -- ' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --automagic --verbose -- ' \
             'autonameow should return 0 when started with "--automagic" and "--verbose" without specifying files'
 
-assert_true '"$AUTONAMEOW_RUNNER" --automagic --debug -- ' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --automagic --debug -- ' \
             'autonameow should return 0 when started with "--automagic" and "--debug" without specifying files'
 
 assert_false '"$AUTONAMEOW_RUNNER" --verbose --debug -- ' \
@@ -106,26 +106,26 @@ assert_false '"$AUTONAMEOW_RUNNER" --debug --quiet -- ' \
 SAMPLE_EMPTY_FILE="$(abspath_testfile "empty")"
 assert_bulk_test "$SAMPLE_EMPTY_FILE" e f r
 
-assert_true '"$AUTONAMEOW_RUNNER" --batch --automagic --dry-run -- "$SAMPLE_EMPTY_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --automagic --dry-run -- "$SAMPLE_EMPTY_FILE"' \
             'Expect exit status 0 when started with "--automagic", "--dry-run" and an empty file'
 
-assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_EMPTY_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_EMPTY_FILE"' \
             'Expect exit status 0 when started with "--automagic", "--dry-run", "--verbose" and an empty file'
 
-assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "$SAMPLE_EMPTY_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "$SAMPLE_EMPTY_FILE"' \
             'Expect exit status 0 when started with "--automagic", "--dry-run", "--debug" and an empty file'
 
 
-assert_true '"$AUTONAMEOW_RUNNER" --version' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --version' \
             'autonameow should return 0 when started with "--version"'
 
-assert_true '"$AUTONAMEOW_RUNNER" --version --verbose' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --version --verbose' \
             'autonameow should return 0 when started with "--version" and "--verbose"'
 
-assert_true '"$AUTONAMEOW_RUNNER" --version --debug' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --version --debug' \
             'autonameow should return 0 when started with "--version" and "--debug"'
 
-assert_true '"$AUTONAMEOW_RUNNER" --version --quiet' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --version --quiet' \
             'autonameow should return 0 when started with "--version" and "--quiet"'
 
 
@@ -145,19 +145,19 @@ assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- " :root:"' \
 assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- ":root:"' \
              'Output should not contain ":root:" when starting with "--debug"'
 
-assert_true '"$AUTONAMEOW_RUNNER" -v | grep -- "^Started at 201.*"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v | grep -- "^Started at 201.*"' \
             'When started with "-v" the output should match "^Started at 201.*"'
 
-assert_true '"$AUTONAMEOW_RUNNER" -v | grep -- "^Finished at 201.*"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v | grep -- "^Finished at 201.*"' \
             'When started with "-v" the output should match "^Finished at 201.*"'
 
-assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*Using configuration: .*"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*Using configuration: .*"' \
             'When started with "-v" the output should match ".*Using configuration.*"'
 
-assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*No input files specified.*"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*No input files specified.*"' \
             'When started with "-v" the output should match ".*No input files specified.*"'
 
-assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*No input files specified.*"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*No input files specified.*"' \
             'When started without options the output should match ".*No input files specified.*"'
 
 
@@ -165,10 +165,10 @@ SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
 assert_bulk_test "$SAMPLE_PDF_FILE" e f r
 
 sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
-assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --dry-run --list-all -- "$SAMPLE_PDF_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --dry-run --list-all -- "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 when started with \"--dry-run --list-all\" given the file \"${sample_pdf_file_basename}\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -- "2016-01-11 12:41:32"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -- "2016-01-11 12:41:32"' \
             "Output should include expected date when started with \"--list-all\" given the file \"${sample_pdf_file_basename}\""
 
 assert_false '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -- " !!binary "' \
@@ -185,10 +185,10 @@ assert_false '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PD
 TEST_FILES_SUBDIR="$(abspath_testfile "subdir")"
 assert_bulk_test "$TEST_FILES_SUBDIR" d r w x
 
-assert_true '"$AUTONAMEOW_RUNNER" --batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"' \
             "Expect exit code 0 when running \"--batch --recurse --dry-run -- \"${TEST_FILES_SUBDIR}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --batch --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 | grep -- ".*Got 8 files to process.*"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 | grep -- ".*Got 8 files to process.*"' \
             "Expect output to contain \"Got 8 files to process\" when running \"--batch --verbose --recurse --dry-run -- ${TEST_FILES_SUBDIR}\""
 
 
@@ -198,40 +198,40 @@ assert_true '"$AUTONAMEOW_RUNNER" --batch --verbose --recurse --dry-run -- "$TES
 sample_empty_file_basename="$(basename -- "${SAMPLE_EMPTY_FILE}")"
 sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\" \"${sample_empty_file_basename}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\" \"${sample_empty_file_basename}\" \"${sample_empty_file_basename}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\" \"${sample_pdf_file_basename}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\" \"${sample_pdf_file_basename}\" \"${sample_pdf_file_basename}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\"\""
 
 
@@ -239,16 +239,16 @@ assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$
 #
 # Check the '--dump-meowuris' option.
 
-assert_true '"$AUTONAMEOW_RUNNER" --help 2>&1 | grep -- "--dump-meowuris"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --help 2>&1 | grep -- "--dump-meowuris"' \
             'Help text includes the "--dump-meowuris" option'
 
-assert_true '"$AUTONAMEOW_RUNNER" --dump-meowuris' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dump-meowuris' \
             'Expect exit code 0 for "--dump-meowuris"'
 
-assert_true '"$AUTONAMEOW_RUNNER" --dump-meowuris --debug' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dump-meowuris --debug' \
             'Expect exit code 0 for "--dump-meowuris --debug"'
 
-assert_true '"$AUTONAMEOW_RUNNER" --dump-meowuris --verbose' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dump-meowuris --verbose' \
             'Expect exit code 0 for "--dump-meowuris --verbose"'
 
 
@@ -256,13 +256,13 @@ assert_true '"$AUTONAMEOW_RUNNER" --dump-meowuris --verbose' \
 #
 # Check the '--dump-config' option.
 
-assert_true '"$AUTONAMEOW_RUNNER" --dump-config' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dump-config' \
             'Expect exit code 0 for "--dump-config"'
 
-assert_true '"$AUTONAMEOW_RUNNER" --dump-config --debug' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dump-config --debug' \
             'Expect exit code 0 for "--dump-config --debug"'
 
-assert_true '"$AUTONAMEOW_RUNNER" --dump-config --verbose' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dump-config --verbose' \
             'Expect exit code 0 for "--dump-config --verbose"'
 
 
@@ -270,16 +270,16 @@ assert_true '"$AUTONAMEOW_RUNNER" --dump-config --verbose' \
 #
 # Check the '--postprocess-only' option.
 
-assert_true '"$AUTONAMEOW_RUNNER" --help 2>&1 | grep -- "--postprocess-only"' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --help 2>&1 | grep -- "--postprocess-only"' \
             'Help text includes the "--postprocess-only" option'
 
-assert_true '"$AUTONAMEOW_RUNNER" --postprocess-only' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --postprocess-only' \
             'Expect exit code 0 for "--postprocess-only"'
 
-assert_true '"$AUTONAMEOW_RUNNER" --postprocess-only --debug' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --postprocess-only --debug' \
             'Expect exit code 0 for "--postprocess-only --debug"'
 
-assert_true '"$AUTONAMEOW_RUNNER" --postprocess-only --verbose' \
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --postprocess-only --verbose' \
             'Expect exit code 0 for "--postprocess-only --verbose"'
 
 
