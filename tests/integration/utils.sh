@@ -61,7 +61,7 @@ initialize_logging()
     aw_utils.log_msg "Logging to file: \"${AUTONAMEOW_INTEGRATION_LOG}\""
 }
 
-initialize_global_stats()
+aw_utils.initialize_global_stats()
 {
     if ! AUTONAMEOW_INTEGRATION_STATS="$(realpath -e -- "$(mktemp -t aw_test_stats.XXXXXX)")"
     then
@@ -292,15 +292,6 @@ assert_bulk_test()
         [ -n "$_msg" ] || { printf '\nINTERNAL ERROR! Aborting..\n' ; exit 1 ; }
         aw_utils.assert_true '[ "$_exp" "$_file" ]' "Path \"${_file}\" ${_msg}"
     done
-}
-
-# Asserts that the given argument would be interpreted as a function if used as
-# a command name.
-assert_bash_function()
-{
-    local -r _func_name="$1"
-    aw_utils.assert_true '[ "$(type -t "${_func_name}")" = "function" ]' \
-                "${_func_name} is a bash function"
 }
 
 # Tests that a command or list of commands are available.

@@ -177,7 +177,6 @@ assert_bulk_test "$_abspath_testfile_empty" n e f
 _abspath_testfile_subdir="$(abspath_testfile "subdir")"
 assert_bulk_test "$_abspath_testfile_subdir" n e d
 
-assert_bash_function 'calculate_execution_time'
 
 aw_utils.assert_true '[ "$(calculate_execution_time 1501987087187088013 1501987087942286968)" -eq "755" ]' \
             'calculate_execution_time returns expected (755ms)'

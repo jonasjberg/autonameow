@@ -58,20 +58,6 @@ source "$_integration_utils_path"
 aw_utils.assert_true 'type -t command_exists' \
             '"command_exists" is defined after sourcing the common integration test utilities'
 
-aw_utils.assert_true 'type -t assert_bash_function' \
-            '"assert_bash_function" is defined after sourcing the common integration test utilities'
-
-
-# ______________________________________________________________________________
-#
-# Test function 'assert_bash_function()'
-
-__func_always_true() { true ; }
-assert_bash_function '__func_always_true'
-
-__func_always_false() { false ; }
-assert_bash_function '__func_always_false'
-
 
 # ______________________________________________________________________________
 #
