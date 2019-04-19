@@ -43,7 +43,7 @@ suite_tests_failed=0
 
 # Should be called once at the start of a test run. Creates a timestamped log
 # file and exports the the log file path as 'AUTONAMEOW_INTEGRATION_LOG'.
-initialize_logging()
+aw_utils.initialize_logging()
 {
     if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ]
     then

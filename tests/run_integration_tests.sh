@@ -108,7 +108,7 @@ fi
 # Store current time for later calculation of total execution time.
 time_start="$(current_unix_time)"
 
-initialize_logging
+aw_utils.initialize_logging
 initialize_global_stats
 search_dir="${SELF_DIRPATH}/integration"
 log_msg_timestamped "Started integration test runner \"${SELF_BASENAME}\""
