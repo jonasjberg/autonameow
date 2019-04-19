@@ -74,7 +74,7 @@ current_git_commit_hash="$(cd "$AUTONAMEOW_ROOT_DIR" && git rev-parse --short HE
 # Truncate to 7 characters before matching.
 current_git_commit_hash="${current_git_commit_hash:0:6}"
 
-assert_false '[ -z "$current_git_commit_hash" ]' \
+aw_utils.assert_false '[ -z "$current_git_commit_hash" ]' \
              'This test script should be able to retrieve the git hash of the current git commit'
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- "(commit [a-zA-Z0-9]\{7\})"' \
@@ -89,7 +89,7 @@ _version_file="${AUTONAMEOW_ROOT_DIR}/autonameow/core/version.py"
 assert_bulk_test "$_version_file" e f r
 
 AUTONAMEOW_SOURCE_VERSION="$(grep -- '__version_info__ = ' "$_version_file" | grep -o -- '[0-9], [0-9], [0-9]' | sed 's/\([0-9]\), \([0-9]\), \([0-9]\)/\1.\2.\3/')"
-assert_false '[ -z "$AUTONAMEOW_SOURCE_VERSION" ]' \
+aw_utils.assert_false '[ -z "$AUTONAMEOW_SOURCE_VERSION" ]' \
              "This test script should be able to retrieve the version from \"${_version_file}\"."
 
 _autonameow_source_version_linecount="$(wc -l <<< "$AUTONAMEOW_SOURCE_VERSION")"
@@ -99,7 +99,7 @@ aw_utils.assert_true '[ "$_autonameow_source_version_linecount" -eq "1" ]' \
 
 # Get version reported by running 'autonameow --version'
 AUTONAMEOW_VERSION="$( ( "$AUTONAMEOW_RUNNER" --version 2>&1 ) | grep -o -- "v[0-9]\.[0-9]\.[0-9]" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
-assert_false '[ -z "$AUTONAMEOW_VERSION" ]' \
+aw_utils.assert_false '[ -z "$AUTONAMEOW_VERSION" ]' \
              'This test script should be able to retrieve the program version.'
 
 _autonameow_version_linecount="$(wc -l <<< "$AUTONAMEOW_VERSION")"
@@ -112,7 +112,7 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -o -- "Using co
             'The output should include the currently used configuration file when started with "--verbose"'
 
 AUTONAMEOW_CONFIG_PATH="$( ( "$AUTONAMEOW_RUNNER" --verbose 2>&1 ) | grep -o -- "Using configuration: \".*\"$" | grep -o -- "\".*\"")"
-assert_false '[ -z "$AUTONAMEOW_CONFIG_PATH" ]' \
+aw_utils.assert_false '[ -z "$AUTONAMEOW_CONFIG_PATH" ]' \
              'This test script should be able to retrieve the path of the used configuration file.'
 
 # Strip quotes from configuration file path.
@@ -123,7 +123,7 @@ aw_utils.assert_true 'grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "
             'The retrieved configuration file contents should match "autonameow_version: X.X.X$"'
 
 CONFIG_FILE_VERSION="$(grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
-assert_false '[ -z "$CONFIG_FILE_VERSION" ]' \
+aw_utils.assert_false '[ -z "$CONFIG_FILE_VERSION" ]' \
              'This test script should be able to retrieve the configuration file version.'
 
 _config_file_version_linecount="$(wc -l <<< "$CONFIG_FILE_VERSION")"
@@ -224,25 +224,25 @@ do
     aw_utils.assert_true '[ -e "$config_file_abspath" ]' \
                 "Bad configuration file exists: \"${config_file_basename}\""
 
-    assert_false '"$AUTONAMEOW_RUNNER" --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
+    aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
                  "Expect non-zero exit code for bad config: \"${config_file_basename}\""
 
-    assert_false '"$AUTONAMEOW_RUNNER" -v --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
+    aw_utils.assert_false '"$AUTONAMEOW_RUNNER" -v --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
                  "Expect non-zero exit code for bad config: \"${config_file_basename}\" in batch, verbose mode"
 
-    assert_false '"$AUTONAMEOW_RUNNER" --debug --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
+    aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --debug --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
                  "Expect non-zero exit code for bad config: \"${config_file_basename}\" in batch, debug mode"
 
-    assert_false '"$AUTONAMEOW_RUNNER" --quiet --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
+    aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --quiet --dry-run --batch --config-path "$BAD_CONFIG_FILE"' \
                  "Expect non-zero exit code for bad config: \"${config_file_basename}\" in batch, quiet mode"
 
-    assert_false '"$AUTONAMEOW_RUNNER" -v --dry-run --config-path "$BAD_CONFIG_FILE"' \
+    aw_utils.assert_false '"$AUTONAMEOW_RUNNER" -v --dry-run --config-path "$BAD_CONFIG_FILE"' \
                  "Expect non-zero exit code for bad config: \"${config_file_basename}\" in verbose mode"
 
-    assert_false '"$AUTONAMEOW_RUNNER" --debug --dry-run --config-path "$BAD_CONFIG_FILE"' \
+    aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --debug --dry-run --config-path "$BAD_CONFIG_FILE"' \
                  "Expect non-zero exit code for bad config: \"${config_file_basename}\" in debug mode"
 
-    assert_false '"$AUTONAMEOW_RUNNER" --quiet --dry-run --config-path "$BAD_CONFIG_FILE"' \
+    aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --quiet --dry-run --config-path "$BAD_CONFIG_FILE"' \
                  "Expect non-zero exit code for bad config: \"${config_file_basename}\" in quiet mode"
 
 done < <(find "${AUTONAMEOW_TESTFILES_DIR}/configs" -maxdepth 1 -xdev -type f -name 'bad_0*.yaml' -print0 | sort -z)

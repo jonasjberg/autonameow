@@ -65,8 +65,8 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 aw_utils.assert_true  '[ "0" -eq "0" ]' 'Expect success .. (true positive)'
 #aw_utils.assert_true  '[ "1" -eq "0" ]' 'Expect failure .. (false negative)'
-assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
-#assert_false '[ "1" -ne "0" ]' 'Expect failure .. (false negative)'
+aw_utils.assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
+#aw_utils.assert_false '[ "1" -ne "0" ]' 'Expect failure .. (false negative)'
 
 
 # ______________________________________________________________________________
@@ -92,11 +92,11 @@ assert_bulk_test "$AUTONAMEOW_INTEGRATION_STATS" n e f
 
 assert_bulk_test "$AUTONAMEOW_INTEGRATION_LOG" n e
 
-assert_false '[ -d "$AUTONAMEOW_INTEGRATION_LOG" ]' \
+aw_utils.assert_false '[ -d "$AUTONAMEOW_INTEGRATION_LOG" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_LOG" should not be a directory'
 
 assert_bulk_test "$AUTONAMEOW_INTEGRATION_TIMESTAMP" n
-assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
+aw_utils.assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_TIMESTAMP" should not be unset'
 
 

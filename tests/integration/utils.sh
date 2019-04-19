@@ -215,7 +215,7 @@ aw_utils.assert_true()
 # Evaluates an expression, given as the first argument.
 # Calls 'test_pass' if the expression returns NON-zero.
 # Calls 'test_fail' if the expression returns zero.
-assert_false()
+aw_utils.assert_false()
 {
     ( eval "${1}" &>/dev/null ) >/dev/null
     if [ "$?" -ne "0" ]
@@ -334,8 +334,8 @@ then
     aw_utils.log_msg "Starting self-tests .."
     aw_utils.assert_true  '[ "0" -eq "0" ]' '(Internal Test) Expect success ..'
     aw_utils.assert_true  '[ "1" -eq "0" ]' '(Internal Test) Expect failure ..'
-    assert_false '[ "1" -eq "0" ]' '(Internal Test) Expect success ..'
-    assert_false '[ "1" -ne "0" ]' '(Internal Test) Expect failure ..'
+    aw_utils.assert_false '[ "1" -eq "0" ]' '(Internal Test) Expect success ..'
+    aw_utils.assert_false '[ "1" -ne "0" ]' '(Internal Test) Expect failure ..'
     aw_utils.log_msg "Finished self-tests!"
 fi
 

@@ -93,13 +93,13 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --automagic --verbose -- ' \
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --automagic --debug -- ' \
             'autonameow should return 0 when started with "--automagic" and "--debug" without specifying files'
 
-assert_false '"$AUTONAMEOW_RUNNER" --verbose --debug -- ' \
+aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --verbose --debug -- ' \
              'Starting with mutually exclusive options "--verbose" and "--debug" should generate an error'
 
-assert_false '"$AUTONAMEOW_RUNNER" --verbose --quiet -- ' \
+aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --verbose --quiet -- ' \
              'Starting with mutually exclusive options "--verbose" and "--quiet" should generate an error'
 
-assert_false '"$AUTONAMEOW_RUNNER" --debug --quiet -- ' \
+aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --debug --quiet -- ' \
              'Starting with mutually exclusive options "--debug" and "--quiet" should generate an error'
 
 
@@ -133,16 +133,16 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --version --quiet' \
 #
 # Check that the log format is not garbled due to multiple logger roots (?)
 
-assert_false '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- " :root:"' \
+aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- " :root:"' \
              'Output should not contain " :root:" when starting with "--verbose"'
 
-assert_false '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- ":root:"' \
+aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- ":root:"' \
              'Output should not contain ":root:" when starting with "--verbose"'
 
-assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- " :root:"' \
+aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- " :root:"' \
              'Output should not contain " :root:" when starting with "--debug"'
 
-assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- ":root:"' \
+aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- ":root:"' \
              'Output should not contain ":root:" when starting with "--debug"'
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v | grep -- "^Started at 201.*"' \
@@ -171,10 +171,10 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --dry-
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -- "2016-01-11 12:41:32"' \
             "Output should include expected date when started with \"--list-all\" given the file \"${sample_pdf_file_basename}\""
 
-assert_false '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -- " !!binary "' \
+aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -- " !!binary "' \
              "Output should not contain \" !!binary \" when running with \"--list-all\" given the file \"${sample_pdf_file_basename}\""
 
-# assert_false '"$AUTONAMEOW_RUNNER" --dump-config 2>&1 | grep -- " \!\!python/object:"' \
+# aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --dump-config 2>&1 | grep -- " \!\!python/object:"' \
 #              '[TD0148] Output should not contain " !!python/object:" when running with "--dump-config"'
 
 

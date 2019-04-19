@@ -37,7 +37,7 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 check_git_ls_files_does_not_match()
 {
     local -r _pattern="$1"
-    assert_false 'cd "$AUTONAMEOW_ROOT_DIR" && git ls-files | grep --fixed-strings -- "$_pattern"' \
+    aw_utils.assert_false 'cd "$AUTONAMEOW_ROOT_DIR" && git ls-files | grep --fixed-strings -- "$_pattern"' \
                  "git repository does not contain files matching \"${_pattern}\""
 }
 
@@ -109,7 +109,7 @@ for fieldmeta_file in "${_FIELDMETA_YAML_FILES[@]}"
 do
     _fieldmeta_basename="$(basename -- "$fieldmeta_file")"
 
-    assert_false 'grep -qE -- "generic_field: [A-Z]+" "$fieldmeta_file"' \
+    aw_utils.assert_false 'grep -qE -- "generic_field: [A-Z]+" "$fieldmeta_file"' \
                  "Fieldmeta YAML-file \"${_fieldmeta_basename}\" does not capitalize any \"generic_field\" value"
 
     if grep -q -- 'generic_field' "$fieldmeta_file"
@@ -123,7 +123,7 @@ do
     aw_utils.assert_true "${_expr}" \
                 "Fieldmeta YAML-file \"${_fieldmeta_basename}\" uses only ASCII letters and underlines in any and all \"generic_field\" values"
 
-    assert_false 'grep -qE -- "weight: [0-9]+$" "$fieldmeta_file"' \
+    aw_utils.assert_false 'grep -qE -- "weight: [0-9]+$" "$fieldmeta_file"' \
                  "Fieldmeta YAML-file \"${_fieldmeta_basename}\" uses floats for all \"weight\" values (1.0 rather than 1)"
 done
 

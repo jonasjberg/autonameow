@@ -71,7 +71,7 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 aw_utils.assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
 
-assert_false '[ -z "$TERM" ]' \
+aw_utils.assert_false '[ -z "$TERM" ]' \
              'Environment variable "$TERM" should be set'
 
 assert_has_command 'python3'

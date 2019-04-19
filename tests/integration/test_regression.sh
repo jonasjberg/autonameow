@@ -50,7 +50,7 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 #
 # Check shared environment variables, used by all tests.
 
-assert_false '[ -z "$AUTONAMEOW_ROOT_DIR" ]' \
+aw_utils.assert_false '[ -z "$AUTONAMEOW_ROOT_DIR" ]' \
              'Environment variable "AUTONAMEOW_ROOT_DIR" should not be unset'
 
 aw_utils.assert_true '[ -d "$AUTONAMEOW_ROOT_DIR" ]' \
@@ -107,16 +107,16 @@ aw_utils.assert_true '[ "$_regression_test_listing_line_count" -gt "30" ]' \
 aw_utils.assert_true 'grep -- 0000_unittest_dummy <<< "$_regression_test_listing"' \
             "Output of \"${_regression_runner_basename} --list\" should contain 0000_unittest_dummy"
 
-assert_false '"$_regression_runner_path" -f "!0000_unittest_dummy" --list | grep -- 0000_unittest_dummy' \
+aw_utils.assert_false '"$_regression_runner_path" -f "!0000_unittest_dummy" --list | grep -- 0000_unittest_dummy' \
              'Filtering with an inverted expression should not include tests matching that expression in the listing'
 
-assert_false '"$_regression_runner_path" -f "!0000" --list | grep -- 0000_unittest_dummy' \
+aw_utils.assert_false '"$_regression_runner_path" -f "!0000" --list | grep -- 0000_unittest_dummy' \
              'Filtering with an inverted expression should not include tests partially matching that expression in the listing'
 
-assert_false '"$_regression_runner_path" -f "!*0000_unittest_dummy*" --list | grep -- 0000_unittest_dummy' \
+aw_utils.assert_false '"$_regression_runner_path" -f "!*0000_unittest_dummy*" --list | grep -- 0000_unittest_dummy' \
              'Filtering with an inverted expression containing wildcards should not include tests matching that expression in the listing'
 
-assert_false '"$_regression_runner_path" -f "!*0000*" --list | grep -- 0000_unittest_dummy' \
+aw_utils.assert_false '"$_regression_runner_path" -f "!*0000*" --list | grep -- 0000_unittest_dummy' \
              'Filtering with an inverted expression containing wildcards should not include tests partially matching that expression in the listing'
 
 aw_utils.assert_true 'grep -- 0001 <<< "$_regression_test_listing"' \
@@ -128,7 +128,7 @@ aw_utils.assert_true '"$_regression_runner_path" -f "!0000" --list | grep -- 000
 aw_utils.assert_true '[ "$("$_regression_runner_path" -f 0000_unittest_dummy -f 0000_unittest_dummy --list | wc -l)" -eq "1" ]' \
             'Filtering should not produce duplicate results in the listing when repeating the same filter expression'
 
-assert_false '"$_regression_runner_path" -f 0000_unittest_dummy -f '!0000_unittest_dummy' --list | grep -- 0000_unittest_dummy' \
+aw_utils.assert_false '"$_regression_runner_path" -f 0000_unittest_dummy -f '!0000_unittest_dummy' --list | grep -- 0000_unittest_dummy' \
              'Filtering is ANDed, tests matched by previous filter is removed by the same inverted expression, and not included in the listing'
 
 
@@ -160,16 +160,16 @@ aw_utils.assert_true '[ "$_regression_test_verbose_listing_line_count" -gt "30" 
 aw_utils.assert_true 'grep -- 0000_unittest_dummy <<< "$_regression_test_verbose_listing"' \
             "Output of \"${_regression_runner_basename} --list --verbose\" should contain 0000_unittest_dummy"
 
-assert_false '"$_regression_runner_path" -f "!0000_unittest_dummy" --list --verbose | grep -- 0000_unittest_dummy' \
+aw_utils.assert_false '"$_regression_runner_path" -f "!0000_unittest_dummy" --list --verbose | grep -- 0000_unittest_dummy' \
              'Filtering with an inverted expression should not include tests matching that expression in the listing (--verbose)'
 
-assert_false '"$_regression_runner_path" -f "!0000" --list --verbose | grep -- 0000_unittest_dummy' \
+aw_utils.assert_false '"$_regression_runner_path" -f "!0000" --list --verbose | grep -- 0000_unittest_dummy' \
              'Filtering with an inverted expression should not include tests partially matching that expression in the listing (--verbose)'
 
-assert_false '"$_regression_runner_path" -f "!*0000_unittest_dummy*" --list --verbose | grep -- 0000_unittest_dummy' \
+aw_utils.assert_false '"$_regression_runner_path" -f "!*0000_unittest_dummy*" --list --verbose | grep -- 0000_unittest_dummy' \
              'Filtering with an inverted expression containing wildcards should not include tests matching that expression in the listing (--verbose)'
 
-assert_false '"$_regression_runner_path" -f "!*0000*" --list --verbose | grep -- 0000_unittest_dummy' \
+aw_utils.assert_false '"$_regression_runner_path" -f "!*0000*" --list --verbose | grep -- 0000_unittest_dummy' \
              'Filtering with an inverted expression containing wildcards should not include tests partially matching that expression in the listing (--verbose)'
 
 aw_utils.assert_true 'grep -- 0001 <<< "$_regression_test_verbose_listing"' \
@@ -181,7 +181,7 @@ aw_utils.assert_true '"$_regression_runner_path" -f "!0000" --list --verbose | g
 aw_utils.assert_true '[ "$("$_regression_runner_path" -f 0000_unittest_dummy -f 0000_unittest_dummy --list --verbose | grep 0000_unittest_dummy | wc -l)" -eq "1" ]' \
             'Filtering should not produce duplicate results in the listing when repeating the same filter expression (--verbose)'
 
-assert_false '"$_regression_runner_path" -f 0000_unittest_dummy -f '!0000_unittest_dummy' --list --verbose | grep -- 0000_unittest_dummy' \
+aw_utils.assert_false '"$_regression_runner_path" -f 0000_unittest_dummy -f '!0000_unittest_dummy' --list --verbose | grep -- 0000_unittest_dummy' \
              'Filtering is ANDed, tests matched by previous filter is removed by the same inverted expression, and not included in the listing (--verbose)'
 
 

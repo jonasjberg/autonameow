@@ -67,7 +67,7 @@ aw_utils.assert_true '"$EXTRACT_RUNNER" --verbose' \
 aw_utils.assert_true '"$EXTRACT_RUNNER" --debug' \
             'Stand-alone extraction should return 0 when started with "--debug" without specifying files'
 
-assert_false '"$EXTRACT_RUNNER" --verbose --debug' \
+aw_utils.assert_false '"$EXTRACT_RUNNER" --verbose --debug' \
              'Mutually exclusive options "--verbose" and "--debug" should generate an error'
 
 
@@ -75,22 +75,22 @@ assert_false '"$EXTRACT_RUNNER" --verbose --debug' \
 #
 # Check that the log format is not garbled due to multiple logger roots (?)
 
-assert_false '"$EXTRACT_RUNNER" 2>&1 | grep -- " :root:"' \
+aw_utils.assert_false '"$EXTRACT_RUNNER" 2>&1 | grep -- " :root:"' \
              'Output should not contain " :root:"'
 
-assert_false '"$EXTRACT_RUNNER" 2>&1 | grep -- ":root:"' \
+aw_utils.assert_false '"$EXTRACT_RUNNER" 2>&1 | grep -- ":root:"' \
              'Output should not contain ":root:"'
 
-assert_false '"$EXTRACT_RUNNER" --verbose 2>&1 | grep -- " :root:"' \
+aw_utils.assert_false '"$EXTRACT_RUNNER" --verbose 2>&1 | grep -- " :root:"' \
              'Output should not contain " :root:" when starting with "--verbose"'
 
-assert_false '"$EXTRACT_RUNNER" --verbose 2>&1 | grep -- ":root:"' \
+aw_utils.assert_false '"$EXTRACT_RUNNER" --verbose 2>&1 | grep -- ":root:"' \
              'Output should not contain ":root:" when starting with "--verbose"'
 
-assert_false '"$EXTRACT_RUNNER" --debug 2>&1 | grep -- " :root:"' \
+aw_utils.assert_false '"$EXTRACT_RUNNER" --debug 2>&1 | grep -- " :root:"' \
              'Output should not contain " :root:" when starting with "--debug"'
 
-assert_false '"$EXTRACT_RUNNER" --debug 2>&1 | grep -- ":root:"' \
+aw_utils.assert_false '"$EXTRACT_RUNNER" --debug 2>&1 | grep -- ":root:"' \
              'Output should not contain ":root:" when starting with "--debug"'
 
 
@@ -228,10 +228,10 @@ aw_utils.assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "-
             "Expect text extracted from \"${sample_md_file_basename}\" to contain \"- meow list\" from the MarkdownTextExtractor"
 
 # From the PlainTextExtractor
-assert_false '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "On Meow"' \
+aw_utils.assert_false '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "On Meow"' \
              "Expect text extracted from \"${sample_md_file_basename}\" to NOT contain \"On Meow\" from the PlainTextExtractor"
 
-assert_false '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "* meow list"' \
+aw_utils.assert_false '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "* meow list"' \
              "Expect text extracted from \"${sample_md_file_basename}\" to NOT contain \"* meow list\" from the PlainTextExtractor"
 
 

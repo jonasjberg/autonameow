@@ -66,7 +66,7 @@ aw_utils.assert_true 'type -t command_exists' \
 aw_utils.assert_true 'command_exists cd' \
             'Expect command_exists to return success when given "cd"'
 
-assert_false 'command_exists this_is_not_a_command_surely' \
+aw_utils.assert_false 'command_exists this_is_not_a_command_surely' \
              'Expect command_exists to return failure when given "this_is_not_a_command_surely"'
 
 
