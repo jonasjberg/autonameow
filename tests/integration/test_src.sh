@@ -47,7 +47,7 @@ check_git_ls_files_does_not_match()
 # ____________________________________________________________________________
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Source Code'
 aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
@@ -77,10 +77,10 @@ check_git_ls_files_does_not_match '.regressionrunner_lastrun'
 #
 # Make sure that data files are available.
 
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.mappings" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.preferred" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.mappings" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.preferred" e f r
 
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/analyzers/probable_extension_lookup" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/analyzers/probable_extension_lookup" e f r
 
 declare -a _FIELDMETA_YAML_FILES=(
     "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml"
@@ -93,12 +93,12 @@ declare -a _FIELDMETA_YAML_FILES=(
 )
 for fieldmeta_file in "${_FIELDMETA_YAML_FILES[@]}"
 do
-    assert_bulk_test "$fieldmeta_file" e f r
+    aw_utils.assert_bulk_test "$fieldmeta_file" e f r
 done
 
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/creatortool.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/language.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/publisher.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/creatortool.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/language.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/publisher.yaml" e f r
 
 
 # ______________________________________________________________________________
@@ -185,7 +185,7 @@ aw_utils.assert_true '_check_python_source_files_do_not_use_grouped_imports' \
 
 
 _whitespace_check_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check_whitespace.sh"
-assert_bulk_test "$_whitespace_check_script_path" e x
+aw_utils.assert_bulk_test "$_whitespace_check_script_path" e x
 
 aw_utils.assert_true '$_whitespace_check_script_path' \
             'Whitespace conformance script checks pass ("check_whitespace.sh" returns 0)'
@@ -196,7 +196,7 @@ aw_utils.assert_true '$_whitespace_check_script_path' \
 # Check spelling with external script.
 
 _check_spelling_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check_spelling.sh"
-assert_bulk_test "$_check_spelling_script_path" e x
+aw_utils.assert_bulk_test "$_check_spelling_script_path" e x
 
 aw_utils.assert_true '$_check_spelling_script_path' \
             'Spell-checker script checks pass ("check_spelling.sh" returns 0)'
@@ -205,8 +205,8 @@ aw_utils.assert_true '$_check_spelling_script_path' \
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
-total_time="$(calculate_execution_time "$time_start" "$time_end")"
+time_end="$(aw_utils.current_unix_time)"
+total_time="$(aw_utils.calculate_execution_time "$time_start" "$time_end")"
 
-log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
-update_global_test_results
+aw_utils.log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+aw_utils.update_global_test_results

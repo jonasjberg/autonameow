@@ -39,7 +39,7 @@ source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 # ____________________________________________________________________________
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Regression Tests'
 aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
@@ -66,7 +66,7 @@ aw_utils.assert_true '[ -r "$AUTONAMEOW_ROOT_DIR" ]' \
 
 
 _regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_regression_tests.sh"
-assert_bulk_test "$_regression_runner_path" n e r x
+aw_utils.assert_bulk_test "$_regression_runner_path" n e r x
 
 _regression_runner_basename="$(basename -- "$_regression_runner_path")"
 aw_utils.assert_true '[ -n "$_regression_runner_basename" ]' \
@@ -217,8 +217,8 @@ aw_utils.assert_true 'grep -- "autonameow --automagic --batch --dry-run --config
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
-total_time="$(calculate_execution_time "$time_start" "$time_end")"
+time_end="$(aw_utils.current_unix_time)"
+total_time="$(aw_utils.calculate_execution_time "$time_start" "$time_end")"
 
-log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
-update_global_test_results
+aw_utils.log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+aw_utils.update_global_test_results

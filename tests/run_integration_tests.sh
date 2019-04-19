@@ -106,12 +106,13 @@ fi
 
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
 aw_utils.initialize_logging
-initialize_global_stats
-search_dir="${SELF_DIRPATH}/integration"
-log_msg_timestamped "Started integration test runner \"${SELF_BASENAME}\""
+aw_utils.initialize_global_stats
+
+readonly search_dir="${SELF_DIRPATH}/integration"
+aw_utils.log_msg_timestamped "Started integration test runner \"${SELF_BASENAME}\""
 aw_utils.log_msg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
@@ -162,7 +163,7 @@ done
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
+time_end="$(aw_utils.current_unix_time)"
 total_time="$(((time_end - time_start) / 1000000))"
 aw_utils.log_msg "Total execution time: ${total_time} ms"
 
@@ -174,8 +175,8 @@ do
     _total_failed="$_fail"
 done < "$AUTONAMEOW_INTEGRATION_STATS"
 
-log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_total_failed"
-log_msg_timestamped "Exiting integration test runner \"${SELF_BASENAME}\""
+aw_utils.log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_total_failed"
+aw_utils.log_msg_timestamped "Exiting integration test runner \"${SELF_BASENAME}\""
 
 if [ "$_total_failed" -eq "0" ]
 then

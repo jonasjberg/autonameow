@@ -57,7 +57,7 @@ assert_can_import_python_module_member()
 # ____________________________________________________________________________
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Dependencies'
 aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
@@ -74,23 +74,23 @@ aw_utils.assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
 aw_utils.assert_false '[ -z "$TERM" ]' \
              'Environment variable "$TERM" should be set'
 
-assert_has_command 'python3'
+aw_utils.assert_has_command 'python3'
 aw_utils.assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
             'System python3 is version v3.5.0 or newer'
 
-assert_has_command 'git'
+aw_utils.assert_has_command 'git'
 aw_utils.assert_true 'git --version | grep "git version 2\..*"' \
             'System git version is newer than v2.x.x'
 
 
 # Developer scripts and testing dependencies.
-assert_has_command 'pytest'
+aw_utils.assert_has_command 'pytest'
 _pytesthelp="$(pytest --help 2>&1)"
 aw_utils.assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
             'Module "pytest-html" is available on the system'
 
-# assert_has_command 'vulture'
-# assert_has_command 'pylint'
+# aw_utils.assert_has_command 'vulture'
+# aw_utils.assert_has_command 'pylint'
 
 
 # ______________________________________________________________________________
@@ -118,20 +118,20 @@ assert_can_import_python_module 'yaml'  # pyyaml
 #
 # Make sure that binary dependencies are available.
 
-assert_has_command 'exiftool'
-assert_has_command 'jpeginfo'
-assert_has_command 'pandoc'  # MarkdownTextExtractor
-assert_has_command 'pdftotext'
-assert_has_command 'tesseract'
-assert_has_command 'unrtf'
-assert_has_command 'djvutxt'
+aw_utils.assert_has_command 'exiftool'
+aw_utils.assert_has_command 'jpeginfo'
+aw_utils.assert_has_command 'pandoc'  # MarkdownTextExtractor
+aw_utils.assert_has_command 'pdftotext'
+aw_utils.assert_has_command 'tesseract'
+aw_utils.assert_has_command 'unrtf'
+aw_utils.assert_has_command 'djvutxt'
 
 
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
-total_time="$(calculate_execution_time "$time_start" "$time_end")"
+time_end="$(aw_utils.current_unix_time)"
+total_time="$(aw_utils.calculate_execution_time "$time_start" "$time_end")"
 
-log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
-update_global_test_results
+aw_utils.log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+aw_utils.update_global_test_results

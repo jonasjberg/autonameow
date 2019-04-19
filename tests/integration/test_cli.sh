@@ -39,20 +39,20 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 # ____________________________________________________________________________
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Command-Line Interface'
 aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-aw_utils.assert_true 'command_exists python3' \
+aw_utils.assert_true 'aw_utils.command_exists python3' \
             'Python v3.x is available on the system'
 
-ACTIVE_CONFIG="$(abspath_testfile "configs/default.yaml")"
-assert_bulk_test "$ACTIVE_CONFIG" n e f r
+ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/default.yaml")"
+aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e f r
 
-assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+aw_utils.assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER"' \
             'The autonameow launcher script can be started with no arguments'
@@ -103,8 +103,8 @@ aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --debug --quiet -- ' \
              'Starting with mutually exclusive options "--debug" and "--quiet" should generate an error'
 
 
-SAMPLE_EMPTY_FILE="$(abspath_testfile "empty")"
-assert_bulk_test "$SAMPLE_EMPTY_FILE" e f r
+SAMPLE_EMPTY_FILE="$(aw_utils.abspath_testfile "empty")"
+aw_utils.assert_bulk_test "$SAMPLE_EMPTY_FILE" e f r
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --automagic --dry-run -- "$SAMPLE_EMPTY_FILE"' \
             'Expect exit status 0 when started with "--automagic", "--dry-run" and an empty file'
@@ -161,8 +161,8 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*No input files s
             'When started without options the output should match ".*No input files specified.*"'
 
 
-SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
-assert_bulk_test "$SAMPLE_PDF_FILE" e f r
+SAMPLE_PDF_FILE="$(aw_utils.abspath_testfile "gmail.pdf")"
+aw_utils.assert_bulk_test "$SAMPLE_PDF_FILE" e f r
 
 sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --dry-run --list-all -- "$SAMPLE_PDF_FILE"' \
@@ -182,8 +182,8 @@ aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$
 #
 # Tests the recursive option.
 
-TEST_FILES_SUBDIR="$(abspath_testfile "subdir")"
-assert_bulk_test "$TEST_FILES_SUBDIR" d r w x
+TEST_FILES_SUBDIR="$(aw_utils.abspath_testfile "subdir")"
+aw_utils.assert_bulk_test "$TEST_FILES_SUBDIR" d r w x
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"' \
             "Expect exit code 0 when running \"--batch --recurse --dry-run -- \"${TEST_FILES_SUBDIR}\"\""
@@ -286,8 +286,8 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --postprocess-only --verbose' \
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
-total_time="$(calculate_execution_time "$time_start" "$time_end")"
+time_end="$(aw_utils.current_unix_time)"
+total_time="$(aw_utils.calculate_execution_time "$time_start" "$time_end")"
 
-log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
-update_global_test_results
+aw_utils.log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+aw_utils.update_global_test_results

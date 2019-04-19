@@ -36,18 +36,18 @@ source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
 
 check_testfiles_directory()
 {
-    assert_bulk_test "$(abspath_testfile "$1")" d r x
+    aw_utils.assert_bulk_test "$(aw_utils.abspath_testfile "$1")" d r x
 }
 
 check_testfiles_file()
 {
-    assert_bulk_test "$(abspath_testfile "$1")" f r
+    aw_utils.assert_bulk_test "$(aw_utils.abspath_testfile "$1")" f r
 }
 
 check_testfiles_symlink()
 {
-    # NOTE(jonas): Can't test for -L because abspath_testfile resolves links..
-    assert_bulk_test "$(abspath_testfile "$1")" e r
+    # NOTE(jonas): Can't test for -L because aw_utils.abspath_testfile resolves links..
+    aw_utils.assert_bulk_test "$(aw_utils.abspath_testfile "$1")" e r
 }
 
 
@@ -56,7 +56,7 @@ check_testfiles_symlink()
 # ____________________________________________________________________________
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Test Suite'
 aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
@@ -73,7 +73,7 @@ aw_utils.assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
 #
 # Check shared environment variables, used by all tests.
 
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" n d r w x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" n d r w x
 
 
 # ______________________________________________________________________________
@@ -81,21 +81,21 @@ assert_bulk_test "$AUTONAMEOW_ROOT_DIR" n d r w x
 # Check script for setting environment variables, used by all tests.
 
 _setup_environment_path="${AUTONAMEOW_ROOT_DIR}/tests/setup_environment.sh"
-assert_bulk_test "$_setup_environment_path" n f r x
+aw_utils.assert_bulk_test "$_setup_environment_path" n f r x
 
 
 # ______________________________________________________________________________
 #
 # Check environment variables used by specific types of tests.
 
-assert_bulk_test "$AUTONAMEOW_INTEGRATION_STATS" n e f
+aw_utils.assert_bulk_test "$AUTONAMEOW_INTEGRATION_STATS" n e f
 
-assert_bulk_test "$AUTONAMEOW_INTEGRATION_LOG" n e
+aw_utils.assert_bulk_test "$AUTONAMEOW_INTEGRATION_LOG" n e
 
 aw_utils.assert_false '[ -d "$AUTONAMEOW_INTEGRATION_LOG" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_LOG" should not be a directory'
 
-assert_bulk_test "$AUTONAMEOW_INTEGRATION_TIMESTAMP" n
+aw_utils.assert_bulk_test "$AUTONAMEOW_INTEGRATION_TIMESTAMP" n
 aw_utils.assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
              'Environment variable "AUTONAMEOW_INTEGRATION_TIMESTAMP" should not be unset'
 
@@ -104,16 +104,16 @@ aw_utils.assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
 #
 # Check test dependencies
 
-assert_has_command 'grep'
-assert_has_command 'mktemp'
-assert_has_command 'realpath'
+aw_utils.assert_has_command 'grep'
+aw_utils.assert_has_command 'mktemp'
+aw_utils.assert_has_command 'realpath'
 
-assert_has_command 'sed'
+aw_utils.assert_has_command 'sed'
 aw_utils.assert_true 'man sed | grep -- "^ \+.*-i\b"' \
             'System sed supports the "-i" option, required by some integration tests'
 
-assert_has_command 'time'
-assert_has_command 'aspell'  # devscripts/check_spelling.sh
+aw_utils.assert_has_command 'time'
+aw_utils.assert_has_command 'aspell'  # devscripts/check_spelling.sh
 
 
 # ______________________________________________________________________________
@@ -121,21 +121,21 @@ assert_has_command 'aspell'  # devscripts/check_spelling.sh
 # Basic checks of the test runner scripts.
 
 _integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_integration_tests.sh"
-assert_bulk_test "$_integration_runner_path" n e r x
+aw_utils.assert_bulk_test "$_integration_runner_path" n e r x
 
 aw_utils.assert_true '"$_integration_runner_path" -h' \
             "Expect exit code 0 when running \"${_integration_runner_path} -h\""
 
 
 _unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_unit_tests.sh"
-assert_bulk_test "$_unit_runner_path" n e r x
+aw_utils.assert_bulk_test "$_unit_runner_path" n e r x
 
 aw_utils.assert_true '"$_unit_runner_path" -h' \
             "Expect exit code 0 when running \"${_unit_runner_path} -h\""
 
 
 _regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_regression_tests.sh"
-assert_bulk_test "$_regression_runner_path" n e r x
+aw_utils.assert_bulk_test "$_regression_runner_path" n e r x
 
 aw_utils.assert_true '"$_regression_runner_path" -h' \
             "Expect exit code 0 when running \"${_regression_runner_path} -h\""
@@ -146,10 +146,10 @@ aw_utils.assert_true '"$_regression_runner_path" -h' \
 # Check developer scripts and utilities in 'devscripts'.
 
 _devscripts_path="${AUTONAMEOW_ROOT_DIR}/devscripts"
-assert_bulk_test "$_devscripts_path" n e d r w x
+aw_utils.assert_bulk_test "$_devscripts_path" n e d r w x
 
 _todo_helper_script_path="${_devscripts_path}/todo_id.py"
-assert_bulk_test "$_todo_helper_script_path" n e f r x
+aw_utils.assert_bulk_test "$_todo_helper_script_path" n e f r x
 
 aw_utils.assert_true '"${_todo_helper_script_path}"' \
             'TODO-list utility script returns exit code 0 when started without arguments'
@@ -158,48 +158,47 @@ aw_utils.assert_true '"${_todo_helper_script_path}" --help' \
             'TODO-list utility script returns exit code 0 when started with argument "--help"'
 
 _whitespace_check_script_path="${_devscripts_path}/check_whitespace.sh"
-assert_bulk_test "$_whitespace_check_script_path" n e f r x
+aw_utils.assert_bulk_test "$_whitespace_check_script_path" n e f r x
 
 _check_spelling_script_path="${_devscripts_path}/check_spelling.sh"
-assert_bulk_test "$_check_spelling_script_path" n e f r x
+aw_utils.assert_bulk_test "$_check_spelling_script_path" n e f r x
 
 _check_spelling_script_wordlist_path="${_devscripts_path}/check_spelling_wordlist.txt"
-assert_bulk_test "$_check_spelling_script_wordlist_path" n e f r
+aw_utils.assert_bulk_test "$_check_spelling_script_wordlist_path" n e f r
 
 
 # ______________________________________________________________________________
 #
 # Shared bash script (integration test) functionality.
 
-_abspath_testfile_empty="$(abspath_testfile "empty")"
-assert_bulk_test "$_abspath_testfile_empty" n e f
+_abspath_testfile_empty="$(aw_utils.abspath_testfile "empty")"
+aw_utils.assert_bulk_test "$_abspath_testfile_empty" n e f
 
-_abspath_testfile_subdir="$(abspath_testfile "subdir")"
-assert_bulk_test "$_abspath_testfile_subdir" n e d
+_abspath_testfile_subdir="$(aw_utils.abspath_testfile "subdir")"
+aw_utils.assert_bulk_test "$_abspath_testfile_subdir" n e d
 
+aw_utils.assert_true '[ "$(aw_utils.calculate_execution_time 1501987087187088013 1501987087942286968)" -eq "755" ]' \
+            'aw_utils.calculate_execution_time returns expected (755ms)'
 
-aw_utils.assert_true '[ "$(calculate_execution_time 1501987087187088013 1501987087942286968)" -eq "755" ]' \
-            'calculate_execution_time returns expected (755ms)'
+aw_utils.assert_true '[ "$(aw_utils.calculate_execution_time 1501987193168368101 1501987208094155073)" -eq "14925" ]' \
+            'aw_utils.calculate_execution_time returns expected (14925ms)'
 
-aw_utils.assert_true '[ "$(calculate_execution_time 1501987193168368101 1501987208094155073)" -eq "14925" ]' \
-            'calculate_execution_time returns expected (14925ms)'
-
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR"
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" d
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" r
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" w
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" x
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r w
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r x
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r w
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r x
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e w
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e w x
-assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR"
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" d
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" r
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" w
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r w
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r w
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e w
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e w x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e x
 
 
 _temporary_file='___temporary_file___'
@@ -207,23 +206,23 @@ _temporary_file='___temporary_file___'
 aw_utils.assert_true '[ -f "${_temporary_file}" ]' \
             'Reference dummy temporary was created'
 
-assert_bulk_test "$_temporary_file"
-assert_bulk_test "$_temporary_file" e
-assert_bulk_test "$_temporary_file" f
-assert_bulk_test "$_temporary_file" r
-assert_bulk_test "$_temporary_file" w
-assert_bulk_test "$_temporary_file" e f
-assert_bulk_test "$_temporary_file" e f r
-assert_bulk_test "$_temporary_file" e f r w
-assert_bulk_test "$_temporary_file" e r
-assert_bulk_test "$_temporary_file" e r w
-assert_bulk_test "$_temporary_file" e w
-assert_bulk_test "$_temporary_file" e w
-assert_bulk_test "$_temporary_file" e
-assert_bulk_test "$_temporary_file" f
-assert_bulk_test "$_temporary_file" f r
-assert_bulk_test "$_temporary_file" f r w
-assert_bulk_test "$_temporary_file" f w
+aw_utils.assert_bulk_test "$_temporary_file"
+aw_utils.assert_bulk_test "$_temporary_file" e
+aw_utils.assert_bulk_test "$_temporary_file" f
+aw_utils.assert_bulk_test "$_temporary_file" r
+aw_utils.assert_bulk_test "$_temporary_file" w
+aw_utils.assert_bulk_test "$_temporary_file" e f
+aw_utils.assert_bulk_test "$_temporary_file" e f r
+aw_utils.assert_bulk_test "$_temporary_file" e f r w
+aw_utils.assert_bulk_test "$_temporary_file" e r
+aw_utils.assert_bulk_test "$_temporary_file" e r w
+aw_utils.assert_bulk_test "$_temporary_file" e w
+aw_utils.assert_bulk_test "$_temporary_file" e w
+aw_utils.assert_bulk_test "$_temporary_file" e
+aw_utils.assert_bulk_test "$_temporary_file" f
+aw_utils.assert_bulk_test "$_temporary_file" f r
+aw_utils.assert_bulk_test "$_temporary_file" f r w
+aw_utils.assert_bulk_test "$_temporary_file" f w
 
 aw_utils.assert_true '[ -f "${_temporary_file}" ] && rm "$_temporary_file"' \
             'Reference dummy temporary file was deleted'
@@ -327,16 +326,16 @@ check_testfiles_file      'subdir/subsubdir_B/file_A3'
 check_testfiles_file      'subdir/subsubdir_B/file_B1'
 check_testfiles_file      'subdir/subsubdir_B/file_B2'
 
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_creatortool.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_language.yaml" e f r
-assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_publisher.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_creatortool.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_language.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_publisher.yaml" e f r
 
 
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
-total_time="$(calculate_execution_time "$time_start" "$time_end")"
+time_end="$(aw_utils.current_unix_time)"
+total_time="$(aw_utils.calculate_execution_time "$time_start" "$time_end")"
 
-log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
-update_global_test_results
+aw_utils.log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+aw_utils.update_global_test_results

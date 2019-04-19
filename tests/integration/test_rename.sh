@@ -47,14 +47,14 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 test_automagic_rename()
 {
     local -r _test_name="RENAME ${1}"
-    local -r _sample_file="$(abspath_testfile "${2}")"
+    local -r _sample_file="$(aw_utils.abspath_testfile "${2}")"
     local -r _expected_basename="$3"
     local _sample_file_basename
     local _temp_dir
     local _expected_name
     local _temp_file
 
-    assert_bulk_test "$_sample_file" e f r
+    aw_utils.assert_bulk_test "$_sample_file" e f r
 
     _sample_file_basename="$(basename -- "${_sample_file}")"
     _temp_dir="$(mktemp -d -t aw_test_integration_rename.XXXXXX)"
@@ -84,10 +84,10 @@ test_automagic_rename()
 test_automagic_dryrun()
 {
     local -r _test_name="DRY-RUN ${1}"
-    local -r _sample_file="$(abspath_testfile "${2}")"
+    local -r _sample_file="$(aw_utils.abspath_testfile "${2}")"
     local -r _expected_basename="$3"
 
-    assert_bulk_test "$_sample_file" e f r
+    aw_utils.assert_bulk_test "$_sample_file" e f r
 
     aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
                 "(${_test_name}) returns exit code 0 when started with \"--automagic --dry-run\""
@@ -113,20 +113,20 @@ test_automagic_dryrun()
 # ____________________________________________________________________________
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Rename Files'
 aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-aw_utils.assert_true 'command_exists python3' \
+aw_utils.assert_true 'aw_utils.command_exists python3' \
             'Python v3.x is available on the system'
 
-assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+aw_utils.assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
-ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_1.yaml")"
-assert_bulk_test "$ACTIVE_CONFIG" n e r
+ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/integration_test_config_1.yaml")"
+aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 
 SAMPLE_PDF_FILE='gmail.pdf'
@@ -142,8 +142,8 @@ test_automagic_dryrun 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_filetags.yaml")"
-assert_bulk_test "$ACTIVE_CONFIG" n e r
+ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/integration_test_config_filetags.yaml")"
+aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_FILETAGS_FILE='2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
 SAMPLE_FILETAGS_FILE_EXPECTED='2017-09-12T224820 filetags-style name -- a tag1 tag2.txt'
@@ -152,8 +152,8 @@ test_automagic_dryrun 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SA
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext_1.yaml")"
-assert_bulk_test "$ACTIVE_CONFIG" n e r
+ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/integration_test_config_add-ext_1.yaml")"
+aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_EMPTY_FILE='empty'
 SAMPLE_EMPTY_FILE_EXPECTED='empty'
@@ -168,8 +168,8 @@ test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/simple-lexic
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext_2.yaml")"
-assert_bulk_test "$ACTIVE_CONFIG" n e r
+ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/integration_test_config_add-ext_2.yaml")"
+aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 test_automagic_rename 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
 test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
@@ -182,16 +182,16 @@ test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/magic_txt.md
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(abspath_testfile "configs/default.yaml")"
-assert_bulk_test "$ACTIVE_CONFIG" n e r
+ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/default.yaml")"
+aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 
 assert_unable_to_find_new_name()
 {
     local -r _test_name="Expect unable to find new name for \"${1}\""
-    local -r _sample_file="$(abspath_testfile "${1}")"
+    local -r _sample_file="$(aw_utils.abspath_testfile "${1}")"
 
-    assert_bulk_test "$_sample_file" e f r
+    aw_utils.assert_bulk_test "$_sample_file" e f r
 
     aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
                 "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run\""
@@ -269,8 +269,8 @@ assert_unable_to_find_new_name 'text_sample_utf-8.txt'
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
-total_time="$(calculate_execution_time "$time_start" "$time_end")"
+time_end="$(aw_utils.current_unix_time)"
+total_time="$(aw_utils.calculate_execution_time "$time_start" "$time_end")"
 
-log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
-update_global_test_results
+aw_utils.log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+aw_utils.update_global_test_results

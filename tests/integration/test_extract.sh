@@ -39,7 +39,7 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 # ____________________________________________________________________________
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Stand-alone Extraction'
 aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
@@ -47,7 +47,7 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 EXTRACT_RUNNER="${AUTONAMEOW_ROOT_DIR}/bin/meowxtract.sh"
-assert_bulk_test "$EXTRACT_RUNNER" n e f r x
+aw_utils.assert_bulk_test "$EXTRACT_RUNNER" n e f r x
 
 aw_utils.assert_true '"$EXTRACT_RUNNER"' \
             'The autonameow launcher script can be started with no arguments'
@@ -95,8 +95,8 @@ aw_utils.assert_false '"$EXTRACT_RUNNER" --debug 2>&1 | grep -- ":root:"' \
 
 
 # Test file to extract from.
-SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
-assert_bulk_test "$SAMPLE_PDF_FILE" e r
+SAMPLE_PDF_FILE="$(aw_utils.abspath_testfile "gmail.pdf")"
+aw_utils.assert_bulk_test "$SAMPLE_PDF_FILE" e r
 
 sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
 
@@ -205,8 +205,8 @@ aw_utils.assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_PDF_FILE" | grep -- "
 
 
 # Test file to extract from.
-SAMPLE_RTF_FILE="$(abspath_testfile "sample.rtf")"
-assert_bulk_test "$SAMPLE_RTF_FILE" e r
+SAMPLE_RTF_FILE="$(aw_utils.abspath_testfile "sample.rtf")"
+aw_utils.assert_bulk_test "$SAMPLE_RTF_FILE" e r
 
 sample_rtf_file_basename="$(basename -- "${SAMPLE_RTF_FILE}")"
 
@@ -215,8 +215,8 @@ aw_utils.assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_RTF_FILE" | grep -- "
 
 
 # Test file to extract from.
-SAMPLE_MD_FILE="$(abspath_testfile "sample.md")"
-assert_bulk_test "$SAMPLE_MD_FILE" e r
+SAMPLE_MD_FILE="$(aw_utils.abspath_testfile "sample.md")"
+aw_utils.assert_bulk_test "$SAMPLE_MD_FILE" e r
 
 sample_md_file_basename="$(basename -- "${SAMPLE_MD_FILE}")"
 
@@ -236,8 +236,8 @@ aw_utils.assert_false '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "
 
 
 # Test file to extract from.
-SAMPLE_DJVU_FILE="$(abspath_testfile "Critique_of_Pure_Reason.djvu")"
-assert_bulk_test "$SAMPLE_DJVU_FILE" e r
+SAMPLE_DJVU_FILE="$(aw_utils.abspath_testfile "Critique_of_Pure_Reason.djvu")"
+aw_utils.assert_bulk_test "$SAMPLE_DJVU_FILE" e r
 
 sample_djvu_file_basename="$(basename -- "${SAMPLE_DJVU_FILE}")"
 
@@ -248,8 +248,8 @@ aw_utils.assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_DJVU_FILE" | grep -- 
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
-total_time="$(calculate_execution_time "$time_start" "$time_end")"
+time_end="$(aw_utils.current_unix_time)"
+total_time="$(aw_utils.calculate_execution_time "$time_start" "$time_end")"
 
-log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
-update_global_test_results
+aw_utils.log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+aw_utils.update_global_test_results

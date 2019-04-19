@@ -40,7 +40,7 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 # ____________________________________________________________________________
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Compatibility'
 aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
@@ -86,7 +86,7 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- ".*${c
 
 # Get version string defined in the sources
 _version_file="${AUTONAMEOW_ROOT_DIR}/autonameow/core/version.py"
-assert_bulk_test "$_version_file" e f r
+aw_utils.assert_bulk_test "$_version_file" e f r
 
 AUTONAMEOW_SOURCE_VERSION="$(grep -- '__version_info__ = ' "$_version_file" | grep -o -- '[0-9], [0-9], [0-9]' | sed 's/\([0-9]\), \([0-9]\), \([0-9]\)/\1.\2.\3/')"
 aw_utils.assert_false '[ -z "$AUTONAMEOW_SOURCE_VERSION" ]' \
@@ -117,7 +117,7 @@ aw_utils.assert_false '[ -z "$AUTONAMEOW_CONFIG_PATH" ]' \
 
 # Strip quotes from configuration file path.
 AUTONAMEOW_CONFIG_PATH="${AUTONAMEOW_CONFIG_PATH//\"/}"
-assert_bulk_test "$AUTONAMEOW_CONFIG_PATH" e f r w
+aw_utils.assert_bulk_test "$AUTONAMEOW_CONFIG_PATH" e f r w
 
 aw_utils.assert_true 'grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH"' \
             'The retrieved configuration file contents should match "autonameow_version: X.X.X$"'
@@ -149,7 +149,7 @@ aw_utils.assert_true '[ "$AUTONAMEOW_SOURCE_VERSION" = "$CONFIG_FILE_VERSION" ]'
 EMPTY_CONFIG='/tmp/autonameow_empty_config.yaml'
 aw_utils.assert_true 'touch "$EMPTY_CONFIG"' \
             'detect_empty_config Test setup should succeed'
-assert_bulk_test "$EMPTY_CONFIG" e f r
+aw_utils.assert_bulk_test "$EMPTY_CONFIG" e f r
 
 aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --config-path "$EMPTY_CONFIG"' \
              'detect_empty_config Specifying a empty configuration file with "--config-path" should be handled properly'
@@ -161,8 +161,8 @@ aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --config-path /tmp/does_not_exist_su
              'Specifying an invalid path with "--config-path" should be handled properly'
 
 
-BAD_CONFIG_FILE="$(abspath_testfile "configs/bad_corrupt_gif.yaml")"
-assert_bulk_test "$BAD_CONFIG_FILE" e f r
+BAD_CONFIG_FILE="$(aw_utils.abspath_testfile "configs/bad_corrupt_gif.yaml")"
+aw_utils.assert_bulk_test "$BAD_CONFIG_FILE" e f r
 
 aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE"' \
              'Attempting to load a invalid configuration file with "--config-path" should be handled properly'
@@ -172,8 +172,8 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dump-options --verbose' \
             'autonameow should return zero when started with "--dump-options" and "--verbose"'
 
 
-NONASCII_CONFIG_FILE="$(abspath_testfile "configs/autonam€öw.yaml")"
-assert_bulk_test "$NONASCII_CONFIG_FILE" e f r
+NONASCII_CONFIG_FILE="$(aw_utils.abspath_testfile "configs/autonam€öw.yaml")"
+aw_utils.assert_bulk_test "$NONASCII_CONFIG_FILE" e f r
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$NONASCII_CONFIG_FILE"' \
             'Attempting to load a non-ASCII configuration file with "--config-path" should be handled properly'
@@ -201,14 +201,14 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dump-options --quiet --config-path 
 
 
 set +o pipefail
-BAD_CONFIG_FILE_NO_FILE_RULES="$(abspath_testfile "configs/bad_no_file_rules.yaml")"
-assert_bulk_test "$BAD_CONFIG_FILE_NO_FILE_RULES" e f r
+BAD_CONFIG_FILE_NO_FILE_RULES="$(aw_utils.abspath_testfile "configs/bad_no_file_rules.yaml")"
+aw_utils.assert_bulk_test "$BAD_CONFIG_FILE_NO_FILE_RULES" e f r
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_NO_FILE_RULES" 2>&1 | grep -q "Unable to load configuration"' \
             'Attempting to load a configuration file without any file rules should be handled properly'
 
-BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS="$(abspath_testfile "configs/bad_empty_but_sections.yaml")"
-assert_bulk_test "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" e f r
+BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS="$(aw_utils.abspath_testfile "configs/bad_empty_but_sections.yaml")"
+aw_utils.assert_bulk_test "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" e f r
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" 2>&1 | grep -q "Unable to load configuration"' \
             'Attempting to load a configuration file with just bare sections should be handled properly'
@@ -255,18 +255,18 @@ done < <(find "${AUTONAMEOW_TESTFILES_DIR}/configs" -maxdepth 1 -xdev -type f -n
 # Tests the assumption that autonameow writes at least one file to the
 # persistence path set in the config.
 
-TEMPLATED_DEFAULT_CONFIG="$(abspath_testfile "configs/integration_default_templated.yaml")"
-assert_bulk_test "$TEMPLATED_DEFAULT_CONFIG" f r w
+TEMPLATED_DEFAULT_CONFIG="$(aw_utils.abspath_testfile "configs/integration_default_templated.yaml")"
+aw_utils.assert_bulk_test "$TEMPLATED_DEFAULT_CONFIG" f r w
 
 TEMP_PERSISTENCE_DIR="$(realpath -e -- "$(mktemp -d -t aw_test_persistence.XXXXXX)")"
-assert_bulk_test "$TEMP_PERSISTENCE_DIR" d r w x
+aw_utils.assert_bulk_test "$TEMP_PERSISTENCE_DIR" d r w x
 
 _sed_backup_suffix='.orig'
 aw_utils.assert_true 'sed -i${_sed_backup_suffix} "s@___cache_directory___@${TEMP_PERSISTENCE_DIR}@g" "$TEMPLATED_DEFAULT_CONFIG"' \
             'Expect OK exit status for sed call replacing template placeholder ___cache_directory___'
 
 templated_default_config_backup="${TEMPLATED_DEFAULT_CONFIG}${_sed_backup_suffix}"
-assert_bulk_test "$templated_default_config_backup" f r w
+aw_utils.assert_bulk_test "$templated_default_config_backup" f r w
 
 _number_files_in_temp_persistence_dir="$(find "$TEMP_PERSISTENCE_DIR" -type f -mindepth 1 -type f | wc -l)"
 aw_utils.assert_true '[ "$_number_files_in_temp_persistence_dir" -eq "0" ]' \
@@ -289,8 +289,8 @@ aw_utils.assert_true '[ -f "$templated_default_config_backup" ] && mv -- "$templ
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
-total_time="$(calculate_execution_time "$time_start" "$time_end")"
+time_end="$(aw_utils.current_unix_time)"
+total_time="$(aw_utils.calculate_execution_time "$time_start" "$time_end")"
 
-log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
-update_global_test_results
+aw_utils.log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+aw_utils.update_global_test_results

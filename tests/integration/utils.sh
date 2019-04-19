@@ -35,7 +35,7 @@ C_RESET="${C_RESET:+"$C_RESET"}"
 
 
 # Initialize counter variables every time this script is sourced
-# by each of the test suites. Used in 'log_test_suite_results_summary'.
+# by each of the test suites. Used in 'aw_utils.log_test_suite_results_summary'.
 suite_tests_count=0
 suite_tests_passed=0
 suite_tests_failed=0
@@ -84,7 +84,7 @@ aw_utils.initialize_global_stats()
 # skipped. In this case no log file is written do disk.
 #
 # shellcheck disable=SC2015
-log_msg_timestamped()
+aw_utils.log_msg_timestamped()
 {
     local _timestamp
     _timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
@@ -100,25 +100,25 @@ aw_utils.log_msg()
     )
 }
 
-log_msg_separator()
+aw_utils.log_msg_separator()
 {
     aw_utils.log_msg "$(printf '=%.0s' {1..80})"
 }
 
-log_msg_separator_thin()
+aw_utils.log_msg_separator_thin()
 {
     aw_utils.log_msg "$(printf '~%.0s' {1..80})"
 }
 
 
 # Prints out a summary of test results for the currently sourcing script.
-log_test_suite_results_summary()
+aw_utils.log_test_suite_results_summary()
 {
     local -r _name="$1"
     local -r _execution_time="$2"
     local _highlight_red
 
-    log_msg_separator_thin
+    aw_utils.log_msg_separator_thin
 
     _highlight_red=''
     if [ "$suite_tests_failed" -eq "0" ]
@@ -132,11 +132,11 @@ log_test_suite_results_summary()
     aw_utils.log_msg "$(printf "${C_BOLD}Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$suite_tests_count" "$suite_tests_passed" "$suite_tests_failed")"
     aw_utils.log_msg "${C_BOLD}Completed the ${_name} test suite tests in ${_execution_time} ms${C_RESET}"
-    log_msg_separator
+    aw_utils.log_msg_separator
 }
 
 # Prints out a total test results ummary for all tests.
-log_total_results_summary()
+aw_utils.log_total_results_summary()
 {
     local -r _execution_time="$1"
     local -r _tests_count="$2"
@@ -144,7 +144,7 @@ log_total_results_summary()
     local -r _tests_failed="$4"
     local _highlight_red
 
-    log_msg_separator_thin
+    aw_utils.log_msg_separator_thin
 
     _highlight_red=''
     if [ "$_tests_failed" -eq "0" ]
@@ -166,11 +166,11 @@ log_total_results_summary()
     aw_utils.log_msg "$(printf "${C_BOLD}Total Test Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$_tests_count" "$_tests_passed" "$_tests_failed")"
     aw_utils.log_msg "${C_BOLD}Completed all tests in ${_duration}  (${_execution_time} ms)${C_RESET}"
-    log_msg_separator
+    aw_utils.log_msg_separator
 }
 
 # Logs a test failure message and increments counters.
-test_fail()
+aw_utils.test_fail()
 {
     aw_utils.log_msg "${C_RED}[FAIL]${C_RESET}" "$*"
     suite_tests_failed="$((suite_tests_failed + 1))"
@@ -178,14 +178,14 @@ test_fail()
 }
 
 # Logs a test success message and increments counters.
-test_pass()
+aw_utils.test_pass()
 {
     aw_utils.log_msg "${C_GREEN}[PASS]${C_RESET}" "$*"
     suite_tests_passed="$((suite_tests_passed + 1))"
     suite_tests_count="$((suite_tests_count + 1))"
 }
 
-update_global_test_results()
+aw_utils.update_global_test_results()
 {
     while IFS=' ' read -r _count _pass _fail
     do
@@ -199,38 +199,35 @@ update_global_test_results()
 
 
 # Evaluates an expression, given as the first argument.
-# Calls 'test_fail' if the expression returns NON-zero.
-# Calls 'test_pass' if the expression returns zero.
+# Calls 'aw_utils.test_fail' if the expression returns NON-zero.
+# Calls 'aw_utils.test_pass' if the expression returns zero.
 aw_utils.assert_true()
 {
     ( eval "${1}" &>/dev/null ) >/dev/null
     if [ "$?" -ne "0" ]
     then
-        shift ; test_fail "$*"
+        shift ; aw_utils.test_fail "$*"
     else
-        shift ; test_pass "$*"
+        shift ; aw_utils.test_pass "$*"
     fi
 }
 
 # Evaluates an expression, given as the first argument.
-# Calls 'test_pass' if the expression returns NON-zero.
-# Calls 'test_fail' if the expression returns zero.
+# Calls 'aw_utils.test_pass' if the expression returns NON-zero.
+# Calls 'aw_utils.test_fail' if the expression returns zero.
 aw_utils.assert_false()
 {
     ( eval "${1}" &>/dev/null ) >/dev/null
     if [ "$?" -ne "0" ]
     then
-        shift ; test_pass "$*"
+        shift ; aw_utils.test_pass "$*"
     else
-        shift ; test_fail "$*"
-    fi
-}
-
+        shift ; aw_utils.test_fail "$*"
     fi
 }
 
 # Returns the current time as a UNIX timestamp.
-current_unix_time()
+aw_utils.current_unix_time()
 {
     # The 'date' command differs between versions; the GNU coreutils version
     # uses '+%N' to print nanoseconds, which is missing in the BSD version
@@ -250,7 +247,7 @@ current_unix_time()
 # Calculates the execution time by taking the difference of two unix
 # timestamps.  The expected arguments are start and end times.
 # Returns the time delta in milliseconds.
-calculate_execution_time()
+aw_utils.calculate_execution_time()
 {
     local -r _time_start="$1"
     local -r _time_end="$2"
@@ -259,17 +256,17 @@ calculate_execution_time()
 
 # Get the absolute path to a file in the "$SRCROOT/test_files" directory.
 # Expects the first and only argument to be the basename of the desired file.
-abspath_testfile()
+aw_utils.abspath_testfile()
 {
     ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e "test_files/${1}" )
 }
 
 # Test a bunch of '[ -d "foo" ]'-style assertions at once.
-# For instance;  'assert_bulk_test "/foo/bar" e f r'
+# For instance;  'aw_utils.assert_bulk_test "/foo/bar" e f r'
 # is equivalent to three separate assertions with messages, etc.
 #
 # shellcheck disable=SC2016
-assert_bulk_test()
+aw_utils.assert_bulk_test()
 {
     local -r _file="$1"
     shift
@@ -296,7 +293,7 @@ assert_bulk_test()
 
 # Tests that a command or list of commands are available.
 # Returns true if ALL commands are available. Else false.
-command_exists()
+aw_utils.command_exists()
 {
     for arg in "$@"
     do
@@ -309,10 +306,10 @@ command_exists()
     return 0
 }
 
-assert_has_command()
+aw_utils.assert_has_command()
 {
     local -r _cmd_name="$1"
-    aw_utils.assert_true 'command_exists "$_cmd_name"' \
+    aw_utils.assert_true 'aw_utils.command_exists "$_cmd_name"' \
                 "System provides executable command \"${_cmd_name}\""
 }
 
