@@ -59,7 +59,7 @@ check_testfiles_symlink()
 time_start="$(current_unix_time)"
 
 TESTSUITE_NAME='Test Suite'
-log_msg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 

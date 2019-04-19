@@ -116,7 +116,7 @@ test_automagic_dryrun()
 time_start="$(current_unix_time)"
 
 TESTSUITE_NAME='Rename Files'
-log_msg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 

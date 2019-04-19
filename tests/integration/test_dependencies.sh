@@ -60,7 +60,7 @@ assert_can_import_python_module_member()
 time_start="$(current_unix_time)"
 
 TESTSUITE_NAME='Dependencies'
-log_msg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 

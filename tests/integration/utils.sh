@@ -58,7 +58,7 @@ initialize_logging()
     AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/integration_log_${AUTONAMEOW_INTEGRATION_TIMESTAMP}.raw"
     export AUTONAMEOW_INTEGRATION_LOG
 
-    log_msg "Logging to file: \"${AUTONAMEOW_INTEGRATION_LOG}\""
+    aw_utils.log_msg "Logging to file: \"${AUTONAMEOW_INTEGRATION_LOG}\""
 }
 
 initialize_global_stats()
@@ -69,7 +69,7 @@ initialize_global_stats()
         exit 1
     fi
 
-    log_msg "Writing global statistics to file: \"${AUTONAMEOW_INTEGRATION_STATS}\""
+    aw_utils.log_msg "Writing global statistics to file: \"${AUTONAMEOW_INTEGRATION_STATS}\""
     export AUTONAMEOW_INTEGRATION_STATS
 
     # Set total, passed and failed to 0
@@ -93,7 +93,7 @@ log_msg_timestamped()
     ( [ ! -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] && tee -a "$AUTONAMEOW_INTEGRATION_LOG" || cat )
 }
 
-log_msg()
+aw_utils.log_msg()
 {
     printf '%s\n' "$*" | (
         [ -n "${AUTONAMEOW_INTEGRATION_LOG:-}" ] && tee -a "$AUTONAMEOW_INTEGRATION_LOG" || cat
@@ -102,12 +102,12 @@ log_msg()
 
 log_msg_separator()
 {
-    log_msg "$(printf '=%.0s' {1..80})"
+    aw_utils.log_msg "$(printf '=%.0s' {1..80})"
 }
 
 log_msg_separator_thin()
 {
-    log_msg "$(printf '~%.0s' {1..80})"
+    aw_utils.log_msg "$(printf '~%.0s' {1..80})"
 }
 
 
@@ -123,15 +123,15 @@ log_test_suite_results_summary()
     _highlight_red=''
     if [ "$suite_tests_failed" -eq "0" ]
     then
-        log_msg "${C_BOLD}${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
+        aw_utils.log_msg "${C_BOLD}${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
     else
-        log_msg "${C_BOLD}${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
+        aw_utils.log_msg "${C_BOLD}${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
         _highlight_red="${C_RED}"
     fi
 
-    log_msg "$(printf "${C_BOLD}Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
+    aw_utils.log_msg "$(printf "${C_BOLD}Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$suite_tests_count" "$suite_tests_passed" "$suite_tests_failed")"
-    log_msg "${C_BOLD}Completed the ${_name} test suite tests in ${_execution_time} ms${C_RESET}"
+    aw_utils.log_msg "${C_BOLD}Completed the ${_name} test suite tests in ${_execution_time} ms${C_RESET}"
     log_msg_separator
 }
 
@@ -149,9 +149,9 @@ log_total_results_summary()
     _highlight_red=''
     if [ "$_tests_failed" -eq "0" ]
     then
-        log_msg "${C_BOLD}${C_GREEN}[ ALL TEST SUITE(S) TESTS PASSED ]${C_RESET}"
+        aw_utils.log_msg "${C_BOLD}${C_GREEN}[ ALL TEST SUITE(S) TESTS PASSED ]${C_RESET}"
     else
-        log_msg "${C_BOLD}${C_RED}[ SOME TEST SUITE(S) TESTS FAILED ]${C_RESET}"
+        aw_utils.log_msg "${C_BOLD}${C_RED}[ SOME TEST SUITE(S) TESTS FAILED ]${C_RESET}"
         _highlight_red="${C_RED}"
     fi
 
@@ -163,16 +163,16 @@ log_total_results_summary()
                $((_seconds % 3600 / 60))      \
                $((_seconds % 60)))"
 
-    log_msg "$(printf "${C_BOLD}Total Test Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
+    aw_utils.log_msg "$(printf "${C_BOLD}Total Test Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$_tests_count" "$_tests_passed" "$_tests_failed")"
-    log_msg "${C_BOLD}Completed all tests in ${_duration}  (${_execution_time} ms)${C_RESET}"
+    aw_utils.log_msg "${C_BOLD}Completed all tests in ${_duration}  (${_execution_time} ms)${C_RESET}"
     log_msg_separator
 }
 
 # Logs a test failure message and increments counters.
 test_fail()
 {
-    log_msg "${C_RED}[FAIL]${C_RESET}" "$*"
+    aw_utils.log_msg "${C_RED}[FAIL]${C_RESET}" "$*"
     suite_tests_failed="$((suite_tests_failed + 1))"
     suite_tests_count="$((suite_tests_count + 1))"
 }
@@ -180,7 +180,7 @@ test_fail()
 # Logs a test success message and increments counters.
 test_pass()
 {
-    log_msg "${C_GREEN}[PASS]${C_RESET}" "$*"
+    aw_utils.log_msg "${C_GREEN}[PASS]${C_RESET}" "$*"
     suite_tests_passed="$((suite_tests_passed + 1))"
     suite_tests_count="$((suite_tests_count + 1))"
 }
@@ -340,11 +340,11 @@ assert_has_command()
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
 then
-    log_msg "Starting self-tests .."
+    aw_utils.log_msg "Starting self-tests .."
     assert_true  '[ "0" -eq "0" ]' '(Internal Test) Expect success ..'
     assert_true  '[ "1" -eq "0" ]' '(Internal Test) Expect failure ..'
     assert_false '[ "1" -eq "0" ]' '(Internal Test) Expect success ..'
     assert_false '[ "1" -ne "0" ]' '(Internal Test) Expect failure ..'
-    log_msg "Finished self-tests!"
+    aw_utils.log_msg "Finished self-tests!"
 fi
 

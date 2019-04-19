@@ -50,7 +50,7 @@ check_git_ls_files_does_not_match()
 time_start="$(current_unix_time)"
 
 TESTSUITE_NAME='Source Code'
-log_msg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 

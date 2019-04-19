@@ -42,7 +42,7 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 time_start="$(current_unix_time)"
 
 TESTSUITE_NAME='Stand-alone Extraction'
-log_msg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 

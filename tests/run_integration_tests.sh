@@ -112,7 +112,7 @@ initialize_logging
 initialize_global_stats
 search_dir="${SELF_DIRPATH}/integration"
 log_msg_timestamped "Started integration test runner \"${SELF_BASENAME}\""
-log_msg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
+aw_utils.log_msg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
 find "$search_dir" -maxdepth 1 -type f -name "test_*.sh" | sort -r |
@@ -120,7 +120,7 @@ while IFS=$'\n' read -r testscript
 do
     if [ ! -x "$testscript" ]
     then
-        log_msg "Missing execute permission: \"${testscript}\" .. SKIPPING"
+        aw_utils.log_msg "Missing execute permission: \"${testscript}\" .. SKIPPING"
         continue
     fi
 
@@ -130,7 +130,7 @@ do
     then
         if ! grep -q -- "$optionarg_filter" <<< "${_testscript_base}"
         then
-            log_msg "Skipped \"${_testscript_base}\" (filter expression \"${optionarg_filter}\")"
+            aw_utils.log_msg "Skipped \"${_testscript_base}\" (filter expression \"${optionarg_filter}\")"
             continue
         fi
     fi
@@ -150,21 +150,21 @@ do
     # !! fi
     # !! wait "$TASK_PID"
 
-    log_msg_timestamped "Starting \"${_testscript_base}\" .."
+    aw_utils.log_msg_timestamped "Starting \"${_testscript_base}\" .."
     if $option_quiet
     then
         source "${testscript}" &>/dev/null
     else
         source "${testscript}"
     fi
-    log_msg_timestamped "Finished \"${_testscript_base}\""
+    aw_utils.log_msg_timestamped "Finished \"${_testscript_base}\""
 done
 
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
 total_time="$(((time_end - time_start) / 1000000))"
-log_msg "Total execution time: ${total_time} ms"
+aw_utils.log_msg "Total execution time: ${total_time} ms"
 
 
 while read -r _count _pass _fail
