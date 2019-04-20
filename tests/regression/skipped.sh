@@ -62,13 +62,21 @@ else
 fi
 
 
+declare -a common_find_flags=(-xdev -mindepth 2 -maxdepth 2 -type f -name skip)
+
+
 printf 'Currently skipped regression tests:\n'
-( cd "$SELF_DIRPATH" && find . -xdev -type f -name 'skip' -printf '%P\n' | sed 's/\/skip//' )
+while IFS= read -r -d '' skipfile_path
+do
+    basename -- "$(dirname -- "$skipfile_path")"
+done < <(find "$SELF_DIRPATH" "${common_find_flags[@]}" -print0)
+
 
 if [ "$option_clear_all_skipped" == 'true' ]
 then
     printf '\nClearing all skipped tests .. '
-    if ( cd "$SELF_DIRPATH" && find . -xdev -type f -name 'skip' -delete )
+
+    if find "$SELF_DIRPATH" "${common_find_flags[@]}" -delete
     then
         printf '[SUCCESS]\n'
     else
