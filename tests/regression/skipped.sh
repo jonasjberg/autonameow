@@ -69,7 +69,7 @@ printf 'Currently skipped regression tests:\n'
 while IFS= read -r -d '' skipfile_path
 do
     basename -- "$(dirname -- "$skipfile_path")"
-done < <(find "$SELF_DIRPATH" "${common_find_flags[@]}" -print0)
+done < <(find "$SELF_DIRPATH" "${common_find_flags[@]}" -print0 | sort -z)
 
 
 if [ "$option_clear_all_skipped" == 'true' ]
