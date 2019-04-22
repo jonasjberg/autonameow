@@ -331,6 +331,10 @@ CodeWellAcademy:
     match_any_regex_ignorecase:
     - code well academy
 
+CognellaAcademicPub:
+    match_any_regex_ignorecase:
+    - cognella academic pub(lishing)?
+
 ConsultingSecurityEngineer:
     match_any_regex_ignorecase:
     - consulting security engineer(,? llc)?
@@ -848,6 +852,8 @@ PenguinRandomHouse:
     - random house children.?s books
     - (www\.)?penguinrandomhouse\.com
     - (www\.)?rhcbooks\.com
+    match_any_literal:
+    - Random House Publishing Group
 
 PennsylvaniaUP:
     match_any_literal:
@@ -1003,6 +1009,10 @@ StMartinsPress:
     match_any_regex_ignorecase:
     - st\.? martin.?s press
 
+SurfingTurtlePress:
+    match_any_literal:
+    - Surfing Turtle Press
+
 Sybex:
     match_any_regex_ignorecase:
     - sybex
@@ -1067,6 +1077,7 @@ WalkerBooks:
 WalterdeGruyter:
     match_any_regex_ignorecase:
     - (walter )?de gruyter
+    - (www\.)?degruyter\.com
 
 WellesleyCambridge:
     match_any_regex_ignorecase:

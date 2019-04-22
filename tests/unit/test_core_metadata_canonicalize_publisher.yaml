@@ -227,8 +227,9 @@ AthenaScientific:
 - Athena Scientific
 
 AtlantisPress:
-- Atlantis Press
 - AtlantisPress
+- Atlantis Press
+- Atlantis Press, Paris
 - 'Imprint: Atlantis Press'
 
 AtriaBooks:
@@ -688,6 +689,10 @@ ClydeBank:
 CodeWellAcademy:
 - CodeWellAcademy
 - Code Well Academy
+
+CognellaAcademicPub:
+- CognellaAcademicPub
+- Cognella Academic Publishing
 
 ConsultingSecurityEngineer:
 - ConsultingSecurityEngineer
@@ -1938,6 +1943,7 @@ PenguinRandomHouse:
 - Random House, Inc
 - Random House, Inc.
 - Random House, Incorporated
+- Random House Publishing Group
 - https://www.rhcbooks.com/
 - http://www.rhcbooks.com/
 - www.rhcbooks.com/
@@ -2337,6 +2343,10 @@ StMartinsPress:
 - St. Martin’s Press
 - "St. Martin's Press"
 
+SurfingTurtlePress:
+- SurfingTurtlePress
+- Surfing Turtle Press
+
 Sybex:
 - Sybex
 - SYBEX
@@ -2461,12 +2471,24 @@ WalkerBooks:
 - Walker Books
 
 WalterdeGruyter:
+- WalterdeGruyter
 - de Gruyter
 - De Gruyter
-- WalterdeGruyter
+- De Gruyter Inc
+- De Gruyter Inc.
+- De Gruyter, Inc
+- De Gruyter, Inc.
 - Walter de Gruyter
 - Walter de Gruyter GmbH & Co KG
 - Walter de Gruyter GmbH and Co KG
+- Walter de Gruyter GmbH Berlin
+- Walter de Gruyter GmbH, Berlin
+- Walter de Gruyter GmbH Berlin/Boston
+- Walter de Gruyter GmbH, Berlin/Boston
+- degruyter.com
+- www.degruyter.com
+- http://www.degruyter.com
+- https://www.degruyter.com
 
 WellesleyCambridge:
 - Wellesley Cambridge
