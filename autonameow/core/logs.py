@@ -40,7 +40,6 @@ def init_logging(opts):
         opts: Per-instance program options, as type dict.
     """
     global _logging_initialized
-    # assert not _logging_initialized
     if _logging_initialized:
         # TODO: Fix global logging state making testing tedious.
         return
