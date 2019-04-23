@@ -23,6 +23,7 @@ from unittest.mock import Mock, patch
 from core.logs import center_pad
 from core.logs import DEBUG
 from core.logs import deinit_logging
+from core.logs import stringify_seconds
 from core.logs import init_logging
 from core.logs import log_func_runtime
 from core.logs import log_previously_logged_runtimes
@@ -121,6 +122,25 @@ class TestCenterPad(TestCase):
 
 def mock_center_pad(message, **kwargs):
     return message
+
+
+class TestStringifySeconds(TestCase):
+    def test_returns_expected_given_float_values(self):
+        for given, expected in [
+            (0.0,  '0.000000000'),
+            (1.0,  '1.000000000'),
+            (1.5,  '1.500000000'),
+            (13.6, '13.600000000'),
+        ]:
+            self.assertEqual(expected, stringify_seconds(given))
+
+    def test_returns_expected_given_integer_values(self):
+        for given, expected in [
+            (0,  '0.000000000'),
+            (1,  '1.000000000'),
+            (66, '66.000000000'),
+        ]:
+            self.assertEqual(expected, stringify_seconds(given))
 
 
 class TestReportRuntime(TestCase):
