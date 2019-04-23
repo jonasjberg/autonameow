@@ -94,8 +94,8 @@ def init_logging(opts):
 
     # Reset global list of logged run-times.
     # TODO: [cleanup] Do not use global variable to store logged run-times
-    global global_logged_runtime
-    global_logged_runtime = list()
+    global _GLOBAL_LOGGED_RUNTIME
+    _GLOBAL_LOGGED_RUNTIME = list()
 
     _logging_initialized = True
 
@@ -116,8 +116,8 @@ def deinit_logging():
 
     # Reset global list of logged run-times.
     # TODO: [cleanup] Do not use global variable to store logged run-times
-    global global_logged_runtime
-    global_logged_runtime = list()
+    global _GLOBAL_LOGGED_RUNTIME
+    _GLOBAL_LOGGED_RUNTIME = list()
 
     global _logging_initialized
     _logging_initialized = False
@@ -136,7 +136,7 @@ def unsilence():
 
 
 # TODO: [cleanup] Do not use global variable to store logged run-times
-global_logged_runtime = list()
+_GLOBAL_LOGGED_RUNTIME = list()
 
 
 def center_pad(string, maxwidth, fillchar):
@@ -236,7 +236,6 @@ def log_runtime(logger, description, log_level=None):
         decorated_message = center_pad_log_entry(message)
         logger.log(_log_level, decorated_message)
 
-    global global_logged_runtime
     _log('{} Started'.format(description))
     start_time = time.time()
     try:
@@ -244,7 +243,8 @@ def log_runtime(logger, description, log_level=None):
     finally:
         elapsed_time = time.time() - start_time
         completed_msg = '{} Completed in {:.9f} seconds'.format(description, elapsed_time)
-        global_logged_runtime.append(completed_msg)
+        global _GLOBAL_LOGGED_RUNTIME
+        _GLOBAL_LOGGED_RUNTIME.append(completed_msg)
         _log(completed_msg)
 
 
@@ -269,8 +269,8 @@ def log_func_runtime(logger):
             _elapsed_time = time.time() - _start_time
             completed_msg = '{}.{} Completed in {:.9f} seconds'.format(
                 func.__module__, func.__name__, _elapsed_time)
-            global global_logged_runtime
-            global_logged_runtime.append(completed_msg)
+            global _GLOBAL_LOGGED_RUNTIME
+            _GLOBAL_LOGGED_RUNTIME.append(completed_msg)
             logger.debug(completed_msg)
             return func_returnval
         return log_runtime_wrapper
@@ -278,8 +278,8 @@ def log_func_runtime(logger):
 
 
 def log_previously_logged_runtimes(logger):
-    global global_logged_runtime
-    for entry in global_logged_runtime:
+    global _GLOBAL_LOGGED_RUNTIME
+    for entry in _GLOBAL_LOGGED_RUNTIME:
         logger.debug(entry)
 
 
