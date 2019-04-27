@@ -89,14 +89,15 @@ def config_dirs():
     return abs_paths
 
 
-def config_file_path():
+def config_filepath_for_platform():
     """
-    Returns the path to the configuration file. The file might or might not
-    actually exist.
+    Returns the path to a configuration file for the running operating system.
+    Any file at the path might or might not actually exist.
 
     Returns:
-        The absolute path to the autonameow configuration file as a string
-        in the "internal bytestring" encoding.
+        The absolute path to the autonameow configuration filepath as a string
+        with the "internal bytestring" encoding.
+
     Raises:
         ConfigError: No config path candidates could be found.
     """
@@ -147,4 +148,4 @@ def write_default_config():
         raise ConfigError(e)
 
 
-DefaultConfigFilePath = config_file_path()
+DefaultConfigFilePath = config_filepath_for_platform()

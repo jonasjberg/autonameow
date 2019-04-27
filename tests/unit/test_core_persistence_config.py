@@ -25,7 +25,7 @@ from unittest.mock import MagicMock, Mock, patch
 import unit.utils as uu
 from core.persistence.config import CONFIG_BASENAME
 from core.persistence.config import config_dirs
-from core.persistence.config import config_file_path
+from core.persistence.config import config_filepath_for_platform
 from core.persistence.config import load_config_from_file
 
 
@@ -69,7 +69,7 @@ class TestConfigDirs(TestCase):
             self.assertIn(os.path.expanduser('~/.config'), dirs)
 
 
-class TestConfigFilePath(TestCase):
+class TestConfigFilepathForPlatform(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.expect_basename = uu.encode(CONFIG_BASENAME)
@@ -82,23 +82,23 @@ class TestConfigFilePath(TestCase):
 
     def test_config_dirs_on_mac(self):
         with patch('platform.system', MagicMock(return_value='Darwin')):
-            config_filepath = config_file_path()
+            config_filepath = config_filepath_for_platform()
         self._check_result(config_filepath)
 
     def test_config_dirs_on_windows(self):
         # TODO: Mock expanding "~" to "C:/Users/whatever" ..
         with patch('platform.system', MagicMock(return_value='Windows')):
-            config_filepath = config_file_path()
+            config_filepath = config_filepath_for_platform()
         self._check_result(config_filepath)
 
     def test_config_dirs_on_linux(self):
         with patch('platform.system', MagicMock(return_value='Linux')):
-            config_filepath = config_file_path()
+            config_filepath = config_filepath_for_platform()
         self._check_result(config_filepath)
 
     def test_config_dirs_on_dummy_system_defaults_to_unix(self):
         with patch('platform.system', MagicMock(return_value='dummy')):
-            config_filepath = config_file_path()
+            config_filepath = config_filepath_for_platform()
         self._check_result(config_filepath)
 
 
