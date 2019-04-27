@@ -43,9 +43,9 @@ CONFIG_BASENAME = 'autonameow.yaml'
 log = logging.getLogger(__name__)
 
 
-def config_dirs():
+def config_dirpath_candidates():
     """
-    Returns a platform-specific list of possible user configuration directories.
+    Returns a list of possible platform-specific user configuration directories.
 
     The returned directories are listed in order of priority, from high to low.
     Assume that the first directory to contain a configuration file is the one
@@ -55,8 +55,8 @@ def config_dirs():
              the venerable "beets" (/beets/util/confit.py) by Adrian Sampson.
 
     Returns:
-        A list of absolute paths to configuration directories, ordered from
-        high to low priority.
+        A list of absolute paths to configuration directories sorted by
+        priority/probability, from high to low.
     """
     paths = list()
 
@@ -101,7 +101,7 @@ def config_filepath_for_platform():
     Raises:
         ConfigError: No config path candidates could be found.
     """
-    dirs = config_dirs()
+    dirs = config_dirpath_candidates()
     if not dirs:
         raise ConfigError('No configurations paths were found')
 

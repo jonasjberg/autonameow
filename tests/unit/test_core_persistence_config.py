@@ -24,19 +24,19 @@ from unittest.mock import MagicMock, Mock, patch
 
 import unit.utils as uu
 from core.persistence.config import CONFIG_BASENAME
-from core.persistence.config import config_dirs
+from core.persistence.config import config_dirpath_candidates
 from core.persistence.config import config_filepath_for_platform
 from core.persistence.config import load_config_from_file
 
 
-class TestConfigDirs(TestCase):
+class TestConfigDirpathCandidates(TestCase):
     def _assert_unicode_encoding(self, path_list):
         for path in path_list:
             self.assertTrue(uu.is_internalstring(path))
 
     def test_config_dirs_on_mac(self):
         with patch('platform.system', MagicMock(return_value='Darwin')):
-            dirs = config_dirs()
+            dirs = config_dirpath_candidates()
 
             self.assertIsNotNone(dirs)
             self._assert_unicode_encoding(dirs)
@@ -46,7 +46,7 @@ class TestConfigDirs(TestCase):
     def test_config_dirs_on_windows(self):
         self.skipTest('TODO: Mock expanding "~" to "C:/Users/whatever"')
         with patch('platform.system', MagicMock(return_value='Windows')):
-            dirs = config_dirs()
+            dirs = config_dirpath_candidates()
 
             self.assertIsNotNone(dirs)
             self._assert_unicode_encoding(dirs)
@@ -54,7 +54,7 @@ class TestConfigDirs(TestCase):
 
     def test_config_dirs_on_linux(self):
         with patch('platform.system', MagicMock(return_value='Linux')):
-            dirs = config_dirs()
+            dirs = config_dirpath_candidates()
 
             self.assertIsNotNone(dirs)
             self._assert_unicode_encoding(dirs)
@@ -62,7 +62,7 @@ class TestConfigDirs(TestCase):
 
     def test_config_dirs_on_dummy_system_defaults_to_unix(self):
         with patch('platform.system', MagicMock(return_value='dummy')):
-            dirs = config_dirs()
+            dirs = config_dirpath_candidates()
 
             self.assertIsNotNone(dirs)
             self._assert_unicode_encoding(dirs)
