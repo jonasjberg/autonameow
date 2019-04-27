@@ -12,6 +12,8 @@ Source repository: <https://github.com/jonasjberg/autonameow>
 High Priority
 -------------
 
+* `[TD0202]` __Handle signals and graceful shutdown properly!__
+
 * `[TD0198]` __Separate repositories for "provider" and "internal" data__  
     One repository would store data for URIs like
     `extractor.metadata.exiftool.PDF:Author` and "aliased leaf" URIs like

@@ -21,13 +21,19 @@
 Utility functions for controlling and interacting with system processes.
 """
 
+import contextlib
+import logging
 import os
 import shutil
+import signal
 import subprocess
 from functools import lru_cache
 
 from core import constants as C
 from core.exceptions import AutonameowException
+
+
+log = logging.getLogger(__name__)
 
 
 class ChildProcessFailure(AutonameowException):
@@ -118,3 +124,39 @@ def current_process_id():
     Returns the current process ID as an integer.
     """
     return os.getpid()
+
+
+# TODO: [TD0202] Handle signals and graceful shutdown properly!
+@contextlib.contextmanager
+def signal_handler(signum, handler):
+    original_handler = signal.signal(signum, handler)
+    try:
+        yield
+    finally:
+        signal.signal(signum, original_handler)
+
+
+# TODO: [TD0202] Handle signals and graceful shutdown properly!
+def oneshot_exception_handler(exception_klass):
+    def _handler(_signum, _frame):
+        log.debug('One-shot exception handler called with signum=%r frame=%r',
+                  _signum, _frame)
+
+        # Ignore all signals while this exception is handled.
+        signal.signal(_signum, signal.SIG_IGN)
+        raise exception_klass
+
+    return _handler
+
+
+# TODO: [TD0202] Handle signals and graceful shutdown properly!
+def dummy_placeholder_handler(*_, **__):
+    pass
+
+
+# Imported for easy access to users of this module.
+from signal import SIGHUP as signal_SIGHUP    #  1 -- kill -HUP
+from signal import SIGINT as signal_SIGINT    #  2 -- ctrl-c
+# TODO: Can SIGKILL be handled at all? Pretty sure it is not possible ..
+from signal import SIGKILL as signal_SIGTERM  #  9 -- killed violently
+from signal import SIGTERM as signal_SIGTERM  # 15 -- killed nicely

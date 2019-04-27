@@ -687,9 +687,6 @@ class AutonameowWrapper(object):
         self.captured_exception = None
         self.captured_exception_traceback = None
 
-    def mock_exit_program(self, exitcode):
-        self.captured_exitcode = exitcode
-
     def mock_rename_file(self, from_path, dest_basename):
         # TODO: [hack] Mocking is too messy to be reliable ..
         # NOTE(jonas): Iffy ad-hoc string coercion..
@@ -710,9 +707,6 @@ class AutonameowWrapper(object):
         # TODO: [TD0158] Evaluate assertions of "skipped renames".
         from core.autonameow import Autonameow
 
-        # Monkey-patch method of 'Autonameow' *class*
-        Autonameow.exit_program = self.mock_exit_program
-
         mock_ui = MockUI()
 
         with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
@@ -729,6 +723,7 @@ class AutonameowWrapper(object):
                     ameow.renamer._rename_file = self.mock_rename_file
 
                     ameow.run()
+                    self.captured_exitcode = ameow.exit_code
 
                     # Store runtime recorded by the 'Autonameow' class.
                     self.captured_runtime_secs = ameow.runtime_seconds

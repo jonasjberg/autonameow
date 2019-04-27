@@ -19,7 +19,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import sys
 import time
 
 from core import config
@@ -81,6 +80,13 @@ class Autonameow(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._dispatch_event_on_shutdown()
 
+        if self.opts and self.opts.get('verbose'):
+            self.ui.print_exit_info(self.exit_code, self.runtime_seconds)
+
+        logs.log_previously_logged_runtimes(log)
+        log.debug('Exiting with exit code: %d', self.exit_code)
+        log.debug('Total execution time: %.6f seconds', self.runtime_seconds)
+
     def _dispatch_event_on_startup(self):
         # Send "global" startup call to all registered listeners.
         event.dispatcher.on_startup(autonameow_instance=self)
@@ -100,7 +106,8 @@ class Autonameow(object):
         # Display startup banner with program version and exit.
         if self.opts.get('show_version'):
             self.ui.print_version_info(verbose=self.opts.get('verbose'))
-            self.exit_program(C.EXIT_SUCCESS)
+            self.exit_code = C.EXIT_SUCCESS
+            return self.exit_code
 
         # Check the configuration file.
         # If a specific config path was not passed in with the options
@@ -118,12 +125,17 @@ class Autonameow(object):
                 self._load_config_from_path(filepath_default_config)
             else:
                 log.info('No configuration file was found.')
-                self._write_example_config_to_path(filepath_default_config)
-                self.exit_program(C.EXIT_SUCCESS)
+                if self._write_example_config_to_path(filepath_default_config):
+                    self.exit_code = C.EXIT_SUCCESS
+                    return self.exit_code
+                else:
+                    self.exit_code = C.EXIT_ERROR
+                    return self.exit_code
 
         if not self.config:
             log.critical('Unable to load configuration --- Aborting ..')
-            self.exit_program(C.EXIT_ERROR)
+            self.exit_code = C.EXIT_ERROR
+            return self.exit_code
 
         # Dispatch configuration change event.
         config.set_global_configuration(self.config)
@@ -133,7 +145,10 @@ class Autonameow(object):
 
         if self.opts.get('dump_config'):
             # TODO: [TD0148] Fix '!!python/object' in '--dump-config' output.
-            self._dump_active_config_and_exit()
+            self.ui.msg('Active Configuration:', style='heading')
+            self.ui.msg(str(self.config))
+            self.exit_code = C.EXIT_SUCCESS
+            return self.exit_code
 
         if self.opts.get('dump_meowuris'):
             self._dump_registered_meowuris()
@@ -150,14 +165,20 @@ class Autonameow(object):
         # Abort if input paths are missing.
         if not self.opts.get('input_paths'):
             log.warning('No input files specified ..')
-            self.exit_program(C.EXIT_SUCCESS)
+            self.exit_code = C.EXIT_SUCCESS
+            return self.exit_code
 
         # Path name encoding boundary. Returns list of paths in internal format.
         files_to_process = self._collect_paths_from_opts()
         log.info('Got %d files to process', len(files_to_process))
 
         # Handle any input paths/files.
-        self._handle_files(files_to_process)
+        try:
+            self._handle_files(files_to_process)
+        except KeyboardInterrupt:
+            # TODO: [TD0202] Handle signals and graceful shutdown properly!
+            print('Caught KeyboardInterrupt in Autonameow._handle_files()')
+            pass
 
         stats = 'Processed {t} files. Renamed {r}  Skipped {s}  ' \
                 'Failed {f}'.format(t=len(files_to_process),
@@ -166,7 +187,7 @@ class Autonameow(object):
                                     f=self.renamer.stats['failed'])
         log.info(stats)
 
-        self.exit_program(self.exit_code)
+        return self.exit_code
 
     def _collect_paths_from_opts(self):
         path_collector = disk.PathCollector(
@@ -199,11 +220,6 @@ class Autonameow(object):
             )
         }
         self.ui.options.prettyprint_options(self.opts, include_opts)
-
-    def _dump_active_config_and_exit(self):
-        self.ui.msg('Active Configuration:', style='heading')
-        self.ui.msg(str(self.config))
-        self.exit_program(C.EXIT_SUCCESS)
 
     def _dump_registered_meowuris(self):
         if self.opts.get('verbose'):
@@ -241,10 +257,11 @@ class Autonameow(object):
         except exceptions.ConfigError as e:
             log.critical('Unable to write template configuration file to path: '
                          '"%s" --- %s', str_filepath, e)
-            self.exit_program(C.EXIT_ERROR)
+            return False
 
         message = 'Wrote default configuration file to "{!s}"'.format(str_filepath)
         self.ui.msg(message, style='info')
+        return True
 
     def _handle_files(self, file_paths):
         """
@@ -356,27 +373,6 @@ class Autonameow(object):
     @property
     def runtime_seconds(self):
         return time.time() - self.start_time
-
-    def exit_program(self, exit_code_value):
-        """
-        Main program exit point.  Shuts down this autonameow instance/session.
-
-        Args:
-            exit_code_value: Integer exit code to pass to the parent process.
-                Indicate success with 0, failure non-zero.
-        """
-        self.exit_code = exit_code_value
-
-        elapsed_time = self.runtime_seconds
-        if self.opts and self.opts.get('verbose'):
-            self.ui.print_exit_info(self.exit_code, elapsed_time)
-
-        logs.log_previously_logged_runtimes(log)
-        log.debug('Exiting with exit code: %d', self.exit_code)
-        log.debug('Total execution time: %.6f seconds', elapsed_time)
-
-        self._dispatch_event_on_shutdown()
-        sys.exit(self.exit_code)
 
     @property
     def exit_code(self):

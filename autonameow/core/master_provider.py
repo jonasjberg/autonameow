@@ -423,6 +423,7 @@ def _initialize_master_data_provider(*_, **kwargs):
 
 
 def _shutdown_master_data_provider(*_, **__):
+    # TODO: [TD0202] Handle signals and graceful shutdown properly!
     global _MASTER_DATA_PROVIDER
     _MASTER_DATA_PROVIDER = None
 
@@ -441,6 +442,7 @@ def _initialize_provider_registry(*_, **__):
 
 
 def _shutdown_provider_registry(*_, **__):
+    # TODO: [TD0202] Handle signals and graceful shutdown properly!
     global Registry
     Registry = None
 

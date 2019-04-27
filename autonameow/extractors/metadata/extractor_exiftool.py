@@ -257,6 +257,7 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
         return self._get_metadata(fileobject.abspath)
 
     def shutdown(self):
+        # TODO: [TD0202] Handle signals and graceful shutdown properly!
         self._shutdown_exiftool_instance()
 
     def _initialize_exiftool_instance(self):

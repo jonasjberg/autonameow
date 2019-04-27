@@ -231,6 +231,7 @@ class ExtractorRunner(object):
             self._add_results_callback(fileobject, uri, _data)
 
     def shutdown_pooled_extractors(self, *_, **__):
+        # TODO: [TD0202] Handle signals and graceful shutdown properly!
         log.debug('Shutting down %s', self.__class__.__name__)
         for instance in self._instance_pool.values():
             if not hasattr(instance, 'shutdown'):

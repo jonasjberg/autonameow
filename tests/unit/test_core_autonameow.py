@@ -52,32 +52,25 @@ def _get_autonameow(*args, **kwargs):
 
 
 @skipIf(*prompt_toolkit_unavailable())
-class TestAutonameowWithoutOptions(TestCase):
-    @patch('core.autonameow.Autonameow.exit_program', MagicMock())
+class TestAutonameow(TestCase):
     @patch('core.autonameow.master_provider', MagicMock())
     def test_instantiated_instance_is_not_none(self):
         instance = _get_autonameow()
         self.assertIsNotNone(instance)
 
-    @patch('core.autonameow.Autonameow.exit_program')
-    @patch('core.autonameow.master_provider', MagicMock())
-    def test_instantiated_does_not_call_exit_program(self, exit_program_mock):
-        _ = _get_autonameow()
-        exit_program_mock.assert_not_called()
-
     # TODO: [cleanup] This much mocking indicates poor design choices ..
     @patch('core.master_provider._initialize_master_data_provider', MagicMock())
     @patch('core.master_provider.Registry')
-    @patch('core.autonameow.Autonameow.exit_program')
     @patch('core.autonameow.master_provider', MagicMock())
-    def test_exit_program_called_after_running_context(
-            self, exit_program_mock, mock_registry
+    def test_returns_exit_code_success(
+            self, mock_registry
     ):
         mock_registry.might_be_resolvable.return_value = True
 
         with _get_autonameow() as a:
-            a.run()
-        exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
+            exitcode = a.run()
+
+        self.assertEqual(C.EXIT_SUCCESS, exitcode)
 
 
 class TestCheckOptionCombinations(TestCase):
@@ -230,19 +223,6 @@ class TestCheckOptionCombinations(TestCase):
                 'postprocess_only': True
             }
         )
-
-
-class TestAutonameowContextManagementProtocol(TestCase):
-    # TODO: [cleanup] This much mocking indicates poor design choices ..
-    @patch('core.autonameow.master_provider', MagicMock())
-    @patch('core.master_provider._initialize_master_data_provider', MagicMock())
-    @patch('core.master_provider.Registry')
-    def test_with_statement(self, mock_registry):
-        mock_registry.might_be_resolvable.return_value = True
-        Autonameow.exit_program = MagicMock()
-
-        with _get_autonameow() as ameow:
-            ameow.run()
 
 
 class TestAutonameowHash(TestCase):

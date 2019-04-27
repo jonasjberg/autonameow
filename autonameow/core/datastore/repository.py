@@ -409,6 +409,7 @@ def _initialize(*_, **kwargs):
 
 
 def _shutdown(*_, **kwargs):
+    # TODO: [TD0202] Handle signals and graceful shutdown properly!
     instance = kwargs.get('autonameow_instance', '(UNKNOWN)')
 
     global SessionRepository

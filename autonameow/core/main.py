@@ -24,6 +24,7 @@ from core import logs
 from core.autonameow import Autonameow
 from core.exceptions import AWAssertionError
 from core.view import cli
+from util import process as ps
 
 
 # Default options passed to the main 'Autonameow' class instance.
@@ -82,14 +83,26 @@ def real_main(options=None):
         logs.silence()
 
     # Main program entry point.
-    with Autonameow(opts, ui=cli) as ameow:
-        try:
-            ameow.run()
-        except KeyboardInterrupt:
-            # TODO: [incomplete] Handle this properly!
-            ameow.exit_program(C.EXIT_SUCCESS)
+    exitcode = C.EXIT_SUCCESS
+
+    # TODO: [TD0202] Handle signals and graceful shutdown properly!
+    # TODO: [TD0202] Handle signals and graceful shutdown properly!
+    # TODO: [TD0202] Handle signals and graceful shutdown properly!
+    with ps.signal_handler(
+        signum=ps.signal_SIGINT,
+        handler=ps.oneshot_exception_handler(KeyboardInterrupt)
+    ), ps.signal_handler(
+        signum=ps.signal_SIGHUP,
+        handler=ps.dummy_placeholder_handler
+    ), ps.signal_handler(
+        signum=ps.signal_SIGTERM,
+        handler=ps.oneshot_exception_handler(KeyboardInterrupt)  # BAD BAD BAD
+    ):
+        with Autonameow(opts, ui=cli) as ameow:
+            exitcode = ameow.run()
 
     logs.deinit_logging()
+    return exitcode
 
 
 def print_error(message):
@@ -155,6 +168,9 @@ def cli_main(argv=None):
     """
     args = argv
     if not args:
+        # TODO: Use plain terminal I/O printing routines instead.
+        # We haven't entered the "core application" yet! Getting this to work
+        # will never work properly because of the non-existent "layering" ..
         cli.msg('Add "--help" to display usage information.')
         sys.exit(C.EXIT_SUCCESS)
 
@@ -190,8 +206,14 @@ def cli_main(argv=None):
     }
 
     try:
-        real_main(options)
+        exitcode = real_main(options)
     except (AssertionError, AWAssertionError) as e:
         _error_msg = format_sanitycheck_error(str(e))
         print_error(_error_msg)
         sys.exit(C.EXIT_SANITYFAIL)
+    except KeyboardInterrupt:
+        # TODO: [TD0202] Handle signals and graceful shutdown properly!
+        sys.exit(C.EXIT_ERROR)
+    else:
+        # TODO: [TD0202] Handle signals and graceful shutdown properly!
+        sys.exit(exitcode)
