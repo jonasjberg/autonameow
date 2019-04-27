@@ -90,19 +90,19 @@ class TestRenameFile(TestCase):
 
     @patch('os.rename')
     def test_renames_file_given_valid_arguments(self, mock_rename):
-        test_file_path = uu.make_temporary_file()
-        test_file_dir_path = os.path.realpath(os.path.dirname(test_file_path))
+        test_filepath = uu.make_temporary_file()
+        test_file_dir_path = os.path.realpath(os.path.dirname(test_filepath))
         expected_destpath = os.path.join(test_file_dir_path, b'baz')
-        rename_file(test_file_path, b'baz')
-        mock_rename.assert_called_once_with(test_file_path, expected_destpath)
+        rename_file(test_filepath, b'baz')
+        mock_rename.assert_called_once_with(test_filepath, expected_destpath)
 
     def test_raises_expected_exception_when_filename_is_too_long(self):
-        test_file_path = uu.make_temporary_file()
+        test_filepath = uu.make_temporary_file()
         too_long_destination_basename = 256 * b'X'
         self.assertEqual(256, len(too_long_destination_basename))
 
         with self.assertRaises(FilesystemError) as cm:
-            rename_file(test_file_path, too_long_destination_basename)
+            rename_file(test_filepath, too_long_destination_basename)
         # self.assertEqual(cm.exception.error_code, 36)
 
 
@@ -528,17 +528,17 @@ class TestFileByteSize(TestCase):
         ]
 
     def test_setup_class(self):
-        for test_file_path, _ in self.test_files:
-            self.assertTrue(uu.file_exists(test_file_path))
+        for test_filepath, _ in self.test_files:
+            self.assertTrue(uu.file_exists(test_filepath))
 
     def test_returns_expected_type(self):
-        for test_file_path, _ in self.test_files:
-            actual = file_bytesize(test_file_path)
+        for test_filepath, _ in self.test_files:
+            actual = file_bytesize(test_filepath)
             self.assertIsInstance(actual, int)
 
     def test_returns_expected_size(self):
-        for test_file_path, test_file_size in self.test_files:
-            actual = file_bytesize(test_file_path)
+        for test_filepath, test_file_size in self.test_files:
+            actual = file_bytesize(test_filepath)
             self.assertEqual(test_file_size, actual)
 
     def test_raises_exception_given_invalid_arguments(self):

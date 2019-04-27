@@ -22,14 +22,14 @@ primarily from the `FileObject` class.
 Given the path `/home/gibson/foo.txt`:
 
 ```
-Name               Value
-=================================================
-abspath          : /home/gibson/Documents/foo.txt
-pathname         : /home/gibson/Documents
-pathparent       :              Documents
-filename         :                        foo.txt
-basename_prefix  :                        foo
-basename_suffix  :                            txt
+Name             | Example
+=================+===============================
+abspath          | /home/gibson/Documents/foo.txt
+pathname         | /home/gibson/Documents
+pathparent       |              Documents
+filename         |                        foo.txt
+basename_prefix  |                        foo
+basename_suffix  |                            txt
 ```
 
 
@@ -40,15 +40,28 @@ extensions.
 Given the path `/home/gibson/foo.tar.gz`:
 
 ```
-Name               Value
-====================================================
-abspath          : /home/gibson/Documents/foo.tar.gz
-pathname         : /home/gibson/Documents
-pathparent       :              Documents
-filename         :                        foo.tar.gz
-basename_prefix  :                        foo
-basename_suffix  :                            tar.gz
+Name             | Example
+=================+==================================
+abspath          | /home/gibson/Documents/foo.tar.gz
+pathname         | /home/gibson/Documents
+pathparent       |              Documents
+filename         |                        foo.tar.gz
+basename_prefix  |                        foo
+basename_suffix  |                            tar.gz
 ```
+
+
+### Variables
+Most strings storing paths are "normalized" into some internal form before
+being passed on to "core" functionality that mostly assumes paths have been
+passed through the expected "channels" and are resolved, absolute paths.
+
+Therefore, the naming convention for variables storing paths to files and
+directories is `filepath` or `dirpath`, respectively.
+
+* Use `basename` in variables, __NOT__ `base_name`
+* Use `dirpath` in variables, __NOT__ `dir_path`
+* Use `filepath` in variables, __NOT__ `file_path`
 
 
 

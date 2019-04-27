@@ -262,8 +262,8 @@ def get_commit_for_tag(tag_name):
     return coercers.force_string(stdout.strip())
 
 
-def is_readable_file(file_path):
-    return os.path.isfile(file_path) and os.access(file_path, os.R_OK)
+def is_readable_file(filepath):
+    return os.path.isfile(filepath) and os.access(filepath, os.R_OK)
 
 
 def get_changelog_header_line():

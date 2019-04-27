@@ -33,7 +33,7 @@ CHUNK_SIZE = 128 * KIBIBYTE
 PARTIAL_SIZE = 10 * KIBIBYTE**2  # ~10MB
 
 
-def hashlib_digest(file_path, algorithm=None, maxbytes=None):
+def hashlib_digest(filepath, algorithm=None, maxbytes=None):
     if algorithm is None:
         algorithm = 'sha256'
 
@@ -55,7 +55,7 @@ def hashlib_digest(file_path, algorithm=None, maxbytes=None):
     hasher = _hashlib_attribute()
     _num_bytes_read = 0
     try:
-        with open(file_path, 'rb', buffering=0) as fh:
+        with open(filepath, 'rb', buffering=0) as fh:
             for b in iter(lambda: fh.read(CHUNK_SIZE), b''):
                 if _num_bytes_read_limit:
                     _num_bytes_read += len(b)
@@ -70,25 +70,25 @@ def hashlib_digest(file_path, algorithm=None, maxbytes=None):
         raise exceptions.FilesystemError(e)
 
 
-def sha256digest(file_path):
-    return hashlib_digest(file_path, algorithm='sha256')
+def sha256digest(filepath):
+    return hashlib_digest(filepath, algorithm='sha256')
 
 
-def sha1digest(file_path):
-    return hashlib_digest(file_path, algorithm='sha1')
+def sha1digest(filepath):
+    return hashlib_digest(filepath, algorithm='sha1')
 
 
-def md5digest(file_path):
-    return hashlib_digest(file_path, algorithm='md5')
+def md5digest(filepath):
+    return hashlib_digest(filepath, algorithm='md5')
 
 
-def partial_sha256digest(file_path):
-    return hashlib_digest(file_path, algorithm='sha256', maxbytes=PARTIAL_SIZE)
+def partial_sha256digest(filepath):
+    return hashlib_digest(filepath, algorithm='sha256', maxbytes=PARTIAL_SIZE)
 
 
-def partial_sha1digest(file_path):
-    return hashlib_digest(file_path, algorithm='sha1', maxbytes=PARTIAL_SIZE)
+def partial_sha1digest(filepath):
+    return hashlib_digest(filepath, algorithm='sha1', maxbytes=PARTIAL_SIZE)
 
 
-def partial_md5digest(file_path):
-    return hashlib_digest(file_path, algorithm='md5', maxbytes=PARTIAL_SIZE)
+def partial_md5digest(filepath):
+    return hashlib_digest(filepath, algorithm='md5', maxbytes=PARTIAL_SIZE)

@@ -57,12 +57,12 @@ def load_yaml(data):
         raise YamlLoadError(e)
 
 
-def load_yaml_file(file_path):
+def load_yaml_file(filepath):
     """
     Loads a YAML file from the specified path and returns its contents.
 
     Args:
-        file_path: (Absolute) path of the file to read.
+        filepath: (Absolute) path of the file to read.
 
     Returns:
         The contents of the yaml file at the given file as a "Python object"
@@ -71,13 +71,13 @@ def load_yaml_file(file_path):
     Raises:
         FilesystemError: The configuration file could not be read and/or loaded.
     """
-    if not file_path:
+    if not filepath:
         # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(
-            'Missing required argument "file_path"'
+            'Missing required argument "filepath"'
         )
     try:
-        with open(enc.syspath(file_path), 'r',
+        with open(enc.syspath(filepath), 'r',
                   encoding=C.DEFAULT_ENCODING) as fh:
             return load_yaml(fh)
     except (OSError, YamlLoadError) as e:

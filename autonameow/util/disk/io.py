@@ -227,9 +227,9 @@ def rmdir(path, ignore_missing=False):
         raise FilesystemError(e)
 
 
-def basename(file_path):
+def basename(filepath):
     try:
-        return os.path.basename(enc.syspath(file_path))
+        return os.path.basename(enc.syspath(filepath))
     except (OSError, TypeError, ValueError) as e:
         # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)

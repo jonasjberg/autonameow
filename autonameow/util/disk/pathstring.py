@@ -42,7 +42,7 @@ COMPOUND_SUFFIX_TAILS = frozenset([
 EMPTY_FILENAME_PART = b''
 
 
-def split_basename(file_path):
+def split_basename(filepath):
     """
     Splits the basename of the specified path into two parts.
 
@@ -56,15 +56,15 @@ def split_basename(file_path):
     leftmost part (basename) is called the "prefix".
 
     Args:
-        file_path (bytes): The path name to split as an "internal bytestring".
+        filepath (bytes): The path name to split as an "internal bytestring".
 
     Returns:
         The basename of the given path split into two parts, as a tuple of
         bytestrings. Empty parts are substituted with EMPTY_FILENAME_PART.
     """
-    assert isinstance(file_path, bytes)
+    assert isinstance(filepath, bytes)
 
-    prefix, suffix = os.path.splitext(os.path.basename(enc.syspath(file_path)))
+    prefix, suffix = os.path.splitext(os.path.basename(enc.syspath(filepath)))
     prefix = enc.bytestring_path(prefix)
     suffix = enc.bytestring_path(suffix)
 
@@ -80,7 +80,7 @@ def split_basename(file_path):
     return prefix, EMPTY_FILENAME_PART
 
 
-def basename_suffix(file_path, make_lowercase=True):
+def basename_suffix(filepath, make_lowercase=True):
     """
     Returns the "suffix" or file extension of the basename, for a given file.
 
@@ -91,9 +91,9 @@ def basename_suffix(file_path, make_lowercase=True):
           "suffix", 'tar.gz' and not just the conventional extension 'gz'.
 
     Args:
-        file_path (bytes): Path from which to get the full "suffix", I.E.
-                           the file extension part of the basename, with special
-                           treatment of compound file extensions.
+        filepath (bytes): Path from which to get the full "suffix", I.E.
+                          the file extension part of the basename, with special
+                          treatment of compound file extensions.
 
         make_lowercase (bool): Whether to convert the suffix to lower case
                                before returning it. Defaults to True.
@@ -102,14 +102,14 @@ def basename_suffix(file_path, make_lowercase=True):
         The "suffix" or compound file extension for the given path as a
         "internal bytestring" or EMPTY_FILENAME_PART if it is not present.
     """
-    _, suffix = split_basename(file_path)
+    _, suffix = split_basename(filepath)
     if suffix and make_lowercase:
         suffix = suffix.lower()
 
     return suffix if suffix else EMPTY_FILENAME_PART
 
 
-def basename_prefix(file_path):
+def basename_prefix(filepath):
     """
     Returns the basename _without_ any extension ("suffix"), for a given file.
 
@@ -118,14 +118,14 @@ def basename_prefix(file_path):
     or extension, not to be included in the output.
 
     Args:
-        file_path (bytes): Path to the file from which to get the "prefix",
-                           I.E. the basename without the extension ("suffix").
+        filepath (bytes): Path to the file from which to get the "prefix",
+                          I.E. the basename without the extension ("suffix").
 
     Returns:
         The basename of the specified path, without any extension ("suffix"),
         as a "internal bytestring" or EMPTY_FILENAME_PART if it is not present.
     """
-    prefix, _ = split_basename(file_path)
+    prefix, _ = split_basename(filepath)
     return prefix if prefix else EMPTY_FILENAME_PART
 
 

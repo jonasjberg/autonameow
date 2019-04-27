@@ -28,7 +28,7 @@ from core.persistence.base import get_persistence
 from core.persistence.base import PersistenceImplementationBackendError
 from core.persistence.base import PicklePersistence
 from core.persistence.base import _basename_as_key
-from core.persistence.base import _key_as_file_path
+from core.persistence.base import _key_as_filepath
 
 
 class TestPersistenceDirectory(TestCase):
@@ -48,11 +48,11 @@ class TestPersistenceDirectory(TestCase):
         self.assertTrue(uu.path_is_readable(d))
 
 
-def mock__load(self, file_path):
+def mock__load(self, filepath):
     return {'mjao': 'oajm'}
 
 
-def mock__dump(self, value, file_path):
+def mock__dump(self, value, filepath):
     pass
 
 
@@ -228,7 +228,7 @@ class TestKeyAsFilePath(TestCase):
             ('foo', 'foo', '-', b'/tmp/autonameow_cache/foo-foo'),
         ]:
             with self.subTest(given_key=given_key):
-                actual = _key_as_file_path(
+                actual = _key_as_filepath(
                     key=given_key,
                     persistencefile_prefix=given_prefix,
                     persistence_file_prefix_separator=given_separator,
@@ -241,10 +241,10 @@ class TestKeyAsFilePath(TestCase):
     def test_raises_keyerror_given_bad_key(self):
         def _assert_raises(given):
             with self.assertRaises(KeyError):
-                _ = _key_as_file_path(key=given,
-                                      persistencefile_prefix='foo',
-                                      persistence_file_prefix_separator='_',
-                                      persistence_dir_abspath=self.TEST_PATH)
+                _ = _key_as_filepath(key=given,
+                                     persistencefile_prefix='foo',
+                                     persistence_file_prefix_separator='_',
+                                     persistence_dir_abspath=self.TEST_PATH)
         _assert_raises(None)
         _assert_raises('')
         _assert_raises(' ')
@@ -273,11 +273,11 @@ class TestPicklePersistence(TestCase):
         d = PicklePersistence(file_prefix)
         d.set(datakey, datavalue)
 
-        _file_path = d._persistence_file_abspath(datakey)
-        self.assertTrue(uu.file_exists(_file_path))
+        _filepath = d._persistence_file_abspath(datakey)
+        self.assertTrue(uu.file_exists(_filepath))
 
         d.delete(datakey)
-        self.assertFalse(uu.file_exists(_file_path))
+        self.assertFalse(uu.file_exists(_filepath))
 
     def test_delete_unused_key(self):
         self.c.delete('unused_key')
@@ -285,17 +285,17 @@ class TestPicklePersistence(TestCase):
     def test_delete_shared_test_persistence(self):
         self.c.set(self.datakey, self.datavalue)
 
-        _file_path = self.c._persistence_file_abspath(self.datakey)
-        self.assertTrue(uu.file_exists(_file_path))
+        _filepath = self.c._persistence_file_abspath(self.datakey)
+        self.assertTrue(uu.file_exists(_filepath))
 
         self.c.delete(self.datakey)
-        self.assertFalse(uu.file_exists(_file_path))
+        self.assertFalse(uu.file_exists(_filepath))
 
     def test_set(self):
         self.c.set(self.datakey, self.datavalue)
 
-        _file_path = self.c._persistence_file_abspath(self.datakey)
-        self.assertTrue(uu.file_exists(_file_path))
+        _filepath = self.c._persistence_file_abspath(self.datakey)
+        self.assertTrue(uu.file_exists(_filepath))
 
         actual = self.c.get(self.datakey)
         self.assertEqual(actual, self.datavalue)

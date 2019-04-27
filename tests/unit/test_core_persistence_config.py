@@ -82,24 +82,24 @@ class TestConfigFilePath(TestCase):
 
     def test_config_dirs_on_mac(self):
         with patch('platform.system', MagicMock(return_value='Darwin')):
-            config_path = config_file_path()
-        self._check_result(config_path)
+            config_filepath = config_file_path()
+        self._check_result(config_filepath)
 
     def test_config_dirs_on_windows(self):
         # TODO: Mock expanding "~" to "C:/Users/whatever" ..
         with patch('platform.system', MagicMock(return_value='Windows')):
-            config_path = config_file_path()
-        self._check_result(config_path)
+            config_filepath = config_file_path()
+        self._check_result(config_filepath)
 
     def test_config_dirs_on_linux(self):
         with patch('platform.system', MagicMock(return_value='Linux')):
-            config_path = config_file_path()
-        self._check_result(config_path)
+            config_filepath = config_file_path()
+        self._check_result(config_filepath)
 
     def test_config_dirs_on_dummy_system_defaults_to_unix(self):
         with patch('platform.system', MagicMock(return_value='dummy')):
-            config_path = config_file_path()
-        self._check_result(config_path)
+            config_filepath = config_file_path()
+        self._check_result(config_filepath)
 
 
 MOCK_REGISTRY = Mock()
@@ -114,6 +114,6 @@ class TestLoadConfigFromFile(TestCase):
 
     @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
     def test_loads_valid_config_from_absolute_path(self):
-        _config_path = uu.normpath(uu.abspath_testconfig())
-        actual = load_config_from_file(_config_path)
+        config_filepath = uu.normpath(uu.abspath_testconfig())
+        actual = load_config_from_file(config_filepath)
         self.assertIsNotNone(actual)

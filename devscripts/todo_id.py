@@ -56,8 +56,8 @@ TODO_PATH = os.path.join(AUTONAMEOW_SRC_ROOT, TODO_BASENAME)
 DONE_PATH = os.path.join(AUTONAMEOW_SRC_ROOT, DONE_BASENAME)
 
 
-def is_readable_file(file_path):
-    return os.path.isfile(file_path) and os.access(file_path, os.R_OK)
+def is_readable_file(filepath):
+    return os.path.isfile(filepath) and os.access(filepath, os.R_OK)
 
 
 def get_source_files(paths):
@@ -145,8 +145,8 @@ def find_todo_ids_in_lines(lines):
     return found_ids
 
 
-def find_todo_ids_in_file(file_path):
-    with open(file_path, 'r', encoding='utf8') as fh:
+def find_todo_ids_in_file(filepath):
+    with open(filepath, 'r', encoding='utf8') as fh:
         file_contents = fh.readlines()
 
     return find_todo_ids_in_lines(file_contents)

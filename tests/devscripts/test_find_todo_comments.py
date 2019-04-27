@@ -273,7 +273,7 @@ class Autonameow(object):
         filepath_config = persistence.get_config_persistence_path()
         filepath_default_config = persistence.DefaultConfigFilePath
         include_opts = {
-            'config_file_path': '"{!s}"'.format(
+            'config_filepath': '"{!s}"'.format(
                 enc.displayable_path(filepath_default_config)
             ),
             'cache_directory_path': '"{!s}"'.format(
@@ -332,7 +332,7 @@ class Autonameow(object):
         message = 'Wrote default configuration file to "{!s}"'.format(str_filepath)
         self.ui.msg(message, style='info')
 
-    def _handle_files(self, file_paths):
+    def _handle_files(self, filepath):
         """
         Main loop. Iterate over input paths/files.
         Assume all state is setup and completely reset for each loop iteration.
@@ -342,15 +342,15 @@ class Autonameow(object):
 
         should_list_all = self.opts.get('list_all')
 
-        for file_path in file_paths:
-            str_file_path = enc.displayable_path(file_path)
-            log.info('Processing: "%s"', str_file_path)
+        for filepath in filepaths:
+            str_filepath = enc.displayable_path(filepath)
+            log.info('Processing: "%s"', str_filepath)
 
             try:
-                current_file = FileObject(file_path)
+                current_file = FileObject(filepath)
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
-                log.warning('{%s} --- SKIPPING: "%s"', e, str_file_path)
+                log.warning('{%s} --- SKIPPING: "%s"', e, str_filepath)
                 continue
 
             if should_list_all:
@@ -371,7 +371,7 @@ class Autonameow(object):
                 try:
                     new_name = context.find_new_name()
                 except exceptions.AutonameowException as e:
-                    log.critical('%s --- SKIPPING: "%s"', e, str_file_path)
+                    log.critical('%s --- SKIPPING: "%s"', e, str_filepath)
                     self.exit_code = C.EXIT_WARNING
                     continue
 

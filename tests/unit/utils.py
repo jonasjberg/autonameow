@@ -104,18 +104,18 @@ def all_testfiles():
     ]
 
 
-def file_exists(file_path):
+def file_exists(filepath):
     """
     Tests whether a given path is an existing file.
 
     Args:
-        file_path: Path to the file to test.
+        filepath: Path to the file to test.
 
     Returns:
         True if the file exists, else False.
     """
     try:
-        return bool(os.path.isfile(enc.syspath(file_path)))
+        return bool(os.path.isfile(enc.syspath(filepath)))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -137,19 +137,19 @@ def dir_exists(dir_path):
         return False
 
 
-def path_is_readable(file_path):
+def path_is_readable(filepath):
     """
     Tests whether a given path is readable.
 
     Args:
-        file_path: The path to test.
+        filepath: The path to test.
 
     Returns:
         True if the path is readable.
         False for any other case, including errors.
     """
     try:
-        return bool(os.access(enc.syspath(file_path), os.R_OK))
+        return bool(os.access(enc.syspath(filepath), os.R_OK))
     except (OSError, TypeError, ValueError):
         return False
 

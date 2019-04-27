@@ -120,9 +120,9 @@ def has_config_file():
     return bool(disk.isfile(path) or disk.islink(path))
 
 
-def load_config_from_file(file_path):
+def load_config_from_file(filepath):
     parser = ConfigurationParser()
-    return parser.from_file(file_path)
+    return parser.from_file(filepath)
 
 
 def write_default_config():

@@ -127,7 +127,7 @@ def _build_magic():
 MY_MAGIC = None
 
 
-def file_mimetype(file_path):
+def file_mimetype(filepath):
     """
     Determine file type by reading "magic" header bytes.
 
@@ -135,14 +135,14 @@ def file_mimetype(file_path):
     This functions sets the global 'MY_MAGIC' the first time it is called.
 
     Args:
-        file_path: The path to the file to get the MIME type of as a string.
+        filepath: The path to the file to get the MIME type of as a string.
 
     Returns:
         The MIME type of the file at the given path ('application/pdf') or
         a "null" class instance if the MIME type can not be determined.
     """
     unknown_mime_type = coercers.NULL_AW_MIMETYPE
-    if not file_path:
+    if not filepath:
         return unknown_mime_type
 
     global MY_MAGIC
@@ -150,7 +150,7 @@ def file_mimetype(file_path):
         MY_MAGIC = _build_magic()
 
     try:
-        found_type = MY_MAGIC(file_path)
+        found_type = MY_MAGIC(filepath)
     except (AttributeError, TypeError):
         # TODO: Fix 'magic.MagicException' not available in both libraries.
         found_type = unknown_mime_type

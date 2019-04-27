@@ -50,7 +50,7 @@ log = logging.getLogger(__name__)
 class ConfigHistoryPathStore(object):
     def __init__(self):
         self._config_history_path = None
-        self.default_history_file_path = C.DEFAULT_HISTORY_FILE_ABSPATH
+        self.default_history_filepath = C.DEFAULT_HISTORY_FILE_ABSPATH
 
     def update_from_config(self, active_config):
         if not active_config:
@@ -76,8 +76,8 @@ class ConfigHistoryPathStore(object):
     def config_history_path(self):
         if not self._config_history_path:
             log.debug('Using default history file path "%s"',
-                      enc.displayable_path(self.default_history_file_path))
-            return self.default_history_file_path
+                      enc.displayable_path(self.default_history_filepath))
+            return self.default_history_filepath
 
         log.debug('Using history file path "%s"',
                   enc.displayable_path(self._config_history_path))
