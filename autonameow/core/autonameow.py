@@ -118,11 +118,11 @@ class Autonameow(object):
         #       merge and override with settings from the user-provided config.
         opts_config_path = self.opts.get('config_path')
         if opts_config_path:
-            self._load_config_from_path(opts_config_path)
+            loaded_config = self._load_config_from_path(opts_config_path)
         else:
             filepath_default_config = persistence.DefaultConfigFilePath
             if persistence.has_config_file():
-                self._load_config_from_path(filepath_default_config)
+                loaded_config = self._load_config_from_path(filepath_default_config)
             else:
                 log.info('No configuration file was found.')
                 if self._write_example_config_to_path(filepath_default_config):
@@ -132,10 +132,12 @@ class Autonameow(object):
                     self.exit_code = C.EXIT_ERROR
                     return self.exit_code
 
-        if not self.config:
+        if not loaded_config:
             log.critical('Unable to load configuration --- Aborting ..')
             self.exit_code = C.EXIT_ERROR
             return self.exit_code
+
+        self.config = loaded_config
 
         # Dispatch configuration change event.
         config.set_global_configuration(self.config)
@@ -201,13 +203,6 @@ class Autonameow(object):
 
         return list(path_collector.filepaths)
 
-    @logs.log_func_runtime(log)
-    def load_config(self, path):
-        try:
-            self.config = persistence.load_config_from_file(path)
-        except exceptions.ConfigError as e:
-            log.critical('Unable to load configuration --- %s', e)
-
     def _dump_options(self):
         filepath_config = persistence.get_config_persistence_path()
         filepath_default_config = persistence.DefaultConfigFilePath
@@ -245,10 +240,13 @@ class Autonameow(object):
 
         self.ui.msg('\n')
 
+    @logs.log_func_runtime(log)
     def _load_config_from_path(self, filepath):
-        str_filepath = enc.displayable_path(filepath)
-        log.info('Using configuration: "%s"', str_filepath)
-        self.load_config(filepath)
+        log.info('Using configuration: "%s"', enc.displayable_path(filepath))
+        try:
+            return persistence.load_config_from_file(filepath)
+        except exceptions.ConfigError as e:
+            log.critical('Unable to load configuration --- %s', e)
 
     def _write_example_config_to_path(self, filepath):
         str_filepath = enc.displayable_path(filepath)
