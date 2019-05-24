@@ -327,6 +327,9 @@ class TestMimemagicGetExtension(TestCase):
     def test_maps_mime_type_mime_type_video_x_ms_asf_to_extension_wma(self):
         self._assert_returns_extension('wma', given='video/x-ms-asf')
 
+    def test_maps_mime_type_audio_midi_to_extension_mid(self):
+        self._assert_returns_extension('mid', given='audio/midi')
+
     def test_maps_mime_type_audio_x_wav_to_extension_wav(self):
         self._assert_returns_extension('wav', given='audio/x-wav')
 
@@ -390,6 +393,9 @@ class TestMimemagicGetMimetype(TestCase):
 
     def test_maps_extension_wma_to_mime_type_video_x_ms_asf(self):
         self._assert_returns_mime('video/x-ms-asf', 'wma')
+
+    def test_maps_extension_mid_to_mime_type_audio_midi(self):
+        self._assert_returns_mime('audio/midi', 'mid')
 
     def test_maps_extension_wav_to_mime_type_audio_x_wav(self):
         self._assert_returns_mime('audio/x-wav', 'wav')
