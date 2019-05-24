@@ -330,6 +330,9 @@ class TestMimemagicGetExtension(TestCase):
     def test_maps_mime_type_audio_x_wav_to_extension_wav(self):
         self._assert_returns_extension('wav', given='audio/x-wav')
 
+    def test_maps_mime_type_audio_x_m4a_to_extension_m4a(self):
+        self._assert_returns_extension('m4a', given='audio/x-m4a')
+
     def test_maps_mime_type_application_x_mobipocket_ebook_to_extension_azw3(self):
         self._assert_returns_extension('azw3', given='application/x-mobipocket-ebook')
 
@@ -390,6 +393,9 @@ class TestMimemagicGetMimetype(TestCase):
 
     def test_maps_extension_wav_to_mime_type_audio_x_wav(self):
         self._assert_returns_mime('audio/x-wav', 'wav')
+
+    def test_maps_extension_m4a_to_mime_type_audio_x_m4a(self):
+        self._assert_returns_mime('audio/x-m4a', 'm4a')
 
     def test_maps_extension_azw3_to_mime_type_application_x_mobipocket_ebook(self):
         self._assert_returns_mime('application/x-mobipocket-ebook', 'azw3')

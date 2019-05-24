@@ -24,6 +24,7 @@ application/x-rar: rar
 application/x-tex: tex
 audio/midi: mid
 audio/x-flac: flac
+audio/x-m4a: m4a
 audio/x-wav: wav
 image/vnd.adobe.photoshop: psd
 image/vnd.djvu: djvu
