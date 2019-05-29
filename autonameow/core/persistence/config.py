@@ -58,35 +58,34 @@ def config_dirpath_candidates():
         A list of absolute paths to configuration directories sorted by
         priority/probability, from high to low.
     """
-    paths = list()
+    candidate_paths = list()
+
+    def _consider_candidate(_path):
+        _abspath = os.path.abspath(os.path.expanduser(_path))
+        if _abspath not in candidate_paths:
+            candidate_paths.append(_abspath)
 
     if platform.system() == 'Darwin':
-        paths.append(FILEPATH_CONFIG_MACOS)
-        paths.append(FILEPATH_CONFIG_UNIX_FALLBACK)
+        _consider_candidate(FILEPATH_CONFIG_MACOS)
+        _consider_candidate(FILEPATH_CONFIG_UNIX_FALLBACK)
 
         if FILEPATH_CONFIG_UNIX_VAR in os.environ:
-            paths.append(os.environ[FILEPATH_CONFIG_UNIX_VAR])
+            _consider_candidate(os.environ[FILEPATH_CONFIG_UNIX_VAR])
 
     elif platform.system() == 'Windows':
         # NOTE: Unsupported platform!
-        paths.append(FILEPATH_CONFIG_WINDOWS_FALLBACK)
+        _consider_candidate(FILEPATH_CONFIG_WINDOWS_FALLBACK)
         if FILEPATH_CONFIG_WINDOWS_VAR in os.environ:
-            paths.append(os.environ[FILEPATH_CONFIG_WINDOWS_VAR])
+            _consider_candidate(os.environ[FILEPATH_CONFIG_WINDOWS_VAR])
 
     else:
-        # Assume Unix.
-        paths.append(FILEPATH_CONFIG_UNIX_FALLBACK)
+        # Assume *nix.
+        _consider_candidate(FILEPATH_CONFIG_UNIX_FALLBACK)
 
         if FILEPATH_CONFIG_UNIX_VAR in os.environ:
-            paths.append(os.environ[FILEPATH_CONFIG_UNIX_VAR])
+            _consider_candidate(os.environ[FILEPATH_CONFIG_UNIX_VAR])
 
-    abs_paths = list()
-    for path in paths:
-        path = os.path.abspath(os.path.expanduser(path))
-        if path not in abs_paths:
-            abs_paths.append(path)
-
-    return abs_paths
+    return candidate_paths
 
 
 def config_filepath_for_platform():
