@@ -59,10 +59,10 @@ class ProviderMixin(object):
         assert isinstance(coercer_string, str)
         coercer = get_coercer_for_metainfo_string(coercer_string)
         if not isinstance(coercer, (coercers.BaseCoercer, coercers.MultipleTypes)):
-            msg = 'Expected coercer class. Got {} "{!s}" from coercer_string {!s} "{!s}"'.format(
-                type(coercer), coercer, type(coercer_string), coercer_string
+            error_msg = 'Expected coercer class. Got {!r} from "{!s}"'.format(
+                coercer, coercer_string
             )
-            raise AssertionError(msg)
+            raise AssertionError(error_msg)
 
         if 'multivalued' not in field_metainfo:
             # Abort instead of using a default value. Many systems rely on this

@@ -101,16 +101,18 @@ class ConfigurationParser(object):
 
         validated = dict()
         for raw_name, raw_format_string in raw_templates.items():
-            error = 'Invalid name template: "{!s}": {!s}"'.format(raw_name, raw_format_string)
+            error_msg = 'Invalid name template: "{!s}": {!s}"'.format(
+                raw_name, raw_format_string
+            )
             str_name = _coerce_string(raw_name).strip()
             str_format_string = _coerce_string(raw_format_string)
             if not str_name or not str_format_string:
-                raise ConfigurationSyntaxError(error)
+                raise ConfigurationSyntaxError(error_msg)
 
             if NameTemplateConfigFieldParser.is_valid_nametemplate_string(str_format_string):
                 validated[str_name] = str_format_string
             else:
-                raise ConfigurationSyntaxError(error)
+                raise ConfigurationSyntaxError(error_msg)
 
         return validated
 
