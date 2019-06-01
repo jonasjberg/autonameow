@@ -219,6 +219,7 @@ class FileRenamer(object):
             log.debug('dry-run is enabled, skipping actual rename ..')
             return
 
+        log.debug('Renaming %r to %r ..', from_path, dest_basename)
         try:
             self._rename_func(from_path, dest_basename)
         except FilesystemError:
@@ -236,6 +237,7 @@ class FileRenamer(object):
             self.stats['failed'] += 1
             raise FilesystemError(e)
         else:
+            log.debug('Renamed %r to %r', from_path, dest_basename)
             self.stats['renamed'] += 1
 
     def _basenames_are_equivalent(self, from_basename, dest_basename):

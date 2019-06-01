@@ -17,7 +17,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import os
 import tempfile
 
@@ -44,9 +43,6 @@ __all__ = [
 ]
 
 
-log = logging.getLogger(__name__)
-
-
 def rename_file(filepath, new_basename):
     assert isinstance(filepath, bytes)
     assert isinstance(new_basename, bytes)
@@ -54,27 +50,24 @@ def rename_file(filepath, new_basename):
         'Expected full absolute source path. Got {!r}'.format(filepath)
     )
 
-    _dp_source = enc.displayable_path(filepath)
     if not exists(filepath):
-        raise FileNotFoundError(
-            'Source path does not exist: "{!s}"'.format(_dp_source)
+        error_msg = 'Source path does not exist: "{!s}"'.format(
+            enc.displayable_path(filepath)
         )
+        raise FileNotFoundError(error_msg)
 
     dest_filepath = joinpaths(dirname(filepath), new_basename)
-    _dp_dest = enc.displayable_path(dest_filepath)
     if exists(dest_filepath):
-        raise FileExistsError(
-            'Destination exists: "{!s}"'.format(_dp_dest)
+        error_msg = 'Destination path exists: "{!s}"'.format(
+            enc.displayable_path(dest_filepath)
         )
+        raise FileExistsError(error_msg)
 
-    log.debug('Renaming "%s" to "%s" ..', _dp_source, _dp_dest)
     try:
         os.rename(enc.syspath(filepath), enc.syspath(dest_filepath))
     except OSError as e:
         # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
-    else:
-        log.debug('Renamed "%s" to "%s"', _dp_source, _dp_dest)
 
 
 def dirname(path):
