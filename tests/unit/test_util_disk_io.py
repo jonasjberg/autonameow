@@ -47,9 +47,9 @@ from util.disk.io import tempdir
 class TestRenameFile(TestCase):
     @patch('os.rename', MagicMock())
     def test_raises_exception_given_unicode_string_or_none_paths(self):
-        def _assert_raises(given_source_path, given_new_basename):
+        def _assert_raises(given_filepath, given_new_basename):
             with self.assertRaises(AssertionError):
-                _ = rename_file(given_source_path, given_new_basename)
+                _ = rename_file(given_filepath, given_new_basename)
 
         _assert_raises('foo', b'bar')
         _assert_raises(b'foo', 'bar')
@@ -59,10 +59,10 @@ class TestRenameFile(TestCase):
         _assert_raises(None, None)
 
     @patch('os.rename', MagicMock())
-    def test_raises_exception_given_relative_source_path(self):
-        def _assert_raises(given_source_path):
+    def test_raises_exception_given_relative_filepath(self):
+        def _assert_raises(given_filepath):
             with self.assertRaises(AssertionError):
-                _ = rename_file(given_source_path, b'bar')
+                _ = rename_file(given_filepath, b'bar')
 
         _assert_raises(b'../foo')
         _assert_raises(b'./foo')
@@ -70,7 +70,7 @@ class TestRenameFile(TestCase):
 
     @patch('os.rename')
     @patch('util.disk.io.exists')
-    def test_raises_exception_if_source_path_does_not_exist(
+    def test_raises_exception_if_source_filepath_does_not_exist(
             self, mock_exists, mock_rename
     ):
         mock_exists.return_value = False
@@ -80,7 +80,7 @@ class TestRenameFile(TestCase):
 
     @patch('os.rename')
     @patch('util.disk.io.exists')
-    def test_raises_exception_if_destination_path_does_not_exist(
+    def test_raises_exception_if_destination_filepath_exists(
             self, mock_exists, mock_rename
     ):
         mock_exists.return_value = True
@@ -91,8 +91,8 @@ class TestRenameFile(TestCase):
     @patch('os.rename')
     def test_renames_file_given_valid_arguments(self, mock_rename):
         test_filepath = uu.make_temporary_file()
-        test_file_dir_path = os.path.realpath(os.path.dirname(test_filepath))
-        expected_destpath = os.path.join(test_file_dir_path, b'baz')
+        test_file_dirpath = os.path.realpath(os.path.dirname(test_filepath))
+        expected_destpath = os.path.join(test_file_dirpath, b'baz')
         rename_file(test_filepath, b'baz')
         mock_rename.assert_called_once_with(test_filepath, expected_destpath)
 

@@ -47,32 +47,29 @@ __all__ = [
 log = logging.getLogger(__name__)
 
 
-def rename_file(source_path, new_basename):
-    assert isinstance(source_path, bytes)
+def rename_file(filepath, new_basename):
+    assert isinstance(filepath, bytes)
     assert isinstance(new_basename, bytes)
-    assert isabs(source_path), (
-        'Expected source path to be a full absolute path. '
-        'Got "{!s}"'.format(enc.displayable_path(source_path))
+    assert isabs(filepath), (
+        'Expected full absolute source path. Got {!r}'.format(filepath)
     )
 
-    _dp_source = enc.displayable_path(source_path)
-    if not exists(source_path):
+    _dp_source = enc.displayable_path(filepath)
+    if not exists(filepath):
         raise FileNotFoundError(
             'Source path does not exist: "{!s}"'.format(_dp_source)
         )
 
-    dest_path = joinpaths(dirname(source_path), new_basename)
-    _dp_dest = enc.displayable_path(dest_path)
-    if exists(dest_path):
+    dest_filepath = joinpaths(dirname(filepath), new_basename)
+    _dp_dest = enc.displayable_path(dest_filepath)
+    if exists(dest_filepath):
         raise FileExistsError(
             'Destination exists: "{!s}"'.format(_dp_dest)
         )
 
-    bytestring_source_path = enc.syspath(source_path)
-    bytestring_dest_path = enc.syspath(dest_path)
     log.debug('Renaming "%s" to "%s" ..', _dp_source, _dp_dest)
     try:
-        os.rename(bytestring_source_path, bytestring_dest_path)
+        os.rename(enc.syspath(filepath), enc.syspath(dest_filepath))
     except OSError as e:
         # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
